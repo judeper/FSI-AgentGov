@@ -1,539 +1,641 @@
 # Control 1.5: Data Loss Prevention (DLP) and Sensitivity Labels - PowerShell Setup
 
-> This playbook provides PowerShell automation guidance for [Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md).
+!!! warning "Read the FSI PowerShell baseline first"
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. The snippets below assume you have already complied with that baseline.
+
+> This playbook provides PowerShell automation guidance for [Control 1.5 — Data Loss Prevention (DLP) and Sensitivity Labels](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md).
+>
+> **Scope of this file:** Microsoft Purview DLP for **Microsoft 365 Copilot and Copilot Chat** (Custom-template policies), label-based DLP for SharePoint / OneDrive content surfaced through Copilot, and **Power Platform** data policies for Copilot Studio connector classification. PowerShell coverage is **partial** — several Copilot-DLP behaviours can only be confirmed in the Purview portal and must be evidenced via screenshots in addition to the JSON exports below.
 
 ---
 
-## Prerequisites
+## Wrong-shell trap (READ FIRST)
+
+DLP cmdlets used in this control live in **three separate PowerShell sessions**. Running a cmdlet in the wrong session produces either a `CommandNotFoundException` or, worse, **silent zero results that look like clean evidence**.
+
+| Cmdlet family | Required session | Module |
+|---|---|---|
+| `*-DlpCompliancePolicy`, `*-DlpComplianceRule`, `Get-Label`, `Get-LabelPolicy`, `New-ComplianceSearch` | `Connect-IPPSSession` (Security & Compliance) | `ExchangeOnlineManagement` |
+| `Get-AdminAuditLogConfig`, `Search-UnifiedAuditLog` | `Connect-ExchangeOnline` | `ExchangeOnlineManagement` |
+| `Get-DlpPolicy`, `New-DlpPolicy`, `Set-DlpPolicy` (Power Platform connector classification) | `Add-PowerAppsAccount` | `Microsoft.PowerApps.Administration.PowerShell` (Windows PowerShell 5.1 only) |
+| `Get-MgBetaSecurityInformationProtectionSensitivityLabel` | `Connect-MgGraph -Scopes 'InformationProtectionPolicy.Read.All'` | `Microsoft.Graph.Beta.Security` |
+
+> **Cmdlet-name pitfall:** `Get-MgBetaInformationProtectionSensitivityPolicyLabel` **does not exist**. The real cmdlet is `Get-MgBetaSecurityInformationProtectionSensitivityLabel` (Security namespace, no `Policy` segment). See Microsoft Learn — [Get-MgBetaSecurityInformationProtectionSensitivityLabel](https://learn.microsoft.com/en-us/powershell/module/microsoft.graph.beta.security/get-mgbetasecurityinformationprotectionsensitivitylabel).
+
+Always assert session state before invoking a cmdlet from any of the four families above.
+
+---
+
+## Sovereign cloud connection parameters
 
 ```powershell
-# Install module if needed
-Install-Module -Name ExchangeOnlineManagement -Force
+# ----- Commercial -----
+Connect-ExchangeOnline -UserPrincipalName $UPN
+Connect-IPPSSession    -UserPrincipalName $UPN
+Connect-MgGraph        -Environment Global -Scopes 'InformationProtectionPolicy.Read.All'
+Add-PowerAppsAccount   -Endpoint prod
+
+# ----- GCC -----
+Connect-ExchangeOnline -UserPrincipalName $UPN -ExchangeEnvironmentName O365USGovGCCHigh   # GCC tenants in EXO use commercial endpoint; GCC High uses O365USGovGCCHigh
+Connect-IPPSSession    -UserPrincipalName $UPN `
+    -ConnectionUri 'https://ps.compliance.protection.outlook.com/powershell-liveid/' `
+    -AzureADAuthorizationEndpointUri 'https://login.microsoftonline.com/common'
+Connect-MgGraph        -Environment USGov -Scopes 'InformationProtectionPolicy.Read.All'
+Add-PowerAppsAccount   -Endpoint usgov
+
+# ----- GCC High -----
+Connect-ExchangeOnline -UserPrincipalName $UPN -ExchangeEnvironmentName O365USGovGCCHigh
+Connect-IPPSSession    -UserPrincipalName $UPN `
+    -ConnectionUri 'https://ps.compliance.protection.office365.us/powershell-liveid/' `
+    -AzureADAuthorizationEndpointUri 'https://login.microsoftonline.us/common'
+Connect-MgGraph        -Environment USGov -Scopes 'InformationProtectionPolicy.Read.All'
+Add-PowerAppsAccount   -Endpoint usgovhigh
+
+# ----- DoD -----
+Connect-ExchangeOnline -UserPrincipalName $UPN -ExchangeEnvironmentName O365USGovDoD
+Connect-IPPSSession    -UserPrincipalName $UPN `
+    -ConnectionUri 'https://l5.ps.compliance.protection.office365.us/powershell-liveid/' `
+    -AzureADAuthorizationEndpointUri 'https://login.microsoftonline.us/common'
+Connect-MgGraph        -Environment USGovDoD -Scopes 'InformationProtectionPolicy.Read.All'
+Add-PowerAppsAccount   -Endpoint dod
 ```
 
+> Verify endpoints against Microsoft Learn — [Connect-IPPSSession](https://learn.microsoft.com/en-us/powershell/module/exchange/connect-ippssession) and [Microsoft Graph PowerShell installation](https://learn.microsoft.com/en-us/powershell/microsoftgraph/installation) before each change window. Sovereign-cloud endpoints are updated by Microsoft without notice.
+
 ---
 
-## Connect to Security & Compliance Center
+## Module pinning (mandatory)
 
 ```powershell
-# Connect to Security & Compliance Center
-Connect-IPPSSession -UserPrincipalName admin@contoso.com
-
-# Verify connection
-Get-DlpCompliancePolicy | Select-Object Name, Mode, Enabled
+#Requires -Version 7.2
+#Requires -Modules @{ ModuleName = 'ExchangeOnlineManagement';                RequiredVersion = '3.5.0' }
+#Requires -Modules @{ ModuleName = 'Microsoft.Graph.Beta.Security';           RequiredVersion = '2.20.0' }
+#Requires -Modules @{ ModuleName = 'Microsoft.Graph.Authentication';         RequiredVersion = '2.20.0' }
+# Note: Microsoft.PowerApps.Administration.PowerShell is Desktop-only (Windows PowerShell 5.1).
+# Run Power-Platform sections from a separate PS 5.1 host; do NOT mix in this PS 7 session.
 ```
 
----
-
-## Create AI-Focused DLP Policy
+Power Platform Administration cmdlets are **Desktop-only**. Add the guard from the baseline:
 
 ```powershell
-# Create DLP policy for AI applications
-$policyParams = @{
-    Name = "FSI-AI-Data-Protection"
-    Comment = "Protect sensitive data in AI applications"
-    Mode = "Enable"  # Use "TestWithNotifications" for testing
-    Priority = 1
-    ExchangeLocation = "All"
-    SharePointLocation = "All"
-    OneDriveLocation = "All"
-    TeamsLocation = "All"
-}
-
-$policy = New-DlpCompliancePolicy @policyParams
-
-# Create rule for SSN protection
-$ruleParams = @{
-    Name = "Block SSN in AI Interactions"
-    Policy = "FSI-AI-Data-Protection"
-    ContentContainsSensitiveInformation = @{
-        Name = "U.S. Social Security Number (SSN)"
-        minCount = 1
-    }
-    BlockAccess = $true
-    NotifyUser = "SiteAdmin"
-    GenerateIncidentReport = "SiteAdmin"
-}
-
-New-DlpComplianceRule @ruleParams
-```
-
----
-
-## Create Sensitivity Label-Based DLP Rule
-
-```powershell
-# Rule to block Highly Confidential content in AI
-$labelRuleParams = @{
-    Name = "Block Highly Confidential from AI"
-    Policy = "FSI-AI-Data-Protection"
-    ContentPropertyContainsWords = @{
-        "Document.SensitivityLabel" = "Highly Confidential"
-    }
-    BlockAccess = $true
-    NotifyUser = "SiteAdmin,LastModifier"
-    NotifyEndpointUser = "NotifyUser"
-    GenerateIncidentReport = "SiteAdmin"
-    IncidentReportContent = "All"
-}
-
-New-DlpComplianceRule @labelRuleParams
-```
-
----
-
-## Audit DLP Policies
-
-```powershell
-# Get all DLP policies and their status
-Get-DlpCompliancePolicy | Format-Table Name, Mode, Enabled, CreatedBy, WhenCreated
-
-# Get DLP rules for a specific policy
-Get-DlpComplianceRule -Policy "FSI-AI-Data-Protection" |
-    Select-Object Name, Priority, BlockAccess, Disabled
-
-# Get DLP policy details
-Get-DlpCompliancePolicy -Identity "FSI-AI-Data-Protection" |
-    Select-Object * | Format-List
-
-# Export policy configuration for documentation
-Get-DlpCompliancePolicy |
-    Select-Object Name, Mode, Enabled, SharePointLocation, TeamsLocation, ExchangeLocation |
-    Export-Csv -Path "DLP-Policies-Report.csv" -NoTypeInformation
-```
-
----
-
-## Monitor DLP Alerts
-
-```powershell
-# Search audit log for DLP events
-$startDate = (Get-Date).AddDays(-30)
-$endDate = Get-Date
-
-Search-UnifiedAuditLog -StartDate $startDate -EndDate $endDate `
-    -RecordType DLP -ResultSize 5000 |
-    Select-Object CreationDate, UserIds, Operations, AuditData |
-    Export-Csv -Path "DLP-Audit-Log.csv" -NoTypeInformation
-
-# Parse DLP events for AI-related incidents
-$dlpEvents = Search-UnifiedAuditLog -StartDate $startDate -EndDate $endDate `
-    -RecordType DLP -ResultSize 1000
-
-foreach ($event in $dlpEvents) {
-    $data = $event.AuditData | ConvertFrom-Json
-    if ($data.Workload -match "Copilot|Agent") {
-        Write-Host "AI DLP Event: $($data.Operation) - $($data.ObjectId)"
-    }
+if ($PSVersionTable.PSEdition -ne 'Desktop') {
+    throw "Microsoft.PowerApps.Administration.PowerShell requires Windows PowerShell 5.1 (Desktop). Detected: $($PSVersionTable.PSEdition) $($PSVersionTable.PSVersion)."
 }
 ```
 
 ---
 
-## Get Sensitivity Label Statistics
+## Pre-flight: license, role, module, and connection checks
 
 ```powershell
-# Connect to Microsoft Graph for label info
-Connect-MgGraph -Scopes "InformationProtectionPolicy.Read.All"
-
-# Get sensitivity labels
-# NOTE: Uses Beta endpoint; cmdlet name may change at GA.
-# If unavailable, use: Get-Label (Exchange Online) as an alternative.
-Get-MgBetaInformationProtectionSensitivityPolicyLabel |
-    Select-Object Id, Name, Description, IsDefault |
-    Format-Table
-
-# Check label usage via compliance search
-$labelSearch = New-ComplianceSearch -Name "Highly-Confidential-Content" `
-    -ContentMatchQuery 'SensitivityLabelId:<label-guid>' `
-    -ExchangeLocation All -SharePointLocation All
-
-Start-ComplianceSearch -Identity "Highly-Confidential-Content"
-```
-
----
-
-## Virtual Governance Connector Management
-
-!!! info "PowerShell Management Limitation"
-    Virtual governance connector DLP classification is primarily managed via Power Platform Admin Center portal. PowerShell management of virtual governance connectors requires Power Platform Admin PowerShell module and may have limited cmdlet support. Use portal for initial configuration; use PowerShell for audit and export.
-
-### Export Current Virtual Connector Classifications
-
-```powershell
-# Connect to Power Platform Admin Center
-Install-Module -Name Microsoft.PowerApps.Administration.PowerShell -Force
-Add-PowerAppsAccount
-
-# Get all DLP policies
-$dlpPolicies = Get-DlpPolicy
-
-# Export current connector classifications for audit
-foreach ($policy in $dlpPolicies) {
-    Write-Host "Policy: $($policy.DisplayName)" -ForegroundColor Cyan
-
-    # Get policy details including connector classifications
-    $policyDetail = Get-DlpPolicy -PolicyName $policy.PolicyName
-
-    # Export Business connectors
-    $businessConnectors = $policyDetail.ConnectorGroups | Where-Object { $_.Classification -eq "General" }
-    $businessConnectors.Connectors | Where-Object { $_.Name -like "*Copilot*" -or $_.Name -like "*AI*" -or $_.Name -like "*HTTP*" } |
-        Select-Object Id, Name, Type | Export-Csv -Path "Business-Connectors-$($policy.DisplayName).csv" -NoTypeInformation -Append
-
-    # Export Non-Business connectors
-    $nonBusinessConnectors = $policyDetail.ConnectorGroups | Where-Object { $_.Classification -eq "Confidential" }
-    $nonBusinessConnectors.Connectors | Where-Object { $_.Name -like "*Copilot*" -or $_.Name -like "*AI*" -or $_.Name -like "*HTTP*" } |
-        Select-Object Id, Name, Type | Export-Csv -Path "NonBusiness-Connectors-$($policy.DisplayName).csv" -NoTypeInformation -Append
-
-    # Export Blocked connectors
-    $blockedConnectors = $policyDetail.ConnectorGroups | Where-Object { $_.Classification -eq "Blocked" }
-    $blockedConnectors.Connectors | Where-Object { $_.Name -like "*Copilot*" -or $_.Name -like "*AI*" -or $_.Name -like "*HTTP*" } |
-        Select-Object Id, Name, Type | Export-Csv -Path "Blocked-Connectors-$($policy.DisplayName).csv" -NoTypeInformation -Append
-}
-
-Write-Host "Virtual connector classifications exported to CSV files" -ForegroundColor Green
-```
-
-### Audit Virtual Connector Configuration
-
-```powershell
-# Audit script to verify Zone 3 virtual connector configuration
-$policyName = "Zone3-Enterprise-DLP-Policy"
-$policy = Get-DlpPolicy -PolicyName $policyName
-
-Write-Host "=== Zone 3 Virtual Connector Audit ===" -ForegroundColor Cyan
-
-# Define expected Zone 3 configuration
-$expectedBlocked = @(
-    "*HTTP Webhook*",
-    "*Custom Website*",
-    "*SharePoint Channel*"
-)
-
-# Get connector groups
-$businessGroup = $policy.ConnectorGroups | Where-Object { $_.Classification -eq "General" }
-$blockedGroup = $policy.ConnectorGroups | Where-Object { $_.Classification -eq "Blocked" }
-
-# Check for required blocked connectors
-foreach ($pattern in $expectedBlocked) {
-    $found = $blockedGroup.Connectors | Where-Object { $_.Name -like $pattern }
-    if ($found) {
-        Write-Host "  [PASS] $pattern is blocked" -ForegroundColor Green
-    } else {
-        Write-Host "  [FAIL] $pattern is NOT blocked (required for Zone 3)" -ForegroundColor Red
-    }
-}
-
-# Check for HTTP with Entra ID endpoint filtering
-$httpEntraId = $businessGroup.Connectors | Where-Object { $_.Name -like "*HTTP*Entra*" }
-if ($httpEntraId) {
-    Write-Host "  [INFO] HTTP with Microsoft Entra ID is Business-classified" -ForegroundColor Yellow
-    Write-Host "  [ACTION] Verify endpoint filtering is configured via portal (cannot validate via PowerShell)" -ForegroundColor Yellow
-} else {
-    Write-Host "  [WARN] HTTP with Microsoft Entra ID not found in Business group" -ForegroundColor Red
-}
-
-Write-Host "`nAudit complete. Review findings and remediate any FAIL items." -ForegroundColor Cyan
-```
-
-### Export Virtual Connector Configuration for Audit Evidence
-
-```powershell
-<#
-.SYNOPSIS
-    Export virtual connector DLP classification for audit evidence
-
-.DESCRIPTION
-    This script exports current virtual governance connector classifications
-    across all DLP policies for compliance audit evidence collection.
-
-.PARAMETER OutputPath
-    Directory path for CSV export files (default: current directory)
-
-.EXAMPLE
-    .\Export-VirtualConnectorConfig.ps1 -OutputPath "C:\Audit\DLP"
-
-.NOTES
-    Run this script monthly as part of Control 3.9 (Compliance Reporting)
-    evidence collection.
-#>
-
-param(
-    [Parameter(Mandatory=$false)]
-    [string]$OutputPath = "."
-)
-
-try {
-    # Connect to Power Platform
-    Add-PowerAppsAccount
-
-    Write-Host "=== Exporting Virtual Connector Configuration ===" -ForegroundColor Cyan
-
-    # Get all DLP policies
-    $dlpPolicies = Get-DlpPolicy
-
-    # Prepare export data
-    $exportData = @()
-
-    foreach ($policy in $dlpPolicies) {
-        Write-Host "Processing policy: $($policy.DisplayName)" -ForegroundColor White
-
-        $policyDetail = Get-DlpPolicy -PolicyName $policy.PolicyName
-
-        # Get all connector groups
-        $businessGroup = $policyDetail.ConnectorGroups | Where-Object { $_.Classification -eq "General" }
-        $nonBusinessGroup = $policyDetail.ConnectorGroups | Where-Object { $_.Classification -eq "Confidential" }
-        $blockedGroup = $policyDetail.ConnectorGroups | Where-Object { $_.Classification -eq "Blocked" }
-
-        # Process virtual governance connectors
-        $virtualConnectorPatterns = @(
-            "*AI Builder*",
-            "*Copilot Studio*",
-            "*HTTP*",
-            "*Direct Line*",
-            "*Teams*Channel*",
-            "*SharePoint*Channel*",
-            "*Custom Website*"
-        )
-
-        foreach ($pattern in $virtualConnectorPatterns) {
-            # Check Business classification
-            $businessMatch = $businessGroup.Connectors | Where-Object { $_.Name -like $pattern }
-            if ($businessMatch) {
-                foreach ($connector in $businessMatch) {
-                    $exportData += [PSCustomObject]@{
-                        PolicyName = $policy.DisplayName
-                        PolicyGuid = $policy.PolicyName
-                        ConnectorName = $connector.Name
-                        ConnectorId = $connector.Id
-                        Classification = "Business"
-                        ExportDate = (Get-Date -Format "yyyy-MM-dd HH:mm:ss")
-                    }
-                }
-            }
-
-            # Check Non-Business classification
-            $nonBusinessMatch = $nonBusinessGroup.Connectors | Where-Object { $_.Name -like $pattern }
-            if ($nonBusinessMatch) {
-                foreach ($connector in $nonBusinessMatch) {
-                    $exportData += [PSCustomObject]@{
-                        PolicyName = $policy.DisplayName
-                        PolicyGuid = $policy.PolicyName
-                        ConnectorName = $connector.Name
-                        ConnectorId = $connector.Id
-                        Classification = "Non-Business"
-                        ExportDate = (Get-Date -Format "yyyy-MM-dd HH:mm:ss")
-                    }
-                }
-            }
-
-            # Check Blocked classification
-            $blockedMatch = $blockedGroup.Connectors | Where-Object { $_.Name -like $pattern }
-            if ($blockedMatch) {
-                foreach ($connector in $blockedMatch) {
-                    $exportData += [PSCustomObject]@{
-                        PolicyName = $policy.DisplayName
-                        PolicyGuid = $policy.PolicyName
-                        ConnectorName = $connector.Name
-                        ConnectorId = $connector.Id
-                        Classification = "Blocked"
-                        ExportDate = (Get-Date -Format "yyyy-MM-dd HH:mm:ss")
-                    }
-                }
-            }
-        }
-    }
-
-    # Export to CSV
-    $filename = "Virtual-Connector-Classifications-$(Get-Date -Format 'yyyyMMdd').csv"
-    $filepath = Join-Path $OutputPath $filename
-    $exportData | Export-Csv -Path $filepath -NoTypeInformation
-
-    Write-Host "`n[PASS] Virtual connector configuration exported to: $filepath" -ForegroundColor Green
-    Write-Host "Total connectors exported: $($exportData.Count)" -ForegroundColor Cyan
-
-    # Summary by classification
-    Write-Host "`nClassification Summary:" -ForegroundColor Cyan
-    $exportData | Group-Object Classification | ForEach-Object {
-        Write-Host "  $($_.Name): $($_.Count)" -ForegroundColor White
-    }
-}
-catch {
-    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
-    exit 1
-}
-```
-
----
-
-## FSI-Specific SIT Configuration
-
-```powershell
-# Example: Create rule for financial data types
-$fsiRuleParams = @{
-    Name = "Block Financial Data in AI"
-    Policy = "FSI-AI-Data-Protection"
-    ContentContainsSensitiveInformation = @(
-        @{Name = "U.S. Social Security Number (SSN)"; minCount = 1},
-        @{Name = "ABA Routing Number"; minCount = 1},
-        @{Name = "Credit Card Number"; minCount = 1},
-        @{Name = "U.S. Bank Account Number"; minCount = 1}
+function Test-PreFlight {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)] [string] $UPN,
+        [Parameter(Mandatory)] [ValidateSet('Commercial','GCC','GCCHigh','DoD')] [string] $Cloud,
+        [Parameter(Mandatory)] [string] $EvidencePath
     )
-    BlockAccess = $true
-    NotifyUser = "SiteAdmin"
-    GenerateIncidentReport = "SiteAdmin"
-    IncidentReportContent = "All"
-}
 
-New-DlpComplianceRule @fsiRuleParams
+    $results = [ordered]@{}
+
+    # Module presence (do NOT auto-install in regulated tenants)
+    foreach ($m in 'ExchangeOnlineManagement','Microsoft.Graph.Beta.Security','Microsoft.Graph.Authentication') {
+        $results["Module:$m"] = [bool](Get-Module -ListAvailable -Name $m)
+    }
+
+    # IPPS session
+    $results['IPPSConnected'] = [bool](Get-Command Get-DlpCompliancePolicy -ErrorAction SilentlyContinue)
+
+    # EXO session (different from IPPS)
+    $results['EXOConnected'] = [bool](Get-Command Get-AdminAuditLogConfig -ErrorAction SilentlyContinue)
+
+    # Graph context
+    try { $ctx = Get-MgContext } catch { $ctx = $null }
+    $results['GraphConnected'] = [bool]$ctx
+    $results['GraphScopes']    = if ($ctx) { $ctx.Scopes -join ',' } else { '' }
+
+    # SKU floor — Microsoft 365 Copilot is required for the Copilot DLP location
+    if ($ctx) {
+        $skus = Get-MgSubscribedSku -ErrorAction SilentlyContinue
+        $results['HasCopilotSku'] = [bool]($skus | Where-Object { $_.SkuPartNumber -eq 'Microsoft_365_Copilot' })
+    }
+
+    New-Item -ItemType Directory -Force -Path $EvidencePath | Out-Null
+    $path = Join-Path $EvidencePath ("preflight-{0}.json" -f (Get-Date -Format 'yyyyMMddTHHmmssZ'))
+    $results | ConvertTo-Json | Set-Content -Path $path -Encoding UTF8
+    return [pscustomobject]$results
+}
 ```
 
 ---
 
-## Complete Configuration Script
+## Evidence emission (SHA-256 manifest)
 
 ```powershell
-<#
-.SYNOPSIS
-    Configures Control 1.5 - Data Loss Prevention (DLP) and Sensitivity Labels
+function Write-FsiEvidence {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)] $InputObject,
+        [Parameter(Mandatory)] [string] $Name,
+        [Parameter(Mandatory)] [string] $EvidencePath,
+        [ValidateSet('Json','Csv')] [string] $As = 'Json',
+        [string] $ScriptVersion = '1.5-v1.4'
+    )
+    $ts   = Get-Date -Format 'yyyyMMddTHHmmssZ'
+    $ext  = if ($As -eq 'Json') { 'json' } else { 'csv' }
+    $path = Join-Path $EvidencePath "$Name-$ts.$ext"
 
-.DESCRIPTION
-    This script:
-    1. Creates an AI-focused DLP policy
-    2. Creates DLP rules for sensitive information types
-    3. Creates sensitivity label-based DLP rule
-    4. Validates policy deployment
+    if ($As -eq 'Json') {
+        $InputObject | ConvertTo-Json -Depth 20 | Set-Content -Path $path -Encoding UTF8
+    } else {
+        $InputObject | Export-Csv -Path $path -NoTypeInformation -Encoding UTF8
+    }
 
-.PARAMETER PolicyName
-    Name for the DLP policy (default: FSI-AI-Data-Protection)
+    $hash = (Get-FileHash -Path $path -Algorithm SHA256).Hash
 
-.PARAMETER TestMode
-    If true, creates policy in test mode with notifications
+    $manifestPath = Join-Path $EvidencePath 'manifest.json'
+    $manifest = @()
+    if (Test-Path $manifestPath) { $manifest = @(Get-Content $manifestPath | ConvertFrom-Json) }
+    $manifest += [pscustomobject]@{
+        file           = (Split-Path $path -Leaf)
+        sha256         = $hash
+        bytes          = (Get-Item $path).Length
+        generated_utc  = $ts
+        script_version = $ScriptVersion
+    }
+    $manifest | ConvertTo-Json -Depth 5 | Set-Content -Path $manifestPath -Encoding UTF8
+    return $path
+}
+```
 
-.EXAMPLE
-    .\Configure-Control-1.5.ps1 -PolicyName "FSI-AI-Data-Protection"
+The wrapper script in section 7 starts a `Start-Transcript`, hashes the transcript on close, and appends both the transcript and the manifest to immutable storage (Purview retention label / WORM blob) per Control 1.7.
 
-.NOTES
-    Last Updated: January 2026
-    Related Control: Control 1.5 - Data Loss Prevention (DLP) and Sensitivity Labels
-#>
+---
 
+## 1 — Create the Microsoft 365 Copilot DLP policy (Custom template)
+
+> **Session: `Connect-IPPSSession`** — these are `*-DlpCompliance*` cmdlets in the Security & Compliance shell.
+
+The Microsoft 365 Copilot and Copilot Chat DLP location is exposed **only when the policy is created from the Custom template**. Standard templates do not surface the Copilot location. There is no public API field that records "this policy was created from the Custom template" — the technical proxy is the **rule shape** (separate SIT and sensitivity-label rules in the same policy) plus a portal screenshot retained as evidence. See section 5.
+
+The Copilot location is configured via the `Locations` parameter (a JSON array of workload descriptors), and the rule action is set on `EnforcementPlanes`. See Microsoft Learn — [New-DlpCompliancePolicy](https://learn.microsoft.com/en-us/powershell/module/exchange/new-dlpcompliancepolicy), [New-DlpComplianceRule](https://learn.microsoft.com/en-us/powershell/module/exchange/new-dlpcompliancerule), and [Learn about the Microsoft 365 Copilot location](https://learn.microsoft.com/en-us/purview/dlp-microsoft365-copilot-location-learn-about).
+
+```powershell
+[CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
 param(
-    [Parameter(Mandatory=$false)]
-    [string]$PolicyName = "FSI-AI-Data-Protection",
-
-    [Parameter(Mandatory=$false)]
-    [switch]$TestMode
+    [Parameter(Mandatory)] [string] $TenantId,                 # Entra tenant GUID
+    [Parameter(Mandatory)] [string] $PolicyName = 'FSI-Copilot-DLP',
+    [Parameter(Mandatory)] [string] $HighlyConfidentialLabelGuid,  # from Get-Label
+    [switch] $TestMode,
+    [Parameter(Mandatory)] [string] $EvidencePath
 )
 
-try {
-    # Connect to Security & Compliance Center
-    Connect-IPPSSession
+$mode = if ($TestMode) { 'TestWithNotifications' } else { 'Enable' }
 
-    Write-Host "=== Configuring Control 1.5: DLP and Sensitivity Labels ===" -ForegroundColor Cyan
+# Snapshot before mutation
+$before = Get-DlpCompliancePolicy -Identity $PolicyName -ErrorAction SilentlyContinue
+Write-FsiEvidence -InputObject $before -Name "policy-before-$PolicyName" -EvidencePath $EvidencePath
 
-    $PolicyMode = if ($TestMode) { "TestWithNotifications" } else { "Enable" }
-
-    # Step 1: Create AI-focused DLP policy
-    Write-Host "`nStep 1: Creating DLP policy..." -ForegroundColor White
-    $policyParams = @{
-        Name = $PolicyName
-        Comment = "Protect sensitive data in AI applications"
-        Mode = $PolicyMode
-        Priority = 1
-        ExchangeLocation = "All"
-        SharePointLocation = "All"
-        OneDriveLocation = "All"
-        TeamsLocation = "All"
+# Locations descriptor for the Microsoft 365 Copilot and Copilot Chat workload
+$copilotLocation = @(
+    @{
+        Workload   = 'Applications'
+        Location   = $TenantId
+        Inclusions = @(@{ Type = 'Tenant'; Identity = 'All' })
     }
+) | ConvertTo-Json -Depth 6 -Compress
 
-    $policy = New-DlpCompliancePolicy @policyParams
-    Write-Host "  [DONE] Created DLP policy: $PolicyName" -ForegroundColor Green
-
-    # Step 2: Create rule for SSN protection
-    Write-Host "`nStep 2: Creating SSN protection rule..." -ForegroundColor White
-    $ssnRuleParams = @{
-        Name = "Block SSN in AI Interactions"
-        Policy = $PolicyName
-        ContentContainsSensitiveInformation = @{
-            Name = "U.S. Social Security Number (SSN)"
-            minCount = 1
-        }
-        BlockAccess = $true
-        NotifyUser = "SiteAdmin"
-        GenerateIncidentReport = "SiteAdmin"
-    }
-
-    New-DlpComplianceRule @ssnRuleParams
-    Write-Host "  [DONE] Created SSN protection rule" -ForegroundColor Green
-
-    # Step 3: Create rule for financial data types
-    Write-Host "`nStep 3: Creating financial data protection rule..." -ForegroundColor White
-    $fsiRuleParams = @{
-        Name = "Block Financial Data in AI"
-        Policy = $PolicyName
-        ContentContainsSensitiveInformation = @(
-            @{Name = "ABA Routing Number"; minCount = 1},
-            @{Name = "Credit Card Number"; minCount = 1},
-            @{Name = "U.S. Bank Account Number"; minCount = 1}
-        )
-        BlockAccess = $true
-        NotifyUser = "SiteAdmin"
-        GenerateIncidentReport = "SiteAdmin"
-        IncidentReportContent = "All"
-    }
-
-    New-DlpComplianceRule @fsiRuleParams
-    Write-Host "  [DONE] Created financial data protection rule" -ForegroundColor Green
-
-    # Step 4: Create sensitivity label-based rule
-    Write-Host "`nStep 4: Creating sensitivity label rule..." -ForegroundColor White
-    $labelRuleParams = @{
-        Name = "Block Highly Confidential from AI"
-        Policy = $PolicyName
-        ContentPropertyContainsWords = @{
-            "Document.SensitivityLabel" = "Highly Confidential"
-        }
-        BlockAccess = $true
-        NotifyUser = "SiteAdmin,LastModifier"
-        GenerateIncidentReport = "SiteAdmin"
-        IncidentReportContent = "All"
-    }
-
-    New-DlpComplianceRule @labelRuleParams
-    Write-Host "  [DONE] Created sensitivity label rule" -ForegroundColor Green
-
-    # Step 5: Validate and export policy configuration
-    Write-Host "`nStep 5: Validating configuration..." -ForegroundColor White
-    Get-DlpCompliancePolicy -Identity $PolicyName |
-        Select-Object Name, Mode, Enabled, SharePointLocation, TeamsLocation |
-        Format-List
-
-    Get-DlpComplianceRule -Policy $PolicyName |
-        Select-Object Name, Priority, BlockAccess, Disabled |
-        Format-Table -AutoSize
-
-    # Export for documentation
-    Get-DlpCompliancePolicy |
-        Select-Object Name, Mode, Enabled, SharePointLocation, TeamsLocation, ExchangeLocation |
-        Export-Csv -Path "DLP-Policies-Report-$(Get-Date -Format 'yyyyMMdd').csv" -NoTypeInformation
-    Write-Host "  [DONE] Policy configuration exported" -ForegroundColor Green
-
-    Write-Host "`n[PASS] Control 1.5 configuration completed successfully" -ForegroundColor Green
+if ($PSCmdlet.ShouldProcess($PolicyName, "New-DlpCompliancePolicy (Copilot location, mode=$mode)")) {
+    New-DlpCompliancePolicy `
+        -Name      $PolicyName `
+        -Comment   'Custom-template policy for Microsoft 365 Copilot and Copilot Chat. Implementation requires Microsoft 365 Copilot license and may take up to 4 hours to fully propagate.' `
+        -Mode      $mode `
+        -Priority  1 `
+        -Locations $copilotLocation
 }
-catch {
-    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
-    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
-    exit 1
+```
+
+> **Why `Locations` and not `ExchangeLocation` / `SharePointLocation` / etc.:** the legacy per-workload location parameters do **not** cover Microsoft 365 Copilot or Copilot Chat. A policy that uses only `ExchangeLocation`/`SharePointLocation`/`OneDriveLocation`/`TeamsLocation` will compile and run, but it will **not** evaluate Copilot prompts — producing false-clean evidence. The `Locations` JSON with `Workload = 'Applications'` is required.
+
+### Rule A — block prompts that contain SITs
+
+`-AdvancedRule` is required for the Copilot location; you cannot mix SIT and sensitivity-label conditions in a single rule (the Purview portal blocks this and the cmdlet will accept it but produce undefined behaviour). Keep them as separate rules in the same policy.
+
+```powershell
+$sitRule = @{
+    Version    = '1.0'
+    Condition  = @{
+        Operator     = 'Or'
+        SubConditions = @(
+            @{ ConditionName = 'ContentContainsSensitiveInformation';
+               Value = @(
+                   @{ groups = @(@{ name = 'Default'; operator = 'Or';
+                       sensitivetypes = @(
+                           @{ name = 'U.S. Social Security Number (SSN)';     mincount = 1; confidencelevel = 'High' },
+                           @{ name = 'ABA Routing Number';                    mincount = 1; confidencelevel = 'High' },
+                           @{ name = 'Credit Card Number';                    mincount = 1; confidencelevel = 'High' },
+                           @{ name = 'U.S. Bank Account Number';              mincount = 1; confidencelevel = 'High' }
+                       )
+                   })}
+               )
+            }
+        )
+    }
+} | ConvertTo-Json -Depth 12 -Compress
+
+if ($PSCmdlet.ShouldProcess("$PolicyName / Rule-SIT", 'New-DlpComplianceRule (SIT, Copilot)')) {
+    New-DlpComplianceRule `
+        -Name              "$PolicyName-Rule-SIT" `
+        -Policy            $PolicyName `
+        -AdvancedRule      $sitRule `
+        -EnforcementPlanes @('CopilotExperiences') `
+        -BlockAccess       $true `
+        -NotifyUser        @('SiteAdmin','LastModifier') `
+        -NotifyEndpointUser $false `
+        -GenerateIncidentReport @('SiteAdmin') `
+        -IncidentReportContent  @('All')
+}
+```
+
+### Rule B — block prompts that touch Highly Confidential labelled content
+
+```powershell
+$labelRule = @{
+    Version   = '1.0'
+    Condition = @{
+        Operator     = 'And'
+        SubConditions = @(
+            @{ ConditionName = 'ContentContainsSensitivityLabel';
+               Value = @(
+                   @{ labels = @(@{ name = $HighlyConfidentialLabelGuid; type = 'Sensitivity' }) }
+               )
+            }
+        )
+    }
+} | ConvertTo-Json -Depth 12 -Compress
+
+if ($PSCmdlet.ShouldProcess("$PolicyName / Rule-Label", 'New-DlpComplianceRule (Sensitivity Label, Copilot)')) {
+    New-DlpComplianceRule `
+        -Name              "$PolicyName-Rule-Label" `
+        -Policy            $PolicyName `
+        -AdvancedRule      $labelRule `
+        -EnforcementPlanes @('CopilotExperiences') `
+        -BlockAccess       $true `
+        -NotifyUser        @('SiteAdmin','LastModifier') `
+        -NotifyEndpointUser $false `
+        -GenerateIncidentReport @('SiteAdmin') `
+        -IncidentReportContent  @('All')
+}
+```
+
+> **Type pitfalls fixed in v1.4:**
+>
+> - `ContentPropertyContainsWords` is a `MultiValuedProperty` (string array) — it is **not** a hashtable and **cannot** carry `"Document.SensitivityLabel" = "Highly Confidential"`. Label matching for the Copilot location must use `-AdvancedRule` with a `ContentContainsSensitivityLabel` condition referencing the label **GUID**.
+> - `NotifyEndpointUser` is **Boolean** (`$true` / `$false`), not a string like `"NotifyUser"`.
+> - `NotifyUser` is a **string array** — pass `@('SiteAdmin','LastModifier')`, not the comma-joined string `"SiteAdmin,LastModifier"`.
+
+---
+
+## 2 — List sensitivity labels (correct cmdlet name)
+
+> **Session: `Connect-MgGraph`** — read-only.
+
+```powershell
+Connect-MgGraph -Environment Global -Scopes 'InformationProtectionPolicy.Read.All' -NoWelcome
+
+$labels = Get-MgBetaSecurityInformationProtectionSensitivityLabel |
+    Select-Object Id, Name, Description, IsDefault, Sensitivity
+
+Write-FsiEvidence -InputObject $labels -Name 'sensitivity-labels' -EvidencePath $EvidencePath -As Csv
+```
+
+> **Cmdlet correction:** previous versions of this playbook referenced `Get-MgBetaInformationProtectionSensitivityPolicyLabel` — that cmdlet does not exist. Use `Get-MgBetaSecurityInformationProtectionSensitivityLabel` from the `Microsoft.Graph.Beta.Security` module. Alternative: `Get-Label` from `Connect-IPPSSession`.
+
+---
+
+## 3 — Power Platform connector classification (Copilot Studio)
+
+> **Session: `Add-PowerAppsAccount`** in **Windows PowerShell 5.1** (Desktop).
+>
+> **API ↔ UI label inversion (CRITICAL):** the Power Platform DLP API returns `Classification` strings that do **not** match the UI labels:
+>
+> | API value (`$_.Classification`) | UI label in Power Platform Admin Center |
+> |---|---|
+> | `Confidential` | **Business** (the protected/restricted group) |
+> | `General`      | **Non-Business** |
+> | `Blocked`      | **Blocked** |
+>
+> Audit scripts that compare `$_.Classification -eq 'General'` while labelling the result "Business" (and vice-versa) will silently emit **inverted evidence**. Reference: Microsoft Learn — [New-DlpPolicy (Power Platform Administration)](https://learn.microsoft.com/en-us/powershell/module/microsoft.powerapps.administration.powershell/new-dlppolicy) — observe that the cmdlet documentation and the portal use opposite vocabularies for the protected group.
+
+### Normalization helper (use in every audit script)
+
+```powershell
+function ConvertTo-FsiUiLabel {
+    [CmdletBinding()]
+    param([Parameter(Mandatory)][string] $ApiClassification)
+    switch ($ApiClassification) {
+        'Confidential' { 'Business'      ; break }
+        'General'      { 'Non-Business'  ; break }
+        'Blocked'      { 'Blocked'       ; break }
+        default        { "UNKNOWN($ApiClassification)" }
+    }
+}
+```
+
+### List connector classifications (API value AND normalized UI label)
+
+```powershell
+Add-PowerAppsAccount -Endpoint $Endpoint   # 'prod' / 'usgov' / 'usgovhigh' / 'dod'
+
+$rows = foreach ($p in Get-DlpPolicy) {
+    $detail = Get-DlpPolicy -PolicyName $p.PolicyName
+    foreach ($group in $detail.ConnectorGroups) {
+        $uiLabel = ConvertTo-FsiUiLabel -ApiClassification $group.Classification
+        foreach ($c in $group.Connectors) {
+            [pscustomobject]@{
+                PolicyDisplayName  = $detail.DisplayName
+                PolicyName         = $detail.PolicyName
+                ConnectorId        = $c.Id
+                ConnectorName      = $c.Name
+                ConnectorType      = $c.Type
+                ApiClassification  = $group.Classification   # 'Confidential' | 'General' | 'Blocked'
+                UiClassification   = $uiLabel                # 'Business'     | 'Non-Business' | 'Blocked'
+            }
+        }
+    }
+}
+
+Write-FsiEvidence -InputObject $rows -Name 'powerplatform-connector-classifications' -EvidencePath $EvidencePath -As Csv
+```
+
+### Audit Zone 3 expectations
+
+```powershell
+$expectedBlocked = @('*HTTP Webhook*','*Custom Website*','*SharePoint Channel*')
+
+$findings = foreach ($pattern in $expectedBlocked) {
+    $hit = $rows | Where-Object { $_.ConnectorName -like $pattern -and $_.UiClassification -eq 'Blocked' }
+    [pscustomobject]@{
+        Pattern  = $pattern
+        Status   = if ($hit) { 'PASS' } else { 'FAIL' }
+        Evidence = ($hit | Select-Object PolicyDisplayName,ConnectorName -First 5)
+    }
+}
+
+Write-FsiEvidence -InputObject $findings -Name 'zone3-blocked-connectors-audit' -EvidencePath $EvidencePath
+```
+
+---
+
+## 4 — List DLP policies that include the Copilot location
+
+This is the technical proxy for "Custom template was used". A DLP policy whose `Locations` JSON contains a `Workload = "Applications"` entry was created from the Custom template (Standard templates do not expose this workload). Pair this output with a portal screenshot of the policy creation flow as evidence.
+
+```powershell
+$copilotPolicies = foreach ($p in Get-DlpCompliancePolicy) {
+    $locsRaw = $p.Locations
+    $hasCopilot = $false
+    try {
+        $parsed = $locsRaw | ConvertFrom-Json -ErrorAction Stop
+        $hasCopilot = [bool]($parsed | Where-Object { $_.Workload -eq 'Applications' })
+    } catch {
+        # Locations may be returned as a string in some module builds; fall back to substring match
+        $hasCopilot = ($locsRaw -match '"Workload"\s*:\s*"Applications"')
+    }
+
+    $rules = Get-DlpComplianceRule -Policy $p.Name -ErrorAction SilentlyContinue
+    [pscustomobject]@{
+        Name                = $p.Name
+        Mode                = $p.Mode
+        IncludesCopilotLoc  = $hasCopilot
+        RuleCount           = ($rules | Measure-Object).Count
+        RuleNames           = ($rules.Name -join '|')
+        EnforcementPlanes   = (($rules | ForEach-Object { $_.EnforcementPlanes }) -join '|')
+        # Custom-template proxy: separate SIT and Label rules in the same policy
+        CustomTemplateProxy = (
+            ($rules.Name -match 'SIT')   -ne $null -and
+            ($rules.Name -match 'Label') -ne $null
+        )
+    }
+} | Where-Object { $_.IncludesCopilotLoc }
+
+Write-FsiEvidence -InputObject $copilotPolicies -Name 'copilot-dlp-policies' -EvidencePath $EvidencePath
+```
+
+> **Custom-template caveat:** there is no API field that records the originating template. Retain a portal screenshot of the policy creation wizard alongside this JSON. If the `CustomTemplateProxy` column is `$false`, do **not** infer non-compliance — verify in the portal.
+
+---
+
+## 5 — Audit log search for DLP rule matches
+
+> **Session: `Connect-ExchangeOnline`** — `Search-UnifiedAuditLog` is an EXO cmdlet, not IPPS.
+>
+> **`-RecordType DLP` is not a valid value** for `Search-UnifiedAuditLog`. The real DLP record types are `ComplianceDLPSharePoint`, `ComplianceDLPSharePointClassification`, `ComplianceDLPExchange`, `ComplianceDLPExchangeClassification`, and `DLPEndpoint`. Passing the invalid value `DLP` returns an error in newer modules and **silently zero rows** in older module builds — a classic false-clean trap. See Microsoft Learn — [Search-UnifiedAuditLog](https://learn.microsoft.com/en-us/powershell/module/exchange/search-unifiedauditlog).
+>
+> Microsoft 365 Copilot DLP rule matches surface in the unified audit log under the `DLPRuleMatch` operation with a `Workload` of `Applications` (Microsoft 365 Copilot and Copilot Chat). Filter on `Operations`, not `RecordType`, to pick up Copilot evaluations.
+
+```powershell
+$end     = (Get-Date).ToUniversalTime()
+$start   = $end.AddDays(-7)
+$session = "ctrl15-dlp-$(Get-Date -Format 'yyyyMMddHHmmss')"
+
+# 5a — file/email DLP rule matches across SharePoint, OneDrive, Exchange, Endpoint
+$fileEmailDlp = New-Object System.Collections.Generic.List[object]
+foreach ($rt in 'ComplianceDLPSharePoint','ComplianceDLPSharePointClassification',
+                'ComplianceDLPExchange','ComplianceDLPExchangeClassification','DLPEndpoint') {
+    do {
+        $batch = Search-UnifiedAuditLog -StartDate $start -EndDate $end `
+            -RecordType $rt -ResultSize 5000 `
+            -SessionId "$session-$rt" -SessionCommand ReturnLargeSet
+        if ($batch) { $fileEmailDlp.AddRange($batch) }
+    } while ($batch -and $batch.Count -gt 0 -and $fileEmailDlp.Count -lt 50000)
+}
+
+# 5b — Copilot DLP rule matches (filter by Operation, then by Workload in the JSON payload)
+$copilotDlp = New-Object System.Collections.Generic.List[object]
+do {
+    $batch = Search-UnifiedAuditLog -StartDate $start -EndDate $end `
+        -Operations 'DLPRuleMatch' -ResultSize 5000 `
+        -SessionId "$session-copilot" -SessionCommand ReturnLargeSet
+    if ($batch) {
+        foreach ($e in $batch) {
+            try {
+                $data = $e.AuditData | ConvertFrom-Json -ErrorAction Stop
+                if ($data.Workload -eq 'Applications' -or
+                    $data.Workload -match 'Copilot' -or
+                    $data.PolicyDetails.Rules.RuleMode -match 'Copilot') {
+                    $copilotDlp.Add($e)
+                }
+            } catch { }
+        }
+    }
+} while ($batch -and $batch.Count -gt 0 -and $copilotDlp.Count -lt 50000)
+
+Write-FsiEvidence -InputObject ($fileEmailDlp | Select-Object CreationDate,UserIds,Operations,RecordType,AuditData) `
+    -Name 'dlp-rule-matches-files-email' -EvidencePath $EvidencePath -As Csv
+Write-FsiEvidence -InputObject ($copilotDlp  | Select-Object CreationDate,UserIds,Operations,RecordType,AuditData) `
+    -Name 'dlp-rule-matches-copilot'      -EvidencePath $EvidencePath -As Csv
+
+if ($copilotDlp.Count -eq 0) {
+    Write-Warning "Zero Copilot DLP rule matches in last 7 days. Possible causes: (a) policy still in TestWithoutNotifications, (b) policy propagation in progress (up to 4 h), (c) no qualifying prompts, (d) license gap. Investigate before declaring 'no incidents' as evidence."
+}
+```
+
+---
+
+## 6 — Inventory: policies, rules, and labels (read-only)
+
+```powershell
+# Policy inventory (note: filter on Mode, not Enabled)
+$policies = Get-DlpCompliancePolicy | Select-Object Name, Mode, Workload, Locations, CreatedBy, WhenCreated, WhenChanged
+Write-FsiEvidence -InputObject $policies -Name 'dlp-policies-inventory' -EvidencePath $EvidencePath -As Csv
+
+# Rule inventory (per policy)
+$rules = foreach ($p in $policies) {
+    Get-DlpComplianceRule -Policy $p.Name -ErrorAction SilentlyContinue |
+        Select-Object @{n='Policy';e={$p.Name}}, Name, Priority, Disabled, BlockAccess,
+                      EnforcementPlanes, NotifyUser, NotifyEndpointUser,
+                      ContentContainsSensitiveInformation, AdvancedRule
+}
+Write-FsiEvidence -InputObject $rules -Name 'dlp-rules-inventory' -EvidencePath $EvidencePath
+```
+
+> **Anti-pattern reminder:** `Get-DlpCompliancePolicy | Where-Object { $_.Enabled -eq $true }` is wrong — DLP compliance policies use `Mode` (`Enable` / `TestWithNotifications` / `TestWithoutNotifications` / `Disable` / `PendingDeletion`), not a Boolean `Enabled`.
+
+---
+
+## 7 — Wrapper: orchestration with transcript + teardown
+
+```powershell
+[CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
+param(
+    [Parameter(Mandatory)] [string] $UPN,
+    [Parameter(Mandatory)] [string] $TenantId,
+    [Parameter(Mandatory)] [ValidateSet('Commercial','GCC','GCCHigh','DoD')] [string] $Cloud,
+    [Parameter(Mandatory)] [string] $EvidencePath,
+    [string] $PolicyName = 'FSI-Copilot-DLP',
+    [string] $HighlyConfidentialLabelGuid,
+    [switch] $TestMode
+)
+
+$ErrorActionPreference = 'Stop'
+New-Item -ItemType Directory -Force -Path $EvidencePath | Out-Null
+
+$ts         = Get-Date -Format 'yyyyMMdd-HHmmss'
+$transcript = Join-Path $EvidencePath "Control-1.5_${TenantId}_${Cloud}_Transcript_$ts.log"
+Start-Transcript -Path $transcript -IncludeInvocationHeader
+
+try {
+    # --- Connect (sovereign-aware) ---
+    switch ($Cloud) {
+        'Commercial' {
+            Connect-ExchangeOnline -UserPrincipalName $UPN -ShowBanner:$false
+            Connect-IPPSSession    -UserPrincipalName $UPN
+            Connect-MgGraph        -Environment Global  -Scopes 'InformationProtectionPolicy.Read.All' -NoWelcome
+        }
+        'GCC' {
+            Connect-ExchangeOnline -UserPrincipalName $UPN -ShowBanner:$false
+            Connect-IPPSSession    -UserPrincipalName $UPN `
+                -ConnectionUri 'https://ps.compliance.protection.outlook.com/powershell-liveid/' `
+                -AzureADAuthorizationEndpointUri 'https://login.microsoftonline.com/common'
+            Connect-MgGraph        -Environment USGov   -Scopes 'InformationProtectionPolicy.Read.All' -NoWelcome
+        }
+        'GCCHigh' {
+            Connect-ExchangeOnline -UserPrincipalName $UPN -ExchangeEnvironmentName O365USGovGCCHigh -ShowBanner:$false
+            Connect-IPPSSession    -UserPrincipalName $UPN `
+                -ConnectionUri 'https://ps.compliance.protection.office365.us/powershell-liveid/' `
+                -AzureADAuthorizationEndpointUri 'https://login.microsoftonline.us/common'
+            Connect-MgGraph        -Environment USGov   -Scopes 'InformationProtectionPolicy.Read.All' -NoWelcome
+        }
+        'DoD' {
+            Connect-ExchangeOnline -UserPrincipalName $UPN -ExchangeEnvironmentName O365USGovDoD -ShowBanner:$false
+            Connect-IPPSSession    -UserPrincipalName $UPN `
+                -ConnectionUri 'https://l5.ps.compliance.protection.office365.us/powershell-liveid/' `
+                -AzureADAuthorizationEndpointUri 'https://login.microsoftonline.us/common'
+            Connect-MgGraph        -Environment USGovDoD -Scopes 'InformationProtectionPolicy.Read.All' -NoWelcome
+        }
+    }
+
+    Test-PreFlight -UPN $UPN -Cloud $Cloud -EvidencePath $EvidencePath | Out-Null
+
+    # --- Read-only audit (always safe) ---
+    # Section 2, 4, 5, 6 invocations go here (omitted for brevity; copy from sections above)
+
+    # --- Mutations gated by ShouldProcess + presence of label GUID ---
+    if ($HighlyConfidentialLabelGuid -and
+        $PSCmdlet.ShouldProcess($PolicyName, "Create Copilot DLP policy + 2 rules (mode=$(if($TestMode){'TestWithNotifications'}else{'Enable'}))")) {
+        # Section 1 invocation (omitted)
+    } else {
+        Write-Information "Mutation skipped (use -HighlyConfidentialLabelGuid '<guid>' -Confirm:`$false to apply, or -WhatIf to preview)." -InformationAction Continue
+    }
 }
 finally {
-    # Disconnect from Security & Compliance Center
-    Disconnect-ExchangeOnline -Confirm:$false -ErrorAction SilentlyContinue
+    try { Disconnect-ExchangeOnline -Confirm:$false -ErrorAction SilentlyContinue } catch {}
+    try { Disconnect-MgGraph -ErrorAction SilentlyContinue }                              catch {}
+    Stop-Transcript | Out-Null
+
+    # Hash the transcript so the audit trail itself has integrity
+    if (Test-Path $transcript) {
+        $h = (Get-FileHash -Path $transcript -Algorithm SHA256).Hash
+        $manifestPath = Join-Path $EvidencePath 'manifest.json'
+        $manifest = @()
+        if (Test-Path $manifestPath) { $manifest = @(Get-Content $manifestPath | ConvertFrom-Json) }
+        $manifest += [pscustomobject]@{
+            file           = (Split-Path $transcript -Leaf)
+            sha256         = $h
+            bytes          = (Get-Item $transcript).Length
+            generated_utc  = (Get-Date).ToUniversalTime().ToString('o')
+            script_version = '1.5-v1.4'
+        }
+        $manifest | ConvertTo-Json -Depth 5 | Set-Content -Path $manifestPath -Encoding UTF8
+    }
 }
 ```
+
+> **Always invoke first with `-WhatIf`.** The wrapper supports `SupportsShouldProcess` end-to-end; `-WhatIf` emits the planned `New-DlpCompliancePolicy` / `New-DlpComplianceRule` calls without applying them, which is the difference between an undo-able config change and a production incident.
+
+---
+
+## Anti-patterns (each one was a real defect found in v1.3 of this file)
+
+| Anti-pattern | Why it's wrong | Correct pattern |
+|---|---|---|
+| `Get-MgBetaInformationProtectionSensitivityPolicyLabel` | Cmdlet does not exist | `Get-MgBetaSecurityInformationProtectionSensitivityLabel` |
+| `Search-UnifiedAuditLog -RecordType DLP` | `DLP` is not a valid `RecordType` enum value — silent zero rows | Use `ComplianceDLPSharePoint`, `ComplianceDLPExchange`, `DLPEndpoint`; for Copilot, filter `-Operations 'DLPRuleMatch'` then payload `Workload -eq 'Applications'` |
+| Mapping API `Confidential -> Non-Business` and `General -> Business` in connector audit | Power Platform DLP API uses **inverted** vocabulary vs the UI | Use `ConvertTo-FsiUiLabel` (`Confidential -> Business`, `General -> Non-Business`) and emit **both** values |
+| `ContentPropertyContainsWords = @{ 'Document.SensitivityLabel' = 'Highly Confidential' }` | Parameter is `MultiValuedProperty` (string[]); label match for Copilot location requires `-AdvancedRule` | `-AdvancedRule` JSON with `ContentContainsSensitivityLabel` referencing the label **GUID** |
+| `NotifyEndpointUser = 'NotifyUser'` | Parameter is Boolean | `NotifyEndpointUser = $true` (or `$false`) |
+| `NotifyUser = 'SiteAdmin,LastModifier'` | Parameter is string array | `NotifyUser = @('SiteAdmin','LastModifier')` |
+| Copilot-DLP policy using only `ExchangeLocation`/`SharePointLocation`/`OneDriveLocation`/`TeamsLocation` | Legacy locations do **not** cover Copilot — false-clean evaluation | Use `-Locations` JSON with `Workload = 'Applications'` and `EnforcementPlanes = @('CopilotExperiences')` from a **Custom**-template policy |
+| Combining SIT + Sensitivity Label conditions in one Copilot rule | Portal blocks; cmdlet accepts but behaviour is undefined | Split into two rules in the same policy |
+| `Get-DlpCompliancePolicy \| Where-Object { $_.Enabled -eq $true }` | Property is `Mode`, not `Enabled` | Filter on `Mode -eq 'Enable'` |
+| `Install-Module -Name X -Force` without `-RequiredVersion` | Floating versions break SOX 404 / OCC 2023-17 reproducibility evidence | Pin via `#Requires -Modules @{...; RequiredVersion='...'}` |
+| Running Power Platform Admin cmdlets from PowerShell 7 | Module is Desktop-only — silent empties | Add the PSEdition guard from the baseline; run from Windows PowerShell 5.1 |
+| Hard-coded `admin@contoso.com` UPN | Must be parameterized for CAB approval | `-UPN` parameter |
+| Creating DLP policies in `Enable` mode on first deployment | Bypasses 4-hour propagation validation window | Start in `TestWithNotifications`; promote to `Enable` after validation |
+
+---
+
+## Cross-references
+
+- [`_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md)
+- [Control 1.5 — Portal Walkthrough](portal-walkthrough.md)
+- [Control 1.5 — Verification & Testing](verification-testing.md)
+- [Control 1.5 — Troubleshooting](troubleshooting.md)
+- [Control 1.6 — DSPM for AI (PowerShell Setup)](../1.6/powershell-setup.md) — pairs `CopilotInteraction` audit evidence with this control's DLP rule-match evidence
+- [Control 1.7 — Audit Log Retention (PowerShell Setup)](../1.7/powershell-setup.md) — durable storage for the evidence emitted here
+- Microsoft Learn — [New-DlpCompliancePolicy](https://learn.microsoft.com/en-us/powershell/module/exchange/new-dlpcompliancepolicy)
+- Microsoft Learn — [New-DlpComplianceRule](https://learn.microsoft.com/en-us/powershell/module/exchange/new-dlpcompliancerule)
+- Microsoft Learn — [Get-DlpComplianceRule](https://learn.microsoft.com/en-us/powershell/module/exchange/get-dlpcompliancerule)
+- Microsoft Learn — [Search-UnifiedAuditLog](https://learn.microsoft.com/en-us/powershell/module/exchange/search-unifiedauditlog)
+- Microsoft Learn — [Connect-IPPSSession](https://learn.microsoft.com/en-us/powershell/module/exchange/connect-ippssession)
+- Microsoft Learn — [Learn about the Microsoft 365 Copilot and Copilot Chat DLP location](https://learn.microsoft.com/en-us/purview/dlp-microsoft365-copilot-location-learn-about)
+- Microsoft Learn — [New-DlpPolicy (Power Platform Administration)](https://learn.microsoft.com/en-us/powershell/module/microsoft.powerapps.administration.powershell/new-dlppolicy)
+- Microsoft Learn — [Get-MgBetaSecurityInformationProtectionSensitivityLabel](https://learn.microsoft.com/en-us/powershell/module/microsoft.graph.beta.security/get-mgbetasecurityinformationprotectionsensitivitylabel)
+- Microsoft Learn — [Microsoft Graph PowerShell installation (sovereign clouds)](https://learn.microsoft.com/en-us/powershell/microsoftgraph/installation)
 
 [Back to Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
 ---
 
-*Updated: April 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.4 | UI Verification Status: Current*
