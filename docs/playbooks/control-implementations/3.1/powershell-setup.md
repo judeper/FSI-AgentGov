@@ -17,7 +17,7 @@
 | Sovereign Clouds | Commercial, GCC, GCC High, DoD, China (21Vianet) — see §1 sovereign matrix and §2 bootstrap |
 | Last UI Verified | April 2026 |
 | Companion Playbooks | [`portal-walkthrough.md`](portal-walkthrough.md) · [`verification-testing.md`](verification-testing.md) · [`troubleshooting.md`](troubleshooting.md) |
-| Related Controls | [1.7](../1.7-comprehensive-audit-logging-and-compliance.md) · [1.10](../1.10-communication-compliance-monitoring.md) · [1.19](../1.19/) · [2.1](../2.1/) · [2.5](../2.5/) · [3.6](../3.6-orphaned-agent-detection-and-remediation.md) · [3.8](../3.8-copilot-hub-and-governance-dashboard.md) · [3.11](../3.11-centralized-agent-inventory-enforcement.md) · [Incident & Risk Playbook](../../incident-and-risk/ai-incident-response-playbook.md) |
+| Related Controls | [1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) · [1.10](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) · [1.19](../1.19/) · [2.1](../2.1/) · [2.5](../2.5/) · [3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) · [3.8](../../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) · [3.11](../../../controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement.md) · [Incident & Risk Playbook](../../incident-and-risk/ai-incident-response-playbook.md) |
 
 ---
 
@@ -25,7 +25,7 @@
 
 **The defining fact of Control 3.1.** As of April 2026, **no single Microsoft API returns "all agents"** in a tenant. A script that connects to one plane — even the most comprehensive one — and reports a number is producing audit-grade misinformation. The Power Platform admin surface knows about Copilot Studio bots and Power Apps that act as agent hosts; Microsoft Graph knows about declarative agents registered as Entra applications and about MCP server service principals; the M365 Copilot Hub telemetry knows about agents users are *actually invoking* (including ones never registered in your tenant catalog); SharePoint admin knows about grounding-source connected agents; the emerging Agent Registry / Agent 365 surface is partially GA in some clouds and unavailable in others. Reconciliation across these planes is the engineering problem this playbook solves.
 
-A script that ignores this reality produces a **false-clean inventory** — the worst possible Control 3.1 outcome. False-clean inventory understates books-and-records exposure under FINRA Rule 4511 / SEC 17a-4(b)(4), produces the wrong denominator for every downstream metric in Pillar 3, and breaks the audit trail that supervisory examination response depends on (see [Control 3.8](../3.8-copilot-hub-and-governance-dashboard.md) for downstream dashboards).
+A script that ignores this reality produces a **false-clean inventory** — the worst possible Control 3.1 outcome. False-clean inventory understates books-and-records exposure under FINRA Rule 4511 / SEC 17a-4(b)(4), produces the wrong denominator for every downstream metric in Pillar 3, and breaks the audit trail that supervisory examination response depends on (see [Control 3.8](../../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) for downstream dashboards).
 
 **Why this section exists.** Three classes of silent failure produce false-clean inventory in Control 3.1 specifically:
 
@@ -233,7 +233,7 @@ Inventory must run unattended on a schedule. The Inventory Reader service princi
 | `agt31-purview-reader` (SP) | Microsoft Purview | `View-Only Audit Logs`, `Compliance Administrator` (read intent) | `Search-UnifiedAuditLog` activity enrichment; §10 | Yes (intent) |
 | Operator (human) | Entra PIM | `Global Reader` time-bound | Manual reconciliation review; never used for the unattended pipeline | Yes |
 
-**Hedging note on permission scope.** The inventory reader is scoped to read-only application permissions; tenant administrators should still review the consent grants quarterly under [Control 1.1 — Service Principal Governance](../1.7-comprehensive-audit-logging-and-compliance.md) and rotate the certificate at the cadence defined by your PKI policy. "Read-only" is a contract with Microsoft Graph, not a guarantee that the credential cannot be used for reconnaissance — treat the inventory reader as a privileged identity for monitoring and detection purposes.
+**Hedging note on permission scope.** The inventory reader is scoped to read-only application permissions; tenant administrators should still review the consent grants quarterly under [Control 1.1 — Service Principal Governance](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) and rotate the certificate at the cadence defined by your PKI policy. "Read-only" is a contract with Microsoft Graph, not a guarantee that the credential cannot be used for reconnaissance — treat the inventory reader as a privileged identity for monitoring and detection purposes.
 
 **Sovereign cloud parity matrix (verify at deploy time per the parent control).**
 
@@ -1711,7 +1711,7 @@ function Test-Agt31Implementation {
 
 | Frequency | Action | Output destination |
 |---|---|---|
-| Every 4 hours | `Test-Agt31Implementation` smoke test | Operational dashboard ([Control 3.8](../3.8-copilot-hub-and-governance-dashboard.md)) |
+| Every 4 hours | `Test-Agt31Implementation` smoke test | Operational dashboard ([Control 3.8](../../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md)) |
 | Daily 02:00 tenant TZ | Full inventory + enrichment + evidence pack | WORM evidence store; reconcile-errors row count to Control 3.11 |
 | Weekly | Orphan + DormantSharedAgent review with business owner | Recommended actions land in Control 3.6 review queue |
 | Monthly | Module / CLI version pin review against CAB-approved baseline | CAB ticket + `Test-Agt31Tooling` proof |
@@ -1726,14 +1726,14 @@ function Test-Agt31Implementation {
 - [`verification-testing.md`](verification-testing.md) — examiner-facing test cases that consume this playbook's evidence pack.
 - [`troubleshooting.md`](troubleshooting.md) — common failure modes by leg.
 - [`../../_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) — module pinning, sovereign endpoints, mutation safety, Dataverse cmdlet quirks (referenced as **BL-§N**).
-- [`../1.7-`](../1.7-comprehensive-audit-logging-and-compliance.md) — service principal governance (consumes §7 `RiskFlag='High'` rows).
-- [`../1.10-`](../1.10-communication-compliance-monitoring.md) — owner attestation cadence.
+- [`../1.7-`](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) — service principal governance (consumes §7 `RiskFlag='High'` rows).
+- [`../1.10-`](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) — owner attestation cadence.
 - [`../1.19/`](../1.19/) — DLP integration.
 - [`../2.1/`](../2.1/) — sensitivity label propagation.
 - [`../2.5/`](../2.5/) — agent monitoring (consumes §10 enrichment).
-- [`../3.6-`](../3.6-orphaned-agent-detection-and-remediation.md) — shadow-IT detection (compensating control for §6 sovereign gaps).
-- [`../3.8-`](../3.8-copilot-hub-and-governance-dashboard.md) — operational dashboards (consume `canonical-inventory.csv`).
-- [`../3.11-`](../3.11-centralized-agent-inventory-enforcement.md) — evidence retention policy (governs `reconcile-errors.csv`).
+- [`../3.6-`](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) — shadow-IT detection (compensating control for §6 sovereign gaps).
+- [`../3.8-`](../../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) — operational dashboards (consume `canonical-inventory.csv`).
+- [`../3.11-`](../../../controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement.md) — evidence retention policy (governs `reconcile-errors.csv`).
 - [`../../incident-and-risk/ai-incident-response-playbook.md`](../../incident-and-risk/ai-incident-response-playbook.md) — escalation path when `Find-Agt31OrphanedAgent` returns `EscalateToControl1.7`.
 
 ---
