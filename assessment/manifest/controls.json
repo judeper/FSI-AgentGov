@@ -56,7 +56,57 @@
         "maturity_score": 4
       }
     },
-    "manual_question": null
+    "manual_question": null,
+    "name": "Restrict Agent Publishing by Authorization",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "AI Administrator (preferred — MC1041454, Mar 2025)",
+      "Compliance Officer",
+      "Dataverse System Admin (per-environment)",
+      "Entra Global Admin",
+      "Governance Lead",
+      "Power Platform Admin"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-3110",
+      "FINRA-25-07",
+      "SEC-17a-4",
+      "SOX-404",
+      "GLBA",
+      "OCC-2023-17",
+      "Fed-SR-11-7"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/1.1-restrict-agent-publishing-by-authorization/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/1.1/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "1.2",
@@ -114,7 +164,63 @@
         "maturity_score": 4
       }
     },
-    "manual_question": null
+    "manual_question": null,
+    "name": "Agent Registry and Integrated Apps Management",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "AI Administrator",
+      "Agent Owner",
+      "Agent Sponsor",
+      "Backup Owner",
+      "Compliance Officer",
+      "Entra Agent ID Admin",
+      "Entra App Admin",
+      "Entra Global Admin",
+      "Entra Identity Governance Admin",
+      "Entra Security Admin",
+      "Power Platform Admin",
+      "Purview Compliance Admin"
+    ],
+    "regulatory": [
+      "FINRA-25-07",
+      "SEC-17a-4",
+      "SOX-404",
+      "GLBA",
+      "OCC-2011-12",
+      "Fed-SR-11-7",
+      "NIST-AI-RMF",
+      "NYDFS-500"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/1.2-agent-registry-and-integrated-apps-management/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/1.2/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "1.3",
@@ -163,7 +269,52 @@
         "maturity_score": 4
       }
     },
-    "manual_question": "Have site permission reviews been completed in the last 90 days for all agent knowledge sources?"
+    "manual_question": "Have site permission reviews been completed in the last 90 days for all agent knowledge sources?",
+    "name": "SharePoint Content Governance and Permissions",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Compliance Officer",
+      "Governance Lead",
+      "Purview Compliance Admin",
+      "SharePoint Admin",
+      "Site Collection Admin"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "Reg-S-P",
+      "SOX-404",
+      "GLBA"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/1.3-sharepoint-content-governance-and-permissions/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/1.3/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "1.4",
@@ -221,7 +372,54 @@
         "maturity_score": 4
       }
     },
-    "manual_question": null
+    "manual_question": null,
+    "name": "Advanced Connector Policies (ACP)",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Environment Admin",
+      "Governance Lead",
+      "Power Platform Admin",
+      "Security Team"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-3110",
+      "FINRA-25-07",
+      "SEC-17a-4",
+      "Reg-S-P",
+      "SOX-404",
+      "GLBA"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/1.4-advanced-connector-policies-acp/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/1.4/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "1.5",
@@ -271,7 +469,60 @@
         "maturity_score": 4
       }
     },
-    "manual_question": null
+    "manual_question": null,
+    "name": "Data Loss Prevention (DLP) and Sensitivity Labels",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "AI Administrator",
+      "Entra Security Admin",
+      "Governance Lead",
+      "Power Platform Admin",
+      "Purview Compliance Admin",
+      "Purview Data Security AI Admin",
+      "Purview Info Protection Admin"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-3110",
+      "FINRA-25-07",
+      "SEC-17a-4",
+      "Reg-S-P",
+      "SOX-404",
+      "GLBA",
+      "OCC-2011-12",
+      "NYDFS-500",
+      "PCI-DSS"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/1.5-data-loss-prevention-dlp-and-sensitivity-labels/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/1.5/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "1.6",
@@ -309,7 +560,56 @@
         "maturity_score": 4
       }
     },
-    "manual_question": "Has a DSPM for AI scan been reviewed with findings actioned in the last 30 days?"
+    "manual_question": "Has a DSPM for AI scan been reviewed with findings actioned in the last 30 days?",
+    "name": "Microsoft Purview DSPM for AI",
+    "zonesApplicable": [
+      2,
+      3
+    ],
+    "roles": [
+      "Communication Compliance (role group)",
+      "Entra AI Administrator (role)",
+      "Entra Compliance Admin",
+      "Entra Global Admin",
+      "Governance Lead",
+      "Insider Risk Management (role group)",
+      "Microsoft Purview Compliance Admin (role group)",
+      "Purview Data Security AI Content Viewer",
+      "Purview Data Security AI Viewer",
+      "Purview Security Reader"
+    ],
+    "regulatory": [
+      "FINRA-25-07",
+      "Reg-S-P",
+      "SOX-404",
+      "GLBA"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/1.6-microsoft-purview-dspm-for-ai/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/1.6/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "1.7",
@@ -358,7 +658,59 @@
         "maturity_score": 4
       }
     },
-    "manual_question": null
+    "manual_question": null,
+    "name": "Comprehensive Audit Logging and Compliance",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Azure Storage Account Owner / Contributor",
+      "Entra Security Admin",
+      "Organization Configuration role (Exchange Online)",
+      "Power Platform Admin",
+      "Purview Audit Admin",
+      "Purview Compliance Admin",
+      "SOC Analyst"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-3110",
+      "FINRA-25-07",
+      "SEC-17a-4",
+      "SOX-404",
+      "GLBA",
+      "OCC-2011-12",
+      "Fed-SR-11-7",
+      "CFTC-1.31"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/1.7-comprehensive-audit-logging-and-compliance/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/1.7/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "1.8",
@@ -396,7 +748,48 @@
         "maturity_score": 4
       }
     },
-    "manual_question": "Have runtime protection alerts been reviewed and tuned in the last 30 days?"
+    "manual_question": "Have runtime protection alerts been reviewed and tuned in the last 30 days?",
+    "name": "Runtime Protection and External Threat Detection",
+    "zonesApplicable": [
+      2,
+      3
+    ],
+    "roles": [
+      "Compliance / Audit Admin",
+      "Governance Lead",
+      "Power Platform Admin",
+      "Security Operations"
+    ],
+    "regulatory": [
+      "FINRA-25-07",
+      "GLBA"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/1.8-runtime-protection-and-external-threat-detection/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/1.8/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "1.9",
@@ -445,7 +838,53 @@
         "maturity_score": 4
       }
     },
-    "manual_question": null
+    "manual_question": null,
+    "name": "Data Retention and Deletion Policies",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Compliance Officer",
+      "Legal",
+      "Power Platform Admin",
+      "Purview Records Manager"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-25-07",
+      "SEC-17a-3",
+      "SOX-404",
+      "GLBA",
+      "CFTC-1.31"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/1.9-data-retention-and-deletion-policies/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/1.9/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "1.10",
@@ -483,7 +922,54 @@
         "maturity_score": 4
       }
     },
-    "manual_question": "Has the supervision review queue been reviewed by a compliance officer in the last 30 days?"
+    "manual_question": "Has the supervision review queue been reviewed by a compliance officer in the last 30 days?",
+    "name": "Communication Compliance Monitoring",
+    "zonesApplicable": [
+      2,
+      3
+    ],
+    "roles": [
+      "Communication Compliance (catch-all role group)",
+      "Communication Compliance Admins",
+      "Communication Compliance Analysts",
+      "Communication Compliance Investigators",
+      "Communication Compliance Viewers",
+      "Legal / Compliance Officer",
+      "Privacy Officer"
+    ],
+    "regulatory": [
+      "FINRA-25-07",
+      "SEC-17a-4",
+      "SEC-17a-3",
+      "Reg-S-P",
+      "GLBA"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/1.10-communication-compliance-monitoring/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/1.10/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "1.11",
@@ -541,7 +1027,66 @@
         "maturity_score": 4
       }
     },
-    "manual_question": null
+    "manual_question": null,
+    "name": "Conditional Access and Phishing-Resistant MFA",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "AI Administrator",
+      "Agent Owner / Sponsor (governance role, not directory role)",
+      "Authentication Administrator",
+      "Authentication Policy Admin",
+      "CISO",
+      "Compliance Officer",
+      "Designated Supervisor / Registered Principal",
+      "Entra Agent ID Admin",
+      "Entra Identity Governance Admin",
+      "Entra Privileged Role Admin",
+      "Entra Security Admin",
+      "Governance Lead",
+      "Power Platform Admin",
+      "SOC Analyst (Sentinel / Defender XDR)"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-25-07",
+      "SEC-17a-3",
+      "Reg-S-P",
+      "SOX-404",
+      "GLBA",
+      "OCC-2011-12",
+      "Fed-SR-11-7",
+      "NYDFS-500"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/1.11-conditional-access-and-phishing-resistant-mfa/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/1.11/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "1.12",
@@ -579,7 +1124,60 @@
         "maturity_score": 4
       }
     },
-    "manual_question": "Have any insider risk alerts related to agent use been reviewed and dispositioned this quarter?"
+    "manual_question": "Have any insider risk alerts related to agent use been reviewed and dispositioned this quarter?",
+    "name": "Insider Risk Detection and Response",
+    "zonesApplicable": [
+      2,
+      3
+    ],
+    "roles": [
+      "Insider Risk Management (catch-all)",
+      "Insider Risk Management Admins",
+      "Insider Risk Management Analysts",
+      "Insider Risk Management Approvers",
+      "Insider Risk Management Auditors",
+      "Insider Risk Management Investigators",
+      "Microsoft Defender for Endpoint admin",
+      "Privacy Officer / Legal",
+      "Role group"
+    ],
+    "regulatory": [
+      "FINRA-25-07",
+      "SEC-17a-4",
+      "SEC-17a-3",
+      "Reg-S-P",
+      "SOX-404",
+      "GLBA",
+      "OCC-2011-12",
+      "Fed-SR-11-7",
+      "NYDFS-500"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/1.12-insider-risk-detection-and-response/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/1.12/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "1.13",
@@ -628,7 +1226,59 @@
         "maturity_score": 4
       }
     },
-    "manual_question": "Are custom SITs for your institution's regulated data types (account numbers, CRD numbers) configured and validated?"
+    "manual_question": "Are custom SITs for your institution's regulated data types (account numbers, CRD numbers) configured and validated?",
+    "name": "Sensitive Information Types (SITs) and Pattern Recognition",
+    "zonesApplicable": [
+      2,
+      3
+    ],
+    "roles": [
+      "AI Administrator",
+      "Compliance Officer",
+      "Legal (organizational function)",
+      "Purview Compliance Admin",
+      "Purview Data Security AI Admin",
+      "Purview Info Protection Admin"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-25-07",
+      "SEC-17a-4",
+      "SEC-17a-3",
+      "Reg-S-P",
+      "SOX-404",
+      "GLBA",
+      "OCC-2011-12",
+      "Fed-SR-11-7",
+      "CFTC-1.31",
+      "PCI-DSS"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/1.13-sensitive-information-types-sits-and-pattern-recognition/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/1.13/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "1.14",
@@ -653,7 +1303,57 @@
         "maturity_score": 0
       }
     },
-    "manual_question": "Has data minimization been applied to restrict agent context to only the data necessary for each agent's specific function?"
+    "manual_question": "Has data minimization been applied to restrict agent context to only the data necessary for each agent's specific function?",
+    "name": "Data Minimization and Agent Scope Control",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "AI Administrator",
+      "CISO",
+      "Compliance Officer",
+      "Entra Identity Governance Admin",
+      "Governance Lead",
+      "Power Platform Admin",
+      "Purview Compliance Admin",
+      "Purview Data Security AI Admin",
+      "SharePoint Admin"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-3110",
+      "FINRA-25-07",
+      "Reg-S-P",
+      "GLBA"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/1.14-data-minimization-and-agent-scope-control/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/1.14/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "1.15",
@@ -703,7 +1403,54 @@
         "maturity_score": 4
       }
     },
-    "manual_question": null
+    "manual_question": null,
+    "name": "Encryption: Data in Transit and at Rest",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Compliance Officer",
+      "Entra Security Admin",
+      "Power Platform Admin",
+      "SharePoint Admin"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-25-07",
+      "SEC-17a-4",
+      "SOX-404",
+      "GLBA",
+      "NYDFS-500",
+      "PCI-DSS"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/1.15-encryption-data-in-transit-and-at-rest/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/1.15/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "1.16",
@@ -728,7 +1475,52 @@
         "maturity_score": 0
       }
     },
-    "manual_question": "Are IRM protections applied to sensitive documents accessible to agents, and has IRM labeling been validated end-to-end?"
+    "manual_question": "Are IRM protections applied to sensitive documents accessible to agents, and has IRM labeling been validated end-to-end?",
+    "name": "Information Rights Management (IRM) for Documents",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Compliance Officer",
+      "Governance Lead",
+      "Purview Info Protection Admin",
+      "SharePoint Admin"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-25-07",
+      "Reg-S-P",
+      "SOX-404",
+      "GLBA"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/1.16-information-rights-management-irm-for-documents/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/1.16/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "1.17",
@@ -766,7 +1558,52 @@
         "maturity_score": 4
       }
     },
-    "manual_question": "Is endpoint DLP enforced on all endpoints from which agents are accessed, including unmanaged devices?"
+    "manual_question": "Is endpoint DLP enforced on all endpoints from which agents are accessed, including unmanaged devices?",
+    "name": "Endpoint Data Loss Prevention (Endpoint DLP)",
+    "zonesApplicable": [
+      2,
+      3
+    ],
+    "roles": [
+      "Compliance Officer",
+      "Entra Security Admin",
+      "Intune Administrator",
+      "Purview Compliance Admin"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-25-07",
+      "Reg-S-P",
+      "SOX-404",
+      "GLBA",
+      "PCI-DSS"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/1.17-endpoint-data-loss-prevention-endpoint-dlp/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/1.17/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "1.18",
@@ -815,7 +1652,52 @@
         "maturity_score": 4
       }
     },
-    "manual_question": "Has a least-privilege access review for all agent administrative roles been completed in the last 90 days?"
+    "manual_question": "Has a least-privilege access review for all agent administrative roles been completed in the last 90 days?",
+    "name": "Application-Level Authorization and Role-Based Access Control (RBAC)",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Compliance Officer",
+      "Entra Global Admin",
+      "Governance Lead",
+      "Power Platform Admin"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-25-07",
+      "SEC-17a-3",
+      "SOX-404",
+      "GLBA"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/1.18-application-level-authorization-and-role-based-access-control-rbac/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/1.18/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "1.19",
@@ -862,7 +1744,55 @@
         "maturity_score": 4
       }
     },
-    "manual_question": null
+    "manual_question": null,
+    "name": "eDiscovery for Agent Interactions",
+    "zonesApplicable": [
+      2,
+      3
+    ],
+    "roles": [
+      "Designated Supervisor / Registered Principal",
+      "Governance Lead",
+      "Legal / Compliance Officer",
+      "Microsoft Purview Admin",
+      "Records Manager (Purview Records Manager role)",
+      "Reviewer (Purview eDiscovery role)",
+      "eDiscovery Administrator (Purview eDiscovery role)",
+      "eDiscovery Manager (Purview eDiscovery role)"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-25-07",
+      "SEC-17a-4",
+      "SOX-404",
+      "GLBA"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/1.19-ediscovery-for-agent-interactions/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/1.19/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "1.20",
@@ -908,7 +1838,50 @@
         "maturity_score": 4
       }
     },
-    "manual_question": null
+    "manual_question": null,
+    "name": "Network Isolation and Private Connectivity",
+    "zonesApplicable": [
+      3
+    ],
+    "roles": [
+      "Azure Network Contributor",
+      "Compliance Officer",
+      "Entra Security Admin",
+      "Power Platform Admin"
+    ],
+    "regulatory": [
+      "FINRA-3110",
+      "FINRA-25-07",
+      "SEC-17a-4",
+      "GLBA",
+      "OCC-2011-12"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/1.20-network-isolation-private-connectivity/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/1.20/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "1.21",
@@ -946,7 +1919,61 @@
         "maturity_score": 4
       }
     },
-    "manual_question": "Is adversarial input logging reviewed on a scheduled basis, and are prompt injection attempts being tracked?"
+    "manual_question": "Is adversarial input logging reviewed on a scheduled basis, and are prompt injection attempts being tracked?",
+    "name": "Adversarial Input Logging",
+    "zonesApplicable": [
+      2,
+      3
+    ],
+    "roles": [
+      "AI / Azure AI Foundry Admin",
+      "AI Red Team / Pen-test Owner",
+      "Azure / Defender for Cloud Admin",
+      "CISO",
+      "Compliance Officer",
+      "Defender XDR Admin",
+      "Designated Supervisor / Registered Principal",
+      "Governance Lead",
+      "Purview Communication Compliance Admin",
+      "Purview Data Security AI Admin",
+      "Sentinel SOC Analyst"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-3110",
+      "FINRA-25-07",
+      "SEC-17a-4",
+      "GLBA",
+      "OCC-2011-12",
+      "Fed-SR-11-7",
+      "NIST-AI-RMF"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/1.21-adversarial-input-logging/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/1.21/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "1.22",
@@ -993,7 +2020,48 @@
         "maturity_score": 4
       }
     },
-    "manual_question": null
+    "manual_question": null,
+    "name": "Information Barriers for AI Agents",
+    "zonesApplicable": [
+      2,
+      3
+    ],
+    "roles": [
+      "Compliance Officer",
+      "Entra Security Admin",
+      "Governance Lead",
+      "Purview Compliance Admin"
+    ],
+    "regulatory": [
+      "FINRA-25-07",
+      "OCC-2011-12"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/1.22-information-barriers/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/1.22/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "1.23",
@@ -1030,7 +2098,50 @@
         "maturity_score": 4
       }
     },
-    "manual_question": "Has step-up authentication been tested end-to-end for all Zone 3 operations in the last 60 days?"
+    "manual_question": "Has step-up authentication been tested end-to-end for all Zone 3 operations in the last 60 days?",
+    "name": "Step-Up Authentication for AI Agent Operations",
+    "zonesApplicable": [
+      3
+    ],
+    "roles": [
+      "Compliance Officer",
+      "Entra Global Admin",
+      "Entra Security Admin",
+      "Power Platform Admin"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-25-07",
+      "SOX-404",
+      "GLBA",
+      "NYDFS-500"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/1.23-step-up-authentication-for-agent-operations/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/1.23/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "1.24",
@@ -1057,7 +2168,52 @@
         "maturity_score": 0
       }
     },
-    "manual_question": "Provide evidence of weekly (Zone 2) or daily (Zone 3) security recommendation reviews, including reviewer names, dates, and actions taken on identified AI security gaps."
+    "manual_question": "Provide evidence of weekly (Zone 2) or daily (Zone 3) security recommendation reviews, including reviewer names, dates, and actions taken on identified AI security gaps.",
+    "name": "Defender AI Security Posture Management (AI-SPM)",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Cloud Security Architect",
+      "Entra Security Admin",
+      "Governance Lead",
+      "SOC Analyst"
+    ],
+    "regulatory": [
+      "FINRA-25-07",
+      "GLBA",
+      "OCC-2011-12",
+      "Fed-SR-11-7",
+      "NIST-AI-RMF"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/1.24-defender-ai-security-posture-management/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/1.24/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "1.25",
@@ -1106,7 +2262,52 @@
         "maturity_score": 4
       }
     },
-    "manual_question": null
+    "manual_question": null,
+    "name": "MIME Type Restrictions for File Uploads",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Entra Global Admin",
+      "Power Platform Admin",
+      "Purview Compliance Admin",
+      "SOC Analyst"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-25-07",
+      "SEC-17a-4",
+      "GLBA",
+      "OCC-2011-12"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/1.25-mime-type-restrictions/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/1.25/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "1.26",
@@ -1154,7 +2355,51 @@
         "maturity_score": 4
       }
     },
-    "manual_question": "Provide the approval documentation for each agent with file upload enabled, demonstrating that approval is appropriate to the agent's governance zone."
+    "manual_question": "Provide the approval documentation for each agent with file upload enabled, demonstrating that approval is appropriate to the agent's governance zone.",
+    "name": "Agent File Upload and File Analysis Restrictions",
+    "zonesApplicable": [
+      2,
+      3
+    ],
+    "roles": [
+      "Copilot Studio Agent Author",
+      "Power Platform Admin",
+      "Purview Compliance Admin",
+      "Security Operations"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-25-07",
+      "SEC-17a-4",
+      "GLBA",
+      "OCC-2011-12"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/1.26-agent-file-upload-and-file-analysis-restrictions/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/1.26/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "1.27",
@@ -1213,7 +2458,50 @@
         "maturity_score": 4
       }
     },
-    "manual_question": null
+    "manual_question": null,
+    "name": "AI Agent Content Moderation Enforcement",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Copilot Studio Agent Author",
+      "Power Platform Admin",
+      "Purview Compliance Admin",
+      "Security Operations"
+    ],
+    "regulatory": [
+      "FINRA-3110",
+      "SEC-17a-3",
+      "GLBA"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/1.27-ai-agent-content-moderation-enforcement/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/1.27/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "1.28",
@@ -1260,7 +2548,51 @@
         "maturity_score": 4
       }
     },
-    "manual_question": null
+    "manual_question": null,
+    "name": "Policy-Based Agent Publishing Restrictions",
+    "zonesApplicable": [
+      2,
+      3
+    ],
+    "roles": [
+      "Compliance Officer",
+      "Copilot Studio Agent Author",
+      "Entra Global Admin",
+      "Power Platform Admin"
+    ],
+    "regulatory": [
+      "FINRA-3110",
+      "FINRA-25-07",
+      "SOX-404",
+      "OCC-2011-12",
+      "Fed-SR-11-7"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/1.28-policy-based-agent-publishing-restrictions/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/1.28/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "1.29",
@@ -1307,7 +2639,54 @@
         "maturity_score": 4
       }
     },
-    "manual_question": "Provide evidence of weekly (Zone 2) or daily (Zone 3) GSA traffic log review, including reviewer names, dates, false positive assessments, and escalation decisions for anomalous blocked requests."
+    "manual_question": "Provide evidence of weekly (Zone 2) or daily (Zone 3) GSA traffic log review, including reviewer names, dates, false positive assessments, and escalation decisions for anomalous blocked requests.",
+    "name": "Global Secure Access: Network Controls for Copilot Studio Agents",
+    "zonesApplicable": [
+      2,
+      3
+    ],
+    "roles": [
+      "AI Governance Team / CoE",
+      "Agent Developers",
+      "CISO / Security Operations",
+      "Compliance / Legal",
+      "Internal Audit",
+      "Power Platform Admin",
+      "Security Administrator (Entra)"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-25-07",
+      "SOX-404",
+      "GLBA",
+      "OCC-2011-12"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/1.29-global-secure-access-network-controls/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/1.29/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "2.1",
@@ -1356,7 +2735,57 @@
         "maturity_score": 4
       }
     },
-    "manual_question": null
+    "manual_question": null,
+    "name": "Managed Environments",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Compliance Officer",
+      "Delegated Admin",
+      "Environment Admin",
+      "Governance Lead",
+      "IT Governance",
+      "Power Platform Admin (or Dynamics 365 Admin)"
+    ],
+    "regulatory": [
+      "FINRA-25-07",
+      "SEC-17a-4",
+      "SEC-17a-3",
+      "SOX-404",
+      "GLBA",
+      "OCC-2011-12",
+      "Fed-SR-11-7",
+      "NYDFS-500"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/2.1-managed-environments/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/2.1/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "2.2",
@@ -1405,7 +2834,53 @@
         "maturity_score": 4
       }
     },
-    "manual_question": null
+    "manual_question": null,
+    "name": "Environment Groups and Tier Classification",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Compliance Officer",
+      "Environment Admin",
+      "Governance Lead",
+      "IT Security",
+      "Power Platform Admin"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-25-07",
+      "SOX-404",
+      "GLBA",
+      "OCC-2011-12"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/2.2-environment-groups-and-tier-classification/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/2.2/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "2.3",
@@ -1443,7 +2918,51 @@
         "maturity_score": 4
       }
     },
-    "manual_question": "Is the change management workflow enforced for all Zone 3 agent promotions, with evidence stored in your ITSM system?"
+    "manual_question": "Is the change management workflow enforced for all Zone 3 agent promotions, with evidence stored in your ITSM system?",
+    "name": "Change Management and Release Planning",
+    "zonesApplicable": [
+      2,
+      3
+    ],
+    "roles": [
+      "Compliance Officer",
+      "Governance Lead",
+      "Power Platform Admin",
+      "Security Admin"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-25-07",
+      "SEC-17a-4",
+      "SOX-404",
+      "GLBA"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/2.3-change-management-and-release-planning/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/2.3/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "2.4",
@@ -1481,7 +3000,51 @@
         "maturity_score": 4
       }
     },
-    "manual_question": "Has a business continuity failover test been executed and documented for agent-dependent processes in the last 12 months?"
+    "manual_question": "Has a business continuity failover test been executed and documented for agent-dependent processes in the last 12 months?",
+    "name": "Business Continuity and Disaster Recovery",
+    "zonesApplicable": [
+      2,
+      3
+    ],
+    "roles": [
+      "Compliance Officer",
+      "Governance Lead",
+      "IT Operations",
+      "Power Platform Admin"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-25-07",
+      "SOX-404",
+      "GLBA",
+      "OCC-2011-12"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/2.4-business-continuity-and-disaster-recovery/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/2.4/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "2.5",
@@ -1506,7 +3069,58 @@
         "maturity_score": 0
       }
     },
-    "manual_question": "Is there a documented QA process requiring test coverage for agent responses before Zone 2 or Zone 3 promotion?"
+    "manual_question": "Is there a documented QA process requiring test coverage for agent responses before Zone 2 or Zone 3 promotion?",
+    "name": "Testing, Validation, and Quality Assurance",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Agent Owner",
+      "Compliance Officer",
+      "Copilot Studio Agent Author",
+      "Designated Supervisor / Registered Principal",
+      "Governance Lead",
+      "Model Risk Manager",
+      "Power Platform Admin",
+      "Purview Records Manager"
+    ],
+    "regulatory": [
+      "FINRA-25-07",
+      "SEC-17a-4",
+      "SOX-404",
+      "GLBA",
+      "OCC-2011-12",
+      "Fed-SR-11-7",
+      "NIST-AI-RMF"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/2.5-testing-validation-and-quality-assurance/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/2.5/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "2.6",
@@ -1531,7 +3145,59 @@
         "maturity_score": 0
       }
     },
-    "manual_question": "Has a model risk management review (aligned to OCC 2011-12 / SR 11-7) been completed for any agents serving regulated functions?"
+    "manual_question": "Has a model risk management review (aligned to OCC 2011-12 / SR 11-7) been completed for any agents serving regulated functions?",
+    "name": "Model Risk Management (OCC 2011-12/SR 11-7)",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "AI Administrator",
+      "Agent Owner / Copilot Studio Agent Author",
+      "Compliance Officer",
+      "Governance Lead",
+      "Internal Audit",
+      "Model Risk Committee (governance body)",
+      "Model Risk Manager (independent validation function)",
+      "Power Platform Admin"
+    ],
+    "regulatory": [
+      "FINRA-25-07",
+      "SEC-17a-4",
+      "SEC-17a-3",
+      "SOX-404",
+      "GLBA",
+      "OCC-2011-12",
+      "Fed-SR-11-7",
+      "NYDFS-500"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/2.6/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "2.7",
@@ -1556,7 +3222,51 @@
         "maturity_score": 0
       }
     },
-    "manual_question": "Has a vendor risk assessment been completed for all third-party connectors and plugins used by production agents?"
+    "manual_question": "Has a vendor risk assessment been completed for all third-party connectors and plugins used by production agents?",
+    "name": "Vendor and Third-Party Risk Management",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Compliance Officer",
+      "Governance Lead",
+      "Procurement",
+      "Security Team"
+    ],
+    "regulatory": [
+      "FINRA-25-07",
+      "SOX-404",
+      "GLBA",
+      "OCC-2011-12"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/2.7-vendor-and-third-party-risk-management/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/2.7/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "2.8",
@@ -1603,7 +3313,51 @@
         "maturity_score": 4
       }
     },
-    "manual_question": "Has a segregation of duties review confirmed that no individual has both agent development and production publishing rights?"
+    "manual_question": "Has a segregation of duties review confirmed that no individual has both agent development and production publishing rights?",
+    "name": "Access Control and Segregation of Duties",
+    "zonesApplicable": [
+      2,
+      3
+    ],
+    "roles": [
+      "Compliance Officer",
+      "Entra Privileged Role Admin",
+      "Governance Lead",
+      "Power Platform Admin"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-25-07",
+      "SEC-17a-4",
+      "SOX-404",
+      "GLBA"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/2.8-access-control-and-segregation-of-duties/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/2.8/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "2.9",
@@ -1641,7 +3395,51 @@
         "maturity_score": 4
       }
     },
-    "manual_question": "Are agent performance metrics (latency, fallback rate, escalation rate) reviewed on a scheduled cadence?"
+    "manual_question": "Are agent performance metrics (latency, fallback rate, escalation rate) reviewed on a scheduled cadence?",
+    "name": "Agent Performance Monitoring and Optimization",
+    "zonesApplicable": [
+      2,
+      3
+    ],
+    "roles": [
+      "Agent Owner",
+      "Governance Lead",
+      "Operations Team",
+      "Power Platform Admin"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-25-07",
+      "SEC-17a-3",
+      "SOX-404",
+      "GLBA"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/2.9-agent-performance-monitoring-and-optimization/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/2.9/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "2.10",
@@ -1679,7 +3477,51 @@
         "maturity_score": 4
       }
     },
-    "manual_question": "Is there a documented patch management process for reviewing and applying Copilot Studio platform updates?"
+    "manual_question": "Is there a documented patch management process for reviewing and applying Copilot Studio platform updates?",
+    "name": "Patch Management and System Updates",
+    "zonesApplicable": [
+      2,
+      3
+    ],
+    "roles": [
+      "Agent Owner",
+      "Change Manager",
+      "Power Platform Admin",
+      "QA Lead"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-25-07",
+      "SEC-17a-4",
+      "SOX-404",
+      "GLBA"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/2.10-patch-management-and-system-updates/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/2.10/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "2.11",
@@ -1704,7 +3546,48 @@
         "maturity_score": 0
       }
     },
-    "manual_question": "Has bias testing been performed for agents that make recommendations affecting customers, with results documented and reviewed?"
+    "manual_question": "Has bias testing been performed for agents that make recommendations affecting customers, with results documented and reviewed?",
+    "name": "Bias Testing and Fairness Assessment",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Agent Owner",
+      "Compliance Officer",
+      "Data Science Team",
+      "Governance Lead"
+    ],
+    "regulatory": [
+      "Fed-SR-11-7"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/2.11-bias-testing-and-fairness-assessment/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/2.11/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "2.12",
@@ -1729,7 +3612,52 @@
         "maturity_score": 0
       }
     },
-    "manual_question": "Is there a designated supervisory principal for each production agent per FINRA Rule 3110, with a documented review cadence?"
+    "manual_question": "Is there a designated supervisory principal for each production agent per FINRA Rule 3110, with a documented review cadence?",
+    "name": "Supervision and Oversight (FINRA Rule 3110)",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "AI Administrator",
+      "Agent Owner",
+      "Compliance Officer",
+      "Governance Lead",
+      "Role (canonical — see `docs/reference/role-catalog.md`)"
+    ],
+    "regulatory": [
+      "SEC-17a-4",
+      "SEC-17a-3",
+      "SOX-404",
+      "NYDFS-500"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/2.12-supervision-and-oversight-finra-rule-3110/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/2.12/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "2.13",
@@ -1754,7 +3682,52 @@
         "maturity_score": 0
       }
     },
-    "manual_question": "Is a complete governance record maintained per agent (owner, purpose, data sources, approval chain, test results)?"
+    "manual_question": "Is a complete governance record maintained per agent (owner, purpose, data sources, approval chain, test results)?",
+    "name": "Documentation and Record Keeping",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Compliance Officer",
+      "Governance Lead",
+      "Purview Records Manager",
+      "SharePoint Admin"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-25-07",
+      "SEC-17a-3",
+      "SOX-404",
+      "GLBA"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/2.13-documentation-and-record-keeping/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/2.13/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "2.14",
@@ -1779,7 +3752,49 @@
         "maturity_score": 0
       }
     },
-    "manual_question": "Have all agent developers, publishers, and administrators completed AI governance training in the last 12 months?"
+    "manual_question": "Have all agent developers, publishers, and administrators completed AI governance training in the last 12 months?",
+    "name": "Training and Awareness Program",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Compliance Officer",
+      "Governance Lead",
+      "HR/Learning Administrator",
+      "Manager"
+    ],
+    "regulatory": [
+      "SOX-404",
+      "GLBA"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/2.14-training-and-awareness-program/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/2.14/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "2.15",
@@ -1826,7 +3841,51 @@
         "maturity_score": 4
       }
     },
-    "manual_question": null
+    "manual_question": null,
+    "name": "Environment Routing and Auto-Provisioning",
+    "zonesApplicable": [
+      2,
+      3
+    ],
+    "roles": [
+      "Compliance Officer",
+      "Entra Security Admin",
+      "Environment Admin",
+      "Power Platform Admin"
+    ],
+    "regulatory": [
+      "FINRA-3110",
+      "FINRA-25-07",
+      "SOX-404",
+      "GLBA",
+      "OCC-2011-12"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/2.15-environment-routing/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/2.15/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "2.16",
@@ -1864,7 +3923,50 @@
         "maturity_score": 4
       }
     },
-    "manual_question": "Are all SharePoint knowledge sources scanned for accuracy and currency on a documented schedule?"
+    "manual_question": "Are all SharePoint knowledge sources scanned for accuracy and currency on a documented schedule?",
+    "name": "RAG Source Integrity Validation",
+    "zonesApplicable": [
+      2,
+      3
+    ],
+    "roles": [
+      "Compliance Officer",
+      "Content Owner",
+      "Governance Lead",
+      "SharePoint Admin"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-25-07",
+      "OCC-2011-12",
+      "Fed-SR-11-7"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/2.16-rag-source-integrity-validation/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/2.16/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "2.17",
@@ -1902,7 +4004,50 @@
         "maturity_score": 4
       }
     },
-    "manual_question": "Have multi-agent orchestration workflows been reviewed for circular delegation and privilege escalation risks?"
+    "manual_question": "Have multi-agent orchestration workflows been reviewed for circular delegation and privilege escalation risks?",
+    "name": "Multi-Agent Orchestration Limits",
+    "zonesApplicable": [
+      2,
+      3
+    ],
+    "roles": [
+      "Compliance Officer",
+      "Entra Security Admin",
+      "Governance Lead",
+      "Power Platform Admin"
+    ],
+    "regulatory": [
+      "FINRA-25-07",
+      "SOX-404",
+      "OCC-2011-12",
+      "Fed-SR-11-7"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/2.17-multi-agent-orchestration-limits/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/2.17/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "2.18",
@@ -1927,7 +4072,48 @@
         "maturity_score": 0
       }
     },
-    "manual_question": "Has automated conflict-of-interest testing been performed for agents that surface investment recommendations or research?"
+    "manual_question": "Has automated conflict-of-interest testing been performed for agents that surface investment recommendations or research?",
+    "name": "Automated Conflict of Interest Testing",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Agent Owner",
+      "Compliance Officer",
+      "Governance Lead",
+      "Model Risk Manager"
+    ],
+    "regulatory": [
+      "FINRA-25-07"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/2.18-automated-conflict-of-interest-testing/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/2.18/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "2.19",
@@ -1952,7 +4138,49 @@
         "maturity_score": 0
       }
     },
-    "manual_question": "Is there clear AI disclosure language presented to customers before they interact with any customer-facing agent?"
+    "manual_question": "Is there clear AI disclosure language presented to customers before they interact with any customer-facing agent?",
+    "name": "Customer AI Disclosure and Transparency",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Compliance Officer",
+      "Customer Experience",
+      "Governance Lead",
+      "Legal Counsel"
+    ],
+    "regulatory": [
+      "FINRA-25-07",
+      "GLBA"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/2.19-customer-ai-disclosure-and-transparency/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/2.19/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "2.20",
@@ -1977,7 +4205,50 @@
         "maturity_score": 0
       }
     },
-    "manual_question": "Has a red team or adversarial testing exercise been conducted for Zone 3 agents, with findings tracked to resolution?"
+    "manual_question": "Has a red team or adversarial testing exercise been conducted for Zone 3 agents, with findings tracked to resolution?",
+    "name": "Adversarial Testing and Red Team Framework",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Agent Owner",
+      "Governance Lead",
+      "QA Lead",
+      "Security Team"
+    ],
+    "regulatory": [
+      "OCC-2011-12",
+      "Fed-SR-11-7",
+      "NIST-AI-RMF"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/2.20-adversarial-testing-and-red-team-framework/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/2.20/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "2.21",
@@ -2002,7 +4273,46 @@
         "maturity_score": 0
       }
     },
-    "manual_question": "Have all AI marketing claims referencing agent capabilities been reviewed for substantiation and regulatory accuracy?"
+    "manual_question": "Have all AI marketing claims referencing agent capabilities been reviewed for substantiation and regulatory accuracy?",
+    "name": "AI Marketing Claims and Substantiation",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Compliance Officer",
+      "Governance Lead",
+      "Legal Counsel",
+      "Marketing/Communications"
+    ],
+    "regulatory": [],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/2.21-ai-marketing-claims-and-substantiation/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/2.21/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "2.22",
@@ -2050,7 +4360,51 @@
         "maturity_score": 4
       }
     },
-    "manual_question": null
+    "manual_question": null,
+    "name": "Inactivity Timeout Enforcement",
+    "zonesApplicable": [
+      2,
+      3
+    ],
+    "roles": [
+      "Agent Owner",
+      "Compliance Officer",
+      "Environment Admin",
+      "Governance Lead",
+      "Power Platform Admin"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-25-07",
+      "SOX-404",
+      "GLBA"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/2.22-inactivity-timeout-enforcement/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/2.22/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "2.23",
@@ -2075,7 +4429,51 @@
         "maturity_score": 0
       }
     },
-    "manual_question": "Is user consent captured and logged before any agent accesses personal data, with consent records retained per policy?"
+    "manual_question": "Is user consent captured and logged before any agent accesses personal data, with consent records retained per policy?",
+    "name": "User Consent and AI Disclosure Enforcement",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Compliance Officer",
+      "Copilot Studio Agent Author",
+      "Entra Global Admin",
+      "Governance Lead",
+      "Power Platform Admin",
+      "Purview Compliance Admin"
+    ],
+    "regulatory": [
+      "FINRA-25-07",
+      "GLBA"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/2.23-user-consent-and-ai-disclosure-enforcement/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/2.23/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "2.24",
@@ -2124,7 +4522,58 @@
         "maturity_score": 4
       }
     },
-    "manual_question": null
+    "manual_question": null,
+    "name": "Agent Feature Enablement and Restriction Governance",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "AI Administrator",
+      "Change Management Team",
+      "Compliance Officer",
+      "Copilot Studio Agent Author",
+      "Entra Global Admin",
+      "Governance Lead",
+      "Power Platform Admin",
+      "Security Architect"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-3110",
+      "FINRA-25-07",
+      "SOX-404",
+      "GLBA",
+      "OCC-2011-12",
+      "Fed-SR-11-7"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/2.24-agent-feature-enablement-and-restriction-governance/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/2.24/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "2.25",
@@ -2172,7 +4621,60 @@
         "maturity_score": 4
       }
     },
-    "manual_question": null
+    "manual_question": null,
+    "name": "Microsoft Agent 365 — Admin Center Governance Console",
+    "zonesApplicable": [
+      2,
+      3
+    ],
+    "roles": [
+      "AI Administrator",
+      "Agent Owner",
+      "Change Management Lead",
+      "Compliance Officer",
+      "Entra Global Admin",
+      "Entra Global Reader",
+      "Governance Lead",
+      "Information Security Officer",
+      "Power Platform Admin",
+      "Purview Compliance Admin",
+      "Technology Risk Manager"
+    ],
+    "regulatory": [
+      "FINRA-25-07",
+      "SEC-17a-4",
+      "SEC-17a-3",
+      "SOX-404",
+      "GLBA",
+      "OCC-2011-12",
+      "NYDFS-500"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/2.25-agent-365-admin-center-governance-console/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/2.25/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "2.26",
@@ -2219,7 +4721,56 @@
         "maturity_score": 4
       }
     },
-    "manual_question": null
+    "manual_question": null,
+    "name": "Entra Agent ID — Identity Governance for Agents",
+    "zonesApplicable": [
+      2,
+      3
+    ],
+    "roles": [
+      "AI Administrator",
+      "Agent Sponsor",
+      "Compliance Officer",
+      "Entra Agent ID Admin",
+      "Entra Identity Governance Admin",
+      "Entra Security Admin",
+      "Governance Lead",
+      "HR / People Operations",
+      "Purview Compliance Admin"
+    ],
+    "regulatory": [
+      "FINRA-3110",
+      "FINRA-25-07",
+      "SOX-404",
+      "GLBA",
+      "OCC-2011-12"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/2.26-entra-agent-id-identity-governance/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/2.26/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "3.1",
@@ -2268,7 +4819,59 @@
         "maturity_score": 4
       }
     },
-    "manual_question": null
+    "manual_question": null,
+    "name": "Agent Inventory and Metadata Management",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "AI Administrator",
+      "Agent Owner",
+      "Compliance Officer",
+      "Entra Agent ID Admin",
+      "Entra Global Admin",
+      "Entra Global Reader",
+      "Governance Lead",
+      "Power Platform Admin"
+    ],
+    "regulatory": [
+      "FINRA-25-07",
+      "SEC-17a-4",
+      "SOX-404",
+      "GLBA",
+      "OCC-2011-12",
+      "Fed-SR-11-7",
+      "NIST-AI-RMF",
+      "NYDFS-500"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/3.1-agent-inventory-and-metadata-management/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/3.1/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "3.2",
@@ -2293,7 +4896,52 @@
         "maturity_score": 0
       }
     },
-    "manual_question": "Is agent usage reported to compliance and risk leadership on a regular schedule, with anomalies flagged?"
+    "manual_question": "Is agent usage reported to compliance and risk leadership on a regular schedule, with anomalies flagged?",
+    "name": "Usage Analytics and Activity Monitoring",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Compliance Officer",
+      "Governance Lead",
+      "Operations Team",
+      "Power Platform Admin"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-25-07",
+      "SEC-17a-3",
+      "SOX-404",
+      "GLBA"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/3.2-usage-analytics-and-activity-monitoring/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/3.2/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "3.3",
@@ -2331,7 +4979,52 @@
         "maturity_score": 4
       }
     },
-    "manual_question": "Are AI-specific incidents (hallucinations, data leakage, unexpected outputs) logged separately from general IT incidents?"
+    "manual_question": "Are AI-specific incidents (hallucinations, data leakage, unexpected outputs) logged separately from general IT incidents?",
+    "name": "Compliance and Regulatory Reporting",
+    "zonesApplicable": [
+      2,
+      3
+    ],
+    "roles": [
+      "Compliance Officer",
+      "Governance Lead",
+      "Power Platform Admin",
+      "SharePoint Site Owner"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-25-07",
+      "SEC-17a-3",
+      "SOX-404",
+      "GLBA",
+      "OCC-2011-12"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/3.3-compliance-and-regulatory-reporting/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/3.3/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "3.4",
@@ -2369,7 +5062,61 @@
         "maturity_score": 4
       }
     },
-    "manual_question": "Is there an active exception register for controls not yet implemented, with risk acceptance signatures?"
+    "manual_question": "Is there an active exception register for controls not yet implemented, with risk acceptance signatures?",
+    "name": "Incident Reporting and Root Cause Analysis",
+    "zonesApplicable": [
+      2,
+      3
+    ],
+    "roles": [
+      "Business Continuity Officer",
+      "CISO / Incident Commander",
+      "Chief Compliance Officer (CCO)",
+      "Disclosure Committee (public-company FSIs)",
+      "Entra Security Admin / Sentinel Admin / SOC Analyst",
+      "General Counsel / Outside Counsel",
+      "Governance Lead",
+      "Internal Audit",
+      "M365 Admin",
+      "Power Platform Admin",
+      "Privacy Officer"
+    ],
+    "regulatory": [
+      "FINRA-25-07",
+      "SEC-17a-4",
+      "SEC-17a-3",
+      "Reg-S-P",
+      "SOX-404",
+      "GLBA",
+      "NYDFS-500",
+      "NCUA"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/3.4-incident-reporting-and-root-cause-analysis/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/3.4/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "3.5",
@@ -2418,7 +5165,52 @@
         "maturity_score": 4
       }
     },
-    "manual_question": null
+    "manual_question": null,
+    "name": "Cost Allocation and Budget Tracking",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Business Unit Owner",
+      "Finance Analyst",
+      "Governance Lead",
+      "Power Platform Admin"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-25-07",
+      "SOX-404",
+      "GLBA",
+      "OCC-2011-12"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/3.5-cost-allocation-and-budget-tracking/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/3.5/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "3.6",
@@ -2443,7 +5235,59 @@
         "maturity_score": 0
       }
     },
-    "manual_question": "Are orphaned agents (no active owner) reviewed at least quarterly and decommissioned or reassigned?"
+    "manual_question": "Are orphaned agents (no active owner) reviewed at least quarterly and decommissioned or reassigned?",
+    "name": "Orphaned Agent Detection and Remediation",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "AI Administrator",
+      "Agent Sponsor / Agent Owner",
+      "Entra Agent ID Admin",
+      "Entra Global Reader",
+      "Entra Identity Governance Admin",
+      "Governance Lead",
+      "HR / People Operations",
+      "Power Platform Admin",
+      "Purview Compliance Admin"
+    ],
+    "regulatory": [
+      "FINRA-25-07",
+      "SEC-17a-4",
+      "SEC-17a-3",
+      "SOX-404",
+      "GLBA",
+      "OCC-2011-12",
+      "NYDFS-500"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/3.6-orphaned-agent-detection-and-remediation/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/3.6/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "3.7",
@@ -2492,7 +5336,52 @@
         "maturity_score": 4
       }
     },
-    "manual_question": null
+    "manual_question": null,
+    "name": "PPAC Security Posture Assessment",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Compliance Officer",
+      "Entra Security Admin",
+      "Governance Lead",
+      "Power Platform Admin"
+    ],
+    "regulatory": [
+      "FINRA-3110",
+      "FINRA-25-07",
+      "SOX-404",
+      "GLBA",
+      "OCC-2011-12"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/3.7-ppac-security-posture-assessment/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/3.7/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "3.8",
@@ -2517,7 +5406,54 @@
         "maturity_score": 0
       }
     },
-    "manual_question": "Is there a hallucination feedback loop — a mechanism for users to flag incorrect agent outputs — with review and remediation?"
+    "manual_question": "Is there a hallucination feedback loop — a mechanism for users to flag incorrect agent outputs — with review and remediation?",
+    "name": "Copilot Hub and Governance Dashboard",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "AI Administrator",
+      "Compliance Officer",
+      "Entra Global Admin",
+      "Governance Lead",
+      "Power Platform Admin",
+      "Supervisor"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-25-07",
+      "SEC-17a-3",
+      "SOX-404",
+      "GLBA"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/3.8-copilot-hub-and-governance-dashboard/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/3.8/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "3.9",
@@ -2565,7 +5501,57 @@
         "maturity_score": 4
       }
     },
-    "manual_question": null
+    "manual_question": null,
+    "name": "Microsoft Sentinel Integration",
+    "zonesApplicable": [
+      2,
+      3
+    ],
+    "roles": [
+      "CISO",
+      "Compliance Officer",
+      "Entra Security Admin",
+      "Governance Lead",
+      "Power Platform Admin",
+      "Purview Compliance Admin / Purview Audit Admin",
+      "SOC Analyst / Security Operations",
+      "Sentinel Admin"
+    ],
+    "regulatory": [
+      "FINRA-25-07",
+      "SEC-17a-4",
+      "SEC-17a-3",
+      "SOX-404",
+      "OCC-2011-12",
+      "Fed-SR-11-7",
+      "NYDFS-500"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/3.9-microsoft-sentinel-integration/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/3.9/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "3.10",
@@ -2590,7 +5576,51 @@
         "maturity_score": 0
       }
     },
-    "manual_question": "Are Sentinel alerts for agent-related security signals reviewed by the SOC on a documented cadence?"
+    "manual_question": "Are Sentinel alerts for agent-related security signals reviewed by the SOC on a documented cadence?",
+    "name": "Hallucination Feedback Loop",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Content Owner",
+      "Governance Lead",
+      "Power Platform Admin",
+      "QA Lead"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-25-07",
+      "SEC-17a-4",
+      "SOX-404"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/3.10-hallucination-feedback-loop/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/3.10/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "3.11",
@@ -2615,7 +5645,54 @@
         "maturity_score": 0
       }
     },
-    "manual_question": "Is there a defined exception management process with documented risk acceptance for controls not yet at target maturity?"
+    "manual_question": "Is there a defined exception management process with documented risk acceptance for controls not yet at target maturity?",
+    "name": "Centralized Agent Inventory Enforcement",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Agent Authors",
+      "Compliance Officer",
+      "Entra Global Admin",
+      "Governance Lead",
+      "Power Platform Admin",
+      "Security Operations"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-25-07",
+      "SOX-404",
+      "OCC-2011-12",
+      "Fed-SR-11-7"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/3.11-centralized-agent-inventory-enforcement/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/3.11/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "3.12",
@@ -2640,7 +5717,53 @@
         "maturity_score": 0
       }
     },
-    "manual_question": "Are regulatory reporting obligations (SAR, FINRA CAT, exam readiness) specifically addressed in your agent governance program?"
+    "manual_question": "Are regulatory reporting obligations (SAR, FINRA CAT, exam readiness) specifically addressed in your agent governance program?",
+    "name": "Agent Governance Exception and Override Management",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Agent Owner",
+      "CISO/Security Lead",
+      "Compliance Officer",
+      "Governance Lead",
+      "Power Platform Admin"
+    ],
+    "regulatory": [
+      "FINRA-3110",
+      "FINRA-25-07",
+      "SOX-404",
+      "OCC-2011-12",
+      "Fed-SR-11-7"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/3.12-agent-governance-exception-and-override-management/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/3.12/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "3.13",
@@ -2665,7 +5788,52 @@
         "maturity_score": 0
       }
     },
-    "manual_question": "Has the governance program been reviewed by Internal Audit or an independent risk function in the last 12 months?"
+    "manual_question": "Has the governance program been reviewed by Internal Audit or an independent risk function in the last 12 months?",
+    "name": "Agent 365 Admin Center Analytics and Reporting",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Business Line Agent Owners",
+      "Chief Compliance Officer (CCO)",
+      "Global Administrator / M365 Copilot Admin",
+      "IT Risk / Governance Lead",
+      "Internal Audit",
+      "Third-Party Risk Manager"
+    ],
+    "regulatory": [
+      "SEC-17a-4",
+      "SEC-17a-3",
+      "SOX-404"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/3.13-agent-365-admin-center-analytics/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/3.13/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "3.14",
@@ -2690,7 +5858,54 @@
         "maturity_score": 0
       }
     },
-    "manual_question": "Is there a process to track and action changes to applicable regulations (FINRA, SEC, OCC, Fed, FDIC, NCUA) as they affect agents?"
+    "manual_question": "Is there a process to track and action changes to applicable regulations (FINRA, SEC, OCC, Fed, FDIC, NCUA) as they affect agents?",
+    "name": "Agent 365 Observability SDK and Custom Agent Telemetry",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Application Development / AI Engineering",
+      "Business Line Agent Owners",
+      "Chief Compliance Officer (CCO)",
+      "Chief Information Security Officer (CISO)",
+      "IT Operations / Platform Engineering",
+      "IT Risk / Governance Lead",
+      "Internal Audit"
+    ],
+    "regulatory": [
+      "SEC-17a-4",
+      "SEC-17a-3",
+      "SOX-404",
+      "OCC-2011-12"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/3.14-agent-365-observability-sdk/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/3.14/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "4.1",
@@ -2739,7 +5954,52 @@
         "maturity_score": 4
       }
     },
-    "manual_question": "Have access reviews been completed for all SharePoint sites used as agent knowledge sources in the last 90 days?"
+    "manual_question": "Have access reviews been completed for all SharePoint sites used as agent knowledge sources in the last 90 days?",
+    "name": "SharePoint Information Access Governance (IAG) / Restricted Content Discovery",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Compliance Officer",
+      "Governance Lead",
+      "SharePoint Admin",
+      "SharePoint Site Collection Admin"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-25-07",
+      "Reg-S-P",
+      "SOX-404",
+      "GLBA"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/4.1/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "4.2",
@@ -2778,7 +6038,53 @@
         "maturity_score": 4
       }
     },
-    "manual_question": "Are retention labels consistently applied to all documents in agent knowledge sources, not just at the site level?"
+    "manual_question": "Are retention labels consistently applied to all documents in agent knowledge sources, not just at the site level?",
+    "name": "Site Access Reviews and Certification",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Compliance Officer",
+      "Entra Identity Governance Admin",
+      "Governance Lead",
+      "SharePoint Admin",
+      "SharePoint Site Collection Admin"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-25-07",
+      "SOX-404",
+      "GLBA",
+      "NYDFS-500"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/4.2-site-access-reviews-and-certification/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/4.2/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "4.3",
@@ -2827,7 +6133,52 @@
         "maturity_score": 4
       }
     },
-    "manual_question": null
+    "manual_question": null,
+    "name": "Site and Document Retention Management",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Governance Lead",
+      "Purview Compliance Admin",
+      "Purview Records Manager",
+      "SharePoint Admin"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-25-07",
+      "SEC-17a-3",
+      "SOX-404",
+      "GLBA"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/4.3-site-and-document-retention-management/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/4.3/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "4.4",
@@ -2876,7 +6227,52 @@
         "maturity_score": 4
       }
     },
-    "manual_question": null
+    "manual_question": null,
+    "name": "Guest and External User Access Controls",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Compliance Officer",
+      "Entra Global Admin",
+      "Entra Security Admin",
+      "SharePoint Admin"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-25-07",
+      "Reg-S-P",
+      "SOX-404",
+      "GLBA"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/4.4-guest-and-external-user-access-controls/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/4.4/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "4.5",
@@ -2914,7 +6310,51 @@
         "maturity_score": 4
       }
     },
-    "manual_question": "Has a knowledge source scan been run in the last 30 days and findings reviewed by a content owner?"
+    "manual_question": "Has a knowledge source scan been run in the last 30 days and findings reviewed by a content owner?",
+    "name": "SharePoint Security and Compliance Monitoring",
+    "zonesApplicable": [
+      2,
+      3
+    ],
+    "roles": [
+      "Compliance Team",
+      "Governance Lead",
+      "Security Operations",
+      "SharePoint Admin"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-25-07",
+      "SEC-17a-3",
+      "SOX-404",
+      "GLBA"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/4.5-sharepoint-security-and-compliance-monitoring/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/4.5/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "4.6",
@@ -2964,7 +6404,53 @@
         "maturity_score": 4
       }
     },
-    "manual_question": null
+    "manual_question": null,
+    "name": "Grounding Scope Governance",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Compliance Officer",
+      "Content Owners",
+      "Governance Lead",
+      "SharePoint Admin"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-25-07",
+      "SEC-17a-3",
+      "SOX-404",
+      "GLBA",
+      "OCC-2011-12"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/4.6-grounding-scope-governance/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/4.6/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "4.7",
@@ -2989,7 +6475,65 @@
         "maturity_score": 0
       }
     },
-    "manual_question": "Are embedded files within SharePoint (PDFs, attachments) included in the grounding scope review, not just top-level documents?"
+    "manual_question": "Are embedded files within SharePoint (PDFs, attachments) included in the grounding scope review, not just top-level documents?",
+    "name": "Microsoft 365 Copilot Data Governance",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "AI Administrator",
+      "CISO",
+      "Compliance Officer",
+      "Designated Supervisor / Registered Principal",
+      "Endpoint Security Admin / Intune Admin",
+      "Governance Lead",
+      "Purview Compliance Admin",
+      "Purview Info Protection Admin",
+      "Purview Records Manager",
+      "SharePoint Admin",
+      "Vendor / Third-Party Risk Manager",
+      "eDiscovery Manager"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "FINRA-3110",
+      "FINRA-25-07",
+      "SEC-17a-3",
+      "Reg-S-P",
+      "SOX-404",
+      "GLBA",
+      "OCC-2011-12",
+      "Fed-SR-11-7",
+      "NYDFS-500"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/4.7-microsoft-365-copilot-data-governance/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/4.7/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "4.8",
@@ -3038,7 +6582,52 @@
         "maturity_score": 4
       }
     },
-    "manual_question": null
+    "manual_question": null,
+    "name": "Item-Level Permission Scanning for Agent Knowledge Sources",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Agent Business Owner",
+      "CISO",
+      "Compliance Officer",
+      "Governance Lead",
+      "SharePoint Admin"
+    ],
+    "regulatory": [
+      "SEC-17a-4",
+      "GLBA",
+      "Fed-SR-11-7",
+      "NIST-AI-RMF"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/4.8-item-level-permission-scanning-agent-knowledge-sources/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/4.8/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   },
   {
     "id": "4.9",
@@ -3063,6 +6652,52 @@
         "maturity_score": 0
       }
     },
-    "manual_question": "Are embedded files within SharePoint (PDFs, attachments) included in the grounding scope review, not just top-level documents?"
+    "manual_question": "Are embedded files within SharePoint (PDFs, attachments) included in the grounding scope review, not just top-level documents?",
+    "name": "Embedded File Content Governance",
+    "zonesApplicable": [
+      1,
+      2,
+      3
+    ],
+    "roles": [
+      "Agent Author / Owner",
+      "Compliance Officer / IB Officer",
+      "Information Security",
+      "Internal Audit",
+      "Manager / Team Lead",
+      "SharePoint / M365 Administrator"
+    ],
+    "regulatory": [
+      "SEC-17a-4",
+      "SEC-17a-3",
+      "SOX-404",
+      "GLBA"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/4.9-embedded-file-content-governance/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/4.9/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": "TODO: sector-specific yes-bar",
+      "broker-dealer": "TODO: sector-specific yes-bar",
+      "investment-adviser": "TODO: sector-specific yes-bar",
+      "insurance-carrier": "TODO: sector-specific yes-bar",
+      "insurance-wholesale": "TODO: sector-specific yes-bar",
+      "credit-union": "TODO: sector-specific yes-bar",
+      "holding-company": "TODO: sector-specific yes-bar",
+      "other": "TODO: sector-specific yes-bar"
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
   }
 ]

@@ -1,0 +1,5 @@
+{
+  "schemaVersion": "1.4.0-pending",
+  "_comment": "PLACEHOLDER lock — will be refreshed against the FSI-AgentGov-Solutions v1.4.0 tag before merge. Run: python scripts/refresh_solutions_lock.py --tag v1.4.0",
+  "solutions": {}
+}
