@@ -81,10 +81,10 @@
       "OCC-2023-17",
       "Fed-SR-11-7"
     ],
-    "priority": "TODO: critical|high|medium|low",
-    "yesBar": "TODO: concise pass criteria",
-    "partialBar": "TODO: partial coverage criteria",
-    "noBar": "TODO: fail criteria",
+    "priority": "critical",
+    "yesBar": "Environment Maker role removed from All Users; named publisher security group exists; share-with-everyone disabled and agent publish gated by approval workflow across Zone 2/3 environments.",
+    "partialBar": "Publisher security group exists but Environment Maker still includes broad groups, or share-with-everyone disabled in only some environments.",
+    "noBar": "Environment Maker is open to All Users, no publisher security group exists, and agents can be shared with everyone without approval.",
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
@@ -102,9 +102,9 @@
       "other": "TODO: sector-specific yes-bar"
     },
     "facilitatorNotes": {
-      "ask": "TODO: facilitator question",
-      "followUp": "TODO: follow-up hint",
-      "timeBudgetMinutes": 5
+      "ask": "Is publishing in production environments restricted to a named publisher security group with approval, and is share-with-everyone disabled?",
+      "followUp": "Open Power Platform admin center > Environments > [Prod] > Settings > Users + permissions, then PPAC > Tenant settings > Sharing.",
+      "timeBudgetMinutes": 6
     },
     "solutions": []
   },
@@ -195,10 +195,10 @@
       "NIST-AI-RMF",
       "NYDFS-500"
     ],
-    "priority": "TODO: critical|high|medium|low",
-    "yesBar": "TODO: concise pass criteria",
-    "partialBar": "TODO: partial coverage criteria",
-    "noBar": "TODO: fail criteria",
+    "priority": "high",
+    "yesBar": "All agents and integrated apps registered with named owner and backup owner, admin consent workflow enabled, and no orphaned service principals across Entra, Integrated Apps, and Copilot Studio.",
+    "partialBar": "Inventory exists for some surfaces (e.g., Integrated Apps) but Copilot Studio or Entra Agent ID coverage is incomplete or owner attribution is missing for Zone 2/3 agents.",
+    "noBar": "No tenant-wide agent inventory; user consent unrestricted; orphaned or unowned service principals exist with no remediation workflow.",
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
@@ -216,9 +216,9 @@
       "other": "TODO: sector-specific yes-bar"
     },
     "facilitatorNotes": {
-      "ask": "TODO: facilitator question",
-      "followUp": "TODO: follow-up hint",
-      "timeBudgetMinutes": 5
+      "ask": "Do you maintain a single registry of all agents and integrated apps with named owners, sponsors, and approved permission scopes?",
+      "followUp": "Check M365 admin center > Settings > Integrated apps, Entra > Enterprise applications, and the Copilot Studio agent list.",
+      "timeBudgetMinutes": 7
     },
     "solutions": []
   },
@@ -289,10 +289,10 @@
       "SOX-404",
       "GLBA"
     ],
-    "priority": "TODO: critical|high|medium|low",
-    "yesBar": "TODO: concise pass criteria",
-    "partialBar": "TODO: partial coverage criteria",
-    "noBar": "TODO: fail criteria",
+    "priority": "critical",
+    "yesBar": "External sharing restricted; Everyone groups removed from agent knowledge sites; container sensitivity labels applied; SAM RAC/RCD enabled and quarterly access reviews active for Zone 3.",
+    "partialBar": "Tenant sharing restricted but agent knowledge sites still grant Everyone-except-external or lack sensitivity labels and SAM controls.",
+    "noBar": "External sharing wide open, knowledge sites contain Everyone groups, no sensitivity labels, and no access reviews on agent-grounded SharePoint content.",
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
@@ -310,9 +310,9 @@
       "other": "TODO: sector-specific yes-bar"
     },
     "facilitatorNotes": {
-      "ask": "TODO: facilitator question",
-      "followUp": "TODO: follow-up hint",
-      "timeBudgetMinutes": 5
+      "ask": "Are SharePoint sites used as agent knowledge sources scoped with least-privilege permissions, sensitivity labels, and RAC/RCD where appropriate?",
+      "followUp": "Open SharePoint admin center > Policies > Sharing, then review per-site permissions and SAM Data Access Governance reports.",
+      "timeBudgetMinutes": 7
     },
     "solutions": []
   },
@@ -394,10 +394,10 @@
       "SOX-404",
       "GLBA"
     ],
-    "priority": "TODO: critical|high|medium|low",
-    "yesBar": "TODO: concise pass criteria",
-    "partialBar": "TODO: partial coverage criteria",
-    "noBar": "TODO: fail criteria",
+    "priority": "high",
+    "yesBar": "ACP and classic DLP enforce a connector allowlist at environment-group scope; consumer connectors blocked and action-level restrictions limit high-risk connectors to read-only in Zone 2/3.",
+    "partialBar": "Classic DLP groups configured but ACP not enabled, or allowlist applied to some environments while custom and HTTP connectors remain ungoverned.",
+    "noBar": "No ACP, no DLP connector classification, and Copilot Studio agents can use any connector including consumer cloud storage and social media.",
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
@@ -415,9 +415,9 @@
       "other": "TODO: sector-specific yes-bar"
     },
     "facilitatorNotes": {
-      "ask": "TODO: facilitator question",
-      "followUp": "TODO: follow-up hint",
-      "timeBudgetMinutes": 5
+      "ask": "Are Copilot Studio agents restricted to an explicit connector allowlist with action-level controls via Advanced Connector Policies and classic DLP?",
+      "followUp": "Open Power Platform admin center > Policies > Data policies, then review Environment Groups and ACP configuration.",
+      "timeBudgetMinutes": 6
     },
     "solutions": []
   },
@@ -497,10 +497,10 @@
       "NYDFS-500",
       "PCI-DSS"
     ],
-    "priority": "TODO: critical|high|medium|low",
-    "yesBar": "TODO: concise pass criteria",
-    "partialBar": "TODO: partial coverage criteria",
-    "noBar": "TODO: fail criteria",
+    "priority": "critical",
+    "yesBar": "Purview DLP covers SharePoint, OneDrive, Exchange, Teams, Endpoint, and Copilot/Copilot Chat, plus Power Platform data policies for Copilot Studio agents, all using FSI-tuned SITs.",
+    "partialBar": "DLP enabled for SharePoint/OneDrive/Exchange but Teams chat, Endpoint, or the Copilot and Copilot Studio surfaces are uninstrumented.",
+    "noBar": "No DLP policies covering Copilot or agent workloads, or only the default credit-card rule is active across a small subset of surfaces.",
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
@@ -518,9 +518,9 @@
       "other": "TODO: sector-specific yes-bar"
     },
     "facilitatorNotes": {
-      "ask": "TODO: facilitator question",
-      "followUp": "TODO: follow-up hint",
-      "timeBudgetMinutes": 5
+      "ask": "Do you have DLP policies explicitly scoped to Copilot and Copilot Studio agents across SharePoint, OneDrive, Exchange, Teams, and Endpoint?",
+      "followUp": "Open Microsoft Purview > Data Loss Prevention > Policies, then PPAC > Policies > Data policies for Power Platform coverage.",
+      "timeBudgetMinutes": 8
     },
     "solutions": []
   },
@@ -584,10 +584,10 @@
       "SOX-404",
       "GLBA"
     ],
-    "priority": "TODO: critical|high|medium|low",
-    "yesBar": "TODO: concise pass criteria",
-    "partialBar": "TODO: partial coverage criteria",
-    "noBar": "TODO: fail criteria",
+    "priority": "high",
+    "yesBar": "DSPM for AI activated with Activity Explorer, sensitive-interaction policies, weekly risk assessments on in-scope SharePoint sites, and extended insights for approved third-party AI.",
+    "partialBar": "DSPM for AI activated but recommended one-click policies are unconfigured or weekly risk assessments are not reviewed by Compliance.",
+    "noBar": "DSPM for AI not activated; no AI interaction visibility through Purview Activity Explorer.",
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
@@ -605,8 +605,8 @@
       "other": "TODO: sector-specific yes-bar"
     },
     "facilitatorNotes": {
-      "ask": "TODO: facilitator question",
-      "followUp": "TODO: follow-up hint",
+      "ask": "Has DSPM for AI been activated with one-click policies, sensitive-interaction monitoring, and weekly risk assessments scoped to FSI knowledge sites?",
+      "followUp": "Open Microsoft Purview > Solutions > DSPM for AI (classic) and review Recommendations plus Activity Explorer.",
       "timeBudgetMinutes": 5
     },
     "solutions": []
@@ -685,10 +685,10 @@
       "Fed-SR-11-7",
       "CFTC-1.31"
     ],
-    "priority": "TODO: critical|high|medium|low",
-    "yesBar": "TODO: concise pass criteria",
-    "partialBar": "TODO: partial coverage criteria",
-    "noBar": "TODO: fail criteria",
+    "priority": "critical",
+    "yesBar": "Unified Audit Log on; Audit Premium with the 10-year retention add-on enabled and a custom audit retention policy targets Copilot/agent events for the applicable 6-year FINRA/SEC window.",
+    "partialBar": "Audit log enabled at Standard with default retention; no custom retention policy for Copilot/agent record types and no documented preservation pipeline.",
+    "noBar": "Unified Audit Log disabled or audit events not retained beyond default 90/180 days; no plan for 17a-4(f) preservation of agent records.",
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
@@ -706,9 +706,9 @@
       "other": "TODO: sector-specific yes-bar"
     },
     "facilitatorNotes": {
-      "ask": "TODO: facilitator question",
-      "followUp": "TODO: follow-up hint",
-      "timeBudgetMinutes": 5
+      "ask": "Is Audit Premium enabled with custom retention policies that hold Copilot and agent audit events for the 6-year FINRA 4511 / SEC 17a-4 window?",
+      "followUp": "Open Microsoft Purview > Audit > Audit retention policies and verify Copilot/agent record types are scoped.",
+      "timeBudgetMinutes": 6
     },
     "solutions": []
   },
@@ -764,10 +764,10 @@
       "FINRA-25-07",
       "GLBA"
     ],
-    "priority": "TODO: critical|high|medium|low",
-    "yesBar": "TODO: concise pass criteria",
-    "partialBar": "TODO: partial coverage criteria",
-    "noBar": "TODO: fail criteria",
+    "priority": "high",
+    "yesBar": "Prompt Shields and content moderation enabled per Copilot Studio agent, Defender for Cloud Apps AI Agent Protection toggled on, and external threat-detection webhook configured for Zone 3 agents.",
+    "partialBar": "Prompt Shields and content moderation enabled on some agents but Defender integration off, or runtime controls inconsistently applied across Zone 2/3.",
+    "noBar": "No Prompt Shields, no content moderation, and no Defender or external runtime threat-detection on Copilot Studio agents.",
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
@@ -785,9 +785,9 @@
       "other": "TODO: sector-specific yes-bar"
     },
     "facilitatorNotes": {
-      "ask": "TODO: facilitator question",
-      "followUp": "TODO: follow-up hint",
-      "timeBudgetMinutes": 5
+      "ask": "Are Prompt Shields, content moderation, and Defender for Cloud Apps AI Agent Protection enabled for all Zone 2/3 Copilot Studio agents?",
+      "followUp": "Open Copilot Studio > [agent] > Settings > Security, then PPAC > Security > Microsoft Defender for Cloud Apps.",
+      "timeBudgetMinutes": 6
     },
     "solutions": []
   },
@@ -944,10 +944,10 @@
       "Reg-S-P",
       "GLBA"
     ],
-    "priority": "TODO: critical|high|medium|low",
-    "yesBar": "TODO: concise pass criteria",
-    "partialBar": "TODO: partial coverage criteria",
-    "noBar": "TODO: fail criteria",
+    "priority": "high",
+    "yesBar": "Communication Compliance policies cover Exchange, Teams, and Copilot/Copilot Chat using the dedicated Copilot template with Prompt Shield classifiers and assigned reviewers per policy.",
+    "partialBar": "Communication Compliance configured for Exchange/Teams but not extended to Copilot interactions or to Copilot Studio agents requiring pay-as-you-go.",
+    "noBar": "No Communication Compliance policies covering AI-assisted communications; AI-generated content not subject to supervisory review.",
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
@@ -965,9 +965,9 @@
       "other": "TODO: sector-specific yes-bar"
     },
     "facilitatorNotes": {
-      "ask": "TODO: facilitator question",
-      "followUp": "TODO: follow-up hint",
-      "timeBudgetMinutes": 5
+      "ask": "Do Communication Compliance policies monitor Microsoft 365 Copilot interactions and Copilot Studio agent outputs for FINRA-relevant content?",
+      "followUp": "Open Microsoft Purview > Communication Compliance > Policies and use the Detect Microsoft 365 Copilot template.",
+      "timeBudgetMinutes": 6
     },
     "solutions": []
   },
@@ -1061,10 +1061,10 @@
       "Fed-SR-11-7",
       "NYDFS-500"
     ],
-    "priority": "TODO: critical|high|medium|low",
-    "yesBar": "TODO: concise pass criteria",
-    "partialBar": "TODO: partial coverage criteria",
-    "noBar": "TODO: fail criteria",
+    "priority": "critical",
+    "yesBar": "CA policies require phishing-resistant MFA (FIDO2/passkey/WHfB/CBA) for agent makers, owners, and admins; break-glass excluded; CA for Workload Identities applied to agent service principals.",
+    "partialBar": "MFA required tenant-wide but uses SMS, voice, or push, or phishing-resistant strength not enforced for agent makers and admins.",
+    "noBar": "No Conditional Access for agent administrators, MFA optional, or break-glass accounts not validated and excluded.",
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
@@ -1082,9 +1082,9 @@
       "other": "TODO: sector-specific yes-bar"
     },
     "facilitatorNotes": {
-      "ask": "TODO: facilitator question",
-      "followUp": "TODO: follow-up hint",
-      "timeBudgetMinutes": 5
+      "ask": "Does Conditional Access require phishing-resistant MFA for agent makers, owners, and admins, plus workload-identity CA for service principals?",
+      "followUp": "Open Entra admin center > Protection > Conditional Access > Policies, then check Authentication strengths.",
+      "timeBudgetMinutes": 7
     },
     "solutions": []
   },
@@ -1152,10 +1152,10 @@
       "Fed-SR-11-7",
       "NYDFS-500"
     ],
-    "priority": "TODO: critical|high|medium|low",
-    "yesBar": "TODO: concise pass criteria",
-    "partialBar": "TODO: partial coverage criteria",
-    "noBar": "TODO: fail criteria",
+    "priority": "high",
+    "yesBar": "Insider Risk Management configured with Risky AI usage and Risky Agents templates, Adaptive Protection integrated where available, and triage/investigator roles assigned with separation of duties.",
+    "partialBar": "IRM enabled but Risky AI usage / Risky Agents templates inactive or no reviewer assignments for AI-related signals.",
+    "noBar": "No Insider Risk Management policies; AI-driven exfiltration or abuse signals are not detected or triaged.",
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
@@ -1173,9 +1173,9 @@
       "other": "TODO: sector-specific yes-bar"
     },
     "facilitatorNotes": {
-      "ask": "TODO: facilitator question",
-      "followUp": "TODO: follow-up hint",
-      "timeBudgetMinutes": 5
+      "ask": "Are Insider Risk Management Risky AI usage and Risky Agents policies active with assigned investigators and integration to Adaptive Protection?",
+      "followUp": "Open Microsoft Purview > Insider Risk Management > Policies and verify the Risky AI usage / Risky Agents templates.",
+      "timeBudgetMinutes": 6
     },
     "solutions": []
   },
@@ -1253,10 +1253,10 @@
       "CFTC-1.31",
       "PCI-DSS"
     ],
-    "priority": "TODO: critical|high|medium|low",
-    "yesBar": "TODO: concise pass criteria",
-    "partialBar": "TODO: partial coverage criteria",
-    "noBar": "TODO: fail criteria",
+    "priority": "high",
+    "yesBar": "FSI-relevant built-in and custom SITs (SSN, credit card, ABA routing, account numbers, CRD, MNPI keyword dictionary) are deployed and referenced by DLP, sensitivity labels, and DSPM for AI policies.",
+    "partialBar": "Built-in SITs in use but no custom FSI SITs (CRD, MNPI, internal account numbers) or no Exact Data Match for customer master data.",
+    "noBar": "Default SITs only or no SITs referenced in any DLP/label policy; no detection coverage for FSI-specific data patterns.",
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
@@ -1274,9 +1274,9 @@
       "other": "TODO: sector-specific yes-bar"
     },
     "facilitatorNotes": {
-      "ask": "TODO: facilitator question",
-      "followUp": "TODO: follow-up hint",
-      "timeBudgetMinutes": 5
+      "ask": "Do you have built-in and custom FSI SITs (CRD, MNPI, internal account formats) wired into DLP and DSPM for AI policies?",
+      "followUp": "Open Microsoft Purview > Data classification > Sensitive info types and review references in DLP/label policies.",
+      "timeBudgetMinutes": 6
     },
     "solutions": []
   },
@@ -1328,10 +1328,10 @@
       "Reg-S-P",
       "GLBA"
     ],
-    "priority": "TODO: critical|high|medium|low",
-    "yesBar": "TODO: concise pass criteria",
-    "partialBar": "TODO: partial coverage criteria",
-    "noBar": "TODO: fail criteria",
+    "priority": "medium",
+    "yesBar": "Each agent has a documented grounding inventory with zone-based justification, narrowed SharePoint scopes, public web grounding disabled for Zone 3 NPI agents, and active scope-drift monitoring.",
+    "partialBar": "Inventory exists for some agents but no zone-based approval workflow or scope-drift monitoring; Zone 3 agents may still ground on broad sites.",
+    "noBar": "No documented agent grounding inventory; agents access entire SharePoint sites and public web with no scope-drift detection.",
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
@@ -1349,9 +1349,9 @@
       "other": "TODO: sector-specific yes-bar"
     },
     "facilitatorNotes": {
-      "ask": "TODO: facilitator question",
-      "followUp": "TODO: follow-up hint",
-      "timeBudgetMinutes": 5
+      "ask": "Is each Zone 2/3 agent's grounding scope documented, approved, and monitored for drift beyond declared sources?",
+      "followUp": "Review Copilot Studio agent knowledge sources, PPAC DLP, and Purview DSPM for AI Activity Explorer for scope signals.",
+      "timeBudgetMinutes": 6
     },
     "solutions": []
   },
@@ -1578,10 +1578,10 @@
       "GLBA",
       "PCI-DSS"
     ],
-    "priority": "TODO: critical|high|medium|low",
-    "yesBar": "TODO: concise pass criteria",
-    "partialBar": "TODO: partial coverage criteria",
-    "noBar": "TODO: fail criteria",
+    "priority": "high",
+    "yesBar": "Devices onboarded via Defender for Endpoint with Endpoint DLP blocking restricted apps, USB/removable media, personal cloud uploads, and Edge for Business AI-paste rules for unmanaged AI.",
+    "partialBar": "Endpoint DLP enabled but coverage limited to USB or restricted apps, with no browser-based DLP for unmanaged AI.",
+    "noBar": "No Endpoint DLP; sensitive data may be copied to USB, personal cloud, or pasted into unmanaged AI sites without detection.",
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
@@ -1599,9 +1599,9 @@
       "other": "TODO: sector-specific yes-bar"
     },
     "facilitatorNotes": {
-      "ask": "TODO: facilitator question",
-      "followUp": "TODO: follow-up hint",
-      "timeBudgetMinutes": 5
+      "ask": "Are Windows/macOS endpoints onboarded with Endpoint DLP policies including Edge for Business browser controls for unmanaged AI apps?",
+      "followUp": "Open Microsoft Purview > Data Loss Prevention > Endpoint DLP settings and verify device onboarding count.",
+      "timeBudgetMinutes": 6
     },
     "solutions": []
   },
@@ -1948,10 +1948,10 @@
       "Fed-SR-11-7",
       "NIST-AI-RMF"
     ],
-    "priority": "TODO: critical|high|medium|low",
-    "yesBar": "TODO: concise pass criteria",
-    "partialBar": "TODO: partial coverage criteria",
-    "noBar": "TODO: fail criteria",
+    "priority": "high",
+    "yesBar": "Adversarial-input signals captured across Prompt Shields, Defender XDR Copilot, Communication Compliance Prompt Shield classifier, and DSPM for AI, with Sentinel cross-plane correlation.",
+    "partialBar": "Some signal planes active (e.g., Prompt Shields) but no Sentinel correlation or no Comm Compliance/DSPM coverage of adversarial events.",
+    "noBar": "No detection of prompt injection, jailbreak attempts, or encoding-based evasion against AI agents.",
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
@@ -1969,9 +1969,9 @@
       "other": "TODO: sector-specific yes-bar"
     },
     "facilitatorNotes": {
-      "ask": "TODO: facilitator question",
-      "followUp": "TODO: follow-up hint",
-      "timeBudgetMinutes": 5
+      "ask": "Are prompt-injection and jailbreak signals captured from Prompt Shields, Defender XDR, Comm Compliance, and DSPM for AI, then correlated in Sentinel?",
+      "followUp": "Open Defender XDR > Incidents (filter Copilot) and Sentinel analytics rules for AI threat detection.",
+      "timeBudgetMinutes": 7
     },
     "solutions": []
   },
@@ -2760,10 +2760,10 @@
       "Fed-SR-11-7",
       "NYDFS-500"
     ],
-    "priority": "TODO: critical|high|medium|low",
-    "yesBar": "TODO: concise pass criteria",
-    "partialBar": "TODO: partial coverage criteria",
-    "noBar": "TODO: fail criteria",
+    "priority": "critical",
+    "yesBar": "All Zone 2/3 environments designated as Managed with sharing limits, solution-checker enforcement, weekly digest reviewed, IP firewall configured, and maker welcome content published.",
+    "partialBar": "Managed Environments enabled on some Zone 2/3 environments but sharing limits or solution-checker enforcement not configured uniformly.",
+    "noBar": "No Managed Environments designation; sharing unlimited and no solution-checker governance signals.",
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
@@ -2781,8 +2781,8 @@
       "other": "TODO: sector-specific yes-bar"
     },
     "facilitatorNotes": {
-      "ask": "TODO: facilitator question",
-      "followUp": "TODO: follow-up hint",
+      "ask": "Are all Zone 2/3 Power Platform environments designated as Managed Environments with sharing limits and solution-checker enforcement?",
+      "followUp": "Open Power Platform admin center > Environments and verify the Managed badge plus rule configuration.",
       "timeBudgetMinutes": 5
     },
     "solutions": []
@@ -2855,10 +2855,10 @@
       "GLBA",
       "OCC-2011-12"
     ],
-    "priority": "TODO: critical|high|medium|low",
-    "yesBar": "TODO: concise pass criteria",
-    "partialBar": "TODO: partial coverage criteria",
-    "noBar": "TODO: fail criteria",
+    "priority": "high",
+    "yesBar": "Environment groups aligned to Zone 1/2/3 with rules published per zone (sharing, channels, AI model restrictions, CUA disabled), and routing places makers into the correctly governed environment.",
+    "partialBar": "Environment groups created but rules unpublished, or zone alignment incomplete (e.g., regulated workloads still in default environment).",
+    "noBar": "No environment groups; all environments share a flat governance posture with no zone differentiation.",
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
@@ -2876,8 +2876,8 @@
       "other": "TODO: sector-specific yes-bar"
     },
     "facilitatorNotes": {
-      "ask": "TODO: facilitator question",
-      "followUp": "TODO: follow-up hint",
+      "ask": "Are environment groups configured for Zones 1/2/3 with published rules and Computer-Using Agents disabled tenant-wide?",
+      "followUp": "Open Power Platform admin center > Environment groups and verify rule publish status.",
       "timeBudgetMinutes": 5
     },
     "solutions": []
@@ -3019,10 +3019,10 @@
       "GLBA",
       "OCC-2011-12"
     ],
-    "priority": "TODO: critical|high|medium|low",
-    "yesBar": "TODO: concise pass criteria",
-    "partialBar": "TODO: partial coverage criteria",
-    "noBar": "TODO: fail criteria",
+    "priority": "medium",
+    "yesBar": "Critical agents tier-classified with documented RTO/RPO, secondary-region environments provisioned, automated solution backup running, and annual DR test executed with results retained.",
+    "partialBar": "Some agents tier-classified but no secondary region for Tier 1/2 agents, or DR runbook exists without annual testing.",
+    "noBar": "No agent BC/DR classification; no backup, no DR runbook, no testing.",
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
@@ -3040,8 +3040,8 @@
       "other": "TODO: sector-specific yes-bar"
     },
     "facilitatorNotes": {
-      "ask": "TODO: facilitator question",
-      "followUp": "TODO: follow-up hint",
+      "ask": "Are critical Copilot Studio agents tier-classified with RTO/RPO, secondary-region failover, and an annually tested DR runbook?",
+      "followUp": "Review the agent inventory for Tier 1/2 classifications and verify Power Platform solution-export backup cadence.",
       "timeBudgetMinutes": 5
     },
     "solutions": []
@@ -3172,10 +3172,10 @@
       "Fed-SR-11-7",
       "NYDFS-500"
     ],
-    "priority": "TODO: critical|high|medium|low",
-    "yesBar": "TODO: concise pass criteria",
-    "partialBar": "TODO: partial coverage criteria",
-    "noBar": "TODO: fail criteria",
+    "priority": "high",
+    "yesBar": "AI agents classified within the firm's MRM framework with model inventory, independent validation, ongoing performance monitoring, bias testing, and change-control evidence retained per 17a-4(f).",
+    "partialBar": "AI agents in scope of MRM policy but validation evidence inconsistent, or only some Zone 3 agents have completed independent validation.",
+    "noBar": "AI agents are not treated as models under the firm's MRM program; no inventory, validation, or ongoing monitoring.",
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
@@ -3193,9 +3193,9 @@
       "other": "TODO: sector-specific yes-bar"
     },
     "facilitatorNotes": {
-      "ask": "TODO: facilitator question",
-      "followUp": "TODO: follow-up hint",
-      "timeBudgetMinutes": 5
+      "ask": "Are AI agents that inform decisions or customer interactions inventoried, validated independently, and monitored under the firm's MRM program?",
+      "followUp": "Cross-check the agent registry (1.2) against the model inventory and review MRMC minutes for agent approvals.",
+      "timeBudgetMinutes": 8
     },
     "solutions": []
   },
@@ -3632,10 +3632,10 @@
       "SOX-404",
       "NYDFS-500"
     ],
-    "priority": "TODO: critical|high|medium|low",
-    "yesBar": "TODO: concise pass criteria",
-    "partialBar": "TODO: partial coverage criteria",
-    "noBar": "TODO: fail criteria",
+    "priority": "critical",
+    "yesBar": "WSP addendum covers AI communications, qualified principal designated, HITL configured for Zone 3 customer-facing outputs, sampling protocol documented, and supervisory review evidence retained.",
+    "partialBar": "Supervisory procedures cover human communications but lack AI-specific addendum, or sampling exists without HITL gating for high-risk outputs.",
+    "noBar": "No supervisory procedures covering AI agent outputs; no principal designated and no HITL for Zone 3.",
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
@@ -3653,9 +3653,9 @@
       "other": "TODO: sector-specific yes-bar"
     },
     "facilitatorNotes": {
-      "ask": "TODO: facilitator question",
-      "followUp": "TODO: follow-up hint",
-      "timeBudgetMinutes": 5
+      "ask": "Has the firm's WSP been amended to include AI agent supervision with HITL for Zone 3 customer-facing outputs and a designated registered principal?",
+      "followUp": "Review WSP for AI addendum, Copilot Studio human-agent handoff configuration, and the supervision review log.",
+      "timeBudgetMinutes": 8
     },
     "solutions": []
   },
@@ -4022,10 +4022,10 @@
       "OCC-2011-12",
       "Fed-SR-11-7"
     ],
-    "priority": "TODO: critical|high|medium|low",
-    "yesBar": "TODO: concise pass criteria",
-    "partialBar": "TODO: partial coverage criteria",
-    "noBar": "TODO: fail criteria",
+    "priority": "medium",
+    "yesBar": "Multi-agent designs document delegation depth limits, circuit breakers, HITL triggers, and the 128-tool ceiling; A2A/MCP cross-protocol chains tracked in the agent inventory.",
+    "partialBar": "Multi-agent patterns in use but delegation limits or circuit breakers absent, and cross-protocol chains not inventoried.",
+    "noBar": "Agents call other agents and tools with no delegation limits, circuit breakers, or HITL triggers; no inventory of multi-agent chains.",
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
@@ -4043,8 +4043,8 @@
       "other": "TODO: sector-specific yes-bar"
     },
     "facilitatorNotes": {
-      "ask": "TODO: facilitator question",
-      "followUp": "TODO: follow-up hint",
+      "ask": "Are multi-agent and MCP orchestration patterns documented with delegation depth limits, circuit breakers, and inventoried in the agent registry?",
+      "followUp": "Review Copilot Studio agent designs, MCP/A2A connections, and any custom orchestration logic for governance limits.",
       "timeBudgetMinutes": 5
     },
     "solutions": []
@@ -4548,10 +4548,10 @@
       "OCC-2011-12",
       "Fed-SR-11-7"
     ],
-    "priority": "TODO: critical|high|medium|low",
-    "yesBar": "TODO: concise pass criteria",
-    "partialBar": "TODO: partial coverage criteria",
-    "noBar": "TODO: fail criteria",
+    "priority": "medium",
+    "yesBar": "Per-zone feature catalog approved by change management; tenant, environment, and agent-level toggles enforce it; preview/MCP/code-interpreter features explicitly approved per zone.",
+    "partialBar": "Feature catalog exists but enforcement inconsistent across the three surfaces, or preview features enabled without change-management approval.",
+    "noBar": "No documented feature catalog; agent makers can enable any preview or generative capability without approval.",
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
@@ -4569,9 +4569,9 @@
       "other": "TODO: sector-specific yes-bar"
     },
     "facilitatorNotes": {
-      "ask": "TODO: facilitator question",
-      "followUp": "TODO: follow-up hint",
-      "timeBudgetMinutes": 5
+      "ask": "Do you maintain a per-zone catalog of approved Copilot/Copilot Studio features with enforcement at tenant, environment, and agent levels?",
+      "followUp": "Review M365 admin center Copilot settings, PPAC environment features, and Copilot Studio per-agent capability flags.",
+      "timeBudgetMinutes": 6
     },
     "solutions": []
   },
@@ -5091,10 +5091,10 @@
       "NYDFS-500",
       "NCUA"
     ],
-    "priority": "TODO: critical|high|medium|low",
-    "yesBar": "TODO: concise pass criteria",
-    "partialBar": "TODO: partial coverage criteria",
-    "noBar": "TODO: fail criteria",
+    "priority": "critical",
+    "yesBar": "Written IR program covers AI agent incidents with runbooks for the parallel clocks (NYDFS 72h, SEC 8-K 4-day, banking 36h, Reg S-P 30-day) and RCA evidence retained per 17a-4.",
+    "partialBar": "IR program exists but lacks AI-agent scenarios or full clock matrix; some notification paths undocumented.",
+    "noBar": "No written IR program covering AI agents and no documented regulator notification matrix.",
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
@@ -5112,9 +5112,9 @@
       "other": "TODO: sector-specific yes-bar"
     },
     "facilitatorNotes": {
-      "ask": "TODO: facilitator question",
-      "followUp": "TODO: follow-up hint",
-      "timeBudgetMinutes": 5
+      "ask": "Does the firm's written incident response program address AI agent incidents and the parallel NYDFS/SEC/federal banking/Reg S-P notification clocks?",
+      "followUp": "Review the IR plan, Sentinel/Defender incident workflow, and the regulator notification matrix maintained by Compliance.",
+      "timeBudgetMinutes": 8
     },
     "solutions": []
   },
@@ -5526,10 +5526,10 @@
       "Fed-SR-11-7",
       "NYDFS-500"
     ],
-    "priority": "TODO: critical|high|medium|low",
-    "yesBar": "TODO: concise pass criteria",
-    "partialBar": "TODO: partial coverage criteria",
-    "noBar": "TODO: fail criteria",
+    "priority": "high",
+    "yesBar": "Sentinel ingests Power Platform Admin Activity, CopilotInteraction, Entra and service-principal sign-ins, and Defender connectors with FSI analytics rules, workbooks, and Logic Apps playbooks.",
+    "partialBar": "Sentinel deployed with some connectors (e.g., Entra) but Power Platform Admin Activity or CopilotInteraction not ingested and no AI-specific analytics rules.",
+    "noBar": "No Sentinel ingestion of Power Platform/Copilot/agent telemetry; no SIEM analytics for agent behavior.",
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
@@ -5547,9 +5547,9 @@
       "other": "TODO: sector-specific yes-bar"
     },
     "facilitatorNotes": {
-      "ask": "TODO: facilitator question",
-      "followUp": "TODO: follow-up hint",
-      "timeBudgetMinutes": 5
+      "ask": "Does Sentinel ingest Power Platform Admin Activity, CopilotInteraction, and service-principal sign-ins with AI-specific analytics rules and playbooks?",
+      "followUp": "Open Microsoft Sentinel > Data connectors and verify Power Platform, M365, Defender, and Entra connectors are healthy.",
+      "timeBudgetMinutes": 7
     },
     "solutions": []
   },
@@ -5808,10 +5808,10 @@
       "SEC-17a-3",
       "SOX-404"
     ],
-    "priority": "TODO: critical|high|medium|low",
-    "yesBar": "TODO: concise pass criteria",
-    "partialBar": "TODO: partial coverage criteria",
-    "noBar": "TODO: fail criteria",
+    "priority": "medium",
+    "yesBar": "Recurring supervisory review of Agent 365 Overview hero metrics, pending requests, and ownerless agents documented; monthly inventory exports retained as examination evidence.",
+    "partialBar": "Agent Registry consulted but hero metrics not formally reviewed, or inventory exports performed inconsistently.",
+    "noBar": "No defined supervisory review process leveraging Agent 365 Admin Center; no recurring inventory export.",
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
@@ -5829,9 +5829,9 @@
       "other": "TODO: sector-specific yes-bar"
     },
     "facilitatorNotes": {
-      "ask": "TODO: facilitator question",
-      "followUp": "TODO: follow-up hint",
-      "timeBudgetMinutes": 5
+      "ask": "Do you run a recurring review of Agent 365 hero metrics, pending requests, and ownerless agents with monthly inventory export?",
+      "followUp": "Open M365 admin center > Agents > Overview and verify a documented review cadence in the supervision register.",
+      "timeBudgetMinutes": 4
     },
     "solutions": []
   },
