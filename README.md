@@ -506,5 +506,5 @@ See [Disclaimer](docs/disclaimer.md).
 
 ---
 
-*FSI Agent Governance Framework v1.3.5 - April 2026*
+*FSI Agent Governance Framework v1.4.0 - May 2026*
 *Comprehensive governance for Microsoft 365 agents in financial services*
