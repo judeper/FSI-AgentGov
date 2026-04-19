@@ -18,7 +18,7 @@ This playbook is structured by **Symptom (H2) → Likely Cause and Resolution (H
 | DLP not triggering on sensitive content | Policy mode, scope, SIT version, latency | [DLP Not Triggering](#symptom-dlp-policy-not-triggering-on-uploaded-content) |
 | SPE container access too permissive | Default permissions, missing retention policy | [SPE Container Hardening](#symptom-spe-container-access-not-restricted-or-retention-missing) |
 | Inventory script returns incomplete results | Sovereign cloud, PSEdition, role | [Inventory Incomplete](#symptom-inventory-script-returns-incomplete-or-empty-results) |
-| `Set-AdminPowerAppChatbot -FileUploadEnabled` rejected | Module version, schema not present | [API Surface Missing](#symptom-set-adminpowerappchatbot--fileuploadenabled-rejected) |
+| `Set-AdminPowerAppChatbot -FileUploadEnabled` rejected | Module version, schema not present | [API Surface Missing](#symptom-set-adminpowerappchatbot-fileuploadenabled-rejected) |
 
 ---
 

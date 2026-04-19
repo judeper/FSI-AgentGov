@@ -456,7 +456,7 @@ Pipe the JSON output into the Pester suite running under PS 7.4 (Verification §
 
 **Root cause.** **`New-AzCostManagementBudget` is not a GA cmdlet.** Earlier drafts of this playbook referenced it incorrectly.
 
-**Resolution.** Use **`New-AzConsumptionBudget`** (Az.Billing module) instead. See [PowerShell §7.1](powershell-setup.md#71-create--update-budget-new-azconsumptionbudget). Update any local helpers that may have been copied from the older draft.
+**Resolution.** Use **`New-AzConsumptionBudget`** (Az.Billing module) instead. See [PowerShell §7.1](powershell-setup.md#71-create-update-budget-new-azconsumptionbudget). Update any local helpers that may have been copied from the older draft.
 
 ---
 

@@ -351,7 +351,7 @@ Chargeback ledgers, rate cards, variance memos, and the underlying Cost Manageme
 
 By the 5th business day after month-end:
 
-1. Run [`Get-Fsi35MonthlyChargeback`](powershell-setup.md#§4-monthly-close-helpers) (PowerShell setup §4).
+1. Run [`Get-Fsi35MonthlyChargeback`](powershell-setup.md#4-monthly-close-helpers) (PowerShell setup §4).
 2. Reconcile total against the EA / MCA invoice — variance memo for any >5 % delta.
 3. Generate the BU-level chargeback ledger; route to Finance for sign-off.
 4. Apply the retention label to the signed PDF; archive to the SharePoint records library.

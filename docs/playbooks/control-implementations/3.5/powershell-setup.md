@@ -183,7 +183,7 @@ For Copilot usage / inactive-license helpers:
 | `LicenseAssignment.Read.All` | Inactive seat detection |
 | `Group.Read.All` | Read Entra ID security groups bound to billing policies |
 
-Always read-only for this control. Mutation surfaces (creating Copilot billing policies via Graph beta) are deliberately not implemented as automation in v1.3.3 — the GA Graph surface is moving; perform via portal (see [Portal Walkthrough §3](portal-walkthrough.md#§3-microsoft-365-admin-center--copilot-billing--usage-policies)) until the API stabilises.
+Always read-only for this control. Mutation surfaces (creating Copilot billing policies via Graph beta) are deliberately not implemented as automation in v1.3.3 — the GA Graph surface is moving; perform via portal (see [Portal Walkthrough §3](portal-walkthrough.md#3-microsoft-365-admin-center-copilot-billing-usage-policies)) until the API stabilises.
 
 ---
 
@@ -376,7 +376,7 @@ function Get-Fsi-CostByBusinessUnit {
 ```
 
 !!! warning "Untagged rows are not zero spend"
-    `Get-Fsi-CostByBusinessUnit` exposes an `Untagged` count. A non-zero `Untagged` value means real spend exists outside the cost-allocation taxonomy — investigate via the Azure Policy compliance report (see [Portal Walkthrough §4.3](portal-walkthrough.md#§4-azure-portal--tagging-policy-and-tag-inheritance)). Do not bury untagged spend into a `SHARED` cost center silently — that is a SOX 404 documentation gap.
+    `Get-Fsi-CostByBusinessUnit` exposes an `Untagged` count. A non-zero `Untagged` value means real spend exists outside the cost-allocation taxonomy — investigate via the Azure Policy compliance report (see [Portal Walkthrough §4.3](portal-walkthrough.md#4-azure-portal-tagging-policy-and-tag-inheritance)). Do not bury untagged spend into a `SHARED` cost center silently — that is a SOX 404 documentation gap.
 
 ---
 

@@ -302,7 +302,7 @@ The M365 connector ingests the unified Purview audit log into the `OfficeActivit
     | order by Count desc
     ```
 
-    Expected: a non-zero count for `CopilotInteraction` if the tenant has active Copilot users. If the count is zero after 24 hours, route to [troubleshooting.md](./troubleshooting.md#m365-connector).
+    Expected: a non-zero count for `CopilotInteraction` if the tenant has active Copilot users. If the count is zero after 24 hours, route to [troubleshooting.md](./troubleshooting.md).
 
 [Screenshot anchor: ![M365 connector enabled with all four telemetry types](../../../images/3.9/03-m365-connector.png)]
 
