@@ -4,8 +4,8 @@
 **Control:** 3.14 — Agent 365 Observability SDK and Custom Agent Telemetry
 **Pillar:** Reporting
 **Estimated Duration:** 2–3 hours
-**Required Role:** Entra Global Admin; Security Analyst (Defender verification); Compliance Analyst (Purview verification); Application Developer (SDK-level verification)
-**Last Verified:** March 2026
+**Required Role:** Entra Global Admin or Entra Security Reader (sign-in log review); AI Administrator (Admin Center verification); SOC Analyst (Defender verification); Purview Audit Reader (Purview verification); Copilot Studio Agent Author / Application developer (SDK-level verification)
+**Last Verified:** April 2026
 
 ---
 
@@ -42,9 +42,9 @@ Before running tests, ensure the following are in place:
 1. The custom agent under test has the SDK installed and `ENABLE_A365_OBSERVABILITY_EXPORTER=true` set.
 2. The agent's Entra app registration has been confirmed active.
 3. You have access to all four verification destinations:
-   - M365 Admin Center (Global Admin or Copilot Admin)
-   - Microsoft Purview compliance portal (Audit access)
-   - Microsoft Defender portal (Security reader or above)
+   - M365 Admin Center (Entra Global Admin or AI Administrator)
+   - Microsoft Purview compliance portal (Purview Audit Reader)
+   - Microsoft Defender portal (Entra Security Reader or above)
    - Azure Log Analytics workspace (Log Analytics Reader)
 4. The agent under test can be invoked manually with a simple test query.
 
@@ -207,7 +207,7 @@ Select an audit record from the search results that corresponds to the test sess
 
 Navigate to Purview > Data lifecycle management > Retention policies (or Audit > Audit retention policies). Confirm the retention policy covering agent records shows:
 - Status: Active
-- Duration: consistent with FINRA 4511 (at minimum 6 years / 2,190 days)
+- Duration: consistent with FINRA 4511 / SEC 17a-4 (typically a 6-year minimum for broker-dealer records / 2,190 days)
 - Record types: includes agent-related record types
 
 **Evidence to Record**:
@@ -216,7 +216,7 @@ Navigate to Purview > Data lifecycle management > Retention policies (or Audit >
 - Screenshot or export of retention policy configuration showing duration
 - Record count from the search results
 
-Pass Criteria: At least one Purview audit record found corresponding to the test session. Retention policy confirmed at 6+ years.
+Pass Criteria: At least one Purview audit record found corresponding to the test session. Retention policy confirmed at the firm's regulatory minimum (typically 6+ years for broker-dealer records).
 
 Fail Criteria: No Purview records found after 90 minutes. Refer to Troubleshooting Playbook 3.14-D, Issue 3.1.
 
@@ -457,10 +457,10 @@ Date: ____________________________
 Reviewed by Compliance Officer: ____________________________
 Date Reviewed: ____________________________
 
-*This certificate constitutes a business record subject to FINRA Rule 4511 and SEC Rule 17a-4. Retain for 6 years minimum.*
+*This certificate may constitute a business record subject to FINRA Rule 4511 and SEC Rule 17a-4 when associated with regulated activity. Retention should align with firm policy and the applicable regulatory minimum (typically 6 years for broker-dealer records).*
 
 ---
 
 [Back to Control 3.14](../../../controls/pillar-3-reporting/3.14-agent-365-observability-sdk.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell and SDK Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md)
 
-*Updated: March 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3 | UI Verification Status: Current*

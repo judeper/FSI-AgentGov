@@ -4,8 +4,8 @@
 **Control:** 3.14 — Agent 365 Observability SDK and Custom Agent Telemetry
 **Pillar:** Reporting
 **Estimated Duration:** 45–90 minutes (initial configuration); 15–20 minutes (recurring verification)
-**Required Role:** Entra Global Admin, Entra Administrator (for diagnostic settings), AI Administrator (for Admin Center verification)
-**Last Verified:** March 2026
+**Required Role:** Entra Global Admin (diagnostic settings); AI Administrator (M365 Admin Center verification); Purview Compliance Admin (audit retention); Purview Audit Reader (audit search)
+**Last Verified:** April 2026
 
 ---
 
@@ -24,7 +24,7 @@ This playbook guides administrators through the portal-based configuration tasks
 
 Before beginning, confirm:
 
-- [ ] You have Entra Global Admin and Entra Administrator role assignments.
+- [ ] You have Entra Global Admin and Purview Compliance Admin role assignments (or equivalent scoped roles in your tenant).
 - [ ] You have identified all custom (non-Microsoft-built) agents deployed in the tenant that require SDK instrumentation.
 - [ ] A Log Analytics workspace exists in Azure for diagnostic log routing (or you will create one).
 - [ ] WORM-compliant Azure Blob Storage is configured per Playbook 3.13-B (reused for agentSignIn log retention).
@@ -38,7 +38,7 @@ Before beginning, confirm:
 
 **1.1.1** Navigate to Entra Admin Center: `https://entra.microsoft.com`
 
-**1.1.2** Sign in with Entra Global Admin or Security Reader credentials.
+**1.1.2** Sign in with Entra Global Admin or Entra Security Reader credentials.
 
 **1.1.3** In the left navigation, go to: **Monitoring & health** > **Sign-in logs**
 
@@ -154,7 +154,7 @@ Expected result: Count > 0 if service-to-service agent authentication activity h
 **3.1.3** Confirm that a retention policy exists covering agent sign-in and agent session audit records.
 
 **3.1.4** Verify the retention duration:
-- FINRA Rule 4511 minimum: **6 years**
+- FINRA Rule 4511 minimum: **6 years** for most broker-dealer books and records (validate with counsel for record-type-specific durations under SEC 17a-4)
 - If the policy shows a shorter duration (e.g., 1 year default for E3 licenses), create a new retention policy as shown in Step 3.2.
 
 ### Step 3.2: Create Agent-Specific Audit Log Retention Policy
@@ -163,7 +163,7 @@ Expected result: Count > 0 if service-to-service agent authentication activity h
 
 **3.2.2** Policy name: `FSI-AgentGov-AgentSignIn-6yr`
 
-**3.2.3** Policy description: `Retains agent sign-in and agent session audit records for 6 years per FINRA Rule 4511 and SEC Rule 17a-4 recordkeeping requirements.`
+**3.2.3** Policy description: `Retains agent sign-in and agent session audit records for 6 years to help meet FINRA Rule 4511 and SEC Rule 17a-4 recordkeeping requirements for broker-dealer activities.`
 
 **3.2.4** Record types: Select all applicable agent-related record types. Look for:
 - `AgentSignIn` (if available as a record type — Preview)
@@ -267,4 +267,4 @@ Upon completion of this walkthrough, document in the governance log:
 
 [Back to Control 3.14](../../../controls/pillar-3-reporting/3.14-agent-365-observability-sdk.md) | [PowerShell and SDK Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
-*Updated: March 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3 | UI Verification Status: Current*

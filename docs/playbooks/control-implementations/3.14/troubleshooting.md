@@ -3,7 +3,7 @@
 **Playbook ID:** 3.14-D
 **Control:** 3.14 — Agent 365 Observability SDK and Custom Agent Telemetry
 **Pillar:** Reporting
-**Last Verified:** March 2026
+**Last Verified:** April 2026
 
 ---
 
@@ -361,7 +361,7 @@ Azure.Identity.CredentialUnavailableException: DefaultAzureCredential failed to 
 
 **Symptom**: Internal Audit or an external examiner identifies that the Azure Blob Storage immutability policy for agent log storage is in the "Unlocked" (not "Locked") state, failing the WORM storage requirement for Zone 3.
 
-**Regulatory Impact**: An Unlocked immutability policy does not satisfy SEC Rule 17a-4(f) requirements for non-rewriteable, non-erasable electronic records. This is a material compliance finding.
+**Regulatory Impact**: An Unlocked immutability policy may not satisfy SEC Rule 17a-4(f) requirements for non-rewriteable, non-erasable electronic records. SEC 17a-4(f)(3) also requires retention of qualified third-party attestations, verification of the storage media's WORM properties, and notification to the firm's designated examining authority. This is typically a material compliance finding; firms should consult counsel and their qualified third party promptly.
 
 **Immediate Actions**:
 1. **Do not delete the existing container or storage account** — doing so would destroy any records already stored there.
@@ -379,7 +379,7 @@ Azure.Identity.CredentialUnavailableException: DefaultAzureCredential failed to 
    ```
 2. Document the locking action with the date, approver, and reason for the prior gap.
 3. Determine whether any records that should have been in WORM storage during the unlocked period need to be re-exported and placed under the now-locked policy.
-4. Include this finding in the firm's compliance deficiency log and report to regulators if the gap is material under applicable FINRA/SEC rules.
+4. Include this finding in the firm's compliance deficiency log and report to FINRA/SEC if the gap meets reporting thresholds under applicable rules. Validate reporting obligations with counsel.
 
 ---
 
@@ -387,13 +387,13 @@ Azure.Identity.CredentialUnavailableException: DefaultAzureCredential failed to 
 
 **Symptom**: Purview audit retention policy review reveals the retention period for agent-related records is less than 6 years (e.g., 1 year default for E3 licenses).
 
-**Regulatory Impact**: A retention period shorter than FINRA Rule 4511's 6-year requirement is a recordkeeping compliance deficiency.
+**Regulatory Impact**: A retention period shorter than the FINRA Rule 4511 / SEC 17a-4 minimum (typically 6 years for broker-dealer records) may be a recordkeeping compliance deficiency. Validate the applicable retention duration with counsel for the specific record types involved.
 
 **Resolution**:
 1. Create a new Purview audit retention policy as described in Playbook 3.14-A, Part 3, with a duration of at least 2,190 days.
 2. Set a higher priority than the existing default policy.
 3. Note: Purview retention policies are prospective. Records that aged out under the previous shorter policy before the new policy was applied cannot be recovered. Document the gap period for CCO review.
-4. Escalate to CCO to assess whether the retention gap requires FINRA self-reporting under applicable rules.
+4. Escalate to the Compliance Officer to assess whether the retention gap requires FINRA self-reporting under applicable rules.
 
 ---
 
@@ -401,12 +401,12 @@ Azure.Identity.CredentialUnavailableException: DefaultAzureCredential failed to 
 
 | Severity | Issue Type | First Contact | Second Contact | Response Target |
 |---|---|---|---|---|
-| P1 — Critical | WORM storage unlocked; retention policy below regulatory minimum | CCO + Legal + CISO immediately | Microsoft Support (if platform issue) | Immediate |
-| P1 — Critical | Purview audit logging completely disabled; no agent telemetry records exist | CCO + CISO + IT Operations | Microsoft Support | Within 1 hour |
+| P1 — Critical | WORM storage unlocked; retention policy below applicable regulatory minimum | Compliance Officer + Legal + CISO immediately | Microsoft Support (if platform issue) | Immediate |
+| P1 — Critical | Purview audit logging completely disabled; no agent telemetry records exist | Compliance Officer + CISO + IT Operations | Microsoft Support | Within 1 hour |
 | P2 — High | SDK not exporting telemetry; Admin Center shows no custom agent data | IT Engineering Lead + CISO | FastTrack / Microsoft Support | Within 4 hours |
-| P3 — Medium | Purview records found but missing expected detail; Defender not generating alerts | IT Engineering + Compliance Analyst | Microsoft Support | Within 1 business day |
+| P3 — Medium | Purview records found but missing expected detail; Defender not generating alerts | IT Engineering + Compliance Officer | Microsoft Support | Within 1 business day |
 | P4 — Low | Preview features not available in tenant region; minor attribute gaps | IT Governance Lead | Microsoft Tech Community | Within 1 week |
-| Compliance | Audit finding — review log gaps, retention deficiencies | CCO | Legal / External Counsel | Per firm incident response policy |
+| Compliance | Audit finding — review log gaps, retention deficiencies | Compliance Officer | Legal / External Counsel | Per firm incident response policy |
 
 ---
 
@@ -423,4 +423,4 @@ Azure.Identity.CredentialUnavailableException: DefaultAzureCredential failed to 
 
 [Back to Control 3.14](../../../controls/pillar-3-reporting/3.14-agent-365-observability-sdk.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell and SDK Setup](powershell-setup.md) | [Verification Testing](verification-testing.md)
 
-*Updated: March 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3 | UI Verification Status: Current*
