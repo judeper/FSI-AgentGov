@@ -1,179 +1,143 @@
-# Control 4.1: SharePoint Information Access Governance (IAG) - Verification & Testing
+# Control 4.1: SharePoint Information Access Governance (IAG) — Verification & Testing
 
-> This playbook provides verification and testing guidance for [Control 4.1](../../../controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md).
-
----
-
-## Manual Verification Steps
-
-### Test 1: Verify RCD Settings in Admin Portal
-
-1. Navigate to **SharePoint Admin Center** > **Sites** > **Active sites**
-2. Select a regulated/enterprise-managed site
-3. Open **Settings** panel
-4. Confirm "Restrict content from Microsoft 365 Copilot" is visible
-5. Verify setting is **On** for regulated sites
-6. **EXPECTED:** Settings panel shows restriction toggle, set to On
-
-### Test 2: Verify Copilot Cannot Access Restricted Content
-
-1. Sign in as a user with access to the restricted site
-2. Open Microsoft 365 Copilot (in Teams or Microsoft365.com)
-3. Ask Copilot a question that would require content from the restricted site
-4. **EXPECTED:** Copilot does NOT return content from the restricted site
-
-### Test 3: Verify Copilot CAN Access Non-Restricted Content
-
-1. Sign in as a user with access to an unrestricted site
-2. Open Microsoft 365 Copilot
-3. Ask Copilot a question about content from the unrestricted site
-4. **EXPECTED:** Copilot returns relevant content (if user has permission)
-
-### Test 4: Verify Restricted Access Control (RAC)
-
-1. Sign in as a user NOT in the authorized security group
-2. Attempt to access a RAC-protected site
-3. **EXPECTED:** Access denied regardless of previous sharing permissions
-
-### Test 5: Verify Audit Logging
-
-1. Navigate to **Microsoft Purview** > **Audit**
-2. Search for "SiteRestrictedFromOrgSearch" operations
-3. Filter by date range covering your configuration changes
-4. **EXPECTED:** All IAG setting changes are logged with user, timestamp, and site details
+> Verification, test scenarios, and auditor-ready evidence collection for [Control 4.1](../../../controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md).
 
 ---
 
-## Test Cases
+## Verification Checklist
 
-| Test ID | Scenario | Expected Result | Pass/Fail |
-|---------|----------|-----------------|-----------|
-| TC-4.1-01 | RCD enabled for regulated site | Setting shows "On" in portal | |
-| TC-4.1-02 | Copilot query against restricted site | Content not returned | |
-| TC-4.1-03 | Copilot query against unrestricted site | Content returned (per user permissions) | |
-| TC-4.1-04 | User outside RAC group accesses protected site | Access denied | |
-| TC-4.1-05 | User in RAC group accesses protected site | Access granted | |
-| TC-4.1-06 | RSS allow-list configured | Only listed sites accessible to Copilot | |
-| TC-4.1-07 | Audit log captures RCD changes | Events logged with full details | |
+Work through this list end-to-end before signing off the control as **In Place**.
 
----
-
-## Evidence to Retain
-
-Collect and store the following artifacts for audit readiness:
-
-### Configuration Evidence
-
-- [ ] Screenshot of SharePoint Admin Center showing RCD setting for each regulated site
-- [ ] Export of all sites with their RCD status (PowerShell report)
-- [ ] Screenshot of RSS configuration (if using allow-list approach)
-- [ ] Screenshot of RAC configuration for information barrier sites
-
-### Testing Evidence
-
-- [ ] Screenshot of Copilot response showing no restricted content returned
-- [ ] Screenshot of successful Copilot response for unrestricted content
-- [ ] Screenshot of access denied for non-RAC group user
-
-### Audit Evidence
-
-- [ ] Microsoft Purview Audit search export for "SiteRestrictedFromOrgSearch" events
-- [ ] Change documentation with business justification for each restriction
+1. [ ] Microsoft 365 Copilot license is assigned to at least one user (RCD prerequisite).
+2. [ ] DAG **Sites shared with "Everyone except external users"** report exported and reviewed.
+3. [ ] Every Zone 3 site in the governance inventory shows `RestrictContentOrgWideSearch = True` via `Get-SPOSite`.
+4. [ ] Every Zone 2 sensitive site (per inventory) shows the same.
+5. [ ] RCD toggle confirmed visible and **On** in SharePoint admin center → Active sites → Settings for a sample of 5+ sites.
+6. [ ] RSS allow-list (if used) is enabled at tenant scope and contains only approved sites; documented exit plan exists.
+7. [ ] RAC is enabled on each ethical-wall site with the correct Entra security groups (≤10 per site).
+8. [ ] Site owners are not silently retaining access where they should not — owner list reviewed for RAC sites.
+9. [ ] Unified Audit Log search returns `SiteRestrictedFromOrgSearch` and `RestrictedAccessControlPolicyUpdated` events for all changes in the change window.
+10. [ ] Quarterly attestation (Zone 3) is scheduled and assigned to a named Compliance Officer.
+11. [ ] Reindex completion confirmed (allow up to ~72 hours after RCD enable) before functional Copilot tests are run.
 
 ---
 
-## Automated Validation Script
+## Test Scenarios
+
+### TC-4.1-01 — RCD enabled in portal
+
+**Steps:** SharePoint admin center → Sites → Active sites → {restricted site} → Settings.
+**Expected:** "Restrict content from Microsoft 365 Copilot" toggle is **On**.
+**Evidence:** Screenshot of the Settings panel.
+
+### TC-4.1-02 — RCD enforced in Copilot (post-reindex)
+
+**Steps:** Sign in as a user with direct permission to the restricted site. In Microsoft 365 Copilot Chat (work scope), ask a question whose answer would otherwise be retrieved from a known document on that site.
+**Expected:** Copilot does not return the document or quote its content as a citation. Direct browse access on the site still works (RCD does not change permissions).
+**Caveat:** If the user has *recently interacted* with the document, Copilot may still surface it via interaction history — document this exception.
+
+### TC-4.1-03 — Copilot returns content from non-restricted site
+
+**Steps:** Same user, ask a question that targets a known document on a non-restricted site they have permission to.
+**Expected:** Copilot returns the content with a citation.
+**Purpose:** Confirms Copilot is working and the negative result in TC-4.1-02 is attributable to RCD.
+
+### TC-4.1-04 — RAC blocks user outside the security group
+
+**Steps:** Sign in as a user **not** in any RAC security group. Browse to the RAC-protected site URL directly.
+**Expected:** Access denied page; user cannot enumerate the site.
+**Evidence:** Screenshot of the access-denied page with timestamp.
+
+### TC-4.1-05 — RAC permits user inside the security group
+
+**Steps:** Sign in as a user in an authorised RAC group. Browse to the same URL.
+**Expected:** Access granted; site loads normally.
+
+### TC-4.1-06 — RSS allow-list scoping (only when RSS is in use)
+
+**Steps:** Sign in as a Copilot user. Pose a query that targets a non-allow-listed site the user has permission to.
+**Expected:** Copilot does not retrieve from that site. Allow-listed sites are reachable.
+
+### TC-4.1-07 — Audit-log capture
+
+**Steps:** Microsoft Purview → Audit → New search. Operations: `SiteRestrictedFromOrgSearch`, `RestrictedAccessControlPolicyUpdated`. Date range covers your test changes.
+**Expected:** Each change you made is logged with user UPN, site URL, timestamp, and (where applicable) justification text.
+
+### TC-4.1-08 — RCD disable + re-enable produces audit trail with justification
+
+**Steps:** Toggle RCD off and back on for one test site, providing distinct justifications. Re-run the audit search.
+**Expected:** Two audit events with the supplied justification text — required for FINRA 4511 / SEC 17a-4(f) recordkeeping.
+
+---
+
+## Auditor Evidence Pack
+
+Assemble and retain the following artifacts. Recommended retention: align with your firm's records-retention schedule (typically **6 years** for SEC 17a-4(f) / FINRA 4511 evidence).
+
+### Configuration evidence
+
+- [ ] `Get-SPOSite` CSV export showing `RestrictContentOrgWideSearch`, `RestrictedAccessControl`, `RestrictedAccessControlGroups`, `SensitivityLabel` for every Zone 3 site (with SHA-256)
+- [ ] DAG report exports (oversharing, sharing-link inventory)
+- [ ] Screenshots: per-site RCD toggle state, RAC policy detail, tenant RSS settings (if used)
+- [ ] Bulk-apply results CSV from any PowerShell rollouts (with SHA-256)
+
+### Functional test evidence
+
+- [ ] Copilot screenshots for TC-4.1-02 (no result) and TC-4.1-03 (positive result), same date, same user
+- [ ] Access-denied screenshots for TC-4.1-04
+- [ ] Note describing reindex wait time observed before tests were executed
+
+### Audit-log evidence
+
+- [ ] Purview audit search export covering RCD/RAC operations across the change window (with SHA-256)
+- [ ] Justification text from delegated changes (cross-referenced to change tickets)
+
+### Governance documentation
+
+- [ ] Restricted-site register: site URL, owner, classification, justification, approving authority, next review date
+- [ ] Quarterly attestation records (Zone 3)
+- [ ] Exit plan from RSS to RCD + Purview (if RSS is in use)
+
+---
+
+## Automated Validation Snippet
 
 ```powershell
-# Run validation checks for Control 4.1
-Write-Host "=== Control 4.1 Validation ===" -ForegroundColor Cyan
+# Goal: confirm every site in the governance manifest is RCD-protected
+$Manifest = Import-Csv .\rcd-manifest.csv      # Url, Zone, Justification
 
-# Connect to SharePoint
-$AdminUrl = "https://contoso-admin.sharepoint.com"
-Connect-SPOService -Url $AdminUrl
-
-# Define expected restricted sites (from your governance inventory)
-$ExpectedRestrictedSites = @(
-    "https://contoso.sharepoint.com/sites/TradingData",
-    "https://contoso.sharepoint.com/sites/CustomerPII",
-    "https://contoso.sharepoint.com/sites/RegulatoryFilings"
-)
-
-$PassCount = 0
-$FailCount = 0
-
-# Check 1: Verify expected sites are restricted
-Write-Host "`n[Check 1] Verifying expected sites are restricted..." -ForegroundColor Yellow
-foreach ($SiteUrl in $ExpectedRestrictedSites) {
-    $Site = Get-SPOSite -Identity $SiteUrl
-    if ($Site.RestrictContentOrgWideSearch -eq $true) {
-        Write-Host "[PASS] $SiteUrl - Restricted" -ForegroundColor Green
-        $PassCount++
-    }
-    else {
-        Write-Host "[FAIL] $SiteUrl - NOT Restricted" -ForegroundColor Red
-        $FailCount++
-    }
-}
-
-# Check 2: Verify SharePoint Advanced Management features available
-Write-Host "`n[Check 2] Verifying SharePoint Advanced Management..." -ForegroundColor Yellow
-$TenantSettings = Get-SPOTenant
-if ($TenantSettings) {
-    Write-Host "[PASS] SharePoint tenant settings accessible" -ForegroundColor Green
-    $PassCount++
-}
-else {
-    Write-Host "[FAIL] Cannot access SharePoint tenant settings" -ForegroundColor Red
-    $FailCount++
-}
-
-# Check 3: Verify no sensitive sites are unrestricted
-Write-Host "`n[Check 3] Scanning for potentially sensitive unrestricted sites..." -ForegroundColor Yellow
-$SensitivePatterns = @("*confidential*", "*pii*", "*customer*", "*trading*", "*regulatory*")
-$AllSites = Get-SPOSite -Limit All
-
-$PotentialIssues = @()
-foreach ($Site in $AllSites) {
-    foreach ($Pattern in $SensitivePatterns) {
-        if ($Site.Url -like $Pattern -and $Site.RestrictContentOrgWideSearch -ne $true) {
-            $PotentialIssues += $Site.Url
+$pass = 0; $fail = 0; $rows = foreach ($row in $Manifest) {
+    try {
+        $s = Get-SPOSite -Identity $row.Url -ErrorAction Stop
+        $ok = ($s.RestrictContentOrgWideSearch -eq $true)
+        if ($ok) { $pass++ } else { $fail++ }
+        [pscustomobject]@{
+            Url = $row.Url; Zone = $row.Zone
+            RCD = $s.RestrictContentOrgWideSearch
+            Result = if ($ok) { 'PASS' } else { 'FAIL' }
         }
+    } catch {
+        $fail++
+        [pscustomobject]@{ Url = $row.Url; Zone = $row.Zone; RCD = $null; Result = 'ERROR' }
     }
 }
 
-if ($PotentialIssues.Count -eq 0) {
-    Write-Host "[PASS] No sensitive sites found without restrictions" -ForegroundColor Green
-    $PassCount++
-}
-else {
-    Write-Host "[WARN] Found $($PotentialIssues.Count) potentially sensitive sites without restrictions:" -ForegroundColor Yellow
-    $PotentialIssues | ForEach-Object { Write-Host "  - $_" -ForegroundColor Yellow }
-}
-
-# Summary
-Write-Host "`n=== Validation Summary ===" -ForegroundColor Cyan
-Write-Host "Passed: $PassCount" -ForegroundColor Green
-Write-Host "Failed: $FailCount" -ForegroundColor $(if ($FailCount -gt 0) { "Red" } else { "Green" })
-
-if ($FailCount -gt 0) {
-    Write-Host "`nAction Required: Review and remediate failed checks" -ForegroundColor Red
-}
-else {
-    Write-Host "`nControl 4.1 validation passed!" -ForegroundColor Green
-}
+$rows | Format-Table -AutoSize
+$out = ".\IAG-Validation-{0:yyyyMMdd}.csv" -f (Get-Date)
+$rows | Export-Csv $out -NoTypeInformation -Encoding UTF8
+Write-Host ("Pass={0} Fail={1} :: Evidence: {2} (SHA-256 {3})" -f $pass, $fail, $out, (Get-FileHash $out -Algorithm SHA256).Hash)
 ```
 
 ---
 
-## Verification Evidence Template
+## Evidence Retention Reference
 
-| Evidence Type | Location | Retention |
-|---------------|----------|-----------|
-| Configuration screenshot | Site Settings panel | 1 year |
-| Restricted sites list | Governance documentation | 6 years |
-| Setting change audit | Unified Audit Log | Per retention policy |
-| Test results | Compliance records | 1 year |
+| Evidence type | Storage location | Retention guidance |
+|---|---|---|
+| Configuration CSV exports | Governance evidence store | Align with SEC 17a-4(f) schedule (commonly 6 years) |
+| Functional test screenshots | Compliance records | 1 year minimum, longer if cited in audit |
+| Audit-log search exports | Records-management WORM store | Per firm records-retention policy |
+| Quarterly attestations | Compliance archive | 6 years recommended |
 
 ---
 
@@ -181,4 +145,4 @@ else {
 
 ---
 
-*Updated: April 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3*

@@ -2,9 +2,9 @@
 
 **Playbook Type:** Portal Walkthrough
 **Control:** [4.9 — Embedded File Content Governance](../../../controls/pillar-4-sharepoint/4.9-embedded-file-content-governance.md)
-**Audience:** M365 Administrators, SharePoint Administrators, Compliance Officers
+**Audience:** M365 Administrators, SharePoint Admins, Compliance Officers
 **Estimated Time:** 30–60 minutes (initial setup); 20–30 minutes (quarterly audit cycle)
-**Last UI Verified:** March 2026
+**Last UI Verified:** April 2026
 
 !!! danger "Critical IB Limitation — Read Before Proceeding"
     Microsoft Purview Information Barriers are NOT enforced on SharePoint Embedded containers. Any user with access to an agent can receive content from embedded knowledge files regardless of IB policy assignments. Complete the IB assessment steps in this walkthrough (Section 4) before approving any agent with embedded files for Zone 2 or Zone 3 deployment. See Control 4.9 for the full compliance risk analysis.
@@ -294,4 +294,4 @@ Use this checklist at the start of each quarterly audit cycle:
 
 ---
 [Back to Control 4.9](../../../controls/pillar-4-sharepoint/4.9-embedded-file-content-governance.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
-*Updated: March 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3 | UI Verification Status: Current*

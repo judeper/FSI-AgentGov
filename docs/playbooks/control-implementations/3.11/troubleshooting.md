@@ -7,51 +7,55 @@
 
 ## Common Issues and Resolutions
 
-### Issue 1: Agent Inventory Feature Not Visible in PPAC
+### Issue 1: Inventory Page Not Visible in PPAC
 
 **Symptoms:**
-- Agent Inventory section does not appear in PPAC navigation
-- No "Agent Inventory" or "Agents" menu item in left navigation
+- The unified **Manage > Inventory** node does not appear in PPAC navigation
 - Error message: "This feature is not available in your tenant"
+- Agent rows are missing even though agents exist in environments
 
 **Root Causes:**
-1. Agent Inventory feature is still in Preview and not yet rolled out to your tenant
-2. User does not have Power Platform Admin role
-3. Tenant region does not yet have the preview feature
+1. User does not hold a tenant-wide admin role (Power Platform Admin or Dynamics 365 Admin)
+2. Tenant region has not yet received the GA rollout (some sovereign clouds and slow rings lag)
+3. Browser cache is showing stale navigation
 
 **Resolution Steps:**
 
 1. **Verify Role Assignment:**
    - Navigate to Entra ID → Users → [Your User] → Assigned roles
-   - Confirm "Power Platform Admin" or "Entra Global Admin" role is assigned
+   - Confirm "Power Platform Admin" or "Entra Global Admin" role is assigned (the role catalog also accepts "AI Administrator" for Copilot/agent settings, but the Inventory page requires a Power Platform tenant-admin role today)
    - Wait 15 minutes for role propagation if recently assigned
 
-2. **Check Feature Availability:**
+2. **Check Rollout in Message Center:**
    - Navigate to Microsoft 365 Admin Center → Health → Message Center
-   - Search for "Agent Inventory" or "MC" message IDs related to PPAC features
-   - Check rollout timeline and expected availability for your tenant region
+   - Search for "MC1223778" (Power Platform Inventory GA) and confirm rollout has reached your tenant
 
-3. **Verify Tenant Licensing:**
-   - Agent Inventory may require specific license SKUs (verify with Microsoft documentation)
+3. **Hard-refresh the portal:** Ctrl+F5 or open PPAC in a private window
+
+4. **Verify Tenant Licensing:**
    - Navigate to Microsoft 365 Admin Center → Billing → Licenses
-   - Confirm tenant has Power Apps or Copilot Studio licenses assigned
+   - Confirm the tenant has Power Apps or Copilot Studio licensing assigned
 
-4. **Contact Microsoft Support:**
-   - If feature should be available but is not visible, open support case
-   - Reference: "Agent Inventory feature not visible in PPAC (Preview)"
+5. **Contact Microsoft Support:**
+   - If the page should be available but is not visible, open a support case
+   - Reference: "Power Platform Inventory page not visible (MC1223778, GA Feb 9 2026)"
    - Provide tenant ID and user principal name
 
 **Workaround (Compensating Control):**
 
-Until Agent Inventory is available, use PowerShell-based discovery:
+While support investigates, use PowerShell-based discovery (Desktop / PS 5.1):
 
 ```powershell
-# Manual inventory discovery script
+# Edition guard
+if ($PSVersionTable.PSEdition -ne 'Desktop') {
+    throw "Requires Windows PowerShell 5.1 (Desktop) for Microsoft.PowerApps.Administration.PowerShell."
+}
+
 $environments = Get-AdminPowerAppEnvironment
 $inventory = @()
 
 foreach ($env in $environments) {
-    $agents = Get-AdminPowerAppCopilotStudioAgent -EnvironmentName $env.EnvironmentName
+    $agents = Get-AdminPowerAppCopilotStudioAgent -EnvironmentName $env.EnvironmentName -ErrorAction SilentlyContinue
     $inventory += $agents | Select-Object DisplayName, Owner, @{N='Environment';E={$env.DisplayName}}, CreatedTime, LastModifiedTime
 }
 
@@ -115,53 +119,52 @@ $inventory | Export-Csv -Path "ManualAgentInventory_$(Get-Date -Format 'yyyyMMdd
 
 ---
 
-### Issue 3: Power Automate Flow Fails to Retrieve Agent Inventory
+### Issue 3: Power Automate Flow Fails to Retrieve Inventory Data
 
 **Symptoms:**
-- Flow run history shows failure at "Get Agent Inventory Data" step
+- Flow run history shows failure at the inventory retrieval step
 - Error: "HTTP 401 Unauthorized" or "HTTP 403 Forbidden"
-- Flow cannot access Agent Inventory API
+- Flow cannot read agents from PPAC
 
 **Root Causes:**
-1. Agent Inventory API is not yet available (preview status)
-2. Flow lacks required API permissions
-3. Managed Identity or service principal authentication not configured correctly
+1. The flow still uses the obsolete placeholder URL `api.powerplatform.com/agentInventory/...` instead of the **Power Platform for Admins V2** connector
+2. The connection used by the flow does not hold a tenant-wide admin role
+3. Service principal or managed identity is not granted the connector's required permissions
 
 **Resolution Steps:**
 
-1. **Verify API Availability:**
-   - As of February 2026, Agent Inventory API is in preview
-   - API endpoints may change before GA
-   - Check Microsoft Learn documentation for current API status
+1. **Migrate to the Power Platform for Admins V2 connector (preferred fix):**
+   - In Power Automate, replace the HTTP action with **Power Platform for Admins V2 → List as Admin Inventory Resources**
+   - The connector inherits admin permissions from the connection user — no custom token handling
+   - The connector is GA and is the supported integration path
 
-2. **Use Alternative Data Source (Workaround):**
+2. **Verify Connection Permissions:**
+   - Open the flow → Connections
+   - Confirm the connection is owned by a Power Platform Admin (or service principal with that role)
+   - If using a service principal, grant the Power Platform Admin role to the SP and re-create the connection
 
-   Instead of HTTP request to Agent Inventory API, use SharePoint as intermediary:
+3. **Use Alternative Data Source (offline workaround):**
 
-   **Step 1:** Export Agent Inventory from PPAC to CSV manually or via PowerShell
-   **Step 2:** Upload CSV to SharePoint document library
-   **Step 3:** Power Automate flow reads CSV from SharePoint
+   Where the connector is not yet enabled (some sovereign clouds), fall back to file-based intake:
 
-   Flow modification:
-   ```
+   - **Step 1:** Export PPAC Inventory to Excel manually (or via the PowerShell script in `powershell-setup.md`)
+   - **Step 2:** Upload to a SharePoint document library
+   - **Step 3:** Have the flow read the file from SharePoint and parse rows
+
+   ```text
    Trigger: Recurrence (Daily)
-   Action 1: SharePoint - Get file content (AgentInventory.csv)
-   Action 2: Parse CSV (use Parse CSV action or Compose)
+   Action 1: SharePoint - Get file content (AgentInventory.xlsx)
+   Action 2: Excel Online - List rows present in a table
    Action 3: Filter array (incomplete metadata)
-   Action 4: Post to Teams
+   Action 4: Post adaptive card to Teams
    ```
-
-3. **Configure Managed Identity (When API Available):**
-   - In Power Automate, navigate to flow settings → Connections
-   - Update HTTP connection to use Managed Identity
-   - Grant Managed Identity appropriate API permissions in Entra ID
 
 4. **Use Dataverse as Intermediate Storage:**
 
-   Alternative approach using Dataverse:
-   - Run PowerShell script daily to populate Dataverse table with inventory data
-   - Power Automate flow queries Dataverse table instead of API
-   - See PowerShell Setup playbook Script 1 for Dataverse population logic
+   For tenants standardizing on Dataverse-backed governance:
+   - Run the PowerShell script daily to populate a Dataverse table with inventory data
+   - The Power Automate flow queries the Dataverse table instead of the connector
+   - See PowerShell Setup Script 1 for the population pattern
 
 ---
 
@@ -561,19 +564,9 @@ $inventory | Export-Csv -Path "ManualAgentInventory_$(Get-Date -Format 'yyyyMMdd
 
 ## Diagnostic Commands
 
-### Check Agent Inventory API Availability
+### Check Inventory Connector Availability
 
-```powershell
-# Test if Agent Inventory API is accessible
-# NOTE: This is a placeholder URL — replace with the actual endpoint when the API reaches GA
-$apiUrl = "https://api.powerplatform.com/agentInventory/v1/inventory"
-try {
-    Invoke-RestMethod -Uri $apiUrl -Method Get -Headers @{ Authorization = "Bearer $token" }
-    Write-Host "Agent Inventory API is accessible" -ForegroundColor Green
-} catch {
-    Write-Host "Agent Inventory API error: $_" -ForegroundColor Red
-}
-```
+The Power Platform Inventory page and the **Power Platform for Admins V2** connector are the supported integration surfaces (GA Feb 9, 2026 / MC1223778). There is no separate `api.powerplatform.com/agentInventory` endpoint to call — earlier preview guidance that referenced one is obsolete. To verify access, build a one-step Power Automate flow with **Power Platform for Admins V2 → List as Admin Inventory Resources** and run it; success indicates the connector is reachable from your tenant.
 
 ### Validate PowerShell Module Versions
 
@@ -644,13 +637,13 @@ If issues persist after troubleshooting:
 
 ## Known Limitations
 
-As of February 2026, the following limitations exist:
+As of April 2026:
 
-1. **Agent Inventory API:** Not yet generally available; preview status may cause instability
-2. **Zone Classification:** No native PPAC support; requires manual mapping file
-3. **Real-Time Enforcement:** Unmanaged agent blocking not yet available; requires compensating controls (DLP, security roles)
-4. **Cross-Platform Discovery:** Agent Inventory may not include all agent types (e.g., Microsoft Foundry agents)
-5. **Metadata Extensibility:** Cannot add custom metadata fields to Agent Inventory natively
+1. **Inventory granularity:** Power Platform Inventory is GA but exposes only tenant-wide admin access; no read-only or environment-scoped admin variant exists yet
+2. **Zone classification:** Not native to PPAC; supplied by zone-mapping CSV or naming convention
+3. **Real-time enforcement:** Native unmanaged-agent blocking remains on the roadmap; today, use DLP and security roles as compensating controls (until Agent 365 GA on May 1, 2026 brings policy-based quarantine)
+4. **Cross-platform discovery:** Microsoft Foundry agents may not be fully represented in PPAC; Agent 365 GA will unify these sources
+5. **Metadata extensibility:** Cannot add custom metadata fields to the native Inventory schema — extend via Dataverse
 
 Monitor Microsoft 365 Roadmap and Message Center for updates that address these limitations.
 
@@ -658,4 +651,4 @@ Monitor Microsoft 365 Roadmap and Message Center for updates that address these 
 
 [Back to Control 3.11](../../../controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md)
 
-*Updated: February 2026 | Version: v1.0*
+*Updated: April 2026 | Version: v1.3.3*

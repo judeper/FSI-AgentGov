@@ -1,334 +1,300 @@
-# PowerShell Setup: Control 2.2 - Environment Groups and Tier Classification
+# PowerShell Setup: Control 2.2 — Environment Groups and Tier Classification
 
-**Last Updated:** January 2026
-**Modules Required:** Microsoft.PowerApps.Administration.PowerShell
+!!! warning "Read the FSI PowerShell baseline first"
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission.
+
+**Last Updated:** April 2026
+**Modules required:** `Microsoft.PowerApps.Administration.PowerShell` (≥ 2.0.190); the Power Platform CLI (`pac`) for any rule-publishing automation.
+
+---
+
+## Scope and limitations
+
+| Operation | Supported via PowerShell? | Notes |
+|---|---|---|
+| List environment groups | ✅ `Get-AdminPowerAppEnvironmentGroup` | GA |
+| List environments by group | ✅ `Get-AdminPowerAppEnvironment` filter | GA |
+| Add environment to group | ✅ `Set-AdminPowerAppEnvironment -EnvironmentGroupId` | GA |
+| Remove environment from group | ✅ same cmdlet with `-EnvironmentGroupId $null` | GA |
+| Create environment group | ⚠️ Portal-first | Programmatic creation is currently inconsistent across module versions; standard practice is portal creation, then PowerShell for membership and audit. |
+| Read / set group **rules** | ❌ | Rule configuration is not exposed by the admin module. Use the portal walkthrough; verify enforcement via per-environment setting reads. |
+
+---
 
 ## Prerequisites
 
 ```powershell
-# Install the Power Platform Admin module if not present
-Install-Module -Name Microsoft.PowerApps.Administration.PowerShell -Force -AllowClobber -Scope CurrentUser
+# Pin the module version per the FSI baseline
+$module = 'Microsoft.PowerApps.Administration.PowerShell'
+$min    = '2.0.190'
 
-# Import the module
-Import-Module Microsoft.PowerApps.Administration.PowerShell
+if (-not (Get-Module -ListAvailable -Name $module |
+          Where-Object { $_.Version -ge [version]$min })) {
+    Install-Module -Name $module -MinimumVersion $min -Scope CurrentUser -Force -AllowClobber
+}
+Import-Module $module
 
-# Connect to Power Platform (interactive authentication)
+# Interactive auth (operator workstation)
 Add-PowerAppsAccount
 
-# For service principal authentication (recommended for automation)
-$appId = "<Application-Client-ID>"
-$secret = "<Client-Secret>"
-$tenantId = "<Tenant-ID>"
-Add-PowerAppsAccount -ApplicationId $appId -ClientSecret $secret -TenantID $tenantId
+# Service-principal auth (automation runner) — store secret in a vault, never inline
+# $appId = $env:FSI_PPSP_APPID
+# $secret = $env:FSI_PPSP_SECRET
+# $tenantId = $env:FSI_PPSP_TENANT
+# Add-PowerAppsAccount -ApplicationId $appId -ClientSecret $secret -TenantID $tenantId
 ```
+
+> **Sovereign clouds (GCC / GCC High / DoD):** add `-Endpoint usgov`, `-Endpoint usgovhigh`, or `-Endpoint dod` to `Add-PowerAppsAccount`. See the PowerShell baseline for the full table.
 
 ---
 
-## Query Scripts
+## Read scripts (read-only — safe to run any time)
 
-### Get Environment Groups
+### List all environment groups
 
 ```powershell
-# List all environment groups in the tenant
-Get-AdminPowerAppEnvironmentGroup
-
-# Get a specific environment group by ID
-$groupId = "<EnvironmentGroup-ID>"
-Get-AdminPowerAppEnvironmentGroup -EnvironmentGroupId $groupId
-
-# List environments in a specific group
-Get-AdminPowerAppEnvironment | Where-Object { $_.EnvironmentGroupId -eq $groupId }
+Get-AdminPowerAppEnvironmentGroup |
+    Select-Object EnvironmentGroupId, DisplayName, Description, CreatedTime |
+    Sort-Object DisplayName |
+    Format-Table -AutoSize
 ```
 
-### List Environments by Group
+### List environments in each group (with FSI naming check)
 
 ```powershell
-# Get all environments and group them by environment group
-$environments = Get-AdminPowerAppEnvironment
-
-$environments |
-    Group-Object -Property EnvironmentGroupId |
-    ForEach-Object {
-        Write-Host "`nGroup ID: $($_.Name)" -ForegroundColor Cyan
-        Write-Host "Environment Count: $($_.Count)"
-        $_.Group | Select-Object DisplayName, EnvironmentName | Format-Table
-    }
-```
-
-### Add Environment to Group
-
-```powershell
-# Add an environment to an environment group
-$environmentId = "<Environment-ID>"
-$groupId = "<EnvironmentGroup-ID>"
-
-# Using Set-AdminPowerAppEnvironment to update group membership
-Set-AdminPowerAppEnvironment -EnvironmentName $environmentId -EnvironmentGroupId $groupId
-
-# Verify the assignment
-$env = Get-AdminPowerAppEnvironment -EnvironmentName $environmentId
-Write-Host "Environment: $($env.DisplayName)"
-Write-Host "Environment Group: $($env.EnvironmentGroupId)"
-```
-
-### Check Group Rules Application
-
-```powershell
-# Get environment group rules (rule management is primarily done via PPAC portal)
-# Use the following to query environment settings that reflect group rules
-
-$groupId = "<EnvironmentGroup-ID>"
-$environments = Get-AdminPowerAppEnvironment | Where-Object { $_.EnvironmentGroupId -eq $groupId }
-
-foreach ($env in $environments) {
-    Write-Host "`nEnvironment: $($env.DisplayName)" -ForegroundColor Cyan
-    Write-Host "  Managed: $($env.Properties.governanceConfiguration.protectionLevel)"
-    Write-Host "  Group ID: $($env.EnvironmentGroupId)"
-    Write-Host "  Region: $($env.Location)"
-    Write-Host "  Type: $($env.EnvironmentType)"
-}
-```
-
----
-
-## Export Scripts
-
-### Export Environment Group Configuration
-
-```powershell
-# Export environment group configuration for documentation
-$exportPath = "C:\Exports\EnvironmentGroups"
-New-Item -ItemType Directory -Path $exportPath -Force | Out-Null
-
-# Get all environment groups
 $groups = Get-AdminPowerAppEnvironmentGroup
+$envs   = Get-AdminPowerAppEnvironment
 
-# Export group details
-$groupExport = $groups | Select-Object @{
-    Name = 'GroupId'; Expression = { $_.EnvironmentGroupId }
-}, @{
-    Name = 'DisplayName'; Expression = { $_.DisplayName }
-}, @{
-    Name = 'Description'; Expression = { $_.Description }
-}, @{
-    Name = 'CreatedTime'; Expression = { $_.CreatedTime }
-}
+foreach ($g in $groups) {
+    $members = $envs | Where-Object { $_.EnvironmentGroupId -eq $g.EnvironmentGroupId }
+    $expectedZone = if ($g.DisplayName -match 'FSI-Z(\d)') { $Matches[1] } else { '?' }
 
-$timestamp = Get-Date -Format 'yyyyMMdd'
-$groupExport | Export-Csv -Path "$exportPath\EnvironmentGroups_$timestamp.csv" -NoTypeInformation
-
-Write-Host "Exported $(($groups | Measure-Object).Count) environment groups to $exportPath\EnvironmentGroups_$timestamp.csv" -ForegroundColor Green
-```
-
-### Export Environment-to-Group Mapping
-
-```powershell
-# Export environment-to-group mapping for audit evidence
-$exportPath = "C:\Exports\EnvironmentGroups"
-New-Item -ItemType Directory -Path $exportPath -Force | Out-Null
-
-$environments = Get-AdminPowerAppEnvironment
-$envMapping = $environments | Select-Object @{
-    Name = 'EnvironmentName'; Expression = { $_.DisplayName }
-}, @{
-    Name = 'EnvironmentId'; Expression = { $_.EnvironmentName }
-}, @{
-    Name = 'EnvironmentGroupId'; Expression = { $_.EnvironmentGroupId }
-}, @{
-    Name = 'EnvironmentType'; Expression = { $_.EnvironmentType }
-}, @{
-    Name = 'Region'; Expression = { $_.Location }
-}, @{
-    Name = 'IsManaged'; Expression = {
-        if ($_.Properties.governanceConfiguration.protectionLevel -eq 'Standard') { 'No' } else { 'Yes' }
-    }
-}, @{
-    Name = 'ExportDate'; Expression = { Get-Date -Format 'yyyy-MM-dd HH:mm' }
-}
-
-$timestamp = Get-Date -Format 'yyyyMMdd'
-$envMapping | Export-Csv -Path "$exportPath\EnvironmentGroupMapping_$timestamp.csv" -NoTypeInformation
-
-Write-Host "Exported $(($environments | Measure-Object).Count) environments to $exportPath\EnvironmentGroupMapping_$timestamp.csv" -ForegroundColor Green
-```
-
-### Complete Export for Audit Evidence
-
-```powershell
-<#
-.SYNOPSIS
-    Exports complete environment group configuration for audit evidence
-
-.DESCRIPTION
-    Creates comprehensive CSV exports of:
-    - All environment groups with details
-    - Environment-to-group mappings
-    - Summary statistics
-
-.EXAMPLE
-    .\Export-EnvironmentGroups.ps1
-
-.NOTES
-    Last Updated: January 2026
-    Related Control: Control 2.2 - Environment Groups and Tier Classification
-#>
-
-try {
-    # Connect to Power Platform
-    Add-PowerAppsAccount
-
-    $exportPath = "C:\Exports\EnvironmentGroups"
-    $timestamp = Get-Date -Format 'yyyyMMdd_HHmm'
-    New-Item -ItemType Directory -Path "$exportPath\$timestamp" -Force | Out-Null
-
-    Write-Host "=== Environment Groups Export ===" -ForegroundColor Cyan
-    Write-Host "Export Path: $exportPath\$timestamp"
-
-    # Export groups
-    $groups = Get-AdminPowerAppEnvironmentGroup
-    $groups | Select-Object EnvironmentGroupId, DisplayName, Description, CreatedTime |
-        Export-Csv -Path "$exportPath\$timestamp\Groups.csv" -NoTypeInformation
-    Write-Host "  Groups: $(($groups | Measure-Object).Count)" -ForegroundColor Green
-
-    # Export environments
-    $environments = Get-AdminPowerAppEnvironment
-    $environments | Select-Object DisplayName, EnvironmentName, EnvironmentGroupId, EnvironmentType, Location,
-        @{ Name = 'IsManaged'; Expression = { $_.Properties.governanceConfiguration.protectionLevel -ne 'Standard' }} |
-        Export-Csv -Path "$exportPath\$timestamp\Environments.csv" -NoTypeInformation
-    Write-Host "  Environments: $(($environments | Measure-Object).Count)" -ForegroundColor Green
-
-    # Summary by group
-    $summary = $environments | Group-Object EnvironmentGroupId | Select-Object @{
-        Name = 'GroupId'; Expression = { $_.Name }
-    }, @{
-        Name = 'EnvironmentCount'; Expression = { $_.Count }
-    }, @{
-        Name = 'Environments'; Expression = { ($_.Group | Select-Object -ExpandProperty DisplayName) -join '; ' }
-    }
-    $summary | Export-Csv -Path "$exportPath\$timestamp\Summary.csv" -NoTypeInformation
-
-    Write-Host "`nExport complete: $exportPath\$timestamp" -ForegroundColor Green
-
-    Write-Host "`n[PASS] Control 2.2 configuration completed successfully" -ForegroundColor Green
-}
-catch {
-    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
-    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
-    exit 1
-}
-finally {
-    # Cleanup connections if applicable
-    # Note: Add-PowerAppsAccount does not require explicit disconnect
+    Write-Host "`nGroup: $($g.DisplayName)  (Zone $expectedZone)" -ForegroundColor Cyan
+    Write-Host "  Group ID : $($g.EnvironmentGroupId)"
+    Write-Host "  Members  : $($members.Count)"
+    $members |
+        Select-Object DisplayName,
+                      EnvironmentName,
+                      EnvironmentType,
+                      Location,
+                      @{ Name = 'IsManaged'; Expression = {
+                          $_.Properties.governanceConfiguration.protectionLevel -ne 'Standard'
+                      }} |
+        Format-Table -AutoSize
 }
 ```
 
 ---
 
-## Validation Script
+## Mutation scripts (require `-WhatIf` first per FSI baseline)
+
+### Add a Managed Environment to a group
+
+```powershell
+function Add-FsiEnvironmentToGroup {
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
+    param(
+        [Parameter(Mandatory)] [string] $EnvironmentName,
+        [Parameter(Mandatory)] [string] $EnvironmentGroupId
+    )
+
+    $env = Get-AdminPowerAppEnvironment -EnvironmentName $EnvironmentName
+    if (-not $env) { throw "Environment '$EnvironmentName' not found." }
+
+    $isManaged = $env.Properties.governanceConfiguration.protectionLevel -ne 'Standard'
+    if (-not $isManaged) {
+        throw "Environment '$($env.DisplayName)' is not a Managed Environment. Enable Managed Environment first (Control 2.1)."
+    }
+
+    if ($PSCmdlet.ShouldProcess(
+            "Environment '$($env.DisplayName)'",
+            "Assign to environment group '$EnvironmentGroupId'")) {
+
+        Set-AdminPowerAppEnvironment `
+            -EnvironmentName $EnvironmentName `
+            -EnvironmentGroupId $EnvironmentGroupId | Out-Null
+
+        Write-Host "[OK] Assigned $($env.DisplayName) -> $EnvironmentGroupId" -ForegroundColor Green
+    }
+}
+
+# Dry-run first
+Add-FsiEnvironmentToGroup -EnvironmentName '<env-id>' -EnvironmentGroupId '<group-id>' -WhatIf
+# Then commit
+# Add-FsiEnvironmentToGroup -EnvironmentName '<env-id>' -EnvironmentGroupId '<group-id>'
+```
+
+---
+
+## Audit-evidence export
+
+Generates the CSV bundle expected by [Verification & Testing](verification-testing.md) and emits a SHA-256 manifest per the FSI baseline.
 
 ```powershell
 <#
 .SYNOPSIS
-    Validates Control 2.2 - Environment Groups and Tier Classification
-
-.DESCRIPTION
-    Validates:
-    1. Environment groups exist
-    2. Environments are assigned to groups
-    3. Critical environments are in appropriate tier groups
-    4. All grouped environments are Managed Environments
-
-.PARAMETER GroupId
-    Optional: Specific group ID to validate
-
-.EXAMPLE
-    .\Validate-Control-2.2.ps1
-    .\Validate-Control-2.2.ps1 -GroupId "abc123"
+    Exports Control 2.2 audit evidence: environment groups, members, and a SHA-256 manifest.
 
 .NOTES
-    Last Updated: January 2026
+    Last Updated   : April 2026
     Related Control: Control 2.2 - Environment Groups and Tier Classification
 #>
 
+[CmdletBinding()]
 param(
-    [string]$GroupId
+    [string] $OutputRoot = 'C:\FSI-Evidence\Control-2.2'
 )
 
-# Connect to Power Platform (interactive authentication)
-Add-PowerAppsAccount
+$ErrorActionPreference = 'Stop'
+$timestamp   = Get-Date -Format 'yyyyMMdd_HHmm'
+$exportPath  = Join-Path $OutputRoot $timestamp
+New-Item -ItemType Directory -Path $exportPath -Force | Out-Null
 
-# For automated/unattended scenarios, use service principal authentication:
-# $appId = "<Application-Client-ID>"
-# $secret = "<Client-Secret>"
-# $tenantId = "<Tenant-ID>"
-# Add-PowerAppsAccount -ApplicationId $appId -ClientSecret $secret -TenantID $tenantId
+Write-Host "=== Control 2.2 evidence export ===" -ForegroundColor Cyan
+Write-Host "Output: $exportPath"
 
-Write-Host "=== Control 2.2 Validation ===" -ForegroundColor Cyan
-
-# Check 1: Verify environment groups exist
+# 1. Environment groups
 $groups = Get-AdminPowerAppEnvironmentGroup
-if ($groups) {
-    Write-Host "[PASS] $(($groups | Measure-Object).Count) environment groups found" -ForegroundColor Green
-    $groups | Select-Object DisplayName, EnvironmentGroupId | Format-Table
+$groups |
+    Select-Object EnvironmentGroupId, DisplayName, Description, CreatedTime |
+    Export-Csv -Path (Join-Path $exportPath 'EnvironmentGroups.csv') -NoTypeInformation -Encoding UTF8
+
+# 2. Environment-to-group mapping
+$envs = Get-AdminPowerAppEnvironment
+$envs |
+    Select-Object DisplayName,
+                  EnvironmentName,
+                  EnvironmentGroupId,
+                  EnvironmentType,
+                  Location,
+                  @{ Name = 'IsManaged'; Expression = {
+                      $_.Properties.governanceConfiguration.protectionLevel -ne 'Standard'
+                  }},
+                  @{ Name = 'CapturedUtc'; Expression = { (Get-Date).ToUniversalTime().ToString('o') }} |
+    Export-Csv -Path (Join-Path $exportPath 'EnvironmentMembership.csv') -NoTypeInformation -Encoding UTF8
+
+# 3. Group summary
+$envs |
+    Group-Object EnvironmentGroupId |
+    ForEach-Object {
+        $name = ($groups | Where-Object EnvironmentGroupId -eq $_.Name).DisplayName
+        [pscustomobject]@{
+            GroupId          = $_.Name
+            GroupDisplayName = if ($name) { $name } else { '(Ungrouped)' }
+            EnvironmentCount = $_.Count
+        }
+    } |
+    Export-Csv -Path (Join-Path $exportPath 'GroupSummary.csv') -NoTypeInformation -Encoding UTF8
+
+# 4. SHA-256 manifest (FSI baseline requirement)
+Get-ChildItem $exportPath -Filter *.csv |
+    ForEach-Object {
+        [pscustomobject]@{
+            File   = $_.Name
+            SHA256 = (Get-FileHash -Algorithm SHA256 -Path $_.FullName).Hash
+            Bytes  = $_.Length
+        }
+    } |
+    Export-Csv -Path (Join-Path $exportPath 'manifest.sha256.csv') -NoTypeInformation -Encoding UTF8
+
+Write-Host "[OK] Evidence pack ready: $exportPath" -ForegroundColor Green
+```
+
+---
+
+## Validation script — `Validate-Control-2.2.ps1`
+
+Read-only. Fails fast on the conditions documented in the [Verification & Testing](verification-testing.md) playbook.
+
+```powershell
+<#
+.SYNOPSIS
+    Validates Control 2.2 — Environment Groups and Tier Classification.
+
+.PARAMETER FailOnWarning
+    Treat warnings as failures (recommended for CI).
+
+.OUTPUTS
+    Exit code 0 = pass, 1 = fail.
+#>
+
+[CmdletBinding()]
+param(
+    [switch] $FailOnWarning
+)
+
+$ErrorActionPreference = 'Stop'
+$failures = @()
+$warnings = @()
+
+Write-Host "=== Control 2.2 validation ===" -ForegroundColor Cyan
+
+$groups = Get-AdminPowerAppEnvironmentGroup
+$envs   = Get-AdminPowerAppEnvironment
+
+# Check 1 — at least one FSI-Z{n} group exists per zone
+foreach ($zone in 1..3) {
+    $zoneGroups = $groups | Where-Object { $_.DisplayName -match "FSI-Z$zone(-|$)" }
+    if (-not $zoneGroups) {
+        $failures += "No environment group named FSI-Z$zone-* found."
+    } else {
+        Write-Host "[PASS] Zone $zone groups: $(@($zoneGroups).Count)" -ForegroundColor Green
+    }
+}
+
+# Check 2 — every production environment is in a group
+$prodEnvs       = $envs | Where-Object EnvironmentType -eq 'Production'
+$ungroupedProd  = $prodEnvs | Where-Object { -not $_.EnvironmentGroupId }
+if ($ungroupedProd) {
+    $failures += "Ungrouped production environments: $(($ungroupedProd.DisplayName) -join ', ')"
 } else {
-    Write-Host "[FAIL] No environment groups found" -ForegroundColor Red
+    Write-Host "[PASS] All production environments are grouped." -ForegroundColor Green
 }
 
-# Check 2: Verify environments are assigned to groups
-$environments = Get-AdminPowerAppEnvironment
-$groupedEnvs = $environments | Where-Object { $_.EnvironmentGroupId }
-$ungroupedEnvs = $environments | Where-Object { -not $_.EnvironmentGroupId }
-
-Write-Host "`n[INFO] Environment Assignment Summary:" -ForegroundColor Cyan
-Write-Host "  Grouped environments: $(($groupedEnvs | Measure-Object).Count)"
-Write-Host "  Ungrouped environments: $(($ungroupedEnvs | Measure-Object).Count)"
-
-if ($ungroupedEnvs) {
-    Write-Host "`n[WARN] Ungrouped environments:" -ForegroundColor Yellow
-    $ungroupedEnvs | Select-Object DisplayName, EnvironmentType | Format-Table
-}
-
-# Check 3: Verify grouped environments are Managed
-$unmanagedGrouped = $groupedEnvs | Where-Object {
+# Check 3 — every grouped environment is Managed
+$groupedEnvs    = $envs | Where-Object { $_.EnvironmentGroupId }
+$unmanagedInGrp = $groupedEnvs | Where-Object {
     $_.Properties.governanceConfiguration.protectionLevel -eq 'Standard'
 }
-
-if ($unmanagedGrouped) {
-    Write-Host "`n[WARN] Grouped environments that are NOT Managed:" -ForegroundColor Yellow
-    $unmanagedGrouped | Select-Object DisplayName, EnvironmentGroupId | Format-Table
+if ($unmanagedInGrp) {
+    $failures += "Unmanaged environments inside groups: $(($unmanagedInGrp.DisplayName) -join ', ')"
 } else {
-    Write-Host "`n[PASS] All grouped environments are Managed Environments" -ForegroundColor Green
+    Write-Host "[PASS] All grouped environments are Managed Environments." -ForegroundColor Green
 }
 
-# Check 4: Production environments should be in groups
-$prodEnvs = $environments | Where-Object { $_.EnvironmentType -eq 'Production' }
-$ungroupedProd = $prodEnvs | Where-Object { -not $_.EnvironmentGroupId }
-
-if ($ungroupedProd) {
-    Write-Host "`n[WARN] Production environments not in a group:" -ForegroundColor Yellow
-    $ungroupedProd | Select-Object DisplayName | Format-Table
-} else {
-    Write-Host "[PASS] All production environments are in groups" -ForegroundColor Green
+# Check 4 — group descriptions reference governance zone
+$noZoneInDesc = $groups | Where-Object {
+    [string]::IsNullOrWhiteSpace($_.Description) -or
+    $_.Description -notmatch 'Zone\s*[123]'
+}
+if ($noZoneInDesc) {
+    $warnings += "Groups missing 'Zone {1|2|3}' in description: $(($noZoneInDesc.DisplayName) -join ', ')"
 }
 
 # Summary
-Write-Host "`n=== Validation Summary ===" -ForegroundColor Cyan
-Write-Host "Total Groups: $(($groups | Measure-Object).Count)"
-Write-Host "Total Environments: $(($environments | Measure-Object).Count)"
-Write-Host "Grouped: $(($groupedEnvs | Measure-Object).Count)"
-Write-Host "Ungrouped: $(($ungroupedEnvs | Measure-Object).Count)"
+Write-Host "`n=== Summary ===" -ForegroundColor Cyan
+Write-Host "Groups        : $(@($groups).Count)"
+Write-Host "Environments  : $(@($envs).Count)"
+Write-Host "Grouped       : $(@($groupedEnvs).Count)"
+Write-Host "Failures      : $(@($failures).Count)" -ForegroundColor (if ($failures) { 'Red' } else { 'Green' })
+Write-Host "Warnings      : $(@($warnings).Count)" -ForegroundColor (if ($warnings) { 'Yellow' } else { 'Green' })
+
+$failures | ForEach-Object { Write-Host "[FAIL] $_" -ForegroundColor Red }
+$warnings | ForEach-Object { Write-Host "[WARN] $_" -ForegroundColor Yellow }
+
+if ($failures -or ($FailOnWarning -and $warnings)) { exit 1 }
+exit 0
 ```
 
 ---
 
 ## Notes
 
-> **Environment group creation** is primarily performed through the Power Platform Admin Center portal. PowerShell support for group creation may be limited or require preview modules.
-
-> **Rule management** is done via PPAC portal. PowerShell can be used to query environment settings that reflect applied group rules.
+- Group **creation** and **rule configuration** remain portal-first per the [portal walkthrough](portal-walkthrough.md).
+- For automated environment provisioning that auto-assigns to the correct zone group, see the [Environment Lifecycle Management](../../advanced-implementations/environment-lifecycle-management/index.md) advanced implementation.
 
 ---
 
-*Updated: April 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3*
 
-[Back to Control 2.2](../../../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+[Back to Control 2.2](../../../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification & Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)

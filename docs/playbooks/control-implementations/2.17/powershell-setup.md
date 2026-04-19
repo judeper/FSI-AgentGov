@@ -1,361 +1,282 @@
-# PowerShell Setup: Control 2.17 - Multi-Agent Orchestration Limits
+# PowerShell Setup: Control 2.17 — Multi-Agent Orchestration Limits
+
+!!! warning "Read the FSI PowerShell baseline first"
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for **module version pinning**, **sovereign-cloud (GCC / GCC High / DoD) endpoints**, **mutation safety** (`-WhatIf` / `SupportsShouldProcess`), **Dataverse compatibility**, and **SHA-256 evidence emission**. The snippets below are abbreviated; the baseline is authoritative.
 
 **Last Updated:** April 2026
-**Modules Required:** Microsoft.PowerApps.Administration.PowerShell
-
-## Prerequisites
-
-```powershell
-# Install Power Platform admin module
-Install-Module -Name Microsoft.PowerApps.Administration.PowerShell -Force -Scope CurrentUser
-
-# Connect to Power Platform (interactive authentication)
-Add-PowerAppsAccount
-
-# For automated/unattended scenarios, use service principal authentication:
-# $appId = "<Application-Client-ID>"
-# $secret = "<Client-Secret>"
-# $tenantId = "<Tenant-ID>"
-# Add-PowerAppsAccount -ApplicationId $appId -ClientSecret $secret -TenantID $tenantId
-```
+**Modules required:** `ExchangeOnlineManagement`, `Microsoft.PowerApps.Administration.PowerShell`, `Microsoft.Graph.Reports`
+**Operation type:** Read-only (audit-log query, telemetry inspection, configuration reporting). No mutation cmdlets are required for this control — the orchestration controls themselves are authored in Copilot Studio and Power Automate (see *Portal Walkthrough*).
 
 ---
 
-## Monitoring and Reporting Scripts
-
-### Query Orchestration Events from Audit Logs
+## 1. Prerequisites and Environment Setup
 
 ```powershell
-<#
-.SYNOPSIS
-    Queries audit logs for multi-agent orchestration events
+# --- Edition guard (Power Apps admin module is Desktop-only) -----------------
+if ($PSVersionTable.PSEdition -ne 'Desktop') {
+    throw "Microsoft.PowerApps.Administration.PowerShell requires Windows PowerShell 5.1 (Desktop). Detected: $($PSVersionTable.PSEdition) $($PSVersionTable.PSVersion)."
+}
 
-.DESCRIPTION
-    Uses Microsoft 365 audit log to identify agent-to-agent calls
-    and delegation patterns
+# --- Module install (pin to CAB-approved versions) ---------------------------
+# Replace <version> placeholders with the versions approved by your Change Advisory Board.
+$modules = @(
+    @{ Name = 'ExchangeOnlineManagement';                    Version = '<approved-version>' },
+    @{ Name = 'Microsoft.PowerApps.Administration.PowerShell'; Version = '<approved-version>' },
+    @{ Name = 'Microsoft.Graph.Reports';                     Version = '<approved-version>' }
+)
+foreach ($m in $modules) {
+    Install-Module -Name $m.Name -RequiredVersion $m.Version `
+        -Repository PSGallery -Scope CurrentUser -AllowClobber -AcceptLicense
+}
+```
 
-.EXAMPLE
-    .\Get-OrchestrationEvents.ps1 -StartDate (Get-Date).AddDays(-7)
-#>
-
+```powershell
+# --- Sovereign-cloud aware authentication ------------------------------------
 param(
-    [DateTime]$StartDate = (Get-Date).AddDays(-7),
-    [DateTime]$EndDate = (Get-Date)
+    [ValidateSet('prod','usgov','usgovhigh','dod')]
+    [string]$Endpoint = 'prod'
 )
 
-# Connect to Exchange Online for audit log access
-Connect-ExchangeOnline
+$exoEnv = @{ prod = 'O365Default'; usgov = 'O365USGovGCCHigh'; usgovhigh = 'O365USGovGCCHigh'; dod = 'O365USGovDoD' }[$Endpoint]
+Connect-ExchangeOnline -ShowBanner:$false -ExchangeEnvironmentName $exoEnv
 
-Write-Host "=== Orchestration Event Query ===" -ForegroundColor Cyan
-Write-Host "Date Range: $StartDate to $EndDate"
-
-# Search for Copilot Studio agent events
-# NOTE: Verify "CopilotInteraction" is the correct RecordType for your tenant;
-# check Microsoft audit log documentation for current Copilot event types
-$auditResults = Search-UnifiedAuditLog `
-    -StartDate $StartDate `
-    -EndDate $EndDate `
-    -RecordType "CopilotInteraction" `
-    -ResultSize 5000
-
-if ($auditResults) {
-    $orchestrationEvents = $auditResults | ForEach-Object {
-        $auditData = $_.AuditData | ConvertFrom-Json
-
-        [PSCustomObject]@{
-            Timestamp = $_.CreationDate
-            User = $_.UserIds
-            Operation = $auditData.Operation
-            AgentName = $auditData.AgentName
-            TargetAgent = $auditData.TargetAgent
-            DelegationDepth = $auditData.DelegationDepth
-            Success = $auditData.ResultStatus -eq "Success"
-        }
-    }
-
-    Write-Host "Found $($orchestrationEvents.Count) orchestration events"
-    $orchestrationEvents | Format-Table Timestamp, AgentName, TargetAgent, DelegationDepth, Success
-
-    # Export
-    $orchestrationEvents | Export-Csv -Path "Orchestration-Events-$(Get-Date -Format 'yyyyMMdd').csv" -NoTypeInformation
-} else {
-    Write-Host "No orchestration events found in the specified period"
-}
+Add-PowerAppsAccount -Endpoint $Endpoint
+# For unattended execution prefer certificate-based service principal auth:
+#   Add-PowerAppsAccount -Endpoint $Endpoint -TenantID <tid> -ApplicationId <aid> -CertificateThumbprint <thumb>
+# Avoid -ClientSecret in production: secrets cannot be rotated without code changes and are flagged in audit reviews.
 ```
 
-### Monitor Circuit Breaker Activations
-
-```powershell
-<#
-.SYNOPSIS
-    Monitors for circuit breaker activation events
-
-.DESCRIPTION
-    Identifies when circuit breakers have been triggered due to
-    cascade failures in multi-agent orchestrations
-
-.EXAMPLE
-    .\Monitor-CircuitBreakers.ps1
-#>
-
-# Note: This script assumes custom logging has been implemented
-# Actual implementation depends on your circuit breaker logging strategy
-
-Write-Host "=== Circuit Breaker Monitor ===" -ForegroundColor Cyan
-
-# Example: Query Application Insights or custom log source
-# This is a template - adjust for your logging infrastructure
-
-$circuitBreakerEvents = @(
-    # Example data structure
-    [PSCustomObject]@{
-        Timestamp = Get-Date
-        AgentName = "Client-Service-Bot"
-        TargetAgent = "KYC-Verification-Agent"
-        State = "Open"
-        FailureCount = 3
-        LastFailure = "Timeout"
-    }
-)
-
-if ($circuitBreakerEvents.Count -gt 0) {
-    Write-Host "`nActive Circuit Breakers:" -ForegroundColor Yellow
-    $circuitBreakerEvents | Format-Table Timestamp, AgentName, TargetAgent, State, FailureCount
-} else {
-    Write-Host "No active circuit breakers" -ForegroundColor Green
-}
-```
-
-### Generate Orchestration Depth Report
-
-```powershell
-<#
-.SYNOPSIS
-    Generates report of orchestration depth usage
-
-.DESCRIPTION
-    Analyzes audit data to identify orchestration depth patterns
-    and potential policy violations
-
-.EXAMPLE
-    .\Get-OrchestrationDepthReport.ps1
-#>
-
-Write-Host "=== Orchestration Depth Analysis ===" -ForegroundColor Cyan
-
-# This would connect to your audit/logging system
-# Template for the analysis structure
-
-$depthAnalysis = @{
-    Zone1Agents = @{
-        MaxAllowedDepth = 0
-        MaxObservedDepth = 0
-        Violations = 0
-    }
-    Zone2Agents = @{
-        MaxAllowedDepth = 2
-        MaxObservedDepth = 1
-        Violations = 0
-    }
-    Zone3Agents = @{
-        MaxAllowedDepth = 3
-        MaxObservedDepth = 2
-        Violations = 0
-    }
-}
-
-Write-Host "`n=== Depth Summary by Zone ===" -ForegroundColor Cyan
-$depthAnalysis.GetEnumerator() | ForEach-Object {
-    $zone = $_.Key
-    $data = $_.Value
-    $status = if ($data.Violations -eq 0) { "COMPLIANT" } else { "VIOLATIONS" }
-    $color = if ($data.Violations -eq 0) { "Green" } else { "Red" }
-
-    Write-Host "$zone : Max Allowed=$($data.MaxAllowedDepth), Max Observed=$($data.MaxObservedDepth), Status=$status" -ForegroundColor $color
-}
-```
+!!! danger "Sovereign-cloud false-clean risk"
+    If you omit `-Endpoint` (Power Apps) or `-ExchangeEnvironmentName` (EXO), the cmdlets authenticate against commercial endpoints, return zero results from your gov-cloud tenant, and produce **false-clean evidence**. Always pass the explicit endpoint and verify the returned tenant ID matches your target before treating output as authoritative.
 
 ---
 
-## Validation Script
+## 2. Query Orchestration Events from the Unified Audit Log
 
 ```powershell
 <#
 .SYNOPSIS
-    Validates Control 2.17 - Multi-Agent Orchestration Limits
+    Queries Microsoft Purview Unified Audit Log for Copilot Studio orchestration events.
 
 .DESCRIPTION
-    Checks orchestration configuration and compliance
+    Read-only. Surfaces agent-to-agent invocations, tool/MCP calls, and any custom
+    events emitted by the orchestration topics (Portal Walkthrough Step 6).
+    Writes JSON + CSV evidence with SHA-256 manifest per the FSI baseline.
 
-.EXAMPLE
-    .\Validate-Control-2.17.ps1
-#>
+.PARAMETER StartDate
+    Start of audit window (UTC). Default: 7 days ago.
 
-Write-Host "=== Control 2.17 Validation ===" -ForegroundColor Cyan
+.PARAMETER EndDate
+    End of audit window (UTC). Default: now.
 
-# Check 1: Verify orchestration documentation exists
-Write-Host "`n[Check 1] Orchestration Architecture Documentation" -ForegroundColor Cyan
-Write-Host "[INFO] Verify orchestration patterns are documented" -ForegroundColor Yellow
-Write-Host "[INFO] Required: Agent delegation chains, depth limits per zone"
-
-# Check 2: Verify depth limits are enforced
-Write-Host "`n[Check 2] Delegation Depth Limits" -ForegroundColor Cyan
-Write-Host "[INFO] Zone 1: Max depth = 0 (no delegation)"
-Write-Host "[INFO] Zone 2: Max depth = 2"
-Write-Host "[INFO] Zone 3: Max depth = 3"
-
-# Check 3: Verify circuit breakers configured
-Write-Host "`n[Check 3] Circuit Breaker Configuration" -ForegroundColor Cyan
-Write-Host "[INFO] Verify circuit breakers are implemented for all orchestrating agents"
-Write-Host "[INFO] Required: Failure threshold, timeout, reset behavior"
-
-# Check 4: Verify HITL checkpoints (Zone 3)
-Write-Host "`n[Check 4] Human-in-the-Loop Checkpoints" -ForegroundColor Cyan
-Write-Host "[INFO] Zone 3 agents must have HITL for sensitive operations"
-Write-Host "[INFO] Verify checkpoint locations and timeout handling"
-
-# Check 5: Verify monitoring
-Write-Host "`n[Check 5] Monitoring and Alerting" -ForegroundColor Cyan
-Write-Host "[INFO] Verify alerts configured for:"
-Write-Host "  - Depth limit violations"
-Write-Host "  - Circuit breaker activations"
-Write-Host "  - HITL timeout escalations"
-
-Write-Host "`n=== Validation Complete ===" -ForegroundColor Cyan
-Write-Host "Document findings and remediate any gaps identified"
-```
-
----
-
-## Complete Configuration Script
-
-```powershell
-<#
-.SYNOPSIS
-    Complete multi-agent orchestration limits configuration for Control 2.17
-
-.DESCRIPTION
-    Executes end-to-end orchestration monitoring setup including:
-    - Audit log query for orchestration events
-    - Depth limit validation
-    - Circuit breaker status monitoring
-    - Compliance report generation
-
-.PARAMETER Days
-    Number of days of history to retrieve
-
-.PARAMETER OutputPath
-    Path for output reports
-
-.EXAMPLE
-    .\Configure-Control-2.17.ps1 -Days 7 -OutputPath ".\Orchestration"
+.PARAMETER EvidencePath
+    Output folder for evidence artifacts. Default: .\evidence-2.17
 
 .NOTES
-    Last Updated: January 2026
-    Related Control: Control 2.17 - Multi-Agent Orchestration Limits
+    RecordType "CopilotInteraction" is the current Microsoft-documented record type
+    for Copilot Studio agent activity (verified April 2026). Microsoft has historically
+    renamed Copilot record types as the product evolved — re-verify against Microsoft
+    Learn ("Audit log activities") before each quarterly review and update this script
+    if the record type has changed in your tenant.
 #>
-
+[CmdletBinding()]
 param(
-    [int]$Days = 7,
-    [string]$OutputPath = ".\Orchestration-Report"
+    [datetime]$StartDate = (Get-Date).ToUniversalTime().AddDays(-7),
+    [datetime]$EndDate   = (Get-Date).ToUniversalTime(),
+    [string]  $EvidencePath = ".\evidence-2.17"
 )
 
-try {
-    Write-Host "=== Control 2.17: Multi-Agent Orchestration Configuration ===" -ForegroundColor Cyan
+$ErrorActionPreference = 'Stop'
+New-Item -ItemType Directory -Force -Path $EvidencePath | Out-Null
+$ts = Get-Date -Format 'yyyyMMddTHHmmssZ'
+Start-Transcript -Path (Join-Path $EvidencePath "transcript-$ts.log") -IncludeInvocationHeader
 
-    # Connect to Exchange Online for audit log access
-    Connect-ExchangeOnline
+Write-Host "[INFO] Querying Copilot audit events $StartDate -> $EndDate (UTC)" -ForegroundColor Cyan
 
-    # Ensure output directory exists
-    New-Item -ItemType Directory -Path $OutputPath -Force | Out-Null
+# Page through results — Search-UnifiedAuditLog is capped at 5000 per call.
+$all = New-Object System.Collections.Generic.List[object]
+$session = "fsi-2.17-$ts"
+do {
+    $page = Search-UnifiedAuditLog `
+        -StartDate $StartDate -EndDate $EndDate `
+        -RecordType 'CopilotInteraction' `
+        -SessionId $session -SessionCommand ReturnLargeSet `
+        -ResultSize 5000
+    if ($page) { $all.AddRange($page) }
+} while ($page -and $page.Count -eq 5000)
 
-    $startDate = (Get-Date).AddDays(-$Days)
-    $endDate = Get-Date
+Write-Host "[INFO] Retrieved $($all.Count) raw audit records" -ForegroundColor Cyan
 
-    Write-Host "[INFO] Querying audit logs from $startDate to $endDate" -ForegroundColor Cyan
-
-    # Search for Copilot/agent events
-    $auditResults = Search-UnifiedAuditLog `
-        -StartDate $startDate `
-        -EndDate $endDate `
-        -RecordType "CopilotInteraction" `
-        -ResultSize 5000 `
-        -ErrorAction SilentlyContinue
-
-    if ($auditResults -and $auditResults.Count -gt 0) {
-        Write-Host "[INFO] Found $($auditResults.Count) orchestration events" -ForegroundColor Cyan
-
-        # Parse events
-        $orchestrationEvents = $auditResults | ForEach-Object {
-            $auditData = $_.AuditData | ConvertFrom-Json
-
-            [PSCustomObject]@{
-                Timestamp = $_.CreationDate
-                User = $_.UserIds
-                Operation = $auditData.Operation
-                AgentName = $auditData.AgentName
-                TargetAgent = $auditData.TargetAgent
-                DelegationDepth = $auditData.DelegationDepth
-                Success = $auditData.ResultStatus -eq "Success"
-            }
-        }
-
-        # Export events
-        $orchestrationEvents | Export-Csv -Path "$OutputPath\OrchestrationEvents.csv" -NoTypeInformation
-
-        # Analyze depth violations
-        $maxDepthByZone = @{
-            "Zone1" = 0
-            "Zone2" = 2
-            "Zone3" = 3
-        }
-
-        $depthViolations = $orchestrationEvents | Where-Object { $_.DelegationDepth -gt 3 }
-        if ($depthViolations.Count -gt 0) {
-            Write-Host "[WARN] Depth violations found: $($depthViolations.Count)" -ForegroundColor Yellow
-            $depthViolations | Export-Csv -Path "$OutputPath\DepthViolations.csv" -NoTypeInformation
-        } else {
-            Write-Host "[PASS] No depth limit violations detected" -ForegroundColor Green
-        }
-
-        # Summary statistics
-        $uniqueAgents = ($orchestrationEvents | Select-Object -ExpandProperty AgentName -Unique).Count
-        $maxObservedDepth = ($orchestrationEvents | Measure-Object -Property DelegationDepth -Maximum).Maximum
-
-        Write-Host "`n=== Orchestration Summary ===" -ForegroundColor Cyan
-        Write-Host "Total Events: $($orchestrationEvents.Count)"
-        Write-Host "Unique Agents: $uniqueAgents"
-        Write-Host "Max Observed Depth: $maxObservedDepth"
-        Write-Host "Depth Violations: $($depthViolations.Count)"
-    } else {
-        Write-Host "[INFO] No orchestration events found in the specified period" -ForegroundColor Yellow
-        Write-Host "[INFO] This is expected if multi-agent orchestration is not yet deployed" -ForegroundColor Cyan
+$events = foreach ($r in $all) {
+    $d = $r.AuditData | ConvertFrom-Json -ErrorAction SilentlyContinue
+    [PSCustomObject]@{
+        TimestampUtc     = $r.CreationDate.ToUniversalTime().ToString('o')
+        UserIds          = $r.UserIds
+        Operation        = $d.Operation
+        AgentId          = $d.AgentId
+        AgentName        = $d.AgentName
+        TargetAgent      = $d.TargetAgent
+        DelegationDepth  = $d.DelegationDepth
+        CorrelationId    = $d.CorrelationId
+        Success          = ($d.ResultStatus -eq 'Success')
+        ResultStatus     = $d.ResultStatus
     }
+}
 
-    # Export configuration summary
-    $config = @{
-        ReportDate = Get-Date -Format "yyyy-MM-dd HH:mm"
-        QueryPeriodDays = $Days
-        MaxAllowedDepthZone1 = 0
-        MaxAllowedDepthZone2 = 2
-        MaxAllowedDepthZone3 = 3
-        EventsFound = if ($auditResults) { $auditResults.Count } else { 0 }
+# Emit evidence (JSON + CSV + SHA-256 manifest per baseline §5)
+$jsonPath = Join-Path $EvidencePath "orchestration-events-$ts.json"
+$csvPath  = Join-Path $EvidencePath "orchestration-events-$ts.csv"
+$events | ConvertTo-Json -Depth 10 | Set-Content -Path $jsonPath -Encoding UTF8
+$events | Export-Csv      -Path $csvPath -NoTypeInformation -Encoding UTF8
+
+$manifest = foreach ($f in @($jsonPath, $csvPath)) {
+    [PSCustomObject]@{
+        file          = Split-Path $f -Leaf
+        sha256        = (Get-FileHash -Path $f -Algorithm SHA256).Hash
+        bytes         = (Get-Item $f).Length
+        generated_utc = $ts
+        script        = 'fsi-2.17-orchestration-events'
+        window_start  = $StartDate.ToString('o')
+        window_end    = $EndDate.ToString('o')
     }
-    $config | ConvertTo-Json | Out-File -FilePath "$OutputPath\OrchestrationConfig.json"
+}
+$manifest | ConvertTo-Json -Depth 5 | Set-Content -Path (Join-Path $EvidencePath "manifest-$ts.json") -Encoding UTF8
 
-    Write-Host "`n[PASS] Control 2.17 configuration completed successfully" -ForegroundColor Green
+Stop-Transcript
+Write-Host "[PASS] Evidence written to $EvidencePath" -ForegroundColor Green
+```
+
+!!! warning "Zero events ≠ control passing"
+    A query that returns zero events is **not** evidence the control is working. It can equally indicate: (a) no orchestration occurred in the window, (b) audit logging is not enabled (Control 1.7), (c) the record type was renamed, or (d) wrong cloud endpoint. Cross-check against expected orchestration volume from the agent inventory (Control 2.1) and document the interpretation in the evidence manifest.
+
+---
+
+## 3. Inspect Application Insights Custom Orchestration Telemetry
+
+The orchestration topics emit five custom events (see *Portal Walkthrough* Step 6). Query them via Azure CLI or KQL to validate emission volume and surface depth-limit violations.
+
+```powershell
+# Requires Az.ApplicationInsights module (pinned per baseline §1)
+$kql = @'
+union customEvents
+| where timestamp >= ago(7d)
+| where name startswith "Orchestration."
+| extend correlationId = tostring(customDimensions.correlationId),
+         depth         = toint(customDimensions.depth),
+         zone          = tostring(customDimensions.zone),
+         childAgentId  = tostring(customDimensions.childAgentId)
+| summarize Events=count(),
+            MaxDepth=max(depth),
+            UniqueChains=dcount(correlationId)
+        by name, zone
+| order by zone, name
+'@
+
+$result = Invoke-AzOperationalInsightsQuery `
+    -WorkspaceId $WorkspaceId `
+    -Query $kql `
+    -Timespan (New-TimeSpan -Days 7)
+
+$result.Results | Format-Table -AutoSize
+```
+
+**Interpretation guide:**
+
+| Observation | Likely meaning | Action |
+|-------------|----------------|--------|
+| `Orchestration.DelegationStart` count > 0 but `Orchestration.DelegationEnd` ≪ start count | Delegations time out or fail silently | Check circuit-breaker thresholds; review error handling in topics |
+| `MaxDepth` exceeds zone limit | Depth tracking broken or limit not enforced | Treat as policy violation; trigger Control 3.4 incident workflow |
+| `Orchestration.CircuitBreakerOpen` > 0 in 24h | Cascading failure or unhealthy downstream | Investigate target agent; do not just raise threshold |
+| `Orchestration.HitlDecision` with very short `waitDurationMs` | Possible rubber-stamping | Sample for quality review (FINRA Rule 3110 supervisory review evidence) |
+| `Orchestration.MCP.ToolInvocation` for unapproved `mcpServer` | Drift from approved registry | Block at DLP layer; investigate how the unapproved server was added |
+
+---
+
+## 4. Validate Per-Agent Tool-Count Headroom
+
+Each Copilot Studio agent is capped at 128 tools. Multi-agent designs that grow over time can hit this ceiling and silently start dropping new tool registrations.
+
+```powershell
+# Pulls tool counts via the Power Apps admin API (read-only).
+Get-AdminPowerApp | Where-Object { $_.AppType -eq 'CopilotAgent' } | ForEach-Object {
+    [PSCustomObject]@{
+        AgentName       = $_.DisplayName
+        EnvironmentName = $_.EnvironmentName
+        ToolCount       = ($_.Internal.properties.tools | Measure-Object).Count
+        Headroom        = 128 - (($_.Internal.properties.tools | Measure-Object).Count)
+        Owner           = $_.Owner.email
+    }
+} | Sort-Object Headroom | Format-Table -AutoSize
+```
+
+!!! note "API surface volatility"
+    The Copilot Studio agent inventory surface in Power Apps admin cmdlets has changed across module versions. If `properties.tools` returns `$null`, your module version may not yet expose this property — fall back to per-agent inspection in the Copilot Studio portal and log a control-debt item.
+
+---
+
+## 5. Quarterly Compliance Validation Script
+
+Run this once per quarter as part of your governance cadence (see Control 2.12) and retain evidence per SEC 17a-4 (typically 6 years for FSI).
+
+```powershell
+<#
+.SYNOPSIS  Quarterly Control 2.17 attestation pack generator.
+.DESCRIPTION  Read-only. Aggregates 90 days of orchestration evidence into a
+              single attestation pack with SHA-256 manifest for the AI
+              Governance Lead's signature.
+#>
+[CmdletBinding()]
+param(
+    [string]$EvidencePath = ".\evidence-2.17-quarterly-$((Get-Date).ToString('yyyyMM'))"
+)
+
+$ErrorActionPreference = 'Stop'
+New-Item -ItemType Directory -Force -Path $EvidencePath | Out-Null
+
+# 1. 90-day audit-log pull
+& "$PSScriptRoot\Get-OrchestrationEvents.ps1" `
+    -StartDate (Get-Date).AddDays(-90).ToUniversalTime() `
+    -EvidencePath $EvidencePath
+
+# 2. Tool-count snapshot
+& "$PSScriptRoot\Get-AgentToolCounts.ps1" `
+    -EvidencePath $EvidencePath
+
+# 3. Approved MCP-server registry export (placeholder — adapt to your registry source)
+#    Example: pull from SharePoint list, Dataverse, or governance ITSM.
+
+# 4. Generate attestation cover sheet
+$cover = [PSCustomObject]@{
+    Control                 = '2.17'
+    Title                   = 'Multi-Agent Orchestration Limits'
+    PeriodStartUtc          = (Get-Date).AddDays(-90).ToUniversalTime().ToString('o')
+    PeriodEndUtc            = (Get-Date).ToUniversalTime().ToString('o')
+    GeneratedUtc            = (Get-Date).ToUniversalTime().ToString('o')
+    GeneratedByUpn          = (whoami /upn 2>$null)
+    EvidencePath            = (Resolve-Path $EvidencePath).Path
+    AttestationStatement    = 'Reviewed and confirmed compliant — _____________________'
+    SignerUpn               = ''
+    SignerDateUtc           = ''
 }
-catch {
-    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
-    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
-    exit 1
-}
-finally {
-    # Cleanup connections
-    Disconnect-ExchangeOnline -Confirm:$false -ErrorAction SilentlyContinue
-}
+$cover | ConvertTo-Json -Depth 5 | Set-Content -Path (Join-Path $EvidencePath 'attestation.json') -Encoding UTF8
+
+Write-Host "[PASS] Attestation pack at $EvidencePath" -ForegroundColor Green
+Write-Host "[NEXT] AI Governance Lead must review, sign attestation.json, and lodge in WORM storage." -ForegroundColor Yellow
 ```
 
 ---
 
-[Back to Control 2.17](../../../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+## 6. What This Script Does NOT Do
+
+To keep the FSI threat model honest, the script set above explicitly does **not**:
+
+- **Configure** orchestration limits — those live in Copilot Studio topics and Power Automate flows (*Portal Walkthrough*).
+- **Enforce** depth limits or circuit breakers in the Copilot Studio runtime — there is no admin API surface for this as of April 2026.
+- **Modify** any tenant or environment state — all cmdlets are read-only.
+- **Substitute** for SOC monitoring — these scripts produce *evidence*; real-time detection belongs in Sentinel / your SIEM (Control 1.24).
+
+If a future Microsoft release adds admin API surface for orchestration limits, this playbook will be updated and the change recorded in the control's footer date.
+
+---
+
+[Back to Control 2.17](../../../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification & Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)

@@ -59,7 +59,9 @@ class LinkIssue:
 
 
 def _strip_inline_code(text: str) -> str:
-    return re.sub(r"`[^`]+`", "", text)
+    # Remove backticks but keep the code text — mkdocs/PyMdown slugify
+    # includes the code content in the generated heading ID.
+    return text.replace("`", "")
 
 
 def _slugify_heading(text: str) -> str:

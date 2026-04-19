@@ -100,7 +100,7 @@ $Item.FieldValues.Keys | Where-Object { $_ -match "Compliance|Label|Sensitivity"
 
 # Check specific label fields
 Write-Host "ComplianceTag: $($Item.FieldValues['_ComplianceTag'])"
-Write-Host "SensitivityLabelId: $($Item.FieldValues['_DisplayName'])"
+Write-Host "IpLabelId: $($Item.FieldValues['_IpLabelId'])"
 ```
 
 **Resolution:**
@@ -109,7 +109,7 @@ Write-Host "SensitivityLabelId: $($Item.FieldValues['_DisplayName'])"
    - `_ComplianceTag` — retention/sensitivity label display name
    - `_IpLabelId` — sensitivity label GUID
    - Check both fields and use whichever is populated
-2. **Label not synced** — Sensitivity labels may take up to 24 hours to sync to SharePoint item metadata. Re-scan after the sync period.
+2. **Label not synced** — Per Microsoft Learn, sensitivity labels can take **up to 24 hours** to sync to SharePoint item metadata. Re-scan after the sync window before treating findings as authoritative.
 3. **Permissions** — The scanning account may need `InformationProtectionPolicy.Read` permission in Microsoft Graph to read label metadata
 4. **Update config** — Ensure `item-scope-config.json` label names match your organization's label taxonomy exactly (case-sensitive)
 
@@ -181,6 +181,39 @@ Write-Host "Is this after remediation? Verify and re-scan if needed."
    Connect-PnPOnline -Url $SiteUrl -Interactive -ForceAuthentication
    ```
 4. **Archive old results** — Move previous scan outputs to an archive folder to avoid confusion
+
+---
+
+### Issue 6: Library Exceeds Copilot Studio Knowledge Source Limits
+
+**Symptoms:**
+
+- Library has more than 1,000 files, more than 50 folders, or more than 10 layers of subfolders
+- Agent appears to ignore some content even though items exist in the library
+- Scan reports items that the agent never returns
+
+**Diagnosis:**
+
+```powershell
+# Check library size against Copilot Studio SharePoint limits (per Microsoft Learn)
+Connect-PnPOnline -Url "https://<tenant>.sharepoint.com/sites/<sitename>" -Interactive
+$Library = Get-PnPList -Identity "Documents"
+$Items = Get-PnPListItem -List $Library -PageSize 500
+$FileCount = ($Items | Where-Object { $_.FileSystemObjectType -eq "File" }).Count
+$FolderCount = ($Items | Where-Object { $_.FileSystemObjectType -eq "Folder" }).Count
+Write-Host "Files: $FileCount (limit: 1000)"
+Write-Host "Folders: $FolderCount (limit: 50)"
+```
+
+**Resolution:**
+
+1. **Reduce library scope** — Move out-of-scope content out of the agent-connected library, or change the knowledge source path to a narrower folder
+2. **Split into multiple libraries** — Each library remains its own knowledge source with its own limits
+3. **Continue scanning the full library** — Item-level scanning still applies to unindexed content because permissions remain a sharing risk if the library is later restructured or limits change
+4. **Document the gap** — Note which items are not currently indexed by the agent so that examiner inquiries can be answered accurately
+
+!!! info "Why scan items the agent will not retrieve"
+    Items that exceed Copilot Studio's indexing limits are not currently served by the agent, but they remain a SharePoint oversharing risk. They may become indexed if Microsoft adjusts limits, the library is restructured, or files are moved into the indexed scope. Continuing to scan supports the full SharePoint posture rather than only the current agent retrieval surface.
 
 ---
 
@@ -271,6 +304,8 @@ if ($LatestScan) {
 
 ## Related Resources
 
+- [Microsoft Learn: Copilot Studio SharePoint knowledge source](https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-add-sharepoint)
+- [Microsoft Learn: Copilot Studio requirements and quotas (SharePoint limits)](https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-quotas)
 - [Microsoft Learn: SharePoint item-level permissions](https://learn.microsoft.com/en-us/sharepoint/modern-experience-sharing-permissions)
 - [Microsoft Learn: PnP PowerShell](https://pnp.github.io/powershell/)
 - [Microsoft Learn: Sensitivity labels in SharePoint](https://learn.microsoft.com/en-us/purview/sensitivity-labels-sharepoint-onedrive-files)
@@ -279,4 +314,4 @@ if ($LatestScan) {
 
 ---
 
-*Updated: April 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3 | UI Verification Status: Current*

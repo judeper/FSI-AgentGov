@@ -54,8 +54,11 @@ For each agent, record all SharePoint knowledge sources:
 For each knowledge source, confirm:
 
 - [ ] The SharePoint site is in the RCD/RSS allowed scope (Control 4.1/4.6)
-- [ ] The library is within Copilot Studio's technical limits (500 files, 50 folders)
+- [ ] The library is within Copilot Studio SharePoint unstructured-data knowledge source limits: **1,000 files, 50 folders, 10 layers of subfolders, 512 MB per file** (per Microsoft Learn, April 2026). Items beyond these limits are silently not indexed but remain a sharing risk.
 - [ ] Sensitivity labels are applied to content in the library
+
+!!! info "Platform behavior — labeled items are not indexed"
+    Per Microsoft Learn, items labeled **Confidential** or **Highly Confidential** (and password-protected files) are not indexed by Copilot Studio knowledge sources. A correctly labeled file should not be retrieved by the agent. CRITICAL findings most often signal **mislabeling, missing labels, or label removal** rather than active retrieval — but the file still represents an oversharing risk that could become active if labels change or if the file is reused elsewhere.
 
 ---
 
@@ -173,7 +176,7 @@ For items with Anyone links or external user access:
 
 For items shared with broad internal groups beyond agent audience:
 
-1. Review sharing scope with Agent Business Owner
+3. Review sharing scope with the Agent Owner
 2. Restrict to the agent's intended user security group
 3. Document business justification if broad access is retained
 
@@ -215,4 +218,16 @@ After completing this walkthrough, confirm:
 
 ---
 
-*Updated: April 2026 | Version: v1.3*
+## Audit Evidence Note
+
+Agent responses that use SharePoint as a knowledge source are **not included in Copilot Studio conversation transcripts** (per Microsoft Learn). Where firms rely on this control to help support SEC Rule 17a-4 record-keeping for AI-served content, the evidence chain should combine:
+
+- Item-level scan output CSVs (generated here)
+- SharePoint unified audit log entries for `FileAccessed` / `FileDownloaded` events on knowledge source libraries
+- Pre-deployment gate sign-offs
+
+This combined evidence aids in supporting examiner inquiries when transcripts alone are incomplete.
+
+---
+
+*Updated: April 2026 | Version: v1.3.3 | UI Verification Status: Current*

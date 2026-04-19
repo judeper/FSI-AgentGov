@@ -258,8 +258,6 @@ The **Microsoft Defender XDR Unified Incidents queue** is the **primary triage s
 2. In the left nav, expand **Investigation & response → Incidents & alerts → Incidents**.
 3. The default view is **Open incidents — last 7 days**. Adjust the time window using the filter bar.
 
-![screenshot](../../../images/3.4/02-defender-incidents-queue.png)
-
 ### 2.2 Triage UX — column set, filters, and row actions
 
 Configure the incident queue once per analyst workstation; the column set and saved filter are evidence artifacts in their own right.
@@ -284,8 +282,6 @@ Configure the incident queue once per analyst workstation; the column set and sa
     - Severity in (High, Medium)
     - Status in (New, In progress)
 3. Save the filter and pin it to the queue header.
-
-![screenshot](../../../images/3.4/02-defender-customize-columns.png)
 
 ### 2.3 FSI severity rubric — beyond the Defender default
 
@@ -326,8 +322,6 @@ Defender XDR auto-tags incidents with MITRE ATT&CK techniques where the underlyi
     ```
 
 4. Re-save the incident; the comment is immutable in the audit trail.
-
-![screenshot](../../../images/3.4/02-defender-atlas-overlay.png)
 
 ### 2.5 Multi-source correlation review
 
@@ -384,8 +378,6 @@ Any **missing** source (e.g., Defender for Cloud Apps shows no activity for an o
 
 5. Subsequent state changes (containment achieved, eradication confirmed, recovery validated) must each receive a `STATE-COMMENT` follow-up using the same structure.
 
-![screenshot](../../../images/3.4/02-defender-manage-incident.png)
-
 ### 2.7 Linking to Microsoft Sentinel
 
 If Sentinel is bidirectionally synced (recommended; see [Control 3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md)), Defender XDR incidents flow into Sentinel automatically with a back-link. Confirm the **Microsoft Sentinel incident** link appears in the Defender XDR incident summary header — clicking it opens the Sentinel incident in a new tab. If the link is **missing**, the bidirectional sync has degraded; open a Control 3.9 sub-task before continuing.
@@ -423,8 +415,6 @@ Microsoft Sentinel extends Defender XDR triage with **automation rules**, **Logi
 1. Sign in to the **Azure portal** at [https://portal.azure.com](https://portal.azure.com) with **Sentinel Admin** activated (or **SOC Analyst** for read-only triage).
 2. Search for **Microsoft Sentinel** and select the workspace named per the firm's naming convention (e.g., `sent-fsi-prod-eastus2`).
 3. In the workspace blade, select **Threat management → Incidents**.
-
-![screenshot](../../../images/3.4/03-sentinel-incidents-blade.png)
 
 ### 3.2 Reviewing the synced incident
 
@@ -492,8 +482,6 @@ Sentinel **automation rules** are the trigger glue between incidents and Logic A
 
 Verify each rule is **Enabled** at **Sentinel → Configuration → Automation → Active rules**. A disabled rule is a finding; document on the worksheet and re-enable through the Control 3.9 change process.
 
-![screenshot](../../../images/3.4/03-sentinel-automation-rules.png)
-
 ### 3.6 Manually invoking a playbook
 
 If a playbook needs to run **before** a tag-driven trigger fires (e.g., the analyst already knows the incident is NYDFS-reportable but the tag has not yet been applied):
@@ -503,8 +491,6 @@ If a playbook needs to run **before** a tag-driven trigger fires (e.g., the anal
 3. Confirm the playbook's **Permissions status = Permission granted** for this Sentinel workspace; if not, the workspace's managed identity lacks the run-playbook role and must be remediated by the Sentinel Admin.
 4. Click **Run**.
 5. Confirm the run appears under **Runs** for the playbook with status **Succeeded**.
-
-![screenshot](../../../images/3.4/03-sentinel-run-playbook.png)
 
 ### 3.7 Reviewing playbook run logs
 
@@ -596,8 +582,6 @@ Where the incident involves **AI-agent misuse by an insider**, **anomalous promp
 2. From the left nav, expand **Solutions → Insider risk management**.
 3. Select **Cases** in the secondary nav.
 
-![screenshot](../../../images/3.4/04-irm-cases-blade.png)
-
 ### 4.2 Pseudonymization — confirm before you click
 
 IRM defaults to **pseudonymized usernames** for analyst-role users; investigator-role users see real UPNs. Confirm before opening any case:
@@ -625,8 +609,6 @@ When a Defender XDR / Sentinel incident is correlated with an IRM alert (e.g., t
     - **Case description** — link to the Defender XDR and Sentinel incident IDs and the SharePoint case URI.
     - **Assigned to** — name the **Insider Risk Investigator** (typically a CCO-designated investigator).
 5. Click **Create case**.
-
-![screenshot](../../../images/3.4/04-irm-create-case.png)
 
 ### 4.4 Case workspace — Activity, Content explorer, User activity, Alerts
 
@@ -670,8 +652,6 @@ When the case warrants legal hold and / or regulator-production export:
 3. Confirm the **Notify** toggle is set to **On** so a hold notice is generated automatically — General Counsel reviews and releases the notice (§5.4) before it is sent.
 4. Click **Escalate**.
 5. Confirm the new eDiscovery (Premium) case appears with **Status = Active** and the IRM case shows the back-link.
-
-![screenshot](../../../images/3.4/04-irm-escalate-edisco.png)
 
 ### 4.7 Case close-out
 
@@ -729,8 +709,6 @@ For incidents that do **not** route through IRM (e.g., a Defender XDR-only corre
 3. Click **Save**.
 4. Confirm the case appears in the cases list with **Status = Active** and **Owner = <your UPN>**.
 
-![screenshot](../../../images/3.4/05-edisco-create-case.png)
-
 ### 5.3 Adding custodians and creating a legal hold
 
 1. Inside the case, navigate to **Data sources → + Add data sources → Add new custodians**.
@@ -747,8 +725,6 @@ For incidents that do **not** route through IRM (e.g., a Defender XDR-only corre
     - **Review and create** — confirm and click **Submit**.
 6. Confirm the hold appears with **Status = On** and **Hold start time** populated.
 
-![screenshot](../../../images/3.4/05-edisco-create-hold.png)
-
 !!! warning "Hold scope vs. retention scope"
     A hold created here **preserves** content for the duration of the hold and overrides any retention-policy deletion within scope. It does **not** create new retention obligations on its own — books-and-records retention is owned by [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md). Confirm with General Counsel that the hold scope satisfies the litigation / regulator preservation expectation for this incident — examiners may probe scope choices.
 
@@ -763,8 +739,6 @@ For incidents that do **not** route through IRM (e.g., a Defender XDR-only corre
     - **Acknowledgment required** — **On**. The custodian must acknowledge within the hold-notice deadline (typically 5 business days).
 3. Click **Send**.
 4. Track acknowledgment status under **Communications → <notice> → Recipients**. Non-acknowledgment after the deadline is a **finding**: route to General Counsel for follow-up; document the follow-up in the §1 register row.
-
-![screenshot](../../../images/3.4/05-edisco-hold-notice.png)
 
 ### 5.5 Searches and review sets
 
@@ -789,8 +763,6 @@ For regulator-production preparation:
 3. Click **Export**.
 4. Once the export job completes, download the export package via **Exports → <export name> → Download package**.
 5. Hash the package (SHA-256), store the hash in the §1 register row, and transfer the package to the regulator-production secure-transfer location per the firm's regulator-production procedure (out of scope here).
-
-![screenshot](../../../images/3.4/05-edisco-export.png)
 
 ### 5.7 Hold release
 
@@ -828,8 +800,6 @@ When the matter closes (incident closed AND no litigation pending AND General Co
 2. From the left nav, expand **Solutions → Communication compliance**.
 3. Select **Policies → <Copilot-scoped policy name>** to confirm the policy that fired (cross-ref Control 2.12 for the configuration).
 4. Select **Alerts** to review.
-
-![screenshot](../../../images/3.4/06-commcompliance-alerts.png)
 
 ### 6.2 Reviewing a Copilot-content alert
 
@@ -895,8 +865,6 @@ Communication Compliance escalations involving registered persons require sign-o
 1. Sign in to the **Microsoft 365 admin center** at [https://admin.microsoft.com](https://admin.microsoft.com) with **Service Support Administrator** or **M365 Admin** activated (read-only is sufficient for the check; status updates require Service Support Administrator).
 2. From the left nav, expand **Health → Service health**.
 3. The default view is **All services**.
-
-![screenshot](../../../images/3.4/07-servicehealth-all-services.png)
 
 ### 7.2 Filtering for relevant services
 
@@ -1006,8 +974,6 @@ The **SharePoint IR list** is the firm's authoritative incident record outside t
     - **Disclosure-Committee Queue** — filter `MaterialityOutcome = Not Yet Determined`; ordered by oldest first.
     - **Closed Last 30 Days** — filter `Status = Closed` AND `ClosureUTC` within 30 days.
 
-![screenshot](../../../images/3.4/08-sharepoint-list-views.png)
-
 ### 8.3 Per-incident folder convention
 
 For each new IncidentID, create a sibling folder in the same site under **Documents → Incidents → <IncidentID>** with sub-folders:
@@ -1088,8 +1054,6 @@ The following flows are in scope. Each flow is created from a SharePoint trigger
 6. Add an **Update item** action (final) that appends an entry to `RegulatorNotificationsSent` capturing whether the 72h clock was met (manually filled by General Counsel; the flow simply marks the deadline-reached event).
 7. **Save** and **Test** with a synthetic list item.
 
-![screenshot](../../../images/3.4/09-flow-nydfs-72h.png)
-
 !!! warning "Flows do not file notices"
     The flows here are **deadline-surface** flows. They do **not** transmit anything to a regulator portal. Every regulator notice is filed by General Counsel (or designee) through the regulator's own portal (§13). Filing automation is explicitly out of scope and would create unacceptable legal exposure.
 
@@ -1154,8 +1118,6 @@ The materiality threshold is **firm-specific**; the Disclosure Committee owns th
 
 4. The chair records the outcome in the §8 list `MaterialityOutcome` and `MaterialityDeterminationUTC` columns.
 5. If the determination is **Material**, the §9 `IR-Timer-SEC-8K-4bd` flow auto-engages.
-
-![screenshot](../../../images/3.4/10-disclosure-committee-template.png)
 
 ### 10.3 Drafting the 8-K Item 1.05
 
@@ -1237,8 +1199,6 @@ The §9 `IR-Card-OFAC-Escalate` flow auto-fires the moment the §8 list item is 
     - **Treasury FinCEN** Suspicious Activity Report where the firm is a financial-institution covered person.
     - **NYDFS** within 24 hours of any extortion payment under 23 NYCRR 500.17(c) (separate from the 72-hour cybersecurity event notification).
     - State-level notifications per state-AG playbooks.
-
-![screenshot](../../../images/3.4/11-ofac-prescreen-template.png)
 
 ### 11.3 Sanctions screening tool
 

@@ -1,5 +1,8 @@
 # Control 4.8: PowerShell Setup — Item-Level Permission Scanning for Agent Knowledge Sources
 
+!!! warning "Read the FSI PowerShell baseline first"
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below may show abbreviated patterns; the baseline is authoritative.
+
 > **Parent Control:** [Control 4.8 — Item-Level Permission Scanning](../../../controls/pillar-4-sharepoint/4.8-item-level-permission-scanning-agent-knowledge-sources.md)
 >
 > **Related Playbooks:** [Portal Walkthrough](portal-walkthrough.md) | [Verification & Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
@@ -78,13 +81,24 @@ Edit `config/item-scope-config.json` to match your organization's sensitivity la
     "maxItemsPerLibrary": 10000,
     "includeSubfolders": true,
     "exportPath": "./output",
-    "retentionDays": 2555
+    "retentionDays": 2555,
+    "_comment_retention": "2,555 days = 7 years; align with FINRA 4511 / SEC 17a-4 record-keeping window. Confirm storage layer enforces immutability for the same period.",
+    "platformLimitsReference": {
+      "spoFilesPerSource": 1000,
+      "spoFoldersPerSource": 50,
+      "spoSubfolderLayers": 10,
+      "spoMaxFileSizeMB": 512,
+      "_source": "Microsoft Learn: Copilot Studio requirements and quotas (April 2026)"
+    }
   }
 }
 ```
 
-!!! warning "Label Names Must Match Exactly"
-    Sensitivity label names in the configuration must match your organization's Microsoft Purview sensitivity labels exactly, including capitalization and spacing.
+!!! warning "Label names must match exactly"
+    Sensitivity label names in the configuration must match your organization's Microsoft Purview sensitivity labels exactly, including capitalization and spacing. Per Microsoft Learn, items labeled **Confidential** or **Highly Confidential** are not indexed by Copilot Studio knowledge sources — but they remain a sharing risk if the file is reused, the label is removed, or the file is moved to an unlabeled copy. The scan still flags these items so that SharePoint-side oversharing can be remediated.
+
+!!! note "Sensitivity label sync delay"
+    Sensitivity-label changes can take up to **24 hours** to sync to SharePoint item metadata. Verification scans run within that window may report stale state. Schedule re-scans after the sync window before treating findings as authoritative.
 
 ---
 
@@ -435,4 +449,4 @@ After completing PowerShell setup, verify:
 
 ---
 
-*Updated: April 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3 | UI Verification Status: Current*

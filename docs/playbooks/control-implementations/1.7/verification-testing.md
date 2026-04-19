@@ -57,13 +57,13 @@ Run order each cycle: **Section 4 PRE gates → Section 5 CAP-* tests → PRES-*
 This playbook depends on, and is depended on by, the following framework controls and playbooks. Operators should open these alongside this document during a cycle:
 
 - [Control 1.7 — Comprehensive Audit Logging and Compliance (control specification)](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md)
-- [Control 1.5 — Data Loss Prevention for Generative AI](../../../controls/pillar-1-security/1.5-data-loss-prevention-for-generative-ai.md) — DLP override justification events that must reach audit
+- [Control 1.5 — Data Loss Prevention for Generative AI](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) — DLP override justification events that must reach audit
 - [Control 1.6 — Microsoft Purview DSPM for AI](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) — content-tier transcript surfacing
-- [Control 1.10 — Communication Compliance](../../../controls/pillar-1-security/1.10-communication-compliance.md) — supervisory review of AI-generated content
+- [Control 1.10 — Communication Compliance](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) — supervisory review of AI-generated content
 - [Control 1.19 — eDiscovery for Agent Interactions](../../../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md) — content-tier collection and legal hold
-- [Control 2.6 — Lifecycle Management of Agents](../../../controls/pillar-2-management/2.6-lifecycle-management-of-agents.md) — publication / decommission events that must surface in audit
-- [Control 2.12 — Change Management for AI Agents](../../../controls/pillar-2-management/2.12-change-management-for-ai-agents.md) — change events whose audit trail this control preserves
-- [Control 3.4 — Regulatory Reporting Automation](../../../controls/pillar-3-reporting/3.4-regulatory-reporting-automation.md) — downstream consumer of the evidence pack
+- [Control 2.6 — Lifecycle Management of Agents](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) — publication / decommission events that must surface in audit
+- [Control 2.12 — Change Management for AI Agents](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) — change events whose audit trail this control preserves
+- [Control 3.4 — Regulatory Reporting Automation](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) — downstream consumer of the evidence pack
 - [Control 3.9 — Microsoft Sentinel Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) — SIEM ingestion path and tamper-resistance alerting
 - [PowerShell Setup playbook](powershell-setup.md) — source of all helper functions referenced in this document
 - [Portal Walkthrough playbook](portal-walkthrough.md)

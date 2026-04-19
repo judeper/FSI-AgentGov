@@ -59,11 +59,12 @@ This playbook provides test procedures, expected results, and evidence collectio
 
 **Steps:**
 
-1. Intentionally create a test item in a test knowledge source library:
+1. In a dedicated **non-production** test SharePoint site connected to a test agent, create a test item:
    - Apply a "Confidential" or "Highly Confidential" sensitivity label
    - Share with "Everyone except external users" or create an "Anyone" link
-2. Run the item-level scan against the test library
-3. Verify the test item appears as CRITICAL in scan output
+2. Wait for label sync (up to 24 hours per Microsoft Learn) before scanning
+3. Run the item-level scan against the test library
+4. Verify the test item appears as CRITICAL in scan output
 
 **Expected Results:**
 
@@ -72,8 +73,8 @@ This playbook provides test procedures, expected results, and evidence collectio
 - [ ] Sensitivity label and sharing scope details are accurately captured
 - [ ] No false negatives — all items matching CRITICAL criteria are flagged
 
-!!! warning "Test Environment"
-    Use a dedicated test site and agent for this test. Do not create overshared sensitive content in production libraries.
+!!! warning "Test environment only"
+    Use a dedicated test site and test agent for this test. Do not create overshared sensitive content in production libraries. Per Microsoft Learn, Copilot Studio does not index Confidential / Highly Confidential items as knowledge sources, so the test item should not actually be served by the agent — but the SharePoint-level oversharing must still be detected and remediated.
 
 ---
 
@@ -205,6 +206,7 @@ This playbook provides test procedures, expected results, and evidence collectio
 | **Remediation Log** | Actions taken to resolve findings with timestamps | 7 years | CSV/Log |
 | **Pre-Deployment Gate Sign-off** | Documented gate clearance with approver | 7 years | PDF/Email |
 | **Scan Schedule Configuration** | Screenshot or export of recurring schedule | Current + 1 year | Screenshot/Export |
+| **Audit Log Cross-Reference** | SharePoint unified audit log entries (`FileAccessed`, `FileDownloaded`) for agent-served libraries — used to support SEC 17a-4 record-keeping where Copilot Studio transcripts do not capture SharePoint-grounded responses | 7 years | CSV/JSON export |
 | **Configuration File** | `item-scope-config.json` version in use | With each scan | JSON |
 
 ---
@@ -312,4 +314,4 @@ Write-Host "`n=== Validation Complete ===" -ForegroundColor Cyan
 
 ---
 
-*Updated: April 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3 | UI Verification Status: Current*

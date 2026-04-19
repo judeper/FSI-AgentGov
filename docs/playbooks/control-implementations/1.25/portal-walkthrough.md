@@ -1,26 +1,33 @@
 # Portal Walkthrough: Control 1.25 - MIME Type Restrictions for File Uploads
 
-**Last Updated:** February 2026
-**Portal:** Power Platform Admin Center
-**Estimated Time:** 20-30 minutes
+**Last Updated:** April 2026
+**Portals:** Power Platform Admin Center (PPAC), Copilot Studio, Microsoft Defender for Cloud Apps, SharePoint Admin Center
+**Estimated Time:** 30-45 minutes (full Zone 3 walkthrough including per-agent and Defender for Cloud Apps configuration)
 
 ## Prerequisites
 
-- [ ] Power Platform Admin or Entra Global Admin role
-- [ ] Access to Power Platform Admin Center
-- [ ] Knowledge of organizational file type requirements per zone
+- [ ] **Power Platform Admin** role (canonical role per `docs/reference/role-catalog.md`) — required for PPAC environment settings
+- [ ] **AI Administrator** or environment-level Copilot Studio maker role — required for per-agent File Upload toggle and per-agent allowed file types
+- [ ] **Entra Security Admin** — required for Defender for Cloud Apps file policy configuration (Zone 3)
+- [ ] **SharePoint Admin** — required for tenant-level sync-client file blocking (defense-in-depth complement)
+- [ ] Documented governance-zone classification for each target environment
+- [ ] Documented per-agent file-type allowlist with business justification (for Zone 2/3 production agents)
+
+> **Scope note:** PPAC settings configured below apply at the **environment** level and govern attachments stored on the Dataverse Organization entity. Per-agent settings in Copilot Studio apply additional constraints **within** those environment bounds. SharePoint and Defender for Cloud Apps controls listed at the end are tenant-level complements, not substitutes.
 
 ---
 
 ## Step-by-Step Configuration
 
-### Step 1: Navigate to Environment Settings
+### Step 1: Navigate to Environment Settings (PPAC)
 
 1. Open [Power Platform Admin Center](https://admin.powerplatform.microsoft.com)
 2. Select **Environments** from the left navigation
 3. Select the target environment (repeat for each environment per zone)
 4. Click **Settings** in the top menu bar
-5. Expand **Privacy + Security** (or **Features**, depending on environment type)
+5. Expand **Product** → **Privacy + Security**
+
+> **Portal path (April 2026):** *Power Platform Admin Center → Environments → \[Environment\] → Settings → Product → Privacy + Security*. The **Privacy + Security** node now sits under **Product**; older guidance that lists it under **Features** is stale.
 
 ### Step 2: Configure Blocked File Extensions
 
@@ -79,6 +86,42 @@
 3. Document the applied configuration in your governance records
 4. Repeat Steps 1-4 for each environment within the zone
 
+### Step 6: Configure Per-Agent File Upload Settings (Copilot Studio)
+
+> **Required for every file-upload-enabled agent in Zone 2 and Zone 3.** PPAC settings establish the *maximum* allowable file types; per-agent settings apply *additional* least-privilege restrictions.
+
+1. Open [Copilot Studio](https://copilotstudio.microsoft.com)
+2. Select the target agent → **Settings** → **Security**
+3. Locate the **File Upload** toggle
+    - Set to **Off** if the agent has no documented file-handling use case (recommended default for Zone 1 personal agents)
+    - Set to **On** only when the agent's documented purpose requires file inputs
+4. If File Upload is **On**, configure **Allowed file types** to the minimum set required by the agent's documented purpose (e.g., `.pdf` only for a contract-summary agent — do not inherit the full environment allowlist by default)
+5. Capture screenshot evidence of the toggle state and allowed-type list for each production agent (store under `maintainers-local/tenant-evidence/1.25/`)
+
+> **User-input limits to communicate to agent owners (Microsoft Learn, April 2026):** PDFs uploaded by users at runtime are limited to **<40 pages**; TXT/CSV to **<180 KB**; images to **15 MB** (4 MB on Direct Line). Files configured as **knowledge sources** by makers may be up to **512 MB**, with **500 files per agent** for local uploads and **1,000 files per agent** for SharePoint/OneDrive sources (GA August 2025). Executable, audio, and video formats are not supported as knowledge sources and need not appear in the agent allowlist.
+
+### Step 7: Configure Defender for Cloud Apps File Policy (Zone 3 Magic-Byte Inspection)
+
+> **Required for Zone 3.** PPAC and per-agent settings inspect the *declared* file extension and MIME header. A file renamed `invoice.pdf` whose magic bytes are `MZ` (Windows executable) will pass PPAC checks. Defender for Cloud Apps (formerly MCAS) provides the true-content-type inspection layer.
+
+1. Open [Microsoft Defender XDR portal](https://security.microsoft.com) → **Cloud apps** → **Policies** → **Policy management** → **File policy**
+2. **Create policy** → **File policy**
+3. **Filter** by **App** = SharePoint Online / OneDrive for Business (and any other connected app that hosts agent file inputs)
+4. Add filter: **MIME type (true type) does not equal** the approved Zone 3 allowlist (mirrors PPAC `allowedmimetypes`)
+5. **Governance actions:** Quarantine + Notify file owner + Notify SOC distribution list
+6. **Alert:** Create alert; set severity High; configure SIEM forwarding to Microsoft Sentinel
+7. Save policy and confirm it appears as **Enabled** in the policy list
+
+> **Limitation:** Defender for Cloud Apps file policies operate on connected SaaS apps via API connectors, with near-real-time (not synchronous) scanning. Files may be briefly accessible to agents before quarantine completes; pair with PPAC blocking to fail-fast at the environment edge.
+
+### Step 8: Configure SharePoint Tenant Blocked File Types (Defense-in-Depth)
+
+1. Open [SharePoint Admin Center](https://admin.microsoft.com/sharepoint) → **Settings** → **Sync** → **Block upload of specific file types**
+2. Add executable/script extensions matching your PPAC blocklist (e.g., `exe, bat, cmd, vbs, js, ps1, dll, msi, scr, hta`)
+3. Save
+
+> **Important caveat:** This SharePoint setting blocks the **OneDrive sync client only**. It does **not** block browser uploads to SharePoint, which means files reaching agent SharePoint knowledge sources via the browser are not filtered here. PPAC and Defender for Cloud Apps file policies remain the primary controls; this is a complementary layer for the sync-client vector.
+
 ---
 
 ## Configuration by Governance Level
@@ -99,11 +142,16 @@
 
 After completing these steps, verify:
 
-- [ ] Blocked file extensions are configured for each environment
+- [ ] Blocked file extensions are configured for each environment (Microsoft defaults retained, plus organizational additions)
 - [ ] Blocked MIME types are configured for Zone 2 and Zone 3 environments
-- [ ] Allowed MIME types allowlist is configured for Zone 3 environments
+- [ ] Allowed MIME types allowlist is configured for Zone 2 and Zone 3 environments
+- [ ] Per-agent **File Upload** toggle state is documented for every production agent (Zone 2 and Zone 3)
+- [ ] Per-agent **Allowed file types** are configured to the minimum set required by each agent's documented purpose (least-privilege)
+- [ ] Defender for Cloud Apps file policy with true-MIME (magic-byte) inspection is **Enabled** (Zone 3)
+- [ ] SharePoint sync-client blocked file types match the PPAC blocklist (defense-in-depth)
 - [ ] Configuration matches the governance level table for each environment zone
-- [ ] Changes are documented in governance records
+- [ ] Screenshot evidence is captured under `maintainers-local/tenant-evidence/1.25/` (gitignored)
+- [ ] Changes are documented in governance records and reviewed at zone cadence (Q/M/W)
 
 ---
 

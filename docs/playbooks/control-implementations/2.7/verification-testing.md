@@ -1,20 +1,23 @@
-# Verification & Testing: Control 2.7 - Vendor and Third-Party Risk Management
+# Control 2.7: Vendor and Third-Party Risk Management — Verification & Testing
 
-> This playbook provides verification and testing guidance for [Control 2.7](../../../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md).
+> Companion to [Control 2.7](../../../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md). Verification confirms vendor risk management is operating as designed and produces the evidence financial-services examiners and internal audit will request.
 
 ---
 
 ## Verification Checklist
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Review connector inventory document | Complete list of all third-party connectors |
-| 2 | Check vendor security assessments | Current assessments for all Tier 1/2 vendors |
-| 3 | Verify contracts have security clauses | Required clauses present in all vendor contracts |
-| 4 | Confirm vendor access is monitored | Audit logs showing connector activity |
-| 5 | Test DLP policy enforcement | Blocked connectors cannot be used |
-| 6 | Review board reporting | Quarterly vendor risk reports delivered |
-| 7 | Verify incident response procedures | Documented and tested for vendor issues |
+| # | Test | Expected Evidence | Pass Criteria |
+|---|------|-------------------|---------------|
+| 1 | Connector inventory currency | Inventory CSV with timestamp ≤ 7 days for Zone 2/3, ≤ 30 days for Zone 1 | All Zone 2/3 environments represented; reviewer initials present |
+| 2 | Risk-tier completeness | Tier T1–T5 populated for every row; T3/T4/T5 connectors have a documented business owner | Zero blanks in Tier or Owner columns for Zone 2/3 |
+| 3 | DLP enforcement of Blocked tier | Test agent attempts to add a Blocked connector | Add operation fails with policy-block message; Purview audit event recorded |
+| 4 | Custom connector restriction | Power Platform admin center shows custom connector creation restricted in Zone 2/3 to designated environments | Producer environments are explicit; no Zone 1 production environments allow custom |
+| 5 | SOC 2 / equivalent on file | Vendor file shows SOC 2 Type II within validity window OR accepted alternative + risk-acceptance memo | Coverage = 100% of Tier T2–T5 vendors |
+| 6 | AI-specific contract clauses | Procurement export shows clause flags for model change notice, no-training-on-customer-data, AI incident notice, audit rights | Coverage = 100% of Tier T5 vendors |
+| 7 | Transitive data-flow map | Architecture artifact lists every downstream subprocessor reached by Zone 3 multi-tool agents | One map per Zone 3 multi-tool agent; reviewed within last 12 months |
+| 8 | Quarterly governance reporting | Meeting minutes / committee deck referencing the report | At least one report per quarter in last 12 months |
+| 9 | Vendor incident drill | Tabletop exercise log for at least one Zone 3 critical vendor | Conducted within last 12 months; gaps captured and remediated |
+| 10 | Records retention | Evidence repository governed by Purview retention aligned to FINRA 4511 / SEC 17a-4 schedule | Retention label applied; deletion holds in effect during open exams |
 
 ---
 
@@ -22,140 +25,160 @@
 
 | Assessment Area | Zone 1 | Zone 2 | Zone 3 |
 |-----------------|--------|--------|--------|
-| **Vendor Vetting** | Self-certification | Basic questionnaire | Comprehensive assessment |
-| **Security Documentation** | Optional | SOC 2 recommended | SOC 2 Type II required |
-| **Contract Review** | Standard terms | Legal review | Security addendum required |
-| **Monitoring Frequency** | Annual | Quarterly | Continuous |
-| **Audit Rights** | Not required | Recommended | Required |
-| **Exit Planning** | Optional | Documented | Tested annually |
-| **Board Reporting** | None | Summary | Detailed risk report |
+| Vendor vetting | Self-attestation; Microsoft / verified-publisher only | Documented questionnaire | Risk-tiered due diligence aligned to Interagency 2023 Guidance |
+| Security documentation | None required (Microsoft baseline relied on) | SOC 2 Type II recommended | SOC 2 Type II required (SOC 1 where SOX-relevant) |
+| Contract review | Standard terms | Legal review with security addendum | Negotiated security and AI addendum; audit rights |
+| Monitoring frequency | Annual | Quarterly | Continuous (telemetry + advisory feeds) |
+| Audit rights | Not required | Recommended | Required (or accepted SOC 2 in lieu) |
+| Exit / contingency planning | Optional | Documented | Documented and tabletop-tested annually |
+| Reporting cadence | None | Summary to AI governance | Detailed report to AI governance + risk/board committee |
 
 ---
 
-## AI Vendor Assessment Questionnaire Sections
+## AI-Specific Vendor Assessment Questionnaire
 
-### Section A: Model Information
+### Section A — Model Information
+- Which AI/ML models power the service? List provider, model family, and current version.
+- How are model updates handled? What is the customer notification process and lead time?
+- Is a model card or equivalent documentation available on request?
+- Does the vendor maintain a documented evaluation suite (accuracy, safety, bias)?
 
-- What AI/ML models power the service?
-- How are model updates handled?
-- What is the model change notification process?
-- Is model documentation (model card) available?
+### Section B — Training Data Governance
+- Is customer data used to train, fine-tune, or improve any vendor model? If yes, under what consent mechanism?
+- Are training data sources documented? Is provenance traceable?
+- Are bias or fairness evaluation results available?
+- How are data subject rights (GLBA, state privacy law) supported?
 
-### Section B: Training Data
+### Section C — Output Quality and Safety
+- What output safety guardrails exist (content filters, jailbreak resistance)?
+- How is hallucination rate measured and reported?
+- What is the incident response process for AI-specific failures (e.g., harmful or non-compliant output)?
+- Is human-in-the-loop available for high-risk operations?
 
-- What data was used to train the model?
-- How is training data governance managed?
-- Does the vendor train on customer inputs?
-- Are bias testing results available?
+### Section D — Transparency and Explainability
+- Are outputs explainable or auditable to the prompt and tool calls that produced them?
+- Is end-to-end logging available to the customer for AI interactions?
+- Does the vendor support content provenance signals (e.g., C2PA) for generated content?
 
-### Section C: Output Quality and Safety
+### Section E — Compliance and Regulatory Alignment
+- Which AI-specific certifications or attestations does the vendor hold (e.g., ISO/IEC 42001)?
+- Does the vendor support customer regulatory examinations (FINRA, SEC, OCC, Federal Reserve)?
+- Is a documented AI governance framework (NIST AI RMF or equivalent) in place?
 
-- What output quality controls are in place?
-- What safety guardrails exist?
-- How is output accuracy measured?
-- What is the incident response process for AI failures?
-
-### Section D: Transparency and Explainability
-
-- Can outputs be explained?
-- What audit capabilities exist?
-- Is explainability documentation available?
-
-### Section E: Compliance and Regulatory
-
-- AI-specific certifications held?
-- Regulatory examination support?
-- AI governance framework?
-
-### Section F: Model Risk Management Integration
-
-- OCC 2011-12/SR 11-7 support?
-- Model inventory information provided?
+### Section F — Model Risk and Recordkeeping Integration
+- Does the vendor support OCC 2011-12 / Fed SR 11-7 model risk management workflows (model inventory, validation evidence)?
+- Can AI-generated content be archived in a SEC 17a-4(f) / FINRA 4511-compliant manner?
+- Can records be distinguished as AI-generated vs human-generated?
 
 ---
 
-## AI Vendor Risk Scoring
+## AI Vendor Risk Scoring Rubric
 
-| Factor | Weight | Scoring Criteria |
-|--------|--------|------------------|
-| **Model transparency** | 20% | Full disclosure (low risk) to black box (high risk) |
-| **Training data governance** | 15% | Documented and audited (low) to undisclosed (high) |
-| **Output quality controls** | 20% | Comprehensive controls (low) to minimal (high) |
-| **Customer data protection** | 15% | No training on customer data (low) to unrestricted (high) |
-| **Regulatory readiness** | 15% | AI-specific certifications (low) to no attestations (high) |
-| **Incident response** | 15% | Defined AI incident process (low) to undefined (high) |
+| Factor | Weight | Low (1) | High (5) |
+|--------|-------:|---------|----------|
+| Model transparency | 20% | Full disclosure (model card, version, eval) | Black box, undocumented |
+| Training data governance | 15% | Documented, audited, no customer training | Undisclosed, customer data used |
+| Output quality controls | 20% | Comprehensive guardrails, measured | Minimal, unmeasured |
+| Customer data protection | 15% | No training, regional residency, encryption | Unrestricted use, unclear residency |
+| Regulatory readiness | 15% | ISO 42001 / NIST AI RMF aligned, exam-ready | No attestations, no exam support |
+| Incident response | 15% | Defined AI-incident process, tested | Undefined / ad-hoc |
 
----
-
-## Dynamic Tool Governance Checklist
-
-- [ ] Default-deny policy for runtime tool discovery
-- [ ] Plugin allowlist maintained and enforced
-- [ ] Community plugins require full security review
-- [ ] Automatic updates disabled for third-party tools
-- [ ] Transitive data exposure mapped for tool chains
-- [ ] Agent-to-agent composition risks assessed
-- [ ] Marketplace installations blocked by default
-- [ ] Tool chain audit logging enabled
-- [ ] Quarterly review of approved tool inventory
+Weighted score ≥ 4.0 → Tier T5 (high); 2.5–3.9 → enhanced monitoring; ≤ 2.4 → standard.
 
 ---
 
-## Transitive Data Exposure Mapping Template
+## Dynamic Tool / Plugin / MCP Governance Checklist
+
+- [ ] Default-deny posture for runtime tool discovery in Zone 2/3 agents
+- [ ] Plugin and MCP allowlist maintained per agent
+- [ ] Independent-publisher and community plugins blocked unless reviewed
+- [ ] Auto-update disabled for non-Microsoft tools
+- [ ] Transitive data-flow map exists for every Zone 3 multi-tool agent
+- [ ] Marketplace installations blocked at the tenant level
+- [ ] Tool-call logging enabled (request, response metadata, identity)
+- [ ] Quarterly review of approved tool inventory completed and signed off
+- [ ] MCP tool servers traverse only approved network egress paths
+
+---
+
+## Transitive Data Exposure Map (Template)
 
 ```text
-TRANSITIVE DATA EXPOSURE MAPPING
-================================
-Agent: [Agent Name]
+TRANSITIVE DATA EXPOSURE MAP
+============================
+Agent:        [Agent name]                     Zone: [1/2/3]
+Owner:        [Business owner]                 Reviewed: [YYYY-MM-DD]
 
-Primary Tool: [Connector Name] ([Publisher])
-  └── Data Retrieved: [Data type]
+Tool 1: [Connector / plugin / MCP]
+  Publisher: [Microsoft / Verified / Independent / Custom / MCP server]
+  Data sent: [Class — e.g., customer NPI, MNPI, supervisory log]
+  Vendor:    [Name]
+  Subprocessors: [List]
+  Residency: [Region]
+  Recordkeeping coverage: [Yes / No / Partial — reference]
 
-Secondary Tool: [Service Name] ([Third-Party])
-  └── Data Sent: [Data type]
-  └── Third Party: [Vendor name]
-  └── Data Residency: [Location]
+Tool 2: ...
 
-Tertiary Tool: [Service Name] ([Third-Party])
-  └── Data Sent: [Data type]
-  └── Third Party: [Vendor name]
-  └── Data Residency: [Location]
+Tool N: ...
 
-RISK ASSESSMENT:
-├── Customer data flows to [X] third parties
-├── Data residency: [Known/Unknown]
-├── Transitive exposure disclosed: [Yes/No]
-└── RECOMMENDATION: [Action]
+Aggregate risk:
+  Number of distinct vendors reached: [N]
+  Number of distinct subprocessors reached: [N]
+  Customer data leaves [primary region]?: [Yes / No]
+  Recordkeeping gaps identified: [List]
+  Compensating controls: [List]
+  Recommendation: [Allow / Restrict / Block / Re-architect]
 ```
 
 ---
 
 ## Contract Requirements Checklist
 
-### Standard Clauses
+### Standard clauses
+- [ ] Encryption (in transit and at rest)
+- [ ] Incident notification SLA (24 hours for critical)
+- [ ] Audit rights (annual minimum) or SOC 2 acceptance
+- [ ] Subprocessor approval and notification
+- [ ] Data return / destruction at termination
+- [ ] Indemnification aligned to data class handled
 
-- [ ] Data protection and encryption requirements
-- [ ] Incident notification (24 hours for critical)
-- [ ] Audit rights (annual minimum)
-- [ ] Subprocessor approval requirements
-- [ ] Data return/destruction on termination
+### AI-specific clauses
+- [ ] Material model change notice (≥ 30 days)
+- [ ] Training data restrictions (no training on customer data without consent)
+- [ ] AI incident notification (24 hours for integrity / safety incidents)
+- [ ] Output monitoring and audit support
+- [ ] Human oversight provisions where decisions affect customers
+- [ ] Explainability commitments
 
-### AI-Specific Clauses
+### FSI-specific clauses
+- [ ] Books-and-records vendor: SEC 17a-4(f) / FINRA 4511 attestation
+- [ ] Communication archiving vendor: AI-generated content tagging
+- [ ] Identity verification vendor: synthetic identity / deepfake detection capability
+- [ ] LLM provider: data residency aligned to firm's books-and-records jurisdiction
 
-- [ ] Model change notification
-- [ ] Training data requirements
-- [ ] Output monitoring rights
-- [ ] Human oversight provisions
-- [ ] Explainability requirements
+---
+
+## Evidence Package for Examination
+
+For each examination cycle, assemble:
+
+1. Latest connector inventory snapshot (CSV + SHA-256 manifest)
+2. DLP policy export and effective-policy report
+3. Custom connector inventory and creation-restriction screenshot
+4. Per-vendor due diligence pack (Tier T2–T5)
+5. Quarterly vendor risk reports for the prior 12 months
+6. Transitive data-flow maps for Zone 3 multi-tool agents
+7. Exit-plan tabletop minutes for Zone 3 critical vendors
+8. Records-retention configuration showing FINRA 4511 / SEC 17a-4 alignment
 
 ---
 
 ## Related Playbooks
 
-- [Portal Walkthrough](./portal-walkthrough.md) - Step-by-step portal configuration
-- [PowerShell Setup](./powershell-setup.md) - Automation scripts
-- [Troubleshooting](./troubleshooting.md) - Common issues and solutions
+- [Portal Walkthrough](portal-walkthrough.md)
+- [PowerShell Setup](powershell-setup.md)
+- [Troubleshooting](troubleshooting.md)
 
 ---
 
-*Updated: April 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3 | UI Verification Status: Current*

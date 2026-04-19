@@ -1,236 +1,208 @@
-# Troubleshooting: Control 2.21 - AI Marketing Claims and Substantiation
+# Troubleshooting: Control 2.21 — AI Marketing Claims and Substantiation
 
 **Last Updated:** April 2026
-**Support Contacts:** Compliance Officer, AI Governance Lead
-**Escalation Path:** Legal → Chief Compliance Officer
+**Primary Owners:** Compliance Officer (process), SharePoint Admin (list/library), Power Platform Admin (flows)
+**Escalation Path:** Functional admin → AI Governance Lead → Compliance Officer → Legal Counsel
 
 ---
 
-## Common Issues and Resolutions
+## Diagnostic order of operations
 
-### Issue 1: Approval Workflow Not Triggering
+When a claim or workflow is not behaving as expected, work through the diagnostics in this order — each step rules out a class of cause:
 
-**Symptoms:**
-
-- Claim submitted but no approval request sent
-- Workflow status shows "Not started"
-- Approvers not receiving notifications
-
-**Resolution Steps:**
-
-1. **Verify workflow is enabled:**
-   - Navigate to Power Automate > My flows
-   - Locate the claims approval flow
-   - Ensure status shows "On"
-
-2. **Check trigger conditions:**
-   - Verify the workflow trigger is set to "When an item is created" or status change
-   - Confirm the list name matches exactly
-
-3. **Verify connections:**
-   - Open the flow in edit mode
-   - Check all connection references show green checkmarks
-   - Re-authenticate any connections showing errors
-
-4. **Test with manual trigger:**
-   - Run the flow manually with a test item
-   - Review run history for specific error
-
-**Root Cause:** Usually connection timeout or disabled flow.
+1. **Item state** — confirm the list item exists and `Status` is what you expect.
+2. **Flow run history** — confirm the flow triggered and check the last failed action.
+3. **Approval record** — confirm an approval was created and routed to a real, active user.
+4. **Permissions** — confirm the actor has the required SharePoint and Power Automate permissions.
+5. **Connections** — confirm the SharePoint, Outlook, and Approvals connections in the flow are still authorized.
 
 ---
 
-### Issue 2: Substantiation Link Not Working
+## Issue 1 — Approval workflow does not trigger
 
-**Symptoms:**
+**Symptoms**
 
-- Hyperlink field shows URL but clicking returns 404
-- "Access denied" error when clicking link
-- Link opens but shows wrong document
+- Submitter saves a claim and changes Status to `Under Review`, but no approval is generated.
+- Power Automate run history shows no recent runs, or runs marked **Skipped**.
+- Approvers receive nothing.
 
-**Resolution Steps:**
+**Diagnosis**
 
-1. **Verify document exists:**
-   - Navigate directly to the Substantiation library
-   - Confirm the file is present at the expected location
+1. **Power Automate → My flows** — confirm the flow is **On**. Flows automatically turn off after repeated failures or after 90 days without a successful run.
+2. Open the flow → **Run history** — if the trigger fires but the run is **Skipped**, the trigger condition (`Status eq 'Under Review'`) likely did not evaluate true. Common cause: the submitter saved with `Status = Draft` and never moved to Under Review.
+3. Open the flow in edit view — check the trigger card for a **Trigger condition** filter and confirm the column internal name matches `ClaimStatus` (not the display name).
+4. Check the SharePoint connection — re-authenticate if the connection icon shows a warning.
+5. If the flow runs but no approval is generated, inspect the **Start and wait for an approval** action: the dynamic `Compliance Reviewer` field may be empty, in which case Power Automate cannot route the approval.
 
-2. **Check URL format:**
-   - URL should be full path: `https://tenant.sharepoint.com/sites/Site/Library/File.docx`
-   - Not relative path: `/sites/Site/Library/File.docx`
+**Resolution**
 
-3. **Verify permissions:**
-   - User viewing the claim must have Read access to Substantiation library
-   - Check library permissions: Library settings > Permissions
-
-4. **Re-link the document:**
-   - Copy the correct URL from browser when viewing the document
-   - Edit the claim and update the Substantiation File field
-
-**Root Cause:** Permission mismatch or incorrect URL format.
+- Set the trigger to **When an item is created or modified** with a trigger condition `@equals(triggerOutputs()?['body/ClaimStatus/Value'], 'Under Review')`.
+- Provide a fallback recipient (Compliance shared mailbox or distribution group) when the per-item reviewer is empty.
+- Re-authenticate connections; re-enable the flow.
 
 ---
 
-### Issue 3: Quarterly Review Reminders Not Sending
+## Issue 2 — Substantiation hyperlink returns 404 or "Access denied"
 
-**Symptoms:**
+**Symptoms**
 
-- Claims past review date but no reminders sent
-- Scheduled flow shows no recent runs
-- Compliance Reviewer not receiving emails
+- The Substantiation File link is present but clicking returns a SharePoint not-found page or an access-denied page.
 
-**Resolution Steps:**
+**Diagnosis**
 
-1. **Check flow schedule:**
-   - Open the quarterly review flow
-   - Verify recurrence is set correctly (e.g., Weekly on Monday)
-   - Check "Next run" date/time
+1. Confirm the document still exists at the expected location (it may have been moved or renamed, which breaks the stored URL — SharePoint stored hyperlinks are not auto-updated).
+2. Confirm the URL is fully qualified (`https://<tenant>.sharepoint.com/...`), not relative.
+3. Confirm the user opening the link has at least Read access to the substantiation library. Submitters typically need Contribute to the inventory list and Read on the library — verify both.
 
-2. **Verify filter conditions:**
-   - Review the "Get items" action filter
-   - Ensure it's checking `NextReviewDate <= Today + 14 days`
-   - Ensure it's filtering for `Status = Approved` only
+**Resolution**
 
-3. **Check email action:**
-   - Verify the "Send email" action has valid recipients
-   - Check if ComplianceReviewer field is populated on claims
-
-4. **Run flow manually:**
-   - Trigger the flow manually and review run history
-   - Check for "No items found" vs actual errors
-
-**Root Cause:** Filter conditions too restrictive or email recipient field empty.
+- Re-link by copying the URL from the document's **... → Copy link** dialog (use a "people in your organization can view" or scoped link consistent with firm policy).
+- Where documents move frequently, consider replacing the hyperlink column with a managed metadata or lookup column tied to a stable identifier.
 
 ---
 
-### Issue 4: Claims Report Export Fails
+## Issue 3 — Quarterly reminders are not delivered
 
-**Symptoms:**
+**Symptoms**
 
-- PowerShell script returns errors
-- Export file empty or incomplete
-- Connection authentication errors
+- Approved claims pass their Next Review Date with no reminder email.
+- Scheduled flow shows no recent runs, or runs return zero items.
 
-**Resolution Steps:**
+**Diagnosis**
 
-1. **Re-authenticate PnP connection:**
-   ```powershell
-   Disconnect-PnPOnline
-   Connect-PnPOnline -Url $SiteUrl -Interactive
-   ```
+1. Open the scheduled flow → **Run history**. If runs do not appear, check the recurrence schedule and confirm the flow is **On**.
+2. Open the **Get items** action's run output — if the array is empty, the OData filter is too restrictive or the field internal names are wrong.
+3. Confirm the OData filter uses the internal field names: `ClaimStatus eq 'Approved' and NextReviewDate le '@{addDays(utcNow(),14)}'`.
+4. Confirm the **Compliance Reviewer** field is populated on the affected claims; if empty, the email recipient is null and the **Send an email** action fails silently.
 
-2. **Verify list name:**
-   - Ensure list name in script matches exactly: "AI Marketing Claims Inventory"
-   - Check for extra spaces or typos
+**Resolution**
 
-3. **Check permissions:**
-   - User running script needs at minimum Read access
-   - For full export, Site Member or higher recommended
-
-4. **Handle large lists:**
-   - If list has >5000 items, use `-PageSize 500` parameter
-   - Consider filtering by date range
-
-**Root Cause:** Authentication timeout or permission insufficient.
+- Correct the OData filter and field references.
+- Add a fallback recipient (Compliance group mailbox) for claims with an empty Compliance Reviewer.
+- Add a top-level **Scope** with a **Configure run after** on a final notification step so failures are surfaced to the flow owner.
 
 ---
 
-### Issue 5: Claim Stuck in "Under Review" Status
+## Issue 4 — Claim stuck in "Under Review"
 
-**Symptoms:**
+**Symptoms**
 
-- Claim shows "Under Review" for extended period
-- No approval request visible to approvers
-- Workflow shows "Running" indefinitely
+- Claim shows `Under Review` for days; flow run shows **Running**; no progress.
 
-**Resolution Steps:**
+**Diagnosis**
 
-1. **Check workflow run history:**
-   - Power Automate > Flow > Run history
-   - Look for "Waiting for approval" status
-   - Identify which approval stage is pending
+1. Open the run → identify which **Start and wait for an approval** action is pending.
+2. Confirm the assigned approver is active in the directory (not disabled, not departed).
+3. The approver should check **Power Automate → Action items → Approvals**, the Microsoft 365 approval email, and the **Approvals** app in Microsoft Teams. Approvals can be claimed from any of these surfaces.
+4. Power Automate approvals time out after 30 days by default; longer waits may be the result of a missed reassignment.
 
-2. **Check approver availability:**
-   - Verify the assigned approver is active in the organization
-   - Check if approver has access to approval requests
+**Resolution**
 
-3. **Locate the approval:**
-   - Approver: Check Power Automate > Approvals
-   - Or Outlook: Search for approval email
-   - Or Teams: Check Approvals app
-
-4. **Cancel and restart if necessary:**
-   - Cancel the stuck workflow run
-   - Reset claim status to "Draft"
-   - Resubmit for review
-
-**Root Cause:** Approval request missed by approver or approver unavailable.
+- Reassign the approval (approval owners can reassign from the Approvals UI).
+- If the approver has departed, cancel the run, set `Status = Draft`, repopulate the **Compliance Reviewer** field with a current approver, and resubmit.
+- Add a periodic reminder action (e.g., **Send an email** after a Delay of 3 days inside the approval scope) to reduce missed approvals.
 
 ---
 
-### Issue 6: Duplicate Claims Created
+## Issue 5 — PowerShell export fails or returns an empty file
 
-**Symptoms:**
+**Symptoms**
 
-- Same claim appears multiple times in inventory
-- Workflow triggered multiple times
-- Confusion about which version is authoritative
+- `Export-AIClaimsReport.ps1` raises an authentication error, returns no rows, or returns rows with empty fields.
 
-**Resolution Steps:**
+**Diagnosis**
 
-1. **Identify duplicates:**
-   - Sort list by Submission Date and Claim Text
-   - Identify exact or near-duplicate entries
+1. Confirm PowerShell edition is **7.2 or later** — PnP.PowerShell v2 will not load on Windows PowerShell 5.1.
+2. Confirm the module is loaded at the CAB-pinned version: `Get-Module PnP.PowerShell | Format-List Name, Version`.
+3. Confirm `-AzureEnvironment` matches the tenant cloud. A Commercial connection against a GCC High tenant returns zero results without error — a classic source of false-clean evidence.
+4. Confirm the executing account has at least **Read** on the AI Governance site.
+5. For a list with more than 5,000 items, ensure `-PageSize 500` is set and that you are not hitting a list-view threshold caused by an unindexed filter.
 
-2. **Determine authoritative version:**
-   - Keep the claim with most complete information
-   - Keep the claim with most recent approval (if approved)
+**Resolution**
 
-3. **Remove duplicates:**
-   - Update duplicate status to "Retired"
-   - Add note in comments: "Duplicate of Claim ID X"
-   - Do not delete - retain for audit trail
-
-4. **Prevent future duplicates:**
-   - Add validation to submission form
-   - Implement duplicate detection in workflow
-
-**Root Cause:** Form submitted multiple times or workflow triggered twice.
+- Re-run with the correct PowerShell edition, pinned module version, and `-AzureEnvironment` value.
+- Re-authenticate: `Disconnect-PnPOnline; Connect-PnPOnline -Url $SiteUrl -Interactive -AzureEnvironment <env>`.
+- Add an index on `NextReviewDate` and `ClaimStatus` if you frequently query large historical datasets.
 
 ---
 
-## Escalation Matrix
+## Issue 6 — Duplicate claims
 
-| Issue Type | First Contact | Escalation 1 | Escalation 2 |
-|------------|---------------|--------------|--------------|
-| Workflow failure | Power Platform Admin | IT Support | Microsoft Support |
-| Permission issues | SharePoint Admin | Security Admin | IT Director |
-| Claim content dispute | Compliance Officer | Legal | Chief Compliance Officer |
-| Regulatory interpretation | Legal | External Counsel | Regulatory Body |
-| Urgent claim (blocking marketing) | Compliance Officer | Legal | CCO + General Counsel |
+**Symptoms**
+
+- The same claim text appears multiple times; the workflow may have triggered more than once.
+
+**Diagnosis**
+
+1. Sort the list by `Submission Date` and `Claim Text` to identify duplicates.
+2. Inspect flow run history for duplicate triggers (a "When an item is created or modified" trigger fires on every save, which is expected — the trigger condition on `Status` should suppress duplicates).
+3. Confirm the trigger condition on `Status = 'Under Review'` is in place; without it, every edit re-runs the approval flow.
+
+**Resolution**
+
+- Add or correct the trigger condition.
+- Resolve in-flight duplicates by setting the duplicates to `Status = Withdrawn` and noting the authoritative claim ID in `Review Comments` (do **not** delete — preserve the audit trail per books-and-records expectations).
+- Consider adding a Power Apps form for submission with simple duplicate detection (search the inventory by claim text on submit).
 
 ---
 
-## Known Limitations
+## Issue 7 — Retention label not applied to new uploads
+
+**Symptoms**
+
+- Documents uploaded to the substantiation library show no retention label in the **Details** pane, even though a Purview policy targets the library.
+
+**Diagnosis**
+
+1. Confirm the Purview retention label **policy** is **Published** and that its location includes the AI Governance site or specifically the substantiation library.
+2. Policy propagation can take up to 24 hours after publication; check the policy's **Status** and **Last refresh** times.
+3. Confirm the library has a **default retention label** set (Library settings → Apply label to items in this list or library).
+4. Confirm the executing user has at least **Edit** permission on the library — readers cannot apply labels.
+
+**Resolution**
+
+- Set the default label on the library so new items inherit it automatically.
+- Wait for policy propagation (up to 24 hours) before declaring failure.
+- For pre-existing items, run a **Bulk apply label** action from the library command bar.
+
+---
+
+## Escalation matrix
+
+| Issue type | First responder | Escalation 1 | Escalation 2 |
+|---|---|---|---|
+| Flow failure | Power Platform Admin | AI Governance Lead | Microsoft Support |
+| List / library / retention | SharePoint Admin | Purview Compliance Admin | Microsoft Support |
+| Permission issues | SharePoint Admin | Entra Security Admin | IT Director |
+| Disputed claim content | Compliance Officer | Legal Counsel | Chief Compliance Officer |
+| Regulatory interpretation | Legal Counsel | External Counsel | Applicable regulator |
+| Urgent claim blocking marketing | Compliance Officer | Legal Counsel | CCO + General Counsel |
+
+---
+
+## Known limitations
 
 | Limitation | Workaround | Status |
-|------------|------------|--------|
-| Power Automate approval timeout (30 days) | Reminder flow sends weekly nudges | By Design |
-| SharePoint column limit (500 columns) | Current implementation uses 15 columns | Acceptable |
-| No mobile-optimized claim submission | Use SharePoint mobile app | Future Enhancement |
-| Manual substantiation file linking | Copy URL from document library | Future Enhancement |
+|---|---|---|
+| Power Automate approval default timeout (30 days) | Add periodic reminder inside approval scope; reassign on time-out | By design |
+| SharePoint hyperlink columns do not track moved/renamed files | Use Library command bar **Copy link** when relinking; consider managed metadata | By design |
+| Out-of-the-box list does not enforce duplicate detection | Add a Power Apps submission form with pre-submit lookup | Future enhancement |
+| Retention label policy propagation can take up to 24 hours | Schedule label changes outside change-window cutoffs | By design |
+| Mobile experience for the Approvals app may differ from desktop | Use the Approvals app in Teams on supported devices | Microsoft platform behavior |
 
 ---
 
-## Support Contacts
+## Support contacts (template)
 
 | Role | Responsibility | Contact |
-|------|----------------|---------|
-| Compliance Officer | Claim review, regulatory questions | compliance@example.com |
-| AI Governance Lead | Technical accuracy validation | ai-governance@example.com |
-| SharePoint Admin | List/library configuration | sharepoint-support@example.com |
-| Power Platform Admin | Workflow troubleshooting | powerplatform@example.com |
-| Legal | Regulatory interpretation, high-risk claims | legal@example.com |
+|---|---|---|
+| Compliance Officer | Claim review, regulatory questions | _compliance@example.com_ |
+| AI Governance Lead | Technical accuracy validation | _ai-governance@example.com_ |
+| SharePoint Admin | List, library, retention configuration | _sharepoint-support@example.com_ |
+| Power Platform Admin | Flow configuration and run-history triage | _powerplatform@example.com_ |
+| Purview Compliance Admin | Retention labels and policies | _purview-support@example.com_ |
+| Legal Counsel | Regulatory interpretation; high-risk claims | _legal@example.com_ |
 
 ---
 
-[Back to Control 2.21](../../../controls/pillar-2-management/2.21-ai-marketing-claims-and-substantiation.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md)
+[Back to Control 2.21](../../../controls/pillar-2-management/2.21-ai-marketing-claims-and-substantiation.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification & Testing](verification-testing.md)

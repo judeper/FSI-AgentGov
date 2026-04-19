@@ -1,116 +1,206 @@
 # Verification & Testing: Control 1.26 - Agent File Upload and File Analysis Restrictions
 
-**Last Updated:** February 2026
+**Last Updated:** April 2026
+**Audience:** M365 administrators, AI Governance Lead, internal/external auditors
 
-## Manual Verification Steps
-
-### Test 1: Verify File Upload Toggle State per Agent
-
-1. Open Copilot Studio → Select target agent → Settings → Security
-2. Locate the **File Upload** toggle
-3. Verify the toggle state matches the agent's governance zone classification:
-   - Zone 1: Enabled (acceptable) or Disabled
-   - Zone 2: Disabled unless documented approval exists
-   - Zone 3: Disabled unless formal risk assessment and approval on file
-4. **EXPECTED:** File upload toggle aligns with zone governance requirements
-
-### Test 2: Verify File Upload Blocked When Disabled
-
-1. Open an agent with file upload disabled
-2. Attempt to interact with the agent and upload a file
-3. **EXPECTED:** The agent does not present a file upload option or rejects the upload attempt with an appropriate message
-
-### Test 3: Verify File Upload Works When Enabled (Approved Agents)
-
-1. Open an agent with file upload enabled and documented approval
-2. Upload an approved file type (e.g., .pdf or .docx)
-3. Verify the file is accepted and stored in the SPE container
-4. Verify the agent can reference the file content in responses
-5. **EXPECTED:** Approved file types are accepted; agent provides responses using file content
-
-### Test 4: Verify Sensitivity Label Inheritance
-
-1. Open an agent with file upload enabled
-2. Upload a file with a sensitivity label applied (e.g., "Confidential")
-3. Upload a second file with a more restrictive label (e.g., "Highly Confidential")
-4. Verify the agent inherits the most restrictive label from its knowledge sources
-5. **EXPECTED:** Agent displays the most restrictive sensitivity label from uploaded files
-
-### Test 5: Verify DLP Policy Enforcement (Zone 2+)
-
-1. Open an agent with file upload enabled in a Zone 2 or Zone 3 environment
-2. Upload a file containing sensitive data patterns (e.g., test SSNs, account numbers)
-3. Navigate to Microsoft Purview → Data Loss Prevention → Activity explorer
-4. Verify a DLP policy match is logged for the upload
-5. **EXPECTED:** DLP alerts are generated for uploads containing sensitive content
-
-### Test 6: Verify Agent Inventory Accuracy
-
-1. Run the `Get-AgentFileUploadStatus.ps1` script from the PowerShell Setup playbook
-2. Compare the output against the documented file upload inventory
-3. Verify all agents with file upload enabled are accounted for with appropriate approval documentation
-4. **EXPECTED:** Inventory output matches documented records; no undocumented agents have file upload enabled
+This playbook provides numbered test cases (`TC-1.26-XX`) with explicit Given / When / Then preconditions, an evidence-collection checklist, an attestation template, and a SHA-256-anchored auditor pack layout that supports SEC 17a-4(f) and FINRA 4511 preservation expectations.
 
 ---
 
 ## Test Cases
 
-| Test ID | Scenario | Expected Result | Pass/Fail |
-|---------|----------|-----------------|-----------|
-| TC-1.26-01 | File upload toggle matches zone | Toggle state aligns with governance zone | |
-| TC-1.26-02 | Upload blocked when disabled | Agent rejects file upload attempts | |
-| TC-1.26-03 | Upload works when enabled | Approved files accepted and processed | |
-| TC-1.26-04 | Sensitivity label inherited | Agent inherits most restrictive label | |
-| TC-1.26-05 | DLP policy triggered (Zone 2+) | DLP match logged in Activity explorer | |
-| TC-1.26-06 | Agent inventory accurate | All upload-enabled agents documented | |
-| TC-1.26-07 | Zone 3 default deny enforced | New agents default to file upload disabled | |
-| TC-1.26-08 | File count limit enforced | Agent rejects uploads beyond 20-file limit | |
+### TC-1.26-01 — Per-Agent Toggle State Matches Zone Policy
+
+- **Given:** An agent classified as Zone *N* with documented approval state recorded in the per-agent inventory
+- **When:** The reviewer opens *Copilot Studio → \[Agent\] → Settings → Security → File Upload* and reads the toggle state
+- **Then:** The state matches the zone policy (Zone 1: any; Zone 2: Off unless approved; Zone 3: Off unless formally approved with risk assessment)
+- **Pass Criteria:** Observed state == Expected state for every agent in the inventory
+- **Evidence:** Screenshot of toggle state + row in `compliance-audit-<ts>.json` showing `Result = PASS`
+
+### TC-1.26-02 — File Upload Blocked When Toggle Off
+
+- **Given:** An agent with **File Upload = Off** that has been republished after the toggle change
+- **When:** A test user opens the agent (Teams / web channel) and attempts to attach a `.pdf`
+- **Then:** The agent does not present an attach control, or rejects the upload with an appropriate message
+- **Pass Criteria:** No file is accepted; no entry appears in the SPE container for the test agent
+- **Evidence:** Screen recording or screenshot of upload attempt; SPE container listing showing no new file
+
+### TC-1.26-03 — File Upload Accepted Only for Approved File Types
+
+- **Given:** An agent with **File Upload = On** and **Allowed file types** restricted to `.pdf` only
+- **When:** A test user uploads a `.pdf` (allowed) and then a `.docx` (disallowed)
+- **Then:** The `.pdf` is accepted; the `.docx` is rejected
+- **Pass Criteria:** Allowlist enforcement is observed at the agent level, independent of environment-level (Control 1.25) settings
+- **Evidence:** Screenshot of accept and reject responses; PowerPlatformAdminActivity log entries
+
+### TC-1.26-04 — Sensitivity Label Inheritance (Most-Restrictive Wins)
+
+- **Given:** An agent with **File Upload = On** and Purview sensitivity labels published for the tenant
+- **When:** The reviewer uploads two test files: `confidential.pdf` (label: Confidential) and `highly-confidential.pdf` (label: Highly Confidential)
+- **Then:** The agent's effective label surfaces as **Highly Confidential**
+- **Pass Criteria:** Most-restrictive label inheritance is observed within 30 minutes (allow up to 24 hours for new labeling policies)
+- **Evidence:** Screenshot of agent properties showing inherited label; Purview Activity Explorer entries for the uploads
+
+### TC-1.26-05 — DLP Policy Triggered on Sensitive Content (Zone 2+)
+
+- **Given:** A Zone 2 or Zone 3 agent with File Upload = On and a DLP policy in **Enforce** mode that includes US SSN as a Sensitive Information Type
+- **When:** The reviewer uploads a synthetic test file containing 5+ formatted but non-real US SSNs (use `123-45-6789` style — never use real SSNs)
+- **Then:** A DLP policy match is logged in *Purview → Data Loss Prevention → Activity explorer* and an alert is generated
+- **Pass Criteria:** DLP match recorded within 24 hours; SOC alert delivered per configured channel
+- **Evidence:** Activity Explorer screenshot; alert email/ticket reference
+
+### TC-1.26-06 — Magic-Byte Inspection Blocks Renamed Executable (Zone 3)
+
+- **Given:** A Zone 3 agent with Defender for Cloud Apps file policy configured for true-MIME inspection
+- **When:** The reviewer uploads a Windows executable renamed `invoice.pdf` (magic bytes `MZ`, declared MIME `application/pdf`)
+- **Then:** Defender for Cloud Apps quarantines the file and notifies the SOC distribution list
+- **Pass Criteria:** Quarantine action recorded; file removed from the SPE container; alert raised
+- **Evidence:** Defender XDR alert detail; SPE container listing showing file absent or in quarantine state
+
+### TC-1.26-07 — Per-Agent Inventory Accuracy (No Drift)
+
+- **Given:** A documented per-agent inventory listing every agent's File Upload toggle state and approval reference
+- **When:** The reviewer runs `Get-AgentFileUploadInventory.ps1` from the [PowerShell Setup](powershell-setup.md) playbook
+- **Then:** The script output matches the documented inventory with zero drift
+- **Pass Criteria:** Every agent in the script output is present in the inventory; every agent in the inventory is present in the script output; toggle states match
+- **Evidence:** `agent-file-upload-inventory-<ts>.json` + manifest entry with SHA-256
+
+### TC-1.26-08 — SPE Container Retention Policy Active (Zone 2+)
+
+- **Given:** The agent's environment uses a SharePoint Embedded container for uploaded files
+- **When:** The reviewer queries Purview Data Lifecycle Management for retention policies covering the SPE container location
+- **Then:** A retention policy is in scope with a retention period that meets the agent's record-keeping obligation (FINRA 4511: 6 years; SEC 17a-4: 6 years for most records, 3 years for some)
+- **Pass Criteria:** Retention policy documented and active; container auditing enabled
+- **Evidence:** Purview retention policy configuration export; auditing-enabled confirmation
+
+### TC-1.26-09 — Toggle Change Is Logged and Attributable
+
+- **Given:** A toggled change to the File Upload setting on any agent
+- **When:** A SOC analyst queries the Power Platform admin activity log (or Sentinel mirror) for the agent ID
+- **Then:** The change is recorded with timestamp, actor (UPN), and previous/new value
+- **Pass Criteria:** Change attributable within 24 hours; recorded in immutable log
+- **Evidence:** KQL query output (see queries below)
+
+### TC-1.26-10 — Periodic Review Cadence Met
+
+- **Given:** A per-agent inventory with documented next-review dates per zone (Zone 1: quarterly; Zone 2: monthly; Zone 3: weekly)
+- **When:** The reviewer audits the **Last Reviewed** column for the past period
+- **Then:** Every agent has been reviewed at the zone-appropriate cadence
+- **Pass Criteria:** No agent overdue for review by more than one cadence interval
+- **Evidence:** Inventory export with Last Reviewed dates; review meeting minutes
+
+---
+
+## Test Case Summary Table
+
+| Test ID | Scenario | Zone | Expected Result | Pass/Fail |
+|---------|----------|------|-----------------|-----------|
+| TC-1.26-01 | Toggle state matches zone | All | Observed == Expected | |
+| TC-1.26-02 | Upload blocked when toggle off | All | No file accepted | |
+| TC-1.26-03 | Per-agent allowlist enforced | 2, 3 | Disallowed types rejected | |
+| TC-1.26-04 | Sensitivity label inheritance | All | Most-restrictive wins | |
+| TC-1.26-05 | DLP policy triggered | 2, 3 | DLP match logged + alert | |
+| TC-1.26-06 | Magic-byte inspection blocks renamed exe | 3 | Quarantined + alert | |
+| TC-1.26-07 | Inventory accuracy | All | Zero drift | |
+| TC-1.26-08 | SPE retention policy active | 2, 3 | Policy in scope | |
+| TC-1.26-09 | Toggle change logged + attributable | All | Logged in 24h | |
+| TC-1.26-10 | Review cadence met | All | No agent overdue | |
 
 ---
 
 ## Evidence Collection Checklist
 
-- [ ] Screenshot: Copilot Studio agent settings showing File Upload toggle state
-- [ ] Screenshot: File upload disabled agent rejecting upload attempt
-- [ ] Screenshot: Sensitivity label displayed on agent with uploaded files
-- [ ] Screenshot: DLP Activity explorer showing file upload policy match (Zone 2+)
-- [ ] Export: Agent file upload inventory (Get-AgentFileUploadStatus output)
-- [ ] Export: File upload compliance audit results per environment
-- [ ] Document: Approval records for Zone 2/3 agents with file upload enabled
-- [ ] Export: SPE container access control configuration
+- [ ] `agent-file-upload-inventory-<ts>.json` (Script 1) with SHA-256 manifest entry
+- [ ] `compliance-audit-<ts>.json` (Script 2) with PASS/WARN/FAIL counts and SHA-256
+- [ ] `validation-summary-<ts>.json` (Script 4) with consolidated zone counts and SHA-256
+- [ ] `before-snapshot-<ts>.json` and `mutation-results-<ts>.json` for every state change
+- [ ] PowerShell session transcripts (`transcript-*.log`) for every script run
+- [ ] Screenshot: per-agent File Upload toggle state (one per production agent — store under `maintainers-local/tenant-evidence/1.26/`, gitignored)
+- [ ] Screenshot: agent rejecting an upload when toggle off (TC-1.26-02)
+- [ ] Screenshot: agent with inherited Highly Confidential label (TC-1.26-04)
+- [ ] Screenshot: Purview DLP Activity Explorer match (TC-1.26-05)
+- [ ] Screenshot: Defender XDR quarantine alert for renamed executable (TC-1.26-06)
+- [ ] Export: SPE container access controls and retention policy configuration
+- [ ] Approval records (ticket / record IDs) for every Zone 2/3 agent with File Upload enabled
+- [ ] `manifest.json` indexing all artifacts by SHA-256 (canonical pattern per PowerShell baseline §5)
+
+---
+
+## Auditor Pack Layout
+
+Bundle the following for handoff to internal audit, external audit, or regulatory examiner:
+
+```
+auditor-pack-1.26-<yyyymmdd>/
+├── README.md                            ← This control summary + zone policy
+├── manifest.json                        ← SHA-256 index of every file in the pack
+├── evidence/
+│   ├── agent-file-upload-inventory-<ts>.json
+│   ├── compliance-audit-<ts>.json
+│   ├── validation-summary-<ts>.json
+│   ├── before-snapshot-<ts>.json        ← any state-change snapshots
+│   └── mutation-results-<ts>.json
+├── transcripts/
+│   └── transcript-*.log                 ← PowerShell session transcripts
+├── screenshots/                         ← Captured from maintainers-local/tenant-evidence/1.26/
+│   ├── toggle-states/
+│   ├── label-inheritance/
+│   └── dlp-alerts/
+├── approvals/
+│   └── zone-2-3-enablement-records.csv  ← Ticket IDs and approver records
+└── kql-evidence/
+    └── activity-log-queries.json        ← Output from queries below
+```
+
+The `manifest.json` should follow the canonical PowerShell baseline §5 schema:
+
+```json
+[
+  {
+    "file": "evidence/agent-file-upload-inventory-20260415T143022Z.json",
+    "sha256": "9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08",
+    "bytes": 12456,
+    "generated_utc": "20260415T143022Z",
+    "script": "Get-AgentFileUploadInventory",
+    "control_id": "1.26"
+  }
+]
+```
+
+Land the auditor pack in WORM storage (Microsoft Purview Data Lifecycle retention lock or Azure Storage immutability policy) before sharing externally. Hashes published in the manifest support content-integrity verification at any later point in the records-retention period.
 
 ---
 
 ## Attestation Statement Template
 
 ```markdown
-## Control 1.26 Attestation - Agent File Upload and File Analysis Restrictions
+## Control 1.26 Attestation — Agent File Upload and File Analysis Restrictions
 
 **Organization:** [Organization Name]
-**Control Owner:** [Name/Role]
-**Date:** [Date]
+**Control Owner:** [Name / Role — typically AI Administrator]
+**Reporting Period:** [YYYY-MM-DD] to [YYYY-MM-DD]
+**Date of Attestation:** [YYYY-MM-DD]
 
-I attest that:
+I attest that, for the reporting period above:
 
-1. File upload governance is applied per governance zone:
-   - Zone 1 agents: [Count] — file upload allowed with periodic review
-   - Zone 2 agents: [Count] — file upload disabled unless approved ([Count] approved)
-   - Zone 3 agents: [Count] — file upload default deny ([Count] exceptions with risk assessment)
-2. Agent file upload inventory is current and accurate:
-   - Total agents assessed: [Count]
-   - Agents with file upload enabled: [Count]
-   - Agents with file upload disabled: [Count]
-3. DLP policies are active for agents with file upload enabled:
-   - Zone 2 agents covered by DLP: [Yes/No]
-   - Zone 3 agents covered by DLP with content scanning: [Yes/No]
-4. Sensitivity label inheritance was verified:
-   - Agents inheriting labels from uploaded files: [Yes/No]
-5. Approval documentation exists for all Zone 2+ agents with file upload enabled: [Yes/No]
-6. Exceptions documented and approved per governance process: [Count]
+1. The per-agent File Upload toggle state was reviewed against zone governance policy:
+   - Zone 1 agents reviewed: [Count] — informal periodic review completed
+   - Zone 2 agents reviewed: [Count] — [Count] enabled with documented approval; [Count] disabled
+   - Zone 3 agents reviewed: [Count] — [Count] enabled under formal risk assessment; [Count] disabled (default deny)
+2. Per-agent allowed-file-type allowlists were verified for least-privilege configuration on every Zone 2+ agent with File Upload = On
+3. Sensitivity-label inheritance was tested and confirmed for every Zone 2+ agent with File Upload = On
+4. DLP policies in Enforce mode covered every Zone 2+ environment hosting file-upload-enabled agents
+5. Defender for Cloud Apps true-MIME content inspection was active for every Zone 3 agent
+6. SharePoint Embedded container access controls and Purview retention policies were verified
+7. Periodic review cadence was met: Zone 1 quarterly, Zone 2 monthly, Zone 3 weekly
+8. Evidence was collected, hashed (SHA-256), and indexed in `manifest.json` per the FSI PowerShell Authoring Baseline §5
+9. Evidence was landed in WORM storage consistent with SEC 17a-4(f) preservation requirements
 
-**Total Agents Assessed:** [Count]
-**Compliant Agents:** [Count]
-**Non-Compliant Agents:** [Count]
+**Total agents assessed:** [Count]
+**Agents with File Upload enabled:** [Count]
+**Compliant agents:** [Count]
+**Non-compliant agents (open exceptions):** [Count]
+**Open exceptions tracked in:** [Exception register reference]
 
 **Signature:** _______________________
 **Date:** _______________________
@@ -118,65 +208,84 @@ I attest that:
 
 ---
 
-## Zone-Specific Testing Requirements
+## Zone-Specific Testing Cadence
 
-| Zone | Test Frequency | Toggle State Review | DLP Validation | Sensitivity Labels | Inventory Check | SPE Container Review |
-|------|----------------|---------------------|----------------|-------------------|-----------------|----------------------|
-| Zone 1 | Quarterly | Quarterly | N/A | Quarterly | Quarterly | Quarterly |
+| Zone | Toggle Review | DLP Validation | Sensitivity Labels | Inventory Refresh | SPE Container Review | KQL Activity Review |
+|------|---------------|----------------|--------------------|-------------------|----------------------|---------------------|
+| Zone 1 | Quarterly | N/A | Quarterly | Quarterly | Quarterly | Quarterly |
 | Zone 2 | Monthly | Monthly | Monthly | Monthly | Monthly | Monthly |
-| Zone 3 | Weekly | Weekly | Weekly | Weekly | Weekly | Continuous |
+| Zone 3 | Weekly | Weekly | Weekly | Weekly | Continuous (alert-driven) | Weekly + alert-driven |
 
 ---
 
 ## KQL Queries for Evidence
 
-### Query Agent File Upload Activity (Sentinel)
+> **Note:** The schema and column names below reflect the Power Platform admin connector for Sentinel as of April 2026. Verify against your tenant — column names may vary between connector versions. Output rows should be exported (CSV/JSON) and added to the auditor pack's `kql-evidence/` folder with a SHA-256 manifest entry.
+
+### Query 1 — Per-Agent File Upload Activity (Last 30 Days)
 
 ```kql
 PowerPlatformAdminActivity
 | where TimeGenerated > ago(30d)
-| where Operation contains "FileUpload" or Operation contains "ChatbotFileUpload"
+| where Operation has_any ("FileUpload", "ChatbotFileUpload")
 | project
     TimeGenerated,
     EnvironmentName = tostring(AdditionalProperties.EnvironmentName),
-    AgentName = tostring(AdditionalProperties.ChatbotName),
+    AgentName       = tostring(AdditionalProperties.ChatbotName),
     UserPrincipalName = UserId,
-    FileName = tostring(AdditionalProperties.FileName),
-    FileSize = tostring(AdditionalProperties.FileSize),
+    FileName        = tostring(AdditionalProperties.FileName),
+    FileSizeBytes   = tolong(AdditionalProperties.FileSize),
     Operation
 | order by TimeGenerated desc
 ```
 
-### Query File Upload Toggle Changes (Sentinel)
+### Query 2 — Toggle State Changes (Last 90 Days)
 
 ```kql
 PowerPlatformAdminActivity
 | where TimeGenerated > ago(90d)
-| where Operation contains "UpdateChatbot" or Operation contains "ChatbotSettings"
+| where Operation has_any ("UpdateChatbot", "ChatbotSettings")
 | where AdditionalProperties has "FileUpload"
 | project
     TimeGenerated,
     EnvironmentName = tostring(AdditionalProperties.EnvironmentName),
-    AgentName = tostring(AdditionalProperties.ChatbotName),
-    ModifiedBy = UserId,
-    SettingChanged = "FileUploadEnabled",
-    NewValue = tostring(AdditionalProperties.FileUploadEnabled)
+    AgentName       = tostring(AdditionalProperties.ChatbotName),
+    ModifiedBy      = UserId,
+    SettingChanged  = "FileUploadEnabled",
+    NewValue        = tostring(AdditionalProperties.FileUploadEnabled)
 | order by TimeGenerated desc
 ```
 
-### Query Agents with File Upload Enabled (Sentinel)
+### Query 3 — Agents With Recent Upload Activity (Last 7 Days)
 
 ```kql
 PowerPlatformAdminActivity
 | where TimeGenerated > ago(7d)
-| where Operation contains "ChatbotFileUpload" and Operation contains "Enabled"
+| where Operation has "ChatbotFileUpload" and Operation has "Enabled"
 | summarize
     LastUploadActivity = max(TimeGenerated),
-    UploadCount = count()
+    UploadCount        = count()
     by
     EnvironmentName = tostring(AdditionalProperties.EnvironmentName),
-    AgentName = tostring(AdditionalProperties.ChatbotName)
+    AgentName       = tostring(AdditionalProperties.ChatbotName)
 | order by UploadCount desc
+```
+
+### Query 4 — DLP Matches on Power Platform Uploads (Last 30 Days)
+
+```kql
+CloudAppEvents
+| where Timestamp > ago(30d)
+| where Application == "Power Platform"
+| where ActionType has_any ("DLPRuleMatch", "DLPPolicyMatch")
+| project
+    Timestamp,
+    AccountUpn,
+    ActionType,
+    ObjectName,
+    PolicyName = tostring(RawEventData.PolicyName),
+    SensitiveInfoType = tostring(RawEventData.SensitiveInfoType)
+| order by Timestamp desc
 ```
 
 ---

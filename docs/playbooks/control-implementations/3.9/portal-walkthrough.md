@@ -154,7 +154,7 @@ Use the canonical role names from the [role catalog](../../../reference/role-cat
 !!! tip "PIM tip"
     Configure all five Sentinel-related Azure roles as **eligible**, not active. Permanent active assignments to Sentinel Contributor are an audit finding under NYDFS 500.07 (least-privilege) review.
 
-[Screenshot anchor: ![PIM eligible role assignment for Sentinel Admin](../../../images/3.9/00-pim-sentinel-admin.png)]
+[Screenshot anchor: ]
 
 ### 0.2 Confirm licensing and ingestion budget
 
@@ -165,7 +165,7 @@ Open the **Microsoft 365 admin center → Billing → Licenses** view and verify
 3. Microsoft 365 Copilot license count matches the population that will be monitored via the Copilot connector.
 4. Open **Azure portal → Cost Management → Budgets** in the Sentinel subscription and confirm an ingestion budget exists with an alert at 80% of the monthly cap. Sentinel ingestion costs scale with `OfficeActivity` and `CloudAppEvents` volume in particular; uncapped ingestion is a common audit finding.
 
-[Screenshot anchor: ![Azure cost budget for Sentinel ingestion](../../../images/3.9/00-cost-budget.png)]
+[Screenshot anchor: ]
 
 ### 0.3 Workspace decisions — single vs. multi, region, retention default
 
@@ -201,7 +201,7 @@ This walkthrough was authored against **Microsoft 365 commercial cloud**. If the
 
 Open the M365 admin center → **Settings → Org settings → Organization profile → Data location**. Capture the value (`US`, `GCC`, `GCCH`, `DoD`). The data-location string drives every subsequent connector availability decision.
 
-[Screenshot anchor: ![Org profile data-location string](../../../images/3.9/01-data-location.png)]
+[Screenshot anchor: ]
 
 ### 1.2 Compensating-control worksheet
 
@@ -240,7 +240,7 @@ This section deploys the Sentinel workspace and onboards it into the Defender po
 6. Tags: at minimum `BusinessUnit`, `DataClassification=Confidential-NPI`, `Control=3.9`, `Owner=<Sentinel-Admin-DL>`, `CostCenter`.
 7. Click **Review + create**, then **Create**.
 
-[Screenshot anchor: ![Log Analytics workspace creation blade with required tags](../../../images/3.9/02-law-create.png)]
+[Screenshot anchor: ]
 
 ### 2.2 Enable Microsoft Sentinel on the workspace
 
@@ -248,7 +248,7 @@ This section deploys the Sentinel workspace and onboards it into the Defender po
 2. Click **+ Create** → select the workspace from §2.1 → **Add**.
 3. Wait for the Sentinel onboarding to complete (typically 1–3 minutes).
 
-[Screenshot anchor: ![Sentinel enabled on workspace](../../../images/3.9/02-sentinel-enable.png)]
+[Screenshot anchor: ]
 
 ### 2.3 Onboard Sentinel into the Defender portal
 
@@ -257,7 +257,7 @@ This section deploys the Sentinel workspace and onboards it into the Defender po
 3. Select the workspace from §2.1 and click **Next → Connect**.
 4. Wait for the unified-portal onboarding banner to switch from "Onboarding" to "Connected".
 
-[Screenshot anchor: ![Sentinel connected to Defender portal](../../../images/3.9/02-defender-onboard.png)]
+[Screenshot anchor: ]
 
 !!! tip "Multi-workspace tenants"
     The Defender portal supports a **primary workspace** plus secondary workspace views. Set the regulated business-unit workspace selected in §0.3 as the primary. Cross-workspace KQL is supported via the `workspace()` operator but adds latency and cost; design analytics rules to live in the workspace whose data they query.
@@ -304,7 +304,7 @@ The M365 connector ingests the unified Purview audit log into the `OfficeActivit
 
     Expected: a non-zero count for `CopilotInteraction` if the tenant has active Copilot users. If the count is zero after 24 hours, route to [troubleshooting.md](./troubleshooting.md#tc-03-microsoft-copilot-connector-unavailable-in-gcc-high).
 
-[Screenshot anchor: ![M365 connector enabled with all four telemetry types](../../../images/3.9/03-m365-connector.png)]
+[Screenshot anchor: ]
 
 !!! info "Upstream dependency"
     The M365 connector reads from the **Purview unified audit log**. If audit logging is not enabled at the Purview level, the connector will succeed at the portal layer but produce no data. Verify upstream audit-logging configuration in [Control 1.7 — Comprehensive Audit Logging and Compliance](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) before treating an empty `OfficeActivity` table as a Sentinel issue.
@@ -335,7 +335,7 @@ This is the most error-prone connector in the entire walkthrough. Read the schem
 
     Expected: non-zero rows for each table. `AADServicePrincipalSignInLogs` should be non-zero in any tenant with active service principals; if zero, the most likely cause is that the checkbox in step 2 was not selected — return to step 2 and verify.
 
-[Screenshot anchor: ![Entra connector with all sign-in tables checked](../../../images/3.9/03-entra-connector.png)]
+[Screenshot anchor: ]
 
 !!! info "Diagnostic settings vs. data connector"
     The Defender-portal Entra connector is implemented under the hood as a **diagnostic setting** on the Entra tenant pointing at the Sentinel workspace. Some FSI tenants pre-create this diagnostic setting via Azure Policy. If the Entra connector page shows **"This connector is already configured"** but the table list is incomplete, open **Entra portal → Diagnostic settings** and edit the existing setting to add the missing log types. The Defender portal will reflect the change within a few minutes.
@@ -363,7 +363,7 @@ The Microsoft Defender XDR (M365D) connector ingests Defender alerts and raw dev
 
     Expected: non-zero rows for Defender for Endpoint, Defender for Office 365, and (if licensed) Defender for Cloud Apps.
 
-[Screenshot anchor: ![Defender XDR connector with AlertInfo and AlertEvidence enabled](../../../images/3.9/03-defender-xdr.png)]
+[Screenshot anchor: ]
 
 !!! tip "Cross-Reference"
     The Defender AI-SPM posture findings ingested via this connector originate in [Control 1.24 — Defender AI Security Posture Management](../../../controls/pillar-1-security/1.24-defender-ai-security-posture-management.md). If AI-SPM is not yet enabled in the Defender portal, the connector will succeed but the AI-posture rows in the §5 workbook will be empty.
@@ -387,7 +387,7 @@ The Defender for Cloud Apps (MDA) connector writes to `CloudAppEvents` and is th
 
     Expected: a populated list of cloud apps. If `Microsoft Copilot` or known third-party AI applications (e.g., ChatGPT, Claude, Gemini) appear, the shadow-AI detection (R6) will function.
 
-[Screenshot anchor: ![Cloud Apps connector enabled](../../../images/3.9/03-mda-connector.png)]
+[Screenshot anchor: ]
 
 !!! warning "Sovereign clouds"
     Defender for Cloud Apps connector is **not** available in DoD and is **limited** in GCC High at the time of writing. If unavailable, document the gap on the §1 worksheet and switch R6 (shadow-agent detection) to the Power Platform admin-activity-only variant.
@@ -411,7 +411,7 @@ The Microsoft Copilot connector (GA in commercial cloud at the time of writing) 
 
     Expected: non-zero `Total` for an active tenant; `XPIAFlagged` may be zero in normal operation and is expected to be rare.
 
-[Screenshot anchor: ![Copilot connector connected](../../../images/3.9/03-copilot-connector.png)]
+[Screenshot anchor: ]
 
 !!! info "Connector evolution"
     The Microsoft Copilot connector schema is evolving as Microsoft adds prompt-injection telemetry, plugin/connector telemetry, and agent-identity attribution. Re-verify the schema each quarter against Microsoft Learn before committing analytics-rule KQL to production.
@@ -438,7 +438,7 @@ The Power Platform connector writes to `PowerPlatformAdminActivity` and is the p
 
     Expected: rows including `CreateDlpPolicy`, `UpdateDlpPolicy`, `DeleteDlpPolicy`, `CreateEnvironment`, etc.
 
-[Screenshot anchor: ![Power Platform connector enabled](../../../images/3.9/03-pp-connector.png)]
+[Screenshot anchor: ]
 
 !!! tip "Cross-Reference"
     The DLP-policy-change detection (R4) depends on this connector. The DLP policies themselves are authored under the Power Platform DLP control surface; if Sentinel detects a DLP-policy change, the change-management ticket associated with that DLP edit should be retrievable from the Power Platform admin center audit log as well.
@@ -456,7 +456,7 @@ Copilot Studio supports an **Application Insights** export for richer per-conver
 7. In the **Power Platform admin center** (`admin.powerplatform.microsoft.com`), open the environment containing the agent → **Settings** → **Product** → **Features** → set **Allow conversation transcripts** = **On** if the firm has approved transcript capture under [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md).
 8. In the **Defender portal** → **Microsoft Sentinel** → **Configuration** → **Data connectors** → search **Azure Monitor / Application Insights** → connect the App Insights resource to the Sentinel workspace via the diagnostic-settings path.
 
-[Screenshot anchor: ![Copilot Studio Application Insights configuration](../../../images/3.9/03-copilot-studio-appinsights.png)]
+[Screenshot anchor: ]
 
 !!! warning "Records-retention boundary"
     Application Insights is an **operational telemetry store**. It is **not** an SEC 17a-4(f) compliant records archive. Conversation transcripts captured through this path must be evaluated against the firm's books-and-records policy under [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md). If the transcripts qualify as books-and-records (e.g., communications with customers about securities), the firm must route a copy to the 17a-4(f) WORM vendor archive — App Insights alone does **not** meet the records-integrity requirement of SEC Rule 17a-4(f). Organizations should verify this routing with their compliance counsel before enabling **Allow conversation transcripts** on customer-facing agents.
@@ -493,7 +493,7 @@ For each rule below, use this navigation:
 6. **Automated response** tab: where indicated, attach the Logic App playbook from §6.
 7. **Review and create**.
 
-[Screenshot anchor: ![Analytics rule wizard general tab](../../../images/3.9/04-rule-wizard.png)]
+[Screenshot anchor: ]
 
 ### 4.1 R1 — Prompt-injection / jailbreak indicator (XPIA)
 
@@ -558,7 +558,7 @@ PowerPlatformAdminActivity
 | project AgentId, ConnectorName, Account, RecentCount, BaselineCount
 ```
 
-[Screenshot anchor: ![R2 anomalous connector use rule editor](../../../images/3.9/04-r2-anomalous-connector.png)]
+[Screenshot anchor: ]
 
 ### 4.3 R3 — After-hours privileged agent activity
 
@@ -750,7 +750,7 @@ OfficeActivity
 
 Adjust thresholds per business unit; the table is a starting point, not a mandate.
 
-[Screenshot anchor: ![R7 mass download rule editor](../../../images/3.9/04-r7-mass-download.png)]
+[Screenshot anchor: ]
 
 !!! example "Examiner Evidence Box — §4 Analytics Rules"
     For each rule R1–R7 capture:
@@ -788,7 +788,7 @@ This is the **primary examiner-facing workbook**. It consolidates Defender AI-SP
 
 5. Save the workbook with name `AI-Agent-Security-Posture` and pin to the SOC dashboard.
 
-[Screenshot anchor: ![AI Agent Security Posture workbook](../../../images/3.9/05-workbook-posture.png)]
+[Screenshot anchor: ]
 
 ### 5.2 Conditional Access Insights workbook
 
@@ -855,7 +855,7 @@ This section deploys three SOAR playbooks. All three are authored as **Logic App
 3. Click **Create playbook**, then in the Logic App designer add the steps above.
 4. Return to Sentinel → **Automation** → **+ Create automation rule** → bind P1 to incidents matching `Analytics rule name in (R1 Prompt Injection Indicator, R7 Mass Download by Agent)` AND `Severity = High`.
 
-[Screenshot anchor: ![P1 playbook designer](../../../images/3.9/06-p1-suspend.png)]
+[Screenshot anchor: ]
 
 !!! warning "Suspension is a reversible operational action, not a discipline action"
     Disabling an agent service principal stops it from authenticating but does **not** delete it, does **not** revoke its assigned permissions, and does **not** constitute a finding under any supervisory framework. The SOC must follow up by:
@@ -883,7 +883,7 @@ This section deploys three SOAR playbooks. All three are authored as **Logic App
 2. In the designer, the **Lookup** step is a `Run query and list results (Sentinel)` action that queries the watchlist KQL: `_GetWatchlist("AgentRegistry") | where ServicePrincipalId == "{AgentId}" | project OwnerUPN`.
 3. Bind via automation rule to **all** §4 rules.
 
-[Screenshot anchor: ![P2 playbook designer](../../../images/3.9/06-p2-notify.png)]
+[Screenshot anchor: ]
 
 ### 6.3 P3 — ITSM Routing and NYDFS 500.17 Notification Timer
 
@@ -906,7 +906,7 @@ This section deploys three SOAR playbooks. All three are authored as **Logic App
 2. Authorize the ITSM connector (out-of-band approval from the firm's ITSM admin).
 3. Bind via automation rule with the rule and severity filters above.
 
-[Screenshot anchor: ![P3 playbook designer](../../../images/3.9/06-p3-itsm.png)]
+[Screenshot anchor: ]
 
 !!! example "Examiner Evidence Box — §6 Automation"
     - Each Logic App's run history (last 90 days) showing successful triggers and any failed runs with remediation comments
@@ -954,7 +954,7 @@ This section configures retention per table to support the audit-trail expectati
     .show table OfficeActivity policy retention
     ```
 
-[Screenshot anchor: ![Table retention configuration](../../../images/3.9/07-table-retention.png)]
+[Screenshot anchor: ]
 
 ### 7.3 The books-and-records boundary — read this carefully
 
@@ -1003,7 +1003,7 @@ The Defender portal unified incident page shows:
 - **Investigation** tab — automated investigation results, where applicable.
 - **Evidence and response** tab — files, processes, IPs, and actions taken (including P1 suspension if it fired).
 
-[Screenshot anchor: ![Unified incident page with AI app entity](../../../images/3.9/08-incident-page.png)]
+[Screenshot anchor: ]
 
 ### 8.3 Enrich with Agent 365 registry
 
@@ -1058,7 +1058,7 @@ The Sentinel MCP Server exposes Sentinel data and operations as tools to MCP-com
 4. Configure the **User scope** — restrict to the SOC distribution group.
 5. Save.
 
-[Screenshot anchor: ![Sentinel MCP enable blade](../../../images/3.9/09-mcp-enable.png)]
+[Screenshot anchor: ]
 
 ### 9.3 Connect an MCP client
 

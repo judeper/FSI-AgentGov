@@ -1,483 +1,224 @@
 # Verification & Testing: Control 2.23 - User Consent and AI Disclosure Enforcement
 
-**Last Updated:** February 2026
-**Estimated Time:** 20-30 minutes
+**Last Updated:** April 2026
+**Estimated Time:** 30–45 minutes (full pass)
+**Re-test cadence:** After each tenant configuration change, after each Copilot Studio agent publish, and at minimum quarterly for Zone 3.
 
 ## Test Scope
 
-This playbook provides test cases to verify:
-1. Tenant-wide AI Disclaimer displays correctly for Microsoft 365 Copilot users
-2. Custom disclosure URL links to the correct organizational policy document
-3. Agent-level disclosure appears in greeting topics
-4. Consent acknowledgment prompts function correctly (Zone 3)
-5. Consent records are created and stored in Dataverse (Zone 3)
-6. Purview audit logging captures disclosure and consent events
+This playbook verifies that the configuration produced by the Portal Walkthrough and PowerShell Setup playbooks delivers the user-facing, data-layer, and audit-trail outcomes required by Control 2.23. Each test maps to one or more verification criteria from the control document.
+
+| # | Test | Verifies | Required for |
+|---|---|---|---|
+| 1 | Tenant disclaimer appears in supported surfaces | Tenant policy is **On**, font correct, custom URL surfaced | Zone 1+ |
+| 2 | Tenant disclaimer absent from unsupported surfaces | Scope expectation is correct | All zones |
+| 3 | Agent-level disclosure renders | Greeting / Conversation Start displays zone-appropriate text | Zone 1+ |
+| 4 | Consent acknowledgment branch (Yes path) | Conversation continues; Dataverse row created | Zone 3 |
+| 5 | Consent acknowledgment branch (No path) | Conversation ends with contact path; no agent functionality reached | Zone 3 |
+| 6 | Dataverse record completeness and immutability posture | All required columns; restricted write path | Zone 3 |
+| 7 | Re-acknowledgment after 90 days | `Check-AIConsent` re-prompts when stale | Zone 3 |
+| 8 | Cross-channel consistency | Disclosure renders in Teams desktop, web, mobile | Zone 2+ |
+| 9 | Custom URL accessibility (internal + guest) | URL resolves without auth errors for both populations | Zone 2+ |
+| 10 | Audit log evidence | Configuration changes and consent flow visible in Purview | Zone 3 |
 
 ---
 
-## Test Environment Setup
+## Pre-test Setup
 
-### Prerequisites
-
-- [ ] Test user accounts in each governance zone (Zone 1, Zone 2, Zone 3)
-- [ ] Access to Microsoft 365 Copilot
-- [ ] Access to test agents in Copilot Studio
-- [ ] Dataverse environment with `fsi_aiconsent` table (for Zone 3 tests)
-- [ ] Purview Compliance Portal access for audit log verification
-- [ ] Screenshot capture tool for evidence collection
-
-### Test User Roles
-
-| Test User | Role | Purpose |
-|-----------|------|---------|
-| testuser-zone1@contoso.com | Zone 1 user | Test personal productivity agent disclosure |
-| testuser-zone2@contoso.com | Zone 2 user | Test team collaboration agent disclosure |
-| testuser-zone3@contoso.com | Zone 3 user | Test enterprise agent consent acknowledgment |
-| admin@contoso.com | Administrator | Verify admin configuration and audit logs |
+- [ ] Two test users provisioned: `pilot-int@<tenant>` (member) and `pilot-ext@<partnerdomain>` (guest)
+- [ ] Test users have the appropriate Copilot license assigned
+- [ ] One Zone 3 test agent published with the Conversation Start topic from Portal Walkthrough Step 6
+- [ ] `fsi_aiconsent` table deployed and table-level auditing enabled
+- [ ] Output directory exists for evidence: local path under `maintainers-local/tenant-evidence/2.23/`
+- [ ] Screen-capture tool ready (screenshots are local-only — never committed to the repo)
 
 ---
 
-## Test Case 1: Tenant-Wide AI Disclaimer Display
+## Test 1 — Tenant disclaimer appears in supported surfaces
 
-**Objective:** Verify the AI Disclaimer banner displays for new Microsoft 365 Copilot users with the custom disclosure URL.
+**Steps**
+1. Sign in as the test user in an InPrivate / Incognito browser.
+2. Open Copilot Chat (`https://m365.cloud.microsoft/chat`).
+3. Open Word for the web and a desktop Outlook session.
+4. In each surface, look for the disclaimer string under the Copilot input.
 
-### Test Steps
+**Expected**
+- Disclaimer is present in Copilot Chat, Word, Excel, PowerPoint, Outlook, OneNote.
+- Font matches the configured style (Standard or Bold).
+- The info icon's tooltip exposes the configured custom URL.
 
-1. **Prepare test environment:**
-   - Identify a user account that has never accessed Microsoft 365 Copilot (or clear previous consent records)
-   - Confirm the AI Disclaimer toggle is enabled in Microsoft 365 admin center
-   - Confirm the custom disclosure URL is configured
-
-2. **Execute test:**
-   - Sign in to Microsoft 365 as the test user
-   - Navigate to Microsoft 365 Copilot (copilot.microsoft.com or Teams app)
-   - Observe the first-launch experience
-
-3. **Expected Results:**
-   - [ ] A banner or modal displays with AI disclosure language
-   - [ ] The banner includes text such as "Learn more about how Microsoft uses your data"
-   - [ ] A clickable link to the custom disclosure URL is visible
-   - [ ] Clicking the link opens the organizational AI policy document in a new tab
-   - [ ] The policy document URL matches the configured custom disclosure URL
-
-4. **Evidence Collection:**
-   - Screenshot of the AI Disclaimer banner on first launch
-   - Screenshot of the custom disclosure URL link
-   - Screenshot of the opened organizational policy document
-   - Timestamp of test execution
-
-### Pass/Fail Criteria
-
-- **Pass:** Disclaimer displays on first use with correct custom URL that opens the organizational policy document
-- **Fail:** Disclaimer does not display, or custom URL is missing/incorrect, or link does not open the policy document
+**Pass if** all six supported surfaces display the disclaimer with the correct font and tooltip.
 
 ---
 
-## Test Case 2: Agent-Level Disclosure in Greeting Topic
+## Test 2 — Tenant disclaimer absent from unsupported surfaces
 
-**Objective:** Verify AI disclosure language appears in the agent's greeting topic before user interaction begins.
+**Steps**
+1. Open SharePoint, OneDrive, Whiteboard, and Forms as the same test user.
+2. Trigger any Copilot affordance available in those surfaces.
 
-### Test Steps
+**Expected**
+- No tenant Copilot AI Disclaimer string appears (the toggle is **out of scope** for these surfaces per Microsoft Learn).
 
-1. **Prepare test environment:**
-   - Select a test agent configured with AI disclosure in the greeting topic
-   - Note the agent's governance zone classification
-   - Review the expected disclosure language for that zone
-
-2. **Execute test:**
-   - Sign in to Copilot Studio or the agent's deployment channel (Teams, web)
-   - Start a new conversation with the test agent
-   - Observe the first message from the agent
-
-3. **Expected Results:**
-   - [ ] The agent's first message includes AI disclosure language
-   - [ ] Disclosure includes: AI system identification, statement about AI-generated responses, monitoring notice (Zone 2+)
-   - [ ] Disclosure includes a link to the organizational AI policy (Zone 2+)
-   - [ ] Disclosure language matches the governance zone requirements:
-     - **Zone 1:** General AI disclosure
-     - **Zone 2:** Organizational policy link + monitoring notice
-     - **Zone 3:** Regulatory language + data handling specifics + escalation path
-
-4. **Evidence Collection:**
-   - Screenshot of the agent greeting message with AI disclosure
-   - Copy of the disclosure text for comparison with requirements
-   - Agent name and governance zone classification
-   - Timestamp of test execution
-
-### Pass/Fail Criteria
-
-- **Pass:** Greeting topic displays AI disclosure language appropriate for the agent's governance zone
-- **Fail:** No disclosure in greeting topic, or disclosure language does not meet zone requirements
+**Pass if** absence is confirmed for all four. Capture this in evidence to pre-empt audit questions about coverage gaps.
 
 ---
 
-## Test Case 3: Consent Acknowledgment Prompt (Zone 3)
+## Test 3 — Agent-level disclosure renders
 
-**Objective:** Verify mandatory consent acknowledgment prompts function correctly for Zone 3 agents.
+**Steps**
+1. Start a new conversation with the Zone 3 test agent in its default channel (typically Microsoft Teams).
+2. Capture the first message rendered by the agent.
 
-### Test Steps
+**Expected (Zone 3)**
+- Disclosure text matches the approved Zone 3 template, including: AI identification, "responses must be reviewed" statement, retention period, supervisory-review notice, privacy contact, compliance contact, full policy URL, and explicit acknowledgment question.
+- `DisclosureVersion` token resolves to the current approved version.
 
-1. **Prepare test environment:**
-   - Select a Zone 3 agent configured with consent acknowledgment
-   - Identify a test user account without a recent consent record
-   - Ensure the Dataverse `fsi_aiconsent` table is deployed and accessible
-
-2. **Execute test - Positive acknowledgment:**
-   - Sign in as the test user
-   - Start a new conversation with the Zone 3 agent
-   - Observe the consent prompt
-   - Respond with "yes", "I agree", or "I understand" (as configured)
-
-3. **Expected Results (Positive):**
-   - [ ] A consent prompt displays after the greeting message
-   - [ ] Prompt text includes: AI system disclosure, monitoring notice, request for acknowledgment
-   - [ ] After responding "yes", the conversation proceeds to agent functionality
-   - [ ] A consent record is created in Dataverse `fsi_aiconsent` table with:
-     - User ID
-     - Agent name
-     - Consent timestamp
-     - Disclosure version
-     - Acknowledgment status = True
-
-4. **Execute test - Negative acknowledgment:**
-   - Repeat the test with a different test user
-   - Respond with "no" or "I do not agree" to the consent prompt
-
-5. **Expected Results (Negative):**
-   - [ ] The agent displays a message such as "I'm unable to assist without consent acknowledgment. Please contact [support] for assistance."
-   - [ ] The conversation ends or does not proceed to agent functionality
-   - [ ] A consent record is created in Dataverse with Acknowledgment status = False (or no record is created)
-
-6. **Evidence Collection:**
-   - Screenshot of the consent prompt
-   - Screenshot of the positive acknowledgment flow (conversation proceeds)
-   - Screenshot of the negative acknowledgment flow (conversation ends)
-   - Dataverse query results showing the consent record
-   - Timestamp of test execution
-
-### Pass/Fail Criteria
-
-- **Pass:** Consent prompt displays, positive acknowledgment allows conversation, negative acknowledgment ends conversation, consent records are created in Dataverse
-- **Fail:** Consent prompt missing, acknowledgment logic does not work, or consent records are not created
+**Pass if** the rendered text exactly matches the approved Zone 3 disclosure for the current `DisclosureVersion`.
 
 ---
 
-## Test Case 4: Consent Record Persistence in Dataverse
+## Test 4 — Consent acknowledgment (Yes path)
 
-**Objective:** Verify consent records are correctly stored in Dataverse with all required fields.
+**Steps**
+1. Continue from Test 3.
+2. Respond `Yes` to the consent question.
+3. Note the time of acknowledgment.
+4. Run `Get-ConsentRecords.ps1 -EnvironmentUrl <env> -DaysBack 1`.
 
-### Test Steps
+**Expected**
+- Conversation proceeds; a normal agent turn follows.
+- A new row exists in `fsi_aiconsents` with: matching `fsi_userupn`, `fsi_useraadid`, `fsi_agentid`, `fsi_consenttimestamp` within ±2 minutes of the acknowledgment, current `fsi_disclosureversion`, `fsi_acknowledgmentstatus = true`, and a `fsi_sourcechannel` value.
 
-1. **Prepare test environment:**
-   - Complete Test Case 3 (Consent Acknowledgment Prompt) to generate consent records
-   - Access Dataverse environment with `fsi_aiconsent` table
-   - Prepare a query to retrieve recent consent records
-
-2. **Execute test:**
-   - Query Dataverse `fsi_aiconsent` table for records created in the last hour
-   - Filter by test user ID or agent name
-
-3. **Expected Results:**
-   - [ ] Consent record exists in Dataverse for the test user
-   - [ ] Record includes all required fields:
-     - `fsi_userid`: Test user's email or ID
-     - `fsi_agentname`: Zone 3 agent name
-     - `fsi_consenttimestamp`: Timestamp of consent acknowledgment (matches test execution time)
-     - `fsi_disclosureversion`: Disclosure version number (e.g., "v1.0")
-     - `fsi_acknowledgmentstatus`: True (for positive acknowledgment) or False (for negative)
-   - [ ] Record is immutable (no modification timestamp or modified by field)
-
-4. **Evidence Collection:**
-   - Screenshot or export of Dataverse query results
-   - Full consent record details
-   - Timestamp of query execution
-
-### Pass/Fail Criteria
-
-- **Pass:** Consent record exists in Dataverse with all required fields populated correctly
-- **Fail:** Consent record missing, or required fields are empty/incorrect
+**Pass if** all eight column values are populated correctly.
 
 ---
 
-## Test Case 5: Consent Expiration and Re-Acknowledgment
+## Test 5 — Consent acknowledgment (No path)
 
-**Objective:** Verify consent expiration logic triggers re-acknowledgment prompts after the configured validity period.
+**Steps**
+1. Start a fresh conversation as a different test user.
+2. Respond `No` to the consent question.
 
-### Test Steps
+**Expected**
+- Agent responds with the configured contact-path message.
+- Conversation ends immediately (no further user input is accepted into the agent's normal flow).
+- No new row appears in `fsi_aiconsents` for that user/agent (the flow only logs accepted consent). Optional: design the flow to also log declines with `fsi_acknowledgmentstatus = false` — verify behavior matches design.
 
-1. **Prepare test environment:**
-   - Configure consent validity period (e.g., 90 days for Zone 3)
-   - Identify a test user with a consent record older than the validity period (or manually backdate a record for testing)
-   - Access the Zone 3 agent
-
-2. **Execute test:**
-   - Sign in as the test user with expired consent
-   - Start a new conversation with the Zone 3 agent
-   - Observe whether the consent prompt displays again
-
-3. **Expected Results:**
-   - [ ] The consent prompt displays again even though the user has a previous consent record
-   - [ ] The prompt indicates that re-acknowledgment is required (e.g., "It's been 90 days since your last acknowledgment. Please confirm you understand...")
-   - [ ] Upon acknowledgment, a new consent record is created in Dataverse with a current timestamp
-
-4. **Evidence Collection:**
-   - Screenshot of the re-acknowledgment prompt
-   - Dataverse query showing the old consent record and the new consent record
-   - Timestamp of test execution
-
-### Pass/Fail Criteria
-
-- **Pass:** Consent prompt displays for users with expired consent, new consent record is created upon re-acknowledgment
-- **Fail:** No prompt displays for expired consent, or new consent record is not created
+**Pass if** the conversation terminates and Dataverse state matches the documented design.
 
 ---
 
-## Test Case 6: Cross-Platform Disclosure Consistency
+## Test 6 — Dataverse record completeness and immutability posture
 
-**Objective:** Verify disclosure displays consistently across Microsoft Teams, web browser, and mobile app (if applicable).
+**Steps**
+1. As a non-service-principal user (e.g., a Maker), attempt to create a row directly in `fsi_aiconsents` via Power Apps or the Web API.
+2. As the same user, attempt to update or delete an existing row.
 
-### Test Steps
+**Expected**
+- All three operations (create, update, delete) are rejected as **Insufficient privileges**.
+- The Dataverse table audit log captured your attempts.
 
-1. **Prepare test environment:**
-   - Access the test agent through multiple channels:
-     - Microsoft Teams desktop app
-     - Web browser (copilot.microsoft.com or Copilot Studio deployment)
-     - Microsoft Teams mobile app (iOS or Android)
-   - Use the same test user account across all channels
+**Pass if** the restricted security role is correctly preventing direct writes and updates from anyone other than the consent-logging service principal.
 
-2. **Execute test:**
-   - Open the agent in Microsoft Teams desktop app and verify disclosure displays
-   - Open the agent in a web browser and verify disclosure displays
-   - Open the agent in Microsoft Teams mobile app and verify disclosure displays
-
-3. **Expected Results:**
-   - [ ] AI disclosure language appears in the greeting topic across all channels
-   - [ ] Disclosure content is identical across channels
-   - [ ] Custom disclosure URL link functions correctly in all channels
-   - [ ] Consent acknowledgment prompt displays and functions correctly in all channels (Zone 3)
-
-4. **Evidence Collection:**
-   - Screenshot of disclosure in Microsoft Teams desktop
-   - Screenshot of disclosure in web browser
-   - Screenshot of disclosure in mobile app
-   - Timestamp of test execution
-
-### Pass/Fail Criteria
-
-- **Pass:** Disclosure displays consistently with identical content and functional links across all channels
-- **Fail:** Disclosure is missing or inconsistent across channels, or links do not function
+> **Hedged-language note.** Native Dataverse does not provide cryptographic immutability. The combination of (a) restricted write permissions, (b) table-level auditing, and (c) periodic export to a WORM store under Control 2.13 is what supports — not guarantees — record-keeping obligations under SEC 17a-4(f).
 
 ---
 
-## Test Case 7: Purview Audit Log Capture
+## Test 7 — Re-acknowledgment after 90 days
 
-**Objective:** Verify Purview audit logging captures disclosure configuration changes and consent events.
+**Steps**
+1. With Environment Admin privileges, manually backdate a known consent record's `fsi_consenttimestamp` to 91 days ago.
+2. Sign in as that user and start a new conversation with the Zone 3 agent.
 
-### Test Steps
+**Expected**
+- The `Check-AIConsent` flow returns `consentValid = No`.
+- The agent re-displays the disclosure and the consent question.
+- After accepting, a **new** row is added (the backdated row is left intact for the audit trail).
 
-1. **Prepare test environment:**
-   - Ensure Purview audit logging is enabled for the tenant
-   - Access Purview Compliance Portal with Purview Compliance Admin role
-   - Note the timestamp before executing test actions
-
-2. **Execute test - Configuration change:**
-   - As an admin, modify the tenant-wide AI Disclaimer setting (toggle off then on, or change the custom URL)
-   - Wait 10-15 minutes for audit log indexing
-
-3. **Execute test - Consent event:**
-   - As a test user, complete a consent acknowledgment with a Zone 3 agent (Test Case 3)
-   - Wait 10-15 minutes for audit log indexing
-
-4. **Execute test - Query audit logs:**
-   - In Purview Compliance Portal, navigate to Audit → Search
-   - Set date range to include the test actions
-   - Search for activities related to:
-     - "Update Copilot settings" or similar for configuration changes
-     - "User consent" or "Chatbot interaction" for consent events
-   - Filter by user (admin account for config, test user for consent)
-
-5. **Expected Results:**
-   - [ ] Audit log entry exists for the AI Disclaimer configuration change:
-     - Activity: Update Copilot settings (or similar)
-     - User: Admin account
-     - Timestamp: Matches configuration change time
-     - Details: Shows AI Disclaimer toggle status change or URL update
-   - [ ] Audit log entry exists for the consent acknowledgment event:
-     - Activity: User consent or Chatbot interaction (or similar)
-     - User: Test user account
-     - Timestamp: Matches consent acknowledgment time
-     - Details: Shows agent name, consent status
-
-6. **Evidence Collection:**
-   - Screenshot of audit log search results
-   - Screenshot of audit log entry details for configuration change
-   - Screenshot of audit log entry details for consent event
-   - Timestamp of query execution
-
-### Pass/Fail Criteria
-
-- **Pass:** Audit log entries exist for both configuration changes and consent events with accurate details
-- **Fail:** Audit log entries are missing, or details are incomplete/incorrect
+**Pass if** re-prompt occurs and a new row is added without modifying the historical row.
 
 ---
 
-## Test Case 8: Custom Disclosure URL Accessibility
+## Test 8 — Cross-channel consistency
 
-**Objective:** Verify the custom disclosure URL is accessible to all target user populations (internal and external).
+**Steps**
+1. With the same test user, open the Zone 3 agent in: Microsoft Teams desktop, Microsoft Teams web, Microsoft Teams mobile (iOS or Android), and any custom web embed.
+2. Inspect the first agent message in each channel.
 
-### Test Steps
+**Expected**
+- Disclosure text is identical across channels.
+- Consent question accepts the same `Yes` / `No` responses.
+- `fsi_sourcechannel` is populated correctly per channel (Teams / Web / Mobile).
 
-1. **Prepare test environment:**
-   - Identify the configured custom disclosure URL
-   - Prepare test accounts for:
-     - Internal user (on corporate network)
-     - External user (off corporate network, VPN disconnected)
-   - Document the expected URL and hosting location (SharePoint, public website, etc.)
-
-2. **Execute test - Internal user:**
-   - Sign in as an internal user on the corporate network
-   - Open Microsoft 365 Copilot or a Copilot Studio agent
-   - Click the custom disclosure URL link in the disclaimer or greeting
-
-3. **Execute test - External user:**
-   - Sign in as an external user off the corporate network (or a contractor/guest account)
-   - Open Microsoft 365 Copilot or a Copilot Studio agent
-   - Click the custom disclosure URL link in the disclaimer or greeting
-
-4. **Expected Results:**
-   - [ ] Internal users can access the custom disclosure URL without authentication errors
-   - [ ] External users can access the custom disclosure URL (with authentication if required, but no access denied errors)
-   - [ ] The policy document loads correctly in both scenarios
-   - [ ] The document includes all required disclosure elements:
-     - Description of AI system usage
-     - Data handling and privacy practices
-     - Monitoring and compliance notice
-     - User rights and escalation path
-
-5. **Evidence Collection:**
-   - Screenshot of the policy document as accessed by an internal user
-   - Screenshot of the policy document as accessed by an external user
-   - URL of the policy document
-   - Timestamp of test execution
-
-### Pass/Fail Criteria
-
-- **Pass:** Custom disclosure URL is accessible to both internal and external users, policy document loads correctly, and includes required elements
-- **Fail:** URL is not accessible to external users, or policy document is missing required elements
+**Pass if** the disclosure text and consent flow are identical across all channels and the source channel is captured correctly.
 
 ---
 
-## Test Case 9: Disclosure Version Tracking
+## Test 9 — Custom URL accessibility (internal + guest)
 
-**Objective:** Verify disclosure version numbers are tracked and consent records reference the correct version.
+**Steps**
+1. Internal user: click the tenant disclaimer info icon → tooltip URL.
+2. Guest user (off corporate network): repeat.
+3. Internal and guest: click the AI policy link inside the agent disclosure.
 
-### Test Steps
+**Expected**
+- Both populations reach the same authoritative AI policy page.
+- No "access denied" or unexpected sign-in prompts for the guest user (a normal guest sign-in is acceptable).
+- The page shows a `Last Updated` date that matches the current `DisclosureVersion`.
 
-1. **Prepare test environment:**
-   - Document the current disclosure version number (e.g., "v1.0")
-   - Create a test consent record with a known disclosure version
-   - Update the disclosure language and increment the version number (e.g., "v1.1")
-
-2. **Execute test:**
-   - After updating disclosure language, have a test user acknowledge consent
-   - Query Dataverse `fsi_aiconsent` table for the new consent record
-
-3. **Expected Results:**
-   - [ ] New consent record includes the updated disclosure version number (e.g., "v1.1")
-   - [ ] Old consent records retain their original disclosure version number (e.g., "v1.0")
-   - [ ] A version history document or table exists tracking disclosure language changes over time
-
-4. **Evidence Collection:**
-   - Dataverse query showing consent records with different disclosure versions
-   - Version history document or table
-   - Timestamp of test execution
-
-### Pass/Fail Criteria
-
-- **Pass:** Consent records reference the correct disclosure version, and version history is maintained
-- **Fail:** Consent records do not include version numbers, or all records show the same version regardless of when they were created
+**Pass if** both populations reach the policy page and the version is consistent.
 
 ---
 
-## Test Case 10: Compliance Reporting
+## Test 10 — Audit log evidence
 
-**Objective:** Verify PowerShell scripts generate accurate compliance reports for disclosure and consent coverage.
+**Steps**
+1. Make a benign tenant change (toggle the disclaimer off and back on, or change the custom URL and revert).
+2. Wait 60 minutes for unified audit log indexing.
+3. Run `Search-DisclosureAuditEvidence.ps1 -StartDate (Get-Date).AddDays(-1)`.
 
-### Test Steps
+**Expected**
+- The exported CSV contains entries for the configuration change with the admin's UPN, ClientIP, and timestamp.
+- CSV contains entries for the consent-flow Power Automate runs (visible as Power Automate / Dataverse operations).
 
-1. **Prepare test environment:**
-   - Ensure PowerShell scripts from the PowerShell Setup playbook are available
-   - Prepare test data: agents with and without disclosure, users with and without consent
-
-2. **Execute test:**
-   - Run `Get-TenantAIDisclaimer.ps1` to retrieve tenant-wide configuration
-   - Run `Get-AgentDisclosureInventory.ps1` to audit agent-level disclosure
-   - Run `Get-ConsentRecords.ps1` to retrieve consent records (Zone 3)
-   - Run `New-DisclosureComplianceReport.ps1` to generate a comprehensive report
-
-3. **Expected Results:**
-   - [ ] `Get-TenantAIDisclaimer.ps1` outputs the correct AI Disclaimer toggle status and custom URL
-   - [ ] `Get-AgentDisclosureInventory.ps1` lists all agents with accurate disclosure status (Compliant/Review Required)
-   - [ ] `Get-ConsentRecords.ps1` retrieves consent records with all required fields
-   - [ ] `New-DisclosureComplianceReport.ps1` aggregates data into a single report with summary statistics
-   - [ ] Reports are exported to CSV files for documentation
-
-4. **Evidence Collection:**
-   - PowerShell script output screenshots
-   - Generated CSV files
-   - Summary statistics (total agents, compliant agents, consent records count)
-   - Timestamp of script execution
-
-### Pass/Fail Criteria
-
-- **Pass:** All scripts execute successfully, reports show accurate data, and CSV files are generated
-- **Fail:** Scripts fail to execute, reports show incorrect data, or CSV export fails
+**Pass if** both categories of events are present. If not, investigate per Troubleshooting Issue 5.
 
 ---
 
-## Evidence Collection Summary
+## Evidence Bundle
 
-For each test case, collect:
-1. Screenshots of portal/app UI showing disclosure, consent prompts, or configuration
-2. Dataverse query results for consent records
-3. Purview audit log entries
-4. PowerShell script output
-5. CSV exports of compliance reports
-6. Timestamp of test execution
-7. Test user account information (username, role, zone classification)
+For each test, capture and store under the local tenant-evidence path:
 
-Store all evidence in a governance documentation repository (e.g., SharePoint document library) with the naming convention:
 ```
-Control-2.23_TestCase-[Number]_[Description]_[YYYYMMDD].png
-Control-2.23_TestCase-[Number]_[Description]_[YYYYMMDD].csv
+maintainers-local/tenant-evidence/2.23/
+    portal/        screenshots, .png
+    powershell/    CSV/JSON outputs and .sha256 sidecars
+    audit/         Search-UnifiedAuditLog exports
+    consent/       Get-ConsentRecords exports
+    summary.md     test-by-test pass/fail with timestamps and evidence filenames
 ```
 
----
+Naming convention: `2.23-test{NN}-{short-description}-YYYYMMDD-HHMMSS.{ext}`.
 
-## Regression Testing
-
-After configuration changes or Microsoft portal updates, re-run these test cases to verify:
-- Tenant-wide AI Disclaimer still displays correctly (Test Case 1)
-- Agent-level disclosure still appears in greeting topics (Test Case 2)
-- Consent acknowledgment logic still functions (Test Case 3, 5)
-- Purview audit logging still captures events (Test Case 7)
+> Screenshots and tenant-specific evidence are **never** committed to this repository. They live only in the gitignored maintainers-local tree, with cryptographic hashes for integrity.
 
 ---
 
 ## Compliance Validation Checklist
 
-After completing all test cases:
-
-- [ ] Test Case 1: Tenant-wide AI Disclaimer displays with custom URL - PASS
-- [ ] Test Case 2: Agent-level disclosure appears in greeting topics - PASS
-- [ ] Test Case 3: Consent acknowledgment prompts function correctly (Zone 3) - PASS
-- [ ] Test Case 4: Consent records are stored in Dataverse with required fields - PASS
-- [ ] Test Case 5: Consent expiration triggers re-acknowledgment - PASS
-- [ ] Test Case 6: Disclosure displays consistently across all platforms - PASS
-- [ ] Test Case 7: Purview audit logging captures configuration and consent events - PASS
-- [ ] Test Case 8: Custom disclosure URL is accessible to all user populations - PASS
-- [ ] Test Case 9: Disclosure version numbers are tracked in consent records - PASS
-- [ ] Test Case 10: Compliance reports generate accurate data - PASS
+- [ ] Test 1 — Tenant disclaimer present on all supported surfaces
+- [ ] Test 2 — Tenant disclaimer absent on unsupported surfaces (documented)
+- [ ] Test 3 — Agent disclosure matches approved Zone 3 template
+- [ ] Test 4 — Yes path: Dataverse row created with all required columns
+- [ ] Test 5 — No path: conversation ends with contact-path message
+- [ ] Test 6 — Restricted write path enforced; auditing captures attempts
+- [ ] Test 7 — 90-day re-acknowledgment triggers; historical row preserved
+- [ ] Test 8 — Cross-channel parity confirmed
+- [ ] Test 9 — Custom URL accessible to internal and guest users
+- [ ] Test 10 — Purview audit evidence retrievable for both config and consent events
+- [ ] Evidence bundle assembled with SHA-256 sidecars and stored locally
+- [ ] Test summary reviewed and signed off by AI Governance Lead and Compliance Officer
 
 ---
 

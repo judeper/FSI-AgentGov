@@ -1,17 +1,22 @@
 # Troubleshooting: Control 1.25 - MIME Type Restrictions for File Uploads
 
-**Last Updated:** February 2026
+**Last Updated:** April 2026
 
 ## Common Issues
 
 | Issue | Cause | Resolution |
 |-------|-------|------------|
-| Blocked file type still uploadable | Extension not in blocklist or typo in configuration | Verify extension spelling and semicolon separators |
+| Blocked file type still uploadable | Extension not in blocklist or typo in configuration | Verify extension spelling and semicolon separators; confirm Microsoft defaults are not removed |
 | MIME type not recognized by platform | Incorrect MIME type string or unsupported format | Use standardized IANA MIME type identifiers |
+| Allowlist silently overrides blocklist | When `allowedmimetypes` is set, only that list is honored | Confirm allowlist is complete; do not rely on blocklist as a fallback once allowlist is active |
 | Zone template application fails | Insufficient permissions or environment locked | Verify Power Platform Admin role; check environment state |
-| DLP policy not triggering on file uploads | DLP policy not scoped to Power Platform or connector | Review DLP policy scope in Purview Compliance Portal |
+| DLP policy not triggering on file uploads | DLP policy not scoped to Power Platform or connector | Review DLP policy scope in Microsoft Purview portal |
+| Defender for Cloud Apps file policy not flagging spoofed MIME | API connector not enabled for the target SaaS app, or scan not yet completed | Verify connector status in Defender XDR → Cloud apps → Connected apps; allow up to 15 min for near-real-time scan |
 | Sentinel query returns no results | Diagnostic settings not configured or data latency | Enable Power Platform admin activity connector in Sentinel |
 | FsiMimeControl module import errors | Module not found or PowerShell version mismatch | Import module from repository path and verify PowerShell 7.0+ |
+| Copilot Studio per-agent toggle reverts after save | Stale browser session or maker without environment-level rights | Clear session, re-authenticate as AI Administrator or environment maker |
+| Knowledge-source upload fails for supported format | File >512 MB, password-protected, or has sensitivity label | Check Copilot Studio quotas; remove password protection; review sensitivity label policy |
+| SharePoint blocked-extension list ignored on browser upload | SharePoint tenant blocked-file-types only blocks the OneDrive sync client, not browser uploads | Use PPAC + Defender for Cloud Apps for browser-upload coverage |
 
 ---
 
@@ -32,7 +37,7 @@
 
 **Portal Path:**
 ```
-Power Platform Admin Center → Environments → [Environment] → Settings → Privacy + Security
+Power Platform Admin Center → Environments → [Environment] → Settings → Product → Privacy + Security
 ```
 
 > **Note:** Changes may take up to 15 minutes to propagate across all sessions. If the issue persists after 15 minutes, verify the environment ID matches the target environment.
@@ -89,7 +94,7 @@ Power Platform Admin Center → Environments → [Environment] → Settings → 
 
 **Portal Path:**
 ```
-Microsoft Purview Compliance Portal → Data Loss Prevention → Policies → [Policy Name]
+Microsoft Purview portal → Data Loss Prevention → Policies → [Policy Name]
 ```
 
 ---
@@ -138,8 +143,11 @@ Microsoft Purview Compliance Portal → Data Loss Prevention → Policies → [P
 ## Escalation Path
 
 1. **Power Platform Admin** — Environment settings, MIME configuration, permissions
-2. **Security Operations** — DLP policy tuning, Sentinel connector, KQL query assistance
-3. **Microsoft Support** — Platform-level issues with file restrictions or Dataverse API
+2. **AI Administrator** — Per-agent File Upload toggle, allowed file types, knowledge-source ingestion
+3. **Entra Security Admin** — Defender for Cloud Apps file policy tuning, magic-byte detection rules
+4. **Purview Compliance Admin** — DLP policy scope, sensitive-info content inspection
+5. **SOC Analyst** — Sentinel connector, KQL query authoring, alert triage
+6. **Microsoft Support** — Platform-level issues with file restrictions or Dataverse API
 
 ---
 
@@ -194,10 +202,15 @@ Get-FsiMimeConfig -DataverseUrl 'https://org.crm.dynamics.com' -AccessToken $tok
 
 ## Related Documentation
 
-- [Power Platform File Upload Settings](https://learn.microsoft.com/en-us/power-platform/admin/system-settings-dialog-box-general-tab)
-- [Dataverse File and Image Columns](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/file-attributes)
-- [Power Platform DLP Policies](https://learn.microsoft.com/en-us/power-platform/admin/wp-data-loss-prevention)
-- [Microsoft Sentinel Data Connectors](https://learn.microsoft.com/en-us/azure/sentinel/data-connectors-reference)
+- [Microsoft Learn: Manage privacy and security settings (Power Platform)](https://learn.microsoft.com/en-us/power-platform/admin/settings-privacy-security)
+- [Microsoft Learn: System Settings General tab — Set blocked file extensions](https://learn.microsoft.com/en-us/power-platform/admin/system-settings-dialog-box-general-tab)
+- [Microsoft Learn: Dataverse File and Image Columns](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/file-attributes)
+- [Microsoft Learn: Power Platform DLP Policies](https://learn.microsoft.com/en-us/power-platform/admin/wp-data-loss-prevention)
+- [Microsoft Learn: Defender for Cloud Apps File Policies](https://learn.microsoft.com/en-us/defender-cloud-apps/file-policy)
+- [Microsoft Learn: Copilot Studio — Allow file input from users](https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-file-input)
+- [Microsoft Learn: Copilot Studio — Quotas and limits](https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-quotas)
+- [Microsoft Learn: SharePoint — Block syncing of specific file types](https://learn.microsoft.com/en-us/sharepoint/block-file-types)
+- [Microsoft Learn: Microsoft Sentinel Data Connectors](https://learn.microsoft.com/en-us/azure/sentinel/data-connectors-reference)
 
 ---
 

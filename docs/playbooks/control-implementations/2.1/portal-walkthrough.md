@@ -124,8 +124,6 @@ Before clicking anything in any portal, run through this gate. Skipping a gate p
 3. Navigate to **Settings → Org settings → Organization profile**. Capture the **Tenant ID** GUID and **Primary domain** (for example, `contoso.onmicrosoft.com`). Record both in your runbook.
 4. Confirm **Country or region** matches the regulated entity. For US broker-dealers and banks this is typically `United States`.
 
-![screenshot](../../../images/2.1/00-tenant-overview.png)
-
 !!! warning "Tenant Cloud Detection"
     If the URL bar shows `admin.microsoft.us` (GCC High / DoD) or you authenticate against `login.microsoftonline.us`, the usage-insights digest (§7) and the Agent 365 governance integration (§15) are unavailable. Continue this playbook for the §2–§6, §8–§14, §16–§17 surfaces that **are** available, and substitute the §18 compensating controls for §7 and §15.
 
@@ -147,8 +145,6 @@ Use the canonical role names from [`docs/reference/role-catalog.md`](../../../re
 1. In Entra, navigate to **Identity → Roles & admins → Roles**.
 2. Search for **Power Platform Administrator** and **Global Administrator**. Confirm at minimum **two named human accounts** hold each operating role (no service principals, no break-glass-only accounts) per FINRA dual-control expectations.
 3. If any role shows zero or one assignee, open a ticket with your Entra owner before proceeding — single-person admin coverage on Power Platform Admin is itself an audit finding under FINRA Rule 3110 supervisory review.
-
-![screenshot](../../../images/2.1/00-role-assignments.png)
 
 !!! example "Examiner Evidence Box — Role Coverage"
     | Element | Value |
@@ -195,8 +191,6 @@ Do not proceed past this section unless **all** of the following are true:
 2. Verify the upper-right tenant indicator displays the tenant primary domain captured in §0.1. **If the wrong tenant is loaded, sign out — do not "switch directory" mid-session**, because cached blade state can cause configuration to apply to the wrong tenant. This has been observed in support cases and is the single most common Managed Environments mis-target incident.
 3. Confirm the left-rail blade list contains: **Environments**, **Analytics**, **Resources**, **Help + support**, **Policies**, **Settings**.
 
-![screenshot](../../../images/2.1/01-ppac-landing.png)
-
 ### 1.2 License-consumption precheck
 
 This precheck is **mandatory** before enabling Managed Environment on any environment that hosts users not already covered by a qualifying entitlement. It produces the evidence required to defend the §0 June 2026 enforcement banner against an examiner question of "how did the firm know it was license-compliant before enabling enforcement substrate?"
@@ -214,8 +208,6 @@ This precheck is **mandatory** before enabling Managed Environment on any enviro
    - Remove the user from the environment via PPAC → Environments → {env} → Settings → Users + permissions → Remove.
    - Reclassify the environment as Zone 1 (personal productivity) with no premium-feature use and **do not enable Managed Environment** until coverage is achieved.
 7. Attach the annotated CSV to the change-management ticket. Re-run this precheck **30 days before** and again **7 days before** the June 2026 enforcement date.
-
-![screenshot](../../../images/2.1/01-license-consumption.png)
 
 !!! warning "PAYG Is Not a Substitute for Per-User Licensing"
     PAYG (pay-as-you-go) billing meters runtime consumption (Dataverse capacity, premium connector calls, AI-builder credits) but **does not entitle a user to access a Managed Environment**. The Managed Environments licensing floor requires a per-user qualifying entitlement. Enabling Managed Environment on an environment where users rely on PAYG only will, after the June 2026 enforcement date, surface in-product banners and admin-center notifications — and produce a foreseeable audit finding under SOX §404 (operating effectiveness of license-controls).
@@ -240,8 +232,6 @@ This procedure enables the Managed Environments substrate on **one** environment
 3. Click the environment **Display name** to open the environment overview blade.
 4. Confirm the overview shows the expected Region, Type (Production / Sandbox / Developer / Trial), and Dataverse status.
 
-![screenshot](../../../images/2.1/02-environment-overview.png)
-
 ### 2.2 Open the Enable Managed Environment wizard
 
 1. From the environment overview blade, click the **Enable Managed Environments** button in the command bar (top of the blade), **or** click **Settings → Product → Managed Environment**.
@@ -260,8 +250,6 @@ This procedure enables the Managed Environments substrate on **one** environment
    - **IP firewall**: **Off** at the wizard step. Configure separately in §8 with the **audit-only first** workflow.
 
 4. Click **Enable**. The wizard returns to the environment overview blade. The **Managed** column flips to **Yes**, typically within 30 seconds. Refresh the blade if the indicator does not update.
-
-![screenshot](../../../images/2.1/02-enable-wizard.png)
 
 ### 2.3 Confirm the per-environment Settings → Product layout
 
@@ -344,8 +332,6 @@ PPAC supports bulk enable from the environments table or via the **Edit Managed 
 5. Pre-baseline the wizard with the Zone 3 (or Zone 2) values from §2.4 / §2.5.
 6. Click **Enable**. A status drawer opens; each environment's enable progress is shown. Wait for **all** rows to reach **Enabled** before closing the drawer (typical: 30–90 seconds per environment).
 
-![screenshot](../../../images/2.1/03-bulk-enable.png)
-
 ### 3.2 Edit Managed Environment status
 
 To **change** Managed Environment status (enable, disable, or copy settings) on environments that are already in scope:
@@ -396,8 +382,6 @@ Sharing limits do **NOT** apply to:
    - **Zone 2**: Limit total individuals who can share **20**.
    - **Zone 3**: Limit total individuals who can share **5**, **and** exclude sharing with security groups.
 5. Click **Save**. The blade displays the new limits and a banner confirming the change. The configuration is effective immediately for **new** share operations; existing shares are not retroactively trimmed.
-
-![screenshot](../../../images/2.1/04-sharing-apps.png)
 
 ### 4.3 Solution-aware cloud flow sharing limits
 
@@ -461,8 +445,6 @@ Issue severity is set by the solution-checker rule catalog. Critical severity ru
    - **Zone 3**: **Block**.
 4. Click **Save**.
 
-![screenshot](../../../images/2.1/05-solution-checker.png)
-
 ### 5.3 Documented remediation workflow (Zone 3 Block)
 
 When a maker hits a Block in Zone 3:
@@ -505,8 +487,6 @@ Maker welcome content is rendered to a maker the first time they enter the envir
 3. Recommended (URL mode): paste the SharePoint Online URL of the **AI Tools — Maker Welcome** page, which embeds the WSP excerpt, AUP link, and incident-reporting link.
 4. Click **Save**. The welcome surface appears for any maker entering the environment.
 
-![screenshot](../../../images/2.1/06-maker-welcome.png)
-
 !!! note "Maker Welcome Content Is EXCLUDED from Customer-Managed Keys"
     Per [Microsoft Learn — Customer-managed key — Excluded data](https://learn.microsoft.com/en-us/power-platform/admin/customer-managed-key#excluded-data), maker welcome content is among the data categories **NOT encrypted by Customer-Managed Keys** even when CMK is enabled on the environment. Other excluded categories (non-exhaustive — verify against current Microsoft documentation):
     - Maker welcome content
@@ -543,8 +523,6 @@ Maker welcome content is rendered to a maker the first time they enter the envir
    - `dl-secops-power@{firm}.com` — Security Operations Power Platform monitoring
    - `dl-compliance-supervisory@{firm}.com` — Compliance officers responsible for FINRA 3110 supervisory review of the environment
 4. Click **Save**.
-
-![screenshot](../../../images/2.1/07-usage-insights.png)
 
 ### 7.2 What the digest contains
 
@@ -617,8 +595,6 @@ Have the network team co-sign the CSV. The CSV becomes the firm's source-of-trut
 4. In **Allowed IP ranges**, paste the CIDR list (one entry per line in `CIDR` notation, for example `203.0.113.0/24`).
 5. Click **Save**. The blade displays the configured ranges and a banner confirming **Audit-only mode is enabled**.
 
-![screenshot](../../../images/2.1/08-ip-firewall-audit.png)
-
 ### 8.4 Capture the would-be-blocked traffic for 2–4 weeks
 
 During the audit window:
@@ -682,8 +658,6 @@ It is **complementary** to Conditional Access token-binding policies, not a repl
 2. Toggle to **On**.
 3. Click **Save**.
 
-![screenshot](../../../images/2.1/09-ip-cookie-binding.png)
-
 !!! warning "User-Experience Impact for Mobile / Roaming Users"
     Users on mobile networks or who roam between Wi-Fi and cellular will see frequent re-authentication prompts. Document this in the firm's user-communications plan before enabling on a Zone 3 environment with a mobile maker population. Consider deploying with a phased pilot group first.
 
@@ -709,8 +683,6 @@ Customer Lockbox is enabled at the **tenant** level in the M365 admin center; th
 2. Toggle **Require approval for all data access requests** to **On**.
 3. Configure the **Approver** group — typically the CISO + designated alternate. This must be a **named human approver group**, not a service principal.
 4. Click **Save**.
-
-![screenshot](../../../images/2.1/10-customer-lockbox-tenant.png)
 
 ### 10.3 Confirm at the per-environment Managed Environment surface
 
@@ -777,8 +749,6 @@ The set of services covered by CMK in **GCC High** and **DoD** differs from the 
 6. From the policy's command bar, click **Add environment**. Select the Managed Environments to bind to this CMK policy.
 7. Click **Save**. The portal initiates a **lock-then-encrypt-then-unlock** sequence per environment. The environment becomes **read-only** during the encryption transition (typically tens of minutes for small environments; can extend to many hours for large Dataverse environments). Schedule this operation in a maintenance window with the business.
 
-![screenshot](../../../images/2.1/11-cmk-enterprise-policy.png)
-
 ### 11.6 Verification
 
 - [ ] Enterprise Policy lists the target environments under **Bound environments**.
@@ -819,8 +789,6 @@ The Azure DevOps connector authenticates against the Azure DevOps tenant configu
 4. Add allow-list entries: tenant ID GUID + direction (Inbound, Outbound, Both) + description (partner / counterparty name and BAA reference).
 5. Click **Save**.
 
-![screenshot](../../../images/2.1/12-tenant-isolation.png)
-
 ### 12.4 Verification
 
 - [ ] **Tenant isolation** shows **On** with the configured default direction and allow-list.
@@ -847,8 +815,6 @@ Environment routing automatically directs **new makers** (a user who creates the
    - **An existing environment group** (the maker is added to a designated environment group)
 4. Configure the maker-experience text (welcome message, link to firm WSP).
 5. Click **Save**.
-
-![screenshot](../../../images/2.1/13-environment-routing.png)
 
 ### 13.3 Verification
 
@@ -955,8 +921,6 @@ The **Inactive resources** blade lists Power Platform resources (apps, flows, cu
 1. **PPAC → Environments → {env} → Analytics → Inactive resources**.
 2. Set the **Inactivity window** to **90 days** (illustrative default — align to the firm's WSP).
 3. Schedule the **Inactive resources** export to run weekly with output to a named SharePoint Online document library owned by the AI Governance Lead.
-
-![screenshot](../../../images/2.1/17-inactive-resources.png)
 
 ### 17.3 Routing to Control 3.6
 

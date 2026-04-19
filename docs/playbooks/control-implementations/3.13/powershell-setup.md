@@ -1,12 +1,15 @@
 # Playbook 3.13-B: PowerShell Setup — Automated Inventory Export and Alert Configuration
 
+!!! warning "Read the FSI PowerShell baseline first"
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below may show abbreviated patterns; the baseline is authoritative.
+
 **Playbook ID:** 3.13-B
 **Control:** 3.13 — Agent 365 Admin Center Analytics and Reporting
 **Pillar:** Reporting
 **Estimated Duration:** 2–4 hours (initial setup); ongoing automation thereafter
-**Required Role:** Entra Global Admin, Exchange Online Admin (for retention), Power Platform Admin (for alerts)
-**Prerequisites:** Microsoft Graph PowerShell SDK installed; Power Automate license; Azure subscription for storage
-**Last Verified:** March 2026
+**Required Role:** Entra Global Admin (for app registration and admin consent), Power Platform Admin (for Power Automate flow), Azure subscription contributor (for storage and Key Vault)
+**Prerequisites:** Microsoft Graph PowerShell SDK; Az PowerShell modules; Power Automate license; Azure subscription
+**Last Verified:** April 2026
 
 ---
 
@@ -14,7 +17,7 @@
     This playbook covers: (1) automated agent inventory export via Microsoft Graph API and PowerShell, (2) WORM-compliant storage configuration for SEC 17a-4 compliance, (3) Power Automate alert workflow setup for exception rate and pending request threshold notifications, and (4) scheduled task configuration for recurring exports. Manual portal export procedures are covered in Playbook 3.13-A.
 
 !!! warning "Graph API Preview Endpoints"
-    The Microsoft Graph API endpoints for Agent 365 inventory data are subject to change during the Preview period. Validate all endpoint paths against the current Microsoft Graph API documentation before deploying scripts to production. Script examples in this playbook use placeholder endpoint paths that reflect the expected API structure based on available documentation as of March 2026.
+    The Microsoft Graph API endpoints for Agent 365 inventory and analytics data are in preview and remain subject to change through and after the May 1, 2026 GA. Validate all endpoint paths against the current Microsoft Graph beta documentation and the Microsoft Graph changelog before deploying scripts to production. The script examples below use placeholder endpoint paths that reflect the documented Agent 365 API structure as of April 2026; treat them as templates, not fixed contracts.
 
 ---
 
@@ -107,12 +110,12 @@ Save the following as `Export-AgentInventory.ps1` in your automation scripts dir
 .NOTES
     Control:       3.13 - Agent 365 Admin Center Analytics and Reporting
     Version:       v1.0
-    Last Updated:  March 2026
+    Last Updated:  April 2026
     Prerequisite:  Microsoft.Graph and Az modules installed; Entra app registered
                    with Reports.Read.All and Directory.Read.All permissions.
-    WARNING:       Graph API endpoints for Agent 365 data are in Preview.
+    WARNING:       Graph API endpoints for Agent 365 data are in preview through GA.
                    Validate endpoint paths against current Microsoft Learn docs
-                   before deploying to production.
+                   and the Graph changelog before deploying to production.
 #>
 
 # ============================================================
@@ -491,4 +494,4 @@ Write-Host "Policy state: $($Policy.State)"  # Should be "Locked" for production
 
 [Back to Control 3.13](../../../controls/pillar-3-reporting/3.13-agent-365-admin-center-analytics.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
-*Updated: March 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3*

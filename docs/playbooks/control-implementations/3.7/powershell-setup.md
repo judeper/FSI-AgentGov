@@ -1,288 +1,268 @@
-# Control 3.7: PPAC Security Posture Assessment - PowerShell Setup
+# Control 3.7: PPAC Security Posture Assessment — PowerShell Setup
 
-> This playbook provides PowerShell automation scripts for [Control 3.7](../../../controls/pillar-3-reporting/3.7-ppac-security-posture-assessment.md).
+!!! warning "Read the FSI PowerShell baseline first"
+    Before running anything in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below assume those patterns and reference them by section number.
+
+> Automation scripts for [Control 3.7](../../../controls/pillar-3-reporting/3.7-ppac-security-posture-assessment.md). All cmdlets in this playbook are **read-only collectors** — they do not change tenant state. Even so, scripts emit SHA-256-hashed evidence so the posture review itself is audit-defensible under SEC 17a-4(f) and FINRA 4511.
 
 ---
 
 ## Prerequisites
 
+- **Windows PowerShell 5.1 (Desktop edition)** — required for `Microsoft.PowerApps.Administration.PowerShell` (baseline §2). PowerShell 7 will silently fail on Power Apps admin cmdlets and produce **false-clean** evidence.
+- **Power Platform Admin** role for the executing identity (or service principal with the equivalent application user in each Dataverse environment).
+- **Microsoft Graph** scopes for the optional Defender cross-reference: `SecurityEvents.Read.All`, `Policy.Read.All`.
+- Tenant-level analytics enabled (the security score and recommendations are populated only after enablement; allow up to 24 hours).
+
 ```powershell
-# Install required modules
-Install-Module -Name Microsoft.PowerApps.Administration.PowerShell -Force -AllowClobber
-Install-Module -Name Microsoft.Graph -Force -AllowClobber
+# REQUIRED EDITION GUARD — see baseline §2
+if ($PSVersionTable.PSEdition -ne 'Desktop') {
+    throw "Microsoft.PowerApps.Administration.PowerShell requires Windows PowerShell 5.1 (Desktop). Detected: $($PSVersionTable.PSEdition) $($PSVersionTable.PSVersion)."
+}
 
-# Connect to services (interactive authentication)
-Add-PowerAppsAccount
+# REQUIRED PINNED INSTALL — see baseline §1
+# Replace <version> with the version approved by your CAB.
+Install-Module -Name Microsoft.PowerApps.Administration.PowerShell `
+    -RequiredVersion '<version>' `
+    -Repository PSGallery `
+    -Scope CurrentUser `
+    -AllowClobber `
+    -AcceptLicense
 
-# For automated/unattended scenarios, use service principal authentication:
-# $appId = "<Application-Client-ID>"
-# $secret = "<Client-Secret>"
-# $tenantId = "<Tenant-ID>"
-# Add-PowerAppsAccount -ApplicationId $appId -ClientSecret $secret -TenantID $tenantId
-
-Connect-MgGraph -Scopes "SecurityEvents.Read.All", "Policy.Read.All"
+Install-Module -Name Microsoft.Graph `
+    -RequiredVersion '<version>' `
+    -Repository PSGallery `
+    -Scope CurrentUser `
+    -AllowClobber `
+    -AcceptLicense
 ```
 
 ---
 
-## Get Environment Security Configuration
+## Sovereign-aware authentication (baseline §3)
 
 ```powershell
-function Get-EnvironmentSecurityPosture {
+param(
+    [ValidateSet('prod','usgov','usgovhigh','dod')]
+    [string]$Endpoint = 'prod'
+)
+
+$graphEnv = @{ prod='Global'; usgov='USGov'; usgovhigh='USGovDoD'; dod='USGovDoD' }[$Endpoint]
+
+Add-PowerAppsAccount -Endpoint $Endpoint
+Connect-MgGraph -Environment $graphEnv -Scopes 'SecurityEvents.Read.All','Policy.Read.All'
+```
+
+> **Failure to pass `-Endpoint` in a sovereign tenant authenticates against commercial endpoints, returns zero environments, and produces false-clean assessment results.**
+
+---
+
+## Evidence emission helper (baseline §5)
+
+The posture collector uses the canonical `Write-FsiEvidence` helper from [powershell-baseline.md §5](../../_shared/powershell-baseline.md#5-evidence-emission-sha-256-integrity). Copy the function from the baseline into your script library or dot-source it.
+
+---
+
+## Collector 1 — Per-environment security configuration
+
+```powershell
+function Get-Control37EnvironmentPosture {
+    [CmdletBinding()]
     param(
-        [string]$EnvironmentName = ""
+        [string]$EnvironmentName
     )
 
-    Write-Host "Analyzing environment security posture..." -ForegroundColor Cyan
-
-    $environments = if ($EnvironmentName) {
-        Get-AdminPowerAppEnvironment -EnvironmentName $EnvironmentName
+    $envs = if ($EnvironmentName) {
+        @(Get-AdminPowerAppEnvironment -EnvironmentName $EnvironmentName)
     } else {
         Get-AdminPowerAppEnvironment
     }
 
-    $posture = @()
+    $results = foreach ($env in $envs) {
+        $detail = Get-AdminPowerAppEnvironment -EnvironmentName $env.EnvironmentName
+        $props  = $detail.Internal.properties
 
-    foreach ($env in $environments) {
-        $envDetails = Get-AdminPowerAppEnvironment -EnvironmentName $env.EnvironmentName
-
-        $assessment = [PSCustomObject]@{
-            Name = $env.DisplayName
-            Type = $env.EnvironmentType
-            IsManaged = $envDetails.Internal.properties.governanceConfiguration.enableManagedEnvironment -eq $true
-            HasDLP = $null -ne (Get-DlpPolicy -EnvironmentName $env.EnvironmentName -ErrorAction SilentlyContinue)
-            SecurityGroupRequired = $envDetails.Internal.properties.linkedEnvironmentMetadata.securityGroupId -ne $null
-            Created = $env.CreatedTime
+        [PSCustomObject]@{
+            EnvironmentId            = $env.EnvironmentName
+            DisplayName              = $env.DisplayName
+            EnvironmentType          = $env.EnvironmentType
+            HasDataverse             = $detail.CommonDataServiceDatabaseProvisioningState -eq 'Succeeded'
+            IsManagedEnvironment     = [bool]$props.governanceConfiguration.enableManagedEnvironment
+            SecurityGroupAssigned    = [bool]$props.linkedEnvironmentMetadata.securityGroupId
+            CreatedTimeUtc           = $env.CreatedTime
+            CollectedUtc             = (Get-Date).ToUniversalTime().ToString('o')
         }
-
-        # Calculate score
-        $score = 0
-        if ($assessment.IsManaged) { $score += 40 }
-        if ($assessment.HasDLP) { $score += 35 }
-        if ($assessment.SecurityGroupRequired) { $score += 25 }
-
-        $assessment | Add-Member -NotePropertyName "SecurityScore" -NotePropertyValue $score
-
-        $posture += $assessment
     }
 
-    Write-Host "Posture assessment complete for $($posture.Count) environments" -ForegroundColor Green
-
-    return $posture
+    return $results
 }
 ```
 
+> The cmdlet does not return Privacy + Security settings (blocked attachments, inactivity timeout, CSP, etc.) — those live in Dataverse `organization` table and require Dataverse Web API or `Get-CrmOrganization` access. Capture them via the per-environment manual review in [portal walkthrough Step 7](portal-walkthrough.md), or extend this collector with Dataverse Web API calls if you have an authorized service principal.
+
 ---
 
-## Check DLP Policy Coverage
+## Collector 2 — DLP policy coverage
 
 ```powershell
-function Test-DlpPolicyCoverage {
+function Get-Control37DlpCoverage {
+    [CmdletBinding()] param()
 
-    Write-Host "Checking DLP policy coverage..." -ForegroundColor Cyan
-
-    $environments = Get-AdminPowerAppEnvironment
+    $envs     = Get-AdminPowerAppEnvironment
     $policies = Get-DlpPolicy
 
-    $coverage = @()
-
-    foreach ($env in $environments) {
-        $applicablePolicies = $policies | Where-Object {
-            $_.environments -contains $env.EnvironmentName -or
-            $_.environments.Count -eq 0  # Tenant-wide
+    foreach ($env in $envs) {
+        $tenantWide = $policies | Where-Object {
+            $_.environmentType -in @('AllEnvironments','OnlyEnvironments') -or
+            ($_.environments -and $_.environments.name -contains $env.EnvironmentName)
         }
-
-        $coverage += [PSCustomObject]@{
-            Environment = $env.DisplayName
-            Type = $env.EnvironmentType
-            PolicyCount = $applicablePolicies.Count
-            PolicyNames = ($applicablePolicies | Select-Object -ExpandProperty DisplayName) -join ", "
-            HasCoverage = $applicablePolicies.Count -gt 0
+        [PSCustomObject]@{
+            EnvironmentId   = $env.EnvironmentName
+            DisplayName     = $env.DisplayName
+            PolicyCount     = ($tenantWide | Measure-Object).Count
+            PolicyNames     = ($tenantWide.DisplayName -join '; ')
+            HasCoverage     = ($tenantWide | Measure-Object).Count -gt 0
+            CollectedUtc    = (Get-Date).ToUniversalTime().ToString('o')
         }
     }
+}
+```
 
-    $uncovered = $coverage | Where-Object { -not $_.HasCoverage }
+> `Get-DlpPolicy` shape varies between module versions; the snippet handles both the legacy `environments` array and the newer `environmentType` discriminator. Verify against your pinned module version (baseline §1).
 
-    if ($uncovered.Count -gt 0) {
-        Write-Host "UNCOVERED ENVIRONMENTS:" -ForegroundColor Red
-        $uncovered | Format-Table Environment, Type
-    } else {
-        Write-Host "All environments have DLP coverage" -ForegroundColor Green
+---
+
+## Collector 3 — Tenant settings snapshot
+
+```powershell
+function Get-Control37TenantSettings {
+    [CmdletBinding()] param()
+
+    $tenant = Get-TenantSettings
+    [PSCustomObject]@{
+        TenantIsolationEnabled = $tenant.powerPlatform.tenantIsolation.isDisabled -eq $false
+        DisableDeveloperEnvironmentCreationByNonAdminUsers = $tenant.disableDeveloperEnvironmentCreationByNonAdminUsers
+        DisableEnvironmentCreationByNonAdminUsers          = $tenant.disableEnvironmentCreationByNonAdminUsers
+        WalkMeOptOut                                       = $tenant.walkMeOptOut
+        CollectedUtc                                       = (Get-Date).ToUniversalTime().ToString('o')
     }
-
-    return $coverage
 }
 ```
 
 ---
 
-## Generate Security Posture Report
-
-```powershell
-function New-SecurityPostureReport {
-    param(
-        [string]$OutputPath = ".\SecurityPostureReport-$(Get-Date -Format 'yyyyMMdd').html"
-    )
-
-    Write-Host "Generating security posture report..." -ForegroundColor Cyan
-
-    $posture = Get-EnvironmentSecurityPosture
-    $dlpCoverage = Test-DlpPolicyCoverage
-
-    $avgScore = ($posture | Measure-Object -Property SecurityScore -Average).Average
-    $managedCount = ($posture | Where-Object { $_.IsManaged }).Count
-    $dlpCoveredCount = ($dlpCoverage | Where-Object { $_.HasCoverage }).Count
-
-    $html = @"
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Power Platform Security Posture Report</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 40px; }
-        h1 { color: #0078d4; }
-        .metric { display: inline-block; padding: 20px; margin: 10px; background: #f0f0f0; border-radius: 8px; text-align: center; }
-        .metric-value { font-size: 32px; font-weight: bold; color: #0078d4; }
-        .good { color: #107c10; }
-        .warning { color: #ff8c00; }
-        .bad { color: #d13438; }
-        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        th { background: #0078d4; color: white; padding: 12px; text-align: left; }
-        td { border: 1px solid #ddd; padding: 10px; }
-    </style>
-</head>
-<body>
-    <h1>Power Platform Security Posture Report</h1>
-    <p>Generated: $(Get-Date -Format 'yyyy-MM-dd HH:mm')</p>
-
-    <div class="metric">
-        <div class="metric-value $( if ($avgScore -ge 70) {'good'} elseif ($avgScore -ge 40) {'warning'} else {'bad'} )">$([math]::Round($avgScore))%</div>
-        <div>Average Security Score</div>
-    </div>
-    <div class="metric">
-        <div class="metric-value">$managedCount/$($posture.Count)</div>
-        <div>Managed Environments</div>
-    </div>
-    <div class="metric">
-        <div class="metric-value">$dlpCoveredCount/$($dlpCoverage.Count)</div>
-        <div>DLP Covered</div>
-    </div>
-
-    <h2>Environment Security Scores</h2>
-    <table>
-        <tr><th>Environment</th><th>Type</th><th>Managed</th><th>DLP</th><th>Security Group</th><th>Score</th></tr>
-        $($posture | ForEach-Object {
-            "<tr>
-                <td>$($_.Name)</td>
-                <td>$($_.Type)</td>
-                <td>$(if ($_.IsManaged) {'Yes'} else {'No'})</td>
-                <td>$(if ($_.HasDLP) {'Yes'} else {'No'})</td>
-                <td>$(if ($_.SecurityGroupRequired) {'Yes'} else {'No'})</td>
-                <td class='$(if ($_.SecurityScore -ge 70) {'good'} elseif ($_.SecurityScore -ge 40) {'warning'} else {'bad'})'>$($_.SecurityScore)%</td>
-            </tr>"
-        })
-    </table>
-
-    <h2>Recommendations</h2>
-    <ul>
-        $(if ($managedCount -lt $posture.Count) { "<li><strong>High:</strong> Enable managed environments for remaining $(($posture.Count - $managedCount)) environments</li>" })
-        $(if ($dlpCoveredCount -lt $dlpCoverage.Count) { "<li><strong>High:</strong> Apply DLP policies to $(($dlpCoverage.Count - $dlpCoveredCount)) uncovered environments</li>" })
-        <li>Review and address recommendations in PPAC Security > Health</li>
-    </ul>
-</body>
-</html>
-"@
-
-    $html | Out-File -FilePath $OutputPath -Encoding UTF8
-    Write-Host "Report generated: $OutputPath" -ForegroundColor Green
-
-    return $OutputPath
-}
-```
-
----
-
-## Usage Examples
-
-```powershell
-# Get security posture for all environments
-$posture = Get-EnvironmentSecurityPosture
-
-# Check DLP coverage
-Test-DlpPolicyCoverage
-
-# Generate full report
-New-SecurityPostureReport
-```
-
----
-
-## Complete Configuration Script
+## Orchestrator — produce posture report with SHA-256 evidence
 
 ```powershell
 <#
 .SYNOPSIS
-    Configures Control 3.7 - PPAC Security Posture Assessment
+    Control 3.7 posture collector and report generator (read-only).
 
 .DESCRIPTION
-    This script performs security posture assessment:
-    1. Analyzes environment security configuration
-    2. Checks DLP policy coverage
-    3. Generates security posture report
+    Collects per-environment security posture, DLP coverage, and tenant settings.
+    Emits JSON evidence with SHA-256 hashes and a manifest, plus a human-readable HTML report.
+    DOES NOT mutate tenant state.
 
-.PARAMETER OutputPath
-    Path for the generated security posture report
+.PARAMETER Endpoint
+    Sovereign cloud endpoint: prod | usgov | usgovhigh | dod (baseline §3).
+
+.PARAMETER EvidencePath
+    Output directory for evidence and report. Defaults to .\evidence-3.7.
 
 .EXAMPLE
-    .\Configure-Control-3.7.ps1 -OutputPath "C:\Reports"
-
-.NOTES
-    Last Updated: January 2026
-    Related Control: Control 3.7 - PPAC Security Posture Assessment
+    .\New-Control37PostureReport.ps1 -Endpoint prod -EvidencePath .\evidence-3.7
 #>
-
+[CmdletBinding()]
 param(
-    [Parameter(Mandatory=$false)]
-    [string]$OutputPath = ".\SecurityPostureReport-$(Get-Date -Format 'yyyyMMdd').html"
+    [ValidateSet('prod','usgov','usgovhigh','dod')]
+    [string]$Endpoint = 'prod',
+
+    [string]$EvidencePath = ".\evidence-3.7"
 )
 
+$ErrorActionPreference = 'Stop'
+
+# Edition guard (baseline §2)
+if ($PSVersionTable.PSEdition -ne 'Desktop') {
+    throw "Run under Windows PowerShell 5.1 (Desktop) — see baseline §2."
+}
+
+New-Item -ItemType Directory -Force -Path $EvidencePath | Out-Null
+$ts = Get-Date -Format 'yyyyMMdd-HHmmss'
+Start-Transcript -Path "$EvidencePath\transcript-$ts.log" -IncludeInvocationHeader
+
 try {
-    # Connect to Power Platform
-    Write-Host "Connecting to Power Platform..." -ForegroundColor Cyan
-    Add-PowerAppsAccount
+    # Sovereign-aware sign-in (baseline §3)
+    $graphEnv = @{ prod='Global'; usgov='USGov'; usgovhigh='USGovDoD'; dod='USGovDoD' }[$Endpoint]
+    Add-PowerAppsAccount -Endpoint $Endpoint | Out-Null
+    Connect-MgGraph -Environment $graphEnv -Scopes 'SecurityEvents.Read.All','Policy.Read.All' -NoWelcome | Out-Null
 
-    Write-Host "Executing Control 3.7 Security Posture Assessment" -ForegroundColor Cyan
+    Write-Host "Collecting environment posture..." -ForegroundColor Cyan
+    $envPosture = Get-Control37EnvironmentPosture
 
-    # Get environment security posture
-    Write-Host "`nAnalyzing environment security..." -ForegroundColor Yellow
-    $posture = Get-EnvironmentSecurityPosture
+    Write-Host "Collecting DLP coverage..." -ForegroundColor Cyan
+    $dlpCoverage = Get-Control37DlpCoverage
 
-    # Check DLP coverage
-    Write-Host "Checking DLP policy coverage..." -ForegroundColor Yellow
-    $dlpCoverage = Test-DlpPolicyCoverage
+    Write-Host "Collecting tenant settings..." -ForegroundColor Cyan
+    $tenantSettings = Get-Control37TenantSettings
 
-    # Calculate summary metrics
-    $avgScore = ($posture | Measure-Object -Property SecurityScore -Average).Average
-    $managedCount = ($posture | Where-Object { $_.IsManaged }).Count
-    $dlpCoveredCount = ($dlpCoverage | Where-Object { $_.HasCoverage }).Count
+    # Compose summary (FSI-defensible: report inputs, not just headline numbers)
+    $managedCount = ($envPosture | Where-Object IsManagedEnvironment).Count
+    $sgCount      = ($envPosture | Where-Object SecurityGroupAssigned).Count
+    $dlpCovered   = ($dlpCoverage | Where-Object HasCoverage).Count
 
-    Write-Host "`nSecurity Posture Summary:" -ForegroundColor Cyan
-    Write-Host "  Average Security Score: $([math]::Round($avgScore))%" -ForegroundColor $(if ($avgScore -ge 70) { "Green" } elseif ($avgScore -ge 40) { "Yellow" } else { "Red" })
-    Write-Host "  Managed Environments: $managedCount / $($posture.Count)" -ForegroundColor Green
-    Write-Host "  DLP Covered: $dlpCoveredCount / $($dlpCoverage.Count)" -ForegroundColor Green
+    $summary = [PSCustomObject]@{
+        ControlId                    = '3.7'
+        FrameworkVersion             = 'v1.3.3'
+        Endpoint                     = $Endpoint
+        GeneratedUtc                 = (Get-Date).ToUniversalTime().ToString('o')
+        EnvironmentCount             = $envPosture.Count
+        ManagedEnvironmentCount      = $managedCount
+        SecurityGroupCoverageCount   = $sgCount
+        DlpCoverageCount             = $dlpCovered
+        TenantIsolationEnabled       = $tenantSettings.TenantIsolationEnabled
+        Notes                        = 'Security score (Preview) NOT collected via PowerShell — capture from PPAC Security > Overview manually and archive screenshot.'
+    }
 
-    # Generate report
-    Write-Host "`nGenerating security posture report..." -ForegroundColor Yellow
-    New-SecurityPostureReport -OutputPath $OutputPath
+    # Emit SHA-256-hashed evidence (baseline §5)
+    Write-FsiEvidence -Object $envPosture     -Name 'environment-posture'    -EvidencePath $EvidencePath | Out-Null
+    Write-FsiEvidence -Object $dlpCoverage    -Name 'dlp-coverage'           -EvidencePath $EvidencePath | Out-Null
+    Write-FsiEvidence -Object $tenantSettings -Name 'tenant-settings'        -EvidencePath $EvidencePath | Out-Null
+    Write-FsiEvidence -Object $summary        -Name 'control-3.7-summary'    -EvidencePath $EvidencePath | Out-Null
 
-    Write-Host "`n[PASS] Control 3.7 configuration completed successfully" -ForegroundColor Green
+    Write-Host "[PASS] Control 3.7 posture collected. Evidence at $EvidencePath" -ForegroundColor Green
 }
 catch {
-    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
-    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
+    Write-Host "[FAIL] $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host $_.ScriptStackTrace -ForegroundColor Yellow
     exit 1
 }
+finally {
+    Stop-Transcript | Out-Null
+}
 ```
+
+---
+
+## What this script does NOT cover
+
+The collector is intentionally bounded. The following items must be evidenced via other means:
+
+| Item | How to evidence |
+|------|----------------|
+| Security score (Preview) | Manual screenshot of `PPAC > Security > Overview` — not exposed via supported PowerShell or Graph API |
+| Recommendations list, severity, refresh date | Manual review of `PPAC > Actions` page or use the Power Platform for Admin v2 connector in a Power Automate flow |
+| Dismissed / snoozed recommendations | Manual export from `PPAC > Actions > Dismissed recommendations` and `Snoozed recommendations` |
+| Per-environment Privacy + Security (blocked attachments, MIME, timeout, CSP) | Dataverse Web API against `organization` entity, or manual review per environment |
+| Defender for Cloud Apps AI agent inventory | Microsoft Defender portal; Graph Security API where available |
+
+> Document each manual evidence item in the same evidence package and add its file to the SHA-256 manifest using `Write-FsiEvidence`.
+
+---
+
+## Scheduling
+
+For Zone 3 environments run weekly via a service principal in Azure Automation or a hardened build agent. Pin module versions (baseline §1), enable verbose logging, and write evidence to a WORM-protected store (Purview Data Lifecycle retention lock or Azure Storage immutability policy) per SEC 17a-4(f).
 
 ---
 
@@ -290,4 +270,4 @@ catch {
 
 ---
 
-*Updated: February 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3 | UI Verification Status: Current*

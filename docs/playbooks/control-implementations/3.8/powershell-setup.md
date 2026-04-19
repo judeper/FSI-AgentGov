@@ -1,547 +1,316 @@
-# Control 3.8: Copilot Hub and Governance Dashboard - PowerShell Setup
+# Control 3.8: Copilot Hub and Governance Dashboard — PowerShell Setup
 
-> This playbook provides PowerShell automation scripts for [Control 3.8](../../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md).
+!!! warning "Read the FSI PowerShell baseline first"
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. The snippets below assume the baseline is in force.
+
+> PowerShell automation for [Control 3.8](../../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md). These scripts produce **read-mostly** governance evidence (registry exports, audit pulls, configuration snapshots) and offer mutation helpers (`SupportsShouldProcess` enabled) for the Admin Exclusion Group only. All other admin-center settings are managed in the portal — Microsoft does not yet expose stable cmdlets for the Copilot Hub feature toggles.
 
 ---
 
 ## Prerequisites
 
 ```powershell
-# Install required modules
-Install-Module -Name Microsoft.Graph -Force -AllowClobber
-Install-Module -Name Microsoft.PowerApps.Administration.PowerShell -Force -AllowClobber
+# Pin to a CAB-approved version per the FSI PowerShell baseline.
+# Replace <version> with your tenant's approved versions.
+Install-Module Microsoft.Graph                            -RequiredVersion '<version>' -Repository PSGallery -Scope CurrentUser -AllowClobber -AcceptLicense
+Install-Module Microsoft.PowerApps.Administration.PowerShell -RequiredVersion '<version>' -Repository PSGallery -Scope CurrentUser -AllowClobber -AcceptLicense
+Install-Module ExchangeOnlineManagement                   -RequiredVersion '<version>' -Repository PSGallery -Scope CurrentUser -AllowClobber -AcceptLicense
 
-# Connect with required scopes
+# Sovereign-cloud aware Graph connection (see baseline §3 for endpoint table)
+$env  = $env:FSI_GRAPH_ENV   # 'Global','USGov','USGovDoD','China'
+$ppac = $env:FSI_PPAC_ENDPOINT # 'prod','usgov','usgovhigh','dod','china'
+
 Connect-MgGraph -Scopes @(
-    "Organization.Read.All",
-    "Policy.Read.All",
-    "Reports.Read.All",
-    "User.Read.All"
-)
+    'Organization.Read.All',
+    'Policy.Read.All',
+    'Reports.Read.All',
+    'User.Read.All',
+    'Group.ReadWrite.All',
+    'AuditLog.Read.All',
+    'Directory.Read.All'
+) -Environment $env
 
-# Connect to Power Platform (interactive authentication)
-Add-PowerAppsAccount
-
-# For automated/unattended scenarios, use service principal authentication:
-# $appId = "<Application-Client-ID>"
-# $secret = "<Client-Secret>"
-# $tenantId = "<Tenant-ID>"
-# Add-PowerAppsAccount -ApplicationId $appId -ClientSecret $secret -TenantID $tenantId
+# Power Apps Administration cmdlets are Windows PowerShell 5.1 (Desktop) only.
+if ($PSVersionTable.PSEdition -ne 'Desktop') {
+    throw 'Run PPAC governance scripts in Windows PowerShell 5.1 — see baseline §2.'
+}
+Add-PowerAppsAccount -Endpoint $ppac
 ```
+
+> **Service principal authentication** for unattended runs: use Entra app registration with `Group.ReadWrite.All`, `AuditLog.Read.All`, `Reports.Read.All` (application). Document the consent in your change ticket and rotate secrets per OCC 2011-12.
 
 ---
 
-## AI Feature Access Control Management
+## Helper: SHA-256 evidence emission
 
-### Create Admin Exclusion Group
+```powershell
+function Write-FsiEvidence {
+    [CmdletBinding(SupportsShouldProcess)]
+    param(
+        [Parameter(Mandatory)] [string] $Path,
+        [Parameter(Mandatory)] [object] $Payload,
+        [string] $ControlId = '3.8'
+    )
+    if ($PSCmdlet.ShouldProcess($Path, 'Write evidence + SHA-256 manifest')) {
+        $json = $Payload | ConvertTo-Json -Depth 10
+        $json | Out-File -FilePath $Path -Encoding utf8
+        $hash = Get-FileHash -Path $Path -Algorithm SHA256
+        [PSCustomObject]@{
+            ControlId   = $ControlId
+            File        = $Path
+            SHA256      = $hash.Hash
+            BytesLength = (Get-Item $Path).Length
+            CapturedAt  = (Get-Date).ToString('o')
+        } | Export-Csv -Path "$Path.manifest.csv" -NoTypeInformation
+    }
+}
+```
+
+Use `Write-FsiEvidence` for every export below — the SHA-256 manifest is what examiners need under SEC 17a-4(f) WORM expectations.
+
+---
+
+## 1. Admin Exclusion Group lifecycle
+
+### 1a. Create the exclusion group (idempotent)
 
 ```powershell
 function New-CopilotAdminExclusionGroup {
+    [CmdletBinding(SupportsShouldProcess)]
     param(
-        [string]$GroupName = "CopilotForM365AdminExclude",
-        [string]$Description = "Users excluded from Microsoft 365 Copilot access for compliance reasons"
+        [string] $GroupName   = 'CopilotForM365AdminExclude',
+        [string] $Description = 'Users excluded from Microsoft 365 Copilot admin-center features for compliance reasons.'
     )
 
-    Write-Host "Creating Admin Exclusion Group: $GroupName" -ForegroundColor Cyan
-
-    # Check if group already exists
-    $existingGroup = Get-MgGroup -Filter "displayName eq '$GroupName'" -ErrorAction SilentlyContinue
-
-    if ($existingGroup) {
-        Write-Host "Group already exists: $($existingGroup.Id)" -ForegroundColor Yellow
-        return $existingGroup
+    $existing = Get-MgGroup -Filter "displayName eq '$GroupName'" -ErrorAction SilentlyContinue
+    if ($existing) {
+        Write-Verbose "Group already exists: $($existing.Id)"
+        return $existing
     }
 
-    # Create new security group
-    $groupParams = @{
-        DisplayName = $GroupName
-        Description = $Description
-        MailEnabled = $false
-        SecurityEnabled = $true
-        MailNickname = $GroupName.Replace(" ", "")
+    if ($PSCmdlet.ShouldProcess($GroupName, 'Create security group')) {
+        New-MgGroup -BodyParameter @{
+            displayName     = $GroupName
+            description     = $Description
+            mailEnabled     = $false
+            securityEnabled = $true
+            mailNickname    = $GroupName
+        }
     }
-
-    $newGroup = New-MgGroup -BodyParameter $groupParams
-    Write-Host "Admin Exclusion Group created successfully: $($newGroup.Id)" -ForegroundColor Green
-
-    return $newGroup
 }
 ```
 
-### Add Users to Admin Exclusion Group
+### 1b. Add users (CSV-driven, audit-friendly)
 
 ```powershell
-function Add-UsersToAdminExclusionGroup {
+function Add-CopilotAdminExclusionMembers {
+    [CmdletBinding(SupportsShouldProcess)]
     param(
-        [Parameter(Mandatory=$true)]
-        [string[]]$UserPrincipalNames,
-
-        [string]$GroupName = "CopilotForM365AdminExclude"
+        [Parameter(Mandatory)] [string] $CsvPath,                 # cols: UserPrincipalName,Reason,AddedBy
+        [string] $GroupName = 'CopilotForM365AdminExclude'
     )
 
-    Write-Host "Adding users to Admin Exclusion Group..." -ForegroundColor Cyan
+    $group = Get-MgGroup -Filter "displayName eq '$GroupName'" -ErrorAction Stop
+    $rows  = Import-Csv $CsvPath
+    $log   = New-Object System.Collections.Generic.List[object]
 
-    # Get the exclusion group
-    $group = Get-MgGroup -Filter "displayName eq '$GroupName'"
-
-    if (!$group) {
-        Write-Host "Error: Admin Exclusion Group not found. Create it first." -ForegroundColor Red
-        return
-    }
-
-    foreach ($upn in $UserPrincipalNames) {
+    foreach ($r in $rows) {
         try {
-            # Get user object
-            $user = Get-MgUser -Filter "userPrincipalName eq '$upn'"
-
-            if (!$user) {
-                Write-Host "Warning: User not found: $upn" -ForegroundColor Yellow
-                continue
+            $u = Get-MgUser -Filter "userPrincipalName eq '$($r.UserPrincipalName)'" -ErrorAction Stop
+            if ($PSCmdlet.ShouldProcess($r.UserPrincipalName, "Add to $GroupName")) {
+                New-MgGroupMember -GroupId $group.Id -BodyParameter @{
+                    '@odata.id' = "https://graph.microsoft.com/v1.0/directoryObjects/$($u.Id)"
+                }
+                $log.Add([PSCustomObject]@{ UPN=$r.UserPrincipalName; Status='Added';   Reason=$r.Reason; AddedBy=$r.AddedBy; At=(Get-Date).ToString('o') })
             }
-
-            # Add user to group
-            $memberParams = @{
-                "@odata.id" = "https://graph.microsoft.com/v1.0/directoryObjects/$($user.Id)"
-            }
-
-            New-MgGroupMember -GroupId $group.Id -BodyParameter $memberParams
-            Write-Host "Added: $upn" -ForegroundColor Green
-        }
-        catch {
-            Write-Host "Failed to add $upn : $($_.Exception.Message)" -ForegroundColor Red
+        } catch {
+            $log.Add([PSCustomObject]@{ UPN=$r.UserPrincipalName; Status='Failed'; Reason=$_.Exception.Message; AddedBy=$r.AddedBy; At=(Get-Date).ToString('o') })
         }
     }
 
-    Write-Host "`nNote: Changes take up to 24 hours to propagate." -ForegroundColor Yellow
+    Write-FsiEvidence -Path ".\evidence\AdminExclusion-Add-$(Get-Date -Format yyyyMMdd-HHmmss).json" -Payload $log
+    Write-Warning 'Membership changes can take up to 24 hours to take effect.'
 }
 ```
 
-### Bulk Add Users from CSV
+### 1c. Export current membership (monthly governance evidence)
 
 ```powershell
-function Import-AdminExclusionGroupFromCSV {
+function Export-CopilotAdminExclusionMembers {
+    [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
-        [string]$CsvPath,
-
-        [string]$GroupName = "CopilotForM365AdminExclude"
+        [string] $GroupName  = 'CopilotForM365AdminExclude',
+        [string] $OutputPath = ".\evidence\AdminExclusion-Members-$(Get-Date -Format yyyyMMdd).json"
     )
-
-    Write-Host "Importing users from CSV: $CsvPath" -ForegroundColor Cyan
-
-    # Import CSV (expects column: UserPrincipalName)
-    $users = Import-Csv -Path $CsvPath
-
-    if (!$users) {
-        Write-Host "Error: No users found in CSV" -ForegroundColor Red
-        return
-    }
-
-    Write-Host "Found $($users.Count) users in CSV" -ForegroundColor Green
-
-    # Extract UPNs
-    $upns = $users | Select-Object -ExpandProperty UserPrincipalName
-
-    # Add to exclusion group
-    Add-UsersToAdminExclusionGroup -UserPrincipalNames $upns -GroupName $GroupName
-}
-```
-
-**Example CSV format:**
-
-```csv
-UserPrincipalName,Reason,AddedBy,AddedDate
-trader1@contoso.com,Blackout period Q1 2026,compliance@contoso.com,2026-02-06
-trader2@contoso.com,Blackout period Q1 2026,compliance@contoso.com,2026-02-06
-employee3@contoso.com,Under compliance investigation,legal@contoso.com,2026-02-06
-```
-
-### Export Admin Exclusion Group Membership
-
-```powershell
-function Export-AdminExclusionGroupMembers {
-    param(
-        [string]$GroupName = "CopilotForM365AdminExclude",
-        [string]$OutputPath = ".\AdminExclusionGroup_Members_$(Get-Date -Format 'yyyyMMdd').csv"
-    )
-
-    Write-Host "Exporting Admin Exclusion Group members..." -ForegroundColor Cyan
-
-    # Get group
-    $group = Get-MgGroup -Filter "displayName eq '$GroupName'"
-
-    if (!$group) {
-        Write-Host "Error: Group not found: $GroupName" -ForegroundColor Red
-        return
-    }
-
-    # Get group members
+    $group   = Get-MgGroup -Filter "displayName eq '$GroupName'" -ErrorAction Stop
     $members = Get-MgGroupMember -GroupId $group.Id -All
-
-    # Expand member details
-    $memberDetails = foreach ($member in $members) {
-        $user = Get-MgUser -UserId $member.Id -ErrorAction SilentlyContinue
-        if ($user) {
+    $details = foreach ($m in $members) {
+        $u = Get-MgUser -UserId $m.Id -ErrorAction SilentlyContinue
+        if ($u) {
             [PSCustomObject]@{
-                UserPrincipalName = $user.UserPrincipalName
-                DisplayName = $user.DisplayName
-                JobTitle = $user.JobTitle
-                Department = $user.Department
-                AddedToGroup = $member.AdditionalProperties.createdDateTime
+                UPN         = $u.UserPrincipalName
+                DisplayName = $u.DisplayName
+                JobTitle    = $u.JobTitle
+                Department  = $u.Department
             }
         }
     }
-
-    # Export to CSV
-    $memberDetails | Export-Csv -Path $OutputPath -NoTypeInformation
-    Write-Host "Export completed: $OutputPath" -ForegroundColor Green
-    Write-Host "Total members: $($memberDetails.Count)" -ForegroundColor Green
+    Write-FsiEvidence -Path $OutputPath -Payload @{ Group=$GroupName; Members=$details; CapturedAt=(Get-Date).ToString('o') }
 }
 ```
 
-### Query Copilot Settings via Microsoft Graph
+---
+
+## 2. Copilot configuration snapshot (governance evidence)
 
 ```powershell
-function Get-CopilotSettings {
-
-    Write-Host "Retrieving Copilot settings via Microsoft Graph..." -ForegroundColor Cyan
-
-    # Note: As of February 2026, Copilot-specific settings may require
-    # direct REST API calls as dedicated PowerShell cmdlets may not exist
-
-    try {
-        # Query organization settings
-        $orgSettings = Get-MgOrganization | Select-Object -First 1
-
-        # Query service principals related to Copilot
-        $copilotSPs = Get-MgServicePrincipal -Filter "startswith(displayName, 'Microsoft 365 Copilot')" -All
-
-        # Query authorization policies (may contain Copilot-related policies)
-        $authPolicies = Get-MgPolicyAuthorizationPolicy
-
-        Write-Host "`nOrganization: $($orgSettings.DisplayName)" -ForegroundColor Green
-        Write-Host "Copilot Service Principals found: $($copilotSPs.Count)" -ForegroundColor Green
-
-        # Build result object
-        $result = [PSCustomObject]@{
-            OrganizationName = $orgSettings.DisplayName
-            TenantId = $orgSettings.Id
-            CopilotServicePrincipals = $copilotSPs
-            AuthorizationPolicies = $authPolicies
-            RetrievedAt = Get-Date
-        }
-
-        return $result
-    }
-    catch {
-        Write-Host "Error retrieving Copilot settings: $($_.Exception.Message)" -ForegroundColor Red
-        return $null
-    }
-}
-```
-
-### Export Copilot Configuration for Compliance
-
-```powershell
-function Export-CopilotConfigurationForCompliance {
+function Export-CopilotConfigurationSnapshot {
+    [CmdletBinding()]
     param(
-        [string]$OutputPath = ".\CopilotCompliance_$(Get-Date -Format 'yyyyMMdd')"
+        [string] $OutputDir = ".\evidence\Copilot-Snapshot-$(Get-Date -Format yyyyMMdd-HHmmss)"
     )
+    if (-not (Test-Path $OutputDir)) { New-Item -ItemType Directory -Path $OutputDir | Out-Null }
 
-    Write-Host "Exporting Copilot configuration for compliance documentation..." -ForegroundColor Cyan
+    $org    = Get-MgOrganization | Select-Object -First 1
+    $cpSPs  = Get-MgServicePrincipal -All -Filter "startswith(displayName,'Microsoft 365 Copilot') or startswith(displayName,'Copilot')" |
+              Select-Object DisplayName, AppId, Id, AccountEnabled, ServicePrincipalType
+    $authPo = Get-MgPolicyAuthorizationPolicy
+    $skus   = Get-MgSubscribedSku | Where-Object { $_.SkuPartNumber -match 'Copilot' } |
+              Select-Object SkuPartNumber, SkuId, ConsumedUnits, @{n='Enabled';e={$_.PrepaidUnits.Enabled}}
 
-    if (!(Test-Path $OutputPath)) {
-        New-Item -ItemType Directory -Path $OutputPath -Force | Out-Null
-    }
+    Write-FsiEvidence -Path "$OutputDir\organization.json"            -Payload $org
+    Write-FsiEvidence -Path "$OutputDir\copilot-service-principals.json" -Payload $cpSPs
+    Write-FsiEvidence -Path "$OutputDir\authorization-policy.json"    -Payload $authPo
+    Write-FsiEvidence -Path "$OutputDir\copilot-skus.json"            -Payload $skus
 
-    $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
-
-    # 1. Export Admin Exclusion Group membership
-    $exclusionGroupMembers = Export-AdminExclusionGroupMembers -OutputPath "$OutputPath\AdminExclusionGroup_$timestamp.csv"
-
-    # 2. Export Copilot settings
-    $copilotSettings = Get-CopilotSettings
-    $copilotSettings | ConvertTo-Json -Depth 5 | Out-File "$OutputPath\CopilotSettings_$timestamp.json"
-
-    # 3. Export deployment group assignments (if accessible via Graph API)
-    # Note: This may require custom Graph API calls depending on API availability
-
-    # 4. Export audit log of Copilot configuration changes
-    $auditEvents = Get-CopilotAuditEvents -DaysBack 90
-    $auditEvents | Select-Object ActivityDateTime, ActivityDisplayName, InitiatedBy, Result |
-        Export-Csv -Path "$OutputPath\CopilotAuditEvents_$timestamp.csv" -NoTypeInformation
-
-    Write-Host "`nCompliance export completed: $OutputPath" -ForegroundColor Green
-    Write-Host "Files created:" -ForegroundColor Cyan
-    Get-ChildItem -Path $OutputPath | Select-Object Name, Length, LastWriteTime | Format-Table
+    Write-Host "Snapshot written: $OutputDir" -ForegroundColor Green
 }
 ```
 
----
-
-## Get Copilot Configuration
-
-```powershell
-function Get-CopilotConfiguration {
-
-    Write-Host "Retrieving Copilot configuration..." -ForegroundColor Cyan
-
-    # Get organization settings
-    $orgSettings = Get-MgOrganization
-    Write-Host "Organization: $($orgSettings.DisplayName)"
-
-    # Get Copilot service principal
-    $copilotSP = Get-MgServicePrincipal -Filter "displayName eq 'Microsoft 365 Copilot'"
-    if ($copilotSP) {
-        Write-Host "Copilot Service Principal ID: $($copilotSP.Id)"
-        Write-Host "Copilot App ID: $($copilotSP.AppId)"
-    }
-
-    # Get related enterprise apps
-    $copilotApps = Get-MgServicePrincipal -All | Where-Object {
-        $_.DisplayName -like "*Copilot*" -or $_.DisplayName -like "*Agent*"
-    }
-
-    Write-Host "`nCopilot-related applications:" -ForegroundColor Green
-    $copilotApps | Select-Object DisplayName, AppId, AccountEnabled | Format-Table
-
-    return $copilotApps
-}
-```
+> **Hedged scope:** Microsoft does not currently expose a single Graph endpoint that returns the full state of every Copilot Hub setting. This snapshot captures the surfaces that **are** queryable (org, service principals, authorization policy, SKUs). Portal screenshots remain the authoritative evidence for the User access / Data access / Actions tabs until Microsoft documents stable cmdlets.
 
 ---
 
-## Export Copilot Settings
-
-```powershell
-function Export-CopilotSettings {
-    param(
-        [string]$OutputPath = ".\CopilotExport"
-    )
-
-    Write-Host "Exporting Copilot settings..." -ForegroundColor Cyan
-
-    if (!(Test-Path $OutputPath)) {
-        New-Item -ItemType Directory -Path $OutputPath -Force
-    }
-
-    $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
-
-    # Export service principals
-    $copilotApps = Get-MgServicePrincipal -Filter "startswith(displayName, 'Copilot') or startswith(displayName, 'Microsoft 365 Copilot')"
-    $copilotApps | Select-Object DisplayName, AppId, Id, AccountEnabled |
-        Export-Csv -Path "$OutputPath\CopilotServicePrincipals_$timestamp.csv" -NoTypeInformation
-
-    # Export policies
-    $policies = Get-MgPolicyAuthorizationPolicy
-    $policies | ConvertTo-Json -Depth 5 | Out-File "$OutputPath\AuthorizationPolicies_$timestamp.json"
-
-    Write-Host "Export completed to: $OutputPath" -ForegroundColor Green
-}
-```
-
----
-
-## Audit Copilot Configuration Changes
+## 3. Audit pull — Copilot configuration changes
 
 ```powershell
 function Get-CopilotAuditEvents {
+    [CmdletBinding()]
     param(
-        [int]$DaysBack = 30
+        [int]    $DaysBack   = 30,
+        [string] $OutputPath = ".\evidence\Copilot-Audit-$(Get-Date -Format yyyyMMdd).json"
+    )
+    $start = (Get-Date).AddDays(-$DaysBack).ToString('o')
+    $end   = (Get-Date).ToString('o')
+
+    $events = Get-MgAuditLogDirectoryAudit -All `
+        -Filter "activityDateTime ge $start and activityDateTime le $end" |
+        Where-Object {
+            $_.ActivityDisplayName -match 'Copilot|consent|policy|group member' -or
+            ($_.TargetResources.DisplayName -match 'Copilot|CopilotForM365AdminExclude')
+        } |
+        Select-Object ActivityDateTime, ActivityDisplayName,
+            @{n='InitiatedBy';e={$_.InitiatedBy.User.UserPrincipalName ?? $_.InitiatedBy.App.DisplayName}},
+            Result, ResultReason,
+            @{n='Targets';e={ ($_.TargetResources | ForEach-Object DisplayName) -join '; ' }}
+
+    Write-FsiEvidence -Path $OutputPath -Payload @{ WindowDays=$DaysBack; Events=$events; CapturedAt=$end }
+    Write-Host "Captured $($events.Count) audit events to $OutputPath" -ForegroundColor Green
+}
+```
+
+> If `Get-MgAuditLogDirectoryAudit` returns nothing, confirm Purview Audit (Standard) is enabled and the executing identity holds **AuditLog.Read.All**. See troubleshooting playbook.
+
+---
+
+## 4. PPAC Copilot Studio environment inventory
+
+```powershell
+function Export-PpacCopilotStudioInventory {
+    [CmdletBinding()]
+    param(
+        [string] $OutputPath = ".\evidence\Ppac-CopilotStudio-$(Get-Date -Format yyyyMMdd).json"
     )
 
-    Write-Host "Retrieving Copilot audit events..." -ForegroundColor Cyan
-
-    $startDate = (Get-Date).AddDays(-$DaysBack).ToString("yyyy-MM-ddTHH:mm:ssZ")
-    $endDate = (Get-Date).ToString("yyyy-MM-ddTHH:mm:ssZ")
-
-    $auditLogs = Get-MgAuditLogDirectoryAudit -Filter "activityDateTime ge $startDate and activityDateTime le $endDate" -All
-
-    $copilotEvents = $auditLogs | Where-Object {
-        $_.TargetResources.DisplayName -like "*Copilot*" -or
-        $_.ActivityDisplayName -like "*Copilot*" -or
-        $_.ActivityDisplayName -like "*consent*" -or
-        $_.ActivityDisplayName -like "*policy*"
+    $envs = Get-AdminPowerAppEnvironment
+    $inv  = foreach ($e in $envs) {
+        [PSCustomObject]@{
+            EnvironmentName = $e.DisplayName
+            EnvironmentId   = $e.EnvironmentName
+            Type            = $e.EnvironmentType
+            Region          = $e.Location
+            CreatedBy       = $e.CreatedBy.userPrincipalName
+            CreatedTime     = $e.CreatedTime
+            DataverseUrl    = $e.Internal.properties.linkedEnvironmentMetadata.instanceUrl
+        }
     }
-
-    Write-Host "Found $($copilotEvents.Count) Copilot-related audit events" -ForegroundColor Green
-
-    $copilotEvents | Select-Object ActivityDateTime, ActivityDisplayName, InitiatedBy, Result |
-        Format-Table -AutoSize
-
-    return $copilotEvents
+    Write-FsiEvidence -Path $OutputPath -Payload @{ Environments=$inv; CapturedAt=(Get-Date).ToString('o') }
 }
 ```
 
----
-
-## Generate Governance Report
-
-```powershell
-function New-CopilotGovernanceReport {
-    param(
-        [string]$OutputPath = ".\CopilotGovernanceReport-$(Get-Date -Format 'yyyyMMdd').html"
-    )
-
-    Write-Host "Generating Copilot governance report..." -ForegroundColor Cyan
-
-    $config = Get-CopilotConfiguration
-    $events = Get-CopilotAuditEvents -DaysBack 30
-
-    $html = @"
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Copilot Governance Report</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 40px; }
-        h1 { color: #0078d4; }
-        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        th { background: #0078d4; color: white; padding: 12px; text-align: left; }
-        td { border: 1px solid #ddd; padding: 10px; }
-    </style>
-</head>
-<body>
-    <h1>Copilot Governance Report</h1>
-    <p>Generated: $(Get-Date -Format 'yyyy-MM-dd HH:mm')</p>
-
-    <h2>Copilot Applications</h2>
-    <table>
-        <tr><th>Application</th><th>App ID</th><th>Enabled</th></tr>
-        $($config | ForEach-Object {
-            "<tr><td>$($_.DisplayName)</td><td>$($_.AppId)</td><td>$($_.AccountEnabled)</td></tr>"
-        })
-    </table>
-
-    <h2>Recent Configuration Changes (30 days)</h2>
-    <p>Total events: $($events.Count)</p>
-
-    <h2>Recommendations</h2>
-    <ul>
-        <li>Review Copilot settings weekly</li>
-        <li>Disable web search for compliance-sensitive environments</li>
-        <li>Block external AI providers</li>
-        <li>Monitor agent creation and sharing</li>
-    </ul>
-</body>
-</html>
-"@
-
-    $html | Out-File -FilePath $OutputPath -Encoding UTF8
-    Write-Host "Report generated: $OutputPath" -ForegroundColor Green
-}
-```
+> **PPAC Copilot Settings** (AI Prompts, Generative Actions, etc.) are not exposed via stable PowerShell cmdlets as of April 2026. Use the portal walkthrough plus screenshot evidence for SSPM-3.8-01 through SSPM-3.8-09. Track the Power Platform 2026 Wave 1 roadmap for cmdlet availability.
 
 ---
 
-## Usage Examples
-
-```powershell
-# Get Copilot configuration
-Get-CopilotConfiguration
-
-# Export settings
-Export-CopilotSettings -OutputPath ".\CopilotBackup"
-
-# Get audit events
-Get-CopilotAuditEvents -DaysBack 30
-
-# Generate governance report
-New-CopilotGovernanceReport
-```
-
----
-
-## Complete Configuration Script
+## 5. Monthly governance run (orchestrator)
 
 ```powershell
 <#
 .SYNOPSIS
-    Configures Control 3.8 - Copilot Hub and Governance Dashboard
+    Control 3.8 monthly governance evidence pack.
 
 .DESCRIPTION
-    This script configures Copilot governance monitoring:
-    1. Retrieves Copilot configuration
-    2. Exports settings for documentation
-    3. Audits configuration changes
-    4. Generates governance report
-
-.PARAMETER OutputPath
-    Path for exported Copilot settings
-
-.PARAMETER DaysBack
-    Number of days to look back for audit events
+    Captures Copilot configuration snapshot, Admin Exclusion Group membership,
+    audit events for the last 30 days, and PPAC environment inventory. All outputs
+    are JSON with SHA-256 manifests for SEC 17a-4(f) WORM evidence expectations.
 
 .EXAMPLE
-    .\Configure-Control-3.8.ps1 -OutputPath "C:\CopilotBackup" -DaysBack 30
+    .\Invoke-Control-3.8-MonthlyEvidence.ps1 -OutputRoot 'D:\Evidence\2026-04'
 
 .NOTES
-    Last Updated: January 2026
-    Related Control: Control 3.8 - Copilot Hub and Governance Dashboard
+    Run with AI Administrator + Group.ReadWrite.All consent.
+    Pair with portal screenshots for the four Copilot Settings tabs.
 #>
-
+[CmdletBinding(SupportsShouldProcess)]
 param(
-    [Parameter(Mandatory=$false)]
-    [string]$OutputPath = ".\CopilotExport",
-
-    [Parameter(Mandatory=$false)]
-    [int]$DaysBack = 30
+    [string] $OutputRoot = ".\evidence\Control-3.8-$(Get-Date -Format yyyyMM)",
+    [int]    $AuditDaysBack = 30
 )
 
 try {
-    # Connect to Microsoft Graph
-    Write-Host "Connecting to Microsoft Graph..." -ForegroundColor Cyan
-    Connect-MgGraph -Scopes @(
-        "Organization.Read.All",
-        "Policy.Read.All",
-        "Reports.Read.All",
-        "User.Read.All"
-    )
+    if (-not (Test-Path $OutputRoot)) { New-Item -ItemType Directory -Path $OutputRoot | Out-Null }
 
-    Write-Host "Executing Control 3.8 Copilot Governance Configuration" -ForegroundColor Cyan
+    Export-CopilotConfigurationSnapshot   -OutputDir  "$OutputRoot\snapshot"
+    Export-CopilotAdminExclusionMembers   -OutputPath "$OutputRoot\admin-exclusion-members.json"
+    Get-CopilotAuditEvents                -DaysBack $AuditDaysBack -OutputPath "$OutputRoot\audit-events.json"
+    Export-PpacCopilotStudioInventory     -OutputPath "$OutputRoot\ppac-environments.json"
 
-    # Get Copilot configuration
-    Write-Host "`nRetrieving Copilot configuration..." -ForegroundColor Yellow
-    $config = Get-CopilotConfiguration
-
-    # Export settings
-    Write-Host "Exporting Copilot settings..." -ForegroundColor Yellow
-    Export-CopilotSettings -OutputPath $OutputPath
-
-    # Get audit events
-    Write-Host "Retrieving audit events (last $DaysBack days)..." -ForegroundColor Yellow
-    $events = Get-CopilotAuditEvents -DaysBack $DaysBack
-
-    # Generate governance report
-    Write-Host "Generating governance report..." -ForegroundColor Yellow
-    New-CopilotGovernanceReport
-
-    Write-Host "`nCopilot Governance Summary:" -ForegroundColor Cyan
-    Write-Host "  Copilot applications found: $($config.Count)" -ForegroundColor Green
-    Write-Host "  Audit events (last $DaysBack days): $($events.Count)" -ForegroundColor Green
-    Write-Host "  Export location: $OutputPath" -ForegroundColor Green
-
-    Write-Host "`n[PASS] Control 3.8 configuration completed successfully" -ForegroundColor Green
-}
-catch {
-    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
-    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
+    Write-Host "[PASS] Control 3.8 monthly evidence pack written to $OutputRoot" -ForegroundColor Green
+} catch {
+    Write-Host "[FAIL] $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host $_.ScriptStackTrace -ForegroundColor Yellow
     exit 1
-}
-finally {
-    # Cleanup Graph connection
+} finally {
     Disconnect-MgGraph -ErrorAction SilentlyContinue
 }
 ```
 
 ---
 
-## Next Steps
+## Hedged language and scope reminders
 
-- [Portal Walkthrough](./portal-walkthrough.md) - Manual configuration
-- [Verification & Testing](./verification-testing.md) - Test procedures
-- [Troubleshooting](./troubleshooting.md) - Common issues
+- These scripts **support** evidence collection for FINRA 4511 / 25-07, SEC 17a-3/4, GLBA 501(b), SOX 404. They do not by themselves constitute regulatory compliance.
+- Module pinning, sovereign cloud endpoints, and Desktop-edition guards are required per the [PowerShell baseline](../../_shared/powershell-baseline.md) — false-clean evidence is the most common audit gap.
+- Mutation cmdlets (group create, member add) implement `SupportsShouldProcess`; use `-WhatIf` in change-window dry runs.
 
 ---
 
-*Updated: February 2026 | Version: v1.3*
+## Next Steps
+
+- [Portal Walkthrough](portal-walkthrough.md) — manual configuration
+- [Verification & Testing](verification-testing.md) — test cases and evidence collection
+- [Troubleshooting](troubleshooting.md) — common issues and resolutions
+
+---
+
+*Updated: April 2026 | Version: v1.3.3 | UI Verification Status: Current*

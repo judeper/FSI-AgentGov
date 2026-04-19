@@ -1,357 +1,275 @@
-# PowerShell Setup: Control 1.24 - Defender AI Security Posture Management (AI-SPM)
+# PowerShell Setup: Control 1.24 — Defender AI Security Posture Management (AI-SPM)
 
-**Last Updated:** January 2026
-**Modules Required:** Az.Security, Az.ResourceGraph
+!!! warning "Read the FSI PowerShell baseline first"
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
+
+**Last Updated:** April 2026
+**Modules Required:** `Az.Accounts` ≥ 3.0, `Az.Security` ≥ 1.6, `Az.ResourceGraph` ≥ 1.0
+**Audience:** M365 administrators in US financial services
+
+> **Hedging note:** These scripts collect evidence and validate configuration. They help support compliance attestations but do not by themselves satisfy regulatory record-keeping requirements; outputs must be filed in the firm's evidence repository per WORM retention policies.
+
+---
 
 ## Prerequisites
 
 ```powershell
-Install-Module -Name Az.Security -Force -Scope CurrentUser
-Install-Module -Name Az.ResourceGraph -Force -Scope CurrentUser
+# Pin to known-good versions (update per your change-management process)
+Install-Module -Name Az.Accounts      -RequiredVersion 3.0.4 -Scope CurrentUser -Force
+Install-Module -Name Az.Security      -RequiredVersion 1.6.0 -Scope CurrentUser -Force
+Install-Module -Name Az.ResourceGraph -RequiredVersion 1.0.0 -Scope CurrentUser -Force
+
+# Sovereign-cloud users: connect with the appropriate environment switch
+# Connect-AzAccount -Environment AzureUSGovernment   # GCC High / DoD
+```
+
+Required Azure RBAC: **Security Reader** to inspect; **Security Admin** + subscription **Owner/Contributor** to enable plans.
+
+---
+
+## Script 1 — Get-AISPMStatus.ps1 (read-only)
+
+Reports Defender CSPM status and the AI-SPM extension state across all accessible subscriptions.
+
+```powershell
+<#
+.SYNOPSIS
+    Reports Defender CSPM and AI-SPM extension status across subscriptions.
+
+.DESCRIPTION
+    Read-only. Use to gather evidence for Control 1.24 verification.
+
+.EXAMPLE
+    .\Get-AISPMStatus.ps1 -OutputPath .\evidence\AISPM-Status.csv
+#>
+[CmdletBinding()]
+param(
+    [string]$OutputPath = ".\AISPM-Status-$(Get-Date -Format 'yyyyMMdd').csv"
+)
+
+if (-not (Get-AzContext)) { Connect-AzAccount | Out-Null }
+
+$results = foreach ($sub in Get-AzSubscription) {
+    Set-AzContext -SubscriptionId $sub.Id | Out-Null
+
+    $cspm = Get-AzSecurityPricing -Name 'CloudPosture' -ErrorAction SilentlyContinue
+    $aiSpmExt = $cspm.Extensions | Where-Object { $_.Name -eq 'SensitiveDataDiscovery' -or $_.Name -eq 'AIThreatProtection' }
+    $aiPlan   = Get-AzSecurityPricing -Name 'AI' -ErrorAction SilentlyContinue   # Defender for AI Services
+
+    [pscustomobject]@{
+        SubscriptionId          = $sub.Id
+        SubscriptionName        = $sub.Name
+        DefenderCSPM_Tier       = $cspm.PricingTier
+        AISPM_Extension_Enabled = [bool]($aiSpmExt | Where-Object IsEnabled -EQ 'True')
+        DefenderForAI_Tier      = $aiPlan.PricingTier
+        ExtensionsList          = ($cspm.Extensions | Where-Object IsEnabled -EQ 'True' | Select-Object -ExpandProperty Name) -join ';'
+        CollectedAt             = (Get-Date).ToString('o')
+    }
+}
+
+$results | Export-Csv -Path $OutputPath -NoTypeInformation -Encoding UTF8
+$hash = (Get-FileHash -Path $OutputPath -Algorithm SHA256).Hash
+"$OutputPath`tSHA256:$hash" | Out-File "$OutputPath.sha256" -Encoding ascii
+Write-Host "Wrote $($results.Count) rows to $OutputPath (SHA256 $hash)" -ForegroundColor Green
 ```
 
 ---
 
-## Automated Scripts
-
-### Check AI-SPM Status
+## Script 2 — Get-AIWorkloadInventory.ps1 (read-only AI BOM extract)
 
 ```powershell
 <#
 .SYNOPSIS
-    Checks if AI-SPM is enabled for subscriptions
+    Inventories AI workloads via Resource Graph for AI BOM evidence.
 
 .EXAMPLE
-    .\Get-AISPMStatus.ps1
+    .\Get-AIWorkloadInventory.ps1 -OutputPath .\evidence\AI-BOM.csv
 #>
+[CmdletBinding()]
+param([string]$OutputPath = ".\AI-BOM-$(Get-Date -Format 'yyyyMMdd').csv")
 
-Write-Host "=== Check AI-SPM Status ===" -ForegroundColor Cyan
+if (-not (Get-AzContext)) { Connect-AzAccount | Out-Null }
 
-Connect-AzAccount
-
-$subscriptions = Get-AzSubscription
-
-foreach ($sub in $subscriptions) {
-    Set-AzContext -SubscriptionId $sub.Id
-    Write-Host "`nSubscription: $($sub.Name)" -ForegroundColor Yellow
-
-    # Check Defender CSPM status
-    $pricing = Get-AzSecurityPricing -Name "CloudPosture" -ErrorAction SilentlyContinue
-
-    if ($pricing) {
-        Write-Host "  Defender CSPM: $($pricing.PricingTier)" -ForegroundColor Green
-
-        # Check extensions
-        $extensions = $pricing.Extension
-        $aiSpm = $extensions | Where-Object { $_.Name -eq "AIThreatProtection" }
-        if ($aiSpm) {
-            Write-Host "  AI-SPM (AIThreatProtection): Enabled" -ForegroundColor Green
-        } else {
-            Write-Host "  AI-SPM (AIThreatProtection): Not found" -ForegroundColor Yellow
-        }
-        Write-Host "  Extensions enabled: $($extensions.Name -join ', ')"
-    } else {
-        Write-Host "  Defender CSPM: Not enabled" -ForegroundColor Red
-    }
-}
-```
-
-### Inventory AI Workloads
-
-```powershell
-<#
-.SYNOPSIS
-    Inventories AI workloads across subscriptions using Resource Graph
-
-.EXAMPLE
-    .\Get-AIWorkloadInventory.ps1 -OutputPath ".\AIWorkloads.csv"
-#>
-
-param(
-    [string]$OutputPath = ".\AIWorkloads.csv"
-)
-
-Write-Host "=== AI Workload Inventory ===" -ForegroundColor Cyan
-
-Connect-AzAccount
-
-# Query for AI-related resources
 $query = @"
 Resources
 | where type in~ (
     'microsoft.cognitiveservices/accounts',
     'microsoft.machinelearningservices/workspaces',
-    'microsoft.search/searchservices'
+    'microsoft.search/searchservices',
+    'microsoft.machinelearningservices/registries'
 )
-| project
-    name,
-    type,
-    resourceGroup,
-    subscriptionId,
-    location,
-    sku = properties.sku.name,
-    kind = kind
-| order by type, name
+| extend kind = tostring(kind), sku = tostring(properties.sku.name)
+| project name, type, kind, sku, resourceGroup, subscriptionId, location, id, tags
+| order by type asc, name asc
 "@
 
-$results = Search-AzGraph -Query $query
+$results = Search-AzGraph -Query $query -First 1000
+$results | Export-Csv -Path $OutputPath -NoTypeInformation -Encoding UTF8
+$hash = (Get-FileHash -Path $OutputPath -Algorithm SHA256).Hash
+"$OutputPath`tSHA256:$hash" | Out-File "$OutputPath.sha256" -Encoding ascii
 
-Write-Host "AI workloads found: $($results.Count)" -ForegroundColor Green
-
-if ($results.Count -gt 0) {
-    $results | Export-Csv -Path $OutputPath -NoTypeInformation
-    Write-Host "Inventory exported to: $OutputPath" -ForegroundColor Green
-
-    # Summary by type
-    $results | Group-Object -Property type | ForEach-Object {
-        Write-Host "  $($_.Name): $($_.Count)"
-    }
-}
+Write-Host "AI BOM rows: $($results.Count) — written to $OutputPath" -ForegroundColor Green
+$results | Group-Object type | Sort-Object Count -Descending |
+    Select-Object Count, Name | Format-Table -AutoSize
 ```
 
-### Export Attack Paths
+---
+
+## Script 3 — Export-AIAttackPaths.ps1 (read-only via REST)
 
 ```powershell
 <#
 .SYNOPSIS
-    Exports attack paths from Defender for Cloud
+    Exports AI-related attack paths from Defender for Cloud (REST).
 
 .EXAMPLE
-    .\Export-AttackPaths.ps1 -OutputPath ".\AttackPaths.csv"
+    .\Export-AIAttackPaths.ps1 -SubscriptionId <guid> -OutputPath .\evidence\AttackPaths.csv
 #>
-
+[CmdletBinding()]
 param(
-    [string]$OutputPath = ".\AttackPaths.csv",
-    [string]$SubscriptionId
+    [Parameter(Mandatory)] [string]$SubscriptionId,
+    [string]$OutputPath = ".\AttackPaths-$(Get-Date -Format 'yyyyMMdd').csv"
 )
 
-Write-Host "=== Export Attack Paths ===" -ForegroundColor Cyan
+if (-not (Get-AzContext)) { Connect-AzAccount | Out-Null }
+Set-AzContext -SubscriptionId $SubscriptionId | Out-Null
 
-Connect-AzAccount
-
-if ($SubscriptionId) {
-    Set-AzContext -SubscriptionId $SubscriptionId
-}
-
-# Get attack paths via REST API (PowerShell module doesn't have direct cmdlet)
-$token = (Get-AzAccessToken -ResourceUrl "https://management.azure.com").Token
-$headers = @{
-    "Authorization" = "Bearer $token"
-    "Content-Type" = "application/json"
-}
-
-$subscriptionId = (Get-AzContext).Subscription.Id
-$uri = "https://management.azure.com/subscriptions/$subscriptionId/providers/Microsoft.Security/attackPaths?api-version=2024-01-01"
+$token   = (Get-AzAccessToken -ResourceUrl 'https://management.azure.com').Token
+$headers = @{ Authorization = "Bearer $token"; 'Content-Type' = 'application/json' }
+$uri     = "https://management.azure.com/subscriptions/$SubscriptionId/providers/Microsoft.Security/attackPaths?api-version=2024-01-01"
 
 try {
     $response = Invoke-RestMethod -Uri $uri -Method Get -Headers $headers
-    $attackPaths = $response.value
-
-    Write-Host "Attack paths found: $($attackPaths.Count)" -ForegroundColor Green
-
-    # Filter for AI-related paths
-    $aiPaths = $attackPaths | Where-Object {
-        $_.properties.displayName -match "AI|ML|cognitive|openai" -or
-        $_.properties.description -match "AI|ML|cognitive|openai"
+    $aiPaths = $response.value | Where-Object {
+        ($_.properties.displayName + ' ' + $_.properties.description) -match 'AI|ML|cognitive|openai|foundry|copilot'
     }
 
-    Write-Host "AI-related attack paths: $($aiPaths.Count)" -ForegroundColor Yellow
-
-    if ($aiPaths.Count -gt 0) {
-        $export = $aiPaths | ForEach-Object {
-            [PSCustomObject]@{
-                Name = $_.name
-                DisplayName = $_.properties.displayName
-                Description = $_.properties.description
-                RiskLevel = $_.properties.riskLevel
-                EntryPointCount = $_.properties.entryPointEntityInfos.Count
-            }
+    $aiPaths | ForEach-Object {
+        [pscustomobject]@{
+            Id            = $_.name
+            DisplayName   = $_.properties.displayName
+            RiskLevel     = $_.properties.riskLevel
+            RiskCategories = ($_.properties.riskCategories -join ';')
+            EntryPoints   = ($_.properties.entryPointEntityInfos | ForEach-Object { $_.id }) -join ';'
+            Description   = $_.properties.description
         }
+    } | Export-Csv -Path $OutputPath -NoTypeInformation -Encoding UTF8
 
-        $export | Export-Csv -Path $OutputPath -NoTypeInformation
-        Write-Host "Attack paths exported to: $OutputPath" -ForegroundColor Green
-    }
+    $hash = (Get-FileHash -Path $OutputPath -Algorithm SHA256).Hash
+    "$OutputPath`tSHA256:$hash" | Out-File "$OutputPath.sha256" -Encoding ascii
+    Write-Host "AI attack paths exported: $($aiPaths.Count) — $OutputPath" -ForegroundColor Green
 }
 catch {
-    Write-Host "Error retrieving attack paths: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Error "REST call failed: $($_.Exception.Message)"
 }
 ```
 
 ---
 
-## Validation Script
+## Script 4 — Enable-AISPM.ps1 (mutation; supports `-WhatIf`)
+
+Enables Defender CSPM (Standard) and the AI-SPM extension. **Always run with `-WhatIf` first.**
 
 ```powershell
 <#
 .SYNOPSIS
-    Validates Control 1.24 - Defender AI-SPM configuration
+    Enables Defender CSPM (Standard) and AI security posture management extension.
 
 .EXAMPLE
-    .\Validate-Control-1.24.ps1
+    .\Enable-AISPM.ps1 -SubscriptionId <guid> -WhatIf
+    .\Enable-AISPM.ps1 -SubscriptionId <guid>
 #>
+[CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
+param([Parameter(Mandatory)] [string]$SubscriptionId)
 
-Write-Host "=== Control 1.24 Validation ===" -ForegroundColor Cyan
+if (-not (Get-AzContext)) { Connect-AzAccount | Out-Null }
+Set-AzContext -SubscriptionId $SubscriptionId | Out-Null
 
-Connect-AzAccount
+if ($PSCmdlet.ShouldProcess($SubscriptionId, 'Enable Defender CSPM (Standard) + AI-SPM extension')) {
+    # Enable CSPM Standard with AI-SPM + Sensitive Data Discovery + Threat Intelligence extensions
+    $extensions = @(
+        @{ name = 'SensitiveDataDiscovery'; isEnabled = 'True' },
+        @{ name = 'AIThreatProtection';     isEnabled = 'True' }
+    )
+    Set-AzSecurityPricing -Name 'CloudPosture' -PricingTier 'Standard' -Extension $extensions
+    Write-Host "Defender CSPM Standard + AI-SPM enabled on $SubscriptionId" -ForegroundColor Green
+}
+```
 
-$results = @()
+> **Change management:** Mutation scripts must be approved through the firm's change-management process before production runs. Capture `-WhatIf` output as the change ticket attachment.
 
-# Check 1: Defender CSPM enabled
-Write-Host "`n[Check 1] Defender CSPM Status" -ForegroundColor Cyan
-$pricing = Get-AzSecurityPricing -Name "CloudPosture" -ErrorAction SilentlyContinue
+---
 
-if ($pricing -and $pricing.PricingTier -eq "Standard") {
-    Write-Host "  [PASS] Defender CSPM enabled" -ForegroundColor Green
-    $results += [PSCustomObject]@{Check="Defender CSPM"; Status="PASS"; Details="Enabled"}
-} else {
-    Write-Host "  [FAIL] Defender CSPM not enabled" -ForegroundColor Red
-    $results += [PSCustomObject]@{Check="Defender CSPM"; Status="FAIL"; Details="Not enabled"}
+## Script 5 — Validate-Control-1.24.ps1 (composite validator)
+
+```powershell
+<#
+.SYNOPSIS
+    Composite validator for Control 1.24. Returns PASS/FAIL/INFO per check.
+
+.EXAMPLE
+    .\Validate-Control-1.24.ps1 -OutputPath .\evidence\Control-1.24-Validation.json
+#>
+[CmdletBinding()]
+param([string]$OutputPath = ".\Control-1.24-Validation-$(Get-Date -Format 'yyyyMMdd').json")
+
+if (-not (Get-AzContext)) { Connect-AzAccount | Out-Null }
+$results = New-Object System.Collections.Generic.List[object]
+
+foreach ($sub in Get-AzSubscription) {
+    Set-AzContext -SubscriptionId $sub.Id | Out-Null
+    $cspm     = Get-AzSecurityPricing -Name 'CloudPosture' -ErrorAction SilentlyContinue
+    $aiPlan   = Get-AzSecurityPricing -Name 'AI'           -ErrorAction SilentlyContinue
+    $aiSpmOn  = [bool]($cspm.Extensions | Where-Object { $_.Name -eq 'AIThreatProtection' -and $_.IsEnabled -eq 'True' })
+    $aiAssets = (Search-AzGraph -Query "Resources | where type in~ ('microsoft.cognitiveservices/accounts','microsoft.machinelearningservices/workspaces') | where subscriptionId == '$($sub.Id)' | count").Count
+
+    $results.Add([pscustomobject]@{
+        Subscription          = $sub.Name
+        Check_CSPM_Standard   = if ($cspm.PricingTier -eq 'Standard') { 'PASS' } else { 'FAIL' }
+        Check_AISPM_Enabled   = if ($aiSpmOn) { 'PASS' } elseif ($aiAssets -eq 0) { 'INFO' } else { 'FAIL' }
+        Check_DefenderForAI   = if ($aiPlan.PricingTier -eq 'Standard') { 'PASS' } else { 'INFO' }
+        AIAssetCount          = $aiAssets
+        CollectedAt           = (Get-Date).ToString('o')
+    })
 }
 
-# Check 2: AI workloads discovered
-Write-Host "`n[Check 2] AI Workload Discovery" -ForegroundColor Cyan
-$query = "Resources | where type in~ ('microsoft.cognitiveservices/accounts', 'microsoft.machinelearningservices/workspaces') | count"
-$count = (Search-AzGraph -Query $query).Count
+$results | ConvertTo-Json -Depth 5 | Out-File $OutputPath -Encoding utf8
+$hash = (Get-FileHash -Path $OutputPath -Algorithm SHA256).Hash
+"$OutputPath`tSHA256:$hash" | Out-File "$OutputPath.sha256" -Encoding ascii
 
-if ($count -gt 0) {
-    Write-Host "  [PASS] AI workloads discovered: $count" -ForegroundColor Green
-    $results += [PSCustomObject]@{Check="AI Discovery"; Status="PASS"; Details="$count workloads"}
-} else {
-    Write-Host "  [INFO] No AI workloads found (may be expected)" -ForegroundColor Yellow
-    $results += [PSCustomObject]@{Check="AI Discovery"; Status="INFO"; Details="No workloads"}
-}
-
-# Check 3: Security recommendations
-Write-Host "`n[Check 3] AI Security Recommendations" -ForegroundColor Cyan
-$recommendations = Get-AzSecurityTask | Where-Object {
-    $_.Name -match "AI|cognitive|machine learning|openai"
-}
-
-Write-Host "  AI-related recommendations: $($recommendations.Count)"
-$results += [PSCustomObject]@{Check="Recommendations"; Status="INFO"; Details="$($recommendations.Count) found"}
-
-# Summary
-Write-Host "`n=== Validation Summary ===" -ForegroundColor Cyan
 $results | Format-Table -AutoSize
-
-Write-Host "`n=== Validation Complete ===" -ForegroundColor Cyan
+$failures = $results | Where-Object { $_.Check_CSPM_Standard -eq 'FAIL' -or $_.Check_AISPM_Enabled -eq 'FAIL' }
+if ($failures) {
+    Write-Host "Validation FAILED on $($failures.Count) subscription(s) — see $OutputPath" -ForegroundColor Red
+    exit 2
+}
+Write-Host "Validation PASSED — evidence: $OutputPath (SHA256 $hash)" -ForegroundColor Green
 ```
 
 ---
 
-## Complete Configuration Script
+## Sovereign-Cloud Notes (GCC / GCC High / DoD)
 
-```powershell
-<#
-.SYNOPSIS
-    Configures Control 1.24 - Defender AI Security Posture Management
+| Cloud | Az.Accounts environment | AI-SPM availability (April 2026) |
+|-------|--------------------------|-----------------------------------|
+| Commercial | `AzureCloud` (default) | GA |
+| GCC | `AzureCloud` (commercial-backed) | GA |
+| GCC High | `AzureUSGovernment` | GA — confirm regional availability |
+| DoD | `AzureUSGovernment` | Limited — confirm with Microsoft FedRAMP team |
 
-.DESCRIPTION
-    This script validates AI-SPM configuration, inventories AI workloads,
-    and exports security posture data for compliance evidence.
+Replace REST endpoints with `https://management.usgovcloudapi.net/` for sovereign deployments.
 
-.PARAMETER ExportPath
-    Path for exports (default: current directory)
+---
 
-.EXAMPLE
-    .\Configure-Control-1.24.ps1 -ExportPath "C:\Evidence"
+## Evidence Files Produced
 
-.NOTES
-    Last Updated: January 2026
-    Related Control: Control 1.24 - Defender AI Security Posture Management
-#>
-
-param(
-    [string]$ExportPath = "."
-)
-
-try {
-    # Connect to Azure
-    Write-Host "Connecting to Azure..." -ForegroundColor Cyan
-    Connect-AzAccount
-
-    Write-Host "Configuring Control 1.24: Defender AI Security Posture Management" -ForegroundColor Cyan
-
-    # Step 1: Check Defender CSPM
-    Write-Host "`n[Step 1] Checking Defender CSPM status..." -ForegroundColor Yellow
-    $pricing = Get-AzSecurityPricing -Name "CloudPosture" -ErrorAction SilentlyContinue
-
-    if ($pricing) {
-        Write-Host "  Defender CSPM: $($pricing.PricingTier)" -ForegroundColor Green
-    } else {
-        Write-Host "  [WARNING] Defender CSPM not configured" -ForegroundColor Yellow
-        Write-Host "  Enable in Azure Portal: Defender for Cloud > Environment settings > Defender CSPM"
-    }
-
-    # Step 2: Inventory AI workloads
-    Write-Host "`n[Step 2] Inventorying AI workloads..." -ForegroundColor Yellow
-
-    $query = @"
-Resources
-| where type in~ (
-    'microsoft.cognitiveservices/accounts',
-    'microsoft.machinelearningservices/workspaces'
-)
-| project name, type, resourceGroup, location
-"@
-
-    $aiWorkloads = Search-AzGraph -Query $query
-    Write-Host "  AI workloads found: $($aiWorkloads.Count)" -ForegroundColor Green
-
-    if ($aiWorkloads.Count -gt 0) {
-        $workloadFile = Join-Path $ExportPath "AIWorkloads-$(Get-Date -Format 'yyyyMMdd').csv"
-        $aiWorkloads | Export-Csv -Path $workloadFile -NoTypeInformation
-        Write-Host "  Exported to: $workloadFile" -ForegroundColor Green
-    }
-
-    # Step 3: Export security recommendations
-    Write-Host "`n[Step 3] Exporting AI security recommendations..." -ForegroundColor Yellow
-
-    $tasks = Get-AzSecurityTask
-    $aiTasks = $tasks | Where-Object {
-        $_.RecommendationType -match "AI|cognitive|machine|openai" -or
-        $_.ResourceId -match "cognitive|machinelearning|openai"
-    }
-
-    Write-Host "  AI recommendations: $($aiTasks.Count)"
-
-    if ($aiTasks.Count -gt 0) {
-        $taskFile = Join-Path $ExportPath "AIRecommendations-$(Get-Date -Format 'yyyyMMdd').csv"
-        $aiTasks | Select-Object Name, RecommendationType, State, ResourceId |
-            Export-Csv -Path $taskFile -NoTypeInformation
-        Write-Host "  Exported to: $taskFile" -ForegroundColor Green
-    }
-
-    # Step 4: Summary report
-    Write-Host "`n[Step 4] Generating summary..." -ForegroundColor Yellow
-
-    $summary = [PSCustomObject]@{
-        Timestamp = Get-Date
-        DefenderCSPM = $pricing.PricingTier
-        AIWorkloads = $aiWorkloads.Count
-        SecurityRecommendations = $aiTasks.Count
-        SubscriptionId = (Get-AzContext).Subscription.Id
-    }
-
-    $summaryFile = Join-Path $ExportPath "AISPM-Summary-$(Get-Date -Format 'yyyyMMdd').json"
-    $summary | ConvertTo-Json | Out-File -FilePath $summaryFile
-    Write-Host "  Summary saved to: $summaryFile" -ForegroundColor Green
-
-    Write-Host "`n[PASS] Control 1.24 configuration completed successfully" -ForegroundColor Green
-}
-catch {
-    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
-    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
-    exit 1
-}
-finally {
-    # Cleanup connections
-    if (Get-AzContext) {
-        Disconnect-AzAccount -ErrorAction SilentlyContinue | Out-Null
-        Write-Host "`nDisconnected from Azure" -ForegroundColor Gray
-    }
-}
-```
+| File | Purpose | Retention |
+|------|---------|-----------|
+| `AISPM-Status-yyyymmdd.csv` | CSPM + AI-SPM enablement | 6+ years (FINRA) |
+| `AI-BOM-yyyymmdd.csv` | AI Bill of Materials | 6+ years; quarterly review evidence |
+| `AttackPaths-yyyymmdd.csv` | AI attack paths snapshot | 6+ years |
+| `Control-1.24-Validation-yyyymmdd.json` | Validator output | 6+ years; per-attestation evidence |
+| `*.sha256` | Integrity hashes | Same as parent file |
 
 ---
 

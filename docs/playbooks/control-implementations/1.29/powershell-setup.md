@@ -1,5 +1,8 @@
 # Control 1.29 — PowerShell Setup: Global Secure Access Network Controls
 
+!!! warning "Read the FSI PowerShell baseline first"
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below may show abbreviated patterns; the baseline is authoritative.
+
 **Playbook Type:** PowerShell Setup
 **Control:** 1.29 — Global Secure Access: Network Controls for Copilot Studio Agents
 **Audience:** Platform Engineers, Security Engineers, Power Platform CoE
@@ -39,11 +42,11 @@ Import-Module Microsoft.Graph.Reports
 ```powershell
 # ── Authentication ────────────────────────────────────────────────────────────
 # Authenticate to Power Platform
-# Requires Power Platform admin role
+# Requires Power Platform Admin role
 Add-PowerAppsAccount -Endpoint prod
 
 # Authenticate to Microsoft Graph
-# Requires Security Administrator role (for GSA policy management)
+# Requires Entra Security Admin role (for GSA policy management)
 # Required scopes:
 #   Policy.ReadWrite.ConditionalAccess  — for GSA policy linking
 #   NetworkAccess.ReadWrite.All         — for Global Secure Access configuration
@@ -80,7 +83,7 @@ Run this script first to establish a baseline inventory of all environments and 
 # ── Script 1: GSA Forwarding Status Inventory ─────────────────────────────────
 # Queries all Power Platform environments and reports GSA forwarding state
 # Output: CSV report suitable for audit evidence and change tracking
-# Role required: Power Platform admin
+# Role required: Power Platform Admin
 
 [CmdletBinding()]
 param(
@@ -150,7 +153,7 @@ Use this script to enable GSA forwarding across multiple environments in bulk. T
 # ── Script 2: Enable GSA Forwarding via Power Platform REST API ────────────────
 # Enables GSA agent traffic forwarding for specified environments
 # Uses Power Platform admin API directly (most reliable during preview period)
-# Role required: Power Platform admin
+# Role required: Power Platform Admin
 
 [CmdletBinding(SupportsShouldProcess)]
 param(
@@ -267,7 +270,7 @@ This script retrieves GSA traffic log entries filtered for agent-originated traf
 # ── Script 3: Query GSA Traffic Logs for Agent Events ─────────────────────────
 # Retrieves Global Secure Access traffic logs filtered for agent traffic
 # Uses Microsoft Graph networkAccess/logs endpoint
-# Role required: Security Reader or Security Administrator
+# Role required: Entra Security Reader or Entra Security Admin
 
 [CmdletBinding()]
 param(
@@ -387,7 +390,7 @@ This script produces a structured audit evidence export documenting the current 
 # ── Script 4: GSA Configuration Audit Evidence Export ─────────────────────────
 # Exports GSA configuration state as a structured JSON + CSV audit evidence package
 # Output suitable for FINRA examination evidence, SOX ITGC documentation
-# Role required: Security Reader or Security Administrator
+# Role required: Entra Security Reader or Entra Security Admin
 
 [CmdletBinding()]
 param(
@@ -540,7 +543,7 @@ Use this script as a pre-examination readiness check to verify all required conf
 # ── Script 5: GSA Configuration Completeness Validation ──────────────────────
 # Validates that all required GSA elements are configured per Control 1.29
 # Output: Pass/Fail checklist suitable for internal audit review
-# Role required: Security Reader or Security Administrator
+# Role required: Entra Security Reader or Entra Security Admin
 
 Write-Host "Control 1.29 — GSA Configuration Validation" -ForegroundColor Cyan
 Write-Host "=" * 60
@@ -639,4 +642,4 @@ Write-Host "Validation record saved to: $validationPath" -ForegroundColor Gray
 
 [Back to Control 1.29](../../../controls/pillar-1-security/1.29-global-secure-access-network-controls.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
-*Updated: April 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3*

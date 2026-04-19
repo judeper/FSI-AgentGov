@@ -393,4 +393,4 @@ Sign-off:
 
 [Back to Control 1.29](../../../controls/pillar-1-security/1.29-global-secure-access-network-controls.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md)
 
-*Updated: April 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3*

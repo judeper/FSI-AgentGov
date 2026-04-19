@@ -1,166 +1,162 @@
-# Troubleshooting: Control 2.19 - Customer AI Disclosure and Transparency
+# Troubleshooting: Control 2.19 — Customer AI Disclosure and Transparency
 
 **Last Updated:** April 2026
 
-## Common Issues
+---
 
-| Issue | Cause | Resolution |
-|-------|-------|------------|
-| Disclosure not showing | Greeting topic misconfigured | Verify greeting topic has disclosure as first message |
-| Escalation not working | Trigger phrases not recognized | Check escalation trigger configuration |
-| Disclosure not logged | Logging action missing | Add logging step to conversation flow |
-| Periodic reminder not appearing | Threshold not tracked | Implement message count/time tracking |
-| Wrong disclosure level | Zone classification incorrect | Verify agent zone classification |
+## Common Issues at a Glance
+
+| Issue | Likely Cause | First Action |
+|-------|--------------|--------------|
+| Disclosure not appearing on first turn | Conversation Start topic missing or disclosure node not first | Open the Conversation Start topic; ensure the disclosure Send-message node is the first node |
+| Disclosure appears in Web but not in Teams | Custom welcome message is overriding the Conversation Start topic in the Teams channel | Disable the channel-level welcome message and let the topic fire |
+| `Transfer conversation` node greyed out | Engagement hub not configured at the agent level | Configure handoff in Settings → Customer engagement (Dynamics 365 / generic hub) before adding the node |
+| Handoff fires but no live agent receives | Queue routing rules / unified-routing workstream not bound | Verify the workstream + queue exist and that the bot user is added to the queue |
+| Periodic reminder never fires | Threshold variable not initialised; condition uses wrong namespace | Set `System.Conversation.LastReminderTime` on Conversation Start; re-check condition expression |
+| Disclosure event not logged | `LogAiDisclosureEvent` flow disabled or connection broken | Power Automate → check flow run history; reauthorize the Dataverse connection |
+| Wrong disclosure level surfaces | Agent's zone classification incorrect in Agent Card | Reconcile with Control 3.1 inventory and reapply the right copy version |
+| Jurisdiction overlay missing | Jurisdiction signal not flowing into the agent | Verify the upstream variable (e.g., session token claim or CRM lookup) is populated before the disclosure node |
 
 ---
 
 ## Detailed Troubleshooting
 
-### Issue: Disclosure Not Appearing
+### Issue 1 — Disclosure Not Appearing
 
-**Symptoms:** Users can interact without seeing AI disclosure
+**Symptoms:** Users can interact without seeing AI disclosure.
 
-**Diagnostic Steps:**
+**Diagnostic steps:**
 
-1. Check greeting topic configuration:
-   ```
-   Copilot Studio > Agent > Topics > Greeting
-   Verify disclosure is first message node
-   ```
-
-2. Check topic trigger:
-   - Greeting should trigger on conversation start
-   - Verify no conditions blocking disclosure
-
-3. Test in different channels (web, Teams, etc.)
+1. Confirm the disclosure lives in the **Conversation Start** topic (not the legacy Greeting topic) and is the first node
+2. In Copilot Studio, open the **Test bot** pane and start a new conversation — does the disclosure appear here?
+3. Reproduce in each customer channel (Web Chat, Teams, Omnichannel, Direct Line)
+4. For Teams: open Teams Admin Center → Manage apps → your agent → confirm no custom welcome message is set on the Teams channel that would suppress the topic
+5. For Direct Line / custom client: ensure the client sends an `event` activity of type `conversationUpdate` to fire the Conversation Start topic
 
 **Resolution:**
 
-- Add disclosure as first message in greeting topic
-- Remove any conditions that bypass disclosure
-- Ensure topic triggers on all channels
+- Move the disclosure Send-message node to position 1 in the Conversation Start topic
+- Remove any condition node before it that might short-circuit it
+- Republish the agent and clear channel caches
+- For custom Direct Line clients, verify the welcome event handshake
 
 ---
 
-### Issue: Human Escalation Not Triggering
+### Issue 2 — Human Handoff Not Triggering
 
-**Symptoms:** Users ask for human but stay with AI
+**Symptoms:** User asks for a human; the bot keeps responding as AI.
 
-**Diagnostic Steps:**
+**Diagnostic steps:**
 
-1. Test escalation trigger phrases:
-   - "human"
-   - "representative"
-   - "speak to someone"
-   - etc.
-
-2. Check escalation topic configuration:
-   ```
-   Copilot Studio > Agent > Topics > Escalation topic
-   ```
-
-3. Verify escalation action (transfer, ticket, callback)
+1. Open system topic **Escalate** → confirm trigger phrases include common synonyms (`human`, `person`, `representative`, `advisor`, `agent`, `complaint`)
+2. Confirm a **Transfer conversation** node exists at the end of the topic (not just a Send-message that says "transferring…")
+3. In the node properties, confirm the **engagement hub** dropdown is set (not "None") and the queue/workstream is selected
+4. For Dynamics 365 Customer Service: confirm the bot's application user is added as a queue member and the unified-routing workstream is published
+5. Check the most recent topic-execution trace in Copilot Studio for the Escalate topic
 
 **Resolution:**
 
-- Add missing trigger phrases
-- Verify escalation topic is published
-- Check transfer queue/action is valid
-- Test end-to-end escalation flow
+- Add missing trigger phrases (re-train the topic if necessary)
+- Configure the engagement hub at the agent level (Settings → Customer engagement)
+- Add the bot user to the target queue
+- See [Microsoft Learn: hand off to a live agent](https://learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-hand-off) and [Configure handoff to Dynamics 365 Customer Service](https://learn.microsoft.com/en-us/microsoft-copilot-studio/configuration-hand-off-omnichannel)
 
 ---
 
-### Issue: Disclosure Not Being Logged
+### Issue 3 — Disclosure Events Not Being Logged
 
-**Symptoms:** Compliance cannot find disclosure records
+**Symptoms:** Compliance cannot find disclosure rows in `fsi_aidisclosurelog`.
 
-**Diagnostic Steps:**
+**Diagnostic steps:**
 
-1. Check logging action in conversation flow:
-   - Should occur after disclosure is sent
-   - Should capture required fields
-
-2. Verify Dataverse/logging connection:
-   - Connection is valid
-   - Table exists with correct schema
-
-3. Check for errors in flow execution
+1. In Power Automate, open the `LogAiDisclosureEvent` flow → 28-day run history → look for failed runs
+2. If runs fail with auth errors, the Dataverse connection has expired or the connection owner left the org
+3. If runs succeed but no row appears, check `Create record` action input — column names may have drifted (`fsi_eventtype` vs `fsi_event_type`, etc.)
+4. Confirm the flow is invoked from each disclosure-related node in the topic
 
 **Resolution:**
 
-- Add logging action if missing
-- Fix connection credentials
-- Create logging table if missing
-- Correct field mapping errors
+- Reauthorize the Dataverse connection under a service account / managed identity
+- Re-bind action inputs to the correct logical column names
+- Add the flow call to any topic node that surfaces disclosure but currently skips logging
 
 ---
 
-### Issue: Periodic Reminder Not Appearing
+### Issue 4 — Periodic Reminder Not Appearing
 
-**Symptoms:** Long conversations don't get reminder
+**Symptoms:** Long sessions never see a reminder.
 
-**Diagnostic Steps:**
+**Diagnostic steps:**
 
-1. Check reminder tracking:
-   - Message count variable
-   - Session time tracking
-
-2. Verify reminder topic trigger:
-   - Condition: count > threshold OR time > threshold
-   - Topic exists and is published
-
-3. Test with extended conversation
+1. Open the `AI Reminder` topic → check the trigger condition syntax against current Power Fx grammar
+2. Confirm `System.Conversation.LastReminderTime` is initialised on Conversation Start (otherwise the `now() - blank` comparison fails silently)
+3. Check whether the reminder is competing with a higher-priority topic that always fires first
 
 **Resolution:**
 
-- Implement message/time tracking
-- Create and publish reminder topic
-- Adjust threshold if too high
-- Test trigger conditions
+- Initialise the variable in Conversation Start
+- Adjust topic priority so the reminder is reachable
+- Lower the threshold in non-prod to validate the path before restoring production threshold
+
+---
+
+### Issue 5 — Wrong Disclosure Level
+
+**Symptoms:** A Zone 3 agent shows the basic disclosure, or vice versa.
+
+**Diagnostic steps:**
+
+1. Open the Agent Card (Control 3.1) and confirm the recorded zone classification
+2. Open the Conversation Start topic and confirm the message variant matches the zone
+3. Inspect the disclosure-version global variable for staleness
+
+**Resolution:**
+
+- Update the Agent Card and re-publish the matching disclosure variant
+- If the zone genuinely changed, run the Control 2.3 zone-promotion review before changing copy
 
 ---
 
 ## How to Confirm Configuration is Active
 
-### Disclosure Delivery
+### Disclosure delivery
+1. Start a fresh conversation in each customer channel
+2. Confirm the disclosure renders first
+3. Confirm `DisclosureDelivered` row in the log within 1 minute
 
-1. Start a new conversation
-2. Verify disclosure appears first
-3. Check disclosure content is complete
+### Human handoff
+1. Use a trigger phrase
+2. Confirm the live agent (or your test queue) receives the conversation with full context
+3. Confirm `EscalationOffered` and `EscalationAccepted` rows in the log
 
-### Human Escalation
-
-1. Say "human" or "representative"
-2. Verify escalation offers appear
-3. Test actual transfer if possible
-
-### Logging
-
-1. Complete a test conversation
-2. Query disclosure log
-3. Verify record exists with correct data
+### Logging integrity
+1. Run `Validate-Control-2.19.ps1` (read-only)
+2. All three checks should return `PASS`
 
 ---
 
 ## Escalation Path
 
-If issues persist after troubleshooting:
-
-1. **Copilot Studio Admin** - Agent configuration
-2. **Compliance** - Disclosure content requirements
-3. **Legal** - Regulatory language questions
-4. **Microsoft Support** - Platform issues
+| Tier | Owner | When to Engage |
+|------|-------|----------------|
+| 1 | Copilot Studio Agent Author | Topic content, node configuration, copy fixes |
+| 2 | Power Platform Admin | Environment, connectors, engagement-hub binding, DLP impact |
+| 3 | AI Administrator | Tenant-level Copilot settings affecting disclosure surfaces |
+| 4 | Compliance Officer | Disclosure copy approval, regulatory interpretation |
+| 5 | Legal Counsel | State-law (CA/UT/CO) edge cases, UDAAP exposure |
+| 6 | Microsoft Support | Platform behavior (handoff failures, channel regressions) — open ticket via Power Platform Admin Center |
 
 ---
 
-## Known Limitations
+## Known Limitations (April 2026)
 
 | Limitation | Impact | Workaround |
 |------------|--------|------------|
-| No native disclosure feature | Must implement manually | Use greeting topic |
-| Escalation limited by channel | Some channels don't support transfer | Offer callback option |
-| Session time tracking complex | Hard to implement | Use message count instead |
-| Disclosure acknowledgment not native | Cannot force user confirmation | Log delivery; consider approval step |
+| No native, tenant-wide "AI disclosure" toggle in Copilot Studio | Each agent must implement disclosure individually | Use a shared solution / template agent and clone for new agents |
+| Topic content is not exposed by an admin API | Disclosure copy cannot be mutated via PowerShell | Use Copilot Studio portal or solution import; gate via Control 2.4 ALM |
+| Some custom Direct Line clients suppress the conversation-start event | Disclosure may not render | Implement a client-side disclosure render OR require a starter intent that fires the topic |
+| Forced acknowledgement of disclosure is not a built-in capability | Cannot block conversation until user clicks `[I understand]` natively | Use an Adaptive Card with required input + Question node that loops until acknowledged |
+| Generic engagement-hub adapters require custom development | Non-Microsoft hubs need an adapter | Follow [Configure handoff to a generic engagement hub](https://learn.microsoft.com/en-us/microsoft-copilot-studio/configure-generic-handoff) and the [contact-center skill-handoff sample](https://github.com/microsoft/CopilotStudioSamples/tree/main/contact-center/skill-handoff) |
 
 ---
 

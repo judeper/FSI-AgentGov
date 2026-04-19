@@ -1,8 +1,11 @@
 # PowerShell Setup: Control 2.22 - Inactivity Timeout Enforcement
 
+!!! warning "Read the FSI PowerShell baseline first"
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below may show abbreviated patterns; the baseline is authoritative.
+
 > **Parent Control:** [2.22 - Inactivity Timeout Enforcement](../../../controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md)
 
-**Last Updated:** February 2026
+**Last Updated:** April 2026
 **Module Requirements:** Az.Accounts, PowerShell 7.0+
 **Estimated Time:** 30 minutes for setup; 5 minutes per remediation run
 
@@ -269,4 +272,4 @@ if ($computedHash -eq $recordedHash) {
 
 ---
 
-*Updated: February 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3*

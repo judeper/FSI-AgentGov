@@ -1,226 +1,225 @@
-# Control 4.1: SharePoint Information Access Governance (IAG) - Troubleshooting
+# Control 4.1: SharePoint Information Access Governance (IAG) — Troubleshooting
 
-> This playbook provides troubleshooting guidance for [Control 4.1](../../../controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md).
-
----
-
-## Common Issues
-
-| Issue | Cause | Resolution |
-|-------|-------|------------|
-| Content restriction not working | Setting not propagated or cached | Wait 24-48 hours for propagation; clear Copilot cache; verify setting via PowerShell |
-| Cannot enable restriction | Missing SharePoint Advanced Management license | Verify SAM license is assigned to tenant; contact Microsoft support |
-| Audit logs missing | Unified Audit Log not enabled | Enable Unified Audit Log in Purview compliance portal |
-| PowerShell connection fails | Expired credentials or MFA required | Use modern authentication; ensure admin account has MFA configured |
-| Bulk update failures | Insufficient permissions or site-level overrides | Verify Site Collection Admin rights; check for site-level policies |
+> Diagnostic and resolution guidance for [Control 4.1](../../../controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md). Organised by symptom.
 
 ---
 
-## Detailed Troubleshooting
+## Quick-Reference Issue Matrix
 
-### Issue: Copilot Still Returns Content from Restricted Sites
-
-**Symptoms:** After enabling RCD, Microsoft 365 Copilot still surfaces content from the restricted site.
-
-**Diagnostic Steps:**
-
-1. Verify the restriction is applied via PowerShell:
-   ```powershell
-   Get-SPOSite -Identity "https://contoso.sharepoint.com/sites/SiteName" |
-       Select-Object Url, RestrictContentOrgWideSearch
-   ```
-
-2. Check if the setting shows `RestrictContentOrgWideSearch = True`
-
-3. If setting is correct but content still appears:
-   - Allow up to 24-48 hours for the semantic index to update
-   - Verify the content doesn't exist in other unrestricted locations
-   - Check if user has direct access that bypasses restrictions
-
-**Resolution:**
-- Wait for index propagation (up to 48 hours)
-- Search for duplicate content in other locations
-- Contact Microsoft support if issue persists after 72 hours
+| Symptom | Most likely cause | First action |
+|---|---|---|
+| RCD toggle missing or greyed out | No Copilot license assigned in tenant; insufficient role | Verify Copilot license + SharePoint Admin role |
+| Copilot still surfaces restricted content | Reindex incomplete; user has recent-interaction history | Wait up to ~72h; isolate test user |
+| RAC fails to block user | Wrong group GUID; user is site owner; group sync lag | Re-resolve group via Graph; check owners |
+| Audit log empty | Unified Audit Log disabled; search-window too narrow | Enable UAL; widen the search range |
+| RSS allow-list ineffective | URL mismatch (case/trailing slash); >100 sites | Re-add canonical URLs; trim list |
+| PowerShell connect fails | Stale module; MFA / sovereign-cloud endpoint mismatch | Update module; pass `-Region` |
 
 ---
 
-### Issue: Cannot Enable Copilot Content Restriction
+## Issue: Copilot Still Returns Content from a Restricted Site
 
-**Symptoms:** The "Restrict content from Microsoft 365 Copilot" option is grayed out or not visible.
+### Symptoms
 
-**Diagnostic Steps:**
+After enabling RCD, Microsoft 365 Copilot still surfaces documents or citations from the site for some users.
 
-1. Verify SharePoint Advanced Management license:
-   ```powershell
-   Get-SPOTenant | Select-Object EnableAIPIntegration, AIBuilderEnabled
-   ```
-
-2. Check your admin role assignment (must be SharePoint Admin or Entra Global Admin)
-
-3. Verify you're accessing SharePoint Admin Center (not classic site settings)
-
-**Resolution:**
-- Confirm SharePoint Advanced Management Plan 1 license is assigned to the tenant
-- Ensure you have the correct admin role
-- Use the modern SharePoint Admin Center (admin.sharepoint.com)
-- Contact Microsoft support if license is confirmed but feature unavailable
-
----
-
-### Issue: Restricted Access Control (RAC) Not Blocking Users
-
-**Symptoms:** Users outside the authorized security group can still access RAC-protected sites.
-
-**Diagnostic Steps:**
-
-1. Verify RAC is enabled on the site:
-   ```powershell
-   Get-SPOSite -Identity $SiteUrl | Select-Object Url, RestrictedAccessControl, RestrictedAccessControlGroups
-   ```
-
-2. Verify the security group IDs are correct:
-   ```powershell
-   # Get Entra ID group details
-   Connect-MgGraph -Scopes "Group.Read.All"
-   Get-MgGroup -Filter "displayName eq 'GroupName'" | Select-Object Id, DisplayName
-   ```
-
-3. Check if user is a site owner (owners retain access regardless of RAC)
-
-**Resolution:**
-- Confirm the correct Entra ID group GUIDs are used
-- Note that site owners always retain access
-- Verify group membership is current
-- Allow 15-60 minutes for group membership sync
-
----
-
-### Issue: Audit Logs Not Showing IAG Changes
-
-**Symptoms:** Configuration changes not appearing in Microsoft Purview Audit.
-
-**Diagnostic Steps:**
-
-1. Verify Unified Audit Log is enabled:
-   ```powershell
-   Connect-IPPSSession
-   Get-AdminAuditLogConfig | Select-Object UnifiedAuditLogIngestionEnabled
-   ```
-
-2. Verify you're searching the correct date range (events may have 24-48 hour delay)
-
-3. Use the correct search criteria:
-   - Activity: "SiteRestrictedFromOrgSearch"
-   - Record type: "SharePoint"
-
-**Resolution:**
-- Enable Unified Audit Log if disabled
-- Expand search date range
-- Wait 24-48 hours for new events to appear
-- Verify search permissions (Purview Compliance Admin or equivalent)
-
----
-
-### Issue: RSS (Restricted SharePoint Search) Allow-List Not Working
-
-**Symptoms:** Copilot accesses sites not on the allow-list, or cannot access sites that are on the list.
-
-**Diagnostic Steps:**
-
-1. Verify RSS is enabled:
-   ```powershell
-   Get-SPOTenant | Select-Object EnableRestrictedSearchAllList
-   ```
-
-2. Get current allow-list:
-   ```powershell
-   Get-SPOTenantRestrictedSearchAllowedList
-   ```
-
-3. Verify site URLs are exactly correct (no trailing slashes, correct case)
-
-**Resolution:**
-- Confirm RSS is enabled at tenant level
-- Verify site URLs in allow-list are exact matches
-- Note RSS has a maximum of 100 sites
-- Allow 24 hours for changes to propagate
-
----
-
-## Diagnostic Commands
+### Diagnostics
 
 ```powershell
-# Comprehensive IAG status check
-$SiteUrl = "https://contoso.sharepoint.com/sites/TestSite"
+Get-SPOSite -Identity 'https://contoso.sharepoint.com/sites/Restricted' |
+    Select-Object Url, RestrictContentOrgWideSearch, LastContentModifiedDate
+```
 
-Write-Host "=== IAG Diagnostic Report ===" -ForegroundColor Cyan
+- Confirm `RestrictContentOrgWideSearch = True`.
+- Note the time RCD was enabled — Semantic Index reindex can take several hours up to ~72 hours for large libraries.
+- Check whether the test user has recently *viewed, edited, or shared* the document. RCD scopes org-wide discovery (SharePoint home, Office.com, Bing); it does not override an individual's interaction history.
 
-# Check site-specific settings
-$Site = Get-SPOSite -Identity $SiteUrl
-Write-Host "`nSite: $SiteUrl" -ForegroundColor Yellow
-Write-Host "  RestrictContentOrgWideSearch: $($Site.RestrictContentOrgWideSearch)"
-Write-Host "  RestrictedAccessControl: $($Site.RestrictedAccessControl)"
-Write-Host "  RestrictedAccessControlGroups: $($Site.RestrictedAccessControlGroups)"
-Write-Host "  SensitivityLabel: $($Site.SensitivityLabel)"
+### Resolution
 
-# Check tenant settings
-$Tenant = Get-SPOTenant
-Write-Host "`nTenant Settings:" -ForegroundColor Yellow
-Write-Host "  EnableRestrictedSearchAllList: $($Tenant.EnableRestrictedSearchAllList)"
+- Wait for reindex to complete; re-test with a user who has **no** recent interaction with the document.
+- Confirm the same content does not exist in another, non-restricted site (duplicate libraries are a common cause).
+- If the issue persists past 72 hours with a clean test user, raise a Microsoft support case and supply the audit-log entry as evidence of RCD enablement.
 
-# Check for any RSS sites
-Write-Host "`nRestricted SharePoint Search Sites:" -ForegroundColor Yellow
-Get-SPOTenantRestrictedSearchAllowedList | ForEach-Object {
-    Write-Host "  - $($_.SiteUrl)"
-}
+---
+
+## Issue: "Restrict content from Microsoft 365 Copilot" Toggle Is Missing or Greyed Out
+
+### Symptoms
+
+The toggle is not visible in **Site → Settings**, or is visible but disabled.
+
+### Diagnostics
+
+1. Confirm at least one Microsoft 365 Copilot license is assigned in the tenant — RCD is gated on this prerequisite as of the April 2026 Microsoft Learn update.
+2. Confirm the signed-in user holds the **SharePoint Admin** role (or is a delegated site collection administrator with RCD delegation enabled).
+3. Confirm you are using the modern SharePoint admin centre, not classic site settings.
+
+### Resolution
+
+- Assign a Copilot license to a pilot user, then refresh the admin centre.
+- Re-check role assignment in Microsoft Entra; sign out / sign in to refresh tokens.
+- If delegation is required, confirm the tenant setting via PowerShell (see [powershell-setup.md](powershell-setup.md)).
+
+---
+
+## Issue: Restricted Access Control (RAC) Is Not Blocking Users
+
+### Symptoms
+
+A user outside the configured Entra security groups can still open the RAC-protected site.
+
+### Diagnostics
+
+```powershell
+Get-SPOSite -Identity $SiteUrl |
+    Select-Object Url, RestrictedAccessControl, RestrictedAccessControlGroups
+
+Connect-MgGraph -Scopes 'Group.Read.All','Directory.Read.All' -NoWelcome
+Get-MgGroup -Filter "displayName eq 'MandA-DealTeam-Alpha'" |
+    Select-Object Id, DisplayName
+Get-MgGroupMember -GroupId <id> -All
+```
+
+- Verify the configured group GUIDs match the intended Entra groups.
+- Verify the test user is **not** a site collection administrator — owners retain access regardless of RAC.
+- Check whether group membership has propagated (Entra → SharePoint sync can take 15–60 minutes).
+
+### Resolution
+
+- Replace stale GUIDs; reapply RAC with the verified group list.
+- Remove the test user from site owners if testing the deny path.
+- Re-run the test after group sync completes.
+
+---
+
+## Issue: Audit Log Is Missing IAG Events
+
+### Symptoms
+
+Purview Audit search returns no results for `SiteRestrictedFromOrgSearch` or `RestrictedAccessControlPolicyUpdated` despite confirmed changes.
+
+### Diagnostics
+
+```powershell
+Connect-IPPSSession
+Get-AdminAuditLogConfig | Select-Object UnifiedAuditLogIngestionEnabled
+```
+
+- Confirm `UnifiedAuditLogIngestionEnabled = True`.
+- Confirm the search date range is wide enough — events typically appear within minutes but can be delayed up to 24 hours.
+- Confirm the operator running the search holds **Purview Compliance Admin** (or equivalent audit-search role).
+
+### Resolution
+
+- Enable the Unified Audit Log if disabled.
+- Widen the search window and re-run.
+- For sustained delays beyond 24 hours, raise a Microsoft support case.
+
+---
+
+## Issue: Restricted SharePoint Search (RSS) Allow-List Is Not Behaving Correctly
+
+### Symptoms
+
+Copilot accesses content from non-allow-listed sites, or fails to access listed sites.
+
+### Diagnostics
+
+```powershell
+Get-SPOTenant | Select-Object EnableRestrictedSearchAllList
+Get-SPOTenantRestrictedSearchAllowedList
+```
+
+- Confirm RSS is enabled at the tenant.
+- Confirm site URLs are **canonical** (no trailing slash; correct case) and unique.
+- Confirm the allow-list has not exceeded the documented site cap (current Microsoft Learn value: 100; verify before relying on it).
+
+### Resolution
+
+- Remove and re-add any URLs that do not match the canonical form returned by `Get-SPOSite`.
+- Trim the list to the supported maximum.
+- Allow up to 24 hours for propagation.
+
+---
+
+## Issue: PowerShell Connection or Cmdlet Failures
+
+### Symptoms
+
+`Connect-SPOService` fails; `Set-SPOSite` returns access-denied or "parameter not found".
+
+### Diagnostics
+
+```powershell
+Get-Module Microsoft.Online.SharePoint.PowerShell -ListAvailable |
+    Select-Object Name, Version
+```
+
+- Confirm the module version meets the baseline minimum.
+- Confirm the `-Url` value matches your sovereign cloud (`*.sharepoint.com`, `*.sharepoint.us`, etc.).
+- Confirm the operator's account is not blocked by Conditional Access (named-location, device-compliance).
+
+### Resolution
+
+- Update to the pinned module version per [powershell-setup.md](powershell-setup.md).
+- For sovereign clouds, pass `-Region ITAR` (GCC High) or `-Region USGovDoD` (DoD) on `Connect-SPOService`.
+- Use a workstation that satisfies your Conditional Access posture (PAW / compliant device).
+
+---
+
+## Issue: Bulk RCD Apply Reports Throttling (HTTP 429)
+
+### Symptoms
+
+Repeated `Set-SPOSite` calls fail intermittently with throttling errors.
+
+### Resolution
+
+- Add exponential backoff (per the PowerShell baseline) — start at 5s, double up to a cap of 5 minutes.
+- Reduce parallelism to a single thread for mutating cmdlets.
+- Stage rollouts in tranches of 50 sites per hour for very large tenants.
+
+---
+
+## Diagnostic Bundle
+
+```powershell
+$SiteUrl = 'https://contoso.sharepoint.com/sites/TestSite'
+
+Write-Host '=== IAG Diagnostic Report ===' -ForegroundColor Cyan
+$site = Get-SPOSite -Identity $SiteUrl
+[pscustomobject]@{
+    Url                         = $site.Url
+    RCD                         = $site.RestrictContentOrgWideSearch
+    RAC                         = $site.RestrictedAccessControl
+    RACGroups                   = $site.RestrictedAccessControlGroups
+    SensitivityLabel            = $site.SensitivityLabel
+    SharingCapability           = $site.SharingCapability
+    LastContentModifiedDate     = $site.LastContentModifiedDate
+} | Format-List
+
+$tenant = Get-SPOTenant
+[pscustomobject]@{
+    EnableRestrictedSearchAllList         = $tenant.EnableRestrictedSearchAllList
+    DelegateRestrictedAccessControlMgmt   = $tenant.DelegateRestrictedAccessControlManagement
+} | Format-List
+
+Get-SPOTenantRestrictedSearchAllowedList | Format-Table -AutoSize
 ```
 
 ---
 
 ## Escalation Path
 
-1. **Level 1:** SharePoint Admin - Basic configuration issues
-2. **Level 2:** Microsoft 365 Admin - License and tenant-level settings
-3. **Level 3:** Microsoft Support - Product bugs or feature limitations
-4. **Level 4:** AI Governance Committee - Policy exceptions
+1. **Site owner / SharePoint Admin** — Per-site configuration and reindex questions.
+2. **Microsoft 365 Admin / Tenant Admin** — Licensing, tenant-level RSS and delegation settings.
+3. **Microsoft Support** — Reindex stalls beyond 72 hours, audit-log gaps beyond 24 hours, suspected service regression.
+4. **AI Governance Committee** — Policy exceptions (e.g., temporary RCD disable for an investigation) and Zone 3 attestation issues.
 
 ---
 
-## How to Confirm Configuration is Active
-
-### Via Portal
-
-1. Navigate to **SharePoint Admin Center** > **Sites** > **Active sites**
-2. Select the site
-3. Open **Settings** tab
-4. Verify "Restrict content from Microsoft 365 Copilot" shows **On**
-
-### Via PowerShell
-
-```powershell
-# Quick status check
-$SiteUrl = "https://contoso.sharepoint.com/sites/RegulatedSite"
-$Site = Get-SPOSite -Identity $SiteUrl
-
-if ($Site.RestrictContentOrgWideSearch -eq $true) {
-    Write-Host "PASS: Site is restricted from Copilot" -ForegroundColor Green
-}
-else {
-    Write-Host "FAIL: Site is NOT restricted from Copilot" -ForegroundColor Red
-}
-```
-
-### Via Copilot Testing
-
-1. As a user with site access, open Microsoft 365 Copilot
-2. Ask a specific question about content from the restricted site
-3. Verify Copilot does NOT return that content
-4. Ask about content from an unrestricted site to confirm Copilot is working
+[Back to Control 4.1](../../../controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification & Testing](verification-testing.md)
 
 ---
 
-[Back to Control 4.1](../../../controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md)
-
----
-
-*Updated: April 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3*

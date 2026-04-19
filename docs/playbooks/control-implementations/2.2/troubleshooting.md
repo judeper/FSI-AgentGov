@@ -1,300 +1,200 @@
-# Troubleshooting: Control 2.2 - Environment Groups and Tier Classification
+# Troubleshooting: Control 2.2 — Environment Groups and Tier Classification
 
-**Last Updated:** January 2026
-
-## Common Issues
-
-| Issue | Cause | Resolution |
-|-------|-------|------------|
-| Rules not applying to environment | Environment not in group or rules not published | Verify group membership; publish rules |
-| Cannot add environment to group | Environment not managed | Enable Managed Environment first ([Control 2.1](../../../controls/pillar-2-management/2.1-managed-environments.md)) |
-| Rule conflicts | Group and environment settings conflict | More restrictive wins; document which takes precedence |
-| Environment group not visible | Missing admin role or group deleted | Verify Power Platform Admin role; check if group exists |
-| Published rules slow to apply | Normal propagation delay | Allow up to 15 minutes for propagation |
-| External model rule not blocking | Rule not published or user exemption | Verify rule published; check for exemptions |
+**Last Updated:** April 2026
 
 ---
 
-## Detailed Troubleshooting
+## Common issues — quick reference
 
-### Issue: Rules Not Applying to Environment
-
-**Symptoms:** Environment settings don't match group rules after configuration.
-
-**Diagnostic Steps:**
-
-1. Verify environment is in the group:
-   ```
-   PPAC > Environment groups > [Group] > Environments tab
-   ```
-
-2. Verify rules are published:
-   ```
-   PPAC > Environment groups > [Group] > Rules tab > Check "Published" status
-   ```
-
-3. Check environment is Managed:
-   ```
-   PPAC > Environments > [env] > Check Managed Environment status
-   ```
-
-4. Wait for propagation (up to 15 minutes)
-
-**Resolution:**
-
-- Add environment to group if missing
-- Publish rules if not already published
-- Enable Managed Environment if not managed
-- Wait and re-check after 15 minutes
+| Symptom | Most likely cause | First action |
+|---|---|---|
+| Rules saved but not enforced | Rules saved without **Publish** | PPAC → Group → Rules → **Publish rules** |
+| Cannot add environment to a group | Environment is not Managed | Enable Managed Environment ([Control 2.1](../../../controls/pillar-2-management/2.1-managed-environments.md)) |
+| Setting still editable in member environment | Rule not published or 15-min propagation delay | Verify Published timestamp; wait 15 min |
+| New maker landed in ungrouped env | Routing target points to non-grouped env | Fix routing target ([Control 2.15](../../../controls/pillar-2-management/2.15-environment-routing.md)) |
+| External models still configurable | Wrong rule edited; or env in a different group | Verify environment's group on the env's PPAC page |
+| CUA usage detected | CUA is governed by Copilot Studio admin, not this control | Disable in Copilot Studio admin ([Control 2.24](../../../controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance.md)) |
+| Group not visible in PPAC | Missing Power Platform Admin role | Confirm role in M365 admin / Entra |
+| Cannot remove a rule once published | Rules cannot be unpublished — only changed | Edit rule to default value and re-publish |
+| Maker complains setting is locked unexpectedly | Group inheritance is working as designed | Confirm with maker; document in maker FAQ |
 
 ---
 
-### Issue: Cannot Add Environment to Group
+## Detailed scenarios
 
-**Symptoms:** "Environment cannot be added" error or environment not selectable.
+### 1 — Rules not applying after configuration
 
-**Diagnostic Steps:**
+**Symptoms.** Member environment's setting still matches its old value, or makers can still perform an action the rule was meant to block.
 
-1. Check if environment is a Managed Environment:
-   ```
-   PPAC > Environments > [env] > Check for "Managed" badge
-   ```
+**Diagnose.**
 
-2. Verify you have Environment Admin rights for the environment
+1. PPAC → **Environment groups** → *group* → **Environments** tab — confirm the env is listed.
+2. PPAC → **Environment groups** → *group* → **Rules** tab — confirm rule **Status = Published** with a recent timestamp.
+3. PPAC → **Environments** → *env* → **Settings** — open the corresponding setting; it should show **Locked by environment group**.
+4. Wait 15 minutes after publish for propagation; refresh PPAC.
 
-3. Check if environment is in a locked/disabled state
+**Resolve.**
 
-**Resolution:**
-
-- Enable Managed Environment first ([Control 2.1](../../../controls/pillar-2-management/2.1-managed-environments.md))
-- Request Environment Admin role if missing
-- Wait for pending operations to complete
+- If env is missing from the group: add it (must be a Managed Environment first).
+- If rule is **Saved** but not **Published**: click **Publish rules**.
+- If still editable after 30 minutes: open a Microsoft support case (see escalation below).
 
 ---
 
-### Issue: Rule Conflicts Between Group and Environment
+### 2 — Cannot add an environment to a group
 
-**Symptoms:** Inconsistent behavior - some settings work, others don't.
+**Symptoms.** Environment doesn't appear in the picker, or the **Add** action returns an error.
 
-**Diagnostic Steps:**
+**Diagnose.**
 
-1. Review group-level rules:
-   ```
-   PPAC > Environment groups > [Group] > Rules
-   ```
+1. PPAC → **Environments** → *env* — check for the **Managed** badge.
+2. Confirm env type is not **Default**, **Trial**, or **Developer (personal)** — these cannot join groups even when otherwise managed.
+3. Confirm you have **Environment Admin** rights on the target environment (Power Platform Admin alone is sometimes insufficient at the resource level).
+4. Confirm the environment is not in a pending operation (provisioning, restore, recovery).
 
-2. Review environment-level settings:
-   ```
-   PPAC > Environments > [env] > Settings/Features
-   ```
+**Resolve.**
 
-3. Compare settings and identify conflicts
-
-**Resolution:**
-
-- Document which settings come from group vs. environment
-- The more restrictive setting takes precedence
-- For clarity, align both to the same values where possible
-- Document any intentional differences
+- Promote the environment to Managed via [Control 2.1](../../../controls/pillar-2-management/2.1-managed-environments.md).
+- For Default / Trial, plan migration to a Production-type Managed Environment.
+- Acquire Environment Admin or wait for the pending operation.
 
 ---
 
-### Issue: Environment Group Not Visible
+### 3 — Group rule and per-environment setting disagree
 
-**Symptoms:** Group doesn't appear in PPAC Environment groups list.
+**Symptoms.** A setting appears in two places (group and environment) with conflicting visible values.
 
-**Diagnostic Steps:**
+**Behaviour.** Once a group rule is **Published**, the corresponding environment setting becomes **Locked (read-only)** and inherits the group value. There is no per-environment exception today.
 
-1. Verify you have Power Platform Admin role:
-   ```
-   M365 Admin Center > Users > [Your account] > Roles
-   ```
+**Resolve.**
 
-2. Check if group was deleted by another admin
-
-3. Verify tenant-level feature is enabled
-
-**Resolution:**
-
-- Request Power Platform Admin role if missing
-- Check audit logs for group deletion events
-- Contact Microsoft Support if feature appears unavailable
+- If a legitimate exception is required, move the environment to a different group with the desired value, **or** unpublish the conflicting rule (this affects all members).
+- Document the resolution in the governance change log.
 
 ---
 
-### Issue: Published Rules Taking Time to Apply
+### 4 — A new Microsoft rule has appeared in PPAC
 
-**Symptoms:** Settings not immediately effective after publishing.
+**Symptoms.** Rules tab shows a rule that is not in the FSI zone matrix.
 
-**Diagnostic Steps:**
+**Diagnose.**
 
-1. Check the published timestamp in Rules tab
+1. Cross-check the [Microsoft Learn rules list](https://learn.microsoft.com/en-us/power-platform/admin/environment-groups-rules) — note GA vs preview.
+2. Determine the data / supervisory implications with AI Administrator and Purview Compliance Admin.
 
-2. Wait 15 minutes for propagation
+**Resolve.**
 
-3. Clear browser cache and refresh PPAC
-
-**Resolution:**
-
-- Allow up to 15 minutes for rule propagation
-- Refresh the portal after waiting
-- If still not applied after 30 minutes, contact support
+- Decide a Zone 1/2/3 value, update the matrix in `docs/controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md`, and re-publish in PPAC.
+- Record the change in the governance change log; note the source URL and decision date.
+- Bring the next quarterly re-baseline forward if the new rule is high-impact.
 
 ---
 
-### Issue: External Model Rule Not Blocking
+### 5 — Maker routed into the wrong zone
 
-**Symptoms:** External AI models still accessible despite rule being disabled.
+**Symptoms.** A new maker's environment is in the wrong group, or in no group at all.
 
-**Diagnostic Steps:**
+**Diagnose.**
 
-1. Verify rule is published:
-   ```
-   PPAC > Environment groups > [Group] > Rules > Enable External Models
-   ```
+1. PPAC → **Environments** → **Environment routing** — review the active routing rules.
+2. Confirm the routing target environment is itself in an `FSI-Z1-*` group.
+3. Check routing exceptions list for the maker.
 
-2. Check if user has any exemptions or elevated permissions
+**Resolve.**
 
-3. Confirm environment is in the correct group
-
-**Resolution:**
-
-- Publish the rule if not published
-- Review user permissions for exemptions
-- Verify environment group membership
-- Wait for propagation if recently changed
+- Update routing per [Control 2.15](../../../controls/pillar-2-management/2.15-environment-routing.md).
+- Move the misrouted environment into the correct zone group.
+- Re-test with a pilot maker account.
 
 ---
 
-### Issue: Maker Routed to Wrong Environment
+### 6 — Group descriptions don't make zone intent obvious during audit
 
-**Symptoms:** New makers land in environments with incorrect tier rules.
+**Symptoms.** Auditor cannot determine governance zone from group names/descriptions alone.
 
-**Diagnostic Steps:**
+**Resolve.**
 
-1. Review routing policy configuration:
-   ```
-   PPAC > Environments > Environment routing
-   ```
-
-2. Verify target environment is in the correct tier group
-
-3. Check routing exceptions list
-
-**Resolution:**
-
-- Update routing policy targets ([Control 2.15](../../../controls/pillar-2-management/2.15-environment-routing.md))
-- Ensure target environments are in appropriate tier groups
-- Review and update exceptions if needed
-- Re-test routing after changes
+- Update the description to include: `Zone {1|2|3}`, allowed data sensitivity, change authority, review cadence.
+- Rename groups to the `FSI-Z{n}-{purpose}` convention if not already used.
+- Re-capture screenshots and update the evidence pack.
 
 ---
 
-### Issue: Zone Intent Unclear During Audit
+### 7 — CUA usage detected despite "all zones disabled"
 
-**Symptoms:** Group names/descriptions don't clearly indicate Zone 1/2/3 purpose.
+**Symptoms.** Audit shows CUA / Computer Use activity in a tenant where governance documentation states it is disabled.
 
-**Diagnostic Steps:**
+**Important.** CUA is **not** an environment group rule. Disabling it in a group has no effect.
 
-1. Review group descriptions for tier classification
+**Resolve.**
 
-2. Check if tier information is documented elsewhere
-
-**Resolution:**
-
-- Update group descriptions to include:
-  - Zone classification (Zone 1, 2, or 3)
-  - Allowed data scope
-  - Change authority
-- Regenerate exports and capture updated screenshots
-- Document mapping in separate governance documentation
+- Disable CUA tenant-wide in Copilot Studio admin per [Control 2.24](../../../controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance.md).
+- Investigate the activity (audit log search; unified audit log → `MicrosoftCopilotStudio` workload).
+- Document the incident per security incident procedures.
+- Update Control 2.2 evidence to reference Control 2.24 status (do not claim Control 2.2 enforces CUA).
 
 ---
 
-## How to Confirm Configuration is Active
+## How to confirm the control is active end-to-end
 
-### Via Portal
+### Via portal
 
-1. Navigate to **PPAC** > **Environment groups** > select group
-2. Verify **Environments** tab shows expected membership
-3. Verify **Rules** tab shows Published status with recent date
-4. Open an environment in the group and verify settings match rules
+1. PPAC → **Environment groups** → *group* — Environments tab populated; Rules tab shows Published.
+2. Open any member environment → Settings — at least one setting shows **Locked by environment group**.
+3. Try to perform a blocked action (e.g., share an agent with Editor in a Zone 1 env) — action is blocked.
 
 ### Via PowerShell
 
 ```powershell
-# Quick validation check
-$groupId = "<EnvironmentGroup-ID>"
-
-# List environments in the group and confirm managed state
-Get-AdminPowerAppEnvironment |
-    Where-Object { $_.EnvironmentGroupId -eq $groupId } |
-    Select-Object DisplayName, EnvironmentName, EnvironmentGroupId,
-        @{Name='IsManaged'; Expression = {
-            $_.Properties.governanceConfiguration.protectionLevel -ne 'Standard'
-        }} |
-    Format-Table -AutoSize
+.\Validate-Control-2.2.ps1                  # exit code 0 = pass
+.\Validate-Control-2.2.ps1 -FailOnWarning   # CI-friendly strict mode
 ```
 
-### Via Testing
+### Via cross-control evidence
 
-1. Add a test environment to a group
-2. Verify it inherits rules (e.g., try to share an agent in Zone 1)
-3. Confirm expected blocking/allowing behavior
-
----
-
-## Escalation Path
-
-If issues persist after troubleshooting:
-
-1. **Power Platform Admin Team** - Group and rule configuration issues
-2. **IT Governance** - Tier classification and policy questions
-3. **Microsoft Support** - Platform bugs or feature issues
-4. **AI Governance Lead** - Agent-specific rule interpretation
-
-### Microsoft Support Contact
-
-For Environment Groups issues:
-
-1. PPAC > **Help + support** > **New support request**
-2. Select **Environment groups** as the issue category
-3. Provide:
-   - Environment Group ID
-   - Detailed issue description
-   - Steps to reproduce
-   - Screenshots of configuration and error
+- Control 2.1 evidence shows all member environments are Managed.
+- Control 2.24 evidence shows CUA tenant-wide disabled.
+- Control 1.15 evidence shows CMK status (per environment, not via this control).
 
 ---
 
-## Known Limitations
+## Escalation path
+
+| Step | Owner | When |
+|---|---|---|
+| 1 | Power Platform Admin | Initial triage and portal/PowerShell checks |
+| 2 | AI Administrator | AI-related rule values (External models, Preview models, AI prompts, Generative AI settings) |
+| 3 | Purview Compliance Admin | Retention or supervisory rule disputes |
+| 4 | Microsoft Support | Platform bugs, propagation > 30 min, missing rules in PPAC |
+| 5 | AI Governance Lead | Policy disputes that require executive sign-off |
+
+### Microsoft Support — opening a case
+
+1. PPAC → **Help + support** → **New support request**.
+2. Category: **Environment groups**.
+3. Provide: tenant ID, environment group ID, affected environment ID, rule name, expected vs observed behaviour, screenshots, and exact timestamps.
+
+---
+
+## Known limitations (April 2026)
 
 | Limitation | Impact | Workaround |
-|------------|--------|------------|
-| Group creation via portal only | Cannot automate group creation | Use portal for initial setup; automate membership via PowerShell |
-| Rule propagation delay | Up to 15 minutes for changes | Plan configuration changes during maintenance windows |
-| No rule version history | Cannot rollback rules | Maintain manual documentation of rule changes |
-| 21 rules (some in preview) | Feature availability may change | Document which features are GA vs. preview |
-| Single group per environment | Cannot inherit from multiple groups | Use most restrictive group; supplement with environment-level settings |
+|---|---|---|
+| Group rule **values** cannot be set via PowerShell | No CI/CD for rule configuration | Portal-first; verify enforcement via per-environment setting reads |
+| Rule propagation up to 15 minutes | Verification immediately after publish may show stale state | Plan changes during low-activity windows; re-verify after 15 min |
+| No rule version history | Cannot roll back rules natively | Maintain manual change log + screenshot evidence pack |
+| One group per environment | Cannot inherit from multiple groups | Use most-restrictive group; supplement with non-group controls |
+| Per-environment exceptions not supported | A single non-conforming env requires a separate group | Create a narrowly scoped group for the exception with documented approval |
+| Default and Trial environments cannot join | Cannot enforce rules there | Migrate workloads to Production-type Managed Environments |
 
 ---
 
-## Security Warning: Computer-Using Agents (CUA)
+## Security note — CUA (out of scope for this control)
 
-If CUA-related issues arise:
-
-**DO NOT enable CUA** to troubleshoot other issues. CUA poses significant security risks for FSI environments.
-
-If you believe CUA was accidentally enabled:
-
-1. Immediately verify CUA rule status for all groups
-2. Set **Computer Use** rule to **Disabled** for all groups
-3. Publish rules immediately
-4. Document the incident per your security incident procedures
-5. Review audit logs for any CUA activity during the exposure window
+Computer-Using Agents (CUA) is **not** governed by environment groups. The FSI baseline is **CUA disabled tenant-wide** via Copilot Studio admin / Microsoft 365 admin center. See [Control 2.24](../../../controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance.md) for the authoritative procedure. Do not attempt to use environment groups as a CUA enforcement mechanism — it has no effect.
 
 ---
 
-*Updated: April 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3*
 
-[Back to Control 2.2](../../../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md)
+[Back to Control 2.2](../../../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification & Testing](verification-testing.md)

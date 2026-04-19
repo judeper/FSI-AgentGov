@@ -1,16 +1,24 @@
 # Portal Walkthrough: Control 1.1 - Restrict Agent Publishing by Authorization
 
-**Last Updated:** February 2026
-**Portal:** Power Platform Admin Center, Microsoft Entra Admin Center
-**Estimated Time:** 15-30 minutes
+**Last Updated:** April 2026
+**Portal:** Power Platform Admin Center, Microsoft Entra Admin Center, M365 Admin Center, Copilot Studio
+**Estimated Time:** 30-60 minutes
 
-## Prerequisites
+!!! warning "Prerequisites & Licensing"
+    This walkthrough requires:
 
-- [ ] Power Platform Admin role assigned
-- [ ] Access to [Power Platform Admin Center](https://admin.powerplatform.microsoft.com)
-- [ ] Access to [Microsoft Entra Admin Center](https://entra.microsoft.com)
-- [ ] Security groups configured in Microsoft Entra ID for maker management
-- [ ] [Control 2.1: Managed Environments](../../../controls/pillar-2-management/2.1-managed-environments.md) enabled (recommended)
+    - **Power Platform Admin** or (preferred) **AI Administrator** role assigned
+    - Access to PPAC, Entra, M365 Admin Center, Copilot Studio
+    - Security groups already created in Entra ID
+    - **Managed Environments** licensed (required for Step 4 sharing limits)
+    - **Copilot Studio** licensed at the tenant or per-user
+    - **Microsoft Entra ID P1** for any dynamic group membership
+    - For sovereign tenants (GCC / GCC-High / DoD), all portal URLs differ — consult Microsoft sovereign-cloud documentation; this walkthrough uses commercial URLs
+
+    See the parent [Control 1.1](../../../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md) Prerequisites & Licensing block for the full list.
+
+!!! info "Propagation timing"
+    Most settings below are **not retroactive** and take **up to ~1 hour** to enforce against existing agents and active sessions. Authentication changes (Step 6) take effect **only after each agent is re-published**. Do not interpret a delayed enforcement window as a broken control.
 
 ---
 
@@ -68,28 +76,54 @@ Create additional security groups to support segregation of duties and release g
 | UAT | (optional) Environment Maker | - | Dataverse System Admin | - |
 | PROD | - | Environment Maker | Dataverse System Admin | Basic User only |
 
-### Step 3: Restrict Copilot Studio Access
+### Step 3: Restrict Copilot Studio Authoring (Two Layers)
 
-1. In Power Platform Admin Center, select the environment
-2. Navigate to **Settings** > **Features**
-3. Configure the following:
-   - **Who can create and edit Copilots**: Select **Only specific security groups**
-   - Add the FSI-Agent-Makers security group(s)
-4. Select **Save**
+There are **two enforcement layers** for who can author / edit Copilot Studio agents. Configure **both**; they apply to different scopes.
 
-**Hardening notes:**
+**Layer A — Tenant-wide author gate (Power Platform Admin Center)**
 
-- Apply this setting in **each** environment where Copilot Studio is enabled.
-- In PROD, prefer restricting creation/editing to `FSI-Agent-Publishers-Prod` (or a dedicated production maker group) rather than broad maker groups.
+1. Sign in to [Power Platform Admin Center](https://admin.powerplatform.microsoft.com)
+2. Navigate to **Manage** > **Tenant settings**
+3. Locate **Copilot Studio authors** *(may appear as "preview" depending on tenant rollout)*
+4. Set to **Specific security groups**, then add `FSI-Agent-Makers-*` (and `FSI-Agent-Publishers-Prod` for PROD-eligible authors)
+5. **Save**
 
-### Step 4: Configure Maker Sharing Restrictions (Team/Enterprise)
+> **Caveat (Microsoft-documented):** Users who already hold a Copilot Studio license at the time this setting is enforced **retain authoring access** until their license is removed. Pair this control with a license-cleanup pass for any user not in the approved groups.
 
-1. In Power Platform Admin Center, navigate to **Manage** > **Environments**
-2. Select your environment > **...** (ellipsis) > **Enable Managed Environments** (if not already)
-3. Configure **Limit sharing**:
-   - For team collaboration: **Exclude Sharing to Security Groups**
-   - For enterprise managed: **Do not allow sharing** (strictest)
-4. This prevents unauthorized distribution of agents
+**Layer B — Per-environment Dataverse Security Roles**
+
+Copilot Studio agents in Dataverse-backed environments require Dataverse security roles, not the legacy "Environment Maker" PowerShell role assignment:
+
+1. PPAC > **Manage** > **Environments** > select environment
+2. **Settings** > **Users + permissions** > **Security roles**
+3. Locate and assign the following Dataverse roles to your security groups:
+   - **Environment Maker** (Dataverse role) — for agent creation
+   - **Copilot Author** *(or the equivalent Dataverse role enabling Copilot Studio authoring in your environment — name has shifted across releases; verify in your tenant)*
+4. Remove these roles from any "Everyone in tenant" / "All users" group assignment
+5. **Save**
+
+> **Why both layers?** Layer A is the tenant-wide gate that controls who Microsoft will *let* into Copilot Studio at all. Layer B is the per-environment Dataverse permission needed to *do* anything once they are in. Either alone leaves a gap.
+
+> **Future direction:** Microsoft is consolidating these into the **Copilot hub** in PPAC (left nav > Copilot > Settings, per MC1162460). Verify the current state in your tenant before relying on the legacy paths.
+
+### Step 4: Configure Managed Environment Agent-Sharing Limits
+
+> **Important:** The *agent* sharing limits below are different from the *canvas-app* sharing limits historically configured under "Limit sharing". Make sure you are configuring the agent rules — the canvas-app rules will not restrict Copilot Studio agent sharing.
+
+1. PPAC > **Manage** > **Environments** > select environment > **...** > **Enable Managed Environments** (if not already)
+2. Open the environment > **Settings** > **Product** > **Sharing limits** *(verify exact label in your tenant — the Microsoft Learn page is `managed-environment-sharing-limits`)*
+3. Configure the **agent** sharing rules for governance level:
+
+| Setting | Recommended (Team) | Regulated (Enterprise) |
+|---|---|---|
+| **Let people grant Editor permissions when agents are shared** | Restricted to specific groups | **Off** for non-author users |
+| **Let people grant Viewer permissions when agents are shared** | Restricted to specific groups | Restricted to named groups |
+| **Only share with individuals (no security groups)** | **On** for non-Publishers groups | **On** |
+| **Limit number of viewers who can access each agent** | Optional cap (e.g., 200) | **On** with strict cap |
+
+4. **Save**
+
+> **Propagation:** Settings are **not retroactive** to existing agent shares and take **up to ~1 hour** to enforce against new sharing actions. Verify with a test share from a non-author account after the wait window.
 
 ### Step 5: Implement Approval Workflow (Team/Enterprise)
 
@@ -159,6 +193,7 @@ For each Copilot Studio agent, configure authentication settings to prevent unau
    - If using "Authenticate Manually," enable **"Require users to sign in"** to prevent anonymous interactions
    - For "Authenticate with Microsoft," users are already authenticated through Teams and Microsoft 365
 5. Select **Save**
+6. **Re-publish the agent.** Authentication setting changes take effect **only after the next publish** of each affected agent (per Microsoft Learn). Until then, existing sessions continue under the prior authentication mode.
 
 **Repeat for every agent in Zone 2 and Zone 3 environments.**
 
@@ -179,21 +214,31 @@ For each Copilot Studio agent, configure authentication settings to prevent unau
 5. Enforce broader sharing restrictions through Managed Environment sharing rules in Power Platform Admin Center
 6. Document exceptions for any agents intentionally shared broadly (requires risk acceptance)
 
-### Step 8: Control Generative AI Agent Publishing (Tenant Level)
+### Step 8: Control Generative-AI Agent Publishing (Tenant Level)
 
-1. Sign in to **Power Platform Admin Center** ([https://admin.powerplatform.microsoft.com](https://admin.powerplatform.microsoft.com))
-2. Navigate to **Manage** > **Tenant Settings**
-3. Locate the tenant-level setting for publishing agents that use generative AI features
-4. Set to **Disabled** until governance review confirms AI feature controls are in place
-5. Select **Save**
+1. Sign in to [Power Platform Admin Center](https://admin.powerplatform.microsoft.com)
+2. Navigate to **Manage** > **Tenant settings**
+3. Locate the AI / generative-AI publishing setting *(label has changed across releases — recent rollouts surface this as **"AI features"**, **"Generative AI features"**, or **"Copilot AI features for makers"**; verify the current label in your tenant)*
+4. Set to **Off** (or restrict to specific environments) until governance review confirms AI-feature controls are in place
+5. **Save**
 
-### Step 9: Block Unapproved Shared Agents (M365 Admin Center)
+> Document any exception in writing with a dated approval; revisit at the next governance cadence.
 
-1. Sign in to **M365 Admin Center** ([https://admin.microsoft.com](https://admin.microsoft.com))
-2. Open the Copilot Control System / Agents experience (current UI may appear as **Agents** or **Agents & connectors**)
-3. Use **All agents** to review all agents in the tenant
-4. For any agent that has not been through the approval workflow, select **Block**
-5. Document blocking decisions and notify agent owners
+### Step 9: Block Unapproved Agents (M365 Admin Center)
+
+The current GA flow is **instance-scoped**, not agent-scoped — you must drill into a specific instance to block:
+
+1. Sign in to [M365 Admin Center](https://admin.microsoft.com)
+2. **Copilot** > **Agents & connectors** > **Agents** *(label may also appear as "Agents" alone)*
+3. Select **All agents**
+4. Click into the unapproved agent to open its **Overview**
+5. Open **Instance availability** > **See details**
+6. Select the specific instance (e.g., a tenant-wide deployment, a Teams channel, a SharePoint site)
+7. Select **Block** for that instance
+8. Repeat for each instance where the agent is exposed
+9. Document the block decision (date, who authorized, reason) and notify the agent owner
+
+> **Important:** Selecting "Block" at the agent level without drilling into instances will not have the expected effect in the current UI. Block must be set at the instance level for each surface.
 
 ---
 
@@ -218,4 +263,4 @@ After completing these steps, verify:
 
 ---
 
-*Updated: February 2026 | Version: v1.3 | Classification: Portal Walkthrough*
+*Updated: April 2026 | Version: v1.3.3 | Classification: Portal Walkthrough*

@@ -8,6 +8,57 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.3.5] — April 2026 (Opus 4.7 Council Catalog Completion)
+
+### Changed
+
+- **52 controls fully uplifted** by autonomous AI Council (Claude Opus 4.7) covering control documentation **and** all 4 implementation playbooks each (208 playbooks total). Each council:
+  - Researched current Microsoft Learn documentation (April 2026)
+  - Mapped to FSI regulations: FINRA 4511 / 3110 / 25-07 / 4530 / 8210, SEC 17a-3 / 17a-4 (incl. May 2023 amendments) / Reg S-P / Reg BI, SOX 302 / 404, GLBA Safeguards Rule (16 CFR §314), OCC 2011-12 / 2013-29 / 2020-10 / Heightened Standards (12 CFR 30 App. D), Fed SR 11-7 / SR 23-04, NIST SP 800-53 (AC-5, AC-6, IA-2, SC-28), NIST AI RMF 1.0, NIST CSF 2.0, NYDFS 23 NYCRR 500 (incl. §500.12, §500.15), CFTC 1.31, Interagency Third-Party Guidance, FFIEC BCM Handbook, MSRB G-23 / G-37, OWASP LLM Top 10 2025
+  - Tightened regulatory headers with precise sub-section citations
+  - Strengthened Zone 1 / Zone 2 / Zone 3 requirements with cumulative thresholds, cadence, and licensing prerequisites
+  - Updated portal paths and `Last UI Verified` to April 2026
+  - Replaced thin role lists with canonical names from `docs/reference/role-catalog.md` (added AI Administrator, Model Risk Manager, Entra Identity Governance Admin where appropriate)
+  - Expanded Verification Criteria to evidence-driven, examiner-mappable checks
+  - Refreshed Microsoft Learn Additional Resources with current URLs
+- **All 4 playbooks per control rewritten gold-standard:**
+  - `portal-walkthrough.md` — zone-aware numbered steps with April 2026 admin-center paths and per-zone configuration matrix
+  - `powershell-setup.md` — idempotent scripts using `[CmdletBinding(SupportsShouldProcess)]`, pinned module versions, sovereign-cloud (GCC / GCC High / DoD) connection blocks, SHA-256 evidence-manifest emission, and validation exit codes
+  - `verification-testing.md` — numbered test cases (TC-`<id>`-NN) with PASS / FAIL criteria, KQL detections, evidence checklist, signed attestation template with independence note (FINRA 3110)
+  - `troubleshooting.md` — symptom matrix, H2 issue / H3 symptom-cause-fix structure, 4–6 tier escalation, known-limitations table
+
+### Controls Reviewed in This Wave
+
+- **Pillar 1 (Security):** 1.22 Information Barriers, 1.23 Step-Up Authentication, 1.24 Defender AI-SPM, 1.25 MIME Type Restrictions, 1.26 File Upload & Analysis, 1.27 Content Moderation, 1.28 Policy-Based Publishing, 1.29 Global Secure Access (plus stray uplifts to 1.1, 1.5, 1.15)
+- **Pillar 2 (Management):** 2.3 Change Management, 2.4 BCDR, 2.7 Vendor & Third-Party Risk, 2.8 Access Control & SoD, 2.9 Performance Monitoring, 2.10 Patch Management, 2.11 Bias Testing, 2.13 Documentation & Records, 2.14 Training & Awareness, 2.15 Environment Routing, 2.16 RAG Source Integrity, 2.17 Multi-Agent Orchestration, 2.18 Conflict-of-Interest Testing, 2.19 Customer AI Disclosure, 2.20 Adversarial / Red-Team, 2.21 AI Marketing Claims, 2.22 Inactivity Timeout, 2.23 User Consent
+- **Pillar 3 (Reporting):** 3.3 Compliance Reporting, 3.5 Cost Allocation, 3.7 PPAC Posture, 3.8 Copilot Hub, 3.10 Hallucination Feedback, 3.11 Inventory Enforcement, 3.12 Exception & Override, 3.13 Agent 365 Analytics, 3.14 Agent 365 Observability SDK
+- **Pillar 4 (SharePoint):** 4.3 Site & Document Retention, 4.4 Guest & External Access, 4.5 Security & Compliance Monitoring, 4.8 Item-Level Permission Scanning, 4.9 Embedded File Content Governance
+
+### Notable FSI Findings Surfaced (Recommended Follow-Up)
+
+- **Customer Key revocation is irreversible** (Control 1.15) — data-loss risk; GCC High has limited Customer Key surface
+- **Preservation Lock alone does NOT satisfy SEC 17 CFR 240.17a-4(f)** (Control 1.9) — D3P (designated third-party) letter required; Microsoft does not act as D3P
+- **Channel Agent IB inheritance gap** (Control 1.22) — documented residual risk; Z3 prohibition reaffirmed
+- **PIM-for-Groups requires Entra ID P2** (Control 1.18) — not in E5 baseline
+- **`Get/Set-AdminPowerAppEnvironmentRoleAssignment` does NOT work on Dataverse-backed environments** (Control 1.18) — affects all Copilot Studio environments
+- **Native PPAC retention is 28 days** (Control 3.2) — not the FINRA 6-year requirement; export pipeline mandatory
+- **`Search-UnifiedAuditLog` deprecated** (Control 3.2) — migrate to Graph `/security/auditLog/queries`
+- **Service principals bypass PIM and Access Reviews entirely** (Control 2.8) — compensating controls required
+- **Anthropic / OpenAI native integration in Copilot Studio reclassifies the vendor relationship** (Control 2.7) — firms with direct contracts must decommission to avoid duplicative clauses
+- **AI-SPM coverage is partially traffic-driven** (Control 1.24) — newly published agents may not appear until first inference; cross-reference PPAC inventory
+- **NIST SP 800-53 IA-2** added to Step-Up Authentication (Control 1.23) regulatory header
+- **MSRB G-23 / G-37** added to Information Barriers (Control 1.22) for muni-underwriting / pay-to-play obligations
+
+### Methodology
+
+Autonomous Claude Opus 4.7 council with **no-commit protocol**: each agent wrote files only; orchestrator committed serially after each report to eliminate the parallel-git race conditions seen in earlier waves. 4 dispatch waves, 23 parallel agents at peak, 56 commits.
+
+### Footer Convention
+
+Council agents were instructed to set the per-control footer to `*Updated: April 2026 | Version: v1.3.3 | UI Verification Status: Current*`. The version label reflects the framework baseline at agent dispatch time. Subsequent council passes may revise individual control footers; the source of truth for framework version is this changelog.
+
+---
+
 ## [1.3.4] — April 2026 (Autonomous Dual-Model Council Review)
 
 ### Changed

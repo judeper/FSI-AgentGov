@@ -470,6 +470,8 @@ This framework is designed for continuous evolution:
 | Version | Date | Changes | Author |
 |---------|------|---------|--------|
 | [1.4.0](CHANGELOG-v1.4.md) | May 2026 | Assessment tool unification, solutions bridge (35 solutions), 10 SPA enhancements, manifest schema extension | [@judeper](https://github.com/judeper) |
+| [1.3.5](CHANGELOG-v1.3.md#135--april-2026-opus-47-council-catalog-completion) | Apr 2026 | Opus 4.7 council pass — 52 controls + 208 playbooks fully uplifted (full 78/78 coverage) | [@judeper](https://github.com/judeper) |
+| [1.3.4](CHANGELOG-v1.3.md#134--april-2026-autonomous-dual-model-council-review) | Apr 2026 | Autonomous dual-model council review — FINRA 25-07 across all 78 controls, 14 control-specific fixes | [@judeper](https://github.com/judeper) |
 | [1.3.0](CHANGELOG-v1.3.md) | Mar 2026 | Six new controls, 24 playbooks, five control patches, and catalog expansion to 78 controls | [@judeper](https://github.com/judeper) |
 | [1.2.54](CHANGELOG-v1.2.md#1254--march-13-2026-csa-enablement--automation-indicators) | Mar 2026 | CSA Quick Reference, CSA Positioning Guide, automation indicators on all 71 controls, exportable diagrams | [@judeper](https://github.com/judeper) |
 | [1.2.53](CHANGELOG-v1.2.md#1253--march-2026-governance-readiness-assessment-tool) | Mar 2026 | Interactive Governance Readiness Assessment tool, assessment data extraction | [@judeper](https://github.com/judeper) |
@@ -504,5 +506,5 @@ See [Disclaimer](docs/disclaimer.md).
 
 ---
 
-*FSI Agent Governance Framework v1.3.0 - March 2026*
+*FSI Agent Governance Framework v1.3.5 - April 2026*
 *Comprehensive governance for Microsoft 365 agents in financial services*

@@ -1,260 +1,266 @@
-# Control 4.1: SharePoint Information Access Governance (IAG) - PowerShell Setup
+# Control 4.1: SharePoint Information Access Governance (IAG) — PowerShell Setup
 
-> This playbook provides PowerShell automation guidance for [Control 4.1](../../../controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md).
+!!! warning "Read the FSI PowerShell baseline first"
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
+
+> Automation guidance for [Control 4.1](../../../controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md). Uses `Microsoft.Online.SharePoint.PowerShell` (SPO Management Shell), `PnP.PowerShell` (DAG and site context), and `Microsoft.Graph` (group resolution / audit log).
 
 ---
 
-## Prerequisites
+## Module Prerequisites
 
 ```powershell
-# Install SharePoint Online Management Shell if not already installed
-Install-Module -Name Microsoft.Online.SharePoint.PowerShell -Scope CurrentUser -Force
+# Pin known-good versions; confirm in your release notes
+Install-Module Microsoft.Online.SharePoint.PowerShell -MinimumVersion 16.0.25814.12000 -Scope CurrentUser -Force
+Install-Module PnP.PowerShell                          -MinimumVersion 2.12.0           -Scope CurrentUser -Force
+Install-Module Microsoft.Graph                         -MinimumVersion 2.25.0           -Scope CurrentUser -Force
 
-# Import the module
 Import-Module Microsoft.Online.SharePoint.PowerShell
+Import-Module PnP.PowerShell
+Import-Module Microsoft.Graph.Groups
 ```
+
+**Sovereign clouds:** Use the appropriate `-Region` / endpoint for GCC, GCC High, and DoD per the baseline. Do not hard-code `*.sharepoint.com`.
 
 ---
 
-## Connect to SharePoint Online
+## Connect
 
 ```powershell
-# Connect to SharePoint Online Admin Center
-$AdminUrl = "https://contoso-admin.sharepoint.com"
+$AdminUrl = 'https://contoso-admin.sharepoint.com'   # Replace; use *.sharepoint.us for GCC High / DoD
 Connect-SPOService -Url $AdminUrl
+Connect-MgGraph -Scopes 'Group.Read.All','AuditLog.Read.All' -NoWelcome
+```
 
-# Verify connection
-Get-SPOTenant | Select-Object StorageQuota, ResourceQuota
+Verify connection:
+
+```powershell
+Get-SPOTenant | Select-Object SignInAccelerationDomain, SharingCapability
 ```
 
 ---
 
-## Configuration Scripts
-
-### Get Sites with Copilot Content Restrictions
+## 1. Inventory: Identify RCD/RAC Posture Across the Tenant
 
 ```powershell
-# Get all sites and their Copilot restriction status
-$AllSites = Get-SPOSite -Limit All
+$AllSites = Get-SPOSite -Limit All -IncludePersonalSite:$false
 
-# Filter sites with Copilot restrictions enabled
-$RestrictedSites = $AllSites | Where-Object { $_.RestrictContentOrgWideSearch -eq $true }
+$Inventory = $AllSites | Select-Object `
+    Url, Title, Owner,
+    RestrictContentOrgWideSearch,
+    RestrictedAccessControl,
+    @{ N = 'RACGroupCount'; E = { ($_.RestrictedAccessControlGroups -split ',' | Where-Object { $_ }).Count } },
+    SensitivityLabel, SharingCapability, ConditionalAccessPolicy, LastContentModifiedDate
 
-# Display restricted sites
-$RestrictedSites | Select-Object Url, Title, RestrictContentOrgWideSearch | Format-Table -AutoSize
+$ReportPath = Join-Path -Path (Get-Location) -ChildPath ("IAG-Inventory-{0:yyyyMMdd}.csv" -f (Get-Date))
+$Inventory | Export-Csv -Path $ReportPath -NoTypeInformation -Encoding UTF8
 
-# Count restricted vs unrestricted
-Write-Host "Total Sites: $($AllSites.Count)" -ForegroundColor Cyan
-Write-Host "Restricted Sites: $($RestrictedSites.Count)" -ForegroundColor Yellow
-Write-Host "Unrestricted Sites: $($AllSites.Count - $RestrictedSites.Count)" -ForegroundColor Green
+# Emit SHA-256 evidence hash (per baseline)
+$Hash = (Get-FileHash -Path $ReportPath -Algorithm SHA256).Hash
+Write-Host ("Inventory: {0} (SHA-256 {1})" -f $ReportPath, $Hash)
 ```
 
-### Set Copilot Content Restrictions for a Site
+---
+
+## 2. Enable RCD on a Single Site (Idempotent, `-WhatIf` Aware)
 
 ```powershell
-# Enable Copilot content restriction for a specific site
-$SiteUrl = "https://contoso.sharepoint.com/sites/FinanceConfidential"
+function Set-IagRcd {
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
+    param(
+        [Parameter(Mandatory)] [string] $SiteUrl,
+        [Parameter(Mandatory)] [bool]   $Enable,
+        [Parameter(Mandatory)] [string] $Justification
+    )
 
-# Restrict content from Microsoft 365 Copilot
-Set-SPOSite -Identity $SiteUrl -RestrictContentOrgWideSearch $true
+    try {
+        $site = Get-SPOSite -Identity $SiteUrl -ErrorAction Stop
+    } catch {
+        Write-Error "Site not found: $SiteUrl ($($_.Exception.Message))"
+        return
+    }
 
-# Verify the setting
-Get-SPOSite -Identity $SiteUrl | Select-Object Url, RestrictContentOrgWideSearch
+    if ($site.RestrictContentOrgWideSearch -eq $Enable) {
+        Write-Host "[SKIP] $SiteUrl already RCD=$Enable"
+        return
+    }
 
-# To disable restriction (use with caution)
-# Set-SPOSite -Identity $SiteUrl -RestrictContentOrgWideSearch $false
+    if ($PSCmdlet.ShouldProcess($SiteUrl, "Set RestrictContentOrgWideSearch=$Enable")) {
+        Set-SPOSite -Identity $SiteUrl -RestrictContentOrgWideSearch $Enable -ErrorAction Stop
+        Write-Host "[OK]   $SiteUrl RCD=$Enable :: $Justification"
+    }
+}
+
+# Examples
+Set-IagRcd -SiteUrl 'https://contoso.sharepoint.com/sites/FinanceConfidential' `
+           -Enable $true -Justification 'Zone 3 SOX-scoped, ticket CHG-1042' -WhatIf
 ```
 
-### Configure Restricted SharePoint Search (RSS) - Allow-List
+The function is idempotent (no-op when desired state already holds) and supports `-WhatIf` for dry runs — required by the baseline.
+
+---
+
+## 3. Bulk Enable RCD from a Governance Manifest
+
+Manifest CSV columns: `Url, Zone, Justification, ChangeTicket`.
 
 ```powershell
-# Enable Restricted SharePoint Search
+$Manifest = Import-Csv -Path '.\rcd-manifest.csv'
+
+$Results = foreach ($row in $Manifest) {
+    try {
+        Set-IagRcd -SiteUrl $row.Url -Enable $true -Justification "$($row.Zone) :: $($row.Justification) ($($row.ChangeTicket))"
+        [pscustomobject]@{ Url = $row.Url; Status = 'OK'; Error = $null }
+    } catch {
+        [pscustomobject]@{ Url = $row.Url; Status = 'FAIL'; Error = $_.Exception.Message }
+    }
+}
+
+$ResultsPath = Join-Path -Path (Get-Location) -ChildPath ("RCD-BulkApply-{0:yyyyMMddHHmm}.csv" -f (Get-Date))
+$Results | Export-Csv -Path $ResultsPath -NoTypeInformation -Encoding UTF8
+$Hash = (Get-FileHash $ResultsPath -Algorithm SHA256).Hash
+Write-Host ("Bulk apply log: {0} (SHA-256 {1})" -f $ResultsPath, $Hash)
+```
+
+---
+
+## 4. Configure Restricted SharePoint Search (RSS) Allow-List
+
+!!! warning "Short-term posture"
+    Treat RSS as a transitional control. Document an exit plan to RCD + Purview.
+
+```powershell
+# Enable tenant-level RSS
+Set-SPOTenant -EnableRestrictedAccessControl $false   # Reserved
 Set-SPOTenant -EnableRestrictedSearchAllList $true
 
-# Add sites to the allow-list (one site at a time)
-Add-SPOTenantRestrictedSearchAllowedList -SiteUrl "https://contoso.sharepoint.com/sites/ApprovedSite1"
-Add-SPOTenantRestrictedSearchAllowedList -SiteUrl "https://contoso.sharepoint.com/sites/ApprovedSite2"
+# Add sites (current documented limit: 100; verify on Microsoft Learn)
+$AllowList = @(
+    'https://contoso.sharepoint.com/sites/CopilotPilot',
+    'https://contoso.sharepoint.com/sites/HRPolicies'
+)
 
-# Get current RSS configuration
+foreach ($url in $AllowList) {
+    try {
+        Add-SPOTenantRestrictedSearchAllowedList -SiteUrl $url -ErrorAction Stop
+        Write-Host "[OK] Added $url to RSS allow-list"
+    } catch {
+        Write-Warning "Add failed for $url :: $($_.Exception.Message)"
+    }
+}
+
+# Inspect current RSS state
 Get-SPOTenant | Select-Object EnableRestrictedSearchAllList
 Get-SPOTenantRestrictedSearchAllowedList
 ```
 
-### Configure Restricted Access Control (RAC)
+---
+
+## 5. Configure Restricted Access Control (RAC) per Site
 
 ```powershell
-# Configure restricted site access (limits access to specific security groups)
-$SiteUrl = "https://contoso.sharepoint.com/sites/MandA-ProjectAlpha"
-$SecurityGroupId = "00000000-0000-0000-0000-000000000000"  # Replace with actual Entra ID group ID
+function Resolve-EntraGroupId {
+    param([Parameter(Mandatory)][string]$DisplayName)
+    $g = Get-MgGroup -Filter "displayName eq '$DisplayName'" -ConsistencyLevel eventual -ErrorAction Stop
+    if (-not $g) { throw "Group not found: $DisplayName" }
+    if ($g.Count -gt 1) { throw "Ambiguous group name: $DisplayName" }
+    return $g.Id
+}
 
-# Enable restricted access
-Set-SPOSite -Identity $SiteUrl -RestrictedAccessControl $true
+function Set-IagRac {
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
+    param(
+        [Parameter(Mandatory)] [string]   $SiteUrl,
+        [Parameter(Mandatory)] [string[]] $GroupDisplayNames,   # max 10
+        [Parameter(Mandatory)] [string]   $Justification
+    )
 
-# Add authorized security group (up to 10 groups allowed)
-Set-SPOSite -Identity $SiteUrl -RestrictedAccessControlGroups $SecurityGroupId
+    if ($GroupDisplayNames.Count -gt 10) {
+        throw "RAC supports a maximum of 10 security groups per site."
+    }
 
-# Add multiple groups
-$GroupIds = @("group-id-1", "group-id-2", "group-id-3")
-Set-SPOSite -Identity $SiteUrl -RestrictedAccessControlGroups $GroupIds
+    $groupIds = $GroupDisplayNames | ForEach-Object { Resolve-EntraGroupId -DisplayName $_ }
 
-# Verify configuration
-Get-SPOSite -Identity $SiteUrl | Select-Object Url, RestrictedAccessControl, RestrictedAccessControlGroups
+    if ($PSCmdlet.ShouldProcess($SiteUrl, "Enable RAC with $($groupIds.Count) group(s)")) {
+        Set-SPOSite -Identity $SiteUrl -RestrictedAccessControl $true -ErrorAction Stop
+        Set-SPOSite -Identity $SiteUrl -RestrictedAccessControlGroups ($groupIds -join ',') -ErrorAction Stop
+        Write-Host "[OK] RAC applied :: $SiteUrl :: $Justification"
+    }
+}
+
+# Example: M&A deal room
+Set-IagRac -SiteUrl 'https://contoso.sharepoint.com/sites/MandA-ProjectAlpha' `
+           -GroupDisplayNames @('MandA-DealTeam-Alpha','Compliance-Surveillance') `
+           -Justification 'MNPI ethical wall, ticket CHG-1099' -WhatIf
 ```
 
 ### Delegate RAC Management to Site Admins
 
 ```powershell
-# Enable delegation (site admins must provide justification when updating RAC)
 Set-SPOTenant -DelegateRestrictedAccessControlManagement $true
-
-# Check delegation status
 Get-SPOTenant | Select-Object DelegateRestrictedAccessControlManagement
 ```
 
-### Bulk Configure Sites by Zone
+When delegated, site admins must supply a justification on each policy update — captured to the unified audit log.
+
+---
+
+## 6. Generate RAC Insights
 
 ```powershell
-# Bulk enable Copilot restrictions for enterprise-managed sites
-# Define enterprise-managed site URLs (from your governance inventory)
-$EnterpriseSites = @(
-    "https://contoso.sharepoint.com/sites/TradingData",
-    "https://contoso.sharepoint.com/sites/CustomerPII",
-    "https://contoso.sharepoint.com/sites/RegulatoryFilings",
-    "https://contoso.sharepoint.com/sites/MergerAcquisition"
-)
-
-# Apply restrictions to all enterprise-managed sites
-foreach ($SiteUrl in $EnterpriseSites) {
-    try {
-        Set-SPOSite -Identity $SiteUrl -RestrictContentOrgWideSearch $true
-        Write-Host "Restricted: $SiteUrl" -ForegroundColor Green
-    }
-    catch {
-        Write-Host "Failed to restrict: $SiteUrl - $($_.Exception.Message)" -ForegroundColor Red
-    }
-}
-
-# Verify all enterprise-managed sites are restricted
-Write-Host "`nVerification Report:" -ForegroundColor Cyan
-foreach ($SiteUrl in $EnterpriseSites) {
-    $Site = Get-SPOSite -Identity $SiteUrl
-    $Status = if ($Site.RestrictContentOrgWideSearch) { "RESTRICTED" } else { "UNRESTRICTED" }
-    Write-Host "$Status - $SiteUrl" -ForegroundColor $(if ($Status -eq "RESTRICTED") { "Green" } else { "Red" })
-}
-```
-
-### Export IAG Configuration Report
-
-```powershell
-# Export comprehensive IAG configuration report
-$ReportDate = Get-Date -Format "yyyy-MM-dd"
-$ReportPath = "C:\Reports\IAG-Configuration-$ReportDate.csv"
-
-$AllSites = Get-SPOSite -Limit All | Select-Object `
-    Url, `
-    Title, `
-    RestrictContentOrgWideSearch, `
-    SharingCapability, `
-    ConditionalAccessPolicy, `
-    SensitivityLabel, `
-    Owner, `
-    LastContentModifiedDate
-
-$AllSites | Export-Csv -Path $ReportPath -NoTypeInformation
-
-Write-Host "IAG Configuration Report exported to: $ReportPath" -ForegroundColor Green
-Write-Host "Total sites analyzed: $($AllSites.Count)" -ForegroundColor Cyan
+# Generates an admin report on RAC-protected sites and their access patterns
+Start-SPORestrictedAccessForSitesInsights
+# Retrieve results from SharePoint admin center > Reports > Restricted access control insights
 ```
 
 ---
 
-## Complete Configuration Script
+## 7. Pull Audit Evidence (Microsoft Graph)
 
 ```powershell
-<#
-.SYNOPSIS
-    Configures Control 4.1 - SharePoint Information Access Governance (IAG)
+# Search the unified audit log for IAG operations (last 30 days)
+$Start = (Get-Date).AddDays(-30).ToString('o')
+$End   = (Get-Date).ToString('o')
 
-.DESCRIPTION
-    This script configures IAG settings including:
-    1. Enabling Restricted Content Discovery for sensitive sites
-    2. Configuring Restricted Access Control for ethical walls
-    3. Generating compliance reports
+$ops = @('SiteRestrictedFromOrgSearch','RestrictedAccessControlPolicyUpdated')
 
-.PARAMETER AdminUrl
-    The SharePoint Admin Center URL
-
-.PARAMETER EnterpriseSitesFile
-    Path to CSV file containing enterprise-managed site URLs
-
-.EXAMPLE
-    .\Configure-Control-4.1.ps1 -AdminUrl "https://contoso-admin.sharepoint.com" -EnterpriseSitesFile ".\sites.csv"
-
-.NOTES
-    Last Updated: January 2026
-    Related Control: Control 4.1 - SharePoint IAG / RCD
-#>
-
-param(
-    [Parameter(Mandatory=$true)]
-    [string]$AdminUrl,
-
-    [Parameter(Mandatory=$false)]
-    [string]$EnterpriseSitesFile
-)
-
-try {
-    # Connect to SharePoint
-    Connect-SPOService -Url $AdminUrl
-
-    Write-Host "Configuring Control 4.1 for tenant: $AdminUrl" -ForegroundColor Cyan
-
-    # Get current state
-    $AllSites = Get-SPOSite -Limit All
-    $CurrentRestricted = ($AllSites | Where-Object { $_.RestrictContentOrgWideSearch -eq $true }).Count
-    Write-Host "Current restricted sites: $CurrentRestricted / $($AllSites.Count)" -ForegroundColor Yellow
-
-    # If sites file provided, configure those sites
-    if ($EnterpriseSitesFile -and (Test-Path $EnterpriseSitesFile)) {
-        $SitesToRestrict = Import-Csv -Path $EnterpriseSitesFile
-
-        foreach ($Site in $SitesToRestrict) {
-            try {
-                Set-SPOSite -Identity $Site.Url -RestrictContentOrgWideSearch $true
-                Write-Host "  [DONE] Restricted: $($Site.Url)" -ForegroundColor Green
-            }
-            catch {
-                Write-Host "  [FAIL] $($Site.Url): $($_.Exception.Message)" -ForegroundColor Red
-            }
-        }
-    }
-
-    # Generate summary
-    $UpdatedSites = Get-SPOSite -Limit All
-    $NewRestricted = ($UpdatedSites | Where-Object { $_.RestrictContentOrgWideSearch -eq $true }).Count
-
-    Write-Host "`nControl 4.1 configuration complete!" -ForegroundColor Cyan
-    Write-Host "Restricted sites: $CurrentRestricted -> $NewRestricted" -ForegroundColor Green
-
-    Write-Host "`n[PASS] Control 4.1 configuration completed successfully" -ForegroundColor Green
+$events = foreach ($op in $ops) {
+    Search-UnifiedAuditLog -StartDate $Start -EndDate $End -Operations $op -ResultSize 5000
 }
-catch {
-    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
-    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
-    exit 1
-}
-finally {
-    # Cleanup SharePoint connection
-    if (Get-SPOSite -Limit 1 -ErrorAction SilentlyContinue) {
-        Disconnect-SPOService -ErrorAction SilentlyContinue
-    }
-}
+
+$AuditPath = Join-Path -Path (Get-Location) -ChildPath ("IAG-Audit-{0:yyyyMMdd}.csv" -f (Get-Date))
+$events | Export-Csv -Path $AuditPath -NoTypeInformation -Encoding UTF8
+$Hash = (Get-FileHash $AuditPath -Algorithm SHA256).Hash
+Write-Host ("Audit evidence: {0} (SHA-256 {1})" -f $AuditPath, $Hash)
+```
+
+`Search-UnifiedAuditLog` requires `Connect-IPPSSession` (Exchange Online Management module).
+
+---
+
+## Cleanup
+
+```powershell
+Disconnect-SPOService -ErrorAction SilentlyContinue
+Disconnect-MgGraph    -ErrorAction SilentlyContinue
 ```
 
 ---
 
-[Back to Control 4.1](../../../controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+## Error-Handling Patterns
+
+| Scenario | Pattern |
+|---|---|
+| Site not found | `try/catch` on `Get-SPOSite -ErrorAction Stop`; record FAIL row in results CSV |
+| Throttling (`429`) | Wrap mutating cmdlets with exponential backoff (per baseline) |
+| Ambiguous group | `Resolve-EntraGroupId` throws; halt and surface to operator |
+| Stale module | Pin `-MinimumVersion`; CI fails the script if older module is loaded |
+| Sovereign cloud | Use `Connect-SPOService -Region` and `Connect-MgGraph -Environment` per baseline |
 
 ---
 
-*Updated: April 2026 | Version: v1.3*
+[Back to Control 4.1](../../../controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification & Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+
+---
+
+*Updated: April 2026 | Version: v1.3.3*

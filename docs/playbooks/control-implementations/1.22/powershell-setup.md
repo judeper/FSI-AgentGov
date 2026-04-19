@@ -1,284 +1,363 @@
-# PowerShell Setup: Control 1.22 - Information Barriers for AI Agents
+# PowerShell Setup: Control 1.22 — Information Barriers for AI Agents
 
-**Last Updated:** January 2026
-**Modules Required:** ExchangeOnlineManagement
+!!! warning "Read the FSI PowerShell baseline first"
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
+
+**Last Updated:** April 2026
+**Modules Required:** `ExchangeOnlineManagement` (Compliance PowerShell — `Connect-IPPSSession`), `Microsoft.Graph` (for HR-of-record attribute reads and segment-coverage reporting), optional `PnP.PowerShell` v2+ (for SharePoint site-segment validation)
+
+---
 
 ## Prerequisites
 
 ```powershell
-Install-Module -Name ExchangeOnlineManagement -Force -Scope CurrentUser
+# Pin module versions in regulated tenants. Substitute CAB-approved versions.
+Install-Module -Name ExchangeOnlineManagement -RequiredVersion '<approved-version>' `
+    -Repository PSGallery -Scope CurrentUser -AllowClobber -AcceptLicense
+
+Install-Module -Name Microsoft.Graph -RequiredVersion '<approved-version>' `
+    -Repository PSGallery -Scope CurrentUser -AllowClobber -AcceptLicense
+
+# Optional, for SharePoint site-segment validation:
+Install-Module -Name PnP.PowerShell -RequiredVersion '<approved-version>' `
+    -Repository PSGallery -Scope CurrentUser -AllowClobber -AcceptLicense
 ```
+
+> Compliance PowerShell (`Connect-IPPSSession`) is **Windows PowerShell 5.1 Desktop edition** for some IB cmdlets and **PowerShell 7+** for others depending on the `ExchangeOnlineManagement` build. Verify the cmdlet's edition requirement before automating.
+
+> All snippets assume an interactive admin session. For unattended automation, use a certificate-based service principal with the **Compliance Administrator** role or the **Information Barriers Manager** role assignment.
 
 ---
 
-## Automated Scripts
+## Script 1 — Pre-Change Baseline Capture
 
-### Create Organization Segments
-
-```powershell
-<#
-.SYNOPSIS
-    Creates organization segments for Information Barriers
-
-.EXAMPLE
-    .\New-IBSegments.ps1
-#>
-
-Write-Host "=== Create IB Segments ===" -ForegroundColor Cyan
-
-Connect-IPPSSession
-
-$segments = @(
-    @{Name="IB-Research"; Filter="Department -eq 'Research'"},
-    @{Name="IB-Trading"; Filter="Department -eq 'Trading'"},
-    @{Name="IB-InvestmentBanking"; Filter="Department -eq 'Investment Banking'"},
-    @{Name="IB-Sales"; Filter="Department -eq 'Sales'"},
-    @{Name="IB-Compliance"; Filter="Department -eq 'Compliance'"}
-)
-
-foreach ($segment in $segments) {
-    $existing = Get-OrganizationSegment -Identity $segment.Name -ErrorAction SilentlyContinue
-    if ($existing) {
-        Write-Host "Segment exists: $($segment.Name)" -ForegroundColor Yellow
-    } else {
-        New-OrganizationSegment -Name $segment.Name -UserGroupFilter $segment.Filter
-        Write-Host "Created: $($segment.Name)" -ForegroundColor Green
-    }
-}
-
-Disconnect-ExchangeOnline -Confirm:$false
-```
-
-### Create Barrier Policies
+Always capture state **before** modifying IB. This output is the rollback reference and the evidence baseline for change control (FINRA 3110, SOX 404).
 
 ```powershell
 <#
 .SYNOPSIS
-    Creates Information Barrier policies
-
-.EXAMPLE
-    .\New-IBPolicies.ps1
-#>
-
-Write-Host "=== Create IB Policies ===" -ForegroundColor Cyan
-
-Connect-IPPSSession
-
-# Research-Trading barrier
-New-InformationBarrierPolicy -Name "Research-Trading-Barrier" `
-    -AssignedSegment "IB-Research" `
-    -SegmentsBlocked "IB-Trading" `
-    -State Active
-
-# IB-Sales barrier
-New-InformationBarrierPolicy -Name "IB-Sales-Barrier" `
-    -AssignedSegment "IB-InvestmentBanking" `
-    -SegmentsBlocked "IB-Sales" `
-    -State Active
-
-Write-Host "Policies created. Now applying..." -ForegroundColor Yellow
-Start-InformationBarrierPoliciesApplication
-
-Write-Host "Policy application started. Check status with Get-InformationBarrierPoliciesApplicationStatus"
-
-Disconnect-ExchangeOnline -Confirm:$false
-```
-
-### Export Barrier Configuration
-
-```powershell
-<#
-.SYNOPSIS
-    Exports Information Barrier configuration for audit
-
-.EXAMPLE
-    .\Export-IBConfiguration.ps1
-#>
-
-param(
-    [string]$OutputPath = ".\IBConfiguration"
-)
-
-Write-Host "=== Export IB Configuration ===" -ForegroundColor Cyan
-
-Connect-IPPSSession
-
-# Export segments
-$segments = Get-OrganizationSegment
-$segments | Export-Csv -Path "$OutputPath-Segments.csv" -NoTypeInformation
-
-# Export policies
-$policies = Get-InformationBarrierPolicy
-$policies | Export-Csv -Path "$OutputPath-Policies.csv" -NoTypeInformation
-
-# Check application status
-$status = Get-InformationBarrierPoliciesApplicationStatus
-Write-Host "Application Status: $($status.Status)"
-
-Disconnect-ExchangeOnline -Confirm:$false
-
-Write-Host "Export complete: $OutputPath-*.csv" -ForegroundColor Green
-```
-
----
-
-## Validation Script
-
-```powershell
-<#
-.SYNOPSIS
-    Validates Control 1.22 - Information Barriers configuration
-
-.EXAMPLE
-    .\Validate-Control-1.22.ps1
-#>
-
-Write-Host "=== Control 1.22 Validation ===" -ForegroundColor Cyan
-
-Connect-IPPSSession
-
-# Check 1: Segments
-Write-Host "`n[Check 1] Organization Segments" -ForegroundColor Cyan
-$segments = Get-OrganizationSegment
-Write-Host "Segments defined: $($segments.Count)"
-$segments | ForEach-Object { Write-Host "  - $($_.Name)" }
-
-# Check 2: Policies
-Write-Host "`n[Check 2] Barrier Policies" -ForegroundColor Cyan
-$policies = Get-InformationBarrierPolicy
-$active = $policies | Where-Object { $_.State -eq "Active" }
-Write-Host "Active policies: $($active.Count)"
-
-# Check 3: Application status
-Write-Host "`n[Check 3] Application Status" -ForegroundColor Cyan
-$status = Get-InformationBarrierPoliciesApplicationStatus
-Write-Host "Status: $($status.Status)"
-
-Disconnect-ExchangeOnline -Confirm:$false
-
-Write-Host "`n=== Validation Complete ===" -ForegroundColor Cyan
-```
-
----
-
-## Complete Configuration Script
-
-```powershell
-<#
-.SYNOPSIS
-    Configures Control 1.22 - Information Barriers
+    Captures Information Barriers baseline state for Control 1.22 evidence.
 
 .DESCRIPTION
-    This script creates organization segments and Information Barrier policies
-    for FSI Chinese wall requirements.
-
-.PARAMETER Segments
-    Hashtable array of segments to create with Name and Filter properties
-
-.PARAMETER Barriers
-    Hashtable array of barrier policies to create
-
-.PARAMETER ExportPath
-    Path for exports (default: current directory)
+    Records IB mode, segments, policies, and last application status.
+    Writes timestamped CSV/JSON outputs and emits SHA-256 hashes for
+    chain-of-custody (SEC 17a-4 / FINRA 4511 alignment).
 
 .EXAMPLE
-    .\Configure-Control-1.22.ps1
-
-.NOTES
-    Last Updated: January 2026
-    Related Control: Control 1.22 - Information Barriers
+    .\Get-IBBaseline.ps1 -OutputPath '.\evidence\1.22\baseline'
 #>
-
+[CmdletBinding()]
 param(
-    [string]$ExportPath = "."
+    [Parameter(Mandatory)][string]$OutputPath
 )
 
-try {
-    # Connect to Security & Compliance
-    Write-Host "Connecting to Security & Compliance Center..." -ForegroundColor Cyan
-    Connect-IPPSSession
+$ErrorActionPreference = 'Stop'
+if (-not (Test-Path $OutputPath)) { New-Item -ItemType Directory -Path $OutputPath -Force | Out-Null }
+$timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
 
-    Write-Host "Configuring Control 1.22: Information Barriers" -ForegroundColor Cyan
+Connect-IPPSSession -ShowBanner:$false
 
-    # Step 1: Create organization segments
-    Write-Host "`n[Step 1] Creating organization segments..." -ForegroundColor Yellow
-    $segments = @(
-        @{Name="IB-Research"; Filter="Department -eq 'Research'"},
-        @{Name="IB-Trading"; Filter="Department -eq 'Trading'"},
-        @{Name="IB-InvestmentBanking"; Filter="Department -eq 'Investment Banking'"},
-        @{Name="IB-Sales"; Filter="Department -eq 'Sales'"},
-        @{Name="IB-Compliance"; Filter="Department -eq 'Compliance'"}
-    )
+$mode = Get-InformationBarrierMode
+$segments = Get-OrganizationSegment
+$policies = Get-InformationBarrierPolicy
+$status = Get-InformationBarrierPoliciesApplicationStatus
 
-    foreach ($segment in $segments) {
-        $existing = Get-OrganizationSegment -Identity $segment.Name -ErrorAction SilentlyContinue
-        if ($existing) {
-            Write-Host "  [EXISTS] $($segment.Name)" -ForegroundColor Yellow
-        } else {
-            New-OrganizationSegment -Name $segment.Name -UserGroupFilter $segment.Filter
-            Write-Host "  [CREATED] $($segment.Name)" -ForegroundColor Green
-        }
+$mode    | ConvertTo-Json -Depth 5 | Out-File "$OutputPath\IB-Mode-$timestamp.json"   -Encoding utf8
+$segments| Select-Object Name, UserGroupFilter, Type, ExoSegmentId, CreatedBy, WhenCreated, WhenChanged |
+    Export-Csv "$OutputPath\IB-Segments-$timestamp.csv" -NoTypeInformation -Encoding utf8
+$policies| Select-Object Name, AssignedSegment, SegmentsAllowed, SegmentsBlocked, State, ModerationAllowed, WhenChanged |
+    Export-Csv "$OutputPath\IB-Policies-$timestamp.csv" -NoTypeInformation -Encoding utf8
+$status  | ConvertTo-Json -Depth 5 | Out-File "$OutputPath\IB-AppStatus-$timestamp.json" -Encoding utf8
+
+# SHA-256 chain-of-custody hashes
+Get-ChildItem $OutputPath -Filter "*$timestamp*" | ForEach-Object {
+    $hash = Get-FileHash -Path $_.FullName -Algorithm SHA256
+    [PSCustomObject]@{ File = $_.Name; SHA256 = $hash.Hash; CapturedAtUtc = (Get-Date).ToUniversalTime() }
+} | Export-Csv "$OutputPath\Evidence-Manifest-$timestamp.csv" -NoTypeInformation -Encoding utf8
+
+Disconnect-ExchangeOnline -Confirm:$false
+Write-Host "Baseline captured to $OutputPath" -ForegroundColor Green
+```
+
+---
+
+## Script 2 — Create Organization Segments
+
+```powershell
+<#
+.SYNOPSIS
+    Creates IB organization segments for FSI ethical walls.
+
+.PARAMETER WhatIf
+    Standard ShouldProcess support — preview without mutation.
+
+.EXAMPLE
+    .\New-IBSegments.ps1 -WhatIf
+    .\New-IBSegments.ps1
+#>
+[CmdletBinding(SupportsShouldProcess)]
+param()
+
+$ErrorActionPreference = 'Stop'
+Connect-IPPSSession -ShowBanner:$false
+
+$segments = @(
+    @{ Name = 'IB-Research';            Filter = "Department -eq 'Equity Research'" }
+    @{ Name = 'IB-Trading';             Filter = "Department -eq 'Sales and Trading'" }
+    @{ Name = 'IB-IB-Public';           Filter = "Department -eq 'Investment Banking' -and CompanyName -eq 'Capital Markets'" }
+    @{ Name = 'IB-IB-Private';          Filter = "Department -eq 'Investment Banking' -and CompanyName -eq 'M&A'" }
+    @{ Name = 'IB-Muni-Underwriting';   Filter = "Department -eq 'Municipal Underwriting'" }
+    @{ Name = 'IB-Muni-Advisory';       Filter = "Department -eq 'Municipal Advisory'" }
+    @{ Name = 'IB-Compliance';          Filter = "Department -eq 'Compliance'" }
+)
+
+foreach ($s in $segments) {
+    $existing = Get-OrganizationSegment -Identity $s.Name -ErrorAction SilentlyContinue
+    if ($existing) {
+        Write-Host "[EXISTS] $($s.Name)" -ForegroundColor Yellow
+        continue
     }
-
-    # Step 2: Create barrier policies
-    Write-Host "`n[Step 2] Creating Information Barrier policies..." -ForegroundColor Yellow
-    $barriers = @(
-        @{Name="Research-Trading-Barrier"; Assigned="IB-Research"; Blocked="IB-Trading"},
-        @{Name="IB-Sales-Barrier"; Assigned="IB-InvestmentBanking"; Blocked="IB-Sales"}
-    )
-
-    foreach ($barrier in $barriers) {
-        $existing = Get-InformationBarrierPolicy -Identity $barrier.Name -ErrorAction SilentlyContinue
-        if ($existing) {
-            Write-Host "  [EXISTS] $($barrier.Name)" -ForegroundColor Yellow
-        } else {
-            New-InformationBarrierPolicy -Name $barrier.Name `
-                -AssignedSegment $barrier.Assigned `
-                -SegmentsBlocked $barrier.Blocked `
-                -State Active
-            Write-Host "  [CREATED] $($barrier.Name)" -ForegroundColor Green
-        }
+    if ($PSCmdlet.ShouldProcess($s.Name, "New-OrganizationSegment")) {
+        New-OrganizationSegment -Name $s.Name -UserGroupFilter $s.Filter | Out-Null
+        Write-Host "[CREATED] $($s.Name)" -ForegroundColor Green
     }
-
-    # Step 3: Apply policies
-    Write-Host "`n[Step 3] Applying Information Barrier policies..." -ForegroundColor Yellow
-    Start-InformationBarrierPoliciesApplication
-    Write-Host "  Policy application started" -ForegroundColor Green
-
-    # Step 4: Check application status
-    Write-Host "`n[Step 4] Checking application status..." -ForegroundColor Yellow
-    Start-Sleep -Seconds 5  # Brief wait for status update
-    $status = Get-InformationBarrierPoliciesApplicationStatus
-    Write-Host "  Status: $($status.Status)" -ForegroundColor Green
-
-    # Step 5: Export configuration
-    Write-Host "`n[Step 5] Exporting configuration for compliance evidence..." -ForegroundColor Yellow
-
-    $allSegments = Get-OrganizationSegment
-    $segmentFile = Join-Path $ExportPath "IB-Segments-$(Get-Date -Format 'yyyyMMdd').csv"
-    $allSegments | Select-Object Name, UserGroupFilter, CreatedDateTime |
-        Export-Csv -Path $segmentFile -NoTypeInformation
-    Write-Host "  Segments exported to: $segmentFile" -ForegroundColor Green
-
-    $allPolicies = Get-InformationBarrierPolicy
-    $policyFile = Join-Path $ExportPath "IB-Policies-$(Get-Date -Format 'yyyyMMdd').csv"
-    $allPolicies | Select-Object Name, AssignedSegment, SegmentsBlocked, State |
-        Export-Csv -Path $policyFile -NoTypeInformation
-    Write-Host "  Policies exported to: $policyFile" -ForegroundColor Green
-
-    Write-Host "`n[PASS] Control 1.22 configuration completed successfully" -ForegroundColor Green
 }
-catch {
-    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
-    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
+
+Disconnect-ExchangeOnline -Confirm:$false
+```
+
+---
+
+## Script 3 — Create IB Policies (Multi-Segment Allow-List Pattern)
+
+> Multi-Segment mode policies are **allow-lists**. The `-SegmentsAllowed` array names every segment the assigned segment may communicate with. Misconfiguration here is the most common cause of unintended barrier failures.
+
+```powershell
+<#
+.SYNOPSIS
+    Creates IB policies in MultiSegment mode for FSI ethical walls.
+
+.NOTES
+    Verifies Get-InformationBarrierMode returns 'MultiSegment' before creating
+    allow-list policies. Falls back with an error in other modes.
+#>
+[CmdletBinding(SupportsShouldProcess)]
+param()
+
+$ErrorActionPreference = 'Stop'
+Connect-IPPSSession -ShowBanner:$false
+
+$mode = (Get-InformationBarrierMode).Identity
+if ($mode -ne 'MultiSegment') {
+    throw "IB mode is '$mode'. This script targets MultiSegment. Migrate first or use the SingleSegment block-list variant."
+}
+
+$policies = @(
+    @{ Name = 'Policy-IB-Research';          Assigned = 'IB-Research';          Allowed = @('IB-Research','IB-Compliance') }
+    @{ Name = 'Policy-IB-Trading';           Assigned = 'IB-Trading';           Allowed = @('IB-Trading','IB-Compliance') }
+    @{ Name = 'Policy-IB-IB-Public';         Assigned = 'IB-IB-Public';         Allowed = @('IB-IB-Public','IB-Compliance') }
+    @{ Name = 'Policy-IB-IB-Private';        Assigned = 'IB-IB-Private';        Allowed = @('IB-IB-Private','IB-Compliance') }
+    @{ Name = 'Policy-IB-Muni-Underwriting'; Assigned = 'IB-Muni-Underwriting'; Allowed = @('IB-Muni-Underwriting','IB-Compliance') }
+    @{ Name = 'Policy-IB-Muni-Advisory';     Assigned = 'IB-Muni-Advisory';     Allowed = @('IB-Muni-Advisory','IB-Compliance') }
+    @{ Name = 'Policy-IB-Compliance';        Assigned = 'IB-Compliance';        Allowed = @('IB-Research','IB-Trading','IB-IB-Public','IB-IB-Private','IB-Muni-Underwriting','IB-Muni-Advisory','IB-Compliance') }
+)
+
+foreach ($p in $policies) {
+    $existing = Get-InformationBarrierPolicy -Identity $p.Name -ErrorAction SilentlyContinue
+    if ($existing) {
+        Write-Host "[EXISTS] $($p.Name) — review before re-creating" -ForegroundColor Yellow
+        continue
+    }
+    if ($PSCmdlet.ShouldProcess($p.Name, "New-InformationBarrierPolicy (MultiSegment allow-list)")) {
+        New-InformationBarrierPolicy -Name $p.Name `
+            -AssignedSegment $p.Assigned `
+            -SegmentsAllowed $p.Allowed `
+            -State Active | Out-Null
+        Write-Host "[CREATED] $($p.Name)" -ForegroundColor Green
+    }
+}
+
+Write-Host "`nReview policies before applying." -ForegroundColor Cyan
+Get-InformationBarrierPolicy | Select-Object Name, AssignedSegment, SegmentsAllowed, State | Format-Table -AutoSize
+
+Disconnect-ExchangeOnline -Confirm:$false
+```
+
+---
+
+## Script 4 — Apply IB Policies and Track Status
+
+```powershell
+<#
+.SYNOPSIS
+    Applies IB policies and waits up to N hours for completion.
+
+.PARAMETER MaxWaitHours
+    Maximum hours to poll Get-InformationBarrierPoliciesApplicationStatus.
+    Default 6; production tenants frequently take 24–72 hours.
+
+.EXAMPLE
+    .\Start-IBApplication.ps1 -MaxWaitHours 24
+#>
+[CmdletBinding(SupportsShouldProcess)]
+param(
+    [int]$MaxWaitHours = 6,
+    [int]$PollSeconds = 300
+)
+
+$ErrorActionPreference = 'Stop'
+Connect-IPPSSession -ShowBanner:$false
+
+if ($PSCmdlet.ShouldProcess('Tenant', 'Start-InformationBarrierPoliciesApplication')) {
+    Start-InformationBarrierPoliciesApplication
+    Write-Host "Application started at $(Get-Date -Format 'u')" -ForegroundColor Cyan
+}
+
+$deadline = (Get-Date).AddHours($MaxWaitHours)
+do {
+    Start-Sleep -Seconds $PollSeconds
+    $status = Get-InformationBarrierPoliciesApplicationStatus | Sort-Object StartTime -Descending | Select-Object -First 1
+    Write-Host "[$(Get-Date -Format 'u')] Status: $($status.Status)  Identity: $($status.Identity)" -ForegroundColor DarkCyan
+} while ($status.Status -in @('NotStarted','InProgress') -and (Get-Date) -lt $deadline)
+
+if ($status.Status -ne 'Completed') {
+    Write-Warning "Did not reach Completed within $MaxWaitHours hours. Current status: $($status.Status)"
+    exit 2
+}
+
+Write-Host "[PASS] Application Completed at $($status.EndTime)" -ForegroundColor Green
+Disconnect-ExchangeOnline -Confirm:$false
+```
+
+---
+
+## Script 5 — Segment Coverage Report (Identify Segment-less Users)
+
+Users without a segment **bypass** IB enforcement and are the highest-impact residual risk. This report identifies them so they can be remediated before policy application.
+
+```powershell
+<#
+.SYNOPSIS
+    Identifies users not covered by any IB segment.
+
+.DESCRIPTION
+    Cross-references all enabled member users in Entra ID against current
+    IB segment filters and emits a CSV of segment-less users for remediation.
+
+.EXAMPLE
+    .\Export-IBSegmentCoverage.ps1 -OutputPath '.\evidence\1.22\coverage'
+#>
+[CmdletBinding()]
+param(
+    [Parameter(Mandatory)][string]$OutputPath
+)
+
+$ErrorActionPreference = 'Stop'
+if (-not (Test-Path $OutputPath)) { New-Item -ItemType Directory -Path $OutputPath -Force | Out-Null }
+$timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
+
+Connect-MgGraph -Scopes 'User.Read.All' -NoWelcome | Out-Null
+$users = Get-MgUser -All -Filter "accountEnabled eq true and userType eq 'Member'" `
+    -Property Id,UserPrincipalName,DisplayName,Department,CompanyName,JobTitle
+
+# Heuristic: an HR-of-record-driven segmentation requires Department to be populated.
+$uncovered = $users | Where-Object { [string]::IsNullOrWhiteSpace($_.Department) }
+
+$uncovered | Select-Object UserPrincipalName, DisplayName, Department, CompanyName, JobTitle |
+    Export-Csv "$OutputPath\IB-UncoveredUsers-$timestamp.csv" -NoTypeInformation -Encoding utf8
+
+$summary = [PSCustomObject]@{
+    TotalEnabledMembers = $users.Count
+    Uncovered           = $uncovered.Count
+    CoveragePercent     = if ($users.Count -gt 0) { [math]::Round((($users.Count - $uncovered.Count) / $users.Count) * 100, 2) } else { 0 }
+    GeneratedAtUtc      = (Get-Date).ToUniversalTime()
+}
+$summary | ConvertTo-Json | Out-File "$OutputPath\IB-CoverageSummary-$timestamp.json" -Encoding utf8
+
+Write-Host "Coverage: $($summary.CoveragePercent)% — $($summary.Uncovered) uncovered users" -ForegroundColor Cyan
+Disconnect-MgGraph | Out-Null
+```
+
+---
+
+## Script 6 — Validate Configuration End-to-End
+
+```powershell
+<#
+.SYNOPSIS
+    Validates Control 1.22 configuration is in the intended state.
+
+.DESCRIPTION
+    Returns 0 on PASS; non-zero on FAIL with reason logged.
+    Designed for unattended scheduled runs feeding compliance dashboards.
+#>
+[CmdletBinding()]
+param(
+    [string]$ExpectedMode = 'MultiSegment',
+    [string[]]$RequiredSegments = @('IB-Research','IB-Trading','IB-IB-Public','IB-IB-Private','IB-Muni-Underwriting','IB-Muni-Advisory','IB-Compliance'),
+    [decimal]$MinimumCoveragePercent = 99.5
+)
+
+$ErrorActionPreference = 'Stop'
+$failures = @()
+
+Connect-IPPSSession -ShowBanner:$false
+
+$mode = (Get-InformationBarrierMode).Identity
+if ($mode -ne $ExpectedMode) { $failures += "IB mode is '$mode'; expected '$ExpectedMode'." }
+
+$segments = (Get-OrganizationSegment).Name
+$missing = $RequiredSegments | Where-Object { $_ -notin $segments }
+if ($missing) { $failures += "Missing segments: $($missing -join ', ')." }
+
+$active = Get-InformationBarrierPolicy | Where-Object State -eq 'Active'
+if ($active.Count -lt $RequiredSegments.Count) {
+    $failures += "Active policy count ($($active.Count)) less than required segment count ($($RequiredSegments.Count))."
+}
+
+$last = Get-InformationBarrierPoliciesApplicationStatus | Sort-Object StartTime -Descending | Select-Object -First 1
+if ($last.Status -ne 'Completed') { $failures += "Last application status: $($last.Status)." }
+
+Disconnect-ExchangeOnline -Confirm:$false
+
+if ($failures) {
+    $failures | ForEach-Object { Write-Host "[FAIL] $_" -ForegroundColor Red }
     exit 1
 }
-finally {
-    # Cleanup connections
-    Disconnect-ExchangeOnline -Confirm:$false -ErrorAction SilentlyContinue
-    Write-Host "`nDisconnected from Security & Compliance Center" -ForegroundColor Gray
-}
+Write-Host "[PASS] Control 1.22 validation succeeded" -ForegroundColor Green
+exit 0
 ```
+
+---
+
+## Sovereign-Cloud Connection Notes
+
+For GCC High and DoD tenants, `Connect-IPPSSession` requires explicit endpoints:
+
+```powershell
+# GCC High
+Connect-IPPSSession `
+    -ConnectionUri 'https://ps.compliance.protection.office365.us/powershell-liveid/' `
+    -AzureADAuthorizationEndpointUri 'https://login.microsoftonline.us/common'
+
+# DoD
+Connect-IPPSSession `
+    -ConnectionUri 'https://l5.ps.compliance.protection.office365.us/powershell-liveid/' `
+    -AzureADAuthorizationEndpointUri 'https://login.microsoftonline.us/common'
+```
+
+Refer to the [PowerShell Authoring Baseline](../../_shared/powershell-baseline.md) §6 for current sovereign-cloud endpoint tables.
+
+---
+
+## Rollback
+
+If a misapplied policy must be rolled back:
+
+1. `Set-InformationBarrierPolicy -Identity <name> -State Inactive` to deactivate without deletion (preserves audit history).
+2. `Start-InformationBarrierPoliciesApplication` to push the deactivation.
+3. Confirm `Get-InformationBarrierPoliciesApplicationStatus` reaches `Completed`.
+4. Only delete a policy after Compliance sign-off; deletion is permanent.
 
 ---
 

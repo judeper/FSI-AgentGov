@@ -1,11 +1,14 @@
 # Playbook 3.14-B: PowerShell and SDK Setup — Installing the Observability SDK and Configuring Log Retention
 
+!!! warning "Read the FSI PowerShell baseline first"
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below may show abbreviated patterns; the baseline is authoritative.
+
 **Playbook ID:** 3.14-B
 **Control:** 3.14 — Agent 365 Observability SDK and Custom Agent Telemetry
 **Pillar:** Reporting
 **Estimated Duration:** 3–6 hours (initial SDK integration per agent); 30–60 minutes (log retention configuration)
-**Required Role:** Application Developer (SDK implementation); Entra Global Admin (Entra configuration); Azure Subscription Owner (storage and Log Analytics)
-**Last Verified:** March 2026
+**Required Role:** Copilot Studio Agent Author / Application developer (SDK implementation, non-admin role); Entra Global Admin (Entra diagnostic settings); Power Platform Admin or Azure subscription Owner (storage and Log Analytics provisioning); Purview Audit Reader (Unified Audit Log verification)
+**Last Verified:** April 2026
 
 ---
 
@@ -57,7 +60,7 @@ The SDK requires a token resolver function that provides a valid Microsoft ident
 ```python
 """
 Agent 365 Observability SDK — Python Configuration
-Control: 3.12 - Agent 365 Observability SDK and Custom Agent Telemetry
+Control: 3.14 - Agent 365 Observability SDK and Custom Agent Telemetry
 FSI-AgentGov Framework | Pillar 3: Reporting
 
 PREREQUISITES:
@@ -189,7 +192,7 @@ npm list @microsoft/agents-a365-observability
 ```typescript
 /**
  * Agent 365 Observability SDK — TypeScript Configuration
- * Control: 3.12 - Agent 365 Observability SDK and Custom Agent Telemetry
+ * Control: 3.14 - Agent 365 Observability SDK and Custom Agent Telemetry
  * FSI-AgentGov Framework | Pillar 3: Reporting
  */
 
@@ -268,7 +271,7 @@ Expected output from `dotnet list package`:
 
 ```csharp
 // Program.cs — .NET 8 Generic Host configuration
-// Control: 3.12 - Agent 365 Observability SDK and Custom Agent Telemetry
+// Control: 3.14 - Agent 365 Observability SDK and Custom Agent Telemetry
 // FSI-AgentGov Framework | Pillar 3: Reporting
 
 using Azure.Identity;
@@ -361,8 +364,8 @@ The portal-based configuration is covered in Playbook 3.14-A. Use PowerShell for
     to both Log Analytics (real-time query) and WORM-compliant blob storage (retention).
 
 .NOTES
-    Control:      3.12 - Agent 365 Observability SDK and Custom Agent Telemetry
-    Regulatory:   FINRA Rule 4511 (6-year retention), SEC Rule 17a-4(f) (WORM)
+    Control:      3.14 - Agent 365 Observability SDK and Custom Agent Telemetry
+    Regulatory:   FINRA Rule 4511 (6-year retention floor), SEC Rule 17a-4(f) (WORM)
     Version:      v1.0
     Last Updated: March 2026
 
@@ -473,7 +476,7 @@ $Workspace = Get-AzOperationalInsightsWorkspace `
 $Query = @"
 // Agent 365 Observability — Telemetry Verification Query
 // Run against your Log Analytics workspace to confirm telemetry ingestion
-// Control: 3.12 FSI-AgentGov
+// Control: 3.14 FSI-AgentGov
 
 ServicePrincipalSignInLogs
 | where TimeGenerated > ago(24h)
@@ -542,7 +545,14 @@ catch {
     Confirms that Agent 365 Observability SDK telemetry is flowing to Purview.
 
     Requires: ExchangeOnlineManagement module (Search-UnifiedAuditLog cmdlet)
-    Permissions: View-Only Audit Logs role in Exchange/Purview
+    Permissions: Purview Audit Reader (View-Only Audit Logs)
+
+    NOTE: Search-UnifiedAuditLog is deprecated; Microsoft has announced retirement
+    in favor of the Microsoft Graph auditLogs API
+    (https://learn.microsoft.com/en-us/graph/api/resources/security-auditlogquery).
+    For Zone 3 production automation built after April 2026, prefer the Graph
+    auditLogs/queries endpoint. Validate cmdlet availability against the current
+    Microsoft Learn deprecation timeline before scheduling this script.
 #>
 
 # Connect to Exchange Online (provides access to Unified Audit Log)
@@ -554,10 +564,13 @@ $EndDate   = Get-Date
 
 Write-Host "Searching Unified Audit Log for agent session records (last 7 days)..."
 
+# Note: When the AgentSignIn / AgentSession record types reach GA in your tenant,
+# replace the broad search below with -RecordType "AgentSignIn","AgentSession".
+# The current Preview record types vary by tenant region; the broad search below
+# captures activity by operation name pattern instead of record type.
 $AuditResults = Search-UnifiedAuditLog `
     -StartDate $StartDate `
     -EndDate $EndDate `
-    -RecordType "AipLabel","MicrosoftTeams" `  # Expand to AgentSignIn when record type is GA
     -Operations "AgentSession*","AgentToolCall*","agentSignIn*" `
     -ResultSize 1000
 
@@ -641,4 +654,4 @@ Write-Host "SDK Implementation Registry exported: $RegistryFileName"
 
 [Back to Control 3.14](../../../controls/pillar-3-reporting/3.14-agent-365-observability-sdk.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
-*Updated: March 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3 | UI Verification Status: Current*

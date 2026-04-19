@@ -1,425 +1,235 @@
 # Verification & Testing: Control 1.28 - Policy-Based Agent Publishing Restrictions
 
-**Last Updated:** February 2026
-**Test Environment:** Pre-production/Test
-**Estimated Time:** 30-40 minutes
+**Last Updated:** April 2026<br>
+**Test Environment:** Pre-production / dedicated test environments per zone<br>
+**Estimated Time:** 45–60 minutes for the full test pass
 
 ## Overview
 
-This playbook provides test cases and verification procedures to confirm that policy-based publishing restrictions are functioning correctly across all governance zones.
+This playbook defines test cases that confirm policy-based publishing restrictions are operational across Zone 1, Zone 2, and Zone 3. Tests focus on what the platform actually enforces (DLP at runtime and publish time, channel allowlisting, audit capture) and what the organization enforces around the platform (approval gates via Power Automate or Pipelines, change-control documentation).
+
+> **Hedged outcome language:** Each test case lists *expected behavior given current platform behavior as of April 2026*. The Copilot Studio publish dialog wording, severity icons, and finding categories evolve; treat the in-product messages as authoritative if they diverge from the wording below.
 
 ---
 
 ## Prerequisites
 
-- [ ] DLP policies configured and assigned to environments
-- [ ] Test environments available for each zone (Zone 1, Zone 2, Zone 3)
-- [ ] Test agent available for publishing experiments
-- [ ] Approval workflows configured (Zone 2+ environments)
-- [ ] Test user accounts with Agent Author and Power Platform Admin roles
+- [ ] DLP policies configured and assigned per Step 2 of the [Portal Walkthrough](portal-walkthrough.md)
+- [ ] One test environment per zone (Zone 1, Zone 2, Zone 3) — or at least one production-equivalent test environment for the highest zone in scope
+- [ ] A non-admin Copilot Studio Agent Author account for tests that exercise approval gates (admins can bypass surrounding workflow)
+- [ ] Power Platform Admin account for the approver-side tests
+- [ ] Microsoft Purview Audit confirmed enabled with sufficient retention
 
 ---
 
-## Test Case 1: DLP Enforcement - Block Publishing with Violations
+## Test Case 1 — DLP Blocks Publish When the Agent Uses a Blocked Connector
 
-**Objective:** Verify that agents with DLP violations cannot be published
+**Objective:** Confirm that the platform-level DLP enforcement prevents publish when the agent's connector usage conflicts with the assigned DLP policy.
 
-### Test Steps
+**Steps:**
 
-1. Open Copilot Studio and navigate to a Zone 3 environment
-2. Create a new test agent named "Test Agent - DLP Violation"
-3. Add a topic that uses a blocked connector:
-   - Create a new topic called "Test HTTP Connector"
-   - Add an action node using HTTP connector (blocked in Zone 3)
-   - Configure the HTTP action to call an external API
-4. Save the agent
-5. Attempt to publish the agent by clicking **Publish**
-6. Observe the security scan results
+1. In a Zone 3 test environment, create a new agent named `T1-DLP-Violation`.
+2. Add a topic that uses the **HTTP** connector (assumed Blocked in Zone 3 per the recommended baseline).
+3. Save the agent and click **Publish**.
 
-### Expected Results
+**Expected:**
 
-- [ ] Security scan detects DLP violation for HTTP connector
-- [ ] Publishing is blocked with red error indicator
-- [ ] Error message displays: "This agent cannot be published due to DLP policy violations"
-- [ ] Details panel lists HTTP connector as the violation
-- [ ] Agent remains in draft status
+- [ ] The Copilot Studio pre-publish dialog surfaces a DLP-related finding identifying the HTTP connector.
+- [ ] The publish action does not complete; the agent remains in its prior state (or `Draft` if never published).
 
-### Evidence Collection
+**Evidence:**
 
-- Screenshot of security scan showing DLP violation
-- Screenshot of blocked publish button
-- Export DLP policy assignment showing Zone 3 restrictions
+- Screenshot of the pre-publish finding with the connector identified.
+- Export of the assigned DLP policy showing HTTP as Blocked.
 
 ---
 
-## Test Case 2: DLP Enforcement - Allow Publishing with Compliant Configuration
+## Test Case 2 — DLP-Compliant Agent Publishes Cleanly
 
-**Objective:** Verify that agents compliant with DLP policies can be published
+**Objective:** Confirm that an agent using only allowed connectors publishes through the platform check.
 
-### Test Steps
+**Steps:**
 
-1. Open Copilot Studio and navigate to Zone 3 environment
-2. Create a new test agent named "Test Agent - DLP Compliant"
-3. Add a topic that uses only approved connectors:
-   - Create a topic called "Test SharePoint Connector"
-   - Add an action node using SharePoint Online connector (allowed in Zone 3)
-   - Configure the SharePoint action to read from a document library
-4. Save the agent
-5. Attempt to publish the agent by clicking **Publish**
-6. Observe the security scan results
+1. In the same Zone 3 test environment, create `T2-DLP-Compliant` using only SharePoint (read-only) and Dataverse (approved tables).
+2. Click **Publish** and observe the pre-publish dialog.
 
-### Expected Results
+**Expected:**
 
-- [ ] Security scan passes with green checkmark
-- [ ] No DLP violations detected
-- [ ] Publishing proceeds to approval workflow (if Zone 2+)
-- [ ] Agent enters "Pending Approval" or "Published" status
-
-### Evidence Collection
-
-- Screenshot of security scan showing no violations
-- Screenshot of successful publish (or pending approval)
-- Purview audit log entry for agent publishing event
+- [ ] No DLP findings are surfaced.
+- [ ] The publish completes (or is routed into your approval workflow if Test Case 4 is wired up).
+- [ ] A bot create/update event appears in the Purview audit log within 30–60 minutes.
 
 ---
 
-## Test Case 3: Blocked Channel Detection
+## Test Case 3 — Channel Restrictions Are Enforced
 
-**Objective:** Verify that agents configured with prohibited channels are blocked from publishing
+**Objective:** Confirm that public channels disabled for the environment cannot be enabled by the author.
 
-### Test Steps
+**Steps:**
 
-1. Open Copilot Studio and navigate to Zone 2 or Zone 3 environment
-2. Create a new test agent named "Test Agent - Blocked Channel"
-3. Configure the agent to use a prohibited channel:
-   - Navigate to **Settings** → **Channels**
-   - Enable "Facebook" or "Telegram" channel
-   - Save channel configuration
-4. Attempt to publish the agent by clicking **Publish**
-5. Observe the security scan results
+1. In a Zone 2 test environment, open a compliant agent and go to **Settings → Channels**.
+2. Attempt to enable **Facebook** or **Telegram**.
 
-### Expected Results
+**Expected:**
 
-- [ ] Security scan detects blocked channel configuration
-- [ ] Publishing is blocked with red error indicator
-- [ ] Error message displays: "This agent uses prohibited channels"
-- [ ] Details panel lists Facebook or Telegram as the violation
-- [ ] Agent cannot be published until channel is removed
+- [ ] The channel is not available, or the agent fails to publish with the channel enabled.
+- [ ] Authenticated channels (Microsoft Teams, authenticated web channel) remain available.
 
-### Evidence Collection
-
-- Screenshot of channel configuration with Facebook/Telegram enabled
-- Screenshot of security scan showing blocked channel violation
-- Screenshot of blocked publish button
+> **Hedge:** Whether the public channel is hidden, disabled, or only blocked at publish time depends on the current Copilot Studio build and the DLP/connector configuration. The verifiable outcome is that the agent cannot reach end users via the prohibited channel.
 
 ---
 
-## Test Case 4: Approval Workflow - Single Approver (Zone 2)
+## Test Case 4 — Approval Gate Triggers (Power Automate Implementation)
 
-**Objective:** Verify that Zone 2 environments require approval before publishing
+**Objective:** Confirm that the surrounding approval flow runs when an agent is created or updated in a Zone 2+ environment.
 
-### Test Steps
+**Steps:**
 
-1. Open Copilot Studio and navigate to a Zone 2 environment
-2. Create a compliant test agent named "Test Agent - Zone 2 Approval"
-3. Configure agent with approved connectors only (SharePoint, Teams)
-4. Attempt to publish the agent:
-   - Click **Publish**
-   - Verify security scan passes
-   - Provide publishing justification: "Test approval workflow"
-   - Click **Submit for approval**
-5. As Power Platform Admin, review the pending approval:
-   - Open Power Platform Admin Center → Pending Approvals
-   - Review agent publishing request
-   - Approve the request with comment: "Approved for testing"
-6. Verify agent publishing completes
+1. As a non-admin Agent Author, publish a compliant agent in the Zone 2 environment.
+2. Switch to the approver account and check the Approvals app in Microsoft Teams (or email).
 
-### Expected Results
+**Expected:**
 
-- [ ] Agent enters "Pending Approval" status after submission
-- [ ] Agent author receives notification that approval is required
-- [ ] Power Platform Admin receives approval request notification
-- [ ] After approval, agent publishing completes successfully
-- [ ] Agent enters "Published" status
-- [ ] Approval event is logged in Purview audit log
+- [ ] An approval request appears for the approver, naming the agent, environment, and submitter.
+- [ ] Approving the request writes a row to the `Publish Approval Log` Dataverse table (or chosen audit sink) with approver UPN, timestamp, and decision.
+- [ ] Rejecting the request writes the rejection record and notifies the author.
 
-### Evidence Collection
-
-- Screenshot of "Submit for approval" screen with justification
-- Screenshot of pending approval in Power Platform Admin Center
-- Screenshot of approval action with admin comment
-- Purview audit log entry showing approval event
+> **Important:** A Power Automate approval flow does not technically block the publish action itself. This test confirms that the approval is *captured*. To confirm the platform-side restriction (the author should not be able to publish at all without approval), pair this test with **Test Case 7** below.
 
 ---
 
-## Test Case 5: Approval Workflow - Rejection (Zone 2)
+## Test Case 5 — Multi-Stage Approval (Zone 3, Power Automate or Pipelines)
 
-**Objective:** Verify that rejected publishing requests prevent agent deployment
+**Objective:** Confirm that Zone 3 agents require both Power Platform Admin and Compliance Officer approval (or the equivalent two-stage pipeline gate).
 
-### Test Steps
+**Steps:**
 
-1. Open Copilot Studio and navigate to Zone 2 environment
-2. Create a test agent named "Test Agent - Rejection Test"
-3. Submit the agent for publishing approval with justification: "Testing rejection workflow"
-4. As Power Platform Admin, reject the publishing request:
-   - Open Power Platform Admin Center → Pending Approvals
-   - Review agent publishing request
-   - Reject the request with comment: "Insufficient testing evidence"
-5. Verify agent remains in draft status
+1. Submit a Zone 3 agent for publish (via Power Automate flow) or queue a deployment from Test → Production in Power Platform Pipelines.
+2. Approve at stage 1 (Power Platform Admin); confirm the request advances to stage 2.
+3. Approve at stage 2 (Compliance Officer); confirm the publish/deployment completes.
+4. Repeat with a rejection at stage 2 to confirm the deployment is halted.
 
-### Expected Results
+**Expected:**
 
-- [ ] Power Platform Admin successfully rejects the request
-- [ ] Agent author receives notification that request was rejected
-- [ ] Rejection comment is visible to agent author
-- [ ] Agent remains in "Draft" status
-- [ ] Agent is not deployed to production
-- [ ] Rejection event is logged in Purview audit log
-
-### Evidence Collection
-
-- Screenshot of rejection action with admin comment
-- Screenshot of rejection notification to agent author
-- Purview audit log entry showing rejection event
+- [ ] Stage 1 approval is required before stage 2 is reachable.
+- [ ] Rejection at either stage halts deployment and records the decision.
+- [ ] Both approval records appear in the audit log.
 
 ---
 
-## Test Case 6: Environment Promotion Pipeline (Zone 3)
+## Test Case 6 — Solution Promotion via Power Platform Pipelines (Zone 3)
 
-**Objective:** Verify that Zone 3 agents must be promoted through dev→test→prod pipeline
+**Objective:** Confirm that Zone 3 agents are deployed via the pipeline rather than published directly into production.
 
-### Test Steps
+**Steps:**
 
-1. Verify separate environments exist:
-   - Development environment (e.g., "Dev-Zone3")
-   - Test environment (e.g., "UAT-Zone3")
-   - Production environment (e.g., "Prod-Zone3")
-2. Create a test agent in the Development environment
-3. Publish the agent in Development (should succeed with approval)
-4. Attempt to export/import the agent to Production environment (bypassing Test):
-   - Export the agent from Development
-   - Import the agent to Production
-   - Attempt to publish in Production
-5. Observe the promotion enforcement
+1. In the Zone 3 development environment, package the agent into a solution.
+2. Submit the deployment from Dev → Test via the pipeline.
+3. After test sign-off, submit Test → Production with the configured pre-deployment approval.
 
-### Expected Results
+**Expected:**
 
-- [ ] Agent publishes successfully in Development after approval
-- [ ] Agent can be promoted from Development to Test
-- [ ] Agent cannot be published in Production without Test environment approval
-- [ ] Promotion pipeline enforcement prevents bypassing Test environment
-- [ ] Audit logs capture each promotion step
+- [ ] The agent reaches production only via solution import, not via direct publish.
+- [ ] The pipeline run history shows each stage, approver, and timestamp.
+- [ ] Direct publish in the production environment is prevented because the production-environment Dataverse role for non-pipeline service principals lacks `prvCreateBot` / `prvWriteBot` (configured per **Control 1.1**).
 
-### Evidence Collection
-
-- Screenshot of agent published in Development environment
-- Screenshot of agent promoted to Test environment
-- Screenshot of blocked direct promotion to Production
-- Purview audit log showing environment promotion chain
+> **Hedge:** Power Platform Pipelines does not, by itself, prevent a sufficiently privileged user from publishing in place. The technical prevention comes from the role design in Control 1.1; this test confirms the pipeline path is the supported path.
 
 ---
 
-## Test Case 7: DLP Update Blocking for Published Agents
+## Test Case 7 — Update Blocked When DLP Policy Tightens (February 2025 Behavior)
 
-**Objective:** Verify that published agents are blocked from updates if DLP violations are introduced
+**Objective:** Confirm the Microsoft platform behavior that published agents whose connector usage no longer aligns with the assigned DLP policy are blocked from update operations until the violation is resolved.
 
-### Test Steps
+**Steps:**
 
-1. Publish a compliant agent in Zone 3 environment (e.g., "Test Agent - Update Block")
-2. Verify the agent is successfully published and available
-3. Modify the DLP policy to block a connector the agent uses:
-   - In Power Platform Admin Center, edit the Zone 3 DLP policy
-   - Move SharePoint connector from "Business" to "Blocked"
-   - Save the DLP policy
-4. Attempt to update the published agent:
-   - Make a minor change to the agent (e.g., update a topic message)
-   - Click **Publish** to update the agent
-5. Observe the publishing enforcement
+1. Publish a compliant agent in a test environment (e.g., agent uses SharePoint, currently Business).
+2. Modify the DLP policy assigned to that environment to move SharePoint to **Blocked**.
+3. Make a small edit to the agent and click **Publish** to update.
 
-### Expected Results
+**Expected:**
 
-- [ ] Agent was initially published successfully
-- [ ] After DLP policy change, agent is flagged as non-compliant
-- [ ] Attempting to update the agent triggers security scan
-- [ ] Security scan detects DLP violation (SharePoint connector now blocked)
-- [ ] Publishing update is blocked with error message
-- [ ] Agent remains in previous published version until violation is resolved
+- [ ] The pre-publish dialog identifies the SharePoint connector as a violation.
+- [ ] The update is blocked.
+- [ ] The previously published version of the agent remains in place until the violation is resolved (either by editing the agent or by reverting the DLP policy).
 
-### Evidence Collection
+**Evidence:**
 
-- Screenshot of agent published successfully before DLP change
-- Screenshot of DLP policy change (SharePoint moved to Blocked)
-- Screenshot of blocked update attempt with DLP violation error
-- Screenshot of agent status showing "Published (Non-Compliant)"
+- Screenshots showing the pre-change publish, the DLP change, and the post-change blocked update.
 
 ---
 
-## Test Case 8: Security Scan Warning Override (Zone 1 Only)
+## Test Case 8 — Audit Capture in Microsoft Purview
 
-**Objective:** Verify that Zone 1 environments allow publishing with warnings (but not errors)
+**Objective:** Confirm that publish-related events reach Purview with sufficient detail for evidence.
 
-### Test Steps
+**Steps:**
 
-1. Open Copilot Studio and navigate to Zone 1 environment
-2. Create a test agent that triggers a security warning (not error):
-   - Use a connector that generates a warning (e.g., HTTP with untrusted certificate)
-   - Configure the agent to use the connector
-3. Attempt to publish the agent:
-   - Click **Publish**
-   - Observe security scan results showing yellow warning
-   - Review warning details
-4. Acknowledge the warning and proceed with publishing
-5. Verify the agent publishes despite the warning
+1. Perform a successful publish, a blocked publish, and a DLP policy change in test environments.
+2. In Purview → Audit, search the previous 24 hours filtered to **PowerPlatformAdmin** and **Dataverse** workloads.
 
-### Expected Results
+**Expected:**
 
-- [ ] Security scan displays yellow warning indicator
-- [ ] Warning details explain the security concern
-- [ ] Zone 1 environment allows publishing with acknowledgment
-- [ ] Agent author must explicitly acknowledge warning to proceed
-- [ ] Agent publishes successfully after acknowledgment
-- [ ] Warning is logged in audit trail
-
-### Evidence Collection
-
-- Screenshot of security scan showing yellow warning
-- Screenshot of warning acknowledgment dialog
-- Screenshot of successful publishing despite warning
-- Purview audit log entry showing warning acknowledged
+- [ ] Bot create/update events are present with actor UPN, environment, and bot identifier.
+- [ ] DLP policy create/update events are present with actor UPN and policy ID.
+- [ ] Power Automate approval action events (when used) include the approver UPN and decision.
+- [ ] Retention on these events meets your firm's requirement (commonly 7 years for FINRA 4511 / SEC 17a-4 alignment).
 
 ---
 
-## Test Case 9: Audit Log Capture
+## Test Case 9 — Inventory Script Produces Auditable Evidence
 
-**Objective:** Verify that all publishing events are captured in Microsoft Purview audit logs
+**Objective:** Confirm Script 4 from the [PowerShell Setup](powershell-setup.md) produces a CSV plus SHA-256 hash usable as evidence.
 
-### Test Steps
+**Steps:**
 
-1. Perform several publishing actions across different zones:
-   - Publish an agent in Zone 1 (successful)
-   - Submit an agent for approval in Zone 2
-   - Reject a publishing request in Zone 2
-   - Approve a publishing request in Zone 3
-2. Open Microsoft Purview Compliance Portal → Audit
-3. Search for publishing-related events:
-   - **Keywords:** "Chatbot", "Publish", "Approval"
-   - **Activities:** "Create chatbot", "Update chatbot", "Approve request", "Reject request"
-   - **Date range:** Last 24 hours
-4. Review the audit log results
+1. Run `Audit-AgentPublishInventory.ps1` against the test tenant.
+2. Open the produced CSV and the manifest file.
 
-### Expected Results
+**Expected:**
 
-- [ ] All publishing events are captured in Purview audit logs
-- [ ] Audit entries include timestamp, user, agent name, environment, and action
-- [ ] Approval and rejection events include approver comments
-- [ ] DLP violation events are logged with connector details
-- [ ] Security scan results are logged with pass/fail status
-- [ ] Audit logs are retained per regulatory requirements (7 years for FSI)
-
-### Evidence Collection
-
-- Screenshot of Purview audit search results showing publishing events
-- Export of audit log entries to CSV for compliance records
-- Sample audit log entry showing detailed event metadata
-
----
-
-## Test Case 10: PowerShell Compliance Report
-
-**Objective:** Verify that PowerShell automation scripts accurately report publishing compliance
-
-### Test Steps
-
-1. Run the PowerShell compliance audit script:
-   ```powershell
-   .\Audit-AgentPublishingCompliance.ps1
-   ```
-2. Review the compliance report output:
-   - Total agents count
-   - Compliant agents count
-   - Non-compliant agents count
-   - List of non-compliant agents with violations
-3. Manually verify several agents in the report:
-   - Check DLP status in Power Platform Admin Center
-   - Check channel configuration in Copilot Studio
-   - Confirm approval status matches report
-
-### Expected Results
-
-- [ ] PowerShell script executes without errors
-- [ ] Report displays accurate agent counts
-- [ ] Non-compliant agents are correctly identified with violations
-- [ ] DLP violations match manual verification
-- [ ] Blocked channels match manual verification
-- [ ] Report exports to CSV successfully
-
-### Evidence Collection
-
-- Screenshot of PowerShell compliance report output
-- CSV export of compliance report
-- Manual verification screenshots for sample agents
+- [ ] CSV lists the agents discovered with environment, publish status, last modified time, and creator UPN.
+- [ ] Manifest file contains `<csvPath>\tSHA256:<hash>` entries for each export.
+- [ ] Recomputing `Get-FileHash -Algorithm SHA256` on the CSV yields the same hash.
 
 ---
 
 ## Compliance Verification Checklist
 
-After completing all test cases, verify the following:
+After all tests:
 
-- [ ] DLP policies are configured for all three zones with appropriate connector restrictions
-- [ ] DLP violations prevent agent publishing in all zones
-- [ ] Published agents are blocked from updates if DLP violations exist (February 2025 enforcement)
-- [ ] Security scans detect blocked channels and configuration issues
-- [ ] Zone 1 allows publishing with warnings (after acknowledgment)
-- [ ] Zone 2+ requires approval before publishing
-- [ ] Approval workflow captures approver identity, timestamp, and comments
-- [ ] Rejection workflow prevents agent deployment
-- [ ] Zone 3 enforces environment promotion pipeline (dev→test→prod)
-- [ ] All publishing events are logged in Microsoft Purview
-- [ ] Audit logs include DLP violations, approvals, rejections, and security scan results
-- [ ] PowerShell automation scripts provide accurate compliance reporting
+- [ ] DLP policies enforce connector restrictions per zone (Test 1, 2, 7).
+- [ ] Channel restrictions are operational for Zone 2+ (Test 3).
+- [ ] An approval gate exists for Zone 2+ environments (Test 4).
+- [ ] A multi-stage approval gate exists for Zone 3 (Test 5).
+- [ ] Solution promotion is the supported path to production for Zone 3 (Test 6).
+- [ ] Published agents whose connector usage drifts out of compliance are blocked from update (Test 7).
+- [ ] Purview captures publish, DLP, and approval events with required retention (Test 8).
+- [ ] Inventory automation produces hashed evidence files (Test 9).
 
 ---
 
 ## Evidence Package
 
-Compile the following evidence for compliance documentation:
+Compile the following for the control evidence file:
 
-1. **DLP Policy Configuration:**
-   - Export of Zone 1, Zone 2, and Zone 3 DLP policies
-   - Connector classification listings (Business/Non-Business/Blocked)
-   - Environment assignment records
-
-2. **Security Scan Results:**
-   - Screenshots of passed scans (compliant agents)
-   - Screenshots of failed scans (DLP violations, blocked channels)
-   - Security scan reports for sample agents
-
-3. **Approval Workflow Documentation:**
-   - Screenshots of approval requests
-   - Screenshots of approved requests with admin comments
-   - Screenshots of rejected requests with feedback
-   - Approval workflow configuration settings
-
-4. **Audit Logs:**
-   - CSV export of publishing events from Purview
-   - Sample audit log entries with detailed metadata
-   - Audit log retention policy documentation
-
-5. **Compliance Reports:**
-   - PowerShell compliance report CSV export
-   - Summary of compliant vs. non-compliant agents
-   - Remediation plan for non-compliant agents
+1. **DLP configuration:** Export of each zone's DLP policy and the list of environments assigned to each.
+2. **Pre-publish enforcement:** Screenshots from Tests 1, 2, 3, and 7.
+3. **Approval workflow:** Power Automate flow definition (or pipeline definition) plus a sample approval record from Tests 4 and 5.
+4. **Pipeline run:** Pipeline run history export from Test 6.
+5. **Audit:** Purview audit export covering the test window (CSV).
+6. **PowerShell evidence:** Inventory CSV and SHA-256 manifest from Test 9.
 
 ---
 
 ## Ongoing Monitoring
 
-Establish ongoing monitoring for publishing compliance:
-
-- **Weekly:** Run PowerShell compliance audit script; review non-compliant agents
-- **Monthly:** Review approval workflow metrics (requests, approvals, rejections, SLA)
-- **Quarterly:** Audit DLP policy effectiveness; update connector restrictions as needed
-- **Annually:** Review and update publishing governance policies based on regulatory changes
+| Cadence | Activity |
+|---------|----------|
+| Weekly | Run the inventory script (Script 4); review newly published agents and DLP-blocked update attempts in Purview. |
+| Monthly | Review approval workflow metrics (volume, approval rate, mean time to approve). |
+| Quarterly | Audit DLP policy effectiveness; review connector classifications against business and regulatory changes. |
+| Annually | Re-baseline zone-to-policy mappings; review evidence retention against current FINRA / SEC / GLBA / OCC / Fed SR 11-7 expectations. |
 
 ---
 
@@ -429,35 +239,32 @@ Establish ongoing monitoring for publishing compliance:
 ## Control 1.28 Attestation - Policy-Based Agent Publishing Restrictions
 
 **Organization:** [Organization Name]
-**Control Owner:** [Name/Role]
+**Control Owner:** [Name / Role]
 **Date:** [Date]
 
-I attest that:
+I attest that, as of the date above:
 
-1. DLP policies are configured and enforced per governance zone:
-   - Zone 1 environments: [Count] — baseline DLP policies applied
-   - Zone 2 environments: [Count] — restrictive DLP policies with approval workflow
-   - Zone 3 environments: [Count] — strict DLP policies with environment promotion pipeline
-2. Publishing restrictions are actively enforced:
-   - DLP violations prevent agent publishing: [Yes/No]
-   - Security scans detect blocked channels: [Yes/No]
-   - Published agents blocked from updates on DLP violation: [Yes/No]
-3. Approval workflows are operational:
-   - Zone 2 single-approver workflow active: [Yes/No]
-   - Zone 3 multi-approver workflow with promotion pipeline active: [Yes/No]
-   - Rejection workflow prevents deployment: [Yes/No]
-4. Audit logging is configured:
-   - Publishing events captured in Microsoft Purview: [Yes/No]
-   - Approval/rejection events logged with approver identity: [Yes/No]
-   - Audit log retention meets regulatory requirements (7 years): [Yes/No]
-5. PowerShell compliance reporting is operational:
-   - Automated compliance audit script runs without errors: [Yes/No]
-   - Non-compliant agents are accurately identified: [Yes/No]
+1. DLP policies are configured and assigned per zone:
+   - Zone 1 environments: [Count]
+   - Zone 2 environments: [Count]
+   - Zone 3 environments: [Count]
+2. Pre-publish DLP enforcement is operational (Test Cases 1, 2, 7 passed): [Yes / No]
+3. Channel restrictions are operational for Zone 2+ (Test Case 3): [Yes / No]
+4. Approval gates are operational:
+   - Zone 2 single-stage (Test 4): [Yes / No]
+   - Zone 3 multi-stage (Test 5): [Yes / No]
+5. Zone 3 production deployments use Power Platform Pipelines or ALM Accelerator (Test 6): [Yes / No]
+6. Microsoft Purview audit captures publish, DLP, and approval events with [N]-year retention (Test 8): [Yes / No]
+7. Inventory automation produces hashed evidence files (Test 9): [Yes / No]
 
 **Signature:** ______________________
-**Date:** ______________________
+**Date:** __________________________
 ```
 
 ---
 
 [Back to Control 1.28](../../../controls/pillar-1-security/1.28-policy-based-agent-publishing-restrictions.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md)
+
+---
+
+*Updated: April 2026 | Version: v1.3.3 | UI Verification Status: Current*

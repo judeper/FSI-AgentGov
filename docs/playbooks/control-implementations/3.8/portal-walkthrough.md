@@ -1,437 +1,278 @@
-# Control 3.8: Copilot Hub and Governance Dashboard - Portal Walkthrough
+# Control 3.8: Copilot Hub and Governance Dashboard — Portal Walkthrough
 
-> This playbook provides step-by-step portal configuration guidance for [Control 3.8](../../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md).
+> Step-by-step portal configuration guidance for [Control 3.8](../../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md). Use this playbook to configure the Microsoft 365 Admin Center Copilot Hub, the Agents page, and the Power Platform Admin Center (PPAC) Copilot section in line with FSI governance requirements.
+
+!!! warning "UI Drift Warning (April 2026)"
+    Microsoft is actively restructuring the Copilot Hub surfaces (Security pivot, Readiness page, product pages, Agent overview GA on **May 1, 2026**). Portal labels and navigation paths shown below were verified in **April 2026**. If a label has moved, search the [Microsoft 365 Roadmap](https://www.microsoft.com/en-us/microsoft-365/roadmap) and your tenant Message Center before assuming the control is broken. Hedged regulatory language is required throughout — these settings **support** compliance; they do not guarantee it.
 
 ---
 
 ## Prerequisites
 
-- Entra Global Admin role
-- Power Platform Admin role
-- Microsoft 365 Copilot licenses assigned
+| Requirement | Notes |
+|---|---|
+| **AI Administrator** role (preferred) | Sufficient for Copilot Settings, feature access, deployment groups, Admin Exclusion Groups, agent registry review. Aligns with FINRA 3110 / SOX 404 least-privilege guidance. |
+| **Entra Global Admin** role | Required only for initial tenant setup, broad Graph API consent, billing changes, and creating the `CopilotForM365AdminExclude` security group. Use Entra PIM for just-in-time elevation. |
+| **Power Platform Admin** role | Required for PPAC Copilot Studio settings, environment-level generative AI features, and tenant DLP policies. |
+| Microsoft 365 Copilot licensing | Required for the Copilot Hub surfaces to render. |
+| (Optional) Agent 365 or M365 E7 per-user licensing | Required to view Agent overview hero metrics at GA on May 1, 2026. |
+
+> Capture the role assignments used for each step in your change ticket — examiners commonly request role-evidence under SOX 404 and OCC 2011-12.
 
 ---
 
-## Part 1: M365 Admin Center - Copilot Section
+## Part 1 — Microsoft 365 Admin Center: Copilot Section
 
-### Step 1: Access Copilot Management
+### Step 1. Open the Copilot Hub
 
-**Portal Path:** Microsoft 365 Admin Center > Copilot
+**Portal Path:** [Microsoft 365 Admin Center](https://admin.microsoft.com) → **Copilot**
 
-1. Navigate to [M365 Admin Center](https://admin.microsoft.com)
-2. Select **Copilot** in left navigation
-3. Review the five navigation sections
+1. Sign in with the AI Administrator role (preferred) or Entra Global Admin (initial setup only).
+2. Confirm the five hub sections render: **Overview**, **Connectors**, **Search**, **Billing & usage**, **Settings**.
+3. If the **Security** pivot is visible on the Overview page, confirm MC1187780 has rolled out to your tenant.
+
+### Step 2. Inspect the Readiness page (post MC1187780)
+
+**Portal Path:** Copilot → **Overview** → **Readiness**
+
+Confirm the three categories render and capture a screenshot of each for evidence:
+
+| Category | What to verify |
+|---|---|
+| **Deployment Essentials** | License assignment counts, user enablement status, rollout planning view |
+| **End-User Experience** | Web search state, plug-in policy, agent access, personalization |
+| **Data Security** | DLP policies, sensitivity label coverage, audit configuration |
+
+Note the **Chat Active Users**, **Assisted Hours**, and **Satisfaction Rate** metrics — these are the supervision signals you will export monthly under FINRA 4511 / 25-07.
+
+### Step 3. Configure Copilot Settings — User Access tab
+
+**Portal Path:** Copilot → **Settings** → **User access**
+
+| Setting | FSI Recommendation | Rationale |
+|---|---|---|
+| Self-service purchases | **Disabled** | Prevents shadow IT licensing; supports SOX 404 change control |
+| Copilot in Edge | **Managed users only** | Forces organizational identity; helps meet GLBA 501(b) |
+| Consumer Copilot access | **Disabled** | Blocks consumer-account spillover; supports FINRA 3110 supervision |
+
+> Zone 3: every setting in this tab must be Disabled or Managed-users-only before sign-off.
+
+### Step 4. Configure Admin Exclusion Group
+
+**Portal Path:** [Microsoft Entra admin center](https://entra.microsoft.com) → **Groups** → **All groups** → **New group**
+
+1. Group type: **Security**
+2. Group name: **`CopilotForM365AdminExclude`** (case-sensitive — exact match required)
+3. Description: "Users excluded from Microsoft 365 Copilot admin-center features for compliance reasons."
+4. Membership type: Assigned (or Dynamic if attribute-driven and reviewed by Compliance).
+5. Add members representative of the FSI populations below.
+
+| Population | Driver | Duration |
+|---|---|---|
+| Traders during blackout | SEC Reg FD, insider-trading prevention | Temporary |
+| Employees under investigation | FINRA 3110 enhanced supervision | Investigation duration |
+| Restricted-persons list | FINRA 2111 conflict management | Permanent / semi-permanent |
+| Customer-facing pilot exclusions | Risk management during rollout | Temporary |
+
+!!! warning "Propagation"
+    Membership changes take **up to 24 hours** to take effect. Plan additions/removals accordingly. The exclusion governs **admin-center** Copilot features; end-user Copilot in Word/Excel/Teams requires separate license or policy controls.
+
+### Step 5. Configure Deployment Groups for Staged Rollout
+
+**Portal Path:** Copilot → **Settings** → Deployment section (label may vary post-MC1187780)
+
+Create one Entra security group per wave and add it to the deployment configuration:
+
+| Wave | Group Name (suggested) | Population | Duration |
+|---|---|---|---|
+| Pilot | `Copilot-Pilot-IT-Compliance` | IT, Compliance, AI Governance Lead (10–50 users) | 4–6 weeks |
+| Wave 1 | `Copilot-Wave1-NonCustomerFacing` | Non-customer-facing BUs (100–500 users) | 8–12 weeks |
+| Wave 2 | `Copilot-Wave2-SupervisedCustomerFacing` | Customer-facing with supervision (500–2 000 users) | 12–16 weeks |
+| Wave 3 | `Copilot-Wave3-Production` | All licensed users excluding Admin Exclusion Group | Ongoing |
+
+Document the wave-transition approval gate (compliance review, DLP effectiveness, audit findings) in your change ticket.
+
+### Step 6. Configure Copilot Settings — Data access tab
+
+**Portal Path:** Copilot → **Settings** → **Data access**
+
+| Setting | Zone 1 | Zone 2 | Zone 3 | Regulatory Driver |
+|---|---|---|---|---|
+| Web search for M365 Copilot | Enabled | Disabled for MNPI teams | **Disabled tenant-wide** | GLBA 501(b); MNPI controls |
+| External AI providers | Block | Block | Block | FINRA 3110, FINRA 4511 |
+| Third-party LLM access | Block | Block | Block | FINRA 4511, SEC 17a-4 |
+
+### Step 7. Configure Copilot Settings — Actions tab
+
+**Portal Path:** Copilot → **Settings** → **Actions**
+
+| Setting | Zone 1 | Zone 2 | Zone 3 |
+|---|---|---|---|
+| Allowed agent types | All allowed | Organizational + Microsoft verified | Organizational only, approval workflow required |
+| Image generation | Disabled | Disabled | Disabled |
+| Video generation | Disabled | Disabled | Disabled |
+| Teams meeting Copilot | Enable with retention | Enable with retention | Enable with retention (FINRA 4511 books and records) |
+
+### Step 8. Verify settings propagation
+
+After saving the four tabs:
+
+1. Allow **up to 8 hours** for tenant-wide propagation.
+2. Sign in as a deployment-group member → confirm Copilot access.
+3. Sign in as a non-member → confirm access is denied.
+4. Sign in as an Admin Exclusion Group member → confirm admin-center Copilot features are unavailable (allow up to 24 hours for the exclusion to take effect).
+5. Capture screenshots and timestamps for the change ticket.
 
 ---
 
-### Step 2: Review Copilot Navigation Structure
+## Part 2 — Microsoft 365 Admin Center: Agents Section
 
-| Section | Path | Purpose |
-|---------|------|---------|
-| **Overview** | Copilot > Overview | Copilot Control System dashboard |
-| **Connectors** | Copilot > Connectors | External data connections |
-| **Search** | Copilot > Search | Bookmarks and acronyms |
-| **Billing & usage** | Copilot > Billing & usage | Pay-as-you-go policies |
-| **Settings** | Copilot > Settings | Comprehensive configuration |
+### Step 9. Review the Agent overview page
+
+**Portal Path:** Microsoft 365 Admin Center → **Agents** → **Overview**
+
+| Hero metric | Action |
+|---|---|
+| Agent registry count | Reconcile against approved-agent inventory (Control 1.2) |
+| Active users | Track adoption and report monthly |
+| Pending requests | Triage within governance SLA |
+| Ownerless agents | Assign owner within **14 days** (FINRA 3110 supervisory ownership) |
+
+> Hero metrics for Agent Builder, SharePoint agents, M365 Agents Toolkit, and Agent 365 Observability SDK–instrumented agents reach GA on **May 1, 2026** with Agent 365 or M365 E7 licensing. Document coverage gaps for unsupported agent types in your monthly governance review.
+
+### Step 10. Review the Agent Registry
+
+**Portal Path:** Agents → **All agents** → **Registry**
+
+Filter by Publisher, Availability, Channel, and Platform. Export the registry monthly and reconcile against:
+
+- Control 1.2 Agent Registry inventory.
+- Control 1.1 publishing-authorization approvals.
+- Pending governance approvals.
+
+### Step 11. Govern MCP Servers (Tools)
+
+**Portal Path:** Agents → **Tools**
+
+Block any MCP server not on the approved-data-access list. The April 2026 preview adds custom MCP servers — extend monthly review scope when these are enabled in your tenant.
+
+### Step 12. Configure Agent Settings
+
+**Portal Path:** Agents → **Settings**
+
+| Setting | FSI action |
+|---|---|
+| Allowed agent types | Restrict to approved publishers per zone |
+| Sharing | Limit to approved scope; complement with Unrestricted Agent Sharing Detector |
+| Templates | Create FSI-approved templates that pre-set governance defaults |
+| User access | Define by role; align with deployment groups |
 
 ---
 
-### Step 3: Configure Copilot Settings
+## Part 3 — Power Platform Admin Center: Copilot Section
 
-**Portal Path:** M365 Admin Center > Copilot > Settings
+### Step 13. Open PPAC Copilot
 
-Navigate through the four settings tabs:
+**Portal Path:** [Power Platform Admin Center](https://admin.powerplatform.microsoft.com) → **Copilot**
 
-**User Access Tab:**
+### Step 14. Configure PPAC Copilot Settings
+
+**Portal Path:** PPAC → **Copilot** → **Settings**
 
 | Setting | FSI Recommendation |
-|---------|-------------------|
-| Self-service purchases | Disable |
-| Copilot in Edge | Managed users only |
-| Consumer Copilot access | Disable |
-
-**Data Access Tab:**
-
-| Setting | FSI Recommendation |
-|---------|-------------------|
-| Web search for M365 Copilot | Disable for compliance |
-| External AI providers | Block |
-| Third-party LLM access | Block |
-| Agents | Approval required |
-
-**Copilot Actions Tab:**
-
-| Setting | FSI Recommendation |
-|---------|-------------------|
-| Image generation | Disable |
-| Video generation | Disable |
-| Teams meeting Copilot | Enable with retention |
-
----
-
-### Step 3A: Configure AI Feature Access Control
-
-!!! info "GA Feature"
-    AI Feature Access Control settings are generally available and provide granular user-level and feature-level controls for Microsoft 365 Copilot.
-
-**Portal Path:** M365 Admin Center > Copilot > Settings
-
-Configure user-level feature access to manage Copilot availability by user, group, and compliance requirements:
-
-#### 1. Create Admin Exclusion Group (Entra ID)
-
-**Portal Path:** Microsoft Entra admin center > Groups > All groups > New group
-
-1. Navigate to [Microsoft Entra admin center](https://entra.microsoft.com)
-2. Select **Groups** > **All groups** > **New group**
-3. Configure group:
-   - **Group type:** Security
-   - **Group name:** `CopilotForM365AdminExclude` (exact name required)
-   - **Group description:** "Users excluded from Microsoft 365 Copilot access for compliance reasons"
-   - **Membership type:** Assigned (or Dynamic if using attribute-based rules)
-4. Click **Create**
-
-**Add members to exclusion group:**
-
-- Navigate to the newly created group > **Members** > **Add members**
-- Select users or nested groups to exclude from Copilot access
-- Common FSI populations:
-  - Traders during blackout periods (temporary)
-  - Employees under compliance investigation (temporary)
-  - Restricted persons lists (permanent or semi-permanent)
-  - Customer-facing roles during pilot phase (temporary)
-
-**Zone-specific notes:**
-
-- **Zone 1:** Admin Exclusion Groups typically not required for personal productivity agents
-- **Zone 2:** Use for compliance-sensitive roles (e.g., traders on MNPI teams)
-- **Zone 3:** Mandatory for traders, restricted persons, and roles under enhanced supervision per FINRA 3110
-
-!!! warning "Propagation Delay"
-    Admin Exclusion Group membership changes take up to **24 hours** to propagate. Plan additions/removals accordingly. Users will retain access until propagation completes.
-
-#### 2. Configure User Access Settings
-
-**Portal Path:** M365 Admin Center > Copilot > Settings > User access tab
-
-1. Navigate to [M365 Admin Center](https://admin.microsoft.com)
-2. Select **Copilot** > **Settings** > **User access** tab
-3. Configure settings:
-   - **Self-service purchases:** Set to "Disabled" (FSI recommendation: prevent shadow IT)
-   - **Copilot in Edge:** Set to "Managed users only" (enforces organizational account usage)
-   - **Consumer Copilot access:** Set to "Disabled" (prevents consumer account mixing)
-
-**Zone-specific notes:**
-
-- **Zone 3:** All settings must be "Disabled" or "Managed users only" to ensure organizational control
-
-#### 3. Configure Deployment Groups for Staged Rollout
-
-**Portal Path:** M365 Admin Center > Copilot > Settings > (check for Deployment tab or section)
-
-1. In M365 Admin Center > Copilot > Settings, locate deployment group configuration
-2. Create deployment groups aligned with rollout phases:
-
-   **Pilot Deployment Group:**
-   - Name: `Copilot-Pilot-IT-Compliance`
-   - Members: IT staff, Compliance team, AI Governance Lead (10-50 users)
-   - Duration: 4-6 weeks
-   - Validation: Feature functionality, no compliance violations, positive feedback
-
-   **Wave 1 Deployment Group:**
-   - Name: `Copilot-Wave1-NonCustomerFacing`
-   - Members: Non-customer-facing business units (100-500 users)
-   - Duration: 8-12 weeks
-   - Validation: Usage metrics healthy, DLP policies effective, no audit findings
-
-   **Wave 2 Deployment Group:**
-   - Name: `Copilot-Wave2-SupervisedCustomerFacing`
-   - Members: Customer-facing roles with supervision (500-2000 users)
-   - Duration: 12-16 weeks
-   - Validation: Supervision workflows validated, regulatory reporting functional
-
-   **Wave 3 (Full Rollout):**
-   - All licensed users (excludes Admin Exclusion Group members)
-   - Ongoing monitoring and quarterly compliance review
-
-3. Assign users to appropriate deployment group based on current phase
-4. Document group membership and phase transition approval process
-
-**Zone-specific notes:**
-
-- **Zone 1:** Deployment groups optional; useful for managing support load during large-scale rollout
-- **Zone 2:** Recommended to validate team collaboration patterns before full enablement
-- **Zone 3:** Mandatory; align deployment group phases with change control approval gates
-
-#### 4. Configure Data Access Settings
-
-**Portal Path:** M365 Admin Center > Copilot > Settings > Data access tab
-
-1. Navigate to **Data access** tab
-2. Configure settings:
-   - **Web search for M365 Copilot:**
-     - Zone 1: Enabled (personal productivity)
-     - Zone 2: Disabled for MNPI teams (Material Non-Public Information protection)
-     - Zone 3: Disabled organization-wide (GLBA 501(b): prevent external data leakage)
-   - **External AI providers:** Set to "Block" (all zones)
-   - **Third-party LLM access:** Set to "Block" (all zones)
-
-**Zone-specific notes:**
-
-- **Zone 3 (customer-facing):** Web search MUST be disabled to prevent inadvertent exposure of customer data to external search providers
-- **MNPI environments:** Disable web search to comply with insider trading prevention controls
-
-#### 5. Configure Actions Settings (Agent Access Control)
-
-**Portal Path:** M365 Admin Center > Copilot > Settings > Actions tab
-
-1. Navigate to **Actions** tab (previously "Copilot Actions")
-2. Configure agent access controls:
-   - **Allowed agent types:**
-     - Zone 1: All agents allowed (Microsoft + Organizational + Verified third-party)
-     - Zone 2: Organizational + Microsoft verified agents only
-     - Zone 3: Organizational agents only, with approval workflow required (FINRA 4511)
-   - **Image generation:** Disable (FSI recommendation for all zones)
-   - **Video generation:** Disable (FSI recommendation for all zones)
-   - **Teams meeting Copilot:** Enable with retention policies configured (align with FINRA 4511 books and records)
-
-**Zone-specific notes:**
-
-- **Zone 3:** Restrict agent access to pre-approved organizational agents only; require governance review before enabling any new agent capabilities
-
-#### 6. Configure End-User Experience
-
-**Portal Path:** M365 Admin Center > Copilot > Settings > (check for End-User Experience section)
-
-1. Locate End-User Experience or similar settings section
-2. Configure Copilot Chat pinning:
-   - **Copilot Chat pinned in Teams:**
-     - Zone 1: User preference
-     - Zone 2: Enabled for collaboration teams
-     - Zone 3: Controlled per department based on supervision requirements
-   - **Copilot Chat pinned in Outlook:** Configure similarly based on zone
-
-**Zone-specific notes:**
-
-- **Zone 3:** Align pinning with supervision requirements — disable for unsupervised roles to reduce inadvertent AI usage without oversight
-
-#### 7. Verify Settings Propagation
-
-**After completing configuration:**
-
-1. Allow **up to 8 hours** for settings to propagate across the tenant
-2. Test with pilot users in each deployment group:
-   - Sign in as user in deployment group → Verify Copilot access granted
-   - Sign in as user NOT in deployment group → Verify Copilot access denied
-   - Sign in as user in Admin Exclusion Group → Verify Copilot access denied (may take up to 24 hours)
-3. Verify web search disabled (if configured):
-   - Test Copilot chat with query requiring external data
-   - Confirm response uses only organizational data, no web results
-4. Document test results for compliance evidence
-
-**Troubleshooting:**
-
-- If settings not applying: Wait full 8-hour propagation window before escalating
-- If Admin Exclusion not working: Verify group name exactly matches `CopilotForM365AdminExclude` (case-sensitive)
-- If deployment group not limiting access: Verify group type is Security group, check license assignment
-
-!!! tip "FSI Governance Best Practice"
-    Create the Admin Exclusion Group and add all compliance-restricted users BEFORE enabling Copilot organization-wide. This prevents inadvertent access during the 24-hour propagation window.
-
----
-
-## Part 2: M365 Admin Center - Agents Section
-
-### Step 4: Access Agents Management
-
-**Portal Path:** M365 Admin Center > Agents
-
-1. Navigate to **Agents** in left navigation
-2. Review the four navigation sections
-
----
-
-### Step 5: Review Agents Overview Dashboard
-
-**Portal Path:** M365 Admin Center > Agents > Overview
-
-Key metrics to monitor:
-
-| Metric | Description | Action |
-|--------|-------------|--------|
-| Agent registry count | Total agents | Track growth |
-| Active users | Users interacting with agents | Monitor adoption |
-| Pending requests | Agents awaiting approval | Review/approve |
-| Ownerless agents | Agents without owner | Assign immediately |
-
----
-
-### Step 6: Configure Agent Registry
-
-**Portal Path:** M365 Admin Center > Agents > All agents > Registry
-
-Review and filter agents by:
-
-| Filter | Options |
-|--------|---------|
-| Publisher | Microsoft, External, Your organization |
-| Availability | All users, Some users |
-| Channel | Copilot, Teams, Outlook, M365 |
-| Platform | M365 Copilot, Agent Builder, Other |
-
----
-
-### Step 7: Manage MCP Servers (Tools)
-
-**Portal Path:** M365 Admin Center > Agents > Tools
-
-Review MCP Server availability:
-
-| Action | When to Use |
-|--------|-------------|
-| Block server | Prevent specific data access |
-| Allow server | Enable capabilities |
-
----
-
-### Step 8: Configure Agent Settings
-
-**Portal Path:** M365 Admin Center > Agents > Settings
-
-| Setting | Description | FSI Action |
-|---------|-------------|------------|
-| Allowed agent types | Control agent sources | Restrict to approved |
-| Sharing | Manage sharing scope | Limit appropriately |
-| Templates | Pre-set governance policies | Create FSI templates |
-| User access | Control agent interactions | Define by role |
-
----
-
-## Part 3: PPAC Copilot Section
-
-### Step 9: Access PPAC Copilot
-
-**Portal Path:** Power Platform Admin Center > Copilot
-
-1. Navigate to [PPAC](https://admin.powerplatform.microsoft.com)
-2. Select **Copilot** in left navigation
-
----
-
-### Step 10: Configure PPAC Copilot Settings
-
-**Portal Path:** PPAC > Copilot > Settings
-
-**Power Platform Settings:**
-
-| Setting | FSI Recommendation |
-|---------|-------------------|
-| Copilot feedback | Review before sending |
+|---|---|
+| Copilot feedback | Review before sending to Microsoft |
 | Generative AI | Enable with monitoring |
-| Preview AI models | Disable in production |
+| Preview AI models | **Disabled** in production environments |
 
-**Copilot Studio Settings:**
+**Copilot Studio:**
 
 | Setting | FSI Recommendation |
-|---------|-------------------|
-| Computer Use | Disable |
-| Code generation | Controlled approval |
-| External Models | Disable |
-| Channel access | Internal only |
+|---|---|
+| Computer Use | **Disabled** (introduces autonomous browser actions) |
+| Code generation | Approval-gated |
+| External Models | **Disabled** |
+| Channel access | Internal channels only for Zone 3 |
 
 ---
 
-## Validation
+## Part 4 — PPAC Copilot Studio AI Feature Toggles
 
-After completing the configuration, verify:
+### Step 15. Configure tenant-level AI feature toggles
 
-1. [ ] M365 Admin Center Copilot Settings configured (User Access, Data Access, Copilot Actions)
-2. [ ] Admin Exclusion Groups created and assigned to compliance-restricted users
-3. [ ] Deployment groups configured for staged rollout
-4. [ ] Feature access controls applied and propagated (allow 8 hours)
-5. [ ] Agent registry displays all deployed agents with accurate metadata
-6. [ ] PPAC Copilot Settings configured with FSI recommendations applied
-7. [ ] Ownerless agents identified and assigned owners
-8. [ ] AI Prompts toggle disabled in PPAC for Zone 2/3 environments
-9. [ ] Generative Actions disabled for agents without documented approval
-10. [ ] File Analysis disabled for agents without data classification review
-11. [ ] Model Knowledge disabled for agents handling sensitive data
-12. [ ] Semantic Search disabled for agents without approved and scoped knowledge bases
-13. [ ] Conversational transcript access restricted to authorized personnel
-14. [ ] DLP policies block agent publishing connectors in restricted environments
+**Portal Path:** PPAC → **Copilot** → **Settings** *(previously Environments → [env] → Settings → Product → Features)*
 
-**Expected Result:** Copilot and Agent governance dashboards provide visibility into agent deployments, settings enforce organizational policies, and AI feature toggles are governed per zone requirements.
+| Toggle | Zone 2/3 action |
+|---|---|
+| AI Prompts | **Off** unless approved |
 
----
+### Step 16. Configure per-environment Generative AI features
 
-## Part 4: PPAC Copilot Studio AI Feature Controls
+**Portal Path:** PPAC → **Environments** → [select environment] → **Generative AI features**
 
-### Step 11: Configure AI Feature Toggles Per Environment
+| Feature | Zone 2/3 action |
+|---|---|
+| Generative AI features | Restrict by default |
+| Move Data Across Regions | **Off** (data residency) |
+| Bing Search | **Off** (external grounding) |
+| Microsoft 365 Services | Compliance review before enabling |
 
-**Portal Path:** PPAC > Copilot > Settings (previously under Environments > [Select Environment] > Settings > Product > Features)
+### Step 17. Configure agent-level AI settings (Copilot Studio)
 
-1. Navigate to the Copilot settings in PPAC
-2. Review and configure each AI feature toggle:
+For each agent in Zone 2/3 environments, open [Copilot Studio](https://copilotstudio.microsoft.com) and disable:
 
-| Toggle | Action for Zone 2/3 |
-|--------|---------------------|
-| **AI Prompts** | Set to **Off** unless approved |
+- **Overview → Orchestration → Generative Actions**
+- **Settings → Generative AI → File processing**
+- **Settings → Generative AI → Use model knowledge**
+- **Settings → Generative AI → Use semantic search**
 
-3. Select **Save**
+Enable any of these only with: documented business justification, data classification review, risk assessment with mitigating controls, Compliance Officer sign-off, and quarterly re-attestation.
 
-### Step 12: Configure Per-Environment Generative AI Features
+### Step 18. Restrict transcript access
 
-**Portal Path:** PPAC > Environments > [Select Environment] > Generative AI features
+**Portal Path:** PPAC → **Copilot** → **Settings** *(transcript controls; previously under Environment → Features → Copilot Studio Agents)*
 
-1. Navigate to the environment's Generative AI features page
-2. Review and configure each feature:
+Restrict transcript access to Compliance Officers and designated Supervisors. Apply separation of duties — agent creators must not access transcripts for agents they built (FINRA 3110). See the control document section "Conversational Transcript Access Governance" for the full role matrix.
 
-| Feature | Action for Zone 2/3 |
-|---------|---------------------|
-| **Generative AI features** | Restrict by default |
-| **Move Data Across Regions** | Set to **Off** |
-| **Bing Search** | Set to **Off** |
-| **Microsoft 365 Services** | Review with compliance before enabling |
+### Step 19. DLP for Agent Publishing Connectors
 
-3. Select **Save**
+**Portal Path:** PPAC → **Policies** → **Data policies**
 
-### Step 13: Configure Agent-Level AI Settings (Copilot Studio)
+In any environment where agent publishing should be restricted, block:
 
-1. Open **Copilot Studio** ([https://copilotstudio.microsoft.com](https://copilotstudio.microsoft.com))
-2. For each agent in Zone 2/3 environments:
-   - Go to **Overview** > **Orchestration** > disable **Generative Actions** toggle
-   - Go to **Settings** > **Generative AI** > disable **File processing** toggle
-   - Go to **Settings** > **Generative AI** > disable **Use model knowledge** toggle
-   - Go to **Settings** > **Generative AI** > disable **Use semantic search** toggle
-3. Enable any of these only with:
-   - Documented business justification
-   - Data classification review
-   - Risk assessment with mitigating controls
-   - Compliance officer sign-off
-   - Quarterly re-attestation
+- **Copilot Studio for Microsoft Teams**
+- **M365 Copilot channel**
 
-### Step 14: Configure Conversational Transcript Access
-
-**Portal Path:** PPAC > Copilot > Settings (previously under Environments > [Select Environment] > Settings > Product > Features > Copilot Studio Agents)
-
-1. Navigate to the environment's Features settings
-2. Under **Copilot Studio Agents**, configure transcript access controls
-3. Restrict access to authorized personnel only (compliance, governance, security teams)
-
-### Step 15: Configure DLP for Agent Publishing Connectors
-
-1. In PPAC, navigate to **Data policies**
-2. Select or create a DLP policy for the target environment
-3. Block the following connectors in environments where agent publishing should be restricted:
-   - **Copilot Studio for Microsoft Teams**
-   - **M365 Copilot channel**
-4. Select **Save**
-5. See [Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) for comprehensive DLP policy configuration
+See [Control 1.5 — Data Loss Prevention](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) for full DLP policy authoring guidance.
 
 ---
 
-[Back to Control 3.8](../../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+## Validation Checklist
+
+| # | Item | Where verified |
+|---|---|---|
+| 1 | Copilot Settings configured across all four tabs | M365 Admin → Copilot → Settings |
+| 2 | `CopilotForM365AdminExclude` group created with correct name and members | Entra → Groups |
+| 3 | Deployment groups created and assigned per wave | M365 Admin → Copilot → Settings |
+| 4 | Feature access propagated (≤ 8 hours) and tested | Test sign-in evidence |
+| 5 | Agent registry reconciled against approved inventory | M365 Admin → Agents → Registry |
+| 6 | PPAC Copilot Settings configured per FSI defaults | PPAC → Copilot → Settings |
+| 7 | Ownerless agents assigned within 14 days | M365 Admin → Agents → Overview |
+| 8 | AI Prompts toggle Off (Zone 2/3) | PPAC → Copilot → Settings |
+| 9 | Generative Actions Off without documented approval | Copilot Studio → Agent → Orchestration |
+| 10 | File Analysis Off without classification review | Copilot Studio → Agent → Settings → Generative AI |
+| 11 | Model Knowledge Off for sensitive-data agents | Copilot Studio → Agent → Settings → Generative AI |
+| 12 | Semantic Search Off without scoped knowledge bases | Copilot Studio → Agent → Settings → Generative AI |
+| 13 | Move Data Across Regions / Bing Search Off | PPAC → Environments → Generative AI features |
+| 14 | Transcript access restricted to Compliance roles | PPAC → Copilot → Settings |
+| 15 | DLP blocks agent publishing connectors in restricted environments | PPAC → Policies → Data policies |
+
+**Expected outcome:** Copilot Hub and Agent governance surfaces provide the visibility needed for monthly supervision evidence, and AI feature toggles are governed per zone. These settings **support** FINRA 4511 / 25-07, SEC 17a-3/4, GLBA 501(b), and SOX 404 obligations; they do not by themselves constitute compliance.
 
 ---
 
-*Updated: February 2026 | Version: v1.3*
+[Back to Control 3.8](../../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) | [PowerShell Setup](powershell-setup.md) | [Verification & Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+
+---
+
+*Updated: April 2026 | Version: v1.3.3 | UI Verification Status: Current*

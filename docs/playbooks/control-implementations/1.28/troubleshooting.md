@@ -1,617 +1,326 @@
 # Troubleshooting: Control 1.28 - Policy-Based Agent Publishing Restrictions
 
-**Last Updated:** February 2026
-**Support Level:** L2/L3 Technical Support
+**Last Updated:** April 2026<br>
+**Support Level:** L2 / L3 (Power Platform and Copilot Studio admins)
 
 ## Overview
 
-This playbook provides troubleshooting guidance for common issues related to policy-based agent publishing restrictions, DLP enforcement, approval workflows, and security scan failures.
+This playbook addresses the issues most often encountered when implementing or operating policy-based agent publishing restrictions. Each entry follows a consistent shape: symptoms, likely root causes, diagnostics, resolution options, and prevention.
+
+> **Hedged outcome language:** The Copilot Studio publish dialog and pre-publish messaging evolve as Microsoft ships product updates. If the wording you see differs from the wording quoted here, treat the in-product message as authoritative and use the diagnostics below to narrow the cause.
 
 ---
 
-## Issue 1: Agent Publishing Blocked by DLP Violation
+## Issue 1 — Publish Blocked: "DLP violation" Finding
 
 ### Symptoms
-- Agent cannot be published due to DLP policy violation
-- Security scan shows red error indicator with DLP connector violation
-- Error message: "This agent cannot be published due to DLP policy violations"
 
-### Root Causes
-- Agent uses connectors classified as "Blocked" in the environment's DLP policy
-- Agent uses connectors in "Non-Business" group that conflict with "Business" connectors
-- DLP policy was recently updated and the agent now violates new restrictions
+- Author clicks **Publish** in Copilot Studio and the pre-publish dialog surfaces a DLP-related finding identifying one or more connectors.
+- The agent remains in its prior state.
 
-### Diagnostic Steps
+### Likely Causes
 
-1. **Identify the violating connector:**
-   ```powershell
-   # NOTE: No native Test-PowerAppChatBotDlpCompliance cmdlet exists.
-   # Instead, review DLP policies covering Copilot Studio connectors:
-   $env = "YOUR_ENVIRONMENT_ID"
-   Get-AdminDlpPolicy | Where-Object {
-       $_.Environments -contains $env
-   } | Select-Object DisplayName, PolicyName
-   # Then cross-reference agent connector usage in Power Platform Admin Center.
-   ```
+- The agent uses a connector that is in the **Blocked** group of the DLP policy assigned to the environment.
+- A DLP policy was recently tightened and the agent's connector usage no longer aligns.
+- The environment was recently moved into the scope of a stricter zone DLP policy.
 
-2. **Review DLP policy for the environment:**
-   - Open Power Platform Admin Center → Policies → Data policies
-   - Find the policy assigned to the environment
-   - Review connector classifications (Business/Non-Business/Blocked)
+### Diagnostics
 
-3. **Check agent connector usage:**
-   - Open Copilot Studio → Agent → Topics
-   - Review each topic for connector usage
-   - Identify topics using the violating connector
+```powershell
+# Identify which DLP policies cover the target environment.
+$envId = '<environment-id>'
+Get-DlpPolicy | Where-Object { $_.Environments -contains $envId } |
+    Select-Object DisplayName, PolicyName, LastModifiedTime
+```
+
+In the portal:
+
+1. Power Platform Admin Center → Policies → Data policies → open the policy → review **Prebuilt connectors** classification.
+2. In Copilot Studio, open the agent and review the **Topics** and **Settings → Channels** for the named connector.
 
 ### Resolution Options
 
-**Option 1: Remove or Replace Blocked Connector**
-1. Open the agent in Copilot Studio
-2. Navigate to topics using the blocked connector
-3. Either:
-   - Remove the connector action entirely
-   - Replace with an approved connector from the Business group
-4. Save changes and re-attempt publishing
-
-**Option 2: Request DLP Policy Exception (Zone 1 Only)**
-1. Document business justification for connector usage
-2. Submit request to Power Platform Admin
-3. Admin reviews and optionally adds connector to "Business" group
-4. Re-attempt publishing after policy update
-
-**Option 3: Reclassify Connector in DLP Policy (Admin)**
-1. Open Power Platform Admin Center → Policies → Data policies
-2. Edit the relevant DLP policy
-3. Move the connector from "Blocked" to "Business" group
-4. Save policy changes
-5. Notify agent author to re-attempt publishing
+- **Option A — Adjust the agent.** Replace the blocked connector with an approved one, or remove the topic that uses it.
+- **Option B — Reclassify the connector.** If the connector should be allowed, the Power Platform Admin moves it from Blocked to Business in the DLP policy. Document the rationale and route through change control before doing so in Zone 2+.
+- **Option C — Move the environment.** If the agent legitimately belongs in a different zone, reassign the environment to a more permissive zone DLP policy. This is an exceptional step in regulated environments and requires zone reclassification per **Control 2.2**.
 
 ### Prevention
-- Review DLP policy requirements before building agents
-- Use only approved connectors listed in zone-specific connector catalogs
-- Test agents in development environment before promoting to higher zones
+
+- Publish the zone-by-zone connector allowlist to agent authors.
+- Add a pre-build checklist requiring authors to confirm connector choices against the allowlist for the target environment's zone.
 
 ---
 
-## Issue 2: Published Agent Blocked from Updates (February 2025 Enforcement)
+## Issue 2 — Update to a Published Agent Is Blocked (February 2025 Behavior)
 
 ### Symptoms
-- Agent was previously published successfully
-- Attempting to publish an update shows DLP violation error
-- Error message: "This published agent has DLP violations and cannot be updated"
-- Agent remains in previous published version
 
-### Root Causes
-- DLP policy was updated after agent was published
-- A connector the agent uses was reclassified from "Business" to "Blocked"
-- No exemption exists for published agents (February 2025 enforcement change)
+- A previously published agent cannot be updated; the publish action surfaces a DLP finding.
+- The previously published version of the agent continues to serve users.
 
-### Diagnostic Steps
+### Likely Causes
 
-1. **Check when agent was published vs. DLP policy last updated:**
-   ```powershell
-   # Get agent last modified date (use Admin variant for cross-tenant visibility)
-   Get-AdminPowerAppChatbot -EnvironmentName $env -ChatBotName $agent | Select-Object LastModifiedTime
-   
-   # Get DLP policy last modified date
-   Get-AdminDlpPolicy | Where-Object { $_.Environments -contains $env } | Select-Object LastModifiedTime
-   ```
+- DLP policy tightening after publish (for example, a connector moved from Business to Blocked).
+- Microsoft removed the "Soft-Enabled" DLP exemption in February 2025; published agents are now subject to DLP at update time, not just at first publish.
 
-2. **Compare agent connector usage to current DLP policy:**
-   - List all connectors used in agent topics
-   - Compare to current DLP policy connector classifications
-   - Identify which connector was reclassified
+### Diagnostics
+
+- Compare DLP policy `LastModifiedTime` to the agent's `LastModifiedTime` to confirm the policy changed after publish.
+- Confirm via Purview audit (workload `PowerPlatformAdmin`) which actor changed the DLP policy and when.
 
 ### Resolution Options
 
-**Option 1: Reconfigure Agent to Use Approved Connectors**
-1. Identify the violating connector from security scan results
-2. Open agent in Copilot Studio
-3. Reconfigure topics to use approved connectors
-4. Test agent functionality with new connector
-5. Publish updated agent
-
-**Option 2: Request Temporary DLP Exception (Zone 1/Zone 2)**
-1. Document the impact of the DLP policy change
-2. Submit exception request to Power Platform Admin and Compliance Officer
-3. Admin temporarily reclassifies connector to "Business" group
-4. Update agent to remove dependency on connector
-5. Re-publish agent with approved connectors only
-6. Admin reverts DLP policy to original classification
-
-**Option 3: Roll Back DLP Policy Change (Admin)**
-1. Review business justification for DLP policy change
-2. If change was unintentional, revert connector classification
-3. If change was intentional, work with agent authors to reconfigure agents
-4. Document affected agents and remediation timeline
+- Adjust the agent to remove the now-blocked connector dependency, then republish.
+- If the policy change was unintentional, revert the connector classification with documented change-control approval.
+- For a temporary exception, document the business impact, route through Compliance review, and reclassify the connector with a defined revert date.
 
 ### Prevention
-- Maintain an inventory of published agents and their connector dependencies
-- Test DLP policy changes in development environment before applying to production
-- Provide advance notice to agent authors before DLP policy changes
-- Run compliance audit before and after DLP policy updates
+
+- Run the inventory script (PowerShell Setup, Script 4) before any DLP policy tightening to identify agents that will be affected.
+- Notify agent owners in advance of DLP policy changes and provide a remediation window.
 
 ---
 
-## Issue 3: Security Scan Fails to Trigger Before Publishing
+## Issue 3 — Pre-Publish Dialog Shows No Findings, but Agent Should Be Blocked
 
 ### Symptoms
-- Clicking "Publish" does not show security scan results
-- Agent publishes without DLP validation
-- No security warnings or errors displayed
 
-### Root Causes
-- Security scan feature not enabled in tenant (rare)
-- Browser caching issue preventing UI update
-- Agent is in an older environment not yet updated with February 2026 security features
+- An author publishes an agent that you expect to be blocked (e.g., uses Facebook channel in a Zone 2 environment), and the publish completes.
 
-### Diagnostic Steps
+### Likely Causes
 
-1. **Check tenant feature rollout status:**
-   - Open Microsoft 365 Admin Center → Health → Service health
-   - Search for "Copilot Studio" or "Chatbot" updates
-   - Check for recent rollouts related to security scanning
+- The DLP policy is not actually assigned to the environment (assignment was scoped incorrectly).
+- The connector or channel is in **Non-Business** rather than **Blocked**.
+- The environment's policy assignment was recently changed and the cache has not refreshed (rare; typically resolves within minutes).
+- The agent uses a custom connector that the DLP policy does not classify (custom connectors require explicit Default behavior = Block).
 
-2. **Verify environment version:**
-   ```powershell
-   Get-AdminPowerAppEnvironment -EnvironmentName $env | Select-Object EnvironmentName, Version
-   ```
+### Diagnostics
 
-3. **Test with browser cache cleared:**
-   - Clear browser cache and cookies
-   - Log out and log back into Copilot Studio
-   - Re-attempt publishing
+```powershell
+# Confirm policy → environment binding.
+Get-DlpPolicy | ForEach-Object {
+    $p = $_
+    $p.Environments | ForEach-Object {
+        [pscustomobject]@{
+            PolicyDisplayName = $p.DisplayName
+            EnvironmentId     = $_
+        }
+    }
+} | Where-Object EnvironmentId -eq '<environment-id>'
+```
 
-### Resolution
+In the portal, confirm Policies → Data policies → [Policy] → **Scope** lists the expected environment.
 
-**If security scan is not available:**
-1. Manually verify DLP compliance before publishing:
-   - Review agent topics for connector usage
-   - Compare to DLP policy connector classifications
-   - Verify no blocked channels are configured
-2. Run PowerShell compliance check:
-   ```powershell
-   # NOTE: No native Test-PowerAppChatBotDlpCompliance cmdlet exists.
-   # Review DLP policies for the environment and cross-reference with agent connector usage.
-   Get-AdminDlpPolicy | Select-Object DisplayName, PolicyName
-   ```
-3. Contact Microsoft Support if feature is expected but not available
+### Resolution Options
 
-**If browser issue:**
-1. Clear browser cache: Ctrl+Shift+Delete (Windows) or Cmd+Shift+Delete (Mac)
-2. Try alternate browser (Edge, Chrome, Firefox)
-3. Disable browser extensions temporarily
-4. Use InPrivate/Incognito mode
+- Add the environment to the correct zone DLP policy.
+- Move the offending connector from Non-Business to Blocked.
+- Set Custom connectors → Default behavior to **Block** in the policy.
+- Disable the prohibited channel in **Settings → Channels** as a defense-in-depth control.
 
 ### Prevention
-- Monitor Microsoft 365 Message Center for Copilot Studio feature rollouts
-- Test in multiple browsers during publishing workflow validation
-- Document expected security scan behavior for agent authors
+
+- Use explicit environment selection (not "Add all environments") and review scope monthly.
+- Avoid the Non-Business group for Zone 2+ policies; the recommended pattern is Business + Blocked only.
 
 ---
 
-## Issue 4: Approval Workflow Not Triggering (Zone 2+)
+## Issue 4 — Approval Workflow Did Not Trigger
 
 ### Symptoms
-- Agent publishes immediately without approval request
-- No approval notification sent to Power Platform Admin
-- "Submit for approval" button not displayed
 
-### Root Causes
-- Approval workflow not enabled in environment settings
-- User has Power Platform Admin role (bypasses approval)
-- Environment is classified as Zone 1 (approval not required)
+- The author publishes in a Zone 2+ environment and the publish completes without any approval being requested.
 
-### Diagnostic Steps
+### Likely Causes
 
-1. **Check environment approval settings:**
-   - Open Power Platform Admin Center → Environments → [Environment] → Settings
-   - Navigate to Features → Copilot and Power Apps
-   - Verify "Require approval for new chatbots" is enabled
+- The Power Automate flow that watches the Dataverse `bot` table is disabled, scoped to the wrong environment, or filtering on the wrong condition.
+- The author has the Power Platform Admin role and is exempted from the surrounding approval flow by design.
+- The flow's connection reference uses an account that no longer has access to the Dataverse environment.
 
-2. **Check user role:**
-   ```powershell
-   # Get user's role assignments in environment
-   Get-AdminPowerAppRoleAssignment -EnvironmentName $env -PrincipalDisplayName "User Name"
-   ```
+### Diagnostics
 
-3. **Verify environment zone classification:**
-   - Confirm environment is designated as Zone 2 or Zone 3
-   - Check environment naming convention matches zone classification
+- Open Power Automate → My flows; confirm the approval flow status is **On**.
+- Open the flow's run history and confirm runs are appearing for recent agent publishes.
+- Confirm the trigger's environment scope matches the environment where the publish happened.
+- Confirm the connection references are healthy (no broken connections).
 
-### Resolution
+### Resolution Options
 
-**If approval workflow not enabled:**
-1. Open Power Platform Admin Center
-2. Navigate to Environments → [Environment] → Settings → Features
-3. Enable "Require approval for new chatbots"
-4. Optionally enable "Require approval for chatbot updates"
-5. Click Save
-6. Test publishing again
-
-**If user has admin role:**
-1. Verify this is expected behavior (admins can bypass approval)
-2. If testing approval workflow, use a test account with only Agent Author role
-3. Document that admin accounts bypass approval for operational efficiency
-
-**If environment is Zone 1:**
-1. Verify zone classification is correct
-2. If environment should be Zone 2+, reclassify environment
-3. Apply appropriate DLP policy and approval settings for the zone
+- Re-enable or repair the flow.
+- If the trigger filter excludes admin accounts deliberately, document this in the control evidence; otherwise, broaden the filter.
+- Repair connection references and re-test.
 
 ### Prevention
-- Document environment approval settings in governance documentation
-- Use separate test accounts without admin roles for approval workflow testing
-- Maintain environment inventory with zone classifications and approval requirements
+
+- Add a daily flow-health check (a simple scheduled flow that pings the approval flow's run history and alerts if no runs in N days).
+- Treat the approval flow as production code: source control, CAB-approved changes, and ownership documented.
 
 ---
 
-## Issue 5: Approval Request Not Received by Admin
+## Issue 5 — Approver Did Not Receive the Approval Request
 
 ### Symptoms
-- Agent author submits agent for approval
-- Power Platform Admin does not receive approval notification email
-- Approval request not visible in Power Platform Admin Center
 
-### Root Causes
-- Email notification disabled or filtered to spam
-- Admin not assigned to environment or approval group
-- Approval routing misconfigured
+- The Power Automate flow ran successfully, but the designated approver reports they never received the request.
 
-### Diagnostic Steps
+### Likely Causes
 
-1. **Check admin's email spam/junk folder:**
-   - Search for emails from "Microsoft Power Platform"
-   - Check quarantine and blocked sender lists
+- The approval was routed to a group whose membership has changed.
+- The approver's Microsoft Teams Approvals app or Outlook email is filtering the message.
+- The flow uses **First to respond** with multiple approvers and a different approver acted before the expected one.
 
-2. **Verify admin role assignment:**
-   ```powershell
-   # Check if admin is assigned to environment
-   Get-AdminPowerAppEnvironment -EnvironmentName $env | Select-Object RoleAssignments
-   ```
+### Diagnostics
 
-3. **Check approval queue in Power Platform Admin Center:**
-   - Navigate to Power Platform Admin Center
-   - Look for "Pending approvals" or "Notifications" section
-   - Verify approval is listed even if email not received
+- Open the flow run; inspect the **Start and wait for an approval** action's outputs to confirm the assigned approver and the response.
+- Check the approver's Teams Approvals app and email Junk / Quarantine folders.
 
-### Resolution
+### Resolution Options
 
-**If email notification issue:**
-1. Add "powerplatform.microsoft.com" to safe sender list
-2. Check email rules that may be filtering notifications
-3. Request IT to whitelist Power Platform notification emails
-4. Configure alternative notification method (e.g., Teams notification)
-
-**If admin not assigned:**
-1. Assign admin to environment:
-   ```powershell
-   Add-AdminPowerAppRoleAssignment -EnvironmentName $env -RoleName "Environment Admin" -PrincipalObjectId "ADMIN_OBJECT_ID"
-   ```
-2. Re-submit publishing request
-
-**If approval routing misconfigured:**
-1. Review approval workflow configuration in Power Automate
-2. Verify approval flow is active and correctly configured
-3. Test approval flow with a manual trigger
+- Update the approver group or named approver list in the flow.
+- Whitelist Power Automate notification senders in the firm's mail filtering rules.
+- For Zone 3, switch to **Everyone must approve** rather than First to respond to enforce multi-party review.
 
 ### Prevention
-- Test approval notification delivery during initial setup
-- Document admin contact information and notification preferences
-- Establish backup approval process if email notifications fail
-- Monitor approval queue regularly regardless of email notifications
+
+- Quarterly access review of the approver group to confirm current membership.
+- Send a monthly synthetic approval to confirm end-to-end delivery.
 
 ---
 
-## Issue 6: Multi-Level Approval Workflow Not Enforced (Zone 3)
+## Issue 6 — Power Platform Pipelines Did Not Stop a Direct Production Publish
 
 ### Symptoms
-- Zone 3 agent approves after single approval
-- Second-level approval not required
-- Agent publishes with only Power Platform Admin approval (missing Compliance Officer approval)
 
-### Root Causes
-- Multi-level approval workflow not configured in Power Automate
-- Environment settings only enforce single approval
-- Approval workflow configured but not activated
+- A Zone 3 agent was published directly in the production environment, bypassing the Dev → Test → Prod pipeline.
 
-### Diagnostic Steps
+### Likely Causes
 
-1. **Check for custom approval flow:**
-   - Open Power Automate
-   - Search for flows related to agent publishing approval
-   - Verify flow is active and configured for multi-stage approval
+- The actor had `prvCreateBot` / `prvWriteBot` privileges in the production environment via a Dataverse security role.
+- The actor used the Copilot Studio app directly in the production environment instead of submitting a deployment from a lower environment.
 
-2. **Review environment approval settings:**
-   - Verify if built-in approval supports multi-level (may require Power Automate)
-   - Check if custom approval flow is referenced in environment settings
+### Diagnostics
 
-### Resolution
+- Review the Dataverse security role assignments in the production environment for the actor and any group memberships.
+- Pull the Purview audit event for the publish and confirm the actor and the environment.
 
-**Create multi-level approval workflow using Power Automate:**
+### Resolution Options
 
-1. Create a new flow in Power Automate:
-   - Trigger: "When an agent publishing request is submitted"
-   - Action: "Start and wait for an approval" (First level - Power Platform Admin)
-   - Condition: If first approval is approved
-   - Action: "Start and wait for an approval" (Second level - Compliance Officer)
-   - Condition: If second approval is approved
-   - Action: "Publish agent"
-   - Else: "Reject agent publishing request"
-
-2. Activate the flow
-
-3. Update environment settings to use custom approval flow
-
-4. Test multi-level approval with a sample agent
+- Tighten Dataverse role assignments per **Control 1.1** so that only the pipeline service principal has bot create/update privileges in production.
+- For human admins who must retain access for break-glass scenarios, gate the role assignment behind Entra Privileged Identity Management (PIM) just-in-time elevation.
 
 ### Prevention
-- Document multi-level approval requirements in governance policies
-- Test approval workflows during initial Zone 3 environment setup
-- Establish SLA for each approval level (e.g., 24 hours for L1, 24 hours for L2)
-- Monitor approval metrics to ensure multi-level process is followed
+
+- Treat Power Platform Pipelines as the supported deployment path and remove direct authoring permissions in Zone 3 production environments.
+- Review Dataverse role assignments quarterly.
 
 ---
 
-## Issue 7: Environment Promotion Pipeline Not Enforced (Zone 3)
+## Issue 7 — PowerShell Returns Empty Results, No Errors
 
 ### Symptoms
-- Agents can be published directly to production from development
-- No validation that agent passed through test environment
-- Promotion pipeline bypassed
 
-### Root Causes
-- Environment groups not configured to link dev/test/prod
-- No technical enforcement of promotion sequence
-- Manual process not followed by agent authors
+- `Get-DlpPolicy` or `Get-AdminPowerAppEnvironment` returns no rows in a tenant where you can see policies or environments in the portal.
 
-### Diagnostic Steps
+### Likely Causes
 
-1. **Check environment group configuration:**
-   ```powershell
-   # Check if environment groups exist
-   # NOTE: Get-AdminPowerAppEnvironmentGroup is an anticipated cmdlet not yet
-   # available in all tenants. If not recognized, list environments manually:
-   Get-AdminPowerAppEnvironmentGroup
-   # Fallback if cmdlet is unavailable:
-   # Get-AdminPowerAppEnvironment | Select-Object DisplayName, EnvironmentName, EnvironmentType
-   ```
+- The session is running in PowerShell 7 (Core) instead of Windows PowerShell 5.1; `Microsoft.PowerApps.Administration.PowerShell` requires Desktop edition and silently returns empty results otherwise.
+- The session authenticated against the wrong cloud (commercial endpoint while the tenant is in GCC / GCC High / DoD).
+- The signed-in account does not have Power Platform Admin (read access only via the portal does not grant cmdlet access to all properties).
 
-2. **Verify promotion pipeline documentation:**
-   - Review governance policies for promotion requirements
-   - Check if technical enforcement exists vs. process enforcement
+### Diagnostics
 
-### Resolution
+```powershell
+$PSVersionTable.PSEdition       # Should be 'Desktop' for these cmdlets
+$PSVersionTable.PSVersion       # Should be 5.1.x
 
-**Configure environment promotion pipeline:**
+# Confirm the endpoint the session is bound to:
+(Get-PowerAppsAccount).Endpoint
+```
 
-1. Create environment group linking dev/test/prod:
-   - Open Power Platform Admin Center → Environment groups
-   - Create group with development, test, and production environments
+### Resolution Options
 
-2. Implement promotion workflow using Power Automate:
-   - Trigger: "When agent is published in development"
-   - Action: "Create promotion request to test environment"
-   - Require approval before promoting to test
-   - Trigger: "When agent is published in test"
-   - Action: "Create promotion request to production"
-   - Require approval before promoting to production
-
-3. Document promotion pipeline in governance policies
-
-4. Train agent authors on promotion process
-
-**Alternative - Manual enforcement:**
-1. Document promotion checklist requiring:
-   - Evidence of successful development publishing
-   - Evidence of successful test environment validation
-   - Approval to promote to production
-2. Power Platform Admin verifies checklist before approving production publishing
+- Switch to a Windows PowerShell 5.1 session.
+- Re-authenticate with the correct sovereign-cloud endpoint: `Add-PowerAppsAccount -Endpoint usgov` (GCC) / `usgovhigh` (GCC High) / `dod` (DoD).
+- Confirm the signed-in account holds the Power Platform Admin role (or use a service principal that does).
 
 ### Prevention
-- Implement technical enforcement of promotion pipeline where possible
-- Audit production publishing events to identify bypassed promotions
-- Require promotion evidence in approval requests
-- Use naming conventions for agents to track promotion status (e.g., "AgentName-Dev", "AgentName-Test", "AgentName-Prod")
+
+- Add the PowerShell guard from the [PowerShell Setup](powershell-setup.md) playbook to every script. It throws when running under a non-Desktop edition rather than producing false-clean evidence.
+- Document the sovereign-cloud endpoint in your runbooks; do not rely on per-operator memory.
 
 ---
 
-## Issue 8: PowerShell Script Fails - Insufficient Permissions
+## Issue 8 — DLP Policy Cmdlet Names Do Not Resolve
 
 ### Symptoms
-- PowerShell compliance audit script fails with permission error
-- Error message: "Access denied" or "Insufficient privileges"
-- Unable to retrieve agent or DLP policy information
 
-### Root Causes
-- PowerShell module not run with Power Platform Admin role
-- Service principal used for automation lacks required permissions
-- Tenant policies block PowerShell access
+- `New-DlpPolicy` (or the older `New-AdminDlpPolicy`) is not recognized as the name of a cmdlet.
 
-### Diagnostic Steps
+### Likely Causes
 
-1. **Verify current user role:**
-   ```powershell
-   Get-AdminPowerAppEnvironment | Select-Object -First 1
-   # If this fails, user lacks admin permissions
-   ```
+- The `Microsoft.PowerApps.Administration.PowerShell` module is not installed or not imported in the current session.
+- The pinned module version predates the rename of the DLP cmdlets (older versions used the `Admin`-prefixed names; current Microsoft Learn documents the non-prefixed names).
 
-2. **Check module version:**
-   ```powershell
-   Get-Module -Name Microsoft.PowerApps.Administration.PowerShell -ListAvailable
-   ```
+### Diagnostics
 
-3. **Test authentication:**
-   ```powershell
-   Add-PowerAppsAccount
-   # Verify authentication completes successfully
-   ```
+```powershell
+Get-Module -Name Microsoft.PowerApps.Administration.PowerShell -ListAvailable
+Get-Command -Module Microsoft.PowerApps.Administration.PowerShell -Name *Dlp*
+```
 
-### Resolution
+### Resolution Options
 
-**If permission issue:**
-1. Verify user has Power Platform Admin role assigned
-2. Request role assignment from Entra Global Admin if needed
-3. Re-run script after role assignment propagates (may take 15-60 minutes)
-
-**If service principal issue:**
-1. Grant service principal Power Platform Admin role:
-   ```powershell
-   # Add service principal as admin
-   Add-PowerAppsAccount -TenantID "YOUR_TENANT_ID" -ApplicationId "YOUR_APP_ID" -ClientSecret "YOUR_SECRET"
-   ```
-2. Update automation to use service principal authentication
-
-**If tenant policy blocks PowerShell:**
-1. Contact tenant administrator
-2. Request exception for Power Platform PowerShell module
-3. Use Azure Automation or Azure Functions as alternative execution environment
+- Install or import the module per the [PowerShell Setup](powershell-setup.md) playbook.
+- If your pinned version exposes only `*-AdminDlpPolicy`, use those names consistently. If it exposes both, prefer the non-prefixed names per current Microsoft Learn guidance and use them consistently across your scripts.
 
 ### Prevention
-- Document required roles for PowerShell automation
-- Use service principal with least-privilege permissions for scheduled automation
-- Test PowerShell scripts in pre-production before deploying to production automation
-- Monitor PowerShell execution logs for permission errors
+
+- Pin a single module version per CAB-approved baseline and avoid mixing cmdlet name conventions in the same automation.
 
 ---
 
-## Issue 9: Audit Logs Not Capturing Publishing Events
+## Issue 9 — Audit Events Missing in Purview
 
 ### Symptoms
-- Publishing events not visible in Microsoft Purview audit logs
-- Audit search returns no results for agent publishing
-- Missing approval, rejection, or DLP violation events
 
-### Root Causes
-- Audit logging not enabled in Microsoft Purview
-- Audit log retention policy not configured
-- Search parameters incorrect (wrong date range, keywords)
+- Bot publish events do not appear in Purview audit search even though the publish clearly happened.
 
-### Diagnostic Steps
+### Likely Causes
 
-1. **Verify audit logging is enabled:**
-   - Open Microsoft Purview Compliance Portal → Audit
-   - Check if auditing is turned on for the organization
+- Events have not yet been ingested (Purview audit ingestion typically lags 30–60 minutes).
+- The audit search filter is too narrow (wrong workload or date range).
+- Auditing was disabled in the tenant or for the relevant workload.
 
-2. **Check audit log retention policy:**
-   - Navigate to Purview → Audit → Retention policies
-   - Verify policy exists for Power Platform events
+### Diagnostics
 
-3. **Test with broader search:**
-   - Search for all activities in last 7 days
-   - Verify audit logs are being captured for other services
+- Wait at least 60 minutes after the activity before re-searching.
+- Broaden the search to `All workloads` to confirm ingestion is happening for other activity.
+- Confirm Purview Audit (Standard) is enabled for the tenant.
 
-### Resolution
+### Resolution Options
 
-**If audit logging not enabled:**
-1. Open Microsoft Purview Compliance Portal
-2. Navigate to Audit → Turn on auditing
-3. Wait 30-60 minutes for auditing to activate
-4. Perform a test publishing action
-5. Search for the test event after 1-2 hours
-
-**If retention policy not configured:**
-1. Navigate to Purview → Audit → Retention policies
-2. Create new retention policy:
-   - Name: "Power Platform Agent Publishing Audit Retention"
-   - Record types: "Chatbot activities", "Power Apps activities"
-   - Retention period: 7 years (FSI regulatory requirement)
-3. Save policy
-
-**If search parameters incorrect:**
-1. Use these search parameters:
-   - Activities: "Chatbot activities" or "All activities"
-   - Keywords: "Chatbot", "Copilot", "Publish", "Approval"
-   - Date range: Expand to last 30 days
-2. Export results to CSV for detailed review
+- Re-enable auditing if disabled.
+- Use the **PowerPlatformAdmin** and **Dataverse** workload filters specifically when looking for agent publish events.
+- For Zone 3 evidence, use Audit (Premium) where available to extend retention beyond the default 180 days.
 
 ### Prevention
-- Verify audit logging is enabled during initial tenant setup
-- Test audit log capture for key events monthly
-- Document audit search procedures for compliance team
-- Set up alerts for audit log failures or gaps
+
+- Validate audit capture as part of the test pass (Verification & Testing, Test Case 8) and on a quarterly basis thereafter.
 
 ---
 
-## Issue 10: Blocked Channel Not Detected by Security Scan
+## Escalation Path
 
-### Symptoms
-- Agent configured with Facebook or Telegram channel
-- Security scan passes without detecting blocked channel
-- Agent publishes successfully despite channel restrictions
+If an issue is not resolved by the steps above:
 
-### Root Causes
-- Channel restrictions not enforced via DLP policy
-- Security scan not configured to check channel restrictions
-- Channel was enabled after agent was published
-
-### Diagnostic Steps
-
-1. **Verify DLP policy includes channel restrictions:**
-   - Open Power Platform Admin Center → Policies → Data policies
-   - Check if Facebook, Telegram, Public Website connectors are in "Blocked" group
-
-2. **Check agent channel configuration:**
-   - Open Copilot Studio → Agent → Settings → Channels
-   - List all enabled channels
-
-3. **Test publishing with explicitly blocked channel:**
-   - Create a test agent
-   - Enable Facebook channel
-   - Attempt to publish
-   - Verify security scan detects violation
-
-### Resolution
-
-**Update DLP policy to block channels:**
-1. Open Power Platform Admin Center → Policies → Data policies
-2. Edit the relevant DLP policy
-3. Add the following connectors to "Blocked" group:
-   - Facebook
-   - Telegram
-   - Public Website
-4. Save policy
-5. Re-test agent publishing
-
-**Disable blocked channels on existing agents:**
-1. Audit all published agents for channel configuration:
-   ```powershell
-   Get-AdminPowerAppChatbot -EnvironmentName $env | Select-Object DisplayName, Channels
-   ```
-2. For each agent with blocked channels:
-   - Open agent in Copilot Studio
-   - Navigate to Settings → Channels
-   - Disable prohibited channels
-   - Save changes
-
-### Prevention
-- Include channel restrictions in zone-specific DLP policies
-- Document approved channels for each zone in governance policies
-- Audit agent channel configuration monthly
-- Require channel justification in publishing approval requests
-
----
-
-## Escalation Paths
-
-If issues cannot be resolved using this playbook:
-
-1. **Level 1 (Agent Authors):** Contact Power Platform Admin
-2. **Level 2 (Power Platform Admin):** Contact Entra Global Admin or Microsoft Support
-3. **Level 3 (Microsoft Support):**
-   - Open support ticket via Microsoft 365 Admin Center
-   - Select "Power Platform" → "Copilot Studio" → "Publishing and DLP"
-   - Provide diagnostic information from troubleshooting steps
-
----
-
-## Additional Resources
-
-- [Microsoft Learn: Data loss prevention policies troubleshooting](https://learn.microsoft.com/en-us/power-platform/admin/wp-data-loss-prevention)
-- [Microsoft Learn: Copilot Studio troubleshooting](https://learn.microsoft.com/en-us/troubleshoot/power-platform/copilot-studio/welcome-copilot-studio)
-- [Microsoft Support: Power Platform support](https://aka.ms/powerplatformsupport)
+1. Capture the in-product wording of the finding, the exact agent and environment IDs, the relevant DLP policy ID, and the timestamp.
+2. Open a Microsoft support case under the Power Platform / Copilot Studio severity appropriate to your firm's regulatory exposure.
+3. Notify your AI Governance Lead and, for Zone 3 issues, your Compliance Officer.
 
 ---
 
 [Back to Control 1.28](../../../controls/pillar-1-security/1.28-policy-based-agent-publishing-restrictions.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification & Testing](verification-testing.md)
+
+---
+
+*Updated: April 2026 | Version: v1.3.3 | UI Verification Status: Current*

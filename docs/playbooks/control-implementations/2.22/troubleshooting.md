@@ -2,7 +2,7 @@
 
 > **Parent Control:** [2.22 - Inactivity Timeout Enforcement](../../../controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md)
 
-**Last Updated:** February 2026
+**Last Updated:** April 2026
 **Support Contacts:** Power Platform Admin, AI Governance Lead
 **Escalation Path:** L1 (IT Help Desk) → L2 (Power Platform Admin) → L3 (AI Governance Lead) → L4 (Microsoft Support)
 
@@ -473,4 +473,4 @@ $results | Format-Table -AutoSize
 
 ---
 
-*Updated: February 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3*

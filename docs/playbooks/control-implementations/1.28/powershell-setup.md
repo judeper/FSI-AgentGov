@@ -1,460 +1,285 @@
 # PowerShell Setup: Control 1.28 - Policy-Based Agent Publishing Restrictions
 
-**Last Updated:** February 2026
-**PowerShell Module:** Microsoft.PowerApps.Administration.PowerShell
-**Estimated Time:** 20-30 minutes
+!!! warning "Read the FSI PowerShell baseline first"
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
+
+**Last Updated:** April 2026<br>
+**Primary Module:** `Microsoft.PowerApps.Administration.PowerShell` (Windows PowerShell 5.1, Desktop edition)<br>
+**Estimated Time:** 30–45 minutes (initial setup); 5–10 minutes per audit run
+
+---
 
 ## Prerequisites
 
-- [ ] PowerShell 7+ installed
-- [ ] Microsoft.PowerApps.Administration.PowerShell module installed
-- [ ] Power Platform Admin or Entra Global Admin credentials
-- [ ] Tenant access with appropriate permissions
+- [ ] Windows PowerShell 5.1 (Desktop edition) — required for `Microsoft.PowerApps.Administration.PowerShell`
+- [ ] Power Platform Admin role on the target tenant
+- [ ] CAB-approved pinned versions of the modules listed below
+- [ ] Sovereign-cloud `-Endpoint` value documented (commercial / GCC / GCC High / DoD)
 
 ---
 
-## Module Installation
+## Module Installation (Pinned)
 
 ```powershell
-# Install Power Apps Administration module
-Install-Module -Name Microsoft.PowerApps.Administration.PowerShell -Force -AllowClobber
+# Substitute <version> with the version approved by your CAB (do not use floating versions in regulated tenants).
+Install-Module -Name Microsoft.PowerApps.Administration.PowerShell `
+    -RequiredVersion '<version>' `
+    -Repository PSGallery `
+    -Scope CurrentUser `
+    -AllowClobber `
+    -AcceptLicense
 
-# Import module
+Install-Module -Name Microsoft.PowerApps.PowerShell `
+    -RequiredVersion '<version>' `
+    -Repository PSGallery `
+    -Scope CurrentUser `
+    -AllowClobber `
+    -AcceptLicense
+
 Import-Module Microsoft.PowerApps.Administration.PowerShell
 
-# Connect to Power Platform (interactive authentication)
-Add-PowerAppsAccount
+# Sovereign-aware authentication. Replace -Endpoint with usgov / usgovhigh / dod for US Government clouds.
+Add-PowerAppsAccount -Endpoint prod
 ```
 
-!!! danger "API Availability — Verify Before Use"
-    The `Set-AdminDlpPolicy -ConnectorGroups` parameter syntax, `Add-AdminPowerAppEnvironmentToPolicy` cmdlet, and wildcard connector path `shared_*` used in these scripts are based on **anticipated API schema** as of February 2026. These parameters and cmdlets may not be available in all tenants. Before running the scripts, test cmdlet availability:
+```powershell
+# Hard guard — prevents silent false-clean evidence in PowerShell 7.
+if ($PSVersionTable.PSEdition -ne 'Desktop') {
+    throw "Microsoft.PowerApps.Administration.PowerShell requires Windows PowerShell 5.1 (Desktop edition). Detected: $($PSVersionTable.PSEdition) $($PSVersionTable.PSVersion)."
+}
+```
 
-    ```powershell
-    Get-Help Set-AdminDlpPolicy -Parameter ConnectorGroups
-    Get-Help Add-AdminPowerAppEnvironmentToPolicy
-    ```
-
-    If the parameters or cmdlets are not recognized, use the [Portal Walkthrough](portal-walkthrough.md) to configure DLP policies and environment assignments manually.
+!!! note "Cmdlet naming"
+    The current canonical DLP cmdlet names in this module are `New-DlpPolicy`, `Get-DlpPolicy`, `Set-DlpPolicy`, `Remove-DlpPolicy`, and `Add-PowerAppEnvironmentToPolicy`. Older "Admin"-prefixed aliases (`New-AdminDlpPolicy`, `Get-AdminDlpPolicy`, etc.) still resolve in current builds of the module but the non-prefixed names are what Microsoft Learn currently documents. Use whichever set is consistent in your existing automation; do not mix.
 
 ---
 
-## Script 1: Create Zone-Specific DLP Policies
+## Script 1 — Discover Current DLP Posture (Read-Only)
 
-This script creates DLP policies for each governance zone with appropriate connector restrictions.
+Run this first to inventory existing policies and environment assignments before making any changes.
 
 ```powershell
 <#
 .SYNOPSIS
-    Create zone-specific DLP policies for agent publishing restrictions
-.DESCRIPTION
-    Creates three DLP policies (Zone 1, Zone 2, Zone 3) with escalating connector restrictions
-    to enforce policy-based publishing controls
+    Read-only inventory of current DLP policies and environment assignments.
 .NOTES
-    Requires Power Platform Admin role
+    Safe to run in production. Produces a CSV evidence file with SHA-256 hash.
 #>
 
-# Connect to Power Platform
-Add-PowerAppsAccount
+$timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
+$outDir    = Join-Path -Path (Get-Location) -ChildPath "evidence/1.28"
+New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 
-# Define Zone 1 (Personal) DLP Policy
-$zone1PolicyName = "Zone 1 - Personal Productivity DLP Policy"
-# NOTE: Use New-AdminDlpPolicy for admin-context DLP policy creation.
-$zone1Policy = New-AdminDlpPolicy -DisplayName $zone1PolicyName `
-    -EnvironmentType "OnlyEnvironments"
-
-# Configure Zone 1 connectors
-$zone1BusinessConnectors = @(
-    "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
-    "/providers/Microsoft.PowerApps/apis/shared_office365",
-    "/providers/Microsoft.PowerApps/apis/shared_teams",
-    "/providers/Microsoft.PowerApps/apis/shared_commondataservice"
-)
-
-$zone1BlockedConnectors = @(
-    "/providers/Microsoft.PowerApps/apis/shared_telegram",
-    "/providers/Microsoft.PowerApps/apis/shared_facebook",
-    "/providers/Microsoft.PowerApps/apis/shared_publicwebsites"
-)
-
-# Add connectors to Zone 1 policy using Set-AdminDlpPolicy connector group classification
-# NOTE: Add-ConnectorToBusinessDataGroup does not exist. Use Set-AdminDlpPolicy with
-# ConnectorGroups to classify connectors into Business/NonBusiness/Blocked groups.
-Set-AdminDlpPolicy -PolicyName $zone1Policy.PolicyName -ConnectorGroups @(
-    @{
-        classification = "Business"
-        connectors     = @(
-            $zone1BusinessConnectors | ForEach-Object { @{ id = $_; type = "Microsoft.PowerApps/apis" } }
-        )
-    },
-    @{
-        classification = "Blocked"
-        connectors     = @(
-            $zone1BlockedConnectors | ForEach-Object { @{ id = $_; type = "Microsoft.PowerApps/apis" } }
-        )
+$policies = Get-DlpPolicy
+$rows = foreach ($p in $policies) {
+    [pscustomobject]@{
+        DisplayName       = $p.DisplayName
+        PolicyName        = $p.PolicyName
+        EnvironmentType   = $p.EnvironmentType
+        EnvironmentCount  = ($p.Environments | Measure-Object).Count
+        CreatedTime       = $p.CreatedTime
+        LastModifiedTime  = $p.LastModifiedTime
     }
-)
+}
 
-Write-Host "✓ Zone 1 DLP policy created: $zone1PolicyName" -ForegroundColor Green
+$csvPath = Join-Path $outDir "dlp-policy-inventory-$timestamp.csv"
+$rows | Export-Csv -Path $csvPath -NoTypeInformation -Encoding UTF8
 
-# Define Zone 2 (Team) DLP Policy
-$zone2PolicyName = "Zone 2 - Team Collaboration DLP Policy"
-$zone2Policy = New-AdminDlpPolicy -DisplayName $zone2PolicyName `
-    -EnvironmentType "OnlyEnvironments"
+# SHA-256 evidence hash
+$hash = (Get-FileHash -Path $csvPath -Algorithm SHA256).Hash
+"$csvPath`tSHA256:$hash" | Out-File -FilePath (Join-Path $outDir "evidence-manifest-$timestamp.txt") -Append -Encoding UTF8
 
-# Configure Zone 2 connectors (stricter - no non-business connectors)
-$zone2BusinessConnectors = @(
-    "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
-    "/providers/Microsoft.PowerApps/apis/shared_office365",
-    "/providers/Microsoft.PowerApps/apis/shared_teams",
-    "/providers/Microsoft.PowerApps/apis/shared_commondataservice",
-    "/providers/Microsoft.PowerApps/apis/shared_sql"
-)
-
-$zone2BlockedConnectors = @(
-    "/providers/Microsoft.PowerApps/apis/shared_telegram",
-    "/providers/Microsoft.PowerApps/apis/shared_facebook",
-    "/providers/Microsoft.PowerApps/apis/shared_publicwebsites",
-    "/providers/Microsoft.PowerApps/apis/shared_twitter",
-    "/providers/Microsoft.PowerApps/apis/shared_rss",
-    "/providers/Microsoft.PowerApps/apis/shared_http"
-)
-
-# Add connectors to Zone 2 policy
-Set-AdminDlpPolicy -PolicyName $zone2Policy.PolicyName -ConnectorGroups @(
-    @{
-        classification = "Business"
-        connectors     = @(
-            $zone2BusinessConnectors | ForEach-Object { @{ id = $_; type = "Microsoft.PowerApps/apis" } }
-        )
-    },
-    @{
-        classification = "Blocked"
-        connectors     = @(
-            $zone2BlockedConnectors | ForEach-Object { @{ id = $_; type = "Microsoft.PowerApps/apis" } }
-        )
-    }
-)
-
-Write-Host "✓ Zone 2 DLP policy created: $zone2PolicyName" -ForegroundColor Green
-
-# Define Zone 3 (Enterprise) DLP Policy
-$zone3PolicyName = "Zone 3 - Enterprise Customer-Facing DLP Policy"
-$zone3Policy = New-AdminDlpPolicy -DisplayName $zone3PolicyName `
-    -EnvironmentType "OnlyEnvironments"
-
-# Configure Zone 3 connectors (strictest - whitelist only approved connectors)
-$zone3BusinessConnectors = @(
-    "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",  # Read-only via policy
-    "/providers/Microsoft.PowerApps/apis/shared_commondataservice",  # Approved tables only
-    "/providers/Microsoft.PowerApps/apis/shared_office365groups"     # Read-only via policy
-)
-
-# Block all other connectors by default (Zone 3 whitelist approach)
-$zone3BlockedConnectors = @(
-    "/providers/Microsoft.PowerApps/apis/shared_http",
-    "/providers/Microsoft.PowerApps/apis/shared_telegram",
-    "/providers/Microsoft.PowerApps/apis/shared_facebook",
-    "/providers/Microsoft.PowerApps/apis/shared_publicwebsites",
-    "/providers/Microsoft.PowerApps/apis/shared_twitter",
-    "/providers/Microsoft.PowerApps/apis/shared_rss",
-    "/providers/Microsoft.PowerApps/apis/shared_*"  # ⚠ Wildcard path — see danger admonition above; DLP API may not support wildcard syntax
-)
-
-# Add connectors to Zone 3 policy
-Set-AdminDlpPolicy -PolicyName $zone3Policy.PolicyName -ConnectorGroups @(
-    @{
-        classification = "Business"
-        connectors     = @(
-            $zone3BusinessConnectors | ForEach-Object { @{ id = $_; type = "Microsoft.PowerApps/apis" } }
-        )
-    },
-    @{
-        classification = "Blocked"
-        connectors     = @(
-            $zone3BlockedConnectors | ForEach-Object { @{ id = $_; type = "Microsoft.PowerApps/apis" } }
-        )
-    }
-)
-
-Write-Host "✓ Zone 3 DLP policy created: $zone3PolicyName" -ForegroundColor Green
-
-Write-Host "`nDLP policies created successfully. Next: Assign policies to environments." -ForegroundColor Cyan
+Write-Host "Inventory exported: $csvPath" -ForegroundColor Green
+Write-Host "SHA-256: $hash" -ForegroundColor Cyan
 ```
 
 ---
 
-## Script 2: Assign DLP Policies to Environments by Zone
+## Script 2 — Create a Zone-Specific DLP Policy (Mutation; `-WhatIf` Supported)
 
-This script assigns DLP policies to environments based on zone classification.
-
-```powershell
-<#
-.SYNOPSIS
-    Assign DLP policies to environments based on zone classification
-.DESCRIPTION
-    Maps environments to zone-specific DLP policies to enforce publishing restrictions
-.NOTES
-    Requires Power Platform Admin role
-#>
-
-# Connect to Power Platform
-Add-PowerAppsAccount
-
-# Get all environments
-$environments = Get-AdminPowerAppEnvironment
-
-# Define zone classification (customize based on your environment naming conventions)
-$zone1Environments = $environments | Where-Object { $_.DisplayName -like "*Personal*" -or $_.DisplayName -like "*Dev*" }
-$zone2Environments = $environments | Where-Object { $_.DisplayName -like "*Team*" -or $_.DisplayName -like "*UAT*" }
-$zone3Environments = $environments | Where-Object { $_.DisplayName -like "*Production*" -or $_.DisplayName -like "*Customer*" }
-
-# Get DLP policies
-# NOTE: Use Get-AdminDlpPolicy for admin-context DLP policy retrieval.
-$zone1Policy = Get-AdminDlpPolicy | Where-Object { $_.DisplayName -eq "Zone 1 - Personal Productivity DLP Policy" }
-$zone2Policy = Get-AdminDlpPolicy | Where-Object { $_.DisplayName -eq "Zone 2 - Team Collaboration DLP Policy" }
-$zone3Policy = Get-AdminDlpPolicy | Where-Object { $_.DisplayName -eq "Zone 3 - Enterprise Customer-Facing DLP Policy" }
-
-# Assign Zone 1 policy
-Write-Host "`nAssigning Zone 1 DLP policy to environments..." -ForegroundColor Cyan
-foreach ($env in $zone1Environments) {
-    try {
-        Add-AdminPowerAppEnvironmentToPolicy -PolicyName $zone1Policy.PolicyName -EnvironmentName $env.EnvironmentName
-        Write-Host "  ✓ Assigned to: $($env.DisplayName)" -ForegroundColor Green
-    }
-    catch {
-        Write-Host "  ✗ Failed to assign to: $($env.DisplayName) - $($_.Exception.Message)" -ForegroundColor Red
-    }
-}
-
-# Assign Zone 2 policy
-Write-Host "`nAssigning Zone 2 DLP policy to environments..." -ForegroundColor Cyan
-foreach ($env in $zone2Environments) {
-    try {
-        Add-AdminPowerAppEnvironmentToPolicy -PolicyName $zone2Policy.PolicyName -EnvironmentName $env.EnvironmentName
-        Write-Host "  ✓ Assigned to: $($env.DisplayName)" -ForegroundColor Green
-    }
-    catch {
-        Write-Host "  ✗ Failed to assign to: $($env.DisplayName) - $($_.Exception.Message)" -ForegroundColor Red
-    }
-}
-
-# Assign Zone 3 policy
-Write-Host "`nAssigning Zone 3 DLP policy to environments..." -ForegroundColor Cyan
-foreach ($env in $zone3Environments) {
-    try {
-        Add-AdminPowerAppEnvironmentToPolicy -PolicyName $zone3Policy.PolicyName -EnvironmentName $env.EnvironmentName
-        Write-Host "  ✓ Assigned to: $($env.DisplayName)" -ForegroundColor Green
-    }
-    catch {
-        Write-Host "  ✗ Failed to assign to: $($env.DisplayName) - $($_.Exception.Message)" -ForegroundColor Red
-    }
-}
-
-Write-Host "`nDLP policy assignment complete." -ForegroundColor Cyan
-```
-
----
-
-## Script 3: Audit Agent Publishing Compliance
-
-This script generates a compliance report showing agent DLP status, channel configuration, and publishing approval status.
+This script is the canonical pattern for creating one zone DLP policy. Run it once per zone (Zone 1, Zone 2, Zone 3) with the appropriate connector lists.
 
 ```powershell
 <#
 .SYNOPSIS
-    Audit agent publishing compliance across environments
-.DESCRIPTION
-    Generates a compliance report showing DLP violations, blocked channels, and approval status
+    Create a zone-aligned DLP policy for Copilot Studio agent publishing restrictions.
+.PARAMETER PolicyDisplayName
+    Display name for the new policy (e.g., 'FSI - Zone 3 Enterprise Restricted').
+.PARAMETER BusinessConnectors
+    Array of connector IDs (full path: /providers/Microsoft.PowerApps/apis/<name>) to classify as Business.
+.PARAMETER BlockedConnectors
+    Array of connector IDs to classify as Blocked.
+.PARAMETER WhatIf
+    Standard PowerShell -WhatIf: prints the intended mutation without executing.
 .NOTES
-    Requires Power Platform Admin role
+    Requires Power Platform Admin. Verify cmdlet/parameter availability against your pinned module version.
 #>
+[CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
+param(
+    [Parameter(Mandatory)] [string]   $PolicyDisplayName,
+    [Parameter(Mandatory)] [string[]] $BusinessConnectors,
+    [Parameter(Mandatory)] [string[]] $BlockedConnectors
+)
 
-# Connect to Power Platform
-Add-PowerAppsAccount
+if ($PSCmdlet.ShouldProcess($PolicyDisplayName, "Create DLP policy")) {
+    $policy = New-DlpPolicy -DisplayName $PolicyDisplayName -EnvironmentType 'OnlyEnvironments'
 
-# Get all environments
-$environments = Get-AdminPowerAppEnvironment
-
-$complianceReport = @()
-
-foreach ($env in $environments) {
-    Write-Host "Auditing environment: $($env.DisplayName)..." -ForegroundColor Cyan
-    
-    # Get agents (chatbots) in this environment
-    try {
-        # NOTE: Use Get-AdminPowerAppChatbot for admin-context operations.
-        # Get-PowerAppChatBot retrieves only the caller's own chatbots.
-        $agents = Get-AdminPowerAppChatbot -EnvironmentName $env.EnvironmentName
-        
-        foreach ($agent in $agents) {
-            # Check DLP compliance
-            # NOTE: No native cmdlet exists for chatbot-specific DLP compliance testing.
-            # Use Get-AdminDlpPolicy to verify policy configuration covers Copilot Studio connectors.
-            $dlpPolicies = Get-AdminDlpPolicy
-            $dlpCompliant = $null  # Unknown — requires manual verification
-            $dlpViolations = @("Manual review required")
-            # No native cmdlet exists for chatbot-specific DLP compliance testing.
-            # DLP compliance cannot be determined programmatically — verify via portal walkthrough.
-            
-            # Get agent details including channels
-            $agentDetails = Get-AdminPowerAppChatbot -EnvironmentName $env.EnvironmentName -ChatBotName $agent.ChatBotName
-            
-            # Check for blocked channels
-            $blockedChannels = @()
-            if ($agentDetails.Channels) {
-                $prohibitedChannels = @("Facebook", "Telegram", "PublicWebsite")
-                $blockedChannels = $agentDetails.Channels | Where-Object { $prohibitedChannels -contains $_.Type }
+    $connectorGroups = @(
+        @{
+            classification = 'Confidential'   # 'Confidential' is the API value for the Business group
+            connectors     = $BusinessConnectors | ForEach-Object {
+                @{ id = $_; type = 'Microsoft.PowerApps/apis' }
             }
-            
-            # Compile compliance record
-            $complianceRecord = [PSCustomObject]@{
-                Environment     = $env.DisplayName
-                AgentName       = $agent.Properties.DisplayName
-                AgentId         = $agent.ChatBotName
-                PublishStatus   = $agent.Properties.PublishStatus
-                DLPCompliant    = if ($null -eq $dlpCompliant) { "Unknown" } else { $dlpCompliant }
-                DLPViolations   = ($dlpViolations -join ", ")
-                BlockedChannels = ($blockedChannels.Type -join ", ")
-                LastModified    = $agent.Properties.LastModifiedTime
-                CreatedBy       = $agent.Properties.CreatedBy
+        },
+        @{
+            classification = 'Blocked'
+            connectors     = $BlockedConnectors | ForEach-Object {
+                @{ id = $_; type = 'Microsoft.PowerApps/apis' }
             }
-            
-            $complianceReport += $complianceRecord
+        }
+    )
+
+    Set-DlpPolicy -PolicyName $policy.PolicyName -ConnectorGroups $connectorGroups | Out-Null
+    Write-Host "Created DLP policy: $PolicyDisplayName ($($policy.PolicyName))" -ForegroundColor Green
+}
+```
+
+> **API caveat:** The `Set-DlpPolicy -ConnectorGroups` request body, including the `classification` token used for the "Business" group (historically `Confidential` in the underlying API), can change between module releases. Run `Get-Help Set-DlpPolicy -Full` against your pinned version and confirm the parameter shape with `(Get-Command Set-DlpPolicy).Parameters` before running in production.
+
+---
+
+## Script 3 — Assign a Policy to Environments by Zone Tag
+
+This script reads environment metadata and assigns each environment to the appropriate zone DLP policy. It uses environment metadata (display name pattern or environment group) as the zone signal — adapt the matching logic to your own classification convention.
+
+```powershell
+<#
+.SYNOPSIS
+    Assign a DLP policy to all environments matching a zone signal.
+.PARAMETER PolicyDisplayName
+    The display name of the target DLP policy.
+.PARAMETER ZoneSignalPattern
+    A wildcard pattern matched against environment DisplayName (e.g., '*Zone3*' or '*-Prod').
+#>
+[CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
+param(
+    [Parameter(Mandatory)] [string] $PolicyDisplayName,
+    [Parameter(Mandatory)] [string] $ZoneSignalPattern
+)
+
+$policy = Get-DlpPolicy | Where-Object { $_.DisplayName -eq $PolicyDisplayName }
+if (-not $policy) { throw "DLP policy '$PolicyDisplayName' not found." }
+
+$targets = Get-AdminPowerAppEnvironment | Where-Object { $_.DisplayName -like $ZoneSignalPattern }
+Write-Host "Matched $($targets.Count) environment(s) for pattern '$ZoneSignalPattern'." -ForegroundColor Cyan
+
+foreach ($env in $targets) {
+    if ($PSCmdlet.ShouldProcess($env.DisplayName, "Assign DLP policy '$PolicyDisplayName'")) {
+        try {
+            Add-PowerAppEnvironmentToPolicy -PolicyName $policy.PolicyName -EnvironmentName $env.EnvironmentName -ErrorAction Stop
+            Write-Host "  Assigned: $($env.DisplayName)" -ForegroundColor Green
+        } catch {
+            Write-Warning "  Failed: $($env.DisplayName) — $($_.Exception.Message)"
         }
     }
-    catch {
-        Write-Host "  ✗ Failed to audit environment: $($env.DisplayName) - $($_.Exception.Message)" -ForegroundColor Red
-    }
 }
-
-# Display compliance summary
-Write-Host "`n=== Agent Publishing Compliance Summary ===" -ForegroundColor Yellow
-$totalAgents = $complianceReport.Count
-$compliantAgents = ($complianceReport | Where-Object { $_.DLPCompliant -eq $true -and $_.BlockedChannels -eq "" }).Count
-$nonCompliantAgents = $totalAgents - $compliantAgents
-
-Write-Host "Total Agents: $totalAgents" -ForegroundColor Cyan
-Write-Host "Compliant Agents: $compliantAgents" -ForegroundColor Green
-Write-Host "Non-Compliant Agents: $nonCompliantAgents" -ForegroundColor Red
-
-# Display non-compliant agents
-if ($nonCompliantAgents -gt 0) {
-    Write-Host "`n=== Non-Compliant Agents ===" -ForegroundColor Red
-    $complianceReport | Where-Object { $_.DLPCompliant -eq $false -or $_.BlockedChannels -ne "" } | Format-Table Environment, AgentName, DLPViolations, BlockedChannels -AutoSize
-}
-
-# Export full report to CSV
-$reportPath = ".\agent-publishing-compliance-report-$(Get-Date -Format 'yyyyMMdd-HHmmss').csv"
-$complianceReport | Export-Csv -Path $reportPath -NoTypeInformation
-
-Write-Host "`n✓ Full compliance report exported to: $reportPath" -ForegroundColor Green
 ```
 
 ---
 
-## Script 4: Enable Approval Workflows for Environments
+## Script 4 — Audit Published Copilot Studio Agents (Read-Only Evidence)
 
-This script enables approval workflows for agent publishing in Zone 2+ environments.
+This script enumerates Copilot Studio agents (Dataverse `bot` rows) per environment and exports their key publish-status fields to CSV with a SHA-256 evidence hash. It does **not** attempt to evaluate DLP compliance per agent — there is no first-party cmdlet that returns "this agent passes DLP" today, so connector-by-connector compliance must be reconciled against the in-product Copilot Studio publish dialog or a Dataverse query of the agent's component set.
 
 ```powershell
 <#
 .SYNOPSIS
-    Enable approval workflows for agent publishing
-.DESCRIPTION
-    Configures environment settings to require approval for agent publishing in Zone 2+ environments
+    Inventory Copilot Studio agents per environment for evidence collection.
 .NOTES
-    Requires Entra Global Admin or Power Platform Admin role
+    Read-only. Requires Power Platform Admin. Output includes SHA-256 hash for audit.
 #>
 
-# Connect to Power Platform
-Add-PowerAppsAccount
+$timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
+$outDir    = Join-Path (Get-Location) "evidence/1.28"
+New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 
-# Get Zone 2 and Zone 3 environments
-$zone2Environments = Get-AdminPowerAppEnvironment | Where-Object { $_.DisplayName -like "*Team*" -or $_.DisplayName -like "*UAT*" }
-$zone3Environments = Get-AdminPowerAppEnvironment | Where-Object { $_.DisplayName -like "*Production*" -or $_.DisplayName -like "*Customer*" }
-
-$targetEnvironments = $zone2Environments + $zone3Environments
-
-Write-Host "`nEnabling approval workflows for Zone 2+ environments..." -ForegroundColor Cyan
-
-foreach ($env in $targetEnvironments) {
+$rows = foreach ($env in Get-AdminPowerAppEnvironment) {
     try {
-        # NOTE: No native cmdlet exists for chatbot approval requirements at the environment level.
-        # -RequireChatbotApproval and -RequireChatbotUpdateApproval are aspirational parameters
-        # that do not exist on Set-AdminPowerAppEnvironment today.
-        # For approval workflows, configure environment-level governance in
-        # Power Platform Admin Center → Environments → [Environment] → Settings → Features.
-        # Alternatively, implement approval flows using Power Automate.
-        Set-AdminPowerAppEnvironment -EnvironmentName $env.EnvironmentName
-        # Note: Chatbot approval requires manual configuration in Admin Center or via Power Automate flow
-        Write-Host "  ⚠ Chatbot approval must be configured manually in Power Platform Admin Center" -ForegroundColor Yellow
-        Write-Host "  → Open: Power Platform Admin Center → Environments → $($env.DisplayName) → Settings → Features" -ForegroundColor Yellow
-    }
-    catch {
-        Write-Host "  ✗ Failed to enable approval for: $($env.DisplayName) - $($_.Exception.Message)" -ForegroundColor Red
-        Write-Host "    Note: This setting may require manual configuration in Power Platform Admin Center" -ForegroundColor Yellow
+        $agents = Get-AdminPowerAppCdsDatabaseLanguages -EnvironmentName $env.EnvironmentName -ErrorAction SilentlyContinue
+        # Use the Power Platform admin API for chatbots if available in your pinned module:
+        $bots = Get-AdminPowerAppChatbot -EnvironmentName $env.EnvironmentName -ErrorAction SilentlyContinue
+        foreach ($bot in $bots) {
+            [pscustomobject]@{
+                Environment      = $env.DisplayName
+                EnvironmentId    = $env.EnvironmentName
+                AgentDisplayName = $bot.Properties.DisplayName
+                AgentId          = $bot.ChatBotName
+                PublishStatus    = $bot.Properties.PublishStatus
+                LastModifiedTime = $bot.Properties.LastModifiedTime
+                CreatedBy        = $bot.Properties.CreatedBy.userPrincipalName
+            }
+        }
+    } catch {
+        Write-Warning "Environment '$($env.DisplayName)': $($_.Exception.Message)"
     }
 }
 
-Write-Host "`nApproval workflow configuration complete." -ForegroundColor Cyan
-Write-Host "Verify settings in Power Platform Admin Center → Environments → [Environment] → Settings → Features" -ForegroundColor Yellow
+$csvPath = Join-Path $outDir "agent-publish-inventory-$timestamp.csv"
+$rows | Export-Csv -Path $csvPath -NoTypeInformation -Encoding UTF8
+
+$hash = (Get-FileHash -Path $csvPath -Algorithm SHA256).Hash
+"$csvPath`tSHA256:$hash" | Out-File -FilePath (Join-Path $outDir "evidence-manifest-$timestamp.txt") -Append -Encoding UTF8
+
+Write-Host "Agent inventory: $csvPath" -ForegroundColor Green
+Write-Host "SHA-256: $hash" -ForegroundColor Cyan
 ```
+
+> **What this does not do:** It does not declare an agent "DLP compliant." It captures the inventory and publish state. DLP compliance is enforced at runtime and at publish time by the platform; per-agent compliance status must be reviewed via the Copilot Studio publish dialog or via Dataverse component queries.
+
+---
+
+## Script 5 — Schedule the Inventory as a Weekly Evidence Job
+
+```powershell
+$action  = New-ScheduledTaskAction -Execute 'powershell.exe' `
+    -Argument '-NoProfile -ExecutionPolicy Bypass -File "C:\Scripts\Audit-AgentPublishInventory.ps1"'
+$trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday -At 6:00AM
+$principal = New-ScheduledTaskPrincipal -UserId "DOMAIN\svc-pp-audit" -LogonType ServiceAccount -RunLevel Highest
+
+Register-ScheduledTask -TaskName "FSI-1.28-AgentPublishInventory" `
+    -Action $action -Trigger $trigger -Principal $principal `
+    -Description "Weekly Copilot Studio agent inventory for Control 1.28 evidence."
+```
+
+> **Service account guidance:** Use a dedicated service principal (not a person's UPN) with the minimum role required (Power Platform Admin scoped to required environments where possible). Document the principal in your privileged-access registry.
 
 ---
 
 ## Validation Commands
 
-After running the setup scripts, validate the configuration:
-
 ```powershell
-# Check DLP policy assignments
-Get-AdminDlpPolicy | Select-Object DisplayName, @{Name="Environments";Expression={($_.Environments).Count}}
+# Confirm DLP policies and environment counts
+Get-DlpPolicy | Select-Object DisplayName, @{N='Environments';E={($_.Environments | Measure-Object).Count}}, LastModifiedTime
 
-# List agents with DLP policy gaps
-# NOTE: No native Test-PowerAppChatBotDlpCompliance cmdlet exists.
-# Use Get-AdminDlpPolicy to review DLP policies covering Copilot Studio connectors,
-# then cross-reference with agent connector usage in Power Platform Admin Center.
-Get-AdminDlpPolicy | Select-Object DisplayName, PolicyName
+# Confirm a specific policy's connector groups
+Get-DlpPolicy -PolicyName '<policy-id>' | Select-Object -ExpandProperty ConnectorGroups | Format-List
 
-# Check environment approval settings
-# NOTE: RequireChatbotApproval is not a native property on environment objects.
-# Verify chatbot approval settings in Power Platform Admin Center → Environments → Settings → Features.
-Get-AdminPowerAppEnvironment | Select-Object DisplayName, EnvironmentName
+# Confirm cmdlet availability against your pinned module
+Get-Command -Module Microsoft.PowerApps.Administration.PowerShell -Name *Dlp*, *EnvironmentToPolicy*, *Chatbot*
 ```
 
 ---
 
-## Automation Schedule
+## Known Gaps in PowerShell Coverage
 
-For ongoing compliance monitoring, schedule the audit script to run weekly:
-
-```powershell
-# Create scheduled task to run compliance audit weekly
-$action = New-ScheduledTaskAction -Execute "PowerShell.exe" `
-    -Argument "-File C:\Scripts\Audit-AgentPublishingCompliance.ps1"
-
-$trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday -At 9:00AM
-
-Register-ScheduledTask -TaskName "Agent Publishing Compliance Audit" `
-    -Action $action -Trigger $trigger -Description "Weekly audit of agent publishing compliance"
-```
-
----
-
-## Troubleshooting
-
-### Issue: DLP policy creation fails
-**Cause:** Insufficient permissions or conflicting policy names
-**Resolution:** Verify Power Platform Admin role; check for existing policies with same name
-
-### Issue: Approval workflow setting not available
-**Cause:** Feature not yet rolled out to tenant
-**Resolution:** Configure approval workflows using Power Automate as an alternative
-
-### Issue: Agent DLP compliance check fails
-**Cause:** Agent uses connectors not in DLP policy
-**Resolution:** Run audit script to identify violations; update DLP policy or reconfigure agent
+- **No first-party "test agent against DLP" cmdlet.** Use the in-product Copilot Studio publish dialog as the authoritative signal. PowerShell can inventory agents and policies but cannot evaluate per-agent DLP compliance directly.
+- **No first-party cmdlet to require approval before publish.** Implement approval gates with Power Automate or Power Platform Pipelines (see the Portal Walkthrough).
+- **`Get-AdminPowerAppChatbot` availability varies by module version.** If the cmdlet is not present in your pinned version, query the Dataverse `bot` table directly via the Web API for the same data.
 
 ---
 
 [Back to Control 1.28](../../../controls/pillar-1-security/1.28-policy-based-agent-publishing-restrictions.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification & Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+
+---
+
+*Updated: April 2026 | Version: v1.3.3 | UI Verification Status: Current*

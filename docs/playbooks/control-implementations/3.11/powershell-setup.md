@@ -1,11 +1,16 @@
 # PowerShell Setup: Control 3.11 - Centralized Agent Inventory Enforcement
 
+!!! warning "Read the FSI PowerShell baseline first"
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below may show abbreviated patterns; the baseline is authoritative.
+
 **Last Updated:** April 2026
-**PowerShell Version:** 7.0 or higher recommended
+**PowerShell Version:** Windows PowerShell 5.1 (Desktop edition) for `Microsoft.PowerApps.Administration.PowerShell`; PowerShell 7.2+ for Microsoft Graph and notifications
 **Required Modules:**
-- Microsoft.PowerApps.Administration.PowerShell
-- Microsoft.Graph (for Entra ID user validation)
-- ExchangeOnlineManagement (for email notifications)
+- Microsoft.PowerApps.Administration.PowerShell (Desktop / PS 5.1 only)
+- Microsoft.Graph (PS 7+)
+- ExchangeOnlineManagement (optional — email notifications only)
+
+> **Why two PowerShell editions?** `Microsoft.PowerApps.Administration.PowerShell` runs only in Windows PowerShell 5.1 (Desktop). Running it in PowerShell 7 silently returns empty results — producing **false-clean evidence**. The baseline document cited above includes the required edition guard; reuse it verbatim. Microsoft Graph and ExchangeOnlineManagement work in PS 7+ and are recommended there for performance.
 
 ---
 
@@ -25,16 +30,16 @@ Before running these scripts, ensure:
 
 ## Module Installation
 
-Run the following commands to install required PowerShell modules:
+> **Reminder:** Pin `-RequiredVersion` to a CAB-approved version per the [PowerShell Authoring Baseline](../../_shared/powershell-baseline.md). The commands below use `-Force` for readability; substitute the canonical pinned-version pattern in production.
 
 ```powershell
-# Install Power Apps Administration module
+# Install Power Apps Administration module (Windows PowerShell 5.1 Desktop only)
 Install-Module -Name Microsoft.PowerApps.Administration.PowerShell -Scope CurrentUser -Force
 
-# Install Microsoft Graph module for Entra ID queries
+# Install Microsoft Graph module for Entra ID queries (PS 7+ recommended)
 Install-Module -Name Microsoft.Graph -Scope CurrentUser -Force
 
-# Install Exchange Online Management module for email notifications
+# Install Exchange Online Management module for optional email notifications
 Install-Module -Name ExchangeOnlineManagement -Scope CurrentUser -Force
 
 # Verify installations
@@ -42,6 +47,18 @@ Get-Module -ListAvailable Microsoft.PowerApps.Administration.PowerShell
 Get-Module -ListAvailable Microsoft.Graph
 Get-Module -ListAvailable ExchangeOnlineManagement
 ```
+
+### Required Edition Guard (paste at the top of every PPAC script)
+
+```powershell
+if ($PSVersionTable.PSEdition -ne 'Desktop') {
+    throw "Microsoft.PowerApps.Administration.PowerShell requires Windows PowerShell 5.1 (Desktop). Detected: $($PSVersionTable.PSEdition) $($PSVersionTable.PSVersion)."
+}
+```
+
+### Sovereign Cloud Endpoint
+
+If your tenant is GCC, GCC High, DoD, or 21Vianet, pass the correct `-Endpoint` to `Add-PowerAppsAccount` and the matching `-Environment` to `Connect-MgGraph`. Without it, the cmdlets authenticate to commercial endpoints and return zero environments — producing **false-clean evidence**. See the [PowerShell Authoring Baseline](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod) for the canonical pattern.
 
 ---
 
@@ -74,8 +91,9 @@ Exports comprehensive agent inventory from Power Platform with metadata complete
 
 .NOTES
     Author: FSI-AgentGov Framework
-    Version: 1.0
-    Last Updated: February 2026
+    Version: 1.1
+    Last Updated: April 2026
+    Edition: Windows PowerShell 5.1 (Desktop) required for Microsoft.PowerApps.Administration.PowerShell
 #>
 
 param(
@@ -88,6 +106,11 @@ param(
     [Parameter(Mandatory=$false)]
     [switch]$IncludeDecommissioned = $false
 )
+
+# Edition guard — Microsoft.PowerApps.Administration.PowerShell is Desktop-only
+if ($PSVersionTable.PSEdition -ne 'Desktop') {
+    throw "This script must run in Windows PowerShell 5.1 (Desktop). Detected: $($PSVersionTable.PSEdition) $($PSVersionTable.PSVersion)."
+}
 
 # Import required modules
 Import-Module Microsoft.PowerApps.Administration.PowerShell
@@ -277,8 +300,8 @@ Identifies agents with departed owners, stale agents, and unmanaged agents requi
 
 .NOTES
     Author: FSI-AgentGov Framework
-    Version: 1.0
-    Last Updated: February 2026
+    Version: 1.1
+    Last Updated: April 2026
 #>
 
 param(
@@ -489,8 +512,8 @@ Validates agent inventory against mandatory metadata requirements and generates 
 
 .NOTES
     Author: FSI-AgentGov Framework
-    Version: 1.0
-    Last Updated: February 2026
+    Version: 1.1
+    Last Updated: April 2026
 #>
 
 param(
@@ -633,8 +656,8 @@ Master orchestration script that runs all inventory enforcement scripts in seque
 
 .NOTES
     Author: FSI-AgentGov Framework
-    Version: 1.0
-    Last Updated: February 2026
+    Version: 1.1
+    Last Updated: April 2026
 #>
 
 param(
@@ -716,7 +739,25 @@ Write-Host "4. Schedule this suite to run daily for Zone 2/3 environments" -Fore
 
 ---
 
-## Scheduled Execution with Windows Task Scheduler
+## Diagnostic: Validate Inventory via the Power Platform for Admins V2 connector
+
+The supported workflow integration path is the **Power Platform for Admins V2** connector inside Power Automate (GA), not a custom REST endpoint. PowerShell's role is discovery, owner validation against Entra ID, staleness scoring, and evidence emission — not direct calls to `api.powerplatform.com/agentInventory/...` (that URL is a placeholder and not the supported integration path).
+
+If you need to script-test inventory access, do it via the connector by triggering the flow with `Invoke-RestMethod` against the flow's HTTP trigger, or use the PPAC **Export to Excel** as the script's input.
+
+---
+
+## Known Limitations
+
+As of April 2026:
+
+1. **Inventory granularity:** Power Platform Inventory is GA but exposes only tenant-wide admin access; no read-only or environment-scoped admin variant exists yet
+2. **Zone Classification:** Not native to PPAC — must be supplied via a zone-mapping CSV or naming convention
+3. **Real-time enforcement:** Native unmanaged-agent blocking is on the roadmap; today, use DLP and security roles as compensating controls
+4. **Cross-platform discovery:** Microsoft Foundry agents may not be fully represented; Agent 365 GA (May 1, 2026) will unify these sources
+5. **Metadata extensibility:** Custom metadata fields cannot be added natively to the Inventory schema — extend via Dataverse
+
+Track Microsoft 365 Roadmap and Message Center for updates.
 
 To run the enforcement suite on a schedule:
 
@@ -764,4 +805,4 @@ Get-AdminPowerAppEnvironment | Select-Object EnvironmentName, DisplayName
 
 [Back to Control 3.11](../../../controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
-*Updated: February 2026 | Version: v1.0*
+*Updated: April 2026 | Version: v1.3.3*

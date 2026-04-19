@@ -1,209 +1,258 @@
 # Troubleshooting: Control 1.3 - SharePoint Content Governance and Permissions
 
 **Last Updated:** April 2026
-
-## Common Issues
-
-| Issue | Cause | Resolution |
-|-------|-------|------------|
-| Agent cannot access required content | Service account not in site members | Add service account to site members group |
-| Agent accessing content it shouldn't | Broad permissions or inheritance | Review knowledge source config; remove "Everyone" groups |
-| Sensitivity labels not appearing | Labels not published to users | Verify label publication in Purview |
-| External sharing still possible | Site-level override | Check site vs. tenant settings; site cannot be more permissive |
-| Access review not sending notifications | Configuration issue | Verify reviewer assignments and email settings |
-| IAG not blocking content discovery | Policy not applied | Check IAG policy scope and site inclusion |
+**Audience:** SharePoint Admin, AI Governance Lead, Service Desk Tier 2/3
 
 ---
 
-## Detailed Troubleshooting
+## Quick reference
 
-### Issue: Agent Cannot Access Required Content
-
-**Symptoms:** Agent returns "I don't have access to that information" for valid content
-
-**Diagnostic Steps:**
-
-1. Verify agent service account is in site members group:
-   ```powershell
-   $SiteUrl = "https://contoso.sharepoint.com/sites/Agent-CustomerService"
-   Get-SPOUser -Site $SiteUrl -LoginName "agent-service@contoso.com"
-   ```
-
-2. Check sensitivity label on content matches agent's allowed labels
-
-3. Confirm IAG/restricted content discoverability isn't blocking:
-   - SharePoint Admin Center > Policies > Access control (tenant enablement), then Sites > Active sites > [site] > Settings > Restricted site access
-
-4. Review Conditional Access policies that might block service account
-
-5. Check if site requires MFA and service account can satisfy
-
-**Resolution:**
-- Add service account to appropriate site group
-- Verify service account is excluded from blocking Conditional Access policies
-- Check label-based access policies in Purview
+| Issue | Likely cause | Fix |
+|---|---|---|
+| Agent or Copilot returns content the user shouldn't see | `Everyone` / `Everyone except external users` claim still on site; site is in Restricted SharePoint Search allow-list; container label not applied | Remove broad claims (PowerShell §3); review allow-list; apply container label |
+| Authorized user gets "no information found" from agent | Service / user account not in RAC group; site under RCD with no direct grant; sensitivity label blocks unmanaged-device access | Add user to RAC group; grant direct access; verify device compliance |
+| Container label not appearing on site | Label policy not published to user's audience; site is non-group-connected; group already has a different assigned label | Publish policy to label-creator audience; convert site to group-connected or apply via UI; clear existing assigned label |
+| External sharing still possible despite tenant `Disabled` | Site-level setting more permissive (sites can be more restrictive than tenant, never more permissive — check for older site that retained value before tenant tightened) | Re-apply `Set-SPOSite -SharingCapability Disabled`; verify no scripts reset values |
+| RAC blocks legitimate Power Automate / agent service flows | Service account / managed identity not in RAC group | Add the service identity to the bound RAC group; never disable RAC as a workaround |
+| RCD not suppressing content from Copilot | Propagation delay; user has direct access via another path; RCD applied to wrong site | Wait up to 24h; confirm via `Get-SPOSite -Detailed`; check user's effective permissions |
+| `Set-SPOSite -RestrictedAccessControl` parameter not found | Module version too old or sovereign cloud lacks the surface | Pin newer SPO Management Shell; use the SharePoint admin center flyout as fallback |
+| Access review not sending notifications | Reviewers have no mailbox / are guest accounts; mail-flow restricted; review still queued | Confirm reviewers are licensed; check Exchange Online flow; wait for cycle start |
+| DAG report shows broad sharing on a site you remediated | Report is cached/scheduled, not real-time | Force re-run from the report page; expect 24–48h refresh |
+| Restricted SharePoint Search blocks Copilot for sanctioned sites | Site missing from the allow-list (max 100) | Add site or, better, complete RAC/RCD remediation and disable Restricted SharePoint Search |
+| `Remove-SPOUser` fails with "user does not exist" for `Everyone except external users` | LoginName claim format is tenant-specific (`spo-grid-all-users/<tenant>`) | Use `Get-SPOUser -Site $url \| Where-Object LoginName -like '*spo-grid-all-users*'` to discover the exact claim |
 
 ---
 
-### Issue: Agent Accessing Content It Shouldn't
+## Issue: Microsoft 365 Copilot or a Copilot Studio agent returns content the user should not see
 
-**Symptoms:** Agent returning sensitive information from excluded sites
+### Symptoms
+- A user prompts Copilot or an agent and receives text quoting documents from a site that should be invisible to that user.
+- DAG report or audit log shows the site as broadly shared.
 
-**Diagnostic Steps:**
+### Likely causes
+1. The site still has `Everyone except external users` (`spo-grid-all-users`) on a SharePoint group.
+2. Microsoft 365 Copilot grounding pulled the content via the user's existing direct or transitive permissions (Copilot does not bypass permissions, but it surfaces anything the user already has rights to).
+3. The site is in the Restricted SharePoint Search allow-list inadvertently.
+4. RCD was expected but never enabled on the site.
 
-1. Review agent knowledge source configuration in Copilot Studio:
-   - Check which sites/libraries are configured as knowledge sources
+### Diagnostic steps
+1. Identify the source URL of the surfaced content — Copilot citations include the file path. Open the site in an InPrivate session as the test user.
+2. Inventory the user's effective permission to that site:
+    ```powershell
+    Get-SPOUser -Site $SiteUrl -Limit All | Where-Object LoginName -match $UserUpn
+    Get-SPOUser -Site $SiteUrl -Limit All | Where-Object LoginName -match 'spo-grid-all-users|^c:0\(\.s\|true$'
+    ```
+3. Check RCD and RAC state:
+    ```powershell
+    Get-SPOSite -Identity $SiteUrl -Detailed | Select-Object Url, SharingCapability, SensitivityLabel, RestrictedAccessControl, RestrictContentOrgWideSearch
+    ```
+4. Confirm whether the site is in the Restricted SharePoint Search allow-list:
+    ```powershell
+    Get-SPOTenantRestrictedSearchAllowedList
+    ```
 
-2. Verify site permissions don't include broad groups:
-   ```powershell
-   $Users = Get-SPOUser -Site $SiteUrl -Limit All
-   $Users | Where-Object { $_.LoginName -match "everyone" }
-   ```
-
-3. Check for inheritance from parent site
-
-4. Review agent service account's total permissions across tenant
-
-**Resolution:**
-- Remove broad "Everyone" or "All Users" permissions
-- Configure explicit knowledge sources in Copilot Studio
-- Break permission inheritance if needed
-
----
-
-### Issue: Sensitivity Labels Not Appearing on Documents
-
-**Symptoms:** Documents don't show expected sensitivity labels
-
-**Diagnostic Steps:**
-
-1. Verify labels are published to users in the site:
-   - Purview > Information Protection > Label policies
-   - Check policy scope includes site users
-
-2. Check if auto-labeling policies are configured
-
-3. Confirm user has Information Protection client installed (for Office apps)
-
-4. Review if default library label is configured:
-   - Library settings > Apply sensitivity label to items
-
-**Resolution:**
-- Publish labels to appropriate users/groups
-- Configure default library label for automatic application
-- For existing documents, run retroactive labeling
+### Fix
+1. Remove the broad claim using the `Remove-BroadClaim` function in `powershell-setup.md` §3.
+2. If the site is Zone 3, enable RAC (binding to a named group) and RCD.
+3. Remove the site from Restricted SharePoint Search if it was added in error.
+4. After remediation, re-run Test 6 in `verification-testing.md` with the same prompt and capture evidence of the corrected behavior.
 
 ---
 
-### Issue: External Sharing Still Possible Despite Settings
+## Issue: Authorized user / agent service account cannot retrieve content
 
-**Symptoms:** Users can share externally from restricted sites
+### Symptoms
+- A user who legitimately needs access reports "I don't have access" or the agent returns "no information found" for valid content.
+- A Power Automate flow / agent service identity returns 401/403 against a site.
 
-**Diagnostic Steps:**
+### Likely causes
+1. Restricted Access Control is enabled on the site and the user / service identity is not in the bound group.
+2. Restricted Content Discovery is enabled and the user has no direct grant (RCD doesn't block access, but if there was no direct grant the user never had access in the first place).
+3. The container sensitivity label has **Block access from unmanaged devices** enabled and the device is not Intune-compliant.
+4. A Conditional Access policy is blocking the service principal.
 
-1. Check site-level override vs. tenant settings:
-   ```powershell
-   # Site setting
-   (Get-SPOSite -Identity $SiteUrl).SharingCapability
+### Diagnostic steps
+1. Confirm RAC binding:
+    ```powershell
+    (Get-SPOSite -Identity $SiteUrl -Detailed).RestrictedAccessControl
+    # Then inspect the bound group membership in Entra
+    Get-MgGroupMember -GroupId <bound-group-id>
+    ```
+2. Check the user's effective permissions:
+    - SharePoint admin center → site → **Site permissions** → **Check permissions** for the user.
+3. Check the container label's protection settings in Purview → **Information protection** → **Labels** → select label → **Edit** → Site & group settings.
+4. Check Entra sign-in logs for the user / service principal to identify any Conditional Access block.
 
-   # Tenant setting
-   (Get-SPOTenant).SharingCapability
-   ```
-   Note: Site cannot be more permissive than tenant
-
-2. Verify setting saved correctly (refresh admin center)
-
-3. Check for PowerShell scripts that may be resetting values
-
-4. Confirm user isn't a site collection admin (different permissions)
-
-**Resolution:**
-- Set site sharing to "Disabled" or more restrictive
-- Verify tenant-level settings are appropriately restrictive
-- Remove site collection admin rights from non-admin users
-
----
-
-### Issue: Access Review Not Working
-
-**Symptoms:** Access reviews not sending notifications or not completing
-
-**Diagnostic Steps:**
-
-1. Verify access review is configured correctly:
-   - Entra Admin Center > Identity Governance > Access Reviews
-
-2. Check reviewer assignments are valid
-
-3. Verify email notifications are enabled
-
-4. Check if reviewers have required permissions
-
-**Resolution:**
-- Reconfigure access review with correct settings
-- Ensure reviewers have mailboxes and are not blocked
-- Consider using backup reviewers
+### Fix
+1. Add the user (or service identity) to the RAC-bound group.
+2. If the device-compliance label setting is the cause, either issue a managed device or relax the label to `Allow limited, web-only access` for Zone 2 use cases.
+3. For service principals, use a Conditional Access exclusion specifically scoped to that workload identity (do not exclude the entire app).
 
 ---
 
-## How to Confirm Configuration is Active
+## Issue: Container sensitivity label not appearing on a site
 
-### Via Portal (SharePoint Admin Center)
+### Symptoms
+- The sensitivity dropdown in the SharePoint admin center → site **Settings** flyout doesn't show the desired label.
+- `Get-SPOSite -Detailed` returns a blank `SensitivityLabel`.
+- A Graph `PATCH /groups/{id}` with `assignedLabels` returns 400 or 403.
 
-1. Navigate to **Policies** > **Sharing**
-2. Verify tenant-level settings match FSI requirements
-3. Navigate to **Sites** > **Active sites** > Select site
-4. Verify site-level sharing is restricted
+### Likely causes
+1. The label policy is not published to an audience that includes the user attempting to apply it.
+2. The site is not group-connected (classic site, communication site without group). Container labels require an associated Microsoft 365 group or Entra security identity.
+3. The group already has an `assignedLabels` value and the new value conflicts with policy assignment rules.
+4. The label is not configured for **Groups & sites** scope.
 
-### Via Portal (Site Level)
+### Diagnostic steps
+1. In Purview → **Information protection** → **Label policies**, confirm the policy that publishes the label includes the admin user's account in its scope.
+2. Check the label scope in Purview → **Labels** → open label → confirm `Groups & sites` is enabled.
+3. Inspect the site:
+    ```powershell
+    $site = Get-SPOSite -Identity $url -Detailed
+    $site.GroupId    # 00000000-0000-0000-0000-000000000000 means non-group
+    Get-MgGroup -GroupId $site.GroupId -Property assignedLabels | Select -ExpandProperty assignedLabels
+    ```
 
-1. Navigate to the SharePoint site
-2. Go to **Site settings** > **Site permissions**
-3. Verify no "Everyone" groups
-4. Check all permission grants are documented
+### Fix
+1. Re-publish the label policy with the correct audience; allow up to 24 hours for propagation.
+2. For non-group sites, either convert to a group-connected site (preferred for Zone 3) or apply the label exclusively at the file/library level via DLP / default library label.
+3. Clear existing `assignedLabels` via Graph before applying a new one if a conflict exists.
+
+---
+
+## Issue: External sharing still works despite tenant settings
+
+### Symptoms
+- A user successfully shares a document externally even though tenant `SharingCapability = Disabled`.
+
+### Likely causes
+1. The site-level `SharingCapability` was set to a more permissive value before the tenant was tightened, and SharePoint preserves the **lesser** of the two — but only when the tenant value is **more** permissive than the site. If a site shows `SharingCapability=Disabled` after tightening, it is correctly blocked. If it still shows a more permissive value, the tenant change did not propagate or the site was excluded.
+2. The user is a Site Collection Admin and bypassed standard sharing UI via API.
+3. A tenant-level B2B Direct Connect policy or cross-tenant access policy is permitting the share through Teams shared channels rather than SharePoint sharing.
+
+### Diagnostic steps
+```powershell
+$tenant = Get-SPOTenant
+$site   = Get-SPOSite -Identity $SiteUrl -Detailed
+"Tenant: $($tenant.SharingCapability) | Site: $($site.SharingCapability)"
+Get-SPOSite -Identity $SiteUrl -Detailed | Select Url, AllowDownloadingNonWebViewableFiles, ConditionalAccessPolicy
+```
+Check the SharePoint audit log for `SharingInvitationCreated` and `SharingSet` operations on the document to identify the actual sharing path.
+
+### Fix
+1. Re-apply the desired site-level `SharingCapability`:
+    ```powershell
+    Set-SPOSite -Identity $SiteUrl -SharingCapability Disabled
+    ```
+2. Audit Site Collection Admins; remove non-admin users from that role.
+3. If sharing is occurring via Teams shared channels, address at the Entra cross-tenant access policy level; SharePoint sharing controls do not govern Teams shared channels.
+
+---
+
+## Issue: `Set-SPOSite -RestrictedAccessControl` or RAC cmdlet not available
+
+### Symptoms
+- PowerShell error: `A parameter cannot be found that matches parameter name 'RestrictedAccessControl'`.
+
+### Likely causes
+1. The pinned `Microsoft.Online.SharePoint.PowerShell` version predates the RAC GA cmdlet surface.
+2. SharePoint Advanced Management is not licensed in the tenant.
+3. The site is not eligible for RAC (must be group-connected with stable membership).
+
+### Fix
+1. Upgrade to a CAB-approved version of SPO Management Shell that exposes the RAC parameter:
+    ```powershell
+    Get-Module Microsoft.Online.SharePoint.PowerShell -ListAvailable
+    Get-Help Set-SPOSite -Parameter RestrictedAccessControl -ErrorAction SilentlyContinue
+    ```
+2. Verify SAM licensing in the Microsoft 365 admin center → **Billing** → **Licenses**. SAM ships with Microsoft 365 Copilot or as a standalone SKU.
+3. If the site is non-group-connected, fall back to the SharePoint admin center flyout UI (which uses the same back-end API but accepts a wider input set) or convert the site to a group-connected site.
+
+---
+
+## Issue: Restricted Content Discovery does not suppress content from Copilot
+
+### Symptoms
+- After enabling RCD, Microsoft 365 Copilot still returns content from the site for users who have direct access.
+
+### Cause
+RCD suppresses sites from **organization-wide** search and Copilot grounding for users who do **not** have direct permission. Users with direct site permission can still ground Copilot against that site — that is by design. RCD is the wrong control for "I want to hide this site from its own members". For that scenario, use RAC or remove user permissions.
+
+### Fix
+1. Inventory who has direct access to the site:
+    ```powershell
+    Get-SPOUser -Site $SiteUrl -Limit All | Format-Table LoginName, IsSiteAdmin, Groups
+    ```
+2. If the goal is to remove the site from Copilot grounding for everyone, also enable RAC bound to a small named group and remove the broader grants.
+3. Allow up to 24 hours for search-index changes to propagate after permission changes.
+
+---
+
+## Issue: Access review not sending notifications or never completing
+
+### Symptoms
+- Reviewers report no email; review status remains `In progress` after the duration window.
+
+### Likely causes
+1. Reviewer is a guest or service account without a mailbox.
+2. Reviewer mailbox is on litigation hold but unlicensed for Exchange Online.
+3. The review was created against a dynamic group that has no current members.
+4. Mail-flow rules (Exchange Online transport rules) are quarantining `noreply@accesscontrol.windows.net` notifications.
+
+### Diagnostic steps
+1. Entra admin center → **Identity Governance** → **Access reviews** → **Reviews** → open the instance → **History** tab — review the per-user notification status.
+2. Confirm reviewer licensing:
+    ```powershell
+    Get-MgUser -UserId $ReviewerUpn -Property AssignedLicenses, MailEnabled, UserType
+    ```
+3. Run an Exchange Online message trace for the reviewer.
+
+### Fix
+1. Replace mailbox-less reviewers with a governance group whose members are all licensed users.
+2. Adjust transport rules to allow Microsoft notification senders.
+3. Add a backup reviewer (typically the AI Governance Lead) on the access review definition.
+
+---
+
+## How to confirm the configuration is active end-to-end
+
+### Via portal
+1. SharePoint admin center → **Policies** → **Sharing** — verify tenant baseline.
+2. SharePoint admin center → **Active sites** → select site → **Settings** flyout — verify Sensitivity, RAC, RCD.
+3. Microsoft Purview → **Data Loss Prevention** → confirm `FSI-DLP-SharePoint-AgentGrounding` is in `Enforce`.
+4. Microsoft Entra → **Identity Governance** → **Access reviews** — confirm cycle status.
 
 ### Via PowerShell
-
 ```powershell
-# Quick validation check
-Write-Host "=== SharePoint Governance Check ===" -ForegroundColor Cyan
+$Url = 'https://contoso.sharepoint.com/sites/Agent-CustomerService'
+$tenant = Get-SPOTenant
+$site   = Get-SPOSite -Identity $Url -Detailed
+$broad  = Get-SPOUser -Site $Url -Limit All | Where-Object LoginName -match 'spo-grid-all-users|^c:0\(\.s\|true$'
 
-# Check tenant settings
-$Tenant = Get-SPOTenant
-Write-Host "Tenant Sharing: $($Tenant.SharingCapability)"
-
-# Check specific site
-$SiteUrl = "https://contoso.sharepoint.com/sites/Agent-CustomerService"
-$Site = Get-SPOSite -Identity $SiteUrl
-
-Write-Host "`nSite: $SiteUrl"
-Write-Host "  Sharing: $($Site.SharingCapability)"
-Write-Host "  Sensitivity: $($Site.SensitivityLabel)"
-Write-Host "  Lock State: $($Site.LockState)"
-
-# Check for broad permissions
-$Users = Get-SPOUser -Site $SiteUrl -Limit All
-$BroadAccess = $Users | Where-Object { $_.LoginName -match "everyone|spo-grid-all-users" }
-
-if ($BroadAccess) {
-    Write-Host "`n[WARN] Found broad permissions:" -ForegroundColor Yellow
-    $BroadAccess | Format-Table DisplayName, LoginName
-} else {
-    Write-Host "`n[PASS] No broad 'Everyone' permissions" -ForegroundColor Green
-}
+[PSCustomObject]@{
+    Url                          = $Url
+    TenantSharingCapability      = $tenant.SharingCapability
+    SiteSharingCapability        = $site.SharingCapability
+    SiteSensitivityLabel         = $site.SensitivityLabel
+    RestrictedAccessControl      = $site.RestrictedAccessControl
+    RestrictContentOrgWideSearch = $site.RestrictContentOrgWideSearch
+    BroadClaimCount              = ($broad | Measure-Object).Count
+} | Format-List
 ```
+
+A healthy Zone 3 site returns: tenant `Disabled`, site `Disabled`, label set, `RestrictedAccessControl=$true`, `RestrictContentOrgWideSearch=$true`, `BroadClaimCount=0`.
 
 ---
 
-## Escalation Path
+## Escalation path
 
-If issues persist after troubleshooting:
-
-1. **SharePoint Admin** - Site configuration and permissions
-2. **Information Protection Team** - Sensitivity labels and DLP
-3. **Compliance Officer** - Regulatory requirements and evidence
-4. **AI Governance Lead** - Agent data source approval
-5. **Microsoft Support** - Platform bugs or feature issues
+1. **SharePoint Admin** — site configuration, sharing, RAC/RCD, DAG reports.
+2. **Purview Info Protection Admin** — sensitivity label authoring and policy publication.
+3. **Purview Compliance Admin** — DLP policy authoring and incident triage.
+4. **Entra Identity Governance Admin** — access review configuration and notification flow.
+5. **AI Governance Lead** — agent grounding inventory disputes; sanctioned-source decisions.
+6. **Compliance Officer** — regulatory interpretation, evidence sufficiency for FINRA / SEC examinations.
+7. **Microsoft Support** — platform bugs, RAC API regressions, SAM licensing issues.
 
 ---
 
@@ -211,4 +260,4 @@ If issues persist after troubleshooting:
 
 ---
 
-*Updated: April 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3*

@@ -4,7 +4,7 @@
 **Control:** 1.29 — Global Secure Access: Network Controls for Copilot Studio Agents
 **Audience:** Power Platform Admins, Entra Security Admins
 **Estimated Duration:** 60–90 minutes for full configuration across a single environment
-**Prerequisites:** Global Secure Access license, Power Platform admin role, Entra Security Admin role
+**Prerequisites:** Global Secure Access license, Power Platform Admin role, Entra Security Admin role
 
 !!! warning "Preview Feature"
     This is a preview feature. Preview features aren't meant for production use and may have restricted functionality. Features may change before becoming generally available. Subject to the [Microsoft Azure Preview Supplemental Terms of Use](https://azure.microsoft.com/en-us/support/legal/preview-supplemental-terms/). Screenshots and navigation paths reflect the March 2026 UI state and may change. Validate each step against current UI before executing in production.
@@ -285,4 +285,4 @@ Confirm the following fields are present in log entries for agent-originated tra
 
 [Back to Control 1.29](../../../controls/pillar-1-security/1.29-global-secure-access-network-controls.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
-*Updated: April 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3*

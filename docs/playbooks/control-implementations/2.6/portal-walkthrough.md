@@ -246,7 +246,7 @@ Reference: [Microsoft Learn — Azure AI Foundry monitoring](https://learn.micro
 
 1. For Foundry-hosted models and any custom orchestration code wrapping the agent, send Application Insights telemetry to a Log Analytics workspace.
 2. From the workspace, configure **Diagnostic settings → Send to Microsoft Sentinel** so that operational anomalies (latency spikes, error bursts, unexpected tool-call patterns) are correlated with security signals.
-3. This telemetry path is **operational monitoring**, not 17a-4(f) WORM retention. See [Control 3.9 — Centralized SIEM Integration](../../../controls/pillar-3-reporting/3.9-centralized-siem-integration.md) for SIEM/Sentinel architecture and [Control 1.7 — Comprehensive Audit Logging](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) for the audit-log retention story.
+3. This telemetry path is **operational monitoring**, not 17a-4(f) WORM retention. See [Control 3.9 — Centralized SIEM Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) for SIEM/Sentinel architecture and [Control 1.7 — Comprehensive Audit Logging](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) for the audit-log retention story.
 4. Validation memos and MRM Committee minutes do **not** belong in Application Insights or Sentinel. They live in the retention path described in §6.
 
 ---
@@ -366,7 +366,7 @@ Validation memos, MRM Committee minutes, ongoing-monitoring reports, outcomes-an
 - **Copilot Studio Analytics dashboards** and **Foundry evaluation-run history** in the platform are operational; export and retain in WORM separately.
 - **Application Insights / Sentinel** workspaces are operational; not WORM.
 
-Cross-link: [Control 1.7 — Comprehensive Audit Logging](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) and [Control 1.9 — Records Retention and 17a-4(f) Compliance](../../../controls/pillar-1-security/1.9-records-retention-and-immutable-storage.md). *(TODO: verify Control 1.9 filename.)*
+Cross-link: [Control 1.7 — Comprehensive Audit Logging](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) and [Control 1.9 — Records Retention and 17a-4(f) Compliance](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md). *(TODO: verify Control 1.9 filename.)*
 
 ---
 
@@ -394,7 +394,7 @@ The MRM Committee, on demand, can produce each of the following. The verificatio
 | **Treating Copilot Studio Analytics as the validation.** Pointing examiners at a dashboard and saying "monitoring is in place." | Analytics is operational telemetry — it is **the evidence**, not the validation. The validation is the MRM Committee's review and effective challenge using that evidence. | Produce the validation memo that **references** the Analytics export, authored by the independent validation function. |
 | **Calling third-party engagement "independent validation" without substantiating independence.** Engaging an external firm and inferring SR 11-7 §V independence from the engagement alone. | SR 11-7 independence is a **functional and organizational** test, not a contractual one. An internal second-line MRM team that is functionally separate from the model owner / developer satisfies independence. A third party that is not appropriately scoped or qualified does not. | Document the validator's reporting line, scope of work, qualifications, and absence of conflicts. Independence is the test; third-party is one way to demonstrate it, not the test itself. |
 | **Not capturing vendor-model changes as model changes.** Treating a Microsoft default-model migration as a routine platform update. | A foundation-model change alters the model under SR 11-7 and triggers re-validation. Missing this is a recordkeeping and validation gap. | Subscribe to Microsoft 365 Message Center and the Power Platform release plan; activate the §5.2 runbook on every announced default-model migration. |
-| **Relying on M365 Audit Premium retention as 17a-4(f) WORM.** Storing validation memos in audit logs and assuming they meet broker-dealer recordkeeping. | M365 Audit Premium is **operational telemetry**, not WORM. It does not meet 17a-4(f) attestation requirements. | Retain validation memos under Purview retention with a locked Regulatory Record label, or in an approved 17a-4(f) vendor (Smarsh, Global Relay, Proofpoint, Mimecast). See [Control 1.9](../../../controls/pillar-1-security/1.9-records-retention-and-immutable-storage.md). |
+| **Relying on M365 Audit Premium retention as 17a-4(f) WORM.** Storing validation memos in audit logs and assuming they meet broker-dealer recordkeeping. | M365 Audit Premium is **operational telemetry**, not WORM. It does not meet 17a-4(f) attestation requirements. | Retain validation memos under Purview retention with a locked Regulatory Record label, or in an approved 17a-4(f) vendor (Smarsh, Global Relay, Proofpoint, Mimecast). See [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md). |
 | **Treating DSPM for AI inventory as the model inventory.** Using DSPM for AI as the firm's authoritative Agent Card record. | DSPM for AI captures activity; it does not capture tier, owner-of-record, validation memo URI, or registered-principal designee. | Maintain the Agent Card SharePoint list as the authoritative inventory and reconcile against DSPM for AI monthly. |
 | **Assuming sovereign-cloud parity.** Configuring the platform path in GCC, GCC High, or DoD without verifying availability. | Several surfaces in this playbook have not been announced for sovereign clouds. Configurations that fail silently produce no evidence. | Run §0.4 verification, jump to §1 if sovereign, and re-verify quarterly against the Microsoft 365 Government roadmap. |
 | **Confusing FINRA Notice 25-07 with binding AI rules.** Citing Notice 25-07 as a regulatory requirement. | Notice 25-07 is RFC / contextual material, not binding AI guidance. | Cite the binding regulations (OCC 2011-12, SR 11-7, FINRA 3110, FINRA 4511, SEC 17a-3 / 17a-4, SOX, GLBA, NYDFS 23 NYCRR 500) and reference Notice 25-07 only as contextual background. |
@@ -414,12 +414,12 @@ The MRM Committee, on demand, can produce each of the following. The verificatio
 
 - [Control 1.6 — Microsoft Purview DSPM for AI](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) — DSPM for AI authoring control
 - [Control 1.7 — Comprehensive Audit Logging](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) — operational audit log retention
-- [Control 1.9 — Records Retention and 17a-4(f) Compliance](../../../controls/pillar-1-security/1.9-records-retention-and-immutable-storage.md) — books-and-records retention for validation evidence *(TODO: verify filename)*
+- [Control 1.9 — Records Retention and 17a-4(f) Compliance](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) — books-and-records retention for validation evidence *(TODO: verify filename)*
 - [Control 2.7 — Vendor and Third-Party Risk Management](../../../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md) — vendor-model risk assessment
-- [Control 2.12 — FINRA Rule 3110 Supervisory Procedures](../../../controls/pillar-2-management/2.12-finra-rule-3110-supervisory-procedures.md) — registered-principal supervisory designation *(TODO: verify filename)*
+- [Control 2.12 — FINRA Rule 3110 Supervisory Procedures](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) — registered-principal supervisory designation *(TODO: verify filename)*
 - [Control 2.25 — Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) — publish/activate workflow and governance templates
 - [Control 2.26 — Entra Agent ID Identity Governance](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) — agent identity attribution
-- [Control 3.9 — Centralized SIEM Integration](../../../controls/pillar-3-reporting/3.9-centralized-siem-integration.md) — Sentinel routing for operational telemetry
+- [Control 3.9 — Centralized SIEM Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) — Sentinel routing for operational telemetry
 
 ---
 
