@@ -32,6 +32,14 @@
   /* ---- v1.4 Phase B constants (E1–E9) ---- */
   var SOLUTIONS_BASE_URL = "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/";
   var STARTER_PRIORITY_IDS = ["2.1", "1.4", "1.5", "1.7", "1.11"];
+
+  /* ---- v1.4.1 export envelope constants ----
+   * FRAMEWORK_VERSION: kept in sync manually with package.json + mkdocs.yml.
+   * EXPORT_SCHEMA_VERSION: bump on any breaking change to exportJSON output shape.
+   * Downstream tools (e.g. FSI-Assessment-Agent) key off both fields to detect drift.
+   */
+  var FRAMEWORK_VERSION = "1.4.0";
+  var EXPORT_SCHEMA_VERSION = 1;
   var ROLE_FILTER_KEY = "ag.roleFilter";
   var SECTOR_KEY = "ag.selectedSector";
   var ROLE_FILTER_OPTIONS = [
@@ -1254,6 +1262,71 @@
     }).sort(function (a, b) {
       return self.getRiskPriority(b) - self.getRiskPriority(a);
     });
+  };
+
+  /* ---- v1.4.1 export-envelope helpers ----
+   * Consumed by exportJSON / exportRoleSection. Snapshot-only — never mutated
+   * onto this.state, never persisted to localStorage, dropped on import.
+   */
+
+  /**
+   * Derive the assessmentStatus enum from current state. Snapshot at export time.
+   * Returns one of: "draft", "in-progress", "final".
+   *  - "final"        if completedSteps includes the explicit "full"/"complete"
+   *                   sentinel (set by Step 6 export confirmation in a future patch)
+   *  - "in-progress"  if any control has a response
+   *  - "draft"        otherwise
+   */
+  AssessmentApp.prototype.deriveAssessmentStatus = function () {
+    if (!this.state) return "draft";
+    var steps = this.state.completedSteps || [];
+    if (steps.indexOf("full") >= 0 || steps.indexOf("complete") >= 0) return "final";
+    var responses = this.state.responses || {};
+    for (var k in responses) {
+      if (Object.prototype.hasOwnProperty.call(responses, k) && responses[k] && responses[k].answer) {
+        return "in-progress";
+      }
+    }
+    return "draft";
+  };
+
+  /**
+   * Compute per-control / per-pillar / overall scores at export time.
+   * Mirrors the same numbers the Results dashboard renders. Snapshot-only.
+   * Returns null for any aggregate where no controls are scoreable (matches
+   * getAggregateScore semantics so consumers can render "n/a" cleanly).
+   */
+  AssessmentApp.prototype.computeExportScores = function () {
+    if (!this.data || !Array.isArray(this.data.controls)) return null;
+    var self = this;
+    var perControl = {};
+    this.data.controls.forEach(function (c) {
+      perControl[c.id] = self.getControlScore(c.id); // null | 0..1
+    });
+    return {
+      overall: this.getOverallScore(),
+      perPillar: {
+        "1": this.getPillarScore(1),
+        "2": this.getPillarScore(2),
+        "3": this.getPillarScore(3),
+        "4": this.getPillarScore(4)
+      },
+      perControl: perControl
+    };
+  };
+
+  /**
+   * Build the _metadata envelope shared by full and section exports.
+   */
+  AssessmentApp.prototype.buildExportMetadata = function (schemaType) {
+    return {
+      exportSchemaVersion: EXPORT_SCHEMA_VERSION,
+      schemaType: schemaType,
+      frameworkVersion: FRAMEWORK_VERSION,
+      manifestSchemaVersion: (this.solutionsLock && this.solutionsLock.schemaVersion) || null,
+      exportedAt: new Date().toISOString(),
+      exportedBy: (this.state && this.state.scoping && this.state.scoping.assessorName) || ""
+    };
   };
 
   /* ================================================================
@@ -2530,6 +2603,7 @@
   AssessmentApp.prototype.exportRoleSection = function (role) {
     var controlIds = this.data.roleAssignments[role] || [];
     var sectionData = {
+      _metadata: this.buildExportMetadata("section"),
       assessmentId: this.state.assessmentId,
       sectionExport: {
         role: role,
@@ -3262,9 +3336,36 @@
     return card;
   };
 
-  /* ---- JSON export ---- */
+  /* ---- JSON export ----
+   * v1.4.1: output is wrapped in a versioned envelope so downstream tools
+   * (e.g. FSI-Assessment-Agent) can detect framework version, validate schema,
+   * and consume pre-computed scores without re-implementing the algorithm.
+   *
+   * Envelope contract (additive — all original keys remain at top level for
+   * backwards-compatible importers):
+   *   _metadata          { exportSchemaVersion, schemaType:"full", frameworkVersion,
+   *                        manifestSchemaVersion, exportedAt, exportedBy }
+   *   _computedScores    { overall, perPillar:{1..4}, perControl:{id:0..1|null} }
+   *   assessmentStatus   "draft" | "in-progress" | "final"  (snapshot at export)
+   *   ...this.state      (responses, scoping, drilldown, overrides, completedSteps, etc.)
+   *
+   * NOTE: _metadata, _computedScores, and assessmentStatus are snapshot-only.
+   * importAssessment() reads named state keys directly and ignores these fields,
+   * which forces a recompute on import (the source-of-truth contract).
+   */
   AssessmentApp.prototype.exportJSON = function () {
-    var blob = new Blob([JSON.stringify(this.state, null, 2)], { type: "application/json" });
+    var envelope = {
+      _metadata: this.buildExportMetadata("full"),
+      _computedScores: this.computeExportScores(),
+      assessmentStatus: this.deriveAssessmentStatus()
+    };
+    // Copy state keys onto envelope (preserves importer compatibility).
+    for (var k in this.state) {
+      if (Object.prototype.hasOwnProperty.call(this.state, k)) {
+        envelope[k] = this.state[k];
+      }
+    }
+    var blob = new Blob([JSON.stringify(envelope, null, 2)], { type: "application/json" });
     var name = (this.state.assessmentName || "assessment").replace(/[^a-zA-Z0-9-_]/g, "-");
     downloadBlob(blob, name + ".json");
   };

@@ -400,7 +400,7 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 - CSA Quick Reference and Positioning Guide — partner/CSA engagement materials in `docs/reference/`
 - Automation indicators across the control catalog — each control identifies automation feasibility
 - Exportable architecture diagrams — PNG/SVG exports available in `docs/images/diagrams/`
-- Interactive Governance Readiness Assessment tool — client-side wizard assessing the full control catalog with smart scoping, two-phase drill-down, visual dashboard, remediation roadmap, and Excel/JSON/CSV/PDF export
+- Interactive Governance Readiness Assessment tool — client-side wizard assessing the full control catalog with smart scoping, two-phase drill-down, visual dashboard, remediation roadmap, and Excel/JSON/CSV/PDF export. JSON exports include a `_metadata` + `_computedScores` envelope (framework version, schema version, pre-computed pillar/overall scores, derived `assessmentStatus`) for downstream reporting agent consumption — see `assessment/data/README.md` "Portal Export Schema" for the contract.
 - 48-batch automated documentation review — SSPM mapping, Control 2.22 zone thresholds, stale footers, terminology fixes (v1.2.52)
 - UASD review remediation — 6 critical script fixes, 6 new troubleshooting scenarios (v1.2.51)
 - Five-solution deep dive — 18 UASD bugs, 16 MIME bugs, ITE round 2 fixes (v1.2.49)

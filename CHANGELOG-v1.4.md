@@ -59,6 +59,42 @@ The v1.4.0 manifest extension supports progressive control maturation by allowin
 
 ---
 
+---
+
+## Portal Export Envelope (v1.4.1-prep, additive)
+
+### What changed
+The portal SPA's JSON export (`assessment-app.js → exportJSON`, `exportRoleSection`) now emits a versioned envelope alongside the existing top-level state keys. **This is fully backwards-compatible** — every key present in pre-1.4.1 exports remains at the same top-level path, so legacy importers continue to work unchanged. Three new top-level keys are added:
+
+| New key             | Type    | Purpose |
+|---------------------|---------|---------|
+| `_metadata`         | object  | Envelope: `exportSchemaVersion` (int, currently `1`), `schemaType` (`"full"` or `"section"`), `frameworkVersion` (string from JS const), `manifestSchemaVersion` (string, sourced from `solutions-lock.json`), `exportedAt` (ISO-8601), `exportedBy` (assessor name). |
+| `_computedScores`   | object  | Snapshot of the same numbers the Results dashboard renders: `overall` (0–100 int or `null`), `perPillar.{1..4}` (0–100 int or `null`), `perControl.{id}` (0.0–1.0 or `null`). |
+| `assessmentStatus`  | string  | One of `"draft"` (no responses), `"in-progress"` (any response), `"final"` (only set when `completedSteps` includes `"full"` or `"complete"`). |
+
+### Why
+Removes three full risk classes for any downstream tool consuming portal exports (e.g., the FSI-Assessment-Agent CSA reporting agent):
+- **Silent version mismatch** — consumer can hard-refuse a JSON whose `frameworkVersion` doesn't match its grounding knowledge.
+- **In-prompt arithmetic risk** — LLM-based consumers no longer need to re-implement the scoring algorithm; they consume `_computedScores` directly.
+- **DRAFT inference ambiguity** — `assessmentStatus` is now an explicit enum instead of a heuristic on `completedSteps`.
+
+### Backwards compatibility
+- Importer (`importState`) reads named state keys only and silently ignores `_metadata` / `_computedScores` / `assessmentStatus`. **Snapshot fields are dropped on import**, which forces a recompute on the next export — preventing stale-score roundtrip drift.
+- Round-trip test: tampered `_computedScores.overall` does not survive an import → re-export cycle (verified in `tests/spa/export-shape.test.mjs`).
+- All 31 pre-existing SPA tests pass unchanged.
+
+### Files touched
+- `docs/javascripts/assessment-app.js` — added `FRAMEWORK_VERSION` + `EXPORT_SCHEMA_VERSION` constants, `deriveAssessmentStatus()`, `computeExportScores()`, `buildExportMetadata()` helpers, modified `exportJSON()` and `exportRoleSection()`.
+- `tests/spa/export-shape.test.mjs` — 5 new contract tests covering envelope shape, score computation, status enum, top-level back-compat, and import-drop-recompute round-trip.
+- `assessment/data/README.md` — documented the portal export schema (Portal Export Schema section).
+
+### Known follow-ups (deferred to v1.4.1+)
+- Wire a UI control on the Results step that lets the assessor explicitly set `assessmentStatus = "final"` (currently can only be reached by writing `"full"`/`"complete"` to `completedSteps`).
+- Publish a JSON Schema file (`assessment/schema/portal-export.schema.json`) so consumers can validate envelope shape deterministically.
+- Backfill the 53 controls with `TODO` priority/yesBar/partialBar/noBar/facilitatorNotes (content work, SME-gated).
+
+---
+
 ## Manifest Unification (E0)
 
 ### Schema Extension

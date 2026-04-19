@@ -33,7 +33,7 @@ The Governance Readiness Assessment is an interactive tool that helps organizati
 2. **Phase 1 Assessment** — Rate each control's implementation status (Yes / Partial / No / N/A)
 3. **Phase 2 Drill-Down** — Answer detailed sub-questions for gap controls to refine scores
 4. **Results Dashboard** — View executive scorecard, regulatory exposure, and remediation roadmap
-5. **Export** — Download results as Excel workbook, JSON, CSV, or print to PDF
+5. **Export** — Download results as Excel workbook, JSON, CSV, or print to PDF. JSON exports include a `_metadata` + `_computedScores` envelope (framework version, schema version, pre-computed pillar/overall scores, derived `assessmentStatus`) so downstream tools and reporting agents can consume scores directly without recomputing them. See [`assessment/data/README.md`](https://github.com/judeper/FSI-AgentGov/blob/main/assessment/data/README.md#portal-export-schema) for the full schema.
 
 ### Scoring Methodology
 
