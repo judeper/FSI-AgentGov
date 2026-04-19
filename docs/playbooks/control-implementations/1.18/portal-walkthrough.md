@@ -155,4 +155,4 @@ After completing these steps, verify:
 
 ---
 
-*Updated: April 2026 | Version: v1.3.3 | Classification: Portal Walkthrough*
+*Updated: April 2026 | Version: v1.4.0 | Classification: Portal Walkthrough*

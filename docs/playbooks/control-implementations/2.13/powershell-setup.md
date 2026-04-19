@@ -770,4 +770,4 @@ Write-Host "Results: $resultPath" -ForegroundColor Cyan
 
 ---
 
-*Updated: April 2026 | Version: v1.3.3 | UI Verification Status: Current*
+*Updated: April 2026 | Version: v1.4.0 | UI Verification Status: Current*

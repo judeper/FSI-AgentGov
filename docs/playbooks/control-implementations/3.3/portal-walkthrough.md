@@ -189,4 +189,4 @@ Proceed to [Verification & Testing](verification-testing.md) for detailed test c
 
 ---
 
-*Updated: April 2026 | Version: v1.3.3 | UI Verification Status: Current*
+*Updated: April 2026 | Version: v1.4.0 | UI Verification Status: Current*

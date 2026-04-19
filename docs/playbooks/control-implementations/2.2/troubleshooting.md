@@ -195,6 +195,6 @@ Computer-Using Agents (CUA) is **not** governed by environment groups. The FSI b
 
 ---
 
-*Updated: April 2026 | Version: v1.3.3*
+*Updated: April 2026 | Version: v1.4.0*
 
 [Back to Control 2.2](../../../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification & Testing](verification-testing.md)

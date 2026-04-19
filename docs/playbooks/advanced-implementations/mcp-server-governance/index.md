@@ -1,7 +1,7 @@
 # MCP Server Governance for FSI
 
 **Last Updated:** March 2026
-**Version:** v1.3.2
+**Version:** v1.4.0
 
 ---
 
@@ -338,4 +338,4 @@ Configure Microsoft Purview to capture and retain MCP-related audit events:
 
 ---
 
-*FSI Agent Governance Framework v1.3.2 — March 2026*
+*FSI Agent Governance Framework v1.4.0 — April 2026*

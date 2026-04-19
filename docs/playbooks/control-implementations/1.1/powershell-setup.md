@@ -375,4 +375,4 @@ finally {
 
 ---
 
-*Updated: April 2026 | Version: v1.3.3 | Classification: PowerShell Setup*
+*Updated: April 2026 | Version: v1.4.0 | Classification: PowerShell Setup*

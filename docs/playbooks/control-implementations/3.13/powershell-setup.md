@@ -494,4 +494,4 @@ Write-Host "Policy state: $($Policy.State)"  # Should be "Locked" for production
 
 [Back to Control 3.13](../../../controls/pillar-3-reporting/3.13-agent-365-admin-center-analytics.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
-*Updated: April 2026 | Version: v1.3.3*
+*Updated: April 2026 | Version: v1.4.0*

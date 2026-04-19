@@ -175,7 +175,7 @@ function Request-Feat224PimActivation {
     )
 
     if ($Role -eq 'GlobalAdministrator') {
-        Write-Warning "Global Administrator activation should be exceptional. Confirm a CAB ticket beyond '$JustificationTicket' is on file (Control 2.24 v1.3.3)."
+        Write-Warning "Global Administrator activation should be exceptional. Confirm a CAB ticket beyond '$JustificationTicket' is on file (Control 2.24 v1.4.0)."
     }
 
     $context = Get-MgContext

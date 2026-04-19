@@ -222,4 +222,4 @@ $results | Where-Object { -not $_.OverallPass } | ForEach-Object { Write-Warning
 
 ---
 
-*Updated: April 2026 | Version: v1.3.3*
+*Updated: April 2026 | Version: v1.4.0*

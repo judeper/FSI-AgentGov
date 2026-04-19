@@ -654,4 +654,4 @@ Write-Host "SDK Implementation Registry exported: $RegistryFileName"
 
 [Back to Control 3.14](../../../controls/pillar-3-reporting/3.14-agent-365-observability-sdk.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
-*Updated: April 2026 | Version: v1.3.3 | UI Verification Status: Current*
+*Updated: April 2026 | Version: v1.4.0 | UI Verification Status: Current*

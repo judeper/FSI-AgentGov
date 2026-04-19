@@ -257,4 +257,4 @@ A surveillance agent that supports supervisory review under FINRA Rule 3110 is t
 
 ---
 
-*Updated: April 2026 | Version: v1.3.3*
+*Updated: April 2026 | Version: v1.4.0*
