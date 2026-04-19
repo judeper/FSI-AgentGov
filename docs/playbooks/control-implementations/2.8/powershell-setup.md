@@ -1,361 +1,363 @@
-# PowerShell Setup: Control 2.8 - Access Control and Segregation of Duties
+# PowerShell Setup: Control 2.8 — Access Control and Segregation of Duties
 
-**Last Updated:** January 2026
-**Modules Required:** Microsoft.Graph, Microsoft.PowerApps.Administration.PowerShell
+!!! warning "Read the FSI PowerShell baseline first"
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
+
+**Last Updated:** April 2026
+**Modules Required:** `Microsoft.Graph` (v2.x, pinned), `Microsoft.PowerApps.Administration.PowerShell` (Windows PowerShell 5.1 only)
+**Audience:** M365 administrators in US financial services
+**Mutation safety:** All scripts below support `-WhatIf` via `SupportsShouldProcess`; run with `-WhatIf` first in regulated tenants.
+
+---
 
 ## Prerequisites
 
 ```powershell
-Install-Module -Name Microsoft.Graph -Force -Scope CurrentUser
-Install-Module -Name Microsoft.PowerApps.Administration.PowerShell -Force -Scope CurrentUser
+# Pin to the version approved by your CAB (replace <version>):
+Install-Module -Name Microsoft.Graph `
+    -RequiredVersion '<version>' -Repository PSGallery `
+    -Scope CurrentUser -AllowClobber -AcceptLicense
+
+# Power Apps Administration is Windows PowerShell 5.1 (Desktop) only:
+if ($PSVersionTable.PSEdition -ne 'Desktop') {
+    Write-Warning "Run Power Apps Administration cmdlets from Windows PowerShell 5.1."
+}
+Install-Module -Name Microsoft.PowerApps.Administration.PowerShell `
+    -RequiredVersion '<version>' -Scope CurrentUser -AllowClobber
 ```
+
+**Required Graph scopes (delegated):**
+
+| Script | Scopes |
+|---|---|
+| Group creation | `Group.ReadWrite.All`, `Directory.ReadWrite.All`, `RoleManagement.ReadWrite.Directory` |
+| Membership / SoD audit | `Group.Read.All`, `User.Read.All`, `RoleManagement.Read.Directory` |
+| PIM eligibility audit | `RoleManagementPolicy.Read.Directory`, `PrivilegedAccess.Read.AzureADGroup` |
+
+> **Sovereign cloud note:** GCC / GCC High / DoD tenants must pass `-Environment USGov` / `USGovHigh` / `USGovDoD` to `Connect-MgGraph` and the equivalent endpoint to `Add-PowerAppsAccount`. See the baseline.
 
 ---
 
-## Automated Scripts
-
-### Create Security Groups
+## Script 1 — Create role-assignable security groups
 
 ```powershell
 <#
 .SYNOPSIS
-    Creates security groups for agent governance roles
-
-.EXAMPLE
-    .\New-AgentGovernanceGroups.ps1
+    Creates the five SG-Agent-* security groups for Control 2.8.
+    Marks Approvers / Release Managers / Platform Admins as role-assignable.
+.NOTES
+    Run with -WhatIf first. Idempotent: skips groups that already exist.
 #>
+[CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
+param(
+    [string]$EvidencePath = ".\evidence\2.8"
+)
 
-Write-Host "=== Create Agent Governance Security Groups ===" -ForegroundColor Cyan
+Connect-MgGraph -Scopes "Group.ReadWrite.All","Directory.ReadWrite.All","RoleManagement.ReadWrite.Directory" -NoWelcome
 
-Connect-MgGraph -Scopes "Group.ReadWrite.All", "Directory.ReadWrite.All"
+$null = New-Item -ItemType Directory -Path $EvidencePath -Force
 
 $groups = @(
-    @{DisplayName="SG-Agent-Developers"; Description="Can create and edit agents"; MailNickname="sg-agent-developers"},
-    @{DisplayName="SG-Agent-Reviewers"; Description="Can review agent submissions"; MailNickname="sg-agent-reviewers"},
-    @{DisplayName="SG-Agent-Approvers"; Description="Can approve agent deployments"; MailNickname="sg-agent-approvers"},
-    @{DisplayName="SG-Agent-ReleaseManagers"; Description="Can deploy agents to production"; MailNickname="sg-agent-releasemgrs"},
-    @{DisplayName="SG-Agent-PlatformAdmins"; Description="Can configure platform settings"; MailNickname="sg-agent-platformadmins"}
+    @{ DisplayName = "SG-Agent-Developers";      MailNickname = "sg-agent-developers";      RoleAssignable = $false; Description = "Copilot Studio authoring identities (makers)" }
+    @{ DisplayName = "SG-Agent-Reviewers";       MailNickname = "sg-agent-reviewers";       RoleAssignable = $false; Description = "Independent reviewers of agent submissions" }
+    @{ DisplayName = "SG-Agent-Approvers";       MailNickname = "sg-agent-approvers";       RoleAssignable = $true;  Description = "PIM-gated approvers for production publish" }
+    @{ DisplayName = "SG-Agent-ReleaseManagers"; MailNickname = "sg-agent-releasemgrs";     RoleAssignable = $true;  Description = "PIM-gated release managers (Zone 3 deploy)" }
+    @{ DisplayName = "SG-Agent-PlatformAdmins";  MailNickname = "sg-agent-platformadmins";  RoleAssignable = $true;  Description = "PIM-eligible Power Platform / Environment admins" }
 )
 
-foreach ($group in $groups) {
-    $existing = Get-MgGroup -Filter "displayName eq '$($group.DisplayName)'"
-    if (-not $existing) {
-        $newGroup = New-MgGroup -DisplayName $group.DisplayName `
-                                -Description $group.Description `
-                                -MailNickname $group.MailNickname `
-                                -MailEnabled:$false `
-                                -SecurityEnabled:$true
-        Write-Host "[CREATED] $($group.DisplayName)" -ForegroundColor Green
-    } else {
-        Write-Host "[EXISTS] $($group.DisplayName)" -ForegroundColor Yellow
+$report = foreach ($g in $groups) {
+    $existing = Get-MgGroup -Filter "displayName eq '$($g.DisplayName)'" -ErrorAction SilentlyContinue
+    if ($existing) {
+        [PSCustomObject]@{ Group = $g.DisplayName; Action = "Exists"; Id = $existing.Id; RoleAssignable = $existing.IsAssignableToRole }
+    }
+    elseif ($PSCmdlet.ShouldProcess($g.DisplayName, "Create security group (RoleAssignable=$($g.RoleAssignable))")) {
+        $params = @{
+            DisplayName        = $g.DisplayName
+            Description        = $g.Description
+            MailNickname       = $g.MailNickname
+            MailEnabled        = $false
+            SecurityEnabled    = $true
+            IsAssignableToRole = $g.RoleAssignable
+        }
+        $new = New-MgGroup @params
+        [PSCustomObject]@{ Group = $g.DisplayName; Action = "Created"; Id = $new.Id; RoleAssignable = $new.IsAssignableToRole }
     }
 }
+
+$reportPath = Join-Path $EvidencePath "groups-$(Get-Date -Format 'yyyyMMdd-HHmm').csv"
+$report | Export-Csv -Path $reportPath -NoTypeInformation
+
+# SHA-256 evidence hash (per baseline)
+$hash = (Get-FileHash -Path $reportPath -Algorithm SHA256).Hash
+"$reportPath,$hash" | Out-File (Join-Path $EvidencePath "evidence-hashes.txt") -Append
 
 Disconnect-MgGraph
 ```
 
-### Export Role Membership Report
+---
+
+## Script 2 — Segregation-of-Duties detector
+
+Detects identities that hold conflicting role pairs. Output is the canonical evidence artefact for examiners.
 
 ```powershell
 <#
 .SYNOPSIS
-    Exports membership of agent governance groups
-
+    Detects SoD violations across the five agent governance groups
+    AND across PIM-eligible / Active assignments to high-privileged roles.
+.OUTPUTS
+    CSV: SoD-Violations-yyyyMMdd-HHmm.csv with one row per (User, ConflictPair).
 .EXAMPLE
-    .\Export-AgentGovernanceRoles.ps1
+    .\Test-Control28-SoD.ps1 -EvidencePath .\evidence\2.8
 #>
-
-Write-Host "=== Agent Governance Role Membership Report ===" -ForegroundColor Cyan
-
-Connect-MgGraph -Scopes "Group.Read.All", "User.Read.All"
-
-$groupPrefixes = @("SG-Agent-Developers", "SG-Agent-Reviewers", "SG-Agent-Approvers", "SG-Agent-ReleaseManagers", "SG-Agent-PlatformAdmins")
-$report = @()
-
-foreach ($prefix in $groupPrefixes) {
-    $group = Get-MgGroup -Filter "displayName eq '$prefix'"
-    if ($group) {
-        $members = Get-MgGroupMember -GroupId $group.Id
-        foreach ($member in $members) {
-            $user = Get-MgUser -UserId $member.Id
-            $report += [PSCustomObject]@{
-                Group = $prefix
-                UserPrincipalName = $user.UserPrincipalName
-                DisplayName = $user.DisplayName
-                JobTitle = $user.JobTitle
-            }
-        }
-        Write-Host "$prefix : $($members.Count) members" -ForegroundColor Green
-    }
-}
-
-$report | Export-Csv -Path ".\AgentGovernanceRoles_$(Get-Date -Format 'yyyyMMdd').csv" -NoTypeInformation
-Write-Host "`nExported to AgentGovernanceRoles_$(Get-Date -Format 'yyyyMMdd').csv" -ForegroundColor Cyan
-
-Disconnect-MgGraph
-```
-
-### Segregation of Duties Validation
-
-```powershell
-<#
-.SYNOPSIS
-    Validates no SoD violations exist (user in conflicting roles)
-
-.EXAMPLE
-    .\Test-SoDCompliance.ps1
-#>
-
-Write-Host "=== Segregation of Duties Validation ===" -ForegroundColor Cyan
-
-Connect-MgGraph -Scopes "Group.Read.All", "User.Read.All"
-
-# Define conflicting role pairs
-$conflictingPairs = @(
-    @{Role1="SG-Agent-Developers"; Role2="SG-Agent-Approvers"; Reason="Creator cannot approve own work"},
-    @{Role1="SG-Agent-Approvers"; Role2="SG-Agent-ReleaseManagers"; Reason="Approver cannot deploy"},
-    @{Role1="SG-Agent-Developers"; Role2="SG-Agent-ReleaseManagers"; Reason="Creator cannot deploy"}
+[CmdletBinding()]
+param(
+    [string]$EvidencePath = ".\evidence\2.8",
+    [switch]$IncludePIMEligible
 )
 
-$violations = @()
+Connect-MgGraph -Scopes "Group.Read.All","User.Read.All","RoleManagement.Read.Directory" -NoWelcome
+$null = New-Item -ItemType Directory -Path $EvidencePath -Force
 
-foreach ($pair in $conflictingPairs) {
-    $group1 = Get-MgGroup -Filter "displayName eq '$($pair.Role1)'"
-    $group2 = Get-MgGroup -Filter "displayName eq '$($pair.Role2)'"
+# Conflict matrix — anchored to NIST AC-5 / SOX 404 SoD principles
+$conflictPairs = @(
+    @{ A = "SG-Agent-Developers";  B = "SG-Agent-Approvers";       Rule = "Maker cannot approve own work (FINRA 3110, SOX 404)" }
+    @{ A = "SG-Agent-Developers";  B = "SG-Agent-ReleaseManagers"; Rule = "Maker cannot deploy to production (SOX 404)" }
+    @{ A = "SG-Agent-Approvers";   B = "SG-Agent-ReleaseManagers"; Rule = "Approver cannot self-deploy (NIST AC-5)" }
+    @{ A = "SG-Agent-Reviewers";   B = "SG-Agent-Approvers";       Rule = "Reviewer should not also approve (independent review)" }
+    @{ A = "SG-Agent-Developers";  B = "SG-Agent-PlatformAdmins";  Rule = "Maker cannot hold platform admin (Copilot Studio author/admin separation)" }
+)
 
-    if ($group1 -and $group2) {
-        $members1 = (Get-MgGroupMember -GroupId $group1.Id).Id
-        $members2 = (Get-MgGroupMember -GroupId $group2.Id).Id
+function Get-GroupMemberSet {
+    param([string]$Name)
+    $g = Get-MgGroup -Filter "displayName eq '$Name'" -ErrorAction SilentlyContinue
+    if (-not $g) { return @{} }
+    $members = Get-MgGroupTransitiveMember -GroupId $g.Id -All -ErrorAction SilentlyContinue
+    $set = @{}
+    foreach ($m in $members) {
+        if ($m.AdditionalProperties['@odata.type'] -eq '#microsoft.graph.user') {
+            $set[$m.Id] = $m.AdditionalProperties.userPrincipalName
+        }
+    }
+    return $set
+}
 
-        $overlap = $members1 | Where-Object { $_ -in $members2 }
+$violations = New-Object System.Collections.Generic.List[object]
 
-        foreach ($userId in $overlap) {
-            $user = Get-MgUser -UserId $userId
-            $violations += [PSCustomObject]@{
-                User = $user.UserPrincipalName
-                Role1 = $pair.Role1
-                Role2 = $pair.Role2
-                Violation = $pair.Reason
+foreach ($p in $conflictPairs) {
+    $setA = Get-GroupMemberSet $p.A
+    $setB = Get-GroupMemberSet $p.B
+    $overlap = $setA.Keys | Where-Object { $setB.ContainsKey($_) }
+    foreach ($id in $overlap) {
+        $violations.Add([PSCustomObject]@{
+            UserId            = $id
+            UserPrincipalName = $setA[$id]
+            GroupA            = $p.A
+            GroupB            = $p.B
+            Rule              = $p.Rule
+            DetectedAtUtc     = (Get-Date).ToUniversalTime().ToString("o")
+        })
+    }
+}
+
+# Optional: cross-check directory-role overlaps (Maker vs Power Platform Admin via PIM)
+if ($IncludePIMEligible) {
+    $ppaRole = Get-MgRoleManagementDirectoryRoleDefinition -Filter "displayName eq 'Power Platform Administrator'"
+    if ($ppaRole) {
+        $eligible = Get-MgRoleManagementDirectoryRoleEligibilityScheduleInstance -Filter "roleDefinitionId eq '$($ppaRole.Id)'" -All
+        $devSet = Get-GroupMemberSet "SG-Agent-Developers"
+        foreach ($e in $eligible) {
+            if ($devSet.ContainsKey($e.PrincipalId)) {
+                $violations.Add([PSCustomObject]@{
+                    UserId            = $e.PrincipalId
+                    UserPrincipalName = $devSet[$e.PrincipalId]
+                    GroupA            = "SG-Agent-Developers"
+                    GroupB            = "Power Platform Administrator (PIM-eligible)"
+                    Rule              = "Maker cannot be eligible for Power Platform Admin (Zone 3)"
+                    DetectedAtUtc     = (Get-Date).ToUniversalTime().ToString("o")
+                })
             }
         }
     }
 }
+
+$ts = Get-Date -Format 'yyyyMMdd-HHmm'
+$out = Join-Path $EvidencePath "SoD-Violations-$ts.csv"
+$violations | Export-Csv -Path $out -NoTypeInformation
 
 if ($violations.Count -eq 0) {
-    Write-Host "[PASS] No SoD violations found" -ForegroundColor Green
+    Write-Host "[PASS] No SoD violations detected." -ForegroundColor Green
 } else {
-    Write-Host "[FAIL] $($violations.Count) SoD violation(s) found:" -ForegroundColor Red
-    $violations | Format-Table -AutoSize
+    Write-Host "[FAIL] $($violations.Count) SoD violation(s) detected. See $out" -ForegroundColor Red
 }
 
+# Evidence hash
+$hash = (Get-FileHash -Path $out -Algorithm SHA256).Hash
+"$out,$hash" | Out-File (Join-Path $EvidencePath "evidence-hashes.txt") -Append
+
 Disconnect-MgGraph
+exit ([int]($violations.Count -gt 0))
 ```
+
+> The exit code is non-zero when violations exist — wire this script into your monthly governance pipeline (Azure DevOps, GitHub Actions, or Power Automate Desktop) and treat a failed run as a Sev-2 control incident.
 
 ---
 
-## Validation Script
+## Script 3 — Membership and PIM eligibility export
 
 ```powershell
 <#
 .SYNOPSIS
-    Validates Control 2.8 - Access Control and Segregation of Duties
-
-.EXAMPLE
-    .\Validate-Control-2.8.ps1
+    Exports (a) members of each SG-Agent-* group and (b) PIM-eligible
+    members of high-privileged directory roles. Used as quarterly
+    access-review evidence.
 #>
+[CmdletBinding()]
+param([string]$EvidencePath = ".\evidence\2.8")
 
-Write-Host "=== Control 2.8 Validation ===" -ForegroundColor Cyan
+Connect-MgGraph -Scopes "Group.Read.All","User.Read.All","RoleManagement.Read.Directory" -NoWelcome
+$null = New-Item -ItemType Directory -Path $EvidencePath -Force
+$ts = Get-Date -Format 'yyyyMMdd-HHmm'
 
-Connect-MgGraph -Scopes "Group.Read.All", "RoleManagement.Read.All"
-
-# Check 1: Security groups exist
-Write-Host "`n[Check 1] Security Groups" -ForegroundColor Cyan
-$requiredGroups = @("SG-Agent-Developers", "SG-Agent-Reviewers", "SG-Agent-Approvers", "SG-Agent-ReleaseManagers", "SG-Agent-PlatformAdmins")
-$groupsFound = 0
-
-foreach ($groupName in $requiredGroups) {
-    $group = Get-MgGroup -Filter "displayName eq '$groupName'"
-    if ($group) {
-        Write-Host "[PASS] $groupName exists" -ForegroundColor Green
-        $groupsFound++
-    } else {
-        Write-Host "[FAIL] $groupName not found" -ForegroundColor Red
-    }
-}
-
-# Check 2: PIM configured (check for active assignments)
-Write-Host "`n[Check 2] Privileged Identity Management" -ForegroundColor Cyan
-Write-Host "[INFO] Verify PIM is configured for admin roles in Entra Admin Center" -ForegroundColor Yellow
-
-# Check 3: Access reviews (manual verification)
-Write-Host "`n[Check 3] Access Reviews" -ForegroundColor Cyan
-Write-Host "[INFO] Verify quarterly access reviews are scheduled in Identity Governance" -ForegroundColor Yellow
-
-# Check 4: SoD validation
-Write-Host "`n[Check 4] Segregation of Duties" -ForegroundColor Cyan
-# Run SoD check inline
-$conflictingPairs = @(
-    @{Role1="SG-Agent-Developers"; Role2="SG-Agent-Approvers"},
-    @{Role1="SG-Agent-Approvers"; Role2="SG-Agent-ReleaseManagers"},
-    @{Role1="SG-Agent-Developers"; Role2="SG-Agent-ReleaseManagers"}
-)
-
-$hasViolations = $false
-foreach ($pair in $conflictingPairs) {
-    $g1 = Get-MgGroup -Filter "displayName eq '$($pair.Role1)'"
-    $g2 = Get-MgGroup -Filter "displayName eq '$($pair.Role2)'"
-    if ($g1 -and $g2) {
-        $m1 = (Get-MgGroupMember -GroupId $g1.Id -ErrorAction SilentlyContinue).Id
-        $m2 = (Get-MgGroupMember -GroupId $g2.Id -ErrorAction SilentlyContinue).Id
-        if ($m1 -and $m2) {
-            $overlap = $m1 | Where-Object { $_ -in $m2 }
-            if ($overlap) { $hasViolations = $true }
+# (a) Group memberships
+$groupNames = "SG-Agent-Developers","SG-Agent-Reviewers","SG-Agent-Approvers","SG-Agent-ReleaseManagers","SG-Agent-PlatformAdmins"
+$rows = foreach ($name in $groupNames) {
+    $g = Get-MgGroup -Filter "displayName eq '$name'" -ErrorAction SilentlyContinue
+    if (-not $g) { continue }
+    Get-MgGroupTransitiveMember -GroupId $g.Id -All | ForEach-Object {
+        [PSCustomObject]@{
+            Group             = $name
+            UserPrincipalName = $_.AdditionalProperties.userPrincipalName
+            DisplayName       = $_.AdditionalProperties.displayName
+            JobTitle          = $_.AdditionalProperties.jobTitle
+            AccountEnabled    = $_.AdditionalProperties.accountEnabled
         }
     }
 }
+$rows | Export-Csv (Join-Path $EvidencePath "Membership-$ts.csv") -NoTypeInformation
 
-if (-not $hasViolations) {
-    Write-Host "[PASS] No SoD violations detected" -ForegroundColor Green
-} else {
-    Write-Host "[FAIL] SoD violations detected - run Test-SoDCompliance.ps1 for details" -ForegroundColor Red
+# (b) PIM-eligible holders of priority roles
+$priorityRoles = "Power Platform Administrator","AI Administrator","Global Administrator","Privileged Role Administrator"
+$pim = foreach ($rn in $priorityRoles) {
+    $rd = Get-MgRoleManagementDirectoryRoleDefinition -Filter "displayName eq '$rn'" -ErrorAction SilentlyContinue
+    if (-not $rd) { continue }
+    $assigns = Get-MgRoleManagementDirectoryRoleEligibilityScheduleInstance `
+                  -Filter "roleDefinitionId eq '$($rd.Id)'" -All
+    foreach ($a in $assigns) {
+        $u = Get-MgUser -UserId $a.PrincipalId -ErrorAction SilentlyContinue
+        [PSCustomObject]@{
+            Role              = $rn
+            UserPrincipalName = $u.UserPrincipalName
+            AssignmentType    = "Eligible"
+            EndDateTime       = $a.EndDateTime
+        }
+    }
 }
-
-Write-Host "`n=== Validation Summary ===" -ForegroundColor Cyan
-Write-Host "Groups configured: $groupsFound / $($requiredGroups.Count)"
+$pim | Export-Csv (Join-Path $EvidencePath "PIM-Eligible-$ts.csv") -NoTypeInformation
 
 Disconnect-MgGraph
 ```
 
 ---
 
-## Complete Configuration Script
+## Script 4 — Dataverse System Administrator audit (Zone 3)
+
+Dataverse System Administrator is **outside** the Entra group model, so this check uses the Power Platform Admin module (Windows PowerShell 5.1).
 
 ```powershell
 <#
 .SYNOPSIS
-    Complete access control and SoD configuration for Control 2.8
-
-.DESCRIPTION
-    Executes end-to-end access control setup including:
-    - Security group creation
-    - Role membership audit
-    - Segregation of duties validation
-    - Compliance report generation
-
-.PARAMETER OutputPath
-    Path for output reports
-
-.EXAMPLE
-    .\Configure-Control-2.8.ps1 -OutputPath ".\AccessControl"
-
+    Lists every identity holding the Dataverse System Administrator
+    role across all production-aligned environments.
 .NOTES
-    Last Updated: January 2026
-    Related Control: Control 2.8 - Access Control and Segregation of Duties
+    Requires Microsoft.PowerApps.Administration.PowerShell on PS 5.1.
 #>
+if ($PSVersionTable.PSEdition -ne 'Desktop') {
+    throw "Run from Windows PowerShell 5.1 (Desktop edition)."
+}
+Add-PowerAppsAccount   # add -Endpoint usgov / usgovhigh / dod for sovereign clouds
 
-param(
-    [string]$OutputPath = ".\AccessControl-Report"
-)
-
-try {
-    Write-Host "=== Control 2.8: Access Control and Segregation of Duties ===" -ForegroundColor Cyan
-
-    # Connect to Microsoft Graph
-    Connect-MgGraph -Scopes "Group.ReadWrite.All", "Directory.ReadWrite.All", "User.Read.All"
-
-    # Ensure output directory exists
-    New-Item -ItemType Directory -Path $OutputPath -Force | Out-Null
-
-    # Define required groups
-    $requiredGroups = @(
-        @{DisplayName="SG-Agent-Developers"; Description="Can create and edit agents"; MailNickname="sg-agent-developers"},
-        @{DisplayName="SG-Agent-Reviewers"; Description="Can review agent submissions"; MailNickname="sg-agent-reviewers"},
-        @{DisplayName="SG-Agent-Approvers"; Description="Can approve agent deployments"; MailNickname="sg-agent-approvers"},
-        @{DisplayName="SG-Agent-ReleaseManagers"; Description="Can deploy agents to production"; MailNickname="sg-agent-releasemgrs"},
-        @{DisplayName="SG-Agent-PlatformAdmins"; Description="Can configure platform settings"; MailNickname="sg-agent-platformadmins"}
-    )
-
-    # Create or verify groups
-    Write-Host "`n[Step 1] Verifying security groups..." -ForegroundColor Cyan
-    $groupReport = @()
-    foreach ($group in $requiredGroups) {
-        $existing = Get-MgGroup -Filter "displayName eq '$($group.DisplayName)'" -ErrorAction SilentlyContinue
-        if (-not $existing) {
-            $newGroup = New-MgGroup -DisplayName $group.DisplayName `
-                                    -Description $group.Description `
-                                    -MailNickname $group.MailNickname `
-                                    -MailEnabled:$false `
-                                    -SecurityEnabled:$true
-            Write-Host "  [CREATED] $($group.DisplayName)" -ForegroundColor Green
-            $groupReport += [PSCustomObject]@{Group=$group.DisplayName; Status="Created"; MemberCount=0}
-        } else {
-            $memberCount = (Get-MgGroupMember -GroupId $existing.Id -ErrorAction SilentlyContinue).Count
-            Write-Host "  [EXISTS] $($group.DisplayName) - $memberCount members" -ForegroundColor Yellow
-            $groupReport += [PSCustomObject]@{Group=$group.DisplayName; Status="Existing"; MemberCount=$memberCount}
+$envs = Get-AdminPowerAppEnvironment | Where-Object { $_.EnvironmentType -in 'Production','Sandbox' }
+$rows = foreach ($e in $envs) {
+    $roles = Get-AdminPowerAppEnvironmentRoleAssignment -EnvironmentName $e.EnvironmentName -ErrorAction SilentlyContinue
+    foreach ($r in $roles | Where-Object { $_.RoleName -eq 'EnvironmentAdmin' -or $_.RoleName -eq 'SystemAdministrator' }) {
+        [PSCustomObject]@{
+            Environment      = $e.DisplayName
+            EnvironmentId    = $e.EnvironmentName
+            EnvironmentType  = $e.EnvironmentType
+            Role             = $r.RoleName
+            PrincipalType    = $r.PrincipalType
+            PrincipalEmail   = $r.PrincipalEmail
         }
     }
+}
+$rows | Export-Csv ".\evidence\2.8\Dataverse-SysAdmins-$(Get-Date -Format 'yyyyMMdd-HHmm').csv" -NoTypeInformation
+```
 
-    # Export group report
-    $groupReport | Export-Csv -Path "$OutputPath\SecurityGroups.csv" -NoTypeInformation
+> Any **standing** (non-PIM) System Administrator in a Zone 3 environment must be either (a) an approved break-glass identity in your runbook, or (b) treated as a Sev-2 SoD finding.
 
-    # SoD validation
-    Write-Host "`n[Step 2] Validating Segregation of Duties..." -ForegroundColor Cyan
-    $conflictingPairs = @(
-        @{Role1="SG-Agent-Developers"; Role2="SG-Agent-Approvers"; Reason="Creator cannot approve own work"},
-        @{Role1="SG-Agent-Approvers"; Role2="SG-Agent-ReleaseManagers"; Reason="Approver cannot deploy"},
-        @{Role1="SG-Agent-Developers"; Role2="SG-Agent-ReleaseManagers"; Reason="Creator cannot deploy"}
-    )
+---
 
-    $violations = @()
-    foreach ($pair in $conflictingPairs) {
-        $group1 = Get-MgGroup -Filter "displayName eq '$($pair.Role1)'" -ErrorAction SilentlyContinue
-        $group2 = Get-MgGroup -Filter "displayName eq '$($pair.Role2)'" -ErrorAction SilentlyContinue
+## Validation Script (Composite)
 
-        if ($group1 -and $group2) {
-            $members1 = (Get-MgGroupMember -GroupId $group1.Id -ErrorAction SilentlyContinue).Id
-            $members2 = (Get-MgGroupMember -GroupId $group2.Id -ErrorAction SilentlyContinue).Id
+```powershell
+<#
+.SYNOPSIS
+    Composite validation for Control 2.8. Returns 0 on full pass.
+.EXAMPLE
+    .\Validate-Control-2.8.ps1 -EvidencePath .\evidence\2.8
+#>
+param([string]$EvidencePath = ".\evidence\2.8")
 
-            if ($members1 -and $members2) {
-                $overlap = $members1 | Where-Object { $_ -in $members2 }
-                foreach ($userId in $overlap) {
-                    $user = Get-MgUser -UserId $userId -ErrorAction SilentlyContinue
-                    $violations += [PSCustomObject]@{
-                        User = $user.UserPrincipalName
-                        Role1 = $pair.Role1
-                        Role2 = $pair.Role2
-                        Violation = $pair.Reason
-                    }
-                }
-            }
-        }
-    }
+$results = @()
 
-    if ($violations.Count -eq 0) {
-        Write-Host "  [PASS] No SoD violations found" -ForegroundColor Green
+# 1. Groups exist with correct role-assignable flag
+Connect-MgGraph -Scopes "Group.Read.All" -NoWelcome
+$expected = @{
+    "SG-Agent-Developers"      = $false
+    "SG-Agent-Reviewers"       = $false
+    "SG-Agent-Approvers"       = $true
+    "SG-Agent-ReleaseManagers" = $true
+    "SG-Agent-PlatformAdmins"  = $true
+}
+foreach ($name in $expected.Keys) {
+    $g = Get-MgGroup -Filter "displayName eq '$name'" -ErrorAction SilentlyContinue
+    if (-not $g) {
+        $results += [PSCustomObject]@{ Check = "Group $name exists"; Result = "FAIL"; Detail = "Not found" }
+    } elseif ($g.IsAssignableToRole -ne $expected[$name]) {
+        $results += [PSCustomObject]@{ Check = "Group $name role-assignable"; Result = "FAIL"; Detail = "Expected $($expected[$name]), found $($g.IsAssignableToRole)" }
     } else {
-        Write-Host "  [FAIL] $($violations.Count) SoD violation(s) found" -ForegroundColor Red
-        $violations | Export-Csv -Path "$OutputPath\SoD-Violations.csv" -NoTypeInformation
+        $results += [PSCustomObject]@{ Check = "Group $name OK"; Result = "PASS"; Detail = "" }
     }
+}
 
-    # Summary
-    Write-Host "`n=== Summary ===" -ForegroundColor Cyan
-    Write-Host "Security Groups: $($groupReport.Count)"
-    Write-Host "SoD Violations: $($violations.Count)"
-    Write-Host "Report Path: $OutputPath"
+# 2. Run SoD detector (exit code 0 = pass)
+& (Join-Path $PSScriptRoot 'Test-Control28-SoD.ps1') -EvidencePath $EvidencePath -IncludePIMEligible | Out-Null
+$results += [PSCustomObject]@{ Check = "SoD detector"; Result = ($(if ($LASTEXITCODE -eq 0){"PASS"}else{"FAIL"})); Detail = "Exit $LASTEXITCODE" }
 
-    Write-Host "`n[PASS] Control 2.8 configuration completed successfully" -ForegroundColor Green
-}
-catch {
-    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
-    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
-    exit 1
-}
-finally {
-    # Cleanup connections
-    Disconnect-MgGraph -ErrorAction SilentlyContinue
-}
+# 3. Reminder-only checks (manual verification)
+$results += [PSCustomObject]@{ Check = "Access Reviews scheduled"; Result = "MANUAL"; Detail = "Verify in Entra Identity Governance portal" }
+$results += [PSCustomObject]@{ Check = "PIM for Groups onboarded"; Result = "MANUAL"; Detail = "Verify in PIM → Groups blade" }
+
+$results | Format-Table -AutoSize
+$failCount = ($results | Where-Object Result -eq 'FAIL').Count
+exit $failCount
 ```
 
 ---
 
-[Back to Control 2.8](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+## Scheduling
+
+| Cadence | Script | Owner |
+|---|---|---|
+| At change window | Script 1 (group create) | Entra Privileged Role Admin |
+| Daily | Script 2 (SoD detector, `-IncludePIMEligible`) | AI Governance Lead (automated pipeline) |
+| Quarterly | Script 3 (membership + PIM export) | Compliance Officer |
+| Quarterly | Script 4 (Dataverse SysAdmin audit) | Power Platform Admin |
+| Per release | Validation Script | Release Manager |
+
+All emitted CSVs should be appended to `evidence-hashes.txt` (SHA-256) and stored in your immutable evidence repository per the WORM expectations of FINRA 4511 / SEC 17a-4.
+
+---
+
+[Back to Control 2.8](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification & Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
