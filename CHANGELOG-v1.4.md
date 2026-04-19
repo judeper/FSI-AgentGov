@@ -27,10 +27,10 @@ The v1.4.0 manifest extension supports progressive control maturation by allowin
 - **Progressive maturation**: `TODO:` placeholders permitted in authored fields until content review completes
 
 ### Solutions Bridge (Cross-Repository Integration)
-- **Lock-file contract**: Solution metadata from FSI-AgentGov-Solutions v1.4.0 tag frozen in `assessment/data/solutions-lock.json` for reproducible builds
+- **Lock-file contract**: Solution metadata from FSI-AgentGov-Solutions v1.4.1 tag frozen in `assessment/data/solutions-lock.json` for reproducible builds
 - **Folder-name IDs**: Control→solution references use kebab-case folder names from FSI-AgentGov-Solutions (e.g., `"agent-observability-foundation"`)
 - **Rich metadata lookup**: Solution name, version, domain, tier, description, URL, prerequisites, and verification steps loaded from lock file
-- **35 solutions indexed**: Lock file includes 7 newly-delivered solutions from v1.4.0 companion release
+- **35 solutions indexed**: Lock file includes 7 newly-delivered solutions from the v1.4.0 / v1.4.1 companion releases
 
 ### Sector-Specific Calibration
 - **8 institution types**: Bank, broker-dealer, investment-adviser, insurance-carrier, insurance-wholesale, credit-union, holding-company, other
@@ -107,7 +107,7 @@ Three new validation scripts ensure manifest integrity:
 - `--allow-missing` flag skips cross-reference check for early testing
 
 **`scripts/refresh_solutions_lock.py`:**
-- Fetches `solutions.json` from FSI-AgentGov-Solutions repository at pinned tag (e.g., v1.4.0)
+- Fetches `solutions.json` from FSI-AgentGov-Solutions repository at pinned tag (e.g., v1.4.1)
 - Writes to `assessment/data/solutions-lock.json`
 - Verifies schema version, expected solution count (35), and presence of 7 v1.4-new solution IDs
 - Run only on companion-repo tag bump—not on every framework PR
@@ -125,7 +125,7 @@ Three new validation scripts ensure manifest integrity:
 Version 1.4.0 establishes a formal contract between FSI-AgentGov and FSI-AgentGov-Solutions for solution metadata exchange.
 
 ### Lock-File Architecture
-- **Pinned tag**: Framework v1.4.0 pinned to FSI-AgentGov-Solutions v1.4.0 tag (not main branch)
+- **Pinned tag**: Framework v1.4.0 pinned to FSI-AgentGov-Solutions v1.4.1 tag (not main branch)
 - **Committed lock file**: `assessment/data/solutions-lock.json` committed locally—builds never cross repos at CI time
 - **Reproducibility**: Locks tag version, count (35), and expected solution IDs
 - **Schema version gate**: Lock file must declare `schemaVersion` starting with `"1.4."` for compatibility validation
@@ -264,13 +264,13 @@ The assessment tool's exported JSON schema has changed and is **NOT backward com
 
 ## Cross-Repo Compatibility
 
-**FSI-AgentGov v1.4.0 is compatible with FSI-AgentGov-Solutions v1.4.0.**
+**FSI-AgentGov v1.4.0 is compatible with FSI-AgentGov-Solutions v1.4.1.**
 
-Control→solution references in `assessment/manifest/controls.json` use folder-name IDs (e.g., `"agent-observability-foundation"`, `"audit-compliance-manager"`) that match the top-level solution directories in the companion repository. Solution metadata (display name, version, tier, description, URL, prerequisites, verification steps) is looked up from the committed `assessment/data/solutions-lock.json` file, which was generated from the FSI-AgentGov-Solutions v1.4.0 tag.
+Control→solution references in `assessment/manifest/controls.json` use folder-name IDs (e.g., `"agent-observability-foundation"`, `"audit-compliance-manager"`) that match the top-level solution directories in the companion repository. Solution metadata (display name, version, tier, description, URL, prerequisites, verification steps) is looked up from the committed `assessment/data/solutions-lock.json` file, which was generated from the FSI-AgentGov-Solutions v1.4.1 tag.
 
 Organizations using both repositories should upgrade in sequence:
-1. Verify FSI-AgentGov-Solutions v1.4.0 is tagged and published
-2. Run `python scripts/refresh_solutions_lock.py --tag v1.4.0` to update lock file
+1. Verify FSI-AgentGov-Solutions v1.4.1 is tagged and published
+2. Run `python scripts/refresh_solutions_lock.py --tag v1.4.1` to update lock file
 3. Validate lock contains 35 solutions and 7 expected new IDs
 4. Merge FSI-AgentGov v1.4.0 branch
 
@@ -404,4 +404,4 @@ End-to-end workflow tests covering full assessment lifecycle (scoping → Phase 
 
 ---
 
-*Updated: May 2026 | Version: v1.4.0 | Status: Release Candidate*
+*Updated: April 2026 | Version: v1.4.0 | Status: Released*
