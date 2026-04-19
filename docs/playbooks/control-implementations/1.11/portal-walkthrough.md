@@ -18,7 +18,7 @@
     | Adjacent concern | Owning control |
     |---|---|
     | Supervisory review of agent outputs (FINRA Rule 3110, registered principal sign-off) | [Control 2.12 — Supervision and Oversight under FINRA Rule 3110](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) |
-    | DLP policies, environment strategy, connector classification for Power Platform / Copilot Studio | [Control 2.14 — Power Platform DLP and Environment Strategy](../../../controls/pillar-2-management/2.14-power-platform-dlp-and-environment-strategy.md) |
+    | DLP policies, environment strategy, connector classification for Power Platform / Copilot Studio | [Control 2.2 — Environment Groups and Tier Classification](../../../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) |
     | Model risk management framework (OCC 2011-12 / Fed SR 11-7 alignment) | [Control 2.6 — Model Risk Management Alignment with OCC 2011-12 / SR 11-7](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) |
     | Agent publishing authorization, maker entitlement gating | [Control 1.1 — Restrict Agent Publishing by Authorization](../../../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md) |
     | Lifecycle for ownerless agents and orphan remediation | [Control 3.6 — Orphaned Agent Detection and Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) |
@@ -907,7 +907,7 @@ The 1.11 evidence pack does not stand alone. For an examiner-ready posture, join
 | [Control 1.1](../../../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md) | Maker-entitlement source-of-truth that populates `Agent-Makers-All` |
 | [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | MRM register entry showing the agent identity and its MRM tier — drives whether Policy C applies |
 | [Control 2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervisory review of CA policy changes (FINRA Rule 3110 supervision of WSP changes) |
-| [Control 2.14](../../../controls/pillar-2-management/2.14-power-platform-dlp-and-environment-strategy.md) | Environment classification (Z1/Z2/Z3) that drives Policy B and Policy C scoping |
+| [Control 2.2](../../../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) | Environment classification (Z1/Z2/Z3) that drives Policy B and Policy C scoping |
 | [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) | Agent 365 dashboard view of per-agent CA enforcement state |
 | [Control 3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) | Orphaned-agent SP cleanup that maintains the cleanliness of Policy C's scope |
 | [Control 3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) | Log Analytics workspace + analytic rules + the KQL queries in §11 and §12 |
