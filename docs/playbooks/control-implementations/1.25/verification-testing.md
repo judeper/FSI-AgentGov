@@ -1,47 +1,68 @@
 # Verification & Testing: Control 1.25 - MIME Type Restrictions for File Uploads
 
-**Last Updated:** February 2026
+**Last Updated:** April 2026
 
 ## Manual Verification Steps
 
 ### Test 1: Verify Blocked Extensions List Matches Zone Template
 
-1. Navigate to Power Platform Admin Center → Environments → [Environment] → Settings → Privacy + Security
+1. Navigate to Power Platform Admin Center → Environments → [Environment] → Settings → **Product** → Privacy + Security
 2. Locate the **Set blocked file extensions for attachments** field
-3. Compare the configured extensions against the zone template
-4. **EXPECTED:** Blocked extensions include all zone-appropriate extensions (44 for Zone 1, 45 for Zone 2, 55 for Zone 3). Use `Test-FsiMimeCompliance` for automated verification against the complete zone template.
+3. Compare the configured extensions against the zone template **and** the Microsoft default list
+4. **EXPECTED:** Blocked extensions include all zone-appropriate extensions (44 for Zone 1, 45 for Zone 2, 55 for Zone 3) **and the Microsoft defaults are not removed**. Use `Test-FsiMimeCompliance` for automated verification against the complete zone template.
 
 ### Test 2: Verify Blocked MIME Types Configured (Zone 2+)
 
-1. Navigate to Power Platform Admin Center → Environments → [Zone 2/3 Environment] → Settings → Privacy + Security
+1. Navigate to Power Platform Admin Center → Environments → [Zone 2/3 Environment] → Settings → **Product** → Privacy + Security
 2. Locate the **Set blocked mime types for attachments** field
 3. Verify MIME types are populated
-4. **EXPECTED:** Blocked MIME types include application/x-msdownload, application/x-msdos-program, application/x-bat, application/x-cmd, application/x-vbs, application/javascript, application/x-powershell, application/x-msi
+4. **EXPECTED:** Blocked MIME types include `application/x-msdownload`, `application/x-msdos-program`, `application/x-bat`, `application/x-cmd`, `application/x-vbs`, `application/javascript`, `application/x-powershell`, `application/x-msi`
 
 ### Test 3: Verify MIME Type Allowlist (Zone 2+)
 
-1. Navigate to Power Platform Admin Center → Environments → [Zone 2/3 Environment] → Settings → Privacy + Security
+1. Navigate to Power Platform Admin Center → Environments → [Zone 2/3 Environment] → Settings → **Product** → Privacy + Security
 2. Locate the **Set allowed mime types for attachments** field
 3. Verify only approved MIME types are listed
-4. **EXPECTED:** Allowed MIME types are limited to approved document and image types (application/pdf, image/png, image/jpeg, image/gif, text/plain, text/csv, and Office Open XML types)
+4. **EXPECTED:** Allowed MIME types are limited to approved document and image types (`application/pdf`, `image/png`, `image/jpeg`, `image/gif`, `text/plain`, `text/csv`, and Office Open XML types). Confirm the agent owner has documented business justification for each entry.
 
-### Test 4: Attempt Upload of Blocked File Type
+### Test 4: Attempt Upload of Blocked File Type (PPAC Boundary Test)
 
 1. Open a model-driven app connected to the target environment
 2. Navigate to a record with a file attachment field
-3. Attempt to upload a file with a blocked extension (e.g., .exe or .bat)
+3. Attempt to upload a file with a blocked extension (e.g., `.exe` or `.bat`)
 4. **EXPECTED:** Upload is rejected with an error message indicating the file type is not allowed
 
-### Test 5: Verify DLP Policy Generating Alerts (Zone 2+)
+### Test 5: Per-Agent File Upload Toggle Attestation (Copilot Studio)
 
-1. Navigate to Microsoft Purview Compliance Portal → Data Loss Prevention → Activity explorer
+1. Open [Copilot Studio](https://copilotstudio.microsoft.com) → select agent → **Settings** → **Security**
+2. Confirm the **File Upload** toggle state matches the documented governance decision for the agent
+3. If File Upload is **On**, confirm the **Allowed file types** list is the minimum set required by the agent's documented purpose
+4. **EXPECTED:** Toggle state and allowed-type list are documented per agent with screenshot evidence stored under `maintainers-local/tenant-evidence/1.25/`. No production Zone 2/3 agent has File Upload enabled without a documented business justification.
+
+### Test 6: Spoofed-MIME Magic-Byte Test (Zone 3, Defender for Cloud Apps)
+
+1. Create a test file by renaming a small Windows executable (e.g., `notepad.exe`) to `test.pdf`
+2. Upload the renamed file via a test channel into a SharePoint library scanned by Defender for Cloud Apps
+3. Wait up to 15 minutes for Defender for Cloud Apps API connector scan
+4. Navigate to **Defender XDR → Cloud apps → Files** and filter by **MIME type (true type) = application/x-msdownload**
+5. **EXPECTED:** The file is flagged, quarantine action executed, and an alert is generated. Sentinel receives the alert via SIEM connector. PPAC alone would not catch this case because the file extension `.pdf` is allowlisted.
+
+### Test 7: Verify Copilot Studio Knowledge-Source File-Type Restrictions
+
+1. Open the agent in Copilot Studio → **Knowledge** tab
+2. Attempt to add a file knowledge source with an unsupported format (e.g., `.exe`, `.zip`, `.mp4`)
+3. **EXPECTED:** Copilot Studio rejects the upload with an unsupported-format message. Supported knowledge formats per Microsoft Learn (April 2026): `.pdf`, `.docx`, `.xlsx`, `.pptx`, `.txt`, `.md`, `.csv`, `.html`, `.json`, `.yaml`, and selected others (executable/audio/video formats are not supported).
+
+### Test 8: Verify DLP Policy Generating Alerts (Zone 2+)
+
+1. Navigate to Microsoft Purview portal → **Data Loss Prevention** → **Activity explorer**
 2. Filter for Power Platform file upload events
 3. Verify DLP policy matches are logged for blocked file type attempts
 4. **EXPECTED:** DLP alerts are generated when users attempt to upload restricted file types in Zone 2 and Zone 3 environments
 
-### Test 6: Verify Sentinel Queries Returning Data (Zone 3)
+### Test 9: Verify Sentinel Queries Returning Data (Zone 3)
 
-1. Navigate to Microsoft Sentinel → Logs
+1. Navigate to Microsoft Sentinel → **Logs**
 2. Run the KQL query from the Evidence Collection section below
 3. Verify blocked upload events appear in the results
 4. **EXPECTED:** Sentinel query returns records for blocked file upload attempts with environment name, user, file type, and timestamp
@@ -52,27 +73,35 @@
 
 | Test ID | Scenario | Expected Result | Pass/Fail |
 |---------|----------|-----------------|-----------|
-| TC-1.25-01 | Blocked extensions configured | All executable extensions listed in blocklist | |
+| TC-1.25-01 | Blocked extensions configured (Microsoft defaults retained + organizational additions) | Defaults present; zone-template extensions present | |
 | TC-1.25-02 | Blocked MIME types configured (Zone 2+) | Required MIME types present in blocklist | |
-| TC-1.25-03 | Allowed MIME types allowlist (Zone 2+) | Only approved document and image types listed | |
-| TC-1.25-04 | Blocked file upload rejected | Upload of .exe file returns error | |
-| TC-1.25-05 | DLP alert on blocked upload (Zone 2+) | DLP policy match logged in Activity explorer | |
-| TC-1.25-06 | Sentinel data for blocked uploads (Zone 3) | KQL query returns blocked upload events | |
-| TC-1.25-07 | Allowed file upload accepted | Upload of approved file type (.pdf) succeeds | |
-| TC-1.25-08 | Zone template compliance | Test-FsiMimeCompliance returns IsCompliant = True | |
+| TC-1.25-03 | Allowed MIME types allowlist (Zone 2+) | Only approved document and image types listed; each entry has documented justification | |
+| TC-1.25-04 | Blocked file upload rejected at PPAC boundary | Upload of `.exe` file returns error | |
+| TC-1.25-05 | Per-agent File Upload toggle documented | Screenshot evidence captured per production agent | |
+| TC-1.25-06 | Per-agent allowed file types follow least-privilege | Allowed list ⊆ environment allowlist; each entry justified | |
+| TC-1.25-07 | DLP alert on blocked upload (Zone 2+) | DLP policy match logged in Activity explorer | |
+| TC-1.25-08 | Defender for Cloud Apps magic-byte detection (Zone 3) | Renamed `.exe`-as-`.pdf` quarantined and alerted | |
+| TC-1.25-09 | Copilot Studio knowledge-source rejection of unsupported format | Upload of `.exe`/`.zip`/`.mp4` rejected by Copilot Studio | |
+| TC-1.25-10 | Sentinel data for blocked uploads (Zone 3) | KQL query returns blocked upload events | |
+| TC-1.25-11 | Allowed file upload accepted | Upload of approved file type (`.pdf`) succeeds | |
+| TC-1.25-12 | Zone template compliance (automated) | `Test-FsiMimeCompliance` returns `IsCompliant = True` | |
 
 ---
 
 ## Evidence Collection Checklist
 
-- [ ] Screenshot: PPAC blocked file extensions configuration
+- [ ] Screenshot: PPAC blocked file extensions configuration (per environment)
 - [ ] Screenshot: PPAC blocked MIME types configuration (Zone 2+)
 - [ ] Screenshot: PPAC allowed MIME types configuration (Zone 2+)
 - [ ] Screenshot: Blocked file upload rejection error message
+- [ ] Screenshot: Copilot Studio per-agent **File Upload** toggle state (per production agent, Zone 2/3)
+- [ ] Screenshot: Copilot Studio per-agent **Allowed file types** list with documented business justification
+- [ ] Screenshot: Defender for Cloud Apps file policy showing **Enabled** state and quarantine action (Zone 3)
 - [ ] Screenshot: DLP Activity explorer showing blocked upload event (Zone 2+)
-- [ ] Export: Test-FsiMimeCompliance output per environment
+- [ ] Export: `Test-FsiMimeCompliance` JSON output per environment with SHA-256 evidence hash
 - [ ] Export: Sentinel query results for blocked uploads (Zone 3)
-- [ ] Export: Environment MIME configuration report (Get-FsiMimeConfig output)
+- [ ] Export: Environment MIME configuration report (`Get-FsiMimeConfig` JSON output)
+- [ ] Storage: All evidence stored under `maintainers-local/tenant-evidence/1.25/` (gitignored)
 
 ---
 
