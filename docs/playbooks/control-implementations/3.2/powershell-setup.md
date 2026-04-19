@@ -1,5 +1,8 @@
 # PowerShell Setup: Control 3.2 - Usage Analytics and Activity Monitoring
 
+!!! warning "Read the FSI PowerShell baseline first"
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below may show abbreviated patterns; the baseline is authoritative.
+
 **Last Updated:** April 2026
 **Modules Required:** Microsoft.PowerApps.Administration.PowerShell, ExchangeOnlineManagement
 
@@ -110,6 +113,9 @@ function Export-CopilotStudioAnalytics {
     `Search-UnifiedAuditLog` returns a maximum of 5,000 records per call.
     Use `-SessionId` and `-SessionCommand ReturnLargeSet` for pagination in
     high-volume environments. See [Microsoft documentation](https://learn.microsoft.com/en-us/powershell/module/exchange/search-unifiedauditlog).
+
+!!! warning "Search-UnifiedAuditLog retirement"
+    Microsoft has announced retirement of the `Search-UnifiedAuditLog` cmdlet in favor of the [Microsoft Graph Audit Logs API](https://learn.microsoft.com/en-us/graph/api/resources/security-auditlogquery) (`/security/auditLog/queries`). For new automation, prefer the Graph API path; the snippets below remain valid for tactical use today but should be migrated for long-lived production pipelines. Track the retirement timeline in the Microsoft 365 Message Center.
 
 ```powershell
 # Query unified audit log for Copilot Studio activities
@@ -308,7 +314,7 @@ Write-Host "`n=== Validation Complete ===" -ForegroundColor Cyan
     .\Export-UsageAnalytics.ps1 -ExportPath "C:\Governance\Analytics" -DaysBack 30
 
 .NOTES
-    Last Updated: January 2026
+    Last Updated: April 2026
     Related Control: Control 3.2 - Usage Analytics and Activity Monitoring
 #>
 
@@ -386,4 +392,4 @@ $summary
 
 ---
 
-*Updated: April 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3*
