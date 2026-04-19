@@ -166,6 +166,24 @@
     return match ? match[1] : "/";
   }
 
+  /**
+   * Normalize a manifest URL so it resolves correctly when the site is
+   * published under a project-page sub-path (e.g. /FSI-AgentGov/).
+   *
+   * The manifest stores absolute paths like "/playbooks/..." which the
+   * browser would resolve to https://judeper.github.io/playbooks/...
+   * (404). Prefix with the discovered base path to fix.
+   *
+   * Pass-through for empty values, fully-qualified URLs, and relative
+   * paths (which already resolve correctly relative to the current page).
+   */
+  function withBasePath(url) {
+    if (!url) return "";
+    if (/^[a-z][a-z0-9+.-]*:\/\//i.test(url)) return url; // http(s):, mailto:, etc.
+    if (url.charAt(0) !== "/") return url; // already relative
+    return getBasePath().replace(/\/$/, "") + url;
+  }
+
   /* ================================================================
      AssessmentApp CLASS
      ================================================================ */
@@ -334,8 +352,8 @@
       c.verifyIn = Array.isArray(m.verifyIn) ? m.verifyIn : [];
       c.verifyPowerShell = m.verifyPowerShell || "";
       c.evidenceExpected = Array.isArray(m.evidenceExpected) ? m.evidenceExpected : [];
-      c.controlDocUrl = m.controlDocUrl || "";
-      c.portalPlaybookUrl = m.portalPlaybookUrl || "";
+      c.controlDocUrl = withBasePath(m.controlDocUrl || "");
+      c.portalPlaybookUrl = withBasePath(m.portalPlaybookUrl || "");
       c.facilitatorNotes = m.facilitatorNotes || {};
       c.zonesApplicable = Array.isArray(m.zonesApplicable) && m.zonesApplicable.length
         ? m.zonesApplicable.slice() : (c.zones || [1, 2, 3]);
