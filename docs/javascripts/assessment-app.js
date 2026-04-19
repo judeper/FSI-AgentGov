@@ -1313,7 +1313,7 @@
     content.appendChild(h("p", { style: "margin-top:1rem;font-weight:600" }, "Zone-Specific Scoring"));
     content.appendChild(h("p", null,
       "Zone scores exclude controls whose zone requirements are optional, awareness-only, or N/A. " +
-      "Approximately 10 controls are excluded from Zone 1 scoring, while all 72 apply to Zone 3."));
+      "Approximately 10 controls are excluded from Zone 1 scoring, while all 78 apply to Zone 3."));
 
     this.showModal("How Scoring Works", content);
   };
