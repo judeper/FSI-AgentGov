@@ -72,6 +72,20 @@ def group_controls_by_role(controls: list[dict[str, Any]]) -> dict[str, list[dic
     return dict(role_controls)
 
 
+def _to_relative(url: str) -> str:
+    """Convert manifest absolute URLs (e.g. /controls/.../) to relative paths
+    usable from docs/assessment/pre-session/<role>/index.md (4 levels deep
+    relative to docs/). Preserves directory-style URLs (mkdocs serves them
+    via use_directory_urls). External and fragment URLs are unchanged."""
+    if not url or not isinstance(url, str):
+        return "#"
+    if url.startswith(("http://", "https://", "#", "mailto:")):
+        return url
+    if url.startswith("/"):
+        return "../../.." + url
+    return url
+
+
 def format_control_section(control: dict[str, Any]) -> str:
     """Format a single control for the homework page."""
     lines = []
@@ -79,8 +93,7 @@ def format_control_section(control: dict[str, Any]) -> str:
     # Header
     control_id = control.get("id", "Unknown")
     control_name = control.get("name", control.get("title", "Untitled"))
-    lines.append(f"## Control {control_id} — {control_name}")
-    lines.append("")
+    lines = [f"## Control {control_id} — {control_name}", ""]
     
     # Badges
     pillar_name = control.get("pillar_name", f"Pillar {control.get('pillar', '?')}")
@@ -103,11 +116,11 @@ def format_control_section(control: dict[str, Any]) -> str:
         for portal_info in verify_in:
             portal = portal_info.get("portal", "Unknown Portal")
             path = portal_info.get("path", "")
-            url = portal_info.get("url", "#")
+            url = _to_relative(portal_info.get("url", "#"))
             lines.append(f"- [{portal} — {path}]({url})")
         lines.append("")
     else:
-        control_doc_url = control.get("controlDocUrl", "#")
+        control_doc_url = _to_relative(control.get("controlDocUrl", "#"))
         lines.append(f"**Verify in:** *See [control documentation]({control_doc_url}).*")
         lines.append("")
     
@@ -131,8 +144,8 @@ def format_control_section(control: dict[str, Any]) -> str:
         lines.append("")
     
     # Footer links
-    control_doc_url = control.get("controlDocUrl", "#")
-    portal_playbook_url = control.get("portalPlaybookUrl", "#")
+    control_doc_url = _to_relative(control.get("controlDocUrl", "#"))
+    portal_playbook_url = _to_relative(control.get("portalPlaybookUrl", "#"))
     lines.append(
         f"[Full control documentation]({control_doc_url}) · "
         f"[Portal walkthrough]({portal_playbook_url})"
@@ -163,7 +176,7 @@ def generate_homework_page(
     lines.append("")
     lines.append(
         "For the full assessment experience, see the "
-        "[Readiness Assessment](/assessment/)."
+        "[Readiness Assessment](../../index.md)."
     )
     lines.append("")
     lines.append("---")
