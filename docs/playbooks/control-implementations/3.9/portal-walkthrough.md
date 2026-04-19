@@ -302,7 +302,7 @@ The M365 connector ingests the unified Purview audit log into the `OfficeActivit
     | order by Count desc
     ```
 
-    Expected: a non-zero count for `CopilotInteraction` if the tenant has active Copilot users. If the count is zero after 24 hours, route to [troubleshooting.md](./troubleshooting.md).
+    Expected: a non-zero count for `CopilotInteraction` if the tenant has active Copilot users. If the count is zero after 24 hours, route to [troubleshooting.md](./troubleshooting.md#tc-03-microsoft-copilot-connector-unavailable-in-gcc-high).
 
 [Screenshot anchor: ]
 

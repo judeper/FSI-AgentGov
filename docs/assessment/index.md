@@ -25,6 +25,8 @@ All data stays in your browser.
 
 The Governance Readiness Assessment is an interactive tool that helps organizations evaluate their implementation of the [FSI Agent Governance Framework](../framework/index.md) across all 78 controls. It produces a personalized scorecard, gap analysis, and remediation roadmap.
 
+**New in v1.4:** The assessment tool now includes a per-control "How to verify" drawer showing portal paths, PowerShell commands, expected evidence, and collector field mappings. Sector calibration adjusts control thresholds for 8 institution types (bank, broker-dealer, investment-adviser, insurance-carrier, insurance-wholesale, credit-union, holding-company, other). The solutions bridge integrates with the companion [FSI-AgentGov-Solutions](https://judeper.github.io/FSI-AgentGov-Solutions/) repository, displaying matched automation solutions with tier badges and version pills in the verification drawer and remediation roadmap. Per-role pre-session homework pages group controls by administrator role for delegated pre-assessment review.
+
 ### How It Works
 
 1. **Scoping** — Configure your organization type, active governance zones, and adoption phase

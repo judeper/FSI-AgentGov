@@ -1,0 +1,83 @@
+{
+  "_meta": {
+    "language": "en",
+    "version": "1.4.0",
+    "description": "English UI strings for the Phase B (v1.4) assessment SPA features (E1–E9). Hardcoded English fallbacks live next to each t() call in assessment-app.js so the SPA still works if this file fails to load."
+  },
+
+  "drawer.toggleOpen": "How to verify",
+  "drawer.toggleClose": "Hide verification details",
+  "drawer.title": "How to verify",
+  "drawer.yesBar": "Yes — pass criteria",
+  "drawer.partialBar": "Partial — partial coverage criteria",
+  "drawer.noBar": "No — gap criteria",
+  "drawer.sectorYesBar": "Sector-specific pass criteria",
+  "drawer.verifyIn": "Verify in:",
+  "drawer.powershell": "PowerShell verification",
+  "drawer.copySnippet": "Copy",
+  "drawer.copied": "Copied",
+  "drawer.evidence": "Evidence to capture",
+  "drawer.viewControlDoc": "View full control doc",
+  "drawer.portalPlaybook": "Portal playbook",
+  "drawer.solutions": "Deployable solutions",
+  "drawer.solutionPending": "(solution pending)",
+
+  "filter.role.label": "Filter by role",
+  "filter.role.all": "All roles",
+  "filter.role.count": "Showing {n} of {total}",
+
+  "scoping.sector.label": "Institution type (sector calibration)",
+  "scoping.sector.hint": "Used to surface sector-specific pass criteria in each control's verification drawer.",
+  "scoping.sector.placeholder": "Select institution type…",
+  "scoping.sector.bank": "Bank",
+  "scoping.sector.brokerDealer": "Broker-dealer",
+  "scoping.sector.investmentAdviser": "Investment adviser",
+  "scoping.sector.insuranceCarrier": "Insurance carrier",
+  "scoping.sector.insuranceWholesale": "Insurance wholesale/broker",
+  "scoping.sector.creditUnion": "Credit union",
+  "scoping.sector.holdingCompany": "Holding company",
+  "scoping.sector.other": "Other",
+
+  "priorityRadio.label": "Phase 1 starting set",
+  "priorityRadio.starter": "Start with 5 Priority Foundation Controls (2.1, 1.4, 1.5, 1.7, 1.11)",
+  "priorityRadio.full": "Full 78-control Phase 1",
+  "priorityRadio.continue": "Continue to full Phase 1",
+  "priorityRadio.starterHeading": "Priority foundation controls",
+
+  "exclusion.banner": "This control's applicable zones do not intersect your active scoping zones. It has been auto-marked N/A.",
+  "exclusion.override": "Override — mark as applicable",
+  "exclusion.overrideNotePlaceholder": "Briefly note why this control should remain applicable…",
+  "exclusion.overrideSave": "Save override",
+  "exclusion.overrideRemove": "Remove override",
+  "exclusion.overrideActive": "Override active — control marked applicable",
+
+  "row.notes": "Notes",
+  "row.notesPlaceholder": "Notes (optional)",
+  "row.evidenceRef": "Evidence reference (file path or URL)",
+  "row.evidenceRefPlaceholder": "e.g., \\\\fileshare\\evidence\\1.1\\screenshot.png",
+
+  "facilitator.modeBanner": "Facilitator mode active — guided prompts and timing badges are shown.",
+  "facilitator.ask": "Ask:",
+  "facilitator.followUp": "Follow-up:",
+  "facilitator.timeBadge": "{n} min",
+  "facilitator.timerLabel": "Session timer",
+  "facilitator.timerStart": "Start",
+  "facilitator.timerPause": "Pause",
+  "facilitator.timerResume": "Resume",
+  "facilitator.timerReset": "Reset",
+
+  "privacy.banner": "All data stays in your browser — nothing is uploaded.",
+
+  "manifest.loadError": "Could not load the v1.4 controls manifest. Some advanced verification features will be unavailable.",
+  "solutionsLock.loadError": "Could not load solutions lock — solution chips will show as pending.",
+
+  "import_collector_button": "Import collector evidence",
+  "import_confirm_overwrite": "Importing will overwrite existing answers for matched controls. Continue?",
+  "import_summary": "Imported {imported} controls from {files} file(s). {skipped} skipped (no manifest match).",
+  "import_error": "Could not import {file}: {message}",
+  "import_badge_label": "From collector",
+
+  "export_agenda_button": "Next Session Agenda",
+  "export_agenda_toast": "Agenda exported. Send to {org} stakeholders before next session.",
+  "export_agenda_filename_prefix": "fsi-agentgov-agenda"
+}

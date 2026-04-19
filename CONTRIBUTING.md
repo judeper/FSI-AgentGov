@@ -86,6 +86,31 @@ mkdocs build --strict  # Validates links and structure
 mkdocs serve           # Preview locally at http://localhost:8000
 ```
 
+## Assessment Manifest (Single Source of Truth)
+
+The `assessment/manifest/controls.json` file is the authoritative source for all 78 controls, used by both the Python scoring engine and the browser-based assessment SPA.
+
+**Key principles:**
+- **Single source of truth**: All control metadata, verification procedures, scoring thresholds, regulatory mappings, role assignments, and solution references live in this manifest
+- **Additive schema**: The v1.4 extended schema adds 11 fields per control while preserving backward compatibility with existing engine fields
+- **Static asset delivery**: The mkdocs hook `scripts/hooks/copy_assessment_data.py` (registered in `mkdocs.yml`) copies the manifest to `docs/assessment/data/controls.json` as a static asset, enabling runtime SPA access via `/assessment/data/controls.json`
+- **Validation required**: After any manifest edit, run `python scripts/validate_manifest.py --allow-todo` to verify schema compliance
+
+**Solution IDs:**
+- Solution references in `controls.json` use kebab-case folder names from the companion FSI-AgentGov-Solutions repository (e.g., `["agent-observability-foundation", "audit-compliance-manager"]`)
+- Rich solution metadata (display name, version, tier, description, URL, prerequisites, verification) lives in `assessment/data/solutions-lock.json`
+- The lock file is committed locally and refreshed only when the companion repository cuts a new tag: `python scripts/refresh_solutions_lock.py --tag vX.Y.Z`
+- Never reference solution metadata directly in `controls.json`—use the lock-file lookup pattern for reproducible builds
+
+**Author-judgment fields:**
+Some fields require human expertise and may contain `TODO:` placeholders until content review completes:
+- `priority` (1–5 scale)
+- `yesBar`, `partialBar`, `noBar` (threshold descriptions)
+- `facilitatorNotes` (facilitator hints, follow-up questions, time budgets)
+- `sectorYesBar` (sector-specific threshold overrides for 8 institution types)
+
+The validator's `--allow-todo` mode permits CI to pass during progressive maturation. Strict mode (no flag) is used for production release gates.
+
 ## AI Agent Context
 
 If you're using AI assistants with this repository:

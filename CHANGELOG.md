@@ -6,9 +6,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.4.0] — May 2026 (Assessment Tool Unification & Solutions Bridge)
+
+### Added
+- **Unified manifest schema**: Single source of truth (`assessment/manifest/controls.json`) for Python scoring engine and assessment SPA with 11 additive fields per control
+- **Solutions bridge**: Cross-repository integration with FSI-AgentGov-Solutions v1.4.0 via committed `solutions-lock.json` (35 solutions indexed)
+- **10 SPA enhancements**: How-to-verify drawer (E1), zone auto-exclusion (E2), collector evidence import (E3), role filter (E4), sector calibration for 8 institution types (E5), priority starter set of 5 foundation controls (E6), Next Session Agenda export (E7), inline evidence/notes capture (E8), facilitator mode with hints and time budgets (E9), 7 per-role pre-session homework pages (E10)
+- **Harvest script**: `scripts/harvest_manifest_extension.py` scaffolds v1.4 fields from existing control docs with TODO placeholders for author-judgment content
+- **3 validators**: Manifest schema validator, solutions lock validator, and lock refresh script with tag pinning
+
+### Changed
+- **Control count normalization**: Fixed stale "71 controls" / "72 controls" references to "78 controls" across all documentation
+- **Version bump**: 1.3.3 → 1.4.0 across README, mkdocs.yml, CITATION.cff, and meta references
+
+### Breaking Changes
+- **Assessment SPA export schema**: JSON export format incompatible with v1.3.x—no migration tool provided; recommend completing in-progress v1.3 assessments before upgrading or re-running from scratch with v1.4 collector import
+
+---
+
 | Version | Period | File |
 |---------|--------|------|
-| **v1.3.x** (current) | March–April 2026 | [CHANGELOG-v1.3.md](CHANGELOG-v1.3.md) |
+| **v1.4.x** (current) | May 2026 | [CHANGELOG-v1.4.md](CHANGELOG-v1.4.md) |
+| **v1.3.x** | March–April 2026 | [CHANGELOG-v1.3.md](CHANGELOG-v1.3.md) |
 | **v1.2.x** | January–March 2026 | [CHANGELOG-v1.2.md](CHANGELOG-v1.2.md) |
 | **v1.1.x** | January 2026 | [CHANGELOG-v1.1.md](CHANGELOG-v1.1.md) |
 | **v1.0.x and earlier** | October–December 2025 | [CHANGELOG-v1.0.md](CHANGELOG-v1.0.md) |

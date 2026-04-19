@@ -33,6 +33,7 @@ jobs:
           folder-path: 'docs/'
           file-extension: '.md'
           check-modified-files-only: ${{ github.event_name == 'pull_request' && 'yes' || 'no' }}
+          base-branch: 'main'
 
   control-consistency:
     runs-on: ubuntu-latest

@@ -1,0 +1,774 @@
+{
+  "schemaVersion": "1.4.1",
+  "generatedBy": "scripts/build-manifest.py",
+  "solutions": {
+    "action-confirmation-auditor": {
+      "id": "action-confirmation-auditor",
+      "name": "Action Confirmation Auditor",
+      "version": "1.1.0",
+      "domain": "agent-config",
+      "tier": "2",
+      "status": "live",
+      "description": "Validates that Copilot Studio agent topics include user confirmation steps before executing actions (connector calls, cloud flows, plugins, HTTP requests), with zone-based policy enforcement for financial services governance.",
+      "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/action-confirmation-auditor/",
+      "controls": [
+        "2.12",
+        "1.10"
+      ],
+      "dependencies": [],
+      "prerequisites": {
+        "power-platform-admin": "Power Platform admin tenant role and Dataverse environment with the fsi publisher prefix."
+      },
+      "verification": "Confirm Test-ActionConfirmationCompliance.ps1 writes rows to `fsi_actionscanrun` and `fsi_actionauditresult`."
+    },
+    "agent-365-lifecycle-governance": {
+      "id": "agent-365-lifecycle-governance",
+      "name": "Agent 365 Lifecycle Governance",
+      "version": "1.1.3",
+      "domain": "lifecycle-ops",
+      "tier": "3",
+      "status": "live",
+      "description": "Automated Agent 365 lifecycle governance for sponsor assignment, reviews, inactivity, deactivation, and deletion holds.",
+      "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/agent-365-lifecycle-governance/",
+      "controls": [
+        "2.3",
+        "1.2",
+        "1.11",
+        "2.1",
+        "2.8",
+        "2.12",
+        "3.1"
+      ],
+      "dependencies": [],
+      "prerequisites": {
+        "m365-admin": "Microsoft 365/Agent 365 licensing and admin-center governance for sponsor and lifecycle workflows.",
+        "security-admin": "Entra ID Governance P2, app permissions, security groups, and admin consent.",
+        "power-platform-admin": "Managed Dataverse environment, Power Automate Premium, and LTR-enabled schema deployment."
+      },
+      "verification": "Confirm Test-LifecycleCompliance.ps1 completes and writes a lifecycle compliance event row."
+    },
+    "agent-access-monitor": {
+      "id": "agent-access-monitor",
+      "name": "Agent Access Governance Monitor",
+      "version": "1.1.0",
+      "domain": "access-identity",
+      "tier": "2",
+      "status": "live",
+      "description": "Automated validation of Power Platform environment agent access settings against zone-specific governance requirements.",
+      "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/agent-access-monitor/",
+      "controls": [
+        "3.8"
+      ],
+      "dependencies": [],
+      "prerequisites": {
+        "power-platform-admin": "Power Platform admin or Dynamics 365 Service Admin for tenant queries, baseline capture, and Dataverse schema setup.",
+        "m365-admin": "Global Admin is the fallback for tenant-level setup when Power Platform admin access is unavailable."
+      },
+      "verification": "Run Test-AgentAccessCompliance.ps1 and confirm rows are written to fsi_accessvalidationhistory and fsi_accessviolations."
+    },
+    "agent-communication-restriction-detector": {
+      "id": "agent-communication-restriction-detector",
+      "name": "Agent Communication Restriction Detector",
+      "version": "1.1.0",
+      "domain": "agent-config",
+      "tier": "2",
+      "status": "live",
+      "description": "Detects unauthorized agent-to-agent communication patterns, zone boundary violations, cross-tenant communication, and maker/checker violations in Copilot Studio multi-agent orchestration.",
+      "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/agent-communication-restriction-detector/",
+      "controls": [
+        "2.17"
+      ],
+      "dependencies": [],
+      "prerequisites": {
+        "power-platform-admin": "Power Platform admin tenant role and Dataverse environment with the fsi publisher prefix."
+      },
+      "verification": "Confirm Test-CommRestrictionCompliance.ps1 writes rows to `fsi_CommScanRun` and `fsi_AgentCommViolation`."
+    },
+    "agent-knowledge-source-scanner": {
+      "id": "agent-knowledge-source-scanner",
+      "name": "Agent Knowledge Source Scanner",
+      "version": "1.1.0",
+      "domain": "content-data",
+      "tier": "2",
+      "status": "live",
+      "description": "Item-level permission scanning for SharePoint libraries connected to Copilot Studio agents as knowledge sources.",
+      "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/agent-knowledge-source-scanner/",
+      "controls": [
+        "4.3",
+        "1.4",
+        "1.5"
+      ],
+      "dependencies": [],
+      "prerequisites": {
+        "sharepoint-admin": "SharePoint Site Collection Admin or Site Member access is required to read item permissions in each target knowledge source library.",
+        "global-reader": "Entra ID Reader or GroupMember.Read.All is required when resolving agent user scope from -AgentUserGroupId."
+      },
+      "verification": "Run Get-KnowledgeSourceItemPermissions.ps1 and confirm RiskScore values in ./output/item-permissions-report.csv, then cross-check any flagged items in SharePoint Manage Access."
+    },
+    "agent-observability-foundation": {
+      "id": "agent-observability-foundation",
+      "name": "Agent Observability Foundation",
+      "version": "1.2.0",
+      "domain": "monitoring-analytics",
+      "tier": "1",
+      "status": "live",
+      "description": "FSI-compliant telemetry infrastructure for Microsoft Copilot Studio agents with long-term audit retention, operational workbooks, and proactive alerting.",
+      "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/agent-observability-foundation/",
+      "controls": [
+        "1.7",
+        "2.8",
+        "2.9",
+        "3.2"
+      ],
+      "dependencies": [],
+      "prerequisites": {
+        "log-analytics-reader": "Reader access to the Log Analytics workspace and Application Insights for queries and validation.",
+        "power-platform-admin": "Power Platform admin tenant role for Copilot Studio telemetry source configuration.",
+        "m365-admin": "Azure subscription Contributor/User Access Admin scoped to the resource group for deployment and resource creation."
+      },
+      "verification": "Confirm Application Insights customEvents and Log Analytics rows arrive within 24h and workbooks/alerts render without errors."
+    },
+    "agent-registry-automation": {
+      "id": "agent-registry-automation",
+      "name": "Agent Registry Automation",
+      "version": "2.0.0",
+      "domain": "lifecycle-ops",
+      "tier": "3",
+      "status": "live",
+      "description": "Automated discovery, registration, approval, and lifecycle governance of AI agents across Power Platform.",
+      "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/agent-registry-automation/",
+      "controls": [
+        "1.2",
+        "1.7",
+        "2.1",
+        "2.13"
+      ],
+      "dependencies": [],
+      "prerequisites": {
+        "power-platform-admin": "Power Platform admin for environment enumeration, Dataverse deployment, and flow creation.",
+        "security-admin": "Entra Global Admin/Application Administrator for app registration, admin consent, and Graph permissions.",
+        "m365-admin": "Microsoft 365 admin for Teams notifications and owner-status lookups."
+      },
+      "verification": "Confirm Test-AgentRegistryCompliance.ps1 succeeds and the inventory pipeline records a new compliance event."
+    },
+    "agent-sharing-access-restriction-detector": {
+      "id": "agent-sharing-access-restriction-detector",
+      "name": "Agent Sharing Access Restriction Detector",
+      "version": "2.0.0",
+      "domain": "access-identity",
+      "tier": "2",
+      "status": "live",
+      "description": "Detects and remediates agent sharing configurations that violate zone-based security group policies.",
+      "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/agent-sharing-access-restriction-detector/",
+      "controls": [
+        "1.18",
+        "2.8"
+      ],
+      "dependencies": [],
+      "prerequisites": {
+        "power-platform-admin": "Power Platform admin or Entra Global Admin for BAP Admin API access, Dataverse setup, and remediation flows.",
+        "m365-admin": "Teams administrator or delegated permissions for adaptive card delivery and notification posting."
+      },
+      "verification": "Confirm fsi_agentsharingcompliances and fsi_approvedsecuritygrouppolicies are populated after a sharing scan and remediation test."
+    },
+    "audit-compliance-manager": {
+      "id": "audit-compliance-manager",
+      "name": "Audit Compliance Manager",
+      "version": "1.0.3",
+      "domain": "compliance-audit",
+      "tier": "3",
+      "status": "live",
+      "description": "Unified audit compliance solution for Microsoft 365 and Power Platform environments. Consolidates the ACV and ALCA capabilities into one solution that validates audit configurations, detects gaps, and remediates non-compliant environments.",
+      "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/audit-compliance-manager/",
+      "controls": [
+        "1.7"
+      ],
+      "dependencies": [
+        "agent-observability-foundation"
+      ],
+      "prerequisites": {
+        "power-platform-admin": "Power Platform admin tenant role and Dataverse System Administrator access in the target environment with the fsi publisher prefix.",
+        "compliance-admin": "Microsoft Purview Compliance Administrator for audit log review, retention policy checks, and evidence export."
+      },
+      "verification": "Verify rows land in AuditValidationHistory and EnvironmentRegistry in Dataverse after a validation run, and confirm the audit dashboard reflects the latest tenant or environment status."
+    },
+    "coi-testing": {
+      "id": "coi-testing",
+      "name": "Conflict of Interest Testing",
+      "version": "1.1.0",
+      "domain": "lifecycle-ops",
+      "tier": "2",
+      "status": "live",
+      "description": "Automated conflict-of-interest testing for AI agent recommendations in financial services.",
+      "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/coi-testing/",
+      "controls": [
+        "2.18",
+        "2.11",
+        "2.5"
+      ],
+      "dependencies": [],
+      "prerequisites": {
+        "security-admin": "Entra app registration and admin consent for Dataverse API access.",
+        "power-platform-admin": "Power Platform/Dataverse admin for the fsi_coitestresults table, flow setup, and scheduled runner deployment."
+      },
+      "verification": "Confirm run_coi_tests.py writes a row to fsi_coitestresults when executed with --allow-skipped."
+    },
+    "compliance-dashboard": {
+      "id": "compliance-dashboard",
+      "name": "Compliance Dashboard",
+      "version": "1.0.3",
+      "domain": "compliance-audit",
+      "tier": "3",
+      "status": "live",
+      "description": "Aggregated compliance reporting dashboard for the FSI Agent Governance Framework with zone-based filtering and Dataverse-backed control records.",
+      "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/compliance-dashboard/",
+      "controls": [
+        "3.3",
+        "3.1",
+        "3.2",
+        "3.4"
+      ],
+      "dependencies": [
+        "agent-observability-foundation",
+        "cross-solution-integration"
+      ],
+      "prerequisites": {
+        "power-platform-admin": "Power Platform admin tenant role and a Dataverse environment with the fsi publisher prefix.",
+        "compliance-admin": "Microsoft Purview Compliance Administrator for compliance evidence review and export.",
+        "m365-admin": "Power BI workspace owner or capacity admin with M365 E5 or E5 Compliance licensing for dashboard access.",
+        "global-reader": "Read-only tenant visibility for configuration validation and troubleshooting."
+      },
+      "verification": "Confirm fsi_controlmasters contains the 78-control baseline, then open the Power BI dashboard and verify the latest Dataverse-synced tiles refresh successfully."
+    },
+    "conditional-access-automation": {
+      "id": "conditional-access-automation",
+      "name": "Conditional Access Automation",
+      "version": "1.2.2",
+      "domain": "access-identity",
+      "tier": "2",
+      "status": "live",
+      "description": "Automated deployment and compliance monitoring of Entra ID Conditional Access policies for Microsoft 365 AI workloads (Copilot Studio, Agent Builder, M365 Copilot).",
+      "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/conditional-access-automation/",
+      "controls": [
+        "1.11",
+        "1.23",
+        "1.18"
+      ],
+      "dependencies": [],
+      "prerequisites": {
+        "power-platform-admin": "Power Platform admin tenant role for Dataverse environment and solution setup.",
+        "security-admin": "Conditional Access Administrator or Security Administrator for policy creation and review.",
+        "m365-admin": "Application Administrator for service principal registration and Graph permission consent.",
+        "global-reader": "Global Reader for read-only audit and report validation."
+      },
+      "verification": "Confirm the compliance scan populates fsi_capolicyvalidationhistories and fsi_capolicyviolations, with active baselines in fsi_capolicybaselines."
+    },
+    "content-moderation-monitor": {
+      "id": "content-moderation-monitor",
+      "name": "Content Moderation Monitor",
+      "version": "1.1.0",
+      "domain": "content-data",
+      "tier": "2",
+      "status": "live",
+      "description": "Automated validation of Copilot Studio agent content moderation levels against zone-specific governance requirements.",
+      "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/content-moderation-monitor/",
+      "controls": [
+        "1.8",
+        "1.14"
+      ],
+      "dependencies": [],
+      "prerequisites": {
+        "power-platform-admin": "Power Platform admin, Dynamics 365 Service Admin, or Global Admin to enumerate environments and read bot records; Dataverse access requires System Administrator or System Customizer in each target environment."
+      },
+      "verification": "Run Test-ContentModerationCompliance.ps1 -ExcludeSandbox and confirm new rows in fsi_moderationvalidationhistory and fsi_moderationviolations with a matching fsi_validationtime and fsi_runid."
+    },
+    "copilot-studio-analytics": {
+      "id": "copilot-studio-analytics",
+      "name": "Copilot Studio Analytics",
+      "version": "2.0.0",
+      "domain": "monitoring-analytics",
+      "tier": "2",
+      "status": "live",
+      "description": "Business impact analytics for Copilot Studio agents—session outcomes, CSAT, Agent Assisted Hours, and ROI tracking. Extends Agent Observability Foundation with zone-based governance; not a full Viva Insights replacement.",
+      "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/copilot-studio-analytics/",
+      "controls": [
+        "3.2"
+      ],
+      "dependencies": [
+        "agent-observability-foundation"
+      ],
+      "prerequisites": {
+        "log-analytics-reader": "Reader access to the Agent Observability workspace and Application Insights from Agent Observability Foundation.",
+        "power-platform-admin": "Power Platform admin tenant role for Dataverse, Copilot Studio configuration, and solution deployment."
+      },
+      "verification": "Run the Dataverse session sync and confirm CopilotSessionOutcome events and workbook queries return data."
+    },
+    "credential-oversharing-detector": {
+      "id": "credential-oversharing-detector",
+      "name": "Credential Oversharing Detector",
+      "version": "2.0.0",
+      "domain": "agent-config",
+      "tier": "2",
+      "status": "live",
+      "description": "Scans Copilot Studio agent credentials against zone policy to detect overprivileged connectors, excessive OAuth scopes, unauthorized service accounts, cross-environment sharing, and stale credentials.",
+      "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/credential-oversharing-detector/",
+      "controls": [
+        "1.14",
+        "1.4",
+        "1.18"
+      ],
+      "dependencies": [],
+      "prerequisites": {
+        "power-platform-admin": "Power Platform admin tenant role and Dataverse environment with the fsi publisher prefix."
+      },
+      "verification": "Confirm Invoke-CredentialScan.ps1 writes rows to `fsi_credentialscans` and `fsi_credentialviolations`."
+    },
+    "cross-solution-integration": {
+      "id": "cross-solution-integration",
+      "name": "Cross-Solution Integration",
+      "version": "2.0.0",
+      "domain": "compliance-audit",
+      "tier": "1",
+      "status": "live",
+      "description": "Integration layer that connects the Tier 2 governance solutions into the Compliance Dashboard and Environment Lifecycle Management workflow.",
+      "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/cross-solution-integration/",
+      "controls": [
+        "1.7",
+        "1.23",
+        "1.11",
+        "3.8",
+        "1.8",
+        "1.14"
+      ],
+      "dependencies": [
+        "agent-observability-foundation"
+      ],
+      "prerequisites": {
+        "power-platform-admin": "Power Platform admin tenant role for Dataverse tables, Power Automate flows, and solution imports.",
+        "m365-admin": "Power BI workspace owner or dashboard admin for the Compliance Dashboard integration.",
+        "global-reader": "Read-only visibility for source-solution and tenant configuration checks during sync validation."
+      },
+      "verification": "Run Sync-SolutionAssessments.ps1 and confirm rows are written or updated in fsi_controlassessments for the expected control IDs, with the Power Automate feed collector completing successfully."
+    },
+    "cross-tenant-external-sharing-governance": {
+      "id": "cross-tenant-external-sharing-governance",
+      "name": "Cross-Tenant External Sharing Governance",
+      "version": "1.0.2",
+      "domain": "access-identity",
+      "tier": "2",
+      "status": "live",
+      "description": "Automated detection, validation, and remediation of cross-tenant access for Power Platform AI agents in FSI environments.",
+      "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/cross-tenant-external-sharing-governance/",
+      "controls": [
+        "1.1",
+        "1.18",
+        "2.1",
+        "2.8",
+        "3.1",
+        "1.11"
+      ],
+      "dependencies": [
+        "agent-registry-automation",
+        "unrestricted-agent-sharing-detector"
+      ],
+      "prerequisites": {
+        "power-platform-admin": "Power Platform admin for tenant isolation settings, PPAC access, and Dataverse setup.",
+        "m365-admin": "Entra Global Admin or Cross-Tenant Access Administrator for Graph consent and partner policy changes.",
+        "compliance-admin": "Optional compliance/audit reviewer for the Dataverse compliance event log and retention checks."
+      },
+      "verification": "Confirm fsi_crosstenantcomplianceevent receives events and fsi_approvedexternaltenant is updated during onboarding and remediation runs."
+    },
+    "deny-event-correlation-report": {
+      "id": "deny-event-correlation-report",
+      "name": "Deny Event Correlation Report",
+      "version": "2.0.2",
+      "domain": "monitoring-analytics",
+      "tier": "2",
+      "status": "live",
+      "description": "Daily reporting for correlating deny/no-content events across Copilot and Copilot Studio using Purview, Application Insights, and optional Defender data.",
+      "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/deny-event-correlation-report/",
+      "controls": [
+        "1.5",
+        "1.7",
+        "1.8",
+        "3.4"
+      ],
+      "dependencies": [
+        "agent-observability-foundation"
+      ],
+      "prerequisites": {
+        "compliance-admin": "Purview Compliance Admin/View-Only Audit Logs for audit log extraction and CSV exports.",
+        "log-analytics-reader": "Monitoring Reader on Application Insights for RAI telemetry correlation.",
+        "m365-admin": "Azure subscription access for Storage, Automation, and scheduled runbook deployment."
+      },
+      "verification": "Confirm the daily runbook produces CSV exports and current-day audit/RAI correlations without errors."
+    },
+    "dr-testing-framework": {
+      "id": "dr-testing-framework",
+      "name": "DR Testing Framework",
+      "version": "2.0.0",
+      "domain": "lifecycle-ops",
+      "tier": "2",
+      "status": "live",
+      "description": "Post-recovery validation and evidence packaging for Power Platform DR testing.",
+      "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/dr-testing-framework/",
+      "controls": [
+        "2.4",
+        "2.1",
+        "1.9"
+      ],
+      "dependencies": [],
+      "prerequisites": {
+        "power-platform-admin": "Power Platform admin for PPAC restore operations and managed target environment access.",
+        "security-admin": "Entra app registration/admin consent and Dataverse system administrator access for evidence writes."
+      },
+      "verification": "Confirm Invoke-DRTest.ps1 inserts a fsi_drtestresult row and Export-DREvidence.ps1 packages the evidence."
+    },
+    "environment-lifecycle-management": {
+      "id": "environment-lifecycle-management",
+      "name": "Environment Lifecycle Management",
+      "version": "1.2.0",
+      "domain": "lifecycle-ops",
+      "tier": "3",
+      "status": "live",
+      "description": "Automated Power Platform environment provisioning with zone-based governance.",
+      "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/environment-lifecycle-management/",
+      "controls": [
+        "2.1",
+        "2.2",
+        "2.3",
+        "2.8",
+        "1.7"
+      ],
+      "dependencies": [],
+      "prerequisites": {
+        "power-platform-admin": "Power Platform admin for environment creation, environment groups, and managed environment provisioning.",
+        "security-admin": "Entra Global Admin/Application Administrator for app registration, admin consent, and Dataverse schema setup.",
+        "m365-admin": "Microsoft 365 admin for cross-service notifications and governance operations."
+      },
+      "verification": "Confirm a request provisions a managed environment and writes a provisioning log row to Dataverse."
+    },
+    "file-upload-security": {
+      "id": "file-upload-security",
+      "name": "File Upload Security",
+      "version": "1.1.0",
+      "domain": "content-data",
+      "tier": "2",
+      "status": "live",
+      "description": "Automated validation of Copilot Studio agent file upload settings against governance zone policies. Supports Control 1.14 by detecting agents with file uploads enabled where uploads should be restricted or disabled.",
+      "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/file-upload-security/",
+      "controls": [
+        "1.14",
+        "1.8",
+        "1.4"
+      ],
+      "dependencies": [],
+      "prerequisites": {
+        "power-platform-admin": "Power Platform admin, Dynamics 365 Service Admin, or Global Admin to enumerate environments and write Dataverse baseline and violation records."
+      },
+      "verification": "Run Test-FileUploadCompliance.ps1 and confirm new rows in fsi_fileuploadvalidationhistory and fsi_fileuploadviolation, with the latest fsi_runtimestamp reflecting the scan."
+    },
+    "finra-supervision-workflow": {
+      "id": "finra-supervision-workflow",
+      "name": "FINRA Supervision Workflow",
+      "version": "1.0.1",
+      "domain": "compliance-audit",
+      "tier": "2",
+      "status": "live",
+      "description": "Automated retrospective supervision workflow for AI agent outputs to support FINRA Rule 3110 compliance in financial services organizations. This solution provides a post-delivery review queue, SLA tracking, escalation, and immutable audit logging fed by Microsoft Purview Communication Compliance.",
+      "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/finra-supervision-workflow/",
+      "controls": [
+        "2.12",
+        "1.10",
+        "1.7"
+      ],
+      "dependencies": [],
+      "prerequisites": {
+        "power-platform-admin": "Power Platform admin tenant role and Dataverse table creation access for the supervision queue and log schema.",
+        "compliance-admin": "Microsoft Purview Compliance Administrator for Communication Compliance policy access and alert review.",
+        "security-admin": "Entra Application Administrator or equivalent for service principal registration and consent."
+      },
+      "verification": "Create a test queue item and confirm rows appear in fsi_supervisionqueue and fsi_supervisionlog, then verify the Power BI supervision report shows the new item."
+    },
+    "generative-ai-config-auditor": {
+      "id": "generative-ai-config-auditor",
+      "name": "Generative AI Config Auditor",
+      "version": "1.1.0",
+      "domain": "agent-config",
+      "tier": "2",
+      "status": "live",
+      "description": "Validates generative AI feature configurations (Azure OpenAI integration, generative orchestration, generative answers nodes, knowledge sources, Model Knowledge toggle, Semantic Search toggle) for Copilot Studio agents against zone-specific governance policies.",
+      "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/generative-ai-config-auditor/",
+      "controls": [
+        "2.24"
+      ],
+      "dependencies": [],
+      "prerequisites": {
+        "power-platform-admin": "Power Platform admin tenant role and Dataverse environment with the fsi publisher prefix."
+      },
+      "verification": "Confirm Test-GenAIConfigCompliance.ps1 writes rows to `fsi_GACValidationHistory` and `fsi_GACViolation`."
+    },
+    "hallucination-tracker": {
+      "id": "hallucination-tracker",
+      "name": "Hallucination Feedback Tracker",
+      "version": "1.1.0",
+      "domain": "monitoring-analytics",
+      "tier": "2",
+      "status": "live",
+      "description": "Feedback aggregation pipeline for tracking and analyzing hallucination patterns in AI agent outputs.",
+      "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/hallucination-tracker/",
+      "controls": [
+        "3.10",
+        "2.9",
+        "2.12"
+      ],
+      "dependencies": [],
+      "prerequisites": {
+        "power-platform-admin": "Environment Maker and Solution import rights for Dataverse and Power Automate setup.",
+        "global-reader": "Read-only Dataverse access for the analysis script's Basic User-style queries.",
+        "m365-admin": "Power BI workspace/admin setup for dashboard publishing and service access."
+      },
+      "verification": "Run pattern analysis and verify the scorecard and query outputs populate for recent feedback records."
+    },
+    "hitl-workflow-governance": {
+      "id": "hitl-workflow-governance",
+      "name": "HITL Workflow Governance",
+      "version": "1.1.0",
+      "domain": "compliance-audit",
+      "tier": "2",
+      "status": "live",
+      "description": "Validates that Copilot Studio agent flows include required human-in-the-loop checkpoints per zone governance policy using the Request for Information and Run a Multistage Approval actions from the advancedapprovals connector.",
+      "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/hitl-workflow-governance/",
+      "controls": [
+        "2.12",
+        "2.17",
+        "1.10"
+      ],
+      "dependencies": [],
+      "prerequisites": {
+        "power-platform-admin": "Power Platform admin tenant role or Dataverse environment administration for Copilot Studio scanning and schema deployment.",
+        "security-admin": "Entra Global Admin or Application Administrator permissions for app registration, consent, and service principal setup."
+      },
+      "verification": "Run a scan and confirm new rows in fsi_HitlScanRun and fsi_HitlCheckpointResult, then verify the target Copilot Studio bot is listed in the maker portal."
+    },
+    "inactivity-timeout-enforcement": {
+      "id": "inactivity-timeout-enforcement",
+      "name": "Inactivity Timeout Enforcement",
+      "version": "1.1.0",
+      "domain": "access-identity",
+      "tier": "2",
+      "status": "live",
+      "description": "Cloud Flow template for daily compliance detection of inactivity timeout settings across Power Platform environments.",
+      "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/inactivity-timeout-enforcement/",
+      "controls": [
+        "2.22",
+        "1.23",
+        "3.7",
+        "3.8"
+      ],
+      "dependencies": [],
+      "prerequisites": {
+        "power-platform-admin": "Power Platform admin permissions with a Dataverse environment and Power Automate Premium license for the daily compliance flow."
+      },
+      "verification": "Check fsi_inactivitytimeoutcompliances for scan results and fsi_inactivitytimeouterrorlogs for any MissingPolicy or API error entries."
+    },
+    "message-center-monitor": {
+      "id": "message-center-monitor",
+      "name": "Message Center Monitor",
+      "version": "2.3.0",
+      "domain": "lifecycle-ops",
+      "tier": "2",
+      "status": "live",
+      "description": "Monitor Microsoft 365 Message Center for platform changes affecting AI agents.",
+      "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/message-center-monitor/",
+      "controls": [
+        "2.3",
+        "2.10"
+      ],
+      "dependencies": [],
+      "prerequisites": {
+        "m365-admin": "Microsoft 365 admin for Message Center Graph access, admin consent, and Teams notifications.",
+        "power-platform-admin": "Power Platform admin for the Dataverse application user, flow deployment, and connector setup."
+      },
+      "verification": "Confirm the daily poll imports a Message Center post into fsi_messagecenterlog and posts the Teams alert."
+    },
+    "mime-type-restrictions": {
+      "id": "mime-type-restrictions",
+      "name": "MIME Type Restrictions for File Uploads",
+      "version": "1.1.0",
+      "domain": "content-data",
+      "tier": "2",
+      "status": "live",
+      "description": "Dataverse plugin, DLP policy template, and Sentinel queries for MIME type restriction governance in Copilot Studio agent file upload scenarios.",
+      "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/mime-type-restrictions/",
+      "controls": [
+        "1.5",
+        "1.10",
+        "1.11",
+        "1.13",
+        "1.14",
+        "1.25",
+        "3.3",
+        "3.7",
+        "4.3"
+      ],
+      "dependencies": [],
+      "prerequisites": {
+        "power-platform-admin": "Dataverse System Administrator access to register the plugin, import the DLP policy, and manage solution components.",
+        "log-analytics-reader": "Access to the Microsoft Sentinel or Log Analytics workspace that hosts PowerPlatformDlpActivity_CL for query validation."
+      },
+      "verification": "Run scripts/query-mime-blocks.kql and scripts/query-exception-usage.kql against PowerPlatformDlpActivity_CL and confirm blocked uploads plus exception-usage events are returned."
+    },
+    "model-risk-management-automation": {
+      "id": "model-risk-management-automation",
+      "name": "Model Risk Management Automation",
+      "version": "1.0.2",
+      "domain": "compliance-audit",
+      "tier": "2",
+      "status": "live",
+      "description": "Automated OCC 2011-12 and Fed SR 11-7 model risk management for AI agents deployed on Power Platform. This solution automates model inventory submission, risk scoring, independent validation workflows, ongoing monitoring, and examiner-facing Agent Card generation.",
+      "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/model-risk-management-automation/",
+      "controls": [
+        "2.6",
+        "2.5",
+        "2.9",
+        "2.11",
+        "2.13",
+        "3.1",
+        "1.2"
+      ],
+      "dependencies": [],
+      "prerequisites": {
+        "power-platform-admin": "Power Platform admin tenant role and Dataverse schema deployment access for model inventory and validation tables.",
+        "security-admin": "Entra Global Admin or Application Administrator permissions for managed identity setup and API consent.",
+        "sharepoint-admin": "SharePoint admin rights to create the MRM Governance site and Agent Card library."
+      },
+      "verification": "Confirm rows exist in fsi_modelinventory and fsi_validationcycle, and verify the Agent Card file is published in the SharePoint library."
+    },
+    "pipeline-governance-cleanup": {
+      "id": "pipeline-governance-cleanup",
+      "name": "Pipeline Governance Cleanup",
+      "version": "1.2.0",
+      "domain": "lifecycle-ops",
+      "tier": "2",
+      "status": "live",
+      "description": "Discover and clean up personal Power Platform pipelines before central ALM governance.",
+      "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/pipeline-governance-cleanup/",
+      "controls": [
+        "2.3",
+        "2.1"
+      ],
+      "dependencies": [],
+      "prerequisites": {
+        "power-platform-admin": "Power Platform admin for environment inventory, Deployment Pipeline Configuration access, and cleanup actions.",
+        "security-admin": "Entra Global Admin/Application Administrator for Graph permissions, app registration, and admin consent."
+      },
+      "verification": "Confirm the custom pipelines host is set as default and no personal hosts remain in Deployment Pipeline Configuration."
+    },
+    "rag-source-validator": {
+      "id": "rag-source-validator",
+      "name": "RAG Source Validator",
+      "version": "1.2.0",
+      "domain": "content-data",
+      "tier": "2",
+      "status": "live",
+      "description": "Integrity validation for Retrieval-Augmented Generation (RAG) knowledge sources with change detection and audit capabilities.",
+      "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/rag-source-validator/",
+      "controls": [
+        "2.16",
+        "1.7",
+        "2.13"
+      ],
+      "dependencies": [],
+      "prerequisites": {
+        "sharepoint-admin": "SharePoint Online access to the document libraries, lists, pages, blobs, or APIs used as knowledge sources.",
+        "power-platform-admin": "Dataverse access to fsi_knowledgesource, fsi_validationresult, and fsi_sourcechange for source registry and audit tracking."
+      },
+      "verification": "Run Invoke-SourceValidation.ps1 and confirm fsi_knowledgesource, fsi_validationresult, and fsi_sourcechange records update with the expected fsi_result and fsi_lastvalidated values."
+    },
+    "scope-drift-monitor": {
+      "id": "scope-drift-monitor",
+      "name": "Scope Drift Monitor",
+      "version": "1.2.0",
+      "domain": "monitoring-analytics",
+      "tier": "2",
+      "status": "live",
+      "description": "Automated detection of AI agent data access beyond declared operational scope, supporting GDPR data minimization and FSI data governance requirements.",
+      "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/scope-drift-monitor/",
+      "controls": [
+        "1.14",
+        "1.4",
+        "1.5"
+      ],
+      "dependencies": [
+        "agent-observability-foundation"
+      ],
+      "prerequisites": {
+        "compliance-admin": "Purview Compliance Admin for Unified Audit Log queries.",
+        "power-platform-admin": "System Administrator / Environment Maker access for Dataverse tables, flows, and solution import.",
+        "m365-admin": "Microsoft 365 E5 or E5 Compliance licensing plus Office 365 Management API app consent for audit collection."
+      },
+      "verification": "Run a test scan and confirm a drift violation is detected and alerted within the 15-minute cycle."
+    },
+    "segregation-detector": {
+      "id": "segregation-detector",
+      "name": "Segregation of Duties Detector",
+      "version": "1.1.0",
+      "domain": "compliance-audit",
+      "tier": "2",
+      "status": "live",
+      "description": "Automated role conflict detection that supports Maker/Checker controls in AI agent deployment pipelines and helps address SOX Section 404 IT General Controls.",
+      "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/segregation-detector/",
+      "controls": [
+        "2.8",
+        "2.1",
+        "2.3"
+      ],
+      "dependencies": [],
+      "prerequisites": {
+        "global-reader": "Global Reader access for Entra ID role assignment queries.",
+        "power-platform-admin": "Power Platform administrator access for Dataverse schema deployment and environment role queries."
+      },
+      "verification": "Run Invoke-SoDScan.ps1 and confirm rows are created in fsi_sodviolation for enabled records in fsi_conflictrule."
+    },
+    "session-security-configurator": {
+      "id": "session-security-configurator",
+      "name": "Session Security Configurator",
+      "version": "1.1.0",
+      "domain": "agent-config",
+      "tier": "2",
+      "status": "live",
+      "description": "Automated session security baseline management for Microsoft 365 AI agent administration, supporting compliance with FINRA, SEC, and GLBA session control requirements.",
+      "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/session-security-configurator/",
+      "controls": [
+        "1.23",
+        "1.11"
+      ],
+      "dependencies": [],
+      "prerequisites": {
+        "power-platform-admin": "Power Platform admin tenant role and Dataverse environment with the fsi publisher prefix.",
+        "security-admin": "Microsoft Entra ID Security Administrator for Conditional Access and PIM policy management."
+      },
+      "verification": "Confirm Test-SessionCompliance.ps1 writes rows to `fsi_ValidationHistory` and `fsi_DriftViolation` for a Zone 3 run."
+    },
+    "unrestricted-agent-sharing-detector": {
+      "id": "unrestricted-agent-sharing-detector",
+      "name": "Unrestricted Agent Sharing Detector",
+      "version": "2.0.0",
+      "domain": "access-identity",
+      "tier": "2",
+      "status": "live",
+      "description": "Continuous detection of overly permissive agent sharing configurations with automated remediation and exception management.",
+      "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/unrestricted-agent-sharing-detector/",
+      "controls": [
+        "1.1",
+        "3.8"
+      ],
+      "dependencies": [],
+      "prerequisites": {
+        "power-platform-admin": "Power Platform admin or Entra Global Admin for Dataverse schema, cloud flows, and remediation setup."
+      },
+      "verification": "Verify fsi_sharingviolations and fsi_sharingexceptions update after running the detection and remediation flows."
+    }
+  }
+}

@@ -60,6 +60,11 @@ validation:
     anchors: warn
     absolute_links: warn
 
+# Auto-generated per-role homework pages: only the top 8 roles are in
+# primary nav; the long-tail ~140 are reachable by URL/search.
+not_in_nav: |
+  /assessment/pre-session/**
+
 # Exclude files that are intentionally not in navigation
 exclude_docs: |
   images/
@@ -100,6 +105,10 @@ extra_css:
 extra_javascript:
   - javascripts/assessment-loader.js
 
+hooks:
+  - scripts/hooks/copy_assessment_data.py
+  - scripts/hooks/generate_homework_pages_hook.py
+
 nav:
   - Home: index.md
 
@@ -109,6 +118,18 @@ nav:
     - Quick Start: getting-started/quick-start.md
     - Implementation Checklist: getting-started/checklist.md
     - Readiness Assessment: assessment/index.md
+
+  - Assessment:
+    - Tool: assessment/index.md
+    - Pre-session Homework:
+      - Governance Lead: assessment/pre-session/governance-lead/index.md
+      - Compliance Officer: assessment/pre-session/compliance-officer/index.md
+      - Power Platform Admin: assessment/pre-session/power-platform-admin/index.md
+      - Purview Compliance Admin: assessment/pre-session/purview-compliance-admin/index.md
+      - Entra Security Admin: assessment/pre-session/entra-security-admin/index.md
+      - Entra Global Admin: assessment/pre-session/entra-global-admin/index.md
+      - SharePoint Admin: assessment/pre-session/sharepoint-admin/index.md
+      - AI Administrator: assessment/pre-session/ai-administrator/index.md
 
   - Framework:
     - framework/index.md
@@ -215,6 +236,8 @@ nav:
 
   - Playbooks:
     - playbooks/index.md
+    - Authoring Baselines:
+      - PowerShell Baseline: playbooks/_shared/powershell-baseline.md
     - Control Implementations:
       - playbooks/control-implementations/index.md
       - Pillar 1 - Security:
