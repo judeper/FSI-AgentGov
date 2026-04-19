@@ -214,6 +214,10 @@ python scripts/compile_researcher_package.py    # After pillar control changes
 cd assessment && pytest tests/ -v               # After assessment engine changes
 ```
 
+## Auditing for repo-wide drift
+
+When making changes that could plausibly affect multiple file types or directories — version bumps, count changes, structural renames, repo-wide claims — use the **Scorched-Earth Enumeration + Classify-Then-Act** methodology in `.github/AUDIT-METHODOLOGY.md`. Do NOT rely on "deep audits" by sampling — every prior sampling pass missed P0 issues that a fourth pass surfaced. The methodology is mandatory for these change classes; for single-file fixes or typo passes it is not needed.
+
 ## Automated Assessment Engine
 
 The `assessment/` directory contains a programmatic assessment engine that collects tenant configuration via APIs, scores all 78 controls against zone thresholds, and generates pre-filled reports with a focused manual questionnaire.
