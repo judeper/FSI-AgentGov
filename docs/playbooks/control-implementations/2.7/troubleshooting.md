@@ -1,193 +1,199 @@
-# Troubleshooting: Control 2.7 - Vendor and Third-Party Risk Management
+# Control 2.7: Vendor and Third-Party Risk Management — Troubleshooting
 
-> This playbook provides troubleshooting guidance for [Control 2.7](../../../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md).
+> Companion to [Control 2.7](../../../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md). Common failure modes and resolutions for vendor and connector risk management in M365 / Power Platform / Copilot Studio.
 
 ---
 
-## Common Issues and Solutions
+## Quick Reference
 
-| Issue | Symptoms | Root Cause | Solution |
-|-------|----------|------------|----------|
-| Incomplete connector inventory | Unknown connectors discovered during audits | Limited visibility | Run PowerShell enumeration scripts |
-| Missing SOC 2 report | Vendor cannot provide documentation | Vendor maturity | Accept alternatives or conduct independent assessment |
-| Custom connector security | Connectors created without review | No approval process | Implement Managed Environments |
-| Delayed incident notification | Vendor security incident not reported | Contract gaps | Review and update contract terms |
-| DLP policy not blocking | Users can use blocked connectors | Policy misconfiguration | Verify policy scope and propagation |
+| # | Issue | Likely Root Cause | First Action |
+|---|-------|-------------------|--------------|
+| 1 | Inventory misses connectors actually in use | Producer environments outside scope; service principals creating apps | Enumerate **all** environments via PowerShell; cross-check Purview audit |
+| 2 | Vendor cannot supply SOC 2 Type II | Smaller vendor, pre-attestation maturity | Accept ISO 27001 + bridge letter + independent assessment; document risk acceptance |
+| 3 | Custom connector created without review | Producer environment lacks creation restriction | Restrict in Managed Environments; route producers to designated environments |
+| 4 | Vendor incident notice arrived late | Contract notification window not enforced | Re-paper contract; raise vendor risk score; escalate to vendor risk committee |
+| 5 | DLP policy fails to block expected connector | Less-restrictive policy wins; classification missing | Validate effective policy; ensure target connector classified and policy scoped |
+| 6 | Community / independent-publisher plugin appeared in Copilot Studio agent | Tenant allows non-allowlisted plugins; admin not scoped | Disable plugin; tighten Copilot Studio plugin governance; notify agent owner |
+| 7 | LLM vendor changed model behavior with no notice | Contract clause weak or absent | Trigger Control 2.6 re-validation; re-paper contract; consider vendor change |
+| 8 | MCP tool server reachable from agent without inventory entry | Egress not gated; intake bypassed | Block egress to MCP server; require Tier T5 onboarding before re-enabling |
 
 ---
 
 ## Detailed Troubleshooting
 
-### Issue 1: Unable to Identify All Third-Party Connectors
+### Issue 1 — Connector inventory is incomplete
 
-**Symptoms:** Incomplete connector inventory, unknown connectors discovered during audits
+**Symptoms:** Audit discovers connectors in production not present in the inventory; new connectors appear without intake.
 
-**Solutions:**
+**Diagnostics:**
+1. Run the inventory snapshot from the [PowerShell Setup](powershell-setup.md) playbook against **every** environment, including default and personal productivity.
+2. Cross-reference Purview audit (operations: `CreateConnection`, `RegisterCustomConnector`, `UpdateApp` with new connection IDs) for the prior 90 days.
+3. Confirm no service principals are creating connections outside the inventory pipeline.
 
-1. Run PowerShell scripts to enumerate connectors across all environments
-2. Review Power Platform analytics for connector usage
-3. Check audit logs in Microsoft Purview for connection activity
-4. Enable connector activity alerts for new deployments
-5. Survey environment admins for custom connector usage
-
----
-
-### Issue 2: Vendor Fails to Provide SOC 2 Report
-
-**Symptoms:** Vendor cannot provide required security documentation
-
-**Solutions:**
-
-1. Accept alternative certifications (ISO 27001, FedRAMP)
-2. Request bridge letter if report is pending
-3. Conduct independent security assessment
-4. Implement compensating controls (enhanced monitoring)
-5. Escalate to vendor risk committee for risk acceptance or termination
+**Resolution:**
+- Add an automated weekly snapshot to the evidence pipeline.
+- Enable Power Platform admin alerts for new connector creation in Zone 2/3.
+- Require intake-ticket reference in any change-management approval before publishing a new connector to a Managed Environment.
 
 ---
 
-### Issue 3: Custom Connector Security Concerns
+### Issue 2 — Vendor cannot provide SOC 2 Type II
 
-**Symptoms:** Custom connectors created without security review
+**Symptoms:** Tier T2–T5 vendor lacks current SOC 2 Type II report.
 
-**Solutions:**
-
-1. Implement pre-deployment security review process
-2. Enable Managed Environments to control solution deployment
-3. Use solution checker to identify security issues
-4. Require code review for custom connector APIs
-5. Block custom connector creation except in designated environments
-
----
-
-### Issue 4: Vendor Incident Notification Delayed
-
-**Symptoms:** Vendor security incident not reported timely
-
-**Solutions:**
-
-1. Review contract for notification requirements
-2. Assess impact to organization and report internally
-3. Document timeline of vendor notification
-4. Update vendor risk score based on incident handling
-5. Consider contract remediation or termination
+**Resolution paths (in priority order):**
+1. **Accept alternative attestation** — ISO 27001 + recent surveillance audit, FedRAMP Moderate/High, HITRUST. Document acceptance and rationale.
+2. **Bridge letter** — Acceptable to span the period between the prior SOC 2 and the next, provided issuance date is within 90 days.
+3. **Independent assessment** — Commission a qualified third-party security assessment. Risk-accept gaps with executive sign-off.
+4. **Compensating controls** — Tighten DLP, require additional logging, restrict to non-NPI workloads, set risk-acceptance expiry (≤ 12 months).
+5. **Vendor exit** — Escalate to the vendor risk committee for offboarding when no acceptable path exists.
 
 ---
 
-### Issue 5: DLP Policies Not Blocking Connectors as Expected
+### Issue 3 — Custom connector created without security review
 
-**Symptoms:** Users able to use connectors that should be blocked
+**Symptoms:** New custom connector found in a production environment with no record in the intake system.
 
-**Solutions:**
-
-1. Verify DLP policy is applied to correct environments
-2. Check for conflicting policies (least restrictive wins)
-3. Confirm connector is correctly classified in policy
-4. Wait for policy propagation (up to 1 hour)
-5. Verify environment is marked as Managed
-
----
-
-### Issue 6: Community Plugin Installed Without Review
-
-**Symptoms:** Unvetted community connector discovered in environment
-
-**Solutions:**
-
-1. Disable connector immediately
-2. Review usage and data exposure
-3. Assess impact of any data that flowed through connector
-4. Document incident and root cause
-5. Strengthen preventive controls (DLP, marketplace blocking)
+**Resolution:**
+1. Disable the connector immediately if it carries customer NPI, MNPI, or supervisory data.
+2. Run the custom connector enumeration script and assess data exposure.
+3. In the affected environment, restrict custom connector creation via Managed Environments → **Sharing limits** and **Maker controls** (see [Control 2.1](../../../controls/pillar-2-management/2.1-managed-environments.md)).
+4. Establish designated producer environments for custom connector development; block production environments from creation rights.
+5. Add a Power Platform admin alert for `RegisterCustomConnector` events.
 
 ---
 
-### Issue 7: AI Vendor Model Change Without Notice
+### Issue 4 — Vendor incident notification delayed
 
-**Symptoms:** Agent behavior changed unexpectedly due to underlying model update
+**Symptoms:** Public disclosure or third-party intelligence reaches the firm before the vendor's own notification.
 
-**Solutions:**
+**Resolution:**
+1. Document the timeline (vendor incident time → vendor notice → firm awareness) and impact assessment.
+2. Update the vendor's risk score and trigger a contract review.
+3. For FINRA-regulated firms, evaluate whether the delay implicates the firm's Rule 4530 reporting obligation.
+4. Consider remediation paths: contract amendment, financial penalties, escalation to vendor risk committee, or vendor exit.
 
-1. Document behavioral changes observed
-2. Contact vendor for model change information
-3. Compare performance against baseline
-4. Revalidate agent per MRM requirements if material
-5. Update contract to strengthen notification requirements
+---
+
+### Issue 5 — DLP policy not blocking as expected
+
+**Symptoms:** Users continue to add connectors that should be blocked.
+
+**Diagnostics:**
+1. Open Power Platform admin center → **Policies → Data policies** → select policy → **Policy effects**. Confirm the connector is in the **Blocked** group and the policy is scoped to the user's environment.
+2. If multiple policies apply, the **most restrictive wins**, but only across overlapping environments. Validate environment-to-policy mapping.
+3. Check propagation: changes can take up to **one hour** to take effect.
+4. Confirm the environment is **Managed** — some advanced DLP controls require Managed Environments.
+
+**Resolution:**
+- Reclassify the connector and republish the policy.
+- Verify Conditional Access does not bypass policy via service-principal flows.
+- For Copilot Studio plugins, confirm the plugin is also restricted at the Copilot Studio agent layer (DLP alone does not govern all plugin types).
+
+---
+
+### Issue 6 — Independent / community plugin appeared in a Copilot Studio agent
+
+**Symptoms:** Unvetted plugin discovered in agent **Tools / Plugins** tab.
+
+**Resolution:**
+1. Disable the plugin immediately and remove it from the agent.
+2. Review tool-call audit logs for data sent to the plugin endpoint.
+3. Assess whether NPI, MNPI, or supervisory content was transmitted. If yes, follow Control 3.x incident response and consider notification obligations.
+4. Strengthen prevention: tenant-level Copilot Studio plugin allowlist, restrict agent-author roles, and require AI Administrator approval for new plugin enablement.
+
+---
+
+### Issue 7 — AI/LLM vendor changed model behavior without notice
+
+**Symptoms:** Agent accuracy, latency, or output character changes unexpectedly; no contract-required notification was received.
+
+**Resolution:**
+1. Capture before/after evidence (sampled prompt/response pairs, evaluation metrics).
+2. Treat as a **model change** under Control 2.6 — re-validate the agent before continued production use if the change is material.
+3. Open a contract dispute citing the missing notification; require the vendor to publish a change log with retroactive notice.
+4. Re-paper the contract to tighten the change-notice clause (e.g., 60 days for material changes, with right to suspend without penalty).
+5. For OCC- or Federal Reserve-supervised institutions, document the event in the model risk inventory per OCC 2011-12 / SR 11-7.
+
+---
+
+### Issue 8 — MCP tool server reachable without inventory entry
+
+**Symptoms:** Network telemetry or agent execution log shows traffic to an MCP server that is not in the Tier T5 inventory.
+
+**Resolution:**
+1. Block egress to the unknown MCP endpoint at the network layer.
+2. Identify the agent and owner that introduced the MCP reference.
+3. Require formal Tier T5 onboarding (vendor diligence pack, contract, AI-clauses) before any re-enablement.
+4. Add network egress allowlisting as a control for Zone 3 agents reaching external services.
 
 ---
 
 ## Microsoft Platform Update Monitoring
 
-For Copilot Studio agents, the underlying models are managed by Microsoft. Organizations should proactively monitor for platform changes that may affect agent behavior.
-
-### Monitoring Channels
+For Copilot Studio and Microsoft 365 Copilot, the underlying models are managed by Microsoft. Treat Microsoft as your highest-volume Tier T1 / T5 vendor and monitor for change.
 
 | Channel | URL | What to Monitor |
 |---------|-----|-----------------|
-| **Microsoft 365 Message Center** | https://admin.microsoft.com → Message center | Copilot Studio updates, model changes, feature deprecations |
-| **Service Health Dashboard** | https://admin.microsoft.com → Service health | Outages, degraded performance, incident reports |
-| **Power Platform Release Plans** | https://learn.microsoft.com/en-us/power-platform/release-plan/2025wave2/ | Upcoming features, breaking changes |
-| **Copilot Studio What's New** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/whats-new | Feature updates, capability changes |
-| **Microsoft 365 Roadmap** | https://www.microsoft365.com/roadmap | Future features, timeline visibility |
+| Microsoft 365 Message Center | <https://admin.microsoft.com> → Message center | Copilot Studio, Power Platform, M365 Copilot updates |
+| Service Health Dashboard | <https://admin.microsoft.com> → Service health | Outages, degraded performance, incident reports |
+| Power Platform release plans | <https://learn.microsoft.com/en-us/power-platform/release-plan/> | Upcoming features and breaking changes |
+| Copilot Studio What's New | <https://learn.microsoft.com/en-us/microsoft-copilot-studio/whats-new> | Feature updates, model provider additions |
+| Microsoft Service Trust Portal | <https://servicetrust.microsoft.com> | SOC 1/2/3, ISO, FedRAMP attestations |
 
-### Recommended Monitoring Process
+### Recommended cadence
 
-**Weekly:**
-1. Review Message Center for Copilot Studio / Power Platform announcements
-2. Check Service Health for any ongoing issues
-3. Document any announcements affecting deployed agents
+**Weekly:** Review Message Center for Power Platform / Copilot Studio entries; document items affecting deployed agents.
 
-**Monthly:**
-1. Review Power Platform release notes
-2. Assess impact of upcoming changes on Zone 2/3 agents
-3. Plan re-validation for material changes
+**Monthly:** Review Power Platform release notes; assess upcoming changes against Zone 2/3 agents; plan re-validation where needed.
 
-**Quarterly:**
-1. Review vendor SLA performance metrics
-2. Assess Microsoft platform changes against MRM requirements
-3. Update vendor risk assessment score
+**Quarterly:** Refresh vendor scorecards (including Microsoft); verify SOC 2 currency on the Service Trust Portal; assess platform changes against MRM (Control 2.6) thresholds.
 
-### When to Trigger Re-Validation
+### Re-validation triggers (Control 2.6 linkage)
 
-Re-validate agents per Control 2.6 (Model Risk Management) when:
+Open a re-validation per [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) when:
 
-- Microsoft announces a model change affecting Copilot Studio
-- Agent behavior metrics deviate from baseline by >5%
-- Microsoft announces deprecation of features your agent uses
-- Service incident impacts data integrity or agent accuracy
-- Customer complaints increase without configuration changes
+- Microsoft announces a model change for a model used by a Zone 2/3 agent.
+- Agent behavior metrics deviate from baseline beyond the threshold defined in the agent's monitoring plan.
+- Microsoft announces deprecation of a feature the agent depends on.
+- A service incident affects data integrity or output accuracy.
+- Customer complaints, supervisory exceptions, or near-miss events increase without configuration change.
 
-### PowerShell: Message Center Monitoring
+### Sample PowerShell — Message Center for Power Platform
 
 ```powershell
-# Get recent Message Center announcements for Power Platform
-Connect-MgGraph -Scopes "ServiceMessage.Read.All"
+Connect-MgGraph -Scopes 'ServiceMessage.Read.All' -NoWelcome
 
-$messages = Get-MgServiceAnnouncementMessage -Filter "services/any(s:s eq 'Power Platform')" `
-    -Top 50 | Where-Object { $_.LastModifiedDateTime -gt (Get-Date).AddDays(-7) }
-
-$messages | Select-Object Title, LastModifiedDateTime, Severity | Format-Table -AutoSize
+Get-MgServiceAnnouncementMessage -All |
+  Where-Object {
+      ($_.Services -contains 'Power Platform' -or
+       $_.Services -contains 'Microsoft Copilot Studio') -and
+      $_.LastModifiedDateTime -gt (Get-Date).AddDays(-7)
+  } |
+  Select-Object Title, Severity, ActionRequiredByDateTime, LastModifiedDateTime |
+  Format-Table -AutoSize
 ```
 
 ---
 
 ## Escalation Path
 
-If issues cannot be resolved using this guide:
-
-1. **Level 1:** Power Platform Admin - Technical configuration
-2. **Level 2:** AI Governance Lead - Policy and process
-3. **Level 3:** Compliance Officer - Regulatory requirements
-4. **Level 4:** Vendor Risk Committee - Risk acceptance decisions
+| Level | Owner | Trigger |
+|------:|-------|---------|
+| 1 | Power Platform Admin | Configuration / DLP / connector issues |
+| 2 | AI Governance Lead | Policy, intake, allowlist disputes |
+| 3 | Compliance Officer | Regulatory or recordkeeping implication |
+| 4 | Vendor Risk Committee | Risk acceptance, vendor exit, material incident |
+| 5 | Board / Risk Committee | Material breach or supervisory implication |
 
 ---
 
 ## Related Playbooks
 
-- [Portal Walkthrough](./portal-walkthrough.md) - Step-by-step portal configuration
-- [PowerShell Setup](./powershell-setup.md) - Automation scripts
-- [Verification & Testing](./verification-testing.md) - Assessment procedures
+- [Portal Walkthrough](portal-walkthrough.md)
+- [PowerShell Setup](powershell-setup.md)
+- [Verification & Testing](verification-testing.md)
 
 ---
 
-*Updated: April 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3 | UI Verification Status: Current*
