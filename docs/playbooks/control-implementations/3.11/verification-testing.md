@@ -20,31 +20,31 @@ Before beginning verification testing, prepare a test environment:
 
 ---
 
-## Test Case 1: Agent Inventory Data Refresh
+## Test Case 1: Power Platform Inventory Data Refresh
 
-**Objective:** Verify that Agent Inventory in PPAC refreshes on schedule and captures all agents.
+**Objective:** Verify that Power Platform Inventory in PPAC discovers all agents within the platform-managed refresh window (~15 minutes).
 
 ### Test Steps
 
-1. Navigate to PPAC → Agent Inventory
-2. Note the current agent count and last refresh timestamp
+1. Navigate to PPAC → Manage → Inventory → Agents
+2. Note the current agent count and **Last refreshed** timestamp
 3. Create a new test agent in Copilot Studio (any test environment)
-4. Wait for scheduled inventory refresh (or manually trigger if available)
-5. Refresh the Agent Inventory page
-6. Verify the new test agent appears in the inventory
+4. Wait approximately 15-30 minutes for the platform-managed refresh
+5. Refresh the Inventory page in the browser
+6. Verify the new test agent appears in the inventory list
 
 ### Expected Results
 
-- [ ] Agent Inventory displays last refresh timestamp
-- [ ] After refresh, new test agent appears in the inventory list
+- [ ] Inventory page displays a "Last refreshed" timestamp
+- [ ] After the platform refresh window, the new test agent appears in the list
 - [ ] Agent metadata (name, owner, environment, creation date) is populated correctly
-- [ ] Refresh occurs on configured schedule (weekly for Zone 1, daily for Zone 2/3)
+- [ ] No manual or per-environment refresh schedule is required (platform-managed at ~15-minute intervals)
 
 ### Evidence Collection
 
-- Screenshot: Agent Inventory before test agent creation (showing agent count)
-- Screenshot: Agent Inventory after refresh (showing new agent in list)
-- Note timestamp of refresh to confirm schedule adherence
+- Screenshot: Inventory before test agent creation (showing agent count and timestamp)
+- Screenshot: Inventory after refresh (showing new agent in list)
+- Note the elapsed time between agent creation and appearance in inventory
 
 ---
 
@@ -407,7 +407,7 @@ If SLA tracking is not yet implemented in the PowerShell script, this test serve
 
 After completing all test cases, confirm:
 
-- [ ] Agent Inventory refreshes on schedule and captures all agents
+- [ ] Power Platform Inventory discovers new agents within the platform-managed refresh window (~15 minutes)
 - [ ] Mandatory metadata enforcement prevents publication of incomplete agents
 - [ ] Orphaned agents (departed owners, stale agents) are detected correctly
 - [ ] Incomplete metadata triggers automated Teams alerts
@@ -454,4 +454,4 @@ Implement continuous validation by:
 
 [Back to Control 3.11](../../../controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md)
 
-*Updated: February 2026 | Version: v1.0*
+*Updated: April 2026 | Version: v1.3.3*

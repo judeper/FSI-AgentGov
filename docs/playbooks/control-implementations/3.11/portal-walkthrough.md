@@ -4,50 +4,50 @@
 **Portal:** Power Platform Admin Center (PPAC), Microsoft 365 Admin Center, Copilot Studio
 **Estimated Time:** 60-75 minutes
 
+!!! info "Feature status (April 2026)"
+    Power Platform Inventory in PPAC reached **General Availability on February 9, 2026** (MC1223778). Inventory data refreshes approximately every 15 minutes; per-environment refresh schedules are no longer configurable. Microsoft Agent 365 (the unified agent control plane) reaches GA on **May 1, 2026**. Steps below reflect the GA experience; legacy preview steps and the placeholder Agent Inventory REST API have been removed in favor of the **Power Platform for Admins V2** connector for workflow integration.
+
 ## Prerequisites
 
-- [ ] Power Platform Admin role
-- [ ] Entra Global Admin role (for tenant-wide discovery settings)
-- [ ] Access to Power Platform Admin Center, M365 Admin Center, and Copilot Studio
+- [ ] Power Platform Admin role (tenant-wide; required to view the Inventory page)
+- [ ] AI Administrator role (for Agent 365 control plane configuration when GA)
+- [ ] Entra Global Admin (for one-time tenant consent only; prefer PIM just-in-time elevation)
+- [ ] Access to PPAC, M365 Admin Center, and Copilot Studio
 - [ ] Knowledge of governance zone classifications (Control 2.2)
 - [ ] List of all Power Platform environments with zone assignments
-- [ ] Mandatory metadata requirements documented (owner, zone, risk rating, etc.)
-- [ ] Change management process for agent registration and decommissioning
+- [ ] Mandatory metadata requirements documented (owner, zone, risk rating)
+- [ ] Change-management process for agent registration and decommissioning
 - [ ] Teams channel for governance alerts and notifications
 
 ---
 
 ## Step-by-Step Configuration
 
-### Part 1: Enable and Configure Agent Inventory in PPAC
+### Part 1: Access and Configure Power Platform Inventory in PPAC
 
-#### Step 1: Navigate to Agent Inventory Feature
+#### Step 1: Navigate to the Inventory Page
 
 1. Open [Power Platform Admin Center](https://admin.powerplatform.microsoft.com)
 2. Sign in with Power Platform Admin credentials
-3. In the left navigation, look for **Agents** or **Agent Inventory** (may be under "Analytics" or "Governance" section)
-4. Click **Agent Inventory** to open the centralized agent discovery interface
-5. Review the Agent Inventory dashboard layout:
+3. In the left navigation, expand **Manage** and select **Inventory** (the unified Inventory page; agents, apps, flows, environments, and environment groups appear as tabs or filters)
+4. Select the **Agents** view to see Copilot Studio agents and Microsoft 365 Copilot Agent Builder agents tenant-wide
+5. Review the dashboard layout:
    - **Agent List:** Table showing all discovered agents with key attributes
-   - **Filter and Sort Controls:** Ability to filter by environment, owner, creation date, zone
-   - **Export Button:** Export to CSV or Excel for offline analysis
-   - **Refresh Button:** Manual refresh to trigger discovery scan
+   - **Filter and Sort Controls:** Filter by environment, environment group, owner, creation date
+   - **Customize Columns:** Add/remove columns including Authentication Method, Sharing Status
+   - **Export to Excel:** Export current view for offline analysis or evidence retention
+   - **Last refresh timestamp:** Inventory refreshes automatically (~15 minutes); no manual refresh schedule is exposed
 
-> **Note:** The Agent Inventory feature in PPAC is in Preview (as of February 2026). If this feature is not visible in your tenant, check the Message Center for rollout status or contact Microsoft Support to enable the preview. Until Agent Inventory GA, use PowerShell-based discovery scripts as a compensating control (see PowerShell Setup playbook).
+> **Note:** Power Platform Inventory is GA as of February 9, 2026. If the Inventory page is not visible, confirm the signed-in user holds a tenant-wide admin role (Power Platform Admin or Dynamics 365 Admin) and that the tenant region has received the rollout. There are no read-only or fine-grained admin variants today; track Microsoft 365 Roadmap for future RBAC granularity.
 
-#### Step 2: Configure Inventory Data Refresh Schedule
+#### Step 2: Confirm Inventory Refresh and Coverage
 
-1. In the Agent Inventory page, look for **Settings** or **Configuration** gear icon (typically in top-right corner)
-2. Click **Settings** to open inventory configuration options
-3. Configure **Data Refresh Schedule:**
-   - **Zone 1 environments:** Weekly refresh (acceptable for personal productivity)
-   - **Zone 2 environments:** Daily refresh (recommended for team collaboration)
-   - **Zone 3 environments:** Daily refresh + real-time alerts (required for enterprise governance)
-4. Set refresh time to off-hours (e.g., 2:00 AM local time) to minimize performance impact
-5. Enable **Automatic Refresh:** Toggle on to ensure scheduled discovery runs without manual intervention
-6. Click **Save** to apply refresh configuration
+1. On the Inventory page, note the **Last refreshed** timestamp shown above the agent list
+2. The platform refreshes inventory data approximately every 15 minutes; no per-environment refresh configuration is required
+3. Validate coverage by spot-checking that recently created agents appear within ~15-30 minutes
+4. If newly created agents do not appear after 30 minutes, open a Microsoft support case referencing MC1223778 and Power Platform Inventory GA
 
-> **Zone 3 Requirement:** For regulated environments, configure real-time alerts (if available) to notify governance team immediately when new agents are detected. If real-time alerts are not yet available in the preview, configure Power Automate flows (Part 3) to poll the inventory daily and send notifications.
+> **Zone 3 expectation:** For regulated environments, the ~15-minute refresh interval typically meets near-real-time governance needs. Pair the platform refresh with the Power Automate flow in Part 3 (built on the **Power Platform for Admins V2** connector) for active alerting.
 
 #### Step 3: Review Current Agent Inventory
 
@@ -192,14 +192,13 @@ Automated monitoring detects agents with missing or incomplete metadata and aler
 
 **Step 1: Get Agent Inventory Data**
 
-1. Add action: **HTTP - Send an HTTP request**
-2. Configure HTTP request to retrieve agent inventory:
-   - **Method:** GET
-   - **URI:** `https://api.powerplatform.com/agentInventory/v1/inventory` (**placeholder — replace with actual endpoint when available**; this API is in preview and may not yet be publicly accessible)
-   - **Authentication:** Microsoft Entra ID (use Managed Identity or service principal with appropriate permissions)
-3. Parse the JSON response to extract agent records
+1. Add action: **Power Platform for Admins V2** → **List as Admin Inventory Resources** (or the equivalent inventory operation exposed by your tenant; the connector is GA and exposes the same data the PPAC Inventory page surfaces)
+2. Configure the action to filter by **Resource Type = Agent** (and optionally by environment group)
+3. The action returns inventory rows directly — no parsing of a custom HTTP response is required
 
-> **API Availability Note:** As of February 2026, the Agent Inventory API is in preview. If the API is not available, use alternative data sources: (1) Export Agent Inventory to CSV and store in SharePoint, parse CSV in Power Automate, or (2) Use PowerShell scripts to query Power Platform environments and populate a Dataverse table, then query that table in Power Automate.
+> **Why the connector instead of a custom HTTP call:** Earlier preview guidance referenced an unreleased `api.powerplatform.com/agentInventory` endpoint. That endpoint is not the supported integration path. The **Power Platform for Admins V2** connector is the GA-supported way to query inventory from Power Automate; it inherits the connection's admin role and avoids managing service-principal secrets directly in the flow.
+
+> **API Availability Note:** The supported integration path for inventory data is the **Power Platform for Admins V2** connector (GA), not a custom REST endpoint. If you previously authored flows against the placeholder URL `api.powerplatform.com/agentInventory/...`, migrate them to the connector. Alternative offline paths remain available for air-gapped scenarios: (1) PPAC Inventory → **Export to Excel** → SharePoint document library, then parse in Power Automate, or (2) PowerShell discovery (see PowerShell Setup) writing to a Dataverse table queried by the flow.
 
 **Step 2: Filter Agents with Incomplete Metadata**
 
@@ -420,48 +419,33 @@ h. **Notification:**
 
 ---
 
-### Part 6: Configure Agent 365 Control Plane (Preview)
+### Part 6: Prepare for Agent 365 Control Plane (GA May 1, 2026)
 
-#### Step 12: Enable Agent 365 Unified Discovery (When Available)
+#### Step 12: Plan the Agent 365 Migration
 
-Microsoft's Agent 365 control plane provides unified discovery and policy enforcement across the Microsoft ecosystem. As this feature moves from Frontier Preview to GA, configure it as your primary enforcement mechanism.
+Microsoft Agent 365 is the unified agent control plane reaching GA on **May 1, 2026**, included in the M365 E7 SKU (and as a standalone Agent 365 license at $15/user/month per Microsoft's published pricing). It introduces fine-grained RBAC, per-agent Entra Agent ID, audit logging, and policy-based blocking and quarantine for both sanctioned and shadow agents.
 
-1. Open [Microsoft 365 Admin Center](https://admin.microsoft.com) or navigate to the dedicated Agent 365 portal (URL TBA when GA)
-2. Navigate to **Settings** > **Agent 365** or look for **Agent Control Plane** in the navigation
-3. Enable **Unified Agent Discovery:**
-   - Toggle on "Enable Agent 365 discovery" (or similar option)
-   - Configure discovery scope: All environments, specific environments, or Zone-based
-   - Set discovery frequency: Daily recommended for Zone 2/3
-4. Configure **Discovery Sources:**
-   - Enable discovery for Copilot Studio agents
-   - Enable discovery for Microsoft 365 Copilot agents
-   - Enable discovery for Declarative Agents
-   - Enable discovery for Microsoft Foundry agents (if applicable)
-   - Enable discovery for Integrated Apps agents
-5. Configure **Policy Enforcement:**
-   - Enable "Block unmanaged agents" (if available) — prevents agents without complete metadata from running
-   - Configure enforcement actions: Alert only, Require owner assignment, Block execution, Automatic decommissioning
-   - Set enforcement grace period: 7 days for Zone 3, 14 days for Zone 2, 30 days for Zone 1
-6. Click **Save** to apply Agent 365 configuration
+1. Inventory current agent governance touchpoints (PPAC Inventory, Integrated Apps, Copilot Studio sharing, DLP policies)
+2. Identify which workflows in this playbook should migrate to Agent 365 once GA:
+   - Discovery → Agent 365 unified registry
+   - Owner validation → Entra Agent ID + Conditional Access for agents
+   - Unmanaged-agent blocking → Agent 365 quarantine policy (replaces DLP-based compensating controls)
+3. Confirm licensing path with Microsoft account team before May 1, 2026
+4. After GA, sign in to the Agent 365 admin experience (M365 Admin Center or dedicated portal — surfaced under **Settings > Agent 365** when provisioned) using AI Administrator or Entra Global Admin
+5. Enable unified discovery across Copilot Studio, M365 Copilot, Declarative Agents, and Microsoft Foundry sources
+6. Configure quarantine policy thresholds (e.g., block agents missing owner metadata after 7 days in Zone 3)
 
-> **Preview Status:** As of February 2026, Agent 365 control plane is in Frontier Preview and not available in all tenants. Monitor the Microsoft 365 Roadmap and Message Center for GA announcements. When available, migrate enforcement mechanisms from PPAC + PowerShell to the unified Agent 365 control plane.
+> **Role limitation today:** As of April 2026, the role catalog notes that Agent 365 administrative access is initially limited to Entra Global Admin and AI Administrator. Microsoft has signaled fine-grained RBAC at GA; verify current role granularity in the role catalog ([role-catalog.md](../../../reference/role-catalog.md)) before designing operational handoffs.
 
-#### Step 13: Configure Agent 365 Observability and Alerting
+#### Step 13: Configure Observability and Alerting (Post-GA)
 
-1. In Agent 365 control plane, navigate to **Observability** or **Monitoring** section
-2. Configure **Inventory Completeness Metrics:**
-   - Dashboard showing percentage of agents with complete metadata
+1. In the Agent 365 admin experience, open **Observability** (or **Monitoring**)
+2. Configure **Inventory Completeness Metrics** dashboards:
+   - Percentage of agents with complete metadata
    - Trend charts showing improvement over time
-   - Breakdown by zone, environment, and owner
-3. Configure **Real-Time Alerts:**
-   - Alert when new agent is created without owner assignment
-   - Alert when agent ownership becomes invalid (owner departs)
-   - Alert when agent exceeds age threshold without recent modifications (stale agent)
-4. Configure **Alert Destinations:**
-   - Teams channel notifications (preferred for real-time visibility)
-   - Email notifications to governance team distribution list
-   - Webhook to external ticketing system (ServiceNow, Jira) for automatic ticket creation
-5. Test alerting by creating a test agent with incomplete metadata and verifying alert is delivered
+   - Breakdown by zone, environment, owner
+3. Configure alerts for: new agent without owner; ownership becomes invalid; agent exceeds staleness threshold
+4. Route alerts to Teams channel, distribution list, or webhook into ServiceNow/Jira
 
 ---
 
@@ -512,7 +496,7 @@ Microsoft's Agent 365 control plane provides unified discovery and policy enforc
 
 | Setting | Baseline (Zone 1) | Recommended (Zone 2) | Regulated (Zone 3) |
 |---------|-------------------|----------------------|---------------------|
-| **Agent Inventory refresh frequency** | Weekly | Daily | Daily + real-time alerts |
+| **Agent Inventory refresh frequency** | Platform-managed (~15 min) | Platform-managed (~15 min) + flow-driven daily report | Platform-managed (~15 min) + flow-driven hourly report and Teams alerts |
 | **Mandatory metadata fields** | Owner, Name, Environment | + Zone, Risk Rating, Description, Approval | + Compliance Status, Audit Trail, Decommissioning Plan |
 | **Pre-publication checklist enforcement** | Recommended | Required (approval gate) | Required (multi-stage approval) |
 | **Orphaned agent detection schedule** | Quarterly | Monthly | Weekly |
@@ -529,18 +513,18 @@ Microsoft's Agent 365 control plane provides unified discovery and policy enforc
 
 After completing these steps, verify:
 
-- [ ] Agent Inventory feature is enabled in PPAC with appropriate refresh schedule (daily for Zone 2/3)
+- [ ] Power Platform Inventory accessible to designated Power Platform Admins (refresh ~15 min)
 - [ ] Baseline inventory export captured for pre-enforcement comparison
 - [ ] Mandatory metadata requirements documented and communicated to agent authors
 - [ ] Pre-publication checklist created and integrated into agent approval workflow
 - [ ] Ownership validation process established with recurring tasks scheduled
-- [ ] Power Automate flow for incomplete metadata detection is deployed and tested
+- [ ] Power Automate flow built on **Power Platform for Admins V2** connector deployed and tested
 - [ ] Teams channel for governance alerts is created and team members added
 - [ ] Audit trail table (fsi_inventoryalerts) deployed in Dataverse
-- [ ] PowerShell script for orphaned agent detection is deployed and scheduled
+- [ ] PowerShell script for orphaned agent detection deployed and scheduled
 - [ ] Orphaned agent remediation workflow documented and tested
 - [ ] Agent decommissioning workflow documented with change request template
-- [ ] Agent 365 control plane enabled and configured (when available)
+- [ ] Agent 365 migration plan documented (target: post-May 1, 2026 GA)
 - [ ] Inventory completeness report generated and reviewed by governance team
 - [ ] Quarterly inventory audit scheduled and first audit completed
 - [ ] Completeness metrics meet or exceed targets (>95% owner assignment, >90% zone classification)
@@ -551,18 +535,18 @@ After completing these steps, verify:
 
 Expected portal locations:
 
-- **PPAC Agent Inventory:** Power Platform Admin Center → Agents → Agent Inventory (or Analytics → Agent Inventory)
-- **Agent Inventory Settings:** PPAC → Agent Inventory → Settings (gear icon)
+- **PPAC Power Platform Inventory:** Power Platform Admin Center → Manage → Inventory → Agents
+- **Inventory Filters / Columns:** PPAC → Inventory → Filter and Customize Columns toolbar
 - **Ownership Transfer:** PPAC → Environments → [Environment] → Resources → [Agent] → Manage sharing → Transfer ownership
-- **Power Automate Completeness Monitor:** Power Automate (make.powerautomate.com) → My flows → Agent Inventory Completeness Monitor
+- **Power Automate Completeness Monitor:** Power Automate (make.powerautomate.com) → My flows → Agent Inventory Completeness Monitor (built on Power Platform for Admins V2 connector)
 - **Dataverse Audit Table:** Power Apps (make.powerapps.com) → Tables → fsi_inventoryalerts → Data
-- **Agent 365 Control Plane:** M365 Admin Center → Settings → Agent 365 (when available)
+- **Agent 365 Control Plane:** M365 Admin Center → Settings → Agent 365 (post-May 1, 2026 GA)
 - **Teams Alerts Channel:** Microsoft Teams → [Governance Team] → Agent Governance Alerts channel
 
-> **UI Note:** Agent Inventory in PPAC is in Preview (February 2026). Portal location and UI may change before GA. If Agent Inventory is not visible, check Message Center for rollout status or contact Microsoft Support. Use PowerShell-based discovery scripts as a compensating control until GA.
+> **UI Note:** Power Platform Inventory is GA (Feb 9, 2026). Navigation labels can shift; Microsoft has merged the inventory under the unified **Manage > Inventory** node. If labels differ, search the PPAC global search bar for "Inventory".
 
 ---
 
 [Back to Control 3.11](../../../controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
-*Updated: February 2026 | Version: v1.0*
+*Updated: April 2026 | Version: v1.3.3*
