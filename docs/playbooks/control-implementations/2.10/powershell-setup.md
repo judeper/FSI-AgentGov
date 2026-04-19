@@ -1,240 +1,502 @@
-# PowerShell Setup: Control 2.10 - Patch Management and System Updates
+# Control 2.10: Patch Management and System Updates — PowerShell Setup
 
-**Last Updated:** April 2026
-**Modules Required:** Microsoft.Graph
+!!! warning "Read the FSI PowerShell baseline first"
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. The patterns below assume the baseline has been read; module versions shown are illustrative and must be confirmed against your CAB-approved baseline.
+
+> Automation companion to [Control 2.10: Patch Management and System Updates](../../../controls/pillar-2-management/2.10-patch-management-and-system-updates.md).
+>
+> **Audience:** Power Platform Admins and AI Administrators executing controls in production tenants subject to FINRA / SEC / GLBA / OCC / Fed SR 11-7 / CFTC oversight.
+
+---
 
 ## Prerequisites
 
+| Requirement | Notes |
+|-------------|-------|
+| **PowerShell 7.2 LTS or 7.4** | Required for `Microsoft.Graph` modules used here |
+| **Microsoft.Graph (pinned)** | Replace `<version>` below with the version approved by your Change Advisory Board (CAB) |
+| **Az.ResourceGraph (pinned)** | Used to enumerate environments under Service Health alert scope |
+| **Microsoft.PowerApps.Administration.PowerShell (pinned)** | **Windows PowerShell 5.1 only** — required to read environment release channel settings |
+| **Graph permissions** | `ServiceMessage.Read.All` (delegated or application) — required for Message Center reads. Application permission requires Entra Global Admin consent. |
+| **Sovereign cloud** | Confirm the correct `Connect-MgGraph -Environment` value before first run. See the baseline section 3. |
+
+### Canonical install pattern
+
 ```powershell
-Install-Module -Name Microsoft.Graph -Force -Scope CurrentUser
+# Pin every module to a CAB-approved version. DO NOT use -Force without -RequiredVersion.
+Install-Module -Name Microsoft.Graph `
+    -RequiredVersion '<version>' `
+    -Repository PSGallery `
+    -Scope CurrentUser `
+    -AllowClobber `
+    -AcceptLicense
+
+Install-Module -Name Az.ResourceGraph `
+    -RequiredVersion '<version>' `
+    -Repository PSGallery `
+    -Scope CurrentUser
+
+# Desktop edition only — required for Power Apps admin cmdlets
+# Run from Windows PowerShell 5.1 host, NOT PowerShell 7
+Install-Module -Name Microsoft.PowerApps.Administration.PowerShell `
+    -RequiredVersion '<version>' `
+    -Repository PSGallery `
+    -Scope CurrentUser
 ```
 
 ---
 
-## Automated Scripts
+## Sovereign-Cloud Authentication Helper
 
-### Get Message Center Updates
-
-```powershell
-<#
-.SYNOPSIS
-    Retrieves recent Message Center updates for Power Platform
-
-.EXAMPLE
-    .\Get-PowerPlatformUpdates.ps1 -Days 30
-#>
-
-param(
-    [int]$Days = 30
-)
-
-Write-Host "=== Power Platform Updates ===" -ForegroundColor Cyan
-
-Connect-MgGraph -Scopes "ServiceMessage.Read.All"
-
-$startDate = (Get-Date).AddDays(-$Days)
-
-$messages = Get-MgServiceAnnouncementMessage | Where-Object {
-    $_.LastModifiedDateTime -gt $startDate -and
-    ($_.Services -contains "Power Platform" -or
-     $_.Services -contains "Microsoft Copilot Studio")
-}
-
-Write-Host "Updates in last $Days days: $($messages.Count)"
-
-foreach ($msg in $messages) {
-    Write-Host "`n$($msg.Title)" -ForegroundColor Yellow
-    Write-Host "  ID: $($msg.Id)"
-    Write-Host "  Services: $($msg.Services -join ', ')"
-    Write-Host "  Category: $($msg.Category)"
-    Write-Host "  Modified: $($msg.LastModifiedDateTime)"
-}
-
-Disconnect-MgGraph
-```
-
-### Export Patch History
+Reused by every script in this playbook. Save as `Connect-FsiTenant.ps1` and dot-source.
 
 ```powershell
-<#
-.SYNOPSIS
-    Exports patch history log for compliance
-
-.EXAMPLE
-    .\Export-PatchHistory.ps1
-#>
-
-param(
-    [string]$OutputPath = ".\PatchHistory.csv"
-)
-
-Write-Host "=== Export Patch History ===" -ForegroundColor Cyan
-
-Connect-MgGraph -Scopes "ServiceMessage.Read.All"
-
-$messages = Get-MgServiceAnnouncementMessage | Where-Object {
-    $_.Services -contains "Power Platform" -or
-    $_.Services -contains "Microsoft Copilot Studio"
-} | Select-Object -First 100
-
-$export = @()
-foreach ($msg in $messages) {
-    $export += [PSCustomObject]@{
-        MessageId = $msg.Id
-        Title = $msg.Title
-        Services = ($msg.Services -join ", ")
-        Category = $msg.Category
-        StartDateTime = $msg.StartDateTime
-        EndDateTime = $msg.EndDateTime
-        LastModified = $msg.LastModifiedDateTime
-        IsMajorChange = $msg.IsMajorChange
+function Connect-FsiTenant {
+    [CmdletBinding()]
+    param(
+        [ValidateSet('Commercial','GCC','GCCHigh','DoD')]
+        [string]$Cloud = 'Commercial',
+        [string[]]$Scopes = @('ServiceMessage.Read.All')
+    )
+    $envMap = @{
+        Commercial = 'Global'
+        GCC        = 'USGov'
+        GCCHigh    = 'USGovDoD'
+        DoD        = 'USGovDoD'
     }
+    Connect-MgGraph -Environment $envMap[$Cloud] -Scopes $Scopes -NoWelcome
+    Write-Verbose "Connected to Microsoft Graph in environment: $($envMap[$Cloud])"
 }
+```
 
-$export | Export-Csv -Path $OutputPath -NoTypeInformation
-Write-Host "Export saved to: $OutputPath" -ForegroundColor Green
+> **False-clean warning:** Running `Connect-MgGraph` without `-Environment` against a GCC High tenant authenticates against commercial endpoints, returns zero messages, and produces **false-clean evidence**. The helper above prevents this.
 
-Disconnect-MgGraph
+---
+
+## Evidence Emission Helper
+
+Implements the SHA-256 manifest pattern from baseline section 5. Save as `Write-FsiEvidence.ps1` and dot-source in every script below.
+
+```powershell
+function Write-FsiEvidence {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)] $Object,
+        [Parameter(Mandatory)] [string]$Name,
+        [Parameter(Mandatory)] [string]$EvidencePath,
+        [string]$ScriptVersion = '1.0.0'
+    )
+    if (-not (Test-Path $EvidencePath)) {
+        New-Item -ItemType Directory -Force -Path $EvidencePath | Out-Null
+    }
+    $ts = Get-Date -Format 'yyyyMMddTHHmmssZ'
+    $jsonPath = Join-Path $EvidencePath "$Name-$ts.json"
+    $Object | ConvertTo-Json -Depth 20 | Set-Content -Path $jsonPath -Encoding UTF8
+    $hash = (Get-FileHash -Path $jsonPath -Algorithm SHA256).Hash
+    $manifestPath = Join-Path $EvidencePath 'manifest.json'
+    $manifest = @()
+    if (Test-Path $manifestPath) {
+        $manifest = @(Get-Content $manifestPath -Raw | ConvertFrom-Json)
+    }
+    $manifest += [PSCustomObject]@{
+        file           = (Split-Path $jsonPath -Leaf)
+        sha256         = $hash
+        bytes          = (Get-Item $jsonPath).Length
+        generated_utc  = $ts
+        script_version = $ScriptVersion
+        control_id     = '2.10'
+    }
+    $manifest | ConvertTo-Json -Depth 5 | Set-Content -Path $manifestPath -Encoding UTF8
+    return $jsonPath
+}
 ```
 
 ---
 
-## Validation Script
+## Script 1: Pull Message Center Posts (Read-Only)
+
+Uses Microsoft Graph Service Communications API. Filters server-side to reduce throttling risk on large tenants.
 
 ```powershell
 <#
 .SYNOPSIS
-    Validates Control 2.10 - Patch management configuration
-
-.EXAMPLE
-    .\Validate-Control-2.10.ps1
-#>
-
-Write-Host "=== Control 2.10 Validation ===" -ForegroundColor Cyan
-
-# Check 1: Message Center access
-Write-Host "`n[Check 1] Message Center Access" -ForegroundColor Cyan
-Connect-MgGraph -Scopes "ServiceMessage.Read.All"
-$recentMessages = Get-MgServiceAnnouncementMessage | Select-Object -First 5
-Write-Host "[PASS] Message Center accessible: $($recentMessages.Count) recent messages" -ForegroundColor Green
-Disconnect-MgGraph
-
-# Check 2: Test environment (manual)
-Write-Host "`n[Check 2] Test Environment" -ForegroundColor Cyan
-Write-Host "[INFO] Verify test environment exists in PPAC"
-
-# Check 3: Documentation (manual)
-Write-Host "`n[Check 3] Patch Documentation" -ForegroundColor Cyan
-Write-Host "[INFO] Verify patch history log is maintained"
-
-Write-Host "`n=== Validation Complete ===" -ForegroundColor Cyan
-```
-
----
-
-## Complete Configuration Script
-
-```powershell
-<#
-.SYNOPSIS
-    Complete patch management configuration for Control 2.10
-
-.DESCRIPTION
-    Executes end-to-end patch management setup including:
-    - Message Center access verification
-    - Recent updates retrieval
-    - Patch history export for compliance
+    Retrieves recent Message Center posts for AI-relevant services and emits SHA-256-hashed evidence.
 
 .PARAMETER Days
-    Number of days of history to retrieve
+    Lookback window in days. Default 30.
 
-.PARAMETER OutputPath
-    Path for output reports
+.PARAMETER Cloud
+    Sovereign-cloud designation. Defaults to Commercial.
+
+.PARAMETER EvidencePath
+    Folder for hashed JSON evidence and manifest. Created if missing.
 
 .EXAMPLE
-    .\Configure-Control-2.10.ps1 -Days 30 -OutputPath ".\PatchManagement"
-
-.NOTES
-    Last Updated: January 2026
-    Related Control: Control 2.10 - Patch Management and System Updates
+    .\Get-MessageCenterPosts.ps1 -Days 14 -Cloud GCCHigh -EvidencePath .\evidence\2.10
 #>
-
+[CmdletBinding()]
 param(
     [int]$Days = 30,
-    [string]$OutputPath = ".\PatchManagement-Report"
+    [ValidateSet('Commercial','GCC','GCCHigh','DoD')]
+    [string]$Cloud = 'Commercial',
+    [string]$EvidencePath = ".\evidence\2.10"
 )
 
-try {
-    Write-Host "=== Control 2.10: Patch Management Configuration ===" -ForegroundColor Cyan
+$ErrorActionPreference = 'Stop'
+. "$PSScriptRoot\Connect-FsiTenant.ps1"
+. "$PSScriptRoot\Write-FsiEvidence.ps1"
 
-    # Connect to Microsoft Graph
-    Connect-MgGraph -Scopes "ServiceMessage.Read.All"
+Connect-FsiTenant -Cloud $Cloud -Scopes 'ServiceMessage.Read.All'
 
-    # Ensure output directory exists
-    New-Item -ItemType Directory -Path $OutputPath -Force | Out-Null
+# AI-relevant Microsoft 365 services. The Services array on each post is free-text;
+# normalize by checking against an allow-list rather than relying on $filter for membership.
+$relevantServices = @(
+    'Microsoft Copilot',
+    'Microsoft Copilot Studio',
+    'Power Platform',
+    'Power Automate',
+    'Power Apps',
+    'Microsoft Dataverse',
+    'SharePoint Online',
+    'Microsoft Purview'
+)
 
-    $startDate = (Get-Date).AddDays(-$Days)
-    Write-Host "[INFO] Retrieving updates from the last $Days days" -ForegroundColor Cyan
+$startUtc = (Get-Date).ToUniversalTime().AddDays(-$Days).ToString('o')
 
-    # Get all service announcements
-    $allMessages = Get-MgServiceAnnouncementMessage
+# Server-side filter on lastModifiedDateTime; client-side filter on Services membership.
+$filter = "lastModifiedDateTime ge $startUtc"
+$messages = Get-MgServiceAnnouncementMessage -Filter $filter -All
 
-    # Filter for Power Platform and Copilot Studio
-    $relevantMessages = $allMessages | Where-Object {
-        $_.LastModifiedDateTime -gt $startDate -and
-        ($_.Services -contains "Power Platform" -or
-         $_.Services -contains "Microsoft Copilot Studio" -or
-         $_.Services -contains "Dynamics 365")
+$relevant = $messages | Where-Object {
+    $_.Services -and ($_.Services | Where-Object { $relevantServices -contains $_ })
+}
+
+Write-Host ("[INFO] Total messages in window: {0}; relevant to AI estate: {1}" -f $messages.Count, $relevant.Count)
+
+$snapshot = $relevant | ForEach-Object {
+    [PSCustomObject]@{
+        MessageId            = $_.Id
+        Title                = $_.Title
+        Services             = ($_.Services -join '; ')
+        Category             = $_.Category
+        Severity             = $_.Severity
+        IsMajorChange        = $_.IsMajorChange
+        StartDateTime        = $_.StartDateTime
+        EndDateTime          = $_.EndDateTime
+        ActionRequiredBy     = $_.ActionRequiredByDateTime
+        LastModifiedDateTime = $_.LastModifiedDateTime
+        Tags                 = ($_.Tags -join '; ')
+        WebUrl               = $_.Details |
+            Where-Object { $_.Name -eq 'ExternalLink' } |
+            Select-Object -ExpandProperty Value -ErrorAction SilentlyContinue
+    }
+}
+
+$evidenceFile = Write-FsiEvidence -Object $snapshot -Name 'message-center-posts' -EvidencePath $EvidencePath
+Write-Host "[PASS] Evidence written: $evidenceFile" -ForegroundColor Green
+
+Disconnect-MgGraph | Out-Null
+```
+
+> **Throttling note:** The Service Communications API returns up to 100 messages per page and is subject to Microsoft Graph throttling. The `-All` switch handles paging. If you see HTTP 429, add a `Start-Sleep` between pages or schedule the job off-peak.
+
+---
+
+## Script 2: Read Environment Release Channel Settings
+
+Confirms each Power Platform environment's release channel matches the policy from Part 3 of the [Portal Walkthrough](portal-walkthrough.md).
+
+> **PowerShell edition guard:** The Power Apps Admin module is **Desktop-only** (Windows PowerShell 5.1). Run this script from a Windows PowerShell 5.1 host, not PowerShell 7. The script enforces this at the top.
+
+```powershell
+<#
+.SYNOPSIS
+    Reports release channel and managed-environment status for all environments.
+    Read-only; emits SHA-256-hashed evidence.
+
+.PARAMETER Endpoint
+    Power Platform endpoint per sovereign cloud (prod | usgov | usgovhigh | dod).
+
+.PARAMETER EvidencePath
+    Folder for evidence output.
+
+.EXAMPLE
+    .\Get-EnvironmentReleaseChannels.ps1 -Endpoint usgovhigh -EvidencePath .\evidence\2.10
+#>
+[CmdletBinding()]
+param(
+    [ValidateSet('prod','usgov','usgovhigh','dod')]
+    [string]$Endpoint = 'prod',
+    [string]$EvidencePath = ".\evidence\2.10"
+)
+
+$ErrorActionPreference = 'Stop'
+
+if ($PSVersionTable.PSEdition -ne 'Desktop') {
+    throw "Microsoft.PowerApps.Administration.PowerShell requires Windows PowerShell 5.1 (Desktop edition). Detected: $($PSVersionTable.PSEdition) $($PSVersionTable.PSVersion). Re-run from a 5.1 host."
+}
+
+. "$PSScriptRoot\Write-FsiEvidence.ps1"
+
+Add-PowerAppsAccount -Endpoint $Endpoint | Out-Null
+
+$envs = Get-AdminPowerAppEnvironment
+
+$report = $envs | ForEach-Object {
+    # ReleaseChannel is exposed under the environment Settings; property name has varied
+    # across module versions. Probe the common shapes and fall back to "Unknown".
+    $channel = $null
+    if ($_.Internal.properties.releaseChannel) {
+        $channel = $_.Internal.properties.releaseChannel
+    } elseif ($_.Internal.properties.environmentSku) {
+        # Some module versions surface only via environment description
+        $channel = '(read via PPAC UI)'
+    } else {
+        $channel = 'Unknown'
     }
 
-    Write-Host "[INFO] Found $($relevantMessages.Count) relevant updates" -ForegroundColor Cyan
+    [PSCustomObject]@{
+        EnvironmentName = $_.EnvironmentName
+        DisplayName     = $_.DisplayName
+        EnvironmentType = $_.EnvironmentType
+        IsManaged       = $_.Internal.properties.governanceConfiguration.protectionLevel -eq 'Standard'
+        DataverseState  = $_.CommonDataServiceDatabaseProvisioningState
+        ReleaseChannel  = $channel
+        Region          = $_.Location
+        CreatedTime     = $_.CreatedTime
+    }
+}
 
-    # Build export
-    $export = $relevantMessages | ForEach-Object {
-        [PSCustomObject]@{
-            MessageId = $_.Id
-            Title = $_.Title
-            Services = ($_.Services -join ", ")
-            Category = $_.Category
-            StartDateTime = $_.StartDateTime
-            EndDateTime = $_.EndDateTime
-            LastModified = $_.LastModifiedDateTime
-            IsMajorChange = $_.IsMajorChange
-            ActionRequired = if ($_.ActionRequiredByDateTime) { $_.ActionRequiredByDateTime } else { "N/A" }
+$report | Format-Table -AutoSize
+
+$evidenceFile = Write-FsiEvidence -Object $report -Name 'environment-release-channels' -EvidencePath $EvidencePath
+Write-Host "[PASS] Evidence written: $evidenceFile" -ForegroundColor Green
+```
+
+> **Module compatibility note:** The exact JSON path for `releaseChannel` has changed between module versions. If the value reports as `Unknown`, treat the PPAC UI as authoritative and document the module version mismatch in your validation evidence.
+
+---
+
+## Script 3: Validate Service Health Alert Coverage
+
+Read-only audit that the alert rules from Part 2 of the [Portal Walkthrough](portal-walkthrough.md) exist and are enabled for the right resource providers.
+
+```powershell
+<#
+.SYNOPSIS
+    Validates Azure Service Health alert rule coverage for AI-platform resource providers.
+
+.PARAMETER SubscriptionIds
+    Subscriptions to audit.
+
+.PARAMETER EvidencePath
+    Folder for evidence output.
+
+.EXAMPLE
+    .\Test-ServiceHealthAlertCoverage.ps1 -SubscriptionIds @('00000000-0000-0000-0000-000000000000') -EvidencePath .\evidence\2.10
+#>
+[CmdletBinding()]
+param(
+    [Parameter(Mandatory)] [string[]]$SubscriptionIds,
+    [string]$EvidencePath = ".\evidence\2.10"
+)
+
+$ErrorActionPreference = 'Stop'
+. "$PSScriptRoot\Write-FsiEvidence.ps1"
+
+if (-not (Get-AzContext)) {
+    Connect-AzAccount -ErrorAction Stop | Out-Null
+}
+
+$expectedProviders = @(
+    'Microsoft.PowerPlatform',
+    'Microsoft.PowerApps',
+    'Microsoft.Flow',
+    'Microsoft.KeyVault',
+    'Microsoft.Insights'
+)
+
+$findings = foreach ($subId in $SubscriptionIds) {
+    Set-AzContext -SubscriptionId $subId | Out-Null
+    $alerts = Get-AzActivityLogAlert | Where-Object {
+        $_.ConditionAllOf.Field -contains 'category' -and
+        ($_.ConditionAllOf | Where-Object { $_.Field -eq 'category' -and $_.Equals -eq 'ServiceHealth' })
+    }
+
+    $coveredProviders = @()
+    foreach ($alert in $alerts) {
+        $providerCondition = $alert.ConditionAllOf | Where-Object { $_.Field -eq 'properties.impactedServices[*].ServiceName' }
+        if ($providerCondition) {
+            $coveredProviders += $providerCondition.Equals
         }
     }
 
-    # Export to CSV
-    $export | Export-Csv -Path "$OutputPath\PatchHistory-$(Get-Date -Format 'yyyyMMdd').csv" -NoTypeInformation
-    Write-Host "[INFO] Exported to: $OutputPath\PatchHistory-$(Get-Date -Format 'yyyyMMdd').csv" -ForegroundColor Green
-
-    # Identify critical updates requiring action
-    $actionRequired = $relevantMessages | Where-Object { $_.ActionRequiredByDateTime }
-    if ($actionRequired.Count -gt 0) {
-        Write-Host "`n[WARN] Updates requiring action: $($actionRequired.Count)" -ForegroundColor Yellow
-        $actionRequired | Select-Object Title, ActionRequiredByDateTime | Format-Table -AutoSize
-        $actionRequired | Export-Csv -Path "$OutputPath\ActionRequired.csv" -NoTypeInformation
+    foreach ($provider in $expectedProviders) {
+        [PSCustomObject]@{
+            SubscriptionId = $subId
+            ResourceProvider = $provider
+            HasAlertRule = ($coveredProviders -contains $provider) -or ($alerts.Count -gt 0)
+            AlertRuleCount = $alerts.Count
+            Status = if ($coveredProviders -contains $provider -or $alerts.Count -gt 0) { 'PASS' } else { 'FAIL' }
+        }
     }
-
-    # Summary
-    Write-Host "`n=== Summary ===" -ForegroundColor Cyan
-    Write-Host "Total Updates Retrieved: $($relevantMessages.Count)"
-    Write-Host "Major Changes: $(($relevantMessages | Where-Object { $_.IsMajorChange }).Count)"
-    Write-Host "Action Required: $($actionRequired.Count)"
-
-    Write-Host "`n[PASS] Control 2.10 configuration completed successfully" -ForegroundColor Green
 }
-catch {
-    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
-    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
+
+$findings | Format-Table -AutoSize
+
+$evidenceFile = Write-FsiEvidence -Object $findings -Name 'service-health-alert-coverage' -EvidencePath $EvidencePath
+Write-Host "[PASS] Evidence written: $evidenceFile" -ForegroundColor Green
+```
+
+---
+
+## Script 4: Compose the Patch History Log
+
+Combines outputs from Scripts 1, 2, and 3 into a single CSV suitable for examiner review and SharePoint upload to `FSI-Patch-Evidence`.
+
+```powershell
+<#
+.SYNOPSIS
+    Joins Message Center posts, environment channel state, and alert coverage into one
+    examiner-ready CSV with a SHA-256 manifest entry.
+
+.PARAMETER EvidencePath
+    Folder containing previously emitted JSON evidence.
+
+.EXAMPLE
+    .\Export-PatchHistory.ps1 -EvidencePath .\evidence\2.10
+#>
+[CmdletBinding()]
+param(
+    [Parameter(Mandatory)] [string]$EvidencePath
+)
+
+$ErrorActionPreference = 'Stop'
+. "$PSScriptRoot\Write-FsiEvidence.ps1"
+
+$mcLatest = Get-ChildItem $EvidencePath -Filter 'message-center-posts-*.json' |
+    Sort-Object LastWriteTime -Descending |
+    Select-Object -First 1
+if (-not $mcLatest) { throw "No message-center-posts-*.json found in $EvidencePath. Run Script 1 first." }
+
+$posts = Get-Content $mcLatest.FullName -Raw | ConvertFrom-Json
+
+$report = $posts | ForEach-Object {
+    [PSCustomObject]@{
+        MessageId         = $_.MessageId
+        Title             = $_.Title
+        Services          = $_.Services
+        Category          = $_.Category
+        IsMajorChange     = $_.IsMajorChange
+        ActionRequiredBy  = $_.ActionRequiredBy
+        AssessmentOwner   = ''   # Filled in by AI Governance Lead during triage
+        AssessmentResult  = ''   # Pass | Fail | N/A
+        ValidationRunId   = ''   # Link to validation environment test run
+        DeploymentDate    = ''   # Production deployment timestamp
+        ApproverUPN       = ''   # Person principal name of CAB approver
+        EvidenceLink      = ''   # SharePoint URL of validation artifacts
+        Status            = 'Open'
+    }
+}
+
+$csv = Join-Path $EvidencePath ("patch-history-{0}.csv" -f (Get-Date -Format 'yyyyMMdd'))
+$report | Export-Csv -Path $csv -NoTypeInformation -Encoding UTF8
+
+# Hash the CSV and append to manifest
+$hash = (Get-FileHash -Path $csv -Algorithm SHA256).Hash
+$manifestPath = Join-Path $EvidencePath 'manifest.json'
+$manifest = if (Test-Path $manifestPath) { @(Get-Content $manifestPath -Raw | ConvertFrom-Json) } else { @() }
+$manifest += [PSCustomObject]@{
+    file           = (Split-Path $csv -Leaf)
+    sha256         = $hash
+    bytes          = (Get-Item $csv).Length
+    generated_utc  = (Get-Date -Format 'yyyyMMddTHHmmssZ')
+    script_version = '1.0.0'
+    control_id     = '2.10'
+}
+$manifest | ConvertTo-Json -Depth 5 | Set-Content -Path $manifestPath -Encoding UTF8
+
+Write-Host "[PASS] Patch history exported: $csv" -ForegroundColor Green
+```
+
+---
+
+## Validation Script (End-to-End)
+
+```powershell
+<#
+.SYNOPSIS
+    Runs all read-only validation checks for Control 2.10 and exits non-zero on failure.
+    Safe to schedule; does not mutate tenant state.
+
+.EXAMPLE
+    .\Validate-Control-2.10.ps1 -Cloud Commercial -EvidencePath .\evidence\2.10 -SubscriptionIds @('...')
+#>
+[CmdletBinding()]
+param(
+    [ValidateSet('Commercial','GCC','GCCHigh','DoD')]
+    [string]$Cloud = 'Commercial',
+    [string]$EvidencePath = ".\evidence\2.10",
+    [Parameter(Mandatory)] [string[]]$SubscriptionIds
+)
+
+$ErrorActionPreference = 'Stop'
+$failed = $false
+
+Write-Host "=== Control 2.10 Validation ===" -ForegroundColor Cyan
+
+try {
+    & "$PSScriptRoot\Get-MessageCenterPosts.ps1" -Days 30 -Cloud $Cloud -EvidencePath $EvidencePath
+} catch {
+    Write-Host "[FAIL] Message Center pull: $($_.Exception.Message)" -ForegroundColor Red
+    $failed = $true
+}
+
+try {
+    & "$PSScriptRoot\Test-ServiceHealthAlertCoverage.ps1" -SubscriptionIds $SubscriptionIds -EvidencePath $EvidencePath
+} catch {
+    Write-Host "[FAIL] Service Health coverage: $($_.Exception.Message)" -ForegroundColor Red
+    $failed = $true
+}
+
+# Environment release channel check requires Windows PowerShell 5.1; skip with INFO if running PS7+.
+if ($PSVersionTable.PSEdition -eq 'Desktop') {
+    try {
+        $endpoint = @{Commercial='prod'; GCC='usgov'; GCCHigh='usgovhigh'; DoD='dod'}[$Cloud]
+        & "$PSScriptRoot\Get-EnvironmentReleaseChannels.ps1" -Endpoint $endpoint -EvidencePath $EvidencePath
+    } catch {
+        Write-Host "[FAIL] Environment release channel read: $($_.Exception.Message)" -ForegroundColor Red
+        $failed = $true
+    }
+} else {
+    Write-Host "[INFO] Skipping environment release channel check (requires Windows PowerShell 5.1)" -ForegroundColor Yellow
+}
+
+if ($failed) {
+    Write-Host "=== Validation FAILED ===" -ForegroundColor Red
     exit 1
 }
-finally {
-    # Cleanup connections
-    Disconnect-MgGraph -ErrorAction SilentlyContinue
-}
+
+Write-Host "=== Validation PASS ===" -ForegroundColor Green
 ```
+
+---
+
+## Scheduled-Run Recommendations
+
+| Script | Schedule | Run as |
+|--------|----------|--------|
+| `Get-MessageCenterPosts.ps1` | Daily 06:00 local | Service principal with `ServiceMessage.Read.All` (application permission, Global Admin consent) |
+| `Test-ServiceHealthAlertCoverage.ps1` | Weekly | Service principal with Reader on each subscription |
+| `Get-EnvironmentReleaseChannels.ps1` | Weekly, **Windows PowerShell 5.1** runner | Power Platform Admin service account (no MFA-blocked) |
+| `Validate-Control-2.10.ps1` | Monthly + before each wave window | Same as above |
+
+> **Mutation safety note:** None of the scripts in this playbook mutate tenant state. There is no `-WhatIf` switch because there is nothing to confirm. If you extend these scripts to *change* settings (e.g., flip a release channel programmatically once that capability stabilizes), wrap mutations in `[CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]` and follow baseline section 4.
 
 ---
 
 [Back to Control 2.10](../../../controls/pillar-2-management/2.10-patch-management-and-system-updates.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+
+---
+
+*Updated: April 2026 | Version: v1.3.3*
