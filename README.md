@@ -39,7 +39,7 @@ This repository helps teams:
 - implement technical and procedural controls with step-by-step playbooks
 - support risk, compliance, and operational review with a common reference point
 
-**Version:** 1.4.0 (May 2026)
+**Version:** 1.4.0 (April 2026)
 **Primary Audience:** AI governance leads, Power Platform Admins, compliance teams, security architects, internal audit, and business sponsors in US financial services
 **Regulatory Focus:** FINRA, SEC, SOX, GLBA, OCC, Federal Reserve, FDIC, NCUA
 
@@ -158,12 +158,11 @@ Step-by-step procedures in `docs/playbooks/control-implementations/`:
 - **Implementation-Checklist.md** - [Implementation roadmap](docs/getting-started/checklist.md)
 - **FAQ.md** - [Frequently asked questions](docs/reference/faq.md)
 
-### Companion Solutions (33 Live Solutions + 2 Preview Placeholders)
+### Companion Solutions (35 Live Solutions)
 Companion automation lives in the **[FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions)** repository:
-- 33 live solution implementations plus 2 documentation-only preview placeholder folders aligned to the companion repository inventory
+- 35 live solution implementations aligned to the companion repository inventory
 - Coverage spans security, management, reporting, SharePoint governance, and cross-solution integration
 - Solutions provide deployment documentation, governance scripts, KQL queries, and templates for manual Power Platform builds
-- Preview placeholders for `hitl-workflow-governance` and `credential-oversharing-detector` are tracked separately until they move beyond placeholder scope
 - Framework-native assets without matching top-level solution folders remain documented in this repository and are not counted as companion solutions
 - See [Solutions Index](docs/reference/solutions-index.md) for the live catalog and primary control mappings
 
@@ -177,6 +176,7 @@ The `assessment/` directory provides programmatic governance assessment:
 - **5 PowerShell collectors** gather tenant configuration from PPAC, Graph, Purview, SharePoint, and Sentinel
 - **Python scoring engine** evaluates 78 controls against zone thresholds (maturity 0–4)
 - **Report generator** produces a pre-filled assessment with evidence tables plus a focused manual questionnaire for the ~30 controls requiring human attestation
+- **Cross-repository solutions lock file** lives at `assessment/data/solutions-lock.json` — the canonical path consumed by the assessment SPA, validators, and refresh scripts
 - See [Assessment README](assessment/README.md) for prerequisites and usage
 
 ---
@@ -265,7 +265,7 @@ graph TD
 
 ## 🔗 Companion Solutions
 
-The **[FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions)** repository provides **33 live solution implementations** plus **2 documentation-only preview placeholder folders** that operationalize or reserve namespaces for framework controls. The live catalog remains aligned to the top-level companion repository inventory, while placeholder folders are tracked separately until they move beyond placeholder scope.
+The **[FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions)** repository provides **35 live solution implementations** that operationalize framework controls. The live catalog remains aligned to the top-level companion repository inventory.
 
 Companion solutions provide deployment documentation, governance scripts, KQL queries, and templates for manual Power Platform builds instead of exported runtime artifacts. Coverage spans step-up authentication, lifecycle governance, access monitoring, analytics, RAG source validation, supervision workflows, disaster recovery testing, and SharePoint knowledge source controls.
 
@@ -336,7 +336,7 @@ Run these from the repo root (`FSI-AgentGov/`):
 | **Portal Navigation Paths** | Quick reference for admin center navigation | [reference/portal-paths-quick-reference.md](docs/reference/portal-paths-quick-reference.md) |
 | **License Requirements** | License mapping for the current control catalog | [reference/license-requirements.md](docs/reference/license-requirements.md) |
 | **FSI Configuration Examples** | Bank, broker-dealer, and insurance scenarios | [reference/fsi-configuration-examples.md](docs/reference/fsi-configuration-examples.md) |
-| **Solutions Index** | Catalog of 27 deployable automation solutions | [reference/solutions-index.md](docs/reference/solutions-index.md) |
+| **Solutions Index** | Catalog of 35 deployable automation solutions | [reference/solutions-index.md](docs/reference/solutions-index.md) |
 
 ### Priority Controls (Start Here)
 
@@ -469,7 +469,7 @@ This framework is designed for continuous evolution:
 
 | Version | Date | Changes | Author |
 |---------|------|---------|--------|
-| [1.4.0](CHANGELOG-v1.4.md) | May 2026 | Assessment tool unification, solutions bridge (35 solutions), 10 SPA enhancements, manifest schema extension | [@judeper](https://github.com/judeper) |
+| [1.4.0](CHANGELOG-v1.4.md) | April 2026 | Assessment tool unification, solutions bridge (35 solutions), 10 SPA enhancements, manifest schema extension | [@judeper](https://github.com/judeper) |
 | [1.3.5](CHANGELOG-v1.3.md#135--april-2026-opus-47-council-catalog-completion) | Apr 2026 | Opus 4.7 council pass — 52 controls + 208 playbooks fully uplifted (full 78/78 coverage) | [@judeper](https://github.com/judeper) |
 | [1.3.4](CHANGELOG-v1.3.md#134--april-2026-autonomous-dual-model-council-review) | Apr 2026 | Autonomous dual-model council review — FINRA 25-07 across all 78 controls, 14 control-specific fixes | [@judeper](https://github.com/judeper) |
 | [1.3.0](CHANGELOG-v1.3.md) | Mar 2026 | Six new controls, 24 playbooks, five control patches, and catalog expansion to 78 controls | [@judeper](https://github.com/judeper) |
@@ -506,5 +506,5 @@ See [Disclaimer](docs/disclaimer.md).
 
 ---
 
-*FSI Agent Governance Framework v1.4.0 - May 2026*
+*FSI Agent Governance Framework v1.4.0 - April 2026*
 *Comprehensive governance for Microsoft 365 agents in financial services*

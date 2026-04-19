@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
-## [1.4.0] — May 2026 (Assessment Tool Unification & Solutions Bridge)
+## [1.4.0] — April 2026 (Assessment Tool Unification & Solutions Bridge)
 
 ### Added
 - **Unified manifest schema**: Single source of truth (`assessment/manifest/controls.json`) for Python scoring engine and assessment SPA with 11 additive fields per control
@@ -26,7 +26,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 | Version | Period | File |
 |---------|--------|------|
-| **v1.4.x** (current) | May 2026 | [CHANGELOG-v1.4.md](CHANGELOG-v1.4.md) |
+| **v1.4.x** (current) | April 2026 | [CHANGELOG-v1.4.md](CHANGELOG-v1.4.md) |
 | **v1.3.x** | March–April 2026 | [CHANGELOG-v1.3.md](CHANGELOG-v1.3.md) |
 | **v1.2.x** | January–March 2026 | [CHANGELOG-v1.2.md](CHANGELOG-v1.2.md) |
 | **v1.1.x** | January 2026 | [CHANGELOG-v1.1.md](CHANGELOG-v1.1.md) |

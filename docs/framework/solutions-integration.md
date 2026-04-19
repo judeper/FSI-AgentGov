@@ -18,7 +18,7 @@ flowchart TB
         P4[Pillar 4: SharePoint<br/>7 Controls]
     end
 
-    subgraph Solutions["FSI-AgentGov-Solutions (19 of 27 Solutions Shown)"]
+    subgraph Solutions["FSI-AgentGov-Solutions (19 of 35 Solutions Shown)"]
         direction TB
         ELM[Environment Lifecycle<br/>Management]
         MCM[Message Center<br/>Monitor]

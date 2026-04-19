@@ -6,15 +6,15 @@ Live inventory reference for the companion FSI-AgentGov-Solutions repository.
 
 ## Overview
 
-This index tracks the **33 live solution implementations** and **2 documentation-only preview placeholder folders** in the companion **[FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions)** repository.
+This index tracks the **35 live solution implementations** in the companion **[FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions)** repository.
 
 Companion solutions provide deployment documentation, governance scripts, KQL queries, and templates for manual Power Platform builds. They do not store exported Power Platform runtime artifacts in this catalog.
 
-This file is intentionally folder-driven to reduce drift: live solution implementations and preview placeholders are derived from top-level companion repository folders with root `README.md` files. Framework-native assets without matching solution folders remain documented in FSI-AgentGov and are not counted as companion solutions here.
+This file is intentionally folder-driven to reduce drift: live solution implementations are derived from top-level companion repository folders with root `README.md` files. Framework-native assets without matching solution folders remain documented in FSI-AgentGov and are not counted as companion solutions here.
 
-*Control coverage listed below reflects the primary controls published with each live solution. Preview placeholders are tracked separately until they move beyond placeholder scope.*
+*Control coverage listed below reflects the primary controls published with each live solution.*
 
-## Live Inventory (33 Solutions)
+## Live Inventory (35 Solutions)
 
 | Solution | Repository folder | Version | Primary controls | Summary |
 |----------|-------------------|---------|------------------|---------|
@@ -32,7 +32,8 @@ This file is intentionally folder-driven to reduce drift: live solution implemen
 | [Conditional Access Automation](#conditional-access-automation) | [`conditional-access-automation`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/conditional-access-automation) | v1.1.1 | 1.11, 1.23, 1.18 | CA policy deployment, compliance monitoring, and drift detection. |
 | [Content Moderation Monitor](#content-moderation-monitor) | [`content-moderation-monitor`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/content-moderation-monitor) | v1.0.1 | 1.8, 1.14 | Per-agent content moderation validation against zone requirements. |
 | [Copilot Studio Analytics](#copilot-studio-analytics) | [`copilot-studio-analytics`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/copilot-studio-analytics) | v1.0.0 | 3.2 | Business impact analytics for Copilot Studio agents. |
-| [Cross-Solution Integration](#cross-solution-integration) | [`cross-solution-integration`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/cross-solution-integration) | v1.0.0 | 1.7, 1.23, 1.11, 3.8, 1.8, 1.14 | Wires Tier 2 companion solutions into Compliance Dashboard. |
+| [Credential Oversharing Detector](#credential-oversharing-detector) | [`credential-oversharing-detector`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/credential-oversharing-detector) | v2.0.0 | 1.14, 1.4, 1.18 | Scans Copilot Studio agent credentials against zone policy to detect overprivileged connectors, excessive OAuth scopes, unauthorized service accounts, cross-environment sharing, and stale credentials. |
+| [Cross-Solution Integration](#cross-solution-integration)| [`cross-solution-integration`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/cross-solution-integration) | v1.0.0 | 1.7, 1.23, 1.11, 3.8, 1.8, 1.14 | Wires Tier 2 companion solutions into Compliance Dashboard. |
 | [Cross-Tenant External Sharing Governance](#cross-tenant-external-sharing-governance) | [`cross-tenant-external-sharing-governance`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/cross-tenant-external-sharing-governance) | v1.0.0 | 1.1, 1.18, 2.1, 2.8, 3.1, 1.11 | Three-layer cross-tenant access governance covering tenant isolation, Entra cross-tenant access, and agent sharing. |
 | [Deny Event Correlation Report](#deny-event-correlation-report) | [`deny-event-correlation-report`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report) | v2.0.0 | 1.5, 1.7, 1.8, 3.4 | Daily deny event correlation across Purview, DLP, and Application Insights. |
 | [DR Testing Framework](#dr-testing-framework) | [`dr-testing-framework`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/dr-testing-framework) | v1.0.0 | 2.4, 2.1, 1.9 | Automated disaster recovery testing for AI agents. |
@@ -41,7 +42,8 @@ This file is intentionally folder-driven to reduce drift: live solution implemen
 | [FINRA Supervision Workflow](#finra-supervision-workflow) | [`finra-supervision-workflow`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/finra-supervision-workflow) | v1.0.0 | 2.12, 1.10, 1.7 | Automated supervision queue for AI agent outputs. |
 | [Generative AI Config Auditor](#generative-ai-config-auditor) | [`generative-ai-config-auditor`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/generative-ai-config-auditor) | v1.0.0 | 2.24 | GenAI feature enablement governance by governance zone. |
 | [Hallucination Tracker](#hallucination-tracker) | [`hallucination-tracker`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/hallucination-tracker) | v1.0.0 | 3.10, 2.9, 2.12 | Feedback aggregation for hallucination pattern analysis. |
-| [Inactivity Timeout Enforcement](#inactivity-timeout-enforcement) | [`inactivity-timeout-enforcement`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/inactivity-timeout-enforcement) | v1.0.2 | 2.22, 1.23, 3.7, 3.8 | Policy-driven inactivity timeout validation with zone-based durations. |
+| [HITL Workflow Governance](#hitl-workflow-governance) | [`hitl-workflow-governance`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/hitl-workflow-governance) | v1.1.0 | 2.12, 2.17, 1.10 | Validates that Copilot Studio agent flows include required human-in-the-loop checkpoints per zone governance policy using the Request for Information and Run a Multistage Approval actions from the advancedapprovals connector. |
+| [Inactivity Timeout Enforcement](#inactivity-timeout-enforcement)| [`inactivity-timeout-enforcement`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/inactivity-timeout-enforcement) | v1.0.2 | 2.22, 1.23, 3.7, 3.8 | Policy-driven inactivity timeout validation with zone-based durations. |
 | [Message Center Monitor](#message-center-monitor) | [`message-center-monitor`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/message-center-monitor) | v2.1.1 | 2.3, 2.10 | M365 Message Center monitoring for platform changes. |
 | [MIME Type Restrictions](#mime-type-restrictions) | [`mime-type-restrictions`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/mime-type-restrictions) | v1.0.1 | 1.5, 1.10, 1.11, 1.13, 1.14, 1.25, 3.3, 3.7, 4.3 | Zone-based MIME type configuration with server-side validation. |
 | [Model Risk Management Automation](#model-risk-management-automation) | [`model-risk-management-automation`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/model-risk-management-automation) | v1.0.0 | 2.6, 2.5, 2.9, 2.11, 2.13, 3.1, 1.2 | OCC 2011-12 / SR 11-7 model risk management with inventory, risk scoring, validation workflows, and Agent Card generation. |
@@ -51,15 +53,6 @@ This file is intentionally folder-driven to reduce drift: live solution implemen
 | [Segregation Detector](#segregation-detector) | [`segregation-detector`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/segregation-detector) | v1.0.0 | 2.8, 2.1, 2.3 | Role conflict detection for Maker/Checker enforcement. |
 | [Session Security Configurator](#session-security-configurator) | [`session-security-configurator`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/session-security-configurator) | v1.0.0 | 1.23, 1.11 | Session security validation per governance zone with drift detection. |
 | [Unrestricted Agent Sharing Detector](#unrestricted-agent-sharing-detector) | [`unrestricted-agent-sharing-detector`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/unrestricted-agent-sharing-detector) | v1.0.2 | 1.1, 3.8 | Continuous detection of overly permissive agent sharing. |
-
-## Preview Placeholders (2)
-
-These folders reserve solution namespaces for validated preview capabilities. They are intentionally excluded from the 33-solution live inventory until they include deployable guidance beyond placeholder scope.
-
-| Solution | Repository folder | Status | Primary controls | Summary |
-|----------|-------------------|--------|------------------|---------|
-| [HITL Workflow Governance](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/hitl-workflow-governance) | [`hitl-workflow-governance`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/hitl-workflow-governance) | Preview placeholder | 2.12, 2.17, 1.10 | Planned evidence-collection workflow for supervisory approvals, request-for-information routing, and audit-trail capture around human-in-the-loop checkpoints. |
-| [Credential Oversharing Detector](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/credential-oversharing-detector) | [`credential-oversharing-detector`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/credential-oversharing-detector) | Planned preview placeholder | 1.14, 1.4, 1.18 | Planned zone-aware review pattern for Copilot Studio safe-sharing and credential-scope signals before broader deployable guidance is available. |
 
 ## Solution Details
 
@@ -147,6 +140,12 @@ These folders reserve solution namespaces for validated preview capabilities. Th
 - **Primary controls:** 3.2
 - **Summary:** Business impact analytics for Copilot Studio agents.
 
+### Credential Oversharing Detector
+- **Repository folder:** [`credential-oversharing-detector`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/credential-oversharing-detector)
+- **Version:** v2.0.0
+- **Primary controls:** 1.14, 1.4, 1.18
+- **Summary:** Scans Copilot Studio agent credentials against zone policy to detect overprivileged connectors, excessive OAuth scopes, unauthorized service accounts, cross-environment sharing, and stale credentials.
+
 ### Cross-Solution Integration
 - **Repository folder:** [`cross-solution-integration`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/cross-solution-integration)
 - **Version:** v1.0.0
@@ -200,6 +199,12 @@ These folders reserve solution namespaces for validated preview capabilities. Th
 - **Version:** v1.0.0
 - **Primary controls:** 3.10, 2.9, 2.12
 - **Summary:** Feedback aggregation for hallucination pattern analysis.
+
+### HITL Workflow Governance
+- **Repository folder:** [`hitl-workflow-governance`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/hitl-workflow-governance)
+- **Version:** v1.1.0
+- **Primary controls:** 2.12, 2.17, 1.10
+- **Summary:** Validates that Copilot Studio agent flows include required human-in-the-loop checkpoints per zone governance policy using the Request for Information and Run a Multistage Approval actions from the advancedapprovals connector.
 
 ### Inactivity Timeout Enforcement
 - **Repository folder:** [`inactivity-timeout-enforcement`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/inactivity-timeout-enforcement)

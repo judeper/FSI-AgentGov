@@ -268,6 +268,8 @@ The assessment tool's exported JSON schema has changed and is **NOT backward com
 
 Control→solution references in `assessment/manifest/controls.json` use folder-name IDs (e.g., `"agent-observability-foundation"`, `"audit-compliance-manager"`) that match the top-level solution directories in the companion repository. Solution metadata (display name, version, tier, description, URL, prerequisites, verification steps) is looked up from the committed `assessment/data/solutions-lock.json` file, which was generated from the FSI-AgentGov-Solutions v1.4.1 tag.
 
+The canonical path for the cross-repository solutions lock file is `assessment/data/solutions-lock.json`; it is consumed by `docs/javascripts/assessment-app.js`, `tests/spa/solutions-lock.test.mjs`, `scripts/refresh_solutions_lock.py`, `scripts/validate_solutions_lock.py`, and `scripts/hooks/copy_assessment_data.py`.
+
 Organizations using both repositories should upgrade in sequence:
 1. Verify FSI-AgentGov-Solutions v1.4.1 is tagged and published
 2. Run `python scripts/refresh_solutions_lock.py --tag v1.4.1` to update lock file

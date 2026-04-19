@@ -58,7 +58,7 @@ Every prior "deep audit" of this repository was a **deeper sample**, not an enum
 | Dim | Name | Symptom regex | Notes |
 |---|---|---|---|
 | A | Version stamps | `v1\.[0-3](\.\d+)?` | Exclude `CHANGELOG-v1.[0-3].md`, `package-lock.json`, `node_modules/`, `site/`, `releases/` |
-| B | Solution count | `\b(28\|33\|35)\s+(live\s+)?solutions?\b` | `33 live + 2 preview = 35 lock entries` is consistent |
+| B | Solution count | `\b(28\|33\|35)\s+(live\s+)?solutions?\b` | `35 live = 35 lock entries` is consistent (preview-placeholder concept retired in v1.4.0) |
 | C | Control count | `\b(71\|72)[\s\-]+controls?\b` | Historical changelog rows are MUST_KEEP; check live docs |
 | D | Year/month stamps | `v1\.4\.0[\s\-—\|]+(NotApril)\s+2026` | Catches footer date mismatches |
 | E | Manifest field completeness | Programmatic JSON walk for empty fields | Catches "wired-to-nothing" patterns like Solutions Bridge |
