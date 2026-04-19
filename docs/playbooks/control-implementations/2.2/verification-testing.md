@@ -1,224 +1,121 @@
-# Verification & Testing: Control 2.2 - Environment Groups and Zone Classification
+# Verification & Testing: Control 2.2 — Environment Groups and Tier Classification
 
-**Last Updated:** January 2026
-
-## Manual Verification Steps
-
-### Test 1: Verify Environment Groups Exist
-
-1. Sign in to [Power Platform Admin Center](https://admin.powerplatform.microsoft.com)
-2. Navigate to **Manage** > **Environment groups**
-3. Verify groups exist for each governance zone (Zone 1/2/3)
-4. **EXPECTED:** Groups listed with environment counts
-
-### Test 2: Verify Group Membership
-
-1. Select an environment group
-2. Click **Environments** tab
-3. Verify environments are assigned to the correct tier group
-4. **EXPECTED:** Environments listed with appropriate zone classification
-
-### Test 3: Verify Rules Published
-
-1. Select an environment group
-2. Click **Rules** tab
-3. Check the status column shows "Published" with date
-4. **EXPECTED:** All configured rules show Published status
-
-### Test 4: Test Rule Inheritance
-
-1. Add a new Managed Environment to a Zone 3 group
-2. Navigate to the environment's settings
-3. Verify the environment inherits group rules (e.g., solution checker = Block)
-4. **EXPECTED:** New environment automatically inherits group rules
-
-### Test 5: Test Agent Sharing Restriction (Zone 1)
-
-1. In a Zone 1 environment, create a test agent
-2. Attempt to share the agent with another user
-3. **EXPECTED:** Sharing is blocked per Zone 1 rules (Editor/Viewer permissions disabled)
-
-### Test 6: Test Solution Checker Enforcement (Zone 3)
-
-1. Create a solution with known checker issues
-2. Attempt to import into a Zone 3 environment
-3. **EXPECTED:** Import is blocked if solution checker is set to Block
-
-### Test 7: Test External Models Restriction
-
-1. In a Zone 2/3 environment, attempt to configure external AI model
-2. **EXPECTED:** External models option is unavailable/blocked
-
-### Test 8: Test Computer Use Restriction
-
-1. Verify Computer Use rule is disabled for all groups
-2. Attempt to access CUA features in any environment
-3. **EXPECTED:** CUA features are not available
+**Last Updated:** April 2026
 
 ---
 
-## Test Cases
+## Manual verification — quick path
 
-| Test ID | Scenario | Expected Result | Pass/Fail |
-|---------|----------|-----------------|-----------|
-| TC-2.2-01 | Verify environment groups exist | Groups for Zone 1/2/3 present | |
-| TC-2.2-02 | Check environments assigned to correct groups | Environments match zone classification | |
-| TC-2.2-03 | Verify rules are published | Status shows "Published" | |
-| TC-2.2-04 | Add new environment to group | Inherits rules automatically | |
-| TC-2.2-05 | Test Zone 1 sharing restrictions | Agent sharing blocked | |
-| TC-2.2-06 | Test Zone 3 solution checker | Non-compliant imports blocked | |
-| TC-2.2-07 | Test external models restriction | External models unavailable in Zone 2/3 | |
-| TC-2.2-08 | Verify CUA disabled all zones | Computer Use feature unavailable | |
-| TC-2.2-09 | Test authentication requirement (Zone 2/3) | Agents require authentication | |
-| TC-2.2-10 | Verify unmanaged customizations blocked (Zone 3) | Unmanaged changes rejected | |
+| Check | Where to look (April 2026 PPAC) | Expected |
+|---|---|---|
+| 1. Groups exist per zone | **Manage → Environment groups** | One or more `FSI-Z1-*`, `FSI-Z2-*`, `FSI-Z3-*` groups present |
+| 2. Production environments grouped | Group → **Environments** tab | Every production Managed Environment listed in the correct zone group |
+| 3. Rules published | Group → **Rules** tab → Status column | All 23 rules show **Published** with timestamp |
+| 4. Inheritance works | Add a test Managed Environment to a group → wait 15 min → open env Settings | Affected settings show **Locked by environment group** |
+| 5. Quarterly re-baseline current | Governance change log | Last re-baseline date within 90 days |
+| 6. CUA disabled tenant-wide | Copilot Studio admin / [Control 2.24](../../../controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance.md) | CUA = Disabled |
 
 ---
 
-## Evidence Collection Checklist
+## Test cases
 
-### Environment Group Documentation
-
-- [ ] Screenshot: Environment groups list showing all groups with counts
-- [ ] Screenshot: Each group's properties (name, description, zone classification)
-- [ ] Export: Environment group inventory CSV with IDs and descriptions
-
-### Group Membership
-
-- [ ] Screenshot: Each group's Environments tab showing membership
-- [ ] Export: Environment-to-group mapping CSV
-
-### Rule Configuration
-
-- [ ] Screenshot: Rules tab for each group showing configured values
-- [ ] Screenshot: Published status with timestamp for each group
-- [ ] Note: Document any rules that differ from FSI recommendations with justification
-
-### Testing Evidence
-
-- [ ] Screenshot: Sharing attempt blocked in Zone 1 environment
-- [ ] Screenshot: Solution import blocked in Zone 3 environment (if applicable)
-- [ ] Screenshot: External models unavailable in restricted environment
-
-### Change Management
-
-- [ ] Change record: Ticket/approval for initial group creation
-- [ ] Change record: Approval for rule configurations
-- [ ] Change log: Any rule changes during review period
+| Test ID | Scenario | Steps | Expected | Result |
+|---------|----------|-------|----------|--------|
+| TC-2.2-01 | Zone groups exist | Open PPAC → Environment groups | At least one group per zone with `FSI-Z{n}-*` name | |
+| TC-2.2-02 | Production environments grouped | Filter env list by Type = Production | Zero ungrouped production environments | |
+| TC-2.2-03 | All 23 rules published | Open each group's Rules tab | All rules show **Published** + timestamp | |
+| TC-2.2-04 | Rule inheritance / lock | Add a test env to a group; open its Settings after 15 min | Setting shows **Locked by environment group** | |
+| TC-2.2-05 | Sharing-Editor cap (Zone 1) | Try to share a test agent with Editor permissions in Zone 1 | Sharing blocked / capped per rule 14 | |
+| TC-2.2-06 | Solution checker = Block (Zone 3) | Import a solution with known checker errors into a Zone 3 env | Import blocked per rule 19 | |
+| TC-2.2-07 | External models disabled | Try to add an external model in any zone | Option unavailable per rule 9 | |
+| TC-2.2-08 | Preview models disabled (Zone 2/3) | Try to enable a preview/experimental model in Zone 2 or Zone 3 | Option unavailable per rule 12 | |
+| TC-2.2-09 | Unmanaged customizations blocked (Zone 3) | Attempt unmanaged change to a solution component in Zone 3 | Change rejected per rule 20 | |
+| TC-2.2-10 | Transcript access enabled | Confirm rule 1 = Enabled in every zone | Transcripts available for FINRA / SEC review | |
+| TC-2.2-11 | Back-up retention set per zone | Open rule 6 in each group | Z1 = 7 d, Z2 = 14 d, Z3 = 28 d (or org standard) | |
+| TC-2.2-12 | CSP rule applied (Zone 3) | Open rule 23 in `FSI-Z3-*` | Set to Strict / Enforced | |
+| TC-2.2-13 | CUA tenant-wide disable | Verify in Control 2.24 evidence | CUA = Disabled | |
+| TC-2.2-14 | Quarterly re-baseline recent | Check governance change log | Date within 90 days | |
+| TC-2.2-15 | Validation script passes | Run `Validate-Control-2.2.ps1` | Exit code 0 | |
 
 ---
 
-## Evidence Artifact Naming Convention
+## Evidence collection checklist
 
-Use consistent naming for audit evidence:
+### Group inventory
+- [ ] Screenshot: Environment groups list with member counts
+- [ ] Screenshot: Each group's properties (name, description with zone classification)
+- [ ] CSV: `EnvironmentGroups.csv` from the [PowerShell setup](powershell-setup.md) export
+
+### Membership
+- [ ] Screenshot: Each group's **Environments** tab
+- [ ] CSV: `EnvironmentMembership.csv` from the export
+- [ ] CSV: `GroupSummary.csv` from the export
+
+### Rule configuration
+- [ ] Screenshot: Each group's **Rules** tab showing all 23 rules in **Published** status with timestamps
+- [ ] Screenshot: One member environment showing a setting with **Locked by environment group**
+- [ ] Document: Deviations from the FSI zone matrix with named approver and rationale
+
+### Cross-control evidence (linked, not duplicated)
+- [ ] Reference: Control 2.1 evidence — Managed Environment status for all member environments
+- [ ] Reference: Control 2.24 evidence — CUA tenant-wide disabled
+- [ ] Reference: Control 1.5 evidence — DLP policies covering tenants in scope
+
+### Change management
+- [ ] Change ticket reference for every Zone 3 group or rule change in the review period
+- [ ] Approver sign-off: AI Administrator (AI-related rules), Purview Compliance Admin (retention / supervisory rules)
+- [ ] SHA-256 manifest (`manifest.sha256.csv`) for the evidence pack
+
+---
+
+## Evidence artifact naming convention
 
 ```
-Control-2.2_[GroupName]_[ArtifactType]_[YYYYMMDD].[ext]
+Control-2.2_<GroupName>_<ArtifactType>_<YYYYMMDD>.<ext>
 
 Examples:
-- Control-2.2_FSI-Enterprise-Production_GroupProperties_20260115.png
-- Control-2.2_FSI-Team-Collaboration_RulesTab_20260115.png
-- Control-2.2_EnvironmentGroupInventory_20260115.csv
-- Control-2.2_EnvironmentGroupMapping_20260115.csv
+Control-2.2_FSI-Z3-Enterprise-Prod_RulesTab_20260418.png
+Control-2.2_FSI-Z2-WealthMgmt_Environments_20260418.png
+Control-2.2_EnvironmentMembership_20260418.csv
+Control-2.2_manifest.sha256_20260418.csv
 ```
 
 ---
 
-## Automated Validation Script
-
-```powershell
-# Run validation checks for Control 2.2
-param(
-    [string]$GroupId
-)
-
-Write-Host "=== Control 2.2 Validation ===" -ForegroundColor Cyan
-
-# Connect to Power Platform (interactive authentication)
-Add-PowerAppsAccount
-
-# For automated/unattended scenarios, use service principal authentication:
-# $appId = "<Application-Client-ID>"
-# $secret = "<Client-Secret>"
-# $tenantId = "<Tenant-ID>"
-# Add-PowerAppsAccount -ApplicationId $appId -ClientSecret $secret -TenantID $tenantId
-
-# Check 1: Verify environment groups exist
-$groups = Get-AdminPowerAppEnvironmentGroup
-if ($groups) {
-    Write-Host "[PASS] $(($groups | Measure-Object).Count) environment groups found" -ForegroundColor Green
-} else {
-    Write-Host "[FAIL] No environment groups found" -ForegroundColor Red
-}
-
-# Check 2: Verify production environments are in groups
-$environments = Get-AdminPowerAppEnvironment
-$prodEnvs = $environments | Where-Object { $_.EnvironmentType -eq 'Production' }
-$ungroupedProd = $prodEnvs | Where-Object { -not $_.EnvironmentGroupId }
-
-if ($ungroupedProd) {
-    Write-Host "[WARN] Production environments not in groups:" -ForegroundColor Yellow
-    $ungroupedProd | Select-Object DisplayName | Format-Table
-} else {
-    Write-Host "[PASS] All production environments are in groups" -ForegroundColor Green
-}
-
-# Check 3: Verify grouped environments are Managed
-$groupedEnvs = $environments | Where-Object { $_.EnvironmentGroupId }
-$unmanagedGrouped = $groupedEnvs | Where-Object {
-    $_.Properties.governanceConfiguration.protectionLevel -eq 'Standard'
-}
-
-if ($unmanagedGrouped) {
-    Write-Host "[FAIL] Grouped environments that are NOT Managed:" -ForegroundColor Red
-    $unmanagedGrouped | Select-Object DisplayName, EnvironmentGroupId | Format-Table
-} else {
-    Write-Host "[PASS] All grouped environments are Managed Environments" -ForegroundColor Green
-}
-
-# Check 4: Summary by group
-Write-Host "`n=== Group Membership Summary ===" -ForegroundColor Cyan
-$environments | Group-Object EnvironmentGroupId | ForEach-Object {
-    $groupName = if ($_.Name) {
-        ($groups | Where-Object { $_.EnvironmentGroupId -eq $_.Name }).DisplayName
-    } else {
-        "(Ungrouped)"
-    }
-    Write-Host "$groupName : $($_.Count) environments"
-}
-```
-
----
-
-## Attestation Statement Template
+## Attestation statement template
 
 ```markdown
-## Control 2.2 Attestation - Environment Groups and Zone Classification
+## Control 2.2 Attestation — Environment Groups and Tier Classification
 
-**Review Period:** [Start Date] to [End Date]
-**Control Owner:** [Name/Role]
+**Review Period:** [Start] to [End]
+**Control Owner:** [Power Platform Admin name / role]
+**Approvers:** [AI Administrator], [Purview Compliance Admin]
 **Date:** [Date]
 
-I attest that:
+I attest that during the review period:
 
-1. Environment groups have been created for each governance zone:
-   - Zone 1 (Personal Productivity): [Group Name]
-   - Zone 2 (Team Collaboration): [Group Name]
-   - Zone 3 (Enterprise Managed): [Group Name]
+1. Environment groups existed per zone with the FSI naming convention:
+   - Zone 1: [group names]
+   - Zone 2: [group names]
+   - Zone 3: [group names]
 
-2. All production environments are assigned to appropriate zone groups
+2. Every production Managed Environment was assigned to the correct zone group; the
+   ungrouped-production count was zero throughout the period (per `Validate-Control-2.2.ps1`
+   exit code 0 on [dates]).
 
-3. Rules are configured per FSI governance requirements:
-   - Zone 1: Sharing disabled, external models disabled, CUA disabled
-   - Zone 2: Authentication required, solution checker warn, CUA disabled
-   - Zone 3: All security rules enabled, solution checker block, CUA disabled
+3. All 23 environment group rules were configured per the FSI zone matrix in the
+   Control 2.2 specification and were in **Published** status. Deviations are documented
+   in [evidence-pack/deviations.md] with named approver and rationale.
 
-4. Computer-Using Agents (CUA) is disabled for all environment groups
+4. The matrix was re-baselined against the Microsoft Learn rules list on [date], within
+   the 90-day cadence.
 
-5. External AI models are disabled for Zone 2 and Zone 3 groups
+5. Settings that are not group rules (CUA, IP firewall, CMK, agent authentication, channel
+   publishing) were verified under their owning controls (2.24, 2.1, 1.15) — references in
+   the evidence pack.
 
-6. All rule changes during the review period are documented with approvals
-
-7. Evidence artifacts are retained per policy in US-only repositories
+6. Evidence artifacts (CSVs, screenshots, SHA-256 manifest) are retained per
+   `docs/reference/evidence-retention.md` in US-only repositories.
 
 **Signature:** _______________________
 **Date:** _______________________
@@ -226,21 +123,22 @@ I attest that:
 
 ---
 
-## Evidence Pack Contents
-
-For each audit/review period, retain:
+## Evidence pack contents
 
 | Artifact | Description | Retention |
-|----------|-------------|-----------|
-| Groups.csv | Environment group inventory | Per retention policy |
-| Environments.csv | Environment-to-group mapping | Per retention policy |
-| Rules screenshots | Rule configuration for each group | Per retention policy |
-| Change tickets | Approvals for group/rule changes | Per retention policy |
-| Test evidence | Screenshots of rule enforcement tests | Per retention policy |
-| Attestation | Signed attestation statement | Per retention policy |
+|---|---|---|
+| `EnvironmentGroups.csv` | Group inventory | Per evidence retention policy |
+| `EnvironmentMembership.csv` | Environment-to-group mapping | Per policy |
+| `GroupSummary.csv` | Member counts per group | Per policy |
+| Rules-tab screenshots | One per group | Per policy |
+| Settings-locked screenshot | Proof of inheritance | Per policy |
+| `manifest.sha256.csv` | SHA-256 of all CSVs | Per policy |
+| Change tickets | Approvals for Zone 3 changes | Per policy |
+| Attestation | Signed statement | Per policy |
+| `deviations.md` | Documented departures from FSI zone matrix | Per policy |
 
 ---
 
-*Updated: April 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3*
 
 [Back to Control 2.2](../../../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md)

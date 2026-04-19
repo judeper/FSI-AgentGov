@@ -1,232 +1,128 @@
-# Portal Walkthrough: Control 2.2 - Environment Groups and Zone Classification
+# Portal Walkthrough: Control 2.2 — Environment Groups and Tier Classification
 
-**Last Updated:** January 2026
-**Portal:** Power Platform Admin Center
-**Estimated Time:** 30-60 minutes initial setup, ongoing rule configuration
+**Last Updated:** April 2026
+**Portal:** Power Platform Admin Center (PPAC) — `https://admin.powerplatform.microsoft.com`
+**Estimated Time:** 60–90 minutes initial setup; ~15 minutes per quarterly re-baseline
+
+---
 
 ## Prerequisites
 
-- [ ] Power Platform Admin role assigned
-- [ ] Access to [Power Platform Admin Center](https://admin.powerplatform.microsoft.com)
-- [ ] Governance zone definitions documented (Zone 1/2/3)
-- [ ] Inventory of existing environments and classifications
-- [ ] All target environments are Managed Environments ([Control 2.1](../../../controls/pillar-2-management/2.1-managed-environments.md))
-- [ ] DLP policies reviewed for compatibility
-- [ ] Compliance team approval for rule configurations
+- [ ] **Power Platform Admin** role assigned (canonical role per `docs/reference/role-catalog.md`)
+- [ ] **AI Administrator** sign-off on AI-related rule values (rules 3, 4, 5, 8, 9, 12)
+- [ ] **Purview Compliance Admin** sign-off on retention (rule 6) and supervisory rules (1, 21)
+- [ ] All target environments are **Managed Environments** ([Control 2.1](../../../controls/pillar-2-management/2.1-managed-environments.md)). Default and trial environments cannot join groups.
+- [ ] Governance zone classifications agreed and documented for each environment in scope
+- [ ] DLP policies ([Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md)) reviewed for compatibility with planned sharing rules
+- [ ] Change ticket open for Zone 3 group changes
 
 ---
 
-## Step-by-Step Configuration
+## Step 1 — Create environment groups
 
-### Step 1: Create Environment Groups
+**Path:** PPAC → **Manage** (left rail) → **Environment groups** → **+ New group**
 
-1. Open [Power Platform Admin Center](https://admin.powerplatform.microsoft.com)
-2. Navigate to **Manage** > **Environment groups**
-3. Click **+ New group**
-4. Enter group name (e.g., "FSI-Team-Collaboration")
-5. Add description with zone classification (Zone 1/2/3), business scope, and change authority
-6. Click **Save**
+1. Enter a descriptive name following the FSI convention `FSI-Z{n}-{purpose}`:
+    - `FSI-Z1-Personal` (Zone 1)
+    - `FSI-Z2-{BU}` (Zone 2 per business unit, e.g. `FSI-Z2-WealthMgmt`)
+    - `FSI-Z3-Enterprise-Prod` and `FSI-Z3-Enterprise-NonProd` (Zone 3)
+2. Description **must** include: governance zone, allowed data sensitivity, change authority, and review cadence.
+3. Click **Save**.
 
-**Recommended Group Structure for FSI:**
-
-| Group Name | Governance Zone | Description |
-|------------|-----------------|-------------|
-| FSI-Personal-Dev | Zone 1 | Personal productivity environments - non-sensitive data only |
-| FSI-Team-Collaboration | Zone 2 | Team collaboration environments - internal/confidential data |
-| FSI-Enterprise-Production | Zone 3 | Enterprise production - all classifications, maximum governance |
-| FSI-Enterprise-NonProd | Zone 3 | UAT/staging - same rules as production for pre-deployment testing |
-
-### Step 2: Add Environments to Groups
-
-1. Select the environment group
-2. Click **Environments** tab
-3. Click **Add environments**
-4. Select environments to include
-5. Click **Add**
-
-**Important:** If an environment cannot be added, verify it is a Managed Environment first ([Control 2.1](../../../controls/pillar-2-management/2.1-managed-environments.md)).
-
-### Step 3: Configure Rules
-
-1. Select the environment group
-2. Click **Rules** tab (shows 21+ available rules)
-3. Click on a rule name to configure
-4. Set the appropriate value/toggle
-5. Click **Save** (or **Publish rules** for batch changes)
+> Repeat for each zone group. Each environment can belong to only one group; groups cannot be nested.
 
 ---
 
-## Rule Configuration by Governance Zone
+## Step 2 — Add Managed Environments to a group
 
-### Zone 1 - Personal Productivity Rules
+**Path:** PPAC → **Environment groups** → *select group* → **Environments** tab → **Add environments**
 
-**Allowed data:** Non-sensitive only (no regulated customer data). Use synthetic/sample data when possible.
+1. Filter to Managed Environments only (the picker hides non-managed environments).
+2. Select the environments matching the group's zone classification.
+3. Click **Add**. Newly added environments inherit any **published** rules within ~15 minutes.
 
-| Rule | Setting | Rationale |
-|------|---------|-----------|
-| Sharing agents with Editor permissions | **Disabled** | Helps prevent uncontrolled agent co-authoring |
-| Sharing agents with Viewer permissions | **Disabled** | Limits agent distribution |
-| Channel access for published agents | **Teams + M365 Copilot only** | Restricts to internal channels |
-| Enable External Models | **Disabled** | Prevents external AI model usage |
-| Preview and experimental AI models | **Enabled** | Allows learning with low-risk features |
-| Computer Use | **Disabled** | High-risk feature - always disabled |
-
-### Zone 2 - Team Collaboration Rules
-
-**Expected ownership:** Named group owner and approval trail for rule changes.
-
-| Rule | Setting | Rationale |
-|------|---------|-----------|
-| Sharing agents with Editor permissions | **Enabled** | Allows team collaboration |
-| Sharing agents with Viewer permissions | **Enabled** | Allows internal distribution |
-| Channel access for published agents | **Teams, SharePoint enabled** | Controlled internal channels |
-| Authentication for agents | **Required** | Enforces identity for access |
-| Solution checker enforcement | **Warn** | Alerts on issues without blocking |
-| Maker welcome content | **Team policy configured** | Communicates governance requirements |
-| Enable External Models | **Disabled** | Prevents external AI model usage |
-| Computer Use | **Disabled** | High-risk feature - always disabled |
-
-### Zone 3 - Enterprise Managed Rules
-
-**Change control:** Treat rule changes as controlled changes (ticket + peer review + recorded testing results).
-
-| Rule | Setting | Rationale |
-|------|---------|-----------|
-| Sharing agents with Editor permissions | **Disabled** | Use ALM for controlled changes |
-| Sharing agents with Viewer permissions | **Enabled** | Allows controlled distribution |
-| Channel access for published agents | **All (with approval)** | Requires documented approval |
-| Authentication for agents | **Required** | Enforces identity for all access |
-| Enable External Models | **Disabled** (unless explicitly approved) | Strict AI governance |
-| Solution checker enforcement | **Block** | Prevents non-compliant deployments |
-| Unmanaged customizations | **Block** | Enforces ALM practices |
-| Default deployment pipeline | **Configured** | Links to deployment automation |
-| IP Firewall setting | **Configured** | Network-level access control |
-| Enable IP Cookie Binding | **Enabled** | Prevents session hijacking |
-| Computer Use | **Disabled** | High-risk feature - always disabled |
-
-### Step 4: Publish Rules
-
-1. After configuring all rules, click **Publish rules**
-2. Rules apply to all environments in the group
-3. Verify by checking individual environment settings
+> If an environment is missing from the picker, confirm Managed Environment is enabled in [Control 2.1](../../../controls/pillar-2-management/2.1-managed-environments.md). Default and developer (personal) environments must first be promoted to Managed.
 
 ---
 
-## Computer-Using Agents (CUA) - Critical Configuration
+## Step 3 — Configure the 23 group rules
 
-**WARNING:** Computer-Using Agents (CUA) is a high-risk preview feature that allows agents to control desktop applications, navigate UIs, and interact with any visible screen content.
+**Path:** PPAC → **Environment groups** → *select group* → **Rules** tab
 
-**FSI Recommendation: DISABLED for All Zones**
+For each rule listed in the [Control 2.2 zone matrix](../../../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md#environment-group-rules-fsi-zone-matrix-april-2026-baseline), click the rule, set the value, and click **Save**.
 
-| Zone | CUA Setting | Rationale |
-|------|-------------|-----------|
-| Zone 1 | **Disabled** | No use case justifies risk |
-| Zone 2 | **Disabled** | Shared data increases blast radius |
-| Zone 3 | **Disabled** | Regulatory data exposure risk too high |
+### Rule-by-rule notes (high-impact rules)
 
-**To Disable CUA:**
+| # | Rule | Notes for FSI |
+|---|------|---------------|
+| 1 | Accessing transcripts | Set to **Enable** in every zone — this is the primary capture for FINRA 4511 / SEC 17a-4 evidence of agent conversations. |
+| 9 | External models | Set to **Disabled** in every zone unless an explicit model-risk-management approval is recorded under [Control 1.x model governance]. |
+| 12 | Preview and experimental AI models | Set to **Disabled** in Zone 2 and Zone 3. Helps keep unvalidated models out of regulated workloads (OCC 2011-12 / SR 11-7). |
+| 14, 15 | Sharing agents (Editor / Viewer) | Use the dialog to set **organization-wide cap = 0** for Zone 1 Editor sharing; cap Editor sharing in Zone 3 to force ALM. |
+| 16, 17 | Sharing controls (canvas apps / solution flows) | Set to **Specific security groups only** with a small approver-managed group. |
+| 19 | Solution checker enforcement | Zone 1 = **None**, Zone 2 = **Warn**, Zone 3 = **Block**. Block prevents import of solutions with known issues. |
+| 20 | Unmanaged customizations | Zone 2 and Zone 3 = **Block**. Required for SOX-relevant change control. |
 
-1. Navigate to **Environment groups** > select group > **Rules**
-2. Locate **Computer Use** rule
-3. Set to **Disabled**
-4. Click **Save** and **Publish rules**
+### Step 4 — Publish rules
 
----
+**Saved ≠ enforced.** A rule only takes effect after publication.
 
-## Cross-Tenant Restrictions Configuration
-
-For each environment group, configure cross-tenant restrictions to prevent data leakage:
-
-**Portal Path:** PPAC > Environments > [env] > Settings > Product > Privacy + Security
-
-| Zone | Inbound Setting | Outbound Setting |
-|------|-----------------|------------------|
-| Zone 1 | Disabled | Disabled |
-| Zone 2 | Disabled | Disabled or approved tenants only |
-| Zone 3 | Disabled | Disabled |
+1. After completing all rule edits, click **Publish rules** at the top of the Rules tab.
+2. Wait up to 15 minutes for propagation. Each rule's **Status** column changes to **Published** with a timestamp.
+3. Open one member environment and confirm the affected setting now shows as **Locked by environment group**.
 
 ---
 
-## FSI Example Configuration
+## Step 5 — Document and capture evidence
 
-```yaml
-# FSI Environment Group Configuration
-Organization: Contoso Financial Services
+For each group, capture the following to your evidence pack ([Control 3.x evidence retention]):
 
-environment_groups:
-  - name: "FSI-Enterprise-Production"
-    description: "Enterprise production environments - maximum governance (Zone 3)"
-    tier: "Production"
-    governance_zone: "Enterprise Managed"
+- [ ] Screenshot — group list with environment counts.
+- [ ] Screenshot — each group's **Environments** tab.
+- [ ] Screenshot — each group's **Rules** tab showing **Published** status and timestamp.
+- [ ] CSV export — environment-to-group mapping (use the [PowerShell Setup](powershell-setup.md) script).
+- [ ] Change ticket reference for Zone 3 changes.
 
-    rules:
-      # Sharing Rules
-      sharing_agents_editor: disabled
-      sharing_agents_viewer: enabled
-      sharing_canvas_apps: "organization_only"
-      sharing_solution_flows: "organization_only"
+---
 
-      # Channel Rules
-      channel_access_agents: "teams,m365copilot,sharepoint"
+## Settings that look like group rules but aren't
 
-      # Security Rules
-      authentication_agents: required
-      ip_cookie_binding: enabled
-      ip_firewall: enabled
-      content_security_policy: strict
+The following settings sometimes appear in environment-group conversations but are configured **elsewhere**. Do not assume they are inherited from a group:
 
-      # AI Governance
-      ai_prompts: enabled
-      external_models: disabled
-      preview_experimental_ai: disabled
-      generative_ai: enabled
-      computer_use: disabled
+| Setting | Where it's configured | Related control |
+|---|---|---|
+| Computer-Using Agents (CUA) | Copilot Studio admin / Microsoft 365 admin center | [Control 2.24](../../../controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance.md) |
+| Agent authentication mode | Per agent in Copilot Studio | Copilot Studio agent settings |
+| IP firewall / IP cookie binding | Per Managed Environment | [Control 2.1](../../../controls/pillar-2-management/2.1-managed-environments.md) |
+| Customer Managed Key (CMK) | Per Managed Environment | [Control 1.15](../../../controls/pillar-1-security/1.15-encryption-data-in-transit-and-at-rest.md) |
+| Cross-tenant inbound/outbound restrictions | PPAC → Environment → Settings → Privacy + Security | [Control 2.1](../../../controls/pillar-2-management/2.1-managed-environments.md) |
+| Channel publishing endpoints | Per agent in Copilot Studio | [Control 2.24](../../../controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance.md) |
 
-      # Solution Governance
-      solution_checker: block_on_error
-      unmanaged_customizations: blocked
-      default_pipeline: "FSI-Production-Pipeline"
+---
 
-      # Audit & Compliance
-      transcript_access: enabled
-      usage_insights: enabled
-      backup_retention: "28_days"
+## Quarterly re-baseline checklist
 
-    environments:
-      - "prod-trading-001"
-      - "prod-wealth-management"
-      - "prod-customer-service"
-```
+Microsoft adds and graduates group rules periodically. Each quarter:
+
+1. Open the [Microsoft Learn rules list](https://learn.microsoft.com/en-us/power-platform/admin/environment-groups-rules).
+2. Diff against the Control 2.2 zone matrix.
+3. For any new rule, decide a Zone 1/2/3 value with AI Administrator + Purview Compliance Admin sign-off.
+4. Update the matrix in `docs/controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md` and re-publish in PPAC.
+5. Record the re-baseline date in the governance change log.
 
 ---
 
 ## Validation
 
-After completing configuration, verify:
+Before closing the change ticket, confirm:
 
-- [ ] Environment groups created with appropriate names and descriptions
-- [ ] Environments added to correct groups based on zone classification
-- [ ] Rules configured per governance zone requirements
-- [ ] Rules published and status shows "Published" with date
-- [ ] Computer Use rule disabled for all groups
-- [ ] External Models rule disabled for Zone 2/3 groups
-- [ ] Test environment inherits rules when added to group
+- [ ] Every Zone 3 (production) Managed Environment is a member of an `FSI-Z3-*` group.
+- [ ] Each group's Rules tab shows **Published** for all 23 rules.
+- [ ] Spot-check a member environment's setting (e.g., External models) shows **Locked by environment group**.
+- [ ] Evidence pack uploaded with the change ticket.
 
 ---
 
-## Evidence Collection
+*Updated: April 2026 | Version: v1.3.3*
 
-Capture the following for audit documentation:
-
-- [ ] Screenshot: Environment groups list with counts
-- [ ] Screenshot: Each group's Environments tab showing membership
-- [ ] Screenshot: Each group's Rules tab showing configured values
-- [ ] Export: Environment group inventory CSV
-- [ ] Export: Environment-to-group mapping CSV
-- [ ] Change record: Ticket/approval for rule configurations
-
----
-
-*Updated: April 2026 | Version: v1.3*
-
-[Back to Control 2.2](../../../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+[Back to Control 2.2](../../../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) | [PowerShell Setup](powershell-setup.md) | [Verification & Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
