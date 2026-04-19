@@ -26,9 +26,11 @@
 
 ### Step 2: Create Custom Dataverse Security Roles
 
+> **Dataverse-only.** Steps 2–3 apply to Dataverse-backed environments (all Copilot Studio environments). For non-Dataverse environments, use environment-level role assignments via PPAC > Environments > Settings > Users + permissions.
+
 1. Open [Power Platform Admin Center](https://admin.powerplatform.microsoft.com)
 2. Select environment > **Settings** > **Users + permissions** > **Security roles**
-3. Create custom roles:
+3. For each role below: select **+ New role**, set the **Business unit** to the root BU, name the role per the convention, then on the **Core records** / **Custom entities** tabs grant only the privileges listed.
 
 **FSI - Agent Publisher:**
 - Bot: Create, Read, Write, Delete, Append, Append To
@@ -54,21 +56,30 @@
 
 ### Step 4: Configure Privileged Identity Management
 
+> **Licensing prerequisite:** PIM and PIM-for-Groups require **Microsoft Entra ID P2** for every assigned and eligible user. Without P2, eligibility-based assignments will not appear.
+
 1. Open [Microsoft Entra Admin Center](https://entra.microsoft.com)
 2. Navigate to **Identity governance** > **Privileged Identity Management**
-3. Select **Microsoft Entra roles** > **Roles**
-4. Configure PIM for Power Platform Admin:
-   - Maximum activation duration: 4 hours
-   - Require approval: Yes (CISO/Security Lead)
-   - Require MFA on activation: Yes
+3. **For directory roles** (Power Platform Admin, AI Administrator): select **Microsoft Entra roles** > **Roles** > target role > **Settings**
+4. **For environment / Dataverse access** (recommended pattern): select **Groups** > add `SG-PowerPlatform-Admins-Prod` > **Settings** > **Member** role
+5. Configure activation settings:
+   - Maximum activation duration: **4 hours** (Zone 3) / 8 hours (Zone 2)
+   - Require approval to activate: **Yes** (Zone 3 — minimum 2 approvers from CISO/Security Lead)
+   - Require MFA on activation: **Yes** (all zones)
+   - Require justification on activation: **Yes**
+   - Require ticket information on activation: **Yes** (Zone 3)
+   - Notification on activation: route to Sentinel/SIEM via Entra audit log forwarding
 
 ### Step 5: Configure Column-Level Security
 
-1. In Power Platform Admin Center > Environment > Settings
-2. Navigate to **Data management** > **Field security profiles**
-3. Create profile: `FSI-SensitiveFields`
-4. Add sensitive columns (SSN, Account Balance, Credit Score)
-5. Assign allowed roles/users
+> **Path note (April 2026):** "Field security profiles" is also accessible via the modern Power Apps maker portal at **make.powerapps.com** > Solutions > Default Solution > **Security** > **Field security profiles**. The classic path below remains supported.
+
+1. In Power Platform Admin Center > Environment > **Settings**
+2. Navigate to **Users + permissions** > **Column security profiles** (formerly "Field security profiles")
+3. Create profile: `FSI-SensitiveFields-Prod`
+4. Add sensitive columns by enabling **Column security** on the column definition first (Solutions > target table > column > Advanced options > **Enable column security: On**) — this is required before the column appears in the profile
+5. Common FSI columns to protect: SSN/Tax ID, account number, account balance, credit score, date of birth, government ID
+6. Assign the profile to the security groups (or Dataverse teams) that require access; **all other users default to no access**
 
 ### Step 6: Set Up Access Reviews
 
@@ -144,4 +155,4 @@ After completing these steps, verify:
 
 ---
 
-*Updated: April 2026 | Version: v1.3 | Classification: Portal Walkthrough*
+*Updated: April 2026 | Version: v1.3.3 | Classification: Portal Walkthrough*
