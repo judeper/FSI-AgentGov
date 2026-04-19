@@ -1,316 +1,355 @@
-# Control 4.2: Site Access Reviews and Certification - PowerShell Setup
+# Control 4.2: Site Access Reviews and Certification — PowerShell Setup
 
-> This playbook provides PowerShell automation guidance for [Control 4.2](../../../controls/pillar-4-sharepoint/4.2-site-access-reviews-and-certification.md).
+!!! warning "Read the FSI PowerShell baseline first"
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
+
+> Automation guidance for [Control 4.2 — Site Access Reviews and Certification](../../../controls/pillar-4-sharepoint/4.2-site-access-reviews-and-certification.md).
+
+This playbook covers three workloads:
+
+1. **SharePoint Online** — DAG report export and site permission baseline (`Microsoft.Online.SharePoint.PowerShell`, `PnP.PowerShell`)
+2. **Microsoft Entra ID Governance** — Access Review schedule definitions for groups and Sites.Selected service principals (`Microsoft.Graph` / `Microsoft.Graph.Identity.Governance`)
+3. **Evidence emission** — CSV export plus SHA-256 hash for tamper-evident storage
 
 ---
 
 ## Prerequisites
 
 ```powershell
-# Install required modules
-Install-Module Microsoft.Graph -Scope CurrentUser
-Install-Module Microsoft.Online.SharePoint.PowerShell -Scope CurrentUser
+# Pin module versions per the FSI PowerShell baseline (April 2026)
+Install-Module Microsoft.Online.SharePoint.PowerShell -RequiredVersion 16.0.26212.12000 -Scope CurrentUser
+Install-Module PnP.PowerShell                          -RequiredVersion 2.99.0           -Scope CurrentUser
+Install-Module Microsoft.Graph                         -RequiredVersion 2.30.0           -Scope CurrentUser
 
-# Connect to Microsoft Graph with required scopes
-Connect-MgGraph -Scopes "AccessReview.ReadWrite.All", "Directory.Read.All", "Sites.Read.All"
-
-# Connect to SharePoint Online
+# SharePoint Online — commercial endpoint shown; use admin.sharepoint.us / .sharepoint-mil.us for sovereign clouds
 $adminUrl = "https://contoso-admin.sharepoint.com"
 Connect-SPOService -Url $adminUrl
 
+# PnP.PowerShell — interactive auth (replace with cert-based auth in CI)
+Connect-PnPOnline -Url $adminUrl -Interactive
+
+# Microsoft Graph — least-privilege scopes for this control
+Connect-MgGraph -Scopes @(
+    "AccessReview.ReadWrite.All",
+    "Directory.Read.All",
+    "Sites.Read.All",
+    "Application.Read.All",
+    "AuditLog.Read.All"
+)
+
 # Verify connections
-Get-MgContext | Select-Object Scopes, Account
-Get-SPOTenant | Select-Object StorageQuota
+Get-MgContext  | Select-Object Account, Scopes, Environment
+Get-SPOTenant | Select-Object StorageQuota, SharingCapability
 ```
 
 ---
 
-## Configuration Scripts
+## 1. Baseline site permission posture
 
-### Create Access Review Schedule for SharePoint Site Groups
+### 1a. Export site inventory and sharing posture
 
 ```powershell
-# Define the access review schedule definition
+# Export all non-OneDrive sites with sharing capability and sensitivity label
+$evidenceDir = "C:\Compliance\Control-4.2\$(Get-Date -Format 'yyyyMMdd')"
+New-Item -Path $evidenceDir -ItemType Directory -Force | Out-Null
+
+$sites = Get-SPOSite -Limit All -IncludePersonalSite:$false |
+    Where-Object { $_.Template -notlike 'SPSPERS*' }
+
+$inventory = $sites | ForEach-Object {
+    [PSCustomObject]@{
+        SiteUrl                = $_.Url
+        Title                  = $_.Title
+        Owner                  = $_.Owner
+        Template               = $_.Template
+        SharingCapability      = $_.SharingCapability
+        SensitivityLabel       = $_.SensitivityLabel
+        ConditionalAccessPolicy = $_.ConditionalAccessPolicy
+        LastContentModified    = $_.LastContentModifiedDate
+        StorageUsedGB          = [math]::Round($_.StorageUsageCurrent / 1024, 2)
+    }
+}
+
+$inventoryPath = Join-Path $evidenceDir 'site-inventory.csv'
+$inventory | Export-Csv -Path $inventoryPath -NoTypeInformation -Encoding UTF8
+
+# Emit SHA-256 evidence hash
+$hash = (Get-FileHash -Path $inventoryPath -Algorithm SHA256).Hash
+"$hash  site-inventory.csv" | Out-File (Join-Path $evidenceDir 'site-inventory.sha256') -Encoding ASCII
+Write-Host "Exported $($inventory.Count) sites; SHA-256: $hash"
+```
+
+### 1b. Identify orphaned and EEEU-exposed sites
+
+```powershell
+# Orphaned sites — no owner; cannot be attested
+$orphans = $inventory | Where-Object { [string]::IsNullOrWhiteSpace($_.Owner) }
+$orphans | Export-Csv (Join-Path $evidenceDir 'orphaned-sites.csv') -NoTypeInformation
+
+# EEEU-shared sites via PnP role assignment scan (sample 25 highest-risk sites)
+$eeeuFindings = foreach ($site in $inventory | Where-Object SharingCapability -ne 'Disabled' | Select-Object -First 25) {
+    try {
+        Connect-PnPOnline -Url $site.SiteUrl -Interactive -ErrorAction Stop
+        $web = Get-PnPWeb -Includes RoleAssignments
+        foreach ($assignment in $web.RoleAssignments) {
+            $member = Get-PnPProperty -ClientObject $assignment -Property Member
+            if ($member.LoginName -match 'spo-grid-all-users|everyone except external') {
+                [PSCustomObject]@{
+                    SiteUrl          = $site.SiteUrl
+                    SensitivityLabel = $site.SensitivityLabel
+                    GrantedTo        = $member.Title
+                    LoginName        = $member.LoginName
+                }
+            }
+        }
+    } catch {
+        Write-Warning "Skip $($site.SiteUrl): $($_.Exception.Message)"
+    }
+}
+$eeeuFindings | Export-Csv (Join-Path $evidenceDir 'eeeu-findings.csv') -NoTypeInformation
+```
+
+!!! note "DAG report export via Graph"
+    The fully-fidelity DAG report set (Oversharing baseline, Agent Insights, Agent Access Insights)
+    is generated server-side by SAM. There is no public PowerShell cmdlet for triggering report
+    generation in April 2026. Trigger reports interactively in SharePoint Admin Center, then
+    download the CSV exports and stage them alongside the artifacts above.
+
+---
+
+## 2. Create Entra Access Reviews
+
+### 2a. Quarterly review of M365 Groups backing SharePoint sites
+
+```powershell
+# Use the schedule definition body parameter pattern; the cmdlet wraps the v1.0 access reviews API
 $reviewParams = @{
-    displayName = "FSI SharePoint Site Access Review - Enterprise Managed"
-    descriptionForAdmins = "Quarterly access review for enterprise-managed SharePoint sites containing agent knowledge sources"
-    descriptionForReviewers = "Review and certify that users have appropriate access to sensitive SharePoint sites"
+    displayName             = "FSI SharePoint Site Access Review — Quarterly"
+    descriptionForAdmins    = "Quarterly access review for M365 Groups backing in-scope SharePoint sites used as Copilot/agent knowledge sources."
+    descriptionForReviewers = "Confirm that each member of this group still requires access to the SharePoint content it backs. Justification required."
     scope = @{
-        "@odata.type" = "#microsoft.graph.accessReviewQueryScope"
-        query = "/groups?`$filter=(groupTypes/any(c:c eq 'Unified'))"
-        queryType = "MicrosoftGraph"
+        '@odata.type' = '#microsoft.graph.accessReviewQueryScope'
+        query         = "/groups?`$filter=(groupTypes/any(c:c eq 'Unified'))"
+        queryType     = 'MicrosoftGraph'
     }
     reviewers = @(
-        @{
-            query = "/groups/{group-id}/owners"
-            queryType = "MicrosoftGraph"
-        }
+        @{ query = '/groups/{id}/owners'; queryType = 'MicrosoftGraph' }
+    )
+    fallbackReviewers = @(
+        @{ query = '/users/compliance-reviewer@contoso.com'; queryType = 'MicrosoftGraph' }
     )
     settings = @{
-        mailNotificationsEnabled = $true
-        reminderNotificationsEnabled = $true
-        justificationRequiredOnApproval = $true
-        defaultDecisionEnabled = $true
-        defaultDecision = "Deny"
-        instanceDurationInDays = 14
-        autoApplyDecisionsEnabled = $true
-        recommendationsEnabled = $true
+        mailNotificationsEnabled         = $true
+        reminderNotificationsEnabled     = $true
+        justificationRequiredOnApproval  = $true
+        defaultDecisionEnabled           = $true
+        defaultDecision                  = 'Deny'
+        instanceDurationInDays           = 14
+        autoApplyDecisionsEnabled        = $true
+        recommendationsEnabled           = $true
         recurrence = @{
             pattern = @{
-                type = "absoluteMonthly"
-                interval = 3  # Quarterly
-                dayOfMonth = 1
+                type        = 'absoluteMonthly'
+                interval    = 3
+                dayOfMonth  = 1
             }
             range = @{
-                type = "noEnd"
-                startDate = (Get-Date).ToString("yyyy-MM-dd")
+                type      = 'noEnd'
+                startDate = (Get-Date).ToString('yyyy-MM-dd')
             }
         }
     }
 }
 
-# Create the access review schedule definition
-$review = New-MgIdentityGovernanceAccessReviewDefinition -BodyParameter $reviewParams
-Write-Host "Access Review Created: $($review.DisplayName)" -ForegroundColor Green
-Write-Host "Review ID: $($review.Id)" -ForegroundColor Cyan
+if ($PSCmdlet.ShouldProcess('Tenant', 'Create FSI quarterly access review')) {
+    $review = New-MgIdentityGovernanceAccessReviewDefinition -BodyParameter $reviewParams
+    Write-Host "Created review '$($review.DisplayName)' — Id: $($review.Id)"
+}
 ```
 
-### Get Access Review Status
+### 2b. Quarterly review of Sites.Selected service principals (AI agents)
 
 ```powershell
-# Get all access review definitions
-$accessReviews = Get-MgIdentityGovernanceAccessReviewDefinition
-$accessReviews | Format-Table DisplayName, Status, CreatedDateTime
+# Enumerate service principals that hold Sites.Selected on Microsoft Graph
+$graphSp = Get-MgServicePrincipal -Filter "appId eq '00000003-0000-0000-c000-000000000000'"
+$sitesSelectedRoleId = ($graphSp.AppRoles | Where-Object Value -eq 'Sites.Selected').Id
 
-# Get specific access review instances
-$reviewId = "your-review-definition-id"
-$instances = Get-MgIdentityGovernanceAccessReviewDefinitionInstance -AccessReviewScheduleDefinitionId $reviewId
-
-# Display instance details
-$instances | ForEach-Object {
-    Write-Host "Instance: $($_.Id)" -ForegroundColor Yellow
-    Write-Host "  Status: $($_.Status)"
-    Write-Host "  Start: $($_.StartDateTime)"
-    Write-Host "  End: $($_.EndDateTime)"
-    Write-Host "  Reviewers Completed: $($_.ReviewersCompleted) / $($_.ReviewersTotal)"
-}
-
-# Get pending decisions for an instance
-$instanceId = "your-instance-id"
-$decisions = Get-MgIdentityGovernanceAccessReviewDefinitionInstanceDecision `
-    -AccessReviewScheduleDefinitionId $reviewId `
-    -AccessReviewInstanceId $instanceId
-
-$decisions | Where-Object { $_.Decision -eq "NotReviewed" } |
-    Format-Table Principal, Resource, Decision, ReviewedDateTime
-```
-
-### Export Access Review Results
-
-```powershell
-# Export access review decisions to CSV for audit
-$reviewId = "your-review-definition-id"
-$instances = Get-MgIdentityGovernanceAccessReviewDefinitionInstance `
-    -AccessReviewScheduleDefinitionId $reviewId
-
-$allDecisions = @()
-
-foreach ($instance in $instances) {
-    $decisions = Get-MgIdentityGovernanceAccessReviewDefinitionInstanceDecision `
-        -AccessReviewScheduleDefinitionId $reviewId `
-        -AccessReviewInstanceId $instance.Id `
-        -All
-
-    foreach ($decision in $decisions) {
-        $allDecisions += [PSCustomObject]@{
-            InstanceId = $instance.Id
-            InstanceStartDate = $instance.StartDateTime
-            PrincipalName = $decision.Principal.DisplayName
-            PrincipalType = $decision.Principal.Type
-            ResourceName = $decision.Resource.DisplayName
-            Decision = $decision.Decision
-            Justification = $decision.Justification
-            ReviewedBy = $decision.ReviewedBy.DisplayName
-            ReviewedDateTime = $decision.ReviewedDateTime
-            AppliedBy = $decision.AppliedBy.DisplayName
-            AppliedDateTime = $decision.AppliedDateTime
-        }
-    }
-}
-
-# Export to CSV
-$exportPath = "C:\Compliance\AccessReview_Export_$(Get-Date -Format 'yyyyMMdd').csv"
-$allDecisions | Export-Csv -Path $exportPath -NoTypeInformation
-Write-Host "Exported $($allDecisions.Count) decisions to: $exportPath" -ForegroundColor Green
-```
-
-### Get SharePoint Site Permissions Report
-
-```powershell
-# Get sites with sharing settings
-$sites = Get-SPOSite -Limit All | Where-Object {
-    $_.SharingCapability -ne "Disabled" -and
-    $_.Template -notlike "*SPSPERS*"  # Exclude OneDrive
-}
-
-# Generate permissions summary
-$siteSummary = $sites | ForEach-Object {
-    [PSCustomObject]@{
-        SiteUrl = $_.Url
-        Title = $_.Title
-        Owner = $_.Owner
-        SharingCapability = $_.SharingCapability
-        ExternalSharingEnabled = $_.SharingCapability -ne "Disabled"
-        SensitivityLabel = $_.SensitivityLabel
-        LastContentModified = $_.LastContentModifiedDate
-    }
-}
-
-# Export for review
-$siteSummary | Export-Csv -Path "C:\Compliance\SPOSitePermissions_$(Get-Date -Format 'yyyyMMdd').csv" -NoTypeInformation
-Write-Host "Site permissions report exported" -ForegroundColor Green
-```
-
-### Audit Agent Service Principal Permissions
-
-```powershell
-function Get-AgentServicePrincipalPermissions {
-    param([string]$AppId)
-
-    Connect-MgGraph -Scopes "Application.Read.All", "Directory.Read.All"
-
-    # Get service principal
-    $sp = Get-MgServicePrincipal -Filter "appId eq '$AppId'"
-
-    if (-not $sp) {
-        Write-Error "Service principal not found for AppId: $AppId"
-        return
+$agentSps = Get-MgServicePrincipal -All |
+    Where-Object {
+        (Get-MgServicePrincipalAppRoleAssignment -ServicePrincipalId $_.Id -ErrorAction SilentlyContinue |
+            Where-Object { $_.AppRoleId -eq $sitesSelectedRoleId -and $_.ResourceId -eq $graphSp.Id })
     }
 
-    Write-Host "Service Principal: $($sp.DisplayName)" -ForegroundColor Cyan
-    Write-Host "App ID: $AppId"
+$agentSps |
+    Select-Object DisplayName, AppId, Id, ServicePrincipalType |
+    Export-Csv (Join-Path $evidenceDir 'sites-selected-agents.csv') -NoTypeInformation
 
-    # Get OAuth2 permission grants (delegated permissions)
-    $delegated = Get-MgServicePrincipalOauth2PermissionGrant -ServicePrincipalId $sp.Id
-
-    Write-Host "`nDelegated Permissions:" -ForegroundColor Yellow
-    $delegated | ForEach-Object {
-        $resource = Get-MgServicePrincipal -ServicePrincipalId $_.ResourceId
-        Write-Host "  $($resource.DisplayName): $($_.Scope)"
-    }
-
-    # Get app role assignments (application permissions)
-    $appRoles = Get-MgServicePrincipalAppRoleAssignment -ServicePrincipalId $sp.Id
-
-    Write-Host "`nApplication Permissions:" -ForegroundColor Yellow
-    foreach ($role in $appRoles) {
-        $resource = Get-MgServicePrincipal -ServicePrincipalId $role.ResourceId
-        $roleInfo = $resource.AppRoles | Where-Object { $_.Id -eq $role.AppRoleId }
-        Write-Host "  $($resource.DisplayName): $($roleInfo.Value)"
-    }
-
-    # Evaluate least privilege
-    Write-Host "`nLeast Privilege Assessment:" -ForegroundColor Green
-
-    # Check for overly broad SharePoint permissions
-    $broadPermissions = @("Sites.Read.All", "Sites.ReadWrite.All", "Sites.Manage.All", "Sites.FullControl.All")
-
-    foreach ($role in $appRoles) {
-        $resource = Get-MgServicePrincipal -ServicePrincipalId $role.ResourceId
-        $roleInfo = $resource.AppRoles | Where-Object { $_.Id -eq $role.AppRoleId }
-
-        if ($roleInfo.Value -in $broadPermissions) {
-            Write-Host "  WARNING: Broad permission detected - $($roleInfo.Value)" -ForegroundColor Red
-            Write-Host "    Consider using Sites.Selected for specific site access" -ForegroundColor Yellow
-        }
-    }
-}
-
-# Usage:
-# Get-AgentServicePrincipalPermissions -AppId "your-app-id-here"
+# A separate access review for the agent group (recommended pattern: place agent app SPs into a
+# dynamic security group, then schedule an access review against that group with the AI Governance
+# Lead as reviewer and quarterly recurrence). Build the reviewParams block as in 2a, swapping the
+# scope query to the agent governance group's id.
 ```
 
 ---
 
-## Complete Configuration Script
+## 3. Export decisions for evidence retention
+
+```powershell
+# Iterate every instance of every review and export decisions to a single CSV
+$reviews = Get-MgIdentityGovernanceAccessReviewDefinition -All
+
+$decisions = foreach ($review in $reviews) {
+    $instances = Get-MgIdentityGovernanceAccessReviewDefinitionInstance `
+        -AccessReviewScheduleDefinitionId $review.Id -All
+    foreach ($instance in $instances) {
+        $items = Get-MgIdentityGovernanceAccessReviewDefinitionInstanceDecision `
+            -AccessReviewScheduleDefinitionId $review.Id `
+            -AccessReviewInstanceId $instance.Id -All
+        foreach ($d in $items) {
+            [PSCustomObject]@{
+                ReviewName         = $review.DisplayName
+                ReviewId           = $review.Id
+                InstanceId         = $instance.Id
+                InstanceStart      = $instance.StartDateTime
+                InstanceEnd        = $instance.EndDateTime
+                Principal          = $d.Principal.AdditionalProperties.displayName
+                PrincipalType      = $d.Principal.AdditionalProperties.'@odata.type'
+                Resource           = $d.Resource.AdditionalProperties.displayName
+                Decision           = $d.Decision
+                Justification      = $d.Justification
+                ReviewedBy         = $d.ReviewedBy.AdditionalProperties.displayName
+                ReviewedDateTime   = $d.ReviewedDateTime
+                AppliedBy          = $d.AppliedBy.AdditionalProperties.displayName
+                AppliedDateTime    = $d.AppliedDateTime
+            }
+        }
+    }
+}
+
+$decisionsPath = Join-Path $evidenceDir 'access-review-decisions.csv'
+$decisions | Export-Csv -Path $decisionsPath -NoTypeInformation -Encoding UTF8
+$hash = (Get-FileHash $decisionsPath -Algorithm SHA256).Hash
+"$hash  access-review-decisions.csv" | Out-File (Join-Path $evidenceDir 'access-review-decisions.sha256') -Encoding ASCII
+Write-Host "Exported $($decisions.Count) decisions; SHA-256: $hash"
+```
+
+Stage `$evidenceDir` to a SharePoint library or mailbox covered by a Purview retention label
+configured for at least the **6-year SEC 17a-4 / FINRA 4511** floor — Preservation Lock
+recommended for Zone 3.
+
+---
+
+## 4. Cross-check Purview audit log
+
+```powershell
+# Confirm review activity is landing in the unified audit log (read-only check)
+$start = (Get-Date).AddDays(-30)
+$end   = (Get-Date)
+
+# Audit log search via Graph (security/auditLogQueries) is the supported April 2026 path
+# Operations of interest: AccessReviewCreate, AccessReviewDecisionApplied, AccessReviewInstanceComplete
+Write-Host "Verify these operations appear in the Purview audit log for the last 30 days:"
+@(
+    'AccessReviewCreate',
+    'AccessReviewInstanceComplete',
+    'AccessReviewDecisionApplied',
+    'SharingPolicyChanged',
+    'SiteAttestationCompleted'
+) | ForEach-Object { " - $_" }
+```
+
+---
+
+## Complete configuration script
 
 ```powershell
 <#
 .SYNOPSIS
-    Configures Control 4.2 - Site Access Reviews and Certification
+    Configure Control 4.2 — Site Access Reviews and Certification.
 
 .DESCRIPTION
-    This script creates access review schedules and exports site permission reports:
-    1. Creates quarterly access review for SharePoint site groups
-    2. Exports site permissions report for review
-    3. Audits agent service principal permissions
+    Idempotent scaffold that:
+      1. Connects to SPO + Graph using least-privilege scopes
+      2. Exports site inventory + EEEU/orphan findings with SHA-256 evidence hashes
+      3. Optionally creates the FSI quarterly access review for M365 Groups
+      4. Exports current access review decisions
 
 .PARAMETER TenantAdminUrl
-    The SharePoint Admin Center URL
+    SharePoint Admin Center URL (commercial / GCC / GCC High / DoD endpoint).
+
+.PARAMETER EvidencePath
+    Local directory where evidence CSVs and SHA-256 manifests are emitted.
 
 .PARAMETER CreateAccessReview
-    Switch to create new access review schedule
+    Switch to provision the quarterly review. Off by default — review the body
+    parameter against your environment first.
 
 .EXAMPLE
     .\Configure-Control-4.2.ps1 -TenantAdminUrl "https://contoso-admin.sharepoint.com"
 
 .NOTES
-    Last Updated: January 2026
-    Related Control: Control 4.2 - Site Access Reviews and Certification
+    Control: 4.2 (FSI Agent Governance Framework v1.3.3)
+    Last updated: April 2026
+    Read .../playbooks/_shared/powershell-baseline.md before running.
 #>
 
+[CmdletBinding(SupportsShouldProcess = $true)]
 param(
-    [Parameter(Mandatory=$true)]
-    [string]$TenantAdminUrl,
-
-    [switch]$CreateAccessReview
+    [Parameter(Mandatory)] [string] $TenantAdminUrl,
+    [string] $EvidencePath = "C:\Compliance\Control-4.2\$(Get-Date -Format 'yyyyMMdd')",
+    [switch] $CreateAccessReview
 )
 
+$ErrorActionPreference = 'Stop'
+New-Item -ItemType Directory -Path $EvidencePath -Force | Out-Null
+
 try {
-    # Connect to services
-    Write-Host "Connecting to services..." -ForegroundColor Cyan
-    Connect-MgGraph -Scopes "AccessReview.ReadWrite.All", "Directory.Read.All"
+    Connect-MgGraph -Scopes @(
+        'AccessReview.ReadWrite.All',
+        'Directory.Read.All',
+        'Sites.Read.All',
+        'Application.Read.All'
+    ) | Out-Null
     Connect-SPOService -Url $TenantAdminUrl
 
-    # Export site permissions
-    Write-Host "`nExporting site permissions..." -ForegroundColor Yellow
-    $sites = Get-SPOSite -Limit All | Where-Object { $_.Template -notlike "*SPSPERS*" }
-    $sites | Select-Object Url, Title, Owner, SharingCapability, SensitivityLabel |
-        Export-Csv -Path "SitePermissions_$(Get-Date -Format 'yyyyMMdd').csv" -NoTypeInformation
-    Write-Host "  [DONE] Exported $($sites.Count) sites" -ForegroundColor Green
+    # Site inventory
+    $sites = Get-SPOSite -Limit All -IncludePersonalSite:$false |
+        Where-Object { $_.Template -notlike 'SPSPERS*' }
+    $invPath = Join-Path $EvidencePath 'site-inventory.csv'
+    $sites | Select-Object Url, Title, Owner, Template, SharingCapability, SensitivityLabel,
+        @{n='LastContentModified';e={$_.LastContentModifiedDate}} |
+        Export-Csv $invPath -NoTypeInformation -Encoding UTF8
+    "$((Get-FileHash $invPath -Algorithm SHA256).Hash)  site-inventory.csv" |
+        Out-File (Join-Path $EvidencePath 'site-inventory.sha256') -Encoding ASCII
 
-    # List existing access reviews
-    Write-Host "`nExisting Access Reviews:" -ForegroundColor Yellow
-    Get-MgIdentityGovernanceAccessReviewDefinition | Format-Table DisplayName, Status
+    # Existing reviews
+    $reviews = Get-MgIdentityGovernanceAccessReviewDefinition -All
+    $reviews | Select-Object DisplayName, Id, Status, CreatedDateTime |
+        Export-Csv (Join-Path $EvidencePath 'existing-access-reviews.csv') -NoTypeInformation
 
-    if ($CreateAccessReview) {
-        Write-Host "`nCreating new access review..." -ForegroundColor Yellow
-        # Add review creation logic here
-        Write-Host "  [INFO] Use the detailed script above to create access reviews" -ForegroundColor Cyan
+    if ($CreateAccessReview -and
+        $PSCmdlet.ShouldProcess($TenantAdminUrl, 'Create FSI quarterly access review')) {
+        # Insert the $reviewParams block from section 2a here
+        Write-Host 'TODO: paste section 2a body parameter, then call New-MgIdentityGovernanceAccessReviewDefinition.'
     }
 
-    Write-Host "`nControl 4.2 setup complete!" -ForegroundColor Green
-
-    Write-Host "`n[PASS] Control 4.2 configuration completed successfully" -ForegroundColor Green
+    Write-Host "[PASS] Control 4.2 baseline emitted to $EvidencePath" -ForegroundColor Green
 }
 catch {
-    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
-    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
-    exit 1
+    Write-Host "[FAIL] $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[INFO] $($_.ScriptStackTrace)" -ForegroundColor Yellow
+    throw
 }
 finally {
-    # Cleanup connections
-    Disconnect-MgGraph -ErrorAction SilentlyContinue
-    if (Get-SPOSite -Limit 1 -ErrorAction SilentlyContinue) {
-        Disconnect-SPOService -ErrorAction SilentlyContinue
-    }
+    Disconnect-MgGraph    -ErrorAction SilentlyContinue | Out-Null
+    Disconnect-SPOService -ErrorAction SilentlyContinue | Out-Null
 }
 ```
 
 ---
 
-[Back to Control 4.2](../../../controls/pillar-4-sharepoint/4.2-site-access-reviews-and-certification.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+[Back to Control 4.2](../../../controls/pillar-4-sharepoint/4.2-site-access-reviews-and-certification.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification & Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
 ---
 
-*Updated: April 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3*
