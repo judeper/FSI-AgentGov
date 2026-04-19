@@ -62,21 +62,19 @@ validation:
 
 # Auto-generated per-role homework pages: only the top 8 roles are in
 # primary nav; the long-tail ~140 are reachable by URL/search.
-not_in_nav: |
-  /assessment/pre-session/**
 
 # Exclude files that are intentionally not in navigation
 exclude_docs: |
   images/
   scripts/
   templates/
-  assessment/pre-session/
   reference/raci-matrix.md
   controls/CONTROL-INDEX.md
   javascripts/lib/VENDOR-MANIFEST.md
 
 not_in_nav: |
   playbooks/_shared/
+  /assessment/pre-session/**
 
 markdown_extensions:
   - admonition
