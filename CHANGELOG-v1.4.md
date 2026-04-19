@@ -1,6 +1,6 @@
 # Changelog — v1.4.0
 
-**Release Date:** May 2026 (Planned)
+**Release Date:** April 2026
 
 All notable changes to the FSI Agent Governance Framework v1.4.0 are documented here.
 

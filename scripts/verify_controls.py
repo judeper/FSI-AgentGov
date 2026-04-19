@@ -39,9 +39,9 @@ CANON_UPDATED = f"Updated: {date.today().strftime('%B %Y')}"
 # Control docs use an internal version (v1.2 or v1.3) that is separate from the
 # overall framework version shown in README.md (v1.2.x). This is intentional:
 # controls increment their internal version when the template structure changes.
-CANON_VERSION = "Version: v1.3"
+CANON_VERSION = "Version: v1.4"
 _ACCEPTED_UPDATED = _accepted_update_dates(lookback_months=3)
-_ACCEPTED_VERSION = ["Version: v1.2", "Version: v1.3"]
+_ACCEPTED_VERSION = ["Version: v1.2", "Version: v1.3", "Version: v1.4"]
 CANON_UI_STATUS_PREFIX = "UI Verification Status:"
 # Control files use a Roles & Responsibilities section instead of a single Primary Owner field
 ROLES_SECTION = "## Roles & Responsibilities"

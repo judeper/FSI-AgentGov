@@ -55,4 +55,4 @@ Pillar 2 governs the operational processes required to manage AI agents througho
 
 ---
 
-*FSI Agent Governance Framework v1.2 - February 2026*
+*FSI Agent Governance Framework v1.4.0 - April 2026*

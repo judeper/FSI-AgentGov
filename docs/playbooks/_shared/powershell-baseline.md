@@ -205,4 +205,4 @@ If you find a control playbook in this framework that does **not** follow this b
 
 ---
 
-*Updated: April 2026 | Version: v1.0 | Maintained as part of FSI Agent Governance Framework v1.3.4*
+*Updated: April 2026 | Version: v1.0 | Maintained as part of FSI Agent Governance Framework v1.4.0*

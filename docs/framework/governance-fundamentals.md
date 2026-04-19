@@ -296,4 +296,4 @@ This framework is designed to **complement, not replace** existing enterprise go
 
 ---
 
-*FSI Agent Governance Framework v1.3.2 - March 2026*
+*FSI Agent Governance Framework v1.4.0 - April 2026*

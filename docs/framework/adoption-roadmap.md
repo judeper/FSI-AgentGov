@@ -372,4 +372,4 @@ For detailed solution documentation, see [Solutions Integration](solutions-integ
 
 ---
 
-*FSI Agent Governance Framework v1.3.0 - March 2026*
+*FSI Agent Governance Framework v1.4.0 - April 2026*

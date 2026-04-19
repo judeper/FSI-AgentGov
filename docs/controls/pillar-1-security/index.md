@@ -52,4 +52,4 @@ Pillar 1 establishes the technical safeguards required to protect sensitive data
 
 ---
 
-*FSI Agent Governance Framework v1.3 - February 2026*
+*FSI Agent Governance Framework v1.4.0 - April 2026*
