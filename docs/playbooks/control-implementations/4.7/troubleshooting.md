@@ -1097,4 +1097,4 @@ The following 20 anti-patterns are recurring causes of Control 4.7 incidents in 
 
 ---
 
-*Updated: April 2026 | Version: v1.4 | UI Verification Status: Current*
+*Updated: April 2026 | Version: v1.4.0 | UI Verification Status: Current*

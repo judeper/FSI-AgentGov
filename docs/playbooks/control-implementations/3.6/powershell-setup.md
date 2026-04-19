@@ -1352,4 +1352,4 @@ Detection output, remediation journals, and the sovereign worksheet **support co
   - [3.1 — Agent Inventory and Metadata Management](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) — inventory/metadata source cross-referenced by the reconciliation engine
   - [3.13 — Agent 365 Admin Center Analytics](../../../controls/pillar-3-reporting/3.13-agent-365-admin-center-analytics.md) — card-vs-detection parity source (Verification Criterion #2)
 
-*Updated: April 2026 | Version: v1.4 | UI Verification Status: Current*
+*Updated: April 2026 | Version: v1.4.0 | UI Verification Status: Current*

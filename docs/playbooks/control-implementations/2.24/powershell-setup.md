@@ -1724,6 +1724,6 @@ This control's PowerShell evidence depends on, or is consumed by, the following 
 
 ---
 
-*Updated: April 2026 | Version: v1.4 | UI Verification Status: Current*
+*Updated: April 2026 | Version: v1.4.0 | UI Verification Status: Current*
 
 

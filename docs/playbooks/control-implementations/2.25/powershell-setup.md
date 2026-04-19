@@ -1593,5 +1593,5 @@ The cadence is mirrored in the sister 2.26 playbook so that the daily and weekly
 
 ---
 
-*Updated: April 2026 | Version: v1.4 | UI Verification Status: Current (April 2026, post-GA)*
+*Updated: April 2026 | Version: v1.4.0 | UI Verification Status: Current (April 2026, post-GA)*
 

@@ -1452,4 +1452,4 @@ Confirm every item before declaring Control 3.4 portal-side implementation **Rea
 
 ---
 
-*Updated: April 2026 | Version: v1.4 | UI Verification Status: Current*
+*Updated: April 2026 | Version: v1.4.0 | UI Verification Status: Current*

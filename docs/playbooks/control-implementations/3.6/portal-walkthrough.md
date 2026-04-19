@@ -720,4 +720,4 @@ A session that fails to satisfy any checklist item is **incomplete**; do not fil
 
 ---
 
-*Updated: April 2026 | Version: v1.4 | UI Verification Status: Current*
+*Updated: April 2026 | Version: v1.4.0 | UI Verification Status: Current*

@@ -831,4 +831,4 @@ Every item in this list has been observed in field engagements. Each maps to a `
 
 ---
 
-*Updated: April 2026 | Version: v1.4*
+*Updated: April 2026 | Version: v1.4.0*

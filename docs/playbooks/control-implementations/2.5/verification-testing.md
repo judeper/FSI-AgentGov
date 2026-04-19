@@ -1194,4 +1194,4 @@ The sovereign matrix below is explicit and practical. It does not assert permane
 
 ---
 
-*Updated: April 2026 | Version: v1.4 | Maintained by: AI Governance Team*
+*Updated: April 2026 | Version: v1.4.0 | Maintained by: AI Governance Team*

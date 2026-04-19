@@ -1803,4 +1803,4 @@ A delta against the prior cycle's watch-list is recorded in the cycle's evidence
 
 ---
 
-*Updated: April 2026 | Version: v1.4 | UI Verification Status: Current*
+*Updated: April 2026 | Version: v1.4.0 | UI Verification Status: Current*

@@ -1231,4 +1231,4 @@ This playbook depends on or is consumed by the following controls. Implementers 
 
 ---
 
-*Updated: April 2026 | Version: v1.4 | Maintained by: AI Governance Team*
+*Updated: April 2026 | Version: v1.4.0 | Maintained by: AI Governance Team*

@@ -1408,4 +1408,4 @@ These are the 18 patterns that have caused FSI auditor findings in this control 
 
 ---
 
-*Updated: April 2026 | Version: v1.4 | UI Verification Status: Current*
+*Updated: April 2026 | Version: v1.4.0 | UI Verification Status: Current*

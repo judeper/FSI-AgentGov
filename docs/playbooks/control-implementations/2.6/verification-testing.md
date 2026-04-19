@@ -598,4 +598,4 @@ The cycle attestation rolls up every assertion into a single MRM cycle status:
 
 ---
 
-*Updated: April 2026 | Version: v1.4 | UI Verification Status: Current*
+*Updated: April 2026 | Version: v1.4.0 | UI Verification Status: Current*

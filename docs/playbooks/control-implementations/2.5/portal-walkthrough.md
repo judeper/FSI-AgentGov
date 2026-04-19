@@ -1240,4 +1240,4 @@ Use this as the operator's pre-promotion self-check and as the examiner walk-thr
 
 ---
 
-*Updated: April 2026 | Version: v1.4 | Maintained by: AI Governance Team | UI Verification Status: Current*
+*Updated: April 2026 | Version: v1.4.0 | Maintained by: AI Governance Team | UI Verification Status: Current*

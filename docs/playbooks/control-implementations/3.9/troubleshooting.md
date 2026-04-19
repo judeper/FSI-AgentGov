@@ -1072,4 +1072,4 @@ Capture E-01 (incident), E-02 (connector + AppInsights linkage state at time of 
 
 ---
 
-*Updated: April 2026 | Version: v1.4 | UI Verification Status: Current*
+*Updated: April 2026 | Version: v1.4.0 | UI Verification Status: Current*

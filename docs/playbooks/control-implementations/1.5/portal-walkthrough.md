@@ -689,4 +689,4 @@ Use this as the §15 sign-off checklist before any Zone 3 enforcement decision.
 
 ---
 
-*Updated: April 2026 | Version: v1.4 | UI Verification Status: Current*
+*Updated: April 2026 | Version: v1.4.0 | UI Verification Status: Current*
