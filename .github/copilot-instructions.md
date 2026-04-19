@@ -135,7 +135,7 @@ Controls follow a standardized format with header metadata, 10 sections, and foo
 10. Additional Resources (Microsoft Learn links)
 
 **Footer Metadata:**
-- *Updated: Month-Year | Version: v1.3 | UI Verification Status: Current*
+- *Updated: Month-Year | Version: v1.4.0 | UI Verification Status: Current*
 
 ### Administrator Role Naming (Canonical)
 
