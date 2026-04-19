@@ -1,251 +1,298 @@
-# Control 3.8: Copilot Hub and Governance Dashboard - Troubleshooting
+# Control 3.8: Copilot Hub and Governance Dashboard — Troubleshooting
 
-> This playbook provides troubleshooting guidance for [Control 3.8](../../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md).
+> Troubleshooting guidance for [Control 3.8](../../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md). Each issue follows the same structure: **Symptoms → Likely cause → Diagnostic steps → Resolution → Evidence to capture**. Always wait the documented propagation window (24 h for exclusion groups, 8 h for tenant settings) before escalating — premature escalation is the most common false-positive in FSI Copilot deployments.
 
 ---
 
-## Common Issues and Resolutions
+## 1. AI Feature Access Control issues
 
-### AI Feature Access Control Issues
+### 1.1 Excluded user still has Copilot access
 
-#### Issue: User Still Has Copilot Access After Being Added to Exclusion Group
+**Symptoms:** A user added to `CopilotForM365AdminExclude` continues to see admin-center Copilot features.
 
-**Symptoms:** User added to `CopilotForM365AdminExclude` group can still access Copilot features
+**Likely causes:**
+
+- Less than 24 hours since group membership change.
+- Group name typo (case-sensitive — must be exactly `CopilotForM365AdminExclude`).
+- User has cached tokens.
+- User holds multiple Copilot license assignments and one bypasses the exclusion path.
+
+**Diagnostic steps:**
+
+```powershell
+$grp = Get-MgGroup -Filter "displayName eq 'CopilotForM365AdminExclude'"
+$usr = Get-MgUser  -Filter "userPrincipalName eq 'user@contoso.com'"
+Get-MgGroupMember -GroupId $grp.Id | Where-Object Id -eq $usr.Id  # confirm membership
+$usr.AssignedLicenses | Format-Table  # confirm only one Copilot SKU
+```
 
 **Resolution:**
 
-1. **Verify propagation time:**
-   - Admin Exclusion Group membership changes take up to **24 hours** to propagate
-   - Check timestamp of when user was added to group
-   - If less than 24 hours, wait for full propagation window
-   - Have user sign out and back in after 24-hour window
+1. Wait the full 24-hour propagation window.
+2. Verify the group name exactly (no whitespace, correct casing).
+3. Have the user sign out of all M365 sessions, clear browser cache, and sign in again.
+4. If still failing, check for Conditional Access policies or admin role overrides (Global Admins may bypass certain restrictions).
+5. Note the scope: the exclusion governs **admin-center** Copilot features; end-user Copilot in Word/Excel/Teams requires separate license/policy controls.
 
-2. **Verify group name is exact:**
-   - Navigate to Microsoft Entra admin center > Groups
-   - Confirm group name is exactly `CopilotForM365AdminExclude` (case-sensitive)
-   - Check for typos, extra spaces, or incorrect capitalization
-   - If incorrect, create new group with correct name and migrate members
+**Evidence:** PowerShell membership confirmation, before/after screenshots, timestamp records.
 
-3. **Verify group membership:**
-   - Open the exclusion group
-   - Confirm user appears in Members list
-   - Check for nested group issues (if using nested groups, verify membership cascades correctly)
-   - Use PowerShell to verify: `Get-MgGroupMember -GroupId <GroupId> | Where-Object { $_.Id -eq '<UserId>' }`
+---
 
-4. **Check for conflicting policies:**
-   - Verify no Conditional Access policies or other admin center settings override the exclusion
-   - Check if user has multiple M365 Copilot license assignments from different sources
-   - Review admin roles assigned to user (Global Admins may bypass certain restrictions)
+### 1.2 Deployment group not limiting access
 
-5. **Force token refresh:**
-   - Have user sign out of all Microsoft 365 sessions
-   - Clear browser cache and cookies
-   - Sign back in and test Copilot access
-   - May require device restart for full token refresh
+**Symptoms:** Users outside the deployment group can access Copilot, or users inside cannot.
 
-**Diagnostic Command:**
+**Likely causes:**
+
+- Group is Microsoft 365 instead of Security.
+- Deployment group setting points at the wrong group ID.
+- Less than 8 hours since the change.
+- User is in both deployment group and Admin Exclusion Group (exclusion wins).
+
+**Diagnostic steps:**
+
 ```powershell
-# Verify user is in exclusion group
-$group = Get-MgGroup -Filter "displayName eq 'CopilotForM365AdminExclude'"
-$user = Get-MgUser -Filter "userPrincipalName eq 'user@contoso.com'"
-Get-MgGroupMember -GroupId $group.Id | Where-Object { $_.Id -eq $user.Id }
+$dep = Get-MgGroup -Filter "displayName eq 'Copilot-Pilot-IT-Compliance'"
+$exc = Get-MgGroup -Filter "displayName eq 'CopilotForM365AdminExclude'"
+$usr = Get-MgUser  -Filter "userPrincipalName eq 'user@contoso.com'"
+Get-MgGroupMember -GroupId $dep.Id | Where-Object Id -eq $usr.Id
+Get-MgGroupMember -GroupId $exc.Id | Where-Object Id -eq $usr.Id
+$dep.SecurityEnabled; $dep.MailEnabled  # must be True; False
+```
+
+**Resolution:**
+
+1. Confirm group type is Security (`SecurityEnabled = True`, `MailEnabled = False`).
+2. Reconcile the configured group ID against the intended group.
+3. Wait the 8-hour window.
+4. Remove the user from the exclusion group if conflict detected.
+
+---
+
+### 1.3 Web search still returning results after disabling
+
+**Symptoms:** Copilot continues to ground responses in external web data after the setting is Disabled.
+
+**Likely causes:**
+
+- Less than 8 hours since the change.
+- Setting was applied at a sub-scope (group/user) but not tenant-wide.
+- Browser/session cache.
+- Response is internal data that **looks** web-like.
+
+**Resolution:**
+
+1. Wait the 8-hour window.
+2. Re-test with a query that demonstrably requires web access ("today's news headlines"); the expected response is "I don't have access to web search" or equivalent.
+3. Confirm the tenant-level setting is Disabled (not just a per-group override).
+4. Have the user sign out and clear cache before retesting.
+
+**Evidence:** before/after settings screenshot, before/after response screenshot with citation list.
+
+---
+
+### 1.4 Admin Exclusion Group propagation appears stuck
+
+**Symptoms:** 24-hour window has elapsed, exclusion still not effective.
+
+**Resolution:**
+
+1. Confirm the group name exactly matches `CopilotForM365AdminExclude`.
+2. Verify the user is a direct member, not nested through an unsupported group type.
+3. Open a Microsoft Support ticket — include the group object ID, the affected user UPN, the timestamp of group membership change, and the exact Copilot feature you are testing. Reference KB documentation for `CopilotForM365AdminExclude`.
+4. Track Sev B; targeted SLA 4 hours.
+
+---
+
+## 2. Copilot Hub portal issues
+
+### 2.1 Copilot section missing from M365 Admin Center
+
+**Symptoms:** No Copilot navigation entry in admin.microsoft.com.
+
+**Resolution:**
+
+1. Confirm M365 Copilot licenses are assigned in the tenant (not just purchased).
+2. Confirm the signed-in user has AI Administrator or Entra Global Admin.
+3. Clear browser cache, sign in again.
+4. Check the Service Health Dashboard for tenant-level Copilot incidents.
+
+---
+
+### 2.2 Settings changes not propagating
+
+**Symptoms:** Saved configuration is not reflected in user behavior after the documented window.
+
+**Resolution:**
+
+1. Allow up to **8 hours** for tenant settings; up to **24 hours** for Admin Exclusion Group; up to **48 hours** in extreme cases.
+2. Confirm users sign out and back in.
+3. Check Conditional Access for policies that re-enable controls (e.g., session controls forcing web grounding).
+4. Check group policy overrides for browser-side controls (Edge Copilot, etc.).
+5. If still failing, capture timestamps and submit a Microsoft Support ticket.
+
+---
+
+### 2.3 Agent registry incomplete or inaccurate
+
+**Symptoms:** Known agents missing; counts disagree with Copilot Studio inventory.
+
+**Resolution:**
+
+1. Confirm Entra ID directory sync is current (no pending sync errors).
+2. Use the Refresh control on the Registry page.
+3. Cross-check via the PPAC Copilot Studio environment inventory (`Export-PpacCopilotStudioInventory`).
+4. For Frontier agents (App Builder, Workflows) and SharePoint agents, hero metrics depend on Agent 365 / M365 E7 licensing and the Agent 365 Observability SDK — coverage gaps are expected and should be documented per the control's "Verification Criteria" item 23.
+
+---
+
+### 2.4 Usage reports show no data
+
+**Symptoms:** Chat Active Users / Assisted Hours / Satisfaction Rate panels empty.
+
+**Resolution:**
+
+1. Confirm Copilot has been actively used for ≥ 72 hours.
+2. Confirm Purview Audit (Standard or Premium) is enabled tenant-wide.
+3. Confirm the executing identity has the **Reports Reader** role (or higher).
+4. Verify the report date range covers active usage.
+
+---
+
+## 3. PowerShell automation issues
+
+### 3.1 `Get-MgAuditLogDirectoryAudit` returns no Copilot events
+
+**Likely causes:**
+
+- Purview Audit not enabled.
+- Identity lacks `AuditLog.Read.All`.
+- Filter window predates audit retention (default 180 days for Standard).
+
+**Resolution:**
+
+```powershell
+Get-MgContext | Select-Object Account, Scopes
+# Confirm AuditLog.Read.All present; if not, reconnect with the scope
+Connect-MgGraph -Scopes 'AuditLog.Read.All' -Environment $env
+```
+
+Confirm Purview Audit is enabled in the Microsoft Purview portal.
+
+---
+
+### 3.2 `Add-PowerAppsAccount` returns zero environments
+
+**Almost always a sovereign-cloud endpoint mismatch** — see [PowerShell baseline §3](../../_shared/powershell-baseline.md). Pass `-Endpoint usgov` / `usgovhigh` / `dod` / `china` for the appropriate cloud. Commercial-endpoint authentication against a sovereign tenant returns false-clean (zero) results.
+
+---
+
+### 3.3 PPAC cmdlets fail with empty results in PowerShell 7
+
+**Cause:** `Microsoft.PowerApps.Administration.PowerShell` is **Desktop-only** (Windows PowerShell 5.1).
+
+**Resolution:** Run PPAC governance scripts in Windows PowerShell 5.1 only. The PowerShell baseline includes a guard:
+
+```powershell
+if ($PSVersionTable.PSEdition -ne 'Desktop') {
+    throw 'PPAC governance cmdlets require Windows PowerShell 5.1.'
+}
 ```
 
 ---
 
-#### Issue: Deployment Group Not Limiting Copilot Access
+### 3.4 Module-version mismatch breaks evidence reproducibility
 
-**Symptoms:** Users outside deployment group can access Copilot features, or users inside deployment group cannot access
+**Symptoms:** Same script returns different shapes between runs; SHA-256 manifests disagree.
 
-**Resolution:**
-
-1. **Verify group type:**
-   - Deployment groups must be **Security groups** in Entra ID
-   - Navigate to Microsoft Entra admin center > Groups > [Deployment Group]
-   - Verify "Group type" is "Security"
-   - If incorrect, recreate as security group and reassign members
-
-2. **Check license assignment:**
-   - Verify users have M365 Copilot licenses assigned
-   - Deployment groups control availability, but licenses are still required
-   - Navigate to M365 Admin Center > Users > Active users > [User] > Licenses
-   - If license missing, assign M365 Copilot license
-
-3. **Verify deployment group configuration:**
-   - Navigate to M365 Admin Center > Copilot > Settings
-   - Check if deployment group setting is enabled and pointing to correct group
-   - Confirm group ID matches the intended deployment group
-
-4. **Allow propagation time:**
-   - Deployment group changes take up to **8 hours** to propagate
-   - Check timestamp of configuration change
-   - If less than 8 hours, wait for full propagation window
-   - Test again after propagation window completes
-
-5. **Check for Admin Exclusion Group conflicts:**
-   - If user is in BOTH deployment group AND Admin Exclusion Group, exclusion takes precedence
-   - Verify user is not inadvertently in exclusion group
-   - Admin Exclusion Group overrides deployment group membership
-
-**Diagnostic Commands:**
-```powershell
-# Verify user's deployment group membership
-$deploymentGroup = Get-MgGroup -Filter "displayName eq 'Copilot-Pilot-IT-Compliance'"
-$user = Get-MgUser -Filter "userPrincipalName eq 'user@contoso.com'"
-Get-MgGroupMember -GroupId $deploymentGroup.Id | Where-Object { $_.Id -eq $user.Id }
-
-# Check if user is in exclusion group
-$exclusionGroup = Get-MgGroup -Filter "displayName eq 'CopilotForM365AdminExclude'"
-Get-MgGroupMember -GroupId $exclusionGroup.Id | Where-Object { $_.Id -eq $user.Id }
-```
+**Resolution:** Pin every module via `-RequiredVersion <approved-version>` — see [baseline §1](../../_shared/powershell-baseline.md). Document the pinned versions in your change ticket.
 
 ---
 
-#### Issue: Web Search Still Returning Results After Disabling
+## 4. Supervision and transcript issues
 
-**Symptoms:** Copilot responses include web-grounded content despite web search being disabled in settings
+### 4.1 Agent creator can still access their own transcripts
 
-**Resolution:**
-
-1. **Allow propagation delay:**
-   - Web search setting changes take up to **8 hours** to propagate across tenant
-   - Check timestamp of when web search was disabled
-   - If less than 8 hours, wait for full propagation window
-   - Note: Propagation time can vary; some tenants may see faster updates
-
-2. **Verify setting at correct scope:**
-   - Navigate to M365 Admin Center > Copilot > Settings > Data access
-   - Verify "Web search for M365 Copilot" is set to "Disabled"
-   - Check if setting is applied at tenant level (not just group-level override)
-   - Some organizations may have multiple scopes; ensure tenant-level setting is disabled
-
-3. **Distinguish web search from organizational data:**
-   - Copilot may still provide responses that APPEAR web-like but are from organizational data
-   - Verify response sources — does Copilot cite external websites or only internal documents?
-   - Test with query that clearly requires external web (e.g., "What happened in the news today?")
-   - If response indicates "I don't have access to web data" but provides organizational info, setting is working correctly
-
-4. **Check user-level overrides:**
-   - Some Copilot implementations may have user-level or group-level web search overrides
-   - Verify no Conditional Access policies or other settings re-enable web search for specific users
-   - Test with multiple users in different groups to isolate scope issue
-
-5. **Clear user session and cache:**
-   - Have user sign out of all M365 sessions
-   - Clear browser cache
-   - Sign back in and test Copilot query
-   - Cached responses may appear web-grounded even after setting disabled
-
-**Diagnostic Steps:**
-- Test query: "What are the latest news headlines?" (requires web)
-- Expected response with web disabled: "I don't have access to web search" or similar message
-- If Copilot provides news headlines, web search may still be enabled or propagation incomplete
-
----
-
-### General Copilot Issues
-
-#### Issue: Copilot Section Not Visible
-
-**Symptoms:** Copilot not in M365 Admin Center navigation
+**Likely causes:** Conditional Access or RBAC policy not enforced; user is in both `Copilot-Studio-Publishers` and `Copilot-Compliance-Supervisors`.
 
 **Resolution:**
 
-1. Verify M365 Copilot licenses assigned in tenant
-2. Ensure user has Entra Global Admin role
-3. Clear browser cache and refresh
-4. Check for tenant-level service issues
+1. Audit group membership — a user must not be in both groups.
+2. Confirm the Conditional Access policy denying transcript URLs to `Copilot-Studio-Publishers` is in **Enabled** state (not Report-only).
+3. Sign the user out, clear cached tokens, retest.
+4. Capture the failure for your separation-of-duties evidence pack.
 
 ---
 
-### Issue: Settings Changes Not Applying
+### 4.2 Transcript retention shorter than 7 years
 
-**Symptoms:** Configuration updates don't reflect for users
+**Resolution:** Configure a Purview retention policy on the Copilot Studio transcript location with minimum 7-year retention. For SEC 17a-4(f) WORM expectations, pair with Azure Immutable Blob Storage (legal hold or time-based retention) for the exported archives.
+
+---
+
+### 4.3 No audit events for transcript access
 
 **Resolution:**
 
-1. Allow 24-48 hours for policy propagation
-2. Have users sign out and back in
-3. Check for conflicting Conditional Access policies
-4. Verify no Group Policy overrides
+1. Confirm Purview Audit is enabled.
+2. Confirm Copilot Studio audit events are within the retention window (Standard: 180 days; Premium: up to 10 years).
+3. Verify the executing identity holds **AuditLog.Read.All**.
+4. For SIEM forwarding, confirm the connector is healthy and not back-pressured.
 
 ---
 
-### Issue: Agent Registry Incomplete
+## 5. DLP and publishing issues
 
-**Symptoms:** Missing agents or incorrect counts
+### 5.1 Agents continue to publish through restricted connectors
 
 **Resolution:**
 
-1. Verify Entra ID sync is current
-2. Check agents are properly registered
-3. Use Refresh button on Registry page
-4. Allow time for data population
+1. Confirm a tenant DLP policy includes the target environment.
+2. Confirm `Copilot Studio for Microsoft Teams` and `M365 Copilot channel` are in the **Blocked** classification.
+3. Confirm the policy is in **Enforced** mode (not Audit).
+4. See [Control 1.5 — DLP](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) for full DLP authoring.
 
 ---
 
-### Issue: Usage Reports Empty
-
-**Symptoms:** No data in usage reports
-
-**Resolution:**
-
-1. Confirm Copilot actively used (72+ hours)
-2. Verify audit logging is enabled
-3. Check report date range includes active usage
-4. Verify Reports Reader role assigned
-
----
-
-### Issue: PowerShell Scripts Failing
-
-**Symptoms:** Authentication or permission errors
-
-**Resolution:**
-
-1. Update Microsoft.Graph module to latest
-2. Verify required scopes are consented
-3. Check Conditional Access policies
-4. Re-authenticate with Connect-MgGraph
-
----
-
-## Diagnostic Commands
+## Diagnostic command quick reference
 
 ```powershell
-# Verify Copilot license assignment
-$copilotSkus = Get-MgSubscribedSku | Where-Object { $_.SkuPartNumber -like "*Copilot*" }
-$copilotSkuIds = $copilotSkus.SkuId
-Get-MgUser -Filter "assignedLicenses/any()" -All |
-    Where-Object { ($_.AssignedLicenses.SkuId | Where-Object { $_ -in $copilotSkuIds }).Count -gt 0 } |
+# Copilot license assignment
+$copilotSkus = Get-MgSubscribedSku | Where-Object SkuPartNumber -match 'Copilot'
+Get-MgUser -Filter 'assignedLicenses/any()' -All |
+    Where-Object { ($_.AssignedLicenses.SkuId | Where-Object { $_ -in $copilotSkus.SkuId }).Count -gt 0 } |
     Select-Object DisplayName, UserPrincipalName
 
-# Check admin role assignments
-Get-MgDirectoryRole | Where-Object { $_.DisplayName -like "*Admin*" }
-
-# Verify Graph connection
+# Confirm Graph context and scopes
 Get-MgContext | Select-Object Account, TenantId, Scopes
+
+# List Copilot-relevant directory roles
+Get-MgDirectoryRole | Where-Object DisplayName -match 'AI Administrator|Global Administrator|Power Platform Administrator'
 ```
 
 ---
 
-## Escalation Path
+## Escalation path
 
-| Issue Severity | Escalate To | Response Time |
-|----------------|-------------|---------------|
-| Copilot section unavailable | Microsoft Support | 4 hours |
-| Settings not propagating | IT Operations | 24 hours |
-| Agent registry issues | Platform Admin | 4 hours |
-| Compliance concern | Compliance Officer | Immediate |
+| Severity | Symptom | Escalate to | Target response |
+|---|---|---|---|
+| Sev A | Copilot Hub unavailable tenant-wide | Microsoft Support (Severity A) | 1 hour |
+| Sev B | Settings not propagating after documented window | Microsoft Support (Sev B) + IT Operations | 4 hours |
+| Sev B | Admin Exclusion Group failing to enforce | Microsoft Support + Compliance Officer | 4 hours |
+| Sev C | Agent registry inaccurate | Power Platform Admin | 1 business day |
+| Immediate | Suspected unauthorized transcript access | Compliance Officer + Security Team | Immediate |
+| Immediate | DLP bypass observed | Compliance Officer + Security Team | Immediate |
+
+> Hedged language reminder: this control **supports** FINRA / SEC / GLBA / SOX evidence requirements; troubleshooting issues do not by themselves trigger regulatory non-compliance, but undocumented gaps in supervision often do. Capture every diagnostic step in your change/incident ticket.
 
 ---
 
 ## Next Steps
 
-- [Portal Walkthrough](./portal-walkthrough.md) - Manual configuration
-- [PowerShell Setup](./powershell-setup.md) - Automation scripts
-- [Verification & Testing](./verification-testing.md) - Test procedures
+- [Portal Walkthrough](portal-walkthrough.md) — manual configuration
+- [PowerShell Setup](powershell-setup.md) — automation scripts
+- [Verification & Testing](verification-testing.md) — test cases and evidence collection
 
 ---
 
-*Updated: February 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3 | UI Verification Status: Current*

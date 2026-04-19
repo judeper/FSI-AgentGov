@@ -1,403 +1,317 @@
-# Control 3.8: Copilot Hub and Governance Dashboard - Verification & Testing
+# Control 3.8: Copilot Hub and Governance Dashboard — Verification & Testing
 
-> This playbook provides verification and testing procedures for [Control 3.8](../../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md).
+> Verification and testing procedures for [Control 3.8](../../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md). Use this playbook to produce examination-ready evidence that the Copilot Hub and Agent governance surfaces are configured per zone, that AI feature toggles are governed, and that transcript supervision controls operate as designed. All language is hedged — these tests **support** FINRA / SEC / GLBA / SOX evidence; they do not by themselves constitute compliance.
 
 ---
 
-## Verification Steps
+## Verification Strategy
 
-### 1. M365 Admin Center Access
-
-- Navigate to Copilot section
-- Verify all five navigation items accessible
-- Confirm Settings tabs load correctly
-
-### 2. Agents Section Access
-
-- Navigate to Agents section
-- Verify Overview metrics display
-- Confirm Registry shows all agents
-
-### 3. PPAC Copilot Access
-
-- Navigate to PPAC Copilot section
-- Verify Settings page loads
-- Confirm Copilot Studio dashboard accessible
-
-### 4. Settings Configuration
-
-- Verify FSI-recommended settings applied
-- Confirm web search disabled
-- Check external AI providers blocked
+| Layer | What to test | Evidence type |
+|---|---|---|
+| **Portal accessibility** | Copilot Hub, Agents page, PPAC Copilot all render with required navigation | Screenshot |
+| **Settings configuration** | User access, Data access, Actions, Other tabs match zone profile | Screenshot + JSON snapshot |
+| **Behavioral controls** | Admin Exclusion Group, Deployment Groups, web search, agent restrictions | Test-user sign-in evidence |
+| **Supervision controls** | Transcript access roles, separation of duties, retention, audit trail | Role assignment export + audit log |
+| **SSPM hardening** | AI feature toggles per Configuration Hardening Baseline | Screenshot + JSON snapshot |
 
 ---
 
 ## Compliance Checklist
 
-| Item | Required For | Status |
-|------|--------------|--------|
-| Copilot settings documented | Audit evidence | |
-| Web search disabled | FINRA 4511 compliance | |
-| External AI providers blocked | Data governance | |
-| Agent approval workflow configured | Risk management | |
-| Usage reports exported monthly | FINRA 4511 | |
-| MCP Servers reviewed | Security | |
+| # | Item | Evidence | Regulatory tie |
+|---|---|---|---|
+| 1 | Copilot Settings documented across all four tabs | Screenshot + JSON | FINRA 4511, SOX 404 |
+| 2 | Web search disabled per zone | Screenshot + behavioral test | GLBA 501(b), MNPI |
+| 3 | External AI providers and third-party LLMs blocked | Screenshot | FINRA 4511 |
+| 4 | Agent approval workflow active | Pending-requests export | FINRA 3110, SEC 17a-3 |
+| 5 | Monthly usage reports archived | Export + SHA-256 manifest | FINRA 4511, FINRA 25-07 |
+| 6 | MCP Server allow-list reviewed | Screenshot + change ticket | SOX 404 |
+| 7 | Transcript access restricted to Compliance | Role export | FINRA 3110 |
+| 8 | Transcript retention ≥ 7 years | Purview retention policy | FINRA 4511, SEC 17a-4 |
+| 9 | Separation of duties — agent creators excluded from own transcripts | RBAC / CA policy | FINRA 3110 |
+| 10 | DLP blocks publishing connectors in restricted environments | DLP policy export | SOX 404, FINRA 4511 |
 
 ---
 
-## Test Cases
+## Test Cases — Behavioral Controls
 
-### Test Case FAC-01: Admin Exclusion Group Correctly Removes Copilot Access
+Each test case includes an objective, prerequisites, steps, structured pass/fail criteria, evidence to collect, and the regulatory mapping.
 
-**Objective:** Verify Admin Exclusion Group correctly removes Microsoft 365 Copilot access for excluded users
+### FAC-01 — Admin Exclusion Group removes Copilot admin-center access
+
+**Objective:** Verify `CopilotForM365AdminExclude` group membership removes admin-center Copilot features for excluded users.
 
 **Prerequisites:**
-- Admin Exclusion Group created with name `CopilotForM365AdminExclude`
-- Test user has M365 Copilot license assigned
-- Test user is NOT currently in Admin Exclusion Group
+
+- `CopilotForM365AdminExclude` security group exists (exact name).
+- Test user has M365 Copilot license and is **not** currently in the group.
 
 **Steps:**
 
-1. **Baseline verification:**
-   - Sign in as test user
-   - Navigate to Microsoft Teams or Outlook
-   - Verify Copilot Chat is accessible and functional
-   - Document current access state
+1. Baseline: sign in as test user; capture screenshot showing Copilot admin-center features available.
+2. Add test user to `CopilotForM365AdminExclude`. Record timestamp.
+3. Wait the full **24-hour** propagation window.
+4. Force a fresh authentication (sign out, clear cache, sign in).
+5. Capture screenshot showing admin-center Copilot features unavailable.
+6. Confirm M365 Copilot license is still assigned (license assignment must be unchanged — exclusion is behavioral).
+7. Remove the user from the group, wait 24 hours, confirm restoration.
 
-2. **Add user to Admin Exclusion Group:**
-   - As administrator, navigate to Microsoft Entra admin center > Groups
-   - Open `CopilotForM365AdminExclude` group
-   - Add test user to group membership
-   - Document timestamp of addition
+**Pass criteria:**
 
-3. **Wait for propagation:**
-   - Wait 24 hours for group membership change to propagate
-   - Note: Propagation can take up to 24 hours per Microsoft documentation
+- After ≥ 24 hours, the excluded user cannot access admin-center Copilot features while still holding the license.
+- Removing the user from the group restores access within 24 hours.
 
-4. **Verify exclusion:**
-   - Sign in as test user (force new authentication session)
-   - Navigate to Microsoft Teams > Copilot Chat
-   - Attempt to access Copilot features
-   - Document behavior (access denied, features not visible, error message)
+**Fail conditions:**
 
-5. **Verify license assignment unchanged:**
-   - As administrator, verify test user still has M365 Copilot license assigned
-   - Confirm exclusion is behavioral (group-based), not license-based
+- Access remains after 24 hours → check group name spelling (case-sensitive) and conflicting policies.
+- License is missing → exclusion was applied incorrectly via licensing rather than the exclusion group.
 
-6. **Remove from exclusion group and verify restoration:**
-   - Remove test user from Admin Exclusion Group
-   - Wait 24 hours for propagation
-   - Sign in as test user and verify Copilot access restored
+**Evidence:** before/after screenshots, group membership export, Entra audit log entry for the membership change, timestamp record.
 
-**Expected Result:**
-- User in Admin Exclusion Group cannot access Copilot features despite having valid license
-- Copilot Chat not visible in Teams/Outlook, or displays "not available" message
-- After removal from group (and propagation), access is restored
-
-**Evidence to Collect:**
-- Screenshot of test user with Copilot access before exclusion
-- Screenshot of Admin Exclusion Group membership showing test user
-- Screenshot of test user without Copilot access after exclusion
-- Entra ID audit log entry showing group membership change
-- Timestamp documentation for 24-hour propagation verification
-
-**Regulatory Mapping:** FINRA 3110 (supervisory restrictions), SOX 404 (IT access controls)
+**Regulatory mapping:** FINRA 3110 (supervisory restrictions), SOX 404 (IT access controls).
 
 ---
 
-### Test Case FAC-02: Deployment Group Limits Copilot Availability to Specified User Population
+### FAC-02 — Deployment Group limits Copilot to approved population
 
-**Objective:** Verify Deployment Group correctly limits Copilot availability to users in approved deployment phase
+**Objective:** Verify Copilot availability is limited to deployment-group members.
 
 **Prerequisites:**
-- Deployment group created (e.g., `Copilot-Pilot-IT-Compliance`)
-- Two test users with M365 Copilot licenses:
-  - Test User A: Member of deployment group
-  - Test User B: NOT member of deployment group (but has license)
+
+- Deployment group (e.g., `Copilot-Pilot-IT-Compliance`) created.
+- Test User A (in group) and Test User B (not in group), both with M365 Copilot license.
 
 **Steps:**
 
-1. **Create deployment group:**
-   - As administrator, create deployment group in M365 Admin Center > Copilot > Settings
-   - Add Test User A to deployment group
-   - Verify Test User B is NOT in deployment group
-   - Document group configuration
+1. Configure Copilot to be available only to the deployment group; record timestamp.
+2. Wait **8 hours** for tenant propagation.
+3. Test User A: confirm Copilot Chat in Teams/Outlook is accessible.
+4. Test User B: confirm Copilot Chat is **not** accessible.
+5. Confirm both users hold identical Copilot licenses.
 
-2. **Configure Copilot for deployment group only:**
-   - In M365 Admin Center, configure Copilot to be available only to deployment group members
-   - Save settings and document timestamp
+**Pass criteria:** A has access; B does not; license assignments are identical.
 
-3. **Wait for propagation:**
-   - Wait 8 hours for settings to propagate across tenant
+**Fail conditions:**
 
-4. **Test User A (in deployment group):**
-   - Sign in as Test User A
-   - Navigate to Teams > Copilot Chat
-   - Verify Copilot features are accessible and functional
-   - Document successful access
+- B has access → confirm group type is **Security**, deployment group setting is enabled, and 8-hour propagation has elapsed.
+- A has no access → confirm A is in the deployment group and not also in the Admin Exclusion Group (exclusion overrides).
 
-5. **Test User B (NOT in deployment group):**
-   - Sign in as Test User B
-   - Navigate to Teams > Copilot Chat
-   - Verify Copilot features are NOT accessible
-   - Document denial behavior (features hidden, error message, etc.)
+**Evidence:** group membership export, before/after screenshots for both users, license assignment report.
 
-6. **Verify license assignments:**
-   - Confirm both Test User A and Test User B have identical M365 Copilot license assignments
-   - Verify difference in access is deployment group membership, not licensing
-
-**Expected Result:**
-- Test User A (in deployment group): Copilot access granted
-- Test User B (not in deployment group): Copilot access denied despite valid license
-- Deployment group configuration enforces phased rollout control
-
-**Evidence to Collect:**
-- Deployment group membership list showing Test User A included, Test User B excluded
-- Screenshot of Test User A successfully accessing Copilot
-- Screenshot of Test User B denied access to Copilot
-- License assignment report showing both users have M365 Copilot licenses
-- M365 Admin Center settings showing deployment group configuration
-
-**Regulatory Mapping:** SOX 404 (documented IT controls)
+**Regulatory mapping:** SOX 404 (documented IT controls), FINRA 3110 (supervised rollout).
 
 ---
 
-### Test Case FAC-03: Web Search Disabled Users Cannot Access Web-Grounded Copilot Responses
+### FAC-03 — Web search control prevents external grounding
 
-**Objective:** Verify web search control prevents Copilot from accessing external web data when disabled
+**Objective:** Verify disabling web search removes web-grounded responses while preserving organizational data access.
 
-**Prerequisites:**
-- M365 Admin Center access to Copilot > Settings > Data access
-- Test user with M365 Copilot access
-- Web search control set to "Enabled" initially (baseline)
+**Prerequisites:** Test user with M365 Copilot access; web search initially Enabled.
 
 **Steps:**
 
-1. **Baseline test with web search enabled:**
-   - As administrator, verify web search is enabled (M365 Admin > Copilot > Settings > Data access)
-   - Sign in as test user
-   - In Copilot Chat, ask a question that requires external web data (e.g., "What are the latest news headlines today?")
-   - Document Copilot response — should include web-grounded content or indicate web search used
-   - Sign out
+1. Baseline (web search Enabled): ask Copilot a query requiring external data ("latest news headlines today"). Capture web-grounded response.
+2. Disable web search in M365 Admin → Copilot → Settings → Data access. Record timestamp.
+3. Wait **8 hours**.
+4. Repeat the same query. Capture response — should refuse external grounding.
+5. Ask a query answerable from organizational data ("summarize my recent emails") — confirm Copilot still answers using M365 data only.
 
-2. **Disable web search:**
-   - As administrator, navigate to M365 Admin Center > Copilot > Settings > Data access
-   - Set "Web search for M365 Copilot" to "Disabled"
-   - Save settings and document timestamp
+**Pass criteria:**
 
-3. **Wait for propagation:**
-   - Wait 8 hours for setting to propagate across tenant
-   - Note: Microsoft documentation indicates up to 8 hours for Copilot settings propagation
+- Post-disable response contains no web grounding.
+- Organizational data queries continue to function.
 
-4. **Test with web search disabled:**
-   - Sign in as test user (force new session)
-   - In Copilot Chat, ask the same question requiring external web data
-   - Document Copilot response — should indicate web search not available, or limit response to organizational data only
-   - Verify no web-grounded content in response
+**Fail conditions:**
 
-5. **Verify organizational data still accessible:**
-   - Ask Copilot a question that can be answered from organizational data (e.g., "Summarize my recent emails")
-   - Verify Copilot can still access and respond using organizational Microsoft 365 data
-   - Confirm only web search is disabled, not all Copilot functionality
+- Web grounding still present after 8 hours → see troubleshooting playbook (`Issue: Web search still returning results`).
 
-**Expected Result:**
-- With web search enabled: Copilot provides web-grounded responses
-- With web search disabled: Copilot does NOT access external web data, limits responses to organizational data
-- Organizational data access remains functional when web search disabled
+**Evidence:** before/after screenshots of the M365 Admin setting, before/after Copilot responses with citations, organizational-data response, timestamp record.
 
-**Evidence to Collect:**
-- Screenshot of M365 Admin Center showing web search enabled (baseline)
-- Screenshot of Copilot response with web-grounded content (baseline)
-- Screenshot of M365 Admin Center showing web search disabled
-- Screenshot of Copilot response WITHOUT web content (web search disabled)
-- Screenshot of Copilot successfully using organizational data (web search disabled)
-- Timestamp documentation for 8-hour propagation verification
-
-**Regulatory Mapping:** GLBA 501(b) (prevent external data leakage), FINRA (MNPI protection)
+**Regulatory mapping:** GLBA 501(b) (prevent external data leakage), FINRA (MNPI protection).
 
 ---
 
-### Test Case FAC-04: Agent Access Restrictions
+### FAC-04 — Agent access restriction prevents third-party discovery
 
-**Objective:** Verify restricted agent access prevents third-party agent discovery
+**Objective:** Verify Zone 3 agent access policy hides non-organizational agents.
 
-**Steps:**
-
-1. Configure agent access to organizational agents only
-2. Wait for propagation
-3. Attempt to discover third-party agents
-4. Verify only organizational agents available
-
-**Expected Result:** Third-party agents not discoverable
-
-### Test Case FAC-05: AI Administrator Role Permissions
-
-**Objective:** Verify AI Administrator can configure Copilot settings without Global Admin
+**Prerequisites:** Zone 3 environment configured to "Organizational agents only".
 
 **Steps:**
 
-1. Assign AI Administrator role to test user
-2. Sign in as AI Administrator
-3. Navigate to M365 Admin > Copilot > Settings
-4. Modify Copilot settings (User Access, Data Access, Actions)
-5. Verify settings changes applied successfully
+1. Configure Actions → Allowed agent types → "Organizational only".
+2. Wait 8 hours.
+3. As a deployment-group user, open the agent gallery in Copilot Chat.
+4. Confirm only organizational agents are listed.
+5. Attempt to install a Microsoft-verified or third-party agent → confirm install path is unavailable.
 
-**Expected Result:** Settings changes applied successfully without Global Admin
+**Pass criteria:** Only organizational agents are discoverable; install paths for other publishers are unavailable.
 
-### Test Case FAC-06: Agent Approval Workflow
+**Evidence:** screenshot of Settings → Actions, screenshot of agent gallery, install attempt screenshot.
 
-**Objective:** Verify agents require approval
-
-**Steps:**
-
-1. Configure agent approval requirement
-2. Publish test agent
-3. Verify agent appears in Requests tab
-4. Approve agent
-5. Verify agent available
-
-**Expected Result:** Agents require approval before availability
-
-### Test Case FAC-07: MCP Server Blocking
-
-**Objective:** Verify blocked servers are inaccessible
-
-**Steps:**
-
-1. Block a test MCP Server
-2. Attempt to use blocked capability
-3. Verify capability unavailable
-
-**Expected Result:** Blocked servers cannot be used
+**Regulatory mapping:** FINRA 4511, FINRA 25-07 (approved tools and systems).
 
 ---
 
-## Evidence Collection
+### FAC-05 — AI Administrator can configure Copilot without Global Admin
 
-For audits, collect:
+**Objective:** Confirm least-privilege role model is operative.
 
-**AI Feature Access Control Evidence:**
-- Admin Exclusion Group membership list (export monthly)
-- Deployment group configuration and user assignments per phase
-- Web search control settings documentation (enabled/disabled per zone)
-- Agent access control settings (allowed agent types per zone)
-- Copilot Chat pinning configuration per department/role
-- Evidence of 24-hour propagation validation for exclusion groups
-- Evidence of 8-hour propagation validation for settings changes
+**Steps:**
 
-**General Copilot Governance Evidence:**
-- Copilot settings configuration export (M365 Admin Center > Copilot > Settings)
-- Feature access control settings documentation (all four tabs: User access, Data access, Actions, Other)
-- Agent registry export (M365 Admin Center > Agents > All agents)
-- Usage reports (monthly) — Copilot Chat Active Users, Assisted Hours, Satisfaction Rate
-- Audit log of configuration changes (Entra ID > Audit logs, filter for Copilot-related events)
-- MCP Server availability list (M365 Admin Center > Agents > Tools)
-- AI Administrator role assignment documentation
-- Compliance Officer approval records for Admin Exclusion Group membership changes
+1. Assign a test user the **AI Administrator** role only.
+2. Sign in as that user; navigate to M365 Admin → Copilot → Settings.
+3. Modify a setting on each of User access, Data access, Actions tabs; save.
+4. Confirm the change persists.
+
+**Pass criteria:** Settings changes save successfully without Global Admin elevation.
+
+**Evidence:** role assignment screenshot, before/after settings export, Entra audit log entry showing the AI Administrator as initiator.
+
+**Regulatory mapping:** SOX 404 segregation of duties; OCC 2011-12 least-privilege.
 
 ---
 
-## Next Steps
+### FAC-06 — Agent approval workflow
 
-- [Portal Walkthrough](./portal-walkthrough.md) - Manual configuration
-- [PowerShell Setup](./powershell-setup.md) - Automation scripts
-- [Troubleshooting](./troubleshooting.md) - Common issues
+**Objective:** Verify newly published agents require approval before becoming available.
+
+**Steps:**
+
+1. Configure Agents → Settings → require approval for new agents.
+2. As a maker, publish a test agent.
+3. Confirm the agent appears in **Pending Requests** on the Agent overview page.
+4. Approve the agent as the AI Governance Lead.
+5. Confirm the agent then appears in the registry as available.
+
+**Pass criteria:** Publishing → Pending → Approved → Available state flow is observable and audit-logged.
+
+**Evidence:** screenshots of each state, audit log entry for the approval event.
+
+**Regulatory mapping:** FINRA 3110 (supervisory pre-approval), SOX 404 (change control).
+
+---
+
+### FAC-07 — MCP Server blocking
+
+**Objective:** Verify blocked MCP servers cannot be invoked by agents.
+
+**Steps:**
+
+1. Block a test MCP server in M365 Admin → Agents → Tools.
+2. Attempt to use a capability backed by that server from an agent.
+3. Confirm the capability fails with a clear access-denied response.
+
+**Pass criteria:** Blocked MCP server capability is unavailable; error reason is logged.
+
+**Evidence:** screenshot of Tools allow/block list, agent invocation log.
+
+**Regulatory mapping:** GLBA 501(b), SOX 404.
+
+---
+
+### FAC-08 — Transcript separation of duties
+
+**Objective:** Verify agent creators cannot access transcripts for agents they built.
+
+**Prerequisites:** Test user is in `Copilot-Studio-Publishers`; not in `Copilot-Compliance-Supervisors`.
+
+**Steps:**
+
+1. As the test user, build and publish a test agent in a Zone 2/3 environment.
+2. Have a different user interact with the agent to generate transcripts.
+3. As the original creator, attempt to view transcripts for that agent.
+4. Confirm access is denied (Conditional Access or RBAC).
+5. As a member of `Copilot-Compliance-Supervisors`, confirm transcripts are accessible.
+
+**Pass criteria:** Creator denied; Supervisor permitted.
+
+**Evidence:** RBAC role export, Conditional Access policy export, denial screenshot, supervisor access screenshot.
+
+**Regulatory mapping:** FINRA 3110 (supervision separation of duties), SOX 404.
+
+---
+
+## Evidence Collection Pack
+
+For each monthly governance review, collect and store with SHA-256 manifest (see PowerShell `Write-FsiEvidence`):
+
+**AI Feature Access Control:**
+
+- Admin Exclusion Group membership (monthly export).
+- Deployment group definitions and member rosters per wave.
+- Web search and external AI settings per zone.
+- Allowed agent types per zone.
+- Copilot Chat pinning configuration per department.
+- 24-hour and 8-hour propagation validation timestamps.
+
+**General Copilot Governance:**
+
+- Copilot Settings export (User access, Data access, Actions, Other tabs).
+- Agent registry export (Publisher, Channel, Platform breakdown).
+- Monthly usage report (Chat Active Users, Assisted Hours, Satisfaction Rate).
+- Entra audit log filtered for Copilot-related changes (≥ 30 days).
+- MCP server allow/block list.
+- AI Administrator role assignment evidence.
+- Compliance Officer approval records for Admin Exclusion Group changes.
+
+**Supervision and Records:**
+
+- Transcript access role matrix (Entra group → permission mapping).
+- Conditional Access policy evidence enforcing creator exclusion.
+- Purview Audit retention policy showing ≥ 7 years.
+- Sample exported transcript with SHA-256 hash.
+- Quarterly attestation from supervisors.
 
 ---
 
 ## SSPM Configuration Verification
 
 !!! abstract "Security Posture Assessment Test Cases"
-
     The following test cases validate configuration points flagged by security posture assessments. Each test maps to a specific setting in the [Configuration Hardening Baseline](../../advanced-implementations/configuration-hardening-baseline/index.md).
 
-| Test ID | Configuration Point | Expected Result | Portal Path | Evidence |
-|---------|-------------------|-----------------|-------------|----------|
-| SSPM-3.8-01 | AI Prompts toggle | Disabled at tenant level | PPAC > Settings > Power Platform Settings | Screenshot |
-| SSPM-3.8-02 | Generative Actions toggle | Disabled at tenant level | PPAC > Settings > Power Platform Settings | Screenshot |
-| SSPM-3.8-03 | File Analysis Models | Disabled | PPAC > Settings > Power Platform Settings | Screenshot |
-| SSPM-3.8-04 | Model Knowledge | Disabled | PPAC > Settings > Power Platform Settings | Screenshot |
-| SSPM-3.8-05 | Semantic Search with AI | Disabled | PPAC > Settings > Power Platform Settings | Screenshot |
-| SSPM-3.8-06 | Move Data Across Regions | Disabled | PPAC > Settings > Power Platform Settings | Screenshot |
-| SSPM-3.8-07 | Bing Search | Disabled | PPAC > Settings > Power Platform Settings | Screenshot |
-| SSPM-3.8-08 | Transcript access | Restricted to compliance roles | M365 Admin > Copilot > Settings | Screenshot |
-| SSPM-3.8-09 | DLP for publishing | DLP policy enforcement active | PPAC > Policies > Data policies | Screenshot |
+| Test ID | Configuration Point | Expected | Portal Path | Evidence |
+|---|---|---|---|---|
+| SSPM-3.8-01 | AI Prompts toggle | Disabled at tenant | PPAC → Copilot → Settings | Screenshot |
+| SSPM-3.8-02 | Generative Actions toggle | Disabled at tenant | PPAC → Copilot → Settings | Screenshot |
+| SSPM-3.8-03 | File Analysis Models | Disabled | PPAC → Copilot → Settings | Screenshot |
+| SSPM-3.8-04 | Model Knowledge | Disabled | PPAC → Copilot → Settings | Screenshot |
+| SSPM-3.8-05 | Semantic Search with AI | Disabled | PPAC → Copilot → Settings | Screenshot |
+| SSPM-3.8-06 | Move Data Across Regions | Disabled | PPAC → Environments → Generative AI features | Screenshot |
+| SSPM-3.8-07 | Bing Search | Disabled | PPAC → Environments → Generative AI features | Screenshot |
+| SSPM-3.8-08 | Transcript access | Restricted to Compliance roles | PPAC → Copilot → Settings | Screenshot + role export |
+| SSPM-3.8-09 | DLP for publishing | Active and applied | PPAC → Policies → Data policies | Screenshot |
 
-### Test Procedures
+### Test procedures
 
-**SSPM-3.8-01: AI Prompts Toggle**
+For each SSPM-3.8-NN test:
 
-1. Navigate to **PPAC** > **Settings** > **Power Platform Settings**
-2. Locate "AI Prompts" toggle
-3. Verify toggle is set to **Disabled** at the tenant level
-4. **Pass criteria:** AI Prompts toggle is off — makers cannot create AI prompt actions
-5. **Evidence:** Screenshot showing Power Platform Settings page with AI Prompts toggle state
+1. Navigate to the portal path.
+2. Locate the toggle/setting.
+3. Confirm the value matches **Expected**.
+4. Capture screenshot showing the setting state, the environment context (where applicable), and the timestamp.
+5. Record the change-ticket reference that authorized the current state.
 
-**SSPM-3.8-02: Generative Actions Toggle**
+**Pass criteria** (all): setting in expected state with documented change-ticket evidence.
 
-1. Navigate to **PPAC** > **Settings** > **Power Platform Settings**
-2. Locate "Generative Actions" toggle
-3. Verify toggle is set to **Disabled** at the tenant level
-4. **Pass criteria:** Generative Actions toggle is off — generative AI actions are not available to makers
-5. **Evidence:** Screenshot showing Power Platform Settings page with Generative Actions toggle state
-
-**SSPM-3.8-03: File Analysis Models**
-
-1. Navigate to **PPAC** > **Settings** > **Power Platform Settings**
-2. Locate "File Analysis Models" toggle
-3. Verify toggle is set to **Disabled**
-4. **Pass criteria:** File Analysis Models is disabled — no automated file analysis via AI
-5. **Evidence:** Screenshot showing toggle state
-
-**SSPM-3.8-04: Model Knowledge**
-
-1. Navigate to **PPAC** > **Settings** > **Power Platform Settings**
-2. Locate "Model Knowledge" toggle
-3. Verify toggle is set to **Disabled**
-4. **Pass criteria:** Model Knowledge is disabled — agents cannot access general model knowledge
-5. **Evidence:** Screenshot showing toggle state
-
-**SSPM-3.8-05: Semantic Search with AI**
-
-1. Navigate to **PPAC** > **Settings** > **Power Platform Settings**
-2. Locate "Semantic Search with AI" toggle
-3. Verify toggle is set to **Disabled**
-4. **Pass criteria:** Semantic Search with AI is disabled — AI-powered search is not active
-5. **Evidence:** Screenshot showing toggle state
-
-**SSPM-3.8-06: Move Data Across Regions**
-
-1. Navigate to **PPAC** > **Settings** > **Power Platform Settings**
-2. Locate "Move Data Across Regions" toggle
-3. Verify toggle is set to **Disabled**
-4. **Pass criteria:** Cross-region data movement is disabled — data stays within the configured region
-5. **Evidence:** Screenshot showing toggle state
-
-**SSPM-3.8-07: Bing Search**
-
-1. Navigate to **PPAC** > **Settings** > **Power Platform Settings**
-2. Locate "Bing Search" toggle
-3. Verify toggle is set to **Disabled**
-4. **Pass criteria:** Bing Search is disabled — agents cannot query external web data via Bing
-5. **Evidence:** Screenshot showing toggle state
-
-**SSPM-3.8-08: Transcript Access**
-
-1. Navigate to **M365 Admin Center** > **Copilot** > **Settings**
-2. Review transcript access configuration
-3. Verify transcript access is restricted to compliance roles only (not all users or all admins)
-4. **Pass criteria:** Only designated compliance roles can access agent interaction transcripts
-5. **Evidence:** Screenshot showing transcript access control settings with role assignments
-
-**SSPM-3.8-09: DLP for Publishing**
-
-1. Navigate to **PPAC** > **Policies** > **Data policies**
-2. Verify at least one DLP policy is active and applies to the target environments
-3. Verify the policy blocks or restricts high-risk connectors
-4. Confirm DLP enforcement is active for agent publishing (agents cannot publish if they violate DLP)
-5. **Pass criteria:** DLP policy enforcement is active and applies to all governed environments
-6. **Evidence:** Screenshot showing DLP policy list with environment assignments and connector classifications
+**Common fail mode:** the setting was changed at the per-environment level but not at tenant level. Re-check both scopes — the strictest setting wins.
 
 ---
 
-*Updated: February 2026 | Version: v1.3 | Classification: Verification Testing*
+## Quarterly attestation prompt
+
+For Compliance Officer / AI Governance Lead sign-off:
+
+> "I have reviewed the Control 3.8 monthly evidence packs for the past quarter. Admin Exclusion Group membership matches the current restricted-persons list. Deployment groups align with the approved rollout plan. Web search controls are configured per zone. AI feature toggles in PPAC are Off unless approved with documented business justification. Transcript access is restricted to Compliance and supervisors are independent of agent creators. No unauthorized transcript access events were observed. Variances are documented in the variance log."
+
+---
+
+## Next Steps
+
+- [Portal Walkthrough](portal-walkthrough.md) — manual configuration
+- [PowerShell Setup](powershell-setup.md) — automation scripts
+- [Troubleshooting](troubleshooting.md) — common issues and resolutions
+
+---
+
+*Updated: April 2026 | Version: v1.3.3 | UI Verification Status: Current*
