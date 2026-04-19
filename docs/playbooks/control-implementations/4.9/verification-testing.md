@@ -4,7 +4,7 @@
 **Control:** [4.9 — Embedded File Content Governance](../../../controls/pillar-4-sharepoint/4.9-embedded-file-content-governance.md)
 **Audience:** Compliance Officers, Internal Audit, Security Teams, M365 Administrators
 **Estimated Time:** 2–3 hours (full test suite); 45 minutes (quarterly verification)
-**Last UI Verified:** March 2026
+**Last UI Verified:** April 2026
 **Test Environment Requirement:** Test agent with embedded files; test user accounts; a configured production-like tenant
 
 !!! danger "Critical: IB Bypass Is Expected Behavior — Document It, Do Not Attempt to Fix It in Platform"
@@ -228,8 +228,12 @@ Test results:
 
 Platform limitation confirmation:
   Microsoft Purview Information Barriers are NOT supported on SharePoint Embedded containers
-  used by M365 Copilot Agent Builder knowledge files, as documented by Microsoft at:
-  [Insert Microsoft Learn URL for embedded files limitations]
+  used by M365 Copilot Agent Builder knowledge files. References:
+    - https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-add-file-upload
+    - https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-registry
+    - https://learn.microsoft.com/en-us/sharepoint/dev/embedded/overview
+  (Confirm current Microsoft documentation at audit time; the absence of IB enforcement on
+   SharePoint Embedded containers is the platform behavior assessed in this control.)
 
 Mitigation in effect:
   [ ] Zone 3 prohibition: No agents serving cross-IB-segment user populations are permitted to
@@ -419,4 +423,4 @@ This report is prepared for examination readiness. Retain in compliance file per
 
 ---
 [Back to Control 4.9](../../../controls/pillar-4-sharepoint/4.9-embedded-file-content-governance.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md)
-*Updated: March 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3 | UI Verification Status: Current*

@@ -2,9 +2,9 @@
 
 **Playbook Type:** Troubleshooting
 **Control:** [4.9 — Embedded File Content Governance](../../../controls/pillar-4-sharepoint/4.9-embedded-file-content-governance.md)
-**Audience:** M365 Administrators, SharePoint Administrators, Compliance Officers
+**Audience:** M365 Administrators, SharePoint Admins, Compliance Officers
 **Estimated Time:** Variable (see individual issue resolution time estimates)
-**Last UI Verified:** March 2026
+**Last UI Verified:** April 2026
 
 !!! info "Before Troubleshooting Any Issue"
     For every issue in this playbook, determine whether the problem involves a Zone 3 agent serving users across IB-segregated segments. If it does, regardless of the technical issue, escalate to the Compliance team before taking any technical action. The IB bypass limitation (see Control 4.9) means the compliance posture must be assessed before restoring or modifying any embedded file agent serving a cross-IB user population.
@@ -183,7 +183,7 @@ This issue is a specific and actionable instance of Issue 3 Cause A. Refer to th
 ### Additional Process Controls After Recovery
 
 1. **Incident report:** File an internal IT incident report documenting the unauthorized deletion.
-2. **Access review:** Review who has SharePoint Administrator access and whether all administrators have been trained on the "do not delete Declarative Agent containers" rule.
+2. **Access review:** Review who has SharePoint Admin access and whether all administrators have been trained on the "do not delete Declarative Agent containers" rule.
 3. **Operational runbook update:** Add an explicit warning to your SharePoint Admin operational runbooks: containers with application name "Declarative Agent" must never be deleted directly. Use the M365 Admin Center agent deletion workflow for agent retirement.
 4. **PowerShell guard:** Consider adding a guard to any automated SharePoint cleanup scripts that checks for the "Declarative Agent" application name and skips or alerts before any container deletion:
 
@@ -281,7 +281,7 @@ This documentation is essential if the incident is identified by a FINRA or SEC 
 | Format | Limit |
 |---|---|
 | .docx, .pptx, .pdf | 512 MB |
-| .doc, .ppt, .xls, .xlsx, .txt | 150 MB |
+| .doc, .ppt, .xls, .xlsx, .txt, .csv | 150 MB |
 
 **Resolution:**
 1. Check the file size.
@@ -293,7 +293,7 @@ This documentation is essential if the incident is identified by a FINRA or SEC 
 
 ### Cause B — Unsupported File Format
 
-Only the following formats are accepted: `.doc`, `.docx`, `.ppt`, `.pptx`, `.xls`, `.xlsx`, `.pdf`, `.txt`
+Only the following formats are accepted: `.doc`, `.docx`, `.ppt`, `.pptx`, `.xls`, `.xlsx`, `.pdf`, `.txt`, `.csv`
 
 **Resolution:**
 1. Convert the file to a supported format. Recommended conversions:
@@ -430,4 +430,4 @@ If no agents with embedded files have been created in the tenant, the filter cor
 
 ---
 [Back to Control 4.9](../../../controls/pillar-4-sharepoint/4.9-embedded-file-content-governance.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md)
-*Updated: March 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3 | UI Verification Status: Current*

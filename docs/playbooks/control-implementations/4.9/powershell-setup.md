@@ -1,10 +1,13 @@
 # Control 4.9 — PowerShell Setup: Embedded File Content Governance
 
+!!! warning "Read the FSI PowerShell baseline first"
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below may show abbreviated patterns; the baseline is authoritative.
+
 **Playbook Type:** PowerShell Setup
 **Control:** [4.9 — Embedded File Content Governance](../../../controls/pillar-4-sharepoint/4.9-embedded-file-content-governance.md)
-**Audience:** SharePoint Administrators, M365 Administrators, IT Operations, Security Engineering
+**Audience:** SharePoint Admins, M365 Administrators, IT Operations, Security Engineering
 **Estimated Time:** 45–90 minutes (initial setup); 15 minutes (quarterly script run)
-**Last UI Verified:** March 2026
+**Last UI Verified:** April 2026
 **Required Modules:** PnP.PowerShell (4.x+), Microsoft.Graph (2.x+), ExchangeOnlineManagement
 
 !!! danger "Critical IB Limitation"
@@ -13,7 +16,7 @@
 !!! warning "Permission Requirements"
     The scripts in this playbook require the following permissions:
 
-    - **SharePoint Administrator** role (for container enumeration via PnP.PowerShell)
+    - **SharePoint Admin** role (for container enumeration via PnP.PowerShell)
     - **Entra Global Reader** or **Purview Compliance Admin** (for reading sensitivity label metadata)
     - **Microsoft Graph API** permissions: `Sites.Read.All`, `Files.Read.All` (for Graph-based queries)
 
@@ -136,7 +139,7 @@ The following script enumerates all SharePoint Embedded containers associated wi
     Array of PSCustomObject with container metadata.
 
 .NOTES
-    Requires PnP.PowerShell and SharePoint Administrator role.
+    Requires PnP.PowerShell and SharePoint Admin role.
     Run Connect-PnPOnline before executing this function.
 #>
 function Get-DeclarativeAgentContainers {
@@ -718,4 +721,4 @@ $labelPolicyStatus = Test-DefaultSensitivityLabelPolicy
 
 ---
 [Back to Control 4.9](../../../controls/pillar-4-sharepoint/4.9-embedded-file-content-governance.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
-*Updated: March 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3 | UI Verification Status: Current*
