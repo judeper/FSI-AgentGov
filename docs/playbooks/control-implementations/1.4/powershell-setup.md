@@ -1,352 +1,241 @@
-# Control 1.4: Advanced Connector Policies (ACP) - PowerShell Setup
+# PowerShell Setup: Control 1.4 — Advanced Connector Policies (ACP)
 
-> This playbook provides PowerShell automation guidance for [Control 1.4](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md).
+!!! warning "Read the FSI PowerShell baseline first"
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
+
+> Automation guide for [Control 1.4 — Advanced Connector Policies (ACP)](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md). ACP rule authoring is currently a portal + Power Platform REST API operation — the `Microsoft.PowerApps.Administration.PowerShell` and `Microsoft.PowerApps.PowerShell` modules expose the **prerequisite** Managed Environment, environment group, and classic DLP surface plus **evidence-collection** read paths. Use REST for the ACP rule body itself.
 
 ---
 
-## Prerequisites
+## 1. Modules
 
 ```powershell
-# Install Power Platform Admin modules
-Install-Module -Name Microsoft.PowerApps.Administration.PowerShell -Scope CurrentUser
+# REQUIRED: pin to versions approved by your CAB. See the FSI PowerShell baseline §1.
+Install-Module -Name Microsoft.PowerApps.Administration.PowerShell `
+    -RequiredVersion '<version>' -Repository PSGallery -Scope CurrentUser -AllowClobber -AcceptLicense
+Install-Module -Name Microsoft.PowerApps.PowerShell `
+    -RequiredVersion '<version>' -Repository PSGallery -Scope CurrentUser -AllowClobber -AcceptLicense
 ```
 
----
-
-## Connect to Power Platform
+Both modules are **Windows PowerShell 5.1 (Desktop) only**. Add the edition guard from baseline §2 to every script:
 
 ```powershell
-# Connect to Power Platform (interactive authentication)
-Add-PowerAppsAccount
-
-# For automated/unattended scenarios, use service principal authentication:
-# $appId = "<Application-Client-ID>"
-# $secret = "<Client-Secret>"
-# $tenantId = "<Tenant-ID>"
-# Add-PowerAppsAccount -ApplicationId $appId -ClientSecret $secret -TenantID $tenantId
-```
-
----
-
-## Enable Managed Environment
-
-```powershell
-# Enable Managed Environment (required for ACP)
-$EnvironmentName = "your-environment-id-here"
-$GovernanceConfiguration = [pscustomobject]@{
-    protectionLevel = "Standard"  # Use "Standard" for FSI
-    settings = [pscustomobject]@{
-        extendedSettings = @{
-            # FSI recommended settings
-            "limitSharingMode" = "excludeSharingToSecurityGroups"
-            "solutionCheckerEnforcement" = "block"
-        }
-    }
-}
-
-Set-AdminPowerAppEnvironmentGovernanceConfiguration `
-    -EnvironmentName $EnvironmentName `
-    -UpdatedGovernanceConfiguration $GovernanceConfiguration
-```
-
----
-
-## Validate Managed Environment Status
-
-```powershell
-# Validation: Check Managed Environment status
-Get-AdminPowerAppEnvironment -EnvironmentName $EnvironmentName |
-    Select-Object DisplayName, EnvironmentName, GovernanceConfiguration
-
-Write-Host "Managed Environment enabled. Configure ACP via portal." -ForegroundColor Yellow
-```
-
-> **Note:** Advanced Connector Policies currently require portal configuration. PowerShell support for ACP configuration is limited; use the portal for policy management.
-
----
-
-## MCP Audit Logging Configuration
-
-```powershell
-# MCP Interaction Logging Configuration
-$mcpAuditConfig = @{
-    LoggingEnabled = $true
-    LogDestination = "Azure Log Analytics"
-    RetentionDays = 2190  # 6 years
-
-    EventsToCapture = @(
-        "MCP_Connection_Established",
-        "MCP_Tool_Invoked",
-        "MCP_Resource_Accessed",
-        "MCP_Error_Occurred",
-        "MCP_Connection_Terminated"
-    )
-
-    RequiredFields = @(
-        "Timestamp",
-        "UserId",
-        "AgentId",
-        "MCPServerId",
-        "MCPServerName",
-        "ToolName",
-        "Action",
-        "DataClassification",
-        "ResponseStatus"
-    )
-
-    AlertConditions = @(
-        @{ Condition = "Unapproved MCP Server"; Severity = "Critical" },
-        @{ Condition = "High-volume MCP calls"; Severity = "Warning" },
-        @{ Condition = "MCP Error Rate > 10%"; Severity = "Warning" }
-    )
-}
-
-# Example: Log MCP interaction
-function Write-MCPAuditLog {
-    param(
-        [string]$UserId,
-        [string]$AgentId,
-        [string]$MCPServerId,
-        [string]$ToolName,
-        [string]$Action,
-        [string]$DataClassification
-    )
-
-    $logEntry = @{
-        Timestamp = Get-Date -Format "o"
-        UserId = $UserId
-        AgentId = $AgentId
-        MCPServerId = $MCPServerId
-        ToolName = $ToolName
-        Action = $Action
-        DataClassification = $DataClassification
-        Source = "MCP_Governance"
-    }
-
-    # Send to Log Analytics (implementation varies by setup)
-    Write-Host "MCP Audit: $($logEntry | ConvertTo-Json -Compress)"
-
-    return $logEntry
+if ($PSVersionTable.PSEdition -ne 'Desktop') {
+    throw "Microsoft.PowerApps.Administration.PowerShell requires Windows PowerShell 5.1 (Desktop edition). Detected: $($PSVersionTable.PSEdition) $($PSVersionTable.PSVersion)."
 }
 ```
 
 ---
 
-## Evidence Collection via Automation
-
-If your organization collects evidence via automation, capture:
-
-- DLP policies (inventory and scope)
-- Environment group membership
-- Connector/connection inventory per environment
+## 2. Authenticate (sovereign-cloud aware)
 
 ```powershell
-# Get all environments for evidence
-Get-AdminPowerAppEnvironment |
-    Select-Object DisplayName, EnvironmentName, Location, EnvironmentType |
-    Export-Csv -Path "environment-inventory.csv" -NoTypeInformation
-
-# Get DLP policies
-Get-DlpPolicy |
-    Select-Object PolicyName, CreatedTime, LastModifiedTime |
-    Export-Csv -Path "dlp-policy-inventory.csv" -NoTypeInformation
-```
-
-> **Note:** PowerShell cmdlet availability varies by module version and tenant configuration; use as evidence support, not as the primary control implementation method.
-
----
-
-## MCP Governance Policy Template
-
-```yaml
-# Model Context Protocol (MCP) Governance Policy
-mcp_governance_policy:
-  policy_version: "1.0"
-  effective_date: "2026-01-15"
-  policy_owner: "AI Governance Lead"
-
-  # Default Behavior
-  default_stance: "deny"
-  approval_required: true
-
-  # Approved MCP Servers
-  allowlist:
-    - server_id: "MCP-INT-001"
-      name: "Internal Document Server"
-      type: "internal"
-      data_classification: "internal"
-      approval_date: "2026-01-10"
-      owner: "IT Operations"
-      audit_enabled: true
-
-  # Blocked MCP Patterns
-  blocklist:
-    - pattern: "*community*"
-      reason: "Community MCP servers require exception approval"
-    - pattern: "*public*"
-      reason: "Public MCP servers not permitted in regulated environments"
-
-  # Zone-Specific MCP Rules
-  zone_rules:
-    zone_1:
-      mcp_allowed: false
-      rationale: "Personal productivity agents do not use MCP"
-
-    zone_2:
-      mcp_allowed: true
-      restriction: "Internal MCP servers only"
-      approval_required: true
-
-    zone_3:
-      mcp_allowed: true
-      restriction: "Approved internal + vetted vendor MCP only"
-      additional_controls:
-        - full_audit_logging
-        - data_flow_mapping
-        - quarterly_review
-
-  # Audit Requirements
-  audit_requirements:
-    log_all_connections: true
-    log_all_tool_invocations: true
-    retention_days: 2190  # 6 years per SEC 17a-4
-    export_format: "JSON"
-    worm_storage_required: true  # For Zone 3
-```
-
----
-
-## BYOA Policy Template
-
-```yaml
-# Bring Your Own Agent (BYOA) Policy
-byoa_policy:
-  policy_version: "1.0"
-
-  # Personal AI Tools
-  personal_ai:
-    consumer_ai_tools: "blocked"        # ChatGPT, Gemini, etc.
-    personal_copilot: "allowed"         # Microsoft 365 Copilot (licensed)
-    exception_process: "None - no exceptions for consumer AI"
-
-  # External AI Agents
-  external_agents:
-    default_stance: "blocked"
-    exception_process: "Full vendor + technical assessment"
-    requirements:
-      - vendor_risk_assessment
-      - technical_security_review
-      - data_processing_agreement
-      - audit_rights_in_contract
-      - integration_with_audit_logging
-
-  # Partner AI Integrations
-  partner_ai:
-    default_stance: "case-by-case"
-    requirements:
-      - joint_governance_agreement
-      - defined_data_boundaries
-      - incident_response_coordination
-      - regular_joint_reviews
-
-  # Documentation Requirements
-  documentation:
-    - architecture_diagram
-    - data_flow_mapping
-    - risk_assessment_completed
-    - approval_record
-```
-
----
-
-## Complete Configuration Script
-
-```powershell
-<#
-.SYNOPSIS
-    Configures Control 1.4 - Advanced Connector Policies (ACP)
-
-.DESCRIPTION
-    This script:
-    1. Enables Managed Environment on the target environment
-    2. Configures governance settings for FSI
-    3. Validates Managed Environment status
-    4. Exports environment inventory for evidence
-
-.PARAMETER EnvironmentName
-    The GUID of the target Power Platform environment
-
-.EXAMPLE
-    .\Configure-Control-1.4.ps1 -EnvironmentName "abc123..."
-
-.NOTES
-    Last Updated: January 2026
-    Related Control: Control 1.4 - Advanced Connector Policies (ACP)
-#>
-
 param(
-    [Parameter(Mandatory=$true)]
-    [string]$EnvironmentName
+    [ValidateSet('prod','usgov','usgovhigh','dod')] [string]$Endpoint = 'prod'
 )
 
-try {
-    # Connect to Power Platform
-    Add-PowerAppsAccount
+# Interactive (recommended for change windows under PIM elevation)
+Add-PowerAppsAccount -Endpoint $Endpoint
 
-    Write-Host "=== Configuring Control 1.4: Advanced Connector Policies ===" -ForegroundColor Cyan
-
-    # Step 1: Enable Managed Environment
-    Write-Host "`nStep 1: Enabling Managed Environment..." -ForegroundColor White
-    $GovernanceConfiguration = [pscustomobject]@{
-        protectionLevel = "Standard"  # Use "Standard" for FSI
-        settings = [pscustomobject]@{
-            extendedSettings = @{
-                "limitSharingMode" = "excludeSharingToSecurityGroups"
-                "solutionCheckerEnforcement" = "block"
-            }
-        }
-    }
-
-    Set-AdminPowerAppEnvironmentGovernanceConfiguration `
-        -EnvironmentName $EnvironmentName `
-        -UpdatedGovernanceConfiguration $GovernanceConfiguration
-    Write-Host "  [DONE] Managed Environment enabled with FSI settings" -ForegroundColor Green
-
-    # Step 2: Validate Managed Environment status
-    Write-Host "`nStep 2: Validating configuration..." -ForegroundColor White
-    $EnvStatus = Get-AdminPowerAppEnvironment -EnvironmentName $EnvironmentName
-    if ($EnvStatus.Properties.protectionLevel -eq "Standard") {
-        Write-Host "  [PASS] Managed Environment is active" -ForegroundColor Green
-    } else {
-        Write-Host "  [WARN] Managed Environment may not be fully configured" -ForegroundColor Yellow
-    }
-
-    # Step 3: Export environment inventory for evidence
-    Write-Host "`nStep 3: Exporting environment inventory..." -ForegroundColor White
-    Get-AdminPowerAppEnvironment |
-        Select-Object DisplayName, EnvironmentName, Location, EnvironmentType |
-        Export-Csv -Path "environment-inventory-$(Get-Date -Format 'yyyyMMdd').csv" -NoTypeInformation
-    Write-Host "  [DONE] Environment inventory exported" -ForegroundColor Green
-
-    # Step 4: Export DLP policies for evidence
-    Write-Host "`nStep 4: Exporting DLP policy inventory..." -ForegroundColor White
-    Get-DlpPolicy |
-        Select-Object PolicyName, CreatedTime, LastModifiedTime |
-        Export-Csv -Path "dlp-policy-inventory-$(Get-Date -Format 'yyyyMMdd').csv" -NoTypeInformation
-    Write-Host "  [DONE] DLP policy inventory exported" -ForegroundColor Green
-
-    Write-Host "`n[PASS] Control 1.4 configuration completed successfully" -ForegroundColor Green
-    Write-Host "[INFO] Configure Advanced Connector Policies via the portal" -ForegroundColor Yellow
-}
-catch {
-    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
-    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
-    exit 1
-}
+# Unattended (service principal). Store secret in Key Vault, never in source.
+# Add-PowerAppsAccount -Endpoint $Endpoint -ApplicationId $appId -ClientSecret $secret -TenantID $tenantId
 ```
 
-[Back to Control 1.4](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+Wrong `-Endpoint` against a sovereign tenant returns zero environments and produces **false-clean** evidence. See baseline §3.
 
 ---
 
-*Updated: April 2026 | Version: v1.3*
+## 3. Verify Prerequisites Before Authoring ACP
+
+```powershell
+[CmdletBinding()]
+param(
+    [Parameter(Mandatory)] [string]$EnvironmentId,
+    [Parameter(Mandatory)] [string]$EnvironmentGroupId
+)
+$ErrorActionPreference = 'Stop'
+
+# 3a. Confirm environment exists and is Managed
+$env = Get-AdminPowerAppEnvironment -EnvironmentName $EnvironmentId
+if (-not $env) { throw "Environment $EnvironmentId not found (or wrong cloud endpoint)." }
+
+$isManaged = $env.Internal.properties.governanceConfiguration.protectionLevel -eq 'Standard'
+if (-not $isManaged) {
+    throw "Environment $EnvironmentId is NOT a Managed Environment. ACP requires Managed Environments to block nonblockable connectors. Enable Control 2.1 first."
+}
+
+# 3b. Confirm region is United States
+if ($env.Location -notmatch '^(unitedstates|usgov|usgovhigh|dod)') {
+    Write-Warning "Environment region '$($env.Location)' is not US. Confirm zone classification before proceeding."
+}
+
+# 3c. Confirm classic DLP policy exists (mixed-mode coverage for custom + HTTP connectors)
+$dlp = Get-DlpPolicy
+if (-not $dlp) {
+    Write-Warning "No classic DLP policies found. ACP does not cover custom or HTTP connectors — at least one classic DLP policy is required for FSI mixed mode."
+}
+```
+
+---
+
+## 4. Author the ACP Rule via Power Platform REST API
+
+> The PowerShell admin module does not yet expose first-class cmdlets for ACP rule CRUD. Use `Invoke-PowerAppsRequest` (ships in `Microsoft.PowerApps.Administration.PowerShell`) which signs requests with the current `Add-PowerAppsAccount` token.
+
+```powershell
+[CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]
+param(
+    [Parameter(Mandatory)] [string]$EnvironmentGroupId,
+    [Parameter(Mandatory)] [string]$AllowlistJsonPath,   # path to allowlist file in source control
+    [string]$ApiVersion  = '2022-03-01-preview',
+    [string]$EvidencePath = ".\evidence\1.4"
+)
+$ErrorActionPreference = 'Stop'
+New-Item -ItemType Directory -Force -Path $EvidencePath | Out-Null
+$ts = Get-Date -Format 'yyyyMMddTHHmmssZ'
+Start-Transcript -Path "$EvidencePath\acp-publish-$ts.log" -IncludeInvocationHeader
+
+if (-not (Test-Path $AllowlistJsonPath)) { throw "Allowlist file not found: $AllowlistJsonPath" }
+$body = Get-Content -Raw -Path $AllowlistJsonPath
+
+# 4a. Snapshot the current rule (BEFORE) for rollback evidence
+$beforeUri = "/providers/Microsoft.BusinessAppPlatform/scopes/admin/environmentGroups/$EnvironmentGroupId/ruleSets/connector?api-version=$ApiVersion"
+try {
+    $before = Invoke-PowerAppsRequest -Method GET -Route $beforeUri
+    $before | ConvertTo-Json -Depth 30 | Set-Content "$EvidencePath\acp-before-$ts.json" -Encoding UTF8
+} catch {
+    Write-Warning "No existing ACP rule on group $EnvironmentGroupId (first publish): $($_.Exception.Message)"
+}
+
+# 4b. Apply the new allowlist
+if ($PSCmdlet.ShouldProcess($EnvironmentGroupId, "PUT advanced connector policy ruleset")) {
+    $applyUri = "/providers/Microsoft.BusinessAppPlatform/scopes/admin/environmentGroups/$EnvironmentGroupId/ruleSets/connector?api-version=$ApiVersion"
+    $resp = Invoke-PowerAppsRequest -Method PUT -Route $applyUri -Body $body
+    $resp | ConvertTo-Json -Depth 30 | Set-Content "$EvidencePath\acp-applied-$ts.json" -Encoding UTF8
+}
+
+# 4c. Trigger Publish rules (cascades the rule to design-time + runtime infra of every member env)
+if ($PSCmdlet.ShouldProcess($EnvironmentGroupId, "POST publishRules")) {
+    $publishUri = "/providers/Microsoft.BusinessAppPlatform/scopes/admin/environmentGroups/$EnvironmentGroupId/publishRules?api-version=$ApiVersion"
+    $publishResp = Invoke-PowerAppsRequest -Method POST -Route $publishUri
+    $publishResp | ConvertTo-Json -Depth 30 | Set-Content "$EvidencePath\acp-publish-result-$ts.json" -Encoding UTF8
+}
+
+Stop-Transcript
+```
+
+> **Idempotency:** PUT to the ruleSet endpoint is the canonical idempotent operation — re-running with the same body produces no functional change. The publish step should also be re-runnable but emits a new lifecycle event each time.
+
+> **API version:** `2022-03-01-preview` is the public preview surface as of April 2026. Confirm against the [Power Platform REST API reference for environment groups](https://learn.microsoft.com/en-us/rest/api/power-platform/environmentmanagement/environment-groups) before each change window — preview API versions can change.
+
+---
+
+## 5. Verify Publish Succeeded and Status = Applied
+
+```powershell
+$statusUri = "/providers/Microsoft.BusinessAppPlatform/scopes/admin/environmentGroups/$EnvironmentGroupId/ruleSets/connector?api-version=$ApiVersion"
+$status = Invoke-PowerAppsRequest -Method GET -Route $statusUri
+$applied = $status.properties.status -eq 'Applied'
+
+if (-not $applied) {
+    Write-Error "ACP rule status is '$($status.properties.status)' — expected 'Applied'. Investigate via PPAC environment History (look for 'Update Managed Environment Settings' lifecycle event)."
+} else {
+    Write-Host "[PASS] ACP status = Applied on group $EnvironmentGroupId" -ForegroundColor Green
+}
+```
+
+---
+
+## 6. Evidence Collection (Read-Only Inventory)
+
+```powershell
+[CmdletBinding()]
+param(
+    [Parameter(Mandatory)] [string]$EnvironmentGroupId,
+    [string]$EvidencePath = ".\evidence\1.4"
+)
+$ErrorActionPreference = 'Stop'
+New-Item -ItemType Directory -Force -Path $EvidencePath | Out-Null
+$ts = Get-Date -Format 'yyyyMMddTHHmmssZ'
+
+# Helper: emit JSON + SHA-256 + manifest entry (see baseline §5)
+function Write-FsiEvidence {
+    param([Parameter(Mandatory)] $Object, [Parameter(Mandatory)] [string]$Name, [Parameter(Mandatory)] [string]$EvidencePath)
+    $stamp = Get-Date -Format 'yyyyMMddTHHmmssZ'
+    $jsonPath = Join-Path $EvidencePath "$Name-$stamp.json"
+    $Object | ConvertTo-Json -Depth 30 | Set-Content -Path $jsonPath -Encoding UTF8
+    $hash = (Get-FileHash -Path $jsonPath -Algorithm SHA256).Hash
+    $manifestPath = Join-Path $EvidencePath "manifest.json"
+    $manifest = @()
+    if (Test-Path $manifestPath) { $manifest = @(Get-Content $manifestPath | ConvertFrom-Json) }
+    $manifest += [PSCustomObject]@{
+        file = (Split-Path $jsonPath -Leaf); sha256 = $hash; bytes = (Get-Item $jsonPath).Length; generated_utc = $stamp; control = '1.4'
+    }
+    $manifest | ConvertTo-Json -Depth 5 | Set-Content -Path $manifestPath -Encoding UTF8
+    return $jsonPath
+}
+
+# 6a. ACP rule body (current allowlist)
+$acp = Invoke-PowerAppsRequest -Method GET `
+    -Route "/providers/Microsoft.BusinessAppPlatform/scopes/admin/environmentGroups/$EnvironmentGroupId/ruleSets/connector?api-version=2022-03-01-preview"
+Write-FsiEvidence -Object $acp -Name 'acp-ruleset' -EvidencePath $EvidencePath
+
+# 6b. Environment group membership
+$envs = Get-AdminPowerAppEnvironment | Where-Object { $_.Internal.properties.parentEnvironmentGroup.id -match $EnvironmentGroupId }
+Write-FsiEvidence -Object ($envs | Select-Object DisplayName, EnvironmentName, Location, EnvironmentType) -Name 'envgroup-members' -EvidencePath $EvidencePath
+
+# 6c. Classic DLP policies (for mixed-mode coverage proof)
+$dlpPolicies = Get-DlpPolicy
+Write-FsiEvidence -Object $dlpPolicies -Name 'classic-dlp-policies' -EvidencePath $EvidencePath
+
+# 6d. Connection inventory per member environment (proof allowlist matches reality)
+foreach ($e in $envs) {
+    $conns = Get-AdminPowerAppConnection -EnvironmentName $e.EnvironmentName
+    Write-FsiEvidence -Object ($conns | Select-Object DisplayName, ConnectorName, CreatedBy, CreatedTime) `
+        -Name "connections-$($e.EnvironmentName)" -EvidencePath $EvidencePath
+}
+
+Write-Host "[DONE] Evidence written to $EvidencePath with manifest.json" -ForegroundColor Green
+```
+
+> **WORM landing:** copy `$EvidencePath` to a Microsoft Purview Data Lifecycle retention-locked location (or Azure Storage immutability container) to satisfy SEC 17a-4(f) preservation expectations. See baseline §5.
+
+---
+
+## 7. Rollback (Restore Previous ACP Body)
+
+```powershell
+[CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]
+param(
+    [Parameter(Mandatory)] [string]$EnvironmentGroupId,
+    [Parameter(Mandatory)] [string]$BeforeJsonPath
+)
+$ErrorActionPreference = 'Stop'
+$body = Get-Content -Raw -Path $BeforeJsonPath
+if ($PSCmdlet.ShouldProcess($EnvironmentGroupId, "Rollback ACP ruleset to $BeforeJsonPath")) {
+    Invoke-PowerAppsRequest -Method PUT `
+        -Route "/providers/Microsoft.BusinessAppPlatform/scopes/admin/environmentGroups/$EnvironmentGroupId/ruleSets/connector?api-version=2022-03-01-preview" `
+        -Body $body
+    Invoke-PowerAppsRequest -Method POST `
+        -Route "/providers/Microsoft.BusinessAppPlatform/scopes/admin/environmentGroups/$EnvironmentGroupId/publishRules?api-version=2022-03-01-preview"
+}
+```
+
+Always invoke first with `-WhatIf`.
+
+---
+
+## 8. What This Script Does **Not** Do
+
+- **Custom connectors / HTTP connectors:** not yet in ACP scope; govern via classic DLP groups and `Set-DlpPolicyConnectorConfigurations` for endpoint filtering.
+- **Copilot Studio virtual connectors:** not in ACP scope and not planned. Continue using classic DLP data policies.
+- **MCP server tool-level blocking:** ACP supports server-level only. Tool-level toggles are configured in Copilot Studio per agent.
+- **Service-principal-bypass safety net:** classic DLP scoped at the **environment level** (not security-group level) is required to cover SP-authenticated connections — see the warning in the control doc.
+
+---
+
+[Back to Control 1.4](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification & Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+
+---
+
+*Updated: April 2026 | Version: v1.3.3*
