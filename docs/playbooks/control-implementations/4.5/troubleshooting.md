@@ -6,69 +6,100 @@
 
 ## Common Issues and Solutions
 
-| Issue | Symptoms | Solution |
-|-------|----------|----------|
-| **Agent insights not appearing** | "View reports" shows no data or errors | Verify SharePoint Advanced Management license is assigned; data may take 24-48 hours to populate initially |
-| **Data access reports empty** | Reports generate but show no content | Ensure site activity exists; run "Get started" to initialize baseline if first use |
-| **Dashboard cards missing data** | Home dashboard shows blanks or errors | Check SharePoint Admin role assignment; verify browser isn't blocking scripts |
-| **Audit log search returns no results** | Search completes but finds nothing | Verify unified audit logging is enabled; check date range (max 90 days for standard) |
-| **Advanced management features unavailable** | Features grayed out or missing | Confirm SharePoint Advanced Management license; some features require E5 |
-| **Export failures** | Report export times out or fails | Reduce date range; filter by specific users or operations; try during off-peak hours |
-| **Real-time alerts not triggering** | Expected alerts not received | Check alert policy configuration; verify recipient email; review alert threshold settings |
+| Issue | Symptoms | Likely Cause | Resolution |
+|---|---|---|---|
+| **Agent insights page empty** | "View reports" shows no data; tenant has known agent activity | SAM not yet provisioned, or 24–48h initial population window not elapsed | Confirm SAM entitlement (bundled with M365 Copilot since Jan 2025, or standalone SAM SKU). Wait 48 hours after activation before troubleshooting further |
+| **DAG reports empty** | Reports generate but show no content | First-run baseline not initialized, or tenant truly has no qualifying activity | Click **Get started** under **Reports > Data access governance**. For 10,000+ site tenants, allow several hours for snapshot completion |
+| **Dashboard cards missing data** | Home dashboard shows blanks or "Data unavailable" | Insufficient role assignment, browser blocking, or temporary service issue | Verify SharePoint Admin role via deterministic Graph check (see PowerShell Setup, Step 6); check Microsoft 365 Service Health for active SharePoint incidents |
+| **Audit log search returns zero** | `Search-UnifiedAuditLog` completes with no results in active tenant | Audit ingestion disabled, search outside retention window, or wrong cloud | Confirm `UnifiedAuditLogIngestionEnabled = True`; confirm date range within active retention; confirm sovereign cloud endpoint matches tenant |
+| **Audit log search silently truncated** | Result count exactly 5,000 with no error | `Search-UnifiedAuditLog` page limit; non-paginated call | Use session-based pagination (`SessionId` + `SessionCommand ReturnLargeSet`) per the FSI baseline |
+| **Advanced Management features missing** | Menu items grayed out | Tenant lacks SAM entitlement | Confirm SAM via Microsoft 365 admin center "Your products"; SAM is included with every M365 Copilot license as of Jan 2025 |
+| **Export failures or timeouts** | DAG / audit export hangs or errors | Result set too large; concurrent admin operations; off-hours throttling | Reduce date range; filter by site or user; rerun during business hours; for very large tenants, paginate with `-ResultSize 5000` and session IDs |
+| **Real-time alerts not firing** | Expected high-severity alerts never received | Alert policy disabled, recipient mailbox not monitored, or threshold too high | Confirm policy is **Active**; verify recipient is a monitored shared mailbox (not a single admin); review threshold; remember alert latency is not contractually guaranteed and can be minutes to a few hours |
+| **PowerShell connection succeeds but returns zero environments / sites** | No errors, but every query is empty | Wrong sovereign-cloud endpoint — connected to commercial against a GCC/GCCHigh/DoD tenant | Reconnect with the correct `-Endpoint` (Power Apps) and `-Environment` (Graph). Treat all evidence captured under the wrong endpoint as **invalid** |
+| **`Get-MgUserMemberOf` fails to confirm SharePoint Admin** | Role check returns `$false` for a user who has the role | `displayName -like '*SharePoint*'` heuristic misses the role, or role not yet activated in tenant | Use deterministic role lookup via `Get-MgDirectoryRole`; activate role from template if needed (see PowerShell Setup Step 6) |
+| **Sentinel `OfficeActivity` table empty for SharePoint** | Zone 3 SOC sees no SharePoint events | Office 365 connector not enabled in Sentinel, or SharePoint stream not selected | In Sentinel data connectors, confirm Office 365 connector is connected and SharePoint is enabled. See [Control 3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) |
 
 ---
 
 ## Diagnostic Steps
 
-### 1. Verify Licensing
+### 1. Confirm Licensing (SAM and Copilot)
 
 ```powershell
 Get-MgSubscribedSku | Where-Object {
-    $_.SkuPartNumber -like "*SPE_E5*" -or
-    $_.SkuPartNumber -like "*SHAREPOINTENTERPRISE*"
-}
+    $_.SkuPartNumber -match 'COPILOT|SHAREPOINT_ADVANCED|SPE_E5'
+} | Select-Object SkuPartNumber, ConsumedUnits, @{n='Available';e={$_.PrepaidUnits.Enabled - $_.ConsumedUnits}}
 ```
 
-### 2. Check Audit Logging Status
+SAM is included with every Microsoft 365 Copilot license (since January 2025) and is also available as a standalone SKU. If neither appears in the result, request the entitlement before troubleshooting reports further.
+
+### 2. Confirm Audit Ingestion
 
 ```powershell
 Get-AdminAuditLogConfig | Select-Object UnifiedAuditLogIngestionEnabled
 ```
 
-### 3. Verify SharePoint Admin Access
+If `False`, no other monitoring evidence is reliable. Enable ingestion (Purview portal > Audit > Start recording user and admin activity) and wait up to 60 minutes before re-testing.
+
+### 3. Confirm Audit Retention Sufficiency (FSI-Critical)
 
 ```powershell
-Get-MgUserMemberOf -UserId "admin@contoso.com" |
-    Where-Object { $_.AdditionalProperties.displayName -like "*SharePoint*" }
+Get-RetentionCompliancePolicy -ErrorAction SilentlyContinue |
+    Where-Object { $_.Workload -match 'SharePoint' } |
+    Select-Object Name, Enabled, Workload
 ```
 
-### 4. Test Report Generation
+If only Standard (180-day) or Premium (1-year) audit retention is in place, **this is a finding**. SEC 17a-4 / FINRA 4511 typically require 6 years; create a Purview audit retention policy sized to the regulatory window. See [Manage audit log retention policies](https://learn.microsoft.com/en-us/purview/audit-log-retention-policies).
 
-1. Navigate to SharePoint Admin Center > Reports > Data access governance
-2. Click "Get started" to run initial assessment
-3. Wait for completion (may take several hours for large tenants)
+### 4. Confirm Privileged Role Assignment (Deterministic)
+
+```powershell
+$role = Get-MgDirectoryRole -Filter "displayName eq 'SharePoint Administrator'"
+if (-not $role) {
+    $template = Get-MgDirectoryRoleTemplate -Filter "displayName eq 'SharePoint Administrator'"
+    $role = New-MgDirectoryRole -RoleTemplateId $template.Id
+}
+Get-MgDirectoryRoleMember -DirectoryRoleId $role.Id -All
+```
+
+Avoid `displayName -like '*SharePoint*'`; that pattern can match unrelated objects and produces false positives.
+
+### 5. Confirm Sovereign-Cloud Endpoint
+
+If the tenant is GCC, GCC High, or DoD, every connection must specify the correct endpoint. A successful connection that returns zero sites or zero events in a known-active tenant almost always indicates the wrong cloud. Re-read [PowerShell Setup, Step 1](powershell-setup.md) and reconnect.
+
+### 6. Force a New DAG Snapshot
+
+If reports look stale: SharePoint Admin Center > **Reports** > **Data access governance** > **Get started** (or **Refresh** if previously initialized). For tenants with more than 10,000 sites, allow several hours for completion before re-checking.
 
 ---
 
 ## Escalation Path
 
-| Issue Severity | Escalation Path | SLA |
-|---------------|-----------------|-----|
-| Reports not loading after 48 hours | SharePoint Admin > Microsoft Support | 2 business days |
-| Audit logging gaps | Security Admin > Purview Support | 1 business day |
-| Agent insights missing for licensed tenant | SharePoint Admin > Microsoft Support | 2 business days |
-| Real-time monitoring failures | Security Operations > Microsoft Support | Same day |
+| Issue Severity | Escalation | Target Response |
+|---|---|---|
+| Agent insights missing for licensed tenant > 48 hours | SharePoint Admin → Microsoft Support (SharePoint queue) | 2 business days |
+| Audit ingestion disabled or returning zero in active tenant | Purview Compliance Admin → Microsoft Support (Compliance queue) | 1 business day |
+| Audit retention policy missing or undersized for regulated tenant | Compliance Officer → Internal remediation; treat as **finding** in next attestation | Same day (open ticket) |
+| Real-time alert pipeline silent during a known event | Entra Security Admin → SOC + Microsoft Support | Same day |
+| Sovereign cloud feature parity gap | SharePoint Admin → Microsoft Account team (sovereign cloud roadmap) | 5 business days |
+
+!!! note "FINRA / SEC examination context"
+    If a regulator is on-site, audit-related issues should be escalated immediately to the Compliance Officer and recorded in the examination response log. Do not silently retry — preserve the original failure evidence.
 
 ---
 
 ## Prevention Best Practices
 
-1. **Verify licensing** before relying on advanced features
-2. **Enable audit logging** at tenant setup
-3. **Schedule regular checks** of monitoring capabilities
-4. **Document baseline metrics** for comparison
-5. **Test exports periodically** to ensure data retrieval works
-6. **Configure redundant alerting** for critical events
+1. **Pin module versions** through Change Advisory Board approval — floating versions break SOX 404 reproducibility.
+2. **Validate sovereign cloud endpoints** at the start of every script and treat mismatches as fatal.
+3. **Hash every evidence export** at capture time and store the hash in an `EVIDENCE-MANIFEST.csv` file.
+4. **Size audit retention to the regulatory window** before relying on Search-UnifiedAuditLog for evidence.
+5. **Paginate** all `Search-UnifiedAuditLog` calls — never trust a single 5,000-record fetch.
+6. **Route alerts to a monitored shared mailbox**, never a single individual.
+7. **Verify role assignment deterministically** via `Get-MgDirectoryRole` — not via `displayName -like` heuristics.
+8. **Test the full pipeline quarterly** with a synthetic high-severity event to confirm SOC receives and triages the alert.
 
 ---
 
@@ -77,7 +108,10 @@ Get-MgUserMemberOf -UserId "admin@contoso.com" |
 - [Agent insights in SharePoint](https://learn.microsoft.com/en-us/sharepoint/insights-on-sharepoint-agents)
 - [Data access governance reports](https://learn.microsoft.com/en-us/sharepoint/data-access-governance-reports)
 - [SharePoint Advanced Management overview](https://learn.microsoft.com/en-us/sharepoint/advanced-management)
+- [SharePoint Admin agent overview](https://learn.microsoft.com/en-us/sharepoint/sharepoint-admin-agent)
 - [Microsoft Purview Audit overview](https://learn.microsoft.com/en-us/purview/audit-solutions-overview)
+- [Manage audit log retention policies](https://learn.microsoft.com/en-us/purview/audit-log-retention-policies)
+- [Search-UnifiedAuditLog cmdlet reference](https://learn.microsoft.com/en-us/powershell/module/exchange/search-unifiedauditlog)
 
 ---
 
@@ -85,4 +119,4 @@ Get-MgUserMemberOf -UserId "admin@contoso.com" |
 
 ---
 
-*Updated: April 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3*
