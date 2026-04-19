@@ -296,8 +296,6 @@ IRM is built **privacy-by-design**. Usernames are **pseudonymized by default** a
 4. Confirm **Show anonymized versions of usernames** is **On** (the default)
 5. Capture a timestamped screenshot for evidence
 
-![screenshot](../../../images/1.12/01-irm-privacy-pseudonymization.png)
-
 ### Opt out (only with documented justification)
 
 If your firm's policy requires non-pseudonymized review (rare; typically only for named investigations under HR/Legal direction):
@@ -363,9 +361,6 @@ For each role group:
 3. **Choose users** → add users → **Select** → **Next** → **Save**
 4. Repeat for the next role group → **Close** when done
 
-![screenshot](../../../images/1.12/02-irm-role-groups-list.png)
-![screenshot](../../../images/1.12/03-irm-role-groups-edit-members.png)
-
 > **Always maintain at least one user** in either the **Insider Risk Management** or **Insider Risk Management Admins** role group to avoid a "zero administrator" lockout if a leaver removes the only configured admin.
 
 ### Propagation note
@@ -417,9 +412,6 @@ Analytics provides a **de-identified, tenant-wide insider-risk scan** that surfa
 4. **Wait up to 48 hours** for the initial scan to complete (per Microsoft Learn — analytics scans may take up to 48 hours)
 5. Return to the Analytics dashboard and capture screenshots of the scan results for evidence
 
-![screenshot](../../../images/1.12/04-irm-analytics-scan-toggle.png)
-![screenshot](../../../images/1.12/05-irm-analytics-results-dashboard.png)
-
 > Analytics produces **insights**, not alerts. Use the insights to scope policy creation in Step 4.
 
 ### 3.2 Policy indicators — enable per-template signals
@@ -448,9 +440,6 @@ For each category that maps to a template you intend to create:
 3. Save
 4. Capture a screenshot of the enabled-indicator state for evidence
 
-![screenshot](../../../images/1.12/06-irm-policy-indicators-categories.png)
-![screenshot](../../../images/1.12/07-irm-policy-indicators-enabled-detail.png)
-
 > **Indicator variants flagged "PAYG":** require pay-as-you-go billing on a linked Azure subscription. Without PAYG, those indicators silently produce no signal.
 
 ### 3.3 Priority user groups — define and **scope visibility**
@@ -474,9 +463,6 @@ Procedure:
 3. **Choose users / groups** — populate from a distribution group, mail-enabled security group, or named users
 4. **Choose users and roles who can view this priority user group's data** — assign the IRM role groups (typically Insider Risk Management Investigators and Analysts in the corresponding Compliance team) and any specific named users
 5. Save
-
-![screenshot](../../../images/1.12/08-irm-priority-user-group-create.png)
-![screenshot](../../../images/1.12/09-irm-priority-user-group-viewer-assignment.png)
 
 #### FSI priority-group examples
 
@@ -525,7 +511,6 @@ If you completed Prerequisite #4 above, the connector exists. This step covers o
 2. Confirm the connector's **Last successful run** is within the documented schedule (typically nightly)
 3. Confirm row count > 0 on the most recent run
 
-![screenshot](../../../images/1.12/10-purview-data-connectors-hr.png)
 4. If the row count is 0 (and your HRIS export is non-empty), the most likely causes are:
    - CSV header mismatch (`EmployeeID` vs `Employee_ID`)
    - Date format mismatch (must be ISO 8601 `YYYY-MM-DD`)
@@ -587,11 +572,6 @@ For every template below:
 4. Select **Create policy** → **Policy template**
 5. Walk through the wizard: **Name & description → Users & groups → Priority content (where applicable) → Triggering event → Indicators → Decision (test / production)**
 6. **Submit**
-
-![screenshot](../../../images/1.12/11-irm-policies-list.png)
-![screenshot](../../../images/1.12/12-irm-create-policy-template-picker.png)
-![screenshot](../../../images/1.12/13-irm-policy-wizard-indicators.png)
-![screenshot](../../../images/1.12/14-irm-policy-wizard-test-vs-production.png)
 
 ### Policy A — Data theft by departing users
 
@@ -738,9 +718,6 @@ Adaptive Protection dynamically assigns DLP, Data Lifecycle Management (extended
 5. Bind the corresponding **Conditional Access** policy (typically a step-up MFA challenge or session control for Elevated users)
 6. Save and capture configuration as evidence
 
-![screenshot](../../../images/1.12/20-adaptive-protection-risk-levels.png)
-![screenshot](../../../images/1.12/21-adaptive-protection-dlp-binding.png)
-
 ### Validate Adaptive Protection (threshold-trigger test)
 
 Validation is by **threshold-trigger test**: drive a synthetic test user's risk level into Elevated through a controlled IRM signal (a synthetic risky-AI prompt or a synthetic departing-user data download in a non-production tenant), then verify the bound DLP / DLM / CA controls activate within the documented window.
@@ -790,10 +767,6 @@ All of the following must be true before opt-in:
 4. **Create a Forensic Evidence policy** that pairs to a primary detection policy (e.g., *Data theft by departing users* or *Risky AI usage* for the in-scope priority population)
 5. Assign reviewers (Investigators) and approvers (Approvers — distinct from Investigators)
 6. Save
-
-![screenshot](../../../images/1.12/22-forensic-evidence-settings.png)
-![screenshot](../../../images/1.12/23-forensic-evidence-capture-options.png)
-![screenshot](../../../images/1.12/24-forensic-evidence-dual-auth-roster.png)
 
 ### 7.3 Capture lifecycle (dual-auth)
 
@@ -942,8 +915,6 @@ The **Triage Agent** is a Security Copilot–powered IRM agent that automates fi
 | Audit | Triage Agent actions emit UAL rows. Include Triage Agent operations in the Auditors role group's monthly review |
 
 **Configuration entry point:** Microsoft Purview portal → **Insider Risk Management → Settings → Triage Agent** (verify exact navigation on Microsoft Learn at deployment).
-
-![screenshot](../../../images/1.12/30-triage-agent-settings.png)
 
 **Recommended FSI rollout for Triage Agent:**
 

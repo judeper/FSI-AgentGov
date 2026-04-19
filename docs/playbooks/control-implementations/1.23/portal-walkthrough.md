@@ -145,7 +145,7 @@ After the 72-hour bake window:
 
 1. Open **Sign-in logs → Conditional Access → Report-only results** and confirm zero unintended *Failure* outcomes for in-scope users.
 2. Edit each `FSI-StepUp-*` policy → **Enable policy = On → Save**.
-3. Notify the help desk and capture the change in the change advisory record per [Control 2.16](../../../controls/pillar-2-management/2.16-change-management-and-version-control-for-agents.md).
+3. Notify the help desk and capture the change in the change advisory record per [Control 2.16](../../../controls/pillar-2-management/2.16-rag-source-integrity-validation.md).
 
 ---
 

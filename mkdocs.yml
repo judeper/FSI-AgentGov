@@ -65,9 +65,13 @@ exclude_docs: |
   images/
   scripts/
   templates/
+  assessment/pre-session/
   reference/raci-matrix.md
   controls/CONTROL-INDEX.md
   javascripts/lib/VENDOR-MANIFEST.md
+
+not_in_nav: |
+  playbooks/_shared/
 
 markdown_extensions:
   - admonition

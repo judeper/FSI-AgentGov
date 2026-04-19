@@ -2443,13 +2443,13 @@ The following table lists every `Fsi-*` helper introduced in this playbook, the 
 - [Control 2.26 — PowerShell setup](../2.26/powershell-setup.md) — sibling for Managed Environment governance overlays
 
 ### Related controls
-- [Control 1.4 — Advanced Connector Policies](../../../controls/pillar-1-foundation/1.4-advanced-connector-policies.md) — connector-level controls that compose with Managed Environment sharing limits
-- [Control 1.5 — DLP for Standalone Cloud Flows](../../../controls/pillar-1-foundation/1.5-dlp-for-standalone-cloud-flows.md) — required cross-reference for Azure DevOps tenant-isolation exception
-- [Control 1.20 — Network Isolation](../../../controls/pillar-1-foundation/1.20-network-isolation.md) — IP Firewall is the Managed-Environment-scoped projection
+- [Control 1.4 — Advanced Connector Policies](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md) — connector-level controls that compose with Managed Environment sharing limits
+- [Control 1.5 — DLP for Standalone Cloud Flows](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) — required cross-reference for Azure DevOps tenant-isolation exception
+- [Control 1.20 — Network Isolation](../../../controls/pillar-1-security/1.20-network-isolation-private-connectivity.md) — IP Firewall is the Managed-Environment-scoped projection
 - [Control 2.2 — Environment Groups and Tier Classification](../../../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) — defines the Zone assignments this playbook consumes
-- [Control 2.3 — Change Management](../../../controls/pillar-2-management/2.3-change-management.md) — source of `-ChangeTicketId` requirement
+- [Control 2.3 — Change Management](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md) — source of `-ChangeTicketId` requirement
 - [Control 2.15 — Environment Routing](../../../controls/pillar-2-management/2.15-environment-routing.md) — composes with `Set-Fsi-EnvironmentRouting`
-- [Control 2.22 — Inactivity Timeout](../../../controls/pillar-2-management/2.22-inactivity-timeout.md) — Managed-Environment-scoped session control
+- [Control 2.22 — Inactivity Timeout](../../../controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md) — Managed-Environment-scoped session control
 
 ### Shared baseline and reference
 - [PowerShell baseline](../../_shared/powershell-baseline.md) — module pinning, mutation safety, evidence emission, signature workflow

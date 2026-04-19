@@ -90,7 +90,7 @@
 **Remediation:**
 
 - Remove the binding immediately
-- Open an incident ticket per the [Incident Response playbook](../../incident-and-risk/incident-response-overview.md) (if applicable to your organization)
+- Open an incident ticket per the [Incident Response playbook](../../incident-and-risk/ai-incident-response-playbook.md) (if applicable to your organization)
 - Review the maker's environment permissions and the Power Platform DLP policy that should have prevented the addition
 - Capture the audit event and the removal as evidence
 

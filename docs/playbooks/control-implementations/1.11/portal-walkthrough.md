@@ -106,8 +106,6 @@ Confirm the roles below are present and assigned only to named individuals (not 
 | **AI Administrator** | Reviewing agent identities (Entra Agent ID preview) and Agent 365 console | 1+ |
 | **Sentinel Admin** | Wiring the CA Insights workbook in §11 | 1 |
 
-![screenshot](../../../images/1.11/00-pim-eligible-assignments.png)
-
 !!! danger "Do not use 'Administrator' as a role name"
     The canonical short name is **Authentication Policy Admin**, not "Authentication Policy Administrator". The Entra portal still displays the long form; the role is identical. The same applies to Power Platform Admin (not "Power Apps Admin"), Exchange Online Admin (not "Exchange Administrator"), and Purview Compliance Admin (not "Compliance Administrator"). Use the short forms in all internal documentation, change tickets, and WSPs to avoid drift.
 
@@ -126,8 +124,6 @@ Open `https://admin.microsoft.com → Billing → Licenses`. Confirm the SKUs be
 
 !!! warning "CA-WID without the P1 add-on fails open"
     A Conditional Access policy that targets a **workload identity** without a **Microsoft Entra Workload Identities Premium** license assigned to that identity will **not enforce** — the policy simply does not evaluate. There is **no** in-portal warning for this. The only safe verification is to (a) attempt a deliberate denial scenario (block by named location) from outside the trusted IP range and (b) inspect the Sign-in logs (Service principal sign-ins tab) for the `conditionalAccessStatus` field. A `notApplied` status with the policy in scope is the symptom. See [`./troubleshooting.md`](./troubleshooting.md) issue T-07.
-
-![screenshot](../../../images/1.11/00-license-validation.png)
 
 ### 0.3 Sovereign cloud determination — stop here if applicable
 
@@ -152,8 +148,6 @@ If your tenant still has **Security Defaults** turned on, you cannot create gran
 1. Browse to `https://entra.microsoft.com → Identity → Overview → Properties` (the **Properties** tab on the tenant overview blade).
 2. Scroll to **Security defaults**. Note whether it reads **Enabled** or **Disabled**.
 
-![screenshot](../../../images/1.11/01-security-defaults-state.png)
-
 ### 1.2 If Security Defaults is enabled — disable only after CA baseline is staged
 
 Do **not** disable Security Defaults until you have at least one CA policy in **Report-only** that requires MFA for privileged roles (the policy you will create in §5). The recommended order is:
@@ -164,8 +158,6 @@ Do **not** disable Security Defaults until you have at least one CA policy in **
 4. Toggle **Security defaults** to **Disabled**.
 5. Select **My organization is using Conditional Access** as the reason.
 6. Click **Save**.
-
-![screenshot](../../../images/1.11/01-disable-security-defaults.png)
 
 7. Within 5 minutes, enable Policy A by switching it from **Report-only** to **On** (after the soak period defined in §13). Until that switch, the tenant is in a **temporary reduced-MFA state** — schedule the cutover to occur during a maintenance window with monitoring eyes-on.
 
@@ -182,8 +174,6 @@ The Authentication Methods policy controls **what authenticators users may regis
 
 1. `https://entra.microsoft.com → Protection → Authentication methods → Policies`.
 
-![screenshot](../../../images/1.11/02-auth-methods-blade.png)
-
 The blade lists every method (FIDO2, Microsoft Authenticator, Passkey (FIDO2), Windows Hello for Business, Certificate-based authentication, OATH tokens, SMS, Voice call, Email OTP, Temporary Access Pass, Hardware OATH tokens, QR Code (Preview), Third-party software OATH tokens). Each row shows **Enabled**, **Target**, and **Last modified**.
 
 ### 2.2 Enable FIDO2 security keys
@@ -197,8 +187,6 @@ The blade lists every method (FIDO2, Microsoft Authenticator, Passkey (FIDO2), W
    - **Enforce key restrictions:** Yes
    - **Restrict specific keys:** **Allow** — populate with the AAGUIDs of approved enterprise keys (YubiKey 5 series, Feitian ePass, Token2 PIN+ — get the AAGUIDs from the vendor)
 5. Click **Save**.
-
-![screenshot](../../../images/1.11/02-fido2-config.png)
 
 !!! info "AAGUID allow-list is mandatory for FSI"
     Allowing any FIDO2 key (no allow-list) accepts consumer-grade keys that may not meet your firm's HSM or attestation expectations. The AAGUID allow-list is the only gate between your tenant and a $20 unattested key bought online. Maintain the list in a versioned configuration repo and review it quarterly.
@@ -215,8 +203,6 @@ A **passkey** stored in the Microsoft Authenticator app is a phishing-resistant 
    - **Enforce attestation:** Yes
    - **Enforce key restrictions:** Yes — include the Microsoft Authenticator passkey AAGUID (`90a3ccdf-635c-4729-a248-9b709135078f` for iOS Authenticator; `de1e552d-db1d-4423-a619-566b625cdc84` for Android Authenticator — verify current AAGUIDs in Microsoft Learn before deployment).
 5. Click **Save**.
-
-![screenshot](../../../images/1.11/02-passkey-config.png)
 
 ### 2.4 Enable Windows Hello for Business
 
@@ -236,8 +222,6 @@ A **passkey** stored in the Microsoft Authenticator app is a phishing-resistant 
    - **Show geographic location in push and passwordless notifications:** **Enabled**
 4. Click **Save**.
 
-![screenshot](../../../images/1.11/02-authenticator-numbermatch.png)
-
 !!! info "Number matching has been mandatory since February 27, 2023"
     Microsoft made number matching the default for all Authenticator push notifications in February 2023. The toggle in this blade lets you confirm enforcement and lock additional context (app name, location). It does not need to be re-enabled, but the setting should be auditable.
 
@@ -252,8 +236,6 @@ The recommended Entra pattern is **not** to disable SMS / voice tenant-wide (whi
 3. Under **Target**, click **Add groups**, select **All users**, then click **Exclude** and add the group **`Privileged-Role-Holders`** (a security group that contains every PIM-eligible privileged-role holder; create this group in `Identity → Groups → All groups → New group` if it does not exist).
 4. Repeat for **Voice call**.
 
-![screenshot](../../../images/1.11/02-sms-exclude-privileged.png)
-
 !!! warning "Group membership must stay synchronized with PIM eligibility"
     The `Privileged-Role-Holders` group is the linchpin of this exclusion. If a new user is granted Entra Global Admin eligibility but is not added to the group, they retain SMS as a valid authenticator and the phishing-resistance posture is silently broken. Automate group membership via the PowerShell job in [`./powershell-setup.md`](./powershell-setup.md) section "Sync PIM eligibility to security group" and run it on a 1-hour schedule. The verification test is in [`./verification-testing.md`](./verification-testing.md) test case VT-04.
 
@@ -265,8 +247,6 @@ The registration campaign nudges users with weaker authenticators to register a 
 2. Set **State** to **Microsoft managed** (recommended) or **Enabled**.
 3. Set **Days allowed to snooze** to **0** for the privileged-role group (forced registration) and **14** for general users.
 4. Click **Save**.
-
-![screenshot](../../../images/1.11/02-registration-campaign.png)
 
 ### 2.8 Propagation note
 
@@ -287,8 +267,6 @@ An **Authentication Strength** is a named, reusable bundle of accepted authentic
    - FIDO2 security key
    - Certificate-based authentication (multi-factor)
 
-![screenshot](../../../images/1.11/03-builtin-strengths.png)
-
 The built-in **Phishing-resistant MFA** strength is acceptable for most uses. Skip §3.2 and §3.3 if your firm has no AAGUID-restriction or method-exclusion requirement.
 
 ### 3.2 Create a custom "FSI Phishing-Resistant MFA" strength
@@ -305,16 +283,12 @@ The built-in **Phishing-resistant MFA** strength is acceptable for most uses. Sk
 7. On the **Passkey (FIDO2)** advanced settings page, select **Allow specific keys** and paste the Authenticator passkey AAGUIDs from §2.3.
 8. Click **Review + Create**, then **Create**.
 
-![screenshot](../../../images/1.11/03-custom-strength-review.png)
-
 ### 3.3 Confirm the strength is selectable from a CA policy
 
 1. `https://entra.microsoft.com → Protection → Conditional Access → Policies → + New policy`.
 2. Under **Grant**, click **Grant access** and check **Require authentication strength**.
 3. Confirm the **`FSI Phishing-Resistant MFA`** entry appears in the dropdown next to the three built-in strengths.
 4. Click **Cancel** (do not save the empty test policy).
-
-![screenshot](../../../images/1.11/03-strength-selectable.png)
 
 ---
 
@@ -336,8 +310,6 @@ Named locations are reusable IP and country expressions referenced from CA condi
 4. Check **Mark as trusted location**.
 5. Click **Create**.
 
-![screenshot](../../../images/1.11/04-named-location-corp.png)
-
 ### 4.2 Create the permitted countries location
 
 1. **+ Countries location**.
@@ -346,8 +318,6 @@ Named locations are reusable IP and country expressions referenced from CA condi
 4. Select the country list. Most US FSI organizations include **United States** plus a small number of explicitly contracted offshore-development countries (India, Philippines, Ireland, etc.).
 5. Click **Create**.
 
-![screenshot](../../../images/1.11/04-named-location-countries.png)
-
 ### 4.3 Create the workload identity permitted IPs location
 
 1. **+ IP ranges location**.
@@ -355,8 +325,6 @@ Named locations are reusable IP and country expressions referenced from CA condi
 3. Add the egress IPs of (a) your Azure subscriptions hosting Copilot Studio bot endpoints and connected services, (b) your on-premises ExpressRoute / hybrid services that host agent code, and (c) any approved third-party SaaS that calls Microsoft Graph or Dataverse on behalf of an agent.
 4. **Do not** check Mark as trusted (workload identities should not benefit from "trusted" location bypasses that may be added to other policies).
 5. Click **Create**.
-
-![screenshot](../../../images/1.11/04-named-location-workload.png)
 
 !!! info "IPv6 considered"
     Microsoft Graph and Dataverse increasingly accept IPv6 client connections. If your egress is dual-stack, include IPv6 CIDRs alongside IPv4. Missing IPv6 ranges produces intermittent CA-WID denials that are very hard to diagnose. See [`./troubleshooting.md`](./troubleshooting.md) issue T-12.
@@ -405,8 +373,6 @@ This policy forces **AAL3-class authentication** at every sign-in (and at PIM ac
 8. **Enable policy:** **Report-only**.
 9. Click **Create**.
 
-![screenshot](../../../images/1.11/05-policy-a-create.png)
-
 ### 5.2 Validate Report-only impact
 
 After 24–48 hours of Report-only operation, browse to `Identity → Monitoring & health → Sign-in logs → Conditional Access` tab. Filter by `Conditional Access policy = CA-001` and `Result = Report-only: Failure`. Each failure represents a sign-in that **would have been blocked** if the policy were live. Investigate every failure:
@@ -414,8 +380,6 @@ After 24–48 hours of Report-only operation, browse to `Identity → Monitoring
 - Was it a privileged-role holder using a non-phishing-resistant authenticator? Their account needs a passkey or hardware key registered (route them through §2.3 self-service setup).
 - Was it a service account that should have been excluded? Add to the exclusion group.
 - Was it a break-glass account that was accidentally not excluded? **Stop the rollout immediately** and fix the exclusion.
-
-![screenshot](../../../images/1.11/05-policy-a-reportonly-results.png)
 
 The decision criterion to flip Policy A from Report-only to On is documented in §13.
 
@@ -459,8 +423,6 @@ The relevant cloud apps as enumerated in the Entra cloud-app picker are:
 8. **Enable policy:** **Report-only**.
 9. Click **Create**.
 
-![screenshot](../../../images/1.11/06-policy-b-create.png)
-
 ### 6.3 Add Microsoft Agent 365 Admin Center to the same fence
 
 The Agent 365 Admin Center governance console — see [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) — is reached through `https://admin.microsoft.com → Agent 365`. Access is gated by the **Microsoft 365 admin center** cloud app. To extend Policy B to cover this surface, **clone** Policy B as `CA-002b` and change the **Users** scope to:
@@ -469,8 +431,6 @@ The Agent 365 Admin Center governance console — see [Control 2.25](../../../co
 - **Cloud apps:** **Microsoft 365 admin center** + **Microsoft Graph** *(do not target "All cloud apps" because that would impact every M365 admin sign-in unrelated to Agent 365)*.
 
 This gives you two narrowly-scoped policies (`CA-002` for makers, `CA-002b` for governance-console operators) instead of one broad policy that is hard to roll back.
-
-![screenshot](../../../images/1.11/06-policy-b-clone-agent365.png)
 
 ---
 
@@ -488,8 +448,6 @@ Before creating the policy, re-verify §0.2: each service principal you intend t
 
 If the field reads **No**, the policy will not enforce against this SP. Acquire the license SKU through `https://admin.microsoft.com → Billing → Purchase services` before continuing.
 
-![screenshot](../../../images/1.11/07-wid-license-check.png)
-
 ### 7.2 Create Policy C in Report-only
 
 1. `https://entra.microsoft.com → Protection → Conditional Access → Policies → + New policy`.
@@ -499,8 +457,6 @@ If the field reads **No**, the policy will not enforce against this SP. Acquire 
    - **Include → Select service principals**: add **(a)** every service principal that backs a Copilot Studio agent published to Z3, **(b)** every Entra Agent ID preview registration in Z3 (see §9), **(c)** any third-party application that has Graph or Dataverse permissions consented at admin level and is invoked on behalf of an agent.
    - **Exclude:** Microsoft-first-party service principals required for tenant operations (do not include service principals owned by `Microsoft Services` or with publisher domain `microsoft.com` unless you have a specific reason).
 
-![screenshot](../../../images/1.11/07-policy-c-sp-include.png)
-
 4. **Target resources → Cloud apps → Include → All cloud apps**.
 5. **Conditions**:
    - **Service principal risk (Preview)** — **Configure: Yes** — **Include risk levels**: **High**, **Medium** (review weekly; tune based on Identity Protection signal quality).
@@ -509,8 +465,6 @@ If the field reads **No**, the policy will not enforce against this SP. Acquire 
 7. **Session**: not applicable for workload identities.
 8. **Enable policy:** **Report-only**.
 9. Click **Create**.
-
-![screenshot](../../../images/1.11/07-policy-c-create.png)
 
 ### 7.3 Validate Report-only impact for SPs
 
@@ -522,8 +476,6 @@ The Sign-in logs blade has a **separate tab** for service principal sign-ins.
 4. Each row is a service principal sign-in that would have been blocked. For each, confirm:
    - Is the source IP one that **should** be in the permitted set? Add it to `Workload Identity Permitted IPs` (§4.3).
    - Is this an unexpected service principal (compromised credential, shadow integration)? Disable the SP and open an incident — see [Control 3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) for the analytic rule.
-
-![screenshot](../../../images/1.11/07-policy-c-spsignin-logs.png)
 
 !!! warning "Don't apply CA-WID to managed identities you cannot test"
     A managed identity used by an Azure Function that posts to Microsoft Graph from a public Azure egress IP that you have not enumerated in §4.3 will be **blocked** the moment Policy C goes from Report-only to On. The 7-day soak window in §13 exists for exactly this reason. Plan to add IP ranges as you discover them and to extend the soak by another week if the Report-only failure rate has not stabilized.
@@ -545,16 +497,12 @@ CAE is **enabled by default** at tenant level for all CAE-aware Microsoft servic
 5. **Session**:
    - Check **Customize continuous access evaluation** → **Strict enforcement** *(the strict mode revokes tokens within ~5 minutes of a critical event such as account disable, password change, or risky-user elevation; default mode allows up to 60 minutes)*.
 
-![screenshot](../../../images/1.11/08-cae-strict.png)
-
 ### 8.2 Sign-in frequency — 4-hour reauth in Z3
 
 Sign-in frequency forces an interactive reauthentication after the configured interval. For Z3 (Enterprise / regulated) environments, **4 hours** is the recommended FSI baseline; for Z2 (Team), **8 hours**; Z1 (Personal) inherits tenant default (typically 90 days for non-privileged users).
 
 1. In the same Policy D form, under **Session**:
    - Check **Sign-in frequency** → **Periodic reauthentication** → **4 Hours**.
-
-![screenshot](../../../images/1.11/08-signin-frequency-4h.png)
 
 ### 8.3 Persistent browser — Never persistent for makers
 
@@ -576,8 +524,6 @@ For a pilot, create a **separate** policy `CA-005` rather than co-mingling with 
 6. **Enable policy:** **Report-only**.
 7. Click **Create**.
 
-![screenshot](../../../images/1.11/08-token-protection-preview.png)
-
 !!! warning "Token Protection breaks unsupported clients silently"
     A user signing in from an unsupported platform (macOS, mobile, Linux) under a Token Protection-required policy will be **blocked**. Scope tightly during preview. Microsoft is expanding platform coverage; check Microsoft Learn before each promotion from pilot to general rollout.
 
@@ -594,15 +540,11 @@ For a pilot, create a **separate** policy `CA-005` rather than co-mingling with 
 | `Identity → Applications → Enterprise applications → All applications` | Each agent appears as a service principal with **Application type = Agent** (a new value introduced for the preview) | When binding an agent to a CA-WID policy (§7), you select its SP from this list |
 | `Identity → Identity governance → Agent ID` *(Frontier-gated; may not appear in your tenant)* | The agent registry — sponsor (human owner of record), custom security attributes (zone classification, risk tier), agent collection membership | When governing the **lifecycle** of agent identities — provisioning, sponsor handoff, deprovisioning. This surface is owned by [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) at the governance-console level and by Control 2.26 (where present) at the directory level |
 
-![screenshot](../../../images/1.11/09-agent-id-enterprise-apps.png)
-
 ### 9.2 Filter the Enterprise applications blade to agent identities
 
 1. `Identity → Applications → Enterprise applications → All applications`.
 2. Add a filter: **Application type** equals **Agent** (if the value does not appear in your filter dropdown, your tenant is not yet on the Agent ID preview ring; Policy C still applies to ordinary service principals).
 3. Optionally add **Created on or after [date]** to scope to recent agents.
-
-![screenshot](../../../images/1.11/09-filter-agents.png)
 
 ### 9.3 Bind agent identities to Policy C
 
@@ -659,8 +601,6 @@ For each row in the table:
 7. **Notification** tab: configure recipients per the table.
 8. Click **Update**.
 
-![screenshot](../../../images/1.11/10-pim-role-settings.png)
-
 ### 10.3 Move standing assignments to eligible
 
 For each role, review **Assignments → Active assignments**. Any user with a permanent active assignment should be **converted** to **Eligible**:
@@ -668,8 +608,6 @@ For each role, review **Assignments → Active assignments**. Any user with a pe
 1. Tick the user → **Make eligible**.
 2. Set the eligibility to **Permanent eligible**.
 3. The user must now activate via PIM each time they need the role.
-
-![screenshot](../../../images/1.11/10-convert-to-eligible.png)
 
 !!! warning "Two-admin pattern for CA mutation"
     Conditional Access Admin should be configured with **approval required** (one approver from a separate group). This implements a two-admin / four-eyes pattern for any change to a CA policy — preventing an attacker who has compromised a single admin from creating an exclusion rule. Document this in the [Control 2.5 — Privileged Access Lifecycle](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) review cadence.
@@ -686,8 +624,6 @@ The Conditional Access Insights workbook visualizes policy impact, Report-only f
 2. Confirm a diagnostic setting exists that ships **SignInLogs**, **NonInteractiveUserSignInLogs**, **ServicePrincipalSignInLogs**, **ManagedIdentitySignInLogs**, and **AuditLogs** to the Log Analytics workspace defined in Control 3.9.
 3. If absent, click **+ Add diagnostic setting** and configure all five log categories.
 
-![screenshot](../../../images/1.11/11-diagnostic-settings.png)
-
 ### 11.2 Open the Conditional Access Insights workbook
 
 1. `https://security.microsoft.com → Microsoft Sentinel → Workbooks` *(if the Sentinel UI is not yet integrated into Defender in your tenant, navigate via `https://portal.azure.com → Microsoft Sentinel → [workspace] → Workbooks`)*.
@@ -695,8 +631,6 @@ The Conditional Access Insights workbook visualizes policy impact, Report-only f
 3. Search for **Conditional Access Insights and Reporting**.
 4. Click **Save** to instantiate, choosing the Control 3.9 workspace.
 5. Click **View saved workbook**.
-
-![screenshot](../../../images/1.11/11-ca-insights-workbook.png)
 
 ### 11.3 Pin daily / weekly cards to your governance dashboard
 
@@ -735,15 +669,11 @@ Two cloud-only emergency accounts are required by the Microsoft baseline and by 
 3. After creation, assign **Entra Global Admin** as a **permanent active** assignment (PIM activation must not be on the critical path for emergency use).
 4. Repeat for `breakglass-02@<tenant>.onmicrosoft.com`.
 
-![screenshot](../../../images/1.11/12-breakglass-create.png)
-
 ### 12.2 Exclude break-glass accounts from every CA policy
 
 1. Create a security group **`Break-Glass-Accounts`** containing both accounts (`Identity → Groups → All groups → + New group`).
 2. For **every** CA policy you author (Policies A, B, C, D, plus any future ones), under **Assignments → Users → Exclude → Users and groups**, add the **`Break-Glass-Accounts`** group.
 3. The Microsoft Managed Policy `Require multifactor authentication for admins` likewise needs the exclusion — open it (filter by `Source = Microsoft`) and confirm the exclusion.
-
-![screenshot](../../../images/1.11/12-exclude-from-ca.png)
 
 ### 12.3 Physical storage and split knowledge
 
@@ -783,8 +713,6 @@ Every policy authored in §§5–8 starts in **Report-only**. Promotion to **On*
 | 2–6 | Daily review of `Report-only: Failure` and `Report-only: Success but interrupted` results in the Sign-in logs and the §11 workbook | Entra Security Admin |
 | 7 | Go/no-go meeting with CISO, Compliance Officer, AI Administrator | CISO chairs |
 
-![screenshot](../../../images/1.11/13-reportonly-tab.png)
-
 ### 13.2 Go criteria
 
 Promote from Report-only to On **only if**:
@@ -811,8 +739,6 @@ Extend by another 7 days (no shortcut) if any of:
 1. `https://entra.microsoft.com → Protection → Conditional Access → Policies → [policy name]`.
 2. At the bottom, change **Enable policy** from **Report-only** to **On**.
 3. Click **Save**.
-
-![screenshot](../../../images/1.11/13-flip-to-on.png)
 
 4. Within 5 minutes, perform a **smoke test**:
    - From a test account in scope, sign in to a covered cloud app and confirm the expected behavior (MFA challenge, block, or grant as appropriate).

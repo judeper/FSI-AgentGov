@@ -91,7 +91,7 @@ This taxonomy must be approved by Compliance before configuring tracking. Modify
 
 ### Part 3: Create the Hallucination Tracking List in SharePoint
 
-**Portal Path:** [SharePoint AI Governance site](https://[tenant].sharepoint.com/sites/AI-Governance) → **+ New** → **List** → **Blank list**
+**Portal Path:** SharePoint AI Governance site (`https://<tenant>.sharepoint.com/sites/AI-Governance`) → **+ New** → **List** → **Blank list**
 
 #### Step 1: Create the List
 
