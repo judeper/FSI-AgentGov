@@ -1,560 +1,322 @@
 # PowerShell Setup: Control 2.23 - User Consent and AI Disclosure Enforcement
 
-**Last Updated:** February 2026
-**PowerShell Version Required:** 7.2+
-**Estimated Time:** 30-40 minutes
+!!! warning "Read the FSI PowerShell baseline first"
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
+
+**Last Updated:** April 2026
+**PowerShell Version Required:** 7.4+
+**Modules Required:** `Microsoft.Graph` (≥ 2.25), `ExchangeOnlineManagement` (≥ 3.5), `Microsoft.PowerApps.Administration.PowerShell` (≥ 2.0.190)
+**Optional CLIs:** Power Platform CLI (`pac`) for Dataverse solution import, Azure CLI (`az`) for Dataverse Web API tokens
+**Estimated Time:** 30–45 minutes
+
+> **Honesty disclosure.** As of April 2026, Microsoft Graph **does not expose a GA endpoint** for reading or writing the tenant `Copilot AI Disclaimer` policy. A `/beta/admin/copilot/settings` resource is in private preview and **must not** be relied on for production governance evidence. Until the GA endpoint ships, treat the Microsoft 365 admin center UI as authoritative and use the scripts below for surrounding evidence (Message Center, audit logs, Dataverse consent records, agent inventory).
 
 ## Prerequisites
 
-- [ ] PowerShell 7.2 or later installed
-- [ ] Microsoft Graph PowerShell SDK installed (`Install-Module Microsoft.Graph`)
-- [ ] Power Platform Admin PowerShell module installed (`Install-Module Microsoft.PowerApps.Administration.PowerShell`)
-- [ ] Entra Global Admin or Purview Compliance Admin role
-- [ ] Power Platform Admin role
-- [ ] Dataverse environment with `fsi_aiconsent` table deployed (Zone 3)
+- [ ] PowerShell 7.4 or later
+- [ ] Module versions pinned per the FSI baseline and approved by your Change Advisory Board (CAB)
+- [ ] **AI Administrator** role for Copilot-related Graph reads (preferred); Entra Global Admin for any consent-grant operation
+- [ ] **Purview Audit Reader** (or higher) for unified audit log searches
+- [ ] **Environment Admin** + Dataverse application user for Dataverse Web API access
+- [ ] Output directory exists: `C:\AgentGov\Evidence\2.23\` (or your local equivalent under the tenant-evidence path)
 
 ---
 
-## Module Installation and Authentication
-
-### Step 1: Install Required Modules
+## Module Installation (CAB-pinned)
 
 ```powershell
-# Install Microsoft Graph PowerShell SDK
-Install-Module Microsoft.Graph -Scope CurrentUser -Force
+# Replace <version> values with the versions approved by your CAB.
+$ErrorActionPreference = 'Stop'
 
-# Install Power Platform Admin module
-Install-Module Microsoft.PowerApps.Administration.PowerShell -Scope CurrentUser -Force
+Install-Module -Name Microsoft.Graph                           -RequiredVersion <version> -Scope CurrentUser
+Install-Module -Name ExchangeOnlineManagement                  -RequiredVersion <version> -Scope CurrentUser
+Install-Module -Name Microsoft.PowerApps.Administration.PowerShell -RequiredVersion <version> -Scope CurrentUser
 
-# Verify installations
-Get-Module Microsoft.Graph -ListAvailable
-Get-Module Microsoft.PowerApps.Administration.PowerShell -ListAvailable
-```
-
-### Step 2: Authenticate to Microsoft Graph
-
-```powershell
-# Connect to Microsoft Graph with required scopes
-Connect-MgGraph -Scopes "Organization.Read.All", "Directory.Read.All", "Policy.Read.All"
-
-# Verify connection
-Get-MgContext
-```
-
-### Step 3: Authenticate to Power Platform
-
-```powershell
-# Connect to Power Platform (interactive authentication)
-Add-PowerAppsAccount
-
-# Verify connection
-Get-AdminPowerAppEnvironment | Select-Object -First 1
+# Verify
+Get-Module Microsoft.Graph, ExchangeOnlineManagement, Microsoft.PowerApps.Administration.PowerShell -ListAvailable |
+    Select-Object Name, Version
 ```
 
 ---
 
-## Script 1: Get Tenant-Wide AI Disclaimer Configuration
+## Script 1 — Confirm tenant has the AI Disclaimer feature available
 
 ### Purpose
-Retrieve the current status of the tenant-wide AI Disclaimer toggle and custom disclosure URL from Microsoft 365 admin center settings.
+Capture Message Center evidence that the AI Disclaimer rollout has reached your tenant. This is the most reliable Graph-side signal until a tenant-policy read endpoint ships.
 
-### Script: `Get-TenantAIDisclaimer.ps1`
+### `Get-AIDisclaimerRolloutEvidence.ps1`
 
 ```powershell
 <#
 .SYNOPSIS
-    Retrieves tenant-wide AI Disclaimer configuration for Microsoft 365 Copilot.
-
+    Captures Message Center entries relevant to the Copilot AI Disclaimer rollout.
 .DESCRIPTION
-    Queries Microsoft 365 tenant settings to retrieve the AI Disclaimer toggle status
-    and custom disclosure URL. Outputs the configuration for governance reporting.
-
-.EXAMPLE
-    .\Get-TenantAIDisclaimer.ps1
-
+    Queries Microsoft Graph Service Communications API for messages matching
+    'AI Disclaimer' or 'Copilot AI disclaimer' and emits an evidence file with
+    a SHA-256 hash for chain-of-custody.
 .NOTES
-    Requires: Microsoft Graph PowerShell SDK, Organization.Read.All scope
-    Author: FSI Agent Governance Framework
-    Last Updated: February 2026
+    Required scope: ServiceMessage.Read.All
 #>
+[CmdletBinding(SupportsShouldProcess)]
+param(
+    [string]$EvidencePath = 'C:\AgentGov\Evidence\2.23'
+)
 
-# Authenticate to Microsoft Graph if not already connected
 if (-not (Get-MgContext)) {
-    Connect-MgGraph -Scopes "Organization.Read.All"
+    Connect-MgGraph -Scopes 'ServiceMessage.Read.All' -NoWelcome
 }
 
-# Retrieve organization settings
-Write-Host "Retrieving tenant-wide AI Disclaimer configuration..." -ForegroundColor Cyan
+$messages = Get-MgServiceAnnouncementMessage -All |
+    Where-Object { $_.Title -match 'AI Disclaimer|Copilot AI' } |
+    Select-Object Id, Title, Category, StartDateTime, EndDateTime, LastModifiedDateTime, Severity
 
-try {
-    # Note: This is a conceptual API endpoint; actual Graph API may differ
-    # Check Microsoft Graph documentation for the correct endpoint
-    $tenantSettings = Invoke-MgGraphRequest -Method GET -Uri "https://graph.microsoft.com/v1.0/admin/copilot/settings"
-    
-    $disclaimerConfig = [PSCustomObject]@{
-        TenantId = (Get-MgOrganization).Id
-        TenantName = (Get-MgOrganization).DisplayName
-        AIDisclaimerEnabled = $tenantSettings.aiDisclaimerEnabled
-        CustomDisclosureURL = $tenantSettings.customDisclosureUrl
-        LastModifiedDateTime = $tenantSettings.lastModifiedDateTime
-        LastModifiedBy = $tenantSettings.lastModifiedBy
-        ComplianceStatus = if ($tenantSettings.aiDisclaimerEnabled) { "Compliant" } else { "Non-Compliant" }
-    }
-    
-    $disclaimerConfig | Format-List
-    
-    # Export to CSV for reporting
-    $outputPath = ".\TenantAIDisclaimer_$(Get-Date -Format 'yyyyMMdd_HHmmss').csv"
-    $disclaimerConfig | Export-Csv -Path $outputPath -NoTypeInformation
-    Write-Host "Configuration exported to: $outputPath" -ForegroundColor Green
+if (-not (Test-Path $EvidencePath)) { New-Item -Path $EvidencePath -ItemType Directory | Out-Null }
+
+$stamp   = Get-Date -Format 'yyyyMMdd-HHmmss'
+$outFile = Join-Path $EvidencePath "messagecenter-aidisclaimer-$stamp.json"
+
+if ($PSCmdlet.ShouldProcess($outFile, 'Write Message Center evidence')) {
+    $messages | ConvertTo-Json -Depth 5 | Out-File -FilePath $outFile -Encoding utf8
+    $hash = (Get-FileHash -Path $outFile -Algorithm SHA256).Hash
+    "$hash  $(Split-Path $outFile -Leaf)" | Out-File -FilePath "$outFile.sha256" -Encoding ascii
+    Write-Host "Evidence: $outFile  (SHA-256 $hash)" -ForegroundColor Green
 }
-catch {
-    Write-Error "Failed to retrieve AI Disclaimer configuration: $_"
-}
-```
-
-### Usage
-
-```powershell
-# Run the script to get current configuration
-.\Get-TenantAIDisclaimer.ps1
-
-# Expected Output:
-# TenantId             : 12345678-1234-1234-1234-123456789012
-# TenantName           : Contoso Financial Services
-# AIDisclaimerEnabled  : True
-# CustomDisclosureURL  : https://contoso.com/policies/ai-transparency
-# LastModifiedDateTime : 2026-02-10T14:32:00Z
-# LastModifiedBy       : admin@contoso.com
-# ComplianceStatus     : Compliant
 ```
 
 ---
 
-## Script 2: Get Agent-Level Disclosure Configuration
+## Script 2 — Inventory Copilot Studio agents and tag governance zone
 
 ### Purpose
-Audit all Copilot Studio agents to identify which have AI disclosure configured in their greeting topics.
+Inventory all Copilot Studio bots across Power Platform environments and join them with your governance-zone classification (held in a CSV maintained by the FSI team). Disclosure-language presence is **not** programmatically inspectable today (Copilot Studio topic content is not exposed by the admin module), so the script flags every agent as "Manual review required" and emits the inventory for tracking.
 
-### Script: `Get-AgentDisclosureInventory.ps1`
+### `Get-AgentZoneInventory.ps1`
 
 ```powershell
 <#
 .SYNOPSIS
-    Audits all Copilot Studio agents for AI disclosure configuration in greeting topics.
-
+    Inventories Copilot Studio agents and joins with the FSI zone classification CSV.
 .DESCRIPTION
-    Retrieves all agents across Power Platform environments and checks for AI disclosure
-    language in greeting topics. Outputs an inventory for governance reporting.
-
-.PARAMETER EnvironmentName
-    Optional. Filter to a specific Power Platform environment. If not specified, scans all environments.
-
-.EXAMPLE
-    .\Get-AgentDisclosureInventory.ps1
-
-.EXAMPLE
-    .\Get-AgentDisclosureInventory.ps1 -EnvironmentName "Default-12345678-1234-1234-1234-123456789012"
-
+    Uses Get-AdminBot to enumerate bots in every environment the caller administers.
+    Joins with .\zone-classification.csv (columns: BotId,Zone,Owner) and writes a
+    CSV evidence file with SHA-256 hash.
 .NOTES
-    Requires: Power Platform Admin PowerShell module
-    Author: FSI Agent Governance Framework
-    Last Updated: February 2026
+    Topic content is not exposed via the admin PowerShell module as of April 2026,
+    so disclosure-language verification is performed manually (see Verification playbook).
 #>
-
+[CmdletBinding(SupportsShouldProcess)]
 param(
-    [string]$EnvironmentName
+    [Parameter(Mandatory)] [string]$ZoneCsvPath,
+    [string]$EvidencePath = 'C:\AgentGov\Evidence\2.23'
 )
 
-# Authenticate to Power Platform if not already connected
-if (-not (Get-AdminPowerAppEnvironment -ErrorAction SilentlyContinue)) {
-    Add-PowerAppsAccount
-}
+if (-not (Test-Path $ZoneCsvPath)) { throw "Zone classification CSV not found: $ZoneCsvPath" }
+$zones = Import-Csv $ZoneCsvPath | Group-Object BotId -AsHashTable -AsString
 
-Write-Host "Retrieving agent disclosure configuration inventory..." -ForegroundColor Cyan
+Add-PowerAppsAccount | Out-Null
 
-$environments = if ($EnvironmentName) {
-    Get-AdminPowerAppEnvironment -EnvironmentName $EnvironmentName
-} else {
-    Get-AdminPowerAppEnvironment
-}
-
-$agentInventory = @()
-
-foreach ($env in $environments) {
-    Write-Host "Scanning environment: $($env.DisplayName)..." -ForegroundColor Yellow
-    
-    # Get all bots/agents in the environment
-    # Conceptual — verify cmdlet availability in your environment
-    $agents = Get-AdminPowerAppChatBot -EnvironmentName $env.EnvironmentName
-    
-    foreach ($agent in $agents) {
-        Write-Host "  Checking agent: $($agent.DisplayName)..." -ForegroundColor Gray
-        
-        # Attempt to retrieve greeting topic (note: actual API may differ)
-        try {
-            # Conceptual — verify cmdlet availability in your environment
-            $greetingTopic = Get-AdminPowerAppChatBotTopic -EnvironmentName $env.EnvironmentName -BotName $agent.BotName -TopicName "Greeting"
-            
-            $hasDisclosure = if ($greetingTopic.Content -match "AI|artificial intelligence|monitoring|consent") {
-                $true
-            } else {
-                $false
-            }
-            
-            $agentRecord = [PSCustomObject]@{
-                EnvironmentName = $env.EnvironmentName
-                EnvironmentDisplayName = $env.DisplayName
-                AgentName = $agent.DisplayName
-                AgentId = $agent.BotName
-                HasGreetingTopic = $true
-                HasAIDisclosure = $hasDisclosure
-                LastModified = $agent.LastModifiedTime
-                ComplianceStatus = if ($hasDisclosure) { "Compliant" } else { "Review Required" }
-            }
-        }
-        catch {
-            $agentRecord = [PSCustomObject]@{
-                EnvironmentName = $env.EnvironmentName
-                EnvironmentDisplayName = $env.DisplayName
-                AgentName = $agent.DisplayName
-                AgentId = $agent.BotName
-                HasGreetingTopic = $false
-                HasAIDisclosure = $false
-                LastModified = $agent.LastModifiedTime
-                ComplianceStatus = "No Greeting Topic"
-            }
-        }
-        
-        $agentInventory += $agentRecord
+$envs = Get-AdminPowerAppEnvironment
+$rows = foreach ($env in $envs) {
+    try {
+        $bots = Get-AdminBot -EnvironmentName $env.EnvironmentName -ErrorAction Stop
+    } catch {
+        Write-Warning "Skipping environment $($env.DisplayName): $_"; continue
     }
-}
-
-# Display summary
-Write-Host "`nAgent Disclosure Inventory Summary:" -ForegroundColor Cyan
-$agentInventory | Format-Table -AutoSize
-
-$totalAgents = $agentInventory.Count
-$compliantAgents = ($agentInventory | Where-Object { $_.ComplianceStatus -eq "Compliant" }).Count
-$nonCompliantAgents = $totalAgents - $compliantAgents
-
-Write-Host "`nTotal Agents: $totalAgents" -ForegroundColor White
-Write-Host "Compliant: $compliantAgents" -ForegroundColor Green
-Write-Host "Non-Compliant/Review Required: $nonCompliantAgents" -ForegroundColor Red
-
-# Export to CSV
-$outputPath = ".\AgentDisclosureInventory_$(Get-Date -Format 'yyyyMMdd_HHmmss').csv"
-$agentInventory | Export-Csv -Path $outputPath -NoTypeInformation
-Write-Host "`nInventory exported to: $outputPath" -ForegroundColor Green
-```
-
----
-
-## Script 3: Get Consent Records from Dataverse (Zone 3)
-
-### Purpose
-Retrieve user consent acknowledgment records from the Dataverse `fsi_aiconsent` table for Zone 3 agents.
-
-### Script: `Get-ConsentRecords.ps1`
-
-```powershell
-<#
-.SYNOPSIS
-    Retrieves user consent acknowledgment records from Dataverse for Zone 3 agents.
-
-.DESCRIPTION
-    Queries the fsi_aiconsent Dataverse table to retrieve consent records, including
-    user identity, timestamp, disclosure version, and acknowledgment status.
-
-.PARAMETER EnvironmentUrl
-    The Dataverse environment URL (e.g., https://contoso.crm.dynamics.com)
-
-.PARAMETER AgentName
-    Optional. Filter consent records for a specific agent.
-
-.PARAMETER DaysBack
-    Optional. Retrieve consent records from the last N days. Default is 30 days.
-
-.EXAMPLE
-    .\Get-ConsentRecords.ps1 -EnvironmentUrl "https://contoso.crm.dynamics.com"
-
-.EXAMPLE
-    .\Get-ConsentRecords.ps1 -EnvironmentUrl "https://contoso.crm.dynamics.com" -AgentName "Customer Service Agent" -DaysBack 7
-
-.NOTES
-    Requires: Dataverse environment with fsi_aiconsent table deployed
-    Requires: Azure authentication method (MSAL.PS or Azure CLI) for Dataverse Web API access
-    Author: FSI Agent Governance Framework
-    Last Updated: February 2026
-#>
-
-param(
-    [Parameter(Mandatory=$true)]
-    [string]$EnvironmentUrl,
-    
-    [string]$AgentName,
-    
-    [int]$DaysBack = 30
-)
-
-# Helper function to get access token (conceptual - implement based on your auth method)
-function Get-AccessToken {
-    param([string]$EnvironmentUrl)
-    # This is a placeholder - implement actual OAuth token acquisition
-    # Example: Use MSAL.PS or Azure CLI to get token
-    # az account get-access-token --resource $EnvironmentUrl --query accessToken -o tsv
-    Write-Warning "Implement Get-AccessToken function with your authentication method"
-    return ""
-}
-
-Write-Host "Retrieving consent records from Dataverse..." -ForegroundColor Cyan
-
-# Calculate date filter
-$startDate = (Get-Date).AddDays(-$DaysBack).ToString("yyyy-MM-dd")
-
-# Build FetchXML query
-$fetchXml = @"
-<fetch>
-  <entity name='fsi_aiconsent'>
-    <attribute name='fsi_userid' />
-    <attribute name='fsi_agentname' />
-    <attribute name='fsi_consenttimestamp' />
-    <attribute name='fsi_disclosureversion' />
-    <attribute name='fsi_acknowledgmentstatus' />
-    <attribute name='createdon' />
-    <filter>
-      <condition attribute='fsi_consenttimestamp' operator='on-or-after' value='$startDate' />
-"@
-
-if ($AgentName) {
-    $fetchXml += @"
-      <condition attribute='fsi_agentname' operator='eq' value='$AgentName' />
-"@
-}
-
-$fetchXml += @"
-    </filter>
-    <order attribute='fsi_consenttimestamp' descending='true' />
-  </entity>
-</fetch>
-"@
-
-try {
-    # Note: This uses a conceptual approach; actual Dataverse PowerShell cmdlet may differ
-    # You may need to use Invoke-RestMethod with Dataverse Web API
-    
-    $authHeader = @{
-        "Authorization" = "Bearer $(Get-AccessToken -EnvironmentUrl $EnvironmentUrl)"
-        "Content-Type" = "application/json"
-        "OData-MaxVersion" = "4.0"
-        "OData-Version" = "4.0"
-    }
-    
-    $apiUrl = "$EnvironmentUrl/api/data/v9.2/fsi_aiconsents?fetchXml=$([uri]::EscapeDataString($fetchXml))"
-    $response = Invoke-RestMethod -Uri $apiUrl -Headers $authHeader -Method Get
-    
-    $consentRecords = $response.value | ForEach-Object {
-        [PSCustomObject]@{
-            UserId = $_.fsi_userid
-            AgentName = $_.fsi_agentname
-            ConsentTimestamp = $_.fsi_consenttimestamp
-            DisclosureVersion = $_.fsi_disclosureversion
-            AcknowledgmentStatus = $_.fsi_acknowledgmentstatus
-            CreatedOn = $_.createdon
+    foreach ($bot in $bots) {
+        $z = $zones[$bot.BotName]
+        [pscustomobject]@{
+            EnvironmentName        = $env.EnvironmentName
+            EnvironmentDisplayName = $env.DisplayName
+            BotName                = $bot.BotName
+            BotDisplayName         = $bot.DisplayName
+            CreatedTime            = $bot.CreatedTime
+            LastModifiedTime       = $bot.LastModifiedTime
+            Zone                   = $z.Zone
+            Owner                  = $z.Owner
+            DisclosureReviewStatus = 'Manual review required'
         }
     }
-    
-    # Display records
-    Write-Host "`nConsent Records:" -ForegroundColor Cyan
-    $consentRecords | Format-Table -AutoSize
-    
-    # Summary
-    $totalRecords = $consentRecords.Count
-    $acknowledgedCount = ($consentRecords | Where-Object { $_.AcknowledgmentStatus -eq $true }).Count
-    
-    Write-Host "`nTotal Consent Records (last $DaysBack days): $totalRecords" -ForegroundColor White
-    Write-Host "Acknowledged: $acknowledgedCount" -ForegroundColor Green
-    
-    # Export to CSV
-    $outputPath = ".\ConsentRecords_$(Get-Date -Format 'yyyyMMdd_HHmmss').csv"
-    $consentRecords | Export-Csv -Path $outputPath -NoTypeInformation
-    Write-Host "Consent records exported to: $outputPath" -ForegroundColor Green
 }
-catch {
-    Write-Error "Failed to retrieve consent records: $_"
+
+if (-not (Test-Path $EvidencePath)) { New-Item -Path $EvidencePath -ItemType Directory | Out-Null }
+$stamp   = Get-Date -Format 'yyyyMMdd-HHmmss'
+$outFile = Join-Path $EvidencePath "agent-zone-inventory-$stamp.csv"
+
+if ($PSCmdlet.ShouldProcess($outFile, 'Write agent inventory')) {
+    $rows | Export-Csv -Path $outFile -NoTypeInformation
+    $hash = (Get-FileHash -Path $outFile -Algorithm SHA256).Hash
+    "$hash  $(Split-Path $outFile -Leaf)" | Out-File -FilePath "$outFile.sha256" -Encoding ascii
+    Write-Host "Inventory: $outFile  ($($rows.Count) bots)  SHA-256 $hash" -ForegroundColor Green
 }
 ```
 
 ---
 
-## Script 4: Verify Consent Compliance (Zone 3)
+## Script 3 — Deploy the `fsi_aiconsent` Dataverse table via `pac` CLI
 
 ### Purpose
-Check for users who have interacted with Zone 3 agents without valid consent acknowledgment records.
+Repeatable, source-controlled deployment of the `fsi_aiconsent` table as a managed solution. This replaces the click-through Step 9 in the Portal Walkthrough.
 
-### Script: `Test-ConsentCompliance.ps1`
+### Workflow
+
+```powershell
+# 1. Authenticate pac CLI to the target environment.
+pac auth create --name fsi-zone3 --environment '<environment-id-or-url>'
+
+# 2. Import the FSI managed solution that contains the fsi_aiconsent table.
+#    The solution zip lives in FSI-AgentGov-Solutions:
+#      solutions/2.23-ai-consent/FSI_AIConsent_managed.zip
+pac solution import `
+    --path .\FSI_AIConsent_managed.zip `
+    --activate-plugins `
+    --skip-dependency-check $false `
+    --publish-changes
+
+# 3. Capture import evidence.
+$stamp   = Get-Date -Format 'yyyyMMdd-HHmmss'
+$evidence = "C:\AgentGov\Evidence\2.23\solution-import-$stamp.log"
+pac solution list | Out-File -FilePath $evidence -Encoding utf8
+Get-FileHash -Path $evidence -Algorithm SHA256 |
+    ForEach-Object { "$($_.Hash)  $(Split-Path $evidence -Leaf)" } |
+    Out-File -FilePath "$evidence.sha256" -Encoding ascii
+```
+
+> The companion managed solution is tracked in the **FSI-AgentGov-Solutions** repository. If your tenant uses a different publisher prefix, fork the unmanaged solution, change the prefix, and rebuild before importing.
+
+---
+
+## Script 4 — Read consent records from Dataverse Web API
+
+### Purpose
+Honest, working query against the `fsi_aiconsents` Web API endpoint using OData filters (Web API does **not** accept inline `fetchXml` as a query string parameter — that pattern from older versions of this playbook was incorrect).
+
+### `Get-ConsentRecords.ps1`
 
 ```powershell
 <#
 .SYNOPSIS
-    Verifies consent compliance by checking for Zone 3 agent interactions without valid consent.
-
+    Reads recent consent records from the fsi_aiconsents Dataverse table.
 .DESCRIPTION
-    Cross-references agent usage logs with consent records to identify users who have
-    accessed Zone 3 agents without valid consent acknowledgment within the required timeframe.
-
-.PARAMETER EnvironmentUrl
-    The Dataverse environment URL
-
-.PARAMETER ConsentValidityDays
-    Number of days a consent record remains valid before re-acknowledgment is required. Default is 90.
-
-.EXAMPLE
-    .\Test-ConsentCompliance.ps1 -EnvironmentUrl "https://contoso.crm.dynamics.com"
-
-.EXAMPLE
-    .\Test-ConsentCompliance.ps1 -EnvironmentUrl "https://contoso.crm.dynamics.com" -ConsentValidityDays 60
-
+    Acquires an access token via Azure CLI for the Dataverse environment, then
+    issues an OData query against the Web API.
 .NOTES
-    Requires: Dataverse environment with fsi_aiconsent and usage log tables
-    Author: FSI Agent Governance Framework
-    Last Updated: February 2026
+    Dataverse Web API uses OData query options ($filter, $orderby, $top).
+    FetchXML is supported via the FetchXml HTTP header, NOT as a URI parameter.
 #>
-
+[CmdletBinding()]
 param(
-    [Parameter(Mandatory=$true)]
-    [string]$EnvironmentUrl,
-    
-    [int]$ConsentValidityDays = 90
+    [Parameter(Mandatory)] [string]$EnvironmentUrl,   # e.g., https://contoso.crm.dynamics.com
+    [int]$DaysBack = 30,
+    [string]$AgentId,
+    [string]$EvidencePath = 'C:\AgentGov\Evidence\2.23'
 )
 
-Write-Host "Verifying consent compliance for Zone 3 agents..." -ForegroundColor Cyan
+# Token from Azure CLI; in non-interactive contexts, use a service principal + MSAL.PS.
+$token = az account get-access-token --resource $EnvironmentUrl --query accessToken -o tsv
+if (-not $token) { throw 'Failed to acquire Dataverse access token via az CLI.' }
 
-# Calculate valid consent date threshold
-$validConsentDate = (Get-Date).AddDays(-$ConsentValidityDays)
+$since = (Get-Date).AddDays(-$DaysBack).ToString('o')
+$filter = "fsi_consenttimestamp ge $since"
+if ($AgentId) { $filter += " and fsi_agentid eq '$AgentId'" }
 
-# This is a conceptual script - actual implementation would:
-# 1. Query agent usage logs for Zone 3 agents
-# 2. For each user interaction, check for valid consent record
-# 3. Identify users without valid consent
+$select = 'fsi_userupn,fsi_useraadid,fsi_agentname,fsi_agentid,fsi_consenttimestamp,fsi_disclosureversion,fsi_acknowledgmentstatus,fsi_sourcechannel,createdon'
+$uri    = "$EnvironmentUrl/api/data/v9.2/fsi_aiconsents?`$filter=$([uri]::EscapeDataString($filter))&`$select=$select&`$orderby=fsi_consenttimestamp desc"
 
-# Placeholder for actual implementation
-Write-Host "Consent compliance verification requires:" -ForegroundColor Yellow
-Write-Host "  1. Agent usage log table in Dataverse" -ForegroundColor Gray
-Write-Host "  2. Zone 3 agent classification data" -ForegroundColor Gray
-Write-Host "  3. Cross-reference with fsi_aiconsent table" -ForegroundColor Gray
-Write-Host "`nImplement this script based on your specific Dataverse schema." -ForegroundColor Yellow
+$headers = @{
+    'Authorization'    = "Bearer $token"
+    'Accept'           = 'application/json'
+    'OData-Version'    = '4.0'
+    'OData-MaxVersion' = '4.0'
+}
 
-# Example output structure
-$complianceReport = @(
-    [PSCustomObject]@{
-        UserId = "user1@contoso.com"
-        AgentName = "Investment Advisory Agent"
-        LastInteraction = "2026-02-10"
-        ConsentStatus = "Valid"
-        ConsentDate = "2025-12-15"
-        DaysSinceConsent = 57
-    },
-    [PSCustomObject]@{
-        UserId = "user2@contoso.com"
-        AgentName = "Customer Service Agent"
-        LastInteraction = "2026-02-11"
-        ConsentStatus = "Expired"
-        ConsentDate = "2025-09-01"
-        DaysSinceConsent = 163
-    }
-)
+$response = Invoke-RestMethod -Uri $uri -Headers $headers -Method Get
+$records  = $response.value
 
-$complianceReport | Format-Table -AutoSize
+Write-Host "Records returned: $($records.Count) (last $DaysBack days)" -ForegroundColor Cyan
+$records | Format-Table fsi_userupn, fsi_agentname, fsi_consenttimestamp, fsi_disclosureversion, fsi_acknowledgmentstatus -AutoSize
 
-# Export results
-$outputPath = ".\ConsentComplianceReport_$(Get-Date -Format 'yyyyMMdd_HHmmss').csv"
-$complianceReport | Export-Csv -Path $outputPath -NoTypeInformation
-Write-Host "Compliance report exported to: $outputPath" -ForegroundColor Green
+if (-not (Test-Path $EvidencePath)) { New-Item -Path $EvidencePath -ItemType Directory | Out-Null }
+$stamp   = Get-Date -Format 'yyyyMMdd-HHmmss'
+$outFile = Join-Path $EvidencePath "consent-records-$stamp.csv"
+$records | Export-Csv -Path $outFile -NoTypeInformation
+$hash = (Get-FileHash -Path $outFile -Algorithm SHA256).Hash
+"$hash  $(Split-Path $outFile -Leaf)" | Out-File -FilePath "$outFile.sha256" -Encoding ascii
+Write-Host "Evidence: $outFile  SHA-256 $hash" -ForegroundColor Green
 ```
 
 ---
 
-## Script 5: Generate Disclosure Compliance Report
+## Script 5 — Audit log evidence (Purview unified audit log)
 
 ### Purpose
-Generate a comprehensive compliance report showing disclosure configuration status across tenant, agents, and consent tracking.
+Pull configuration-change and consent-flow events from the unified audit log for the regulator-facing evidence binder.
 
-### Script: `New-DisclosureComplianceReport.ps1`
+### `Search-DisclosureAuditEvidence.ps1`
 
 ```powershell
 <#
 .SYNOPSIS
-    Generates a comprehensive disclosure compliance report.
-
-.DESCRIPTION
-    Aggregates data from tenant-wide AI Disclaimer settings, agent-level disclosure
-    configurations, and consent records to produce a compliance report.
-
-.EXAMPLE
-    .\New-DisclosureComplianceReport.ps1
-
+    Searches the Purview unified audit log for events related to Control 2.23.
 .NOTES
-    Calls other scripts in this playbook to gather data
-    Author: FSI Agent Governance Framework
-    Last Updated: February 2026
+    Required role: Purview Audit Reader (or higher).
+    Operations and RecordTypes evolve; verify against your tenant before relying
+    on a specific operation name.
 #>
+[CmdletBinding()]
+param(
+    [datetime]$StartDate = (Get-Date).AddDays(-7),
+    [datetime]$EndDate   = (Get-Date),
+    [string]$EvidencePath = 'C:\AgentGov\Evidence\2.23'
+)
 
-Write-Host "Generating Disclosure Compliance Report..." -ForegroundColor Cyan
-Write-Host ("=" * 80) -ForegroundColor Cyan
+Connect-ExchangeOnline -ShowBanner:$false
 
-# Section 1: Tenant-Wide Configuration
-Write-Host "`n[1/3] Retrieving Tenant-Wide AI Disclaimer Configuration..." -ForegroundColor Yellow
-& .\Get-TenantAIDisclaimer.ps1
+# Cast a wide net; refine after observing live data.
+$results = Search-UnifiedAuditLog `
+    -StartDate $StartDate -EndDate $EndDate `
+    -ResultSize 5000 `
+    -FreeText 'CopilotAIDisclaimer Copilot AI Disclaimer fsi_aiconsent'
 
-# Section 2: Agent-Level Disclosure Inventory
-Write-Host "`n[2/3] Retrieving Agent-Level Disclosure Inventory..." -ForegroundColor Yellow
-& .\Get-AgentDisclosureInventory.ps1
+if (-not (Test-Path $EvidencePath)) { New-Item -Path $EvidencePath -ItemType Directory | Out-Null }
+$stamp   = Get-Date -Format 'yyyyMMdd-HHmmss'
+$outFile = Join-Path $EvidencePath "audit-evidence-$stamp.csv"
+$results | Export-Csv -Path $outFile -NoTypeInformation
+$hash = (Get-FileHash -Path $outFile -Algorithm SHA256).Hash
+"$hash  $(Split-Path $outFile -Leaf)" | Out-File -FilePath "$outFile.sha256" -Encoding ascii
+Write-Host "Audit evidence: $outFile  ($($results.Count) rows)  SHA-256 $hash" -ForegroundColor Green
 
-# Section 3: Consent Records (if Dataverse URL provided)
-Write-Host "`n[3/3] Consent Records..." -ForegroundColor Yellow
-$dataverseUrl = Read-Host "Enter Dataverse environment URL for Zone 3 consent records (or press Enter to skip)"
-if ($dataverseUrl) {
-    & .\Get-ConsentRecords.ps1 -EnvironmentUrl $dataverseUrl -DaysBack 30
-} else {
-    Write-Host "Consent records section skipped." -ForegroundColor Gray
-}
-
-# Summary
-Write-Host ("`n" + ("=" * 80)) -ForegroundColor Cyan
-Write-Host "Disclosure Compliance Report Complete" -ForegroundColor Green
-Write-Host "Review the generated CSV files for detailed analysis." -ForegroundColor White
+Disconnect-ExchangeOnline -Confirm:$false
 ```
+
+---
+
+## Sovereign-cloud notes
+
+For GCC, GCC High, and DoD tenants:
+
+- `Connect-MgGraph` requires `-Environment USGov` (GCC High) or `-Environment USGovDoD` (DoD). The Service Communications API is available in all clouds.
+- `Connect-ExchangeOnline` requires `-ExchangeEnvironmentName O365USGovGCCHigh` or `O365USGovDoD`.
+- `Add-PowerAppsAccount` requires `-Endpoint usgovhigh` / `usgovdod`.
+- Dataverse Web API hosts: `*.crm.appsplatform.us` (GCC High) and `*.crm.microsoftdynamics.us` (DoD).
+
+See the [PowerShell baseline](../../_shared/powershell-baseline.md) for the canonical endpoint table.
+
+---
+
+## Scheduling
+
+Schedule **Get-AIDisclaimerRolloutEvidence**, **Get-AgentZoneInventory**, **Get-ConsentRecords**, and **Search-DisclosureAuditEvidence** on a weekly cadence. Prefer **Azure Automation** or a hardened **Power Automate Desktop** runner over Windows Task Scheduler for FSI tenants — both provide centralized identity, secret management, and run history that map cleanly to FINRA 3110 supervisory evidence requirements.
 
 ---
 
 ## Deployment Checklist
 
-After running these scripts, verify:
-
-- [ ] Tenant-wide AI Disclaimer toggle is enabled (Get-TenantAIDisclaimer.ps1 shows Compliant)
-- [ ] Custom disclosure URL is configured and accessible
-- [ ] All Zone 2 and Zone 3 agents have AI disclosure in greeting topics (Get-AgentDisclosureInventory.ps1 shows Compliant)
-- [ ] Zone 3 agents have consent records in Dataverse for all active users (Get-ConsentRecords.ps1)
-- [ ] No expired consent records for users who have recently interacted with Zone 3 agents (Test-ConsentCompliance.ps1)
-- [ ] Compliance reports are generated and stored for audit trail (New-DisclosureComplianceReport.ps1)
-
----
-
-## Automation and Scheduling
-
-To schedule automated compliance checks:
-
-```powershell
-# Create a scheduled task to run daily compliance report
-$action = New-ScheduledTaskAction -Execute "PowerShell.exe" `
-    -Argument "-File C:\Scripts\New-DisclosureComplianceReport.ps1"
-
-$trigger = New-ScheduledTaskTrigger -Daily -At 6:00AM
-
-Register-ScheduledTask -TaskName "AI Disclosure Compliance Check" `
-    -Action $action -Trigger $trigger -Description "Daily disclosure compliance report"
-```
+- [ ] All five scripts execute without error in a non-production environment first
+- [ ] Output directory `C:\AgentGov\Evidence\2.23\` exists and is access-controlled
+- [ ] Module versions match the CAB-approved baseline
+- [ ] Service principal used for Dataverse writes is documented in the access register
+- [ ] SHA-256 hashes are emitted for every CSV / JSON evidence file
+- [ ] Scheduled runs feed the governance evidence binder (Control 2.13)
 
 ---
 
