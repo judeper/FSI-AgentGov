@@ -220,7 +220,9 @@
       "followUp": "Check M365 admin center > Settings > Integrated apps, Entra > Enterprise applications, and the Copilot Studio agent list.",
       "timeBudgetMinutes": 7
     },
-    "solutions": []
+    "solutions": [
+      "agent-365-lifecycle-governance"
+    ]
   },
   {
     "id": "1.3",
@@ -522,7 +524,9 @@
       "followUp": "Open Microsoft Purview > Data Loss Prevention > Policies, then PPAC > Policies > Data policies for Power Platform coverage.",
       "timeBudgetMinutes": 8
     },
-    "solutions": []
+    "solutions": [
+      "deny-event-correlation-report"
+    ]
   },
   {
     "id": "1.6",
@@ -710,7 +714,13 @@
       "followUp": "Open Microsoft Purview > Audit > Audit retention policies and verify Copilot/agent record types are scoped.",
       "timeBudgetMinutes": 6
     },
-    "solutions": []
+    "solutions": [
+      "agent-observability-foundation",
+      "audit-compliance-manager",
+      "deny-event-correlation-report",
+      "environment-lifecycle-management",
+      "finra-supervision-workflow"
+    ]
   },
   {
     "id": "1.8",
@@ -789,7 +799,10 @@
       "followUp": "Open Copilot Studio > [agent] > Settings > Security, then PPAC > Security > Microsoft Defender for Cloud Apps.",
       "timeBudgetMinutes": 6
     },
-    "solutions": []
+    "solutions": [
+      "content-moderation-monitor",
+      "deny-event-correlation-report"
+    ]
   },
   {
     "id": "1.9",
@@ -969,7 +982,9 @@
       "followUp": "Open Microsoft Purview > Communication Compliance > Policies and use the Detect Microsoft 365 Copilot template.",
       "timeBudgetMinutes": 6
     },
-    "solutions": []
+    "solutions": [
+      "finra-supervision-workflow"
+    ]
   },
   {
     "id": "1.11",
@@ -1086,7 +1101,10 @@
       "followUp": "Open Entra admin center > Protection > Conditional Access > Policies, then check Authentication strengths.",
       "timeBudgetMinutes": 7
     },
-    "solutions": []
+    "solutions": [
+      "agent-365-lifecycle-governance",
+      "conditional-access-automation"
+    ]
   },
   {
     "id": "1.12",
@@ -1353,7 +1371,9 @@
       "followUp": "Review Copilot Studio agent knowledge sources, PPAC DLP, and Purview DSPM for AI Activity Explorer for scope signals.",
       "timeBudgetMinutes": 6
     },
-    "solutions": []
+    "solutions": [
+      "file-upload-security"
+    ]
   },
   {
     "id": "1.15",
@@ -1697,7 +1717,9 @@
       "followUp": "TODO: follow-up hint",
       "timeBudgetMinutes": 5
     },
-    "solutions": []
+    "solutions": [
+      "conditional-access-automation"
+    ]
   },
   {
     "id": "1.19",
@@ -2141,7 +2163,10 @@
       "followUp": "TODO: follow-up hint",
       "timeBudgetMinutes": 5
     },
-    "solutions": []
+    "solutions": [
+      "action-confirmation-auditor",
+      "conditional-access-automation"
+    ]
   },
   {
     "id": "1.24",
@@ -2307,7 +2332,9 @@
       "followUp": "TODO: follow-up hint",
       "timeBudgetMinutes": 5
     },
-    "solutions": []
+    "solutions": [
+      "mime-type-restrictions"
+    ]
   },
   {
     "id": "1.26",
@@ -2501,7 +2528,9 @@
       "followUp": "TODO: follow-up hint",
       "timeBudgetMinutes": 5
     },
-    "solutions": []
+    "solutions": [
+      "content-moderation-monitor"
+    ]
   },
   {
     "id": "1.28",
@@ -2785,7 +2814,11 @@
       "followUp": "Open Power Platform admin center > Environments and verify the Managed badge plus rule configuration.",
       "timeBudgetMinutes": 5
     },
-    "solutions": []
+    "solutions": [
+      "agent-365-lifecycle-governance",
+      "environment-lifecycle-management",
+      "pipeline-governance-cleanup"
+    ]
   },
   {
     "id": "2.2",
@@ -2880,7 +2913,9 @@
       "followUp": "Open Power Platform admin center > Environment groups and verify rule publish status.",
       "timeBudgetMinutes": 5
     },
-    "solutions": []
+    "solutions": [
+      "environment-lifecycle-management"
+    ]
   },
   {
     "id": "2.3",
@@ -2962,7 +2997,12 @@
       "followUp": "TODO: follow-up hint",
       "timeBudgetMinutes": 5
     },
-    "solutions": []
+    "solutions": [
+      "agent-365-lifecycle-governance",
+      "environment-lifecycle-management",
+      "message-center-monitor",
+      "pipeline-governance-cleanup"
+    ]
   },
   {
     "id": "2.4",
@@ -3357,7 +3397,11 @@
       "followUp": "TODO: follow-up hint",
       "timeBudgetMinutes": 5
     },
-    "solutions": []
+    "solutions": [
+      "agent-365-lifecycle-governance",
+      "agent-observability-foundation",
+      "environment-lifecycle-management"
+    ]
   },
   {
     "id": "2.9",
@@ -3439,7 +3483,9 @@
       "followUp": "TODO: follow-up hint",
       "timeBudgetMinutes": 5
     },
-    "solutions": []
+    "solutions": [
+      "agent-observability-foundation"
+    ]
   },
   {
     "id": "2.10",
@@ -3521,7 +3567,9 @@
       "followUp": "TODO: follow-up hint",
       "timeBudgetMinutes": 5
     },
-    "solutions": []
+    "solutions": [
+      "message-center-monitor"
+    ]
   },
   {
     "id": "2.11",
@@ -3657,7 +3705,11 @@
       "followUp": "Review WSP for AI addendum, Copilot Studio human-agent handoff configuration, and the supervision review log.",
       "timeBudgetMinutes": 8
     },
-    "solutions": []
+    "solutions": [
+      "action-confirmation-auditor",
+      "agent-365-lifecycle-governance",
+      "finra-supervision-workflow"
+    ]
   },
   {
     "id": "2.13",
@@ -3727,7 +3779,9 @@
       "followUp": "TODO: follow-up hint",
       "timeBudgetMinutes": 5
     },
-    "solutions": []
+    "solutions": [
+      "dr-testing-framework"
+    ]
   },
   {
     "id": "2.14",
@@ -4113,7 +4167,9 @@
       "followUp": "TODO: follow-up hint",
       "timeBudgetMinutes": 5
     },
-    "solutions": []
+    "solutions": [
+      "coi-testing"
+    ]
   },
   {
     "id": "2.19",
@@ -4404,7 +4460,9 @@
       "followUp": "TODO: follow-up hint",
       "timeBudgetMinutes": 5
     },
-    "solutions": []
+    "solutions": [
+      "inactivity-timeout-enforcement"
+    ]
   },
   {
     "id": "2.23",
@@ -4871,7 +4929,9 @@
       "followUp": "TODO: follow-up hint",
       "timeBudgetMinutes": 5
     },
-    "solutions": []
+    "solutions": [
+      "agent-365-lifecycle-governance"
+    ]
   },
   {
     "id": "3.2",
@@ -4941,7 +5001,10 @@
       "followUp": "TODO: follow-up hint",
       "timeBudgetMinutes": 5
     },
-    "solutions": []
+    "solutions": [
+      "agent-observability-foundation",
+      "copilot-studio-analytics"
+    ]
   },
   {
     "id": "3.3",
@@ -5116,7 +5179,9 @@
       "followUp": "Review the IR plan, Sentinel/Defender incident workflow, and the regulator notification matrix maintained by Compliance.",
       "timeBudgetMinutes": 8
     },
-    "solutions": []
+    "solutions": [
+      "deny-event-correlation-report"
+    ]
   },
   {
     "id": "3.5",
@@ -5453,7 +5518,9 @@
       "followUp": "TODO: follow-up hint",
       "timeBudgetMinutes": 5
     },
-    "solutions": []
+    "solutions": [
+      "agent-access-monitor"
+    ]
   },
   {
     "id": "3.9",
@@ -5620,7 +5687,9 @@
       "followUp": "TODO: follow-up hint",
       "timeBudgetMinutes": 5
     },
-    "solutions": []
+    "solutions": [
+      "hallucination-tracker"
+    ]
   },
   {
     "id": "3.11",
