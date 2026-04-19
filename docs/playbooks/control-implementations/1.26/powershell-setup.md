@@ -1,486 +1,438 @@
 # PowerShell Setup: Control 1.26 - Agent File Upload and File Analysis Restrictions
 
-**Last Updated:** February 2026
-**Modules Required:** Microsoft.PowerApps.Administration.PowerShell
+!!! warning "Read the FSI PowerShell baseline first"
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show the abbreviated forms; the baseline is authoritative.
+
+**Last Updated:** April 2026
+**Modules Required:** `Microsoft.PowerApps.Administration.PowerShell`, `Microsoft.Graph` (for activity log queries)
+**Sovereign clouds:** GCC / GCC High / DoD endpoints — see the [PowerShell Authoring Baseline](../../_shared/powershell-baseline.md) for the correct `-Endpoint` parameter
+
+!!! danger "API Surface — Verify Cmdlet Availability Before Mutation"
+    The per-agent file upload toggle is exposed via `Get-AdminPowerAppChatbot` / `Set-AdminPowerAppChatbot` in `Microsoft.PowerApps.Administration.PowerShell`. The `-FileUploadEnabled` parameter availability and property name (`Properties.FileUploadEnabled`) is based on Microsoft's anticipated April 2026 schema and may differ between module versions. Run the cmdlet-availability probe in *Script 0* before executing any `Set-` operation. If the parameter is not exposed in your tenant, fall back to the [Portal Walkthrough](portal-walkthrough.md) for manual configuration and use the `Get-` script for inventory only.
 
 ## Prerequisites
 
 ```powershell
-# Install the Power Platform administration module
-Install-Module -Name Microsoft.PowerApps.Administration.PowerShell -Force -Scope CurrentUser
+# Pin the module to a CAB-approved version (substitute your approved version)
+Install-Module -Name Microsoft.PowerApps.Administration.PowerShell `
+    -RequiredVersion '<cab-approved-version>' `
+    -Repository PSGallery `
+    -Scope CurrentUser `
+    -AllowClobber `
+    -AcceptLicense
+
 Import-Module Microsoft.PowerApps.Administration.PowerShell
 
-# Authenticate to Power Platform
-Add-PowerAppsAccount
+# Required: Microsoft.PowerApps.Administration.PowerShell is Desktop-edition only (PowerShell 5.1).
+if ($PSVersionTable.PSEdition -ne 'Desktop') {
+    throw "Microsoft.PowerApps.Administration.PowerShell requires Windows PowerShell 5.1 (Desktop edition). Detected: $($PSVersionTable.PSEdition) $($PSVersionTable.PSVersion)."
+}
+
+# Sovereign-cloud-aware authentication (default: commercial)
+param(
+    [ValidateSet('prod','usgov','usgovhigh','dod')]
+    [string]$Endpoint = 'prod'
+)
+Add-PowerAppsAccount -Endpoint $Endpoint
 ```
 
-> **Note:** The Power Platform administration module provides cmdlets for managing Copilot Studio agent settings at scale. Ensure you have Power Platform Admin or Entra Global Admin permissions before running these scripts.
+> **Required role:** AI Administrator or Power Platform Admin. Verify before running mutations: `Get-AdminPowerAppEnvironment | Measure-Object` should return your full environment list. A zero count typically means wrong sovereign endpoint.
 
 ---
 
-## Automated Scripts
-
-### Get File Upload Status Across All Agents
+## Script 0 — Probe Cmdlet Surface (Run First)
 
 ```powershell
 <#
 .SYNOPSIS
-    Retrieves file upload enablement status for all Copilot Studio agents across environments.
+    Probes the Set-AdminPowerAppChatbot cmdlet for the -FileUploadEnabled parameter
+    and the Properties.FileUploadEnabled return surface on Get-AdminPowerAppChatbot.
 
 .DESCRIPTION
-    Queries all managed environments and lists agents with their file upload toggle state,
-    environment name, zone classification, and last modified date.
-
-.EXAMPLE
-    .\Get-AgentFileUploadStatus.ps1
-
-.EXAMPLE
-    .\Get-AgentFileUploadStatus.ps1 | Export-Csv -Path ".\FileUploadInventory.csv" -NoTypeInformation
+    Confirms that the API schema this playbook depends on is present in the loaded
+    module version. If the probe fails, fall back to the Portal Walkthrough.
 #>
+[CmdletBinding()]
+param()
 
-Write-Host "=== Agent File Upload Inventory ===" -ForegroundColor Cyan
+$probe = [ordered]@{
+    SetCmdletPresent       = [bool](Get-Command Set-AdminPowerAppChatbot -ErrorAction SilentlyContinue)
+    GetCmdletPresent       = [bool](Get-Command Get-AdminPowerAppChatbot -ErrorAction SilentlyContinue)
+    FileUploadParamPresent = $false
+}
 
-$environments = Get-AdminPowerAppEnvironment
+if ($probe.SetCmdletPresent) {
+    $params = (Get-Command Set-AdminPowerAppChatbot).Parameters.Keys
+    $probe.FileUploadParamPresent = $params -contains 'FileUploadEnabled'
+}
 
-$results = @()
+$probe | Format-Table -AutoSize
 
-foreach ($env in $environments) {
-    Write-Host "`nEnvironment: $($env.DisplayName)" -ForegroundColor Yellow
+if (-not $probe.FileUploadParamPresent) {
+    Write-Warning "Set-AdminPowerAppChatbot -FileUploadEnabled is not present in this module version. Use the Portal Walkthrough for mutations; the inventory script (Script 1) may still work."
+}
+```
 
-    # Retrieve agents (chatbots) in the environment
+---
+
+## Script 1 — Inventory: Get File Upload Status Across All Agents (Read-Only, Idempotent)
+
+```powershell
+<#
+.SYNOPSIS
+    Inventories file upload toggle state for every Copilot Studio agent across
+    every environment in the tenant, and emits SHA-256-hashed evidence.
+
+.DESCRIPTION
+    Read-only. Safe to run repeatedly. Produces JSON evidence and a manifest.json
+    suitable for SEC 17a-4(f) / FINRA 4511 audit submission.
+
+.PARAMETER EvidencePath
+    Directory to write evidence into. Created if missing.
+
+.EXAMPLE
+    .\Get-AgentFileUploadInventory.ps1 -EvidencePath '.\evidence\1.26'
+#>
+[CmdletBinding()]
+param(
+    [string]$EvidencePath = ".\evidence\1.26"
+)
+
+$ErrorActionPreference = 'Stop'
+New-Item -ItemType Directory -Force -Path $EvidencePath | Out-Null
+$ts = Get-Date -Format 'yyyyMMddTHHmmssZ'
+Start-Transcript -Path "$EvidencePath\transcript-inventory-$ts.log" -IncludeInvocationHeader
+
+$results = foreach ($env in (Get-AdminPowerAppEnvironment)) {
     $agents = Get-AdminPowerAppChatbot -EnvironmentName $env.EnvironmentName -ErrorAction SilentlyContinue
-
-    if (-not $agents) {
-        Write-Host "  No agents found" -ForegroundColor Gray
-        continue
-    }
-
     foreach ($agent in $agents) {
-        $fileUploadEnabled = $agent.Properties.FileUploadEnabled -eq $true
-
-        $status = if ($fileUploadEnabled) { "Enabled" } else { "Disabled" }
-        $color = if ($fileUploadEnabled) { "Yellow" } else { "Green" }
-
-        Write-Host "  Agent: $($agent.Properties.DisplayName) — File Upload: $status" -ForegroundColor $color
-
-        $results += [PSCustomObject]@{
+        [PSCustomObject]@{
             Environment       = $env.DisplayName
             EnvironmentId     = $env.EnvironmentName
             AgentName         = $agent.Properties.DisplayName
             AgentId           = $agent.ChatbotId
-            FileUploadEnabled = $fileUploadEnabled
-            LastModified      = $agent.Properties.LastModifiedTime
+            FileUploadEnabled = [bool]$agent.Properties.FileUploadEnabled
+            LastModifiedUtc   = $agent.Properties.LastModifiedTime
             CreatedBy         = $agent.Properties.CreatedBy.displayName
+            CollectedUtc      = (Get-Date).ToUniversalTime().ToString('o')
         }
     }
 }
 
-Write-Host "`n=== Summary ===" -ForegroundColor Cyan
-Write-Host "Total agents: $($results.Count)"
-Write-Host "File upload enabled: $(($results | Where-Object FileUploadEnabled -eq $true).Count)"
-Write-Host "File upload disabled: $(($results | Where-Object FileUploadEnabled -eq $false).Count)"
+# Emit JSON + SHA-256 manifest entry (canonical pattern from baseline §5)
+$jsonPath = Join-Path $EvidencePath "agent-file-upload-inventory-$ts.json"
+$results | ConvertTo-Json -Depth 10 | Set-Content -Path $jsonPath -Encoding UTF8
+$hash = (Get-FileHash -Path $jsonPath -Algorithm SHA256).Hash
 
-$results | Format-Table -AutoSize
-```
-
-!!! danger "API Availability — Verify Before Use"
-    The `Set-AdminPowerAppChatbot` cmdlet with `-FileUploadEnabled` parameter is based on **anticipated API schema** as of February 2026. This parameter may not be available in all tenants. Before running Script 2 or Script 4, test cmdlet availability:
-
-    ```powershell
-    Get-Help Set-AdminPowerAppChatbot -Parameter FileUploadEnabled
-    ```
-
-    If the parameter is not recognized, use the [Portal Walkthrough](portal-walkthrough.md) to manage file upload settings manually.
-
-### Bulk Disable File Upload for Zone 3 Agents
-
-```powershell
-<#
-.SYNOPSIS
-    Disables file upload for all agents in specified Zone 3 environments.
-
-.DESCRIPTION
-    Iterates through agents in the target environments and disables the file upload
-    toggle. Supports -WhatIf for dry-run preview.
-
-.PARAMETER EnvironmentNames
-    Array of Power Platform environment names (GUIDs) to process.
-
-.PARAMETER WhatIf
-    Preview changes without applying them.
-
-.EXAMPLE
-    .\Disable-FileUpload-Zone3.ps1 -EnvironmentNames @("env-guid-1", "env-guid-2") -WhatIf
-
-.EXAMPLE
-    .\Disable-FileUpload-Zone3.ps1 -EnvironmentNames @("env-guid-1")
-#>
-
-param(
-    [Parameter(Mandatory)]
-    [string[]]$EnvironmentNames,
-
-    [Parameter()]
-    [switch]$WhatIf
-)
-
-Write-Host "=== Bulk Disable File Upload (Zone 3) ===" -ForegroundColor Cyan
-Write-Host "Mode: $(if ($WhatIf) { 'Preview (WhatIf)' } else { 'Apply' })" -ForegroundColor Yellow
-
-$results = @()
-
-foreach ($envName in $EnvironmentNames) {
-    $env = Get-AdminPowerAppEnvironment -EnvironmentName $envName
-    Write-Host "`nEnvironment: $($env.DisplayName)" -ForegroundColor Yellow
-
-    $agents = Get-AdminPowerAppChatbot -EnvironmentName $envName -ErrorAction SilentlyContinue
-
-    if (-not $agents) {
-        Write-Host "  No agents found" -ForegroundColor Gray
-        continue
-    }
-
-    foreach ($agent in $agents) {
-        $fileUploadEnabled = $agent.Properties.FileUploadEnabled -eq $true
-
-        if ($fileUploadEnabled) {
-            if ($WhatIf) {
-                Write-Host "  [WHATIF] Would disable file upload: $($agent.Properties.DisplayName)" -ForegroundColor Yellow
-            } else {
-                try {
-                    Set-AdminPowerAppChatbot -EnvironmentName $envName `
-                        -ChatbotId $agent.ChatbotId `
-                        -FileUploadEnabled $false
-
-                    Write-Host "  [DISABLED] $($agent.Properties.DisplayName)" -ForegroundColor Green
-                } catch {
-                    Write-Host "  [ERROR] $($agent.Properties.DisplayName): $($_.Exception.Message)" -ForegroundColor Red
-                }
-            }
-        } else {
-            Write-Host "  [OK] $($agent.Properties.DisplayName) — already disabled" -ForegroundColor Gray
-        }
-
-        $results += [PSCustomObject]@{
-            Environment       = $env.DisplayName
-            AgentName         = $agent.Properties.DisplayName
-            PreviousState     = if ($fileUploadEnabled) { "Enabled" } else { "Disabled" }
-            Action            = if ($fileUploadEnabled -and -not $WhatIf) { "Disabled" } elseif ($fileUploadEnabled) { "Would Disable" } else { "No Change" }
-            Timestamp         = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-        }
-    }
+$manifestPath = Join-Path $EvidencePath "manifest.json"
+$manifest = @()
+if (Test-Path $manifestPath) { $manifest = @(Get-Content $manifestPath | ConvertFrom-Json) }
+$manifest += [PSCustomObject]@{
+    file           = (Split-Path $jsonPath -Leaf)
+    sha256         = $hash
+    bytes          = (Get-Item $jsonPath).Length
+    generated_utc  = $ts
+    script         = 'Get-AgentFileUploadInventory'
+    script_version = '1.26.0'
+    control_id     = '1.26'
 }
+$manifest | ConvertTo-Json -Depth 5 | Set-Content -Path $manifestPath -Encoding UTF8
 
-Write-Host "`n=== Results ===" -ForegroundColor Cyan
+Write-Host "Evidence written: $jsonPath" -ForegroundColor Green
+Write-Host "SHA-256: $hash" -ForegroundColor Green
+
+Stop-Transcript
 $results | Format-Table -AutoSize
 ```
 
-### Audit File Upload Enablement with Zone Compliance
+---
+
+## Script 2 — Compliance Audit Against Zone Policy (Read-Only)
 
 ```powershell
 <#
 .SYNOPSIS
-    Audits file upload enablement against zone governance requirements.
-
-.DESCRIPTION
-    Compares each agent's file upload toggle state against its environment's
-    zone classification and outputs [PASS], [FAIL], or [WARN] results.
+    Audits per-agent file upload toggle against zone governance requirements
+    and emits a PASS/WARN/FAIL evidence record.
 
 .PARAMETER ZoneMapping
-    Hashtable mapping environment names to zone numbers.
+    Hashtable mapping environment name (GUID) to zone number (1, 2, or 3).
+
+.PARAMETER ApprovedEnabledAgents
+    Optional array of agent IDs that have documented approval to have File Upload
+    enabled in Zone 2 or Zone 3. Reduces false WARN/FAIL noise.
+
+.PARAMETER EvidencePath
+    Directory to write evidence into.
 
 .EXAMPLE
-    $zones = @{
-        "env-guid-personal" = 1
-        "env-guid-team"     = 2
-        "env-guid-enterprise" = 3
-    }
-    .\Audit-FileUploadCompliance.ps1 -ZoneMapping $zones
+    $zones = @{ 'env-personal' = 1; 'env-team' = 2; 'env-ent' = 3 }
+    .\Audit-FileUploadCompliance.ps1 -ZoneMapping $zones -ApprovedEnabledAgents @('agent-id-1','agent-id-2')
 #>
-
+[CmdletBinding()]
 param(
-    [Parameter(Mandatory)]
-    [hashtable]$ZoneMapping
+    [Parameter(Mandatory)] [hashtable]$ZoneMapping,
+    [string[]]$ApprovedEnabledAgents = @(),
+    [string]$EvidencePath = ".\evidence\1.26"
 )
 
-Write-Host "=== File Upload Compliance Audit ===" -ForegroundColor Cyan
+$ErrorActionPreference = 'Stop'
+New-Item -ItemType Directory -Force -Path $EvidencePath | Out-Null
+$ts = Get-Date -Format 'yyyyMMddTHHmmssZ'
 
-$results = @()
-
-foreach ($envName in $ZoneMapping.Keys) {
-    $zone = $ZoneMapping[$envName]
-    $env = Get-AdminPowerAppEnvironment -EnvironmentName $envName
-    Write-Host "`nEnvironment: $($env.DisplayName) (Zone $zone)" -ForegroundColor Yellow
-
+$findings = foreach ($envName in $ZoneMapping.Keys) {
+    $zone   = $ZoneMapping[$envName]
+    $env    = Get-AdminPowerAppEnvironment -EnvironmentName $envName
     $agents = Get-AdminPowerAppChatbot -EnvironmentName $envName -ErrorAction SilentlyContinue
 
-    if (-not $agents) {
-        Write-Host "  No agents found" -ForegroundColor Gray
-        continue
-    }
-
     foreach ($agent in $agents) {
-        $fileUploadEnabled = $agent.Properties.FileUploadEnabled -eq $true
-        $compliant = $true
-        $finding = ""
-
-        switch ($zone) {
-            1 {
-                # Zone 1: file upload allowed with defaults
-                if ($fileUploadEnabled) {
-                    Write-Host "  [PASS] $($agent.Properties.DisplayName) — file upload enabled (Zone 1 allows)" -ForegroundColor Green
-                    $finding = "Enabled — acceptable for Zone 1"
-                } else {
-                    Write-Host "  [INFO] $($agent.Properties.DisplayName) — file upload disabled (no issue)" -ForegroundColor Gray
-                    $finding = "Disabled — no action required"
-                }
-            }
-            2 {
-                # Zone 2: file upload should be disabled unless approved
-                if ($fileUploadEnabled) {
-                    Write-Host "  [WARN] $($agent.Properties.DisplayName) — file upload enabled (requires approval for Zone 2)" -ForegroundColor Yellow
-                    $compliant = $false
-                    $finding = "Enabled — verify approval documentation exists"
-                } else {
-                    Write-Host "  [PASS] $($agent.Properties.DisplayName) — file upload disabled (Zone 2 default)" -ForegroundColor Green
-                    $finding = "Disabled — compliant with Zone 2 default"
-                }
-            }
-            3 {
-                # Zone 3: file upload must be disabled unless formally approved
-                if ($fileUploadEnabled) {
-                    Write-Host "  [FAIL] $($agent.Properties.DisplayName) — file upload enabled (default deny for Zone 3)" -ForegroundColor Red
-                    $compliant = $false
-                    $finding = "Enabled — requires formal risk assessment and approval"
-                } else {
-                    Write-Host "  [PASS] $($agent.Properties.DisplayName) — file upload disabled (Zone 3 default deny)" -ForegroundColor Green
-                    $finding = "Disabled — compliant with Zone 3 default deny"
-                }
-            }
+        $enabled  = [bool]$agent.Properties.FileUploadEnabled
+        $approved = $ApprovedEnabledAgents -contains $agent.ChatbotId
+        $result   = switch ($zone) {
+            1 { 'PASS' }
+            2 { if ($enabled -and -not $approved) { 'WARN' } else { 'PASS' } }
+            3 { if ($enabled -and -not $approved) { 'FAIL' } else { 'PASS' } }
         }
-
-        $results += [PSCustomObject]@{
+        [PSCustomObject]@{
             Environment       = $env.DisplayName
             Zone              = $zone
             AgentName         = $agent.Properties.DisplayName
-            FileUploadEnabled = $fileUploadEnabled
-            Compliant         = $compliant
-            Finding           = $finding
+            AgentId           = $agent.ChatbotId
+            FileUploadEnabled = $enabled
+            Approved          = $approved
+            Result            = $result
+            CollectedUtc      = (Get-Date).ToUniversalTime().ToString('o')
         }
     }
 }
 
-Write-Host "`n=== Audit Summary ===" -ForegroundColor Cyan
-$total = $results.Count
-$compliantCount = ($results | Where-Object Compliant -eq $true).Count
-$nonCompliant = ($results | Where-Object Compliant -eq $false).Count
-Write-Host "Total agents assessed: $total"
-Write-Host "Compliant: $compliantCount" -ForegroundColor Green
-Write-Host "Non-compliant: $nonCompliant" -ForegroundColor $(if ($nonCompliant -gt 0) { "Red" } else { "Green" })
+$jsonPath = Join-Path $EvidencePath "compliance-audit-$ts.json"
+$findings | ConvertTo-Json -Depth 10 | Set-Content -Path $jsonPath -Encoding UTF8
+$hash = (Get-FileHash -Path $jsonPath -Algorithm SHA256).Hash
+Write-Host "Audit evidence: $jsonPath  (SHA-256: $hash)" -ForegroundColor Green
 
-$results | Format-Table -AutoSize
+$summary = $findings | Group-Object Result | Select-Object Name, Count
+$summary | Format-Table -AutoSize
+$findings | Format-Table -AutoSize
 ```
 
 ---
 
-## Validation Script
+## Script 3 — Mutation: Disable File Upload (Idempotent, SupportsShouldProcess, With Snapshot)
 
 ```powershell
 <#
 .SYNOPSIS
-    Validates Control 1.26 - Agent File Upload Restrictions across all environments.
-
-.EXAMPLE
-    .\Validate-Control-1.26.ps1
-#>
-
-Write-Host "=== Control 1.26 Validation ===" -ForegroundColor Cyan
-
-Import-Module Microsoft.PowerApps.Administration.PowerShell
-
-$environments = Get-AdminPowerAppEnvironment
-
-$results = @()
-
-foreach ($env in $environments) {
-    Write-Host "`nEnvironment: $($env.DisplayName)" -ForegroundColor Yellow
-
-    $agents = Get-AdminPowerAppChatbot -EnvironmentName $env.EnvironmentName -ErrorAction SilentlyContinue
-
-    if (-not $agents) {
-        Write-Host "  [INFO] No agents found" -ForegroundColor Gray
-        continue
-    }
-
-    $totalAgents = $agents.Count
-    $uploadEnabled = ($agents | Where-Object { $_.Properties.FileUploadEnabled -eq $true }).Count
-    $uploadDisabled = $totalAgents - $uploadEnabled
-
-    # Check 1: Agent inventory
-    Write-Host "  [PASS] Agent inventory: $totalAgents agents found" -ForegroundColor Green
-
-    # Check 2: File upload enablement count
-    if ($uploadEnabled -gt 0) {
-        Write-Host "  [WARN] $uploadEnabled agent(s) with file upload enabled — verify approval documentation" -ForegroundColor Yellow
-    } else {
-        Write-Host "  [PASS] No agents with file upload enabled" -ForegroundColor Green
-    }
-
-    # Check 3: List agents with upload enabled for review
-    foreach ($agent in ($agents | Where-Object { $_.Properties.FileUploadEnabled -eq $true })) {
-        Write-Host "    → $($agent.Properties.DisplayName) (created by $($agent.Properties.CreatedBy.displayName))" -ForegroundColor Yellow
-    }
-
-    $results += [PSCustomObject]@{
-        Environment    = $env.DisplayName
-        TotalAgents    = $totalAgents
-        UploadEnabled  = $uploadEnabled
-        UploadDisabled = $uploadDisabled
-    }
-}
-
-Write-Host "`n=== Summary ===" -ForegroundColor Cyan
-$results | Format-Table -AutoSize
-```
-
----
-
-## Complete Configuration Script
-
-```powershell
-<#
-.SYNOPSIS
-    Configures agent file upload restrictions for Control 1.26 across Power Platform environments.
+    Disables the per-agent File Upload toggle for one or more agents.
+    Idempotent — agents already in the desired state are skipped with [OK].
 
 .DESCRIPTION
-    Applies zone-appropriate file upload governance to Copilot Studio agents.
-    Supports dry-run preview with -WhatIf, multiple output formats, and file export.
+    Canonical mutation pattern per the FSI PowerShell Authoring Baseline §4:
+      - SupportsShouldProcess + ConfirmImpact='High'
+      - Before-mutation snapshot to disk for rollback
+      - Start-Transcript for full session capture
+      - SHA-256 evidence emission per baseline §5
+      - -WhatIf produces a true preview without state change
 
-.PARAMETER EnvironmentName
-    The Power Platform environment name to configure. If not specified, processes all environments.
+.PARAMETER EnvironmentId
+    Target environment (GUID).
 
-.PARAMETER ZoneLevel
-    The governance zone level to enforce: 1, 2, or 3.
+.PARAMETER AgentIds
+    Optional array of agent IDs. If omitted, all agents in the environment are processed.
 
-.PARAMETER OutputFormat
-    Output format for the report: Table, JSON, or CSV. Default: Table.
-
-.PARAMETER OutputPath
-    File path to export results. If not specified, results are written to the console.
-
-.PARAMETER WhatIf
-    Preview changes without applying them.
+.PARAMETER EvidencePath
+    Directory to write evidence into.
 
 .EXAMPLE
-    .\Configure-Control-1.26.ps1 -ZoneLevel 3 -WhatIf
+    .\Disable-FileUpload.ps1 -EnvironmentId 'env-guid' -WhatIf
 
 .EXAMPLE
-    .\Configure-Control-1.26.ps1 -EnvironmentName "env-guid" -ZoneLevel 2 -OutputFormat JSON -OutputPath ".\results.json"
+    .\Disable-FileUpload.ps1 -EnvironmentId 'env-guid' -AgentIds 'agent-1','agent-2' -Confirm
 #>
-
+[CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]
 param(
-    [Parameter()]
-    [string]$EnvironmentName,
-
-    [Parameter(Mandatory)]
-    [ValidateSet(1, 2, 3)]
-    [int]$ZoneLevel,
-
-    [Parameter()]
-    [ValidateSet("Table", "JSON", "CSV")]
-    [string]$OutputFormat = "Table",
-
-    [Parameter()]
-    [string]$OutputPath,
-
-    [Parameter()]
-    [switch]$WhatIf
+    [Parameter(Mandatory)] [string]$EnvironmentId,
+    [string[]]$AgentIds,
+    [string]$EvidencePath = ".\evidence\1.26"
 )
 
-try {
-    Import-Module Microsoft.PowerApps.Administration.PowerShell -ErrorAction Stop
-    Write-Host "=== Control 1.26: Agent File Upload Restrictions Configuration ===" -ForegroundColor Cyan
-    Write-Host "Zone Level: $ZoneLevel" -ForegroundColor Yellow
-    Write-Host "Mode: $(if ($WhatIf) { 'Preview (WhatIf)' } else { 'Apply' })" -ForegroundColor Yellow
+$ErrorActionPreference = 'Stop'
+New-Item -ItemType Directory -Force -Path $EvidencePath | Out-Null
+$ts = Get-Date -Format 'yyyyMMddTHHmmssZ'
+Start-Transcript -Path "$EvidencePath\transcript-mutation-$ts.log" -IncludeInvocationHeader
 
-    # Determine target environments
-    if ($EnvironmentName) {
-        $environments = @(Get-AdminPowerAppEnvironment -EnvironmentName $EnvironmentName)
-    } else {
-        $environments = Get-AdminPowerAppEnvironment
+# Pre-flight: probe cmdlet surface
+$setCmd = Get-Command Set-AdminPowerAppChatbot -ErrorAction SilentlyContinue
+if (-not $setCmd -or -not ($setCmd.Parameters.Keys -contains 'FileUploadEnabled')) {
+    throw "Set-AdminPowerAppChatbot -FileUploadEnabled is not available in this module version. Use the Portal Walkthrough for manual configuration."
+}
+
+# Snapshot BEFORE mutating
+$agents = Get-AdminPowerAppChatbot -EnvironmentName $EnvironmentId -ErrorAction Stop
+if ($AgentIds) { $agents = $agents | Where-Object { $AgentIds -contains $_.ChatbotId } }
+
+$snapshotPath = Join-Path $EvidencePath "before-snapshot-$ts.json"
+$agents | Select-Object ChatbotId,
+    @{N='AgentName';E={$_.Properties.DisplayName}},
+    @{N='FileUploadEnabled';E={[bool]$_.Properties.FileUploadEnabled}},
+    @{N='LastModifiedUtc';E={$_.Properties.LastModifiedTime}} |
+    ConvertTo-Json -Depth 10 | Set-Content -Path $snapshotPath -Encoding UTF8
+
+$results = foreach ($agent in $agents) {
+    $current = [bool]$agent.Properties.FileUploadEnabled
+    $name    = $agent.Properties.DisplayName
+
+    if (-not $current) {
+        # Idempotent: already in desired state
+        Write-Host "  [OK] $name — already disabled" -ForegroundColor Gray
+        $action = 'NoChange'
     }
-
-    $results = @()
-
-    foreach ($env in $environments) {
-        Write-Host "`nProcessing: $($env.DisplayName)" -ForegroundColor Yellow
-
-        $agents = Get-AdminPowerAppChatbot -EnvironmentName $env.EnvironmentName -ErrorAction SilentlyContinue
-
-        if (-not $agents) {
-            Write-Host "  No agents found — skipping" -ForegroundColor Gray
-            continue
+    elseif ($PSCmdlet.ShouldProcess("$name ($($agent.ChatbotId))", 'Disable File Upload')) {
+        try {
+            Set-AdminPowerAppChatbot -EnvironmentName $EnvironmentId `
+                -ChatbotId $agent.ChatbotId `
+                -FileUploadEnabled $false -ErrorAction Stop
+            Write-Host "  [DISABLED] $name" -ForegroundColor Green
+            $action = 'Disabled'
         }
-
-        foreach ($agent in $agents) {
-            $fileUploadEnabled = $agent.Properties.FileUploadEnabled -eq $true
-            $shouldDisable = ($ZoneLevel -ge 2) -and $fileUploadEnabled
-            $action = "No Change"
-
-            if ($shouldDisable) {
-                if ($WhatIf) {
-                    Write-Host "  [WHATIF] Would disable: $($agent.Properties.DisplayName)" -ForegroundColor Yellow
-                    $action = "Would Disable"
-                } else {
-                    Set-AdminPowerAppChatbot -EnvironmentName $env.EnvironmentName `
-                        -ChatbotId $agent.ChatbotId `
-                        -FileUploadEnabled $false
-                    Write-Host "  [DISABLED] $($agent.Properties.DisplayName)" -ForegroundColor Green
-                    $action = "Disabled"
-                }
-            } else {
-                Write-Host "  [OK] $($agent.Properties.DisplayName) — no change needed" -ForegroundColor Gray
-            }
-
-            $results += [PSCustomObject]@{
-                Environment       = $env.DisplayName
-                EnvironmentId     = $env.EnvironmentName
-                AgentName         = $agent.Properties.DisplayName
-                AgentId           = $agent.ChatbotId
-                PreviousState     = if ($fileUploadEnabled) { "Enabled" } else { "Disabled" }
-                Action            = $action
-                ZoneLevel         = $ZoneLevel
-                Timestamp         = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-            }
+        catch {
+            Write-Host "  [ERROR] $name — $($_.Exception.Message)" -ForegroundColor Red
+            $action = "Error: $($_.Exception.Message)"
         }
     }
-
-    # Output results
-    switch ($OutputFormat) {
-        "Table" { $results | Format-Table -AutoSize }
-        "JSON"  { $results | ConvertTo-Json -Depth 3 }
-        "CSV"   { $results | ConvertTo-Csv -NoTypeInformation }
+    else {
+        $action = 'Skipped (WhatIf or denied)'
     }
 
-    # Export to file if OutputPath specified
-    if ($OutputPath) {
-        switch ($OutputFormat) {
-            "Table" { $results | Format-Table -AutoSize | Out-File -FilePath $OutputPath }
-            "JSON"  { $results | ConvertTo-Json -Depth 3 | Out-File -FilePath $OutputPath }
-            "CSV"   { $results | Export-Csv -Path $OutputPath -NoTypeInformation }
-        }
-        Write-Host "`nResults exported to: $OutputPath" -ForegroundColor Green
+    [PSCustomObject]@{
+        AgentName     = $name
+        AgentId       = $agent.ChatbotId
+        PreviousState = if ($current) { 'Enabled' } else { 'Disabled' }
+        Action        = $action
+        TimestampUtc  = (Get-Date).ToUniversalTime().ToString('o')
     }
 }
-catch {
-    Write-Host "ERROR: $($_.Exception.Message)" -ForegroundColor Red
-    Write-Host "Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Red
-    exit 1
-}
-finally {
-    Write-Host "`n=== Configuration Complete ===" -ForegroundColor Cyan
-}
+
+# Emit results + SHA-256 manifest entry
+$resultsPath = Join-Path $EvidencePath "mutation-results-$ts.json"
+$results | ConvertTo-Json -Depth 10 | Set-Content -Path $resultsPath -Encoding UTF8
+$hash = (Get-FileHash -Path $resultsPath -Algorithm SHA256).Hash
+$snapshotHash = (Get-FileHash -Path $snapshotPath -Algorithm SHA256).Hash
+
+$manifestPath = Join-Path $EvidencePath "manifest.json"
+$manifest = @()
+if (Test-Path $manifestPath) { $manifest = @(Get-Content $manifestPath | ConvertFrom-Json) }
+$manifest += @(
+    [PSCustomObject]@{ file=(Split-Path $snapshotPath -Leaf); sha256=$snapshotHash; bytes=(Get-Item $snapshotPath).Length; generated_utc=$ts; script='Disable-FileUpload (snapshot)'; control_id='1.26' }
+    [PSCustomObject]@{ file=(Split-Path $resultsPath -Leaf);  sha256=$hash;         bytes=(Get-Item $resultsPath).Length;  generated_utc=$ts; script='Disable-FileUpload (results)';  control_id='1.26' }
+)
+$manifest | ConvertTo-Json -Depth 5 | Set-Content -Path $manifestPath -Encoding UTF8
+
+Write-Host "`nSnapshot: $snapshotPath (SHA-256: $snapshotHash)" -ForegroundColor Cyan
+Write-Host "Results : $resultsPath (SHA-256: $hash)" -ForegroundColor Cyan
+
+Stop-Transcript
+$results | Format-Table -AutoSize
 ```
+
+---
+
+## Script 4 — End-to-End Validation Script for Control 1.26
+
+```powershell
+<#
+.SYNOPSIS
+    Validates Control 1.26 across all environments and emits a single consolidated
+    evidence pack (inventory + audit + DLP-coverage check) suitable for auditor handoff.
+
+.DESCRIPTION
+    Read-only. Combines inventory and zone-compliance audit into one run, and emits
+    a single SHA-256-anchored evidence bundle.
+
+.PARAMETER ZoneMapping
+    Hashtable mapping environment name (GUID) to zone number.
+
+.PARAMETER ApprovedEnabledAgents
+    Optional array of agent IDs with approved File Upload enablement.
+
+.PARAMETER EvidencePath
+    Directory for the evidence bundle.
+
+.EXAMPLE
+    $zones = @{ 'env-personal' = 1; 'env-team' = 2; 'env-ent' = 3 }
+    .\Validate-Control-1.26.ps1 -ZoneMapping $zones -ApprovedEnabledAgents @('agent-id-1')
+#>
+[CmdletBinding()]
+param(
+    [Parameter(Mandatory)] [hashtable]$ZoneMapping,
+    [string[]]$ApprovedEnabledAgents = @(),
+    [string]$EvidencePath = ".\evidence\1.26"
+)
+
+$ErrorActionPreference = 'Stop'
+New-Item -ItemType Directory -Force -Path $EvidencePath | Out-Null
+$ts = Get-Date -Format 'yyyyMMddTHHmmssZ'
+Start-Transcript -Path "$EvidencePath\transcript-validate-$ts.log" -IncludeInvocationHeader
+
+$inventory = & "$PSScriptRoot\Get-AgentFileUploadInventory.ps1" -EvidencePath $EvidencePath
+$audit     = & "$PSScriptRoot\Audit-FileUploadCompliance.ps1" -ZoneMapping $ZoneMapping `
+                -ApprovedEnabledAgents $ApprovedEnabledAgents -EvidencePath $EvidencePath
+
+$summary = [PSCustomObject]@{
+    ControlId         = '1.26'
+    GeneratedUtc      = $ts
+    TotalEnvironments = ($ZoneMapping.Keys).Count
+    TotalAgents       = $inventory.Count
+    EnabledAgents     = ($inventory | Where-Object FileUploadEnabled).Count
+    AuditPass         = ($audit | Where-Object Result -eq 'PASS').Count
+    AuditWarn         = ($audit | Where-Object Result -eq 'WARN').Count
+    AuditFail         = ($audit | Where-Object Result -eq 'FAIL').Count
+}
+
+$summaryPath = Join-Path $EvidencePath "validation-summary-$ts.json"
+$summary | ConvertTo-Json -Depth 10 | Set-Content -Path $summaryPath -Encoding UTF8
+$hash = (Get-FileHash -Path $summaryPath -Algorithm SHA256).Hash
+
+$manifestPath = Join-Path $EvidencePath "manifest.json"
+$manifest = @()
+if (Test-Path $manifestPath) { $manifest = @(Get-Content $manifestPath | ConvertFrom-Json) }
+$manifest += [PSCustomObject]@{
+    file           = (Split-Path $summaryPath -Leaf)
+    sha256         = $hash
+    bytes          = (Get-Item $summaryPath).Length
+    generated_utc  = $ts
+    script         = 'Validate-Control-1.26'
+    control_id     = '1.26'
+}
+$manifest | ConvertTo-Json -Depth 5 | Set-Content -Path $manifestPath -Encoding UTF8
+
+Write-Host "`n=== Validation Summary ===" -ForegroundColor Cyan
+$summary | Format-List
+Write-Host "Summary: $summaryPath (SHA-256: $hash)" -ForegroundColor Green
+
+Stop-Transcript
+```
+
+---
+
+## Evidence Bundle Layout
+
+After running the scripts, the evidence directory will contain:
+
+```
+evidence/1.26/
+├── transcript-inventory-<ts>.log
+├── transcript-mutation-<ts>.log
+├── transcript-validate-<ts>.log
+├── agent-file-upload-inventory-<ts>.json
+├── compliance-audit-<ts>.json
+├── before-snapshot-<ts>.json          (per mutation)
+├── mutation-results-<ts>.json         (per mutation)
+├── validation-summary-<ts>.json
+└── manifest.json                      (SHA-256 index of all artifacts)
+```
+
+Land the bundle in WORM storage (Microsoft Purview Data Lifecycle Management retention lock or Azure Storage immutability policy) per SEC 17a-4(f) preservation requirements.
 
 ---
 

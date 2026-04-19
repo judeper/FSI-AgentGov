@@ -1,233 +1,289 @@
 # Troubleshooting: Control 1.26 - Agent File Upload and File Analysis Restrictions
 
-**Last Updated:** February 2026
+**Last Updated:** April 2026
+**Audience:** M365 administrators, Copilot Studio agent authors, SOC analysts
 
-## Common Issues
-
-| Issue | Cause | Resolution |
-|-------|-------|------------|
-| File upload toggle not visible in agent settings | Agent version below v8 or feature not enabled in environment | Verify agent is on Copilot Studio v8+; check environment feature flags |
-| Agent accepts uploads despite toggle disabled | Cached session or propagation delay | Clear browser cache; wait 15 minutes for propagation |
-| Sensitivity labels not applied to uploaded files | Purview labeling policies not scoped to SPE containers | Verify sensitivity label auto-labeling policies cover SharePoint Embedded |
-| DLP policy not triggering on uploaded file content | DLP policy not scoped to Power Platform or wrong connector | Review DLP policy scope in Purview Compliance Portal |
-| SPE container access not restricted | Default container permissions too permissive | Configure access controls on the SPE container via PPAC |
-| Agent inventory script returns incomplete results | Insufficient permissions or environment filtering | Verify Power Platform Admin role; check environment scope |
+This playbook is structured by **Symptom (H2) → Likely Cause and Resolution (H3)**. For each symptom, work through the resolution steps in order; each step is independently safe to skip if it does not apply.
 
 ---
 
-## Detailed Troubleshooting
+## Quick-Reference Symptom Matrix
 
-### Issue: File Upload Toggle Not Visible in Agent Settings
-
-**Symptoms:** The File Upload security toggle does not appear in the agent's Security settings in Copilot Studio
-
-**Resolution:**
-
-1. Verify the agent is running on Copilot Studio v8 or later:
-   - Open the agent in Copilot Studio
-   - Check the agent version in Settings → Details
-2. Verify file upload features are enabled at the environment level:
-   - Navigate to Power Platform Admin Center → Environments → [Environment] → Settings → Features
-   - Check that Copilot features are enabled
-3. Confirm your role has permissions to view security settings:
-   - Agent authors and Power Platform Admins should see the toggle
-   - Users with viewer-only access may not see the Security settings panel
-4. If the feature is still not visible, check for tenant-level feature flags:
-   - Contact your Microsoft account team to verify file upload features are available in your tenant
-
-**Portal Path:**
-```
-Copilot Studio → [Agent] → Settings → Security → File Upload
-```
-
-> **Note:** File upload capabilities are progressively rolling out. If the toggle is not available, the feature may not yet be enabled for your tenant region.
+| Symptom | Likely Causes | Section |
+|--------|---------------|---------|
+| File Upload toggle not visible in agent settings | Permissions, agent version, regional rollout | [Toggle Not Visible](#symptom-file-upload-toggle-not-visible-in-agent-settings) |
+| Agent still accepts uploads after toggle disabled | Unsaved change, stale cache, agent not republished | [Toggle Not Enforced](#symptom-agent-accepts-uploads-after-toggle-disabled) |
+| Uploads silently fail when toggle is on | Per-agent allowlist mismatch, file size, environment-level (1.25) block | [Uploads Fail When Enabled](#symptom-uploads-fail-when-toggle-is-on) |
+| Sensitivity labels not inherited by agent | Auto-labeling policy scope, source file unlabeled, propagation delay | [Labels Not Inherited](#symptom-sensitivity-labels-not-applied-to-uploaded-files) |
+| DLP not triggering on sensitive content | Policy mode, scope, SIT version, latency | [DLP Not Triggering](#symptom-dlp-policy-not-triggering-on-uploaded-content) |
+| SPE container access too permissive | Default permissions, missing retention policy | [SPE Container Hardening](#symptom-spe-container-access-not-restricted-or-retention-missing) |
+| Inventory script returns incomplete results | Sovereign cloud, PSEdition, role | [Inventory Incomplete](#symptom-inventory-script-returns-incomplete-or-empty-results) |
+| `Set-AdminPowerAppChatbot -FileUploadEnabled` rejected | Module version, schema not present | [API Surface Missing](#symptom-set-adminpowerappchatbot--fileuploadenabled-rejected) |
 
 ---
 
-### Issue: Agent Accepts Uploads Despite Toggle Disabled
+## Symptom: File Upload Toggle Not Visible in Agent Settings
 
-**Symptoms:** Users can upload files to an agent even though the File Upload toggle is set to disabled
+### Cause: Insufficient role on the agent or environment
 
-**Resolution:**
+1. Confirm the user holds **AI Administrator**, **Power Platform Admin**, or **Environment Maker + agent ownership**
+2. Read-only roles (e.g., **Environment Reader**) see agent settings without the Security panel toggles
 
-1. Verify the toggle is saved (not just toggled but unsaved):
-   - Open agent Settings → Security
-   - Confirm the File Upload toggle shows "Disabled"
-   - Click **Save** if there are unsaved changes
-2. Clear browser cache and open a new session:
-   - Cached agent configurations may persist for up to 15 minutes
-3. Verify the agent is published after the toggle change:
-   - Changes to agent settings may require republishing the agent
-   - Click **Publish** in the Copilot Studio editor
-4. Check for environment-level overrides:
-   - Some environment configurations may override per-agent settings
-   - Navigate to PPAC → Environments → [Environment] → Settings
+### Cause: Agent version below v8 or environment feature flag disabled
 
----
+1. Open *Copilot Studio → \[Agent\] → Settings → Details* and confirm the agent runtime version
+2. Open *PPAC → Environments → \[Environment\] → Settings → Features* and confirm Copilot features are enabled
+3. If the toggle is missing across every agent in the environment, check tenant-level feature rollout — the per-agent File Upload toggle has rolled out progressively by region
 
-### Issue: Sensitivity Labels Not Applied to Uploaded Files
+### Cause: Tenant region pending rollout
 
-**Symptoms:** Uploaded files do not display sensitivity labels; agent does not inherit labels from file knowledge sources
+1. Open the [Microsoft 365 Admin Center → Health → Message Center](https://admin.microsoft.com) and search for "Copilot Studio file upload"
+2. If the feature is pending for your region, document the gap and apply environment-level controls (Control 1.25) as a temporary compensating measure
 
-**Resolution:**
-
-1. Verify Purview sensitivity labeling is configured for your tenant:
-   - Navigate to Microsoft Purview → Information Protection → Labels
-   - Confirm labels are published and active
-2. Check that auto-labeling policies cover SharePoint Embedded containers:
-   - SPE containers used by Copilot Studio may not be included in standard SharePoint labeling policies
-   - Create or update auto-labeling policies to include SPE container locations
-3. Verify the uploaded file has a label applied at the source:
-   - Labels inherited by the agent come from the uploaded files themselves
-   - Test with a file that has an explicit label applied before upload
-4. Allow up to 24 hours for label propagation after policy changes
-
-**Portal Path:**
-```
-Microsoft Purview → Information Protection → Labels → [Label Name] → Auto-labeling
-```
+**Portal path:** *Copilot Studio → \[Agent\] → Settings → Security → File Upload*
 
 ---
 
-### Issue: DLP Policy Not Triggering on Uploaded File Content
+## Symptom: Agent Accepts Uploads After Toggle Disabled
 
-**Symptoms:** DLP alerts are not generated when files with sensitive content are uploaded to agents
+### Cause: Toggle change not saved
 
-**Resolution:**
+1. Reopen *Settings → Security* and confirm the toggle reads **Off**
+2. If a **Save** button is highlighted, click it and re-test
 
-1. Navigate to Microsoft Purview Compliance Portal → Data Loss Prevention → Policies
-2. Verify a DLP policy exists that covers Power Platform connectors
-3. Check the policy scope includes the target environment and connector
-4. Verify the policy is in **Enforce** mode (not **Test** or **Off**)
-5. Confirm the DLP policy includes rules for the sensitive information types present in the test file
-6. Allow up to 24 hours for new DLP policies to take effect
-7. Check Activity explorer for recent events to rule out display delay
+### Cause: Agent not republished after toggle change
 
-**Portal Path:**
-```
-Microsoft Purview Compliance Portal → Data Loss Prevention → Policies → [Policy Name]
+1. Most agent runtime configuration is enforced at publish time
+2. Click **Publish** in the Copilot Studio editor and re-test after publish completes
+
+### Cause: Stale browser session or cached configuration
+
+1. Wait up to **15 minutes** for cache expiry
+2. Test in a new private/incognito window or with a different test account
+
+### Cause: Environment-level setting overriding per-agent state
+
+1. Open *PPAC → Environments → \[Environment\] → Settings* and review tenant policies that may force file upload behavior
+2. If an environment-level allowlist (Control 1.25) is permissive and the agent toggle change has not propagated, file the gap with Microsoft Support
+
+---
+
+## Symptom: Uploads Fail When Toggle is On
+
+### Cause: File type not in the per-agent allowlist
+
+1. Open *Settings → Security → File Upload → Allowed file types* and confirm the file's extension is listed
+2. Add the extension if it matches the agent's documented purpose; otherwise the rejection is correct
+
+### Cause: File type blocked at the environment level (Control 1.25)
+
+1. Open *PPAC → Environments → \[Environment\] → Settings → Product → Privacy + Security*
+2. Check the **blocked file extensions** and **blocked MIME types** lists
+3. Per-agent allowlists cannot override environment-level blocks — this is intentional defense-in-depth
+
+### Cause: File exceeds Microsoft platform limits
+
+1. Confirm the file is within Microsoft Learn limits (April 2026):
+   - PDF (user upload, runtime): **<40 pages**
+   - TXT/CSV (user upload, runtime): **<180 KB**
+   - Image (user upload, runtime): **15 MB** (4 MB on Direct Line)
+   - Maker-uploaded knowledge file: **up to 512 MB**
+2. Reduce file size or split the document if it exceeds the limit
+
+### Cause: Defender for Cloud Apps quarantined the file (Zone 3)
+
+1. Open [Microsoft Defender XDR](https://security.microsoft.com) → **Cloud apps** → **Files** and search for the file name
+2. If quarantined, verify the magic-byte inspection rule is intentional; if a false positive, refine the file policy
+3. Restore the file only after verifying it is not a renamed executable
+
+---
+
+## Symptom: Sensitivity Labels Not Applied to Uploaded Files
+
+### Cause: Auto-labeling policy does not cover the SPE container
+
+1. Open *Microsoft Purview → Information Protection → Auto-labeling policies*
+2. Confirm a policy is in scope for **SharePoint sites** and explicitly includes the SPE container location for the agent's environment
+3. If the SPE container is not enumerated, create or update the policy and allow up to **24 hours** for propagation
+
+### Cause: Source file was not labeled before upload
+
+1. Inheritance flows from labels already on the file at the time of upload
+2. Open the source location and confirm the file carries an explicit sensitivity label
+3. For runtime-uploaded files, encourage end users to apply labels in the originating application before upload
+
+### Cause: Sensitivity labels not published to relevant users
+
+1. Open *Microsoft Purview → Information Protection → Label policies*
+2. Confirm the labels are published to the user(s) uploading the files
+3. Users without label policies will upload unlabeled files even when labels exist in the tenant
+
+**Portal path:** *Microsoft Purview → Information Protection → Auto-labeling policies → \[Policy\] → Locations*
+
+---
+
+## Symptom: DLP Policy Not Triggering on Uploaded Content
+
+### Cause: DLP policy not in Enforce mode
+
+1. Open *Microsoft Purview → Data Loss Prevention → Policies → \[Policy\]*
+2. Confirm the policy is **Enforce** (not **Test** or **Off**)
+
+### Cause: Policy scope excludes the agent's environment
+
+1. Open the policy and confirm the **Power Platform** location is included
+2. Confirm the environment is not excluded by environment-group filter
+
+### Cause: Sensitive Information Type (SIT) does not match the test data
+
+1. The test file must contain content matching the SIT's regex and supporting evidence (e.g., US SSN SIT requires keyword proximity)
+2. Use a synthetic test file built from the [Microsoft documented test patterns](https://learn.microsoft.com/en-us/purview/sit-defn-us-social-security-number) — never use real PII
+
+### Cause: Reporting latency
+
+1. DLP Activity Explorer can lag by several hours
+2. Wait up to **24 hours** before declaring a failure
+3. Check Microsoft Sentinel mirror tables (if configured) for faster signal
+
+---
+
+## Symptom: SPE Container Access Not Restricted or Retention Missing
+
+### Cause: Default container permissions retained
+
+1. Open *PPAC → Environments → \[Environment\]* and locate the SPE container
+2. Review access controls; remove any overly broad principals (e.g., "Everyone except external users")
+3. Restrict to required service principals and named admin groups
+
+### Cause: No Purview retention policy covers the SPE container
+
+1. Open *Microsoft Purview → Data Lifecycle Management → Retention policies*
+2. Add the SPE container location to a retention policy that meets your record-keeping obligation (FINRA 4511: 6 years; SEC 17a-4(f): typically 6 years with WORM characteristics)
+3. Enable **retention lock** if SEC 17a-4(f) WORM equivalence is required
+
+### Cause: Container auditing not enabled
+
+1. Confirm Microsoft Purview Audit (Standard or Premium) is enabled at the tenant level
+2. Test by uploading a file and querying *Purview → Audit → Search* for the activity within 30 minutes
+
+---
+
+## Symptom: Inventory Script Returns Incomplete or Empty Results
+
+### Cause: Wrong sovereign cloud endpoint
+
+1. Re-authenticate with the correct `-Endpoint` parameter (`prod`, `usgov`, `usgovhigh`, `dod`)
+2. A zero-environment result on a known-non-empty tenant almost always means commercial endpoint authentication against a government tenant — see [PowerShell Authoring Baseline §3](../../_shared/powershell-baseline.md)
+
+### Cause: Script run on PowerShell 7 (Core) instead of Windows PowerShell 5.1 (Desktop)
+
+1. `Microsoft.PowerApps.Administration.PowerShell` is **Desktop edition only**
+2. Re-run from Windows PowerShell 5.1; the baseline guard will throw if Desktop edition is missing
+
+### Cause: Insufficient role
+
+1. Confirm the running account holds **Power Platform Admin** or **AI Administrator** at minimum
+2. Run `Get-AdminPowerAppEnvironment | Measure-Object` as a smoke test
+
+### Cause: Module out of date
+
+```powershell
+Get-Module -Name Microsoft.PowerApps.Administration.PowerShell -ListAvailable
+# If outdated, pin to a CAB-approved version per the PowerShell baseline §1
+Install-Module -Name Microsoft.PowerApps.Administration.PowerShell `
+    -RequiredVersion '<cab-approved-version>' -Scope CurrentUser -AllowClobber -AcceptLicense
 ```
 
 ---
 
-### Issue: SPE Container Access Not Restricted
+## Symptom: `Set-AdminPowerAppChatbot -FileUploadEnabled` Rejected
 
-**Symptoms:** Uploaded files in SharePoint Embedded containers are accessible to unauthorized users or lack proper retention policies
+### Cause: Module version does not expose the parameter
 
-**Resolution:**
+1. Run *Script 0 — Probe Cmdlet Surface* from the [PowerShell Setup](powershell-setup.md) playbook
+2. If `FileUploadParamPresent = False`, your module version does not expose the schema this control depends on
+3. Resolution paths (in order of preference):
+    a. Upgrade the module to a CAB-approved version that includes `-FileUploadEnabled`
+    b. Use the [Portal Walkthrough](portal-walkthrough.md) for manual configuration
+    c. Open a Microsoft Support case to confirm parameter availability for your tenant tier
 
-1. Navigate to Power Platform Admin Center → Environments → [Environment]
-2. Locate the SharePoint Embedded container details
-3. Review access controls:
-   - Verify only authorized users and service accounts have access
-   - Remove any overly broad permissions (e.g., "Everyone" or "All Users")
-4. Apply retention policies:
-   - Navigate to Microsoft Purview → Data Lifecycle Management → Retention Policies
-   - Create or update a retention policy that covers SPE container locations
-5. Enable auditing on the SPE container to track access events
+### Cause: API call returns 403 Forbidden
 
----
-
-### Issue: Agent Inventory Script Returns Incomplete Results
-
-**Symptoms:** The PowerShell inventory script does not list all agents or environments
-
-**Resolution:**
-
-1. Verify your account has Power Platform Admin or Entra Global Admin role:
-   ```powershell
-   Get-AdminPowerAppEnvironment | Measure-Object
-   ```
-2. Check for environments excluded by filtering:
-   ```powershell
-   Get-AdminPowerAppEnvironment -GetAllEnvironments | Format-Table DisplayName, EnvironmentType
-   ```
-3. Verify the PowerShell module is current:
-   ```powershell
-   Get-Module -Name Microsoft.PowerApps.Administration.PowerShell -ListAvailable
-   Update-Module -Name Microsoft.PowerApps.Administration.PowerShell
-   ```
-4. Some environments may require explicit authentication:
-   ```powershell
-   Add-PowerAppsAccount -Endpoint "prod"
-   ```
+1. Confirm the running account holds **AI Administrator** or **Power Platform Admin**
+2. Confirm the agent is in an environment the running account can administer
+3. Some Dataverse-backed environments require Dataverse-side role assignment in addition to platform role — see [PowerShell Authoring Baseline §6](../../_shared/powershell-baseline.md)
 
 ---
 
 ## Escalation Path
 
-1. **Copilot Studio Agent Author** — Per-agent toggle configuration, agent publishing
-2. **Power Platform Admin** — Environment settings, SPE container management, feature flags
-3. **Purview Compliance Admin** — DLP policy scoping, sensitivity label configuration
-4. **Security Operations** — Upload activity monitoring, anomaly investigation
-5. **Microsoft Support** — Platform-level issues with file upload features or SPE containers
+1. **Copilot Studio Agent Author** — per-agent toggle, allowed-types list, agent publishing
+2. **AI Administrator** — per-agent governance policy enforcement, allowlist standards, approval review
+3. **Power Platform Admin** — environment settings, SPE container access, DLP scope, feature flags
+4. **Purview Compliance Admin** — DLP policy authoring, retention policy, sensitivity-label policy
+5. **Purview Info Protection Admin** — auto-labeling policy scope and label publication
+6. **SOC Analyst** — Defender XDR alerts, Sentinel queries, anomalous upload investigation
+7. **Microsoft Support** — platform-level issues with file upload features, SPE containers, Defender for Cloud Apps file policies
 
 ---
 
 ## Known Limitations
 
-| Limitation | Impact | Workaround |
+| Limitation | Impact | Mitigation |
 |------------|--------|------------|
-| File upload toggle is per-agent (no bulk toggle in UI) | Individual configuration required for each agent | Use PowerShell scripts for bulk operations |
-| Maximum 20 files per agent | Agents cannot accept more than 20 files as knowledge sources | Consolidate content into fewer files; use SharePoint sites for larger knowledge bases |
-| File size limits are platform-defined | Cannot reduce limits below Microsoft defaults per agent | Apply DLP and content scanning to compensate |
-| SPE containers share tenant-level settings | Container-level fine-grained access requires additional configuration | Apply retention and access policies at the container level |
-| Sensitivity label inheritance is automatic | Cannot override inherited labels at the agent level | Ensure source files have appropriate labels before upload |
-| Toggle changes may require agent republish | Settings may not take effect until the agent is republished | Always republish the agent after modifying security settings |
-| Propagation delay up to 15 minutes | Recent toggle changes may not be enforced immediately | Wait 15 minutes before testing after configuration changes |
+| File Upload toggle is per-agent (no bulk UI) | Each agent must be configured individually in the portal | Use the PowerShell mutation script (Script 3) for bulk operations |
+| Microsoft platform file size limits cannot be lowered per agent in the portal | Maker-uploaded knowledge files can be up to 512 MB | Enforce reductions via Defender for Cloud Apps file policies (Zone 3) |
+| SPE container settings are largely tenant-managed | Container-level fine-grained access requires additional configuration | Apply retention and access policies at the Purview / SharePoint admin tier |
+| Sensitivity-label inheritance flows from source files | Cannot apply labels at the agent level after upload | Enforce labeling at source via auto-labeling policies |
+| Toggle changes may require agent republish | Settings may not take effect until republish completes | Republish the agent after every Security setting change |
+| Propagation delay up to 15 minutes | Recent toggle changes may not be enforced immediately | Wait 15 minutes before declaring a regression |
+| Defender for Cloud Apps file policies are near-real-time, not synchronous | Files may be briefly accessible before quarantine completes | Pair with PPAC environment-level blocks (Control 1.25) for fail-fast at the edge |
+| Agent activity log column names vary by Sentinel connector version | KQL queries may need column adjustments | Verify schema against the connector version deployed in your tenant |
 
 ---
 
 ## Diagnostic Commands
 
-### Check Agent File Upload Status
+### Check Agent File Upload Status (Single Environment)
 
 ```powershell
-Get-AdminPowerAppChatbot -EnvironmentName "your-environment-name" |
+Get-AdminPowerAppChatbot -EnvironmentName "<environment-guid>" |
     Select-Object @{N='Agent';E={$_.Properties.DisplayName}},
                   @{N='FileUpload';E={$_.Properties.FileUploadEnabled}},
-                  @{N='LastModified';E={$_.Properties.LastModifiedTime}} |
+                  @{N='LastModifiedUtc';E={$_.Properties.LastModifiedTime}} |
     Format-Table -AutoSize
 ```
 
-### Verify Module Installation
+### Verify Module Installation and Version
 
 ```powershell
 Get-Module -Name Microsoft.PowerApps.Administration.PowerShell -ListAvailable |
     Format-Table Name, Version, Path
 ```
 
-### List All Environments
+### List All Environments Visible to Current Identity
 
 ```powershell
 Get-AdminPowerAppEnvironment | Format-Table DisplayName, EnvironmentName, EnvironmentType
 ```
 
-### Export File Upload Inventory for Audit
+### Confirm Sovereign-Cloud Authentication Worked
 
 ```powershell
-Get-AdminPowerAppEnvironment | ForEach-Object {
-    $envName = $_.EnvironmentName
-    $envDisplay = $_.DisplayName
-    Get-AdminPowerAppChatbot -EnvironmentName $envName -ErrorAction SilentlyContinue | ForEach-Object {
-        [PSCustomObject]@{
-            Environment       = $envDisplay
-            AgentName         = $_.Properties.DisplayName
-            FileUploadEnabled = $_.Properties.FileUploadEnabled
-            LastModified      = $_.Properties.LastModifiedTime
-        }
-    }
-} | Export-Csv -Path ".\FileUploadAudit.csv" -NoTypeInformation
+# A non-zero count confirms authentication landed in the right cloud
+Get-AdminPowerAppEnvironment | Measure-Object
 ```
 
 ---
 
 ## Related Documentation
 
-- [Microsoft Learn: Copilot Studio file upload configuration](https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-add-file-upload)
-- [Microsoft Learn: Power Platform Admin Center security settings](https://learn.microsoft.com/en-us/power-platform/admin/security/security-overview)
+- [Microsoft Learn: Copilot Studio file upload knowledge source](https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-add-file-upload)
+- [Microsoft Learn: Power Platform Admin Center security overview](https://learn.microsoft.com/en-us/power-platform/admin/security/security-overview)
 - [Microsoft Learn: SharePoint Embedded overview](https://learn.microsoft.com/en-us/sharepoint/dev/embedded/overview)
 - [Microsoft Learn: Microsoft Purview sensitivity labels](https://learn.microsoft.com/en-us/purview/sensitivity-labels)
+- [Microsoft Learn: Auto-apply sensitivity labels](https://learn.microsoft.com/en-us/purview/apply-sensitivity-label-automatically)
+- [PowerShell Authoring Baseline for FSI Implementations](../../_shared/powershell-baseline.md)
 
 ---
 
