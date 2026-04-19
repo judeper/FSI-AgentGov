@@ -2,7 +2,7 @@
 
 > **Parent Control:** [2.22 - Inactivity Timeout Enforcement](../../../controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md)
 
-**Last Updated:** February 2026
+**Last Updated:** April 2026
 **Test Environment:** Power Platform Admin Center, BAP Admin API, Dataverse
 **Estimated Time:** 1-2 hours
 
@@ -233,6 +233,23 @@ Collect the following evidence for audit documentation:
 | 8 | Agent-level session timeout configuration screenshots from Copilot Studio | Screenshot | [ ] |
 | 9 | Agent inventory export showing agent-level timeout settings for Zone 2/3 agents | CSV/Screenshot | [ ] |
 | 10 | Session expiration (maximum session lifetime) configuration for each governed environment | Screenshot | [ ] |
+| 11 | Evidence export to retention-managed location (e.g., Purview-protected SharePoint, immutable Azure Storage) for SEC 17a-4(f) six-year retention | Export log / storage policy screenshot | [ ] |
+
+---
+
+## Evidence Retention (SEC 17a-4(f))
+
+For broker-dealer organizations subject to SEC 17a-4 record-keeping rules, compliance scan results, error logs, and remediation evidence collected for Control 2.22 should be treated as books and records when they are used to demonstrate supervisory or system-access controls. Key retention expectations:
+
+| Requirement | Expectation | Implementation Option |
+|-------------|-------------|----------------------|
+| Retention period | At least six years from creation; first two years readily accessible | Schedule periodic exports of `fsi_inactivitytimeoutcompliance` and `fsi_inactivitytimeouterrorlog` to a retention-managed store |
+| Storage format | Non-rewriteable, non-erasable (WORM) for affected broker-dealer evidence | Purview retention labels with record-locking; Azure Storage immutable blob policies; SharePoint libraries with retention-lock policies |
+| Integrity | Tamper-evident records | SHA-256 hashes from `Set-InactivityTimeout.ps1 -IncludeEvidence`; combine with WORM storage |
+| Indexing / retrievability | Records must be locatable on request | Maintain an index by environment name, scan date, and remediation date |
+
+!!! warning "Scope and Counsel Review"
+    Whether Control 2.22 evidence falls within SEC 17a-4(f) scope depends on each organization's books-and-records determinations. Coordinate with the Compliance Officer and counsel to confirm classification before designing the retention pipeline. The patterns above are common implementations and do not constitute legal advice.
 
 ---
 
@@ -270,6 +287,11 @@ I, [Name], [Title], confirm that:
 9. All remediation actions are documented with before/after configuration
    values and SHA-256 evidence hashes where applicable.
 
+10. Compliance records, error logs, and remediation evidence are exported to
+    a retention-managed location aligned with the organization's books-and-
+    records determinations under SEC 17a-4(f) (six-year retention; first two
+    years readily accessible) where applicable to broker-dealer scope.
+
 Date: _______________
 Signature: _______________
 ```
@@ -284,4 +306,4 @@ Signature: _______________
 
 ---
 
-*Updated: February 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3*
