@@ -1,306 +1,266 @@
 # Control 4.3: Site and Document Retention Management - PowerShell Setup
 
+!!! warning "Read the FSI PowerShell baseline first"
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show the canonical patterns; the baseline is authoritative.
+
 > This playbook provides PowerShell automation guidance for [Control 4.3](../../../controls/pillar-4-sharepoint/4.3-site-and-document-retention-management.md).
 
 ---
 
 ## Prerequisites
 
+Pin module versions to versions approved by your Change Advisory Board. Replace `<version>` with the value recorded in your change ticket.
+
 ```powershell
-# Install required modules
-Install-Module -Name ExchangeOnlineManagement -Scope CurrentUser
-Install-Module -Name Microsoft.Online.SharePoint.PowerShell -Force
+# Pin module versions per the FSI PowerShell Authoring Baseline (Section 1).
+# DO NOT use -Force without -RequiredVersion in regulated tenants.
+Install-Module -Name ExchangeOnlineManagement `
+    -RequiredVersion '<version>' -Repository PSGallery -Scope CurrentUser -AllowClobber -AcceptLicense
+
+Install-Module -Name Microsoft.Online.SharePoint.PowerShell `
+    -RequiredVersion '<version>' -Repository PSGallery -Scope CurrentUser -AllowClobber -AcceptLicense
 ```
+
+**Required roles:**
+
+- **Purview Compliance Admin** or **Purview Records Manager** for `*-RetentionCompliancePolicy`, `*-RetentionComplianceRule`, `*-ComplianceTag` cmdlets
+- **SharePoint Admin** for `Get-SPOSite` coverage analysis
 
 ---
 
-## Connect to Services
+## Connect to Services (Sovereign-Cloud Aware)
 
 ```powershell
-# Connect to Security & Compliance PowerShell (for Purview)
-Connect-IPPSSession -UserPrincipalName admin@contoso.com
+[CmdletBinding()]
+param(
+    [Parameter(Mandatory)] [string]$AdminUpn,
+    [Parameter(Mandatory)] [string]$SpoAdminUrl,  # e.g. https://contoso-admin.sharepoint.com
+    [ValidateSet('Commercial','GCC','GCCHigh','DoD')]
+    [string]$Cloud = 'Commercial'
+)
 
-# Verify connection
+$ErrorActionPreference = 'Stop'
+
+# Sovereign-cloud routing for Security & Compliance PowerShell (see baseline §3)
+$ippsParams = @{ UserPrincipalName = $AdminUpn }
+switch ($Cloud) {
+    'GCC'      { $ippsParams.ConnectionUri = 'https://ps.compliance.protection.outlook.com/PowerShell-LiveID' }
+    'GCCHigh'  { $ippsParams.ConnectionUri = 'https://ps.compliance.protection.office365.us/PowerShell-LiveID'
+                 $ippsParams.AzureADAuthorizationEndpointUri = 'https://login.microsoftonline.us/common' }
+    'DoD'      { $ippsParams.ConnectionUri = 'https://l5.ps.compliance.protection.office365.us/PowerShell-LiveID'
+                 $ippsParams.AzureADAuthorizationEndpointUri = 'https://login.microsoftonline.us/common' }
+}
+Connect-IPPSSession @ippsParams
+
+Connect-SPOService -Url $SpoAdminUrl
+
+# Smoke test — silent failure here usually means wrong cloud / wrong UPN
 Get-RetentionCompliancePolicy | Select-Object Name, Enabled, Mode | Format-Table
 ```
 
+> **Verify before run:** check the current sovereign-cloud connection URIs on Microsoft Learn — Microsoft has changed these URLs more than once.
+
 ---
 
-## Create Retention Policies
+## Evidence Helper (SHA-256 + Manifest)
+
+Per baseline §5, every artifact emitted from this control should be hashed and listed in `manifest.json`. Source the helper once, then reuse.
 
 ```powershell
-# Create a retention policy for SharePoint sites containing agent knowledge
+function Write-FsiEvidence {
+    param(
+        [Parameter(Mandatory)] $Object,
+        [Parameter(Mandatory)] [string]$Name,
+        [Parameter(Mandatory)] [string]$EvidencePath
+    )
+    New-Item -ItemType Directory -Force -Path $EvidencePath | Out-Null
+    $ts = Get-Date -Format 'yyyyMMddTHHmmssZ'
+    $jsonPath = Join-Path $EvidencePath "$Name-$ts.json"
+    $Object | ConvertTo-Json -Depth 20 | Set-Content -Path $jsonPath -Encoding UTF8
+    $hash = (Get-FileHash -Path $jsonPath -Algorithm SHA256).Hash
+    $manifestPath = Join-Path $EvidencePath "manifest.json"
+    $manifest = @()
+    if (Test-Path $manifestPath) { $manifest = @(Get-Content $manifestPath | ConvertFrom-Json) }
+    $manifest += [PSCustomObject]@{
+        file          = (Split-Path $jsonPath -Leaf)
+        sha256        = $hash
+        bytes         = (Get-Item $jsonPath).Length
+        generated_utc = $ts
+        control       = '4.3'
+    }
+    $manifest | ConvertTo-Json -Depth 5 | Set-Content -Path $manifestPath -Encoding UTF8
+    return $jsonPath
+}
+```
+
+---
+
+## Create Retention Policy for Agent Knowledge Sources
+
+```powershell
+[CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]
+param(
+    [Parameter(Mandatory)] [string[]]$KnowledgeSiteUrls,
+    [string]$EvidencePath = ".\evidence\4.3"
+)
+
+$ErrorActionPreference = 'Stop'
+New-Item -ItemType Directory -Force -Path $EvidencePath | Out-Null
+$ts = Get-Date -Format 'yyyyMMdd-HHmmss'
+Start-Transcript -Path "$EvidencePath\transcript-$ts.log" -IncludeInvocationHeader
+
 $PolicyName = "FSI-Agent-Knowledge-Retention-7Years"
 
-New-RetentionCompliancePolicy -Name $PolicyName `
-    -Comment "Retention policy for agent knowledge sources per FINRA 4511 and SEC 17a-4" `
-    -SharePointLocation "https://contoso.sharepoint.com/sites/AgentKnowledge" `
-    -Enabled $true
+# Snapshot existing policy state (if any) before mutation
+$before = Get-RetentionCompliancePolicy -Identity $PolicyName -ErrorAction SilentlyContinue
+Write-FsiEvidence -Object $before -Name "policy-before-$PolicyName" -EvidencePath $EvidencePath | Out-Null
 
-# Create retention rule for the policy (7 years, retain and delete)
-New-RetentionComplianceRule -Name "FSI-7Year-Retention-Rule" `
-    -Policy $PolicyName `
-    -RetentionDuration 2555 `
-    -RetentionDurationDisplayHint Days `
-    -RetentionComplianceAction KeepAndDelete `
-    -ExpirationDateOption ModificationAgeInDays
+if ($PSCmdlet.ShouldProcess($PolicyName, "Create or update retention policy for agent knowledge sources")) {
+    if (-not $before) {
+        New-RetentionCompliancePolicy -Name $PolicyName `
+            -Comment "Retention policy for agent knowledge sources per FINRA 4511 and SEC 17a-4 (Control 4.3)" `
+            -SharePointLocation $KnowledgeSiteUrls `
+            -Enabled $true | Out-Null
+    } else {
+        Set-RetentionCompliancePolicy -Identity $PolicyName -AddSharePointLocation $KnowledgeSiteUrls | Out-Null
+    }
 
-Write-Host "Retention policy created: $PolicyName" -ForegroundColor Green
+    # 7-year retain-and-delete from last modification
+    $existingRule = Get-RetentionComplianceRule -Policy $PolicyName -ErrorAction SilentlyContinue
+    if (-not $existingRule) {
+        New-RetentionComplianceRule -Name "FSI-7Year-Retention-Rule" `
+            -Policy $PolicyName `
+            -RetentionDuration 2555 `
+            -RetentionDurationDisplayHint Days `
+            -RetentionComplianceAction KeepAndDelete `
+            -ExpirationDateOption ModificationAgeInDays | Out-Null
+    }
+}
+
+$after = Get-RetentionCompliancePolicy -Identity $PolicyName
+Write-FsiEvidence -Object $after -Name "policy-after-$PolicyName" -EvidencePath $EvidencePath | Out-Null
+
+Stop-Transcript
 ```
+
+> **Always invoke first with `-WhatIf`** before running for real. `-SharePointLocation` does **not** support wildcards — pass explicit URLs or use `-SharePointLocation All` to scope to every SharePoint site.
 
 ---
 
 ## Create Zone-Specific Retention Policies
 
 ```powershell
-# Create zone-specific retention policies
-# Note: -SharePointLocation requires explicit site URLs; wildcards are NOT supported.
-# List each site individually or use "All" to cover all SharePoint sites.
 $Zones = @(
-    @{Name="Zone1-Personal"; Duration=365; Sites=@(
-        "https://contoso.sharepoint.com/sites/Zone1-PersonalAgents",
-        "https://contoso.sharepoint.com/sites/Zone1-Sandbox"
-    )},
-    @{Name="Zone2-Team"; Duration=1825; Sites=@(
-        "https://contoso.sharepoint.com/sites/Zone2-TeamAgents",
-        "https://contoso.sharepoint.com/sites/Zone2-ProjectHub"
-    )},
-    @{Name="Zone3-Enterprise"; Duration=2555; Sites=@(
-        "https://contoso.sharepoint.com/sites/Zone3-EnterpriseAgents",
-        "https://contoso.sharepoint.com/sites/Zone3-RegulatoryData"
-    )}
+    @{Name='Zone1-Personal';    Duration=365;  Sites=@('https://contoso.sharepoint.com/sites/Zone1-PersonalAgents')},
+    @{Name='Zone2-Team';        Duration=1825; Sites=@('https://contoso.sharepoint.com/sites/Zone2-TeamAgents')},
+    @{Name='Zone3-Enterprise';  Duration=2555; Sites=@('https://contoso.sharepoint.com/sites/Zone3-EnterpriseAgents')}
 )
 
 foreach ($Zone in $Zones) {
-    New-RetentionCompliancePolicy -Name "FSI-$($Zone.Name)-Retention" `
-        -SharePointLocation $Zone.Sites `
-        -Enabled $true
-
-    New-RetentionComplianceRule -Name "FSI-$($Zone.Name)-Rule" `
-        -Policy "FSI-$($Zone.Name)-Retention" `
-        -RetentionDuration $Zone.Duration `
-        -RetentionDurationDisplayHint Days `
-        -RetentionComplianceAction KeepAndDelete
-
-    Write-Host "Created retention policy for $($Zone.Name)" -ForegroundColor Green
+    $name = "FSI-$($Zone.Name)-Retention"
+    if ($PSCmdlet.ShouldProcess($name, "Create zone retention policy")) {
+        New-RetentionCompliancePolicy -Name $name -SharePointLocation $Zone.Sites -Enabled $true | Out-Null
+        New-RetentionComplianceRule -Name "FSI-$($Zone.Name)-Rule" `
+            -Policy $name `
+            -RetentionDuration $Zone.Duration `
+            -RetentionDurationDisplayHint Days `
+            -RetentionComplianceAction KeepAndDelete | Out-Null
+    }
 }
 ```
 
 ---
 
-## Create Retention Labels and Retention Policy
+## Create Retention Labels
 
 ```powershell
-# Create retention labels for different content types
 $Labels = @(
-    @{Name="FSI-Financial-Records-6Y"; Duration=2190; Action="KeepAndDelete"; Description="6-year retention for financial/accounting records (SEC 17a-4(a))"},
-    @{Name="FSI-Communications-3Y"; Duration=1095; Action="KeepAndDelete"; Description="3-year retention for communications (SEC 17a-4(b)(4))"},
-    @{Name="FSI-Audit-Workpapers-7Y"; Duration=2555; Action="KeepAndDelete"; Description="7-year retention for audit workpapers (SOX 802)"},
-    @{Name="FSI-Customer-Data-5Y"; Duration=1825; Action="KeepAndDelete"; Description="5-year retention for customer information (industry practice; GLBA does not mandate a specific period)"},
-    @{Name="FSI-Regulatory-Immutable"; Duration=2555; Action="Keep"; Description="7-year immutable retention for regulatory records"}
+    @{ Name='FSI-Communications-3Y';      Duration=1095; Action='KeepAndDelete'; Description='3-year retention for communications (SEC 17a-4(b)(4))' },
+    @{ Name='FSI-Financial-Records-6Y';   Duration=2190; Action='KeepAndDelete'; Description='6-year retention for financial/accounting records (SEC 17a-4(a) / FINRA 4511)' },
+    @{ Name='FSI-Audit-Workpapers-7Y';    Duration=2555; Action='KeepAndDelete'; Description='7-year retention for audit workpapers (SOX 802 / SEC Reg S-X Rule 2-06)' },
+    @{ Name='FSI-Customer-Data-5Y';       Duration=1825; Action='KeepAndDelete'; Description='5-year retention for customer information (industry practice; GLBA does not mandate a specific period)' },
+    @{ Name='FSI-Regulatory-Record-7Y';   Duration=2555; Action='Keep';          Description='7-year regulatory record (immutable retain-only)' }
 )
 
-foreach ($Label in $Labels) {
-    New-ComplianceTag -Name $Label.Name `
-        -Comment $Label.Description `
-        -RetentionDuration $Label.Duration `
-        -RetentionAction $Label.Action `
-        -RetentionType ModificationAgeInDays `
-        -IsRecordLabel $false
+foreach ($l in $Labels) {
+    if (-not (Get-ComplianceTag -Identity $l.Name -ErrorAction SilentlyContinue)) {
+        if ($PSCmdlet.ShouldProcess($l.Name, "Create retention label")) {
+            New-ComplianceTag -Name $l.Name `
+                -Comment $l.Description `
+                -RetentionDuration $l.Duration `
+                -RetentionAction $l.Action `
+                -RetentionType ModificationAgeInDays `
+                -IsRecordLabel $false | Out-Null
+        }
+    }
+}
+```
 
-    Write-Host "Created retention label: $($Label.Name)" -ForegroundColor Green
+> To declare a **regulatory record** (immutable for end users **and** admins), use `-IsRecordLabel $true -Regulatory $true`. This is one-way and requires Records Management; coordinate with Legal first.
+
+---
+
+## Apply Preservation Lock to a Regulatory Policy
+
+Preservation Lock satisfies SEC 17a-4(f)-style requirements that the retention configuration cannot be disabled, shortened, or removed. **It is irreversible.**
+
+```powershell
+[CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]
+param([Parameter(Mandatory)][string]$PolicyName, [string]$EvidencePath = ".\evidence\4.3")
+
+$before = Get-RetentionCompliancePolicy -Identity $PolicyName
+Write-FsiEvidence -Object $before -Name "lock-before-$PolicyName" -EvidencePath $EvidencePath | Out-Null
+
+if ($PSCmdlet.ShouldProcess($PolicyName, "IRREVERSIBLE: enable Preservation Lock")) {
+    Set-RetentionCompliancePolicy -Identity $PolicyName -RestrictiveRetention $true
 }
 
-# Step 1: Create the retention compliance policy
-$policy = New-RetentionCompliancePolicy -Name "FSI-Retention-Labels-Policy" `
-    -SharePointLocation All `
-    -Enabled $true
-
-# Step 2: Create a retention rule within the policy
-New-RetentionComplianceRule -Policy $policy.Name `
-    -RetentionDuration 2555 `
-    -RetentionComplianceAction Keep `
-    -ExpirationDateOption ModificationAgeInDays
-
-Write-Host "Retention policy and rule created for all SharePoint sites" -ForegroundColor Green
+$after = Get-RetentionCompliancePolicy -Identity $PolicyName
+Write-FsiEvidence -Object $after -Name "lock-after-$PolicyName" -EvidencePath $EvidencePath | Out-Null
 ```
 
 ---
 
-## Export Retention Configuration
+## Coverage Report — Sites With and Without Retention
 
 ```powershell
-# Export all retention policies for documentation
-$ExportPath = "C:\FSI-Governance\RetentionConfig"
-New-Item -ItemType Directory -Path $ExportPath -Force | Out-Null
+Connect-SPOService -Url $SpoAdminUrl  # if not already connected
 
-# Get all retention policies
-$Policies = Get-RetentionCompliancePolicy
-$Policies | Select-Object Name, Enabled, Mode, SharePointLocation, Comment, WhenCreated |
-    Export-Csv -Path "$ExportPath\RetentionPolicies.csv" -NoTypeInformation
+$RetentionPolicies = Get-RetentionCompliancePolicy | Where-Object { $_.SharePointLocation }
 
-# Get all retention rules
-$Rules = Get-RetentionComplianceRule
-$Rules | Select-Object Name, Policy, RetentionDuration, RetentionComplianceAction, ExpirationDateOption |
-    Export-Csv -Path "$ExportPath\RetentionRules.csv" -NoTypeInformation
-
-# Get all retention labels
-$Labels = Get-ComplianceTag
-$Labels | Select-Object Name, RetentionDuration, RetentionAction, IsRecordLabel, Comment |
-    Export-Csv -Path "$ExportPath\RetentionLabels.csv" -NoTypeInformation
-
-Write-Host "Retention configuration exported to: $ExportPath" -ForegroundColor Green
-
-# Create summary report
-$Report = @"
-FSI Retention Configuration Report
-Generated: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
-=====================================
-
-Total Retention Policies: $($Policies.Count)
-Total Retention Rules: $($Rules.Count)
-Total Retention Labels: $($Labels.Count)
-
-Policies by Status:
-
-- Enabled: $(($Policies | Where-Object {$_.Enabled -eq $true}).Count)
-- Disabled: $(($Policies | Where-Object {$_.Enabled -eq $false}).Count)
-
-"@
-$Report | Out-File "$ExportPath\RetentionSummary.txt"
-```
-
----
-
-## Get Sites with Retention Policies
-
-```powershell
-# Connect to SharePoint Online
-Connect-SPOService -Url https://contoso-admin.sharepoint.com
-
-# Get all retention policies and their SharePoint locations
-$RetentionPolicies = Get-RetentionCompliancePolicy | Where-Object { $_.SharePointLocation -ne $null }
-
-$SiteRetentionReport = @()
-foreach ($Policy in $RetentionPolicies) {
+$SiteRetention = foreach ($Policy in $RetentionPolicies) {
     $Rule = Get-RetentionComplianceRule -Policy $Policy.Name
-
     foreach ($Site in $Policy.SharePointLocation) {
-        $SiteRetentionReport += [PSCustomObject]@{
-            SiteUrl = $Site
-            PolicyName = $Policy.Name
+        [PSCustomObject]@{
+            SiteUrl           = $Site
+            PolicyName        = $Policy.Name
             RetentionDuration = $Rule.RetentionDuration
-            Action = $Rule.RetentionComplianceAction
-            PolicyEnabled = $Policy.Enabled
+            Action            = $Rule.RetentionComplianceAction
+            Locked            = $Policy.RestrictiveRetention
+            PolicyEnabled     = $Policy.Enabled
         }
     }
 }
 
-# Display report
-$SiteRetentionReport | Format-Table -AutoSize
+$AllSites             = Get-SPOSite -Limit All
+$CoveredUrls          = $SiteRetention.SiteUrl | Select-Object -Unique
+$SitesWithoutCoverage = $AllSites | Where-Object { $_.Url -notin $CoveredUrls -and $CoveredUrls -notcontains 'All' }
 
-# Export for compliance documentation
-$SiteRetentionReport | Export-Csv -Path "C:\FSI-Governance\SiteRetentionMapping.csv" -NoTypeInformation
-Write-Host "Site retention mapping exported" -ForegroundColor Green
+Write-FsiEvidence -Object $SiteRetention         -Name 'site-retention-mapping' -EvidencePath $EvidencePath | Out-Null
+Write-FsiEvidence -Object $SitesWithoutCoverage  -Name 'sites-without-coverage' -EvidencePath $EvidencePath | Out-Null
 
-# Find sites WITHOUT retention policies (potential gap)
-$AllSites = Get-SPOSite -Limit All
-$SitesWithRetention = $SiteRetentionReport.SiteUrl | Select-Object -Unique
-$SitesWithoutRetention = $AllSites | Where-Object { $_.Url -notin $SitesWithRetention }
-
-Write-Host "`nSites WITHOUT retention policies: $($SitesWithoutRetention.Count)" -ForegroundColor Yellow
-$SitesWithoutRetention | Select-Object Url, Title, Template | Format-Table
+Write-Host "Sites without retention coverage: $($SitesWithoutCoverage.Count)" -ForegroundColor Yellow
 ```
+
+`SitesWithoutCoverage` is the gap list — every site here that is also a Copilot/agent knowledge source (per Control 4.1) is a finding.
 
 ---
 
-## Complete Configuration Script
+## Cleanup
 
 ```powershell
-<#
-.SYNOPSIS
-    Configures Control 4.3 - Site and Document Retention Management
-
-.DESCRIPTION
-    This script configures retention policies for SharePoint:
-    1. Creates zone-specific retention policies
-    2. Creates and publishes retention labels
-    3. Exports configuration for documentation
-
-.PARAMETER AdminEmail
-    Email address for Purview admin connection
-
-.PARAMETER ExportPath
-    Path for exported retention configuration
-
-.EXAMPLE
-    .\Configure-Control-4.3.ps1 -AdminEmail "admin@contoso.com" -ExportPath "C:\FSI-Governance\RetentionConfig"
-
-.NOTES
-    Last Updated: January 2026
-    Related Control: Control 4.3 - Site and Document Retention Management
-#>
-
-param(
-    [Parameter(Mandatory=$true)]
-    [string]$AdminEmail,
-
-    [Parameter(Mandatory=$false)]
-    [string]$ExportPath = "C:\FSI-Governance\RetentionConfig"
-)
-
-try {
-    # Connect to Security & Compliance
-    Write-Host "Connecting to Security & Compliance..." -ForegroundColor Cyan
-    Connect-IPPSSession -UserPrincipalName $AdminEmail
-
-    Write-Host "Configuring Control 4.3 Retention Management" -ForegroundColor Cyan
-
-    # Create export directory
-    if (-not (Test-Path $ExportPath)) {
-        New-Item -ItemType Directory -Path $ExportPath -Force | Out-Null
-    }
-
-    # Get existing retention policies
-    Write-Host "`nRetrieving existing retention policies..." -ForegroundColor Yellow
-    $existingPolicies = Get-RetentionCompliancePolicy
-    Write-Host "  Found $($existingPolicies.Count) existing policies" -ForegroundColor Green
-
-    # Get existing retention labels
-    Write-Host "Retrieving existing retention labels..." -ForegroundColor Yellow
-    $existingLabels = Get-ComplianceTag
-    Write-Host "  Found $($existingLabels.Count) existing labels" -ForegroundColor Green
-
-    # Export current configuration
-    Write-Host "`nExporting retention configuration..." -ForegroundColor Yellow
-    $existingPolicies | Select-Object Name, Enabled, Mode, SharePointLocation, Comment, WhenCreated |
-        Export-Csv -Path "$ExportPath\RetentionPolicies.csv" -NoTypeInformation
-
-    $existingLabels | Select-Object Name, RetentionDuration, RetentionAction, IsRecordLabel, Comment |
-        Export-Csv -Path "$ExportPath\RetentionLabels.csv" -NoTypeInformation
-
-    # Get retention rules
-    $rules = Get-RetentionComplianceRule
-    $rules | Select-Object Name, Policy, RetentionDuration, RetentionComplianceAction |
-        Export-Csv -Path "$ExportPath\RetentionRules.csv" -NoTypeInformation
-
-    Write-Host "`nRetention Configuration Summary:" -ForegroundColor Cyan
-    Write-Host "  Policies: $($existingPolicies.Count)" -ForegroundColor Green
-    Write-Host "  Labels: $($existingLabels.Count)" -ForegroundColor Green
-    Write-Host "  Rules: $($rules.Count)" -ForegroundColor Green
-    Write-Host "  Export location: $ExportPath" -ForegroundColor Green
-
-    Write-Host "`n[PASS] Control 4.3 configuration completed successfully" -ForegroundColor Green
-}
-catch {
-    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
-    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
-    exit 1
-}
-finally {
-    # Cleanup compliance session
-    Disconnect-ExchangeOnline -Confirm:$false -ErrorAction SilentlyContinue
-}
+Disconnect-ExchangeOnline -Confirm:$false -ErrorAction SilentlyContinue
+Disconnect-SPOService -ErrorAction SilentlyContinue
 ```
 
 ---
@@ -309,4 +269,4 @@ finally {
 
 ---
 
-*Updated: April 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3*
