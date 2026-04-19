@@ -109,7 +109,6 @@ Assign only when the SOC team is responsible for these workloads:
 
 ## External References
 
-- [RBACMap · Microsoft Purview](https://rbacmap.dev/) — interactive RBAC navigator for exploring Microsoft Purview role definitions, permissions, and role group memberships
 - [Microsoft Learn: Permissions in Microsoft Purview](https://learn.microsoft.com/en-us/purview/microsoft-365-compliance-center-permissions) — authoritative Purview permissions documentation
 - [Microsoft Learn: Content Explorer](https://learn.microsoft.com/en-us/purview/data-classification-content-explorer) — Content Explorer access requirements and role prerequisites
 

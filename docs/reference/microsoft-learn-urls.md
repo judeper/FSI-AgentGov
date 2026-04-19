@@ -102,9 +102,9 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 | Copilot Studio Planned Features (2026 Wave 1) | https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/microsoft-copilot-studio/planned-features | Apr 2026 |
 | Create Custom MCP Server | https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-create-new-server | Mar 2026 |
 | Safe Sharing / Credential Oversharing [Preview] | https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/microsoft-copilot-studio/enforce-safe-sharing-detecting-credential-oversharing | Mar 2026 |
-| Enhanced Admin Controls for Agent Security [Preview] | https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/microsoft-copilot-studio/enhanced-admin-controls-agent-security | Mar 2026 |
-| Agentic Center of Enablement [Preview] | https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/microsoft-copilot-studio/automate-governance-agentic-center-enablement | Mar 2026 |
-| Agent Suggestions from M365 Copilot [Preview] | https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/microsoft-copilot-studio/get-agent-suggestions-based-work | Mar 2026 |
+| Enhanced Admin Controls for Agent Security [Preview] | https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/power-platform-governance-administration/manage-copilot-security-enhanced-admin-controls | Mar 2026 |
+| Agentic Center of Enablement [Preview] | https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/power-platform-governance-administration/automate-governance-agentic-center-enablement | Mar 2026 |
+| Agent Suggestions from M365 Copilot [Preview] | https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/microsoft-copilot-studio/get-365-copilot-agent-suggestions-based-work-copilot-studio | Mar 2026 |
 | Copilot Studio Kit — Compliance Hub | https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/whats-new | Mar 2026 |
 
 ---
