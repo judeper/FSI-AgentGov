@@ -101,7 +101,7 @@ For each method type the organization supports, repeat TC-1.23-01 substituting t
 - [ ] Screenshot: Sign-in frequency on each step-up policy with the documented value
 - [ ] Screenshot: PIM role settings for Power Platform Admin, Environment Admin, AI Administrator, Purview Data Security AI Admin showing approval, justification, MFA, and bound authentication context
 - [ ] Screenshot: Sign-in log entry for TC-1.23-01 with **Authentication Details** and **Conditional Access** tabs
-- [ ] Export: `ca-policies-stepup.json`, `authentication-contexts.json`, `authentication-strengths.json`, `signins-with-authcontext.json`, and `manifest.json` (SHA-256) from [PowerShell Setup Script 4](powershell-setup.md#script-4--export-step-up-evidence-sha-256-hashed)
+- [ ] Export: `ca-policies-stepup.json`, `authentication-contexts.json`, `authentication-strengths.json`, `signins-with-authcontext.json`, and `manifest.json` (SHA-256) from [PowerShell Setup Script 4](powershell-setup.md#script-4-export-step-up-evidence-sha-256-hashed)
 - [ ] Sentinel / Defender XDR incident export for TC-1.23-10 (step-up failure spike)
 - [ ] Change advisory ticket reference for the report-only → enforcement promotion
 

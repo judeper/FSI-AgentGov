@@ -54,7 +54,7 @@
 
 **Resolution:**
 
-1. Re-run the orchestrator with the correct `-Endpoint` parameter (`usgov`, `usgovhigh`, or `dod`). See [PowerShell baseline §3](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc--gcc-high--dod).
+1. Re-run the orchestrator with the correct `-Endpoint` parameter (`usgov`, `usgovhigh`, or `dod`). See [PowerShell baseline §3](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod).
 2. Add a guard at the top of every wrapper script to refuse to run if `-Endpoint` was not explicitly provided in non-commercial tenants.
 3. Discard the false-clean evidence file from the manifest and re-collect.
 

@@ -318,7 +318,7 @@ Write-Host "Evidence written to $OutputPath" -ForegroundColor Green
 
 ## Sentinel / Defender XDR KQL — Step-Up Failure Detection
 
-Save as analytics rules per [Step 7 of the portal walkthrough](portal-walkthrough.md#step-7--configure-monitoring-and-alerts).
+Save as analytics rules per [Step 7 of the portal walkthrough](portal-walkthrough.md#step-7-configure-monitoring-and-alerts).
 
 ```kusto
 // Step-up failure spike: >5 failures in 10 minutes for the same user

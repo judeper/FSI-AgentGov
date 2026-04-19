@@ -58,7 +58,7 @@ if ($PSVersionTable.PSEdition -ne 'Desktop') {
 
 ### Sovereign Cloud Endpoint
 
-If your tenant is GCC, GCC High, DoD, or 21Vianet, pass the correct `-Endpoint` to `Add-PowerAppsAccount` and the matching `-Environment` to `Connect-MgGraph`. Without it, the cmdlets authenticate to commercial endpoints and return zero environments — producing **false-clean evidence**. See the [PowerShell Authoring Baseline](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc--gcc-high--dod) for the canonical pattern.
+If your tenant is GCC, GCC High, DoD, or 21Vianet, pass the correct `-Endpoint` to `Add-PowerAppsAccount` and the matching `-Environment` to `Connect-MgGraph`. Without it, the cmdlets authenticate to commercial endpoints and return zero environments — producing **false-clean evidence**. See the [PowerShell Authoring Baseline](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod) for the canonical pattern.
 
 ---
 

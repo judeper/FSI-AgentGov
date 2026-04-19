@@ -71,7 +71,7 @@
 
 ## Automated Verification
 
-Run [`Validate-Control-1.24.ps1`](powershell-setup.md#script-5--validate-control-124ps1-composite-validator) and capture:
+Run [`Validate-Control-1.24.ps1`](powershell-setup.md#script-5-validate-control-124ps1-composite-validator) and capture:
 
 - JSON output in evidence repository
 - SHA-256 hash file (`*.sha256`) for integrity
