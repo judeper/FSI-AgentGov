@@ -1,169 +1,166 @@
-# Troubleshooting: Control 2.17 - Multi-Agent Orchestration Limits
+# Troubleshooting: Control 2.17 — Multi-Agent Orchestration Limits
 
 **Last Updated:** April 2026
 
-## Common Issues
-
-| Issue | Cause | Resolution |
-|-------|-------|------------|
-| Depth limit not enforcing | Tracking variable not implemented | Verify depth tracking in agent topics |
-| Circuit breaker stuck open | Reset timeout too long or failures continue | Check downstream agent health; adjust reset timeout |
-| Cascade failures occurring | Circuit breaker not configured | Implement circuit breaker pattern |
-| HITL timeouts causing abandonment | Timeout too short or approvers unavailable | Adjust timeout; ensure approver coverage |
-| Orchestration too slow | Multiple sequential calls | Consider parallel calls where safe |
+This guide covers the high-frequency failure modes observed when implementing the orchestration controls. The emphasis is on **false-clean** patterns — situations where the control *appears* to be working but is silently failing — because those are the highest-risk failures for FSI audit defensibility.
 
 ---
 
-## Detailed Troubleshooting
+## Quick Reference
 
-### Issue: Delegation Depth Limit Not Enforcing
-
-**Symptoms:** Agents can chain beyond configured depth limits
-
-**Diagnostic Steps:**
-
-1. Verify depth tracking variable exists:
-   ```
-   Copilot Studio > Agent > Topics > Check for orchestration_depth variable
-   ```
-
-2. Check depth increment logic:
-   - Variable should increment before each delegation
-   - Should be passed to delegated agent
-
-3. Verify depth check condition:
-   - Condition should compare against max_depth
-   - Should block or error if exceeded
-
-**Resolution:**
-
-- Implement depth tracking if missing
-- Fix increment logic (ensure it increments BEFORE delegation)
-- Add proper condition check before delegation calls
-- Consider using Power Automate for complex orchestration with better control
+| Symptom | Most likely cause | Fix |
+|---------|------------------|-----|
+| Audit query returns zero events | Wrong cloud endpoint, audit logging disabled, or record type renamed | Verify `-Endpoint` / `-ExchangeEnvironmentName`; confirm Control 1.7 is implemented; cross-check current Microsoft Learn record types |
+| Depth limit not enforcing | Tracking variable not incremented or not passed to child agents | Audit topic flow; confirm increment occurs *before* delegation |
+| Circuit breaker stuck Open | Reset timeout too long, downstream still failing, or half-open probe failing | Manually inspect `fsi_CircuitBreakerState`; verify downstream health independently |
+| Cascade failures still occurring | Circuit breaker not invoked on every delegation edge | Audit topic flow for missed `fsi-CircuitBreaker-Check` calls |
+| HITL approvals abandoned by users | Timeout too short, approver group unstaffed, or card lacks context | Tune timeout; configure secondary approver chain; enrich card metadata |
+| MCP tool invoked from unapproved server | DLP gap or registry not synced to Copilot Studio | Tighten Power Platform DLP (Control 2.14); audit registry sync |
+| App Insights events missing dimensions | Custom event call missing required custom-dimension keys | Update topic / flow; re-test with Test 7 from *Verification & Testing* |
+| Cross-environment depth tracking returns null | Dataverse row not written or `If-Match` ETag conflict not handled | Add retry-on-conflict in the flow; confirm row retention policy |
 
 ---
 
-### Issue: Circuit Breaker Stuck Open
+## False-Clean Patterns (Highest Audit Risk)
 
-**Symptoms:** Delegated agent calls permanently blocked even after issue resolved
+These patterns produce evidence that *looks* compliant but is not. Hunt them actively during quarterly reviews.
 
-**Diagnostic Steps:**
+### Pattern 1 — Sovereign-cloud endpoint omission
 
-1. Check circuit breaker state in your monitoring system
+**Symptom:** PowerShell evidence script reports zero orchestration events; tenant clearly has Copilot Studio activity.
 
-2. Verify the downstream agent is actually healthy:
-   - Test direct calls to the agent
-   - Check agent health metrics
+**Root cause:** Cmdlet authenticated against commercial endpoints from a GCC / GCC High / DoD operator workstation. Output is real but from the wrong tenant — likely empty or from an unrelated commercial tenant.
 
-3. Check reset timeout configuration:
-   - Timeout may be longer than expected
-   - Half-open test may be failing
+**Detection:** Compare the tenant ID returned by `Get-MgContext` (or `Get-AdminPowerAppEnvironment | Select -First 1`) against the expected target tenant ID before treating evidence as authoritative.
 
-**Resolution:**
-
-- Manually reset circuit breaker if available
-- Fix downstream agent issues
-- Adjust reset timeout to appropriate duration
-- Verify half-open test is configured correctly
+**Fix:** Always pass `-Endpoint` (Power Apps) and `-ExchangeEnvironmentName` (EXO) explicitly. See PowerShell baseline §3.
 
 ---
 
-### Issue: Cascade Failures in Orchestration
+### Pattern 2 — Depth variable not threaded through child agents
 
-**Symptoms:** One agent failure causes entire chain to fail
+**Symptom:** Each individual agent appears to enforce depth correctly; Test 1 (depth violation) passes locally per agent. But end-to-end test exceeds the limit.
 
-**Diagnostic Steps:**
+**Root cause:** Each child agent reinitializes `OrchestrationDepth = 0` because the parent did not pass the current depth as an input parameter on invocation.
 
-1. Check if circuit breakers are implemented
-
-2. Review error handling in orchestrating agents:
-   - Are failures being caught?
-   - Is there fallback behavior?
-
-3. Check timeout configuration:
-   - Timeouts should be shorter than total allowed time
-   - Cascading timeouts should not exceed total
-
-**Resolution:**
-
-- Implement circuit breakers on all agent-to-agent calls
-- Add proper error handling with fallbacks
-- Configure appropriate timeouts at each level
-- Consider bulkhead pattern for isolation
+**Fix:** Confirm every delegation node passes `Topic.OrchestrationDepth` as an input. For Pattern B (cross-environment), confirm every agent reads from the same Dataverse row keyed by `correlationId`, not a per-agent local copy.
 
 ---
 
-### Issue: HITL Causing User Abandonment
+### Pattern 3 — HITL timestamp drift indicating rubber-stamping
 
-**Symptoms:** Users leave before HITL approval completes
+**Symptom:** HITL telemetry shows uniformly short `waitDurationMs` (e.g., consistently <30 seconds across all approvers).
 
-**Diagnostic Steps:**
+**Root cause:** Approvers are clicking through without reviewing context. Audit-defensibility under FINRA Rule 3110 requires *meaningful* supervisory review, not just a click.
 
-1. Check HITL timeout configuration:
-   - Is timeout appropriate for the approval process?
-   - Are approvers available during business hours?
-
-2. Review approval routing:
-   - Are requests going to available approvers?
-   - Is there a backup approver chain?
-
-3. Check user communication:
-   - Are users informed of the wait?
-   - Is there a way to check status?
-
-**Resolution:**
-
-- Adjust timeout based on actual approval times
-- Implement backup approver chain
-- Provide status updates to waiting users
-- Consider async patterns where appropriate
+**Fix:** Sample 5% of approvals quarterly for quality review; consider adding mandatory free-text justification on the adaptive card; train approvers on context expectations.
 
 ---
 
-## How to Confirm Configuration is Active
+### Pattern 4 — Audit log retention shorter than 6 years
 
-### Depth Limiting
+**Symptom:** Quarterly evidence pack succeeds for the 90-day window but historical reconstruction fails for prior periods.
 
-1. Create a test scenario that would exceed depth
-2. Verify the request is blocked
-3. Check logs for depth violation event
+**Root cause:** Microsoft 365 Audit (Standard) retains 180 days; Audit (Premium) retains 1 year by default. SEC 17a-4 recordkeeping for FSI typically requires 6 years.
 
-### Circuit Breaker
+**Fix:** Configure long-term retention per Control 1.7. Forward audit events to immutable storage (Sentinel + Storage with immutability policy, or Purview Data Lifecycle Management retention lock) to span the full 6 years independently of the M365 retention setting.
 
-1. Simulate failures in a test environment
-2. Verify circuit opens after threshold
-3. Wait for reset and verify it closes
+---
 
-### HITL Checkpoints
+### Pattern 5 — Telemetry emitted but not correlated
 
-1. Trigger a HITL-required operation
-2. Verify approval request is generated
-3. Test approval and denial paths
+**Symptom:** Custom events visible in App Insights and audit records visible in Purview, but no way to reconstruct an end-to-end chain.
+
+**Root cause:** `correlationId` not threaded consistently across (a) the originating agent, (b) Power Automate flows, (c) custom event emissions, and (d) Microsoft-emitted audit records (which use their own `OperationId`).
+
+**Fix:** Standardize on a single `correlationId` field at the root agent and propagate through every downstream call. Where Microsoft-emitted IDs differ, persist the mapping (`fsi_correlationId ↔ ms_operationId`) in Dataverse so audit reconstruction can join across sources.
+
+---
+
+## Detailed Issues
+
+### Issue: Delegation depth limit not enforcing
+
+**Diagnostic:**
+
+1. Open the root agent topic in Copilot Studio.
+2. Confirm `Topic.OrchestrationDepth` exists as a topic-scoped variable initialized to `0`.
+3. Confirm every delegation node is preceded by:
+    - A `Set variable` node incrementing depth
+    - A `Condition` node comparing `Topic.OrchestrationDepth` against the per-zone max
+4. Confirm the `Condition` node's true branch *blocks* the delegation (returns an error or routes to escalation), not merely logs and proceeds.
+
+**Resolution:** If any step is missing, restore per *Portal Walkthrough* Step 3. For chains spanning environments, escalate to Pattern B (Dataverse correlation-ID-scoped depth).
+
+---
+
+### Issue: Circuit breaker stuck Open
+
+**Diagnostic:**
+
+1. Inspect `fsi_CircuitBreakerState` row for the affected `targetAgentId`. Note `state`, `openedUtc`, `consecutiveFailures`.
+2. Independently invoke the downstream agent (bypassing the orchestrator) and confirm health.
+3. If downstream is healthy: confirm the half-open probe flow is firing. The probe call must update `state = 'Closed'` on success.
+4. Check for ETag conflicts: if the probe and a fresh failure race, the probe's update may be lost.
+
+**Resolution:** Add explicit retry-on-conflict to the probe flow. If timeout intervals are too long for operations, tune downward (but do not below 30s for Zone 3, otherwise probes can mask intermittent downstream issues).
+
+---
+
+### Issue: HITL escalations missed by approvers
+
+**Diagnostic:**
+
+1. Confirm the secondary approver group is populated and members have access to the channel/mailbox where adaptive cards are delivered.
+2. Verify the escalation path triggers *automatically* on timeout — not via a manual workflow step that may not be running.
+3. Sample escalation events in App Insights to confirm `Orchestration.HitlDecision` events fire with `decision = 'EscalatedTimeout'`.
+
+**Resolution:** Treat any silently abandoned approval as a Control 3.4 incident (failure to obtain human approval before a customer-impacting action). Tune timeouts to realistic approval SLAs; never set timeout to "infinite" because that masks abandonment as in-progress.
+
+---
+
+### Issue: MCP tool invoked from unapproved server
+
+**Diagnostic:**
+
+1. Query App Insights for `Orchestration.MCP.ToolInvocation` events; group by `mcpServer`.
+2. Diff against the approved MCP server registry.
+3. If unapproved entries exist, identify which agent registered the tool and when (Copilot Studio agent activity log).
+
+**Resolution:** Block at two layers:
+
+- **Power Platform DLP** (Control 2.14): place the MCP HTTP connector in the *Blocked* group for non-business-data environments; in the *Business* group for governed environments where it is needed.
+- **Registry sync**: if you maintain the MCP registry as a SharePoint list or Dataverse table, build a daily Power Automate flow that reconciles registered MCP servers in production agents against the approved list and opens an incident on drift.
+
+Treat any drift event as a Control 3.4 incident and document in the quarterly attestation.
+
+---
+
+## Known Limitations (April 2026)
+
+| Limitation | Impact | Mitigation |
+|------------|--------|------------|
+| No native depth-tracking primitive in Copilot Studio | All depth enforcement is custom (topic variables or Dataverse) | Use Patterns A/B; treat the absence as control debt and lobby Microsoft via the Power Platform Ideas portal |
+| No native circuit breaker | Custom Power Automate flow required | Documented in *Portal Walkthrough* Step 4 |
+| Limited cross-environment orchestration visibility | Reconstructing chains spanning environments requires manual correlation | Use Pattern B + correlation-ID propagation; consider keeping Zone 3 chains within a single environment |
+| HITL via adaptive cards uses polling | Latency between approval and resume | Use Microsoft Agent Framework HITL primitives where available — they integrate with checkpoint persistence |
+| Custom MCP servers in preview (April 2026) | Behavior may change before GA | Do not promote custom MCP servers to Zone 3 production until GA confirmed on Microsoft Learn |
+| 128-tool-per-agent ceiling | Large delegation trees can hit ceiling silently | Run Section 4 of *PowerShell Setup* monthly to track headroom |
 
 ---
 
 ## Escalation Path
 
-If issues persist after troubleshooting:
+If the issue persists after diagnostic steps:
 
-1. **Copilot Studio Admin** - Agent configuration issues
-2. **Power Automate Admin** - Flow-based orchestration issues
-3. **AI Governance Lead** - Policy and limit questions
-4. **Microsoft Support** - Platform limitations
+1. **Power Platform Admin** — environment, DLP, connector, or PPAC configuration questions
+2. **Copilot Studio Agent Author** — topic, variable, and tool-registration issues
+3. **AI Governance Lead** — policy, limits, registry, or attestation-quality questions
+4. **Compliance Officer** — supervisory-review (FINRA 3110), recordkeeping (FINRA 4511 / SEC 17a-4), or model-risk (OCC 2011-12 / Fed SR 11-7) interpretation
+5. **Microsoft Support** — platform behavior gaps, audit record-type changes, or suspected platform regressions; cite Microsoft Learn references and your tenant ID
 
----
-
-## Known Limitations
-
-| Limitation | Impact | Workaround |
-|------------|--------|------------|
-| No native depth tracking | Must implement manually | Use conversation variables; document pattern |
-| Circuit breaker not built-in | Requires custom implementation | Use Power Automate with error handling |
-| Limited visibility into chains | Hard to trace multi-agent flows | Implement correlation IDs; use Application Insights |
-| HITL requires polling | No native webhook support | Use Power Automate adaptive cards |
-| Cross-environment orchestration complex | Multi-env chains hard to manage | Keep orchestration within single environment |
+For incidents involving customer impact, regulated data, or material financial decisions: open a Control 3.4 incident *first*, then troubleshoot.
 
 ---
 
-[Back to Control 2.17](../../../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md)
+[Back to Control 2.17](../../../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification & Testing](verification-testing.md)
