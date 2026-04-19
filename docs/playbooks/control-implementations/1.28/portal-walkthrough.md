@@ -1,186 +1,127 @@
 # Portal Walkthrough: Control 1.28 - Policy-Based Agent Publishing Restrictions
 
-**Last Updated:** February 2026
-**Portal:** Power Platform Admin Center + Copilot Studio
-**Estimated Time:** 30-45 minutes
+**Last Updated:** April 2026<br>
+**Portals:** Power Platform Admin Center (PPAC), Microsoft Copilot Studio, Microsoft Purview, Power Automate<br>
+**Estimated Time:** 45–60 minutes (initial setup); 10–15 minutes per environment thereafter
 
-## Prerequisites
-
-- [ ] Power Platform Admin or Entra Global Admin role
-- [ ] Access to Power Platform Admin Center
-- [ ] Access to Copilot Studio environment
-- [ ] Knowledge of agent governance zone classifications
-- [ ] Approved DLP policy design (Zone 2+ environments)
+> **Hedging note:** This walkthrough describes how to implement publishing restrictions using the controls Microsoft currently exposes in the portal. Microsoft does **not** ship a single tenant toggle that "requires approval before publishing a Copilot Studio agent." Approval gates are implemented through Power Automate flows, Power Platform Pipelines, or documented change-control processes. The steps below reflect that reality.
 
 ---
 
-## Step-by-Step Configuration
+## Prerequisites
 
-### Step 1: Configure Tenant-Level DLP Policies
+- [ ] **Power Platform Admin** role for DLP policy and environment configuration
+- [ ] **AI Administrator** role for tenant-level Copilot Studio governance settings
+- [ ] **Entra Global Admin** required only for initial environment routing setup or broad Graph API consent
+- [ ] Approved DLP policy design (connector classification, by zone)
+- [ ] Microsoft Purview Audit (Standard or Premium) enabled in the tenant — see **Control 3.1**
+- [ ] Knowledge of which environments are classified as Zone 1, Zone 2, Zone 3 — see **Control 2.2**
 
-1. Open [Power Platform Admin Center](https://admin.powerplatform.microsoft.com)
-2. Click **Policies** in the left navigation
-3. Click **Data policies** to view existing DLP policies
-4. Click **+ New Policy** to create a zone-specific DLP policy
-5. Enter policy details:
-   - **Policy Name:** Zone 3 Enterprise - Restricted DLP Policy
-   - **Description:** Enforces connector restrictions for Zone 3 customer-facing agents
-   - **Scope:** Select specific environments (or environment groups)
-6. Click **Next** to configure connector classification
+---
 
-> **Note:** DLP policies are the primary enforcement mechanism for publishing restrictions. Agents with DLP violations cannot be published, and published agents are blocked from updates until violations are resolved (enforced since February 2025).
+## Step 1 — Confirm DLP Enforcement Mode for Copilot Studio Agents
 
-### Step 2: Classify Connectors by Zone
+Effective February 2025, Microsoft removed the "Soft-Enabled" DLP exemption for published Copilot Studio agents. All published agents are now evaluated against tenant DLP policy at runtime and at publish/update time. There is no portal toggle to revert this — it is the platform default.
 
-1. On the **Assign Connectors** page, review the three connector categories:
-   - **Business:** Connectors allowed for business data (e.g., SharePoint, Dataverse)
-   - **Non-Business:** Connectors allowed for non-business data (e.g., Twitter, RSS)
-   - **Blocked:** Connectors prohibited in this environment
-2. Configure connector classification by zone:
+1. Open [Power Platform Admin Center](https://admin.powerplatform.microsoft.com).
+2. Confirm you can see the **Policies → Data policies** node (requires Power Platform Admin).
+3. Document in your change record that DLP enforcement mode is **Enabled** (the only supported mode as of February 2025).
 
-   **Zone 1 (Personal) Policy:**
-   - Business: SharePoint, Dataverse, Office 365, Microsoft Teams
-   - Non-Business: Twitter, RSS, HTTP, Weather
-   - Blocked: Public websites connector, Telegram, Facebook
+> **FSI Note:** For organizations with existing published agents created before February 2025, conduct a DLP compliance review immediately. Agents whose connector usage no longer aligns with the current DLP policy are blocked from update operations until the violation is resolved or the policy is amended.
 
-   **Zone 2 (Team) Policy:**
-   - Business: SharePoint, Dataverse, Office 365, Microsoft Teams, SQL Server
-   - Non-Business: (empty)
-   - Blocked: Twitter, HTTP, Public websites, Telegram, Facebook, RSS
+---
 
-   **Zone 3 (Enterprise) Policy:**
-   - Business: SharePoint (read-only), Dataverse (approved tables only), Microsoft 365 Groups (read-only)
-   - Non-Business: (empty)
-   - Blocked: All external connectors, HTTP, premium connectors without approval
+## Step 2 — Create a Zone-Specific Data Policy
 
-3. Search for specific connectors using the search bar
-4. Drag connectors between categories to reclassify
-5. Click **Next** to configure custom connector patterns
+Repeat this step once per zone (Zone 1, Zone 2, Zone 3). The escalating restriction profile is described in the parent control.
 
-> **Zone 3 Critical Restriction:** Block public channels (public websites, Telegram, Facebook) in Zone 3 DLP policies to prevent customer-facing agents from being published to insecure channels.
+1. In PPAC, go to **Policies → Data policies**.
+2. Select **+ New policy**.
+3. **Name:** Use a clear, zone-aligned name (e.g., `FSI - Zone 3 Enterprise Restricted`).
+4. On the **Prebuilt connectors** tab, classify connectors into **Business**, **Non-Business**, and **Blocked** groups. Recommended starting baseline:
 
-### Step 3: Configure Custom Connector Restrictions (Optional)
+   | Zone | Business (allow) | Non-Business | Blocked |
+   |------|------------------|--------------|---------|
+   | Zone 1 | SharePoint, OneDrive, Office 365 Outlook, Teams, Dataverse | Approved productivity connectors | Public-channel and consumer connectors (Telegram, Facebook Messenger, public-website connector) |
+   | Zone 2 | Same as Zone 1 plus business systems (e.g., SQL Server, Salesforce per risk review) | (intentionally empty) | All Zone 1 blocked + Twitter/X, RSS, generic HTTP unless allowlisted via custom connector |
+   | Zone 3 | Read-only or scoped variants of Zone 2 business systems only, gated by data risk review | (intentionally empty) | Everything else, including premium connectors not on the approved list |
 
-1. On the **Custom connector patterns** page, configure URL patterns for HTTP connector restrictions
-2. Define allowed domains for Zone 2+ environments:
-   - **Allowed domain pattern:** `*.yourcompany.com`, `*.microsoft.com`
-   - **Blocked domain pattern:** `*` (block all others)
-3. Click **Next** to review policy scope
+5. On the **Custom connectors** tab, set the default action (typically **Block**) and add explicit URL patterns for any allowlisted custom connectors (e.g., `https://api.contoso.com/*`).
+6. On the **Scope** tab, choose **Add multiple environments** and select the environments classified to this zone. Avoid **Add all environments** for production-bearing zones; explicit selection is auditable.
+7. Review and **Create policy**.
 
-> **Optional:** Custom connector patterns provide granular control over HTTP and custom connector usage. Use this feature in Zone 3 to whitelist only approved external APIs.
+> **Tip:** Because there is no native concept of a "wildcard" connector identifier in DLP policies, do not attempt to block "all unknown connectors" via wildcard. Use the **Custom connectors → Default behavior = Block** setting plus the **Non-Business** group as your allowlist boundary.
 
-### Step 4: Assign DLP Policy to Environments
+---
 
-1. On the **Define scope** page, select how to apply the policy:
-   - **Add multiple environments:** Select specific environments by name
-   - **Add all environments:** Apply policy tenant-wide (not recommended for Zone 1)
-   - **Exclude certain environments:** Apply policy to all except selected environments
-2. For zone-based deployment, select **Add multiple environments**
-3. Check the boxes for environments classified as Zone 3 (e.g., "Production", "Customer-Facing")
-4. Click **Next** to review policy summary
-5. Review all settings on the **Review and create policy** page
-6. Click **Create policy** to enforce the DLP policy
+## Step 3 — Verify the Pre-Publish Behavior in Copilot Studio
 
-> **Environment Assignment Strategy:** Create separate DLP policies for each zone (Zone 1, Zone 2, Zone 3) with escalating restrictions. Assign each policy to the appropriate environments based on zone classification.
+Copilot Studio runs a pre-publish check that surfaces DLP violations and configuration findings before the agent is published. This is the platform's primary inline enforcement signal.
 
-### Step 5: Enable Security Scans for Agent Publishing
+1. Open [Microsoft Copilot Studio](https://copilotstudio.microsoft.com) and select an agent in a target environment.
+2. Click **Publish**.
+3. Review any pre-publish messages. Typical findings include:
+   - DLP violation (connector used by the agent is in the **Blocked** group for this environment).
+   - Channel configuration that conflicts with policy (e.g., a public channel enabled in a Zone 2/3 environment).
+4. If findings appear, follow the in-product remediation links or address each finding in the agent topics, channels, or DLP policy before retrying publish.
 
-1. Open [Copilot Studio](https://copilotstudio.microsoft.com)
-2. Select the target agent from the agent list
-3. Click **Publish** in the top-right corner
-4. Observe the **Security scan** indicator before publishing:
-   - **Green checkmark:** No security issues detected
-   - **Yellow warning:** Warnings detected (Zone 1 can proceed)
-   - **Red error:** Blocking issues detected (Zone 2+ cannot proceed)
-5. Click **View details** to see security scan findings
+> **UI variability:** The exact wording, severity icons, and finding categories shown in the Copilot Studio publish dialog change as Microsoft ships product updates. Treat the in-product messages as authoritative; this playbook describes the categories of finding rather than fixed colors or labels.
 
-> **Note:** Security scans are triggered automatically before publishing. Scans check for blocked channels, insecure connectors, DLP violations, and configuration vulnerabilities.
+---
 
-### Step 6: Review and Resolve Security Scan Findings
+## Step 4 — Restrict Channels in Copilot Studio (Zone 2 and Zone 3)
 
-1. In the **Security scan results** panel, review detected issues:
-   - **DLP violations:** Agent uses connectors not allowed by DLP policy
-   - **Blocked channels:** Agent is configured to publish to prohibited channels (e.g., public website)
-   - **Insecure configuration:** Agent has settings that pose security risks
-2. For each finding, click **Details** to view remediation guidance
-3. Resolve DLP violations:
-   - Remove or replace blocked connectors from agent topics
-   - Request DLP policy exemption (Zone 1 only)
-   - Reconfigure agent to use approved connectors
-4. Resolve blocked channel violations:
-   - Navigate to agent **Settings** → **Channels**
-   - Disable or remove prohibited channels (e.g., uncheck "Facebook", "Telegram")
-   - Save changes
-5. Return to the **Publish** screen and re-run the security scan
-6. Verify all issues are resolved before proceeding
+For Zone 2+ agents, disable channels that are not on your approved list before publishing.
 
-> **Zone 2+ Requirement:** Security scans must pass before publishing is allowed. Yellow warnings are acceptable in Zone 1 but require resolution in Zone 2+.
+1. In Copilot Studio, open the target agent.
+2. Go to **Settings → Channels** (or **Channels** in the left rail, depending on the current build).
+3. Disable any channel not on your approved list — at minimum, disable **Facebook**, **Telegram**, and the public **Website (anonymous)** channel for Zone 2+.
+4. For Zone 3 customer-facing agents, restrict to authenticated channels only (e.g., Microsoft Teams, authenticated web channel).
+5. Save channel settings.
 
-### Step 7: Configure Approval Workflow for Agent Publishing (Zone 2+ Only)
+---
 
-1. Open [Power Platform Admin Center](https://admin.powerplatform.microsoft.com)
-2. Navigate to **Environments**
-3. Select the target environment (Zone 2 or Zone 3)
-4. Click **Settings** at the top
-5. Expand **Product** section
-6. Click **Features**
-7. Scroll to **Copilot and Power Apps** section
-8. Enable **Require approval for new chatbots**
-9. Optionally enable **Require approval for chatbot updates**
-10. Click **Save**
+## Step 5 — Implement an Approval Gate (Power Automate Approach)
 
-> **Approval Workflow Enablement:** This setting requires agent authors to submit a publishing request that must be approved by a Power Platform Admin before the agent is published or updated.
+Because Copilot Studio does not surface a built-in "require approval" toggle, model the approval gate using a Power Automate flow that watches for changes to the Dataverse `bot` table (Copilot Studio agents are stored as `bot` rows) or that is triggered from a custom intake form.
 
-### Step 8: Submit Agent for Approval (Agent Author Perspective)
+1. Open [Power Automate](https://make.powerautomate.com).
+2. Create a new **automated cloud flow**.
+3. Trigger: **Dataverse — When a row is added, modified, or deleted** on the **Bots** table; scope to the target environment(s).
+4. Add a **Get a row by ID** action to retrieve the bot record.
+5. Add a **Condition** to check whether `Publish Status` indicates a publish or republish event.
+6. Add **Start and wait for an approval** (Approval type: *Approve/Reject — First to respond*).
+7. Route the approval to the designated approver group (Power Platform Admin or, for Zone 3, Power Platform Admin **and** Compliance Officer in sequential approvals).
+8. On rejection, post a Teams message to the agent author and write an event to a Dataverse `Publish Approval Log` table for audit.
+9. On approval, write the approval record (approver, timestamp, justification) to the same log table.
 
-1. In Copilot Studio, open the agent to be published
-2. Click **Publish** in the top-right corner
-3. Verify security scan passes (or warnings are acknowledged in Zone 1)
-4. On the **Publish agent** screen, provide:
-   - **Publishing justification:** Brief description of why the agent is being published
-   - **Expected impact:** Who will use the agent and for what purpose
-   - **Testing evidence:** Reference to test results or validation documentation
-5. Click **Submit for approval** (if approval is required) or **Publish** (if no approval required)
-6. Wait for approval notification from Power Platform Admin
+> **Important:** A Power Automate approval flow does **not** technically prevent the publish action itself — it provides documented review and an audit trail. To prevent unauthorized publishes outright, combine the flow with one of: (a) restricting `prvPublishBot` privileges via Dataverse security roles (see **Control 1.1**), (b) using Power Platform Pipelines so authoring happens in a non-production environment, or (c) Conditional Access policies that block the Copilot Studio app for non-approver personas.
 
-> **Documentation Requirement:** Zone 3 environments require formal publishing documentation including test results, security review sign-off, and business justification before approval.
+---
 
-### Step 9: Approve or Reject Publishing Request (Admin Perspective)
+## Step 6 — Implement a Solution Promotion Pipeline (Zone 3)
 
-1. Open [Power Platform Admin Center](https://admin.powerplatform.microsoft.com)
-2. Navigate to **Pending approvals** or check email for approval notification
-3. Click the pending agent publishing request
-4. Review submission details:
-   - Agent name and environment
-   - Publishing justification from agent author
-   - Security scan results
-   - DLP compliance status
-5. Verify the agent meets zone-specific requirements:
-   - Zone 2: Documented approval, passing security scan, DLP compliance
-   - Zone 3: Multi-level approval, security review sign-off, formal documentation
-6. Click **Approve** to allow publishing, or **Reject** with feedback
-7. Provide approval comments for audit trail
+For Zone 3 environments, use **Power Platform Pipelines** (or ALM Accelerator) so that Copilot Studio agents are authored in a development environment, validated in a test environment, and deployed to production via solution import — not by publishing directly into production.
 
-> **Multi-Level Approval (Zone 3):** For Zone 3 customer-facing agents, require approval from both Power Platform Admin and Compliance Officer before publishing. Configure multi-stage approval workflows using Power Automate.
+1. In PPAC, go to **Resources → Pipelines** and create a host environment if you do not yet have one.
+2. Create a pipeline with **Development → Test → Production** stages mapped to your Zone 3 environments.
+3. On the **Test → Production** stage, configure **pre-deployment approvals** (this is a built-in Pipelines feature) and route to the Compliance Officer.
+4. Train Zone 3 agent authors to package the agent in a solution and submit a deployment request through the pipeline rather than clicking **Publish** in the production environment.
+5. Combine with **Control 2.2** (Environment Groups and Tier Classification) to restrict who can author or publish directly in the production environment.
 
-### Step 10: Verify Environment Promotion Pipeline (Zone 3 Only)
+> **Hedging note:** Power Platform Pipelines provides solution-promotion approval gates. It does not prevent a user with sufficient privileges in the production environment from publishing an agent in place. Pair pipelines with the role restrictions in Control 1.1 to make direct production publish operationally infeasible.
 
-1. Open [Power Platform Admin Center](https://admin.powerplatform.microsoft.com)
-2. Navigate to **Environments**
-3. Verify separate environments exist:
-   - **Development environment:** For agent authoring and initial testing
-   - **Test environment:** For pre-production validation and UAT
-   - **Production environment:** For live customer-facing deployments
-4. Configure environment groups to link dev/test/prod environments:
-   - Navigate to **Environment groups**
-   - Click **+ New group**
-   - Add development, test, and production environments to the group
-5. Enforce promotion pipeline:
-   - Agents published in development environment must be promoted to test
-   - Agents published in test environment must be promoted to production
-   - Each promotion requires re-approval at the destination environment level
+---
 
-> **Zone 3 Requirement:** Environment promotion pipelines prevent agents from being published directly to production without undergoing testing and validation in lower environments.
+## Step 7 — Confirm Audit Logging in Microsoft Purview
+
+1. Open [Microsoft Purview](https://compliance.microsoft.com) → **Audit**.
+2. Confirm auditing is enabled (it is on by default for new tenants since 2023).
+3. Run a search for activities related to Copilot Studio publishing. Useful filters:
+   - Workload: **PowerPlatformAdmin** and **Dataverse**.
+   - Activities: bot create/update events, DLP policy change events, Power Automate approval events.
+4. Confirm that the events captured include the actor UPN, environment, timestamp, and the bot identifier.
+5. Validate that retention policies for audit data meet your firm's requirements (e.g., 7-year retention for FINRA 4511 / SEC 17a-4 alignment — see **Control 3.1**).
 
 ---
 
@@ -188,42 +129,44 @@
 
 | Setting | Baseline (Zone 1) | Recommended (Zone 2) | Regulated (Zone 3) |
 |---------|-------------------|----------------------|---------------------|
-| **DLP policy assignment** | Basic restrictions | Moderate restrictions | Strict whitelist only |
-| **Security scan enforcement** | Warning only | Must pass | Must pass + review |
-| **Approval workflow** | Not required | Single approver | Multi-level approval |
-| **Channel restrictions** | Recommended | Enforced (block public) | Whitelist only |
-| **Environment separation** | Single environment | Dev + Prod recommended | Dev + Test + Prod required |
-| **Publishing documentation** | Recommended | Required | Required with sign-off |
-| **Approval SLA** | N/A | 48 hours | 24 hours |
+| DLP policy assignment | Light restrictions | Restrictive (no Non-Business group) | Strict allowlist only |
+| Pre-publish findings | Acknowledged | Must be cleared | Must be cleared + reviewer sign-off |
+| Approval gate | Optional | Power Automate flow or change ticket | Multi-stage (Power Automate or Pipelines) |
+| Channel restrictions | Recommended | Public channels disabled | Authenticated channels only |
+| Environment separation | Single environment OK | Dev + Prod recommended | Dev + Test + Prod with Pipelines |
+| Publishing documentation | Recommended | Required (lightweight) | Required with formal sign-off |
 
 ---
 
 ## Validation
 
-After completing these steps, verify:
+After completing these steps, confirm:
 
-- [ ] DLP policies are configured and assigned to environments by zone
-- [ ] Connector classification aligns with zone requirements (Business/Non-Business/Blocked)
-- [ ] Security scans are enabled and triggered automatically before publishing
-- [ ] Approval workflows are configured for Zone 2+ environments
-- [ ] Channel restrictions are enforced (public channels blocked in Zone 2+)
-- [ ] Environment separation is implemented for Zone 3 (dev/test/prod)
-- [ ] Test publishing an agent to verify DLP enforcement and approval workflow
-- [ ] Publishing audit logs are captured in Microsoft Purview
+- [ ] At least one DLP policy exists per zone, with environments explicitly assigned.
+- [ ] The Copilot Studio pre-publish check produces a finding when an agent uses a Blocked connector (test in a non-production environment — see the verification playbook).
+- [ ] Public channels are disabled for all Zone 2+ agents.
+- [ ] A Power Automate approval flow is active for Zone 2+ environments, or an equivalent process control is documented.
+- [ ] Power Platform Pipelines stages exist for Zone 3 environments with pre-deployment approval configured.
+- [ ] Purview audit captures bot create/update events and DLP policy changes for the relevant environments.
 
 ---
 
-## Visual Reference
+## Visual Reference (where to find each setting)
 
-Expected portal locations:
-- **DLP policies:** Power Platform Admin Center → Policies → Data policies
-- **Environment settings:** Power Platform Admin Center → Environments → [Environment] → Settings
-- **Approval enablement:** Power Platform Admin Center → Environments → [Environment] → Settings → Features → Require approval for new chatbots
-- **Security scan results:** Copilot Studio → [Agent] → Publish → Security scan details
-- **Channel configuration:** Copilot Studio → [Agent] → Settings → Channels
-
-> **UI Note:** The DLP enforcement change (removal of "Soft-Enabled" exemption) became effective in February 2025. All published agents now require DLP compliance—agents with violations are blocked from updates until violations are resolved.
+| Setting | Location |
+|---------|----------|
+| DLP data policies | PPAC → Policies → Data policies |
+| Environment assignment to a policy | PPAC → Policies → Data policies → [Policy] → Scope |
+| Custom connector default behavior | PPAC → Policies → Data policies → [Policy] → Custom connectors |
+| Copilot Studio pre-publish dialog | Copilot Studio → [Agent] → Publish |
+| Channel configuration | Copilot Studio → [Agent] → Settings → Channels |
+| Power Platform Pipelines | PPAC → Resources → Pipelines |
+| Audit search | Microsoft Purview → Audit |
 
 ---
 
 [Back to Control 1.28](../../../controls/pillar-1-security/1.28-policy-based-agent-publishing-restrictions.md) | [PowerShell Setup](powershell-setup.md) | [Verification & Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+
+---
+
+*Updated: April 2026 | Version: v1.3.3 | UI Verification Status: Current*
