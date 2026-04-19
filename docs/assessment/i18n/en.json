@@ -69,5 +69,15 @@
   "privacy.banner": "All data stays in your browser — nothing is uploaded.",
 
   "manifest.loadError": "Could not load the v1.4 controls manifest. Some advanced verification features will be unavailable.",
-  "solutionsLock.loadError": "Could not load solutions lock — solution chips will show as pending."
+  "solutionsLock.loadError": "Could not load solutions lock — solution chips will show as pending.",
+
+  "import_collector_button": "Import collector evidence",
+  "import_confirm_overwrite": "Importing will overwrite existing answers for matched controls. Continue?",
+  "import_summary": "Imported {imported} controls from {files} file(s). {skipped} skipped (no manifest match).",
+  "import_error": "Could not import {file}: {message}",
+  "import_badge_label": "From collector",
+
+  "export_agenda_button": "Next Session Agenda",
+  "export_agenda_toast": "Agenda exported. Send to {org} stakeholders before next session.",
+  "export_agenda_filename_prefix": "fsi-agentgov-agenda"
 }

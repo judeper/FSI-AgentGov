@@ -779,7 +779,18 @@
       // Copy responses safely
       for (var k in parsed.responses) {
         if (!Object.prototype.hasOwnProperty.call(parsed.responses, k)) continue;
-        clean.responses[k] = parsed.responses[k];
+        var rr = parsed.responses[k];
+        if (rr && typeof rr === "object" && !Array.isArray(rr)) {
+          clean.responses[k] = {
+            answer: rr.answer || null,
+            notes: typeof rr.notes === "string" ? rr.notes : "",
+            evidenceRef: typeof rr.evidenceRef === "string" ? rr.evidenceRef : "",
+          };
+          if (rr.autoNa) clean.responses[k].autoNa = true;
+          if (rr.importedFromCollector) clean.responses[k].importedFromCollector = true;
+        } else {
+          clean.responses[k] = rr;
+        }
       }
       if (parsed.drilldown) {
         for (var d in parsed.drilldown) {
@@ -847,6 +858,243 @@
       );
     }
     return true;
+  };
+
+  /* ================================================================
+     E3 — COLLECTOR EVIDENCE IMPORT
+     ================================================================
+     Accepts JSON files from `assessment/output/scores.json` (scoring
+     engine output) OR per-collector raw JSON from
+     `assessment/output/collected/*.json`. Auto-detects shape:
+       - scores.json: top-level `controls: [ {id, maturity_score,
+         maturity_label, confidence, ...} ]`
+       - per-collector: top-level `_metadata.collector` plus arbitrary
+         data keys; entries are matched to manifest controls via the
+         `collectorField` value.
+  ================================================================= */
+
+  // Map collector status / score → SPA answer. Returns null when the
+  // input is unknown / missing so callers leave existing answers alone.
+  function mapCollectorToAnswer(entry) {
+    if (!entry || typeof entry !== "object") return null;
+    var status = (entry.status || entry.maturity_label || "").toString().toLowerCase().replace(/[\s-]+/g, "_");
+    var score = (typeof entry.maturity_score === "number") ? entry.maturity_score
+              : (typeof entry.score === "number") ? entry.score : null;
+    if (status === "not_applicable" || status === "na" || status === "n_a") return "na";
+    if (status === "pass" || status === "passed") return "yes";
+    if (status === "partial" || status === "partially_implemented") return "partial";
+    if (status === "fail" || status === "failed" || status === "not_implemented") return "no";
+    if (status === "unknown" || status === "needs_manual" || status === "needs_review") return null;
+    if (score === null) return null;
+    if (score >= 4) return "yes";
+    if (score >= 2) return "partial";
+    if (score >= 0) return "no";
+    return null;
+  }
+
+  // Build a one-line evidence summary from a control entry for the notes
+  // textarea. Tries common fields seen in fixtures and per-collector data.
+  function summarizeCollectorEvidence(entry) {
+    if (!entry || typeof entry !== "object") return "";
+    if (typeof entry.evidence === "string" && entry.evidence) return entry.evidence;
+    if (Array.isArray(entry.checks) && entry.checks.length > 0) {
+      var passed = entry.checks.filter(function (c) { return c && c.passed === true; }).length;
+      var applicable = entry.checks.filter(function (c) { return c && c.applicable !== false; }).length;
+      var first = entry.checks.find(function (c) { return c && c.evidence; });
+      var head = passed + "/" + applicable + " checks passed";
+      return first ? head + "; " + first.evidence : head;
+    }
+    if (typeof entry.maturity_label === "string") {
+      return "Maturity: " + entry.maturity_label +
+        (typeof entry.maturity_score === "number" ? " (score " + entry.maturity_score + ")" : "");
+    }
+    return "";
+  }
+
+  // Replace any prior "[Imported]: …" line in `existing` with the new
+  // imported line so re-imports do not duplicate notes. Preserves any
+  // other user-entered note content.
+  function mergeImportedNote(existing, importedLine) {
+    var prior = (existing || "").replace(/\r\n/g, "\n");
+    var lines = prior ? prior.split("\n") : [];
+    var kept = lines.filter(function (l) { return l.indexOf("[Imported]:") !== 0; });
+    if (importedLine) kept.unshift("[Imported]: " + importedLine);
+    return kept.join("\n").trim();
+  }
+
+  AssessmentApp.prototype.openCollectorImport = function () {
+    var self = this;
+    if (!this.state) {
+      alert("Start or resume an assessment first before importing collector evidence.");
+      return;
+    }
+    var hasUserAnswers = Object.keys(this.state.responses || {}).some(function (k) {
+      var r = self.state.responses[k];
+      return r && r.answer && !r.autoNa && !r.importedFromCollector;
+    });
+    if (hasUserAnswers) {
+      var msg = t("import_confirm_overwrite",
+        "Importing will overwrite existing answers for matched controls. Continue?");
+      if (!confirm(msg)) return;
+    }
+    var input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".json,application/json";
+    input.multiple = true;
+    input.style.display = "none";
+    input.addEventListener("change", function () {
+      var files = Array.prototype.slice.call(input.files || []);
+      if (files.length === 0) { document.body.removeChild(input); return; }
+      self.importCollectorFiles(files).then(function () {
+        try { document.body.removeChild(input); } catch (e) { /* */ }
+      });
+    });
+    document.body.appendChild(input);
+    input.click();
+  };
+
+  AssessmentApp.prototype.importCollectorFiles = function (files) {
+    var self = this;
+    var totalImported = 0;
+    var totalSkipped = 0;
+    var fileCount = 0;
+    var readOne = function (file) {
+      return new Promise(function (resolve) {
+        var reader = new FileReader();
+        reader.onerror = function () {
+          self.showToast(tFmt("import_error", "Could not import {file}: {message}",
+            { file: file.name, message: "read failed" }), "error");
+          resolve();
+        };
+        reader.onload = function () {
+          try {
+            var parsed = JSON.parse(reader.result);
+            var result = self.applyCollectorPayload(parsed, file.name);
+            totalImported += result.imported;
+            totalSkipped += result.skipped;
+            fileCount++;
+          } catch (err) {
+            self.showToast(tFmt("import_error", "Could not import {file}: {message}",
+              { file: file.name, message: err && err.message ? err.message : "parse error" }), "error");
+          }
+          resolve();
+        };
+        try { reader.readAsText(file); }
+        catch (e) {
+          self.showToast(tFmt("import_error", "Could not import {file}: {message}",
+            { file: file.name, message: e.message }), "error");
+          resolve();
+        }
+      });
+    };
+    return files.reduce(function (p, f) {
+      return p.then(function () { return readOne(f); });
+    }, Promise.resolve()).then(function () {
+      self.saveToStorage();
+      self.render();
+      self.showToast(tFmt("import_summary",
+        "Imported {imported} controls from {files} file(s). {skipped} skipped (no manifest match).",
+        { imported: totalImported, files: fileCount, skipped: totalSkipped }), "info");
+    });
+  };
+
+  // Detect payload shape and apply matching control entries to state.
+  // Returns { imported, skipped }.
+  AssessmentApp.prototype.applyCollectorPayload = function (payload, fileName) {
+    var self = this;
+    var imported = 0;
+    var skipped = 0;
+    if (!payload || typeof payload !== "object") {
+      return { imported: 0, skipped: 0 };
+    }
+    var meta = payload._metadata || {};
+    var collectorName = meta.collector ||
+      (payload.collectorName) ||
+      (Array.isArray(payload.controls) ? "scores.json" : (fileName || "collector"));
+    var timestamp = meta.timestamp || payload.timestamp || new Date().toISOString();
+
+    var entries = []; // { id?, collectorField?, entry }
+
+    // Shape A: scores.json — top-level `controls` array of per-control objects with `id`.
+    if (Array.isArray(payload.controls)) {
+      payload.controls.forEach(function (c) {
+        if (c && c.id) entries.push({ id: String(c.id), entry: c });
+      });
+    }
+    // Shape B: scores.json variant where `controls` is keyed by id.
+    else if (payload.controls && typeof payload.controls === "object") {
+      Object.keys(payload.controls).forEach(function (k) {
+        var c = payload.controls[k];
+        if (c && typeof c === "object") entries.push({ id: String(k), entry: c });
+      });
+    }
+    // Shape C: per-collector file. Only useful if any manifest control
+    // declares a `collectorField` matching one of the top-level keys.
+    else {
+      var dataRoot = (payload.data && typeof payload.data === "object") ? payload.data : payload;
+      Object.keys(dataRoot).forEach(function (k) {
+        if (k === "_metadata" || k === "collectorName") return;
+        entries.push({ collectorField: k, entry: dataRoot[k] });
+      });
+    }
+
+    if (entries.length === 0) return { imported: 0, skipped: 0 };
+
+    entries.forEach(function (item) {
+      var ctrl = self.findControlForImport(item);
+      if (!ctrl) { skipped++; return; }
+      var answer = mapCollectorToAnswer(item.entry);
+      if (!answer) { skipped++; return; }
+      var summary = summarizeCollectorEvidence(item.entry);
+      var prior = self.state.responses[ctrl.id] || {};
+      var merged = {
+        answer: answer,
+        notes: mergeImportedNote(prior.notes, summary),
+        evidenceRef: "Collector: " + collectorName + " @ " + timestamp,
+        importedFromCollector: true,
+      };
+      // Preserve override autoNa flag absence; explicitly clear autoNa
+      // because the import is now the authoritative answer.
+      self.state.responses[ctrl.id] = merged;
+      imported++;
+    });
+    return { imported: imported, skipped: skipped };
+  };
+
+  AssessmentApp.prototype.findControlForImport = function (item) {
+    if (!this.data || !Array.isArray(this.data.controls)) return null;
+    var id = item.id;
+    var cf = item.collectorField;
+    for (var i = 0; i < this.data.controls.length; i++) {
+      var c = this.data.controls[i];
+      if (id && c.id === id) return c;
+      if (cf && c.collectorField && c.collectorField === cf) return c;
+    }
+    return null;
+  };
+
+  /* ---- Toast helper (used by E3; safe no-op fallback) ---- */
+  AssessmentApp.prototype.showToast = function (message, kind) {
+    if (!message) return;
+    var host = document.querySelector(".ag-toast-host");
+    if (!host) {
+      host = document.createElement("div");
+      host.className = "ag-toast-host";
+      host.setAttribute("aria-live", "polite");
+      host.setAttribute("aria-atomic", "true");
+      document.body.appendChild(host);
+    }
+    var toast = document.createElement("div");
+    toast.className = "ag-toast" + (kind === "error" ? " ag-toast-error" : " ag-toast-info");
+    toast.setAttribute("role", kind === "error" ? "alert" : "status");
+    toast.textContent = message;
+    host.appendChild(toast);
+    setTimeout(function () {
+      toast.classList.add("ag-toast-leaving");
+      setTimeout(function () {
+        if (toast.parentNode) toast.parentNode.removeChild(toast);
+      }, 400);
+    }, kind === "error" ? 6000 : 4500);
   };
 
   /* ================================================================
@@ -1511,6 +1759,11 @@
       onClick: function () { self.exportJSON(); }
     }, "Save to File"));
     topBtns.appendChild(h("button", {
+      className: "ag-btn ag-btn-sm ag-btn-secondary ag-import-collector-btn",
+      type: "button",
+      onClick: function () { self.openCollectorImport(); }
+    }, t("import_collector_button", "Import collector evidence")));
+    topBtns.appendChild(h("button", {
       className: "ag-info-btn",
       onClick: function () { self.showScoringModal(); }
     }, "\u2139 How Scoring Works"));
@@ -1746,6 +1999,12 @@
     if (override && override.applicable) {
       titleLine.appendChild(h("span", { className: "ag-override-active-tag" },
         t("exclusion.overrideActive", "Override active — control marked applicable")));
+    }
+    if (resp && resp.importedFromCollector) {
+      titleLine.appendChild(h("span", {
+        className: "ag-imported-badge",
+        title: resp.evidenceRef || "",
+      }, t("import_badge_label", "From collector")));
     }
     left.appendChild(titleLine);
 
@@ -2867,6 +3126,13 @@
         setTimeout(function () { window.print(); }, 300);
       }));
 
+    // E7 — Next Session Agenda (Markdown) export
+    // TODO(E7-pdf): PDF export deferred — see follow-up issue
+    grid.appendChild(this.exportCard("MD",
+      t("export_agenda_button", "Next Session Agenda"),
+      "Top-10 gap controls with remediation playbook for the next working session",
+      function () { self.exportAgenda(); }));
+
     wrap.appendChild(grid);
 
     // Trend comparison
@@ -3165,7 +3431,340 @@
   };
 
   /* ================================================================
+     E7 — NEXT SESSION AGENDA EXPORT (Markdown)
+     ================================================================ */
+
+  // Numeric weight for the manifest `priority` string. Lower = higher priority.
+  var AGENDA_PRIORITY_WEIGHT = { critical: 0, high: 1, medium: 2, low: 3 };
+  function _agendaPriorityWeight(p) {
+    if (typeof p !== "string") return 5;
+    var w = AGENDA_PRIORITY_WEIGHT[p.toLowerCase()];
+    return (w === undefined) ? 4 : w;
+  }
+
+  function _agendaControlIdSortKey(id) {
+    var parts = String(id || "").split(".");
+    return [parseInt(parts[0], 10) || 0, parseInt(parts[1], 10) || 0];
+  }
+
+  function _cmpAgendaControlId(a, b) {
+    var ka = _agendaControlIdSortKey(a.id);
+    var kb = _agendaControlIdSortKey(b.id);
+    if (ka[0] !== kb[0]) return ka[0] - kb[0];
+    return ka[1] - kb[1];
+  }
+
+  /**
+   * Top-N gap controls for the agenda, per E7 spec:
+   *   1. Controls answered "no" first (sort by priority asc, then control ID).
+   *   2. If fewer than `limit` "no" controls, fill with "partial" controls.
+   *   3. Controls answered "na" (auto or manual) are excluded.
+   *   4. Unanswered controls are excluded.
+   */
+  AssessmentApp.prototype._topGapControls = function (limit) {
+    var lim = (typeof limit === "number" && limit > 0) ? limit : 10;
+    var responses = (this.state && this.state.responses) || {};
+    var noBucket = [];
+    var partialBucket = [];
+    (this.data && this.data.controls ? this.data.controls : []).forEach(function (c) {
+      var resp = responses[c.id];
+      if (!resp || !resp.answer) return;
+      var ans = String(resp.answer).toLowerCase();
+      if (ans === "no") noBucket.push(c);
+      else if (ans === "partial") partialBucket.push(c);
+    });
+    var sortFn = function (a, b) {
+      var pa = _agendaPriorityWeight(a.priority);
+      var pb = _agendaPriorityWeight(b.priority);
+      if (pa !== pb) return pa - pb;
+      return _cmpAgendaControlId(a, b);
+    };
+    noBucket.sort(sortFn);
+    partialBucket.sort(sortFn);
+    var out = noBucket.slice(0, lim);
+    if (out.length < lim) {
+      out = out.concat(partialBucket.slice(0, lim - out.length));
+    }
+    return out;
+  };
+
+  function _agendaMdCell(v) {
+    if (v === null || v === undefined) return "";
+    return String(v).replace(/\r?\n/g, " ").replace(/\|/g, "\\|").trim();
+  }
+
+  function _agendaSlug(s) {
+    return String(s || "").toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .substring(0, 60);
+  }
+
+  function _agendaIsoDate(d) {
+    var iso = (d || new Date()).toISOString();
+    return iso.substring(0, 10);
+  }
+
+  function _agendaSkipTodo(s) {
+    if (typeof s !== "string") return "";
+    var trimmed = s.trim();
+    if (!trimmed) return "";
+    if (trimmed.indexOf("TODO:") === 0) return "";
+    return trimmed;
+  }
+
+  /** Build the full agenda Markdown document for the current state. */
+  AssessmentApp.prototype._buildAgendaMarkdown = function () {
+    var self = this;
+    var state = this.state || {};
+    var scoping = state.scoping || {};
+    var lock = (this.solutionsLock && typeof this.solutionsLock === "object")
+      ? this.solutionsLock : { schemaVersion: null, solutions: {} };
+    var lockSolutions = (lock.solutions && typeof lock.solutions === "object") ? lock.solutions : {};
+    var gaps = this._topGapControls(10);
+
+    var zoneTarget = "TBD";
+    if (Array.isArray(scoping.zones) && scoping.zones.length) {
+      zoneTarget = "Zone " + scoping.zones.slice().sort().join(", Zone ");
+    }
+
+    var overallPct = self.getOverallScore();
+    var maturity = (overallPct === null || overallPct === undefined)
+      ? "n/a"
+      : (Math.round((overallPct / 100) * 4 * 10) / 10).toFixed(1);
+
+    var lines = [];
+
+    // Section 1 — Header
+    lines.push("# FSI Agent Governance Assessment \u2014 Next Session Agenda");
+    lines.push("");
+    lines.push("**Customer:** " + (scoping.organizationName || "TBD"));
+    lines.push("**Generated:** " + new Date().toISOString());
+    lines.push("**Zone target:** " + zoneTarget);
+    lines.push("**Sector:** " + (state.selectedSector || scoping.institutionType || "Not specified"));
+    lines.push("**Overall maturity:** " + maturity + " / 4");
+    lines.push("");
+
+    // Section 2 — Top-N gap controls table
+    lines.push("## Top " + gaps.length + " Gap Controls");
+    lines.push("");
+    if (!gaps.length) {
+      lines.push("_No gap controls found \u2014 all answered controls passed or were marked N/A._");
+      lines.push("");
+    } else {
+      lines.push("| Rank | Control ID | Title | Pillar | Current answer | Priority | Responsible role(s) |");
+      lines.push("|---|---|---|---|---|---|---|");
+      gaps.forEach(function (c, i) {
+        var resp = (state.responses && state.responses[c.id]) || {};
+        var roles = (Array.isArray(c.manifestRoles) && c.manifestRoles.length)
+          ? c.manifestRoles
+          : (Array.isArray(c.roles) ? c.roles : []);
+        lines.push("| " + (i + 1) +
+          " | " + _agendaMdCell(c.id) +
+          " | " + _agendaMdCell(c.title) +
+          " | " + _agendaMdCell(c.pillarName || ("Pillar " + c.pillar)) +
+          " | " + _agendaMdCell(resp.answer || "") +
+          " | " + _agendaMdCell(c.priority || "\u2014") +
+          " | " + _agendaMdCell(roles.join("; ")) +
+          " |");
+      });
+      lines.push("");
+    }
+
+    // Section 3 — Remediation sub-blocks
+    if (gaps.length) {
+      lines.push("## Remediation Detail");
+      lines.push("");
+      gaps.forEach(function (c, i) {
+        lines.push("## Gap " + (i + 1) + " \u2014 Control " + c.id + ": " + (c.title || ""));
+        lines.push("");
+
+        var regs = Array.isArray(c.regulations) ? c.regulations.filter(Boolean) : [];
+        var regText = regs.length ? regs.join(", ") + " support" : "Regulatory mappings pending";
+        var obj = _agendaSkipTodo(c.objective) || "addresses a control gap identified in this assessment";
+        lines.push("**Why this matters:** " + regText + "; " + obj);
+        lines.push("");
+
+        var yesBar = _agendaSkipTodo(c.yesBar);
+        if (yesBar) {
+          lines.push("**What \"good\" looks like:** " + yesBar);
+          lines.push("");
+        }
+
+        lines.push("**Recommended remediation:**");
+        lines.push("");
+        var solutionIds = Array.isArray(c.solutions) ? c.solutions : [];
+        if (!solutionIds.length) {
+          lines.push("- _No solution mapped yet for this control._");
+        } else {
+          solutionIds.forEach(function (sid) {
+            var sol = lockSolutions[sid];
+            if (sol && typeof sol === "object") {
+              var nm = sol.name || sid;
+              var tier = sol.tier || "\u2014";
+              var ver = sol.version || "\u2014";
+              var desc = sol.description || sol.summary || "";
+              lines.push("- **" + nm + "** (Tier " + tier + ", v" + ver + ")" +
+                (desc ? " \u2014 " + desc : ""));
+              lines.push("    Link: " + SOLUTIONS_BASE_URL + sid + "/");
+            } else {
+              lines.push("- _" + sid + "_ (solution pending \u2014 not yet in lock file)");
+            }
+          });
+        }
+        lines.push("");
+
+        var verifyParts = [];
+        if (Array.isArray(c.verifyIn)) {
+          c.verifyIn.forEach(function (entry) {
+            if (!entry) return;
+            if (typeof entry === "string") { verifyParts.push(entry); return; }
+            var label = entry.portal || entry.label || entry.name || entry.url;
+            if (label) verifyParts.push(label);
+          });
+        }
+        var verifyLine;
+        if (verifyParts.length) {
+          verifyLine = verifyParts.join("; ");
+        } else if (c.controlDocUrl) {
+          verifyLine = c.controlDocUrl;
+        } else {
+          verifyLine = "See control documentation";
+        }
+        lines.push("**Verification:** " + verifyLine);
+        lines.push("");
+
+        var rolesArr = (Array.isArray(c.manifestRoles) && c.manifestRoles.length)
+          ? c.manifestRoles
+          : (Array.isArray(c.roles) ? c.roles : []);
+        lines.push("**Roles needed:** " + (rolesArr.length ? rolesArr.join(", ") : "\u2014"));
+        lines.push("");
+        lines.push("---");
+        lines.push("");
+      });
+    }
+
+    // Section 4 — Discussion topics
+    lines.push("## Discussion Topics for the Session");
+    lines.push("");
+    var topics = [];
+    var seen = {};
+    gaps.forEach(function (c) {
+      if (topics.length >= 15) return;
+      var fn = c.facilitatorNotes || {};
+      var fu = _agendaSkipTodo(fn.followUp);
+      if (fu && !seen[fu]) {
+        seen[fu] = true;
+        topics.push("- (" + c.id + ") " + fu);
+      }
+    });
+    if (!topics.length) {
+      lines.push("_No facilitator follow-up prompts available for the selected gap controls._");
+    } else {
+      topics.slice(0, 15).forEach(function (line) { lines.push(line); });
+    }
+    lines.push("");
+
+    // Section 5 — Recommended time budget
+    lines.push("## Recommended Time Budget");
+    lines.push("");
+    var totalMin = 0;
+    var anyTime = false;
+    var rows = [];
+    gaps.forEach(function (c) {
+      var fn = c.facilitatorNotes || {};
+      var m = fn.timeBudgetMinutes;
+      if (typeof m === "number" && isFinite(m) && m > 0) {
+        anyTime = true;
+        totalMin += m;
+        rows.push("| " + _agendaMdCell(c.id) + " | " + _agendaMdCell(c.title) + " | " + m + " |");
+      } else {
+        rows.push("| " + _agendaMdCell(c.id) + " | " + _agendaMdCell(c.title) + " | \u2014 |");
+      }
+    });
+    if (gaps.length) {
+      lines.push("| Control | Title | Minutes |");
+      lines.push("|---|---|---|");
+      rows.forEach(function (r) { lines.push(r); });
+      if (anyTime) {
+        var hours = Math.round((totalMin / 60) * 10) / 10;
+        lines.push("| **Subtotal** | | **" + totalMin + " min (~" + hours.toFixed(1) + " hrs)** |");
+      } else {
+        lines.push("| **Subtotal** | | _no time-budget metadata available_ |");
+      }
+    } else {
+      lines.push("_No gap controls \u2014 no time budget computed._");
+    }
+    lines.push("");
+
+    // Section 6 — Footer
+    lines.push("---");
+    lines.push("*Generated by FSI Agent Governance Framework v1.4 assessment tool*");
+    lines.push("*Compatible with FSI-AgentGov-Solutions v1.4.0 (solutions-lock schema " +
+      (lock.schemaVersion || "unknown") + ")*");
+    lines.push("");
+
+    return lines.join("\n");
+  };
+
+  /** Lightweight, non-blocking toast. Auto-dismisses after ~5s. */
+  AssessmentApp.prototype._showToast = function (msg) {
+    if (!msg) return;
+    try {
+      var existing = document.getElementById("ag-toast");
+      if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
+      var toast = document.createElement("div");
+      toast.id = "ag-toast";
+      toast.className = "ag-toast";
+      toast.setAttribute("role", "status");
+      toast.setAttribute("aria-live", "polite");
+      toast.textContent = msg;
+      document.body.appendChild(toast);
+      void toast.offsetWidth;
+      toast.classList.add("ag-toast-visible");
+      setTimeout(function () {
+        toast.classList.remove("ag-toast-visible");
+        setTimeout(function () {
+          if (toast.parentNode) toast.parentNode.removeChild(toast);
+        }, 400);
+      }, 5000);
+    } catch (e) { /* DOM unavailable - ignore */ }
+  };
+
+  /** Public handler: build the agenda MD and trigger a download + toast. */
+  AssessmentApp.prototype.exportAgenda = function () {
+    var md;
+    try {
+      md = this._buildAgendaMarkdown();
+    } catch (e) {
+      alert("Failed to build agenda: " + (e && e.message ? e.message : e));
+      return;
+    }
+    var scoping = (this.state && this.state.scoping) || {};
+    var prefix = t("export_agenda_filename_prefix", "fsi-agentgov-agenda");
+    var slug = _agendaSlug(scoping.organizationName) || _agendaIsoDate();
+    var filename = prefix + "-" + slug + "-" + _agendaIsoDate() + ".md";
+    var blob = new Blob([md], { type: "text/markdown;charset=utf-8" });
+    downloadBlob(blob, filename);
+    var toastMsg = tFmt("export_agenda_toast",
+      "Agenda exported. Send to {org} stakeholders before next session.",
+      { org: scoping.organizationName || "your" });
+    this._showToast(toastMsg);
+  };
+
+  /* ================================================================
      EXPOSE GLOBALLY
      ================================================================ */
   window.AssessmentApp = AssessmentApp;
+
+  // Test-only conditional export. Harmless in browsers (module is undefined).
+  if (typeof module !== "undefined" && module.exports) {
+    module.exports = {
+      AssessmentApp: AssessmentApp,
+      SOLUTIONS_BASE_URL: SOLUTIONS_BASE_URL,
+      STARTER_PRIORITY_IDS: STARTER_PRIORITY_IDS,
+      ROLE_FILTER_OPTIONS: ROLE_FILTER_OPTIONS,
+      SECTOR_OPTIONS: SECTOR_OPTIONS,
+    };
+  }
 })();

@@ -1,0 +1,50 @@
+{
+  "_metadata": {
+    "engine_version": "1.0.0",
+    "timestamp": "2026-04-18T15:00:00Z",
+    "zone": 2,
+    "manifest_version": "1.4.0",
+    "total_controls": 4,
+    "auto_scored": 4,
+    "needs_manual": 0,
+    "collector": "scoring-engine"
+  },
+  "controls": [
+    {
+      "id": "1.1",
+      "title": "Restrict Agent Publishing by Authorization",
+      "maturity_score": 4,
+      "maturity_label": "Implemented",
+      "confidence": "high",
+      "evidence": "Environment Maker not assigned to All Users; FSI publisher security group present.",
+      "status": "pass"
+    },
+    {
+      "id": "1.3",
+      "title": "Enforce Conditional Access for Copilot Studio",
+      "maturity_score": 2,
+      "maturity_label": "Partial",
+      "confidence": "high",
+      "evidence": "CA policy targets Copilot Studio app; sign-in frequency not enforced.",
+      "status": "partial"
+    },
+    {
+      "id": "2.1",
+      "title": "Establish Environment Strategy with Security Groups",
+      "maturity_score": 0,
+      "maturity_label": "Not Implemented",
+      "confidence": "high",
+      "evidence": "Production environment lacks security group assignment.",
+      "status": "fail"
+    },
+    {
+      "id": "3.1",
+      "title": "Enable Unified Audit Logging for Copilot Studio",
+      "maturity_score": null,
+      "maturity_label": "Unknown",
+      "confidence": "low",
+      "evidence": "Audit log API returned 403; cannot determine state.",
+      "status": "unknown"
+    }
+  ]
+}

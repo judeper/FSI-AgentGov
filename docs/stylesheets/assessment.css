@@ -1232,3 +1232,102 @@
   min-height: 30px;
 }
 .ag-session-timer button:hover { background: var(--md-primary-fg-color--transparent, rgba(0, 0, 0, 0.05)); }
+
+/* ================================================================
+   v1.4 Phase B — E3 Collector Evidence Import
+   ================================================================ */
+.ag-import-collector-btn::before {
+  content: "\2B07\FE0E";
+  margin-right: 0.35rem;
+  font-size: 0.85em;
+  opacity: 0.8;
+}
+.ag-imported-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 0.12rem 0.5rem;
+  border-radius: 999px;
+  background: var(--md-primary-fg-color--transparent, rgba(63, 81, 181, 0.12));
+  color: var(--md-primary-fg-color, #3f51b5);
+  border: 1px solid currentColor;
+  text-transform: uppercase;
+  cursor: help;
+}
+.ag-imported-badge::before {
+  content: "\2728";
+  margin-right: 0.3rem;
+  font-size: 0.85em;
+}
+
+/* Toast host (used by E3 import summaries / errors) */
+.ag-toast-host {
+  position: fixed;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 9999;
+  pointer-events: none;
+  max-width: min(420px, calc(100vw - 2rem));
+}
+.ag-toast {
+  pointer-events: auto;
+  padding: 0.75rem 1rem;
+  border-radius: var(--ag-radius);
+  background: var(--md-default-bg-color);
+  color: var(--md-default-fg-color);
+  border: 1px solid var(--md-default-fg-color--lighter);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  font-size: 0.9rem;
+  line-height: 1.35;
+  animation: ag-toast-in 0.25s ease-out;
+}
+.ag-toast-info { border-left: 4px solid var(--md-primary-fg-color, #3f51b5); }
+.ag-toast-error {
+  border-left: 4px solid #c62828;
+  background: #fff5f5;
+  color: #7a1414;
+}
+.ag-toast-leaving { animation: ag-toast-out 0.4s ease-in forwards; }
+@keyframes ag-toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes ag-toast-out {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(8px); }
+}
+
+/* ================================================================
+   E7 — Next Session Agenda export (toast)
+   ================================================================ */
+.ag-toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--ag-blue, #0b5fad);
+  color: #fff;
+  padding: 0.75rem 1.25rem;
+  border-radius: 6px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+  font-size: 0.95rem;
+  max-width: min(92vw, 540px);
+  z-index: 10000;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+
+.ag-toast-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+@media print {
+  .ag-toast { display: none !important; }
+}
