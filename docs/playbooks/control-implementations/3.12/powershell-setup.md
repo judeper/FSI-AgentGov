@@ -1,5 +1,8 @@
 # PowerShell Setup: Control 3.12 - Agent Governance Exception and Override Management
 
+!!! warning "Read the FSI PowerShell baseline first"
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below may show abbreviated patterns; the baseline is authoritative.
+
 **Last Updated:** April 2026
 **Prerequisites:** Microsoft.PowerApps.Administration.PowerShell module, Microsoft Graph PowerShell SDK
 **Estimated Time:** 45-60 minutes
@@ -20,18 +23,25 @@ This playbook provides PowerShell scripts for automating exception management ta
 
 ### Required PowerShell Modules
 
-Install the following modules if not already available:
+Install the following modules with versions pinned per the [PowerShell Authoring Baseline §1](../../_shared/powershell-baseline.md). Replace `<version>` with the build approved by your Change Advisory Board (CAB). The example pins below are illustrative; verify the current GA build for your tenant before each change window.
 
 ```powershell
-# Install Power Platform Administration module
-Install-Module -Name Microsoft.PowerApps.Administration.PowerShell -Scope CurrentUser -Force
+# Microsoft.Xrm.Data.PowerShell — community module for FetchXML / Dataverse on Windows PowerShell 5.1
+Install-Module -Name Microsoft.Xrm.Data.PowerShell `
+    -RequiredVersion '<version>' `
+    -Repository PSGallery -Scope CurrentUser -AllowClobber -AcceptLicense
 
-# Install Microsoft Graph PowerShell SDK
-Install-Module -Name Microsoft.Graph -Scope CurrentUser -Force
-
-# Install Microsoft Dataverse PowerShell module
-Install-Module -Name Microsoft.Xrm.Data.PowerShell -Scope CurrentUser -Force
+# Microsoft Graph SDK — only needed when validating approver identities or sending Graph mail
+Install-Module -Name Microsoft.Graph `
+    -RequiredVersion '<version>' `
+    -Repository PSGallery -Scope CurrentUser -AllowClobber -AcceptLicense
 ```
+
+!!! note "Edition requirement"
+    `Microsoft.Xrm.Data.PowerShell` runs on **Windows PowerShell 5.1 (Desktop)**. Add the edition guard from baseline §2 at the top of every script. Microsoft Graph SDK requires PowerShell 7.2+. If you mix the two, run them in separate processes — do **not** import both into the same session.
+
+!!! warning "Sovereign clouds (GCC / GCC High / DoD)"
+    Every connection example below assumes the **commercial** Dataverse endpoint. For US Government tenants, set the environment URL to your sovereign endpoint (e.g., `https://orgname.crm.appsplatform.us` for GCC High, `https://orgname.crm.microsoftdynamics.us` for DoD) and pass the matching `-Environment` value to `Connect-MgGraph` per baseline §3. Running these scripts against the wrong endpoint authenticates against commercial and returns **false-clean** results.
 
 ### Required Permissions
 
@@ -592,7 +602,10 @@ Write-Host "Script completed successfully." -ForegroundColor Cyan
 ## Script 4: Create Audit-Ready Evidence Export
 
 ### Purpose
-Generate SHA-256 hashed evidence package for regulatory examination.
+Generate a SHA-256 hashed evidence package with `manifest.json` for regulatory examination, aligned to the [PowerShell Authoring Baseline §5](../../_shared/powershell-baseline.md). The manifest records `{file, sha256, bytes, generated_utc, script_version}` for every artifact and supports chain-of-custody for SEC 17a-4(f) WORM evidence and FINRA Rule 4511 record-keeping.
+
+!!! warning "Land artifacts in WORM storage"
+    The script writes to a local directory for review, but audit-defensible evidence must land in storage configured for write-once-read-many — Microsoft Purview Data Lifecycle Management retention lock, SharePoint records center with retention label, or Azure Storage immutability policy. Local disk is **not** sufficient under SEC 17a-4(f) or FINRA Rule 4511.
 
 ### Script: Export-ExceptionAuditEvidence.ps1
 
@@ -638,14 +651,20 @@ param(
 # Import required modules
 Import-Module Microsoft.Xrm.Data.PowerShell
 
+# Edition guard (baseline §2) — Microsoft.Xrm.Data.PowerShell requires Windows PowerShell 5.1
+if ($PSVersionTable.PSEdition -ne 'Desktop') {
+    throw "This script requires Windows PowerShell 5.1 (Desktop). Detected: $($PSVersionTable.PSEdition) $($PSVersionTable.PSVersion)."
+}
+
 Write-Host "======================================" -ForegroundColor Cyan
 Write-Host "Exception Audit Evidence Export" -ForegroundColor Cyan
 Write-Host "======================================" -ForegroundColor Cyan
 
-# Create evidence directory
+# Create evidence directory + start transcript for full session capture
 $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
 $evidenceDir = Join-Path $OutputPath "ExceptionEvidence_$timestamp"
 New-Item -ItemType Directory -Path $evidenceDir -Force | Out-Null
+Start-Transcript -Path (Join-Path $evidenceDir "transcript-$timestamp.log") -IncludeInvocationHeader | Out-Null
 
 Write-Host "Evidence directory: $evidenceDir" -ForegroundColor Cyan
 
@@ -779,6 +798,25 @@ $hashFile = Join-Path $evidenceDir "SHA256_HASH.txt"
 
 Write-Host "✓ Hash verification file created" -ForegroundColor Green
 
+# Emit canonical manifest.json (baseline §5) for chain-of-custody and downstream verifiers
+$manifestPath = Join-Path $evidenceDir "manifest.json"
+$scriptVersion = "1.3.3"
+$manifestEntries = @()
+foreach ($artifact in @($exportFile, $metadataFile, $hashFile)) {
+    $artifactHash = (Get-FileHash -Path $artifact -Algorithm SHA256).Hash.ToLower()
+    $manifestEntries += [PSCustomObject]@{
+        file           = (Split-Path $artifact -Leaf)
+        sha256         = $artifactHash
+        bytes          = (Get-Item $artifact).Length
+        generated_utc  = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
+        script_version = $scriptVersion
+    }
+}
+$manifestEntries | ConvertTo-Json -Depth 5 | Set-Content -Path $manifestPath -Encoding UTF8
+Write-Host "✓ manifest.json written with SHA-256 entries for all artifacts" -ForegroundColor Green
+
+Stop-Transcript | Out-Null
+
 Write-Host ""
 Write-Host "======================================" -ForegroundColor Cyan
 Write-Host "Evidence Package Complete" -ForegroundColor Cyan
@@ -789,6 +827,8 @@ Write-Host "Files included:" -ForegroundColor Cyan
 Write-Host "  - ExceptionRegister.csv (exception data)" -ForegroundColor White
 Write-Host "  - EVIDENCE_METADATA.txt (chain of custody)" -ForegroundColor White
 Write-Host "  - SHA256_HASH.txt (integrity verification)" -ForegroundColor White
+Write-Host "  - manifest.json (canonical evidence manifest per FSI baseline §5)" -ForegroundColor White
+Write-Host "  - transcript-$timestamp.log (full PowerShell session transcript)" -ForegroundColor White
 Write-Host ""
 Write-Host "To verify file integrity later, run:" -ForegroundColor Cyan
 Write-Host "  certutil -hashfile ExceptionRegister.csv SHA256" -ForegroundColor Yellow
@@ -875,4 +915,4 @@ Register-ScheduledTask `
 
 [Back to Control 3.12](../../../controls/pillar-3-reporting/3.12-agent-governance-exception-and-override-management.md)
 
-*Updated: April 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3 | UI Verification Status: Current*
