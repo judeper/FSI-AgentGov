@@ -3,12 +3,12 @@
 **Playbook ID:** 3.13-D
 **Control:** 3.13 — Agent 365 Admin Center Analytics and Reporting
 **Pillar:** Reporting
-**Last Verified:** March 2026
+**Last Verified:** April 2026
 
 ---
 
-!!! info "Preview-Period Caveat"
-    Many issues during the Frontier Preview period result from feature changes, endpoint modifications, or tenant-specific configuration states that may differ from documented behavior. Always verify current Microsoft Learn documentation and check the Microsoft 365 Message Center for service announcements before escalating to Microsoft Support.
+!!! info "Pre-GA / Post-GA Caveat"
+    Before May 1, 2026 GA, many issues result from Frontier preview feature changes, endpoint modifications, or tenant-specific provisioning states. After GA, validate against current Microsoft Learn documentation and the Microsoft 365 Message Center for service announcements before escalating to Microsoft Support.
 
 ---
 
@@ -25,18 +25,18 @@ This playbook documents the most common issues encountered when implementing and
 **Symptom**: The "Agents" item does not appear in the M365 Admin Center left navigation, even after selecting "Show all."
 
 **Probable Causes**:
-- The signed-in account does not have the Entra Global Admin or Microsoft 365 AI Administrator role
-- The tenant does not have an active Microsoft 365 Copilot license
+- The signed-in account does not have the Entra Global Admin or AI Administrator role
+- The tenant does not have an active Microsoft 365 Copilot or Agent 365 license
 - A browser caching issue is presenting a stale navigation state
 
 **Diagnostic Steps**:
-1. Verify the signed-in account's roles: Entra Admin Center > Users > [your account] > Assigned roles. Confirm "Entra Global Admin" or "Microsoft 365 AI Administratoristrator" is listed.
-2. Verify Copilot licensing: M365 Admin Center > Billing > Licenses. Confirm Microsoft 365 Copilot licenses are present and assigned.
+1. Verify the signed-in account's roles: Entra Admin Center > Users > [your account] > Assigned roles. Confirm "Global Administrator" or "AI Administrator" is listed.
+2. Verify Copilot/Agent 365 licensing: M365 Admin Center > Billing > Licenses. Confirm Microsoft 365 Copilot or Agent 365 / Microsoft 365 E7 licenses are present and assigned.
 3. Check the M365 Message Center for any active service advisories affecting the Admin Center navigation.
 
 **Resolution**:
-1. If the account lacks the required role: have a current Global Admin assign the Microsoft 365 AI Administrator role via Entra Admin Center > Roles and administrators.
-2. If the tenant lacks Copilot licenses: the Agent 365 features require Copilot licensing. Work with your Microsoft account team to acquire appropriate licenses.
+1. If the account lacks the required role: have a current Entra Global Admin assign the AI Administrator role via Entra Admin Center > Roles and administrators. Prefer AI Administrator for least-privilege analytics access.
+2. If the tenant lacks the required licenses: Agent 365 features require Microsoft 365 Copilot or Agent 365 / Microsoft 365 E7 licensing. Engage your Microsoft account team to acquire appropriate licenses.
 3. If a caching issue is suspected: clear browser cache and cookies, open a new private browsing window, and navigate to `https://admin.microsoft.com` again.
 4. Try the direct navigation URL: `https://admin.microsoft.com/Adminportal/Home#/agents`
 
@@ -65,15 +65,16 @@ This playbook documents the most common issues encountered when implementing and
 
 ---
 
-## Issue Category 2: Hero Metrics Not Visible [Frontier Preview]
+## Issue Category 2: Hero Metrics Not Visible [Pre-GA: Frontier required]
 
 ### Issue 2.1: Hero metric cards show placeholder or are absent from the page
 
-**Symptom**: The Overview page displays the Agent Registry count but the four hero metric cards (Active Users, Total Sessions, Exception Rate, Agent Runtime) are not visible, or display a "Frontier Preview required" message.
+**Symptom**: The Overview page displays the Agent Registry count but the four hero metric cards (Active Users, Total Sessions, Exception Rate, Agent Runtime) are not visible, or display a "Frontier preview required" message.
 
 **Probable Causes**:
-- Tenant is not enrolled in the Microsoft 365 Frontier program
+- Tenant is not enrolled in the Microsoft 365 Frontier program (pre-GA)
 - Frontier enrollment is pending and not yet fully provisioned
+- Post-GA: tenant lacks Agent 365 / Microsoft 365 E7 licensing required for hero metrics
 
 **Diagnostic Steps**:
 1. Navigate to M365 Admin Center > Settings > Org settings > Microsoft 365 Insider program (or equivalent Frontier enrollment page). Confirm enrollment status.
@@ -91,22 +92,22 @@ This playbook documents the most common issues encountered when implementing and
 
 ### Issue 2.2: Exception Rate metric shows 0% or 100% unexpectedly
 
-**Symptom**: The Exception Rate hero metric displays an anomalous value — either 0% (no sessions completing successfully) or exactly 100% (implying perfect completion) — which appears inconsistent with known agent activity.
+**Symptom**: The Exception Rate hero metric (percentage of sessions completing without errors) displays an anomalous value — either 0% (no sessions completing successfully) or exactly 100% — which appears inconsistent with known agent activity.
 
 **Probable Causes**:
-- Custom agents are not instrumented with the Agent 365 Observability SDK, causing exception data to be absent from the calculation
-- A telemetry ingestion issue is affecting the exception rate denominator
-- All measured sessions have in fact completed without error (100% is possible in low-volume environments)
+- Custom agents are not instrumented with the Agent 365 Observability SDK, causing their session/error data to be absent from the calculation
+- A telemetry ingestion delay or interruption is affecting the calculation
+- All measured sessions in the window have in fact completed without error (100% is plausible in low-volume environments with stable, well-tested agents)
 
 **Diagnostic Steps**:
-1. Check Total Sessions count. If Total Sessions = 0, exception rate of 100% is mathematically indeterminate and should be treated as "no data."
-2. Review Control 3.14 implementation status: confirm custom agents have the Observability SDK implemented and ENABLE_A365_OBSERVABILITY_EXPORTER=true is set.
-3. If exception rate = 0%, check Microsoft Defender for agent-related incident alerts that may indicate a widespread failure event.
+1. Check Total Sessions count. If Total Sessions = 0, the exception rate is mathematically indeterminate and should be treated as "no data."
+2. Review Control 3.14 implementation status: confirm custom agents have the Observability SDK implemented and `ENABLE_A365_OBSERVABILITY_EXPORTER=true` is set.
+3. If exception rate = 0%, check Microsoft Defender XDR for agent-related incident alerts that may indicate a widespread reliability event.
 
 **Resolution**:
 1. If the root cause is missing SDK instrumentation: implement the Agent 365 Observability SDK per Control 3.14 and Playbook 3.14-B.
-2. If Total Sessions = 0 despite known agent usage: see Issue 2.3 below.
-3. If exception rate = 0% and Defender shows active incidents: initiate incident response procedures; do not attempt Admin Center resolution until the agent failure is understood.
+2. If Total Sessions = 0 despite known agent usage: see Issue 2.3 below (telemetry ingestion delay).
+3. If exception rate = 0% and Defender XDR shows active incidents: initiate incident response procedures; do not attempt Admin Center resolution until the underlying agent reliability issue is understood.
 
 ---
 
@@ -267,7 +268,7 @@ Set-AzStorageBlobContent -File "C:\test.txt" -Container "agent-inventory-exports
 
 | Severity | Issue Type | First Escalation | Second Escalation | Timeline |
 |---|---|---|---|---|
-| P1 — Critical | Exception rate drop > 20 percentage points; widespread agent failure | CISO + CCO immediate notification | Microsoft Support P1 ticket | Within 1 hour |
+| P1 — Critical | Exception rate drop > 20 percentage points; widespread agent reliability event | CISO + CCO immediate notification | Microsoft Support P1 ticket | Within 1 hour |
 | P2 — High | Export automation failure; agent inventory data missing from Admin Center | IT Operations Lead | Microsoft Support standard ticket | Within 4 hours |
 | P3 — Medium | Hero metrics not populating; governance card discrepancy | IT Governance Lead | Microsoft Support standard ticket | Within 1 business day |
 | P4 — Low | Navigation issues; minor UI discrepancies | IT Help Desk | IT Governance Lead | Within 3 business days |
@@ -281,10 +282,10 @@ Set-AzStorageBlobContent -File "C:\test.txt" -Container "agent-inventory-exports
 - **Microsoft 365 Message Center**: M365 Admin Center > Health > Message center (check for known issues before opening tickets)
 - **Microsoft Tech Community — M365 Admin**: `https://techcommunity.microsoft.com/t5/microsoft-365-admin/bd-p/Microsoft365Admin`
 - **Microsoft 365 Status Page**: `https://status.office.com` (check for active service incidents)
-- **FastTrack for Microsoft 365**: Contact your FastTrack Success Architect for Frontier Preview issues
+- **FastTrack for Microsoft 365**: Contact your FastTrack Success Architect for Frontier preview or post-GA Agent 365 onboarding issues
 
 ---
 
 [Back to Control 3.13](../../../controls/pillar-3-reporting/3.13-agent-365-admin-center-analytics.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md)
 
-*Updated: March 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3*

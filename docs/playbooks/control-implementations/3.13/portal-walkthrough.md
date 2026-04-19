@@ -5,12 +5,12 @@
 **Pillar:** Reporting
 **Estimated Duration:** 30–45 minutes (initial setup); 10–15 minutes (recurring review)
 **Required Role:** Entra Global Admin or Microsoft 365 AI Administrator
-**Last Verified:** March 2026
+**Last Verified:** April 2026
 
 ---
 
-!!! info "Frontier Preview — Hero Metrics"
-    The hero metrics on the Agent 365 Overview page (Active Users, Total Sessions, Exception Rate, Agent Runtime) require enrollment in the Microsoft 365 Frontier program. The Agent Registry and governance cards (Pending Requests, Ownerless Agents) are Generally Available. Steps in this playbook that require Frontier enrollment are marked **[Frontier Preview]**.
+!!! info "Hero Metrics Availability"
+    The hero metrics on the Agent 365 Overview page (Active Users, Total Sessions, Exception Rate, Agent Runtime) become Generally Available on **May 1, 2026** for tenants with Agent 365 or Microsoft 365 E7 licensing. Tenants enrolled in the Microsoft 365 Frontier preview program can access these metrics today. The Agent Registry and governance cards (Pending Requests, Ownerless Agents) are already Generally Available. Steps that depend on hero metrics are marked **[Pre-GA: Frontier required]**.
 
 ---
 
@@ -72,10 +72,10 @@ Before beginning this walkthrough, confirm the following:
 
 ---
 
-## Step 4: Review Hero Metrics [Frontier Preview]
+## Step 4: Review Hero Metrics [Pre-GA: Frontier required]
 
-!!! info "Frontier Preview"
-    Steps 4.1–4.5 require Frontier program enrollment. If your tenant is not yet enrolled in Frontier, skip to Step 5.
+!!! info "Availability"
+    Steps 4.1–4.5 require Frontier enrollment before May 1, 2026 GA. From May 1, 2026, hero metrics are available to all tenants with Agent 365 / Microsoft 365 E7 licensing. If your tenant has neither, skip to Step 5.
 
 **4.1** On the Overview page, locate the four hero metric cards:
 - **Active Users**: unique users who interacted with at least one agent in the last 30 days
@@ -85,10 +85,11 @@ Before beginning this walkthrough, confirm the following:
 
 **4.2** Record all four metric values in your supervisory review log.
 
-**4.3** Exception Rate Assessment:
-- If exception rate is **above 95%**: within normal operating range. Note the value.
+**4.3** Exception Rate Assessment (Exception Rate = % of sessions that completed without errors; higher is better):
+
+- If exception rate is **at or above 95%**: within normal operating range. Note the value.
 - If exception rate has **declined 5 or more percentage points** since last review: flag as anomaly. Create a remediation ticket and notify the IT governance lead and affected agent owners. Do not close the review without documenting the alert.
-- If exception rate is **below 85%**: escalate to CISO and CCO immediately. Treat as a potential systemic agent failure event.
+- If exception rate is **below 85%**: escalate to the CISO and CCO immediately. Treat as a potential systemic agent reliability event.
 
 **4.4** Active Users and Total Sessions Assessment:
 - Unexplained spikes in Active Users or Total Sessions may indicate unauthorized agent usage or a misconfigured agent generating automated sessions. Flag significant anomalies (greater than 20% week-over-week change) for investigation.
@@ -184,11 +185,11 @@ Example: `AgentInventory_ContosoCapital_20260322.csv`
 
 ---
 
-## Step 8: Review Researcher Computer Use Configuration [Frontier Preview]
+## Step 8: Review Researcher Computer Use Configuration [Pre-GA: Frontier required]
 
 **8.1** If your firm has deployed the Researcher agent with Computer Use capability:
 
-**8.2** In the Agents submenu, select **"Researcher"** > **"Computer Use"** (if visible — Frontier only).
+**8.2** In the Agents submenu, select **"Researcher"** > **"Computer Use"** (visible only on Frontier-enrolled tenants pre-GA, or on any tenant after May 1, 2026 if the Researcher with Computer Use feature is licensed and enabled).
 
 **8.3** Review the allowed websites list and excluded websites list. Confirm that:
 - Allowed websites are limited to business-approved sources.
@@ -205,7 +206,7 @@ Example: `AgentInventory_ContosoCapital_20260322.csv`
 - Reviewer name and title
 - Tenant name and environment (production/test)
 - Agent Registry count (current and prior period comparison)
-- Hero metric values if Frontier-enrolled (Active Users, Sessions, Exception Rate, Runtime)
+- Hero metric values where available (Active Users, Sessions, Exception Rate, Runtime)
 - Exception rate assessment (normal/anomaly/escalated)
 - Pending request count and disposition actions taken
 - Ownerless agent count and remediation actions taken
@@ -232,7 +233,7 @@ Example: `AgentInventory_ContosoCapital_20260322.csv`
 
 - [ ] Successfully accessed Agent 365 Overview page
 - [ ] Agent Registry count recorded
-- [ ] Hero metrics reviewed and recorded (if Frontier-enrolled)
+- [ ] Hero metrics reviewed and recorded (where available)
 - [ ] Exception rate assessed against threshold criteria
 - [ ] Pending requests reviewed and dispositioned within SLA
 - [ ] Ownerless agents reviewed and ownership assignment initiated if applicable
@@ -246,4 +247,4 @@ Example: `AgentInventory_ContosoCapital_20260322.csv`
 
 [Back to Control 3.13](../../../controls/pillar-3-reporting/3.13-agent-365-admin-center-analytics.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
-*Updated: March 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3*

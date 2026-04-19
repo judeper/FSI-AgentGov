@@ -4,8 +4,8 @@
 **Control:** 3.13 — Agent 365 Admin Center Analytics and Reporting
 **Pillar:** Reporting
 **Estimated Duration:** 1–2 hours
-**Required Role:** Entra Global Admin or Microsoft 365 AI Administrator; Internal Audit (for attestation)
-**Last Verified:** March 2026
+**Required Role:** Entra Global Admin or AI Administrator; Internal Audit (for attestation)
+**Last Verified:** April 2026
 
 ---
 
@@ -34,7 +34,7 @@ Verification testing for Control 3.13 confirms that:
 **Test Steps**:
 
 **T1.1 — Authorized Access Test**
-1. Sign in to the M365 Admin Center with a Entra Global Admin account.
+1. Sign in to the M365 Admin Center with an Entra Global Admin account.
 2. Navigate to Agents > Overview.
 3. Confirm the page loads and displays the Agent Registry count.
 4. Record: page load time, Agent Registry count, and any error messages.
@@ -42,11 +42,11 @@ Verification testing for Control 3.13 confirms that:
 Expected Result: Page loads successfully. Agent Registry count displays a non-zero value if agents are deployed.
 
 **T1.2 — AI Administrator Role Test**
-1. Sign in with an account that has only the Microsoft 365 AI Administrator role (not Global Admin).
+1. Sign in with an account that has only the AI Administrator role (not Entra Global Admin).
 2. Navigate to Agents > Overview.
 3. Confirm the page loads and displays data.
 
-Expected Result: Page loads successfully. AI Administrator role has sufficient privileges.
+Expected Result: Page loads successfully. AI Administrator has sufficient privileges for analytics review (per the Agent 365 GA role limitations).
 
 **T1.3 — Unauthorized Access Test**
 1. Sign in with a standard Microsoft 365 user account (no admin roles).
@@ -61,12 +61,12 @@ Expected Result: User is either redirected away from the admin center or cannot 
 
 ---
 
-## Test 2: Hero Metrics Population Verification [Frontier Preview]
+## Test 2: Hero Metrics Population Verification [Pre-GA: Frontier required]
 
 **Test Objective**: Confirm that hero metrics are displaying real data (not zeros or placeholder values) from agent telemetry.
 
-!!! info "Frontier Prerequisite"
-    This test requires Frontier program enrollment. If not enrolled, document this test as N/A and record the planned Frontier enrollment date.
+!!! info "Availability"
+    Before May 1, 2026, this test requires Frontier program enrollment. From May 1, 2026 GA, hero metrics are available to all tenants with Agent 365 / Microsoft 365 E7 licensing. If neither applies, document this test as N/A and record the planned licensing or enrollment date.
 
 **Test Steps**:
 
@@ -279,17 +279,17 @@ Expected Result: Log entries are present at the required cadence. Gaps, if any, 
    - [ ] Agent Registry count
    - [ ] Pending requests count and disposition actions
    - [ ] Ownerless agents count and remediation actions
-   - [ ] Exception rate value (if Frontier-enrolled)
+   - [ ] Exception rate value (where available)
    - [ ] Export filename and storage location (for review sessions that included an export)
    - [ ] Any anomalies identified and follow-up actions
 
 Expected Result: All three sampled log entries contain the required elements.
 
 **T6.4 — Reviewer Authorization Verification**
-1. For each sampled log entry, confirm the listed reviewer holds the Entra Global Admin or AI Administrator role in Entra.
+1. For each sampled log entry, confirm the listed reviewer holds the Entra Global Admin or AI Administrator role.
 2. Verify via Entra admin center: Users > [reviewer name] > Assigned roles.
 
-Expected Result: All reviewers hold an authorized role. Log entries from users without appropriate roles should be treated as a control deficiency.
+Expected Result: All reviewers hold an authorized role. Log entries from users without an authorized role should be treated as a control deficiency.
 
 **Evidence to Record**:
 - Screenshot or export of supervisory review log showing entry dates
@@ -329,4 +329,4 @@ Retain this completed attestation form as a business record. For Zone 3 firms, r
 
 [Back to Control 3.13](../../../controls/pillar-3-reporting/3.13-agent-365-admin-center-analytics.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md)
 
-*Updated: March 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3*
