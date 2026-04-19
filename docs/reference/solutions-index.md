@@ -14,6 +14,16 @@ This file is intentionally folder-driven to reduce drift: live solution implemen
 
 *Control coverage listed below reflects the primary controls published with each live solution.*
 
+## Coverage scope
+
+Not all 78 controls have a companion solution in FSI-AgentGov-Solutions. Solution mapping is selective by design.
+
+Companion solutions are published when dedicated automation adds value beyond what Microsoft's native admin surfaces already provide. Many controls are operated entirely via native admin surfaces — Microsoft Purview, Entra ID, and the Power Platform Admin Center — and verified by the framework's own assessment-engine collectors rather than by a standalone solution.
+
+Each control's `automation` field in [`assessment/manifest/controls.json`](https://github.com/judeper/FSI-AgentGov/blob/main/assessment/manifest/controls.json) (`full`, `partial`, or `manual`) describes verification feasibility independent of whether a companion solution exists. A control can be fully automated through collectors without needing a dedicated solution folder.
+
+Absence of a control from this catalog is not a coverage gap — it reflects the framework's selective-mapping principle, which helps keep the companion repository focused on automation that supports outcomes the native surfaces do not deliver on their own.
+
 ## Live Inventory (35 Solutions)
 
 | Solution | Repository folder | Version | Primary controls | Summary |

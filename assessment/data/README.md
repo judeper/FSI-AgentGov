@@ -30,6 +30,27 @@ python scripts/refresh_solutions_lock.py --tag v1.4.0
 The refresh script verifies `schemaVersion` starts with `1.4.` and
 that the expected solution count and required IDs are present.
 
+### Coverage scope
+
+The lock file maps the **subset of controls that have a dedicated
+companion solution** in FSI-AgentGov-Solutions (35 today out of the
+framework's 78 controls). It is not intended to be a 1:1 mirror of
+the control catalog.
+
+Many controls have an empty `solutions[]` array in
+`assessment/manifest/controls.json`. This reflects the framework's
+**selective-mapping principle**: not all controls warrant a dedicated
+companion automation. Many are fully operated via native Microsoft
+admin surfaces (Entra, Purview, Power Platform Admin Center,
+SharePoint Admin) and are verified by the framework's collectors.
+An empty `solutions[]` is by-design, not a backlog item.
+
+Consult each control's `automation` field (`full` / `partial` /
+`manual`) for verification feasibility, and the corresponding control
+doc under `docs/controls/` for native-admin guidance. For the full
+catalog and coverage rationale, see
+`docs/reference/solutions-index.md` (Coverage scope section).
+
 ### Schema (1.4.x)
 
 ```json

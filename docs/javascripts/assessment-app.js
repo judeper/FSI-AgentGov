@@ -182,9 +182,47 @@
 
   AssessmentApp.prototype.init = function () {
     var self = this;
+    this._bindMaterialSearchGuard();
     this.loadData().then(function () {
       self.render();
     });
+  };
+
+  /**
+   * Edit F — Prevent Material for MkDocs' global search shortcuts (s, /, f)
+   * from stealing focus while the user is typing into an assessment field.
+   *
+   * Material binds these shortcuts on the document via a bubble-phase keydown
+   * listener. We attach a CAPTURE-phase listener on the assessment container
+   * so we see the event first; if the target is an editable element inside
+   * the SPA, we stopPropagation() so Material's handler never fires. We
+   * deliberately do NOT call preventDefault() — the keystroke must still
+   * reach the input so the character gets typed.
+   */
+  AssessmentApp.prototype._bindMaterialSearchGuard = function () {
+    if (!this.el || this._searchGuardBound) return;
+    var container = this.el;
+    var TRIGGER_KEYS = { "s": true, "/": true, "f": true };
+    var handler = function (event) {
+      var key = event.key;
+      if (!key || !TRIGGER_KEYS[key.toLowerCase()]) return;
+      // Ignore when modifier keys are pressed (real shortcuts like Ctrl+F).
+      if (event.ctrlKey || event.metaKey || event.altKey) return;
+      var target = event.target;
+      if (!target || !target.matches) return;
+      var isEditable =
+        target.matches("input, textarea, select") ||
+        target.isContentEditable ||
+        (target.closest && target.closest("[contenteditable='true']"));
+      if (!isEditable) return;
+      if (!container.contains(target)) return;
+      // Block Material's global handler; keep default behavior so the key
+      // is typed into the field normally.
+      event.stopPropagation();
+    };
+    container.addEventListener("keydown", handler, true);
+    this._searchGuardHandler = handler;
+    this._searchGuardBound = true;
   };
 
   AssessmentApp.prototype.destroy = function () {
@@ -192,6 +230,11 @@
     this.charts = [];
     this._observers.forEach(function (o) { try { o.disconnect(); } catch (e) { /* */ } });
     this._observers = [];
+    if (this._searchGuardBound && this.el && this._searchGuardHandler) {
+      this.el.removeEventListener("keydown", this._searchGuardHandler, true);
+      this._searchGuardBound = false;
+      this._searchGuardHandler = null;
+    }
   };
 
   AssessmentApp.prototype.loadData = function () {
@@ -531,7 +574,7 @@
           solSec.appendChild(h("span", {
             className: "ag-solution-chip-pending",
             title: sid,
-          }, sid + " " + t("drawer.solutionPending", "(solution pending)")));
+          }, sid + " " + t("drawer.solutionPending", "(no companion solution by design)")));
         }
       });
       wrap.appendChild(solSec);
@@ -1725,11 +1768,25 @@
     this.applyZoneExclusions();
 
     // Progress
-    var answered = Object.keys(this.state.responses).length;
+    // Edit H — split label into user-answered vs auto-N/A. Bar fill is
+    // unchanged: auto-N/A still counts toward "completed" for scoping.
+    var responses = this.state.responses || {};
+    var responseKeys = Object.keys(responses);
+    var answered = responseKeys.length;
     var total = this.data.controls.length;
     var pct = Math.round((answered / total) * 100);
-    var progressText = h("div", { className: "ag-progress-text" },
-      answered + " of " + total + " controls answered (" + pct + "%)");
+    var userCount = 0;
+    var autoNaCount = 0;
+    responseKeys.forEach(function (k) {
+      var r = responses[k];
+      if (!r || !r.answer) return;
+      if (r.autoNa) { autoNaCount++; } else { userCount++; }
+    });
+    var remaining = total - userCount - autoNaCount;
+    if (remaining < 0) remaining = 0;
+    var labelText = "Answered: " + userCount + " user / " + autoNaCount +
+      " auto-N/A \u2014 " + remaining + " remaining";
+    var progressText = h("div", { className: "ag-progress-text" }, labelText);
     wrap.appendChild(progressText);
     var progress = h("div", { className: "ag-progress" });
     progress.appendChild(h("div", {
@@ -2240,10 +2297,24 @@
   };
 
   AssessmentApp.prototype.updateProgress = function () {
-    var answered = Object.keys(this.state.responses).length;
+    // Edit H — split label into user-answered vs auto-N/A. Bar fill is
+    // unchanged: auto-N/A still counts toward "completed" for scoping.
+    var responses = this.state.responses || {};
+    var responseKeys = Object.keys(responses);
+    var answered = responseKeys.length;
     var total = this.data.controls.length;
     var pct = Math.round((answered / total) * 100);
-    var msg = answered + " of " + total + " controls answered (" + pct + "%)";
+    var userCount = 0;
+    var autoNaCount = 0;
+    responseKeys.forEach(function (k) {
+      var r = responses[k];
+      if (!r || !r.answer) return;
+      if (r.autoNa) { autoNaCount++; } else { userCount++; }
+    });
+    var remaining = total - userCount - autoNaCount;
+    if (remaining < 0) remaining = 0;
+    var msg = "Answered: " + userCount + " user / " + autoNaCount +
+      " auto-N/A \u2014 " + remaining + " remaining";
     var txt = this.el.querySelector(".ag-progress-text");
     if (txt) txt.textContent = msg;
     var bar = this.el.querySelector(".ag-progress-bar");
@@ -3595,7 +3666,7 @@
         lines.push("");
         var solutionIds = Array.isArray(c.solutions) ? c.solutions : [];
         if (!solutionIds.length) {
-          lines.push("- _No solution mapped yet for this control._");
+          lines.push("- _No companion solution by design — see the control doc for native-admin coverage._");
         } else {
           solutionIds.forEach(function (sid) {
             var sol = lockSolutions[sid];
@@ -3608,7 +3679,7 @@
                 (desc ? " \u2014 " + desc : ""));
               lines.push("    Link: " + SOLUTIONS_BASE_URL + sid + "/");
             } else {
-              lines.push("- _" + sid + "_ (solution pending \u2014 not yet in lock file)");
+              lines.push("- _" + sid + "_ (no companion solution by design)");
             }
           });
         }

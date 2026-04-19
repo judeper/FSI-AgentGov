@@ -322,7 +322,10 @@
   flex-wrap: wrap;
 }
 .ag-answer-btn {
-  padding: 0.5rem 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
   min-height: 44px;
   min-width: 44px;
   border: 1px solid var(--md-default-fg-color--lightest);
@@ -330,8 +333,14 @@
   background: var(--md-default-bg-color);
   color: var(--md-default-fg-color);
   font-size: 0.82rem;
+  line-height: 1.2;
   cursor: pointer;
   transition: all 0.15s;
+}
+/* Edit G — ensure clicks on inner text/icons bubble to the button itself
+   so the entire pill area is clickable, not just the text glyphs. */
+.ag-answer-btn > * {
+  pointer-events: none;
 }
 .ag-answer-btn:hover { border-color: var(--md-primary-fg-color); }
 .ag-answer-btn.selected {
