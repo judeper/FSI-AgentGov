@@ -1,4 +1,7 @@
-# Control 4.4: Guest and External User Access Controls - PowerShell Setup
+# Control 4.4: Guest and External User Access Controls — PowerShell Setup
+
+!!! warning "Read the FSI PowerShell baseline first"
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show the abbreviated patterns; the baseline is authoritative.
 
 > This playbook provides PowerShell automation guidance for [Control 4.4](../../../controls/pillar-4-sharepoint/4.4-guest-and-external-user-access-controls.md).
 
@@ -6,27 +9,55 @@
 
 ## Prerequisites
 
+| Module | Purpose | Pinning guidance |
+|--------|---------|------------------|
+| `Microsoft.Online.SharePoint.PowerShell` | Tenant + site sharing configuration | Pin to a CAB-approved version; some cmdlets behave differently on PS 5.1 vs PS 7 (verify per the baseline) |
+| `Microsoft.Graph.Users` | Replacement for retired `Remove-SPOExternalUser` | Pin to the meta-module minor version used elsewhere in your tenant |
+| `ExchangeOnlineManagement` | `Search-UnifiedAuditLog` for sharing-event audit | Pin and use session-paginated queries (5,000-record limit) |
+
 ```powershell
-# Install SharePoint Online Management Shell
-Install-Module -Name Microsoft.Online.SharePoint.PowerShell -Force
+# Use the canonical pinned-install pattern from the FSI baseline.
+# Replace <version> with the version approved by your CAB.
+Install-Module -Name Microsoft.Online.SharePoint.PowerShell `
+    -RequiredVersion '<version>' -Repository PSGallery -Scope CurrentUser -AllowClobber -AcceptLicense
+Install-Module -Name Microsoft.Graph.Users `
+    -RequiredVersion '<version>' -Repository PSGallery -Scope CurrentUser -AllowClobber -AcceptLicense
+Install-Module -Name ExchangeOnlineManagement `
+    -RequiredVersion '<version>' -Repository PSGallery -Scope CurrentUser -AllowClobber -AcceptLicense
 ```
 
 ---
 
-## Connect to SharePoint Online
+## Sovereign-aware connection (Commercial / GCC / GCC High / DoD)
+
+Per the baseline, sovereign-cloud tenants must pass explicit endpoint parameters or risk **false-clean evidence** from queries hitting the wrong cloud.
 
 ```powershell
-# Connect to SharePoint Online Admin Center
-$adminUrl = "https://contoso-admin.sharepoint.com"
-Connect-SPOService -Url $adminUrl
+param(
+    [Parameter(Mandatory)] [string]$TenantName,                 # e.g., "contoso" -> contoso-admin.sharepoint.com
+    [ValidateSet('Commercial','GCC','GCCHigh','DoD')] [string]$Cloud = 'Commercial'
+)
+
+# SharePoint admin URL pattern by cloud (verify on Microsoft Learn for current values)
+$adminHost = switch ($Cloud) {
+    'Commercial' { "$TenantName-admin.sharepoint.com" }
+    'GCC'        { "$TenantName-admin.sharepoint.com" }
+    'GCCHigh'    { "$TenantName-admin.sharepoint.us" }
+    'DoD'        { "$TenantName-admin.dps.mil" }
+}
+Connect-SPOService -Url "https://$adminHost"
+
+# Microsoft Graph connection for guest user lifecycle
+$graphEnv = @{ Commercial='Global'; GCC='USGov'; GCCHigh='USGovDoD'; DoD='USGovDoD' }[$Cloud]
+Connect-MgGraph -Environment $graphEnv -Scopes 'User.ReadWrite.All','Directory.Read.All'
 ```
 
 ---
 
-## Get Tenant Sharing Settings
+## Read-only inventory (safe to run anytime)
 
 ```powershell
-# Get current tenant-level sharing configuration
+# Tenant-level sharing posture
 Get-SPOTenant | Select-Object `
     SharingCapability, `
     SharingDomainRestrictionMode, `
@@ -36,238 +67,193 @@ Get-SPOTenant | Select-Object `
     DefaultLinkPermission, `
     RequireAnonymousLinksExpireInDays, `
     ExternalUserExpirationRequired, `
-    ExternalUserExpireInDays
+    ExternalUserExpireInDays, `
+    PreventExternalUsersFromResharing, `
+    CoreDefaultShareLinkScope, `
+    OneDriveDefaultShareLinkScope
+
+# Per-site posture for an inventoried subset
+$sites = Import-Csv -Path '.\zone3-sites.csv'  # Url,Zone columns
+$sites | ForEach-Object {
+    Get-SPOSite -Identity $_.Url -ErrorAction SilentlyContinue |
+        Select-Object Url, SharingCapability, DisableSharingForNonOwnersStatus, ExternalUserExpirationInDays
+} | Export-Csv -Path ".\evidence\4.4\site-posture-$(Get-Date -Format 'yyyyMMdd').csv" -NoTypeInformation
 ```
+
+!!! note "`CoreDefaultShareLinkScope` and `OneDriveDefaultShareLinkScope`"
+    Newer SharePoint tenants expose `CoreDefaultShareLinkScope` and `OneDriveDefaultShareLinkScope` as the modern replacements for `DefaultSharingLinkType`. Both values are surfaced through `Get-SPOTenant`. Inspect both when documenting baseline state — Microsoft is gradually transitioning configuration semantics from the legacy parameter to the scoped parameters.
 
 ---
 
-## Set Tenant Sharing Settings
+## Tenant-level configuration (mutating — requires change control)
+
+This is a **tenant-affecting** mutation. Follow the baseline's mutation-safety pattern: declare `SupportsShouldProcess`, snapshot state before changes, run with `-WhatIf` first, and emit hashed evidence.
 
 ```powershell
-# Configure restrictive tenant-level sharing for regulated environments
-Set-SPOTenant `
-    -SharingCapability ExistingExternalUserSharingOnly `
-    -DefaultSharingLinkType Internal `
-    -DefaultLinkPermission View `
-    -RequireAnonymousLinksExpireInDays 30 `
-    -ExternalUserExpirationRequired $true `
-    -ExternalUserExpireInDays 30 `
-    -PreventExternalUsersFromResharing $true
-
-# Optional: Configure domain restrictions for approved partners
-Set-SPOTenant `
-    -SharingDomainRestrictionMode AllowList `
-    -SharingAllowedDomainList "approvedpartner.com trustedvendor.com"
-```
-
----
-
-## Get Site-Level Sharing Settings
-
-```powershell
-# Get sharing settings for a specific site
-$siteUrl = "https://contoso.sharepoint.com/sites/YourSite"
-Get-SPOSite -Identity $siteUrl | Select-Object `
-    Url, `
-    SharingCapability, `
-    DisableSharingForNonOwnersStatus, `
-    SharingAllowedDomainList, `
-    SharingBlockedDomainList, `
-    ExternalUserExpirationInDays
-
-# Get sharing settings for all sites
-Get-SPOSite -Limit All | Select-Object Url, SharingCapability |
-    Export-Csv -Path "SiteSharingSettings.csv" -NoTypeInformation
-```
-
----
-
-## Set Site-Level Sharing Settings
-
-```powershell
-# Zone 3 (Enterprise managed): Disable external sharing completely
-Set-SPOSite -Identity "https://contoso.sharepoint.com/sites/RegulatedSite" `
-    -SharingCapability Disabled
-
-# Zone 2 (Team collaboration): Restrict to existing guests only
-Set-SPOSite -Identity "https://contoso.sharepoint.com/sites/CollaborationSite" `
-    -SharingCapability ExistingExternalUserSharingOnly `
-    -DisableSharingForNonOwnersStatus $true `
-    -ExternalUserExpirationInDays 30
-
-# Zone 1 (Personal productivity): Allow new guests with controls
-Set-SPOSite -Identity "https://contoso.sharepoint.com/sites/PersonalSite" `
-    -SharingCapability ExternalUserSharingOnly `
-    -ExternalUserExpirationInDays 90
-```
-
----
-
-## Bulk Configure Regulated Sites
-
-```powershell
-# Import regulated sites and disable external sharing
-$regulatedSites = Import-Csv -Path "RegulatedSites.csv"
-
-foreach ($site in $regulatedSites) {
-    Write-Host "Configuring regulated site: $($site.Url)" -ForegroundColor Yellow
-    Set-SPOSite -Identity $site.Url -SharingCapability Disabled
-    Write-Host "External sharing disabled for: $($site.Url)" -ForegroundColor Green
-}
-```
-
----
-
-## Export Guest Access Configuration
-
-```powershell
-# Export comprehensive guest access audit report
-$allSites = Get-SPOSite -Limit All
-$guestAccessReport = @()
-
-foreach ($site in $allSites) {
-    $guestAccessReport += [PSCustomObject]@{
-        SiteUrl = $site.Url
-        SharingCapability = $site.SharingCapability
-        ExternalUserExpiration = $site.ExternalUserExpirationInDays
-        NonOwnerSharingDisabled = $site.DisableSharingForNonOwnersStatus
-        Template = $site.Template
-        Owner = $site.Owner
-    }
-}
-
-$guestAccessReport | Export-Csv -Path "GuestAccessConfiguration_$(Get-Date -Format 'yyyyMMdd').csv" -NoTypeInformation
-Write-Host "Guest access configuration exported successfully" -ForegroundColor Green
-```
-
----
-
-## Audit Guest Access
-
-```powershell
-# Get all external users across the tenant
-Get-SPOExternalUser -PageSize 50 | Select-Object `
-    DisplayName, `
-    Email, `
-    AcceptedAs, `
-    WhenCreated, `
-    InvitedBy | Export-Csv -Path "ExternalUsers_$(Get-Date -Format 'yyyyMMdd').csv" -NoTypeInformation
-
-# Get external users for a specific site
-$siteUrl = "https://contoso.sharepoint.com/sites/YourSite"
-Get-SPOExternalUser -SiteUrl $siteUrl | Select-Object DisplayName, Email, AcceptedAs, WhenCreated
-
-# Remove expired or unauthorized external users (requires Microsoft Graph PowerShell)
-# Note: Remove-SPOExternalUser was deprecated July 2024
-$externalUser = Get-MgUser -Filter "userType eq 'Guest' and mail eq 'user@external.com'"
-Remove-MgUser -UserId $externalUser.Id -Confirm:$false
-```
-
----
-
-## Complete Configuration Script
-
-```powershell
-<#
-.SYNOPSIS
-    Configures Control 4.4 - Guest and External User Access Controls
-
-.DESCRIPTION
-    This script configures external sharing settings:
-    1. Sets tenant-level sharing restrictions
-    2. Configures site-level sharing for regulated sites
-    3. Exports guest access audit report
-
-.PARAMETER AdminUrl
-    SharePoint Admin Center URL
-
-.PARAMETER RegulatedSitesFile
-    Path to CSV file containing regulated site URLs
-
-.EXAMPLE
-    .\Configure-Control-4.4.ps1 -AdminUrl "https://contoso-admin.sharepoint.com" -RegulatedSitesFile ".\RegulatedSites.csv"
-
-.NOTES
-    Last Updated: January 2026
-    Related Control: Control 4.4 - Guest and External User Access Controls
-#>
-
+[CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]
 param(
-    [Parameter(Mandatory=$true)]
-    [string]$AdminUrl,
-
-    [Parameter(Mandatory=$false)]
-    [string]$RegulatedSitesFile
+    [Parameter(Mandatory)] [string]$AdminUrl,
+    [string]$EvidencePath = '.\evidence\4.4'
 )
 
-try {
-    # Connect to SharePoint Online
-    Write-Host "Connecting to SharePoint Online..." -ForegroundColor Cyan
-    Connect-SPOService -Url $AdminUrl
+$ErrorActionPreference = 'Stop'
+New-Item -ItemType Directory -Force -Path $EvidencePath | Out-Null
+$ts = Get-Date -Format 'yyyyMMdd-HHmmss'
+Start-Transcript -Path "$EvidencePath\tenant-mutation-$ts.log" -IncludeInvocationHeader
 
-    Write-Host "Configuring Control 4.4 Guest Access Controls" -ForegroundColor Cyan
+Connect-SPOService -Url $AdminUrl
 
-    # Get current tenant settings
-    Write-Host "`nRetrieving tenant sharing settings..." -ForegroundColor Yellow
-    $tenantSettings = Get-SPOTenant
-    Write-Host "  Current sharing capability: $($tenantSettings.SharingCapability)" -ForegroundColor Green
+# Snapshot BEFORE mutating (rollback evidence)
+$before = Get-SPOTenant
+$before | ConvertTo-Json -Depth 10 | Set-Content "$EvidencePath\tenant-before-$ts.json"
 
-    # If regulated sites file provided, disable external sharing
-    if ($RegulatedSitesFile -and (Test-Path $RegulatedSitesFile)) {
-        Write-Host "`nConfiguring regulated sites..." -ForegroundColor Yellow
-        $regulatedSites = Import-Csv -Path $RegulatedSitesFile
+if ($PSCmdlet.ShouldProcess($AdminUrl, 'Apply Control 4.4 tenant sharing baseline')) {
+    Set-SPOTenant `
+        -SharingCapability ExistingExternalUserSharingOnly `
+        -DefaultSharingLinkType Direct `
+        -DefaultLinkPermission View `
+        -RequireAnonymousLinksExpireInDays 30 `
+        -ExternalUserExpirationRequired $true `
+        -ExternalUserExpireInDays 30 `
+        -PreventExternalUsersFromResharing $true
+}
 
-        foreach ($site in $regulatedSites) {
-            try {
-                Set-SPOSite -Identity $site.Url -SharingCapability Disabled
-                Write-Host "  [DONE] External sharing disabled: $($site.Url)" -ForegroundColor Green
-            }
-            catch {
-                Write-Host "  [FAIL] $($site.Url): $($_.Exception.Message)" -ForegroundColor Red
+# Snapshot AFTER + integrity hash
+$after = Get-SPOTenant
+$afterPath = "$EvidencePath\tenant-after-$ts.json"
+$after | ConvertTo-Json -Depth 10 | Set-Content $afterPath
+$hash = (Get-FileHash -Path $afterPath -Algorithm SHA256).Hash
+"{ ""file"": ""$(Split-Path $afterPath -Leaf)"", ""sha256"": ""$hash"", ""generated_utc"": ""$ts"" }" |
+    Add-Content -Path "$EvidencePath\manifest.json"
+
+Stop-Transcript
+```
+
+!!! danger "Always run with -WhatIf first"
+    `Set-SPOTenant -SharingCapability` propagates within minutes and can disconnect active guest sessions on every site that previously inherited a more permissive value. Run with `-WhatIf`, communicate the change window, and have a rollback plan that re-applies the snapshot file.
+
+### Optional: domain allow-list
+
+```powershell
+# Run AFTER the SharingCapability change has propagated (typically 5-15 minutes)
+Set-SPOTenant `
+    -SharingDomainRestrictionMode AllowList `
+    -SharingAllowedDomainList 'approvedpartner.com trustedvendor.com regulator.gov'
+```
+
+---
+
+## Site-level configuration per zone
+
+```powershell
+[CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]
+param(
+    [Parameter(Mandatory)] [string]$SiteCsvPath,    # Columns: Url, Zone
+    [string]$EvidencePath = '.\evidence\4.4'
+)
+
+$sites = Import-Csv -Path $SiteCsvPath
+$ts = Get-Date -Format 'yyyyMMdd-HHmmss'
+$results = @()
+
+foreach ($row in $sites) {
+    try {
+        $before = Get-SPOSite -Identity $row.Url -ErrorAction Stop
+        $action = switch ($row.Zone) {
+            '3' { @{ SharingCapability = 'Disabled' } }
+            '2' { @{ SharingCapability = 'ExistingExternalUserSharingOnly'; ExternalUserExpirationInDays = 30; DisableSharingForNonOwnersStatus = $true } }
+            '1' { @{ SharingCapability = 'ExternalUserSharingOnly'; ExternalUserExpirationInDays = 90 } }
+            default { $null }
+        }
+        if (-not $action) { continue }
+
+        if ($PSCmdlet.ShouldProcess($row.Url, "Apply Zone $($row.Zone) sharing baseline")) {
+            Set-SPOSite -Identity $row.Url @action
+            $after = Get-SPOSite -Identity $row.Url
+            $results += [pscustomobject]@{
+                Url = $row.Url; Zone = $row.Zone
+                Before = $before.SharingCapability; After = $after.SharingCapability
+                Status = 'Applied'
             }
         }
-    }
-
-    # Export guest access audit report
-    Write-Host "`nExporting guest access configuration..." -ForegroundColor Yellow
-    $allSites = Get-SPOSite -Limit All
-    $guestAccessReport = @()
-
-    foreach ($site in $allSites) {
-        $guestAccessReport += [PSCustomObject]@{
-            SiteUrl = $site.Url
-            SharingCapability = $site.SharingCapability
-            ExternalUserExpiration = $site.ExternalUserExpirationInDays
-            NonOwnerSharingDisabled = $site.DisableSharingForNonOwnersStatus
-            Template = $site.Template
+    } catch {
+        $results += [pscustomobject]@{
+            Url = $row.Url; Zone = $row.Zone
+            Before = $null; After = $null
+            Status = "Failed: $($_.Exception.Message)"
         }
     }
-
-    $guestAccessReport | Export-Csv -Path "GuestAccessConfiguration_$(Get-Date -Format 'yyyyMMdd').csv" -NoTypeInformation
-
-    # Summary
-    $disabledCount = ($allSites | Where-Object { $_.SharingCapability -eq "Disabled" }).Count
-    $externalCount = ($allSites | Where-Object { $_.SharingCapability -ne "Disabled" }).Count
-
-    Write-Host "`nGuest Access Summary:" -ForegroundColor Cyan
-    Write-Host "  Total sites: $($allSites.Count)" -ForegroundColor Green
-    Write-Host "  External sharing disabled: $disabledCount" -ForegroundColor Green
-    Write-Host "  External sharing enabled: $externalCount" -ForegroundColor $(if ($externalCount -gt 0) { "Yellow" } else { "Green" })
-
-    Write-Host "`n[PASS] Control 4.4 configuration completed successfully" -ForegroundColor Green
 }
-catch {
-    Write-Host "[FAIL] Error: $($_.Exception.Message)" -ForegroundColor Red
-    Write-Host "[INFO] Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Yellow
-    exit 1
+
+$out = "$EvidencePath\site-changes-$ts.csv"
+$results | Export-Csv -Path $out -NoTypeInformation
+"{ ""file"": ""$(Split-Path $out -Leaf)"", ""sha256"": ""$((Get-FileHash $out -Algorithm SHA256).Hash)"", ""generated_utc"": ""$ts"" }" |
+    Add-Content -Path "$EvidencePath\manifest.json"
+```
+
+---
+
+## Guest user inventory and lifecycle
+
+`Remove-SPOExternalUser` was retired by Microsoft on **July 29, 2024**. Use Microsoft Graph PowerShell (`Remove-MgUser`) for guest removal going forward.
+
+```powershell
+# Tenant-wide external user inventory (paged)
+$externalUsers = @()
+$page = Get-SPOExternalUser -PageSize 50 -Position 0
+while ($page) {
+    $externalUsers += $page
+    if ($page.Count -lt 50) { break }
+    $page = Get-SPOExternalUser -PageSize 50 -Position ($externalUsers.Count)
 }
-finally {
-    # Cleanup SharePoint connection
-    if (Get-SPOSite -Limit 1 -ErrorAction SilentlyContinue) {
-        Disconnect-SPOService -ErrorAction SilentlyContinue
+$externalUsers | Select-Object DisplayName, Email, AcceptedAs, WhenCreated, InvitedBy |
+    Export-Csv -Path ".\evidence\4.4\external-users-$(Get-Date -Format 'yyyyMMdd').csv" -NoTypeInformation
+
+# Remove a specific external user (replacement for Remove-SPOExternalUser)
+# Requires Microsoft.Graph.Users with User.ReadWrite.All
+$guest = Get-MgUser -Filter "userType eq 'Guest' and mail eq 'user@external.com'"
+if ($guest) {
+    if ($PSCmdlet.ShouldProcess($guest.UserPrincipalName, 'Remove guest user')) {
+        Remove-MgUser -UserId $guest.Id
     }
 }
 ```
+
+---
+
+## Audit-log query for sharing events
+
+```powershell
+Connect-IPPSSession    # Security & Compliance PowerShell
+
+$sessionId = [guid]::NewGuid().ToString()
+$startDate = (Get-Date).AddDays(-30)
+$endDate   = Get-Date
+$events    = @()
+do {
+    $batch = Search-UnifiedAuditLog -StartDate $startDate -EndDate $endDate `
+        -RecordType SharePointSharingOperation `
+        -SessionId $sessionId -SessionCommand ReturnLargeSet -ResultSize 5000
+    $events += $batch
+} while ($batch.Count -eq 5000)
+
+$events | Select-Object CreationDate, UserIds, Operations, AuditData |
+    Export-Csv -Path ".\evidence\4.4\sharing-events-$(Get-Date -Format 'yyyyMMdd').csv" -NoTypeInformation
+```
+
+!!! warning "Pagination is mandatory in FSI tenants"
+    A single `Search-UnifiedAuditLog` call returns at most 5,000 records and **silently truncates** beyond that. The pagination loop above is the audit-defensible pattern.
+
+---
+
+## Rollback
+
+If a tenant or site change must be reverted:
+
+1. Locate the most recent `tenant-before-*.json` (or `site-changes-*.csv`) under `evidence\4.4\`.
+2. For tenant changes, re-apply the snapshot values via `Set-SPOTenant` using the captured property values.
+3. For site changes, run the bulk site script again with `Zone` column values that map to the prior `Before` `SharingCapability`.
+4. Document the rollback in the original change ticket.
 
 ---
 
@@ -275,4 +261,4 @@ finally {
 
 ---
 
-*Updated: April 2026 | Version: v1.3*
+*Updated: April 2026 | Version: v1.3.3 | UI Verification Status: Current*
