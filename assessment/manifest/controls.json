@@ -88,7 +88,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/1.1-restrict-agent-publishing-by-authorization/",
+    "controlDocUrl": "/controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization/",
     "portalPlaybookUrl": "/playbooks/control-implementations/1.1/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -202,7 +202,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/1.2-agent-registry-and-integrated-apps-management/",
+    "controlDocUrl": "/controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management/",
     "portalPlaybookUrl": "/playbooks/control-implementations/1.2/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -298,7 +298,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/1.3-sharepoint-content-governance-and-permissions/",
+    "controlDocUrl": "/controls/pillar-1-security/1.3-sharepoint-content-governance-and-permissions/",
     "portalPlaybookUrl": "/playbooks/control-implementations/1.3/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -403,7 +403,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/1.4-advanced-connector-policies-acp/",
+    "controlDocUrl": "/controls/pillar-1-security/1.4-advanced-connector-policies-acp/",
     "portalPlaybookUrl": "/playbooks/control-implementations/1.4/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -506,7 +506,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/1.5-data-loss-prevention-dlp-and-sensitivity-labels/",
+    "controlDocUrl": "/controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels/",
     "portalPlaybookUrl": "/playbooks/control-implementations/1.5/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -595,7 +595,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/1.6-microsoft-purview-dspm-for-ai/",
+    "controlDocUrl": "/controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai/",
     "portalPlaybookUrl": "/playbooks/control-implementations/1.6/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -696,7 +696,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/1.7-comprehensive-audit-logging-and-compliance/",
+    "controlDocUrl": "/controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance/",
     "portalPlaybookUrl": "/playbooks/control-implementations/1.7/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -781,7 +781,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/1.8-runtime-protection-and-external-threat-detection/",
+    "controlDocUrl": "/controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection/",
     "portalPlaybookUrl": "/playbooks/control-implementations/1.8/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -879,7 +879,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/1.9-data-retention-and-deletion-policies/",
+    "controlDocUrl": "/controls/pillar-1-security/1.9-data-retention-and-deletion-policies/",
     "portalPlaybookUrl": "/playbooks/control-implementations/1.9/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -964,7 +964,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/1.10-communication-compliance-monitoring/",
+    "controlDocUrl": "/controls/pillar-1-security/1.10-communication-compliance-monitoring/",
     "portalPlaybookUrl": "/playbooks/control-implementations/1.10/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -1083,7 +1083,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/1.11-conditional-access-and-phishing-resistant-mfa/",
+    "controlDocUrl": "/controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa/",
     "portalPlaybookUrl": "/playbooks/control-implementations/1.11/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -1177,7 +1177,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/1.12-insider-risk-detection-and-response/",
+    "controlDocUrl": "/controls/pillar-1-security/1.12-insider-risk-detection-and-response/",
     "portalPlaybookUrl": "/playbooks/control-implementations/1.12/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -1278,7 +1278,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/1.13-sensitive-information-types-sits-and-pattern-recognition/",
+    "controlDocUrl": "/controls/pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition/",
     "portalPlaybookUrl": "/playbooks/control-implementations/1.13/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -1353,7 +1353,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/1.14-data-minimization-and-agent-scope-control/",
+    "controlDocUrl": "/controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control/",
     "portalPlaybookUrl": "/playbooks/control-implementations/1.14/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -1452,7 +1452,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/1.15-encryption-data-in-transit-and-at-rest/",
+    "controlDocUrl": "/controls/pillar-1-security/1.15-encryption-data-in-transit-and-at-rest/",
     "portalPlaybookUrl": "/playbooks/control-implementations/1.15/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -1522,7 +1522,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/1.16-information-rights-management-irm-for-documents/",
+    "controlDocUrl": "/controls/pillar-1-security/1.16-information-rights-management-irm-for-documents/",
     "portalPlaybookUrl": "/playbooks/control-implementations/1.16/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -1605,7 +1605,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/1.17-endpoint-data-loss-prevention-endpoint-dlp/",
+    "controlDocUrl": "/controls/pillar-1-security/1.17-endpoint-data-loss-prevention-endpoint-dlp/",
     "portalPlaybookUrl": "/playbooks/control-implementations/1.17/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -1699,7 +1699,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/1.18-application-level-authorization-and-role-based-access-control-rbac/",
+    "controlDocUrl": "/controls/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac/",
     "portalPlaybookUrl": "/playbooks/control-implementations/1.18/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -1796,7 +1796,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/1.19-ediscovery-for-agent-interactions/",
+    "controlDocUrl": "/controls/pillar-1-security/1.19-ediscovery-for-agent-interactions/",
     "portalPlaybookUrl": "/playbooks/control-implementations/1.19/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -1885,7 +1885,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/1.20-network-isolation-private-connectivity/",
+    "controlDocUrl": "/controls/pillar-1-security/1.20-network-isolation-private-connectivity/",
     "portalPlaybookUrl": "/playbooks/control-implementations/1.20/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -1977,7 +1977,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/1.21-adversarial-input-logging/",
+    "controlDocUrl": "/controls/pillar-1-security/1.21-adversarial-input-logging/",
     "portalPlaybookUrl": "/playbooks/control-implementations/1.21/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -2065,7 +2065,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/1.22-information-barriers/",
+    "controlDocUrl": "/controls/pillar-1-security/1.22-information-barriers/",
     "portalPlaybookUrl": "/playbooks/control-implementations/1.22/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -2145,7 +2145,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/1.23-step-up-authentication-for-agent-operations/",
+    "controlDocUrl": "/controls/pillar-1-security/1.23-step-up-authentication-for-agent-operations/",
     "portalPlaybookUrl": "/playbooks/control-implementations/1.23/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -2220,7 +2220,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/1.24-defender-ai-security-posture-management/",
+    "controlDocUrl": "/controls/pillar-1-security/1.24-defender-ai-security-posture-management/",
     "portalPlaybookUrl": "/playbooks/control-implementations/1.24/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -2314,7 +2314,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/1.25-mime-type-restrictions/",
+    "controlDocUrl": "/controls/pillar-1-security/1.25-mime-type-restrictions/",
     "portalPlaybookUrl": "/playbooks/control-implementations/1.25/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -2408,7 +2408,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/1.26-agent-file-upload-and-file-analysis-restrictions/",
+    "controlDocUrl": "/controls/pillar-1-security/1.26-agent-file-upload-and-file-analysis-restrictions/",
     "portalPlaybookUrl": "/playbooks/control-implementations/1.26/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -2510,7 +2510,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/1.27-ai-agent-content-moderation-enforcement/",
+    "controlDocUrl": "/controls/pillar-1-security/1.27-ai-agent-content-moderation-enforcement/",
     "portalPlaybookUrl": "/playbooks/control-implementations/1.27/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -2603,7 +2603,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/1.28-policy-based-agent-publishing-restrictions/",
+    "controlDocUrl": "/controls/pillar-1-security/1.28-policy-based-agent-publishing-restrictions/",
     "portalPlaybookUrl": "/playbooks/control-implementations/1.28/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -2697,7 +2697,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/1.29-global-secure-access-network-controls/",
+    "controlDocUrl": "/controls/pillar-1-security/1.29-global-secure-access-network-controls/",
     "portalPlaybookUrl": "/playbooks/control-implementations/1.29/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -2796,7 +2796,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/2.1-managed-environments/",
+    "controlDocUrl": "/controls/pillar-2-management/2.1-managed-environments/",
     "portalPlaybookUrl": "/playbooks/control-implementations/2.1/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -2895,7 +2895,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/2.2-environment-groups-and-tier-classification/",
+    "controlDocUrl": "/controls/pillar-2-management/2.2-environment-groups-and-tier-classification/",
     "portalPlaybookUrl": "/playbooks/control-implementations/2.2/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -2979,7 +2979,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/2.3-change-management-and-release-planning/",
+    "controlDocUrl": "/controls/pillar-2-management/2.3-change-management-and-release-planning/",
     "portalPlaybookUrl": "/playbooks/control-implementations/2.3/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -3066,7 +3066,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/2.4-business-continuity-and-disaster-recovery/",
+    "controlDocUrl": "/controls/pillar-2-management/2.4-business-continuity-and-disaster-recovery/",
     "portalPlaybookUrl": "/playbooks/control-implementations/2.4/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -3142,7 +3142,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/2.5-testing-validation-and-quality-assurance/",
+    "controlDocUrl": "/controls/pillar-2-management/2.5-testing-validation-and-quality-assurance/",
     "portalPlaybookUrl": "/playbooks/control-implementations/2.5/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -3219,7 +3219,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7/",
+    "controlDocUrl": "/controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7/",
     "portalPlaybookUrl": "/playbooks/control-implementations/2.6/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -3288,7 +3288,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/2.7-vendor-and-third-party-risk-management/",
+    "controlDocUrl": "/controls/pillar-2-management/2.7-vendor-and-third-party-risk-management/",
     "portalPlaybookUrl": "/playbooks/control-implementations/2.7/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -3379,7 +3379,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/2.8-access-control-and-segregation-of-duties/",
+    "controlDocUrl": "/controls/pillar-2-management/2.8-access-control-and-segregation-of-duties/",
     "portalPlaybookUrl": "/playbooks/control-implementations/2.8/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -3465,7 +3465,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/2.9-agent-performance-monitoring-and-optimization/",
+    "controlDocUrl": "/controls/pillar-2-management/2.9-agent-performance-monitoring-and-optimization/",
     "portalPlaybookUrl": "/playbooks/control-implementations/2.9/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -3549,7 +3549,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/2.10-patch-management-and-system-updates/",
+    "controlDocUrl": "/controls/pillar-2-management/2.10-patch-management-and-system-updates/",
     "portalPlaybookUrl": "/playbooks/control-implementations/2.10/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -3617,7 +3617,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/2.11-bias-testing-and-fairness-assessment/",
+    "controlDocUrl": "/controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment/",
     "portalPlaybookUrl": "/playbooks/control-implementations/2.11/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -3687,7 +3687,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/2.12-supervision-and-oversight-finra-rule-3110/",
+    "controlDocUrl": "/controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110/",
     "portalPlaybookUrl": "/playbooks/control-implementations/2.12/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -3761,7 +3761,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/2.13-documentation-and-record-keeping/",
+    "controlDocUrl": "/controls/pillar-2-management/2.13-documentation-and-record-keeping/",
     "portalPlaybookUrl": "/playbooks/control-implementations/2.13/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -3830,7 +3830,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/2.14-training-and-awareness-program/",
+    "controlDocUrl": "/controls/pillar-2-management/2.14-training-and-awareness-program/",
     "portalPlaybookUrl": "/playbooks/control-implementations/2.14/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -3921,7 +3921,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/2.15-environment-routing/",
+    "controlDocUrl": "/controls/pillar-2-management/2.15-environment-routing/",
     "portalPlaybookUrl": "/playbooks/control-implementations/2.15/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -4002,7 +4002,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/2.16-rag-source-integrity-validation/",
+    "controlDocUrl": "/controls/pillar-2-management/2.16-rag-source-integrity-validation/",
     "portalPlaybookUrl": "/playbooks/control-implementations/2.16/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -4083,7 +4083,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/2.17-multi-agent-orchestration-limits/",
+    "controlDocUrl": "/controls/pillar-2-management/2.17-multi-agent-orchestration-limits/",
     "portalPlaybookUrl": "/playbooks/control-implementations/2.17/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -4149,7 +4149,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/2.18-automated-conflict-of-interest-testing/",
+    "controlDocUrl": "/controls/pillar-2-management/2.18-automated-conflict-of-interest-testing/",
     "portalPlaybookUrl": "/playbooks/control-implementations/2.18/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -4218,7 +4218,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/2.19-customer-ai-disclosure-and-transparency/",
+    "controlDocUrl": "/controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency/",
     "portalPlaybookUrl": "/playbooks/control-implementations/2.19/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -4286,7 +4286,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/2.20-adversarial-testing-and-red-team-framework/",
+    "controlDocUrl": "/controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework/",
     "portalPlaybookUrl": "/playbooks/control-implementations/2.20/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -4350,7 +4350,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/2.21-ai-marketing-claims-and-substantiation/",
+    "controlDocUrl": "/controls/pillar-2-management/2.21-ai-marketing-claims-and-substantiation/",
     "portalPlaybookUrl": "/playbooks/control-implementations/2.21/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -4442,7 +4442,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/2.22-inactivity-timeout-enforcement/",
+    "controlDocUrl": "/controls/pillar-2-management/2.22-inactivity-timeout-enforcement/",
     "portalPlaybookUrl": "/playbooks/control-implementations/2.22/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -4513,7 +4513,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/2.23-user-consent-and-ai-disclosure-enforcement/",
+    "controlDocUrl": "/controls/pillar-2-management/2.23-user-consent-and-ai-disclosure-enforcement/",
     "portalPlaybookUrl": "/playbooks/control-implementations/2.23/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -4613,7 +4613,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/2.24-agent-feature-enablement-and-restriction-governance/",
+    "controlDocUrl": "/controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance/",
     "portalPlaybookUrl": "/playbooks/control-implementations/2.24/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -4714,7 +4714,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/2.25-agent-365-admin-center-governance-console/",
+    "controlDocUrl": "/controls/pillar-2-management/2.25-agent-365-admin-center-governance-console/",
     "portalPlaybookUrl": "/playbooks/control-implementations/2.25/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -4810,7 +4810,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/2.26-entra-agent-id-identity-governance/",
+    "controlDocUrl": "/controls/pillar-2-management/2.26-entra-agent-id-identity-governance/",
     "portalPlaybookUrl": "/playbooks/control-implementations/2.26/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -4911,7 +4911,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/3.1-agent-inventory-and-metadata-management/",
+    "controlDocUrl": "/controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management/",
     "portalPlaybookUrl": "/playbooks/control-implementations/3.1/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -4983,7 +4983,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/3.2-usage-analytics-and-activity-monitoring/",
+    "controlDocUrl": "/controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring/",
     "portalPlaybookUrl": "/playbooks/control-implementations/3.2/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -5069,7 +5069,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/3.3-compliance-and-regulatory-reporting/",
+    "controlDocUrl": "/controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting/",
     "portalPlaybookUrl": "/playbooks/control-implementations/3.3/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -5161,7 +5161,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/3.4-incident-reporting-and-root-cause-analysis/",
+    "controlDocUrl": "/controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis/",
     "portalPlaybookUrl": "/playbooks/control-implementations/3.4/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -5257,7 +5257,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/3.5-cost-allocation-and-budget-tracking/",
+    "controlDocUrl": "/controls/pillar-3-reporting/3.5-cost-allocation-and-budget-tracking/",
     "portalPlaybookUrl": "/playbooks/control-implementations/3.5/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -5334,7 +5334,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/3.6-orphaned-agent-detection-and-remediation/",
+    "controlDocUrl": "/controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation/",
     "portalPlaybookUrl": "/playbooks/control-implementations/3.6/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -5428,7 +5428,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/3.7-ppac-security-posture-assessment/",
+    "controlDocUrl": "/controls/pillar-3-reporting/3.7-ppac-security-posture-assessment/",
     "portalPlaybookUrl": "/playbooks/control-implementations/3.7/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -5500,7 +5500,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/3.8-copilot-hub-and-governance-dashboard/",
+    "controlDocUrl": "/controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard/",
     "portalPlaybookUrl": "/playbooks/control-implementations/3.8/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -5600,7 +5600,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/3.9-microsoft-sentinel-integration/",
+    "controlDocUrl": "/controls/pillar-3-reporting/3.9-microsoft-sentinel-integration/",
     "portalPlaybookUrl": "/playbooks/control-implementations/3.9/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -5669,7 +5669,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/3.10-hallucination-feedback-loop/",
+    "controlDocUrl": "/controls/pillar-3-reporting/3.10-hallucination-feedback-loop/",
     "portalPlaybookUrl": "/playbooks/control-implementations/3.10/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -5743,7 +5743,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/3.11-centralized-agent-inventory-enforcement/",
+    "controlDocUrl": "/controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement/",
     "portalPlaybookUrl": "/playbooks/control-implementations/3.11/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -5814,7 +5814,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/3.12-agent-governance-exception-and-override-management/",
+    "controlDocUrl": "/controls/pillar-3-reporting/3.12-agent-governance-exception-and-override-management/",
     "portalPlaybookUrl": "/playbooks/control-implementations/3.12/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -5884,7 +5884,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/3.13-agent-365-admin-center-analytics/",
+    "controlDocUrl": "/controls/pillar-3-reporting/3.13-agent-365-admin-center-analytics/",
     "portalPlaybookUrl": "/playbooks/control-implementations/3.13/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -5956,7 +5956,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/3.14-agent-365-observability-sdk/",
+    "controlDocUrl": "/controls/pillar-3-reporting/3.14-agent-365-observability-sdk/",
     "portalPlaybookUrl": "/playbooks/control-implementations/3.14/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -6050,7 +6050,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery/",
+    "controlDocUrl": "/controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery/",
     "portalPlaybookUrl": "/playbooks/control-implementations/4.1/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -6135,7 +6135,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/4.2-site-access-reviews-and-certification/",
+    "controlDocUrl": "/controls/pillar-4-sharepoint/4.2-site-access-reviews-and-certification/",
     "portalPlaybookUrl": "/playbooks/control-implementations/4.2/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -6229,7 +6229,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/4.3-site-and-document-retention-management/",
+    "controlDocUrl": "/controls/pillar-4-sharepoint/4.3-site-and-document-retention-management/",
     "portalPlaybookUrl": "/playbooks/control-implementations/4.3/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -6323,7 +6323,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/4.4-guest-and-external-user-access-controls/",
+    "controlDocUrl": "/controls/pillar-4-sharepoint/4.4-guest-and-external-user-access-controls/",
     "portalPlaybookUrl": "/playbooks/control-implementations/4.4/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -6405,7 +6405,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/4.5-sharepoint-security-and-compliance-monitoring/",
+    "controlDocUrl": "/controls/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring/",
     "portalPlaybookUrl": "/playbooks/control-implementations/4.5/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -6501,7 +6501,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/4.6-grounding-scope-governance/",
+    "controlDocUrl": "/controls/pillar-4-sharepoint/4.6-grounding-scope-governance/",
     "portalPlaybookUrl": "/playbooks/control-implementations/4.6/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -6584,7 +6584,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/4.7-microsoft-365-copilot-data-governance/",
+    "controlDocUrl": "/controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance/",
     "portalPlaybookUrl": "/playbooks/control-implementations/4.7/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -6678,7 +6678,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/4.8-item-level-permission-scanning-agent-knowledge-sources/",
+    "controlDocUrl": "/controls/pillar-4-sharepoint/4.8-item-level-permission-scanning-agent-knowledge-sources/",
     "portalPlaybookUrl": "/playbooks/control-implementations/4.8/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
@@ -6749,7 +6749,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/4.9-embedded-file-content-governance/",
+    "controlDocUrl": "/controls/pillar-4-sharepoint/4.9-embedded-file-content-governance/",
     "portalPlaybookUrl": "/playbooks/control-implementations/4.9/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
