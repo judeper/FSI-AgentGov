@@ -551,7 +551,7 @@ A: Depends on regulation:
 - **SEC 17a-3/4:** 3–6 years (3 years for communications, 6 years for financial records), first 2 years readily accessible
 - **SOX 404:** 7 years minimum
 - **GLBA:** 5-7 years
-- **OCC/SR 11-7:** Per model (typically 3+ years)
+- **OCC/SR 26-2 (formerly SR 11-7):** Per model (typically 3+ years)
 
 See [Regulatory Mappings](../framework/regulatory-framework.md) for your regulations.
 

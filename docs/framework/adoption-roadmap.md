@@ -245,7 +245,7 @@ This roadmap provides a structured approach to implementing AI agent governance.
 - [ ] Runtime protection deployed for all Zone 3 agents
 - [ ] Sentinel integration operational with analytics rules
 - [ ] Adversarial testing program established
-- [ ] Model risk management framework aligned with SR 11-7
+- [ ] Model risk management framework aligned with SR 26-2 (formerly SR 11-7)
 - [ ] All 78 controls assessed and appropriately implemented
 - [ ] Steady-state governance operations documented
 
@@ -282,12 +282,12 @@ These controls should be implemented first as they enable other governance capab
 
 1. Control 2.12 (Supervision) — FINRA 3110
 2. Control 1.7 (Audit Logging) — FINRA 4511, SEC 17a-4
-3. Control 2.11 (Bias Testing) — SR 11-7, FINRA's Annual Regulatory Oversight Report
+3. Control 2.11 (Bias Testing) — SR 26-2 (formerly SR 11-7), FINRA's Annual Regulatory Oversight Report
 4. Control 3.3 (Compliance Reporting) — Examination readiness
 
 **Banks (OCC/Fed):**
 
-1. Control 2.6 (Model Risk Management) — OCC 2011-12, SR 11-7
+1. Control 2.6 (Model Risk Management) — OCC 2011-12, SR 26-2 (formerly SR 11-7)
 2. Control 2.11 (Bias Testing) — Fair lending
 3. Control 1.7 (Audit Logging) — Records requirements
 4. Control 1.5 (DLP) — GLBA 501(b)

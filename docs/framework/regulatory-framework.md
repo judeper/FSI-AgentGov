@@ -104,7 +104,7 @@ See: [FINRA Rule 3120](https://www.finra.org/rules-guidance/rulebooks/finra-rule
 |---------|-------------|---------|
 | [2.3](../controls/pillar-2-management/2.3-change-management-and-release-planning.md) | Change Management | Change control and approval |
 | [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Testing and Validation | QA before production |
-| [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | SR 11-7 alignment |
+| [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | SR 26-2 (formerly SR 11-7) alignment |
 | [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) | Bias Testing | Fairness assessment |
 | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision and Oversight | Define supervisory procedures |
 | [2.17](../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) | Multi-Agent Orchestration Limits | Supervise agent interactions |
@@ -163,8 +163,8 @@ The 2026 Annual Regulatory Oversight Report contains FINRA's most detailed AI ag
 |---------|-------|---------|
 | [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Comprehensive Audit Logging | Records retention for AI communications |
 | [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Testing and Validation | Agent accuracy testing |
-| [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Formal framework per SR 11-7 |
-| [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) | Bias Testing | Fairness assessment per SR 11-7 |
+| [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Formal framework per SR 26-2 (formerly SR 11-7) |
+| [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) | Bias Testing | Fairness assessment per SR 26-2 (formerly SR 11-7) |
 | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Written supervisory procedures |
 | [3.2](../controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md) | Usage Analytics | Performance monitoring |
 | [3.10](../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md) | Hallucination Feedback Loop | Monitor output accuracy |
@@ -255,7 +255,7 @@ The 2026 Annual Regulatory Oversight Report contains FINRA's most detailed AI ag
 
 ---
 
-### OCC 2011-12 / Federal Reserve SR 11-7 — Model Risk Management
+### OCC 2011-12 / Federal Reserve SR 26-2 (formerly SR 11-7) — Model Risk Management
 
 **Overview:** Guidance on model risk management for banks using models in decision-making.
 
@@ -336,7 +336,7 @@ The 2026 Annual Regulatory Oversight Report contains FINRA's most detailed AI ag
 
 **Priority Controls:**
 
-1. Control 2.6 (Model Risk Management) — OCC 2011-12, SR 11-7
+1. Control 2.6 (Model Risk Management) — OCC 2011-12, SR 26-2 (formerly SR 11-7)
 2. Control 2.11 (Bias Testing) — Fair lending
 3. Control 1.7 (Audit Logging) — Records requirements
 4. Control 1.5 (DLP) — GLBA 501(b)
@@ -409,7 +409,7 @@ Organizations should conduct separate analysis for state-specific requirements.
 | SEC 17a-3/4 | 8 controls | Recordkeeping |
 | SOX 302/404 | 6 controls | Internal controls |
 | GLBA 501(b) | 6 controls | Safeguards |
-| OCC 2011-12 / SR 11-7 | 6 controls | Model risk |
+| OCC 2011-12 / SR 26-2 (formerly SR 11-7) | 6 controls | Model risk |
 | CFTC 1.31 | 3 controls | Recordkeeping |
 
 **Total:** 78 controls across 4 pillars providing mapped coverage to primary US financial regulations.

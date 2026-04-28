@@ -960,7 +960,7 @@ Agent 365 and Entra Agent ID help support multiple FSI regulatory requirements b
 - Implement workspace access controls to prevent unauthorized log deletion
 - Map agent activity logs to SEC 17a-4's "communications" definition for recordkeeping scope
 
-### OCC 2011-12 / Fed SR 11-7: Model Risk Management
+### OCC 2011-12 / Fed SR 26-2 (formerly SR 11-7): Model Risk Management
 
 **How Agent 365 and Entra Agent ID Help Support Compliance:**
 

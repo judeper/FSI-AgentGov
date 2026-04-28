@@ -10,6 +10,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## Maintenance — April 28, 2026
+
+Documentation hygiene and CI maintenance pass; no framework feature changes.
+
+### Fixed
+- **Dead external links repaired across 73 docs files** ([#119](https://github.com/judeper/FSI-AgentGov/pull/119)) — repaired ~145 broken Microsoft Learn URLs (renamed/moved pages), the FINRA rulebook URL pattern (`rulebook` → `rulebooks`), Federal Reserve `srletters/sr1107.htm` → `srletters/SR2602.htm`, and two empty `https://` link targets in playbooks 3.4 and 3.6. Restored the `Link Validation` workflow to passing (was failing 5/5 prior runs).
+
+### Changed
+- **Federal Reserve guidance label updated**: 54 textual references across 22 docs files updated from "SR 11-7" to "SR 26-2 (formerly SR 11-7)" to reflect the Fed's April 17, 2026 supersession of SR 11-7 by SR 26-2 (Model Risk Management). Filename of control 2.6 was kept (`2.6-...sr-11-7.md`) to preserve permalinks.
+- **GitHub Actions bumped to Node 24 majors** ([#120](https://github.com/judeper/FSI-AgentGov/pull/120)) across all 5 workflows (12 references): `actions/checkout` v4→v5, `actions/setup-python` v5→v6, `actions/cache` v4→v5, `actions/setup-node` v4→v5. Eliminates Node.js 20 deprecation warnings ahead of GitHub's June 2, 2026 forced migration.
+
+### Operations
+- Cleared 21 stale Learn Monitor PRs (#97–#117) by merging cumulative state PR #118 and bulk-closing the supersedes.
+- Pruned 20 stale `monitoring/learn-*` remote branches.
+
+---
+
 ## Overview
 
 Version 1.4.0 represents a major advancement in the FSI Agent Governance Framework's assessment capabilities. This release unifies the manifest schema across both the Python scoring engine and the browser-based assessment single-page application (SPA), establishing a single source of truth for all 78 controls. The release delivers 10 new SPA enhancements that significantly improve the facilitator experience, role-based collaboration, sector-specific calibration, and cross-repository integration with the companion FSI-AgentGov-Solutions repository.

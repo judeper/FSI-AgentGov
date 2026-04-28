@@ -16,7 +16,7 @@ Requires firms to maintain records of all agent activities and communications.
 | **Communications** (agent logs, chat, email) | 3 years | SEC 17a-4(b)(4) | First 2 years easily accessible place |
 | **Accounting/Financial Records** | 6 years | SEC 17a-4(a) | First 2 years easily accessible place |
 | **Customer Account Records** | 6 years after account close | SEC 17a-4(c) | First 2 years easily accessible place |
-| **Agent Governance Records** (approvals, validations, incidents, bias testing) | 6 years | SEC 17a-4(a) / SR 11-7 | First 2 years easily accessible place |
+| **Agent Governance Records** (approvals, validations, incidents, bias testing) | 6 years | SEC 17a-4(a) / SR 26-2 (formerly SR 11-7) | First 2 years easily accessible place |
 | **Derivatives/Commodities Records** (CFTC-registered entities) | 5 years minimum | CFTC Rule 1.31 | First 2 years readily accessible |
 | **FINRA-Specific Records** (no SEC period applies) | 6 years | FINRA 4511(b) | First 2 years easily accessible place |
 | **AI Marketing Substantiation** (investment advisers) | 7 years | FINRA 4511 / Control 2.21 | First 2 years easily accessible place |
@@ -85,7 +85,7 @@ Requires written policies and procedures for supervision of agents and AI techno
 | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision and Oversight | Define supervisory procedures |
 | [2.3](../controls/pillar-2-management/2.3-change-management-and-release-planning.md) | Change Management | Change control and approval |
 | [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Testing and Validation | QA before production |
-| [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | SR 11-7 alignment |
+| [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | SR 26-2 (formerly SR 11-7) alignment |
 | [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) | Bias Testing | Fairness assessment |
 | [2.15](../controls/pillar-2-management/2.15-environment-routing.md) | Environment Routing | Enforce routing rules based on role/group membership for supervision |
 | [2.17](../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) | Multi-Agent Orchestration Limits | Supervise agent interactions |
@@ -206,8 +206,8 @@ See: [FINRA Regulatory Notice 15-09](https://www.finra.org/rules-guidance/notice
 | [1.27](../controls/pillar-1-security/1.27-ai-agent-content-moderation-enforcement.md) | Content Moderation | Filter harmful outputs per supervisory obligations |
 | [1.28](../controls/pillar-1-security/1.28-policy-based-agent-publishing-restrictions.md) | Publishing Restrictions | Approval and review before customer-facing agent deployment |
 | [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Testing and Validation | Agent accuracy and reliability testing |
-| [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Formal framework per SR 11-7 |
-| [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) | Bias Testing | Fairness assessment per SR 11-7 |
+| [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Formal framework per SR 26-2 (formerly SR 11-7) |
+| [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) | Bias Testing | Fairness assessment per SR 26-2 (formerly SR 11-7) |
 | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Written supervisory procedures |
 | [2.18](../controls/pillar-2-management/2.18-automated-conflict-of-interest-testing.md) | Conflict of Interest Testing | Test for recommendation biases |
 | [2.23](../controls/pillar-2-management/2.23-user-consent-and-ai-disclosure-enforcement.md) | User Consent and AI Disclosure | AI disclosure supports supervisory obligations per FINRA 2210 |
@@ -691,7 +691,7 @@ Framework provides 52 mapped controls relevant to GLBA safeguards. Implementatio
 
 ---
 
-## OCC Bulletin 2011-12 / SR 11-7 - Model Risk Management
+## OCC Bulletin 2011-12 / SR 26-2 (formerly SR 11-7) - Model Risk Management
 
 ### Overview
 Applies to national banks and federal savings associations. Requires governance framework for models used in business decisions.
@@ -700,7 +700,7 @@ Applies to national banks and federal savings associations. Requires governance 
 
 **Pillar 1 - Security Controls (7 controls):**
 
-| Control | Requirement | SR 11-7 Mapping |
+| Control | Requirement | SR 26-2 (formerly SR 11-7) Mapping |
 |---------|-------------|-----------------|
 | [1.6](../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) | DSPM for AI | Model data governance |
 | [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Comprehensive Audit Logging | Model audit trail |
@@ -714,13 +714,13 @@ Applies to national banks and federal savings associations. Requires governance 
 | [1.26](../controls/pillar-1-security/1.26-agent-file-upload-and-file-analysis-restrictions.md) | File Upload Restrictions | Operational risk management for file processing |
 | [1.28](../controls/pillar-1-security/1.28-policy-based-agent-publishing-restrictions.md) | Publishing Restrictions | Third-party risk management and deployment validation |
 
-| Control | Requirement | SR 11-7 Mapping |
+| Control | Requirement | SR 26-2 (formerly SR 11-7) Mapping |
 |---------|-------------|-----------------|
 | [2.1](../controls/pillar-2-management/2.1-managed-environments.md) | Managed Environments | Model environment controls |
 | [2.2](../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) | Environment Groups | Model tier classification |
 | [2.3](../controls/pillar-2-management/2.3-change-management-and-release-planning.md) | Change Management | Model change control |
 | [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Testing and Validation | Independent model validation |
-| [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Primary SR 11-7 framework |
+| [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Primary SR 26-2 (formerly SR 11-7) framework |
 | [2.7](../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md) | Vendor Risk Management | Third-party model governance |
 | [2.8](../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md) | Access Control and SoD | Model development controls |
 | [2.9](../controls/pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md) | Performance Monitoring | Model performance tracking |
@@ -734,7 +734,7 @@ Applies to national banks and federal savings associations. Requires governance 
 | [2.20](../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) | Adversarial Testing | Model robustness testing |
 | [2.24](../controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance.md) | Feature Enablement Governance | Model risk management for AI capability controls |
 
-| Control | Requirement | SR 11-7 Mapping |
+| Control | Requirement | SR 26-2 (formerly SR 11-7) Mapping |
 |---------|-------------|-----------------|
 | [3.1](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) | Agent Inventory | Model inventory |
 | [3.2](../controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md) | Usage Analytics | Model performance monitoring |
@@ -747,7 +747,7 @@ Applies to national banks and federal savings associations. Requires governance 
 | [3.11](../controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement.md) | Centralized Inventory Enforcement | Model inventory and ongoing monitoring |
 | [3.12](../controls/pillar-3-reporting/3.12-agent-governance-exception-and-override-management.md) | Exception Management | Model governance exception and override tracking |
 
-| Control | Requirement | SR 11-7 Mapping |
+| Control | Requirement | SR 26-2 (formerly SR 11-7) Mapping |
 |---------|-------------|-----------------|
 | [4.1](../controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md) | Information Access Governance | Model data access controls |
 | [4.6](../controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md) | Grounding Scope Governance | Model data source governance |
@@ -756,7 +756,7 @@ Applies to national banks and federal savings associations. Requires governance 
 
 **Mapped controls: 34**
 
-### Model Risk Framework (SR 11-7)
+### Model Risk Framework (SR 26-2 (formerly SR 11-7))
 
 1. **Model Development**
    - Clear model purpose defined
@@ -787,7 +787,7 @@ Applies to national banks and federal savings associations. Requires governance 
 **Agent Classification as Model:**
 
 - Agents using ML/statistical algorithms = Model
-- Requires SR 11-7 governance framework
+- Requires SR 26-2 (formerly SR 11-7) governance framework
 - Annual third-party validation recommended
 - Quarterly monitoring mandatory
 
@@ -796,17 +796,17 @@ Applies to national banks and federal savings associations. Requires governance 
 **OCC Regulated Entities (National Banks, FSAs):**
 
 - All Zone 3 agents using ML = Model
-- SR 11-7 framework required
+- SR 26-2 (formerly SR 11-7) framework required
 - Annual validation mandatory
 
 **Non-OCC Entities:**
 
-- SR 11-7 represents best practice
+- SR 26-2 (formerly SR 11-7) represents best practice
 - Apply for Zone 3 high-risk agents
 - Recommended even if not OCC-regulated
 
 ### Framework Coverage
-Framework provides 34 mapped controls relevant to OCC and SR 11-7 topics. OCC-specific model validation required for full compliance.
+Framework provides 34 mapped controls relevant to OCC and SR 26-2 (formerly SR 11-7) topics. OCC-specific model validation required for full compliance.
 
 ---
 
@@ -901,7 +901,7 @@ Applies to futures commission merchants (FCMs), introducing brokers, commodity t
 - 5+ year retention with immediate accessibility
 - Systems ensuring authenticity and reliability per 17 CFR § 1.31(c)
 - Complete transaction reconstruction capability
-- Model risk management per SR 11-7 principles
+- Model risk management per SR 26-2 (formerly SR 11-7) principles
 
 ### Framework Coverage
 Framework provides audit and recordkeeping controls. Organizations with CFTC-regulated entities should map these controls to specific Rule 1.31 requirements. Implementation and validation required.
@@ -1023,7 +1023,7 @@ FDIC-supervised institutions follow the same interagency guidance as OCC and Fed
 
 | Guidance | FDIC Applicability | Framework Alignment |
 |----------|-------------------|---------------------|
-| Interagency Model Risk Guidance (SR 11-7) | Adopted by FDIC | Control 2.6, 2.11 |
+| Interagency Model Risk Guidance (SR 26-2 (formerly SR 11-7)) | Adopted by FDIC | Control 2.6, 2.11 |
 | Interagency Third-Party Guidance (2023) | Joint OCC/Fed/FDIC | Control 2.7 |
 | FFIEC IT Examination Handbook | Primary reference | Pillars 1-4 |
 | GLBA Safeguards Rule | Required | Pillar 1 Security |
@@ -1037,7 +1037,7 @@ All framework controls apply to FDIC-supervised institutions. Key controls inclu
 | [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Audit Logging | FFIEC IT Handbook - Audit and Monitoring |
 | [1.11](../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) | Conditional Access/MFA | FFIEC Authentication Guidance |
 | [1.15](../controls/pillar-1-security/1.15-encryption-data-in-transit-and-at-rest.md) | Encryption | FFIEC Information Security |
-| [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Interagency SR 11-7 guidance |
+| [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Interagency SR 26-2 (formerly SR 11-7) guidance |
 | [2.7](../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md) | Third-Party Risk | Interagency Third-Party Guidance (2023) |
 | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Examination expectations |
 
@@ -1058,7 +1058,7 @@ The framework aligns with FFIEC IT Examination Handbook domains:
 **FDIC-Supervised Institutions:**
 
 - Apply the same zone-based governance as OCC/Fed institutions
-- Follow interagency model risk guidance (SR 11-7) for AI agents
+- Follow interagency model risk guidance (SR 26-2 (formerly SR 11-7)) for AI agents
 - Reference FFIEC IT Examination Handbook for examination preparation
 - Maintain evidence for examination readiness
 
@@ -1347,7 +1347,7 @@ Insurers should consult their primary state insurance regulator and legal counse
 | SOX 302/404 | 44/72 | 61% | Substantial coverage |
 | GLBA 501-505 | 52/72 | 72% | Substantial coverage |
 | OCC 2011-12 | 34/72 | 47% | Partial - model risk focus |
-| Fed SR 11-7 | 34/72 | 47% | Partial - model risk focus |
+| Fed SR 26-2 (formerly SR 11-7) | 34/72 | 47% | Partial - model risk focus |
 | Fed ECOA | 3/72 | 4% | Minimal - bias testing only |
 | CFPB / UDAAP | 7/72 | 10% | Consumer protection + disclosure focus |
 | CFTC Rule 1.31 | 9/72 | 13% | Recordkeeping for derivatives/commodities |

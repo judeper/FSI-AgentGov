@@ -56,7 +56,7 @@ Absence of a control from this catalog is not a coverage gap — it reflects the
 | [Inactivity Timeout Enforcement](#inactivity-timeout-enforcement)| [`inactivity-timeout-enforcement`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/inactivity-timeout-enforcement) | v1.0.2 | 2.22, 1.23, 3.7, 3.8 | Policy-driven inactivity timeout validation with zone-based durations. |
 | [Message Center Monitor](#message-center-monitor) | [`message-center-monitor`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/message-center-monitor) | v2.1.1 | 2.3, 2.10 | M365 Message Center monitoring for platform changes. |
 | [MIME Type Restrictions](#mime-type-restrictions) | [`mime-type-restrictions`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/mime-type-restrictions) | v1.0.1 | 1.5, 1.10, 1.11, 1.13, 1.14, 1.25, 3.3, 3.7, 4.3 | Zone-based MIME type configuration with server-side validation. |
-| [Model Risk Management Automation](#model-risk-management-automation) | [`model-risk-management-automation`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/model-risk-management-automation) | v1.0.0 | 2.6, 2.5, 2.9, 2.11, 2.13, 3.1, 1.2 | OCC 2011-12 / SR 11-7 model risk management with inventory, risk scoring, validation workflows, and Agent Card generation. |
+| [Model Risk Management Automation](#model-risk-management-automation) | [`model-risk-management-automation`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/model-risk-management-automation) | v1.0.0 | 2.6, 2.5, 2.9, 2.11, 2.13, 3.1, 1.2 | OCC 2011-12 / SR 26-2 (formerly SR 11-7) model risk management with inventory, risk scoring, validation workflows, and Agent Card generation. |
 | [Pipeline Governance Cleanup](#pipeline-governance-cleanup) | [`pipeline-governance-cleanup`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/pipeline-governance-cleanup) | v1.0.8 | 2.3, 2.1 | Personal pipeline discovery and ALM governance enforcement. |
 | [RAG Source Validator](#rag-source-validator) | [`rag-source-validator`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/rag-source-validator) | v1.0.0 | 2.16, 1.7, 2.13 | Integrity validation for RAG knowledge sources. |
 | [Scope Drift Monitor](#scope-drift-monitor) | [`scope-drift-monitor`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/scope-drift-monitor) | v1.1.0 | 1.14, 1.4, 1.5 | Detect agent data access beyond declared scope. |
@@ -238,7 +238,7 @@ Absence of a control from this catalog is not a coverage gap — it reflects the
 - **Repository folder:** [`model-risk-management-automation`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/model-risk-management-automation)
 - **Version:** v1.0.0
 - **Primary controls:** 2.6, 2.5, 2.9, 2.11, 2.13, 3.1, 1.2
-- **Summary:** OCC 2011-12 / SR 11-7 model risk management with inventory, risk scoring, validation workflows, and Agent Card generation.
+- **Summary:** OCC 2011-12 / SR 26-2 (formerly SR 11-7) model risk management with inventory, risk scoring, validation workflows, and Agent Card generation.
 
 ### Pipeline Governance Cleanup
 - **Repository folder:** [`pipeline-governance-cleanup`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/pipeline-governance-cleanup)

@@ -130,7 +130,7 @@ An investment firm deploys a research assistant agent to help analysts search in
 
 #### Control 2.6: Model Risk Management
 
-**SR 11-7 Compliance Framework:**
+**SR 26-2 (formerly SR 11-7) Compliance Framework:**
 
 | Requirement | Implementation |
 |-------------|----------------|

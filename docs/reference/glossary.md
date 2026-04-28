@@ -138,7 +138,7 @@ Self-regulatory organization for securities brokers and dealers.
 Practice of lending without discrimination based on protected characteristics (race, color, religion, national origin, sex, marital status, age, disability, receipt of public assistance).
 
 **FDIC (Federal Deposit Insurance Corporation)**
-Federal regulator for state non-member banks, state savings associations, and insured depository institutions. FDIC-supervised institutions follow interagency guidance including SR 11-7 for model risk and FFIEC IT examination standards.
+Federal regulator for state non-member banks, state savings associations, and insured depository institutions. FDIC-supervised institutions follow interagency guidance including SR 26-2 (formerly SR 11-7) for model risk and FFIEC IT examination standards.
 
 **FIDO2**
 Phishing-resistant authentication method using hardware keys.
@@ -221,7 +221,7 @@ System that makes predictions or decisions based on data. AI agents using ML alg
 Risk that a model may produce inaccurate or biased outputs.
 
 **MRM (Model Risk Management)**
-Framework for identifying, measuring, monitoring, and controlling model risk, aligned with OCC Bulletin 2011-12 and Fed SR 11-7. See [Control 2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) for AI agent MRM requirements.
+Framework for identifying, measuring, monitoring, and controlling model risk, aligned with OCC Bulletin 2011-12 and Fed SR 26-2 (formerly SR 11-7). See [Control 2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) for AI agent MRM requirements.
 
 **M365 Certification**
 Microsoft validation that an application meets security and compliance requirements. Higher trust level than Publisher Attested. Visible in M365 Admin Center under Settings → Integrated Apps.
@@ -392,7 +392,7 @@ Risk classification for agents:
 | SOX 302/404 | Internal Controls | Management responsibility for controls |
 | GLBA 501-505 | Safeguards | Data protection requirements |
 | OCC 2011-12 | Model Risk Guidance | Governance for models |
-| SR 11-7 | Model Risk Management | Federal Reserve guidance for models |
+| SR 26-2 (formerly SR 11-7) | Model Risk Management | Federal Reserve guidance for models |
 | ECOA | Fair Lending | Prohibits lending discrimination |
 | FDIC | Federal Deposit Insurance Corporation | Regulates state non-member banks |
 | NCUA | National Credit Union Administration | Regulates federal credit unions |

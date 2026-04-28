@@ -283,7 +283,7 @@ Zone 3 agents handling regulated data may be subject to comprehensive oversight 
 | Institution Type | Primary Regulator(s) | Key Requirements |
 |-----------------|---------------------|------------------|
 | **National banks** | OCC | Model risk (OCC 2011-12), third-party guidance |
-| **State member banks** | Federal Reserve | SR 11-7 model risk, supervision |
+| **State member banks** | Federal Reserve | SR 26-2 (formerly SR 11-7) model risk, supervision |
 | **State non-member banks** | FDIC | Interagency guidance, FFIEC IT Handbook |
 | **Credit unions** | NCUA | Part 748 security program |
 | **Broker-dealers** | FINRA, SEC | FINRA 3110 supervision, SEC 17a-3/4 records |

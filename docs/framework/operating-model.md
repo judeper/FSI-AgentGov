@@ -228,7 +228,7 @@ This document defines the organizational structure, roles, and accountability fo
 
 **Responsibilities:**
 
-- Model risk governance (OCC 2011-12, SR 11-7)
+- Model risk governance (OCC 2011-12, SR 26-2 (formerly SR 11-7))
 - Fair lending oversight
 - Third-party risk management
 - Risk committee reporting

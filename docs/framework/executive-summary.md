@@ -53,7 +53,7 @@ Microsoft 365 AI agents (Copilot Studio, Agent Builder) enable financial institu
 | **SOX 302/404** | Congress | Internal controls over financial reporting | Controls 1.7, 2.3, 3.3 |
 | **GLBA 501(b)** | Congress | Safeguards for customer information | Controls 1.5, 1.11, 1.15 |
 | **OCC 2011-12** | OCC | Model risk management | Controls 2.6, 2.11 |
-| **Fed SR 11-7** | Federal Reserve | Model risk management | Controls 2.6, 2.11 |
+| **Fed SR 26-2 (formerly SR 11-7)** | Federal Reserve | Model risk management | Controls 2.6, 2.11 |
 
 ### Regulatory Heatmap by Zone
 

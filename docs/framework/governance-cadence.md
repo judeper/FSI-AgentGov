@@ -185,7 +185,7 @@ Compliance Officer
 |------------|--------------|-----------------|
 | **FINRA 3110** | AI supervision requirements | Update supervision procedures |
 | **SEC AI Priorities** | Examination focus areas | Align documentation |
-| **OCC 2011-12 / SR 11-7** | Model risk guidance | Review validation procedures |
+| **OCC 2011-12 / SR 26-2 (formerly SR 11-7)** | Model risk guidance | Review validation procedures |
 | **State Regulations** | NYDFS, state-specific requirements | Verify compliance |
 | **Industry Standards** | NIST AI RMF, ISO updates | Gap assessment |
 
