@@ -418,7 +418,7 @@ SharePoint-hosted Copilot agents (authored via **Copilot in SharePoint**) carry 
 
 ### 6.1 Navigation
 
-1. Sign in to the **SharePoint admin center** at [https://<tenant>-admin.sharepoint.com](https://). The AI Administrator or a delegated SharePoint Admin role is required.
+1. Sign in to the **SharePoint admin center** at `https://<tenant>-admin.sharepoint.com`. The AI Administrator or a delegated SharePoint Admin role is required.
 2. In the left nav, expand **Content services** and select **Copilot agents** (may appear as **Agents** or **Copilots** depending on rollout).
 3. If the blade is not present, the feature may be disabled at the tenant level; confirm via **Settings → Copilot** before escalating as a finding.
 
