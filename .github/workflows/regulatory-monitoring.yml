@@ -129,7 +129,7 @@ jobs:
 
       - name: Add summary comment with priority items
         if: steps.create_pr.outputs.pull-request-number && steps.monitor.outputs.exit_code == '1'
-        uses: peter-evans/create-or-update-comment@v4
+        uses: peter-evans/create-or-update-comment@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           issue-number: ${{ steps.create_pr.outputs.pull-request-number }}
