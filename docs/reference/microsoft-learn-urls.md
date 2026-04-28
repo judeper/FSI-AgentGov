@@ -200,7 +200,7 @@ For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Ident
 | Retention Overview | https://learn.microsoft.com/en-us/purview/retention | Feb 2026 |
 | Retention Policies | https://learn.microsoft.com/en-us/purview/create-retention-policies | Feb 2026 |
 | Retention Labels | https://learn.microsoft.com/en-us/purview/create-retention-labels-data-lifecycle-management | Jan 2026 |
-| Retention for SharePoint | https://learn.microsoft.com/en-us/purview/retention-policies-sharepoint | Jan 2026 |
+| Retention for SharePoint | https://learn.microsoft.com/en-us/purview/create-retention-policies-sharepoint | Jan 2026 |
 | Disposition | https://learn.microsoft.com/en-us/purview/disposition | Jan 2026 |
 | SEC 17a-4 / Preservation Lock | https://learn.microsoft.com/en-us/purview/retention-regulatory-requirements | Jan 2026 |
 | Records Management | https://learn.microsoft.com/en-us/purview/records-management | Jan 2026 |
@@ -466,7 +466,7 @@ See the [Microsoft Audit Reporting Tools Playbook](../playbooks/advanced-impleme
 | SOX Section 404 | Internal Controls | https://www.soxlaw.com/s404.htm |
 | GLBA Section 501 | Safeguards | https://www.ftc.gov/legal-library/browse/statutes/gramm-leach-bliley-act |
 | OCC 2011-12 | Model Risk Management | https://www.occ.gov/news-issuances/bulletins/2011/bulletin-2011-12.html |
-| Fed SR 11-7 | Model Risk Management | https://www.federalreserve.gov/supervisionreg/srletters/sr1107.htm |
+| Fed SR 11-7 | Model Risk Management | https://www.federalreserve.gov/supervisionreg/srletters/SR2602.htm |
 
 ---
 

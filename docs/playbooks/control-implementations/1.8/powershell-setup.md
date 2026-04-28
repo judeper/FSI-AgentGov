@@ -1033,7 +1033,7 @@ function Compare-Agt18Reconciliation {
 
 ## 8. Microsoft Sentinel KQL — `EventOriginalType`, NOT `Operation`
 
-If the tenant streams Power Platform admin activity into Microsoft Sentinel via the [Microsoft Power Platform connector for Microsoft Sentinel](https://learn.microsoft.com/en-us/azure/sentinel/data-connectors/microsoft-power-platform), Control 1.8 evidence can also be queried via Sentinel KQL. Per the [`PowerPlatformAdminActivity` table reference](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/powerplatformadminactivity), the operation-name column is **`EventOriginalType`** — not `Operation`. Earlier drafts of this playbook used `Operation` and silently returned zero rows. **Do not.**
+If the tenant streams Power Platform admin activity into Microsoft Sentinel via the [Microsoft Power Platform connector for Microsoft Sentinel](https://learn.microsoft.com/en-us/azure/sentinel/business-applications/deploy-power-platform-solution), Control 1.8 evidence can also be queried via Sentinel KQL. Per the [`PowerPlatformAdminActivity` table reference](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/powerplatformadminactivity), the operation-name column is **`EventOriginalType`** — not `Operation`. Earlier drafts of this playbook used `Operation` and silently returned zero rows. **Do not.**
 
 ```kql
 // All Copilot Studio runtime threat events surfaced in PowerPlatformAdminActivity

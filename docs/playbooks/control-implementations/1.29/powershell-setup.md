@@ -258,7 +258,7 @@ $results | Format-Table EnvironmentId, Status, Error -AutoSize
 ```
 
 !!! warning "API Endpoint Validation"
-    The Power Platform REST API endpoint for enabling GSA forwarding may differ from the example above during the preview period. Validate against [https://learn.microsoft.com/en-us/power-platform/admin/api-overview](https://learn.microsoft.com/en-us/power-platform/admin/api-overview) before running in production. If the API call fails, fall back to the portal-based toggle described in the [Portal Walkthrough](portal-walkthrough.md).
+    The Power Platform REST API endpoint for enabling GSA forwarding may differ from the example above during the preview period. Validate against [https://learn.microsoft.com/en-us/power-platform/admin/programmability-extensibility-overview](https://learn.microsoft.com/en-us/power-platform/admin/programmability-extensibility-overview) before running in production. If the API call fails, fall back to the portal-based toggle described in the [Portal Walkthrough](portal-walkthrough.md).
 
 ---
 

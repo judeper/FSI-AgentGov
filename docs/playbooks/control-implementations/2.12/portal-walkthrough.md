@@ -50,7 +50,7 @@
     | Microsoft Entra ID P2 (Identity Governance) | Required for Access Reviews that underpin sponsor attestation | Entra → Identity → Overview → License |
     | Microsoft Purview Audit (Standard or Premium) | Required to retain supervision events for the 6-year SEC 17a-4 horizon | Purview → Audit → Audit retention policies |
     | SharePoint Online with retention labels (or equivalent 17a-4(f) WORM archive) | Required to preserve signed WSP, reviewer decisions, and Rule 3120 evidence | SharePoint admin → Content services → Retention labels |
-    | FINRA Gateway access (or firm CRD-evidence repository) | Required to verify principal registration | <https://www.finra.org/finra-gateway> |
+    | FINRA Gateway access (or firm CRD-evidence repository) | Required to verify principal registration | <https://www.finra.org/filing-reporting/finra-gateway> |
     | Microsoft Agent Framework SDK (optional) | Required for HITL patterns using `RequestPort` / `request_info()` / checkpoints when building code-first agents | Developer workstation with the Agent Framework runtime |
 
 !!! warning "Sovereign Cloud Availability — GCC, GCC High, DoD"
@@ -246,7 +246,7 @@ FINRA Rule 3110 requires the firm to designate an **appropriately registered pri
 
 ### 2.2 Verify registration via FINRA Gateway / CRD
 
-1. Open [`https://www.finra.org/finra-gateway`](https://www.finra.org/finra-gateway) and sign in with the firm's Gateway account.
+1. Open [`https://www.finra.org/filing-reporting/finra-gateway`](https://www.finra.org/filing-reporting/finra-gateway) and sign in with the firm's Gateway account.
 2. Navigate to **Registration → View Registrations** (the exact path may vary; anchor on the noun "Registrations").
 3. For each candidate principal, look up the CRD record and confirm:
     - Registration status is `Active`.

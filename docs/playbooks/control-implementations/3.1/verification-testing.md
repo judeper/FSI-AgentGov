@@ -1054,10 +1054,10 @@ The continuous-improvement loop is itself reviewed annually for effectiveness, a
 
 - [Microsoft 365 admin center — Manage Copilot agents](https://learn.microsoft.com/en-us/microsoft-365-copilot/microsoft-365-copilot-page)
 - [Power Platform admin — Copilot Hub](https://learn.microsoft.com/en-us/power-platform/admin/copilot/copilot-hub)
-- [Power Platform admin — Manage Copilot agents](https://learn.microsoft.com/en-us/power-platform/admin/copilot/manage-copilot-agents)
+- [Power Platform Manage Copilot agents](https://learn.microsoft.com/en-us/power-platform/admin/copilot/copilot-hub)
 - [Power Platform — Get-AdminPowerApp PowerShell](https://learn.microsoft.com/en-us/powershell/module/microsoft.powerapps.administration.powershell/)
 - [Microsoft Entra Agent ID overview](https://learn.microsoft.com/en-us/entra/identity/) (verify current Agent ID page at cycle start)
-- [Microsoft Agent 365 admin center overview](https://learn.microsoft.com/en-us/microsoft-365/agents/) (verify current page at cycle start; preview / Frontier scope)
+- [Microsoft Agent 365 admin center overview](https://learn.microsoft.com/en-us/microsoft-agent-365/) (verify current page at cycle start; preview / Frontier scope)
 - [Microsoft Purview Audit (UAL) search](https://learn.microsoft.com/en-us/purview/audit-search)
 - [Microsoft Purview Data Loss Prevention policies](https://learn.microsoft.com/en-us/purview/dlp-learn-about-dlp)
 - [Microsoft Information Protection sensitivity labels](https://learn.microsoft.com/en-us/purview/sensitivity-labels)
@@ -1070,7 +1070,7 @@ The continuous-improvement loop is itself reviewed annually for effectiveness, a
 
 - **NIST AI Risk Management Framework 1.0**, GOVERN 1.6 — Mechanisms are in place to inventory AI systems and are resourced according to organizational risk priorities. https://www.nist.gov/itl/ai-risk-management-framework
 - **OCC Bulletin 2011-12 — Sound Practices for Model Risk Management** — Higher-risk model inventory expectations. https://www.occ.gov/news-issuances/bulletins/2011/bulletin-2011-12.html
-- **Federal Reserve SR 11-7 — Guidance on Model Risk Management** — Companion guidance to OCC 2011-12. https://www.federalreserve.gov/supervisionreg/srletters/sr1107.htm
+- **Federal Reserve SR 11-7 — Guidance on Model Risk Management** — Companion guidance to OCC 2011-12. https://www.federalreserve.gov/supervisionreg/srletters/SR2602.htm
 - **FINRA Regulatory Notice 25-07 (March 2025)** — Generative-AI tool supervision; firms should be able to enumerate, supervise, and explain generative-AI use. https://www.finra.org/rules-guidance/notices/25-07
 - **FINRA Rule 4511** — Books and records general requirements.
 - **FINRA Rule 2210** — Communications with the public.

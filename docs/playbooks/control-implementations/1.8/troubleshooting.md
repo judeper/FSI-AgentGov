@@ -264,7 +264,7 @@ If the KQL returns zero rows for the last 24 hours despite known agent activity,
 
 - `learn.microsoft.com/defender-cloud-apps/ai-agent-protection`
 - `learn.microsoft.com/defender-cloud-apps/real-time-agent-protection-during-runtime`
-- `learn.microsoft.com/power-platform/admin/threat-detection`
+- `learn.microsoft.com/en-us/power-platform/guidance/adoption/threat-detection`
 
 **Fix.** Toggle both portals On. Capture screenshots for evidence. Trigger a test prompt against a sandbox Zone 1 agent and confirm a `CloudAppEvents` row appears within 15 min. Document the joint toggle decision in change management — both Power Platform Admin and Microsoft Defender XDR System Administrator sign off.
 
@@ -332,8 +332,8 @@ For errorBehavior, inspect the Additional Threat Detection configuration in PPAC
 **Microsoft Learn.**
 
 - `learn.microsoft.com/microsoft-copilot-studio/external-security-provider`
-- `learn.microsoft.com/power-platform/admin/threat-detection`
-- `learn.microsoft.com/microsoft-copilot-studio/security-content-moderation`
+- `learn.microsoft.com/en-us/power-platform/guidance/adoption/threat-detection`
+- `learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio#content-moderation`
 
 **Fix.** Enable Managed Environments for the affected environment; confirm the toggle is no longer greyed out. For errorBehavior, switch to `Block` for any Zone 2/3 agent immediately. Audit `CloudAppEvents` and the webhook provider's logs for the outage window to assess whether responses were allowed through that should have been blocked.
 
@@ -437,7 +437,7 @@ customEvents
 
 **Microsoft Learn.**
 
-- `learn.microsoft.com/microsoft-copilot-studio/security-content-moderation`
+- `learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio#content-moderation`
 - `learn.microsoft.com/azure/ai-services/content-safety/concepts/harm-categories`
 
 **Fix.** Raise to Medium (Zone 2) or High (Zone 3). Audit the prior 30-day output for what was allowed through; coordinate with Communication Compliance (Control 1.7) to review for policy violations. Document for governance review.
@@ -453,7 +453,7 @@ customEvents
 **Microsoft Learn.**
 
 - `learn.microsoft.com/microsoft-copilot-studio/admin-logging-copilot-studio`
-- `learn.microsoft.com/microsoft-copilot-studio/security-content-moderation`
+- `learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio#content-moderation`
 
 **Fix.** Bind App Insights immediately. Document the gap window in the agent's design record. If the agent is Zone 2/3 and was active during the gap, raise as a books-and-records issue (FINRA 4511 / SEC 17a-4 implication) and walk the §1.2 reportability tree.
 
@@ -591,13 +591,13 @@ Microsoft Support typical first response is per the contracted SLA (Premier: sev
 - `learn.microsoft.com/defender-cloud-apps/real-time-agent-protection-during-runtime`
 - `learn.microsoft.com/microsoft-copilot-studio/external-security-provider`
 - `learn.microsoft.com/microsoft-copilot-studio/admin-logging-copilot-studio`
-- `learn.microsoft.com/microsoft-copilot-studio/security-content-moderation`
+- `learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio#content-moderation`
 - `learn.microsoft.com/microsoft-copilot-studio/requirements-licensing-gcc`
 - `learn.microsoft.com/azure/ai-services/content-safety/concepts/harm-categories`
 - `learn.microsoft.com/microsoft-365/security/defender/advanced-hunting-cloudappevents-table`
 - `learn.microsoft.com/azure/azure-monitor/reference/tables/powerplatformadminactivity`
 - `learn.microsoft.com/powershell/module/exchange/search-unifiedauditlog`
-- `learn.microsoft.com/power-platform/admin/threat-detection`
+- `learn.microsoft.com/en-us/power-platform/guidance/adoption/threat-detection`
 
 ### 8.4 Regulatory anchors used in §1
 

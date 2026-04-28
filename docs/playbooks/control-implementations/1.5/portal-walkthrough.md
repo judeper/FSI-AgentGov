@@ -681,7 +681,7 @@ Use this as the §15 sign-off checklist before any Zone 3 enforcement decision.
 - [Connector endpoint filtering (preview)](https://learn.microsoft.com/en-us/power-platform/admin/connector-endpoint-filtering)
 - [Microsoft Purview Information Protection scanner](https://learn.microsoft.com/en-us/purview/deploy-scanner)
 - [Defender for Cloud Apps file policies](https://learn.microsoft.com/en-us/defender-cloud-apps/data-protection-policies)
-- [DLP for Power BI (Fabric)](https://learn.microsoft.com/en-us/fabric/governance/data-loss-prevention)
+- [DLP for Power BI (Fabric)](https://learn.microsoft.com/en-us/fabric/governance/data-loss-prevention-overview)
 
 ---
 

@@ -239,7 +239,7 @@ Get-SPOSite -Identity 'https://contoso.sharepoint.com/sites/legal-drafts' |
 **Learn.**
 - https://learn.microsoft.com/sharepoint/restricted-content-discovery
 - https://learn.microsoft.com/microsoft-365-copilot/microsoft-365-copilot-privacy
-- https://learn.microsoft.com/purview/dlp-microsoft365-copilot-policies-overview
+- https://learn.microsoft.com/en-us/purview/dlp-microsoft365-copilot-location-default-policy
 
 ---
 
@@ -311,7 +311,7 @@ Get-MgSubscribedSku |
 **Learn.**
 - https://learn.microsoft.com/power-platform/admin/wp-data-loss-prevention
 - https://learn.microsoft.com/microsoft-copilot-studio/security-and-governance
-- https://learn.microsoft.com/purview/dlp-microsoft365-copilot-policies-overview
+- https://learn.microsoft.com/en-us/purview/dlp-microsoft365-copilot-location-default-policy
 
 > **Latency note.** DLP enforcement messaging in Copilot Studio has shown latency historically. Verify in-tenant by attempting the prohibited operation immediately after policy change and again after the documented Learn propagation window.
 
@@ -354,7 +354,7 @@ Get-SPOSite -Identity 'https://contoso.sharepoint.com/sites/legal-drafts' |
 **Verification.** Re-test the agent; confirm no OneDrive citations.
 
 **Learn.**
-- https://learn.microsoft.com/microsoft-copilot-studio/knowledge-overview
+- https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio
 - https://learn.microsoft.com/microsoft-365-copilot/microsoft-365-copilot-privacy
 
 ---
@@ -393,7 +393,7 @@ $count = (Get-SPOTenantRestrictedSearchAllowedList).Count
 **Verification.** Agent invocation reflects the new knowledge-source posture.
 
 **Learn.**
-- https://learn.microsoft.com/microsoft-copilot-studio/knowledge-overview
+- https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio
 
 ---
 
@@ -410,8 +410,8 @@ $count = (Get-SPOTenantRestrictedSearchAllowedList).Count
 **Verification.** Evidence pack contains the parity verification date, the cloud, and the fallback posture.
 
 **Learn.**
-- https://learn.microsoft.com/microsoft-365/enterprise/microsoft-365-us-government-gcc-high
-- https://learn.microsoft.com/microsoft-365/enterprise/microsoft-365-us-government-dod
+- https://learn.microsoft.com/en-us/office365/servicedescriptions/office-365-platform-service-description/office-365-us-government/gcc-high-and-dod
+- https://learn.microsoft.com/en-us/office365/servicedescriptions/office-365-platform-service-description/office-365-us-government/gcc-high-and-dod
 
 ---
 
@@ -428,7 +428,7 @@ $count = (Get-SPOTenantRestrictedSearchAllowedList).Count
 **Verification.** Re-test grounding from a non-privileged user; classic content no longer appears.
 
 **Learn.**
-- https://learn.microsoft.com/sharepoint/dev/transform/modernize-classic-pages
+- https://learn.microsoft.com/en-us/sharepoint/dev/transform/modernize-classic-sites
 - https://learn.microsoft.com/sharepoint/restricted-content-discovery
 
 ---
@@ -678,8 +678,8 @@ External (verify URL currency at time of operation):
 - https://learn.microsoft.com/sharepoint/data-access-governance-reports
 - https://learn.microsoft.com/microsoft-365-copilot/microsoft-365-copilot-privacy
 - https://learn.microsoft.com/microsoft-365-copilot/microsoft-365-copilot-licensing
-- https://learn.microsoft.com/purview/dlp-microsoft365-copilot-policies-overview
-- https://learn.microsoft.com/microsoft-copilot-studio/knowledge-overview
+- https://learn.microsoft.com/en-us/purview/dlp-microsoft365-copilot-location-default-policy
+- https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio
 - https://learn.microsoft.com/microsoft-copilot-studio/security-and-governance
 - https://learn.microsoft.com/power-platform/admin/wp-data-loss-prevention
 - https://learn.microsoft.com/purview/audit-solutions-overview

@@ -37,6 +37,9 @@
       "pattern": "^https://github\\.com/judeper/FSI-AgentGov-Solutions"
     },
     {
+      "pattern": "^https://approvals\\.microsoft\\.com"
+    },
+    {
       "pattern": "contoso"
     },
     {

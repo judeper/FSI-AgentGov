@@ -80,13 +80,13 @@ For PowerShell parity, see [powershell-setup.md](powershell-setup.md) and `docs/
 
 | Capability (Control 1.8 surface) | Commercial | GCC | GCC High | DoD | Source / verification |
 |---|---|---|---|---|---|
-| Microsoft Defender for Cloud Apps — **AI Agent Protection** (inventory + activity logging + runtime alerts) | **Preview** | **Not at parity (verify)** | **Not at parity (verify)** | **Not at parity (verify)** | [ai-agent-protection](https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-protection); [ai-agent-inventory](https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-inventory); [protect-copilot-studio](https://learn.microsoft.com/en-us/defender-cloud-apps/protect-copilot-studio) |
+| Microsoft Defender for Cloud Apps — **AI Agent Protection** (inventory + activity logging + runtime alerts) | **Preview** | **Not at parity (verify)** | **Not at parity (verify)** | **Not at parity (verify)** | [ai-agent-protection](https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-protection); [ai-agent-inventory](https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-inventory); [protect-copilot-studio](https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-protection) |
 | Defender for Cloud Apps — **Real-time agent protection during runtime** | **Preview** | **Not at parity (verify)** | **Not at parity (verify)** | **Not at parity (verify)** | [real-time-agent-protection-during-runtime](https://learn.microsoft.com/en-us/defender-cloud-apps/real-time-agent-protection-during-runtime) |
-| PPAC Security → **Threat Protection** — Native Defender handshake | Available (Preview gated) | **Verify** | **Verify** | **Verify** | [admin/threat-detection](https://learn.microsoft.com/en-us/power-platform/admin/threat-detection) |
-| PPAC Security → **Threat Protection — Additional Threat Detection** (third-party / custom webhook) | **Prerelease** | **Verify** | **Verify** | **Not available (verify)** | [external-security-provider](https://learn.microsoft.com/en-us/microsoft-copilot-studio/external-security-provider); [admin/threat-detection](https://learn.microsoft.com/en-us/power-platform/admin/threat-detection) |
+| PPAC Security → **Threat Protection** — Native Defender handshake | Available (Preview gated) | **Verify** | **Verify** | **Verify** | [admin/threat-detection](https://learn.microsoft.com/en-us/power-platform/guidance/adoption/threat-detection) |
+| PPAC Security → **Threat Protection — Additional Threat Detection** (third-party / custom webhook) | **Prerelease** | **Verify** | **Verify** | **Not available (verify)** | [external-security-provider](https://learn.microsoft.com/en-us/microsoft-copilot-studio/external-security-provider); [admin/threat-detection](https://learn.microsoft.com/en-us/power-platform/guidance/adoption/threat-detection) |
 | Microsoft Entra ID **app registration + Federated Identity Credential** (workload identity for webhook auth) | GA | GA | GA | GA | [external-security-provider](https://learn.microsoft.com/en-us/microsoft-copilot-studio/external-security-provider) — verify FIC parity per cloud |
 | Copilot Studio **Prompt Shields** (UPIA + XPIA detection; tenant-wide; on by default) | GA | GA (verify) | GA (verify) | **Verify** | [security-and-governance](https://learn.microsoft.com/en-us/microsoft-copilot-studio/security-and-governance); [requirements-licensing-gcc](https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-licensing-gcc) |
-| Copilot Studio **per-agent content moderation Low / Medium / High** (Azure AI Content Safety severity 0/2/4/6) | GA | GA (verify) | GA (verify) | **Verify** | [security-content-moderation](https://learn.microsoft.com/en-us/microsoft-copilot-studio/security-content-moderation); [content-safety/concepts/harm-categories](https://learn.microsoft.com/en-us/azure/ai-services/content-safety/concepts/harm-categories) |
+| Copilot Studio **per-agent content moderation Low / Medium / High** (Azure AI Content Safety severity 0/2/4/6) | GA | GA (verify) | GA (verify) | **Verify** | [security-content-moderation](https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio#content-moderation); [content-safety/concepts/harm-categories](https://learn.microsoft.com/en-us/azure/ai-services/content-safety/concepts/harm-categories) |
 | Copilot Studio per-agent **Application Insights — RAI ContentFiltered events** | GA (per-agent toggle) | GA (verify) | GA (verify) | **Verify** | [admin-logging-copilot-studio](https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-logging-copilot-studio) |
 | **AISPM dashboard in Microsoft Defender XDR** | **Preview / verify** | **Not at parity (verify)** | **Not at parity (verify)** | **Not at parity (verify)** | Microsoft 365 Roadmap — verify at deployment |
 | Microsoft Defender XDR **custom detection rules on `CloudAppEvents`** | GA | GA (verify) | GA (verify) | GA (verify) | [advanced-hunting-cloudappevents-table](https://learn.microsoft.com/en-us/microsoft-365/security/defender/advanced-hunting-cloudappevents-table) |
@@ -114,14 +114,14 @@ Complete every gate **before** opening Section 4. Each gate has explicit pass cr
 
 | Capability | Required licensing | Verification |
 |---|---|---|
-| Defender for Cloud Apps **AI Agent Protection** + AISPM | Microsoft Defender for Cloud Apps standalone license **or** included via Microsoft 365 E5 / E5 Security; verify Defender XDR plan against ([protect-copilot-studio](https://learn.microsoft.com/en-us/defender-cloud-apps/protect-copilot-studio)) | Microsoft Defender portal → Settings → Cloud apps → tenant licensing summary |
+| Defender for Cloud Apps **AI Agent Protection** + AISPM | Microsoft Defender for Cloud Apps standalone license **or** included via Microsoft 365 E5 / E5 Security; verify Defender XDR plan against ([protect-copilot-studio](https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-protection)) | Microsoft Defender portal → Settings → Cloud apps → tenant licensing summary |
 | Copilot Studio Prompt Shields + content moderation Low/Medium/High | Copilot Studio license (per-tenant or per-user); generative-AI capacity (PAYG or pre-paid messages) per [security-and-governance](https://learn.microsoft.com/en-us/microsoft-copilot-studio/security-and-governance) | PPAC → Resources → Capacity → Copilot Studio messages |
 | PPAC **Threat Protection** (native + Additional) | Power Platform Admin role; capability gated by Defender for Cloud Apps preview opt-in for native handshake | PPAC → Security → Threat Protection visible in left rail |
 | Microsoft Entra **app registration + Federated Identity Credential** | Entra App Admin (Application Administrator) **or** Cloud Application Administrator | Microsoft Entra admin center → Identity → Applications |
 | Application Insights per-agent | Azure subscription with Application Insights workspace; Owner / Contributor on the workspace; instrumentation key or connection string | Azure portal → Application Insights resource → Properties |
 | Microsoft Purview **Audit (Standard / Premium)** for runtime evidence promotion | Microsoft 365 E3 (Standard) or E5 / E5 Compliance (Premium); Audit (Premium) required for long-term retention beyond default | See [Control 1.7 portal walkthrough](../1.7/portal-walkthrough.md) |
 
-> Pay-as-you-go (PAYG) Copilot Studio messages are billed against an Azure subscription. Confirm the billing subscription, owner, and budget alert thresholds **before** enabling content moderation at level **High** in production — High moderation can increase model invocation cost relative to baseline. See [security-content-moderation](https://learn.microsoft.com/en-us/microsoft-copilot-studio/security-content-moderation).
+> Pay-as-you-go (PAYG) Copilot Studio messages are billed against an Azure subscription. Confirm the billing subscription, owner, and budget alert thresholds **before** enabling content moderation at level **High** in production — High moderation can increase model invocation cost relative to baseline. See [security-content-moderation](https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio#content-moderation).
 
 ### 2.2 Microsoft 365 App Connector health (silent failure mode)
 
@@ -135,7 +135,7 @@ The Defender for Cloud Apps Microsoft 365 App Connector is the upstream prerequi
 4. Locate **Microsoft 365** in the connector list.
 5. **PASS:** Status column shows `Connected` with a green indicator and **Last activity** within the last 24 hours.
 6. **FAIL conditions:**
-    - Status = `Disconnected` or `Error` → re-authorize the connector via **App Connectors** → row action **Edit settings** → re-consent. See [protect-copilot-studio](https://learn.microsoft.com/en-us/defender-cloud-apps/protect-copilot-studio).
+    - Status = `Disconnected` or `Error` → re-authorize the connector via **App Connectors** → row action **Edit settings** → re-consent. See [protect-copilot-studio](https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-protection).
     - Status = `Connected` but **Last activity** > 24 hours → open a Microsoft support ticket; do **not** continue.
     - Microsoft 365 not present in the connector list → add via **+ Add app** and complete tenant consent (Entra Global Admin required for first consent).
 
@@ -242,7 +242,7 @@ The native handshake requires **both** portals to be configured. Either side alo
 8. Toggle **AI Agents** → **On**.
 9. Save and capture screenshot `1.8-RTP-04a1_<UTC>_<test-id>_defender-cloud-apps-copilot-studio-toggle.png`.
 
-Reference: [protect-copilot-studio](https://learn.microsoft.com/en-us/defender-cloud-apps/protect-copilot-studio); [ai-agent-protection](https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-protection); [ai-agent-inventory](https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-inventory); [real-time-agent-protection-during-runtime](https://learn.microsoft.com/en-us/defender-cloud-apps/real-time-agent-protection-during-runtime).
+Reference: [protect-copilot-studio](https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-protection); [ai-agent-protection](https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-protection); [ai-agent-inventory](https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-inventory); [real-time-agent-protection-during-runtime](https://learn.microsoft.com/en-us/defender-cloud-apps/real-time-agent-protection-during-runtime).
 
 #### 4a-2 — Power Platform Admin Center (PPAC) handshake
 
@@ -253,7 +253,7 @@ Reference: [protect-copilot-studio](https://learn.microsoft.com/en-us/defender-c
 5. Toggle **On**.
 6. Save and capture screenshot `1.8-RTP-04a2_<UTC>_<test-id>_ppac-threat-protection-native-defender.png`.
 
-Reference: [admin/threat-detection](https://learn.microsoft.com/en-us/power-platform/admin/threat-detection).
+Reference: [admin/threat-detection](https://learn.microsoft.com/en-us/power-platform/guidance/adoption/threat-detection).
 
 #### 4a-3 — Verification (the handshake actually completed)
 
@@ -300,7 +300,7 @@ The order matters: **PPAC must mint the subject first**; only then can the FIC b
 5. Save the target. PPAC will now display a **server-issued subject identifier** for use in the Entra Federated Identity Credential. **Copy this value verbatim**.
 6. Screenshot `1.8-RTP-04b2_<UTC>_<test-id>_ppac-additional-threat-detection-subject.png` (redact tenant identifiers if retained outside the evidence pack).
 
-Reference: [external-security-provider](https://learn.microsoft.com/en-us/microsoft-copilot-studio/external-security-provider); [admin/threat-detection](https://learn.microsoft.com/en-us/power-platform/admin/threat-detection).
+Reference: [external-security-provider](https://learn.microsoft.com/en-us/microsoft-copilot-studio/external-security-provider); [admin/threat-detection](https://learn.microsoft.com/en-us/power-platform/guidance/adoption/threat-detection).
 
 #### 4b-3 — Create the Federated Identity Credential in Entra
 
@@ -364,7 +364,7 @@ Copilot Studio exposes three content-moderation levels — **Low**, **Medium**, 
 4. Save.
 5. Screenshot per agent: `1.8-RTP-04d-<agent-id>_<UTC>_<test-id>_content-moderation-level.png`.
 
-Reference: [security-content-moderation](https://learn.microsoft.com/en-us/microsoft-copilot-studio/security-content-moderation).
+Reference: [security-content-moderation](https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio#content-moderation).
 
 > Setting **High** in production may increase false-positive blocks. Pilot per the Section 5 seed-and-assert before promoting to production. Expect content-moderation cost to rise relative to baseline; monitor PAYG capacity per §2.1.
 
@@ -378,7 +378,7 @@ Reference: [security-content-moderation](https://learn.microsoft.com/en-us/micro
 4. Review **Recommendations** for each agent. Triage Critical/High recommendations through your normal change-management process; do **not** apply blanket auto-remediation.
 5. Screenshot `1.8-RTP-04e_<UTC>_<test-id>_aispm-dashboard.png`.
 
-Reference: [protect-copilot-studio](https://learn.microsoft.com/en-us/defender-cloud-apps/protect-copilot-studio).
+Reference: [protect-copilot-studio](https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-protection).
 
 > AISPM Recommendations are advisory. They are **not** authoritative against FFIEC AIO §III.B model risk inventory; reconcile against the [Control 1.1](../../../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md) governance register.
 

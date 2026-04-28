@@ -1088,7 +1088,7 @@ The following 20 anti-patterns are recurring causes of Control 4.7 incidents in 
 
 - Microsoft Learn: [Microsoft 365 Copilot data protection](https://learn.microsoft.com/microsoft-365-copilot/microsoft-365-copilot-privacy)
 - Microsoft Learn: [Restricted SharePoint Search](https://learn.microsoft.com/sharepoint/restricted-sharepoint-search)
-- Microsoft Learn: [DLP for Microsoft 365 Copilot](https://learn.microsoft.com/purview/dlp-microsoft365-copilot-learn-about)
+- Microsoft Learn: [DLP for Microsoft 365 Copilot](https://learn.microsoft.com/en-us/purview/dlp-microsoft365-copilot-location-learn-about)
 - Microsoft Learn: [Microsoft Purview Audit (Premium)](https://learn.microsoft.com/purview/audit-premium)
 
 ---

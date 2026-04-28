@@ -427,13 +427,13 @@ Sharing limits do **NOT** apply to:
 
 ### 5.1 What solution checker enforces
 
-Per [Microsoft Learn — Solution checker enforcement](https://learn.microsoft.com/en-us/power-platform/alm/solution-checker-enforcement), Managed Environments run solution checker on **import** of any unmanaged or managed solution and on **publish** of components inside a solution. The enforcement levels:
+Per [Microsoft Learn — Power Platform Build Tools](https://learn.microsoft.com/en-us/power-platform/alm/devops-build-tools), Managed Environments run solution checker on **import** of any unmanaged or managed solution and on **publish** of components inside a solution. The enforcement levels:
 
 - **None** — solution checker runs but does not block import/publish. Results are surfaced to the maker but unenforced.
 - **Warn** — solutions with **critical** issues display a warning banner; the maker can override and proceed. Override events are written to Dataverse audit.
 - **Block** — solutions with **critical** issues are **blocked** from import/publish. The maker must remediate critical issues before retrying. Block events are written to Dataverse audit.
 
-Issue severity is set by the solution-checker rule catalog. Critical severity rules are documented in [Microsoft Learn — Solution checker rules](https://learn.microsoft.com/en-us/power-platform/alm/solution-checker-rules-reference). Examples of critical-severity rules include cleartext credential patterns, unsafe HTTP-action use, and patterns that bypass platform security boundaries.
+Issue severity is set by the solution-checker rule catalog. Critical severity rules are documented in [Microsoft Learn — Power Apps Checker API](https://learn.microsoft.com/en-us/power-platform/alm/checker-api/overview). Examples of critical-severity rules include cleartext credential patterns, unsafe HTTP-action use, and patterns that bypass platform security boundaries.
 
 ### 5.2 Configure enforcement
 
@@ -1016,7 +1016,7 @@ Use the portal for changes that benefit from operator-in-the-loop visual confirm
 - [Microsoft Learn — Managed Environments overview](https://learn.microsoft.com/en-us/power-platform/admin/managed-environment-overview)
 - [Microsoft Learn — Customer-managed key](https://learn.microsoft.com/en-us/power-platform/admin/customer-managed-key)
 - [Microsoft Learn — IP firewall](https://learn.microsoft.com/en-us/power-platform/admin/ip-firewall)
-- [Microsoft Learn — Solution checker enforcement](https://learn.microsoft.com/en-us/power-platform/alm/solution-checker-enforcement)
+- [Microsoft Learn — Solution checker enforcement](https://learn.microsoft.com/en-us/power-platform/alm/devops-build-tools)
 
 ---
 

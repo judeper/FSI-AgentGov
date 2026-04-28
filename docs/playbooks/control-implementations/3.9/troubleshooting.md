@@ -442,7 +442,7 @@ A SOC analyst opens the Sentinel MCP Server natural-language query interface (pr
 
 ### Resolution
 - If data lake not provisioned: provision via Sentinel → Settings → Data lake → Enable. Note the **24-hour initial sync** before MCP returns useful results.
-- If license missing: assign per the [Sentinel MCP licensing guide](https://learn.microsoft.com/azure/sentinel/mcp-server) and confirm via `Get-Agt39McpStatus`.
+- If license missing: assign per the [Sentinel MCP licensing guide](https://learn.microsoft.com/en-us/azure/sentinel/datalake/sentinel-mcp-get-started) and confirm via `Get-Agt39McpStatus`.
 - If schema not yet ingested for a custom table: trigger a manual schema re-sync via Sentinel → Settings → MCP Server → Refresh schema.
 - If RBAC: grant **Sentinel Reader** on the workspace scoped to the requesting user, evidenced via PIM activation.
 - **In all cases:** SOC analysts must continue to know how to write direct KQL. MCP is a productivity layer; KQL is the truth.
@@ -1066,7 +1066,7 @@ Capture E-01 (incident), E-02 (connector + AppInsights linkage state at time of 
 ### External (Microsoft Learn — verify currency before relying)
 - [Microsoft Sentinel data connectors reference](https://learn.microsoft.com/azure/sentinel/data-connectors-reference)
 - [Microsoft Entra audit log schemas](https://learn.microsoft.com/entra/identity/monitoring-health/concept-sign-ins)
-- [Microsoft Sentinel data lake and MCP Server](https://learn.microsoft.com/azure/sentinel/mcp-server)
+- [Microsoft Sentinel data lake and MCP Server](https://learn.microsoft.com/en-us/azure/sentinel/datalake/sentinel-mcp-get-started)
 - [Log Analytics workspace data purge API](https://learn.microsoft.com/azure/azure-monitor/logs/personal-data-mgmt)
 - [NYDFS 23 NYCRR 500 — Cybersecurity Requirements for Financial Services Companies](https://www.dfs.ny.gov/industry_guidance/cybersecurity)
 

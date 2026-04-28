@@ -2022,7 +2022,7 @@ The orchestrator emits the following artefacts to `$EvidenceRoot/<UTC-timestamp>
 - Microsoft Learn: [Conditional Access overview](https://learn.microsoft.com/en-us/entra/identity/conditional-access/overview)
 - Microsoft Learn: [Conditional Access for Workload Identities](https://learn.microsoft.com/en-us/entra/identity/conditional-access/workload-identity)
 - Microsoft Learn: [Authentication strengths](https://learn.microsoft.com/en-us/entra/identity/authentication/concept-authentication-strengths)
-- Microsoft Learn: [Microsoft Entra Agent ID (preview)](https://learn.microsoft.com/en-us/entra/identity/agent-id/overview)
+- Microsoft Learn: [Microsoft Entra Agent ID (preview)](https://learn.microsoft.com/en-us/entra/agent-id/what-is-agent-id-platform)
 - Microsoft Learn: [Token Protection in Conditional Access (preview)](https://learn.microsoft.com/en-us/entra/identity/conditional-access/concept-token-protection)
 - Microsoft Learn: [Continuous Access Evaluation](https://learn.microsoft.com/en-us/entra/identity/conditional-access/concept-continuous-access-evaluation)
 - NIST SP 800-63B: [Digital Identity Guidelines — Authentication and Lifecycle Management](https://pages.nist.gov/800-63-3/sp800-63b.html)
