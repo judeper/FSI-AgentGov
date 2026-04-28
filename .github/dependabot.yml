@@ -1,0 +1,79 @@
+# Dependabot configuration
+# Docs: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+#
+# Strategy:
+# - Daily checks across all 4 ecosystems present in this repo.
+# - Minor + patch updates are grouped per ecosystem to keep PR noise low.
+# - Major updates open individual PRs so they can be reviewed in isolation.
+# - Security updates are always opened immediately, independent of these schedules.
+version: 2
+
+updates:
+  # GitHub Actions used in .github/workflows/*.yml
+  # Prevents another "Node 20 deprecated" surprise like the April 2026 sweep.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "judeper"
+    commit-message:
+      prefix: "chore(ci)"
+      include: "scope"
+    groups:
+      actions-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Python deps for the assessment scoring engine
+  - package-ecosystem: "pip"
+    directory: "/assessment"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "judeper"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    groups:
+      assessment-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Python deps for the doc-generation / verification scripts
+  - package-ecosystem: "pip"
+    directory: "/scripts"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "judeper"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    groups:
+      scripts-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Root npm deps (Vitest + small dev tooling)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "judeper"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    groups:
+      npm-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
