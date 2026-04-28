@@ -29,6 +29,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 |---------|--------|------|
 | **v1.4.x** (current) | April 2026 | [CHANGELOG-v1.4.md](CHANGELOG-v1.4.md) |
 | **v1.3.x** | March–April 2026 | [CHANGELOG-v1.3.md](CHANGELOG-v1.3.md) |
-| **v1.2.x** | January–March 2026 | [CHANGELOG-v1.2.md](CHANGELOG-v1.2.md) |
-| **v1.1.x** | January 2026 | [CHANGELOG-v1.1.md](CHANGELOG-v1.1.md) |
-| **v1.0.x and earlier** | October–December 2025 | [CHANGELOG-v1.0.md](CHANGELOG-v1.0.md) |
+| **v1.2.x and earlier** | October 2025 – March 2026 | Archived — see [git history](https://github.com/judeper/FSI-AgentGov/commits/main/) prior to April 2026 |

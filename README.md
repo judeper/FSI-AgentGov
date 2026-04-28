@@ -465,7 +465,7 @@ This framework is designed for continuous evolution:
 
 ## 📄 Document Version History
 
-> For detailed changes, see the [Changelog](CHANGELOG.md) index. Current: [v1.4.x](CHANGELOG-v1.4.md) | [v1.3.x](CHANGELOG-v1.3.md) | [v1.2.x](CHANGELOG-v1.2.md) | [v1.1.x](CHANGELOG-v1.1.md) | [v1.0.x](CHANGELOG-v1.0.md)
+> For detailed changes, see the [Changelog](CHANGELOG.md) index. Current: [v1.4.x](CHANGELOG-v1.4.md) | [v1.3.x](CHANGELOG-v1.3.md) | v1.2.x and earlier — archived (see git history prior to April 2026)
 
 | Version | Date | Changes | Author |
 |---------|------|---------|--------|
@@ -473,14 +473,7 @@ This framework is designed for continuous evolution:
 | [1.3.5](CHANGELOG-v1.3.md#135--april-2026-opus-47-council-catalog-completion) | Apr 2026 | Opus 4.7 council pass — 52 controls + 208 playbooks fully uplifted (full 78/78 coverage) | [@judeper](https://github.com/judeper) |
 | [1.3.4](CHANGELOG-v1.3.md#134--april-2026-autonomous-dual-model-council-review) | Apr 2026 | Autonomous dual-model council review — FINRA 25-07 across all 78 controls, 14 control-specific fixes | [@judeper](https://github.com/judeper) |
 | [1.3.0](CHANGELOG-v1.3.md) | Mar 2026 | Six new controls, 24 playbooks, five control patches, and catalog expansion to 78 controls | [@judeper](https://github.com/judeper) |
-| [1.2.54](CHANGELOG-v1.2.md#1254--march-13-2026-csa-enablement--automation-indicators) | Mar 2026 | CSA Quick Reference, CSA Positioning Guide, automation indicators on all 71 controls, exportable diagrams | [@judeper](https://github.com/judeper) |
-| [1.2.53](CHANGELOG-v1.2.md#1253--march-2026-governance-readiness-assessment-tool) | Mar 2026 | Interactive Governance Readiness Assessment tool, assessment data extraction | [@judeper](https://github.com/judeper) |
-| [1.2.52](CHANGELOG-v1.2.md#1252--february-2026-sspm-coverage-remediation) | Feb 2026 | SSPM coverage remediation | [@judeper](https://github.com/judeper) |
-| [1.2.51](CHANGELOG-v1.2.md#1251--february-2026-uasd-review-remediation) | Feb 2026 | UASD review remediation — 6 critical script fixes, troubleshooting expansion | [@judeper](https://github.com/judeper) |
-| [1.2.0](CHANGELOG-v1.2.md#120--january-25-2026-platform-change-governance) | Jan 2026 | Four-pillar expansion (71 controls), 284 playbooks, companion solutions | [@judeper](https://github.com/judeper) |
-| [1.1.0](CHANGELOG-v1.1.md#11--january-2026) | Jan 2026 | Three-layer documentation architecture, 252 playbooks, framework layer | [@judeper](https://github.com/judeper) |
-| [1.0.0](CHANGELOG-v1.0.md#10--january-2026) | Jan 2026 | Evaluation gates, adversarial testing, multi-agent governance, RACI | [@judeper](https://github.com/judeper) |
-| [Beta](CHANGELOG-v1.0.md#beta--december-2025) | Dec 2025 | DSPM, bias testing, runtime protection, FINRA Notice 25-07 alignment | [@judeper](https://github.com/judeper) |
+| v1.2.x and earlier | Oct 2025 – Mar 2026 | Archived. Highlights: four-pillar expansion to 78 controls, 284 playbooks, companion solutions, three-layer documentation architecture, evaluation gates, adversarial testing, multi-agent governance, DSPM, bias testing, FINRA Notice 25-07 alignment. See [git history](https://github.com/judeper/FSI-AgentGov/commits/main/) prior to April 2026. | [@judeper](https://github.com/judeper) |
 
 ---
 
