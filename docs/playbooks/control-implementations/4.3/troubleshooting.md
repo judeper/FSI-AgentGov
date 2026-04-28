@@ -105,7 +105,7 @@ Search-UnifiedAuditLog -StartDate (Get-Date).AddDays(-7) -EndDate (Get-Date) `
 ## Related Resources
 
 - [Site lifecycle management overview](https://learn.microsoft.com/en-us/sharepoint/site-lifecycle-management)
-- [Retention policies for SharePoint and OneDrive](https://learn.microsoft.com/en-us/purview/create-retention-policies-sharepoint)
+- [Retention policies for SharePoint and OneDrive](https://learn.microsoft.com/en-us/purview/retention-policies-sharepoint)
 - [Use preservation lock for regulatory requirements](https://learn.microsoft.com/en-us/purview/retention-regulatory-requirements)
 - [Disposition of content](https://learn.microsoft.com/en-us/purview/disposition)
 - [Records Management in Microsoft Purview](https://learn.microsoft.com/en-us/purview/records-management)
