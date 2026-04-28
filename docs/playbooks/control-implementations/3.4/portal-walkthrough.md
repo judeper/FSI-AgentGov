@@ -916,7 +916,7 @@ The **SharePoint IR list** is the firm's authoritative incident record outside t
 
 ### 8.1 Site setup (one-time)
 
-1. Sign in to the **SharePoint admin center** at [https://<tenant>-admin.sharepoint.com](https://) with **SharePoint Administrator** activated.
+1. Sign in to the **SharePoint admin center** at `https://<tenant>-admin.sharepoint.com` with **SharePoint Administrator** activated.
 2. Navigate to **Sites → Active sites → + Create → Team site (no group)** (or use a pre-provisioned IR site if the firm template exists).
 3. Configure the site:
     - **Site name** — `IR — Incident Response Register` (use a stable, well-known name).
