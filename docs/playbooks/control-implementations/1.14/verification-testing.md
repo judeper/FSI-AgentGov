@@ -1378,7 +1378,7 @@ The following anti-patterns have been observed in FSI deployments. Each is paire
 - Microsoft Learn — *Data loss prevention policies* — <https://learn.microsoft.com/en-us/power-platform/admin/wp-data-loss-prevention>
 - Microsoft Learn — *Connector classification* — <https://learn.microsoft.com/en-us/power-platform/admin/dlp-connector-classification>
 - Microsoft Learn — *Advanced Connector Policies* — <https://learn.microsoft.com/en-us/power-platform/admin/connector-action-control>
-- Microsoft Learn — *Add knowledge to your agent (SharePoint / OneDrive)* — <https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-add-sharepoint-onedrive>
+- Microsoft Learn — *Add knowledge to your agent (SharePoint / OneDrive)* — <https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-add-sharepoint>
 - Microsoft Learn — *Restricted SharePoint Search* — <https://learn.microsoft.com/en-us/sharepoint/restricted-sharepoint-search>
 - Microsoft Learn — *Restricted Content Discovery* — <https://learn.microsoft.com/en-us/sharepoint/restricted-content-discovery>
 - Microsoft Learn — *Microsoft Purview DSPM for AI* — <https://learn.microsoft.com/en-us/purview/ai-microsoft-purview>

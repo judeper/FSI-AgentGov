@@ -108,7 +108,7 @@ If reports look stale: SharePoint Admin Center > **Reports** > **Data access gov
 - [Agent insights in SharePoint](https://learn.microsoft.com/en-us/sharepoint/insights-on-sharepoint-agents)
 - [Data access governance reports](https://learn.microsoft.com/en-us/sharepoint/data-access-governance-reports)
 - [SharePoint Advanced Management overview](https://learn.microsoft.com/en-us/sharepoint/advanced-management)
-- [SharePoint Admin agent overview](https://learn.microsoft.com/en-us/sharepoint/sharepoint-admin-agent)
+- [SharePoint Admin agent overview](https://learn.microsoft.com/en-us/sharepoint/content-governance-agent)
 - [Microsoft Purview Audit overview](https://learn.microsoft.com/en-us/purview/audit-solutions-overview)
 - [Manage audit log retention policies](https://learn.microsoft.com/en-us/purview/audit-log-retention-policies)
 - [Search-UnifiedAuditLog cmdlet reference](https://learn.microsoft.com/en-us/powershell/module/exchange/search-unifiedauditlog)

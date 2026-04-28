@@ -579,7 +579,7 @@ Provide to external auditor / examiner under the firm's standard records-request
 - [Control 3.9 — Microsoft Sentinel Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md)
 - Microsoft Learn — [Data Loss Prevention reference](https://learn.microsoft.com/purview/dlp-learn-about-dlp)
 - Microsoft Learn — [DLP policy locations](https://learn.microsoft.com/purview/dlp-policy-reference)
-- Microsoft Learn — [DLP for Microsoft 365 Copilot](https://learn.microsoft.com/purview/dlp-microsoft365-copilot-learn-about)
+- Microsoft Learn — [DLP for Microsoft 365 Copilot](https://learn.microsoft.com/en-us/purview/dlp-microsoft365-copilot-location-learn-about)
 - Microsoft Learn — [Sensitivity labels](https://learn.microsoft.com/purview/sensitivity-labels)
 - Microsoft Learn — [Power Platform DLP policies](https://learn.microsoft.com/power-platform/admin/wp-data-loss-prevention)
 - Microsoft Learn — [Adaptive Protection](https://learn.microsoft.com/purview/insider-risk-management-adaptive-protection)

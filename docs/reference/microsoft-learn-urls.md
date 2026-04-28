@@ -466,7 +466,7 @@ See the [Microsoft Audit Reporting Tools Playbook](../playbooks/advanced-impleme
 | SOX Section 404 | Internal Controls | https://www.soxlaw.com/s404.htm |
 | GLBA Section 501 | Safeguards | https://www.ftc.gov/legal-library/browse/statutes/gramm-leach-bliley-act |
 | OCC 2011-12 | Model Risk Management | https://www.occ.gov/news-issuances/bulletins/2011/bulletin-2011-12.html |
-| Fed SR 11-7 | Model Risk Management | https://www.federalreserve.gov/supervisionreg/srletters/sr1107.htm |
+| Fed SR 11-7 | Model Risk Management | https://www.federalreserve.gov/supervisionreg/srletters/SR2602.htm |
 
 ---
 

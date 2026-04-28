@@ -435,7 +435,7 @@ Describe 'TC-10: Monthly chargeback ledger end-to-end' {
 
 **Procedure.**
 
-1. Identify which surfaces are non-parity for the current cloud (consult Microsoft account team, [Microsoft 365 Government roadmap](https://aka.ms/m365gov-roadmap), and the [Azure Government services availability](https://learn.microsoft.com/en-us/azure/azure-government/documentation-government-services-supportstatus)).
+1. Identify which surfaces are non-parity for the current cloud (consult Microsoft account team, [Microsoft 365 Government roadmap](https://aka.ms/m365gov-roadmap), and the [Azure Government services availability](https://learn.microsoft.com/en-us/azure/azure-government/compare-azure-government-global-azure)).
 2. For each gap, document the manual compensating control:
    - **No M365 Copilot PAYG in DoD** → manual seat-based chargeback driven by license assignment; rate per assigned seat per month.
    - **No Cost Management Power BI connector for the relevant scope** → manual export to Excel; chargeback ledger built in Excel with formula audit.

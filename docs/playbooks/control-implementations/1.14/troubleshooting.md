@@ -524,7 +524,7 @@ Mandatory data to gather **before** filing the case. Do not file without items 1
 
 - `learn.microsoft.com/microsoft-copilot-studio/knowledge-add-sharepoint`
 - `learn.microsoft.com/microsoft-copilot-studio/security-and-governance`
-- `learn.microsoft.com/microsoft-copilot-studio/security-content-moderation`
+- `learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio#content-moderation`
 - `learn.microsoft.com/microsoft-copilot-studio/admin-logging-copilot-studio`
 - `learn.microsoft.com/power-platform/admin/wp-data-loss-prevention`
 - `learn.microsoft.com/power-platform/admin/dlp-connector-classification`
@@ -552,7 +552,7 @@ Mandatory data to gather **before** filing the case. Do not file without items 1
 - **FINRA Rule 4511** — books-and-records general requirements — `finra.org/rules-guidance/rulebooks/finra-rules/4511`
 - **FINRA Rule 4530** — reporting requirements — `finra.org/rules-guidance/rulebooks/finra-rules/4530`
 - **FINRA Regulatory Notice 25-07 (March 2025)** — existing rules apply to AI tools — `finra.org/rules-guidance/notices/25-07`
-- **OCC Bulletin 2011-12 / Federal Reserve SR 11-7** — model risk management — `occ.treas.gov/news-issuances/bulletins/2011/bulletin-2011-12.html` / `federalreserve.gov/supervisionreg/srletters/sr1107.htm`
+- **OCC Bulletin 2011-12 / Federal Reserve SR 11-7** — model risk management — `occ.treas.gov/news-issuances/bulletins/2011/bulletin-2011-12.html` / `federalreserve.gov/supervisionreg/srletters/SR2602.htm`
 - **CFTC Regulation 1.31** — recordkeeping — `ecfr.gov/current/title-17/chapter-I/part-1/subpart-A/section-1.31`
 - **CCPA §1798.100** — collection-and-use minimization (purpose limitation) — `leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=1798.100.&lawCode=CIV`
 

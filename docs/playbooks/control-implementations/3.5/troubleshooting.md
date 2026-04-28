@@ -493,7 +493,7 @@ For tenants in GCC / GCC High / DoD where one or more of these surfaces is not a
 
 **Cadence.** Same as Commercial — monthly close, quarterly evidence pack. The compensating control's evidence shape must match the canonical schema (Verification §1) so the examiner can read sovereign and Commercial evidence interchangeably.
 
-**Re-verify parity quarterly** via the [Microsoft 365 Government roadmap](https://aka.ms/m365gov-roadmap) and the [Azure Government services availability](https://learn.microsoft.com/en-us/azure/azure-government/documentation-government-services-supportstatus). When parity arrives, run the cutover and retire the manual compensating control with documented sign-off.
+**Re-verify parity quarterly** via the [Microsoft 365 Government roadmap](https://aka.ms/m365gov-roadmap) and the [Azure Government services availability](https://learn.microsoft.com/en-us/azure/azure-government/compare-azure-government-global-azure). When parity arrives, run the cutover and retire the manual compensating control with documented sign-off.
 
 ---
 

@@ -2201,7 +2201,7 @@ DO NOT USE:     As a SEC 17a-4 substitute.
     Write-Warning "Export-Fsi-TableToFirmArchive is a STUB. Sentinel archive is NOT WORM and NOT a SEC 17a-4 records substitute. Route via Control 1.9 retention labels with regulatory hold."
     [pscustomobject]@{
         ControlId='3.9'; HelperVersion='1.4.0'; Status='NotApplicable'
-        Reason="Sentinel-to-firm-archive route is not in 3.9 scope. Use Control 1.9 — see https://learn.microsoft.com/en-us/purview/retention-policies-overview and the firm's books-and-records routing in 1.9."
+        Reason="Sentinel-to-firm-archive route is not in 3.9 scope. Use Control 1.9 — see https://learn.microsoft.com/en-us/purview/create-retention-policies-overview and the firm's books-and-records routing in 1.9."
         Table=$Table; CrossRef='1.9-data-retention-and-deletion-policies.md'
         Findings=@("Caller redirected to Control 1.9. Reason supplied: $Reason")
         GeneratedUtc=(Get-Date).ToUniversalTime()

@@ -218,7 +218,7 @@ This playbook addresses the most common failure modes encountered when implement
 **Resolution**
 1. Do **not** rely on this endpoint for production governance evidence. Treat the admin-center UI as authoritative until a GA endpoint ships.
 2. Use the Message Center evidence script (`Get-AIDisclaimerRolloutEvidence.ps1`) to demonstrate awareness of rollout state, and the audit log evidence script for change history.
-3. Track the GA announcement on the [Microsoft 365 Roadmap](https://www.microsoft.com/en-us/microsoft-365/roadmap) and the [Microsoft Graph changelog](https://learn.microsoft.com/en-us/graph/changelog).
+3. Track the GA announcement on the [Microsoft 365 Roadmap](https://www.microsoft.com/en-us/microsoft-365/roadmap) and the [Microsoft Graph changelog](https://learn.microsoft.com/en-us/graph/whats-new-overview).
 
 ---
 

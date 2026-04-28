@@ -172,7 +172,7 @@ This playbook documents the most common issues encountered when implementing and
 - The Entra app registration lacks the required API permissions
 
 **Diagnostic Steps**:
-1. Check the current Microsoft Graph API changelog: `https://learn.microsoft.com/en-us/graph/changelog`
+1. Check the current Microsoft Graph API changelog: `https://learn.microsoft.com/en-us/graph/whats-new-overview`
 2. Search for "agents" or "agent 365" in the changelog for recent endpoint path changes.
 3. Verify the Entra app registration API permissions in Entra Admin Center: App registrations > [your app] > API permissions. Confirm `Reports.Read.All` and `Directory.Read.All` are granted with admin consent.
 

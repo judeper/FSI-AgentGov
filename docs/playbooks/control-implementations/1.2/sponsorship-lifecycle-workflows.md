@@ -920,8 +920,8 @@ Refer to [Troubleshooting](./troubleshooting.md) for registry-level issues and t
 - [Microsoft Entra Identity Governance — Access reviews](https://learn.microsoft.com/en-us/entra/id-governance/access-reviews-overview)
 - [Microsoft Entra ID Governance — Custom workflow tasks](https://learn.microsoft.com/en-us/entra/id-governance/lifecycle-workflow-extensibility)
 - [Microsoft Entra Verified ID — Overview](https://learn.microsoft.com/en-us/entra/verified-id/decentralized-identifier-overview)
-- [Microsoft Entra Agent ID — Overview](https://learn.microsoft.com/en-us/entra/identity/agent-id/overview) *(preview)*
-- [Power Platform — Approval centers and connector consent](https://learn.microsoft.com/en-us/power-platform/admin/connector-consent)
+- [Microsoft Entra Agent ID — Overview](https://learn.microsoft.com/en-us/entra/agent-id/what-is-agent-id-platform) *(preview)*
+- [Power Platform — Connector action control and consent](https://learn.microsoft.com/en-us/power-platform/admin/connector-action-control)
 - [Microsoft Purview — Records Management and retention labels](https://learn.microsoft.com/en-us/purview/records-management)
 - [Microsoft Purview — Audit (Standard and Premium)](https://learn.microsoft.com/en-us/purview/audit-solutions-overview)
 - [Microsoft Sentinel — Custom log tables and analytics rules](https://learn.microsoft.com/en-us/azure/sentinel/create-custom-connector)

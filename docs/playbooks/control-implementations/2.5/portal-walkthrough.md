@@ -118,7 +118,7 @@ Use this table to decide which surface is the correct one. The criterion is **ar
 - Azure AI Foundry built-in evaluators — <https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/evaluation-metrics-built-in>
 - Azure AI Content Safety — <https://learn.microsoft.com/en-us/azure/ai-services/content-safety/overview>
 - Power Platform Pipelines — <https://learn.microsoft.com/en-us/power-platform/alm/pipelines>
-- Power Platform Solution Checker — <https://learn.microsoft.com/en-us/power-platform/alm/use-solution-checker>
+- Power Platform Solution Checker — <https://learn.microsoft.com/en-us/power-apps/maker/data-platform/diagnose-solutions>
 - Microsoft 365 Agents Toolkit — <https://learn.microsoft.com/en-us/microsoftteams/platform/toolkit/agents-toolkit-fundamentals>
 - PyRIT documentation — <https://microsoft.github.io/PyRIT/>
 - Microsoft AI Red Team — <https://learn.microsoft.com/en-us/security/ai-red-team/>
@@ -831,7 +831,7 @@ ATK does **not** deploy declarative agents to production. Production deployment 
 - Debug local / sideload — <https://learn.microsoft.com/en-us/microsoftteams/platform/toolkit/debug-local>
 - Build declarative agents — <https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/build-declarative-agents>
 - Declarative agent overview — <https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/overview-declarative-agent>
-- ATK CLI (community) — <https://pnp.github.io/cli-microsoft365/cmd/atk/>
+- ATK CLI (community) — <https://pnp.github.io/cli-microsoft365/>
 
 **Cloud parity:** ATK CLI runs on any developer workstation. Sideload availability follows the M365 Copilot tenant's cloud (Commercial / GCC / GCC High / DoD).
 **Roles touched:** Copilot Studio Agent Author (for declarative agents), Power Platform Admin (for catalog promotion)
@@ -926,8 +926,8 @@ The parent Control 2.5 names four lifecycle gates (Gate 1 / 2 / 3 / 4). The Pipe
 
 **Inline references for §11:**
 
-- Solution Checker overview — <https://learn.microsoft.com/en-us/power-platform/alm/solution-checker>
-- Use Solution Checker — <https://learn.microsoft.com/en-us/power-platform/alm/use-solution-checker>
+- Solution Checker overview — <https://learn.microsoft.com/en-us/power-apps/maker/data-platform/diagnose-solutions>
+- Use Solution Checker — <https://learn.microsoft.com/en-us/power-apps/maker/data-platform/diagnose-solutions>
 - Pipelines overview — <https://learn.microsoft.com/en-us/power-platform/alm/pipelines>
 - Managed Environments overview — <https://learn.microsoft.com/en-us/power-platform/admin/managed-environment-overview>
 - Power Platform Build Tools (Azure DevOps) — <https://learn.microsoft.com/en-us/power-platform/alm/devops-build-tools>

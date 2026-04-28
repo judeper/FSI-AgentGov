@@ -728,7 +728,7 @@ The Lifecycle Workflow in §5 only fires correctly if the `employeeLeaveDateTime
     | Regulatory mapping | FINRA 3110 (timely supervisor change reflection), SOX §404 (HR-IT integration controls), GLBA Safeguards (timely access removal on termination) |
 
 !!! tip "Cross-Reference"
-    HR connector setup detail (initial Workday / SuccessFactors integration) is out of scope for this playbook — see [Microsoft Learn: Plan inbound user provisioning](https://learn.microsoft.com/entra/identity/app-provisioning/plan-cloud-hr-application-provisioning). For "connector quarantined" symptoms, see [`./troubleshooting.md`](./troubleshooting.md).
+    HR connector setup detail (initial Workday / SuccessFactors integration) is out of scope for this playbook — see [Microsoft Learn: Plan inbound user provisioning](https://learn.microsoft.com/en-us/entra/identity/app-provisioning/plan-cloud-hr-provision). For "connector quarantined" symptoms, see [`./troubleshooting.md`](./troubleshooting.md).
 
 ---
 

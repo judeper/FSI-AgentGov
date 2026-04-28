@@ -1254,9 +1254,9 @@ Invoke-PowerAppsApi -Method GET -Route "providers/Microsoft.BusinessAppPlatform/
 **Likely Cause.** Documented sovereign-cloud parity gaps. Not a malfunction — a structural reality. See the §Sovereign Cloud Availability admonition above.
 
 **Diagnostic Steps.** Verify current parity at:
-- [Microsoft 365 sovereign cloud feature availability](https://learn.microsoft.com/en-us/microsoft-365/enterprise/microsoft-365-us-government-gcc-high)
+- [Microsoft 365 sovereign cloud feature availability](https://learn.microsoft.com/en-us/office365/servicedescriptions/office-365-platform-service-description/office-365-us-government/gcc-high-and-dod)
 - [Power Platform US Government availability](https://learn.microsoft.com/en-us/power-platform/admin/powerapps-us-government)
-- [Power Platform DoD availability](https://learn.microsoft.com/en-us/power-platform/admin/powerapps-us-government-dod)
+- [Power Platform DoD availability](https://learn.microsoft.com/en-us/power-platform/admin/powerapps-us-government)
 - [Microsoft Cloud for Sovereignty roadmap](https://www.microsoft.com/en-us/industry/sovereignty/cloud)
 
 Capture the URL and timestamp of each verification.

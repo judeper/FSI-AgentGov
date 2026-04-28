@@ -2543,9 +2543,9 @@ Each metric should appear on the council's quarterly scorecard with a sparkline 
 * [Microsoft 365 Copilot governance overview](https://learn.microsoft.com/microsoft-365-copilot/microsoft-365-copilot-overview)
 * [Microsoft Purview audit (premium)](https://learn.microsoft.com/purview/audit-premium)
 * [Microsoft Sentinel data ingestion](https://learn.microsoft.com/azure/sentinel/data-connectors-reference)
-* [Microsoft Agent Framework — request_info pattern](https://learn.microsoft.com/agent-framework/human-in-the-loop)
-* [Copilot Studio human handoff](https://learn.microsoft.com/microsoft-copilot-studio/configuration-hand-off-overview)
-* [Microsoft Entra agent identities](https://learn.microsoft.com/entra/identity/agent-identities/overview)
+* [Microsoft Agent Framework — request_info pattern](https://learn.microsoft.com/en-us/agent-framework/workflows)
+* [Copilot Studio human handoff](https://learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-hand-off)
+* [Microsoft Entra agent identities](https://learn.microsoft.com/en-us/entra/agent-id/agent-identities)
 
 ---
 

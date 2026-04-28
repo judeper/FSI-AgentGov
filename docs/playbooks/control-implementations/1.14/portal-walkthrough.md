@@ -305,7 +305,7 @@ For every agent in the reconciled inventory, open the agent in Copilot Studio (`
 | **F5 — Per-conversation file uploads** | `Settings → Generative AI → File uploads` toggle and per-knowledge-source file upload toggle | Record the toggle state per zone (allowed, sensitivity-label-gated, blocked) |
 | **F6 — Image uploads (vision grounding)** | `Settings → Generative AI → Image uploads` toggle | Record the toggle state per zone |
 | **F7 — Public web grounding** | `Settings → Generative AI → Web search` toggle | Record state — **must be OFF for any Zone 3 NPI agent** (see §6) |
-| **F8 — Enterprise web URLs** | `Knowledge` tab → Public website / enterprise URL entries; also see [Microsoft Learn — Public website knowledge sources](https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-public-websites) | Record exact URL allowlist; ≤ 4 URLs per agent recommended |
+| **F8 — Enterprise web URLs** | `Knowledge` tab → Public website / enterprise URL entries; also see [Microsoft Learn — Public website knowledge sources](https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-add-public-website) | Record exact URL allowlist; ≤ 4 URLs per agent recommended |
 | **F9 — Connector references (actions)** | `Tools` or `Actions` tab; review each Power Platform connector reference, both standard and custom | Record connector name and any premium / custom designation; cross-link to PPAC environment DLP scope |
 | **F10 — Copilot extensions / declarative agents / API plugins** | `Tools` tab → API plugins / declarative agents / custom connectors used as tools | Record manifest source (Copilot Studio export, Microsoft 365 Agents Toolkit, custom GPT) and target API endpoint |
 | **F11 — Agent identity model** | `Settings → Security → Authentication`; identify whether the agent uses delegated user identity, an authenticated connection, a managed identity, or an Entra Agent ID | Record the identity model — this drives §10 SharePoint group hygiene and §10 Access Reviews |
@@ -647,7 +647,7 @@ For Zone 2 and Zone 3 agents, the upload-time label check is enforced through th
 ### 8.2 Enable the policy bundle
 
 1. Navigate to **Solutions → DSPM for AI → Policies**.
-2. Microsoft surfaces a curated set of recommended policies (the exact list evolves — verify against [Microsoft Learn — DSPM for AI policies](https://learn.microsoft.com/en-us/purview/dspm-for-ai-policies)). The minimum set for Control 1.14 scope-drift coverage is:
+2. Microsoft surfaces a curated set of recommended policies (the exact list evolves — verify against [Microsoft Learn — DSPM for AI policies](https://learn.microsoft.com/en-us/purview/dspm-for-ai)). The minimum set for Control 1.14 scope-drift coverage is:
 
 | Policy | Purpose | Zone applicability |
 | --- | --- | --- |

@@ -18,7 +18,7 @@ This playbook automates the **measurable** parts of Control 2.14:
 3. Generate signed (SHA-256) evidence artifacts suitable for FINRA / SEC examination.
 4. Optionally send reminders via Microsoft Graph mail (gated).
 
-This playbook does **not** read directly from Microsoft Viva Learning. Programmatic access to Viva Learning learner records is currently delivered through the [Employee Experience Graph APIs](https://learn.microsoft.com/en-us/graph/api/resources/employeeexperience-overview) (`/employeeExperience/learningProviders`, `/learningContents`, `/learningCourseActivities`) which are in **beta** and subject to change. For audit-defensible reporting in regulated tenants, treat the LMS / Viva-exported CSV as the system of record and have the LMS owner countersign the export.
+This playbook does **not** read directly from Microsoft Viva Learning. Programmatic access to Viva Learning learner records is currently delivered through the [Employee Experience Graph APIs](https://learn.microsoft.com/en-us/graph/api/resources/employeeexperience?view=graph-rest-beta) (`/employeeExperience/learningProviders`, `/learningContents`, `/learningCourseActivities`) which are in **beta** and subject to change. For audit-defensible reporting in regulated tenants, treat the LMS / Viva-exported CSV as the system of record and have the LMS owner countersign the export.
 
 ---
 
@@ -342,7 +342,7 @@ Write-Host "Reminders processed: $($log.Count). See $logPath" -ForegroundColor C
 
 ## Notes on Viva Learning Programmatic Access
 
-If your firm wants direct (non-LMS) reads of Viva Learning data, the relevant Microsoft Graph surface is `/employeeExperience/learningProviders` and related entities. As of April 2026 these endpoints are **beta**. Treat them as "monitor-only" for now; do not use them as the system of record for FINRA / SEC examinations until they reach v1.0 GA. See [Microsoft Learn — Employee experience overview](https://learn.microsoft.com/en-us/graph/api/resources/employeeexperience-overview).
+If your firm wants direct (non-LMS) reads of Viva Learning data, the relevant Microsoft Graph surface is `/employeeExperience/learningProviders` and related entities. As of April 2026 these endpoints are **beta**. Treat them as "monitor-only" for now; do not use them as the system of record for FINRA / SEC examinations until they reach v1.0 GA. See [Microsoft Learn — Employee experience overview](https://learn.microsoft.com/en-us/graph/api/resources/employeeexperience?view=graph-rest-beta).
 
 ---
 

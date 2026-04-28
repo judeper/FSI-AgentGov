@@ -916,7 +916,7 @@ The **SharePoint IR list** is the firm's authoritative incident record outside t
 
 ### 8.1 Site setup (one-time)
 
-1. Sign in to the **SharePoint admin center** at [https://<tenant>-admin.sharepoint.com](https://) with **SharePoint Administrator** activated.
+1. Sign in to the **SharePoint admin center** at `https://<tenant>-admin.sharepoint.com` with **SharePoint Administrator** activated.
 2. Navigate to **Sites → Active sites → + Create → Team site (no group)** (or use a pre-provisioned IR site if the firm template exists).
 3. Configure the site:
     - **Site name** — `IR — Incident Response Register` (use a stable, well-known name).
@@ -1310,7 +1310,7 @@ Filing notices is performed through regulator-operated portals. The portal refer
 | **CFTC** | CFTC Portal at [https://portal.cftc.gov](https://portal.cftc.gov) | Notice obligations under Part 3, Part 23 (swap dealers), and the firm's specific registration program | General Counsel + CCO (for CFTC registrants) |
 | **FTC** | Online complaint form at [https://www.ftc.gov](https://www.ftc.gov) | Safeguards Rule notification (16 CFR 314.5 — 30 days for incidents involving 500+ consumers) | General Counsel |
 | **Treasury FinCEN** | BSA E-Filing at [https://bsaefiling.fincen.treas.gov](https://bsaefiling.fincen.treas.gov) | Suspicious Activity Report where applicable to financial-institution covered persons | BSA Officer |
-| **OFAC** | OFAC Reporting at [https://home.treasury.gov/ofac](https://home.treasury.gov/ofac) | Voluntary self-disclosure where sanctions-nexus risk identified; blocked-property reports | General Counsel + Outside Sanctions Counsel |
+| **OFAC** | OFAC Reporting at [https://ofac.treasury.gov](https://ofac.treasury.gov) | Voluntary self-disclosure where sanctions-nexus risk identified; blocked-property reports | General Counsel + Outside Sanctions Counsel |
 | **CISA** | CISA Incident Reporting at [https://www.cisa.gov/report](https://www.cisa.gov/report) | Voluntary cyber-incident reporting today; CIRCIA reporting once final rule is in effect | CISO designee |
 | **State AGs** | Each state operates its own portal or email channel | State breach-notification statutes (varies by state) — typically expedited for incidents involving state-resident NPI | General Counsel |
 | **State financial regulators** | Each state operates its own portal | State-level licensing and consumer-protection notices (varies by state) | General Counsel + CCO |

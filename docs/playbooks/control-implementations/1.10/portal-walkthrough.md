@@ -642,7 +642,7 @@ Store in immutable storage (Purview retention label, SharePoint hold, or WORM bl
 - [Microsoft Learn — Detect channel signals](https://learn.microsoft.com/en-us/purview/communication-compliance-channels)
 - [Microsoft Learn — Communication Compliance permissions](https://learn.microsoft.com/en-us/purview/communication-compliance-permissions)
 - [Microsoft Learn — Investigate and remediate alerts](https://learn.microsoft.com/en-us/purview/communication-compliance-investigate-remediate)
-- [Microsoft Learn — Communication Compliance feature reference](https://learn.microsoft.com/en-us/purview/communication-compliance-feature-reference)
+- [Microsoft Learn — Communication Compliance feature reference](https://learn.microsoft.com/en-us/purview/communication-compliance-policies)
 
 ---
 

@@ -1587,9 +1587,9 @@ The cadence is mirrored in the sister 2.26 playbook so that the daily and weekly
 
 * [``docs/reference/role-catalog.md``](../../../reference/role-catalog.md) — Canonical role names used throughout this playbook.
 * [``docs/reference/regulatory-mappings.md``](../../../reference/regulatory-mappings.md) — Full regulator-to-control matrix.
-* [Microsoft Learn — Microsoft 365 Agent 365 Admin Center](https://learn.microsoft.com/microsoft-365/admin/agent-365) (verify currency before each major run).
+* [Microsoft Learn — Microsoft 365 Agent 365 Admin Center](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-365-overview?view=o365-worldwide) (verify currency before each major run).
 * [Microsoft Learn — Microsoft Graph SDK for PowerShell](https://learn.microsoft.com/powershell/microsoftgraph/overview).
-* [Microsoft Learn — Researcher with Computer Use](https://learn.microsoft.com/microsoft-365-copilot/researcher-computer-use) — GA October 2025; default-on inheritance behaviour.
+* [Microsoft Learn — Researcher with Computer Use](https://learn.microsoft.com/en-us/microsoft-365/copilot/researcher-agent-computer-use) — GA October 2025; default-on inheritance behaviour.
 
 ---
 
