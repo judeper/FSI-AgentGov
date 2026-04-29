@@ -792,6 +792,30 @@ Monthly Quality KPI rollup feeds the executive governance dashboard via [Control
 **Roles touched:** Agent Owner, Compliance Officer, AI Governance Lead, Designated Supervisor / Registered Principal (FINRA 3110 escalation review)
 **Cross-links:** [Control 1.6](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md), [Control 3.8](../../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md)
 
+### 9.7 Granting read-only Analytics access (Analytics Viewer sharing role)
+
+Plane 5 reviewers (Compliance Officer, Designated Supervisor, Model Risk Manager, Internal Audit) typically need to consult the Analytics tab without holding edit rights on the agent itself. Granting full agent edit rights to a reviewer creates a separation-of-duties finding under FINRA Rule 3110 and OCC 2011-12 / Fed SR 11-7.
+
+To grant read-only analytics access:
+
+1. Sign in as the **agent owner**.
+2. Open Copilot Studio → the agent → **three-dots (...)** menu (top-right of the agent header) → **Share**.
+3. In the Share dialog, search for the named individual reviewer.
+4. Set the role to **Analytics viewer**. This grants read-only access to the agent's Analytics page (Overview, Quality, Sessions, CSAT, Topics) without conferring permission to modify topics, knowledge, actions, or publish settings.
+5. (Optional, recommended for §9.4 hand-off) Also assign **Bot Transcript Viewer** to the same individual to expose conversation transcripts referenced from flagged Analytics rows.
+6. Save.
+
+!!! warning "Individual users only — no security groups"
+    The Analytics Viewer role **can only be assigned to individual users**. Microsoft Entra security groups, distribution lists, and Microsoft 365 groups are **not supported** as assignment targets. Maintain a named-individual attestation list (suggested location: the Validation Evidence Pack, §12) and review it at the quarterly governance cycle. This list supports examiner traceability of who held read-only Analytics access during any given supervisory period.
+
+!!! note "FSI mapping"
+    Use of Analytics Viewer (read-only) versus Co-owner (read-write) for reviewers helps meet the SR 11-7 effective-challenge expectation that independent validators do not also hold operational change rights on the model under review. Document the role split in the Validation Evidence Pack (§12) and in the role matrix at §4.
+
+**Inline references for §9.7:**
+
+- Share an agent — <https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-share-bots>
+- Analytics overview — <https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-overview>
+
 ---
 
 ## §10. Microsoft 365 Agents Toolkit — local sideload and manifest validation
