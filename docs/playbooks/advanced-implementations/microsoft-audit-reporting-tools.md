@@ -239,7 +239,7 @@ These tools enhance the following FSI Agent Governance Framework controls:
 - [Microsoft Purview Audit Solutions](https://learn.microsoft.com/en-us/purview/audit-solutions-overview)
 - [Search the Audit Log](https://learn.microsoft.com/en-us/purview/audit-log-search)
 - [Audit Log Retention Policies](https://learn.microsoft.com/en-us/purview/audit-log-retention-policies)
-- [Copilot Usage Reports](https://learn.microsoft.com/en-us/microsoft-365/admin/activity-reports/microsoft-365-copilot-usage)
+- [Copilot Usage Reports](https://learn.microsoft.com/en-us/microsoft-365/admin/activity-reports/microsoft-365-copilot-usage?view=o365-worldwide)
 - [Office 365 Management Activity API](https://learn.microsoft.com/en-us/office/office-365-management-api/office-365-management-activity-api-reference)
 
 ---

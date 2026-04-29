@@ -228,6 +228,23 @@ SR 11-7 ongoing monitoring asks whether the model continues to perform as intend
 !!! warning "Analytics is the evidence — not the validation"
     Copilot Studio Analytics produces operational telemetry. It is one input the MRM Committee uses to perform ongoing monitoring under SR 11-7. The committee's review, judgment, and effective challenge are the validation — Analytics dashboards are not.
 
+#### 3.1.1 Granting read-only Analytics access to independent validators (Analytics Viewer sharing role)
+
+The Model Risk Manager, Internal Audit, and the MRM Committee secretariat typically need read-only visibility into the Copilot Studio Analytics page **without** being granted Co-owner or edit rights on the agent. Granting edit rights to the independent validation function violates the SR 11-7 effective-challenge principle (a validator must not also hold operational change rights on the model under review).
+
+**Portal path:** [Copilot Studio](https://copilotstudio.microsoft.com) → select agent → **three-dots (...)** menu (top-right of the agent header) → **Share**.
+
+1. Sign in as the **agent owner** (or a Co-owner authorized to share).
+2. In the Share dialog, search for the named validator individual.
+3. Set the role to **Analytics viewer**. This grants read-only access to the agent's Analytics page (Summary, Sessions, Topics, CSAT, autonomous trigger analytics where applicable) without conferring permission to modify topics, knowledge, actions, publish settings, or sharing.
+4. Optionally also assign **Bot Transcript Viewer** to the same individual when conversation transcripts are needed as outcomes-analysis evidence (§4).
+5. Save and capture a screenshot of the Share dialog as evidence in the validation work-paper.
+
+!!! warning "Individual users only — security groups are not supported"
+    The Analytics Viewer role **can only be assigned to individual users**. Microsoft Entra security groups, distribution lists, and Microsoft 365 groups are **not** valid assignment targets. Maintain a named-individual attestation list (suggested location: the Agent Card, §2.3) and review at the agent's quarterly governance cycle. The list supports examiner traceability of who held read-only Analytics access during any supervisory or validation period and helps meet OCC 2011-12 / SR 11-7 documentation expectations for the model-validation function.
+
+Reference: [Microsoft Learn — Share an agent](https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-share-bots).
+
 ### 3.2 Foundry monitoring (when underlying model is on Azure AI Foundry)
 
 **Portal path:** [Azure AI Foundry portal](https://ai.azure.com) → select project → **Monitoring**.

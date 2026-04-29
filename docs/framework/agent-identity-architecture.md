@@ -1034,8 +1034,8 @@ Agent 365 and Entra Agent ID help support multiple FSI regulatory requirements b
 
 - [Agent Settings in Microsoft 365 Admin Center](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-settings)
 - [Agent Registry in Microsoft 365 Admin Center](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-registry)
-- [Agent 365 Overview](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-365-overview)
-- [Manage Agents and Integrated Apps](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/manage-copilot-agents-integrated-apps)
+- [Agent 365 Overview](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-365-overview?view=o365-worldwide)
+- [Manage Agents and Integrated Apps](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/manage-copilot-agents-integrated-apps?view=o365-worldwide)
 - [Share and Manage Agents in Agent Builder](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/agent-builder-share-manage-agents)
 
 ### Public Preview Features
@@ -1043,7 +1043,7 @@ Agent 365 and Entra Agent ID help support multiple FSI regulatory requirements b
 **Entra Agent ID (Public Preview):**
 
 - [Microsoft Entra Agent ID Overview](https://learn.microsoft.com/en-us/entra/agent-id/)
-- [Microsoft Entra Agent Identities for AI Agents](https://learn.microsoft.com/en-us/entra/agent-id/identity-professional/microsoft-entra-agent-identities-for-ai-agents)
+- [Microsoft Entra Agent Identities for AI Agents](https://learn.microsoft.com/en-us/entra/agent-id/what-is-microsoft-entra-agent-id)
 - [Administrative Relationships in Microsoft Entra Agent ID](https://learn.microsoft.com/en-us/entra/agent-id/identity-platform/agent-owners-sponsors-managers)
 - [Governing Agent Identities](https://learn.microsoft.com/en-us/entra/id-governance/agent-id-governance-overview)
 - [Agent Sponsor Tasks in Lifecycle Workflows](https://learn.microsoft.com/en-us/entra/id-governance/agent-sponsor-tasks)

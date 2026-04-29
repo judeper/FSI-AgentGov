@@ -116,8 +116,8 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 | **M365 Copilot Overview** | https://learn.microsoft.com/en-us/microsoft-365/copilot/microsoft-365-copilot-overview | Feb 2026 |
 | Data, Privacy, and Security | https://learn.microsoft.com/en-us/microsoft-365/copilot/microsoft-365-copilot-privacy | Feb 2026 |
 | Manage Copilot | https://learn.microsoft.com/en-us/microsoft-365/copilot/microsoft-365-copilot-enable-users | Feb 2026 |
-| **Manage Agents** | https://learn.microsoft.com/en-us/microsoft-365/admin/manage/manage-copilot-agents-integrated-apps | Mar 2026 |
-| Copilot Usage Reports | https://learn.microsoft.com/en-us/microsoft-365/admin/activity-reports/microsoft-365-copilot-usage | Jan 2026 |
+| **Manage Agents** | https://learn.microsoft.com/en-us/microsoft-365/admin/manage/manage-copilot-agents-integrated-apps?view=o365-worldwide | Mar 2026 |
+| Copilot Usage Reports | https://learn.microsoft.com/en-us/microsoft-365/admin/activity-reports/microsoft-365-copilot-usage?view=o365-worldwide | Jan 2026 |
 | **Copilot Control System Overview** | https://learn.microsoft.com/en-us/microsoft-365/copilot/copilot-control-system/overview | Mar 2026 |
 | Copilot Control System - Security and Governance | https://learn.microsoft.com/en-us/microsoft-365/copilot/copilot-control-system/security-governance | Mar 2026 |
 | Copilot Control System - Management Controls | https://learn.microsoft.com/en-us/microsoft-365/copilot/copilot-control-system/management-controls | Mar 2026 |
@@ -147,8 +147,8 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 | **Agent 365 Documentation Hub** | https://learn.microsoft.com/en-us/microsoft-agent-365/ | Mar 2026 |
 | **Agent 365 Overview** | https://learn.microsoft.com/en-us/microsoft-agent-365/overview | Mar 2026 |
 | **Agent 365 SDK and CLI** | https://learn.microsoft.com/en-us/microsoft-agent-365/developer/ | Mar 2026 |
-| Agent 365 Overview Page (M365 Admin) | https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-365-overview | Mar 2026 |
-| Manage Agents in M365 Admin Center | https://learn.microsoft.com/en-us/microsoft-365/admin/manage/manage-copilot-agents-integrated-apps | Mar 2026 |
+| Agent 365 Overview Page (M365 Admin) | https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-365-overview?view=o365-worldwide | Mar 2026 |
+| Manage Agents in M365 Admin Center | https://learn.microsoft.com/en-us/microsoft-365/admin/manage/manage-copilot-agents-integrated-apps?view=o365-worldwide | Mar 2026 |
 
 ### Agent 365 Security
 
@@ -247,7 +247,7 @@ For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Ident
 | Topic | URL | Last Verified |
 |-------|-----|---------------|
 | **Agent ID Overview** | https://learn.microsoft.com/en-us/entra/agent-id/ | Jan 2026 |
-| Agent Identities for AI Agents | https://learn.microsoft.com/en-us/entra/agent-id/identity-professional/microsoft-entra-agent-identities-for-ai-agents | Jan 2026 |
+| Agent Identities for AI Agents | https://learn.microsoft.com/en-us/entra/agent-id/what-is-microsoft-entra-agent-id | Jan 2026 |
 | Governing Agent Identities | https://learn.microsoft.com/en-us/entra/id-governance/agent-id-governance-overview | Jan 2026 |
 
 ---
@@ -281,9 +281,9 @@ For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Ident
 
 | Topic | URL | Last Verified |
 |-------|-----|---------------|
-| **Integrated Apps** | https://learn.microsoft.com/en-us/microsoft-365/admin/manage/manage-addins-in-the-admin-center | Jan 2026 |
-| **Service Health** | https://learn.microsoft.com/en-us/microsoft-365/enterprise/view-service-health | Jan 2026 |
-| **Message Center** | https://learn.microsoft.com/en-us/microsoft-365/admin/manage/message-center | Jan 2026 |
+| **Integrated Apps** | https://learn.microsoft.com/en-us/microsoft-365/admin/manage/manage-addins-in-the-admin-center?view=o365-worldwide | Jan 2026 |
+| **Service Health** | https://learn.microsoft.com/en-us/microsoft-365/enterprise/view-service-health?view=o365-worldwide | Jan 2026 |
+| **Message Center** | https://learn.microsoft.com/en-us/microsoft-365/admin/manage/message-center?view=o365-worldwide | Jan 2026 |
 
 ---
 
@@ -307,11 +307,11 @@ For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Ident
 | **Azure Information Protection** | https://learn.microsoft.com/en-us/azure/information-protection/what-is-information-protection | Jan 2026 |
 | Track and Revoke Documents | https://learn.microsoft.com/en-us/purview/track-and-revoke-admin | Feb 2026 |
 | Apply IRM to SharePoint | https://learn.microsoft.com/en-us/purview/apply-irm-to-a-list-or-library | Feb 2026 |
-| **Responsible AI** | https://learn.microsoft.com/en-us/azure/machine-learning/concept-responsible-ai | Jan 2026 |
+| **Responsible AI** | https://learn.microsoft.com/en-us/azure/machine-learning/concept-responsible-ai?view=azureml-api-2 | Jan 2026 |
 | AI Content Safety | https://learn.microsoft.com/en-us/azure/ai-services/content-safety/overview | Jan 2026 |
 | **Cost Management** | https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/overview-cost-management | Jan 2026 |
 | Azure Budgets | https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/tutorial-acm-create-budgets | Jan 2026 |
-| **Azure DevOps Test Plans** | https://learn.microsoft.com/en-us/azure/devops/test/overview | Jan 2026 |
+| **Azure DevOps Test Plans** | https://learn.microsoft.com/en-us/azure/devops/test/overview?view=azure-devops | Jan 2026 |
 
 ---
 
@@ -354,8 +354,8 @@ For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Ident
 
 | Topic | URL | Last Verified |
 |-------|-----|---------------|
-| **Application Resources** | https://learn.microsoft.com/en-us/graph/api/resources/application | Jan 2026 |
-| Access Reviews API | https://learn.microsoft.com/en-us/graph/api/resources/accessreviewsv2-overview | Jan 2026 |
+| **Application Resources** | https://learn.microsoft.com/en-us/graph/api/resources/application?view=graph-rest-1.0 | Jan 2026 |
+| Access Reviews API | https://learn.microsoft.com/en-us/graph/api/resources/accessreviewsv2-overview?view=graph-rest-1.0 | Jan 2026 |
 
 ---
 
@@ -388,7 +388,7 @@ For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Ident
 
 | Topic | URL | Last Verified |
 |-------|-----|---------------|
-| **DLP Cmdlets** | https://learn.microsoft.com/en-us/powershell/module/exchange/new-dlpcompliancepolicy | Jan 2026 |
+| **DLP Cmdlets** | https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/new-dlpcompliancepolicy?view=exchange-ps | Jan 2026 |
 
 ---
 
@@ -416,7 +416,7 @@ For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Ident
 | Topic | URL | Last Verified |
 |-------|-----|---------------|
 | **Power Platform Licensing** | https://learn.microsoft.com/en-us/power-platform/admin/pricing-billing-skus | Jan 2026 |
-| **Microsoft 365 Licensing** | https://learn.microsoft.com/en-us/microsoft-365/enterprise/microsoft-365-overview | Jan 2026 |
+| **Microsoft 365 Licensing** | https://learn.microsoft.com/en-us/microsoft-365/enterprise/microsoft-365-overview?view=o365-worldwide | Jan 2026 |
 | M365 Licensing Guidance | https://learn.microsoft.com/en-us/office365/servicedescriptions/microsoft-365-service-descriptions/microsoft-365-tenantlevel-services-licensing-guidance/microsoft-365-security-compliance-licensing-guidance | Feb 2026 |
 | **Purview Licensing** | https://learn.microsoft.com/en-us/office365/servicedescriptions/microsoft-365-service-descriptions/microsoft-365-tenantlevel-services-licensing-guidance/microsoft-purview-service-description | Jan 2026 |
 | **Copilot Studio Licensing** | https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-licensing-subscriptions | Jan 2026 |
