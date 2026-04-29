@@ -327,3 +327,32 @@ If you type `/` in Copilot Chat and don't see the workspace prompt files from `.
 - Check **Workspace Trust**: if VS Code shows **Restricted Mode**, trust the workspace and reload.
 - Confirm you're on a recent VS Code version that supports prompt files (prompt files are `.prompt.md` and show up as slash commands).
 - If your org restricts chat customization, the diagnostics view typically indicates policy-based blocking.
+
+## E2E Test Suite
+
+The customer-facing assessment SPA at `/assessment/` is gated by a Playwright suite under `tests/e2e/` (forthcoming in plan v3.1, Phase C). Until that lands, the suite covers:
+
+- **Smoke set** (~90s wall): happy path, autofill defenses, PDF print spy, import roundtrip, axe a11y baseline.
+- **Full suite**: ~28 specs across exports (JSON/XLSX/CSV/PDF/MD), state restoration, hash routing, multi-tab race, XSS matrix, mobile viewport, keyboard nav, perf budget, CSP+asset-skew, collector injection, cross-origin localStorage.
+
+Vitest layer (`tests/spa/`) covers contracts: JSON envelope schema, CSV escape, MD anchor, persona-fixture parity, XLSX cell shape, prototype-pollution validator, filter-loop perf.
+
+### Running locally
+
+```bash
+npm test                    # vitest contracts
+npm run test:e2e:smoke      # Playwright smoke (~90s)
+npm run test:e2e            # Playwright full
+```
+
+### Snapshot regeneration
+
+PNG snapshots are Linux-baseline only. Regenerate via the manual-dispatch workflow `.github/workflows/update-snapshots.yml`. Do NOT commit Windows/macOS-generated snapshots.
+
+### CI gating
+
+PRs require `e2e/smoke` (Required Status Check) before merge. `prod-smoke.yml` runs after deploy, polling `/version.json` for the deployed SHA before exercising the production URL.
+
+### Failure triage
+
+Failed Playwright runs upload trace + screenshot artifacts. Reproduce locally with `npx playwright test <spec> --trace on --headed`.

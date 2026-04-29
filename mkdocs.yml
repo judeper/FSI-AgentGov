@@ -106,6 +106,7 @@ extra_javascript:
 hooks:
   - scripts/hooks/copy_assessment_data.py
   - scripts/hooks/generate_homework_pages_hook.py
+  - overrides/hooks/cache_bust.py
 
 nav:
   - Home: index.md
