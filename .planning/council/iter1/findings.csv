@@ -1,0 +1,11 @@
+id,critic,severity,finding,accepted,theme,status
+iter1-001,security,P0,"SPA reads/writes localStorage without per-origin namespace; multi-tenant docs site risks cross-assessment data bleed",true,Theme 6,folded
+iter1-002,security,P1,"No Content Security Policy declared; inline scripts and third-party font loads unrestricted",true,Theme 6,folded
+iter1-003,customer-realism,P0,"No automated end-to-end test that a customer can complete an assessment and re-import it; regressions ship undetected",true,Theme 5,folded
+iter1-004,customer-realism,P1,"Five-format export (JSON/XLSX/CSV/PDF/MD) has no round-trip coverage; PDF in particular never validated as consumable",true,Theme 5,folded
+iter1-005,fmea,P1,"Asset skew: SPA bundle and JSON data can deploy out of order; user lands mid-deploy and crashes with stale schema",true,Theme 1,folded
+iter1-006,fmea,P2,"No rollback path for a bad gh-pages deploy beyond rebuilding from source (5-10 min MTTR)",true,Theme 1,folded
+iter1-007,sre-reliability,P1,"No production smoke test after deploy; broken main can sit live until a customer reports it",true,Theme 1,folded
+iter1-008,performance,P2,"3669-line assessment-app.js parsed and executed on every page load; no perf budget or measurement",true,Theme 8,folded
+iter1-009,handoff-maintainability,P1,"Plan changes are not auditable; no record of why decisions were made or which critic raised which concern",true,Theme 3,folded
+iter1-010,handoff-maintainability,P2,"Council automation has no schema for critic output; malformed JSON silently ingested or crashes the pipeline",true,Theme 2,folded

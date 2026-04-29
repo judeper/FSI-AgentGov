@@ -1,0 +1,13 @@
+id,critic,severity,finding,accepted,theme,status
+iter2-001,security,P1,"Collector-injection path (uploading a crafted JSON collector) is untested; malicious file could pollute state",true,Theme 5,folded
+iter2-002,security,P1,"Cross-origin localStorage exposure when docs site shares apex with other tenants; namespacing must include pathname",true,Theme 6,folded
+iter2-003,security,P2,"Nested-pollution attack on JSON import (prototype keys, __proto__) not in test matrix",true,Theme 5,folded
+iter2-004,performance,P2,"No performance budget defined; without a number, regression is invisible. Recommend p95 TTI < 3s on cold load",true,Theme 8,folded
+iter2-005,fmea,P1,"CSP and asset-skew interact: a stale SPA loading a new schema produces silent miscalculation, not a crash — worse than failing loud",true,Theme 1,folded
+iter2-006,handoff-maintainability,P0,"Audit trail durability: council outputs not committed to repo; lost on session compaction (already happening)",true,Theme 3,folded
+iter2-007,test-design,P2,"Tests rely on shared global state; no per-test storage isolation — flake risk and order-dependence",true,Theme 4,folded
+iter2-008,test-design,P1,"Test pyramid inverted: too many e2e specs, no vitest unit layer for pure functions like scoring/derivation",true,Theme 5,folded
+iter2-009,sre-reliability,P2,"K=3 parallel PR strategy will race gh-pages deploys; need concurrency group on publish workflow",true,Theme 1,folded
+iter2-010,sre-reliability,P2,"Single-failure auto-revert is too noisy for a docs SPA; prefer issue-open + manual rollback script",true,Theme 1,folded
+iter2-011,customer-realism,P1,"Five personas underspecified; need explicit mostly-no and mostly-unanswered to catch divide-by-zero and empty-state bugs",true,Theme 5,folded
+iter2-012,scope-discipline,P2,"FSI subject-matter correctness of the 78 controls is a declared blind spot; plan must say so explicitly to avoid overclaim",true,Theme 9,folded
