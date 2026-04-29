@@ -648,6 +648,7 @@ For detailed architecture guidance including scalability limits and alternative 
 ## Related Documentation
 
 - [Solutions Index](../reference/solutions-index.md) — Complete solution catalog with version history
+- [Solutions Contract](../reference/solutions-contract.md) — Versioning and pinning contract between this repo and FSI-AgentGov-Solutions
 - [Solutions Architecture Guide](../reference/solutions-architecture-guide.md) — Enterprise scalability and platform limits
 - [Adoption Roadmap](adoption-roadmap.md) — Phased implementation guidance
 - [FSI-AgentGov-Solutions Repository](https://github.com/judeper/FSI-AgentGov-Solutions) — Source code and deployment scripts

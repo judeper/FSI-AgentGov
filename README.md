@@ -269,7 +269,7 @@ The **[FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions
 
 Companion solutions provide deployment documentation, governance scripts, KQL queries, and templates for manual Power Platform builds instead of exported runtime artifacts. Coverage spans step-up authentication, lifecycle governance, access monitoring, analytics, RAG source validation, supervision workflows, disaster recovery testing, and SharePoint knowledge source controls.
 
-> **Full catalog:** See [Solutions Index](docs/reference/solutions-index.md) for the live inventory, versions, and primary control mappings. See [Solutions Integration](docs/framework/solutions-integration.md) for architecture and control mappings.
+> **Full catalog:** See [Solutions Index](docs/reference/solutions-index.md) for the live inventory, versions, and primary control mappings. See [Solutions Integration](docs/framework/solutions-integration.md) for architecture and control mappings. The cross-repo versioning expectations live in the [Solutions Contract](docs/reference/solutions-contract.md).
 
 ---
 

@@ -406,3 +406,177 @@ class TestSummaryCalculation:
         # Per-pillar control counts should sum to total
         pillar_total = sum(p["controls"] for p in summary["by_pillar"].values())
         assert pillar_total == len(controls)
+
+
+# ---------------------------------------------------------------------------
+# Test: evaluator_state classification and rollup (transparency)
+# ---------------------------------------------------------------------------
+
+class TestEvaluatorStateTransparency:
+    """Verify that every check and control carries an honest evaluator_state.
+
+    The three states distinguish "manual by design" from "evaluator not
+    yet implemented" so the assessment output cannot silently overstate
+    automation coverage.
+    """
+
+    def test_classify_check_states(self):
+        try:
+            import score  # type: ignore[import-untyped]
+        except ImportError:
+            pytest.skip("score.py not yet implemented in engine/")
+
+        # auto_evaluable: condition is in EVALUATORS
+        auto_check = {
+            "check_id": "x.a",
+            "pass_condition": "no_everyone_assignment",
+            "collection_methods": ["PPAC_PowerShell"],
+        }
+        assert (
+            score.classify_check_evaluator_state(
+                auto_check, "full", ["PPAC_PowerShell"]
+            )
+            == "auto_evaluable"
+        )
+
+        # manual_only: control automation is "manual"
+        manual_ctrl_check = {
+            "check_id": "x.b",
+            "pass_condition": "some_condition",
+            "collection_methods": ["Manual"],
+        }
+        assert (
+            score.classify_check_evaluator_state(
+                manual_ctrl_check, "manual", ["Manual"]
+            )
+            == "manual_only"
+        )
+
+        # manual_only: no automatable collection method
+        manual_method_check = {
+            "check_id": "x.c",
+            "pass_condition": "some_condition",
+            "collection_methods": ["Manual"],
+        }
+        assert (
+            score.classify_check_evaluator_state(
+                manual_method_check, "partial", ["Manual"]
+            )
+            == "manual_only"
+        )
+
+        # unimplemented_evaluator: condition specified but no bespoke fn
+        unimpl_check = {
+            "check_id": "x.d",
+            "pass_condition": "some_unwired_condition",
+            "collection_methods": ["PPAC_PowerShell"],
+        }
+        assert (
+            score.classify_check_evaluator_state(
+                unimpl_check, "full", ["PPAC_PowerShell"]
+            )
+            == "unimplemented_evaluator"
+        )
+
+    def test_rollup_precedence(self):
+        try:
+            import score  # type: ignore[import-untyped]
+        except ImportError:
+            pytest.skip("score.py not yet implemented in engine/")
+
+        # auto wins over unimpl wins over manual
+        assert (
+            score.rollup_control_evaluator_state(
+                "full", ["unimplemented_evaluator", "auto_evaluable", "manual_only"]
+            )
+            == "auto_evaluable"
+        )
+        assert (
+            score.rollup_control_evaluator_state(
+                "full", ["unimplemented_evaluator", "manual_only"]
+            )
+            == "unimplemented_evaluator"
+        )
+        assert (
+            score.rollup_control_evaluator_state("manual", ["manual_only"])
+            == "manual_only"
+        )
+
+    def test_state_surfaces_in_output(
+        self, tmp_path: Path, manifest: dict, collected_dir: Path
+    ):
+        try:
+            import score  # type: ignore[import-untyped]
+        except ImportError:
+            pytest.skip("score.py not yet implemented in engine/")
+
+        manifest_path = tmp_path / "controls.json"
+        output_path = tmp_path / "scores.json"
+        write_json(manifest_path, manifest)
+
+        score.run(
+            manifest_path=str(manifest_path),
+            collected_dir=str(collected_dir),
+            zone=2,
+            output_path=str(output_path),
+        )
+
+        result = json.loads(output_path.read_text(encoding="utf-8"))
+
+        # Every control has an evaluator_state and a breakdown that sums
+        # to the number of checks defined.
+        for ctrl in result["controls"]:
+            assert ctrl["evaluator_state"] in score.EVALUATOR_STATES
+            breakdown = ctrl["evaluator_state_breakdown"]
+            assert set(breakdown.keys()) >= set(score.EVALUATOR_STATES)
+            assert sum(breakdown.values()) == len(ctrl["checks"])
+            for chk in ctrl["checks"]:
+                assert chk["evaluator_state"] in score.EVALUATOR_STATES
+
+        # Summary surfaces evaluator_coverage rollups
+        coverage = result["summary"]["evaluator_coverage"]
+        assert set(coverage["controls"].keys()) == set(score.EVALUATOR_STATES)
+        assert set(coverage["checks"].keys()) == set(score.EVALUATOR_STATES)
+        assert coverage["total_controls"] == len(result["controls"])
+        assert coverage["total_checks"] == sum(
+            len(c["checks"]) for c in result["controls"]
+        )
+
+    def test_full_manifest_coverage_honest(self, tmp_path: Path, collected_dir: Path):
+        """Score the real 78-control manifest and assert that the rollup
+        reflects today's actual evaluator coverage rather than overstating it.
+        """
+        try:
+            import score  # type: ignore[import-untyped]
+        except ImportError:
+            pytest.skip("score.py not yet implemented in engine/")
+
+        real_manifest = ASSESSMENT_ROOT / "manifest" / "controls.json"
+        if not real_manifest.exists():
+            pytest.skip("real controls.json manifest not available")
+
+        # The real manifest is a list of controls; wrap it for the engine
+        # if needed.
+        raw = json.loads(real_manifest.read_text(encoding="utf-8"))
+        controls = raw if isinstance(raw, list) else raw.get("controls", [])
+        manifest_data = build_manifest_with_controls(controls)
+
+        manifest_path = tmp_path / "controls.json"
+        output_path = tmp_path / "scores.json"
+        write_json(manifest_path, manifest_data)
+
+        score.run(
+            manifest_path=str(manifest_path),
+            collected_dir=str(collected_dir),
+            zone=2,
+            output_path=str(output_path),
+        )
+
+        result = json.loads(output_path.read_text(encoding="utf-8"))
+        coverage = result["summary"]["evaluator_coverage"]
+
+        # We must not silently classify every check as auto-evaluable.
+        # If this assertion ever fires, either real evaluators were added
+        # (great — relax the cap) or the classifier regressed.
+        assert coverage["checks"]["auto_evaluable"] < coverage["total_checks"]
+        assert coverage["total_controls"] == 78
