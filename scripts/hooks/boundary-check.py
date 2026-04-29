@@ -8,12 +8,12 @@ outside the project directory.
 Usage: Configured in .claude/settings.local.json as PreToolUse hook
 """
 
-import sys
 import json
 import os
-import re
 import platform
+import re
 import shlex
+import sys
 
 # Project root - detect dynamically based on script location
 # Script is at: {PROJECT_ROOT}/scripts/hooks/boundary-check.py

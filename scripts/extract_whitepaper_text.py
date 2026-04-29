@@ -20,7 +20,6 @@ from pathlib import Path
 
 from pypdf import PdfReader
 
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
 LOCAL_REF_PACK = REPO_ROOT / "maintainers-local" / "reference-pack"
 

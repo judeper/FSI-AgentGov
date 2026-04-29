@@ -39,7 +39,7 @@ to a framework release tag, not to `main`**.
 | Solution → control mappings | Solutions | Framework `solutions-integration.md` | Solutions cite framework tag in `manifest.yaml` |
 | Generated `solutions.json` | Solutions | Framework `solutions-index.md` | Solutions repo publishes per-tag artifacts |
 
-### Framework guarantees
+### Framework commitments
 
 For any framework release `vX.Y.Z`:
 
@@ -56,7 +56,7 @@ For any framework release `vX.Y.Z`:
    [Assessment Engine Coverage matrix](assessment-coverage.md) shows the
    current state.
 
-### Solutions-side guarantees
+### Solutions-side commitments
 
 The Solutions repository is expected to:
 

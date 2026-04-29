@@ -3,11 +3,12 @@ Generate FSI-AgentGov Excel checklist templates.
 Creates 6 professional, clean .xlsx files with no DRM/encryption.
 """
 
+import os
+
 import openpyxl
-from openpyxl.styles import Font, PatternFill, Alignment, Border, Side, numbers
+from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.datavalidation import DataValidation
-import os
 
 # ── All 78 controls ──────────────────────────────────────────────────────────
 
@@ -102,7 +103,7 @@ ALL_CONTROLS = {
 
 # Build flat lookup
 CONTROL_LOOKUP = {}
-for pillar, controls in ALL_CONTROLS.items():
+for _pillar, controls in ALL_CONTROLS.items():
     for cid, cname in controls:
         CONTROL_LOOKUP[cid] = cname
 
@@ -183,7 +184,7 @@ VERSION_FOOTER = "FSI Agent Governance Framework v1.3.0 \u2014 March 2026"
 
 def style_header_row(ws, row):
     """Apply professional header styling."""
-    for col_idx, (header, width) in enumerate(zip(HEADERS, COL_WIDTHS), 1):
+    for col_idx, (header, width) in enumerate(zip(HEADERS, COL_WIDTHS, strict=False), 1):
         cell = ws.cell(row=row, column=col_idx, value=header)
         cell.font = HEADER_FONT
         cell.fill = HEADER_FILL
@@ -349,7 +350,7 @@ def create_dashboard():
     ws_summary.row_dimensions[4].height = 6
     summary_headers = ["Pillar", "Controls", "Not Started", "In Progress", "Completed"]
     summary_widths = [30, 14, 14, 14, 14]
-    for col_idx, (h, w) in enumerate(zip(summary_headers, summary_widths), 1):
+    for col_idx, (h, w) in enumerate(zip(summary_headers, summary_widths, strict=False), 1):
         cell = ws_summary.cell(row=5, column=col_idx, value=h)
         cell.font = HEADER_FONT
         cell.fill = HEADER_FILL

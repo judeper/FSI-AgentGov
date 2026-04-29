@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """Generate controls.json manifest from control file metadata and markdown sources."""
 import json
-import re
 import os
-import sys
+import re
 
 BASE = r"C:\Dev\FSI-AgentGov\docs\controls"
 OUTPUT = r"C:\Dev\FSI-AgentGov\assessment\manifest\controls.json"

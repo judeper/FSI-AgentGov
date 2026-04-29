@@ -10,16 +10,14 @@ requiring a live Dataverse connection.
 from __future__ import annotations
 
 import json
-import pytest
 
 from asard_zone_rules import (
     ZONE_SHARING_RULES,
+    check_agent_compliance,
     classify_environment_zone,
     evaluate_zone_compliance,
     parse_sharing_principals,
-    check_agent_compliance,
 )
-
 
 # =========================================================================
 # Zone rules configuration tests

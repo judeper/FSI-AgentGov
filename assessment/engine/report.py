@@ -456,7 +456,7 @@ def main(argv: list[str] | None = None) -> None:
             args.zone,
             args.output_dir,
         )
-        print(f"\nReport generation complete")
+        print("\nReport generation complete")
         print(f"  Customer:    {summary.get('customer_name', '?')}")
         print(f"  Zone:        {summary.get('zone_assessed', '?')}")
         print(f"  Gaps:        {len(summary.get('gaps', []))}")

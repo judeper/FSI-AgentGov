@@ -1,12 +1,9 @@
 """Unit tests for BAPAdminClient."""
 
-import json
 from unittest import mock
 
 import pytest
-
 from bap_admin_client import BAPAdminClient
-
 
 # =========================================================================
 # Test fixtures

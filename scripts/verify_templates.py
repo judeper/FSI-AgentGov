@@ -1,6 +1,5 @@
-from pathlib import Path
-import os
 import sys
+from pathlib import Path
 
 # Fix Unicode encoding issues on Windows
 if sys.platform == 'win32':

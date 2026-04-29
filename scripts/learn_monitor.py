@@ -21,7 +21,6 @@ Environment Variables:
     LEARN_MONITOR_DEBUG=1  - Enable debug output
 """
 
-import json
 import logging
 import os
 import re
@@ -31,30 +30,29 @@ import traceback
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
 
 # Import shared monitoring framework
 from monitoring_shared import (
-    fetch_page,
-    normalize_content,
-    compute_hash,
-    classify_change,
-    find_affected_controls,
-    format_change_summary,
-    load_state,
-    save_state_atomic,
-    get_source_state,
-    set_source_state,
-    generate_report_header,
-    generate_executive_summary,
-    write_report,
-    load_monitoring_config,
-    validate_config,
-    DEFAULT_CONFIG_PATH,
     CLASSIFICATION_CRITICAL,
     CLASSIFICATION_HIGH,
     CLASSIFICATION_MEDIUM,
     CLASSIFICATION_NOISE,
+    DEFAULT_CONFIG_PATH,
+    classify_change,
+    compute_hash,
+    fetch_page,
+    find_affected_controls,
+    format_change_summary,
+    generate_executive_summary,
+    generate_report_header,
+    get_source_state,
+    load_monitoring_config,
+    load_state,
+    normalize_content,
+    save_state_atomic,
+    set_source_state,
+    validate_config,
+    write_report,
 )
 
 # Handle Windows encoding
@@ -88,7 +86,7 @@ logger = logging.getLogger(__name__)
 
 try:
     import requests
-    from bs4 import BeautifulSoup
+    from bs4 import BeautifulSoup  # noqa: F401  (imported for availability check)
 except ImportError as e:
     print(f"ERROR: Missing dependency: {e}")
     print("Install with: pip install requests beautifulsoup4")
@@ -139,7 +137,6 @@ def parse_watchlist(watchlist_path: Path) -> list[URLEntry]:
     """
     content = watchlist_path.read_text(encoding='utf-8')
     urls = []
-    current_section = "Unknown"
 
     # Sections to skip (not Learn URLs)
     skip_sections = [
@@ -344,7 +341,7 @@ def _format_change(c: ChangeRecord, index: int) -> list[str]:
 # === Debug Functions ===
 def _debug_single_url(url: str, config: dict):
     """Debug a single URL - useful for troubleshooting."""
-    print(f"\nDebug mode: checking single URL")
+    print("\nDebug mode: checking single URL")
     print(f"URL: {url}")
     print("=" * 60)
 
@@ -366,7 +363,7 @@ def _debug_single_url(url: str, config: dict):
     try:
         normalized = normalize_content(result['content'])
         print(f"   Normalized length: {len(normalized)} chars")
-        print(f"   First 500 chars:\n   ---")
+        print("   First 500 chars:\n   ---")
         print("   " + normalized[:500].replace("\n", "\n   "))
         print("   ---")
     except Exception as e:
@@ -393,7 +390,7 @@ def _debug_single_url(url: str, config: dict):
 
     if source_state and url in source_state.get("urls", {}):
         old_state = source_state["urls"][url]
-        print(f"   Found in state file")
+        print("   Found in state file")
         print(f"   Last checked: {old_state.get('last_checked', 'unknown')}")
         print(f"   Last changed: {old_state.get('last_changed', 'unknown')}")
         if old_state.get("content_hash") == content_hash:

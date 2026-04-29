@@ -30,30 +30,28 @@ import os
 import re
 import sys
 from dataclasses import dataclass
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
-from urllib.parse import urlparse
 
 # Import shared monitoring framework
 from monitoring_shared import (
-    fetch_page,
-    compute_hash,
-    load_state,
-    save_state_atomic,
-    get_source_state,
-    set_source_state,
-    generate_report_header,
-    generate_executive_summary,
-    format_change_summary,
-    write_report,
-    load_monitoring_config,
-    validate_config,
-    DEFAULT_CONFIG_PATH,
     CLASSIFICATION_CRITICAL,
     CLASSIFICATION_HIGH,
     CLASSIFICATION_MEDIUM,
     CLASSIFICATION_NOISE,
+    DEFAULT_CONFIG_PATH,
+    compute_hash,
+    fetch_page,
+    generate_executive_summary,
+    generate_report_header,
+    get_source_state,
+    load_monitoring_config,
+    load_state,
+    save_state_atomic,
+    set_source_state,
+    validate_config,
+    write_report,
 )
 
 try:
@@ -513,8 +511,6 @@ def generate_regulatory_report(
         lines.append("|---|--------|--------|----------------|-------------------|--------|\n")
 
         for i, item in enumerate(priority_items, 1):
-            # Shorten URL for table
-            url_short = item.title[:40] + "..." if len(item.title) > 40 else item.title
             controls = ", ".join(item.affected_controls) if item.affected_controls else "None identified"
             action = "Review and update framework" if item.classification == CLASSIFICATION_CRITICAL else "Review"
 
@@ -539,7 +535,7 @@ def generate_regulatory_report(
                 lines.append(f"- **Abstract:** {item.abstract[:500]}{'...' if len(item.abstract) > 500 else ''}\n")
 
             if item.affected_controls:
-                lines.append(f"- **Potentially Affected Controls:**\n")
+                lines.append("- **Potentially Affected Controls:**\n")
                 for control in item.affected_controls:
                     lines.append(f"  - Control {control}\n")
 
@@ -682,7 +678,7 @@ def main():
         since_date = fed_state.get('last_checked')
         if not since_date:
             since_date = (datetime.now(timezone.utc) - timedelta(days=30)).strftime('%Y-%m-%d')
-            logger.info(f"No prior state, fetching documents from last 30 days")
+            logger.info("No prior state, fetching documents from last 30 days")
         else:
             logger.info(f"Fetching documents since {since_date}")
 

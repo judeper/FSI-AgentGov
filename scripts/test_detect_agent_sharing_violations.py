@@ -20,9 +20,6 @@ import tempfile
 from pathlib import Path
 from unittest import mock
 
-import pytest
-import requests
-
 # Import functions under test
 from detect_agent_sharing_violations import (
     _map_compliance_status_to_optionset,
@@ -32,7 +29,6 @@ from detect_agent_sharing_violations import (
     upsert_compliance_record,
     write_compliance_results_to_dataverse,
 )
-
 
 # =========================================================================
 # Test: Violation type mapping

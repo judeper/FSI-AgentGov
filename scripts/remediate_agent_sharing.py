@@ -53,8 +53,6 @@ import time
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
-from dateutil import parser as dateparser
-
 from asard_zone_rules import (
     check_agent_compliance,
     classify_environment_zone,
@@ -63,6 +61,7 @@ from asard_zone_rules import (
 )
 from bap_admin_client import BAPAdminClient
 from caa_client import CAAClient
+from dateutil import parser as dateparser
 
 # =========================================================================
 # Module constants
@@ -462,7 +461,7 @@ def update_compliance_record(
         entity_set = "fsi_agentsharingcompliances"
         alternate_key = f"fsi_agent_id='{agent_id}',fsi_environment_id='{environment_id}'"
         
-        result = dataverse_client.upsert_record(
+        dataverse_client.upsert_record(
             entity_set=entity_set,
             alternate_key=alternate_key,
             data=payload,

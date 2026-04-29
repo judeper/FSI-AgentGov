@@ -6,11 +6,8 @@ scoring, zone thresholds, confidence levels, and summary calculations.
 """
 
 import json
-import os
 import sys
-from copy import deepcopy
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
 
@@ -385,8 +382,6 @@ class TestSummaryCalculation:
         # Total controls matches
         assert summary["total_controls"] == len(controls)
 
-        # Auto-scored count
-        auto_scored = sum(1 for c in controls if not c.get("needs_manual") or c["automation"] != "manual")
         manual_count = sum(1 for c in controls if c.get("needs_manual"))
         assert summary["needs_manual"] == manual_count
 

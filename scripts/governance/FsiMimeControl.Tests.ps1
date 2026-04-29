@@ -1,6 +1,9 @@
 #Requires -Version 7.0
 #Requires -Modules Pester
 
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText','',Justification='Mock tokens in unit-test fixtures are not secrets.')]
+param()
+
 <#
 .SYNOPSIS
     Pester 5 test suite for FsiMimeControl PowerShell module.

@@ -7,9 +7,9 @@ Checks for:
 - Roles & Responsibilities section
 """
 
-import os
 import re
 from pathlib import Path
+
 
 def audit_control_file(filepath):
     """Audit a single control file for metadata compliance."""

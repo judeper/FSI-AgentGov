@@ -19,9 +19,9 @@ import logging
 import sys
 
 from caa_client import CAAClient
+from create_connection_references import create_connection_references
 from create_dataverse_schema import create_schema
 from create_environment_variables import create_environment_variables
-from create_connection_references import create_connection_references
 
 logger = logging.getLogger(__name__)
 

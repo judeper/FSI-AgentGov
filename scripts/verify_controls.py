@@ -1,4 +1,3 @@
-import os
 import re
 import subprocess
 import sys
@@ -27,7 +26,7 @@ def _accepted_update_dates(lookback_months=3):
     today = date.today()
     dates = []
     first_of_month = today.replace(day=1)
-    for i in range(lookback_months):
+    for _i in range(lookback_months):
         label = f"Updated: {first_of_month.strftime('%B %Y')}"
         if label not in dates:
             dates.append(label)
@@ -181,7 +180,7 @@ def verify_consistency():
     missing_files = []
     for cid in controls:
         found = False
-        for filename, rel_path, pillar in files:
+        for filename, _rel_path, _pillar in files:
             # Match control ID at start of filename (e.g., "1.1-" matches "1.1")
             if filename.startswith(f"{cid}-"):
                 found = True
@@ -197,7 +196,7 @@ def verify_consistency():
     # 3. Validate control content (structure + beta metadata)
     print("\n--- CONTROL CONTENT VALIDATION ---\n")
     hard_failures = 0
-    for filename, rel_path, pillar in files:
+    for _filename, rel_path, _pillar in files:
         # rel_path already includes reference/... relative to docs
         full_path = DOCS_DIR / rel_path
         if not full_path.exists():
@@ -219,7 +218,7 @@ def verify_consistency():
     # 3b) Validate playbook files exist per control
     print("\n--- PLAYBOOK FILE VALIDATION ---\n")
     playbook_failures = 0
-    for filename, rel_path, pillar in files:
+    for filename, _rel_path, _pillar in files:
         # Extract control ID from filename (e.g., "1.1-restrict-agent-publishing.md" -> "1.1")
         match = re.match(r"^(\d+\.\d+)-", filename)
         if not match:

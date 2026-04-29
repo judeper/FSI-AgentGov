@@ -1,17 +1,14 @@
 """Unit tests for remediate_agent_sharing.py."""
 
-import json
 from unittest import mock
 
 import pytest
-
 from remediate_agent_sharing import (
     build_permission_object,
     get_zone_remediation_principals,
-    validate_remediation,
     update_compliance_record,
+    validate_remediation,
 )
-
 
 # =========================================================================
 # Test fixtures
@@ -471,9 +468,8 @@ def test_remediate_agent_single_agent_mode():
 
 def test_remediate_agent_skips_active_exception():
     """Test that remediate_agent skips agents with active exceptions."""
-    from datetime import datetime, timezone
-    from unittest import mock
     import argparse
+    from unittest import mock
     
     # Mock clients
     mock_bap_client = mock.MagicMock()
@@ -526,9 +522,8 @@ def test_remediate_agent_skips_active_exception():
 
 def test_remediate_agent_proceeds_with_expired_exception():
     """Test that remediate_agent proceeds when exception is expired."""
-    from datetime import datetime, timezone
-    from unittest import mock
     import argparse
+    from unittest import mock
     
     # Mock clients
     mock_bap_client = mock.MagicMock()
@@ -602,9 +597,8 @@ def test_remediate_agent_proceeds_with_expired_exception():
 
 def test_remediate_agent_proceeds_with_no_exception():
     """Test that remediate_agent proceeds normally when no exception exists."""
-    from datetime import datetime, timezone
-    from unittest import mock
     import argparse
+    from unittest import mock
     
     # Mock clients
     mock_bap_client = mock.MagicMock()

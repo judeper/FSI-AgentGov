@@ -13,12 +13,11 @@ Usage:
 Author: Claude Code
 """
 
-import os
-import sys
 import argparse
+import sys
 from pathlib import Path
+
 from openpyxl import load_workbook
-from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
 
 # All 78 controls in the framework
 ALL_CONTROLS = {
@@ -336,7 +335,7 @@ def main():
     project_root = script_dir.parent
     downloads_dir = project_root / "docs" / "downloads"
 
-    print(f"FSI-AgentGov Excel Template Update Script")
+    print("FSI-AgentGov Excel Template Update Script")
     print(f"{'='*80}")
     print(f"Mode: {'DRY RUN (preview only)' if dry_run else 'APPLYING CHANGES'}")
     print(f"Downloads dir: {downloads_dir}")
@@ -345,7 +344,7 @@ def main():
     excel_files = list(downloads_dir.glob("*.xlsx"))
 
     if not excel_files:
-        print(f"\n[ERROR] No Excel files found")
+        print("\n[ERROR] No Excel files found")
         return 1
 
     print(f"\nFound {len(excel_files)} Excel file(s)")
@@ -373,7 +372,7 @@ def main():
                     print(f"   {vc['cell_ref']}: Updated to '{vc.get('new_value', 'v1.3.0')}'")
             file_changes["version_updates"] = version_cells
         else:
-            print(f"\n[VERSION] No version references to update")
+            print("\n[VERSION] No version references to update")
 
         # 2. For governance-maturity-dashboard.xlsx, check for missing controls
         if filename == "governance-maturity-dashboard.xlsx":
@@ -391,7 +390,7 @@ def main():
                         print(f"\n[CONTROLS] Added {len(added)} control(s) to spreadsheet")
                         file_changes["added_controls"] = added
             else:
-                print(f"\n[CONTROLS] All 78 controls present")
+                print("\n[CONTROLS] All 78 controls present")
 
             if extra:
                 print(f"\n[WARN] Found {len(extra)} unexpected control ID(s): {extra}")
@@ -399,7 +398,7 @@ def main():
             # Check summary count
             count_cells = update_summary_count(excel_file, dry_run=dry_run)
             if count_cells:
-                print(f"\n[SUMMARY] Found count cells to update:")
+                print("\n[SUMMARY] Found count cells to update:")
                 for cc in count_cells:
                     print(f"   {cc['cell_ref']}: '{cc['current_value']}'")
 
@@ -408,7 +407,7 @@ def main():
 
     # Summary
     print(f"\n{'='*80}")
-    print(f"SUMMARY")
+    print("SUMMARY")
     print(f"{'='*80}")
 
     if all_changes:
@@ -416,18 +415,18 @@ def main():
         total_missing = sum(len(c["missing_controls"]) for c in all_changes.values())
 
         if dry_run:
-            print(f"\nChanges to apply:")
+            print("\nChanges to apply:")
             print(f"   - {total_version} version reference(s) to update")
             print(f"   - {total_missing} missing control(s) to add")
-            print(f"\nRun with --update to apply these changes")
+            print("\nRun with --update to apply these changes")
         else:
-            print(f"\nChanges applied:")
+            print("\nChanges applied:")
             print(f"   - {total_version} version reference(s) updated")
             total_added = sum(len(c["added_controls"]) for c in all_changes.values())
             print(f"   - {total_added} control(s) added")
-            print(f"\n[OK] All Excel files updated successfully!")
+            print("\n[OK] All Excel files updated successfully!")
     else:
-        print(f"\n[OK] No changes needed - all files are up to date")
+        print("\n[OK] No changes needed - all files are up to date")
 
     return 0
 
