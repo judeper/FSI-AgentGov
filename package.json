@@ -8,8 +8,11 @@
     "test:watch": "vitest"
   },
   "devDependencies": {
-    "vitest": "4.1.5",
+    "@vitest/ui": "4.1.5",
+    "ajv": "^8.20.0",
     "jsdom": "29.1.0",
-    "@vitest/ui": "4.1.5"
+    "markdown-it": "^14.1.1",
+    "vitest": "4.1.5",
+    "xlsx": "^0.18.5"
   }
 }

@@ -145,12 +145,103 @@
     };
   }
 
-  /** Sanitize a string for CSV/Excel to prevent formula injection. */
+  /** Sanitize a string for CSV/Excel to prevent formula injection.
+   *  IMPORTANT: strip BOM/zero-width prefix BEFORE testing the leading char so
+   *  attackers can't bypass the check via "\uFEFF=cmd|...". After stripping,
+   *  if the cell starts with =, +, -, @, TAB, CR, or LF prefix with a TAB so
+   *  Excel/Sheets treat it as text. */
   function sanitizeCell(val) {
     if (typeof val !== "string") return val;
-    // Prefix dangerous leading characters that trigger formula execution
-    if (/^[=+\-@\t\r]/.test(val)) return "'" + val;
-    return val;
+    var stripped = val.replace(/^[\uFEFF\u200B\u200C\u200D]+/, "");
+    if (/^[=+\-@\t\r\n]/.test(stripped)) return "\t" + stripped;
+    return stripped;
+  }
+
+  // ---- Collector payload validation (security) --------------------------
+  // Note: object-literal `__proto__` sets the prototype rather than an own
+  // property. Use Object.create(null) + bracket assignment so the key lookup
+  // via hasOwnProperty matches the string "__proto__".
+  var _COLLECTOR_FORBIDDEN_KEYS = Object.create(null);
+  _COLLECTOR_FORBIDDEN_KEYS["__proto__"] = 1;
+  _COLLECTOR_FORBIDDEN_KEYS["constructor"] = 1;
+  _COLLECTOR_FORBIDDEN_KEYS["prototype"] = 1;
+  var _COLLECTOR_AUTOMATION = { automated: 1, manual: 1, hybrid: 1 };
+  function validateCollectorPayload(p) {
+    if (!p || typeof p !== "object" || Array.isArray(p)) return false;
+    var keys = Object.keys(p);
+    for (var i = 0; i < keys.length; i++) {
+      if (Object.prototype.hasOwnProperty.call(_COLLECTOR_FORBIDDEN_KEYS, keys[i])) return false;
+    }
+    if (typeof p.controlId !== "string" || !/^\d+\.\d+$/.test(p.controlId)) return false;
+    if (p.evidenceRef !== undefined &&
+        (typeof p.evidenceRef !== "string" || p.evidenceRef.length > 500)) return false;
+    if (p.notes !== undefined &&
+        (typeof p.notes !== "string" || p.notes.length > 2000)) return false;
+    if (p.automationStatus !== undefined &&
+        (typeof p.automationStatus !== "string" ||
+         !Object.prototype.hasOwnProperty.call(_COLLECTOR_AUTOMATION, p.automationStatus))) return false;
+    for (var j = 0; j < keys.length; j++) {
+      var v = p[keys[j]];
+      if (typeof v === "string" && /<script/i.test(v)) return false;
+    }
+    return true;
+  }
+
+  // Recursively check for __proto__/constructor/prototype OWN keys (depth-bounded).
+  function _hasForbiddenKey(node, depth) {
+    if (depth === undefined) depth = 0;
+    if (depth > 32) return false;
+    if (!node || typeof node !== "object") return false;
+    var keys = Object.keys(node);
+    for (var i = 0; i < keys.length; i++) {
+      if (Object.prototype.hasOwnProperty.call(_COLLECTOR_FORBIDDEN_KEYS, keys[i])) return true;
+      if (_hasForbiddenKey(node[keys[i]], depth + 1)) return true;
+    }
+    return false;
+  }
+
+  // Field-by-field copy of an allowlisted drilldown response.
+  var _DRILL_SEVERITY = { low: 1, medium: 1, high: 1, critical: 1 };
+  function _safeCopyDrilldown(src) {
+    if (!src || typeof src !== "object" || Array.isArray(src)) return null;
+    if (Object.prototype.hasOwnProperty.call(src, "__proto__") ||
+        Object.prototype.hasOwnProperty.call(src, "constructor") ||
+        Object.prototype.hasOwnProperty.call(src, "prototype")) return null;
+    var out = {};
+    if (typeof src.notes === "string") out.notes = src.notes.slice(0, 2000);
+    if (typeof src.evidenceRef === "string") out.evidenceRef = src.evidenceRef.slice(0, 500);
+    if (typeof src.automationStatus === "string" &&
+        Object.prototype.hasOwnProperty.call(_COLLECTOR_AUTOMATION, src.automationStatus)) {
+      out.automationStatus = src.automationStatus;
+    }
+    if (typeof src.severity === "string" &&
+        Object.prototype.hasOwnProperty.call(_DRILL_SEVERITY, src.severity)) {
+      out.severity = src.severity;
+    }
+    Object.keys(src).forEach(function (k) {
+      if (k === "notes" || k === "evidenceRef" || k === "automationStatus" || k === "severity") return;
+      if (Object.prototype.hasOwnProperty.call(_COLLECTOR_FORBIDDEN_KEYS, k)) return;
+      var v = src[k];
+      if (v === "yes" || v === "no") out[k] = v;
+    });
+    return out;
+  }
+
+  // Tiny FNV-1a 32-bit hash for deterministic filename suffixes.
+  function _shortHash(s) {
+    s = String(s);
+    var h = 0x811c9dc5;
+    for (var i = 0; i < s.length; i++) {
+      h ^= s.charCodeAt(i);
+      h = (h + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24))) >>> 0;
+    }
+    return ("00000000" + h.toString(16)).slice(-8);
+  }
+
+  function _truncateFilename(stem) {
+    var s = String(stem || "");
+    if (s.length <= 80) return s;
+    return s.slice(0, 80) + "-" + _shortHash(s);
   }
 
   function downloadBlob(blob, filename) {
@@ -209,9 +300,40 @@
   AssessmentApp.prototype.init = function () {
     var self = this;
     this._bindMaterialSearchGuard();
+    this._injectPrintStyles();
     this.loadData().then(function () {
       self.render();
     });
+  };
+
+  // Inject @page + print-only CSS once per page (spa-fix-print-hygiene).
+  AssessmentApp.prototype._injectPrintStyles = function () {
+    if (typeof document === "undefined") return;
+    if (document.getElementById("ag-print-styles")) return;
+    var style = document.createElement("style");
+    style.id = "ag-print-styles";
+    style.textContent = "@page { margin: 1cm; size: letter; }\n" +
+      "@media print {\n" +
+      "  .ag-no-print { display: none !important; }\n" +
+      "  header, .md-header, .md-tabs, .md-sidebar, .md-footer, footer { display: none !important; }\n" +
+      "  body, .md-main, .md-main__inner, .md-content, .md-content__inner, .ag-content { margin: 0 !important; padding: 0 !important; max-width: none !important; }\n" +
+      "  a[href]:after { content: none !important; }\n" +
+      "}\n" +
+      ".ag-quota-banner { position: sticky; top: 0; background: #fee; color: #800; padding: 8px 12px; z-index: 10000; border-bottom: 2px solid #800; display: flex; justify-content: space-between; align-items: center; gap: 1rem; }\n" +
+      ".ag-quota-banner button { background: #800; color: #fff; border: 0; padding: 4px 10px; cursor: pointer; border-radius: 3px; }\n" +
+      ".ag-phase2-rolefilter-banner { background: #fff8e1; color: #6d4c00; padding: 8px 12px; border-left: 4px solid #f59e0b; margin: 0 0 1rem; border-radius: 3px; }\n";
+    if (document.head) document.head.appendChild(style);
+    if (typeof window !== "undefined" && window.addEventListener) {
+      var self = this;
+      window.addEventListener("beforeprint", function () {
+        self._origTitle = document.title;
+        var org = (self.state && self.state.scoping && self.state.scoping.organizationName) || "";
+        document.title = "FSI Agent Governance Assessment" + (org ? " — " + org : "");
+      });
+      window.addEventListener("afterprint", function () {
+        if (self._origTitle) document.title = self._origTitle;
+      });
+    }
   };
 
   /**
@@ -278,9 +400,27 @@
     var i18nBase = siteRoot + "assessment/i18n/";
 
     var fetchJSON = function (url, label) {
-      return fetch(url).then(function (r) {
-        if (!r.ok) throw new Error(label + " HTTP " + r.status);
-        return r.json();
+      // 8s timeout via AbortController + ONE retry on network/timeout failure
+      // (spa-fix-fetch-resilience). cache:'no-store' so a stale CDN response
+      // can't pin the SPA in a broken state.
+      function attempt() {
+        var controller = (typeof AbortController !== "undefined") ? new AbortController() : null;
+        var timer = controller ? setTimeout(function () { controller.abort(); }, 8000) : null;
+        var opts = { cache: "no-store" };
+        if (controller) opts.signal = controller.signal;
+        return fetch(url, opts).then(function (r) {
+          if (timer) clearTimeout(timer);
+          if (!r.ok) throw new Error(label + " HTTP " + r.status);
+          return r.json();
+        }, function (err) {
+          if (timer) clearTimeout(timer);
+          throw err;
+        });
+      }
+      return attempt().catch(function (err) {
+        // Don't retry an HTTP error like 404 — same URL would 404 again.
+        if (err && /HTTP \d{3}/.test(String(err.message || ""))) throw err;
+        return attempt();
       });
     };
 
@@ -292,7 +432,10 @@
         console.error(err);
         self.el.innerHTML =
           '<div class="admonition failure"><p class="admonition-title">Error</p>' +
-          "<p>Could not load assessment data. Run <code>python scripts/extract_assessment_data.py</code> first.</p></div>";
+          "<p>Could not load assessment data. Run <code>python scripts/extract_assessment_data.py</code> first.</p>" +
+          '<p><button type="button" class="ag-btn ag-btn-primary" id="ag-retry-load">Retry</button></p></div>';
+        var btn = self.el.querySelector("#ag-retry-load");
+        if (btn) btn.addEventListener("click", function () { self.init(); });
         throw err;
       });
 
@@ -333,6 +476,14 @@
       // Wait for the optional resources but never let them block initialization.
       return Promise.all([pManifest, pSolutionsLock, pI18n]).then(function () {
         self.mergeManifestIntoControls();
+        // O(1) lookup so getGapControls / applyRoleFilter / drilldown hot paths
+        // don't linear-scan 78 controls per call (spa-fix-perf-loop).
+        if (self.data && Array.isArray(self.data.controls)) {
+          self.controlsById = new Map();
+          self.data.controls.forEach(function (c) {
+            if (c && c.id) self.controlsById.set(c.id, c);
+          });
+        }
       });
     });
   };
@@ -739,9 +890,7 @@
     if (!this.state) return;
     this.state.updatedAt = new Date().toISOString();
     try {
-      // Save current assessment
       localStorage.setItem(STORAGE_KEY + "-current", JSON.stringify(this.state));
-      // Update saved list
       var list = this.getSavedList();
       var idx = list.findIndex(function (s) { return s.id === this.state.assessmentId; }.bind(this));
       var entry = {
@@ -754,7 +903,21 @@
       if (idx >= 0) list[idx] = entry;
       else list.push(entry);
       localStorage.setItem(STORAGE_KEY + "-list", JSON.stringify(list));
-    } catch (e) { /* localStorage quota */ }
+      // Successful save clears any prior quota banner.
+      if (this._quotaError) {
+        this._quotaError = false;
+        if (this.el) this.render();
+      }
+    } catch (e) {
+      // spa-fix-quota-banner: surface QuotaExceededError so user can act.
+      var name = e && e.name;
+      var code = e && e.code;
+      if (name === "QuotaExceededError" || name === "NS_ERROR_DOM_QUOTA_REACHED" ||
+          code === 22 || code === 1014) {
+        this._quotaError = true;
+        if (this.el) this.render();
+      }
+    }
   };
 
   AssessmentApp.prototype.getSavedList = function () {
@@ -779,11 +942,26 @@
   };
 
   AssessmentApp.prototype.deleteSaved = function (id) {
+    // spa-fix-destructive-gate: offer JSON export first if the target
+    // assessment has answered controls.
+    try {
+      var current = JSON.parse(localStorage.getItem(STORAGE_KEY + "-current"));
+      if (current && current.assessmentId === id &&
+          current.responses && Object.keys(current.responses).length > 0) {
+        if (typeof confirm === "function" &&
+            confirm("This assessment has answered controls. Click OK to export it to JSON before deleting, or Cancel to delete without exporting.")) {
+          var prevState = this.state;
+          this.state = current;
+          try { this.exportJSON(); } catch (_) { /* keep deleting even if export fails */ }
+          this.state = prevState;
+        }
+      }
+    } catch (_) { /* */ }
     var list = this.getSavedList().filter(function (s) { return s.id !== id; });
     localStorage.setItem(STORAGE_KEY + "-list", JSON.stringify(list));
     try {
-      var current = JSON.parse(localStorage.getItem(STORAGE_KEY + "-current"));
-      if (current && current.assessmentId === id) {
+      var cur2 = JSON.parse(localStorage.getItem(STORAGE_KEY + "-current"));
+      if (cur2 && cur2.assessmentId === id) {
         localStorage.removeItem(STORAGE_KEY + "-current");
       }
     } catch (e) { /* */ }
@@ -814,6 +992,24 @@
   AssessmentApp.prototype.importState = function (json) {
     try {
       var parsed = typeof json === "string" ? JSON.parse(json) : json;
+      // spa-fix-destructive-gate: warn before replacing a non-empty assessment
+      // with one from a DIFFERENT source. Same-id round-trip is not destructive.
+      var importingDifferent = !this.state || !parsed || !this.state.assessmentId ||
+        (parsed.assessmentId && parsed.assessmentId !== this.state.assessmentId);
+      if (importingDifferent && this.state && this.state.responses &&
+          Object.keys(this.state.responses).length > 0) {
+        var orgName = (this.state.scoping && this.state.scoping.organizationName) || "the current assessment";
+        if (typeof confirm === "function") {
+          var go = confirm("Importing will replace your current assessment for " + orgName +
+            ". Click OK to export the current assessment first, or Cancel to abandon the import.");
+          if (!go) return false;
+          try { this.exportJSON(); } catch (_) { /* keep going */ }
+        }
+      }
+      // spa-fix-prototype-pollution: hard-reject __proto__/constructor/prototype keys.
+      if (_hasForbiddenKey(parsed)) {
+        throw new Error("Invalid assessment file: forbidden keys present");
+      }
       // Deep structural validation
       if (!this.validateState(parsed)) {
         throw new Error("Invalid assessment file structure");
@@ -864,7 +1060,9 @@
       if (parsed.drilldown) {
         for (var d in parsed.drilldown) {
           if (!Object.prototype.hasOwnProperty.call(parsed.drilldown, d)) continue;
-          clean.drilldown[d] = parsed.drilldown[d];
+          if (Object.prototype.hasOwnProperty.call(_COLLECTOR_FORBIDDEN_KEYS, d)) continue;
+          var safeDd = _safeCopyDrilldown(parsed.drilldown[d]);
+          if (safeDd) clean.drilldown[d] = safeDd;
         }
       }
       // Section import (role-specific)
@@ -1115,11 +1313,25 @@
       var answer = mapCollectorToAnswer(item.entry);
       if (!answer) { skipped++; return; }
       var summary = summarizeCollectorEvidence(item.entry);
+      // spa-fix-collector-injection: if the entry self-describes as a per-control
+      // collector record (has controlId), validate it before trusting any
+      // string fields we copy onto state.
+      if (item.entry && typeof item.entry === "object" &&
+          Object.prototype.hasOwnProperty.call(item.entry, "controlId") &&
+          !validateCollectorPayload(item.entry)) {
+        skipped++;
+        return;
+      }
       var prior = self.state.responses[ctrl.id] || {};
+      var safeNotes = mergeImportedNote(prior.notes, summary);
+      if (typeof safeNotes !== "string") safeNotes = "";
+      if (safeNotes.length > 4000) safeNotes = safeNotes.slice(0, 4000);
+      var safeRef = "Collector: " + collectorName + " @ " + timestamp;
+      if (safeRef.length > 500) safeRef = safeRef.slice(0, 500);
       var merged = {
         answer: answer,
-        notes: mergeImportedNote(prior.notes, summary),
-        evidenceRef: "Collector: " + collectorName + " @ " + timestamp,
+        notes: safeNotes,
+        evidenceRef: safeRef,
         importedFromCollector: true,
       };
       // Preserve override autoNa flag absence; explicitly clear autoNa
@@ -1134,6 +1346,7 @@
     if (!this.data || !Array.isArray(this.data.controls)) return null;
     var id = item.id;
     var cf = item.collectorField;
+    if (id && this.controlsById && this.controlsById.has(id)) return this.controlsById.get(id);
     for (var i = 0; i < this.data.controls.length; i++) {
       var c = this.data.controls[i];
       if (id && c.id === id) return c;
@@ -1256,10 +1469,29 @@
 
   AssessmentApp.prototype.getGapControls = function () {
     var self = this;
-    return this.data.controls.filter(function (c) {
+    var allGaps = this.data.controls.filter(function (c) {
       var score = self.getControlScore(c.id);
       return score !== null && score < 1.0;
-    }).sort(function (a, b) {
+    });
+    var roleFilter = (this.state && this.state.roleFilter) || "";
+    var filteredGaps = allGaps;
+    if (roleFilter) {
+      filteredGaps = allGaps.filter(function (c) {
+        return self.controlMatchesRoleFilter(c, roleFilter);
+      });
+      // spa-fix-phase2-filter: if applying the role filter would zero out
+      // gaps, fall back to all gaps and expose the count via _phase2RoleFilterHidden
+      // so the renderer can show an explanatory banner.
+      if (filteredGaps.length === 0 && allGaps.length > 0) {
+        this._phase2RoleFilterHidden = allGaps.length;
+        filteredGaps = allGaps;
+      } else {
+        this._phase2RoleFilterHidden = 0;
+      }
+    } else {
+      this._phase2RoleFilterHidden = 0;
+    }
+    return filteredGaps.sort(function (a, b) {
       return self.getRiskPriority(b) - self.getRiskPriority(a);
     });
   };
@@ -1335,6 +1567,7 @@
   AssessmentApp.prototype.render = function () {
     this.destroy(); // Clean up charts
     this.el.innerHTML = "";
+    if (this._quotaError) this.el.appendChild(this._renderQuotaBanner());
     this.el.appendChild(this.renderSteps());
     var content = h("div", { className: "ag-content" });
     switch (this.step) {
@@ -1346,6 +1579,22 @@
       case "export":  this.renderExport(content); break;
     }
     this.el.appendChild(content);
+  };
+
+  AssessmentApp.prototype._renderQuotaBanner = function () {
+    var self = this;
+    var banner = h("div", { className: "ag-quota-banner ag-no-print", role: "alert" });
+    banner.appendChild(h("span", null,
+      "Browser storage is full. Your latest changes may not have been saved. " +
+      "Export your assessment to JSON, then clear old saved assessments to free space."
+    ));
+    var dismiss = h("button", {
+      type: "button",
+      "aria-label": "Dismiss storage warning",
+      onClick: function () { self._quotaError = false; self.render(); }
+    }, "Dismiss");
+    banner.appendChild(dismiss);
+    return banner;
   };
 
   AssessmentApp.prototype.goToStep = function (step) {
@@ -1555,6 +1804,33 @@
       });
       wrap.appendChild(list);
     }
+
+    // spa-fix-clear-data-button: privacy notice + Clear all data action.
+    var footer = h("div", { className: "ag-welcome-footer ag-no-print",
+      style: "margin-top:2rem;padding-top:1rem;border-top:1px solid var(--md-default-fg-color--lightest);font-size:0.78rem;color:var(--md-default-fg-color--light);text-align:center" });
+    footer.appendChild(h("p", { style: "margin:0 0 0.5rem" },
+      "This assessment is stored only in your browser localStorage. We do not transmit your responses."
+    ));
+    var clearBtn = h("button", {
+      type: "button",
+      className: "ag-btn ag-btn-sm ag-btn-danger",
+      onClick: function () {
+        if (typeof confirm === "function" &&
+            !confirm("Clear all FSI Agent Governance assessment data from this browser? This cannot be undone — export any assessments you want to keep first.")) return;
+        try {
+          var prefix = STORAGE_KEY;
+          var toRemove = [];
+          for (var i = 0; i < localStorage.length; i++) {
+            var k = localStorage.key(i);
+            if (k && k.indexOf(prefix) === 0) toRemove.push(k);
+          }
+          toRemove.forEach(function (k) { localStorage.removeItem(k); });
+        } catch (_) { /* ignore */ }
+        if (typeof location !== "undefined" && location.reload) location.reload();
+      }
+    }, "Clear all assessment data");
+    footer.appendChild(clearBtn);
+    wrap.appendChild(footer);
 
     parent.appendChild(wrap);
   };
@@ -1771,9 +2047,14 @@
       type: type,
       value: value || "",
       id: inputId,
+      maxlength: "120",
       "aria-describedby": hint ? inputId + "-hint" : null,
     });
-    input.addEventListener("input", function () { onChange(input.value); });
+    input.addEventListener("input", function () {
+      // Defense-in-depth: enforce 120-char cap server-side too.
+      if (input.value && input.value.length > 120) input.value = input.value.slice(0, 120);
+      onChange(input.value);
+    });
     wrap.appendChild(input);
     return wrap;
   };
@@ -2119,9 +2400,11 @@
     var self = this;
     cards.forEach(function (card) {
       var cid = card.getAttribute("data-control-id");
-      var ctrl = null;
-      for (var i = 0; i < self.data.controls.length; i++) {
-        if (self.data.controls[i].id === cid) { ctrl = self.data.controls[i]; break; }
+      var ctrl = (self.controlsById && self.controlsById.get(cid)) || null;
+      if (!ctrl) {
+        for (var i = 0; i < self.data.controls.length; i++) {
+          if (self.data.controls[i].id === cid) { ctrl = self.data.controls[i]; break; }
+        }
       }
       if (!ctrl) return;
       var match = self.controlMatchesRoleFilter(ctrl, roleFilter);
@@ -3388,7 +3671,7 @@
       }
     }
     var blob = new Blob([JSON.stringify(envelope, null, 2)], { type: "application/json" });
-    var name = (this.state.assessmentName || "assessment").replace(/[^a-zA-Z0-9-_]/g, "-");
+    var name = _truncateFilename((this.state.assessmentName || "assessment").replace(/[^a-zA-Z0-9-_]/g, "-"));
     downloadBlob(blob, name + ".json");
   };
 
@@ -3420,7 +3703,7 @@
     });
     var csv = rows.map(function (r) { return r.join(","); }).join("\n");
     var blob = new Blob([csv], { type: "text/csv" });
-    var name = (this.state.assessmentName || "assessment").replace(/[^a-zA-Z0-9-_]/g, "-");
+    var name = _truncateFilename((this.state.assessmentName || "assessment").replace(/[^a-zA-Z0-9-_]/g, "-"));
     downloadBlob(blob, name + "-gaps.csv");
   };
 
@@ -3537,7 +3820,7 @@
       // Generate and download
       var buf = XLSX.write(wb, { bookType: "xlsx", type: "array" });
       var blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-      var name = (self.state.assessmentName || "assessment").replace(/[^a-zA-Z0-9-_]/g, "-");
+      var name = _truncateFilename((self.state.assessmentName || "assessment").replace(/[^a-zA-Z0-9-_]/g, "-"));
       downloadBlob(blob, name + ".xlsx");
     };
 
@@ -3702,7 +3985,17 @@
 
   function _agendaMdCell(v) {
     if (v === null || v === undefined) return "";
-    return String(v).replace(/\r?\n/g, " ").replace(/\|/g, "\\|").trim();
+    // spa-fix-md-escape: neutralize Markdown emphasis, links, code, headings,
+    // HTML tags, and table-pipe injection so user-supplied control titles can
+    // never break out of a table cell or render styled / linked content in
+    // the generated agenda.
+    return String(v)
+      .replace(/\r?\n/g, " ")
+      .replace(/\\/g, "\\\\")
+      .replace(/\|/g, "\\|")
+      .replace(/[*_`~#>]/g, function (ch) { return "\\" + ch; })
+      .replace(/[\[\]\(\)\{\}<>!]/g, function (ch) { return "\\" + ch; })
+      .trim();
   }
 
   function _agendaSlug(s) {
@@ -3788,7 +4081,7 @@
       lines.push("## Remediation Detail");
       lines.push("");
       gaps.forEach(function (c, i) {
-        lines.push("## Gap " + (i + 1) + " \u2014 Control " + c.id + ": " + (c.title || ""));
+        lines.push("## Gap " + (i + 1) + " \u2014 Control " + _agendaMdCell(c.id) + ": " + _agendaMdCell(c.title || ""));
         lines.push("");
 
         var regs = Array.isArray(c.regulations) ? c.regulations.filter(Boolean) : [];
@@ -3977,6 +4270,11 @@
       STARTER_PRIORITY_IDS: STARTER_PRIORITY_IDS,
       ROLE_FILTER_OPTIONS: ROLE_FILTER_OPTIONS,
       SECTOR_OPTIONS: SECTOR_OPTIONS,
+      sanitizeCell: sanitizeCell,
+      _agendaMdCell: _agendaMdCell,
+      validateCollectorPayload: validateCollectorPayload,
+      _hasForbiddenKey: _hasForbiddenKey,
+      _truncateFilename: _truncateFilename,
     };
   }
 })();
