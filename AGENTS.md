@@ -29,6 +29,48 @@ This file provides guidance for autonomous AI agents working on this repository.
 3. **Check related files** — controls often reference each other
 4. **Check session ownership** — see Multi-Agent Coordination below
 
+## GitHub Accounts & Push/Merge Workflow
+
+The repo owner uses two GitHub accounts on this machine, and AI tooling must pick the right one for write operations:
+
+| Account | Purpose | Can write to `judeper/FSI-AgentGov`? |
+|---------|---------|--------------------------------------|
+| `judep_microsoft` (Enterprise Managed User) | Required to be the active `gh` account for the **Copilot CLI license** to remain active | ❌ — blocked by EMU policy |
+| `judeper` (personal) | Owner of this repo; required for **`git push`**, **`gh pr merge`**, **`gh pr close`**, **`gh pr comment`**, **workflow re-runs** | ✅ |
+
+**Symptoms of the wrong account being active:**
+- `git push` → `remote: Permission to judeper/FSI-AgentGov.git denied to judep_microsoft. ... 403`
+- `gh pr merge` / `gh pr close` / `gh pr comment` → `GraphQL: Unauthorized: As an Enterprise Managed User, you cannot access this content (mergePullRequest|addComment)`
+- `gh run rerun` → `Must have admin rights to Repository`
+
+**Switch commands:**
+
+```powershell
+# Before any push/merge/close/comment work:
+gh auth switch -u judeper
+
+# When work is done, restore EMU as active so Copilot CLI keeps its license:
+gh auth switch -u judep_microsoft
+```
+
+**Verification:**
+
+```powershell
+gh auth status          # confirms which account is active in keyring
+gh api user -q '.login' # confirms which account the API actually resolves to
+```
+
+These two can disagree if the account silently flips mid-session — always re-check with `gh api user` before a sensitive write operation. If they disagree, run `gh auth switch -u judeper` again.
+
+**Git credential helper notes:**
+- Windows credential manager (`credential.helper=manager`) caches the EMU token and will override the `gh` credential helper for `git push`. Workaround when push fails: push via tokenized URL, e.g. `git push "https://judeper:$(gh auth token --user judeper)@github.com/judeper/FSI-AgentGov.git" <branch>`.
+- A repo-local override of `credential.helper` to `!gh auth git-credential` is not always sufficient on Windows. The tokenized-URL workaround is the most reliable.
+
+**Best practice for AI sessions:**
+1. At session start, leave `judep_microsoft` active (Copilot CLI needs it).
+2. When write operations are needed, switch to `judeper`, do all writes in one batch, then switch back.
+3. If `gh api user` returns the wrong account between operations, re-switch before continuing — the account can flip mid-session.
+
 ## Multi-Agent Coordination
 
 Three tools operate on this repository:
