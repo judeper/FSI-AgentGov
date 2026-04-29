@@ -1,0 +1,11 @@
+{
+  "name": "edge-empty",
+  "scoping": {
+    "organizationName": "Empty State Bank",
+    "assessorName": "Test Assessor",
+    "institutionType": "bank",
+    "zones": [1],
+    "roles": ["admin"]
+  },
+  "answers": {}
+}

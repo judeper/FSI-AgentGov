@@ -1,0 +1,9 @@
+{
+  "personas": [
+    { "name": "minimal-ciso", "description": "CISO at small bank, Zone 1 only, ~10 controls answered yes" },
+    { "name": "full-cco", "description": "Compliance officer, all zones, all 78 controls answered" },
+    { "name": "consultant-multi", "description": "Multi-client consultant; 2 distinct assessments saved" },
+    { "name": "edge-empty", "description": "Scoped but no responses yet" },
+    { "name": "edge-malicious", "description": "Inputs containing XSS / formula-injection / unicode tricks for sanitizer regression" }
+  ]
+}

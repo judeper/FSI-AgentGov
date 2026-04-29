@@ -1,0 +1,11 @@
+{
+  "name": "minimal-ciso",
+  "scoping": {
+    "organizationName": "Acme Bank",
+    "assessorName": "Jane Doe",
+    "institutionType": "bank",
+    "zones": [1],
+    "roles": ["ciso"]
+  },
+  "answers": {}
+}

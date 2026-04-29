@@ -68,3 +68,9 @@ docs/assessment/pre-session/
 # Node test runner
 node_modules/
 
+# Playwright
+playwright-report/
+test-results/
+tests/e2e/__snapshots__/**/*.png-actual.png
+tests/e2e/__snapshots__/**/*-diff.png
+
