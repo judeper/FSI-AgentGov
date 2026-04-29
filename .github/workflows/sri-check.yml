@@ -1,0 +1,33 @@
+name: sri-check
+
+on:
+  pull_request:
+    paths:
+      - docs/javascripts/lib/xlsx.full.min.js
+      - docs/javascripts/assessment-app.js
+      - scripts/verify-sheetjs-sri.mjs
+      - .github/workflows/sri-check.yml
+  push:
+    branches:
+      - main
+    paths:
+      - docs/javascripts/lib/xlsx.full.min.js
+      - docs/javascripts/assessment-app.js
+      - scripts/verify-sheetjs-sri.mjs
+      - .github/workflows/sri-check.yml
+
+jobs:
+  sri-check:
+    name: sri-check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Verify SheetJS SRI matches vendored file
+        run: node scripts/verify-sheetjs-sri.mjs
