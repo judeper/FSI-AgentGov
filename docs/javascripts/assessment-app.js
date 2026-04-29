@@ -209,9 +209,34 @@
   AssessmentApp.prototype.init = function () {
     var self = this;
     this._bindMaterialSearchGuard();
+    this._migrateLegacySavedAssessments();
     this.loadData().then(function () {
       self.render();
     });
+  };
+
+  /**
+   * One-time migration: prior to the saved-list fix the SPA stored only the
+   * single most recently edited assessment in `STORAGE_KEY + "-current"`.
+   * Older entries shown in the welcome saved-assessments list pointed to
+   * data that did not exist, so clicking "Resume" silently no-op'd.
+   *
+   * The fix introduces per-assessment slots at `STORAGE_KEY + "-data-" + id`.
+   * On first run after the deploy we copy the legacy `-current` blob into its
+   * per-id slot if the slot is empty. We deliberately leave `-current` in
+   * place so the migration is idempotent and a downgrade does not lose data.
+   */
+  AssessmentApp.prototype._migrateLegacySavedAssessments = function () {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY + "-current");
+      if (!raw) return;
+      var parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== "object" || !parsed.assessmentId) return;
+      var perIdKey = STORAGE_KEY + "-data-" + parsed.assessmentId;
+      if (localStorage.getItem(perIdKey) == null) {
+        localStorage.setItem(perIdKey, raw);
+      }
+    } catch (e) { /* migration is best-effort */ }
   };
 
   /**
@@ -739,8 +764,11 @@
     if (!this.state) return;
     this.state.updatedAt = new Date().toISOString();
     try {
-      // Save current assessment
-      localStorage.setItem(STORAGE_KEY + "-current", JSON.stringify(this.state));
+      var serialized = JSON.stringify(this.state);
+      // Per-assessment slot is the source of truth for restoration.
+      localStorage.setItem(STORAGE_KEY + "-data-" + this.state.assessmentId, serialized);
+      // `-current` retained as a "most recently edited" pointer for back-compat.
+      localStorage.setItem(STORAGE_KEY + "-current", serialized);
       // Update saved list
       var list = this.getSavedList();
       var idx = list.findIndex(function (s) { return s.id === this.state.assessmentId; }.bind(this));
@@ -769,7 +797,13 @@
 
   AssessmentApp.prototype.loadFromStorage = function (id) {
     try {
-      var data = JSON.parse(localStorage.getItem(STORAGE_KEY + "-current"));
+      // Prefer the per-assessment slot; falls back to `-current` for assessments
+      // that pre-date the per-id slot OR when caller did not supply an id.
+      var raw = null;
+      if (id) raw = localStorage.getItem(STORAGE_KEY + "-data-" + id);
+      if (!raw) raw = localStorage.getItem(STORAGE_KEY + "-current");
+      if (!raw) return false;
+      var data = JSON.parse(raw);
       if (data && (!id || data.assessmentId === id) && this.validateState(data)) {
         this.state = data;
         return true;
@@ -782,6 +816,7 @@
     var list = this.getSavedList().filter(function (s) { return s.id !== id; });
     localStorage.setItem(STORAGE_KEY + "-list", JSON.stringify(list));
     try {
+      localStorage.removeItem(STORAGE_KEY + "-data-" + id);
       var current = JSON.parse(localStorage.getItem(STORAGE_KEY + "-current"));
       if (current && current.assessmentId === id) {
         localStorage.removeItem(STORAGE_KEY + "-current");
