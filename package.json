@@ -5,13 +5,22 @@
   "type": "module",
   "scripts": {
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:smoke": "playwright test --grep @smoke",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:snapshots": "playwright test --update-snapshots",
+    "verify:sri": "node scripts/verify-sheetjs-sri.mjs"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.11.2",
+    "@playwright/test": "1.59.1",
     "@vitest/ui": "4.1.5",
     "ajv": "^8.20.0",
+    "get-port": "7.2.0",
     "jsdom": "29.1.0",
     "markdown-it": "^14.1.1",
+    "pdf-parse": "2.4.5",
     "vitest": "4.1.5",
     "xlsx": "^0.18.5"
   }
