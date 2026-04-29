@@ -9,7 +9,7 @@
   },
   "devDependencies": {
     "vitest": "1.6.0",
-    "jsdom": "24.0.0",
+    "jsdom": "29.1.0",
     "@vitest/ui": "1.6.0"
   }
 }
