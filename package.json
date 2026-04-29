@@ -7,7 +7,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "test:e2e:smoke": "playwright test --grep @smoke",
+    "test:e2e:smoke": "playwright test --grep @smoke --workers=1",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:snapshots": "playwright test --update-snapshots",
     "verify:sri": "node scripts/verify-sheetjs-sri.mjs"

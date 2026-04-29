@@ -1939,7 +1939,7 @@
     // Zones
     var zoneHint = h("div", { className: "ag-check-hint" });
     zoneHint.appendChild(document.createTextNode("Select all zones your organization currently uses or plans to adopt. "));
-    var zoneLink = h("a", { href: getBasePath() + "framework/zones-and-tiers/", target: "_blank" }, "Learn about zones");
+    var zoneLink = h("a", { href: getBasePath() + "framework/zones-and-tiers/", target: "_blank", style: "text-decoration: underline;" }, "Learn about zones");
     zoneHint.appendChild(zoneLink);
     form.appendChild(this.checkboxGroup("Active Governance Zones", [
       { value: 1, label: "Zone 1 \u2014 Personal Productivity",

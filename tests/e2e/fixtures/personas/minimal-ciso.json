@@ -7,5 +7,11 @@
     "zones": [1],
     "roles": ["ciso"]
   },
-  "answers": {}
+  "answers": {
+    "1.4": "yes",
+    "1.5": "partial",
+    "1.7": "no",
+    "1.11": "yes",
+    "2.1": "partial"
+  }
 }
