@@ -1728,6 +1728,15 @@
     btns.appendChild(h("button", {
       className: "ag-btn ag-btn-primary",
       onClick: function () {
+        // Defensive sync: if a <select> change event was missed (e.g. browser
+        // autofill, programmatic value injection, or test harness), trust the
+        // DOM as the source of truth before validating.
+        var instSel = document.getElementById("ag-select-institution-type");
+        if (instSel && instSel.value && instSel.value !== sc.institutionType) {
+          sc.institutionType = instSel.value;
+          var inst = self.data.institutionTypes[instSel.value];
+          if (inst) sc.regulations = inst.regulations.slice();
+        }
         if (!sc.organizationName) { alert("Please enter an organization name."); return; }
         if (!sc.institutionType) { alert("Please select an institution type."); return; }
         if (sc.zones.length === 0) { alert("Please select at least one zone."); return; }
@@ -1773,12 +1782,25 @@
     var selectId = "ag-select-" + label.toLowerCase().replace(/\s+/g, "-");
     var wrap = h("div", { className: "ag-field" });
     wrap.appendChild(h("label", { className: "ag-label", htmlFor: selectId }, label));
-    var sel = h("select", { className: "ag-select", id: selectId });
+    // autocomplete="off" + a unique randomized name suppress browser autofill,
+    // which on <select> elements injects a visible label without firing the
+    // change event listener below — leading to a state/DOM mismatch that
+    // makes downstream validation falsely report "no selection".
+    var sel = h("select", {
+      className: "ag-select",
+      id: selectId,
+      name: selectId + "-" + Math.random().toString(36).slice(2, 8),
+      autocomplete: "off",
+    });
     options.forEach(function (o) {
       var opt = h("option", { value: o.value }, o.label);
       if (o.value === value) opt.selected = true;
       sel.appendChild(opt);
     });
+    // Force the DOM value to match incoming state so the visible selection
+    // and `sel.value` stay in lockstep at render time, even if the browser
+    // tries to restore an autofilled value.
+    sel.value = value || "";
     sel.addEventListener("change", function () { onChange(sel.value); });
     wrap.appendChild(sel);
     return wrap;
