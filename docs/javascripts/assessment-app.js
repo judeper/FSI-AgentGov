@@ -158,7 +158,13 @@
   }
 
   // ---- Collector payload validation (security) --------------------------
-  var _COLLECTOR_FORBIDDEN_KEYS = { "__proto__": 1, "constructor": 1, "prototype": 1 };
+  // Note: object-literal `__proto__` sets the prototype rather than an own
+  // property. Use Object.create(null) + bracket assignment so the key lookup
+  // via hasOwnProperty matches the string "__proto__".
+  var _COLLECTOR_FORBIDDEN_KEYS = Object.create(null);
+  _COLLECTOR_FORBIDDEN_KEYS["__proto__"] = 1;
+  _COLLECTOR_FORBIDDEN_KEYS["constructor"] = 1;
+  _COLLECTOR_FORBIDDEN_KEYS["prototype"] = 1;
   var _COLLECTOR_AUTOMATION = { automated: 1, manual: 1, hybrid: 1 };
   function validateCollectorPayload(p) {
     if (!p || typeof p !== "object" || Array.isArray(p)) return false;
