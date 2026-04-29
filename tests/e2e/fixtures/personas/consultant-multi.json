@@ -1,0 +1,33 @@
+{
+  "name": "consultant-multi",
+  "scoping": {
+    "organizationName": "Initech Advisors",
+    "assessorName": "Sam Rivera",
+    "institutionType": "advisor",
+    "zones": [1, 2],
+    "roles": ["consultant"]
+  },
+  "answers": {},
+  "savedAssessments": [
+    {
+      "id": "client-a",
+      "scoping": {
+        "organizationName": "Client A Bank",
+        "assessorName": "Sam Rivera",
+        "institutionType": "bank",
+        "zones": [1, 2]
+      },
+      "answers": {}
+    },
+    {
+      "id": "client-b",
+      "scoping": {
+        "organizationName": "Client B Credit Union",
+        "assessorName": "Sam Rivera",
+        "institutionType": "credit-union",
+        "zones": [1]
+      },
+      "answers": {}
+    }
+  ]
+}

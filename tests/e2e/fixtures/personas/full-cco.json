@@ -1,0 +1,11 @@
+{
+  "name": "full-cco",
+  "scoping": {
+    "organizationName": "Globex Financial",
+    "assessorName": "Maria Chen",
+    "institutionType": "broker-dealer",
+    "zones": [1, 2, 3],
+    "roles": ["cco", "compliance-officer"]
+  },
+  "answers": {}
+}
