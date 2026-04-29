@@ -1,5 +1,16 @@
 {% extends "base.html" %}
 
+{# Content Security Policy. Each loosening from a strict 'self' baseline is
+   documented here and mirrored in tests/e2e/fixtures/csp-allowed.json:
+     - script-src 'unsafe-inline'      : mkdocs-material inline init scripts.
+     - style-src  'unsafe-inline'      : mkdocs-material inlines critical CSS.
+     - style-src  https://fonts.googleapis.com : mkdocs-material default font CSS.
+     - font-src   https://fonts.gstatic.com    : mkdocs-material default font files.
+     - img-src    data:                : inlined SVG/data-URL icons. #}
+{% block extrahead %}
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+{% endblock %}
+
 {% block announce %}
   Framework recently updated —
   <a href="https://github.com/judeper/FSI-AgentGov/blob/main/CHANGELOG.md">

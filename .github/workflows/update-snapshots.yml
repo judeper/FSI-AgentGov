@@ -1,0 +1,78 @@
+# Manual-dispatch workflow to regenerate Linux-baseline Playwright PNG snapshots.
+#
+# PARKED: depends on `npm run test:e2e:snapshots` and the Playwright suite
+# under tests/e2e/, both forthcoming in plan v3.1, Phase C scaffold.
+# Until that lands, dispatching this workflow will fail at the npm step;
+# that's intentional — no silent passes.
+#
+# Usage: GitHub UI → Actions → "Update Playwright Snapshots" → Run workflow.
+# Snapshots must only be generated on Linux to keep PNG diffs deterministic.
+# Do NOT regenerate snapshots on Windows or macOS.
+name: Update Playwright Snapshots
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  update-snapshots:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.49.0-jammy
+      options: --user 1001
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Verify a PR exists for this branch
+        # Snapshot regen writes binary PNGs; require an open PR so the diff
+        # has a review surface and we never silently mutate main.
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ "${GITHUB_REF_NAME}" = "main" ]; then
+            echo "ERROR: Refusing to regenerate snapshots directly on main."
+            exit 1
+          fi
+          pr_count=$(gh pr list --head "${GITHUB_REF_NAME}" --state open --json number --jq 'length' || echo 0)
+          if [ "${pr_count}" -lt 1 ]; then
+            echo "ERROR: No open PR found for branch ${GITHUB_REF_NAME}."
+            echo "Open a draft PR before regenerating snapshots."
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: 3.x
+
+      - name: Install MkDocs and Material Theme
+        run: pip install 'mkdocs-material>=9.5,<10'
+
+      - name: Build docs site
+        run: mkdocs build --strict
+
+      - name: Regenerate Playwright snapshots
+        # PARKED: this script is added in Phase C scaffold (tests/e2e/).
+        run: npm run test:e2e:snapshots -- --update-snapshots
+
+      - name: Upload snapshot diffs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-snapshot-diff
+          path: |
+            test-results/
+            tests/e2e/**/*-snapshots/
+          if-no-files-found: warn
+          retention-days: 14
