@@ -86,6 +86,9 @@
     if (!container && appInstance) {
       try { appInstance.destroy(); } catch (e) { /* ignore */ }
       appInstance = null;
+      // spa-test-hook: keep window.__assessmentApp in sync so E2E tests
+      // observe the cleanup.
+      try { delete window.__assessmentApp; } catch (e) { window.__assessmentApp = null; }
       var css = document.getElementById("ag-assessment-css");
       if (css) css.remove();
       return;
@@ -104,6 +107,9 @@
         if (typeof window.AssessmentApp === "function") {
           appInstance = new window.AssessmentApp(el);
           appInstance.init();
+          // spa-test-hook: expose the live instance so Playwright @regression
+          // specs can read app.step / app.state without DOM scraping.
+          window.__assessmentApp = appInstance;
         } else {
           console.error("AssessmentApp not found after loading dependencies");
         }

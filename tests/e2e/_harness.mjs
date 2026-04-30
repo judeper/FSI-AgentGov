@@ -163,9 +163,12 @@ export async function seedScoping(page, persona) {
   const zoneFieldset = page.getByRole("group", {
     name: "Active Governance Zones",
   });
-  for (const z of sc.zones || []) {
+  const wantedZones = new Set((sc.zones || []).map(Number));
+  for (const z of [1, 2, 3]) {
     const cb = zoneFieldset.locator(`input[type="checkbox"][value="${z}"]`);
-    if (!(await cb.isChecked())) await cb.check();
+    const checked = await cb.isChecked();
+    if (wantedZones.has(z) && !checked) await cb.check();
+    else if (!wantedZones.has(z) && checked) await cb.uncheck();
   }
 
   // Submit. The click handler synchronously re-renders the SPA, which

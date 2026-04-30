@@ -322,13 +322,49 @@
   AssessmentApp.prototype._migrateLegacySavedAssessments = function () {
     try {
       var raw = localStorage.getItem(STORAGE_KEY + "-current");
-      if (!raw) return;
-      var parsed = JSON.parse(raw);
-      if (!parsed || typeof parsed !== "object" || !parsed.assessmentId) return;
-      var perIdKey = STORAGE_KEY + "-data-" + parsed.assessmentId;
-      if (localStorage.getItem(perIdKey) == null) {
-        localStorage.setItem(perIdKey, raw);
+      if (raw) {
+        var parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === "object" && parsed.assessmentId) {
+          var perIdKey = STORAGE_KEY + "-data-" + parsed.assessmentId;
+          if (localStorage.getItem(perIdKey) == null) {
+            localStorage.setItem(perIdKey, raw);
+          }
+        }
       }
+    } catch (e) { /* migration is best-effort */ }
+    // spa-fix-filter-namespace: one-shot migration of legacy global filter
+    // keys (ROLE_FILTER_KEY, SECTOR_KEY) onto the per-assessment namespace
+    // for the most-recent current assessment. If there is no current
+    // assessment we discard the legacy keys to prevent leakage into a
+    // newly-created assessment. Guarded by a flag so we run at most once.
+    try {
+      var migFlag = STORAGE_KEY + "-filter-migration-v1";
+      if (localStorage.getItem(migFlag) === "1") return;
+      var legacyRole = localStorage.getItem(ROLE_FILTER_KEY);
+      var legacySector = localStorage.getItem(SECTOR_KEY);
+      var curRaw = localStorage.getItem(STORAGE_KEY + "-current");
+      var curId = null;
+      if (curRaw) {
+        try {
+          var cur = JSON.parse(curRaw);
+          if (cur && cur.assessmentId) curId = cur.assessmentId;
+        } catch (_) { /* */ }
+      }
+      if (curId) {
+        if (legacyRole != null &&
+            localStorage.getItem(ROLE_FILTER_KEY + "-" + curId) == null) {
+          localStorage.setItem(ROLE_FILTER_KEY + "-" + curId, legacyRole);
+        }
+        if (legacySector != null &&
+            localStorage.getItem(SECTOR_KEY + "-" + curId) == null) {
+          localStorage.setItem(SECTOR_KEY + "-" + curId, legacySector);
+        }
+      }
+      // Always remove the global keys after migration to stop them leaking
+      // into a freshly created assessment.
+      if (legacyRole != null) localStorage.removeItem(ROLE_FILTER_KEY);
+      if (legacySector != null) localStorage.removeItem(SECTOR_KEY);
+      localStorage.setItem(migFlag, "1");
     } catch (e) { /* migration is best-effort */ }
   };
 
@@ -879,12 +915,13 @@
      STATE MANAGEMENT
      ================================================================ */
   AssessmentApp.prototype.newState = function () {
+    // spa-fix-filter-namespace: filter view-state is now per-assessment
+    // (namespaced under ROLE_FILTER_KEY+"-"+id and SECTOR_KEY+"-"+id) so a
+    // brand-new assessment must NOT inherit the previous assessment's
+    // filter from the legacy global keys. Initialize empty; the user's
+    // most recent per-assessment filters are restored in loadFromStorage.
     var savedRole = "";
     var savedSector = "";
-    try {
-      savedRole = localStorage.getItem(ROLE_FILTER_KEY) || "";
-      savedSector = localStorage.getItem(SECTOR_KEY) || "";
-    } catch (e) { /* localStorage unavailable */ }
     return {
       assessmentId: uuid(),
       assessmentName: "",
@@ -915,6 +952,15 @@
   AssessmentApp.prototype.saveToStorage = function () {
     if (!this.state) return;
     this.state.updatedAt = new Date().toISOString();
+    // spa-fix-resume-step: persist the wizard step alongside answers so
+    // Resume restores the user to where they left off (scoping → phase1 →
+    // phase2 → results → export). Do NOT overwrite a previously-saved
+    // step with "welcome" — Resume by definition takes the user OUT of
+    // welcome, so persisting "welcome" would erase the user's actual
+    // working position when they click the welcome indicator.
+    if (this.step && this.step !== "welcome") {
+      this.state.step = this.step;
+    }
     try {
       var serialized = JSON.stringify(this.state);
       // Per-assessment slot is the source of truth for restoration (iter3-2-001 P0).
@@ -972,6 +1018,26 @@
       var data = JSON.parse(raw);
       if (data && (!id || data.assessmentId === id) && this.validateState(data)) {
         this.state = data;
+        // spa-fix-resume-step: restore wizard step from saved data. Only
+        // honor "completed analysis" steps (results, export) on Resume —
+        // for in-progress steps (welcome, scoping, phase1, phase2) Resume
+        // always lands on phase1 (the working area). This avoids surfacing
+        // half-filled scoping screens AND restores users who had reached
+        // results/export to where they left off.
+        var savedStep = (typeof data.step === "string") ? data.step : "";
+        this.step = (savedStep === "results" || savedStep === "export") ? savedStep : "phase1";
+        // spa-fix-filter-namespace: pull the assessment's per-id filter view
+        // state into transient state so the UI re-shows what the user had
+        // previously. Missing keys clear the filter (no leakage).
+        try {
+          var aid = data.assessmentId;
+          if (aid) {
+            var savedRole = localStorage.getItem(ROLE_FILTER_KEY + "-" + aid);
+            var savedSector = localStorage.getItem(SECTOR_KEY + "-" + aid);
+            this.state.roleFilter = savedRole || "";
+            this.state.selectedSector = savedSector || "";
+          }
+        } catch (_) { /* */ }
         return true;
       }
     } catch (e) { /* */ }
@@ -1002,6 +1068,9 @@
     try {
       // Always remove the per-id slot for the deleted assessment.
       localStorage.removeItem(STORAGE_KEY + "-data-" + id);
+      // spa-fix-filter-namespace: clear per-assessment filter view state.
+      localStorage.removeItem(ROLE_FILTER_KEY + "-" + id);
+      localStorage.removeItem(SECTOR_KEY + "-" + id);
       var cur2 = JSON.parse(localStorage.getItem(STORAGE_KEY + "-current"));
       if (cur2 && cur2.assessmentId === id) {
         localStorage.removeItem(STORAGE_KEY + "-current");
@@ -1641,6 +1710,11 @@
 
   AssessmentApp.prototype.goToStep = function (step) {
     this.step = step;
+    // spa-fix-resume-step: persist the step to storage immediately so a
+    // browser refresh / Resume restores the user to the same wizard step.
+    if (this.state) {
+      try { this.saveToStorage(); } catch (_) { /* */ }
+    }
     this.render();
     this.el.scrollIntoView({ behavior: "smooth", block: "start" });
   };
@@ -1826,7 +1900,10 @@
           onClick: function (e) {
             e.stopPropagation();
             if (self.loadFromStorage(s.id)) {
-              self.goToStep("phase1");
+              // spa-fix-resume-step: respect the saved step (welcome →
+              // scoping → phase1 → phase2 → results → export) instead of
+              // forcing every Resume back to phase1.
+              self.goToStep(self.step || "phase1");
             }
           }
         }, "Resume"));
@@ -2001,7 +2078,12 @@
     });
     sectorSel.addEventListener("change", function () {
       self.state.selectedSector = sectorSel.value;
-      try { localStorage.setItem(SECTOR_KEY, sectorSel.value); } catch (e) { /* */ }
+      // spa-fix-filter-namespace: persist sector under per-assessment slot
+      // so two saved assessments can hold different sectors without leaking.
+      try {
+        var aid = (self.state && self.state.assessmentId) || "unscoped";
+        localStorage.setItem(SECTOR_KEY + "-" + aid, sectorSel.value);
+      } catch (e) { /* */ }
       self._debouncedSave();
     });
     sectorWrap.appendChild(sectorSel);
@@ -2278,7 +2360,12 @@
     var countBadge = h("span", { className: "ag-role-filter-count", id: "ag-role-filter-count" }, "");
     filterSel.addEventListener("change", function () {
       self.state.roleFilter = filterSel.value;
-      try { localStorage.setItem(ROLE_FILTER_KEY, filterSel.value); } catch (e) { /* */ }
+      // spa-fix-filter-namespace: persist role filter under per-assessment
+      // slot to prevent leakage across assessments.
+      try {
+        var aid = (self.state && self.state.assessmentId) || "unscoped";
+        localStorage.setItem(ROLE_FILTER_KEY + "-" + aid, filterSel.value);
+      } catch (e) { /* */ }
       self._debouncedSave();
       self.applyRoleFilter();
     });
