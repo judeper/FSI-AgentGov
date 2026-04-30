@@ -2,6 +2,7 @@ import { defineConfig } from "@playwright/test";
 
 const PORT = parseInt(process.env.PW_PORT || "8765", 10);
 const isCI = !!process.env.CI;
+const isProdProbe = !!process.env.PROD_URL;
 
 export default defineConfig({
   testDir: "./tests/e2e",
@@ -24,18 +25,20 @@ export default defineConfig({
     navigationTimeout: 15_000,
   },
   snapshotDir: "tests/e2e/__snapshots__",
-  webServer: {
-    command:
-      process.platform === "win32"
-        ? `cmd /C "mkdocs build --quiet && python -m http.server ${PORT} --directory site --bind 127.0.0.1"`
-        : `bash -c "mkdocs build --quiet && python3 -m http.server ${PORT} --directory site --bind 127.0.0.1"`,
-    url: `http://127.0.0.1:${PORT}/assessment/`,
-    reuseExistingServer: !isCI,
-    timeout: 240_000,
-    stdout: "pipe",
-    stderr: "pipe",
-  },
-  globalSetup: "./tests/e2e/_globalSetup.mjs",
+  webServer: isProdProbe
+    ? undefined
+    : {
+        command:
+          process.platform === "win32"
+            ? `cmd /C "mkdocs build --quiet && python -m http.server ${PORT} --directory site --bind 127.0.0.1"`
+            : `bash -c "mkdocs build --quiet && python3 -m http.server ${PORT} --directory site --bind 127.0.0.1"`,
+        url: `http://127.0.0.1:${PORT}/assessment/`,
+        reuseExistingServer: !isCI,
+        timeout: 240_000,
+        stdout: "pipe",
+        stderr: "pipe",
+      },
+  globalSetup: isProdProbe ? undefined : "./tests/e2e/_globalSetup.mjs",
   projects: [
     { name: "chromium", use: { browserName: "chromium" } },
     // Firefox/WebKit added in later PR per Theme 5.
