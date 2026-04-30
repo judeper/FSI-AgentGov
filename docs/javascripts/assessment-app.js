@@ -4172,7 +4172,9 @@
     // Section 1 — Header
     lines.push("# FSI Agent Governance Assessment \u2014 Next Session Agenda");
     lines.push("");
-    lines.push("**Customer:** " + (scoping.organizationName || "TBD"));
+    // spa-fix-md-escape: customer name is user-supplied; escape Markdown
+    // special chars so names containing *, _, [, `, etc. don't break rendering.
+    lines.push("**Customer:** " + _agendaMdCell(scoping.organizationName || "TBD"));
     lines.push("**Generated:** " + new Date().toISOString());
     lines.push("**Zone target:** " + zoneTarget);
     lines.push("**Sector:** " + (state.selectedSector || scoping.institutionType || "Not specified"));
