@@ -5,8 +5,7 @@
     "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
     "font-src": ["'self'", "https://fonts.gstatic.com"],
     "img-src": ["'self'", "data:"],
-    "connect-src": ["'self'"],
-    "frame-ancestors": ["'none'"],
+    "connect-src": ["'self'", "https://api.github.com"],
     "base-uri": ["'self'"],
     "form-action": ["'self'"]
   },
@@ -27,6 +26,12 @@
       "directive": "script-src",
       "value": "'unsafe-inline'",
       "reason": "mkdocs-material inline init scripts",
+      "expiresISO": "2026-12-31"
+    },
+    {
+      "directive": "connect-src",
+      "value": "https://api.github.com",
+      "reason": "mkdocs-material announce-bar release-version fetch (latest release + repo metadata)",
       "expiresISO": "2026-12-31"
     }
   ]

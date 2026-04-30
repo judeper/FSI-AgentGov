@@ -18,34 +18,16 @@ import {
  * focused assertion that runs first in CI for fast feedback when a
  * deploy ships a JS regression.
  *
- * KNOWN DEFECTS this canary surfaces (NOT introduced by this PR):
- *   1. mkdocs-material's announce-bar wires a release-notes fetch to
- *      `https://api.github.com/repos/judeper/FSI-AgentGov/releases/latest`
- *      and `…/repos/judeper/FSI-AgentGov`. The site's CSP
- *      `connect-src 'self'` blocks both, producing two console errors
- *      per page navigation. This is a real CSP regression that should
- *      either (a) add api.github.com to connect-src + the allowlist
- *      fixture, or (b) disable the announce-bar release widget. Logged
- *      as follow-up.
- *   2. `frame-ancestors` is declared on the meta-CSP, but per spec
- *      meta-CSP cannot deliver `frame-ancestors`; Chromium emits a
- *      console warning. This directive should move to an HTTP header
- *      (Pages config) or be dropped from the meta. Logged as follow-up.
- *
- * Until those are fixed, the spec is wrapped in `test.fail` per the
- * batch caveat ("If a spec catches a real bug … use `test.fail` with
- * documentation, NOT a silent skip"). When the underlying defects land,
- * remove the `test.fail` wrapper and the canary returns to fail-loud.
+ * Previously surfaced two CSP defects (now fixed in fix/csp-meta-defects):
+ *   1. api.github.com blocked by connect-src 'self' — fixed by allow-listing
+ *      https://api.github.com in overrides/main.html and csp-allowed.json.
+ *   2. frame-ancestors via meta-CSP (browser-ignored) — removed from meta;
+ *      replaced with inline JS frame-busting guard at top of <head>.
  */
 test.describe("zero pageerror canary @smoke", () => {
   test("happy path produces zero pageerrors / console errors @smoke", async ({
     page,
   }) => {
-    // Mark as expected-to-fail until the two CSP defects above are fixed.
-    test.fail(
-      true,
-      "Surfacing pre-existing CSP violations (api.github.com connect-src + frame-ancestors via meta). Remove when fixed.",
-    );
     const pageErrors = [];
     const consoleErrors = [];
     page.on("pageerror", (err) => {
