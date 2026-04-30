@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.4.1] — April 30, 2026 (E2E Test Infrastructure & SPA Hardening)
+
+Quality + assurance release. No control catalog changes. Ships an end-to-end Playwright test suite (~60 specs across smoke, regression, edge cases, accessibility, and production probes), 4 new CI workflows (including SheetJS supply-chain SRI verification and post-deploy production smoke), branch protection as code, and 12+ assessment SPA hardening fixes covering saved-list integrity, storage quotas, formula-injection defenses, prototype-pollution guards, CSP allowlist enforcement, and per-assessment filter namespacing. See [CHANGELOG-v1.4.md](CHANGELOG-v1.4.md#v141--april-30-2026) for the full entry.
+
+---
+
 ## [1.4.0] — April 2026 (Assessment Tool Unification & Solutions Bridge)
 
 ### Added
