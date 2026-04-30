@@ -1,0 +1,20 @@
+{
+  "_comment": "OWASP XSS Filter Evasion / Cheat Sheet curated payloads. Used by spec 21 (rendered-output XSS matrix). Each payload is injected into the scoping organizationName field; the SPA must escape it as inert text and never fire a dialog or insert a parsed <script>/event-handler element. Payloads cover script tags, event-handler attribute breakouts, javascript: / data: URLs, polyglot SVG, CSS expression, HTML5 ontoggle, mixed-case, HTML entity encoding, unicode normalization, and DOMPurify-style mutation vectors.",
+  "payloads": [
+    { "id": "script-basic", "value": "<script>alert('xss-script-basic')</script>", "category": "script-tag" },
+    { "id": "img-onerror", "value": "<img src=x onerror=alert('xss-img-onerror')>", "category": "event-handler" },
+    { "id": "svg-onload", "value": "<svg onload=alert('xss-svg-onload')>", "category": "event-handler" },
+    { "id": "javascript-url", "value": "javascript:alert('xss-js-url')", "category": "url-scheme" },
+    { "id": "data-url-html", "value": "data:text/html,<script>alert('xss-data-url')</script>", "category": "url-scheme" },
+    { "id": "polyglot-svg", "value": "<svg/onload=alert('xss-polyglot-svg')//", "category": "polyglot" },
+    { "id": "css-expression", "value": "<div style=\"width:expression(alert('xss-css-expr'))\">x</div>", "category": "css" },
+    { "id": "details-ontoggle", "value": "<details open ontoggle=alert('xss-ontoggle')>x</details>", "category": "html5-event" },
+    { "id": "attr-breakout", "value": "\"><img src=x onerror=alert('xss-attr-breakout')>", "category": "attribute-breakout" },
+    { "id": "nested-encoding", "value": "%3Cscript%3Ealert('xss-nested-enc')%3C%2Fscript%3E", "category": "encoding" },
+    { "id": "mixed-case-script", "value": "<ScRiPt>alert('xss-mixed-case')</ScRiPt>", "category": "case-evasion" },
+    { "id": "html-entity-encoded", "value": "&lt;script&gt;alert('xss-entity')&lt;/script&gt;", "category": "encoding" },
+    { "id": "unicode-fullwidth", "value": "\uff1cscript\uff1ealert('xss-unicode')\uff1c/script\uff1e", "category": "unicode" },
+    { "id": "mxss-noscript", "value": "<noscript><p title=\"</noscript><img src=x onerror=alert('xss-mxss')>\">", "category": "mutation-xss" },
+    { "id": "iframe-srcdoc", "value": "<iframe srcdoc=\"<script>alert('xss-srcdoc')</script>\">", "category": "iframe" }
+  ]
+}
