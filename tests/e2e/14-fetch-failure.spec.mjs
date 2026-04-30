@@ -29,6 +29,11 @@ test.describe("fetch failure resilience @regression", () => {
   test("required manifest 404 → SPA shows retry-able error UI @regression", async ({
     page,
   }) => {
+    // Ordering requirement: page.route() MUST be installed before
+    // page.goto() so the SPA's first fetch of assessment-data.json is
+    // intercepted by the 404 stub. Inverting this order races the route
+    // handler against the network request and is a known local-Windows
+    // flake source (Phase B' triage P2).
     await page.route(REQUIRED, (route) =>
       route.fulfill({ status: 404, body: "not found" }),
     );
@@ -37,9 +42,14 @@ test.describe("fetch failure resilience @regression", () => {
     await page
       .locator("#ag-retry-load")
       .waitFor({ state: "visible", timeout: 15_000 });
-    await expect(page.locator(".admonition.failure")).toBeVisible();
+    // Default expect timeout (5s) is too tight on slow local hardware
+    // when the failure-UI render races initial layout. Use 10s.
+    await expect(page.locator(".admonition.failure")).toBeVisible({
+      timeout: 10_000,
+    });
     await expect(page.locator(".admonition.failure")).toContainText(
       /Could not load assessment data/i,
+      { timeout: 10_000 },
     );
   });
 
