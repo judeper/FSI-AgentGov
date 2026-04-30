@@ -6,9 +6,30 @@
      - style-src  'unsafe-inline'      : mkdocs-material inlines critical CSS.
      - style-src  https://fonts.googleapis.com : mkdocs-material default font CSS.
      - font-src   https://fonts.gstatic.com    : mkdocs-material default font files.
-     - img-src    data:                : inlined SVG/data-URL icons. #}
+     - img-src    data:                : inlined SVG/data-URL icons.
+     - connect-src https://api.github.com : mkdocs-material announce-bar release-version fetch.
+
+   NOTE: `frame-ancestors` is intentionally NOT set via <meta>. Per the CSP
+   spec, browsers ignore `frame-ancestors` when delivered via meta-CSP — it
+   MUST be sent as an HTTP response header. GitHub Pages does not allow
+   custom response headers (no _headers file, no .htaccess), so we ship a
+   small inline JS frame-busting guard below as defense-in-depth. If hosting
+   ever moves off GitHub Pages, add `frame-ancestors 'none'` as an HTTP
+   header on the origin. #}
 {% block extrahead %}
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+  <script>
+    if (window.top !== window.self) {
+      // Frame-busting: refuse to render inside an iframe.
+      // CSP frame-ancestors must be sent as HTTP header for full coverage,
+      // but GitHub Pages does not let us set custom response headers.
+      // This JS guard is a defense-in-depth layer.
+      try { window.top.location = window.self.location; } catch (_) {
+        document.documentElement.style.display = "none";
+        document.body && (document.body.innerHTML = "<p>This page cannot be displayed inside a frame.</p>");
+      }
+    }
+  </script>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://api.github.com; base-uri 'self'; form-action 'self'">
 {% endblock %}
 
 {% block announce %}
