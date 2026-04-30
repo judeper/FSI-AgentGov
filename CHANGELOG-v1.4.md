@@ -10,6 +10,38 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## Maintenance — April 30, 2026
+
+Repository hardening pass in response to an external critique of `FSI-AgentGov` and `FSI-AgentGov-Solutions`; no framework feature changes. Three CI/release waves plus a documentation alignment wave landed via `review/research-report-critique`.
+
+### Added
+- **Assessment evaluator transparency** — every check, control, and summary in `assessment-prefilled.md` and `assessment-summary.json` now carries an `evaluator_state` (`auto_evaluable`, `manual_only`, or `unimplemented_evaluator`). The new generated [Assessment Engine Coverage matrix](docs/reference/assessment-coverage.md) reports honest coverage across all 78 controls (1 auto / 38 unimplemented / 39 manual at landing) and surfaces 8 evaluators that are dead code due to manifest pass-condition drift.
+- **Solutions Contract** — new [`docs/reference/solutions-contract.md`](docs/reference/solutions-contract.md) documents how the FSI-AgentGov-Solutions repo should pin to framework release tags rather than `main`, and what is stable within major / minor / patch versions.
+- **Versioning and Support policy** — new [`docs/reference/versioning-and-support.md`](docs/reference/versioning-and-support.md) defines SemVer adapted for governance content, the support window (latest minor + previous minor for security fixes), the deprecation process, and the per-release artifact list.
+- **`SECURITY.md` rewrite** — supported versions table, threat model, in-CI security controls table, evidence handling, and coordinated-disclosure SLOs (~140 lines, replacing the prior 40-line stub).
+- **CI: Python quality** — `.github/workflows/python-quality.yml` runs pytest (`assessment/tests`), ruff (F+B+I via root `pyproject.toml`), `scripts/check_manifest_doc_drift.py` (78 control IDs across `controls.json`, `CONTROL-INDEX.md`, `mkdocs.yml`), `scripts/generate_coverage_matrix.py --check`, and `scripts/verify_language_rules.py` on every PR.
+- **CI: PowerShell quality** — `.github/workflows/powershell-quality.yml` runs PSScriptAnalyzer with new `PSScriptAnalyzerSettings.psd1` (Errors fail the build; Warnings reported).
+- **CI: Secret scanning** — `.github/workflows/secret-scanning.yml` runs gitleaks with `.gitleaks.toml` allowlist for canonical example tenant IDs and Pester mock tokens.
+- **CI: Dependency review** — `.github/workflows/dependency-review.yml` blocks PRs that introduce `high`-severity advisories.
+- **CI: CodeQL** — `.github/workflows/codeql.yml` runs `security-and-quality` queries for Python and JavaScript on PR / push / weekly schedule.
+- **Release artifacts** — `.github/workflows/release-artifacts.yml` generates CycloneDX SBOMs for the Python and npm dependency trees on tag pushes, signs them with Sigstore (cosign keyless via GitHub Actions OIDC), produces build-provenance and SBOM attestations, and attaches the SBOMs to the GitHub Release.
+- **Drift checker** — `scripts/check_manifest_doc_drift.py` and **coverage generator** — `scripts/generate_coverage_matrix.py` (with `--check` mode for CI).
+- **`pyproject.toml`** — root-level ruff configuration (target `py311`, line length 120, `F`+`B`+`I` rules).
+
+### Fixed
+- **Hard-coded paths in Claude Code hooks** — `.claude/settings.json` now uses `$CLAUDE_PROJECT_DIR` instead of absolute `C:/dev/FSI-AgentGov/...` paths, restoring cross-platform contributor onboarding.
+- **96 ruff auto-fixes + 19 manual** across `assessment/` and `scripts/` — unused imports, unsorted imports, redundant f-strings, stray unused variables, missing `zip(..., strict=…)` arguments.
+- **One PSScriptAnalyzer error** in `scripts/governance/FsiMimeControl.Tests.ps1` suppressed at file scope with a justification (Pester mock token, not a real secret).
+- **Two FSI language-rule violations** introduced by the new Solutions Contract (the word "guarantees" in two headings was renamed to "commitments").
+
+### Documentation
+- **AI/contributor doc alignment** — `README.md`, `AGENTS.md`, `.github/copilot-instructions.md`, and `.claude/claude.md` updated with the new validation commands, CI workflow table, and assessment-engine evaluator-transparency notes.
+
+### Operations
+- All gates green at landing: `mkdocs build --strict` ✅, `pytest 26/26` ✅, `verify_language_rules.py` ✅ (752 docs), drift checks ✅, ruff ✅, PSScriptAnalyzer 0 errors ✅, all workflow YAML parses ✅.
+
+---
+
 ## v1.4.2 — April 30, 2026
 
 Patch release that closes out the three P2 items explicitly deferred in the v1.4.1 "Known issues" section, plus a Phase B″ triage sweep confirming the cycle is clean. No framework control changes; no SPA behavior changes for end users beyond the markdown-export fix.

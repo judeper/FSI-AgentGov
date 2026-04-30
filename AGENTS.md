@@ -254,7 +254,25 @@ Additional validations (when applicable):
 python scripts/verify_excel_templates.py        # After template changes
 python scripts/compile_researcher_package.py    # After pillar control changes
 cd assessment && pytest tests/ -v               # After assessment engine changes
+
+# Cross-source consistency (78 control IDs in manifest, CONTROL-INDEX, and mkdocs nav)
+python scripts/check_manifest_doc_drift.py --check
+
+# Honest assessment-engine coverage report (regenerate after wiring evaluators)
+python scripts/generate_coverage_matrix.py --check     # CI-style fail-on-drift
+python scripts/generate_coverage_matrix.py             # write the file
+
+# FSI-banned-phrase linter (rejects "ensures compliance", "guarantees", etc.)
+python scripts/verify_language_rules.py
+
+# Python lint (ruff config in pyproject.toml — F, B, I)
+ruff check assessment scripts
+
+# PowerShell static analysis (settings at PSScriptAnalyzerSettings.psd1)
+pwsh -c "Invoke-ScriptAnalyzer -Path scripts,assessment/collectors,assessment/run-assessment.ps1 -Recurse -Settings ./PSScriptAnalyzerSettings.psd1"
 ```
+
+CI enforces all of the above. See `.github/workflows/python-quality.yml`, `powershell-quality.yml`, `secret-scanning.yml`, `dependency-review.yml`, `codeql.yml`, and `release-artifacts.yml`. Release tags trigger CycloneDX SBOM generation and Sigstore keyless signing per the [Versioning and Support policy](docs/reference/versioning-and-support.md).
 
 ## Auditing for repo-wide drift
 

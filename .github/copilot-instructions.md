@@ -89,7 +89,14 @@ docs/
 ├── templates/                    # Control authoring template
 ├── images/                       # Screenshot verification (LOCAL ONLY - gitignored)
 └── downloads/                    # Excel templates for admins
-scripts/                          # Validation scripts (verify_controls.py, verify_templates.py, extract_assessment_data.py)
+scripts/                          # Validation + automation scripts
+│   ├── verify_controls.py            # 10-section control structure check
+│   ├── verify_templates.py
+│   ├── verify_excel_templates.py
+│   ├── verify_language_rules.py      # FSI-banned-phrase linter (CI gate)
+│   ├── check_manifest_doc_drift.py   # 78 control IDs across 3 sources (CI gate)
+│   ├── generate_coverage_matrix.py   # Honest assessment coverage report (CI gate)
+│   └── extract_assessment_data.py
 assessment/                       # Automated assessment engine (collectors, scoring, reports)
 │   ├── manifest/controls.json        # Machine-readable 78-control definitions
 │   ├── collectors/                   # 5 PowerShell data collectors (PPAC, Graph, Purview, SharePoint, Sentinel)
@@ -256,7 +263,37 @@ python scripts/verify_excel_templates.py
 
 # Run assessment engine tests
 cd assessment && pip install -r requirements.txt && pytest tests/ -v
+
+# Lint Python (ruff config in pyproject.toml — F, B, I rules)
+ruff check assessment scripts
+
+# Verify 78 control IDs match across manifest, CONTROL-INDEX.md, and mkdocs nav
+python scripts/check_manifest_doc_drift.py --check
+
+# Regenerate (or check) the honest assessment-engine coverage matrix
+python scripts/generate_coverage_matrix.py            # write
+python scripts/generate_coverage_matrix.py --check    # CI mode
+
+# FSI language linter (rejects "ensures compliance", "guarantees", etc.)
+python scripts/verify_language_rules.py
 ```
+
+## CI Workflows
+
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| `python-quality.yml` | PR / push (Python, manifest, nav, docs) | pytest, ruff, drift, coverage matrix, language rules |
+| `powershell-quality.yml` | PR / push (`*.ps1`/`*.psm1`/`*.psd1`) | PSScriptAnalyzer (Errors fail) |
+| `secret-scanning.yml` | PR / push | gitleaks (allowlist in `.gitleaks.toml`) |
+| `dependency-review.yml` | PR | Block PRs that introduce high-severity advisories |
+| `codeql.yml` | PR / push / weekly | CodeQL `security-and-quality` for Python + JS |
+| `release-artifacts.yml` | Tag push `v*.*.*` | CycloneDX SBOMs + Sigstore keyless attestations attached to release |
+| `link-check.yml` | Schedule / PR (docs) | Markdown link health |
+| `learn-monitor.yml`, `regulatory-monitoring.yml` | Schedule | Source-of-truth drift detection |
+| `publish_docs.yml` | Push to `main` | Build & publish MkDocs site |
+| `spa-tests.yml` | PR / push (SPA) | Vitest suite for assessment SPA |
+
+PowerShell static-analysis ruleset lives at root `PSScriptAnalyzerSettings.psd1`. Ruff config lives at root `pyproject.toml`.
 
 ## Automated Assessment Engine
 
@@ -272,6 +309,8 @@ The `assessment/` directory contains a programmatic assessment engine that colle
 **Usage:** `.\assessment\run-assessment.ps1 -TenantId <id> -Zone 2 -AuthMode Interactive -CustomerName "Contoso"`
 
 See `assessment/README.md` for full prerequisites and usage documentation.
+
+**Evaluator transparency:** every check and control output carries an `evaluator_state` field with one of three values: `auto_evaluable`, `manual_only`, or `unimplemented_evaluator`. The summary block exposes an `evaluator_coverage` rollup. The generated [`docs/reference/assessment-coverage.md`](../docs/reference/assessment-coverage.md) is the public-facing honest report of how many controls are actually automated versus manual versus awaiting an evaluator implementation. Run `python scripts/generate_coverage_matrix.py` after wiring or unwiring an evaluator. CI fails if the file is stale.
 
 ## Worktree Management (Parallel Agent Runs)
 

@@ -439,6 +439,9 @@ See **[Implementation Checklist](docs/getting-started/checklist.md)** for detail
 - **"How do I implement this?"** → Use **[Implementation Checklist](docs/getting-started/checklist.md)**
 - **"Common questions?"** → See **[FAQ](docs/reference/faq.md)**
 - **"How do I automate this?"** → See **[Solutions Index](docs/reference/solutions-index.md)**
+- **"What's the assessment engine actually automating?"** → See **[Assessment Engine Coverage](docs/reference/assessment-coverage.md)**
+- **"How should I pin to a framework version?"** → See **[Solutions Contract](docs/reference/solutions-contract.md)** and **[Versioning and Support](docs/reference/versioning-and-support.md)**
+- **"Found a vulnerability?"** → See **[SECURITY.md](SECURITY.md)**
 
 ### For Technical Implementation:
 - Reference individual control files (1.1-4.9)
