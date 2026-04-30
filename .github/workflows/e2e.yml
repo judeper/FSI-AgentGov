@@ -1,0 +1,90 @@
+name: e2e
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'tests/e2e/**'
+      - 'tests/spa/**'
+      - 'playwright.config.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'overrides/**'
+      - 'mkdocs.yml'
+      - '.github/workflows/e2e.yml'
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+    paths:
+      - 'docs/**'
+      - 'tests/e2e/**'
+      - 'tests/spa/**'
+      - 'playwright.config.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'overrides/**'
+      - 'mkdocs.yml'
+      - '.github/workflows/e2e.yml'
+  schedule:
+    - cron: '0 6 * * *'   # 06:00 UTC daily, full suite on main
+  workflow_dispatch: {}
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e-full:
+    name: e2e-full
+    # Skip on PRs unless they have the 'run-full-e2e' label.
+    # Always run on push to main, scheduled, or manual dispatch.
+    if: |
+      github.event_name == 'push' ||
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'run-full-e2e'))
+    runs-on: ubuntu-latest
+    # Pinned to match @playwright/test version in package.json exactly.
+    # Browsers are pre-installed in the container, avoiding `npx playwright install`.
+    container:
+      image: mcr.microsoft.com/playwright:v1.59.1-noble
+      options: --user 1001
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # Mirror smoke workflow's mkdocs install for consistency.
+      # Pip install of mkdocs-material typically completes in <60s in this container.
+      - name: Install MkDocs and Material Theme
+        run: pip install 'mkdocs-material>=9.5,<10'
+
+      - name: Generate Assessment Data
+        run: python scripts/extract_assessment_data.py
+
+      - run: npm ci
+
+      - name: Run full E2E suite
+        env:
+          CI: '1'
+          PW_PORT: '8765'
+        run: npx playwright test
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-full
+          path: playwright-report/
+          retention-days: 14
+
+      - name: Upload trace artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: test-results/
+          retention-days: 14
