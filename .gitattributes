@@ -6,3 +6,9 @@
 
 # Vendored JS libraries must use LF to keep SRI hashes consistent
 docs/javascripts/lib/** eol=lf
+
+# Vendored binary assets — never normalize line endings (preserves SHA-256 SRI)
+# The sri-check workflow (.github/workflows/sri-check.yml, added in PR #146)
+# computes a SHA-256 of this file; CRLF normalization on Windows checkouts
+# would cause false-positive mismatches.
+docs/javascripts/lib/xlsx.full.min.js binary
