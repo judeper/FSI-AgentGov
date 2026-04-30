@@ -10,6 +10,53 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## v1.4.1 — April 30, 2026
+
+Quality + assurance release. No new framework controls. Substantial test infrastructure build-out plus a focused hardening pass on the assessment SPA after a multi-iteration AI-council review surfaced data-integrity, supply-chain, and CSP defects.
+
+### Added
+
+- **End-to-end Playwright test suite** ([#147](https://github.com/judeper/FSI-AgentGov/pull/147), [#148](https://github.com/judeper/FSI-AgentGov/pull/148), [#152](https://github.com/judeper/FSI-AgentGov/pull/152), [#159](https://github.com/judeper/FSI-AgentGov/pull/159), [#162](https://github.com/judeper/FSI-AgentGov/pull/162), [#163](https://github.com/judeper/FSI-AgentGov/pull/163)) — Confidence that the assessment SPA stays working release over release: ~60 Playwright specs covering smoke (happy path, autofill defenses, PDF print, import roundtrip, axe-core a11y baseline), full regression (XLSX/CSV/JSON/PDF/MD exports, hash routing, multi-tab race, XSS matrix, mobile viewport, keyboard navigation, perf budget, CSP+asset-skew, collector injection, cross-origin localStorage), and production probes — plus 25+ vitest contract tests pinning JSON envelope schema, CSV escape, MD anchor, persona-fixture parity, XLSX cell shape, prototype-pollution validator, and filter-loop perf.
+- **Four new CI workflows** ([#148](https://github.com/judeper/FSI-AgentGov/pull/148), [#150](https://github.com/judeper/FSI-AgentGov/pull/150), [#158](https://github.com/judeper/FSI-AgentGov/pull/158), [#160](https://github.com/judeper/FSI-AgentGov/pull/160), [#161](https://github.com/judeper/FSI-AgentGov/pull/161)) — Defects caught before merge and continuously after deploy: `e2e-smoke` (PR gate, ~90s), `e2e-full` (push-to-main + label-gated container), `prod-smoke` (post-deploy SHA poll + probe against `/version.json`), and `prod-smoke-scheduled` (every-30-minute cron with 24h dedupe to avoid alert noise).
+- **SheetJS SRI verification CI** ([#146](https://github.com/judeper/FSI-AgentGov/pull/146)) — Supply-chain protection for the XLSX export dependency: `sri-check` workflow fails the build if `xlsx.full.min.js` is silently swapped without a corresponding integrity-hash update.
+- **Branch protection declared as code** ([#155](https://github.com/judeper/FSI-AgentGov/pull/155)) — Reproducible repository governance: `.github/branch-protection.json` plus apply script; `main` now requires `e2e-smoke` and `sri-check` to pass before merge.
+- **Worktree-aware push helper** ([#139](https://github.com/judeper/FSI-AgentGov/pull/139)) — Eliminates the EMU/personal account confusion documented in `AGENTS.md`: `scripts/push-as-judeper.ps1` auto-switches accounts for the push and restores the EMU account afterward.
+- **AI council audit trail** ([#140](https://github.com/judeper/FSI-AgentGov/pull/140)) — Plan-quality traceability for the cycle: `.planning/council/` captures three iterations of multi-model plan critique that drove the hardening fixes below.
+
+### Fixed (assessment SPA)
+
+- **Saved assessments no longer overwrite each other** ([#144](https://github.com/judeper/FSI-AgentGov/pull/144)) — Eliminates silent data loss when an admin is mid-way through multiple assessments (e.g., one per business unit): replaced single-slot localStorage model with per-id storage isolation so each saved assessment has its own slot.
+- **"Resume" returns you to the step you were on** ([#153](https://github.com/judeper/FSI-AgentGov/pull/153)) — Re-opening a Phase 1 assessment used to drop you back at step 1 regardless of progress; now restores the exact step the user left off on.
+- **Filters no longer leak between saved assessments** ([#153](https://github.com/judeper/FSI-AgentGov/pull/153)) — Role/sector/pillar filter selections are now namespaced per `assessmentId`, so switching between saved assessments no longer carries one assessment's filter state into another.
+- **Storage-quota failures surface a banner with cleanup guidance** ([#142](https://github.com/judeper/FSI-AgentGov/pull/142)) — Prior behavior silently failed the save; admins now see a banner explaining the quota state and how to clear room.
+- **Confirmations on destructive actions** ([#142](https://github.com/judeper/FSI-AgentGov/pull/142)) — Data-loss actions (clear, reset, delete saved assessment) now require confirmation rather than firing on the first click.
+- **Prototype-pollution defense in score collector** ([#142](https://github.com/judeper/FSI-AgentGov/pull/142)) — Maliciously crafted import JSON containing `__proto__` payloads can no longer mutate `Object.prototype` during scoring: collector uses `Object.create(null)` plus bracket assignment.
+- **Formula-injection prevention on XLSX/CSV exports** ([#142](https://github.com/judeper/FSI-AgentGov/pull/142)) — Cells that begin with `=`, `+`, `-`, or `@` (including admin-entered notes) are now prefixed to neutralize automatic formula execution when an exported file is opened in Excel or Google Sheets.
+- **CSP `frame-ancestors` is now actually enforced** ([#166](https://github.com/judeper/FSI-AgentGov/pull/166)) — `frame-ancestors` in a `<meta http-equiv>` tag is silently ignored by browsers (a GitHub Pages limitation, since we cannot set true response headers); replaced with an inline JS frame-busting guard so the SPA cannot be embedded in a malicious framing site.
+- **CSP `connect-src` allows the mkdocs-material announce-bar fetch** ([#166](https://github.com/judeper/FSI-AgentGov/pull/166)) — `api.github.com` is now allowlisted, so the docs-site release-version banner no longer throws a CSP violation in the browser console.
+- **Accessibility: inline link contrast** ([#148](https://github.com/judeper/FSI-AgentGov/pull/148)) — Added an underline to the "Learn about zones" inline link so it satisfies WCAG link-in-text-block contrast (caught by axe-core in the new smoke suite).
+
+### Changed (infrastructure)
+
+- **Build SHA injected into every page** ([#141](https://github.com/judeper/FSI-AgentGov/pull/141)) — `overrides/hooks/cache_bust.py` injects the build SHA at mkdocs build time and publishes `/version.json` per build, which the new `prod-smoke` workflow polls to confirm a deploy actually rolled out before probing it.
+- **CSP allowlist now lives in site config** ([#141](https://github.com/judeper/FSI-AgentGov/pull/141), refined in [#166](https://github.com/judeper/FSI-AgentGov/pull/166)) — `overrides/main.html` extrahead block carries the CSP, so the policy is reviewable in source control instead of buried in deploy config.
+- **Docs deploys are now serialized** ([#141](https://github.com/judeper/FSI-AgentGov/pull/141)) — `publish_docs.yml` gained `concurrency: pages-deploy` so two simultaneous merges to main can no longer race each other to GitHub Pages.
+
+### Documentation
+
+- **`AGENTS.md` E2E Test Suite section** ([#141](https://github.com/judeper/FSI-AgentGov/pull/141)) — Explains the smoke vs full vs prod-smoke split and how to run each lane locally.
+- **`tests/e2e/README.md`** ([#147](https://github.com/judeper/FSI-AgentGov/pull/147)) — Nine standard sections: Quickstart, Personas, Snapshot Workflow, Browser Baseline, Allowlist Policy, Untestable Items, Tag Conventions, CI Gating, and Maintenance Runbook.
+
+### Known issues (deferred)
+
+These three P2 items are tracked for a future patch release; none affect production behavior.
+
+- **Markdown export raw-source `**Customer:**` line lacks markdown escape** — renders correctly via `markdown-it`'s `html:false` default, so end-user output is unaffected. Tracked in `triage-fix-md-rawsource-escape`.
+- **Local Windows SheetJS SRI verifier produces a CRLF false-positive** — CI on Linux passes; production is unaffected. Tracked in `triage-fix-windows-crlf-sri`.
+- **Two locally-flaky specs** (`14-fetch-failure`, `28-perf-budget`) — both pass reliably on CI; only intermittent locally. Tracked in `triage-harden-local-e2e-flakes`.
+
+---
+
 ## Maintenance — April 28, 2026
 
 Documentation hygiene and CI maintenance pass; no framework feature changes.
