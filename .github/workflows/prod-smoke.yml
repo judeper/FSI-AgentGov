@@ -1,0 +1,124 @@
+name: prod-smoke
+
+on:
+  workflow_run:
+    workflows: ["Publish Docs"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: "URL to probe (defaults to live site)"
+        required: false
+        default: "https://judeper.github.io/FSI-AgentGov/"
+      expected_sha:
+        description: "SHA expected at /version.json (defaults to current main HEAD)"
+        required: false
+        default: ""
+
+concurrency:
+  group: prod-smoke
+  cancel-in-progress: false
+
+jobs:
+  prod-smoke:
+    name: prod-smoke
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      issues: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Resolve expected SHA + target URL
+        id: meta
+        run: |
+          target="${{ github.event.inputs.target_url }}"
+          if [ -z "$target" ]; then target="https://judeper.github.io/FSI-AgentGov/"; fi
+          expected="${{ github.event.inputs.expected_sha }}"
+          if [ -z "$expected" ]; then expected="${{ github.sha }}"; fi
+          echo "target=$target" >> "$GITHUB_OUTPUT"
+          echo "expected=$expected" >> "$GITHUB_OUTPUT"
+
+      - name: Poll /version.json for expected SHA (up to 5 minutes)
+        id: poll
+        run: |
+          target="${{ steps.meta.outputs.target }}"
+          expected="${{ steps.meta.outputs.expected }}"
+          deadline=$(( $(date +%s) + 300 ))
+          last_actual=""
+          while [ "$(date +%s)" -lt "$deadline" ]; do
+            actual=$(curl -fsSL "${target}version.json" 2>/dev/null | jq -r .sha 2>/dev/null || echo "")
+            last_actual="$actual"
+            echo "actual=$actual expected=$expected"
+            if [ "$actual" = "$expected" ]; then
+              echo "matched=true" >> "$GITHUB_OUTPUT"
+              echo "actual=$actual" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "matched=false" >> "$GITHUB_OUTPUT"
+          echo "actual=$last_actual" >> "$GITHUB_OUTPUT"
+          exit 1
+
+      - name: Run minimal Playwright probe against production
+        if: steps.poll.outputs.matched == 'true'
+        env:
+          PROD_URL: ${{ steps.meta.outputs.target }}
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+          npx playwright test tests/e2e/prod-probe.spec.mjs
+
+      - name: Ensure prod-smoke-fail label exists
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh label create prod-smoke-fail --color B60205 --description "Production smoke probe failed" --force
+
+      - name: Open issue on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const target = "${{ steps.meta.outputs.target }}";
+            const expected = "${{ steps.meta.outputs.expected }}";
+            const actual = "${{ steps.poll.outputs.actual }}";
+            const matched = "${{ steps.poll.outputs.matched }}";
+            const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const reason = matched === "true"
+              ? `SHA matched (\`${expected}\`) but Playwright probe FAILED.`
+              : `Deployed SHA \`${actual || "(empty)"}\` did not match expected \`${expected}\` within 5 minutes.`;
+            const body = [
+              `## Production smoke failed`,
+              ``,
+              `**Target:** ${target}`,
+              `**Expected SHA:** \`${expected}\``,
+              `**Run:** ${runUrl}`,
+              ``,
+              `### Reason`,
+              reason,
+              ``,
+              `### Triage steps`,
+              `1. Verify GitHub Pages deploy completed successfully.`,
+              `2. Check ${target}version.json manually.`,
+              `3. Re-run \`prod-smoke\` workflow via workflow_dispatch.`,
+              `4. If real outage: trigger rollback via scripts/rollback-pages.ps1.`,
+            ].join("\n");
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `prod-smoke-fail: deploy ${expected.slice(0,7)} did not propagate`,
+              body,
+              labels: ["prod-smoke-fail", "automated"]
+            });
