@@ -47,11 +47,33 @@ Chromium pinned via `@playwright/test@1.59.1` is the only browser exercised in t
 
 We deliberately do **not** test against system Chrome/Edge — the bundled Chromium revision is what we gate on.
 
+## Selector Policy
+
+All specs MUST follow this priority order when locating SPA elements:
+
+1. **Role + accessible name** — `page.getByRole('button', { name: 'View Results' })`, `page.getByLabel('Organization Name')`. Doubles as light a11y coverage and survives CSS churn.
+2. **Existing structural hooks the SPA already emits** — `[data-control-id]` on each Phase 1 card, `#assessment-app` for the SPA root, `#ag-print-styles` for the injected print stylesheet, `#ag-select-institution-type` for the labelled scoping select.
+3. **Add a `data-testid` only when no labelled affordance exists.** Add it to the render function in `docs/javascripts/assessment-app.js` (additive only — never refactor logic to add a hook). Document the new hook in this README.
+
+Forbidden: `nth-child` chains, brittle `:has-text()` matches on long bodies of copy, full DOM `xpath` walks. The harness uses one bounded `xpath=ancestor::` walk to expand collapsed pillars on Phase 1; copy that pattern only when no role-based alternative exists.
+
+The harness (`tests/e2e/_harness.mjs`) implements `seedScoping` and `clickThroughPhase1` against this policy. Subsequent regression specs should reuse those helpers rather than re-deriving selectors.
+
 ## Allowlist Policy
 
 The Content Security Policy allowlist for the assessment SPA is declared in `tests/e2e/fixtures/csp-allowed.json`. Each loosening (an entry beyond `'self'`) must include a `reason` and `expiresISO` so the allowlist can be reviewed and pruned over time.
 
 To add a loosening, edit `csp-allowed.json` and open a PR that explains why the directive cannot be met from `'self'`. The CSP regression spec (lands with the smoke set) reads this file as the source of truth — anything observed in the SPA but not in the allowlist fails the test.
+
+### Axe rule exclusions
+
+The `19-a11y-axe-baseline.spec.mjs` smoke gate runs under WCAG 2.1 A + AA tags and asserts zero `serious` or `critical` violations. It explicitly disables the following rules:
+
+| Rule | Reason | Re-enable when |
+|------|--------|----------------|
+| `color-contrast` | mkdocs-material theme contrast is out of scope for this PR; many findings are inherited from the documentation theme rather than SPA code. | A dedicated theme-contrast pass lands. |
+
+Full violations JSON (including non-blocking `minor`/`moderate` findings) is written to `test-results/axe/<screen>.json` on every run and uploaded as a CI artifact on failure.
 
 ## Declared Untestable Items
 
