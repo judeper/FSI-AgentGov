@@ -16,6 +16,7 @@ import os
 import sys
 import zipfile
 from pathlib import Path
+
 from openpyxl import load_workbook
 
 # Expected control counts per template
@@ -51,8 +52,8 @@ def verify_excel_file(file_path):
             "[FAIL] File is not valid OOXML (.xlsx) format — appears to be DRM-encrypted (OLE2 container). "
             "Remove the sensitivity label in Excel and re-save as .xlsx to fix."
         )
-        print(f"[FAIL] DRM-encrypted OLE2 format detected — not readable as .xlsx")
-        print(f"   Fix: Open in Excel → File → Info → Remove sensitivity label → Save As .xlsx")
+        print("[FAIL] DRM-encrypted OLE2 format detected — not readable as .xlsx")
+        print("   Fix: Open in Excel → File → Info → Remove sensitivity label → Save As .xlsx")
         return issues
 
     try:
@@ -96,12 +97,12 @@ def verify_excel_file(file_path):
 
         # Show breakdown by sheet
         if control_breakdown:
-            print(f"\n   Control breakdown by sheet:")
+            print("\n   Control breakdown by sheet:")
             for sheet_name, count in control_breakdown.items():
                 print(f"   - {sheet_name}: {count} controls")
 
         # Search for stale content patterns
-        print(f"\n   Checking for stale content...")
+        print("\n   Checking for stale content...")
         stale_findings = {pattern: [] for pattern in STALE_PATTERNS.keys()}
 
         for sheet_name in wb.sheetnames:
@@ -112,7 +113,7 @@ def verify_excel_file(file_path):
                     if cell_value is not None:
                         cell_str = str(cell_value).lower()
 
-                        for pattern, description in STALE_PATTERNS.items():
+                        for pattern, _description in STALE_PATTERNS.items():
                             if pattern.lower() in cell_str:
                                 col_letter = chr(64 + col_idx)  # Convert to A, B, C...
                                 stale_findings[pattern].append({
@@ -135,7 +136,7 @@ def verify_excel_file(file_path):
                     print(f"      ... and {len(findings) - 5} more")
 
         if not stale_found:
-            print(f"   [PASS] No stale content patterns found")
+            print("   [PASS] No stale content patterns found")
 
         wb.close()
 
@@ -153,7 +154,7 @@ def main():
     project_root = script_dir.parent
     downloads_dir = project_root / "docs" / "downloads"
 
-    print(f"FSI-AgentGov Excel Template Verification")
+    print("FSI-AgentGov Excel Template Verification")
     print(f"{'='*80}")
     print(f"Project root: {project_root}")
     print(f"Downloads dir: {downloads_dir}")
@@ -180,7 +181,7 @@ def main():
 
     # Summary report
     print(f"\n{'='*80}")
-    print(f"VERIFICATION SUMMARY")
+    print("VERIFICATION SUMMARY")
     print(f"{'='*80}")
 
     if all_issues:
@@ -192,9 +193,9 @@ def main():
             print()
         return 1
     else:
-        print(f"\n[PASS] All Excel files passed verification!")
-        print(f"   - Control counts correct")
-        print(f"   - No stale content found")
+        print("\n[PASS] All Excel files passed verification!")
+        print("   - Control counts correct")
+        print("   - No stale content found")
         return 0
 
 if __name__ == "__main__":

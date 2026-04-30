@@ -7,7 +7,6 @@ Usage:
     python scripts/compile_researcher_package.py
 """
 
-import os
 import re
 import sys
 from pathlib import Path

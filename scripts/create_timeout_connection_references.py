@@ -19,7 +19,6 @@ import sys
 from typing import Any, Dict, List
 
 import requests
-
 from caa_client import CAAClient
 
 logger = logging.getLogger(__name__)

@@ -1,0 +1,19 @@
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+extend-exclude = [
+    "site",
+    "node_modules",
+    "maintainers-local",
+    ".venv",
+]
+
+[tool.ruff.lint]
+# Curated minimal ruleset. We deliberately exclude E501 (line too long) until
+# the codebase has had a dedicated wrapping pass.
+select = ["F", "B", "I"]
+ignore = []
+
+[tool.ruff.lint.per-file-ignores]
+# Tests can use unused imports for fixture side effects, etc.
+"assessment/tests/*.py" = ["F401"]

@@ -1,0 +1,99 @@
+name: Release Artifacts (SBOM + Signing)
+
+# Generates CycloneDX SBOMs for the Python and npm dependency trees, and
+# attaches Sigstore (cosign keyless) signatures + attestations. Runs on
+# tag pushes and can be invoked manually for dry-runs.
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry-run only (do not create release)'
+        required: false
+        default: 'true'
+
+permissions:
+  contents: write
+  id-token: write   # required for Sigstore keyless signing
+  attestations: write
+
+jobs:
+  sbom-python:
+    name: SBOM (Python)
+    runs-on: ubuntu-latest
+    outputs:
+      sbom: ${{ steps.cdx.outputs.path }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Install runtime deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r assessment/requirements.txt
+          pip install -r scripts/requirements.txt
+          pip install cyclonedx-bom
+      - id: cdx
+        name: Generate CycloneDX SBOM
+        run: |
+          mkdir -p sbom
+          cyclonedx-py environment -o sbom/python.cdx.json
+          echo "path=sbom/python.cdx.json" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sbom-python
+          path: sbom/python.cdx.json
+
+  sbom-npm:
+    name: SBOM (npm)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+      - run: npm ci --no-audit --no-fund
+      - run: npx --yes @cyclonedx/cyclonedx-npm --output-file sbom/npm.cdx.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sbom-npm
+          path: sbom/npm.cdx.json
+
+  attest-and-release:
+    name: Sign & attest
+    needs: [sbom-python, sbom-npm]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
+        with:
+          name: sbom-python
+          path: sbom/
+      - uses: actions/download-artifact@v4
+        with:
+          name: sbom-npm
+          path: sbom/
+
+      - name: Generate build provenance attestations
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: 'sbom/*.cdx.json'
+
+      - name: Generate SBOM attestations
+        uses: actions/attest-sbom@v2
+        with:
+          subject-path: 'sbom/python.cdx.json'
+          sbom-path: 'sbom/python.cdx.json'
+
+      - name: Attach SBOMs to release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            sbom/python.cdx.json
+            sbom/npm.cdx.json
+          generate_release_notes: true

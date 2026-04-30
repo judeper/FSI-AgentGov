@@ -108,7 +108,7 @@ class TestPrefilledReportStructure:
         # Must have H2 headings for each pillar in the fixture data
         expected_pillars = ["Security", "Management", "Reporting", "SharePoint Grounding"]
         for pillar in expected_pillars:
-            assert f"## " in content and pillar in content, (
+            assert "## " in content and pillar in content, (
                 f"Report should contain H2 section for pillar: {pillar}"
             )
 

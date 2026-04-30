@@ -244,11 +244,27 @@ python scripts/compile_researcher_package.py
 
 # Run assessment engine tests
 cd assessment && pip install -r requirements.txt && pytest tests/ -v
+
+# Lint Python (root pyproject.toml — F, B, I)
+ruff check assessment scripts
+
+# Cross-source consistency (manifest, CONTROL-INDEX.md, mkdocs nav)
+python scripts/check_manifest_doc_drift.py --check
+
+# Honest assessment-engine coverage matrix
+python scripts/generate_coverage_matrix.py --check
+
+# FSI-banned-phrase linter
+python scripts/verify_language_rules.py
 ```
 
 ### What "Pass" Means
 - `mkdocs build --strict` produces zero errors/warnings
 - `verify_controls.py` reports all 78 controls valid
+- `check_manifest_doc_drift.py --check` returns 0
+- `generate_coverage_matrix.py --check` returns 0 (matrix is current)
+- `verify_language_rules.py` returns 0 (no banned phrases)
+- `ruff check assessment scripts` returns 0
 - No broken internal links
 
 ---

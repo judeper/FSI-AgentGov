@@ -1,0 +1,26 @@
+# gitleaks configuration for FSI-AgentGov
+# Extends the default ruleset with allowlists for known-safe fixtures.
+#
+# See: https://github.com/gitleaks/gitleaks#configuration
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Global allowlist for known-safe test fixtures and example values"
+
+paths = [
+    '''assessment/tests/fixtures/.*''',
+    '''assessment/tests/.*''',
+    '''docs/downloads/.*''',
+    # Generated documentation artifacts
+    '''site/.*''',
+]
+
+regexes = [
+    # All-zero / canonical example tenant and subscription IDs.
+    '''00000000-0000-0000-0000-000000000000''',
+    '''11111111-1111-1111-1111-111111111111''',
+    # Mock tokens used in PowerShell unit tests.
+    '''mock-secure-token-[0-9]+''',
+]

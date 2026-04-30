@@ -24,7 +24,6 @@ import re
 import sys
 import tempfile
 import time
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 from urllib.parse import urlparse
@@ -614,9 +613,9 @@ def load_monitoring_config(config_path: Optional[Path] = None) -> dict:
 
     # Check file exists
     if not config_path.exists():
-        print(f"ERROR: Configuration file not found")
+        print("ERROR: Configuration file not found")
         print(f"  Expected: {config_path}")
-        print(f"  Please ensure the monitoring config file exists.")
+        print("  Please ensure the monitoring config file exists.")
         sys.exit(2)
 
     # Load YAML
@@ -624,7 +623,7 @@ def load_monitoring_config(config_path: Optional[Path] = None) -> dict:
         with open(config_path, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
     except yaml.YAMLError as e:
-        print(f"ERROR: Invalid YAML syntax in configuration file")
+        print("ERROR: Invalid YAML syntax in configuration file")
         print(f"  File: {config_path}")
         if hasattr(e, 'problem_mark'):
             mark = e.problem_mark

@@ -63,7 +63,7 @@ PREFILLED_TEMPLATE = r"""# FSI-AgentGov Automated Assessment
 {% for ctrl in pillar.controls %}
 
 ### Control {{ ctrl.control_id }} – {{ ctrl.title }}
-**Maturity Score:** {{ ctrl.maturity_score }}/4 | **Confidence:** {{ ctrl.confidence | title }} | **Status:** {{ ctrl.status }}
+**Maturity Score:** {{ ctrl.maturity_score }}/4 | **Confidence:** {{ ctrl.confidence | title }} | **Status:** {{ ctrl.status }} | **Evaluator:** {{ ctrl.evaluator_state }}
 
 | Check | Result | Evidence |
 |-------|--------|----------|
@@ -272,6 +272,10 @@ def prepare_report_data(
             "needs_manual": ctrl.get("needs_manual", False),
             "manual_question": ctrl.get("manual_question"),
             "auto_summary": build_auto_summary(ctrl),
+            "evaluator_state": ctrl.get("evaluator_state", "manual_only"),
+            "evaluator_state_breakdown": ctrl.get(
+                "evaluator_state_breakdown", {}
+            ),
         }
 
         pillars[pid]["controls"].append(enriched)
@@ -452,7 +456,7 @@ def main(argv: list[str] | None = None) -> None:
             args.zone,
             args.output_dir,
         )
-        print(f"\nReport generation complete")
+        print("\nReport generation complete")
         print(f"  Customer:    {summary.get('customer_name', '?')}")
         print(f"  Zone:        {summary.get('zone_assessed', '?')}")
         print(f"  Gaps:        {len(summary.get('gaps', []))}")

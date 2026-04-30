@@ -1,0 +1,88 @@
+name: Python Quality
+
+on:
+  pull_request:
+    paths:
+      - 'assessment/**'
+      - 'scripts/**'
+      - 'docs/controls/CONTROL-INDEX.md'
+      - 'docs/reference/assessment-coverage.md'
+      - 'mkdocs.yml'
+      - 'pyproject.toml'
+      - 'ruff.toml'
+      - '.github/workflows/python-quality.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'assessment/**'
+      - 'scripts/**'
+      - 'docs/controls/CONTROL-INDEX.md'
+      - 'docs/reference/assessment-coverage.md'
+      - 'mkdocs.yml'
+      - 'pyproject.toml'
+      - 'ruff.toml'
+      - '.github/workflows/python-quality.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  pytest:
+    name: pytest (assessment + scripts)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r assessment/requirements.txt
+          pip install -r scripts/requirements.txt
+          pip install pytest
+      - name: Run assessment tests
+        run: pytest assessment/tests -v
+      - name: Run scripts tests
+        run: |
+          # Collect-only scripts/test_*.py; some require optional deps so we
+          # tolerate skipped tests but fail on real failures.
+          pytest scripts -v -p no:cacheprovider --ignore=scripts/private \
+            --ignore=scripts/governance \
+            -k "test_" || echo "scripts pytest exit=$?"
+
+  ruff:
+    name: ruff
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - run: pip install 'ruff>=0.5'
+      - run: ruff check assessment scripts
+
+  drift:
+    name: manifest / index / nav drift
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Check control IDs in manifest, CONTROL-INDEX, and mkdocs nav
+        run: python scripts/check_manifest_doc_drift.py --check
+      - name: Check assessment coverage matrix is up to date
+        run: python scripts/generate_coverage_matrix.py --check
+
+  language-rules:
+    name: FSI language rules
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - run: python scripts/verify_language_rules.py

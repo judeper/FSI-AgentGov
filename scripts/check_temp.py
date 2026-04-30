@@ -1,5 +1,5 @@
-from pathlib import Path
 import hashlib
+from pathlib import Path
 
 TEMP_DIR = Path("temp")
 REPO_DIR = Path(".")

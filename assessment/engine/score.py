@@ -15,7 +15,6 @@ from __future__ import annotations
 import argparse
 import json
 import logging
-import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -467,6 +466,76 @@ def _generic_evaluate(
 
 
 # ---------------------------------------------------------------------------
+# Evaluator-state classification (transparency)
+# ---------------------------------------------------------------------------
+#
+# Every check is classified into one of three explicit states so the
+# assessment output cannot silently conflate "manual by design" with
+# "we haven't written the evaluator yet".
+#
+# * ``auto_evaluable`` — pass_condition has a registered bespoke evaluator
+#   in EVALUATORS and can be scored from collected telemetry.
+# * ``manual_only`` — the check (or its parent control) is intentionally
+#   manual: collection_methods is ``["Manual"]`` only, OR the parent
+#   control's automation is "manual", OR no pass_condition is defined.
+# * ``unimplemented_evaluator`` — a pass_condition is specified and the
+#   collection method is automatable, but no bespoke evaluator is
+#   registered for it. The generic evaluator will return "unknown".
+
+EVALUATOR_STATES = ("auto_evaluable", "manual_only", "unimplemented_evaluator")
+
+
+def classify_check_evaluator_state(
+    check: dict,
+    control_automation: str,
+    control_collection_methods: list[str] | None,
+) -> str:
+    """Classify a single check into one of EVALUATOR_STATES.
+
+    Pure function — depends only on the manifest, not on collected data.
+    Used for both runtime output enrichment and the static coverage matrix.
+    """
+    condition = (check.get("pass_condition") or "").strip()
+    if condition and condition in EVALUATORS:
+        return "auto_evaluable"
+
+    methods = check.get("collection_methods") or control_collection_methods or []
+    automatable_method_present = any(
+        COLLECTION_METHOD_SOURCE.get(m) is not None for m in methods
+    )
+
+    if (
+        control_automation == "manual"
+        or not condition
+        or (methods and not automatable_method_present)
+    ):
+        return "manual_only"
+
+    return "unimplemented_evaluator"
+
+
+def rollup_control_evaluator_state(
+    control_automation: str, check_states: list[str]
+) -> str:
+    """Roll a control's per-check evaluator states into a single state.
+
+    Precedence:
+      1. ``auto_evaluable`` — at least one check is auto-evaluable.
+      2. ``unimplemented_evaluator`` — has automatable checks but no
+         bespoke evaluator implementation (most common gap today).
+      3. ``manual_only`` — purely manual control or has no checks.
+    """
+    if "auto_evaluable" in check_states:
+        return "auto_evaluable"
+    if "unimplemented_evaluator" in check_states:
+        return "unimplemented_evaluator"
+    if not check_states and control_automation != "manual":
+        # Defensive fallback: no checks defined and not flagged manual.
+        return "unimplemented_evaluator"
+    return "manual_only"
+
+
+# ---------------------------------------------------------------------------
 # Core scoring
 # ---------------------------------------------------------------------------
 
@@ -477,6 +546,7 @@ def evaluate_check(
     zone: int,
     collection_methods: list[str] | None,
     timestamp: str,
+    control_automation: str = "full",
 ) -> dict:
     """Evaluate a single check and return a result dict."""
     check_id: str = check["check_id"]
@@ -485,6 +555,9 @@ def evaluate_check(
     condition: str = check.get("pass_condition", "")
     description: str = check.get("description", "")
 
+    evaluator_state = classify_check_evaluator_state(
+        check, control_automation, collection_methods
+    )
     applicable = zone in zone_required
 
     if not applicable:
@@ -500,6 +573,7 @@ def evaluate_check(
             "source": None,
             "timestamp": timestamp,
             "data_available": True,
+            "evaluator_state": evaluator_state,
         }
 
     source_key = _resolve_source_key(api_call, collection_methods)
@@ -531,6 +605,7 @@ def evaluate_check(
         "source": source_file,
         "timestamp": timestamp,
         "data_available": data_available,
+        "evaluator_state": evaluator_state,
     }
 
 
@@ -595,7 +670,9 @@ def score_control(
     automation: str = control.get("automation", "full")
 
     check_results: list[dict] = [
-        evaluate_check(chk, collected, zone, collection_methods, timestamp)
+        evaluate_check(
+            chk, collected, zone, collection_methods, timestamp, automation
+        )
         for chk in checks_def
     ]
 
@@ -609,6 +686,16 @@ def score_control(
         checks_passed, zone, zone_thresholds
     )
     confidence = compute_confidence(check_results)
+
+    # Roll up evaluator coverage so consumers can distinguish auto from
+    # manual-by-design from unimplemented evaluators.
+    check_states = [c["evaluator_state"] for c in check_results]
+    evaluator_state = rollup_control_evaluator_state(automation, check_states)
+    from collections import Counter as _Counter
+
+    state_breakdown = dict(_Counter(check_states))
+    for s in EVALUATOR_STATES:
+        state_breakdown.setdefault(s, 0)
 
     # Build evidence dict (keyed by check_id, applicable checks only)
     evidence_dict: dict[str, dict] = {}
@@ -641,6 +728,8 @@ def score_control(
         "evidence": evidence_dict,
         "needs_manual": needs_manual,
         "manual_question": control.get("manual_question"),
+        "evaluator_state": evaluator_state,
+        "evaluator_state_breakdown": state_breakdown,
         # Compatibility fields (align with expected_scores fixture)
         "id": control_id,
         "automation": automation,
@@ -653,6 +742,7 @@ def score_control(
                 "applicable": cr["applicable"],
                 "passed": cr["passed"],
                 "evidence": cr["evidence"],
+                "evaluator_state": cr["evaluator_state"],
             }
             for cr in check_results
         ],
@@ -734,8 +824,37 @@ def compute_summary(
         "average_maturity": avg_maturity,
         "confidence_distribution": conf_dist,
         "by_pillar": by_pillar,
+        "evaluator_coverage": _compute_evaluator_coverage(scored_controls),
         "zone_assessed": zone,
         "assessment_timestamp": timestamp,
+    }
+
+
+def _compute_evaluator_coverage(scored_controls: list[dict]) -> dict:
+    """Aggregate evaluator-state coverage across controls and checks.
+
+    Surfaces honest automation coverage so consumers can distinguish
+    "manual by design" from "evaluator not yet implemented".
+    """
+    from collections import Counter as _Counter
+
+    control_states = _Counter(
+        c.get("evaluator_state", "manual_only") for c in scored_controls
+    )
+    check_states: _Counter = _Counter()
+    for c in scored_controls:
+        for k, v in (c.get("evaluator_state_breakdown") or {}).items():
+            check_states[k] += v
+
+    out_controls = {s: control_states.get(s, 0) for s in EVALUATOR_STATES}
+    out_checks = {s: check_states.get(s, 0) for s in EVALUATOR_STATES}
+    total_controls = sum(out_controls.values())
+    total_checks = sum(out_checks.values())
+    return {
+        "controls": out_controls,
+        "checks": out_checks,
+        "total_controls": total_controls,
+        "total_checks": total_checks,
     }
 
 

@@ -269,7 +269,7 @@ The **[FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions
 
 Companion solutions provide deployment documentation, governance scripts, KQL queries, and templates for manual Power Platform builds instead of exported runtime artifacts. Coverage spans step-up authentication, lifecycle governance, access monitoring, analytics, RAG source validation, supervision workflows, disaster recovery testing, and SharePoint knowledge source controls.
 
-> **Full catalog:** See [Solutions Index](docs/reference/solutions-index.md) for the live inventory, versions, and primary control mappings. See [Solutions Integration](docs/framework/solutions-integration.md) for architecture and control mappings.
+> **Full catalog:** See [Solutions Index](docs/reference/solutions-index.md) for the live inventory, versions, and primary control mappings. See [Solutions Integration](docs/framework/solutions-integration.md) for architecture and control mappings. The cross-repo versioning expectations live in the [Solutions Contract](docs/reference/solutions-contract.md).
 
 ---
 
@@ -439,6 +439,9 @@ See **[Implementation Checklist](docs/getting-started/checklist.md)** for detail
 - **"How do I implement this?"** → Use **[Implementation Checklist](docs/getting-started/checklist.md)**
 - **"Common questions?"** → See **[FAQ](docs/reference/faq.md)**
 - **"How do I automate this?"** → See **[Solutions Index](docs/reference/solutions-index.md)**
+- **"What's the assessment engine actually automating?"** → See **[Assessment Engine Coverage](docs/reference/assessment-coverage.md)**
+- **"How should I pin to a framework version?"** → See **[Solutions Contract](docs/reference/solutions-contract.md)** and **[Versioning and Support](docs/reference/versioning-and-support.md)**
+- **"Found a vulnerability?"** → See **[SECURITY.md](SECURITY.md)**
 
 ### For Technical Implementation:
 - Reference individual control files (1.1-4.9)

@@ -50,7 +50,6 @@ import csv
 import hashlib
 import json
 import logging
-import os
 import re
 import sys
 import uuid
@@ -59,12 +58,12 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import requests
-from dateutil import parser as dateparser
 
 # Import Phase 1 modules
 from asard_zone_rules import check_agent_compliance
 from bap_admin_client import BAPAdminClient
 from caa_client import CAAClient
+from dateutil import parser as dateparser
 
 logger = logging.getLogger(__name__)
 
@@ -147,7 +146,6 @@ def enumerate_agents_in_environment(
         Empty list on API failure (graceful degradation).
     """
     environment_id = environment.get("name", "")
-    environment_name = environment.get("properties", {}).get("displayName", environment_id)
 
     if not environment_id:
         logger.warning("Environment object missing 'name' field — skipping")
@@ -507,7 +505,7 @@ def print_console_output(
         results_by_env[env_id].append(result)
     
     # Print per-environment results
-    for env_id, env_results in results_by_env.items():
+    for _env_id, env_results in results_by_env.items():
         # Use first result for environment metadata
         first_result = env_results[0]
         env_name = first_result["environment_name"]

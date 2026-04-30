@@ -25,7 +25,6 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-
 DOCS_DIR = Path("docs")
 PILLAR_DIRS = [
     DOCS_DIR / "controls" / "pillar-1-security",
@@ -116,10 +115,7 @@ def _strip_existing_footer_blocks(text: str) -> tuple[str, str | None]:
         return any(p.match(line.strip()) for p in footer_line_patterns)
 
     # Pop footer meta lines at bottom (possibly multiple blocks)
-    removed_any = False
     while lines and (is_footer_meta(lines[-1]) or lines[-1].strip() == "---"):
-        if is_footer_meta(lines[-1]) or lines[-1].strip() == "---":
-            removed_any = True
         lines.pop()
         while lines and lines[-1].strip() == "":
             lines.pop()
