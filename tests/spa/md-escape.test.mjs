@@ -77,4 +77,11 @@ describe("agenda markdown cell escape", () => {
     const html = renderer.render(md);
     expect(html).not.toMatch(/<script/i);
   });
+
+  it("escapes markdown special chars in **Customer:** header line", async () => {
+    const { app } = await bootApp({ answerControls: [{ id: "1.1", answer: "no" }] });
+    app.state.scoping.organizationName = "Acme *Corp* [Test] _v1_";
+    const md = app._buildAgendaMarkdown();
+    expect(md).toContain("**Customer:** Acme \\*Corp\\* \\[Test\\] \\_v1\\_");
+  });
 });
