@@ -36,7 +36,8 @@ jobs:
         run: npx playwright test tests/e2e/prod-probe.spec.mjs
       - name: Ensure label exists
         if: failure()
-        env: { GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh label create prod-smoke-fail --color B60205 --description "Production smoke probe failed" --force || true
       - name: Open issue on failure
         if: failure()
