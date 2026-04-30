@@ -1,0 +1,98 @@
+name: prod-smoke-scheduled
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'   # every 30 minutes
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: "URL to probe"
+        required: false
+        default: "https://judeper.github.io/FSI-AgentGov/"
+
+concurrency:
+  group: prod-smoke-scheduled
+  cancel-in-progress: false
+
+jobs:
+  prod-smoke-scheduled:
+    name: prod-smoke-scheduled
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      issues: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - name: Install Node deps
+        run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      - name: Run prod probe
+        env:
+          PROD_URL: ${{ github.event.inputs.target_url || 'https://judeper.github.io/FSI-AgentGov/' }}
+        run: npx playwright test tests/e2e/prod-probe.spec.mjs
+      - name: Ensure label exists
+        if: failure()
+        env: { GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
+        run: gh label create prod-smoke-fail --color B60205 --description "Production smoke probe failed" --force || true
+      - name: Open issue on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const target = process.env.PROD_URL || "https://judeper.github.io/FSI-AgentGov/";
+            const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const ts = new Date().toISOString();
+
+            // Look for an open issue created in the last 24h to dedupe alert storms.
+            const recent = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: "open",
+              labels: "prod-smoke-fail,scheduled",
+              per_page: 5,
+            });
+            if (recent.data.length > 0) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: recent.data[0].number,
+                body: `Probe failed again at ${ts}\nRun: ${runUrl}`,
+              });
+              return;
+            }
+
+            const body = [
+              `## Scheduled production smoke failed`,
+              ``,
+              `**Target:** ${target}`,
+              `**First failure:** ${ts}`,
+              `**Run:** ${runUrl}`,
+              ``,
+              `### Triage`,
+              `1. Check ${target}version.json manually.`,
+              `2. Verify GitHub Pages status at https://www.githubstatus.com/.`,
+              `3. Check CDN / third-party CSP allowlist hosts.`,
+              `4. Re-run via workflow_dispatch.`,
+              ``,
+              `Future failures within 24h append as comments on this issue (dedupe).`,
+            ].join("\n");
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `prod-smoke-scheduled: ${target} failing as of ${ts.slice(0,16).replace("T"," ")} UTC`,
+              body,
+              labels: ["prod-smoke-fail", "scheduled", "automated"],
+            });
+        env:
+          PROD_URL: ${{ github.event.inputs.target_url || 'https://judeper.github.io/FSI-AgentGov/' }}
+      - name: Upload trace on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: prod-smoke-scheduled-traces-${{ github.run_id }}
+          path: test-results/
+          retention-days: 7
