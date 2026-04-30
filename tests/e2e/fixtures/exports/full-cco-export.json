@@ -1,0 +1,49 @@
+{
+  "_metadata": {
+    "exportSchemaVersion": 1,
+    "schemaType": "full",
+    "frameworkVersion": "1.4.0",
+    "manifestSchemaVersion": null,
+    "exportedAt": "2026-01-15T12:00:00.000Z",
+    "exportedBy": "Maria Chen"
+  },
+  "_computedScores": {
+    "overall": null,
+    "perPillar": { "1": null, "2": null, "3": null, "4": null },
+    "perControl": {}
+  },
+  "assessmentStatus": "in-progress",
+  "assessmentId": "fixture-full-cco-2026-01-15",
+  "assessmentName": "Globex Financial — 2026-01-15",
+  "schemaVersion": "1.4.0",
+  "createdAt": "2026-01-15T12:00:00.000Z",
+  "updatedAt": "2026-01-15T12:00:00.000Z",
+  "scoping": {
+    "organizationName": "Globex Financial",
+    "assessorName": "Maria Chen",
+    "assessorRole": "Chief Compliance Officer",
+    "institutionType": "broker-dealer",
+    "zones": [1, 2, 3],
+    "adoptionPhase": 1,
+    "regulations": ["FINRA-4511", "FINRA-3110", "SEC-17a-4"],
+    "scope": "full"
+  },
+  "responses": {
+    "1.1": { "answer": "yes",     "notes": "DLP policy enabled tenant-wide.", "evidenceRef": "" },
+    "1.2": { "answer": "partial", "notes": "Sensitivity labels piloted.",     "evidenceRef": "" },
+    "1.4": { "answer": "yes",     "notes": "",                                "evidenceRef": "" },
+    "1.5": { "answer": "partial", "notes": "",                                "evidenceRef": "" },
+    "1.7": { "answer": "no",      "notes": "Pending Q2 deployment.",          "evidenceRef": "" },
+    "1.11":{ "answer": "yes",     "notes": "",                                "evidenceRef": "" },
+    "2.1": { "answer": "partial", "notes": "Reviewing environment policies.", "evidenceRef": "" },
+    "2.5": { "answer": "yes",     "notes": "",                                "evidenceRef": "" },
+    "3.1": { "answer": "no",      "notes": "Audit retention not yet mapped.", "evidenceRef": "" }
+  },
+  "drilldown": {},
+  "overrides": {},
+  "completedSteps": ["scoping"],
+  "selectedSector": "",
+  "roleFilter": "",
+  "priorityMode": "full",
+  "priorityExpanded": false
+}
