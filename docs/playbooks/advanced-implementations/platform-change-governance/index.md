@@ -144,7 +144,7 @@ The FSI-AgentGov-Solutions repository provides deployable Power Platform compone
     - Teams notification configuration
     - Microsoft Entra ID app registration guidance
 
-    **Direct link:** [message-center-monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/message-center-monitor) (v2.0.0)
+    **Direct link:** [message-center-monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/message-center-monitor) (v2.5.0)
 
 ---
 
