@@ -589,7 +589,7 @@ For organizations implementing the full framework, deploy solutions in this orde
 ```
 FSI-AgentGov-Solutions/
 ├── environment-lifecycle-management/      # v1.1.2 (Completed)
-├── message-center-monitor/               # v2.1.1 (Completed)
+├── message-center-monitor/               # v2.5.0 (Live)
 ├── pipeline-governance-cleanup/          # v1.0.8 (Completed)
 ├── deny-event-correlation-report/        # v2.0.0 (Completed)
 ├── finra-supervision-workflow/           # v1.0.0 (Validated)
