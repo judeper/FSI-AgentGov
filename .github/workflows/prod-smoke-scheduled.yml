@@ -24,7 +24,7 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with: { node-version: '20' }
       - name: Install Node deps
         run: npm ci
@@ -92,7 +92,7 @@ jobs:
           PROD_URL: ${{ github.event.inputs.target_url || 'https://judeper.github.io/FSI-AgentGov/' }}
       - name: Upload trace on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: prod-smoke-scheduled-traces-${{ github.run_id }}
           path: test-results/
