@@ -2,11 +2,13 @@
 
 > **Examiner-defensible evidence package** for Control 2.26. This playbook produces, signs, and retains the artifacts required to demonstrate to FINRA, SEC, OCC, FFIEC, and internal audit that every Microsoft 365 AI agent identity in the tenant is sponsored, lifecycle-governed, periodically reviewed, and forwarded to the SIEM with 6-year retention.
 >
-> **Scope:** Commercial M365 tenants with Microsoft 365 Copilot licensing and Frontier program enrollment. Sovereign clouds (GCC, GCC High, DoD) follow the compensating-control pattern in §8 because the Entra Agent ID feature is not yet generally available in sovereign environments at the time of this playbook's last UI verification.
+> **Post-GA status (May 2026):** Microsoft Agent 365 reached general availability on May 1, 2026 and Microsoft Entra Agent ID is generally available. The pre-GA "Frontier program enrollment" gate is replaced by **Microsoft Agent 365 / Microsoft 365 E7 license assignment**. Pre-flight gate `PRE-06` and the §9 `TRG-PREVIEW-01` test retain their pre-GA names for backward compatibility; the underlying probe (HTTP 200 from `/beta/agents`) remains the correct observable because both the pre-GA Frontier enrollment and the post-GA license assignment manifest as the same API reachability state for the calling principal. A follow-up issue tracks renaming PRE-06 / TRG-PREVIEW-01 to license-coverage terms.
+>
+> **Scope:** Commercial M365 tenants with Microsoft Agent 365 or Microsoft 365 E7 licensing assigned to the operating admin and the in-scope sponsor / agent-owner users. Sovereign clouds (GCC, GCC High, DoD) follow the compensating-control pattern in §8 because the Entra Agent ID feature has no announced availability in sovereign environments at the time of this playbook's last UI verification.
 >
 > **Companion controls:** [1.2 Agent Registry & Integrated Apps Management](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) feeds the SPONSOR namespace (§2). [3.6 Orphaned Agent Detection & Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) consumes the LIFECYCLE namespace outputs (§4).
 >
-> **Last UI verified:** April 2026 against Microsoft Entra admin center build 2026.04.x and Microsoft Graph beta endpoint.
+> **Last UI verified:** May 2026 against Microsoft Entra admin center build 2026.05.x and Microsoft Graph beta endpoint.
 
 ---
 
@@ -66,8 +68,8 @@ The bootstrap script `Invoke-Agt226PreFlight.ps1` runs seven pre-flight gates. A
 | Graph context | PRE-02 | Confirms Connect-MgGraph established with required scopes | HALT |
 | Tenant identification | PRE-03 | Captures `tenantId`, `displayName`, `verifiedDomains[0].name` for every evidence record | HALT |
 | Cloud detection | PRE-04 | Reads `(Get-MgContext).Environment` and maps to `Commercial / GCC / GCCH / DoD` | Continue with `cloud` field set |
-| License gate | PRE-05 | Confirms tenant holds at least one Microsoft 365 Copilot SKU (`SkuPartNumber -like 'Microsoft_365_Copilot*'`) | HALT — Agent ID requires Copilot |
-| Frontier enrollment gate | PRE-06 | Confirms tenant is enrolled in the Microsoft Frontier program by probing `/beta/agents` for HTTP 200 vs 404/403 | If 404/403 in Commercial: HALT with remediation pointer; if sovereign: route to §8 |
+| License gate | PRE-05 | Confirms tenant holds at least one **Microsoft Agent 365** or **Microsoft 365 E7** SKU (post-GA: `SkuPartNumber -like 'Microsoft_Agent_365*' -or -like 'M365_E7*'`). Pre-GA, this gate looked for a `Microsoft_365_Copilot*` SKU — verify exact SKU part numbers in your tenant via `Get-MgSubscribedSku` and update the regex if needed. | HALT — Agent ID requires post-GA licensing |
+| Agent ID API operability gate | PRE-06 | Confirms the `/beta/agents` endpoint is reachable to the calling principal (HTTP 200 vs 404/403). Pre-GA this gate also evidenced Frontier program enrollment; post-GA a 404/403 most likely indicates a license-coverage gap, RBAC gap, or sovereign-cloud non-availability. | If 404/403 in Commercial: HALT with remediation pointer (license + RBAC); if sovereign: route to §8 |
 | Clock skew gate | PRE-07 | Compares local UTC to `Date` header from Graph response; aborts if drift > 60 seconds | HALT |
 
 ### 0.4 Sovereign bootstrap pattern
@@ -1295,20 +1297,23 @@ Describe "AGT226-SOV" -Tag 'C2.26','SOV' {
 
 ---
 
-## §9 PREVIEW — Frontier + Copilot License & Agent ID Blade Verification
+## §9 PREVIEW — Agent ID Licensing & Blade Operability Verification
+
+!!! info "Namespace name preserved for backward-compatibility"
+    Pre-GA this namespace evidenced Microsoft Frontier program enrollment + Copilot licensing. Post-GA (May 2026) it evidences **Microsoft Agent 365 / Microsoft 365 E7 license assignment** plus **Agent ID API surface operability**. The `PREVIEW` namespace name, the `TRG-PREVIEW-01` runbook ID, and the `frontier_probe_status` field name are retained to keep evidence-pack schemas backward-compatible across the GA cutover. **Field semantics have changed** — see prose below.
 
 ### 9.1 Criterion mapping
 
-This namespace evidences **C2.26-1**: the Entra Agent ID feature is enabled in the tenant. Enablement requires **two independent gates** to be true at the time of verification:
+This namespace evidences **C2.26-1**: the Entra Agent ID feature is enabled in the tenant. Post-GA, enablement requires **two independent gates** to be true at the time of verification:
 
-1. The tenant holds at least one **Microsoft 365 Copilot** SKU assignment (the "license gate" already executed in PRE-05).
-2. The tenant is **enrolled in the Microsoft Frontier program** for early-access AI capabilities (the "Frontier gate" already executed in PRE-06).
+1. The tenant holds at least one **Microsoft Agent 365** or **Microsoft 365 E7** SKU assignment (the "license gate" already executed in PRE-05). Pre-GA this gate looked for a `Microsoft_365_Copilot*` SKU; post-GA the relevant SKUs are Agent 365 (standalone) or M365 E7 (suite). Verify exact SKU part numbers in your tenant via `Get-MgSubscribedSku` before adopting the patterns below.
+2. The Agent ID API surface is reachable to the calling principal (the "operability gate" already executed in PRE-06).
 
 In addition, the **Agent identities** blade must be reachable in the Microsoft Entra admin center. Because the blade itself does not have a stable Graph API for "blade rendering", the Pester test for blade visibility is replaced by an **API-surface probe**: if `/beta/agents` returns HTTP 200 with a JSON body (even an empty collection), the blade is considered present and operable.
 
 ### 9.2 Pre-conditions
 
-- PRE-05 (Copilot license) and PRE-06 (Frontier enrollment) returned `PASS`.
+- PRE-05 (Agent 365 / M365 E7 license) and PRE-06 (Agent ID API operability) returned `PASS`.
 - Graph context holds `AgentIdentity.Read.All`.
 - Probe URL: `https://graph.microsoft.com/beta/agents?$top=1` for Commercial; sovereign equivalents per the [shared sovereign endpoint table](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod) (the SOV namespace handles the sovereign skip path; this section operates in Commercial only).
 
@@ -1318,8 +1323,15 @@ In addition, the **Agent identities** blade must be reachable in the Microsoft E
 Describe "AGT226-PREVIEW" -Tag 'C2.26','PREVIEW' {
 
     BeforeAll {
-        $script:CopilotSkus = Get-MgSubscribedSku -All |
-            Where-Object { $_.SkuPartNumber -like 'Microsoft_365_Copilot*' }
+        # Post-GA: prefer Agent 365 / M365 E7 SKUs. Verify SkuPartNumber values
+        # in your tenant via Get-MgSubscribedSku before relying on these patterns.
+        $script:LicenseSkus = Get-MgSubscribedSku -All |
+            Where-Object {
+                $_.SkuPartNumber -like 'Microsoft_Agent_365*' -or
+                $_.SkuPartNumber -like 'M365_E7*'             -or
+                # transitional fallback for tenants still on pre-GA Copilot SKUs
+                $_.SkuPartNumber -like 'Microsoft_365_Copilot*'
+            }
         $script:Probe = $null
         try {
             $script:Probe = Invoke-MgGraphRequest -Method GET `
@@ -1330,17 +1342,17 @@ Describe "AGT226-PREVIEW" -Tag 'C2.26','PREVIEW' {
     }
 
     Context "License gate (C2.26-1a)" -Skip:$script:IsSovereign {
-        It "tenant holds at least one Microsoft 365 Copilot SKU" {
-            $script:CopilotSkus.Count | Should -BeGreaterThan 0
+        It "tenant holds at least one Agent 365 / M365 E7 (or transitional Copilot) SKU" {
+            $script:LicenseSkus.Count | Should -BeGreaterThan 0
         }
-        It "at least one Copilot license is assigned (consumedUnits > 0)" {
-            ($script:CopilotSkus | Measure-Object -Property ConsumedUnits -Sum).Sum |
+        It "at least one license is assigned (consumedUnits > 0)" {
+            ($script:LicenseSkus | Measure-Object -Property ConsumedUnits -Sum).Sum |
                 Should -BeGreaterThan 0
         }
     }
 
-    Context "Frontier program gate (C2.26-1b)" -Skip:$script:IsSovereign {
-        It "the /beta/agents endpoint returns HTTP 200 (Frontier enrolled)" {
+    Context "Agent ID API operability gate (C2.26-1b)" -Skip:$script:IsSovereign {
+        It "the /beta/agents endpoint returns HTTP 200 (Agent ID surface reachable)" {
             $script:Probe | Should -Not -BeNullOrEmpty
             $script:Probe.value | Should -BeOfType [System.Object[]]
         }
@@ -1356,10 +1368,10 @@ Describe "AGT226-PREVIEW" -Tag 'C2.26','PREVIEW' {
     }
 
     Context "Blade operability proxy (C2.26-1c)" -Skip:$script:IsSovereign {
-        It "blade probe did not return 403 (RBAC misconfiguration)" {
+        It "blade probe did not return 403 (RBAC or license-coverage misconfiguration)" {
             $script:ProbeError | Should -NotMatch '403'
         }
-        It "blade probe did not return 404 (Frontier not enrolled despite PRE-06)" {
+        It "blade probe did not return 404 (Agent ID surface not reachable to caller)" {
             $script:ProbeError | Should -NotMatch '404'
         }
     }
@@ -1377,10 +1389,10 @@ Describe "AGT226-PREVIEW" -Tag 'C2.26','PREVIEW' {
   "subject_id": "tenant-feature-state",
   "subject_type": "feature_enablement",
   "status": "PASS",
-  "assertion": "Copilot licensed AND Frontier enrolled AND Agent ID API reachable",
+  "assertion": "Agent 365 / M365 E7 licensed AND Agent ID API reachable",
   "observed_value": {
-    "copilot_skus": ["Microsoft_365_Copilot_E5"],
-    "copilot_consumed_units": 1500,
+    "license_skus": ["Microsoft_Agent_365"],
+    "license_consumed_units": 1500,
     "frontier_probe_status": 200,
     "agents_endpoint_response": "ok",
     "agents_count_in_probe": 23
@@ -1391,6 +1403,8 @@ Describe "AGT226-PREVIEW" -Tag 'C2.26','PREVIEW' {
 }
 ```
 
+> **Field-name carryover.** `frontier_probe_status` is retained as the field key for the HTTP status returned by the `/beta/agents` probe. The field name is preserved to keep examiner pipelines that already parse this key working across the GA cutover. Post-GA, a `200` indicates the Agent ID surface is reachable; a `403/404` indicates a license-coverage or RBAC gap, **not** a Frontier-enrollment gap.
+
 ### 9.5 Sample failing record
 
 ```json
@@ -1399,9 +1413,9 @@ Describe "AGT226-PREVIEW" -Tag 'C2.26','PREVIEW' {
   "namespace": "PREVIEW",
   "criterion": "C2.26-1",
   "status": "FAIL",
-  "assertion": "Frontier enrollment gate must return HTTP 200 from /beta/agents",
+  "assertion": "Agent ID operability gate must return HTTP 200 from /beta/agents",
   "observed_value": {
-    "copilot_skus": ["Microsoft_365_Copilot_E5"],
+    "license_skus": ["Microsoft_Agent_365"],
     "frontier_probe_status": 404,
     "probe_error": "Resource not found: /beta/agents"
   },
@@ -1411,7 +1425,7 @@ Describe "AGT226-PREVIEW" -Tag 'C2.26','PREVIEW' {
 }
 ```
 
-`TRG-PREVIEW-01` (§11.10): contact Microsoft account team to confirm Frontier enrollment status; do not deploy any Z2/Z3 agents until enrollment confirmed; downgrade any Z2/Z3 agents created during the gap to Z1 and re-evaluate when enrollment is restored.
+`TRG-PREVIEW-01` (§11.10): confirm Microsoft Agent 365 / M365 E7 license is assigned to the calling principal and the tenant has at least one consumed unit; verify the calling principal holds the required RBAC role (Entra Agent ID Admin or AI Administrator); halt deployment of any new Z2/Z3 agents while the gap persists; downgrade any Z2/Z3 agents created during the gap to Z1 and re-evaluate when access is restored. If license + RBAC are confirmed and the surface is still unreachable, raise a Microsoft support case via standard support channels.
 
 ### 9.6 Examiner artifact
 
@@ -1622,7 +1636,7 @@ Every pack ships with a `README.md` written for a non-technical examiner audienc
 
 - **Trigger:** §4 reports a departed sponsor whose agents still point at the departed user.
 - **Containment:** manually invoke `Set-AgentSponsorBulk` with the departed user's manager as the new sponsor.
-- **Remediation:** open a problem ticket against the lifecycle workflow; capture the workflow run failure log; if the workflow consistently fails, raise a Microsoft support case under the Frontier program.
+- **Remediation:** open a problem ticket against the lifecycle workflow; capture the workflow run failure log; if the workflow consistently fails, raise a Microsoft support case via standard support channels.
 
 ### 11.5 TRG-LIFECYCLE-02 — Manager declines transfer (escalation)
 
@@ -1654,11 +1668,11 @@ Every pack ships with a `README.md` written for a non-technical examiner audienc
 - **Containment:** initiate the §13.4 quarterly attestation runbook immediately.
 - **Remediation:** declare the lapse; the prior quarter cannot be retroactively passed; document for board reporting.
 
-### 11.10 TRG-PREVIEW-01 — Frontier or Copilot gate FAIL
+### 11.10 TRG-PREVIEW-01 — Agent ID licensing or operability gate FAIL
 
-- **Trigger:** §9 reports `frontier_probe_status` of 403/404, or no Copilot SKU consumed.
+- **Trigger:** §9 reports `frontier_probe_status` of 403/404, or no Agent 365 / M365 E7 license consumed.
 - **Containment:** halt deployment of any new Z2/Z3 agents.
-- **Remediation:** contact Microsoft account team; downgrade any Z2/Z3 agents created during the gap to Z1 and re-evaluate when enrollment is restored.
+- **Remediation:** confirm Microsoft Agent 365 or Microsoft 365 E7 license is assigned and consumed; verify the calling principal holds the Entra Agent ID Admin or AI Administrator role; if license + RBAC are confirmed and the surface is still unreachable, raise a Microsoft support case via standard support channels. Downgrade any Z2/Z3 agents created during the gap to Z1 and re-evaluate when access is restored.
 
 ### 11.11 Generic "Low" data-hygiene findings
 

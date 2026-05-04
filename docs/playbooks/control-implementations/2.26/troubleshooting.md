@@ -1,8 +1,10 @@
 # Troubleshooting — Control 2.26: Entra Agent ID Identity Governance
 
-> **Scope.** This playbook covers operational failure modes for the Entra Agent ID identity-governance program: preview/license gating, sponsor assignment and leaver handling, agent-identity access packages, lifecycle workflows for agents, quarterly access reviews of agent identities, orphan detection, SIEM forwarding, and sovereign-cloud parity gaps. It is the diagnostic companion to the Control 2.26 specification, the portal walkthrough, the PowerShell setup pack, and the verification-testing pack.
+> **Scope.** This playbook covers operational failure modes for the Entra Agent ID identity-governance program: license / access gating, sponsor assignment and leaver handling, agent-identity access packages, lifecycle workflows for agents, quarterly access reviews of agent identities, orphan detection, SIEM forwarding, and sovereign-cloud parity gaps. It is the diagnostic companion to the Control 2.26 specification, the portal walkthrough, the PowerShell setup pack, and the verification-testing pack.
 >
-> **Status hedging.** Entra Agent ID is in preview. Behavior, blade names, Graph endpoints (`/beta/servicePrincipals` filtered by `servicePrincipalType eq 'Agent'`), and Lifecycle Workflow agent task templates may change before GA. Procedures here are written to the April 2026 surface; verify the **Last UI Verified** stamp at the top of `2.26-entra-agent-id-identity-governance.md` before treating any step as authoritative for an examiner artifact.
+> **Post-GA status (May 2026).** Microsoft Agent 365 reached general availability on May 1, 2026 and Microsoft Entra Agent ID is generally available. The pre-GA "Frontier program enrollment" gate is replaced by **Microsoft Agent 365 / Microsoft 365 E7 license assignment**. Pillar names that include "PREVIEW" or "Frontier" — e.g. **PREVIEW-ACCESS-MISSING** (§2) and **RB-01: Frontier or Copilot license expiry mid-quarter** (§11) — retain their pre-GA names for backward compatibility because the underlying root cause (the calling principal cannot reach the agent identity surface) is the same observable; only the gating mechanism changed. A follow-up issue tracks renaming these pillars / runbooks to license-coverage terms.
+>
+> **Status hedging.** The core Entra Agent ID surface is GA; some adjacent surfaces (e.g. the Lifecycle Workflows agent-sponsor tasks, the `agentSignIn` log type) remain in Public Preview. Behavior, blade names, Graph endpoints (`/beta/servicePrincipals` filtered by `servicePrincipalType eq 'Agent'`), and Lifecycle Workflow agent task templates may continue to evolve post-GA. Procedures here are written to the May 2026 surface; verify the **Last UI Verified** stamp at the top of `2.26-entra-agent-id-identity-governance.md` before treating any step as authoritative for an examiner artifact.
 >
 > **Regulatory framing.** Procedures support — they do not guarantee — compliance with FFIEC IT Handbook (Information Security, Management), OCC Bulletin 2013-29 / 2020-10 third-party risk, FRB SR 11-7 model risk management as applied to AI agents, NYDFS 23 NYCRR 500.7 (access privileges), and SEC 17a-4 / FINRA 4511 evidentiary retention. Implementation requires control-owner sign-off; no automated procedure removes the obligation to attest to control effectiveness.
 
@@ -301,14 +303,16 @@ AuditLogs
 <a id="frontier-enrolled-but-blade-403"></a>
 <a id="all-agents-preview-missing"></a>
 
-**One-line:**the **Agent identities (preview)** blade is invisible, partially populated, or rejects actions because preview prerequisites are not met for the tenant or the operator.
+> **Namespace name retained for backward-compatibility.** Pre-GA, this pillar covered Frontier enrollment + Copilot license gaps. Post-GA (May 2026), it covers **Microsoft Agent 365 / Microsoft 365 E7 license-assignment gaps** and **RBAC gaps** that surface as missing-blade or empty-blade symptoms. The pillar name and section anchors are preserved across the GA cutover so existing runbook references continue to resolve.
+
+**One-line:** the **Agent identities** blade is invisible, partially populated, or rejects actions because post-GA prerequisites (license + RBAC + cloud) are not met for the tenant or the operator.
 
 ### 2.1 Symptom catalog
 
 | Code | Symptom | First responder |
 |------|---------|-----------------|
 | P2-S1 | Blade not present in left nav under Entra → Identity | Entra Agent ID Admin |
-| P2-S2 | Blade present, "Frontier features unavailable" banner | AI Administrator |
+| P2-S2 | Blade present, "feature unavailable" or license banner | AI Administrator |
 | P2-S3 | Blade present, no agents listed (empty grid), tenant clearly has agents | Entra Agent ID Admin |
 | P2-S4 | Operation "Create access package for agents" greyed out | Entra Identity Governance Admin |
 | P2-S5 | Graph `/beta/servicePrincipals?$filter=servicePrincipalType eq 'Agent'` returns 400 / 501 | AI Administrator |
@@ -317,24 +321,25 @@ AuditLogs
 
 | RC | Description | Likelihood | How to confirm |
 |----|-------------|-----------|----------------|
-| RC-A | Operator missing **Microsoft 365 Copilot** license | High (most common) | M365 admin center → Users → operator → Licenses; Copilot must be assigned **directly** (group-based works) |
-| RC-B | Tenant not enrolled in **Frontier program** | High | M365 admin center → Settings → Org settings → "Microsoft 365 Copilot" → Frontier toggle |
+| RC-A | Operator missing **Microsoft Agent 365** or **Microsoft 365 E7** license | High (most common post-GA) | M365 admin center → Users → operator → Licenses; Agent 365 or M365 E7 must be assigned (group-based works) |
+| RC-B | Tenant has no available Agent 365 / M365 E7 SKUs to assign | Medium | M365 admin center → Billing → Your products; if not listed, contact account team to procure |
 | RC-C | Operator missing the **Entra Agent ID Admin** or **AI Administrator** directory role | Medium | `Get-MgRoleManagementDirectoryRoleAssignment -Filter "principalId eq '{id}'"` |
-| RC-D | Tenant in **sovereign cloud** (GCC, GCC High, DoD) | Medium (only if applicable) | `(Get-MgContext).Environment` ≠ `Global` |
-| RC-E | Preview blade rolled back transiently by Microsoft (service advisory) | Low | Service Health → Entra advisories |
+| RC-D | Tenant in **sovereign cloud** (GCC, GCC High, DoD) where Agent ID GA has not been announced | Medium (only if applicable) | `(Get-MgContext).Environment` ≠ `Global`; verify sovereign GA status against Microsoft Learn |
+| RC-E | Adjacent surface (e.g., the assignment-policy toggle still labelled "(preview)") rolled back transiently by Microsoft (service advisory) | Low | Service Health → Entra advisories |
 | RC-F | Conditional Access policy blocking access to the Agent ID admin endpoint | Low | Sign-in logs → operator → filter app `Microsoft Entra Admin Center` |
 
-> **Important.** RC-A and RC-B are independent gates and **both** must be satisfied. A tenant in Frontier with operators lacking Copilot licenses will still appear "broken." Confirm both before deeper diagnostics.
+> **Important.** RC-A and RC-C are independent gates and **both** must be satisfied. A licensed operator without the Agent ID Admin role will still appear "broken." Confirm both before deeper diagnostics. **If the tenant historically relied on the pre-GA Frontier enrollment pattern,** the GA cutover removed that requirement — a "Frontier disabled" state is no longer a prerequisite gap; the equivalent post-GA gap is missing Agent 365 / M365 E7 license assignment (RC-A / RC-B).
 
 ### 2.3 Diagnostic queries
 
 ```powershell
-# Quick check
+# Quick check (post-GA: FrontierEnabled field reflects Agent ID API reachability,
+# not the historical Frontier program flag — name retained for backward-compat)
 Get-Agt226Health | Select Cloud, FrontierEnabled, AgentCount
 
-# Operator license check
+# Operator license check (post-GA: prefer Agent 365 / M365 E7; transitional Copilot match retained)
 Get-MgUserLicenseDetail -UserId <operator-upn> |
-  Where-Object { $_.SkuPartNumber -match 'COPILOT|M365_COPILOT' }
+  Where-Object { $_.SkuPartNumber -match 'Microsoft_Agent_365|M365_E7|COPILOT|M365_COPILOT' }
 
 # Operator role check
 Get-MgRoleManagementDirectoryRoleAssignment -Filter "principalId eq '<operator-objectId>'" |

@@ -12,8 +12,8 @@
 
 ---
 
-!!! info "SDK Preview Status"
-    The Agent 365 Observability SDK packages are available for Python, JavaScript, and .NET. Full integration with the M365 Admin Center metrics dashboard requires Frontier program enrollment. SDK package names, configuration APIs, and required environment variables may change during the Preview period. Validate all package versions and configuration parameters against the current Microsoft Learn documentation and official SDK repository before deploying to production.
+!!! info "SDK Status — Post-GA"
+    The Agent 365 Observability SDK packages are available for Python, JavaScript, and .NET. Full integration with the M365 Admin Center metrics dashboard requires Microsoft Agent 365 or Microsoft 365 E7 licensing (Agent 365 reached general availability on May 1, 2026). SDK package names, configuration APIs, and required environment variables continue to evolve post-GA. Validate all package versions and configuration parameters against the current Microsoft Learn documentation and official SDK repository before deploying to production.
 
 !!! warning "Mandatory for Zone 3"
     For Zone 3 (Regulated) tenants, SDK implementation is mandatory for ALL custom agents. A custom agent deployed in production without Observability SDK instrumentation constitutes a control deficiency requiring remediation within 30 days.

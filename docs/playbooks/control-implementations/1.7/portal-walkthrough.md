@@ -409,7 +409,7 @@ Microsoft Entra admin center
 ```
 
 !!! info "Preview feature — verify availability"
-    The `agentSignIn` resource type is currently in preview. Configuration and field names may change before general availability. Verify availability in your tenant's Entra admin center surface; treat any "Frontier program required" claim in third-party documentation as unverified until confirmed against Microsoft Learn or in your tenant.
+    The `agentSignIn` resource type is currently in preview. Configuration and field names may change before general availability. Verify availability in your tenant's Entra admin center surface; verify any access-prerequisite claims against Microsoft Learn or in your tenant.
 
 ### 8.3 Enable `MicrosoftServicePrincipalSignInLogs` (Preview, opt-in, high-volume)
 

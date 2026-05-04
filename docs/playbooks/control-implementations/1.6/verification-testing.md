@@ -76,9 +76,9 @@ Induce a user into the elevated risk tier (test tenant) → attempt sensitive pr
 
 **Pass:** Every CSV / JSON / PDF artifact has a paired `.sha256` sidecar; storage location is immutable (Purview retention label, SharePoint hold, or WORM blob) with retention aligned to Control 1.7. **Fail:** Any artifact without sidecar or stored on writable share.
 
-### `1.6-DSPMv-01` — Unified DSPM (preview) accessibility
+### `1.6-DSPMv-01` — Unified DSPM accessibility
 
-If tenant is opted into the preview, verify the **DSPM (preview)** node loads and `Posture / Objectives / AI observability / Discover > Activity explorer / Discover > Data risk assessments` are reachable. If not opted in, document and skip — do not assert preview-specific UI affordances.
+Verify the unified **DSPM** node (GA May 2026, Commercial / GCC per MC1191257) loads and `Posture / Objectives / AI observability / Discover > Activity explorer / Discover > Data risk assessments` are reachable. If your tenant is in a sovereign cloud where the new unified DSPM has not been announced, document and skip — do not assert UI affordances that have not yet shipped to your tenant's cloud.
 
 ---
 
@@ -139,4 +139,4 @@ Signature: _________________________   Date (UTC): ____________________
 
 ---
 
-*Updated: April 2026 | Version: v1.4.0 | UI Verification Status: Current*
+*Updated: May 2026 | Version: v1.4.0 | UI Verification Status: Current*

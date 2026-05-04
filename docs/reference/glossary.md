@@ -214,6 +214,9 @@ Login requirement combining something you know (password) with something you hav
 **Microsoft 365 Copilot**
 The built-in AI assistant in Microsoft 365 apps (e.g., Teams, Outlook, Word) that can use organizational data and policies. Distinct from **Copilot Studio**, which is for building agents. See [Microsoft 365 Copilot overview](https://learn.microsoft.com/en-us/microsoft-365/copilot/microsoft-365-copilot-overview)
 
+**Microsoft Foundry (formerly Azure AI Foundry)**
+Microsoft's unified platform for building, evaluating, and deploying generative AI applications and agents. Renamed from **Azure AI Foundry** to **Microsoft Foundry** as of May 2026. Existing documentation, URL slugs (`/azure/ai-foundry/`), SDK package names, and many in-product strings still reference "Azure AI Foundry" — both names refer to the same product. Foundry is the recommended evaluation harness for FSI quality, safety, and risk-and-safety assessments referenced by Controls 2.5, 2.6, 2.20, 1.21, and 1.24.
+
 **Model**
 System that makes predictions or decisions based on data. AI agents using ML algorithms are treated as models.
 

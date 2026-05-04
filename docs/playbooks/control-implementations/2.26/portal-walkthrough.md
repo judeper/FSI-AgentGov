@@ -1,13 +1,16 @@
 # Portal Walkthrough — Control 2.26: Entra Agent ID Identity Governance
 
+!!! info "Post-GA Status — May 2026"
+    **Microsoft Agent 365 reached general availability on May 1, 2026** and **Microsoft Entra Agent ID is generally available** as of May 2026. The pre-GA "Frontier program enrollment" gate has been replaced by **Microsoft Agent 365** (standalone per-user license) or **Microsoft 365 E7** ("Frontier Suite" — bundles E5 + Microsoft 365 Copilot + Entra Suite + Agent 365) license assignment. Where this playbook references "Frontier program" or "Frontier preview" as a gating mechanism, read it as **Microsoft Agent 365 / Microsoft 365 E7 license assignment**. Section names, anchor IDs, and PowerShell function/test names that include "Preview" or "Frontier" are retained for backward compatibility — the underlying probe logic (whether the calling principal can reach the agent identity surface) remains valid because the same observable is gated by licensing post-GA. A follow-up issue tracks the deeper structural rename.
+
 !!! danger "READ FIRST — Scope and Sibling Routing"
-    **This playbook configures identity governance for Microsoft Entra Agent IDs** — the directory objects that represent autonomous AI agents (Copilot Studio agents, Agent 365 agents, declarative agents with autonomous actions, and third-party agents registered through the Microsoft Agent Framework). It walks you through the **Microsoft Entra admin center**, **Microsoft Entra Identity Governance**, **Microsoft 365 admin center (Frontier program)**, and **Microsoft Purview / Azure Monitor** surfaces required to satisfy Verification Criteria 1–8 of [Control 2.26](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md).
+    **This playbook configures identity governance for Microsoft Entra Agent IDs** — the directory objects that represent autonomous AI agents (Copilot Studio agents, Agent 365 agents, declarative agents with autonomous actions, and third-party agents registered through the Microsoft Agent Framework). It walks you through the **Microsoft Entra admin center**, **Microsoft Entra Identity Governance**, **Microsoft 365 admin center (Microsoft Agent 365 / E7 licensing)**, and **Microsoft Purview / Azure Monitor** surfaces required to satisfy Verification Criteria 1–8 of [Control 2.26](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md).
 
     **This walkthrough IS for:**
 
     | In Scope | Surface | Outcome |
     |---|---|---|
-    | Enabling Entra Agent ID via the Frontier preview program | M365 admin center → Setup → Frontier | Agent identities blade appears in Entra |
+    | Enabling Entra Agent ID via Microsoft Agent 365 / M365 E7 license assignment | M365 admin center → Billing → Licenses | Agent identities blade appears in Entra |
     | Assigning sponsors (human owners of record) to every Zone 2 / Zone 3 agent | Entra → Agent identities → Properties | Zero null-sponsor agents |
     | Provisioning agent permissions through Entitlement Management access packages | Entra → Identity Governance → Entitlement management | Time-bound (≤365 day) entitlements with audit trail |
     | Configuring Lifecycle Workflows to handle sponsor departure | Entra → Identity Governance → Lifecycle workflows | Augment (not replace) Microsoft's default manager-transfer behavior |
@@ -27,26 +30,26 @@
     | Common errors, missing blades, and remediation steps | [`./troubleshooting.md`](./troubleshooting.md) |
 
 !!! warning "Hedged-Language Reminder"
-    This playbook helps your organization **support compliance with** FINRA Rule 3110 (supervision), SEC Rule 17a-4 (records retention), SOX §404 (internal controls over financial reporting), GLBA Safeguards Rule (access controls), OCC Bulletin 2013-29 (third-party / model risk management), and Federal Reserve SR 11-7 (model risk management). It does **not** by itself guarantee any regulatory outcome. Implementation requires Microsoft 365 Copilot licensing, Frontier program enrollment, validated change-control procedures, and independent testing by your compliance function. Organizations should verify all configurations against their own regulatory examination workpapers and legal counsel before treating these procedures as adequate evidence.
+    This playbook helps your organization **support compliance with** FINRA Rule 3110 (supervision), SEC Rule 17a-4 (records retention), SOX §404 (internal controls over financial reporting), GLBA Safeguards Rule (access controls), OCC Bulletin 2013-29 (third-party / model risk management), and Federal Reserve SR 11-7 (model risk management). It does **not** by itself guarantee any regulatory outcome. Implementation requires Microsoft Agent 365 or Microsoft 365 E7 licensing, validated change-control procedures, and independent testing by your compliance function. Organizations should verify all configurations against their own regulatory examination workpapers and legal counsel before treating these procedures as adequate evidence.
 
 !!! info "License and Program Requirements"
     | Requirement | Why | Where to verify |
     |---|---|---|
     | Microsoft 365 Copilot license per agent sponsor | Required to author and own agents | M365 admin center → Billing → Licenses |
-    | **Frontier program enrolled** (preview opt-in) | Surfaces the **Agent identities** blade in Entra; without Frontier, the blade is hidden even with Copilot licensing | M365 admin center → Setup → "Get early access to Microsoft 365 features" → Frontier |
+    | **Microsoft Agent 365 or Microsoft 365 E7 licensing** | Surfaces the **Agent identities** blade in Entra and unlocks the Agent 365 control plane (post-GA: May 1, 2026); replaces the pre-GA Frontier program enrollment | M365 admin center → Billing → Licenses |
     | Entra ID P2 (Identity Governance) | Required for Entitlement Management, Lifecycle Workflows, and Access Reviews — all three are mandatory for this control | Entra → Identity → Overview → License |
     | Microsoft Purview Audit (Standard or Premium) | Required to retain agent identity events for the 6-year SEC 17a-4 horizon | Purview → Audit → Audit retention policies |
     | Workday / SAP SuccessFactors / SAP HCM HR connector (or Azure AD Connect with HR attribute flow) | Populates `employeeLeaveDateTime` on sponsor user objects — the leaver-trigger signal source for Lifecycle Workflows | Entra → Identity → Inbound provisioning |
 
-!!! warning "Sovereign Cloud Parity (PREVIEW — Commercial Only)"
-    As of **April 2026**, Microsoft Entra Agent ID is in **public preview in the Microsoft 365 Commercial cloud only**. Agent 365 reaches general availability **May 1, 2026** in Commercial. **No GA timeline has been published for GCC, GCC High, or DoD.** If you operate in a sovereign cloud, this control's primary surface is **not available** and you must apply compensating controls. See [§1 — Sovereign Cloud Variant](#1-sovereign-cloud-variant-and-compensating-controls) below for the substitute procedure.
+!!! warning "Sovereign Cloud Parity (Commercial Only)"
+    As of **May 2026**, Microsoft Entra Agent ID is **generally available in the Microsoft 365 Commercial cloud only** (with Microsoft Agent 365 or Microsoft 365 E7 licensing). Agent 365 reached general availability on **May 1, 2026** in Commercial. **No GA timeline has been published for GCC, GCC High, or DoD.** If you operate in a sovereign cloud, this control's primary surface is **not available** and you must apply compensating controls. See [§1 — Sovereign Cloud Variant](#1-sovereign-cloud-variant-and-compensating-controls) below for the substitute procedure.
 
-    | Cloud | Entra Agent ID blade | Frontier program | Substitute approach |
+    | Cloud | Entra Agent ID blade | Microsoft Agent 365 / E7 licensing | Substitute approach |
     |---|---|---|---|
-    | M365 Commercial | ✅ Preview (April 2026) | ✅ Available | Follow this playbook end-to-end |
-    | GCC | ❌ Not available | ❌ Not available | §1 manual quarterly attestation + Control 1.2 agent registry |
-    | GCC High | ❌ Not available | ❌ Not available | §1 manual quarterly attestation + Control 1.2 agent registry |
-    | DoD | ❌ Not available | ❌ Not available | §1 manual quarterly attestation + Control 1.2 agent registry |
+    | M365 Commercial | ✅ GA (May 2026) | ✅ Available | Follow this playbook end-to-end |
+    | GCC | ❌ Not available | ❌ Not announced | §1 manual quarterly attestation + Control 1.2 agent registry |
+    | GCC High | ❌ Not available | ❌ Not announced | §1 manual quarterly attestation + Control 1.2 agent registry |
+    | DoD | ❌ Not available | ❌ Not announced | §1 manual quarterly attestation + Control 1.2 agent registry |
 
     See [`../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod`](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod) for sovereign endpoint resolution if you ever need to script against the commercial-only surface from a sovereign management workstation.
 
@@ -183,46 +186,57 @@ When Microsoft announces Agent ID GA for your sovereign cloud, do **not** silent
 
 ---
 
-## 2. Frontier Program Enrollment
+<a id="2-frontier-program-enrollment"></a>
+
+## 2. Microsoft Agent 365 / Microsoft 365 E7 License Assignment
 
 **Verification Criterion evidenced:** VC-1 (Entra Agent ID enabled; **Agent identities** blade present in Entra).
 
-The Entra Agent ID surface is gated behind Microsoft's **Frontier early-access program**. Frontier is a tenant-level opt-in that exposes preview features to a self-selected cohort. Enrollment is reversible but propagation can take up to 24 hours in either direction.
+Post-GA (May 2026), the Entra Agent ID surface is gated by **Microsoft Agent 365** (standalone per-user license) or **Microsoft 365 E7** ("Frontier Suite") licensing. Pre-GA this surface was gated by enrolment in the Microsoft Frontier early-access program; section numbering and anchor (`#2-microsoft-agent-365-microsoft-365-e7-license-assignment`) is preserved across the GA cutover. Verify the exact SKU part numbers available in your tenant via `Get-MgSubscribedSku` before assigning licenses at scale.
 
-!!! danger "Frontier Is a Tenant-Wide Opt-In"
-    Frontier enrollment exposes **all** Frontier preview features to the tenant — not only Entra Agent ID. Coordinate with your Office, Teams, and Copilot product owners before enrolling. Some preview features change end-user UI or default settings. Enrollment should be approved through your standard change-control board.
+!!! danger "Tenant-Wide License Decisions"
+    License assignment to Microsoft Agent 365 or Microsoft 365 E7 unlocks Agent ID and the broader Agent 365 surface for the assigned user. Coordinate with your finance, procurement, identity, and Copilot product owners before assignment at scale. Some Agent 365 surfaces still carry adjacent Public Preview labels — verify current GA / preview status against Microsoft Learn before relying on a specific surface in production. License changes should be approved through your standard change-control board.
 
-### 2.1 Enroll the tenant in Frontier
+### 2.1 Confirm tenant has Agent 365 or M365 E7 SKUs available
 
-1. Sign in to [`https://admin.microsoft.com`](https://admin.microsoft.com) as **Entra Global Admin**. Lower-privileged roles cannot toggle Frontier even if they can read its status.
-2. In the left navigation, expand **Setup**, then click **Organizational settings**.
-3. On the **Organizational settings** page, select the **Microsoft 365 Frontier** tile (some tenants surface this as **"Get early access to Microsoft 365 features"**). If you do not see this tile, search "Frontier" in the admin center search bar.
-4. Read the Frontier program terms carefully. Note specifically the disclaimers regarding preview-feature stability, the absence of SLA, and the disclaimer that preview features are not in scope for FedRAMP / DoD authorizations.
-5. Toggle **Enable Frontier program** to **On**.
-6. In the confirmation dialog, type your tenant's primary domain to confirm and click **Enroll**.
-7. Capture the resulting timestamp — this is the start of the propagation window.
+1. Sign in to [`https://admin.microsoft.com`](https://admin.microsoft.com) as **Entra Global Admin** or **Billing Administrator**.
+2. In the left navigation, expand **Billing**, then click **Your products**.
+3. Search for **Microsoft Agent 365** or **Microsoft 365 E7**. If neither is listed, work with your Microsoft account team to procure the appropriate SKU for your governance scenario (see Control 2.26 §1 license selection guidance).
+4. Capture the resulting SKU list (SKU part number, total seats, assigned seats) — this is the baseline for license-coverage evidence in §9.
 
-*Screenshot anchor: `docs/images/2.26/EXPECTED.md#2-1-frontier-toggle-on` — M365 admin Frontier page with toggle in On state and confirmation dialog visible.*
+*Screenshot anchor: `docs/images/2.26/EXPECTED.md#2-1-license-skus-available` — M365 admin Billing → Your products page showing Microsoft Agent 365 or Microsoft 365 E7 SKU with available seats.*
 
-### 2.2 Verify propagation
+### 2.2 Assign licenses to the Agent ID administrator(s)
 
-1. Wait at least 30 minutes after enrollment, then sign in to [`https://entra.microsoft.com`](https://entra.microsoft.com).
-2. In the left blade, navigate to **Identity → Applications**. Scroll the sub-blades — you should now see **Agent identities (preview)** as a sibling of **Enterprise applications** and **App registrations**.
-3. Click **Agent identities (preview)**. The blade should load without an "access denied" or "feature not available" banner. An empty list at this point is expected — agents will populate after sponsors begin authoring them.
-4. If after 24 hours the blade has not appeared:
-   - Confirm Copilot licensing is assigned to at least one user (Frontier defers blade rendering until at least one Copilot-licensed user exists).
-   - Confirm tenant region is one in which Frontier preview is offered (US, EU, UK, AU as of verification date).
-   - Open a Microsoft support case via M365 admin → **Support → New service request**, category **Microsoft Entra → Preview features → Frontier**.
+1. From the M365 admin center, navigate to **Users → Active users**.
+2. Select the user(s) who will administer Entra Agent ID (typically members of the **Entra Agent ID Admin** or **AI Administrator** role groups).
+3. On the user's profile, click **Licenses and apps**.
+4. Check the box for **Microsoft Agent 365** (or **Microsoft 365 E7** if the suite is being used). Optionally adjust per-app enablement under the SKU expansion.
+5. Click **Save changes**.
+6. Repeat for each Agent ID administrator. License-based access can also be group-based — see §2.3 for the recommended group-based pattern at scale.
 
-*Screenshot anchor: `docs/images/2.26/EXPECTED.md#2-2-agent-identities-blade-empty` — Entra Agent identities (preview) blade with empty list, demonstrating successful propagation.*
+*Screenshot anchor: `docs/images/2.26/EXPECTED.md#2-2-license-assigned` — M365 admin Licenses and apps page showing Microsoft Agent 365 or Microsoft 365 E7 enabled for an admin user.*
 
-### 2.3 Capture enrollment evidence
+### 2.3 Verify the Agent identities blade is reachable
 
-1. From the M365 admin Frontier page, capture a full-page screenshot showing the **Enrolled** state, the enrollment date, and the enrolling admin's name.
-2. From the M365 audit log (Purview → Audit), search for the activity **"Updated organization settings"** with workload **AzureActiveDirectory** in the 1-hour window around the enrollment timestamp. Export the JSON record.
-3. Store both artifacts in your control-evidence repository under the path convention `Control-2.26/VC-1/Frontier-Enrollment/<YYYY-MM-DD>/`.
+1. Wait at least 15 minutes after license assignment, then sign in to [`https://entra.microsoft.com`](https://entra.microsoft.com) as the licensed administrator.
+2. In the left blade, navigate to **Identity → Applications**. Scroll the sub-blades — you should now see **Agent identities** as a sibling of **Enterprise applications** and **App registrations**. The blade may still carry an "(preview)" suffix on some assignment-policy toggles even though the core surface is GA — verify against Microsoft Learn for the exact label in current builds.
+3. Click **Agent identities**. The blade should load without an "access denied" or "feature not available" banner. An empty list at this point is expected — agents will populate after sponsors begin authoring them.
+4. If after 60 minutes the blade still does not render correctly:
+   - Confirm the operator account holds Microsoft Agent 365 or Microsoft 365 E7 licensing **directly** (group-based works) — see Control 2.26 troubleshooting playbook §2.
+   - Confirm the operator holds the **Entra Agent ID Admin** or **AI Administrator** directory role (RBAC gap is a common false-positive for "blade missing").
+   - Confirm tenant region is one in which Agent ID GA has been announced (Commercial cloud at GA; verify sovereign availability against Microsoft Learn).
+   - Open a Microsoft support case via M365 admin → **Support → New service request**, category **Microsoft Entra → Agent ID**.
 
-!!! example "Examiner Evidence Box — Frontier Enrollment"
+*Screenshot anchor: `docs/images/2.26/EXPECTED.md#2-3-agent-identities-blade-empty` — Entra Agent identities blade with empty list, demonstrating successful access.*
+
+### 2.4 Capture license assignment evidence
+
+1. From the M365 admin **Billing → Licenses** page, capture a full-page screenshot showing the Microsoft Agent 365 / M365 E7 SKU, the assigned seat count, and the date range.
+2. From the M365 audit log (Purview → Audit), search for the activity **"Add user license"** with workload **AzureActiveDirectory** in the 1-hour window around the assignment timestamp. Export the JSON record.
+3. Store both artifacts in your control-evidence repository under the path convention `Control-2.26/VC-1/License-Assignment/<YYYY-MM-DD>/`.
+
+!!! example "Examiner Evidence Box — License Assignment"
     | Element | Value |
     |---|---|
     | Artifact produced | Screenshot of Frontier toggle (On) + Purview audit JSON of "Updated organization settings" event |

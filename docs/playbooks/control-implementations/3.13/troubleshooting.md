@@ -7,8 +7,8 @@
 
 ---
 
-!!! info "Pre-GA / Post-GA Caveat"
-    Before May 1, 2026 GA, many issues result from Frontier preview feature changes, endpoint modifications, or tenant-specific provisioning states. After GA, validate against current Microsoft Learn documentation and the Microsoft 365 Message Center for service announcements before escalating to Microsoft Support.
+!!! info "Post-GA Caveat"
+    With Agent 365 generally available as of May 1, 2026, most issues result from Agent 365 / Microsoft 365 E7 license assignment gaps, endpoint modifications, or tenant-specific provisioning states. Validate against current Microsoft Learn documentation and the Microsoft 365 Message Center for service announcements before escalating to Microsoft Support.
 
 ---
 
@@ -65,25 +65,25 @@ This playbook documents the most common issues encountered when implementing and
 
 ---
 
-## Issue Category 2: Hero Metrics Not Visible [Pre-GA: Frontier required]
+## Issue Category 2: Hero Metrics Not Visible [Requires Agent 365 / E7 licensing]
 
 ### Issue 2.1: Hero metric cards show placeholder or are absent from the page
 
-**Symptom**: The Overview page displays the Agent Registry count but the four hero metric cards (Active Users, Total Sessions, Exception Rate, Agent Runtime) are not visible, or display a "Frontier preview required" message.
+**Symptom**: The Overview page displays the Agent Registry count but the four hero metric cards (Active Users, Total Sessions, Exception Rate, Agent Runtime) are not visible, or display a "licensing required" message.
 
 **Probable Causes**:
-- Tenant is not enrolled in the Microsoft 365 Frontier program (pre-GA)
-- Frontier enrollment is pending and not yet fully provisioned
-- Post-GA: tenant lacks Agent 365 / Microsoft 365 E7 licensing required for hero metrics
+- Tenant lacks Microsoft Agent 365 or Microsoft 365 E7 licensing required for hero metrics
+- License assignment is pending and not yet fully provisioned to the active admin context
+- Post-GA: tenant has not yet provisioned the licenses required for the full analytics surface
 
 **Diagnostic Steps**:
 1. Navigate to M365 Admin Center > Settings > Org settings > Microsoft 365 Insider program (or equivalent Frontier enrollment page). Confirm enrollment status.
 2. Check the M365 Message Center for any Frontier-specific announcements about feature availability in your region.
 
 **Resolution**:
-1. Enroll in the Frontier program: M365 Admin Center > Settings > Org settings > Microsoft 365 Insider (or Frontier) > Enroll.
-2. Allow 24–72 hours for enrollment to propagate and Frontier features to activate.
-3. After enrollment confirmation, revisit the Overview page. Hero metrics should appear.
+1. Provision Microsoft Agent 365 or Microsoft 365 E7 licensing: M365 Admin Center > Billing > Licenses > Assign to the relevant admin and pilot users.
+2. Allow propagation time after license assignment (typically minutes, but up to 24 hours in some tenants) for entitlements to flow to the analytics surface.
+3. After confirmation, revisit the Overview page. Hero metrics should appear.
 4. Document the Frontier enrollment date and store it in the IT governance register.
 
 **Escalation**: If enrollment is confirmed but hero metrics are still absent after 72 hours, contact Microsoft Support via your FastTrack contact or admin support ticket.
@@ -282,7 +282,7 @@ Set-AzStorageBlobContent -File "C:\test.txt" -Container "agent-inventory-exports
 - **Microsoft 365 Message Center**: M365 Admin Center > Health > Message center (check for known issues before opening tickets)
 - **Microsoft Tech Community — M365 Admin**: `https://techcommunity.microsoft.com/t5/microsoft-365-admin/bd-p/Microsoft365Admin`
 - **Microsoft 365 Status Page**: `https://status.office.com` (check for active service incidents)
-- **FastTrack for Microsoft 365**: Contact your FastTrack Success Architect for Frontier preview or post-GA Agent 365 onboarding issues
+- **FastTrack for Microsoft 365**: Contact your FastTrack Success Architect for Agent 365 onboarding and licensing-assignment issues.
 
 ---
 

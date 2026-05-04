@@ -10,7 +10,7 @@
 ---
 
 !!! info "Hero Metrics Availability"
-    The hero metrics on the Agent 365 Overview page (Active Users, Total Sessions, Exception Rate, Agent Runtime) become Generally Available on **May 1, 2026** for tenants with Agent 365 or Microsoft 365 E7 licensing. Tenants enrolled in the Microsoft 365 Frontier preview program can access these metrics today. The Agent Registry and governance cards (Pending Requests, Ownerless Agents) are already Generally Available. Steps that depend on hero metrics are marked **[Pre-GA: Frontier required]**.
+    The hero metrics on the Agent 365 Overview page (Active Users, Total Sessions, Exception Rate, Agent Runtime) reached **General Availability on May 1, 2026** for tenants with Agent 365 or Microsoft 365 E7 licensing. The Agent Registry and governance cards (Pending Requests, Ownerless Agents) were Generally Available pre-Agent-365-GA and remain accessible. Steps that depend on hero metrics require Microsoft Agent 365 or Microsoft 365 E7 licensing — these are flagged **[Requires Agent 365 / E7 licensing]**.
 
 ---
 
@@ -26,7 +26,7 @@ Before beginning this walkthrough, confirm the following:
 
 - [ ] You have a Microsoft 365 Entra Global Admin or AI Administrator account for the target tenant.
 - [ ] Multi-factor authentication (MFA) is enabled and functioning for your admin account.
-- [ ] If accessing hero metrics: the tenant is enrolled in the Microsoft 365 Frontier program.
+- [ ] If accessing hero metrics: the tenant has Microsoft Agent 365 or Microsoft 365 E7 licensing provisioned.
 - [ ] You have reviewed Control 3.13 and understand the Zone designation applicable to your organization.
 - [ ] A review log (spreadsheet, GRC ticket, or supervisory log entry) is ready to record the date, reviewer identity, and findings of this session.
 
@@ -72,7 +72,7 @@ Before beginning this walkthrough, confirm the following:
 
 ---
 
-## Step 4: Review Hero Metrics [Pre-GA: Frontier required]
+## Step 4: Review Hero Metrics [Requires Agent 365 / E7 licensing]
 
 !!! info "Availability"
     Steps 4.1–4.5 require Frontier enrollment before May 1, 2026 GA. From May 1, 2026, hero metrics are available to all tenants with Agent 365 / Microsoft 365 E7 licensing. If your tenant has neither, skip to Step 5.
@@ -185,11 +185,11 @@ Example: `AgentInventory_ContosoCapital_20260322.csv`
 
 ---
 
-## Step 8: Review Researcher Computer Use Configuration [Pre-GA: Frontier required]
+## Step 8: Review Researcher Computer Use Configuration [Requires Researcher with Computer Use licensing]
 
 **8.1** If your firm has deployed the Researcher agent with Computer Use capability:
 
-**8.2** In the Agents submenu, select **"Researcher"** > **"Computer Use"** (visible only on Frontier-enrolled tenants pre-GA, or on any tenant after May 1, 2026 if the Researcher with Computer Use feature is licensed and enabled).
+**8.2** In the Agents submenu, select **"Researcher"** > **"Computer Use"** (visible only on tenants where the Researcher with Computer Use feature is licensed and enabled).
 
 **8.3** Review the allowed websites list and excluded websites list. Confirm that:
 - Allowed websites are limited to business-approved sources.

@@ -10,7 +10,7 @@
 ---
 
 !!! info "Preview Status"
-    The Entra **agentSignIn** log type and **Is Agent = Yes** sign-in filter are in **Preview**. **MicrosoftServicePrincipalSignInLogs** as an Entra diagnostic setting is in **Public Preview** and requires explicit opt-in. Agent 365 Admin Center integration for SDK-instrumented agents requires Frontier program enrollment. All portal steps should be validated against current Entra and M365 Admin Center documentation before implementation.
+    The Entra **agentSignIn** log type and **Is Agent = Yes** sign-in filter are in **Preview**. **MicrosoftServicePrincipalSignInLogs** as an Entra diagnostic setting is in **Public Preview** and requires explicit opt-in. Agent 365 Admin Center integration for SDK-instrumented agents requires Microsoft Agent 365 or Microsoft 365 E7 licensing (Agent 365 reached GA on May 1, 2026). All portal steps should be validated against current Entra and M365 Admin Center documentation before implementation.
 
 ---
 
@@ -28,7 +28,7 @@ Before beginning, confirm:
 - [ ] You have identified all custom (non-Microsoft-built) agents deployed in the tenant that require SDK instrumentation.
 - [ ] A Log Analytics workspace exists in Azure for diagnostic log routing (or you will create one).
 - [ ] WORM-compliant Azure Blob Storage is configured per Playbook 3.13-B (reused for agentSignIn log retention).
-- [ ] Frontier program enrollment is active or in progress (for Admin Center metric verification).
+- [ ] Microsoft Agent 365 or Microsoft 365 E7 licensing is provisioned (for Admin Center metric verification).
 
 ---
 
@@ -199,7 +199,7 @@ After SDK implementation (Playbook 3.14-B), return to this step to confirm that 
 
 **4.1.4** Record each confirmed custom agent in the SDK implementation registry (document: agent name, SDK implementation date, Admin Center visibility confirmation date, confirming admin).
 
-### Step 4.2: Confirm Metric Contribution [Frontier Preview]
+### Step 4.2: Confirm Metric Contribution [Requires Agent 365 / E7 licensing]
 
 **4.2.1** Navigate to Agents > Overview.
 

@@ -61,12 +61,12 @@ Expected Result: User is either redirected away from the admin center or cannot 
 
 ---
 
-## Test 2: Hero Metrics Population Verification [Pre-GA: Frontier required]
+## Test 2: Hero Metrics Population Verification [Requires Agent 365 / E7 licensing]
 
 **Test Objective**: Confirm that hero metrics are displaying real data (not zeros or placeholder values) from agent telemetry.
 
 !!! info "Availability"
-    Before May 1, 2026, this test requires Frontier program enrollment. From May 1, 2026 GA, hero metrics are available to all tenants with Agent 365 / Microsoft 365 E7 licensing. If neither applies, document this test as N/A and record the planned licensing or enrollment date.
+    With Agent 365 generally available as of May 1, 2026, hero metrics are available to all tenants with Agent 365 or Microsoft 365 E7 licensing. If neither licensing path applies to the tenant, document this test as N/A and record the planned licensing date.
 
 **Test Steps**:
 

@@ -1,19 +1,19 @@
 # Unified Agent Governance: Agent 365, Entra Agent ID, and Admin Center Settings
 
-**Last Updated:** February 2026
+**Last Updated:** May 2026
 
-!!! warning "Preview Features - Verify Before Implementing"
-    This document covers both generally available and preview features. Agent 365 Unified Control Plane and Agent 365 Observability reach GA on May 1, 2026. **Entra Agent ID** remains in **Public Preview** (since November 2025). M365 Admin Center Agent Settings and Registry are generally available. **Conditional Access for agents** depends on Entra Agent ID and should be treated as preview until Entra Agent ID reaches GA. Verify current GA status at Microsoft Learn before implementing preview capabilities in production.
+!!! info "Generally Available — May 2026"
+    Agent 365 Unified Control Plane and Agent 365 Observability reached general availability on **May 1, 2026**. **Microsoft Entra Agent ID** is also generally available and is included with **Microsoft Agent 365** (standalone per-user license) or **Microsoft 365 E7** ("Frontier Suite") licensing. M365 Admin Center Agent Settings and Registry remain generally available. **Conditional Access for Agents** documentation and capabilities have expanded alongside Entra Agent ID GA; verify the current preview/GA status of specific Conditional Access for Agents surfaces against Microsoft Learn before relying on them in production policy. Some adjacent surfaces — for example the Entra `agentSignIn` log type and the `MicrosoftServicePrincipalSignInLogs` diagnostic setting — remain in **Public Preview**. Verify current GA / preview status at Microsoft Learn before implementing capabilities in production.
 
-    **Known Limitations (February 2026):**
+    **Known Limitations (May 2026):**
 
-    - **Entra Agent ID:** Currently in **Public Preview**; do not deploy agent identity workflows in production until GA is confirmed.
-    - **Declarative agent deployment:** Export/import is required for org-wide deployment; direct publish is under consideration. Admins can block or delete declarative agents but cannot deploy them org-wide from the registry.
-    - **Shadow AI discovery:** Planned for post-GA using Entra and Defender capabilities, including agents hosted on non-Microsoft cloud platforms.
-    - **Licensing:** Feature-to-license mappings are not finalized; current preview access may not reflect final licensing requirements.
+    - **Adjacent preview surfaces:** The Entra `agentSignIn` resource type and `MicrosoftServicePrincipalSignInLogs` diagnostic setting remain in Public Preview; configuration and field names may still change.
+    - **Declarative agent deployment:** Export/import is still required for org-wide deployment; direct publish from the registry is on the roadmap. Admins can block or delete declarative agents but cannot deploy them org-wide from the registry today.
+    - **Shadow AI discovery:** Available post-GA via Entra and Defender capabilities, including discovery of agents hosted on non-Microsoft cloud platforms; verify scope coverage against current Microsoft Learn documentation before depending on it for compliance evidence.
+    - **Licensing:** Agent 365 capabilities require **Microsoft 365 E7** (bundles E5 + Microsoft 365 Copilot + Entra Suite + Agent 365) or the **Microsoft Agent 365** standalone per-user license. Confirm SKU coverage and feature mapping against current Microsoft licensing documentation before committing supervisory cadences to specific entitlements.
     - **Multi-tenant API:** Not committed; Agent 365 focuses on single-tenant governance only.
-    - **Agent onboarding:** Known activation bugs are being addressed; fixes are rolling out.
-    - **Foundry agents:** Microsoft Foundry agents are expected to appear in the Agent 365 registry at GA.
+    - **Sovereign clouds:** Initial GA covers Commercial; availability in GCC, GCC High, DoD, and Gallatin is rolling and not yet announced for all surfaces — verify per cloud against the Microsoft 365 roadmap and Microsoft Learn before committing dates.
+    - **Foundry agents:** Microsoft Foundry agents are expected to surface in the Agent 365 registry; verify current coverage against Microsoft Learn for the agent types deployed in your tenant.
 
 ---
 
@@ -632,30 +632,30 @@ graph TD
 
 Financial services organizations should adopt Agent 365 capabilities in phases, balancing early access to governance improvements with production stability requirements. This roadmap adopts a **"prepare now, migrate later"** approach with actionable steps readers can take before GA.
 
-### Agent 365 Platform Status — February 2026
+### Agent 365 Platform Status — May 2026
 
-The following status reflects findings from the February 2026 governance review and Microsoft Frontier program engagement:
+The following status reflects the May 1, 2026 Agent 365 general availability release and current Microsoft Learn documentation:
 
 | Component | Status | Notes |
 |-----------|--------|-------|
-| **Entra Agent ID** | Public Preview | Identity service for AI agents; Agentic Users, sponsorship model, lifecycle workflows |
-| **Conditional Access for Agents** | Public Preview | Depends on Entra Agent ID; agent-specific risk signals and custom security attribute policies |
+| **Entra Agent ID** | GA (May 2026) | Identity service for AI agents; Agentic Users, sponsorship model, lifecycle workflows |
+| **Conditional Access for Agents** | Verify per Microsoft Learn | Capabilities expanded alongside Entra Agent ID GA; some specific surfaces may remain in Public Preview — confirm status against Microsoft Learn before policy authoring. Rides on top of CA for Workload Identities |
 | **M365 Admin Center Agent Settings** | GA | Agent sharing controls, templates, user access policies |
-| **M365 Admin Center Agent Registry** | GA | Copilot Studio agents visible; Foundry agents expected at full GA; declarative agents appear but lack org-wide deployment capability |
-| **Agent 365 Unified Control Plane** | Preview (Frontier) | Centralized registry, security posture, cross-platform policies |
-| **Agent 365 Observability** | Preview (Frontier) | Application Insights integration, OpenTelemetry, unified telemetry |
+| **M365 Admin Center Agent Registry** | GA | Copilot Studio agents visible; Microsoft Foundry agent coverage rolling — verify against Microsoft Learn for agent types in your tenant; declarative agents appear but lack org-wide deployment capability |
+| **Agent 365 Unified Control Plane** | GA (May 2026) | Centralized registry, security posture, cross-platform policies; requires Microsoft Agent 365 or Microsoft 365 E7 licensing |
+| **Agent 365 Observability** | GA (May 2026) | Application Insights integration, OpenTelemetry, unified telemetry; requires Microsoft Agent 365 or Microsoft 365 E7 licensing |
 
 **Key Findings:**
 
-- **Declarative agent deployment limitations:** Administrators can view and block declarative agents in the registry, but org-wide deployment requires export/import workflows. Direct publish from the registry is under consideration but not yet available.
-- **Agent registry visibility:** Copilot Studio agents are fully visible; Microsoft Foundry agents are expected to be included in the registry at GA. Declarative agents appear in the registry but with limited administrative actions compared to Copilot Studio agents.
-- **Shadow AI discovery roadmap:** Microsoft plans post-GA capabilities for discovering agents hosted on non-Microsoft cloud platforms (GCP, AWS) using Entra and Defender signals.
-- **Licensing caveats:** Feature-to-license mappings for Agent 365 are not finalized. Current preview access through the Frontier program may not reflect final licensing requirements. Organizations should not assume current preview entitlements will carry over to GA.
-- **Multi-tenant scope:** Agent 365 is focused on single-tenant governance. Multi-tenant API support is not committed for GA.
-- **Agent onboarding bugs:** Known activation issues are affecting some tenants; Microsoft is rolling out fixes. Organizations experiencing onboarding failures should contact their Frontier program representative.
-- **Observability for supervision:** Agent 365 Observability integration with supervision evidence collection (supporting FINRA 3110 requirements) remains in preview. Organizations should continue using existing Application Insights solutions for production supervision evidence until Observability reaches GA.
+- **Declarative agent deployment limitations:** Administrators can view and block declarative agents in the registry, but org-wide deployment requires export/import workflows. Direct publish from the registry is on the roadmap but not yet available.
+- **Agent registry visibility:** Copilot Studio agents are fully visible in the registry. Microsoft Foundry agent coverage is rolling — verify which Foundry agent types are surfaced in the registry for your tenant against current Microsoft Learn documentation. Declarative agents appear in the registry but with limited administrative actions compared to Copilot Studio agents.
+- **Shadow AI discovery roadmap:** Microsoft offers post-GA capabilities for discovering agents hosted on non-Microsoft cloud platforms (GCP, AWS) using Entra and Defender signals. Verify current scope coverage and tenant prerequisites before relying on it as the sole shadow-AI control.
+- **Licensing:** Agent 365 capabilities require **Microsoft 365 E7** (bundles E5 + Microsoft 365 Copilot + Entra Suite + Agent 365) or the **Microsoft Agent 365** standalone per-user license. Verify SKU coverage and feature mapping against current Microsoft licensing documentation before committing supervisory cadences to specific entitlements.
+- **Multi-tenant scope:** Agent 365 is focused on single-tenant governance. Multi-tenant API support remains uncommitted.
+- **Agent onboarding:** Tenants experiencing onboarding or activation issues should engage Microsoft Support or their account team via standard support channels.
+- **Observability for supervision:** Agent 365 Observability integration with supervision evidence collection (supporting FINRA 3110 requirements) is generally available as of May 2026; financial institutions should validate coverage against their existing Application Insights pipelines before retiring duplicate evidence flows.
 
-### Phase 1: Foundation (Available Now — GA and Public Preview Features)
+### Phase 1: Foundation (Available Now — Generally Available Features)
 
 **Objective:** Establish identity governance foundation using Entra Agent ID
 
@@ -720,19 +720,19 @@ The following status reflects findings from the February 2026 governance review 
 **Prerequisites:**
 
 - Phase 1 complete (Entra Agent ID foundation established)
-- Microsoft 365 Frontier program enrollment (approval process managed by Microsoft)
+- Microsoft Agent 365 or Microsoft 365 E7 licensing provisioned for evaluation users
 - Separate test/development environments for evaluation
 - Stakeholder availability for comparative analysis (compliance team, IT admins, security architects)
 
 **Key Actions:**
 
-1. **Enroll in Microsoft 365 Frontier program** to access Agent 365 preview features
-   - Submit enrollment request through Microsoft 365 Admin Center or account team
-   - Wait for approval (typically 2-4 weeks)
-   - Accept preview terms and conditions
+1. **Provision Microsoft Agent 365 or Microsoft 365 E7 licenses** for evaluation users
+   - Assign licenses through M365 Admin Center > Billing > Licenses
+   - Allow propagation time before validating Agent 365 entitlements appear in the admin surface
+   - Confirm Agent 365 features become visible in the M365 Admin Center for the licensed admin
 
-2. **Access Agent 365 preview features** through M365 Admin Center
-   - Navigate to Agents > Agent 365 Preview (Frontier participants only)
+2. **Access Agent 365 features** through M365 Admin Center
+   - Navigate to Agents > Agent 365 (requires Microsoft Agent 365 or Microsoft 365 E7 licensing)
    - Explore unified registry interface
    - Review security posture dashboard
 
@@ -754,7 +754,7 @@ The following status reflects findings from the February 2026 governance review 
    - Evaluate integration with existing FSI governance workflows (ServiceNow, Azure DevOps, custom GRC systems)
    - Assess Graph API completeness for compliance reporting
 
-6. **Provide feedback to Microsoft** through Frontier program channels
+6. **Provide feedback to Microsoft** through your account team or Microsoft Support
    - Submit feature requests for identified gaps
    - Report bugs or unexpected behavior
    - Share FSI-specific use cases and requirements
@@ -764,7 +764,7 @@ The following status reflects findings from the February 2026 governance review 
 - Successfully registered agents from 3+ platforms in Agent 365 unified registry
 - Documented comparison of per-platform vs. unified governance effort (quantified time savings)
 - Identified gap list with workarounds or mitigation strategies
-- Feedback submitted to Microsoft through Frontier program
+- Feedback submitted to Microsoft through account team or Microsoft Support channels
 
 **Timeline:** 6-8 weeks
 
@@ -852,7 +852,7 @@ The following status reflects findings from the February 2026 governance review 
   - [ ] Set allowed agent types by governance zone
   - [ ] Configure sharing controls (recommend "Specific Groups Only" or "None" for Zone 2/3)
   - [ ] Create custom templates for Zone 3 agents
-- [ ] **Enroll in Microsoft 365 Frontier program** to access Agent 365 preview (optional for evaluation)
+- [ ] **Provision Microsoft Agent 365 or Microsoft 365 E7 licensing** for users who will operate the unified governance plane (required for full Agent 365 capabilities post-GA)
 
 #### Post-GA Actions (After Agent 365 GA Announcement)
 
@@ -1038,30 +1038,37 @@ Agent 365 and Entra Agent ID help support multiple FSI regulatory requirements b
 - [Manage Agents and Integrated Apps](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/manage-copilot-agents-integrated-apps?view=o365-worldwide)
 - [Share and Manage Agents in Agent Builder](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/agent-builder-share-manage-agents)
 
-### Public Preview Features
+### Generally Available (May 2026)
 
-**Entra Agent ID (Public Preview):**
+**Entra Agent ID (GA):**
 
 - [Microsoft Entra Agent ID Overview](https://learn.microsoft.com/en-us/entra/agent-id/)
 - [Microsoft Entra Agent Identities for AI Agents](https://learn.microsoft.com/en-us/entra/agent-id/what-is-microsoft-entra-agent-id)
+- [What's New — Entra Agent ID](https://learn.microsoft.com/en-us/entra/agent-id/whats-new-agent-id)
 - [Administrative Relationships in Microsoft Entra Agent ID](https://learn.microsoft.com/en-us/entra/agent-id/identity-platform/agent-owners-sponsors-managers)
 - [Governing Agent Identities](https://learn.microsoft.com/en-us/entra/id-governance/agent-id-governance-overview)
 - [Agent Sponsor Tasks in Lifecycle Workflows](https://learn.microsoft.com/en-us/entra/id-governance/agent-sponsor-tasks)
 
-**Conditional Access for Agents (Public Preview):**
+**Conditional Access for Agents:**
 
 - [Conditional Access for Agent Identities](https://learn.microsoft.com/en-us/entra/identity/conditional-access/agent-id)
 - [Policy: Block High-Risk Agent Identities](https://learn.microsoft.com/en-us/entra/identity/conditional-access/policy-agent-block-high-risk)
 
-### Preview Features (Frontier Program)
+!!! note "Conditional Access for Agents — verify current status"
+    Conditional Access for Agents capabilities expanded alongside Entra Agent ID GA; specific surfaces may still carry Public Preview labels on Microsoft Learn. Verify the GA / preview status of any specific CA-for-agents capability against Microsoft Learn before relying on it in production policy.
 
-**Agent 365 Unified Control Plane (Preview):**
+!!! note "Adjacent Preview Surfaces"
+    The Entra `agentSignIn` log type, the **Is Agent = Yes** sign-in filter, and `MicrosoftServicePrincipalSignInLogs` as an Entra diagnostic setting remain in Public Preview. Verify current preview/GA status against Microsoft Learn before relying on these surfaces in production audit pipelines.
 
-- [Agent 365 Blueprint (Preview)](https://learn.microsoft.com/en-us/microsoft-365/copilot/agent-essentials/m365-agents-blueprint)
-- [Agent 365 Deployment Checklist (Preview)](https://learn.microsoft.com/en-us/microsoft-365/copilot/agent-essentials/m365-agents-checklist)
-- [Agent 365 Identity (Preview)](https://learn.microsoft.com/en-us/microsoft-agent-365/developer/identity)
-- [Agent 365 Observability (Preview)](https://learn.microsoft.com/en-us/microsoft-agent-365/developer/observability)
-- [Agent 365 Observability Schema Reference (Preview)](https://learn.microsoft.com/en-us/microsoft-agent-365/developer/reference/observability-schema/)
+### Agent 365 Resources (GA — May 2026)
+
+**Agent 365 Unified Control Plane (GA):**
+
+- [Agent 365 Blueprint](https://learn.microsoft.com/en-us/microsoft-365/copilot/agent-essentials/m365-agents-blueprint)
+- [Agent 365 Deployment Checklist](https://learn.microsoft.com/en-us/microsoft-365/copilot/agent-essentials/m365-agents-checklist)
+- [Agent 365 Identity](https://learn.microsoft.com/en-us/microsoft-agent-365/developer/identity)
+- [Agent 365 Observability](https://learn.microsoft.com/en-us/microsoft-agent-365/developer/observability)
+- [Agent 365 Observability Schema Reference](https://learn.microsoft.com/en-us/microsoft-agent-365/developer/reference/observability-schema/)
 
 ### Microsoft Official Blogs
 
@@ -1072,4 +1079,4 @@ Agent 365 and Entra Agent ID help support multiple FSI regulatory requirements b
 
 ---
 
-*FSI Agent Governance Framework v1.4.0 - April 2026*
+*FSI Agent Governance Framework v1.4.0 - May 2026*
