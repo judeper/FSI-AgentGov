@@ -41,7 +41,7 @@ jobs:
         run: gh label create prod-smoke-fail --color B60205 --description "Production smoke probe failed" --force || true
       - name: Open issue on failure
         if: failure()
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const target = process.env.PROD_URL || "https://judeper.github.io/FSI-AgentGov/";
