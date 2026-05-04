@@ -62,7 +62,7 @@ The table below enumerates defect classes specific to Entra Agent ID telemetry. 
 
 | # | Defect | Symptom | Why it appears clean | Structural guard |
 |---|--------|---------|----------------------|------------------|
-| 0.1 | Preview gating not satisfied | `Get-MgServicePrincipal -Filter "tags/any(t:t eq 'AgentIdentity')"` returns zero rows | No exception is thrown; the tenant simply has no agent identities yet because Frontier is not enabled | §1 preflight calls `Test-Agt226PreviewGating` which checks both Copilot SKU and Frontier program flag, and aborts with a structured `PreviewGatingNotSatisfied` exception before any inventory pass |
+| 0.1 | Preview gating not satisfied | `Get-MgServicePrincipal -Filter "tags/any(t:t eq 'AgentIdentity')"` returns zero rows | No exception is thrown; the tenant simply has no agent identities reachable to the calling principal because the operating account lacks Microsoft Agent 365 / Microsoft 365 E7 license coverage (post-GA gating mechanism) | §1 preflight calls `Test-Agt226PreviewGating` (name retained for backward-compat) which checks both Microsoft 365 Copilot SKU coverage and Agent ID API surface reachability, and aborts with a structured `PreviewGatingNotSatisfied` exception (name retained) before any inventory pass |
 | 0.2 | Wrong shell edition | All inventory cmdlets succeed but return `@()` | Microsoft.Graph 2.x assemblies fail to bind under Desktop edition; the SDK swallows the bind failure and returns empty | `Assert-Agt226Shell` (above) blocks Desktop edition entirely |
 | 0.3 | Stale delegated token | Helpers run, return data, but `sponsorRelationships` collection is always null | Delegated token issued before the AgentIdentity.Read.All scope was granted; Graph silently omits the navigation property | §1 `Test-Agt226GraphScopes` re-asserts scopes against the live token and forces re-consent if mismatched |
 | 0.4 | Sovereign cloud silent skew | Helpers run against GCC High and return zero agents | Entra Agent ID preview endpoints are not deployed to sovereign clouds; the SDK resolves the wrong base URI and 404s are swallowed by the ForEach pipeline | §2 `Resolve-Agt226CloudProfile` early-exits with a structured `SovereignCloudNotSupported` exception and logs the compensating control |
@@ -1648,7 +1648,7 @@ When operators document findings produced by these helpers, use only the hedged 
 
 Implementation caveats to retain in narrative reports:
 
-> "Implementation requires both an active Microsoft 365 Copilot license and Frontier program enrollment. Organizations should verify preview gating before relying on inventory completeness. Sovereign cloud tenants must apply the documented compensating control until preview parity is announced."
+> "Implementation requires an active Microsoft 365 Copilot license and either a Microsoft Agent 365 (standalone) or Microsoft 365 E7 (Frontier Suite) license assigned to each operating principal. Organizations should verify license-coverage gating before relying on inventory completeness. Sovereign-cloud tenants must apply the documented compensating control until Agent 365 / Entra Agent ID parity is announced for GCC, GCC High, DoD, and China cloud profiles."
 
 
 ---

@@ -120,7 +120,7 @@ The eight Verification Criteria from [Control 2.26](../../../controls/pillar-2-m
 
 | Namespace | Evidences Criterion | Section | Cadence | Owner |
 |---|---|---|---|---|
-| `PREVIEW` | C2.26-1 (Agent ID enabled, Frontier + Copilot) | §9 | Per release / monthly | Entra Agent ID Admin |
+| `PREVIEW` | C2.26-1 (Agent ID surface reachable — Microsoft Agent 365 / M365 E7 + Microsoft 365 Copilot license coverage; namespace name retained for backward-compat) | §9 | Per release / monthly | Entra Agent ID Admin |
 | `SPONSOR` | C2.26-2 (every Z2/Z3 agent has assigned sponsor) | §2 | Daily | AI Governance Lead |
 | `ACCESSPKG` | C2.26-3 + C2.26-4 (packages exist; ≤365-day expiry; no perpetual Z3) | §3 | Daily | Entra Identity Governance Admin |
 | `LIFECYCLE` | C2.26-5 (workflow triggers on sponsor departure; manager-transfer succeeds) | §4 | Weekly | Entra Identity Governance Admin |
@@ -1433,7 +1433,7 @@ Describe "AGT226-PREVIEW" -Tag 'C2.26','PREVIEW' {
 |---|---|---|
 | Feature-state snapshot | `preview-state-<runId>.json` | 6 years |
 | Copilot SKU list | `preview-skus-<runId>.json` | 6 years |
-| Frontier probe response (raw) | `preview-frontier-probe-<runId>.json` | 6 years |
+| Agent ID API probe response (raw) | `preview-agent-id-api-probe-<runId>.json` | 6 years |
 
 ### 9.7 Zone thresholds
 
@@ -1446,7 +1446,7 @@ Describe "AGT226-PREVIEW" -Tag 'C2.26','PREVIEW' {
 | Test | SOX §404 | OCC 2011-12 |
 |---|---|---|
 | License gate | ✓ control prerequisite | ✓ tooling licensed for model use |
-| Frontier gate | ✓ feature in known state | ✓ change-managed feature enablement |
+| Agent ID API surface gate | ✓ feature in known state | ✓ change-managed feature enablement |
 | Blade probe | ✓ control operable | ✓ |
 
 ---

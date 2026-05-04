@@ -2,7 +2,7 @@
 
 > **Scope.** This playbook covers operational failure modes for the Entra Agent ID identity-governance program: license / access gating, sponsor assignment and leaver handling, agent-identity access packages, lifecycle workflows for agents, quarterly access reviews of agent identities, orphan detection, SIEM forwarding, and sovereign-cloud parity gaps. It is the diagnostic companion to the Control 2.26 specification, the portal walkthrough, the PowerShell setup pack, and the verification-testing pack.
 >
-> **Post-GA status (May 2026).** Microsoft Agent 365 reached general availability on May 1, 2026 and Microsoft Entra Agent ID is generally available. The pre-GA "Frontier program enrollment" gate is replaced by **Microsoft Agent 365 / Microsoft 365 E7 license assignment**. Pillar names that include "PREVIEW" or "Frontier" — e.g. **PREVIEW-ACCESS-MISSING** (§2) and **RB-01: Frontier or Copilot license expiry mid-quarter** (§11) — retain their pre-GA names for backward compatibility because the underlying root cause (the calling principal cannot reach the agent identity surface) is the same observable; only the gating mechanism changed. A follow-up issue tracks renaming these pillars / runbooks to license-coverage terms.
+> **Post-GA status (May 2026).** Microsoft Agent 365 reached general availability on May 1, 2026 and Microsoft Entra Agent ID is generally available. The pre-GA "Frontier program enrollment" gate is replaced by **Microsoft Agent 365 / Microsoft 365 E7 license assignment**. Pillar names that include "PREVIEW" or "Frontier" — for example **PREVIEW-ACCESS-MISSING** (§2) and **RB-01** (§11) — retain their pre-GA short names and anchor IDs for backward compatibility because the underlying root cause (the calling principal cannot reach the agent identity surface) is the same observable; only the gating mechanism changed. A follow-up issue tracks renaming these pillars / runbooks to license-coverage terms.
 >
 > **Status hedging.** The core Entra Agent ID surface is GA; some adjacent surfaces (e.g. the Lifecycle Workflows agent-sponsor tasks, the `agentSignIn` log type) remain in Public Preview. Behavior, blade names, Graph endpoints (`/beta/servicePrincipals` filtered by `servicePrincipalType eq 'Agent'`), and Lifecycle Workflow agent task templates may continue to evolve post-GA. Procedures here are written to the May 2026 surface; verify the **Last UI Verified** stamp at the top of `2.26-entra-agent-id-identity-governance.md` before treating any step as authoritative for an examiner artifact.
 >
@@ -14,7 +14,7 @@
 
 - [§0. Triage tree — symptom → pillar](#0-triage-tree-symptom-pillar)
 - [§1. Diagnostic data collection (`Get-Agt226*` helpers, Graph queries, KQL)](#1-diagnostic-data-collection)
-- [§2. Pillar PREVIEW-ACCESS-MISSING — Frontier / Copilot license gating](#2-pillar-preview-access-missing)
+- [§2. Pillar PREVIEW-ACCESS-MISSING — Microsoft Agent 365 / M365 E7 license-coverage gating (post-GA semantic equivalent of the pre-GA Frontier / Copilot gate)](#2-pillar-preview-access-missing)
 - [§3. Pillar SPONSOR-NULL — agent created without a human sponsor](#3-pillar-sponsor-null)
 - [§4. Pillar SPONSOR-DEPARTED — sponsor leaver-event handling](#4-pillar-sponsor-departed)
 - [§5. Pillar ACCESSPKG-FAIL — agent-identity access-package assignment failures](#5-pillar-accesspkg-fail)
@@ -23,7 +23,7 @@
 - [§8. Pillar ORPHAN-SCAN-EMPTY — orphan detection returns empty / stale](#8-pillar-orphan-scan-empty)
 - [§9. Pillar SIEM-NO-EVENTS — Entra audit events not landing in SIEM](#9-pillar-siem-no-events)
 - [§10. Pillar SOV-PARITY-GAP — sovereign-cloud (GCC / GCC High / DoD) feature absence](#10-pillar-sov-parity-gap)
-- [§11. Runbook RB-01 — Frontier or Copilot license expiry mid-quarter](#11-runbook-rb-01)
+- [§11. Runbook RB-01 — Microsoft Agent 365, M365 E7, or Microsoft 365 Copilot license expiry mid-quarter](#11-runbook-rb-01)
 - [§12. Runbook RB-02 — Mass departure of a multi-agent sponsor](#12-runbook-rb-02)
 - [§13. Runbook RB-03 — Examiner pulls quarterly review evidence before completion](#13-runbook-rb-03)
 - [§14. Runbook RB-04 — Suspended-orphan agent past SLA](#14-runbook-rb-04)
@@ -43,7 +43,7 @@ Use this table as the first stop for any reported issue. It maps an observed sym
 | # | Symptom (what the reporter said) | Most likely pillar | Severity floor | Runbook? |
 |---|----------------------------------|--------------------|----------------|----------|
 | S-01 | "I cannot see the **Agent identities (preview)** blade in Entra." | [§2 PREVIEW-ACCESS-MISSING](#2-pillar-preview-access-missing) | SEV-4 | — |
-| S-02 | "An admin can see the blade, but **Frontier features are greyed out**." | [§2 PREVIEW-ACCESS-MISSING](#2-pillar-preview-access-missing) | SEV-3 | [RB-01](#11-runbook-rb-01) |
+| S-02 | "An admin can see the blade, but **the Agent 365 control plane is empty / Researcher and Workflows agents are missing** (legacy reports phrase this as 'Frontier features greyed out')." | [§2 PREVIEW-ACCESS-MISSING](#2-pillar-preview-access-missing) | SEV-3 | [RB-01](#11-runbook-rb-01) |
 | S-03 | "A new agent was registered yesterday and **has no sponsor field populated**." | [§3 SPONSOR-NULL](#3-pillar-sponsor-null) | SEV-3 | — |
 | S-04 | "Quarterly orphan scan reports **dozens of agents with null sponsor**." | [§3 SPONSOR-NULL](#3-pillar-sponsor-null) | SEV-2 | — |
 | S-05 | "Sponsor left the firm three weeks ago; agents **still show old sponsor**." | [§4 SPONSOR-DEPARTED](#4-pillar-sponsor-departed) | SEV-2 | [RB-02](#12-runbook-rb-02) |
@@ -291,7 +291,7 @@ AuditLogs
 | E-05 | Lifecycle Workflow definition + last 5 runs | §1.1 `Get-Agt226LifecycleStatus` | `FSI-Examiner-Hold-7yr` |
 | E-06 | Active access review definition + scope | §1.1 `Get-Agt226ReviewCoverage` | `FSI-Examiner-Hold-7yr` |
 | E-07 | Sponsor `employeeLeaveDateTime` value at detection | GQ-04 | `FSI-Examiner-Hold-7yr` |
-| E-08 | Tenant cloud + license posture (Copilot, Frontier) | `Get-Agt226Health.FrontierEnabled` + license report | `FSI-Examiner-Hold-7yr` |
+| E-08 | Tenant cloud + license posture (Copilot + Agent 365 / M365 E7) | `Get-Agt226Health.FrontierEnabled` (field name retained for backward-compat — value reflects Agent ID API surface reachability) + license assignment report | `FSI-Examiner-Hold-7yr` |
 | E-09 | Operator identity + UTC timestamp of every remediation step | Incident ticket / change record | `FSI-Examiner-Hold-7yr` |
 
 `Export-Control226EvidencePackage -IncidentId <id>` bundles E-01 through E-08 automatically. E-09 is captured in the incident ticket by the operator.
@@ -347,12 +347,12 @@ Get-MgRoleManagementDirectoryRoleAssignment -Filter "principalId eq '<operator-o
   Select DisplayName
 ```
 
-Graph: GQ-01 returning 400 → tenant Frontier off; returning 200 with empty result → license/role gating on operator only.
+Graph: GQ-01 returning 400/404 → operating principal lacks Microsoft Agent 365 / M365 E7 license coverage (post-GA gating); returning 200 with empty result → license is provisioned but role / RBAC gating on operator only.
 
 ### 2.4 Resolution steps
 
 1. Confirm `Cloud` = `Global` (commercial). If sovereign, stop and follow [§10](#10-pillar-sov-parity-gap).
-2. Have an **Entra Global Admin** verify the tenant's Frontier toggle in M365 admin center. If off, enabling it requires acceptance of the preview supplemental terms — capture the acceptance record (date, accepting admin's UPN) for E-08.
+2. Have an **Entra Global Admin** verify the operating principal has **Microsoft Agent 365** (standalone) or **Microsoft 365 E7** ("Frontier Suite") license assignment active in M365 admin center → Billing → Licenses. Capture the assignment record (date, SKU part number, assigning admin's UPN) for E-08.
 3. Assign / verify the affected operator has a Microsoft 365 Copilot license. Group-based assignment is supported; verify license **provisioning status** is `Success`, not `PendingProvisioning`.
 4. Assign the **Entra Agent ID Admin** role (preferred; least-privilege) or **AI Administrator** (broader). Avoid Global Admin for routine operation.
 5. Operator must sign out and back in (token refresh) before the blade appears. If still missing after 15 minutes, clear browser cache and retry.
@@ -361,16 +361,16 @@ Graph: GQ-01 returning 400 → tenant Frontier off; returning 200 with empty res
 ### 2.5 Verification
 
 - `Get-Agt226Health` returns `FrontierEnabled = True` and `AgentCount > 0` (assuming agents exist).
-- Pester: `Describe 'Control 2.26 — Preview Gating'` → `It 'has Frontier enabled in commercial tenants'` and `It 'admins have Agent ID Admin role'` should now pass. See [`./verification-testing.md`](./verification-testing.md).
+- Pester: `Describe 'Control 2.26 — Preview Gating'` → `It 'has Agent ID API surface reachable in commercial tenants'` and `It 'admins have Agent ID Admin role'` should now pass. See [`./verification-testing.md`](./verification-testing.md).
 
 ### 2.6 Cross-links
 
-- Portal: [`./portal-walkthrough.md`](./portal-walkthrough.md) §1 — Frontier enablement.
+- Portal: [`./portal-walkthrough.md`](./portal-walkthrough.md) §2 — Microsoft Agent 365 / M365 E7 License Assignment.
 - PowerShell: [`./powershell-setup.md`](./powershell-setup.md) §2 — Role assignment helpers.
 
 ### 2.7 Examiner artifact preservation
 
-Capture E-01 (`Get-Agt226Health`) and E-08 (Frontier toggle acceptance record) before changing tenant-level Frontier state. Frontier toggle changes are tenant-wide and affect every Copilot-licensed user; do not remediate without change-record approval.
+Capture E-01 (`Get-Agt226Health`) and E-08 (Agent 365 / M365 E7 license assignment record) before changing tenant-level license posture. License changes are tenant-wide and affect every Copilot-licensed user; do not remediate without change-record approval.
 
 ---
 
@@ -393,7 +393,7 @@ Capture E-01 (`Get-Agt226Health`) and E-08 (Frontier toggle acceptance record) b
 
 | RC | Description | Likelihood | Confirm |
 |----|-------------|-----------|---------|
-| RC-A | Agent registered via Power Platform / Copilot Studio before sponsor field was added (legacy) | High in tenants that adopted preview early | Created date < Frontier enable date |
+| RC-A | Agent registered via Power Platform / Copilot Studio before sponsor field was added (legacy) | High in tenants that adopted preview early | Created date < Agent ID GA cutover (May 1, 2026) or pre-GA Frontier enable date for tenants that participated in early access |
 | RC-B | Service-principal create script omits the `sponsor` claim | High (CI pipelines) | Inspect the create call payload |
 | RC-C | Sponsor specified a **disabled** or **deleted** UPN (silently dropped) | Medium | `Get-MgUser -UserId <upn>` returns 404 or `AccountEnabled=False` |
 | RC-D | Bulk reorg invalidated existing sponsor assignments | Situational | Recent `employeeLeaveDateTime` clusters in HR feed |
@@ -539,7 +539,7 @@ Capture E-05 (workflow definition + last 5 runs) **before** pausing or modifying
 | RC-B | **SharePoint resource added directly to the package** — unsupported for agent identities | High for P5-S2 | Inspect package resources; SharePoint sites cannot be granted to agent SPNs directly |
 | RC-C | Catalog is owned by a service account lacking the AI Administrator role | Medium for P5-S3 | Catalog → Roles & administrators |
 | RC-D | Resource directory role (e.g., on a group) requires PIM activation that the package does not request | Medium for P5-S4 | Group → Roles |
-| RC-E | Tenant Frontier off (overrides) | Low–Medium | §2 |
+| RC-E | Operating principal lacks Microsoft Agent 365 / M365 E7 license coverage (overrides) | Low–Medium | §2 |
 | RC-F | Bulk edit changed package policy ID, orphaning prior assignments | Low for P5-S5 | Compare policy IDs in audit log |
 
 > **Critical accuracy point — SharePoint resources.** Access packages do not directly support SharePoint site resources for agent identities (preview, April 2026). The supported pattern is: create a security group → grant SharePoint site permission to the group → add the **group** as the resource on the access package. Assigning the package then puts the agent identity into the group, which carries the SharePoint permission transitively. Documentation that suggests adding SharePoint sites directly to packages for agents is wrong for this preview surface.
@@ -870,7 +870,7 @@ Preserve E-03 (KQL exports) and a snapshot of the SIEM detection-rule definition
 
 ## §11. Runbook RB-01
 
-**Title:** Frontier or Microsoft 365 Copilot license expiry mid-quarter
+**Title:** Microsoft Agent 365, Microsoft 365 E7, or Microsoft 365 Copilot license expiry mid-quarter
 **Severity floor:** SEV-2 (rises to SEV-1 if production agents disabled by the expiry)
 **Triggers:** Renewals team reports Copilot subscription not renewed; M365 admin center shows expired SKUs; symptom S-02
 
@@ -883,7 +883,7 @@ Preserve E-03 (KQL exports) and a snapshot of the SIEM detection-rule definition
 
 ### 11.2 Investigation
 
-1. Confirm Frontier toggle status — separate from Copilot SKU; sometimes only Copilot lapses.
+1. Confirm whether the Microsoft Agent 365 / M365 E7 SKU has lapsed separately from the Microsoft 365 Copilot SKU; an Agent 365 lapse alone removes the Agent ID surface even when the Copilot prerequisite remains active, and vice-versa.
 2. Pull sign-in logs for last 24 h to identify which operators were attempting agent admin actions when the lapse hit.
 3. Determine whether the renewal is in flight (PO open, awaiting fulfillment) or whether the firm has dropped the SKU intentionally.
 
@@ -896,7 +896,7 @@ Preserve E-03 (KQL exports) and a snapshot of the SIEM detection-rule definition
 ### 11.4 Eradication / restoration
 
 1. Confirm renewed SKU assigned and provisioned (`Success` not `PendingProvisioning`).
-2. Verify Frontier toggle remains on; toggling tenant-wide off-and-on may be required if features remain greyed out (capture acceptance per §2.4 step 2).
+2. Verify Microsoft Agent 365 / M365 E7 license assignment is reattached to operating principals after the renewal posts; it can take up to 24h for the Agent identities surface to reflect the reassignment. If the surface remains empty after 24h, open a Microsoft support ticket per §2.7.
 3. Resume paused operations. Run `Get-Agt226Health` and confirm `FrontierEnabled = True`, `AgentCount` matches pre-incident.
 
 ### 11.5 Lessons-learned / reportability
@@ -1176,7 +1176,7 @@ For each pillar §2–§10, the verification-testing pack ([`./verification-test
 
 | Pillar | Pester `Describe` | Trigger conditions |
 |--------|-------------------|---------------------|
-| §2 | `'Preview gating'` | Frontier off, operator missing Copilot, missing role |
+| §2 | `'Preview gating'` | Operating principal lacks Microsoft Agent 365 / M365 E7 license coverage, missing Copilot SKU, or missing Agent ID Admin role |
 | §3 | `'Sponsor coverage'` | Any agent with null sponsor |
 | §4 | `'Sponsor leaver behavior'` | Workflow customization that disables instead of transfers |
 | §5 | `'Access package shape'` | SharePoint resource directly on agent-eligible package |
