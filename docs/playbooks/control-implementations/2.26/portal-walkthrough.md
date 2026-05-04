@@ -64,7 +64,7 @@
 |---|---|---|
 | 0 | [Pre-flight Prerequisites and Triage](#0-pre-flight-prerequisites-and-triage) | All — gating checks |
 | 1 | [Sovereign Cloud Variant and Compensating Controls](#1-sovereign-cloud-variant-and-compensating-controls) | All (substitute path) |
-| 2 | [Frontier Program Enrollment](#2-frontier-program-enrollment) | VC-1 |
+| 2 | [Microsoft Agent 365 / M365 E7 License Assignment](#2-frontier-program-enrollment) | VC-1 |
 | 3 | [Sponsor Assignment in Entra Agent ID](#3-sponsor-assignment-in-entra-agent-id) | VC-2 |
 | 4 | [Entitlement Management Catalog and Access Packages](#4-entitlement-management-catalog-and-access-packages) | VC-3, VC-4 |
 | 5 | [Lifecycle Workflow for Sponsor Departure](#5-lifecycle-workflow-for-sponsor-departure) | VC-5 |
@@ -77,7 +77,7 @@
 
 ## 0. Pre-flight Prerequisites and Triage
 
-Before you click anything in any portal, run through this gate. Skipping a gate produces silent failures later — for example, the **Agent identities** blade simply will not appear if the tenant is not Frontier-enrolled, and the wrong role will let you read but not modify access packages.
+Before you click anything in any portal, run through this gate. Skipping a gate produces silent failures later — for example, the **Agent identities** blade returns empty / partial results if the calling principal is not covered by Microsoft Agent 365 / Microsoft 365 E7 licensing, and the wrong role will let you read but not modify access packages.
 
 ### 0.1 Confirm tenant cloud and tenant ID
 
@@ -89,13 +89,13 @@ Before you click anything in any portal, run through this gate. Skipping a gate 
 *Screenshot anchor: `docs/images/2.26/EXPECTED.md#0-1-tenant-overview` — Entra overview blade showing Tenant ID, Primary domain, and Country.*
 
 !!! warning "Tenant Cloud Detection"
-    If the URL bar shows `entra.microsoft.us` (GCC High / DoD) or you authenticate against `login.microsoftonline.us`, **stop here and jump to [§1](#1-sovereign-cloud-variant-and-compensating-controls)**. Continuing this playbook in a sovereign tenant will fail at §2 because the Frontier program is not offered in `*.us` clouds as of the verification date.
+    If the URL bar shows `entra.microsoft.us` (GCC High / DoD) or you authenticate against `login.microsoftonline.us`, **stop here and jump to [§1](#1-sovereign-cloud-variant-and-compensating-controls)**. Continuing this playbook in a sovereign tenant will fail at §2 because **Microsoft Agent 365 / M365 E7 licensing has not been announced for sovereign (`*.us`) clouds** as of the verification date.
 
 ### 0.2 Confirm role assignments
 
 | Role | Required for | Where to assign |
 |---|---|---|
-| **Entra Global Admin** (or **Entra Privileged Role Admin**) | One-time Frontier opt-in (§2) and initial Lifecycle Workflow template enablement (§5) | Entra → Roles & admins |
+| **Entra Global Admin** (or **Entra Privileged Role Admin**) | Initial Microsoft Agent 365 / M365 E7 license procurement and assignment ceremony (§2) and initial Lifecycle Workflow template enablement (§5) | Entra → Roles & admins |
 | **Entra Identity Governance Admin** | Entitlement Management catalogs, access packages, access reviews, lifecycle workflow authoring (§4–§6) | Entra → Roles & admins |
 | **Entra Agent ID Admin** (preview role) | Read/write on agent identity properties including sponsor assignment (§3) | Entra → Roles & admins (filter to "Agent") |
 | **AI Administrator** | Cross-surface read on Copilot agents in M365 admin center | M365 admin center → Roles |
@@ -115,17 +115,19 @@ Before you click anything in any portal, run through this gate. Skipping a gate 
     | Retention duration | 6 years (SEC 17a-4) |
     | Regulatory mapping | FINRA 3110 (supervision — dual control), SOX §404 (segregation of duties) |
 
-### 0.3 Confirm licensing and Frontier enrollment status
+### 0.3 Confirm Microsoft Agent 365 / M365 E7 license coverage
 
 1. Open [`https://admin.microsoft.com`](https://admin.microsoft.com) → **Billing → Licenses**.
 2. Confirm the count of **Microsoft 365 Copilot** licenses is greater than zero and that licenses are assigned to the human accounts who will sponsor agents.
-3. Navigate to **Setup → Microsoft 365 Frontier** (some tenants surface this as **"Get early access to Microsoft 365 features"** under **Setup → Organizational settings**).
+3. Confirm at least one of the following SKUs is provisioned and assigned to the operating principals who will run this playbook:
+   - **Microsoft Agent 365** (standalone per-user license, layered on a Microsoft 365 Copilot prerequisite), **or**
+   - **Microsoft 365 E7** ("Frontier Suite" — bundles E5 + Microsoft 365 Copilot + Microsoft Entra Suite + Agent 365).
 4. Capture the current state:
-   - **Not enrolled** → proceed to [§2](#2-frontier-program-enrollment) to enroll.
-   - **Enrolled — pending propagation** → expect up to 24 hours before the Agent identities blade appears in Entra.
-   - **Enrolled — active** → skip §2 and start at [§3](#3-sponsor-assignment-in-entra-agent-id).
+   - **No Agent 365 / E7 licenses provisioned in tenant** → procure SKUs via your Microsoft account team or Cloud Solution Provider before proceeding to [§2](#2-frontier-program-enrollment).
+   - **Provisioned but unassigned** → proceed to [§2](#2-frontier-program-enrollment) to assign at scale.
+   - **Provisioned and assigned to operating principals** — Agent identities blade should be reachable; spot-check via Entra → Identity → Applications → Agent identities and continue to [§3](#3-sponsor-assignment-in-entra-agent-id).
 
-*Screenshot anchor: `docs/images/2.26/EXPECTED.md#0-3-frontier-status` — M365 admin Setup page showing Frontier enrollment toggle state.*
+*Screenshot anchor: `docs/images/2.26/EXPECTED.md#0-3-license-coverage` — M365 admin Billing → Licenses page showing Microsoft Agent 365 / M365 E7 SKU and assigned seat count.*
 
 ### 0.4 Pre-flight gate summary
 
@@ -135,12 +137,12 @@ Do not proceed past this section unless **all** of the following are true:
 - [ ] Tenant is in M365 Commercial cloud (or you have switched to §1 sovereign path).
 - [ ] At least two named humans hold each governance role in §0.2.
 - [ ] Microsoft 365 Copilot licenses are assigned to intended sponsors.
-- [ ] Frontier enrollment status is recorded.
+- [ ] Microsoft Agent 365 / M365 E7 license assignment is recorded for each operating principal who will run this playbook.
 - [ ] Entra ID P2 license is active on the tenant (Identity → Overview → License shows P2).
 - [ ] An HR connector or HR-attribute provisioning path populates `employeeLeaveDateTime` on user objects (verify in [§8](#8-hr-connector-verification-employeeleavedatetime) before relying on Lifecycle Workflows).
 
 !!! tip "If a Gate Fails"
-    Open [`./troubleshooting.md`](./troubleshooting.md) and search for the gate name (e.g., "Frontier enrollment pending"). Do not attempt workarounds in production until the gate clears — most workarounds for missing licensing or roles create their own audit findings.
+    Open [`./troubleshooting.md`](./troubleshooting.md) and search for the gate name (e.g., "Agent 365 license missing" or the legacy "Preview gating not satisfied" namespace name). Do not attempt workarounds in production until the gate clears — most workarounds for missing licensing or roles create their own audit findings.
 
 ---
 
@@ -239,7 +241,7 @@ Post-GA (May 2026), the Entra Agent ID surface is gated by **Microsoft Agent 365
 !!! example "Examiner Evidence Box — License Assignment"
     | Element | Value |
     |---|---|
-    | Artifact produced | Screenshot of Frontier toggle (On) + Purview audit JSON of "Updated organization settings" event |
+    | Artifact produced | Screenshot of M365 admin Billing → Licenses page showing Agent 365 / M365 E7 SKU and assigned seat count + Purview audit JSON of "Add user license" event |
     | Retention duration | 6 years (SEC 17a-4); audit JSON inherits Purview audit retention policy |
     | Regulatory mapping | FINRA 3110 (supervisory system change-control), SOX §404 (IT general controls — change management) |
 
@@ -752,7 +754,7 @@ This walkthrough used the portal end-to-end for clarity and screenshot evidence.
 
 | Task | Portal | PowerShell (Microsoft.Graph) | Microsoft Graph REST | Recommended for FSI |
 |---|---|---|---|---|
-| Frontier enrollment | ✅ Only path (admin center toggle) | ❌ | ❌ | **Portal** — one-time, requires Global Admin, change-board approved |
+| Microsoft Agent 365 / M365 E7 license assignment | ✅ M365 admin center (Billing → Licenses) | ✅ `Set-MgUserLicense` / `Set-MgUserLicense -Add` | ✅ `POST /users/{id}/assignLicense` | **Portal** for ceremonial single assignments; **PowerShell** for bulk seat assignment under change control |
 | Tenant role assignment audit | ✅ Roles & admins grid | ✅ `Get-MgDirectoryRoleMember` | ✅ `GET /directoryRoles/{id}/members` | **PowerShell** for scheduled audit; portal for ad-hoc |
 | Inventory agent identities | ✅ Agent identities grid + CSV export | ✅ `Get-MgServicePrincipal -Filter "tags/any(t:t eq 'AgentIdentity')"` | ✅ `GET /agentIdentities` (preview) | **PowerShell** for repeatability; portal for ad-hoc spot-check |
 | Bulk sponsor assignment (>10 agents) | ❌ One-at-a-time | ✅ Loop `Update-MgServicePrincipal` | ✅ `PATCH /agentIdentities/{id}` | **PowerShell** — portal does not scale |
@@ -773,8 +775,8 @@ This walkthrough used the portal end-to-end for clarity and screenshot evidence.
 
 Open a Microsoft service request (M365 admin → Support → New service request) for:
 
-- **Frontier enrollment fails or remains in pending state >24 hours.** Category: Microsoft Entra → Preview features.
-- **Agent identities blade returns 403 despite Frontier-enrolled, P2-licensed, and Identity Governance Admin role.** Category: Microsoft Entra → Identity Governance.
+- **Agent 365 / M365 E7 license assignment fails to surface the Agent identities blade after >24h propagation window.** Category: Microsoft Entra → Identity Governance.
+- **Agent identities blade returns 403 despite valid Agent 365 / E7 license, P2-licensed tenant, and Identity Governance Admin role.** Category: Microsoft Entra → Identity Governance.
 - **`employeeLeaveDateTime` does not surface even after HR connector mapping is added and a sync cycle completes.** Category: Microsoft Entra → Provisioning.
 - **Lifecycle workflow custom task extension Logic App returns persistent permission errors against `/servicePrincipals/{id}` PATCH.** Category: Microsoft Graph → Permissions.
 - **Diagnostic setting save returns "destination not found" despite valid Log Analytics workspace selection.** Category: Azure Monitor → Diagnostic settings.
@@ -785,7 +787,7 @@ Before declaring Control 2.26 implemented, confirm:
 
 - [ ] §0 pre-flight gates all pass.
 - [ ] §1 sovereign variant followed if applicable, OR §2–§8 fully completed for Commercial.
-- [ ] §2 Frontier enrollment evidence captured (toggle screenshot + audit JSON).
+- [ ] §2 Microsoft Agent 365 / M365 E7 license assignment evidence captured (Billing → Licenses screenshot + Purview "Add user license" audit JSON).
 - [ ] §3 zero null sponsors on Z2/Z3 agents (re-export CSV proves it).
 - [ ] §4 every Z3 access package has expiration ≤ 365 days; no `noExpiration` policies; "All agents (preview)" used as requestor scope.
 - [ ] §5 Lifecycle Workflow `Agent Sponsor Leaver` exists, is Enabled, and has at least one successful test run in workflow history.
@@ -797,7 +799,7 @@ Before declaring Control 2.26 implemented, confirm:
 
 ---
 
-*Updated: April 2026 | Version: v1.0.0 | UI Verification Status: Verified against Entra admin center navigation as of April 2026 (Frontier preview). Portal navigation may shift during preview; consult `learn.microsoft.com/entra/agent-id/` if blade names diverge.*
+*Updated: May 2026 | Version: v1.0.0 | UI Verification Status: Verified against Entra admin center navigation as of April 2026 and refreshed for the May 2026 Agent 365 / Entra Agent ID GA. Portal navigation may shift across Wave 1 / Wave 2 release cycles; consult `learn.microsoft.com/entra/agent-id/whats-new-agent-id` if blade names diverge.*
 
 
 
