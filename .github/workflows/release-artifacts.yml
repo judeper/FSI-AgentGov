@@ -84,7 +84,7 @@ jobs:
           subject-path: 'sbom/*.cdx.json'
 
       - name: Generate SBOM attestations
-        uses: actions/attest-sbom@v2
+        uses: actions/attest-sbom@v4
         with:
           subject-path: 'sbom/python.cdx.json'
           sbom-path: 'sbom/python.cdx.json'
