@@ -9,14 +9,14 @@
 
 ## Sovereign cloud URLs and feature parity
 
-| Cloud | Portal URL | DSPM for AI (classic) | Unified DSPM (preview) | IRM-backed templates | Adaptive Protection |
+| Cloud | Portal URL | DSPM for AI (classic) | Unified DSPM | IRM-backed templates | Adaptive Protection |
 |---|---|---|---|---|---|
-| Commercial | `https://purview.microsoft.com` | GA | Preview (May 2026 GA expected, MC1191257) | GA | GA |
-| GCC | `https://purview.microsoft.com` | GA | Preview (commercial-first) | GA | GA |
-| GCC High | `https://purview.microsoft.us` | GA (May 2025) | Not GA as of April 2026 | Limited (verify per workload) | Not at parity |
-| DoD | `https://purview.microsoft.us` (DoD instance) | GA (May 2025) | Not GA as of April 2026 | Limited (verify per workload) | Not at parity |
+| Commercial | `https://purview.microsoft.com` | GA | GA (May 2026, MC1191257) | GA | GA |
+| GCC | `https://purview.microsoft.com` | GA | GA (May 2026, commercial-first) | GA | GA |
+| GCC High | `https://purview.microsoft.us` | GA (May 2025) | Not announced as of May 2026 | Limited (verify per workload) | Not at parity |
+| DoD | `https://purview.microsoft.us` (DoD instance) | GA (May 2025) | Not announced as of May 2026 | Limited (verify per workload) | Not at parity |
 
-> Verify your tenant's cloud before relying on preview features. Insider Risk Management is not at parity in US Government clouds — IRM-backed one-click templates may be unavailable.
+> Verify your tenant's cloud before relying on the new unified DSPM. Insider Risk Management is not at parity in US Government clouds — IRM-backed one-click templates may be unavailable. Partner solutions for non-Microsoft data sources and the Data Security Posture Agent remain in preview even in Commercial / GCC.
 
 ---
 
@@ -134,9 +134,9 @@ In **Apps and agents**, export the inventory and reconcile to your CMDB / agent 
 
 ---
 
-## DSPM (preview) — unified experience callout
+## Unified DSPM — generally available callout
 
-The unified **DSPM (preview)** experience consolidating DSPM and DSPM for AI is rolling out per **MC1191257** with GA expected May 2026 (Commercial / GCC). Specific UI affordances change frequently; verify against current Microsoft Learn (`data-security-posture-management-learn-about`) at each portal session and **do not commit to specific widget names, dashboard digest schedules, or "Enhanced CSV" semantics** in your evidence binder until they appear on Learn.
+The new unified **DSPM** experience consolidating DSPM and DSPM for AI reached general availability in May 2026 (Commercial / GCC) per **MC1191257**. Specific UI affordances continue to evolve; verify against current Microsoft Learn (`data-security-posture-management-learn-about`) at each portal session, and **do not commit to specific widget names, dashboard digest schedules, or "Enhanced CSV" semantics** in your evidence binder until they appear on Learn. Partner solutions for non-Microsoft data sources and the Data Security Posture Agent remain in preview.
 
 ---
 
@@ -176,4 +176,4 @@ Store in immutable storage (Purview retention label, SharePoint hold, or WORM bl
 
 ---
 
-*Updated: April 2026 | Version: v1.4.0 | UI Verification Status: Current (commercial); GCC High / DoD verified per cloud-availability table*
+*Updated: May 2026 | Version: v1.4.0 | UI Verification Status: Current (commercial); GCC High / DoD verified per cloud-availability table*
