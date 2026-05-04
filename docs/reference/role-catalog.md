@@ -30,11 +30,12 @@ Canonical, framework-friendly role names used throughout this framework (control
 | **Entra Global Reader** | Read-only tenant visibility | Global Reader |
 | **Entra Security Reader** | Read-only security visibility | Security Reader |
 | **AI Administrator** | Manage M365 Copilot settings, AI services, connector delegation, Copilot feature access controls, and agent governance settings | Microsoft 365 AI Administrator |
+| **AI Reader** | Read all aspects of Microsoft 365 Copilot and AI-related enterprise services (read-only counterpart to AI Administrator). Role template ID `1fe13547-53f6-408d-ac04-7f8eed167b38`. | Microsoft 365 AI Reader |
 | **Entra Agent ID Admin** | Manage agent identity registrations and lifecycle | Agent ID Administrator |
 | **Entra Agent ID Developer** | Register and configure agent identities | Agent ID Developer |
 
-!!! note "Agent 365 Role Limitations (February 2026)"
-    Agent 365 administrative access is currently limited to Entra Global Admin and AI Administrator roles only. No fine-grained or read-only administrative roles are planned for GA. Microsoft is collecting feedback on role granularity requirements. Organizations should plan Agent 365 governance workflows around these two roles and use Entra Privileged Identity Management (PIM) for just-in-time elevation where possible.
+!!! note "Agent 365 Read-Only Role — AI Reader (May 2026)"
+    **AI Reader** is the new read-only counterpart to AI Administrator, added with Microsoft Agent 365 GA on May 1, 2026. AI Reader provides view-only access to Microsoft 365 Copilot and AI-related enterprise service configuration — appropriate for compliance officers, internal auditors, FINRA Rule 3110 supervisors, and SOC analysts who need visibility into AI governance posture without authoring authority. Prior to May 2026, Agent 365 administrative access was limited to Entra Global Admin and AI Administrator only; AI Reader closes the longstanding read-only gap. Microsoft has not yet announced fine-grained Agent 365 admin roles beyond AI Administrator and AI Reader — verify against Microsoft Learn for current role granularity. Use Entra Privileged Identity Management (PIM) for just-in-time elevation of AI Administrator where possible.
 
 !!! note "Defender XDR Administrator"
     "Defender XDR Administrator" is informal terminology used in community and operational contexts. There is no distinct Microsoft Entra built-in role named "Defender XDR Administrator." The official role for managing Microsoft Defender XDR is **Entra Security Admin** (Security Administrator). This framework uses "Entra Security Admin" as the canonical name and accepts "Defender XDR Admin" as a normalization alias. See [Microsoft Learn: Manage access to Defender XDR](https://learn.microsoft.com/en-us/defender-xdr/m365d-permissions) for authoritative role documentation.
