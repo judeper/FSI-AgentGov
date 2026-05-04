@@ -197,35 +197,55 @@ Use the canonical short names from the role catalog. Mixing legacy long-form nam
 
 > **PIM discipline.** All helpers should be invoked from a session whose role activation is fresh (≤ 4 hours old). The §2 bootstrap stamps `PimActivationAge` into the session metadata; helpers refuse to mutate when the age exceeds the policy window.
 
-### 1.4 Preview gating preflight
+### 1.4 License gating preflight
 
 ```powershell
 function Test-Agt226PreviewGating {
     [CmdletBinding()]
     param()
 
-    $copilotSku = Get-MgSubscribedSku |
-        Where-Object { $_.SkuPartNumber -match 'Microsoft_365_Copilot' -and $_.AppliesTo -eq 'User' }
-    $hasCopilot = [bool]$copilotSku
+    # Post-GA (May 2026): Entra Agent ID is gated on Microsoft Agent 365 or
+    # Microsoft 365 E7 licensing, plus reachability of the /beta/agents
+    # surface to the calling principal. The function name and field names
+    # below are preserved from the pre-GA "PreviewGating" check to keep
+    # downstream evidence-pack consumers backward-compatible across the
+    # GA cutover. Verify SkuPartNumber values in your tenant via
+    # Get-MgSubscribedSku before relying on these regex patterns.
 
-    # Frontier program enrollment surfaces as a tenant-level feature flag in the
-    # organization settings. Until the GA cmdlet ships, fall back to the beta
-    # Graph endpoint for the program enrollment check.
-    $frontier = Invoke-Agt226WithThrottle -ScriptBlock {
-        Invoke-MgGraphRequest -Method GET `
-            -Uri 'https://graph.microsoft.com/beta/admin/copilot/frontierProgram'
+    $licenseSku = Get-MgSubscribedSku |
+        Where-Object {
+            ($_.SkuPartNumber -match 'Microsoft_Agent_365|M365_E7' -or
+             # transitional fallback for tenants still on pre-GA Copilot SKUs
+             $_.SkuPartNumber -match 'Microsoft_365_Copilot') -and
+            $_.AppliesTo -eq 'User'
+        }
+    $hasLicense = [bool]$licenseSku
+
+    # Post-GA: probe the Agent ID API surface directly. Pre-GA this also
+    # evidenced Frontier program enrollment; post-GA a 200 indicates the
+    # surface is reachable to the calling principal (license + RBAC OK),
+    # while a 403/404 indicates a license-coverage or RBAC gap.
+    $probe = Invoke-Agt226WithThrottle -ScriptBlock {
+        try {
+            Invoke-MgGraphRequest -Method GET `
+                -Uri 'https://graph.microsoft.com/beta/agents?$top=1' -ErrorAction Stop
+        } catch {
+            [pscustomobject]@{ probeError = $_.Exception.Message }
+        }
     }
-    $hasFrontier = $frontier.enrollmentState -eq 'Enrolled'
+    $hasFrontier = $null -ne $probe -and -not $probe.probeError
 
-    $status = if ($hasCopilot -and $hasFrontier) { 'Clean' } else { 'NotApplicable' }
+    $status = if ($hasLicense -and $hasFrontier) { 'Clean' } else { 'NotApplicable' }
     [pscustomobject]@{
         ControlId     = '2.26'
         Criterion     = 'PreviewGatingSatisfied'
-        HasCopilotSku = $hasCopilot
-        HasFrontier   = $hasFrontier
+        HasCopilotSku = $hasLicense   # field name retained for backward-compat;
+                                      # post-GA reflects Agent 365 / M365 E7 / Copilot license presence
+        HasFrontier   = $hasFrontier  # field name retained for backward-compat;
+                                      # post-GA reflects Agent ID API surface reachability
         Status        = $status
         Reason        = if ($status -eq 'NotApplicable') {
-            "Tenant lacks $((@{$true='';$false='Copilot SKU'}[$hasCopilot])) $((@{$true='';$false='Frontier enrollment'}[$hasFrontier])) — Entra Agent ID surface area is empty."
+            "Tenant lacks $((@{$true='';$false='Agent 365 / M365 E7 license'}[$hasLicense])) $((@{$true='';$false='Agent ID API reachability'}[$hasFrontier])) — Entra Agent ID surface area is empty or not accessible to the calling principal."
         } else { $null }
     }
 }
@@ -234,9 +254,9 @@ function Test-Agt226PreviewGating {
 
 ## 2. Sovereign cloud bootstrap and session initialization
 
-Entra Agent ID is a **Commercial-cloud preview**. As of the April 2026 verification window, the preview is not deployed to GCC, GCC High, DoD, or China cloud profiles. The bootstrap below detects the cloud profile **before** any Graph call and **early-exits** with a structured exception when running in a non-Commercial tenant. Silent degradation is the highest-impact false-clean defect for this control: helpers must never return `Clean` when the underlying surface area is not present.
+Entra Agent ID is **generally available in the Microsoft 365 Commercial cloud** (May 2026). As of the May 2026 verification window, GA has not been announced for GCC, GCC High, DoD, or China cloud profiles — verify current sovereign-cloud availability against Microsoft Learn before proceeding. The bootstrap below detects the cloud profile **before** any Graph call and **early-exits** with a structured exception when running in a non-Commercial tenant. Silent degradation is the highest-impact false-clean defect for this control: helpers must never return `Clean` when the underlying surface area is not present.
 
-> **Compensating control on sovereign clouds.** Until the preview reaches sovereign parity, the §13 attestation pack must be supplemented with: (a) a documented attestation that no agent identities exist in the tenant; (b) a quarterly re-test once Microsoft announces sovereign availability; and (c) a manual lifecycle review of any Copilot Studio agents using non-Entra-managed identities. See [`../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md`](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) for the full compensating-control matrix.
+> **Compensating control on sovereign clouds.** Until Agent ID reaches sovereign parity, the §13 attestation pack must be supplemented with: (a) a documented attestation that no agent identities exist in the tenant; (b) a quarterly re-test once Microsoft announces sovereign availability; and (c) a manual lifecycle review of any Copilot Studio agents using non-Entra-managed identities. See [`../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md`](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) for the full compensating-control matrix.
 
 ### 2.1 Cloud profile resolution
 

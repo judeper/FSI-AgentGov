@@ -3,12 +3,12 @@
 **Playbook ID:** 3.14-D
 **Control:** 3.14 — Agent 365 Observability SDK and Custom Agent Telemetry
 **Pillar:** Reporting
-**Last Verified:** April 2026
+**Last Verified:** May 2026
 
 ---
 
-!!! info "Preview Instability"
-    The Agent 365 Observability SDK and associated Entra log features are in Preview. Many issues encountered during implementation reflect the evolving state of Preview features rather than configuration errors. Before spending significant time troubleshooting, check the Microsoft 365 Message Center and the official SDK repository changelog for known issues and recent breaking changes. When in doubt, open a FastTrack or Microsoft Support ticket referencing the Preview feature name.
+!!! info "Post-GA Status — May 2026"
+    The Agent 365 Observability SDK and core Agent 365 surface reached **general availability on May 1, 2026**. Some adjacent Entra log features (`agentSignIn` resource type, `MicrosoftServicePrincipalSignInLogs` diagnostic setting) remain in Public Preview. Many issues encountered during implementation reflect license-assignment gaps or the evolving state of these adjacent preview features rather than configuration errors. Before spending significant time troubleshooting, check the Microsoft 365 Message Center and the official SDK repository changelog for known issues and recent breaking changes. Open a FastTrack or Microsoft Support ticket via standard support channels when needed.
 
 ---
 
