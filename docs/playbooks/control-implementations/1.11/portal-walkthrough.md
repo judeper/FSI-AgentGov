@@ -531,7 +531,7 @@ For a pilot, create a **separate** policy `CA-005` rather than co-mingling with 
 
 ## 9. Entra Agent ID — locating agent identities and assigning them to CA
 
-**Entra Agent ID** is the directory-level identity for AI agents. As of April 2026 it is in **Public Preview** and gated by the Microsoft Frontier program for many tenants. Where the preview is enabled, agent identities appear in **two** places in the Entra portal — and you need to know both.
+**Entra Agent ID** is the directory-level identity for AI agents. As of May 2026 it is **Generally Available** for tenants with Microsoft Agent 365 or Microsoft 365 E7 licensing. Agent identities appear in **two** places in the Entra portal — and you need to know both.
 
 ### 9.1 Where agent identities appear
 

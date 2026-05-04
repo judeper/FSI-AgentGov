@@ -3,17 +3,19 @@ control_id: "2.26"
 title: "PowerShell Setup — Control 2.26: Entra Agent ID Identity Governance"
 pillar: "2 — Management"
 powershell_edition: "7.4 LTS Core"
-sovereign_clouds: "Commercial only (early-exit on GCC, GCC High, DoD — preview not yet available in sovereign tenants)"
-last_ui_verified: "April 2026"
+sovereign_clouds: "Commercial only (early-exit on GCC, GCC High, DoD — no GA announced for sovereign tenants as of May 2026)"
+last_ui_verified: "May 2026"
 ---
 
 # PowerShell Setup — Control 2.26: Entra Agent ID Identity Governance
 
 > **Scope.** Operational PowerShell automation for governing Entra Agent ID lifecycle: sponsor assignment, orphan detection, access package assignment review, lifecycle workflow telemetry, access review tracking, bulk sponsor reassignment, evidence pack export, and SIEM forwarding verification.
 >
-> **Preview gating.** Entra Agent ID requires **both** an active Microsoft 365 Copilot license **and** a Microsoft 365 Copilot Frontier (Early Access) program enrollment. Frontier alone is insufficient. Tenants without both will see empty result sets — not errors. The §1 preflight explicitly flags this false-clean condition.
+> **Post-GA status (May 2026).** Microsoft Agent 365 reached general availability on May 1, 2026 and Microsoft Entra Agent ID is generally available. The pre-GA "Frontier program enrollment" prerequisite is replaced by **Microsoft Agent 365 / Microsoft 365 E7 license assignment**. The `Test-Agt226PreviewGating` helper and the `PreviewGatingNotSatisfied` exception type retain their pre-GA names for backward compatibility — the underlying check (whether the operating principal can reach the agent identity surface) remains valid because both the pre-GA Frontier gate and the post-GA license assignment manifest as the same API reachability state. A follow-up issue tracks renaming the helper and exception type to license-coverage terms.
 >
-> **Sovereign clouds.** Entra Agent ID is currently a Commercial-cloud preview. Code paths in this playbook **early-exit** on GCC, GCC High, DoD, and China cloud profiles with structured compensating-control instructions rather than degrading silently. See §2.
+> **License gating.** Entra Agent ID requires **Microsoft Agent 365** licensing (standalone per-user) or **Microsoft 365 E7** ("Frontier Suite," which bundles Microsoft 365 Copilot + Agent 365 + Entra Suite + E5). Tenants without either license will see empty result sets — not errors. The §1 preflight explicitly flags this false-clean condition.
+>
+> **Sovereign clouds.** Entra Agent ID is currently a Commercial-cloud surface. Code paths in this playbook **early-exit** on GCC, GCC High, DoD, and China cloud profiles with structured compensating-control instructions rather than degrading silently. See §2.
 >
 > **Sponsor-departure model.** When a sponsor's `accountEnabled` flips to `false` or `employeeLeaveDateTime` passes, Entra's default behaviour transfers the agent's sponsor relationship to the departing sponsor's manager (per the standard lifecycle workflow template). The helpers in this file **read** that state to surface anomalies; they do not override the transfer. Reassignment overrides go through the §8 audited bulk path.
 >

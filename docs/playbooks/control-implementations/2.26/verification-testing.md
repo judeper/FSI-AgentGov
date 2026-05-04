@@ -2,11 +2,13 @@
 
 > **Examiner-defensible evidence package** for Control 2.26. This playbook produces, signs, and retains the artifacts required to demonstrate to FINRA, SEC, OCC, FFIEC, and internal audit that every Microsoft 365 AI agent identity in the tenant is sponsored, lifecycle-governed, periodically reviewed, and forwarded to the SIEM with 6-year retention.
 >
-> **Scope:** Commercial M365 tenants with Microsoft 365 Copilot licensing and Frontier program enrollment. Sovereign clouds (GCC, GCC High, DoD) follow the compensating-control pattern in §8 because the Entra Agent ID feature is not yet generally available in sovereign environments at the time of this playbook's last UI verification.
+> **Post-GA status (May 2026):** Microsoft Agent 365 reached general availability on May 1, 2026 and Microsoft Entra Agent ID is generally available. The pre-GA "Frontier program enrollment" gate is replaced by **Microsoft Agent 365 / Microsoft 365 E7 license assignment**. Pre-flight gate `PRE-06` and the §9 `TRG-PREVIEW-01` test retain their pre-GA names for backward compatibility; the underlying probe (HTTP 200 from `/beta/agents`) remains the correct observable because both the pre-GA Frontier enrollment and the post-GA license assignment manifest as the same API reachability state for the calling principal. A follow-up issue tracks renaming PRE-06 / TRG-PREVIEW-01 to license-coverage terms.
+>
+> **Scope:** Commercial M365 tenants with Microsoft Agent 365 or Microsoft 365 E7 licensing assigned to the operating admin and the in-scope sponsor / agent-owner users. Sovereign clouds (GCC, GCC High, DoD) follow the compensating-control pattern in §8 because the Entra Agent ID feature has no announced availability in sovereign environments at the time of this playbook's last UI verification.
 >
 > **Companion controls:** [1.2 Agent Registry & Integrated Apps Management](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) feeds the SPONSOR namespace (§2). [3.6 Orphaned Agent Detection & Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) consumes the LIFECYCLE namespace outputs (§4).
 >
-> **Last UI verified:** April 2026 against Microsoft Entra admin center build 2026.04.x and Microsoft Graph beta endpoint.
+> **Last UI verified:** May 2026 against Microsoft Entra admin center build 2026.05.x and Microsoft Graph beta endpoint.
 
 ---
 

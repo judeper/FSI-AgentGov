@@ -660,7 +660,7 @@ Get-AzStorageContainerImmutabilityPolicy `
 | Citing fabricated "15-minute SIEM SLA" or "24-hour audit SLA" | Microsoft does not publish a hard SLA. Examiners will challenge specific numerical claims. Document the empirical ceiling instead. (Scenario 8.) |
 | Downgrading audit licenses on users in regulated populations to optimize cost | Silent retention re-tiering creates evidence gaps and possible disclosure obligations. Hard-gate the downgrade. (Scenario 10.) |
 | Running the leaver workflow before applying retention/hold to the user's Copilot mailbox | Audit row survives, content does not — a worst-case examiner scenario. Sequence hold-before-delete. (Scenario 13.) |
-| Treating `agentSignIn` as GA or assuming a Frontier program gate without verification | Preview surfaces and gating evolve; verify against the live tenant and Microsoft Learn before documenting. |
+| Treating `agentSignIn` as GA without verification | Preview surfaces evolve; verify against the live tenant and Microsoft Learn before documenting. |
 | Stamping `[PASS]` immediately after `Set-AdminAuditLogConfig` | Configuration takes up to 60 minutes to propagate; ingestion takes longer. Re-verify after the propagation window. |
 
 ---
