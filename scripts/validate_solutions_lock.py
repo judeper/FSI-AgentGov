@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 """Validate ``assessment/data/solutions-lock.json``.
 
-Per the v1.4 cross-repo contract, this lock file is fetched from the
-``FSI-AgentGov-Solutions`` repo at the **v1.4.0 tag** and committed
+Per the v1.4+ cross-repo contract, this lock file is fetched from the
+``FSI-AgentGov-Solutions`` repo at a pinned release tag and committed
 locally so framework builds are reproducible.
 
 Rules enforced:
 
-* ``schemaVersion`` must start with ``"1.4."``.
+* ``schemaVersion`` must start with ``"1.4."`` or ``"1.5."`` (both
+  accepted; 1.5.0 made the producer-side ``zones`` field required, but
+  the consumer treats either version as structurally valid).
 * ``solutions`` is an object keyed by kebab-case folder-name ID (or a
   list of objects with the same fields — both shapes accepted).
 * Each solution has: ``id``, ``name``, ``version``, ``domain``,
@@ -35,6 +37,7 @@ MANIFEST_DEFAULT = ROOT / "assessment" / "manifest" / "controls.json"
 
 SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 TIER_VALUES = {"1", "2", "3"}
+ACCEPTED_SCHEMA_PREFIXES = ("1.4.", "1.5.")
 REQUIRED_FIELDS = (
     "id",
     "name",
@@ -132,10 +135,11 @@ def main() -> int:
 
     errs: list[str] = []
     sv = lock.get("schemaVersion", "")
-    if not (isinstance(sv, str) and sv.startswith("1.4.")):
+    if not (isinstance(sv, str) and sv.startswith(ACCEPTED_SCHEMA_PREFIXES)):
+        accepted = ", ".join(repr(p) for p in ACCEPTED_SCHEMA_PREFIXES)
         errs.append(
-            f"schemaVersion must start with '1.4.' (got {sv!r}); "
-            "refresh the lock against the FSI-AgentGov-Solutions v1.4.x tag."
+            f"schemaVersion must start with one of {accepted} (got {sv!r}); "
+            "refresh the lock against a supported FSI-AgentGov-Solutions release tag."
         )
 
     sol_count = 0

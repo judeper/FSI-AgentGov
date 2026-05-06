@@ -12,8 +12,9 @@ companion repository.
 ### Contract
 
 * The lock is **fetched at framework-release time** from a tagged
-  release of the solutions repo (currently `v1.4.0`). It is **never**
-  fetched at runtime, and CI does **not** cross repos at PR time.
+  release of the solutions repo (currently `v1.4.0`; `v1.5.0`
+  introduces the schema 1.5.0 cutover). It is **never** fetched at
+  runtime, and CI does **not** cross repos at PR time.
 * Provides the rich metadata (`name`, `version`, `domain`, `tier`,
   `description`, `url`, `prerequisites`, `verification`) that the E1
   drawer and E7 agenda export render.
@@ -25,10 +26,14 @@ companion repository.
 
 ```bash
 python scripts/refresh_solutions_lock.py --tag v1.4.0
+# or, after the producer cuts the breaking change:
+python scripts/refresh_solutions_lock.py --tag v1.5.0
 ```
 
-The refresh script verifies `schemaVersion` starts with `1.4.` and
-that the expected solution count and required IDs are present.
+The refresh script verifies `schemaVersion` starts with the
+major.minor of `--tag` (1.4.x or 1.5.x are both accepted by the
+local validator) and that the expected solution count and required
+IDs are present.
 
 ### Coverage scope
 
@@ -51,7 +56,13 @@ doc under `docs/controls/` for native-admin guidance. For the full
 catalog and coverage rationale, see
 `docs/reference/solutions-index.md` (Coverage scope section).
 
-### Schema (1.4.x)
+### Schema (1.4.x and 1.5.x)
+
+`solutions.json` schema 1.5.0 (forthcoming in `judeper/FSI-AgentGov-Solutions`)
+makes the `zones` field **required** on every solution entry. The
+local validator (`scripts/validate_solutions_lock.py`) accepts both
+`schemaVersion` `1.4.x` and `1.5.x` so the framework repo stays
+compatible across the producer-side cutover.
 
 ```json
 {
