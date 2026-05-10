@@ -78,6 +78,8 @@ jobs:
         run: python scripts/check_manifest_doc_drift.py --check
       - name: Check assessment coverage matrix is up to date
         run: python scripts/generate_coverage_matrix.py --check
+      - name: Install pyyaml for pattern coverage script
+        run: pip install -r scripts/requirements.txt
       - name: Check pattern coverage matrix is up to date
         run: |
           git clone --depth 1 https://github.com/judeper/FSI-AgentGov-Solutions.git /tmp/fsi-agentgov-solutions
