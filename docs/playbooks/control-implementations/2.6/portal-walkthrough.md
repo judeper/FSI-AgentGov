@@ -225,6 +225,9 @@ SR 11-7 ongoing monitoring asks whether the model continues to perform as intend
 5. Name a **threshold-breach owner** (typically the Agent Owner with notification to the Model Risk Manager). Document the named owner on the Agent Card.
 6. Schedule a recurring monthly Analytics export per in-scope agent and route to the MRM Committee.
 
+!!! info "Copilot Studio Analytics Retention Windows (May 2026)"
+    Analytics data is available for up to **180 days**; session details and transcript information is available for the last **28 days** (per Microsoft Learn — analytics overview). Ongoing-monitoring evidence required beyond these windows — session transcripts, KPI trend snapshots, threshold-breach records — must be exported to Log Analytics or the retention path described in [§6](#6-validation-evidence-retention-path) before the applicable window closes. Validation memos and MRM Committee minutes are not stored in Copilot Studio Analytics and must be routed to the §6 retention path directly.
+
 !!! warning "Analytics is the evidence — not the validation"
     Copilot Studio Analytics produces operational telemetry. It is one input the MRM Committee uses to perform ongoing monitoring under SR 11-7. The committee's review, judgment, and effective challenge are the validation — Analytics dashboards are not.
 
