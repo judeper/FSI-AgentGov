@@ -33,6 +33,8 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 ENGINE_DIR = REPO_ROOT / "assessment" / "engine"
 MANIFEST_PATH = REPO_ROOT / "assessment" / "manifest" / "controls.json"
 OUTPUT_PATH = REPO_ROOT / "docs" / "reference" / "assessment-coverage.md"
+FRONTIER_MANIFEST_PATH = REPO_ROOT / "assessment" / "manifest" / "frontier-readiness.json"
+FRONTIER_OUTPUT_PATH = REPO_ROOT / "docs" / "reference" / "frontier-assessment-coverage.md"
 
 sys.path.insert(0, str(ENGINE_DIR))
 
@@ -266,6 +268,197 @@ def render(controls: list[dict]) -> str:
     return "\n".join(lines)
 
 
+def load_frontier_manifest() -> dict:
+    return json.loads(FRONTIER_MANIFEST_PATH.read_text(encoding="utf-8"))
+
+
+def classify_frontier_question_state(question: dict) -> str:
+    """Return one of: 'auto_evaluable', 'manual_only', 'unimplemented_evaluator'."""
+    auto = question.get("auto_evaluable", False)
+    methods = question.get("collection_methods", [])
+    if auto:
+        return "auto_evaluable"
+    if len(methods) == 1 and methods[0] == "Manual":
+        return "manual_only"
+    return "unimplemented_evaluator"
+
+
+# Plausible future evaluator candidates: (q_id, driver_id, level, pass_condition, source)
+_FRONTIER_EVALUATOR_CANDIDATES = [
+    (
+        "Q01", "ai_strategy", 100,
+        "ai_initiative_owner_identified",
+        "Graph API: query Entra directory roles for named CIO/CDAO assignment",
+    ),
+    (
+        "Q03", "ai_strategy", 300,
+        "enterprise_ai_strategy_published_with_portfolio",
+        "SharePoint PnP search for AI strategy document in Governance Committee site",
+    ),
+    (
+        "Q13", "ai_governance", 300,
+        "zone_classification_with_audit_supervision_and_model_risk",
+        "PPAC environment list API: check for managed environment groups with zone tags",
+    ),
+    (
+        "Q16", "technology_data", 100,
+        "any_environment_visibility_for_agents",
+        "PPAC environments list API — non-empty response confirms platform-level visibility",
+    ),
+    (
+        "Q17", "technology_data", 200,
+        "tagged_environments_with_basic_telemetry",
+        "PPAC environment group/tag API plus Sentinel workspace log ingestion volume check",
+    ),
+    (
+        "Q18", "technology_data", 300,
+        "env_groups_with_inventory_siem_rag_and_lineage",
+        "PPAC Environment Groups API; Sentinel workspace connectivity; SharePoint permission scan logs",
+    ),
+]
+
+
+def render_frontier(manifest: dict) -> str:
+    questions = manifest.get("questions", [])
+    drivers_list = manifest.get("drivers", [])
+
+    driver_lookup = {d["id"]: d for d in drivers_list}
+    driver_order = [d["id"] for d in drivers_list]
+
+    q_states = [(q, classify_frontier_question_state(q)) for q in questions]
+    total_q = len(questions)
+    state_counts: Counter = Counter(state for _, state in q_states)
+
+    by_driver: dict[str, list] = {d: [] for d in driver_order}
+    for q, state in q_states:
+        by_driver[q["driver"]].append((q, state))
+
+    lines: list[str] = []
+    lines.append("# Frontier Readiness Assessment Coverage Matrix")
+    lines.append("")
+    lines.append(
+        "This page is **generated** by "
+        "`scripts/generate_coverage_matrix.py --type frontier` "
+        "from `assessment/manifest/frontier-readiness.json`. Do not edit by hand."
+    )
+    lines.append("")
+    lines.append(
+        "It is the honest answer to *what does the Frontier Readiness assessment "
+        "actually automate today?* Per the v1.0 design, all 25 questions are "
+        "facilitator-answered by design — no automatic evaluators are wired up. "
+        "Future versions may add bespoke evaluators for questions with "
+        "telemetry-derivable answers."
+    )
+    lines.append("")
+    lines.append("## Evaluator states")
+    lines.append("")
+    lines.append("| State | Icon | Meaning |")
+    lines.append("|-------|------|---------|")
+    lines.append(
+        "| `auto_evaluable` | ✅ | Evaluator is registered AND "
+        "`auto_evaluable: true` in the manifest. Score derived from telemetry. |"
+    )
+    lines.append(
+        "| `unimplemented_evaluator` | ⚠️ | Manifest declares a `pass_condition` "
+        "but the question is marked `auto_evaluable: false` and no evaluator "
+        "function exists. (Most common state in v1.) |"
+    )
+    lines.append(
+        '| `manual_only` | 📝 | Question is manual by design '
+        '(`collection_methods: ["Manual"]` and `auto_evaluable: false`). '
+        "Facilitator-answered only. |"
+    )
+    lines.append("")
+    lines.append("## Summary")
+    lines.append("")
+    lines.append("### By question")
+    lines.append("")
+    lines.append("| State | Count | Share |")
+    lines.append("|-------|-------|-------|")
+    for s in score.EVALUATOR_STATES:
+        n = state_counts.get(s, 0)
+        pct = (n / total_q * 100) if total_q else 0
+        lines.append(f"| {STATE_ICON[s]} {STATE_LABEL[s]} | {n} | {pct:.1f}% |")
+    lines.append(f"| **Total** | {total_q} | 100% |")
+    lines.append("")
+    lines.append("### Per-driver breakdown")
+    lines.append("")
+    lines.append("| Driver | Total Questions | Auto | Manual | Unimplemented |")
+    lines.append("|---|---|---|---|---|")
+    for driver_id in driver_order:
+        driver = driver_lookup[driver_id]
+        qs = by_driver[driver_id]
+        dcounts: Counter = Counter(state for _, state in qs)
+        lines.append(
+            f"| {driver['name']} | {len(qs)}"
+            f" | {dcounts.get('auto_evaluable', 0)}"
+            f" | {dcounts.get('manual_only', 0)}"
+            f" | {dcounts.get('unimplemented_evaluator', 0)} |"
+        )
+    lines.append("")
+    lines.append("## Per-question detail")
+    lines.append("")
+    for driver_id in driver_order:
+        driver = driver_lookup[driver_id]
+        lines.append(f"### {driver['name']}")
+        lines.append("")
+        lines.append("| Q ID | Level | Question | State | Pass Condition | Notes |")
+        lines.append("|---|---|---|---|---|---|")
+        for q, state in by_driver[driver_id]:
+            qtext = q["question_text"]
+            if len(qtext) > 80:
+                qtext = qtext[:77] + "..."
+            qtext = qtext.replace("|", "\\|")
+            pc = q.get("pass_condition", "")
+            notes = "Facilitator-answered." if state == "manual_only" else ""
+            lines.append(
+                f"| {q['question_id']} | {q['level']} | {qtext}"
+                f" | {STATE_ICON[state]} {STATE_LABEL[state]}"
+                f" | `{pc}` | {notes} |"
+            )
+        lines.append("")
+    lines.append("## Future evaluator candidates")
+    lines.append("")
+    lines.append(
+        "The following questions have `pass_condition` strings populated, "
+        "suggesting they could be auto-evaluated in a future release if a "
+        "bespoke evaluator is implemented. Currently all are facilitator-answered."
+    )
+    lines.append("")
+    for qid, driver_id, level, pc, source in _FRONTIER_EVALUATOR_CANDIDATES:
+        driver_name = driver_lookup[driver_id]["name"]
+        lines.append(
+            f"- **{qid}** ({driver_name}, L{level}): pass_condition `{pc}` — "
+            f"*plausible automation source: {source}*"
+        )
+    lines.append("")
+    lines.append("## How to wire up an evaluator (future)")
+    lines.append("")
+    lines.append(
+        "1. Add a `_eval_<name>(collected, source_key)` function to a new "
+        "`assessment/engine/score_frontier.py` evaluators block, returning "
+        "`(passed: bool | None, evidence: str)`."
+    )
+    lines.append(
+        "2. Update the question entry in `frontier-readiness.json`: set "
+        "`auto_evaluable: true`, change `collection_methods` to include the "
+        "API source (`Graph_API`, `SharePoint_PnP`, etc.)."
+    )
+    lines.append(
+        "3. Re-run `python scripts/generate_coverage_matrix.py --type frontier` "
+        "and commit the regenerated "
+        "`docs/reference/frontier-assessment-coverage.md`."
+    )
+    lines.append("")
+    lines.append(
+        "<!-- This page is generated by "
+        "scripts/generate_coverage_matrix.py --type frontier. "
+        "Do not edit by hand. -->"
+    )
+    lines.append("")
+    return "\n".join(lines)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -275,28 +468,45 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument(
         "--output",
-        default=str(OUTPUT_PATH),
-        help="Override output path (default: docs/reference/assessment-coverage.md)",
+        default=None,
+        help="Override output path.",
+    )
+    parser.add_argument(
+        "--type",
+        choices=["controls", "frontier"],
+        default="controls",
+        help="Coverage matrix type: controls (default) or frontier.",
     )
     args = parser.parse_args(argv)
 
-    controls = load_controls()
-    rendered = render(controls)
-    target = Path(args.output)
+    if args.type == "controls":
+        controls = load_controls()
+        rendered = render(controls)
+        target = Path(args.output) if args.output else OUTPUT_PATH
+        item_count = len(controls)
+        item_label = "controls"
+    else:  # frontier
+        manifest = load_frontier_manifest()
+        rendered = render_frontier(manifest)
+        target = Path(args.output) if args.output else FRONTIER_OUTPUT_PATH
+        item_count = len(manifest.get("questions", []))
+        item_label = "questions"
 
     if args.check:
         if not target.exists():
+            cmd = f"python scripts/generate_coverage_matrix.py --type {args.type}"
             print(
                 f"ERROR: {target} does not exist. Run "
-                "`python scripts/generate_coverage_matrix.py` to create it.",
+                f"`{cmd}` to create it.",
                 file=sys.stderr,
             )
             return 1
         existing = target.read_text(encoding="utf-8")
         if existing != rendered:
+            cmd = f"python scripts/generate_coverage_matrix.py --type {args.type}"
             print(
                 f"ERROR: {target} is out of date. Run "
-                "`python scripts/generate_coverage_matrix.py` and commit.",
+                f"`{cmd}` and commit.",
                 file=sys.stderr,
             )
             return 1
@@ -305,7 +515,7 @@ def main(argv: list[str] | None = None) -> int:
 
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(rendered, encoding="utf-8")
-    print(f"Wrote {target} ({len(controls)} controls).")
+    print(f"Wrote {target} ({item_count} {item_label}).")
     return 0
 
 

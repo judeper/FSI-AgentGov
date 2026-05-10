@@ -82,6 +82,20 @@
       "Fed-SR-11-7"
     ],
     "priority": "critical",
+    "applicable_drivers": [
+      "ai_governance"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [
+      1
+    ],
     "yesBar": "Environment Maker role removed from All Users; named publisher security group exists; share-with-everyone disabled and agent publish gated by approval workflow across Zone 2/3 environments.",
     "partialBar": "Publisher security group exists but Environment Maker still includes broad groups, or share-with-everyone disabled in only some environments.",
     "noBar": "Environment Maker is open to All Users, no publisher security group exists, and agents can be shared with everyone without approval.",
@@ -196,6 +210,19 @@
       "NYDFS-500"
     ],
     "priority": "high",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "All agents and integrated apps registered with named owner and backup owner, admin consent workflow enabled, and no orphaned service principals across Entra, Integrated Apps, and Copilot Studio.",
     "partialBar": "Inventory exists for some surfaces (e.g., Integrated Apps) but Copilot Studio or Entra Agent ID coverage is incomplete or owner attribution is missing for Zone 2/3 agents.",
     "noBar": "No tenant-wide agent inventory; user consent unrestricted; orphaned or unowned service principals exist with no remediation workflow.",
@@ -292,6 +319,19 @@
       "GLBA"
     ],
     "priority": "critical",
+    "applicable_drivers": [
+      "technology_data",
+      "ai_governance"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "External sharing restricted; Everyone groups removed from agent knowledge sites; container sensitivity labels applied; SAM RAC/RCD enabled and quarterly access reviews active for Zone 3.",
     "partialBar": "Tenant sharing restricted but agent knowledge sites still grant Everyone-except-external or lack sensitivity labels and SAM controls.",
     "noBar": "External sharing wide open, knowledge sites contain Everyone groups, no sensitivity labels, and no access reviews on agent-grounded SharePoint content.",
@@ -397,6 +437,19 @@
       "GLBA"
     ],
     "priority": "high",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "ACP and classic DLP enforce a connector allowlist at environment-group scope; consumer connectors blocked and action-level restrictions limit high-risk connectors to read-only in Zone 2/3.",
     "partialBar": "Classic DLP groups configured but ACP not enabled, or allowlist applied to some environments while custom and HTTP connectors remain ungoverned.",
     "noBar": "No ACP, no DLP connector classification, and Copilot Studio agents can use any connector including consumer cloud storage and social media.",
@@ -500,6 +553,19 @@
       "PCI-DSS"
     ],
     "priority": "critical",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "Purview DLP covers SharePoint, OneDrive, Exchange, Teams, Endpoint, and Copilot/Copilot Chat, plus Power Platform data policies for Copilot Studio agents, all using FSI-tuned SITs.",
     "partialBar": "DLP enabled for SharePoint/OneDrive/Exchange but Teams chat, Endpoint, or the Copilot and Copilot Studio surfaces are uninstrumented.",
     "noBar": "No DLP policies covering Copilot or agent workloads, or only the default credit-card rule is active across a small subset of surfaces.",
@@ -589,6 +655,19 @@
       "GLBA"
     ],
     "priority": "high",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "DSPM for AI activated with Activity Explorer, sensitive-interaction policies, weekly risk assessments on in-scope SharePoint sites, and extended insights for approved third-party AI.",
     "partialBar": "DSPM for AI activated but recommended one-click policies are unconfigured or weekly risk assessments are not reviewed by Compliance.",
     "noBar": "DSPM for AI not activated; no AI interaction visibility through Purview Activity Explorer.",
@@ -690,6 +769,19 @@
       "CFTC-1.31"
     ],
     "priority": "critical",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "Unified Audit Log on; Audit Premium with the 10-year retention add-on enabled and a custom audit retention policy targets Copilot/agent events for the applicable 6-year FINRA/SEC window.",
     "partialBar": "Audit log enabled at Standard with default retention; no custom retention policy for Copilot/agent record types and no documented preservation pipeline.",
     "noBar": "Unified Audit Log disabled or audit events not retained beyond default 90/180 days; no plan for 17a-4(f) preservation of agent records.",
@@ -775,6 +867,19 @@
       "GLBA"
     ],
     "priority": "high",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "Prompt Shields and content moderation enabled per Copilot Studio agent, Defender for Cloud Apps AI Agent Protection toggled on, and external threat-detection webhook configured for Zone 3 agents.",
     "partialBar": "Prompt Shields and content moderation enabled on some agents but Defender integration off, or runtime controls inconsistently applied across Zone 2/3.",
     "noBar": "No Prompt Shields, no content moderation, and no Defender or external runtime threat-detection on Copilot Studio agents.",
@@ -873,6 +978,18 @@
       "CFTC-1.31"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_governance"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -958,6 +1075,19 @@
       "GLBA"
     ],
     "priority": "high",
+    "applicable_drivers": [
+      "ai_governance",
+      "organization_culture"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "Communication Compliance policies cover Exchange, Teams, and Copilot/Copilot Chat using the dedicated Copilot template with Prompt Shield classifiers and assigned reviewers per policy.",
     "partialBar": "Communication Compliance configured for Exchange/Teams but not extended to Copilot interactions or to Copilot Studio agents requiring pay-as-you-go.",
     "noBar": "No Communication Compliance policies covering AI-assisted communications; AI-generated content not subject to supervisory review.",
@@ -1077,6 +1207,19 @@
       "NYDFS-500"
     ],
     "priority": "critical",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "CA policies require phishing-resistant MFA (FIDO2/passkey/WHfB/CBA) for agent makers, owners, and admins; break-glass excluded; CA for Workload Identities applied to agent service principals.",
     "partialBar": "MFA required tenant-wide but uses SMS, voice, or push, or phishing-resistant strength not enforced for agent makers and admins.",
     "noBar": "No Conditional Access for agent administrators, MFA optional, or break-glass accounts not validated and excluded.",
@@ -1171,6 +1314,18 @@
       "NYDFS-500"
     ],
     "priority": "high",
+    "applicable_drivers": [
+      "ai_governance"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "Insider Risk Management configured with Risky AI usage and Risky Agents templates, Adaptive Protection integrated where available, and triage/investigator roles assigned with separation of duties.",
     "partialBar": "IRM enabled but Risky AI usage / Risky Agents templates inactive or no reviewer assignments for AI-related signals.",
     "noBar": "No Insider Risk Management policies; AI-driven exfiltration or abuse signals are not detected or triaged.",
@@ -1272,6 +1427,19 @@
       "PCI-DSS"
     ],
     "priority": "high",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "FSI-relevant built-in and custom SITs (SSN, credit card, ABA routing, account numbers, CRD, MNPI keyword dictionary) are deployed and referenced by DLP, sensitivity labels, and DSPM for AI policies.",
     "partialBar": "Built-in SITs in use but no custom FSI SITs (CRD, MNPI, internal account numbers) or no Exact Data Match for customer master data.",
     "noBar": "Default SITs only or no SITs referenced in any DLP/label policy; no detection coverage for FSI-specific data patterns.",
@@ -1347,6 +1515,19 @@
       "GLBA"
     ],
     "priority": "medium",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "Each agent has a documented grounding inventory with zone-based justification, narrowed SharePoint scopes, public web grounding disabled for Zone 3 NPI agents, and active scope-drift monitoring.",
     "partialBar": "Inventory exists for some agents but no zone-based approval workflow or scope-drift monitoring; Zone 3 agents may still ground on broad sites.",
     "noBar": "No documented agent grounding inventory; agents access entire SharePoint sites and public web with no scope-drift detection.",
@@ -1446,6 +1627,19 @@
       "PCI-DSS"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -1516,6 +1710,19 @@
       "GLBA"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -1599,6 +1806,19 @@
       "PCI-DSS"
     ],
     "priority": "high",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "Devices onboarded via Defender for Endpoint with Endpoint DLP blocking restricted apps, USB/removable media, personal cloud uploads, and Edge for Business AI-paste rules for unmanaged AI.",
     "partialBar": "Endpoint DLP enabled but coverage limited to USB or restricted apps, with no browser-based DLP for unmanaged AI.",
     "noBar": "No Endpoint DLP; sensitive data may be copied to USB, personal cloud, or pasted into unmanaged AI sites without detection.",
@@ -1693,6 +1913,19 @@
       "GLBA"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -1790,6 +2023,20 @@
       "GLBA"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_governance"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [
+      5
+    ],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -1879,6 +2126,19 @@
       "OCC-2011-12"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -1971,6 +2231,19 @@
       "NIST-AI-RMF"
     ],
     "priority": "high",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "Adversarial-input signals captured across Prompt Shields, Defender XDR Copilot, Communication Compliance Prompt Shield classifier, and DSPM for AI, with Sentinel cross-plane correlation.",
     "partialBar": "Some signal planes active (e.g., Prompt Shields) but no Sentinel correlation or no Comm Compliance/DSPM coverage of adversarial events.",
     "noBar": "No detection of prompt injection, jailbreak attempts, or encoding-based evasion against AI agents.",
@@ -2059,6 +2332,18 @@
       "OCC-2011-12"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_governance"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -2139,6 +2424,19 @@
       "NYDFS-500"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -2214,6 +2512,19 @@
       "NIST-AI-RMF"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -2308,6 +2619,19 @@
       "OCC-2011-12"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -2402,6 +2726,19 @@
       "OCC-2011-12"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -2504,6 +2841,18 @@
       "GLBA"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_governance"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -2597,6 +2946,18 @@
       "Fed-SR-11-7"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_governance"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -2691,6 +3052,19 @@
       "OCC-2011-12"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -2790,6 +3164,19 @@
       "NYDFS-500"
     ],
     "priority": "critical",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "All Zone 2/3 environments designated as Managed with sharing limits, solution-checker enforcement, weekly digest reviewed, IP firewall configured, and maker welcome content published.",
     "partialBar": "Managed Environments enabled on some Zone 2/3 environments but sharing limits or solution-checker enforcement not configured uniformly.",
     "noBar": "No Managed Environments designation; sharing unlimited and no solution-checker governance signals.",
@@ -2889,6 +3276,19 @@
       "OCC-2011-12"
     ],
     "priority": "high",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "Environment groups aligned to Zone 1/2/3 with rules published per zone (sharing, channels, AI model restrictions, CUA disabled), and routing places makers into the correctly governed environment.",
     "partialBar": "Environment groups created but rules unpublished, or zone alignment incomplete (e.g., regulated workloads still in default environment).",
     "noBar": "No environment groups; all environments share a flat governance posture with no zone differentiation.",
@@ -2973,6 +3373,18 @@
       "GLBA"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_governance"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -3060,6 +3472,18 @@
       "OCC-2011-12"
     ],
     "priority": "medium",
+    "applicable_drivers": [
+      "ai_governance"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "Critical agents tier-classified with documented RTO/RPO, secondary-region environments provisioned, automated solution backup running, and annual DR test executed with results retained.",
     "partialBar": "Some agents tier-classified but no secondary region for Tier 1/2 agents, or DR runbook exists without annual testing.",
     "noBar": "No agent BC/DR classification; no backup, no DR runbook, no testing.",
@@ -3136,6 +3560,18 @@
       "NIST-AI-RMF"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_governance"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -3213,6 +3649,20 @@
       "NYDFS-500"
     ],
     "priority": "high",
+    "applicable_drivers": [
+      "ai_governance"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [
+      4
+    ],
     "yesBar": "AI agents classified within the firm's MRM framework with model inventory, independent validation, ongoing performance monitoring, bias testing, and change-control evidence retained per 17a-4(f).",
     "partialBar": "AI agents in scope of MRM policy but validation evidence inconsistent, or only some Zone 3 agents have completed independent validation.",
     "noBar": "AI agents are not treated as models under the firm's MRM program; no inventory, validation, or ongoing monitoring.",
@@ -3282,6 +3732,20 @@
       "OCC-2011-12"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "business_strategy",
+      "ai_strategy",
+      "ai_governance"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -3373,6 +3837,21 @@
       "GLBA"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [
+      3
+    ],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -3459,6 +3938,19 @@
       "GLBA"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -3543,6 +4035,19 @@
       "GLBA"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -3611,6 +4116,21 @@
       "Fed-SR-11-7"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_governance"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [
+      4,
+      5
+    ],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -3681,6 +4201,23 @@
       "NYDFS-500"
     ],
     "priority": "critical",
+    "applicable_drivers": [
+      "business_strategy",
+      "ai_governance",
+      "organization_culture"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [
+      4,
+      5
+    ],
     "yesBar": "WSP addendum covers AI communications, qualified principal designated, HITL configured for Zone 3 customer-facing outputs, sampling protocol documented, and supervisory review evidence retained.",
     "partialBar": "Supervisory procedures cover human communications but lack AI-specific addendum, or sampling exists without HITL gating for high-risk outputs.",
     "noBar": "No supervisory procedures covering AI agent outputs; no principal designated and no HITL for Zone 3.",
@@ -3755,6 +4292,19 @@
       "GLBA"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_strategy",
+      "ai_governance"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -3824,6 +4374,21 @@
       "GLBA"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "organization_culture",
+      "ai_governance"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [
+      1
+    ],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -3915,6 +4480,19 @@
       "OCC-2011-12"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -3996,6 +4574,21 @@
       "Fed-SR-11-7"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "technology_data",
+      "ai_governance"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [
+      2
+    ],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -4077,6 +4670,21 @@
       "Fed-SR-11-7"
     ],
     "priority": "medium",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [
+      6
+    ],
     "yesBar": "Multi-agent designs document delegation depth limits, circuit breakers, HITL triggers, and the 128-tool ceiling; A2A/MCP cross-protocol chains tracked in the agent inventory.",
     "partialBar": "Multi-agent patterns in use but delegation limits or circuit breakers absent, and cross-protocol chains not inventoried.",
     "noBar": "Agents call other agents and tools with no delegation limits, circuit breakers, or HITL triggers; no inventory of multi-agent chains.",
@@ -4143,6 +4751,18 @@
       "FINRA-25-07"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_governance"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -4212,6 +4832,21 @@
       "GLBA"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "organization_culture",
+      "ai_governance"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [
+      5
+    ],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -4280,6 +4915,20 @@
       "NIST-AI-RMF"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_governance"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [
+      6
+    ],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -4344,6 +4993,19 @@
     ],
     "regulatory": [],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "organization_culture",
+      "ai_governance"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -4436,6 +5098,19 @@
       "GLBA"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -4507,6 +5182,19 @@
       "GLBA"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "organization_culture",
+      "ai_governance"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -4607,6 +5295,18 @@
       "Fed-SR-11-7"
     ],
     "priority": "medium",
+    "applicable_drivers": [
+      "ai_governance"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "Per-zone feature catalog approved by change management; tenant, environment, and agent-level toggles enforce it; preview/MCP/code-interpreter features explicitly approved per zone.",
     "partialBar": "Feature catalog exists but enforcement inconsistent across the three surfaces, or preview features enabled without change-management approval.",
     "noBar": "No documented feature catalog; agent makers can enable any preview or generative capability without approval.",
@@ -4708,6 +5408,19 @@
       "NYDFS-500"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -4804,6 +5517,21 @@
       "OCC-2011-12"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [
+      5
+    ],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -4905,6 +5633,20 @@
       "NYDFS-500"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_strategy",
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -4977,6 +5719,19 @@
       "GLBA"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -5063,6 +5818,19 @@
       "OCC-2011-12"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -5155,6 +5923,19 @@
       "NCUA"
     ],
     "priority": "critical",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "Written IR program covers AI agent incidents with runbooks for the parallel clocks (NYDFS 72h, SEC 8-K 4-day, banking 36h, Reg S-P 30-day) and RCA evidence retained per 17a-4.",
     "partialBar": "IR program exists but lacks AI-agent scenarios or full clock matrix; some notification paths undocumented.",
     "noBar": "No written IR program covering AI agents and no documented regulator notification matrix.",
@@ -5251,6 +6032,19 @@
       "OCC-2011-12"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_strategy",
+      "ai_governance"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -5328,6 +6122,19 @@
       "NYDFS-500"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -5422,6 +6229,19 @@
       "OCC-2011-12"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -5494,6 +6314,19 @@
       "GLBA"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -5594,6 +6427,21 @@
       "NYDFS-500"
     ],
     "priority": "high",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [
+      6
+    ],
     "yesBar": "Sentinel ingests Power Platform Admin Activity, CopilotInteraction, Entra and service-principal sign-ins, and Defender connectors with FSI analytics rules, workbooks, and Logic Apps playbooks.",
     "partialBar": "Sentinel deployed with some connectors (e.g., Entra) but Power Platform Admin Activity or CopilotInteraction not ingested and no AI-specific analytics rules.",
     "noBar": "No Sentinel ingestion of Power Platform/Copilot/agent telemetry; no SIEM analytics for agent behavior.",
@@ -5663,6 +6511,19 @@
       "SOX-404"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -5737,6 +6598,20 @@
       "Fed-SR-11-7"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_strategy",
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -5808,6 +6683,18 @@
       "Fed-SR-11-7"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_governance"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -5878,6 +6765,19 @@
       "SOX-404"
     ],
     "priority": "medium",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "Recurring supervisory review of Agent 365 Overview hero metrics, pending requests, and ownerless agents documented; monthly inventory exports retained as examination evidence.",
     "partialBar": "Agent Registry consulted but hero metrics not formally reviewed, or inventory exports performed inconsistently.",
     "noBar": "No defined supervisory review process leveraging Agent 365 Admin Center; no recurring inventory export.",
@@ -5950,6 +6850,21 @@
       "OCC-2011-12"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_governance",
+      "technology_data"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [
+      6
+    ],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -6044,6 +6959,19 @@
       "GLBA"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "technology_data",
+      "ai_governance"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -6129,6 +7057,19 @@
       "NYDFS-500"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "technology_data",
+      "ai_governance"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -6223,6 +7164,19 @@
       "GLBA"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "technology_data",
+      "ai_governance"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -6317,6 +7271,21 @@
       "GLBA"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "technology_data",
+      "ai_governance"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [
+      5
+    ],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -6399,6 +7368,19 @@
       "GLBA"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "technology_data",
+      "ai_governance"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -6495,6 +7477,19 @@
       "OCC-2011-12"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "technology_data",
+      "ai_governance"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -6578,6 +7573,19 @@
       "NYDFS-500"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "technology_data",
+      "ai_governance"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -6672,6 +7680,19 @@
       "NIST-AI-RMF"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "technology_data",
+      "ai_governance"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",
@@ -6743,6 +7764,19 @@
       "GLBA"
     ],
     "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "technology_data",
+      "ai_governance"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
     "yesBar": "TODO: concise pass criteria",
     "partialBar": "TODO: partial coverage criteria",
     "noBar": "TODO: fail criteria",

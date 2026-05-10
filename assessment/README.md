@@ -1,35 +1,65 @@
 # FSI-AgentGov Assessment Engine
 
 Automated governance assessment for Microsoft 365 Copilot Studio deployments in
-Financial Services. Collects tenant configuration via APIs, scores controls
-against zone-specific thresholds, and generates a pre-filled assessment with a
-focused manual questionnaire.
+Financial Services. Two complementary assessments share the same orchestrator:
+
+- **Controls assessment** — Collects tenant configuration via APIs, scores 78
+  controls against zone-specific thresholds, and generates a pre-filled
+  assessment with a focused manual questionnaire. Audience: M365
+  administrators, compliance officers preparing for audit.
+- **Frontier Readiness assessment** — A 25-question facilitator-led
+  self-diagnostic across the 5 capability drivers (Microsoft CAPE alignment).
+  Identifies the scale-breaker driver and pattern readiness for the 6
+  Frontier Transformation Patterns. Audience: CIO, CDAO, AI Governance Lead,
+  AI Program Sponsor.
+
+## When to Run Which Assessment
+
+| Run **Controls** if... | Run **Frontier Readiness** if... | Run **Both** if... |
+|---|---|---|
+| You are an M365 admin conducting a technical compliance baseline | You are a CIO/CDAO/AI Program Sponsor evaluating agent program maturity | You want a comprehensive program assessment with both strategic (Frontier) and tactical (Controls) outputs |
+| Preparing for an audit or examiner readiness review | Deciding which Frontier Transformation Pattern to prioritize next | Onboarding a customer at the start of a transformation engagement |
+| Remediating specific control gaps already known | Identifying the **scale-breaker** capability driver before investing in deeper controls work | Producing a board-level or examiner-facing maturity narrative that pairs strategic posture with control evidence |
+| Time available: 2–4 hours collector runtime + manual questionnaire | Time available: 15–30 minute facilitator interview | Time available: both windows above |
+
+**Recommended sequencing:** Run **Frontier Readiness FIRST** to identify the scale-breaker driver (the weakest of the five drivers — the ceiling on agent program scale), then run **Controls** to remediate the specific control gaps that move the scale-breaker driver forward. Re-run the Controls assessment after remediation to confirm uplift.
+
+> **Note on outputs:** A Controls assessment surfaces "Control 1.5 DLP scored 2/4 because you have DLP policies but no sensitivity label auto-application" — actionable for an admin. A Frontier Readiness assessment surfaces "Your Organization & Culture driver scored 200 (Repeatable) — until you build a maker community and assign supervisor accountability per FINRA 3110, Pattern 1 Employee AI Enablement will not scale beyond pilot." Each assessment answers a different question. Don't expect one to substitute for the other.
 
 ## Architecture
 
 ```
-run-assessment.ps1          ← Orchestrator (PowerShell)
-├── collectors/             ← Data collection scripts (one per API surface)
-│   ├── Collect-PPAC.ps1
-│   ├── Collect-Graph.ps1
-│   ├── Collect-Purview.ps1
-│   ├── Collect-SharePoint.ps1
-│   └── Collect-Sentinel.ps1
-├── engine/                 ← Scoring & report generation (Python)
-│   ├── score.py
-│   └── report.py
+run-assessment.ps1                           ← Orchestrator (PowerShell, -AssessmentType param)
+├── collectors/
+│   ├── Collect-PPAC.ps1                     ← Controls assessment
+│   ├── Collect-Graph.ps1                    ← Controls assessment
+│   ├── Collect-Purview.ps1                  ← Controls assessment
+│   ├── Collect-SharePoint.ps1               ← Controls assessment
+│   ├── Collect-Sentinel.ps1                 ← Controls assessment
+│   └── Collect-Frontier.ps1                 ← Frontier Readiness assessment
+├── engine/
+│   ├── score.py                             ← 78-control scoring (0–4 maturity)
+│   ├── score_frontier.py                    ← 5-driver scoring (100–500)
+│   └── report.py                            ← --type controls | frontier | both
 ├── manifest/
-│   └── controls.json       ← 78-control definition manifest
-├── tests/                  ← Automated tests
-│   ├── fixtures/           ← Synthetic test data
+│   ├── controls.json                        ← 78-control definition manifest
+│   └── frontier-readiness.json             ← 25-question Frontier manifest
+├── tests/
+│   ├── fixtures/
 │   ├── test_score.py
+│   ├── test_score_frontier.py               ← Frontier scoring tests
 │   └── test_report.py
-└── output/                 ← Generated assessment artifacts
-    ├── collected/          ← Raw collector JSON
-    ├── scores.json
-    ├── assessment-prefilled.md
-    ├── manual-questionnaire.md
-    └── assessment-summary.json
+└── output/
+    ├── collected/
+    │   ├── ppac.json, graph.json, ...       ← Controls collectors
+    │   └── frontier.json                    ← Frontier collector
+    ├── scores.json                          ← Controls assessment
+    ├── assessment-prefilled.md              ← Controls assessment
+    ├── manual-questionnaire.md              ← Controls assessment
+    ├── assessment-summary.json             ← Controls assessment
+    ├── frontier-summary.json               ← Frontier assessment
+    ├── frontier-prefilled.md               ← Frontier assessment
+    └── capability-driver-rollup.json       ← Generated only when -AssessmentType Both
 ```
 
 ## Prerequisites
@@ -143,6 +173,48 @@ Skip one or more collectors when their prerequisites aren't available:
 .\run-assessment.ps1 ... -OutputDir "C:\Assessments\contoso-2026-03"
 ```
 
+### Frontier Readiness Mode (interactive)
+
+```powershell
+.\run-assessment.ps1 `
+    -TenantId "00000000-0000-0000-0000-000000000000" `
+    -Zone 2 `
+    -AuthMode Interactive `
+    -CustomerName "Contoso Financial" `
+    -AssessmentType Frontier
+```
+
+Sentinel parameters are not required when `-AssessmentType Frontier`. The orchestrator will run `Collect-Frontier.ps1` interactively, prompting you for each of the 25 questions.
+
+### Frontier Readiness Mode (batch — pre-recorded answers)
+
+```powershell
+.\run-assessment.ps1 `
+    -TenantId "00000000-0000-0000-0000-000000000000" `
+    -Zone 2 `
+    -AuthMode Interactive `
+    -CustomerName "Contoso Financial" `
+    -AssessmentType Frontier `
+    -FrontierAnswersFile ".\contoso-frontier-answers.json"
+```
+
+The answers JSON shape is documented in `assessment/collectors/Collect-Frontier.ps1` (see `-InputFile`).
+
+### Both Assessments in One Run
+
+```powershell
+.\run-assessment.ps1 `
+    -TenantId "00000000-0000-0000-0000-000000000000" `
+    -Zone 2 `
+    -AuthMode Interactive `
+    -CustomerName "Contoso Financial" `
+    -AssessmentType Both `
+    -SubscriptionId "..." -ResourceGroup "..." -WorkspaceName "..." `
+    -FrontierAnswersFile ".\frontier-answers.json"
+```
+
+Produces both report sets PLUS `output/capability-driver-rollup.json` (cross-referencing controls scored maturity by capability driver tag).
+
 ## Zones
 
 The FSI-AgentGov framework defines three deployment zones with increasing
@@ -166,6 +238,10 @@ maturity thresholds. A zone-3 assessment is the most stringent.
 | `output/assessment-prefilled.md` | Markdown | Pre-filled assessment report organized by pillar and control |
 | `output/manual-questionnaire.md` | Markdown | Interview questions for controls requiring manual validation |
 | `output/assessment-summary.json` | JSON | Machine-readable summary for dashboards and CI integration |
+| `output/collected/frontier.json` | JSON | Facilitator answers from the Frontier Readiness questionnaire |
+| `output/frontier-summary.json` | JSON | 5-driver scores (100–500), scale-breaker, pattern readiness |
+| `output/frontier-prefilled.md` | Markdown | Frontier readiness narrative with executive summary, scale-breaker analysis, pattern readiness, question-level detail |
+| `output/capability-driver-rollup.json` | JSON | Per-driver rollup of Controls maturity scores (only when `-AssessmentType Both`) |
 
 ## Maturity Scale
 
@@ -182,6 +258,22 @@ Each control receives a maturity score from 0–4:
 A control's maturity score is determined by comparing the number of passing
 checks against the zone-specific threshold in the controls manifest. If the
 passing count is below the minimum, the score is 0 (Not Implemented).
+
+## Frontier Readiness Maturity Levels
+
+The Frontier Readiness assessment scores each of the 5 capability drivers on the Microsoft 100–500 scale (NOT the 0–4 controls scale — these are different instruments answering different questions, see [docs/framework/agentic-capability-drivers.md](../docs/framework/agentic-capability-drivers.md) §"Why FSI does NOT mathematically merge maturity scales").
+
+| Score | Level | Description |
+|-------|-------|-------------|
+| 100 | **Initial** | Ad-hoc; no documented processes; isolated practitioners |
+| 200 | **Repeatable** | Patterns within a single business unit; informal coordination |
+| 300 | **Defined** | Enterprise-wide documentation; named owners; reviewed cadence |
+| 400 | **Capable** | Measured outcomes; refresh cadences; integrated reporting |
+| 500 | **Optimized** | Continuous improvement; board-level integration; quarterly attestation |
+
+The five drivers are: AI Strategy & Experience, Business Strategy, AI Governance & Security, Technology & Data, Organization & Culture.
+
+The **scale-breaker** is the lowest-scored driver — the ceiling on how far any Frontier Transformation Pattern can scale, regardless of how strong the other drivers are.
 
 ## Confidence Levels
 
@@ -220,6 +312,7 @@ pytest tests/ -v
 | File | Tests | Focus |
 |------|-------|-------|
 | `tests/test_score.py` | 7 | Zone thresholds, maturity scoring, confidence, summaries |
+| `tests/test_score_frontier.py` | ≥6 | Driver scoring (100–500), scale-breaker identification, pattern readiness |
 | `tests/test_report.py` | 4 | Output file generation, Markdown structure, JSON schema |
 
 ### Test Fixtures
