@@ -757,6 +757,8 @@ nav:
     - NIST AI RMF Crosswalk: reference/nist-ai-rmf-crosswalk.md
     - Microsoft CAPE Crosswalk: reference/microsoft-cape-crosswalk.md
     - CCO Quick Reference: reference/cco-quick-reference.md
+    - CSA Quick Reference: reference/csa-quick-reference.md
+    - CSA Positioning Guide: reference/csa-positioning-guide.md
     - Regulatory Mappings: reference/regulatory-mappings.md
     - Agent Audit Event Taxonomy: reference/agent-audit-event-taxonomy.md
     - Agent Essentials Control Mapping: reference/agent-essentials-control-mapping.md
