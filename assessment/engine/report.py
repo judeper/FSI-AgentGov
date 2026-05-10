@@ -42,7 +42,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-from jinja2 import Environment
+from jinja2 import Environment, select_autoescape
 
 log = logging.getLogger("fsi-agentgov-report")
 
@@ -837,7 +837,12 @@ def generate_summary_json(
 
 
 def generate_frontier_prefilled_md(data: dict) -> str:
-    env = Environment(keep_trailing_newline=True)
+    # Markdown output (not HTML); select_autoescape with no enabled
+    # extensions is explicit and satisfies CodeQL py/jinja2-autoescape-false.
+    env = Environment(
+        keep_trailing_newline=True,
+        autoescape=select_autoescape(enabled_extensions=(), default_for_string=False),
+    )
     template = env.from_string(FRONTIER_PREFILLED_TEMPLATE)
     return template.render(**data)
 
