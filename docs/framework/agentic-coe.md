@@ -156,7 +156,7 @@ flowchart LR
     C -.-> GR
 ```
 
-Editable Mermaid source: [`docs/images/diagrams/source/cape/coe-structure-by-pattern.mmd`](https://github.com/judeper/FSI-AgentGov/blob/main/docs/images/diagrams/source/cape/coe-structure-by-pattern.mmd). See the [Diagram Catalog](../reference/diagram-catalog.md) for export and licensing notes.
+Editable Mermaid source: [`docs/images/diagrams/source/cape/coe-structure-by-pattern.mmd`](../images/diagrams/source/cape/coe-structure-by-pattern.mmd). See the [Diagram Catalog](../reference/diagram-catalog.md) for export and licensing notes.
 
 ### Shape: Centralized
 
@@ -282,7 +282,7 @@ flowchart LR
     DOMAIN --- GUARD
 ```
 
-Editable Mermaid source: [`docs/images/diagrams/source/cape/decision-rights.mmd`](https://github.com/judeper/FSI-AgentGov/blob/main/docs/images/diagrams/source/cape/decision-rights.mmd). For canonical role names, see [Role Catalog](../reference/role-catalog.md). For the full RACI by lifecycle stage, see [Operating Model](operating-model.md). For export and licensing notes, see the [Diagram Catalog](../reference/diagram-catalog.md).
+Editable Mermaid source: [`docs/images/diagrams/source/cape/decision-rights.mmd`](../images/diagrams/source/cape/decision-rights.mmd). For canonical role names, see [Role Catalog](../reference/role-catalog.md). For the full RACI by lifecycle stage, see [Operating Model](operating-model.md). For export and licensing notes, see the [Diagram Catalog](../reference/diagram-catalog.md).
 
 ---
 

@@ -188,7 +188,7 @@ flowchart LR
     linkStyle default stroke-width:1.5px
 ```
 
-Editable Mermaid source: [`docs/images/diagrams/source/cape/pattern-zone-matrix.mmd`](https://github.com/judeper/FSI-AgentGov/blob/main/docs/images/diagrams/source/cape/pattern-zone-matrix.mmd). See the [Diagram Catalog](diagram-catalog.md) for export instructions and the full inventory of CAPE-alignment diagrams.
+Editable Mermaid source: [`docs/images/diagrams/source/cape/pattern-zone-matrix.mmd`](../images/diagrams/source/cape/pattern-zone-matrix.mmd). See the [Diagram Catalog](diagram-catalog.md) for export instructions and the full inventory of CAPE-alignment diagrams.
 
 ---
 

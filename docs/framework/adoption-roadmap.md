@@ -50,7 +50,7 @@ gantt
     Phase 0 governance review (FSI Week 8)  :milestone, m4, 2025-02-26, 0d
 ```
 
-Editable Mermaid source: [`docs/images/diagrams/source/cape/cape-fsi-timeline.mmd`](https://github.com/judeper/FSI-AgentGov/blob/main/docs/images/diagrams/source/cape/cape-fsi-timeline.mmd). For the full inventory of CAPE-alignment diagrams and export instructions, see the [Diagram Catalog](../reference/diagram-catalog.md).
+Editable Mermaid source: [`docs/images/diagrams/source/cape/cape-fsi-timeline.mmd`](../images/diagrams/source/cape/cape-fsi-timeline.mmd). For the full inventory of CAPE-alignment diagrams and export instructions, see the [Diagram Catalog](../reference/diagram-catalog.md).
 
 ---
 

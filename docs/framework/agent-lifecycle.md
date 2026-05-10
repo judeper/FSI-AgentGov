@@ -47,7 +47,7 @@ flowchart LR
     S7 --- H7
 ```
 
-Editable Mermaid source: [`docs/images/diagrams/source/cape/agent-lifecycle-7-stage.mmd`](https://github.com/judeper/FSI-AgentGov/blob/main/docs/images/diagrams/source/cape/agent-lifecycle-7-stage.mmd). For canonical role assignments per stage, see the [CoE × Lifecycle ownership matrix](agentic-coe.md#coe-lifecycle-ownership-matrix). For export and reuse, see the [Diagram Catalog](../reference/diagram-catalog.md).
+Editable Mermaid source: [`docs/images/diagrams/source/cape/agent-lifecycle-7-stage.mmd`](../images/diagrams/source/cape/agent-lifecycle-7-stage.mmd). For canonical role assignments per stage, see the [CoE × Lifecycle ownership matrix](agentic-coe.md#coe-lifecycle-ownership-matrix). For export and reuse, see the [Diagram Catalog](../reference/diagram-catalog.md).
 
 ---
 
