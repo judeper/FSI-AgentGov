@@ -417,25 +417,30 @@ class TestPatternReadiness:
 class TestEvaluatorCoverage:
     """Unit tests for compute_evaluator_coverage()."""
 
-    def test_v1_all_manual(self, manifest_data: dict) -> None:
-        """Real frontier-readiness.json v1: all 25 questions are manual_only."""
+    def test_v1_counts_after_q16_wiring(self, manifest_data: dict) -> None:
+        """Real frontier-readiness.json post-Q16: 1 auto, 24 manual, 0 unimplemented."""
         questions = manifest_data["questions"]
         coverage = score_frontier.compute_evaluator_coverage(questions)
-        assert coverage["questions"]["manual_only"] == 25
-        assert coverage["questions"]["auto_evaluable"] == 0
+        assert coverage["questions"]["auto_evaluable"] == 1
+        assert coverage["questions"]["manual_only"] == 24
         assert coverage["questions"]["unimplemented_evaluator"] == 0
         assert coverage["total_questions"] == 25
 
-    def test_auto_evaluable_flag_counted(self) -> None:
-        """auto_evaluable=True counts in auto_evaluable bucket."""
+    def test_auto_evaluable_requires_registered_evaluator(self) -> None:
+        """auto_evaluable=True with unregistered pass_condition → unimplemented_evaluator."""
         questions = [
-            {"question_id": "Q01", "auto_evaluable": True, "collection_methods": ["Manual"]},
+            {
+                "question_id": "Q01",
+                "auto_evaluable": True,
+                "pass_condition": "nonexistent_evaluator",
+                "collection_methods": ["Manual", "API"],
+            },
             {"question_id": "Q02", "auto_evaluable": False, "collection_methods": ["Manual"]},
         ]
         coverage = score_frontier.compute_evaluator_coverage(questions)
-        assert coverage["questions"]["auto_evaluable"] == 1
+        assert coverage["questions"]["auto_evaluable"] == 0
+        assert coverage["questions"]["unimplemented_evaluator"] == 1
         assert coverage["questions"]["manual_only"] == 1
-        assert coverage["total_questions"] == 2
 
     def test_non_manual_without_evaluator_counted(self) -> None:
         """Collection method other than Manual, auto_evaluable False → unimplemented_evaluator."""
@@ -462,7 +467,7 @@ class TestEvaluatorCoverage:
 # ---------------------------------------------------------------------------
 
 _REQUIRED_TOP_KEYS = frozenset(
-    {"_metadata", "driver_scores", "scale_breaker", "pattern_readiness", "evaluator_coverage"}
+    {"_metadata", "driver_scores", "scale_breaker", "pattern_readiness", "evaluator_coverage", "evaluator_results"}
 )
 _REQUIRED_METADATA_KEYS = frozenset({"engine_version", "timestamp", "manifest_version"})
 
@@ -606,3 +611,111 @@ class TestEndToEnd:
         assert meta["engine_version"] == score_frontier.ENGINE_VERSION
         assert "T" in meta["timestamp"]  # ISO 8601 contains literal 'T'
         assert meta["manifest_version"] == "1.0.0"
+
+
+# ---------------------------------------------------------------------------
+# TestFrontierEvaluators — Q16 evaluator and framework integration
+# ---------------------------------------------------------------------------
+
+
+def _setup_ppac_collected(tmp_path: Path, fixture_name: str) -> Path:
+    """Copy a PPAC fixture into a temp collected/ dir for evaluator testing."""
+    collected = tmp_path / "collected"
+    collected.mkdir(exist_ok=True)
+    data = load_fixture(fixture_name)
+    write_json(collected / "ppac.json", data)
+    return collected
+
+
+class TestFrontierEvaluators:
+    """Tests for the Q16 evaluator and frontier evaluator framework."""
+
+    def test_evaluator_q16_yes_with_environments(self, tmp_path: Path) -> None:
+        """PPAC fixture with 2 envs → evaluator returns ('yes', evidence mentioning both)."""
+        collected = _setup_ppac_collected(tmp_path, "ppac_with_envs.json")
+        answer, evidence = score_frontier._eval_any_environment_visibility_for_agents(collected)
+        assert answer == "yes"
+        assert "2 environment(s)" in evidence
+        assert "Default" in evidence
+        assert "Prod-CoE" in evidence
+
+    def test_evaluator_q16_no_with_empty_environments(self, tmp_path: Path) -> None:
+        """PPAC fixture with empty envs list → evaluator returns ('no', evidence)."""
+        collected = _setup_ppac_collected(tmp_path, "ppac_empty_envs.json")
+        answer, evidence = score_frontier._eval_any_environment_visibility_for_agents(collected)
+        assert answer == "no"
+        assert "zero environments" in evidence
+
+    def test_evaluator_q16_inconclusive_when_ppac_missing(self, tmp_path: Path) -> None:
+        """No ppac.json file → returns (None, evidence about missing)."""
+        collected = tmp_path / "collected"
+        collected.mkdir()
+        answer, evidence = score_frontier._eval_any_environment_visibility_for_agents(collected)
+        assert answer is None
+        assert "not found" in evidence
+
+    def test_evaluator_q16_inconclusive_when_collector_errored(self, tmp_path: Path) -> None:
+        """ppac.json with _metadata.errors populated → returns (None, evidence)."""
+        collected = _setup_ppac_collected(tmp_path, "ppac_with_errors.json")
+        answer, evidence = score_frontier._eval_any_environment_visibility_for_agents(collected)
+        assert answer is None
+        assert "collector reported errors" in evidence
+
+    def test_score_driver_facilitator_answer_wins_over_evaluator(
+        self, tmp_path: Path, manifest_data: dict
+    ) -> None:
+        """Facilitator answers 'no' for Q16, but evaluator would return 'yes' → score uses 'no'."""
+        collected = _setup_ppac_collected(tmp_path, "ppac_with_envs.json")
+        questions = manifest_data["questions"]
+        # Facilitator explicitly says "no"
+        answers = {"Q16": {"value": "no"}}
+        result = score_frontier.score_driver(
+            "technology_data", questions, answers, collected_dir=collected
+        )
+        # L100 ratio should be 0.0 (from "no" = 0.0), not 1.0 (from "yes")
+        assert result["level_breakdown"]["100"]["ratio"] == pytest.approx(0.0)
+
+    def test_score_driver_uses_evaluator_when_no_facilitator_answer(
+        self, tmp_path: Path, manifest_data: dict
+    ) -> None:
+        """Facilitator omits Q16, evaluator returns 'yes' → score reflects 'yes'."""
+        collected = _setup_ppac_collected(tmp_path, "ppac_with_envs.json")
+        questions = manifest_data["questions"]
+        answers: dict[str, dict] = {}  # no facilitator answers at all
+        result = score_frontier.score_driver(
+            "technology_data", questions, answers, collected_dir=collected
+        )
+        # Q16 is L100 with weight 1.0; evaluator yields "yes" = 1.0
+        # Only 1 of 5 tech_data questions answered → ratio at L100 = 1.0
+        assert result["level_breakdown"]["100"]["ratio"] == pytest.approx(1.0)
+        assert result["questions_answered"] >= 1
+
+    def test_evaluator_coverage_q16_classified_as_auto(self, manifest_data: dict) -> None:
+        """After manifest update, coverage matrix counts Q16 as auto_evaluable: 1."""
+        questions = manifest_data["questions"]
+        coverage = score_frontier.compute_evaluator_coverage(questions)
+        assert coverage["questions"]["auto_evaluable"] == 1
+
+    def test_run_includes_evaluator_results_in_output(self, tmp_path: Path) -> None:
+        """End-to-end via run() populates evaluator_results.Q16 in output JSON."""
+        collected = tmp_path / "collected"
+        collected.mkdir()
+        # Write frontier.json with NO answers (so evaluator kicks in)
+        write_json(collected / "frontier.json", {"_metadata": {}, "answers": {}})
+        # Write ppac.json with environments
+        ppac_data = load_fixture("ppac_with_envs.json")
+        write_json(collected / "ppac.json", ppac_data)
+        output_path = tmp_path / "frontier-summary.json"
+
+        result = score_frontier.run(
+            manifest_path=str(MANIFEST_PATH),
+            collected_dir=str(collected),
+            output_path=str(output_path),
+        )
+
+        assert "evaluator_results" in result
+        assert "Q16" in result["evaluator_results"]
+        q16_result = result["evaluator_results"]["Q16"]
+        assert q16_result["answer_value"] == "yes"
+        assert "environment(s)" in q16_result["evidence"]
+        assert q16_result["used_for_scoring"] is True

@@ -185,12 +185,16 @@ def score_driver(
     driver_id: str,
     manifest_questions: list[dict],
     answers: dict[str, dict],
+    collected_dir: Path | None = None,
 ) -> dict:
     """Score a single driver across its level-stratified questions.
 
     Returns a dict with ``score``, ``level_label``, ``questions_answered``,
     ``questions_total``, ``confidence``, and ``level_breakdown`` (per-level
     answered / total / ratio).
+
+    When *collected_dir* is provided, evaluator-derived answers are used as
+    fallback for questions where no facilitator answer is present.
     """
     driver_questions = [q for q in manifest_questions if q.get("driver") == driver_id]
     questions_total = len(driver_questions)
@@ -204,7 +208,15 @@ def score_driver(
         weight_sum = 0.0
         answered_at_level = 0
         for q in level_qs:
-            normalized = _normalize_answer(q, answers.get(q.get("question_id")))
+            qid = q.get("question_id")
+            # Facilitator answer wins.
+            answer_obj = answers.get(qid)
+            # Evaluator fallback when no facilitator answer.
+            if (answer_obj is None or answer_obj.get("value") is None) and collected_dir is not None:
+                eval_value, eval_evidence = _lookup_evaluator_answer(q, collected_dir)
+                if eval_value is not None:
+                    answer_obj = {"value": eval_value, "evidence": eval_evidence, "source": "evaluator"}
+            normalized = _normalize_answer(q, answer_obj)
             if normalized is None:
                 continue
             weight = float(q.get("scoring_weight", 1.0))
@@ -330,6 +342,83 @@ def assess_pattern_readiness(
 
 
 # ---------------------------------------------------------------------------
+# Pass-condition evaluators
+# ---------------------------------------------------------------------------
+# Signature: (collected_dir: Path) -> (answer_value: str | None, evidence: str)
+# answer_value ∈ {"yes", "no", "partial", None}. None = inconclusive.
+# Frontier evaluators take a Path (not a dict) because they run before
+# the collected-data dict assembly that score.py performs.
+
+
+def _eval_any_environment_visibility_for_agents(
+    collected_dir: Path,
+) -> tuple[str | None, str]:
+    """Q16 evaluator: check ppac.json for environment visibility."""
+    ppac_path = collected_dir / "ppac.json"
+    if not ppac_path.is_file():
+        return None, "PPAC data unavailable: ppac.json not found"
+
+    try:
+        with open(ppac_path, "r", encoding="utf-8") as fh:
+            ppac = json.load(fh)
+    except (json.JSONDecodeError, OSError) as exc:
+        return None, f"PPAC data unavailable: failed to read ppac.json ({exc})"
+
+    # Check for collector errors.
+    metadata = ppac.get("_metadata") or {}
+    errors = metadata.get("errors") or []
+    if errors:
+        first_error = errors[0] if isinstance(errors[0], str) else str(errors[0])
+        return None, f"PPAC data unavailable: collector reported errors ({first_error})"
+
+    environments = ppac.get("environments")
+    if environments is None:
+        return None, "PPAC data unavailable: environments field absent"
+
+    if not isinstance(environments, list):
+        return None, "PPAC data unavailable: environments field is not a list"
+
+    if len(environments) == 0:
+        return "no", "PPAC reported zero environments"
+
+    names = [
+        env.get("DisplayName") or env.get("EnvironmentName") or "unnamed"
+        for env in environments[:3]
+    ]
+    suffix = f" (and {len(environments) - 3} more)" if len(environments) > 3 else ""
+    return (
+        "yes",
+        f"PPAC reported {len(environments)} environment(s): {', '.join(names)}{suffix}",
+    )
+
+
+# --- Evaluator registry ---------------------------------------------------
+
+EVALUATORS: dict[str, object] = {
+    "any_environment_visibility_for_agents": _eval_any_environment_visibility_for_agents,
+}
+
+
+def _lookup_evaluator_answer(
+    question: dict, collected_dir: Path
+) -> tuple[str | None, str | None]:
+    """Look up an evaluator result for a frontier question.
+
+    Returns ``(answer_value, evidence)`` if an evaluator is registered and
+    produces a non-None result. Returns ``(None, None)`` when no evaluator
+    applies or the evaluator is inconclusive.
+    """
+    if question.get("auto_evaluable") is not True:
+        return None, None
+    condition = question.get("pass_condition") or ""
+    evaluator = EVALUATORS.get(condition)
+    if evaluator is None:
+        return None, None
+    answer_value, evidence = evaluator(collected_dir)  # type: ignore[operator]
+    return answer_value, evidence
+
+
+# ---------------------------------------------------------------------------
 # Evaluator coverage
 # ---------------------------------------------------------------------------
 
@@ -338,18 +427,26 @@ def compute_evaluator_coverage(manifest_questions: list[dict]) -> dict:
     """Aggregate evaluator-state coverage for the question set.
 
     A frontier question's state is one of:
-      - ``auto_evaluable``: ``auto_evaluable == True``
-      - ``manual_only``: ``collection_methods == ["Manual"]`` and not auto-evaluable
-      - ``unimplemented_evaluator``: anything else (a non-Manual collection
-        method is declared but no evaluator wired)
+      - ``auto_evaluable``: ``auto_evaluable == True`` AND ``pass_condition``
+        has a registered evaluator in EVALUATORS
+      - ``unimplemented_evaluator``: ``auto_evaluable == True`` but no
+        registered evaluator (safety net), OR non-Manual collection method
+        declared without auto_evaluable
+      - ``manual_only``: ``auto_evaluable == False`` and
+        ``collection_methods == ["Manual"]``
     """
     counts = {"auto_evaluable": 0, "manual_only": 0, "unimplemented_evaluator": 0}
     for q in manifest_questions:
-        if q.get("auto_evaluable") is True:
-            counts["auto_evaluable"] += 1
-            continue
+        auto = q.get("auto_evaluable") is True
+        condition = q.get("pass_condition") or ""
+        has_evaluator = condition in EVALUATORS
         methods = q.get("collection_methods") or []
-        if list(methods) == ["Manual"]:
+
+        if auto and has_evaluator:
+            counts["auto_evaluable"] += 1
+        elif auto and not has_evaluator:
+            counts["unimplemented_evaluator"] += 1
+        elif not auto and list(methods) == ["Manual"]:
             counts["manual_only"] += 1
         else:
             counts["unimplemented_evaluator"] += 1
@@ -441,7 +538,7 @@ def run(
 
     driver_scores: dict[str, dict] = {}
     for driver_id in DRIVER_IDS:
-        result = score_driver(driver_id, questions, answers)
+        result = score_driver(driver_id, questions, answers, collected_dir=collected_p)
         driver_scores[driver_id] = result
         log.debug(
             "  %s — score %d (%s), confidence %s",
@@ -455,6 +552,20 @@ def run(
     pattern_readiness = assess_pattern_readiness(driver_scores, pattern_targets)
     evaluator_coverage = compute_evaluator_coverage(questions)
 
+    # Build per-question evaluator results for transparency.
+    evaluator_results: dict[str, dict] = {}
+    for q in questions:
+        eval_value, eval_evidence = _lookup_evaluator_answer(q, collected_p)
+        if eval_value is not None or eval_evidence is not None:
+            qid = q["question_id"]
+            facilitator_answer = answers.get(qid)
+            used = facilitator_answer is None or facilitator_answer.get("value") is None
+            evaluator_results[qid] = {
+                "answer_value": eval_value,
+                "evidence": eval_evidence,
+                "used_for_scoring": used,
+            }
+
     output = {
         "_metadata": {
             "engine_version": ENGINE_VERSION,
@@ -465,6 +576,7 @@ def run(
         "scale_breaker": scale_breaker,
         "pattern_readiness": pattern_readiness,
         "evaluator_coverage": evaluator_coverage,
+        "evaluator_results": evaluator_results,
     }
 
     output_p.parent.mkdir(parents=True, exist_ok=True)

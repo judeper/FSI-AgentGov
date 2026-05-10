@@ -18,8 +18,8 @@ It is the honest answer to *what does the Frontier Readiness assessment actually
 
 | State | Count | Share |
 |-------|-------|-------|
-| ✅ Auto | 0 | 0.0% |
-| 📝 Manual | 25 | 100.0% |
+| ✅ Auto | 1 | 4.0% |
+| 📝 Manual | 24 | 96.0% |
 | ⚠️ Unimplemented | 0 | 0.0% |
 | **Total** | 25 | 100% |
 
@@ -30,7 +30,7 @@ It is the honest answer to *what does the Frontier Readiness assessment actually
 | AI Strategy & Experience | 5 | 0 | 5 | 0 |
 | Business Strategy | 5 | 0 | 5 | 0 |
 | AI Governance & Security | 5 | 0 | 5 | 0 |
-| Technology & Data | 5 | 0 | 5 | 0 |
+| Technology & Data | 5 | 1 | 4 | 0 |
 | Organization & Culture | 5 | 0 | 5 | 0 |
 
 ## Per-question detail
@@ -69,7 +69,7 @@ It is the honest answer to *what does the Frontier Readiness assessment actually
 
 | Q ID | Level | Question | State | Pass Condition | Notes |
 |---|---|---|---|---|---|
-| Q16 | 100 | Is there any visibility into which Power Platform environments host AI agents... | 📝 Manual | `any_environment_visibility_for_agents` | Facilitator-answered. |
+| Q16 | 100 | Is there any visibility into which Power Platform environments host AI agents... | ✅ Auto | `any_environment_visibility_for_agents` |  |
 | Q17 | 200 | Are some environments tagged or grouped for agent workloads, with basic telem... | 📝 Manual | `tagged_environments_with_basic_telemetry` | Facilitator-answered. |
 | Q18 | 300 | Are Environment Groups with tier classification operational, with automated a... | 📝 Manual | `env_groups_with_inventory_siem_rag_and_lineage` | Facilitator-answered. |
 | Q19 | 400 | Does the platform provide integrated telemetry across Sentinel, the Agent 365... | 📝 Manual | `integrated_telemetry_with_curated_templates_and_agent_id` | Facilitator-answered. |

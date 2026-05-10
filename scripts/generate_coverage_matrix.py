@@ -39,6 +39,7 @@ FRONTIER_OUTPUT_PATH = REPO_ROOT / "docs" / "reference" / "frontier-assessment-c
 sys.path.insert(0, str(ENGINE_DIR))
 
 import score  # type: ignore[import-untyped]  # noqa: E402
+import score_frontier  # type: ignore[import-untyped]  # noqa: E402
 
 STATE_LABEL = {
     "auto_evaluable": "Auto",
@@ -273,11 +274,20 @@ def load_frontier_manifest() -> dict:
 
 
 def classify_frontier_question_state(question: dict) -> str:
-    """Return one of: 'auto_evaluable', 'manual_only', 'unimplemented_evaluator'."""
+    """Return one of: 'auto_evaluable', 'manual_only', 'unimplemented_evaluator'.
+
+    Mirrors the logic in ``score_frontier.compute_evaluator_coverage`` —
+    requires BOTH ``auto_evaluable: true`` in the manifest AND a registered
+    evaluator in the EVALUATORS dict.
+    """
     auto = question.get("auto_evaluable", False)
+    condition = question.get("pass_condition") or ""
+    has_evaluator = condition in score_frontier.EVALUATORS
     methods = question.get("collection_methods", [])
-    if auto:
+    if auto and has_evaluator:
         return "auto_evaluable"
+    if auto and not has_evaluator:
+        return "unimplemented_evaluator"
     if len(methods) == 1 and methods[0] == "Manual":
         return "manual_only"
     return "unimplemented_evaluator"
