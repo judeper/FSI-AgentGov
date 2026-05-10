@@ -350,19 +350,30 @@ def assess_pattern_readiness(
 # the collected-data dict assembly that score.py performs.
 
 
+def _load_collected_json(
+    collected_dir: Path, filename: str
+) -> tuple[dict | None, str | None]:
+    """Load a collector JSON file from the collected directory.
+
+    Returns ``(data, None)`` on success, or ``(None, error_reason)`` on failure.
+    """
+    path = collected_dir / filename
+    if not path.is_file():
+        return None, f"{filename} not found"
+    try:
+        with open(path, "r", encoding="utf-8") as fh:
+            return json.load(fh), None
+    except (json.JSONDecodeError, OSError) as exc:
+        return None, f"failed to read {filename} ({exc})"
+
+
 def _eval_any_environment_visibility_for_agents(
     collected_dir: Path,
 ) -> tuple[str | None, str]:
     """Q16 evaluator: check ppac.json for environment visibility."""
-    ppac_path = collected_dir / "ppac.json"
-    if not ppac_path.is_file():
-        return None, "PPAC data unavailable: ppac.json not found"
-
-    try:
-        with open(ppac_path, "r", encoding="utf-8") as fh:
-            ppac = json.load(fh)
-    except (json.JSONDecodeError, OSError) as exc:
-        return None, f"PPAC data unavailable: failed to read ppac.json ({exc})"
+    ppac, err = _load_collected_json(collected_dir, "ppac.json")
+    if ppac is None:
+        return None, f"PPAC data unavailable: {err}"
 
     # Check for collector errors.
     metadata = ppac.get("_metadata") or {}
@@ -392,10 +403,92 @@ def _eval_any_environment_visibility_for_agents(
     )
 
 
+def _eval_tagged_environments_with_basic_telemetry(
+    collected_dir: Path,
+) -> tuple[str | None, str]:
+    """Q17 evaluator: check env tags/groups in ppac.json + Sentinel workspace.
+
+    Returns:
+      - ("yes", evidence) — at least one env has tags or group membership AND
+        Sentinel workspace present.
+      - ("partial", evidence) — only one signal present (tags/groups OR Sentinel).
+      - ("no", evidence) — neither signal present.
+      - (None, evidence) — ppac.json missing or collector errored.
+    """
+    ppac, ppac_err = _load_collected_json(collected_dir, "ppac.json")
+    if ppac is None:
+        return None, f"PPAC data unavailable: {ppac_err}"
+
+    # Check for collector errors on environments.
+    metadata = ppac.get("_metadata") or {}
+    errors = metadata.get("errors") or []
+    if errors:
+        first_error = errors[0] if isinstance(errors[0], str) else str(errors[0])
+        return None, f"PPAC data unavailable: collector reported errors ({first_error})"
+
+    environments = ppac.get("environments")
+    if environments is None or not isinstance(environments, list):
+        return None, "PPAC data unavailable: environments field absent or invalid"
+
+    # Count environments with non-empty tags.
+    tagged_count = 0
+    for env in environments:
+        tags = env.get("Tags")
+        if isinstance(tags, dict) and len(tags) > 0:
+            tagged_count += 1
+
+    # Count environments with group membership.
+    grouped_count = 0
+    for env in environments:
+        gid = env.get("EnvironmentGroupId")
+        if gid is not None and gid != "":
+            grouped_count += 1
+
+    # Count environment groups from top-level field.
+    env_groups = ppac.get("environmentGroups")
+    env_group_count = len(env_groups) if isinstance(env_groups, list) else 0
+
+    has_tags_or_groups = tagged_count > 0 or grouped_count > 0
+
+    # Build PPAC evidence fragment.
+    total = len(environments)
+    parts: list[str] = []
+    parts.append(f"{tagged_count}/{total} environments with tags")
+    if grouped_count > 0:
+        parts.append(f"{grouped_count} with group membership")
+    if env_group_count > 0:
+        parts.append(f"{env_group_count} environment group(s)")
+    ppac_evidence = "PPAC reported " + "; ".join(parts)
+
+    # Sentinel workspace presence.
+    sentinel, _ = _load_collected_json(collected_dir, "sentinel.json")
+    has_sentinel = False
+    sentinel_name = ""
+    if sentinel is not None:
+        workspace = sentinel.get("workspace")
+        if isinstance(workspace, dict) and workspace.get("WorkspaceId"):
+            has_sentinel = True
+            sentinel_name = workspace.get("WorkspaceName") or workspace.get("WorkspaceId") or "unnamed"
+
+    if has_sentinel:
+        sentinel_evidence = f"Sentinel workspace '{sentinel_name}' present"
+    else:
+        sentinel_evidence = "Sentinel workspace not found"
+
+    evidence = f"{ppac_evidence}; {sentinel_evidence}"
+
+    if has_tags_or_groups and has_sentinel:
+        return "yes", evidence
+    if has_tags_or_groups or has_sentinel:
+        return "partial", evidence
+    return "no", evidence
+
+
 # --- Evaluator registry ---------------------------------------------------
 
 EVALUATORS: dict[str, object] = {
     "any_environment_visibility_for_agents": _eval_any_environment_visibility_for_agents,
+    "tagged_environments_with_basic_telemetry": _eval_tagged_environments_with_basic_telemetry,
 }
 
 

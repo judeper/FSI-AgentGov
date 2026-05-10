@@ -417,12 +417,12 @@ class TestPatternReadiness:
 class TestEvaluatorCoverage:
     """Unit tests for compute_evaluator_coverage()."""
 
-    def test_v1_counts_after_q16_wiring(self, manifest_data: dict) -> None:
-        """Real frontier-readiness.json post-Q16: 1 auto, 24 manual, 0 unimplemented."""
+    def test_v1_counts_after_q16_q17_wiring(self, manifest_data: dict) -> None:
+        """Real frontier-readiness.json post-Q16/Q17: 2 auto, 23 manual, 0 unimplemented."""
         questions = manifest_data["questions"]
         coverage = score_frontier.compute_evaluator_coverage(questions)
-        assert coverage["questions"]["auto_evaluable"] == 1
-        assert coverage["questions"]["manual_only"] == 24
+        assert coverage["questions"]["auto_evaluable"] == 2
+        assert coverage["questions"]["manual_only"] == 23
         assert coverage["questions"]["unimplemented_evaluator"] == 0
         assert coverage["total_questions"] == 25
 
@@ -691,10 +691,10 @@ class TestFrontierEvaluators:
         assert result["questions_answered"] >= 1
 
     def test_evaluator_coverage_q16_classified_as_auto(self, manifest_data: dict) -> None:
-        """After manifest update, coverage matrix counts Q16 as auto_evaluable: 1."""
+        """After manifest update, coverage matrix counts Q16+Q17 as auto_evaluable: 2."""
         questions = manifest_data["questions"]
         coverage = score_frontier.compute_evaluator_coverage(questions)
-        assert coverage["questions"]["auto_evaluable"] == 1
+        assert coverage["questions"]["auto_evaluable"] == 2
 
     def test_run_includes_evaluator_results_in_output(self, tmp_path: Path) -> None:
         """End-to-end via run() populates evaluator_results.Q16 in output JSON."""
@@ -719,3 +719,110 @@ class TestFrontierEvaluators:
         assert q16_result["answer_value"] == "yes"
         assert "environment(s)" in q16_result["evidence"]
         assert q16_result["used_for_scoring"] is True
+
+
+# ---------------------------------------------------------------------------
+# TestFrontierQ17Evaluator — Q17 evaluator tests
+# ---------------------------------------------------------------------------
+
+
+def _setup_collected_with(
+    tmp_path: Path,
+    ppac_fixture: str | None = None,
+    sentinel_fixture: str | None = None,
+) -> Path:
+    """Set up a collected directory with optional PPAC and Sentinel fixtures."""
+    collected = tmp_path / "collected"
+    collected.mkdir(exist_ok=True)
+    if ppac_fixture is not None:
+        data = load_fixture(ppac_fixture)
+        write_json(collected / "ppac.json", data)
+    if sentinel_fixture is not None:
+        data = load_fixture(sentinel_fixture)
+        write_json(collected / "sentinel.json", data)
+    return collected
+
+
+class TestFrontierQ17Evaluator:
+    """Tests for the Q17 evaluator (tagged_environments_with_basic_telemetry)."""
+
+    def test_evaluator_q17_yes_with_tagged_envs_and_sentinel(self, tmp_path: Path) -> None:
+        """Tagged envs + Sentinel workspace → ('yes', evidence)."""
+        collected = _setup_collected_with(
+            tmp_path, "ppac_with_tagged_envs.json", "sentinel_with_workspace.json"
+        )
+        answer, evidence = score_frontier._eval_tagged_environments_with_basic_telemetry(collected)
+        assert answer == "yes"
+        assert "2/3 environments with tags" in evidence
+        assert "fsi-prod-siem" in evidence
+
+    def test_evaluator_q17_partial_with_tags_but_no_sentinel(self, tmp_path: Path) -> None:
+        """Tagged envs but no Sentinel workspace → ('partial', evidence)."""
+        collected = _setup_collected_with(
+            tmp_path, "ppac_with_tagged_envs.json", "sentinel_no_workspace.json"
+        )
+        answer, evidence = score_frontier._eval_tagged_environments_with_basic_telemetry(collected)
+        assert answer == "partial"
+        assert "2/3 environments with tags" in evidence
+        assert "Sentinel workspace not found" in evidence
+
+    def test_evaluator_q17_partial_with_sentinel_but_no_tags(self, tmp_path: Path) -> None:
+        """No tags/groups but Sentinel workspace present → ('partial', evidence)."""
+        collected = _setup_collected_with(
+            tmp_path, "ppac_no_tags_no_groups.json", "sentinel_with_workspace.json"
+        )
+        answer, evidence = score_frontier._eval_tagged_environments_with_basic_telemetry(collected)
+        assert answer == "partial"
+        assert "0/2 environments with tags" in evidence
+        assert "fsi-prod-siem" in evidence
+
+    def test_evaluator_q17_no_when_neither_present(self, tmp_path: Path) -> None:
+        """No tags/groups and no Sentinel workspace → ('no', evidence)."""
+        collected = _setup_collected_with(
+            tmp_path, "ppac_no_tags_no_groups.json", "sentinel_no_workspace.json"
+        )
+        answer, evidence = score_frontier._eval_tagged_environments_with_basic_telemetry(collected)
+        assert answer == "no"
+        assert "0/2 environments with tags" in evidence
+        assert "Sentinel workspace not found" in evidence
+
+    def test_evaluator_q17_inconclusive_when_ppac_errored(self, tmp_path: Path) -> None:
+        """PPAC with collector errors → (None, evidence)."""
+        collected = _setup_collected_with(
+            tmp_path, "ppac_with_errors.json", "sentinel_with_workspace.json"
+        )
+        answer, evidence = score_frontier._eval_tagged_environments_with_basic_telemetry(collected)
+        assert answer is None
+        assert "PPAC data unavailable" in evidence
+
+    def test_evaluator_q17_recognizes_environment_group_membership(self, tmp_path: Path) -> None:
+        """Envs with empty Tags but EnvironmentGroupId set + Sentinel → ('yes', group evidence)."""
+        collected = _setup_collected_with(
+            tmp_path, "ppac_with_env_group.json", "sentinel_with_workspace.json"
+        )
+        answer, evidence = score_frontier._eval_tagged_environments_with_basic_telemetry(collected)
+        assert answer == "yes"
+        assert "1 with group membership" in evidence
+        assert "1 environment group(s)" in evidence
+
+    def test_score_driver_q17_facilitator_wins_over_evaluator_partial(
+        self, tmp_path: Path, manifest_data: dict
+    ) -> None:
+        """Facilitator says 'yes' while evaluator returns 'partial' → facilitator answer used."""
+        collected = _setup_collected_with(
+            tmp_path, "ppac_with_tagged_envs.json", "sentinel_no_workspace.json"
+        )
+        questions = manifest_data["questions"]
+        # Facilitator explicitly says "yes" for Q17
+        answers = {"Q17": {"value": "yes"}}
+        result = score_frontier.score_driver(
+            "technology_data", questions, answers, collected_dir=collected
+        )
+        # L200 ratio should be 1.0 (from facilitator "yes"), not 0.5 (from evaluator "partial")
+        assert result["level_breakdown"]["200"]["ratio"] == pytest.approx(1.0)
+
+    def test_evaluator_coverage_q17_classified_as_auto(self, manifest_data: dict) -> None:
+        """After manifest update, coverage counts Q16 + Q17 as auto_evaluable: 2."""
+        questions = manifest_data["questions"]
+        coverage = score_frontier.compute_evaluator_coverage(questions)
+        assert coverage["questions"]["auto_evaluable"] == 2

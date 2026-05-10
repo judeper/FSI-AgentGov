@@ -256,9 +256,9 @@
       "fsi_context": "Repeatable maturity requires environment grouping and baseline telemetry collection. This is the foundation for later SIEM integration and incident reconstruction supporting GLBA 501(b) Safeguards and FINRA 4511 retention.",
       "answer_format": "yes_no_partial",
       "scoring_weight": 1.0,
-      "auto_evaluable": false,
+      "auto_evaluable": true,
       "pass_condition": "tagged_environments_with_basic_telemetry",
-      "collection_methods": ["Manual"],
+      "collection_methods": ["Manual", "PPAC_API", "Sentinel_API"],
       "regulatory_relevance": ["FINRA-4511", "SEC-17a-4", "GLBA-501b"]
     },
     {

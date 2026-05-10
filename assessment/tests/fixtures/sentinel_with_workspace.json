@@ -1,0 +1,14 @@
+{
+  "_metadata": {
+    "collector": "Sentinel",
+    "timestamp": "2026-03-25T21:00:00Z",
+    "tenant_id": "test-tenant",
+    "warnings": []
+  },
+  "workspace": {
+    "WorkspaceId": "ws-fsi-001",
+    "WorkspaceName": "fsi-prod-siem",
+    "ProvisioningState": "Succeeded",
+    "Sku": "PerGB2018"
+  }
+}

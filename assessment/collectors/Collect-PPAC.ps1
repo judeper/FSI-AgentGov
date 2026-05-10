@@ -4,8 +4,9 @@
 
 .DESCRIPTION
     Enumerates Power Platform environments, DLP policies, role assignments, environment
-    routing rules, inactivity timeout settings, security posture score, and agent feature
-    flags via the PowerApps Administration module and BAP REST API.
+    routing rules, inactivity timeout settings, security posture score, agent feature
+    flags, environment groups, and per-environment tags and group membership via the
+    PowerApps Administration module and BAP REST API.
 
     Outputs a structured JSON file (ppac.json) consumed by the assessment engine.
 
@@ -32,7 +33,8 @@
 
 .OUTPUTS
     ppac.json — JSON file with environments, DLP policies, role assignments, routing rules,
-    inactivity timeout, security posture, and agent feature flags.
+    inactivity timeout, security posture, agent feature flags, environment groups, and
+    per-environment tags/group membership.
 
 .NOTES
     Part of the FSI Agent Governance Assessment Engine — PPAC Collector.
@@ -401,6 +403,112 @@ catch {
 }
 
 # ═══════════════════════════════════════════════════════════════════════
+# Section 8: Environment Groups (BAP REST API)
+# Supports: Frontier Q17 (tagged_environments_with_basic_telemetry)
+# Pattern: BAP admin API for environment group enumeration
+# ═══════════════════════════════════════════════════════════════════════
+$environmentGroups = $null
+try {
+    Write-Verbose "Section 8: Collecting environment groups via BAP API..."
+    if ($bapToken) {
+        $groupsUri = "https://api.bap.microsoft.com/providers/Microsoft.BusinessAppPlatform/scopes/admin/environmentGroups?api-version=2021-04-01"
+        $groupsResponse = Invoke-BapApi -Uri $groupsUri -Token $bapToken
+        if ($null -ne $groupsResponse) {
+            $groupItems = @()
+            if ($groupsResponse.value) {
+                $groupItems = $groupsResponse.value
+            }
+            elseif ($groupsResponse -is [System.Collections.IEnumerable] -and $groupsResponse -isnot [string]) {
+                $groupItems = @($groupsResponse)
+            }
+            $environmentGroups = @(foreach ($grp in $groupItems) {
+                $envCount = 0
+                if ($grp.properties.environments) {
+                    $envCount = @($grp.properties.environments).Count
+                }
+                [PSCustomObject]@{
+                    Id               = $grp.id
+                    DisplayName      = $grp.properties.displayName
+                    Description      = $grp.properties.description
+                    CreatedTime      = $grp.properties.createdTime
+                    EnvironmentCount = $envCount
+                }
+            })
+            Write-Verbose "  Collected $($environmentGroups.Count) environment group(s)."
+        }
+        else {
+            $environmentGroups = @()
+            $warnings.Add("Section 8 (Environment Groups): API returned no data — tenant may not have environment groups.")
+            Write-Warning $warnings[-1]
+        }
+    }
+    else {
+        $warnings.Add("Section 8 (Environment Groups): Skipped — BAP token unavailable.")
+        Write-Warning $warnings[-1]
+    }
+}
+catch {
+    $warnings.Add("Section 8 (Environment Groups) failed: $($_.Exception.Message)")
+    Write-Warning $warnings[-1]
+}
+
+# ═══════════════════════════════════════════════════════════════════════
+# Section 9: Per-Environment Tags + Group Membership (BAP REST API)
+# Supports: Frontier Q17 (tagged_environments_with_basic_telemetry)
+# Pattern: BAP admin API per-environment detail with $expand
+# ═══════════════════════════════════════════════════════════════════════
+try {
+    Write-Verbose "Section 9: Enriching environments with tags and group membership..."
+    if ($bapToken -and $environments) {
+        foreach ($env in $environments) {
+            $envId = $env.EnvironmentName
+            try {
+                $detailUri = "https://api.bap.microsoft.com/providers/Microsoft.BusinessAppPlatform/scopes/admin/environments/${envId}?api-version=2021-04-01&`$expand=permissions,properties.environmentGroup"
+                $detail = Invoke-BapApi -Uri $detailUri -Token $bapToken
+                if ($detail) {
+                    $tags = @{}
+                    if ($detail.properties.tags -and $detail.properties.tags -is [System.Collections.IDictionary]) {
+                        $tags = $detail.properties.tags
+                    }
+                    elseif ($detail.properties.tags -is [psobject]) {
+                        $detail.properties.tags.PSObject.Properties | ForEach-Object {
+                            $tags[$_.Name] = $_.Value
+                        }
+                    }
+                    $env | Add-Member -NotePropertyName 'Tags' -NotePropertyValue $tags -Force
+                    $groupId = $null
+                    if ($detail.properties.environmentGroup -and $detail.properties.environmentGroup.id) {
+                        $groupId = $detail.properties.environmentGroup.id
+                    }
+                    $env | Add-Member -NotePropertyName 'EnvironmentGroupId' -NotePropertyValue $groupId -Force
+                }
+                else {
+                    $env | Add-Member -NotePropertyName 'Tags' -NotePropertyValue @{} -Force
+                    $env | Add-Member -NotePropertyName 'EnvironmentGroupId' -NotePropertyValue $null -Force
+                    $warnings.Add("Section 9 (Tags): Detail API returned null for environment '$envId'.")
+                    Write-Warning $warnings[-1]
+                }
+            }
+            catch {
+                $env | Add-Member -NotePropertyName 'Tags' -NotePropertyValue $null -Force
+                $env | Add-Member -NotePropertyName 'EnvironmentGroupId' -NotePropertyValue $null -Force
+                $warnings.Add("Section 9 (Tags) failed for environment '${envId}': $($_.Exception.Message)")
+                Write-Warning $warnings[-1]
+            }
+        }
+        Write-Verbose "  Enriched $(@($environments).Count) environment(s) with tags and group membership."
+    }
+    else {
+        $warnings.Add("Section 9 (Tags): Skipped — BAP token or environments unavailable.")
+        Write-Warning $warnings[-1]
+    }
+}
+catch {
+    $warnings.Add("Section 9 (Tags) failed: $($_.Exception.Message)")
+    Write-Warning $warnings[-1]
+}
+
+# ═══════════════════════════════════════════════════════════════════════
 # Build Output
 # ═══════════════════════════════════════════════════════════════════════
 $result = [ordered]@{
@@ -411,6 +519,7 @@ $result = [ordered]@{
     inactivityTimeout  = $inactivityTimeout
     securityPosture    = $securityPosture
     agentFeatureFlags  = $agentFeatureFlags
+    environmentGroups  = $environmentGroups
     _metadata          = [ordered]@{
         collector               = 'Collect-PPAC'
         timestamp               = (Get-Date -Format 'o')
@@ -427,15 +536,15 @@ Write-Verbose "Output written to $outputFile"
 # ─── Exit Code ───────────────────────────────────────────────────────
 $nullSections = @(
     $environments, $dlpPolicies, $roleAssignments, $routingRules,
-    $inactivityTimeout, $securityPosture, $agentFeatureFlags
+    $inactivityTimeout, $securityPosture, $agentFeatureFlags, $environmentGroups
 ) | Where-Object { $null -eq $_ }
 
-if ($nullSections.Count -eq 7) {
+if ($nullSections.Count -eq 8) {
     Write-Error "All sections failed to collect data. See warnings for details."
     exit 2
 }
 elseif ($nullSections.Count -gt 0) {
-    Write-Warning "Partial collection: $($nullSections.Count)/7 sections returned null."
+    Write-Warning "Partial collection: $($nullSections.Count)/8 sections returned null."
     exit 1
 }
 else {
