@@ -1,0 +1,10 @@
+{
+  "_metadata": {
+    "collector": "PPAC",
+    "timestamp": "2026-03-25T21:00:00Z",
+    "tenant_id": "test-tenant",
+    "warnings": [],
+    "errors": []
+  },
+  "environments": []
+}

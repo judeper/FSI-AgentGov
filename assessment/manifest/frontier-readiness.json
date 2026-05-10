@@ -243,9 +243,9 @@
       "fsi_context": "Initial maturity requires at minimum awareness of where agents run. Without environment visibility the firm cannot scope retention or telemetry to support FINRA 4511 / SEC 17a-4 books-and-records expectations.",
       "answer_format": "yes_no_partial",
       "scoring_weight": 1.0,
-      "auto_evaluable": false,
+      "auto_evaluable": true,
       "pass_condition": "any_environment_visibility_for_agents",
-      "collection_methods": ["Manual"],
+      "collection_methods": ["Manual", "PPAC_API"],
       "regulatory_relevance": ["FINRA-4511", "SEC-17a-4"]
     },
     {
