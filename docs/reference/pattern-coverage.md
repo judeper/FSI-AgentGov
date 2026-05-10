@@ -21,14 +21,14 @@ It maps the 78 FSI-AgentGov controls to the 6 Microsoft CAPE Frontier Transforma
 
 ## Coverage summary
 
-| Pattern | Total controls applicable | Pattern-critical controls |
-|---|---|---|
-| 1 — Employee AI Enablement | 78 | 2 |
-| 2 — Business Expert Empowerment | 78 | 1 |
-| 3 — Workplace & IT Services | 78 | 1 |
-| 4 — Core Business Process Transformation | 78 | 3 |
-| 5 — External Engagement | 78 | 6 |
-| 6 — AI-First Capabilities | 78 | 4 |
+| Pattern | Total controls applicable | Pattern-critical controls | Solutions count |
+|---|---|---|---|
+| 1 — Employee AI Enablement | 78 | 2 | 14 |
+| 2 — Business Expert Empowerment | 78 | 1 | 9 |
+| 3 — Workplace & IT Services | 78 | 1 | 5 |
+| 4 — Core Business Process Transformation | 78 | 3 | 25 |
+| 5 — External Engagement | 78 | 6 | 19 |
+| 6 — AI-First Capabilities | 78 | 4 | 12 |
 
 ## Pattern-critical controls
 
@@ -68,6 +68,112 @@ The following controls are flagged as mission-critical for one or more patterns.
 - **2.20** Control 2.20: Adversarial Testing and Red Team Framework
 - **3.14** Control 3.14: Agent 365 Observability SDK and Custom Agent Telemetry
 - **3.9** Control 3.9: Microsoft Sentinel Integration
+
+## Solutions per pattern
+
+The following companion solutions in [FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions) declare support for each pattern (via `applicable_patterns` frontmatter in each solution README).
+
+### Pattern 1 — Employee AI Enablement
+
+- [`agent-access-monitor`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-access-monitor)
+- [`agent-registry-automation`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-registry-automation)
+- [`agent-sharing-access-restriction-detector`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-sharing-access-restriction-detector)
+- [`content-moderation-monitor`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/content-moderation-monitor)
+- [`copilot-studio-analytics`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/copilot-studio-analytics)
+- [`cross-tenant-external-sharing-governance`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/cross-tenant-external-sharing-governance)
+- [`environment-lifecycle-management`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/environment-lifecycle-management)
+- [`file-upload-security`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/file-upload-security)
+- [`generative-ai-config-auditor`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/generative-ai-config-auditor)
+- [`inactivity-timeout-enforcement`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/inactivity-timeout-enforcement)
+- [`mime-type-restrictions`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/mime-type-restrictions)
+- [`pipeline-governance-cleanup`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/pipeline-governance-cleanup)
+- [`session-security-configurator`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/session-security-configurator)
+- [`unrestricted-agent-sharing-detector`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/unrestricted-agent-sharing-detector)
+
+### Pattern 2 — Business Expert Empowerment
+
+- [`agent-knowledge-source-scanner`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-knowledge-source-scanner)
+- [`agent-registry-automation`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-registry-automation)
+- [`agent-sharing-access-restriction-detector`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-sharing-access-restriction-detector)
+- [`environment-lifecycle-management`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/environment-lifecycle-management)
+- [`generative-ai-config-auditor`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/generative-ai-config-auditor)
+- [`hallucination-tracker`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/hallucination-tracker)
+- [`mime-type-restrictions`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/mime-type-restrictions)
+- [`rag-source-validator`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/rag-source-validator)
+- [`scope-drift-monitor`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/scope-drift-monitor)
+
+### Pattern 3 — Workplace & IT Services
+
+- [`credential-oversharing-detector`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/credential-oversharing-detector)
+- [`file-upload-security`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/file-upload-security)
+- [`inactivity-timeout-enforcement`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/inactivity-timeout-enforcement)
+- [`mime-type-restrictions`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/mime-type-restrictions)
+- [`segregation-detector`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/segregation-detector)
+
+### Pattern 4 — Core Business Process Transformation
+
+- [`action-confirmation-auditor`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/action-confirmation-auditor)
+- [`agent-365-lifecycle-governance`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-365-lifecycle-governance)
+- [`agent-access-monitor`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-access-monitor)
+- [`agent-observability-foundation`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-observability-foundation)
+- [`agent-registry-automation`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-registry-automation)
+- [`audit-compliance-manager`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/audit-compliance-manager)
+- [`coi-testing`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/coi-testing)
+- [`compliance-dashboard`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/compliance-dashboard)
+- [`conditional-access-automation`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/conditional-access-automation)
+- [`copilot-studio-analytics`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/copilot-studio-analytics)
+- [`credential-oversharing-detector`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/credential-oversharing-detector)
+- [`cross-solution-integration`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/cross-solution-integration)
+- [`deny-event-correlation-report`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report)
+- [`dr-testing-framework`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/dr-testing-framework)
+- [`environment-lifecycle-management`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/environment-lifecycle-management)
+- [`finra-supervision-workflow`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/finra-supervision-workflow)
+- [`generative-ai-config-auditor`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/generative-ai-config-auditor)
+- [`hallucination-tracker`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/hallucination-tracker)
+- [`hitl-workflow-governance`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/hitl-workflow-governance)
+- [`message-center-monitor`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/message-center-monitor)
+- [`model-risk-management-automation`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/model-risk-management-automation)
+- [`pipeline-governance-cleanup`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/pipeline-governance-cleanup)
+- [`scope-drift-monitor`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/scope-drift-monitor)
+- [`segregation-detector`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/segregation-detector)
+- [`session-security-configurator`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/session-security-configurator)
+
+### Pattern 5 — External Engagement
+
+- [`action-confirmation-auditor`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/action-confirmation-auditor)
+- [`agent-365-lifecycle-governance`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-365-lifecycle-governance)
+- [`agent-observability-foundation`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-observability-foundation)
+- [`audit-compliance-manager`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/audit-compliance-manager)
+- [`coi-testing`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/coi-testing)
+- [`compliance-dashboard`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/compliance-dashboard)
+- [`conditional-access-automation`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/conditional-access-automation)
+- [`content-moderation-monitor`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/content-moderation-monitor)
+- [`cross-solution-integration`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/cross-solution-integration)
+- [`cross-tenant-external-sharing-governance`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/cross-tenant-external-sharing-governance)
+- [`deny-event-correlation-report`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report)
+- [`dr-testing-framework`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/dr-testing-framework)
+- [`finra-supervision-workflow`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/finra-supervision-workflow)
+- [`hallucination-tracker`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/hallucination-tracker)
+- [`hitl-workflow-governance`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/hitl-workflow-governance)
+- [`message-center-monitor`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/message-center-monitor)
+- [`model-risk-management-automation`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/model-risk-management-automation)
+- [`session-security-configurator`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/session-security-configurator)
+- [`unrestricted-agent-sharing-detector`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/unrestricted-agent-sharing-detector)
+
+### Pattern 6 — AI-First Capabilities
+
+- [`action-confirmation-auditor`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/action-confirmation-auditor)
+- [`agent-365-lifecycle-governance`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-365-lifecycle-governance)
+- [`agent-communication-restriction-detector`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-communication-restriction-detector)
+- [`agent-observability-foundation`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-observability-foundation)
+- [`audit-compliance-manager`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/audit-compliance-manager)
+- [`compliance-dashboard`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/compliance-dashboard)
+- [`conditional-access-automation`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/conditional-access-automation)
+- [`cross-solution-integration`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/cross-solution-integration)
+- [`deny-event-correlation-report`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report)
+- [`hitl-workflow-governance`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/hitl-workflow-governance)
+- [`message-center-monitor`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/message-center-monitor)
+- [`model-risk-management-automation`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/model-risk-management-automation)
 
 ## Per-pillar control × pattern matrix
 
