@@ -27,6 +27,11 @@ List of approved connectors, actions, or data sources that agents can use. Oppos
 **Allowlist**
 See ALIM.
 
+**Autonomy Cap**
+The maximum level of agent autonomy supported for a given pattern, zone, or use case. Required by FSI regulatory framework (e.g., Reg B fair lending, FINRA 3110 supervision) to prevent agents from exercising authority that requires a human supervisor. Each pattern in `microsoft-cape-crosswalk.md` documents its Autonomy Cap.
+
+*Source: FSI-AgentGov × Microsoft CAPE crosswalk; see `microsoft-cape-crosswalk.md`.*
+
 **Agent AI Model Rules**
 [Environment group rules](https://learn.microsoft.com/en-us/power-platform/admin/environment-groups-rules) that control which AI models agents can use within an environment group. Configured in Power Platform Admin Center under Manage → Environment groups → Rules.
 
@@ -65,6 +70,13 @@ Emergency access account excluded from Conditional Access policies, used when no
 **CAB (Change Advisory Board)**
 Committee that reviews and approves changes before production deployment.
 
+**Capability Driver**
+One of five dimensions in Microsoft's Agentic AI Maturity Model: AI Strategy & Experience, Business Strategy, AI Governance & Security, Technology & Data, and Organization & Culture. Each driver is measured 100 (Initial) through 500 (Optimized). The weakest driver determines an organization's effective ceiling regardless of strength on others.
+
+**Note:** "Capability Driver" (or simply "Driver") is the FSI-AgentGov canonical term. Microsoft's source materials sometimes alternate "pillars" and "drivers" for the same concept; FSI-AgentGov adopts "Driver" exclusively to avoid collision with our four control families called "Pillars".
+
+*Source: Microsoft CAPE Agentic Transformation Patterns Playbook; see `microsoft-cape-crosswalk.md` and `agentic-capability-drivers.md` (Phase 2).*
+
 **CISO (Chief Information Security Officer)**
 Executive responsible for organization's security program.
 
@@ -73,6 +85,11 @@ See DLP.
 
 **Compliance Officer**
 Role responsible for regulatory compliance and oversight.
+
+**Center of Excellence (CoE)**
+A cross-functional operating structure responsible for governing, enabling, optimizing, and scaling agentic AI within an organization. In FSI-AgentGov, the CoE concept is articulated in `agentic-coe.md` (Phase 2) and integrates with existing FSI governance committees, RACI assignments in `operating-model.md`, and lifecycle management in `agent-lifecycle.md`. CoE shapes (Centralized, Hybrid, Federated) describe organizational implementation; **federation does not transfer regulated supervisory accountability**.
+
+*Source: FSI-AgentGov operating model + Microsoft CAPE CoE blueprint.*
 
 **Conditional Access**
 Microsoft Entra policy that enforces authentication requirements (like MFA) based on risk conditions.
@@ -101,6 +118,11 @@ Microsoft tool that monitors how AI agents interact with sensitive data (now lab
 
 **Disaster Recovery (DR)**
 Plan to restore systems after a disaster.
+
+**Drift (drift thesis)**
+The phenomenon where agents in production silently degrade in accuracy, relevance, or compliance posture over time without dramatic failure. Microsoft frames this as "agents don't fail dramatically; they slowly drift, giving wrong answers with confidence." For FSI, drift is the regulatory hook for FINRA 4511 / SEC 17a-4 ongoing supervision and OCC 2011-12 monitoring requirements. Mitigated by control 3.10 (Hallucination Tracking) and the Optimize CoE function.
+
+*Source: Microsoft CAPE Walking Deck; see `agent-lifecycle.md` and `microsoft-cape-crosswalk.md`.*
 
 **Developer Environment**
 Personal sandbox environment for makers to build and test agents with limited governance requirements. Users can have up to 3 free developer environments. See [Create developer environment](https://learn.microsoft.com/en-us/power-platform/developer/create-developer-environment).
@@ -142,6 +164,11 @@ Federal regulator for state non-member banks, state savings associations, and in
 
 **FIDO2**
 Phishing-resistant authentication method using hardware keys.
+
+**Frontier Readiness**
+A parallel assessment in FSI-AgentGov (Phase 3 deliverable) that evaluates organizational maturity across Microsoft's five Capability Drivers using a 100–500 scale. Distinct from the 78-control assessment (which evaluates technical control implementation). The two assessments measure different things and are NOT mathematically merged.
+
+*Source: FSI-AgentGov assessment engine; see `assessment/manifest/frontier-readiness.json` (Phase 3).*
 
 ---
 
@@ -253,8 +280,20 @@ Federal regulator for national banks and federal savings associations.
 
 ## P
 
+**Pattern (Frontier Transformation Pattern)**
+One of six design choices in Microsoft's CAPE framework describing how an organization deploys agents: Employee AI Enablement (1), Business Expert Empowerment (2), Workplace & IT Services (3), Core Business Process Transformation (4), External Engagement (5), AI-First Capabilities (6). Patterns are not stages — most organizations run multiple patterns simultaneously. Each pattern has a target maturity profile and a "scale-breaker" — the capability that will block scale first.
+
+*Source: Microsoft CAPE Agentic Transformation Patterns Playbook; see `microsoft-cape-crosswalk.md` and `transformation-patterns.md` (Phase 2).*
+
 **Phishing-Resistant MFA**
 MFA that uses hardware keys (FIDO2) or Windows Hello, making it resistant to phishing attacks.
+
+**Pillar (FSI control family)**
+In FSI-AgentGov, "Pillar" refers exclusively to one of the four control families: **Pillar 1 Security** (29 controls), **Pillar 2 Management** (26 controls), **Pillar 3 Reporting** (14 controls), **Pillar 4 SharePoint** (9 controls). Together the four pillars contain all 78 controls.
+
+> **Important disambiguation:** Microsoft CAPE materials sometimes use "pillar" to describe the five dimensions of the Agentic AI Maturity Model. In FSI-AgentGov, those five dimensions are called **Capability Drivers** (or simply **Drivers**). "Pillar" must NEVER be used to refer to a CAPE driver in FSI-AgentGov documentation. See `verify_language_rules.py` for enforcement.
+
+*Source: FSI-AgentGov framework; see `governance-fundamentals.md` and `controls/CONTROL-INDEX.md`.*
 
 **PPAC (Power Platform Admin Center)**
 Administrative portal for Power Platform governance and configuration.
@@ -299,6 +338,11 @@ Maintaining records of activities for audit and compliance purposes.
 
 **Runtime Protection**
 Real-time monitoring and protection of agent activities to prevent misuse.
+
+**Scale-breaker**
+The single capability dimension that will block an organization's ability to scale its agent portfolio, regardless of strength on other dimensions. Microsoft's diagnostic identifies five common scale-breaker signals: many pilots with no portfolio; one-off agents with no reuse; great demos with low adoption; licenses without usage; shadow agents appearing. Each FSI Pattern has a typical scale-breaker documented in `microsoft-cape-crosswalk.md`.
+
+*Source: Microsoft CAPE Agentic Transformation Patterns Playbook; see `microsoft-cape-crosswalk.md`.*
 
 ---
 
