@@ -816,6 +816,35 @@ To grant read-only analytics access:
 - Share an agent — <https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-share-bots>
 - Analytics overview — <https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-overview>
 
+### 9.8 Agent effectiveness: 7-area review (May 2026 update)
+
+Microsoft Copilot Studio Analytics provides **seven core areas** for reviewing and improving conversational agent effectiveness (updated May 2026; previously six areas). Plane 5 monitoring should include a periodic sweep of the **Analyze effectiveness** page to detect gaps across all seven areas.
+
+**Portal path:** Copilot Studio → agent → **Analytics** → navigate to the effectiveness analysis section (exact tab label may vary by release wave — anchor on page title and consult [Microsoft Learn](https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-improve-agent-effectiveness)).
+
+The seven core areas are:
+
+1. **Themes** — Clusters user questions into AI-suggested categories to surface high-volume and emerging intents.
+2. **Conversation outcomes** — Shows the end result of each session (Resolved, Escalated, Abandoned, Unengaged) to identify where the agent is succeeding and where coverage gaps exist.
+3. **Agents** — Displays call volume metrics, success rates, and current status for child and connected agents.
+4. **Generated answer rate and quality** — Surfaces when the agent struggles to answer user questions and how it uses knowledge sources to help improve answer rate and quality.
+5. **Tool use** — Learning how often tools are used and how often they succeed can help you understand if those tools are useful and successful for users.
+6. **Effectiveness** — Reviewing user feedback helps you identify new user scenarios and issues, and making improvements based directly on what your users are asking for.
+7. **Knowledge source use** *(added May 2026)* — Learning how often individual knowledge sources are used and how often they return errors helps you improve the quality and coverage of your agent's answers.
+
+!!! note "FSI monitoring signal — Knowledge source use (area 7)"
+    The **Knowledge source use** panel is particularly relevant for RAG-grounded agents in FSI use cases. Rising knowledge-source error rates can indicate stale, unavailable, or misconfigured sources — a signal that should feed the re-validation trigger logic in §9.5 and the knowledge-source integrity checks in [Control 2.16](../../../controls/pillar-2-management/2.16-rag-source-integrity-validation.md). Document knowledge-source error rate baselines in the zone threshold file (`tests/zone-thresholds.json`, PRE-06) and configure threshold alerts.
+
+!!! info "Analytics data retention (May 2026)"
+    Analytics data is available for up to **180 days**; session details and transcript information is available for the last **28 days** (per Microsoft Learn). Export flagged-session transcripts and quality snapshots to the Evidence Pack or a retention-bound store before the 28-day session window closes, especially for Zone 3 sessions subject to regulatory examination.
+
+**Inline references for §9.8:**
+
+- Analyze conversational agent effectiveness — <https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-improve-agent-effectiveness>
+- Analytics overview — <https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-overview>
+
+**Cross-links:** [Control 2.16](../../../controls/pillar-2-management/2.16-rag-source-integrity-validation.md) (RAG source integrity), §9.5 (re-validation triggers)
+
 ---
 
 ## §10. Microsoft 365 Agents Toolkit — local sideload and manifest validation
