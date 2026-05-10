@@ -119,6 +119,45 @@ The framework's promise here is a **blueprint, not a turnkey operating model**: 
 | **Hybrid** | Central CoE owns Govern + Enable; business lines own Optimize + Scale for their portfolios | Regional bank with multiple business lines; insurance carrier with several books of business; mid-tier asset manager | Moderate — Govern stays central, execution federates |
 | **Federated** | Federated builder enablement across business lines; central CoE owns Govern only | Global SIFI; large diversified institution with many regulated business lines | High — but Govern remains centrally accountable |
 
+The diagram below shows which CoE shape generally fits each CAPE pattern. Lighter-touch patterns (P1–P3) tolerate Federated execution because the named-principal accountability chain stays light; higher-gravity patterns (P4–P6) typically require Hybrid or Centralized so that release gates, model risk classification, and customer-facing review remain centrally consistent. The federation guardrail (later in this document) applies regardless of shape.
+
+```mermaid
+flowchart LR
+    classDef shape fill:#1565c0,stroke:#0d47a1,color:#fff,stroke-width:2px
+    classDef pattern fill:#e3f2fd,stroke:#1565c0,color:#0d47a1
+    classDef guardrail fill:#ffe0b2,stroke:#e65100,color:#bf360c,stroke-width:2px
+
+    F["Federated<br/>Central Govern only<br/>Enable / Optimize / Scale at the edge"]:::shape
+    H["Hybrid<br/>Central Govern + Enable<br/>Federated Optimize + Scale"]:::shape
+    C["Centralized<br/>One CoE owns all four functions<br/>(default starting shape)"]:::shape
+
+    P1["P1 Employee AI Enablement"]:::pattern
+    P2["P2 Business Expert Empowerment"]:::pattern
+    P3["P3 Workplace & IT Services"]:::pattern
+    P4["P4 Core Business Process"]:::pattern
+    P5["P5 External Engagement"]:::pattern
+    P6["P6 AI-First Capabilities"]:::pattern
+
+    F -->|fits: low governance gravity| P1
+    F -->|fits| P2
+    F -->|fits| P3
+
+    H -->|fits as scaling shape| P3
+    H -->|fits with central release gates| P4
+
+    C -->|preferred for high gravity| P4
+    C ==>|required: customer-facing exposure| P5
+    C ==>|required: novel autonomy| P6
+
+    GR["Federation guardrail (load-bearing)<br/>FINRA 3110 supervision · OCC 2011-12 / SR 26-2 model risk<br/>SOX 302/404 · GLBA 501(b)<br/>— accountability stays with named principals regardless of CoE shape —"]:::guardrail
+
+    F -.-> GR
+    H -.-> GR
+    C -.-> GR
+```
+
+Editable Mermaid source: [`docs/images/diagrams/source/cape/coe-structure-by-pattern.mmd`](https://github.com/judeper/FSI-AgentGov/blob/main/docs/images/diagrams/source/cape/coe-structure-by-pattern.mmd). See the [Diagram Catalog](../reference/diagram-catalog.md) for export and licensing notes.
+
 ### Shape: Centralized
 
 **When this fits.** A single CoE team owns all four functions and serves the whole institution. This is the right starting shape for most FSI institutions because it produces consistent regulatory artifacts and avoids early federation mistakes. Specialized broker-dealers, community banks, and mid-size institutions running one or two business lines should default to Centralized.
@@ -196,6 +235,54 @@ Federated CoE shapes need disproportionately strong reporting infrastructure. Pi
 **Scenario A — Federated wealth division deploying a Pattern 4 agent.** A wealth division stands up a KYC document-review agent in its own business-line environment, with its own builders and Service Owner. The federation guardrail requires: (1) a designated registered principal in the wealth division named on the agent's metadata as the FINRA 3110 supervisor; (2) the agent inventoried in the central Pillar 3 register; (3) the model classified under the central Govern function's OCC 2011-12 / SR 26-2 model risk tier; (4) re-validation triggered through the central Govern function on any material change. The wealth division operates the agent; the central Govern function owns the supervisory record.
 
 **Scenario B — Federated retail bank deploying a Pattern 5 agent.** A retail bank business line deploys a customer-facing servicing agent. The federation guardrail requires: (1) a designated principal who satisfies FINRA Rule 3110 supervisory obligations for the agent's communications; (2) Control 2.19 disclosure language reviewed and approved by central Compliance before launch; (3) ECOA / Reg B / Reg E exposure assessed by central Compliance even though the deployment lives in the business-line environment; (4) consumer complaints routed to a central pipeline that the CCO can attest to. Federated execution; central regulatory record.
+
+---
+
+## Decision rights at a glance
+
+The federation guardrail above states the principle. The diagram below visualizes how it lands in day-to-day decision rights. CAPE's framing — *centralize HOW scale works, not WHO builds everything* — sorts decisions into three columns: central CoE Govern decisions (cannot federate), shared decisions (central sets standards, business executes), and domain decisions (business line owns). Underneath all three columns sits the non-delegable named-principal layer: regardless of which CoE shape the institution chooses, FINRA 3110 supervision, OCC 2011-12 / SR 26-2 model risk, SOX 302/404 ICFR, and GLBA 501(b) safeguards remain with the named FSI roles called out in the [operating model](operating-model.md).
+
+```mermaid
+flowchart LR
+    classDef central fill:#1565c0,stroke:#0d47a1,color:#fff,stroke-width:2px
+    classDef shared fill:#ffa726,stroke:#ef6c00,color:#212121,stroke-width:2px
+    classDef domain fill:#43a047,stroke:#2e7d32,color:#fff,stroke-width:2px
+    classDef guard fill:#c62828,stroke:#8e0000,color:#fff,stroke-width:2px
+
+    subgraph CENTRAL["Central — CoE Govern decides (cannot federate)"]
+        direction TB
+        C1[Platform & environment strategy]:::central
+        C2[Security & compliance policies]:::central
+        C3[Architecture & release-gate criteria]:::central
+        C4[Risk classification tiers]:::central
+        C5[Autonomy limits]:::central
+        C6[Responsible AI guidelines]:::central
+    end
+
+    subgraph SHARED["Shared — central sets standards, business executes"]
+        direction TB
+        S1[Agent inventory & metadata 3.1]:::shared
+        S2[Monitoring thresholds & alerting]:::shared
+        S3[Knowledge refresh cadence 2.16]:::shared
+        S4[Incident response playbooks]:::shared
+    end
+
+    subgraph DOMAIN["Domain — business line decides"]
+        direction TB
+        D1[Use-case prioritization]:::domain
+        D2[Agent design within standards]:::domain
+        D3[SME knowledge curation]:::domain
+        D4[Adoption & change management]:::domain
+    end
+
+    GUARD["Federation guardrail — non-delegable named-principal accountability<br/>FINRA 3110 supervision → registered principal · OCC 2011-12 / SR 26-2 → CRO<br/>SOX 302/404 ICFR → CFO + ICFR owners · GLBA 501(b) → CISO<br/>— remains with named roles regardless of CoE shape (Centralized / Hybrid / Federated) —"]:::guard
+
+    CENTRAL --- GUARD
+    SHARED --- GUARD
+    DOMAIN --- GUARD
+```
+
+Editable Mermaid source: [`docs/images/diagrams/source/cape/decision-rights.mmd`](https://github.com/judeper/FSI-AgentGov/blob/main/docs/images/diagrams/source/cape/decision-rights.mmd). For canonical role names, see [Role Catalog](../reference/role-catalog.md). For the full RACI by lifecycle stage, see [Operating Model](operating-model.md). For export and licensing notes, see the [Diagram Catalog](../reference/diagram-catalog.md).
 
 ---
 

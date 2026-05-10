@@ -10,6 +10,47 @@ This guide covers the complete agent lifecycle with zone-specific governance req
 
 ---
 
+## CAPE 7-stage lifecycle with FSI regulatory hooks
+
+Microsoft CAPE describes a seven-stage lifecycle (Intake → Triage → Build → Deploy → Monitor → Improve → Retire) that FSI institutions adopt as the canonical operational flow. Each stage carries an FSI hook — the controls and US regulatory regimes that examiners will trace through that stage. The diagram below is examiner-ready: drop it into a workpaper to show how the institution's agent lifecycle aligns with CAPE while honouring FINRA 4511, SEC 17a-3/4, OCC 2011-12 / Fed SR 26-2, FINRA 3110, and SOX 404. The full stage-by-stage FSI treatment is in the [Microsoft CAPE 7-Stage Lifecycle Alignment](#microsoft-cape-7-stage-lifecycle-alignment) section later in this document.
+
+```mermaid
+flowchart LR
+    classDef stage fill:#1565c0,stroke:#0d47a1,color:#fff,stroke-width:2px
+    classDef hook fill:#fff8e1,stroke:#bf360c,color:#bf360c
+
+    S1[1 Intake]:::stage
+    S2[2 Triage]:::stage
+    S3[3 Build]:::stage
+    S4[4 Deploy]:::stage
+    S5[5 Monitor]:::stage
+    S6[6 Improve]:::stage
+    S7[7 Retire]:::stage
+
+    S1 --> S2 --> S3 --> S4 --> S5 --> S6 --> S7
+    S6 -. iteration loop .-> S3
+
+    H1["FSI hook: Control 3.1 inventory<br/>FINRA 4511 / SEC 17a-3 books and records"]:::hook
+    H2["FSI hook: Control 2.6 model risk OCC 2011-12 / SR 26-2<br/>Control 2.12 supervision FINRA 3110"]:::hook
+    H3["FSI hook: Control 2.1 Managed Environments<br/>Control 2.16 RAG source integrity"]:::hook
+    H4["FSI hook: release gates + governance committee approval<br/>Control 2.3 / 2.5 · FINRA 4511 · SOX 404 ICFR"]:::hook
+    H5["FSI hook: Control 3.2 usage analytics<br/>Control 3.10 hallucination feedback · FINRA 3110 ongoing"]:::hook
+    H6["FSI hook: re-validation + SME attestation<br/>Control 2.3 / 2.16 · OCC 2011-12 / SR 26-2 material change"]:::hook
+    H7["FSI hook: decommissioning evidence<br/>Control 1.7 audit · Control 1.9 retention · SEC 17a-4"]:::hook
+
+    S1 --- H1
+    S2 --- H2
+    S3 --- H3
+    S4 --- H4
+    S5 --- H5
+    S6 --- H6
+    S7 --- H7
+```
+
+Editable Mermaid source: [`docs/images/diagrams/source/cape/agent-lifecycle-7-stage.mmd`](https://github.com/judeper/FSI-AgentGov/blob/main/docs/images/diagrams/source/cape/agent-lifecycle-7-stage.mmd). For canonical role assignments per stage, see the [CoE × Lifecycle ownership matrix](agentic-coe.md#coe-lifecycle-ownership-matrix). For export and reuse, see the [Diagram Catalog](../reference/diagram-catalog.md).
+
+---
+
 ## Lifecycle Phases
 
 | Phase | Description | Key Activities |

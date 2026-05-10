@@ -6,6 +6,101 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.5.0] — May 10, 2026 (Microsoft Alignment Release)
+
+**Release theme:** FSI translation layer for Microsoft CAPE (Copilot Acceleration Engineering) materials. Adds vocabulary crosswalks, framework layer for CAPE concepts, assessment-engine support for CAPE Frontier Readiness scoring, and partner-facing reference docs (CSA + diagram catalog) — all as additive, non-breaking content.
+
+**Upgrade safety:** No breaking changes. No schema breaks. No control IDs renamed. Safe to upgrade in place. Existing `controls.json` schema is backward-compatible (only field additions). Existing assessment runs continue to work; CAPE Frontier scoring is opt-in via new `-AssessmentType` parameter.
+
+### Phase 1 — Reference layer ([#199](https://github.com/judeper/FSI-AgentGov/pull/199), `f3e8edc4`)
+
+Added:
+
+- `docs/reference/microsoft-cape-crosswalk.md` — bridge document mapping the 6 CAPE patterns to FSI controls and regulatory exposure per pattern
+- `docs/reference/cco-quick-reference.md` — pocket lookup for compliance officers
+
+Modified:
+
+- `docs/framework/regulatory-framework.md` — CAPE pattern annotations
+- `docs/reference/glossary.md` — CAPE vocabulary additions
+- `docs/reference/role-catalog.md` — expanded role entries
+- `scripts/verify_language_rules.py` — added Tier-2 banlist (CAPE vendor-marketing language) with `<!-- verify-language-rules: allow-second-tier -->` CSA annotation support
+
+### Phase 2 — Framework layer ([#201](https://github.com/judeper/FSI-AgentGov/pull/201), `429ab90c`)
+
+Added:
+
+- `docs/framework/transformation-patterns.md` — canonical 6-pattern framework summary with Pattern 6 D3 guardrail
+- `docs/framework/agentic-capability-drivers.md` — Microsoft's 5 Capability Drivers and maturity model
+- `docs/framework/agentic-coe.md` — standalone CoE blueprint with 4 functions (Govern/Enable/Optimize/Scale), CoE shapes, anti-patterns, and federation guardrail
+
+Modified:
+
+- `docs/framework/agent-lifecycle.md`, `governance-fundamentals.md`, `index.md`, `operating-model.md` — CAPE concept integration and cross-references
+- `docs/reference/microsoft-cape-crosswalk.md` — Phase 2 additions
+- `docs/reference/role-catalog.md` — CoE role additions
+
+### Phase 3 — Assessment integration ([#202](https://github.com/judeper/FSI-AgentGov/pull/202), `0adf51df`)
+
+Added:
+
+- `assessment/manifest/frontier-readiness.json` — 25 questions × 5 drivers × 5 maturity levels
+- `assessment/engine/score_frontier.py` — full Frontier Readiness scoring algorithm
+- `assessment/collectors/Collect-Frontier.ps1` — interactive + batch collector
+- `assessment/tests/test_score_frontier.py` — 30 tests (56 total green at release)
+- `docs/reference/pattern-coverage.md` — 78×6 generated control × pattern matrix
+- `docs/reference/frontier-assessment-coverage.md` — honest coverage report (0% auto v1; all Frontier scoring is manual-questionnaire-driven)
+- `scripts/generate_pattern_coverage.py` — coverage matrix generator
+
+Modified:
+
+- `assessment/manifest/controls.json` — 78 controls tagged with `applicable_drivers`, `applicable_patterns`, `pattern_critical` (additive fields; backward-compatible)
+- `assessment/engine/report.py` — added `--type controls|frontier|both` flag with new report generators
+- `assessment/run-assessment.ps1` — added `-AssessmentType` and `-FrontierAnswersFile` parameters
+- `assessment/README.md` — decision tree, Frontier Quick Start, maturity scale
+- `scripts/generate_coverage_matrix.py` — added `--type controls|frontier` flag
+
+### Phase 4 — Partner-facing reference ([#203](https://github.com/judeper/FSI-AgentGov/pull/203), `294ae358`)
+
+Added:
+
+- `docs/reference/csa-quick-reference.md` — Microsoft FSI CSA pocket lookup (197 lines)
+- `docs/reference/csa-positioning-guide.md` — long-form CSA positioning narrative (390 lines)
+
+### Phase 5 — Diagrams + Release closeout (this release)
+
+Added:
+
+- 5 net-new Mermaid diagrams embedded in framework and reference docs: Pattern × Zone matrix, CoE structure by pattern, Decision rights framework, CAPE 90-day × FSI Phase timeline, Agent lifecycle 7-stage
+- `docs/reference/diagram-catalog.md` — catalog of all repo diagrams (60+ existing + 5 new) with audience, use-case, and format columns
+- `docs/images/diagrams/source/cape/*.mmd` — editable Mermaid source files for CSA customer-deck export
+- `CHANGELOG.md` — this entry
+
+### Hard rules and brand boundary
+
+This release adopts CAPE vocabulary as a translation layer, not as endorsement. FSI-AgentGov remains an independent FSI governance framework. Microsoft is not a publisher, sponsor, or reviewer of this content.
+
+- **Tier-1 banlist enforced** — "ensures compliance", "guarantees", "will prevent", "eliminates risk" remain banned across all docs (0 hits at release).
+- **Tier-2 banlist** (CAPE vendor-marketing language: "self-improving", "autonomous decision-making", etc.) is suspended only inside CSA-facing reference docs via the `<!-- verify-language-rules: allow-second-tier -->` annotation, where CSAs need to teach customers to reframe the language.
+- **Pattern 6 D3 guardrail and Federation guardrail** appear verbatim in all partner-facing reference docs.
+- **No control IDs renamed**, no manifest schema breaks. `controls.json` gained 3 additive fields (`applicable_drivers`, `applicable_patterns`, `pattern_critical`).
+- **78-control catalog unchanged.** Pillar structure unchanged. Zone model unchanged.
+
+### Validation at release
+
+| Gate | Result |
+|---|---|
+| `mkdocs build --strict` | 0 warnings |
+| `verify_language_rules.py` | 0 banned phrases |
+| `verify_controls.py` | 78 controls pass |
+| `check_manifest_doc_drift.py --check` | 78=78=78 |
+| `generate_coverage_matrix.py --check` (controls + frontier) | current |
+| `generate_pattern_coverage.py --check` | current |
+| `ruff check` | all pass |
+| `pytest assessment/tests/` | 56 passed |
+
+---
+
 ## [1.4.2] — April 30, 2026 (Phase B′ Triage Fixes)
 
 Patch release closing out the three P2 items deferred from v1.4.1. Markdown export customer header now escapes special characters so admin-entered names render correctly in raw source (#168); the vendored `xlsx.full.min.js` is marked binary in `.gitattributes` so Windows checkouts no longer flip its SRI hash via CRLF normalization (#169); and two locally-flaky Playwright specs (`14-fetch-failure`, `28-perf-budget`) are hardened with deterministic ordering and a more realistic perf threshold (#170). Phase B″ triage report (#171) confirmed 0 P0/P1 findings — recommended ship. See [CHANGELOG-v1.4.md](CHANGELOG-v1.4.md#v142--april-30-2026) for the full entry.
