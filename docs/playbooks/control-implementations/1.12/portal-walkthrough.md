@@ -256,6 +256,23 @@ When a Microsoft Purview DLP policy is the trigger source for the *Data leaks* (
 
 Validate this on your DLP policies before mapping them as IRM triggers. See [Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) for DLP configuration.
 
+!!! warning "DLP workload routing gap — Teams, Endpoint DLP, M365 Copilot, Power BI"
+    Per Microsoft Learn (`insider-risk-management-settings-policy-indicators`), the **High Severity DLP Alert** indicator currently supports only the following DLP workloads: **Exchange Online**, **SharePoint Online**, and **OneDrive for Business**. The following workloads are **not** routed to IRM:
+
+    | Unsupported workload | What is NOT forwarded to IRM |
+    |---|---|
+    | **Microsoft Teams** | DLP policy matches in Teams chat and channel messages |
+    | **Endpoint DLP** | DLP policy matches on Windows and macOS devices |
+    | **Microsoft 365 Copilot** | DLP policy matches in Copilot interactions |
+    | **Power BI** | DLP policy matches in Power BI datasets |
+    | **On-premises repositories** | DLP policy matches on on-premises file shares and SharePoint Server |
+
+    For cross-workload DLP visibility, use workload-specific monitoring alongside IRM:
+
+    - **Teams DLP / Endpoint DLP** → [Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md)
+    - **M365 Copilot interactions** → [Control 1.6 — DSPM for AI](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) and [Control 1.10 — Communication Compliance](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md)
+    - **Endpoint DLP SIT patterns** → [Control 1.13 — Sensitive Information Types](../../../controls/pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition.md)
+
 ### 9. Forensic Evidence prerequisites (only if opting in)
 
 Forensic Evidence is **off by default** and is **opt-in**. Skip this prerequisite if the firm's privacy / WSP posture excludes Forensic Evidence.
@@ -332,6 +349,12 @@ There are **six** Insider Risk Management role groups (per Microsoft Learn `insi
 | **Insider Risk Management Approvers** | No | No | No | No | **Yes (required for Forensic Evidence dual-auth)** | No |
 
 > **Approvers must be distinct from Investigators.** Forensic Evidence uses a **dual-authorization** model: Investigator submits the capture request; Approver approves it. Assigning the same user to both role groups breaks dual-auth and is a control deficiency. Capture role-group membership monthly and on every change.
+
+> **Alert action role prerequisites (per Microsoft Learn `insider-risk-management-activities`):**
+> - **Dismiss alerts:** requires membership in the **Insider Risk Management**, **Insider Risk Management Analysts**, or **Insider Risk Management Investigators** role group.
+> - **Create a case from an alert:** requires membership in the **Insider Risk Management** or **Insider Risk Management Investigators** role group.
+>
+> Analysts can triage and dismiss alerts but cannot create cases. Ensure your role-group assignments reflect these boundaries before standing up the triage workflow.
 
 ### Option 1 — Single catch-all assignment (small teams / pilot only)
 
@@ -1063,4 +1086,4 @@ Store in immutable storage (Purview retention label, SharePoint hold, or WORM bl
 
 ---
 
-*Updated: April 2026 | Version: v1.4.0 | UI Verification Status: Current*
+*Updated: May 2026 | Version: v1.4.0 | UI Verification Status: Current*
