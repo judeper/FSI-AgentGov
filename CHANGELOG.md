@@ -6,6 +6,68 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.6.0] — May 10, 2026 (Solutions Discoverability Release)
+
+**Release theme:** Make the 35 companion solutions discoverable by Microsoft CAPE alignment metadata. Phase 6a tagged every solution README in the companion repo with `applicable_patterns`, `applicable_drivers`, and `coe_function` frontmatter; Phase 6b consumed those tags in the framework repo to enrich the Solutions Index and the Pattern Coverage matrix. No control catalog changes; no schema changes.
+
+**Upgrade safety:** No breaking changes. No control IDs renamed. No `controls.json` schema changes. Safe to upgrade in place. Existing Solutions Index consumers that grep on existing column headers continue to work — three new columns (Patterns, Drivers, CoE) were appended before Summary.
+
+### Phase 6a — Companion repo tagging (judeper/FSI-AgentGov-Solutions [#134](https://github.com/judeper/FSI-AgentGov-Solutions/pull/134), `d1d6f653`)
+
+Added (in companion repo):
+
+- YAML frontmatter on all 35 production solution READMEs with `applicable_patterns` (subset of P1–P6), `applicable_drivers` (subset of the 5 canonical Capability Drivers, snake_case IDs), and `coe_function` (one of govern / enable / optimize / scale)
+- Tag derivation: `applicable_patterns` from `pattern_critical` field in framework `controls.json` for each solution's primary controls (with purpose-based inference where `pattern_critical` was empty across all primary controls); `applicable_drivers` from union of primary controls' `applicable_drivers`; `coe_function` mapped per `agentic-coe.md` definitions
+- 282 frontmatter insertions across 35 files; zero README content changes
+- Distribution: govern=20, optimize=8, enable=4, scale=2
+
+### Phase 6b — Framework repo consumption ([#210](https://github.com/judeper/FSI-AgentGov/pull/210), `45dd2cfc`)
+
+Added:
+
+- `docs/reference/solutions-index.md` — three new columns (Patterns, Drivers, CoE) on the 35-solution table; same fields added to per-solution detail blocks; new "Discovering by CAPE alignment" intro section linking to framework documents
+- `docs/reference/pattern-coverage.md` — regenerated with new `Solutions count` column on the coverage summary and a new "Solutions per pattern" section listing all 84 pattern declarations across the 35 solutions
+
+Modified:
+
+- `scripts/generate_pattern_coverage.py` — new `--solutions-repo` CLI flag (also honors `$FSI_SOLUTIONS_REPO` env var) for parsing companion repo frontmatter via pyyaml; graceful skip when companion repo unavailable
+- `.github/workflows/python-quality.yml` — new drift step clones companion repo and runs `generate_pattern_coverage.py --check` to keep `pattern-coverage.md` in sync with companion frontmatter
+- `CHANGELOG.md` — this entry
+
+### Solutions count per pattern
+
+| Pattern | Solutions |
+|---|---|
+| P1 — Employee AI Enablement | 14 |
+| P2 — Business Expert Empowerment | 9 |
+| P3 — Workplace & IT Services | 5 |
+| P4 — Core Business Process Transformation | 25 |
+| P5 — External Engagement | 19 |
+| P6 — AI-First Capabilities | 12 |
+| **Total declarations** | **84** |
+
+### Hard rules and brand boundary
+
+- **Tier-1 banlist enforced** — "ensures compliance", "guarantees", "will prevent", "eliminates risk" remain banned across all docs (0 hits at release).
+- **No control IDs renamed**, no manifest schema breaks. `controls.json` unchanged from v1.5.0.
+- **78-control catalog unchanged.** Pillar structure unchanged. Zone model unchanged.
+- **Companion repo as authoritative source** — Pattern/Driver/CoE assignments live in companion repo READMEs; framework repo regenerates `pattern-coverage.md` from those tags via CI gate. Single source of truth.
+
+### Validation at release
+
+| Gate | Result |
+|---|---|
+| `mkdocs build --strict` | 0 warnings |
+| `verify_language_rules.py` | 0 banned phrases |
+| `verify_controls.py` | 78 controls pass |
+| `check_manifest_doc_drift.py --check` | 78=78=78 |
+| `generate_coverage_matrix.py --check` (controls + frontier) | current |
+| `generate_pattern_coverage.py --check` (with companion repo) | current (78 controls, 35 solutions) |
+| `ruff check` | all pass |
+| `pytest assessment/tests/` | 56 passed |
+
+---
+
 ## [1.5.0] — May 10, 2026 (Microsoft Alignment Release)
 
 **Release theme:** FSI translation layer for Microsoft CAPE (Copilot Acceleration Engineering) materials. Adds vocabulary crosswalks, framework layer for CAPE concepts, assessment-engine support for CAPE Frontier Readiness scoring, and partner-facing reference docs (CSA + diagram catalog) — all as additive, non-breaking content.
