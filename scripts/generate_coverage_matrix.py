@@ -311,16 +311,6 @@ _FRONTIER_EVALUATOR_CANDIDATES = [
         "PPAC environment list API: check for managed environment groups with zone tags",
     ),
     (
-        "Q16", "technology_data", 100,
-        "any_environment_visibility_for_agents",
-        "PPAC environments list API — non-empty response confirms platform-level visibility",
-    ),
-    (
-        "Q17", "technology_data", 200,
-        "tagged_environments_with_basic_telemetry",
-        "PPAC environment group/tag API plus Sentinel workspace log ingestion volume check",
-    ),
-    (
         "Q18", "technology_data", 300,
         "env_groups_with_inventory_siem_rag_and_lineage",
         "PPAC Environment Groups API; Sentinel workspace connectivity; SharePoint permission scan logs",

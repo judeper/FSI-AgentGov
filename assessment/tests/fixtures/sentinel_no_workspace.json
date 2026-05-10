@@ -1,0 +1,10 @@
+{
+  "_metadata": {
+    "collector": "Sentinel",
+    "timestamp": "2026-03-25T21:00:00Z",
+    "tenant_id": "test-tenant",
+    "warnings": [],
+    "errors": ["Section 1 (Workspace) failed: Subscription not found"]
+  },
+  "workspace": null
+}
