@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """Refresh ``assessment/data/solutions-lock.json`` from FSI-AgentGov-Solutions.
 
-Per the v1.4 cross-repo contract, the framework repo never reaches into
-the solutions repo at PR time. This script runs **only on tag bump** to
-fetch ``solutions.json`` from a tagged release of FSI-AgentGov-Solutions
-and commit a local copy.
+Per the v1.4+ cross-repo contract, the framework repo never reaches
+into the solutions repo at PR time. This script runs **only on tag
+bump** to fetch ``solutions.json`` from a tagged release of
+FSI-AgentGov-Solutions and commit a local copy.
 
 Usage::
 
     python scripts/refresh_solutions_lock.py --tag v1.4.0
+    python scripts/refresh_solutions_lock.py --tag v1.5.0
 
 The script will:
 
@@ -108,7 +109,7 @@ def main() -> int:
     if not (isinstance(sv, str) and sv.startswith(expected_prefix)):
         print(
             f"ERROR: schemaVersion {sv!r} does not start with {expected_prefix!r}; "
-            "the framework's lock-file consumer expects 1.4.x.",
+            "the framework's lock-file consumer expects 1.4.x or 1.5.x.",
             file=sys.stderr,
         )
         return 1
