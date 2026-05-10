@@ -127,6 +127,9 @@ Repeat for every Zone 2 and Zone 3 environment. Capture screenshots and archive.
 
 ## Step 8 — Cross-reference Defender for Cloud Apps (optional, recommended for Zone 3)
 
+!!! danger "License deadline: 2026-07-01 — Agent 365 required for AI Agent Inventory"
+    Defender for Cloud Apps AI Agent Inventory access requires **Agent 365** after 2026-07-01. Until 2026-07-01, Defender for Cloud Apps license alone provides access (grace period). After 2026-07-01, organizations without Agent 365 **lose AI Agent Inventory visibility entirely**. Source: [AI agent inventory](https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-inventory)
+
 For Zone 3 / customer-facing agents, correlate PPAC posture with Microsoft Defender:
 
 1. Open the **Microsoft Defender** portal as Entra Security Admin.
@@ -189,4 +192,4 @@ Cadence:
 
 ---
 
-*Updated: April 2026 | Version: v1.4.0 | UI Verification Status: Current*
+*Updated: May-2026 | Version: v1.4.0 | UI Verification Status: Current*

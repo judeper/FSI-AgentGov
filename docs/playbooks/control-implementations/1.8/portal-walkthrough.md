@@ -43,6 +43,16 @@
 
 ---
 
+!!! danger "License deadline: 2026-07-01 — Agent 365 required for AI Agent Inventory"
+    Microsoft changed AI Agent Inventory licensing requirements (May 2026). During the grace period, you may use Defender for Cloud Apps without Agent 365 to access AI Agent Inventory. After 2026-07-01, Agent 365 is required.
+
+    | Period | Licensing path for AI Agent Inventory |
+    |--------|---------------------------------------|
+    | **Until 2026-07-01** (grace period) | Defender for Cloud Apps license (without Agent 365) |
+    | **After 2026-07-01** | **Agent 365 required** — Defender for Cloud Apps alone no longer provides AI Agent Inventory |
+
+    Source: [AI agent inventory — Microsoft Defender for Cloud Apps](https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-inventory)
+
 ## Section 0 — Coverage boundary
 
 This playbook covers the **portal-driven** configuration of Control 1.8 across **two portals** (Microsoft Defender + Power Platform Admin Center) and **one product surface** (Microsoft Copilot Studio per-agent settings). The control has **six functional surfaces** that must be configured together; do not deploy any one in isolation.
@@ -114,7 +124,7 @@ Complete every gate **before** opening Section 4. Each gate has explicit pass cr
 
 | Capability | Required licensing | Verification |
 |---|---|---|
-| Defender for Cloud Apps **AI Agent Protection** + AISPM | Microsoft Defender for Cloud Apps standalone license **or** included via Microsoft 365 E5 / E5 Security; verify Defender XDR plan against ([protect-copilot-studio](https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-protection)) | Microsoft Defender portal → Settings → Cloud apps → tenant licensing summary |
+| Defender for Cloud Apps **AI Agent Protection** + AISPM | **Agent 365 license** (required after 2026-07-01). **Grace period until 2026-07-01:** Microsoft Defender for Cloud Apps standalone license or included via Microsoft 365 E5 / E5 Security. After 2026-07-01, Agent 365 is required to retain AI Agent Inventory access. Verify Defender XDR plan against ([protect-copilot-studio](https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-protection)) | Microsoft Defender portal → Settings → Cloud apps → tenant licensing summary |
 | Copilot Studio Prompt Shields + content moderation Low/Medium/High | Copilot Studio license (per-tenant or per-user); generative-AI capacity (PAYG or pre-paid messages) per [security-and-governance](https://learn.microsoft.com/en-us/microsoft-copilot-studio/security-and-governance) | PPAC → Resources → Capacity → Copilot Studio messages |
 | PPAC **Threat Protection** (native + Additional) | Power Platform Admin role; capability gated by Defender for Cloud Apps preview opt-in for native handshake | PPAC → Security → Threat Protection visible in left rail |
 | Microsoft Entra **app registration + Federated Identity Credential** | Entra App Admin (Application Administrator) **or** Cloud Application Administrator | Microsoft Entra admin center → Identity → Applications |
@@ -700,4 +710,4 @@ A confirmed runtime event detected by Control 1.8 (e.g., a sustained jailbreak a
 
 ---
 
-*Updated: February 2026 | Version: v1.4.0 | UI Verification Status: Current (commercial); GCC / GCC High / DoD per Sovereign Cloud Availability table*
+*Updated: May-2026 | Version: v1.4.0 | UI Verification Status: Current (commercial); GCC / GCC High / DoD per Sovereign Cloud Availability table*
