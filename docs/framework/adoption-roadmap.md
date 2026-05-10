@@ -21,6 +21,37 @@ This roadmap provides a structured approach to implementing AI agent governance.
 | **Phase 1** | 2-6 months | Production Readiness | SoD, reporting, Zone 3 governance, first agents |
 | **Phase 2** | 6-12 months | Advanced Governance | Runtime protection, adversarial testing, steady-state |
 
+### CAPE 90-day plan × FSI Phase 0 → 1 timeline
+
+The Microsoft CAPE *Agentic CoE Playbook* presents a 90-day operating roadmap (Days 0-30 Foundation → Days 30-60 Stand Up → Days 60-90 Scale). FSI's Phase 0 (0-60 days) and the start of Phase 1 (2-6 months) cover the same 90-day window with FSI-specific governance gates. The Gantt overlay below plots both tracks against a common 90-day axis so customers can see how the CAPE play maps onto FSI's adoption phases. Synthetic dates are used (Day 1 = 2025-01-01); the visual relativity is the point, not absolute calendar.
+
+```mermaid
+gantt
+    title CAPE 90-day Plan × FSI Adoption Phase 0 -> Phase 1 (90-day window)
+    dateFormat  YYYY-MM-DD
+    axisFormat  Day %j
+
+    section FSI track (FSI-AgentGov)
+    Phase 0 W1-2 Governance structure       :fsi1, 2025-01-01, 14d
+    Phase 0 W3-4 Core technical controls    :fsi2, after fsi1, 14d
+    Phase 0 W5-6 Environment setup          :fsi3, after fsi2, 14d
+    Phase 0 W7-8 Operational readiness      :fsi4, after fsi3, 14d
+    Phase 1 begins (SoD, reporting, Zone 3) :fsi5, after fsi4, 30d
+
+    section CAPE track (Microsoft 90-day play)
+    Days 0-30 What & Where Foundation       :cape1, 2025-01-01, 30d
+    Days 30-60 Build & Guard Stand Up       :cape2, after cape1, 30d
+    Days 60-90 Run & Decide Scale           :cape3, after cape2, 30d
+
+    section Joint milestones
+    Owner named per initiative              :milestone, m1, 2025-01-15, 0d
+    1-2 agents to production with monitoring :milestone, m2, 2025-02-15, 0d
+    First leadership scorecard (monthly)    :milestone, m3, 2025-03-15, 0d
+    Phase 0 governance review (FSI Week 8)  :milestone, m4, 2025-02-26, 0d
+```
+
+Editable Mermaid source: [`docs/images/diagrams/source/cape/cape-fsi-timeline.mmd`](../images/diagrams/source/cape/cape-fsi-timeline.mmd). For the full inventory of CAPE-alignment diagrams and export instructions, see the [Diagram Catalog](../reference/diagram-catalog.md).
+
 ---
 
 ## Phase 0: Foundation (0-60 days)

@@ -148,6 +148,48 @@ This matrix states, for each CAPE pattern, which FSI zones are *typical*, which 
 
 Legend: ✅ supported · ⚠ permitted with caveats · ❌ not appropriate (architecture mismatch) · **Mandatory** (cannot deploy below this zone in FSI).
 
+The diagram below visualizes the same matrix. Solid arrows = typical / supported home; dashed arrows = permitted with caveats; thick arrows (`==>`) = mandatory in FSI. Absence of an arrow means the pattern × zone combination is not appropriate. The table above remains the source of truth.
+
+```mermaid
+flowchart LR
+    classDef pattern fill:#e3f2fd,stroke:#0d47a1,color:#0d47a1,stroke-width:2px
+    classDef zone fill:#fff8e1,stroke:#bf360c,color:#bf360c,stroke-width:2px
+
+    P1["P1 Employee AI<br/>Enablement"]:::pattern
+    P2["P2 Business Expert<br/>Empowerment"]:::pattern
+    P3["P3 Workplace &<br/>IT Services"]:::pattern
+    P4["P4 Core Business<br/>Process"]:::pattern
+    P5["P5 External<br/>Engagement"]:::pattern
+    P6["P6 AI-First<br/>Capabilities"]:::pattern
+
+    Z1["Zone 1<br/>Personal Productivity"]:::zone
+    Z2["Zone 2<br/>Team Collaboration"]:::zone
+    Z3["Zone 3<br/>Enterprise Managed"]:::zone
+
+    P1 -->|typical home| Z1
+    P1 -->|with manager approval| Z2
+    P1 -.->|unusual; promote on regulated content| Z3
+
+    P2 -.->|non-regulated SME only| Z1
+    P2 -->|typical home| Z2
+    P2 ==>|required when SME domain regulated| Z3
+
+    P3 -->|typical for low-risk services| Z2
+    P3 ==>|REQUIRED for PII / payroll / settlement| Z3
+
+    P4 -.->|internal sub-process only| Z2
+    P4 ==>|MANDATORY KYC / claims / financial close| Z3
+
+    P5 ==>|MANDATORY customer-facing| Z3
+
+    P6 -.->|internal sandbox PoC only| Z2
+    P6 ==>|MANDATORY with autonomy guardrail| Z3
+
+    linkStyle default stroke-width:1.5px
+```
+
+Editable Mermaid source: [`docs/images/diagrams/source/cape/pattern-zone-matrix.mmd`](../images/diagrams/source/cape/pattern-zone-matrix.mmd). See the [Diagram Catalog](diagram-catalog.md) for export instructions and the full inventory of CAPE-alignment diagrams.
+
 ---
 
 ## 4. Pattern deep-dives
