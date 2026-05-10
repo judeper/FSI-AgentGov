@@ -7,9 +7,29 @@ Reads scored assessment results and the control manifest, then produces:
 2. ``manual-questionnaire.md``  — questions requiring stakeholder interview
 3. ``assessment-summary.json``  — machine-readable summary
 
+Frontier mode (``--type frontier``) reads a frontier-summary.json and
+frontier-readiness.json manifest to produce:
+
+4. ``frontier-prefilled.md``   — Frontier Readiness assessment report
+
+Combined mode (``--type both``) produces all of the above plus:
+
+5. ``capability-driver-rollup.json`` — control maturity rolled up by driver
+
 Usage::
 
-    python report.py --scores <scores.json> --manifest <controls.json> \
+    python report.py --scores <scores.json> --manifest <controls.json> \\
+                     --customer <name> --zone <1|2|3> --output-dir <path>
+
+    python report.py --type frontier \\
+                     --frontier-summary <frontier-summary.json> \\
+                     --frontier-manifest <frontier-readiness.json> \\
+                     --customer <name> --output-dir <path>
+
+    python report.py --type both \\
+                     --scores <scores.json> --manifest <controls.json> \\
+                     --frontier-summary <frontier-summary.json> \\
+                     --frontier-manifest <frontier-readiness.json> \\
                      --customer <name> --zone <1|2|3> --output-dir <path>
 """
 
@@ -22,7 +42,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-from jinja2 import Environment
+from jinja2 import Environment, select_autoescape
 
 log = logging.getLogger("fsi-agentgov-report")
 
@@ -43,6 +63,39 @@ MATURITY_LABELS: dict[int, str] = {
     3: "Optimized",
     4: "Fully Governed",
 }
+
+PATTERN_NAMES: dict[int, str] = {
+    1: "Employee AI Enablement",
+    2: "Business Expert Empowerment",
+    3: "Workplace & IT Services",
+    4: "Core Business Process Transformation",
+    5: "External Engagement",
+    6: "AI-First Capabilities",
+}
+
+FRONTIER_DRIVER_IDS: tuple[str, ...] = (
+    "ai_strategy",
+    "business_strategy",
+    "ai_governance",
+    "technology_data",
+    "organization_culture",
+)
+
+FRONTIER_LEVEL_LABELS: dict[int, str] = {
+    100: "Initial",
+    200: "Repeatable",
+    300: "Defined",
+    400: "Capable",
+    500: "Optimized",
+}
+
+CONFIDENCE_WEIGHTS: dict[str, float] = {
+    "high": 1.0,
+    "medium": 0.5,
+    "low": 0.25,
+}
+
+ENGINE_VERSION = "1.0.0"
 
 # ---------------------------------------------------------------------------
 # Jinja2 inline templates
@@ -110,6 +163,86 @@ Evidence reference (document name or location): _______________________
 {% endfor %}
 {% endif %}
 {% endfor %}
+"""
+
+FRONTIER_PREFILLED_TEMPLATE = r"""# Frontier Readiness Assessment
+
+**Customer:** {{ customer }}
+**Assessment Date:** {{ date }}
+**Facilitator:** {{ facilitator }}
+**Drivers Assessed:** {{ drivers_assessed }}
+
+---
+
+## Executive Summary
+
+{{ overall_posture }}
+
+!!! warning "Scale-Breaker: {{ scale_breaker_name }}"
+    **{{ scale_breaker_name }}** (score: {{ scale_breaker_score }}) is the lowest-scoring driver and caps transformation scale regardless of strength in other areas.{{ " Tied with: " + tied_with_names + "." if tied_with_names else "" }}
+
+### Pattern Readiness Summary
+
+| Pattern | Ready? |
+|---------|--------|
+{% for p in patterns -%}
+| {{ p.id }}. {{ p.name }} | {{ p.ready_icon }} {{ p.ready_label }} |
+{% endfor %}
+---
+
+## Driver Scores
+
+| Driver | Score | Level | FSI Translation | Recommended Next Action |
+|--------|-------|-------|-----------------|-------------------------|
+{% for d in drivers_table -%}
+| {{ d.name }} | {{ d.score }} | {{ d.level_label }} | {{ d.fsi_translation }} | {{ d.next_action }} |
+{% endfor %}
+---
+
+## Scale-Breaker Analysis
+
+**Scale-breaker driver:** {{ scale_breaker_name }} (score: {{ scale_breaker_score }})
+
+{{ scale_breaker_rationale }}
+{% if tied_with_names %}
+**Tied with:** {{ tied_with_names }}
+{% endif %}
+### Recommended Remediation
+
+{{ remediation_bullets }}
+
+{{ controls_anchor }}
+
+---
+
+## Pattern Readiness
+
+| Pattern | Ready? | Min Gap | Gap Drivers | FSI Notes |
+|---------|--------|---------|-------------|-----------|
+{% for p in patterns -%}
+| {{ p.id }}. {{ p.name }} | {{ p.ready_icon }} {{ p.ready_label }} | {{ p.min_gap_display }} | {{ p.gap_drivers_str }} | {{ p.fsi_notes }} |
+{% endfor %}
+---
+
+## Question-Level Detail
+{% for driver_section in question_detail %}
+
+### {{ driver_section.name }}
+{% for q in driver_section.questions %}
+
+**{{ q.question_id }}** *{{ q.driver_name }} — {{ q.level_label }} (L{{ q.level }})*: {{ q.question_text }}
+
+- **Answer:** {{ q.answer_icon }} {{ q.answer_display }}
+- **Evidence:** {{ q.evidence_note if q.evidence_note else "—" }}
+- **Respondent:** {{ q.respondent if q.respondent else "—" }}
+{% endfor %}
+{% endfor %}
+
+---
+
+## Methodology and Limitations
+
+This Frontier Readiness assessment is a facilitator-led, self-attested diagnostic across 5 capability drivers. It supplements but does not replace the FSI-AgentGov 78-control technical assessment. Driver scores reflect organizational maturity claims at the time of assessment; they are not auditor-grade evidence and do not substitute for examiner-defensible control evidence collected through the controls assessment engine.
 """
 
 # ---------------------------------------------------------------------------
@@ -183,6 +316,104 @@ def build_auto_summary(control: dict) -> str:
     if total == 0:
         return "no automated checks for this control"
     return f"{passed}/{total} automated checks passed"
+
+
+# ---------------------------------------------------------------------------
+# Frontier helpers
+# ---------------------------------------------------------------------------
+
+
+def _render_frontier_answer_icon(value: str | int | float | None) -> str:
+    """Return an emoji icon for a frontier answer value."""
+    if value is None:
+        return "—"
+    if isinstance(value, str):
+        sv = value.strip().lower()
+        return {"yes": "✅", "partial": "⚠️", "no": "❌"}.get(sv, "—")
+    if isinstance(value, (int, float)):
+        if value >= 4:
+            return "✅"
+        if value >= 2:
+            return "⚠️"
+        return "❌"
+    return "—"
+
+
+def _load_frontier_collected(output_dir: Path) -> dict[str, dict]:
+    """Load frontier.json answers from the collected sub-directory if present."""
+    collected_path = output_dir / "collected" / "frontier.json"
+    if not collected_path.is_file():
+        return {}
+    try:
+        with open(collected_path, "r", encoding="utf-8") as fh:
+            data = json.load(fh)
+        return data.get("answers", {}) or {}
+    except Exception:
+        log.warning("Could not load frontier collected answers from %s", collected_path)
+        return {}
+
+
+def _next_level_action(score: int) -> str:
+    """One-sentence recommendation for advancing to the next maturity level."""
+    if score >= 500:
+        return "Maintain at L500 through a documented continuous-improvement cadence."
+    if score >= 400:
+        return "Address L500 (Optimized) requirements to reach full frontier maturity."
+    if score >= 300:
+        return "Address L400 (Capable) requirements to advance beyond the Defined stage."
+    if score >= 200:
+        return "Address L300 (Defined) requirements to move beyond repeatable practices."
+    if score >= 100:
+        return "Address L200 (Repeatable) requirements to establish consistent practices."
+    return "Address L100 (Initial) requirements to establish baseline accountability."
+
+
+def _scale_breaker_remediation(driver_name: str) -> str:
+    """Markdown bullet list of remediation steps for the scale-breaker driver."""
+    lines = [
+        (
+            f"Identify the level-stratified questions for **{driver_name}** that received"
+            " 'no' or 'partial' answers and assign a named owner to each."
+        ),
+        (
+            "Set target dates for each remediation action and track progress"
+            " in the governance cadence review."
+        ),
+        (
+            "Schedule a follow-up facilitated Frontier Readiness session within 90 days"
+            " to re-assess this driver."
+        ),
+        (
+            "Prioritize remediations that unblock the highest-priority"
+            " Frontier Transformation Pattern for the organization."
+        ),
+        (
+            "Review related FSI-AgentGov technical controls mapped to this driver"
+            " to identify complementary technical gaps."
+        ),
+    ]
+    return "\n".join(f"- {line}" for line in lines)
+
+
+def _overall_posture_summary(driver_scores: dict) -> str:
+    """One-line overall posture statement for the Executive Summary."""
+    if not driver_scores:
+        return "Frontier Readiness assessment is pending — no driver scores available."
+    all_scores = [d.get("score", 0) for d in driver_scores.values()]
+    avg = sum(all_scores) / len(all_scores)
+    min_score = min(all_scores)
+    if avg >= 400:
+        posture = "Strong"
+    elif avg >= 300:
+        posture = "Advancing"
+    elif avg >= 200:
+        posture = "Developing"
+    else:
+        posture = "Early-stage"
+    return (
+        f"{posture} Frontier Readiness posture "
+        f"(average driver score {avg:.0f}/500; scale-breaker at {min_score})."
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -296,6 +527,266 @@ def prepare_report_data(
     }
 
 
+def prepare_frontier_data(
+    frontier_summary: dict,
+    frontier_manifest: dict,
+    customer: str,
+    output_dir: Path,
+    zone: int | None = None,
+    controls_manifest: dict | None = None,
+) -> dict:
+    """Transform frontier-summary.json and manifest into template-ready data."""
+    metadata = frontier_summary.get("_metadata", {})
+    driver_scores = frontier_summary.get("driver_scores", {})
+    scale_breaker = frontier_summary.get("scale_breaker", {})
+    pattern_readiness = frontier_summary.get("pattern_readiness", {})
+    questions_list: list[dict] = frontier_manifest.get("questions", [])
+    drivers_list: list[dict] = frontier_manifest.get("drivers", [])
+
+    # Load answers from collected frontier.json when available
+    answers = _load_frontier_collected(output_dir)
+
+    # Build driver lookup: id -> manifest driver dict
+    driver_lookup: dict[str, dict] = {d["id"]: d for d in drivers_list if "id" in d}
+    for did in FRONTIER_DRIVER_IDS:
+        if did not in driver_lookup:
+            driver_lookup[did] = {
+                "id": did,
+                "name": did.replace("_", " ").title(),
+                "fsi_translation": "",
+            }
+
+    # Date
+    ts = metadata.get("timestamp", "")
+    date_str = ts[:10] if ts else datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    # Scale-breaker info
+    sb_driver_id = scale_breaker.get("driver") or ""
+    sb_driver_name = driver_lookup.get(sb_driver_id, {}).get("name", sb_driver_id)
+    sb_score = scale_breaker.get("score") or 0
+    sb_tied_with: list[str] = scale_breaker.get("tied_with") or []
+    tied_with_names = ", ".join(
+        driver_lookup.get(t, {}).get("name", t) for t in sb_tied_with
+    )
+    sb_rationale = scale_breaker.get("rationale", "")
+
+    # Patterns
+    patterns = []
+    for pid in range(1, 7):
+        key = str(pid)
+        pr = pattern_readiness.get(key, {})
+        ready = pr.get("ready", False)
+        min_gap = pr.get("min_gap", 0)
+        gap_drivers_raw: list[dict] = pr.get("gap_drivers", []) or []
+        gap_drivers_str = (
+            ", ".join(
+                driver_lookup.get(g["driver"], {}).get("name", g["driver"])
+                for g in gap_drivers_raw
+            )
+            if gap_drivers_raw
+            else "—"
+        )
+        fsi_notes = (
+            "⚠ Zone 3 deployments require documented regulator pre-approval (D3 guardrail)."
+            if pid == 6
+            else "—"
+        )
+        patterns.append(
+            {
+                "id": pid,
+                "name": PATTERN_NAMES.get(pid, f"Pattern {pid}"),
+                "ready": ready,
+                "ready_icon": "✅" if ready else "❌",
+                "ready_label": "Ready" if ready else "Not Ready",
+                "min_gap": min_gap,
+                "min_gap_display": str(min_gap) if min_gap > 0 else "—",
+                "gap_drivers_str": gap_drivers_str,
+                "fsi_notes": fsi_notes,
+            }
+        )
+
+    # Driver scores table
+    drivers_table = []
+    for did in FRONTIER_DRIVER_IDS:
+        ds = driver_scores.get(did, {})
+        score = ds.get("score", 0)
+        level_label = ds.get("level_label", "—")
+        fsi_translation = driver_lookup.get(did, {}).get("fsi_translation", "—")
+        drivers_table.append(
+            {
+                "name": driver_lookup.get(did, {}).get("name", did),
+                "score": score,
+                "level_label": level_label,
+                "fsi_translation": fsi_translation,
+                "next_action": _next_level_action(score),
+            }
+        )
+
+    # Controls anchor for scale-breaker section
+    if controls_manifest is not None and sb_driver_id:
+        related_ids = sorted(
+            c.get("id", "")
+            for c in controls_manifest.get("controls", [])
+            if sb_driver_id in (c.get("applicable_drivers") or [])
+        )
+        if related_ids:
+            ids_str = ", ".join(related_ids)
+            controls_anchor = (
+                f"**See related FSI controls:** The following controls are mapped to the"
+                f" **{sb_driver_name}** driver: {ids_str}."
+            )
+        else:
+            controls_anchor = (
+                f"**See related FSI controls:** No controls in the current manifest are"
+                f" tagged to the **{sb_driver_name}** driver."
+            )
+    else:
+        controls_anchor = (
+            "**See related FSI controls:** Run the controls assessment to surface"
+            " specific control gaps linked to the scale-breaker driver."
+        )
+
+    # Question-level detail grouped by driver
+    question_detail = []
+    for did in FRONTIER_DRIVER_IDS:
+        driver_qs = sorted(
+            [q for q in questions_list if q.get("driver") == did],
+            key=lambda q: q.get("level", 0),
+        )
+        qs_rendered = []
+        for q in driver_qs:
+            qid = q.get("question_id", "")
+            answer_obj = answers.get(qid)
+            level = q.get("level", 0)
+            level_label = FRONTIER_LEVEL_LABELS.get(level, str(level))
+            if answer_obj is not None:
+                raw_val = answer_obj.get("value")
+                answer_icon = _render_frontier_answer_icon(raw_val)
+                answer_display = (
+                    "skipped" if raw_val is None else (raw_val if isinstance(raw_val, str) else str(raw_val))
+                )
+                evidence_note = answer_obj.get("evidence_note")
+                respondent = answer_obj.get("respondent")
+            else:
+                answer_icon = "—"
+                answer_display = "Not yet answered"
+                evidence_note = None
+                respondent = None
+            qs_rendered.append(
+                {
+                    "question_id": qid,
+                    "driver_name": driver_lookup.get(did, {}).get("name", did),
+                    "level": level,
+                    "level_label": level_label,
+                    "question_text": q.get("question_text", ""),
+                    "answer_icon": answer_icon,
+                    "answer_display": answer_display,
+                    "evidence_note": evidence_note,
+                    "respondent": respondent,
+                }
+            )
+        question_detail.append(
+            {
+                "name": driver_lookup.get(did, {}).get("name", did),
+                "questions": qs_rendered,
+            }
+        )
+
+    return {
+        "customer": customer,
+        "date": date_str,
+        "facilitator": metadata.get("facilitator", "Facilitator-led self-diagnostic"),
+        "drivers_assessed": 5,
+        "overall_posture": _overall_posture_summary(driver_scores),
+        "scale_breaker_name": sb_driver_name,
+        "scale_breaker_score": sb_score,
+        "scale_breaker_rationale": sb_rationale,
+        "tied_with_names": tied_with_names,
+        "patterns": patterns,
+        "drivers_table": drivers_table,
+        "remediation_bullets": _scale_breaker_remediation(sb_driver_name),
+        "controls_anchor": controls_anchor,
+        "question_detail": question_detail,
+    }
+
+
+def compute_driver_rollup(scores: dict, manifest: dict, zone: int) -> dict:
+    """Compute capability-driver-rollup.json: control maturity indexed by Frontier driver."""
+    controls = scores.get("controls", [])
+
+    # Build manifest lookup: control_id -> applicable_drivers (None = field absent)
+    manifest_applicable: dict[str, list[str] | None] = {
+        mc.get("id", ""): mc.get("applicable_drivers")
+        for mc in manifest.get("controls", [])
+    }
+
+    rollup: dict[str, dict] = {}
+    for driver_id in FRONTIER_DRIVER_IDS:
+        matched = [
+            ctrl
+            for ctrl in controls
+            if (
+                (applicable := manifest_applicable.get(ctrl.get("control_id", ctrl.get("id", ""))))
+                is not None
+                and driver_id in applicable
+            )
+        ]
+
+        if not matched:
+            rollup[driver_id] = {
+                "control_count": 0,
+                "average_maturity": 0.0,
+                "weighted_average_maturity": 0.0,
+                "confidence_distribution": {"high": 0, "medium": 0, "low": 0},
+                "controls": [],
+            }
+            continue
+
+        maturity_sum = 0.0
+        weighted_sum = 0.0
+        weight_total = 0.0
+        conf_dist: dict[str, int] = {"high": 0, "medium": 0, "low": 0}
+        ctrl_list: list[dict] = []
+
+        for ctrl in matched:
+            m = ctrl.get("maturity_score", 0)
+            c = ctrl.get("confidence", "low")
+            w = CONFIDENCE_WEIGHTS.get(c, 0.25)
+            maturity_sum += m
+            weighted_sum += m * w
+            weight_total += w
+            conf_dist[c] = conf_dist.get(c, 0) + 1
+            ctrl_list.append(
+                {
+                    "id": ctrl.get("control_id", ctrl.get("id", "")),
+                    "maturity": m,
+                    "confidence": c,
+                }
+            )
+
+        count = len(matched)
+        avg = round(maturity_sum / count, 2)
+        w_avg = round(weighted_sum / weight_total, 2) if weight_total > 0 else 0.0
+        ctrl_list.sort(key=lambda x: x["id"])
+
+        rollup[driver_id] = {
+            "control_count": count,
+            "average_maturity": avg,
+            "weighted_average_maturity": w_avg,
+            "confidence_distribution": conf_dist,
+            "controls": ctrl_list,
+        }
+
+    return {
+        "_metadata": {
+            "engine_version": ENGINE_VERSION,
+            "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "zone": zone,
+        },
+        "driver_rollups": rollup,
+    }
+
+
 # ---------------------------------------------------------------------------
 # Report generation
 # ---------------------------------------------------------------------------
@@ -345,6 +836,69 @@ def generate_summary_json(
     return summary
 
 
+def generate_frontier_prefilled_md(data: dict) -> str:
+    # Markdown output (not HTML); select_autoescape with no enabled
+    # extensions is explicit and satisfies CodeQL py/jinja2-autoescape-false.
+    env = Environment(
+        keep_trailing_newline=True,
+        autoescape=select_autoescape(enabled_extensions=(), default_for_string=False),
+    )
+    template = env.from_string(FRONTIER_PREFILLED_TEMPLATE)
+    return template.render(**data)
+
+
+def generate_frontier_report(
+    frontier_summary_path: str,
+    frontier_manifest_path: str,
+    customer: str,
+    output_dir: str,
+    zone: int | None = None,
+    controls_manifest: dict | None = None,
+) -> Path:
+    """Generate frontier-prefilled.md and return the output path."""
+    out_dir = Path(output_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    frontier_summary = load_json(Path(frontier_summary_path))
+    frontier_manifest = load_json(Path(frontier_manifest_path))
+
+    data = prepare_frontier_data(
+        frontier_summary,
+        frontier_manifest,
+        customer,
+        out_dir,
+        zone=zone,
+        controls_manifest=controls_manifest,
+    )
+
+    output_path = out_dir / "frontier-prefilled.md"
+    output_path.write_text(generate_frontier_prefilled_md(data), encoding="utf-8")
+    log.info("Wrote %s", output_path)
+    return output_path
+
+
+def generate_capability_driver_rollup(
+    scores_path: str,
+    manifest_path: str,
+    zone: int,
+    output_dir: str,
+) -> Path:
+    """Compute and write capability-driver-rollup.json."""
+    out_dir = Path(output_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    scores = load_json(Path(scores_path))
+    manifest = load_json(Path(manifest_path))
+
+    rollup = compute_driver_rollup(scores, manifest, zone)
+
+    output_path = out_dir / "capability-driver-rollup.json"
+    with open(output_path, "w", encoding="utf-8") as fh:
+        json.dump(rollup, fh, indent=2, ensure_ascii=False)
+    log.info("Wrote %s", output_path)
+    return output_path
+
+
 # ---------------------------------------------------------------------------
 # Entry points
 # ---------------------------------------------------------------------------
@@ -355,14 +909,32 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         description="FSI-AgentGov Assessment Report Generator",
     )
     parser.add_argument(
+        "--type",
+        default="controls",
+        choices=["controls", "frontier", "both"],
+        help="Report type: controls (default), frontier, or both",
+    )
+    parser.add_argument(
         "--scores",
-        required=True,
-        help="Path to scores.json (output of score.py)",
+        default=None,
+        help="Path to scores.json; required for --type controls|both",
     )
     parser.add_argument(
         "--manifest",
-        required=True,
-        help="Path to controls.json manifest",
+        default=None,
+        help="Path to controls.json manifest; required for --type controls|both",
+    )
+    parser.add_argument(
+        "--frontier-summary",
+        default=None,
+        dest="frontier_summary",
+        help="Path to frontier-summary.json; required for --type frontier|both",
+    )
+    parser.add_argument(
+        "--frontier-manifest",
+        default=None,
+        dest="frontier_manifest",
+        help="Path to frontier-readiness.json; required for --type frontier|both",
     )
     parser.add_argument(
         "--customer",
@@ -371,15 +943,15 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument(
         "--zone",
-        required=True,
+        default=None,
         type=int,
         choices=[1, 2, 3],
-        help="Governance zone assessed (1, 2, or 3)",
+        help="Governance zone assessed (1, 2, or 3); required for --type controls|both",
     )
     parser.add_argument(
         "--output-dir",
         required=True,
-        help="Directory to write the three output files",
+        help="Directory to write output files",
     )
     parser.add_argument(
         "--verbose",
@@ -448,22 +1020,78 @@ def main(argv: list[str] | None = None) -> None:
         level=logging.DEBUG if args.verbose else logging.INFO,
         format="%(levelname)s: %(message)s",
     )
+
+    report_type = args.type
+
+    # Validate required args per report type
+    missing: list[str] = []
+    if report_type in ("controls", "both"):
+        for arg_name, val in [
+            ("--scores", args.scores),
+            ("--manifest", args.manifest),
+            ("--zone", args.zone),
+        ]:
+            if val is None:
+                missing.append(f"{arg_name} (required for --type {report_type})")
+    if report_type in ("frontier", "both"):
+        for arg_name, val in [
+            ("--frontier-summary", args.frontier_summary),
+            ("--frontier-manifest", args.frontier_manifest),
+        ]:
+            if val is None:
+                missing.append(f"{arg_name} (required for --type {report_type})")
+    if missing:
+        for m in missing:
+            log.error("Missing required argument: %s", m)
+        sys.exit(1)
+
     try:
-        summary = run(
-            args.scores,
-            args.manifest,
-            args.customer,
-            args.zone,
-            args.output_dir,
-        )
+        generated: list[str] = []
+        controls_summary: dict = {}
+
+        if report_type in ("controls", "both"):
+            controls_summary = run(
+                args.scores,
+                args.manifest,
+                args.customer,
+                args.zone,
+                args.output_dir,
+            )
+            generated.extend(controls_summary.get("files_generated", []))
+
+        controls_manifest: dict | None = None
+        if report_type == "both":
+            controls_manifest = load_json(Path(args.manifest))
+
+        if report_type in ("frontier", "both"):
+            fp = generate_frontier_report(
+                args.frontier_summary,
+                args.frontier_manifest,
+                args.customer,
+                args.output_dir,
+                zone=args.zone,
+                controls_manifest=controls_manifest,
+            )
+            generated.append(str(fp))
+
+        if report_type == "both":
+            rp = generate_capability_driver_rollup(
+                args.scores,
+                args.manifest,
+                args.zone,
+                args.output_dir,
+            )
+            generated.append(str(rp))
+
         print("\nReport generation complete")
-        print(f"  Customer:    {summary.get('customer_name', '?')}")
-        print(f"  Zone:        {summary.get('zone_assessed', '?')}")
-        print(f"  Gaps:        {len(summary.get('gaps', []))}")
-        print(f"  Critical:    {len(summary.get('critical_gaps', []))}")
-        print(f"  Files:       {len(summary.get('files_generated', []))}")
-        for fp in summary.get("files_generated", []):
-            print(f"    → {fp}")
+        if controls_summary:
+            print(f"  Customer:    {controls_summary.get('customer_name', '?')}")
+            print(f"  Zone:        {controls_summary.get('zone_assessed', '?')}")
+            print(f"  Gaps:        {len(controls_summary.get('gaps', []))}")
+            print(f"  Critical:    {len(controls_summary.get('critical_gaps', []))}")
+        print(f"  Files:       {len(generated)}")
+        for fp_str in generated:
+            print(f"    → {fp_str}")
     except Exception as exc:
         log.error("Report generation failed: %s", exc, exc_info=True)
         sys.exit(1)

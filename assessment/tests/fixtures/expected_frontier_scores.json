@@ -1,0 +1,334 @@
+{
+  "_metadata": {
+    "engine_version": "1.0.0",
+    "timestamp": "2026-05-10T18:59:21Z",
+    "manifest_version": "1.0.0"
+  },
+  "driver_scores": {
+    "ai_strategy": {
+      "score": 300,
+      "level_label": "Defined",
+      "questions_answered": 5,
+      "questions_total": 5,
+      "confidence": "high",
+      "level_breakdown": {
+        "100": {
+          "answered": 1,
+          "total": 1,
+          "ratio": 1.0
+        },
+        "200": {
+          "answered": 1,
+          "total": 1,
+          "ratio": 1.0
+        },
+        "300": {
+          "answered": 1,
+          "total": 1,
+          "ratio": 1.0
+        },
+        "400": {
+          "answered": 1,
+          "total": 1,
+          "ratio": 0.0
+        },
+        "500": {
+          "answered": 1,
+          "total": 1,
+          "ratio": 0.0
+        }
+      }
+    },
+    "business_strategy": {
+      "score": 200,
+      "level_label": "Repeatable",
+      "questions_answered": 5,
+      "questions_total": 5,
+      "confidence": "high",
+      "level_breakdown": {
+        "100": {
+          "answered": 1,
+          "total": 1,
+          "ratio": 1.0
+        },
+        "200": {
+          "answered": 1,
+          "total": 1,
+          "ratio": 1.0
+        },
+        "300": {
+          "answered": 1,
+          "total": 1,
+          "ratio": 0.0
+        },
+        "400": {
+          "answered": 1,
+          "total": 1,
+          "ratio": 0.0
+        },
+        "500": {
+          "answered": 1,
+          "total": 1,
+          "ratio": 0.0
+        }
+      }
+    },
+    "ai_governance": {
+      "score": 400,
+      "level_label": "Capable",
+      "questions_answered": 5,
+      "questions_total": 5,
+      "confidence": "high",
+      "level_breakdown": {
+        "100": {
+          "answered": 1,
+          "total": 1,
+          "ratio": 1.0
+        },
+        "200": {
+          "answered": 1,
+          "total": 1,
+          "ratio": 1.0
+        },
+        "300": {
+          "answered": 1,
+          "total": 1,
+          "ratio": 1.0
+        },
+        "400": {
+          "answered": 1,
+          "total": 1,
+          "ratio": 1.0
+        },
+        "500": {
+          "answered": 1,
+          "total": 1,
+          "ratio": 0.0
+        }
+      }
+    },
+    "technology_data": {
+      "score": 350,
+      "level_label": "Defined+",
+      "questions_answered": 5,
+      "questions_total": 5,
+      "confidence": "high",
+      "level_breakdown": {
+        "100": {
+          "answered": 1,
+          "total": 1,
+          "ratio": 1.0
+        },
+        "200": {
+          "answered": 1,
+          "total": 1,
+          "ratio": 1.0
+        },
+        "300": {
+          "answered": 1,
+          "total": 1,
+          "ratio": 1.0
+        },
+        "400": {
+          "answered": 1,
+          "total": 1,
+          "ratio": 0.5
+        },
+        "500": {
+          "answered": 1,
+          "total": 1,
+          "ratio": 0.0
+        }
+      }
+    },
+    "organization_culture": {
+      "score": 200,
+      "level_label": "Repeatable",
+      "questions_answered": 5,
+      "questions_total": 5,
+      "confidence": "high",
+      "level_breakdown": {
+        "100": {
+          "answered": 1,
+          "total": 1,
+          "ratio": 1.0
+        },
+        "200": {
+          "answered": 1,
+          "total": 1,
+          "ratio": 1.0
+        },
+        "300": {
+          "answered": 1,
+          "total": 1,
+          "ratio": 0.0
+        },
+        "400": {
+          "answered": 1,
+          "total": 1,
+          "ratio": 0.0
+        },
+        "500": {
+          "answered": 1,
+          "total": 1,
+          "ratio": 0.0
+        }
+      }
+    }
+  },
+  "scale_breaker": {
+    "driver": "business_strategy",
+    "score": 200,
+    "tied_with": [
+      "organization_culture"
+    ],
+    "rationale": "Lowest driver score in profile — limits scale across all patterns regardless of strength elsewhere."
+  },
+  "pattern_readiness": {
+    "1": {
+      "ready": false,
+      "gap_drivers": [
+        {
+          "driver": "organization_culture",
+          "current": 200,
+          "target": 300,
+          "gap": 100
+        }
+      ],
+      "min_gap": 100
+    },
+    "2": {
+      "ready": false,
+      "gap_drivers": [
+        {
+          "driver": "business_strategy",
+          "current": 200,
+          "target": 300,
+          "gap": 100
+        },
+        {
+          "driver": "organization_culture",
+          "current": 200,
+          "target": 300,
+          "gap": 100
+        }
+      ],
+      "min_gap": 100
+    },
+    "3": {
+      "ready": true,
+      "gap_drivers": [],
+      "min_gap": 0
+    },
+    "4": {
+      "ready": false,
+      "gap_drivers": [
+        {
+          "driver": "ai_strategy",
+          "current": 300,
+          "target": 400,
+          "gap": 100
+        },
+        {
+          "driver": "business_strategy",
+          "current": 200,
+          "target": 400,
+          "gap": 200
+        },
+        {
+          "driver": "technology_data",
+          "current": 350,
+          "target": 400,
+          "gap": 50
+        },
+        {
+          "driver": "organization_culture",
+          "current": 200,
+          "target": 400,
+          "gap": 200
+        }
+      ],
+      "min_gap": 50
+    },
+    "5": {
+      "ready": false,
+      "gap_drivers": [
+        {
+          "driver": "ai_strategy",
+          "current": 300,
+          "target": 400,
+          "gap": 100
+        },
+        {
+          "driver": "business_strategy",
+          "current": 200,
+          "target": 400,
+          "gap": 200
+        },
+        {
+          "driver": "ai_governance",
+          "current": 400,
+          "target": 500,
+          "gap": 100
+        },
+        {
+          "driver": "technology_data",
+          "current": 350,
+          "target": 400,
+          "gap": 50
+        },
+        {
+          "driver": "organization_culture",
+          "current": 200,
+          "target": 400,
+          "gap": 200
+        }
+      ],
+      "min_gap": 50
+    },
+    "6": {
+      "ready": false,
+      "gap_drivers": [
+        {
+          "driver": "ai_strategy",
+          "current": 300,
+          "target": 500,
+          "gap": 200
+        },
+        {
+          "driver": "business_strategy",
+          "current": 200,
+          "target": 500,
+          "gap": 300
+        },
+        {
+          "driver": "ai_governance",
+          "current": 400,
+          "target": 500,
+          "gap": 100
+        },
+        {
+          "driver": "technology_data",
+          "current": 350,
+          "target": 500,
+          "gap": 150
+        },
+        {
+          "driver": "organization_culture",
+          "current": 200,
+          "target": 500,
+          "gap": 300
+        }
+      ],
+      "min_gap": 100
+    }
+  },
+  "evaluator_coverage": {
+    "questions": {
+      "auto_evaluable": 0,
+      "manual_only": 25,
+      "unimplemented_evaluator": 0
+    },
+    "total_questions": 25
+  }
+}

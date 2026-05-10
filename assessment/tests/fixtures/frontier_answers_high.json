@@ -1,0 +1,39 @@
+{
+  "_metadata": {
+    "collector_version": "1.0.0",
+    "timestamp": "2026-05-10T14:00:00Z",
+    "facilitator": "Test Facilitator",
+    "session_duration_minutes": 25,
+    "mode": "batch",
+    "manifest_version": "1.0.0",
+    "warnings": [],
+    "errors": []
+  },
+  "answers": {
+    "Q01": {"value": "yes", "evidence_note": "Named AI program director identified",              "respondent": "CIO"},
+    "Q02": {"value": "yes", "evidence_note": "Repeatable intake documented across all BUs",      "respondent": "CIO"},
+    "Q03": {"value": "yes", "evidence_note": "Enterprise AI strategy published with portfolio",  "respondent": "CIO"},
+    "Q04": {"value": "yes", "evidence_note": "Board-level reporting cadence in place",           "respondent": "CIO"},
+    "Q05": {"value": "yes", "evidence_note": "Quarterly sponsor attestation with sunset criteria","respondent": "CIO"},
+    "Q06": {"value": "yes", "evidence_note": "Business owner assigned per agent",                "respondent": "COO"},
+    "Q07": {"value": "yes", "evidence_note": "KPI tracking active in all BUs",                  "respondent": "COO"},
+    "Q08": {"value": "yes", "evidence_note": "Formal process redesign docs maintained",          "respondent": "COO"},
+    "Q09": {"value": "yes", "evidence_note": "E2E SLAs with exec review cadence",               "respondent": "COO"},
+    "Q10": {"value": "yes", "evidence_note": "Versioned decision rules with named supervisors",  "respondent": "COO"},
+    "Q11": {"value": "yes", "evidence_note": "Acceptable use policy in place",                   "respondent": "CISO"},
+    "Q12": {"value": "yes", "evidence_note": "DLP and audit logging enabled",                    "respondent": "CISO"},
+    "Q13": {"value": "yes", "evidence_note": "Zone-tiered environments with full audit logging", "respondent": "CISO"},
+    "Q14": {"value": "yes", "evidence_note": "Risk metrics to committee with tested runbooks",   "respondent": "CRO"},
+    "Q15": {"value": "yes", "evidence_note": "Continuous monitoring with examiner readiness drills","respondent": "CRO"},
+    "Q16": {"value": "yes", "evidence_note": "Full environment inventory automated",              "respondent": "Power Platform Admin"},
+    "Q17": {"value": "yes", "evidence_note": "Tagged environments with full telemetry",          "respondent": "Power Platform Admin"},
+    "Q18": {"value": "yes", "evidence_note": "Environment Groups with SIEM and RAG validation",  "respondent": "Power Platform Admin"},
+    "Q19": {"value": "yes", "evidence_note": "Integrated telemetry across Sentinel and Agent ID","respondent": "Power Platform Admin"},
+    "Q20": {"value": "yes", "evidence_note": "Continuous platform monitoring with versioned grounding","respondent": "Power Platform Admin"},
+    "Q21": {"value": "yes", "evidence_note": "Awareness comms issued firmwide",                  "respondent": "HR"},
+    "Q22": {"value": "yes", "evidence_note": "Training completed in all business units",         "respondent": "HR"},
+    "Q23": {"value": "yes", "evidence_note": "Role-based training operational with disclosure",  "respondent": "HR"},
+    "Q24": {"value": "yes", "evidence_note": "Curated maker community with certified pathways",  "respondent": "HR"},
+    "Q25": {"value": "yes", "evidence_note": "Supervisor accountability under change control",    "respondent": "HR"}
+  }
+}

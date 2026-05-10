@@ -1,0 +1,39 @@
+{
+  "_metadata": {
+    "collector_version": "1.0.0",
+    "timestamp": "2026-05-10T14:00:00Z",
+    "facilitator": "Test Facilitator",
+    "session_duration_minutes": 25,
+    "mode": "batch",
+    "manifest_version": "1.0.0",
+    "warnings": [],
+    "errors": []
+  },
+  "answers": {
+    "Q01": {"value": "yes",     "evidence_note": "Named AI program director identified",            "respondent": "CIO"},
+    "Q02": {"value": "yes",     "evidence_note": "Documented intake process in Wealth BU",          "respondent": "CIO"},
+    "Q03": {"value": "yes",     "evidence_note": "Enterprise AI strategy published Q1 2026",        "respondent": "CIO"},
+    "Q04": {"value": "no",      "evidence_note": null,                                              "respondent": "AI Gov Lead"},
+    "Q05": {"value": "no",      "evidence_note": null,                                              "respondent": "AI Gov Lead"},
+    "Q06": {"value": "yes",     "evidence_note": "Business owner assigned per agent use case",      "respondent": "COO"},
+    "Q07": {"value": "yes",     "evidence_note": "KPI tracking active in Wealth BU",               "respondent": "COO"},
+    "Q08": {"value": "no",      "evidence_note": null,                                              "respondent": "AI Gov Lead"},
+    "Q09": {"value": "no",      "evidence_note": null,                                              "respondent": "AI Gov Lead"},
+    "Q10": {"value": "no",      "evidence_note": null,                                              "respondent": "AI Gov Lead"},
+    "Q11": {"value": "yes",     "evidence_note": "Acceptable use policy in place",                  "respondent": "CISO"},
+    "Q12": {"value": "yes",     "evidence_note": "DLP enabled on agent workloads",                  "respondent": "CISO"},
+    "Q13": {"value": "yes",     "evidence_note": "Zone-tiered environments with audit logging",     "respondent": "CISO"},
+    "Q14": {"value": "yes",     "evidence_note": "Sentinel integration and risk committee cadence", "respondent": "CRO"},
+    "Q15": {"value": "no",      "evidence_note": null,                                              "respondent": "AI Gov Lead"},
+    "Q16": {"value": "yes",     "evidence_note": "Environment inventory maintained manually",       "respondent": "Power Platform Admin"},
+    "Q17": {"value": "yes",     "evidence_note": "Tagged environments with telemetry collection",   "respondent": "Power Platform Admin"},
+    "Q18": {"value": "yes",     "evidence_note": "Environment Groups operational with SIEM",        "respondent": "Power Platform Admin"},
+    "Q19": {"value": "partial", "evidence_note": "Sentinel integrated; Agent ID partially adopted", "respondent": "Power Platform Admin"},
+    "Q20": {"value": "no",      "evidence_note": null,                                              "respondent": "AI Gov Lead"},
+    "Q21": {"value": "yes",     "evidence_note": "Awareness email issued firmwide",                 "respondent": "HR"},
+    "Q22": {"value": "yes",     "evidence_note": "Training completed in pilot units",               "respondent": "HR"},
+    "Q23": {"value": "no",      "evidence_note": null,                                              "respondent": "AI Gov Lead"},
+    "Q24": {"value": "no",      "evidence_note": null,                                              "respondent": "AI Gov Lead"},
+    "Q25": {"value": "no",      "evidence_note": null,                                              "respondent": "AI Gov Lead"}
+  }
+}
