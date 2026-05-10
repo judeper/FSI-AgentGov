@@ -72,7 +72,7 @@ Cross-reference the agent inventory maintained under [Control 3.1](../../../cont
 3. Configure:
    - **Name:** `<PrimaryEnvName>-DR`
    - **Region:** the pre-approved secondary region for the primary's geography
-   - **Type:** **Production** (Tier 1 / Tier 2) or **Sandbox** (Tier 3 internal-only agents — note that sandbox retention is shorter)
+   - **Type:** **Production** (Tier 1 / Tier 2) or **Sandbox** (Tier 3 internal-only agents — note that sandbox and non-Managed production environments both default to 7-day backup retention; enable Managed Environments on production to access 28-day extended retention)
    - **Add a Dataverse data store:** **Yes**
    - **Currency / Language:** match the primary environment
    - **Security group:** apply the same restricted security group used in production
@@ -103,17 +103,18 @@ Cross-reference the agent inventory maintained under [Control 3.1](../../../cont
 1. Open the production environment in PPAC
 2. From the command bar, select **Backups**
 3. Confirm:
-   - **System backups** are listed for the past 28 days (production) or 7 days (sandbox) — these are continuous Dataverse backups created automatically
+   - **System backups** are present and current — by default backups are retained for **7 days for all environment types**; production Managed Environments with extended retention enabled show backups spanning up to **28 days**. Confirm which applies to this environment before setting RPO targets that rely on system-backup recovery.
+
    - The most recent system backup timestamp is current
 
-System backups support Microsoft-side recovery for in-region events. They restore the **entire environment**, not individual agents or solutions, and they are not portable cross-region.
+System backups support Microsoft-side recovery for in-region events. Within a region, the platform targets approximately near-zero RPO and recovery in under five minutes (per the [Power Platform BCDR FAQ](https://learn.microsoft.com/en-us/power-platform/admin/business-continuity-disaster-recovery), May 2026). System backups restore the **entire environment**, not individual agents or solutions, and are not portable cross-region.
 
 ### 3.2 Create a manual backup before any high-risk change
 
 1. From the **Backups** view select **Create**
 2. Enter a **Label** describing the change (for example, `Pre-deploy TradingAssistant 4.2.0`)
 3. Select **Create**
-4. Manual backups are retained per the published Power Platform retention policy — verify current retention against [Backup and restore environments](https://learn.microsoft.com/en-us/power-platform/admin/backup-restore-environments) before relying on a specific window
+4. Manual backups of production Managed Environments with extended retention enabled are kept up to **28 days**; all other environments retain manual backups for **7 days** by default. Verify current retention for this environment against [Backup and restore environments](https://learn.microsoft.com/en-us/power-platform/admin/backup-restore-environments) before relying on a specific window.
 
 ### 3.3 Restore drill (sandbox only — never on production without a change ticket)
 
@@ -290,4 +291,4 @@ After completing all parts, confirm:
 
 ---
 
-*Updated: April 2026 | Version: v1.4.0*
+*Updated: May 2026 | Version: v1.4.0*

@@ -253,4 +253,4 @@ If issues cannot be resolved using this guide:
 
 ---
 
-*Updated: April 2026 | Version: v1.4.0*
+*Updated: May 2026 | Version: v1.4.0*
