@@ -6,6 +6,91 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.6.1] — May 10, 2026 (Microsoft Learn drift patch)
+
+**Release theme:** Documentation-only patch responding to upstream Microsoft Learn changes detected by the Learn Monitor (run 114, 2026-05-10). Five follow-up issues were filed (#205–#209); four resulted in doc updates; one (#205) was investigated and closed `not planned` (the framework had never adopted the deprecated terminology). Five parallel Sonnet agents in five git worktrees executed the fixes simultaneously, validating the worktree-per-agent pattern at scale.
+
+**Upgrade safety:** No breaking changes. No schema changes. No control IDs renamed. No file additions. Pure documentation patches across 5 controls + 5 playbooks + `license-requirements.md`. Safe to upgrade in place.
+
+### Issue #206 — Analytics retention + 7-area effectiveness ([#211](https://github.com/judeper/FSI-AgentGov/pull/211), `3a936123`)
+
+Modified:
+
+- `docs/controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md` — Data Availability info box: 180-day analytics, 28-day session details
+- `docs/controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md` — retention windows admonition
+- `docs/controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md` — retention admonition in §Platform-Enabled Monitoring; footer to May 2026
+- `docs/controls/pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md` — retention admonition in §Verification Criteria
+- `docs/controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md` — retention admonition after Feedback Capture table
+- `docs/playbooks/control-implementations/2.5/portal-walkthrough.md` — new §9.8 covering 7-area effectiveness panel structure (added "Knowledge source use")
+- `docs/playbooks/control-implementations/2.6/portal-walkthrough.md` — retention admonition in §3.1
+
+Net change: +49 / −4 lines.
+
+### Issue #207 — IRM DLP workload caveats + role groups ([#212](https://github.com/judeper/FSI-AgentGov/pull/212), `7a026bb1`)
+
+Modified:
+
+- `docs/controls/pillar-1-security/1.12-insider-risk-detection-and-response.md` — `!!! warning "IRM DLP workload limitations"` admonition listing 5 unsupported workloads (Teams, Endpoint DLP, M365 Copilot, Power BI, on-premises repositories); 3 verbatim role groups cited from Microsoft Learn (`Insider Risk Management`, `Insider Risk Management Analysts`, `Insider Risk Management Investigators`); cross-references to controls 1.5, 1.6, 1.10, 1.13
+- `docs/playbooks/control-implementations/1.12/portal-walkthrough.md` — workload caveat surfaced in walkthrough
+
+Net change: +72 / −2 lines.
+
+### Issue #208 — BCDR retention defaults + RPO/RTO surfacing ([#213](https://github.com/judeper/FSI-AgentGov/pull/213), `8cb6bbec`)
+
+Modified:
+
+- `docs/controls/pillar-2-management/2.4-business-continuity-and-disaster-recovery.md` — retention table corrected: 7-day default ALL environments; extended retention up to 28 days requires production Managed Environments. Surfaces RPO/RTO from new Microsoft FAQ: within-region near-zero RPO + <5min RTO; cross-region typical replication lag <15min
+- `docs/playbooks/control-implementations/2.4/portal-walkthrough.md` — retention defaults aligned
+- `docs/playbooks/control-implementations/2.4/troubleshooting.md` — footer
+- `docs/images/2.4/EXPECTED.md` — screenshot specs aligned to new defaults
+
+Net change: +25 / −15 lines.
+
+### Issue #209 — Agent 365 license deadline 2026-07-01 ([#214](https://github.com/judeper/FSI-AgentGov/pull/214), `cbfbb463`)
+
+Modified:
+
+- `docs/controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md` — `!!! danger` deadline callout: AI Agent Inventory in Defender for Cloud Apps requires Agent 365 after 2026-07-01; orgs without Agent 365 lose AI Agent Inventory visibility entirely
+- `docs/controls/pillar-3-reporting/3.7-ppac-security-posture-assessment.md` — deadline callout for Defender for Cloud Apps cross-reference (walkthrough Step 8)
+- `docs/playbooks/control-implementations/1.8/portal-walkthrough.md` — danger admonition in walkthrough
+- `docs/playbooks/control-implementations/3.7/portal-walkthrough.md` — danger admonition in walkthrough
+- `docs/reference/license-requirements.md` — two new rows for controls 1.8 / 3.7 documenting the Agent 365 transition
+
+Net change: +60 / −10 lines.
+
+### Issue #205 — Sensitivity labels Entra group classification migration (closed `not planned`)
+
+Investigated, no changes required. Exhaustive grep across the entire framework for `Entra group classification`, `Convert Entra group classification`, `Classic Azure AD classification`, and `Convert classic group classifications` returned zero matches. The framework had never adopted the deprecated terminology. Three classification-adjacent terms (DLP connector classification, Entra group membership for DLP scoping, SharePoint classic sites) were verified unrelated. Issue closed with audit comment; branch never pushed.
+
+### Workflow validation
+
+- **5 parallel Sonnet agents in 5 git worktrees** — zero filesystem race conditions, zero merge conflicts, all 5 agents independently ran `mkdocs build --strict` against the same global Python install with no contention. Wall time per agent: 9–12 minutes.
+- **Empty-commit pattern (#205)** — agent created an audit-trail commit when investigation found nothing to fix; orchestrator chose to skip the empty PR and close the issue directly with the investigation comment instead.
+- **CI gates per PR** — 8/8 required checks green (mkdocs --strict, verify_language_rules, verify_controls, drift, coverage matrix, ruff, pytest, codeql) before merge.
+
+### Hard rules
+
+- **Tier-1 banlist enforced** — 0 banned-phrase hits across all 4 PRs.
+- **78-control catalog unchanged.** Pillar structure unchanged. Zone model unchanged.
+- **No manifest changes.** `controls.json` byte-identical to v1.6.0.
+- **No solutions catalog changes.** Companion repo untouched.
+- **Documentation-only patch.** No code changes to `assessment/`, `scripts/`, or workflows.
+
+### Validation at release
+
+| Gate | Result |
+|---|---|
+| `mkdocs build --strict` | 0 warnings |
+| `verify_language_rules.py` | 0 banned phrases |
+| `verify_controls.py` | 78 controls pass |
+| `check_manifest_doc_drift.py --check` | 78=78=78 |
+| `generate_coverage_matrix.py --check` | current |
+| `generate_pattern_coverage.py --check` (with companion repo) | current (78 controls, 35 solutions) |
+| `ruff check` | all pass |
+| `pytest assessment/tests/` | 56 passed |
+
+---
+
 ## [1.6.0] — May 10, 2026 (Solutions Discoverability Release)
 
 **Release theme:** Make the 35 companion solutions discoverable by Microsoft CAPE alignment metadata. Phase 6a tagged every solution README in the companion repo with `applicable_patterns`, `applicable_drivers`, and `coe_function` frontmatter; Phase 6b consumed those tags in the framework repo to enrich the Solutions Index and the Pattern Coverage matrix. No control catalog changes; no schema changes.
