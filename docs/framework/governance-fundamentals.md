@@ -23,7 +23,7 @@ Adaptive governance rests on three operational pillars:
 
 The FSI Agent Governance Framework provides complete guidance for deploying, governing, and managing Microsoft 365 agents (Copilot Studio, Agent Builder, and related AI services) in regulated financial services environments.
 
-**Version:** 1.2.53 (March 2026)
+**Version:** 1.5.0 (May 2026)
 **Target Audience:** US Financial Services Organizations
 **Regulatory Focus:** FINRA, SEC, SOX, GLBA, OCC, Federal Reserve, FDIC, NCUA, CFTC
 
@@ -118,6 +118,65 @@ The framework organizes 78 controls across four pillars:
 | **4. [SharePoint](../controls/pillar-4-sharepoint/index.md)** | 9 | SharePoint-specific controls | Access, Retention, External Sharing, Grounding Scope, Copilot Data Governance |
 
 **Note:** Pillar 4 specializes Pillars 1-3 for SharePoint as an agent knowledge source. Controls address SharePoint-specific implementation of data protection, access governance, and content management.
+
+---
+
+## Capability Drivers (Organizational Readiness)
+
+The framework's 78 controls describe *what to implement and how to verify it*. [Capability Drivers](../reference/glossary.md) describe *whether your organization is capable of implementing and operating it at scale*.
+
+Microsoft's Copilot Acceleration Engineering (CAPE) materials introduced five **Capability Drivers** as organizational readiness dimensions whose collective maturity determines an enterprise's capacity to deploy AI agents sustainably. FSI-AgentGov v1.5.0 adopts Capability Drivers as a first-class framework concept, complementing — not replacing — the control-by-control governance lens. The five drivers are:
+
+| Capability Driver | What It Measures |
+|-------------------|------------------|
+| **AI Strategy & Experience** | AI portfolio governance maturity — how the organization decides what to build, sponsor, and sunset |
+| **Business Strategy** | Business value alignment maturity — how AI investments are tied to named outcomes, KPIs, and accountable business owners |
+| **AI Governance & Security** | Risk management and control posture maturity — how the organization maintains examiner-defensible governance over the agent estate |
+| **Technology & Data** | Platform and data engineering maturity — environment strategy, identity, telemetry, RAG corpus integrity, observability |
+| **Organization & Culture** | Workforce enablement and change maturity — supervisor training, maker community, AI-positive but compliance-aware culture |
+
+Each driver is measured on a 100–500 maturity scale (Initial → Repeatable → Defined → Capable → Optimized). Microsoft positions this model as a **diagnostic for finding the weakest link**, not a scorecard to maximize: the weakest driver becomes the ceiling on how far any agentic transformation can scale, regardless of strength in other dimensions.
+
+### Pillars vs. Drivers: Critical Disambiguation
+
+**Pillars** are FSI-AgentGov's four **control families**: Security (29 controls), Management (26), Reporting (14), SharePoint (9). [Pillars](../reference/glossary.md) answer *"What category of control is this?"*
+
+**Drivers** are the five **organizational readiness dimensions** listed above. Drivers answer *"Where is the organization weak?"*
+
+The terms must not be conflated. Microsoft's CAPE source materials occasionally use "pillar" for the five readiness dimensions in slide titles; FSI-AgentGov canonicalizes to "Capability Driver" exclusively to prevent collision with our control families. The framework language linter (`scripts/verify_language_rules.py`) enforces this discipline.
+
+### Framework Conceptual Model
+
+The framework operates through five complementary lenses:
+
+- **Pattern** — names a deployment shape (what is this agent doing?) — Six transformation patterns defined in [Transformation Patterns](transformation-patterns.md)
+- **Zone** — names a regulatory classification (Personal / Team / Enterprise) — See [Zones and Tiers](zones-and-tiers.md)
+- **Pillar** — names a control family (Security / Management / Reporting / SharePoint)
+- **Driver** — names an organizational readiness dimension (one of the five above)
+- **Control** — the actionable governance unit (78 total across all four pillars)
+
+A single agent has one pattern, one zone classification, and N applicable controls across all four pillars. Capability Drivers describe the organization's capacity to actually implement those controls at scale — across many agents, many patterns, sustained over time.
+
+**Example:** An FSI firm can pass every Pillar 1 (Security) control on the FSI assessment engine and still be incapable of scaling a Pattern 4 (Core Business Process) deployment because its Business Strategy driver is at Level 200 (no documented agent-supported process redesign, no named business owner, no KPI ownership). The driver lens surfaces that gap before the deployment fails an examination.
+
+### Scale-Breakers
+
+A [scale-breaker](../reference/glossary.md) is the single capability dimension that blocks an organization's ability to scale its agent portfolio, regardless of strength in other areas. Microsoft's diagnostic identifies five common scale-breaker signals:
+
+- Many pilots with no portfolio governance
+- One-off agents with no component reuse
+- Great demos with low sustained adoption
+- Licenses purchased without measurable usage
+- Shadow agents appearing outside managed environments
+
+Each Frontier Transformation Pattern has typical scale-breakers documented in the [Microsoft CAPE crosswalk](../reference/microsoft-cape-crosswalk.md). Recognizing and addressing scale-breakers early is essential for sustainable agent deployment in regulated environments.
+
+### For Full Treatment
+
+The framework provides a complete FSI translation of Microsoft's Capability Drivers model:
+
+- [Agentic Capability Drivers](agentic-capability-drivers.md) — Per-driver maturity profiles, scale-breaker analysis by pattern, FSI-translated 100–500 progression, and the explicit position on why FSI-AgentGov does not numerically merge the CAPE maturity scale with the FSI 0–4 control maturity scale
+- [Microsoft CAPE Crosswalk](../reference/microsoft-cape-crosswalk.md) — Six transformation patterns mapped to FSI control requirements, autonomy caps, and regulatory exposure analysis
 
 ---
 
@@ -296,4 +355,4 @@ This framework is designed to **complement, not replace** existing enterprise go
 
 ---
 
-*FSI Agent Governance Framework v1.4.0 - April 2026*
+*FSI Agent Governance Framework v1.5.0 - May 2026*

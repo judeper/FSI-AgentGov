@@ -444,4 +444,29 @@ This document defines the organizational structure, roles, and accountability fo
 
 ---
 
-*FSI Agent Governance Framework v1.4.0 - April 2026*
+## Agentic Center of Excellence
+
+The operating model defined above — roles, RACI, and decision rights — is the canonical FSI governance structure for this framework. FSI-AgentGov v1.5.0 introduces a **Center of Excellence (CoE) blueprint** specifically for AI agent governance, adapted from Microsoft's Frontier CoE materials with FSI guardrails. The CoE blueprint complements the FSI operating model: it is a specialized operational structure for the AI program, not a replacement for the firm's overall governance architecture. The RACI assignments and role accountabilities above remain load-bearing for examiner workpapers (FFIEC IT examination, FINRA WSP supervisory documentation). The CoE blueprint adds a vocabulary for *organizing the work* above the RACI spine.
+
+### Four CoE Functions and Three Shapes
+
+The CoE organizes the agent governance program into four functions:
+
+- **Govern** — Policy, controls, audit readiness, release gates. Owned by the AI Governance Lead, CCO, CRO, and CISO.
+- **Enable** — Builder enablement, knowledge-source governance, design patterns, training. Owned by the AI Governance Lead and Adoption Lead.
+- **Optimize** — Performance monitoring, drift detection, incident triage, retirement signals. Owned by Service Owners and Power Platform Admin.
+- **Scale** — Intake pipeline, portfolio prioritization, business-line expansion, pattern reuse. Owned by Executive Sponsor and Agent Product Owners.
+
+These functions can be organized in one of three structural shapes: **Centralized** (a single CoE team holds all four functions; best for smaller institutions or early-stage programs), **Hybrid** (central CoE owns Govern + Enable; business lines own Optimize + Scale for their portfolios), or **Federated** (business lines run their own CoE chapters; central Govern team owns controls catalog and audit evidence only; best for global SIFIs with many business lines).
+
+### Federation Guardrail (Load-Bearing)
+
+**Federating CoE roles to business units does NOT transfer regulated supervisory accountability.** FINRA 3110 supervision, OCC 2011-12 model risk oversight, SR 26-2 obligations, and SOX 302/404 attestations remain with the named FSI roles in the operating model (AI Governance Lead, CCO, CRO, CISO) regardless of where the CoE function operationally sits. An institution cannot federate the accountability that a controlling regulation places on a named principal. "Federated" describes the operating shape; it does not describe the legal accountability model.
+
+### Cross-Link to the Full Blueprint
+
+For the full CoE blueprint — including function-by-function mandates, shape selection guidance, lifecycle ownership matrix, FSI-specific anti-patterns, and examiner-facing implications — see [Agentic Center of Excellence](agentic-coe.md). The CoE blueprint is **strategic** and belongs in executive sponsor and AI governance lead planning conversations. Admins implementing individual controls should start with the [control catalog](../controls/CONTROL-INDEX.md) instead.
+
+---
+
+*FSI Agent Governance Framework v1.5.0 - May 2026*

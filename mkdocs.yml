@@ -135,11 +135,14 @@ nav:
     - Executive Summary: framework/executive-summary.md
     - Governance Fundamentals: framework/governance-fundamentals.md
     - Zones and Tiers: framework/zones-and-tiers.md
+    - Frontier Transformation Patterns: framework/transformation-patterns.md
+    - Agentic Capability Drivers: framework/agentic-capability-drivers.md
     - Agent Lifecycle: framework/agent-lifecycle.md
     - Relationship to FSI-CopilotGov: framework/relationship-to-copilotgov.md
     - Unified Agent Governance: framework/agent-identity-architecture.md
     - Regulatory Framework: framework/regulatory-framework.md
     - Operating Model: framework/operating-model.md
+    - Agentic Center of Excellence: framework/agentic-coe.md
     - Governance Cadence: framework/governance-cadence.md
     - Adoption Roadmap: framework/adoption-roadmap.md
     - Solutions Integration: framework/solutions-integration.md

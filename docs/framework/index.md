@@ -1,5 +1,8 @@
 # Framework Overview
 
+!!! success "v1.5.0 — Microsoft CAPE Alignment"
+    FSI-AgentGov v1.5.0 introduces Microsoft Copilot Acceleration Engineering (CAPE) alignment with 3 new framework documents (Transformation Patterns, Capability Drivers, Agentic CoE) and the canonical [Microsoft CAPE Crosswalk](../reference/microsoft-cape-crosswalk.md) reference.
+
 The FSI Agent Governance Framework provides comprehensive governance guidance for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
 ---
@@ -36,10 +39,13 @@ This separation ensures governance stability while allowing rapid updates to imp
 | [Executive Summary](executive-summary.md) | Board-level overview of AI agent risks and governance | C-suite, Board |
 | [Governance Fundamentals](governance-fundamentals.md) | Core framework concepts and structure | All stakeholders |
 | [Zones and Tiers](zones-and-tiers.md) | Three-zone governance model | Governance committees |
+| [Frontier Transformation Patterns](transformation-patterns.md) | Six deployment patterns mapped to zone defaults and regulatory exposure profiles | AI governance leads, architects |
+| [Agentic Capability Drivers](agentic-capability-drivers.md) | Five organizational readiness dimensions and maturity targets by pattern | AI program sponsors, governance leads |
 | [Agent Lifecycle](agent-lifecycle.md) | Lifecycle phases and governance requirements | Compliance, Operations |
 | [Relationship to FSI-CopilotGov](relationship-to-copilotgov.md) | Scope boundary with the companion Copilot framework | New users, program leads |
 | [Regulatory Framework](regulatory-framework.md) | US regulatory requirements and control mappings | Compliance, Legal |
 | [Operating Model](operating-model.md) | RACI, roles, governance structure | All stakeholders |
+| [Agentic Center of Excellence](agentic-coe.md) | Four-function CoE blueprint for scaling agent governance without gatekeeper bottlenecks | CoE leads, executive sponsors |
 | [Governance Cadence](governance-cadence.md) | Review schedules and audit readiness | Compliance, Audit |
 | [Adoption Roadmap](adoption-roadmap.md) | Phased implementation guidance | Implementation teams |
 | [Agent Identity Architecture](agent-identity-architecture.md) | Agent identity, authentication, and authorization patterns | Security architects |
