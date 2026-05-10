@@ -419,4 +419,38 @@ Organizations should conduct separate analysis for state-specific requirements.
 
 ---
 
+## Microsoft CAPE alignment cross-reference
+
+FSI-AgentGov v1.5.0 includes a Microsoft CAPE alignment layer that maps Microsoft's six Frontier Transformation Patterns onto FSI zones, controls, and regulatory exposure. This alignment does not modify the underlying 78-control framework, which remains the definitive governance structure for US financial services AI deployments. CAPE is a Microsoft business-strategy framework designed to accelerate enterprise AI transformation, not a regulatory framework. Any deployment using CAPE Patterns 4–6 sits inside the FSI regulatory perimeter and triggers the same regulatory obligations as any other AI deployment subject to FINRA, SEC, OCC, Fed, GLBA, SOX, and state regulatory oversight.
+
+The [Microsoft CAPE crosswalk](../reference/microsoft-cape-crosswalk.md) provides the canonical mapping between CAPE vocabulary and FSI governance requirements. For each CAPE pattern, the crosswalk identifies:
+
+- Primary regulations triggered by the pattern
+- Default FSI zone classification
+- Mandatory FSI-AgentGov controls required to support compliance with regulatory obligations
+- Autonomy cap (the documented human-in-the-loop boundaries required for examiner-defensible posture)
+- Examiner red flags (typical regulatory examination questions and evidence requests)
+- CAPE language to reframe (industry-agnostic CAPE descriptors that require FSI-specific translation for regulatory contexts)
+
+**Pattern × Zone default mapping:**
+
+- [Pattern 1 — Employee AI Enablement](../reference/microsoft-cape-crosswalk.md#pattern-1-employee-ai-enablement): Zone 1 default (personal productivity and drafting assistance where the human retains decision authority)
+- [Pattern 2 — Business Expert Empowerment](../reference/microsoft-cape-crosswalk.md#pattern-2-business-expert-empowerment): Zone 2 default; Zone 3 when the subject-matter expert domain is regulated (compliance, supervision, model risk)
+- [Pattern 3 — Workplace & IT Services](../reference/microsoft-cape-crosswalk.md#pattern-3-workplace-it-services): Zone 2 default; Zone 3 when the service touches payroll, trade settlement, registered-person HR records, or customer files
+- [Pattern 4 — Core Business Process Transformation](../reference/microsoft-cape-crosswalk.md#pattern-4-core-business-process-transformation-deep-dive): **Zone 3 mandatory** (applies to KYC, claims processing, financial close, regulatory reporting)
+- [Pattern 5 — External Engagement](../reference/microsoft-cape-crosswalk.md#pattern-5-external-engagement-deep-dive): **Zone 3 mandatory** (customer- and partner-facing agents subject to FINRA, Reg BI, ECOA, Reg E, GLBA, state AI disclosure laws)
+- [Pattern 6 — AI-First Capabilities](../reference/microsoft-cape-crosswalk.md#pattern-6-ai-first-capabilities-deep-dive): **Zone 3 mandatory + autonomy guardrail** (net-new capabilities including continuous optimization, predictive planning, multi-agent orchestration)
+
+!!! warning "Pattern 6 Autonomy Guardrail"
+    Fully autonomous customer-impacting Pattern 6 deployments are not currently supported in Zone 3 without documented regulator pre-approval. This framework position reflects the current regulatory environment where fully autonomous, self-optimizing AI systems that directly affect customers have not been explicitly addressed by US financial services regulators. Organizations considering such deployments should obtain documented guidance from their primary regulator(s) before production use.
+
+**Cross-references:**
+
+- [Microsoft CAPE crosswalk](../reference/microsoft-cape-crosswalk.md) — full pattern-to-control mapping with per-pattern regulatory exposure callouts
+- [CCO quick reference](../reference/cco-quick-reference.md) — examiner-facing FAQ with regulation → control → evidence artifact → owning role mapping (forthcoming Phase 1 Wave 2A)
+- [Glossary](../reference/glossary.md) — see "Capability Driver" entry for disambiguation of CAPE "capability drivers" vs FSI "pillars"
+- [Role catalog — Microsoft CAPE role mapping](../reference/role-catalog.md#microsoft-cape-role-mapping-cross-reference) — CAPE role names mapped to FSI canonical role names
+
+---
+
 *FSI Agent Governance Framework v1.4.0 - April 2026*

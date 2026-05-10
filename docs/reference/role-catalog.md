@@ -155,4 +155,36 @@ Non-admin roles commonly referenced in controls for governance workflows, risk m
 
 ---
 
+## Microsoft CAPE Role Mapping (cross-reference)
+
+> **Note:** Microsoft's CAPE Frontier CoE blueprint defines 10 roles (6 strategic + 4 edge). This table maps each CAPE role to its FSI-AgentGov canonical equivalent or notes where a new role will be added in Phase 2. The 5 net-new roles flagged below are introduced in [`operating-model.md`](../framework/operating-model.md) and are NOT yet in this catalog (Phase 2 deliverable).
+>
+> **Position:** FSI-AgentGov retains canonical role names. CAPE role names are reference vocabulary used in `agentic-coe.md` (Phase 2) and `microsoft-cape-crosswalk.md` (Phase 1) only.
+
+### Strategic CoE roles (6)
+
+| CAPE role | FSI-AgentGov canonical role | Status | Notes |
+|---|---|---|---|
+| Executive Sponsor | (NEW — Phase 2) | New role | Board-level individual accountable for AI program. FINRA Rule 3110 / OCC heightened-standards implication. Will be added in Phase 2 per user decision D5. |
+| Business Owner | Business Owner (existing) | Map | Existing role per Zone 3 Governance Committee; clarify in Phase 2 to avoid CAPE name collision. |
+| CoE Lead | AI Governance Lead (existing) | Map | Functional equivalent in FSI-AgentGov context. |
+| Agent Product Owner | (NEW — Phase 2) | New role | Owner of an individual agent's lifecycle (intake → retire). Adopts Seat 6 recommendation. |
+| Platform & Operations | Power Platform Admin (existing) + Copilot Studio Agent Author (existing) | Map (split) | Two existing FSI roles cover this CAPE role. |
+| Security / Risk / Compliance | CISO + Chief Risk Officer + Chief Compliance Officer (existing trio) | Map (trio) | All three FSI roles together cover this CAPE role. Each retains independent FSI accountability. |
+
+### Edge / federated CoE roles (4)
+
+| CAPE role | FSI-AgentGov canonical role | Status | Notes |
+|---|---|---|---|
+| Makers (citizen developers) | (Implicit — agent authors in business units) | Implicit | FSI-AgentGov does not name a "Maker" role. The function exists as agent authors operating under Power Platform Admin and Copilot Studio Agent Author governance. |
+| Subject Matter Experts (SMEs) | (NEW — Phase 2) | New role | Domain expert who validates agent knowledge sources. Adopts Seat 6 recommendation. |
+| Service Owners | (NEW — Phase 2) | New role | Owner of business service that an agent supports (e.g., HR helpdesk owner for an HR agent). Adopts Seat 6 recommendation. |
+| Adoption Leads | (NEW — Phase 2) | New role | Drives end-user enablement and change management. Adopts Seat 6 recommendation. |
+
+### Federation principle
+
+Federation of CoE roles to business units does NOT transfer regulated supervisory accountability. FINRA 3110 supervision, OCC 2011-12 model risk oversight, and SR 26-2 compliance remain with the named FSI roles (Chief Compliance Officer, Chief Risk Officer, AI Governance Lead) regardless of CoE shape (Centralized, Hybrid, or Federated). See `agentic-coe.md` (Phase 2) for the federation guardrail.
+
+---
+
 *FSI Agent Governance Framework v1.3 - April 2026*
