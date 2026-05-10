@@ -68,7 +68,7 @@ The five maturity levels are paraphrased from CAPE as:
 
 The **CAPE core insight** is that the *weakest* driver is the scaling ceiling, regardless of how strong the others are (Source: *Walking Deck*, slide 8 *Key Insight*; *Patterns Playbook*, p. 27). FSI-AgentGov adopts the diagnostic framing without adopting the descriptors verbatim — see [the FSI Maturity Translation Table](#fsi-maturity-translation-table) below for the per-driver Level 500 reframings required for examiner-defensible posture.
 
-> **Detailed treatment:** the per-driver descriptors and FSI-translated profile guidance live in `docs/framework/agentic-capability-drivers.md` (Phase 2 deliverable). This crosswalk includes only the disambiguating overview and the translation table.
+> **Detailed treatment:** the per-driver descriptors and FSI-translated profile guidance live in [`docs/framework/agentic-capability-drivers.md`](../framework/agentic-capability-drivers.md). This crosswalk includes only the disambiguating overview and the translation table.
 
 ### 1.3 The Frontier Center of Excellence (Govern / Enable / Optimize / Scale)
 
@@ -83,7 +83,7 @@ CAPE describes a **Frontier Center of Excellence (CoE)** as the missing operatin
 
 CAPE describes three CoE shapes — **Centralized**, **Hybrid**, and **Federated** — chosen by pattern (Source: *Patterns Playbook*, pp. 9–24 per pattern). FSI-AgentGov adopts the four-function vocabulary as a layer above the existing [Operating Model](../framework/operating-model.md) and [Governance Cadence](../framework/governance-cadence.md), with a hard guardrail that **federation does not transfer regulated supervisory accountability** under FINRA Rule 3110, OCC Bulletin 2011-12, or Fed SR 26-2 (formerly SR 11-7).
 
-> **Detailed treatment:** the FSI CoE blueprint, decision-rights matrix, role mapping, and anti-patterns live in `docs/framework/agentic-coe.md` (Phase 2 deliverable).
+> **Detailed treatment:** the FSI CoE blueprint, decision-rights matrix, role mapping, and anti-patterns live in [`docs/framework/agentic-coe.md`](../framework/agentic-coe.md).
 
 ---
 
@@ -125,7 +125,7 @@ FSI-AgentGov customers will encounter **three distinct maturity scales**. They e
 |---|---|---|---|
 | **Per-control governance levels** (Baseline / Recommended / Regulated) | Every control file in `docs/controls/pillar-*/` | The implementation depth of a single control | Tri-state per control |
 | **Assessment engine maturity** (0–4) | `assessment/manifest/controls.json` and the prefilled assessment report | Aggregated control evidence vs zone thresholds | 0 (Not Started) → 4 (Optimized) per control + overall |
-| **CAPE Capability Driver maturity** (100–500) | `docs/framework/agentic-capability-drivers.md` (Phase 2) and the *Frontier Readiness* parallel assessment | Strategic readiness across five drivers; diagnostic for finding the scale-breaker | 100–500 per driver |
+| **CAPE Capability Driver maturity** (100–500) | [`docs/framework/agentic-capability-drivers.md`](../framework/agentic-capability-drivers.md) and the *Frontier Readiness* parallel assessment | Strategic readiness across five drivers; diagnostic for finding the scale-breaker | 100–500 per driver |
 
 **No published mapping table converts between these scales.** A control at "Recommended" implementation does not numerically equal "Driver maturity 300"; an "assessment engine 3" does not equal "CAPE 400." If a customer asks "what does Driver Governance & Security 400 mean for my control 2.6 implementation?" the correct answer is: the two answer different questions, run both diagnostics, and read them side by side.
 
@@ -428,7 +428,7 @@ A: No. The three scales answer different questions — per-control implementatio
 A: Three reasons. (1) "Zone 1/2/3" is already the FSI vocabulary across 78 controls, 312 playbooks, and the assessment engine; renaming would force a v2.0.0 break with no compensating value. (2) "Tier" is overloaded inside US FSI (Tier 1 capital, environment Tier 1/2/3). (3) The FSI Zone model carries documented per-zone control thresholds and audit-retention requirements that CAPE Tier does not. The crosswalk in [Section 2.2](#22-cape-tier-123-vs-fsi-zone-123) states the equivalence; we use Zone everywhere else.
 
 **Q: Where does the Frontier CoE blueprint live?**
-A: In `docs/framework/agentic-coe.md` (Phase 2 deliverable). This crosswalk only introduces the four CoE functions (Govern / Enable / Optimize / Scale) at a vocabulary level. The detailed FSI CoE shape — including the federation guardrail that CoE federation does not transfer regulated supervisory accountability — is in the framework doc.
+A: In [`docs/framework/agentic-coe.md`](../framework/agentic-coe.md). This crosswalk only introduces the four CoE functions (Govern / Enable / Optimize / Scale) at a vocabulary level. The detailed FSI CoE shape — including the federation guardrail that CoE federation does not transfer regulated supervisory accountability — is in the framework doc.
 
 **Q: How do I choose a pattern for a candidate use case?**
 A: Start with the [Pattern × Zone Fit Matrix](#3-pattern-zone-fit-matrix). If the use case is customer-facing or has a customer-decision impact, the answer is almost always Pattern 4, Pattern 5, or Pattern 6 — and Zone 3 mandatory. If it's internal productivity, Pattern 1 in Zone 1 is the typical home. Most organizations end up running 2–3 patterns simultaneously; CAPE explicitly documents this as the norm.
@@ -440,7 +440,7 @@ A: That tells you the customer has formal, partly-automated governance. It does 
 A: FINRA Notice 25-07 covers workplace modernization and is **not** an AI-specific notice — it is sometimes mis-cited by counsel as the FINRA AI position. The relevant FINRA AI notice is Notice 24-09 (technology-neutral application of supervisory rules to AI). See [`regulatory-framework.md`](../framework/regulatory-framework.md) for the existing warning callout and the correct citation chain.
 
 **Q: What happens if Microsoft updates CAPE?**
-A: The retrieval date in the source citation at the top of this document will become stale. A `cape-source-tracker.md` companion doc (deferred — to be scoped during Phase 2) will record source URLs, last-fetched dates, and "what would change in our docs if these change." Pattern definitions, scale-breaker assignments, and CoE descriptions are most likely to drift. The 6-row Regulatory Exposure callout structure is FSI-authored and will not drift.
+A: The retrieval date in the source citation at the top of this document will become stale. Drift management for this doc is owned by maintainers: when Microsoft publishes updated CAPE materials (Walking Deck, Patterns Playbook, or Agentic CoE Playbook), refresh the source citation at the top of this file and re-verify pattern definitions, scale-breaker assignments, and CoE descriptions. The 6-row Regulatory Exposure callout structure is FSI-authored and will not drift.
 
 **Q: Why does the Pattern 6 callout say "not currently supported" for fully autonomous customer-impacting deployments?**
 A: This is a deliberate framework position (Council decision D3, accepted by user). Pattern 6 deployments described as "sense-decide-act loops," "continuous learning loops," or "self-improving systems" — when applied to customer-impacting decisions in Zone 3 — are operating on a deployment shape no major US regulator has yet blessed. The framework's posture is that such deployments require documented regulator pre-approval. Customers that wish to deploy outside this guardrail should engage their primary regulator directly and document the engagement before relying on FSI-AgentGov as an attestation framework.
@@ -470,11 +470,11 @@ The two source documents (Walking Deck and Playbook) were verified to be the sam
 
 ### Drift management
 
-aka.ms shortlinks may be silently retargeted; Microsoft may release updated CAPE materials at any cadence. A `cape-source-tracker.md` companion doc (deferred — to be scoped during Phase 2) will record:
+aka.ms shortlinks may be silently retargeted; Microsoft may release updated CAPE materials at any cadence. Drift management for this doc is the maintainer's responsibility — when Microsoft sources change:
 
-- Each source URL and last-fetched date.
-- A content hash for the retrieved file.
-- A "what would change in our docs if this changes" note keyed to specific sections of this crosswalk.
+- Refresh each source URL and "Retrieved" date in the citation block above.
+- Recompute the SHA-256 of the retrieved file(s) and update the verification note.
+- Re-verify the sections of this crosswalk most likely to be affected by the source change (see priority order below) and patch FSI-translated content as needed.
 
 The 6-row Regulatory Exposure callouts are **FSI-authored** and will not drift with CAPE updates; they may need updates when the FSI regulatory landscape shifts (e.g., new state AI laws, new FINRA notices). Pattern definitions, scale-breaker assignments, CoE shapes, and Maturity Level descriptors are **CAPE-authored paraphrases** and are the parts of this document most likely to require updates following a CAPE source change.
 
@@ -488,13 +488,12 @@ This document paraphrases Microsoft CAPE materials with citation. No verbatim Mi
 
 **Within FSI-AgentGov:**
 
-- `docs/framework/transformation-patterns.md` — lean framework-layer summary of the six patterns with links back to this crosswalk for the deep-dives. *(Phase 2 deliverable.)*
-- `docs/framework/agentic-capability-drivers.md` — full FSI treatment of the five Capability Drivers and the 100–500 maturity scale, including the per-driver target profiles by pattern. *(Phase 2 deliverable.)*
-- `docs/framework/agentic-coe.md` — Frontier CoE blueprint adapted for FSI: four functions, three CoE shapes by FSI institution archetype, federation guardrail, anti-patterns. *(Phase 2 deliverable.)*
+- [`docs/framework/transformation-patterns.md`](../framework/transformation-patterns.md) — lean framework-layer summary of the six patterns with links back to this crosswalk for the deep-dives.
+- [`docs/framework/agentic-capability-drivers.md`](../framework/agentic-capability-drivers.md) — full FSI treatment of the five Capability Drivers and the 100–500 maturity scale, including the per-driver target profiles by pattern.
+- [`docs/framework/agentic-coe.md`](../framework/agentic-coe.md) — Frontier CoE blueprint adapted for FSI: four functions, three CoE shapes by FSI institution archetype, federation guardrail, anti-patterns.
 - [`docs/reference/cco-quick-reference.md`](cco-quick-reference.md) — CCO-facing surface mirroring the CSA Quick Reference: regulation → control → evidence artifact → examiner question → owning role. *(Phase 1 deliverable.)*
 - `docs/reference/csa-quick-reference.md` — Partner/CSA engagement summary; pattern-to-control quick lookup; conversation starters by audience. *(Phase 4 deliverable.)*
 - `docs/reference/csa-positioning-guide.md` — Positioning narrative and competitive differentiation. *(Phase 4 deliverable.)*
-- `docs/reference/cape-source-tracker.md` — Source URL, last-fetched date, content hash, and per-section drift impact. *(Deferred — to be scoped during Phase 2.)*
 - [`docs/reference/nist-ai-rmf-crosswalk.md`](nist-ai-rmf-crosswalk.md) — NIST AI RMF GOVERN/MAP/MEASURE/MANAGE crosswalk; complementary to this document.
 - [`docs/reference/regulatory-mappings.md`](regulatory-mappings.md) — Regulation-to-control mapping (FINRA 4511, FINRA 3110, SEC 17a-3 and 17a-4, OCC 2011-12, SR 26-2, GLBA 501(b), Reg E, ECOA/Reg B, SOX, CFTC 1.31, NYDFS).
 - [`docs/reference/role-catalog.md`](role-catalog.md) — Canonical FSI role names, including the *Microsoft CAPE Role Mapping* cross-reference table.
