@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from collections import Counter
 from pathlib import Path
@@ -24,6 +25,8 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 MANIFEST_PATH = REPO_ROOT / "assessment" / "manifest" / "controls.json"
 OUTPUT_PATH = REPO_ROOT / "docs" / "reference" / "pattern-coverage.md"
+
+SOLUTIONS_REPO_URL = "https://github.com/judeper/FSI-AgentGov-Solutions"
 
 PATTERNS: dict[int, tuple[str, str]] = {
     1: ("Employee AI Enablement", "Z1 (Personal)"),
@@ -43,10 +46,122 @@ PILLAR_NAMES = {
     4: "SharePoint",
 }
 
+# Top-level companion-repo folders that are NOT live solutions and must be
+# skipped when scanning for frontmatter (tooling, generated sites, preview
+# work, shared assets, etc.).
+SOLUTION_SKIP_DIRS: frozenset[str] = frozenset(
+    {
+        ".claude",
+        ".codex",
+        ".git",
+        ".github",
+        ".vscode",
+        "agent-intake",
+        "overrides",
+        "scripts",
+        "site",
+        "site-docs",
+    }
+)
+
+REQUIRED_FRONTMATTER_KEYS: frozenset[str] = frozenset(
+    {"applicable_patterns", "applicable_drivers", "coe_function"}
+)
+
 
 def load_controls() -> list[dict]:
     raw = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
     return raw if isinstance(raw, list) else raw.get("controls", [])
+
+
+def _parse_frontmatter(text: str) -> dict | None:
+    """Return the parsed YAML frontmatter dict or ``None`` if absent/invalid.
+
+    Frontmatter must start at the very first line with ``---`` on its own
+    line, followed by a YAML body terminated by a closing ``---`` line.
+    """
+    if not text.startswith("---"):
+        return None
+    # Find the closing fence on its own line after the opening one.
+    # Search for ``\n---`` followed by newline or end-of-string.
+    lines = text.splitlines()
+    if not lines or lines[0].strip() != "---":
+        return None
+    end_idx = -1
+    for i in range(1, len(lines)):
+        if lines[i].strip() == "---":
+            end_idx = i
+            break
+    if end_idx == -1:
+        return None
+    body = "\n".join(lines[1:end_idx])
+    try:
+        import yaml  # type: ignore[import-not-found]
+    except ImportError as exc:  # pragma: no cover - environment guard
+        raise SystemExit(
+            "ERROR: pyyaml is required to parse solution frontmatter. "
+            "Run `pip install -r scripts/requirements.txt` (or "
+            "`pip install pyyaml`) and retry."
+        ) from exc
+    try:
+        parsed = yaml.safe_load(body)
+    except yaml.YAMLError:
+        return None
+    return parsed if isinstance(parsed, dict) else None
+
+
+def load_solutions(solutions_repo: Path) -> list[dict]:
+    """Scan a companion-solutions repo and return tagged solution metadata.
+
+    Returns a list of dicts with ``id``, ``patterns``, ``drivers``, and
+    ``coe_function`` keys — one per top-level directory whose ``README.md``
+    declares all three required frontmatter fields. Directories without
+    frontmatter are silently skipped (e.g., preview folders).
+
+    If ``solutions_repo`` does not exist, an empty list is returned and a
+    warning is emitted to stderr; this preserves backward compatibility for
+    callers that run the generator without the companion repo available.
+    """
+    if not solutions_repo.exists() or not solutions_repo.is_dir():
+        print(
+            f"WARN: solutions repo not found at {solutions_repo}; "
+            "skipping solutions enrichment",
+            file=sys.stderr,
+        )
+        return []
+
+    solutions: list[dict] = []
+    for entry in sorted(solutions_repo.iterdir()):
+        if not entry.is_dir() or entry.name in SOLUTION_SKIP_DIRS:
+            continue
+        readme = entry / "README.md"
+        if not readme.exists():
+            continue
+        try:
+            text = readme.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        fm = _parse_frontmatter(text)
+        if not fm:
+            continue
+        if not REQUIRED_FRONTMATTER_KEYS.issubset(fm.keys()):
+            continue
+        patterns = fm.get("applicable_patterns") or []
+        drivers = fm.get("applicable_drivers") or []
+        coe = fm.get("coe_function")
+        if not isinstance(patterns, list) or not isinstance(drivers, list):
+            continue
+        if not isinstance(coe, str):
+            continue
+        solutions.append(
+            {
+                "id": entry.name,
+                "patterns": [str(p) for p in patterns],
+                "drivers": [str(d) for d in drivers],
+                "coe_function": coe,
+            }
+        )
+    return solutions
 
 
 def applicable_patterns(ctrl: dict) -> list[int]:
@@ -57,8 +172,10 @@ def pattern_critical(ctrl: dict) -> list[int]:
     return ctrl.get("pattern_critical") or []
 
 
-def render(controls: list[dict]) -> str:  # noqa: PLR0912
+def render(controls: list[dict], solutions: list[dict] | None = None) -> str:  # noqa: PLR0912, PLR0915
     total_controls = len(controls)
+    solutions = solutions or []
+    solutions_available = bool(solutions)
 
     # Pre-compute per-pattern counts
     ap_counts: Counter = Counter()
@@ -68,6 +185,24 @@ def render(controls: list[dict]) -> str:  # noqa: PLR0912
             ap_counts[pid] += 1
         for pid in pattern_critical(ctrl):
             pc_counts[pid] += 1
+
+    # Per-pattern solution counts (keyed by integer pattern id) and
+    # alphabetically-sorted solutions per pattern for the listing section.
+    sol_counts: Counter = Counter()
+    sols_by_pattern: dict[int, list[dict]] = {pid: [] for pid in PATTERNS}
+    for sol in sorted(solutions, key=lambda s: s["id"]):
+        for raw_pid in sol.get("patterns", []):
+            # Frontmatter declares patterns as e.g. "P3" — strip the prefix.
+            label = str(raw_pid).strip().upper()
+            if not label.startswith("P"):
+                continue
+            try:
+                pid = int(label[1:])
+            except ValueError:
+                continue
+            if pid in PATTERNS:
+                sol_counts[pid] += 1
+                sols_by_pattern[pid].append(sol)
 
     # Group controls by pillar
     pillars: dict[int, list[dict]] = {}
@@ -114,14 +249,26 @@ def render(controls: list[dict]) -> str:  # noqa: PLR0912
         lines.append(f"| {pid} | {name} | {zones} |")
     lines.append("")
 
+    if not solutions_available:
+        lines.append(
+            "*Solutions enrichment skipped \u2014 companion repo not "
+            "available at generate time.*"
+        )
+        lines.append("")
+
     # --- Coverage summary ---
     lines.append("## Coverage summary")
     lines.append("")
-    lines.append("| Pattern | Total controls applicable | Pattern-critical controls |")
-    lines.append("|---|---|---|")
+    lines.append(
+        "| Pattern | Total controls applicable | Pattern-critical controls "
+        "| Solutions count |"
+    )
+    lines.append("|---|---|---|---|")
     for pid, (name, _) in PATTERNS.items():
+        sol_cell = str(sol_counts[pid]) if solutions_available else "n/a"
         lines.append(
-            f"| {pid} \u2014 {name} | {ap_counts[pid]} | {pc_counts[pid]} |"
+            f"| {pid} \u2014 {name} | {ap_counts[pid]} | {pc_counts[pid]} "
+            f"| {sol_cell} |"
         )
     lines.append("")
 
@@ -147,6 +294,33 @@ def render(controls: list[dict]) -> str:  # noqa: PLR0912
             title = ctrl["title"].replace("|", "\\|")
             lines.append(f"- **{ctrl['id']}** {title}")
         lines.append("")
+
+    # --- Solutions per pattern section ---
+    if solutions_available:
+        lines.append("## Solutions per pattern")
+        lines.append("")
+        lines.append(
+            "The following companion solutions in "
+            f"[FSI-AgentGov-Solutions]({SOLUTIONS_REPO_URL}) declare support "
+            "for each pattern (via `applicable_patterns` frontmatter in each "
+            "solution README)."
+        )
+        lines.append("")
+        for pid, (name, _) in PATTERNS.items():
+            lines.append(f"### Pattern {pid} \u2014 {name}")
+            lines.append("")
+            sols = sols_by_pattern[pid]
+            if not sols:
+                lines.append(
+                    "*No solutions currently declare this pattern.*"
+                )
+                lines.append("")
+                continue
+            for sol in sols:
+                sid = sol["id"]
+                url = f"{SOLUTIONS_REPO_URL}/tree/main/{sid}"
+                lines.append(f"- [`{sid}`]({url})")
+            lines.append("")
 
     # --- Per-pillar matrix ---
     lines.append("## Per-pillar control \u00d7 pattern matrix")
@@ -205,10 +379,21 @@ def main(argv: list[str] | None = None) -> int:
         default=str(OUTPUT_PATH),
         help="Override output path (default: docs/reference/pattern-coverage.md)",
     )
+    parser.add_argument(
+        "--solutions-repo",
+        default=os.environ.get(
+            "FSI_SOLUTIONS_REPO", "../fsi-agentgov-solutions"
+        ),
+        help=(
+            "Path to companion FSI-AgentGov-Solutions repository "
+            "(default: ../fsi-agentgov-solutions or $FSI_SOLUTIONS_REPO env var)"
+        ),
+    )
     args = parser.parse_args(argv)
 
     controls = load_controls()
-    rendered = render(controls)
+    solutions = load_solutions(Path(args.solutions_repo))
+    rendered = render(controls, solutions)
     target = Path(args.output)
 
     if args.check:
@@ -227,12 +412,17 @@ def main(argv: list[str] | None = None) -> int:
                 file=sys.stderr,
             )
             return 1
-        print(f"OK: {target} is current.")
+        print(
+            f"OK: {target} is current "
+            f"({len(controls)} controls, {len(solutions)} solutions)."
+        )
         return 0
 
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(rendered, encoding="utf-8")
-    print(f"Wrote {target} ({len(controls)} controls).")
+    print(
+        f"Wrote {target} ({len(controls)} controls, {len(solutions)} solutions)."
+    )
     return 0
 
 

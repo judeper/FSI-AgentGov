@@ -7,6 +7,7 @@ on:
       - 'scripts/**'
       - 'docs/controls/CONTROL-INDEX.md'
       - 'docs/reference/assessment-coverage.md'
+      - 'docs/reference/pattern-coverage.md'
       - 'mkdocs.yml'
       - 'pyproject.toml'
       - 'ruff.toml'
@@ -19,6 +20,7 @@ on:
       - 'scripts/**'
       - 'docs/controls/CONTROL-INDEX.md'
       - 'docs/reference/assessment-coverage.md'
+      - 'docs/reference/pattern-coverage.md'
       - 'mkdocs.yml'
       - 'pyproject.toml'
       - 'ruff.toml'
@@ -76,6 +78,12 @@ jobs:
         run: python scripts/check_manifest_doc_drift.py --check
       - name: Check assessment coverage matrix is up to date
         run: python scripts/generate_coverage_matrix.py --check
+      - name: Install pyyaml for pattern coverage script
+        run: pip install -r scripts/requirements.txt
+      - name: Check pattern coverage matrix is up to date
+        run: |
+          git clone --depth 1 https://github.com/judeper/FSI-AgentGov-Solutions.git /tmp/fsi-agentgov-solutions
+          python scripts/generate_pattern_coverage.py --solutions-repo /tmp/fsi-agentgov-solutions --check
 
   language-rules:
     name: FSI language rules
