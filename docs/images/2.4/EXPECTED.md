@@ -6,8 +6,8 @@
 |----------|--------|-----------------|-----------------|
 | `01-ppac-create-environment.png` | PPAC | Environments → + New | Environment creation for DR |
 | `02-ppac-environment-type.png` | PPAC | New environment → Type | Environment type selection |
-| `03-ppac-backups.png` | PPAC | Environments → [env] → Backups | Backup list and settings |
-| `04-ppac-backup-details.png` | PPAC | Backups → [backup] | Backup details and restore option |
+| `03-ppac-backups.png` | PPAC | Environments → [env] → Backups | Backup list showing system and manual backups; confirm whether retention shows 7-day (default for all environments) or 28-day (production Managed Environments with extended retention enabled) |
+| `04-ppac-backup-details.png` | PPAC | Backups → [backup] | Backup details and restore option; verify retention window matches environment type |
 | `05-ppac-restore.png` | PPAC | Backup → Restore | Restore dialog |
 | `06-ppac-copy-environment.png` | PPAC | Environments → Copy | Environment copy for DR |
 | `07-m365-service-health.png` | M365 | Health → Service health | Service health dashboard |
