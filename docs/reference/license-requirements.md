@@ -91,7 +91,7 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 | **1.5** | DLP and Sensitivity Labels | Microsoft 365 E5 or Microsoft Purview Suite | Purview DLP + Information Protection. **Note:** DLP for Copilot *prompts* is available to all M365 Copilot/Copilot Chat users at no additional cost (any SKU); DLP to restrict Copilot from *processing files/emails* requires E5/Purview Suite |
 | **1.6** | DSPM for AI | Microsoft 365 E5 or Microsoft Purview Suite | Microsoft Purview DSPM for AI |
 | **1.7** | Audit Logging | Microsoft 365 E5 (Premium) or E3 (Standard) | E5 for 10-year retention |
-| **1.8** | Runtime Protection | Power Platform Premium | Managed Environments feature |
+| **1.8** | Runtime Protection | Power Platform Premium + **Agent 365** (for AI Agent Inventory after 2026-07-01) | Managed Environments feature; Defender for Cloud Apps provides AI Agent Inventory during grace period until 2026-07-01; Agent 365 required after deadline |
 | **1.9** | Data Retention | Microsoft 365 E5 or Microsoft Purview Suite | Data Lifecycle Management |
 | **1.10** | Communication Compliance | Microsoft 365 E5 or Microsoft Purview Suite | Purview Communication Compliance |
 | **1.11** | Conditional Access & MFA | Microsoft Entra ID P1 (basic) or P2 (advanced) | P2 for risk-based policies |
@@ -266,6 +266,11 @@ To verify current license assignments:
 
 > **GA note:** Microsoft Agent 365 reaches general availability on May 1, 2026 as part of Microsoft 365 E7 and standalone Agent 365 per-user licensing. Validate current terms in Microsoft Learn before procurement or production dependency decisions.
 
+!!! danger "License deadline: 2026-07-01 — AI Agent Inventory requires Agent 365"
+    Defender for Cloud Apps AI Agent Inventory licensing requirements changed (May 2026). **Agent 365 is required after 2026-07-01** to retain AI Agent Inventory visibility in Microsoft Defender. Until 2026-07-01, Defender for Cloud Apps license alone provides access. After the deadline, organizations without Agent 365 lose AI Agent Inventory visibility entirely.
+
+    **Affected controls:** 1.8 (Runtime Protection — Native Defender Integration) and 3.7 (PPAC Security Posture Assessment — Defender cross-reference). Source: [AI agent inventory — Microsoft Defender for Cloud Apps](https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-inventory)
+
 ### Official prerequisites
 
 | Requirement | Official guidance | Source |
@@ -287,6 +292,8 @@ To verify current license assignments:
 
 | Control | Licensing interpretation |
 |---------|--------------------------|
+| **1.8 - Runtime Protection** | AI Agent Inventory in Defender for Cloud Apps requires Agent 365 after 2026-07-01. Defender for Cloud Apps provides access during grace period until 2026-07-01. After the deadline, organizations without Agent 365 lose AI Agent Inventory visibility. |
+| **3.7 - PPAC Security Posture Assessment** | Defender for Cloud Apps AI Agent Inventory cross-reference (portal walkthrough Step 8) requires Agent 365 after 2026-07-01. Grace period ends 2026-07-01. |
 | **2.25 - Agent 365 Governance Console** | Requires Agent 365 or Microsoft 365 E7 per-user licensing at GA (May 1, 2026) |
 | **3.8 - Copilot Hub and Governance Dashboard** | Power Platform Premium covers PPAC Copilot Hub; Agent overview metrics and governance cards available with Agent 365 or M365 E7 licensing at GA (May 1, 2026) |
 | **2.23 - User Consent and AI Disclosure Enforcement** | Follow Agent Management Essentials prerequisites for AI Admin role assignment and PIM when delegating admin-center agent governance |
@@ -301,4 +308,4 @@ To verify current license assignments:
 
 ---
 
-*Last Updated: March 2026 | Framework Version: v1.2.52*
+*Last Updated: May-2026 | Framework Version: v1.4.0*
