@@ -18,8 +18,8 @@ It is the honest answer to *what does the Frontier Readiness assessment actually
 
 | State | Count | Share |
 |-------|-------|-------|
-| ✅ Auto | 2 | 8.0% |
-| 📝 Manual | 23 | 92.0% |
+| ✅ Auto | 3 | 12.0% |
+| 📝 Manual | 22 | 88.0% |
 | ⚠️ Unimplemented | 0 | 0.0% |
 | **Total** | 25 | 100% |
 
@@ -29,7 +29,7 @@ It is the honest answer to *what does the Frontier Readiness assessment actually
 |---|---|---|---|---|
 | AI Strategy & Experience | 5 | 0 | 5 | 0 |
 | Business Strategy | 5 | 0 | 5 | 0 |
-| AI Governance & Security | 5 | 0 | 5 | 0 |
+| AI Governance & Security | 5 | 1 | 4 | 0 |
 | Technology & Data | 5 | 2 | 3 | 0 |
 | Organization & Culture | 5 | 0 | 5 | 0 |
 
@@ -61,7 +61,7 @@ It is the honest answer to *what does the Frontier Readiness assessment actually
 |---|---|---|---|---|---|
 | Q11 | 100 | Does the organization have any informal guardrails (acceptable use guidance, ... | 📝 Manual | `informal_guardrails_in_place` | Facilitator-answered. |
 | Q12 | 200 | In some business units, are platform controls (DLP, audit logging) applied to... | 📝 Manual | `bu_level_platform_controls_and_written_policy` | Facilitator-answered. |
-| Q13 | 300 | Are agents classified into Zone-tiered Managed Environments with comprehensiv... | 📝 Manual | `zone_classification_with_audit_supervision_and_model_risk` | Facilitator-answered. |
+| Q13 | 300 | Are agents classified into Zone-tiered Managed Environments with comprehensiv... | ✅ Auto | `zone_classification_with_audit_supervision_and_model_risk` | Auto-evaluator caps suggested answer at 'partial' because model-risk overlay (the third L300 signal) is not telemetry-verifiable. Facilitator must confirm model risk separately to upgrade to 'yes'. |
 | Q14 | 400 | Do risk metrics flow into a risk committee on a documented cadence, supported... | 📝 Manual | `risk_metrics_to_committee_with_tested_runbooks` | Facilitator-answered. |
 | Q15 | 500 | Does the organization operate continuous control monitoring with risk-tier-ba... | 📝 Manual | `continuous_monitoring_with_release_gates_and_examiner_drills` | Facilitator-answered. |
 
@@ -91,7 +91,6 @@ The following questions have `pass_condition` strings populated, suggesting they
 
 - **Q01** (AI Strategy & Experience, L100): pass_condition `ai_initiative_owner_identified` — *plausible automation source: Graph API: query Entra directory roles for named CIO/CDAO assignment*
 - **Q03** (AI Strategy & Experience, L300): pass_condition `enterprise_ai_strategy_published_with_portfolio` — *plausible automation source: SharePoint PnP search for AI strategy document in Governance Committee site*
-- **Q13** (AI Governance & Security, L300): pass_condition `zone_classification_with_audit_supervision_and_model_risk` — *plausible automation source: PPAC environment list API: check for managed environment groups with zone tags*
 - **Q18** (Technology & Data, L300): pass_condition `env_groups_with_inventory_siem_rag_and_lineage` — *plausible automation source: PPAC Environment Groups API; Sentinel workspace connectivity; SharePoint permission scan logs*
 
 ## How to wire up an evaluator (future)

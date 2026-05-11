@@ -204,10 +204,11 @@
       "fsi_context": "Defined maturity requires zone-classified environments, retention-grade audit logging, named supervisors, and model risk tiering — the four evidence pillars an FSI examiner will request first when reviewing AI agent governance.",
       "answer_format": "yes_no_partial",
       "scoring_weight": 1.0,
-      "auto_evaluable": false,
+      "auto_evaluable": true,
       "pass_condition": "zone_classification_with_audit_supervision_and_model_risk",
-      "collection_methods": ["Manual"],
-      "regulatory_relevance": ["FINRA-3110", "FINRA-4511", "SEC-17a-4", "OCC-2011-12", "Fed-SR-11-7"]
+      "collection_methods": ["Manual", "PPAC_API", "Purview_PowerShell"],
+      "regulatory_relevance": ["FINRA-3110", "FINRA-4511", "SEC-17a-4", "OCC-2011-12", "Fed-SR-11-7"],
+      "notes": "Auto-evaluator caps suggested answer at 'partial' because model-risk overlay (the third L300 signal) is not telemetry-verifiable. Facilitator must confirm model risk separately to upgrade to 'yes'."
     },
     {
       "question_id": "Q14",

@@ -1,0 +1,40 @@
+{
+  "_metadata": {
+    "collector": "PPAC",
+    "timestamp": "2026-03-25T21:00:00Z",
+    "tenant_id": "test-tenant",
+    "warnings": [],
+    "errors": []
+  },
+  "environments": [
+    {
+      "DisplayName": "Default",
+      "EnvironmentName": "env-default-001",
+      "EnvironmentSku": "Default",
+      "Tags": {},
+      "EnvironmentGroupId": null
+    },
+    {
+      "DisplayName": "Prod-Agents",
+      "EnvironmentName": "env-prod-agents-001",
+      "EnvironmentSku": "Production",
+      "Tags": {"zone": "1", "workload": "agent"},
+      "EnvironmentGroupId": null
+    },
+    {
+      "DisplayName": "Prod-Compliance",
+      "EnvironmentName": "env-prod-compliance-001",
+      "EnvironmentSku": "Production",
+      "Tags": {"Zone": "2"},
+      "EnvironmentGroupId": null
+    },
+    {
+      "DisplayName": "Dev-Sandbox",
+      "EnvironmentName": "env-dev-001",
+      "EnvironmentSku": "Sandbox",
+      "Tags": {"zone": "3"},
+      "EnvironmentGroupId": null
+    }
+  ],
+  "environmentGroups": []
+}

@@ -1,0 +1,18 @@
+{
+  "_metadata": {
+    "collector": "Purview",
+    "timestamp": "2026-03-25T21:00:00Z",
+    "tenant_id": "test-tenant",
+    "warnings": [],
+    "errors": ["Connect-ExchangeOnline failed: authentication timeout"]
+  },
+  "audit_config": null,
+  "dlp_policies": [],
+  "retention_policies": [],
+  "communication_compliance": [],
+  "ediscovery_cases": [],
+  "insider_risk_policies": [],
+  "dspm_for_ai": null,
+  "sensitivity_labels": [],
+  "endpoint_dlp": []
+}
