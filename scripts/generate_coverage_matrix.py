@@ -296,11 +296,6 @@ def classify_frontier_question_state(question: dict) -> str:
 # Plausible future evaluator candidates: (q_id, driver_id, level, pass_condition, source)
 _FRONTIER_EVALUATOR_CANDIDATES = [
     (
-        "Q01", "ai_strategy", 100,
-        "ai_initiative_owner_identified",
-        "Graph API: query Entra directory roles for named CIO/CDAO assignment",
-    ),
-    (
         "Q03", "ai_strategy", 300,
         "enterprise_ai_strategy_published_with_portfolio",
         "SharePoint PnP search for AI strategy document in Governance Committee site",

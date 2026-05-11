@@ -1,0 +1,72 @@
+{
+  "_metadata": {
+    "collector": "Collect-Graph",
+    "timestamp": "2026-05-11T00:00:00Z",
+    "tenant_id": "test-tenant",
+    "warnings": []
+  },
+  "conditionalAccessPolicies": [],
+  "fsiSecurityGroups": [],
+  "informationBarriers": [],
+  "privilegedRoleAssignments": [],
+  "copilotServicePrincipals": [],
+  "tenantSecuritySettings": {},
+  "aiLeadershipUsers": [
+    {
+      "DisplayName": "User One",
+      "UserPrincipalName": "u1@contoso.com",
+      "JobTitle": "Chief Data Officer",
+      "Department": "Data",
+      "MatchedKeyword": "Chief Data Officer"
+    },
+    {
+      "DisplayName": "User Two",
+      "UserPrincipalName": "u2@contoso.com",
+      "JobTitle": "Chief AI Officer",
+      "Department": "AI",
+      "MatchedKeyword": "Chief AI Officer"
+    },
+    {
+      "DisplayName": "User Three",
+      "UserPrincipalName": "u3@contoso.com",
+      "JobTitle": "Head of AI",
+      "Department": "Technology",
+      "MatchedKeyword": "Head of AI"
+    },
+    {
+      "DisplayName": "User Four",
+      "UserPrincipalName": "u4@contoso.com",
+      "JobTitle": "VP of AI",
+      "Department": "Engineering",
+      "MatchedKeyword": "VP of AI"
+    },
+    {
+      "DisplayName": "User Five",
+      "UserPrincipalName": "u5@contoso.com",
+      "JobTitle": "Director of AI",
+      "Department": "Research",
+      "MatchedKeyword": "Director of AI"
+    },
+    {
+      "DisplayName": "User Six",
+      "UserPrincipalName": "u6@contoso.com",
+      "JobTitle": "AI Governance Lead",
+      "Department": "Compliance",
+      "MatchedKeyword": "AI Governance Lead"
+    },
+    {
+      "DisplayName": "User Seven",
+      "UserPrincipalName": "u7@contoso.com",
+      "JobTitle": "Chief Digital Officer",
+      "Department": "Digital",
+      "MatchedKeyword": "Chief Digital Officer"
+    },
+    {
+      "DisplayName": "User Eight",
+      "UserPrincipalName": "u8@contoso.com",
+      "JobTitle": "Head of Data",
+      "Department": "Data Engineering",
+      "MatchedKeyword": "Head of Data"
+    }
+  ]
+}

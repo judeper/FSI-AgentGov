@@ -48,9 +48,9 @@
       "fsi_context": "Examiners begin with 'who is accountable for AI?' An identifiable owner is the minimum starting point for any AI program; without one, the firm cannot answer the first supervisory question.",
       "answer_format": "yes_no_partial",
       "scoring_weight": 1.0,
-      "auto_evaluable": false,
+      "auto_evaluable": true,
       "pass_condition": "ai_initiative_owner_identified",
-      "collection_methods": ["Manual"],
+      "collection_methods": ["Manual", "Graph_API"],
       "regulatory_relevance": ["FINRA-3110"]
     },
     {

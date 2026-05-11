@@ -4,8 +4,8 @@
 
 .DESCRIPTION
     Enumerates Conditional Access policies, FSI-Agent security groups, privileged role
-    assignments, Copilot Studio service principals, and tenant security settings via
-    Microsoft Graph.
+    assignments, Copilot Studio service principals, tenant security settings, and
+    AI-leadership job titles via Microsoft Graph.
 
     Outputs a structured JSON file (graph.json) consumed by the assessment engine.
 
@@ -31,13 +31,14 @@
 
 .OUTPUTS
     graph.json — JSON file with CA policies, security groups, privileged roles,
-    service principals, information barriers, and tenant settings.
+    service principals, information barriers, tenant settings, and AI-leadership users.
 
 .NOTES
     Part of the FSI Agent Governance Assessment Engine — Graph Collector.
-    Required Graph scopes: Policy.Read.All, Group.Read.All, Directory.Read.All, AuditLog.Read.All.
+    Required Graph scopes: Policy.Read.All, Group.Read.All, Directory.Read.All,
+    AuditLog.Read.All, User.Read.All.
     Exit codes: 0 = success, 1 = partial failure (some sections null), 2 = total failure.
-    Version: 1.0.0
+    Version: 1.1.0
 #>
 
 #Requires -Version 7.0
@@ -321,6 +322,89 @@ catch {
 }
 
 # ═══════════════════════════════════════════════════════════════════════
+# Section 7: AI Leadership Job Titles
+# Supports: Frontier Q01 (ai_initiative_owner_identified) — AI Strategy L100
+# Prereq: User.Read.All Graph scope (incremental; Graph auth already required)
+# ═══════════════════════════════════════════════════════════════════════
+$aiLeadershipUsers = $null
+try {
+    Write-Verbose "Section 7: Enumerating AI-leadership job titles..."
+
+    # AI-leadership keyword fragments for post-filtering
+    $aiKeywords = @(
+        'Chief Data Officer', 'Chief Information Officer', 'Chief AI Officer',
+        'Chief Digital Officer', 'Chief Analytics Officer',
+        'Chief Data and Analytics Officer', 'Chief Technology Officer',
+        'Head of AI', 'Head of Data', 'Head of Digital',
+        'AI Governance Lead', 'AI Officer',
+        'Director of AI', 'VP of AI', 'VP of Data', 'VP of Digital',
+        'CDO', 'CIO', 'CTO'
+    )
+    $selectProps = @('DisplayName', 'UserPrincipalName', 'JobTitle', 'Department')
+
+    # Two narrow server-side filters to limit API response volume
+    $rawUsers = @()
+    try {
+        $rawUsers += @(Get-MgUser -Filter "startswith(jobTitle,'Chief')" `
+            -Property $selectProps -All -ErrorAction Stop)
+    }
+    catch {
+        $warnings.Add("Section 7 filter 'Chief' failed: $($_.Exception.Message)")
+        Write-Warning $warnings[-1]
+    }
+    try {
+        $rawUsers += @(Get-MgUser -Filter "startswith(jobTitle,'Head of') or startswith(jobTitle,'VP of') or startswith(jobTitle,'Director of') or startswith(jobTitle,'AI ')" `
+            -Property $selectProps -All -ErrorAction Stop)
+    }
+    catch {
+        $warnings.Add("Section 7 filter 'Head/VP/Director/AI' failed: $($_.Exception.Message)")
+        Write-Warning $warnings[-1]
+    }
+
+    # Deduplicate by UserPrincipalName
+    $uniqueUsers = @($rawUsers | Sort-Object UserPrincipalName -Unique)
+
+    # Post-filter: match job titles against canonical AI-leadership keywords
+    $matchedUsers = @(foreach ($user in $uniqueUsers) {
+        if (-not $user.JobTitle) { continue }
+        $titleLower = $user.JobTitle.ToLower()
+        $matchedKeyword = $null
+        foreach ($kw in $aiKeywords) {
+            $kwLower = $kw.ToLower()
+            # Short acronyms (CDO, CIO, CTO): require word boundary
+            if ($kwLower.Length -le 3) {
+                if ($titleLower -match "\b$([regex]::Escape($kwLower))\b") {
+                    $matchedKeyword = $kw
+                    break
+                }
+            }
+            else {
+                if ($titleLower.Contains($kwLower)) {
+                    $matchedKeyword = $kw
+                    break
+                }
+            }
+        }
+        if ($matchedKeyword) {
+            [PSCustomObject]@{
+                DisplayName       = $user.DisplayName
+                UserPrincipalName = $user.UserPrincipalName
+                JobTitle          = $user.JobTitle
+                Department        = $user.Department
+                MatchedKeyword    = $matchedKeyword
+            }
+        }
+    })
+
+    $aiLeadershipUsers = $matchedUsers
+    Write-Verbose "  Found $($aiLeadershipUsers.Count) user(s) with AI-leadership job titles."
+}
+catch {
+    $warnings.Add("Section 7 (AI Leadership Job Titles) failed: $($_.Exception.Message)")
+    Write-Warning $warnings[-1]
+}
+
+# ═══════════════════════════════════════════════════════════════════════
 # Build Output
 # ═══════════════════════════════════════════════════════════════════════
 $result = [ordered]@{
@@ -330,6 +414,7 @@ $result = [ordered]@{
     privilegedRoleAssignments  = $privilegedRoleAssignments
     copilotServicePrincipals   = $copilotServicePrincipals
     tenantSecuritySettings     = $tenantSecuritySettings
+    aiLeadershipUsers          = $aiLeadershipUsers
     _metadata                  = [ordered]@{
         collector   = 'Collect-Graph'
         timestamp   = (Get-Date -Format 'o')
@@ -348,7 +433,8 @@ try { Disconnect-MgGraph -ErrorAction SilentlyContinue } catch { }
 # ─── Exit Code ───────────────────────────────────────────────────────
 $sectionValues = @(
     $conditionalAccessPolicies, $fsiSecurityGroups, $informationBarriers,
-    $privilegedRoleAssignments, $copilotServicePrincipals, $tenantSecuritySettings
+    $privilegedRoleAssignments, $copilotServicePrincipals, $tenantSecuritySettings,
+    $aiLeadershipUsers
 )
 $nullSections = @($sectionValues | Where-Object { $null -eq $_ })
 

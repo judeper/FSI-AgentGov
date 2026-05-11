@@ -1,0 +1,37 @@
+{
+  "_metadata": {
+    "collector": "Collect-Graph",
+    "timestamp": "2026-05-11T00:00:00Z",
+    "tenant_id": "test-tenant",
+    "warnings": []
+  },
+  "conditionalAccessPolicies": [],
+  "fsiSecurityGroups": [],
+  "informationBarriers": [],
+  "privilegedRoleAssignments": [
+    {
+      "RoleDefinitionId": "role-pp-admin",
+      "RoleName": "Power Platform Administrator",
+      "PrincipalId": "user-003",
+      "DirectoryScopeId": "/"
+    }
+  ],
+  "copilotServicePrincipals": [],
+  "tenantSecuritySettings": {},
+  "aiLeadershipUsers": [
+    {
+      "DisplayName": "Jane Doe",
+      "UserPrincipalName": "jane.doe@contoso.com",
+      "JobTitle": "Chief Data Officer",
+      "Department": "Data & Analytics",
+      "MatchedKeyword": "Chief Data Officer"
+    },
+    {
+      "DisplayName": "Bob Smith",
+      "UserPrincipalName": "bob.smith@contoso.com",
+      "JobTitle": "Head of AI",
+      "Department": "Technology",
+      "MatchedKeyword": "Head of AI"
+    }
+  ]
+}
