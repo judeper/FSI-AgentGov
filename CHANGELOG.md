@@ -6,6 +6,119 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [1.6.2] — May 11, 2026 (Frontier Readiness auto-evaluator wave)
+
+**Release theme:** Six-PR wave wiring telemetry-driven auto-scoring for the Frontier Readiness assessment, taking auto-evaluable coverage from **0/25 (0%)** to **6/25 (24%)**. After this release, the Frontier auto-evaluable backlog is **structurally exhausted** — the remaining 19 questions (76%) are facilitator-only by design (board attestation, written policy text, executive interviews, regulatory committee minutes, business strategy alignment) and cannot be honestly derived from M365/PPAC/Sentinel/SharePoint telemetry.
+
+**Upgrade safety:** No breaking changes. No control IDs renamed. Schema additions only on the Frontier manifest (six entries flipped to `auto_evaluable: true` with new `notes` fields). Assessment engine grows by six evaluator functions plus 21 new tests; existing 78-control assessment behaviour unchanged. Safe to upgrade in place.
+
+**Honesty principle:** Every evaluator added in this wave is **partial-capped** — none ever returns `"yes"`. Each Frontier question has at least one facilitator-only sub-claim (governance maturity, written attestation, named executive sponsor) that telemetry cannot verify, so auto-scoring asserts only what telemetry can support and explicitly names the residual facilitator burden in evidence strings. The honest assessment-coverage report at `docs/reference/frontier-assessment-coverage.md` reflects this structural floor — it is not a roadmap target to "improve."
+
+### Coverage progression
+
+| Wave | PRs | Auto | Manual | % Auto |
+|------|-----|------|--------|--------|
+| Pre-evaluators (v1.6.1) | — | 0 | 25 | 0% |
+| Q16 + Q17 framework | [#215](https://github.com/judeper/FSI-AgentGov/pull/215), [#216](https://github.com/judeper/FSI-AgentGov/pull/216) | 2 | 23 | 8% |
+| Q13 partial-cap pattern | [#218](https://github.com/judeper/FSI-AgentGov/pull/218) | 3 | 22 | 12% |
+| Q01 word-boundary regex | [#219](https://github.com/judeper/FSI-AgentGov/pull/219) | 4 | 21 | 16% |
+| Q18 + Q03 closeout | [#220](https://github.com/judeper/FSI-AgentGov/pull/220) | **6** | **19** | **24%** |
+
+### PR [#215](https://github.com/judeper/FSI-AgentGov/pull/215) — Q16 + Q17 evaluator framework
+
+Established the Frontier evaluator infrastructure: `assessment/engine/score_frontier.py` with `_load_collected_json` helper, `EVALUATORS` registry, `compute_evaluator_coverage` API, and the first two evaluators:
+
+- **Q16** (`zone_classification_present`) — pure auto: PPAC environment Tags / Group naming for Zone 1/2/3 classification
+- **Q17** (`audit_log_retention_meets_finra`) — pure auto: M365 audit retention policies via Purview audit-log search export
+
+Coverage matrix infrastructure (`docs/reference/frontier-assessment-coverage.md`) and CI gating (`scripts/generate_coverage_matrix.py --type frontier --check`) added in this PR.
+
+### PR [#216](https://github.com/judeper/FSI-AgentGov/pull/216) — PPAC environment-group enrichment
+
+Extended `assessment/collectors/Collect-PPAC.ps1` with two new sections:
+
+- **Section 8** — Environment Groups via BAP API (`Id`, `DisplayName`, `Description`, `CreatedTime`, `EnvironmentCount`)
+- **Section 9** — per-environment tag/group enrichment (`EnvironmentGroupId`, `Tags`)
+
+These sections back the 3-way correlation in PR #220 (Q18) and improve Q16's signal precision.
+
+### PR [#218](https://github.com/judeper/FSI-AgentGov/pull/218) — Q13 partial-cap pattern
+
+**Q13** (`zone_classification_with_audit_supervision_and_model_risk`) — established the **partial-cap** pattern that the rest of the wave inherits. Combines Q16's PPAC zone signal with Q17's audit signal and Purview supervision policy presence. Returns `"partial"` when telemetry signals are present but caps there because model-risk-management governance attestation is facilitator-only.
+
+Pattern features replicated by Q18 + Q03:
+- `_metadata.errors` short-circuit per source
+- `None` only when ALL sources unavailable
+- Evidence string explicitly names every missing signal AND every facilitator-only caveat
+- `NEVER_returns_yes` test invariant
+
+### PR [#219](https://github.com/judeper/FSI-AgentGov/pull/219) — Q01 + Graph job-title enumeration
+
+**Q01** (`ai_initiative_owner_identified`) — keyword search over Graph user job titles for AI leadership signals (CDO, Chief AI Officer, Chief AI Risk Officer, VP AI, Head of AI, etc.). Required collector extension:
+
+- **Collect-Graph.ps1 §7** added: AI Leadership Job Titles via two narrow `Get-MgUser` `startswith` queries + post-filter (Graph API does not support `contains` on job-title)
+
+Word-boundary regex (`r'\bVP\b'`, `r'\bCDO\b'`) used for short acronyms to prevent false positives like "VPC" or "CDOs". Capped at `"partial"` because mere title presence does not confirm active sponsorship.
+
+### PR [#220](https://github.com/judeper/FSI-AgentGov/pull/220) — Q18 + Q03 closeout (this release)
+
+**Q18** (`env_groups_with_inventory_siem_rag_and_lineage`, L300 Tech & Data) — 3-way telemetry correlation across:
+- PPAC environment groups (Sections 8+9 from #216)
+- Sentinel SIEM data connectors (`Office365Enabled`, `McasEnabled`, `TotalConnectors`)
+- SharePoint item-level permission scan (`itemLevelPermissions[].SampledItems` + `groundingCrossRef.ApprovedFound`)
+
+Telemetry gap explicitly acknowledged: **automated agent inventory is not collected** by any current collector. Q18 evidence string names this as `"agent inventory not collected (out of scope)"` rather than silently degrading. RAG-integrity validation + data lineage documentation are flagged as facilitator-only.
+
+**Q03** (`enterprise_ai_strategy_published_with_portfolio`, L300 AI Strategy & Experience) — SharePoint site-name heuristic against 8 multi-word strategic keywords (`ai strategy`, `ai governance`, `ai council`, `ai portfolio`, `agent portfolio`, `frontier`, `executive sponsor`, `governance committee`). All keywords are multi-word so plain substring matching avoids the false-positive risk that Q01 had to navigate for short acronyms. Capped at `"partial"` because "published" is telemetry-verifiable but "with portfolio" + "active governance" are facilitator-only.
+
+Generator update: `scripts/generate_coverage_matrix.py` `_FRONTIER_EVALUATOR_CANDIDATES` list **emptied** — Q03 + Q18 removed because they are no longer "future." The list is now structurally complete; any new Frontier evaluator wiring would require an explicit governance decision to relax the facilitator-only floor.
+
+### Test additions across the wave
+
+- v1.6.1 baseline: 72 tests
+- After #215: 81 tests (+9 for Q16 + Q17)
+- After #218: 85 tests (+4 for Q13)
+- After #219: 93 tests (+8 for Q01)
+- After #220: **114 tests** (+21 for Q18 + Q03)
+
+All six evaluators ship with `NEVER_returns_yes` invariant tests, evidence-string assertions, and facilitator-override (driver-level upgrade/downgrade) tests.
+
+### Validation gates (all six PRs)
+
+Every PR in this wave passed the full gauntlet locally and in CI:
+
+- `pytest assessment/tests/ -q`
+- `ruff check assessment scripts`
+- `generate_coverage_matrix.py --type frontier --check`
+- `generate_coverage_matrix.py --check` (78-control assessment)
+- `check_manifest_doc_drift.py --check`
+- `verify_language_rules.py`
+
+PowerShell static analysis (`PSScriptAnalyzer`) gated PR #216 (collector changes). All other PRs were Python-only.
+
+### Files changed (cumulative across the wave)
+
+- `assessment/engine/score_frontier.py` — new module, 6 evaluators + helpers + EVALUATORS registry
+- `assessment/manifest/frontier-readiness.json` — 6 entries flipped `auto_evaluable: true` with `notes`
+- `assessment/tests/test_score_frontier.py` — 6 evaluator test classes (~1300 lines)
+- `assessment/tests/fixtures/` — 14+ new fixtures (PPAC env-group variants, Sentinel connector variants, SharePoint variants)
+- `assessment/collectors/Collect-PPAC.ps1` — Sections 8+9 added (#216)
+- `assessment/collectors/Collect-Graph.ps1` — Section 7 added (#219)
+- `docs/reference/frontier-assessment-coverage.md` — auto-regenerated; final state 6/25 (24%) Auto, 19/25 (76%) Manual, 0 Unimplemented
+- `scripts/generate_coverage_matrix.py` — `--type frontier` mode + `_FRONTIER_EVALUATOR_CANDIDATES` retired
+
+### Forward-looking note
+
+The Frontier auto-evaluable backlog is closed. Future Frontier work belongs in three categories:
+
+1. **Facilitator playbooks** — published guidance on how to evidence the 19 facilitator-only questions during an actual Frontier engagement
+2. **Driver/pattern coverage docs** — narrative guidance mapping each Frontier transformation pattern to which controls in the 78-control framework it leans on
+3. **Telemetry honesty maintenance** — keeping the 6 existing evaluators current as collectors evolve (e.g., if Microsoft adds an "agent inventory" Graph endpoint, Q18's evidence string would need an update)
+
+No further Frontier evaluator wiring is planned. The 76% manual floor is a feature, not a defect.
+
+---
+
 ## [1.6.1] — May 10, 2026 (Microsoft Learn drift patch)
 
 **Release theme:** Documentation-only patch responding to upstream Microsoft Learn changes detected by the Learn Monitor (run 114, 2026-05-10). Five follow-up issues were filed (#205–#209); four resulted in doc updates; one (#205) was investigated and closed `not planned` (the framework had never adopted the deprecated terminology). Five parallel Sonnet agents in five git worktrees executed the fixes simultaneously, validating the worktree-per-agent pattern at scale.
