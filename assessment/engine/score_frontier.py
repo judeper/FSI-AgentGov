@@ -678,12 +678,129 @@ def _eval_zone_classification_with_audit_supervision_and_model_risk(
     return "no", evidence
 
 
+# ---------------------------------------------------------------------------
+# Q01 evaluator — AI initiative owner identified
+# ---------------------------------------------------------------------------
+
+# Canonical AI-leadership job title keywords (case-insensitive substring match).
+# Short tokens ("AI", "CDO", "CIO", "CTO") require word-boundary matching to
+# avoid false positives (e.g. "MAID", "ACIDOTIC").
+AI_LEADERSHIP_TITLES: tuple[str, ...] = (
+    "chief data officer",
+    "chief information officer",
+    "chief ai officer",
+    "chief digital officer",
+    "chief analytics officer",
+    "chief data and analytics officer",
+    "chief technology officer",
+    "head of ai",
+    "head of data",
+    "head of digital",
+    "ai governance lead",
+    "ai officer",
+    "director of ai",
+    "vp of ai",
+    "vp of data",
+    "vp of digital",
+)
+
+# Short acronyms that require word-boundary matching.
+_AI_LEADERSHIP_ACRONYMS: tuple[str, ...] = ("cdo", "cio", "cto")
+
+_ACRONYM_PATTERN = re.compile(
+    r"\b(?:" + "|".join(re.escape(a) for a in _AI_LEADERSHIP_ACRONYMS) + r")\b",
+    re.IGNORECASE,
+)
+
+
+def _match_ai_leadership_title(job_title: str) -> str | None:
+    """Return the matched keyword phrase if *job_title* matches, else ``None``."""
+    lower = job_title.lower()
+    for phrase in AI_LEADERSHIP_TITLES:
+        if phrase in lower:
+            return phrase.title()
+    if _ACRONYM_PATTERN.search(lower):
+        return _ACRONYM_PATTERN.search(lower).group(0).upper()  # type: ignore[union-attr]
+    return None
+
+
+def _eval_ai_initiative_owner_identified(
+    collected_dir: Path,
+) -> tuple[str | None, str]:
+    """Q01 evaluator: check graph.json for AI-leadership job titles.
+
+    Returns:
+      - ("yes", evidence) — at least one user with an AI-leadership title found.
+      - ("partial", evidence) — no AI titles but senior admin roles assigned.
+      - ("no", evidence) — neither AI titles nor senior admin assignments.
+      - (None, evidence) — graph.json missing or both data sections errored.
+    """
+    graph, err = _load_collected_json(collected_dir, "graph.json")
+    if graph is None:
+        return None, f"Graph data unavailable: {err}"
+
+    metadata = graph.get("_metadata") or {}
+
+    # --- Primary signal: AI leadership job titles (Section 7) ---
+    ai_users = graph.get("aiLeadershipUsers")
+    section7_available = ai_users is not None
+
+    matched_users: list[tuple[str, str]] = []  # (displayName, matchedKeyword)
+    if isinstance(ai_users, list):
+        for user in ai_users:
+            display = user.get("DisplayName") or user.get("displayName") or "Unknown"
+            keyword = user.get("MatchedKeyword") or user.get("matchedKeyword") or ""
+            if keyword:
+                matched_users.append((display, keyword))
+            else:
+                # Re-check title in case MatchedKeyword is absent
+                title = user.get("JobTitle") or user.get("jobTitle") or ""
+                kw = _match_ai_leadership_title(title)
+                if kw:
+                    matched_users.append((display, kw))
+
+    if matched_users:
+        if len(matched_users) > 5:
+            shown = matched_users[:3]
+            remainder = len(matched_users) - 3
+            listing = ", ".join(f"'{n} ({k})'" for n, k in shown)
+            listing += f" and {remainder} more"
+        else:
+            listing = ", ".join(f"'{n} ({k})'" for n, k in matched_users)
+        return (
+            "yes",
+            f"Found {len(matched_users)} user(s) with AI-leadership titles: {listing}",
+        )
+
+    # --- Secondary signal: privileged role assignments (Section 4) ---
+    priv_roles = graph.get("privilegedRoleAssignments")
+    section4_available = priv_roles is not None
+
+    if not section7_available and not section4_available:
+        # Both sections failed or missing — check for errors in metadata.
+        errors = metadata.get("errors") or metadata.get("warnings") or []
+        if errors:
+            first = errors[0] if isinstance(errors[0], str) else str(errors[0])
+            return None, f"Graph data unavailable: collector reported errors ({first})"
+        return None, "Graph data unavailable: neither aiLeadershipUsers nor privilegedRoleAssignments present"
+
+    if isinstance(priv_roles, list) and len(priv_roles) > 0:
+        return (
+            "partial",
+            f"No AI-specific titles found; {len(priv_roles)} senior platform admin "
+            f"assignment(s) present (informal accountability)",
+        )
+
+    return "no", "No AI-leadership titles or senior admin assignments found in tenant"
+
+
 # --- Evaluator registry ---------------------------------------------------
 
 EVALUATORS: dict[str, object] = {
     "any_environment_visibility_for_agents": _eval_any_environment_visibility_for_agents,
     "tagged_environments_with_basic_telemetry": _eval_tagged_environments_with_basic_telemetry,
     "zone_classification_with_audit_supervision_and_model_risk": _eval_zone_classification_with_audit_supervision_and_model_risk,
+    "ai_initiative_owner_identified": _eval_ai_initiative_owner_identified,
 }
 
 

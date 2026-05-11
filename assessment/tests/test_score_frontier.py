@@ -418,11 +418,11 @@ class TestEvaluatorCoverage:
     """Unit tests for compute_evaluator_coverage()."""
 
     def test_v1_counts_after_q16_q17_wiring(self, manifest_data: dict) -> None:
-        """Real frontier-readiness.json post-Q16/Q17/Q13: 3 auto, 22 manual, 0 unimplemented."""
+        """Real frontier-readiness.json post-Q16/Q17/Q13/Q01: 4 auto, 21 manual, 0 unimplemented."""
         questions = manifest_data["questions"]
         coverage = score_frontier.compute_evaluator_coverage(questions)
-        assert coverage["questions"]["auto_evaluable"] == 3
-        assert coverage["questions"]["manual_only"] == 22
+        assert coverage["questions"]["auto_evaluable"] == 4
+        assert coverage["questions"]["manual_only"] == 21
         assert coverage["questions"]["unimplemented_evaluator"] == 0
         assert coverage["total_questions"] == 25
 
@@ -691,10 +691,10 @@ class TestFrontierEvaluators:
         assert result["questions_answered"] >= 1
 
     def test_evaluator_coverage_q16_classified_as_auto(self, manifest_data: dict) -> None:
-        """After manifest update, coverage matrix counts Q16+Q17+Q13 as auto_evaluable: 3."""
+        """After manifest update, coverage matrix counts Q16+Q17+Q13+Q01 as auto_evaluable: 4."""
         questions = manifest_data["questions"]
         coverage = score_frontier.compute_evaluator_coverage(questions)
-        assert coverage["questions"]["auto_evaluable"] == 3
+        assert coverage["questions"]["auto_evaluable"] == 4
 
     def test_run_includes_evaluator_results_in_output(self, tmp_path: Path) -> None:
         """End-to-end via run() populates evaluator_results.Q16 in output JSON."""
@@ -822,11 +822,11 @@ class TestFrontierQ17Evaluator:
         assert result["level_breakdown"]["200"]["ratio"] == pytest.approx(1.0)
 
     def test_evaluator_coverage_q17_classified_as_auto(self, manifest_data: dict) -> None:
-        """After manifest update, coverage counts Q16 + Q17 as auto_evaluable: 2."""
+        """After manifest update, coverage counts Q16 + Q17 + Q13 + Q01 as auto_evaluable: 4."""
         questions = manifest_data["questions"]
         coverage = score_frontier.compute_evaluator_coverage(questions)
-        # Updated: Q13 is now also auto-evaluable → 3 total.
-        assert coverage["questions"]["auto_evaluable"] == 3
+        # Updated: Q13 + Q01 are now also auto-evaluable → 4 total.
+        assert coverage["questions"]["auto_evaluable"] == 4
 
 
 # ---------------------------------------------------------------------------
@@ -975,7 +975,155 @@ class TestFrontierQ13Evaluator:
         assert result["level_breakdown"]["300"]["ratio"] == pytest.approx(0.0)
 
     def test_evaluator_coverage_q13_classified_as_auto(self, manifest_data: dict) -> None:
-        """After manifest update, coverage shows 3 auto-evaluators (Q16 + Q17 + Q13)."""
+        """After manifest update, coverage shows 4 auto-evaluators (Q16 + Q17 + Q13 + Q01)."""
         questions = manifest_data["questions"]
         coverage = score_frontier.compute_evaluator_coverage(questions)
-        assert coverage["questions"]["auto_evaluable"] == 3
+        assert coverage["questions"]["auto_evaluable"] == 4
+
+
+# ---------------------------------------------------------------------------
+# TestFrontierQ01Evaluator — Q01 evaluator tests
+# ---------------------------------------------------------------------------
+
+
+def _setup_graph_collected(tmp_path: Path, fixture_name: str) -> Path:
+    """Copy a Graph fixture into a temp collected/ dir for evaluator testing."""
+    collected = tmp_path / "collected"
+    collected.mkdir(exist_ok=True)
+    data = load_fixture(fixture_name)
+    write_json(collected / "graph.json", data)
+    return collected
+
+
+class TestFrontierQ01Evaluator:
+    """Tests for the Q01 evaluator (ai_initiative_owner_identified)."""
+
+    def test_evaluator_q01_yes_with_ai_leadership_titles(self, tmp_path: Path) -> None:
+        """Graph fixture with 2 AI-leadership users → ('yes', evidence listing them)."""
+        collected = _setup_graph_collected(tmp_path, "graph_with_ai_leadership.json")
+        answer, evidence = score_frontier._eval_ai_initiative_owner_identified(collected)
+        assert answer == "yes"
+        assert "2 user(s)" in evidence
+        assert "Jane Doe" in evidence
+        assert "Bob Smith" in evidence
+        assert "Chief Data Officer" in evidence
+        assert "Head of AI" in evidence
+
+    def test_evaluator_q01_partial_with_only_senior_admin_assignments(
+        self, tmp_path: Path
+    ) -> None:
+        """Graph has zero AI titles but Power Platform Admin assigned → ('partial', evidence)."""
+        collected = _setup_graph_collected(
+            tmp_path, "graph_with_only_admin_assignments.json"
+        )
+        answer, evidence = score_frontier._eval_ai_initiative_owner_identified(collected)
+        assert answer == "partial"
+        assert "1 senior platform admin" in evidence
+        assert "informal accountability" in evidence
+
+    def test_evaluator_q01_no_with_neither_signal(self, tmp_path: Path) -> None:
+        """Graph has no AI titles AND no privileged role assignments → ('no', evidence)."""
+        collected = _setup_graph_collected(
+            tmp_path, "graph_with_neither_signal.json"
+        )
+        answer, evidence = score_frontier._eval_ai_initiative_owner_identified(collected)
+        assert answer == "no"
+        assert "No AI-leadership titles" in evidence
+
+    def test_evaluator_q01_inconclusive_when_graph_missing(self, tmp_path: Path) -> None:
+        """No graph.json file → (None, evidence about missing)."""
+        collected = tmp_path / "collected"
+        collected.mkdir()
+        answer, evidence = score_frontier._eval_ai_initiative_owner_identified(collected)
+        assert answer is None
+        assert "Graph data unavailable" in evidence
+        assert "not found" in evidence
+
+    def test_evaluator_q01_inconclusive_when_section7_errored(
+        self, tmp_path: Path
+    ) -> None:
+        """graph.json with aiLeadershipUsers: null AND Section 4 also null → (None, ...)."""
+        collected = _setup_graph_collected(
+            tmp_path, "graph_with_section7_errored.json"
+        )
+        answer, evidence = score_frontier._eval_ai_initiative_owner_identified(collected)
+        assert answer is None
+        assert "Graph data unavailable" in evidence
+
+    def test_evaluator_q01_truncates_long_match_list(self, tmp_path: Path) -> None:
+        """Graph fixture with 8 AI-leadership users → evidence shows 3 + 'and 5 more'."""
+        collected = _setup_graph_collected(tmp_path, "graph_many_ai_users.json")
+        answer, evidence = score_frontier._eval_ai_initiative_owner_identified(collected)
+        assert answer == "yes"
+        assert "8 user(s)" in evidence
+        assert "and 5 more" in evidence
+
+    def test_evaluator_q01_case_insensitive_matching(self, tmp_path: Path) -> None:
+        """Graph user with mixed-case jobTitle 'chief data OFFICER' → matched."""
+        collected = tmp_path / "collected"
+        collected.mkdir(exist_ok=True)
+        graph_data = {
+            "_metadata": {"collector": "Collect-Graph", "warnings": []},
+            "aiLeadershipUsers": [
+                {
+                    "DisplayName": "Mixed Case User",
+                    "UserPrincipalName": "mc@contoso.com",
+                    "JobTitle": "chief data OFFICER",
+                    "Department": "Data",
+                    "MatchedKeyword": ""
+                }
+            ],
+            "privilegedRoleAssignments": [],
+        }
+        write_json(collected / "graph.json", graph_data)
+        answer, evidence = score_frontier._eval_ai_initiative_owner_identified(collected)
+        assert answer == "yes"
+        assert "Mixed Case User" in evidence
+
+    def test_evaluator_q01_avoids_false_positive_on_word_ai(
+        self, tmp_path: Path
+    ) -> None:
+        """Graph user with jobTitle 'Maintenance Manager' should NOT match."""
+        collected = tmp_path / "collected"
+        collected.mkdir(exist_ok=True)
+        graph_data = {
+            "_metadata": {"collector": "Collect-Graph", "warnings": []},
+            "aiLeadershipUsers": [
+                {
+                    "DisplayName": "Maint Worker",
+                    "UserPrincipalName": "maint@contoso.com",
+                    "JobTitle": "Maintenance Manager",
+                    "Department": "Facilities",
+                    "MatchedKeyword": ""
+                }
+            ],
+            "privilegedRoleAssignments": [],
+        }
+        write_json(collected / "graph.json", graph_data)
+        answer, evidence = score_frontier._eval_ai_initiative_owner_identified(collected)
+        # "Maintenance" contains "ai" but should not match — no valid keyword
+        assert answer == "no"
+        assert "No AI-leadership titles" in evidence
+
+    def test_score_driver_q01_facilitator_wins_over_evaluator(
+        self, tmp_path: Path, manifest_data: dict
+    ) -> None:
+        """Facilitator answers 'no' while evaluator returns 'yes' → facilitator wins."""
+        collected = _setup_graph_collected(
+            tmp_path, "graph_with_ai_leadership.json"
+        )
+        questions = manifest_data["questions"]
+        answers = {"Q01": {"value": "no"}}
+        result = score_frontier.score_driver(
+            "ai_strategy", questions, answers, collected_dir=collected
+        )
+        # L100 ratio should be 0.0 (from "no"), not 1.0 (from evaluator "yes")
+        assert result["level_breakdown"]["100"]["ratio"] == pytest.approx(0.0)
+
+    def test_evaluator_coverage_q01_classified_as_auto(
+        self, manifest_data: dict
+    ) -> None:
+        """After manifest update, coverage shows 4 auto-evaluators (Q16 + Q17 + Q13 + Q01)."""
+        questions = manifest_data["questions"]
+        coverage = score_frontier.compute_evaluator_coverage(questions)
+        assert coverage["questions"]["auto_evaluable"] == 4

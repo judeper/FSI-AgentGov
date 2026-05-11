@@ -1,0 +1,18 @@
+{
+  "_metadata": {
+    "collector": "Collect-Graph",
+    "timestamp": "2026-05-11T00:00:00Z",
+    "tenant_id": "test-tenant",
+    "warnings": [
+      "Section 7 (AI Leadership Job Titles) failed: Get-MgUser permission denied",
+      "Section 4 (Privileged Role Assignments) failed: timeout"
+    ]
+  },
+  "conditionalAccessPolicies": [],
+  "fsiSecurityGroups": [],
+  "informationBarriers": [],
+  "privilegedRoleAssignments": null,
+  "copilotServicePrincipals": [],
+  "tenantSecuritySettings": {},
+  "aiLeadershipUsers": null
+}

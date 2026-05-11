@@ -1,0 +1,22 @@
+{
+  "_metadata": {
+    "collector": "Collect-Graph",
+    "timestamp": "2026-05-11T00:00:00Z",
+    "tenant_id": "test-tenant",
+    "warnings": []
+  },
+  "conditionalAccessPolicies": [],
+  "fsiSecurityGroups": [],
+  "informationBarriers": [],
+  "privilegedRoleAssignments": [
+    {
+      "RoleDefinitionId": "role-pp-admin",
+      "RoleName": "Power Platform Administrator",
+      "PrincipalId": "user-001",
+      "DirectoryScopeId": "/"
+    }
+  ],
+  "copilotServicePrincipals": [],
+  "tenantSecuritySettings": {},
+  "aiLeadershipUsers": []
+}

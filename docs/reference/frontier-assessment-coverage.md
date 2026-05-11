@@ -18,8 +18,8 @@ It is the honest answer to *what does the Frontier Readiness assessment actually
 
 | State | Count | Share |
 |-------|-------|-------|
-| ✅ Auto | 3 | 12.0% |
-| 📝 Manual | 22 | 88.0% |
+| ✅ Auto | 4 | 16.0% |
+| 📝 Manual | 21 | 84.0% |
 | ⚠️ Unimplemented | 0 | 0.0% |
 | **Total** | 25 | 100% |
 
@@ -27,7 +27,7 @@ It is the honest answer to *what does the Frontier Readiness assessment actually
 
 | Driver | Total Questions | Auto | Manual | Unimplemented |
 |---|---|---|---|---|
-| AI Strategy & Experience | 5 | 0 | 5 | 0 |
+| AI Strategy & Experience | 5 | 1 | 4 | 0 |
 | Business Strategy | 5 | 0 | 5 | 0 |
 | AI Governance & Security | 5 | 1 | 4 | 0 |
 | Technology & Data | 5 | 2 | 3 | 0 |
@@ -39,7 +39,7 @@ It is the honest answer to *what does the Frontier Readiness assessment actually
 
 | Q ID | Level | Question | State | Pass Condition | Notes |
 |---|---|---|---|---|---|
-| Q01 | 100 | Has the organization identified at least one named individual responsible for... | 📝 Manual | `ai_initiative_owner_identified` | Facilitator-answered. |
+| Q01 | 100 | Has the organization identified at least one named individual responsible for... | ✅ Auto | `ai_initiative_owner_identified` |  |
 | Q02 | 200 | Within at least one business unit, do AI agent investments follow recurring, ... | 📝 Manual | `bu_level_repeatable_intake_pattern` | Facilitator-answered. |
 | Q03 | 300 | Has the organization published an enterprise AI strategy reviewed by a Govern... | 📝 Manual | `enterprise_ai_strategy_published_with_portfolio` | Facilitator-answered. |
 | Q04 | 400 | Is the AI strategy refreshed on a documented cadence aligned to the firm's go... | 📝 Manual | `strategy_refresh_cadence_with_board_reporting` | Facilitator-answered. |
@@ -89,7 +89,6 @@ It is the honest answer to *what does the Frontier Readiness assessment actually
 
 The following questions have `pass_condition` strings populated, suggesting they could be auto-evaluated in a future release if a bespoke evaluator is implemented. Currently all are facilitator-answered.
 
-- **Q01** (AI Strategy & Experience, L100): pass_condition `ai_initiative_owner_identified` — *plausible automation source: Graph API: query Entra directory roles for named CIO/CDAO assignment*
 - **Q03** (AI Strategy & Experience, L300): pass_condition `enterprise_ai_strategy_published_with_portfolio` — *plausible automation source: SharePoint PnP search for AI strategy document in Governance Committee site*
 - **Q18** (Technology & Data, L300): pass_condition `env_groups_with_inventory_siem_rag_and_lineage` — *plausible automation source: PPAC Environment Groups API; Sentinel workspace connectivity; SharePoint permission scan logs*
 
