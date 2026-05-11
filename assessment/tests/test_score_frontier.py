@@ -418,11 +418,11 @@ class TestEvaluatorCoverage:
     """Unit tests for compute_evaluator_coverage()."""
 
     def test_v1_counts_after_q16_q17_wiring(self, manifest_data: dict) -> None:
-        """Real frontier-readiness.json post-Q16/Q17/Q13/Q01: 4 auto, 21 manual, 0 unimplemented."""
+        """Real frontier-readiness.json post-Q16/Q17/Q13/Q01/Q18/Q03: 6 auto, 19 manual, 0 unimplemented."""
         questions = manifest_data["questions"]
         coverage = score_frontier.compute_evaluator_coverage(questions)
-        assert coverage["questions"]["auto_evaluable"] == 4
-        assert coverage["questions"]["manual_only"] == 21
+        assert coverage["questions"]["auto_evaluable"] == 6
+        assert coverage["questions"]["manual_only"] == 19
         assert coverage["questions"]["unimplemented_evaluator"] == 0
         assert coverage["total_questions"] == 25
 
@@ -691,10 +691,10 @@ class TestFrontierEvaluators:
         assert result["questions_answered"] >= 1
 
     def test_evaluator_coverage_q16_classified_as_auto(self, manifest_data: dict) -> None:
-        """After manifest update, coverage matrix counts Q16+Q17+Q13+Q01 as auto_evaluable: 4."""
+        """After manifest update, coverage matrix counts Q16+Q17+Q13+Q01+Q18+Q03 as auto_evaluable: 6."""
         questions = manifest_data["questions"]
         coverage = score_frontier.compute_evaluator_coverage(questions)
-        assert coverage["questions"]["auto_evaluable"] == 4
+        assert coverage["questions"]["auto_evaluable"] == 6
 
     def test_run_includes_evaluator_results_in_output(self, tmp_path: Path) -> None:
         """End-to-end via run() populates evaluator_results.Q16 in output JSON."""
@@ -822,11 +822,11 @@ class TestFrontierQ17Evaluator:
         assert result["level_breakdown"]["200"]["ratio"] == pytest.approx(1.0)
 
     def test_evaluator_coverage_q17_classified_as_auto(self, manifest_data: dict) -> None:
-        """After manifest update, coverage counts Q16 + Q17 + Q13 + Q01 as auto_evaluable: 4."""
+        """After manifest update, coverage counts Q16 + Q17 + Q13 + Q01 + Q18 + Q03 as auto_evaluable: 6."""
         questions = manifest_data["questions"]
         coverage = score_frontier.compute_evaluator_coverage(questions)
-        # Updated: Q13 + Q01 are now also auto-evaluable → 4 total.
-        assert coverage["questions"]["auto_evaluable"] == 4
+        # Updated: Q13 + Q01 + Q18 + Q03 are now also auto-evaluable → 6 total.
+        assert coverage["questions"]["auto_evaluable"] == 6
 
 
 # ---------------------------------------------------------------------------
@@ -975,10 +975,10 @@ class TestFrontierQ13Evaluator:
         assert result["level_breakdown"]["300"]["ratio"] == pytest.approx(0.0)
 
     def test_evaluator_coverage_q13_classified_as_auto(self, manifest_data: dict) -> None:
-        """After manifest update, coverage shows 4 auto-evaluators (Q16 + Q17 + Q13 + Q01)."""
+        """After manifest update, coverage shows 6 auto-evaluators (Q16 + Q17 + Q13 + Q01 + Q18 + Q03)."""
         questions = manifest_data["questions"]
         coverage = score_frontier.compute_evaluator_coverage(questions)
-        assert coverage["questions"]["auto_evaluable"] == 4
+        assert coverage["questions"]["auto_evaluable"] == 6
 
 
 # ---------------------------------------------------------------------------
@@ -1123,7 +1123,339 @@ class TestFrontierQ01Evaluator:
     def test_evaluator_coverage_q01_classified_as_auto(
         self, manifest_data: dict
     ) -> None:
-        """After manifest update, coverage shows 4 auto-evaluators (Q16 + Q17 + Q13 + Q01)."""
+        """After manifest update, coverage shows 6 auto-evaluators (Q16 + Q17 + Q13 + Q01 + Q18 + Q03)."""
         questions = manifest_data["questions"]
         coverage = score_frontier.compute_evaluator_coverage(questions)
-        assert coverage["questions"]["auto_evaluable"] == 4
+        assert coverage["questions"]["auto_evaluable"] == 6
+
+
+# ---------------------------------------------------------------------------
+# TestFrontierQ18Evaluator — Q18 evaluator tests
+# ---------------------------------------------------------------------------
+
+
+def _setup_q18_collected(
+    tmp_path: Path,
+    ppac_fixture: str | None = None,
+    sentinel_fixture: str | None = None,
+    sharepoint_fixture: str | None = None,
+) -> Path:
+    """Copy Q18 fixtures into temp collected/ dir for evaluator testing."""
+    collected = tmp_path / "collected"
+    collected.mkdir(exist_ok=True)
+    if ppac_fixture:
+        data = load_fixture(ppac_fixture)
+        write_json(collected / "ppac.json", data)
+    if sentinel_fixture:
+        data = load_fixture(sentinel_fixture)
+        write_json(collected / "sentinel.json", data)
+    if sharepoint_fixture:
+        data = load_fixture(sharepoint_fixture)
+        write_json(collected / "sharepoint.json", data)
+    return collected
+
+
+class TestFrontierQ18Evaluator:
+    """Tests for the Q18 evaluator (env_groups_with_inventory_siem_rag_and_lineage)."""
+
+    def test_evaluator_q18_partial_when_all_3_signals_present(
+        self, tmp_path: Path
+    ) -> None:
+        """All 3 telemetry signals (env groups, SIEM, SP scan) → ('partial', evidence)."""
+        collected = _setup_q18_collected(
+            tmp_path,
+            "ppac_with_env_group.json",
+            "sentinel_with_connector_only.json",
+            "sharepoint_with_scan_and_crossref.json",
+        )
+        answer, evidence = score_frontier._eval_env_groups_with_inventory_siem_rag_and_lineage(collected)
+        assert answer == "partial"
+        assert "env groups present" in evidence
+        assert "SIEM connector(s) enabled" in evidence
+        assert "item-level scan ran" in evidence
+        assert "agent inventory not collected" in evidence
+        assert "RAG-integrity + data lineage require facilitator confirmation" in evidence
+
+    def test_evaluator_q18_partial_when_only_env_groups_present(
+        self, tmp_path: Path
+    ) -> None:
+        """Only env groups signal → ('partial', evidence noting SIEM + SP absent)."""
+        collected = _setup_q18_collected(
+            tmp_path,
+            "ppac_with_env_group.json",
+            "sentinel_no_connectors.json",
+            "sharepoint_no_scan.json",
+        )
+        answer, evidence = score_frontier._eval_env_groups_with_inventory_siem_rag_and_lineage(collected)
+        assert answer == "partial"
+        assert "env groups present" in evidence
+        assert "no SIEM connectors enabled" in evidence
+        assert "item-level scan absent" in evidence
+
+    def test_evaluator_q18_partial_when_only_siem_present(
+        self, tmp_path: Path
+    ) -> None:
+        """Only SIEM signal → ('partial', evidence noting env groups + SP absent)."""
+        collected = _setup_q18_collected(
+            tmp_path,
+            "ppac_empty_env_groups.json",
+            "sentinel_with_connector_only.json",
+            "sharepoint_no_scan.json",
+        )
+        answer, evidence = score_frontier._eval_env_groups_with_inventory_siem_rag_and_lineage(collected)
+        assert answer == "partial"
+        assert "env groups absent" in evidence
+        assert "SIEM connector(s) enabled" in evidence
+        assert "item-level scan absent" in evidence
+
+    def test_evaluator_q18_partial_when_only_sp_scan_present(
+        self, tmp_path: Path
+    ) -> None:
+        """Only SP scan signal → ('partial', evidence noting env groups + SIEM absent)."""
+        collected = _setup_q18_collected(
+            tmp_path,
+            "ppac_empty_env_groups.json",
+            "sentinel_no_connectors.json",
+            "sharepoint_with_scan_and_crossref.json",
+        )
+        answer, evidence = score_frontier._eval_env_groups_with_inventory_siem_rag_and_lineage(collected)
+        assert answer == "partial"
+        assert "env groups absent" in evidence
+        assert "no SIEM connectors enabled" in evidence
+        assert "item-level scan ran" in evidence
+
+    def test_evaluator_q18_no_when_no_signals(self, tmp_path: Path) -> None:
+        """Zero telemetry signals → ('no', evidence)."""
+        collected = _setup_q18_collected(
+            tmp_path,
+            "ppac_empty_env_groups.json",
+            "sentinel_no_connectors.json",
+            "sharepoint_no_scan.json",
+        )
+        answer, evidence = score_frontier._eval_env_groups_with_inventory_siem_rag_and_lineage(collected)
+        assert answer == "no"
+        assert "env groups absent" in evidence
+        assert "no SIEM connectors enabled" in evidence
+        assert "item-level scan absent" in evidence
+
+    def test_evaluator_q18_inconclusive_when_all_sources_missing(
+        self, tmp_path: Path
+    ) -> None:
+        """No ppac.json, sentinel.json, or sharepoint.json → (None, evidence)."""
+        collected = _setup_q18_collected(tmp_path)
+        answer, evidence = score_frontier._eval_env_groups_with_inventory_siem_rag_and_lineage(collected)
+        assert answer is None
+        assert "All three data sources unavailable" in evidence
+
+    def test_evaluator_q18_inconclusive_when_all_sources_errored(
+        self, tmp_path: Path
+    ) -> None:
+        """All three collectors have errors → (None, evidence)."""
+        collected = _setup_q18_collected(
+            tmp_path, "ppac_with_errors.json", "sentinel_no_workspace.json", "sharepoint_errored.json"
+        )
+        answer, evidence = score_frontier._eval_env_groups_with_inventory_siem_rag_and_lineage(collected)
+        assert answer is None
+        assert "All three data sources unavailable" in evidence
+
+    def test_evaluator_q18_NEVER_returns_yes(self, tmp_path: Path) -> None:
+        """Even with all 3 signals present, evaluator returns 'partial' not 'yes'."""
+        collected = _setup_q18_collected(
+            tmp_path,
+            "ppac_with_env_group.json",
+            "sentinel_with_connector_only.json",
+            "sharepoint_with_scan_and_crossref.json",
+        )
+        answer, evidence = score_frontier._eval_env_groups_with_inventory_siem_rag_and_lineage(collected)
+        assert answer != "yes", "Q18 evaluator must NEVER return 'yes' — agent inventory + RAG/lineage are not auto-verifiable"
+        assert answer == "partial"
+
+    def test_evaluator_q18_evidence_names_missing_signals(self, tmp_path: Path) -> None:
+        """Evidence explicitly names which signals are missing."""
+        collected = _setup_q18_collected(
+            tmp_path,
+            "ppac_with_env_group.json",
+            "sentinel_no_connectors.json",
+            "sharepoint_no_scan.json",
+        )
+        answer, evidence = score_frontier._eval_env_groups_with_inventory_siem_rag_and_lineage(collected)
+        assert answer == "partial"
+        assert "no SIEM connectors enabled" in evidence
+        assert "item-level scan absent" in evidence
+
+    def test_evaluator_q18_evidence_includes_facilitator_caveats(
+        self, tmp_path: Path
+    ) -> None:
+        """Evidence must mention agent inventory + RAG-integrity + lineage caveats."""
+        collected = _setup_q18_collected(
+            tmp_path,
+            "ppac_with_env_group.json",
+            "sentinel_with_connector_only.json",
+            "sharepoint_with_scan_and_crossref.json",
+        )
+        answer, evidence = score_frontier._eval_env_groups_with_inventory_siem_rag_and_lineage(collected)
+        assert "agent inventory not collected" in evidence
+        assert "RAG-integrity + data lineage require facilitator confirmation" in evidence
+
+    def test_score_driver_q18_facilitator_can_upgrade_to_yes(
+        self, tmp_path: Path, manifest_data: dict
+    ) -> None:
+        """Facilitator says 'yes' while evaluator returns 'partial' → facilitator wins."""
+        collected = _setup_q18_collected(
+            tmp_path,
+            "ppac_with_env_group.json",
+            "sentinel_with_connector_only.json",
+            "sharepoint_with_scan_and_crossref.json",
+        )
+        questions = manifest_data["questions"]
+        answers = {"Q18": {"value": "yes"}}
+        result = score_frontier.score_driver(
+            "technology_data", questions, answers, collected_dir=collected
+        )
+        # L300 ratio should be 1.0 (from facilitator "yes"), not 0.5 (from evaluator "partial")
+        assert result["level_breakdown"]["300"]["ratio"] == pytest.approx(1.0)
+
+    def test_score_driver_q18_facilitator_can_downgrade_to_no(
+        self, tmp_path: Path, manifest_data: dict
+    ) -> None:
+        """Facilitator says 'no' while evaluator returns 'partial' → facilitator wins."""
+        collected = _setup_q18_collected(
+            tmp_path,
+            "ppac_with_env_group.json",
+            "sentinel_with_connector_only.json",
+            "sharepoint_with_scan_and_crossref.json",
+        )
+        questions = manifest_data["questions"]
+        answers = {"Q18": {"value": "no"}}
+        result = score_frontier.score_driver(
+            "technology_data", questions, answers, collected_dir=collected
+        )
+        # L300 ratio should be 0.0 (from facilitator "no"), not 0.5 (from evaluator "partial")
+        assert result["level_breakdown"]["300"]["ratio"] == pytest.approx(0.0)
+
+
+# ---------------------------------------------------------------------------
+# TestFrontierQ03Evaluator — Q03 evaluator tests
+# ---------------------------------------------------------------------------
+
+
+def _setup_q03_collected(tmp_path: Path, fixture_name: str) -> Path:
+    """Copy a SharePoint fixture into temp collected/ dir for Q03 testing."""
+    collected = tmp_path / "collected"
+    collected.mkdir(exist_ok=True)
+    data = load_fixture(fixture_name)
+    write_json(collected / "sharepoint.json", data)
+    return collected
+
+
+class TestFrontierQ03Evaluator:
+    """Tests for the Q03 evaluator (enterprise_ai_strategy_published_with_portfolio)."""
+
+    def test_evaluator_q03_partial_when_strategy_site_found(
+        self, tmp_path: Path
+    ) -> None:
+        """SharePoint site with AI strategy keyword → ('partial', evidence)."""
+        collected = _setup_q03_collected(tmp_path, "sharepoint_with_ai_strategy_site.json")
+        answer, evidence = score_frontier._eval_enterprise_ai_strategy_published_with_portfolio(collected)
+        assert answer == "partial"
+        assert "AI Strategy Council" in evidence
+        assert "matched 'ai strategy'" in evidence
+        assert "portfolio scope and active governance require facilitator confirmation" in evidence
+
+    def test_evaluator_q03_no_when_no_matching_sites(self, tmp_path: Path) -> None:
+        """SharePoint collected but no AI-related site names → ('no', evidence)."""
+        collected = _setup_q03_collected(tmp_path, "sharepoint_no_ai_sites.json")
+        answer, evidence = score_frontier._eval_enterprise_ai_strategy_published_with_portfolio(collected)
+        assert answer == "no"
+        assert "No SharePoint site name matched AI strategy/portfolio keywords" in evidence
+
+    def test_evaluator_q03_no_when_empty_inventory(self, tmp_path: Path) -> None:
+        """SharePoint collected zero sites → ('no', evidence)."""
+        collected = _setup_q03_collected(tmp_path, "sharepoint_empty_inventory.json")
+        answer, evidence = score_frontier._eval_enterprise_ai_strategy_published_with_portfolio(collected)
+        assert answer == "no"
+        assert "SharePoint collected zero sites" in evidence
+
+    def test_evaluator_q03_inconclusive_when_sharepoint_missing(
+        self, tmp_path: Path
+    ) -> None:
+        """No sharepoint.json file → (None, evidence)."""
+        collected = tmp_path / "collected"
+        collected.mkdir()
+        answer, evidence = score_frontier._eval_enterprise_ai_strategy_published_with_portfolio(collected)
+        assert answer is None
+        assert "SharePoint data unavailable" in evidence
+        assert "not found" in evidence
+
+    def test_evaluator_q03_inconclusive_when_sharepoint_errored(
+        self, tmp_path: Path
+    ) -> None:
+        """SharePoint collector reported errors → (None, evidence)."""
+        collected = _setup_q03_collected(tmp_path, "sharepoint_errored.json")
+        answer, evidence = score_frontier._eval_enterprise_ai_strategy_published_with_portfolio(collected)
+        assert answer is None
+        assert "SharePoint data unavailable" in evidence
+        assert "collector reported errors" in evidence
+
+    def test_evaluator_q03_NEVER_returns_yes(self, tmp_path: Path) -> None:
+        """Even with matching site, evaluator returns 'partial' not 'yes'."""
+        collected = _setup_q03_collected(tmp_path, "sharepoint_with_ai_strategy_site.json")
+        answer, evidence = score_frontier._eval_enterprise_ai_strategy_published_with_portfolio(collected)
+        assert answer != "yes", "Q03 evaluator must NEVER return 'yes' — governance review + portfolio scope are facilitator-only"
+        assert answer == "partial"
+
+    def test_evaluator_q03_case_insensitive_matching(self, tmp_path: Path) -> None:
+        """Site name 'AI GOVERNANCE' (all caps) should match 'ai governance' keyword."""
+        collected = tmp_path / "collected"
+        collected.mkdir(exist_ok=True)
+        sp_data = {
+            "_metadata": {"collector": "Collect-SharePoint", "warnings": []},
+            "siteInventory": [
+                {
+                    "Id": "site-3",
+                    "DisplayName": "AI GOVERNANCE Portal",
+                    "WebUrl": "https://contoso.sharepoint.com/sites/aigovportal",
+                    "CreatedDateTime": "2026-05-01T00:00:00Z",
+                    "IsPersonalSite": False,
+                }
+            ],
+        }
+        write_json(collected / "sharepoint.json", sp_data)
+        answer, evidence = score_frontier._eval_enterprise_ai_strategy_published_with_portfolio(collected)
+        assert answer == "partial"
+        assert "AI GOVERNANCE Portal" in evidence
+
+    def test_evaluator_q03_matches_multiple_keywords(self, tmp_path: Path) -> None:
+        """Site name containing both 'ai governance' and 'frontier' matches on first keyword."""
+        collected = tmp_path / "collected"
+        collected.mkdir(exist_ok=True)
+        sp_data = {
+            "_metadata": {"collector": "Collect-SharePoint", "warnings": []},
+            "siteInventory": [
+                {
+                    "Id": "site-4",
+                    "DisplayName": "AI Governance & Frontier Council",
+                    "WebUrl": "https://contoso.sharepoint.com/sites/aigov-frontier",
+                    "CreatedDateTime": "2026-05-01T00:00:00Z",
+                    "IsPersonalSite": False,
+                }
+            ],
+        }
+        write_json(collected / "sharepoint.json", sp_data)
+        answer, evidence = score_frontier._eval_enterprise_ai_strategy_published_with_portfolio(collected)
+        assert answer == "partial"
+        assert "AI Governance & Frontier Council" in evidence
+
+    def test_score_driver_q03_facilitator_can_upgrade_to_yes(
+        self, tmp_path: Path, manifest_data: dict
+    ) -> None:
+        """Facilitator says 'yes' while evaluator returns 'partial' → facilitator wins."""
+        collected = _setup_q03_collected(tmp_path, "sharepoint_with_ai_strategy_site.json")
+        questions = manifest_data["questions"]
+        answers = {"Q03": {"value": "yes"}}
+        result = score_frontier.score_driver(
+            "ai_strategy", questions, answers, collected_dir=collected
+        )
+        # L300 ratio should be 1.0 (from facilitator "yes"), not 0.5 (from evaluator "partial")
+        assert result["level_breakdown"]["300"]["ratio"] == pytest.approx(1.0)
+

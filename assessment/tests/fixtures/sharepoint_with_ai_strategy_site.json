@@ -1,0 +1,15 @@
+{
+  "_metadata": {
+    "collector": "Collect-SharePoint",
+    "warnings": []
+  },
+  "siteInventory": [
+    {
+      "Id": "site-1",
+      "DisplayName": "AI Strategy Council",
+      "WebUrl": "https://contoso.sharepoint.com/sites/aistrategy",
+      "CreatedDateTime": "2026-05-01T00:00:00Z",
+      "IsPersonalSite": false
+    }
+  ]
+}

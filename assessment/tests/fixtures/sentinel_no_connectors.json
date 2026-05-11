@@ -1,0 +1,20 @@
+{
+  "_metadata": {
+    "collector": "Collect-Sentinel",
+    "warnings": [],
+    "errors": []
+  },
+  "workspace": {
+    "WorkspaceId": "ws-1",
+    "WorkspaceName": "fsi-siem",
+    "ProvisioningState": "Succeeded",
+    "Sku": "PerGB2018"
+  },
+  "dataConnectors": {
+    "TotalConnectors": 0,
+    "ConnectorSummary": [],
+    "Office365Enabled": false,
+    "McasEnabled": false
+  },
+  "kqlAuditCheck": null
+}

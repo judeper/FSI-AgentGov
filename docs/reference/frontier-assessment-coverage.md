@@ -18,8 +18,8 @@ It is the honest answer to *what does the Frontier Readiness assessment actually
 
 | State | Count | Share |
 |-------|-------|-------|
-| ✅ Auto | 4 | 16.0% |
-| 📝 Manual | 21 | 84.0% |
+| ✅ Auto | 6 | 24.0% |
+| 📝 Manual | 19 | 76.0% |
 | ⚠️ Unimplemented | 0 | 0.0% |
 | **Total** | 25 | 100% |
 
@@ -27,10 +27,10 @@ It is the honest answer to *what does the Frontier Readiness assessment actually
 
 | Driver | Total Questions | Auto | Manual | Unimplemented |
 |---|---|---|---|---|
-| AI Strategy & Experience | 5 | 1 | 4 | 0 |
+| AI Strategy & Experience | 5 | 2 | 3 | 0 |
 | Business Strategy | 5 | 0 | 5 | 0 |
 | AI Governance & Security | 5 | 1 | 4 | 0 |
-| Technology & Data | 5 | 2 | 3 | 0 |
+| Technology & Data | 5 | 3 | 2 | 0 |
 | Organization & Culture | 5 | 0 | 5 | 0 |
 
 ## Per-question detail
@@ -41,7 +41,7 @@ It is the honest answer to *what does the Frontier Readiness assessment actually
 |---|---|---|---|---|---|
 | Q01 | 100 | Has the organization identified at least one named individual responsible for... | ✅ Auto | `ai_initiative_owner_identified` |  |
 | Q02 | 200 | Within at least one business unit, do AI agent investments follow recurring, ... | 📝 Manual | `bu_level_repeatable_intake_pattern` | Facilitator-answered. |
-| Q03 | 300 | Has the organization published an enterprise AI strategy reviewed by a Govern... | 📝 Manual | `enterprise_ai_strategy_published_with_portfolio` | Facilitator-answered. |
+| Q03 | 300 | Has the organization published an enterprise AI strategy reviewed by a Govern... | ✅ Auto | `enterprise_ai_strategy_published_with_portfolio` | Auto-evaluator capped at 'partial' — site naming heuristic detects strategy publication, but governance review + portfolio scope are facilitator-only. |
 | Q04 | 400 | Is the AI strategy refreshed on a documented cadence aligned to the firm's go... | 📝 Manual | `strategy_refresh_cadence_with_board_reporting` | Facilitator-answered. |
 | Q05 | 500 | Do named executive sponsors provide quarterly outcome attestation for each pa... | 📝 Manual | `quarterly_sponsor_attestation_with_sunset_criteria` | Facilitator-answered. |
 
@@ -71,7 +71,7 @@ It is the honest answer to *what does the Frontier Readiness assessment actually
 |---|---|---|---|---|---|
 | Q16 | 100 | Is there any visibility into which Power Platform environments host AI agents... | ✅ Auto | `any_environment_visibility_for_agents` |  |
 | Q17 | 200 | Are some environments tagged or grouped for agent workloads, with basic telem... | ✅ Auto | `tagged_environments_with_basic_telemetry` |  |
-| Q18 | 300 | Are Environment Groups with tier classification operational, with automated a... | 📝 Manual | `env_groups_with_inventory_siem_rag_and_lineage` | Facilitator-answered. |
+| Q18 | 300 | Are Environment Groups with tier classification operational, with automated a... | ✅ Auto | `env_groups_with_inventory_siem_rag_and_lineage` | Auto-evaluator capped at 'partial' — 3/5 signals are telemetry-verifiable (env groups, SIEM, SP scan), but agent inventory is not collected and RAG-integrity + lineage are facilitator-only. |
 | Q19 | 400 | Does the platform provide integrated telemetry across Sentinel, the Agent 365... | 📝 Manual | `integrated_telemetry_with_curated_templates_and_agent_id` | Facilitator-answered. |
 | Q20 | 500 | Is the platform continuously monitored and version-controlled, with multi-age... | 📝 Manual | `continuous_platform_with_orchestration_limits_and_validated_grounding` | Facilitator-answered. |
 
@@ -89,8 +89,6 @@ It is the honest answer to *what does the Frontier Readiness assessment actually
 
 The following questions have `pass_condition` strings populated, suggesting they could be auto-evaluated in a future release if a bespoke evaluator is implemented. Currently all are facilitator-answered.
 
-- **Q03** (AI Strategy & Experience, L300): pass_condition `enterprise_ai_strategy_published_with_portfolio` — *plausible automation source: SharePoint PnP search for AI strategy document in Governance Committee site*
-- **Q18** (Technology & Data, L300): pass_condition `env_groups_with_inventory_siem_rag_and_lineage` — *plausible automation source: PPAC Environment Groups API; Sentinel workspace connectivity; SharePoint permission scan logs*
 
 ## How to wire up an evaluator (future)
 

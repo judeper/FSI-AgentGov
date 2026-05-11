@@ -1,0 +1,27 @@
+{
+  "_metadata": {
+    "collector": "Collect-Sentinel",
+    "warnings": [],
+    "errors": []
+  },
+  "workspace": {
+    "WorkspaceId": "ws-1",
+    "WorkspaceName": "fsi-siem",
+    "ProvisioningState": "Succeeded",
+    "Sku": "PerGB2018"
+  },
+  "dataConnectors": {
+    "TotalConnectors": 1,
+    "ConnectorSummary": [
+      {
+        "Id": "/.../Office365",
+        "Name": "Office365",
+        "Kind": "Office365",
+        "Etag": "1"
+      }
+    ],
+    "Office365Enabled": true,
+    "McasEnabled": false
+  },
+  "kqlAuditCheck": null
+}

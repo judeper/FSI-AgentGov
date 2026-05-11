@@ -1,0 +1,23 @@
+{
+  "_metadata": {
+    "collector": "Collect-SharePoint",
+    "warnings": []
+  },
+  "itemLevelPermissions": [
+    {
+      "SiteId": "site-001",
+      "DisplayName": "Agent KB",
+      "WebUrl": "https://contoso.sharepoint.com/sites/agentkb",
+      "SampledItems": 12,
+      "FlaggedItems": [],
+      "FlaggedCount": 0
+    }
+  ],
+  "groundingCrossRef": {
+    "ApprovedSitesTotal": 1,
+    "ApprovedFound": 1,
+    "ApprovedMissing": [],
+    "UnapprovedSiteCount": 0,
+    "UnapprovedSites": []
+  }
+}

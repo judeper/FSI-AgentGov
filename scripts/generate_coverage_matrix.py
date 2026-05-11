@@ -294,18 +294,7 @@ def classify_frontier_question_state(question: dict) -> str:
 
 
 # Plausible future evaluator candidates: (q_id, driver_id, level, pass_condition, source)
-_FRONTIER_EVALUATOR_CANDIDATES = [
-    (
-        "Q03", "ai_strategy", 300,
-        "enterprise_ai_strategy_published_with_portfolio",
-        "SharePoint PnP search for AI strategy document in Governance Committee site",
-    ),
-    (
-        "Q18", "technology_data", 300,
-        "env_groups_with_inventory_siem_rag_and_lineage",
-        "PPAC Environment Groups API; Sentinel workspace connectivity; SharePoint permission scan logs",
-    ),
-]
+_FRONTIER_EVALUATOR_CANDIDATES: list = []
 
 
 def render_frontier(manifest: dict) -> str:
