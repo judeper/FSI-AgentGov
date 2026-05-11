@@ -418,11 +418,11 @@ class TestEvaluatorCoverage:
     """Unit tests for compute_evaluator_coverage()."""
 
     def test_v1_counts_after_q16_q17_wiring(self, manifest_data: dict) -> None:
-        """Real frontier-readiness.json post-Q16/Q17: 2 auto, 23 manual, 0 unimplemented."""
+        """Real frontier-readiness.json post-Q16/Q17/Q13: 3 auto, 22 manual, 0 unimplemented."""
         questions = manifest_data["questions"]
         coverage = score_frontier.compute_evaluator_coverage(questions)
-        assert coverage["questions"]["auto_evaluable"] == 2
-        assert coverage["questions"]["manual_only"] == 23
+        assert coverage["questions"]["auto_evaluable"] == 3
+        assert coverage["questions"]["manual_only"] == 22
         assert coverage["questions"]["unimplemented_evaluator"] == 0
         assert coverage["total_questions"] == 25
 
@@ -691,10 +691,10 @@ class TestFrontierEvaluators:
         assert result["questions_answered"] >= 1
 
     def test_evaluator_coverage_q16_classified_as_auto(self, manifest_data: dict) -> None:
-        """After manifest update, coverage matrix counts Q16+Q17 as auto_evaluable: 2."""
+        """After manifest update, coverage matrix counts Q16+Q17+Q13 as auto_evaluable: 3."""
         questions = manifest_data["questions"]
         coverage = score_frontier.compute_evaluator_coverage(questions)
-        assert coverage["questions"]["auto_evaluable"] == 2
+        assert coverage["questions"]["auto_evaluable"] == 3
 
     def test_run_includes_evaluator_results_in_output(self, tmp_path: Path) -> None:
         """End-to-end via run() populates evaluator_results.Q16 in output JSON."""
@@ -825,4 +825,157 @@ class TestFrontierQ17Evaluator:
         """After manifest update, coverage counts Q16 + Q17 as auto_evaluable: 2."""
         questions = manifest_data["questions"]
         coverage = score_frontier.compute_evaluator_coverage(questions)
-        assert coverage["questions"]["auto_evaluable"] == 2
+        # Updated: Q13 is now also auto-evaluable → 3 total.
+        assert coverage["questions"]["auto_evaluable"] == 3
+
+
+# ---------------------------------------------------------------------------
+# Helper for Q13 test setup
+# ---------------------------------------------------------------------------
+
+
+def _setup_q13_collected(
+    tmp_path: Path,
+    ppac_fixture: str | None = None,
+    purview_fixture: str | None = None,
+) -> Path:
+    """Set up a collected directory with optional PPAC and Purview fixtures."""
+    collected = tmp_path / "collected"
+    collected.mkdir(exist_ok=True)
+    if ppac_fixture is not None:
+        data = load_fixture(ppac_fixture)
+        write_json(collected / "ppac.json", data)
+    if purview_fixture is not None:
+        data = load_fixture(purview_fixture)
+        write_json(collected / "purview.json", data)
+    return collected
+
+
+# ---------------------------------------------------------------------------
+# TestFrontierQ13Evaluator — Q13 evaluator tests
+# ---------------------------------------------------------------------------
+
+
+class TestFrontierQ13Evaluator:
+    """Tests for the Q13 evaluator (zone_classification_with_audit_supervision_and_model_risk)."""
+
+    def test_evaluator_q13_partial_when_zone_tags_and_audit_present(
+        self, tmp_path: Path
+    ) -> None:
+        """Zone-tagged envs + audit enabled → ('partial', evidence noting model risk)."""
+        collected = _setup_q13_collected(
+            tmp_path, "ppac_with_zone_tags.json", "purview_with_audit_enabled.json"
+        )
+        answer, evidence = score_frontier._eval_zone_classification_with_audit_supervision_and_model_risk(collected)
+        assert answer == "partial"
+        assert "zone-classified environment(s)" in evidence
+        assert "audit log enabled" in evidence
+        assert "model-risk overlay requires facilitator confirmation" in evidence
+
+    def test_evaluator_q13_partial_when_only_audit_present(
+        self, tmp_path: Path
+    ) -> None:
+        """No zone tags + audit enabled → ('partial', evidence noting zones missing)."""
+        collected = _setup_q13_collected(
+            tmp_path, "ppac_no_tags_no_groups.json", "purview_with_audit_enabled.json"
+        )
+        answer, evidence = score_frontier._eval_zone_classification_with_audit_supervision_and_model_risk(collected)
+        assert answer == "partial"
+        assert "0 zone-classified environment(s)" in evidence
+        assert "audit log enabled" in evidence
+
+    def test_evaluator_q13_partial_when_only_zone_tags_present(
+        self, tmp_path: Path
+    ) -> None:
+        """Zone-tagged envs + audit disabled → ('partial', evidence noting audit missing)."""
+        collected = _setup_q13_collected(
+            tmp_path, "ppac_with_zone_tags.json", "purview_with_audit_disabled.json"
+        )
+        answer, evidence = score_frontier._eval_zone_classification_with_audit_supervision_and_model_risk(collected)
+        assert answer == "partial"
+        assert "zone-classified environment(s)" in evidence
+        assert "NOT enabled" in evidence
+
+    def test_evaluator_q13_no_when_neither_signal(self, tmp_path: Path) -> None:
+        """No zone tags + audit disabled → ('no', evidence)."""
+        collected = _setup_q13_collected(
+            tmp_path, "ppac_no_tags_no_groups.json", "purview_with_audit_disabled.json"
+        )
+        answer, evidence = score_frontier._eval_zone_classification_with_audit_supervision_and_model_risk(collected)
+        assert answer == "no"
+        assert "0 zone-classified environment(s)" in evidence
+        assert "NOT enabled" in evidence
+
+    def test_evaluator_q13_inconclusive_when_both_missing(self, tmp_path: Path) -> None:
+        """No ppac.json and no purview.json → (None, evidence)."""
+        collected = _setup_q13_collected(tmp_path)
+        answer, evidence = score_frontier._eval_zone_classification_with_audit_supervision_and_model_risk(collected)
+        assert answer is None
+        assert "PPAC and Purview data both unavailable" in evidence
+
+    def test_evaluator_q13_inconclusive_when_both_errored(self, tmp_path: Path) -> None:
+        """PPAC and Purview both have collector errors → (None, evidence)."""
+        collected = _setup_q13_collected(
+            tmp_path, "ppac_with_errors.json", "purview_with_errors.json"
+        )
+        answer, evidence = score_frontier._eval_zone_classification_with_audit_supervision_and_model_risk(collected)
+        assert answer is None
+        assert "PPAC and Purview data both unavailable" in evidence
+
+    def test_evaluator_q13_recognizes_env_group_zone_naming(self, tmp_path: Path) -> None:
+        """Envs with EnvironmentGroupId pointing to 'Production-Zone-2' → zone-classified."""
+        collected = _setup_q13_collected(
+            tmp_path, "ppac_with_zone_env_group.json", "purview_with_audit_enabled.json"
+        )
+        answer, evidence = score_frontier._eval_zone_classification_with_audit_supervision_and_model_risk(collected)
+        assert answer == "partial"
+        assert "zone-classified environment(s)" in evidence
+        # Must find at least 1 zone-classified env via group naming.
+        assert "0 zone-classified" not in evidence
+
+    def test_evaluator_q13_NEVER_returns_yes(self, tmp_path: Path) -> None:
+        """Even with both signals present and zone_count > 0, evaluator returns 'partial' not 'yes'."""
+        collected = _setup_q13_collected(
+            tmp_path, "ppac_with_zone_tags.json", "purview_with_audit_enabled.json"
+        )
+        answer, evidence = score_frontier._eval_zone_classification_with_audit_supervision_and_model_risk(collected)
+        assert answer != "yes", "Q13 evaluator must NEVER return 'yes' — model risk is not auto-verifiable"
+        assert answer == "partial"
+
+    def test_score_driver_q13_facilitator_can_upgrade_to_yes(
+        self, tmp_path: Path, manifest_data: dict
+    ) -> None:
+        """Facilitator says 'yes' while evaluator returns 'partial' → facilitator wins."""
+        collected = _setup_q13_collected(
+            tmp_path, "ppac_with_zone_tags.json", "purview_with_audit_enabled.json"
+        )
+        questions = manifest_data["questions"]
+        # Facilitator explicitly says "yes" for Q13.
+        answers = {"Q13": {"value": "yes"}}
+        result = score_frontier.score_driver(
+            "ai_governance", questions, answers, collected_dir=collected
+        )
+        # L300 ratio should be 1.0 (from facilitator "yes"), not 0.5 (from evaluator "partial").
+        assert result["level_breakdown"]["300"]["ratio"] == pytest.approx(1.0)
+
+    def test_score_driver_q13_facilitator_can_downgrade_to_no(
+        self, tmp_path: Path, manifest_data: dict
+    ) -> None:
+        """Facilitator says 'no' while evaluator returns 'partial' → facilitator wins."""
+        collected = _setup_q13_collected(
+            tmp_path, "ppac_with_zone_tags.json", "purview_with_audit_enabled.json"
+        )
+        questions = manifest_data["questions"]
+        # Facilitator explicitly says "no" for Q13.
+        answers = {"Q13": {"value": "no"}}
+        result = score_frontier.score_driver(
+            "ai_governance", questions, answers, collected_dir=collected
+        )
+        # L300 ratio should be 0.0 (from facilitator "no"), not 0.5 (from evaluator "partial").
+        assert result["level_breakdown"]["300"]["ratio"] == pytest.approx(0.0)
+
+    def test_evaluator_coverage_q13_classified_as_auto(self, manifest_data: dict) -> None:
+        """After manifest update, coverage shows 3 auto-evaluators (Q16 + Q17 + Q13)."""
+        questions = manifest_data["questions"]
+        coverage = score_frontier.compute_evaluator_coverage(questions)
+        assert coverage["questions"]["auto_evaluable"] == 3

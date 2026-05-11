@@ -22,6 +22,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -484,11 +485,205 @@ def _eval_tagged_environments_with_basic_telemetry(
     return "no", evidence
 
 
+# ---------------------------------------------------------------------------
+# Q13 evaluator — zone classification + audit log + model risk (partial-only)
+# ---------------------------------------------------------------------------
+
+# Zone tag matching patterns (case-insensitive).
+ZONE_TAG_KEY_PATTERN: re.Pattern = re.compile(r"^zone$", re.IGNORECASE)
+ZONE_TAG_VALUE_PATTERN: re.Pattern = re.compile(r"^[1-3]$")
+ZONE_SUBSTRING_PATTERN: re.Pattern = re.compile(r"zone", re.IGNORECASE)
+
+
+def _q13_zone_count(ppac: dict) -> int:
+    """Count environments meeting zone-classification criteria.
+
+    An environment is zone-classified if:
+      - Its ``Tags`` dict contains a key matching ``^zone$`` (case-insensitive)
+        with a value matching ``^[1-3]$``, OR any key/value containing "zone"
+        as a case-insensitive substring.
+      - OR its ``EnvironmentGroupId`` resolves to a group whose
+        ``DisplayName`` contains "zone" (case-insensitive).
+    """
+    environments = ppac.get("environments")
+    if not isinstance(environments, list):
+        return 0
+
+    # Build group-id → DisplayName lookup for env-group zone matching.
+    env_groups = ppac.get("environmentGroups")
+    group_names: dict[str, str] = {}
+    if isinstance(env_groups, list):
+        for grp in env_groups:
+            gid = grp.get("Id") or ""
+            name = grp.get("DisplayName") or ""
+            if gid:
+                group_names[gid] = name
+
+    count = 0
+    for env in environments:
+        # Check Tags dict.
+        tags = env.get("Tags")
+        if isinstance(tags, dict):
+            for key, value in tags.items():
+                key_str = str(key)
+                val_str = str(value)
+                if ZONE_TAG_KEY_PATTERN.match(key_str) and ZONE_TAG_VALUE_PATTERN.match(val_str):
+                    count += 1
+                    break
+                if ZONE_SUBSTRING_PATTERN.search(key_str) or ZONE_SUBSTRING_PATTERN.search(val_str):
+                    count += 1
+                    break
+            else:
+                # Tags didn't match — fall through to group check.
+                gid = env.get("EnvironmentGroupId")
+                if gid and gid in group_names and ZONE_SUBSTRING_PATTERN.search(group_names[gid]):
+                    count += 1
+        else:
+            # No tags — check group membership.
+            gid = env.get("EnvironmentGroupId")
+            if gid and gid in group_names and ZONE_SUBSTRING_PATTERN.search(group_names[gid]):
+                count += 1
+
+    return count
+
+
+def _q13_audit_enabled(purview: dict) -> bool | None:
+    """Check whether unified audit log ingestion is enabled.
+
+    Mirrors the controls-side ``_eval_audit_log_enabled`` read pattern.
+    Returns ``True`` if enabled, ``False`` if explicitly disabled, or
+    ``None`` if the relevant field is absent.
+    """
+    config = purview.get("audit_config")
+    if config is None:
+        return None
+    enabled = config.get("UnifiedAuditLogIngestionEnabled")
+    if enabled is True:
+        return True
+    if enabled is False:
+        return False
+    return None
+
+
+def _eval_zone_classification_with_audit_supervision_and_model_risk(
+    collected_dir: Path,
+) -> tuple[str | None, str]:
+    """Q13 evaluator: zone classification + audit log + model risk overlay.
+
+    Checks two of three L300 signals from telemetry:
+      1. Zone-classified Managed Environments (PPAC env tags/groups)
+      2. Comprehensive audit signals (Purview UnifiedAuditLogIngestionEnabled)
+
+    The third signal — model-risk overlay — is structurally non-telemetry-
+    verifiable (typically a SharePoint document policy or model-card registry).
+
+    **Auto-cap rule:** This evaluator NEVER returns ``"yes"``. The maximum
+    auto-confirmable answer is ``"partial"`` because the third signal (model
+    risk) cannot be verified from any of the 5 existing collectors. The
+    facilitator can upgrade to ``"yes"`` via their own answer (which always
+    wins per framework design).
+
+    Returns:
+      - ``("partial", evidence)`` — both zone tags and audit log verified;
+        evidence notes that model-risk overlay requires facilitator confirmation.
+      - ``("partial", evidence)`` — only one of {zone, audit} present; evidence
+        describes which is missing.
+      - ``("no", evidence)`` — neither zone tags nor audit log enabled.
+      - ``(None, evidence)`` — both ppac.json and purview.json missing or errored.
+    """
+    model_risk_caveat = "model-risk overlay requires facilitator confirmation"
+
+    # --- Load PPAC data ---
+    ppac, ppac_err = _load_collected_json(collected_dir, "ppac.json")
+    ppac_available = False
+    zone_count = 0
+    zone_evidence = ""
+
+    if ppac is not None:
+        metadata = ppac.get("_metadata") or {}
+        errors = metadata.get("errors") or []
+        if errors:
+            first_error = errors[0] if isinstance(errors[0], str) else str(errors[0])
+            ppac_err = f"collector reported errors ({first_error})"
+        else:
+            ppac_available = True
+            zone_count = _q13_zone_count(ppac)
+
+    if ppac_available:
+        # Build a brief summary of matched zone tags for evidence.
+        tag_samples: list[str] = []
+        environments = ppac.get("environments") or []
+        for env in environments:
+            tags = env.get("Tags")
+            if isinstance(tags, dict):
+                for key, value in tags.items():
+                    key_str = str(key)
+                    val_str = str(value)
+                    if ZONE_TAG_KEY_PATTERN.match(key_str) and ZONE_TAG_VALUE_PATTERN.match(val_str):
+                        tag_samples.append(f"'{key_str}:{val_str}'")
+                        break
+                    if ZONE_SUBSTRING_PATTERN.search(key_str) or ZONE_SUBSTRING_PATTERN.search(val_str):
+                        tag_samples.append(f"'{key_str}:{val_str}'")
+                        break
+        if tag_samples:
+            zone_evidence = (
+                f"PPAC reported {zone_count} zone-classified environment(s) "
+                f"(tags: {', '.join(tag_samples[:5])})"
+            )
+        else:
+            zone_evidence = f"PPAC reported {zone_count} zone-classified environment(s)"
+    else:
+        zone_evidence = f"PPAC data unavailable: {ppac_err}"
+
+    # --- Load Purview data ---
+    purview, purview_err = _load_collected_json(collected_dir, "purview.json")
+    purview_available = False
+    audit_enabled: bool | None = None
+    audit_evidence = ""
+
+    if purview is not None:
+        metadata = purview.get("_metadata") or {}
+        errors = metadata.get("errors") or []
+        if errors:
+            first_error = errors[0] if isinstance(errors[0], str) else str(errors[0])
+            purview_err = f"collector reported errors ({first_error})"
+        else:
+            purview_available = True
+            audit_enabled = _q13_audit_enabled(purview)
+
+    if purview_available and audit_enabled is not None:
+        audit_evidence = (
+            f"audit log {'enabled' if audit_enabled else 'NOT enabled'} "
+            f"(UnifiedAuditLogIngestionEnabled={str(audit_enabled).lower()})"
+        )
+    elif purview_available:
+        audit_evidence = "audit_config field absent in Purview data"
+    else:
+        audit_evidence = f"Purview data unavailable: {purview_err}"
+
+    # --- Both sources unavailable → inconclusive ---
+    if not ppac_available and not purview_available:
+        return None, f"PPAC and Purview data both unavailable: {ppac_err}; {purview_err}"
+
+    # --- Determine result ---
+    has_zones = zone_count > 0
+    has_audit = audit_enabled is True
+
+    evidence = f"{zone_evidence}; {audit_evidence}; {model_risk_caveat}"
+
+    if has_zones and has_audit:
+        return "partial", evidence
+    if has_zones or has_audit:
+        return "partial", evidence
+    return "no", evidence
+
+
 # --- Evaluator registry ---------------------------------------------------
 
 EVALUATORS: dict[str, object] = {
     "any_environment_visibility_for_agents": _eval_any_environment_visibility_for_agents,
     "tagged_environments_with_basic_telemetry": _eval_tagged_environments_with_basic_telemetry,
+    "zone_classification_with_audit_supervision_and_model_risk": _eval_zone_classification_with_audit_supervision_and_model_risk,
 }
 
 

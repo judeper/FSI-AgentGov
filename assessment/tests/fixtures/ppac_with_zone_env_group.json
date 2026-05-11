@@ -1,0 +1,34 @@
+{
+  "_metadata": {
+    "collector": "PPAC",
+    "timestamp": "2026-03-25T21:00:00Z",
+    "tenant_id": "test-tenant",
+    "warnings": [],
+    "errors": []
+  },
+  "environments": [
+    {
+      "DisplayName": "Default",
+      "EnvironmentName": "env-default-001",
+      "EnvironmentSku": "Default",
+      "Tags": {},
+      "EnvironmentGroupId": null
+    },
+    {
+      "DisplayName": "Prod-CoE",
+      "EnvironmentName": "env-prod-coe-001",
+      "EnvironmentSku": "Production",
+      "Tags": {},
+      "EnvironmentGroupId": "grp-zone-2-001"
+    }
+  ],
+  "environmentGroups": [
+    {
+      "Id": "grp-zone-2-001",
+      "DisplayName": "Production-Zone-2",
+      "Description": "Zone 2 production environments for FSI agents",
+      "CreatedTime": "2026-01-15T10:00:00Z",
+      "EnvironmentCount": 1
+    }
+  ]
+}

@@ -306,11 +306,6 @@ _FRONTIER_EVALUATOR_CANDIDATES = [
         "SharePoint PnP search for AI strategy document in Governance Committee site",
     ),
     (
-        "Q13", "ai_governance", 300,
-        "zone_classification_with_audit_supervision_and_model_risk",
-        "PPAC environment list API: check for managed environment groups with zone tags",
-    ),
-    (
         "Q18", "technology_data", 300,
         "env_groups_with_inventory_siem_rag_and_lineage",
         "PPAC Environment Groups API; Sentinel workspace connectivity; SharePoint permission scan logs",
@@ -410,7 +405,7 @@ def render_frontier(manifest: dict) -> str:
                 qtext = qtext[:77] + "..."
             qtext = qtext.replace("|", "\\|")
             pc = q.get("pass_condition", "")
-            notes = "Facilitator-answered." if state == "manual_only" else ""
+            notes = "Facilitator-answered." if state == "manual_only" else q.get("notes", "")
             lines.append(
                 f"| {q['question_id']} | {q['level']} | {qtext}"
                 f" | {STATE_ICON[state]} {STATE_LABEL[state]}"
