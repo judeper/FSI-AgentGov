@@ -1,0 +1,8 @@
+{
+  "_metadata": {
+    "collector": "Collect-SharePoint",
+    "warnings": ["Section 1 (Site Inventory) failed: Graph API error"],
+    "errors": ["Graph API error"]
+  },
+  "siteInventory": null
+}

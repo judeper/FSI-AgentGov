@@ -74,10 +74,11 @@
       "fsi_context": "A defined enterprise AI strategy with portfolio governance helps meet OCC 2011-12 model risk expectations and gives examiners a documented chain of accountability from sponsor to agent.",
       "answer_format": "yes_no_partial",
       "scoring_weight": 1.0,
-      "auto_evaluable": false,
+      "auto_evaluable": true,
       "pass_condition": "enterprise_ai_strategy_published_with_portfolio",
-      "collection_methods": ["Manual"],
-      "regulatory_relevance": ["FINRA-3110", "OCC-2011-12"]
+      "collection_methods": ["Manual", "SharePoint_API"],
+      "regulatory_relevance": ["FINRA-3110", "OCC-2011-12"],
+      "notes": "Auto-evaluator capped at 'partial' — site naming heuristic detects strategy publication, but governance review + portfolio scope are facilitator-only."
     },
     {
       "question_id": "Q04",
@@ -270,10 +271,11 @@
       "fsi_context": "Defined maturity requires the substrate evidence stack — tiered environments, automated inventory, SIEM, RAG integrity, and lineage — that examiners use to verify the data the agent retrieved is the record under FINRA 4511 / SEC 17a-4.",
       "answer_format": "yes_no_partial",
       "scoring_weight": 1.0,
-      "auto_evaluable": false,
+      "auto_evaluable": true,
       "pass_condition": "env_groups_with_inventory_siem_rag_and_lineage",
-      "collection_methods": ["Manual"],
-      "regulatory_relevance": ["FINRA-4511", "SEC-17a-4", "GLBA-501b"]
+      "collection_methods": ["Manual", "PPAC_API", "Sentinel_API", "SharePoint_API"],
+      "regulatory_relevance": ["FINRA-4511", "SEC-17a-4", "GLBA-501b"],
+      "notes": "Auto-evaluator capped at 'partial' — 3/5 signals are telemetry-verifiable (env groups, SIEM, SP scan), but agent inventory is not collected and RAG-integrity + lineage are facilitator-only."
     },
     {
       "question_id": "Q19",

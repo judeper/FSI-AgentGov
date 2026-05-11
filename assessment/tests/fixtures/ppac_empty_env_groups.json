@@ -1,0 +1,17 @@
+{
+  "_metadata": {
+    "collector": "Collect-PPAC",
+    "errors": [],
+    "warnings": []
+  },
+  "environments": [
+    {
+      "DisplayName": "Prod",
+      "EnvironmentName": "env-1",
+      "EnvironmentSku": "Production",
+      "Tags": {},
+      "EnvironmentGroupId": null
+    }
+  ],
+  "environmentGroups": []
+}

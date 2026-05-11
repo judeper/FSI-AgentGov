@@ -1,0 +1,15 @@
+{
+  "_metadata": {
+    "collector": "Collect-SharePoint",
+    "warnings": []
+  },
+  "siteInventory": [
+    {
+      "Id": "site-2",
+      "DisplayName": "HR Policies",
+      "WebUrl": "https://contoso.sharepoint.com/sites/hr",
+      "CreatedDateTime": "2026-05-01T00:00:00Z",
+      "IsPersonalSite": false
+    }
+  ]
+}

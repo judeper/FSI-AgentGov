@@ -794,6 +794,265 @@ def _eval_ai_initiative_owner_identified(
     return "no", "No AI-leadership titles or senior admin assignments found in tenant"
 
 
+# ---------------------------------------------------------------------------
+# Q18 evaluator — Environment Groups with inventory, SIEM, RAG, and lineage
+# ---------------------------------------------------------------------------
+
+
+def _q18_env_groups_present(ppac: dict) -> bool:
+    """Check whether tiered environment groups are operational."""
+    env_groups = ppac.get("environmentGroups")
+    if isinstance(env_groups, list) and len(env_groups) > 0:
+        return True
+    environments = ppac.get("environments")
+    if isinstance(environments, list):
+        for env in environments:
+            if env.get("EnvironmentGroupId"):
+                return True
+    return False
+
+
+def _q18_siem_present(sentinel: dict) -> bool:
+    """Check whether SIEM integration (data connectors) is present."""
+    dc = sentinel.get("dataConnectors")
+    if dc is None:
+        return False
+    if dc.get("Office365Enabled") is True or dc.get("McasEnabled") is True:
+        return True
+    total = dc.get("TotalConnectors", 0)
+    summary = dc.get("ConnectorSummary") or []
+    return total > 0 and len(summary) > 0
+
+
+def _q18_sp_scan_present(sharepoint: dict) -> bool:
+    """Check whether item-level permission scanning ran at deployment."""
+    ilp = sharepoint.get("itemLevelPermissions")
+    if not isinstance(ilp, list) or len(ilp) == 0:
+        return False
+    for site in ilp:
+        if site.get("SampledItems", 0) > 0:
+            return True
+    return False
+
+
+def _eval_env_groups_with_inventory_siem_rag_and_lineage(
+    collected_dir: Path,
+) -> tuple[str | None, str]:
+    """Q18 evaluator: tiered env groups + SIEM + item-level scan + agent inventory + RAG/lineage.
+
+    Checks three of five L300 Tech & Data signals from telemetry:
+      1. Tiered Environment Groups operational (PPAC env groups)
+      2. SIEM integration (Sentinel data connectors)
+      3. Item-level permission scanning (SharePoint scan)
+
+    The remaining signals are structurally non-telemetry-verifiable:
+      - Agent inventory is not collected by any existing collector
+      - RAG-integrity validation + data lineage documentation are facilitator-only
+
+    **Auto-cap rule:** This evaluator NEVER returns ``"yes"``. The maximum
+    auto-confirmable answer is ``"partial"`` because agent inventory is not
+    collected, and RAG-integrity + data lineage are facilitator-only signals.
+
+    Returns:
+      - ``("partial", evidence)`` — 1-3 of 3 telemetry signals present.
+      - ``("no", evidence)`` — 0 of 3 telemetry signals present.
+      - ``(None, evidence)`` — all three collector files missing or errored.
+    """
+    agent_inventory_caveat = "agent inventory not collected (out of scope)"
+    rag_lineage_caveat = "RAG-integrity + data lineage require facilitator confirmation"
+
+    # --- Load PPAC data ---
+    ppac, ppac_err = _load_collected_json(collected_dir, "ppac.json")
+    ppac_available = False
+    env_groups_signal = False
+    env_groups_evidence = ""
+
+    if ppac is not None:
+        metadata = ppac.get("_metadata") or {}
+        errors = metadata.get("errors") or []
+        if errors:
+            first_error = errors[0] if isinstance(errors[0], str) else str(errors[0])
+            ppac_err = f"collector reported errors ({first_error})"
+        else:
+            ppac_available = True
+            env_groups_signal = _q18_env_groups_present(ppac)
+
+    if ppac_available:
+        if env_groups_signal:
+            env_groups_list = ppac.get("environmentGroups") or []
+            tiered_count = sum(
+                1 for g in env_groups_list
+                if any(kw in (g.get("DisplayName") or "").lower() for kw in ["tier", "zone", "prod"])
+            )
+            env_groups_evidence = (
+                f"PPAC env groups present ({len(env_groups_list)} total"
+                f"{f', {tiered_count} tiered' if tiered_count > 0 else ''})"
+            )
+        else:
+            env_groups_evidence = "PPAC env groups absent"
+    else:
+        env_groups_evidence = f"PPAC data unavailable: {ppac_err}"
+
+    # --- Load Sentinel data ---
+    sentinel, sentinel_err = _load_collected_json(collected_dir, "sentinel.json")
+    sentinel_available = False
+    siem_signal = False
+    siem_evidence = ""
+
+    if sentinel is not None:
+        metadata = sentinel.get("_metadata") or {}
+        errors = metadata.get("errors") or []
+        if errors:
+            first_error = errors[0] if isinstance(errors[0], str) else str(errors[0])
+            sentinel_err = f"collector reported errors ({first_error})"
+        else:
+            sentinel_available = True
+            siem_signal = _q18_siem_present(sentinel)
+
+    if sentinel_available:
+        if siem_signal:
+            dc = sentinel.get("dataConnectors") or {}
+            connectors = []
+            if dc.get("Office365Enabled"):
+                connectors.append("Office365")
+            if dc.get("McasEnabled"):
+                connectors.append("MCAS")
+            connector_desc = ", ".join(connectors) if connectors else f"{dc.get('TotalConnectors', 0)} connectors"
+            siem_evidence = f"Sentinel SIEM connector(s) enabled ({connector_desc})"
+        else:
+            siem_evidence = "no SIEM connectors enabled"
+    else:
+        siem_evidence = f"Sentinel data unavailable: {sentinel_err}"
+
+    # --- Load SharePoint data ---
+    sharepoint, sharepoint_err = _load_collected_json(collected_dir, "sharepoint.json")
+    sharepoint_available = False
+    sp_scan_signal = False
+    sp_scan_evidence = ""
+
+    if sharepoint is not None:
+        metadata = sharepoint.get("_metadata") or {}
+        errors = metadata.get("errors") or []
+        if errors:
+            first_error = errors[0] if isinstance(errors[0], str) else str(errors[0])
+            sharepoint_err = f"collector reported errors ({first_error})"
+        else:
+            sharepoint_available = True
+            sp_scan_signal = _q18_sp_scan_present(sharepoint)
+
+    if sharepoint_available:
+        if sp_scan_signal:
+            ilp = sharepoint.get("itemLevelPermissions") or []
+            total_sampled = sum(site.get("SampledItems", 0) for site in ilp)
+            sp_scan_evidence = f"SharePoint item-level scan ran ({len(ilp)} sites, {total_sampled} sampled items)"
+            crossref = sharepoint.get("groundingCrossRef")
+            if isinstance(crossref, dict) and crossref.get("ApprovedFound", 0) > 0:
+                sp_scan_evidence += f"; grounding cross-reference confirmed {crossref['ApprovedFound']} approved site(s)"
+        else:
+            sp_scan_evidence = "SharePoint item-level scan absent"
+    else:
+        sp_scan_evidence = f"SharePoint data unavailable: {sharepoint_err}"
+
+    # --- All sources unavailable → inconclusive ---
+    if not ppac_available and not sentinel_available and not sharepoint_available:
+        return None, (
+            f"All three data sources unavailable: {ppac_err}; {sentinel_err}; {sharepoint_err}"
+        )
+
+    # --- Count telemetry signals present ---
+    signal_count = sum([env_groups_signal, siem_signal, sp_scan_signal])
+
+    evidence = (
+        f"{env_groups_evidence}; {siem_evidence}; {sp_scan_evidence}; "
+        f"{agent_inventory_caveat}; {rag_lineage_caveat}"
+    )
+
+    if signal_count == 0:
+        return "no", evidence
+    return "partial", evidence
+
+
+# ---------------------------------------------------------------------------
+# Q03 evaluator — Enterprise AI strategy published with portfolio
+# ---------------------------------------------------------------------------
+
+AI_STRATEGY_KEYWORDS = (
+    "ai strategy",
+    "ai governance",
+    "ai council",
+    "ai portfolio",
+    "agent portfolio",
+    "frontier",
+    "executive sponsor",
+    "governance committee",
+)
+
+
+def _eval_enterprise_ai_strategy_published_with_portfolio(
+    collected_dir: Path,
+) -> tuple[str | None, str]:
+    """Q03 evaluator: enterprise AI strategy published with portfolio-level inventory.
+
+    Checks SharePoint site inventory for strategic AI/portfolio naming patterns.
+    This is a weak heuristic but acceptable because the evaluator is capped at
+    ``"partial"`` — the presence of matching site names suggests strategy
+    publication, but "reviewed by Governance Committee", "with portfolio",
+    and "active governance" are facilitator-only judgements.
+
+    **Auto-cap rule:** This evaluator NEVER returns ``"yes"``. The maximum
+    auto-confirmable answer is ``"partial"`` because site naming is telemetry-
+    verifiable but governance review + portfolio scope are facilitator-only.
+
+    Returns:
+      - ``("partial", evidence)`` — 1+ SharePoint site name matches keywords.
+      - ``("no", evidence)`` — SharePoint collected but no matching sites.
+      - ``(None, evidence)`` — sharepoint.json missing or errored.
+    """
+    portfolio_governance_caveat = "portfolio scope and active governance require facilitator confirmation"
+
+    sharepoint, err = _load_collected_json(collected_dir, "sharepoint.json")
+    if sharepoint is None:
+        return None, f"SharePoint data unavailable: {err}"
+
+    metadata = sharepoint.get("_metadata") or {}
+    errors = metadata.get("errors") or []
+    if errors:
+        first_error = errors[0] if isinstance(errors[0], str) else str(errors[0])
+        return None, f"SharePoint data unavailable: collector reported errors ({first_error})"
+
+    site_inventory = sharepoint.get("siteInventory")
+    if not isinstance(site_inventory, list):
+        return None, "SharePoint data unavailable: siteInventory field absent or invalid"
+
+    if len(site_inventory) == 0:
+        return "no", "SharePoint collected zero sites"
+
+    # Case-insensitive substring matching against AI strategy keywords
+    matched_sites: list[tuple[str, str]] = []  # (DisplayName, matched_keyword)
+    for site in site_inventory:
+        display = site.get("DisplayName") or ""
+        lower_display = display.lower()
+        for keyword in AI_STRATEGY_KEYWORDS:
+            if keyword in lower_display:
+                matched_sites.append((display, keyword))
+                break
+
+    if matched_sites:
+        if len(matched_sites) > 3:
+            shown = matched_sites[:3]
+            remainder = len(matched_sites) - 3
+            listing = ", ".join(f"'{n}' (matched '{k}')" for n, k in shown)
+            listing += f" and {remainder} more"
+        else:
+            listing = ", ".join(f"'{n}' (matched '{k}')" for n, k in matched_sites)
+        return (
+            "partial",
+            f"SharePoint site(s) suggest strategy publication: {listing}; {portfolio_governance_caveat}",
+        )
+
+    return "no", "No SharePoint site name matched AI strategy/portfolio keywords"
+
+
 # --- Evaluator registry ---------------------------------------------------
 
 EVALUATORS: dict[str, object] = {
@@ -801,6 +1060,8 @@ EVALUATORS: dict[str, object] = {
     "tagged_environments_with_basic_telemetry": _eval_tagged_environments_with_basic_telemetry,
     "zone_classification_with_audit_supervision_and_model_risk": _eval_zone_classification_with_audit_supervision_and_model_risk,
     "ai_initiative_owner_identified": _eval_ai_initiative_owner_identified,
+    "env_groups_with_inventory_siem_rag_and_lineage": _eval_env_groups_with_inventory_siem_rag_and_lineage,
+    "enterprise_ai_strategy_published_with_portfolio": _eval_enterprise_ai_strategy_published_with_portfolio,
 }
 
 
