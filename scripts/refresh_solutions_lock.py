@@ -83,10 +83,26 @@ def main() -> int:
         action="store_true",
         help="Fetch and verify but do not write the lock file.",
     )
+    parser.add_argument(
+        "--accept-schema",
+        action="append",
+        default=None,
+        help=(
+            "Schema-version prefix the lock-file consumer accepts (e.g., '1.5.'). "
+            "May be repeated. When set, overrides the default check that the "
+            "manifest's schemaVersion matches the major.minor of --tag. Use this "
+            "when a release tag (e.g. a feature wave) does not bump the manifest "
+            "schemaVersion. The framework's lock-file consumer currently accepts "
+            "1.4.x and 1.5.x."
+        ),
+    )
     args = parser.parse_args()
 
     tag = args.tag.lstrip("v")  # accept v1.4.0 or 1.4.0
-    expected_prefix = ".".join(tag.split(".")[:2]) + "."
+    if args.accept_schema:
+        accepted_prefixes = tuple(args.accept_schema)
+    else:
+        accepted_prefixes = (".".join(tag.split(".")[:2]) + ".",)
     url = f"{RAW_BASE}/v{tag}/{args.source_path}"
 
     print(f"Fetching {url} ...")
@@ -106,10 +122,13 @@ def main() -> int:
         return 2
 
     sv = data.get("schemaVersion", "")
-    if not (isinstance(sv, str) and sv.startswith(expected_prefix)):
+    if not (isinstance(sv, str) and any(sv.startswith(p) for p in accepted_prefixes)):
+        joined = " or ".join(repr(p) for p in accepted_prefixes)
         print(
-            f"ERROR: schemaVersion {sv!r} does not start with {expected_prefix!r}; "
-            "the framework's lock-file consumer expects 1.4.x or 1.5.x.",
+            f"ERROR: schemaVersion {sv!r} does not start with {joined}; "
+            "the framework's lock-file consumer expects 1.4.x or 1.5.x. "
+            "If this tag intentionally ships an unchanged schemaVersion, "
+            "re-run with --accept-schema '<prefix>.' (may be repeated).",
             file=sys.stderr,
         )
         return 1
