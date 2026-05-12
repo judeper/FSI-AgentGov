@@ -6,7 +6,7 @@ Live inventory reference for the companion FSI-AgentGov-Solutions repository.
 
 ## Overview
 
-This index tracks the **35 live solution implementations** in the companion **[FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions)** repository.
+This index tracks the **36 live solution implementations** in the companion **[FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions)** repository.
 
 Companion solutions provide deployment documentation, governance scripts, KQL queries, and templates for manual Power Platform builds. They do not store exported Power Platform runtime artifacts in this catalog.
 
@@ -28,9 +28,9 @@ Absence of a control from this catalog is not a coverage gap — it reflects the
 
 Each live solution declares the Microsoft CAPE [Frontier Transformation Pattern](../framework/transformation-patterns.md) it supports, the [Agentic Capability Driver](../framework/agentic-capability-drivers.md) it strengthens, and the [Center of Excellence function](../framework/agentic-coe.md) (Govern, Enable, Optimize, or Scale) it serves. These tags let admins, AI Governance Leads, and CSAs filter the catalog by the lens that matters for the conversation in front of them — a pattern-first conversation pulls a different shortlist than a CoE-readiness conversation.
 
-Pattern, Driver, and CoE columns appear in the live inventory table below and are repeated as bullets in each solution's detail block. The companion [Pattern coverage matrix (showing which solutions support each pattern)](pattern-coverage.md) aggregates the same metadata across all 78 controls and 35 solutions for portfolio-level review.
+Pattern, Driver, and CoE columns appear in the live inventory table below and are repeated as bullets in each solution's detail block. The companion [Pattern coverage matrix (showing which solutions support each pattern)](pattern-coverage.md) aggregates the same metadata across all 78 controls and 36 solutions for portfolio-level review.
 
-## Live Inventory (35 Solutions)
+## Live Inventory (36 Solutions)
 
 | Solution | Repository folder | Version | Primary controls | Patterns | Drivers | CoE | Summary |
 |----------|-------------------|---------|------------------|----------|---------|-----|---------|

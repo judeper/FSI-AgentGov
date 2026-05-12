@@ -388,4 +388,4 @@ This is a decision aid, not a prescription. Institutions vary; use the steps as 
 
 ---
 
-*Updated: May-2026 | Version: v1.5.0-draft | Audience: AI governance leads, CoE leads, executive sponsors*
+*Updated: May-2026 | Version: v1.5.0 | Audience: AI governance leads, CoE leads, executive sponsors*

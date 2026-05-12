@@ -158,9 +158,9 @@ Step-by-step procedures in `docs/playbooks/control-implementations/`:
 - **Implementation-Checklist.md** - [Implementation roadmap](docs/getting-started/checklist.md)
 - **FAQ.md** - [Frequently asked questions](docs/reference/faq.md)
 
-### Companion Solutions (35 Live Solutions)
+### Companion Solutions (36 Live Solutions)
 Companion automation lives in the **[FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions)** repository:
-- 35 live solution implementations aligned to the companion repository inventory
+- 36 live solution implementations aligned to the companion repository inventory
 - Coverage spans security, management, reporting, SharePoint governance, and cross-solution integration
 - Solutions provide deployment documentation, governance scripts, KQL queries, and templates for manual Power Platform builds
 - Framework-native assets without matching top-level solution folders remain documented in this repository and are not counted as companion solutions
@@ -265,7 +265,7 @@ graph TD
 
 ## 🔗 Companion Solutions
 
-The **[FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions)** repository provides **35 live solution implementations** that operationalize framework controls. The live catalog remains aligned to the top-level companion repository inventory.
+The **[FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions)** repository provides **36 live solution implementations** that operationalize framework controls. The live catalog remains aligned to the top-level companion repository inventory.
 
 Companion solutions provide deployment documentation, governance scripts, KQL queries, and templates for manual Power Platform builds instead of exported runtime artifacts. Coverage spans step-up authentication, lifecycle governance, access monitoring, analytics, RAG source validation, supervision workflows, disaster recovery testing, and SharePoint knowledge source controls.
 

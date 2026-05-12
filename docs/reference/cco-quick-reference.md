@@ -284,4 +284,4 @@ This document is informational and does not constitute legal or regulatory advic
 
 ---
 
-*Updated: May-2026 | Version: v1.5.0-draft | Audience: Chief Compliance Officer*
+*Updated: May-2026 | Version: v1.5.0 | Audience: Chief Compliance Officer*

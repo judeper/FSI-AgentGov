@@ -4,7 +4,7 @@ This file provides guidance for autonomous AI agents working on this repository.
 
 ## Project Overview
 
-**FSI Agent Governance Framework v1.4.0** — A governance framework for Microsoft 365 AI agents in US financial services organizations.
+**FSI Agent Governance Framework v1.6.2** — A governance framework for Microsoft 365 AI agents in US financial services organizations.
 
 - **78 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
 - **3 governance zones** (Personal Productivity, Team Collaboration, Enterprise Managed)
@@ -14,7 +14,7 @@ This file provides guidance for autonomous AI agents working on this repository.
 
 **Full context:** See `.github/copilot-instructions.md` for complete repository structure and design decisions.
 
-**Companion Repository:** `FSI-AgentGov-Solutions` contains 35 live solution implementations mapped to the current 78-control framework baseline. See `docs/reference/solutions-index.md` for the current catalog.
+**Companion Repository:** `FSI-AgentGov-Solutions` contains 36 live solution implementations mapped to the current 78-control framework baseline. See `docs/reference/solutions-index.md` for the current catalog.
 
 **Key reference documents:**
 - `docs/reference/csa-quick-reference.md` — CSA Quick Reference for partner/CSA engagement
