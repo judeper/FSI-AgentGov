@@ -34,7 +34,24 @@ test.describe("zero pageerror canary @smoke", () => {
       pageErrors.push(`${err.name}: ${err.message}`);
     });
     page.on("console", (msg) => {
-      if (msg.type() === "error") consoleErrors.push(msg.text());
+      if (msg.type() !== "error") return;
+      // Resource-load failures (e.g., generic "Failed to load resource: the
+      // server responded with a status of 403") report the failing URL via
+      // msg.location().url — NOT in the message text. Skip failures that
+      // originate from non-local origins so this canary stays focused on
+      // app JS regressions and isn't redlined by transient third-party
+      // conditions like GitHub's 60/hr unauthenticated API rate limit
+      // hitting the mkdocs-material announce-bar release-version fetch
+      // (overrides/main.html allow-lists api.github.com for that purpose).
+      const origin = (() => {
+        try {
+          const u = msg.location() && msg.location().url;
+          return u ? new URL(u).origin : null;
+        } catch (_) { return null; }
+      })();
+      const localOrigin = new URL(page.url()).origin;
+      if (origin && origin !== localOrigin) return;
+      consoleErrors.push(msg.text());
     });
     page.on("dialog", (d) => d.dismiss().catch(() => {}));
 
