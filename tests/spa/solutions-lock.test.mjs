@@ -9,9 +9,11 @@ const LOCK_PATH = join(here, "..", "..", "assessment", "data", "solutions-lock.j
 describe("assessment/data/solutions-lock.json", () => {
   const lock = JSON.parse(readFileSync(LOCK_PATH, "utf8"));
 
-  it("declares schemaVersion starting with '1.4.'", () => {
+  it("declares schemaVersion starting with '1.4.' or '1.5.'", () => {
     expect(typeof lock.schemaVersion).toBe("string");
-    expect(lock.schemaVersion.startsWith("1.4.")).toBe(true);
+    const sv = lock.schemaVersion;
+    const accepted = sv.startsWith("1.4.") || sv.startsWith("1.5.");
+    expect(accepted, `unexpected schemaVersion ${sv}; expected 1.4.x or 1.5.x`).toBe(true);
   });
 
   it("solutions field is an object (may be empty placeholder)", () => {
