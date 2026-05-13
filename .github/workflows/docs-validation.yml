@@ -1,0 +1,47 @@
+name: docs-validation
+
+# PR-time validation gate for the MkDocs site. Mirrors the build steps in
+# publish_docs.yml so the site is proven to build with --strict before merge,
+# not just at deploy time. Required check name (for branch protection): mkdocs-strict.
+
+on:
+  pull_request:
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - 'overrides/**'
+      - 'VERSION'
+      - '.github/workflows/docs-validation.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  mkdocs-strict:
+    name: mkdocs-strict
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+
+      - name: Cache MkDocs build cache
+        uses: actions/cache@v5
+        with:
+          key: mkdocs-material-${{ hashFiles('mkdocs.yml') }}-${{ github.run_id }}
+          path: .cache
+          restore-keys: |
+            mkdocs-material-${{ hashFiles('mkdocs.yml') }}-
+            mkdocs-material-
+
+      - name: Install MkDocs and Material Theme
+        run: pip install 'mkdocs-material>=9.5,<10'
+
+      - name: Build documentation (strict)
+        run: mkdocs build --strict
