@@ -41,6 +41,12 @@ CANON_UPDATED = f"Updated: {date.today().strftime('%B %Y')}"
 # new "Version: vX.Y" prefix to _ACCEPTED_VERSION so existing controls and
 # bulk-bumped controls both pass. Older accepted values stay listed so
 # unmodified historical controls keep validating.
+#
+# NOTE (PR-0, Tier -1): _ACCEPTED_VERSION intentionally permits historical
+# narrative such as "Earlier in v1.5.0 we shipped..." inside control bodies.
+# Footer-stamp drift on framework-layer docs (README, DISCLAIMER, framework/*,
+# .claude/CLAUDE.md) is enforced by scripts/verify_version_stamps.py — pinning
+# *that* check to a single canonical version, not to this multi-version list.
 CANON_VERSION = "Version: v1.6"
 _ACCEPTED_UPDATED = _accepted_update_dates(lookback_months=3)
 _ACCEPTED_VERSION = ["Version: v1.2", "Version: v1.3", "Version: v1.4", "Version: v1.5", "Version: v1.6"]
