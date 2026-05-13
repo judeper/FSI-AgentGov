@@ -270,6 +270,7 @@ To verify current license assignments:
 - [Microsoft Purview Licensing](https://learn.microsoft.com/en-us/office365/servicedescriptions/microsoft-365-service-descriptions/microsoft-365-tenantlevel-services-licensing-guidance/microsoft-purview-service-description)
 - [SharePoint Advanced Management](https://learn.microsoft.com/en-us/sharepoint/advanced-management)
 - [Copilot Studio Licensing](https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-licensing-subscriptions)
+- See also: [Work IQ Governance Reference](work-iq-governance.md) — Work IQ governance context for MCP tools and business skills; Work IQ is tracked as a governance surface rather than a separate license row in this matrix
 
 ---
 
