@@ -18,6 +18,18 @@ This playbook provides FSI-specific governance guidance for MCP server integrati
 
 ---
 
+## Three flavors of MCP
+
+MCP governance depends on which MCP path is in use. FSI teams should identify the hosting model, administrative surface, and covered controls before approving an agent design because the same protocol can enter through different Microsoft governance surfaces.
+
+**Copilot Studio custom MCP** uses customer- or vendor-hosted MCP servers wired into Copilot Studio agents as custom connectors. The server is hosted outside Microsoft by the customer or vendor, while governance is applied through Power Platform connector governance, DLP and Advanced Connector Policies, environment scope, and Copilot Studio publish review; see Controls 1.4, 1.5, 2.17, and 2.25.
+
+**Microsoft-published MCP servers** are first-party MCP servers shipped and maintained by Microsoft, such as the Microsoft 365 connector MCP. Microsoft hosts and publishes the server, while the tenant governs availability through Microsoft 365 admin center and Agent 365 inventory, app and connector approvals, audit, and reporting surfaces; see Controls 1.2, 1.7, 2.25, 3.13, and 3.14.
+
+**Agent 365 Bring Your Own MCP server (BYO MCP)** covers customer-hosted remote MCP servers registered to Agent 365 through the BYO MCP onboarding surface. The customer hosts and operates the remote MCP server, while Agent 365 registration, Microsoft 365 admin center approval, the Agent 365 Tooling Gateway, Entra permission review, and Defender advanced hunting provide the governance and observability surface; see Controls 1.7, 2.17, 2.25, 2.26, 3.13, and 3.14. Implementation requires verifying current preview capabilities and client-surface support before production use.
+
+---
+
 ## FSI Risk Assessment
 
 MCP server integration introduces governance considerations that require attention in regulated financial services environments:
@@ -331,6 +343,7 @@ Configure Microsoft Purview to capture and retain MCP-related audit events:
 ## Additional Resources
 
 - [Microsoft Learn: Create a New MCP Server in Copilot Studio](https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-create-new-server)
+- [Microsoft Learn: Bring Your Own MCP server (BYO MCP)](https://learn.microsoft.com/microsoft-agent-365/bring-your-own-mcp)
 - [Microsoft Learn: Copilot Studio Planned Features (2026 Wave 1)](https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/microsoft-copilot-studio/planned-features)
 - [Microsoft Learn: Power Platform DLP Policies](https://learn.microsoft.com/en-us/power-platform/admin/wp-data-loss-prevention)
 - [Microsoft Learn: Azure Key Vault Overview](https://learn.microsoft.com/en-us/azure/key-vault/general/overview)
