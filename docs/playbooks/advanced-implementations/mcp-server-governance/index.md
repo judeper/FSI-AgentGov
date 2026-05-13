@@ -317,6 +317,7 @@ Configure Microsoft Purview to capture and retain MCP-related audit events:
 | [1.11 — Conditional Access and MFA](../../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) | Conditional Access for MCP server app registrations |
 | [1.19 — eDiscovery for Agent Interactions](../../../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md) | eDiscovery coverage for MCP interaction records |
 | [1.20 — Network Isolation and Private Connectivity](../../../controls/pillar-1-security/1.20-network-isolation-private-connectivity.md) | VNet/private endpoint for MCP servers |
+| [1.29 — Global Secure Access: Network Controls](../../../controls/pillar-1-security/1.29-global-secure-access-network-controls.md#secure-web-and-ai-gateway-for-copilot-studio-agents) | Outbound network governance for MCP connector traffic — see the Secure Web and AI Gateway subsection for prompt-injection defense, supported MCP traffic controls, and tenant restrictions |
 | [2.3 — Change Management and Release Planning](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md) | Change governance for MCP server deployments |
 | [2.7 — Vendor and Third-Party Risk](../../../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md) | Third-party MCP server risk assessment |
 | [2.17 — Multi-Agent Orchestration Limits](../../../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) | Orchestration controls when multiple agents share MCP servers |
