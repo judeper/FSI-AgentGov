@@ -1,13 +1,21 @@
 """MkDocs build-SHA cache-bust hook.
 
 Computes a build SHA at build time and:
-  * Writes ``<docs_dir>/version.json`` with the SHA + ISO timestamp so
-    deployment smoke tests can poll the live site for the deployed SHA.
+  * Writes ``<docs_dir>/version.json`` with the framework version (read
+    from the repo-root ``VERSION`` file), the build SHA, and an ISO
+    timestamp so deployment smoke tests can poll the live site for the
+    deployed SHA *and* downstream consumers can read the canonical
+    framework version.
   * Injects ``<meta name="build-sha" content="...">`` into every rendered
     page just after ``<head>`` for in-page diagnostics.
   * Appends ``?v=<sha>`` to any ``assessment-app.js`` ``<script src=...>``
     references emitted into the HTML so a new deploy busts CDN/browser
     caches even when the underlying URL is unchanged.
+
+Canonical version source (PR-0, Tier -1):
+    The repo-root ``VERSION`` file is the single source of truth for the
+    framework version. ``scripts/verify_version_stamps.py`` reads the same
+    file to enforce footer/header stamp consistency across the repo.
 
 Phase C, step 0. Referenced from ``mkdocs.yml`` ``hooks:``.
 """
@@ -23,6 +31,22 @@ from pathlib import Path
 
 # Module-level cache so on_pre_build / on_post_page agree on the SHA.
 _BUILD_SHA: str | None = None
+
+
+def _read_canonical_version(config) -> str:
+    """Read the framework version from the repo-root VERSION file.
+
+    Falls back to ``"unknown"`` if the file is missing or malformed so the
+    build never fails purely on version-file issues; ``verify_version_stamps``
+    is the gate that hard-fails on drift.
+    """
+    docs_dir = Path(config["docs_dir"])
+    repo_root = docs_dir.parent
+    version_file = repo_root / "VERSION"
+    if not version_file.exists():
+        return "unknown"
+    raw = version_file.read_text(encoding="utf-8").strip()
+    return raw or "unknown"
 
 
 def _compute_sha() -> str:
@@ -54,6 +78,7 @@ def on_pre_build(config, **_kwargs):
     sha = _compute_sha()
     docs_dir = Path(config["docs_dir"])
     payload = {
+        "version": _read_canonical_version(config),
         "sha": sha,
         "builtAt": _dt.datetime.utcnow().replace(microsecond=0).isoformat() + "Z",
     }
