@@ -8,15 +8,22 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 
 | License | Controls Requiring | Primary Use |
 |---------|-------------------|-------------|
-| **Power Platform Premium** | 1.1, 1.4, 1.8, 1.14, 1.20, 2.1, 2.2, 2.3, 2.5, 2.8, 2.9, 2.15, 3.2, 3.5, 3.6, 3.7, 3.8 | Managed Environments, ACP |
-| **Microsoft 365 E5** | 1.5, 1.6, 1.7, 1.9, 1.10, 1.12, 1.13, 1.17, 1.19, 1.21, 1.22 | Purview full suite |
-| **Microsoft Purview Suite** (formerly M365 E5 Compliance) | 1.5, 1.6, 1.7, 1.9, 1.10, 1.12, 1.13, 1.17, 1.19, 1.22 | Purview add-on to E3 |
+| **Power Platform Premium** | 1.1, 1.4, 1.8, 1.14, 1.20, 2.1, 2.2, 2.3, 2.5, 2.8, 2.9, 2.15, 2.24, 3.2, 3.5, 3.6, 3.7, 3.8 | Managed Environments, ACP, PPAC governance |
+| **Microsoft 365 E5** | 1.5, 1.6, 1.7, 1.9, 1.10, 1.12, 1.13, 1.17, 1.19, 1.21, 1.22, 3.14 | Purview full suite |
+| **Microsoft Purview Suite** (formerly M365 E5 Compliance) | 1.5, 1.6, 1.7, 1.9, 1.10, 1.12, 1.13, 1.17, 1.19, 1.22, 3.14 | Purview add-on to E3 |
 | **Microsoft 365 E3** | 1.3, 1.11, 1.15, 1.16, 2.10 | Basic security features |
-| **Microsoft Entra ID P1** | 1.11, 1.18, 2.8 | Conditional Access |
-| **Microsoft Entra ID P2** | 1.11, 1.12, 1.23, 4.2 | PIM, Access Reviews |
+| **Microsoft Entra ID P1** | 1.11, 1.18, 2.8, 2.26 | Conditional Access, Agent ID governance |
+| **Microsoft Entra ID P2** | 1.11, 1.12, 1.23, 2.26, 4.2 | PIM, Access Reviews, Agent ID Protection |
+| **Microsoft Entra Internet Access** | 1.29 | Global Secure Access, Secure Web and AI Gateway |
 | **SharePoint Advanced Management** | 4.1, 4.2, 4.3, 4.4, 4.5, 4.6 | SharePoint governance |
 | **Copilot Studio** | All | Agent development |
+| **Microsoft 365 Copilot** | 2.24, 3.8 | Copilot experiences and first-party agents |
+| **Microsoft Agent 365** | 1.8, 2.24, 2.25, 2.26, 3.8, 3.13, 3.14 | Agent control plane, registry, analytics, identity, observability |
+| **Microsoft 365 E7** | 2.24, 2.25, 2.26, 3.8, 3.13, 3.14 | Agent 365 entitlement bundle option |
 | **Microsoft 365 Copilot Business** | N/A | SMB Copilot access |
+
+!!! note "Agent 365 and GSA licensing references"
+    Microsoft Learn states that Microsoft Agent 365 is generally available on a per-user basis, that at least one user needs a qualifying Microsoft Agent 365 license to enable Agent 365, and that Agent ID features require **Microsoft Agent 365** or **Microsoft 365 E7** licensing. Microsoft Learn also states that agent network controls use **Microsoft Entra Internet Access**, included in Microsoft Entra Suite or licensed standalone. See [Microsoft Agent 365 overview](https://learn.microsoft.com/en-us/microsoft-agent-365/overview), [Microsoft Entra Agent ID licensing](https://learn.microsoft.com/en-us/entra/agent-id/what-is-microsoft-entra-agent-id#how-to-get-started), and [Global Secure Access licensing overview](https://learn.microsoft.com/en-us/entra/global-secure-access/overview-what-is-global-secure-access#licensing-overview).
 
 ---
 
@@ -112,6 +119,7 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 | **1.26** | Agent File Upload and File Analysis Restrictions | Power Platform Premium | Copilot Studio v8+; Purview DLP for Zone 2+ |
 | **1.27** | AI Agent Content Moderation Enforcement | Power Platform Premium | Native Copilot Studio content moderation |
 | **1.28** | Policy-Based Agent Publishing Restrictions | Power Platform Premium | Tenant DLP policies; PPAC security scans |
+| **1.29** | Global Secure Access Network Controls | Microsoft Entra Internet Access | Secure Web and AI Gateway for Copilot Studio agents routes supported agent traffic through Global Secure Access; requires GSA onboarding and a Dataverse-backed Power Platform environment. See [Secure Web and AI Gateway for agents](https://learn.microsoft.com/en-us/power-platform/admin/security/secure-web-ai-gateway-agents) and [GSA licensing](https://learn.microsoft.com/en-us/entra/global-secure-access/overview-what-is-global-secure-access#licensing-overview) |
 
 ---
 
@@ -142,8 +150,9 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 | **2.21** | AI Marketing Claims | N/A (process) | Process/documentation control |
 | **2.22** | Inactivity Timeout Enforcement | Power Platform Premium | BAP Admin API for timeout configuration |
 | **2.23** | User Consent and AI Disclosure Enforcement | Microsoft 365 E3+ | M365 Admin Center AI Disclaimer toggle |
-| **2.24** | Agent Feature Enablement and Restriction Governance | Power Platform Premium | PPAC Copilot governance page |
+| **2.24** | Agent Feature Enablement and Restriction Governance | Power Platform Premium + Microsoft 365 Copilot; Microsoft Agent 365 or Microsoft 365 E7 for Agent 365 admin-center governance | PPAC feature governance remains the Power Platform surface; Microsoft 365 admin center agent-governance features vary by subscription, with additional Agent 365 branding and details when licensed. See [Agent management in Microsoft 365 admin center](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-365-overview?view=o365-worldwide) and [Agent ID licensing](https://learn.microsoft.com/en-us/entra/agent-id/what-is-microsoft-entra-agent-id#how-to-get-started) |
 | **2.25** | Agent 365 Governance Console | GA May 1, 2026 — Agent 365 or Microsoft 365 E7 per-user licensing | AI Admin/Global Admin/Global Reader roles |
+| **2.26** | Entra Agent ID Identity Governance | Microsoft Agent 365 or Microsoft 365 E7 + Microsoft Entra ID P1/P2 by feature | Agent ID features require Agent 365 or Microsoft 365 E7; ID Governance for agents requires Entra ID P1 or Microsoft 365 E3, and ID Protection for agents requires Entra ID P2, Microsoft 365 E5, or Entra Suite. See [Agent ID licensing](https://learn.microsoft.com/en-us/entra/agent-id/what-is-microsoft-entra-agent-id#how-to-get-started) |
 
 ---
 
@@ -163,6 +172,8 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 | **3.10** | Hallucination Feedback Loop | Microsoft 365 E3+ | Process-focused; Purview optional |
 | **3.11** | Centralized Agent Inventory Enforcement | Power Platform Premium | PPAC Agent Inventory feature |
 | **3.12** | Agent Governance Exception and Override Management | Microsoft 365 E3+ | Dataverse/SharePoint exception register |
+| **3.13** | Agent 365 Admin Center Analytics | Microsoft Agent 365 or Microsoft 365 E7 | Agent overview hero metrics and governance cards start collecting data when Agent 365 licenses are activated; feature visibility can vary by subscription. See [Agent management in Microsoft 365 admin center](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-365-overview?view=o365-worldwide) |
+| **3.14** | Agent 365 Observability SDK | Microsoft Agent 365 or Microsoft 365 E7 + Microsoft 365 E5 or Microsoft Purview Suite for extended audit retention | Observability SDK telemetry enables M365 admin center monitoring and Defender/Purview integration; Purview audit-retention licensing should be validated for regulated retention requirements. See [Agent 365 Observability](https://learn.microsoft.com/en-us/microsoft-agent-365/developer/observability) and [Purview audit retention policies](https://learn.microsoft.com/en-us/purview/audit-log-retention-policies) |
 
 ---
 
