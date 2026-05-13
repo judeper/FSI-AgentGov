@@ -26,6 +26,9 @@ The framework recommends a structured 3-phase adoption approach:
 | Compliance monitoring | Compliance team | 2 hours |
 | Security controls | Security team | 2 hours |
 
+!!! info "Platform/license overlay"
+    The framework's three-zone model — Personal Productivity, Team Collaboration, and Enterprise Managed — classifies agent risk, governance friction, and approval depth. License tier is an orthogonal axis: Microsoft 365 Copilot, Microsoft Agent 365, Microsoft 365 E7, and Power Platform entitlements determine which platform features are available to govern. Apply both axes to every agent: choose the zone first, then verify the tenant license enables the controls and evidence surfaces needed for that zone. See [License Requirements](../reference/license-requirements.md) and the [Agent 365 Capabilities Summary](../reference/agent-365-capabilities-summary.md) before writing implementation dependencies into policy.
+
 ### Phase III: Deploy and Engage (Week 4+)
 
 | Activity | Priority | Control Reference |
