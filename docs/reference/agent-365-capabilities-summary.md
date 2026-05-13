@@ -28,6 +28,7 @@ Agent 365 is Microsoft's governance control plane for AI agents, announced at Ig
 | **Agent Registry** | Centralized inventory including shadow agent detection | [Control 3.1](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md), [Control 3.6](../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) |
 | **Observability SDK** | OpenTelemetry-based telemetry for agent monitoring | [Agent 365 Observability Playbook](../playbooks/advanced-implementations/agent-365-observability/index.md) |
 | **MCP Server Support** | Cross-platform agent interoperability | [Control 2.17](../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) |
+| **Windows 365 for Agents** | Cloud PC execution layer for Agent 365 computer-using agents (public preview) | [Windows 365 for Agents Reference](windows-365-for-agents.md) |
 
 ---
 

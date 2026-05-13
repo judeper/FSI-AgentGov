@@ -20,6 +20,7 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 | **Microsoft 365 Copilot** | 2.24, 3.8 | Copilot experiences and first-party agents |
 | **Microsoft Agent 365** | 1.8, 2.24, 2.25, 2.26, 3.8, 3.13, 3.14 | Agent control plane, registry, analytics, identity, observability |
 | **Microsoft 365 E7** | 2.24, 2.25, 2.26, 3.8, 3.13, 3.14 | Agent 365 entitlement bundle option |
+| **Windows 365 for Agents (Public Preview)** | W365A scope (touchpoints: 1.7, 1.20, 1.29, 2.25) | Agent Cloud PC execution in public preview; Microsoft Learn lists Windows 365 or Agent 365 tenant licensing plus an active W365A billing plan, with Agent ID features licensed through Microsoft Agent 365 or Microsoft 365 E7 |
 | **Microsoft 365 Copilot Business** | N/A | SMB Copilot access |
 
 !!! note "Agent 365 and GSA licensing references"
