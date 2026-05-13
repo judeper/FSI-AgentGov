@@ -110,6 +110,7 @@ Agent 365 is Microsoft's governance control plane for AI agents, announced at Ig
 |----------|-------------------|
 | [Agent Essentials Control Mapping](agent-essentials-control-mapping.md) | Microsoft's 8-category checklist mapped to FSI controls |
 | [Agent Audit Event Taxonomy](agent-audit-event-taxonomy.md) | Blueprint and Agent ID audit event types |
+| [Work IQ Governance Reference](work-iq-governance.md) | Work IQ MCP tools, business skills, admin consent, data-boundary, and audit expectations |
 | This document | Consolidated capability summary |
 
 ### Playbooks
