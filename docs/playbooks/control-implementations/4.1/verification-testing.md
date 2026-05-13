@@ -145,4 +145,4 @@ Write-Host ("Pass={0} Fail={1} :: Evidence: {2} (SHA-256 {3})" -f $pass, $fail, 
 
 ---
 
-*Updated: April 2026 | Version: v1.4.0*
+*Updated: April 2026 | Version: v1.6.2*

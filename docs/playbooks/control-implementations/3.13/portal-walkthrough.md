@@ -247,4 +247,4 @@ Example: `AgentInventory_ContosoCapital_20260322.csv`
 
 [Back to Control 3.13](../../../controls/pillar-3-reporting/3.13-agent-365-admin-center-analytics.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
-*Updated: April 2026 | Version: v1.4.0*
+*Updated: April 2026 | Version: v1.6.2*

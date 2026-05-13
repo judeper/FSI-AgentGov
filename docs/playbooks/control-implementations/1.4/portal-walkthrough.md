@@ -176,4 +176,4 @@ For every environment covered by ACP, also confirm a classic DLP policy is scope
 
 ---
 
-*Updated: April 2026 | Version: v1.4.0*
+*Updated: April 2026 | Version: v1.6.2*

@@ -210,4 +210,4 @@ try {
 
 ---
 
-*Updated: April 2026 | Version: v1.4.0*
+*Updated: April 2026 | Version: v1.6.2*

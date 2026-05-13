@@ -270,4 +270,4 @@ For each evidence artifact: file name, SHA-256, capture UTC timestamp, operator 
 
 ---
 
-*Updated: April 2026 | Version: v1.4.0 | Classification: Troubleshooting*
+*Updated: April 2026 | Version: v1.6.2 | Classification: Troubleshooting*

@@ -631,4 +631,4 @@ If issues cannot be resolved using this guide:
 
 [Back to Control 3.12](../../../controls/pillar-3-reporting/3.12-agent-governance-exception-and-override-management.md)
 
-*Updated: April 2026 | Version: v1.4.0 | UI Verification Status: Current*
+*Updated: April 2026 | Version: v1.6.2 | UI Verification Status: Current*

@@ -1143,7 +1143,7 @@ The attestation below is signed at the end of every test cycle. RACI alignment: 
 FSI Control 1.13 — Verification Cycle Attestation
 =============================================================
 Control ID:           1.13
-Control Version: v1.4.0
+Control Version: v1.6.2
 Tenant ID:            ____________________________________
 Sovereign Cloud:      [ ] Commercial  [ ] GCC  [ ] GCC High  [ ] DoD
 Cycle ID:             ____________________________________
@@ -1260,4 +1260,4 @@ The following 15 patterns are **non-conformance** to Control 1.13 and must be re
 
 ---
 
-*Updated: April 2026 | Version: v1.4.0 | UI Verification Status: Current*
+*Updated: April 2026 | Version: v1.6.2 | UI Verification Status: Current*

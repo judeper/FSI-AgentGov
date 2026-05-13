@@ -1027,4 +1027,4 @@ After the run, copy the `evidence\1.7\` folder into the immutable container veri
 
 ---
 
-*Updated: April 2026 | Version: v1.4.0 | UI Verification Status: Current*
+*Updated: April 2026 | Version: v1.6.2 | UI Verification Status: Current*

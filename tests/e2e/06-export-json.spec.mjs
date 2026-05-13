@@ -26,7 +26,7 @@ import {
  *
  * Envelope contract (additive — original state keys remain at top):
  *   _metadata          { exportSchemaVersion:1, schemaType:"full",
- *                        frameworkVersion:"1.4.0", manifestSchemaVersion,
+ *                        frameworkVersion:"1.6.2", manifestSchemaVersion,
  *                        exportedAt, exportedBy }
  *   _computedScores    { overall, perPillar:{1..4}, perControl:{...} }
  *   assessmentStatus   "draft" | "in-progress" | "final"
@@ -72,7 +72,7 @@ test.describe("export JSON @regression", () => {
     expect(parsed._metadata).toBeTruthy();
     expect(parsed._metadata.schemaType).toBe("full");
     expect(parsed._metadata.exportSchemaVersion).toBe(1);
-    expect(parsed._metadata.frameworkVersion).toBe("1.4.0");
+    expect(parsed._metadata.frameworkVersion).toBe("1.6.2");
     // freezeTime determinism: exportedAt is the frozen instant.
     expect(parsed._metadata.exportedAt).toBe("2026-01-15T12:00:00.000Z");
     expect(parsed._metadata.exportedBy).toBe("Jane Doe");

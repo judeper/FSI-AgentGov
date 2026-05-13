@@ -61,7 +61,7 @@ For any framework release `vX.Y.Z`:
 The Solutions repository is expected to:
 
 1. Pin its framework consumption to a **release tag** (e.g.,
-   `framework_version: v1.4.0` in repo-level config), not `main`.
+   `framework_version: v1.6.2` in repo-level config), not `main`.
 2. Bump the pinned tag deliberately, as part of a release of its own.
 3. Treat a framework **major** bump as a planned migration, not an
    incidental dependency update.
@@ -79,7 +79,7 @@ acceptable; the project should pick one and document it.
 
 ```bash
 # In the Solutions repo, pin the framework as a submodule at a tag.
-git submodule add -b v1.4.0 https://github.com/judeper/FSI-AgentGov.git \
+git submodule add -b v1.6.2 https://github.com/judeper/FSI-AgentGov.git \
     .framework
 ```
 
@@ -93,7 +93,7 @@ In the Solutions repo's validation workflow:
 ```yaml
 - name: Fetch framework manifest at pinned tag
   env:
-    FRAMEWORK_TAG: v1.4.0   # update deliberately
+    FRAMEWORK_TAG: v1.6.2   # update deliberately
   run: |
     curl -fsSL \
       "https://raw.githubusercontent.com/judeper/FSI-AgentGov/${FRAMEWORK_TAG}/assessment/manifest/controls.json" \

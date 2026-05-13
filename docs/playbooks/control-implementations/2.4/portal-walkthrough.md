@@ -291,4 +291,4 @@ After completing all parts, confirm:
 
 ---
 
-*Updated: May 2026 | Version: v1.4.0*
+*Updated: May 2026 | Version: v1.6.2*

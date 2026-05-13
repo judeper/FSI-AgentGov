@@ -463,4 +463,4 @@ Date Reviewed: ____________________________
 
 [Back to Control 3.14](../../../controls/pillar-3-reporting/3.14-agent-365-observability-sdk.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell and SDK Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md)
 
-*Updated: April 2026 | Version: v1.4.0 | UI Verification Status: Current*
+*Updated: April 2026 | Version: v1.6.2 | UI Verification Status: Current*

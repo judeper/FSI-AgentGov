@@ -651,4 +651,4 @@ Monitor Microsoft 365 Roadmap and Message Center for updates that address these 
 
 [Back to Control 3.11](../../../controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md)
 
-*Updated: April 2026 | Version: v1.4.0*
+*Updated: April 2026 | Version: v1.6.2*
