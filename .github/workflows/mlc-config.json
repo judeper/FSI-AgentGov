@@ -31,6 +31,9 @@
       "pattern": "^https://www\\.ftc\\.gov"
     },
     {
+      "pattern": "^https://www\\.ecfr\\.gov"
+    },
+    {
       "pattern": "^https://admin\\.portal\\.com"
     },
     {

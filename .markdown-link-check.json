@@ -16,6 +16,9 @@
     },
     {
       "pattern": "^https://github.com/judeper/FSI-AgentGov-Solutions"
+    },
+    {
+      "pattern": "^https://www\\.ecfr\\.gov"
     }
   ],
   "replacementPatterns": [],
