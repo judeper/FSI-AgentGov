@@ -48,6 +48,7 @@ Step-by-step checklist for implementing the FSI Agent Governance Framework.
 #### Create Implementation Roadmap (Day 4-5)
 - [ ] Map controls to implementation phases
 - [ ] Prioritize by regulatory requirement
+- [ ] Verify platform/license prerequisites using [License Requirements](../reference/license-requirements.md) and the [Agent 365 Capabilities Summary](../reference/agent-365-capabilities-summary.md)
 - [ ] Assign ownership per [Operating Model](../framework/operating-model.md)
 - [ ] Create timeline and milestones
 
