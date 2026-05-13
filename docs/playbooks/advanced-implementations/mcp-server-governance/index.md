@@ -343,6 +343,7 @@ Configure Microsoft Purview to capture and retain MCP-related audit events:
 ## Additional Resources
 
 - [Microsoft Learn: Create a New MCP Server in Copilot Studio](https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-create-new-server)
+- [Microsoft Learn: Bring Your Own MCP server (BYO MCP)](https://learn.microsoft.com/microsoft-agent-365/bring-your-own-mcp)
 - [Microsoft Learn: Copilot Studio Planned Features (2026 Wave 1)](https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/microsoft-copilot-studio/planned-features)
 - [Microsoft Learn: Power Platform DLP Policies](https://learn.microsoft.com/en-us/power-platform/admin/wp-data-loss-prevention)
 - [Microsoft Learn: Azure Key Vault Overview](https://learn.microsoft.com/en-us/azure/key-vault/general/overview)
