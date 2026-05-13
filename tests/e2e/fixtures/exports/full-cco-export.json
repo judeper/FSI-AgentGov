@@ -2,7 +2,7 @@
   "_metadata": {
     "exportSchemaVersion": 1,
     "schemaType": "full",
-    "frameworkVersion": "1.4.0",
+    "frameworkVersion": "1.6.2",
     "manifestSchemaVersion": null,
     "exportedAt": "2026-01-15T12:00:00.000Z",
     "exportedBy": "Maria Chen"
@@ -15,7 +15,7 @@
   "assessmentStatus": "in-progress",
   "assessmentId": "fixture-full-cco-2026-01-15",
   "assessmentName": "Globex Financial — 2026-01-15",
-  "schemaVersion": "1.4.0",
+  "schemaVersion": "1.6.2",
   "createdAt": "2026-01-15T12:00:00.000Z",
   "updatedAt": "2026-01-15T12:00:00.000Z",
   "scoping": {

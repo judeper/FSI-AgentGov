@@ -87,7 +87,7 @@ If a public-surface element will be removed in the next major:
 ## How Downstream Consumers Should Pin
 
 See the [Solutions Contract](solutions-contract.md) for the recommended
-pinning patterns. In short: pin to a release tag (e.g., `v1.4.0`), not
+pinning patterns. In short: pin to a release tag (e.g., `v1.6.2`), not
 `main`, and bump the pin deliberately as part of your own release process.
 
 ## Pre-Release Versions

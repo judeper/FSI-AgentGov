@@ -376,4 +376,4 @@ Get-CaseHoldRule  -Policy '<hold-policy-name>' | Select-Object Name, ContentMatc
 
 ---
 
-*Updated: April 2026 | Version: v1.4.0*
+*Updated: April 2026 | Version: v1.6.2*

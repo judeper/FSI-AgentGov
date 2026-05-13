@@ -12,9 +12,12 @@ companion repository.
 ### Contract
 
 * The lock is **fetched at framework-release time** from a tagged
-  release of the solutions repo (currently `v1.4.0`; `v1.5.0`
-  introduces the schema 1.5.0 cutover). It is **never** fetched at
-  runtime, and CI does **not** cross repos at PR time.
+  release of the solutions repo. The lock is currently committed at
+  `schemaVersion` `1.5.0` (set by the producer-side `v1.5.0` cutover
+  that made `zones` required). The framework's lock-file consumer
+  accepts both `1.4.x` and `1.5.x` so the framework repo stays
+  compatible across that producer-side cutover. The lock is **never**
+  fetched at runtime, and CI does **not** cross repos at PR time.
 * Provides the rich metadata (`name`, `version`, `domain`, `tier`,
   `description`, `url`, `prerequisites`, `verification`) that the E1
   drawer and E7 agenda export render.
@@ -58,15 +61,16 @@ catalog and coverage rationale, see
 
 ### Schema (1.4.x and 1.5.x)
 
-`solutions.json` schema 1.5.0 (forthcoming in `judeper/FSI-AgentGov-Solutions`)
-makes the `zones` field **required** on every solution entry. The
-local validator (`scripts/validate_solutions_lock.py`) accepts both
-`schemaVersion` `1.4.x` and `1.5.x` so the framework repo stays
-compatible across the producer-side cutover.
+`solutions.json` schema 1.5.0 (live in `judeper/FSI-AgentGov-Solutions`
+since the v1.5.0 producer cutover) makes the `zones` field **required**
+on every solution entry. The local validator
+(`scripts/validate_solutions_lock.py`) accepts both `schemaVersion`
+`1.4.x` and `1.5.x` so the framework repo stays compatible across the
+producer-side cutover.
 
 ```json
 {
-  "schemaVersion": "1.4.0",
+  "schemaVersion": "1.5.0",
   "solutions": {
     "agent-observability-foundation": {
       "id": "agent-observability-foundation",
@@ -112,8 +116,8 @@ top-level key present in pre-1.4.1 exports remains at the same path.
   "_metadata": {
     "exportSchemaVersion": 1,
     "schemaType": "full",
-    "frameworkVersion": "1.4.0",
-    "manifestSchemaVersion": "1.4.0",
+    "frameworkVersion": "1.6.2",
+    "manifestSchemaVersion": "1.5.0",
     "exportedAt": "2026-04-19T17:00:00.000Z",
     "exportedBy": "Jane Doe"
   },

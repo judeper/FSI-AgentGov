@@ -35,12 +35,15 @@ def _accepted_update_dates(lookback_months=3):
     return dates
 
 CANON_UPDATED = f"Updated: {date.today().strftime('%B %Y')}"
-# Control docs use an internal version (v1.2 or v1.3) that is separate from the
-# overall framework version shown in README.md (v1.2.x). This is intentional:
-# controls increment their internal version when the template structure changes.
-CANON_VERSION = "Version: v1.4"
+# Control docs carry a footer "Version: vX.Y" that tracks the framework
+# release the control's template structure was last validated against.
+# When the framework cuts a new minor (e.g., v1.4 → v1.5 → v1.6), add the
+# new "Version: vX.Y" prefix to _ACCEPTED_VERSION so existing controls and
+# bulk-bumped controls both pass. Older accepted values stay listed so
+# unmodified historical controls keep validating.
+CANON_VERSION = "Version: v1.6"
 _ACCEPTED_UPDATED = _accepted_update_dates(lookback_months=3)
-_ACCEPTED_VERSION = ["Version: v1.2", "Version: v1.3", "Version: v1.4"]
+_ACCEPTED_VERSION = ["Version: v1.2", "Version: v1.3", "Version: v1.4", "Version: v1.5", "Version: v1.6"]
 CANON_UI_STATUS_PREFIX = "UI Verification Status:"
 # Control files use a Roles & Responsibilities section instead of a single Primary Owner field
 ROLES_SECTION = "## Roles & Responsibilities"

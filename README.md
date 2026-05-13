@@ -1,4 +1,4 @@
-# FSI Agent Governance Framework v1.4
+# FSI Agent Governance Framework v1.6
 
 [![Publish Docs](https://github.com/judeper/FSI-AgentGov/actions/workflows/publish_docs.yml/badge.svg)](https://github.com/judeper/FSI-AgentGov/actions/workflows/publish_docs.yml)
 [![Link Validation](https://github.com/judeper/FSI-AgentGov/actions/workflows/link-check.yml/badge.svg)](https://github.com/judeper/FSI-AgentGov/actions/workflows/link-check.yml)
@@ -13,20 +13,20 @@
 
 > **Important:** This framework is provided for informational purposes only and does not constitute legal, regulatory, or compliance advice. See [Disclaimer](docs/disclaimer.md) for full details.
 
-## What's New in v1.4
+## What's New in v1.6
 
-Version 1.4.0 unifies the assessment platform and bridges to the companion FSI-AgentGov-Solutions repository:
+Version 1.6.x ships in three releases — v1.6.0 (Solutions Discoverability), v1.6.1 (Microsoft Learn drift patch), and v1.6.2 (Frontier Readiness auto-evaluator wave). Together they:
 
-- **Unified manifest**: Single source of truth for all 78 controls across Python engine and browser-based assessment tool
-- **Solutions bridge**: Cross-repository integration with 35 automation solutions via committed lock file—enables E1 how-to-verify drawer solution chips and E7 agenda remediation blocks
-- **Sector calibration**: 8 institution-type-specific threshold adjustments (bank, broker-dealer, investment-adviser, insurance-carrier, insurance-wholesale, credit-union, holding-company, other)
-- **Facilitator enhancements**: Facilitator mode with inline hints/time budgets, inline evidence capture, collector evidence import, Next Session Agenda export
-- **Role-based workflow**: Role filter, per-role pre-session homework pages, remediation grouping by admin role
-- **Priority starter set**: One-click filter showing 5 foundation controls (2.1, 1.4, 1.5, 1.7, 1.11) for fast initial assessment
-- **Zone auto-exclusion**: Controls with optional/awareness-only zone requirements automatically excluded from zone scores
-- **How-to-verify drawer**: Per-control expandable panel with portal paths, PowerShell commands, expected evidence, and collector field mappings
+- **Frontier Readiness auto-scoring**: Six telemetry-driven evaluators (Q01, Q03, Q13, Q16, Q17, Q18) take Frontier auto-evaluable coverage from 0% to 24%. The remaining 76% are facilitator-only by design (board attestation, written policy text, executive interviews, regulatory committee minutes) and cannot be honestly derived from M365/PPAC/Sentinel/SharePoint telemetry. See the [Frontier assessment coverage](docs/reference/frontier-assessment-coverage.md) honest report.
+- **Honesty principle for Frontier**: Every evaluator is **partial-capped** — none ever returns `"yes"`. Each cites the residual facilitator burden in its evidence string.
+- **CAPE alignment metadata**: All 35 companion solutions are tagged with `applicable_patterns`, `applicable_drivers`, and `coe_function` frontmatter in the FSI-AgentGov-Solutions repo; this framework regenerates `pattern-coverage.md` from those tags via a CI drift gate. See [Solutions Index](docs/reference/solutions-index.md) and [Pattern Coverage](docs/reference/pattern-coverage.md).
+- **Microsoft Learn drift patches**: Five upstream Microsoft documentation changes (analytics retention, 7-area effectiveness scoring, Purview policy refresh, AI agent license footprint, communication-compliance scope) propagated across 5 controls + 5 playbooks + `license-requirements.md`.
 
-See [CHANGELOG-v1.4.md](CHANGELOG-v1.4.md) for complete details.
+Earlier in **v1.5.0** the framework added an FSI translation layer for Microsoft CAPE materials: six transformation patterns, five capability drivers, the standalone Agentic CoE blueprint, the 25-question Frontier Readiness questionnaire (initially 100% manual), and CSA-facing reference docs. The `controls.json` schema gained three additive fields (`applicable_drivers`, `applicable_patterns`, `pattern_critical`) — backward-compatible.
+
+Earlier in **v1.4.x** the assessment platform was unified (single manifest source-of-truth across Python engine + browser SPA), the solutions bridge was committed (35 solutions indexed via `solutions-lock.json`), facilitator mode + role-based homework + How-to-verify drawer + collector evidence import shipped, and an end-to-end Playwright suite (~60 specs) plus four new CI workflows hardened the SPA.
+
+See [`CHANGELOG.md`](CHANGELOG.md) for full release-by-release detail; [`CHANGELOG-v1.4.md`](CHANGELOG-v1.4.md) and [`CHANGELOG-v1.3.md`](CHANGELOG-v1.3.md) cover prior major versions.
 
 ## Why This Repository Exists
 
@@ -39,7 +39,7 @@ This repository helps teams:
 - implement technical and procedural controls with step-by-step playbooks
 - support risk, compliance, and operational review with a common reference point
 
-**Version:** 1.4.0 (April 2026)
+**Version:** 1.6.2 (May 2026)
 **Primary Audience:** AI governance leads, Power Platform Admins, compliance teams, security architects, internal audit, and business sponsors in US financial services
 **Regulatory Focus:** FINRA, SEC, SOX, GLBA, OCC, Federal Reserve, FDIC, NCUA
 
@@ -468,10 +468,16 @@ This framework is designed for continuous evolution:
 
 ## 📄 Document Version History
 
-> For detailed changes, see the [Changelog](CHANGELOG.md) index. Current: [v1.4.x](CHANGELOG-v1.4.md) | [v1.3.x](CHANGELOG-v1.3.md) | v1.2.x and earlier — archived (see git history prior to April 2026)
+> For detailed changes, see the [Changelog](CHANGELOG.md) index. Current: [v1.6.x and v1.5.x](CHANGELOG.md) | [v1.4.x](CHANGELOG-v1.4.md) | [v1.3.x](CHANGELOG-v1.3.md) | v1.2.x and earlier — archived (see git history prior to April 2026)
 
 | Version | Date | Changes | Author |
 |---------|------|---------|--------|
+| [1.6.2](CHANGELOG.md#162--may-11-2026-frontier-readiness-auto-evaluator-wave) | May 11, 2026 | Frontier Readiness auto-evaluator wave: six partial-capped evaluators take Frontier auto coverage from 0% to 24% (structural ceiling — remaining 76% facilitator-only by design) | [@judeper](https://github.com/judeper) |
+| [1.6.1](CHANGELOG.md#161--may-10-2026-microsoft-learn-drift-patch) | May 10, 2026 | Microsoft Learn drift patch: five upstream Microsoft doc changes propagated across 5 controls + 5 playbooks + license-requirements.md | [@judeper](https://github.com/judeper) |
+| [1.6.0](CHANGELOG.md#160--may-10-2026-solutions-discoverability-release) | May 10, 2026 | Solutions Discoverability: 35 companion solutions tagged with CAPE alignment metadata (`applicable_patterns`, `applicable_drivers`, `coe_function`); pattern-coverage.md regenerated from companion frontmatter via CI gate | [@judeper](https://github.com/judeper) |
+| [1.5.0](CHANGELOG.md#150--may-10-2026-microsoft-alignment-release) | May 10, 2026 | Microsoft Alignment Release: FSI translation layer for CAPE — six transformation patterns, five capability drivers, Agentic CoE blueprint, 25-question Frontier Readiness questionnaire, CSA-facing reference docs | [@judeper](https://github.com/judeper) |
+| [1.4.2](CHANGELOG.md#142--april-30-2026-phase-b-triage-fixes) | April 30, 2026 | Phase B′ triage: markdown export header escaping, xlsx.full.min.js binary attribute, two flaky Playwright specs hardened | [@judeper](https://github.com/judeper) |
+| [1.4.1](CHANGELOG.md#141--april-30-2026-e2e-test-infrastructure--spa-hardening) | April 30, 2026 | E2E test infrastructure (~60 Playwright specs), 4 new CI workflows, branch protection as code, 12+ assessment SPA hardening fixes | [@judeper](https://github.com/judeper) |
 | [1.4.0](CHANGELOG-v1.4.md) | April 2026 | Assessment tool unification, solutions bridge (35 solutions), 10 SPA enhancements, manifest schema extension | [@judeper](https://github.com/judeper) |
 | [1.3.5](CHANGELOG-v1.3.md#135--april-2026-opus-47-council-catalog-completion) | Apr 2026 | Opus 4.7 council pass — 52 controls + 208 playbooks fully uplifted (full 78/78 coverage) | [@judeper](https://github.com/judeper) |
 | [1.3.4](CHANGELOG-v1.3.md#134--april-2026-autonomous-dual-model-council-review) | Apr 2026 | Autonomous dual-model council review — FINRA 25-07 across all 78 controls, 14 control-specific fixes | [@judeper](https://github.com/judeper) |
@@ -502,5 +508,5 @@ See [Disclaimer](docs/disclaimer.md).
 
 ---
 
-*FSI Agent Governance Framework v1.4.0 - April 2026*
+*FSI Agent Governance Framework v1.6.2 - May 2026*
 *Comprehensive governance for Microsoft 365 agents in financial services*

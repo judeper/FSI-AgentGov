@@ -831,7 +831,7 @@ A non-exhaustive list of anti-patterns observed in Control 2.5 implementations a
 
 ---
 
-*Updated: April 2026 | Version: v1.4.0 | Maintained by: AI Governance Team*
+*Updated: April 2026 | Version: v1.6.2 | Maintained by: AI Governance Team*
 
 
 

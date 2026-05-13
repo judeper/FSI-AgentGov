@@ -1138,4 +1138,4 @@ The Effectiveness Statement is provided to the Audit Committee and retained as a
 
 ---
 
-*Updated: April 2026 | Version: v1.4.0 | UI Verification Status: Current*
+*Updated: April 2026 | Version: v1.6.2 | UI Verification Status: Current*

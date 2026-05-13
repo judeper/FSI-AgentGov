@@ -1141,4 +1141,4 @@ The `Write-EvidenceManifest` helper writes a signed JSON manifest to the same WO
 
 ---
 
-*Updated: April 2026 | Version: v1.4.0 | UI Verification Status: Current*
+*Updated: April 2026 | Version: v1.6.2 | UI Verification Status: Current*

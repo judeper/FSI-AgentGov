@@ -1392,4 +1392,4 @@ The following anti-patterns have been observed in FSI deployments. Each is paire
 
 ---
 
-*Updated: April 2026 | Version: v1.4.0 | UI Verification Status: Current*
+*Updated: April 2026 | Version: v1.6.2 | UI Verification Status: Current*

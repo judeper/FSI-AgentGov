@@ -189,4 +189,4 @@ Bundle these artifacts under `evidence/1.9/YYYY-Q#/` for examination response:
 
 ---
 
-*Updated: April 2026 | Version: v1.4.0*
+*Updated: April 2026 | Version: v1.6.2*

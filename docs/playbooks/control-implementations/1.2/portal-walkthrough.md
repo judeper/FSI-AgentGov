@@ -1090,4 +1090,4 @@ This playbook describes a configuration and operating discipline that **supports
 
 ---
 
-*Updated: April 2026 | Version: v1.4.0 | Maintained by: AI Governance Team*
+*Updated: April 2026 | Version: v1.6.2 | Maintained by: AI Governance Team*

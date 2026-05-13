@@ -1234,4 +1234,4 @@ Within 5 business days of incident close, the incident commander updates this tr
 
 ---
 
-*Updated: April 2026 | Version: v1.4.0 | UI Verification Status: Current (April 2026, post-GA)*
+*Updated: April 2026 | Version: v1.6.2 | UI Verification Status: Current (April 2026, post-GA)*

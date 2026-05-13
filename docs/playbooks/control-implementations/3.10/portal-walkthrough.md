@@ -285,4 +285,4 @@ For **GCC**, **GCC High**, or **DoD** tenants:
 
 ---
 
-*Updated: April 2026 | Version: v1.4.0 | UI Verification Status: Current*
+*Updated: April 2026 | Version: v1.6.2 | UI Verification Status: Current*

@@ -100,7 +100,7 @@ docs/images/
 
 ## Known Missing Folders (Low Priority)
 
-The current `v1.4.0` baseline includes screenshot spec folders and `EXPECTED.md` files for the published controls.
+The current `v1.6.2` baseline includes screenshot spec folders and `EXPECTED.md` files for the published controls.
 If you suspect drift, re-check `docs/images/` against `docs/controls/CONTROL-INDEX.md` rather than relying on a hardcoded gap list.
 
 ## Portal Verification Sources

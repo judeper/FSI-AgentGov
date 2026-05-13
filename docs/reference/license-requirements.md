@@ -308,4 +308,4 @@ To verify current license assignments:
 
 ---
 
-*Last Updated: May-2026 | Framework Version: v1.4.0*
+*Last Updated: May-2026 | Framework Version: v1.6.2*

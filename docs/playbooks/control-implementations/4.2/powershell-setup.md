@@ -288,7 +288,7 @@ Write-Host "Verify these operations appear in the Purview audit log for the last
     .\Configure-Control-4.2.ps1 -TenantAdminUrl "https://contoso-admin.sharepoint.com"
 
 .NOTES
-    Control: 4.2 (FSI Agent Governance Framework v1.4.0)
+    Control: 4.2 (FSI Agent Governance Framework v1.6.2)
     Last updated: April 2026
     Read .../playbooks/_shared/powershell-baseline.md before running.
 #>
@@ -352,4 +352,4 @@ finally {
 
 ---
 
-*Updated: April 2026 | Version: v1.4.0*
+*Updated: April 2026 | Version: v1.6.2*

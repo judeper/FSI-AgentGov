@@ -673,4 +673,4 @@ For detailed architecture guidance including scalability limits and alternative 
 
 ---
 
-*FSI Agent Governance Framework v1.4.0 - April 2026*
+*FSI Agent Governance Framework v1.6.2 - May 2026*
