@@ -88,9 +88,9 @@ CHECKS: list[tuple[str, re.Pattern[str], str]] = [
         "docs/disclaimer footer",
     ),
     (
-        ".claude/CLAUDE.md",
+        ".claude/claude.md",
         re.compile(r"^- \*\*Framework Version:\*\*\s+(\d+\.\d+(?:\.\d+)?)\s*$", re.M),
-        ".claude/CLAUDE.md Framework Version field",
+        ".claude/claude.md Framework Version field",
     ),
 ]
 
@@ -109,7 +109,7 @@ FRAMEWORK_GLOB = "docs/framework/*.md"
 _KNOWN_DRIFT_ALLOWLIST: set[str] = {
     "README.md",                                    # H1 reads "v1.6" not "v1.6.2" (T0A.3)
     "DISCLAIMER.md",                                # v1.2 - February 2026 (T0A.1)
-    ".claude/CLAUDE.md",                            # Framework Version: 1.2.54 (T0A.8)
+    ".claude/claude.md",                            # Framework Version: 1.2.54 (T0A.8)
     "docs/framework/agent-lifecycle.md",            # v1.5.0 footer (T0A.2)
     "docs/framework/agentic-capability-drivers.md", # v1.5.0 footer (T0A.2)
     "docs/framework/agentic-coe.md",                # v1.5.0 footer (T0A.2)

@@ -17,7 +17,7 @@ on:
       - 'VERSION'
       - 'README.md'
       - 'DISCLAIMER.md'
-      - '.claude/CLAUDE.md'
+      - '.claude/claude.md'
       - 'docs/disclaimer.md'
       - 'docs/framework/**'
   push:
@@ -36,7 +36,7 @@ on:
       - 'VERSION'
       - 'README.md'
       - 'DISCLAIMER.md'
-      - '.claude/CLAUDE.md'
+      - '.claude/claude.md'
       - 'docs/disclaimer.md'
       - 'docs/framework/**'
 
