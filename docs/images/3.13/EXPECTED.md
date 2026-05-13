@@ -5,9 +5,10 @@
 ### Screenshot 1: Analytics overview dashboard
 **Portal Path:** M365 admin center -> Agents -> Overview
 **What to capture:**
-- Active users, sessions, exception rate, and runtime metrics
+- Agent Registry, Active Users, Agent Run-time, and Registry Sync hero metrics
 - Pending Requests card
-- Ownerless Agents card
+- Agents without Owners card
+- Agents with Exceptions actionable view
 
 ### Screenshot 2: Agents by publisher/platform analytics
 **Portal Path:** M365 admin center -> Agents -> Overview
