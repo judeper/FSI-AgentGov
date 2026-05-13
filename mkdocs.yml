@@ -765,6 +765,7 @@ nav:
     - Agent Audit Event Taxonomy: reference/agent-audit-event-taxonomy.md
     - Agent Essentials Control Mapping: reference/agent-essentials-control-mapping.md
     - Power Platform SSPM Control Mapping: reference/power-platform-sspm-control-mapping.md
+    - Windows 365 for Agents: reference/windows-365-for-agents.md
     - Glossary: reference/glossary.md
     - FAQ: reference/faq.md
     - Work IQ Governance Reference: reference/work-iq-governance.md

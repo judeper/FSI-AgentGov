@@ -47,6 +47,7 @@ This section provides technical reference materials, standards, and supporting d
 | [Agent Audit Event Taxonomy](agent-audit-event-taxonomy.md) | Consolidated audit event reference with KQL queries |
 | [Agent Essentials Control Mapping](agent-essentials-control-mapping.md) | Microsoft Agent Essentials to FSI control mapping |
 | [Agent 365 Capabilities Summary](agent-365-capabilities-summary.md) | Microsoft 365 agent capabilities overview |
+| [Windows 365 for Agents](windows-365-for-agents.md) | Public preview scoping reference for agent Cloud PC execution, Intune policy hooks, audit evidence, and control mappings |
 | [Power Platform SSPM Control Mapping](power-platform-sspm-control-mapping.md) | SaaS Security Posture Management control mapping |
 | [Work IQ Governance Reference](work-iq-governance.md) | Governance considerations for Work IQ MCP tools, business skills, admin consent, data boundaries, and audit evidence |
 
