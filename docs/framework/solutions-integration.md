@@ -12,13 +12,13 @@ The FSI Agent Governance Framework defines **what** controls organizations shoul
 flowchart TB
     subgraph Framework["FSI-AgentGov (Framework)"]
         direction TB
-        P1[Pillar 1: Security<br/>28 Controls]
-        P2[Pillar 2: Management<br/>24 Controls]
-        P3[Pillar 3: Reporting<br/>12 Controls]
-        P4[Pillar 4: SharePoint<br/>7 Controls]
+        P1[Pillar 1: Security<br/>29 Controls]
+        P2[Pillar 2: Management<br/>26 Controls]
+        P3[Pillar 3: Reporting<br/>14 Controls]
+        P4[Pillar 4: SharePoint<br/>9 Controls]
     end
 
-    subgraph Solutions["FSI-AgentGov-Solutions (19 of 35 Solutions Shown)"]
+    subgraph Solutions["FSI-AgentGov-Solutions (19 of 36 Solutions Shown)"]
         direction TB
         ELM[Environment Lifecycle<br/>Management]
         MCM[Message Center<br/>Monitor]
