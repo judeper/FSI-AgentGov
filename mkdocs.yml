@@ -8,6 +8,7 @@ copyright: 'Copyright 2026 FSI Agent Governance Team | <a href="/FSI-AgentGov/di
 
 extra:
   generator: false
+  version: v1.6.2
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/judeper/FSI-AgentGov
@@ -48,6 +49,7 @@ theme:
 
 plugins:
   - search
+  - include-markdown
 
 # Site-wide link validation (MkDocs 1.6+). CI runs `mkdocs build --strict`, so any warnings here will fail the build.
 validation:
