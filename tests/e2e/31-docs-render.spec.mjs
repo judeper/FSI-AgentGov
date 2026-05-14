@@ -91,13 +91,23 @@ const MERMAID_PAGES = Object.entries(ORACLE.pages)
   .map(([url]) => url);
 
 const REP_PAGES = [
-  "/",                             // Home
-  "/getting-started/",             // Getting Started
-  "/framework/",                   // Framework index
-  "/controls/pillar-1-security/",  // Controls index
-  "/playbooks/",                   // Playbooks index
-  "/reference/",                   // Reference index
-  "/downloads/",                   // Downloads index
+  "/",                                          // Home
+  "/getting-started/",                          // Getting Started
+  "/framework/",                                // Framework index
+  "/controls/pillar-1-security/",               // Controls index
+  "/playbooks/",                                // Playbooks index
+  "/reference/",                                // Reference index
+  "/downloads/",                                // Downloads index
+  // ── M2: customer-engagement reference pages (plan-checker MUST-FIX) ──────
+  // These pages have no Mermaid and no diagram links so the auto-collected
+  // MERMAID_PAGES set excludes them — but they are explicit "key reference
+  // materials" customers and CSAs land on. Walk them so any CSP / nav / asset
+  // regression is caught.
+  "/reference/csa-quick-reference/",
+  "/reference/csa-positioning-guide/",
+  "/reference/role-catalog/",
+  "/reference/regulatory-mappings/",
+  "/reference/glossary/",
 ];
 
 const URL_404 = "/this-page-does-not-exist-404/";
@@ -148,7 +158,12 @@ async function drainCspViolations(page) {
 test.use({ baseURL: DOCS_BASE });
 
 // =============================================================================
-test.describe("docs render @regression", () => {
+// Tests are SERIAL (test.describe.serial) because Test 1 populates
+// `sharedLoadedOrigins` (module-level Set) and Test 2 reads it for inverse
+// orphan detection. If the suite ever flips to parallel workers, Test 2 would
+// silently fall back to a 5-page sample and miss orphan loosenings (plan-checker
+// feasibility concern F1). Serial wrapping makes the dependency explicit.
+test.describe.serial("docs render @regression", () => {
   // ===========================================================================
   // Test 1 — Every page in must-cover set renders correctly
   // ===========================================================================
