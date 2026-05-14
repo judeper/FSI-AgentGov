@@ -74,9 +74,9 @@ Audit reports and scope statements are available through the [Microsoft Service 
 
 | Clause | Requirement | FSI Controls / Artifacts | Coverage |
 |--------|-------------|--------------------------|----------|
-| **6.1.1** Actions to address risks and opportunities | Plan AIMS actions for risks/opportunities | [2.6 — Model Risk Management](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md), [Adoption Roadmap](../framework/adoption-roadmap.md) | Full |
-| **6.1.2** AI risk assessment | Establish, implement, maintain AI risk assessment process | [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md), [2.11 — Bias Testing](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md), [2.20 — Adversarial Testing / Red Team](../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) | Full |
-| **6.1.3** AI risk treatment | Risk treatment plan with documented controls | [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md), Pillar 1 (Security) controls catalog | Full |
+| **6.1.1** Actions to address risks and opportunities | Plan AIMS actions for risks/opportunities | [2.6 — Model Risk Management](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md), [Adoption Roadmap](../framework/adoption-roadmap.md) | Full |
+| **6.1.2** AI risk assessment | Establish, implement, maintain AI risk assessment process | [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md), [2.11 — Bias Testing](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md), [2.20 — Adversarial Testing / Red Team](../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) | Full |
+| **6.1.3** AI risk treatment | Risk treatment plan with documented controls | [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md), Pillar 1 (Security) controls catalog | Full |
 | **6.1.4** AI system impact assessment | Assess potential impacts on individuals, groups, society | [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md), [2.19 — Customer AI Disclosure](../controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) | Partial |
 | **6.2** AI objectives and planning to achieve them | Establish measurable AIMS objectives | [Adoption Roadmap](../framework/adoption-roadmap.md), [Governance Cadence](../framework/governance-cadence.md) | Org |
 | **6.3** Planning of changes | Plan changes to the AIMS in a controlled manner | [2.3 — Change Management](../controls/pillar-2-management/2.3-change-management-and-release-planning.md) | Full |
@@ -100,8 +100,8 @@ Audit reports and scope statements are available through the [Microsoft Service 
 | Clause | Requirement | FSI Controls / Artifacts | Coverage |
 |--------|-------------|--------------------------|----------|
 | **8.1** Operational planning and control | Plan, implement, control AIMS processes | [2.1 — Managed Environments](../controls/pillar-2-management/2.1-managed-environments.md), [2.15 — Environment Routing](../controls/pillar-2-management/2.15-environment-routing.md) | Full |
-| **8.2** AI risk assessment | Operate the risk assessment process at planned intervals | [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md), [Governance Cadence](../framework/governance-cadence.md) | Full |
-| **8.3** AI risk treatment | Implement the risk treatment plan | Pillar 1 (Security) catalog, [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Full |
+| **8.2** AI risk assessment | Operate the risk assessment process at planned intervals | [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md), [Governance Cadence](../framework/governance-cadence.md) | Full |
+| **8.3** AI risk treatment | Implement the risk treatment plan | Pillar 1 (Security) catalog, [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Full |
 | **8.4** AI system impact assessment | Perform impact assessment for AI systems in scope | [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md), [2.19](../controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md), [2.21 — AI Marketing Claims and Substantiation](../controls/pillar-2-management/2.21-ai-marketing-claims-and-substantiation.md) | Partial |
 
 ---
@@ -158,7 +158,7 @@ ISO/IEC 42001 Annex A defines control objectives organized into nine categories 
 
 | Control Objective | FSI Controls / Artifacts | Coverage |
 |---|---|---|
-| **A.5.2** AI system impact assessment process | [2.11 — Bias Testing and Fairness Assessment](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md), [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Partial |
+| **A.5.2** AI system impact assessment process | [2.11 — Bias Testing and Fairness Assessment](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md), [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Partial |
 | **A.5.3** Documentation of AI system impact assessment | [2.13 — Documentation and Record Keeping](../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) | Full |
 | **A.5.4** Assessing AI system impact on individuals or groups | [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md), [2.19 — Customer AI Disclosure](../controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) | Partial |
 | **A.5.5** Assessing societal impacts | Org responsibility; informed by [Regulatory Framework](../framework/regulatory-framework.md) | Org |

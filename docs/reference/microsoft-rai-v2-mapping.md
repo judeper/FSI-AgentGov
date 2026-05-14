@@ -61,7 +61,7 @@ Microsoft's RAI program defines six principles that govern AI design, developmen
 | FSI Control | Why it supports Reliability and Safety |
 |---|---|
 | [2.5 — Testing, Validation, and Quality Assurance](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Pre-publish quality gates, Microsoft Foundry Evaluations integration, golden datasets, evaluator coverage. |
-| [2.6 — Model Risk Management (OCC Bulletin 2026-13 / SR 26-2)](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Effective challenge, ongoing monitoring, and supervisor sign-off for material AI models. |
+| [2.6 — Model Risk Management (OCC Bulletin 2026-13 / SR 26-2)](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Effective challenge, ongoing monitoring, and supervisor sign-off for material AI models. |
 | [2.9 — Agent Performance Monitoring and Optimization](../controls/pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md) | Production monitoring with quality and operational metrics. |
 | [1.21 — Adversarial Input Logging](../controls/pillar-1-security/1.21-adversarial-input-logging.md) | Prompt-injection / jailbreak detection (Prompt Shields, Spotlighting) and SOC alerting. |
 | [2.20 — Adversarial Testing and Red Team Framework](../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) | Periodic red-team exercises against Zone 3 agents. |
@@ -135,7 +135,7 @@ Microsoft's RAI program defines six principles that govern AI design, developmen
 | FSI Control | Why it supports Accountability |
 |---|---|
 | [1.2 — Agent Registry and Integrated Apps Management](../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) | Named Agent Owner / Sponsor for every Zone 2/3 agent; sponsorship lifecycle workflows. |
-| [2.6 — Model Risk Management (OCC Bulletin 2026-13 / SR 26-2)](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Effective-challenge governance, model risk register, supervisor sign-off. |
+| [2.6 — Model Risk Management (OCC Bulletin 2026-13 / SR 26-2)](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Effective-challenge governance, model risk register, supervisor sign-off. |
 | [2.7 — Vendor and Third-Party Risk Management](../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md) | Documented evidence of Microsoft's platform-level RAI commitments and vendor due diligence. |
 | [2.12 — Supervision and Oversight (FINRA Rule 3110)](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervisory accountability for AI-mediated communications. |
 | [2.13 — Documentation and Record Keeping](../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) | Documented governance decisions, approval records, exception handling. |
