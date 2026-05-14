@@ -9,7 +9,7 @@
 - **3 governance zones** (Personal Productivity, Team Collaboration, Enterprise Managed)
 - **3-layer documentation** (Framework → Controls → Playbooks)
 - **6 advanced implementations** (Platform Change Governance, Environment Lifecycle Management, Agent 365 Observability, etc.)
-- **Target regulations:** FINRA 4511/3110/25-07, SEC 17a-3/4, SOX 302/404, GLBA 501(b), OCC 2011-12, Fed SR 11-7, CFTC 1.31
+- **Target regulations:** FINRA 4511/3110/25-07, SEC 17a-3/4, SOX 302/404, GLBA 501(b), OCC Bulletin 2026-13 (formerly OCC 2011-12), Fed SR 26-2 (formerly Fed SR 11-7), CFTC 1.31
 - **Documentation:** MkDocs Material-based site published to GitHub Pages
 - **Audience:** M365 administrators in US financial services
 

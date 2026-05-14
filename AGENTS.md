@@ -9,7 +9,7 @@ This file provides guidance for autonomous AI agents working on this repository.
 - **78 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
 - **3 governance zones** (Personal Productivity, Team Collaboration, Enterprise Managed)
 - **3-layer documentation** (Framework → Controls → Playbooks)
-- **Target regulations:** FINRA 4511/3110/25-07, SEC 17a-3/4, SOX 302/404, GLBA 501(b), OCC 2011-12, Fed SR 11-7, CFTC 1.31
+- **Target regulations:** FINRA 4511/3110/25-07, SEC 17a-3/4, SOX 302/404, GLBA 501(b), OCC Bulletin 2026-13 (formerly OCC 2011-12), Fed SR 26-2 (formerly Fed SR 11-7), CFTC 1.31
 - **Audience:** M365 administrators in US financial services
 
 **Full context:** See `.github/copilot-instructions.md` for complete repository structure and design decisions.
