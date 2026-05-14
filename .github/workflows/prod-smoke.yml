@@ -39,36 +39,47 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Resolve expected SHA + target URL
+      - name: Resolve expected SHA + target URL + canonical version
         id: meta
         run: |
           target="${{ github.event.inputs.target_url }}"
           if [ -z "$target" ]; then target="https://judeper.github.io/FSI-AgentGov/"; fi
           expected="${{ github.event.inputs.expected_sha }}"
           if [ -z "$expected" ]; then expected="${{ github.sha }}"; fi
+          # Canonical version comes from the repo-root VERSION file (single source
+          # of truth, also embedded in docs/version.json by overrides/hooks/cache_bust.py).
+          version="$(cat VERSION | tr -d '[:space:]')"
           echo "target=$target" >> "$GITHUB_OUTPUT"
           echo "expected=$expected" >> "$GITHUB_OUTPUT"
+          echo "expected_version=$version" >> "$GITHUB_OUTPUT"
 
-      - name: Poll /version.json for expected SHA (up to 5 minutes)
+      - name: Poll /version.json for expected SHA + version (up to 5 minutes)
         id: poll
         run: |
           target="${{ steps.meta.outputs.target }}"
           expected="${{ steps.meta.outputs.expected }}"
+          expected_version="${{ steps.meta.outputs.expected_version }}"
           deadline=$(( $(date +%s) + 300 ))
           last_actual=""
+          last_actual_version=""
           while [ "$(date +%s)" -lt "$deadline" ]; do
-            actual=$(curl -fsSL "${target}version.json" 2>/dev/null | jq -r .sha 2>/dev/null || echo "")
+            payload=$(curl -fsSL "${target}version.json" 2>/dev/null || echo "")
+            actual=$(echo "$payload" | jq -r .sha 2>/dev/null || echo "")
+            actual_version=$(echo "$payload" | jq -r .version 2>/dev/null || echo "")
             last_actual="$actual"
-            echo "actual=$actual expected=$expected"
-            if [ "$actual" = "$expected" ]; then
+            last_actual_version="$actual_version"
+            echo "actual_sha=$actual expected_sha=$expected actual_version=$actual_version expected_version=$expected_version"
+            if [ "$actual" = "$expected" ] && [ "$actual_version" = "$expected_version" ]; then
               echo "matched=true" >> "$GITHUB_OUTPUT"
               echo "actual=$actual" >> "$GITHUB_OUTPUT"
+              echo "actual_version=$actual_version" >> "$GITHUB_OUTPUT"
               exit 0
             fi
             sleep 15
           done
           echo "matched=false" >> "$GITHUB_OUTPUT"
           echo "actual=$last_actual" >> "$GITHUB_OUTPUT"
+          echo "actual_version=$last_actual_version" >> "$GITHUB_OUTPUT"
           exit 1
 
       - name: Run minimal Playwright probe against production
@@ -93,17 +104,25 @@ jobs:
           script: |
             const target = "${{ steps.meta.outputs.target }}";
             const expected = "${{ steps.meta.outputs.expected }}";
+            const expectedVersion = "${{ steps.meta.outputs.expected_version }}";
             const actual = "${{ steps.poll.outputs.actual }}";
+            const actualVersion = "${{ steps.poll.outputs.actual_version }}";
             const matched = "${{ steps.poll.outputs.matched }}";
             const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
-            const reason = matched === "true"
-              ? `SHA matched (\`${expected}\`) but Playwright probe FAILED.`
-              : `Deployed SHA \`${actual || "(empty)"}\` did not match expected \`${expected}\` within 5 minutes.`;
+            let reason;
+            if (matched === "true") {
+              reason = `SHA matched (\`${expected}\`) and version matched (\`${expectedVersion}\`) but Playwright probe FAILED.`;
+            } else if (actual === expected && actualVersion !== expectedVersion) {
+              reason = `Deployed SHA matched but \`version.json.version\` was \`${actualVersion || "(empty)"}\` not the expected \`${expectedVersion}\` (canonical from repo-root \`VERSION\`).`;
+            } else {
+              reason = `Deployed SHA \`${actual || "(empty)"}\` did not match expected \`${expected}\` (or version \`${actualVersion || "(empty)"}\` did not match expected \`${expectedVersion}\`) within 5 minutes.`;
+            }
             const body = [
               `## Production smoke failed`,
               ``,
               `**Target:** ${target}`,
               `**Expected SHA:** \`${expected}\``,
+              `**Expected version:** \`${expectedVersion}\``,
               `**Run:** ${runUrl}`,
               ``,
               `### Reason`,
@@ -111,9 +130,10 @@ jobs:
               ``,
               `### Triage steps`,
               `1. Verify GitHub Pages deploy completed successfully.`,
-              `2. Check ${target}version.json manually.`,
-              `3. Re-run \`prod-smoke\` workflow via workflow_dispatch.`,
-              `4. If real outage: trigger rollback via scripts/rollback-pages.ps1.`,
+              `2. Check ${target}version.json manually — confirm both \`sha\` and \`version\` fields are present and correct.`,
+              `3. If \`version\` field is missing or wrong, the cache-bust hook (overrides/hooks/cache_bust.py) may have regressed.`,
+              `4. Re-run \`prod-smoke\` workflow via workflow_dispatch.`,
+              `5. If real outage: trigger rollback via scripts/rollback-pages.ps1.`,
             ].join("\n");
             await github.rest.issues.create({
               owner: context.repo.owner,
