@@ -1,8 +1,8 @@
-# Control 2.6 — Troubleshooting: Model Risk Management (OCC 2011-12 / SR 11-7) Evidence Pipeline and Examination Readiness
+# Control 2.6 — Troubleshooting: Model Risk Management (OCC Bulletin 2026-13 / SR 26-2 — formerly OCC 2011-12 / SR 11-7) Evidence Pipeline and Examination Readiness
 
-> **Scope.** This playbook is the diagnostic companion to [Control 2.6 — Model Risk Management (OCC 2011-12 / SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md). It addresses operational failure modes in the **evidence pipeline** the firm relies on to satisfy SR 11-7 — the model inventory (DSPM for AI), the underlying-model change-detection path (Copilot Studio + Message Center), the validation evidence chain (Foundry evaluators, Committee minutes, validation memos), the 17a-4(f)-compliant retention path, the publication-approval workflow in Agent 365, sovereign-cloud parity gaps, the PowerShell helpers used to produce examiner-ready inventories, and examination-readiness rehearsal.
+> **Scope.** This playbook is the diagnostic companion to [Control 2.6 — Model Risk Management (OCC Bulletin 2026-13 / SR 26-2 — formerly OCC 2011-12 / SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md). It addresses operational failure modes in the **evidence pipeline** the firm relies on to satisfy SR 26-2 (formerly SR 11-7) — the model inventory (DSPM for AI), the underlying-model change-detection path (Copilot Studio + Message Center), the validation evidence chain (Foundry evaluators, Committee minutes, validation memos), the 17a-4(f)-compliant retention path, the publication-approval workflow in Agent 365, sovereign-cloud parity gaps, the PowerShell helpers used to produce examiner-ready inventories, and examination-readiness rehearsal.
 >
-> **Regulatory framing.** Reliable evidence produced by the surfaces in this control *supports compliance with* OCC Bulletin 2011-12, Federal Reserve SR 11-7, FDIC FIL-22-2017, FFIEC IT Handbook, FINRA Rule 3110 (Supervision), FINRA Rule 4511 and SEC 17a-3 / 17a-4 (Books and Records — including 17a-4(f) WORM retention of validation evidence and Committee minutes), SOX §§ 302 / 404 (ICFR documentation of AI controls), GLBA 501(b), and NYDFS 23 NYCRR 500 where AI agents touch covered customer information. FINRA Regulatory Notice 25-07 (AI Tools) is referenced **as RFC / contextual only** and is not cited as an enforceable rule. The Microsoft surfaces described here **support** the firm's MRM program; they **do not replace** the firm's Model Risk Management Committee, the independent validation function, the effective-challenge process, three-lines-of-defense governance, or registered-principal supervisory review under FINRA Rule 3110.
+> **Regulatory framing.** Reliable evidence produced by the surfaces in this control *supports compliance with* OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), FDIC FIL-22-2017, FFIEC IT Handbook, FINRA Rule 3110 (Supervision), FINRA Rule 4511 and SEC 17a-3 / 17a-4 (Books and Records — including 17a-4(f) WORM retention of validation evidence and Committee minutes), SOX §§ 302 / 404 (ICFR documentation of AI controls), GLBA 501(b), and NYDFS 23 NYCRR 500 where AI agents touch covered customer information. FINRA Regulatory Notice 25-07 (AI Tools) is referenced **as RFC / contextual only** and is not cited as an enforceable rule. The Microsoft surfaces described here **support** the firm's MRM program; they **do not replace** the firm's Model Risk Management Committee, the independent validation function, the effective-challenge process, three-lines-of-defense governance, or registered-principal supervisory review under FINRA Rule 3110.
 >
 > **Audience.** Power Platform Admin, Purview Compliance Admin, AI Administrator, Compliance Officer, AI Governance Lead, Model Risk Manager, and second-line MRM staff supporting the firm's response to internal audit, examiner pulls, and Committee inquiries.
 >
@@ -11,7 +11,7 @@
 ---
 
 !!! warning "Non-Substitution — Tooling Supports MRM, It Does Not Replace It"
-    Every diagnostic, helper, and remediation step in this playbook produces or repairs **evidence**. None of them performs validation, exercises effective challenge, or makes a model-tiering or approval decision. Those judgments are reserved to the firm's Model Risk Management Committee, the independent validation function (organizationally separate from the model owner per SR 11-7 §V), and registered-principal supervision under FINRA Rule 3110. Any examiner-facing communication arising from an incident in this playbook must be coordinated through Compliance and Legal — **not** by individual administrators acting on their own.
+    Every diagnostic, helper, and remediation step in this playbook produces or repairs **evidence**. None of them performs validation, exercises effective challenge, or makes a model-tiering or approval decision. Those judgments are reserved to the firm's Model Risk Management Committee, the independent validation function (organizationally separate from the model owner per SR 26-2 §V (formerly SR 11-7 §V)), and registered-principal supervision under FINRA Rule 3110. Any examiner-facing communication arising from an incident in this playbook must be coordinated through Compliance and Legal — **not** by individual administrators acting on their own.
 
 ---
 
@@ -111,13 +111,13 @@ Before taking any remediation action recorded in this playbook:
 
 - **No subscription to vendor change signals.** The Microsoft 365 Message Center, the Power Platform release plan, and the Copilot Studio "What's new" feed are not routed to a monitored mailbox / Teams channel staffed by the AI Administrator and the Model Risk Manager.
 - **Agent Card records "Copilot Studio default" rather than the specific model and version.** When the default rolls forward, the Agent Card silently changes meaning.
-- **No change-management gate** treating an underlying-model change as a model change under SR 11-7 §VI.
+- **No change-management gate** treating an underlying-model change as a model change under SR 26-2 §VI (formerly SR 11-7 §VI).
 
 **Resolution.**
 
 1. **Subscribe vendor change signals to a monitored mailbox.** Route the Microsoft 365 Message Center, Power Platform release plan, and Copilot Studio release notes to a shared mailbox / Teams channel with the AI Administrator, AI Governance Lead, Model Risk Manager, and second-line MRM as members. Document the subscription owners and the SLA for triage of model-impacting messages (recommended: 1 business day).
 2. **Update Agent Card schema.** Require the Agent Card to record **specific underlying model and version** (e.g., `gpt-5-2026-03`, not `Copilot Studio default`). Re-issue Agent Cards for every in-scope agent in the inventory.
-3. **Treat the migration as a model change.** Under SR 11-7 §VI, a vendor-driven default-model migration is a model change. Open a change ticket per agent, perform impact assessment proportionate to tier (Tier 1: full re-validation; Tier 2: abbreviated re-validation; Tier 3: documented review), and obtain MRM Committee disposition.
+3. **Treat the migration as a model change.** Under SR 26-2 §VI (formerly SR 11-7 §VI), a vendor-driven default-model migration is a model change. Open a change ticket per agent, perform impact assessment proportionate to tier (Tier 1: full re-validation; Tier 2: abbreviated re-validation; Tier 3: documented review), and obtain MRM Committee disposition.
 4. **Backfill evidence.** For the migration that took effect without prior assessment, document the gap in the Committee minutes, the date the firm became aware, the post-fact impact assessment, and any compensating monitoring (e.g., enhanced Foundry evaluator cadence for the next monitoring period).
 
 **Verification.**
@@ -132,7 +132,7 @@ Before taking any remediation action recorded in this playbook:
 
 ## §3 Issue 3 — Independent Validation Challenged Because Validator Reports to Model Owner
 
-**Symptom.** During an examination, internal audit, or Committee review, a finding is raised that the validator who signed the validation memo for one or more agents reports — directly or via dotted line — to the model owner / model developer. SR 11-7 §V independence test failed.
+**Symptom.** During an examination, internal audit, or Committee review, a finding is raised that the validator who signed the validation memo for one or more agents reports — directly or via dotted line — to the model owner / model developer. SR 26-2 §V (formerly SR 11-7 §V) independence test failed.
 
 **Root causes (typical).**
 
@@ -142,7 +142,7 @@ Before taking any remediation action recorded in this playbook:
 
 **Resolution.**
 
-1. **Re-route validators to second-line MRM.** Reassign the validation function to personnel organizationally and functionally separate from the model owner / developer (SR 11-7 §V). Internal second-line MRM staff can satisfy independence; third-party engagement is one way to demonstrate it but is **not required** and is **not equivalent** to the regulatory independence test.
+1. **Re-route validators to second-line MRM.** Reassign the validation function to personnel organizationally and functionally separate from the model owner / developer (SR 26-2 §V (formerly SR 11-7 §V)). Internal second-line MRM staff can satisfy independence; third-party engagement is one way to demonstrate it but is **not required** and is **not equivalent** to the regulatory independence test.
 2. **Document organizational independence in the MRM charter.** Update the firm's Model Risk Management policy / charter to explicitly state: (a) the reporting line of the validation function, (b) that validators have authority and competence to challenge the model, and (c) the prohibition on validators sitting in the same reporting chain as the model owner. Obtain MRM Committee approval and Compliance sign-off.
 3. **Re-validate affected agents.** For every agent whose validation is challenged, perform a new validation by an organizationally independent validator. Retain both memos: the original (with the noted independence finding) and the re-validation, with a cover memo explaining the remediation. Do not delete the original.
 4. **Retain remediation evidence.** Route the original memo, the independence finding, the charter update, the re-validation memo, and the Committee disposition to the 17a-4(f)-compliant retention path (see [§7](#7-issue-7-validation-evidence-retention-not-17a-4f-compliant)).
@@ -159,7 +159,7 @@ Before taking any remediation action recorded in this playbook:
 
 ## §4 Issue 4 — Anthropic Claude (or Other Vendor Model) Selected Without Vendor-Model Assessment
 
-**Symptom.** Review of an Agent Card or Copilot Studio model-selection screen shows an agent configured to use a third-party / vendor model (for example, Anthropic Claude where available in the firm's tenant) without a documented vendor-model assessment. SR 11-7 §V vendor-model governance gap.
+**Symptom.** Review of an Agent Card or Copilot Studio model-selection screen shows an agent configured to use a third-party / vendor model (for example, Anthropic Claude where available in the firm's tenant) without a documented vendor-model assessment. SR 26-2 §V (formerly SR 11-7 §V) vendor-model governance gap.
 
 **Root causes (typical).**
 
@@ -170,7 +170,7 @@ Before taking any remediation action recorded in this playbook:
 **Resolution.**
 
 1. **Quarantine or dispose.** Pending assessment, the MRM Committee may direct the agent owner to either (a) revert to a pre-approved model on the firm's approved-model list, or (b) restrict the agent to Zone 1 / non-production use until assessment completes. Record the disposition.
-2. **Perform post-hoc vendor-model assessment.** Apply the firm's vendor-model assessment under SR 11-7 §V — covering the vendor's model documentation, training-data disclosures, evaluation results, sovereign-cloud availability, terms-of-service review, data-handling commitments, and the vendor's incident-disclosure history. Coordinate with Vendor Risk Management (Control 2.7).
+2. **Perform post-hoc vendor-model assessment.** Apply the firm's vendor-model assessment under SR 26-2 §V (formerly SR 11-7 §V) — covering the vendor's model documentation, training-data disclosures, evaluation results, sovereign-cloud availability, terms-of-service review, data-handling commitments, and the vendor's incident-disclosure history. Coordinate with Vendor Risk Management (Control 2.7).
 3. **MRM Committee disposition.** The Committee renders an explicit disposition: approved / approved-with-conditions / not approved. Disposition, conditions, and effective dates are recorded in Committee minutes and routed to retention.
 4. **Update Agent Card and approved-model list.** Update the Agent Card to record the specific vendor model and version, the assessment reference, and the Committee disposition. Update the firm's approved-model list and re-publish to model owners.
 5. **Add a technical guardrail (forward-looking).** Where supported, configure Power Platform DLP and / or the Agent 365 governance template so that selection of a non-approved vendor model in Zone 2 / 3 either blocks publish or routes through an approval workflow (see [Issue 8](#8-issue-8-agent-365-publication-approval-workflow-not-blocking-publish)).
@@ -187,7 +187,7 @@ Before taking any remediation action recorded in this playbook:
 
 ## §5 Issue 5 — Foundry Evaluator Runs Missing for Tier 1 Agent
 
-**Symptom.** A Tier 1 agent has no Azure AI Foundry evaluator runs in the current monitoring period, or the most recent evaluator run is older than the cadence specified in the firm's MRM policy. The outcomes-analysis pillar of SR 11-7 has an evidence gap.
+**Symptom.** A Tier 1 agent has no Azure AI Foundry evaluator runs in the current monitoring period, or the most recent evaluator run is older than the cadence specified in the firm's MRM policy. The outcomes-analysis pillar of SR 26-2 (formerly SR 11-7) has an evidence gap.
 
 **Root causes (typical).**
 
@@ -219,7 +219,7 @@ Before taking any remediation action recorded in this playbook:
 
 ## §6 Issue 6 — Effective-Challenge Evidence Weak: Committee Minutes Generic
 
-**Symptom.** Internal audit or examiner review finds Committee minutes that record approvals in generic terms ("the Committee reviewed and approved") without capturing the specific challenge questions raised, validator responses, disposition rationale, dissenting views, or follow-up actions. Effective-challenge evidence under SR 11-7 is weak.
+**Symptom.** Internal audit or examiner review finds Committee minutes that record approvals in generic terms ("the Committee reviewed and approved") without capturing the specific challenge questions raised, validator responses, disposition rationale, dissenting views, or follow-up actions. Effective-challenge evidence under SR 26-2 (formerly SR 11-7) is weak.
 
 **Root causes (typical).**
 
@@ -237,7 +237,7 @@ Before taking any remediation action recorded in this playbook:
     - **Follow-up actions** with owner, due date, and the agenda item where closure will be reported.
 2. **Pre-meeting challenge package.** Require the secretary to circulate a challenge package in advance of the meeting (validation memo, Foundry evaluator results, prior findings, open follow-ups). Capture in the minutes which materials were reviewed.
 3. **Re-issue prior minutes only on Legal direction.** Do not retroactively edit historical minutes. If a historical minute is materially incomplete, file a **supplemental memo** with the dated correction, signed by the Committee Chair, and route both the original and the supplement to retention.
-4. **Train the secretary.** Brief the Committee secretary on the new template and the SR 11-7 effective-challenge standard. Record the training as evidence of remediation.
+4. **Train the secretary.** Brief the Committee secretary on the new template and the SR 26-2 (formerly SR 11-7) effective-challenge standard. Record the training as evidence of remediation.
 
 **Verification.**
 
@@ -408,7 +408,7 @@ Before taking any remediation action recorded in this playbook:
 
 ## §12 Issue 12 — Examiner Asks for Inventory of In-Scope Agents and Firm Cannot Produce in Real Time
 
-**Symptom.** A regulator (OCC, Federal Reserve, SEC, FINRA, FDIC, NYDFS) requests, during an examination, an inventory of AI agents the firm treats as models under SR 11-7. The firm cannot produce the inventory within the requested window (typically same-day or next business day for routine pulls). Process and tooling gap.
+**Symptom.** A regulator (OCC, Federal Reserve, SEC, FINRA, FDIC, NYDFS) requests, during an examination, an inventory of AI agents the firm treats as models under SR 26-2 (formerly SR 11-7). The firm cannot produce the inventory within the requested window (typically same-day or next business day for routine pulls). Process and tooling gap.
 
 **Root causes (typical).**
 
@@ -441,7 +441,7 @@ The matrix below describes **when** to escalate and to **whom**. Substantive MRM
 | Trigger | Escalate To | Purpose |
 |---|---|---|
 | Tier 1 agent in production with missing or stale validation evidence | **MRM Committee** (Chair + Model Risk Manager) | Validation disposition; quarantine or compensating-control direction |
-| Validator-independence finding (SR 11-7 §V) | **MRM Committee** + **Compliance Officer** | Charter remediation; re-validation direction |
+| Validator-independence finding (SR 26-2 §V (formerly SR 11-7 §V)) | **MRM Committee** + **Compliance Officer** | Charter remediation; re-validation direction |
 | Vendor model in production without assessment | **MRM Committee** + **Vendor Risk Management** (Control 2.7) | Vendor-model assessment; disposition |
 | Material model change (vendor-driven default migration) detected post-fact for Tier 1 | **MRM Committee** + **Compliance Officer** | Impact assessment; disclosure decision |
 | 17a-4(f) retention gap on validation evidence or Committee minutes | **Compliance Officer** + **Records Management** | Books-and-records remediation; potential self-disclosure decision |
@@ -477,9 +477,9 @@ The matrix below describes **when** to escalate and to **whom**. Substantive MRM
 
 **External references.**
 
-- OCC Bulletin 2011-12 — Sound Practices for Model Risk Management
-- Federal Reserve SR 11-7 — Supervisory Guidance on Model Risk Management
-- FDIC FIL-22-2017 — FDIC adoption of OCC 2011-12
+- OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) — Sound Practices for Model Risk Management
+- Federal Reserve SR 26-2 (formerly SR 11-7) — Supervisory Guidance on Model Risk Management
+- FDIC FIL-22-2017 — FDIC adoption of OCC Bulletin 2026-13 (formerly OCC 2011-12)
 - FFIEC IT Examination Handbook — Management; Information Security
 - FINRA Rule 3110 (Supervision); FINRA Rule 4511 (Books and Records)
 - SEC Rule 17a-3 / 17a-4 (Recordkeeping; 17a-4(f) WORM retention)

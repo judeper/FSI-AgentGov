@@ -1,4 +1,4 @@
-# Control 2.6: Model Risk Management (OCC 2011-12/SR 11-7)
+# Control 2.6: Model Risk Management (OCC Bulletin 2026-13 / SR 26-2 — formerly OCC 2011-12 / SR 11-7)
 
 ## Expected Screenshots
 

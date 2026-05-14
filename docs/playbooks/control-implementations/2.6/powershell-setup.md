@@ -1,10 +1,10 @@
-# Control 2.6 — PowerShell Setup: MRM Evidence Inventories and Reports (OCC 2011-12 / SR 11-7)
+# Control 2.6 — PowerShell Setup: MRM Evidence Inventories and Reports (OCC Bulletin 2026-13 / SR 26-2 — formerly OCC 2011-12 / SR 11-7)
 
 !!! danger "Non-Substitution — This PowerShell Produces Evidence; Validation Judgments Remain with People"
-    The helpers in this playbook are **inventory, change-detection, and evidence-export** utilities. They do **not** perform model validation, **do not** assign model tiers, **do not** issue effective challenge, and **do not** approve, reject, or retire any AI agent. Those judgments are reserved — under OCC Bulletin 2011-12 and Federal Reserve SR 11-7 §V — to:
+    The helpers in this playbook are **inventory, change-detection, and evidence-export** utilities. They do **not** perform model validation, **do not** assign model tiers, **do not** issue effective challenge, and **do not** approve, reject, or retire any AI agent. Those judgments are reserved — under OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) and Federal Reserve SR 26-2 §V (formerly SR 11-7 §V) — to:
 
     - The firm's **Model Risk Management Committee** (model-tiering, validation acceptance, model retirement).
-    - The firm's **independent model validation function** — personnel **organizationally and functionally separate** from model owners and developers. "Independent" is the SR 11-7 §V test; third-party engagement is one way to achieve it but is not required and is not equivalent.
+    - The firm's **independent model validation function** — personnel **organizationally and functionally separate** from model owners and developers. "Independent" is the SR 26-2 §V (formerly SR 11-7 §V) test; third-party engagement is one way to achieve it but is not required and is not equivalent.
     - The firm's **effective challenge** process — qualified personnel not involved in model development conducting critical, objective review.
     - **Three lines of defense** — first line (model owner / developer), second line (independent MRM / validation / compliance), third line (Internal Audit).
     - **Registered-principal supervisory review** under FINRA Rule 3110 (see [Control 2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md)).
@@ -14,11 +14,11 @@
 !!! warning "Read the FSI PowerShell baseline first"
     Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety, Dataverse compatibility, and SHA-256 evidence emission. Sovereign-cloud endpoints are documented in [§3 — Sovereign Cloud Endpoints (GCC, GCC High, DoD)](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod).
 
-> **Scope.** This playbook automates **read-only evidence inventories** for [Control 2.6 — Model Risk Management (OCC 2011-12 / SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md). Outputs feed your existing MRM program; they do not replace it.
+> **Scope.** This playbook automates **read-only evidence inventories** for [Control 2.6 — Model Risk Management (OCC Bulletin 2026-13 / SR 26-2 — formerly OCC 2011-12 / SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md). Outputs feed your existing MRM program; they do not replace it.
 >
 > **Namespace.** All functions use the `FsiMRM` prefix to prevent collision with peer-control automation (`Agt36`, `Agt225`, `Agt226`).
 >
-> **Hedged-language reminder.** The artifacts produced here **support compliance with** OCC 2011-12, SR 11-7, FDIC FIL-22-2017, FFIEC IT Handbook, FINRA 3110/4511, SEC 17a-3/17a-4, SOX §§302/404, GLBA 501(b), and NYDFS 23 NYCRR 500. They do not — and cannot — *ensure*, *guarantee*, *prevent*, or *eliminate* anything on their own.
+> **Hedged-language reminder.** The artifacts produced here **support compliance with** OCC Bulletin 2026-13 (formerly OCC 2011-12), SR 26-2 (formerly SR 11-7), FDIC FIL-22-2017, FFIEC IT Handbook, FINRA 3110/4511, SEC 17a-3/17a-4, SOX §§302/404, GLBA 501(b), and NYDFS 23 NYCRR 500. They do not — and cannot — *ensure*, *guarantee*, *prevent*, or *eliminate* anything on their own.
 
 ---
 
@@ -479,7 +479,7 @@ function Resolve-FsiMRMRowStatus {
 
 ### 3.2 — `Get-FsiAgentModelChangeFeed`
 
-Per **SR 11-7 §V (vendor-model governance)**, the firm must monitor and disposition vendor-driven changes to underlying models — including default-model migrations in Copilot Studio and model deprecations in Azure AI Foundry. This helper aggregates two signal sources into a disposition-ready feed.
+Per **SR 26-2 §V (formerly SR 11-7 §V) (vendor-model governance)**, the firm must monitor and disposition vendor-driven changes to underlying models — including default-model migrations in Copilot Studio and model deprecations in Azure AI Foundry. This helper aggregates two signal sources into a disposition-ready feed.
 
 ```powershell
 function Get-FsiAgentModelChangeFeed {
@@ -487,7 +487,7 @@ function Get-FsiAgentModelChangeFeed {
 .SYNOPSIS
     Surfaces vendor-driven model-change signals (Power Platform release plan
     items + M365 Message Center notices) the MRM Committee must disposition
-    under SR 11-7 §V vendor-model governance.
+    under SR 26-2 §V (formerly SR 11-7 §V) vendor-model governance.
 
 .DESCRIPTION
     Read-only. Pulls candidate change events from:
@@ -768,7 +768,7 @@ function Export-FsiMRMEvidencePackage {
 
 This package is **input to** an MRM Committee or independent validation review.
 It is not a validation, a tier assignment, or an effective-challenge record. All
-MRM judgments under OCC 2011-12 / SR 11-7 §V remain with the firm's MRM
+MRM judgments under OCC Bulletin 2026-13 / SR 26-2 (formerly OCC 2011-12 / SR 11-7) §V remain with the firm's MRM
 Committee and independent validators.
 
 ## Contents
@@ -848,7 +848,7 @@ $dispositionLog | Export-Csv -Path '.\sr11-7-vendor-model-disposition.csv' -NoTy
 
 ### 4.4 — Outcomes-analysis evidence index
 
-Outcomes analysis (SR 11-7 §V) requires that model output be compared against actual outcomes on an ongoing basis. This recipe indexes the evidence inputs the MRM analyst will join — it does not perform the analysis.
+Outcomes analysis (SR 26-2 §V (formerly SR 11-7 §V)) requires that model output be compared against actual outcomes on an ongoing basis. This recipe indexes the evidence inputs the MRM analyst will join — it does not perform the analysis.
 
 ```powershell
 $pkg = Export-FsiMRMEvidencePackage -Cloud Commercial `
@@ -862,7 +862,7 @@ $index = [pscustomobject]@{
     EvaluatorArtifact = 'foundry-evaluator-runs.json'
     ChangeFeedArtifact= 'change-feed.json'
     Status            = $pkg.Status
-    AnalystAction     = 'Join evaluator run output to production telemetry from the firm''s downstream business systems; perform outcomes analysis per SR 11-7 §V; record conclusion in MRM Committee minutes.'
+    AnalystAction     = 'Join evaluator run output to production telemetry from the firm''s downstream business systems; perform outcomes analysis per SR 26-2 §V (formerly SR 11-7 §V); record conclusion in MRM Committee minutes.'
 }
 $index | ConvertTo-Json -Depth 5 |
     Set-Content -Path (Join-Path $pkg.PackagePath 'outcomes-analysis-index.json')
