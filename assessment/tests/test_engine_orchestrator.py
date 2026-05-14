@@ -81,15 +81,22 @@ ROLLUP_FILE = "capability-driver-rollup.json"
 # ---------------------------------------------------------------------------
 # Manifest normalization
 # ---------------------------------------------------------------------------
-# P0 Bug MANIFEST-FORMAT-MISMATCH:
+# P0 Bug F-MANIFEST-FORMAT-MISMATCH-01:
 #   assessment/manifest/controls.json is a bare JSON array (list), but
 #   score.py calls manifest.get("controls", []) which requires a dict with
 #   a "controls" key. Running score.py against the real file causes:
 #       AttributeError: 'list' object has no attribute 'get'
 #
-# Expected fix: either (a) score.py should handle both bare-list and wrapped
-# forms, or (b) controls.json should be updated to the wrapped dict form.
-# Until fixed, tests write a normalized copy to tmp_path and use that path.
+# Expected fix (Phase 3): either (a) score.py should handle both bare-list
+# and wrapped forms, or (b) controls.json should be updated to the wrapped
+# dict form. Until fixed, tests write a normalized copy to tmp_path and use
+# that path.
+#
+# TODO(F-MANIFEST-FORMAT-MISMATCH-01): once Phase 3 lands the fix, REMOVE
+# the normalize_manifest() workaround and call score.py against the real
+# CONTROLS_MANIFEST path directly. The intentional RED test
+# TestManifestFormatP0Bug::test_production_manifest_format will go GREEN
+# at the same moment, signalling the workaround is no longer needed.
 
 
 def normalize_manifest(tmp_path: Path) -> Path:
