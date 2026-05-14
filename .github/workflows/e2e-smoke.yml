@@ -45,8 +45,8 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install MkDocs and Material Theme
-        run: pip install 'mkdocs-material>=9.5,<10'
+      - name: Install MkDocs and docs plugins
+        run: pip install -r requirements-docs.txt
 
       - name: Generate Assessment Data
         run: python scripts/extract_assessment_data.py
