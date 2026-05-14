@@ -1,14 +1,14 @@
-# Portal Walkthrough — Control 2.6: Model Risk Management (OCC 2011-12 / Fed SR 11-7)
+# Portal Walkthrough — Control 2.6: Model Risk Management (OCC Bulletin 2026-13 / Fed SR 26-2 — formerly OCC 2011-12 / Fed SR 11-7)
 
 !!! danger "READ FIRST — What This Playbook Configures, and What It Does Not"
     This playbook walks a US FSI Microsoft 365 administrator through the **portal configuration of the Microsoft surfaces that produce model-risk-management evidence** for AI agents — Microsoft Purview Data Security Posture Management (DSPM) for AI, the Agent 365 Admin Center, the Agent Card SharePoint inventory, Microsoft Copilot Studio Analytics, Azure AI Foundry monitoring and evaluators, and Microsoft Entra Agent ID. It is the operational companion to [Control 2.6 — Model Risk Management](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md).
 
-    **These surfaces support compliance with OCC Bulletin 2011-12 and Federal Reserve SR 11-7. They do not replace, and must not be presented in the firm's MRM policy, Written Supervisory Procedures (WSPs), or examiner submissions as a substitute for:**
+    **These surfaces support compliance with OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) and Federal Reserve SR 26-2 (formerly SR 11-7). They do not replace, and must not be presented in the firm's MRM policy, Written Supervisory Procedures (WSPs), or examiner submissions as a substitute for:**
 
     | What the firm must do (people, not platforms) | Where it lives |
     |---|---|
     | **Model Risk Management Committee** — formal model definition, tiering, approval, retirement decisions | Firm's MRM charter and minutes |
-    | **Independent model validation function** — SR 11-7 §V *independence* test (organizationally and functionally separate from model owner / developer) | Firm's second-line MRM staff (internal is sufficient; third-party is one way, not the only way, to demonstrate independence) |
+    | **Independent model validation function** — SR 26-2 §V (formerly SR 11-7 §V) *independence* test (organizationally and functionally separate from model owner / developer) | Firm's second-line MRM staff (internal is sufficient; third-party is one way, not the only way, to demonstrate independence) |
     | **Effective challenge** — critical, objective review by qualified personnel not involved in model development | MRM Committee or independent reviewer working papers |
     | **Three-lines-of-defense governance** — first line (model owner/developer), second line (MRM/validation/compliance), third line (Internal Audit) | Firm's risk taxonomy and reporting lines |
     | **Registered-principal supervisory review** under FINRA Rule 3110 for any AI-agent business activity | WSPs and supervisory log (see Control 2.12) |
@@ -17,7 +17,7 @@
     Microsoft surfaces produce telemetry, inventory, and evaluation runs. **Lines-of-defense judgments are made by people.**
 
 !!! warning "Hedged-Language Reminder"
-    Configuring the surfaces in this walkthrough **supports compliance with** OCC Bulletin 2011-12, Federal Reserve SR 11-7, FDIC FIL-22-2017, FFIEC IT Handbook (Management; Information Security), FINRA Rule 3110 (Supervision), FINRA Rule 4511 (Books and Records), SEC Rules 17a-3 / 17a-4, SOX §§ 302 / 404, GLBA 501(b), and NYDFS 23 NYCRR 500. It does not by itself guarantee any regulatory outcome. **FINRA Regulatory Notice 25-07 (AI Tools) is cited only as RFC / contextual material; it is not binding AI guidance.** Implementation requires the firm's existing MRM program, validated change control, and independent testing by the firm's compliance and audit functions. Organizations should verify all configurations against their own examination workpapers and legal counsel before treating these procedures as adequate evidence.
+    Configuring the surfaces in this walkthrough **supports compliance with** OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), FDIC FIL-22-2017, FFIEC IT Handbook (Management; Information Security), FINRA Rule 3110 (Supervision), FINRA Rule 4511 (Books and Records), SEC Rules 17a-3 / 17a-4, SOX §§ 302 / 404, GLBA 501(b), and NYDFS 23 NYCRR 500. It does not by itself guarantee any regulatory outcome. **FINRA Regulatory Notice 25-07 (AI Tools) is cited only as RFC / contextual material; it is not binding AI guidance.** Implementation requires the firm's existing MRM program, validated change control, and independent testing by the firm's compliance and audit functions. Organizations should verify all configurations against their own examination workpapers and legal counsel before treating these procedures as adequate evidence.
 
 !!! warning "Sovereign Cloud Availability — GCC, GCC High, DoD, China"
     Several Microsoft surfaces this playbook depends on have parity gaps in sovereign clouds as of the verification date. **If your tenant authenticates against `login.microsoftonline.us` (GCC, GCC High, DoD) or operates in 21Vianet China**, stop and read [§1 — Sovereign Cloud Variant](#1-sovereign-cloud-variant-and-compensating-controls) before continuing. Re-verify status against the [Microsoft 365 Government roadmap](https://aka.ms/m365gov-roadmap) and the [Power Platform release plan](https://learn.microsoft.com/en-us/power-platform/release-plan/) at least quarterly.
@@ -36,14 +36,14 @@
 
 ## Document Map
 
-| § | Section | SR 11-7 pillar | Verification Criterion |
+| § | Section | SR 26-2 (formerly SR 11-7) pillar | Verification Criterion |
 |---|---|---|---|
 | 0 | [Pre-flight Prerequisites](#0-pre-flight-prerequisites) | All | VC-1, VC-2 |
 | 1 | [Sovereign Cloud Variant and Compensating Controls](#1-sovereign-cloud-variant-and-compensating-controls) | All (substitute path) | VC-1 |
 | 2 | [Conceptual Soundness Evidence Surfaces](#2-conceptual-soundness-evidence-surfaces) | Conceptual soundness | VC-3, VC-4 |
 | 3 | [Ongoing Monitoring Evidence Surfaces](#3-ongoing-monitoring-evidence-surfaces) | Ongoing monitoring | VC-5, VC-6 |
 | 4 | [Outcomes Analysis Evidence Surfaces](#4-outcomes-analysis-evidence-surfaces) | Outcomes analysis | VC-7 |
-| 5 | [Vendor Model Governance (SR 11-7 §V)](#5-vendor-model-governance-sr-11-7-v) | Vendor models | VC-8 |
+| 5 | [Vendor Model Governance (SR 26-2 §V (formerly SR 11-7 §V))](#5-vendor-model-governance-sr-11-7-v) | Vendor models | VC-8 |
 | 6 | [Validation Evidence Retention Path](#6-validation-evidence-retention-path) | Books and records | VC-9 |
 | 7 | [Verification Checklist](#7-verification-checklist) | All | VC-1 → VC-10 |
 | 8 | [Common Pitfalls](#8-common-pitfalls) | All | Operational |
@@ -60,9 +60,9 @@ Skipping a pre-flight gate is itself an auditable finding. Log every gate result
 Before configuring any portal:
 
 1. Confirm the firm's **Model Risk Management Committee charter** exists, names a Model Risk Manager, and defines model-tiering criteria (Tier 1 / Tier 2 / Tier 3) and validation cadence.
-2. Confirm the firm's **MRM policy** explicitly addresses AI agents — that is, it states whether and when an AI agent meets the firm's definition of a "model" under OCC 2011-12 / SR 11-7, and assigns first-line, second-line, and third-line responsibilities.
+2. Confirm the firm's **MRM policy** explicitly addresses AI agents — that is, it states whether and when an AI agent meets the firm's definition of a "model" under OCC Bulletin 2026-13 / SR 26-2 (formerly OCC 2011-12 / SR 11-7), and assigns first-line, second-line, and third-line responsibilities.
 3. Confirm the **WSPs** (broker-dealers) or equivalent supervisory procedures (banks, IAs, NYDFS-covered firms) name the registered principal or supervisor responsible for AI-agent supervision under **FINRA Rule 3110**. This designation must exist in writing **before** any in-scope agent is published.
-4. Confirm the **independent validation function** under SR 11-7 §V is identified by name and reporting line. Internal second-line MRM staff who are organizationally and functionally separate from the model owner / developer satisfy the *independence* test. Third-party engagement is one way to demonstrate independence; it is not required and is not equivalent.
+4. Confirm the **independent validation function** under SR 26-2 §V (formerly SR 11-7 §V) is identified by name and reporting line. Internal second-line MRM staff who are organizationally and functionally separate from the model owner / developer satisfy the *independence* test. Third-party engagement is one way to demonstrate independence; it is not required and is not equivalent.
 
 If any of these are missing, **stop**. The Microsoft surfaces below have nothing to evidence until the firm's MRM governance exists.
 
@@ -131,7 +131,7 @@ If your tenant is in GCC, GCC High, DoD, or China, treat this section as the pri
 
 ## 2. Conceptual Soundness Evidence Surfaces
 
-SR 11-7 conceptual soundness asks whether the model is appropriately designed for its intended use, with reasonable assumptions and clearly documented limitations. The surfaces below produce **inventory and design evidence** the MRM Committee uses to evaluate conceptual soundness. They do not perform the evaluation.
+SR 26-2 (formerly SR 11-7) conceptual soundness asks whether the model is appropriately designed for its intended use, with reasonable assumptions and clearly documented limitations. The surfaces below produce **inventory and design evidence** the MRM Committee uses to evaluate conceptual soundness. They do not perform the evaluation.
 
 ### 2.1 Microsoft Purview DSPM for AI inventory
 
@@ -204,7 +204,7 @@ The Agent Card is the firm's **authoritative model inventory record** for each i
 
 ## 3. Ongoing Monitoring Evidence Surfaces
 
-SR 11-7 ongoing monitoring asks whether the model continues to perform as intended after deployment. The surfaces below produce **operational telemetry** the MRM Committee uses to detect drift, degradation, and abnormal behavior.
+SR 26-2 (formerly SR 11-7) ongoing monitoring asks whether the model continues to perform as intended after deployment. The surfaces below produce **operational telemetry** the MRM Committee uses to detect drift, degradation, and abnormal behavior.
 
 ### 3.1 Copilot Studio Analytics — summary and event-trigger reports
 
@@ -229,11 +229,11 @@ SR 11-7 ongoing monitoring asks whether the model continues to perform as intend
     Analytics data is available for up to **180 days**; session details and transcript information is available for the last **28 days** (per Microsoft Learn — analytics overview). Ongoing-monitoring evidence required beyond these windows — session transcripts, KPI trend snapshots, threshold-breach records — must be exported to Log Analytics or the retention path described in [§6](#6-validation-evidence-retention-path) before the applicable window closes. Validation memos and MRM Committee minutes are not stored in Copilot Studio Analytics and must be routed to the §6 retention path directly.
 
 !!! warning "Analytics is the evidence — not the validation"
-    Copilot Studio Analytics produces operational telemetry. It is one input the MRM Committee uses to perform ongoing monitoring under SR 11-7. The committee's review, judgment, and effective challenge are the validation — Analytics dashboards are not.
+    Copilot Studio Analytics produces operational telemetry. It is one input the MRM Committee uses to perform ongoing monitoring under SR 26-2 (formerly SR 11-7). The committee's review, judgment, and effective challenge are the validation — Analytics dashboards are not.
 
 #### 3.1.1 Granting read-only Analytics access to independent validators (Analytics Viewer sharing role)
 
-The Model Risk Manager, Internal Audit, and the MRM Committee secretariat typically need read-only visibility into the Copilot Studio Analytics page **without** being granted Co-owner or edit rights on the agent. Granting edit rights to the independent validation function violates the SR 11-7 effective-challenge principle (a validator must not also hold operational change rights on the model under review).
+The Model Risk Manager, Internal Audit, and the MRM Committee secretariat typically need read-only visibility into the Copilot Studio Analytics page **without** being granted Co-owner or edit rights on the agent. Granting edit rights to the independent validation function violates the SR 26-2 (formerly SR 11-7) effective-challenge principle (a validator must not also hold operational change rights on the model under review).
 
 **Portal path:** [Copilot Studio](https://copilotstudio.microsoft.com) → select agent → **three-dots (...)** menu (top-right of the agent header) → **Share**.
 
@@ -244,7 +244,7 @@ The Model Risk Manager, Internal Audit, and the MRM Committee secretariat typica
 5. Save and capture a screenshot of the Share dialog as evidence in the validation work-paper.
 
 !!! warning "Individual users only — security groups are not supported"
-    The Analytics Viewer role **can only be assigned to individual users**. Microsoft Entra security groups, distribution lists, and Microsoft 365 groups are **not** valid assignment targets. Maintain a named-individual attestation list (suggested location: the Agent Card, §2.3) and review at the agent's quarterly governance cycle. The list supports examiner traceability of who held read-only Analytics access during any supervisory or validation period and helps meet OCC 2011-12 / SR 11-7 documentation expectations for the model-validation function.
+    The Analytics Viewer role **can only be assigned to individual users**. Microsoft Entra security groups, distribution lists, and Microsoft 365 groups are **not** valid assignment targets. Maintain a named-individual attestation list (suggested location: the Agent Card, §2.3) and review at the agent's quarterly governance cycle. The list supports examiner traceability of who held read-only Analytics access during any supervisory or validation period and helps meet OCC Bulletin 2026-13 / SR 26-2 (formerly OCC 2011-12 / SR 11-7) documentation expectations for the model-validation function.
 
 Reference: [Microsoft Learn — Share an agent](https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-share-bots).
 
@@ -273,7 +273,7 @@ Reference: [Microsoft Learn — Azure AI Foundry monitoring](https://learn.micro
 
 ## 4. Outcomes Analysis Evidence Surfaces
 
-SR 11-7 outcomes analysis compares model output to actual outcomes (or to a reference standard) to assess accuracy. The surfaces below produce **evaluator runs** the MRM Committee uses to assess outcome quality.
+SR 26-2 (formerly SR 11-7) outcomes analysis compares model output to actual outcomes (or to a reference standard) to assess accuracy. The surfaces below produce **evaluator runs** the MRM Committee uses to assess outcome quality.
 
 ### 4.1 Foundry built-in evaluators
 
@@ -327,9 +327,9 @@ Capture each re-validation as a discrete validation memo retained under §6.
 
 ---
 
-## 5. Vendor Model Governance (SR 11-7 §V)
+## 5. Vendor Model Governance (SR 26-2 §V (formerly SR 11-7 §V)) {#5-vendor-model-governance-sr-11-7-v}
 
-SR 11-7 §V applies to vendor and externally developed models with the same rigor as internal models. The validation function must assess the vendor model and document independence.
+SR 26-2 §V (formerly SR 11-7 §V) applies to vendor and externally developed models with the same rigor as internal models. The validation function must assess the vendor model and document independence.
 
 ### 5.1 Capture vendor-model selection and provider evidence
 
@@ -347,7 +347,7 @@ SR 11-7 §V applies to vendor and externally developed models with the same rigo
 
 ### 5.2 Detect Microsoft default-model migrations as model changes
 
-A Microsoft-driven default-model migration (for example, a tenant's default Copilot Studio model moving from one foundation model to a successor) is a **model change** for SR 11-7 purposes and triggers re-validation.
+A Microsoft-driven default-model migration (for example, a tenant's default Copilot Studio model moving from one foundation model to a successor) is a **model change** for SR 26-2 (formerly SR 11-7) purposes and triggers re-validation.
 
 1. Subscribe the AI Governance Lead and Model Risk Manager to the **Microsoft 365 Message Center** and the **Power Platform release plan** ([https://learn.microsoft.com/en-us/power-platform/release-plan/](https://learn.microsoft.com/en-us/power-platform/release-plan/)).
 2. Configure Message Center email digest delivery; Message Center posts are the authoritative tenant-targeted notice for Copilot and Copilot Studio model changes.
@@ -412,12 +412,12 @@ The MRM Committee, on demand, can produce each of the following. The verificatio
 | Pitfall | Why it fails | What to do instead |
 |---|---|---|
 | **Treating Copilot Studio Analytics as the validation.** Pointing examiners at a dashboard and saying "monitoring is in place." | Analytics is operational telemetry — it is **the evidence**, not the validation. The validation is the MRM Committee's review and effective challenge using that evidence. | Produce the validation memo that **references** the Analytics export, authored by the independent validation function. |
-| **Calling third-party engagement "independent validation" without substantiating independence.** Engaging an external firm and inferring SR 11-7 §V independence from the engagement alone. | SR 11-7 independence is a **functional and organizational** test, not a contractual one. An internal second-line MRM team that is functionally separate from the model owner / developer satisfies independence. A third party that is not appropriately scoped or qualified does not. | Document the validator's reporting line, scope of work, qualifications, and absence of conflicts. Independence is the test; third-party is one way to demonstrate it, not the test itself. |
-| **Not capturing vendor-model changes as model changes.** Treating a Microsoft default-model migration as a routine platform update. | A foundation-model change alters the model under SR 11-7 and triggers re-validation. Missing this is a recordkeeping and validation gap. | Subscribe to Microsoft 365 Message Center and the Power Platform release plan; activate the §5.2 runbook on every announced default-model migration. |
+| **Calling third-party engagement "independent validation" without substantiating independence.** Engaging an external firm and inferring SR 26-2 §V (formerly SR 11-7 §V) independence from the engagement alone. | SR 26-2 (formerly SR 11-7) independence is a **functional and organizational** test, not a contractual one. An internal second-line MRM team that is functionally separate from the model owner / developer satisfies independence. A third party that is not appropriately scoped or qualified does not. | Document the validator's reporting line, scope of work, qualifications, and absence of conflicts. Independence is the test; third-party is one way to demonstrate it, not the test itself. |
+| **Not capturing vendor-model changes as model changes.** Treating a Microsoft default-model migration as a routine platform update. | A foundation-model change alters the model under SR 26-2 (formerly SR 11-7) and triggers re-validation. Missing this is a recordkeeping and validation gap. | Subscribe to Microsoft 365 Message Center and the Power Platform release plan; activate the §5.2 runbook on every announced default-model migration. |
 | **Relying on M365 Audit Premium retention as 17a-4(f) WORM.** Storing validation memos in audit logs and assuming they meet broker-dealer recordkeeping. | M365 Audit Premium is **operational telemetry**, not WORM. It does not meet 17a-4(f) attestation requirements. | Retain validation memos under Purview retention with a locked Regulatory Record label, or in an approved 17a-4(f) vendor (Smarsh, Global Relay, Proofpoint, Mimecast). See [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md). |
 | **Treating DSPM for AI inventory as the model inventory.** Using DSPM for AI as the firm's authoritative Agent Card record. | DSPM for AI captures activity; it does not capture tier, owner-of-record, validation memo URI, or registered-principal designee. | Maintain the Agent Card SharePoint list as the authoritative inventory and reconcile against DSPM for AI monthly. |
 | **Assuming sovereign-cloud parity.** Configuring the platform path in GCC, GCC High, or DoD without verifying availability. | Several surfaces in this playbook have not been announced for sovereign clouds. Configurations that fail silently produce no evidence. | Run §0.4 verification, jump to §1 if sovereign, and re-verify quarterly against the Microsoft 365 Government roadmap. |
-| **Confusing FINRA Notice 25-07 with binding AI rules.** Citing Notice 25-07 as a regulatory requirement. | Notice 25-07 is RFC / contextual material, not binding AI guidance. | Cite the binding regulations (OCC 2011-12, SR 11-7, FINRA 3110, FINRA 4511, SEC 17a-3 / 17a-4, SOX, GLBA, NYDFS 23 NYCRR 500) and reference Notice 25-07 only as contextual background. |
+| **Confusing FINRA Notice 25-07 with binding AI rules.** Citing Notice 25-07 as a regulatory requirement. | Notice 25-07 is RFC / contextual material, not binding AI guidance. | Cite the binding regulations (OCC Bulletin 2026-13 (formerly OCC 2011-12), SR 26-2 (formerly SR 11-7), FINRA 3110, FINRA 4511, SEC 17a-3 / 17a-4, SOX, GLBA, NYDFS 23 NYCRR 500) and reference Notice 25-07 only as contextual background. |
 
 ---
 
