@@ -1,97 +1,149 @@
 #!/usr/bin/env node
 /*
- * verify-sheetjs-sri.mjs
+ * verify-sheetjs-sri.mjs (covers all vendored SRI-pinned libs)
  *
  * Attack model:
- *   The SPA (docs/javascripts/assessment-app.js) lazy-loads SheetJS from the
- *   vendored file docs/javascripts/lib/xlsx.full.min.js with a Subresource
- *   Integrity (SRI) hash literal in the source. Browsers enforce SRI by
- *   refusing to execute a script whose hash does not match — but the failure
- *   is *silent* from a feature standpoint: XLSX export simply stops working.
+ *   The SPA lazy-loads vendored libraries from docs/javascripts/lib/* with
+ *   Subresource Integrity (SRI) hash literals in the source. Browsers enforce
+ *   SRI by refusing to execute a script whose hash does not match — but the
+ *   failure is *silent* from a feature standpoint: the affected feature simply
+ *   stops working (XLSX export disappears, results-page charts fail to render,
+ *   diagrams stay raw, etc).
  *
- *   If the on-disk file is replaced (supply-chain compromise, an accidental
- *   bump that forgets to rotate the SRI literal, or a malicious commit), the
- *   SPA's integrity check at runtime will reject the file and the export
- *   feature will silently fail in production. CI must catch this drift before
- *   merge.
+ *   If any on-disk file drifts from its declared SRI (supply-chain compromise,
+ *   accidental version bump that forgets to rotate the literal, malicious
+ *   commit), CI must catch it before merge.
  *
- *   This script:
- *     1. Reads the SRI literal from assessment-app.js (next to the
- *        xlsx.full.min.js reference).
- *     2. Computes sha256(base64) of the on-disk vendored file.
- *     3. Asserts they match. Exits 0 on match, 1 on any mismatch / parse error.
+ *   This script verifies every vendored library that has a recorded SRI
+ *   literal, and additionally enforces that EVERY *.js file under
+ *   docs/javascripts/lib/ has at least one corresponding SRI literal somewhere
+ *   in the SPA loader sources — preventing "added a lib but forgot SRI" from
+ *   shipping silently.
  *
- *   Wired into .github/workflows/sri-check.yml on PRs and pushes that touch
- *   the SPA or the vendored file. Also runnable locally via `npm run verify:sri`.
- *   Per Theme 6 / B-009 / spa-fix-sheetjs-sri-ci.
+ *   Sources of SRI literals checked:
+ *     - docs/javascripts/assessment-app.js  (legacy: xlsx.full.min.js)
+ *     - docs/javascripts/assessment-loader.js (SRI_HASHES dict for chart.min.js
+ *       and any future entries — e.g. mermaid.min.js per Phase 3A)
+ *
+ *   Per Theme 6 / B-009 / Phase 0 plan-checker M1.
  */
 
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
-import { resolve, dirname } from "node:path";
+import { readFileSync, readdirSync } from "node:fs";
+import { resolve, dirname, join, basename } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, "..");
 
-const SPA_PATH = resolve(repoRoot, "docs/javascripts/assessment-app.js");
-const LIB_PATH = resolve(repoRoot, "docs/javascripts/lib/xlsx.full.min.js");
+const APP_PATH = resolve(repoRoot, "docs/javascripts/assessment-app.js");
+const LOADER_PATH = resolve(repoRoot, "docs/javascripts/assessment-loader.js");
+const LIB_DIR = resolve(repoRoot, "docs/javascripts/lib");
 
 function fail(msg) {
   console.error(`ERROR: ${msg}`);
   process.exit(1);
 }
 
-let spaSource;
-try {
-  spaSource = readFileSync(SPA_PATH, "utf8");
-} catch (err) {
-  fail(`Could not read SPA source at ${SPA_PATH}: ${err.message}`);
+function readUtf8(path) {
+  try {
+    return readFileSync(path, "utf8");
+  } catch (err) {
+    fail(`Could not read ${path}: ${err.message}`);
+  }
 }
 
-// Locate the xlsx.full.min.js reference, then extract the nearest SRI literal.
-const xlsxIdx = spaSource.indexOf("xlsx.full.min.js");
-if (xlsxIdx === -1) {
-  fail(
-    `Could not find 'xlsx.full.min.js' reference in ${SPA_PATH}. The SPA may have moved the lazy-load logic; update this script.`,
+function sha256Base64(buf) {
+  return createHash("sha256").update(buf).digest("base64");
+}
+
+/**
+ * Resolve the expected SRI literal for a given library file.
+ *
+ * Looks first in the SRI_HASHES dict in assessment-loader.js (preferred form),
+ * then falls back to the legacy "near reference" search in assessment-app.js
+ * for libraries that still inline the integrity literal next to their script
+ * tag (e.g. xlsx.full.min.js).
+ *
+ * Returns the bare base64 hash (without the "sha256-" prefix), or null if no
+ * SRI literal could be located.
+ */
+function findExpectedSri(libRelPath, loaderSrc, appSrc) {
+  // Form 1: SRI_HASHES["lib/foo.js"] = "sha256-...."  (loader dict)
+  const dictRe = new RegExp(
+    `["']${libRelPath.replace(/\./g, "\\.")}["']\\s*:\\s*["']sha256-([A-Za-z0-9+/=]+)["']`,
   );
+  const dictMatch = loaderSrc.match(dictRe);
+  if (dictMatch) return { hash: dictMatch[1], source: "assessment-loader.js" };
+
+  // Form 2: legacy in-app inline literal near the script reference.
+  const fname = basename(libRelPath);
+  const idx = appSrc.indexOf(fname);
+  if (idx !== -1) {
+    const slice = appSrc.slice(
+      Math.max(0, idx - 500),
+      Math.min(appSrc.length, idx + 1500),
+    );
+    const m = slice.match(/integrity\s*[:=]\s*["']sha256-([A-Za-z0-9+/=]+)["']/);
+    if (m) return { hash: m[1], source: "assessment-app.js (inline)" };
+  }
+  return null;
 }
 
-// Search a window around the reference (covers both `integrity: "..."` object
-// literal form and `s.integrity = "..."` assignment form).
-const windowStart = Math.max(0, xlsxIdx - 500);
-const windowEnd = Math.min(spaSource.length, xlsxIdx + 1500);
-const slice = spaSource.slice(windowStart, windowEnd);
+const loaderSrc = readUtf8(LOADER_PATH);
+const appSrc = readUtf8(APP_PATH);
 
-const sriRegex = /integrity\s*[:=]\s*["']sha256-([A-Za-z0-9+/=]+)["']/;
-const match = slice.match(sriRegex);
-if (!match) {
-  fail(
-    `Could not find an SRI literal (sha256-...) near the xlsx.full.min.js reference in ${SPA_PATH}.`,
+const libs = readdirSync(LIB_DIR)
+  .filter((f) => f.endsWith(".js"))
+  .map((f) => `lib/${f}`);
+
+if (libs.length === 0) {
+  fail(`No .js files found in ${LIB_DIR}`);
+}
+
+let failures = 0;
+let checked = 0;
+
+for (const libRelPath of libs) {
+  const onDiskPath = resolve(repoRoot, "docs/javascripts", libRelPath);
+  const expected = findExpectedSri(libRelPath, loaderSrc, appSrc);
+  if (!expected) {
+    failures += 1;
+    console.error(
+      `FAIL: ${libRelPath} has no SRI literal in assessment-loader.js (SRI_HASHES dict) ` +
+        `or assessment-app.js (inline integrity attribute).`,
+    );
+    console.error(
+      "      A vendored library MUST have a corresponding SRI hash so the loader " +
+        "can enforce integrity. Add the hash and reference the library through the " +
+        "loader. See docs/javascripts/lib/VENDOR-MANIFEST.md for the rotation procedure.",
+    );
+    continue;
+  }
+  const actual = sha256Base64(readFileSync(onDiskPath));
+  if (actual === expected.hash) {
+    console.log(
+      `OK:   ${libRelPath} sha256-${actual} (literal in ${expected.source})`,
+    );
+    checked += 1;
+    continue;
+  }
+  failures += 1;
+  console.error(`FAIL: ${libRelPath} SRI mismatch`);
+  console.error(`  Expected (${expected.source}): sha256-${expected.hash}`);
+  console.error(`  Actual   (on-disk file)      : sha256-${actual}`);
+}
+
+if (failures > 0) {
+  console.error(
+    `\nVENDOR-SRI: ${failures} failure(s) across ${libs.length} library file(s). ` +
+      `Either the on-disk file drifted from the SRI literal, or the literal needs ` +
+      `rotation. Investigate provenance before changing either.`,
   );
-}
-const expected = match[1];
-
-let libBuf;
-try {
-  libBuf = readFileSync(LIB_PATH);
-} catch (err) {
-  fail(`Could not read vendored SheetJS file at ${LIB_PATH}: ${err.message}`);
+  process.exit(1);
 }
 
-const actual = createHash("sha256").update(libBuf).digest("base64");
-
-if (expected === actual) {
-  console.log(`OK: SheetJS SRI matches (sha256-${actual})`);
-  process.exit(0);
-}
-
-console.error("FAIL: SheetJS SRI mismatch");
-console.error(`  Expected (from SPA literal): sha256-${expected}`);
-console.error(`  Actual   (from on-disk file): sha256-${actual}`);
-console.error(`  SPA file: ${SPA_PATH}`);
-console.error(`  Lib file: ${LIB_PATH}`);
-console.error(
-  "  Either the vendored file drifted from the SRI literal, or the literal needs rotation. Investigate provenance before changing either.",
+console.log(
+  `\nVENDOR-SRI: OK — ${checked}/${libs.length} vendored library/libraries verified.`,
 );
-process.exit(1);
+process.exit(0);
