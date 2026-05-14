@@ -771,6 +771,8 @@ nav:
     - Glossary: reference/glossary.md
     - FAQ: reference/faq.md
     - Work IQ Governance Reference: reference/work-iq-governance.md
+    - Compliance Manager Templates: reference/compliance-manager-templates.md
+    - Service Trust Portal Attestation Guide: reference/service-trust-portal-attestation-guide.md
     - Administrator Templates: downloads/index.md
     - Disclaimer: disclaimer.md
 
