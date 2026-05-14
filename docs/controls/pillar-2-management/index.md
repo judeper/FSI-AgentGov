@@ -31,7 +31,7 @@ Pillar 2 governs the operational processes required to manage AI agents througho
 - [2.3 Change Management and Release Planning](2.3-change-management-and-release-planning.md)
 - [2.4 Business Continuity and Disaster Recovery](2.4-business-continuity-and-disaster-recovery.md)
 - [2.5 Testing, Validation, and Quality Assurance](2.5-testing-validation-and-quality-assurance.md)
-- [2.6 Model Risk Management (OCC 2011-12 / SR 11-7)](2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md)
+- [2.6 Model Risk Management (OCC 2011-12 / SR 11-7)](2.6-model-risk-management-sr-26-2.md)
 - [2.7 Vendor and Third-Party Risk Management](2.7-vendor-and-third-party-risk-management.md)
 - [2.8 Access Control and Segregation of Duties](2.8-access-control-and-segregation-of-duties.md)
 - [2.9 Agent Performance Monitoring and Optimization](2.9-agent-performance-monitoring-and-optimization.md)

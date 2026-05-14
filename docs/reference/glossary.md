@@ -251,7 +251,7 @@ System that makes predictions or decisions based on data. AI agents using ML alg
 Risk that a model may produce inaccurate or biased outputs.
 
 **MRM (Model Risk Management)**
-Framework for identifying, measuring, monitoring, and controlling model risk, aligned with OCC Bulletin 2011-12 and Fed SR 26-2 (formerly SR 11-7). See [Control 2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) for AI agent MRM requirements.
+Framework for identifying, measuring, monitoring, and controlling model risk, aligned with OCC Bulletin 2011-12 and Fed SR 26-2 (formerly SR 11-7). See [Control 2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) for AI agent MRM requirements.
 
 **M365 Certification**
 Microsoft validation that an application meets security and compliance requirements. Higher trust level than Publisher Attested. Visible in M365 Admin Center under Settings → Integrated Apps.

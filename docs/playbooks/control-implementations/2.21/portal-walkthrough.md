@@ -194,7 +194,7 @@ In **List settings** → **Permissions for this list**:
 
 - [2.19 — Customer AI Disclosure and Transparency](../../../controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md)
 - [2.5 — Testing, Validation, and Quality Assurance](../../../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md)
-- [2.6 — Model Risk Management Alignment with OCC 2011-12 / SR 11-7](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md)
+- [2.6 — Model Risk Management Alignment with OCC 2011-12 / SR 11-7](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md)
 
 ---
 

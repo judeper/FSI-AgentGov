@@ -14,7 +14,7 @@
 !!! warning "Read the FSI PowerShell baseline first"
     Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety, Dataverse compatibility, and SHA-256 evidence emission. Sovereign-cloud endpoints are documented in [§3 — Sovereign Cloud Endpoints (GCC, GCC High, DoD)](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod).
 
-> **Scope.** This playbook automates **read-only evidence inventories** for [Control 2.6 — Model Risk Management (OCC Bulletin 2026-13 / SR 26-2 — formerly OCC 2011-12 / SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md). Outputs feed your existing MRM program; they do not replace it.
+> **Scope.** This playbook automates **read-only evidence inventories** for [Control 2.6 — Model Risk Management (OCC Bulletin 2026-13 / SR 26-2 — formerly OCC 2011-12 / SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md). Outputs feed your existing MRM program; they do not replace it.
 >
 > **Namespace.** All functions use the `FsiMRM` prefix to prevent collision with peer-control automation (`Agt36`, `Agt225`, `Agt226`).
 >

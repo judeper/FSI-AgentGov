@@ -10,7 +10,7 @@
 > - Usage volume that drives consumption: [Control 3.2 — Usage Analytics and Activity Monitoring](../../../controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md)
 > - Environment structure that bounds attribution: [Control 2.1 — Managed Environments](../../../controls/pillar-2-management/2.1-managed-environments.md)
 > - WORM retention surface for chargeback artifacts: [Control 1.9 — Data Retention and Deletion Policies](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md)
-> - Model-risk cost-benefit input: [Control 2.6 — Model Risk Management](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md)
+> - Model-risk cost-benefit input: [Control 2.6 — Model Risk Management](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md)
 >
 > **Last UI Verified:** April 2026 against Microsoft 365 admin center, Power Platform admin center, Azure portal (Cost Management + Billing), Microsoft Purview portal, and Microsoft Graph reports `v1.0` surfaces. Re-verify each cycle before relying on automated paths.
 

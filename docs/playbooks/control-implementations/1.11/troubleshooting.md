@@ -166,7 +166,7 @@ AuditLogs
 - **Approved-authenticator list** — published in the Identity Standards SharePoint site, reviewed annually by the Authentication Policy Admin and the CISO, and referenced from the user-facing registration runbook.
 - **Pre-issuance ceremony** — for privileged users (Authentication Policy Admin, Entra Global Admin, Purview Compliance Admin), keys are pre-registered in the Service Desk before issuance; the registration is verified before the key leaves the desk.
 - **Self-service registration health KPI** — surfaced by the Sentinel CA Insights workbook (see §8); a sustained tenant-wide FIDO2 registration failure rate >5% triggers a SEV-3 ticket to the Authentication Policy Admin.
-- See [Control 2.6 — Identity Lifecycle Management](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) for joiner/mover/leaver registration timing and [Control 2.14 — Privileged Identity Management](../../../controls/pillar-2-management/2.14-training-and-awareness-program.md) for privileged-user registration prerequisites.
+- See [Control 2.6 — Identity Lifecycle Management](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) for joiner/mover/leaver registration timing and [Control 2.14 — Privileged Identity Management](../../../controls/pillar-2-management/2.14-training-and-awareness-program.md) for privileged-user registration prerequisites.
 
 ### Regulatory / Evidence Implications
 
@@ -269,7 +269,7 @@ After promotion, keep the policy under elevated monitoring for 72 hours; the on-
 - **Group-source-of-truth** — CA policies targeting the maker population MUST source from the Agent Registry, not from a license SKU.
 - **Named-location lifecycle** — the Networking team owns the named-location refresh quarterly; the Authentication Policy Admin verifies the refresh against the firm's egress posture.
 - **Pre-flight device-compliance and method-registration campaigns** — codified in [`portal-walkthrough.md`](./portal-walkthrough.md) §3.2.
-- See [Control 1.1 — Restrict Agent Publishing by Authorization](../../../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md) for the maker-population governance, [Control 2.6 — Identity Lifecycle Management](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) for joiner/leaver group hygiene, and [Control 2.26 — Power Platform Environment Strategy](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) for environment-to-policy alignment.
+- See [Control 1.1 — Restrict Agent Publishing by Authorization](../../../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md) for the maker-population governance, [Control 2.6 — Identity Lifecycle Management](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) for joiner/leaver group hygiene, and [Control 2.26 — Power Platform Environment Strategy](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) for environment-to-policy alignment.
 
 ### Regulatory / Evidence Implications
 
@@ -441,7 +441,7 @@ AADServicePrincipalSignInLogs
 - **Selected-not-All targeting** — every CA Workload Identities policy targets `Selected service principals` from a curated approved-list group, never `All workload identities` (see §14).
 - **Credential standards** — the firm's identity standards prohibit new SPs with client-secret auth in production; certificate or federated credentials are the standard. Existing client-secret SPs are tracked in the Risk Register with a remediation deadline.
 - **Named-location lifecycle for workload egress** — Networking owns a separate `Trusted-WorkloadEgress` named location distinct from end-user egress; refresh quarterly.
-- See [Control 2.6 — Identity Lifecycle Management](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) for the SP / workload-identity inventory and [Control 2.14 — Privileged Identity Management](../../../controls/pillar-2-management/2.14-training-and-awareness-program.md) for the privileged SP review cadence.
+- See [Control 2.6 — Identity Lifecycle Management](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) for the SP / workload-identity inventory and [Control 2.14 — Privileged Identity Management](../../../controls/pillar-2-management/2.14-training-and-awareness-program.md) for the privileged SP review cadence.
 
 ### Regulatory / Evidence Implications
 
@@ -594,7 +594,7 @@ Write-Host "WhatIf: would PATCH eligibilitySchedule for user $userId on role $ro
 - **Joiner workflow gate.** No PIM eligibility is granted until the user's `strongAuthenticationMethodCount` (phishing-resistant) ≥ 1. Helper: `Test-Fsi-PhishingResistantCoverage` (PowerShell Setup §3.2) runs nightly against the privileged population.
 - **Mover/leaver alignment.** Role-bearing internal transfers re-attest registration; offboarded users have FIDO2 keys collected and zeroed.
 - **Quarterly registration audit** by Internal Audit covering 100% of privileged users.
-- See [Control 2.14 — Privileged Identity Management](../../../controls/pillar-2-management/2.14-training-and-awareness-program.md) and [Control 2.6 — Identity Lifecycle Management](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md).
+- See [Control 2.14 — Privileged Identity Management](../../../controls/pillar-2-management/2.14-training-and-awareness-program.md) and [Control 2.6 — Identity Lifecycle Management](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md).
 
 ### Regulatory / Evidence Implications
 
@@ -1070,7 +1070,7 @@ This troubleshooting playbook intersects the following controls. Consult their d
 - [Control 1.7 — Comprehensive Audit Logging and Compliance](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md)
 - [Control 1.9 — Agent Identity and Lifecycle](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md)
 - [Control 1.21 — Service Principal Management](../../../controls/pillar-1-security/1.21-adversarial-input-logging.md)
-- [Control 2.6 — Identity Lifecycle Management](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md)
+- [Control 2.6 — Identity Lifecycle Management](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md)
 - [Control 2.12 — Data Loss Prevention for Agents](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md)
 - [Control 2.14 — Privileged Identity Management](../../../controls/pillar-2-management/2.14-training-and-awareness-program.md)
 - [Control 2.25 — Microsoft Agent 365 Admin Center](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md)

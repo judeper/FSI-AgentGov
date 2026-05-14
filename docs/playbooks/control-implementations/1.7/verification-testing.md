@@ -61,7 +61,7 @@ This playbook depends on, and is depended on by, the following framework control
 - [Control 1.6 — Microsoft Purview DSPM for AI](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) — content-tier transcript surfacing
 - [Control 1.10 — Communication Compliance](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) — supervisory review of AI-generated content
 - [Control 1.19 — eDiscovery for Agent Interactions](../../../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md) — content-tier collection and legal hold
-- [Control 2.6 — Lifecycle Management of Agents](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) — publication / decommission events that must surface in audit
+- [Control 2.6 — Lifecycle Management of Agents](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) — publication / decommission events that must surface in audit
 - [Control 2.12 — Change Management for AI Agents](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) — change events whose audit trail this control preserves
 - [Control 3.4 — Regulatory Reporting Automation](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) — downstream consumer of the evidence pack
 - [Control 3.9 — Microsoft Sentinel Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) — SIEM ingestion path and tamper-resistance alerting

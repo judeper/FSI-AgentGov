@@ -355,7 +355,7 @@ FINRA 3110 (supervisory designation) · SOX 404 (segregation of duties) · NYDFS
 
 #### Regulatory tie-in
 
-FINRA 3110 · OCC 2011-12 / SR 11-7 (model risk: indicator drift = parameter drift) · [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md).
+FINRA 3110 · OCC 2011-12 / SR 11-7 (model risk: indicator drift = parameter drift) · [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md).
 
 ---
 
@@ -836,7 +836,7 @@ State employee-monitoring statutes (CT §31-48d, DE Title 19 §705, NY Civil Rig
 
 #### Regulatory tie-in
 
-OCC 2011-12 / SR 11-7 (model risk; Triage Agent is a decision-support model surface) · FINRA 25-07 (RFC) · [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md).
+OCC 2011-12 / SR 11-7 (model risk; Triage Agent is a decision-support model surface) · FINRA 25-07 (RFC) · [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md).
 
 > **Sovereign note.** Triage Agent / Security Copilot has limited sovereign availability. Where unavailable, route to TC-20.
 
@@ -1208,7 +1208,7 @@ FINRA 4511 (defensible evidence) · OCC 2011-12 (compensating-control documentat
 
 #### Regulatory tie-in
 
-SOX §§302 / 404 · OCC 2011-12 · NYDFS 500.06 · [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md).
+SOX §§302 / 404 · OCC 2011-12 · NYDFS 500.06 · [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md).
 
 ---
 
@@ -1334,7 +1334,7 @@ For every high-severity incident touching the 72-hour clocks (NYDFS 500.17(a) / 
 - [Control 1.10 — Communication Compliance Monitoring](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md)
 - [Control 1.13 — Sensitive Information Types and Pattern Recognition](../../../controls/pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition.md)
 - [Control 1.19 — eDiscovery for Agent Interactions](../../../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md)
-- [Control 2.6 — Model Risk Management Alignment with OCC 2011-12 / SR 11-7](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md)
+- [Control 2.6 — Model Risk Management Alignment with OCC 2011-12 / SR 11-7](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md)
 - [Control 2.12 — Supervisory Review and Attestation](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md)
 - [Control 2.26 — Entra Agent ID Identity Governance](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md)
 - [Control 3.1 — Agent Inventory and Metadata Management](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md)
@@ -1589,7 +1589,7 @@ For the CCO presenting to a regulator, the answer to "show me your IRM evidence"
 - **eDiscovery preservation paths** for IRM cases routed to legal hold are implemented under [Control 1.19](../../../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md).
 - **Communication Compliance authoring** is implemented under [Control 1.10](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md). TC-16 is the IRM-to-CC correlation, not a CC authoring procedure.
 - **Supervisory review attestation** is implemented under [Control 2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md).
-- **Model-risk governance** for IRM analytics models, the Triage Agent, and Adaptive Protection is implemented under [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md).
+- **Model-risk governance** for IRM analytics models, the Triage Agent, and Adaptive Protection is implemented under [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md).
 - **Agent identity, lifecycle, and risk telemetry** are implemented under [Control 2.26](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md).
 - **Agent inventory** is implemented under [Control 3.1](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md).
 - **Sentinel workspace authoring and detection-rule lifecycle** are implemented under [Control 3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md). The KQL in TC-19 is read-only verification, not detection-rule authoring.

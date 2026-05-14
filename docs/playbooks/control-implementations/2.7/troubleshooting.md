@@ -151,7 +151,7 @@ For Copilot Studio and Microsoft 365 Copilot, the underlying models are managed 
 
 ### Re-validation triggers (Control 2.6 linkage)
 
-Open a re-validation per [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) when:
+Open a re-validation per [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) when:
 
 - Microsoft announces a model change for a model used by a Zone 2/3 agent.
 - Agent behavior metrics deviate from baseline beyond the threshold defined in the agent's monitoring plan.

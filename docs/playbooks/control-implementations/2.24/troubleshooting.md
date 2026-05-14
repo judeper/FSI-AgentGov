@@ -254,7 +254,7 @@ CloudAppEvents
 ### §3.6 Cross-references
 
 - §2 TOGGLE-ABSENT (sometimes a "missing toggle" is just an undetected drift).
-- [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) — drift that affects model behaviour requires MRM re-validation.
+- [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) — drift that affects model behaviour requires MRM re-validation.
 - [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) — console as authoritative read surface.
 
 ---
@@ -391,7 +391,7 @@ The three-surface model (tenant Copilot hub → environment via PPAC → per-age
 
 ### §6.6 Cross-references
 
-- [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) — GA-promotion = model change for SR 11-7.
+- [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) — GA-promotion = model change for SR 11-7.
 - [Control 2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) — supervisor notification.
 - §13 SUPERVISOR-UNAWARE.
 
@@ -634,7 +634,7 @@ The three-surface model (tenant Copilot hub → environment via PPAC → per-age
 
 ### §12.5 Cross-references
 
-- [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md).
+- [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md).
 - §6 RETROACTIVE-PREVIEW.
 - RB-04 (§17).
 
@@ -765,7 +765,7 @@ The three-surface model (tenant Copilot hub → environment via PPAC → per-age
 
 **Rollback.** Microsoft deprecation cannot be rolled back — the rollback is the migration plan itself.
 
-**Cross-references.** §6 RETROACTIVE-PREVIEW, [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md), [Control 3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md).
+**Cross-references.** §6 RETROACTIVE-PREVIEW, [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md), [Control 3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md).
 
 ---
 
@@ -783,7 +783,7 @@ The three-surface model (tenant Copilot hub → environment via PPAC → per-age
 
 **Evidence bundle.** E-01 (start of quarter, end of quarter, weekly), E-02, E-03, MRM cascade report, supervisor cascade report, signed E-09.
 
-**Cross-references.** [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md), [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md).
+**Cross-references.** [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md), [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md).
 
 ---
 
@@ -904,7 +904,7 @@ Every artefact must record: capturing identity, timestamp (UTC), source tenant +
 **Within Pillar 2 — Management:**
 
 - [Control 2.2](../../../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) — zone definitions.
-- [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) — MRM cascade.
+- [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) — MRM cascade.
 - [Control 2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) — supervision cascade.
 - [Control 2.17](../../../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) — orchestration extends surface confusion.
 - [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) — governance console as canonical surface.
