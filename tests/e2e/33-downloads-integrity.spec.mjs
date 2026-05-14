@@ -15,10 +15,14 @@
  *      wrong content.
  *   D. First sheet has ≥5 non-empty rows of data.
  *      Why: an empty template or export stub should not reach customers.
- *   E. Content marker: at least one cell in the first sheet matches the
- *      framework control-ID pattern (/^[1-4]\.\d{1,2}$/) OR contains one of
- *      the tokens "FSI", "Pillar", or "Zone" (case-insensitive).
- *      Why: guards against a placeholder or wrong file being served.
+ *   E. Content marker: at least MIN_DISTINCT_CONTROL_IDS (=5) distinct cells
+ *      across ALL sheets match the framework control-ID pattern
+ *      (/^[1-4]\.\d{1,2}$/) AND at least one cell contains an FSI/Pillar/Zone
+ *      token (case-insensitive).
+ *      Why: a placeholder workbook with no control rows should not pass; the
+ *      threshold is calibrated to the smallest legitimate role-based checklist
+ *      (entra-administrator, 5 controls). All-sheet scan accommodates the
+ *      maturity dashboard (Summary sheet 0 has no IDs; per-pillar sheets do).
  *   F. Count of .xlsx links on the /downloads/ page == count of .xlsx files
  *      in docs/downloads/ on disk.
  *      Why: catches "file deleted but link still lives" AND "file added but
@@ -44,6 +48,19 @@ const CONTROL_ID_RE = /^[1-4]\.\d{1,2}$/;
 /** Loose FSI-framework content markers present in every checklist */
 const FSI_MARKER_RE = /FSI|Pillar|Zone/i;
 
+/**
+ * Minimum number of distinct control-ID cells (e.g. "1.1", "2.5", "3.7") that
+ * must be present somewhere in the workbook (across ALL sheets) before we
+ * accept it as content. Threshold of 5 is calibrated to:
+ *   - PASS the smallest legitimate role-based checklist (entra: 5 controls)
+ *   - PASS the maturity dashboard (78 IDs across pillar sheets, 0 on Summary)
+ *   - REJECT a placeholder workbook with no control IDs at all
+ * Plan-checker F3 originally proposed ≥10, but inspection of the actual
+ * shipped workbooks revealed role-based subsets carry as few as 5; bumping
+ * higher would false-positive on legitimate customer files.
+ */
+const MIN_DISTINCT_CONTROL_IDS = 5;
+
 /** Count .xlsx files physically present in docs/downloads/ */
 function countDiskXlsx() {
   return readdirSync(DOWNLOADS_SRC_DIR).filter((f) => f.endsWith(".xlsx"))
@@ -51,21 +68,31 @@ function countDiskXlsx() {
 }
 
 /**
- * Returns true if any cell in the first sheet of `workbook` satisfies the
- * content-marker heuristic (control ID regex OR FSI/Pillar/Zone text).
+ * Returns { ok, distinctControlIds, hasFsiToken } describing whether the
+ * workbook (across ALL sheets) contains real framework content (≥5 distinct
+ * control IDs AND at least one FSI/Pillar/Zone token), or merely a placeholder.
+ * Scans all sheets because some workbooks (e.g. governance-maturity-dashboard)
+ * keep the Summary as sheet 0 and put the control rows on per-pillar sheets.
  */
-function hasContentMarker(workbook) {
-  const sheetName = workbook.SheetNames[0];
-  const ws = workbook.Sheets[sheetName];
-  const rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
-  for (const row of rows) {
-    for (const cell of row) {
-      const v = String(cell ?? "").trim();
-      if (CONTROL_ID_RE.test(v)) return true;
-      if (FSI_MARKER_RE.test(v)) return true;
+function inspectContent(workbook) {
+  const controlIds = new Set();
+  let hasFsiToken = false;
+  for (const sheetName of workbook.SheetNames) {
+    const ws = workbook.Sheets[sheetName];
+    const rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
+    for (const row of rows) {
+      for (const cell of row) {
+        const v = String(cell ?? "").trim();
+        if (CONTROL_ID_RE.test(v)) controlIds.add(v);
+        if (FSI_MARKER_RE.test(v)) hasFsiToken = true;
+      }
     }
   }
-  return false;
+  return {
+    ok: controlIds.size >= MIN_DISTINCT_CONTROL_IDS && hasFsiToken,
+    distinctControlIds: controlIds.size,
+    hasFsiToken,
+  };
 }
 
 test.describe("Downloads integrity @regression @docs-content", () => {
@@ -158,11 +185,17 @@ test.describe("Downloads integrity @regression @docs-content", () => {
           continue;
         }
 
-        // (E) Content marker.
-        if (!hasContentMarker(workbook)) {
+        // (E) Content marker — require ≥10 distinct control IDs AND ≥1 FSI/Pillar/Zone
+        // token (plan-checker F3 tightening; previous heuristic accepted any single
+        // cell containing the word "Pillar" anywhere, which let placeholder
+        // workbooks through).
+        const content = inspectContent(workbook);
+        if (!content.ok) {
           failures.push(
-            `${label}: no content marker — expected a cell matching ` +
-              `/^[1-4]\\.\\d{1,2}$/ or containing "FSI", "Pillar", or "Zone"`,
+            `${label}: content too thin — found ${content.distinctControlIds} ` +
+              `distinct control IDs (required ≥${MIN_DISTINCT_CONTROL_IDS}) and ` +
+              `${content.hasFsiToken ? "an" : "no"} FSI/Pillar/Zone token. ` +
+              `Customer-facing checklists must contain real control rows, not placeholder text.`,
           );
         }
       }
