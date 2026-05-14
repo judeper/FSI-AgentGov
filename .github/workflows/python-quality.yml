@@ -12,6 +12,14 @@ on:
       - 'pyproject.toml'
       - 'ruff.toml'
       - '.github/workflows/python-quality.yml'
+      # Version-stamp gate (verify_version_stamps job) needs to run when any
+      # canonical-version surface changes, even if no Python/scripts changed.
+      - 'VERSION'
+      - 'README.md'
+      - 'DISCLAIMER.md'
+      - '.claude/claude.md'
+      - 'docs/disclaimer.md'
+      - 'docs/framework/**'
   push:
     branches:
       - main
@@ -25,6 +33,12 @@ on:
       - 'pyproject.toml'
       - 'ruff.toml'
       - '.github/workflows/python-quality.yml'
+      - 'VERSION'
+      - 'README.md'
+      - 'DISCLAIMER.md'
+      - '.claude/claude.md'
+      - 'docs/disclaimer.md'
+      - 'docs/framework/**'
 
 permissions:
   contents: read
@@ -94,3 +108,14 @@ jobs:
         with:
           python-version: '3.11'
       - run: python scripts/verify_language_rules.py
+
+  verify_version_stamps:
+    name: verify_version_stamps
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Verify framework version stamps match canonical (VERSION)
+        run: python scripts/verify_version_stamps.py --check
