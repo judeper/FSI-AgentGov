@@ -189,28 +189,70 @@ test.describe("export XLSX @regression", () => {
     // Defense in depth: the cell must NOT begin with a raw formula char.
     expect(/^[=+\-@]/.test(notesCell)).toBe(false);
 
-    // ── SCORE CELL TYPE ASSERTION (council critique gap — Phase 0I) ───────
+    // ── SCORE CELL TYPE ASSERTIONS (council critique gap — Phase 0I + plan-checker TQ5) ─
     // The SPA emits Overall Score as `(getOverallScore() || 0) + "%"`, which
     // is a JavaScript string. SheetJS aoa_to_sheet stores it as t="s" (string),
     // not t="n" (number). Excel refuses to SUM or AVERAGE string-typed cells,
     // so a compliance officer who exports this workbook and runs a pivot table
     // over the Score column gets zeros or #VALUE! errors on their roll-ups.
-    // Expected today: FAIL (t="s"). Fix: emit numeric cell with percent format.
-    const scoreRowIdx = summaryRows.findIndex((r) => r[0] === "Overall Score");
+    //
+    // Plan-checker TQ5: the original assertion only covered the Overall Score
+    // cell. The same string-vs-number bug presumably affects per-pillar score
+    // rows in Summary AND the Score column in Control Details. Fix-and-forget
+    // would pass the single-cell assertion while leaving 5+ other cells broken.
+    //
+    // Targeted check: only flag cells whose value LOOKS like a percent string
+    // (`/^\d+%$/`) — those are the SPA's score emissions. Cells with "N/A" or
+    // other legitimately-string values are not in scope.
+    //
+    // Expected today: FAIL on every score cell (t="s"). Fix: emit numeric
+    // cells with percent format ({ v: 0.75, t: "n", z: "0%" }).
+
+    const PERCENT_STRING_RE = /^\d+%$/;
+    const numericCellOffenders = [];
+
+    function checkPercentCell(sheetName, addr, label) {
+      const cell = wb.Sheets[sheetName][addr];
+      if (!cell) return;
+      const v = cell.v;
+      if (typeof v === "string" && PERCENT_STRING_RE.test(v.trim())) {
+        // It's a percent — must be numeric type with % format, not a string.
+        if (cell.t !== "n") {
+          numericCellOffenders.push(
+            `${sheetName}!${addr} (${label}) is t="${cell.t}" v=${JSON.stringify(v)} ` +
+              `— percent value emitted as STRING; must be t="n" with z="0%"`,
+          );
+        }
+      }
+    }
+
+    // Summary sheet: any value cell adjacent to a label containing "Score".
+    summaryRows.forEach((row, rIdx) => {
+      const label = String(row[0] ?? "");
+      if (!/score/i.test(label)) return;
+      const addr = XLSX.utils.encode_cell({ r: rIdx, c: 1 });
+      checkPercentCell("Summary", addr, label);
+    });
+
+    // Control Details sheet: column "Score" (index 4).
+    detailsRows.forEach((row, rIdx) => {
+      if (rIdx === 0) return;
+      const id = String(row[0] ?? "");
+      if (!/^[1-4]\.\d{1,2}$/.test(id)) return;
+      const addr = XLSX.utils.encode_cell({ r: rIdx, c: 4 });
+      checkPercentCell("Control Details", addr, `control ${id} Score`);
+    });
+
     expect(
-      scoreRowIdx,
-      "Overall Score row must be present in Summary sheet before type check",
-    ).toBeGreaterThan(-1);
-    const scoreAddr = XLSX.utils.encode_cell({ r: scoreRowIdx, c: 1 });
-    const scoreCell = wb.Sheets["Summary"][scoreAddr];
-    expect(
-      scoreCell?.t,
-      "If this fails, customers cannot SUM or average score columns in their " +
-        "pivot tables. Score cells must be NUMBER type (t='n'), not STRING " +
-        "(t='s'). The SPA currently writes scores as percent strings (e.g. " +
-        "'75%') via aoa_to_sheet, making them unaggregateable in Excel. " +
-        "Fix: emit { v: 0.75, t: 'n', z: '0%' } so Excel formats the number " +
-        "as a percentage while preserving the numeric type for formulas.",
-    ).toBe("n");
+      numericCellOffenders,
+      "If this fails, customers cannot SUM or AVERAGE score columns in their " +
+        "pivot tables. ALL percent-shaped score cells (Overall, per-pillar, " +
+        "per-control) must be NUMBER type (t='n') with format z='0%', not " +
+        "STRING. Fix: in every score-emission path replace `(score || 0) + '%'`" +
+        " with `{ v: score / 100, t: 'n', z: '0%' }` so Excel formats the " +
+        "number as a percentage while preserving the numeric type for formulas. " +
+        "Offenders:\n" +
+        numericCellOffenders.map((s) => `  • ${s}`).join("\n"),
+    ).toEqual([]);
   });
 });
