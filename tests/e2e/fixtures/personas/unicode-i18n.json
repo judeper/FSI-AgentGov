@@ -1,0 +1,494 @@
+{
+  "name": "unicode-i18n",
+  "scoping": {
+    "organizationName": "Société Générale العربية 中文 🏦",
+    "assessorName": "Müller Łukasz ​",
+    "institutionType": "bank",
+    "zones": [
+      1,
+      2,
+      3
+    ]
+  },
+  "answers": {
+    "1.1": "yes",
+    "1.2": "no",
+    "1.3": "partial",
+    "1.4": "yes",
+    "1.5": "no",
+    "1.6": "partial",
+    "1.7": "yes",
+    "1.8": "no",
+    "1.9": "partial",
+    "1.10": "yes",
+    "1.11": "no",
+    "1.12": "partial",
+    "1.13": "yes",
+    "1.14": "no",
+    "1.15": "partial",
+    "1.16": "yes",
+    "1.17": "no",
+    "1.18": "partial",
+    "1.19": "yes",
+    "1.20": "no",
+    "1.21": "partial",
+    "1.22": "yes",
+    "1.23": "no",
+    "1.24": "partial",
+    "1.25": "yes",
+    "1.26": "no",
+    "1.27": "partial",
+    "1.28": "yes",
+    "1.29": "no",
+    "2.1": "no",
+    "2.2": "partial",
+    "2.3": "yes",
+    "2.4": "no",
+    "2.5": "partial",
+    "2.6": "yes",
+    "2.7": "no",
+    "2.8": "partial",
+    "2.9": "yes",
+    "2.10": "no",
+    "2.11": "partial",
+    "2.12": "yes",
+    "2.13": "no",
+    "2.14": "partial",
+    "2.15": "yes",
+    "2.16": "no",
+    "2.17": "partial",
+    "2.18": "yes",
+    "2.19": "no",
+    "2.20": "partial",
+    "2.21": "yes",
+    "2.22": "no",
+    "2.23": "partial",
+    "2.24": "yes",
+    "2.25": "no",
+    "2.26": "partial",
+    "3.1": "partial",
+    "3.2": "yes",
+    "3.3": "no",
+    "3.4": "partial",
+    "3.5": "yes",
+    "3.6": "no",
+    "3.7": "partial",
+    "3.8": "yes",
+    "3.9": "no",
+    "3.10": "partial",
+    "3.11": "yes",
+    "3.12": "no",
+    "3.13": "partial",
+    "3.14": "yes",
+    "4.1": "yes",
+    "4.2": "no",
+    "4.3": "partial",
+    "4.4": "yes",
+    "4.5": "no",
+    "4.6": "partial",
+    "4.7": "yes",
+    "4.8": "no",
+    "4.9": "partial"
+  },
+  "responses": {
+    "1.1": {
+      "answer": "yes",
+      "notes": "مراجعة الامتثال ✅ ​",
+      "evidenceRef": ""
+    },
+    "1.2": {
+      "answer": "no",
+      "notes": "中文审核 ‫未通过‬",
+      "evidenceRef": ""
+    },
+    "1.3": {
+      "answer": "partial",
+      "notes": "🏦 Müller Łukasz — пересмотр",
+      "evidenceRef": ""
+    },
+    "1.4": {
+      "answer": "yes",
+      "notes": "مراجعة الامتثال ✅ ​",
+      "evidenceRef": ""
+    },
+    "1.5": {
+      "answer": "no",
+      "notes": "中文审核 ‫未通过‬",
+      "evidenceRef": ""
+    },
+    "1.6": {
+      "answer": "partial",
+      "notes": "🏦 Müller Łukasz — пересмотр",
+      "evidenceRef": ""
+    },
+    "1.7": {
+      "answer": "yes",
+      "notes": "مراجعة الامتثال ✅ ​",
+      "evidenceRef": ""
+    },
+    "1.8": {
+      "answer": "no",
+      "notes": "中文审核 ‫未通过‬",
+      "evidenceRef": ""
+    },
+    "1.9": {
+      "answer": "partial",
+      "notes": "🏦 Müller Łukasz — пересмотр",
+      "evidenceRef": ""
+    },
+    "1.10": {
+      "answer": "yes",
+      "notes": "مراجعة الامتثال ✅ ​",
+      "evidenceRef": ""
+    },
+    "1.11": {
+      "answer": "no",
+      "notes": "中文审核 ‫未通过‬",
+      "evidenceRef": ""
+    },
+    "1.12": {
+      "answer": "partial",
+      "notes": "🏦 Müller Łukasz — пересмотр",
+      "evidenceRef": ""
+    },
+    "1.13": {
+      "answer": "yes",
+      "notes": "مراجعة الامتثال ✅ ​",
+      "evidenceRef": ""
+    },
+    "1.14": {
+      "answer": "no",
+      "notes": "中文审核 ‫未通过‬",
+      "evidenceRef": ""
+    },
+    "1.15": {
+      "answer": "partial",
+      "notes": "🏦 Müller Łukasz — пересмотр",
+      "evidenceRef": ""
+    },
+    "1.16": {
+      "answer": "yes",
+      "notes": "مراجعة الامتثال ✅ ​",
+      "evidenceRef": ""
+    },
+    "1.17": {
+      "answer": "no",
+      "notes": "中文审核 ‫未通过‬",
+      "evidenceRef": ""
+    },
+    "1.18": {
+      "answer": "partial",
+      "notes": "🏦 Müller Łukasz — пересмотр",
+      "evidenceRef": ""
+    },
+    "1.19": {
+      "answer": "yes",
+      "notes": "مراجعة الامتثال ✅ ​",
+      "evidenceRef": ""
+    },
+    "1.20": {
+      "answer": "no",
+      "notes": "中文审核 ‫未通过‬",
+      "evidenceRef": ""
+    },
+    "1.21": {
+      "answer": "partial",
+      "notes": "🏦 Müller Łukasz — пересмотр",
+      "evidenceRef": ""
+    },
+    "1.22": {
+      "answer": "yes",
+      "notes": "مراجعة الامتثال ✅ ​",
+      "evidenceRef": ""
+    },
+    "1.23": {
+      "answer": "no",
+      "notes": "中文审核 ‫未通过‬",
+      "evidenceRef": ""
+    },
+    "1.24": {
+      "answer": "partial",
+      "notes": "🏦 Müller Łukasz — пересмотр",
+      "evidenceRef": ""
+    },
+    "1.25": {
+      "answer": "yes",
+      "notes": "مراجعة الامتثال ✅ ​",
+      "evidenceRef": ""
+    },
+    "1.26": {
+      "answer": "no",
+      "notes": "中文审核 ‫未通过‬",
+      "evidenceRef": ""
+    },
+    "1.27": {
+      "answer": "partial",
+      "notes": "🏦 Müller Łukasz — пересмотр",
+      "evidenceRef": ""
+    },
+    "1.28": {
+      "answer": "yes",
+      "notes": "مراجعة الامتثال ✅ ​",
+      "evidenceRef": ""
+    },
+    "1.29": {
+      "answer": "no",
+      "notes": "中文审核 ‫未通过‬",
+      "evidenceRef": ""
+    },
+    "2.1": {
+      "answer": "no",
+      "notes": "中文审核 ‫未通过‬",
+      "evidenceRef": ""
+    },
+    "2.2": {
+      "answer": "partial",
+      "notes": "🏦 Müller Łukasz — пересмотр",
+      "evidenceRef": ""
+    },
+    "2.3": {
+      "answer": "yes",
+      "notes": "مراجعة الامتثال ✅ ​",
+      "evidenceRef": ""
+    },
+    "2.4": {
+      "answer": "no",
+      "notes": "中文审核 ‫未通过‬",
+      "evidenceRef": ""
+    },
+    "2.5": {
+      "answer": "partial",
+      "notes": "🏦 Müller Łukasz — пересмотр",
+      "evidenceRef": ""
+    },
+    "2.6": {
+      "answer": "yes",
+      "notes": "مراجعة الامتثال ✅ ​",
+      "evidenceRef": ""
+    },
+    "2.7": {
+      "answer": "no",
+      "notes": "中文审核 ‫未通过‬",
+      "evidenceRef": ""
+    },
+    "2.8": {
+      "answer": "partial",
+      "notes": "🏦 Müller Łukasz — пересмотр",
+      "evidenceRef": ""
+    },
+    "2.9": {
+      "answer": "yes",
+      "notes": "مراجعة الامتثال ✅ ​",
+      "evidenceRef": ""
+    },
+    "2.10": {
+      "answer": "no",
+      "notes": "中文审核 ‫未通过‬",
+      "evidenceRef": ""
+    },
+    "2.11": {
+      "answer": "partial",
+      "notes": "🏦 Müller Łukasz — пересмотр",
+      "evidenceRef": ""
+    },
+    "2.12": {
+      "answer": "yes",
+      "notes": "مراجعة الامتثال ✅ ​",
+      "evidenceRef": ""
+    },
+    "2.13": {
+      "answer": "no",
+      "notes": "中文审核 ‫未通过‬",
+      "evidenceRef": ""
+    },
+    "2.14": {
+      "answer": "partial",
+      "notes": "🏦 Müller Łukasz — пересмотр",
+      "evidenceRef": ""
+    },
+    "2.15": {
+      "answer": "yes",
+      "notes": "مراجعة الامتثال ✅ ​",
+      "evidenceRef": ""
+    },
+    "2.16": {
+      "answer": "no",
+      "notes": "中文审核 ‫未通过‬",
+      "evidenceRef": ""
+    },
+    "2.17": {
+      "answer": "partial",
+      "notes": "🏦 Müller Łukasz — пересмотр",
+      "evidenceRef": ""
+    },
+    "2.18": {
+      "answer": "yes",
+      "notes": "مراجعة الامتثال ✅ ​",
+      "evidenceRef": ""
+    },
+    "2.19": {
+      "answer": "no",
+      "notes": "中文审核 ‫未通过‬",
+      "evidenceRef": ""
+    },
+    "2.20": {
+      "answer": "partial",
+      "notes": "🏦 Müller Łukasz — пересмотр",
+      "evidenceRef": ""
+    },
+    "2.21": {
+      "answer": "yes",
+      "notes": "مراجعة الامتثال ✅ ​",
+      "evidenceRef": ""
+    },
+    "2.22": {
+      "answer": "no",
+      "notes": "中文审核 ‫未通过‬",
+      "evidenceRef": ""
+    },
+    "2.23": {
+      "answer": "partial",
+      "notes": "🏦 Müller Łukasz — пересмотр",
+      "evidenceRef": ""
+    },
+    "2.24": {
+      "answer": "yes",
+      "notes": "مراجعة الامتثال ✅ ​",
+      "evidenceRef": ""
+    },
+    "2.25": {
+      "answer": "no",
+      "notes": "中文审核 ‫未通过‬",
+      "evidenceRef": ""
+    },
+    "2.26": {
+      "answer": "partial",
+      "notes": "🏦 Müller Łukasz — пересмотр",
+      "evidenceRef": ""
+    },
+    "3.1": {
+      "answer": "partial",
+      "notes": "🏦 Müller Łukasz — пересмотр",
+      "evidenceRef": ""
+    },
+    "3.2": {
+      "answer": "yes",
+      "notes": "مراجعة الامتثال ✅ ​",
+      "evidenceRef": ""
+    },
+    "3.3": {
+      "answer": "no",
+      "notes": "中文审核 ‫未通过‬",
+      "evidenceRef": ""
+    },
+    "3.4": {
+      "answer": "partial",
+      "notes": "🏦 Müller Łukasz — пересмотр",
+      "evidenceRef": ""
+    },
+    "3.5": {
+      "answer": "yes",
+      "notes": "مراجعة الامتثال ✅ ​",
+      "evidenceRef": ""
+    },
+    "3.6": {
+      "answer": "no",
+      "notes": "中文审核 ‫未通过‬",
+      "evidenceRef": ""
+    },
+    "3.7": {
+      "answer": "partial",
+      "notes": "🏦 Müller Łukasz — пересмотр",
+      "evidenceRef": ""
+    },
+    "3.8": {
+      "answer": "yes",
+      "notes": "مراجعة الامتثال ✅ ​",
+      "evidenceRef": ""
+    },
+    "3.9": {
+      "answer": "no",
+      "notes": "中文审核 ‫未通过‬",
+      "evidenceRef": ""
+    },
+    "3.10": {
+      "answer": "partial",
+      "notes": "🏦 Müller Łukasz — пересмотр",
+      "evidenceRef": ""
+    },
+    "3.11": {
+      "answer": "yes",
+      "notes": "مراجعة الامتثال ✅ ​",
+      "evidenceRef": ""
+    },
+    "3.12": {
+      "answer": "no",
+      "notes": "中文审核 ‫未通过‬",
+      "evidenceRef": ""
+    },
+    "3.13": {
+      "answer": "partial",
+      "notes": "🏦 Müller Łukasz — пересмотр",
+      "evidenceRef": ""
+    },
+    "3.14": {
+      "answer": "yes",
+      "notes": "مراجعة الامتثال ✅ ​",
+      "evidenceRef": ""
+    },
+    "4.1": {
+      "answer": "yes",
+      "notes": "مراجعة الامتثال ✅ ​",
+      "evidenceRef": ""
+    },
+    "4.2": {
+      "answer": "no",
+      "notes": "中文审核 ‫未通过‬",
+      "evidenceRef": ""
+    },
+    "4.3": {
+      "answer": "partial",
+      "notes": "🏦 Müller Łukasz — пересмотр",
+      "evidenceRef": ""
+    },
+    "4.4": {
+      "answer": "yes",
+      "notes": "مراجعة الامتثال ✅ ​",
+      "evidenceRef": ""
+    },
+    "4.5": {
+      "answer": "no",
+      "notes": "中文审核 ‫未通过‬",
+      "evidenceRef": ""
+    },
+    "4.6": {
+      "answer": "partial",
+      "notes": "🏦 Müller Łukasz — пересмотр",
+      "evidenceRef": ""
+    },
+    "4.7": {
+      "answer": "yes",
+      "notes": "مراجعة الامتثال ✅ ​",
+      "evidenceRef": ""
+    },
+    "4.8": {
+      "answer": "no",
+      "notes": "中文审核 ‫未通过‬",
+      "evidenceRef": ""
+    },
+    "4.9": {
+      "answer": "partial",
+      "notes": "🏦 Müller Łukasz — пересмотр",
+      "evidenceRef": ""
+    }
+  },
+  "expectedScores": {
+    "overall": 50,
+    "perPillar": {
+      "1": 50,
+      "2": 48,
+      "3": 54,
+      "4": 50
+    }
+  }
+}
