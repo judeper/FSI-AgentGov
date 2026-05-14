@@ -234,7 +234,7 @@
 
 **Affected Controls:**
 - Control 2.6: Control 2.6: Model Risk Management (OCC 2011-12/SR 11-7)
-  - File: `controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md`
+  - File: `controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md`
 - Control 2.9: Control 2.9: Agent Performance Monitoring and Optimization
   - File: `controls/pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md`
 - Control 3.10: Control 3.10: Hallucination Feedback Loop

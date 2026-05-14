@@ -1144,7 +1144,7 @@ When facts change after an initial 8-K is filed, **Item 1.05(c)** requires an **
     5. Where Defer: re-convene UTC and the eventual final determination record.
 
 !!! tip "Cross-Reference"
-    Model-risk implications of a Material AI-agent incident (e.g., model retirement triggers under SR 11-7) are owned by [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md). A Material AI-agent integrity incident typically triggers MRM challenge re-validation in addition to disclosure obligations.
+    Model-risk implications of a Material AI-agent incident (e.g., model retirement triggers under SR 11-7) are owned by [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md). A Material AI-agent integrity incident typically triggers MRM challenge re-validation in addition to disclosure obligations.
 
 ## 11. OFAC Sanctions Screening — Pre-Payment Gate for Extortion Demands
 
@@ -1291,7 +1291,7 @@ Tabletop materials (pre-read, scenario script, inject log, AAR) are retained in 
     4. Board Risk Committee briefing materials referencing exercise outcomes (annual).
 
 !!! tip "Cross-Reference"
-    Tabletop scenarios that exercise orphaned-agent cascade should align with [Control 3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md). Scenarios that exercise MRM escalation should align with [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md). Scenarios that exercise supervisory escalation should align with [Control 2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md).
+    Tabletop scenarios that exercise orphaned-agent cascade should align with [Control 3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md). Scenarios that exercise MRM escalation should align with [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md). Scenarios that exercise supervisory escalation should align with [Control 2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md).
 
 ## 13. Regulator Portal References
 
@@ -1445,7 +1445,7 @@ Confirm every item before declaring Control 3.4 portal-side implementation **Rea
 - [ ] Audit-log retention sufficiency validated against incident-investigation needs per [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md).
 - [ ] Retention-policy adequacy for Copilot interaction history validated per [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md).
 - [ ] Identity controls (PIM, phishing-resistant MFA) per [Control 1.11](../../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md).
-- [ ] Material AI-agent integrity incidents trigger MRM challenge re-validation per [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md).
+- [ ] Material AI-agent integrity incidents trigger MRM challenge re-validation per [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md).
 - [ ] Agent-365 console used for cross-tenant agent inventory and ownership lookups per [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md).
 - [ ] Orphaned-agent detection feed correlated into Sentinel per [Control 3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md).
 - [ ] Sentinel integration architecture maintained per [Control 3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md).

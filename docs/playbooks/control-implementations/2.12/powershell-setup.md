@@ -2272,7 +2272,7 @@ See [Control 2.13 — Documentation and Record-Keeping](../../../controls/pillar
 
 - [1.2 — Agent Registry and Integrated Apps Management](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) — The registry that bounds §4 scope and links agent IDs to zone classification used in §4.3 SLA thresholds and §8 sampling rates.
 - [1.7 — Comprehensive Audit Logging and Compliance](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) — SIEM-side enforcement for §13 forwarding.
-- [2.6 — Model Risk Management (OCC 2011-12 / SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) — Supervision is a component of MRM; §9 feeds MRM evidence.
+- [2.6 — Model Risk Management (OCC 2011-12 / SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) — Supervision is a component of MRM; §9 feeds MRM evidence.
 - [2.13 — Documentation and Record-Keeping](../../../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) — Retention policy for every artifact in §15.
 - [2.25 — Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) — Agent 365 admin approvals reference this control as the supervisory anchor; admin approval is **not** principal supervision.
 - [2.26 — Entra Agent ID Identity Governance](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) — Sponsorship consumed by §11 for criterion #8 support; sponsorship is **not** principal supervision.

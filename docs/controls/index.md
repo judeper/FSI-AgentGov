@@ -94,7 +94,7 @@ Govern agent lifecycle, risk, and operational processes.
 | [2.3](pillar-2-management/2.3-change-management-and-release-planning.md) | Change Management | 2-3 | SOX |
 | [2.4](pillar-2-management/2.4-business-continuity-and-disaster-recovery.md) | Business Continuity | 3 | - |
 | [2.5](pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Testing and Validation | 2-3 | FINRA 3110 |
-| [2.6](pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | 3 | OCC 2011-12, SR 26-2 (formerly SR 11-7) |
+| [2.6](pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Model Risk Management | 3 | OCC 2011-12, SR 26-2 (formerly SR 11-7) |
 | [2.7](pillar-2-management/2.7-vendor-and-third-party-risk-management.md) | Vendor Risk Management | 2-3 | GLBA |
 | [2.8](pillar-2-management/2.8-access-control-and-segregation-of-duties.md) | Segregation of Duties | 2-3 | SOX |
 | [2.9](pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md) | Performance Monitoring | 2-3 | FINRA 4511 |

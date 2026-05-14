@@ -131,7 +131,7 @@ Modified:
 
 - `docs/controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md` — Data Availability info box: 180-day analytics, 28-day session details
 - `docs/controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md` — retention windows admonition
-- `docs/controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md` — retention admonition in §Platform-Enabled Monitoring; footer to May 2026
+- `docs/controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md` — retention admonition in §Platform-Enabled Monitoring; footer to May 2026
 - `docs/controls/pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md` — retention admonition in §Verification Criteria
 - `docs/controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md` — retention admonition after Feedback Capture table
 - `docs/playbooks/control-implementations/2.5/portal-walkthrough.md` — new §9.8 covering 7-area effectiveness panel structure (added "Knowledge source use")

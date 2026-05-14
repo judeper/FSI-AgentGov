@@ -45,7 +45,7 @@
     | Communications supervisory review under FINRA Rule 3110 | [Control 1.10 — Communication Compliance](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) and [Control 2.12 — Supervision and Oversight (FINRA 3110)](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) |
     | Formal incident response, regulator notification (SEC Reg S-P, NYDFS §500.17(a), state breach laws) | [Control 3.4 — Incident Reporting and Root-Cause Analysis](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) |
     | Books-and-records retention under SEC 17a-4(f) / FINRA 4511 | [Control 1.7 — Comprehensive Audit Logging](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) and [Control 1.9 — Records Retention and Immutability](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) |
-    | Model-risk governance for the AI / ML scoring used by IRM Analytics, Adaptive Protection, Triage Agent, and Risky Agents | [Control 2.6 — Model Risk Management (OCC 2011-12 / SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) |
+    | Model-risk governance for the AI / ML scoring used by IRM Analytics, Adaptive Protection, Triage Agent, and Risky Agents | [Control 2.6 — Model Risk Management (OCC 2011-12 / SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) |
     | Identity-risk detection (failed sign-ins, risky users, risky sign-ins) — these are **Entra ID Protection** signals, not IRM. Identity assurance for IRM administrators and investigators is governed by [Control 1.11 — Conditional Access and Phishing-Resistant MFA](../../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) and (for service-principal / agent identities) [Control 2.26 — Entra Agent ID and Identity Governance](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) |
     | Behavioral analytics across the broader security telemetry plane | [Control 3.9 — Microsoft Sentinel UEBA Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) |
 
@@ -933,7 +933,7 @@ The **Triage Agent** is a Security Copilot–powered IRM agent that automates fi
 | Billing model | **Pay-as-you-go (PAYG)** linked to an Azure subscription, in addition to the IRM per-user license |
 | Saved authorization / configuration refresh cadence | Triage Agent saved-authorization and configuration must be **refreshed every 90 days**. Schedule a recurring CAB ticket and capture the refresh in evidence — an expired authorization silently disables the agent |
 | Sovereign cloud availability | Verify on Microsoft Learn at deployment. Likely **not at parity** in GCC High / DoD — see Sovereign Cloud Availability table |
-| Model risk governance | Triage Agent is an AI/ML model in the supervisory pipeline. It is **in scope of [Control 2.6 — Model Risk Management (OCC 2011-12 / SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md)**: validation, ongoing monitoring, challenger benchmarking, documented limitations, and human-in-the-loop override. Do not deploy Triage Agent into Zone-3 supervisory workflow until MRM sign-off is captured |
+| Model risk governance | Triage Agent is an AI/ML model in the supervisory pipeline. It is **in scope of [Control 2.6 — Model Risk Management (OCC 2011-12 / SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md)**: validation, ongoing monitoring, challenger benchmarking, documented limitations, and human-in-the-loop override. Do not deploy Triage Agent into Zone-3 supervisory workflow until MRM sign-off is captured |
 | Human-in-the-loop | Triage Agent recommendations must be **reviewable and overridable** by Analysts / Investigators. Capture the override-rate metric monthly as a Triage Agent quality signal |
 | Audit | Triage Agent actions emit UAL rows. Include Triage Agent operations in the Auditors role group's monthly review |
 
@@ -941,7 +941,7 @@ The **Triage Agent** is a Security Copilot–powered IRM agent that automates fi
 
 **Recommended FSI rollout for Triage Agent:**
 
-1. Capture Model Risk Management sign-off ([Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md)) **before** enabling
+1. Capture Model Risk Management sign-off ([Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md)) **before** enabling
 2. Enable in **shadow mode** (recommendations visible to Analysts but not auto-applied) for at least one full quarter
 3. Measure agreement-rate, override-rate, and false-clear rate against human Analyst baseline
 4. Promote to assistive mode only after MRM and supervisory committee review of the shadow-mode metrics
@@ -1063,7 +1063,7 @@ Store in immutable storage (Purview retention label, SharePoint hold, or WORM bl
 - [Control 1.11 Conditional Access and Phishing-Resistant MFA](../../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) — Entra ID Protection signals (failed sign-ins, risky sign-ins, leaked credentials) which IRM does **not** consume
 - [Control 1.13 Sensitive Information Types](../../../controls/pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition.md) — create custom SITs **before** referencing them in IRM priority content
 - [Control 1.19 eDiscovery for Agent Interactions](../../../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md) — escalation path for legal hold / production
-- [Control 2.6 Model Risk Management](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) — ML risk scoring (IRM Analytics, Adaptive Protection, Risky Agents, Triage Agent) require MRM governance under OCC 2011-12 / SR 11-7
+- [Control 2.6 Model Risk Management](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) — ML risk scoring (IRM Analytics, Adaptive Protection, Risky Agents, Triage Agent) require MRM governance under OCC 2011-12 / SR 11-7
 - [Control 2.8 Access Control and Segregation of Duties](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md) — privileged-admin priority population; governs JIT elevation for IRM Admins / Investigators / Approvers
 - [Control 2.12 Supervision and Oversight (FINRA 3110)](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) — FINRA 3110 / 25-07 supervisory framing
 - [Control 2.26 Entra Agent ID and Identity Governance](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) — agent / service-principal identity correlation for Risky Agents investigations

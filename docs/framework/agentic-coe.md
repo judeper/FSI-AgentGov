@@ -43,7 +43,7 @@ The framework's promise here is a **blueprint, not a turnkey operating model**: 
 
 **Primary FSI roles:** AI Governance Lead, Chief Compliance Officer, Chief Risk Officer, CISO. See [role-catalog.md](../reference/role-catalog.md) for canonical role names and the CAPE Role Mapping cross-reference.
 
-**Key controls:** [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), [2.3](../controls/pillar-2-management/2.3-change-management-and-release-planning.md), [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md), [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md), [3.1](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md).
+**Key controls:** [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), [2.3](../controls/pillar-2-management/2.3-change-management-and-release-planning.md), [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md), [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md), [3.1](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md).
 
 **FSI-specific guardrail.** Govern is the function whose accountability is examiner-facing. Even in a Federated CoE shape where Build and Optimize are distributed to business lines, the named principal who answers an OCC, FINRA, or SEC examiner question must sit inside the Govern function. The federation guardrail (below) applies most acutely here.
 

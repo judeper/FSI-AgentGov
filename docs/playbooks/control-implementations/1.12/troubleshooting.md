@@ -2014,7 +2014,7 @@ Privileged-communication review: <Legal Counsel>
 - [Control 1.19 — eDiscovery for Agent Interactions](../../../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md) — legal hold; examiner production
 - [Control 2.1 — Managed Environments](../../../controls/pillar-2-management/2.1-managed-environments.md) — Power Platform managed-environment baseline
 - [Control 2.3 — Change Management / CAB](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md) — agent re-publish under change control
-- [Control 2.6 — Model Risk Management](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) — OCC 2011-12 / Federal Reserve SR 11-7 model inventory; Triage Agent drift
+- [Control 2.6 — Model Risk Management](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) — OCC 2011-12 / Federal Reserve SR 11-7 model inventory; Triage Agent drift
 - [Control 2.11 — Bias Monitoring](../../../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) — protected-class fairness review of risk scoring
 - [Control 2.16 — RAG / Knowledge Source Controls](../../../controls/pillar-2-management/2.16-rag-source-integrity-validation.md) — agent knowledge-source narrowing
 - [Control 2.25 — Agent 365 Inventory](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) — agent registry; per-agent baseline review

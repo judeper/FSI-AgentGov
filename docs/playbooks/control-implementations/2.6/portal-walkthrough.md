@@ -1,7 +1,7 @@
 # Portal Walkthrough — Control 2.6: Model Risk Management (OCC Bulletin 2026-13 / Fed SR 26-2 — formerly OCC 2011-12 / Fed SR 11-7)
 
 !!! danger "READ FIRST — What This Playbook Configures, and What It Does Not"
-    This playbook walks a US FSI Microsoft 365 administrator through the **portal configuration of the Microsoft surfaces that produce model-risk-management evidence** for AI agents — Microsoft Purview Data Security Posture Management (DSPM) for AI, the Agent 365 Admin Center, the Agent Card SharePoint inventory, Microsoft Copilot Studio Analytics, Azure AI Foundry monitoring and evaluators, and Microsoft Entra Agent ID. It is the operational companion to [Control 2.6 — Model Risk Management](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md).
+    This playbook walks a US FSI Microsoft 365 administrator through the **portal configuration of the Microsoft surfaces that produce model-risk-management evidence** for AI agents — Microsoft Purview Data Security Posture Management (DSPM) for AI, the Agent 365 Admin Center, the Agent Card SharePoint inventory, Microsoft Copilot Studio Analytics, Azure AI Foundry monitoring and evaluators, and Microsoft Entra Agent ID. It is the operational companion to [Control 2.6 — Model Risk Management](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md).
 
     **These surfaces support compliance with OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) and Federal Reserve SR 26-2 (formerly SR 11-7). They do not replace, and must not be presented in the firm's MRM policy, Written Supervisory Procedures (WSPs), or examiner submissions as a substitute for:**
 
@@ -428,7 +428,7 @@ The MRM Committee, on demand, can produce each of the following. The verificatio
 | [`./powershell-setup.md`](./powershell-setup.md) | Microsoft Graph PowerShell automation for inventory exports, Agent Card list provisioning, retention-label application, Message Center subscription |
 | [`./verification-testing.md`](./verification-testing.md) | Test cases that exercise each of VC-1 through VC-10, sample evidence packages, evaluator-run reproducibility checks |
 | [`./troubleshooting.md`](./troubleshooting.md) | DSPM for AI connector failures, Agent 365 entitlement gaps, Foundry evaluator quota errors, Message Center subscription gaps, sovereign-cloud parity diagnostics |
-| [Control 2.6 — Model Risk Management](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Control specification, regulatory mapping, and zone requirements |
+| [Control 2.6 — Model Risk Management](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Control specification, regulatory mapping, and zone requirements |
 
 ### Cross-control references
 

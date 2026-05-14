@@ -3603,7 +3603,7 @@
     "title": "Control 2.6: Model Risk Management (OCC 2011-12/SR 11-7)",
     "pillar": 2,
     "pillar_name": "Management",
-    "source_file": "docs/controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md",
+    "source_file": "docs/controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md",
     "automation": "manual",
     "collection_methods": [],
     "checks": [],
@@ -3669,7 +3669,7 @@
     "verifyIn": [],
     "verifyPowerShell": "",
     "evidenceExpected": [],
-    "controlDocUrl": "/controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7/",
+    "controlDocUrl": "/controls/pillar-2-management/2.6-model-risk-management-sr-26-2/",
     "portalPlaybookUrl": "/playbooks/control-implementations/2.6/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {

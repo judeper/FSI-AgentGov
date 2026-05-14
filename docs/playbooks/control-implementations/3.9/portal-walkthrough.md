@@ -31,7 +31,7 @@
     | Runtime XPIA / jailbreak / external-threat detection at the Defender / Prompt Shields layer | [Control 1.8 — Runtime Protection and External Threat Detection](../../../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md) |
     | Conditional Access policy authorship for the CA Insights workbook | [Control 1.11 — Conditional Access and Phishing-Resistant MFA](../../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) |
     | Defender AI-SPM posture scoring (the Defender feed Sentinel ingests) | [Control 1.24 — Defender AI Security Posture Management](../../../controls/pillar-1-security/1.24-defender-ai-security-posture-management.md) |
-    | Model risk re-validation triggered by Sentinel monitoring findings | [Control 2.6 — Model Risk Management Alignment with OCC 2011-12 / SR 11-7](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) |
+    | Model risk re-validation triggered by Sentinel monitoring findings | [Control 2.6 — Model Risk Management Alignment with OCC 2011-12 / SR 11-7](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) |
     | Supervisory review (FINRA 3110) of Sentinel alert evidence | [Control 2.12 — Supervision and Oversight (FINRA Rule 3110)](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) |
     | Agent registry metadata used to enrich Sentinel incidents | [Control 2.25 — Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) |
     | Incident reporting and root-cause analysis after Sentinel triages an incident | [Control 3.4 — Incident Reporting and Root Cause Analysis](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) |
@@ -41,7 +41,7 @@
     If the task at hand is **not** a portal-driven Sentinel deployment, configuration, or operational tuning action, stop and follow the routing above before continuing.
 
 !!! warning "Scope Limit — Operational monitoring, not books-and-records"
-    Microsoft Sentinel **supports** detection, investigation, alerting evidence, and the audit-trail expectations of **NYDFS 23 NYCRR 500.06**, the incident-response-plan expectations of **NYDFS 500.16**, and the 72-hour notification timer of **NYDFS 500.17**. It also **supports** the ongoing-monitoring expectations on AI/ML models in **OCC Bulletin 2011-12** and **Federal Reserve SR 11-7** by feeding monitoring findings into MRM re-validation under [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md).
+    Microsoft Sentinel **supports** detection, investigation, alerting evidence, and the audit-trail expectations of **NYDFS 23 NYCRR 500.06**, the incident-response-plan expectations of **NYDFS 500.16**, and the 72-hour notification timer of **NYDFS 500.17**. It also **supports** the ongoing-monitoring expectations on AI/ML models in **OCC Bulletin 2011-12** and **Federal Reserve SR 11-7** by feeding monitoring findings into MRM re-validation under [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md).
 
     Sentinel does **not** substitute for any of the following, and this walkthrough is not a books-and-records retention design:
 
@@ -49,7 +49,7 @@
     |------------|--------------------------|
     | Books-and-records retention under **FINRA Rule 4511** and **SEC Rules 17a-3 / 17a-4** (including 17a-4(f) WORM and audit-trail integrity) | [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) — Purview retention labels + 17a-4(f) vendor archive |
     | Supervisory review of communications and agent outputs under **FINRA Rule 3110** | [Control 2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) |
-    | Model risk management re-validation triggered by monitoring drift | [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) |
+    | Model risk management re-validation triggered by monitoring drift | [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) |
     | Incident reporting and RCA workflow after Sentinel raises an incident | [Control 3.4](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) |
     | Orphaned-agent identification and remediation cascade | [Control 3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) |
 
@@ -804,7 +804,7 @@ A Microsoft-published workbook that visualizes Conditional Access policy effecti
 
 ### 5.3 Agent Usage and Performance workbook
 
-Consumes the Application Insights stream from §3.7 (where enabled). Provides per-agent latency, error rate, conversation volume, and top intents — useful for **operational** observability and for input to MRM re-validation under [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md).
+Consumes the Application Insights stream from §3.7 (where enabled). Provides per-agent latency, error rate, conversation volume, and top intents — useful for **operational** observability and for input to MRM re-validation under [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md).
 
 1. Defender portal → **Microsoft Sentinel** → **Workbooks** → **+ Workbook**.
 2. Add Query parts targeting the Application Insights tables (`AppRequests`, `AppDependencies`, `AppExceptions`, `customEvents`):
@@ -819,7 +819,7 @@ Consumes the Application Insights stream from §3.7 (where enabled). Provides pe
 3. Save as `AI-Agent-Usage-Performance`.
 
 !!! warning "Performance metrics ≠ model risk evidence"
-    Performance metrics from this workbook are **operational telemetry**. They aid in detecting model drift and quality degradation, but they do **not** constitute model-risk-management evidence under OCC 2011-12 / SR 11-7. MRM evidence requires the structured re-validation workflow in [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md). Workbook outputs are inputs to that workflow, not substitutes for it.
+    Performance metrics from this workbook are **operational telemetry**. They aid in detecting model drift and quality degradation, but they do **not** constitute model-risk-management evidence under OCC 2011-12 / SR 11-7. MRM evidence requires the structured re-validation workflow in [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md). Workbook outputs are inputs to that workflow, not substitutes for it.
 
 !!! example "Examiner Evidence Box — §5 Workbooks"
     - PNG export of each of the three workbooks at the most recent quarter-end (Defender portal → Workbook → ⋯ → Print to PDF or use the workbook export endpoint)

@@ -52,7 +52,7 @@ CONTROLS = [
     ("2.3","2.3-change-management-and-release-planning.md",2,"partial",["PPAC_PowerShell"],"Is the change management workflow enforced for all Zone 3 agent promotions, with evidence stored in your ITSM system?"),
     ("2.4","2.4-business-continuity-and-disaster-recovery.md",2,"partial",["SharePoint_Graph"],"Has a business continuity failover test been executed and documented for agent-dependent processes in the last 12 months?"),
     ("2.5","2.5-testing-validation-and-quality-assurance.md",2,"manual",[],"Is there a documented QA process requiring test coverage for agent responses before Zone 2 or Zone 3 promotion?"),
-    ("2.6","2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md",2,"manual",[],"Has a model risk management review (aligned to OCC 2011-12 / SR 11-7) been completed for any agents serving regulated functions?"),
+    ("2.6","2.6-model-risk-management-sr-26-2.md",2,"manual",[],"Has a model risk management review (aligned to OCC 2011-12 / SR 11-7) been completed for any agents serving regulated functions?"),
     ("2.7","2.7-vendor-and-third-party-risk-management.md",2,"manual",[],"Has a vendor risk assessment been completed for all third-party connectors and plugins used by production agents?"),
     ("2.8","2.8-access-control-and-segregation-of-duties.md",2,"partial",["Graph_API"],"Has a segregation of duties review confirmed that no individual has both agent development and production publishing rights?"),
     ("2.9","2.9-agent-performance-monitoring-and-optimization.md",2,"partial",["PPAC_PowerShell"],"Are agent performance metrics (latency, fallback rate, escalation rate) reviewed on a scheduled cadence?"),

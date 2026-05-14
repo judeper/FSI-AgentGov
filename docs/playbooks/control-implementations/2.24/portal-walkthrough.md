@@ -25,7 +25,7 @@
     | Connector-level allow / block / block-custom DLP classification | [Control 1.4 — Advanced Connector Policies (ACP)](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md) |
     | Communication-compliance monitoring of what enabled capabilities produce | [Control 1.10 — Communication Compliance Monitoring](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) |
     | Environment-tier zoning decisions themselves | [Control 2.2 — Environment Groups and Tier Classification](../../../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) |
-    | The MRM re-validation that feature-enablement triggers | [Control 2.6 — Model Risk Management (OCC 2011-12 / SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) |
+    | The MRM re-validation that feature-enablement triggers | [Control 2.6 — Model Risk Management (OCC 2011-12 / SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) |
     | Supervisory procedures update that feature-enablement triggers | [Control 2.12 — Supervision and Oversight (FINRA 3110)](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) |
     | Orchestration-specific depth, hop, and token-budget limits | [Control 2.17 — Multi-Agent Orchestration Limits](../../../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) |
     | The Agent 365 console used to surface / block individual agents | [Control 2.25 — Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) |
@@ -39,7 +39,7 @@
 !!! danger "Non-Substitution Principle — Feature Toggles Do NOT Replace MRM, Supervision, or Publishing Authorisation"
     A feature toggle restricts what a capability **can do** at runtime. It does **not** validate that the capability is **fit for purpose** and it does **not** grant anyone permission to deploy an agent that uses it. Enabling a capability on a Zone 2 or Zone 3 agent should **trigger — not replace**:
 
-    - A **Model Risk Management re-validation** under [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) (SR 11-7 §V treats capability changes as material model changes).
+    - A **Model Risk Management re-validation** under [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) (SR 11-7 §V treats capability changes as material model changes).
     - A **supervisory-procedures update** under [Control 2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) (FINRA 3110).
     - An **AI guardrails reassessment** and publishing-authorisation review under [Control 1.1](../../../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md).
     - A connector-policy impact assessment under [Control 1.4](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md) if the capability reaches external data or egress.
@@ -1023,7 +1023,7 @@ Bundle retention is **6 years** per SEC 17a-4 / FINRA 4511. For tenants that ope
 | Classify connectors Business / Non-business / Blocked | [Control 1.4 — Advanced Connector Policies (ACP)](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md) |
 | Monitor agent output for supervisory review | [Control 1.10 — Communication Compliance Monitoring](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) |
 | Tier environments into zones | [Control 2.2 — Environment Groups and Tier Classification](../../../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) |
-| Re-validate a capability change as a model change | [Control 2.6 — Model Risk Management (OCC 2011-12 / SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) |
+| Re-validate a capability change as a model change | [Control 2.6 — Model Risk Management (OCC 2011-12 / SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) |
 | Update supervisory procedures for a new capability | [Control 2.12 — Supervision and Oversight (FINRA 3110)](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) |
 | Limit multi-agent orchestration depth, hop count, token budget | [Control 2.17 — Multi-Agent Orchestration Limits](../../../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) |
 | Surface / block an individual agent through the Agent 365 console | [Control 2.25 — Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) |

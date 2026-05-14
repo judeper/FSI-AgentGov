@@ -5,7 +5,7 @@
 
     **Managed Environments are an enforcement substrate, not a governance program.** They do **NOT** replace:
 
-    - **Model-risk governance** required by OCC Bulletin 2011-12 and Federal Reserve SR 11-7 — see [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md). A Managed Environment toggle is not an independent model validation.
+    - **Model-risk governance** required by OCC Bulletin 2011-12 and Federal Reserve SR 11-7 — see [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md). A Managed Environment toggle is not an independent model validation.
     - **Supervisory review by an appropriately registered principal** required by FINRA Rule 3110 — see [Control 2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md). Solution-checker "Block" is not a Series-24 sign-off.
     - **Books-and-records retention** required by FINRA Rule 4511 and SEC Rules 17a-3 / 17a-4 — see [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) and [Control 3.1](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md). The weekly digest is operational telemetry, not a regulated record.
     - **Written Supervisory Procedures (WSPs)** documenting who reviews what, when, and how. Examiners hold the firm to its own WSPs.
@@ -998,7 +998,7 @@ Use the portal for changes that benefit from operator-in-the-loop visual confirm
 - [Control 2.1 — Managed Environments (control specification)](../../../controls/pillar-2-management/2.1-managed-environments.md)
 - [Control 2.2 — Environment Groups and Tier Classification](../../../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md)
 - [Control 2.3 — Change Management and Release Planning](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md)
-- [Control 2.6 — Model Risk Management Alignment with OCC 2011-12 / SR 11-7](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md)
+- [Control 2.6 — Model Risk Management Alignment with OCC 2011-12 / SR 11-7](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md)
 - [Control 2.8 — Segregation of Duties (SoD)](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md)
 - [Control 2.12 — Supervision and Oversight (FINRA Rule 3110)](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md)
 - [Control 2.14 — Maker Training and Enablement](../../../controls/pillar-2-management/2.14-training-and-awareness-program.md)
