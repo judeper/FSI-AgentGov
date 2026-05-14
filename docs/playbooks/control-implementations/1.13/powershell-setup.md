@@ -1066,7 +1066,7 @@ Stop-Transcript
 - **Control 1.5 — Identity baseline for agent makers and admins.** SIT authoring requires the privileged-role and Conditional Access posture defined there. `docs/controls/pillar-1-security/1.5-identity-baseline-for-agent-makers-and-admins.md`
 - **Control 1.6 — Sensitivity labels and label policies.** SIT detection drives auto-labelling; labels in turn drive Copilot grounding eligibility. `docs/controls/pillar-1-security/1.6-sensitivity-labels-for-ai-content.md`
 - **Control 1.7 — DLP policy framework.** This playbook publishes SITs; Control 1.7 is the parent for the DLP policy engine that consumes them. `docs/controls/pillar-1-security/1.7-data-loss-prevention-for-ai-interactions.md`
-- **Control 1.10 — Customer Lockbox / data-residency boundary.** EDM hash stores and trainable classifier inference inherit the residency posture from Control 1.10. `docs/controls/pillar-1-security/1.10-customer-lockbox-and-data-residency.md`
+- **Control 1.10 — Customer Lockbox / data-residency boundary.** Customer Lockbox and data-residency posture are currently covered in Control 2.1 Managed Environments; a dedicated Lockbox/Data Residency control decision is tracked in the v1.7 roadmap.
 - **Control 4.6 — SharePoint grounding scope governance.** SIT-based DLP rules complement scope governance for what an agent can ground on. `docs/controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md`
 - **AI Incident Response Playbook.** Standing on-call runbook for SIT/DLP alerts that fire against agent traffic. `docs/playbooks/incident-and-risk/ai-incident-response-playbook.md`
 - **Shared PowerShell baseline.** Module pinning, sovereign endpoints, transcript and evidence helpers. `docs/playbooks/_shared/powershell-baseline.md`
