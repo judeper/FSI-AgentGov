@@ -1,11 +1,20 @@
-# FSI Agent Governance Framework v1.6
+# FSI Agent Governance Framework v1.6.2
 
+[![Latest Release](https://img.shields.io/github/v/release/judeper/FSI-AgentGov?label=release&color=blue)](https://github.com/judeper/FSI-AgentGov/releases/latest)
 [![Publish Docs](https://github.com/judeper/FSI-AgentGov/actions/workflows/publish_docs.yml/badge.svg)](https://github.com/judeper/FSI-AgentGov/actions/workflows/publish_docs.yml)
 [![Link Validation](https://github.com/judeper/FSI-AgentGov/actions/workflows/link-check.yml/badge.svg)](https://github.com/judeper/FSI-AgentGov/actions/workflows/link-check.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![GitHub Repo stars](https://img.shields.io/github/stars/judeper/FSI-AgentGov?style=social)](https://github.com/judeper/FSI-AgentGov/stargazers)
 
 **Governance framework for Microsoft 365 AI agents in US financial services.**
+
+## Latest Release
+
+**[v1.6.2 — May 11, 2026](https://github.com/judeper/FSI-AgentGov/releases/latest)** (Frontier Readiness auto-evaluator wave)
+
+- Six telemetry-driven Frontier evaluators (Q01, Q03, Q13, Q16, Q17, Q18) take auto-evaluable coverage from 0% to 24% — remaining 76% are facilitator-only by design.
+- Honesty principle: every new evaluator is **partial-capped** (never returns `"yes"`) and explicitly names residual facilitator burden in its evidence string.
+- 21 new tests (114 total); existing 78-control assessment behaviour unchanged. Safe to upgrade in place — see [`CHANGELOG.md`](CHANGELOG.md#162--may-11-2026-frontier-readiness-auto-evaluator-wave).
 
 > **New to this framework? [Start Here](docs/start-here.md)** — understand what FSI-AgentGov covers, why it exists, and where to begin.
 
@@ -27,7 +36,7 @@ Earlier in **v1.5.0** the framework added an FSI translation layer for Microsoft
 
 Earlier in **v1.4.x** the assessment platform was unified (single manifest source-of-truth across Python engine + browser SPA), the solutions bridge was committed (35 solutions indexed via `solutions-lock.json`), facilitator mode + role-based homework + How-to-verify drawer + collector evidence import shipped, and an end-to-end Playwright suite (~60 specs) plus four new CI workflows hardened the SPA.
 
-See [`CHANGELOG.md`](CHANGELOG.md) for full release-by-release detail; [`CHANGELOG-v1.4.md`](CHANGELOG-v1.4.md) and [`CHANGELOG-v1.3.md`](CHANGELOG-v1.3.md) cover prior major versions.
+See [`CHANGELOG.md`](CHANGELOG.md) for full release-by-release detail; [`CHANGELOG-v1.4.md`](releases/CHANGELOG-archive/CHANGELOG-v1.4.md) and [`CHANGELOG-v1.3.md`](releases/CHANGELOG-archive/CHANGELOG-v1.3.md) cover prior major versions (see [`releases/CHANGELOG-archive/`](releases/CHANGELOG-archive/) for the full archive).
 
 ## Why This Repository Exists
 
@@ -469,7 +478,7 @@ This framework is designed for continuous evolution:
 
 ## 📄 Document Version History
 
-> For detailed changes, see the [Changelog](CHANGELOG.md) index. Current: [v1.6.x and v1.5.x](CHANGELOG.md) | [v1.4.x](CHANGELOG-v1.4.md) | [v1.3.x](CHANGELOG-v1.3.md) | v1.2.x and earlier — archived (see git history prior to April 2026)
+> For detailed changes, see the [Changelog](CHANGELOG.md) index. Current: [v1.6.x and v1.5.x](CHANGELOG.md) | [v1.4.x](releases/CHANGELOG-archive/CHANGELOG-v1.4.md) | [v1.3.x](releases/CHANGELOG-archive/CHANGELOG-v1.3.md) | [v1.1.x](releases/CHANGELOG-archive/CHANGELOG-v1.1.md) | v1.2.x and earlier — archived (see git history prior to April 2026)
 
 | Version | Date | Changes | Author |
 |---------|------|---------|--------|
@@ -479,10 +488,10 @@ This framework is designed for continuous evolution:
 | [1.5.0](CHANGELOG.md#150--may-10-2026-microsoft-alignment-release) | May 10, 2026 | Microsoft Alignment Release: FSI translation layer for CAPE — six transformation patterns, five capability drivers, Agentic CoE blueprint, 25-question Frontier Readiness questionnaire, CSA-facing reference docs | [@judeper](https://github.com/judeper) |
 | [1.4.2](CHANGELOG.md#142--april-30-2026-phase-b-triage-fixes) | April 30, 2026 | Phase B′ triage: markdown export header escaping, xlsx.full.min.js binary attribute, two flaky Playwright specs hardened | [@judeper](https://github.com/judeper) |
 | [1.4.1](CHANGELOG.md#141--april-30-2026-e2e-test-infrastructure--spa-hardening) | April 30, 2026 | E2E test infrastructure (~60 Playwright specs), 4 new CI workflows, branch protection as code, 12+ assessment SPA hardening fixes | [@judeper](https://github.com/judeper) |
-| [1.4.0](CHANGELOG-v1.4.md) | April 2026 | Assessment tool unification, solutions bridge (35 solutions), 10 SPA enhancements, manifest schema extension | [@judeper](https://github.com/judeper) |
-| [1.3.5](CHANGELOG-v1.3.md#135--april-2026-opus-47-council-catalog-completion) | Apr 2026 | Opus 4.7 council pass — 52 controls + 208 playbooks fully uplifted (full 78/78 coverage) | [@judeper](https://github.com/judeper) |
-| [1.3.4](CHANGELOG-v1.3.md#134--april-2026-autonomous-dual-model-council-review) | Apr 2026 | Autonomous dual-model council review — FINRA 25-07 across all 78 controls, 14 control-specific fixes | [@judeper](https://github.com/judeper) |
-| [1.3.0](CHANGELOG-v1.3.md) | Mar 2026 | Six new controls, 24 playbooks, five control patches, and catalog expansion to 78 controls | [@judeper](https://github.com/judeper) |
+| [1.4.0](releases/CHANGELOG-archive/CHANGELOG-v1.4.md) | April 2026 | Assessment tool unification, solutions bridge (35 solutions), 10 SPA enhancements, manifest schema extension | [@judeper](https://github.com/judeper) |
+| [1.3.5](releases/CHANGELOG-archive/CHANGELOG-v1.3.md#135--april-2026-opus-47-council-catalog-completion) | Apr 2026 | Opus 4.7 council pass — 52 controls + 208 playbooks fully uplifted (full 78/78 coverage) | [@judeper](https://github.com/judeper) |
+| [1.3.4](releases/CHANGELOG-archive/CHANGELOG-v1.3.md#134--april-2026-autonomous-dual-model-council-review) | Apr 2026 | Autonomous dual-model council review — FINRA 25-07 across all 78 controls, 14 control-specific fixes | [@judeper](https://github.com/judeper) |
+| [1.3.0](releases/CHANGELOG-archive/CHANGELOG-v1.3.md) | Mar 2026 | Six new controls, 24 playbooks, five control patches, and catalog expansion to 78 controls | [@judeper](https://github.com/judeper) |
 | v1.2.x and earlier | Oct 2025 – Mar 2026 | Archived. Highlights: four-pillar expansion to 78 controls, 284 playbooks, companion solutions, three-layer documentation architecture, evaluation gates, adversarial testing, multi-agent governance, DSPM, bias testing, FINRA Notice 25-07 alignment. See [git history](https://github.com/judeper/FSI-AgentGov/commits/main/) prior to April 2026. | [@judeper](https://github.com/judeper) |
 
 ---

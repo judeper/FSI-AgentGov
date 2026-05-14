@@ -61,8 +61,8 @@ jobs:
       # Pip install of mkdocs-material typically completes in <60s in this container.
       # Use `python -m pip` because actions/setup-python doesn't update PATH
       # inside the Playwright container (only sets pythonLocation env).
-      - name: Install MkDocs and Material Theme
-        run: python -m pip install 'mkdocs-material>=9.5,<10'
+      - name: Install MkDocs and docs plugins
+        run: python -m pip install -r requirements-docs.txt
 
       - name: Generate Assessment Data
         run: python scripts/extract_assessment_data.py

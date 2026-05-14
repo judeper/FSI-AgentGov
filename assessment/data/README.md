@@ -105,7 +105,7 @@ customer-ready Markdown reports — key off this envelope to detect
 drift, validate input shape, and consume pre-computed scores instead
 of re-implementing the scoring algorithm.
 
-The envelope was added in v1.4.1-prep (see `CHANGELOG-v1.4.md` →
+The envelope was added in v1.4.1-prep (see [`releases/CHANGELOG-archive/CHANGELOG-v1.4.md`](../../releases/CHANGELOG-archive/CHANGELOG-v1.4.md) →
 *Portal Export Envelope*) and is **fully backwards-compatible**: every
 top-level key present in pre-1.4.1 exports remains at the same path.
 

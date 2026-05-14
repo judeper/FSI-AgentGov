@@ -41,7 +41,7 @@ jobs:
             mkdocs-material-
 
       - name: Install MkDocs and Material Theme
-        run: pip install 'mkdocs-material>=9.5,<10'
+        run: pip install -r requirements-docs.txt
 
       - name: Build documentation (strict)
         run: mkdocs build --strict

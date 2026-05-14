@@ -355,4 +355,4 @@ This framework is designed to **complement, not replace** existing enterprise go
 
 ---
 
-*FSI Agent Governance Framework v1.5.0 - May 2026*
+*Updated: May-2026 | Version: v1.6.2 | UI Verification Status: Current*

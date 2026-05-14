@@ -432,7 +432,7 @@ For detailed release history, see `CHANGELOG.md`.
 ---
 
 ## Version Info
-- **Framework Version:** 1.2.54
-- **Last Updated:** March 2026
+- **Framework Version:** 1.6.2
+- **Last Updated:** May 2026
 - **Repository:** https://github.com/judeper/FSI-AgentGov
 - **Solutions Repository:** https://github.com/judeper/FSI-AgentGov-Solutions

@@ -40,6 +40,9 @@
       "pattern": "^https://github\\.com/judeper/FSI-AgentGov-Solutions"
     },
     {
+      "pattern": "^https://github\\.com/judeper/FSI-AgentGov/blob/main/releases/CHANGELOG-archive/"
+    },
+    {
       "pattern": "^https://approvals\\.microsoft\\.com"
     },
     {

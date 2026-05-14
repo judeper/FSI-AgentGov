@@ -41,4 +41,6 @@ The regulatory landscape for AI and autonomous agents is rapidly evolving. Organ
 
 *By using this framework, you acknowledge that you have read and understood this disclaimer.*
 
-*FSI Agent Governance Framework v1.2 - February 2026*
+*FSI Agent Governance Framework v1.6.2 - May 2026*
+
+> This file mirrors the canonical disclaimer at [`docs/disclaimer.md`](docs/disclaimer.md). Both must stay in sync — `scripts/verify_version_stamps.py` enforces the version stamp on each.

@@ -1,0 +1,12 @@
+# MkDocs documentation site dependencies.
+#
+# Used by:
+#   - .github/workflows/docs-validation.yml (PR-time mkdocs-strict gate)
+#   - .github/workflows/publish_docs.yml    (deploy-time GitHub Pages build)
+#   - local maintainers running `mkdocs build --strict` or `mkdocs serve`
+#
+# Keep in sync across both workflows. If you add a new MkDocs plugin, add it
+# here AND make sure both workflows install from this file.
+
+mkdocs-material>=9.5,<10
+mkdocs-include-markdown-plugin>=7.0,<8

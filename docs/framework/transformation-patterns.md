@@ -161,4 +161,4 @@ Pattern selection is a brief intake question, not a flowchart. Four questions an
 
 ---
 
-*Updated: May-2026 | Version: v1.5.0 | Audience: M365 admins, AI governance leads, FSI architects*
+*Updated: May-2026 | Version: v1.6.2 | Audience: M365 admins, AI governance leads, FSI architects*
