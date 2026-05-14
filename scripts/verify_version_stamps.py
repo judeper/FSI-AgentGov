@@ -103,18 +103,11 @@ FRAMEWORK_GLOB = "docs/framework/*.md"
 
 
 # Files that were drifted at the time this gate was introduced (PR-0).
-# These are tracked for fix-up in PR-A (Tier 0A scorched-earth version-stamp
-# audit). PR-A MUST update the file footer AND remove the entry from this
-# allowlist in the same change.
-_KNOWN_DRIFT_ALLOWLIST: set[str] = {
-    "README.md",                                    # H1 reads "v1.6" not "v1.6.2" (T0A.3)
-    "DISCLAIMER.md",                                # v1.2 - February 2026 (T0A.1)
-    ".claude/claude.md",                            # Framework Version: 1.2.54 (T0A.8)
-    "docs/framework/agent-lifecycle.md",            # v1.5.0 footer (T0A.2)
-    "docs/framework/agentic-capability-drivers.md", # v1.5.0 footer (T0A.2)
-    "docs/framework/agentic-coe.md",                # v1.5.0 footer (T0A.2)
-    "docs/framework/transformation-patterns.md",    # v1.5.0 footer (T0A.2)
-}
+# All originally allowlisted entries were fixed in PR-A (Tier 0A
+# scorched-earth version-stamp audit). Allowlist is intentionally empty —
+# any future drift becomes a blocking CI failure. Add a new entry only with
+# an inline comment explaining why the drift is permanent.
+_KNOWN_DRIFT_ALLOWLIST: set[str] = set()
 
 
 class Result:

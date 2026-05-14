@@ -469,4 +469,4 @@ For the full CoE blueprint — including function-by-function mandates, shape se
 
 ---
 
-*FSI Agent Governance Framework v1.5.0 - May 2026*
+*Updated: May-2026 | Version: v1.6.2 | UI Verification Status: Current*

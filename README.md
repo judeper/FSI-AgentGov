@@ -1,11 +1,20 @@
-# FSI Agent Governance Framework v1.6
+# FSI Agent Governance Framework v1.6.2
 
+[![Latest Release](https://img.shields.io/github/v/release/judeper/FSI-AgentGov?label=release&color=blue)](https://github.com/judeper/FSI-AgentGov/releases/latest)
 [![Publish Docs](https://github.com/judeper/FSI-AgentGov/actions/workflows/publish_docs.yml/badge.svg)](https://github.com/judeper/FSI-AgentGov/actions/workflows/publish_docs.yml)
 [![Link Validation](https://github.com/judeper/FSI-AgentGov/actions/workflows/link-check.yml/badge.svg)](https://github.com/judeper/FSI-AgentGov/actions/workflows/link-check.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![GitHub Repo stars](https://img.shields.io/github/stars/judeper/FSI-AgentGov?style=social)](https://github.com/judeper/FSI-AgentGov/stargazers)
 
 **Governance framework for Microsoft 365 AI agents in US financial services.**
+
+## Latest Release
+
+**[v1.6.2 — May 11, 2026](https://github.com/judeper/FSI-AgentGov/releases/latest)** (Frontier Readiness auto-evaluator wave)
+
+- Six telemetry-driven Frontier evaluators (Q01, Q03, Q13, Q16, Q17, Q18) take auto-evaluable coverage from 0% to 24% — remaining 76% are facilitator-only by design.
+- Honesty principle: every new evaluator is **partial-capped** (never returns `"yes"`) and explicitly names residual facilitator burden in its evidence string.
+- 21 new tests (114 total); existing 78-control assessment behaviour unchanged. Safe to upgrade in place — see [`CHANGELOG.md`](CHANGELOG.md#162--may-11-2026-frontier-readiness-auto-evaluator-wave).
 
 > **New to this framework? [Start Here](docs/start-here.md)** — understand what FSI-AgentGov covers, why it exists, and where to begin.
 

@@ -296,4 +296,4 @@ This is the load-bearing reason FSI-AgentGov adopts Capability Driver as a first
 
 ---
 
-*Updated: May-2026 | Version: v1.5.0 | Audience: M365 administrators, AI governance leads, FSI architects, CIO/CDAO*
+*Updated: May-2026 | Version: v1.6.2 | Audience: M365 administrators, AI governance leads, FSI architects, CIO/CDAO*
