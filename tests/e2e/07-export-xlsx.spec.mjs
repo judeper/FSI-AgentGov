@@ -32,6 +32,17 @@ import {
  * package, then assert sheet names, summary headers, expected cell
  * values, AND that the formula-injection notes cell has been neutralised
  * via the TAB prefix.
+ *
+ * COUNCIL CRITIQUE GAP — Score cell numeric type (Phase 0I addition):
+ *   Bug class: the SPA writes score values as percent strings (e.g. "75%")
+ *   via aoa_to_sheet, which causes SheetJS to emit cells with t="s" (string).
+ *   Excel cannot aggregate string-typed cells with =SUM or =AVERAGE, so an
+ *   FSI compliance officer who exports the XLSX and pivots the score column
+ *   gets zeros or #VALUE! errors instead of correct roll-ups.
+ *   The assertion below checks that the "Overall Score" cell in the Summary
+ *   sheet has SheetJS type t="n" (number). It is expected to be RED today
+ *   (the SPA has not fixed this). Fix path: emit { v: 0.75, t: "n", z: "0%" }
+ *   rather than the string "75%".
  */
 
 test.describe("export XLSX @regression", () => {
@@ -177,5 +188,29 @@ test.describe("export XLSX @regression", () => {
     expect(notesCell.slice(1)).toBe(ATTACK);
     // Defense in depth: the cell must NOT begin with a raw formula char.
     expect(/^[=+\-@]/.test(notesCell)).toBe(false);
+
+    // ── SCORE CELL TYPE ASSERTION (council critique gap — Phase 0I) ───────
+    // The SPA emits Overall Score as `(getOverallScore() || 0) + "%"`, which
+    // is a JavaScript string. SheetJS aoa_to_sheet stores it as t="s" (string),
+    // not t="n" (number). Excel refuses to SUM or AVERAGE string-typed cells,
+    // so a compliance officer who exports this workbook and runs a pivot table
+    // over the Score column gets zeros or #VALUE! errors on their roll-ups.
+    // Expected today: FAIL (t="s"). Fix: emit numeric cell with percent format.
+    const scoreRowIdx = summaryRows.findIndex((r) => r[0] === "Overall Score");
+    expect(
+      scoreRowIdx,
+      "Overall Score row must be present in Summary sheet before type check",
+    ).toBeGreaterThan(-1);
+    const scoreAddr = XLSX.utils.encode_cell({ r: scoreRowIdx, c: 1 });
+    const scoreCell = wb.Sheets["Summary"][scoreAddr];
+    expect(
+      scoreCell?.t,
+      "If this fails, customers cannot SUM or average score columns in their " +
+        "pivot tables. Score cells must be NUMBER type (t='n'), not STRING " +
+        "(t='s'). The SPA currently writes scores as percent strings (e.g. " +
+        "'75%') via aoa_to_sheet, making them unaggregateable in Excel. " +
+        "Fix: emit { v: 0.75, t: 'n', z: '0%' } so Excel formats the number " +
+        "as a percentage while preserving the numeric type for formulas.",
+    ).toBe("n");
   });
 });
