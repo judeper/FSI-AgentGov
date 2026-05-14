@@ -758,6 +758,8 @@ nav:
     - Learn Monitor AI Enhancement: reference/learn-monitor-ai-enhancement.md
     - FSI Examples: reference/fsi-configuration-examples.md
     - NIST AI RMF Crosswalk: reference/nist-ai-rmf-crosswalk.md
+    - ISO/IEC 42001 Mapping: reference/iso-42001-mapping.md
+    - Microsoft Responsible AI v2 Mapping: reference/microsoft-rai-v2-mapping.md
     - Microsoft CAPE Crosswalk: reference/microsoft-cape-crosswalk.md
     - CCO Quick Reference: reference/cco-quick-reference.md
     - Examiner First-Day-Letter Response: reference/examiner-first-day-letter-response.md
