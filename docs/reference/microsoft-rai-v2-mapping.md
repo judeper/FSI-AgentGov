@@ -111,7 +111,7 @@ Microsoft's RAI program defines six principles that govern AI design, developmen
 
 ## Principle 5 — Transparency
 
-**What Microsoft does:** Microsoft publishes [Transparency Notes](https://learn.microsoft.com/en-us/azure/ai-foundry/responsible-ai/) per AI service that document intended use, limitations, evaluation methodology, and data handling. Microsoft Foundry observability (tracing) provides per-request execution visibility.
+**What Microsoft does:** Microsoft publishes [Transparency Notes](https://learn.microsoft.com/en-us/azure/foundry/responsible-ai/openai/transparency-note) per AI service that document intended use, limitations, evaluation methodology, and data handling. Microsoft Foundry observability (tracing) provides per-request execution visibility.
 
 **What FSI customers must do themselves:** Document customer-built agents, disclose AI use to customers and supervisors, retain explainability evidence for material decisions, and ensure marketing claims about AI are substantiated.
 
@@ -208,7 +208,7 @@ For full mappings see the [NIST AI RMF Crosswalk](nist-ai-rmf-crosswalk.md) and 
 - [Microsoft Responsible AI Standard v2 (2022)](https://blogs.microsoft.com/wp-content/uploads/prod/sites/5/2022/06/Microsoft-Responsible-AI-Standard-v2-General-Requirements-3.pdf) — public RAI Standard PDF
 - [Microsoft AI Customer Commitments (June 2023)](https://blogs.microsoft.com/blog/2023/06/08/announcing-microsofts-ai-customer-commitments/) — customer-facing commitments
 - [Microsoft Learn: ISO/IEC 42001 offering](https://learn.microsoft.com/en-us/compliance/regulatory/offering-iso-42001) — services in scope and audit-report access
-- [Microsoft Learn: Azure AI Foundry — Responsible AI](https://learn.microsoft.com/en-us/azure/ai-foundry/responsible-ai/) — Transparency Notes per service
+- [Microsoft Learn: Microsoft Foundry — Responsible use of AI overview](https://learn.microsoft.com/en-us/azure/foundry/responsible-use-of-ai-overview) — Transparency Notes per service
 - [NIST AI RMF Crosswalk](nist-ai-rmf-crosswalk.md)
 - [ISO/IEC 42001 Crosswalk](iso-42001-mapping.md)
 - [Regulatory Mappings](regulatory-mappings.md)
