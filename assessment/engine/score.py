@@ -73,9 +73,9 @@ MATURITY_LABELS: dict[int, str] = {
 }
 
 ZONE_DESCRIPTIONS: dict[int, str] = {
-    1: "Personal / Low Risk",
-    2: "Team / Medium Risk",
-    3: "Enterprise / Production",
+    1: "Personal Productivity",
+    2: "Team Collaboration",
+    3: "Enterprise Managed",
 }
 
 # Map api_call values from controls.json → collected-data source key.

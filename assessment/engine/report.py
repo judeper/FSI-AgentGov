@@ -51,9 +51,9 @@ log = logging.getLogger("fsi-agentgov-report")
 # ---------------------------------------------------------------------------
 
 ZONE_DESCRIPTIONS: dict[int, str] = {
-    1: "Personal / Low Risk",
-    2: "Team / Medium Risk",
-    3: "Enterprise / Production",
+    1: "Personal Productivity",
+    2: "Team Collaboration",
+    3: "Enterprise Managed",
 }
 
 MATURITY_LABELS: dict[int, str] = {
