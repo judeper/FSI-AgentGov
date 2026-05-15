@@ -157,7 +157,7 @@ Agent 365 capabilities support FSI regulatory requirements:
 | **FINRA 4511** | Audit logging, Agent Registry | Complete interaction records |
 | **FINRA 3110** | Observability SDK, Sponsorship | Supervision evidence |
 | **SEC 17a-3/4** | DSPM, Audit events | Record retention compliance |
-| **OCC 2011-12** | Blueprint lifecycle, Registry | Model inventory requirements |
+| **OCC Bulletin 2026-13 (formerly OCC 2011-12)** | Blueprint lifecycle, Registry | Model inventory requirements |
 | **Fed SR 26-2 (formerly SR 11-7)** | Agent ID, Attestation | Model governance accountability |
 | **SOX 302/404** | Observability, Audit trail | Internal control evidence |
 | **GLBA 501(b)** | DLP, DSPM, Defender | Customer data protection |

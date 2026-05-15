@@ -37,7 +37,7 @@ agent deployments.
   </div>
 </div>
 <p class="metrics-regulations">
-  FINRA · SEC · SOX · GLBA · OCC/SR 11-7
+  FINRA · SEC · SOX · GLBA · OCC Bulletin 2026-13 · Fed SR 26-2
 </p>
 
 ## Quick Start by Role
@@ -155,7 +155,7 @@ High Risk · Committee Approval
 </div>
 <div class="arch-card arch-reg">
 <strong>OCC</strong>
-2011-12
+Bulletin 2026-13
 </div>
 </div>
 </div>

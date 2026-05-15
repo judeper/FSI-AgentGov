@@ -29,9 +29,9 @@ Patterns are an *additive lens*, not a replacement for the existing zones, pilla
 | 1 | **Employee AI Enablement** | Zone 1 (promote to Zone 2 on share, Zone 3 on regulated content) | Limited at Zone 1; supervision and disclosure obligations attach as soon as output reaches a customer. | [Pattern 1 deep dive](../reference/microsoft-cape-crosswalk.md#pattern-1-employee-ai-enablement) |
 | 2 | **Business Expert Empowerment** | Zone 2 (Zone 3 when SME domain is regulated) | SME-domain dependent: low for non-regulated knowledge, full books-and-records and supervision exposure when the SME content is compliance, model risk, or supervisory. | [Pattern 2 deep dive](../reference/microsoft-cape-crosswalk.md#pattern-2-business-expert-empowerment) |
 | 3 | **Workplace & IT Services** | Zone 2 (Zone 3 when service touches PII, payroll, trade settlement, or customer files) | Low for purely internal services; SOX 404, FINRA 4511/3110, GLBA, and Reg P engage when the service crosses into regulated workflow. | [Pattern 3 deep dive](../reference/microsoft-cape-crosswalk.md#pattern-3-workplace-it-services) |
-| 4 | **Core Business Process Transformation** | **Zone 3 (mandatory)** | High and multi-regime: OCC 2011-12 / Fed SR 26-2 model risk, SOX 302/404, BSA/AML, Reg B/ECOA, FINRA 3110/4511, SEC 17a-3/4, CFTC 1.31. | [Pattern 4 deep dive](../reference/microsoft-cape-crosswalk.md#pattern-4-core-business-process-transformation-deep-dive) |
+| 4 | **Core Business Process Transformation** | **Zone 3 (mandatory)** | High and multi-regime: OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 model risk, SOX 302/404, BSA/AML, Reg B/ECOA, FINRA 3110/4511, SEC 17a-3/4, CFTC 1.31. | [Pattern 4 deep dive](../reference/microsoft-cape-crosswalk.md#pattern-4-core-business-process-transformation-deep-dive) |
 | 5 | **External Engagement** | **Zone 3 (mandatory)** | Customer-facing: FINRA 2210 communications with the public, Reg BI, ECOA/Reg B, Reg E, GLBA 501(b), state AI disclosure statutes. | [Pattern 5 deep dive](../reference/microsoft-cape-crosswalk.md#pattern-5-external-engagement-deep-dive) |
-| 6 | **AI-First Capabilities** | **Zone 3 (mandatory) — with autonomy guardrail** | Highest residual risk: OCC 2011-12 / SR 26-2 model risk for novel decisioning; SR 11-7 validation thresholds for any consumer-impacting output. | [Pattern 6 deep dive](../reference/microsoft-cape-crosswalk.md#pattern-6-ai-first-capabilities-deep-dive) |
+| 6 | **AI-First Capabilities** | **Zone 3 (mandatory) — with autonomy guardrail** | Highest residual risk: OCC Bulletin 2026-13 / Fed SR 26-2 model risk for novel decisioning; Fed SR 26-2 (formerly SR 11-7) validation thresholds for any consumer-impacting output. | [Pattern 6 deep dive](../reference/microsoft-cape-crosswalk.md#pattern-6-ai-first-capabilities-deep-dive) |
 
 For the full Pattern × Zone fit matrix (which zones are *typical*, *permitted with caveats*, or *not appropriate* for each pattern), see the [Pattern × Zone fit matrix](../reference/microsoft-cape-crosswalk.md#3-pattern-zone-fit-matrix) in the crosswalk.
 
@@ -85,7 +85,7 @@ The following overviews state the Microsoft framing (paraphrased), the typical F
 
 **Default FSI Zone.** **Zone 3 — mandatory.** Pattern 4 cannot deploy below Zone 3 in FSI. The Zone 3 prerequisites in [Zones and Tiers](zones-and-tiers.md) — Governance Committee approval, Managed Environments, comprehensive testing, full audit retention, business continuity plan — are non-negotiable and predate any Pattern 4 work.
 
-**Regulatory exposure (headline).** High and multi-regime. Decisioning models trigger OCC 2011-12 and Fed SR 26-2 (formerly SR 11-7) model risk requirements; KYC/CDD flows trigger BSA/AML 31 CFR 1020.220 and OFAC sanctions screening; outcomes that influence credit trigger Reg B/ECOA fair-lending principal-reasons obligations; financial-close flows trigger SOX 302/404 ICFR; supervision is governed by FINRA Rule 3110; and every decision is a record under FINRA 4511, SEC 17a-3/4, and CFTC 1.31.
+**Regulatory exposure (headline).** High and multi-regime. Decisioning models trigger OCC Bulletin 2026-13 and Fed SR 26-2 (formerly SR 11-7) model risk requirements; KYC/CDD flows trigger BSA/AML 31 CFR 1020.220 and OFAC sanctions screening; outcomes that influence credit trigger Reg B/ECOA fair-lending principal-reasons obligations; financial-close flows trigger SOX 302/404 ICFR; supervision is governed by FINRA Rule 3110; and every decision is a record under FINRA 4511, SEC 17a-3/4, and CFTC 1.31.
 
 **For full mapping** — including the mandatory FSI-AgentGov controls, the autonomy cap (decisions must be reproducible from logged inputs, model version, prompt, and retrieved sources), examiner pre-empts, and CAPE phrases to reframe — see [Pattern 4 in the crosswalk](../reference/microsoft-cape-crosswalk.md#pattern-4-core-business-process-transformation-deep-dive).
 
@@ -109,7 +109,7 @@ The following overviews state the Microsoft framing (paraphrased), the typical F
 
 **Default FSI Zone.** **Zone 3 — mandatory** with the autonomy guardrail below. Internal-only sandbox capabilities with no production decision rights may live in Zone 2 only as proofs of concept; production deployment is Zone 3 only.
 
-**Regulatory exposure (headline).** Highest residual risk in the framework. Any consumer-impacting output triggers OCC 2011-12 and SR 26-2 model risk validation; multi-agent chains create cascading model-risk and accountability concerns that current regulator guidance does not yet address with precedent.
+**Regulatory exposure (headline).** Highest residual risk in the framework. Any consumer-impacting output triggers OCC Bulletin 2026-13 and Fed SR 26-2 model risk validation; multi-agent chains create cascading model-risk and accountability concerns that current regulator guidance does not yet address with precedent.
 
 !!! warning "Pattern 6 autonomy guardrail (FSI-AgentGov)"
     Fully autonomous customer-impacting Pattern 6 deployments are not currently supported in Zone 3 without documented regulator pre-approval.
@@ -132,7 +132,7 @@ A single agent deployment carries five distinct FSI-AgentGov classifications. Th
 
 The diagnostic insight from Microsoft's CAPE materials — that the *weakest* Capability Driver is the scaling ceiling regardless of how strong the others are — applies to FSI but does not change the framework's per-control compliance posture. A firm may be capable of executing Pattern 4 organizationally yet still be required to implement the Pattern 4 mandatory controls before deployment. Capability maturity describes *capacity*; controls describe *obligation*.
 
-A note on operating model: when a CoE federates Pattern 4 or Pattern 5 work across business-unit teams, the operational federation does **not** transfer the regulated supervisory accountability that FINRA 3110, OCC 2011-12, or Fed SR 26-2 places on the firm. See [Agentic Center of Excellence](agentic-coe.md) for the FSI federation guardrails.
+A note on operating model: when a CoE federates Pattern 4 or Pattern 5 work across business-unit teams, the operational federation does **not** transfer the regulated supervisory accountability that FINRA 3110, OCC Bulletin 2026-13, or Fed SR 26-2 places on the firm. See [Agentic Center of Excellence](agentic-coe.md) for the FSI federation guardrails.
 
 ---
 

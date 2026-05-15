@@ -49,7 +49,7 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 | 2.3 | [Change Management and Release Planning](pillar-2-management/2.3-change-management-and-release-planning.md) | Portal / PowerShell, [Message Center Monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/message-center-monitor), [Pipeline Cleanup](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/pipeline-governance-cleanup), [SoDD](../reference/solutions-index.md#segregation-detector) |
 | 2.4 | [Business Continuity and Disaster Recovery](pillar-2-management/2.4-business-continuity-and-disaster-recovery.md) | Portal / PowerShell |
 | 2.5 | [Testing, Validation, and Quality Assurance](pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Portal / PowerShell |
-| 2.6 | [Model Risk Management (Alignment with OCC 2011-12/SR 26-2 (formerly SR 11-7))](pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Portal, [MRM](../reference/solutions-index.md#model-risk-management-automation) |
+| 2.6 | [Model Risk Management (Alignment with OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7))](pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Portal, [MRM](../reference/solutions-index.md#model-risk-management-automation) |
 | 2.7 | [Vendor and Third-Party Risk Management](pillar-2-management/2.7-vendor-and-third-party-risk-management.md) | Portal |
 | 2.8 | [Access Control and Segregation of Duties](pillar-2-management/2.8-access-control-and-segregation-of-duties.md) | Portal / PowerShell, [ASARD](../reference/solutions-index.md#agent-sharing-access-restriction-detector), [SoDD](../reference/solutions-index.md#segregation-detector) |
 | 2.9 | [Agent Performance Monitoring and Optimization](pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md) | Portal, [AOF](../reference/solutions-index.md#agent-observability-foundation), [CSA](../reference/solutions-index.md#copilot-studio-analytics), [HT](../reference/solutions-index.md#hallucination-tracker), [MRM](../reference/solutions-index.md#model-risk-management-automation) |
@@ -220,7 +220,7 @@ The framework covers compliance requirements for:
 - **SEC**: Rules 17a-3/4, 10b-5, Reg BI, Reg S-P
 - **SOX**: Sections 302, 404 (internal controls and reporting)
 - **GLBA**: Sections 501, 504, 505 (safeguards and privacy)
-- **OCC**: Bulletin 2011-12 and SR 26-2 (formerly SR 11-7) (model risk management)
+- **OCC**: Bulletin 2026-13 (formerly Bulletin 2011-12) (model risk management)
 - **Federal Reserve**: SR 26-2 (formerly SR 11-7) (model risk, fair lending)
 
 ---

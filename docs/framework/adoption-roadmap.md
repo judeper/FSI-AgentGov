@@ -242,7 +242,7 @@ Editable Mermaid source: [`docs/images/diagrams/source/cape/cape-fsi-timeline.mm
 | 1.8 | Runtime Protection and External Threat Detection | High | Security Team |
 | 1.19 | eDiscovery for Agent Interactions | High | Purview Admin |
 | 1.22 | Information Barriers for AI Agents | Medium | Compliance Officer |
-| 2.6 | Model Risk Management (OCC 2011-12) | Critical | CRO/Risk |
+| 2.6 | Model Risk Management (OCC Bulletin 2026-13 (formerly OCC 2011-12)) | Critical | CRO/Risk |
 | 2.11 | Bias Testing and Fairness Assessment | High | AI Governance Lead |
 | 2.16 | RAG Source Integrity Validation | High | AI Governance Lead |
 | 2.20 | Adversarial Testing and Red Team Framework | High | Security Team |
@@ -318,7 +318,7 @@ These controls should be implemented first as they enable other governance capab
 
 **Banks (OCC/Fed):**
 
-1. Control 2.6 (Model Risk Management) — OCC 2011-12, SR 26-2 (formerly SR 11-7)
+1. Control 2.6 (Model Risk Management) — OCC Bulletin 2026-13 (formerly OCC 2011-12), Fed SR 26-2 (formerly SR 11-7)
 2. Control 2.11 (Bias Testing) — Fair lending
 3. Control 1.7 (Audit Logging) — Records requirements
 4. Control 1.5 (DLP) — GLBA 501(b)

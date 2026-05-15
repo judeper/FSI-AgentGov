@@ -307,7 +307,7 @@ The 2026 Annual Regulatory Oversight Report contains FINRA's most detailed AI ag
 
 ---
 
-### OCC 2011-12 / Federal Reserve SR 26-2 (formerly SR 11-7) — Model Risk Management
+### OCC Bulletin 2026-13 (formerly OCC 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7) — Model Risk Management
 
 **Overview:** Guidance on model risk management for banks using models in decision-making.
 
@@ -388,7 +388,7 @@ The 2026 Annual Regulatory Oversight Report contains FINRA's most detailed AI ag
 
 **Priority Controls:**
 
-1. Control 2.6 (Model Risk Management) — OCC 2011-12, SR 26-2 (formerly SR 11-7)
+1. Control 2.6 (Model Risk Management) — OCC Bulletin 2026-13 (formerly OCC 2011-12), Fed SR 26-2 (formerly SR 11-7)
 2. Control 2.11 (Bias Testing) — Fair lending
 3. Control 1.7 (Audit Logging) — Records requirements
 4. Control 1.5 (DLP) — GLBA 501(b)
@@ -461,7 +461,7 @@ Organizations should conduct separate analysis for state-specific requirements.
 | SEC 17a-3/4 | 8 controls | Recordkeeping |
 | SOX 302/404 | 6 controls | Internal controls |
 | GLBA 501(b) | 6 controls | Safeguards |
-| OCC 2011-12 / SR 26-2 (formerly SR 11-7) | 6 controls | Model risk |
+| OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) | 6 controls | Model risk |
 | CFTC 1.31 | 3 controls | Recordkeeping |
 
 **Total:** 78 controls across 4 pillars providing mapped coverage to primary US financial regulations.

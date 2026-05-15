@@ -755,7 +755,7 @@ Framework controls relevant to GLBA safeguards are listed in the Applicable Cont
 
 ---
 
-## OCC Bulletin 2011-12 / SR 26-2 (formerly SR 11-7) - Model Risk Management
+## OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Fed SR 26-2 (formerly SR 11-7) - Model Risk Management
 
 ### Overview
 Applies to national banks and federal savings associations. Requires governance framework for models used in business decisions.
@@ -870,7 +870,7 @@ Applies to national banks and federal savings associations. Requires governance 
 - Recommended even if not OCC-regulated
 
 ### Framework Coverage
-Framework controls relevant to OCC and SR 26-2 (formerly SR 11-7) topics are listed in the Applicable Controls table above. OCC-specific model validation required for full compliance.
+Framework controls relevant to OCC Bulletin 2026-13 and Fed SR 26-2 (formerly SR 11-7) topics are listed in the Applicable Controls table above. OCC-specific model validation required for full compliance.
 
 ---
 
@@ -1458,7 +1458,7 @@ Insurers should consult their primary state insurance regulator and legal counse
 | SEC Marketing Rule (206(4)-1) | AI marketing claims - Control 2.21 |
 | SOX 302/404 | Substantial coverage |
 | GLBA 501-505 | Substantial coverage |
-| OCC 2011-12 | Partial - model risk focus |
+| OCC Bulletin 2026-13 (formerly OCC 2011-12) | Partial - model risk focus |
 | Fed SR 26-2 (formerly SR 11-7) | Partial - model risk focus |
 | Fed ECOA | Minimal - bias testing only |
 | CFPB / UDAAP | Consumer protection + disclosure focus |

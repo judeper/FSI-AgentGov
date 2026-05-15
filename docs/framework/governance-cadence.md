@@ -185,7 +185,7 @@ Compliance Officer
 |------------|--------------|-----------------|
 | **FINRA 3110** | AI supervision requirements | Update supervision procedures |
 | **SEC AI Priorities** | Examination focus areas | Align documentation |
-| **OCC 2011-12 / SR 26-2 (formerly SR 11-7)** | Model risk guidance | Review validation procedures |
+| **OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7)** | Model risk guidance | Review validation procedures |
 | **State Regulations** | NYDFS, state-specific requirements | Verify compliance |
 | **Industry Standards** | NIST AI RMF, ISO updates | Gap assessment |
 
@@ -214,7 +214,7 @@ EXECUTIVE SUMMARY
    |------------|--------|------|-------------|
    | FINRA 3110 | [Status] | [Gaps] | [Plan] |
    | SEC 17a-3/4 | [Status] | [Gaps] | [Plan] |
-   | OCC 2011-12 | [Status] | [Gaps] | [Plan] |
+   | OCC Bulletin 2026-13 | [Status] | [Gaps] | [Plan] |
    | SOX 302/404 | [Status] | [Gaps] | [Plan] |
 
 3. ENTERPRISE RISK ASSESSMENT

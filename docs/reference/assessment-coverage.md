@@ -121,7 +121,7 @@ It is the honest answer to *what does the assessment engine actually automate to
 | 2.3 | Control 2.3: Change Management and Release Planning | ⚠️ Unimplemented | 0 | 1 | 0 | PPAC_PowerShell | `pass_condition: approval_workflow_exists` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. |
 | 2.4 | Control 2.4: Business Continuity and Disaster Recovery | 📝 Manual | 0 | 0 | 1 | SharePoint_Graph | Manual review required. |
 | 2.5 | Control 2.5: Testing, Validation, and Quality Assurance | 📝 Manual | 0 | 0 | 0 | — |  |
-| 2.6 | Control 2.6: Model Risk Management (OCC 2011-12/SR 11-7) | 📝 Manual | 0 | 0 | 0 | — |  |
+| 2.6 | Control 2.6: Model Risk Management (OCC Bulletin 2026-13 / Fed SR 26-2) | 📝 Manual | 0 | 0 | 0 | — |  |
 | 2.7 | Control 2.7: Vendor and Third-Party Risk Management | 📝 Manual | 0 | 0 | 0 | — |  |
 | 2.8 | Control 2.8: Access Control and Segregation of Duties | ⚠️ Unimplemented | 0 | 2 | 0 | Graph_API | `pass_condition: sod_matrix_match` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. `pass_condition: no_dev_prod_overlap` declared in manifest but no bespoke evaluator registered in score.py… |
 | 2.9 | Control 2.9: Agent Performance Monitoring and Optimization | ⚠️ Unimplemented | 0 | 1 | 0 | PPAC_PowerShell | `pass_condition: usage_metrics_available` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. |
