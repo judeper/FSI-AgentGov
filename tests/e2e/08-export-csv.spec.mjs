@@ -157,7 +157,7 @@ test.describe("export CSV @regression", () => {
     });
     expect(suggestedName).toMatch(/-gaps\.csv$/);
 
-    const text = readFileSync(path, "utf8");
+    const text = readFileSync(path, "utf8").replace(/^\uFEFF/, "");
     const rows = parseCsv(text);
 
     // Header row.

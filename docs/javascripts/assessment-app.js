@@ -157,6 +157,19 @@
     return stripped;
   }
 
+  /** Build an Excel numeric percent cell from a 0..1 fraction.
+   *  Returns "" (empty cell) for null/undefined/non-finite inputs.
+   *  Out-of-range fractions are clamped to [0, 1] so a forgotten /100 conversion
+   *  cannot produce a wildly-wrong "7500%" display in customer-facing reports.
+   *  Cells emitted this way are SUM/AVERAGE-aggregable in Excel pivot tables;
+   *  string-typed "75%" cells are not. */
+  function pctCell(frac) {
+    if (frac === null || frac === undefined) return "";
+    if (typeof frac !== "number" || !isFinite(frac)) return "";
+    var v = frac < 0 ? 0 : frac > 1 ? 1 : frac;
+    return { v: v, t: "n", z: "0%" };
+  }
+
   // ---- Collector payload validation (security) --------------------------
   // Note: object-literal `__proto__` sets the prototype rather than an own
   // property. Use Object.create(null) + bracket assignment so the key lookup
@@ -3830,8 +3843,14 @@
         csvField(resp.notes || ""),
       ]);
     });
-    var csv = rows.map(function (r) { return r.join(","); }).join("\n");
-    var blob = new Blob([csv], { type: "text/csv" });
+    // CRLF line endings + UTF-8 BOM are required for Excel-on-Windows correctness:
+    //   - CRLF: some regional Excel locales (Japanese, Korean, several European
+    //     Windows configurations) collapse LF-only CSV into a single cell.
+    //   - BOM: BOM-less CSV is opened in the system locale (typically Windows-1252),
+    //     mojibaking accented org names ("Société Générale" → "SociÃ©tÃ© GÃ©nÃ©rale").
+    //   - Trailing CRLF: RFC 4180-compliant; harmless for Excel + SheetJS readers.
+    var csv = rows.map(function (r) { return r.join(","); }).join("\r\n") + "\r\n";
+    var blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
     var name = _truncateFilename((this.state.assessmentName || "assessment").replace(/[^a-zA-Z0-9-_]/g, "-"));
     downloadBlob(blob, name + "-gaps.csv");
   };
@@ -3865,7 +3884,7 @@
         ["Institution Type", sanitizeCell(self.state.scoping.institutionType || "")],
         ["Date", fmtDate(self.state.updatedAt)],
         [],
-        ["Overall Score", (self.getOverallScore() || 0) + "%"],
+        ["Overall Score", pctCell((self.getOverallScore() || 0) / 100)],
         ["Controls Assessed", Object.keys(self.state.responses).length + " / " + self.data.totalControls],
         ["Gaps Identified", self.getGapControls().length],
         [],
@@ -3874,7 +3893,7 @@
       [1, 2, 3, 4].forEach(function (p) {
         summaryData.push([
           "Pillar " + p + " — " + self.data.pillars[String(p)].name,
-          (self.getPillarScore(p) || 0) + "%",
+          pctCell((self.getPillarScore(p) || 0) / 100),
         ]);
       });
       var ws1 = XLSX.utils.aoa_to_sheet(summaryData);
@@ -3888,7 +3907,7 @@
         ctrlData.push([
           ctrl.id, ctrl.title, ctrl.pillarName,
           resp.answer || "Not assessed",
-          score !== null ? Math.round(score * 100) + "%" : "N/A",
+          score !== null ? pctCell(score) : "N/A",
           sanitizeCell(resp.notes || ""),
           ctrl.adoptionPhase ? "Phase " + ctrl.adoptionPhase.phase : "",
           ctrl.adoptionPhase ? ctrl.adoptionPhase.priority : "",
@@ -3905,7 +3924,7 @@
         gapData.push([
           ctrl.id, ctrl.title, ctrl.pillarName,
           resp.answer || "",
-          score !== null ? Math.round(score * 100) + "%" : "",
+          score !== null ? pctCell(score) : "",
           self.getRiskPriority(ctrl).toFixed(1),
           ctrl.regulations.join(", "),
           ctrl.solutions.join(", "),
@@ -3923,7 +3942,7 @@
         regData.push([
           regKey,
           mapping.controls.length,
-          score !== null ? score + "%" : "N/A",
+          score !== null ? pctCell(score / 100) : "N/A",
         ]);
       });
       var ws4 = XLSX.utils.aoa_to_sheet(regData);
