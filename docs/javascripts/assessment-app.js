@@ -3298,7 +3298,12 @@
     // Disclaimer
     wrap.appendChild(h("div", { className: "ag-disclaimer" },
       "This assessment helps support governance readiness. Scores reflect self-reported implementation " +
-      "status and do not constitute a compliance certification."
+      "status and do not constitute a compliance certification. " +
+      "Note: when printed to PDF via browser, Arabic and other right-to-left scripts " +
+      "may be saved as visual presentation-form glyphs rather than logical Unicode, " +
+      "which breaks text search and screen-reader access in archived PDFs. For RTL " +
+      "compliance archives, use the JSON or Markdown export and convert to PDF using " +
+      "a tool with proper complex-script support (e.g., LibreOffice, Pandoc with XeLaTeX)."
     ));
 
     // Tabs
