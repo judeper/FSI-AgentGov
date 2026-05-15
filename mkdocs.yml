@@ -125,6 +125,7 @@ extra_css:
 
 extra_javascript:
   - javascripts/assessment-loader.js
+  - javascripts/a11y.js
 
 hooks:
   - scripts/hooks/copy_assessment_data.py

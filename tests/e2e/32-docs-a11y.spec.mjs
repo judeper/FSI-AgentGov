@@ -213,6 +213,32 @@ async function waitForReady(page, kind) {
     state: "attached",
     timeout: 15_000,
   });
+  // AS12: Material 9 manages tabindex on scrollable code blocks dynamically
+  // via its `document$` subscriber + matchMedia("(hover)") gate. The previous
+  // axe finding F-A11Y-DOCS-SCROLLABLE-CODE-06 was a test-timing race —
+  // axe.analyze() ran before Material's first emission. Wait for either
+  // (a) every overflowing pre to have a tabindex, or (b) ~1s as a ceiling.
+  await page
+    .waitForFunction(() => {
+      const pres = Array.from(document.querySelectorAll("pre"));
+      return pres.every(
+        (p) =>
+          !(p.scrollWidth > p.clientWidth) || p.hasAttribute("tabindex"),
+      );
+    }, null, { timeout: 1_500 })
+    .catch(() => {});
+  // AS12: also wait for our a11y.js shim to apply aria-hidden on display-only
+  // task-list checkboxes. Same timeout/fallthrough pattern.
+  await page
+    .waitForFunction(() => {
+      const inputs = Array.from(
+        document.querySelectorAll(
+          ".task-list-item input[type=\"checkbox\"]",
+        ),
+      );
+      return inputs.length === 0 || inputs.every((i) => i.hasAttribute("aria-hidden"));
+    }, null, { timeout: 1_500 })
+    .catch(() => {});
 }
 
 // ── baseURL override (docs root, not /assessment/) ───────────────────────────
@@ -515,12 +541,30 @@ test.describe("docs landmark + skip-link sanity @regression", () => {
         out.navCount = document.querySelectorAll("nav").length;
         out.headerCount = document.querySelectorAll("header").length;
         out.footerCount = document.querySelectorAll("footer").length;
-        // Skip-link heuristic: first <a href="#..."> in source order whose
-        // text contains "skip" (case-insensitive). mkdocs-material does NOT
-        // ship one by default — this is expected to fail until added.
-        const firstSkip = Array.from(document.querySelectorAll("a[href^='#']"))
-          .find((a) => /skip/i.test(a.textContent || ""));
-        out.skipLinkPresent = !!firstSkip;
+        // Skip-link heuristic.
+        // AS12 update (2026-05): mkdocs-material 9.7.6 ships a built-in skip
+        // link via base.html lines 102-109:
+        //   <div data-md-component="skip">
+        //     <a href="{{ first_toc | url }}" class="md-skip">
+        //       {{ lang.t("action.skip") }}  <!-- "Skip to content" -->
+        //   </div>
+        // The HTML source has `href="#ai-agent-..."` (relative fragment), but
+        // Material's bundle.js post-load rewrites it to an absolute URL
+        // (`http://host/#ai-agent-...`) — verified empirically. So the older
+        // `a[href^="#"]` selector misses it. We instead detect:
+        //   (a) any anchor with `md-skip` class (Material's marker), AND/OR
+        //   (b) any anchor whose href ends with a fragment AND whose text
+        //       matches /skip/i (engine-agnostic fallback).
+        // Pages with `meta.hide: [toc]` lose the skip link — none such exist
+        // in the current docs corpus.
+        const anchors = Array.from(document.querySelectorAll("a[href]"));
+        const matSkip = document.querySelector("a.md-skip");
+        const fallback = anchors.find(
+          (a) =>
+            /skip/i.test(a.textContent || "") &&
+            (a.getAttribute("href") || "").includes("#"),
+        );
+        out.skipLinkPresent = !!(matSkip || fallback);
         // Heading order — flag any skip > 1 in monotonic descent.
         const hs = Array.from(
           document.querySelectorAll("article h1, article h2, article h3, article h4, article h5, article h6"),
@@ -593,4 +637,73 @@ test.describe("docs landmark + skip-link sanity @regression", () => {
     }
     expect(issues.length).toBe(0);
   });
+});
+
+// =============================================================================
+// AS12 RED→GREEN guard: docs/javascripts/a11y.js applies aria-hidden=true to
+// display-only task-list checkboxes. Closes F-A11Y-DOCS-LABEL-TASKLIST-04.
+//
+// Why aria-hidden over aria-label: pymdownx.tasklist + custom_checkbox renders
+// `<input type="checkbox" disabled>` inside an empty implicit `<label>`. The
+// LI text is the meaningful content; the checkbox is a decorative visual
+// indicator (clickable_checkbox: false). aria-hidden=true is the most honest
+// WCAG description — screen readers read "list item: <text>" and skip the
+// indicator entirely.
+// =============================================================================
+test.describe("AS12 task-list a11y @regression", () => {
+  test(
+    "task-list checkboxes are aria-hidden on framework/agent-lifecycle @regression",
+    async ({ page }) => {
+      test.setTimeout(45_000);
+      await page.goto("/framework/agent-lifecycle/", {
+        waitUntil: "domcontentloaded",
+      });
+      await page
+        .locator("article.md-content__inner")
+        .first()
+        .waitFor({ state: "attached", timeout: 10_000 });
+
+      // Wait for a11y.js to apply (DOMContentLoaded subscriber + document$
+      // re-application after instant-nav). Generous ceiling.
+      await page.waitForFunction(
+        () => {
+          const inputs = Array.from(
+            document.querySelectorAll(
+              ".task-list-item input[type=\"checkbox\"]",
+            ),
+          );
+          return (
+            inputs.length > 0 && inputs.every((i) => i.getAttribute("aria-hidden") === "true")
+          );
+        },
+        null,
+        { timeout: 5_000 },
+      );
+
+      const audit = await page.evaluate(() => {
+        const inputs = Array.from(
+          document.querySelectorAll(
+            ".task-list-item input[type=\"checkbox\"]",
+          ),
+        );
+        return {
+          totalCheckboxes: inputs.length,
+          ariaHiddenCount: inputs.filter(
+            (i) => i.getAttribute("aria-hidden") === "true",
+          ).length,
+          tabindexNeg1Count: inputs.filter(
+            (i) => i.getAttribute("tabindex") === "-1",
+          ).length,
+        };
+      });
+
+      // The page must contain at least one task-list checkbox (it's the
+      // designated tasklist-bearing page; if this assertion fails it means
+      // either the page changed or pymdownx.tasklist stopped rendering them).
+      expect(audit.totalCheckboxes).toBeGreaterThan(0);
+      // Every checkbox must be aria-hidden + tabindex=-1 after a11y.js runs.
+      expect(audit.ariaHiddenCount).toBe(audit.totalCheckboxes);
+      expect(audit.tabindexNeg1Count).toBe(audit.totalCheckboxes);
+    },
+  );
 });
