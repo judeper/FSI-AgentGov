@@ -101,7 +101,7 @@ Each Excel checklist includes:
 - 1.7 Comprehensive Audit Logging and Compliance
 - 1.19 eDiscovery for Agent Interactions
 - 1.22 Information Barriers for AI Agents
-- 2.6 Model Risk Management (OCC 2011-12 / SR 26-2 (formerly SR 11-7))
+- 2.6 Model Risk Management (OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7))
 - 2.11 Bias Testing and Fairness Assessment
 - 2.12 Supervision and Oversight (FINRA Rule 3110)
 - 2.13 Documentation and Record Keeping

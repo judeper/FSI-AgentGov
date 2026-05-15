@@ -460,16 +460,16 @@ See the [Microsoft Audit Reporting Tools Playbook](../playbooks/advanced-impleme
 | FINRA Rule 3110 | Supervision | https://www.finra.org/rules-guidance/rulebooks/finra-rules/3110 |
 | FINRA Rule 4511 | Books and Records | https://www.finra.org/rules-guidance/rulebooks/finra-rules/4511 |
 | FINRA Annual Regulatory Oversight Report | Examination Priorities | https://www.finra.org/rules-guidance/guidance/reports/2026-finra-annual-regulatory-oversight-report |
-| SEC Rule 17a-3 | Records Requirements | https://www.sec.gov/rules/final/34-44992.htm |
-| SEC Rule 17a-4 | Record Preservation | https://www.sec.gov/rules/final/34-38245.txt |
+| SEC Rule 17a-3 | Records Requirements | https://www.ecfr.gov/current/title-17/section-240.17a-3 |
+| SEC Rule 17a-4 | Record Preservation | https://www.ecfr.gov/current/title-17/section-240.17a-4 |
 | SOX Section 302 | Corporate Responsibility | https://www.soxlaw.com/s302.htm |
 | SOX Section 404 | Internal Controls | https://www.soxlaw.com/s404.htm |
 | GLBA Section 501 | Safeguards | https://www.ftc.gov/legal-library/browse/statutes/gramm-leach-bliley-act |
-| OCC 2011-12 | Model Risk Management | https://www.occ.gov/news-issuances/bulletins/2011/bulletin-2011-12.html |
+| OCC Bulletin 2026-13 (formerly OCC 2011-12) | Model Risk Management | https://www.occ.gov/news-issuances/bulletins/2026/bulletin-2026-13.html |
 | Fed SR 26-2 (formerly SR 11-7) | Model Risk Management | https://www.federalreserve.gov/supervisionreg/srletters/SR2602.htm |
 
 ---
 
-*Last Updated: February 2026*
+*Last Updated: May 2026*
 *Total URLs Tracked: ~209*
 *Note: Microsoft documentation URLs may change. Use this list to monitor for changes and trigger framework updates.*
