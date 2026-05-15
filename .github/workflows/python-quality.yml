@@ -20,6 +20,15 @@ on:
       - '.claude/claude.md'
       - 'docs/disclaimer.md'
       - 'docs/framework/**'
+      # Prose-counts gate (verify_prose_counts job) needs to run when any
+      # solution-count or regulatory-mappings surface changes, even if no
+      # Python/scripts changed.
+      - 'docs/reference/regulatory-mappings.md'
+      - 'docs/reference/solutions-index.md'
+      - 'docs/index.md'
+      - 'AGENTS.md'
+      - '.github/agents/gsd-codebase-mapper.agent.md'
+      - 'assessment/data/solutions-lock.json'
   push:
     branches:
       - main
@@ -39,6 +48,12 @@ on:
       - '.claude/claude.md'
       - 'docs/disclaimer.md'
       - 'docs/framework/**'
+      - 'docs/reference/regulatory-mappings.md'
+      - 'docs/reference/solutions-index.md'
+      - 'docs/index.md'
+      - 'AGENTS.md'
+      - '.github/agents/gsd-codebase-mapper.agent.md'
+      - 'assessment/data/solutions-lock.json'
 
 permissions:
   contents: read
@@ -119,3 +134,14 @@ jobs:
           python-version: '3.11'
       - name: Verify framework version stamps match canonical (VERSION)
         run: python scripts/verify_version_stamps.py --check
+
+  prose_counts:
+    name: prose-counts drift
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Verify solution and regulatory prose counts match canonical sources
+        run: python scripts/verify_prose_counts.py --check
