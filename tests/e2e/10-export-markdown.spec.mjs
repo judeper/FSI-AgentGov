@@ -267,17 +267,34 @@ test.describe("export Markdown agenda @regression", () => {
       seen.add(text);
     }
 
-    // ── ASSERTION 4: At least one score numeral ───────────────────────────
-    // _buildAgendaMarkdown always emits "**Overall maturity:** X.X / 4".
-    // If the maturity line is absent, the agenda cannot serve its primary
-    // purpose: giving stakeholders an at-a-glance readiness signal before
-    // the remediation session starts.
+    // ── ASSERTION 4: Self-assessed score line + score basis disclaimer ───
+    // _buildAgendaMarkdown emits "**Self-assessed score:** N%" plus a
+    // "**Score basis:**" disclaimer line. The disclaimer is required so
+    // leadership reading this agenda alongside an engine PDF doesn't
+    // conflate the two scoring dimensions (SPA % vs engine maturity 0–4).
+    // AS15d (F-SCALE-MISMATCH-01): prior assertion regex `\d+\.\d` would
+    // match control IDs and timestamps even after the maturity line was
+    // removed — replaced with a positive structural assertion.
     expect(
-      /\d+\.\d/.test(md),
-      "Agenda MD must contain at least one decimal score numeral (e.g. '1.5' " +
-        "from the '**Overall maturity:** 1.5 / 4' line). If absent, recipients " +
-        "have no quantitative readiness signal and cannot track progress between " +
-        "assessment sessions — a key audit-trail requirement under OCC 2026-13.",
+      /\*\*Self-assessed score:\*\* (\d+%|n\/a)/.test(md),
+      "Agenda MD must contain a '**Self-assessed score:** N%' (or n/a) " +
+        "line. If absent, recipients have no quantitative readiness signal " +
+        "and cannot track progress between assessment sessions — a key " +
+        "audit-trail requirement under OCC Bulletin 2026-13 (formerly OCC 2011-12).",
     ).toBe(true);
+    expect(
+      md.includes("**Score basis:**"),
+      "Agenda MD must contain the '**Score basis:**' disclaimer that " +
+        "distinguishes the SPA's questionnaire score from the engine's " +
+        "telemetry-driven maturity score (F-SCALE-MISMATCH-01). Without it, " +
+        "leadership reading the agenda alongside an engine PDF may conflate " +
+        "the two scoring dimensions.",
+    ).toBe(true);
+    expect(
+      /\*\*Overall maturity:\*\*/i.test(md),
+      "Agenda MD must NOT contain '**Overall maturity:**' — that label was " +
+        "retired in AS15d because it falsely implied parity with the engine's " +
+        "0-4 maturity scale via a fake `* 4 / 100` linear conversion.",
+    ).toBe(false);
   });
 });

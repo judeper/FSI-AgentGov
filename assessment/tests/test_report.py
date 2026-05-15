@@ -125,6 +125,38 @@ class TestPrefilledReportStructure:
                 f"Report should contain section for control: {ctrl_id}"
             )
 
+    def test_prefilled_includes_scale_distinction_clarifier(
+        self, tmp_path: Path
+    ):
+        """AS15d (F-SCALE-MISMATCH-01): prefilled.md must distinguish its
+        telemetry-driven 0–4 maturity score from the SPA's 0–100% score.
+
+        The clarifier sits directly under the **Overall Maturity:** line.
+        Without it, a customer reading both the engine PDF and the SPA
+        agenda will see two headline numbers in different units and
+        wrongly assume one disagrees with the other.
+        """
+        output_dir = run_report(tmp_path)
+        report_path = output_dir / "assessment-prefilled.md"
+        content = report_path.read_text(encoding="utf-8")
+
+        # Anchor: the Overall Maturity line must still be present.
+        assert "**Overall Maturity:**" in content
+        # Disambiguator: must mention telemetry-driven AND mention the SPA
+        # questionnaire score in 0-100% units AND assert non-comparability.
+        assert "Telemetry-driven evaluation" in content, (
+            "Engine prefilled.md must label its score as telemetry-driven "
+            "(F-SCALE-MISMATCH-01 AS15d clarifier)"
+        )
+        assert "0\u2013100%" in content or "0-100%" in content, (
+            "Engine prefilled.md clarifier must reference the SPA's "
+            "0-100% score units"
+        )
+        assert "not directly comparable" in content, (
+            "Engine prefilled.md clarifier must spell out that the two "
+            "scoring systems are not directly comparable"
+        )
+
 
 # ---------------------------------------------------------------------------
 # Test: manual questionnaire only includes manual controls

@@ -144,6 +144,10 @@ PREFILLED_TEMPLATE = r"""# FSI-AgentGov Automated Assessment
 **Assessed Zone:** Zone {{ zone }} — {{ zone_description }}
 **Auto-scored:** {{ auto_scored }}/{{ total_controls }} controls | **Requires manual input:** {{ needs_manual }} controls
 **Overall Maturity:** {{ average_maturity }} / 4.0
+
+*Telemetry-driven evaluation. The interactive assessment SPA reports a
+separate self-assessed questionnaire score in 0–100% units; the two
+numbers measure different dimensions and are not directly comparable.*
 {% if collector_warnings %}
 !!! warning "Data quality notice — partial collector data"
     One or more telemetry collectors reported issues during this run.

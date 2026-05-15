@@ -4361,9 +4361,13 @@
     }
 
     var overallPct = self.getOverallScore();
-    var maturity = (overallPct === null || overallPct === undefined)
+    var overallScoreLabel = (overallPct === null || overallPct === undefined)
       ? "n/a"
-      : (Math.round((overallPct / 100) * 4 * 10) / 10).toFixed(1);
+      : overallPct + "%";
+    var answeredCount = (state.responses && typeof state.responses === "object")
+      ? Object.keys(state.responses).length : 0;
+    var totalCount = (this.data && this.data.controls)
+      ? this.data.controls.length : 0;
 
     var lines = [];
 
@@ -4376,7 +4380,21 @@
     lines.push("**Generated:** " + new Date().toISOString());
     lines.push("**Zone target:** " + zoneTarget);
     lines.push("**Sector:** " + (state.selectedSector || scoping.institutionType || "Not specified"));
-    lines.push("**Overall maturity:** " + maturity + " / 4");
+    lines.push("**Self-assessed score:** " + overallScoreLabel);
+    // AS15d (F-SCALE-MISMATCH-01): the headline above is a self-assessed
+    // questionnaire score in 0-100% units. The Python assessment engine
+    // reports a separate "Overall Maturity" in 0-4 units derived from
+    // tenant telemetry; the two numbers measure different dimensions and
+    // are not directly comparable. Spell that out so leadership reading
+    // this agenda alongside an engine PDF doesn't conflate them.
+    lines.push(
+      "**Score basis:** Self-assessed questionnaire score " +
+      "(yes / partial / no weighted across answered controls). " +
+      "Controls answered: " + answeredCount + " of " + totalCount + ". " +
+      "The Python engine's \"Overall Maturity X / 4\" uses telemetry-driven " +
+      "evaluation and reports a different scale; the two numbers are not " +
+      "directly comparable."
+    );
     lines.push("");
 
     // Section 2 — Top-N gap controls table
