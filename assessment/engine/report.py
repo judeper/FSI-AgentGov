@@ -144,6 +144,20 @@ PREFILLED_TEMPLATE = r"""# FSI-AgentGov Automated Assessment
 **Assessed Zone:** Zone {{ zone }} — {{ zone_description }}
 **Auto-scored:** {{ auto_scored }}/{{ total_controls }} controls | **Requires manual input:** {{ needs_manual }} controls
 **Overall Maturity:** {{ average_maturity }} / 4.0
+{% if collector_warnings %}
+!!! warning "Data quality notice — partial collector data"
+    One or more telemetry collectors reported issues during this run.
+    Confidence ratings on affected controls reflect the data that was
+    available; review the warnings below and re-run the affected
+    collector(s) before relying on this report for an examination
+    workpaper.
+{% for source, items in collector_warnings.items() %}
+    **{{ source }}:**
+{% for w in items %}
+    - {{ w | e }}
+{% endfor %}
+{% endfor %}
+{% endif %}
 
 ---
 {% for pillar_id, pillar in pillars.items() %}
@@ -563,6 +577,9 @@ def prepare_report_data(
         "average_maturity": summary.get("average_maturity", 0.0),
         "pillars": dict(sorted(pillars.items())),
         "summary": summary,
+        "collector_warnings": scores.get("_metadata", {}).get(
+            "collector_warnings", {}
+        ),
     }
 
 
@@ -873,6 +890,7 @@ def generate_summary_json(
             "files_generated": output_files,
             "gaps": sorted(gaps),
             "critical_gaps": sorted(critical_gaps),
+            "collector_warnings": data.get("collector_warnings", {}),
         }
     )
     return summary

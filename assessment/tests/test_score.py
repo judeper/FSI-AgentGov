@@ -575,3 +575,271 @@ class TestEvaluatorStateTransparency:
         # (great — relax the cap) or the classifier regressed.
         assert coverage["checks"]["auto_evaluable"] < coverage["total_checks"]
         assert coverage["total_controls"] == 78
+
+
+# ---------------------------------------------------------------------------
+# Test: collector failure modes (AS15c)
+# ---------------------------------------------------------------------------
+# F-ENGINE-API-FAILURE-MODE-UNTESTED-01: assessment engine collectors are
+# only happy-path tested; collector failure modes (API timeouts, permission
+# denials, malformed responses) never propagate to customer-facing reports.
+#
+# Each test below exercises one failure mode end-to-end through score.run()
+# and asserts (a) the engine does not crash and (b) the failure surfaces in
+# the output _metadata.collector_warnings rollup so the customer sees it.
+
+class TestCollectorFailureModes:
+    """Engine resilience to malformed / missing / partial collector data.
+
+    Closes F-ENGINE-API-FAILURE-MODE-UNTESTED-01.
+    """
+
+    def _run(
+        self, tmp_path: Path, manifest: dict, collected: Path, zone: int = 2
+    ) -> dict:
+        """Run score.run() and return the parsed output JSON."""
+        try:
+            import score  # type: ignore[import-untyped]
+        except ImportError:
+            pytest.skip("score.py not yet implemented in engine/")
+        manifest_path = tmp_path / "controls.json"
+        output_path = tmp_path / "scores.json"
+        write_json(manifest_path, manifest)
+        score.run(
+            manifest_path=str(manifest_path),
+            collected_dir=str(collected),
+            zone=zone,
+            output_path=str(output_path),
+        )
+        return json.loads(output_path.read_text(encoding="utf-8"))
+
+    def _empty_collected_dir(self, tmp_path: Path) -> Path:
+        """Return a fresh empty collected/ directory (no source files)."""
+        collected = tmp_path / "collected"
+        collected.mkdir()
+        return collected
+
+    def test_missing_source_file_no_crash(
+        self, tmp_path: Path, manifest: dict
+    ):
+        """Missing collector files do not crash; warnings surface for each."""
+        collected = self._empty_collected_dir(tmp_path)
+        result = self._run(tmp_path, manifest, collected)
+
+        warnings = result["_metadata"]["collector_warnings"]
+        for src in ("ppac", "graph", "purview", "sharepoint", "sentinel"):
+            assert src in warnings, (
+                f"Expected warning for missing {src}; got keys {list(warnings)}"
+            )
+            assert any("not found" in w for w in warnings[src]), (
+                f"Expected 'not found' diagnostic in {src} warnings; "
+                f"got {warnings[src]}"
+            )
+
+    def test_malformed_json_no_crash(
+        self, tmp_path: Path, manifest: dict
+    ):
+        """Malformed JSON does not crash; warning surfaces with parse error."""
+        collected = self._empty_collected_dir(tmp_path)
+        # Truncated JSON (closing brace missing) - JSONDecodeError path.
+        (collected / "ppac.json").write_text(
+            '{"_metadata": {"collector": "PPAC"',
+            encoding="utf-8",
+        )
+        # Stub the rest so we isolate the malformed-ppac path.
+        for name in ("graph", "purview", "sharepoint", "sentinel"):
+            write_json(
+                collected / f"{name}.json",
+                {"_metadata": {"collector": name.capitalize(), "warnings": []}},
+            )
+        result = self._run(tmp_path, manifest, collected)
+
+        warnings = result["_metadata"]["collector_warnings"]
+        assert "ppac" in warnings, (
+            f"Expected ppac warning for malformed JSON; got {list(warnings)}"
+        )
+        assert any("failed to parse" in w for w in warnings["ppac"]), (
+            f"Expected 'failed to parse' diagnostic; got {warnings['ppac']}"
+        )
+        # Sources that loaded cleanly contribute no warnings.
+        for clean in ("graph", "purview", "sharepoint", "sentinel"):
+            assert clean not in warnings, (
+                f"Unexpected warning for clean source {clean}: {warnings.get(clean)}"
+            )
+
+    def test_empty_json_synthesizes_warning(
+        self, tmp_path: Path, manifest: dict
+    ):
+        """Empty `{}` payload triggers a 'collector produced no data' warning.
+
+        Per AS15c rubber-duck S-3: empty payload is the strongest possible
+        partial-data signal; the customer must see it.
+        """
+        collected = self._empty_collected_dir(tmp_path)
+        (collected / "ppac.json").write_text("{}", encoding="utf-8")
+        for name in ("graph", "purview", "sharepoint", "sentinel"):
+            write_json(
+                collected / f"{name}.json",
+                {"_metadata": {"collector": name.capitalize(), "warnings": []}},
+            )
+        result = self._run(tmp_path, manifest, collected)
+
+        warnings = result["_metadata"]["collector_warnings"]
+        assert "ppac" in warnings
+        assert any(
+            "empty" in w and "no data" in w for w in warnings["ppac"]
+        ), f"Expected empty-payload diagnostic; got {warnings['ppac']}"
+
+    def test_non_dict_root_no_crash(
+        self, tmp_path: Path, manifest: dict
+    ):
+        """Non-dict JSON root (list, null) normalizes to None + warning.
+
+        B-1 from AS15c rubber-duck: PowerShell's ConvertTo-Json collapses
+        single-element arrays to bare scalars, so a collector may emit a
+        bare list or null at the root. Without a guard, every evaluator
+        crashes with `AttributeError: 'list' object has no attribute 'get'`.
+        """
+        collected = self._empty_collected_dir(tmp_path)
+        (collected / "ppac.json").write_text(
+            '[{"environments": []}]',  # bare list root
+            encoding="utf-8",
+        )
+        (collected / "graph.json").write_text("null", encoding="utf-8")
+        for name in ("purview", "sharepoint", "sentinel"):
+            write_json(
+                collected / f"{name}.json",
+                {"_metadata": {"collector": name.capitalize(), "warnings": []}},
+            )
+        result = self._run(tmp_path, manifest, collected)
+
+        warnings = result["_metadata"]["collector_warnings"]
+        assert "ppac" in warnings
+        assert any(
+            "expected JSON object" in w for w in warnings["ppac"]
+        ), f"Expected non-dict-root diagnostic for ppac; got {warnings['ppac']}"
+        assert "graph" in warnings
+        assert any(
+            "expected JSON object" in w for w in warnings["graph"]
+        ), f"Expected non-dict-root diagnostic for graph; got {warnings['graph']}"
+
+    def test_partial_with_warnings_surfaces_per_collector(
+        self, tmp_path: Path, manifest: dict
+    ):
+        """Existing `*_with_errors` fixtures roll up to collector_warnings.
+
+        S-4 from AS15c rubber-duck: parametrize across all collectors with
+        existing _with_errors fixtures so we validate warning extraction
+        works for every collector schema, not just one.
+        """
+        collected = tmp_path / "collected"
+        collected.mkdir()
+        # Use the existing _with_errors fixtures for each collector.
+        # Each fixture's _metadata.warnings should appear verbatim in the
+        # rollup, in insertion order (no alphabetical sort).
+        fixture_map = {
+            "ppac": "ppac_with_errors.json",
+            "graph": "graph_with_section7_errored.json",
+            "purview": "purview_with_errors.json",
+            "sharepoint": "sharepoint_errored.json",
+            "sentinel": "sentinel.json",  # clean fixture for control
+        }
+        for source, fixture_name in fixture_map.items():
+            write_json(
+                collected / f"{source}.json", load_fixture(fixture_name)
+            )
+        result = self._run(tmp_path, manifest, collected)
+
+        warnings = result["_metadata"]["collector_warnings"]
+        # Verify warnings rolled up for the four errored collectors.
+        for source in ("ppac", "graph", "purview", "sharepoint"):
+            fixture_data = load_fixture(fixture_map[source])
+            expected = (
+                fixture_data.get("_metadata", {}).get("warnings", [])
+            )
+            assert source in warnings, (
+                f"Expected {source} in collector_warnings; got {list(warnings)}"
+            )
+            for exp_w in expected:
+                assert exp_w in warnings[source], (
+                    f"Expected fixture warning '{exp_w}' in rollup for "
+                    f"{source}; got {warnings[source]}"
+                )
+            # Errors (when present) should appear with [error] prefix.
+            errors = fixture_data.get("_metadata", {}).get("errors", [])
+            for exp_e in errors:
+                assert any(
+                    f"[error] {exp_e}" == w for w in warnings[source]
+                ), (
+                    f"Expected fixture error '[error] {exp_e}' for {source}; "
+                    f"got {warnings[source]}"
+                )
+        # Sentinel had no warnings/errors -> excluded from rollup.
+        assert "sentinel" not in warnings
+
+    def test_collector_warnings_schema_shape(
+        self, tmp_path: Path, manifest: dict, collected_dir: Path
+    ):
+        """collector_warnings shape: dict[source, list[str]] with valid keys.
+
+        S-2 from AS15c rubber-duck: lock the field's shape via test so a
+        future contributor can't accidentally change it (e.g., to a flat
+        list or nested object).
+        """
+        result = self._run(tmp_path, manifest, collected_dir)
+
+        meta = result["_metadata"]
+        assert "collector_warnings" in meta
+        cw = meta["collector_warnings"]
+        assert isinstance(cw, dict)
+        valid_sources = {"ppac", "graph", "purview", "sharepoint", "sentinel"}
+        for k, v in cw.items():
+            assert k in valid_sources, (
+                f"Unexpected collector key '{k}' (allowed: {valid_sources})"
+            )
+            assert isinstance(v, list), (
+                f"collector_warnings[{k}] must be list; got {type(v).__name__}"
+            )
+            assert all(isinstance(s, str) for s in v), (
+                f"collector_warnings[{k}] must contain strings; got "
+                f"{[type(s).__name__ for s in v]}"
+            )
+
+    def test_clean_collected_data_yields_empty_warnings(
+        self, tmp_path: Path, manifest: dict, collected_dir: Path
+    ):
+        """Happy path: all fixtures clean -> collector_warnings == {}."""
+        result = self._run(tmp_path, manifest, collected_dir)
+        assert result["_metadata"]["collector_warnings"] == {}
+
+    def test_warnings_field_coerces_string_to_list(
+        self, tmp_path: Path, manifest: dict
+    ):
+        """N-4: PowerShell emits string when single-element warnings list.
+
+        ConvertTo-Json collapses single-element arrays to scalars - the
+        engine must coerce a bare string back to a single-element list
+        rather than treating it as no data.
+        """
+        collected = self._empty_collected_dir(tmp_path)
+        # PPAC fixture with _metadata.warnings as a string (PS footgun).
+        write_json(
+            collected / "ppac.json",
+            {
+                "_metadata": {
+                    "collector": "PPAC",
+                    "warnings": "Lone warning that PowerShell unwrapped",
+                },
+                "environments": [],
+            },
+        )
+        for name in ("graph", "purview", "sharepoint", "sentinel"):
+            write_json(
+                collected / f"{name}.json",
+                {"_metadata": {"collector": name.capitalize(), "warnings": []}},
+            )
+        result = self._run(tmp_path, manifest, collected)
+
+        warnings = result["_metadata"]["collector_warnings"]
+        assert "ppac" in warnings
+        assert "Lone warning that PowerShell unwrapped" in warnings["ppac"]
