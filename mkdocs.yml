@@ -66,8 +66,20 @@ validation:
 # primary nav; the long-tail ~140 are reachable by URL/search.
 
 # Exclude files that are intentionally not in navigation
+#
+# `images/*/EXPECTED.md` excludes the per-control screenshot
+# verification specs (78 files, internal docs only — never customer-
+# facing). The `images/diagrams/` tree is NOT excluded; it ships the
+# exportable architecture diagrams referenced by ~30+ "Download
+# diagram" links across the docs.
+#
+# Note: gitignore re-include semantics (`!images/diagrams/`) cannot
+# rescue paths whose parent directory is excluded, so we exclude the
+# specific files instead of negating-around a directory exclusion.
+# See F-IMAGES-EXCLUDED-* (Phase 3 AS2).
 exclude_docs: |
-  images/
+  images/.gitignore
+  images/*/EXPECTED.md
   scripts/
   templates/
   reference/raci-matrix.md
