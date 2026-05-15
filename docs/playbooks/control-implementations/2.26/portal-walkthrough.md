@@ -188,6 +188,12 @@ When Microsoft announces Agent ID GA for your sovereign cloud, do **not** silent
 
 ---
 
+<!-- AS16 (S1): legacy-slug preservation across the May 2026 GA heading
+     rename ("Frontier program enrollment" -> "Microsoft Agent 365 / M365
+     E7 License Assignment"). DO NOT REMOVE the explicit anchor below:
+     three in-page hrefs (TOC line 67, warnings lines 126/127) resolve to
+     #2-frontier-program-enrollment, which is no longer the auto-generated
+     slug for this H2. The body paragraph in §2 documents the reason. -->
 <a id="2-frontier-program-enrollment"></a>
 
 ## 2. Microsoft Agent 365 / Microsoft 365 E7 License Assignment

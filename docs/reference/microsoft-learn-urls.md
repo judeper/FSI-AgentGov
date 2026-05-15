@@ -462,8 +462,8 @@ See the [Microsoft Audit Reporting Tools Playbook](../playbooks/advanced-impleme
 | FINRA Annual Regulatory Oversight Report | Examination Priorities | https://www.finra.org/rules-guidance/guidance/reports/2026-finra-annual-regulatory-oversight-report |
 | SEC Rule 17a-3 | Records Requirements | https://www.ecfr.gov/current/title-17/section-240.17a-3 |
 | SEC Rule 17a-4 | Record Preservation | https://www.ecfr.gov/current/title-17/section-240.17a-4 |
-| SOX Section 302 | Corporate Responsibility | https://www.soxlaw.com/s302.htm |
-| SOX Section 404 | Internal Controls | https://www.soxlaw.com/s404.htm |
+| SOX Section 302 | Corporate Responsibility (15 U.S.C. §7241) | https://www.law.cornell.edu/uscode/text/15/7241 |
+| SOX Section 404 | Internal Controls (15 U.S.C. §7262) | https://www.law.cornell.edu/uscode/text/15/7262 |
 | GLBA Section 501 | Safeguards | https://www.ftc.gov/legal-library/browse/statutes/gramm-leach-bliley-act |
 | OCC Bulletin 2026-13 (formerly OCC 2011-12) | Model Risk Management | https://www.occ.gov/news-issuances/bulletins/2026/bulletin-2026-13.html |
 | Fed SR 26-2 (formerly SR 11-7) | Model Risk Management | https://www.federalreserve.gov/supervisionreg/srletters/SR2602.htm |
