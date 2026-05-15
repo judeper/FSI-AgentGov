@@ -13,6 +13,10 @@
  *                                 navigation.instant SPA-style link navigation
  *   F-DARKMODE-MERMAID         — Mermaid SVG absent when dark palette (slate) active
  *   F-PRINTMODE-MERMAID        — Mermaid SVG absent when print media emulated
+ *   F-DEPLOY-COPYRIGHT-PATH    — Footer disclaimer link uses hardcoded
+ *                                "/FSI-AgentGov/" subpath, 404s under any
+ *                                root-mounted serve (local mkdocs serve /
+ *                                Playwright webServer / future re-host)
  *
  * EXPECTED FAILURES ON CURRENT MAIN (pre-fix):
  *   Test 1 — rendered mermaid count 0 ≠ N (Mermaid JS not executing)
@@ -269,7 +273,51 @@ test.describe.serial("docs render @regression", () => {
           }
         }
 
-        // (c) Page-level zero error counts
+        // (c) Footer disclaimer link must be path-portable.
+        //     [F-DEPLOY-COPYRIGHT-PATH-01] (Phase 3 AS14) The previous
+        //     mkdocs.yml `copyright:` field hardcoded
+        //     `<a href="/FSI-AgentGov/disclaimer/">` which 404s when the
+        //     site is mounted at root. The override at
+        //     overrides/partials/copyright.html uses Material's `url`
+        //     filter to emit a page-relative href that works at every
+        //     mount point.
+        {
+          const footerHref = await page
+            .locator('.md-copyright a[href*="disclaimer"]')
+            .first()
+            .getAttribute("href");
+          if (footerHref === null) {
+            failures.push(
+              `[F-DEPLOY-COPYRIGHT-PATH-01] ${urlPath}: ` +
+                "footer disclaimer link missing from .md-copyright",
+            );
+          } else if (footerHref.startsWith("/FSI-AgentGov/")) {
+            failures.push(
+              `[F-DEPLOY-COPYRIGHT-PATH-01] ${urlPath}: ` +
+                `footer disclaimer href "${footerHref}" hardcodes ` +
+                "site_url subpath — must be page-relative",
+            );
+          } else {
+            const absDisclaimer = new URL(footerHref, page.url()).toString();
+            try {
+              const resp = await request.head(absDisclaimer);
+              if (resp.status() !== 200) {
+                failures.push(
+                  `[F-DEPLOY-COPYRIGHT-PATH-01] ${urlPath}: ` +
+                    `footer disclaimer href "${footerHref}" → ` +
+                    `HEAD ${absDisclaimer} → HTTP ${resp.status()}`,
+                );
+              }
+            } catch (e) {
+              failures.push(
+                `[F-DEPLOY-COPYRIGHT-PATH-01] ${urlPath}: ` +
+                  `HEAD ${absDisclaimer} threw: ${e.message.split("\n")[0]}`,
+              );
+            }
+          }
+        }
+
+        // (d) Page-level zero error counts
         const newPageErrors = pageErrors.slice(prePageErrorCount);
         const newConsoleErrors = consoleErrors.slice(preConsoleErrorCount);
         const cspViolations = await drainCspViolations(page);

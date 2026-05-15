@@ -4,7 +4,11 @@ site_author: "FSI Agent Governance Team"
 site_url: "https://judeper.github.io/FSI-AgentGov/"
 repo_url: https://github.com/judeper/FSI-AgentGov
 repo_name: judeper/FSI-AgentGov
-copyright: 'Copyright 2026 FSI Agent Governance Team | <a href="/FSI-AgentGov/disclaimer/">Disclaimer</a>'
+# NOTE: Disclaimer link rendered by overrides/partials/copyright.html
+# (Phase 3 AS14 / F-DEPLOY-COPYRIGHT-PATH-01). Do NOT add an `<a href>`
+# back here — hardcoded URLs 404 under any mount point other than
+# /FSI-AgentGov/. To change the disclaimer link target, edit the partial.
+copyright: 'Copyright 2026 FSI Agent Governance Team'
 
 extra:
   generator: false
