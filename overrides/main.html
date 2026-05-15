@@ -29,6 +29,53 @@
       }
     }
   </script>
+  <script>
+    // Mermaid CDN-block fix (F-MERMAID-CDN-BLOCK-01 et al).
+    //
+    // Material 9.7.6's compiled bundle.js hard-codes
+    // `https://unpkg.com/mermaid@11/dist/mermaid.min.js` and dynamically
+    // appends a <script> tag for it whenever a page contains a `.mermaid`
+    // element. There is no Jinja partial or config option to override
+    // that URL — the only escape hatches are loosening CSP to allow
+    // unpkg.com (rejected: supply-chain risk for FSI audience) or
+    // intercepting the appendChild call before the network request fires
+    // (this).
+    //
+    // We patch Element.prototype.appendChild to rewrite the unpkg URL to
+    // our locally-vendored copy at /javascripts/vendor/mermaid.min.js
+    // (or /FSI-AgentGov/javascripts/vendor/mermaid.min.js when deployed
+    // under the project subpath). The vendored payload's SRI hash is
+    // pinned via the integrity attribute so any drift on disk fails
+    // hard at script-load time.
+    //
+    // After interception, Material's mermaid integration sees
+    // `window.mermaid` defined and proceeds with theme/palette init and
+    // mermaid.run() exactly as it would have with the public CDN —
+    // including instant-nav re-render via the `document$` observable.
+    //
+    // Vendored: mermaid@11.15.0 (matches Material's @11 major-pin).
+    // See docs/javascripts/lib/VENDOR-MANIFEST.md.
+    (function () {
+      var SITE_BASE = location.pathname.indexOf("/FSI-AgentGov/") === 0
+        ? "/FSI-AgentGov"
+        : "";
+      var VENDORED_MERMAID = SITE_BASE + "/javascripts/vendor/mermaid.min.js";
+      var SRI = "sha256-cBN+d7snO7LvlyuG6LBADMqL5TyyW/xFkRoYbcmGZd4=";
+      var UNPKG_RE = /^https:\/\/unpkg\.com\/mermaid@/;
+      var origAppendChild = Element.prototype.appendChild;
+      Element.prototype.appendChild = function (node) {
+        if (
+          node && node.tagName === "SCRIPT" &&
+          typeof node.src === "string" && UNPKG_RE.test(node.src)
+        ) {
+          node.src = VENDORED_MERMAID;
+          node.integrity = SRI;
+          node.crossOrigin = "anonymous";
+        }
+        return origAppendChild.call(this, node);
+      };
+    })();
+  </script>
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://api.github.com; base-uri 'self'; form-action 'self'">
 {% endblock %}
 

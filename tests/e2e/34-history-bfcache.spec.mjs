@@ -16,17 +16,23 @@
  * answers intact — the SPA cannot fulfil this. (F-SPA-BACK-NO-ROUTING)
  *
  * Tests:
- *   1 @regression — Docs back: .mermaid svg > 0 after goBack()
- *   2 @regression — Docs BFCache: .mermaid svg > 0 after pageshow persisted
+ *   1 @regression — Docs back: Mermaid layout > 0 after goBack()
+ *   2 @regression — Docs BFCache: Mermaid layout > 0 after pageshow persisted
  *                   (soft-warn if BFCache does not fire — Chromium/localhost limitation)
  *   3 @regression — SPA back×2 mid-assessment: Phase 1 + answers + scope intact
  *   4 @smoke      — SPA back×2 + forward×2: results re-render with same score
  *
  * Expected failures on current main (pre-fix):
- *   T1 — svg count = 0 after goBack() — popstate path not covered
- *   T2 — svg count = 0 if BFCache fires — same root cause
+ *   T1 — rendered count = 0 after goBack() — popstate path not covered
+ *   T2 — rendered count = 0 if BFCache fires — same root cause
  *   T3 — goBack() exits /assessment/ (white-screen); Phase 1 heading not found
  *   T4 — goForward() re-lands on welcome screen, not results
+ *
+ * Render detection: Material 9.7.6 renders mermaid into closed shadow DOM
+ * (`attachShadow({mode:"closed"})`). `.mermaid svg` is invisible to
+ * Playwright locators. We use `countRenderedMermaid` (see _mermaid.mjs)
+ * which measures `.mermaid` div bounding-box height — non-zero = render
+ * succeeded regardless of shadow-DOM mode.
  */
 
 import { test } from "@playwright/test";
@@ -38,6 +44,7 @@ import {
   navClick,
   seedScoping,
 } from "./_harness.mjs";
+import { countRenderedMermaid } from "./_mermaid.mjs";
 
 // ── Runtime config ──────────────────────────────────────────────────────────
 const PORT = parseInt(process.env.PW_PORT || "8765", 10);
@@ -72,12 +79,13 @@ const MINI_PERSONA = {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-/** Assert Mermaid processed: SVGs present, no raw <pre> blocks remain. */
+/** Assert Mermaid processed: layout occupied, no raw <pre> blocks remain.
+ *  Material 9.7.6 renders into closed shadow DOM — see _mermaid.mjs. */
 async function assertMermaidRendered(page, context) {
-  const svgCount = await page.locator(".mermaid svg").count();
+  const renderedCount = await countRenderedMermaid(page);
   expect(
-    svgCount,
-    `[${context}] .mermaid svg count ${svgCount}; expected > 0 — Mermaid did not re-init`,
+    renderedCount,
+    `[${context}] rendered mermaid count ${renderedCount}; expected > 0 — Mermaid did not re-init`,
   ).toBeGreaterThan(0);
   const preCount = await page.locator("pre.mermaid").count();
   expect(
@@ -118,9 +126,9 @@ test.describe("history + BFCache @regression", () => {
       expect(new URL(page.url()).pathname, "goBack() must restore PAGE_A").toBe(originPath);
 
       // (e) Mermaid must re-init on popstate. [F-NAVINSTANT-MERMAID-REINIT-POPSTATE]
-      //     On current main: svg count = 0 (Mermaid not re-initing on popstate path).
+      //     On current main: rendered count = 0 (Mermaid not re-initing on popstate path).
       await expect
-        .poll(() => page.locator(".mermaid svg").count(), { timeout: 5_000 })
+        .poll(() => countRenderedMermaid(page), { timeout: 5_000 })
         .toBeGreaterThan(0);
       await assertMermaidRendered(page, "back-navigation");
 
@@ -172,9 +180,9 @@ test.describe("history + BFCache @regression", () => {
       }
 
       // (f) Mermaid must render — whether BFCache or fresh-load.
-      //     [F-NAVINSTANT-MERMAID-REINIT-BFCACHE] on main: svg count = 0.
+      //     [F-NAVINSTANT-MERMAID-REINIT-BFCACHE] on main: rendered count = 0.
       await expect
-        .poll(() => page.locator(".mermaid svg").count(), { timeout: 5_000 })
+        .poll(() => countRenderedMermaid(page), { timeout: 5_000 })
         .toBeGreaterThan(0);
       await assertMermaidRendered(page, "BFCache-restore");
     },

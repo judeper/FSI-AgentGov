@@ -4,8 +4,10 @@ on:
   pull_request:
     paths:
       - docs/javascripts/lib/**
+      - docs/javascripts/vendor/**
       - docs/javascripts/assessment-app.js
       - docs/javascripts/assessment-loader.js
+      - overrides/main.html
       - scripts/verify-sheetjs-sri.mjs
       - .github/workflows/sri-check.yml
   push:
@@ -13,8 +15,10 @@ on:
       - main
     paths:
       - docs/javascripts/lib/**
+      - docs/javascripts/vendor/**
       - docs/javascripts/assessment-app.js
       - docs/javascripts/assessment-loader.js
+      - overrides/main.html
       - scripts/verify-sheetjs-sri.mjs
       - .github/workflows/sri-check.yml
 
