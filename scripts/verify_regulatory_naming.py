@@ -1,12 +1,13 @@
-#!/usr/bin/env python3
-"""Verify canonical OCC/SR regulatory naming on customer-facing summary surfaces.
+"""Verify canonical OCC/SR regulatory naming across the docs/ corpus.
 
-Two checks (per AS3' audit fix-set):
+Two checks (per AS3' + AS11 audit fix-sets):
 
   1. **Rendered prose** — every reference to OCC Bulletin 2011-12 or SR 11-7
-     in the watched 20-file allowlist MUST be inside a ``(... formerly ...)``
-     parenthetical span on the same line, OR the file/section is on the
-     skip list (fenced code blocks, version-history H2 sections).
+     in scanned files MUST be inside a ``(... formerly ...)`` parenthetical
+     span on the same line, OR the line/section qualifies for a carve-out
+     (fenced code blocks, version-history H2 sections, Material admonition
+     titles + bodies, supersession-narrative lines, legacy-URL citation
+     lines, file-slug self-reference lines, historical-bullet blocks).
 
      Shorthand ``OCC/SR 11-7``, ``OCC/SR 26-2``, ``OCC / SR 11-7`` is ALWAYS
      a fail (explicit naming required).
@@ -15,7 +16,8 @@ Two checks (per AS3' audit fix-set):
      internal (``#anchor`` or relative ``../`` path, not ``http://``/``https://``)
      MUST NOT contain stale slugs: ``occ-2011-12``, ``occ-bulletin-2011-12``,
      ``sr-11-7``, ``occ-sr-11-7``. The canonical filename slug
-     ``2.6-model-risk-management-sr-26-2.md`` is allowed.
+     ``2.6-model-risk-management-sr-26-2.md`` is allowed, and the explicit
+     pinned anchor ``{#5-vendor-model-governance-sr-11-7-v}`` is allowed.
 
 Usage::
 
@@ -26,29 +28,31 @@ Design notes:
 
   * **Line/token** — not proximity. We scan one line at a time. A bare
     ``OCC 2011-12`` mention is allowed only if its character span sits
-    inside a ``(... formerly ...)`` parenthetical on the same line.
+    inside a ``(... formerly ...)`` parenthetical on the same line OR the
+    enclosing line/section qualifies for a carve-out.
   * **URL-aware** — the ``(URL)`` portion of a Markdown ``[text](URL)``
     link is stripped before the prose scan (URLs are not customer-facing
     rendered text). Link **text** is scanned. Internal link destinations
     are scanned by Check 2 instead.
-  * **History sections** — H2 sections matching ``version history``,
-    ``release history``, ``changelog``, or ``prior version`` are skipped
-    on the assumption that historical text accurately quotes prior naming.
-  * **Allowlist** — narrow to 20 customer-facing summary surfaces. Pillar
-    control bodies, playbooks, and historical reports are out of scope.
+  * **Carve-outs** for supersession-narrative content (control 2.6 etc.):
+      - Material admonition titles (``!!! ``/``??? ``) and indented body
+      - Lines containing supersession markers (rescinded, superseded,
+        supersedes, supersede and rescind, predecessor, formerly known
+        as, no longer resolves, rescinds)
+      - Lines containing legacy URL fragments (``bulletin-2011-12.html``,
+        ``sr1107.htm``, ``/bulletins/2011/``, ``SR letter 11-7``)
+      - Lines containing the file-slug in backticks
+      - Bullets inside the ``Regulatory sources — historical`` block
+  * **Skipped directories** — ``docs/images/*`` (local-only screenshot
+    checklists, not customer-facing rendered content).
 
 The convention this gate enforces:
 
-  * First mention per page: ``OCC Bulletin 2026-13 (formerly OCC 2011-12)``
-    or ``OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12)``.
+  * First mention per page: ``OCC Bulletin 2026-13 (formerly OCC 2011-12)``.
   * Subsequent mentions: short form ``OCC Bulletin 2026-13`` alone.
-  * Fed SR pattern: ``Fed SR 26-2 (formerly SR 11-7)`` or
-    ``Federal Reserve SR 26-2 (formerly SR 11-7)`` first; ``SR 26-2``
-    alone thereafter.
-  * Section V references: ``OCC Bulletin 2026-13 §V (formerly OCC 2011-12 §V)``.
-  * Compact regulatory anchors:
-    ``OCC Bulletin 2026-13 / Fed SR 26-2`` or
-    ``OCC Bulletin 2026-13 / Federal Reserve SR 26-2``.
+  * Fed SR pattern: ``Fed SR 26-2 (formerly SR 11-7)``; short ``SR 26-2`` after.
+  * Headings: short canonical form ``OCC Bulletin 2026-13`` / ``SR 26-2``
+    is preferred (avoids TOC bloat) and accepted without formerly-span.
 """
 
 from __future__ import annotations
@@ -57,61 +61,40 @@ import argparse
 import re
 import sys
 from pathlib import Path
-from typing import Iterable
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DOCS_ROOT = REPO_ROOT / "docs"
 
 # ---------------------------------------------------------------------------
-# Watched 20-file summary-surface allowlist
+# Reuse the rich line-context tracker + skip predicate from the companion
+# canonicalize script. Single source of truth for the carve-out logic.
 # ---------------------------------------------------------------------------
-#
-# We narrow to customer-facing summary surfaces only. Pillar control bodies
-# (78 files) and per-control playbooks (~312 files) are deferred to a
-# separate per-pillar sweep with its own design pass.
 
-WATCHED_FILES: list[Path] = [
-    DOCS_ROOT / "index.md",
-    DOCS_ROOT / "controls" / "CONTROL-INDEX.md",
-    DOCS_ROOT / "reference" / "regulatory-mappings.md",
-    DOCS_ROOT / "reference" / "glossary.md",
-    DOCS_ROOT / "reference" / "agent-365-capabilities-summary.md",
-    DOCS_ROOT / "reference" / "cco-quick-reference.md",
-    DOCS_ROOT / "reference" / "csa-quick-reference.md",
-    DOCS_ROOT / "reference" / "csa-positioning-guide.md",
-    DOCS_ROOT / "reference" / "assessment-coverage.md",
-    DOCS_ROOT / "reference" / "faq.md",
-]
-# Plus every Markdown file under getting-started/ and framework/.
-WATCHED_DIRS: list[Path] = [
-    DOCS_ROOT / "getting-started",
-    DOCS_ROOT / "framework",
-]
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from canonicalize_regulatory_naming import (  # noqa: E402, I001
+    SKIP_DIR_PARTS,
+    iter_lines as iter_line_contexts,
+    line_is_skip_eligible,
+)
 
 
 def gather_watched_paths() -> list[Path]:
-    """Return the full deterministic watched-file list."""
-    paths: list[Path] = list(WATCHED_FILES)
-    for directory in WATCHED_DIRS:
-        if directory.exists():
-            paths.extend(sorted(directory.glob("*.md")))
-    # De-duplicate while preserving order.
-    seen: set[Path] = set()
+    """Return every .md under docs/ except local-only screenshot checklists."""
     out: list[Path] = []
-    for p in paths:
-        if p not in seen:
-            seen.add(p)
-            out.append(p)
+    for path in sorted(DOCS_ROOT.rglob("*.md")):
+        rel_parts = path.relative_to(DOCS_ROOT).parts
+        if any(part in SKIP_DIR_PARTS for part in rel_parts):
+            continue
+        out.append(path)
     return out
 
 
 # ---------------------------------------------------------------------------
-# Regex library
+# Regex library (unchanged from AS3'b — these are the validation predicates)
 # ---------------------------------------------------------------------------
 
-# H2 sections whose nearest header matches this pattern are skipped. Release
-# history and changelog text accurately quotes prior naming and must not be
-# flagged.
+# H2 sections whose nearest header matches this pattern are skipped (covered
+# by the canonicalize tracker too — keep here for unit-test parametrization).
 HISTORY_SECTION_RE = re.compile(
     r"(?i)(version\s+history|release\s+history|changelog|prior\s+version)"
 )
@@ -123,10 +106,7 @@ MD_LINK_URL_STRIP_RE = re.compile(r"\]\([^)]*\)")
 # Markdown link / image destinations to scan for stale slugs.
 MD_LINK_DEST_RE = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
 
-# ``(... formerly ... )`` parenthetical span. Case-insensitive. The
-# parenthetical must contain ``formerly`` somewhere inside its body, not
-# only at the start (e.g. ``(banks; formerly OCC Bulletin 2011-12)`` and
-# ``(formerly SR 11-7; the 2026 supersession)`` both qualify).
+# ``(... formerly ... )`` parenthetical span. Case-insensitive.
 FORMERLY_SPAN_RE = re.compile(r"\([^)]*\bformerly\b[^)]*\)", re.IGNORECASE)
 
 # Bare references that MUST sit inside a formerly-span on the same line.
@@ -140,42 +120,32 @@ SHORTHAND_RE = re.compile(
 )
 
 # Stale slugs in internal Markdown link destinations. Canonical
-# ``sr-26-2`` slugs (filenames) are explicitly allowed.
+# ``sr-26-2`` slugs (filenames) are explicitly allowed; the explicit
+# pinned anchor ``5-vendor-model-governance-sr-11-7-v`` is also allowed.
 STALE_SLUG_RE = re.compile(
     r"(?i)\b(occ[-_]?bulletin[-_]?2011[-_]?12|occ[-_]?2011[-_]?12|"
     r"sr[-_]11[-_]7|occ[-_]sr[-_]11[-_]7)\b"
 )
+PINNED_ANCHOR_ALLOWLIST = {
+    "5-vendor-model-governance-sr-11-7-v",
+}
 
 
 # ---------------------------------------------------------------------------
-# Helpers
+# Compatibility helpers (preserved for the existing test suite + idiomatic
+# usage in any future caller).
 # ---------------------------------------------------------------------------
 
 
-def iter_lines_skipping_fences(
-    text: str,
-) -> Iterable[tuple[int, str, str | None]]:
-    """Yield ``(line_number, line_text, current_h2)`` for every line that is
-    NOT inside a fenced code block. ``line_number`` is 1-based.
-    """
-    in_fence = False
-    current_h2: str | None = None
-    for idx, raw in enumerate(text.splitlines(), start=1):
-        stripped = raw.lstrip()
-        if stripped.startswith("```"):
-            in_fence = not in_fence
+def iter_lines_skipping_fences(text: str):
+    """Compatibility shim — yields ``(line_no, line_text, current_h2)``."""
+    for ctx in iter_line_contexts(text):
+        if ctx.in_fence:
             continue
-        if in_fence:
-            continue
-        if raw.startswith("## "):
-            current_h2 = raw[3:].strip()
-        elif raw.startswith("# "):
-            current_h2 = None
-        yield idx, raw, current_h2
+        yield ctx.line_no, ctx.text, ctx.current_h2
 
 
 def find_formerly_spans(line: str) -> list[tuple[int, int]]:
-    """Return inclusive char ranges that mark ``(... formerly ...)`` spans."""
     return [m.span() for m in FORMERLY_SPAN_RE.finditer(line)]
 
 
@@ -184,10 +154,6 @@ def is_inside_any_span(pos: int, spans: list[tuple[int, int]]) -> bool:
 
 
 def strip_link_urls(line: str) -> str:
-    """Replace ``](URL)`` destinations with empty destinations to keep
-    column positions stable for the prose scan. Link TEXT is preserved
-    so naming inside link text is still scanned.
-    """
     return MD_LINK_URL_STRIP_RE.sub("]()", line)
 
 
@@ -197,18 +163,19 @@ def strip_link_urls(line: str) -> str:
 
 
 def check_prose(path: Path) -> list[str]:
-    """Return failure messages (empty == PASS) for one watched file."""
+    """Return failure messages (empty == PASS) for one file."""
     failures: list[str] = []
     text = path.read_text(encoding="utf-8")
-    for line_no, line, h2 in iter_lines_skipping_fences(text):
-        if h2 and HISTORY_SECTION_RE.search(h2):
+    for ctx in iter_line_contexts(text):
+        if line_is_skip_eligible(ctx):
             continue
+        line = ctx.text
         scan_line = strip_link_urls(line)
         # Always-wrong shorthand.
         for m in SHORTHAND_RE.finditer(scan_line):
             failures.append(
                 _diag(
-                    path, line_no, line, m.group(0),
+                    path, ctx.line_no, line, m.group(0),
                     "shorthand 'OCC/SR' is always wrong (OCC and the Fed "
                     "are different authorities; explicit naming required)",
                     "OCC Bulletin 2026-13 / Fed SR 26-2",
@@ -221,7 +188,7 @@ def check_prose(path: Path) -> list[str]:
                 continue
             failures.append(
                 _diag(
-                    path, line_no, line, m.group(0),
+                    path, ctx.line_no, line, m.group(0),
                     "bare OCC 2011-12 reference outside a "
                     "'(... formerly ...)' parenthetical",
                     "OCC Bulletin 2026-13 (formerly OCC 2011-12)",
@@ -232,7 +199,7 @@ def check_prose(path: Path) -> list[str]:
                 continue
             failures.append(
                 _diag(
-                    path, line_no, line, m.group(0),
+                    path, ctx.line_no, line, m.group(0),
                     "bare SR 11-7 reference outside a "
                     "'(... formerly ...)' parenthetical",
                     "Fed SR 26-2 (formerly SR 11-7)",
@@ -251,22 +218,35 @@ def is_external_destination(dest: str) -> bool:
     return dest.startswith(("http://", "https://", "mailto:", "tel:"))
 
 
+def _stale_slug_is_allowlisted(dest: str, matched: str) -> bool:
+    """Return True if the stale-looking slug is on the explicit allowlist."""
+    # Pinned anchor: anything ending in #<allowlisted-fragment> is allowed.
+    if "#" in dest:
+        anchor = dest.split("#", 1)[1]
+        if anchor in PINNED_ANCHOR_ALLOWLIST:
+            return True
+    return False
+
+
 def check_internal_links(path: Path) -> list[str]:
-    """Return failure messages (empty == PASS) for one watched file."""
+    """Return failure messages (empty == PASS) for one file."""
     failures: list[str] = []
     text = path.read_text(encoding="utf-8")
-    for line_no, line, h2 in iter_lines_skipping_fences(text):
-        if h2 and HISTORY_SECTION_RE.search(h2):
+    for ctx in iter_line_contexts(text):
+        if ctx.in_fence:
             continue
+        if ctx.current_h2 and HISTORY_SECTION_RE.search(ctx.current_h2):
+            continue
+        line = ctx.text
         for m in MD_LINK_DEST_RE.finditer(line):
             dest = m.group(1)
             if is_external_destination(dest):
                 continue
             stale = STALE_SLUG_RE.search(dest)
-            if stale:
+            if stale and not _stale_slug_is_allowlisted(dest, stale.group(0)):
                 failures.append(
                     _diag(
-                        path, line_no, line, stale.group(0),
+                        path, ctx.line_no, line, stale.group(0),
                         f"internal link destination contains stale slug "
                         f"{stale.group(0)!r} (target appears to reference "
                         "a stale-named file or anchor)",
@@ -339,8 +319,7 @@ def main(argv: list[str] | None = None) -> int:
     print()
 
     if n_failures == 0:
-        print("PASS: all OCC/SR references on watched surfaces use canonical "
-              "naming.")
+        print("PASS: all OCC/SR references use canonical naming.")
         return 0
 
     for msg in messages:

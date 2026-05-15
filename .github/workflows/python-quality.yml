@@ -29,17 +29,10 @@ on:
       - 'AGENTS.md'
       - '.github/agents/gsd-codebase-mapper.agent.md'
       - 'assessment/data/solutions-lock.json'
-      # Regulatory-naming gate (regulatory_naming job) — additional
-      # customer-facing summary surfaces that must use canonical OCC/SR
-      # naming. docs/framework/** and docs/index.md are already covered
-      # above; these are the remaining watched files.
-      - 'docs/getting-started/**'
-      - 'docs/reference/glossary.md'
-      - 'docs/reference/agent-365-capabilities-summary.md'
-      - 'docs/reference/cco-quick-reference.md'
-      - 'docs/reference/csa-quick-reference.md'
-      - 'docs/reference/csa-positioning-guide.md'
-      - 'docs/reference/faq.md'
+      # Regulatory-naming gate (regulatory_naming job) — full docs/ corpus.
+      # Triggers on ANY docs/ markdown change (the verifier scans all of
+      # docs/ excluding the local-only docs/images/ checklists).
+      - 'docs/**/*.md'
   push:
     branches:
       - main
@@ -65,13 +58,7 @@ on:
       - 'AGENTS.md'
       - '.github/agents/gsd-codebase-mapper.agent.md'
       - 'assessment/data/solutions-lock.json'
-      - 'docs/getting-started/**'
-      - 'docs/reference/glossary.md'
-      - 'docs/reference/agent-365-capabilities-summary.md'
-      - 'docs/reference/cco-quick-reference.md'
-      - 'docs/reference/csa-quick-reference.md'
-      - 'docs/reference/csa-positioning-guide.md'
-      - 'docs/reference/faq.md'
+      - 'docs/**/*.md'
 
 permissions:
   contents: read
