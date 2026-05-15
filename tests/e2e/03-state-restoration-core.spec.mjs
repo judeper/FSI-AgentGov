@@ -132,8 +132,13 @@ test.describe("state restoration core @regression", () => {
     expect(beforeParsed.responses["1.3"].answer).toBe("no");
     expect(beforeParsed.responses["1.4"].answer).toBe("na");
 
-    // Cold reload.
-    await page.reload({ waitUntil: "domcontentloaded" });
+    // Cold visit — simulate the customer "close tab, return later via fresh URL"
+    // flow. Uses page.goto("/assessment/") instead of page.reload() because AS8's
+    // URL routing (?step= query) preserves the current step across page.reload(),
+    // which would auto-resume to phase1 and bypass the welcome-list resume flow
+    // this test was written to exercise. The localStorage slot survives both
+    // navigation forms — the byte-diff assertion below holds either way.
+    await page.goto("/assessment/", { waitUntil: "domcontentloaded" });
     await page
       .locator("#assessment-app")
       .getByRole("heading", { name: "Governance Readiness Assessment" })
