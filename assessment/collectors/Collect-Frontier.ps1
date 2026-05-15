@@ -360,7 +360,7 @@ $result = [ordered]@{
 }
 
 $json = $result | ConvertTo-Json -Depth 10 -Compress:$false
-[System.IO.File]::WriteAllText($OutputFile, $json, [System.Text.Encoding]::UTF8)
+[System.IO.File]::WriteAllText($OutputFile, $json, (New-Object System.Text.UTF8Encoding $false))
 Write-Status "Output written to $OutputFile" -Level Success
 
 # ─── Exit code ────────────────────────────────────────────────────────────────

@@ -1,0 +1,496 @@
+{
+  "name": "all-zone3-production",
+  "scoping": {
+    "organizationName": "Zenith Capital",
+    "assessorName": "Audit Lead",
+    "institutionType": "bank",
+    "zones": [
+      3
+    ],
+    "roles": [
+      "compliance-officer",
+      "platform-owner"
+    ]
+  },
+  "answers": {
+    "1.1": "yes",
+    "1.2": "yes",
+    "1.3": "yes",
+    "1.4": "yes",
+    "1.5": "yes",
+    "1.6": "yes",
+    "1.7": "yes",
+    "1.8": "yes",
+    "1.9": "yes",
+    "1.10": "yes",
+    "1.11": "yes",
+    "1.12": "yes",
+    "1.13": "yes",
+    "1.14": "yes",
+    "1.15": "yes",
+    "1.16": "yes",
+    "1.17": "yes",
+    "1.18": "yes",
+    "1.19": "yes",
+    "1.20": "yes",
+    "1.21": "yes",
+    "1.22": "yes",
+    "1.23": "yes",
+    "1.24": "yes",
+    "1.25": "yes",
+    "1.26": "yes",
+    "1.27": "yes",
+    "1.28": "yes",
+    "1.29": "yes",
+    "2.1": "yes",
+    "2.2": "yes",
+    "2.3": "yes",
+    "2.4": "yes",
+    "2.5": "yes",
+    "2.6": "yes",
+    "2.7": "yes",
+    "2.8": "yes",
+    "2.9": "yes",
+    "2.10": "yes",
+    "2.11": "yes",
+    "2.12": "yes",
+    "2.13": "yes",
+    "2.14": "yes",
+    "2.15": "yes",
+    "2.16": "yes",
+    "2.17": "yes",
+    "2.18": "yes",
+    "2.19": "yes",
+    "2.20": "yes",
+    "2.21": "yes",
+    "2.22": "yes",
+    "2.23": "yes",
+    "2.24": "yes",
+    "2.25": "yes",
+    "2.26": "yes",
+    "3.1": "yes",
+    "3.2": "yes",
+    "3.3": "yes",
+    "3.4": "yes",
+    "3.5": "yes",
+    "3.6": "yes",
+    "3.7": "yes",
+    "3.8": "yes",
+    "3.9": "yes",
+    "3.10": "yes",
+    "3.11": "yes",
+    "3.12": "yes",
+    "3.13": "yes",
+    "3.14": "yes",
+    "4.1": "yes",
+    "4.2": "yes",
+    "4.3": "yes",
+    "4.4": "yes",
+    "4.5": "yes",
+    "4.6": "yes",
+    "4.7": "yes",
+    "4.8": "yes",
+    "4.9": "yes"
+  },
+  "responses": {
+    "1.1": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "1.2": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "1.3": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "1.4": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "1.5": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "1.6": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "1.7": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "1.8": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "1.9": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "1.10": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "1.11": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "1.12": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "1.13": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "1.14": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "1.15": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "1.16": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "1.17": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "1.18": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "1.19": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "1.20": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "1.21": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "1.22": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "1.23": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "1.24": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "1.25": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "1.26": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "1.27": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "1.28": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "1.29": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "2.1": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "2.2": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "2.3": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "2.4": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "2.5": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "2.6": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "2.7": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "2.8": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "2.9": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "2.10": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "2.11": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "2.12": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "2.13": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "2.14": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "2.15": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "2.16": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "2.17": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "2.18": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "2.19": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "2.20": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "2.21": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "2.22": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "2.23": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "2.24": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "2.25": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "2.26": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "3.1": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "3.2": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "3.3": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "3.4": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "3.5": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "3.6": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "3.7": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "3.8": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "3.9": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "3.10": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "3.11": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "3.12": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "3.13": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "3.14": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "4.1": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "4.2": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "4.3": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "4.4": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "4.5": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "4.6": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "4.7": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "4.8": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    },
+    "4.9": {
+      "answer": "yes",
+      "notes": "Validated 2026-Q1 audit cycle by Audit Lead",
+      "evidenceRef": ""
+    }
+  },
+  "expectedScores": {
+    "overall": 100,
+    "perPillar": {
+      "1": 100,
+      "2": 100,
+      "3": 100,
+      "4": 100
+    }
+  }
+}

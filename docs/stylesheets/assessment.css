@@ -10,7 +10,14 @@
   --ag-radius: 6px;
   --ag-gap: 1rem;
   --ag-green: #2e7d32;
-  --ag-amber: #e65100;
+  /*
+   * AS5 / F-A11Y-SPA-CONTRAST-AMBER: previous --ag-amber was #e65100
+   * (Material Design Orange 900) which measures 3.79:1 on white — fails
+   * WCAG AA 4.5:1 for normal text. Darkened to #bf360c (Deep Orange 900)
+   * which yields 5.60:1 on white and 5.11:1 on the --ag-amber-bg (#fff3e0)
+   * surface used by .ag-disclaimer, .ag-override-btn, etc.
+   */
+  --ag-amber: #bf360c;
   --ag-red: #c62828;
   --ag-green-bg: #e8f5e9;
   --ag-amber-bg: #fff3e0;
@@ -47,7 +54,15 @@
   font-size: 0.8rem;
   font-weight: 500;
   background: var(--md-default-fg-color--lightest);
-  color: var(--md-default-fg-color--light);
+  /*
+   * AS5 / F-A11Y-SPA-CONTRAST-DELTA-07: Material's
+   * --md-default-fg-color--light (#6d6d6d) on
+   * --md-default-fg-color--lightest (#ededed) measures 4.41:1 — below
+   * WCAG AA 4.5:1 for normal text. Explicit #595959 yields 5.98:1 while
+   * preserving the dim "inactive step" affordance against active
+   * (filled brand) and completed (filled green) states below.
+   */
+  color: #595959;
   white-space: nowrap;
 }
 .ag-step-indicator.active {
@@ -351,7 +366,12 @@
 .ag-answer-btn.selected-partial {
   border-color: var(--ag-amber);
   background: var(--ag-amber);
-  color: #000;
+  /*
+   * Was color:#000 against #e65100 (5.54:1, passing). After AS5 darkened
+   * --ag-amber to #bf360c, #000 on the new amber drops to 3.75:1 —
+   * fails AA. White text on #bf360c = 5.60:1, restoring AA compliance.
+   */
+  color: #fff;
 }
 .ag-answer-btn.selected-no {
   border-color: var(--ag-red);
@@ -655,10 +675,28 @@
   .md-content { margin: 0 !important; max-width: 100% !important; }
   .md-main__inner { padding: 0 !important; }
 
-  /* Assessment specific */
+  /* Assessment specific - hide UI chrome that has no print value */
   .ag-steps, .ag-btn-group, .ag-notes-toggle,
-  .ag-export-grid, .ag-disclaimer, .ag-modal-backdrop,
+  .ag-export-grid, .ag-modal-backdrop,
   .ag-info-btn, .ag-edit-link, .ag-collab-callout { display: none !important; }
+
+  /* Show .ag-disclaimer in print: compliance archives need the
+   * legal caveat ("does not constitute a compliance certification")
+   * recorded in the PDF artifact. Closes F-PDF-DISCLAIMER-HIDDEN-01.
+   *
+   * Note: .ag-disclaimer is also used as a styled callout class for
+   * the Phase 2 reminder and a trend-comparison validation error
+   * (assessment-app.js:3064, 4205). Those will now appear in print
+   * too. The Phase 2 reminder is contextually defensible (it explains
+   * the section); the validation-error variant only renders if the
+   * user uploaded a bad trend file - unlikely to be in print scope.
+   */
+  .ag-disclaimer {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
 
   /* Show all tab panels in print (not just active) */
   .ag-tabs { display: none !important; }

@@ -111,8 +111,8 @@ In addition to Tests 1–7, Zone 3 deployments should run these FSI-grounded sce
 
 | Scenario | Validates | Regulatory anchor |
 |----------|-----------|-------------------|
-| Cumulative financial stop-loss across a chain | Chain-level financial cap is enforced even when no single agent breaches its individual limit | FINRA 25-07 §AI; OCC 2011-12 |
-| Combined model-risk evaluation for the chain as a single composite model | Chain has a written Combined Model Risk Card (Control 2.6) | Fed SR 11-7 |
+| Cumulative financial stop-loss across a chain | Chain-level financial cap is enforced even when no single agent breaches its individual limit | FINRA 25-07 §AI; OCC Bulletin 2026-13 (formerly OCC 2011-12) |
+| Combined model-risk evaluation for the chain as a single composite model | Chain has a written Combined Model Risk Card (Control 2.6) | Fed SR 26-2 (formerly SR 11-7) |
 | HITL approval review for rubber-stamping (sample 5% of approvals quarterly) | Approver attention quality, not just presence | FINRA Rule 3110 supervisory review |
 | MCP allow-list drift | No production orchestration invokes an MCP server outside the approved registry | FINRA 25-07; vendor risk management |
 | Cross-environment correlation-ID continuity | Pattern B depth tracking survives environment boundaries | SEC 17a-4 recordkeeping completeness |

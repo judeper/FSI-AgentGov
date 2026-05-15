@@ -6,7 +6,7 @@
 >
 > **Scope:** Programmatic configuration of Microsoft Purview Information Protection labels, Microsoft Purview Data Loss Prevention (DLP) policies for the `MicrosoftCopilotExperience` workload, Microsoft Purview Endpoint DLP for browser-based pasteToCopilot restrictions, Restricted SharePoint Search (RSS), Copilot Pages and Notebooks retention, and multi-geo grounding scope.
 >
-> **Regulatory framing.** This playbook helps support compliance with **SEC 17a-3/17a-4** (records of communications and immutable retention), **SEC Regulation S-P (May 2024 amendments)** (incident notice and customer information safeguards), **FINRA Rule 4511** (general books and records), **FINRA Rule 3110** (supervision), **FINRA Regulatory Notice 25-07** (AI guidance), **GLBA Section 501(b)** (Safeguards Rule), **NYDFS 23 NYCRR 500.12** (multi-factor authentication and access governance), **SOX Section 302/404** (internal control over financial reporting), **OCC Bulletin 2011-12** (model risk management), and **Federal Reserve SR 11-7** (model risk management). It does not, on its own, satisfy any regulation. Implementation correctness, retention, monitoring, and human supervision must be verified against your obligations.
+> **Regulatory framing.** This playbook helps support compliance with **SEC 17a-3/17a-4** (records of communications and immutable retention), **SEC Regulation S-P (May 2024 amendments)** (incident notice and customer information safeguards), **FINRA Rule 4511** (general books and records), **FINRA Rule 3110** (supervision), **FINRA Regulatory Notice 25-07** (AI guidance), **GLBA Section 501(b)** (Safeguards Rule), **NYDFS 23 NYCRR 500.12** (multi-factor authentication and access governance), **SOX Section 302/404** (internal control over financial reporting), **OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12)** (model risk management), and **Federal Reserve SR 26-2 (formerly SR 11-7)** (model risk management). It does not, on its own, satisfy any regulation. Implementation correctness, retention, monitoring, and human supervision must be verified against your obligations.
 >
 > **Hedged language reminder:** Throughout this playbook the phrases "supports", "helps meet", "aids in", and "required for" are used in place of "ensures compliance" or "guarantees".
 >
@@ -399,7 +399,7 @@ function Set-Agt47LabelPolicy {
 **FSI guidance.**
 
 - Apply this policy to the same Entra security group that holds Copilot license assignments (Control 2.1). Drift between license and label-policy scope is the most common cause of "Copilot summarized content the user could not normally read".
-- `RequireDowngradeJustification = true` provides a justification audit trail under FINRA 3110 supervision and OCC 2011-12 model risk reviews.
+- `RequireDowngradeJustification = true` provides a justification audit trail under FINRA 3110 supervision and OCC Bulletin 2026-13 (formerly OCC 2011-12) model risk reviews.
 - `MNPI` / `NPI` labels must always carry encryption (configured under Control 4.6) so that Copilot prompt and response surfaces honor cipher boundaries even when DLP §5 is misconfigured.
 
 ---

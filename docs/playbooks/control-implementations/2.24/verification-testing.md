@@ -1,14 +1,14 @@
 # Verification & Testing — Control 2.24: Agent Feature Enablement and Restriction Governance
 
-> **Examiner-defensible evidence package** for Control 2.24. This playbook produces, signs, and retains the artifacts required to demonstrate to FINRA, SEC, OCC, FFIEC, NYDFS, the Federal Reserve (SR 11-7), the CFTC, and internal audit that every Microsoft 365 Copilot, Copilot Studio, and declarative-agent capability — across the tenant Copilot hub, environment-level controls, agent-level settings, MCP connectors, and Agent Framework feature flags — is enumerated in a documented feature catalog, allow-listed by zone, gated by change management (forward and reverse), DLP-enforced where the runtime supports it, and re-assessed quarterly.
+> **Examiner-defensible evidence package** for Control 2.24. This playbook produces, signs, and retains the artifacts required to demonstrate to FINRA, SEC, OCC, FFIEC, NYDFS, the Federal Reserve (Fed SR 26-2 (formerly SR 11-7)), the CFTC, and internal audit that every Microsoft 365 Copilot, Copilot Studio, and declarative-agent capability — across the tenant Copilot hub, environment-level controls, agent-level settings, MCP connectors, and Agent Framework feature flags — is enumerated in a documented feature catalog, allow-listed by zone, gated by change management (forward and reverse), DLP-enforced where the runtime supports it, and re-assessed quarterly.
 >
 > **Scope:** All Microsoft 365 Copilot, Copilot Studio, and declarative-agent capabilities reachable in the tenant under examination, across **all** governance zones (Zone 1 / 2 / 3) and **all** Power Platform environments. Includes the **AI Administrator** controls in the Microsoft 365 admin center (per the v1.3.3 control patch), the Copilot governance page in the Power Platform admin center, environment-level feature toggles, agent-level tool selections, MCP connector enablement, and Agent Framework feature flags. Sovereign clouds (GCC, GCC High, DoD) follow the dedicated SOV namespace because Microsoft 365 Copilot capability availability lags commercial by 6–18 months and a separate per-cloud catalog is required.
 >
-> **Companion controls:** [1.1 Restrict Agent Publishing by Authorization](../../../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md), [1.2 Agent Registry & Integrated Apps Management](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md), [1.4 Advanced Connector Policies (ACP)](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md), [1.10 Communication Compliance Monitoring](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md), [1.25 MIME Type Restrictions](../../../controls/pillar-1-security/1.25-mime-type-restrictions.md), [2.2 Environment Groups and Tier Classification](../../../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md), [2.6 Model Risk Management Alignment with OCC 2011-12 / SR 11-7](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md), [2.12 Supervision and Oversight (FINRA Rule 3110)](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md), [2.17 Multi-Agent Orchestration Limits](../../../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md), [2.25 Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md).
+> **Companion controls:** [1.1 Restrict Agent Publishing by Authorization](../../../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md), [1.2 Agent Registry & Integrated Apps Management](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md), [1.4 Advanced Connector Policies (ACP)](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md), [1.10 Communication Compliance Monitoring](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md), [1.25 MIME Type Restrictions](../../../controls/pillar-1-security/1.25-mime-type-restrictions.md), [2.2 Environment Groups and Tier Classification](../../../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md), [2.6 Model Risk Management Alignment with OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md), [2.12 Supervision and Oversight (FINRA Rule 3110)](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md), [2.17 Multi-Agent Orchestration Limits](../../../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md), [2.25 Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md).
 >
 > **Last UI verified:** April 2026 against Microsoft 365 admin center build 2026.04.x (AI Administrator role GA), Power Platform admin center Copilot hub build 2026.04, Copilot Studio Wave 1 2026, and the Agent Framework preview ring documented at the time of pack publication.
 >
-> **Important regulatory framing.** This playbook **supports compliance with**, but does not by itself ensure compliance with, Federal Reserve SR 11-7 / OCC Bulletin 2011-12 (Model Risk Management), FFIEC IT Risk Management Handbook, FINRA Rules 3110 (Supervision) and 4511 (Books and Records), FINRA Regulatory Notice 25-07 (cited as RFC context only — not binding), SEC Rules 17a-3 / 17a-4 (Recordkeeping), SEC Regulation SCI §§242.1001(a) and 242.1003 (SCI entities only), SOX Sections 302 / 404 (Internal Controls), GLBA Section 501(b) (Safeguards Rule), NYDFS 23 NYCRR 500, and CFTC Regulation 1.31 (recordkeeping). **Non-substitution principle:** feature toggles enforce what a capability *can* do; they do **not** validate that a capability is fit for purpose. Enabling a generative capability on a Zone 2 or Zone 3 agent is treated as a model change under SR 11-7 §V and **must** trigger — not replace — the Model Risk Management re-validation in [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md), the supervisory-procedures update in [Control 2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md), the AI guardrails reassessment in [Control 1.1](../../../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md), and the communication-compliance scope update in [Control 1.10](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md). Where FINRA Rule 3110 obligates the firm to assign a registered principal to a supervisory function, this playbook **does not substitute for** that registered-principal designation; it produces the evidentiary trail that supports — but does not replace — the firm's written supervisory procedures (WSPs).
+> **Important regulatory framing.** This playbook **supports compliance with**, but does not by itself ensure compliance with, Federal Reserve SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (Model Risk Management), FFIEC IT Risk Management Handbook, FINRA Rules 3110 (Supervision) and 4511 (Books and Records), FINRA Regulatory Notice 25-07 (cited as RFC context only — not binding), SEC Rules 17a-3 / 17a-4 (Recordkeeping), SEC Regulation SCI §§242.1001(a) and 242.1003 (SCI entities only), SOX Sections 302 / 404 (Internal Controls), GLBA Section 501(b) (Safeguards Rule), NYDFS 23 NYCRR 500, and CFTC Regulation 1.31 (recordkeeping). **Non-substitution principle:** feature toggles enforce what a capability *can* do; they do **not** validate that a capability is fit for purpose. Enabling a generative capability on a Zone 2 or Zone 3 agent is treated as a model change under Fed SR 26-2 (formerly SR 11-7) §V and **must** trigger — not replace — the Model Risk Management re-validation in [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md), the supervisory-procedures update in [Control 2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md), the AI guardrails reassessment in [Control 1.1](../../../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md), and the communication-compliance scope update in [Control 1.10](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md). Where FINRA Rule 3110 obligates the firm to assign a registered principal to a supervisory function, this playbook **does not substitute for** that registered-principal designation; it produces the evidentiary trail that supports — but does not replace — the firm's written supervisory procedures (WSPs).
 
 ---
 
@@ -26,7 +26,7 @@
 | Run identifier | Every test run is tagged `AGT224-yyyyMMdd-HHmmss-<8charGuid>` and embedded in every evidence record and artifact filename. |
 | Canonical role names | Per [`docs/reference/role-catalog.md`](../../../reference/role-catalog.md). At v1.3.3 the **AI Administrator** role is the preferred operator for tenant-level Copilot capability allow-list reads in the M365 admin center; **Power Platform Admin** for PPAC and environment-level reads; **Entra Global Admin** is reserved for emergency write paths under PIM. |
 
-> This playbook **helps meet** feature-governance, change-management, recordkeeping, supervision, model-risk, and oversight expectations under the regulations enumerated above. It is one component of a defensible AI governance program; it does not replace registered-principal designation, written supervisory procedures, model risk management practices required by SR 11-7 / OCC 2011-12, the firm's written FFIEC IT risk-management policies, or the firm's own legal review.
+> This playbook **helps meet** feature-governance, change-management, recordkeeping, supervision, model-risk, and oversight expectations under the regulations enumerated above. It is one component of a defensible AI governance program; it does not replace registered-principal designation, written supervisory procedures, model risk management practices required by Fed SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC 2011-12), the firm's written FFIEC IT risk-management policies, or the firm's own legal review.
 
 ---
 
@@ -244,7 +244,7 @@ Field semantics:
 | Token | Citation |
 |---|---|
 | `FED-SR-11-7` | Federal Reserve SR Letter 11-7 (Guidance on Model Risk Management) |
-| `OCC-2011-12` | OCC Bulletin 2011-12 (Supervisory Guidance on Model Risk Management) |
+| `OCC-2011-12` | OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (Supervisory Guidance on Model Risk Management) |
 | `FFIEC-IT-RM` | FFIEC IT Examination Handbook — IT Risk Management booklet |
 | `FFIEC-MGMT` | FFIEC IT Examination Handbook — Management booklet |
 | `FFIEC-IS` | FFIEC IT Examination Handbook — Information Security booklet |
@@ -889,7 +889,7 @@ Describe "AGT224-ZONE" -Tag 'AGT224','ZONE' {
 **Forward flow** = enablement of a feature, capability, MCP connector, or flag.
 **Reverse flow** = disablement, withdrawal, expiration, or CVE-driven retraction.
 
-The control doc explicitly requires both, because regulators (especially OCC under SR 11-7) treat the *removal* of a model capability as a model change in its own right.
+The control doc explicitly requires both, because regulators (especially OCC under Fed SR 26-2 (formerly SR 11-7)) treat the *removal* of a model capability as a model change in its own right.
 
 **Pester suite.**
 
@@ -1098,7 +1098,7 @@ Each manual procedure produces one record per surface using this shape:
 
 Each scenario below defines a likely examiner question, the evidence-pack files that respond to it, the namespace records that compose those files, and the **companion control packs** the firm should bring alongside.
 
-### 4.1 OCC MRM walkthrough — feature change as model change (SR 11-7)
+### 4.1 OCC MRM walkthrough — feature change as model change (SR 26-2)
 
 **Examiner question.** "Show me how a change to a Copilot capability that affects model output is reviewed under your Model Risk Management framework."
 
@@ -1296,7 +1296,7 @@ The published evidence pack is countersigned by three roles. Each signer's respo
 | Role | Responsibility | Signature artifact |
 |---|---|---|
 | **AI Governance Lead** | Pack integrity; Merkle root computed and verified; all ten VCs evidenced; sovereign justifications complete | `manifest.json.sig.aigov` |
-| **Compliance Officer** | Regulator-mapping accuracy; non-substitution principle observed; FINRA / SEC / SOX / SR 11-7 citations correctly applied; Reg SCI applicability correctly identified | `manifest.json.sig.compliance` |
+| **Compliance Officer** | Regulator-mapping accuracy; non-substitution principle observed; FINRA / SEC / SOX / Fed SR 26-2 (formerly SR 11-7) citations correctly applied; Reg SCI applicability correctly identified | `manifest.json.sig.compliance` |
 | **Security Architect** | High-risk feature attestation: every Z2/Z3 enablement of code-interpreter, image-generation, web-search, external-orchestration, or any High-RiskRating MCP connector is reviewed and accepted; SIEM forwarding healthy | `manifest.json.sig.security` |
 
 Sign-off occurs **after** §5 pack assembly. A pack with fewer than three signatures is considered DRAFT and is not eligible to be presented to examiners. Signatures are recorded in the manifest's `signers[]` array and verified by `Test-Agt224PackIntegrity -RequireSignatures All`.
@@ -1400,7 +1400,7 @@ Trend charts of each metric across rolling four quarters are included in the qua
 ### 9.5 External regulatory references
 
 - Federal Reserve SR Letter 11-7 — Guidance on Model Risk Management.
-- OCC Bulletin 2011-12 — Supervisory Guidance on Model Risk Management.
+- OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) — Supervisory Guidance on Model Risk Management.
 - FFIEC IT Examination Handbook — Management, Information Security, and IT Risk Management booklets.
 - FINRA Rule 3110 (Supervision); Rule 4511 (Books and Records); Regulatory Notice 25-07 (workplace modernization RFC, contextual reference only).
 - SEC Rule 17a-3 / 17a-4; SEC Regulation SCI §§242.1001, 242.1003 (SCI entities).

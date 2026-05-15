@@ -10,7 +10,7 @@
 
 > This playbook automates Control 2.13 via **PnP.PowerShell** (SharePoint site and library provisioning) and **ExchangeOnlineManagement** (the IPPS endpoint for Purview retention labels and policies). Every mutating command is wrapped in idempotency checks, supports `-WhatIf`, emits SHA-256 evidence hashes, and writes to a timestamped transcript.
 >
-> **Hedging note.** This automation helps support, and is recommended for compliance with, FINRA 4511 (books and records), FINRA 3110 (supervision documentation), SEC 17a-3/4 (record creation and preservation), SOX §§302/404 (internal controls), GLBA 501(b) (safeguards), OCC 2011-12 / Fed SR 11-7 (model risk documentation), and CFTC 1.31 (regulatory records). It does **not by itself** satisfy SEC 17a-4(f) preservation requirements — see the parent control's SEC 17a-4 guidance.
+> **Hedging note.** This automation helps support, and is recommended for compliance with, FINRA 4511 (books and records), FINRA 3110 (supervision documentation), SEC 17a-3/4 (record creation and preservation), SOX §§302/404 (internal controls), GLBA 501(b) (safeguards), OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) (model risk documentation), and CFTC 1.31 (regulatory records). It does **not by itself** satisfy SEC 17a-4(f) preservation requirements — see the parent control's SEC 17a-4 guidance.
 
 ---
 

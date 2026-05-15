@@ -88,7 +88,7 @@ Assign only when the SOC team is responsible for these workloads:
 | FINRA 3110 | Least-privilege role assignments support supervisory procedure requirements |
 | SEC 17a-3/4 | DLP and audit access aids in electronic record preservation oversight |
 | GLBA 501(b) | Information Protection Reader supports data protection monitoring |
-| OCC 2011-12 | DSPM for AI roles aid in model risk monitoring for AI agent workloads |
+| OCC Bulletin 2026-13 (formerly OCC 2011-12) | DSPM for AI roles aid in model risk monitoring for AI agent workloads |
 
 !!! note "Implementation Caveat"
     Role assignments alone do not satisfy regulatory requirements. Organizations should document SOC role assignments in their Written Supervisory Procedures (WSPs), implement Entra Privileged Identity Management (PIM) for time-bound access where appropriate, and verify role effectiveness through periodic access reviews.

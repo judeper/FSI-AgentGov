@@ -10,7 +10,7 @@
 > - Troubleshooting — `./troubleshooting.md`
 > - Shared baseline — `docs/playbooks/_shared/powershell-baseline.md`
 >
-> **Hedging.** The cmdlets, REST calls, and patterns below **support compliance with** OCC Bulletin 2011-12, Federal Reserve SR 11-7, FINRA Rule 3110 and Notice 25-07 (March 2025), SEC Rule 17a-4(b)(4) and 17a-4(f), GLBA §501(b), the NIST AI RMF Generative AI Profile (NIST AI 600-1), and MITRE ATLAS. They **do not** by themselves guarantee regulatory compliance.
+> **Hedging.** The cmdlets, REST calls, and patterns below **support compliance with** OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), FINRA Rule 3110 and Notice 25-07 (March 2025), SEC Rule 17a-4(b)(4) and 17a-4(f), GLBA §501(b), the NIST AI RMF Generative AI Profile (NIST AI 600-1), and MITRE ATLAS. They **do not** by themselves guarantee regulatory compliance.
 
 !!! warning "Read the FSI PowerShell baseline first"
     Before running any command, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md) — module pinning, sovereign-cloud endpoints (GCC / GCC High / DoD), `-WhatIf` / `SupportsShouldProcess`, Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative when the two diverge.

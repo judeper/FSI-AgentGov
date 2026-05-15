@@ -191,7 +191,7 @@ Step-by-step checklist for implementing the FSI Agent Governance Framework.
     - [ ] Identify model inputs and outputs
     - [ ] Define performance baseline
     - [ ] For Zone 3: Plan model validation
-- [ ] If OCC/SR 26-2 (formerly SR 11-7) applicable:
+- [ ] If OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) applicable:
     - [ ] Perform model risk assessment
     - [ ] Plan annual validation
 

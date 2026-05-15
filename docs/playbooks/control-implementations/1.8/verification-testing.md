@@ -35,21 +35,21 @@ All timestamps in this playbook are **UTC**. Local-time timestamps are not accep
 |---|---|---|---|---|
 | LIC-01 | Quarterly | Power Platform Admin | 7 years | SEC 17a-4(b)(4); FINRA 4511 |
 | UAL-01 | Quarterly | Compliance / Audit Admin | 7 years | SEC 17a-4(b)(4); FINRA 4511; NY DFS 500.06 |
-| MENV-01 | Quarterly | Power Platform Admin | 7 years | OCC 2011-12 (model risk); Fed SR 11-7 |
+| MENV-01 | Quarterly | Power Platform Admin | 7 years | OCC Bulletin 2026-13 (formerly OCC 2011-12) (model risk); Fed SR 26-2 (formerly SR 11-7) |
 | PSU-01 to PSU-03 | Quarterly + on-change | Power Platform Admin | 7 years | NY DFS 500.07 access controls; FINRA 3110 |
 | PSX-01 to PSX-03 | Quarterly | Power Platform Admin | 7 years | NY DFS 500.07; FINRA 3110 |
-| CMH-01 to CMH-04 | Quarterly + on-change | AI Governance Lead | 7 years | Fed SR 11-7; OCC 2011-12; firm AUP |
-| CMS-01 to CMS-04 | Quarterly + on-change | AI Governance Lead | 7 years | Fed SR 11-7; OCC 2011-12; firm AUP |
-| CMV-01 to CMV-04 | Quarterly + on-change | AI Governance Lead | 7 years | Fed SR 11-7; OCC 2011-12; firm AUP |
-| CMSH-01 to CMSH-04 | Quarterly + on-change | AI Governance Lead | 7 years | Fed SR 11-7; OCC 2011-12; firm AUP |
-| CML-01 | Semi-annually | AI Governance Lead | 7 years | Fed SR 11-7 (model change control) |
+| CMH-01 to CMH-04 | Quarterly + on-change | AI Governance Lead | 7 years | Fed SR 26-2 (formerly SR 11-7); OCC Bulletin 2026-13 (formerly OCC 2011-12); firm AUP |
+| CMS-01 to CMS-04 | Quarterly + on-change | AI Governance Lead | 7 years | Fed SR 26-2 (formerly SR 11-7); OCC Bulletin 2026-13 (formerly OCC 2011-12); firm AUP |
+| CMV-01 to CMV-04 | Quarterly + on-change | AI Governance Lead | 7 years | Fed SR 26-2 (formerly SR 11-7); OCC Bulletin 2026-13 (formerly OCC 2011-12); firm AUP |
+| CMSH-01 to CMSH-04 | Quarterly + on-change | AI Governance Lead | 7 years | Fed SR 26-2 (formerly SR 11-7); OCC Bulletin 2026-13 (formerly OCC 2011-12); firm AUP |
+| CML-01 | Semi-annually | AI Governance Lead | 7 years | Fed SR 26-2 (formerly SR 11-7) (model change control) |
 | DEF-01 to DEF-04 | Monthly | Security Operations | 7 years | NY DFS 500.16 incident response; SEC Reg S-P §248.30 |
 | CAE-01 | Quarterly | Security Operations | 7 years | NY DFS 500.06; FINRA 4530 |
 | WEB-01 to WEB-04 | Monthly | Security Operations + Application Administrator | 7 years | NY DFS 500.11 third-party; FFIEC AIO booklet |
 | ERR-01 | Monthly + on-change | Security Operations | 7 years | NY DFS 500.11; FFIEC AIO booklet |
-| AGT-01 | Quarterly | Power Platform Admin | 7 years | OCC 2011-12 (inventory) |
+| AGT-01 | Quarterly | Power Platform Admin | 7 years | OCC Bulletin 2026-13 (formerly OCC 2011-12) (inventory) |
 | CFG-01 to CFG-02 | Quarterly | Power Platform Admin + Application Administrator | 7 years | NY DFS 500.07; SEC Reg S-P §248.30 |
-| VRA-01 | Annually | AI Governance Lead | 7 years | Fed SR 11-7 (model risk validation) |
+| VRA-01 | Annually | AI Governance Lead | 7 years | Fed SR 26-2 (formerly SR 11-7) (model risk validation) |
 | NEG-01 to NEG-04 | Quarterly | Security Operations | 7 years | NY DFS 500.16; firm AUP enforcement evidence |
 | AUDIT-01 | Quarterly | Compliance / Audit Admin | 7 years | SEC 17a-4(b)(4); FINRA 4511; NY DFS 500.06 |
 | IR-01 | Annually + on-incident | Security Operations + AI Governance Lead | 7 years | NY DFS 500.16; SEC Reg S-P §248.30(a)(4); FINRA 4530 |
@@ -655,7 +655,7 @@ For Zone 2 and Zone 3 agents this control requires content moderation **High**, 
 
 ---
 
-### VRA-01 — Annual model risk validation review (Fed SR 11-7)
+### VRA-01 — Annual model risk validation review (Fed SR 26-2)
 
 **Objective.** Annual cross-functional review of all Z2/Z3 agent moderation thresholds, third-party webhook decisions sampled, and prompt-shield false-positive / false-negative rates against the firm's model risk standard.
 
@@ -1132,7 +1132,7 @@ The following patterns are commonly observed during external review and produce 
 - **SEC Reg S-P §248.30(a)(4)** — incident response and customer notification ([text](https://www.sec.gov/files/rules/final/2024/34-100155.pdf))
 - **FINRA Rule 4530** — reporting requirements ([text](https://www.finra.org/rules-guidance/rulebooks/finra-rules/4530))
 - **FINRA Rule 4511** / **SEC 17a-4(b)(4)** — books-and-records retention (verified under Controls 1.7 and 1.9, not this control)
-- **Fed SR 11-7** / **OCC 2011-12** — model risk management (referenced in VRA-01)
+- **Fed SR 26-2 (formerly SR 11-7)** / **OCC Bulletin 2026-13 (formerly OCC 2011-12)** — model risk management (referenced in VRA-01)
 
 ---
 

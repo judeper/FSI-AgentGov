@@ -18,7 +18,7 @@ This playbook is the operator-facing companion to [powershell-setup.md](powershe
 | Compliance-approved COI test scenarios documented | Compliance Officer | Written Supervisory Procedures (WSPs) under FINRA Rule 3110 |
 | Test data sets prepared (synthetic and/or sanitized real customer queries with PII removed) | AI Governance Lead + Compliance | See [verification-testing.md](verification-testing.md) for sanitization rules |
 | Baseline expected behaviors and pass thresholds documented | Compliance Officer | COI testing methodology memo |
-| Independent reviewer assigned (Zone 3 only) | Model Risk Manager | OCC 2011-12 / Fed SR 11-7 alignment |
+| Independent reviewer assigned (Zone 3 only) | Model Risk Manager | OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) alignment |
 | AI Administrator or equivalent role assignment for Copilot Studio configuration | Entra Global Admin | [Role Catalog](../../../reference/role-catalog.md) |
 | Purview Audit retention extended to ≥ 7 years for in-scope agents (Zone 3) | Purview Audit Admin | Audit retention policy |
 
@@ -126,7 +126,7 @@ Copilot Studio evaluations can be re-run manually or driven from Power Automate.
 | **Test coverage** | N/A | Proprietary bias + commission bias + suitability (minimum) | All five conflict types + intersectional scenarios |
 | **Test frequency** | N/A | Pre-deployment + quarterly | Pre-deployment + on every material change + quarterly |
 | **Automation** | N/A | Manual or partial | Fully automated with release-pipeline gating |
-| **Independent review** | N/A | Compliance Officer review | Independent Model Risk Manager review (OCC 2011-12 / SR 11-7) |
+| **Independent review** | N/A | Compliance Officer review | Independent Model Risk Manager review (OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7)) |
 | **Evidence retention** | N/A | ≥ 3 years | ≥ 7 years (SEC 17a-4 / FINRA 4511 alignment) |
 | **Reporting cadence** | N/A | Quarterly to Compliance | Monthly to Compliance + quarterly to AI Risk Committee |
 

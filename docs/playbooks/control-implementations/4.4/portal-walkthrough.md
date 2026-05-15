@@ -14,7 +14,7 @@ Before starting, confirm:
 - **Role:** **SharePoint Admin** (canonical name) for tenant and site sharing settings. **Entra Global Admin** is required only for Conditional Access changes that target external users — coordinate with [Control 1.11](../../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md).
 - **License:** Microsoft 365 E3 or E5 (Data Access Governance reports require E5 or a SharePoint Advanced Management add-on; verify against your tenant license inventory).
 - **Inventory:** A current site inventory tagged by zone (1/2/3) and a documented list of regulated sites used by AI agents as knowledge sources.
-- **Change control:** A signed change ticket if your organization is subject to SOX 404 / OCC 2011-12. Sharing-policy changes are tenant-affecting and should follow your standard CAB process.
+- **Change control:** A signed change ticket if your organization is subject to SOX 404 / OCC Bulletin 2026-13 (formerly OCC 2011-12). Sharing-policy changes are tenant-affecting and should follow your standard CAB process.
 
 ---
 

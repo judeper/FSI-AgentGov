@@ -24,7 +24,7 @@
 | Hashing | SHA-256 over canonical JSON; chain hashes in `attestation.json` per §10. |
 | Sovereign anchor | All sovereign-aware functions reference `../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod`. |
 
-> **Regulatory framing.** This playbook helps meet recordkeeping, access-management, and oversight expectations under FINRA Rules 3110 and 4511, FINRA Notice 25-07, SEC Rule 17a-4, SOX §404, GLBA §501(b), OCC Bulletin 2011-12, and FFIEC IT Examination Handbook (Information Security & Management). It does **not** by itself ensure compliance; organizations should verify findings against their own legal and regulatory obligations and tailor thresholds to their risk appetite.
+> **Regulatory framing.** This playbook helps meet recordkeeping, access-management, and oversight expectations under FINRA Rules 3110 and 4511, FINRA Notice 25-07, SEC Rule 17a-4, SOX §404, GLBA §501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), and FFIEC IT Examination Handbook (Information Security & Management). It does **not** by itself ensure compliance; organizations should verify findings against their own legal and regulatory obligations and tailor thresholds to their risk appetite.
 
 ---
 
@@ -177,7 +177,7 @@ Every evidence record produced by every namespace MUST conform to this schema. T
 
 This namespace evidences **C2.26-2**: *every Zone 2 and Zone 3 agent identity has a non-null, currently active sponsor recorded in the Entra Agent ID extension attribute `sponsorObjectId`*. Zone 1 agents are personal-scope and inherit sponsorship from the creator's user account; the Zone 1 test therefore verifies `creator == sponsor` rather than a discrete sponsor field.
 
-The SPONSOR namespace is the keystone of Control 2.26: an unsponsored agent is, for examination purposes, an orphan. FINRA Rule 3110 (Supervision) and OCC Bulletin 2011-12 (Model Risk Management) both require a named individual accountable for the system's behavior. An empty sponsor field is therefore a Critical finding and pages the on-call AI Governance Lead within 15 minutes (see §11).
+The SPONSOR namespace is the keystone of Control 2.26: an unsponsored agent is, for examination purposes, an orphan. FINRA Rule 3110 (Supervision) and OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (Model Risk Management) both require a named individual accountable for the system's behavior. An empty sponsor field is therefore a Critical finding and pages the on-call AI Governance Lead within 15 minutes (see §11).
 
 ### 2.2 Pre-conditions
 
@@ -336,7 +336,7 @@ Remediation `TRG-SPONSOR-01` (see §11.2): page on-call AI Governance Lead, susp
 
 ### 2.8 Regulator mapping
 
-| Test | FINRA 3110 | FINRA 4511 | SOX §404 | GLBA §501(b) | OCC 2011-12 |
+| Test | FINRA 3110 | FINRA 4511 | SOX §404 | GLBA §501(b) | OCC Bulletin 2026-13 (formerly OCC 2011-12) |
 |---|---|---|---|---|---|
 | Z2 sponsor non-null | ✓ supervision | ✓ recordkeeping | ✓ named owner of control | — | ✓ model owner |
 | Z2 sponsor active | ✓ ongoing supervision | — | ✓ control operating effectiveness | ✓ designated employee | ✓ model owner |
@@ -509,7 +509,7 @@ Describe "AGT226-ACCESSPKG" -Tag 'C2.26','ACCESSPKG' {
 
 ### 3.8 Regulator mapping
 
-| Test | FINRA 3110 | SOX §404 | OCC 2011-12 | FFIEC IS — Access Mgmt |
+| Test | FINRA 3110 | SOX §404 | OCC Bulletin 2026-13 (formerly OCC 2011-12) | FFIEC IS — Access Mgmt |
 |---|---|---|---|---|
 | Catalog exists | ✓ | ✓ | ✓ | ✓ |
 | Z3 channel discipline | ✓ | ✓ segregation | ✓ | ✓ |
@@ -678,7 +678,7 @@ Describe "AGT226-LIFECYCLE" -Tag 'C2.26','LIFECYCLE' {
 
 ### 4.8 Regulator mapping
 
-| Test | FINRA 3110 | SOX §404 | GLBA §501(b) | OCC 2011-12 |
+| Test | FINRA 3110 | SOX §404 | GLBA §501(b) | OCC Bulletin 2026-13 (formerly OCC 2011-12) |
 |---|---|---|---|---|
 | Workflow exists & enabled | ✓ supervisory system | ✓ control design | ✓ designated employee continuity | ✓ model owner continuity |
 | Run within lookback | ✓ supervision evidence | ✓ control operating | ✓ | ✓ |
@@ -836,7 +836,7 @@ Describe "AGT226-REVIEW" -Tag 'C2.26','REVIEW' {
 
 ### 5.8 Regulator mapping
 
-| Test | FINRA 3110 | FINRA 25-07 | SOX §404 | OCC 2011-12 | FFIEC IS |
+| Test | FINRA 3110 | FINRA 25-07 | SOX §404 | OCC Bulletin 2026-13 (formerly OCC 2011-12) | FFIEC IS |
 |---|---|---|---|---|---|
 | Campaign exists | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Completion in quarter | ✓ | ✓ | ✓ recurring | ✓ ongoing monitoring | ✓ recertification |
@@ -1006,7 +1006,7 @@ Describe "AGT226-EXPIRY" -Tag 'C2.26','EXPIRY' {
 
 ### 6.9 Regulator mapping
 
-| Test | FINRA 3110 | FINRA 4511 | SOX §404 | OCC 2011-12 |
+| Test | FINRA 3110 | FINRA 4511 | SOX §404 | OCC Bulletin 2026-13 (formerly OCC 2011-12) |
 |---|---|---|---|---|
 | Disposition coverage | ✓ | ✓ retention of decisions | ✓ control operating | ✓ |
 | Renewal quality | ✓ | ✓ | ✓ documented justification | ✓ challenger can re-evaluate |
@@ -1290,7 +1290,7 @@ Describe "AGT226-SOV" -Tag 'C2.26','SOV' {
 
 ### 8.8 Regulator mapping
 
-| Test | FINRA 3110 | SOX §404 | OCC 2011-12 | FFIEC IS |
+| Test | FINRA 3110 | SOX §404 | OCC Bulletin 2026-13 (formerly OCC 2011-12) | FFIEC IS |
 |---|---|---|---|---|
 | Manual attestation cadence | ✓ supervision under sovereign constraints | ✓ compensating control documented | ✓ model owner accountability preserved | ✓ access management compensating |
 | Dual signature | ✓ supervisor + compliance | ✓ segregation of duties | ✓ challenger | ✓ separation |
@@ -1443,7 +1443,7 @@ Describe "AGT226-PREVIEW" -Tag 'C2.26','PREVIEW' {
 
 ### 9.8 Regulator mapping
 
-| Test | SOX §404 | OCC 2011-12 |
+| Test | SOX §404 | OCC Bulletin 2026-13 (formerly OCC 2011-12) |
 |---|---|---|
 | License gate | ✓ control prerequisite | ✓ tooling licensed for model use |
 | Agent ID API surface gate | ✓ feature in known state | ✓ change-managed feature enablement |
@@ -1869,4 +1869,4 @@ A `PASS` from this validator is the green light to file with the Board secretari
 | **Document version** | v1.0 |
 | **Updated** | April 2026 |
 
-> This playbook supports — but does not by itself ensure — compliance with FINRA Rules 3110 and 4511, FINRA Notice 25-07, SEC Rule 17a-4, SOX §404, GLBA §501(b), OCC Bulletin 2011-12, and the FFIEC IT Examination Handbook. Organizations should verify findings against their own legal and regulatory obligations and tailor zone thresholds to their documented risk appetite.
+> This playbook supports — but does not by itself ensure — compliance with FINRA Rules 3110 and 4511, FINRA Notice 25-07, SEC Rule 17a-4, SOX §404, GLBA §501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), and the FFIEC IT Examination Handbook. Organizations should verify findings against their own legal and regulatory obligations and tailor zone thresholds to their documented risk appetite.

@@ -41,7 +41,7 @@
     | SharePoint grounding-source inventory and oversharing remediation | [Control 4.6 — Grounding Scope Governance](../../../controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md) and [Control 4.7 — Microsoft 365 Copilot Data Governance](../../../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) |
 
 !!! warning "Hedged-language reminder"
-    Maintaining this inventory **helps support compliance with** FINRA Rule 4511 (books-and-records), FINRA Regulatory Notice 25-07 (AI/predictive-analytics supervision), SEC Rule 17a-3(a)(17) and 17a-4(b)(4) (six-year preservation), SOX Sections 302/404 (internal control over financial reporting), GLBA 501(b) (administrative safeguards inventory), OCC Bulletin 2011-12 / Federal Reserve SR 11-7 (model inventory and ongoing monitoring), CFTC Rule 1.31 (recordkeeping), NYDFS 23 NYCRR Part 500.13 / 500.16 / 500.17 (asset inventory and incident response), NIST AI RMF GOVERN 1.6, and FTC Safeguards Rule 16 CFR §314. It does **not** by itself satisfy any obligation. Inventory completeness, attestation timeliness, owner accountability, and evidence integrity are operational disciplines — not one-click settings.
+    Maintaining this inventory **helps support compliance with** FINRA Rule 4511 (books-and-records), FINRA Regulatory Notice 25-07 (AI/predictive-analytics supervision), SEC Rule 17a-3(a)(17) and 17a-4(b)(4) (six-year preservation), SOX Sections 302/404 (internal control over financial reporting), GLBA 501(b) (administrative safeguards inventory), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7) (model inventory and ongoing monitoring), CFTC Rule 1.31 (recordkeeping), NYDFS 23 NYCRR Part 500.13 / 500.16 / 500.17 (asset inventory and incident response), NIST AI RMF GOVERN 1.6, and FTC Safeguards Rule 16 CFR §314. It does **not** by itself satisfy any obligation. Inventory completeness, attestation timeliness, owner accountability, and evidence integrity are operational disciplines — not one-click settings.
 
     **Prohibited overclaims for this control** (do not write into your WSP, attestation memo, or examiner cover letter): *"complete inventory", "real-time discoverability", "guarantees agent visibility", "single pane of glass", "ensures lineage", "automatic enrollment", "zero shadow AI", "zero blind spots", "eliminates orphan risk", "will prevent unauthorized agents".*
 
@@ -91,7 +91,7 @@ This section sets the operational boundary of the walkthrough and tells the oper
 - **Sensitivity-label inheritance check** per registry entry against grounding sources (SharePoint sites, OneDrive containers, Dataverse tables, web URLs).
 - **Zone-specific portal workflows** with differentiated metadata depth, attestation cadence, and approval chains for Zone 1 / Zone 2 / Zone 3.
 - **Quarterly attestation procedure** with the three-signature workflow (Inventory Owner → AI Governance Lead → Compliance Officer).
-- **Examiner audit-pull procedure** for FINRA Rule 8210, OCC examination, Federal Reserve SR 11-7, SEC inquiry, NYDFS 500.13, and CFTC Rule 1.31, including point-in-time snapshot reconstruction and chain-of-custody record.
+- **Examiner audit-pull procedure** for FINRA Rule 8210, OCC examination, Federal Reserve SR 26-2 (formerly SR 11-7), SEC inquiry, NYDFS 500.13, and CFTC Rule 1.31, including point-in-time snapshot reconstruction and chain-of-custody record.
 - **Sovereign-cloud caveats** per surface, with compensating-control language for surfaces not yet GA in your cloud.
 - **Connection to downstream controls** that consume the register on the canonical AgentID join key.
 
@@ -186,7 +186,7 @@ This single authoritative table is the contract every other Pillar 3 control ref
 | **Business Justification** | text | All zones | Manual; register list | At promotion + on material change | "Documented business purpose" | Non-null; ≥ 100 characters; references approving committee minute or change ticket |
 | **Zone** | enum {1, 2, 3} | All zones | Manual classification per Control 2.1 + Control 1.2 | At promotion; reviewed quarterly | "Governance zone" | Must reconcile with environment Managed-Environment classification |
 | **Data Classification** | enum {Public, Internal, Confidential, Highly Confidential / NPI / MNPI} | All zones | Sensitivity-label propagation per Control 1.13 | At promotion + on grounding-source change | "Data sensitivity" | Must reconcile with §9 Sensitivity-label inheritance check; defaults to **highest** label across grounding sources |
-| **Regulatory Scope** | multi-enum {FINRA 4511, SEC 17a-3/4, SOX 404, GLBA 501(b), OCC 2011-12, Fed SR 11-7, NYDFS 500, CFTC 1.31, Reg BI, Reg S-P, BSA/AML, FINRA 25-07} | All zones | Manual at promotion | At promotion + on regulatory change | "Regulations the agent's outputs may touch" | At least one entry for any Zone 3 customer-facing or recordkeeping-scope agent |
+| **Regulatory Scope** | multi-enum {FINRA 4511, SEC 17a-3/4, SOX 404, GLBA 501(b), OCC Bulletin 2026-13 (formerly OCC 2011-12), Fed SR 26-2 (formerly SR 11-7), NYDFS 500, CFTC 1.31, Reg BI, Reg S-P, BSA/AML, FINRA 25-07} | All zones | Manual at promotion | At promotion + on regulatory change | "Regulations the agent's outputs may touch" | At least one entry for any Zone 3 customer-facing or recordkeeping-scope agent |
 | **Approval Records** | URL list (SharePoint document IDs / change tickets) | Zone 2 + Zone 3 | Manual at promotion | At promotion | "Approval evidence pack" | At least one record per zone-required signer |
 | **Lifecycle State** | enum {Draft, In Review, Approved, Active, Deprecated, Decommissioned} | All zones | Register list (canonical); source surface (advisory) | On state change | "Current lifecycle state" | Transitions logged with author UPN + timestamp; canonical state lives in the register, **not** in the source surface |
 | **Last Reviewed** | date | All zones | Register list | At each attestation | "Last attestation date" | ≤ 90 days for Zone 3; ≤ 180 days Zone 2; ≤ 365 days Zone 1 |
@@ -931,7 +931,7 @@ For tenants with > 50 Zone 3 agents per attestation cycle, the per-row Owner sig
 
 ## §13. Examiner audit-pull procedure
 
-The examiner audit-pull is the highest-stakes operational use of this playbook. The procedure is invoked by FINRA Rule 8210 request, OCC examination, Federal Reserve SR 11-7 inquiry, SEC inquiry, NYDFS Part 500.13/.16/.17 request, CFTC Rule 1.31 request, or ad-hoc supervisory request from the Designated Supervisor / Registered Principal.
+The examiner audit-pull is the highest-stakes operational use of this playbook. The procedure is invoked by FINRA Rule 8210 request, OCC examination, Federal Reserve SR 26-2 (formerly SR 11-7) inquiry, SEC inquiry, NYDFS Part 500.13/.16/.17 request, CFTC Rule 1.31 request, or ad-hoc supervisory request from the Designated Supervisor / Registered Principal.
 
 ### 13.1 SLA targets (verify against firm WSP)
 
@@ -939,7 +939,7 @@ The examiner audit-pull is the highest-stakes operational use of this playbook. 
 |---|---|---|
 | FINRA Rule 8210 written request | ≤ 5 business days from receipt | WSP-confirmed |
 | OCC examination request (in-cycle) | ≤ 30 calendar days | Per OCC examination procedures |
-| Federal Reserve SR 11-7 inquiry | ≤ 30 calendar days | Per firm escalation procedure |
+| Federal Reserve SR 26-2 (formerly SR 11-7) inquiry | ≤ 30 calendar days | Per firm escalation procedure |
 | SEC inquiry (formal) | Per SEC subpoena timeline | Coordinate with General Counsel |
 | NYDFS Part 500.17 (cybersecurity event) | ≤ 72 hours notification; 90 days remediation | Coordinate with CISO |
 | CFTC Rule 1.31 (recordkeeping) | Per CFTC request timeline | |

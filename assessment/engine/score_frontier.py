@@ -80,7 +80,10 @@ SCALE_BREAKER_RATIONALE = (
 
 def load_json(path: Path) -> dict:
     """Load and parse a JSON file."""
-    with open(path, "r", encoding="utf-8") as fh:
+    # Use utf-8-sig to defensively tolerate BOM written by Windows PowerShell 5.x
+    # collectors. Newer collectors emit BOM-less UTF-8 but legacy installs may
+    # still produce BOM-prefixed JSON. F-RUN-ASSESSMENT-ORCH-BOM-01.
+    with open(path, "r", encoding="utf-8-sig") as fh:
         return json.load(fh)
 
 

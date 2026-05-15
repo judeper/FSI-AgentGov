@@ -5,7 +5,7 @@
 
 > Automation companion to [Control 2.10: Patch Management and System Updates](../../../controls/pillar-2-management/2.10-patch-management-and-system-updates.md).
 >
-> **Audience:** Power Platform Admins and AI Administrators executing controls in production tenants subject to FINRA / SEC / GLBA / OCC / Fed SR 11-7 / CFTC oversight.
+> **Audience:** Power Platform Admins and AI Administrators executing controls in production tenants subject to FINRA / SEC / GLBA / OCC / Fed SR 26-2 (formerly SR 11-7) / CFTC oversight.
 
 ---
 

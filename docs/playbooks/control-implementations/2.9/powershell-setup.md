@@ -166,7 +166,7 @@ $results | Format-Table -AutoSize
 
 ## 3 — Pull operational KPIs from Application Insights (KQL)
 
-Produces the latency and error metrics required for SR 11-7 / OCC 2011-12 quarterly model performance memos.
+Produces the latency and error metrics required for Fed SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC 2011-12) quarterly model performance memos.
 
 ```powershell
 <#

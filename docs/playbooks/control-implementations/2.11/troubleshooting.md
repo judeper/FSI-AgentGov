@@ -72,7 +72,7 @@ This playbook covers common operational and methodological issues encountered wh
 2. Review the system prompt for words / framing that imply outcomes for specific groups.
 3. Add explicit fairness instructions to the system prompt; re-test.
 4. If the underlying model carries the bias, escalate to model selection — a different foundation model may be required for the use case.
-5. Material model changes invoke re-validation under SR 11-7. Capture the change ticket and re-validation memo in the evidence library.
+5. Material model changes invoke re-validation under Fed SR 26-2 (formerly SR 11-7). Capture the change ticket and re-validation memo in the evidence library.
 6. **Do not** declare the issue closed without a passing re-test cycle.
 
 ---
@@ -156,7 +156,7 @@ This playbook covers common operational and methodological issues encountered wh
 2. **Data Science Team** — methodology, statistical analysis, threshold tuning
 3. **AI Governance Lead** — methodology approval, cross-agent patterns
 4. **Compliance Officer** — regulatory interpretation (ECOA / Reg B applicability, fair-lending exam posture)
-5. **Model Risk Manager** — independent challenge, SR 11-7 effective challenge
+5. **Model Risk Manager** — independent challenge, Fed SR 26-2 (formerly SR 11-7) effective challenge
 6. **Legal** — fair-lending counsel for material findings or examination prep
 
 ---
@@ -168,7 +168,7 @@ This playbook covers common operational and methodological issues encountered wh
 | LLM responses are stochastic | Same input may yield different outputs | Run each prompt ≥3 times; report variance; consider deterministic settings (`temperature=0`) where supported |
 | Synthetic data may not reflect real-world distributions | False sense of fairness | Calibrate generator against population statistics; supplement with anonymized production sampling per privacy review |
 | Outcome classification is subjective | Inter-rater drift | Two-reviewer model + Cohen's kappa; document rubric |
-| No regulator-blessed FSI fairness toolkit | Methodology open to challenge | Document methodology thoroughly; align with NIST AI RMF MEASURE-2.11 and Fed SR 11-7; use Microsoft Responsible AI Toolbox / Fairlearn as reference |
+| No regulator-blessed FSI fairness toolkit | Methodology open to challenge | Document methodology thoroughly; align with NIST AI RMF MEASURE-2.11 and Fed SR 26-2 (formerly SR 11-7); use Microsoft Responsible AI Toolbox / Fairlearn as reference |
 | Single foundation-model dependency | Model-level bias hard to remediate via prompts | Track at model-selection level; escalate to model risk |
 | Disparate-impact ratio sensitive to small denominators | Volatile near-floor | Require minimum group n in methodology; report CIs |
 

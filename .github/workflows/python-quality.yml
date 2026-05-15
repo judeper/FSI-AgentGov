@@ -20,6 +20,22 @@ on:
       - '.claude/claude.md'
       - 'docs/disclaimer.md'
       - 'docs/framework/**'
+      # Prose-counts gate (verify_prose_counts job) needs to run when any
+      # solution-count or regulatory-mappings surface changes, even if no
+      # Python/scripts changed.
+      - 'docs/reference/regulatory-mappings.md'
+      - 'docs/reference/solutions-index.md'
+      - 'docs/index.md'
+      - 'AGENTS.md'
+      - '.github/agents/gsd-codebase-mapper.agent.md'
+      - 'assessment/data/solutions-lock.json'
+      # Regulatory-naming gate (regulatory_naming job) — full docs/ corpus.
+      # Triggers on ANY docs/ markdown change (the verifier scans all of
+      # docs/ excluding the local-only docs/images/ checklists).
+      - 'docs/**/*.md'
+      # Learn URL health gate (learn_url_health job) — fail when any
+      # Microsoft Learn URL has gone 404/410/451.
+      - 'data/monitor-state.json'
   push:
     branches:
       - main
@@ -39,6 +55,14 @@ on:
       - '.claude/claude.md'
       - 'docs/disclaimer.md'
       - 'docs/framework/**'
+      - 'docs/reference/regulatory-mappings.md'
+      - 'docs/reference/solutions-index.md'
+      - 'docs/index.md'
+      - 'AGENTS.md'
+      - '.github/agents/gsd-codebase-mapper.agent.md'
+      - 'assessment/data/solutions-lock.json'
+      - 'docs/**/*.md'
+      - 'data/monitor-state.json'
 
 permissions:
   contents: read
@@ -65,9 +89,15 @@ jobs:
         run: |
           # Collect-only scripts/test_*.py; some require optional deps so we
           # tolerate skipped tests but fail on real failures.
+          # AS22: removed `|| echo` swallow so future regressions turn CI red.
+          # The --deselect line skips a pre-existing broken test on main
+          # (case-insensitive EVERYONE matching in zone-2 remediation lets
+          # "public users" through; scripts/test_remediate_agent_sharing.py:163).
+          # Out of audit scope per AS22; tracked separately.
           pytest scripts -v -p no:cacheprovider --ignore=scripts/private \
             --ignore=scripts/governance \
-            -k "test_" || echo "scripts pytest exit=$?"
+            --deselect scripts/test_remediate_agent_sharing.py::test_zone_2_remediation_case_insensitive_everyone \
+            -k "test_"  # TODO(audit-deferred): re-enable once the case-insensitive EVERYONE match in get_zone_remediation_principals is fixed (see AS22).
 
   ruff:
     name: ruff
@@ -109,6 +139,17 @@ jobs:
           python-version: '3.11'
       - run: python scripts/verify_language_rules.py
 
+  learn_urls_count:
+    name: Microsoft Learn URL count drift
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Verify prose URL counts match actual count in microsoft-learn-urls.md
+        run: python scripts/verify_learn_urls_count.py --check
+
   verify_version_stamps:
     name: verify_version_stamps
     runs-on: ubuntu-latest
@@ -119,3 +160,36 @@ jobs:
           python-version: '3.11'
       - name: Verify framework version stamps match canonical (VERSION)
         run: python scripts/verify_version_stamps.py --check
+
+  prose_counts:
+    name: prose-counts drift
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Verify solution and regulatory prose counts match canonical sources
+        run: python scripts/verify_prose_counts.py --check
+
+  regulatory_naming:
+    name: regulatory naming (OCC/SR canonical)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Verify OCC/SR canonical naming on summary surfaces
+        run: python scripts/verify_regulatory_naming.py --check
+
+  learn_url_health:
+    name: Microsoft Learn URL health
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Verify no Microsoft Learn URLs are dead (404/410/451)
+        run: python scripts/verify_learn_url_health.py

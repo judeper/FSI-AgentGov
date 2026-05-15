@@ -554,7 +554,7 @@ Requires CEO/CFO certification of internal control effectiveness and management 
 | [4.5](../controls/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring.md) | Security Monitoring | Monitoring controls |
 | [4.7](../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | M365 Copilot Data Governance | Output review processes |
 
-**Mapped controls: 44**
+*See the Applicable Controls table above for the current per-regulation control mapping.*
 
 ### Management Assessment Requirements
 
@@ -592,7 +592,7 @@ Requires CEO/CFO certification of internal control effectiveness and management 
 - Executive sign-off on effectiveness
 
 ### Framework Coverage
-Framework provides 44 mapped controls relevant to SOX requirements. SOX-specific testing required. Implementation required.
+Framework controls relevant to SOX requirements are listed in the Applicable Controls table above. SOX-specific testing required. Implementation required.
 
 ---
 
@@ -712,7 +712,7 @@ Requires financial institutions to maintain appropriate safeguards for customer 
 | [4.7](../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | M365 Copilot Data Governance | Technical safeguard - M365 access controls |
 | 4.8 | Item-Level Permission Scanning for Agent Knowledge Sources | Item-level access control validation for agent knowledge sources |
 
-**Mapped controls: 52**
+*See the Applicable Controls table above for the current per-regulation control mapping.*
 
 ### Key Safeguard Areas
 
@@ -751,11 +751,11 @@ Requires financial institutions to maintain appropriate safeguards for customer 
 - Quarterly training + annual assessment
 
 ### Framework Coverage
-Framework provides 52 mapped controls relevant to GLBA safeguards. Implementation validation required.
+Framework controls relevant to GLBA safeguards are listed in the Applicable Controls table above. Implementation validation required.
 
 ---
 
-## OCC Bulletin 2011-12 / SR 26-2 (formerly SR 11-7) - Model Risk Management
+## OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Fed SR 26-2 (formerly SR 11-7) - Model Risk Management
 
 ### Overview
 Applies to national banks and federal savings associations. Requires governance framework for models used in business decisions.
@@ -818,7 +818,7 @@ Applies to national banks and federal savings associations. Requires governance 
 | [4.7](../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | M365 Copilot Data Governance | Model output governance |
 | 4.8 | Item-Level Permission Scanning for Agent Knowledge Sources | Data governance for AI model knowledge sources |
 
-**Mapped controls: 34**
+*See the Applicable Controls table above for the current per-regulation control mapping.*
 
 ### Model Risk Framework (SR 26-2 (formerly SR 11-7))
 
@@ -870,7 +870,7 @@ Applies to national banks and federal savings associations. Requires governance 
 - Recommended even if not OCC-regulated
 
 ### Framework Coverage
-Framework provides 34 mapped controls relevant to OCC and SR 26-2 (formerly SR 11-7) topics. OCC-specific model validation required for full compliance.
+Framework controls relevant to OCC Bulletin 2026-13 and Fed SR 26-2 (formerly SR 11-7) topics are listed in the Applicable Controls table above. OCC-specific model validation required for full compliance.
 
 ---
 
@@ -916,7 +916,7 @@ Applies to bank holding companies and entities with lending functions. Requires 
 - Annual third-party validation
 
 ### Framework Coverage
-Framework provides 2 mapped bias-testing controls applicable to ECOA and fair lending topics. ECOA-specific testing and validation required.
+Framework controls applicable to ECOA and fair lending topics (primarily bias-testing and fairness assessment) are listed in the Applicable Controls table above. ECOA-specific testing and validation required.
 
 ---
 
@@ -1445,28 +1445,31 @@ Insurers should consult their primary state insurance regulator and legal counse
 
 ## Control Coverage Summary by Regulation
 
-| Regulation | Applicable Controls | Coverage | Implementation Status |
-|-----------|---------------------|----------|----------------------|
-| FINRA 4511 | 62/72 | 86% | Full coverage - implementation required |
-| FINRA 3110 | 8/72 | 11% | Partial - supervision focus |
-| FINRA 3110/2111 (AI) | 11/72 | 15% | Partial - supervision/suitability focus |
-| SEC 17a-3/4 | 50/72 | 69% | Substantial coverage |
-| SEC Rule 10b-5 / Reg BI | 7/72 | 10% | Limited - fairness + disclosure focus |
-| SEC Marketing Rule (206(4)-1) | 5/72 | 7% | AI marketing claims - Control 2.21 |
-| SOX 302/404 | 44/72 | 61% | Substantial coverage |
-| GLBA 501-505 | 52/72 | 72% | Substantial coverage |
-| OCC 2011-12 | 34/72 | 47% | Partial - model risk focus |
-| Fed SR 26-2 (formerly SR 11-7) | 34/72 | 47% | Partial - model risk focus |
-| Fed ECOA | 3/72 | 4% | Minimal - bias testing only |
-| CFPB / UDAAP | 7/72 | 10% | Consumer protection + disclosure focus |
-| CFTC Rule 1.31 | 9/72 | 13% | Recordkeeping for derivatives/commodities |
-| FDIC (Interagency) | 63/72 | 88% | Full applicability; align to interagency guidance |
-| NCUA Part 748 | 51/72 | 71% | Security program alignment |
-| NYDFS Part 500 | 45/72 | 63% | State-level awareness |
-| NAIC Model Law | 41/72 | 57% | Insurance awareness |
-| State AI Laws | 6/72 | 8% | Emerging - transparency, bias, human review |
+!!! warning "Quantitative coverage figures temporarily withdrawn"
+    Numeric per-regulation control counts and coverage percentages previously published in this table reflected a hand-curated mapping against an earlier 72-control catalog. They have **not** been re-validated against the current v1.6.2 78-control catalog and were withdrawn pending Subject Matter Expert review. The detailed Applicable Controls tables in each regulation section above remain current and are the authoritative per-regulation control mapping.
 
-> **Note:** Coverage percentages indicate which framework controls address aspects of each regulation. Actual compliance requires implementation, validation, and ongoing maintenance. Consult legal counsel for regulatory interpretation. See [Disclaimer](../disclaimer.md).
+| Regulation | Implementation Status |
+|-----------|----------------------|
+| FINRA 4511 | Full coverage - implementation required |
+| FINRA 3110 | Partial - supervision focus |
+| FINRA 3110/2111 (AI) | Partial - supervision/suitability focus |
+| SEC 17a-3/4 | Substantial coverage |
+| SEC Rule 10b-5 / Reg BI | Limited - fairness + disclosure focus |
+| SEC Marketing Rule (206(4)-1) | AI marketing claims - Control 2.21 |
+| SOX 302/404 | Substantial coverage |
+| GLBA 501-505 | Substantial coverage |
+| OCC Bulletin 2026-13 (formerly OCC 2011-12) | Partial - model risk focus |
+| Fed SR 26-2 (formerly SR 11-7) | Partial - model risk focus |
+| Fed ECOA | Minimal - bias testing only |
+| CFPB / UDAAP | Consumer protection + disclosure focus |
+| CFTC Rule 1.31 | Recordkeeping for derivatives/commodities |
+| FDIC (Interagency) | Full applicability; align to interagency guidance |
+| NCUA Part 748 | Security program alignment |
+| NYDFS Part 500 | State-level awareness |
+| NAIC Model Law | Insurance awareness |
+| State AI Laws | Emerging - transparency, bias, human review |
+
+> **Note:** Implementation Status describes the qualitative scope of framework coverage for each regulation. Actual compliance requires implementation, validation, and ongoing maintenance. Consult legal counsel for regulatory interpretation. See [Disclaimer](../disclaimer.md).
 
 ---
 

@@ -14,7 +14,7 @@
 
 ## What this verification catches
 
-This playbook is designed to detect the following failure modes, each of which has been observed in FSI Microsoft 365 deployments and each of which carries a regulatory exposure under FINRA 4511, FINRA 3110, FINRA 25-07, SEC Reg S-P (2024 amendments), SEC 17a-3 / 17a-4, GLBA 501(b), SOX 404, OCC 2011-12, and CCPA §1798.100:
+This playbook is designed to detect the following failure modes, each of which has been observed in FSI Microsoft 365 deployments and each of which carries a regulatory exposure under FINRA 4511, FINRA 3110, FINRA 25-07, SEC Reg S-P (2024 amendments), SEC 17a-3 / 17a-4, GLBA 501(b), SOX 404, OCC Bulletin 2026-13 (formerly OCC 2011-12), and CCPA §1798.100:
 
 1. **Silent NPI grounding via site-rooted scope.** A Z3 customer-facing agent is pointed at a SharePoint site root (rather than a specific document library or folder), so newly added libraries containing NPI become groundable without any change-management event.
 2. **OAuth scope creep.** A connector authorization initially granted with a narrow scope (e.g., `Files.Read`) is silently broadened on re-consent (e.g., to `Files.ReadWrite.All` or `Sites.Read.All`) without re-approval and without a UAL `Consent to application` event being reviewed.
