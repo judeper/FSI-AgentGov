@@ -287,6 +287,31 @@
     return s.slice(0, 80) + "-" + _shortHash(s);
   }
 
+  // Filename-stem sanitizer that preserves Unicode letters / numbers
+  // (Société Générale, العربية, 中文, 🏦) but strips:
+  //   - Windows-illegal chars: < > : " / \ | ? *
+  //   - C0 + DEL control chars: U+0000-U+001F, U+007F
+  //   - Bidi override marks (CVE-2021-42574 "Trojan Source" class):
+  //     U+202A-U+202E (LRE/RLE/PDF/LRO/RLO),
+  //     U+2066-U+2069 (LRI/RLI/FSI/PDI)
+  //   - Whitespace runs collapsed to single dash
+  //   - Multi-dash sequences collapsed
+  //   - Leading/trailing dashes + dots (Windows reserved-name corners)
+  // Then guards against Windows reserved device names (CON, NUL,
+  // COM1-9, LPT1-9) by prefixing with underscore.
+  // Closes F-RUNTIME-EXPORT-FILENAME-UNICODE-STRIPPED-01.
+  function _sanitizeFilenameStem(s) {
+    s = String(s || "").trim();
+    s = s.replace(/[\u0000-\u001f\u007f<>:"/\\|?*\u202a-\u202e\u2066-\u2069]/g, "-");
+    s = s.replace(/\s+/g, "-");
+    s = s.replace(/-+/g, "-");
+    s = s.replace(/^[-.]+|[-.]+$/g, "");
+    if (/^(con|prn|aux|nul|com[1-9]|lpt[1-9])$/i.test(s)) {
+      s = "_" + s;
+    }
+    return s || "assessment";
+  }
+
   function downloadBlob(blob, filename) {
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
@@ -3992,7 +4017,7 @@
       }
     }
     var blob = new Blob([JSON.stringify(envelope, null, 2)], { type: "application/json" });
-    var name = _truncateFilename((this.state.assessmentName || "assessment").replace(/[^a-zA-Z0-9-_]/g, "-"));
+    var name = _truncateFilename(_sanitizeFilenameStem(this.state.assessmentName));
     downloadBlob(blob, name + ".json");
   };
 
@@ -4030,7 +4055,7 @@
     //   - Trailing CRLF: RFC 4180-compliant; harmless for Excel + SheetJS readers.
     var csv = rows.map(function (r) { return r.join(","); }).join("\r\n") + "\r\n";
     var blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
-    var name = _truncateFilename((this.state.assessmentName || "assessment").replace(/[^a-zA-Z0-9-_]/g, "-"));
+    var name = _truncateFilename(_sanitizeFilenameStem(this.state.assessmentName));
     downloadBlob(blob, name + "-gaps.csv");
   };
 
@@ -4147,7 +4172,7 @@
       // Generate and download
       var buf = XLSX.write(wb, { bookType: "xlsx", type: "array" });
       var blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-      var name = _truncateFilename((self.state.assessmentName || "assessment").replace(/[^a-zA-Z0-9-_]/g, "-"));
+      var name = _truncateFilename(_sanitizeFilenameStem(self.state.assessmentName));
       downloadBlob(blob, name + ".xlsx");
     };
 
@@ -4326,8 +4351,12 @@
   }
 
   function _agendaSlug(s) {
+    // Preserves Unicode letters (Société Générale → société-générale)
+    // while stripping the same unsafe-filename + bidi-override chars
+    // as _sanitizeFilenameStem. Truncates at 60 chars.
     return String(s || "").toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/[\u0000-\u001f\u007f<>:"/\\|?*\u202a-\u202e\u2066-\u2069\s]+/g, "-")
+      .replace(/-+/g, "-")
       .replace(/^-+|-+$/g, "")
       .substring(0, 60);
   }
@@ -4622,6 +4651,8 @@
       validateCollectorPayload: validateCollectorPayload,
       _hasForbiddenKey: _hasForbiddenKey,
       _truncateFilename: _truncateFilename,
+      _sanitizeFilenameStem: _sanitizeFilenameStem,
+      _agendaSlug: _agendaSlug,
     };
   }
 })();
