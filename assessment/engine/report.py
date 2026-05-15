@@ -1167,7 +1167,7 @@ def main(argv: list[str] | None = None) -> None:
             print(f"  Critical:    {len(controls_summary.get('critical_gaps', []))}")
         print(f"  Files:       {len(generated)}")
         for fp_str in generated:
-            print(f"    → {fp_str}")
+            print(f"    -> {fp_str}")
     except Exception as exc:
         log.error("Report generation failed: %s", exc, exc_info=True)
         sys.exit(1)

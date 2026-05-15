@@ -139,7 +139,10 @@ SOURCE_FILENAMES: dict[str, str] = {
 
 def load_json(path: Path) -> dict:
     """Load and parse a JSON file."""
-    with open(path, "r", encoding="utf-8") as fh:
+    # Use utf-8-sig to defensively tolerate BOM written by Windows PowerShell 5.x
+    # collectors. Newer collectors emit BOM-less UTF-8 but legacy installs may
+    # still produce BOM-prefixed JSON. F-RUN-ASSESSMENT-ORCH-BOM-01.
+    with open(path, "r", encoding="utf-8-sig") as fh:
         return json.load(fh)
 
 
@@ -1120,7 +1123,7 @@ def main(argv: list[str] | None = None) -> None:
     try:
         result = run(args.manifest, args.collected, args.zone, args.output)
         summary = result["summary"]
-        print(f"\nAssessment complete — zone {args.zone}")
+        print(f"\nAssessment complete - zone {args.zone}")
         print(f"  Controls scored:  {summary['total_controls']}")
         print(f"  Auto-scored:      {summary['auto_scored']}")
         print(f"  Needs manual:     {summary['needs_manual']}")
