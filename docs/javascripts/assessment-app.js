@@ -22,6 +22,7 @@
     { id: "results", label: "Results", num: 5 },
     { id: "export", label: "Export", num: 6 },
   ];
+  var STEP_IDS = STEPS.map(function (s) { return s.id; });
   var ANSWERS = [
     { value: "yes", label: "Yes", cls: "selected" },
     { value: "partial", label: "Partial", cls: "selected-partial" },
@@ -170,6 +171,35 @@
     return { v: v, t: "n", z: "0%" };
   }
 
+  /* ---- AS8 query-param routing helper (F-SPA-BACK-NO-ROUTING-01) ----
+   *  Reads `?step=` from the URL and returns it IF it matches a known
+   *  step in STEP_IDS (e.g. "phase1"); otherwise returns "".
+   *
+   *  Why query, not hash: mkdocs Material's `navigation.tracking`
+   *  feature (mkdocs.yml:29) calls history.replaceState(state, "",
+   *  "#anchor") as the user scrolls past markdown TOC anchors. The
+   *  intro/outro markdown content above and below the SPA on
+   *  /assessment/ has h2s like "Scoring Methodology" — Material's
+   *  scroll observer rewrites the hash to those anchors,
+   *  obliterating any SPA hash routing.
+   *
+   *  Material does NOT mutate query strings on /assessment/; query
+   *  routing is therefore the only Material-safe option.
+   *
+   *  Legacy hash deep-links (e.g. /assessment/#results) are
+   *  intentionally unsupported — they boot welcome and the URL is
+   *  preserved (spec 04 active test 1 covers this). */
+  function _readStepFromUrl() {
+    try {
+      var u = new URL(location.href);
+      var s = u.searchParams.get("step");
+      if (!s) return "";
+      return STEP_IDS.indexOf(s) >= 0 ? s : "";
+    } catch (_e) {
+      return "";
+    }
+  }
+
   // ---- Collector payload validation (security) --------------------------
   // Note: object-literal `__proto__` sets the prototype rather than an own
   // property. Use Object.create(null) + bracket assignment so the key lookup
@@ -315,7 +345,73 @@
     this._bindMaterialSearchGuard();
     this._injectPrintStyles();
     this._migrateLegacySavedAssessments();
+
+    // AS8 (F-SPA-BACK-NO-ROUTING-01): wire browser back/forward to SPA
+    // step transitions via the URL `?step=` query param. Without this,
+    // browser-back from any non-welcome step exits /assessment/ and
+    // white-screens the user (state survives in localStorage, but the
+    // user does not know that).
+    //
+    // Why query, not hash: mkdocs Material's `navigation.tracking`
+    // (mkdocs.yml:29) scroll-rewrites `location.hash` to TOC anchors
+    // like "#scoring-methodology" as the user scrolls past markdown
+    // headings. That obliterates any SPA hash routing. Query params
+    // are not touched by Material — verified empirically.
+    //
+    // We read the step from `?step=` on every popstate (NOT from
+    // `event.state` — Material's instant-nav listener overwrites the
+    // current entry's state with a scroll offset ~100ms after scrolling).
+    //
+    // Stored on `this._popstateHandler` so `destroy()` can remove it
+    // when Material navigates away from /assessment/ to another doc page
+    // (the loader calls `appInstance.destroy()` then drops the instance).
+    this._popstateHandler = function () {
+      // Defensive: SPA may have been torn down between pushState and the
+      // popstate dispatch (rare race). Ignore if the root is gone.
+      if (!self.el || !document.body || !document.body.contains(self.el)) {
+        return;
+      }
+      var step = _readStepFromUrl() || "welcome";
+      // Non-welcome steps require state to render without crashing
+      // (renderScoping/renderPhase1/etc dereference this.state). If the
+      // user landed on /assessment/?step=phase1 cold (deep-link OR
+      // back-nav from a sibling page that lost in-memory state), recover
+      // the most recent assessment from localStorage; otherwise fall back
+      // to welcome to avoid the white-screen failure mode AS8 is fixing.
+      if (step !== "welcome" && !self.state) {
+        if (!self.loadFromStorage()) {
+          step = "welcome";
+        }
+      }
+      self._setStepFromHistory(step);
+    };
+    window.addEventListener("popstate", this._popstateHandler);
+
     this.loadData().then(function () {
+      // Honor a `?step=` deep-link (e.g. bookmarked
+      // /assessment/?step=phase1) by overriding the default `welcome`
+      // step BEFORE the first render. Same recovery rules as popstate:
+      // non-welcome requires state.
+      var initialStep = _readStepFromUrl();
+      if (initialStep && initialStep !== "welcome") {
+        if (self.loadFromStorage()) {
+          // loadFromStorage sets self.step from saved data (L1041
+          // heuristic forces in-progress steps to phase1). Override with
+          // the explicit deep-link target so the URL wins.
+          self.step = initialStep;
+        } else {
+          // No state to recover — clean the query so subsequent back-nav
+          // is not muddied by a dead deep-link.
+          self.step = "welcome";
+          try {
+            var u = new URL(location.href);
+            u.searchParams.delete("step");
+            history.replaceState(null, "", u.pathname + u.search + u.hash);
+          } catch (_) { /* SecurityError on file:// — ignore */ }
+        }
+      } else if (initialStep === "welcome") {
+        self.step = "welcome";
+      }
       self.render();
     });
   };
@@ -448,7 +544,17 @@
     this._searchGuardBound = true;
   };
 
-  AssessmentApp.prototype.destroy = function () {
+  /**
+   * Per-render cleanup: tears down chart instances, observers, and the
+   * search-guard listener that are scoped to the current rendered DOM
+   * tree. Called by render() before re-emitting markup so we don't leak
+   * Chart.js instances or observers across re-renders.
+   *
+   * Does NOT remove the popstate listener — that is scoped to the SPA
+   * instance lifetime, not the render lifecycle, and is owned by
+   * destroy() which the loader calls only on Material navigation away.
+   */
+  AssessmentApp.prototype._resetRenderState = function () {
     this.charts.forEach(function (c) { try { c.destroy(); } catch (e) { /* */ } });
     this.charts = [];
     this._observers.forEach(function (o) { try { o.disconnect(); } catch (e) { /* */ } });
@@ -457,6 +563,20 @@
       this.el.removeEventListener("keydown", this._searchGuardHandler, true);
       this._searchGuardBound = false;
       this._searchGuardHandler = null;
+    }
+  };
+
+  AssessmentApp.prototype.destroy = function () {
+    this._resetRenderState();
+    // AS8 (F-SPA-BACK-NO-ROUTING-01): un-wire popstate listener registered
+    // in init(). Only safe to do during full unmount (assessment-loader.js
+    // destroy → null instance), NOT during per-render reset — render()
+    // runs many times per instance lifetime and the popstate listener
+    // must survive every render so back/forward continues to work.
+    if (this._popstateHandler) {
+      try { window.removeEventListener("popstate", this._popstateHandler); }
+      catch (e) { /* */ }
+      this._popstateHandler = null;
     }
   };
 
@@ -1689,7 +1809,7 @@
      RENDERING — MAIN ROUTER
      ================================================================ */
   AssessmentApp.prototype.render = function () {
-    this.destroy(); // Clean up charts
+    this._resetRenderState(); // Per-render: charts/observers/search-guard only
     this.el.innerHTML = "";
     if (this._quotaError) this.el.appendChild(this._renderQuotaBanner());
     this.el.appendChild(this.renderSteps());
@@ -1728,8 +1848,67 @@
     if (this.state) {
       try { this.saveToStorage(); } catch (_) { /* */ }
     }
+    // AS8 (F-SPA-BACK-NO-ROUTING-01): push a `?step=` query entry per
+    // step transition so the browser back button restores prior screens
+    // instead of exiting /assessment/ and white-screening the user.
+    //
+    // Why query (not hash): mkdocs Material's `navigation.tracking`
+    // (mkdocs.yml:29) scroll-rewrites `location.hash` to TOC anchors
+    // ("#scoring-methodology" etc) as the user scrolls past the
+    // markdown intro headings on /assessment/. Hash routing collides;
+    // query routing does not. Pass `null` state because Material also
+    // clobbers history.state with scroll offsets — the URL query is
+    // the authoritative channel.
+    //
+    // We strip any pre-existing fragment when pushing so a polluted
+    // Material scroll-anchor does not ride into the new entry. We
+    // strip ALL pre-existing query params from `?step=` so step
+    // navigation owns the search-string namespace.
+    //
+    // The "changed" check compares against the URL query, not
+    // this.step, because this.step may have been mutated upstream
+    // (e.g., by loadFromStorage in the Resume flow at line ~1919)
+    // BEFORE goToStep runs. Comparing against the URL gives a true
+    // "is this transition new to the back-stack?" answer. Avoids both
+    // duplicate pushes when re-clicking the current step indicator
+    // AND missed pushes when Resume sets this.step before goToStep.
+    if (typeof history !== "undefined" && history.pushState) {
+      var currentStep = _readStepFromUrl();
+      if (currentStep !== step) {
+        try {
+          var u = new URL(location.href);
+          u.searchParams.set("step", step);
+          u.hash = "";
+          history.pushState(null, "", u.pathname + u.search);
+        } catch (_) { /* SecurityError on file:// — ignore */ }
+      }
+    }
     this.render();
     this.el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  /**
+   * AS8 (F-SPA-BACK-NO-ROUTING-01): apply a step transition that
+   * originated from browser history (popstate / back / forward / cold
+   * deep-link). Does NOT push another history entry — that would
+   * corrupt the back-stack and prevent forward-navigation. Also uses
+   * `instant` scroll behavior (not `smooth`) so rapid back×N does not
+   * queue up competing animations against rapidly-rebuilt DOM.
+   */
+  AssessmentApp.prototype._setStepFromHistory = function (step) {
+    this.step = step;
+    if (this.state) {
+      try { this.saveToStorage(); } catch (_) { /* */ }
+    }
+    this.render();
+    if (this.el && this.el.scrollIntoView) {
+      try { this.el.scrollIntoView({ behavior: "instant", block: "start" }); }
+      catch (_) {
+        // Older browsers may not support {behavior:"instant"} — fall back
+        // to default (instant) scroll.
+        try { this.el.scrollIntoView(); } catch (__) { /* */ }
+      }
+    }
   };
 
   AssessmentApp.prototype.renderSteps = function () {

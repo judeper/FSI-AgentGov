@@ -191,10 +191,20 @@ test.describe("history + BFCache @regression", () => {
   // ===========================================================================
   // Test 3 — SPA back-button mid-assessment preserves answers + scope
   //
-  // [F-SPA-BACK-NO-ROUTING] — Expected RED on main.
-  // The SPA uses goToStep() (in-memory), never pushState. Browser back either
-  // exits /assessment/ or is a no-op. The Phase 1 heading assertion fails.
-  // RED guard ensures Phase 3A routing work covers the popstate SPA path.
+  // [F-SPA-BACK-NO-ROUTING] — Expected RED on main, GREEN after AS8.
+  // The SPA used goToStep() (in-memory) and never pushState; browser back
+  // either exits /assessment/ or is a no-op. AS8 wires hash-based routing
+  // so each goToStep pushes a history entry and back/forward restore the
+  // prior screen.
+  //
+  // ASSERTION SPLIT NOTE: the original RED test asserted both the Phase 1
+  // heading AND the Organization Name input "after back×2". These are on
+  // different screens (phase1 vs scoping) and cannot both be visible
+  // simultaneously, so the test as authored was unsatisfiable on any
+  // realistic SPA design. The intent — verify state durability across
+  // back-navigation — is preserved by checking each back-pop in turn:
+  //   • back×1 from results → phase1 (Phase 1 heading + answers)
+  //   • back×1 more → scoping (Org Name + zone checkbox)
   // ===========================================================================
   test(
     "SPA back-button mid-assessment preserves answers + scope @regression",
@@ -215,27 +225,25 @@ test.describe("history + BFCache @regression", () => {
         .getByRole("heading", { name: /Results|Dashboard|Summary/i })
         .waitFor({ timeout: 10_000 });
 
-      // (c) Back twice — expected to restore Phase 1 (fails: SPA has no pushState).
-      await page.goBack({ waitUntil: "load", timeout: 10_000 }).catch(() => {});
+      // (c) Back ×1 — restores Phase 1 (the previous screen).
       await page.goBack({ waitUntil: "load", timeout: 10_000 }).catch(() => {});
 
       // (d) Assert body + SPA root are visible (no white-screen).
       await expect(page.locator("body"), "body must be visible after goBack").toBeVisible();
-      // (d) SPA root must be present (white-screen failure mode caught here).
       await expect(
         page.locator("#assessment-app"),
-        "SPA root #assessment-app must be present — white-screen failure mode",
+        "SPA root #assessment-app must be present after back×1 — white-screen failure mode",
       ).toBeVisible({ timeout: 10_000 });
 
       // (e) URL must remain /assessment/ (back must not leave the app).
-      const urlPath = new URL(page.url()).pathname;
-      expect(urlPath, `URL after goBack should remain /assessment/; got ${urlPath}`)
+      const urlPath1 = new URL(page.url()).pathname;
+      expect(urlPath1, `URL after goBack should remain /assessment/; got ${urlPath1}`)
         .toBe("/assessment/");
 
-      // (f) Phase 1 heading visible. [F-SPA-BACK-NO-ROUTING] — currently fails.
+      // (f) Phase 1 heading visible. [F-SPA-BACK-NO-ROUTING] — formerly RED.
       await expect(
         page.getByRole("heading", { name: /Phase 1: Control-Level Assessment/i }),
-        "Phase 1 heading must be visible after goBack. FAILURE = F-SPA-BACK-NO-ROUTING",
+        "Phase 1 heading must be visible after back×1. FAILURE = F-SPA-BACK-NO-ROUTING",
       ).toBeVisible({ timeout: 10_000 });
 
       // (g) All 5 answered controls retain their selected answer.
@@ -248,7 +256,25 @@ test.describe("history + BFCache @regression", () => {
         ).toBeVisible();
       }
 
-      // (h) Scoping fields preserved.
+      // (h) Back ×1 more — restores Scoping with form values intact.
+      await page.goBack({ waitUntil: "load", timeout: 10_000 }).catch(() => {});
+
+      await expect(
+        page.locator("#assessment-app"),
+        "SPA root #assessment-app must be present after back×2 — white-screen failure mode",
+      ).toBeVisible({ timeout: 10_000 });
+
+      const urlPath2 = new URL(page.url()).pathname;
+      expect(urlPath2, `URL after back×2 should remain /assessment/; got ${urlPath2}`)
+        .toBe("/assessment/");
+
+      // (i) Scoping heading visible.
+      await expect(
+        page.getByRole("heading", { name: /Assessment Scoping/i }),
+        "Scoping heading must be visible after back×2. FAILURE = F-SPA-BACK-NO-ROUTING",
+      ).toBeVisible({ timeout: 10_000 });
+
+      // (j) Scoping form values preserved across back-navigation.
       await expect(page.getByLabel("Organization Name")).toHaveValue("Acme Bank");
       const zoneFieldset = page.getByRole("group", { name: "Active Governance Zones" });
       await expect(
