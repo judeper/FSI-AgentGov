@@ -675,10 +675,28 @@
   .md-content { margin: 0 !important; max-width: 100% !important; }
   .md-main__inner { padding: 0 !important; }
 
-  /* Assessment specific */
+  /* Assessment specific - hide UI chrome that has no print value */
   .ag-steps, .ag-btn-group, .ag-notes-toggle,
-  .ag-export-grid, .ag-disclaimer, .ag-modal-backdrop,
+  .ag-export-grid, .ag-modal-backdrop,
   .ag-info-btn, .ag-edit-link, .ag-collab-callout { display: none !important; }
+
+  /* Show .ag-disclaimer in print: compliance archives need the
+   * legal caveat ("does not constitute a compliance certification")
+   * recorded in the PDF artifact. Closes F-PDF-DISCLAIMER-HIDDEN-01.
+   *
+   * Note: .ag-disclaimer is also used as a styled callout class for
+   * the Phase 2 reminder and a trend-comparison validation error
+   * (assessment-app.js:3064, 4205). Those will now appear in print
+   * too. The Phase 2 reminder is contextually defensible (it explains
+   * the section); the validation-error variant only renders if the
+   * user uploaded a bad trend file - unlikely to be in print scope.
+   */
+  .ag-disclaimer {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
 
   /* Show all tab panels in print (not just active) */
   .ag-tabs { display: none !important; }
