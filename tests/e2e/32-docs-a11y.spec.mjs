@@ -402,20 +402,24 @@ test.describe.serial("docs a11y axe (color-contrast ENABLED) @regression", () =>
 // per page. Filters out the SPA page (`kind === "spa"`) — the SPA has its
 // own palette + is covered by spec 19.
 //
-// MODE: INFORMATIONAL. The light-mode test (above) is the hard gate; this
-// dark pass writes per-page artifacts to `test-results/axe-docs/<slug>-dark.json`
-// (path matches ARTIFACT_DIR at line 64; light artifacts use bare `<slug>.json`
-// in the same dir) and annotates per-page violation counts. Discovered violations are tracked
-// as a separate finding (F-A11Y-DARKMODE-VIOLATIONS-01, P1) for a dedicated
-// dark-mode contrast fix-set — closing the test-coverage gap (this finding)
-// vs fixing the underlying contrast issues are different scopes.
+// MODE: BLOCKING (after AS21 — commit 7cea818f). This dark pass writes
+// per-page artifacts to `test-results/axe-docs/<slug>-dark.json` (path
+// matches ARTIFACT_DIR at line 64; light artifacts use bare `<slug>.json`
+// in the same dir), annotates per-page violation counts, and aggregates
+// per-failure detail into a single throw — mirroring the light-mode
+// aggregate pattern at lines 370–381. Was INFORMATIONAL while
+// F-A11Y-DARKMODE-VIOLATIONS-01 was open; AS21 closed that finding by
+// fixing 6 root-cause groups in extra.css, so this gate is now hard.
+// Palette-switch infrastructure failures are still hard-asserted FIRST
+// (contrast data is meaningless if the palette never applied), then the
+// aggregate throw fires on any serious/critical contrast violation.
 //
 // Artifact slugs are suffixed `-dark.json` so light + dark results don't
 // overwrite each other.
 // =============================================================================
-test.describe.serial("docs a11y axe (color-contrast ENABLED, DARK palette, INFORMATIONAL) @regression", () => {
+test.describe.serial("docs a11y axe (color-contrast ENABLED, DARK palette) @regression", () => {
   test(
-    "WCAG 2.1 AA scan across customer-facing docs sample (dark palette, informational) @regression",
+    "WCAG 2.1 AA scan across customer-facing docs sample (dark palette) @regression",
     async ({ page }) => {
       // Slightly larger budget than light pass: 8 docs pages × ~2-3s axe +
       // page load + palette switch ~500ms each. SPA page filtered out.
@@ -429,6 +433,7 @@ test.describe.serial("docs a11y axe (color-contrast ENABLED, DARK palette, INFOR
 
       const DARK_SAMPLE_PAGES = SAMPLE_PAGES.filter((p) => p.kind === "docs");
       const perPageCounts = [];
+      const allFailures = [];
       let palette_switch_failures = 0;
 
       for (const sample of DARK_SAMPLE_PAGES) {
@@ -482,6 +487,18 @@ test.describe.serial("docs a11y axe (color-contrast ENABLED, DARK palette, INFOR
         const byRule = {};
         for (const v of blocking) {
           byRule[v.id] = (byRule[v.id] || 0) + (v.nodes?.length || 1);
+          for (const node of v.nodes || []) {
+            const summary = summarizeNode(node);
+            allFailures.push({
+              page: sample.url,
+              label: `${sample.label} (DARK)`,
+              rule: v.id,
+              impact: v.impact,
+              selector: summary.target,
+              snippet: summary.html,
+              fixHint: fixHintFor(v, node),
+            });
+          }
         }
 
         perPageCounts.push({
@@ -503,10 +520,29 @@ test.describe.serial("docs a11y axe (color-contrast ENABLED, DARK palette, INFOR
           });
       }
 
-      // INFORMATIONAL: only fails if palette switch itself broke (test
-      // infrastructure failure). Discovered contrast violations are tracked
-      // in F-A11Y-DARKMODE-VIOLATIONS-01 for a dedicated fix-set.
+      // INFRASTRUCTURE GUARD (asserted FIRST): if the palette switch
+      // itself broke, contrast data is meaningless — bail before
+      // reporting any aggregated failures so triagers see the setup
+      // failure at the top of the report.
       expect(palette_switch_failures, "palette switch infrastructure failed - test setup broken").toBe(0);
+
+      // BLOCKING after AS21 (commit 7cea818f) — fails on any
+      // serious/critical violation, mirroring the light-mode aggregate-
+      // throw pattern (lines 370–381). Was INFORMATIONAL while
+      // F-A11Y-DARKMODE-VIOLATIONS-01 was open; AS21 closed that
+      // finding, so this is now a hard gate.
+      if (allFailures.length > 0) {
+        const lines = allFailures.map(
+          (f) =>
+            `  - [${f.impact}] ${f.rule} on ${f.page}\n      selector: ${f.selector}\n      fix: ${f.fixHint}`,
+        );
+        // GREEN guard after AS21: the dark sample must be clean.
+        throw new Error(
+          `axe found ${allFailures.length} serious/critical DARK-palette accessibility violation(s) across ${perPageCounts.length} docs pages:\n${lines.join("\n")}`,
+        );
+      }
+
+      expect(allFailures.length).toBe(0);
     },
   );
 });
