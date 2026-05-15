@@ -12,6 +12,12 @@ on:
       - 'overrides/**'
       - 'VERSION'
       - '.github/workflows/docs-validation.yml'
+      # Required-check coverage gate: mkdocs-strict is a required check by
+      # branch protection. Playwright specs (tests/**) often reference docs
+      # pages by URL; if a docs page is removed or renamed, an e2e spec that
+      # links to it should be caught at PR-time, not after merge. See PR #256
+      # for the gap that motivated this filter addition.
+      - 'tests/**'
 
 permissions:
   contents: read

@@ -83,9 +83,11 @@ test.describe("autofill idempotence @regression", () => {
     });
     expect(afterRoundTrip).toEqual(baseline);
 
-    // Reload — saved state should rehydrate and Phase 1 must show
-    // identical answer set without any re-fire.
-    await page.reload({ waitUntil: "domcontentloaded" });
+    // Fresh visit — saved state should rehydrate and Phase 1 must show
+    // identical answer set without any re-fire. Uses page.goto instead of
+    // page.reload because AS8's URL routing would auto-resume to results
+    // step (the saved state's last step) and bypass the manual resume flow.
+    await page.goto("/assessment/", { waitUntil: "domcontentloaded" });
     await page
       .getByRole("button", { name: "Start New Assessment" })
       .waitFor({ timeout: 15_000 });
