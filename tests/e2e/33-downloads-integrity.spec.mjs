@@ -28,8 +28,13 @@
  *      Why: catches "file deleted but link still lives" AND "file added but
  *      never linked from the index".
  *
- * Tags: @regression @docs-content
- * NOT tagged @smoke — downloading and parsing 6 binary files adds ~10s.
+ * Tags: @regression @smoke @docs-content
+ *
+ * Why @smoke (Phase 4A promotion): the /downloads/ page ships customer-facing
+ * Excel artifacts. A broken link or corrupt workbook is a customer-visible
+ * defect that must block merge, not wait for the nightly regression run.
+ * Cost: ~10s per smoke run (download + parse 6 small .xlsx files); well
+ * inside the +90s smoke runtime budget (Phase 4A).
  */
 
 import { test } from "@playwright/test";
@@ -95,7 +100,7 @@ function inspectContent(workbook) {
   };
 }
 
-test.describe("Downloads integrity @regression @docs-content", () => {
+test.describe("Downloads integrity @regression @smoke @docs-content", () => {
   test(
     "all .xlsx downloads are reachable, parse correctly, and link count matches disk",
     async ({ page, request }, testInfo) => {

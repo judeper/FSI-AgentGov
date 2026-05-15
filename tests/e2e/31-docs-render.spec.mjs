@@ -616,3 +616,120 @@ test.describe.serial("docs render @regression", () => {
     ).toBe(true);
   });
 });
+
+// =============================================================================
+// SMOKE — Lightweight 5-page must-cover walk (Phase 4A)
+// =============================================================================
+//
+// Why this exists:
+//   Test 1 above ("Every page in must-cover set renders correctly") walks
+//   ~30+ pages with full diagram-link HEAD checks + CSP origin tracking and
+//   takes ~90s. That is the authoritative regression coverage but is too
+//   heavy for the per-PR `e2e-smoke` gate (smoke runtime budget: +90s max
+//   per Phase 4A). This test is the smoke-tier counterpart: 5 deterministic,
+//   low-churn pages chosen to catch the most common docs regressions in <15s.
+//
+// Why these 5 pages (chosen for high signal-to-noise on the smoke gate):
+//   - "/"                                                    Site root —
+//       any catastrophic build failure surfaces here first.
+//   - "/framework/agent-lifecycle/"                          Mermaid canary —
+//       1 mermaid block per oracle; fastest signal that Mermaid JS execution
+//       has regressed (F-MERMAID-CDN-BLOCK / F-NAVINSTANT-MERMAID-REINIT).
+//   - "/controls/CONTROL-INDEX/"                             AS13a regression
+//       guard — control-index page is the customer entry point to the
+//       78-control catalog; if it 404s or pageerrors the catalog is unusable.
+//   - "/playbooks/control-implementations/1.1/portal-walkthrough/"
+//       Cross-playbook depth-bug guard from AS13a — first standard playbook;
+//       proves the 4-playbook-per-control nav pattern still resolves at depth.
+//   - "/downloads/"                                          Customer-facing
+//       artifact landing — paired with spec 33's downloads-integrity smoke
+//       check; this guards the page render, spec 33 guards the file bytes.
+//
+// What this test deliberately SKIPS (kept in regression Test 1):
+//   - HEAD-200 every diagram link (oracle.expected_diagram_links walk)
+//   - CSP orphan loosening detection (depends on full crawl populating
+//     `sharedLoadedOrigins`)
+//   - Mermaid count vs oracle (full oracle-driven assertion)
+//   - 404 sentinel
+//   - Footer disclaimer href portability check
+//
+// Smoke is a fast canary: if smoke fails, regression has already failed too.
+// This block is intentionally OUTSIDE the test.describe.serial above so it
+// has no shared-state coupling to Test 1 / Test 2.
+test.describe("docs render smoke @smoke", () => {
+  test(
+    "@smoke must-cover smoke walk - 5 deterministic pages",
+    async ({ page }) => {
+      test.setTimeout(15_000);
+
+      // Deterministic, low-churn smoke set. Keep at exactly 5 pages.
+      // Any churn here should be reviewed against the rationale above.
+      const SMOKE_PAGES = [
+        "/",
+        "/framework/agent-lifecycle/",
+        "/controls/CONTROL-INDEX/",
+        "/playbooks/control-implementations/1.1/portal-walkthrough/",
+        "/downloads/",
+      ];
+
+      const failures = [];
+
+      for (const urlPath of SMOKE_PAGES) {
+        const pageErrors = [];
+        const consoleErrors = [];
+
+        const errHandler = (err) => {
+          pageErrors.push(`${err.name}: ${err.message}`);
+        };
+        const consoleHandler = (msg) => {
+          if (msg.type() !== "error") return;
+          // Same-origin filter — third-party errors (api.github.com rate
+          // limits etc.) must not redline this local-focus canary.
+          // Mirrors the filter logic in regression Test 1.
+          const origin = tryOrigin(msg.location()?.url);
+          const localOrigin = tryOrigin(page.url());
+          if (origin && localOrigin && origin !== localOrigin) return;
+          consoleErrors.push(msg.text());
+        };
+
+        page.on("pageerror", errHandler);
+        page.on("console", consoleHandler);
+
+        try {
+          const resp = await page.goto(DOCS_BASE + urlPath, {
+            waitUntil: "domcontentloaded",
+          });
+
+          const status = resp?.status();
+          if (status !== 200) {
+            failures.push(`${urlPath}: HTTP ${status} (expected 200)`);
+          }
+
+          const title = (await page.title()).trim();
+          if (title === "") {
+            failures.push(`${urlPath}: <title> is empty`);
+          }
+
+          if (pageErrors.length > 0) {
+            failures.push(
+              `${urlPath}: ${pageErrors.length} pageerror(s) — first: ${pageErrors[0]}`,
+            );
+          }
+          if (consoleErrors.length > 0) {
+            failures.push(
+              `${urlPath}: ${consoleErrors.length} same-origin console.error(s) — first: ${consoleErrors[0]}`,
+            );
+          }
+        } finally {
+          page.off("pageerror", errHandler);
+          page.off("console", consoleHandler);
+        }
+      }
+
+      expect(
+        failures,
+        `Smoke walk failures (${failures.length}):\n${failures.join("\n")}`,
+      ).toEqual([]);
+    },
+  );
+});
