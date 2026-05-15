@@ -438,21 +438,41 @@ test.describe.serial("docs render @regression", () => {
     async ({ page }) => {
       test.setTimeout(60_000);
 
-      // Material for MkDocs reads __palette from localStorage on page init.
+      // Material for MkDocs renders one <input type="radio" name="__palette">
+      // per palette entry in mkdocs.yml `theme.palette`. Clicking the radio
+      // for the slate palette is the most reliable way to switch — Material
+      // wires its own change handler that writes localStorage AND applies
+      // `data-md-color-scheme` on the body. Reverse-engineering the
+      // localStorage shape and writing it directly is fragile across
+      // Material versions.
       // Palette index 1 = the "slate" (dark) scheme defined in mkdocs.yml.
-      // Seed before first navigation so Material applies the scheme immediately.
-      await page.addInitScript(() => {
-        localStorage.setItem("__palette", JSON.stringify({ index: 1 }));
-      });
 
-      // Also set the OS color-scheme preference so media queries align.
+      // Set OS color-scheme preference too so any media-query CSS aligns.
       await page.emulateMedia({ colorScheme: "dark" });
 
       await page.goto(DOCS_BASE + "/framework/agent-lifecycle/", {
         waitUntil: "domcontentloaded",
       });
 
-      // Assert dark scheme was applied to the document
+      // Click the slate radio (input id="__palette_1"). Material's change
+      // handler updates body[data-md-color-scheme] synchronously.
+      await page.evaluate(() => {
+        const radio = document.getElementById("__palette_1");
+        if (!radio) throw new Error("Slate palette radio (#__palette_1) not found");
+        radio.click();
+      });
+
+      // Wait for Material to apply slate to the body via its change handler.
+      await expect
+        .poll(
+          async () =>
+            await page.evaluate(() =>
+              document.body.getAttribute("data-md-color-scheme"),
+            ),
+          { timeout: 5_000, message: "Material did not apply slate palette to body" },
+        )
+        .toBe("slate");
+
       const scheme = await page.evaluate(() =>
         document.body.getAttribute("data-md-color-scheme"),
       );

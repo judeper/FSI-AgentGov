@@ -4,10 +4,14 @@
    documented here and mirrored in tests/e2e/fixtures/csp-allowed.json:
      - script-src 'unsafe-inline'      : mkdocs-material inline init scripts.
      - style-src  'unsafe-inline'      : mkdocs-material inlines critical CSS.
-     - style-src  https://fonts.googleapis.com : mkdocs-material default font CSS.
-     - font-src   https://fonts.gstatic.com    : mkdocs-material default font files.
      - img-src    data:                : inlined SVG/data-URL icons.
      - connect-src https://api.github.com : mkdocs-material announce-bar release-version fetch.
+
+   Phase 3 AS3 (F-CSP-ORPHAN-LOOSENINGS-01): removed the orphan loosenings
+   `style-src https://fonts.googleapis.com` and `font-src https://fonts.gstatic.com`
+   in concert with `theme.font: false` in mkdocs.yml. Spec 31's inverse
+   CSP orphan check confirmed these origins were never the source of any
+   loaded response — the loosenings were declared but unused.
 
    NOTE: `frame-ancestors` is intentionally NOT set via <meta>. Per the CSP
    spec, browsers ignore `frame-ancestors` when delivered via meta-CSP — it
@@ -76,7 +80,7 @@
       };
     })();
   </script>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://api.github.com; base-uri 'self'; form-action 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://api.github.com; base-uri 'self'; form-action 'self'">
 {% endblock %}
 
 {% block announce %}
