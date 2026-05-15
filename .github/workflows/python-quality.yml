@@ -133,6 +133,17 @@ jobs:
           python-version: '3.11'
       - run: python scripts/verify_language_rules.py
 
+  learn_urls_count:
+    name: Microsoft Learn URL count drift
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Verify prose URL counts match actual count in microsoft-learn-urls.md
+        run: python scripts/verify_learn_urls_count.py --check
+
   verify_version_stamps:
     name: verify_version_stamps
     runs-on: ubuntu-latest
