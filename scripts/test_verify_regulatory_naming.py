@@ -25,9 +25,11 @@ from verify_regulatory_naming import (  # noqa: E402
     BARE_OCC_RE,
     BARE_SR_RE,
     HISTORY_SECTION_RE,
+    JSON_PROSE_FIELDS,
     SHORTHAND_RE,
     STALE_SLUG_RE,
     check_internal_links,
+    check_json_prose,
     check_prose,
     find_formerly_spans,
     is_external_destination,
@@ -650,3 +652,111 @@ def test_overall_corpus_clean() -> None:
     n_failures, messages, files_scanned = run_all_checks()
     assert files_scanned > 100, "Verifier should scan all-of-docs"
     assert n_failures == 0, "Corpus drift found:\n" + "\n".join(messages[:10])
+
+
+# ---------------------------------------------------------------------------
+# AS22 — JSON prose field scanning (assessment/data/*.json)
+# ---------------------------------------------------------------------------
+
+
+def _write_json(tmp_path: Path, payload: dict) -> Path:
+    import json as _json
+    f = tmp_path / "data.json"
+    f.write_text(_json.dumps(payload, indent=2), encoding="utf-8")
+    return f
+
+
+def test_json_prose_field_with_legacy_naming_fails(tmp_path: Path) -> None:
+    """A bare ``OCC 2011-12`` reference inside a ``description`` field is the
+    exact escape AS22 closes. Reproduces the original
+    ``solutions-lock.json`` regression so this test stays meaningful even
+    if the producer is fixed upstream.
+    """
+    payload = {
+        "solutions": {
+            "model-risk-management-automation": {
+                "id": "model-risk-management-automation",
+                "description": (
+                    "Automated OCC 2011-12 and Fed SR 11-7 model risk "
+                    "management for AI agents."
+                ),
+            }
+        }
+    }
+    f = _write_json(tmp_path, payload)
+    failures = check_json_prose(f)
+    assert len(failures) == 2, (
+        f"Expected one bare-OCC and one bare-SR fail; got: {failures}"
+    )
+    # Diagnostic must include the JSON path so maintainers can locate it.
+    assert any(
+        "solutions.model-risk-management-automation.description" in msg
+        for msg in failures
+    ), failures
+
+
+def test_json_prose_field_with_canonical_naming_passes(tmp_path: Path) -> None:
+    """The fix-form (formerly-span around each bare reference) must PASS."""
+    payload = {
+        "solutions": {
+            "model-risk-management-automation": {
+                "id": "model-risk-management-automation",
+                "description": (
+                    "Automated OCC Bulletin 2026-13 (formerly OCC 2011-12) "
+                    "and Fed SR 26-2 (formerly SR 11-7) model risk management."
+                ),
+            }
+        }
+    }
+    f = _write_json(tmp_path, payload)
+    assert check_json_prose(f) == []
+
+
+def test_json_non_prose_fields_not_scanned(tmp_path: Path) -> None:
+    """Machine-only fields (``id``, ``url``, ``slug``, ``version``) must
+    NOT be scanned — they are not customer-facing prose. This narrowness
+    is what keeps the new check from melting down on URLs and IDs that
+    legitimately contain ``2011`` / ``11-7`` substrings."""
+    payload = {
+        "solutions": {
+            "model-risk-management-automation": {
+                "id": "model-risk-occ-2011-12",
+                "url": "https://example.com/sr-11-7-archive",
+                "version": "11.7.0",
+                "slug": "occ-2011-12-bulletin",
+                # Prose field is canonical so we are isolating the
+                # non-prose-fields invariant.
+                "description": "Canonical citation: OCC Bulletin 2026-13.",
+            }
+        }
+    }
+    f = _write_json(tmp_path, payload)
+    assert check_json_prose(f) == []
+
+
+def test_json_shorthand_in_prose_field_fails(tmp_path: Path) -> None:
+    """``OCC/SR`` shorthand inside a prose field is always a fail."""
+    payload = {
+        "controls": [
+            {
+                "id": "2.6",
+                "summary": "Maps to OCC/SR 11-7 model-risk guidance.",
+            }
+        ]
+    }
+    f = _write_json(tmp_path, payload)
+    failures = check_json_prose(f)
+    assert failures, "Shorthand 'OCC/SR' must fire even in JSON prose"
+    assert "shorthand" in failures[0].lower()
+
+
+def test_json_prose_field_set_is_explicit() -> None:
+    """``JSON_PROSE_FIELDS`` is a closed allowlist. Anything not in it is
+    not scanned — guards against accidentally scanning IDs / URLs."""
+    assert "description" in JSON_PROSE_FIELDS
+    assert "summary" in JSON_PROSE_FIELDS
+    assert "verification" in JSON_PROSE_FIELDS
+    assert "id" not in JSON_PROSE_FIELDS
+    assert "url" not in JSON_PROSE_FIELDS
+    assert "slug" not in JSON_PROSE_FIELDS
+    assert "version" not in JSON_PROSE_FIELDS

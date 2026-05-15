@@ -46,6 +46,14 @@ jobs:
       - name: Build documentation (strict)
         run: mkdocs build --strict
 
+      - name: Verify OpenGraph and Twitter Card meta tags on built site
+        # Closes AS22 — verify_meta_tags.py was added in AS16 but never
+        # wired into CI. Runs against the real site/ build (not synthetic
+        # test strings) so OG/Twitter card metadata in overrides/main.html
+        # has regression protection. Depends on the previous step having
+        # populated site/.
+        run: python scripts/verify_meta_tags.py site/
+
       - name: Verify built HTML has no broken internal links
         # Closes F-CI-GAP-ANCHOR-VALIDATOR-01,
         #        F-BUILD-CROSS-PLAYBOOK-DEPTH-BUG-01,

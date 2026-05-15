@@ -19,6 +19,16 @@ Two checks (per AS3' + AS11 audit fix-sets):
      ``2.6-model-risk-management-sr-26-2.md`` is allowed, and the explicit
      pinned anchor ``{#5-vendor-model-governance-sr-11-7-v}`` is allowed.
 
+  3. **Customer-facing JSON prose** (AS22) — string fields under
+     ``assessment/data/*.json`` that render verbatim into customer-facing
+     SPA exports (e.g. ``description``, ``summary``, ``verification``,
+     ``narrative``) are scanned with the same Check-1 prose rules (no
+     formerly-span = fail; ``OCC/SR`` shorthand always fails). Markdown
+     carve-outs (admonitions, history sections, fenced code) do not apply
+     because JSON values render as plain bullet text in the agenda
+     Markdown export at ``docs/javascripts/assessment-app.js`` lines
+     4485-4495.
+
 Usage::
 
     python scripts/verify_regulatory_naming.py            # human-readable scan
@@ -58,12 +68,31 @@ The convention this gate enforces:
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DOCS_ROOT = REPO_ROOT / "docs"
+ASSESSMENT_DATA_ROOT = REPO_ROOT / "assessment" / "data"
+
+# AS22 — JSON string fields under assessment/data/*.json that render as
+# customer-facing prose in SPA exports (agenda Markdown bullets, JSON
+# envelope summaries) and therefore must follow OCC/SR canonical naming.
+# Keep this list narrow to avoid scanning machine-only fields like ``id``,
+# ``url``, ``slug``, etc.
+JSON_PROSE_FIELDS = frozenset({
+    "description",
+    "summary",
+    "narrative",
+    "verification",
+    "rationale",
+    "remediation",
+    "guidance",
+    "details",
+    "notes",
+})
 
 # ---------------------------------------------------------------------------
 # Reuse the rich line-context tracker + skip predicate from the companion
@@ -87,6 +116,14 @@ def gather_watched_paths() -> list[Path]:
             continue
         out.append(path)
     return out
+
+
+def gather_watched_json_paths() -> list[Path]:
+    """Return every .json under assessment/data/ (AS22 — customer-facing
+    SPA prose lives here and is rendered verbatim into agenda exports)."""
+    if not ASSESSMENT_DATA_ROOT.is_dir():
+        return []
+    return sorted(ASSESSMENT_DATA_ROOT.rglob("*.json"))
 
 
 # ---------------------------------------------------------------------------
@@ -258,6 +295,81 @@ def check_internal_links(path: Path) -> list[str]:
 
 
 # ---------------------------------------------------------------------------
+# Check 3 — customer-facing JSON prose fields (AS22)
+# ---------------------------------------------------------------------------
+
+
+def _iter_json_prose_strings(node, path_trail: tuple[str, ...] = ()):
+    """Recursively yield ``(json_path, value)`` for every string at a key in
+    ``JSON_PROSE_FIELDS``. ``json_path`` is a dotted path for diagnostics
+    (``solutions.model-risk-management-automation.description`` etc.)."""
+    if isinstance(node, dict):
+        for key, value in node.items():
+            new_trail = path_trail + (str(key),)
+            if isinstance(value, str) and key in JSON_PROSE_FIELDS:
+                yield ".".join(new_trail), value
+            else:
+                yield from _iter_json_prose_strings(value, new_trail)
+    elif isinstance(node, list):
+        for idx, item in enumerate(node):
+            yield from _iter_json_prose_strings(item, path_trail + (f"[{idx}]",))
+
+
+def check_json_prose(path: Path) -> list[str]:
+    """Return failure messages (empty == PASS) for one JSON file.
+
+    Only string values keyed under ``JSON_PROSE_FIELDS`` are scanned.
+    Each value is treated as a single rendered line: same regex predicates
+    as ``check_prose`` (bare 2011-12 / SR 11-7 outside a formerly-span,
+    or any ``OCC/SR`` shorthand). Markdown carve-outs do NOT apply because
+    JSON values render as plain text in customer-facing exports.
+    """
+    failures: list[str] = []
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as exc:
+        return [f"FAIL: {path}: cannot parse JSON ({exc})"]
+
+    for json_path, value in _iter_json_prose_strings(data):
+        scan_line = strip_link_urls(value)
+        # Always-wrong shorthand.
+        for m in SHORTHAND_RE.finditer(scan_line):
+            failures.append(
+                _diag_json(
+                    path, json_path, value, m.group(0),
+                    "shorthand 'OCC/SR' is always wrong (OCC and the Fed "
+                    "are different authorities; explicit naming required)",
+                    "OCC Bulletin 2026-13 / Fed SR 26-2",
+                )
+            )
+        # Bare 2011-12 / SR 11-7 references must be inside a formerly-span.
+        spans = find_formerly_spans(scan_line)
+        for m in BARE_OCC_RE.finditer(scan_line):
+            if is_inside_any_span(m.start(), spans):
+                continue
+            failures.append(
+                _diag_json(
+                    path, json_path, value, m.group(0),
+                    "bare OCC 2011-12 reference outside a "
+                    "'(... formerly ...)' parenthetical",
+                    "OCC Bulletin 2026-13 (formerly OCC 2011-12)",
+                )
+            )
+        for m in BARE_SR_RE.finditer(scan_line):
+            if is_inside_any_span(m.start(), spans):
+                continue
+            failures.append(
+                _diag_json(
+                    path, json_path, value, m.group(0),
+                    "bare SR 11-7 reference outside a "
+                    "'(... formerly ...)' parenthetical",
+                    "Fed SR 26-2 (formerly SR 11-7)",
+                )
+            )
+    return failures
+
+
+# ---------------------------------------------------------------------------
 # Reporting
 # ---------------------------------------------------------------------------
 
@@ -283,6 +395,33 @@ def _diag(
     )
 
 
+def _diag_json(
+    path: Path, json_path: str, value: str, matched: str, why: str, canonical: str,
+) -> str:
+    """Diagnostic for a JSON prose field (AS22).
+
+    ``json_path`` is a dotted path inside the JSON document
+    (``solutions.model-risk-management-automation.description`` etc.) that
+    helps maintainers locate the exact key without grepping.
+    """
+    if path.is_absolute():
+        try:
+            rel: Path = path.relative_to(REPO_ROOT)
+        except ValueError:
+            rel = path
+    else:
+        rel = path
+    snippet = value.strip()
+    if len(snippet) > 160:
+        snippet = snippet[:157] + "..."
+    return (
+        f"FAIL: {rel} (json: {json_path}): {why}.\n"
+        f"      matched: {matched!r}\n"
+        f"      value:   {snippet}\n"
+        f"      suggested canonical phrasing: {canonical}"
+    )
+
+
 # ---------------------------------------------------------------------------
 # Driver
 # ---------------------------------------------------------------------------
@@ -291,6 +430,7 @@ def _diag(
 def run_all_checks() -> tuple[int, list[str], int]:
     """Return ``(failure_count, messages, files_scanned)``."""
     paths = gather_watched_paths()
+    json_paths = gather_watched_json_paths()
     messages: list[str] = []
     for path in paths:
         if not path.exists():
@@ -298,7 +438,9 @@ def run_all_checks() -> tuple[int, list[str], int]:
             continue
         messages.extend(check_prose(path))
         messages.extend(check_internal_links(path))
-    return len(messages), messages, len(paths)
+    for path in json_paths:
+        messages.extend(check_json_prose(path))
+    return len(messages), messages, len(paths) + len(json_paths)
 
 
 def main(argv: list[str] | None = None) -> int:
