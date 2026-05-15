@@ -442,10 +442,15 @@ def test_admonition_body_continuation_skipped(tmp_path: Path) -> None:
 
 def test_admonition_close_resumes_scanning(tmp_path: Path) -> None:
     """After the admonition closes (unindented non-blank line), scanning
-    MUST resume — bare references after the block are still failures."""
+    MUST resume — bare references after the block are still failures.
+
+    Block has supersession context (body line includes 'rescinded'), so
+    AS15b-verifier B2's conditional carve-out keeps the block skipped.
+    """
     content = (
         '!!! note "Old naming"\n'
         "    OCC 2011-12 was the prior bulletin.\n"
+        "    The OCC rescinded it in April 2026.\n"
         "\n"
         "OCC 2011-12 should fail here.\n"
     )
@@ -453,7 +458,59 @@ def test_admonition_close_resumes_scanning(tmp_path: Path) -> None:
     f.write_text(content, encoding="utf-8")
     failures = check_prose(f)
     assert len(failures) == 1
-    assert ":4:" in failures[0]
+    assert ":5:" in failures[0]
+
+
+def test_admonition_without_supersession_context_does_not_skip_body(
+    tmp_path: Path,
+) -> None:
+    """AS15b-verifier B2 — admonitions WITHOUT a supersession marker in
+    the opener title or any body line are NOT carved out: the body is
+    scanned and shorthand/bare references are reported.
+
+    This is the regression that motivated AS15b: admonition bodies were
+    leaking shorthand like '(OCC 2011-12 / SR 11-7)' to customers via
+    Material's search snippets despite the source-level carve-out.
+    """
+    content = (
+        '!!! note "Cross-reference"\n'
+        "    Control 2.6 — Model Risk Management (OCC 2011-12 / SR 11-7) "
+        "covers the model-risk pillar.\n"
+        "    See the linked control for full details.\n"
+        "\n"
+        "Trailing prose.\n"
+    )
+    f = tmp_path / "ctrl.md"
+    f.write_text(content, encoding="utf-8")
+    failures = check_prose(f)
+    # Body line has SHORTHAND_RE match (OCC/SR) plus bare BARE_OCC_RE
+    # plus bare BARE_SR_RE — minimum 1 failure (shorthand always wrong).
+    assert len(failures) >= 1, f"Expected B2 to flag shorthand; got: {failures}"
+    assert any(":2:" in f for f in failures), (
+        f"Expected at least one failure on line 2 (admonition body); got: {failures}"
+    )
+
+
+def test_admonition_supersession_marker_in_title_only_skips_block(
+    tmp_path: Path,
+) -> None:
+    """AS15b-verifier B2 — when the admonition opener title contains a
+    supersession marker (e.g., 'rescinded'), the block-level context is
+    True and ALL body lines are skipped, even if they contain bare
+    references with NO per-line marker. This is the title-propagates-to-body
+    invariant nothing else covers.
+    """
+    content = (
+        '!!! warning "OCC 2011-12 was rescinded by OCC Bulletin 2026-13"\n'
+        "    The bulletin was effective immediately on issuance.\n"
+        "    Implementations referencing OCC 2011-12 should be updated.\n"
+        "    SR 11-7 was the corresponding Fed letter.\n"
+        "\n"
+        "Trailing prose with OCC Bulletin 2026-13.\n"
+    )
+    f = tmp_path / "ctrl.md"
+    f.write_text(content, encoding="utf-8")
+    assert check_prose(f) == []
 
 
 def test_supersession_narrative_line_skipped(tmp_path: Path) -> None:
@@ -468,6 +525,11 @@ def test_supersession_narrative_line_skipped(tmp_path: Path) -> None:
         "OCC 2011-12 no longer resolves to the active OCC site.",
         "OCC Bulletin 2026-13 rescinds OCC 2011-12 and OCC Bulletin 2011-12.",
         "This rescinded SR 11-7 letter is archived.",
+        # AS15b-verifier N-1 — broadened regex now covers these forms too.
+        "The supersession of OCC 2011-12 by OCC Bulletin 2026-13 took effect April 2026.",
+        "Superseding bulletin OCC Bulletin 2026-13 replaces OCC 2011-12.",
+        "Rescission of OCC 2011-12 was published as a Federal Register notice.",
+        "Rescinding SR 11-7 required a 90-day notice.",
     ]
     for line in fixtures:
         f = tmp_path / f"ctrl-{abs(hash(line))}.md"
@@ -554,10 +616,16 @@ def test_pinned_anchor_other_stale_slug_still_fails(tmp_path: Path) -> None:
 def test_admonition_with_other_indents(tmp_path: Path) -> None:
     """Material allows tabs and 4+ spaces for admonition body. We use
     'indent strictly greater than the opener's leading_spaces' as the
-    rule. Validate with a single tab and with deeper indents."""
+    rule. Validate with a single tab and with deeper indents.
+
+    Block has supersession context (title includes 'rescinded') so
+    AS15b-verifier B2's conditional carve-out keeps the body skipped
+    regardless of indent flavor — the test still measures indent
+    handling without leaking the always-on admonition skip we removed.
+    """
     # Single tab indentation.
     content_tab = (
-        '!!! warning "Old reference"\n'
+        '!!! warning "Old reference (rescinded)"\n'
         "\tOCC 2011-12 historical context.\n"
         "\n"
         "Resumed prose with OCC Bulletin 2026-13.\n"

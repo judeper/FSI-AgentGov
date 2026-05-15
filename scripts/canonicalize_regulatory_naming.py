@@ -96,9 +96,17 @@ HISTORY_SECTION_RE = re.compile(
 ADMONITION_OPENER_RE = re.compile(r"^\s*(?:!!!|\?\?\?)\s+")
 
 # Lines that document the supersession event itself — preserved as-is.
+# (Broadened in AS15b-verifier per rubber-duck N-1: covers `supersession`,
+# `superseding`, `rescission`, `rescinding` in addition to the original
+# verb forms. SOFT words like "legacy"/"historical"/"archived" are
+# deliberately NOT included — too easy for an author to drop accidentally
+# and would defeat the gate.)
 SUPERSESSION_NARRATIVE_RE = re.compile(
-    r"(?i)\b(rescinded|superseded|supersedes?|supersede\s+and\s+rescind|"
-    r"predecessor|formerly\s+known\s+as|no\s+longer\s+resolves|rescinds?)\b"
+    r"(?i)\b(rescind(?:ed|ing|s)?|rescission|"
+    r"supersed(?:e|ed|es|ing)|supersession|"
+    r"supersede\s+and\s+rescind|"
+    r"predecessor|formerly\s+known\s+as|"
+    r"no\s+longer\s+resolves)\b"
 )
 
 # Legacy-URL citation markers — if these appear on the same line, the bare
@@ -143,7 +151,20 @@ SHORTHAND_OCC_SR_26_2_RE = re.compile(
 
 @dataclass
 class LineContext:
-    """Per-line state machine state at the time the line is seen."""
+    """Per-line state machine state at the time the line is seen.
+
+    `admonition_has_supersession_context` is set BLOCK-LEVEL during a
+    second-pass-style mutation in `iter_lines`: True iff the admonition
+    opener title OR ANY body line in the same block contains a marker
+    matching `SUPERSESSION_NARRATIVE_RE`. Lines outside admonitions
+    have this field = False (its default). The carve-out at
+    `line_is_skip_eligible` reads this to decide whether to skip the
+    line: `if ctx.in_admonition: return ctx.admonition_has_supersession_context`.
+
+    Note: nested admonitions are NOT modeled. An opener at deeper indent
+    inside an outer body is treated as starting a new block (which closes
+    the outer). No corpus files use nested admonitions today.
+    """
 
     line_no: int
     text: str
@@ -151,11 +172,21 @@ class LineContext:
     in_admonition: bool
     in_historical_block: bool
     current_h2: str | None
+    admonition_has_supersession_context: bool = False
 
 
 def iter_lines(text: str) -> list[LineContext]:
     """Walk the file, tracking fenced code, admonition continuation, and
     historical-bullet sections.
+
+    Per-block admonition context (AS15b-verifier B2):
+    each admonition block is assigned a single ``has_supersession_context``
+    flag computed from its opener title + body lines. The flag is then
+    written back onto every emitted ``LineContext`` belonging to the block
+    via in-place mutation at block close. Block close happens at four
+    sites — heading, unindented non-blank line, new admonition opener,
+    and EOF — all routed through the local ``close_block`` helper to
+    keep them in sync.
     """
     out: list[LineContext] = []
     in_fence = False
@@ -163,6 +194,22 @@ def iter_lines(text: str) -> list[LineContext]:
     admonition_indent: int | None = None
     in_historical_block = False
     current_h2: str | None = None
+
+    # AS15b-verifier B2 — per-block admonition context tracker.
+    block_start_idx: int | None = None
+    block_has_context = False
+
+    def close_block() -> None:
+        """Mark every LineContext in the current admonition block with
+        the computed ``admonition_has_supersession_context`` flag, then
+        reset block tracking. Idempotent if no block is open.
+        """
+        nonlocal block_start_idx, block_has_context
+        if block_start_idx is not None:
+            for i in range(block_start_idx, len(out)):
+                out[i].admonition_has_supersession_context = block_has_context
+        block_start_idx = None
+        block_has_context = False
 
     for idx, raw in enumerate(text.splitlines(), start=1):
         stripped_left = raw.lstrip()
@@ -184,36 +231,46 @@ def iter_lines(text: str) -> list[LineContext]:
             )
             continue
 
-        # Heading tracker (H1 resets, H2 sets current).
+        # Heading tracker (H1 resets, H2 sets current). Headings always
+        # close any open admonition block — route through close_block so
+        # the block-context flag is written back before reset.
         if raw.startswith("## "):
+            close_block()
             current_h2 = raw[3:].strip()
             in_admonition = False
             admonition_indent = None
             in_historical_block = False
         elif raw.startswith("# "):
+            close_block()
             current_h2 = None
             in_admonition = False
             admonition_indent = None
             in_historical_block = False
         elif raw.startswith("### ") or raw.startswith("#### "):
+            close_block()
             in_admonition = False
             admonition_indent = None
             in_historical_block = False
 
         # Admonition open/continue/close.
         if ADMONITION_OPENER_RE.match(raw):
+            close_block()  # Close any prior block before opening a new one.
             in_admonition = True
             admonition_indent = leading_spaces
+            block_start_idx = len(out)  # Opener is the start of the new block.
+            block_has_context = bool(SUPERSESSION_NARRATIVE_RE.search(raw))
         elif in_admonition:
             if raw.strip() == "":
                 # Blank line — admonition stays open until next non-blank
                 # at lower indent. Continue without closing.
                 pass
             elif leading_spaces > (admonition_indent or 0):
-                # Still inside admonition body.
-                pass
+                # Still inside admonition body — accumulate context.
+                if SUPERSESSION_NARRATIVE_RE.search(raw):
+                    block_has_context = True
             else:
                 # Unindented non-blank — admonition closed.
+                close_block()
                 in_admonition = False
                 admonition_indent = None
 
@@ -231,6 +288,9 @@ def iter_lines(text: str) -> list[LineContext]:
             LineContext(idx, raw, in_fence, in_admonition,
                         in_historical_block, current_h2)
         )
+
+    # EOF: close any trailing open block so its members get the flag.
+    close_block()
     return out
 
 
@@ -243,7 +303,13 @@ def line_is_skip_eligible(ctx: LineContext) -> bool:
     if ctx.in_fence:
         return True
     if ctx.in_admonition:
-        return True
+        # AS15b-verifier B2 — admonitions are skipped ONLY when the block
+        # has supersession context (opener title or any body line contains
+        # a marker matching SUPERSESSION_NARRATIVE_RE). Generic admonitions
+        # without supersession context are scanned, so admonition-body
+        # shorthand (e.g., "(OCC 2011-12 / SR 11-7)") is no longer leaked
+        # to customers via search snippets.
+        return ctx.admonition_has_supersession_context
     if ctx.in_historical_block:
         return True
     if ctx.current_h2 and HISTORY_SECTION_RE.search(ctx.current_h2):
