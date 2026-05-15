@@ -82,14 +82,14 @@ exclude_docs: |
   images/*/EXPECTED.md
   scripts/
   templates/
-  reference/raci-matrix.md
-  controls/CONTROL-INDEX.md
   javascripts/lib/VENDOR-MANIFEST.md
 
 not_in_nav: |
   playbooks/_shared/
   /assessment/pre-session/**
   images/diagrams/source/cape/**
+  controls/CONTROL-INDEX.md
+  reference/raci-matrix.md
 
 markdown_extensions:
   - admonition

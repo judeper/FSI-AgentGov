@@ -17,7 +17,7 @@
 | Sovereign Clouds | Commercial, GCC, GCC High, DoD, China (21Vianet) — see §1 sovereign matrix and §2 bootstrap |
 | Last UI Verified | April 2026 |
 | Companion Playbooks | [`portal-walkthrough.md`](portal-walkthrough.md) · [`verification-testing.md`](verification-testing.md) · [`troubleshooting.md`](troubleshooting.md) |
-| Related Controls | [1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) · [1.10](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) · [1.19](../1.19/) · [2.1](../2.1/) · [2.5](../2.5/) · [3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) · [3.8](../../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) · [3.11](../../../controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement.md) · [Incident & Risk Playbook](../../incident-and-risk/ai-incident-response-playbook.md) |
+| Related Controls | [1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) · [1.10](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) · [1.19](../1.19/portal-walkthrough.md) · [2.1](../2.1/portal-walkthrough.md) · [2.5](../2.5/portal-walkthrough.md) · [3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) · [3.8](../../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) · [3.11](../../../controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement.md) · [Incident & Risk Playbook](../../incident-and-risk/ai-incident-response-playbook.md) |
 
 ---
 
@@ -1728,9 +1728,9 @@ function Test-Agt31Implementation {
 - [`../../_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) — module pinning, sovereign endpoints, mutation safety, Dataverse cmdlet quirks (referenced as **BL-§N**).
 - [`../1.7-`](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) — service principal governance (consumes §7 `RiskFlag='High'` rows).
 - [`../1.10-`](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) — owner attestation cadence.
-- [`../1.19/`](../1.19/) — DLP integration.
-- [`../2.1/`](../2.1/) — sensitivity label propagation.
-- [`../2.5/`](../2.5/) — agent monitoring (consumes §10 enrichment).
+- [`../1.19/portal-walkthrough.md`](../1.19/portal-walkthrough.md) — DLP integration.
+- [`../2.1/portal-walkthrough.md`](../2.1/portal-walkthrough.md) — sensitivity label propagation.
+- [`../2.5/portal-walkthrough.md`](../2.5/portal-walkthrough.md) — agent monitoring (consumes §10 enrichment).
 - [`../3.6-`](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) — shadow-IT detection (compensating control for §6 sovereign gaps).
 - [`../3.8-`](../../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) — operational dashboards (consume `canonical-inventory.csv`).
 - [`../3.11-`](../../../controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement.md) — evidence retention policy (governs `reconcile-errors.csv`).

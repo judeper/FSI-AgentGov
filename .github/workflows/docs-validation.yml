@@ -45,3 +45,20 @@ jobs:
 
       - name: Build documentation (strict)
         run: mkdocs build --strict
+
+      - name: Verify built HTML has no broken internal links
+        # Closes F-CI-GAP-ANCHOR-VALIDATOR-01,
+        #        F-BUILD-CROSS-PLAYBOOK-DEPTH-BUG-01,
+        #        F-BUILD-EXCLUDE-DOCS-DEAD-LINK-01.
+        # mkdocs --strict only flags WARN-level link issues; cross-playbook
+        # depth bugs and exclude_docs targets are silent today. This walks
+        # site/**/*.html and validates every internal <a href>.
+        run: python scripts/verify_doc_links.py site --json _broken-links.json
+
+      - name: Upload broken-links report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: broken-links-report
+          path: _broken-links.json
+          if-no-files-found: ignore

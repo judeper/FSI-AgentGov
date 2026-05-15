@@ -14,7 +14,7 @@
 > - [Control 3.1 — Agent Inventory and Metadata Management](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) — authoritative lifecycle state machine
 > - [Control 1.7 — Comprehensive Audit Logging and Compliance](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) — sponsor signature capture and retention
 > - [Control 1.10 — Communication Compliance Monitoring](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) — sponsor approval correspondence supervision
-> - [Control 2.1 implementation playbooks](../2.1/) — DSPM for AI alerting that escalates to sponsors
+> - [Control 2.1 implementation playbooks](../2.1/portal-walkthrough.md) — DSPM for AI alerting that escalates to sponsors
 > - [AI Incident Response Playbook](../../incident-and-risk/ai-incident-response-playbook.md) — sponsor on-call obligations during incidents
 
 ---
@@ -117,7 +117,7 @@ The framework defines **four** sponsorship roles. Every agent — regardless of 
 
 1. Build, configure, and maintain the agent in Microsoft 365 Admin Center, Copilot Studio, Power Platform, or Agent 365.
 2. Operate the agent within the scope authorized by the Sponsor.
-3. Triage and respond to alerts from [Control 2.1](../2.1/) (DSPM for AI), [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), and Defender XDR within the Zone SLA.
+3. Triage and respond to alerts from [Control 2.1](../2.1/portal-walkthrough.md) (DSPM for AI), [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), and Defender XDR within the Zone SLA.
 4. Maintain Control 3.1 inventory metadata (data sources, connectors, sensitivity, business owner).
 5. Execute the technical work authorized by the Sponsor's quarterly attestation (e.g., decommission, scope change).
 6. Co-sign material configuration changes with the Sponsor.
@@ -560,7 +560,7 @@ Triggered when:
 - Grace period expires without a successor Sponsor or Owner.
 - Compliance Reviewer issues a regulatory veto.
 - AI Governance Lead determines the agent represents an unmitigated risk.
-- DSPM for AI ([Control 2.1](../2.1/)) raises a Severity 1 alert for which no Owner can be reached.
+- DSPM for AI ([Control 2.1](../2.1/portal-walkthrough.md)) raises a Severity 1 alert for which no Owner can be reached.
 
 **Behavior.** The workflow:
 
@@ -903,7 +903,7 @@ Refer to [Troubleshooting](./troubleshooting.md) for registry-level issues and t
 - [Control 3.1 — Agent Inventory and Metadata Management](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md)
 - [Control 1.7 — Comprehensive Audit Logging and Compliance](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md)
 - [Control 1.10 — Communication Compliance Monitoring](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md)
-- [Control 2.1 implementation playbooks](../2.1/)
+- [Control 2.1 implementation playbooks](../2.1/portal-walkthrough.md)
 - [Agent Identity Architecture](../../../framework/agent-identity-architecture.md)
 - [AI Incident Response Playbook](../../incident-and-risk/ai-incident-response-playbook.md)
 
