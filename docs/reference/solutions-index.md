@@ -6,7 +6,7 @@ Live inventory reference for the companion FSI-AgentGov-Solutions repository.
 
 ## Overview
 
-This index tracks the **36 live solution implementations** in the companion **[FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions)** repository.
+This index tracks the **36 companion solution implementations (35 live + 1 preview)** in the companion **[FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions)** repository.
 
 Companion solutions provide deployment documentation, governance scripts, KQL queries, and templates for manual Power Platform builds. They do not store exported Power Platform runtime artifacts in this catalog.
 
@@ -28,9 +28,9 @@ Absence of a control from this catalog is not a coverage gap — it reflects the
 
 Each live solution declares the Microsoft CAPE [Frontier Transformation Pattern](../framework/transformation-patterns.md) it supports, the [Agentic Capability Driver](../framework/agentic-capability-drivers.md) it strengthens, and the [Center of Excellence function](../framework/agentic-coe.md) (Govern, Enable, Optimize, or Scale) it serves. These tags let admins, AI Governance Leads, and CSAs filter the catalog by the lens that matters for the conversation in front of them — a pattern-first conversation pulls a different shortlist than a CoE-readiness conversation.
 
-Pattern, Driver, and CoE columns appear in the live inventory table below and are repeated as bullets in each solution's detail block. The companion [Pattern coverage matrix (showing which solutions support each pattern)](pattern-coverage.md) aggregates the same metadata across all 78 controls and 36 solutions for portfolio-level review.
+Pattern, Driver, and CoE columns appear in the live inventory table below and are repeated as bullets in each solution's detail block. The companion [Pattern coverage matrix (showing which solutions support each pattern)](pattern-coverage.md) aggregates the same metadata across all 78 controls and 36 companion solutions (35 live + 1 preview) for portfolio-level review.
 
-## Live Inventory (36 Solutions)
+## Companion Inventory (36 Solutions: 35 Live + 1 Preview)
 
 | Solution | Repository folder | Version | Primary controls | Patterns | Drivers | CoE | Summary |
 |----------|-------------------|---------|------------------|----------|---------|-----|---------|
@@ -38,6 +38,7 @@ Pattern, Driver, and CoE columns appear in the live inventory table below and ar
 | [Agent 365 Lifecycle Governance](#agent-365-lifecycle-governance) | [`agent-365-lifecycle-governance`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-365-lifecycle-governance) | v1.1.4 | 2.3, 1.2, 1.11, 2.1, 2.8, 2.12, 3.1 | P4, P5, P6 | AI Governance, AI Strategy, Technology & Data | Enable | Automated lifecycle governance for AI agents using Agent 365 and Entra ID Governance. |
 | [Agent Access Monitor](#agent-access-monitor) | [`agent-access-monitor`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-access-monitor) | v1.1.1 | 3.8 | P1, P4 | AI Governance, Technology & Data | Optimize | Automated detection of overly permissive agent access configurations. |
 | [Agent Communication Restriction Detector](#agent-communication-restriction-detector) | [`agent-communication-restriction-detector`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-communication-restriction-detector) | v1.2.0 | 2.17 | P6 | AI Governance, Technology & Data | Govern | Inter-agent communication restriction validation. |
+| [Agent Intake](#agent-intake) | [`agent-intake`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-intake) | v0.2.0-preview | 1.2, 1.7, 2.1, 2.13, 3.1 | — | — | — | **Preview.** Pre-build user intake workflow for AI agent requests — captures business case, classifies risk, routes for sponsor approval, and hands off to `agent-registry-automation`. MVP supports the Express path (low-risk personal agents) with sponsor 1-click approval. |
 | [Agent Knowledge Source Scanner](#agent-knowledge-source-scanner) | [`agent-knowledge-source-scanner`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-knowledge-source-scanner) | v1.1.1 | 4.3, 1.4, 1.5 | P2 | AI Governance, Technology & Data | Govern | Item-level permission scanning for agent knowledge source SharePoint libraries. |
 | [Agent Observability Foundation](#agent-observability-foundation) | [`agent-observability-foundation`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-observability-foundation) | v1.2.1 | — | P4, P5, P6 | Technology & Data, AI Governance | Optimize | Foundational observability infrastructure for agent monitoring. |
 | [Agent Registry Automation](#agent-registry-automation) | [`agent-registry-automation`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-registry-automation) | v2.1.0 | 1.2, 1.7, 2.1, 2.13 | P1, P2, P4 | AI Governance, AI Strategy, Technology & Data | Enable | Automated discovery, registration, approval, and lifecycle governance of AI agents. |
@@ -107,6 +108,16 @@ Pattern, Driver, and CoE columns appear in the live inventory table below and ar
 - **Drivers:** AI Governance, Technology & Data
 - **CoE function:** Govern
 - **Summary:** Inter-agent communication restriction validation.
+
+### Agent Intake
+- **Repository folder:** [`agent-intake`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-intake)
+- **Version:** v0.2.0-preview
+- **Status:** Preview
+- **Primary controls:** 1.2, 1.7, 2.1, 2.13, 3.1
+- **Patterns:** — (preview; CAPE alignment frontmatter not yet authored)
+- **Drivers:** — (preview; CAPE alignment frontmatter not yet authored)
+- **CoE function:** — (preview; CAPE alignment frontmatter not yet authored)
+- **Summary:** Pre-build user intake workflow for AI agent requests — captures business case, classifies risk, routes for sponsor approval, and hands off to `agent-registry-automation`. MVP supports the Express path (low-risk personal agents) with sponsor 1-click approval. Suitable for pilot validation; broader production rollout requires customer governance sign-off.
 
 ### Agent Knowledge Source Scanner
 - **Repository folder:** [`agent-knowledge-source-scanner`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-knowledge-source-scanner)

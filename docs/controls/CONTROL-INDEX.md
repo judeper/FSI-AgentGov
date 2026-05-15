@@ -2,7 +2,7 @@
 
 ## Complete Control Reference (78 Controls)
 
-This directory contains comprehensive control documentation for the FSI Agent Governance Framework across four pillars. See the [Solutions Index](../reference/solutions-index.md) for the live catalog of 33 companion solutions aligned to the companion repository inventory.
+This directory contains comprehensive control documentation for the FSI Agent Governance Framework across four pillars. See the [Solutions Index](../reference/solutions-index.md) for the catalog of 36 companion solutions (35 live + 1 preview) aligned to the companion repository inventory.
 
 ---
 
@@ -116,7 +116,7 @@ The **Implementation** column indicates how each control is implemented:
 | **PowerShell** | Automated via PowerShell cmdlets |
 | **Solution Link** | Deployable automation from [FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions) |
 
-Companion solutions provide deployment documentation, governance scripts, KQL queries, and templates that help operationalize controls at scale. See [Solutions Index](../reference/solutions-index.md) for the live catalog of 33 companion solutions.
+Companion solutions provide deployment documentation, governance scripts, KQL queries, and templates that help operationalize controls at scale. See [Solutions Index](../reference/solutions-index.md) for the catalog of 36 companion solutions (35 live + 1 preview).
 
 ---
 

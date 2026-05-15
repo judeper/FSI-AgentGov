@@ -15,7 +15,7 @@
 
 ### Companion Repository
 
-**FSI-AgentGov-Solutions** (`C:/dev/FSI-AgentGov-Solutions`) contains **35 live solution implementations** mapped to the current 78-control framework baseline. Use `docs/reference/solutions-index.md` in this repository as the source of truth for the current catalog, versions, and primary control mappings.
+**FSI-AgentGov-Solutions** (`C:/dev/FSI-AgentGov-Solutions`) contains **35 live solution implementations plus 1 preview solution** (36 companion solutions total) mapped to the current 78-control framework baseline. Use `docs/reference/solutions-index.md` in this repository as the source of truth for the current catalog, versions, and primary control mappings.
 
 **Documentation:**
 - `scripts/README.md` - Shared hooks documentation
@@ -422,7 +422,7 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 - Five-solution deep dive — 18 UASD bugs, 16 MIME bugs, ITE round 2 fixes (v1.2.49)
 - Comprehensive repository review — 12 GitHub issues resolved across both repos (v1.2.48)
 - Solution consolidation — ACV + ALCA merged into Audit Compliance Manager (v1.2.47)
-- Live solutions index tracks 35 live companion solution implementations with mapped control coverage
+- Live solutions index tracks 35 live companion solution implementations plus 1 preview (36 companion solutions total) with mapped control coverage
 - Native Microsoft Defender integration for AI agents (v1.2.37)
 - AI-assisted Learn Monitor review with `/review-learn-changes` skill (v1.2.37)
 - State AI law monitoring — Colorado, Texas, Illinois, California, NYC (v1.2.20–v1.2.31)
