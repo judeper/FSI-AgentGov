@@ -21,6 +21,41 @@ from pathlib import Path
 
 ENGINE_VERSION = "1.0.0"
 
+
+def _read_framework_version() -> str:
+    """Read FSI-AgentGov framework version from repo-root VERSION file.
+
+    Single source of truth for the framework release the engine was built
+    against (e.g., "1.6.2"). Returns "unknown" if VERSION is missing.
+    """
+    version_file = Path(__file__).resolve().parents[2] / "VERSION"
+    if version_file.exists():
+        return version_file.read_text(encoding="utf-8").strip()
+    return "unknown"
+
+
+FRAMEWORK_VERSION = _read_framework_version()
+
+
+def normalize_manifest_controls(raw: object) -> list[dict]:
+    """Return the controls list regardless of manifest top-level shape.
+
+    The on-disk ``assessment/manifest/controls.json`` is a bare JSON list
+    of 78 control objects. Earlier engine code assumed a dict-wrapped
+    form ``{"controls": [...]}`` and crashed against the real file with
+    ``AttributeError: 'list' object has no attribute 'get'``. This helper
+    accepts either shape so the engine runs end-to-end against the
+    production manifest. Closes F-MANIFEST-FORMAT-MISMATCH-01.
+    """
+    if isinstance(raw, list):
+        return raw
+    if isinstance(raw, dict):
+        return raw.get("controls", [])
+    raise TypeError(
+        f"Manifest must be list or dict; got {type(raw).__name__}"
+    )
+
+
 log = logging.getLogger("fsi-agentgov-score")
 
 # ---------------------------------------------------------------------------
@@ -916,7 +951,12 @@ def run(
 
     log.info("Loading manifest from %s", manifest_p)
     manifest = load_json(manifest_p)
-    controls: list[dict] = manifest.get("controls", [])
+    controls: list[dict] = normalize_manifest_controls(manifest)
+    manifest_version = (
+        manifest.get("version", "unknown")
+        if isinstance(manifest, dict)
+        else "unknown"
+    )
 
     log.info("Loading collected data from %s", collected_p)
     collected = load_collected_data(collected_p)
@@ -939,9 +979,10 @@ def run(
     output = {
         "_metadata": {
             "engine_version": ENGINE_VERSION,
+            "framework_version": FRAMEWORK_VERSION,
             "timestamp": timestamp,
             "zone": zone,
-            "manifest_version": manifest.get("version", "unknown"),
+            "manifest_version": manifest_version,
             "total_controls": len(scored),
             "auto_scored": summary["auto_scored"],
             "needs_manual": summary["needs_manual"],

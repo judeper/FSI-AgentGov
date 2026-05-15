@@ -14,11 +14,12 @@ Design notes:
   test is environment-agnostic (no sys.path manipulation required).
 - Collected fixtures are copied into a tmp_path/collected/ directory that
   matches the directory layout expected by score.py's --collected argument.
-- Manifest normalization: assessment/manifest/controls.json is currently a
-  bare JSON array (list). score.py expects {"controls": [...]} dict form.
-  This mismatch is documented as P0 bug MANIFEST-FORMAT-MISMATCH below.
-  The tests use a normalized wrapper written to tmp_path so the pipeline
-  logic can still be exercised end-to-end.
+- Manifest format: assessment/manifest/controls.json is a bare JSON list
+  on disk. Both score.py and report.py accept either bare-list OR
+  dict-wrapped form via normalize_manifest_controls() (closes
+  F-MANIFEST-FORMAT-MISMATCH-01 in Phase 3 AS6). Tests now invoke the
+  engine against the production manifest path directly — no normalization
+  workaround is needed.
 - Frontier fixtures:
     * frontier-summary input  → assessment/tests/fixtures/expected_frontier_scores.json
       (this is the stored output of score_frontier.py; it's the correct
@@ -76,51 +77,6 @@ CONTROLS_FILES = [
 # Additional files expected from frontier / both modes
 FRONTIER_FILE = "frontier-prefilled.md"
 ROLLUP_FILE = "capability-driver-rollup.json"
-
-
-# ---------------------------------------------------------------------------
-# Manifest normalization
-# ---------------------------------------------------------------------------
-# P0 Bug F-MANIFEST-FORMAT-MISMATCH-01:
-#   assessment/manifest/controls.json is a bare JSON array (list), but
-#   score.py calls manifest.get("controls", []) which requires a dict with
-#   a "controls" key. Running score.py against the real file causes:
-#       AttributeError: 'list' object has no attribute 'get'
-#
-# Expected fix (Phase 3): either (a) score.py should handle both bare-list
-# and wrapped forms, or (b) controls.json should be updated to the wrapped
-# dict form. Until fixed, tests write a normalized copy to tmp_path and use
-# that path.
-#
-# TODO(F-MANIFEST-FORMAT-MISMATCH-01): once Phase 3 lands the fix, REMOVE
-# the normalize_manifest() workaround and call score.py against the real
-# CONTROLS_MANIFEST path directly. The intentional RED test
-# TestManifestFormatP0Bug::test_production_manifest_format will go GREEN
-# at the same moment, signalling the workaround is no longer needed.
-
-
-def normalize_manifest(tmp_path: Path) -> Path:
-    """Load controls.json, wrap in dict if needed, write normalized copy.
-
-    Returns the path to the normalized manifest in tmp_path.
-    Logs a clear P0 finding if the real manifest is a bare list.
-    """
-    raw = json.loads(CONTROLS_MANIFEST.read_text(encoding="utf-8"))
-    if isinstance(raw, list):
-        print(
-            "\n[P0 BUG MANIFEST-FORMAT-MISMATCH] assessment/manifest/controls.json "
-            "is a bare JSON list. score.py expects {'controls': [...]} dict form. "
-            "score.py will crash with AttributeError: 'list' object has no attribute 'get' "
-            "when run against the production manifest. "
-            "Fix required: wrap controls.json in a dict OR update score.py to handle both forms."
-        )
-        normalized = {"version": "unknown", "controls": raw}
-    else:
-        normalized = raw
-
-    dest = tmp_path / "controls_normalized.json"
-    dest.write_text(json.dumps(normalized, indent=2, ensure_ascii=False), encoding="utf-8")
-    return dest
 
 
 # ---------------------------------------------------------------------------
@@ -292,35 +248,53 @@ strip_timestamps = strip_volatile_fields
 
 
 # ---------------------------------------------------------------------------
-# Test 0: P0 Bug — production manifest format mismatch
+# Test 0: Production manifest loads cleanly through the engine
 # ---------------------------------------------------------------------------
 
 
-class TestManifestFormatP0Bug:
-    """Document the P0 format mismatch between controls.json and score.py expectations."""
+class TestProductionManifestLoads:
+    """Engine accepts the on-disk production manifest without crashing.
 
-    def test_production_manifest_format(self) -> None:
-        """
-        P0 Bug MANIFEST-FORMAT-MISMATCH: controls.json is a bare list.
-        score.py expects a dict with a 'controls' key.
-        This test explicitly asserts the expected shape and FAILS if the bug
-        is still present, surfacing it as a Red test per Phase 0G discipline.
-        """
-        raw = json.loads(CONTROLS_MANIFEST.read_text(encoding="utf-8"))
-        is_dict = isinstance(raw, dict) and "controls" in raw
-        if not is_dict:
-            print(
-                "\n[P0 BUG MANIFEST-FORMAT-MISMATCH] "
-                f"controls.json top-level type: {type(raw).__name__}. "
-                "score.py expects a dict with a 'controls' key but gets a bare list. "
-                "score.py line: `controls = manifest.get('controls', [])` will raise "
-                "AttributeError: 'list' object has no attribute 'get'. "
-                "Required fix: add a top-level dict wrapper to controls.json or update score.py."
+    Closes F-MANIFEST-FORMAT-MISMATCH-01: prior to Phase 3 AS6, both
+    score.py and report.py called ``manifest.get("controls", [])`` which
+    raised AttributeError against the bare-list manifest on disk. The
+    fix added ``normalize_manifest_controls()`` to both modules so they
+    accept either shape.
+
+    These assertions exercise the engine end-to-end against the REAL
+    ``assessment/manifest/controls.json`` and verify:
+      * score.py exits 0
+      * scores.json contains 78 controls
+      * _metadata.framework_version is read from VERSION (1.6.2)
+    """
+
+    def test_score_py_loads_production_manifest(self, tmp_path: Path) -> None:
+        collected = stage_collected(tmp_path)
+        scores_out = tmp_path / "scores.json"
+
+        try:
+            run_score(collected, scores_out, CONTROLS_MANIFEST)
+        except subprocess.CalledProcessError as exc:
+            pytest.fail(
+                "score.py crashed against the production manifest "
+                "(F-MANIFEST-FORMAT-MISMATCH-01 regression):\n"
+                f"  exit {exc.returncode}\n"
+                f"  STDOUT: {exc.stdout[:2000]}\n"
+                f"  STDERR: {exc.stderr[:2000]}"
             )
-        assert is_dict, (
-            "P0 BUG: assessment/manifest/controls.json is a bare JSON list, "
-            "not a dict with a 'controls' key. score.py crashes on the real manifest. "
-            "See MANIFEST-FORMAT-MISMATCH finding above."
+
+        assert scores_out.exists(), "score.py did not write scores.json"
+
+        scores = json.loads(scores_out.read_text(encoding="utf-8"))
+        assert len(scores["controls"]) == 78, (
+            f"Expected 78 controls; got {len(scores['controls'])}"
+        )
+
+        meta = scores.get("_metadata", {})
+        assert meta.get("total_controls") == 78
+        assert meta.get("framework_version") == "1.6.2", (
+            "framework_version must be read from VERSION file (1.6.2); "
+            f"got {meta.get('framework_version')!r}"
         )
 
 
@@ -334,7 +308,7 @@ class TestControlsMode:
 
     def test_score_and_report_controls(self, tmp_path: Path) -> None:
         collected = stage_collected(tmp_path)
-        manifest = normalize_manifest(tmp_path)
+        manifest = CONTROLS_MANIFEST
         scores = tmp_path / "scores.json"
         output_dir = tmp_path / "reports"
         output_dir.mkdir()
@@ -363,7 +337,7 @@ class TestControlsMode:
 
     def test_summary_json_top_level_keys(self, tmp_path: Path) -> None:
         collected = stage_collected(tmp_path)
-        manifest = normalize_manifest(tmp_path)
+        manifest = CONTROLS_MANIFEST
         scores = tmp_path / "scores.json"
         output_dir = tmp_path / "reports"
         output_dir.mkdir()
@@ -436,7 +410,7 @@ class TestBothMode:
 
     def test_both_produces_all_five_files(self, tmp_path: Path) -> None:
         collected = stage_collected(tmp_path)
-        manifest = normalize_manifest(tmp_path)
+        manifest = CONTROLS_MANIFEST
         scores = tmp_path / "scores.json"
         output_dir = tmp_path / "reports"
         output_dir.mkdir()
@@ -456,7 +430,7 @@ class TestBothMode:
 
     def test_rollup_json_valid_and_non_empty(self, tmp_path: Path) -> None:
         collected = stage_collected(tmp_path)
-        manifest = normalize_manifest(tmp_path)
+        manifest = CONTROLS_MANIFEST
         scores = tmp_path / "scores.json"
         output_dir = tmp_path / "reports"
         output_dir.mkdir()
@@ -494,7 +468,7 @@ class TestDeterminism:
         return output_dir
 
     def test_json_outputs_are_deterministic(self, tmp_path: Path) -> None:
-        manifest = normalize_manifest(tmp_path)
+        manifest = CONTROLS_MANIFEST
         out_a = self._run_pipeline(tmp_path, "a", manifest)
         out_b = self._run_pipeline(tmp_path, "b", manifest)
 
@@ -539,8 +513,126 @@ class TestDeterminism:
 
         if discovered_stripped_keys:
             print(
-                f"\n[INFO] Timestamp fields stripped for determinism check:\n"
+                "\n[INFO] Timestamp fields stripped for determinism check:\n"
                 + "\n".join(f"  {f}" for f in sorted(set(discovered_stripped_keys)))
             )
         else:
             print("\n[INFO] No timestamp fields detected as differing between runs.")
+
+
+# ---------------------------------------------------------------------------
+# Test 5: framework_version is surfaced in every customer-facing artifact
+# ---------------------------------------------------------------------------
+
+
+def _read_framework_version() -> str:
+    """Mirror engine helper — read repo-root VERSION as ground truth."""
+    return (ASSESSMENT_ROOT.parent / "VERSION").read_text(encoding="utf-8").strip()
+
+
+class TestFrameworkVersionInReports:
+    """Closes F-ENGINE-PREFILLED-NO-FRAMEWORK-VERSION-01.
+
+    Every one of the 5 customer-facing report artifacts must carry the
+    framework version it was assessed against, so an auditor opening a
+    years-old artifact can establish provenance without out-of-band
+    context. Asserts the literal version string from VERSION appears in
+    each output.
+    """
+
+    def test_all_five_reports_contain_framework_version(
+        self, tmp_path: Path
+    ) -> None:
+        expected_version = _read_framework_version()
+        assert expected_version, "VERSION file is empty or missing"
+
+        collected = stage_collected(tmp_path)
+        manifest = CONTROLS_MANIFEST
+        scores = tmp_path / "scores.json"
+        output_dir = tmp_path / "reports"
+        output_dir.mkdir()
+
+        run_score(collected, scores, manifest)
+        run_report_both(scores, output_dir, manifest)
+
+        # 1-2: Markdown reports — version appears verbatim in header
+        for md_name in (
+            "assessment-prefilled.md",
+            "manual-questionnaire.md",
+            "frontier-prefilled.md",
+        ):
+            text = (output_dir / md_name).read_text(encoding="utf-8")
+            assert expected_version in text, (
+                f"{md_name} does not contain framework version "
+                f"{expected_version!r}. Header rendering may be broken. "
+                "F-ENGINE-PREFILLED-NO-FRAMEWORK-VERSION-01 regression."
+            )
+
+        # 3: assessment-summary.json — top-level framework_version key
+        summary = json.loads(
+            (output_dir / "assessment-summary.json").read_text(encoding="utf-8")
+        )
+        assert summary.get("framework_version") == expected_version, (
+            "assessment-summary.json top-level framework_version must "
+            f"equal {expected_version!r}; got {summary.get('framework_version')!r}"
+        )
+
+        # 4: capability-driver-rollup.json — _metadata.framework_version
+        rollup = json.loads(
+            (output_dir / "capability-driver-rollup.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        assert rollup.get("_metadata", {}).get("framework_version") == expected_version, (
+            "capability-driver-rollup.json _metadata.framework_version "
+            f"must equal {expected_version!r}; got "
+            f"{rollup.get('_metadata', {}).get('framework_version')!r}"
+        )
+
+        # 5: scores.json (intermediate but customer-archived) —
+        # _metadata.framework_version
+        scores_doc = json.loads(scores.read_text(encoding="utf-8"))
+        assert scores_doc.get("_metadata", {}).get("framework_version") == expected_version, (
+            "scores.json _metadata.framework_version must equal "
+            f"{expected_version!r}; got "
+            f"{scores_doc.get('_metadata', {}).get('framework_version')!r}"
+        )
+
+    def test_files_generated_lists_all_five_in_both_mode(
+        self, tmp_path: Path
+    ) -> None:
+        """Closes the rubber-duck-flagged ordering bug.
+
+        In ``--type both``, ``assessment-summary.json`` is written by
+        ``run()`` BEFORE frontier + rollup are generated, so its original
+        ``files_generated`` listed only 3 of 5 outputs. AS6 step 4
+        rewrites the summary at end of main() with the complete list.
+        """
+        collected = stage_collected(tmp_path)
+        manifest = CONTROLS_MANIFEST
+        scores = tmp_path / "scores.json"
+        output_dir = tmp_path / "reports"
+        output_dir.mkdir()
+
+        run_score(collected, scores, manifest)
+        run_report_both(scores, output_dir, manifest)
+
+        summary = json.loads(
+            (output_dir / "assessment-summary.json").read_text(encoding="utf-8")
+        )
+        files = summary.get("files_generated", [])
+        basenames = {Path(p).name for p in files}
+
+        expected = {
+            "assessment-prefilled.md",
+            "manual-questionnaire.md",
+            "assessment-summary.json",
+            "frontier-prefilled.md",
+            "capability-driver-rollup.json",
+        }
+        missing = expected - basenames
+        assert not missing, (
+            f"assessment-summary.json files_generated missing: {missing}\n"
+            f"Got basenames: {sorted(basenames)}\n"
+            "Rewrite at end of main() (--type both) must include all 5 outputs."
+        )
