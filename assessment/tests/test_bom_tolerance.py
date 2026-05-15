@@ -16,8 +16,6 @@ import json
 import sys
 from pathlib import Path
 
-import pytest
-
 ASSESSMENT_ROOT = Path(__file__).resolve().parent.parent
 ENGINE_DIR = ASSESSMENT_ROOT / "engine"
 

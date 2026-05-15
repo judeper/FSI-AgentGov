@@ -172,15 +172,19 @@ PASS_LINES = [
     "OCC Bulletin 2026-13 / Fed SR 26-2",
     "OCC Bulletin 2026-13 / Federal Reserve SR 26-2",
     # Mixed formerly with leading/trailing context inside the parenthetical.
-    "**OCC Bulletin 2026-13 (banks; formerly OCC Bulletin 2011-12) / "
-    "Federal Reserve SR 26-2 (formerly SR 11-7; the 2026 supersession)**",
+    (
+        "**OCC Bulletin 2026-13 (banks; formerly OCC Bulletin 2011-12) / "
+        + "Federal Reserve SR 26-2 (formerly SR 11-7; the 2026 supersession)**"
+    ),
     # Two separate formerly spans on the same line — both inner mentions
     # are protected.
     "(formerly OCC 2011-12) and (formerly SR 11-7)",
     # Markdown link to canonical filename: URL stripped, link text scanned
     # but contains no stale form.
-    "[Model Risk](../controls/pillar-2-management/"
-    "2.6-model-risk-management-sr-26-2.md) covers...",
+    (
+        "[Model Risk](../controls/pillar-2-management/"
+        + "2.6-model-risk-management-sr-26-2.md) covers..."
+    ),
 ]
 
 

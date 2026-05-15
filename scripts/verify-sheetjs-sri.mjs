@@ -38,7 +38,7 @@
 
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { resolve, dirname, join, basename } from "node:path";
+import { resolve, dirname, basename } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -85,8 +85,9 @@ function sha256Base64(buf) {
  */
 function findExpectedSri(libRelPath, loaderSrc, appSrc, overridesSrc) {
   // Form 1: SRI_HASHES["lib/foo.js"] = "sha256-...."  (loader dict)
+  const escapedPath = libRelPath.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const dictRe = new RegExp(
-    `["']${libRelPath.replace(/\./g, "\\.")}["']\\s*:\\s*["']sha256-([A-Za-z0-9+/=]+)["']`,
+    `["']${escapedPath}["']\\s*:\\s*["']sha256-([A-Za-z0-9+/=]+)["']`,
   );
   const dictMatch = loaderSrc.match(dictRe);
   if (dictMatch) return { hash: dictMatch[1], source: "assessment-loader.js" };

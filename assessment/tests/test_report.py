@@ -42,10 +42,7 @@ def write_json(path: Path, data: dict) -> None:
 
 def run_report(tmp_path: Path) -> Path:
     """Set up inputs and run report.py, returning the output directory."""
-    try:
-        import report  # type: ignore[import-untyped]
-    except ImportError:
-        pytest.skip("report.py not yet implemented in engine/")
+    report = pytest.importorskip("report")  # type: ignore[import-untyped]
 
     scores_data = load_fixture("expected_scores.json")
     manifest_data = load_fixture("controls_subset.json")
@@ -259,10 +256,7 @@ def _run_report_with_scores(
     tmp_path: Path, scores_path: Path, manifest_path: Path
 ) -> Path:
     """Run report.run() against caller-provided scores + return output dir."""
-    try:
-        import report  # type: ignore[import-untyped]
-    except ImportError:
-        pytest.skip("report.py not yet implemented in engine/")
+    report = pytest.importorskip("report")  # type: ignore[import-untyped]
     output_dir = tmp_path / "output"
     output_dir.mkdir()
     report.run(

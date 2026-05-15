@@ -5,7 +5,7 @@ from __future__ import annotations
 import textwrap
 from pathlib import Path
 
-from verify_learn_urls_count import TOLERANCE, main
+import verify_learn_urls_count as vluc
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -37,12 +37,11 @@ def _make_file(tmp_path: Path, actual_count: int, header_n: int, footer_n: int) 
 
 
 def _run(monkeypatch, tmp_path, actual: int, header: int, footer: int) -> int:
-    """Patch URLS_FILE and run main()."""
-    import verify_learn_urls_count as mod
+    """Patch URLS_FILE and run vluc.main()."""
 
     p = _make_file(tmp_path, actual, header, footer)
-    monkeypatch.setattr(mod, "URLS_FILE", p)
-    return main(["--check"])
+    monkeypatch.setattr(vluc, "URLS_FILE", p)
+    return vluc.main(["--check"])
 
 
 # ---------------------------------------------------------------------------
@@ -50,30 +49,30 @@ def _run(monkeypatch, tmp_path, actual: int, header: int, footer: int) -> int:
 # ---------------------------------------------------------------------------
 
 class TestSyncedState:
-    """header == footer == actual ± TOLERANCE → PASS."""
+    """header == footer == actual ± vluc.TOLERANCE → PASS."""
 
     def test_exact_match(self, monkeypatch, tmp_path):
         assert _run(monkeypatch, tmp_path, actual=229, header=229, footer=229) == 0
 
     def test_within_tolerance(self, monkeypatch, tmp_path):
-        assert _run(monkeypatch, tmp_path, actual=229, header=229 + TOLERANCE, footer=229 + TOLERANCE) == 0
+        assert _run(monkeypatch, tmp_path, actual=229, header=229 + vluc.TOLERANCE, footer=229 + vluc.TOLERANCE) == 0
 
     def test_at_tolerance_boundary(self, monkeypatch, tmp_path):
-        assert _run(monkeypatch, tmp_path, actual=229, header=229 - TOLERANCE, footer=229 - TOLERANCE) == 0
+        assert _run(monkeypatch, tmp_path, actual=229, header=229 - vluc.TOLERANCE, footer=229 - vluc.TOLERANCE) == 0
 
 
 class TestHeaderDrift:
-    """Header prose number drifts > TOLERANCE from actual → FAIL."""
+    """Header prose number drifts > vluc.TOLERANCE from actual → FAIL."""
 
     def test_header_too_high(self, monkeypatch, tmp_path):
-        assert _run(monkeypatch, tmp_path, actual=229, header=229 + TOLERANCE + 1, footer=229 + TOLERANCE + 1) == 1
+        assert _run(monkeypatch, tmp_path, actual=229, header=229 + vluc.TOLERANCE + 1, footer=229 + vluc.TOLERANCE + 1) == 1
 
     def test_header_too_low(self, monkeypatch, tmp_path):
         assert _run(monkeypatch, tmp_path, actual=229, header=209, footer=209) == 1
 
 
 class TestFooterDrift:
-    """Footer prose number drifts > TOLERANCE from actual → FAIL."""
+    """Footer prose number drifts > vluc.TOLERANCE from actual → FAIL."""
 
     def test_footer_too_high(self, monkeypatch, tmp_path):
         assert _run(monkeypatch, tmp_path, actual=100, header=100, footer=150) == 1
@@ -98,7 +97,6 @@ class TestFileMissing:
     """File missing → FAIL with a clear message (exit 1)."""
 
     def test_missing_file(self, monkeypatch, tmp_path):
-        import verify_learn_urls_count as mod
 
-        monkeypatch.setattr(mod, "URLS_FILE", tmp_path / "nonexistent.md")
-        assert main(["--check"]) == 1
+        monkeypatch.setattr(vluc, "URLS_FILE", tmp_path / "nonexistent.md")
+        assert vluc.main(["--check"]) == 1

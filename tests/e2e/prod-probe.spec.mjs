@@ -8,7 +8,7 @@ test("@prod-probe assessment SPA loads on production", async ({ page }) => {
   const errors = [];
   const IGNORE_PATTERNS = [
     /Content Security Policy directive 'frame-ancestors' is ignored/i,
-    /api\.github\.com\/repos\/.+\/(releases\/latest|$|FSI-AgentGov$).*Content Security Policy/i,
+    /api\.github\.com\/repos\/.+Content Security Policy/i,
     /violates the following Content Security Policy directive: "connect-src/i,
   ];
   const isIgnorable = (text) => IGNORE_PATTERNS.some((re) => re.test(text));

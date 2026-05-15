@@ -92,10 +92,7 @@ class TestFullPassControl:
 
     def test_full_pass_control(self, tmp_path: Path, manifest: dict, collected_dir: Path):
         # For zone 1, only check 1.1.a is applicable and it should pass.
-        try:
-            import score  # type: ignore[import-untyped]
-        except ImportError:
-            pytest.skip("score.py not yet implemented in engine/")
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
 
         manifest_path = tmp_path / "controls.json"
         output_path = tmp_path / "scores.json"
@@ -123,10 +120,7 @@ class TestPartialFailControl:
     """Control 1.1 for zone 2 with check 1.1.b failing → maturity 0 (below threshold)."""
 
     def test_partial_fail_control(self, tmp_path: Path, manifest: dict, collected_dir: Path):
-        try:
-            import score  # type: ignore[import-untyped]
-        except ImportError:
-            pytest.skip("score.py not yet implemented in engine/")
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
 
         manifest_path = tmp_path / "controls.json"
         output_path = tmp_path / "scores.json"
@@ -157,10 +151,7 @@ class TestManualOnlyControl:
     """A control with automation='manual' should get needs_manual=true, maturity 0."""
 
     def test_manual_only_control(self, tmp_path: Path, collected_dir: Path):
-        try:
-            import score  # type: ignore[import-untyped]
-        except ImportError:
-            pytest.skip("score.py not yet implemented in engine/")
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
 
         manual_control = {
             "id": "99.1",
@@ -206,10 +197,7 @@ class TestPartialAutomationControl:
     """Control 1.3 (partial automation) scores auto checks but sets needs_manual=true."""
 
     def test_partial_automation_control(self, tmp_path: Path, manifest: dict, collected_dir: Path):
-        try:
-            import score  # type: ignore[import-untyped]
-        except ImportError:
-            pytest.skip("score.py not yet implemented in engine/")
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
 
         manifest_path = tmp_path / "controls.json"
         output_path = tmp_path / "scores.json"
@@ -240,10 +228,7 @@ class TestMissingDataLowConfidence:
     """When a collected data source returns null/missing → confidence 'low'."""
 
     def test_missing_data_low_confidence(self, tmp_path: Path, manifest: dict):
-        try:
-            import score  # type: ignore[import-untyped]
-        except ImportError:
-            pytest.skip("score.py not yet implemented in engine/")
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
 
         # Create a collected dir with empty/null data files
         collected = tmp_path / "collected"
@@ -304,10 +289,7 @@ class TestZoneThresholdBoundary:
     """Zone 3 requires all checks passed for control 1.1; all passing → maturity 4."""
 
     def test_zone_threshold_boundary(self, tmp_path: Path, manifest: dict):
-        try:
-            import score  # type: ignore[import-untyped]
-        except ImportError:
-            pytest.skip("score.py not yet implemented in engine/")
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
 
         # Build collected data where all checks for 1.1 pass (including 1.1.b)
         collected = tmp_path / "collected"
@@ -359,10 +341,7 @@ class TestSummaryCalculation:
     """Verify that summary totals are consistent with individual control scores."""
 
     def test_summary_calculation(self, tmp_path: Path, manifest: dict, collected_dir: Path):
-        try:
-            import score  # type: ignore[import-untyped]
-        except ImportError:
-            pytest.skip("score.py not yet implemented in engine/")
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
 
         manifest_path = tmp_path / "controls.json"
         output_path = tmp_path / "scores.json"
@@ -416,10 +395,7 @@ class TestEvaluatorStateTransparency:
     """
 
     def test_classify_check_states(self):
-        try:
-            import score  # type: ignore[import-untyped]
-        except ImportError:
-            pytest.skip("score.py not yet implemented in engine/")
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
 
         # auto_evaluable: condition is in EVALUATORS
         auto_check = {
@@ -474,10 +450,7 @@ class TestEvaluatorStateTransparency:
         )
 
     def test_rollup_precedence(self):
-        try:
-            import score  # type: ignore[import-untyped]
-        except ImportError:
-            pytest.skip("score.py not yet implemented in engine/")
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
 
         # auto wins over unimpl wins over manual
         assert (
@@ -500,10 +473,7 @@ class TestEvaluatorStateTransparency:
     def test_state_surfaces_in_output(
         self, tmp_path: Path, manifest: dict, collected_dir: Path
     ):
-        try:
-            import score  # type: ignore[import-untyped]
-        except ImportError:
-            pytest.skip("score.py not yet implemented in engine/")
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
 
         manifest_path = tmp_path / "controls.json"
         output_path = tmp_path / "scores.json"
@@ -541,10 +511,7 @@ class TestEvaluatorStateTransparency:
         """Score the real 78-control manifest and assert that the rollup
         reflects today's actual evaluator coverage rather than overstating it.
         """
-        try:
-            import score  # type: ignore[import-untyped]
-        except ImportError:
-            pytest.skip("score.py not yet implemented in engine/")
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
 
         real_manifest = ASSESSMENT_ROOT / "manifest" / "controls.json"
         if not real_manifest.exists():
@@ -598,10 +565,7 @@ class TestCollectorFailureModes:
         self, tmp_path: Path, manifest: dict, collected: Path, zone: int = 2
     ) -> dict:
         """Run score.run() and return the parsed output JSON."""
-        try:
-            import score  # type: ignore[import-untyped]
-        except ImportError:
-            pytest.skip("score.py not yet implemented in engine/")
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
         manifest_path = tmp_path / "controls.json"
         output_path = tmp_path / "scores.json"
         write_json(manifest_path, manifest)

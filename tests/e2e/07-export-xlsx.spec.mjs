@@ -100,9 +100,7 @@ test.describe("export XLSX @regression", () => {
         .getByRole("button", { name: labelMap[value], exact: true })
         .click();
       if (notes != null) {
-        const notesArea = page.locator(
-          `#ag-notes-${cid.replace(/\./g, "\\.")}`,
-        );
+        const notesArea = page.locator(`[id="ag-notes-${cid}"]`);
         await notesArea.fill(notes);
       }
     }
