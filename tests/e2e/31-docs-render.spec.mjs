@@ -118,6 +118,18 @@ const REP_PAGES = [
   "/reference/role-catalog/",
   "/reference/regulatory-mappings/",
   "/reference/glossary/",
+  // ── AS19b: pre-session ("homework") generated-page sample ─────────────────
+  // 147 pre-session pages are generated from a single Jinja template per
+  // role (docs/assessment/pre-session/<role-slug>/index.md). The render
+  // path, link generation, and slugification all follow the generator,
+  // so sampling 5 representative role-shapes catches generator regressions
+  // without bloating wall-time. Per AS19 rubber-duck NB3, sample picks
+  // distinct role categories + one slug edge-case.
+  "/assessment/pre-session/governance-lead/",                                       // canonical high-volume role
+  "/assessment/pre-session/compliance-officer/",                                    // compliance role
+  "/assessment/pre-session/power-platform-admin/",                                  // admin role
+  "/assessment/pre-session/agent-business-owner/",                                  // business / agent role
+  "/assessment/pre-session/agent-owner-sponsor-governance-role-not-directory-role/", // long compound slug edge-case
 ];
 
 const URL_404 = "/this-page-does-not-exist-404/";
