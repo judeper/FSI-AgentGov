@@ -10,7 +10,14 @@
   --ag-radius: 6px;
   --ag-gap: 1rem;
   --ag-green: #2e7d32;
-  --ag-amber: #e65100;
+  /*
+   * AS5 / F-A11Y-SPA-CONTRAST-AMBER: previous --ag-amber was #e65100
+   * (Material Design Orange 900) which measures 3.79:1 on white — fails
+   * WCAG AA 4.5:1 for normal text. Darkened to #bf360c (Deep Orange 900)
+   * which yields 5.60:1 on white and 5.11:1 on the --ag-amber-bg (#fff3e0)
+   * surface used by .ag-disclaimer, .ag-override-btn, etc.
+   */
+  --ag-amber: #bf360c;
   --ag-red: #c62828;
   --ag-green-bg: #e8f5e9;
   --ag-amber-bg: #fff3e0;
@@ -47,7 +54,15 @@
   font-size: 0.8rem;
   font-weight: 500;
   background: var(--md-default-fg-color--lightest);
-  color: var(--md-default-fg-color--light);
+  /*
+   * AS5 / F-A11Y-SPA-CONTRAST-DELTA-07: Material's
+   * --md-default-fg-color--light (#6d6d6d) on
+   * --md-default-fg-color--lightest (#ededed) measures 4.41:1 — below
+   * WCAG AA 4.5:1 for normal text. Explicit #595959 yields 5.98:1 while
+   * preserving the dim "inactive step" affordance against active
+   * (filled brand) and completed (filled green) states below.
+   */
+  color: #595959;
   white-space: nowrap;
 }
 .ag-step-indicator.active {
@@ -351,7 +366,12 @@
 .ag-answer-btn.selected-partial {
   border-color: var(--ag-amber);
   background: var(--ag-amber);
-  color: #000;
+  /*
+   * Was color:#000 against #e65100 (5.54:1, passing). After AS5 darkened
+   * --ag-amber to #bf360c, #000 on the new amber drops to 3.75:1 —
+   * fails AA. White text on #bf360c = 5.60:1, restoring AA compliance.
+   */
+  color: #fff;
 }
 .ag-answer-btn.selected-no {
   border-color: var(--ag-red);
