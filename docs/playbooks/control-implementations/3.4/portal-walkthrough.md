@@ -1144,7 +1144,7 @@ When facts change after an initial 8-K is filed, **Item 1.05(c)** requires an **
     5. Where Defer: re-convene UTC and the eventual final determination record.
 
 !!! tip "Cross-Reference"
-    Model-risk implications of a Material AI-agent incident (e.g., model retirement triggers under SR 11-7) are owned by [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md). A Material AI-agent integrity incident typically triggers MRM challenge re-validation in addition to disclosure obligations.
+    Model-risk implications of a Material AI-agent incident (e.g., model retirement triggers under Fed SR 26-2 (formerly SR 11-7)) are owned by [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md). A Material AI-agent integrity incident typically triggers MRM challenge re-validation in addition to disclosure obligations.
 
 ## 11. OFAC Sanctions Screening — Pre-Payment Gate for Extortion Demands
 

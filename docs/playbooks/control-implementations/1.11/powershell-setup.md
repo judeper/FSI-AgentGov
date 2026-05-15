@@ -37,7 +37,7 @@ related_controls: ["1.21", "1.23", "1.24", "2.6", "2.8", "2.12", "2.25", "2.26",
 
     - **Privileged human verification** — every promoted Conditional Access policy must be reviewed by a named approver under your firm''s change-management process. Sign-off **must** be captured outside of this script (ticketing system, GRC platform, signed PDF) before `enabled = true` is committed.
     - **Supervisory review per [Control 2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md)** — FINRA Rule 3110 requires supervisory procedures that are **reasonably designed**; the supervisor''s judgement, not the helper''s `Status = Clean`, is the supervisory record.
-    - **Model-risk re-validation per [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md)** — material changes to the authentication boundary surrounding an AI agent are an MRM-relevant change. Re-validate per OCC 2011-12 / SR 11-7 §V before enforcement.
+    - **Model-risk re-validation per [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md)** — material changes to the authentication boundary surrounding an AI agent are an MRM-relevant change. Re-validate per OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) §V before enforcement.
     - **Break-glass attestation** — the helpers verify that two break-glass accounts are excluded from every policy. They do **not** verify that those accounts'' credentials are escrowed, tested quarterly, or roster-attested. That is a [Control 2.8](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md) and SOX 404 obligation.
 
 !!! danger "License Dependency — Conditional Access for Workload Identities"
@@ -1853,7 +1853,7 @@ function Invoke-Fsi-Control111Setup {
 .NOTES
     Per Control 2.12 (FINRA 3110 supervision), the orchestrator does NOT replace the supervisor''s
     written sign-off. The evidence pack is INPUT to the supervisor''s review, not the supervisor''s
-    record. Per Control 2.6 (OCC 2011-12 / SR 11-7), any change to the authentication boundary
+    record. Per Control 2.6 (OCC Bulletin 2026-13 / Fed SR 26-2), any change to the authentication boundary
     requires MRM re-validation BEFORE this orchestrator is run in Enforce mode.
 #>
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = ''High'')]

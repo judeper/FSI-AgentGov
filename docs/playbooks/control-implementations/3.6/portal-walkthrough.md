@@ -31,7 +31,7 @@
     If the task at hand is **not** a portal-driven orphan detection or remediation action, stop and follow the routing above before continuing.
 
 !!! warning "Hedged-Language Reminder"
-    Detection signals **support** ownership-attestation and supervisory review obligations; they do **not replace** registered-principal review under FINRA Rule 3110, recordkeeping under SEC 17a-4(f), or independent risk-management oversight under OCC Bulletin 2011-12 / Fed SR 11-7. All evidence captured in this walkthrough is intended to **aid** examiners; final attestation rests with named human owners.
+    Detection signals **support** ownership-attestation and supervisory review obligations; they do **not replace** registered-principal review under FINRA Rule 3110, recordkeeping under SEC 17a-4(f), or independent risk-management oversight under OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Fed SR 26-2 (formerly SR 11-7). All evidence captured in this walkthrough is intended to **aid** examiners; final attestation rests with named human owners.
 
 !!! info "License and Program Requirements"
 

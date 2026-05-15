@@ -30,7 +30,7 @@
     | Common errors, missing blades, and remediation steps | [`./troubleshooting.md`](./troubleshooting.md) |
 
 !!! warning "Hedged-Language Reminder"
-    This playbook helps your organization **support compliance with** FINRA Rule 3110 (supervision), SEC Rule 17a-4 (records retention), SOX §404 (internal controls over financial reporting), GLBA Safeguards Rule (access controls), OCC Bulletin 2013-29 (third-party / model risk management), and Federal Reserve SR 11-7 (model risk management). It does **not** by itself guarantee any regulatory outcome. Implementation requires Microsoft Agent 365 or Microsoft 365 E7 licensing, validated change-control procedures, and independent testing by your compliance function. Organizations should verify all configurations against their own regulatory examination workpapers and legal counsel before treating these procedures as adequate evidence.
+    This playbook helps your organization **support compliance with** FINRA Rule 3110 (supervision), SEC Rule 17a-4 (records retention), SOX §404 (internal controls over financial reporting), GLBA Safeguards Rule (access controls), OCC Bulletin 2013-29 (third-party / model risk management), and Federal Reserve SR 26-2 (formerly SR 11-7) (model risk management). It does **not** by itself guarantee any regulatory outcome. Implementation requires Microsoft Agent 365 or Microsoft 365 E7 licensing, validated change-control procedures, and independent testing by your compliance function. Organizations should verify all configurations against their own regulatory examination workpapers and legal counsel before treating these procedures as adequate evidence.
 
 !!! info "License and Program Requirements"
     | Requirement | Why | Where to verify |
@@ -303,7 +303,7 @@ Zone tagging is the foundation for the Zone 2 / Zone 3 differentiated controls i
     |---|---|
     | Artifact produced | Two CSVs: pre-remediation (showing nulls) and post-remediation (showing zero nulls in Z2/Z3) + Purview audit log of `Update agent identity` events |
     | Retention duration | 6 years (SEC 17a-4) |
-    | Regulatory mapping | FINRA 3110 (named supervisor for each business activity), SR 11-7 (model owner identification), GLBA Safeguards (access accountability) |
+    | Regulatory mapping | FINRA 3110 (named supervisor for each business activity), Fed SR 26-2 (formerly SR 11-7) (model owner identification), GLBA Safeguards (access accountability) |
 
 !!! tip "Cross-Reference"
     The Graph API path for sponsor assignment is `PATCH /agentIdentities/{id}` with the `sponsor` and `manager` properties — see [`./powershell-setup.md`](./powershell-setup.md). For "sponsor field grayed out", see [`./troubleshooting.md`](./troubleshooting.md).
@@ -495,7 +495,7 @@ The recommended pattern is:
     |---|---|
     | Artifact produced | Workflow configuration JSON export + Workflow history CSV + correlated audit log entries showing sponsorship transfer or disable action |
     | Retention duration | 6 years (SEC 17a-4); workflow run history retained 30 days in Entra by default — forward to SIEM per §7 for long-term retention |
-    | Regulatory mapping | FINRA 3110 (supervisor change-of-control), SR 11-7 (model owner transitions), SOX §404 (segregation of duties — automated control) |
+    | Regulatory mapping | FINRA 3110 (supervisor change-of-control), Fed SR 26-2 (formerly SR 11-7) (model owner transitions), SOX §404 (segregation of duties — automated control) |
 
 !!! tip "Cross-Reference"
     The Logic Apps template for the conditional-disable custom task extension is documented at [`./powershell-setup.md`](./powershell-setup.md). For "workflow shows Failed status with permission error", see [`./troubleshooting.md`](./troubleshooting.md).
@@ -576,7 +576,7 @@ To verify VC-7:
     |---|---|
     | Artifact produced | One CSV per quarterly campaign per Z3 access package: review settings + reviewer decisions + justifications + applied actions; plus the 30-day expired-assignment report from §6.4 |
     | Retention duration | 6 years (SEC 17a-4) |
-    | Regulatory mapping | FINRA 3110 (periodic supervisory review), SOX §404 (recertification of logical access — IT general controls), GLBA Safeguards Rule (periodic access review), SR 11-7 (periodic model access certification) |
+    | Regulatory mapping | FINRA 3110 (periodic supervisory review), SOX §404 (recertification of logical access — IT general controls), GLBA Safeguards Rule (periodic access review), Fed SR 26-2 (formerly SR 11-7) (periodic model access certification) |
 
 !!! tip "Cross-Reference"
     Bulk creation of quarterly reviews via Graph is at [`./powershell-setup.md`](./powershell-setup.md). For the "auto-apply did not run" symptom, see [`./troubleshooting.md`](./troubleshooting.md).

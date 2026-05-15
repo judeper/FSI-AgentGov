@@ -17,14 +17,14 @@
     |---|---|---|
     | **Detection** of prompt injection / jailbreak / XPIA in production | **1.21** — Adversarial Input Logging | 2.20 is preventive (pre-deployment + scheduled probes); 1.21 is detective (production telemetry) |
     | General agent QA, regression testing, suitability validation | **2.5** — Testing & Validation | 2.5 covers functional QA; 2.20 covers adversarial / safety scenarios |
-    | Independent model validation per OCC 2011-12 / SR 11-7 | **2.6** — Model Risk Management | 2.6 is the program; 2.20 is one input to 2.6 |
+    | Independent model validation per OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) | **2.6** — Model Risk Management | 2.6 is the program; 2.20 is one input to 2.6 |
     | Bias and fairness testing | **2.11** — Bias Testing & Fairness | 2.11 covers protected-class fairness; 2.20 covers safety / abuse / exfiltration |
     | Sensitive Information Type tuning so DLP / Comm Compliance fires correctly during red-team probes | **1.13** — SITs and Pattern Recognition | SIT tuning is a prerequisite for measuring exfiltration test outcomes |
     | Content Safety / Prompt Shields configuration on the Azure AI deployment under test | **1.21** §3 (Prompt Shields surface) | 2.20 *measures* whether Prompt Shields blocks the attack; it does not configure Prompt Shields |
     | Evidence retention to WORM under SEC 17a-4(f) | **1.19** — eDiscovery for Agent Interactions | 2.20 generates evidence; 1.19 holds it |
 
 !!! warning "Hedged-language reminder — supports, does not guarantee"
-    The procedures below **support compliance with** OCC Bulletin 2011-12, Federal Reserve SR 11-7, FINRA Rule 3110, FINRA Regulatory Notice 25-07 (March 2025), SEC Rule 17a-4(b)(4), GLBA 501(b), and the NIST AI RMF Generative AI Profile (NIST AI 600-1). They **do not by themselves guarantee** regulatory compliance. The Compliance Officer, Model Risk Manager, and CISO must independently validate that the firm's WSPs reference the documented testing cadence, the actual defense-rate thresholds in use, and the firm's records-retention horizon.
+    The procedures below **support compliance with** OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), FINRA Rule 3110, FINRA Regulatory Notice 25-07 (March 2025), SEC Rule 17a-4(b)(4), GLBA 501(b), and the NIST AI RMF Generative AI Profile (NIST AI 600-1). They **do not by themselves guarantee** regulatory compliance. The Compliance Officer, Model Risk Manager, and CISO must independently validate that the firm's WSPs reference the documented testing cadence, the actual defense-rate thresholds in use, and the firm's records-retention horizon.
 
 !!! info "What this walkthrough covers — surfaces & owners"
     | # | Surface | Portal | Owner role | Notes |

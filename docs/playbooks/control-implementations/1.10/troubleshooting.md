@@ -384,7 +384,7 @@ Subject: Communication Compliance supervisory-review degradation — [date]
    - FINRA Rule 4511 / SEC 17a-4(b)(4) books-and-records: [yes / unclear / no]
    - GLBA 501(b) / SEC Reg S-P: [if NPI in scope]
    - SOX 302/404 ICFR: [if financial-disclosure communications in scope]
-   - Other: [NYDFS 23 NYCRR 500 72-hour determination; OCC 2011-12 / SR 11-7; CFTC 1.31; FINRA 4530]
+   - Other: [NYDFS 23 NYCRR 500 72-hour determination; OCC Bulletin 2026-13 / Fed SR 26-2; CFTC 1.31; FINRA 4530]
 
 3. Evidence preserved (§1)
    - Policy export, role-group snapshot, reviewer-assignment snapshot, Pending-queue screenshot,

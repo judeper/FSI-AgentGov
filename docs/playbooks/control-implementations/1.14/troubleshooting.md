@@ -552,7 +552,7 @@ Mandatory data to gather **before** filing the case. Do not file without items 1
 - **FINRA Rule 4511** — books-and-records general requirements — `finra.org/rules-guidance/rulebooks/finra-rules/4511`
 - **FINRA Rule 4530** — reporting requirements — `finra.org/rules-guidance/rulebooks/finra-rules/4530`
 - **FINRA Regulatory Notice 25-07 (March 2025)** — existing rules apply to AI tools — `finra.org/rules-guidance/notices/25-07`
-- **OCC Bulletin 2011-12 / Federal Reserve SR 11-7** — model risk management — `occ.treas.gov/news-issuances/bulletins/2011/bulletin-2011-12.html` / `federalreserve.gov/supervisionreg/srletters/SR2602.htm`
+- **OCC Bulletin 2026-13 / Federal Reserve SR 26-2** (formerly OCC Bulletin 2011-12 / SR 11-7) — model risk management — `occ.gov/news-issuances/bulletins/2026/bulletin-2026-13.html` / `federalreserve.gov/supervisionreg/srletters/SR2602.htm`
 - **CFTC Regulation 1.31** — recordkeeping — `ecfr.gov/current/title-17/chapter-I/part-1/subpart-A/section-1.31`
 - **CCPA §1798.100** — collection-and-use minimization (purpose limitation) — `leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=1798.100.&lawCode=CIV`
 
@@ -622,7 +622,7 @@ PREVENTIVE ACTIONS (policy / process changes):
 CONTROL DEFICIENCIES IDENTIFIED:
   - Control 1.x: <description> → <CR / ticket>
 
-EFFECTIVENESS-CHALLENGE NOTES (OCC 2011-12 / SR 11-7, where in scope):
+EFFECTIVENESS-CHALLENGE NOTES (OCC Bulletin 2026-13 / Fed SR 26-2, where in scope):
 
 SOD POSTURE AT TIME OF INCIDENT (§1.4 SoD note):
   Reviewer of record: <name>     Owner of agent: <name>     Conflict?  <Y|N>

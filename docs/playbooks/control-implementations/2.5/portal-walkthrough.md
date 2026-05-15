@@ -24,7 +24,7 @@
     | The "why" — regulatory mapping, zone tiering, evidence retention | [Control 2.5 specification](../../../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md) |
 
 !!! warning "Hedged-language reminder"
-    Running the procedures in this walkthrough **supports compliance with** SOX Sections 302/404, FINRA Rule 4511, FINRA Rule 3110, FINRA Regulatory Notice 25-07, SEC Rule 17a-4(b)(4), GLBA 501(b), OCC Bulletin 2011-12, and Federal Reserve SR 11-7. It does **not** by itself certify any agent as compliant. Effectiveness depends on evaluator threshold quality, test-set coverage, role separation, supervisory review depth, evidence retention, and your firm's interpretation of the rules. Engage Compliance, Legal, Information Security, and Model Risk Management before promoting any Zone 3 agent to production.
+    Running the procedures in this walkthrough **supports compliance with** SOX Sections 302/404, FINRA Rule 4511, FINRA Rule 3110, FINRA Regulatory Notice 25-07, SEC Rule 17a-4(b)(4), GLBA 501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), and Federal Reserve SR 26-2 (formerly SR 11-7). It does **not** by itself certify any agent as compliant. Effectiveness depends on evaluator threshold quality, test-set coverage, role separation, supervisory review depth, evidence retention, and your firm's interpretation of the rules. Engage Compliance, Legal, Information Security, and Model Risk Management before promoting any Zone 3 agent to production.
 
 !!! info "License Requirements (verify at provisioning time)"
     - **Microsoft Copilot Studio** — required for Test Pane and in-product Agent Evaluation
@@ -809,7 +809,7 @@ To grant read-only analytics access:
     The Analytics Viewer role **can only be assigned to individual users**. Microsoft Entra security groups, distribution lists, and Microsoft 365 groups are **not supported** as assignment targets. Maintain a named-individual attestation list (suggested location: the Validation Evidence Pack, §12) and review it at the quarterly governance cycle. This list supports examiner traceability of who held read-only Analytics access during any given supervisory period.
 
 !!! note "FSI mapping"
-    Use of Analytics Viewer (read-only) versus Co-owner (read-write) for reviewers helps meet the SR 11-7 effective-challenge expectation that independent validators do not also hold operational change rights on the model under review. Document the role split in the Validation Evidence Pack (§12) and in the role matrix at §4.
+    Use of Analytics Viewer (read-only) versus Co-owner (read-write) for reviewers helps meet the Fed SR 26-2 (formerly SR 11-7) effective-challenge expectation that independent validators do not also hold operational change rights on the model under review. Document the role split in the Validation Evidence Pack (§12) and in the role matrix at §4.
 
 **Inline references for §9.7:**
 

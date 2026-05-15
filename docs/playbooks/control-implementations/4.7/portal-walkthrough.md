@@ -23,7 +23,7 @@
     | The "why" — regulatory mapping, zone tiering, related controls | [Control 4.7 specification](../../../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) |
 
 !!! warning "Hedged-language reminder"
-    Configuring these settings **supports compliance with** FINRA 4511, SEC 17a-4, GLBA 501(b), and Federal Reserve SR 11-7. It does **not** by itself guarantee compliance. Effectiveness depends on label coverage, DLP policy quality, identity hygiene, training, and your firm's interpretation of the rules. Engage Compliance, Legal, and Information Security before broad rollout.
+    Configuring these settings **supports compliance with** FINRA 4511, SEC 17a-4, GLBA 501(b), and Federal Reserve SR 26-2 (formerly SR 11-7). It does **not** by itself guarantee compliance. Effectiveness depends on label coverage, DLP policy quality, identity hygiene, training, and your firm's interpretation of the rules. Engage Compliance, Legal, and Information Security before broad rollout.
 
 ---
 

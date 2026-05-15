@@ -26,7 +26,7 @@
     | Sentinel content-hub install, analytics rule tuning, hunting at scale | **3.9** | 1.21 installs the *minimum* solutions needed; 3.9 owns Sentinel posture |
 
 !!! warning "Hedged-language reminder — supports, does not guarantee"
-    Configuration of these surfaces **supports** firm compliance with FINRA 3110 / Notice 25-07 / 4511, SEC 17a-4(b)(4), GLBA 501(b), OCC 2011-12 / Fed SR 11-7, NYDFS Part 500 §500.17(a), NIST SP 800-53 SI-4 / SI-10 / AU-6, and NIST AI RMF MEASURE-2.6 / MANAGE-4.1. It does **not** by itself satisfy any obligation. Designated supervisors, the compliance officer, and the CISO must independently validate that the firm's WSP, supervisory cadence, retention schedule, and incident-handling SLAs reflect the **documented latencies** of the underlying Microsoft signals (see §0).
+    Configuration of these surfaces **supports** firm compliance with FINRA 3110 / Notice 25-07 / 4511, SEC 17a-4(b)(4), GLBA 501(b), OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7), NYDFS Part 500 §500.17(a), NIST SP 800-53 SI-4 / SI-10 / AU-6, and NIST AI RMF MEASURE-2.6 / MANAGE-4.1. It does **not** by itself satisfy any obligation. Designated supervisors, the compliance officer, and the CISO must independently validate that the firm's WSP, supervisory cadence, retention schedule, and incident-handling SLAs reflect the **documented latencies** of the underlying Microsoft signals (see §0).
 
 !!! info "What this walkthrough covers — surfaces & owners"
     | # | Surface | Portal | Owner role | Latency posture |

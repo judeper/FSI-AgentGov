@@ -9,7 +9,7 @@
 ---
 
 !!! warning "Hedged language"
-    The mitigations below **support compliance with** SOX 302/404, GLBA 501(b), OCC 2011-12, FINRA Rules 4511 and 3110, and SEC Rule 17a-4(b)(4). They do not "ensure" or "guarantee" compliance. Implementation requires named owners, quarterly drills, and recalibration as Microsoft surfaces evolve.
+    The mitigations below **support compliance with** SOX 302/404, GLBA 501(b), OCC Bulletin 2026-13 (formerly OCC 2011-12), FINRA Rules 4511 and 3110, and SEC Rule 17a-4(b)(4). They do not "ensure" or "guarantee" compliance. Implementation requires named owners, quarterly drills, and recalibration as Microsoft surfaces evolve.
 
 ---
 
@@ -250,7 +250,7 @@ Test deliverability via the TC-5 quarterly drill.
 - Backfill: variance memo for the over-spend, with named accountability and the corrective action.
 
 !!! danger "Examiner-facing risk"
-    Sustained over-spend without enforcement is a SOX 404 ITGC weakness and an OCC 2011-12 third-party-risk concern. Address before the next exam cycle.
+    Sustained over-spend without enforcement is a SOX 404 ITGC weakness and an OCC Bulletin 2026-13 (formerly OCC 2011-12) third-party-risk concern. Address before the next exam cycle.
 
 ---
 

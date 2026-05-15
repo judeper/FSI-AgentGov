@@ -33,7 +33,7 @@
     | Common errors, missing blades, console behavior anomalies, and remediation steps | [`./troubleshooting.md`](./troubleshooting.md) |
 
 !!! warning "Hedged-Language Reminder"
-    This playbook helps your organization **support compliance with** FINRA Rule 3110 (Supervision), FINRA Rule 4511 (Books and Records), FINRA Regulatory Notice 25-07 (AI Tools), SEC Rules 17a-3 / 17a-4 (Recordkeeping), SOX Sections 302/404 (Internal Controls), GLBA 501(b) (Safeguards Rule), OCC Bulletin 2011-12 (Technology Risk Management), and NYDFS 23 NYCRR 500 (Cybersecurity). It does **not** by itself guarantee any regulatory outcome and **does not substitute for** the firm's obligation to assign an appropriately registered principal where Rule 3110 requires registered supervisory responsibility. Implementation requires Agent 365 licensing (Microsoft 365 E7 "Frontier Suite" or standalone Agent 365 layered on Microsoft 365 Copilot), validated change-control procedures, and independent testing by your compliance function. Organizations should verify all configurations against their own examination workpapers and legal counsel before treating these procedures as adequate evidence.
+    This playbook helps your organization **support compliance with** FINRA Rule 3110 (Supervision), FINRA Rule 4511 (Books and Records), FINRA Regulatory Notice 25-07 (AI Tools), SEC Rules 17a-3 / 17a-4 (Recordkeeping), SOX Sections 302/404 (Internal Controls), GLBA 501(b) (Safeguards Rule), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (Technology Risk Management), and NYDFS 23 NYCRR 500 (Cybersecurity). It does **not** by itself guarantee any regulatory outcome and **does not substitute for** the firm's obligation to assign an appropriately registered principal where Rule 3110 requires registered supervisory responsibility. Implementation requires Agent 365 licensing (Microsoft 365 E7 "Frontier Suite" or standalone Agent 365 layered on Microsoft 365 Copilot), validated change-control procedures, and independent testing by your compliance function. Organizations should verify all configurations against their own examination workpapers and legal counsel before treating these procedures as adequate evidence.
 
 !!! info "Generally Available — May 1, 2026"
     Microsoft Agent 365 reached **general availability on May 1, 2026**. Licensing options:
@@ -200,7 +200,7 @@ If Agent 365 ships in your sovereign cloud after this playbook's verification da
     |---|---|
     | Artifact produced | Quarterly attestation CSV, signed Agent Owner responses, non-response remediation log, change-management ticket IDs for any disable actions |
     | Retention duration | 6 years on Purview record label (WORM) |
-    | Regulatory mapping | FINRA 3110 (supervision), FINRA 4511 (books and records), SEC 17a-3/17a-4 (recordkeeping), OCC Bulletin 2011-12 (technology risk), FFIEC IT Handbook (governance), NYDFS 23 NYCRR 500 (cybersecurity governance) |
+    | Regulatory mapping | FINRA 3110 (supervision), FINRA 4511 (books and records), SEC 17a-3/17a-4 (recordkeeping), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (technology risk), FFIEC IT Handbook (governance), NYDFS 23 NYCRR 500 (cybersecurity governance) |
 
 ### 1.3 Compensating control mapping
 
@@ -468,7 +468,7 @@ For Zone 3 agents (typically those with access to MNPI, customer financial data,
     |---|---|
     | Artifact produced | Agent 365 approval history entry (timestamp, approver UPN, template applied, decision comment with ticket ID); change-management ticket with Compliance Officer / Information Security Officer concurrence for Zone 3 |
     | Retention duration | 6 years (SEC 17a-4 / FINRA 4511) |
-    | Regulatory mapping | FINRA 3110 (supervision), FINRA 4511 (books and records), FINRA Regulatory Notice 25-07 (AI tools governance), SOX §302/§404 (internal controls), OCC 2011-12 (technology risk), NYDFS 23 NYCRR 500 |
+    | Regulatory mapping | FINRA 3110 (supervision), FINRA 4511 (books and records), FINRA Regulatory Notice 25-07 (AI tools governance), SOX §302/§404 (internal controls), OCC Bulletin 2026-13 (formerly OCC 2011-12) (technology risk), NYDFS 23 NYCRR 500 |
 
 For PowerShell automation of bulk publishing approvals (scripted reviews against a documented allowlist) and approval-history extraction, see [`./powershell-setup.md`](./powershell-setup.md). For end-to-end test cases including a deliberate misconfiguration to validate that the workflow rejects it, see [`./verification-testing.md`](./verification-testing.md). For common publishing wizard errors (missing template selection, owner UPN resolution failures, audience scope conflicts), see [`./troubleshooting.md`](./troubleshooting.md).
 
@@ -714,7 +714,7 @@ Governance templates are configurable policy bundles applied at publish or activ
     |---|---|
     | Artifact produced | Default template composition screenshot (dated); Custom template definitions per zone with linked Entra Access Package references; change-management tickets for every template edit |
     | Retention duration | 6 years (SEC 17a-4 / FINRA 4511) |
-    | Regulatory mapping | FINRA 3110 (supervisory framework), FINRA 4511 (configuration records), SOX §404 (control configuration), OCC 2011-12 (technology risk control), NYDFS 23 NYCRR 500 |
+    | Regulatory mapping | FINRA 3110 (supervisory framework), FINRA 4511 (configuration records), SOX §404 (control configuration), OCC Bulletin 2026-13 (formerly OCC 2011-12) (technology risk control), NYDFS 23 NYCRR 500 |
 
 For PowerShell automation of template composition export, see [`./powershell-setup.md`](./powershell-setup.md). For test cases verifying that a Zone 3 publish without a Custom template is rejected by your firm's enforcement script, see [`./verification-testing.md`](./verification-testing.md).
 
@@ -736,7 +736,7 @@ Researcher with Computer Use is generally available since **October 2025** for t
 *Screenshot anchor: docs/images/2.25/EXPECTED.md#10-1-researcher-cu-landing — Integrated Apps → Agents → Researcher → Computer Use configuration page.*
 
 !!! warning "Default-On Behavior — Make an Affirmative Decision"
-    Computer Use is generally enabled for tenants with Copilot licensing unless explicitly disabled by an admin. **Do not leave the configuration in the default-on state without a recorded decision.** A recorded affirmative-restrictive decision is itself the evidence examiners will request — the absence of a recorded decision is a finding under FINRA Regulatory Notice 25-07 and OCC 2011-12 (third-party technology risk).
+    Computer Use is generally enabled for tenants with Copilot licensing unless explicitly disabled by an admin. **Do not leave the configuration in the default-on state without a recorded decision.** A recorded affirmative-restrictive decision is itself the evidence examiners will request — the absence of a recorded decision is a finding under FINRA Regulatory Notice 25-07 and OCC Bulletin 2026-13 (formerly OCC 2011-12) (third-party technology risk).
 
 ### 10.2 Configure Access scope
 
@@ -794,7 +794,7 @@ Researcher with Computer Use is generally available since **October 2025** for t
     |---|---|
     | Artifact produced | Saved configuration screenshot (dated); decision record in the AI governance policy with Access scope, Work data access state, Website Access policy, justification, change-management ticket ID, approver UPN; quarterly re-verification log |
     | Retention duration | 6 years (SEC 17a-4 / FINRA 4511) |
-    | Regulatory mapping | FINRA Regulatory Notice 25-07 (AI tools governance), OCC 2011-12 (technology risk — third-party retrieval), NYDFS 23 NYCRR 500 (data egress controls), GLBA 501(b) (safeguards) |
+    | Regulatory mapping | FINRA Regulatory Notice 25-07 (AI tools governance), OCC Bulletin 2026-13 (formerly OCC 2011-12) (technology risk — third-party retrieval), NYDFS 23 NYCRR 500 (data egress controls), GLBA 501(b) (safeguards) |
 
 For PowerShell automation of Researcher Computer Use configuration export and drift detection, see [`./powershell-setup.md`](./powershell-setup.md). For test cases that validate the allowlist enforcement against a deliberately blocked URL, see [`./verification-testing.md`](./verification-testing.md).
 

@@ -25,7 +25,7 @@ All templates align to the three-zone agent governance model documented in Contr
 | **Zone 3 — Enterprise** | Enterprise admins, regulated-data agents | CA-002 (Zone 3 variant), CA-003 (≤4h sign-in frequency), CA-004, CA-005, CA-006, CA-007, CA-WI-001, CA-WI-002 (agent-identity), CA-WI-003 (Microsoft-managed baseline) | — |
 
 !!! danger "Hedged scope"
-    These templates help support — they do not guarantee — compliance with FINRA WSP, SEC 17a-4, NYDFS §500.12, GLBA Safeguards Rule §314.4(c)(5), OCC Heightened Standards, and Federal Reserve SR 11-7 expectations for AI-system access controls. Organizations should verify each policy against their own regulatory interpretations and obtain CISO sign-off before enforcement.
+    These templates help support — they do not guarantee — compliance with FINRA WSP, SEC 17a-4, NYDFS §500.12, GLBA Safeguards Rule §314.4(c)(5), OCC Heightened Standards, and Federal Reserve SR 26-2 (formerly SR 11-7) expectations for AI-system access controls. Organizations should verify each policy against their own regulatory interpretations and obtain CISO sign-off before enforcement.
 
 ---
 

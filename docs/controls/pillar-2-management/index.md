@@ -21,7 +21,7 @@ Pillar 2 governs the operational processes required to manage AI agents througho
 | Admin Center & Identity Governance | 2.25-2.26 | Agent governance console operations, approval workflows, agent identity lifecycle governance |
 
 !!! note
-    Controls 2.6 and 2.11 address model risk management guidance (OCC 2011-12 / SR 11-7) but cover
+    Controls 2.6 and 2.11 address model risk management guidance (OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7)) but cover
     qualitative controls only. Organizations using AI agents for credit decisions or trading should
     supplement with comprehensive quantitative model validation programs.
 
