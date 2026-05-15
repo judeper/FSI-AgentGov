@@ -49,7 +49,7 @@ function allowedOrigins(allowFixture) {
 }
 
 test.describe("CSP allowlist + asset version skew @regression", () => {
-  test("CSP meta directives present and every loaded origin is allow-listed @regression", async ({
+  test("CSP meta directives present and every loaded origin is allow-listed @regression @smoke", async ({
     page,
     baseURL,
   }) => {
