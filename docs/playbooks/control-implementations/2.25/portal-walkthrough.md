@@ -935,7 +935,7 @@ Examiners will ask the firm to demonstrate the supervisory chain for any AI agen
 | "Demonstrate that template changes follow change control." | Change-management tickets for every template edit with before/after screenshots | §9.4 |
 | "Demonstrate that updates are reviewed before reaching users." | Approve Updates queue history; version diff snapshots; rejected-update records | §8 |
 
-### 13.5 OCC Bulletin 2011-12 (Technology Risk Management)
+### 13.5 OCC Bulletin 2026-13 (Technology Risk Management)
 
 | Examiner question | Evidence to produce | Source section |
 |---|---|---|

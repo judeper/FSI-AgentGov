@@ -56,7 +56,7 @@
 
 ## §0 Triage and Severity Framework
 
-Microsoft Purview Insider Risk Management (IRM) is the **user-behavior risk plane** for the M365 estate and (via browser extensions) selected non-Microsoft AI / SaaS surfaces. For an FSI organization it is a **detective control feeding the supervisory program** under FINRA Rule 3110(b), a **safeguards-monitoring component** under GLBA 501(b), and a **model-driven detection system** subject to model risk governance under OCC Bulletin 2011-12 / Fed SR 11-7. IRM is **not** a books-and-records system: alerts, cases, and Forensic Evidence clips are working investigative artifacts. **Forensic Evidence clips auto-delete 120 days after capture unless exported.** Treat any change to a policy, role-group membership, priority user/content list, pseudonymization setting, or Forensic Evidence approver list as an **evidence-bearing event**: preserve **before** you remediate.
+Microsoft Purview Insider Risk Management (IRM) is the **user-behavior risk plane** for the M365 estate and (via browser extensions) selected non-Microsoft AI / SaaS surfaces. For an FSI organization it is a **detective control feeding the supervisory program** under FINRA Rule 3110(b), a **safeguards-monitoring component** under GLBA 501(b), and a **model-driven detection system** subject to model risk governance under OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Fed SR 26-2 (formerly SR 11-7). IRM is **not** a books-and-records system: alerts, cases, and Forensic Evidence clips are working investigative artifacts. **Forensic Evidence clips auto-delete 120 days after capture unless exported.** Treat any change to a policy, role-group membership, priority user/content list, pseudonymization setting, or Forensic Evidence approver list as an **evidence-bearing event**: preserve **before** you remediate.
 
 ### 0.1 Severity matrix (Zone-aware, firm-defined response windows)
 
@@ -82,7 +82,7 @@ Microsoft Purview Insider Risk Management (IRM) is the **user-behavior risk plan
 | Customer NPI / PII surfaced via insider exfiltration alert and not contained | Privacy + Legal | **GLBA 501(b)** Safeguards; **SEC Reg S-P §248.30** customer-notification timeline (post-2024 amendments — written incident-response program, individual notice "as soon as practicable" and not later than 30 days); state breach-notification statutes |
 | Cybersecurity event determination — reasonable likelihood of material harm to normal operations | CISO + Legal | **NYDFS 23 NYCRR 500 §500.17(a)** — **72-hour** notice to Department after determination; the clock starts at **determination**, not at first alert; cross-reference §500.06 audit-trail and §500.16 incident-response-plan obligations |
 | Internal control over financial reporting impacted (insider activity touches financial-disclosure data, treasury, close process) | Compliance + Internal Audit | **SOX §302 / §404** ICFR — insider-risk monitoring is referenced in the firm's control inventory |
-| Model-risk event — IRM ML risk scoring or the Triage Agent produced demonstrably wrong prioritization that affected an outcome | Model Risk + Compliance | **OCC Bulletin 2011-12** / **Fed SR 11-7** model risk management; AI Triage Agent and ML risk scoring are model-driven and belong in the model inventory (Control 2.6) |
+| Model-risk event — IRM ML risk scoring or the Triage Agent produced demonstrably wrong prioritization that affected an outcome | Model Risk + Compliance | **OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12)** / **Fed SR 26-2 (formerly SR 11-7)** model risk management; AI Triage Agent and ML risk scoring are model-driven and belong in the model inventory (Control 2.6) |
 | Records-related event for a covered swap / trading-related insider activity | Compliance | **CFTC Rule 1.31** recordkeeping (full, complete, original; retention period; production timeline) |
 | Insider misconduct surfaced through IRM alert (suspected fraud, theft, market manipulation, harassment) | HR + Legal + Compliance | **FINRA Rule 4530** reporting; firm code-of-conduct procedures; coordinate Forensic Evidence preservation with Legal **before** notifying the subject |
 | Forensic Evidence captured for a user resident in / employed in a state with employee-monitoring notice statutes (CT, DE, NY) | Privacy + Legal + HR | State employee-monitoring notice law; coordinate notice posture **before** capture; document in the privacy register |
@@ -378,7 +378,7 @@ OfficeActivity
 |---|---|
 | **FINRA Notice 25-07** | The notice re-states existing 3110/4511 obligations in the context of generative AI and agents; absence of agent-behavioral-risk detection without a documented compensating posture is a 3110(b) gap |
 | **FINRA Rule 3110(b)** | Supervisory system must be reasonably designed to achieve compliance; for firms that deploy Copilot Studio agents to FINRA-supervised populations, agent-behavioral-risk detection is a reasonable component of the supervisory design |
-| **OCC Bulletin 2011-12 / Fed SR 11-7** | Agent behavioral risk is a model-risk surface; absent IRM Risky Agents, the model-risk monitoring obligation falls to manual review (Control 2.6) |
+| **OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Fed SR 26-2 (formerly SR 11-7)** | Agent behavioral risk is a model-risk surface; absent IRM Risky Agents, the model-risk monitoring obligation falls to manual review (Control 2.6) |
 | **NYDFS 23 NYCRR 500 §500.16** | Incident-response plan must address insider-risk events including those originating from automated/agent identities; document the compensating posture in the IR plan |
 
 > **Sovereign cloud.** Risky Agents lags Commercial in GCC / GCC High / DoD. Verify on current Microsoft Learn at every IR cycle. If unavailable, document as `NotApplicable` and stand up the Sentinel UEBA + CC + Defender for Cloud Apps compensating set; **do not** open a Microsoft support ticket on a documented Gov-cloud parity gap.
@@ -544,7 +544,7 @@ irmAlerts
 |---|---|
 | **FINRA Rule 3110(b)** | Over-alerting that defeats meaningful supervisory review is itself a 3110(b) finding — the supervisory system is not reasonably designed if reviewers are forced to dismiss alerts without review |
 | **FINRA Rule 3110(a)** | Designation of supervisory personnel — reviewer assignment per priority user group must be documented |
-| **OCC 2011-12 / SR 11-7** | Threshold tuning is a model-input change; document under Control 2.6 |
+| **OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7)** | Threshold tuning is a model-input change; document under Control 2.6 |
 | **State employment law** | Priority user group should not become a proxy for protected-class characteristics |
 
 > **Sovereign cloud.** Behavior at parity. Tuning workflow is identical across clouds.
@@ -699,7 +699,7 @@ OfficeActivity
 | **NYDFS 23 NYCRR 500 §500.16** | Incident-response plan must address vendor-side detection changes |
 | **FINRA Rule 3110(b)** | Document the supervisory-system response to vendor migration windows |
 | **OCC Bulletin 2013-29** | Third-party / vendor risk — Microsoft is a critical third party; vendor-side changes must be tracked and assessed |
-| **OCC 2011-12 / SR 11-7** | If anomaly detection is treated as a model input, the migration is a model change requiring reassessment |
+| **OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7)** | If anomaly detection is treated as a model input, the migration is a model change requiring reassessment |
 
 > **Sovereign cloud.** Verify the migration rollout calendar per cloud on current Microsoft Learn; Gov clouds typically lag Commercial.
 
@@ -1204,7 +1204,7 @@ OfficeActivity
 
 | Authority | Exposure |
 |---|---|
-| **OCC 2011-12 / SR 11-7** | The Triage Agent is a model; its availability is part of the model's operational risk; document outages in the model inventory (Control 2.6) |
+| **OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7)** | The Triage Agent is a model; its availability is part of the model's operational risk; document outages in the model inventory (Control 2.6) |
 | **FINRA Rule 3110(b)** | Manual triage is an acceptable compensating mechanism if documented; silent degradation without compensation is the gap |
 
 > **Sovereign cloud.** Triage Agent lags Commercial in Gov clouds; verify on current Learn.
@@ -1253,7 +1253,7 @@ Connect-MgGraph -Scopes 'Directory.Read.All' -NoWelcome
 | Authority | Exposure |
 |---|---|
 | **FINRA Rule 3110(b)** | The supervisory system must be reasonably designed for the cloud the firm operates in; documented compensating controls support reasonableness |
-| **OCC 2011-12 / SR 11-7** | Adaptive Protection is a model; absence requires the model-risk profile to be reframed |
+| **OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7)** | Adaptive Protection is a model; absence requires the model-risk profile to be reframed |
 | **NYDFS 23 NYCRR 500** | Incident-response plan and authentication-policy obligations independent of cloud |
 
 > **Sovereign cloud.** This scenario is itself the canonical sovereign-cloud-gap pattern.
@@ -1534,7 +1534,7 @@ SecurityAlert
 | Authority | Exposure |
 |---|---|
 | **FINRA Notice 25-07** | Generative-AI supervision; alert-fatigue from one agent compromises the queue |
-| **OCC 2011-12 / SR 11-7** | Agent is a model; over-tripping risk indicators is a model-performance issue |
+| **OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7)** | Agent is a model; over-tripping risk indicators is a model-performance issue |
 | **NYDFS §500.16** | Incident-response readiness; queue collapse is an operational-risk event |
 
 > **Sovereign cloud.** Risky Agents indicator availability lags in Gov clouds; verify on current Learn.
@@ -1717,10 +1717,10 @@ SecurityAlert
 
 **Resolution.**
 
-1. **Open a Control 2.6 (Model Risk Management) feedback ticket** — Triage Agent is in the firm's model inventory under OCC 2011-12 / SR 11-7; drift is a documented model-risk event.
+1. **Open a Control 2.6 (Model Risk Management) feedback ticket** — Triage Agent is in the firm's model inventory under OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7); drift is a documented model-risk event.
 2. **Independent model validation** — Compliance / Model Risk Management team re-validates Triage Agent priority-score distribution against a holdout sample of human-triaged alerts.
 3. **Recalibration evaluation** — if Microsoft published a model-version change, document the version and the firm's revalidation outcome; if drift is concept drift, recalibrate indicator thresholds upstream.
-4. **Documented validation cycle** — quarterly model validation per OCC 2011-12 / SR 11-7 ongoing-monitoring expectation.
+4. **Documented validation cycle** — quarterly model validation per OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) ongoing-monitoring expectation.
 5. **Bias check** — cross-reference Control 2.11 (Bias Monitoring) — does the drift manifest unevenly across protected classes?
 
 **Prevention.**
@@ -1733,7 +1733,7 @@ SecurityAlert
 
 | Authority | Exposure |
 |---|---|
-| **OCC 2011-12 / Federal Reserve SR 11-7** | Model risk management; ongoing monitoring expectation |
+| **OCC Bulletin 2026-13 (formerly OCC 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7)** | Model risk management; ongoing monitoring expectation |
 | **FINRA Notice 25-07** | Generative-AI supervision; model-performance evidence |
 | **NYDFS §500.16** | Incident-response readiness if drift is severe enough to be operational risk |
 
@@ -2014,7 +2014,7 @@ Privileged-communication review: <Legal Counsel>
 - [Control 1.19 — eDiscovery for Agent Interactions](../../../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md) — legal hold; examiner production
 - [Control 2.1 — Managed Environments](../../../controls/pillar-2-management/2.1-managed-environments.md) — Power Platform managed-environment baseline
 - [Control 2.3 — Change Management / CAB](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md) — agent re-publish under change control
-- [Control 2.6 — Model Risk Management](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) — OCC 2011-12 / Federal Reserve SR 11-7 model inventory; Triage Agent drift
+- [Control 2.6 — Model Risk Management](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) — OCC Bulletin 2026-13 (formerly OCC 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7) model inventory; Triage Agent drift
 - [Control 2.11 — Bias Monitoring](../../../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) — protected-class fairness review of risk scoring
 - [Control 2.16 — RAG / Knowledge Source Controls](../../../controls/pillar-2-management/2.16-rag-source-integrity-validation.md) — agent knowledge-source narrowing
 - [Control 2.25 — Agent 365 Inventory](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) — agent registry; per-agent baseline review

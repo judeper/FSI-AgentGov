@@ -26,8 +26,8 @@ This document maps Platform Change Governance artifacts to FSI regulatory requir
 
 | Regulation | Applicability | Evidence Required |
 |------------|---------------|-------------------|
-| **OCC 2011-12** | Model risk if AI/ML components affected | Decision rationale for changes impacting AI systems |
-| **Fed SR 11-7** | Model risk management | Change assessment documentation |
+| **OCC Bulletin 2026-13 (formerly OCC 2011-12)** | Model risk if AI/ML components affected | Decision rationale for changes impacting AI systems |
+| **Fed SR 26-2 (formerly SR 11-7)** | Model risk management | Change assessment documentation |
 | **CFTC 1.31** | Electronic recordkeeping (if applicable) | Same evidence as SEC 17a-4 |
 
 ---

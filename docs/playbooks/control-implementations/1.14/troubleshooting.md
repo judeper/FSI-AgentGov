@@ -40,7 +40,7 @@ Control 1.14 sits directly on **GLBA 501(b)** customer-NPI minimization, **SEC R
 3. **SEC 17a-4 books-and-records implication — is there a recordkeeping gap that prevents reconstruction of an agent's data-access decision subject to FINRA Rule 4511 or SEC Rule 17a-3 / 17a-4?**
    - **YES →** Supervision deficiency under FINRA Rule 3110; recordkeeping gap under SEC 17a-4(f). **Preserve all evidence on WORM** (Purview retention labels with Regulatory Record disposition + immutable Azure Storage with legal hold). Document gap, corrective action, and supervisory review in WSPs. **Do not** rely on Power Platform admin telemetry as the books-and-records source — it is operational, not WORM (Controls 1.7, 1.9, 1.19 cover the WORM side).
    - **NO →** continue.
-4. **OCC 2011-12 / Fed SR 11-7 model-risk impact — did the over-broad scope materially affect a credit, suitability, supervisory, fraud, or AML decision produced by the agent?**
+4. **OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) model-risk impact — did the over-broad scope materially affect a credit, suitability, supervisory, fraud, or AML decision produced by the agent?**
    - **YES →** Model Risk Management committee notification required; document in model inventory; trigger out-of-cycle "effective challenge" review; assess re-validation need.
    - **NO →** continue.
 5. **CFTC 1.31 record-keeping — does the firm conduct CFTC-regulated activity (swap dealer, FCM, IB, MSP) AND did the failure cause a recordkeeping gap on futures / swaps records?**
@@ -86,7 +86,7 @@ Capture, do **not** mutate first. Every artifact below must carry an SHA-256 has
 | Public web grounding still active on Zone 3 NPI agent | Disable in Copilot Studio per-agent setting; if propagation lags, set Maker / environment policy to disable web grounding tenant-wide for Zone 3 environments | 15 min |
 | File/image upload bypassing zone policy | Disable file/image upload on the agent; raise DLP-for-Copilot rule severity to Block; restrict by sensitivity label and SIT (Controls 1.13, 1.17) | 30 min |
 
-> **Segregation of duties (SoD) — critical.** The agent owner / Maker MUST NOT be the sole approver for Zone 3 scope expansion or quarterly access review sign-off. This is a structural SoD violation under FINRA 3110 supervision principles and the OCC 2011-12 / SR 11-7 "effective challenge" requirement. Required reviewer set: AI Governance Lead **plus** a business-line compliance officer (Zone 3) or manager (Zone 2). If your current review process allows owner-only sign-off, treat that as a control deficiency and document compensating review in the incident record.
+> **Segregation of duties (SoD) — critical.** The agent owner / Maker MUST NOT be the sole approver for Zone 3 scope expansion or quarterly access review sign-off. This is a structural SoD violation under FINRA 3110 supervision principles and the OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) "effective challenge" requirement. Required reviewer set: AI Governance Lead **plus** a business-line compliance officer (Zone 3) or manager (Zone 2). If your current review process allows owner-only sign-off, treat that as a control deficiency and document compensating review in the incident record.
 
 ### §1.5 Pre-escalation checklist (≥ 16 items)
 

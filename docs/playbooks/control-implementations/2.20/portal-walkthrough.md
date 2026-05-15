@@ -122,7 +122,7 @@ The charter is a **documentary** prerequisite, not a portal action. Capture in t
 
 | Section | Required content |
 |---|---|
-| Purpose | Why the program exists; mapping to OCC 2011-12 / SR 11-7 / FINRA 3110 / Notice 25-07 |
+| Purpose | Why the program exists; mapping to OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) / FINRA 3110 / Notice 25-07 |
 | Scope | Which agents, which zones, which Microsoft surfaces |
 | Authorization | Signatures: AI Governance Lead, CISO, Compliance Officer, Legal acknowledgment |
 | Rules of Engagement | Permitted tactics, prohibited actions, time windows, communication protocol |

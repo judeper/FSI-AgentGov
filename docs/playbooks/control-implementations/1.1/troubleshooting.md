@@ -185,7 +185,7 @@ if ($allUsers) {
 | Unauthorized agent reached customers and may have accessed customer NPI | **GLBA Safeguards Rule §314.4(j)** breach-notification (≥500 customers, 30 days); state notification laws | CISO + Privacy + Legal |
 | Agent acted on behalf of representatives in regulated communications | **FINRA Rule 4530** internal-conclusions report; **FINRA Rule 2210** retail-comms supervision lapse | Compliance / Supervision |
 | Agent altered books-and-records or affected ICFR | **SEC 17a-4(f)** records-integrity assessment; **SOX §404** material-weakness assessment | Internal Audit + CFO |
-| Model risk event (gen-AI agent producing material errors) | **Federal Reserve SR 11-7** model-event escalation | Model Risk |
+| Model risk event (gen-AI agent producing material errors) | **Federal Reserve SR 26-2 (formerly SR 11-7)** model-event escalation | Model Risk |
 | Customer data exfiltration suspected | State breach laws (NY DFS 23 NYCRR §500 cyber event 72-hour, etc.) | CISO + Legal |
 
 ### Evidence Preservation BEFORE Remediation

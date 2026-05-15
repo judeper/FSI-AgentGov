@@ -107,7 +107,7 @@ Record pass/fail and evidence reference for each test.
 | External user inventory | `Get-SPOExternalUser` paged export | `.csv` | 7 years | GLBA 501(b), FINRA 4511 |
 | Sharing-event audit log | `Search-UnifiedAuditLog` over `SharePointSharingOperation` | `.csv` | 7 years (longer if litigation hold) | SEC 17a-4(a), FINRA 4511 |
 | Behavioral test screenshots | Manual capture per test ID | `.png` | 1 year minimum, 7 years if used as primary evidence | SOX 404 |
-| Conditional Access policy summary | Entra portal export | `.json` | 7 years | SOX 404, OCC 2011-12 |
+| Conditional Access policy summary | Entra portal export | `.json` | 7 years | SOX 404, OCC Bulletin 2026-13 (formerly OCC 2011-12) |
 | Quarterly access certification | Output of [Control 4.2](../../../controls/pillar-4-sharepoint/4.2-site-access-reviews-and-certification.md) | `.pdf` or signed `.docx` | 7 years | FINRA 3110, SOX 404 |
 | `manifest.json` (SHA-256 hashes) | Generated alongside every artifact | `.json` | Same as longest-retained artifact | Evidence integrity (SEC 17a-4(f)) |
 

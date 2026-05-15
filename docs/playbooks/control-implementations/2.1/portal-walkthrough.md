@@ -998,7 +998,7 @@ Use the portal for changes that benefit from operator-in-the-loop visual confirm
 - [Control 2.1 — Managed Environments (control specification)](../../../controls/pillar-2-management/2.1-managed-environments.md)
 - [Control 2.2 — Environment Groups and Tier Classification](../../../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md)
 - [Control 2.3 — Change Management and Release Planning](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md)
-- [Control 2.6 — Model Risk Management Alignment with OCC 2011-12 / SR 11-7](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md)
+- [Control 2.6 — Model Risk Management Alignment with OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md)
 - [Control 2.8 — Segregation of Duties (SoD)](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md)
 - [Control 2.12 — Supervision and Oversight (FINRA Rule 3110)](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md)
 - [Control 2.14 — Maker Training and Enablement](../../../controls/pillar-2-management/2.14-training-and-awareness-program.md)

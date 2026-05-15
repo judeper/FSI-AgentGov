@@ -5,7 +5,7 @@
 
 > Automation companion to [Control 2.16: RAG Source Integrity Validation](../../../controls/pillar-2-management/2.16-rag-source-integrity-validation.md).
 >
-> **Audience:** SharePoint Admins, Power Platform Admins, and AI Administrators executing controls in production tenants subject to FINRA / SEC / GLBA / OCC / Fed SR 11-7 / CFTC oversight.
+> **Audience:** SharePoint Admins, Power Platform Admins, and AI Administrators executing controls in production tenants subject to FINRA / SEC / GLBA / OCC / Fed SR 26-2 (formerly SR 11-7) / CFTC oversight.
 >
 > **Scope:** Every script in this playbook is **read-only**. None mutate tenant state. Mutations to SharePoint libraries and Power Automate flows are performed via the [Portal Walkthrough](portal-walkthrough.md) so that change-control evidence is captured by the platform's own audit trail.
 

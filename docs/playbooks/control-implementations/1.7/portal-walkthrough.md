@@ -327,7 +327,7 @@ The audit record carries metadata only. To retrieve the prompt and response body
 
 ## §7 — Dataverse Environment-Level and Per-Table Audit (Power Platform / Copilot Studio)
 
-Required for Copilot Studio agent admin / lifecycle events to surface in `ConnectedAIAppInteraction` and for SR 11-7 model-lifecycle reconstruction.
+Required for Copilot Studio agent admin / lifecycle events to surface in `ConnectedAIAppInteraction` and for Fed SR 26-2 (formerly SR 11-7) model-lifecycle reconstruction.
 
 ### 7.1 Enable environment-level auditing (per environment)
 
@@ -590,7 +590,7 @@ Re-verify each item against Microsoft Learn before relying on it in a sovereign 
 | [1.6 — DSPM for AI](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) | Primary content-retrieval surface for `CopilotInteraction` audit hits |
 | [1.10 — Communication Compliance](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) | FINRA Rule 3110 supervisory-review surface for AI-generated communications captured in audit |
 | [1.19 — eDiscovery (Premium) for Agent Interactions](../../../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md) | Legal hold / collection / review surface for Copilot interactions; the audit `Messages[].ID` is the join key |
-| [2.6 — Model Risk Management (OCC 2011-12 / SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Model-card store referenced by `ModelTransparencyDetails.ModelProviderName` in audit; supplements the audit log where `ModelName` / `ModelVersion` are not populated for M365 Copilot |
+| [2.6 — Model Risk Management (OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7))](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Model-card store referenced by `ModelTransparencyDetails.ModelProviderName` in audit; supplements the audit log where `ModelName` / `ModelVersion` are not populated for M365 Copilot |
 | [2.12 — Supervision and Oversight (FINRA Rule 3110)](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervisory-review program that consumes the Comm Compliance hits driven by audit |
 | [3.4 — Incident Reporting and Root-Cause Analysis](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) | Destination for any audit-pipeline gap discovered during a binder refresh |
 | [3.9 — Microsoft Sentinel Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) | KQL detection authoring against forwarded audit, `agentSignIn`, and `MicrosoftServicePrincipalSignInLogs` data |
@@ -612,7 +612,7 @@ This walkthrough is designed to support compliance with the following — it doe
 | **SEC Rule 17a-4(f) (October 2022 amendments, compliance date 3 May 2023)** | Permits WORM storage **OR** the audit-trail alternative with DEO/DTP and independent records-management assessment. §10 implements both options. |
 | **SOX 302/404** | Internal controls over AI system logging. §11 evidence pack supports management certification. |
 | **GLBA 501(b) / Safeguards Rule** | Security safeguards including audit trails for non-public personal information access. §3 + §11. |
-| **OCC Bulletin 2011-12 / Federal Reserve SR 11-7** | Model risk management — model identity, version, and use must be auditable. Audit captures `ModelProviderName`; full model identification supplemented by the Control 2.6 model-card store (audit log alone does **not** satisfy SR 11-7 model inventories for M365 Copilot). |
+| **OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7)** | Model risk management — model identity, version, and use must be auditable. Audit captures `ModelProviderName`; full model identification supplemented by the Control 2.6 model-card store (audit log alone does **not** satisfy Fed SR 26-2 (formerly SR 11-7) model inventories for M365 Copilot). |
 | **CFTC Rule 1.31** | 5-year retention of regulatory records (FCMs, swap dealers, CPOs) in tamper-evident format with complete metadata. §10 retention floor. |
 | **NYDFS 23 NYCRR 500.06** | Records retention for cybersecurity events — 5 years. §10 retention floor. |
 | **NYDFS 500.16** | Incident response plan — supported by the §11 evidence pack and the [3.4](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) handoff. |

@@ -176,7 +176,7 @@ These seven gates must be evidenced as **Met** before stage 1 (Report-only) of t
 
 ### PRE-02: AI Administrator and Purview Data Security AI Admin roles assigned
 
-- **Why:** Operational governance requires Role-Based Access Control. Avoid using Global Admin for routine Copilot policy changes — it leaves an inappropriate audit trail and violates least-privilege under SR 11-7 model risk principles.
+- **Why:** Operational governance requires Role-Based Access Control. Avoid using Global Admin for routine Copilot policy changes — it leaves an inappropriate audit trail and violates least-privilege under Fed SR 26-2 (formerly SR 11-7) model risk principles.
 - **Check:** Microsoft Entra admin center → Roles & admins → search "AI Administrator" and "Purview Data Security AI Admin" → confirm at least two assignees per role (primary + backup).
 - **Evidence artifact:** `pre-02-role-assignments.json` — Graph PIM/Roles export for both roles.
 - **Pass criterion:** ≥ 2 active assignees per role; no permanent Global Admin assignments for routine Copilot operations.
@@ -211,7 +211,7 @@ These seven gates must be evidenced as **Met** before stage 1 (Report-only) of t
 
 ### PRE-07: Communication and training plan signed off
 
-- **Why:** SR 11-7 model risk management requires user training proportionate to the model's intended use. FINRA Notice 24-09 and the FINRA 25-07 series specifically reference workforce competence with AI tools as a supervisory expectation.
+- **Why:** Fed SR 26-2 (formerly SR 11-7) model risk management requires user training proportionate to the model's intended use. FINRA Notice 24-09 and the FINRA 25-07 series specifically reference workforce competence with AI tools as a supervisory expectation.
 - **Check:** Compliance and HR have signed off on the training curriculum, the acceptable-use policy delta, and the user communication plan (announcement, FAQ, support channel).
 - **Evidence artifact:** `pre-07-training-signoff.pdf` — signed sign-off cover sheet plus curriculum table of contents.
 - **Pass criterion:** Sign-offs from Compliance and HR on file. Training delivered to pilot population before Stage 2.
@@ -652,7 +652,7 @@ This portal walkthrough hands off to its siblings as follows:
 - FINRA Regulatory Notice 25-07 series — AI supervisory expectations
 - SEC Rule 17a-4 — Records preservation
 - NYDFS 23 NYCRR 500 — Cybersecurity requirements
-- Federal Reserve SR 11-7 — Model risk management
+- Federal Reserve SR 26-2 (formerly SR 11-7) — Model risk management
 
 ---
 
@@ -666,7 +666,7 @@ These anti-patterns are derived from observed FSI Copilot rollouts. Each carries
 | AP-02 | Assuming a "Confidential" sensitivity label blocks Copilot grounding | False sense of security; grounding occurs anyway | §5.1 |
 | AP-03 | Skipping Stage 1 (Report-only) and going straight to enforcement | High false-positive rate; user revolt; helpdesk overwhelm | §4 Stage 1 |
 | AP-04 | Configuring DLP only on the prompt side ("if we block the input we're done") | Grounding-driven exfiltration uncaught | §6.3 |
-| AP-05 | Using Global Admin for routine Copilot policy changes | Audit-trail mess; least-privilege violation; SR 11-7 finding | §3 PRE-02 |
+| AP-05 | Using Global Admin for routine Copilot policy changes | Audit-trail mess; least-privilege violation; Fed SR 26-2 (formerly SR 11-7) finding | §3 PRE-02 |
 | AP-06 | Enabling Restricted Content Discoverability before assigning any Copilot license | Toggle silently fails; perceived control is absent | §3 PRE-05, §7.4 |
 | AP-07 | Enabling Anthropic opt-in tenant-wide without persona analysis | EUDB exit; sovereign cloud confusion; opaque audit trail | §2.1, §10.4 |
 | AP-08 | Allowing Chrome/Firefox/Safari for Copilot and assuming Endpoint DLP applies | Endpoint DLP for Copilot is Edge-only; gap unmitigated | §8.1 |

@@ -6,7 +6,7 @@
 >
 > **What this playbook is not.** It does not replace human red-team review, model-risk-management sign-off, or Designated Supervisor attestation. The harness raises evidence; people accept risk.
 >
-> **Hedged language reminder.** Output of this harness *supports* compliance with FINRA 3110/2210, SEC 17a-4, SR 11-7, and OCC 2011-12 evaluation expectations. It does not, by itself, *guarantee* compliance, *ensure* a passing exam, or *eliminate* model risk. Organizations must verify thresholds, evaluator versions, and dataset provenance against their own model-risk policy.
+> **Hedged language reminder.** Output of this harness *supports* compliance with FINRA 3110/2210, SEC 17a-4, Fed SR 26-2 (formerly SR 11-7), and OCC Bulletin 2026-13 (formerly OCC 2011-12) evaluation expectations. It does not, by itself, *guarantee* compliance, *ensure* a passing exam, or *eliminate* model risk. Organizations must verify thresholds, evaluator versions, and dataset provenance against their own model-risk policy.
 
 | Field | Value |
 |---|---|
@@ -457,7 +457,7 @@ function Invoke-Agt25CopilotStudioBaseline {
 
 ## §5 — Azure AI Foundry Evaluation SDK: scored metrics with hashed datasets
 
-**Why this section exists.** Copilot Studio's built-in test set verifies *behavioral* pass/fail; SR 11-7 and OCC 2011-12 require *quantitative quality metrics* (groundedness, relevance, coherence, fluency, similarity), *content-safety* verdicts, and *protected-material* checks. The Azure AI Evaluation SDK (`azure-ai-evaluation`) emits these as numeric scores against a hashed evaluation dataset, with a separately versioned judge model (which MUST NOT equal the subject model — segregation of duties on inference).
+**Why this section exists.** Copilot Studio's built-in test set verifies *behavioral* pass/fail; Fed SR 26-2 (formerly SR 11-7) and OCC Bulletin 2026-13 (formerly OCC 2011-12) require *quantitative quality metrics* (groundedness, relevance, coherence, fluency, similarity), *content-safety* verdicts, and *protected-material* checks. The Azure AI Evaluation SDK (`azure-ai-evaluation`) emits these as numeric scores against a hashed evaluation dataset, with a separately versioned judge model (which MUST NOT equal the subject model — segregation of duties on inference).
 
 **Required evaluators (April 2026 baseline).**
 

@@ -21,7 +21,7 @@ This playbook provides implementation guidance for Microsoft Agent 365 SDK obser
 | **FINRA 3110** | Capture interaction patterns for supervision |
 | **SEC 17a-3/4** | Retain telemetry for regulatory examination |
 | **SOX 302/404** | Monitor agent reliability for internal controls |
-| **OCC 2011-12** | Performance metrics for model risk management |
+| **OCC Bulletin 2026-13 (formerly OCC 2011-12)** | Performance metrics for model risk management |
 | **GLBA 501(b)** | Security event monitoring |
 
 ---

@@ -56,7 +56,7 @@ This section sets the boundary of what this walkthrough covers, distinguishes Co
     - **Plane 5** — Post-deployment **Copilot Studio Analytics → Quality** monitoring with re-validation triggers
 - **Microsoft 365 Agents Toolkit (ATK)** local sideload and manifest validation for declarative agents
 - **Power Platform Solution Checker** as a static-analysis promotion gate
-- **Power Platform Pipelines / Managed Environments** stage approvals and SR 11-7 segregation-of-duties enforcement
+- **Power Platform Pipelines / Managed Environments** stage approvals and Fed SR 26-2 (formerly SR 11-7) segregation-of-duties enforcement
 - **Validation Evidence Pack** assembly with SHA-256 hashing, naming conventions, and zone-specific retention
 - **Three-signature attestation workflow** (Developer / Independent Validator / Compliance Officer)
 - **Material-change re-validation triggers** (model swap, prompt-orchestration change, knowledge-source change, action/plugin change)
@@ -179,7 +179,7 @@ Every validation activity in this playbook produces an artifact in a different s
 
 ## §2. Sovereign cloud parity matrix (Commercial / GCC / GCC High / DoD)
 
-This section is the single source of truth for which validation surfaces are usable in which US sovereign cloud, **as of April 2026**. Verify against your tenant before relying on any row. When a required surface is not available, document the **compensating control** in the Validation Evidence Pack (§12) and obtain explicit acceptance per OCC Bulletin 2011-12 model-risk expectations.
+This section is the single source of truth for which validation surfaces are usable in which US sovereign cloud, **as of April 2026**. Verify against your tenant before relying on any row. When a required surface is not available, document the **compensating control** in the Validation Evidence Pack (§12) and obtain explicit acceptance per OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) model-risk expectations.
 
 ### 2.1 Parity table
 
@@ -235,7 +235,7 @@ These are the gates that **must close before any of Planes 1–4 is run** for a 
 
 | Gate | Purpose | Owner | Fail-closed action |
 |---|---|---|---|
-| **PRE-01** | Role separation enforced (developer ≠ validator ≠ approver) — **SR 11-7 critical** | AI Governance Lead | Block the validator account from acting until separation is restored |
+| **PRE-01** | Role separation enforced (developer ≠ validator ≠ approver) — **Fed SR 26-2 (formerly SR 11-7) critical** | AI Governance Lead | Block the validator account from acting until separation is restored |
 | **PRE-02** | Licensing posture confirmed (Copilot Studio capacity, Foundry hub, Pipelines, Managed Environments, Purview Audit Premium) | Power Platform Admin | Block evaluation start until license is provisioned and verified |
 | **PRE-03** | Environment isolation (separate Dev / Test / Prod Power Platform environments with distinct DLP scoping) | Environment Admin | Block promotion until isolation is restored and DLP diff is documented |
 | **PRE-04** | Test data governance approved (no raw production PII / MNPI / customer data in Dev/Test without Purview-approved minimization) | Compliance Officer + Purview Records Manager | Block dataset upload to Plane 3 / Plane 4 until minimization is signed off |
@@ -244,9 +244,9 @@ These are the gates that **must close before any of Planes 1–4 is run** for a 
 | **PRE-07** | Change-control window opened (RFC ticket linked to Pipelines stage approval; cross-link [Control 2.3](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md)) | Release Manager / AI Governance Lead | Block stage promotion until ticket is opened and approver named |
 | **PRE-08** | Sovereign cloud parity verified for the agent's target cloud (per §2 matrix); compensating controls documented if any required evaluator is unavailable | AI Governance Lead + Compliance Officer | Block Plane 3 / Plane 4 substitution path until compensating-control memo is signed |
 
-### 3.2 PRE-01 — Role separation (SR 11-7 segregation of duties)
+### 3.2 PRE-01 — Role separation (SR 26-2 segregation of duties)
 
-This gate is fail-closed and non-negotiable for Zone 3. It is the most frequent SR 11-7 examiner finding when AI testing programs are built without governance discipline.
+This gate is fail-closed and non-negotiable for Zone 3. It is the most frequent Fed SR 26-2 (formerly SR 11-7) examiner finding when AI testing programs are built without governance discipline.
 
 **Pass criterion.** Three distinct human identities (or scoped service principals where automation requires it) hold the **Developer**, **Independent Validator**, and **Compliance Approver** roles for the agent under test. The same identity may not hold two of these three roles for the same agent version.
 
@@ -325,7 +325,7 @@ For the target cloud, run the §2 parity matrix as a checklist. For any row show
 
 ---
 
-## §4. Roles, RBAC, and the SR 11-7 effective-challenge model
+## §4. Roles, RBAC, and the SR 26-2 effective-challenge model
 
 ### 4.1 Canonical role mapping
 
@@ -347,9 +347,9 @@ All role names below are drawn from `docs/reference/role-catalog.md`. Use these 
 | **Agent Owner** | All | Business-side accountability for the use case; signs UAT; provides production-readiness sign-off |
 | **AI Red Team** | 4 | Designs and executes the PyRIT campaign on the validator's behalf for Zone 3; reports findings to the Model Risk Manager |
 
-### 4.2 SR 11-7 effective challenge
+### 4.2 SR 26-2 effective challenge
 
-Federal Reserve SR 11-7 (and OCC Bulletin 2011-12) requires that material model risk decisions be subject to **effective challenge** — a critical analysis by objective, informed parties who can identify model limitations and assumptions and produce appropriate changes. In an AI-agent testing program this translates to three structural requirements:
+Federal Reserve SR 26-2 (formerly SR 11-7) (and OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12)) requires that material model risk decisions be subject to **effective challenge** — a critical analysis by objective, informed parties who can identify model limitations and assumptions and produce appropriate changes. In an AI-agent testing program this translates to three structural requirements:
 
 1. **Functional independence.** The validator does not report into, share incentive structures with, or owe deliverables to the developer. PRE-01 enforces this at the role level.
 2. **Documented challenge.** The Independent Validation Memo (§12.5) must record specific limitations, assumptions, and changes recommended or required. A memo that says "validation complete, no findings" without enumerating what was actually challenged is **not** effective challenge.
@@ -365,7 +365,7 @@ Every Zone 3 promotion to production requires **three distinct signatures** capt
 | Signature | Signer role | What they attest to |
 |---|---|---|
 | **Signature 1 — Developer** | Copilot Studio Agent Author | "I have run all developer tests, remediated all defects classified Critical or High, and the version-pinned test set in PRE-06 reflects the agent's intended behavior." |
-| **Signature 2 — Independent Validator** | Model Risk Manager | "I have independently run Plane 3 and Plane 4, the Evidence Pack accurately reflects the results, the agent meets the firm-defined Zone 3 thresholds, and I have applied effective challenge per SR 11-7." |
+| **Signature 2 — Independent Validator** | Model Risk Manager | "I have independently run Plane 3 and Plane 4, the Evidence Pack accurately reflects the results, the agent meets the firm-defined Zone 3 thresholds, and I have applied effective challenge per Fed SR 26-2 (formerly SR 11-7)." |
 | **Signature 3 — Compliance Approver** | Compliance Officer | "I have reviewed the evidence pack, confirmed regulatory evidence captured, and approve promotion subject to the post-deployment monitoring cadence in §9." |
 
 Where the agent participates in AI-generated customer or broker-dealer communications under FINRA Rule 3110, a **fourth** signature is required from the **Designated Supervisor / Registered Principal**.
@@ -447,7 +447,7 @@ Agent Evaluation runs a curated test set (a JSONL or in-product authored set) ag
 
 ### 6.2 Importing test sets from production conversations
 
-A high-value source of new test rows is the **production conversation log**. Mining real conversations into the regression suite supports SR 11-7 ongoing-monitoring expectations and FINRA Rule 3110 supervisory testing scope.
+A high-value source of new test rows is the **production conversation log**. Mining real conversations into the regression suite supports Fed SR 26-2 (formerly SR 11-7) ongoing-monitoring expectations and FINRA Rule 3110 supervisory testing scope.
 
 1. From the agent's Analytics blade (§9), filter to conversations with **negative feedback**, **escalations**, or **abandonment**.
 2. Export the filtered conversation transcripts to JSONL.
@@ -499,7 +499,7 @@ Schedule via the Pipelines stage's pre-deployment check or via PowerShell automa
 
 ## §7. Plane 3 — Azure AI Foundry Evaluation (quality + safety evaluators)
 
-This is the **load-bearing** independent-validation surface for Zone 2 and Zone 3 agents in Commercial cloud. It produces reproducible quantitative scores against documented evaluator families and is the surface most useful to Compliance and Model Risk for SR 11-7 / OCC 2011-12 evidence.
+This is the **load-bearing** independent-validation surface for Zone 2 and Zone 3 agents in Commercial cloud. It produces reproducible quantitative scores against documented evaluator families and is the surface most useful to Compliance and Model Risk for Fed SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC 2011-12) evidence.
 
 ### 7.1 Project setup and dataset upload
 
@@ -794,7 +794,7 @@ Monthly Quality KPI rollup feeds the executive governance dashboard via [Control
 
 ### 9.7 Granting read-only Analytics access (Analytics Viewer sharing role)
 
-Plane 5 reviewers (Compliance Officer, Designated Supervisor, Model Risk Manager, Internal Audit) typically need to consult the Analytics tab without holding edit rights on the agent itself. Granting full agent edit rights to a reviewer creates a separation-of-duties finding under FINRA Rule 3110 and OCC 2011-12 / Fed SR 11-7.
+Plane 5 reviewers (Compliance Officer, Designated Supervisor, Model Risk Manager, Internal Audit) typically need to consult the Analytics tab without holding edit rights on the agent itself. Granting full agent edit rights to a reviewer creates a separation-of-duties finding under FINRA Rule 3110 and OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7).
 
 To grant read-only analytics access:
 
@@ -930,7 +930,7 @@ This section covers the **deployment-side gates**: static analysis (Solution Che
 4. **Deployment stages** tab → confirm three stages: **Dev → Test**, **Test → Prod** (or four if Zone 3 includes a separate **UAT** stage).
 5. For each stage, click **Edit** → configure:
     - **Source environment** and **Target environment**
-    - **Approvers** (the SR 11-7 segregation applies here — see PRE-01)
+    - **Approvers** (the Fed SR 26-2 (formerly SR 11-7) segregation applies here — see PRE-01)
     - **Pre-deployment checks** (Solution Checker re-run, Managed Environment policy eval, DLP impact preview)
     - **Post-deployment validation** (optional; can wire to Plane 2 batch trigger)
 
@@ -1066,7 +1066,7 @@ The resulting `manifest-sha256.tsv` is artifact #30. Subsequent re-hash on inspe
 
 ### 12.5 Independent Validation Memo structure (Zone 3)
 
-The memo is artifact #22 and is the heart of the SR 11-7 effective-challenge evidence. It should be 3–10 pages and structured as follows:
+The memo is artifact #22 and is the heart of the Fed SR 26-2 (formerly SR 11-7) effective-challenge evidence. It should be 3–10 pages and structured as follows:
 
 1. **Subject and version.** Agent name, agent solution version, validation date, validator identity.
 2. **Scope of validation.** What was tested (use case, channels, model, knowledge sources, actions/plugins). What was not in scope and why.
@@ -1115,7 +1115,7 @@ Each of the events below is a **mandatory re-validation event**. The minimum re-
 
 | Trigger | Minimum re-run | Rationale |
 |---|---|---|
-| **Foundation-model swap** (e.g., GPT-4o ↔ GPT-4.1; Anthropic Claude variant change) | Plane 2 + Plane 3 (full evaluator panel) + Plane 4 | Model behavior, safety, latency, and groundedness can shift materially across models; SR 11-7 / OCC 2011-12 model-change expectation |
+| **Foundation-model swap** (e.g., GPT-4o ↔ GPT-4.1; Anthropic Claude variant change) | Plane 2 + Plane 3 (full evaluator panel) + Plane 4 | Model behavior, safety, latency, and groundedness can shift materially across models; Fed SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC 2011-12) model-change expectation |
 | **Provider change** (e.g., switch from Azure OpenAI to a third-party provider for any path) | Plane 2 + Plane 3 + Plane 4 + PRE-08 sovereign re-verification | New subprocessor implications, new safety stance, new data path |
 | **Prompt-orchestration change** (system prompt, instructions, persona, tool-use policy) | Plane 2 + Plane 3 (Groundedness, Relevance, Indirect Attack at minimum) | Orchestration changes can silently change refusal behavior, scope adherence, and grounding fidelity |
 | **Knowledge-source change** (new SharePoint site, new RAG index, new connector, removal of an existing source) | Plane 2 + Plane 3 (Groundedness, Indirect Attack) + Plane 4 (XPIA orchestrator) | New grounding can introduce indirect-attack vectors; removed grounding can cause silent quality regression |
@@ -1175,7 +1175,7 @@ For material model swaps, run a **champion / challenger** comparison:
 | Approval chain | **Three-signature** (Developer + Independent Validator + Compliance Officer); **four-signature** if FINRA 3110 communications in scope |
 | Evidence Pack retention | 6 years minimum (FINRA 4511 / SEC 17a-4(b)(4) baseline; verify against firm WSP) |
 | Re-validation triggers | All triggers in §13.1; mandatory re-validation on every material change |
-| Independent validation | **Required** per SR 11-7 / OCC 2011-12; documented Independent Validation Memo |
+| Independent validation | **Required** per Fed SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC 2011-12); documented Independent Validation Memo |
 | Supervisory review | **Required** for AI-generated customer / broker-dealer communications per FINRA Rule 3110 |
 | Post-deployment review | **Required** at 30 days post-promotion |
 
@@ -1231,17 +1231,17 @@ Use this as the operator's pre-promotion self-check and as the examiner walk-thr
 
 | # | Anti-pattern | Harm | Corrective action |
 |---|---|---|---|
-| AP-01 | Treating the Copilot Studio Test Pane as Stage 2 / independent-validation evidence | SR 11-7 finding; promotion on developer-grade testing; examiner red flag | Require Plane 3 + Plane 4 evidence and Independent Validation Memo for Zone 3; Test Pane is developer-only |
-| AP-02 | Same identity acting as developer and validator | SR 11-7 segregation-of-duties violation; effective-challenge cannot be evidenced | Enforce PRE-01 with Pipelines approver rosters disjoint from solution authors; freeze pipeline if overlap detected |
+| AP-01 | Treating the Copilot Studio Test Pane as Stage 2 / independent-validation evidence | Fed SR 26-2 (formerly SR 11-7) finding; promotion on developer-grade testing; examiner red flag | Require Plane 3 + Plane 4 evidence and Independent Validation Memo for Zone 3; Test Pane is developer-only |
+| AP-02 | Same identity acting as developer and validator | Fed SR 26-2 (formerly SR 11-7) segregation-of-duties violation; effective-challenge cannot be evidenced | Enforce PRE-01 with Pipelines approver rosters disjoint from solution authors; freeze pipeline if overlap detected |
 | AP-03 | Testing in the production environment because "Test environment doesn't have the data" | Production-side test artifacts contaminate real telemetry; PRE-04 violation | Stand up Test environment with synthetic data per PRE-04; never test in Prod |
 | AP-04 | No holdout set — validator evaluates on the same dataset the developer tuned against | Optimistic bias; effective-challenge ineffective | Validator maintains a holdout test set never seen by the developer; rotate quarterly |
 | AP-05 | Single-shot scoring — one Foundry run, no statistical aggregation, no confidence interval | Low-power evaluation; false-pass risk | Run sufficient row counts; document confidence-interval method in PRE-06 |
 | AP-06 | Skipping risk and safety evaluators because "we tested for accuracy" | Safety regressions undetected; FINRA 25-07 expectation unmet | Mandate full evaluator panel per zone; do not promote on quality-only evaluation |
-| AP-07 | Skipping PyRIT because "Foundry already covers safety" | Adversarial-resilience evidence absent; SR 11-7 effective-challenge incomplete | PyRIT and Foundry are complementary; both required for Zone 3 |
+| AP-07 | Skipping PyRIT because "Foundry already covers safety" | Adversarial-resilience evidence absent; Fed SR 26-2 (formerly SR 11-7) effective-challenge incomplete | PyRIT and Foundry are complementary; both required for Zone 3 |
 | AP-08 | Not version-pinning the test set | Regression suite drifts silently; baselines incomparable | Enforce PRE-06 with Git tags matching agent solution version |
-| AP-09 | No regression baseline captured before changing the model | Champion / challenger comparison impossible; SR 11-7 model-change expectation unmet | PRE-05 captures baseline before any material change |
+| AP-09 | No regression baseline captured before changing the model | Champion / challenger comparison impossible; Fed SR 26-2 (formerly SR 11-7) model-change expectation unmet | PRE-05 captures baseline before any material change |
 | AP-10 | Solution Checker findings dismissed wholesale via "exception" with no register | Security/quality drift normalized; audit finding | Maintain exception register with ≤ 90-day expiry per High exception |
-| AP-11 | Pipelines stage approval auto-approved by service account with no human review | Approval audit is hollow; SR 11-7 finding | Approvers must be named human identities for Test → Prod; service accounts banned from approver rosters |
+| AP-11 | Pipelines stage approval auto-approved by service account with no human review | Approval audit is hollow; Fed SR 26-2 (formerly SR 11-7) finding | Approvers must be named human identities for Test → Prod; service accounts banned from approver rosters |
 | AP-12 | Compliance Officer sign-off captured as a Teams chat message (not durable, not hashed) | Books-and-records evidence not retained per FINRA 4511 / SEC 17a-4 | Sign-off must be in the durable attestation document hashed in the manifest |
 | AP-13 | Using production PII / MNPI in Dev/Test without Purview-approved minimization | GLBA 501(b) exposure; Control 1.14 violation | PRE-04 enforces minimization; synthetic data is the default |
 | AP-14 | ATK validate skipped for declarative agents because "it builds locally" | Manifest schema or capability errors reach production | Wire ATK validate into PR build; fail-closed on validate error |
@@ -1253,7 +1253,7 @@ Use this as the operator's pre-promotion self-check and as the examiner walk-thr
 | AP-20 | Re-using the same PyRIT seed across runs so adversarial coverage stops growing | Coverage plateau; new attack families undetected | Rotate seeds and orchestrator combinations; cadence in §8.7 |
 | AP-21 | Approving release on a single evaluator passing (e.g., Groundedness only) | Multi-dimensional risk obscured | Require full evaluator panel at zone-appropriate thresholds; document exception path |
 | AP-22 | Treating Foundry default scores as universal pass marks | Threshold ownership unclear; firm-specific risk appetite ignored | Firm-set thresholds in PRE-06; review quarterly |
-| AP-23 | Skipping re-validation after a model, connector, prompt, or knowledge-source change | SR 11-7 / OCC 2011-12 model-change expectation unmet | Material-change triggers in §13.1 enforced; gate Pipelines on re-validation evidence |
+| AP-23 | Skipping re-validation after a model, connector, prompt, or knowledge-source change | Fed SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC 2011-12) model-change expectation unmet | Material-change triggers in §13.1 enforced; gate Pipelines on re-validation evidence |
 | AP-24 | Assuming GCC High / DoD supports all Commercial evaluation features | Sovereign-cloud customers operate without required evaluators | PRE-08 verification + compensating-control memo per §2.2 |
 | AP-25 | Never refreshing the test set from production learnings | Test set diverges from real user behavior; regression suite ages out of relevance | Mine production conversations into test rows per §6.2 (with PRE-04 anonymization); rotate quarterly |
 | AP-26 | Writing regulatory statements as guarantees ("ensures FINRA compliance") | Overclaims liability; framework-policy violation | Use hedged language: "supports compliance with," "helps meet," "required for" |
@@ -1286,8 +1286,8 @@ Use this as the operator's pre-promotion self-check and as the examiner walk-thr
 - SEC Rule 17a-4 — Records preservation
 - SOX Sections 302 / 404 — Internal control over financial reporting
 - GLBA 501(b) — Safeguards Rule
-- OCC Bulletin 2011-12 — Supervisory guidance on model risk management
-- Federal Reserve SR 11-7 — Guidance on model risk management
+- OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) — Supervisory guidance on model risk management
+- Federal Reserve SR 26-2 (formerly SR 11-7) — Guidance on model risk management
 - NIST AI RMF 1.0 + Generative AI Profile — testing, measurement, and ongoing monitoring
 - CFTC Staff Advisory 24-17 — Use of AI by CFTC-registered entities
 

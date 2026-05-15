@@ -10,7 +10,7 @@
 > - Troubleshooting — `./troubleshooting.md`
 > - Shared baseline — `docs/playbooks/_shared/powershell-baseline.md`
 >
-> **Important regulatory framing.** Nothing in this playbook *guarantees* regulatory compliance. The cmdlets, scripts, and patterns below *support* control objectives required by FINRA Rules 4511 and 25-07, SEC Rules 17a-3 / 17a-4 and Reg S-P, GLBA §501(b), SOX §404, OCC Bulletin 2011-12, and Federal Reserve SR 11-7. Implementation requires that organizations validate every script against their own change-management, model-risk, and supervisory-review processes before production rollout.
+> **Important regulatory framing.** Nothing in this playbook *guarantees* regulatory compliance. The cmdlets, scripts, and patterns below *support* control objectives required by FINRA Rules 4511 and 25-07, SEC Rules 17a-3 / 17a-4 and Reg S-P, GLBA §501(b), SOX §404, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), and Federal Reserve SR 26-2 (formerly SR 11-7). Implementation requires that organizations validate every script against their own change-management, model-risk, and supervisory-review processes before production rollout.
 
 ## 0. Wrong-shell trap (READ FIRST)
 
@@ -662,7 +662,7 @@ if ($schema.State -ne 'Active') {
 
 ## 8. Trainable classifiers — FSI governance gate
 
-Trainable classifiers are machine-learning models that classify content (research, complaint mail, MNPI narratives) by *style* rather than pattern. They are powerful and they are **model-risk artefacts**. In a US FSI tenant, a trainable classifier published into a DLP rule that gates Copilot output is in scope for **OCC Bulletin 2011-12** and **Federal Reserve SR 11-7** model-risk-management expectations.
+Trainable classifiers are machine-learning models that classify content (research, complaint mail, MNPI narratives) by *style* rather than pattern. They are powerful and they are **model-risk artefacts**. In a US FSI tenant, a trainable classifier published into a DLP rule that gates Copilot output is in scope for **OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12)** and **Federal Reserve SR 26-2 (formerly SR 11-7)** model-risk-management expectations.
 
 ### 8.1 Mandatory governance gate
 

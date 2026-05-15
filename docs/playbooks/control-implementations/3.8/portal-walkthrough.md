@@ -17,7 +17,7 @@
 | Microsoft 365 Copilot licensing | Required for the Copilot Hub surfaces to render. |
 | (Optional) Agent 365 or M365 E7 per-user licensing | Required to view Agent overview hero metrics at GA on May 1, 2026. |
 
-> Capture the role assignments used for each step in your change ticket — examiners commonly request role-evidence under SOX 404 and OCC 2011-12.
+> Capture the role assignments used for each step in your change ticket — examiners commonly request role-evidence under SOX 404 and OCC Bulletin 2026-13 (formerly OCC 2011-12).
 
 ---
 

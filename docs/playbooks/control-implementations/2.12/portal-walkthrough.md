@@ -933,7 +933,7 @@ The zone cadence integrates this control's obligations with the broader supervis
 
 - [Control 1.2 — Agent Registry and Integrated Apps Management](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) — authoritative registry; supervision scope is bounded here.
 - [Control 1.7 — Comprehensive Audit Logging and Compliance](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) — supervision events feed the immutable audit log.
-- [Control 2.6 — Model Risk Management (OCC 2011-12 / SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) — MRM is the model-level complement to this control's human-oversight layer.
+- [Control 2.6 — Model Risk Management (OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7))](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) — MRM is the model-level complement to this control's human-oversight layer.
 - [Control 2.13 — Documentation and Record-Keeping](../../../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) — WSPs and supervision registers are records under this control.
 - [Control 2.25 — Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) — admin-gated publish / activate is **not** principal supervision; this control is the non-substitution anchor for 2.25.
 - [Control 2.26 — Entra Agent ID Identity Governance](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) — sponsorship provides lifecycle accountability; this control provides business-activity supervision. Non-substitution anchor for 2.26.

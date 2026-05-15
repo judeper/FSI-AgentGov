@@ -2,7 +2,7 @@
 
 > **Companion playbooks.** [Portal walkthrough](portal-walkthrough.md) · [PowerShell setup](powershell-setup.md) · [Verification & testing](verification-testing.md)
 >
-> **Sibling control references.** [Control 3.5 — Cost Allocation and Budget Tracking](../../../controls/pillar-3-reporting/3.5-cost-allocation-and-budget-tracking.md) · [Control 3.1 — Agent Inventory and Metadata Management](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) · [Control 1.9 — Data Retention and Deletion Policies](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) · [Control 2.1 — Managed Environments](../../../controls/pillar-2-management/2.1-managed-environments.md) · [Control 2.6 — Model Risk Management (OCC 2011-12, SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md)
+> **Sibling control references.** [Control 3.5 — Cost Allocation and Budget Tracking](../../../controls/pillar-3-reporting/3.5-cost-allocation-and-budget-tracking.md) · [Control 3.1 — Agent Inventory and Metadata Management](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) · [Control 1.9 — Data Retention and Deletion Policies](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) · [Control 2.1 — Managed Environments](../../../controls/pillar-2-management/2.1-managed-environments.md) · [Control 2.6 — Model Risk Management (OCC Bulletin 2026-13 (formerly OCC 2011-12), Fed SR 26-2 (formerly SR 11-7))](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md)
 >
 > **Last UI verified:** April 2026.
 

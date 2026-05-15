@@ -2,7 +2,7 @@
 
 > Verification, evidence collection, and attestation guidance for [Control 2.16: RAG Source Integrity Validation](../../../controls/pillar-2-management/2.16-rag-source-integrity-validation.md).
 >
-> **Audience:** AI Governance Leads, Compliance Officers, and SOC Analysts assembling regulator-defensible evidence under FINRA / SEC / GLBA / OCC / Fed SR 11-7.
+> **Audience:** AI Governance Leads, Compliance Officers, and SOC Analysts assembling regulator-defensible evidence under FINRA / SEC / GLBA / OCC / Fed SR 26-2 (formerly SR 11-7).
 
 ---
 

@@ -59,7 +59,7 @@
 | Canonical role names | Per [`docs/reference/role-catalog.md`](../../../reference/role-catalog.md). The canonical short names used in this playbook are **Power Platform Admin**, **Entra Global Admin**, **AI Administrator**, **Purview Compliance Admin**, **Entra Security Admin**, **Entra Global Reader**, **AI Governance Lead**, **Compliance Officer**, **Information Security Officer**, **Internal Audit Lead**, **Technology Risk Manager**, **Change Management Lead**. |
 | `protectionLevel` semantics | `protectionLevel = "Standard"` ⇒ Managed Environment **ENABLED**. `protectionLevel = "Basic"` (or absent) ⇒ **DISABLED / unmanaged**. Earlier versions of these playbooks had this inverted; pre-April-2026 evidence likely reports the opposite of reality and must be re-collected. |
 
-> This playbook **helps meet** recordkeeping, supervision, change-management, access-management, and oversight expectations under FINRA Rules 3110 and 4511, FINRA Regulatory Notice 25-07, SEC Rules 17a-3 / 17a-4, SOX §§ 302 / 404, GLBA § 501(b), OCC Bulletin 2011-12, Federal Reserve SR 11-7, NYDFS 23 NYCRR 500.06, and the FFIEC IT Examination Handbook. It is one component of a defensible AI / low-code governance program; it does not replace a registered-principal designation, written supervisory procedures, model risk management practices, or the firm''s own legal review.
+> This playbook **helps meet** recordkeeping, supervision, change-management, access-management, and oversight expectations under FINRA Rules 3110 and 4511, FINRA Regulatory Notice 25-07, SEC Rules 17a-3 / 17a-4, SOX §§ 302 / 404, GLBA § 501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), NYDFS 23 NYCRR 500.06, and the FFIEC IT Examination Handbook. It is one component of a defensible AI / low-code governance program; it does not replace a registered-principal designation, written supervisory procedures, model risk management practices, or the firm''s own legal review.
 
 ---
 
@@ -81,7 +81,7 @@ The operator running this playbook must hold one of the following role assignmen
 | Compliance Officer | Counter-signs the quarterly attestation packet in §4; signs Zone 3 sharing-limit and CMK variances; signs the TC-18 sovereign quarterly attestation; produces the examiner-facing evidence pack in §5 | Standing |
 | Information Security Officer | Reviews IP firewall AuditOnly-to-Enforce promotion (TC-9), IP-cookie-binding posture (TC-10), Lockbox tier (TC-11), CMK exclusion narrative (TC-12), Tenant Isolation posture (TC-13) | Standing |
 | Internal Audit Lead | Receives the §4 evidence pack and integrates it into the firm''s SOX 404 internal-controls-over-financial-reporting (ICFR) workpapers; signs the §4 annual self-assessment (TC-19) | Standing |
-| Technology Risk Manager | Receives the §4 evidence pack and integrates it into the firm''s technology-risk reporting per OCC 2011-12 / SR 11-7 | Standing |
+| Technology Risk Manager | Receives the §4 evidence pack and integrates it into the firm''s technology-risk reporting per OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) | Standing |
 | Change Management Lead | Reconciles solution-checker exception register entries (TC-6), routing rule deployments (TC-14), and Lockbox approval responses (TC-11) with change tickets per Control 2.3 | Standing |
 
 > **Least privilege.** No operator should hold **Entra Global Admin** persistently. Day-to-day verification work in TC-1 through TC-17 is performed under **Power Platform Admin** with **Entra Global Reader** as the witness role. **Entra Global Admin** is reserved for tenant-level reads that the Power Platform admin module does not surface, and is operated under PIM with just-in-time activation and a ticketed justification.
@@ -232,7 +232,7 @@ Every evidence record produced by every TC MUST conform to this schema. The sche
 | `SOX-302` | Sarbanes-Oxley Section 302 (Management Certification) |
 | `SOX-404` | Sarbanes-Oxley Section 404 (ICFR / Internal Controls) |
 | `GLBA-501b` | Gramm-Leach-Bliley Act §501(b) (Safeguards Rule) |
-| `OCC-2011-12` | OCC Bulletin 2011-12 (Technology Risk Management / MRM) |
+| `OCC-2011-12` | OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (Technology Risk Management / MRM) |
 | `SR-11-7` | Federal Reserve SR Letter 11-7 (Model Risk Management) |
 | `CFTC-1.31` | CFTC Regulation 1.31 (Recordkeeping) — contextual for FCM/SD scope |
 | `NYDFS-500-06` | NYDFS 23 NYCRR 500.06 (Audit Trail) |

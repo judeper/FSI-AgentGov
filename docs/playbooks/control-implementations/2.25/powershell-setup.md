@@ -32,7 +32,7 @@ This playbook automates discovery, attestation, and continuous monitoring for th
 
 > **Sovereign cloud reality (April 2026).** As of GA, Microsoft has **not announced parity** for the Agent 365 Admin Center in **GCC**, **GCC High**, or **DoD**. The bootstrap helper in §2 detects sovereign tenants and exits early with a structured `SovereignCloudNotSupported` exception so that downstream automation does not silently emit a "Clean" status against a surface that does not exist. Sovereign-tenant operators must follow the compensating-control pattern in [`_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod`](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod) and rely on Defender XDR + Purview audit reads (Controls [3.1](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) and [3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md)) until Microsoft publishes a sovereign roadmap.
 
-> **Hedged-language reminder.** Throughout this playbook, governance helpers **support compliance with** FINRA Rule 3110, SEC Rule 17a-4, SOX §404, GLBA Safeguards, OCC Bulletin 2013-29, and Federal Reserve SR 11-7. They do **not** "ensure" or "guarantee" compliance. In particular, FINRA Rule 3110 requires a **registered principal** to bear supervisory responsibility — automated discovery and approval-history extracts described here **do not substitute** for that registered principal's review and sign-off; they provide the evidence the principal then attests to.
+> **Hedged-language reminder.** Throughout this playbook, governance helpers **support compliance with** FINRA Rule 3110, SEC Rule 17a-4, SOX §404, GLBA Safeguards, OCC Bulletin 2013-29, and Federal Reserve SR 26-2 (formerly SR 11-7). They do **not** "ensure" or "guarantee" compliance. In particular, FINRA Rule 3110 requires a **registered principal** to bear supervisory responsibility — automated discovery and approval-history extracts described here **do not substitute** for that registered principal's review and sign-off; they provide the evidence the principal then attests to.
 
 ---
 
@@ -531,7 +531,7 @@ function Find-Agt225OwnerlessAgents {
 }
 ```
 
-Ownerless agents are a leading indicator of the orphan-account risk highlighted in OCC Bulletin 2013-29 (third-party risk management) and SR 11-7 (model-owner accountability). The helper does not auto-remediate; it flags for review by the **AI Governance Lead** (canonical role).
+Ownerless agents are a leading indicator of the orphan-account risk highlighted in OCC Bulletin 2013-29 (third-party risk management) and Fed SR 26-2 (formerly SR 11-7) (model-owner accountability). The helper does not auto-remediate; it flags for review by the **AI Governance Lead** (canonical role).
 
 ### 4.3 New-Agt225OwnerlessRemediationPlan
 

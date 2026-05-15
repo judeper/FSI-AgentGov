@@ -14,7 +14,7 @@
 >
 > **Out of scope here:** SharePoint records retention horizons (verified under [Control 1.9](../1.9/verification-testing.md)), unified-audit retention configuration (verified under [Control 1.7](../1.7/verification-testing.md)), and the broader sensitivity-label / DLP design beyond grounding-scope enforcement (verified under [Control 1.5](../1.5/verification-testing.md)).
 >
-> **Audience:** M365 administrator + AI Governance Lead + Compliance Officer at a US financial services organization producing audit-defensible evidence for FINRA Rule 4511 / 3110 / 25-07, SEC Rule 17a-3/4, GLBA 501(b), SOX 302/404, OCC 2011-12 / Federal Reserve SR 11-7, and NYDFS 23 NYCRR 500 examiners.
+> **Audience:** M365 administrator + AI Governance Lead + Compliance Officer at a US financial services organization producing audit-defensible evidence for FINRA Rule 4511 / 3110 / 25-07, SEC Rule 17a-3/4, GLBA 501(b), SOX 302/404, OCC Bulletin 2026-13 (formerly OCC 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7), and NYDFS 23 NYCRR 500 examiners.
 >
 > **Sovereign clouds:** Commercial · GCC · GCC High · DoD — see §5 for variants. RSS, RCD, SharePoint Advanced Management (SAM), and DLP-for-Copilot have **non-parity availability** in US Government clouds; verify each capability against current Microsoft Learn before claiming PASS / FAIL on a sovereign tenant.
 >
@@ -52,11 +52,11 @@ Each test below has a primary cadence (driven by the regulator who wants to see 
 |---|---|---|---|---|
 | 4.6-LIC-01 | Quarterly + on-license-change | M365 Administrator | 7 years (SOX 404) | SOX 302/404 |
 | 4.6-UAL-01 | Quarterly + on-tenant-change | Compliance Officer | 7 years (SOX 404) | SEC 17a-4(b), FINRA 4511 |
-| 4.6-MOD-01 | Quarterly + on-module-update | M365 Administrator | 3 years | OCC 2011-12 (model risk lineage) |
+| 4.6-MOD-01 | Quarterly + on-module-update | M365 Administrator | 3 years | OCC Bulletin 2026-13 (formerly OCC 2011-12) (model risk lineage) |
 | 4.6-RCD-01 | Monthly + on-RCD-change | SharePoint Admin | 6 years (FINRA 4511) | FINRA 4511, SEC 17a-3 |
 | 4.6-RCD-02 | Monthly + on-RCD-change | SharePoint Admin | 6 years (FINRA 4511) | FINRA 4511, SEC 17a-3 |
 | 4.6-RCD-03 | Monthly + on-RCD-change | SharePoint Admin | 6 years (FINRA 4511) | FINRA 4511, SEC 17a-3 |
-| 4.6-RCD-04 | Quarterly | SharePoint Admin | 6 years | FINRA 3110, OCC 2011-12 |
+| 4.6-RCD-04 | Quarterly | SharePoint Admin | 6 years | FINRA 3110, OCC Bulletin 2026-13 (formerly OCC 2011-12) |
 | 4.6-RCD-05 | Monthly + on-RCD-change | SharePoint Admin | 6 years | FINRA 4511 |
 | 4.6-RCD-06 | Quarterly | SharePoint Admin | 6 years | FINRA 25-07 |
 | 4.6-RSS-01 | Monthly + on-RSS-change | SharePoint Admin | 6 years | FINRA 4511 |
@@ -82,7 +82,7 @@ Each test below has a primary cadence (driven by the regulator who wants to see 
 | 4.6-NEG-02 | Quarterly | SharePoint Admin | 6 years | FINRA 25-07 |
 | 4.6-NEG-03 | Quarterly | Purview Compliance Admin | 6 years | FINRA 25-07 |
 | 4.6-NEG-04 | Quarterly | AI Governance Lead | 6 years | FINRA 25-07 |
-| 4.6-IR-01 | Annually + on-incident | AI Governance Lead + Risk Officer | 7 years (SOX 404) | OCC 2011-12, SR 11-7, NYDFS 500.16 |
+| 4.6-IR-01 | Annually + on-incident | AI Governance Lead + Risk Officer | 7 years (SOX 404) | OCC Bulletin 2026-13 (formerly OCC 2011-12), Fed SR 26-2 (formerly SR 11-7), NYDFS 500.16 |
 
 **On-change re-runs.** Any change to (a) the RCD list on a site, (b) the RSS allowed-list, (c) any DLP-for-Copilot policy in scope of `Microsoft 365 Copilot` location, (d) any in-scope SharePoint site''s sharing settings, or (e) the role assignments named in §2.6 triggers an immediate re-run of the affected test family within five business days. The on-change trigger is detected from the AUDIT-01 monthly diff or from change-management ticket metadata.
 
@@ -92,7 +92,7 @@ Each test below has a primary cadence (driven by the regulator who wants to see 
 - A DAG report shows a > 25% week-over-week increase in oversharing-link count on any site labeled `Confidential` or higher.
 - A PPAC / SPAC role-assignment change touches one of the named roles in §2.6 outside an approved change window.
 
-**Frequency rationale.** Monthly cadence on RCD / RSS / DLP / DAG / AUDIT mirrors the broker-dealer supervisory review pattern (FINRA 3110) and the SOX quarterly attestation cycle. Quarterly cadence on negative tests, in-app carve-out tests, and OND tests reflects that those scenarios change far less often but must be on a calendar to remain examiner-credible. Annual cadence on `4.6-IR-01` matches OCC 2011-12 / SR 11-7 model-risk validation.
+**Frequency rationale.** Monthly cadence on RCD / RSS / DLP / DAG / AUDIT mirrors the broker-dealer supervisory review pattern (FINRA 3110) and the SOX quarterly attestation cycle. Quarterly cadence on negative tests, in-app carve-out tests, and OND tests reflects that those scenarios change far less often but must be on a calendar to remain examiner-credible. Annual cadence on `4.6-IR-01` matches OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) model-risk validation.
 
 **Frequencies labeled "firm-defined."** The firm sets the calendar day-of-month for the monthly cadence, the named cycle owner for each test, and any acceleration above the cadences above. Microsoft does not publish a regulator-required cadence for any of these tests; the cadences here are this framework''s recommendation, not Microsoft policy.
 
@@ -731,7 +731,7 @@ Apply the **longest** applicable retention horizon to each artifact:
 - **FINRA Rule 4511 / SEC 17a-4(b):** 6 years for broker-dealer books-and-records (RCD/RSS/DLP/DAG state and incident records).
 - **SOX 302/404:** 7 years for control evidence supporting internal financial reporting controls (license entitlement, UAL state, audit assertions, attestation).
 - **GLBA 501(b):** firm-defined retention per the firm''s privacy schedule; align to the longer of FINRA / SOX where ambiguous.
-- **OCC 2011-12 / SR 11-7:** model-risk validation evidence retained per firm''s model-risk policy (typically 7 years).
+- **OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7):** model-risk validation evidence retained per firm''s model-risk policy (typically 7 years).
 - **NYDFS 23 NYCRR 500:** retain consistent with 500.6 (audit trail) and 500.16 (incident response).
 
 ### 6.6 WORM evidence storage

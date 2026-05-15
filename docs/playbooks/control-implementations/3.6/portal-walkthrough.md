@@ -183,7 +183,7 @@ The completed worksheet must be:
 
 ### 1.4 Commercial / GCC tenants
 
-Commercial and GCC tenants with full Agent 365 Ownerless card parity **do not** execute §1.2 — proceed directly to §2. However, commercial tenants are **encouraged** to run the manual worksheet **annually** as a defense-in-depth compensating control; this aids supervisory review under FINRA Rule 3110 and supports the "independent review" expectation in OCC Bulletin 2011-12 / Fed SR 11-7.
+Commercial and GCC tenants with full Agent 365 Ownerless card parity **do not** execute §1.2 — proceed directly to §2. However, commercial tenants are **encouraged** to run the manual worksheet **annually** as a defense-in-depth compensating control; this aids supervisory review under FINRA Rule 3110 and supports the "independent review" expectation in OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Fed SR 26-2 (formerly SR 11-7).
 
 !!! tip "Cross-Reference"
     The HR leaver feed and Entra disabled-user surfaces are configured in [Control 2.26](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md). If inputs B or C are stale or missing, remediate 2.26 **before** continuing here.
@@ -655,7 +655,7 @@ Beyond per-session packets, Control 3.6 requires:
 
 1. **Monthly roll-up (all zones)** — aggregate orphan counts, remediation SLA compliance, repeat-offender users, and shadow-agent disposition stats. Signed by AI Governance Lead.
 2. **Quarterly attestation** — formal attestation that all Zone 3 findings in the quarter were remediated within SLA, signed by the AI Governance Lead and a named business-line control owner. Supports supervisory review under FINRA Rule 3110.
-3. **Annual control-effectiveness review** — aggregate trend analysis, coverage-gap assessment (especially sovereign parity), and control-design refresh recommendations. Supports independent review expectations under OCC Bulletin 2011-12 / Fed SR 11-7.
+3. **Annual control-effectiveness review** — aggregate trend analysis, coverage-gap assessment (especially sovereign parity), and control-design refresh recommendations. Supports independent review expectations under OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Fed SR 26-2 (formerly SR 11-7).
 
 ### 10.4 KPIs
 

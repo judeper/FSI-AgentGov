@@ -776,7 +776,7 @@ The Microsoft Agent Framework exposes feature flags via the `agent.yaml` manifes
     - **Background triggers** — agent can start a run without a user message
     - **Tool chaining depth** — how many tools can be chained in one turn (relates to Control 2.17)
     - **External model routing** — agent can route parts of a turn to a non-default model
-3. For Z2/Z3: **Autonomous task execution Off** and **Background triggers Off** unless an MRM-approved exception exists. These flags convert an interactive agent into an **autonomous agent**, which has materially different regulatory implications under SR 11-7 and OCC 2013-29.
+3. For Z2/Z3: **Autonomous task execution Off** and **Background triggers Off** unless an MRM-approved exception exists. These flags convert an interactive agent into an **autonomous agent**, which has materially different regulatory implications under Fed SR 26-2 (formerly SR 11-7) and OCC 2013-29.
 4. Record every flag state in the feature catalog (one row per flag) with Risk rating `High` when On.
 
 *Screenshot anchor: `docs/images/2.24/EXPECTED.md#7-3-agent-framework-flags` — Environment Features pane with Agent Framework flags section and recommended off state for autonomous triggers.*
@@ -1023,7 +1023,7 @@ Bundle retention is **6 years** per SEC 17a-4 / FINRA 4511. For tenants that ope
 | Classify connectors Business / Non-business / Blocked | [Control 1.4 — Advanced Connector Policies (ACP)](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md) |
 | Monitor agent output for supervisory review | [Control 1.10 — Communication Compliance Monitoring](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) |
 | Tier environments into zones | [Control 2.2 — Environment Groups and Tier Classification](../../../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) |
-| Re-validate a capability change as a model change | [Control 2.6 — Model Risk Management (OCC 2011-12 / SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) |
+| Re-validate a capability change as a model change | [Control 2.6 — Model Risk Management (OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7))](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) |
 | Update supervisory procedures for a new capability | [Control 2.12 — Supervision and Oversight (FINRA 3110)](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) |
 | Limit multi-agent orchestration depth, hop count, token budget | [Control 2.17 — Multi-Agent Orchestration Limits](../../../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) |
 | Surface / block an individual agent through the Agent 365 console | [Control 2.25 — Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) |

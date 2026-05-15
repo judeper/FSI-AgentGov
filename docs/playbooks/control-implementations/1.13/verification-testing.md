@@ -21,7 +21,7 @@ Verification of SIT and pattern-recognition coverage exists to surface failure m
 7. **No negative corpus.** Only positive matches are tested, so false-positive rate is unknown and Zone 3 block actions create denial-of-service to legitimate agent queries. Detected by every `*-NEG-*` and the `-negative-` half of each pair.
 8. **EDM hash drift.** The EDM Upload Agent runs against a stale schema or stale source extract, producing a hash set that no longer matches production data. Detected by `1.13-NEG-02`.
 9. **Sovereign-cloud false attestation.** A Commercial-tenant attestation is reused for a GCC High tenant where NER, trainable classifiers, or DSPM for AI are not yet at parity. Detected by `1.13-PRE-07` and §5.
-10. **Trainable classifier without OCC 2011-12 / Fed SR 11-7 model-risk evidence.** A custom trainable classifier is deployed without documented training-data lineage, validation set, or model-risk sign-off, breaching the FSI Governance Gate defined in the control spec. Detected by `1.13-TC-01..04`.
+10. **Trainable classifier without OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) model-risk evidence.** A custom trainable classifier is deployed without documented training-data lineage, validation set, or model-risk sign-off, breaching the FSI Governance Gate defined in the control spec. Detected by `1.13-TC-01..04`.
 
 ---
 
@@ -34,7 +34,7 @@ Cadence is **firm-defined** under WSPs (FINRA Rule 3110) and supervisory procedu
 | **Daily** | UAL sampling (`1.13-AUDIT-01..04`); DLP alert queue triage | Purview Compliance Admin | Compliance Officer | FINRA 3110(b), SEC 17a-4(f), SOX ITGC |
 | **Weekly** | DLP-for-Copilot match review (`1.13-DLP-01..03`); DSPM for AI surfacing (`1.13-DSPM-01..02`) | Information Protection Admin | CISO | GLBA Safeguards 314.4(d); OCC Heightened Standards |
 | **Monthly** | Full BUILTIN (`1.13-BUILTIN-01..08`) and CUSTOM (`1.13-CUSTOM-01..04`) regression with positive + negative corpus | Information Protection Admin | Compliance Officer | FINRA 3110, SEC Reg S-P |
-| **Quarterly** | EDM (`1.13-EDM-01..03`), Trainable Classifier (`1.13-TC-01..04`), NER (`1.13-NER-01..04`), Negative-path battery (`1.13-NEG-01..05`), Sovereign parity recheck (§5) | Compliance Data Administrator + Information Protection Admin | CRO | OCC 2011-12 / Fed SR 11-7; GLBA Safeguards |
+| **Quarterly** | EDM (`1.13-EDM-01..03`), Trainable Classifier (`1.13-TC-01..04`), NER (`1.13-NER-01..04`), Negative-path battery (`1.13-NEG-01..05`), Sovereign parity recheck (§5) | Compliance Data Administrator + Information Protection Admin | CRO | OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7); GLBA Safeguards |
 | **On change** | Any test affected by a tenant change (new SIT, EDM schema rotation, DLP rule edit, classifier promotion preview→GA, role-group change, sovereign-cloud feature GA) | Purview Compliance Admin | Compliance Officer | SOX ITGC change-control |
 | **On incident** | `1.13-IR-01` reproduction with the actual unredacted incident artifact in a contained eDiscovery workspace | Incident Response Lead + Compliance Data Administrator | CISO + Compliance Officer | SEC Reg S-P §248.30; state breach laws; NYDFS 500.17 |
 
@@ -529,7 +529,7 @@ Every test below uses the structure: **Objective · Preconditions · Steps · Ex
 
 ### Trainable Classifiers (1.13-TC-01..04)
 
-> **FSI Governance Gate.** Trainable classifiers are model artifacts subject to OCC Bulletin 2011-12 and Federal Reserve SR 11-7 (Model Risk Management). Each classifier deployed for Zone 2/3 enforcement requires: documented training-data lineage, validation set with measured precision/recall, model-risk committee sign-off, and re-validation cadence. Tests below assume that gate has been passed; absence of evidence is itself a finding.
+> **FSI Governance Gate.** Trainable classifiers are model artifacts subject to OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) and Federal Reserve SR 26-2 (formerly SR 11-7) (Model Risk Management). Each classifier deployed for Zone 2/3 enforcement requires: documented training-data lineage, validation set with measured precision/recall, model-risk committee sign-off, and re-validation cadence. Tests below assume that gate has been passed; absence of evidence is itself a finding.
 
 #### 1.13-TC-01 — Customer Complaints classifier positive
 
@@ -1230,7 +1230,7 @@ The following 15 patterns are **non-conformance** to Control 1.13 and must be re
 6. **Numeric thresholds in policy UX prose.** Documenting "≥85 = High" as if it were a Microsoft universal rule rather than a per-SIT XML `confidenceLevel` attribute.
 7. **EDM with no near-miss test.** EDM classifiers deployed to Zone 3 without `1.13-EDM-02` having ever been run.
 8. **DLP-for-Copilot user-scope mistargeting.** Policies scoped to user groups instead of agent identities or grounding-source SharePoint sites (detected by `1.13-NEG-05`).
-9. **Training trainable classifiers with production documents.** Seed sites containing real customer NPI (violates Control 1.7 secure-handling and OCC 2011-12 model-risk standards).
+9. **Training trainable classifiers with production documents.** Seed sites containing real customer NPI (violates Control 1.7 secure-handling and OCC Bulletin 2026-13 (formerly OCC 2011-12) model-risk standards).
 10. **Skipping the preview → GA classifier ID re-pointing check.** Policies left referencing preview GUIDs after Microsoft has GA'd the classifier (detected by `1.13-NEG-03`).
 11. **Screenshots without manifest hash entry.** Evidence files present in the evidence root but absent from the manifest's `evidenceArtifacts` list (validator will fail).
 12. **No sovereign-cloud parity check.** Reusing a Commercial-tenant attestation in GCC / GCC High / DoD without §5 re-verification (detected by `1.13-PRE-07`).
@@ -1256,7 +1256,7 @@ The following 15 patterns are **non-conformance** to Control 1.13 and must be re
   - Control 4.6 — Agent identity inventory (referenced by DLP-for-Copilot scoping in `1.13-DLP-*` and `1.13-NEG-05`)
 - **Framework**
   - AI Incident Response Playbook — invoked by `1.13-IR-01`
-  - FSI Governance Gate (control spec §3) — gates trainable-classifier deployment per OCC 2011-12 / Fed SR 11-7
+  - FSI Governance Gate (control spec §3) — gates trainable-classifier deployment per OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7)
 
 ---
 

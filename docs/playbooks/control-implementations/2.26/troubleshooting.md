@@ -6,7 +6,7 @@
 >
 > **Status hedging.** The core Entra Agent ID surface is GA; some adjacent surfaces (e.g. the Lifecycle Workflows agent-sponsor tasks, the `agentSignIn` log type) remain in Public Preview. Behavior, blade names, Graph endpoints (`/beta/servicePrincipals` filtered by `servicePrincipalType eq 'Agent'`), and Lifecycle Workflow agent task templates may continue to evolve post-GA. Procedures here are written to the May 2026 surface; verify the **Last UI Verified** stamp at the top of `2.26-entra-agent-id-identity-governance.md` before treating any step as authoritative for an examiner artifact.
 >
-> **Regulatory framing.** Procedures support — they do not guarantee — compliance with FFIEC IT Handbook (Information Security, Management), OCC Bulletin 2013-29 / 2020-10 third-party risk, FRB SR 11-7 model risk management as applied to AI agents, NYDFS 23 NYCRR 500.7 (access privileges), and SEC 17a-4 / FINRA 4511 evidentiary retention. Implementation requires control-owner sign-off; no automated procedure removes the obligation to attest to control effectiveness.
+> **Regulatory framing.** Procedures support — they do not guarantee — compliance with FFIEC IT Handbook (Information Security, Management), OCC Bulletin 2013-29 / 2020-10 third-party risk, FRB Fed SR 26-2 (formerly SR 11-7) model risk management as applied to AI agents, NYDFS 23 NYCRR 500.7 (access privileges), and SEC 17a-4 / FINRA 4511 evidentiary retention. Implementation requires control-owner sign-off; no automated procedure removes the obligation to attest to control effectiveness.
 
 ---
 

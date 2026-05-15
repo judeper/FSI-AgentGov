@@ -21,7 +21,7 @@
 
 ## 1. Overview
 
-Human sponsorship is a foundational requirement for Agentic Users in Microsoft Entra ID and a core supervisory expectation under FINRA Rule 3110, OCC Bulletin 2011-12, and Federal Reserve SR 11-7. An AI agent without a named, attested, currently employed sponsor is — for examination purposes — an **unsupervised system**, and the residual risk of unsupervised automation in a regulated FSI environment is the central concern this playbook addresses.
+Human sponsorship is a foundational requirement for Agentic Users in Microsoft Entra ID and a core supervisory expectation under FINRA Rule 3110, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), and Federal Reserve SR 26-2 (formerly SR 11-7). An AI agent without a named, attested, currently employed sponsor is — for examination purposes — an **unsupervised system**, and the residual risk of unsupervised automation in a regulated FSI environment is the central concern this playbook addresses.
 
 This playbook provides:
 
@@ -54,8 +54,8 @@ Sponsorship is the artifact examiners look for first when evaluating AI agent go
 | **SEC Rule 17a-4(b)(4)** | Retention of supervisory communications | Sponsor approval correspondence supervised under [Control 1.10](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) and retained 7 years |
 | **SOX §302/§404** | Officer certification of internal controls; ICFR effectiveness | Compliance Reviewer sign-off feeds quarterly ICFR attestation packages for any Z3 agent touching financial reporting |
 | **GLBA §501(b) / FTC Safeguards 16 CFR §314.4(c)** | Designated qualified individual; access controls; monitoring | Agent Owner is the designated technical custodian; attestation cadence aids continuous monitoring |
-| **OCC Bulletin 2011-12** (Model Risk Management) | Identified model owner; effective challenge; ongoing monitoring | Agent Owner = model owner of record; Compliance Reviewer performs effective challenge for Z3 agents |
-| **Federal Reserve SR 11-7** (Model Risk) | Model inventory with accountable parties; lifecycle controls | Sponsorship metadata feeds the Control 3.1 inventory; lifecycle approvals (Section 5) are the documented control points |
+| **OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12)** (Model Risk Management) | Identified model owner; effective challenge; ongoing monitoring | Agent Owner = model owner of record; Compliance Reviewer performs effective challenge for Z3 agents |
+| **Federal Reserve SR 26-2 (formerly SR 11-7)** (Model Risk) | Model inventory with accountable parties; lifecycle controls | Sponsorship metadata feeds the Control 3.1 inventory; lifecycle approvals (Section 5) are the documented control points |
 | **NYDFS Part 500.07 / 500.16** (Access privileges; Incident response) | Documented access governance; defined incident roles | Backup Owner provides 24×7 incident reachability; departure cascade (Section 9) prevents orphaned privileged identity |
 | **NIST AI RMF GOVERN 1.4 / 1.6** | Roles, responsibilities, and lines of communication for AI risk | Section 3 role definitions are the framework's GOVERN 1.4/1.6 evidence |
 
@@ -103,7 +103,7 @@ The framework defines **four** sponsorship roles. Every agent — regardless of 
 
 ### 3.2 Agent Owner (Technical Accountability)
 
-**Role summary.** The named technical custodian responsible for the agent's configuration, monitoring, and day-to-day operation. The Agent Owner is the OCC 2011-12 "model owner" of record.
+**Role summary.** The named technical custodian responsible for the agent's configuration, monitoring, and day-to-day operation. The Agent Owner is the OCC Bulletin 2026-13 (formerly OCC 2011-12) "model owner" of record.
 
 **Required role / seniority.**
 
@@ -137,7 +137,7 @@ The framework defines **four** sponsorship roles. Every agent — regardless of 
 
 **Role summary.** Named secondary technical custodian who provides operational continuity when the Agent Owner is unavailable, departs, or is reassigned. Mandatory for Z2 and Z3.
 
-**Required role / seniority.** Same profile as Agent Owner; **must not** report to the Agent Owner (independent reporting line for Z3 to maintain effective challenge per OCC 2011-12).
+**Required role / seniority.** Same profile as Agent Owner; **must not** report to the Agent Owner (independent reporting line for Z3 to maintain effective challenge per OCC Bulletin 2026-13 (formerly OCC 2011-12)).
 
 **Duties.**
 
@@ -299,7 +299,7 @@ The annual review is a **separate** activity from quarterly attestation. The Com
 
 - FINRA Notice 25-07 supervisory expectations for gen-AI.
 - Reg BI / Advisers Act applicability where the agent influences customer recommendations.
-- OCC 2011-12 / SR 11-7 effective challenge: was the model challenged by an independent party in the last 12 months?
+- OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) effective challenge: was the model challenged by an independent party in the last 12 months?
 - DSPM for AI policy alignment: are policies still calibrated to the agent's data sensitivity?
 
 Output is a written report filed in the firm's compliance review repository, cross-referenced to FINRA Rule 3120 / Advisers Act Rule 206(4)-7 annual review packages where applicable.
@@ -936,8 +936,8 @@ Refer to [Troubleshooting](./troubleshooting.md) for registry-level issues and t
 - SOX §302 / §404 — Officer certification and ICFR
 - GLBA §501(b) and FTC Safeguards 16 CFR §314.4(c) — Information security program
 - NYDFS 23 NYCRR Part 500.07 (access privileges) and 500.16 (incident response)
-- OCC Bulletin 2011-12 — Sound practices for model risk management
-- Federal Reserve SR 11-7 — Guidance on model risk management
+- OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) — Sound practices for model risk management
+- Federal Reserve SR 26-2 (formerly SR 11-7) — Guidance on model risk management
 - NIST AI Risk Management Framework — GOVERN 1.4 and GOVERN 1.6
 
 ---

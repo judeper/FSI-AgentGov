@@ -5,7 +5,7 @@
 **Audience:** AI Governance Lead, Cloud Security Architect, Security Architect, Model Risk Manager, FSI Internal Audit
 **Sovereign clouds:** Commercial, GCC, GCC High, DoD (per-cloud feature parity tracked in §1)
 
-> **Regulatory hedging notice.** This playbook describes verification procedures intended to **support compliance with** OCC Bulletin 2011-12, Federal Reserve SR 11-7, FINRA Rule 3110, FINRA Regulatory Notice 25-07 (March 2025), SEC Rule 17a-4(b)(4) / 18a-6, GLBA §501(b), the NIST AI RMF Generative AI Profile (NIST AI 600-1), MITRE ATLAS, and OWASP Top 10 for LLM Applications (2025). Implementation **does not guarantee** legal compliance. Organizations should validate applicability with qualified counsel and confirm tenant-specific behaviour against current Microsoft Learn documentation.
+> **Regulatory hedging notice.** This playbook describes verification procedures intended to **support compliance with** OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), FINRA Rule 3110, FINRA Regulatory Notice 25-07 (March 2025), SEC Rule 17a-4(b)(4) / 18a-6, GLBA §501(b), the NIST AI RMF Generative AI Profile (NIST AI 600-1), MITRE ATLAS, and OWASP Top 10 for LLM Applications (2025). Implementation **does not guarantee** legal compliance. Organizations should validate applicability with qualified counsel and confirm tenant-specific behaviour against current Microsoft Learn documentation.
 
 ---
 
@@ -59,7 +59,7 @@ All pre-flight gates **must pass** before any test family runs. The validator ru
 
 ### PRE-01 — Operator role separation
 
-**Objective.** Confirm the operator does not hold conflicting roles that would compromise OCC 2011-12 / SR 11-7 model-validation independence.
+**Objective.** Confirm the operator does not hold conflicting roles that would compromise OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) model-validation independence.
 
 **Required separation.** The operator may hold **one** of: Cloud Security Architect, Security Architect, AI Governance Lead. The operator must **not** simultaneously be the Agent Owner or Copilot Studio Agent Author of the agent under test. Exceptions require a co-signer from the AI Governance team.
 
@@ -224,16 +224,16 @@ The auditor pack is a curated subset of the evidence pack plus narrative context
 
 | Item | Source | Why it matters |
 |---|---|---|
-| Signed charter (current year) | Records system | Demonstrates board / executive authorization (FINRA 3110, OCC 2011-12 governance) |
+| Signed charter (current year) | Records system | Demonstrates board / executive authorization (FINRA 3110, OCC Bulletin 2026-13 (formerly OCC 2011-12) governance) |
 | Rules of Engagement (current) | Records system | Demonstrates scope discipline and legal review (CFAA hygiene) |
-| Operator roster + separation-of-duties attestations | GRC system | OCC 2011-12 / SR 11-7 independence |
+| Operator roster + separation-of-duties attestations | GRC system | OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) independence |
 | Attack library coverage matrix vs OWASP LLM Top 10 (2025), MITRE ATLAS, FSI families | Library repo `coverage.md` | Demonstrates threat-model completeness |
 | Golden dataset version log + refresh dates (last 4 quarters) | Dataset repo | Demonstrates regression-testing rigor |
 | Last 12 monthly summaries (`2.20-summary-Z3-*.json`) for each Zone 3 agent | Evidence pack | Demonstrates cadence and trend |
 | Defense-rate trend chart (last 12 months) | Generated from summaries | Demonstrates program effectiveness over time |
 | Findings register: severity, opened, closed, SLA met / breached, compensating-control sign-offs | GRC system | Demonstrates remediation discipline (FINRA 3110 supervision) |
 | Reconciliation reports vs Control 1.21 (last 4 cycles) | Evidence pack | Demonstrates that detection actually fires when probes attack |
-| Annual third-party assessment report (Z3) | Vendor deliverable | Independent challenge per OCC 2011-12 / SR 11-7 |
+| Annual third-party assessment report (Z3) | Vendor deliverable | Independent challenge per OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) |
 | Pipeline definition for pre-deployment gate | DevOps | Demonstrates pre-production enforcement |
 | WORM chain-of-custody attestation | Evidence pack `manifest.json` (source) + WORM-side recompute log | SEC 17a-4(f) integrity |
 | WSP excerpt referencing program cadence and findings retention | Compliance | Demonstrates supervisory framework alignment |

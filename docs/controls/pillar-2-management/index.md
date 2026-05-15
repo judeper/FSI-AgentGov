@@ -6,7 +6,7 @@ Ensure operational excellence, risk management, and reliable agent lifecycle man
 
 Pillar 2 governs the operational processes required to manage AI agents throughout their lifecycle—from initial development through testing, deployment, monitoring, and eventual retirement. These 26 controls establish the governance framework for change management, model risk, vendor oversight, multi-agent orchestration, customer disclosure, and ongoing supervision required by financial regulators.
 
-**Primary Regulatory Alignment:** OCC 2011-12 / Fed SR 11-7 (model risk), FINRA 3110 (supervision), SOX 302/404 (internal controls)
+**Primary Regulatory Alignment:** OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) (model risk), FINRA 3110 (supervision), SOX 302/404 (internal controls)
 
 **Control Categories:**
 
@@ -31,7 +31,7 @@ Pillar 2 governs the operational processes required to manage AI agents througho
 - [2.3 Change Management and Release Planning](2.3-change-management-and-release-planning.md)
 - [2.4 Business Continuity and Disaster Recovery](2.4-business-continuity-and-disaster-recovery.md)
 - [2.5 Testing, Validation, and Quality Assurance](2.5-testing-validation-and-quality-assurance.md)
-- [2.6 Model Risk Management (OCC 2011-12 / SR 11-7)](2.6-model-risk-management-sr-26-2.md)
+- [2.6 Model Risk Management (OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7))](2.6-model-risk-management-sr-26-2.md)
 - [2.7 Vendor and Third-Party Risk Management](2.7-vendor-and-third-party-risk-management.md)
 - [2.8 Access Control and Segregation of Duties](2.8-access-control-and-segregation-of-duties.md)
 - [2.9 Agent Performance Monitoring and Optimization](2.9-agent-performance-monitoring-and-optimization.md)
