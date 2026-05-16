@@ -539,6 +539,8 @@ Each cycle re-asserts this matrix from Microsoft Learn at `lastVerifiedUtc`. Do 
 
 The cycle's top-level evidence artifact is a JSON document conforming to the schema below. The schema is intentionally permissive on test field shapes (each test serializes its own evidence sub-document referenced by file path) but strict on the cycle envelope.
 
+Use `fsi-agentgov.example` as a placeholder identifier only (placeholder — replace with your tenant) before publishing an internal schema endpoint.
+
 ```json
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",

@@ -779,6 +779,8 @@ This playbook explicitly states that Control 2.5 adopts the same family envelope
 
 The schema below is the Control 2.5 root envelope. It is intentionally compatible with the other verification playbooks in this framework: same overall object shape, same attestation model, same manifest discipline, and explicit namespace patterning.
 
+Use `fsi-agentgov.example` as a placeholder identifier only (placeholder — replace with your tenant) before publishing an internal schema endpoint.
+
 ```json
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",

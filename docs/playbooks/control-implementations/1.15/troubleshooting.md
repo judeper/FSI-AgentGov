@@ -103,7 +103,7 @@ The client (Windows PowerShell 5.1 in particular) is defaulting to a TLS version
 
 #### Likely cause 1 — DKE service endpoint not reachable from the client
 
-The DKE key service URL must be reachable over HTTPS from the Office client at the moment of open. Validate from the client: `Invoke-WebRequest https://dke.fsi-corp.example/<keyname>` should return a JSON metadata response.
+The DKE key service URL must be reachable over HTTPS from the Office client at the moment of open. Validate from the client: `Invoke-WebRequest https://dke.fsi-corp.example/<keyname>` (placeholder — replace with your tenant) should return a JSON metadata response.
 
 **Fix:** Restore network connectivity. Loss of the DKE service makes **all** DKE-labelled content unreadable globally — DR posture for the service is critical.
 
