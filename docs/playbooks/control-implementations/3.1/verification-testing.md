@@ -4,7 +4,7 @@
 **Pillar:** 3 — Reporting
 **Audience:** Inventory Owner, AI Governance Lead, Compliance Officer, Power Platform Admin, AI Administrator, Entra Agent ID Admin, Internal Audit, Model Risk Manager
 **Sovereign-cloud scope:** Microsoft 365 Commercial, GCC, GCC High, DoD. 21Vianet is **out of scope** for this playbook (see PRE-06 / SOV-03).
-**Last UI verified:** April 2026
+**Last UI verified:** May 2026
 
 ---
 
@@ -88,7 +88,7 @@ This playbook is designed to detect defects in the **inventory program**, not in
 
 This playbook **does not** prove the absence of unknown agents in unobserved surfaces, **does not** replace human supervisory review of the inventory, **does not** guarantee legal or regulatory compliance merely because the cycle returns a clean validator result, **does not** assume universal sovereign-cloud feature parity, and **does not** substitute for the firm's written supervisory procedures, model-risk inventory, or books-and-records program. A clean cycle is one defensible data point; it is not the firm's complete inventory-governance story.
 
-A clean cycle means: across the discovery surfaces that exist as of April 2026 in the declared sovereign cloud, the system of record reconciled to those surfaces within the recorded tolerance and with traceable evidence. It does not mean the inventory is correct against future discovery surfaces, future Microsoft service rollouts, or shadow-IT channels outside the Microsoft 365 boundary.
+A clean cycle means: across the discovery surfaces that exist as of May 2026 in the declared sovereign cloud, the system of record reconciled to those surfaces within the recorded tolerance and with traceable evidence. It does not mean the inventory is correct against future discovery surfaces, future Microsoft service rollouts, or shadow-IT channels outside the Microsoft 365 boundary.
 
 ---
 
@@ -127,14 +127,14 @@ The Preparer attestation should include the literal language: *"This cycle was e
 
 ## Section 2 — Sovereign Cloud parity matrix
 
-The discovery surfaces this playbook depends on do **not** have uniform feature parity across Microsoft 365 sovereign clouds as of April 2026. The matrix below is the operative parity reference for the cycle. Any cell marked *Verify* should be re-checked against the tenant Message Center and Microsoft Learn at cycle start; the cycle should record what was observed, not what was assumed.
+The discovery surfaces this playbook depends on do **not** have uniform feature parity across Microsoft 365 sovereign clouds as of May 2026. The matrix below is the operative parity reference for the cycle. Any cell marked *Verify* should be re-checked against the tenant Message Center and Microsoft Learn at cycle start; the cycle should record what was observed, not what was assumed.
 
 | Discovery Surface / Capability | Commercial | GCC | GCC High | DoD | Cycle implication if unavailable |
 |---|---|---|---|---|---|
 | Microsoft 365 admin center → Copilot → Agents | GA | GA / verify rollout | Verify | Verify | Use PowerShell + Graph fallback; record in SOV-03 |
 | Power Platform admin center → Inventory (PPAC) | GA | Rolling / verify | Verify | Verify | Resource Graph + Get-AdminPowerApp fallback |
 | Entra Agent ID directory | Rolling / verify | Limited / verify | Verify | Verify | Manual identity reconciliation; record SOV-03 compensating control |
-| Microsoft Agent 365 admin center | Preview / Frontier | Limited | Verify availability | Verify availability | Treat as additive only; do not rely on as system of record |
+| Microsoft Agent 365 admin center | GA (May 2026; enablement requires at least one user assigned a qualifying Microsoft Agent 365 license or bundled entitlement) | Limited | Verify availability | Verify availability | Treat as additive only; do not rely on as system of record |
 | Programmatic agent inventory APIs (Graph, ARG) | Rolling / verify | Verify | Verify | Verify | Document compensating manual export path |
 | Defender for Cloud Apps (cross-source enrichment) | GA | GA | Verify | Verify | Skip enrichment; record SOV-03 |
 | Purview Audit (UAL) for inventory events | GA | GA | GA | GA | Required everywhere; absence is a hard blocker |
@@ -148,7 +148,7 @@ The discovery surfaces this playbook depends on do **not** have uniform feature 
 
 ## Section 3 — License and permissions prerequisites
 
-Re-verify SKU and preview availability at cycle start against current Microsoft Learn licensing guidance and the tenant Message Center.
+Re-verify SKU availability, the at-least-one-user Agent 365 license assignment prerequisite, and tenant rollout at cycle start against current Microsoft Learn licensing guidance and the tenant Message Center.
 
 ### 3.1 Required licenses
 
@@ -157,7 +157,7 @@ Re-verify SKU and preview availability at cycle start against current Microsoft 
 | Microsoft 365 Copilot agent surfaces | Microsoft 365 Copilot | COMP-01, ACC-01, ACC-02 |
 | Power Platform agent inventory (PPAC) | Power Platform admin entitlement | COMP-01, COMP-04, DRIFT-01 |
 | Entra Agent ID directory | Entra ID P1 / P2 (verify) | COMP-01, OWN-01, OWN-02 |
-| Microsoft Agent 365 (where available) | Agent 365 entitlement (rollout-dependent) | COMP-01 (additive only) |
+| Microsoft Agent 365 (where available) | At least one user assigned a qualifying Microsoft Agent 365 license or bundled entitlement | COMP-01 (additive only) |
 | Purview Audit (UAL) | E5 Compliance / Purview Audit Premium | DRIFT-03, LIFE-03, REG-03 |
 | Purview DLP enumeration | E5 Compliance / Purview DLP | DLP-01, DLP-02, DLP-03 |
 | Microsoft Information Protection labels | E5 Compliance | ACC-03 |
@@ -1050,14 +1050,14 @@ The continuous-improvement loop is itself reviewed annually for effectiveness, a
 
 ## Section 13 — References
 
-### 13.1 Microsoft Learn (current April 2026)
+### 13.1 Microsoft Learn (current May 2026)
 
 - [Microsoft 365 admin center — Manage Copilot agents](https://learn.microsoft.com/en-us/microsoft-365-copilot/microsoft-365-copilot-page)
 - [Power Platform admin — Copilot Hub](https://learn.microsoft.com/en-us/power-platform/admin/copilot/copilot-hub)
 - [Power Platform Manage Copilot agents](https://learn.microsoft.com/en-us/power-platform/admin/copilot/copilot-hub)
 - [Power Platform — Get-AdminPowerApp PowerShell](https://learn.microsoft.com/en-us/powershell/module/microsoft.powerapps.administration.powershell/)
 - [Microsoft Entra Agent ID overview](https://learn.microsoft.com/en-us/entra/identity/) (verify current Agent ID page at cycle start)
-- [Microsoft Agent 365 admin center overview](https://learn.microsoft.com/en-us/microsoft-agent-365/) (verify current page at cycle start; preview / Frontier scope)
+- [Microsoft Agent 365 admin center overview](https://learn.microsoft.com/en-us/microsoft-agent-365/) (verify current page at cycle start; enablement requires at least one user with a qualifying Microsoft Agent 365 license or bundled entitlement)
 - [Microsoft Purview Audit (UAL) search](https://learn.microsoft.com/en-us/purview/audit-search)
 - [Microsoft Purview Data Loss Prevention policies](https://learn.microsoft.com/en-us/purview/dlp-learn-about-dlp)
 - [Microsoft Information Protection sensitivity labels](https://learn.microsoft.com/en-us/purview/sensitivity-labels)
@@ -1069,7 +1069,7 @@ The continuous-improvement loop is itself reviewed annually for effectiveness, a
 ### 13.2 Regulatory and standards references
 
 - **NIST AI Risk Management Framework 1.0**, GOVERN 1.6 — Mechanisms are in place to inventory AI systems and are resourced according to organizational risk priorities. https://www.nist.gov/itl/ai-risk-management-framework
-- **OCC Bulletin 2011-12 — Sound Practices for Model Risk Management** — Higher-risk model inventory expectations. https://www.occ.gov/news-issuances/bulletins/2011/bulletin-2011-12.html
+- **OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) — Updated Interagency Guidance on Model Risk Management** — Higher-risk model inventory expectations. https://www.occ.gov/news-issuances/bulletins/2026/bulletin-2026-13.html
 - **Federal Reserve SR 26-2 (formerly SR 11-7) — Guidance on Model Risk Management** — Companion guidance to OCC Bulletin 2026-13 (formerly OCC 2011-12). https://www.federalreserve.gov/supervisionreg/srletters/SR2602.htm
 - **FINRA Regulatory Notice 25-07 (March 2025)** — Generative-AI tool supervision; firms should be able to enumerate, supervise, and explain generative-AI use. https://www.finra.org/rules-guidance/notices/25-07
 - **FINRA Rule 4511** — Books and records general requirements.
@@ -1098,4 +1098,4 @@ The continuous-improvement loop is itself reviewed annually for effectiveness, a
 
 ---
 
-*Updated: April 2026 | Version: v1.6.2 | Maintained by: AI Governance Team*
+*Updated: May 2026 | Version: v1.6.2 | Maintained by: AI Governance Team*
