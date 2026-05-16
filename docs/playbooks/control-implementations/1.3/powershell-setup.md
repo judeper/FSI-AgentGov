@@ -3,7 +3,7 @@
 !!! warning "Read the FSI PowerShell baseline first"
     Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 **Modules Required:** `Microsoft.Online.SharePoint.PowerShell`, `PnP.PowerShell` (v2+ — requires Entra app registration), `Microsoft.Graph` (Identity.Governance, Sites, Groups), `ExchangeOnlineManagement` (only if pairing with retention)
 **PowerShell Edition:** PowerShell 7.2+ for `PnP.PowerShell` v2 and `Microsoft.Graph`. `Microsoft.Online.SharePoint.PowerShell` runs on both Desktop 5.1 and Core 7+.
 
@@ -28,6 +28,8 @@ Connect-MgGraph -Scopes 'Sites.Read.All','Group.Read.All','AccessReview.ReadWrit
 ```
 
 For GCC / GCC High / DoD, append the appropriate `-Region` parameter to `Connect-SPOService` and use the matching `Connect-MgGraph -Environment` value (see baseline §3).
+
+> Microsoft Learn now calls for the latest SharePoint Online Management Shell when configuring Restricted Content Discovery. Keep the CAB-approved `Microsoft.Online.SharePoint.PowerShell` pin current enough to expose the RAC / RCD / Restricted Search cmdlets used below; if a cmdlet or parameter is missing, fail closed and use the SharePoint admin center until the module is updated.
 
 ---
 
@@ -399,4 +401,4 @@ Write-Host "Control 1.3 orchestration complete." -ForegroundColor Cyan
 
 ---
 
-*Updated: April 2026 | Version: v1.6.2*
+*Updated: May 2026 | Version: v1.6.2*
