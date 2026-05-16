@@ -44,7 +44,7 @@
 
 #Requires -Version 7.0
 
-[CmdletBinding()]
+[CmdletBinding(SupportsShouldProcess)]
 param(
     [Parameter(Mandatory)]
     [ValidateNotNullOrEmpty()]
@@ -76,6 +76,21 @@ if (-not (Test-Path $collectedDir)) {
 }
 $outputFile = Join-Path $collectedDir 'ppac.json'
 
+function Invoke-CollectorOperation {
+    param(
+        [Parameter(Mandatory)][string]$Target,
+        [Parameter(Mandatory)][string]$Action,
+        [Parameter(Mandatory)][scriptblock]$ScriptBlock
+    )
+
+    if (-not $PSCmdlet.ShouldProcess($Target, $Action)) {
+        Write-Verbose "Skipping $Action on $Target because -WhatIf was specified."
+        return $null
+    }
+
+    & $ScriptBlock
+}
+
 # ─── Module Import ───────────────────────────────────────────────────
 Import-Module Microsoft.PowerApps.Administration.PowerShell -ErrorAction Stop
 Write-Verbose "Loaded Microsoft.PowerApps.Administration.PowerShell module."
@@ -86,19 +101,23 @@ Write-Verbose "Loaded Microsoft.PowerApps.Administration.PowerShell module."
 Write-Verbose "Authenticating in $AuthMode mode..."
 
 if ($AuthMode -eq 'Interactive') {
-    Add-PowerAppsAccount -ErrorAction Stop
+    Invoke-CollectorOperation -Target "Power Platform tenant $TenantId" -Action 'Connect to Power Platform Admin Center (interactive)' -ScriptBlock {
+        Add-PowerAppsAccount -ErrorAction Stop
+    } | Out-Null
 }
 else {
     if (-not $ClientId -or -not $ClientSecret) {
         throw "ServicePrincipal auth requires -ClientId and -ClientSecret parameters."
     }
     $credential = [System.Management.Automation.PSCredential]::new($ClientId, $ClientSecret)
-    Add-PowerAppsAccount -Endpoint prod -TenantID $TenantId `
-        -ApplicationId $ClientId -ClientSecret (ConvertFrom-SecureString $ClientSecret -AsPlainText) `
-        -ErrorAction Stop
+    Invoke-CollectorOperation -Target "Power Platform tenant $TenantId" -Action 'Connect to Power Platform Admin Center (service principal)' -ScriptBlock {
+        Add-PowerAppsAccount -Endpoint prod -TenantID $TenantId `
+            -ApplicationId $ClientId -ClientSecret (ConvertFrom-SecureString $ClientSecret -AsPlainText) `
+            -ErrorAction Stop
+    } | Out-Null
 }
 
-Write-Verbose "Authentication successful."
+Write-Verbose "Authentication stage complete."
 
 # ─── BAP API Helper ──────────────────────────────────────────────────
 # Adapted from Set-InactivityTimeout.ps1 Get-BapApiToken / Invoke-BapApi pattern.
@@ -107,7 +126,12 @@ function Get-BapApiToken {
     [CmdletBinding()]
     param()
     try {
-        $tokenResult = Get-AzAccessToken -ResourceUrl "https://api.bap.microsoft.com" -ErrorAction Stop
+        $tokenResult = Invoke-CollectorOperation -Target "BAP API tenant $TenantId" -Action 'Acquire access token' -ScriptBlock {
+            Get-AzAccessToken -ResourceUrl "https://api.bap.microsoft.com" -ErrorAction Stop
+        }
+        if ($null -eq $tokenResult) {
+            return $null
+        }
         if ($tokenResult.Token -is [securestring]) {
             return $tokenResult.Token | ConvertFrom-SecureString -AsPlainText
         }
@@ -130,7 +154,9 @@ function Invoke-BapApi {
         'Content-Type' = 'application/json'
     }
     try {
-        $response = Invoke-RestMethod -Uri $Uri -Method $Method -Headers $headers -ErrorAction Stop
+        $response = Invoke-CollectorOperation -Target $Uri -Action "Invoke BAP API ($Method)" -ScriptBlock {
+            Invoke-RestMethod -Uri $Uri -Method $Method -Headers $headers -ErrorAction Stop
+        }
         return $response
     }
     catch {
@@ -158,7 +184,9 @@ catch {
 $environments = $null
 try {
     Write-Verbose "Section 1: Collecting Power Platform environments..."
-    $rawEnvs = Get-AdminPowerAppEnvironment
+    $rawEnvs = Invoke-CollectorOperation -Target "Power Platform tenant $TenantId" -Action 'List Power Platform environments' -ScriptBlock {
+        Get-AdminPowerAppEnvironment
+    }
     $environments = $rawEnvs | ForEach-Object {
         [PSCustomObject]@{
             DisplayName              = $_.DisplayName
@@ -186,7 +214,9 @@ $dlpPolicies = $null
 $dlpSpBypassWarning = $false
 try {
     Write-Verbose "Section 2: Collecting DLP policies..."
-    $rawDlp = Get-DlpPolicy
+    $rawDlp = Invoke-CollectorOperation -Target "Power Platform tenant $TenantId" -Action 'List DLP policies' -ScriptBlock {
+        Get-DlpPolicy
+    }
     $dlpPolicies = $rawDlp | ForEach-Object {
         [PSCustomObject]@{
             DisplayName             = $_.displayName
@@ -238,7 +268,9 @@ try {
     if ($environments) {
         $roleAssignments = foreach ($env in $rawEnvs) {
             try {
-                $roles = Get-AdminPowerAppEnvironmentRoleAssignment -EnvironmentName $env.EnvironmentName -ErrorAction Stop
+                $roles = Invoke-CollectorOperation -Target $env.EnvironmentName -Action 'List environment role assignments' -ScriptBlock {
+                    Get-AdminPowerAppEnvironmentRoleAssignment -EnvironmentName $env.EnvironmentName -ErrorAction Stop
+                }
                 [PSCustomObject]@{
                     EnvironmentName    = $env.EnvironmentName
                     DisplayName        = $env.DisplayName
