@@ -71,6 +71,82 @@ These two can disagree if the account silently flips mid-session — always re-c
 2. When write operations are needed, switch to `judeper`, do all writes in one batch, then switch back.
 3. If `gh api user` returns the wrong account between operations, re-switch before continuing — the account can flip mid-session.
 
+### REST-API Workaround for `gh` GraphQL Failures
+
+Some `gh` subcommands route through the GitHub GraphQL API and surface
+the EMU `Unauthorized` error even when the keyring's active account
+should be permitted. When that happens, the same operation called via
+the REST API directly with an explicit `judeper` token works because
+REST honors the bearer token in the request rather than the keyring's
+"active" cookie. **Use this whenever a `gh` command fails with a
+GraphQL `Unauthorized` error and you've already confirmed `judeper` is
+active.**
+
+Pattern (PowerShell):
+
+```powershell
+$token = gh auth token --user judeper
+$headers = @{ Authorization = "Bearer $token"; Accept = "application/vnd.github+json" }
+# Then use Invoke-RestMethod with the GitHub REST endpoint.
+```
+
+**Five operations confirmed working via REST when `gh` fails:**
+
+| Operation | Endpoint | Method |
+|-----------|----------|--------|
+| Create PR | `/repos/judeper/FSI-AgentGov/pulls` | POST `{title, head, base, body}` |
+| Merge PR | `/repos/judeper/FSI-AgentGov/pulls/{n}/merge` | PUT `{merge_method, sha}` |
+| Comment on PR | `/repos/judeper/FSI-AgentGov/issues/{n}/comments` | POST `{body}` |
+| Add labels | `/repos/judeper/FSI-AgentGov/issues/{n}/labels` | POST `{labels: [...]}` |
+| Reopen PR | `/repos/judeper/FSI-AgentGov/pulls/{n}` | PATCH `{state: "open"}` |
+
+### Branch Deletion Closes Its PR (And It Can't Always Be Reopened)
+
+Deleting the branch behind an open PR causes GitHub to auto-close that
+PR. Reopening that PR via PATCH `state=open` can fail with HTTP 422:
+
+```
+state cannot be changed. The <branch> branch was force-pushed or recreated.
+```
+
+This is permanent for that PR -- the only recovery path is to re-push
+the branch and **create a new PR** against the same base. Therefore:
+**never delete a branch with an open PR unless you've already merged
+it (or genuinely intend to abandon the change).**
+
+### `git push --force-with-lease` "Stale Info" Workaround
+
+When `git push --force-with-lease <branch>` fails with `stale info`,
+the local remote-tracking ref disagrees with the actual remote tip
+(common after a rebase + a CI auto-commit on the same branch).
+Resolve in this order:
+
+1. `git fetch <remote> <branch>` to refresh the tracking ref, then
+   retry `--force-with-lease`. Safe; preserves the lease semantics.
+2. If step 1 still rejects (e.g. because credential helper is using
+   the wrong account, see "Git credential helper notes" above),
+   fall back to a tokenized push via REST-friendly URL:
+   `git push "https://judeper:$(gh auth token --user judeper)@github.com/judeper/FSI-AgentGov.git" <branch>`
+3. **Last resort only:** `git push --force <branch>`. Drops the
+   lease check entirely; only safe when you've manually verified
+   no one else (including CI bots) pushed to the branch since you
+   last fetched.
+
+### `gh pr checks` Truncation
+
+`gh pr checks <n>` truncates output and may show fewer rows than the
+actual check-run count. To get the complete list of all check runs
+for a commit (useful when monitoring 11 required gates on a busy PR):
+
+```powershell
+$sha = gh pr view <n> --json headRefOid -q '.headRefOid'
+gh api "repos/judeper/FSI-AgentGov/commits/$sha/check-runs?per_page=100" `
+  -q '.check_runs[] | "\(.name): \(.conclusion // .status)"'
+```
+
+The `?per_page=100` query string is mandatory -- the default is small
+enough to cause silent truncation on PRs with many checks.
+
 ## Multi-Agent Coordination
 
 Three tools operate on this repository:
