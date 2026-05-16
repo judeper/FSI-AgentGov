@@ -292,7 +292,7 @@ python scripts/verify_language_rules.py
 | `learn-monitor.yml`, `regulatory-monitoring.yml` | Schedule | Source-of-truth drift detection |
 | `publish_docs.yml` | Push to `main` | Build & publish MkDocs site (see `.github/AUDIT-METHODOLOGY.md` Lesson 16 — no invented CLI flags) |
 | `spa-tests.yml` | PR / push (SPA) | Vitest suite for assessment SPA |
-| `required-check-shims.yml` | PR / push (bot file paths) | Report success for `e2e-smoke`/`mkdocs-strict` on bot PRs that don't trigger the real workflows. See `.github/AUDIT-METHODOLOGY.md` Lessons 17–18; the shim's `paths-ignore:` must mirror the real workflow's `paths:`. |
+| `required-check-shims.yml` | PR / push (bot file paths) | Report success for `e2e-smoke`/`mkdocs-strict` on bot PRs that don't trigger the real workflows. See `.github/AUDIT-METHODOLOGY.md` Lessons 17–18; the shim's `paths-ignore:` mirrors the real workflow's `paths:` (single-firing for pure bot PRs; both fire harmlessly on mixed PRs). |
 
 **Workflow editing rules:** Any workflow whose jobs are required by branch protection must include `.github/workflows/**` in its `paths:` filter (workflow-only PRs would otherwise deadlock on "11 of 11 expected"). When editing a real workflow's `paths:`, mirror the change in `required-check-shims.yml`'s `paths-ignore:` in the same commit. Never add a CLI flag to a workflow without `<tool> <subcommand> --help` verification first.
 
