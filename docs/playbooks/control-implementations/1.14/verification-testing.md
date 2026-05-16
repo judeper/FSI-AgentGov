@@ -8,7 +8,7 @@
 >
 > **Cross-links.** Controls [1.2 Agent Registry](../1.2/portal-walkthrough.md) · [1.4 Connector Governance](../1.4/portal-walkthrough.md) · [1.10 Conditional Access for Agents](../1.10/portal-walkthrough.md) · [1.13 SIT-Aware DLP for Copilot](../1.13/verification-testing.md) · [1.17 Agent Identity Lifecycle](../1.17/portal-walkthrough.md) · [1.18 OAuth Consent Governance](../1.18/portal-walkthrough.md) · [1.19 Service Principal Hygiene](../1.19/portal-walkthrough.md) · [4.6 Grounding Scope Governance](../4.6/portal-walkthrough.md) · [AI Incident Response Playbook](../../incident-and-risk/ai-incident-response-playbook.md) · [PowerShell Baseline](../../_shared/powershell-baseline.md).
 >
-> **Last UI verified.** April 2026 against Power Platform Admin Center, Copilot Studio, Microsoft Purview portal (DSPM for AI), Microsoft Entra admin center, and SharePoint admin center.
+> **Last UI verified.** May 2026 against Power Platform Admin Center, Copilot Studio, Microsoft Purview portal (DSPM for AI / unified DSPM AI activities), Microsoft Entra admin center, and SharePoint admin center.
 
 ---
 
@@ -146,7 +146,8 @@ Pre-flight tests confirm that the verification harness can run reliably and that
 **Steps.**
 
 1. Run the module-pinning block from `_shared/powershell-baseline.md` (also reproduced in §6.2 of this playbook).
-2. Capture `Get-Module -ListAvailable | Where-Object Name -in @('Microsoft.PowerApps.Administration.PowerShell','PnP.PowerShell','ExchangeOnlineManagement','Microsoft.Graph.Authentication','Microsoft.Graph.Identity.SignIns','Microsoft.Graph.Applications')` and export to JSON.
+2. Capture `Get-Module -ListAvailable | Where-Object Name -in @('Microsoft.PowerApps.Administration.PowerShell','Microsoft.Online.SharePoint.PowerShell','PnP.PowerShell','ExchangeOnlineManagement','Microsoft.Graph.Authentication','Microsoft.Graph.Identity.SignIns','Microsoft.Graph.Applications')` and export to JSON.
+3. Confirm the tenant-approved `Microsoft.Online.SharePoint.PowerShell` build is current enough to expose the Restricted Content Discovery / Restricted SharePoint Search cmdlets used by Control 4.6 validation; if not, record a fail or skip rather than asserting clean SharePoint scope evidence.
 
 **Expected.** Each module present at the minimum pinned version; the harness throws if any module is below the pin.
 
@@ -165,7 +166,7 @@ Pre-flight tests confirm that the verification harness can run reliably and that
 **Steps.**
 
 1. From Power Platform Admin Center, capture the DLP policies list and confirm at least one policy is present.
-2. From the Purview portal > DSPM for AI > Activity explorer, capture a 24-hour activity export and confirm events from at least one Copilot Studio agent are present.
+2. From **Purview > DSPM for AI > Activity explorer** or, in the unified experience, **DSPM > Discover > Activity explorer > AI activities**, capture a 24-hour activity export and confirm events from at least one Copilot Studio agent are present.
 3. Confirm both portals show the same tenant ID in the tenant switcher.
 
 **Expected.** Both portals reachable, same tenant, both showing recent activity.
@@ -1097,6 +1098,7 @@ Set-StrictMode -Version Latest
 # --- Module pinning (1.14-PRE-05) -----------------------------------------
 $RequiredModules = @{
     'Microsoft.PowerApps.Administration.PowerShell' = '2.0.200'
+    'Microsoft.Online.SharePoint.PowerShell'        = '16.0.25513.12000'
     'PnP.PowerShell'                                = '2.12.0'
     'ExchangeOnlineManagement'                      = '3.5.0'
     'Microsoft.Graph.Authentication'                = '2.20.0'
@@ -1392,4 +1394,4 @@ The following anti-patterns have been observed in FSI deployments. Each is paire
 
 ---
 
-*Updated: April 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
