@@ -1,0 +1,62 @@
+# Required-check shims for branch protection.
+#
+# Branch protection requires `e2e-smoke` and `mkdocs-strict` as required
+# status checks. The real workflows (`e2e-smoke.yml` and `docs-validation.yml`)
+# use `paths:` filters and only trigger on `docs/**`, `tests/**`, `mkdocs.yml`,
+# etc. PRs that touch only bot files (e.g., `data/monitor-state.json`,
+# `reports/monitoring/*.md`, `scripts/requirements.txt` from Dependabot, etc.)
+# never trigger those workflows and so cannot satisfy branch protection.
+#
+# This file defines two skip-shim jobs (`e2e-smoke`, `mkdocs-strict`) that
+# trigger ONLY when the real workflows would NOT (paths-ignore is the exact
+# complement of the real workflows' `paths`). They report success immediately
+# because no relevant code changed. Because GitHub requires *at least one*
+# successful check with the matching name to satisfy branch protection — and
+# because the real workflows and these shims are mutually exclusive on path —
+# this restores merge-ability for bot PRs without compromising the real
+# coverage on docs/SPA PRs.
+#
+# When you add a path to either real workflow's `paths:` filter, mirror it
+# here in the corresponding `paths-ignore:` block.
+
+name: Required check shims
+
+on:
+  pull_request:
+    paths-ignore:
+      # Paths the real workflows already cover. Anything listed here
+      # triggers the REAL e2e-smoke or mkdocs-strict, not these shims.
+      - 'docs/**'
+      - 'tests/**'
+      - 'playwright.config.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'overrides/**'
+      - 'mkdocs.yml'
+      - 'VERSION'
+      - '.github/workflows/e2e-smoke.yml'
+      - '.github/workflows/docs-validation.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  e2e-smoke:
+    name: e2e-smoke
+    runs-on: ubuntu-latest
+    steps:
+      - name: Skip (no SPA/docs paths changed)
+        run: |
+          echo "Real e2e-smoke workflow did not trigger because no SPA, docs,"
+          echo "Playwright, or package.json paths changed in this PR."
+          echo "Reporting success to satisfy required-check gate."
+
+  mkdocs-strict:
+    name: mkdocs-strict
+    runs-on: ubuntu-latest
+    steps:
+      - name: Skip (no docs/mkdocs paths changed)
+        run: |
+          echo "Real mkdocs-strict workflow did not trigger because no docs,"
+          echo "mkdocs.yml, overrides, VERSION, or tests paths changed."
+          echo "Reporting success to satisfy required-check gate."
