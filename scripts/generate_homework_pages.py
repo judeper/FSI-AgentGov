@@ -72,17 +72,24 @@ def group_controls_by_role(controls: list[dict[str, Any]]) -> dict[str, list[dic
     return dict(role_controls)
 
 
-def _to_relative(url: str) -> str:
-    """Convert manifest absolute URLs (e.g. /controls/.../) to relative paths
-    usable from docs/assessment/pre-session/<role>/index.md (4 levels deep
-    relative to docs/). Preserves directory-style URLs (mkdocs serves them
-    via use_directory_urls). External and fragment URLs are unchanged."""
+def _to_relative(url: str, *, markdown_source: bool = False) -> str:
+    """Convert manifest site-root URLs to paths relative to homework pages.
+
+    When ``markdown_source`` is true, convert directory-style site URLs to the
+    corresponding ``.md`` source path so MkDocs recognizes the link during
+    source validation. Keep directory-style paths for destinations that are
+    intentionally authored that way (for example playbook walkthrough links).
+    External and fragment URLs are unchanged.
+    """
     if not url or not isinstance(url, str):
         return "#"
     if url.startswith(("http://", "https://", "#", "mailto:")):
         return url
     if url.startswith("/"):
-        return "../../.." + url
+        relative = "../../.." + url
+        if markdown_source and relative.endswith("/"):
+            return relative[:-1] + ".md"
+        return relative
     return url
 
 
@@ -120,7 +127,10 @@ def format_control_section(control: dict[str, Any]) -> str:
             lines.append(f"- [{portal} — {path}]({url})")
         lines.append("")
     else:
-        control_doc_url = _to_relative(control.get("controlDocUrl", "#"))
+        control_doc_url = _to_relative(
+            control.get("controlDocUrl", "#"),
+            markdown_source=True,
+        )
         lines.append(f"**Verify in:** *See [control documentation]({control_doc_url}).*")
         lines.append("")
     
@@ -144,8 +154,14 @@ def format_control_section(control: dict[str, Any]) -> str:
         lines.append("")
     
     # Footer links
-    control_doc_url = _to_relative(control.get("controlDocUrl", "#"))
-    portal_playbook_url = _to_relative(control.get("portalPlaybookUrl", "#"))
+    control_doc_url = _to_relative(
+        control.get("controlDocUrl", "#"),
+        markdown_source=True,
+    )
+    portal_playbook_url = _to_relative(
+        control.get("portalPlaybookUrl", "#"),
+        markdown_source=True,
+    )
     lines.append(
         f"[Full control documentation]({control_doc_url}) · "
         f"[Portal walkthrough]({portal_playbook_url})"

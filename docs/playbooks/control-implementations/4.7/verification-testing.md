@@ -612,7 +612,7 @@ evidence/4.7/<cycleId>/
 
 ### 6.2 JSON Schema sketch (`fsi-4.7-evidence.schema.json`)
 
-The evidence pack root is a single JSON file `cycle.json` that references the evidence directory above. Schema (excerpt):
+The evidence pack root is a single JSON file `cycle.json` that references the evidence directory above. Use `fsi-agentgov.example` as a placeholder identifier only (placeholder — replace with your tenant) before publishing an internal schema endpoint. Schema (excerpt):
 
 ```json
 {

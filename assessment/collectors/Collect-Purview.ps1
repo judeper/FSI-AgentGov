@@ -43,7 +43,7 @@
 
 #Requires -Version 7.0
 
-[CmdletBinding()]
+[CmdletBinding(SupportsShouldProcess)]
 param(
     [Parameter(Mandatory)]
     [ValidateNotNullOrEmpty()]
@@ -75,6 +75,21 @@ if (-not (Test-Path $collectedDir)) {
 }
 $outputFile = Join-Path $collectedDir 'purview.json'
 
+function Invoke-CollectorOperation {
+    param(
+        [Parameter(Mandatory)][string]$Target,
+        [Parameter(Mandatory)][string]$Action,
+        [Parameter(Mandatory)][scriptblock]$ScriptBlock
+    )
+
+    if (-not $PSCmdlet.ShouldProcess($Target, $Action)) {
+        Write-Verbose "Skipping $Action on $Target because -WhatIf was specified."
+        return $null
+    }
+
+    & $ScriptBlock
+}
+
 # ─── Module Import ───────────────────────────────────────────────────
 Import-Module ExchangeOnlineManagement -ErrorAction Stop
 Write-Verbose "Loaded ExchangeOnlineManagement module."
@@ -85,7 +100,9 @@ Write-Verbose "Loaded ExchangeOnlineManagement module."
 Write-Verbose "Authenticating to Security & Compliance Center in $AuthMode mode..."
 
 if ($AuthMode -eq 'Interactive') {
-    Connect-IPPSSession -ErrorAction Stop
+    Invoke-CollectorOperation -Target "Purview tenant $TenantId" -Action 'Connect to Security & Compliance PowerShell (interactive)' -ScriptBlock {
+        Connect-IPPSSession -ErrorAction Stop
+    } | Out-Null
 }
 else {
     if (-not $ClientId) {
@@ -94,10 +111,12 @@ else {
     # Service principal with certificate auth for IPPS
     # Note: Connect-IPPSSession -AppId / -CertificateThumbprint is the supported SP path.
     # The caller should have the certificate installed in the current user's certificate store.
-    Connect-IPPSSession -AppId $ClientId -Organization "$TenantId" -ErrorAction Stop
+    Invoke-CollectorOperation -Target "Purview tenant $TenantId" -Action 'Connect to Security & Compliance PowerShell (service principal)' -ScriptBlock {
+        Connect-IPPSSession -AppId $ClientId -Organization "$TenantId" -ErrorAction Stop
+    } | Out-Null
 }
 
-Write-Verbose "Security & Compliance authentication successful."
+Write-Verbose "Security & Compliance authentication stage complete."
 
 # ═══════════════════════════════════════════════════════════════════════
 # Section 1: Audit Log Configuration
@@ -108,31 +127,41 @@ $auditConfig = $null
 try {
     Write-Verbose "Section 1: Collecting audit log configuration..."
 
-    $adminAuditConfig = Get-AdminAuditLogConfig -ErrorAction Stop
-    $unifiedAuditEnabled = $adminAuditConfig.UnifiedAuditLogIngestionEnabled
+    $adminAuditConfig = Invoke-CollectorOperation -Target "Purview tenant $TenantId" -Action 'Get audit log configuration' -ScriptBlock {
+        Get-AdminAuditLogConfig -ErrorAction Stop
+    }
 
-    # Audit configuration policies (audit plan tier)
-    $auditPolicies = $null
-    try {
-        $auditPolicies = Get-AuditConfigurationPolicy -ErrorAction Stop | ForEach-Object {
-            [PSCustomObject]@{
-                Identity    = $_.Identity
-                Priority    = $_.Priority
-                Workload    = $_.Workload
+    if ($adminAuditConfig) {
+        $unifiedAuditEnabled = $adminAuditConfig.UnifiedAuditLogIngestionEnabled
+
+        # Audit configuration policies (audit plan tier)
+        $auditPolicies = $null
+        try {
+            $auditPolicies = Invoke-CollectorOperation -Target "Purview tenant $TenantId" -Action 'List audit configuration policies' -ScriptBlock {
+                Get-AuditConfigurationPolicy -ErrorAction Stop
+            } | ForEach-Object {
+                [PSCustomObject]@{
+                    Identity    = $_.Identity
+                    Priority    = $_.Priority
+                    Workload    = $_.Workload
+                }
             }
         }
-    }
-    catch {
-        $warnings.Add("Audit configuration policies not available: $($_.Exception.Message)")
-        Write-Warning $warnings[-1]
-    }
+        catch {
+            $warnings.Add("Audit configuration policies not available: $($_.Exception.Message)")
+            Write-Warning $warnings[-1]
+        }
 
-    $auditConfig = [PSCustomObject]@{
-        UnifiedAuditLogIngestionEnabled = $unifiedAuditEnabled
-        AdminAuditLogAgeLimit           = $adminAuditConfig.AdminAuditLogAgeLimit
-        AuditConfigurationPolicies      = $auditPolicies
+        $auditConfig = [PSCustomObject]@{
+            UnifiedAuditLogIngestionEnabled = $unifiedAuditEnabled
+            AdminAuditLogAgeLimit           = $adminAuditConfig.AdminAuditLogAgeLimit
+            AuditConfigurationPolicies      = $auditPolicies
+        }
+        Write-Verbose "  Audit config collected. Unified audit enabled: $unifiedAuditEnabled"
     }
-    Write-Verbose "  Audit config collected. Unified audit enabled: $unifiedAuditEnabled"
+    else {
+        Write-Verbose "  Audit log configuration collection skipped."
+    }
 }
 catch {
     $warnings.Add("Section 1 (Audit Config) failed: $($_.Exception.Message)")
@@ -147,12 +176,16 @@ catch {
 $dlpCompliancePolicies = $null
 try {
     Write-Verbose "Section 2: Collecting DLP compliance policies..."
-    $rawDlp = Get-DlpCompliancePolicy -ErrorAction Stop
+    $rawDlp = Invoke-CollectorOperation -Target "Purview tenant $TenantId" -Action 'List DLP compliance policies' -ScriptBlock {
+        Get-DlpCompliancePolicy -ErrorAction Stop
+    }
     $dlpCompliancePolicies = foreach ($policy in $rawDlp) {
         # Retrieve associated rules with SIT references
         $rules = $null
         try {
-            $rules = Get-DlpComplianceRule -Policy $policy.Name -ErrorAction Stop | ForEach-Object {
+            $rules = Invoke-CollectorOperation -Target $policy.Name -Action 'List DLP compliance rules' -ScriptBlock {
+                Get-DlpComplianceRule -Policy $policy.Name -ErrorAction Stop
+            } | ForEach-Object {
                 [PSCustomObject]@{
                     Name                       = $_.Name
                     Disabled                   = $_.Disabled
@@ -189,7 +222,9 @@ catch {
 $retentionPolicies = $null
 try {
     Write-Verbose "Section 3: Collecting retention compliance policies..."
-    $rawRetention = Get-RetentionCompliancePolicy -ErrorAction Stop
+    $rawRetention = Invoke-CollectorOperation -Target "Purview tenant $TenantId" -Action 'List retention compliance policies' -ScriptBlock {
+        Get-RetentionCompliancePolicy -ErrorAction Stop
+    }
     $retentionPolicies = $rawRetention | ForEach-Object {
         $hasCopilotWorkload = $false
         if ($_.Workload) {
@@ -220,7 +255,9 @@ catch {
 $communicationCompliance = $null
 try {
     Write-Verbose "Section 4: Collecting communication compliance policies..."
-    $rawComm = Get-SupervisoryReviewPolicyV2 -ErrorAction Stop
+    $rawComm = Invoke-CollectorOperation -Target "Purview tenant $TenantId" -Action 'List communication compliance policies' -ScriptBlock {
+        Get-SupervisoryReviewPolicyV2 -ErrorAction Stop
+    }
     $communicationCompliance = $rawComm | ForEach-Object {
         [PSCustomObject]@{
             Name    = $_.Name
@@ -243,7 +280,9 @@ catch {
 $eDiscoveryCases = $null
 try {
     Write-Verbose "Section 5: Collecting eDiscovery cases..."
-    $rawCases = Get-ComplianceCase -ErrorAction Stop
+    $rawCases = Invoke-CollectorOperation -Target "Purview tenant $TenantId" -Action 'List eDiscovery cases' -ScriptBlock {
+        Get-ComplianceCase -ErrorAction Stop
+    }
     $eDiscoveryCases = $rawCases | ForEach-Object {
         $agentScoped = $false
         if ($_.Name -match 'agent|copilot|bot' -or $_.Description -match 'agent|copilot|bot') {
@@ -271,7 +310,9 @@ catch {
 $insiderRiskPolicies = $null
 try {
     Write-Verbose "Section 6: Collecting insider risk policies..."
-    $rawInsider = Get-InsiderRiskPolicy -ErrorAction Stop
+    $rawInsider = Invoke-CollectorOperation -Target "Purview tenant $TenantId" -Action 'List insider risk policies' -ScriptBlock {
+        Get-InsiderRiskPolicy -ErrorAction Stop
+    }
     $insiderRiskPolicies = $rawInsider | ForEach-Object {
         $copilotIndicators = $false
         if ($_.InsightTypes -match 'Copilot' -or $_.Name -match 'copilot|agent') {
@@ -342,7 +383,9 @@ catch {
 $sensitivityLabelPolicies = $null
 try {
     Write-Verbose "Section 8: Collecting sensitivity label policies..."
-    $rawLabels = Get-LabelPolicy -ErrorAction Stop
+    $rawLabels = Invoke-CollectorOperation -Target "Purview tenant $TenantId" -Action 'List sensitivity label policies' -ScriptBlock {
+        Get-LabelPolicy -ErrorAction Stop
+    }
     $sensitivityLabelPolicies = $rawLabels | ForEach-Object {
         [PSCustomObject]@{
             Name             = $_.Name
@@ -380,7 +423,9 @@ try {
     }
     else {
         # If DLP collection failed earlier, attempt a direct query
-        $rawEndpoint = Get-DlpCompliancePolicy -ErrorAction Stop | Where-Object {
+        $rawEndpoint = Invoke-CollectorOperation -Target "Purview tenant $TenantId" -Action 'List endpoint DLP policies' -ScriptBlock {
+            Get-DlpCompliancePolicy -ErrorAction Stop
+        } | Where-Object {
             $_.Workload -match 'Endpoint' -or $_.Workload -match 'EndpointDevices'
         }
         $endpointDlp = $rawEndpoint | ForEach-Object {

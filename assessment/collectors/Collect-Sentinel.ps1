@@ -50,7 +50,7 @@
 
 #Requires -Version 7.0
 
-[CmdletBinding()]
+[CmdletBinding(SupportsShouldProcess)]
 param(
     [Parameter(Mandatory)]
     [ValidateNotNullOrEmpty()]
@@ -94,6 +94,21 @@ if (-not (Test-Path $collectedDir)) {
 }
 $outputFile = Join-Path $collectedDir 'sentinel.json'
 
+function Invoke-CollectorOperation {
+    param(
+        [Parameter(Mandatory)][string]$Target,
+        [Parameter(Mandatory)][string]$Action,
+        [Parameter(Mandatory)][scriptblock]$ScriptBlock
+    )
+
+    if (-not $PSCmdlet.ShouldProcess($Target, $Action)) {
+        Write-Verbose "Skipping $Action on $Target because -WhatIf was specified."
+        return $null
+    }
+
+    & $ScriptBlock
+}
+
 # ─── Module Import ───────────────────────────────────────────────────
 Import-Module Az.OperationalInsights -ErrorAction Stop
 Write-Verbose "Loaded Az.OperationalInsights module."
@@ -103,20 +118,26 @@ Write-Verbose "Loaded Az.OperationalInsights module."
 Write-Verbose "Authenticating to Azure in $AuthMode mode..."
 
 if ($AuthMode -eq 'Interactive') {
-    Connect-AzAccount -TenantId $TenantId -SubscriptionId $SubscriptionId -ErrorAction Stop
+    Invoke-CollectorOperation -Target "Azure subscription $SubscriptionId" -Action 'Connect to Azure (interactive)' -ScriptBlock {
+        Connect-AzAccount -TenantId $TenantId -SubscriptionId $SubscriptionId -ErrorAction Stop
+    } | Out-Null
 }
 else {
     if (-not $ClientId -or -not $ClientSecret) {
         throw "ServicePrincipal auth requires -ClientId and -ClientSecret parameters."
     }
     $credential = [System.Management.Automation.PSCredential]::new($ClientId, $ClientSecret)
-    Connect-AzAccount -TenantId $TenantId -SubscriptionId $SubscriptionId `
-        -ServicePrincipal -Credential $credential -ErrorAction Stop
+    Invoke-CollectorOperation -Target "Azure subscription $SubscriptionId" -Action 'Connect to Azure (service principal)' -ScriptBlock {
+        Connect-AzAccount -TenantId $TenantId -SubscriptionId $SubscriptionId `
+            -ServicePrincipal -Credential $credential -ErrorAction Stop
+    } | Out-Null
 }
 
 # Set active subscription context
-Set-AzContext -SubscriptionId $SubscriptionId -ErrorAction Stop | Out-Null
-Write-Verbose "Azure authentication successful. Subscription: $SubscriptionId"
+Invoke-CollectorOperation -Target "Azure subscription $SubscriptionId" -Action 'Set active Azure context' -ScriptBlock {
+    Set-AzContext -SubscriptionId $SubscriptionId -ErrorAction Stop | Out-Null
+} | Out-Null
+Write-Verbose "Azure authentication stage complete. Subscription: $SubscriptionId"
 
 # ═══════════════════════════════════════════════════════════════════════
 # Section 1: Workspace Existence and Configuration
@@ -125,22 +146,29 @@ Write-Verbose "Azure authentication successful. Subscription: $SubscriptionId"
 $workspaceInfo = $null
 try {
     Write-Verbose "Section 1: Validating Sentinel workspace existence..."
-    $workspace = Get-AzOperationalInsightsWorkspace `
-        -ResourceGroupName $ResourceGroup `
-        -Name $WorkspaceName `
-        -ErrorAction Stop
-
-    $workspaceInfo = [PSCustomObject]@{
-        WorkspaceId       = $workspace.CustomerId
-        ResourceId        = $workspace.ResourceId
-        Name              = $workspace.Name
-        Location          = $workspace.Location
-        ProvisioningState = $workspace.ProvisioningState
-        Sku               = $workspace.Sku
-        RetentionInDays   = $workspace.RetentionInDays
-        WorkspaceCapping  = $workspace.WorkspaceCapping
+    $workspace = Invoke-CollectorOperation -Target $WorkspaceName -Action 'Get Sentinel workspace configuration' -ScriptBlock {
+        Get-AzOperationalInsightsWorkspace `
+            -ResourceGroupName $ResourceGroup `
+            -Name $WorkspaceName `
+            -ErrorAction Stop
     }
-    Write-Verbose "  Workspace '$WorkspaceName' found. State: $($workspace.ProvisioningState), SKU: $($workspace.Sku)"
+
+    if ($workspace) {
+        $workspaceInfo = [PSCustomObject]@{
+            WorkspaceId       = $workspace.CustomerId
+            ResourceId        = $workspace.ResourceId
+            Name              = $workspace.Name
+            Location          = $workspace.Location
+            ProvisioningState = $workspace.ProvisioningState
+            Sku               = $workspace.Sku
+            RetentionInDays   = $workspace.RetentionInDays
+            WorkspaceCapping  = $workspace.WorkspaceCapping
+        }
+        Write-Verbose "  Workspace '$WorkspaceName' found. State: $($workspace.ProvisioningState), SKU: $($workspace.Sku)"
+    }
+    else {
+        Write-Verbose "  Workspace collection skipped."
+    }
 }
 catch {
     $warnings.Add("Section 1 (Workspace) failed: $($_.Exception.Message)")
@@ -167,12 +195,16 @@ try {
     # Pattern: Set-InactivityTimeout.ps1 — Get-AzAccessToken for resource-specific tokens
     $armToken = $null
     try {
-        $armTokenResult = Get-AzAccessToken -ResourceUrl "https://management.azure.com" -ErrorAction Stop
-        if ($armTokenResult.Token -is [securestring]) {
-            $armToken = $armTokenResult.Token | ConvertFrom-SecureString -AsPlainText
+        $armTokenResult = Invoke-CollectorOperation -Target "Azure Resource Manager subscription $SubscriptionId" -Action 'Acquire ARM access token' -ScriptBlock {
+            Get-AzAccessToken -ResourceUrl "https://management.azure.com" -ErrorAction Stop
         }
-        else {
-            $armToken = $armTokenResult.Token
+        if ($armTokenResult) {
+            if ($armTokenResult.Token -is [securestring]) {
+                $armToken = $armTokenResult.Token | ConvertFrom-SecureString -AsPlainText
+            }
+            else {
+                $armToken = $armTokenResult.Token
+            }
         }
     }
     catch {
@@ -183,42 +215,48 @@ try {
         Authorization  = "Bearer $armToken"
         'Content-Type' = 'application/json'
     }
-    $connectorResponse = Invoke-RestMethod -Uri $connectorApiUri -Method GET -Headers $headers -ErrorAction Stop
+    $connectorResponse = Invoke-CollectorOperation -Target $connectorApiUri -Action 'Enumerate Sentinel data connectors' -ScriptBlock {
+        Invoke-RestMethod -Uri $connectorApiUri -Method GET -Headers $headers -ErrorAction Stop
+    }
 
     # Extract connectors of interest
-    $targetKinds = @('Office365', 'MicrosoftCloudAppSecurity', 'AzureActiveDirectory', 'MicrosoftThreatProtection')
-
-    $dataConnectors = [PSCustomObject]@{
-        TotalConnectors     = if ($connectorResponse.value) { $connectorResponse.value.Count } else { 0 }
-        ConnectorSummary    = if ($connectorResponse.value) {
-            $connectorResponse.value | ForEach-Object {
-                [PSCustomObject]@{
-                    Id        = $_.id
-                    Name      = $_.name
-                    Kind      = $_.kind
-                    Etag      = $_.etag
+    if ($connectorResponse) {
+        $dataConnectors = [PSCustomObject]@{
+            TotalConnectors     = if ($connectorResponse.value) { $connectorResponse.value.Count } else { 0 }
+            ConnectorSummary    = if ($connectorResponse.value) {
+                $connectorResponse.value | ForEach-Object {
+                    [PSCustomObject]@{
+                        Id        = $_.id
+                        Name      = $_.name
+                        Kind      = $_.kind
+                        Etag      = $_.etag
+                    }
                 }
             }
+            else { @() }
+            Office365Enabled    = $false
+            McasEnabled         = $false
         }
-        else { @() }
-        Office365Enabled    = $false
-        McasEnabled         = $false
-    }
 
-    if ($connectorResponse.value) {
-        $dataConnectors.Office365Enabled = ($connectorResponse.value | Where-Object { $_.kind -eq 'Office365' }).Count -gt 0
-        $dataConnectors.McasEnabled = ($connectorResponse.value | Where-Object { $_.kind -eq 'MicrosoftCloudAppSecurity' }).Count -gt 0
+        if ($connectorResponse.value) {
+            $dataConnectors.Office365Enabled = ($connectorResponse.value | Where-Object { $_.kind -eq 'Office365' }).Count -gt 0
+            $dataConnectors.McasEnabled = ($connectorResponse.value | Where-Object { $_.kind -eq 'MicrosoftCloudAppSecurity' }).Count -gt 0
 
-        if (-not $dataConnectors.Office365Enabled) {
-            $warnings.Add("Section 2: Office365 data connector is NOT enabled in workspace '$WorkspaceName'.")
-            Write-Warning $warnings[-1]
+            if (-not $dataConnectors.Office365Enabled) {
+                $warnings.Add("Section 2: Office365 data connector is NOT enabled in workspace '$WorkspaceName'.")
+                Write-Warning $warnings[-1]
+            }
+            if (-not $dataConnectors.McasEnabled) {
+                $warnings.Add("Section 2: MicrosoftCloudAppSecurity data connector is NOT enabled in workspace '$WorkspaceName'.")
+                Write-Warning $warnings[-1]
+            }
         }
-        if (-not $dataConnectors.McasEnabled) {
-            $warnings.Add("Section 2: MicrosoftCloudAppSecurity data connector is NOT enabled in workspace '$WorkspaceName'.")
-            Write-Warning $warnings[-1]
-        }
+        Write-Verbose "  Data connectors enumerated. Office365=$($dataConnectors.Office365Enabled), MCAS=$($dataConnectors.McasEnabled)"
     }
-    Write-Verbose "  Data connectors enumerated. Office365=$($dataConnectors.Office365Enabled), MCAS=$($dataConnectors.McasEnabled)"
+    else {
+        $warnings.Add("Section 2 (Data Connectors): Skipped — data connector API call was not executed.")
+        Write-Warning $warnings[-1]
+    }
 }
 catch {
     $warnings.Add("Section 2 (Data Connectors) failed: $($_.Exception.Message)")
@@ -236,37 +274,44 @@ try {
     if ($workspaceInfo) {
         $kqlQuery = 'AuditLogs | where OperationName contains "CopilotInteraction" | where TimeGenerated > ago(7d) | count'
 
-        $queryResult = Invoke-AzOperationalInsightsQuery `
-            -WorkspaceId $workspaceInfo.WorkspaceId `
-            -Query $kqlQuery `
-            -ErrorAction Stop
-
-        $recordCount = 0
-        if ($queryResult.Results) {
-            # The count query returns a single row with a Count column
-            $countValue = $queryResult.Results | Select-Object -First 1
-            if ($countValue.Count) {
-                $recordCount = [int]$countValue.Count
-            }
-            elseif ($countValue.'Count') {
-                $recordCount = [int]$countValue.'Count'
-            }
+        $queryResult = Invoke-CollectorOperation -Target $workspaceInfo.WorkspaceId -Action 'Run Copilot interaction KQL audit query' -ScriptBlock {
+            Invoke-AzOperationalInsightsQuery `
+                -WorkspaceId $workspaceInfo.WorkspaceId `
+                -Query $kqlQuery `
+                -ErrorAction Stop
         }
 
-        $kqlAuditCheck = [PSCustomObject]@{
-            Query           = $kqlQuery
-            RecordCount     = $recordCount
-            HasRecords      = ($recordCount -gt 0)
-            QueryTimeRange  = '7 days'
-            ExecutedAt      = (Get-Date -Format 'o')
-        }
+        if ($queryResult) {
+            $recordCount = 0
+            if ($queryResult.Results) {
+                # The count query returns a single row with a Count column
+                $countValue = $queryResult.Results | Select-Object -First 1
+                if ($countValue.Count) {
+                    $recordCount = [int]$countValue.Count
+                }
+                elseif ($countValue.'Count') {
+                    $recordCount = [int]$countValue.'Count'
+                }
+            }
 
-        if ($recordCount -eq 0) {
-            $warnings.Add("Section 3: No CopilotInteraction audit records found in the last 7 days. Verify audit ingestion pipeline.")
-            Write-Warning $warnings[-1]
+            $kqlAuditCheck = [PSCustomObject]@{
+                Query           = $kqlQuery
+                RecordCount     = $recordCount
+                HasRecords      = ($recordCount -gt 0)
+                QueryTimeRange  = '7 days'
+                ExecutedAt      = (Get-Date -Format 'o')
+            }
+
+            if ($recordCount -eq 0) {
+                $warnings.Add("Section 3: No CopilotInteraction audit records found in the last 7 days. Verify audit ingestion pipeline.")
+                Write-Warning $warnings[-1]
+            }
+            else {
+                Write-Verbose "  Found $recordCount CopilotInteraction record(s) in the last 7 days."
+            }
         }
         else {
-            Write-Verbose "  Found $recordCount CopilotInteraction record(s) in the last 7 days."
+            Write-Verbose "  KQL audit query skipped."
         }
     }
     else {
