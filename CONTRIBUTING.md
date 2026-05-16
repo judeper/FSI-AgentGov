@@ -56,7 +56,7 @@ Controls follow a standardized format with header metadata, 10 sections, and foo
 10. **Additional Resources** - Microsoft Learn links
 
 **Footer Metadata:**
-- *Updated: Month-Year | Version: v1.2 | UI Verification Status: Current*
+- *Updated: Month-Year | Version: v1.6.2 | UI Verification Status: Current*
 
 **Automation Indicators:**
 - Each control must include an automation indicator identifying whether the control can be automated, partially automated, or requires manual implementation.
@@ -288,4 +288,4 @@ Open an [Issue](https://github.com/judeper/FSI-AgentGov/issues) or contact the m
 
 ---
 
-*FSI Agent Governance Framework v1.3.0 - March 2026*
+*FSI Agent Governance Framework v1.6.2 - May 2026*

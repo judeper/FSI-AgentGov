@@ -61,7 +61,7 @@ The framework has **4 pillars** and **3 zones**:
 
 1. Zone 1 - Personal development (low risk)
 2. Zone 2 - Team collaboration (medium risk)
-3. Zone 3 - Enterprise production (high risk)
+3. Zone 3 - Enterprise Managed (high risk)
 
 ### Step 2: Classify Your Agents (5 min)
 
@@ -215,7 +215,7 @@ Result: You've identified your primary US regulators. Consult your Compliance Of
 - SEC Rule 17a-3/4
 - SOX 302/404
 - GLBA 501(b)
-- OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) (if applicable)
+- OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly Fed SR 11-7) (if applicable)
 
 ---
 
@@ -239,7 +239,7 @@ Result: You've identified your primary US regulators. Consult your Compliance Of
 ## Key Terms (Quick Version)
 
 - **Zone:** Risk level (1=low, 2=medium, 3=high)
-- **Control:** Governance requirement (72 total)
+- **Control:** Governance requirement (78 total)
 - **Pillar:** Control category (Security, Management, Reporting, SharePoint)
 - **DLP:** Data Loss Prevention (prevent unauthorized data sharing)
 - **MFA:** Multi-Factor Authentication (login security)

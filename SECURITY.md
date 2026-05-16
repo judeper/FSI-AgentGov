@@ -15,9 +15,9 @@ prior minor release. Older releases receive only critical security fixes for
 
 | Version | Status |
 |---------|--------|
-| `v1.4.x` (current) | Supported |
-| `v1.3.x` | Security fixes only |
-| `< v1.3` | Unsupported |
+| `v1.6.x` (current) | Supported |
+| `v1.5.x` | Security fixes only |
+| `< v1.5` | Unsupported |
 
 The canonical version source is the `framework_version` field referenced by
 the [Solutions Contract](docs/reference/solutions-contract.md).

@@ -279,6 +279,44 @@ The library tests were green throughout. Each library function in isolation work
 
 **Citations:** AS3'a `370c7364` (28-file pass), AS10 `30e0132a` (next round, F-DOWNLOADS-OCC-STALE-01), AS11a `aec519d0` (corpus-wide 201-file rewrite), AS15b-content `fb958ca6` (final 39-file residual after the verifier carve-out was tightened).
 
+### Lesson 16 — Verify CLI flags actually exist before "hardening" a workflow
+
+**Pattern:** A P3 "defense-in-depth" pass added `--site-url https://judeper.github.io/FSI-AgentGov/` to `mkdocs gh-deploy --force` in `.github/workflows/publish_docs.yml`. The intent was to make the production base URL explicit at deploy time so a future `site_url:` deletion in `mkdocs.yml` could not silently break canonical links. The implementation never ran end-to-end against `mkdocs gh-deploy --help` — that subcommand does **not** accept `--site-url`; only `mkdocs build` and `mkdocs serve` do. Every push to `main` for the next 5 merges failed the `deploy` job with `Error: No such option: --site-url Did you mean --site-dir?`. The live docs site went 5 commits behind production. The failure was invisible to PR CI because workflow-only changes (`.github/workflows/publish_docs.yml`) did not trigger any required job; the regression only surfaced post-merge on `main`. A user inspecting `version.json` was the catch.
+
+**Discipline going forward:**
+
+> **Verify every workflow CLI invocation by running `<tool> <subcommand> --help` locally before commit.** "Defense-in-depth" wrappers added in YAML are still real CLI calls — if the flag is not in `--help`, the workflow will fail. The cost of one `--help` invocation is trivial relative to a multi-day production deploy outage.
+>
+> **Defense-in-depth that cannot run in a CLI flag belongs in a pre-deploy assertion step.** The correct way to make `site_url:` explicit at deploy time is a separate `Verify mkdocs.yml site_url` step that greps the config for the expected literal and fails if missing or wrong — not a non-existent CLI flag.
+>
+> **Workflow-only changes must trigger the required-check gate.** See Lesson 17.
+
+**Citations:** P4b `9033d6d7` (introduced bug), hotfix PR #267 `2a296050` (reverted flag, added grep-based pre-deploy guard, expanded `python-quality.yml` paths to `.github/workflows/**`).
+
+### Lesson 17 — Required-check coverage on workflow-only PRs
+
+**Pattern:** Branch protection on `main` requires ~11 named status checks. Most of those check names come from `python-quality.yml`. The workflow's `paths:` filter listed `.github/workflows/python-quality.yml` and `.github/workflows/required-check-shims.yml` but no other workflow files. Result: a PR that touched only `.github/workflows/publish_docs.yml` never triggered `python-quality.yml`, so the required jobs `ruff`, `pytest`, `verify_version_stamps`, `manifest / index / nav drift`, `FSI language rules`, etc. simply never reported — branch protection blocked the merge with `11 of 11 required status checks are expected` regardless of whether the PR's diff was relevant to those jobs. Manually `update-branch`ing did not fix it because the underlying problem was a missing trigger, not a stale check.
+
+**Discipline going forward:**
+
+> **Any workflow whose jobs are required by branch protection must trigger on every workflow file change.** Practically: include `'.github/workflows/**'` in the `paths:` filter (both `pull_request` and `push`). A workflow change can plausibly affect CI behavior anywhere in the workflow tree — narrow filters here create unmergeable PRs and leave gaps for actual bugs to slip past the required gate.
+>
+> Pair this with **required-check shims** (Lesson 18) for bot PRs whose file changes are correctly outside the real workflows' scope.
+
+**Citations:** Hotfix PR #267 `2a296050` (added `.github/workflows/**` to `python-quality.yml` paths after #267's own publish_docs.yml-only change hit the `11 of 11 expected` block).
+
+### Lesson 18 — Required-check shim pattern for bot PRs
+
+**Pattern:** Branch protection requires named checks (e.g., `e2e-smoke`, `mkdocs-strict`). The real workflows that report those check names use `paths:` filters and only trigger on `docs/**`, `tests/**`, `mkdocs.yml`, SPA files, etc. PRs that touch only bot files — `data/monitor-state.json` (Learn Monitor), `scripts/requirements.txt` (Dependabot), `reports/monitoring/*.md` — never trigger those workflows. Branch protection then blocks the merge forever with `2 of 11 required status checks are expected`, because the named checks never reported. There is no admin bypass on this repo. Manually re-running CI does not help; the workflow simply does not trigger.
+
+**Discipline going forward:**
+
+> **For each required check name whose real workflow has a `paths:` filter, add a "shim" workflow with the same `name:` triggered via `paths-ignore:` that exactly mirrors the real workflow's `paths:` list (mutually exclusive coverage).** The shim's job body is a one-line `echo` reporting success — there is no real work to do, because by construction the PR's diff is outside the scope the real workflow guards. The check name reports success, branch protection is satisfied, the bot PR merges. Real PRs continue to get the full real workflow.
+>
+> The shim and the real workflow must never both trigger on the same PR — that is the invariant. Validate it whenever the real workflow's `paths:` are edited: mirror the change in the shim's `paths-ignore:` in the same commit.
+
+**Citations:** PR #260 `c1e28091` (created `.github/workflows/required-check-shims.yml` with `e2e-smoke` + `mkdocs-strict` shims after 4 Learn Monitor PRs and 1 Dependabot PR were stuck behind required-check gates), AS-RECON cascade where 5 merged PRs followed within the next 90 minutes once the shim was live.
+
 ## When to invoke this methodology
 
 **USE for:**
