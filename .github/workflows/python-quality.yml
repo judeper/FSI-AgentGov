@@ -12,6 +12,7 @@ on:
       - 'pyproject.toml'
       - 'ruff.toml'
       - '.github/workflows/python-quality.yml'
+      - '.github/workflows/required-check-shims.yml'
       # Version-stamp gate (verify_version_stamps job) needs to run when any
       # canonical-version surface changes, even if no Python/scripts changed.
       - 'VERSION'
@@ -58,6 +59,7 @@ on:
       - 'pyproject.toml'
       - 'ruff.toml'
       - '.github/workflows/python-quality.yml'
+      - '.github/workflows/required-check-shims.yml'
       - 'VERSION'
       - 'README.md'
       - 'DISCLAIMER.md'
