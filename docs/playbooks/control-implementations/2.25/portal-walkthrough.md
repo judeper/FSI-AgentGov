@@ -43,7 +43,7 @@
     | Microsoft 365 E7 ("Frontier Suite") | E5 + Microsoft 365 Copilot + Microsoft Entra Suite + Agent 365 | Bundled SKU; covers OBO agents under user license |
     | Standalone Microsoft Agent 365 | Per-user license layered on a Microsoft 365 Copilot prerequisite | OBO agents covered by user license; autonomous agent identities still in preview at GA |
 
-    Tenants that did not participate in the pre-GA Frontier feature program can adopt Agent 365 directly at GA without prior enrollment. See [Agent 365 overview](https://learn.microsoft.com/en-us/microsoft-agent-365/overview) for current SKU and entitlement guidance. Configuration steps in this playbook were verified against the pre-GA Frontier experience in March 2026 and refreshed for the GA release in April 2026 — re-verify portal navigation periodically as 2026 Wave 1 and Wave 2 release cycles are expected to evolve naming, entry points, and the Default Governance Template policy composition.
+    Tenants that did not participate in the pre-GA Frontier feature program can adopt Agent 365 directly at GA without prior enrollment. Microsoft now documents a tenant-enablement prerequisite: at least one user must be assigned a qualifying Microsoft Agent 365 license before Agent 365 can be enabled. See [Agent 365 overview](https://learn.microsoft.com/en-us/microsoft-agent-365/overview) for current SKU and entitlement guidance. Configuration steps in this playbook were verified against the pre-GA Frontier experience in March 2026, refreshed for the GA release in April 2026, and updated for the May 2026 Learn prerequisite clarification — re-verify portal navigation periodically as 2026 Wave 1 and Wave 2 release cycles are expected to evolve naming, entry points, and the Default Governance Template policy composition.
 
 !!! warning "Sovereign Cloud Availability — GCC, GCC High, DoD"
     As of GA (May 1, 2026), Microsoft has **not announced parity availability for the Agent 365 Admin Center, governance templates, or admin-gated publish/activate workflows in GCC, GCC High, or DoD**. Underlying Copilot agents (Researcher, Analyst) are rolling into US Gov clouds on a separate, lagging schedule, and no public Microsoft roadmap item names "Agent 365 admin center governance console" parity for sovereign clouds. **If your tenant URL ends in `admin.microsoft.us` or you authenticate against `login.microsoftonline.us`, stop here and jump to [§1 — Sovereign Cloud Variant](#1-sovereign-cloud-variant-and-compensating-controls).**
@@ -58,7 +58,7 @@
     See [`../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod`](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod) for sovereign endpoint resolution if you ever need to script against the commercial-only surface from a sovereign management workstation.
 
 !!! tip "Portal Navigation May Shift Post-GA"
-    Microsoft is expected to refine Agent 365 navigation through 2026 Wave 1 and Wave 2 release cycles. If a blade name in this playbook does not match what you see, search the admin center for the underlying noun ("Agent 365", "Pending Requests", "Governance Templates", "Researcher") and consult [Microsoft Learn — Microsoft Agent 365](https://learn.microsoft.com/en-us/microsoft-agent-365/overview). Screenshot anchors in this playbook record the navigation that was verified at the **Last UI Verified** date in the [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) header (April 2026, post-GA).
+    Microsoft is expected to refine Agent 365 navigation through 2026 Wave 1 and Wave 2 release cycles. If a blade name in this playbook does not match what you see, search the admin center for the underlying noun ("Agent 365", "Pending Requests", "Governance Templates", "Researcher") and consult [Microsoft Learn — Microsoft Agent 365](https://learn.microsoft.com/en-us/microsoft-agent-365/overview). Screenshot anchors in this playbook record the navigation that was verified at the **Last UI Verified** date in the [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) header (May 2026, post-GA prerequisite refresh).
 
 ---
 
@@ -86,7 +86,7 @@
 
 ## 0. Pre-flight Prerequisites and Triage
 
-Before you click anything in any portal, run through this gate. Skipping a gate produces silent failures later — for example, the **Agent 365** node will not appear in the M365 admin center if the tenant has no Agent 365 entitlement, and the wrong role will let you read the registry but not approve a publishing request.
+Before you click anything in any portal, run through this gate. Skipping a gate produces silent failures later — for example, the **Agent 365** node will not appear in the M365 admin center if no user has a qualifying Agent 365 entitlement assigned, and the wrong role will let you read the registry but not approve a publishing request.
 
 ### 0.1 Confirm tenant cloud and tenant ID
 
@@ -128,11 +128,11 @@ Use the canonical role names from [`docs/reference/role-catalog.md`](../../../re
 ### 0.3 Confirm Agent 365 licensing
 
 1. Open [`https://admin.microsoft.com`](https://admin.microsoft.com) → **Billing → Licenses**.
-2. Confirm the count of one of the following is greater than zero:
+2. Confirm at least one named user who will sponsor or own agents is assigned one of the following qualifying entitlements:
    - **Microsoft 365 E7** ("Frontier Suite") — bundles E5 + Microsoft 365 Copilot + Microsoft Entra Suite + Agent 365.
    - **Microsoft Agent 365** standalone — per-user license layered on a Microsoft 365 Copilot prerequisite.
-3. Confirm the count of **Microsoft 365 Copilot** licenses is greater than zero (required as the base prerequisite when standalone Agent 365 is used).
-4. Click into **Licenses → Microsoft Agent 365** (or the E7 SKU) and capture the assigned-vs-available counts. Record both in your runbook.
+3. If the standalone Agent 365 SKU is used, confirm the count of **Microsoft 365 Copilot** licenses is greater than zero (required as the base prerequisite).
+4. Click into **Licenses → Microsoft Agent 365** (or the E7 SKU) and confirm at least one active user assignment is present. Capture the assigned-vs-available counts and record both in your runbook.
 5. Confirm OBO scope: agents acting **on behalf of** a licensed user are covered under that user's license. Autonomous agent identities with their own mailboxes and broad permissions remain in preview at GA and are out of scope for this control.
 
 *Screenshot anchor: docs/images/2.25/EXPECTED.md#0-3-licenses — Billing → Licenses page showing Agent 365 / E7 SKU and Microsoft 365 Copilot SKU counts.*
@@ -144,7 +144,7 @@ Use the canonical role names from [`docs/reference/role-catalog.md`](../../../re
 
 1. Return to [`https://admin.microsoft.com`](https://admin.microsoft.com).
 2. In the left navigation, look for **Agent 365** (typically grouped under **Copilot** or as a top-level node depending on tenant rollout state). If it is not visible, click **Show all** at the bottom of the left navigation.
-3. If **Agent 365** still does not appear after license assignment, allow up to 24 hours for entitlement propagation, then re-verify. If still missing after 24 hours, open a ticket via the M365 admin center **Help & support** widget and reference Agent 365 GA (May 1, 2026).
+3. If **Agent 365** still does not appear after at least one qualifying user assignment, allow up to 24 hours for entitlement propagation, then re-verify. If still missing after 24 hours, open a ticket via the M365 admin center **Help & support** widget and reference Agent 365 GA (May 1, 2026).
 
 *Screenshot anchor: docs/images/2.25/EXPECTED.md#0-4-agent365-node — Left navigation showing Agent 365 node expanded with Overview, Agents, Pending Requests, Governance, Analytics children.*
 
@@ -156,8 +156,8 @@ Do not proceed past this section unless **all** of the following are true:
 - [ ] Tenant is in M365 Commercial cloud (or you have switched to §1 sovereign path).
 - [ ] At least two named humans hold each governance role in §0.2.
 - [ ] **Entra Global Admin** is assigned via PIM (eligible, not active by default).
-- [ ] Microsoft 365 E7 or standalone Agent 365 licenses are assigned to the population of users who will sponsor or own agents.
-- [ ] Microsoft 365 Copilot licenses are assigned (prerequisite).
+- [ ] At least one named user who will sponsor or own agents has Microsoft 365 E7 or standalone Agent 365 assigned.
+- [ ] Microsoft 365 Copilot licenses are assigned where standalone Agent 365 is used.
 - [ ] The **Agent 365** node is visible in the left navigation of the M365 admin center.
 - [ ] Your governance runbook records the firm's documented SLAs for Pending Requests review (illustrative defaults: weekly Zone 2, daily Zone 3 — examiners will hold the firm to its own documented SLA, not these defaults).
 
@@ -1009,4 +1009,4 @@ Before declaring this control operational, confirm all of the following:
 
 ---
 
-*Updated: April 2026 | Version: v1.6.2 | UI Verification Status: Current (April 2026, post-GA)*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current (May 2026, post-GA prerequisite refresh)*
