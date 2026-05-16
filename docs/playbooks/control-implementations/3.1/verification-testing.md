@@ -1098,4 +1098,4 @@ The continuous-improvement loop is itself reviewed annually for effectiveness, a
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | Maintained by: AI Governance Team*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

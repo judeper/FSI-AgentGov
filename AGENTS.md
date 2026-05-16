@@ -191,6 +191,16 @@ This repository uses [Worktrunk](https://worktrunk.dev/) for git worktree manage
 
 **Windows note:** On Windows, `wt` is taken by Windows Terminal. Worktrunk installs as `git-wt` via winget. Alternatively, disable the Windows Terminal alias (Settings → Privacy & security → For developers → App Execution Aliases → disable "Windows Terminal") to use `wt` directly. The examples below use `git-wt` for Windows compatibility.
 
+**Fallback when Worktrunk is unavailable:** Worktrunk is optional. If `git-wt` is not installed on the current machine (e.g., no winget access, fresh CI runner, or a tool conflict), fall back to plain `git worktree`:
+
+```powershell
+git worktree add -b feature-name ../FSI-AgentGov.feature-name
+git worktree list
+git worktree remove ../FSI-AgentGov.feature-name
+```
+
+The pre-merge validation (`mkdocs build --strict`, `python scripts/verify_controls.py`) must still run before merging; without Worktrunk's hooks you invoke them manually. Single-worktree workflows (no parallel agents) are also acceptable — branch off `main`, work, push, merge through a PR like any other change.
+
 **Core commands:**
 
 | Task | Command |
@@ -349,6 +359,14 @@ pwsh -c "Invoke-ScriptAnalyzer -Path scripts,assessment/collectors,assessment/ru
 ```
 
 CI enforces all of the above. See `.github/workflows/python-quality.yml`, `powershell-quality.yml`, `secret-scanning.yml`, `dependency-review.yml`, `codeql.yml`, and `release-artifacts.yml`. Release tags trigger CycloneDX SBOM generation and Sigstore keyless signing per the [Versioning and Support policy](docs/reference/versioning-and-support.md).
+
+### Workflow patterns (`.github/workflows/`)
+
+Three workflow-level patterns established during the May 2026 backlog drain — read `.github/AUDIT-METHODOLOGY.md` Lessons 16–18 before editing any workflow:
+
+- **Required-check shims** (`required-check-shims.yml`): bot PRs that touch only `data/monitor-state.json`, `scripts/requirements.txt`, or `reports/monitoring/**` cannot trigger the real `e2e-smoke`/`mkdocs-strict` workflows (paths-filter excludes them). The shim emits a success status for the same check name on `paths-ignore:`-mirrored triggers so branch protection is satisfied. **Mutual exclusion holds only for pure bot PRs** (every changed file in the shim's ignore list); mixed PRs that touch both ignored and non-ignored paths cause both the shim and the real workflow to fire harmlessly. When you edit a real workflow's `paths:`, still mirror the change in the shim's `paths-ignore:` in the same commit to preserve single-firing for the bot-PR case.
+- **`.github/workflows/**` in `python-quality.yml` paths**: workflow-only PRs (e.g., editing `publish_docs.yml`) must still trigger the required-check gate. Including `.github/workflows/**` in the trigger paths prevents the "11 of 11 expected" deadlock that would otherwise block any workflow-only PR.
+- **No invented CLI flags in workflow YAML**: `mkdocs gh-deploy` does **not** accept `--site-url` (only `mkdocs build`/`serve` do). Always run `<tool> <subcommand> --help` locally before "hardening" a workflow with a new flag. The defense-in-depth equivalent of an explicit `site_url` at deploy time is a grep-based pre-deploy assertion step, not a CLI flag.
 
 ## Auditing for repo-wide drift
 

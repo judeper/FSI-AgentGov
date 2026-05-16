@@ -327,6 +327,13 @@ See `docs/reference/learn-monitor-ai-enhancement.md` for the full design.
 | `link-check.yml` | Weekly (Sundays) | Validate markdown links |
 | `publish_docs.yml` | On push to main | Deploy to GitHub Pages |
 | `learn-monitor.yml` | Daily (6 AM UTC) | Monitor Learn documentation changes |
+| `required-check-shims.yml` | PR / push (bot-file paths) | Report success for `e2e-smoke`/`mkdocs-strict` on bot PRs that don't trigger the real workflows. See `.github/AUDIT-METHODOLOGY.md` Lessons 17–18; mutual exclusion holds only for pure bot PRs — mixed PRs cause both shim and real workflow to fire (harmless). |
+
+**Workflow editing rules** (full rationale in `.github/AUDIT-METHODOLOGY.md` Lessons 16–18):
+
+- Any workflow whose jobs are required by branch protection must include `.github/workflows/**` in its `paths:` filter, or workflow-only PRs will deadlock on "11 of 11 expected" checks.
+- When you change a real workflow's `paths:`, mirror the change in `required-check-shims.yml`'s `paths-ignore:` in the same commit to preserve single-firing for the pure-bot-PR case (mixed PRs harmlessly fire both).
+- Never add a CLI flag to a workflow without running `<tool> <subcommand> --help` first. `mkdocs gh-deploy` does **not** accept `--site-url` (this cost the docs site 5 commits of downtime in May 2026 — see PR #267).
 
 ---
 
