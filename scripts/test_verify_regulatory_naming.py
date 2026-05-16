@@ -26,6 +26,7 @@ from verify_regulatory_naming import (  # noqa: E402
     BARE_SR_RE,
     HISTORY_SECTION_RE,
     JSON_PROSE_FIELDS,
+    MACHINE_ONLY_JSON_FIELDS,
     SHORTHAND_RE,
     STALE_SLUG_RE,
     check_internal_links,
@@ -764,3 +765,73 @@ def test_json_prose_field_set_is_explicit() -> None:
     assert "url" not in JSON_PROSE_FIELDS
     assert "slug" not in JSON_PROSE_FIELDS
     assert "version" not in JSON_PROSE_FIELDS
+
+
+def test_machine_only_and_prose_fields_are_disjoint() -> None:
+    """A key cannot be classified as both prose AND machine-only — the union
+    is the closed classification, the intersection must be empty."""
+    overlap = JSON_PROSE_FIELDS & MACHINE_ONLY_JSON_FIELDS
+    assert not overlap, (
+        f"JSON_PROSE_FIELDS and MACHINE_ONLY_JSON_FIELDS must be disjoint; "
+        f"key(s) classified as both: {sorted(overlap)}"
+    )
+
+
+def test_no_unclassified_string_keys_in_assessment_data_jsons() -> None:
+    """AS22 hardening (post-audit follow-up): drift guard for the
+    ``JSON_PROSE_FIELDS`` allowlist.
+
+    Walks every ``assessment/data/*.json`` file and collects every distinct
+    key whose value is ever a string. Asserts that every such key is
+    classified by either ``JSON_PROSE_FIELDS`` (scanned for OCC/SR canonical
+    naming) or ``MACHINE_ONLY_JSON_FIELDS`` (skipped — IDs, URLs, enum
+    tokens, etc.).
+
+    A new key in neither bucket fails the test loudly, forcing the maintainer
+    to make an explicit classification decision rather than letting the new
+    schema field silently bypass the canonical-naming sweep.
+
+    Scenario this defends against: a future maintainer adds a ``commentary``
+    string field to ``solutions-lock.json`` to describe a control. Without
+    this guard, ``commentary`` falls into neither bucket so
+    ``check_json_prose`` skips it -- a non-canonical "OCC 2011-12" reference
+    in that ``commentary`` field would render verbatim into the SPA agenda
+    Markdown export at customer load time and ship undetected by CI. With
+    this guard, the test fails the moment the new key appears, prompting
+    the maintainer to add it to JSON_PROSE_FIELDS (if customer-facing) or
+    to MACHINE_ONLY_JSON_FIELDS (if not).
+    """
+    import json
+
+    repo_root = Path(__file__).resolve().parent.parent
+    data_root = repo_root / "assessment" / "data"
+    if not data_root.is_dir():
+        pytest.skip("assessment/data/ not present")
+
+    string_keys: set[str] = set()
+
+    def _collect(node: object) -> None:
+        if isinstance(node, dict):
+            for key, value in node.items():
+                if isinstance(value, str):
+                    string_keys.add(key)
+                _collect(value)
+        elif isinstance(node, list):
+            for item in node:
+                _collect(item)
+
+    for path in sorted(data_root.rglob("*.json")):
+        _collect(json.loads(path.read_text(encoding="utf-8")))
+
+    classified = JSON_PROSE_FIELDS | MACHINE_ONLY_JSON_FIELDS
+    unclassified = string_keys - classified
+
+    assert not unclassified, (
+        f"AS22 drift: {len(unclassified)} new string-valued key(s) in "
+        f"assessment/data/*.json are not classified: {sorted(unclassified)}. "
+        f"Add each to JSON_PROSE_FIELDS in scripts/verify_regulatory_naming.py "
+        f"if the value is customer-facing prose (rendered into SPA exports), "
+        f"or to MACHINE_ONLY_JSON_FIELDS if it's an identifier / URL / enum "
+        f"that should never be scanned for OCC/SR canonical naming."
+    )
+

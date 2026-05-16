@@ -94,6 +94,46 @@ JSON_PROSE_FIELDS = frozenset({
     "notes",
 })
 
+# AS22 hardening (post-audit follow-up): the companion to JSON_PROSE_FIELDS.
+# Every string-valued key that appears in assessment/data/*.json must be
+# classified as either prose (above) or machine-only (here). The drift-guard
+# unit test in test_verify_regulatory_naming.py asserts the union covers
+# every string-valued key actually present; a new key in neither bucket fails
+# the test loudly so the maintainer must explicitly classify it. Without this
+# guard, a future schema growth (e.g. a new ``commentary`` field on
+# solutions-lock.json) would be silently skipped from the OCC/SR canonical-
+# naming sweep, allowing customer-facing prose drift to ship undetected.
+#
+# Membership rule: list a key here only if its values are NEVER customer-
+# facing prose (IDs, URLs, names of admin roles, schema versions, status
+# enums, etc.). When in doubt, add the key to JSON_PROSE_FIELDS instead --
+# false positives in prose scanning are recoverable; false negatives are not.
+MACHINE_ONLY_JSON_FIELDS = frozenset({
+    # Identifiers / slugs / versioning
+    "id",
+    "url",
+    "name",
+    "version",
+    "schemaVersion",
+    "tier",
+    "domain",
+    "status",
+    "dataClassification",
+    "retention",
+    "generatedBy",
+    # Admin role tokens (kebab-case enum values, never narrative)
+    "azure-admin",
+    "compliance-admin",
+    "global-reader",
+    "log-analytics-reader",
+    "m365-admin",
+    "power-platform-admin",
+    "records-management-admin",
+    "security-admin",
+    "sharepoint-admin",
+    "teams-admin",
+})
+
 # ---------------------------------------------------------------------------
 # Reuse the rich line-context tracker + skip predicate from the companion
 # canonicalize script. Single source of truth for the carve-out logic.
