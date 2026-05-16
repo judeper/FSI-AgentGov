@@ -70,5 +70,18 @@ jobs:
       - name: Validate Documentation
         run: mkdocs build --strict
 
+      - name: Verify mkdocs.yml site_url is explicit (defense-in-depth)
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected='https://judeper.github.io/FSI-AgentGov/'
+          # Match either `site_url: https://...` or `site_url: "https://..."` at start of line
+          if ! grep -E "^site_url:[[:space:]]+\"?${expected}\"?[[:space:]]*$" mkdocs.yml >/dev/null; then
+            echo "ERROR: mkdocs.yml must contain explicit 'site_url: ${expected}' at top level"
+            grep -nE '^site_url:' mkdocs.yml || echo "(no site_url line found)"
+            exit 1
+          fi
+          echo "site_url OK: ${expected}"
+
       - name: Deploy to GitHub Pages
-        run: mkdocs gh-deploy --force --site-url https://judeper.github.io/FSI-AgentGov/
+        run: mkdocs gh-deploy --force
