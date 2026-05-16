@@ -11,20 +11,20 @@ This specification defines when AI agent actions require human review or approva
 
 ### Industry Context
 
-This specification aligns with the **Agentic Oversight Framework** published by Sardine for regulated financial services. The framework defines five components for autonomous AI governance:
+This specification aligns with the risk-based guardrail approach reflected in **NIST AI RMF 1.0** and **FINOS AI Readiness / AI Governance Framework** for regulated financial services. Per NIST AI RMF 1.0, organizations should incorporate trustworthiness considerations into the design, development, use, and evaluation of AI systems; FINOS emphasizes safe and trustworthy AI adoption with guardrails that account for customer, organizational, and regulatory needs.
 
 | Component | Description | FSI-AgentGov Coverage |
 |-----------|-------------|----------------------|
-| **Access** | Constrained data and tool access | [AAM](../governance-operations/action-authorization-matrix.md) sections 3-6, DLP policies |
-| **Agent Operation** | Defined tasks, tool invocation, reasoning | AAM sections 2-5, [Control 1.14](../../controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control.md) |
-| **Decision and Presentation** | Agent recommends, human approves | HITL triggers (this document) |
+| **Access Controls** | Constrained data and tool access | [AAM](../governance-operations/action-authorization-matrix.md) sections 3-6, DLP policies |
+| **Operational Boundaries** | Defined tasks, tool invocation, reasoning | AAM sections 2-5, [Control 1.14](../../controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control.md) |
+| **Human Review and Approval** | Agent recommends, human approves | HITL triggers (this document) |
 | **Comprehensive Audit Trail** | All data, actions, decisions logged | [Control 1.7](../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), AAM section 9 |
 | **Board Governance** | Integration within GRC framework | [Control 2.12](../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md), escalation matrix |
 
-**Reference:** [Sardine Agentic Oversight Framework Whitepaper](https://www.sardine.ai/whitepapers/the-agentic-ai-oversight-framework)
+**References:** [NIST AI RMF 1.0](https://www.nist.gov/itl/ai-risk-management-framework), [FINOS AI Readiness / AI Governance Framework](https://www.finos.org/ai-readiness)
 
 !!! note "FSI-AgentGov Interpretation Layer"
-    The mapping above reflects FSI-AgentGov's interpretation of Sardine's Agentic Oversight Framework applied to Microsoft 365 Copilot Studio agents. The original Sardine whitepaper addresses general agentic AI governance principles; the specific control mappings (AAM, HITL triggers, etc.) are FSI-AgentGov framework extensions designed for Microsoft Power Platform implementations.
+    The mapping above reflects FSI-AgentGov's interpretation of NIST AI RMF 1.0 and FINOS AI governance guardrail concepts applied to Microsoft 365 Copilot Studio agents. The specific control mappings (AAM, HITL triggers, etc.) are FSI-AgentGov framework extensions designed for Microsoft Power Platform implementations.
 
 ---
 
