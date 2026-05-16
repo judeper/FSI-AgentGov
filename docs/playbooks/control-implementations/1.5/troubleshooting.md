@@ -65,7 +65,7 @@ Control 1.5 is the **DLP enforcement plane** for AI-surfaced data flows. A failu
 | Loss of supervisory visibility on AI-surfaced communications | Compliance | **FINRA Rule 3110** supervisory system; **FINRA Notice 25-07** AI-related supervisory expectations |
 | Cybersecurity event materially affecting normal operations | CISO + Legal | **23 NYCRR 500.17** (NYDFS) — 72-hour determination |
 | Material cybersecurity incident at SEC registrant | CISO + Legal + Disclosure Committee | **SEC Form 8-K Item 1.05** — 4 business days from materiality determination |
-| AI / model-related operational risk event tied to DLP failure | Model Risk + Compliance | **OCC Bulletin 2011-12** / **Fed SR 11-7** model risk management; effective-challenge process |
+| AI / model-related operational risk event tied to DLP failure | Model Risk + Compliance | **OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12)** / **Fed SR 26-2 (formerly SR 11-7)** model risk management; effective-challenge process |
 | Records event for a covered swap / trading activity surfaced through Copilot | Compliance | **CFTC Rule 1.31** recordkeeping |
 | Insider misconduct involving deliberate DLP bypass via Copilot | HR + Legal + Compliance | **FINRA Rule 4530** reporting |
 | State-resident PII disclosed | Privacy + Legal | State breach-notification statutes (NY GBL 899-aa, MA 201 CMR 17, CCPA/CPRA, SHIELD Act) |
@@ -767,17 +767,17 @@ A FINRA, SEC, OCC, Fed, NYDFS, or state examiner identifies that a specific surf
 2. **Apply a compensating control immediately** from §1.4 (e.g., site-level block at SPO, external sharing freeze, elevated CommComp review cadence).
 3. **Define the remediation timeline** with concrete milestones: gap-closure design (T+5 business days), pilot enablement (T+15), full enforcement (T+30 or earlier per examiner expectation).
 4. **Update Written Supervisory Procedures** to reflect both the new control and the compensating control during the gap.
-5. **Log the gap closure under the firm's effective-challenge process** per **SR 11-7** / OCC 2011-12 — the AI Governance Lead and Model Risk function must independently challenge the closure design before sign-off. Refer Control 2.6.
+5. **Log the gap closure under the firm's effective-challenge process** per **Fed SR 26-2 (formerly SR 11-7)** / OCC Bulletin 2026-13 (formerly OCC 2011-12) — the AI Governance Lead and Model Risk function must independently challenge the closure design before sign-off. Refer Control 2.6.
 6. **Provide examiner evidence**: the deviation register entry, the change ticket, the dated screenshots of policy state pre- and post-remediation, the SHA-256-stamped PowerShell exports, and the Sentinel ingestion proof for the new surface.
 
 **What good looks like**
 
 - The deviation register entry exists with a clear close-by date and named owner.
 - A documented compensating control is in place from the moment the gap was identified through the moment full enforcement is verified.
-- The remediation passes effective-challenge per SR 11-7 and is signed off by Model Risk + AI Governance + Compliance.
+- The remediation passes effective-challenge per Fed SR 26-2 (formerly SR 11-7) and is signed off by Model Risk + AI Governance + Compliance.
 - The examiner closes the observation against documented evidence.
 
-... see Control 2.6 — Effective challenge and SR 11-7 alignment, and Control 3.4 — Incident reporting and RCA.
+... see Control 2.6 — Effective challenge and Fed SR 26-2 (formerly SR 11-7) alignment, and Control 3.4 — Incident reporting and RCA.
 
 ---
 
@@ -829,7 +829,7 @@ Document any sovereign-cloud exception in the control's deviation register; re-c
 - [Control 1.15 — Encryption Key Custody](../1.15/troubleshooting.md) ... DKE trade-offs vs Copilot
 - [Control 2.1 — Copilot Studio Governance](../2.1/troubleshooting.md) ... Power Platform DLP precedence
 - [Control 2.3 — Change Management and Release Planning](../2.3/troubleshooting.md) ... incremental enablement gates
-- [Control 2.6 — Records Management and Effective Challenge (SR 11-7)](../2.6/troubleshooting.md) ... exam-driven gap closure
+- [Control 2.6 — Records Management and Effective Challenge (Fed SR 26-2 (formerly SR 11-7))](../2.6/troubleshooting.md) ... exam-driven gap closure
 - [Control 2.16 — Agent Publishing Channels](../2.16/troubleshooting.md) ... channel-level DLP enforcement
 - [Control 3.4 — Incident Reporting and RCA](../3.4/troubleshooting.md) ... Reg S-P 2024 notification clocks
 - [Control 3.9 — Sentinel Forwarding and Analytics](../3.9/troubleshooting.md) ... DLP → Sentinel ingestion

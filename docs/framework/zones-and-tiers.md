@@ -39,7 +39,7 @@ This matrix provides a board-level summary for executive reporting and oversight
 | **ALM Requirements** | None (direct editing) | Basic version control recommended | Full CI/CD pipeline with gates |
 | **Testing Required** | Informal | Functional + security testing | Comprehensive (functional, security, bias, performance) |
 | **Approval Authority** | Self-service | Manager/Department Head | Governance Committee + Legal |
-| **Regulatory Exposure** | None | Moderate (FINRA 3110 supervision) | Full (SEC 17a-3/4, FINRA 4511, OCC 2011-12) |
+| **Regulatory Exposure** | None | Moderate (FINRA 3110 supervision) | Full (SEC 17a-3/4, FINRA 4511, OCC Bulletin 2026-13) |
 | **Audit Retention** | 30 days | 1 year | 10 years (immutable) |
 | **Incident Response SLA** | Best effort | 24 hours | 4 hours |
 | **Human Oversight** | Optional | Recommended | Mandatory |
@@ -282,8 +282,8 @@ Zone 3 agents handling regulated data may be subject to comprehensive oversight 
 
 | Institution Type | Primary Regulator(s) | Key Requirements |
 |-----------------|---------------------|------------------|
-| **National banks** | OCC | Model risk (OCC 2011-12), third-party guidance |
-| **State member banks** | Federal Reserve | SR 26-2 (formerly SR 11-7) model risk, supervision |
+| **National banks** | OCC | Model risk (OCC Bulletin 2026-13 (formerly OCC 2011-12)), third-party guidance |
+| **State member banks** | Federal Reserve | Fed SR 26-2 (formerly SR 11-7) model risk, supervision |
 | **State non-member banks** | FDIC | Interagency guidance, FFIEC IT Handbook |
 | **Credit unions** | NCUA | Part 748 security program |
 | **Broker-dealers** | FINRA, SEC | FINRA 3110 supervision, SEC 17a-3/4 records |

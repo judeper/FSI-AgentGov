@@ -1,0 +1,38 @@
+{#-
+  Override of Material 9.7.6 partials/copyright.html.
+
+  Closes F-DEPLOY-COPYRIGHT-PATH-01 (Phase 3 AS14): the previous
+  `mkdocs.yml` `copyright:` field hardcoded
+  `<a href="/FSI-AgentGov/disclaimer/">` which 404s whenever the
+  site is mounted at root rather than at the GitHub Pages
+  `/FSI-AgentGov/` subpath (e.g., local `mkdocs serve` and the
+  Playwright webServer in `playwright.config.mjs:33-35`). The
+  upstream `copyright:` field is rendered as raw HTML — Material
+  does NOT auto-prefix URLs in it.
+
+  This override emits the disclaimer link OUTSIDE the
+  `{% if config.copyright %}` conditional and resolves the URL
+  via Material's `url` filter, which produces a page-relative
+  href that works at every mount point.
+
+  Review on Material upgrade — the upstream partial is short and
+  stable, but reshaping in Material 10.x or MkDocs 2.0 (foreshadowed
+  by the announce-bar warning) should trigger a re-review of this
+  fork.
+-#}
+<div class="md-copyright">
+  {% if config.copyright %}
+    <div class="md-copyright__highlight">
+      {{ config.copyright }}
+    </div>
+  {% endif %}
+  <div class="md-copyright__highlight">
+    <a href="{{ 'disclaimer/' | url }}">Disclaimer</a>
+  </div>
+  {% if not config.extra.generator == false %}
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  {% endif %}
+</div>

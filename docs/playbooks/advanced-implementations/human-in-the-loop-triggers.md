@@ -109,7 +109,7 @@ Agent executes action; subset of actions flagged for post-hoc human review.
 Agent monitors confidence scores or risk indicators and escalates when thresholds are breached.
 
 - **Zone requirement:** Required for Zone 2-3 customer interactions
-- **Regulatory driver:** SR 11-7 model risk management
+- **Regulatory driver:** Fed SR 26-2 (formerly SR 11-7) model risk management
 - **Implementation:** Confidence scoring, anomaly detection, risk scoring
 
 ---

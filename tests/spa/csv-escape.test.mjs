@@ -22,7 +22,7 @@ async function exportCsvWithNotes(notesByControl) {
   return captured[captured.length - 1].blob.__text;
 }
 
-/** Quote-aware CSV row parser. */
+/** Quote-aware CSV row parser. Caller must strip trailing \r before invoking. */
 function parseCsvRow(line) {
   const fields = [];
   let cur = "";
@@ -45,7 +45,9 @@ function parseCsvRow(line) {
 
 /** Returns the notes column value for a given control id from the CSV. */
 function notesFor(csv, controlId) {
-  const lines = csv.split("\n");
+  // CSV uses CRLF line endings (AS7) — split on either CRLF or LF so this
+  // helper continues to work if the line-ending contract changes again.
+  const lines = csv.split(/\r?\n/);
   for (const line of lines.slice(1)) {
     const fields = parseCsvRow(line);
     if (fields[0] === controlId) return fields[fields.length - 1];
@@ -55,7 +57,7 @@ function notesFor(csv, controlId) {
 
 /** Returns the raw CSV line for a control id (before quote/comma parsing). */
 function rawLineFor(csv, controlId) {
-  const lines = csv.split("\n");
+  const lines = csv.split(/\r?\n/);
   return lines.find(l => l.startsWith(controlId + ",") || l.startsWith('"' + controlId + '"'));
 }
 

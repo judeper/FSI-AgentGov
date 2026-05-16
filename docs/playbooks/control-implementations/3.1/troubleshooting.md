@@ -12,7 +12,7 @@
 
 ## §1 — FSI Incident Handling (READ FIRST)
 
-A missing, drifted, or tampered agent inventory is rarely "just" an inventory bug. In a regulated US financial services tenant, the consolidated inventory is the **system of record** that supervisory, books-and-records, model-risk, and privacy obligations rely on. Any meaningful gap is presumptively in scope for FINRA Rule 3110 (supervision), FINRA Rule 4511 / SEC Rule 17a-4(b)(4) (recordkeeping), SEC Reg S-P §248.30, NYDFS 23 NYCRR §500.16/§500.17, OCC Bulletin 2011-12 / Federal Reserve SR 11-7 (model risk management), and CFTC Rule 1.31 until proven otherwise. Treat this section as the **first thing you read** when an inventory anomaly is detected; the eight pillars (§2) and nine runbooks (§3) operate inside the framing it sets.
+A missing, drifted, or tampered agent inventory is rarely "just" an inventory bug. In a regulated US financial services tenant, the consolidated inventory is the **system of record** that supervisory, books-and-records, model-risk, and privacy obligations rely on. Any meaningful gap is presumptively in scope for FINRA Rule 3110 (supervision), FINRA Rule 4511 / SEC Rule 17a-4(b)(4) (recordkeeping), SEC Reg S-P §248.30, NYDFS 23 NYCRR §500.16/§500.17, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7) (model risk management), and CFTC Rule 1.31 until proven otherwise. Treat this section as the **first thing you read** when an inventory anomaly is detected; the eight pillars (§2) and nine runbooks (§3) operate inside the framing it sets.
 
 ### §1.1 Severity Matrix
 
@@ -28,7 +28,7 @@ The severity rating drives the response clock, the escalation ladder (L1–L5, �
 **Inventory-specific aggravating factors that bump severity up one level:**
 
 - The affected agent or agent population processes customer NPI (GLBA-regulated), PHI, or material non-public information (MNPI).
-- The affected agent is classified as a "model" under SR 11-7 / OCC 2011-12 (decisioning, valuation, risk scoring, surveillance).
+- The affected agent is classified as a "model" under Fed SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC 2011-12) (decisioning, valuation, risk scoring, surveillance).
 - The anomaly occurred during an active regulatory exam, audit, internal investigation, litigation hold, or LegalOps preservation request.
 - The anomaly affects a sovereign cloud (GCC, GCC High, or DoD) tenant, which has tighter audit and breach-reporting expectations.
 - The inventory drift is correlated with personnel changes (departing privileged user, reorganization, M&A integration).
@@ -50,7 +50,7 @@ Walk every SEV-1 and SEV-2 inventory incident through Q1–Q10 within the first 
 | **Q5** | SEC Reg S-P §248.30(a)(3) | Did the agent have access to, or could the gap have caused unauthorized exposure of, customer non-public personal information (NPI)? | Escalate to CCO + Privacy Officer + Legal; trigger Reg S-P incident-response procedures; assess customer notification. |
 | **Q6** | SEC Form 8-K Item 1.05 (registrant) | Has a "material" cybersecurity incident likely occurred (qualitative / quantitative materiality)? | Escalate to CCO + General Counsel + Disclosure Committee; **4-business-day clock starts upon materiality determination**. |
 | **Q7** | NYDFS 23 NYCRR §500.17(a) | Has a cybersecurity event materially affecting normal operations or requiring notice to a government / SRO occurred? | Escalate to CISO + General Counsel; **72-hour determination/notification clock starts upon discovery**. |
-| **Q8** | OCC Bulletin 2011-12 / Federal Reserve SR 11-7 | Is the affected agent a "model" (drives decisions, valuations, risk scoring, surveillance), and did the gap impair model inventory, performance monitoring, change control, or validation evidence? | Escalate to MRM (Model Risk Management) + CCO; record an MRM finding and remediation plan. |
+| **Q8** | OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7) | Is the affected agent a "model" (drives decisions, valuations, risk scoring, surveillance), and did the gap impair model inventory, performance monitoring, change control, or validation evidence? | Escalate to MRM (Model Risk Management) + CCO; record an MRM finding and remediation plan. |
 | **Q9** | GLBA / FTC Safeguards Rule (16 CFR §314) | Did the gap impair the ability to safeguard customer information, or could it amount to a Safeguards Rule control failure? | Escalate to Privacy Officer + CISO; document Safeguards control failure & remediation. |
 | **Q10** | CFTC Rule 1.31 / NFA recordkeeping | For swap dealers, FCMs, IBs, CPOs, CTAs: did the gap affect records required to be kept under CFTC Part 1, Part 23, or NFA rules (including AI-assisted trading or surveillance records)? | Escalate to CCO + CFTC-registered entity Compliance; preserve under CFTC-aligned retention. |
 
@@ -133,7 +133,7 @@ A regulated relationship-manager (RM) Copilot Studio agent named "Atlantis Advis
 
 **T+0:08.** Surface screenshots (E-01) captured of all four inventory surfaces showing the agent absent. PPAC + Dataverse `bot` snapshot (E-02) launched against the suspected environment ("Wealth-Prod-East"). Initial Dataverse query returns the bot record (`botid`, `name`, `owner`, `createdon`, `modifiedon`, `solutionid`, `componentstate`). Severity bumped to **SEV-1** because (a) the agent is in active production use against client data, (b) it is invisible to four of five inventory sources, (c) the owner field on the Dataverse record points to a user whose Entra account was disabled the prior Friday (departing-employee cascade hint).
 
-**T+0:15.** L3 + L4 paged. Compliance Operations, CCO delegate, CISO on-call joined the bridge. Reportability tree walk (§1.2) initiated. Initial answers: Q1 **Yes** (RM agent → supervisory perimeter); Q2 **Maybe** (records preservation depends on Purview retention scope, which is unconfirmed); Q4 **Yes** (AI tool, member-firm capacity); Q5 **Maybe** (HNW client data → likely NPI in scope); Q6 **TBD** (materiality assessment to be made by Disclosure Committee); Q7 **Maybe** (NYDFS-regulated entity; 72h clock provisionally starts at 14:03 ET); Q8 **No** (advisory, not a "model" under SR 11-7); Q9 **Yes** (Safeguards control failure on customer information); Q10 **N/A** (not a CFTC-registered entity).
+**T+0:15.** L3 + L4 paged. Compliance Operations, CCO delegate, CISO on-call joined the bridge. Reportability tree walk (§1.2) initiated. Initial answers: Q1 **Yes** (RM agent → supervisory perimeter); Q2 **Maybe** (records preservation depends on Purview retention scope, which is unconfirmed); Q4 **Yes** (AI tool, member-firm capacity); Q5 **Maybe** (HNW client data → likely NPI in scope); Q6 **TBD** (materiality assessment to be made by Disclosure Committee); Q7 **Maybe** (NYDFS-regulated entity; 72h clock provisionally starts at 14:03 ET); Q8 **No** (advisory, not a "model" under Fed SR 26-2 (formerly SR 11-7)); Q9 **Yes** (Safeguards control failure on customer information); Q10 **N/A** (not a CFTC-registered entity).
 
 **T+0:30.** Compensating controls applied: maker-restriction freeze on net-new Copilot Studio agents in Wealth-Prod-East; Purview eDiscovery hold on the prior owner's mailbox + Teams + OneDrive; supervisory blind-window notification sent to Wealth Management Compliance. Microsoft Graph snapshot (E-03) completed; the agent **is** returned by `GET /copilot/agents` (preview) but with `displayName` differing from the Dataverse record by a single character — explaining why the Hub / PPAC fuzzy joins didn't match.
 
@@ -743,7 +743,7 @@ Public-registrant firms must disclose material cybersecurity incidents on Form 8
 
 Covered entities must notify the Department of Financial Services within 72 hours of determining that a cybersecurity event has occurred that meets the §500.17(a)(1) or (2) criteria. The 72-hour clock starts upon **determination**. The CISO + General Counsel own the determination.
 
-### §4.8 OCC Bulletin 2011-12 / Federal Reserve SR 11-7 — Model Risk Management
+### §4.8 OCC Bulletin 2026-13 / Federal Reserve SR 26-2 — Model Risk Management
 
 For agents that meet the firm's "model" definition (decisioning, valuation, risk scoring, surveillance), inventory gaps impair model-risk controls (model inventory, performance monitoring, change control, validation evidence). MRM raises a finding and tracks remediation. The Chief Risk Officer + Model Risk Manager own the response.
 

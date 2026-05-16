@@ -93,7 +93,11 @@ test.describe("cold-start full-assessment import @regression", () => {
     expect(slot.responses["1.7"]?.answer).toBe("no");
 
     // -- Phase 2: PERSISTENCE ACROSS RELOAD ----------------------------
-    await page.reload({ waitUntil: "domcontentloaded" });
+    // Use page.goto("/assessment/") instead of page.reload() to simulate the
+    // customer "fresh-URL visit" flow that lands on welcome. AS8's URL routing
+    // would otherwise preserve ?step= across page.reload() and auto-resume into
+    // phase1, bypassing the welcome-list resume probe below.
+    await page.goto("/assessment/", { waitUntil: "domcontentloaded" });
     await page
       .locator("#assessment-app")
       .getByRole("heading", { name: "Governance Readiness Assessment" })

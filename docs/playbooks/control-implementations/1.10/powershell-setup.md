@@ -2,7 +2,7 @@
 
 **Control:** [1.10 Communication Compliance Monitoring](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md)
 **Baseline:** [PowerShell baseline (`_shared/powershell-baseline.md`)](../../_shared/powershell-baseline.md)
-**Audience:** M365 administrator at a US financial services organization (FINRA / SEC / GLBA / OCC / Fed SR 11-7 / CFTC oversight) operating Microsoft 365 Copilot, Agent Builder, and Copilot Studio agents.
+**Audience:** M365 administrator at a US financial services organization (FINRA / SEC / GLBA / OCC / Fed SR 26-2 (formerly SR 11-7) / CFTC oversight) operating Microsoft 365 Copilot, Agent Builder, and Copilot Studio agents.
 **Sovereign clouds:** Commercial / GCC / GCC High / DoD — connection helper in [Section 1](#1-pre-flight) and full reference in [Section 7](#7-sovereign-cloud-reference).
 **Required modules:** `ExchangeOnlineManagement` ≥ 3.5.0 (provides both `Connect-ExchangeOnline` and `Connect-IPPSSession`).
 

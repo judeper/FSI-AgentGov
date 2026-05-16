@@ -10,7 +10,7 @@
 
 ## Regulatory hedging notice
 
-This playbook helps support FSI organizations in meeting expectations from FINRA Rule 3110 (supervision), SEC Rule 17a-4 (records retention), SOX §404 (internal control over financial reporting), GLBA Safeguards Rule 501(b), OCC Bulletin 2011-12 / Federal Reserve SR 11-7 (model risk management), CFTC Regulation 1.31, NIST AI RMF (Measure function), ISO/IEC 42001, and NYDFS 23 NYCRR 500 where applicable.
+This playbook helps support FSI organizations in meeting expectations from FINRA Rule 3110 (supervision), SEC Rule 17a-4 (records retention), SOX §404 (internal control over financial reporting), GLBA Safeguards Rule 501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7) (model risk management), CFTC Regulation 1.31, NIST AI RMF (Measure function), ISO/IEC 42001, and NYDFS 23 NYCRR 500 where applicable.
 
 A clean run of this playbook **does not guarantee legal or regulatory compliance**, does not replace independent validation, and does not substitute for written supervisory procedures. Implementation requires organization-specific risk assessment, legal review, and integration with the firm's broader compliance program. Organizations should verify current Microsoft Learn documentation, sovereign-cloud feature parity, and tenant-specific entitlements at each cycle. Numeric thresholds in this playbook are **calibrated to the tenant baseline captured in PRE-04**; they are not portable between tenants without recalibration.
 
@@ -27,7 +27,7 @@ This playbook is **meta-validation**: its job is to verify that the testing prog
 | **Compliance Officer** | Reviews the evidence pack from a supervisory and regulatory-readiness perspective and signs as **Compliance**. |
 | **Power Platform Admin / Pipeline Admin** | Confirms that the §4 PIPE and HOLD tests reflect the actual platform-enforced gating behavior. |
 | **Internal Audit** | Uses the evidence pack and three-signature attestation chain as the testable artifact for SOX-style and FINRA-supervision walkthroughs. |
-| **Model Risk Manager** | Reviews EVAL, KPI, and PYRIT evidence under SR 11-7 / OCC 2011-12 model-risk expectations. |
+| **Model Risk Manager** | Reviews EVAL, KPI, and PYRIT evidence under Fed SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC 2011-12) model-risk expectations. |
 
 Run order each cycle: **Section 0 blockers → Section 2 PRE gates → Section 4 tests → Section 5 evidence pack assembly → Section 6 validator → Section 7 attestation**. Anything earlier returning a blocker, a PRE FAIL, or a validator exit code 2 halts the cycle.
 

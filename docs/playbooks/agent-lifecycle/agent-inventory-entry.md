@@ -102,7 +102,7 @@ Link to the agent’s detailed Per-Agent Data Handling Policy.
 
 ## 9) Compliance mapping
 
-- **Primary regulatory lenses:** (FINRA / SEC / GLBA / SOX / OCC / SR 11-7, etc.)
+- **Primary regulatory lenses:** (FINRA / SEC / GLBA / SOX / OCC Bulletin 2026-13 / Fed SR 26-2 (formerly SR 11-7), etc.)
 - **Records obligations:** (what retention/regulatory recordkeeping applies)
 - **Disclosures/communications constraints:** (if customer-facing)
 

@@ -146,7 +146,7 @@ Copilot Studio agents configured with Application Insights log `ContentFiltered`
 | **SEC 17a-3/4** | Supervision evidence | Shows AI agent behavior is monitored and controlled |
 | **SOX 302/404** | Internal controls | Correlation engine provides evidence of functioning internal controls |
 | **GLBA 501(b)** | Safeguards evidence | DLP blocking demonstrates NPI protection |
-| **OCC 2011-12** | Model risk controls | RAI telemetry shows model guardrails are functioning |
+| **OCC Bulletin 2026-13 (formerly OCC 2011-12)** | Model risk controls | RAI telemetry shows model guardrails are functioning |
 
 ---
 

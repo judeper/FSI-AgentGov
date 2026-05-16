@@ -2,26 +2,14 @@
   "directives": {
     "default-src": ["'self'"],
     "script-src": ["'self'", "'unsafe-inline'"],
-    "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-    "font-src": ["'self'", "https://fonts.gstatic.com"],
+    "style-src": ["'self'", "'unsafe-inline'"],
+    "font-src": ["'self'"],
     "img-src": ["'self'", "data:"],
     "connect-src": ["'self'", "https://api.github.com"],
     "base-uri": ["'self'"],
     "form-action": ["'self'"]
   },
   "loosenings": [
-    {
-      "directive": "style-src",
-      "value": "https://fonts.googleapis.com",
-      "reason": "mkdocs-material default font CSS",
-      "expiresISO": "2026-12-31"
-    },
-    {
-      "directive": "font-src",
-      "value": "https://fonts.gstatic.com",
-      "reason": "mkdocs-material default font files",
-      "expiresISO": "2026-12-31"
-    },
     {
       "directive": "script-src",
       "value": "'unsafe-inline'",

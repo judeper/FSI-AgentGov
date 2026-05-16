@@ -2,10 +2,15 @@
   "name": "edge-malicious",
   "scoping": {
     "organizationName": "<script>alert(1)</script>",
-    "assessorName": "\"><img src=x onerror=alert(1)>",
+    "assessorName": "\"\"><img src=x onerror=alert(1)>",
     "institutionType": "bank",
-    "zones": [1, 2],
-    "roles": ["admin"]
+    "zones": [
+      1,
+      2
+    ],
+    "roles": [
+      "admin"
+    ]
   },
   "answers": {
     "1.1": {
@@ -14,7 +19,28 @@
     },
     "1.2": {
       "value": "no",
-      "notes": "Unicode tricks: \u202eEVIL\u202c and zero-width \u200b\u200c\u200d here"
+      "notes": "Unicode tricks: ‮EVIL‬ and zero-width ​‌‍ here"
+    }
+  },
+  "responses": {
+    "1.1": {
+      "answer": "yes",
+      "notes": "=cmd|\" /c calc\"!A1",
+      "evidenceRef": ""
+    },
+    "1.2": {
+      "answer": "no",
+      "notes": "Unicode tricks: ‮EVIL‬ and zero-width ​‌‍ here",
+      "evidenceRef": ""
+    }
+  },
+  "expectedScores": {
+    "overall": 50,
+    "perPillar": {
+      "1": 50,
+      "2": null,
+      "3": null,
+      "4": null
     }
   }
 }

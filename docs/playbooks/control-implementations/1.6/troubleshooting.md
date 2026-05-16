@@ -28,7 +28,7 @@ DSPM for AI is the **detection plane** for Copilot / agent / third-party-AI risk
 | Books-and-records gap (CopilotInteraction events lost / not retained) | Compliance + Legal | FINRA 4511 / SEC 17a-4(f) |
 | NPI / customer info disclosed via Copilot/agent without enforcement | Privacy + Legal | GLBA 501(b); SEC Reg S-P §248.30(a)(4) customer-notification timeline |
 | Cybersecurity event materially affecting normal operations | CISO + Legal | NY DFS 23 NYCRR 500 — 72-hour determination |
-| AI/model-related operational risk event | Model Risk + Compliance | OCC 2011-12 / Fed SR 11-7 |
+| AI/model-related operational risk event | Model Risk + Compliance | OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) |
 | Third-party AI vendor failure | Vendor mgmt + Compliance | Interagency Guidance on Third-Party Relationships |
 | Records-related event for a covered swap/trading activity | Compliance | CFTC Rule 1.31 |
 | Insider misconduct involving AI surface | HR + Legal + Compliance | FINRA 4530 |

@@ -4,8 +4,12 @@
     "organizationName": "Acme Bank",
     "assessorName": "Jane Doe",
     "institutionType": "bank",
-    "zones": [1],
-    "roles": ["ciso"]
+    "zones": [
+      1
+    ],
+    "roles": [
+      "ciso"
+    ]
   },
   "answers": {
     "1.4": "yes",
@@ -13,5 +17,41 @@
     "1.7": "no",
     "1.11": "yes",
     "2.1": "partial"
+  },
+  "responses": {
+    "1.4": {
+      "answer": "yes",
+      "notes": "",
+      "evidenceRef": ""
+    },
+    "1.5": {
+      "answer": "partial",
+      "notes": "",
+      "evidenceRef": ""
+    },
+    "1.7": {
+      "answer": "no",
+      "notes": "",
+      "evidenceRef": ""
+    },
+    "1.11": {
+      "answer": "yes",
+      "notes": "",
+      "evidenceRef": ""
+    },
+    "2.1": {
+      "answer": "partial",
+      "notes": "",
+      "evidenceRef": ""
+    }
+  },
+  "expectedScores": {
+    "overall": 60,
+    "perPillar": {
+      "1": 63,
+      "2": 50,
+      "3": null,
+      "4": null
+    }
   }
 }

@@ -259,7 +259,7 @@ Phase 1 implements the controls needed to support production agents in Zone 3, i
 
 ### Control 2.6: Model Risk Assessment
 
-**Purpose:** Align with OCC 2011-12 / SR 11-7 guidance
+**Purpose:** Align with OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) guidance
 
 **Steps:**
 

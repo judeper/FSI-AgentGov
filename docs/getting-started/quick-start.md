@@ -215,7 +215,7 @@ Result: You've identified your primary US regulators. Consult your Compliance Of
 - SEC Rule 17a-3/4
 - SOX 302/404
 - GLBA 501(b)
-- OCC/SR 26-2 (formerly SR 11-7) (if applicable)
+- OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) (if applicable)
 
 ---
 

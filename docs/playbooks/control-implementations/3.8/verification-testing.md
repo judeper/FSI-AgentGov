@@ -168,7 +168,7 @@ Each test case includes an objective, prerequisites, steps, structured pass/fail
 
 **Evidence:** role assignment screenshot, before/after settings export, Entra audit log entry showing the AI Administrator as initiator.
 
-**Regulatory mapping:** SOX 404 segregation of duties; OCC 2011-12 least-privilege.
+**Regulatory mapping:** SOX 404 segregation of duties; OCC Bulletin 2026-13 (formerly OCC 2011-12) least-privilege.
 
 ---
 

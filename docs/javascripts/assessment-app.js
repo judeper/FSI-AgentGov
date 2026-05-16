@@ -22,6 +22,7 @@
     { id: "results", label: "Results", num: 5 },
     { id: "export", label: "Export", num: 6 },
   ];
+  var STEP_IDS = STEPS.map(function (s) { return s.id; });
   var ANSWERS = [
     { value: "yes", label: "Yes", cls: "selected" },
     { value: "partial", label: "Partial", cls: "selected-partial" },
@@ -157,6 +158,48 @@
     return stripped;
   }
 
+  /** Build an Excel numeric percent cell from a 0..1 fraction.
+   *  Returns "" (empty cell) for null/undefined/non-finite inputs.
+   *  Out-of-range fractions are clamped to [0, 1] so a forgotten /100 conversion
+   *  cannot produce a wildly-wrong "7500%" display in customer-facing reports.
+   *  Cells emitted this way are SUM/AVERAGE-aggregable in Excel pivot tables;
+   *  string-typed "75%" cells are not. */
+  function pctCell(frac) {
+    if (frac === null || frac === undefined) return "";
+    if (typeof frac !== "number" || !isFinite(frac)) return "";
+    var v = frac < 0 ? 0 : frac > 1 ? 1 : frac;
+    return { v: v, t: "n", z: "0%" };
+  }
+
+  /* ---- AS8 query-param routing helper (F-SPA-BACK-NO-ROUTING-01) ----
+   *  Reads `?step=` from the URL and returns it IF it matches a known
+   *  step in STEP_IDS (e.g. "phase1"); otherwise returns "".
+   *
+   *  Why query, not hash: mkdocs Material's `navigation.tracking`
+   *  feature (mkdocs.yml:29) calls history.replaceState(state, "",
+   *  "#anchor") as the user scrolls past markdown TOC anchors. The
+   *  intro/outro markdown content above and below the SPA on
+   *  /assessment/ has h2s like "Scoring Methodology" — Material's
+   *  scroll observer rewrites the hash to those anchors,
+   *  obliterating any SPA hash routing.
+   *
+   *  Material does NOT mutate query strings on /assessment/; query
+   *  routing is therefore the only Material-safe option.
+   *
+   *  Legacy hash deep-links (e.g. /assessment/#results) are
+   *  intentionally unsupported — they boot welcome and the URL is
+   *  preserved (spec 04 active test 1 covers this). */
+  function _readStepFromUrl() {
+    try {
+      var u = new URL(location.href);
+      var s = u.searchParams.get("step");
+      if (!s) return "";
+      return STEP_IDS.indexOf(s) >= 0 ? s : "";
+    } catch (_e) {
+      return "";
+    }
+  }
+
   // ---- Collector payload validation (security) --------------------------
   // Note: object-literal `__proto__` sets the prototype rather than an own
   // property. Use Object.create(null) + bracket assignment so the key lookup
@@ -244,6 +287,35 @@
     return s.slice(0, 80) + "-" + _shortHash(s);
   }
 
+  // Filename-stem sanitizer that preserves Unicode letters / numbers
+  // (Société Générale, العربية, 中文, 🏦) but strips:
+  //   - Windows-illegal chars: < > : " / \ | ? *
+  //   - C0 + DEL control chars: U+0000-U+001F, U+007F
+  //   - Bidi override marks (CVE-2021-42574 "Trojan Source" class):
+  //     U+202A-U+202E (LRE/RLE/PDF/LRO/RLO),
+  //     U+2066-U+2069 (LRI/RLI/FSI/PDI)
+  //   - Whitespace runs collapsed to single dash
+  //   - Multi-dash sequences collapsed
+  //   - Leading/trailing dashes + dots (Windows reserved-name corners)
+  // Then guards against Windows reserved device names (CON, NUL,
+  // COM1-9, LPT1-9) -- both the bare form ("CON") AND the with-extension
+  // form ("CON.txt") because Windows refuses to open either. Per
+  // <https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions>:
+  //   "Do not use the following reserved names ... Also avoid these names
+  //    followed immediately by an extension; for example, NUL.txt..."
+  // Closes F-RUNTIME-EXPORT-FILENAME-UNICODE-STRIPPED-01.
+  function _sanitizeFilenameStem(s) {
+    s = String(s || "").trim();
+    s = s.replace(/[\u0000-\u001f\u007f<>:"/\\|?*\u202a-\u202e\u2066-\u2069]/g, "-");
+    s = s.replace(/\s+/g, "-");
+    s = s.replace(/-+/g, "-");
+    s = s.replace(/^[-.]+|[-.]+$/g, "");
+    if (/^(con|prn|aux|nul|com[1-9]|lpt[1-9])(\..*)?$/i.test(s)) {
+      s = "_" + s;
+    }
+    return s || "assessment";
+  }
+
   function downloadBlob(blob, filename) {
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
@@ -302,7 +374,73 @@
     this._bindMaterialSearchGuard();
     this._injectPrintStyles();
     this._migrateLegacySavedAssessments();
+
+    // AS8 (F-SPA-BACK-NO-ROUTING-01): wire browser back/forward to SPA
+    // step transitions via the URL `?step=` query param. Without this,
+    // browser-back from any non-welcome step exits /assessment/ and
+    // white-screens the user (state survives in localStorage, but the
+    // user does not know that).
+    //
+    // Why query, not hash: mkdocs Material's `navigation.tracking`
+    // (mkdocs.yml:29) scroll-rewrites `location.hash` to TOC anchors
+    // like "#scoring-methodology" as the user scrolls past markdown
+    // headings. That obliterates any SPA hash routing. Query params
+    // are not touched by Material — verified empirically.
+    //
+    // We read the step from `?step=` on every popstate (NOT from
+    // `event.state` — Material's instant-nav listener overwrites the
+    // current entry's state with a scroll offset ~100ms after scrolling).
+    //
+    // Stored on `this._popstateHandler` so `destroy()` can remove it
+    // when Material navigates away from /assessment/ to another doc page
+    // (the loader calls `appInstance.destroy()` then drops the instance).
+    this._popstateHandler = function () {
+      // Defensive: SPA may have been torn down between pushState and the
+      // popstate dispatch (rare race). Ignore if the root is gone.
+      if (!self.el || !document.body || !document.body.contains(self.el)) {
+        return;
+      }
+      var step = _readStepFromUrl() || "welcome";
+      // Non-welcome steps require state to render without crashing
+      // (renderScoping/renderPhase1/etc dereference this.state). If the
+      // user landed on /assessment/?step=phase1 cold (deep-link OR
+      // back-nav from a sibling page that lost in-memory state), recover
+      // the most recent assessment from localStorage; otherwise fall back
+      // to welcome to avoid the white-screen failure mode AS8 is fixing.
+      if (step !== "welcome" && !self.state) {
+        if (!self.loadFromStorage()) {
+          step = "welcome";
+        }
+      }
+      self._setStepFromHistory(step);
+    };
+    window.addEventListener("popstate", this._popstateHandler);
+
     this.loadData().then(function () {
+      // Honor a `?step=` deep-link (e.g. bookmarked
+      // /assessment/?step=phase1) by overriding the default `welcome`
+      // step BEFORE the first render. Same recovery rules as popstate:
+      // non-welcome requires state.
+      var initialStep = _readStepFromUrl();
+      if (initialStep && initialStep !== "welcome") {
+        if (self.loadFromStorage()) {
+          // loadFromStorage sets self.step from saved data (L1041
+          // heuristic forces in-progress steps to phase1). Override with
+          // the explicit deep-link target so the URL wins.
+          self.step = initialStep;
+        } else {
+          // No state to recover — clean the query so subsequent back-nav
+          // is not muddied by a dead deep-link.
+          self.step = "welcome";
+          try {
+            var u = new URL(location.href);
+            u.searchParams.delete("step");
+            history.replaceState(null, "", u.pathname + u.search + u.hash);
+          } catch (_) { /* SecurityError on file:// — ignore */ }
+        }
+      } else if (initialStep === "welcome") {
+        self.step = "welcome";
+      }
       self.render();
     });
   };
@@ -435,7 +573,17 @@
     this._searchGuardBound = true;
   };
 
-  AssessmentApp.prototype.destroy = function () {
+  /**
+   * Per-render cleanup: tears down chart instances, observers, and the
+   * search-guard listener that are scoped to the current rendered DOM
+   * tree. Called by render() before re-emitting markup so we don't leak
+   * Chart.js instances or observers across re-renders.
+   *
+   * Does NOT remove the popstate listener — that is scoped to the SPA
+   * instance lifetime, not the render lifecycle, and is owned by
+   * destroy() which the loader calls only on Material navigation away.
+   */
+  AssessmentApp.prototype._resetRenderState = function () {
     this.charts.forEach(function (c) { try { c.destroy(); } catch (e) { /* */ } });
     this.charts = [];
     this._observers.forEach(function (o) { try { o.disconnect(); } catch (e) { /* */ } });
@@ -444,6 +592,20 @@
       this.el.removeEventListener("keydown", this._searchGuardHandler, true);
       this._searchGuardBound = false;
       this._searchGuardHandler = null;
+    }
+  };
+
+  AssessmentApp.prototype.destroy = function () {
+    this._resetRenderState();
+    // AS8 (F-SPA-BACK-NO-ROUTING-01): un-wire popstate listener registered
+    // in init(). Only safe to do during full unmount (assessment-loader.js
+    // destroy → null instance), NOT during per-render reset — render()
+    // runs many times per instance lifetime and the popstate listener
+    // must survive every render so back/forward continues to work.
+    if (this._popstateHandler) {
+      try { window.removeEventListener("popstate", this._popstateHandler); }
+      catch (e) { /* */ }
+      this._popstateHandler = null;
     }
   };
 
@@ -1676,7 +1838,7 @@
      RENDERING — MAIN ROUTER
      ================================================================ */
   AssessmentApp.prototype.render = function () {
-    this.destroy(); // Clean up charts
+    this._resetRenderState(); // Per-render: charts/observers/search-guard only
     this.el.innerHTML = "";
     if (this._quotaError) this.el.appendChild(this._renderQuotaBanner());
     this.el.appendChild(this.renderSteps());
@@ -1715,8 +1877,67 @@
     if (this.state) {
       try { this.saveToStorage(); } catch (_) { /* */ }
     }
+    // AS8 (F-SPA-BACK-NO-ROUTING-01): push a `?step=` query entry per
+    // step transition so the browser back button restores prior screens
+    // instead of exiting /assessment/ and white-screening the user.
+    //
+    // Why query (not hash): mkdocs Material's `navigation.tracking`
+    // (mkdocs.yml:29) scroll-rewrites `location.hash` to TOC anchors
+    // ("#scoring-methodology" etc) as the user scrolls past the
+    // markdown intro headings on /assessment/. Hash routing collides;
+    // query routing does not. Pass `null` state because Material also
+    // clobbers history.state with scroll offsets — the URL query is
+    // the authoritative channel.
+    //
+    // We strip any pre-existing fragment when pushing so a polluted
+    // Material scroll-anchor does not ride into the new entry. We
+    // strip ALL pre-existing query params from `?step=` so step
+    // navigation owns the search-string namespace.
+    //
+    // The "changed" check compares against the URL query, not
+    // this.step, because this.step may have been mutated upstream
+    // (e.g., by loadFromStorage in the Resume flow at line ~1919)
+    // BEFORE goToStep runs. Comparing against the URL gives a true
+    // "is this transition new to the back-stack?" answer. Avoids both
+    // duplicate pushes when re-clicking the current step indicator
+    // AND missed pushes when Resume sets this.step before goToStep.
+    if (typeof history !== "undefined" && history.pushState) {
+      var currentStep = _readStepFromUrl();
+      if (currentStep !== step) {
+        try {
+          var u = new URL(location.href);
+          u.searchParams.set("step", step);
+          u.hash = "";
+          history.pushState(null, "", u.pathname + u.search);
+        } catch (_) { /* SecurityError on file:// — ignore */ }
+      }
+    }
     this.render();
     this.el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  /**
+   * AS8 (F-SPA-BACK-NO-ROUTING-01): apply a step transition that
+   * originated from browser history (popstate / back / forward / cold
+   * deep-link). Does NOT push another history entry — that would
+   * corrupt the back-stack and prevent forward-navigation. Also uses
+   * `instant` scroll behavior (not `smooth`) so rapid back×N does not
+   * queue up competing animations against rapidly-rebuilt DOM.
+   */
+  AssessmentApp.prototype._setStepFromHistory = function (step) {
+    this.step = step;
+    if (this.state) {
+      try { this.saveToStorage(); } catch (_) { /* */ }
+    }
+    this.render();
+    if (this.el && this.el.scrollIntoView) {
+      try { this.el.scrollIntoView({ behavior: "instant", block: "start" }); }
+      catch (_) {
+        // Older browsers may not support {behavior:"instant"} — fall back
+        // to default (instant) scroll.
+        try { this.el.scrollIntoView(); } catch (__) { /* */ }
+      }
+    }
   };
 
   AssessmentApp.prototype.renderSteps = function () {
@@ -3081,7 +3302,12 @@
     // Disclaimer
     wrap.appendChild(h("div", { className: "ag-disclaimer" },
       "This assessment helps support governance readiness. Scores reflect self-reported implementation " +
-      "status and do not constitute a compliance certification."
+      "status and do not constitute a compliance certification. " +
+      "Note: when printed to PDF via browser, Arabic and other right-to-left scripts " +
+      "may be saved as visual presentation-form glyphs rather than logical Unicode, " +
+      "which breaks text search and screen-reader access in archived PDFs. For RTL " +
+      "compliance archives, use the JSON or Markdown export and convert to PDF using " +
+      "a tool with proper complex-script support (e.g., LibreOffice, Pandoc with XeLaTeX)."
     ));
 
     // Tabs
@@ -3800,7 +4026,7 @@
       }
     }
     var blob = new Blob([JSON.stringify(envelope, null, 2)], { type: "application/json" });
-    var name = _truncateFilename((this.state.assessmentName || "assessment").replace(/[^a-zA-Z0-9-_]/g, "-"));
+    var name = _truncateFilename(_sanitizeFilenameStem(this.state.assessmentName));
     downloadBlob(blob, name + ".json");
   };
 
@@ -3830,9 +4056,15 @@
         csvField(resp.notes || ""),
       ]);
     });
-    var csv = rows.map(function (r) { return r.join(","); }).join("\n");
-    var blob = new Blob([csv], { type: "text/csv" });
-    var name = _truncateFilename((this.state.assessmentName || "assessment").replace(/[^a-zA-Z0-9-_]/g, "-"));
+    // CRLF line endings + UTF-8 BOM are required for Excel-on-Windows correctness:
+    //   - CRLF: some regional Excel locales (Japanese, Korean, several European
+    //     Windows configurations) collapse LF-only CSV into a single cell.
+    //   - BOM: BOM-less CSV is opened in the system locale (typically Windows-1252),
+    //     mojibaking accented org names ("Société Générale" → "SociÃ©tÃ© GÃ©nÃ©rale").
+    //   - Trailing CRLF: RFC 4180-compliant; harmless for Excel + SheetJS readers.
+    var csv = rows.map(function (r) { return r.join(","); }).join("\r\n") + "\r\n";
+    var blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
+    var name = _truncateFilename(_sanitizeFilenameStem(this.state.assessmentName));
     downloadBlob(blob, name + "-gaps.csv");
   };
 
@@ -3865,7 +4097,7 @@
         ["Institution Type", sanitizeCell(self.state.scoping.institutionType || "")],
         ["Date", fmtDate(self.state.updatedAt)],
         [],
-        ["Overall Score", (self.getOverallScore() || 0) + "%"],
+        ["Overall Score", pctCell((self.getOverallScore() || 0) / 100)],
         ["Controls Assessed", Object.keys(self.state.responses).length + " / " + self.data.totalControls],
         ["Gaps Identified", self.getGapControls().length],
         [],
@@ -3874,7 +4106,7 @@
       [1, 2, 3, 4].forEach(function (p) {
         summaryData.push([
           "Pillar " + p + " — " + self.data.pillars[String(p)].name,
-          (self.getPillarScore(p) || 0) + "%",
+          pctCell((self.getPillarScore(p) || 0) / 100),
         ]);
       });
       var ws1 = XLSX.utils.aoa_to_sheet(summaryData);
@@ -3888,7 +4120,7 @@
         ctrlData.push([
           ctrl.id, ctrl.title, ctrl.pillarName,
           resp.answer || "Not assessed",
-          score !== null ? Math.round(score * 100) + "%" : "N/A",
+          score !== null ? pctCell(score) : "N/A",
           sanitizeCell(resp.notes || ""),
           ctrl.adoptionPhase ? "Phase " + ctrl.adoptionPhase.phase : "",
           ctrl.adoptionPhase ? ctrl.adoptionPhase.priority : "",
@@ -3905,7 +4137,7 @@
         gapData.push([
           ctrl.id, ctrl.title, ctrl.pillarName,
           resp.answer || "",
-          score !== null ? Math.round(score * 100) + "%" : "",
+          score !== null ? pctCell(score) : "",
           self.getRiskPriority(ctrl).toFixed(1),
           ctrl.regulations.join(", "),
           ctrl.solutions.join(", "),
@@ -3923,7 +4155,7 @@
         regData.push([
           regKey,
           mapping.controls.length,
-          score !== null ? score + "%" : "N/A",
+          score !== null ? pctCell(score / 100) : "N/A",
         ]);
       });
       var ws4 = XLSX.utils.aoa_to_sheet(regData);
@@ -3949,7 +4181,7 @@
       // Generate and download
       var buf = XLSX.write(wb, { bookType: "xlsx", type: "array" });
       var blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-      var name = _truncateFilename((self.state.assessmentName || "assessment").replace(/[^a-zA-Z0-9-_]/g, "-"));
+      var name = _truncateFilename(_sanitizeFilenameStem(self.state.assessmentName));
       downloadBlob(blob, name + ".xlsx");
     };
 
@@ -4128,8 +4360,12 @@
   }
 
   function _agendaSlug(s) {
+    // Preserves Unicode letters (Société Générale → société-générale)
+    // while stripping the same unsafe-filename + bidi-override chars
+    // as _sanitizeFilenameStem. Truncates at 60 chars.
     return String(s || "").toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/[\u0000-\u001f\u007f<>:"/\\|?*\u202a-\u202e\u2066-\u2069\s]+/g, "-")
+      .replace(/-+/g, "-")
       .replace(/^-+|-+$/g, "")
       .substring(0, 60);
   }
@@ -4163,9 +4399,13 @@
     }
 
     var overallPct = self.getOverallScore();
-    var maturity = (overallPct === null || overallPct === undefined)
+    var overallScoreLabel = (overallPct === null || overallPct === undefined)
       ? "n/a"
-      : (Math.round((overallPct / 100) * 4 * 10) / 10).toFixed(1);
+      : overallPct + "%";
+    var answeredCount = (state.responses && typeof state.responses === "object")
+      ? Object.keys(state.responses).length : 0;
+    var totalCount = (this.data && this.data.controls)
+      ? this.data.controls.length : 0;
 
     var lines = [];
 
@@ -4178,7 +4418,21 @@
     lines.push("**Generated:** " + new Date().toISOString());
     lines.push("**Zone target:** " + zoneTarget);
     lines.push("**Sector:** " + (state.selectedSector || scoping.institutionType || "Not specified"));
-    lines.push("**Overall maturity:** " + maturity + " / 4");
+    lines.push("**Self-assessed score:** " + overallScoreLabel);
+    // AS15d (F-SCALE-MISMATCH-01): the headline above is a self-assessed
+    // questionnaire score in 0-100% units. The Python assessment engine
+    // reports a separate "Overall Maturity" in 0-4 units derived from
+    // tenant telemetry; the two numbers measure different dimensions and
+    // are not directly comparable. Spell that out so leadership reading
+    // this agenda alongside an engine PDF doesn't conflate them.
+    lines.push(
+      "**Score basis:** Self-assessed questionnaire score " +
+      "(yes / partial / no weighted across answered controls). " +
+      "Controls answered: " + answeredCount + " of " + totalCount + ". " +
+      "The Python engine's \"Overall Maturity X / 4\" uses telemetry-driven " +
+      "evaluation and reports a different scale; the two numbers are not " +
+      "directly comparable."
+    );
     lines.push("");
 
     // Section 2 — Top-N gap controls table
@@ -4406,6 +4660,8 @@
       validateCollectorPayload: validateCollectorPayload,
       _hasForbiddenKey: _hasForbiddenKey,
       _truncateFilename: _truncateFilename,
+      _sanitizeFilenameStem: _sanitizeFilenameStem,
+      _agendaSlug: _agendaSlug,
     };
   }
 })();

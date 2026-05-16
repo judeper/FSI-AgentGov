@@ -18,11 +18,16 @@ import {
  * the export envelope, filename pattern, and `_metadata.exportedAt`
  * determinism via freezeTime.
  *
- * SPA contract (assessment-app.js exportJSON, ~L3790):
- *   filename = sanitize(state.assessmentName || "assessment") + ".json"
+ * SPA contract (assessment-app.js exportJSON, ~L4025):
+ *   filename = _truncateFilename(_sanitizeFilenameStem(state.assessmentName)) + ".json"
  *   where assessmentName = `<org> — <YYYY-MM-DD>` (Begin Assessment).
- *   The sanitize step replaces every char outside [a-zA-Z0-9-_] with "-",
- *   so "Acme Bank — 2026-01-15" becomes "Acme-Bank---2026-01-15".
+ *   AS18b's _sanitizeFilenameStem (closes F-RUNTIME-EXPORT-FILENAME-UNICODE-STRIPPED-01)
+ *   preserves Unicode letters & punctuation (e.g. "Société Générale" → "Société-Générale")
+ *   and only strips Windows-illegal chars + control chars + bidi overrides + path
+ *   separators. Em-dash (U+2014) is punctuation, not whitespace, so it survives the
+ *   strip pass; the surrounding " — " collapses via \s+ → "-" giving "-—-".
+ *   So "Acme Bank — 2026-01-15" becomes "Acme-Bank-—-2026-01-15".
+ *   Cross-reference: tests/spa/filename-sanitizer.test.mjs L144-145.
  *
  * Envelope contract (additive — original state keys remain at top):
  *   _metadata          { exportSchemaVersion:1, schemaType:"full",
@@ -60,8 +65,10 @@ test.describe("export JSON @regression", () => {
 
     // Filename pattern: assessmentName sanitized + ".json".
     // assessmentName = "Acme Bank — 2026-01-15" (em-dash) →
-    //   sanitize → "Acme-Bank---2026-01-15.json".
-    expect(suggestedName).toBe("Acme-Bank---2026-01-15.json");
+    //   AS18b _sanitizeFilenameStem preserves Unicode punctuation →
+    //   "Acme-Bank-—-2026-01-15.json" (em-dash retained between dashes).
+    // See tests/spa/filename-sanitizer.test.mjs L144-145 for the unit-level contract.
+    expect(suggestedName).toBe("Acme-Bank-\u2014-2026-01-15.json");
 
     const rawText = readFileSync(path, "utf8");
     const parsed = JSON.parse(rawText); // throws if invalid JSON

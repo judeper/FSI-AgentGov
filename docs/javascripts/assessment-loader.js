@@ -94,6 +94,22 @@
       return;
     }
 
+    // AS8 (F-SPA-BACK-NO-ROUTING-01): detect DOM swap. Material's
+    // `navigation.instant` re-fetches the page on browser back/forward
+    // when the URL query changes (e.g. ?step=results → ?step=phase1)
+    // and swaps the document body, leaving our appInstance bound to a
+    // detached `<div id="assessment-app">`. We must destroy the stale
+    // instance and re-init against the new container so the SPA reads
+    // the updated `?step=` from the URL and renders the correct screen.
+    // Without this, browser back appears to do nothing.
+    if (container && appInstance && appInstance.el !== container) {
+      try { appInstance.destroy(); } catch (e) { /* ignore */ }
+      appInstance = null;
+      try { delete window.__assessmentApp; } catch (e) { window.__assessmentApp = null; }
+      // Fall through to the init branch below to create a fresh instance
+      // bound to the new DOM.
+    }
+
     // Not on assessment page, or already initialized
     if (!container || appInstance || loading) return;
 
