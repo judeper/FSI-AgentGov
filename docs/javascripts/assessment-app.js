@@ -298,7 +298,11 @@
   //   - Multi-dash sequences collapsed
   //   - Leading/trailing dashes + dots (Windows reserved-name corners)
   // Then guards against Windows reserved device names (CON, NUL,
-  // COM1-9, LPT1-9) by prefixing with underscore.
+  // COM1-9, LPT1-9) -- both the bare form ("CON") AND the with-extension
+  // form ("CON.txt") because Windows refuses to open either. Per
+  // <https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions>:
+  //   "Do not use the following reserved names ... Also avoid these names
+  //    followed immediately by an extension; for example, NUL.txt..."
   // Closes F-RUNTIME-EXPORT-FILENAME-UNICODE-STRIPPED-01.
   function _sanitizeFilenameStem(s) {
     s = String(s || "").trim();
@@ -306,7 +310,7 @@
     s = s.replace(/\s+/g, "-");
     s = s.replace(/-+/g, "-");
     s = s.replace(/^[-.]+|[-.]+$/g, "");
-    if (/^(con|prn|aux|nul|com[1-9]|lpt[1-9])$/i.test(s)) {
+    if (/^(con|prn|aux|nul|com[1-9]|lpt[1-9])(\..*)?$/i.test(s)) {
       s = "_" + s;
     }
     return s || "assessment";
