@@ -83,6 +83,7 @@
     ],
     "priority": "critical",
     "applicable_drivers": [
+      "technology_data",
       "ai_governance"
     ],
     "applicable_patterns": [
@@ -211,7 +212,7 @@
     ],
     "priority": "high",
     "applicable_drivers": [
-      "ai_governance",
+      "ai_strategy",
       "technology_data"
     ],
     "applicable_patterns": [
@@ -320,8 +321,7 @@
     ],
     "priority": "critical",
     "applicable_drivers": [
-      "technology_data",
-      "ai_governance"
+      "technology_data"
     ],
     "applicable_patterns": [
       1,
@@ -438,7 +438,6 @@
     ],
     "priority": "high",
     "applicable_drivers": [
-      "ai_governance",
       "technology_data"
     ],
     "applicable_patterns": [
@@ -554,7 +553,6 @@
     ],
     "priority": "critical",
     "applicable_drivers": [
-      "ai_governance",
       "technology_data"
     ],
     "applicable_patterns": [
@@ -770,8 +768,7 @@
     ],
     "priority": "critical",
     "applicable_drivers": [
-      "ai_governance",
-      "technology_data"
+      "ai_governance"
     ],
     "applicable_patterns": [
       1,
@@ -1076,8 +1073,8 @@
     ],
     "priority": "high",
     "applicable_drivers": [
-      "ai_governance",
-      "organization_culture"
+      "organization_culture",
+      "ai_governance"
     ],
     "applicable_patterns": [
       1,
@@ -1208,7 +1205,6 @@
     ],
     "priority": "critical",
     "applicable_drivers": [
-      "ai_governance",
       "technology_data"
     ],
     "applicable_patterns": [
@@ -1428,7 +1424,6 @@
     ],
     "priority": "high",
     "applicable_drivers": [
-      "ai_governance",
       "technology_data"
     ],
     "applicable_patterns": [
@@ -1516,7 +1511,6 @@
     ],
     "priority": "medium",
     "applicable_drivers": [
-      "ai_governance",
       "technology_data"
     ],
     "applicable_patterns": [
@@ -1628,7 +1622,6 @@
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
-      "ai_governance",
       "technology_data"
     ],
     "applicable_patterns": [
@@ -1711,7 +1704,6 @@
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
-      "ai_governance",
       "technology_data"
     ],
     "applicable_patterns": [
@@ -1807,7 +1799,6 @@
     ],
     "priority": "high",
     "applicable_drivers": [
-      "ai_governance",
       "technology_data"
     ],
     "applicable_patterns": [
@@ -1914,7 +1905,6 @@
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
-      "ai_governance",
       "technology_data"
     ],
     "applicable_patterns": [
@@ -2127,7 +2117,6 @@
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
-      "ai_governance",
       "technology_data"
     ],
     "applicable_patterns": [
@@ -2425,7 +2414,6 @@
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
-      "ai_governance",
       "technology_data"
     ],
     "applicable_patterns": [
@@ -2620,7 +2608,6 @@
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
-      "ai_governance",
       "technology_data"
     ],
     "applicable_patterns": [
@@ -2727,7 +2714,6 @@
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
-      "ai_governance",
       "technology_data"
     ],
     "applicable_patterns": [
@@ -3053,7 +3039,6 @@
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
-      "ai_governance",
       "technology_data"
     ],
     "applicable_patterns": [
@@ -3165,8 +3150,8 @@
     ],
     "priority": "critical",
     "applicable_drivers": [
-      "ai_governance",
-      "technology_data"
+      "technology_data",
+      "ai_governance"
     ],
     "applicable_patterns": [
       1,
@@ -3277,8 +3262,8 @@
     ],
     "priority": "high",
     "applicable_drivers": [
-      "ai_governance",
-      "technology_data"
+      "technology_data",
+      "ai_governance"
     ],
     "applicable_patterns": [
       1,
@@ -3374,7 +3359,8 @@
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
-      "ai_governance"
+      "ai_governance",
+      "ai_strategy"
     ],
     "applicable_patterns": [
       1,
@@ -3561,6 +3547,7 @@
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
+      "business_strategy",
       "ai_governance"
     ],
     "applicable_patterns": [
@@ -3733,7 +3720,6 @@
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
-      "business_strategy",
       "ai_strategy",
       "ai_governance"
     ],
@@ -3838,7 +3824,6 @@
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
-      "ai_governance",
       "technology_data"
     ],
     "applicable_patterns": [
@@ -3939,7 +3924,7 @@
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
-      "ai_governance",
+      "business_strategy",
       "technology_data"
     ],
     "applicable_patterns": [
@@ -4036,7 +4021,6 @@
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
-      "ai_governance",
       "technology_data"
     ],
     "applicable_patterns": [
@@ -4202,8 +4186,8 @@
     ],
     "priority": "critical",
     "applicable_drivers": [
-      "business_strategy",
       "ai_governance",
+      "business_strategy",
       "organization_culture"
     ],
     "applicable_patterns": [
@@ -4294,7 +4278,7 @@
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
       "ai_strategy",
-      "ai_governance"
+      "business_strategy"
     ],
     "applicable_patterns": [
       1,
@@ -4375,8 +4359,7 @@
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
-      "organization_culture",
-      "ai_governance"
+      "organization_culture"
     ],
     "applicable_patterns": [
       1,
@@ -4481,7 +4464,6 @@
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
-      "ai_governance",
       "technology_data"
     ],
     "applicable_patterns": [
@@ -4671,8 +4653,8 @@
     ],
     "priority": "medium",
     "applicable_drivers": [
-      "ai_governance",
-      "technology_data"
+      "technology_data",
+      "ai_governance"
     ],
     "applicable_patterns": [
       1,
@@ -4916,7 +4898,8 @@
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
-      "ai_governance"
+      "ai_governance",
+      "technology_data"
     ],
     "applicable_patterns": [
       1,
@@ -4995,7 +4978,7 @@
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
       "organization_culture",
-      "ai_governance"
+      "business_strategy"
     ],
     "applicable_patterns": [
       1,
@@ -5099,7 +5082,6 @@
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
-      "ai_governance",
       "technology_data"
     ],
     "applicable_patterns": [
@@ -5296,7 +5278,8 @@
     ],
     "priority": "medium",
     "applicable_drivers": [
-      "ai_governance"
+      "ai_strategy",
+      "technology_data"
     ],
     "applicable_patterns": [
       1,
@@ -5409,7 +5392,7 @@
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
-      "ai_governance",
+      "ai_strategy",
       "technology_data"
     ],
     "applicable_patterns": [
@@ -5518,8 +5501,8 @@
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
-      "ai_governance",
-      "technology_data"
+      "technology_data",
+      "ai_governance"
     ],
     "applicable_patterns": [
       1,
@@ -5635,7 +5618,6 @@
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
       "ai_strategy",
-      "ai_governance",
       "technology_data"
     ],
     "applicable_patterns": [
@@ -5720,7 +5702,7 @@
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
-      "ai_governance",
+      "business_strategy",
       "technology_data"
     ],
     "applicable_patterns": [
@@ -5819,8 +5801,7 @@
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
-      "ai_governance",
-      "technology_data"
+      "ai_governance"
     ],
     "applicable_patterns": [
       1,
@@ -6034,7 +6015,7 @@
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
       "ai_strategy",
-      "ai_governance"
+      "business_strategy"
     ],
     "applicable_patterns": [
       1,
@@ -6123,7 +6104,7 @@
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
-      "ai_governance",
+      "ai_strategy",
       "technology_data"
     ],
     "applicable_patterns": [
@@ -6315,7 +6296,7 @@
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
-      "ai_governance",
+      "ai_strategy",
       "technology_data"
     ],
     "applicable_patterns": [
@@ -6600,7 +6581,6 @@
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
       "ai_strategy",
-      "ai_governance",
       "technology_data"
     ],
     "applicable_patterns": [
@@ -6766,7 +6746,7 @@
     ],
     "priority": "medium",
     "applicable_drivers": [
-      "ai_governance",
+      "ai_strategy",
       "technology_data"
     ],
     "applicable_patterns": [
@@ -6851,7 +6831,6 @@
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
-      "ai_governance",
       "technology_data"
     ],
     "applicable_patterns": [
@@ -6960,8 +6939,7 @@
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
-      "technology_data",
-      "ai_governance"
+      "technology_data"
     ],
     "applicable_patterns": [
       1,
@@ -7058,8 +7036,8 @@
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
-      "technology_data",
-      "ai_governance"
+      "ai_governance",
+      "technology_data"
     ],
     "applicable_patterns": [
       1,
@@ -7165,8 +7143,8 @@
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
-      "technology_data",
-      "ai_governance"
+      "ai_governance",
+      "technology_data"
     ],
     "applicable_patterns": [
       1,
@@ -7272,8 +7250,7 @@
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
-      "technology_data",
-      "ai_governance"
+      "technology_data"
     ],
     "applicable_patterns": [
       1,
@@ -7369,8 +7346,8 @@
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
-      "technology_data",
-      "ai_governance"
+      "ai_governance",
+      "technology_data"
     ],
     "applicable_patterns": [
       1,
@@ -7681,8 +7658,7 @@
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
-      "technology_data",
-      "ai_governance"
+      "technology_data"
     ],
     "applicable_patterns": [
       1,
@@ -7765,8 +7741,7 @@
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
-      "technology_data",
-      "ai_governance"
+      "technology_data"
     ],
     "applicable_patterns": [
       1,

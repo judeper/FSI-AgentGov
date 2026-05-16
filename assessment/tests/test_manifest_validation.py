@@ -13,6 +13,7 @@ import copy
 import json
 import subprocess
 import sys
+from collections import Counter
 from pathlib import Path
 
 import pytest
@@ -94,6 +95,27 @@ def test_control_doc_url_starts_with_slash():
     for ctrl in controls:
         assert ctrl["controlDocUrl"].startswith("/"), ctrl["id"]
         assert ctrl["portalPlaybookUrl"].startswith("/"), ctrl["id"]
+
+
+def test_capability_driver_tags_provide_rollup_signal():
+    """Driver tags must stay broad enough to produce a useful rollup signal."""
+    controls = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    counts = Counter(driver for ctrl in controls for driver in ctrl.get("applicable_drivers", []))
+
+    assert counts["ai_governance"] < len(controls), (
+        "ai_governance should not blanket every control or the driver rollup "
+        "collapses into the overall maturity score"
+    )
+
+    for driver in (
+        "ai_strategy",
+        "business_strategy",
+        "technology_data",
+        "organization_culture",
+    ):
+        assert counts[driver] >= 5, (
+            f"{driver} should tag enough controls to produce a meaningful rollup"
+        )
 
 
 # ---------------------------------------------------------------------------
