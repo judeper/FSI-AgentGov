@@ -22,7 +22,7 @@ This playbook provides a comprehensive gate model for governing agent promotions
 | **SOX 404** | Segregation of duties in promotion approvals |
 | **SEC 17a-4** | Audit trail of promotion decisions |
 | **GLBA 501(b)** | Security review before customer data access |
-| **OCC 2011-12** | Model risk validation before deployment |
+| **OCC Bulletin 2026-13 (formerly OCC 2011-12)** | Model risk validation before deployment |
 
 ---
 

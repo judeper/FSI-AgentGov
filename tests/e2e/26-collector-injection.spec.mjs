@@ -22,7 +22,7 @@ import { clearPageStorage, expect } from "./_harness.mjs";
  * sees the page's real `Object.prototype`, not the test-runner's.
  */
 test.describe("collector / import injection defenses @regression", () => {
-  test("__proto__ + constructor keys cannot pollute Object.prototype via import @regression", async ({
+  test("__proto__ + constructor keys cannot pollute Object.prototype via import @regression @smoke", async ({
     page,
   }) => {
     page.on("dialog", (d) => d.dismiss().catch(() => {}));

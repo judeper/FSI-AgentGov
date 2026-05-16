@@ -10,7 +10,7 @@
 > - Troubleshooting — `./troubleshooting.md`
 > - Shared baseline — `docs/playbooks/_shared/powershell-baseline.md`
 >
-> **Important regulatory framing.** Nothing in this playbook *guarantees* regulatory compliance. The cmdlets, scripts, and patterns below *support* control objectives required by FINRA Rules 4511 and 25-07, SEC Rules 17a-3 / 17a-4 and Reg S-P, GLBA §501(b), SOX §404, OCC Bulletin 2011-12, and Federal Reserve SR 11-7. Implementation requires that organizations validate every script against their own change-management, model-risk, and supervisory-review processes before production rollout.
+> **Important regulatory framing.** Nothing in this playbook *guarantees* regulatory compliance. The cmdlets, scripts, and patterns below *support* control objectives required by FINRA Rules 4511 and 25-07, SEC Rules 17a-3 / 17a-4 and Reg S-P, GLBA §501(b), SOX §404, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), and Federal Reserve SR 26-2 (formerly SR 11-7). Implementation requires that organizations validate every script against their own change-management, model-risk, and supervisory-review processes before production rollout.
 
 ## 0. Wrong-shell trap (READ FIRST)
 
@@ -662,7 +662,7 @@ if ($schema.State -ne 'Active') {
 
 ## 8. Trainable classifiers — FSI governance gate
 
-Trainable classifiers are machine-learning models that classify content (research, complaint mail, MNPI narratives) by *style* rather than pattern. They are powerful and they are **model-risk artefacts**. In a US FSI tenant, a trainable classifier published into a DLP rule that gates Copilot output is in scope for **OCC Bulletin 2011-12** and **Federal Reserve SR 11-7** model-risk-management expectations.
+Trainable classifiers are machine-learning models that classify content (research, complaint mail, MNPI narratives) by *style* rather than pattern. They are powerful and they are **model-risk artefacts**. In a US FSI tenant, a trainable classifier published into a DLP rule that gates Copilot output is in scope for **OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12)** and **Federal Reserve SR 26-2 (formerly SR 11-7)** model-risk-management expectations.
 
 ### 8.1 Mandatory governance gate
 
@@ -1066,7 +1066,7 @@ Stop-Transcript
 - **Control 1.5 — Identity baseline for agent makers and admins.** SIT authoring requires the privileged-role and Conditional Access posture defined there. `docs/controls/pillar-1-security/1.5-identity-baseline-for-agent-makers-and-admins.md`
 - **Control 1.6 — Sensitivity labels and label policies.** SIT detection drives auto-labelling; labels in turn drive Copilot grounding eligibility. `docs/controls/pillar-1-security/1.6-sensitivity-labels-for-ai-content.md`
 - **Control 1.7 — DLP policy framework.** This playbook publishes SITs; Control 1.7 is the parent for the DLP policy engine that consumes them. `docs/controls/pillar-1-security/1.7-data-loss-prevention-for-ai-interactions.md`
-- **Control 1.10 — Customer Lockbox / data-residency boundary.** EDM hash stores and trainable classifier inference inherit the residency posture from Control 1.10. `docs/controls/pillar-1-security/1.10-customer-lockbox-and-data-residency.md`
+- **Control 1.10 — Customer Lockbox / data-residency boundary.** Customer Lockbox and data-residency posture are covered in Control 2.1 Managed Environments — see the *Customer Lockbox & Data Residency Posture* sub-section.
 - **Control 4.6 — SharePoint grounding scope governance.** SIT-based DLP rules complement scope governance for what an agent can ground on. `docs/controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md`
 - **AI Incident Response Playbook.** Standing on-call runbook for SIT/DLP alerts that fire against agent traffic. `docs/playbooks/incident-and-risk/ai-incident-response-playbook.md`
 - **Shared PowerShell baseline.** Module pinning, sovereign endpoints, transcript and evidence helpers. `docs/playbooks/_shared/powershell-baseline.md`

@@ -4,7 +4,7 @@
 >
 > **Scope:** Microsoft 365 Commercial, GCC, GCC High, and DoD tenants. 21Vianet is out of scope. Where Microsoft Sentinel, Microsoft Defender XDR, Microsoft Purview Insider Risk Management, Microsoft Purview eDiscovery (Premium), or Microsoft Agent 365 surfaces are not at sovereign-cloud parity, this playbook routes the test to the §SOV manual compensating-control namespace; see TC-19.
 >
-> **Companion controls:** This control sits at the centre of the firm's AI-agent incident response chain. Detection feeds come from [1.7 Comprehensive Audit Logging](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), [1.8 Runtime Protection](../../../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md), [1.11 Conditional Access and Phishing-Resistant MFA](../../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md), [1.12 Insider Risk Detection and Response](../../../controls/pillar-1-security/1.12-insider-risk-detection-and-response.md), and [3.9 Microsoft Sentinel Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md). Books-and-records retention lands in [1.9 Data Retention and Deletion Policies](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md). Material model-behavior incidents trigger MRM re-validation under [2.6 Model Risk Management](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md). Supervisory-relevant incidents feed [2.12 Supervision and Oversight (FINRA Rule 3110)](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md). Inventory metadata for triage comes from [2.25 Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md). Identity-incident cascades feed [3.6 Orphaned Agent Detection and Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md).
+> **Companion controls:** This control sits at the centre of the firm's AI-agent incident response chain. Detection feeds come from [1.7 Comprehensive Audit Logging](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), [1.8 Runtime Protection](../../../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md), [1.11 Conditional Access and Phishing-Resistant MFA](../../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md), [1.12 Insider Risk Detection and Response](../../../controls/pillar-1-security/1.12-insider-risk-detection-and-response.md), and [3.9 Microsoft Sentinel Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md). Books-and-records retention lands in [1.9 Data Retention and Deletion Policies](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md). Material model-behavior incidents trigger MRM re-validation under [2.6 Model Risk Management](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md). Supervisory-relevant incidents feed [2.12 Supervision and Oversight (FINRA Rule 3110)](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md). Inventory metadata for triage comes from [2.25 Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md). Identity-incident cascades feed [3.6 Orphaned Agent Detection and Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md).
 >
 > **Last UI verified:** April 2026 against Microsoft 365 admin center build 2026.04.x, Microsoft Defender portal (`security.microsoft.com`), Microsoft Sentinel (Azure portal), Microsoft Purview portal (`purview.microsoft.com`), and Microsoft Agent 365 Admin Center build 2026.04.x. Re-verify each cycle before relying on automated paths.
 
@@ -264,13 +264,13 @@ Every test case writes to one or more retention tiers. The tiers are not interch
 | TC-12 | CISA CIRCIA quarterly horizon-check log; Federal Register monitoring evidence | Archive | CISA CIRCIA (rulemaking pending) |
 | TC-13 | NCUA 72h applicability determination; verification or N/A justification | Archive or Books-scope | NCUA 12 CFR 748 |
 | TC-14 | Critical-severity tabletop; CISO+CCO+GC notification delivery evidence within 1 hour | Books-scope + Archive | NYDFS 500.16; FFIEC; firm WSPs |
-| TC-15 | Closed-incident sample (n≥30); 5-Whys + corrective actions + MRM feedback ticket sample | Books-scope | OCC 2011-12; SR 11-7; FINRA 3110 |
+| TC-15 | Closed-incident sample (n≥30); 5-Whys + corrective actions + MRM feedback ticket sample | Books-scope | OCC Bulletin 2026-13 (formerly OCC 2011-12); Fed SR 26-2 (formerly SR 11-7); FINRA 3110 |
 | TC-16 | Legal-hold notice; custodian acknowledgment sample; Purview eDiscovery (Premium) hold export | Legal-hold + Books-scope | FRCP 37(e); Zubulake-line case law; SEC 17a-4 |
 | TC-17 | Sentinel/Defender/IRM extract written to 17a-4(f) storage; chain-of-custody log | Books-scope | SEC 17a-4(f); FINRA 4511 |
 | TC-18 | Service Health correlation log per Sev-Critical/High; pre-RCA recorded check | Archive | FFIEC IT Handbook (correlation discipline) |
 | TC-19 | Sovereign manual register exercise; manual matrix exercise; dual signature | Archive + Books-scope | Sovereign-cloud parity gap compensating control |
 | TC-20 | Annual SOX 404 incident-program self-assessment; Audit Committee minute | Corporate-records + Books-scope | SOX §§ 302 / 404 |
-| TC-21 | Quarterly AI tabletop battery; after-action reports per scenario | Archive + Books-scope | FINRA 25-07; SR 11-7; NYDFS 500.16 |
+| TC-21 | Quarterly AI tabletop battery; after-action reports per scenario | Archive + Books-scope | FINRA 25-07; Fed SR 26-2 (formerly SR 11-7); NYDFS 500.16 |
 | TC-22 | Random sample (n≥25) of >6yr records per artifact category; retrievability log | Books-scope | SEC 17a-4(b)(4); FINRA 4511 |
 
 ---
@@ -287,7 +287,7 @@ The 22 test cases below verify Control 3.4 implementation across regulator-clock
 
 **Objective.** Confirm the internal incident-response SLA matrix (Critical / High / Medium / Low) is loaded into the SharePoint list "AI Agent Incidents" and into the Power Automate notification flow, and that triage decisions resolve to the matrix recommended in Control 3.4.
 
-**Regulatory anchor.** FINRA Rule 3120 (annual supervisory-system test); SR 11-7 (model-risk operating discipline); NIST SP 800-61 r2 (incident-response lifecycle).
+**Regulatory anchor.** FINRA Rule 3120 (annual supervisory-system test); Fed SR 26-2 (formerly SR 11-7) (model-risk operating discipline); NIST SP 800-61 r2 (incident-response lifecycle).
 
 **Setup.**
 
@@ -832,7 +832,7 @@ ComplaintStore_CL
 
 **Objective.** Demonstrate that closed incidents pass a root-cause-analysis gate requiring (a) 5-Whys analysis, (b) defined corrective actions with owners and dates, and (c) for incidents flagged `AIAgentClass=DataQuality-ModelRisk`, a feedback ticket opened against Control 2.6 (model risk management).
 
-**Regulatory anchor.** OCC Bulletin 2011-12 (model-risk management); SR 11-7 (interagency model-risk-management guidance); FINRA Rule 3110 (supervisory system).
+**Regulatory anchor.** OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (model-risk management); Fed SR 26-2 (formerly SR 11-7) (interagency model-risk-management guidance); FINRA Rule 3110 (supervisory system).
 
 **Setup.**
 
@@ -1073,7 +1073,7 @@ union SecurityAlert, SigninLogs, OfficeActivity, AIAgentSessions_CL
 
 **Objective.** Demonstrate that, each quarter, the firm runs the four AI-specific tabletop scenarios required by the parent control: prompt-injection exfiltration; hallucinated customer communication; runaway agent on stale context; orphaned-agent cascade.
 
-**Regulatory anchor.** FINRA Regulatory Notice 25-07; SR 11-7; NYDFS 23 NYCRR 500.16 (incident-response-plan testing).
+**Regulatory anchor.** FINRA Regulatory Notice 25-07; Fed SR 26-2 (formerly SR 11-7); NYDFS 23 NYCRR 500.16 (incident-response-plan testing).
 
 **Setup.**
 

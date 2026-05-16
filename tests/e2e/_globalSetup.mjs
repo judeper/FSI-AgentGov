@@ -1,4 +1,29 @@
+import { execFileSync } from "child_process";
+import { fileURLToPath } from "url";
+import { dirname, resolve } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const REPO_ROOT = resolve(__dirname, "../..");
+
+/**
+ * Regenerate the render-expectations oracle before any spec reads it.
+ * This prevents stale-fixture false passes when markdown sources change.
+ */
+function regenerateRenderExpectations() {
+  const script = resolve(REPO_ROOT, "scripts/generate-render-expectations.mjs");
+  const out = resolve(
+    REPO_ROOT,
+    "tests/e2e/fixtures/render-expectations.json",
+  );
+  execFileSync(process.execPath, [script, "--out", out], {
+    cwd: REPO_ROOT,
+    stdio: "inherit",
+  });
+}
+
 export default async function globalSetup() {
+  regenerateRenderExpectations();
   const port = parseInt(process.env.PW_PORT || "8765", 10);
   const url = `http://127.0.0.1:${port}/version.json`;
   let res;

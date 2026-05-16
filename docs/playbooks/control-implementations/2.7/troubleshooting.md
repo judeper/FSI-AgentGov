@@ -113,7 +113,7 @@
 2. Treat as a **model change** under Control 2.6 — re-validate the agent before continued production use if the change is material.
 3. Open a contract dispute citing the missing notification; require the vendor to publish a change log with retroactive notice.
 4. Re-paper the contract to tighten the change-notice clause (e.g., 60 days for material changes, with right to suspend without penalty).
-5. For OCC- or Federal Reserve-supervised institutions, document the event in the model risk inventory per OCC 2011-12 / SR 11-7.
+5. For OCC- or Federal Reserve-supervised institutions, document the event in the model risk inventory per OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7).
 
 ---
 
@@ -151,7 +151,7 @@ For Copilot Studio and Microsoft 365 Copilot, the underlying models are managed 
 
 ### Re-validation triggers (Control 2.6 linkage)
 
-Open a re-validation per [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) when:
+Open a re-validation per [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) when:
 
 - Microsoft announces a model change for a model used by a Zone 2/3 agent.
 - Agent behavior metrics deviate from baseline beyond the threshold defined in the agent's monitoring plan.

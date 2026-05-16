@@ -65,6 +65,13 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
+# Force UTF-8 IO for all Python subprocess calls so unicode characters
+# in engine output (em dashes, arrows, etc.) don't crash on Windows where
+# the default console code page is cp1252. Defense-in-depth alongside the
+# ASCII-only print statements in score.py and report.py.
+# F-RUN-ASSESSMENT-ORCH-UNICODE-01 (closes-AS-ORCH-FIX).
+$env:PYTHONIOENCODING = 'utf-8'
+
 # Timing
 $script:StartTime = Get-Date
 
@@ -313,10 +320,10 @@ Write-Host ""
 
 # Collector summary
 
-$successCount = ($collectorResults.Values | Where-Object { $_.ExitCode -eq 0 }).Count
-$partialCount = ($collectorResults.Values | Where-Object { $_.ExitCode -eq 1 }).Count
-$failedCount  = ($collectorResults.Values | Where-Object { $_.ExitCode -ge 2 }).Count
-$skippedCount = ($collectorResults.Values | Where-Object { $_.ExitCode -eq -1 }).Count
+$successCount = @($collectorResults.Values | Where-Object { $_.ExitCode -eq 0 }).Count
+$partialCount = @($collectorResults.Values | Where-Object { $_.ExitCode -eq 1 }).Count
+$failedCount  = @($collectorResults.Values | Where-Object { $_.ExitCode -ge 2 }).Count
+$skippedCount = @($collectorResults.Values | Where-Object { $_.ExitCode -eq -1 }).Count
 
 Write-Host "Collection complete: $successCount succeeded, $partialCount partial, $failedCount failed, $skippedCount skipped" -ForegroundColor $(if ($failedCount -gt 0) { "Yellow" } else { "Green" })
 Write-Host ""
@@ -483,12 +490,12 @@ if ($AssessmentType -ne "Controls" -and (Test-Path $frontierSummary)) {
 
     $sb = $frontier.scale_breaker
     if ($null -ne $sb -and $null -ne $sb.driver) {
-        $sbDisplay = if ($driverDisplayNames.ContainsKey($sb.driver)) { $driverDisplayNames[$sb.driver] } else { $sb.driver }
+        $sbDisplay = if ($driverDisplayNames.Contains($sb.driver)) { $driverDisplayNames[$sb.driver] } else { $sb.driver }
         Write-Host "  Scale-Breaker:                     $sbDisplay ($($sb.score))"
     }
 
-    $readyCount    = ($frontier.pattern_readiness.PSObject.Properties.Value | Where-Object { $_.ready -eq $true }).Count
-    $totalPatterns = $frontier.pattern_readiness.PSObject.Properties.Value.Count
+    $readyCount    = @($frontier.pattern_readiness.PSObject.Properties.Value | Where-Object { $_.ready -eq $true }).Count
+    $totalPatterns = @($frontier.pattern_readiness.PSObject.Properties.Value).Count
     Write-Host "  Patterns Ready:                    $readyCount / $totalPatterns"
     Write-Host ""
 }

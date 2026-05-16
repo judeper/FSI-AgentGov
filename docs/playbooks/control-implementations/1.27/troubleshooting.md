@@ -180,7 +180,7 @@ This playbook is organized by symptom. Each issue is an `H3` under a topical `H2
 2. **Power Platform Admin** — environment features, capacity, cross-environment governance.
 3. **Purview Audit Reader / Compliance Admin** — audit search and retention.
 4. **Entra Security Admin / SOC Analyst** — Sentinel pipeline issues, suspected jailbreak incidents (cross-link to Control 1.8).
-5. **Model Risk Manager** — for any moderation-level change that affects an agent under OCC 2011-12 / Fed SR 11-7 model risk inventory.
+5. **Model Risk Manager** — for any moderation-level change that affects an agent under OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) model risk inventory.
 6. **Microsoft Support** — feature rollout (MC1217615 follow-up), API schema gaps, Azure AI Content Safety threshold tuning.
 
 ---

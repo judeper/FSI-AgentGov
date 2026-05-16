@@ -229,7 +229,7 @@ Compile the following for the control evidence file:
 | Weekly | Run the inventory script (Script 4); review newly published agents and DLP-blocked update attempts in Purview. |
 | Monthly | Review approval workflow metrics (volume, approval rate, mean time to approve). |
 | Quarterly | Audit DLP policy effectiveness; review connector classifications against business and regulatory changes. |
-| Annually | Re-baseline zone-to-policy mappings; review evidence retention against current FINRA / SEC / GLBA / OCC / Fed SR 11-7 expectations. |
+| Annually | Re-baseline zone-to-policy mappings; review evidence retention against current FINRA / SEC / GLBA / OCC / Fed SR 26-2 (formerly SR 11-7) expectations. |
 
 ---
 

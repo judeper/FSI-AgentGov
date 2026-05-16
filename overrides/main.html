@@ -4,10 +4,14 @@
    documented here and mirrored in tests/e2e/fixtures/csp-allowed.json:
      - script-src 'unsafe-inline'      : mkdocs-material inline init scripts.
      - style-src  'unsafe-inline'      : mkdocs-material inlines critical CSS.
-     - style-src  https://fonts.googleapis.com : mkdocs-material default font CSS.
-     - font-src   https://fonts.gstatic.com    : mkdocs-material default font files.
      - img-src    data:                : inlined SVG/data-URL icons.
      - connect-src https://api.github.com : mkdocs-material announce-bar release-version fetch.
+
+   Phase 3 AS3 (F-CSP-ORPHAN-LOOSENINGS-01): removed the orphan loosenings
+   `style-src https://fonts.googleapis.com` and `font-src https://fonts.gstatic.com`
+   in concert with `theme.font: false` in mkdocs.yml. Spec 31's inverse
+   CSP orphan check confirmed these origins were never the source of any
+   loaded response — the loosenings were declared but unused.
 
    NOTE: `frame-ancestors` is intentionally NOT set via <meta>. Per the CSP
    spec, browsers ignore `frame-ancestors` when delivered via meta-CSP — it
@@ -17,6 +21,42 @@
    ever moves off GitHub Pages, add `frame-ancestors 'none'` as an HTTP
    header on the origin. #}
 {% block extrahead %}
+  {# AS16 (F-DOCS-OG-TWITTER-CARDS-MISSING-01): OpenGraph + Twitter Card
+     meta for link previews in Slack / Teams / LinkedIn. Without these,
+     FSI-AgentGov links shared in customer or partner channels render as
+     bare URLs - poor first impression for a regulated FS audience.
+
+     Intentionally NO og:image: we don't ship a brand image asset, and
+     Slack/Teams render text-only unfurls correctly. A placeholder PNG
+     would be worse than no image.
+
+     N1 (rubber-duck): guard the " — Site Name" suffix on the homepage
+     where page.title == config.site_name to prevent
+     "FSI Agent Governance Framework — FSI Agent Governance Framework"
+     duplication.
+
+     N2 (rubber-duck): if a future maintainer enables Material's `social`
+     plugin in mkdocs.yml, REMOVE this block - the plugin auto-injects
+     og:/twitter: meta and duplication will confuse Slack/Teams unfurl.
+
+     The outer {% if page %} guard is required because MkDocs renders
+     404.html with page=None; without it, the build fails with
+     "'None' has no attribute 'meta'". #}
+  {% if page %}
+    {% set _og_title = page.title|striptags %}
+    {% if _og_title != config.site_name %}
+      {% set _og_title = _og_title ~ " — " ~ config.site_name %}
+    {% endif %}
+    {% set _og_description = page.meta.description|default(config.site_description) %}
+    <meta property="og:title" content="{{ _og_title }}">
+    <meta property="og:description" content="{{ _og_description }}">
+    <meta property="og:url" content="{{ page.canonical_url }}">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="{{ config.site_name }}">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="{{ _og_title }}">
+    <meta name="twitter:description" content="{{ _og_description }}">
+  {% endif %}
   <script>
     if (window.top !== window.self) {
       // Frame-busting: refuse to render inside an iframe.
@@ -29,7 +69,54 @@
       }
     }
   </script>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://api.github.com; base-uri 'self'; form-action 'self'">
+  <script>
+    // Mermaid CDN-block fix (F-MERMAID-CDN-BLOCK-01 et al).
+    //
+    // Material 9.7.6's compiled bundle.js hard-codes
+    // `https://unpkg.com/mermaid@11/dist/mermaid.min.js` and dynamically
+    // appends a <script> tag for it whenever a page contains a `.mermaid`
+    // element. There is no Jinja partial or config option to override
+    // that URL — the only escape hatches are loosening CSP to allow
+    // unpkg.com (rejected: supply-chain risk for FSI audience) or
+    // intercepting the appendChild call before the network request fires
+    // (this).
+    //
+    // We patch Element.prototype.appendChild to rewrite the unpkg URL to
+    // our locally-vendored copy at /javascripts/vendor/mermaid.min.js
+    // (or /FSI-AgentGov/javascripts/vendor/mermaid.min.js when deployed
+    // under the project subpath). The vendored payload's SRI hash is
+    // pinned via the integrity attribute so any drift on disk fails
+    // hard at script-load time.
+    //
+    // After interception, Material's mermaid integration sees
+    // `window.mermaid` defined and proceeds with theme/palette init and
+    // mermaid.run() exactly as it would have with the public CDN —
+    // including instant-nav re-render via the `document$` observable.
+    //
+    // Vendored: mermaid@11.15.0 (matches Material's @11 major-pin).
+    // See docs/javascripts/lib/VENDOR-MANIFEST.md.
+    (function () {
+      var SITE_BASE = location.pathname.indexOf("/FSI-AgentGov/") === 0
+        ? "/FSI-AgentGov"
+        : "";
+      var VENDORED_MERMAID = SITE_BASE + "/javascripts/vendor/mermaid.min.js";
+      var SRI = "sha256-cBN+d7snO7LvlyuG6LBADMqL5TyyW/xFkRoYbcmGZd4=";
+      var UNPKG_RE = /^https:\/\/unpkg\.com\/mermaid@/;
+      var origAppendChild = Element.prototype.appendChild;
+      Element.prototype.appendChild = function (node) {
+        if (
+          node && node.tagName === "SCRIPT" &&
+          typeof node.src === "string" && UNPKG_RE.test(node.src)
+        ) {
+          node.src = VENDORED_MERMAID;
+          node.integrity = SRI;
+          node.crossOrigin = "anonymous";
+        }
+        return origAppendChild.call(this, node);
+      };
+    })();
+  </script>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://api.github.com; base-uri 'self'; form-action 'self'">
 {% endblock %}
 
 {% block announce %}

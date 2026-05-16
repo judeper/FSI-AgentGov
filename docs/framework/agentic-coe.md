@@ -12,7 +12,7 @@
 
 Microsoft's "Frontier Center of Excellence" concept (paraphrased from the [Microsoft CAPE materials](../reference/microsoft-cape-crosswalk.md)) describes a standing capability that runs an agent portfolio as a long-lived program — not a one-time deployment project. The CoE is the team that owns the operating rhythm, intake, enablement, and portfolio-level performance signals. Microsoft frames this as four functions: **Govern, Enable, Optimize, Scale**, organized in one of three structural shapes — **Centralized, Hybrid, or Federated**.
 
-US financial services organizations face a particular version of this problem. Regulated lines of business cannot tolerate "shadow agents" appearing on customer-impacting pathways without a documented supervisor (FINRA Rule 3110), a model risk tier (OCC Bulletin 2011-12 / Fed SR 26-2), and a books-and-records pipeline (SEC 17a-4, FINRA 4511). At the same time, an FSI institution that centralizes every agent decision in one team will create a Gatekeeper bottleneck that pushes business lines to deploy outside the governance perimeter. The framework's job is to give institutions a CoE blueprint that scales enablement without sacrificing supervision.
+US financial services organizations face a particular version of this problem. Regulated lines of business cannot tolerate "shadow agents" appearing on customer-impacting pathways without a documented supervisor (FINRA Rule 3110), a model risk tier (OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Fed SR 26-2), and a books-and-records pipeline (SEC 17a-4, FINRA 4511). At the same time, an FSI institution that centralizes every agent decision in one team will create a Gatekeeper bottleneck that pushes business lines to deploy outside the governance perimeter. The framework's job is to give institutions a CoE blueprint that scales enablement without sacrificing supervision.
 
 The framework's promise here is a **blueprint, not a turnkey operating model**: four functions × three shapes × explicit federation guardrails, mapped to the 78-control catalog and the 7-stage agent lifecycle. The right CoE shape for any institution depends on size, regulatory archetype, business-line count, and existing operating-model maturity. A regional bank with two business lines should not run the same CoE as a global SIFI with a dozen.
 
@@ -43,7 +43,7 @@ The framework's promise here is a **blueprint, not a turnkey operating model**: 
 
 **Primary FSI roles:** AI Governance Lead, Chief Compliance Officer, Chief Risk Officer, CISO. See [role-catalog.md](../reference/role-catalog.md) for canonical role names and the CAPE Role Mapping cross-reference.
 
-**Key controls:** [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), [2.3](../controls/pillar-2-management/2.3-change-management-and-release-planning.md), [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md), [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md), [3.1](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md).
+**Key controls:** [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), [2.3](../controls/pillar-2-management/2.3-change-management-and-release-planning.md), [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md), [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md), [3.1](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md).
 
 **FSI-specific guardrail.** Govern is the function whose accountability is examiner-facing. Even in a Federated CoE shape where Build and Optimize are distributed to business lines, the named principal who answers an OCC, FINRA, or SEC examiner question must sit inside the Govern function. The federation guardrail (below) applies most acutely here.
 
@@ -85,7 +85,7 @@ The framework's promise here is a **blueprint, not a turnkey operating model**: 
 
 **Key controls:** [3.1](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md), [3.2](../controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md), [3.10](../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md), [3.14](../controls/pillar-3-reporting/3.14-agent-365-observability-sdk.md), [1.27](../controls/pillar-1-security/1.27-ai-agent-content-moderation-enforcement.md).
 
-**FSI-specific guardrail.** Optimize must produce evidence that an FSI examiner accepts as ongoing monitoring under OCC 2011-12 §V — not just operational dashboards. A weekly hallucination dashboard that nobody attests to is not the same artifact as a monthly model-monitoring memo signed by the model owner. Optimize is responsible for both the signal *and* the human attestation chain.
+**FSI-specific guardrail.** Optimize must produce evidence that an FSI examiner accepts as ongoing monitoring under OCC Bulletin 2026-13 §V (formerly OCC 2011-12 §V) — not just operational dashboards. A weekly hallucination dashboard that nobody attests to is not the same artifact as a monthly model-monitoring memo signed by the model owner. Optimize is responsible for both the signal *and* the human attestation chain.
 
 **Maps to lifecycle stages:** Deploy (primary), Monitor (primary), Improve (primary), Retire (supporting). See [agent-lifecycle.md](agent-lifecycle.md).
 
@@ -149,7 +149,7 @@ flowchart LR
     C ==>|required: customer-facing exposure| P5
     C ==>|required: novel autonomy| P6
 
-    GR["Federation guardrail (load-bearing)<br/>FINRA 3110 supervision · OCC 2011-12 / SR 26-2 model risk<br/>SOX 302/404 · GLBA 501(b)<br/>— accountability stays with named principals regardless of CoE shape —"]:::guardrail
+    GR["Federation guardrail (load-bearing)<br/>FINRA 3110 supervision · OCC Bulletin 2026-13 / Fed SR 26-2 model risk<br/>SOX 302/404 · GLBA 501(b)<br/>— accountability stays with named principals regardless of CoE shape —"]:::guardrail
 
     F -.-> GR
     H -.-> GR
@@ -173,7 +173,7 @@ Editable Mermaid source: [`docs/images/diagrams/source/cape/coe-structure-by-pat
 
 **FSI examples (typology).** A mid-size regional bank with retail and wealth lines deploying its first 5–15 production agents. A specialized broker-dealer building an internal compliance Q&A agent and a customer servicing agent. A community bank standing up its first three Pattern 1 / Pattern 2 agents.
 
-**Federation guardrail.** Even in Centralized, the named principal for FINRA 3110 supervision and OCC 2011-12 model risk oversight is identified explicitly in the operating-model RACI. Centralized does not mean "the CoE is the supervisor"; it means the CoE coordinates the work of the named supervisors.
+**Federation guardrail.** Even in Centralized, the named principal for FINRA 3110 supervision and OCC Bulletin 2026-13 model risk oversight is identified explicitly in the operating-model RACI. Centralized does not mean "the CoE is the supervisor"; it means the CoE coordinates the work of the named supervisors.
 
 ### Shape: Hybrid
 
@@ -216,7 +216,7 @@ Editable Mermaid source: [`docs/images/diagrams/source/cape/coe-structure-by-pat
 
 This guardrail is load-bearing for the federated and hybrid shapes. It is reproduced from the [Council Regulatory Counsel memo](../reference/microsoft-cape-crosswalk.md#13-the-frontier-center-of-excellence-govern-enable-optimize-scale) and applies regardless of which CoE shape an institution chooses.
 
-> **Federating CoE roles to business units does NOT transfer regulated supervisory accountability. FINRA 3110 supervision, OCC 2011-12 model risk oversight, SR 26-2 obligations, and SOX 302/404 attestations remain with the named FSI roles regardless of where the CoE function operationally sits.**
+> **Federating CoE roles to business units does NOT transfer regulated supervisory accountability. FINRA 3110 supervision, OCC Bulletin 2026-13 model risk oversight, Fed SR 26-2 obligations, and SOX 302/404 attestations remain with the named FSI roles regardless of where the CoE function operationally sits.**
 
 ### What this means in practice
 
@@ -232,7 +232,7 @@ Federated CoE shapes need disproportionately strong reporting infrastructure. Pi
 
 ### Two specific scenarios
 
-**Scenario A — Federated wealth division deploying a Pattern 4 agent.** A wealth division stands up a KYC document-review agent in its own business-line environment, with its own builders and Service Owner. The federation guardrail requires: (1) a designated registered principal in the wealth division named on the agent's metadata as the FINRA 3110 supervisor; (2) the agent inventoried in the central Pillar 3 register; (3) the model classified under the central Govern function's OCC 2011-12 / SR 26-2 model risk tier; (4) re-validation triggered through the central Govern function on any material change. The wealth division operates the agent; the central Govern function owns the supervisory record.
+**Scenario A — Federated wealth division deploying a Pattern 4 agent.** A wealth division stands up a KYC document-review agent in its own business-line environment, with its own builders and Service Owner. The federation guardrail requires: (1) a designated registered principal in the wealth division named on the agent's metadata as the FINRA 3110 supervisor; (2) the agent inventoried in the central Pillar 3 register; (3) the model classified under the central Govern function's OCC Bulletin 2026-13 / Fed SR 26-2 model risk tier; (4) re-validation triggered through the central Govern function on any material change. The wealth division operates the agent; the central Govern function owns the supervisory record.
 
 **Scenario B — Federated retail bank deploying a Pattern 5 agent.** A retail bank business line deploys a customer-facing servicing agent. The federation guardrail requires: (1) a designated principal who satisfies FINRA Rule 3110 supervisory obligations for the agent's communications; (2) Control 2.19 disclosure language reviewed and approved by central Compliance before launch; (3) ECOA / Reg B / Reg E exposure assessed by central Compliance even though the deployment lives in the business-line environment; (4) consumer complaints routed to a central pipeline that the CCO can attest to. Federated execution; central regulatory record.
 
@@ -240,7 +240,7 @@ Federated CoE shapes need disproportionately strong reporting infrastructure. Pi
 
 ## Decision rights at a glance
 
-The federation guardrail above states the principle. The diagram below visualizes how it lands in day-to-day decision rights. CAPE's framing — *centralize HOW scale works, not WHO builds everything* — sorts decisions into three columns: central CoE Govern decisions (cannot federate), shared decisions (central sets standards, business executes), and domain decisions (business line owns). Underneath all three columns sits the non-delegable named-principal layer: regardless of which CoE shape the institution chooses, FINRA 3110 supervision, OCC 2011-12 / SR 26-2 model risk, SOX 302/404 ICFR, and GLBA 501(b) safeguards remain with the named FSI roles called out in the [operating model](operating-model.md).
+The federation guardrail above states the principle. The diagram below visualizes how it lands in day-to-day decision rights. CAPE's framing — *centralize HOW scale works, not WHO builds everything* — sorts decisions into three columns: central CoE Govern decisions (cannot federate), shared decisions (central sets standards, business executes), and domain decisions (business line owns). Underneath all three columns sits the non-delegable named-principal layer: regardless of which CoE shape the institution chooses, FINRA 3110 supervision, OCC Bulletin 2026-13 / Fed SR 26-2 model risk, SOX 302/404 ICFR, and GLBA 501(b) safeguards remain with the named FSI roles called out in the [operating model](operating-model.md).
 
 ```mermaid
 flowchart LR
@@ -275,7 +275,7 @@ flowchart LR
         D4[Adoption & change management]:::domain
     end
 
-    GUARD["Federation guardrail — non-delegable named-principal accountability<br/>FINRA 3110 supervision → registered principal · OCC 2011-12 / SR 26-2 → CRO<br/>SOX 302/404 ICFR → CFO + ICFR owners · GLBA 501(b) → CISO<br/>— remains with named roles regardless of CoE shape (Centralized / Hybrid / Federated) —"]:::guard
+    GUARD["Federation guardrail — non-delegable named-principal accountability<br/>FINRA 3110 supervision → registered principal · OCC Bulletin 2026-13 / Fed SR 26-2 → CRO<br/>SOX 302/404 ICFR → CFO + ICFR owners · GLBA 501(b) → CISO<br/>— remains with named roles regardless of CoE shape (Centralized / Hybrid / Federated) —"]:::guard
 
     CENTRAL --- GUARD
     SHARED --- GUARD
@@ -388,4 +388,4 @@ This is a decision aid, not a prescription. Institutions vary; use the steps as 
 
 ---
 
-*Updated: May-2026 | Version: v1.5.0 | Audience: AI governance leads, CoE leads, executive sponsors*
+*Updated: May-2026 | Version: v1.6.2 | Audience: AI governance leads, CoE leads, executive sponsors*

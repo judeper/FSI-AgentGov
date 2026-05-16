@@ -44,7 +44,7 @@ For SEV-1 and confirmed SEV-2, walk this tree before remediating. Do **not** rel
 | Material cybersecurity incident at SEC registrant | SEC 8-K Item 1.05 (issuers); Form ADV-C (advisers) | "Material" thresholds — escalate to GC/CCO |
 | Spoliation of records subject to active litigation hold | Court (FRCP 37(e) sanctions exposure) | Notify outside counsel immediately |
 | FCM / swap dealer / CPO record loss | CFTC under 17 CFR 1.31 | Per CFTC guidance |
-| Bank examiner-relevant model documentation loss | OCC 2011-12 / Federal Reserve SR 11-7 examiner notification | Per supervisory guidance |
+| Bank examiner-relevant model documentation loss | OCC Bulletin 2026-13 (formerly OCC 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7) examiner notification | Per supervisory guidance |
 
 ### 1.3 Evidence preservation BEFORE remediation
 

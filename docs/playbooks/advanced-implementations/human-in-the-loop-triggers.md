@@ -109,7 +109,7 @@ Agent executes action; subset of actions flagged for post-hoc human review.
 Agent monitors confidence scores or risk indicators and escalates when thresholds are breached.
 
 - **Zone requirement:** Required for Zone 2-3 customer interactions
-- **Regulatory driver:** SR 11-7 model risk management
+- **Regulatory driver:** Fed SR 26-2 (formerly SR 11-7) model risk management
 - **Implementation:** Confidence scoring, anomaly detection, risk scoring
 
 ---
@@ -460,7 +460,7 @@ zone_3_hitl:
 | [2.12 Supervision](../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervisory review procedures |
 | [2.17 Orchestration](../../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) | Multi-agent HITL checkpoints |
 | [3.4 Incident Reporting](../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) | HITL rejections as incidents |
-| [2.6 Model Risk](../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | MRM oversight requirements |
+| [2.6 Model Risk](../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | MRM oversight requirements |
 
 ---
 

@@ -6,7 +6,7 @@
 >
 > **What this playbook is not.** It does not replace the authoritative system of record (SharePoint list, Dataverse table, CMDB, or GRC tool). It does not, by itself, *guarantee* that every agent in your tenant is captured — Microsoft's discovery surfaces have known gaps (documented in §0 and §6) that organizations should compensate for through policy, manual attestation, and Defender for Cloud Apps shadow-IT detection (Control 3.6). It does not approve, decommission, or transfer agents; it raises evidence and inventory state, and humans accept risk.
 >
-> **Hedged language reminder.** Output of this harness *supports* compliance with FINRA Rule 4511, FINRA Regulatory Notice 25-07, SEC 17a-4(b)(4), SOX 302/404, GLBA 501(b), NYDFS Part 500.16/500.17, OCC Bulletin 2011-12 / Fed SR 11-7, and NIST AI RMF GOVERN 1.6 books-and-records expectations. It does not, by itself, *ensure* a passing examination, *guarantee* completeness against an unknowable shadow population, or *eliminate* the risk that a discovery surface drifts between releases. Implementation requires that organizations verify endpoint availability, module pinning, and sovereign feature parity at every change window.
+> **Hedged language reminder.** Output of this harness *supports* compliance with FINRA Rule 4511, FINRA Regulatory Notice 25-07, SEC 17a-4(b)(4), SOX 302/404, GLBA 501(b), NYDFS Part 500.16/500.17, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Fed SR 26-2 (formerly SR 11-7), and NIST AI RMF GOVERN 1.6 books-and-records expectations. It does not, by itself, *ensure* a passing examination, *guarantee* completeness against an unknowable shadow population, or *eliminate* the risk that a discovery surface drifts between releases. Implementation requires that organizations verify endpoint availability, module pinning, and sovereign feature parity at every change window.
 
 | Field | Value |
 |---|---|
@@ -17,7 +17,7 @@
 | Sovereign Clouds | Commercial, GCC, GCC High, DoD, China (21Vianet) — see §1 sovereign matrix and §2 bootstrap |
 | Last UI Verified | April 2026 |
 | Companion Playbooks | [`portal-walkthrough.md`](portal-walkthrough.md) · [`verification-testing.md`](verification-testing.md) · [`troubleshooting.md`](troubleshooting.md) |
-| Related Controls | [1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) · [1.10](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) · [1.19](../1.19/) · [2.1](../2.1/) · [2.5](../2.5/) · [3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) · [3.8](../../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) · [3.11](../../../controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement.md) · [Incident & Risk Playbook](../../incident-and-risk/ai-incident-response-playbook.md) |
+| Related Controls | [1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) · [1.10](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) · [1.19](../1.19/portal-walkthrough.md) · [2.1](../2.1/portal-walkthrough.md) · [2.5](../2.5/portal-walkthrough.md) · [3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) · [3.8](../../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) · [3.11](../../../controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement.md) · [Incident & Risk Playbook](../../incident-and-risk/ai-incident-response-playbook.md) |
 
 ---
 
@@ -1728,9 +1728,9 @@ function Test-Agt31Implementation {
 - [`../../_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) — module pinning, sovereign endpoints, mutation safety, Dataverse cmdlet quirks (referenced as **BL-§N**).
 - [`../1.7-`](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) — service principal governance (consumes §7 `RiskFlag='High'` rows).
 - [`../1.10-`](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) — owner attestation cadence.
-- [`../1.19/`](../1.19/) — DLP integration.
-- [`../2.1/`](../2.1/) — sensitivity label propagation.
-- [`../2.5/`](../2.5/) — agent monitoring (consumes §10 enrichment).
+- [`../1.19/portal-walkthrough.md`](../1.19/portal-walkthrough.md) — DLP integration.
+- [`../2.1/portal-walkthrough.md`](../2.1/portal-walkthrough.md) — sensitivity label propagation.
+- [`../2.5/portal-walkthrough.md`](../2.5/portal-walkthrough.md) — agent monitoring (consumes §10 enrichment).
 - [`../3.6-`](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) — shadow-IT detection (compensating control for §6 sovereign gaps).
 - [`../3.8-`](../../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) — operational dashboards (consume `canonical-inventory.csv`).
 - [`../3.11-`](../../../controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement.md) — evidence retention policy (governs `reconcile-errors.csv`).

@@ -890,7 +890,7 @@ These changes affect step-by-step procedures and must be addressed.
 - Control 2.5: Control 2.5: Testing, Validation, and Quality Assurance
   - File: `controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md`
 - Control 2.6: Control 2.6: Model Risk Management (OCC 2011-12/SR 11-7)
-  - File: `controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md`
+  - File: `controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md`
 - Control 2.9: Control 2.9: Agent Performance Monitoring and Optimization
   - File: `controls/pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md`
 
@@ -1145,7 +1145,7 @@ These changes affect step-by-step procedures and must be addressed.
 - Control 2.5: Control 2.5: Testing, Validation, and Quality Assurance
   - File: `controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md`
 - Control 2.6: Control 2.6: Model Risk Management (OCC 2011-12/SR 11-7)
-  - File: `controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md`
+  - File: `controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md`
 
 **Affected Playbooks:**
 - ⚠️ `playbooks/control-implementations/2.25/portal-walkthrough.md` (CRITICAL)
@@ -1195,7 +1195,7 @@ These changes affect step-by-step procedures and must be addressed.
 - Control 2.25: Control 2.25: Microsoft Agent 365 — Admin Center Governance Console
   - File: `controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md`
 - Control 2.6: Control 2.6: Model Risk Management (OCC 2011-12/SR 11-7)
-  - File: `controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md`
+  - File: `controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md`
 
 **Affected Playbooks:**
 - ⚠️ `playbooks/control-implementations/2.25/portal-walkthrough.md` (CRITICAL)
@@ -3428,7 +3428,7 @@ These changes affect step-by-step procedures and must be addressed.
 - Control 4.8: Control 4.8: Item-Level Permission Scanning for Agent Knowledge Sources
   - File: `controls/pillar-4-sharepoint/4.8-item-level-permission-scanning-agent-knowledge-sources.md`
 - Control 2.6: Control 2.6: Model Risk Management (OCC 2011-12/SR 11-7)
-  - File: `controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md`
+  - File: `controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md`
 
 **Affected Playbooks:**
 - ℹ️ `playbooks/control-implementations/1.14/verification-testing.md` (HIGH)

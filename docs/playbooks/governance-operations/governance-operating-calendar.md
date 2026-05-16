@@ -102,7 +102,7 @@ Completed by: _________________ Date: _________
 |------|-------------------|-------|------|----------|
 | DLP policy effectiveness review | [1.5](../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) | Security Analyst | Week 1 | 2 hours |
 | Conditional Access policy review | [1.11](../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) | Security Admin | Week 2 | 2 hours |
-| Agent versioning audit | [2.6](../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | AI Governance Lead | Week 3 | 2 hours |
+| Agent versioning audit | [2.6](../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | AI Governance Lead | Week 3 | 2 hours |
 | Connector policy validation | [1.4](../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md) | Platform Admin | Week 4 | 2 hours |
 
 ### Monthly Verification Checklist
@@ -162,7 +162,7 @@ AI Governance Lead approval: _________________ Date: _________
 | Task | Control Reference | Owner | Duration |
 |------|-------------------|-------|----------|
 | Bias/fairness regression testing | [2.11](../../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) | QA/Compliance | 6 hours |
-| Model risk review (Zone 3 agents) | [2.6](../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Risk | 4 hours |
+| Model risk review (Zone 3 agents) | [2.6](../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Risk | 4 hours |
 | Adversarial red team exercise | [2.20](../../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) | Security | 8 hours |
 | Information barrier validation | [1.22](../../controls/pillar-1-security/1.22-information-barriers.md) | Compliance | 2 hours |
 
@@ -251,7 +251,7 @@ AI Governance Lead: _________________ Date: _________
 | Task | Control Reference | Owner | Duration |
 |------|-------------------|-------|----------|
 | Full control effectiveness assessment | All controls | AI Governance Lead | 2 days |
-| Third-party model validation (Zone 3) | [2.6](../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | External Validator | 3-5 days |
+| Third-party model validation (Zone 3) | [2.6](../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | External Validator | 3-5 days |
 | Independent red team assessment | [2.20](../../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) | External Security | 2-3 days |
 | Regulatory mapping update | [Regulatory Mappings](../../framework/regulatory-framework.md) | Compliance | 1 day |
 | Framework version update review | All controls | AI Governance Lead | 1 day |
@@ -271,7 +271,7 @@ AI Governance Lead: _________________ Date: _________
 |------|-------------------|-------|----------|
 | Vendor risk reassessment | [2.7](../../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md) | Risk | 2 days |
 | Microsoft service review | All controls | Platform Admin | 1 day |
-| Third-party attestation review | [2.6 Step 8a](../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md#third-party-attestation) | Compliance | 1 day |
+| Third-party attestation review | [2.6 Step 8a](../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md#third-party-attestation) | Compliance | 1 day |
 | Connector security review | [1.4](../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md) | Security | 1 day |
 
 ### Annual Verification Checklist

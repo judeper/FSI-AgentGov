@@ -120,7 +120,7 @@ Microsoft tool that monitors how AI agents interact with sensitive data (now lab
 Plan to restore systems after a disaster.
 
 **Drift (drift thesis)**
-The phenomenon where agents in production silently degrade in accuracy, relevance, or compliance posture over time without dramatic failure. Microsoft frames this as "agents don't fail dramatically; they slowly drift, giving wrong answers with confidence." For FSI, drift is the regulatory hook for FINRA 4511 / SEC 17a-4 ongoing supervision and OCC 2011-12 monitoring requirements. Mitigated by control 3.10 (Hallucination Tracking) and the Optimize CoE function.
+The phenomenon where agents in production silently degrade in accuracy, relevance, or compliance posture over time without dramatic failure. Microsoft frames this as "agents don't fail dramatically; they slowly drift, giving wrong answers with confidence." For FSI, drift is the regulatory hook for FINRA 4511 / SEC 17a-4 ongoing supervision and OCC Bulletin 2026-13 (formerly OCC 2011-12) monitoring requirements. Mitigated by control 3.10 (Hallucination Tracking) and the Optimize CoE function.
 
 *Source: Microsoft CAPE Walking Deck; see `agent-lifecycle.md` and `microsoft-cape-crosswalk.md`.*
 
@@ -251,7 +251,7 @@ System that makes predictions or decisions based on data. AI agents using ML alg
 Risk that a model may produce inaccurate or biased outputs.
 
 **MRM (Model Risk Management)**
-Framework for identifying, measuring, monitoring, and controlling model risk, aligned with OCC Bulletin 2011-12 and Fed SR 26-2 (formerly SR 11-7). See [Control 2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) for AI agent MRM requirements.
+Framework for identifying, measuring, monitoring, and controlling model risk, aligned with OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) and Fed SR 26-2 (formerly SR 11-7). See [Control 2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) for AI agent MRM requirements.
 
 **M365 Certification**
 Microsoft validation that an application meets security and compliance requirements. Higher trust level than Publisher Attested. Visible in M365 Admin Center under Settings → Integrated Apps.
@@ -438,7 +438,7 @@ Risk classification for agents:
 | Reg S-P | Privacy Rule | Customer information protection |
 | SOX 302/404 | Internal Controls | Management responsibility for controls |
 | GLBA 501-505 | Safeguards | Data protection requirements |
-| OCC 2011-12 | Model Risk Guidance | Governance for models |
+| OCC Bulletin 2026-13 (formerly 2011-12) | Model Risk Guidance | Governance for models |
 | SR 26-2 (formerly SR 11-7) | Model Risk Management | Federal Reserve guidance for models |
 | ECOA | Fair Lending | Prohibits lending discrimination |
 | FDIC | Federal Deposit Insurance Corporation | Regulates state non-member banks |

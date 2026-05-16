@@ -30,14 +30,14 @@ related_controls: ["1.21", "1.23", "1.24", "2.6", "2.8", "2.12", "2.25", "2.26",
 
 ---
 
-> **Hedged-language disclaimer.** The PowerShell helpers in this playbook **support compliance with** the regulatory references listed in [Control 1.11](../../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md). They do not by themselves constitute compliance, do not guarantee any control outcome, and do not substitute for the written supervisory and validation procedures required under FINRA Rule 3110, OCC Bulletin 2011-12 / Federal Reserve SR 11-7, SEC Regulation S-P (May 2024 amendments), GLBA / FTC Safeguards Rule 16 CFR §314.4, NYDFS 23 NYCRR 500 §500.12, or NIST SP 800-63B. Implementation requires legal, compliance, and information-security review tied to your firm''s written policies. Organizations should verify each helper''s output against tenant-specific exceptions before promoting any policy from `enabledForReportingButNotEnforced` to `enabled`.
+> **Hedged-language disclaimer.** The PowerShell helpers in this playbook **support compliance with** the regulatory references listed in [Control 1.11](../../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md). They do not by themselves constitute compliance, do not guarantee any control outcome, and do not substitute for the written supervisory and validation procedures required under FINRA Rule 3110, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7), SEC Regulation S-P (May 2024 amendments), GLBA / FTC Safeguards Rule 16 CFR §314.4, NYDFS 23 NYCRR 500 §500.12, or NIST SP 800-63B. Implementation requires legal, compliance, and information-security review tied to your firm''s written policies. Organizations should verify each helper''s output against tenant-specific exceptions before promoting any policy from `enabledForReportingButNotEnforced` to `enabled`.
 
 !!! warning "PowerShell Does **Not** Substitute for Human Review"
     This automation is an **operator aid**, not a control. The Authentication Policy Admin or Entra Global Admin who runs these helpers remains accountable for:
 
     - **Privileged human verification** — every promoted Conditional Access policy must be reviewed by a named approver under your firm''s change-management process. Sign-off **must** be captured outside of this script (ticketing system, GRC platform, signed PDF) before `enabled = true` is committed.
     - **Supervisory review per [Control 2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md)** — FINRA Rule 3110 requires supervisory procedures that are **reasonably designed**; the supervisor''s judgement, not the helper''s `Status = Clean`, is the supervisory record.
-    - **Model-risk re-validation per [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md)** — material changes to the authentication boundary surrounding an AI agent are an MRM-relevant change. Re-validate per OCC 2011-12 / SR 11-7 §V before enforcement.
+    - **Model-risk re-validation per [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md)** — material changes to the authentication boundary surrounding an AI agent are an MRM-relevant change. Re-validate per OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) §V before enforcement.
     - **Break-glass attestation** — the helpers verify that two break-glass accounts are excluded from every policy. They do **not** verify that those accounts'' credentials are escrowed, tested quarterly, or roster-attested. That is a [Control 2.8](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md) and SOX 404 obligation.
 
 !!! danger "License Dependency — Conditional Access for Workload Identities"
@@ -1853,7 +1853,7 @@ function Invoke-Fsi-Control111Setup {
 .NOTES
     Per Control 2.12 (FINRA 3110 supervision), the orchestrator does NOT replace the supervisor''s
     written sign-off. The evidence pack is INPUT to the supervisor''s review, not the supervisor''s
-    record. Per Control 2.6 (OCC 2011-12 / SR 11-7), any change to the authentication boundary
+    record. Per Control 2.6 (OCC Bulletin 2026-13 / Fed SR 26-2), any change to the authentication boundary
     requires MRM re-validation BEFORE this orchestrator is run in Enforce mode.
 #>
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = ''High'')]
@@ -1989,7 +1989,7 @@ The orchestrator emits the following artefacts to `$EvidenceRoot/<UTC-timestamp>
 
 **Retention.** Per SEC Rule 17a-4(b)(4), CA-related sign-in evidence must be retained for **at least 6 years** in WORM-compliant storage. Per SOX 404, the evidence pack should be tagged for the relevant ICFR control owner. Per FINRA Rule 4511, electronic records require a designated principal''s review documented separately.
 
-**What this pack is NOT.** The pack is the **operator''s technical record** of a deterministic helper run. It is **not** a supervisory record under FINRA Rule 3110 (see [Control 2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md)) and **not** a model-risk validation record under OCC 2011-12 / SR 11-7 (see [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md)). Those records are separate and are produced by named human reviewers.
+**What this pack is NOT.** The pack is the **operator''s technical record** of a deterministic helper run. It is **not** a supervisory record under FINRA Rule 3110 (see [Control 2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md)) and **not** a model-risk validation record under OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) (see [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md)). Those records are separate and are produced by named human reviewers.
 
 ---
 
@@ -2010,7 +2010,7 @@ The orchestrator emits the following artefacts to `$EvidenceRoot/<UTC-timestamp>
 | [1.21 Adversarial Input Logging](../../../controls/pillar-1-security/1.21-adversarial-input-logging.md) | CA governs identity context only; runtime prompt / output inspection lives in 1.21. |
 | [1.23 Step-Up Authentication for Agent Operations](../../../controls/pillar-1-security/1.23-step-up-authentication-for-agent-operations.md) | Step-up authentication for sensitive agent operations is a complementary identity-plane control. |
 | [1.24 Defender AI Security Posture Management](../../../controls/pillar-1-security/1.24-defender-ai-security-posture-management.md) | AI-SPM signals augment Conditional Access risk evaluation for AI-bearing identities. |
-| [2.6 Model Risk Management (OCC 2011-12 / SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Material changes to the auth boundary are MRM-relevant; re-validate before Enforce. |
+| [2.6 Model Risk Management (OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7))](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Material changes to the auth boundary are MRM-relevant; re-validate before Enforce. |
 | [2.12 Supervision (FINRA 3110)](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervisory sign-off for promotion to `enabled`. The orchestrator does not replace the supervisor. |
 | [1.5 Data Loss Prevention and Sensitivity Labels](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) | DLP and CA together provide identity + content defence-in-depth. |
 | [2.25 Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) | Centralised governance surface that complements identity-plane CA controls for agents. |

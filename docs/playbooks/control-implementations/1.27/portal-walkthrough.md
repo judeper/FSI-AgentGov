@@ -144,7 +144,7 @@ Capture the following fields per agent (the PowerShell inventory script in [Powe
 
 ## Visual Reference
 
-Expected portal locations (capture screenshots into `maintainers-local/tenant-evidence/1.27/` per [`docs/images/1.27/EXPECTED.md`](../../../images/1.27/EXPECTED.md) — never commit screenshots to the repo):
+Expected portal locations (capture screenshots into `maintainers-local/tenant-evidence/1.27/` per `docs/images/1.27/EXPECTED.md` — never commit screenshots to the repo):
 
 - Agent-effective default: **Copilot Studio → [Agent] → Topics → System → Conversational boosting → Generative answers node → Content moderation**
 - Topic override: **Copilot Studio → [Agent] → Topics → Custom → [Topic] → Generative answers node → Content moderation**

@@ -1,7 +1,7 @@
 # Framework Overview
 
-!!! success "v1.5.0 — Microsoft CAPE Alignment"
-    FSI-AgentGov v1.5.0 introduces Microsoft Copilot Acceleration Engineering (CAPE) alignment with 3 new framework documents (Transformation Patterns, Capability Drivers, Agentic CoE) and the canonical [Microsoft CAPE Crosswalk](../reference/microsoft-cape-crosswalk.md) reference.
+!!! info "Current version: v1.6.2 (May 2026)"
+    See [What's New](../changelog.md) for the latest release notes and the full version history.
 
 The FSI Agent Governance Framework provides comprehensive governance guidance for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
@@ -61,7 +61,7 @@ Controls scale with risk. Zone 1 (personal productivity) requires minimal oversi
 
 ### 2. Regulatory Alignment
 
-The framework maps controls to US financial regulations including FINRA 4511/3110, SEC 17a-3/4, SOX 302/404, GLBA 501(b), OCC 2011-12, and Fed SR 26-2 (formerly SR 11-7). Organizations should validate mappings against their specific regulatory obligations.
+The framework maps controls to US financial regulations including FINRA 4511/3110, SEC 17a-3/4, SOX 302/404, GLBA 501(b), OCC Bulletin 2026-13 (formerly OCC 2011-12), and Fed SR 26-2 (formerly SR 11-7). Organizations should validate mappings against their specific regulatory obligations.
 
 ### 3. Microsoft Platform Foundation
 

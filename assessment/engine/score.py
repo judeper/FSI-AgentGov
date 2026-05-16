@@ -21,6 +21,41 @@ from pathlib import Path
 
 ENGINE_VERSION = "1.0.0"
 
+
+def _read_framework_version() -> str:
+    """Read FSI-AgentGov framework version from repo-root VERSION file.
+
+    Single source of truth for the framework release the engine was built
+    against (e.g., "1.6.2"). Returns "unknown" if VERSION is missing.
+    """
+    version_file = Path(__file__).resolve().parents[2] / "VERSION"
+    if version_file.exists():
+        return version_file.read_text(encoding="utf-8").strip()
+    return "unknown"
+
+
+FRAMEWORK_VERSION = _read_framework_version()
+
+
+def normalize_manifest_controls(raw: object) -> list[dict]:
+    """Return the controls list regardless of manifest top-level shape.
+
+    The on-disk ``assessment/manifest/controls.json`` is a bare JSON list
+    of 78 control objects. Earlier engine code assumed a dict-wrapped
+    form ``{"controls": [...]}`` and crashed against the real file with
+    ``AttributeError: 'list' object has no attribute 'get'``. This helper
+    accepts either shape so the engine runs end-to-end against the
+    production manifest. Closes F-MANIFEST-FORMAT-MISMATCH-01.
+    """
+    if isinstance(raw, list):
+        return raw
+    if isinstance(raw, dict):
+        return raw.get("controls", [])
+    raise TypeError(
+        f"Manifest must be list or dict; got {type(raw).__name__}"
+    )
+
+
 log = logging.getLogger("fsi-agentgov-score")
 
 # ---------------------------------------------------------------------------
@@ -38,9 +73,9 @@ MATURITY_LABELS: dict[int, str] = {
 }
 
 ZONE_DESCRIPTIONS: dict[int, str] = {
-    1: "Personal / Low Risk",
-    2: "Team / Medium Risk",
-    3: "Enterprise / Production",
+    1: "Personal Productivity",
+    2: "Team Collaboration",
+    3: "Enterprise Managed",
 }
 
 # Map api_call values from controls.json → collected-data source key.
@@ -104,26 +139,139 @@ SOURCE_FILENAMES: dict[str, str] = {
 
 def load_json(path: Path) -> dict:
     """Load and parse a JSON file."""
-    with open(path, "r", encoding="utf-8") as fh:
+    # Use utf-8-sig to defensively tolerate BOM written by Windows PowerShell 5.x
+    # collectors. Newer collectors emit BOM-less UTF-8 but legacy installs may
+    # still produce BOM-prefixed JSON. F-RUN-ASSESSMENT-ORCH-BOM-01.
+    with open(path, "r", encoding="utf-8-sig") as fh:
         return json.load(fh)
 
 
-def load_collected_data(collected_dir: Path) -> dict[str, dict | None]:
-    """Load all collected JSON files into a dict keyed by source name."""
+def load_collected_data(
+    collected_dir: Path,
+) -> tuple[dict[str, dict | None], dict[str, list[str]]]:
+    """Load all collected JSON files into a dict keyed by source name.
+
+    Returns ``(collected, load_warnings)``. ``load_warnings`` maps
+    source key -> list of human-readable diagnostic strings produced
+    while loading (file missing, parse failure, non-dict root, empty
+    payload). The collected mapping always contains every source key
+    in :data:`SOURCE_FILENAMES`, with ``None`` for any source that
+    could not be loaded as a usable dict.
+
+    Closes part of F-ENGINE-API-FAILURE-MODE-UNTESTED-01: previously
+    a non-dict JSON root (e.g., a bare list from PowerShell's
+    single-element ``ConvertTo-Json`` footgun) crashed downstream
+    evaluators with ``AttributeError: 'list' object has no attribute
+    'get'``. Now it is normalized to ``None`` and a load_warning is
+    surfaced so the customer sees that the collector emitted an
+    unparseable payload shape.
+    """
     collected: dict[str, dict | None] = {}
+    load_warnings: dict[str, list[str]] = {}
     for key, filename in SOURCE_FILENAMES.items():
         path = collected_dir / filename
-        if path.is_file():
-            try:
-                collected[key] = load_json(path)
-                log.info("Loaded %s from %s", key, path)
-            except (json.JSONDecodeError, OSError) as exc:
-                log.warning("Failed to load %s: %s", path, exc)
-                collected[key] = None
-        else:
+        if not path.is_file():
             log.info("Source file not found: %s", path)
             collected[key] = None
-    return collected
+            load_warnings.setdefault(key, []).append(
+                f"{key} data file not found at {path.name}"
+            )
+            continue
+        try:
+            parsed = load_json(path)
+        except (json.JSONDecodeError, OSError) as exc:
+            log.warning("Failed to load %s: %s", path, exc)
+            collected[key] = None
+            load_warnings.setdefault(key, []).append(
+                f"{key} data file failed to parse: {exc}"
+            )
+            continue
+        if not isinstance(parsed, dict):
+            log.warning(
+                "Source %s root is %s, expected dict; treating as no data",
+                path,
+                type(parsed).__name__,
+            )
+            collected[key] = None
+            load_warnings.setdefault(key, []).append(
+                f"{key} data file root is {type(parsed).__name__}, "
+                f"expected JSON object"
+            )
+            continue
+        # Empty `{}` is valid JSON but means the collector wrote no
+        # usable data - synthesize a warning so the customer sees
+        # that the collector returned an empty payload (per S-3 in
+        # AS15c rubber-duck: "the strongest possible partial-data
+        # signal").
+        if not parsed:
+            log.warning("Source %s is empty {}; no data to evaluate", path)
+            collected[key] = None
+            load_warnings.setdefault(key, []).append(
+                f"{key} data file is empty - collector produced no data"
+            )
+            continue
+        collected[key] = parsed
+        log.info("Loaded %s from %s", key, path)
+    return collected, load_warnings
+
+
+def _coerce_diagnostic_list(raw: object) -> list[str]:
+    """Coerce a ``_metadata.warnings`` / ``_metadata.errors`` field to
+    a clean list of strings.
+
+    PowerShell's ``ConvertTo-Json`` collapses single-element arrays to
+    bare scalars - so a collector that recorded one warning may write
+    ``"warnings": "Section 7 failed"`` instead of
+    ``"warnings": ["Section 7 failed"]``. Normalize both shapes.
+    Non-string entries are coerced via ``str()`` to keep the engine
+    crash-resistant; falsy entries are dropped.
+    """
+    if isinstance(raw, str):
+        items = [raw]
+    elif isinstance(raw, list):
+        items = raw
+    else:
+        return []
+    return [str(item) for item in items if item]
+
+
+def extract_collector_warnings(
+    collected: dict[str, dict | None],
+    load_warnings: dict[str, list[str]],
+) -> dict[str, list[str]]:
+    """Build the customer-facing collector_warnings rollup.
+
+    For each source key, merges (a) load-time diagnostics emitted by
+    :func:`load_collected_data` (file missing / malformed / non-dict /
+    empty) with (b) the collector-recorded ``_metadata.warnings`` and
+    ``_metadata.errors`` lists from the loaded payload. Errors are
+    prefixed with ``"[error] "`` so the customer sees their higher
+    severity in the same flat list (per AS15c rubber-duck N-2).
+
+    Insertion order is preserved within each source (load-warnings
+    first, then collector warnings, then collector errors) for
+    deterministic snapshot diffs.
+
+    Returns a dict of source-key -> list-of-strings. Sources with no
+    diagnostics at all are omitted entirely so a clean assessment
+    produces ``collector_warnings = {}``.
+    """
+    rollup: dict[str, list[str]] = {}
+    for key in SOURCE_FILENAMES:
+        items: list[str] = []
+        items.extend(load_warnings.get(key, []))
+        payload = collected.get(key)
+        if isinstance(payload, dict):
+            metadata = payload.get("_metadata")
+            if isinstance(metadata, dict):
+                items.extend(_coerce_diagnostic_list(metadata.get("warnings")))
+                items.extend(
+                    f"[error] {e}"
+                    for e in _coerce_diagnostic_list(metadata.get("errors"))
+                )
+        if items:
+            rollup[key] = items
+    return rollup
 
 
 # ---------------------------------------------------------------------------
@@ -916,10 +1064,16 @@ def run(
 
     log.info("Loading manifest from %s", manifest_p)
     manifest = load_json(manifest_p)
-    controls: list[dict] = manifest.get("controls", [])
+    controls: list[dict] = normalize_manifest_controls(manifest)
+    manifest_version = (
+        manifest.get("version", "unknown")
+        if isinstance(manifest, dict)
+        else "unknown"
+    )
 
     log.info("Loading collected data from %s", collected_p)
-    collected = load_collected_data(collected_p)
+    collected, load_warnings = load_collected_data(collected_p)
+    collector_warnings = extract_collector_warnings(collected, load_warnings)
 
     log.info("Scoring %d controls for zone %d", len(controls), zone)
     scored: list[dict] = []
@@ -939,12 +1093,14 @@ def run(
     output = {
         "_metadata": {
             "engine_version": ENGINE_VERSION,
+            "framework_version": FRAMEWORK_VERSION,
             "timestamp": timestamp,
             "zone": zone,
-            "manifest_version": manifest.get("version", "unknown"),
+            "manifest_version": manifest_version,
             "total_controls": len(scored),
             "auto_scored": summary["auto_scored"],
             "needs_manual": summary["needs_manual"],
+            "collector_warnings": collector_warnings,
         },
         "controls": scored,
         "summary": summary,
@@ -967,7 +1123,7 @@ def main(argv: list[str] | None = None) -> None:
     try:
         result = run(args.manifest, args.collected, args.zone, args.output)
         summary = result["summary"]
-        print(f"\nAssessment complete — zone {args.zone}")
+        print(f"\nAssessment complete - zone {args.zone}")
         print(f"  Controls scored:  {summary['total_controls']}")
         print(f"  Auto-scored:      {summary['auto_scored']}")
         print(f"  Needs manual:     {summary['needs_manual']}")

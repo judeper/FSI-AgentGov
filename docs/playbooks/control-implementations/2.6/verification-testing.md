@@ -1,6 +1,6 @@
-# Verification & Testing — Control 2.6: Model Risk Management (OCC 2011-12 / SR 11-7)
+# Verification & Testing — Control 2.6: Model Risk Management (OCC Bulletin 2026-13 / SR 26-2 — formerly OCC 2011-12 / SR 11-7)
 
-> **Examiner-defensible verification package** for [Control 2.6 — Model Risk Management Alignment with OCC 2011-12 / SR 11-7](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md). This playbook produces, signs, and retains the artifacts required to demonstrate to the OCC, Federal Reserve, FDIC, NYDFS, FINRA, SEC, and Internal Audit that the firm's **Model Risk Management program** is operating with respect to the AI agents in scope — not that Microsoft tooling is configured.
+> **Examiner-defensible verification package** for [Control 2.6 — Model Risk Management Alignment with OCC Bulletin 2026-13 / SR 26-2 (formerly OCC 2011-12 / SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md). This playbook produces, signs, and retains the artifacts required to demonstrate to the OCC, Federal Reserve, FDIC, NYDFS, FINRA, SEC, and Internal Audit that the firm's **Model Risk Management program** is operating with respect to the AI agents in scope — not that Microsoft tooling is configured.
 >
 > **Audience:** Compliance Officer, Internal Audit, MRM Committee secretariat, Model Risk Manager (independent validation function), AI Governance Lead. The detailed portal navigation and PowerShell automation that *produce* the evidence consumed here are in the sister [Portal Walkthrough](./portal-walkthrough.md) and [PowerShell Setup](./powershell-setup.md) playbooks; this playbook focuses on the audit and examination question: **is the firm's MRM program actually operating with these agents in it, and is the MRM Committee accepting the validation?**
 >
@@ -12,7 +12,7 @@
 
 | Convention | Value |
 |---|---|
-| Hedged regulatory language | This playbook **supports compliance with**, but does not by itself ensure compliance with, OCC Bulletin 2011-12, Federal Reserve SR 11-7, FDIC FIL-22-2017, FFIEC IT Examination Handbook, FINRA Rule 3110 (Supervision), FINRA Rule 4511 (Books and Records), FINRA Regulatory Notice 25-07 (AI Tools — RFC, contextual only), SEC Rules 17a-3 / 17a-4 (Recordkeeping), SOX §§ 302 / 404, GLBA § 501(b), CFTC Regulation 1.31, and NYDFS 23 NYCRR Part 500. A clean execution of every test in this playbook **does not guarantee** regulatory compliance, **does not replace** the firm's Model Risk Management Committee, **does not replace** independent model validation by qualified personnel, **does not replace** the effective-challenge process required by SR 11-7, and **does not replace** the registered-principal supervisory review required by FINRA Rule 3110. |
+| Hedged regulatory language | This playbook **supports compliance with**, but does not by itself ensure compliance with, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), FDIC FIL-22-2017, FFIEC IT Examination Handbook, FINRA Rule 3110 (Supervision), FINRA Rule 4511 (Books and Records), FINRA Regulatory Notice 25-07 (AI Tools — RFC, contextual only), SEC Rules 17a-3 / 17a-4 (Recordkeeping), SOX §§ 302 / 404, GLBA § 501(b), CFTC Regulation 1.31, and NYDFS 23 NYCRR Part 500. A clean execution of every test in this playbook **does not guarantee** regulatory compliance, **does not replace** the firm's Model Risk Management Committee, **does not replace** independent model validation by qualified personnel, **does not replace** the effective-challenge process required by SR 26-2 (formerly SR 11-7), and **does not replace** the registered-principal supervisory review required by FINRA Rule 3110. |
 | Canonical role names | Per [`docs/reference/role-catalog.md`](../../../reference/role-catalog.md). The roles relevant to this playbook are: **Model Risk Manager** (independent validation function — second line), **MRM Committee** (governance body), **AI Governance Lead**, **Compliance Officer**, **Internal Audit** (third line), **AI Administrator**, **Power Platform Admin**, **Purview Compliance Admin**, **Entra Global Reader** (read-only witness). |
 | Run identifier | Each verification cycle is tagged `MRM26-yyyyMMdd-HHmmss-<8charGuid>` and embedded in every evidence record and artifact filename. |
 | Cycle cadence | Pre-deployment (§2), quarterly ongoing-monitoring (§3), risk-commensurate outcomes-analysis (§4 — *not* fixed annual), per-vendor-event vendor-model (§5), per-MRM-Committee-meeting effective-challenge (§6), continuous retention (§7), quarterly sovereign parity (§8), per-retirement event (§9), on-demand examination rehearsal (§10). |
@@ -106,7 +106,7 @@ For **every agent classified Tier 1 or Tier 2** in §1.3, confirm the following 
 
 | Item | Expectation | Source |
 |---|---|---|
-| Classification (Tier 1 / 2 / 3 / Non-model) | Recorded with a written rationale ≥ 200 words referencing the OCC 2011-12 model definition | Model inventory record (Dataverse / SharePoint per [Portal Walkthrough §3](./portal-walkthrough.md)) |
+| Classification (Tier 1 / 2 / 3 / Non-model) | Recorded with a written rationale ≥ 200 words referencing the OCC Bulletin 2026-13 (formerly OCC 2011-12) model definition | Model inventory record (Dataverse / SharePoint per [Portal Walkthrough §3](./portal-walkthrough.md)) |
 | Classifier identity | Named individual, role, employee ID | Inventory record |
 | Classifier independence statement | "The classifier is not the model owner / developer for this agent" or, where the same person plays both roles, an explicit second-line counter-signature | Inventory record + e-signature |
 | Classification date | UTC timestamp; not back-dated more than 5 business days from approval | Inventory record version history |
@@ -133,7 +133,7 @@ Required sections (verifier checks each is present and non-empty):
 
 ### 2.3 Evidence artifact 3 — Pre-deployment validation memo
 
-The validation memo is authored by **personnel functionally independent of the model owner / developer**, per SR 11-7 § V. Internal second-line MRM staff satisfy the independence test; external assessment is one way to demonstrate independence (often used for Tier 1) but is not required and is not equivalent.
+The validation memo is authored by **personnel functionally independent of the model owner / developer**, per SR 26-2 (formerly SR 11-7) § V. Internal second-line MRM staff satisfy the independence test; external assessment is one way to demonstrate independence (often used for Tier 1) but is not required and is not equivalent.
 
 | Section | Expectation |
 |---|---|
@@ -225,7 +225,7 @@ The validator (second line, not the model owner) signs a one-page summary statin
 
 ### 4.1 Risk-commensurate cadence — not fixed annual
 
-SR 11-7 § V requires outcomes analysis at a frequency commensurate with **risk, model complexity, and change activity** — not on a fixed annual basis. The firm's model risk policy must define how cadence is set per agent. The verifier confirms the cadence is documented and being followed; the verifier does **not** opine on whether the cadence is correct.
+SR 26-2 (formerly SR 11-7) § V requires outcomes analysis at a frequency commensurate with **risk, model complexity, and change activity** — not on a fixed annual basis. The firm's model risk policy must define how cadence is set per agent. The verifier confirms the cadence is documented and being followed; the verifier does **not** opine on whether the cadence is correct.
 
 | Driver | Effect on cadence |
 |---|---|
@@ -277,9 +277,9 @@ Each Foundry evaluator run produces a record retained alongside the validation m
 
 ---
 
-## §5 Vendor-Model Governance Test (VENDOR namespace, SR 11-7 § V)
+## §5 Vendor-Model Governance Test (VENDOR namespace, SR 26-2 (formerly SR 11-7) § V)
 
-**Criterion mapping:** Control 2.6 Verification Criterion 7. SR 11-7 § V requires vendor-supplied models be validated with the same rigour as internally-developed models.
+**Criterion mapping:** Control 2.6 Verification Criterion 7. SR 26-2 (formerly SR 11-7) § V requires vendor-supplied models be validated with the same rigour as internally-developed models.
 
 ### 5.1 Vendor-event watchlist
 
@@ -327,9 +327,9 @@ For each vendor event affecting an in-scope agent, the firm produces a **vendor-
 
 ## §6 Effective-Challenge Test (CHALLENGE namespace)
 
-**Criterion mapping:** Control 2.6 Verification Criterion 5; SR 11-7 § III ("effective challenge").
+**Criterion mapping:** Control 2.6 Verification Criterion 5; SR 26-2 (formerly SR 11-7) § III ("effective challenge").
 
-> **Effective challenge is the cornerstone of SR 11-7.** Microsoft tooling cannot perform it. This test confirms that the firm's MRM Committee minutes evidence challenge questions raised by personnel **not involved in model development** for each in-scope Tier 1 agent, and that those questions were dispositioned.
+> **Effective challenge is the cornerstone of SR 26-2 (formerly SR 11-7).** Microsoft tooling cannot perform it. This test confirms that the firm's MRM Committee minutes evidence challenge questions raised by personnel **not involved in model development** for each in-scope Tier 1 agent, and that those questions were dispositioned.
 
 ### 6.1 Per-Tier-1-agent assertions
 
@@ -588,7 +588,7 @@ The cycle attestation rolls up every assertion into a single MRM cycle status:
 - [Control 1.9 — Data Retention and Deletion](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) — Retention schedule for validation evidence
 - [Control 1.10 — Communication Compliance](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) — Supervisory review feeding §6.2
 - [Control 2.3 — Change Management](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md) — Vendor-driven change capture for §5
-- [Control 2.7 — Vendor and Third-Party Risk Management](../../../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md) — Vendor-model governance under SR 11-7 § V
+- [Control 2.7 — Vendor and Third-Party Risk Management](../../../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md) — Vendor-model governance under SR 26-2 (formerly SR 11-7) § V
 - [Control 2.12 — FINRA Rule 3110 Supervision](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) — Registered-principal linkage in §6.2
 - [Control 2.16 — RAG Source Integrity Validation](../../../controls/pillar-2-management/2.16-rag-source-integrity-validation.md) — Knowledge-source integrity feeding §2.2 and §9.2
 - [Control 2.25 — Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) — Publication / activation approval surface

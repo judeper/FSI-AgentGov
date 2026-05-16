@@ -4,7 +4,7 @@
 
 **Control:** 4.7 - Microsoft 365 Copilot Data Governance
 **Pillar:** 4 - SharePoint & Content Governance (embedded M365 Copilot scope)
-**Regulatory References:** SEC 17a-4(f), FINRA 4511 / 3110 / 25-07 (Reg Notice 24-09 supervisory expectations for generative AI), SOX 302/404 (ICFR over AI-assisted disclosures), GLBA 501(b) / Reg S-P 30-day breach notification, FFIEC IT Handbook (AIO/Operations), OCC 2011-12 / Fed SR 11-7 (Model Risk Management), CFTC 1.31, NYDFS 23 NYCRR 500 (.07/.11/.16), NIST AI RMF 1.0 (Govern/Map/Measure/Manage), NIST SP 800-53 Rev. 5 (AC-3/AC-4/AC-6/AU-2/AU-12/SC-7/SC-13/SI-4/PM-9)
+**Regulatory References:** SEC 17a-4(f), FINRA 4511 / 3110 / 25-07 (Reg Notice 24-09 supervisory expectations for generative AI), SOX 302/404 (ICFR over AI-assisted disclosures), GLBA 501(b) / Reg S-P 30-day breach notification, FFIEC IT Handbook (AIO/Operations), OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) (Model Risk Management), CFTC 1.31, NYDFS 23 NYCRR 500 (.07/.11/.16), NIST AI RMF 1.0 (Govern/Map/Measure/Manage), NIST SP 800-53 Rev. 5 (AC-3/AC-4/AC-6/AU-2/AU-12/SC-7/SC-13/SI-4/PM-9)
 **Last UI Verified:** April 2026
 **Governance Levels:** Baseline, Recommended, Regulated
 
@@ -30,7 +30,7 @@
 ## What this playbook does NOT claim
 
 - Does not certify that any specific Copilot response is free of hallucinations, fabricated citations, or model-introduced bias - that is the function of human supervisory review under FINRA 3110 and 25-07, not technical verification
-- Does not replace OCC 2011-12 / Fed SR 11-7 model risk management documentation, model inventory entries, ongoing performance monitoring, or independent model validation
+- Does not replace OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) model risk management documentation, model inventory entries, ongoing performance monitoring, or independent model validation
 - Does not satisfy FINRA Reg Notice 24-09 supervisory procedure attestation by itself - that requires written supervisory procedures, named principal sign-off, and supervisor training records held outside this technical playbook
 - Does not cover Copilot Studio, custom agents, declarative agents, or third-party Copilot-branded extensions - those are governed by control 4.8 and Pillar 1 / 2 controls for agent identity, action allow-listing, and connector governance
 - Does not validate Microsoft's underlying foundation-model behaviour, training data lineage, or subprocessor (including Anthropic) operational controls - those are vendor-attested artefacts retrieved through the Microsoft Service Trust Portal and reviewed under control 1.5
@@ -958,7 +958,7 @@ Each cycle produces an `attestation.json` carrying three distinct-role signature
 | 1.19 - eDiscovery for agent interactions | DLP-01..03 evidence preservation and IR-01 routing share eDiscovery substrate with 1.19 | [1.19 control](../../../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md) |
 | 1.21 - (Pillar 1 verification reference) | Verification envelope, JSON Schema, and validator pattern derive from the 1.21 gold-standard playbook family | [1.14 verification](../1.14/verification-testing.md) |
 | 2.1 - Managed Environments | BLK-06, PAGES-01, NOTEBOOKS-01 rely on the environment scope provisioned under 2.1 | [2.1 control](../../../controls/pillar-2-management/2.1-managed-environments.md) |
-| 2.6 - Model risk management (OCC 2011-12 / SR 11-7) | NEG-01..03 and IR-03 outputs feed the model-risk inventory maintained under 2.6 | [2.6 control](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) |
+| 2.6 - Model risk management (OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7)) | NEG-01..03 and IR-03 outputs feed the model-risk inventory maintained under 2.6 | [2.6 control](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) |
 | 4.5 - SharePoint security and compliance monitoring | RSS, PAGES, NOTEBOOKS retention assertions inherit monitoring posture from 4.5 | [4.5 control](../../../controls/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring.md) |
 | 4.6 - Grounding scope governance | RSS-01..03 inherits site-eligibility decisions captured under 4.6 grounding governance | [4.6 control](../../../controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md) |
 | 4.8 - Item-level permission scanning for agent knowledge sources | LABEL-01 negative-test outcomes feed the item-level permission scan inventory under 4.8 | [4.8 control](../../../controls/pillar-4-sharepoint/4.8-item-level-permission-scanning-agent-knowledge-sources.md) |

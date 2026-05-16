@@ -12,7 +12,7 @@ This guide covers the complete agent lifecycle with zone-specific governance req
 
 ## CAPE 7-stage lifecycle with FSI regulatory hooks
 
-Microsoft CAPE describes a seven-stage lifecycle (Intake → Triage → Build → Deploy → Monitor → Improve → Retire) that FSI institutions adopt as the canonical operational flow. Each stage carries an FSI hook — the controls and US regulatory regimes that examiners will trace through that stage. The diagram below is examiner-ready: drop it into a workpaper to show how the institution's agent lifecycle aligns with CAPE while honouring FINRA 4511, SEC 17a-3/4, OCC 2011-12 / Fed SR 26-2, FINRA 3110, and SOX 404. The full stage-by-stage FSI treatment is in the [Microsoft CAPE 7-Stage Lifecycle Alignment](#microsoft-cape-7-stage-lifecycle-alignment) section later in this document.
+Microsoft CAPE describes a seven-stage lifecycle (Intake → Triage → Build → Deploy → Monitor → Improve → Retire) that FSI institutions adopt as the canonical operational flow. Each stage carries an FSI hook — the controls and US regulatory regimes that examiners will trace through that stage. The diagram below is examiner-ready: drop it into a workpaper to show how the institution's agent lifecycle aligns with CAPE while honouring FINRA 4511, SEC 17a-3/4, OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7), FINRA 3110, and SOX 404. The full stage-by-stage FSI treatment is in the [Microsoft CAPE 7-Stage Lifecycle Alignment](#microsoft-cape-7-stage-lifecycle-alignment) section later in this document.
 
 ```mermaid
 flowchart LR
@@ -31,11 +31,11 @@ flowchart LR
     S6 -. iteration loop .-> S3
 
     H1["FSI hook: Control 3.1 inventory<br/>FINRA 4511 / SEC 17a-3 books and records"]:::hook
-    H2["FSI hook: Control 2.6 model risk OCC 2011-12 / SR 26-2<br/>Control 2.12 supervision FINRA 3110"]:::hook
+    H2["FSI hook: Control 2.6 model risk OCC Bulletin 2026-13 / Fed SR 26-2<br/>Control 2.12 supervision FINRA 3110"]:::hook
     H3["FSI hook: Control 2.1 Managed Environments<br/>Control 2.16 RAG source integrity"]:::hook
     H4["FSI hook: release gates + governance committee approval<br/>Control 2.3 / 2.5 · FINRA 4511 · SOX 404 ICFR"]:::hook
     H5["FSI hook: Control 3.2 usage analytics<br/>Control 3.10 hallucination feedback · FINRA 3110 ongoing"]:::hook
-    H6["FSI hook: re-validation + SME attestation<br/>Control 2.3 / 2.16 · OCC 2011-12 / SR 26-2 material change"]:::hook
+    H6["FSI hook: re-validation + SME attestation<br/>Control 2.3 / 2.16 · OCC Bulletin 2026-13 / Fed SR 26-2 material change"]:::hook
     H7["FSI hook: decommissioning evidence<br/>Control 1.7 audit · Control 1.9 retention · SEC 17a-4"]:::hook
 
     S1 --- H1
@@ -428,7 +428,7 @@ Microsoft's CAPE materials describe a 7-stage agent lifecycle (Intake → Triage
 | Microsoft CAPE Stage | FSI-AgentGov Treatment | Primary CoE Function | Primary FSI Accountability Role | Key Controls |
 |---------------------|------------------------|---------------------|--------------------------------|--------------|
 | **Intake** | Creation phase (zone classification, business justification) | Govern | AI Governance Lead | [3.1](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) |
-| **Triage** | Creation phase (risk assessment, approval routing) | Govern | AI Governance Lead + Chief Risk Officer | [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md), [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) |
+| **Triage** | Creation phase (risk assessment, approval routing) | Govern | AI Governance Lead + Chief Risk Officer | [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md), [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) |
 | **Build** | Development phase (configuration, knowledge sources, connectors) | Enable | Copilot Studio Agent Author + Power Platform Admin | [2.1](../controls/pillar-2-management/2.1-managed-environments.md), [2.16](../controls/pillar-2-management/2.16-rag-source-integrity-validation.md) |
 | **Deploy** | Testing + Deployment phases (validation, release gate, channel publication) | Optimize | Power Platform Admin + AI Governance Lead | [2.3](../controls/pillar-2-management/2.3-change-management-and-release-planning.md), [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md) |
 | **Monitor** | Monitoring phase (performance tracking, compliance verification) | Optimize | Service Owner + Power Platform Admin | [3.2](../controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md), [3.10](../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md) |
@@ -451,7 +451,7 @@ Microsoft's CAPE materials describe a 7-stage agent lifecycle (Intake → Triage
 
 **What it means in CAPE vocabulary.** Triage is the portfolio activity where the CoE evaluates whether the agent request should proceed, be deferred, or be rejected. CAPE recommends scoring on three dimensions: business value, technical feasibility, and risk exposure. The triage decision determines priority and resourcing.
 
-**What it looks like in FSI practice.** FSI triage adds regulatory exposure as a fourth dimension. An agent request that scores high on business value but touches customer data or executes decisions autonomously receives heightened scrutiny. The Chief Risk Officer (or delegate) participates in triage for any agent that may be classified as a model under OCC Bulletin 2011-12 / Fed SR 26-2. FINRA-supervised firms apply Rule 3110 supervision requirements at triage to identify whether the agent will produce communications subject to supervision. For Zone 3 agents, triage produces the initial risk tier and identifies the mandatory controls that must be in place before deployment.
+**What it looks like in FSI practice.** FSI triage adds regulatory exposure as a fourth dimension. An agent request that scores high on business value but touches customer data or executes decisions autonomously receives heightened scrutiny. The Chief Risk Officer (or delegate) participates in triage for any agent that may be classified as a model under OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Fed SR 26-2. FINRA-supervised firms apply Rule 3110 supervision requirements at triage to identify whether the agent will produce communications subject to supervision. For Zone 3 agents, triage produces the initial risk tier and identifies the mandatory controls that must be in place before deployment.
 
 **The most important governance gate at this stage.** Initial regulatory exposure assessment is the triage gate that prevents an institution from building an agent that it cannot legally deploy. An agent that reaches the Build stage without a documented assessment of its FINRA, SEC, OCC, GLBA, or SOX exposure will face re-scoping or abandonment when Compliance reviews it at the Deploy gate. FSI institutions should document the triage decision and the regulatory exposure rationale in the agent's inventory entry or governance committee minutes — this documentation becomes the examiner artifact that shows the institution understood the risk profile before committing resources.
 
@@ -475,7 +475,7 @@ Microsoft's CAPE materials describe a 7-stage agent lifecycle (Intake → Triage
 
 **What it means in CAPE vocabulary.** Monitor is the ongoing activity where the Optimize function tracks agent health, detects drift, and surfaces improvement opportunities. CAPE emphasizes that every agent in production without monitoring is accumulating risk — agents do not fail dramatically; they slowly drift, giving increasingly wrong answers with full confidence.
 
-**What it looks like in FSI practice.** FSI monitoring combines operational metrics (latency, error rate, user satisfaction) with compliance metrics (DLP denies, hallucination feedback, usage analytics). Control 3.2 requires usage tracking at frequencies that vary by zone (Zone 1 = monthly; Zone 2 = weekly; Zone 3 = daily). Hallucination feedback (Control 3.10) provides the signal that an agent's knowledge base has drifted or that the agent is operating outside its documented decision-rights boundary. For FINRA-supervised firms, monitoring includes supervisory review of agent-produced communications under Rule 3110 — the frequency and depth of review depend on the agent's risk tier and the communication type. For OCC-supervised banks, monitoring includes ongoing model performance validation under OCC Bulletin 2011-12 Section V for any agent classified as a model.
+**What it looks like in FSI practice.** FSI monitoring combines operational metrics (latency, error rate, user satisfaction) with compliance metrics (DLP denies, hallucination feedback, usage analytics). Control 3.2 requires usage tracking at frequencies that vary by zone (Zone 1 = monthly; Zone 2 = weekly; Zone 3 = daily). Hallucination feedback (Control 3.10) provides the signal that an agent's knowledge base has drifted or that the agent is operating outside its documented decision-rights boundary. For FINRA-supervised firms, monitoring includes supervisory review of agent-produced communications under Rule 3110 — the frequency and depth of review depend on the agent's risk tier and the communication type. For OCC-supervised banks, monitoring includes ongoing model performance validation under OCC Bulletin 2026-13 Section V (formerly OCC Bulletin 2011-12 Section V) for any agent classified as a model.
 
 **The most important governance gate at this stage.** Drift detection and re-validation triggers. The CAPE "drift thesis" — that agents slowly give wrong answers over time — maps directly to FINRA Rule 4511 and SEC Rules 17a-3/17a-4 books-and-records obligations. An agent that drifts into providing inaccurate policy guidance or incorrect regulatory citations is producing unreliable records. FSI institutions should document the monitoring cadence, the drift detection criteria, and the re-validation triggers in the agent's governance record. When drift is detected, the agent should be pulled from production until re-validated — this decision and the re-validation evidence become the examiner artifact that shows the institution maintained supervisory oversight throughout the agent's operational life.
 
@@ -508,4 +508,4 @@ Microsoft's CAPE materials describe a 7-stage agent lifecycle (Intake → Triage
 
 ---
 
-*Updated: May-2026 | Version: v1.5.0 | UI Verification Status: Current*
+*Updated: May-2026 | Version: v1.6.2 | UI Verification Status: Current*

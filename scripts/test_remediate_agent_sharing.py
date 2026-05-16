@@ -145,10 +145,23 @@ def test_zone_2_remediation_removes_everyone_public(mock_dataverse_client):
 
 
 def test_zone_2_remediation_case_insensitive_everyone(mock_dataverse_client):
-    """Test Zone 2 remediation handles case-insensitive Everyone/Public matching."""
+    """Test Zone 2 remediation handles case-insensitive Everyone/Public matching.
+
+    The production code (``get_zone_remediation_principals`` in
+    ``remediate_agent_sharing.py``) uses **exact** (set-membership) matching
+    against ``_system_names`` so a legitimate group with a name that contains
+    ``"public"`` or ``"all"`` as a substring (e.g. "Republic Team", "Mall
+    Operations") is preserved. The case-insensitivity comes from lowercasing
+    the inputs before the set lookup, not from substring matching.
+
+    This test exercises the case-insensitivity path with ``"EVERYONE"`` (mixed
+    upper) and ``"Public"`` (initial-cap). Both lowercase exactly to entries in
+    the system-name set and must be filtered. ``"Finance Team"`` is preserved
+    because it's a real named group.
+    """
     current_principals = [
         {"type": "group", "id": "group-1", "displayName": "EVERYONE"},
-        {"type": "group", "id": "group-2", "displayName": "public users"},
+        {"type": "group", "id": "group-2", "displayName": "Public"},
         {"type": "group", "id": "group-3", "displayName": "Finance Team"},
     ]
 
@@ -159,9 +172,42 @@ def test_zone_2_remediation_case_insensitive_everyone(mock_dataverse_client):
         dataverse_client=mock_dataverse_client,
     )
 
-    # Should preserve only Finance Team (EVERYONE and "public users" removed)
+    # Should preserve only Finance Team (EVERYONE and Public removed)
     assert len(result) == 1
     assert result[0]["properties"]["principal"]["displayName"] == "Finance Team"
+
+
+def test_zone_2_remediation_preserves_substring_named_groups(mock_dataverse_client):
+    """Companion to the case-insensitive test: documents that the production
+    code intentionally does NOT substring-match against ``_system_names``.
+
+    Without this test, a future maintainer could "fix" the case-insensitive
+    test by changing the production set-membership check to a substring
+    contains-check, which would silently break customers whose group names
+    contain words like "public" or "all" as roots ("Republic Team",
+    "Public Sector Solutions", "Falls Church Office", "All-Stars").
+    """
+    current_principals = [
+        {"type": "group", "id": "group-1", "displayName": "Republic Team"},
+        {"type": "group", "id": "group-2", "displayName": "Public Sector Solutions"},
+        {"type": "group", "id": "group-3", "displayName": "All-Stars"},
+        {"type": "group", "id": "group-4", "displayName": "Everyone"},
+    ]
+
+    result = get_zone_remediation_principals(
+        zone=2,
+        current_principals=current_principals,
+        approved_groups=[],
+        dataverse_client=mock_dataverse_client,
+    )
+
+    # Should preserve the 3 substring-named groups; remove only "Everyone".
+    assert len(result) == 3
+    display_names = [p["properties"]["principal"]["displayName"] for p in result]
+    assert "Republic Team" in display_names
+    assert "Public Sector Solutions" in display_names
+    assert "All-Stars" in display_names
+    assert "Everyone" not in display_names
 
 
 def test_zone_3_remediation_replaces_with_approved_groups(mock_dataverse_client):

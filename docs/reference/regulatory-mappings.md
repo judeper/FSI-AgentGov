@@ -85,7 +85,7 @@ Requires written policies and procedures for supervision of agents and AI techno
 | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision and Oversight | Define supervisory procedures |
 | [2.3](../controls/pillar-2-management/2.3-change-management-and-release-planning.md) | Change Management | Change control and approval |
 | [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Testing and Validation | QA before production |
-| [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | SR 26-2 (formerly SR 11-7) alignment |
+| [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Model Risk Management | SR 26-2 (formerly SR 11-7) alignment |
 | [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) | Bias Testing | Fairness assessment |
 | [2.15](../controls/pillar-2-management/2.15-environment-routing.md) | Environment Routing | Enforce routing rules based on role/group membership for supervision |
 | [2.17](../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) | Multi-Agent Orchestration Limits | Supervise agent interactions |
@@ -206,7 +206,7 @@ See: [FINRA Regulatory Notice 15-09](https://www.finra.org/rules-guidance/notice
 | [1.27](../controls/pillar-1-security/1.27-ai-agent-content-moderation-enforcement.md) | Content Moderation | Filter harmful outputs per supervisory obligations |
 | [1.28](../controls/pillar-1-security/1.28-policy-based-agent-publishing-restrictions.md) | Publishing Restrictions | Approval and review before customer-facing agent deployment |
 | [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Testing and Validation | Agent accuracy and reliability testing |
-| [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Formal framework per SR 26-2 (formerly SR 11-7) |
+| [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Model Risk Management | Formal framework per SR 26-2 (formerly SR 11-7) |
 | [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) | Bias Testing | Fairness assessment per SR 26-2 (formerly SR 11-7) |
 | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Written supervisory procedures |
 | [2.18](../controls/pillar-2-management/2.18-automated-conflict-of-interest-testing.md) | Conflict of Interest Testing | Test for recommendation biases |
@@ -315,7 +315,7 @@ The framework provides mapped coverage via the applicable controls listed above.
 ## SEC Rule 10b-5 / Reg BI - Fair Dealing and Disclosure
 
 ### Overview
-Requires fair dealing in transactions and investment advice, including disclosure of conflicts and algorithmic use.
+Requires fair dealing in transactions and investment advice, including disclosure of conflicts and algorithmic use. SEC Rule 10b-5 establishes the general antifraud standard; Regulation Best Interest (Reg BI), addressed in detail in the next section, is the specific best-interest standard for broker-dealer recommendations to retail customers.
 
 ### Applicable Controls
 
@@ -323,11 +323,11 @@ Requires fair dealing in transactions and investment advice, including disclosur
 |---------|-------------|---------|
 | [1.6](../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) | DSPM for AI | Data governance and privacy |
 | [1.14](../controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control.md) | Data Minimization | Use only necessary data |
-| [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Agent accuracy and reliability |
+| [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Model Risk Management | Agent accuracy and reliability |
 | [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) | Bias Testing | Fair treatment across demographics |
 | [2.18](../controls/pillar-2-management/2.18-automated-conflict-of-interest-testing.md) | Conflict of Interest Testing | Best interest standard compliance |
 | [2.19](../controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) | Customer AI Disclosure | AI transparency and disclosure |
-| [3.10](../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md) | Hallucination Feedback Loop | Ensure advice accuracy |
+| [3.10](../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md) | Hallucination Feedback Loop | Helps support advice accuracy |
 
 ### Key Requirements
 
@@ -338,13 +338,13 @@ Requires fair dealing in transactions and investment advice, including disclosur
    - Provide override/escalation procedure
 
 2. **Fair Dealing**
-   - Agent must treat all customers fairly
+   - Agent should treat all customers fairly
    - No discrimination (ECOA compliance)
    - Bias testing documented
    - Model monitoring for fair outcomes
 
 3. **Best Execution**
-   - Agent must seek best outcomes
+   - Agent should seek best outcomes within recordkeeping and supervision constraints
    - Performance monitoring required
    - Escalation to human advisor available
    - Regular review of effectiveness
@@ -363,6 +363,70 @@ Framework incorporates SEC AI disclosure guidance through 6 mapped controls. Leg
 
 ---
 
+## SEC Regulation Best Interest (Reg BI) — Broker-Dealer Recommendations
+
+### Overview
+
+Regulation Best Interest (17 CFR 240.15l-1), adopted in [SEC Release No. 34-86031](https://www.sec.gov/rules/final/2019/34-86031.pdf) (June 5, 2019; compliance date **June 30, 2020**), establishes a "best interest" standard of conduct for broker-dealers and their associated persons when making a recommendation of any securities transaction or investment strategy involving securities to a retail customer. Reg BI is examined jointly by the SEC Division of Examinations and FINRA, and remains an annual SEC exam priority (see SEC EXAMS *2024* and *2025 Examination Priorities*; FINRA *2026 Annual Regulatory Oversight Report*).
+
+When AI agents generate, screen, or filter recommendations — even when the final recommendation is delivered by a human registered representative — the firm's Reg BI compliance posture must account for the agent's contribution to the recommendation.
+
+!!! warning "AI agents and Reg BI scope"
+    A "recommendation" under Reg BI is interpreted broadly. AI agents that draft recommendation language, score products against a customer profile, surface a curated product list, or assist a representative in framing advice may be deemed to participate in a "recommendation" subject to Reg BI — regardless of whether they speak directly to the customer. Document the agent's role in the recommendation process, the human-review checkpoint, and the substantiation evidence retained.
+
+### The Four Reg BI Obligations
+
+| # | Obligation | Reg BI Reference | AI-Agent Implication | Primary Controls |
+|---|-----------|------------------|---------------------|------------------|
+| 1 | **Care Obligation** | 240.15l-1(a)(2)(ii) | Recommendation must reflect reasonable diligence, care, and skill, including reasonable basis, customer-specific suitability, and series-of-transactions analysis | [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md), [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md), [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md), [3.10](../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md) |
+| 2 | **Disclosure Obligation** | 240.15l-1(a)(2)(i) | Full and fair written disclosure (Form CRS / Reg BI disclosure) of material facts about the relationship and the recommendation, including the use of AI tools where material | [2.19](../controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md), [2.13](../controls/pillar-2-management/2.13-documentation-and-record-keeping.md), [2.21](../controls/pillar-2-management/2.21-ai-marketing-claims-and-substantiation.md) |
+| 3 | **Conflict of Interest Obligation** | 240.15l-1(a)(2)(iii) | Written policies and procedures reasonably designed to identify, disclose or eliminate, and mitigate conflicts — including conflicts embedded in model training data, product-coverage scoring, or vendor revenue arrangements | [2.18](../controls/pillar-2-management/2.18-automated-conflict-of-interest-testing.md), [2.7](../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md), [1.5](../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) |
+| 4 | **Compliance Obligation** | 240.15l-1(a)(2)(iv) | Written policies and procedures reasonably designed to achieve compliance with Reg BI as a whole, including supervision, testing, escalation, and remediation | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md), [1.21](../controls/pillar-1-security/1.21-adversarial-input-logging.md), [3.3](../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md), [3.4](../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) |
+
+### Care Obligation — Detail
+
+- **Reasonable basis:** the firm should have a reasonable basis to believe the recommendation could be in the best interest of *at least some* retail customers. For AI-assisted recommendations, this requires documented model validation, performance monitoring, and reasoned-basis documentation maintained as model artifacts (Control 2.6).
+- **Customer-specific:** the recommendation should be in the best interest of the *particular* retail customer based on stated investment profile. AI prompts and customer inputs feeding the recommendation should be retained as records (Controls 1.7, 2.13).
+- **Series of transactions:** quantitative recommendation patterns (e.g., agent-suggested portfolio rebalancing) are evaluated as a sequence; transaction-level audit logs and aggregation reports are required (Controls 1.7, 3.2).
+
+### Disclosure Obligation — Detail
+
+- Disclosure that AI tools contribute to recommendations should be made in writing prior to or at the time of the recommendation, consistent with the firm's Form CRS and Reg BI disclosure documents.
+- Marketing or advertising claims about AI capabilities are independently subject to the SEC Marketing Rule and SEC "AI washing" enforcement precedent (see Marketing Rule section). Substantiation evidence helps support both Reg BI and Marketing Rule disclosures (Control 2.21).
+- Customer-facing disclosures should describe, at a minimum: that AI is used, the categories of decisions it influences, the role of human review, and how the customer can request more information or escalate.
+
+### Conflict of Interest Obligation — Detail
+
+- Identify conflicts the AI agent could introduce: vendor revenue-share with proprietary product coverage, model training data favoring particular issuers, analyst-coverage gaps, or recommendation algorithms calibrated against firm metrics rather than customer outcomes.
+- Disclose remaining conflicts, eliminate where feasible, and mitigate the rest. Compensation-driven conflicts and limited-product-menu conflicts must be **mitigated**, not merely disclosed.
+- Document the conflict inventory, mitigation measures, and effectiveness review in the firm's books and records (Control 2.13). Automated conflict-of-interest testing of the recommendation engine itself is a primary mitigation surface (Control 2.18).
+
+### Compliance Obligation — Detail
+
+- Written supervisory procedures (WSPs) should describe: the AI agent's role in the recommendation pipeline, the registered-principal review checkpoint, escalation triggers, and the cadence of compliance testing.
+- Adversarial-input logging (Control 1.21) and supervisory monitoring (Control 2.12) feed the firm's evidence of "reasonable design" under the Compliance Obligation.
+- Incidents that affect a recommendation surface — including hallucinations, prompt injection, or model drift — should be documented and remediated through the incident-response workflow (Controls 3.4, 3.10).
+
+### Governance Framework Alignment
+
+| Zone | Reg BI Posture |
+|------|----------------|
+| **Zone 1** (Personal) | Personal-productivity agents do not produce retail recommendations and are out of Reg BI scope. Firm WSPs should explicitly prohibit Zone 1 agents from generating customer-deliverable recommendation content. |
+| **Zone 2** (Team) | Team agents that draft, screen, or aggregate recommendation inputs require disclosure documentation, supervisory review, and validation evidence; they may not generate customer-deliverable recommendations without the Zone 3 controls applied. |
+| **Zone 3** (Enterprise / Customer-Facing) | Full Reg BI control set: documented Care, Disclosure, Conflict-of-Interest, and Compliance obligation evidence; bias-testing and conflict-testing reports retained; registered-principal supervisory review per Control 2.12; books-and-records retention per FINRA 4511 / SEC 17a-4(b)(4). |
+
+### Framework Coverage
+
+The framework helps support — but does not by itself satisfy — Reg BI through Controls 2.5, 2.6, 2.11, 2.12, 2.13, 2.18, 2.19, 2.21, 1.7, 1.21, 3.2, 3.3, 3.4, and 3.10. Reg BI is a registered-broker-dealer obligation; legal and compliance review is required to confirm the firm's WSPs, Form CRS, Reg BI disclosure documents, and supervisory architecture address the firm's specific facts and AI use cases.
+
+**References:**
+- [SEC Release No. 34-86031 — Regulation Best Interest: The Broker-Dealer Standard of Conduct (June 5, 2019)](https://www.sec.gov/rules/final/2019/34-86031.pdf)
+- [SEC EXAMS 2024 Examination Priorities — Reg BI focus](https://www.sec.gov/files/2024-exam-priorities.pdf)
+- [SEC Risk Alert — Observations from Broker-Dealer Examinations Related to Reg BI (Jan 30, 2023)](https://www.sec.gov/files/risk-alert-observations-bd-examinations-relating-regulation-best-interest.pdf)
+- [FINRA Reg BI / Form CRS topic page](https://www.finra.org/rules-guidance/key-topics/regulation-best-interest)
+
+---
+
 ## SEC Marketing Rule (206(4)-1) - AI Marketing Claims
 
 ### Overview
@@ -375,7 +439,7 @@ The SEC Marketing Rule governs advertising by investment advisers, including cla
 | [2.21](../controls/pillar-2-management/2.21-ai-marketing-claims-and-substantiation.md) | AI Marketing Claims and Substantiation | Primary control for marketing rule compliance |
 | [2.19](../controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) | Customer AI Disclosure | Transparency complements marketing accuracy |
 | [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Testing and Validation | Performance claims require substantiation |
-| [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Validates AI capabilities being marketed |
+| [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Model Risk Management | Validates AI capabilities being marketed |
 | [2.13](../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) | Documentation | Maintains substantiation evidence |
 
 ### Key Requirements
@@ -490,7 +554,7 @@ Requires CEO/CFO certification of internal control effectiveness and management 
 | [4.5](../controls/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring.md) | Security Monitoring | Monitoring controls |
 | [4.7](../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | M365 Copilot Data Governance | Output review processes |
 
-**Mapped controls: 44**
+*See the Applicable Controls table above for the current per-regulation control mapping.*
 
 ### Management Assessment Requirements
 
@@ -528,7 +592,7 @@ Requires CEO/CFO certification of internal control effectiveness and management 
 - Executive sign-off on effectiveness
 
 ### Framework Coverage
-Framework provides 44 mapped controls relevant to SOX requirements. SOX-specific testing required. Implementation required.
+Framework controls relevant to SOX requirements are listed in the Applicable Controls table above. SOX-specific testing required. Implementation required.
 
 ---
 
@@ -545,7 +609,7 @@ Requires financial institutions to maintain appropriate safeguards for customer 
 | # | Required Element | AI Agent Application | FSI-AgentGov Control |
 |---|-----------------|---------------------|---------------------|
 | 1 | **Qualified Individual** to oversee program | AI Governance Lead accountable for agent security | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) |
-| 2 | **Risk Assessment** - written, updated | Include AI agents in annual risk assessment | [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) |
+| 2 | **Risk Assessment** - written, updated | Include AI agents in annual risk assessment | [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) |
 | 3 | **Safeguards** - implement and test controls | DLP, access controls, encryption for agent data | Pillar 1 controls (1.1-1.24) |
 | 4 | **Service Provider Oversight** | Due diligence for Microsoft, AI model providers | [2.7](../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md) |
 | 5 | **Evaluate and Adjust** - continuous monitoring | Monitor agent performance and security posture | [3.2](../controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md), [3.7](../controls/pillar-3-reporting/3.7-ppac-security-posture-assessment.md) |
@@ -608,7 +672,7 @@ Requires financial institutions to maintain appropriate safeguards for customer 
 | [2.3](../controls/pillar-2-management/2.3-change-management-and-release-planning.md) | Change Management | Administrative safeguard - change control |
 | [2.4](../controls/pillar-2-management/2.4-business-continuity-and-disaster-recovery.md) | BC/DR | Administrative safeguard - continuity |
 | [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Testing and Validation | Administrative safeguard - validation |
-| [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Administrative safeguard - risk management |
+| [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Model Risk Management | Administrative safeguard - risk management |
 | [2.7](../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md) | Vendor Risk Management | Administrative safeguard - third-party oversight |
 | [2.8](../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md) | Access Control and SoD | Technical safeguard - access management |
 | [2.9](../controls/pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md) | Performance Monitoring | Technical safeguard - monitoring |
@@ -648,7 +712,7 @@ Requires financial institutions to maintain appropriate safeguards for customer 
 | [4.7](../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | M365 Copilot Data Governance | Technical safeguard - M365 access controls |
 | 4.8 | Item-Level Permission Scanning for Agent Knowledge Sources | Item-level access control validation for agent knowledge sources |
 
-**Mapped controls: 52**
+*See the Applicable Controls table above for the current per-regulation control mapping.*
 
 ### Key Safeguard Areas
 
@@ -687,11 +751,11 @@ Requires financial institutions to maintain appropriate safeguards for customer 
 - Quarterly training + annual assessment
 
 ### Framework Coverage
-Framework provides 52 mapped controls relevant to GLBA safeguards. Implementation validation required.
+Framework controls relevant to GLBA safeguards are listed in the Applicable Controls table above. Implementation validation required.
 
 ---
 
-## OCC Bulletin 2011-12 / SR 26-2 (formerly SR 11-7) - Model Risk Management
+## OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Fed SR 26-2 (formerly SR 11-7) - Model Risk Management
 
 ### Overview
 Applies to national banks and federal savings associations. Requires governance framework for models used in business decisions.
@@ -720,7 +784,7 @@ Applies to national banks and federal savings associations. Requires governance 
 | [2.2](../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) | Environment Groups | Model tier classification |
 | [2.3](../controls/pillar-2-management/2.3-change-management-and-release-planning.md) | Change Management | Model change control |
 | [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Testing and Validation | Independent model validation |
-| [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Primary SR 26-2 (formerly SR 11-7) framework |
+| [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Model Risk Management | Primary SR 26-2 (formerly SR 11-7) framework |
 | [2.7](../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md) | Vendor Risk Management | Third-party model governance |
 | [2.8](../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md) | Access Control and SoD | Model development controls |
 | [2.9](../controls/pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md) | Performance Monitoring | Model performance tracking |
@@ -754,7 +818,7 @@ Applies to national banks and federal savings associations. Requires governance 
 | [4.7](../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) | M365 Copilot Data Governance | Model output governance |
 | 4.8 | Item-Level Permission Scanning for Agent Knowledge Sources | Data governance for AI model knowledge sources |
 
-**Mapped controls: 34**
+*See the Applicable Controls table above for the current per-regulation control mapping.*
 
 ### Model Risk Framework (SR 26-2 (formerly SR 11-7))
 
@@ -806,7 +870,7 @@ Applies to national banks and federal savings associations. Requires governance 
 - Recommended even if not OCC-regulated
 
 ### Framework Coverage
-Framework provides 34 mapped controls relevant to OCC and SR 26-2 (formerly SR 11-7) topics. OCC-specific model validation required for full compliance.
+Framework controls relevant to OCC Bulletin 2026-13 and Fed SR 26-2 (formerly SR 11-7) topics are listed in the Applicable Controls table above. OCC-specific model validation required for full compliance.
 
 ---
 
@@ -820,7 +884,7 @@ Applies to bank holding companies and entities with lending functions. Requires 
 | Control | Requirement | Mapping |
 |---------|-------------|---------|
 | [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) | Bias Testing | ECOA discrimination testing |
-| [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Credit model governance |
+| [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Model Risk Management | Credit model governance |
 | [1.14](../controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control.md) | Data Minimization | Fair treatment in data usage |
 | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Compliance oversight |
 
@@ -852,7 +916,7 @@ Applies to bank holding companies and entities with lending functions. Requires 
 - Annual third-party validation
 
 ### Framework Coverage
-Framework provides 2 mapped bias-testing controls applicable to ECOA and fair lending topics. ECOA-specific testing and validation required.
+Framework controls applicable to ECOA and fair lending topics (primarily bias-testing and fairness assessment) are listed in the Applicable Controls table above. ECOA-specific testing and validation required.
 
 ---
 
@@ -870,7 +934,7 @@ Applies to futures commission merchants (FCMs), introducing brokers, commodity t
 | [1.5](../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) | DLP and Sensitivity Labels | Protection of trading data |
 | [1.9](../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) | Data Retention | Retention policies per CFTC requirements |
 | [2.3](../controls/pillar-2-management/2.3-change-management-and-release-planning.md) | Change Management | Change control for trading systems |
-| [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Governance for algorithmic trading agents |
+| [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Model Risk Management | Governance for algorithmic trading agents |
 | [2.13](../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) | Documentation and Record Keeping | Complete transaction documentation |
 | [3.1](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) | Agent Inventory | Registry of trading-related agents |
 | [3.3](../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) | Compliance Reporting | Regulatory reporting capabilities |
@@ -1012,6 +1076,51 @@ SEC Regulation S-ID is not directly addressed by this framework. Organizations d
 
 ---
 
+## SEC Regulation SCI — Systems Compliance and Integrity
+
+### Overview
+
+Regulation SCI (17 CFR §§ 242.1000–242.1007), adopted in [SEC Release No. 34-73639](https://www.sec.gov/rules/final/2014/34-73639.pdf) (Nov 19, 2014; effective Nov 3, 2015), establishes uniform requirements for the technology infrastructure of "SCI entities" — large broker-dealers (Section 240.17h-2T or registered as ATSes meeting the volume thresholds in Rule 1000), national securities exchanges, registered clearing agencies, plan processors, and certain SROs and SCI ATSes. The SEC adopted [amendments expanding the SCI entity definition and tightening incident reporting in 2024](https://www.sec.gov/files/rules/final/2024/34-100327.pdf), with phased compliance dates extending into 2026.
+
+Reg SCI is not a general broker-dealer rule — it applies only to entities meeting the SCI-entity definition. Most retail and mid-tier broker-dealers are out of direct SCI scope but may inherit SCI obligations contractually through their connectivity to SCI entities (e.g., as members of an SCI exchange or clearing agency).
+
+### AI-Agent Implication
+
+When an AI agent operates within an SCI entity's "SCI systems" (the systems supporting the SCI entity's core regulatory functions: trading, clearance, settlement, order routing, market data, regulation, surveillance), the agent and its supporting infrastructure are subject to the SCI entity's Reg SCI policies and procedures. This includes capacity, integrity, resiliency, availability, and security obligations; SCI event reporting; and BCP/DR.
+
+!!! warning "SCI scope test"
+    Confirm with the SCI entity's regulatory counsel whether each AI-agent surface (Copilot Studio agent, Power Platform integration, Microsoft 365 Copilot extensibility, Azure OpenAI deployment) is part of an "SCI system", "indirect SCI system", or out of SCI scope. The classification drives which controls (and which evidence-retention regimes) apply.
+
+### Key Reg SCI Obligations Inherited by In-Scope AI Agents
+
+| # | Obligation | Reg SCI Reference | AI-Agent Implication | Primary Controls |
+|---|-----------|-------------------|---------------------|------------------|
+| 1 | **Policies and procedures** for capacity, integrity, resiliency, availability, security | Rule 1001(a) | AI agent design, deployment, change management, and monitoring procedures must align to the SCI entity's documented Reg SCI program | [2.1](../controls/pillar-2-management/2.1-managed-environments.md), [2.3](../controls/pillar-2-management/2.3-change-management-and-release-planning.md), [2.4](../controls/pillar-2-management/2.4-business-continuity-and-disaster-recovery.md), [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) |
+| 2 | **BCP / DR** policies and procedures designed to maintain operational capability and resume operations within two hours after a wide-scale disruption | Rule 1001(a)(2)(v) | AI agent dependencies (Azure region, Microsoft 365 region, Copilot Studio, Foundry endpoints, Entra Agent ID) must be evaluated against the SCI entity's recovery time objective | [2.4](../controls/pillar-2-management/2.4-business-continuity-and-disaster-recovery.md), [2.7](../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md) |
+| 3 | **SCI event notification** to the SEC (immediate / 24-hour / quarterly depending on event class) and to affected members/participants | Rule 1002 | AI-agent failures, security incidents, data-integrity events, or material systems compliance issues that affect an SCI system are SCI events; incident-response runbooks must trigger SCI reporting | [3.4](../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md), [1.21](../controls/pillar-1-security/1.21-adversarial-input-logging.md) |
+| 4 | **SCI review** — annual independent review of the SCI entity's compliance with Reg SCI | Rule 1003(b) | AI agent inventory, change logs, capacity and performance evidence, and incident records should be available for the SCI review | [3.1](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md), [3.3](../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md), [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) |
+| 5 | **Industry- or sector-wide testing** of BCP/DR including coordinated testing with members | Rule 1004 | AI-agent failover and degraded-mode behavior must be exercised in scheduled SCI tests; documented tabletop or live evidence retained | [2.4](../controls/pillar-2-management/2.4-business-continuity-and-disaster-recovery.md) |
+| 6 | **Recordkeeping** of all materials related to compliance with Reg SCI for at least five years (first two years readily accessible) | Rule 1005 | AI agent design documents, validation evidence, change tickets, capacity reports, security advisories, and SCI event records retained per Rule 1005 | [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), [1.9](../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md), [2.13](../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) |
+
+### Governance Framework Alignment
+
+| Zone | Reg SCI Posture |
+|------|-----------------|
+| **Zone 1** (Personal) | Personal-productivity agents are out of SCI scope. Firm WSPs at SCI entities should explicitly prohibit Zone 1 agents from operating within or transmitting to/from SCI systems. |
+| **Zone 2** (Team) | Team agents that touch SCI systems (e.g., a research desk agent with read-only access to surveillance data) inherit SCI policies and require explicit SCI scoping decisions, BCP coverage, and inclusion in the SCI inventory. |
+| **Zone 3** (Enterprise) | Full SCI control set: capacity, resiliency, integrity, availability, and security obligations; BCP/DR aligned to the entity's recovery time objective; SCI event runbooks; SCI review participation; five-year retention of SCI evidence. |
+
+### Framework Coverage
+
+The framework helps support — but does not by itself satisfy — Reg SCI through Controls 2.1, 2.3, 2.4, 2.6, 2.7, 2.13, 3.1, 3.3, 3.4, 1.7, 1.9, and 1.21. Reg SCI is an entity-specific regulatory regime and requires legal counsel and the SCI entity's regulatory operations team to confirm scope, classification, and reporting obligations for each AI-agent surface.
+
+**References:**
+- [SEC Release No. 34-73639 — Regulation Systems Compliance and Integrity (Nov 19, 2014)](https://www.sec.gov/rules/final/2014/34-73639.pdf)
+- [SEC Release No. 34-100327 — Amendments to Regulation SCI (2024)](https://www.sec.gov/files/rules/final/2024/34-100327.pdf)
+- [17 CFR Part 242, Subpart A — Regulation SCI](https://www.ecfr.gov/current/title-17/chapter-II/part-242/subpart-A)
+
+---
+
 ## FDIC-Supervised Institutions
 
 ### Overview
@@ -1037,7 +1146,7 @@ All framework controls apply to FDIC-supervised institutions. Key controls inclu
 | [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Audit Logging | FFIEC IT Handbook - Audit and Monitoring |
 | [1.11](../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) | Conditional Access/MFA | FFIEC Authentication Guidance |
 | [1.15](../controls/pillar-1-security/1.15-encryption-data-in-transit-and-at-rest.md) | Encryption | FFIEC Information Security |
-| [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model Risk Management | Interagency SR 26-2 (formerly SR 11-7) guidance |
+| [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Model Risk Management | Interagency SR 26-2 (formerly SR 11-7) guidance |
 | [2.7](../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md) | Third-Party Risk | Interagency Third-Party Guidance (2023) |
 | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Examination expectations |
 
@@ -1185,9 +1294,9 @@ Several states have enacted or are developing AI-specific legislation that may a
 | Requirement | Description | Framework Alignment |
 |-------------|-------------|---------------------|
 | Algorithmic Discrimination Prevention | Prevent discriminatory outcomes | [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) |
-| Annual Bias Audits | Regular fairness assessments | [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md), [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) |
+| Annual Bias Audits | Regular fairness assessments | [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md), [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) |
 | Consumer Opt-Out Rights | Right to opt out of AI processing | [2.19](../controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) |
-| Risk Management Policy | Document AI risk management | [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) |
+| Risk Management Policy | Document AI risk management | [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) |
 | Impact Assessments | Conduct and document impact assessments | See [Colorado AI Impact Assessment Template](../playbooks/regulatory-modules/colorado-ai-impact-assessment.md) |
 
 **High-Risk AI Systems under Colorado AI Act:**
@@ -1336,28 +1445,31 @@ Insurers should consult their primary state insurance regulator and legal counse
 
 ## Control Coverage Summary by Regulation
 
-| Regulation | Applicable Controls | Coverage | Implementation Status |
-|-----------|---------------------|----------|----------------------|
-| FINRA 4511 | 62/72 | 86% | Full coverage - implementation required |
-| FINRA 3110 | 8/72 | 11% | Partial - supervision focus |
-| FINRA 3110/2111 (AI) | 11/72 | 15% | Partial - supervision/suitability focus |
-| SEC 17a-3/4 | 50/72 | 69% | Substantial coverage |
-| SEC Rule 10b-5 / Reg BI | 7/72 | 10% | Limited - fairness + disclosure focus |
-| SEC Marketing Rule (206(4)-1) | 5/72 | 7% | AI marketing claims - Control 2.21 |
-| SOX 302/404 | 44/72 | 61% | Substantial coverage |
-| GLBA 501-505 | 52/72 | 72% | Substantial coverage |
-| OCC 2011-12 | 34/72 | 47% | Partial - model risk focus |
-| Fed SR 26-2 (formerly SR 11-7) | 34/72 | 47% | Partial - model risk focus |
-| Fed ECOA | 3/72 | 4% | Minimal - bias testing only |
-| CFPB / UDAAP | 7/72 | 10% | Consumer protection + disclosure focus |
-| CFTC Rule 1.31 | 9/72 | 13% | Recordkeeping for derivatives/commodities |
-| FDIC (Interagency) | 63/72 | 88% | Full applicability; align to interagency guidance |
-| NCUA Part 748 | 51/72 | 71% | Security program alignment |
-| NYDFS Part 500 | 45/72 | 63% | State-level awareness |
-| NAIC Model Law | 41/72 | 57% | Insurance awareness |
-| State AI Laws | 6/72 | 8% | Emerging - transparency, bias, human review |
+!!! warning "Quantitative coverage figures temporarily withdrawn"
+    Numeric per-regulation control counts and coverage percentages previously published in this table reflected a hand-curated mapping against an earlier 72-control catalog. They have **not** been re-validated against the current v1.6.2 78-control catalog and were withdrawn pending Subject Matter Expert review. The detailed Applicable Controls tables in each regulation section above remain current and are the authoritative per-regulation control mapping.
 
-> **Note:** Coverage percentages indicate which framework controls address aspects of each regulation. Actual compliance requires implementation, validation, and ongoing maintenance. Consult legal counsel for regulatory interpretation. See [Disclaimer](../disclaimer.md).
+| Regulation | Implementation Status |
+|-----------|----------------------|
+| FINRA 4511 | Full coverage - implementation required |
+| FINRA 3110 | Partial - supervision focus |
+| FINRA 3110/2111 (AI) | Partial - supervision/suitability focus |
+| SEC 17a-3/4 | Substantial coverage |
+| SEC Rule 10b-5 / Reg BI | Limited - fairness + disclosure focus |
+| SEC Marketing Rule (206(4)-1) | AI marketing claims - Control 2.21 |
+| SOX 302/404 | Substantial coverage |
+| GLBA 501-505 | Substantial coverage |
+| OCC Bulletin 2026-13 (formerly OCC 2011-12) | Partial - model risk focus |
+| Fed SR 26-2 (formerly SR 11-7) | Partial - model risk focus |
+| Fed ECOA | Minimal - bias testing only |
+| CFPB / UDAAP | Consumer protection + disclosure focus |
+| CFTC Rule 1.31 | Recordkeeping for derivatives/commodities |
+| FDIC (Interagency) | Full applicability; align to interagency guidance |
+| NCUA Part 748 | Security program alignment |
+| NYDFS Part 500 | State-level awareness |
+| NAIC Model Law | Insurance awareness |
+| State AI Laws | Emerging - transparency, bias, human review |
+
+> **Note:** Implementation Status describes the qualitative scope of framework coverage for each regulation. Actual compliance requires implementation, validation, and ongoing maintenance. Consult legal counsel for regulatory interpretation. See [Disclaimer](../disclaimer.md).
 
 ---
 

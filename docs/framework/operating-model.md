@@ -228,7 +228,7 @@ This document defines the organizational structure, roles, and accountability fo
 
 **Responsibilities:**
 
-- Model risk governance (OCC 2011-12, SR 26-2 (formerly SR 11-7))
+- Model risk governance (OCC Bulletin 2026-13 (formerly OCC 2011-12), Fed SR 26-2 (formerly SR 11-7))
 - Fair lending oversight
 - Third-party risk management
 - Risk committee reporting
@@ -461,7 +461,7 @@ These functions can be organized in one of three structural shapes: **Centralize
 
 ### Federation Guardrail (Load-Bearing)
 
-**Federating CoE roles to business units does NOT transfer regulated supervisory accountability.** FINRA 3110 supervision, OCC 2011-12 model risk oversight, SR 26-2 obligations, and SOX 302/404 attestations remain with the named FSI roles in the operating model (AI Governance Lead, CCO, CRO, CISO) regardless of where the CoE function operationally sits. An institution cannot federate the accountability that a controlling regulation places on a named principal. "Federated" describes the operating shape; it does not describe the legal accountability model.
+**Federating CoE roles to business units does NOT transfer regulated supervisory accountability.** FINRA 3110 supervision, OCC Bulletin 2026-13 model risk oversight, Fed SR 26-2 obligations, and SOX 302/404 attestations remain with the named FSI roles in the operating model (AI Governance Lead, CCO, CRO, CISO) regardless of where the CoE function operationally sits. An institution cannot federate the accountability that a controlling regulation places on a named principal. "Federated" describes the operating shape; it does not describe the legal accountability model.
 
 ### Cross-Link to the Full Blueprint
 
@@ -469,4 +469,4 @@ For the full CoE blueprint — including function-by-function mandates, shape se
 
 ---
 
-*FSI Agent Governance Framework v1.5.0 - May 2026*
+*Updated: May-2026 | Version: v1.6.2 | UI Verification Status: Current*

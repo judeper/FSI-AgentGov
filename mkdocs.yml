@@ -4,10 +4,15 @@ site_author: "FSI Agent Governance Team"
 site_url: "https://judeper.github.io/FSI-AgentGov/"
 repo_url: https://github.com/judeper/FSI-AgentGov
 repo_name: judeper/FSI-AgentGov
-copyright: 'Copyright 2026 FSI Agent Governance Team | <a href="/FSI-AgentGov/disclaimer/">Disclaimer</a>'
+# NOTE: Disclaimer link rendered by overrides/partials/copyright.html
+# (Phase 3 AS14 / F-DEPLOY-COPYRIGHT-PATH-01). Do NOT add an `<a href>`
+# back here — hardcoded URLs 404 under any mount point other than
+# /FSI-AgentGov/. To change the disclaimer link target, edit the partial.
+copyright: 'Copyright 2026 FSI Agent Governance Team'
 
 extra:
   generator: false
+  version: v1.6.2
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/judeper/FSI-AgentGov
@@ -48,6 +53,7 @@ theme:
 
 plugins:
   - search
+  - include-markdown
 
 # Site-wide link validation (MkDocs 1.6+). CI runs `mkdocs build --strict`, so any warnings here will fail the build.
 validation:
@@ -64,18 +70,30 @@ validation:
 # primary nav; the long-tail ~140 are reachable by URL/search.
 
 # Exclude files that are intentionally not in navigation
+#
+# `images/*/EXPECTED.md` excludes the per-control screenshot
+# verification specs (78 files, internal docs only — never customer-
+# facing). The `images/diagrams/` tree is NOT excluded; it ships the
+# exportable architecture diagrams referenced by ~30+ "Download
+# diagram" links across the docs.
+#
+# Note: gitignore re-include semantics (`!images/diagrams/`) cannot
+# rescue paths whose parent directory is excluded, so we exclude the
+# specific files instead of negating-around a directory exclusion.
+# See F-IMAGES-EXCLUDED-* (Phase 3 AS2).
 exclude_docs: |
-  images/
+  images/.gitignore
+  images/*/EXPECTED.md
   scripts/
   templates/
-  reference/raci-matrix.md
-  controls/CONTROL-INDEX.md
   javascripts/lib/VENDOR-MANIFEST.md
 
 not_in_nav: |
   playbooks/_shared/
   /assessment/pre-session/**
   images/diagrams/source/cape/**
+  controls/CONTROL-INDEX.md
+  reference/raci-matrix.md
 
 markdown_extensions:
   - admonition
@@ -96,13 +114,22 @@ markdown_extensions:
       anchor_linenums: true
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
-      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+      # `to_svg` would generate <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@.../assets/svg/{cp}.svg">
+      # which is blocked by our CSP `img-src 'self' data:` (supply-chain
+      # hardening for the FSI audience). `to_alt` emits the Unicode
+      # codepoint as plain text — the browser then renders it via the OS
+      # color emoji font (Segoe UI Emoji on Windows, Apple Color Emoji on
+      # macOS, Noto Color Emoji on Linux/Android). No network, no CSP
+      # loosening, and screen readers announce the emoji semantically.
+      # See F-TWEMOJI-CSP-IMG-BLOCK-01 (Phase 3 AS1B).
+      emoji_generator: !!python/name:pymdownx.emoji.to_alt
 
 extra_css:
   - stylesheets/extra.css
 
 extra_javascript:
   - javascripts/assessment-loader.js
+  - javascripts/a11y.js
 
 hooks:
   - scripts/hooks/copy_assessment_data.py
@@ -188,7 +215,7 @@ nav:
       - 2.3 Change Management: controls/pillar-2-management/2.3-change-management-and-release-planning.md
       - 2.4 Business Continuity: controls/pillar-2-management/2.4-business-continuity-and-disaster-recovery.md
       - 2.5 Testing and Validation: controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md
-      - 2.6 Model Risk Management: controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md
+      - 2.6 Model Risk Management: controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md
       - 2.7 Vendor Risk Management: controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md
       - 2.8 Segregation of Duties: controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md
       - 2.9 Performance Monitoring: controls/pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md
@@ -739,9 +766,11 @@ nav:
     - Solutions Index: reference/solutions-index.md
     - Solutions Contract: reference/solutions-contract.md
     - Versioning and Support: reference/versioning-and-support.md
+    - Known Limitations: reference/known-limitations.md
     - Solutions Coverage Gaps: reference/solutions-coverage-gaps.md
     - Solutions Architecture Guide: reference/solutions-architecture-guide.md
     - SharePoint Advanced Management Licensing: reference/sharepoint-advanced-management-licensing.md
+    - Sovereign Cloud Parity Matrix: reference/sovereign-cloud-parity-matrix.md
     - Evidence Standards: reference/evidence-standards.md
     - Assessment Engine Coverage: reference/assessment-coverage.md
     - Frontier Readiness Coverage: reference/frontier-assessment-coverage.md
@@ -756,8 +785,11 @@ nav:
     - Learn Monitor AI Enhancement: reference/learn-monitor-ai-enhancement.md
     - FSI Examples: reference/fsi-configuration-examples.md
     - NIST AI RMF Crosswalk: reference/nist-ai-rmf-crosswalk.md
+    - ISO/IEC 42001 Mapping: reference/iso-42001-mapping.md
+    - Microsoft Responsible AI v2 Mapping: reference/microsoft-rai-v2-mapping.md
     - Microsoft CAPE Crosswalk: reference/microsoft-cape-crosswalk.md
     - CCO Quick Reference: reference/cco-quick-reference.md
+    - Examiner First-Day-Letter Response: reference/examiner-first-day-letter-response.md
     - CSA Quick Reference: reference/csa-quick-reference.md
     - CSA Positioning Guide: reference/csa-positioning-guide.md
     - Diagram Catalog: reference/diagram-catalog.md
@@ -769,6 +801,8 @@ nav:
     - Glossary: reference/glossary.md
     - FAQ: reference/faq.md
     - Work IQ Governance Reference: reference/work-iq-governance.md
+    - Compliance Manager Templates: reference/compliance-manager-templates.md
+    - Service Trust Portal Attestation Guide: reference/service-trust-portal-attestation-guide.md
     - Administrator Templates: downloads/index.md
     - Disclaimer: disclaimer.md
 

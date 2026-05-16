@@ -36,7 +36,7 @@
 | **Purview portal → Data loss prevention → Policies** | Author DLP policies at the **Microsoft 365 Copilot** location with rules tied to sensitivity labels and SITs (Control 1.13). | Runtime enforcement that excludes labeled / SIT-matched content from agent grounding. |
 | **Purview portal → Audit → Search** | Discover the canonical Copilot and Power Platform audit operations in your tenant (record types `CopilotInteraction`, `BotsRuntimeService`, `MicrosoftFlow`, `PowerAppsPlan`, `AzureActiveDirectory`); export evidence. | Forensic and supervisory record (FINRA 4511, FINRA 3110 / 25-07). |
 | **Purview portal → Policies → Alert policies** *(or Defender XDR → Email & collaboration → Policies & rules → Alert policy)* | Create alert policies on discovered audit operations. For Zone 3, replace with a Microsoft Sentinel analytic rule sourcing the M365 connector. | Near-real-time scope-drift detection. |
-| **Microsoft Entra admin center → Identity governance → Access reviews** | Run scheduled access reviews on agent identities (Entra Agent ID), connector connections, and SharePoint groups gating knowledge sources. | Periodic recertification (FINRA 3110, OCC 2011-12). |
+| **Microsoft Entra admin center → Identity governance → Access reviews** | Run scheduled access reviews on agent identities (Entra Agent ID), connector connections, and SharePoint groups gating knowledge sources. | Periodic recertification (FINRA 3110, OCC Bulletin 2026-13 (formerly OCC 2011-12)). |
 | **SPAC** *(coordinate with Control 4.6)* | Reconcile the §3 grounding inventory against the Control 4.6 RCD exclusion list and RSS allowed list. | Ensures inventory-time minimization is enforced at the tenant SharePoint layer. |
 
 What this walkthrough does **not** cover (use the linked playbooks instead):
@@ -1109,7 +1109,7 @@ A Control 1.14 finding that escalates to an actual unauthorized disclosure of NP
 | FINRA Rule 4530 | Specified events including customer-information compromise | Report to FINRA within 30 calendar days | Compliance Officer |
 | GLBA / Interagency Guidance on Response Programs | Unauthorized access to sensitive customer information | Notify primary federal regulator and affected customers as soon as possible | Compliance Officer + CISO |
 | State breach notification statutes (varies — e.g., NY DFS Part 500 §500.17) | Cybersecurity event affecting the covered entity | NY DFS: 72 hours from determination | Compliance Officer + CISO |
-| OCC Heightened Standards / Federal Reserve SR 11-7 (model risk) | Material model failure where the agent constitutes a covered model | Per the firm's MRM escalation matrix | CRO + Model Risk Management |
+| OCC Heightened Standards / Federal Reserve SR 26-2 (formerly SR 11-7) (model risk) | Material model failure where the agent constitutes a covered model | Per the firm's MRM escalation matrix | CRO + Model Risk Management |
 | CFTC Rule 1.31 (recordkeeping) | Loss of required records — including agent transcripts subject to recordkeeping | Per the CFTC notification matrix | Compliance Officer |
 
 For each scope-drift incident, the §13 attestation cycle should reference the incident ticket and the disposition (notified / not notifiable / under review by Legal) so that the audit trail of the decision is preserved.

@@ -26,9 +26,9 @@ The NIST AI RMF provides a structured approach to managing AI risks through four
 | NIST AI RMF Category | FSI Controls | Coverage |
 |---------------------|--------------|----------|
 | **GOVERN 1.1:** Legal/regulatory requirements identified | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md), [3.3](../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) | Full |
-| **GOVERN 1.2:** Processes to assess compliance | [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md), [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Full |
+| **GOVERN 1.2:** Processes to assess compliance | [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md), [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Full |
 | **GOVERN 1.3:** Processes for oversight of third-party AI | [2.7](../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md) | Full |
-| **GOVERN 1.4:** Risk management integrated with enterprise | Framework Layer, [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Full |
+| **GOVERN 1.4:** Risk management integrated with enterprise | Framework Layer, [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Full |
 | **GOVERN 1.5:** Ongoing monitoring processes established | [3.2](../controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md), [3.4](../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) | Full |
 | **GOVERN 1.6:** Mechanisms for inventory of AI systems | [3.1](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) | Full |
 | **GOVERN 1.7:** Processes for decommissioning AI systems | [Agent Decommissioning Playbook](../playbooks/agent-lifecycle/agent-decommissioning.md) | Full |
@@ -92,7 +92,7 @@ The NIST AI RMF provides a structured approach to managing AI risks through four
 | NIST AI RMF Category | FSI Controls | Coverage |
 |---------------------|--------------|----------|
 | **MAP 2.1:** AI system risk categorized | [Zones and Tiers](../framework/zones-and-tiers.md), Zone 1/2/3 classification | Full |
-| **MAP 2.2:** Risk tolerance established | Zone requirements, [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Full |
+| **MAP 2.2:** Risk tolerance established | Zone requirements, [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Full |
 | **MAP 2.3:** Specific risks identified | [AI Risk Assessment Template](../playbooks/incident-and-risk/ai-risk-assessment-template.md) | Full |
 
 ### MAP 3: AI capabilities, targeted usage, and potential misuse documented
@@ -101,7 +101,7 @@ The NIST AI RMF provides a structured approach to managing AI risks through four
 |---------------------|--------------|----------|
 | **MAP 3.1:** Expected and potential uses documented | Agent Inventory Entry, Per-Agent Data Policy | Full |
 | **MAP 3.2:** Potential misuse identified | [1.8](../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md), [2.20](../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) | Full |
-| **MAP 3.3:** Trustworthiness requirements identified | Zone requirements, [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Full |
+| **MAP 3.3:** Trustworthiness requirements identified | Zone requirements, [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Full |
 
 ### MAP 4: Risks associated with third-party entities identified
 
@@ -127,7 +127,7 @@ The NIST AI RMF provides a structured approach to managing AI risks through four
 
 | NIST AI RMF Category | FSI Controls | Coverage |
 |---------------------|--------------|----------|
-| **MEASURE 1.1:** Approaches for measurement identified | [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md), [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Full |
+| **MEASURE 1.1:** Approaches for measurement identified | [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md), [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Full |
 | **MEASURE 1.2:** Metrics appropriate to risk | [3.2](../controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md), [3.10](../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md) | Full |
 | **MEASURE 1.3:** Internal/external evaluations conducted | [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md), [2.20](../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) | Full |
 
@@ -135,7 +135,7 @@ The NIST AI RMF provides a structured approach to managing AI risks through four
 
 | NIST AI RMF Category | FSI Controls | Coverage |
 |---------------------|--------------|----------|
-| **MEASURE 2.1:** Tested against trustworthiness characteristics | [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md), [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Full |
+| **MEASURE 2.1:** Tested against trustworthiness characteristics | [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md), [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Full |
 | **MEASURE 2.2:** Safety evaluated | [1.8](../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md), [2.20](../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) | Full |
 | **MEASURE 2.3:** Security and resilience evaluated | [1.8](../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md), Pillar 1 Security | Full |
 | **MEASURE 2.4:** Explainability evaluated | [Zone 1 Explainability](../playbooks/advanced-implementations/zone1-min-explainability.md) | Partial |
@@ -144,7 +144,7 @@ The NIST AI RMF provides a structured approach to managing AI risks through four
 | **MEASURE 2.7:** Human-AI interaction evaluated | [Human-in-the-Loop](../playbooks/advanced-implementations/human-in-the-loop-triggers.md), [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Full |
 | **MEASURE 2.8:** Transparency claims verified | [2.19](../controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md), [2.21](../controls/pillar-2-management/2.21-ai-marketing-claims-and-substantiation.md) | Full |
 | **MEASURE 2.9:** Environmental impact evaluated | Out of scope (not primary FSI concern) | N/A |
-| **MEASURE 2.10:** Validity and reliability evaluated | [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md), [2.6](../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Full |
+| **MEASURE 2.10:** Validity and reliability evaluated | [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md), [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Full |
 | **MEASURE 2.11:** Third-party evaluated | [2.7](../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md) | Full |
 
 ### MEASURE 3: Mechanisms for tracking identified AI risks

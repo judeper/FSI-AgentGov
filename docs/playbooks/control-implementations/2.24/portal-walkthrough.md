@@ -25,7 +25,7 @@
     | Connector-level allow / block / block-custom DLP classification | [Control 1.4 — Advanced Connector Policies (ACP)](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md) |
     | Communication-compliance monitoring of what enabled capabilities produce | [Control 1.10 — Communication Compliance Monitoring](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) |
     | Environment-tier zoning decisions themselves | [Control 2.2 — Environment Groups and Tier Classification](../../../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) |
-    | The MRM re-validation that feature-enablement triggers | [Control 2.6 — Model Risk Management (OCC 2011-12 / SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) |
+    | The MRM re-validation that feature-enablement triggers | [Control 2.6 — Model Risk Management (OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7))](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) |
     | Supervisory procedures update that feature-enablement triggers | [Control 2.12 — Supervision and Oversight (FINRA 3110)](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) |
     | Orchestration-specific depth, hop, and token-budget limits | [Control 2.17 — Multi-Agent Orchestration Limits](../../../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) |
     | The Agent 365 console used to surface / block individual agents | [Control 2.25 — Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) |
@@ -34,12 +34,12 @@
     | Missing blades, greyed-out toggles, propagation delays, and remediation steps | [`./troubleshooting.md`](./troubleshooting.md) |
 
 !!! warning "Hedged-Language Reminder"
-    This playbook helps your organization **support compliance with** SOX §302/404 (internal controls over financial reporting), FINRA Rule 3110 (supervision), FINRA Rule 4511 / SEC 17a-4 (recordkeeping), Federal Reserve SR 11-7 / OCC Bulletin 2011-12 (model risk management), FFIEC IT Risk Management Handbook, GLBA 501(b) (safeguards), and, for SCI entities, SEC Regulation SCI §242.1001(a) / §242.1003. It does **not** by itself guarantee any regulatory outcome. Implementation requires Microsoft 365 Copilot licensing, Power Platform administrative access, validated change-control procedures, documented supervisory procedures, and independent testing by your compliance function. Organizations should verify all configurations against their own regulatory examination workpapers and legal counsel before treating these procedures as adequate evidence. FINRA Notice 25-07 is cited in the parent control as industry consultation only; it is an RFC, not binding guidance.
+    This playbook helps your organization **support compliance with** SOX §302/404 (internal controls over financial reporting), FINRA Rule 3110 (supervision), FINRA Rule 4511 / SEC 17a-4 (recordkeeping), Federal Reserve SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (model risk management), FFIEC IT Risk Management Handbook, GLBA 501(b) (safeguards), and, for SCI entities, SEC Regulation SCI §242.1001(a) / §242.1003. It does **not** by itself guarantee any regulatory outcome. Implementation requires Microsoft 365 Copilot licensing, Power Platform administrative access, validated change-control procedures, documented supervisory procedures, and independent testing by your compliance function. Organizations should verify all configurations against their own regulatory examination workpapers and legal counsel before treating these procedures as adequate evidence. FINRA Notice 25-07 is cited in the parent control as industry consultation only; it is an RFC, not binding guidance.
 
 !!! danger "Non-Substitution Principle — Feature Toggles Do NOT Replace MRM, Supervision, or Publishing Authorisation"
     A feature toggle restricts what a capability **can do** at runtime. It does **not** validate that the capability is **fit for purpose** and it does **not** grant anyone permission to deploy an agent that uses it. Enabling a capability on a Zone 2 or Zone 3 agent should **trigger — not replace**:
 
-    - A **Model Risk Management re-validation** under [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) (SR 11-7 §V treats capability changes as material model changes).
+    - A **Model Risk Management re-validation** under [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) (Fed SR 26-2 (formerly SR 11-7) §V treats capability changes as material model changes).
     - A **supervisory-procedures update** under [Control 2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) (FINRA 3110).
     - An **AI guardrails reassessment** and publishing-authorisation review under [Control 1.1](../../../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md).
     - A connector-policy impact assessment under [Control 1.4](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md) if the capability reaches external data or egress.
@@ -240,7 +240,7 @@ The M365 admin center is the **tenant-scoped** control surface for Microsoft 365
 5. Click **Save**. Record the change in the feature catalog with Risk rating `High`.
 
 !!! danger "Code Interpreter Is an MRM Trigger"
-    Enabling code interpreter on any agent that participates in decisioning, supervision, or financial reporting is a **material model change** under SR 11-7 §V. Open the Control 2.6 MRM re-validation ticket **before** the toggle flip, not after. Attach the MRM validation report to the change record in §6 before closing the change.
+    Enabling code interpreter on any agent that participates in decisioning, supervision, or financial reporting is a **material model change** under Fed SR 26-2 (formerly SR 11-7) §V. Open the Control 2.6 MRM re-validation ticket **before** the toggle flip, not after. Attach the MRM validation report to the change record in §6 before closing the change.
 
 ### 1.5 Configure image generation
 
@@ -292,7 +292,7 @@ These are covered in dedicated sections:
     |---|---|
     | Artifact produced | Before-and-after capability CSVs + Purview audit JSON of each toggle change + linked change-ticket IDs |
     | Retention duration | 6 years (SEC 17a-4 / FINRA 4511) |
-    | Regulatory mapping | FINRA 3110 (supervisory system change-control), SOX §404 (IT general controls — change management), SR 11-7 / OCC 2011-12 (capability-as-model-change) |
+    | Regulatory mapping | FINRA 3110 (supervisory system change-control), SOX §404 (IT general controls — change management), Fed SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC 2011-12) (capability-as-model-change) |
 
 !!! tip "Cross-Reference"
     The PowerShell / Graph equivalent of every capability toggle is documented at [`./powershell-setup.md`](./powershell-setup.md). For "capability card greyed out" or "save button not enabled" symptoms, see [`./troubleshooting.md`](./troubleshooting.md).
@@ -448,7 +448,7 @@ Microsoft regularly (a) graduates preview features to GA, (b) withdraws preview 
     |---|---|
     | Artifact produced | Per-environment feature-state CSVs + Purview audit JSON + feature-catalog rows referencing each change ticket |
     | Retention duration | 6 years (SEC 17a-4 / FINRA 4511) |
-    | Regulatory mapping | FINRA 3110 (supervisory system change-control per environment), SOX §404 (IT general controls), SR 11-7 / OCC 2011-12 (material model change per capability), FFIEC IT Risk Management (environment segregation) |
+    | Regulatory mapping | FINRA 3110 (supervisory system change-control per environment), SOX §404 (IT general controls), Fed SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC 2011-12) (material model change per capability), FFIEC IT Risk Management (environment segregation) |
 
 !!! tip "Cross-Reference"
     The PowerShell loop that applies this posture across dozens of environments is at [`./powershell-setup.md`](./powershell-setup.md). For "feature toggle not visible in environment" symptoms, see [`./troubleshooting.md`](./troubleshooting.md).
@@ -506,7 +506,7 @@ Per-agent configuration is the **tertiary enforcement layer**. Everything config
 4. Save and capture screenshot.
 
 !!! danger "Anonymous Authentication in Z2/Z3 Is a Material Audit Finding"
-    Any Zone 2 or Zone 3 agent operating with "No authentication" cannot satisfy FINRA 3110 supervisory identification, GLBA 501(b) access controls, or SR 11-7 model-owner identification. Fix immediately and backfill the incident retrospectively in the Control 1.10 monitoring scope.
+    Any Zone 2 or Zone 3 agent operating with "No authentication" cannot satisfy FINRA 3110 supervisory identification, GLBA 501(b) access controls, or Fed SR 26-2 (formerly SR 11-7) model-owner identification. Fix immediately and backfill the incident retrospectively in the Control 1.10 monitoring scope.
 
 ### 4.5 Configure the **Publishing** tab
 
@@ -531,7 +531,7 @@ Per-agent configuration is the **tertiary enforcement layer**. Everything config
     |---|---|
     | Artifact produced | Agent solution-export ZIP + SHA-256 hash + screenshots of Tools / Knowledge / Authentication / Channels tabs |
     | Retention duration | 6 years (SEC 17a-4 / FINRA 4511) |
-    | Regulatory mapping | FINRA 3110 (supervised communication scope), SR 11-7 (model configuration baselining), GLBA 501(b) (access controls) |
+    | Regulatory mapping | FINRA 3110 (supervised communication scope), Fed SR 26-2 (formerly SR 11-7) (model configuration baselining), GLBA 501(b) (access controls) |
 
 !!! tip "Cross-Reference"
     The `pac copilot` CLI and Dataverse Web API scripts that automate agent-configuration audits are at [`./powershell-setup.md`](./powershell-setup.md). For "Channels pane greyed out" symptoms, see [`./troubleshooting.md`](./troubleshooting.md).
@@ -631,7 +631,7 @@ Replicate every row for each **sovereign cloud** you operate in (§9). **Never**
     |---|---|
     | Artifact produced | Dataverse `fsi_featurecatalog` export CSV + audit-table export + drift-report email archive |
     | Retention duration | 6 years (SEC 17a-4 / FINRA 4511) — Dataverse audit auto-retained; SPO list via records label |
-    | Regulatory mapping | FINRA 3110 (supervisory change inventory), SOX §404 (change-management evidence), SR 11-7 (model inventory), GLBA 501(b) (capability inventory) |
+    | Regulatory mapping | FINRA 3110 (supervisory change inventory), SOX §404 (change-management evidence), Fed SR 26-2 (formerly SR 11-7) (model inventory), GLBA 501(b) (capability inventory) |
 
 !!! tip "Cross-Reference"
     The PowerShell / Power Automate templates to provision the catalog and its triggers are at [`./powershell-setup.md`](./powershell-setup.md). For catalog-related errors (duplicate `fsi_featureid`, alt-key collisions), see [`./troubleshooting.md`](./troubleshooting.md).
@@ -730,7 +730,7 @@ Create a second template — **do not reuse the forward template**. Reverse chan
     |---|---|
     | Artifact produced | Forward + reverse change-ticket exports from change-management system + matching feature-catalog row history + Purview audit JSON |
     | Retention duration | 6 years (SEC 17a-4 / FINRA 4511) |
-    | Regulatory mapping | FINRA 3110 (supervisory change-control), SOX §404 (change management), SR 11-7 / OCC 2011-12 (model change management, §V — both forward and retirement), FFIEC IT Risk Management |
+    | Regulatory mapping | FINRA 3110 (supervisory change-control), SOX §404 (change management), Fed SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC 2011-12) (model change management, §V — both forward and retirement), FFIEC IT Risk Management |
 
 !!! tip "Cross-Reference"
     The verification-testing playbook includes end-to-end test cases for both forward and reverse workflows — see [`./verification-testing.md`](./verification-testing.md). For "approval workflow stalls" symptoms, see [`./troubleshooting.md`](./troubleshooting.md).
@@ -776,7 +776,7 @@ The Microsoft Agent Framework exposes feature flags via the `agent.yaml` manifes
     - **Background triggers** — agent can start a run without a user message
     - **Tool chaining depth** — how many tools can be chained in one turn (relates to Control 2.17)
     - **External model routing** — agent can route parts of a turn to a non-default model
-3. For Z2/Z3: **Autonomous task execution Off** and **Background triggers Off** unless an MRM-approved exception exists. These flags convert an interactive agent into an **autonomous agent**, which has materially different regulatory implications under SR 11-7 and OCC 2013-29.
+3. For Z2/Z3: **Autonomous task execution Off** and **Background triggers Off** unless an MRM-approved exception exists. These flags convert an interactive agent into an **autonomous agent**, which has materially different regulatory implications under Fed SR 26-2 (formerly SR 11-7) and OCC 2013-29.
 4. Record every flag state in the feature catalog (one row per flag) with Risk rating `High` when On.
 
 *Screenshot anchor: `docs/images/2.24/EXPECTED.md#7-3-agent-framework-flags` — Environment Features pane with Agent Framework flags section and recommended off state for autonomous triggers.*
@@ -793,7 +793,7 @@ The Microsoft Agent Framework exposes feature flags via the `agent.yaml` manifes
     |---|---|
     | Artifact produced | MCP allow-list export + DLP JSON + Agent Framework flag CSV + feature-catalog rows with MRM ticket references |
     | Retention duration | 6 years (SEC 17a-4 / FINRA 4511) |
-    | Regulatory mapping | SR 11-7 / OCC 2011-12 (model change + third-party model inventory), OCC 2013-29 (third-party risk management), FINRA 3110 (supervision of external tool use), GLBA 501(b) (third-party safeguards) |
+    | Regulatory mapping | Fed SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC 2011-12) (model change + third-party model inventory), OCC 2013-29 (third-party risk management), FINRA 3110 (supervision of external tool use), GLBA 501(b) (third-party safeguards) |
 
 !!! tip "Cross-Reference"
     The PowerShell loops that inventory MCP connectors and Agent Framework flags across all environments are at [`./powershell-setup.md`](./powershell-setup.md). For "MCP server allow-list greyed out" symptoms, see [`./troubleshooting.md`](./troubleshooting.md).
@@ -892,7 +892,7 @@ When Microsoft announces a capability GA for your sovereign cloud, do **not** si
     |---|---|
     | Artifact produced | Sovereign feature-catalog export + quarterly attestation archive + compensating-control mapping memo + Microsoft service description citations |
     | Retention duration | 6 years (SEC 17a-4 / FINRA 4511); longer where DoD contract schedules require |
-    | Regulatory mapping | FFIEC IT Handbook, OCC 2013-29 (third-party / cloud risk), DoD SRG (sovereign cloud controls), FINRA 3110 (supervision — feature-parity gaps), SR 11-7 (model-inventory per cloud) |
+    | Regulatory mapping | FFIEC IT Handbook, OCC 2013-29 (third-party / cloud risk), DoD SRG (sovereign cloud controls), FINRA 3110 (supervision — feature-parity gaps), Fed SR 26-2 (formerly SR 11-7) (model-inventory per cloud) |
 
 ---
 
@@ -940,7 +940,7 @@ Cadence is the discipline that keeps this control effective over time. Microsoft
     |---|---|
     | Artifact produced | Signed quarterly memo (AI Governance Lead + Compliance Officer + Security Architect) listing every capability reviewed, rating, status change, and change-ticket references |
     | Retention duration | 6 years (SEC 17a-4 / FINRA 4511) |
-    | Regulatory mapping | FINRA 3110 (periodic supervisory review), SOX §404 (control-effectiveness attestation), SR 11-7 (ongoing model monitoring — capability scope), FFIEC IT Risk Management (periodic re-risk) |
+    | Regulatory mapping | FINRA 3110 (periodic supervisory review), SOX §404 (control-effectiveness attestation), Fed SR 26-2 (formerly SR 11-7) (ongoing model monitoring — capability scope), FFIEC IT Risk Management (periodic re-risk) |
 
 ---
 
@@ -1023,7 +1023,7 @@ Bundle retention is **6 years** per SEC 17a-4 / FINRA 4511. For tenants that ope
 | Classify connectors Business / Non-business / Blocked | [Control 1.4 — Advanced Connector Policies (ACP)](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md) |
 | Monitor agent output for supervisory review | [Control 1.10 — Communication Compliance Monitoring](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) |
 | Tier environments into zones | [Control 2.2 — Environment Groups and Tier Classification](../../../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) |
-| Re-validate a capability change as a model change | [Control 2.6 — Model Risk Management (OCC 2011-12 / SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) |
+| Re-validate a capability change as a model change | [Control 2.6 — Model Risk Management (OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7))](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) |
 | Update supervisory procedures for a new capability | [Control 2.12 — Supervision and Oversight (FINRA 3110)](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) |
 | Limit multi-agent orchestration depth, hop count, token budget | [Control 2.17 — Multi-Agent Orchestration Limits](../../../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) |
 | Surface / block an individual agent through the Agent 365 console | [Control 2.25 — Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) |

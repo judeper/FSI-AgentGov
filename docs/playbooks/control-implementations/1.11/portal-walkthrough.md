@@ -19,7 +19,7 @@
     |---|---|
     | Supervisory review of agent outputs (FINRA Rule 3110, registered principal sign-off) | [Control 2.12 — Supervision and Oversight under FINRA Rule 3110](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) |
     | DLP policies, environment strategy, connector classification for Power Platform / Copilot Studio | [Control 2.2 — Environment Groups and Tier Classification](../../../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) |
-    | Model risk management framework (OCC 2011-12 / Fed SR 11-7 alignment) | [Control 2.6 — Model Risk Management Alignment with OCC 2011-12 / SR 11-7](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) |
+    | Model risk management framework (OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) alignment) | [Control 2.6 — Model Risk Management Alignment with OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) |
     | Agent publishing authorization, maker entitlement gating | [Control 1.1 — Restrict Agent Publishing by Authorization](../../../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md) |
     | Lifecycle for ownerless agents and orphan remediation | [Control 3.6 — Orphaned Agent Detection and Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) |
     | Agent inventory, governance dashboards, admin-gated approvals | [Control 2.25 — Microsoft Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) |
@@ -46,7 +46,7 @@
     - **FINRA Regulatory Notice 21-18** — Cybersecurity practices, supervision of access control changes
     - **NIST SP 800-63B** — Authenticator Assurance Levels; AAL2 (multi-factor) and AAL3 (hardware-bound, verifier-impersonation-resistant) — phishing-resistant authenticators (FIDO2, passkeys, Windows Hello for Business, smart cards) map to AAL3
     - **CISA Zero Trust Maturity Model v2.0** — Identity pillar Optimal stage (continuous, phishing-resistant authentication; centralized identity store; just-in-time access)
-    - **OCC Bulletin 2011-12 / Federal Reserve SR 11-7** — Model risk management; the supervisory expectation that monitoring of model performance and access extends to AI agents that materially influence customer or financial outcomes
+    - **OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7)** — Model risk management; the supervisory expectation that monitoring of model performance and access extends to AI agents that materially influence customer or financial outcomes
     - **CFTC Rule 1.31 / 17 CFR §1.31** — recordkeeping; sign-in logs and CA policy-change records must be retained in a non-rewritable, non-erasable form
 
     Implementation requires validated change-control procedures, a periodic access review (Control 2.5), and independent testing. Organizations should verify all configurations against examiner workpapers and counsel.
@@ -610,7 +610,7 @@ For each role, review **Assignments → Active assignments**. Any user with a pe
 3. The user must now activate via PIM each time they need the role.
 
 !!! warning "Two-admin pattern for CA mutation"
-    Conditional Access Admin should be configured with **approval required** (one approver from a separate group). This implements a two-admin / four-eyes pattern for any change to a CA policy — preventing an attacker who has compromised a single admin from creating an exclusion rule. Document this in the [Control 2.5 — Privileged Access Lifecycle](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) review cadence.
+    Conditional Access Admin should be configured with **approval required** (one approver from a separate group). This implements a two-admin / four-eyes pattern for any change to a CA policy — preventing an attacker who has compromised a single admin from creating an exclusion rule. Document this in the [Control 2.5 — Privileged Access Lifecycle](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) review cadence.
 
 ---
 
@@ -831,7 +831,7 @@ The 1.11 evidence pack does not stand alone. For an examiner-ready posture, join
 | Joined control | Evidence joined |
 |---|---|
 | [Control 1.1](../../../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md) | Maker-entitlement source-of-truth that populates `Agent-Makers-All` |
-| [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | MRM register entry showing the agent identity and its MRM tier — drives whether Policy C applies |
+| [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | MRM register entry showing the agent identity and its MRM tier — drives whether Policy C applies |
 | [Control 2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervisory review of CA policy changes (FINRA Rule 3110 supervision of WSP changes) |
 | [Control 2.2](../../../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) | Environment classification (Z1/Z2/Z3) that drives Policy B and Policy C scoping |
 | [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) | Agent 365 dashboard view of per-agent CA enforcement state |

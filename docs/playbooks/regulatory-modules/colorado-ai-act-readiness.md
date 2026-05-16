@@ -61,7 +61,7 @@ Use the **[Colorado AI Impact Assessment](colorado-ai-impact-assessment.md)** te
 
 ## Related Controls
 
-- **[Control 2.6: Model Risk Management](../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md)** - Impact assessment procedures
+- **[Control 2.6: Model Risk Management](../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md)** - Impact assessment procedures
 - **[Control 2.11: Bias Testing and Fairness](../../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md)** - Discrimination monitoring
 - **[Control 3.3: Compliance and Regulatory Reporting](../../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md)** - Public disclosures
 

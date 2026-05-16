@@ -6,7 +6,7 @@
 >
 > **What this playbook is not.** It does not replace human red-team review, model-risk-management sign-off, or Designated Supervisor attestation. The harness raises evidence; people accept risk.
 >
-> **Hedged language reminder.** Output of this harness *supports* compliance with FINRA 3110/2210, SEC 17a-4, SR 11-7, and OCC 2011-12 evaluation expectations. It does not, by itself, *guarantee* compliance, *ensure* a passing exam, or *eliminate* model risk. Organizations must verify thresholds, evaluator versions, and dataset provenance against their own model-risk policy.
+> **Hedged language reminder.** Output of this harness *supports* compliance with FINRA 3110/2210, SEC 17a-4, Fed SR 26-2 (formerly SR 11-7), and OCC Bulletin 2026-13 (formerly OCC 2011-12) evaluation expectations. It does not, by itself, *guarantee* compliance, *ensure* a passing exam, or *eliminate* model risk. Organizations must verify thresholds, evaluator versions, and dataset provenance against their own model-risk policy.
 
 | Field | Value |
 |---|---|
@@ -457,7 +457,7 @@ function Invoke-Agt25CopilotStudioBaseline {
 
 ## §5 — Azure AI Foundry Evaluation SDK: scored metrics with hashed datasets
 
-**Why this section exists.** Copilot Studio's built-in test set verifies *behavioral* pass/fail; SR 11-7 and OCC 2011-12 require *quantitative quality metrics* (groundedness, relevance, coherence, fluency, similarity), *content-safety* verdicts, and *protected-material* checks. The Azure AI Evaluation SDK (`azure-ai-evaluation`) emits these as numeric scores against a hashed evaluation dataset, with a separately versioned judge model (which MUST NOT equal the subject model — segregation of duties on inference).
+**Why this section exists.** Copilot Studio's built-in test set verifies *behavioral* pass/fail; Fed SR 26-2 (formerly SR 11-7) and OCC Bulletin 2026-13 (formerly OCC 2011-12) require *quantitative quality metrics* (groundedness, relevance, coherence, fluency, similarity), *content-safety* verdicts, and *protected-material* checks. The Azure AI Evaluation SDK (`azure-ai-evaluation`) emits these as numeric scores against a hashed evaluation dataset, with a separately versioned judge model (which MUST NOT equal the subject model — segregation of duties on inference).
 
 **Required evaluators (April 2026 baseline).**
 
@@ -1190,17 +1190,17 @@ A **false-clean** outcome (the harness reports green when the underlying control
 
 **Adjacent controls.**
 
-- [`../1.7/`](../1.7/) — audit-log retention; §10 ingestion depends on the workspace and DCR provisioned there.
-- [`../1.21/`](../1.21/) — adversarial input handling; §6 PyRIT campaigns inherit the prompt-pack taxonomy.
-- [`../2.1/`](../2.1/) — managed environments; February 2026 Pipelines deadline gates §8.
-- [`../2.3/`](../2.3/) — change management; manifest is a required attachment to change tickets.
-- [`../2.7/`](../2.7/) — module / SDK update governance; pin updates trigger re-baseline (§10).
-- [`../2.8/`](../2.8/) — ALM and versioning; agent version SHA is recorded in §9 manifest.
-- [`../2.11/`](../2.11/) — bias and fairness testing; integrates into §5 evaluator suite.
-- [`../2.18/`](../2.18/) — conflict-of-interest testing for advisor agents.
-- [`../2.20/`](../2.20/) — adversarial testing framework; §6 is its primary automation.
-- [`../3.1/`](../3.1/) — audit and assurance; §10 stream feeds quarterly assurance review.
-- [`../3.5/`](../3.5/) — preservation and litigation hold; manifest and artifacts must land in the WORM container defined there.
+- [`../1.7/portal-walkthrough.md`](../1.7/portal-walkthrough.md) — audit-log retention; §10 ingestion depends on the workspace and DCR provisioned there.
+- [`../1.21/portal-walkthrough.md`](../1.21/portal-walkthrough.md) — adversarial input handling; §6 PyRIT campaigns inherit the prompt-pack taxonomy.
+- [`../2.1/portal-walkthrough.md`](../2.1/portal-walkthrough.md) — managed environments; February 2026 Pipelines deadline gates §8.
+- [`../2.3/portal-walkthrough.md`](../2.3/portal-walkthrough.md) — change management; manifest is a required attachment to change tickets.
+- [`../2.7/portal-walkthrough.md`](../2.7/portal-walkthrough.md) — module / SDK update governance; pin updates trigger re-baseline (§10).
+- [`../2.8/portal-walkthrough.md`](../2.8/portal-walkthrough.md) — ALM and versioning; agent version SHA is recorded in §9 manifest.
+- [`../2.11/portal-walkthrough.md`](../2.11/portal-walkthrough.md) — bias and fairness testing; integrates into §5 evaluator suite.
+- [`../2.18/portal-walkthrough.md`](../2.18/portal-walkthrough.md) — conflict-of-interest testing for advisor agents.
+- [`../2.20/portal-walkthrough.md`](../2.20/portal-walkthrough.md) — adversarial testing framework; §6 is its primary automation.
+- [`../3.1/portal-walkthrough.md`](../3.1/portal-walkthrough.md) — audit and assurance; §10 stream feeds quarterly assurance review.
+- [`../3.5/portal-walkthrough.md`](../3.5/portal-walkthrough.md) — preservation and litigation hold; manifest and artifacts must land in the WORM container defined there.
 
 **Incident response.**
 

@@ -3,16 +3,22 @@ name: sri-check
 on:
   pull_request:
     paths:
-      - docs/javascripts/lib/xlsx.full.min.js
+      - docs/javascripts/lib/**
+      - docs/javascripts/vendor/**
       - docs/javascripts/assessment-app.js
+      - docs/javascripts/assessment-loader.js
+      - overrides/main.html
       - scripts/verify-sheetjs-sri.mjs
       - .github/workflows/sri-check.yml
   push:
     branches:
       - main
     paths:
-      - docs/javascripts/lib/xlsx.full.min.js
+      - docs/javascripts/lib/**
+      - docs/javascripts/vendor/**
       - docs/javascripts/assessment-app.js
+      - docs/javascripts/assessment-loader.js
+      - overrides/main.html
       - scripts/verify-sheetjs-sri.mjs
       - .github/workflows/sri-check.yml
 
@@ -29,5 +35,5 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Verify SheetJS SRI matches vendored file
+      - name: Verify all vendored library SRI literals match on-disk files
         run: node scripts/verify-sheetjs-sri.mjs

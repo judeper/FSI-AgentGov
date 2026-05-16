@@ -289,7 +289,7 @@ Evidence retention periods should align with applicable regulatory requirements:
 | **FINRA 4511** | 6 years | Broker-dealer communications and records |
 | **SEC 17a-3/4** | 3–6 years (varies by record type) | Books and records of securities firms |
 | **SOX 302/404** | 7 years | Internal control documentation |
-| **OCC 2011-12** | Per institution policy (typically 5+ years) | Model risk management records |
+| **OCC Bulletin 2026-13 (formerly OCC 2011-12)** | Per institution policy (typically 5+ years) | Model risk management records |
 
 !!! warning "Retention Advisory"
     Organizations should consult with their compliance and legal teams to determine the appropriate retention period based on their specific regulatory obligations. The periods listed above represent minimum requirements and may not cover all applicable regulations.

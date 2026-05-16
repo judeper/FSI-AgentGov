@@ -6,9 +6,9 @@
 
 **Audience:** AI Administrator, Power Platform Admin, Purview Compliance Admin, Security Architect, AI Governance Lead, Compliance Officer, Change Management Team, Microsoft Support liaisons.
 
-**Scope:** Diagnose, contain, and remediate failures of the agent feature catalog, three-surface enablement model (tenant Copilot hub → environment → per-agent), zone-based exposure, sovereign-cloud parity, MCP/connector approval gates, voice/image/preview controls, and the cascading dependencies into MRM (2.6) and supervision (2.12). FINRA Rule 3110 / 3120, SEC Rule 17a-4(f), SEC Reg SCI (242.1001–242.1007), SOX §404 ITGC, GLBA Safeguards Rule, OCC Heightened Standards, **Federal Reserve SR 11-7 model risk management**, and CFTC Rule 1.31.
+**Scope:** Diagnose, contain, and remediate failures of the agent feature catalog, three-surface enablement model (tenant Copilot hub → environment → per-agent), zone-based exposure, sovereign-cloud parity, MCP/connector approval gates, voice/image/preview controls, and the cascading dependencies into MRM (2.6) and supervision (2.12). FINRA Rule 3110 / 3120, SEC Rule 17a-4(f), SEC Reg SCI (242.1001–242.1007), SOX §404 ITGC, GLBA Safeguards Rule, OCC Heightened Standards, **Federal Reserve SR 26-2 (formerly SR 11-7) model risk management**, and CFTC Rule 1.31.
 
-> **Regulatory framing.** Feature toggles are *technical guardrails*. They support — but do not substitute for — the model risk lifecycle (Control 2.6, SR 11-7), supervisory written procedures (Control 2.12, FINRA 3110), or the AI guardrail framework (Control 1.1). Every remediation in this playbook must be paired with the corresponding governance artifact (MRM change record, supervisor attestation, AI risk acceptance) before closure.
+> **Regulatory framing.** Feature toggles are *technical guardrails*. They support — but do not substitute for — the model risk lifecycle (Control 2.6, Fed SR 26-2 (formerly SR 11-7)), supervisory written procedures (Control 2.12, FINRA 3110), or the AI guardrail framework (Control 1.1). Every remediation in this playbook must be paired with the corresponding governance artifact (MRM change record, supervisor attestation, AI risk acceptance) before closure.
 
 > **Sovereign-cloud caveat.** Microsoft 365 GCC, GCC High, and DoD lag commercial Copilot / Copilot Studio / MCP / Agent Framework features by **6–18 months**, and a non-trivial subset of capabilities never reach sovereign clouds at all. Maintain a **cloud-segregated feature catalog**, never assume admin-center parity, and document every commercial-only feature as out-of-scope for sovereign tenants in the catalog itself.
 
@@ -102,7 +102,7 @@ $snap | ConvertTo-Json -Depth 10 |
     Out-File "evidence/2.24/E-01_snapshot_$(Get-Date -Format yyyyMMddHHmm).json"
 ```
 
-> **Hedged language.** A snapshot **supports** examiner response by capturing point-in-time state; it does **not** by itself satisfy the SR 11-7 documentation requirement, which lives in the MRM change record (Control 2.6).
+> **Hedged language.** A snapshot **supports** examiner response by capturing point-in-time state; it does **not** by itself satisfy the Fed SR 26-2 (formerly SR 11-7) documentation requirement, which lives in the MRM change record (Control 2.6).
 
 ### §1.3 Microsoft Graph queries (GQ-01 … GQ-08)
 
@@ -157,7 +157,7 @@ CloudAppEvents
 | **E-09** | Post-incident attestation (signed) | PDF + JSON manifest | 7 yrs | §X |
 | **E-10** | Examiner / audit response bundle | PDF + manifest, WORM | Per legal-hold scope | §0.4, §14 (RB-01) |
 
-> **Non-substitution.** Evidence in E-01 … E-10 supports examiner response and post-incident attestation. It does **not** satisfy SR 11-7 §V (model documentation) or FINRA 3110 supervisory-procedure documentation; those are produced under Controls 2.6 and 2.12 respectively, and must be cross-linked from E-09.
+> **Non-substitution.** Evidence in E-01 … E-10 supports examiner response and post-incident attestation. It does **not** satisfy Fed SR 26-2 (formerly SR 11-7) §V (model documentation) or FINRA 3110 supervisory-procedure documentation; those are produced under Controls 2.6 and 2.12 respectively, and must be cross-linked from E-09.
 
 ---
 
@@ -254,7 +254,7 @@ CloudAppEvents
 ### §3.6 Cross-references
 
 - §2 TOGGLE-ABSENT (sometimes a "missing toggle" is just an undetected drift).
-- [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) — drift that affects model behaviour requires MRM re-validation.
+- [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) — drift that affects model behaviour requires MRM re-validation.
 - [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) — console as authoritative read surface.
 
 ---
@@ -364,7 +364,7 @@ The three-surface model (tenant Copilot hub → environment via PPAC → per-age
 
 | Cause | Evidence | Resolution |
 |---|---|---|
-| GA promotion changed default behaviour. | GQ-05 message. | Re-validate per Control 2.6 (SR 11-7 model change). Update catalog. Communicate to supervisors (§13). |
+| GA promotion changed default behaviour. | GQ-05 message. | Re-validate per Control 2.6 (Fed SR 26-2 (formerly SR 11-7) model change). Update catalog. Communicate to supervisors (§13). |
 | Preview deprecated; Microsoft removed. | GQ-05 deprecation notice. | Migrate dependent agents *before* removal date; document migration in MRM record. |
 | Preview opt-in left enabled past go-live; should have been re-evaluated. | Catalog review history. | Run §X attestation; either accept (with MRM record) or disable. |
 | Tenant auto-enrolled into preview without admin consent. | KQL-01 service-principal actor. | Opt out; raise with Microsoft; document. |
@@ -391,7 +391,7 @@ The three-surface model (tenant Copilot hub → environment via PPAC → per-age
 
 ### §6.6 Cross-references
 
-- [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) — GA-promotion = model change for SR 11-7.
+- [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) — GA-promotion = model change for Fed SR 26-2 (formerly SR 11-7).
 - [Control 2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) — supervisor notification.
 - §13 SUPERVISOR-UNAWARE.
 
@@ -599,7 +599,7 @@ The three-surface model (tenant Copilot hub → environment via PPAC → per-age
 
 ---
 
-## §12 MRM-CASCADE-BROKEN — Feature change made without an MRM change record (SR 11-7)
+## §12 MRM-CASCADE-BROKEN — Feature change made without an MRM change record (SR 26-2)
 
 ### §12.1 Symptom catalog
 
@@ -625,16 +625,16 @@ The three-surface model (tenant Copilot hub → environment via PPAC → per-age
 
 ### §12.4 Resolution steps
 
-- For each orphan: produce a retrospective MRM change record under Control 2.6, including risk acceptance signed by AI Governance Lead. **Do not** silently close — every orphan is itself an SR 11-7 finding.
+- For each orphan: produce a retrospective MRM change record under Control 2.6, including risk acceptance signed by AI Governance Lead. **Do not** silently close — every orphan is itself an Fed SR 26-2 (formerly SR 11-7) finding.
 - Tighten workflow to make MRM evidence a hard gate for in-scope features.
 - Add `MrmInScope` flag to the catalog and to `Get-Agt224FeatureSnapshot`.
 - Cascade to §13 (supervisor re-notification once MRM record is closed).
 
-> **Hedged language.** Producing a retrospective MRM record **supports** SR 11-7 documentation but does not erase the original gap; the audit trail must show both the gap and the retrospective remediation.
+> **Hedged language.** Producing a retrospective MRM record **supports** Fed SR 26-2 (formerly SR 11-7) documentation but does not erase the original gap; the audit trail must show both the gap and the retrospective remediation.
 
 ### §12.5 Cross-references
 
-- [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md).
+- [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md).
 - §6 RETROACTIVE-PREVIEW.
 - RB-04 (§17).
 
@@ -765,7 +765,7 @@ The three-surface model (tenant Copilot hub → environment via PPAC → per-age
 
 **Rollback.** Microsoft deprecation cannot be rolled back — the rollback is the migration plan itself.
 
-**Cross-references.** §6 RETROACTIVE-PREVIEW, [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md), [Control 3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md).
+**Cross-references.** §6 RETROACTIVE-PREVIEW, [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md), [Control 3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md).
 
 ---
 
@@ -783,7 +783,7 @@ The three-surface model (tenant Copilot hub → environment via PPAC → per-age
 
 **Evidence bundle.** E-01 (start of quarter, end of quarter, weekly), E-02, E-03, MRM cascade report, supervisor cascade report, signed E-09.
 
-**Cross-references.** [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md), [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md).
+**Cross-references.** [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md), [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md).
 
 ---
 
@@ -831,7 +831,7 @@ The three-surface model (tenant Copilot hub → environment via PPAC → per-age
 |---|---|---|---|
 | **Internal — AI Administrator on-call** | All Sev 3, initial Sev 2. | AI Administrator team. | Standing rota. |
 | **Internal — AI Governance Lead** | All Sev 1, any Sev 2 with cross-control cascade, any reverse-flow SLA breach. | AI Governance Lead. | Page via incident channel. |
-| **Internal — Compliance Officer** | Any Sev 1, any examiner / audit hold, any Reg SCI / SR 11-7 / FINRA 3110 implication, any customer-impact assessment. | Compliance Officer. | Page via incident channel. |
+| **Internal — Compliance Officer** | Any Sev 1, any examiner / audit hold, any Reg SCI / Fed SR 26-2 (formerly SR 11-7) / FINRA 3110 implication, any customer-impact assessment. | Compliance Officer. | Page via incident channel. |
 | **Internal — Security Architect** | MCP-UNAPPROVED, ZONE-ESCALATION, DLP-MISMATCH where data egress occurred. | Security Architect. | Page via incident channel. |
 | **Internal — Legal** | Any examiner inquiry, any Reg SCI 24-hour event, any cross-border data implication, any vendor-contract trigger. | Compliance Officer engages Legal. | Compliance-mediated only. |
 | **Microsoft Support — Tier 1** | Reproducible UI / functional issue, no data exposure. | AI Administrator. | M365 admin → Support, attach §0.3 bundle. |
@@ -904,7 +904,7 @@ Every artefact must record: capturing identity, timestamp (UTC), source tenant +
 **Within Pillar 2 — Management:**
 
 - [Control 2.2](../../../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) — zone definitions.
-- [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) — MRM cascade.
+- [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) — MRM cascade.
 - [Control 2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) — supervision cascade.
 - [Control 2.17](../../../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) — orchestration extends surface confusion.
 - [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) — governance console as canonical surface.

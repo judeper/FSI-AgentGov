@@ -52,7 +52,7 @@ Run this tree in parallel with §1.1 classification — do **not** sequence it a
 | **Q3** | Does the registrant operate in New York and is the incident a "Cybersecurity Event" requiring notice to the NYDFS Superintendent? | NYDFS 23 NYCRR §500.17(a) — notice within **72 hours** of determination that the event meets reporting thresholds. | CISO + General Counsel | 72 hours from determination |
 | **Q4** | Does the incident require disclosure to FINRA under Rule 4530 (regulatory action, written customer complaint, or specified events)? Note: FINRA Notice 25-07 specifically calls out AI-related risks in member supervision. | FINRA Rule 4530(a) — report within **30 calendar days** after the firm knows or should have known of the qualifying event. | Compliance Officer + FINRA Designated Supervisor | 30 calendar days from knew-or-should-have-known |
 | **Q5** | Were ≥500 consumers affected and is the firm subject to the FTC Safeguards Rule (16 CFR Part 314)? | FTC Safeguards §314.4(j) — notify FTC within **30 days** of discovery of a notification event. Effective May 13, 2024. | Privacy Officer + General Counsel | 30 days from discovery |
-| **Q6** | Does the incident involve a model-risk failure (Copilot generating inaccurate, biased, or unexplainable output that informed a regulated decision)? | Federal Reserve SR 11-7 / OCC Bulletin 2011-12 — document model-risk event in the model inventory; no external clock, but failure to document is itself an examination finding. | Model Risk Officer + Compliance Officer | No external clock; document immediately |
+| **Q6** | Does the incident involve a model-risk failure (Copilot generating inaccurate, biased, or unexplainable output that informed a regulated decision)? | Federal Reserve SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) — document model-risk event in the model inventory; no external clock, but failure to document is itself an examination finding. | Model Risk Officer + Compliance Officer | No external clock; document immediately |
 | **Q7** | Did the incident involve credential compromise, AAL step-down, or trigger a state breach-notification statute (e.g., CCPA §1798.82, NY Shield Act, MA 201 CMR 17.00)? | NIST SP 800-63B AAL re-binding required; consult state-by-state matrix — most states require notice "in the most expedient time possible and without unreasonable delay" with hard caps ranging from 30 to 90 days. | Privacy Officer + CISO | Varies by state; assume 30 days unless legal advises otherwise |
 
 > **Critical rule:** If ANY of Q1–Q5 evaluates YES, the incident is automatically SEV-1, regardless of §1.1 classification. The reverse is also true for Q1–Q3: a SEV-1 classification triggers a written legal evaluation of Q1–Q3 within 4 hours.
@@ -617,9 +617,9 @@ This section expands §1.2 with annotated rule text and decision-procedure detai
 
 **Owner.** Privacy Officer + General Counsel.
 
-### §3.6 — Q6: Federal Reserve SR 11-7 / OCC Bulletin 2011-12 — Model Risk Management
+### §3.6 — Q6: Federal Reserve SR 26-2 / OCC Bulletin 2026-13 — Model Risk Management
 
-**Rule.** SR 11-7 and OCC 2011-12 establish supervisory expectations for model risk management at banking organizations. Generative AI used in regulated decision-making qualifies as a model. Material model failures must be documented and reported through the firm's model-risk governance.
+**Rule.** Fed SR 26-2 (formerly SR 11-7) and OCC Bulletin 2026-13 (formerly OCC 2011-12) establish supervisory expectations for model risk management at banking organizations. Generative AI used in regulated decision-making qualifies as a model. Material model failures must be documented and reported through the firm's model-risk governance.
 
 **Decision procedure.**
 1. Did Copilot output inform a regulated decision (credit, market risk, customer suitability, AML, BSA)? If NO → Q6 = NO for the supervisory model-risk dimension (but still document under general AI governance).

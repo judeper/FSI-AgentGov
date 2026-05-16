@@ -2076,7 +2076,7 @@ function Test-Fsi-Control34-ServiceHealthChecked {
 
 ### 11.4 — `Test-Fsi-Control34-MRMFeedback`
 
-For incidents where `AIAgentClass = DataQuality-ModelRisk`, confirms the `MRMTicketRef` (model risk management feedback ticket — feeds [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md)) is populated.
+For incidents where `AIAgentClass = DataQuality-ModelRisk`, confirms the `MRMTicketRef` (model risk management feedback ticket — feeds [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md)) is populated.
 
 ```powershell
 function Test-Fsi-Control34-MRMFeedback {
@@ -2336,7 +2336,7 @@ function Invoke-Fsi34SelfTest {
 | [1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) | Data retention and deletion policies | §3 retention-label binding and §7 legal-hold helpers depend on a coherent retention scheme |
 | [1.11](../../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) | Conditional access and phishing-resistant MFA | Identity controls bound the named-officer signing path used in §11.2 evidence-chain |
 | [1.12](../../../controls/pillar-1-security/1.12-insider-risk-detection-and-response.md) | Insider risk detection and response | §6 IRM helpers wrap the Purview Insider Risk Management surface |
-| [2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) | Model risk management (OCC 2011-12 / SR 11-7) | §11.4 enforces the model-risk feedback loop from incident → MRM ticket |
+| [2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Model risk management (OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7)) | §11.4 enforces the model-risk feedback loop from incident → MRM ticket |
 | [2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision and oversight (FINRA Rule 3110) | Supervisory escalation paths drive §5 NotifyCISO-CCO-GC and §9 FINRA4530A timers |
 | [2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) | Agent 365 admin center governance console | §4 agent-context enrichment relies on the 2.25 inventory |
 | [3.2](../../../controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md) | Usage analytics and activity monitoring | §12 quarterly evidence consumes 3.2 activity baselines |

@@ -155,9 +155,12 @@ test.describe("fetch failure resilience @regression", () => {
     const parsed = JSON.parse(stateOffline);
     expect(parsed.scoping.organizationName).toBe("Offline Bank");
 
-    // Restore network and reload — assessment must be resumable.
+    // Restore network and visit fresh — assessment must be resumable.
+    // page.goto("/assessment/") instead of page.reload() so AS8's URL routing
+    // doesn't auto-resume back into the offline-saved phase1 step (which would
+    // bypass the welcome-list "Previous Assessments" surface this test asserts).
     await context.setOffline(false);
-    await page.reload({ waitUntil: "domcontentloaded" });
+    await page.goto("/assessment/", { waitUntil: "domcontentloaded" });
     await page
       .getByRole("button", { name: "Start New Assessment" })
       .waitFor({ timeout: 15_000 });

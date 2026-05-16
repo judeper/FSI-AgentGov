@@ -32,7 +32,7 @@
     | Agent 365 admin center publishing / activation approval (admin approval is **not** principal supervision) | [Control 2.25 — Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) |
     | Orphaned-agent detection and remediation | [Control 3.6 — Orphaned Agent Detection and Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) |
     | Audit-log retention plumbing (WORM, 17a-4(f) alternative, Purview retention lock) | [Control 1.7 — Comprehensive Audit Logging and Compliance](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) |
-    | Model risk management (validation, challenger models, inventory under OCC 2011-12 / SR 11-7) | [Control 2.6 — Model Risk Management Alignment with OCC 2011-12 / SR 11-7](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) |
+    | Model risk management (validation, challenger models, inventory under OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7)) | [Control 2.6 — Model Risk Management Alignment with OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) |
     | Document and records retention beyond supervision records | [Control 2.13 — Documentation and Record-Keeping](../../../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) |
     | Incident reporting and RCA following a supervisory failure | [Control 3.4 — Incident Reporting and Root Cause Analysis](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) |
     | PowerShell / Microsoft Graph automation for the same surfaces | [`./powershell-setup.md`](./powershell-setup.md) |
@@ -414,7 +414,7 @@ Guardrails constrain what the agent can cite and say. For Zone 2 agents operatin
 #### 3c.1 Restrict content sources
 
 1. In Copilot Studio → target agent → **Knowledge**.
-2. Remove any source marked **Public websites (open web)** for Zone 3 agents unless the firm's WSP explicitly approves the source list and the source set is monitored by the model-risk function under [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md).
+2. Remove any source marked **Public websites (open web)** for Zone 3 agents unless the firm's WSP explicitly approves the source list and the source set is monitored by the model-risk function under [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md).
 3. Add only firm-approved SharePoint sites, Dataverse tables, or APIs that have been classified and registered in Control 1.2.
 4. Record the source inventory (Knowledge → ⋯ → Export) and commit to `SharePoint/Compliance/Supervision/2.12/copilot-studio/{agent}/knowledge-v{N}.json`.
 
@@ -933,7 +933,7 @@ The zone cadence integrates this control's obligations with the broader supervis
 
 - [Control 1.2 — Agent Registry and Integrated Apps Management](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) — authoritative registry; supervision scope is bounded here.
 - [Control 1.7 — Comprehensive Audit Logging and Compliance](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) — supervision events feed the immutable audit log.
-- [Control 2.6 — Model Risk Management (OCC 2011-12 / SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) — MRM is the model-level complement to this control's human-oversight layer.
+- [Control 2.6 — Model Risk Management (OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7))](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) — MRM is the model-level complement to this control's human-oversight layer.
 - [Control 2.13 — Documentation and Record-Keeping](../../../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) — WSPs and supervision registers are records under this control.
 - [Control 2.25 — Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) — admin-gated publish / activate is **not** principal supervision; this control is the non-substitution anchor for 2.25.
 - [Control 2.26 — Entra Agent ID Identity Governance](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) — sponsorship provides lifecycle accountability; this control provides business-activity supervision. Non-substitution anchor for 2.26.

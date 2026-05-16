@@ -43,7 +43,7 @@ Runtime-protection failures are **not automatically reportable**. The decision i
 3. **Books-and-records gap that prevents reconstruction of an agent interaction subject to FINRA Rule 4511 or SEC Rule 17a-3/17a-4?**
    - **YES →** This is a supervision deficiency under FINRA Rule 3110 and a recordkeeping gap under SEC Rule 17a-4. Document the gap, the corrective action, and the supervisory review in the firm's WSPs. **Do not** rely on Defender XDR / CloudAppEvents alerts as the books-and-records source — those are operational telemetry, not WORM-preserved customer communications. See Controls 1.5 and 1.7 for the WORM-preserved record sources, and 1.9 for retention enforcement.
    - **NO →** continue to step 4.
-4. **Model-risk control failure under OCC Bulletin 2011-12 / Federal Reserve SR 11-7 (e.g., generative AI model produced uncontrolled output that materially affected a customer or a credit decision)?**
+4. **Model-risk control failure under OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7) (e.g., generative AI model produced uncontrolled output that materially affected a customer or a credit decision)?**
    - **YES →** Model Risk Management is engaged; document in the model inventory and trigger an out-of-cycle effective-challenge review.
    - **NO →** continue to step 5.
 5. **CFTC-regulated activity (swap dealer, FCM, IB) involved and the failure caused a recordkeeping gap under CFTC Regulation 1.31?**
@@ -609,7 +609,7 @@ Microsoft Support typical first response is per the contracted SLA (Premier: sev
 - **FINRA Notice 25-07 (March 2025)** — existing rules apply to AI tools; no separate AI rule.
 - **SEC Rule 17a-3 / 17a-4** — broker-dealer recordkeeping including WORM preservation.
 - **GLBA 501(b)** — safeguards rule; customer-information protection.
-- **OCC Bulletin 2011-12 / Federal Reserve SR 11-7** — model risk management for AI/ML.
+- **OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7)** — model risk management for AI/ML.
 - **CFTC Regulation 1.31** — recordkeeping for CFTC-regulated activity.
 
 ---

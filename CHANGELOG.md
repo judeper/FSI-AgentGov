@@ -4,7 +4,7 @@ All notable changes to the FSI Agent Governance Framework are documented here, o
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to semantic versioning.
 
----
+<!--start-->
 
 ## [1.6.2] — May 11, 2026 (Frontier Readiness auto-evaluator wave)
 
@@ -131,7 +131,7 @@ Modified:
 
 - `docs/controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md` — Data Availability info box: 180-day analytics, 28-day session details
 - `docs/controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md` — retention windows admonition
-- `docs/controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md` — retention admonition in §Platform-Enabled Monitoring; footer to May 2026
+- `docs/controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md` — retention admonition in §Platform-Enabled Monitoring; footer to May 2026
 - `docs/controls/pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md` — retention admonition in §Verification Criteria
 - `docs/controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md` — retention admonition after Feedback Capture table
 - `docs/playbooks/control-implementations/2.5/portal-walkthrough.md` — new §9.8 covering 7-area effectiveness panel structure (added "Knowledge source use")
@@ -363,13 +363,13 @@ This release adopts CAPE vocabulary as a translation layer, not as endorsement. 
 
 ## [1.4.2] — April 30, 2026 (Phase B′ Triage Fixes)
 
-Patch release closing out the three P2 items deferred from v1.4.1. Markdown export customer header now escapes special characters so admin-entered names render correctly in raw source (#168); the vendored `xlsx.full.min.js` is marked binary in `.gitattributes` so Windows checkouts no longer flip its SRI hash via CRLF normalization (#169); and two locally-flaky Playwright specs (`14-fetch-failure`, `28-perf-budget`) are hardened with deterministic ordering and a more realistic perf threshold (#170). Phase B″ triage report (#171) confirmed 0 P0/P1 findings — recommended ship. See [CHANGELOG-v1.4.md](CHANGELOG-v1.4.md#v142--april-30-2026) for the full entry.
+Patch release closing out the three P2 items deferred from v1.4.1. Markdown export customer header now escapes special characters so admin-entered names render correctly in raw source (#168); the vendored `xlsx.full.min.js` is marked binary in `.gitattributes` so Windows checkouts no longer flip its SRI hash via CRLF normalization (#169); and two locally-flaky Playwright specs (`14-fetch-failure`, `28-perf-budget`) are hardened with deterministic ordering and a more realistic perf threshold (#170). Phase B″ triage report (#171) confirmed 0 P0/P1 findings — recommended ship. See [CHANGELOG-v1.4.md](https://github.com/judeper/FSI-AgentGov/blob/main/releases/CHANGELOG-archive/CHANGELOG-v1.4.md#v142--april-30-2026) for the full entry.
 
 ---
 
 ## [1.4.1] — April 30, 2026 (E2E Test Infrastructure & SPA Hardening)
 
-Quality + assurance release. No control catalog changes. Ships an end-to-end Playwright test suite (~60 specs across smoke, regression, edge cases, accessibility, and production probes), 4 new CI workflows (including SheetJS supply-chain SRI verification and post-deploy production smoke), branch protection as code, and 12+ assessment SPA hardening fixes covering saved-list integrity, storage quotas, formula-injection defenses, prototype-pollution guards, CSP allowlist enforcement, and per-assessment filter namespacing. See [CHANGELOG-v1.4.md](CHANGELOG-v1.4.md#v141--april-30-2026) for the full entry.
+Quality + assurance release. No control catalog changes. Ships an end-to-end Playwright test suite (~60 specs across smoke, regression, edge cases, accessibility, and production probes), 4 new CI workflows (including SheetJS supply-chain SRI verification and post-deploy production smoke), branch protection as code, and 12+ assessment SPA hardening fixes covering saved-list integrity, storage quotas, formula-injection defenses, prototype-pollution guards, CSP allowlist enforcement, and per-assessment filter namespacing. See [CHANGELOG-v1.4.md](https://github.com/judeper/FSI-AgentGov/blob/main/releases/CHANGELOG-archive/CHANGELOG-v1.4.md#v141--april-30-2026) for the full entry.
 
 ---
 
@@ -381,7 +381,7 @@ Quality + assurance release. No control catalog changes. Ships an end-to-end Pla
 - **10 SPA enhancements**: How-to-verify drawer (E1), zone auto-exclusion (E2), collector evidence import (E3), role filter (E4), sector calibration for 8 institution types (E5), priority starter set of 5 foundation controls (E6), Next Session Agenda export (E7), inline evidence/notes capture (E8), facilitator mode with hints and time budgets (E9), 7 per-role pre-session homework pages (E10)
 - **Harvest script**: `scripts/harvest_manifest_extension.py` scaffolds v1.4 fields from existing control docs with TODO placeholders for author-judgment content
 - **3 validators**: Manifest schema validator, solutions lock validator, and lock refresh script with tag pinning
-- **Portal export envelope (v1.4.1-prep, additive)**: SPA `exportJSON` and `exportRoleSection` now emit a `_metadata` block (framework version, export schema version, manifest commit hint, pillar names, schema type) plus `_computedScores` (pillar/overall percentages and counts) and a derived `assessmentStatus` enum (`draft`/`in-progress`/`final`). Existing top-level state keys are preserved, so v1.3.x consumers continue to work unchanged. Importer silently drops snapshot fields and recomputes on next export. See [CHANGELOG-v1.4.md](CHANGELOG-v1.4.md) and [`assessment/data/README.md`](assessment/data/README.md#portal-export-schema).
+- **Portal export envelope (v1.4.1-prep, additive)**: SPA `exportJSON` and `exportRoleSection` now emit a `_metadata` block (framework version, export schema version, manifest commit hint, pillar names, schema type) plus `_computedScores` (pillar/overall percentages and counts) and a derived `assessmentStatus` enum (`draft`/`in-progress`/`final`). Existing top-level state keys are preserved, so v1.3.x consumers continue to work unchanged. Importer silently drops snapshot fields and recomputes on next export. See [CHANGELOG-v1.4.md](https://github.com/judeper/FSI-AgentGov/blob/main/releases/CHANGELOG-archive/CHANGELOG-v1.4.md) and [`assessment/data/README.md`](https://github.com/judeper/FSI-AgentGov/blob/main/assessment/data/README.md#portal-export-schema).
 
 ### Changed
 - **Control count normalization**: Fixed stale "71 controls" / "72 controls" references to "78 controls" across all documentation
@@ -394,6 +394,9 @@ Quality + assurance release. No control catalog changes. Ships an end-to-end Pla
 
 | Version | Period | File |
 |---------|--------|------|
-| **v1.4.x** (current) | April 2026 | [CHANGELOG-v1.4.md](CHANGELOG-v1.4.md) |
-| **v1.3.x** | March–April 2026 | [CHANGELOG-v1.3.md](CHANGELOG-v1.3.md) |
+| **v1.6.x** (current) | May 2026 | [CHANGELOG.md](https://github.com/judeper/FSI-AgentGov/blob/main/CHANGELOG.md) |
+| **v1.5.x** | May 2026 | [CHANGELOG.md](https://github.com/judeper/FSI-AgentGov/blob/main/CHANGELOG.md#150--may-10-2026-microsoft-cape-alignment-release) |
+| **v1.4.x** | April 2026 | [CHANGELOG-v1.4.md](https://github.com/judeper/FSI-AgentGov/blob/main/releases/CHANGELOG-archive/CHANGELOG-v1.4.md) |
+| **v1.3.x** | March–April 2026 | [CHANGELOG-v1.3.md](https://github.com/judeper/FSI-AgentGov/blob/main/releases/CHANGELOG-archive/CHANGELOG-v1.3.md) |
+| **v1.1.x** | December 2025 | [CHANGELOG-v1.1.md](https://github.com/judeper/FSI-AgentGov/blob/main/releases/CHANGELOG-archive/CHANGELOG-v1.1.md) |
 | **v1.2.x and earlier** | October 2025 – March 2026 | Archived — see [git history](https://github.com/judeper/FSI-AgentGov/commits/main/) prior to April 2026 |

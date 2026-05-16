@@ -134,7 +134,7 @@ Automatic zone triggers (PII, financial data, external access) **flag for Compli
 | **SEC 17a-3/4** | Records preservation with audit trail | Dataverse change tracking, quarterly export to compliant storage |
 | **SOX 302/404** | Internal control assessment and certification | Documented approval workflows, segregation of duties (requester ≠ approver) |
 | **GLBA 501(b)** | Administrative safeguards for customer information | Baseline configuration applies consistent security controls at creation |
-| **OCC 2011-12** | Model risk documentation | Zone classification documents risk tier for agent workloads |
+| **OCC Bulletin 2026-13 (formerly OCC 2011-12)** | Model risk documentation | Zone classification documents risk tier for agent workloads |
 
 ---
 

@@ -8,7 +8,7 @@
 >
 > **Last UI verified:** April 2026 against the post-GA Microsoft 365 admin center build 2026.04.x and the Microsoft Agent 365 Admin Center release of the same build.
 >
-> **Important regulatory framing.** This playbook **supports compliance with**, but does not by itself ensure compliance with, FINRA Rules 3110 (Supervision) and 4511 (Books and Records), FINRA Regulatory Notice 25-07 (AI Tools), SEC Rules 17a-3 / 17a-4 (Recordkeeping), SOX Sections 302 / 404 (Internal Controls), GLBA Section 501(b) (Safeguards Rule), OCC Bulletin 2011-12 (Technology Risk Management), NYDFS 23 NYCRR 500 (Cybersecurity), and the FFIEC IT Examination Handbook. Where FINRA Rule 3110 obligates the firm to assign a registered principal to a supervisory function, the Agent 365 governance console **does not substitute for** that registered-principal designation; it produces the evidentiary trail that supports — but does not replace — the firm's written supervisory procedures (WSPs).
+> **Important regulatory framing.** This playbook **supports compliance with**, but does not by itself ensure compliance with, FINRA Rules 3110 (Supervision) and 4511 (Books and Records), FINRA Regulatory Notice 25-07 (AI Tools), SEC Rules 17a-3 / 17a-4 (Recordkeeping), SOX Sections 302 / 404 (Internal Controls), GLBA Section 501(b) (Safeguards Rule), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (Technology Risk Management), NYDFS 23 NYCRR 500 (Cybersecurity), and the FFIEC IT Examination Handbook. Where FINRA Rule 3110 obligates the firm to assign a registered principal to a supervisory function, the Agent 365 governance console **does not substitute for** that registered-principal designation; it produces the evidentiary trail that supports — but does not replace — the firm's written supervisory procedures (WSPs).
 
 ---
 
@@ -26,7 +26,7 @@
 | Run identifier | Every test run is tagged `AGT225-yyyyMMdd-HHmmss-<8charGuid>` and embedded in every evidence record and artifact filename. |
 | Canonical role names | Per [`docs/reference/role-catalog.md`](../../../reference/role-catalog.md). At GA, **Entra Global Admin** and **AI Administrator** are the only Agent 365-capable administrative roles; **Entra Global Reader** provides read-only verification access. |
 
-> This playbook **helps meet** recordkeeping, supervision, change-management, access-management, and oversight expectations under the regulations enumerated above. It is one component of a defensible AI governance program; it does not replace a registered-principal designation, written supervisory procedures, model risk management practices required by SR 11-7 / OCC 2011-12, or the firm's own legal review.
+> This playbook **helps meet** recordkeeping, supervision, change-management, access-management, and oversight expectations under the regulations enumerated above. It is one component of a defensible AI governance program; it does not replace a registered-principal designation, written supervisory procedures, model risk management practices required by Fed SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC 2011-12), or the firm's own legal review.
 
 ---
 
@@ -46,7 +46,7 @@ The operator running this playbook must hold one of the following Entra role ass
 | AI Governance Lead | Counter-signs the quarterly attestation packet in §14; reviews Pending Requests and Ownerless Agents governance cards on the documented cadence; signs the evidence pack in §11 | Standing assignment with quarterly recertification per Control 2.8 |
 | Compliance Officer | Counter-signs the quarterly attestation packet in §14; signs Zone 3 governance template variances; signs the §10 sovereign quarterly attestation | Standing |
 | Information Security Officer | Reviews exception-rate threshold variances; reviews Researcher with Computer Use Zone 3 configurations | Standing |
-| Technology Risk Manager | Receives the §11 evidence pack and integrates it into the firm's technology-risk reporting per OCC 2011-12 | Standing |
+| Technology Risk Manager | Receives the §11 evidence pack and integrates it into the firm's technology-risk reporting per OCC Bulletin 2026-13 (formerly OCC 2011-12) | Standing |
 | Change Management Lead | Reconciles Agent 365 approval timestamps with change tickets per Control 2.3 (verified in §3) | Standing |
 
 > **Least privilege.** No operator should hold **Entra Global Admin** persistently. Day-to-day verification work in §2–§9 is performed under **AI Administrator** with **Entra Global Reader** as the witness role. **Entra Global Admin** is reserved for tenant enrollment, licensing changes, and emergency remediation, and is operated under PIM with just-in-time activation.
@@ -247,7 +247,7 @@ Field semantics:
 | `SOX-302` | Sarbanes-Oxley Section 302 (Management Certification) |
 | `SOX-404` | Sarbanes-Oxley Section 404 (Internal Controls) |
 | `GLBA-501b` | Gramm-Leach-Bliley Act §501(b) (Safeguards Rule) |
-| `OCC-2011-12` | OCC Bulletin 2011-12 (Technology Risk Management) |
+| `OCC-2011-12` | OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (Technology Risk Management) |
 | `NYDFS-500` | NYDFS 23 NYCRR 500 (Cybersecurity Requirements) |
 | `FFIEC-IS` | FFIEC IT Examination Handbook — Information Security booklet |
 | `FFIEC-MGMT` | FFIEC IT Examination Handbook — Management booklet |
@@ -1968,7 +1968,7 @@ When assembling a quarterly attestation for an examiner, present the 2.25 eviden
 - **AI Governance Lead** — primary signer, attests to operational accuracy.
 - **Compliance Officer** — counter-signer, attests to regulatory mapping accuracy.
 - **Information Security Officer** — counter-signer for any quarter containing a TRG-*-Critical finding.
-- **Technology Risk Manager** — receives the packet for inclusion in firm technology-risk reporting per OCC Bulletin 2011-12.
+- **Technology Risk Manager** — receives the packet for inclusion in firm technology-risk reporting per OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12).
 
 ### 14.4 Distribution
 

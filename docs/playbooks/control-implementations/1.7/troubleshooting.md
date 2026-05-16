@@ -71,7 +71,7 @@ For SEV-1 and confirmed SEV-2, walk this tree before remediating. Do **not** rel
 | Material cybersecurity incident at SEC registrant | SEC 8-K Item 1.05 (issuers); Form ADV-C (advisers) | "Material" thresholds — escalate to GC/CCO |
 | FINRA member firm — significant event | FINRA Rule 4530 | Rule-defined window per event category |
 | Broker-dealer record preservation failure | SEC 17a-4(f) third-party access undertaking implications | Escalate to CCO immediately |
-| Bank model risk event (validation evidence loss) | OCC 2011-12 / Federal Reserve SR 11-7 examiner notification | Per supervisory guidance |
+| Bank model risk event (validation evidence loss) | OCC Bulletin 2026-13 (formerly OCC 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7) examiner notification | Per supervisory guidance |
 | FCM / swap dealer / CPO record loss | CFTC 1.31 | Per CFTC guidance |
 
 ### 1.3 Evidence preservation BEFORE remediation
@@ -609,7 +609,7 @@ Pin the workbook, schedule the monthly export, and persist exports to the 17a-4(
 
 **Resolution.**
 
-1. **Enable Records Management retention** ([Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) for retention design; [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) for information-protection alignment) covering the Copilot interactions location, with a retention duration aligned to the applicable regulatory horizon (3 years for SEC 17a-4(b)(4) communications; 5 years for CFTC 1.31; longer per firm policy).
+1. **Enable Records Management retention** ([Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) for retention design; [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) for information-protection alignment) covering the Copilot interactions location, with a retention duration aligned to the applicable regulatory horizon (3 years for SEC 17a-4(b)(4) communications; 5 years for CFTC 1.31; longer per firm policy).
 2. **Apply In-Place Hold / Litigation Hold** to mailboxes of users in scope of regulatory recordkeeping at the moment of separation, **before** the leaver workflow runs the mailbox-delete step. Make this a hard gate in the leaver runbook.
 3. **Sequence the leaver workflow** so retention/hold is verified present before any delete or disable action.
 4. For the immediate incident, the content is not recoverable from the deleted mailbox. Reconstruct what is available from the preservation tier (if exports were running), document the residual gap, and walk the [§1.2 reportability tree](#12-reportability-decision-tree) with General Counsel.
@@ -671,7 +671,7 @@ Get-AzStorageContainerImmutabilityPolicy `
 - [Control 1.6 — Microsoft Purview DSPM for AI](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) … one of three Substrate-tier paths for retrieving the verbatim prompt and response text that the audit record references by message ID. (Scenarios 1, 10, 11, 13.)
 - [Control 1.10 — Communication Compliance for AI Interactions](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) … Substrate-tier path for policy-driven supervisory review of AI-generated communications; FINRA Rule 3110 alignment. (Scenarios 1, 10, 11, 13.)
 - [Control 1.19 — eDiscovery for Agent Interactions](../../../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md) … Substrate-tier path for legal hold, collection, and review of Copilot interactions; the canonical regulator/litigation export channel. (Scenarios 1, 10, 11, 13.)
-- [Control 2.6 — Data Handling, Retention and Archival Procedures](../../../controls/pillar-2-management/2.6-model-risk-management-alignment-with-occ-2011-12-sr-11-7.md) … Records Management retention design covering the Copilot interactions location; gates the leaver-workflow content-loss scenario. (Scenario 13.)
+- [Control 2.6 — Data Handling, Retention and Archival Procedures](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) … Records Management retention design covering the Copilot interactions location; gates the leaver-workflow content-loss scenario. (Scenario 13.)
 - [Control 2.12 — Agent Lifecycle Management](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) … leaver / mover sequencing for agent owners and users; ensures hold-before-delete and license-tier guard for regulated populations.
 - [Control 3.4 — Audit and Compliance Reporting](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) … independent control testing layer in the tamper-evidence narrative; periodic attestation of the audit-logging stack. (Scenario 14.)
 - [Control 3.9 — Microsoft Sentinel Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) … canonical Sentinel ingestion architecture for AI audit events; second-plane tamper-evidence and the workbook channel for the NYDFS 12-month artifact. (Scenarios 8, 12, 14.)
