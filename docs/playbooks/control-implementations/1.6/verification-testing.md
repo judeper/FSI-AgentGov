@@ -2,7 +2,7 @@
 
 **Control:** [1.6 Microsoft Purview DSPM for AI](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md)
 **Reference template:** `1.7/verification-testing.md`, `2.1/verification-testing.md`
-**Last UI Verified:** April 2026
+**Last UI Verified:** May 2026
 
 ---
 
@@ -10,7 +10,7 @@
 
 | Cadence | Activity | Owner |
 |---|---|---|
-| Daily (Zone 3) | Activity Explorer review for in-scope users; oversharing remediation aging |  AI Governance Lead delegate |
+| Daily (Zone 3) | Activity Explorer / AI activities review for in-scope users; oversharing remediation aging | AI Governance Lead delegate |
 | Weekly | Default Weekly Risk Assessment review (top 100 sites); deterministic `1.6-ACT-01` test | Compliance Admin |
 | Monthly | License entitlement reconciliation (`1.6-LIC-01`); one-click policy inventory (`1.6-POL-01`) | Compliance Admin |
 | Quarterly | Negative test suite (`1.6-NEG-01`…`1.6-NEG-05`); attestation pack | Compliance Admin + AI Governance Lead |
@@ -78,7 +78,7 @@ Induce a user into the elevated risk tier (test tenant) → attempt sensitive pr
 
 ### `1.6-DSPMv-01` — Unified DSPM accessibility
 
-Verify the unified **DSPM** node (GA May 2026, Commercial / GCC per MC1191257) loads and `Posture / Objectives / AI observability / Discover > Activity explorer / Discover > Data risk assessments` are reachable. If your tenant is in a sovereign cloud where the new unified DSPM has not been announced, document and skip — do not assert UI affordances that have not yet shipped to your tenant's cloud.
+Verify the unified **DSPM** node (GA May 2026, Commercial / GCC per MC1191257) loads and `Posture / Objectives / AI observability / Discover > Activity explorer > AI activities / Discover > Data risk assessments` are reachable. The classic path `DSPM for AI > Activity explorer` remains valid where the unified DSPM experience isn't yet available. If your tenant is in a sovereign cloud where the new unified DSPM has not been announced, document and skip — do not assert UI affordances that have not yet shipped to your tenant's cloud.
 
 ---
 

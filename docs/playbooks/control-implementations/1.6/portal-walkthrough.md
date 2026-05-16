@@ -2,7 +2,7 @@
 
 **Control:** [1.6 Microsoft Purview DSPM for AI](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md)
 **Audience:** M365 administrator (US financial services)
-**Last UI Verified:** April 2026
+**Last UI Verified:** May 2026
 **Cloud coverage:** Commercial · GCC · GCC High · DoD (see sovereign cloud table below)
 
 ---
@@ -109,14 +109,14 @@ In **DSPM for AI > Reports**, capture timestamped exports for:
 
 > Allow up to **24 hours** for new policies to surface in reports; allow up to **3 days** for initial analytics.
 
-### Step 8 — Activity Explorer (deterministic interaction test)
+### Step 8 — Activity Explorer / AI activities (deterministic interaction test)
 
 > Do **not** treat "table renders" as PASS. Generate a known interaction and assert the row exists.
 
 1. Pick a named user with M365 Copilot license
 2. At a recorded UTC timestamp, have them issue a known prompt (e.g., reference a labeled document)
 3. Wait the documented window (24 h baseline)
-4. In Activity Explorer, filter by user + activity type + UTC window
+4. Open **DSPM for AI > Activity explorer** or, in unified DSPM, **Discover > Activity explorer > AI activities**; then filter by user + activity type + UTC window
 5. Assert event count ≥ 1 with matching user / app / activity
 6. To view prompt/response content, the reviewer must hold **Purview Data Security AI Content Viewer**
 
