@@ -10,6 +10,8 @@ Download role-specific checklists to track your implementation progress. Each Ex
 
 Role names below use the framework's canonical short naming. See the [Administrator Role Catalog](../reference/role-catalog.md) for definitions and accepted aliases.
 
+> **Naming note:** Download filenames and link titles retain the published "Administrator Checklist" artifact naming for link stability, while the **Target Role** column uses the framework's canonical short role names.
+
 | Download | Target Role | Description |
 |----------|-------------|-------------|
 | [Entra Administrator Checklist](entra-administrator-checklist.xlsx) | Entra Global Admin | Identity controls: Conditional Access, roles, identity governance |

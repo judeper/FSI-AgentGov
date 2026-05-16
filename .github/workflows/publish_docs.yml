@@ -71,4 +71,4 @@ jobs:
         run: mkdocs build --strict
 
       - name: Deploy to GitHub Pages
-        run: mkdocs gh-deploy --force
+        run: mkdocs gh-deploy --force --site-url https://judeper.github.io/FSI-AgentGov/

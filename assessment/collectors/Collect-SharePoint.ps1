@@ -46,7 +46,7 @@
 
 #Requires -Version 7.0
 
-[CmdletBinding()]
+[CmdletBinding(SupportsShouldProcess)]
 param(
     [Parameter(Mandatory)]
     [ValidateNotNullOrEmpty()]
@@ -81,6 +81,21 @@ if (-not (Test-Path $collectedDir)) {
 }
 $outputFile = Join-Path $collectedDir 'sharepoint.json'
 
+function Invoke-CollectorOperation {
+    param(
+        [Parameter(Mandatory)][string]$Target,
+        [Parameter(Mandatory)][string]$Action,
+        [Parameter(Mandatory)][scriptblock]$ScriptBlock
+    )
+
+    if (-not $PSCmdlet.ShouldProcess($Target, $Action)) {
+        Write-Verbose "Skipping $Action on $Target because -WhatIf was specified."
+        return $null
+    }
+
+    & $ScriptBlock
+}
+
 # ─── Module Imports ──────────────────────────────────────────────────
 Import-Module Microsoft.Graph.Authentication -ErrorAction Stop
 Write-Verbose "Loaded Microsoft.Graph.Authentication module."
@@ -104,17 +119,21 @@ $requiredScopes = @('Sites.Read.All', 'Files.Read.All')
 Write-Verbose "Authenticating to Microsoft Graph in $AuthMode mode..."
 
 if ($AuthMode -eq 'Interactive') {
-    Connect-MgGraph -TenantId $TenantId -Scopes $requiredScopes -ErrorAction Stop
+    Invoke-CollectorOperation -Target "Microsoft Graph tenant $TenantId" -Action 'Connect to Microsoft Graph (interactive)' -ScriptBlock {
+        Connect-MgGraph -TenantId $TenantId -Scopes $requiredScopes -ErrorAction Stop
+    } | Out-Null
 }
 else {
     if (-not $ClientId -or -not $ClientSecret) {
         throw "ServicePrincipal auth requires -ClientId and -ClientSecret parameters."
     }
     $credential = [System.Management.Automation.PSCredential]::new($ClientId, $ClientSecret)
-    Connect-MgGraph -TenantId $TenantId -ClientSecretCredential $credential -ErrorAction Stop
+    Invoke-CollectorOperation -Target "Microsoft Graph tenant $TenantId" -Action 'Connect to Microsoft Graph (service principal)' -ScriptBlock {
+        Connect-MgGraph -TenantId $TenantId -ClientSecretCredential $credential -ErrorAction Stop
+    } | Out-Null
 }
 
-Write-Verbose "Microsoft Graph authentication successful."
+Write-Verbose "Microsoft Graph authentication stage complete."
 
 # ─── Graph API Helper ────────────────────────────────────────────────
 # Thin wrapper for Graph REST calls with consistent error handling.
@@ -125,7 +144,9 @@ function Invoke-GraphApi {
         [Parameter()][ValidateSet('GET', 'POST')][string]$Method = 'GET'
     )
     try {
-        $response = Invoke-MgGraphRequest -Uri $Uri -Method $Method -ErrorAction Stop
+        $response = Invoke-CollectorOperation -Target $Uri -Action "Invoke Microsoft Graph request ($Method)" -ScriptBlock {
+            Invoke-MgGraphRequest -Uri $Uri -Method $Method -ErrorAction Stop
+        }
         return $response
     }
     catch {
