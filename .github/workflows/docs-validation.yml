@@ -12,6 +12,12 @@ on:
       - 'overrides/**'
       - 'VERSION'
       - '.github/workflows/docs-validation.yml'
+      # Required-check coverage gate: mkdocs-strict is a required check by
+      # branch protection. Playwright specs (tests/**) often reference docs
+      # pages by URL; if a docs page is removed or renamed, an e2e spec that
+      # links to it should be caught at PR-time, not after merge. See PR #256
+      # for the gap that motivated this filter addition.
+      - 'tests/**'
 
 permissions:
   contents: read
@@ -45,3 +51,28 @@ jobs:
 
       - name: Build documentation (strict)
         run: mkdocs build --strict
+
+      - name: Verify OpenGraph and Twitter Card meta tags on built site
+        # Closes AS22 — verify_meta_tags.py was added in AS16 but never
+        # wired into CI. Runs against the real site/ build (not synthetic
+        # test strings) so OG/Twitter card metadata in overrides/main.html
+        # has regression protection. Depends on the previous step having
+        # populated site/.
+        run: python scripts/verify_meta_tags.py site/
+
+      - name: Verify built HTML has no broken internal links
+        # Closes F-CI-GAP-ANCHOR-VALIDATOR-01,
+        #        F-BUILD-CROSS-PLAYBOOK-DEPTH-BUG-01,
+        #        F-BUILD-EXCLUDE-DOCS-DEAD-LINK-01.
+        # mkdocs --strict only flags WARN-level link issues; cross-playbook
+        # depth bugs and exclude_docs targets are silent today. This walks
+        # site/**/*.html and validates every internal <a href>.
+        run: python scripts/verify_doc_links.py site --json _broken-links.json
+
+      - name: Upload broken-links report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: broken-links-report
+          path: _broken-links.json
+          if-no-files-found: ignore

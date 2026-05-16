@@ -54,8 +54,11 @@ test.describe("edge-empty persona @regression", () => {
     // Force a save so the assessment is on the saved-list when we reload.
     await page.evaluate(() => window.__assessmentApp.saveToStorage());
 
-    // (2) Reload + resume; authored count must still be 0.
-    await page.reload({ waitUntil: "domcontentloaded" });
+    // (2) Fresh visit + manual resume; authored count must still be 0.
+    // Uses page.goto("/assessment/") rather than page.reload() because AS8's
+    // URL routing preserves ?step= across reload and would auto-resume into
+    // phase1, bypassing the welcome-list "Resume" affordance this test exercises.
+    await page.goto("/assessment/", { waitUntil: "domcontentloaded" });
     await page
       .getByRole("button", { name: "Start New Assessment" })
       .waitFor({ timeout: 15_000 });

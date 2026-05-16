@@ -51,9 +51,9 @@ log = logging.getLogger("fsi-agentgov-report")
 # ---------------------------------------------------------------------------
 
 ZONE_DESCRIPTIONS: dict[int, str] = {
-    1: "Personal / Low Risk",
-    2: "Team / Medium Risk",
-    3: "Enterprise / Production",
+    1: "Personal Productivity",
+    2: "Team Collaboration",
+    3: "Enterprise Managed",
 }
 
 MATURITY_LABELS: dict[int, str] = {
@@ -97,6 +97,41 @@ CONFIDENCE_WEIGHTS: dict[str, float] = {
 
 ENGINE_VERSION = "1.0.0"
 
+
+def _read_framework_version() -> str:
+    """Read FSI-AgentGov framework version from repo-root VERSION file.
+
+    Single source of truth for the framework release the engine was built
+    against (e.g., "1.6.2"). Returns "unknown" if VERSION is missing.
+    """
+    version_file = Path(__file__).resolve().parents[2] / "VERSION"
+    if version_file.exists():
+        return version_file.read_text(encoding="utf-8").strip()
+    return "unknown"
+
+
+FRAMEWORK_VERSION = _read_framework_version()
+
+
+def normalize_manifest_controls(raw: object) -> list[dict]:
+    """Return the controls list regardless of manifest top-level shape.
+
+    The on-disk ``assessment/manifest/controls.json`` is a bare JSON list
+    of 78 control objects. Earlier engine code assumed a dict-wrapped
+    form ``{"controls": [...]}`` and crashed against the real file with
+    ``AttributeError: 'list' object has no attribute 'get'``. This helper
+    accepts either shape so the engine runs end-to-end against the
+    production manifest. Closes F-MANIFEST-FORMAT-MISMATCH-01.
+    """
+    if isinstance(raw, list):
+        return raw
+    if isinstance(raw, dict):
+        return raw.get("controls", [])
+    raise TypeError(
+        f"Manifest must be list or dict; got {type(raw).__name__}"
+    )
+
+
 # ---------------------------------------------------------------------------
 # Jinja2 inline templates
 # ---------------------------------------------------------------------------
@@ -104,10 +139,29 @@ ENGINE_VERSION = "1.0.0"
 PREFILLED_TEMPLATE = r"""# FSI-AgentGov Automated Assessment
 
 **Customer:** {{ customer }}
+**Framework Version:** v{{ framework_version }}
 **Assessment Date:** {{ date }}
 **Assessed Zone:** Zone {{ zone }} — {{ zone_description }}
 **Auto-scored:** {{ auto_scored }}/{{ total_controls }} controls | **Requires manual input:** {{ needs_manual }} controls
 **Overall Maturity:** {{ average_maturity }} / 4.0
+
+*Telemetry-driven evaluation. The interactive assessment SPA reports a
+separate self-assessed questionnaire score in 0–100% units; the two
+numbers measure different dimensions and are not directly comparable.*
+{% if collector_warnings %}
+!!! warning "Data quality notice — partial collector data"
+    One or more telemetry collectors reported issues during this run.
+    Confidence ratings on affected controls reflect the data that was
+    available; review the warnings below and re-run the affected
+    collector(s) before relying on this report for an examination
+    workpaper.
+{% for source, items in collector_warnings.items() %}
+    **{{ source }}:**
+{% for w in items %}
+    - {{ w | e }}
+{% endfor %}
+{% endfor %}
+{% endif %}
 
 ---
 {% for pillar_id, pillar in pillars.items() %}
@@ -139,6 +193,7 @@ QUESTIONNAIRE_TEMPLATE = r"""# FSI-AgentGov Manual Assessment Questions
 **Assessor:** _______________
 **Date:** _______________
 **Customer:** {{ customer }}
+**Framework Version:** v{{ framework_version }}
 
 Complete these questions via stakeholder interview. Each answer should
 include the respondent's name, role, and date.
@@ -168,6 +223,7 @@ Evidence reference (document name or location): _______________________
 FRONTIER_PREFILLED_TEMPLATE = r"""# Frontier Readiness Assessment
 
 **Customer:** {{ customer }}
+**Framework Version:** v{{ framework_version }}
 **Assessment Date:** {{ date }}
 **Facilitator:** {{ facilitator }}
 **Drivers Assessed:** {{ drivers_assessed }}
@@ -440,7 +496,7 @@ def prepare_report_data(
 
     # Build check-description lookup from manifest
     manifest_checks: dict[str, dict] = {}
-    for mc in manifest.get("controls", []):
+    for mc in normalize_manifest_controls(manifest):
         for chk in mc.get("checks", []):
             manifest_checks[chk["check_id"]] = chk
 
@@ -516,6 +572,7 @@ def prepare_report_data(
     return {
         "customer": customer,
         "date": date_str,
+        "framework_version": FRAMEWORK_VERSION,
         "zone": zone,
         "zone_description": ZONE_DESCRIPTIONS.get(zone, "Unknown"),
         "total_controls": summary.get("total_controls", len(controls)),
@@ -524,6 +581,9 @@ def prepare_report_data(
         "average_maturity": summary.get("average_maturity", 0.0),
         "pillars": dict(sorted(pillars.items())),
         "summary": summary,
+        "collector_warnings": scores.get("_metadata", {}).get(
+            "collector_warnings", {}
+        ),
     }
 
 
@@ -626,7 +686,7 @@ def prepare_frontier_data(
     if controls_manifest is not None and sb_driver_id:
         related_ids = sorted(
             c.get("id", "")
-            for c in controls_manifest.get("controls", [])
+            for c in normalize_manifest_controls(controls_manifest)
             if sb_driver_id in (c.get("applicable_drivers") or [])
         )
         if related_ids:
@@ -695,6 +755,7 @@ def prepare_frontier_data(
     return {
         "customer": customer,
         "date": date_str,
+        "framework_version": FRAMEWORK_VERSION,
         "facilitator": metadata.get("facilitator", "Facilitator-led self-diagnostic"),
         "drivers_assessed": 5,
         "overall_posture": _overall_posture_summary(driver_scores),
@@ -717,7 +778,7 @@ def compute_driver_rollup(scores: dict, manifest: dict, zone: int) -> dict:
     # Build manifest lookup: control_id -> applicable_drivers (None = field absent)
     manifest_applicable: dict[str, list[str] | None] = {
         mc.get("id", ""): mc.get("applicable_drivers")
-        for mc in manifest.get("controls", [])
+        for mc in normalize_manifest_controls(manifest)
     }
 
     rollup: dict[str, dict] = {}
@@ -780,6 +841,7 @@ def compute_driver_rollup(scores: dict, manifest: dict, zone: int) -> dict:
     return {
         "_metadata": {
             "engine_version": ENGINE_VERSION,
+            "framework_version": FRAMEWORK_VERSION,
             "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
             "zone": zone,
         },
@@ -825,12 +887,14 @@ def generate_summary_json(
     summary.update(
         {
             "customer_name": data["customer"],
+            "framework_version": data.get("framework_version", FRAMEWORK_VERSION),
             "assessment_date": data["date"],
             "zone_assessed": data["zone"],
             "zone_description": data["zone_description"],
             "files_generated": output_files,
             "gaps": sorted(gaps),
             "critical_gaps": sorted(critical_gaps),
+            "collector_warnings": data.get("collector_warnings", {}),
         }
     )
     return summary
@@ -1083,6 +1147,18 @@ def main(argv: list[str] | None = None) -> None:
             )
             generated.append(str(rp))
 
+            # files_generated atomicity: run() wrote assessment-summary.json
+            # before frontier + rollup paths existed, so its files_generated
+            # listed only 3/5 outputs. Rewrite it now with the complete list
+            # so customer-facing summary accurately reflects all artifacts.
+            summary_path = Path(args.output_dir) / "assessment-summary.json"
+            if summary_path.exists():
+                with open(summary_path, encoding="utf-8") as fh:
+                    summary_doc = json.load(fh)
+                summary_doc["files_generated"] = sorted(generated)
+                with open(summary_path, "w", encoding="utf-8") as fh:
+                    json.dump(summary_doc, fh, indent=2, ensure_ascii=False)
+
         print("\nReport generation complete")
         if controls_summary:
             print(f"  Customer:    {controls_summary.get('customer_name', '?')}")
@@ -1091,7 +1167,7 @@ def main(argv: list[str] | None = None) -> None:
             print(f"  Critical:    {len(controls_summary.get('critical_gaps', []))}")
         print(f"  Files:       {len(generated)}")
         for fp_str in generated:
-            print(f"    → {fp_str}")
+            print(f"    -> {fp_str}")
     except Exception as exc:
         log.error("Report generation failed: %s", exc, exc_info=True)
         sys.exit(1)

@@ -2,7 +2,7 @@
 
 > **Scope.** This playbook is the diagnostic companion to [Control 3.6 — Orphaned Agent Detection and Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md). It covers detection drift, sponsor/HR signal breaks, reassignment failures, bulk remediation partial success, terminal-delete blocks (Purview hold / retention label), multi-source reconciliation instability, sovereign-cloud parity gaps (GCC / GCC High / DoD), false-positive owner classifications, and SIEM ingestion gaps.
 >
-> **Regulatory framing.** Accurate, timely orphan detection and remediation *supports compliance with* FINRA Rule 4511 (records), SEC Rule 17a-4(f) (WORM retention of the orphan register and remediation evidence), SOX §404 (ITGC — access provisioning/de-provisioning around financially significant systems), GLBA Safeguards Rule (access controls over nonpublic personal information), and OCC Bulletin 2013-29 / Fed SR 11-7 (third-party and model risk for AI agents that persist after sponsor separation). Controls described here *support — they do not replace* registered-principal supervisory review under FINRA Rule 3110 or firm-specific model-risk governance.
+> **Regulatory framing.** Accurate, timely orphan detection and remediation *supports compliance with* FINRA Rule 4511 (records), SEC Rule 17a-4(f) (WORM retention of the orphan register and remediation evidence), SOX §404 (ITGC — access provisioning/de-provisioning around financially significant systems), GLBA Safeguards Rule (access controls over nonpublic personal information), and OCC Bulletin 2013-29 / Fed SR 26-2 (formerly SR 11-7) (third-party and model risk for AI agents that persist after sponsor separation). Controls described here *support — they do not replace* registered-principal supervisory review under FINRA Rule 3110 or firm-specific model-risk governance.
 >
 > **Audience.** AI Administrator, Power Platform Admin, Entra Agent ID Admin, Entra Identity Governance Admin, Entra Global Reader, AI Governance Lead, Purview Compliance Admin, and SOC analysts supporting examiner/audit response.
 >
@@ -1137,7 +1137,7 @@ The `Write-EvidenceManifest` helper writes a signed JSON manifest to the same WO
 - **SEC Rule 17a-4(f)** — WORM retention for broker-dealer records; 6-year floor applied to E-01 through E-10.
 - **SOX §404** — ITGC for access provisioning/de-provisioning; see RB-06.
 - **GLBA Safeguards Rule** — access controls over NPI; orphan agents are access-control risks.
-- **OCC Bulletin 2013-29 / Fed SR 11-7** — third-party and model risk; AI agents that persist past sponsor separation are in-scope risk events.
+- **OCC Bulletin 2013-29 / Fed SR 26-2 (formerly SR 11-7)** — third-party and model risk; AI agents that persist past sponsor separation are in-scope risk events.
 
 ---
 

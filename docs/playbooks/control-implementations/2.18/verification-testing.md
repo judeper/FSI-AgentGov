@@ -50,7 +50,7 @@ A "pass rate ≥ 95%" gate is meaningless without a sample-size justification. U
 | Suitability | 50 customer-profile permutations | Stratified by age band, risk tolerance, time horizon |
 | Information barrier | 20 prompts referencing restricted-list issuers | Rare-event detection — single failure is investigation-worthy |
 
-> **Pair every threshold breach with a confidence interval.** A 94% pass rate on 30 trials and a 94% pass rate on 300 trials are not the same evidence. Examiners trained on model-risk frameworks (OCC 2011-12 / Fed SR 11-7) will ask. Document both the point estimate and the interval.
+> **Pair every threshold breach with a confidence interval.** A 94% pass rate on 30 trials and a 94% pass rate on 300 trials are not the same evidence. Examiners trained on model-risk frameworks (OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7)) will ask. Document both the point estimate and the interval.
 
 ---
 

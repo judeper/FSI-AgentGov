@@ -2,7 +2,7 @@
 
 **Purpose:** Pre-flight requirements that apply to **every** PowerShell playbook in this framework. Read this **once** before running any control's PowerShell setup, and treat it as the canonical source for module versions, sovereign-cloud endpoints, mutation safety, and evidence emission.
 
-**Audience:** M365 administrators executing controls in production tenants subject to FINRA / SEC / GLBA / OCC / Fed SR 11-7 / CFTC oversight.
+**Audience:** M365 administrators executing controls in production tenants subject to FINRA / SEC / GLBA / OCC / Fed SR 26-2 (formerly SR 11-7) / CFTC oversight.
 
 ---
 

@@ -72,7 +72,7 @@ Protect data and systems from unauthorized access and misuse.
 | [1.21](pillar-1-security/1.21-adversarial-input-logging.md) | Adversarial Input Logging | 3 | FINRA 4511 |
 | [1.22](pillar-1-security/1.22-information-barriers.md) | Information Barriers | 3 | FINRA 3110 |
 | [1.23](pillar-1-security/1.23-step-up-authentication-for-agent-operations.md) | Step-Up Authentication | 3 | SOX |
-| [1.24](pillar-1-security/1.24-defender-ai-security-posture-management.md) | Defender AI-SPM | All | OCC 2011-12, GLBA |
+| [1.24](pillar-1-security/1.24-defender-ai-security-posture-management.md) | Defender AI-SPM | All | OCC Bulletin 2026-13 (formerly OCC 2011-12), GLBA |
 | [1.25](pillar-1-security/1.25-mime-type-restrictions.md) | MIME Type Restrictions | All | FINRA 4511, GLBA |
 | [1.26](pillar-1-security/1.26-agent-file-upload-and-file-analysis-restrictions.md) | File Upload Restrictions | All | GLBA, FINRA 4511 |
 | [1.27](pillar-1-security/1.27-ai-agent-content-moderation-enforcement.md) | Content Moderation | All | FINRA 3110, GLBA |
@@ -94,7 +94,7 @@ Govern agent lifecycle, risk, and operational processes.
 | [2.3](pillar-2-management/2.3-change-management-and-release-planning.md) | Change Management | 2-3 | SOX |
 | [2.4](pillar-2-management/2.4-business-continuity-and-disaster-recovery.md) | Business Continuity | 3 | - |
 | [2.5](pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Testing and Validation | 2-3 | FINRA 3110 |
-| [2.6](pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Model Risk Management | 3 | OCC 2011-12, SR 26-2 (formerly SR 11-7) |
+| [2.6](pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Model Risk Management | 3 | OCC Bulletin 2026-13 (formerly OCC 2011-12), SR 26-2 (formerly SR 11-7) |
 | [2.7](pillar-2-management/2.7-vendor-and-third-party-risk-management.md) | Vendor Risk Management | 2-3 | GLBA |
 | [2.8](pillar-2-management/2.8-access-control-and-segregation-of-duties.md) | Segregation of Duties | 2-3 | SOX |
 | [2.9](pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md) | Performance Monitoring | 2-3 | FINRA 4511 |

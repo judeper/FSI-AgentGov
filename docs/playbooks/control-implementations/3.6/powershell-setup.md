@@ -1336,7 +1336,7 @@ function Invoke-Agt36SelfTest {
 
 ### 13.4 — Hedged-language reminder
 
-Detection output, remediation journals, and the sovereign worksheet **support compliance with** FINRA Rule 3110 supervisory review, SEC 17a-4(f) records retention, SOX ITGC ownership integrity, GLBA safeguards, OCC 2013-29 third-party risk (where agent is a third-party integration), and Federal Reserve SR 11-7 model risk (where agent participates in a model). They **do not replace** registered-principal supervisory review, and they **do not guarantee** detection completeness in the presence of unpinned modules, stale HR connectors, or manual reconciliation drift on sovereign clouds. Organizations should verify tenant-specific parity via §13.1 self-test before relying on output for regulatory evidence.
+Detection output, remediation journals, and the sovereign worksheet **support compliance with** FINRA Rule 3110 supervisory review, SEC 17a-4(f) records retention, SOX ITGC ownership integrity, GLBA safeguards, OCC 2013-29 third-party risk (where agent is a third-party integration), and Federal Reserve SR 26-2 (formerly SR 11-7) model risk (where agent participates in a model). They **do not replace** registered-principal supervisory review, and they **do not guarantee** detection completeness in the presence of unpinned modules, stale HR connectors, or manual reconciliation drift on sovereign clouds. Organizations should verify tenant-specific parity via §13.1 self-test before relying on output for regulatory evidence.
 
 ---
 ## Cross-references

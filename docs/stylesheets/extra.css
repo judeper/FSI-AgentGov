@@ -56,9 +56,16 @@
 }
 
 /* ── Hero button overrides (scoped) ── */
+/*
+ * Hero design: inverted button so the CTA pops against the dark hero
+ * gradient (#005A9E → #003A70). Text colour MUST be brand-primary-dark
+ * (#005A9E), not brand-primary (#0078D4) — axe measured the latter at
+ * 4.18:1 on white (fails AA 4.5:1). #005A9E on #ffffff = 7.10:1.
+ * Closes F-A11Y-DOCS-CONTRAST-HEROCTA on the home page.
+ */
 .hero .md-button--primary {
   background-color: #fff !important;
-  color: var(--brand-primary) !important;
+  color: var(--brand-primary-dark) !important;
   border-color: transparent !important;
   font-weight: 600;
 }
@@ -158,7 +165,216 @@
   color: var(--md-primary-fg-color);
 }
 
-/* ── Responsive ── */
+/* ── A11y: WCAG 2.1 AA contrast overrides (AS5) ── */
+/*
+ * Closes 4 P1 + 1 P2 contrast findings:
+ *
+ *   F-A11Y-DOCS-CONTRAST-NAVTABS-01 (P1, site-wide)
+ *     Material default tints .md-tabs__link via primary-bg-color--light
+ *     (#b3d7f2 on #0078D4 = 3.0:1; AA needs 4.5:1 for normal text).
+ *     Forcing #ffffff yields 4.59:1 against #0078D4. The active tab
+ *     indicator is the bottom border, not the link colour, so visual
+ *     "current section" affordance is preserved.
+ *
+ *   F-A11Y-DOCS-CONTRAST-INLINELINK-03 (P1, /reference/csa-quick-reference,
+ *   /reference/role-catalog, /downloads)
+ *     axe link-in-text-block: brand link #0078D4 vs surrounding muted text
+ *     #757575 = 1.01:1 (WCAG 1.4.1 needs 3:1 between adjacent text colours
+ *     OR a non-colour cue such as underline). Material removes underlines
+ *     by default; FSI brand re-adds underline on body links so the
+ *     non-colour cue is always present. Buttons, navigation tabs, and
+ *     contents-sidebar entries are excluded so chrome surfaces stay clean.
+ *
+ *   F-A11Y-DOCS-CONTRAST-CODE-IN-LINK (P1, multiple reference pages)
+ *     Inline <code> nested inside an <a> inherits the brand link colour
+ *     (#0078D4) on Material's code background (#f5f5f5) = 4.15:1 — fails
+ *     4.5:1 normal-text threshold. Switching to --brand-primary-dark
+ *     (#005A9E) yields 6.52:1 while preserving the visual link affordance.
+ *
+ *   F-A11Y-DOCS-CONTRAST-VERSIONFACT-02 (P2, site-wide header version
+ *   badge) — Material's .md-source__facts (plural, the <ul> parent) sets
+ *     opacity: 0.75; opacity is a compositing operation on the whole
+ *     subtree and does not inherit, so overriding the leaf .md-source__fact
+ *     to opacity:1 has no effect. Restoring opacity:1 on the parent <ul>
+ *     AND forcing white on the leaf yields #ffffff on #0078D4 = 4.53:1.
+ *
+ *   F-A11Y-SPA-CONTRAST-DELTA-07 (P1, /assessment/) — SPA stepper buttons
+ *     used --md-default-fg-color--light (#6d6d6d) on
+ *     --md-default-fg-color--lightest (#ededed) = 4.41:1; below 4.5:1.
+ *     Explicit #595959 yields 5.98:1 while preserving the dim "inactive
+ *     step" affordance against the active (filled brand) step.
+ */
+[data-md-color-scheme="default"] .md-tabs__link,
+[data-md-color-scheme="default"] .md-tabs__link--active,
+[data-md-color-scheme="default"] .md-tabs__link:hover {
+  color: #ffffff;
+  opacity: 1;
+}
+
+/*
+ * .md-source__facts (plural) is Material's <ul> wrapper that applies
+ * opacity:0.75 to its entire subtree; .md-source__fact (singular) is each
+ * <li>. Restore full opacity on the wrapper AND force white on the leaves
+ * so axe's color-contrast reads the un-composited colour.
+ */
+[data-md-color-scheme="default"] .md-header__source .md-source__facts {
+  opacity: 1;
+}
+[data-md-color-scheme="default"] .md-header__source .md-source__fact,
+[data-md-color-scheme="default"] .md-header__source .md-source__repository {
+  color: #ffffff;
+}
+
+/*
+ * Body-link underline. Scoped to article/typeset content so navigation
+ * tabs, header chrome, footer, and the table-of-contents sidebar
+ * remain underline-free. Buttons, code-copy controls, and toc anchors
+ * keep their existing chrome treatment.
+ */
+.md-typeset a:not(.md-button):not(.md-content__button):not(.headerlink) {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+.md-typeset a:not(.md-button):not(.md-content__button):not(.headerlink):hover {
+  text-decoration-thickness: 2px;
+}
+
+/*
+ * Inline code inside a body link: darken to brand-primary-dark so the
+ * code text reaches 4.5:1 against Material's #f5f5f5 code background.
+ */
+.md-typeset a code {
+  color: var(--brand-primary-dark);
+}
+
+/* ── A11y: WCAG 2.1 AA contrast overrides for slate (dark) palette (AS21) ── */
+/*
+ * Closes F-A11Y-DARKMODE-VIOLATIONS-01 (P1, site-wide + 2 page-specific).
+ * AS5 closed every contrast issue for the default (light) palette but
+ * never verified slate. AS19b's dark-palette axe re-scan surfaced
+ * 11–25 serious color-contrast violations per page across the 8-page
+ * docs sample. Single root cause for all 6 site-wide chrome findings:
+ * Material's slate palette uses --md-primary-fg-color (#429CE3) as the
+ * background of .md-header and .md-tabs, but every white/tinted-white
+ * text token inside the header sits at 2.18:1 to 2.95:1 against that
+ * lighter blue — none reach the 4.5:1 AA normal-text threshold.
+ *
+ * Strategy: keep #429CE3 as the slate accent for body links (where it
+ * sits on the dark page bg #1B1A19 and reaches 7.7:1) but override the
+ * header-strip backgrounds to #003A70 — the deeper navy already used as
+ * the hero-gradient endpoint in slate (extra.css line 55), so no new
+ * colours are introduced. White on #003A70 = 11.42:1.
+ *
+ * Findings closed (axe color-contrast, dark palette, 8/8 docs sample):
+ *
+ *   F-A11Y-DARK-CHROME-NAVTABS         .md-tabs__link tinted to
+ *     (49 nodes, 8/8 pages, P1)        #c6e1f7 on #429ce3 = 2.18:1.
+ *                                      Forcing #ffffff on the new
+ *                                      #003A70 header bg = 11.42:1.
+ *
+ *   F-A11Y-DARK-CHROME-TITLE           .md-header__topic .md-ellipsis
+ *     (8 nodes, 8/8 pages, P1)         #ffffff on #429ce3 = 2.95:1.
+ *                                      Same #ffffff on #003A70 = 11.42:1.
+ *
+ *   F-A11Y-DARK-CHROME-SOURCELINK      .md-source__repository--active
+ *     (8 nodes, 8/8 pages, P1)         #ffffff on #429ce3 = 2.95:1.
+ *                                      Same #ffffff on #003A70 = 11.42:1.
+ *
+ *   F-A11Y-DARK-CHROME-VERSIONFACT     .md-source__fact--version inherits
+ *     (8 nodes, 8/8 pages, P1)         opacity:0.75 from .md-source__facts
+ *                                      parent (same root cause as the
+ *                                      light-mode finding AS5 fixed —
+ *                                      opacity is a compositing op that
+ *                                      does not inherit). Restore
+ *                                      opacity:1 on the parent <ul> AND
+ *                                      force #ffffff on the leaves;
+ *                                      result on #003A70 = 11.42:1.
+ *
+ *   F-A11Y-DARK-CHROME-ROOT-INHERIT    axe attributes some chrome
+ *     (8 nodes, 8/8 pages, P1)         surfaces to `:root` when it
+ *                                      cannot find a more specific
+ *                                      element. Resolved transitively
+ *                                      by the header-bg fix.
+ *
+ *   F-A11Y-DARK-CODEINLINK-REGRESSION  AS5's `.md-typeset a code` rule
+ *     (12 nodes, 1/8 pages, P1)        forced inline-code colour to
+ *     /reference/csa-quick-reference   --brand-primary-dark (#005A9E),
+ *                                      which works on the light-mode
+ *                                      code bg (#f5f5f5 = 6.52:1) but
+ *                                      fails on slate code bg (#272a35
+ *                                      = 2.01:1). Override to
+ *                                      var(--brand-primary) in slate
+ *                                      (which resolves to #429CE3) =
+ *                                      4.83:1.
+ *
+ *   F-A11Y-DARK-ARCHCARDS              .arch-zone (#ffffff on slate
+ *     (14 nodes, 1/8 pages, P1)        --brand-primary #429CE3 = 2.95:1)
+ *     home page                        and .arch-pillar (#ffffff on
+ *                                      slate --brand-accent #3DD6E0 =
+ *                                      1.76:1). Override the slate
+ *                                      backgrounds for these cards
+ *                                      specifically: arch-zone uses
+ *                                      brand-primary-dark #005A9E
+ *                                      (white text = 7.10:1),
+ *                                      arch-pillar uses light-mode
+ *                                      brand-accent #007A7E (white
+ *                                      text = 5.14:1). .arch-reg
+ *                                      already uses brand-primary-dark
+ *                                      and passes — no change.
+ */
+[data-md-color-scheme="slate"] .md-header,
+[data-md-color-scheme="slate"] .md-tabs {
+  background-color: #003A70;
+}
+[data-md-color-scheme="slate"] .md-tabs__link,
+[data-md-color-scheme="slate"] .md-tabs__link--active,
+[data-md-color-scheme="slate"] .md-tabs__link:hover,
+[data-md-color-scheme="slate"] .md-header__topic,
+[data-md-color-scheme="slate"] .md-header__topic .md-ellipsis {
+  color: #ffffff;
+  opacity: 1;
+}
+
+/*
+ * Match the light-mode .md-source__facts opacity fix (AS5):
+ * Material applies opacity:0.75 to the <ul> wrapper; opacity is a
+ * compositing op that doesn't inherit, so leaf colour overrides have
+ * no effect. Restore opacity:1 on the wrapper AND force white on the
+ * leaves so axe reads the un-composited colour.
+ */
+[data-md-color-scheme="slate"] .md-header__source .md-source__facts {
+  opacity: 1;
+}
+[data-md-color-scheme="slate"] .md-header__source .md-source__fact,
+[data-md-color-scheme="slate"] .md-header__source .md-source__repository {
+  color: #ffffff;
+}
+
+/*
+ * Inline <code> inside an <a> in body content: AS5's unscoped rule
+ * darkens to brand-primary-dark, which fails on slate code bg #272a35.
+ * In dark mode, switch to the (lighter) slate primary so it sits at
+ * 4.83:1 over the slate code bg.
+ */
+[data-md-color-scheme="slate"] .md-typeset a code {
+  color: var(--brand-primary);
+}
+
+/*
+ * Architecture diagram cards on the home page. Slate overrides for
+ * --brand-primary (#429CE3) and --brand-accent (#3DD6E0) are too light
+ * for white text. Use darker brand variants in slate so white text
+ * reaches AA on the home-page card chrome.
+ */
+[data-md-color-scheme="slate"] .arch-zone {
+  background: var(--brand-primary-dark);  /* #005A9E — white text 7.10:1 */
+}
+[data-md-color-scheme="slate"] .arch-pillar {
+  background: #007A7E;  /* light-mode brand-accent — white text 5.14:1 */
+}
+
+
 @media (max-width: 600px) {
   .hero { padding: 2.5rem 1rem; }
   .hero h1 { font-size: 1.75rem; }

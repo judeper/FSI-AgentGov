@@ -1,0 +1,4227 @@
+{
+  "generated_at": "2026-05-14T23:33:01.181Z",
+  "source_root": "docs/",
+  "site_url": "https://judeper.github.io/FSI-AgentGov/",
+  "pages": {
+    "/assessment/": {
+      "source_md": "docs/assessment/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/agent-author-owner/": {
+      "source_md": "docs/assessment/pre-session/agent-author-owner/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/agent-authors/": {
+      "source_md": "docs/assessment/pre-session/agent-authors/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/agent-business-owner/": {
+      "source_md": "docs/assessment/pre-session/agent-business-owner/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/agent-developers/": {
+      "source_md": "docs/assessment/pre-session/agent-developers/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/agent-owner-copilot-studio-agent-author/": {
+      "source_md": "docs/assessment/pre-session/agent-owner-copilot-studio-agent-author/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/agent-owner-sponsor-governance-role-not-directory-role/": {
+      "source_md": "docs/assessment/pre-session/agent-owner-sponsor-governance-role-not-directory-role/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/agent-owner/": {
+      "source_md": "docs/assessment/pre-session/agent-owner/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/agent-sponsor-agent-owner/": {
+      "source_md": "docs/assessment/pre-session/agent-sponsor-agent-owner/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/agent-sponsor/": {
+      "source_md": "docs/assessment/pre-session/agent-sponsor/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/ai-administrator-preferred-mc1041454-mar-2025/": {
+      "source_md": "docs/assessment/pre-session/ai-administrator-preferred-mc1041454-mar-2025/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/ai-administrator/": {
+      "source_md": "docs/assessment/pre-session/ai-administrator/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/ai-azure-ai-foundry-admin/": {
+      "source_md": "docs/assessment/pre-session/ai-azure-ai-foundry-admin/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/ai-governance-team-coe/": {
+      "source_md": "docs/assessment/pre-session/ai-governance-team-coe/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/ai-red-team-pen-test-owner/": {
+      "source_md": "docs/assessment/pre-session/ai-red-team-pen-test-owner/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/application-development-ai-engineering/": {
+      "source_md": "docs/assessment/pre-session/application-development-ai-engineering/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/authentication-administrator/": {
+      "source_md": "docs/assessment/pre-session/authentication-administrator/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/authentication-policy-admin/": {
+      "source_md": "docs/assessment/pre-session/authentication-policy-admin/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/azure-defender-for-cloud-admin/": {
+      "source_md": "docs/assessment/pre-session/azure-defender-for-cloud-admin/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/azure-network-contributor/": {
+      "source_md": "docs/assessment/pre-session/azure-network-contributor/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/azure-storage-account-owner-contributor/": {
+      "source_md": "docs/assessment/pre-session/azure-storage-account-owner-contributor/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/backup-owner/": {
+      "source_md": "docs/assessment/pre-session/backup-owner/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/business-continuity-officer/": {
+      "source_md": "docs/assessment/pre-session/business-continuity-officer/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/business-line-agent-owners/": {
+      "source_md": "docs/assessment/pre-session/business-line-agent-owners/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/business-unit-owner/": {
+      "source_md": "docs/assessment/pre-session/business-unit-owner/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/change-management-lead/": {
+      "source_md": "docs/assessment/pre-session/change-management-lead/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/change-management-team/": {
+      "source_md": "docs/assessment/pre-session/change-management-team/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/change-manager/": {
+      "source_md": "docs/assessment/pre-session/change-manager/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/chief-compliance-officer-cco/": {
+      "source_md": "docs/assessment/pre-session/chief-compliance-officer-cco/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/chief-information-security-officer-ciso/": {
+      "source_md": "docs/assessment/pre-session/chief-information-security-officer-ciso/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/ciso-incident-commander/": {
+      "source_md": "docs/assessment/pre-session/ciso-incident-commander/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/ciso-security-lead/": {
+      "source_md": "docs/assessment/pre-session/ciso-security-lead/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/ciso-security-operations/": {
+      "source_md": "docs/assessment/pre-session/ciso-security-operations/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/ciso/": {
+      "source_md": "docs/assessment/pre-session/ciso/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/cloud-security-architect/": {
+      "source_md": "docs/assessment/pre-session/cloud-security-architect/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/communication-compliance-admins/": {
+      "source_md": "docs/assessment/pre-session/communication-compliance-admins/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/communication-compliance-analysts/": {
+      "source_md": "docs/assessment/pre-session/communication-compliance-analysts/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/communication-compliance-catch-all-role-group/": {
+      "source_md": "docs/assessment/pre-session/communication-compliance-catch-all-role-group/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/communication-compliance-investigators/": {
+      "source_md": "docs/assessment/pre-session/communication-compliance-investigators/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/communication-compliance-role-group/": {
+      "source_md": "docs/assessment/pre-session/communication-compliance-role-group/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/communication-compliance-viewers/": {
+      "source_md": "docs/assessment/pre-session/communication-compliance-viewers/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/compliance-audit-admin/": {
+      "source_md": "docs/assessment/pre-session/compliance-audit-admin/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/compliance-legal/": {
+      "source_md": "docs/assessment/pre-session/compliance-legal/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/compliance-officer-ib-officer/": {
+      "source_md": "docs/assessment/pre-session/compliance-officer-ib-officer/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/compliance-officer/": {
+      "source_md": "docs/assessment/pre-session/compliance-officer/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/compliance-team/": {
+      "source_md": "docs/assessment/pre-session/compliance-team/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/content-owner/": {
+      "source_md": "docs/assessment/pre-session/content-owner/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/content-owners/": {
+      "source_md": "docs/assessment/pre-session/content-owners/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/copilot-studio-agent-author/": {
+      "source_md": "docs/assessment/pre-session/copilot-studio-agent-author/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/customer-experience/": {
+      "source_md": "docs/assessment/pre-session/customer-experience/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/data-science-team/": {
+      "source_md": "docs/assessment/pre-session/data-science-team/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/dataverse-system-admin-per-environment/": {
+      "source_md": "docs/assessment/pre-session/dataverse-system-admin-per-environment/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/defender-xdr-admin/": {
+      "source_md": "docs/assessment/pre-session/defender-xdr-admin/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/delegated-admin/": {
+      "source_md": "docs/assessment/pre-session/delegated-admin/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/designated-supervisor-registered-principal/": {
+      "source_md": "docs/assessment/pre-session/designated-supervisor-registered-principal/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/disclosure-committee-public-company-fsis/": {
+      "source_md": "docs/assessment/pre-session/disclosure-committee-public-company-fsis/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/ediscovery-administrator-purview-ediscovery-role/": {
+      "source_md": "docs/assessment/pre-session/ediscovery-administrator-purview-ediscovery-role/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/ediscovery-manager-purview-ediscovery-role/": {
+      "source_md": "docs/assessment/pre-session/ediscovery-manager-purview-ediscovery-role/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/ediscovery-manager/": {
+      "source_md": "docs/assessment/pre-session/ediscovery-manager/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/endpoint-security-admin-intune-admin/": {
+      "source_md": "docs/assessment/pre-session/endpoint-security-admin-intune-admin/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/entra-agent-id-admin/": {
+      "source_md": "docs/assessment/pre-session/entra-agent-id-admin/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/entra-ai-administrator-role/": {
+      "source_md": "docs/assessment/pre-session/entra-ai-administrator-role/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/entra-app-admin/": {
+      "source_md": "docs/assessment/pre-session/entra-app-admin/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/entra-compliance-admin/": {
+      "source_md": "docs/assessment/pre-session/entra-compliance-admin/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/entra-global-admin/": {
+      "source_md": "docs/assessment/pre-session/entra-global-admin/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/entra-global-reader/": {
+      "source_md": "docs/assessment/pre-session/entra-global-reader/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/entra-identity-governance-admin/": {
+      "source_md": "docs/assessment/pre-session/entra-identity-governance-admin/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/entra-privileged-role-admin/": {
+      "source_md": "docs/assessment/pre-session/entra-privileged-role-admin/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/entra-security-admin-sentinel-admin-soc-analyst/": {
+      "source_md": "docs/assessment/pre-session/entra-security-admin-sentinel-admin-soc-analyst/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/entra-security-admin/": {
+      "source_md": "docs/assessment/pre-session/entra-security-admin/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/environment-admin/": {
+      "source_md": "docs/assessment/pre-session/environment-admin/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/finance-analyst/": {
+      "source_md": "docs/assessment/pre-session/finance-analyst/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/general-counsel-outside-counsel/": {
+      "source_md": "docs/assessment/pre-session/general-counsel-outside-counsel/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/global-administrator-m365-copilot-admin/": {
+      "source_md": "docs/assessment/pre-session/global-administrator-m365-copilot-admin/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/governance-lead/": {
+      "source_md": "docs/assessment/pre-session/governance-lead/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/hr-learning-administrator/": {
+      "source_md": "docs/assessment/pre-session/hr-learning-administrator/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/hr-people-operations/": {
+      "source_md": "docs/assessment/pre-session/hr-people-operations/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/information-security-officer/": {
+      "source_md": "docs/assessment/pre-session/information-security-officer/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/information-security/": {
+      "source_md": "docs/assessment/pre-session/information-security/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/insider-risk-management-admins/": {
+      "source_md": "docs/assessment/pre-session/insider-risk-management-admins/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/insider-risk-management-analysts/": {
+      "source_md": "docs/assessment/pre-session/insider-risk-management-analysts/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/insider-risk-management-approvers/": {
+      "source_md": "docs/assessment/pre-session/insider-risk-management-approvers/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/insider-risk-management-auditors/": {
+      "source_md": "docs/assessment/pre-session/insider-risk-management-auditors/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/insider-risk-management-catch-all/": {
+      "source_md": "docs/assessment/pre-session/insider-risk-management-catch-all/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/insider-risk-management-investigators/": {
+      "source_md": "docs/assessment/pre-session/insider-risk-management-investigators/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/insider-risk-management-role-group/": {
+      "source_md": "docs/assessment/pre-session/insider-risk-management-role-group/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/internal-audit/": {
+      "source_md": "docs/assessment/pre-session/internal-audit/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/intune-administrator/": {
+      "source_md": "docs/assessment/pre-session/intune-administrator/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/it-governance/": {
+      "source_md": "docs/assessment/pre-session/it-governance/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/it-operations-platform-engineering/": {
+      "source_md": "docs/assessment/pre-session/it-operations-platform-engineering/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/it-operations/": {
+      "source_md": "docs/assessment/pre-session/it-operations/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/it-risk-governance-lead/": {
+      "source_md": "docs/assessment/pre-session/it-risk-governance-lead/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/it-security/": {
+      "source_md": "docs/assessment/pre-session/it-security/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/legal-compliance-officer/": {
+      "source_md": "docs/assessment/pre-session/legal-compliance-officer/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/legal-counsel/": {
+      "source_md": "docs/assessment/pre-session/legal-counsel/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/legal-organizational-function/": {
+      "source_md": "docs/assessment/pre-session/legal-organizational-function/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/legal/": {
+      "source_md": "docs/assessment/pre-session/legal/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/m365-admin/": {
+      "source_md": "docs/assessment/pre-session/m365-admin/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/manager-team-lead/": {
+      "source_md": "docs/assessment/pre-session/manager-team-lead/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/manager/": {
+      "source_md": "docs/assessment/pre-session/manager/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/marketing-communications/": {
+      "source_md": "docs/assessment/pre-session/marketing-communications/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/microsoft-defender-for-endpoint-admin/": {
+      "source_md": "docs/assessment/pre-session/microsoft-defender-for-endpoint-admin/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/microsoft-purview-admin/": {
+      "source_md": "docs/assessment/pre-session/microsoft-purview-admin/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/microsoft-purview-compliance-admin-role-group/": {
+      "source_md": "docs/assessment/pre-session/microsoft-purview-compliance-admin-role-group/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/model-risk-committee-governance-body/": {
+      "source_md": "docs/assessment/pre-session/model-risk-committee-governance-body/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/model-risk-manager-independent-validation-function/": {
+      "source_md": "docs/assessment/pre-session/model-risk-manager-independent-validation-function/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/model-risk-manager/": {
+      "source_md": "docs/assessment/pre-session/model-risk-manager/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/operations-team/": {
+      "source_md": "docs/assessment/pre-session/operations-team/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/organization-configuration-role-exchange-online/": {
+      "source_md": "docs/assessment/pre-session/organization-configuration-role-exchange-online/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/power-platform-admin-or-dynamics-365-admin/": {
+      "source_md": "docs/assessment/pre-session/power-platform-admin-or-dynamics-365-admin/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/power-platform-admin/": {
+      "source_md": "docs/assessment/pre-session/power-platform-admin/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/privacy-officer-legal/": {
+      "source_md": "docs/assessment/pre-session/privacy-officer-legal/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/privacy-officer/": {
+      "source_md": "docs/assessment/pre-session/privacy-officer/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/procurement/": {
+      "source_md": "docs/assessment/pre-session/procurement/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/purview-audit-admin/": {
+      "source_md": "docs/assessment/pre-session/purview-audit-admin/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/purview-communication-compliance-admin/": {
+      "source_md": "docs/assessment/pre-session/purview-communication-compliance-admin/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/purview-compliance-admin-purview-audit-admin/": {
+      "source_md": "docs/assessment/pre-session/purview-compliance-admin-purview-audit-admin/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/purview-compliance-admin/": {
+      "source_md": "docs/assessment/pre-session/purview-compliance-admin/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/purview-data-security-ai-admin/": {
+      "source_md": "docs/assessment/pre-session/purview-data-security-ai-admin/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/purview-data-security-ai-content-viewer/": {
+      "source_md": "docs/assessment/pre-session/purview-data-security-ai-content-viewer/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/purview-data-security-ai-viewer/": {
+      "source_md": "docs/assessment/pre-session/purview-data-security-ai-viewer/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/purview-info-protection-admin/": {
+      "source_md": "docs/assessment/pre-session/purview-info-protection-admin/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/purview-records-manager/": {
+      "source_md": "docs/assessment/pre-session/purview-records-manager/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/purview-security-reader/": {
+      "source_md": "docs/assessment/pre-session/purview-security-reader/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/qa-lead/": {
+      "source_md": "docs/assessment/pre-session/qa-lead/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/records-manager-purview-records-manager-role/": {
+      "source_md": "docs/assessment/pre-session/records-manager-purview-records-manager-role/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/reviewer-purview-ediscovery-role/": {
+      "source_md": "docs/assessment/pre-session/reviewer-purview-ediscovery-role/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/role-canonical-see-docs-reference-role-catalog-md/": {
+      "source_md": "docs/assessment/pre-session/role-canonical-see-docs-reference-role-catalog-md/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/role-group/": {
+      "source_md": "docs/assessment/pre-session/role-group/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/security-admin/": {
+      "source_md": "docs/assessment/pre-session/security-admin/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/security-administrator-entra/": {
+      "source_md": "docs/assessment/pre-session/security-administrator-entra/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/security-architect/": {
+      "source_md": "docs/assessment/pre-session/security-architect/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/security-operations/": {
+      "source_md": "docs/assessment/pre-session/security-operations/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/security-team/": {
+      "source_md": "docs/assessment/pre-session/security-team/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/sentinel-admin/": {
+      "source_md": "docs/assessment/pre-session/sentinel-admin/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/sentinel-soc-analyst/": {
+      "source_md": "docs/assessment/pre-session/sentinel-soc-analyst/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/sharepoint-admin/": {
+      "source_md": "docs/assessment/pre-session/sharepoint-admin/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/sharepoint-m365-administrator/": {
+      "source_md": "docs/assessment/pre-session/sharepoint-m365-administrator/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/sharepoint-site-collection-admin/": {
+      "source_md": "docs/assessment/pre-session/sharepoint-site-collection-admin/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/sharepoint-site-owner/": {
+      "source_md": "docs/assessment/pre-session/sharepoint-site-owner/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/site-collection-admin/": {
+      "source_md": "docs/assessment/pre-session/site-collection-admin/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/soc-analyst-security-operations/": {
+      "source_md": "docs/assessment/pre-session/soc-analyst-security-operations/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/soc-analyst-sentinel-defender-xdr/": {
+      "source_md": "docs/assessment/pre-session/soc-analyst-sentinel-defender-xdr/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/soc-analyst/": {
+      "source_md": "docs/assessment/pre-session/soc-analyst/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/supervisor/": {
+      "source_md": "docs/assessment/pre-session/supervisor/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/technology-risk-manager/": {
+      "source_md": "docs/assessment/pre-session/technology-risk-manager/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/third-party-risk-manager/": {
+      "source_md": "docs/assessment/pre-session/third-party-risk-manager/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/assessment/pre-session/vendor-third-party-risk-manager/": {
+      "source_md": "docs/assessment/pre-session/vendor-third-party-risk-manager/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/changelog/": {
+      "source_md": "docs/changelog.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/CONTROL-INDEX/": {
+      "source_md": "docs/controls/CONTROL-INDEX.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/": {
+      "source_md": "docs/controls/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization/": {
+      "source_md": "docs/controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-1-security/1.10-communication-compliance-monitoring/": {
+      "source_md": "docs/controls/pillar-1-security/1.10-communication-compliance-monitoring.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa/": {
+      "source_md": "docs/controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-1-security/1.12-insider-risk-detection-and-response/": {
+      "source_md": "docs/controls/pillar-1-security/1.12-insider-risk-detection-and-response.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition/": {
+      "source_md": "docs/controls/pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control/": {
+      "source_md": "docs/controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-1-security/1.15-encryption-data-in-transit-and-at-rest/": {
+      "source_md": "docs/controls/pillar-1-security/1.15-encryption-data-in-transit-and-at-rest.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-1-security/1.16-information-rights-management-irm-for-documents/": {
+      "source_md": "docs/controls/pillar-1-security/1.16-information-rights-management-irm-for-documents.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-1-security/1.17-endpoint-data-loss-prevention-endpoint-dlp/": {
+      "source_md": "docs/controls/pillar-1-security/1.17-endpoint-data-loss-prevention-endpoint-dlp.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac/": {
+      "source_md": "docs/controls/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-1-security/1.19-ediscovery-for-agent-interactions/": {
+      "source_md": "docs/controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management/": {
+      "source_md": "docs/controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md",
+      "expected_mermaid_count": 1,
+      "expected_diagram_links": [
+        "images/diagrams/1-2-agent-registry-and-integrated-apps-management-curation-w.png",
+        "images/diagrams/1-2-agent-registry-and-integrated-apps-management-curation-w.svg"
+      ],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-1-security/1.20-network-isolation-private-connectivity/": {
+      "source_md": "docs/controls/pillar-1-security/1.20-network-isolation-private-connectivity.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-1-security/1.21-adversarial-input-logging/": {
+      "source_md": "docs/controls/pillar-1-security/1.21-adversarial-input-logging.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-1-security/1.22-information-barriers/": {
+      "source_md": "docs/controls/pillar-1-security/1.22-information-barriers.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-1-security/1.23-step-up-authentication-for-agent-operations/": {
+      "source_md": "docs/controls/pillar-1-security/1.23-step-up-authentication-for-agent-operations.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-1-security/1.24-defender-ai-security-posture-management/": {
+      "source_md": "docs/controls/pillar-1-security/1.24-defender-ai-security-posture-management.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-1-security/1.25-mime-type-restrictions/": {
+      "source_md": "docs/controls/pillar-1-security/1.25-mime-type-restrictions.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-1-security/1.26-agent-file-upload-and-file-analysis-restrictions/": {
+      "source_md": "docs/controls/pillar-1-security/1.26-agent-file-upload-and-file-analysis-restrictions.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-1-security/1.27-ai-agent-content-moderation-enforcement/": {
+      "source_md": "docs/controls/pillar-1-security/1.27-ai-agent-content-moderation-enforcement.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-1-security/1.28-policy-based-agent-publishing-restrictions/": {
+      "source_md": "docs/controls/pillar-1-security/1.28-policy-based-agent-publishing-restrictions.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-1-security/1.29-global-secure-access-network-controls/": {
+      "source_md": "docs/controls/pillar-1-security/1.29-global-secure-access-network-controls.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-1-security/1.3-sharepoint-content-governance-and-permissions/": {
+      "source_md": "docs/controls/pillar-1-security/1.3-sharepoint-content-governance-and-permissions.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-1-security/1.4-advanced-connector-policies-acp/": {
+      "source_md": "docs/controls/pillar-1-security/1.4-advanced-connector-policies-acp.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels/": {
+      "source_md": "docs/controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai/": {
+      "source_md": "docs/controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance/": {
+      "source_md": "docs/controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection/": {
+      "source_md": "docs/controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-1-security/1.9-data-retention-and-deletion-policies/": {
+      "source_md": "docs/controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-1-security/": {
+      "source_md": "docs/controls/pillar-1-security/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-2-management/2.1-managed-environments/": {
+      "source_md": "docs/controls/pillar-2-management/2.1-managed-environments.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-2-management/2.10-patch-management-and-system-updates/": {
+      "source_md": "docs/controls/pillar-2-management/2.10-patch-management-and-system-updates.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment/": {
+      "source_md": "docs/controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110/": {
+      "source_md": "docs/controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-2-management/2.13-documentation-and-record-keeping/": {
+      "source_md": "docs/controls/pillar-2-management/2.13-documentation-and-record-keeping.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-2-management/2.14-training-and-awareness-program/": {
+      "source_md": "docs/controls/pillar-2-management/2.14-training-and-awareness-program.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-2-management/2.15-environment-routing/": {
+      "source_md": "docs/controls/pillar-2-management/2.15-environment-routing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-2-management/2.16-rag-source-integrity-validation/": {
+      "source_md": "docs/controls/pillar-2-management/2.16-rag-source-integrity-validation.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-2-management/2.17-multi-agent-orchestration-limits/": {
+      "source_md": "docs/controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-2-management/2.18-automated-conflict-of-interest-testing/": {
+      "source_md": "docs/controls/pillar-2-management/2.18-automated-conflict-of-interest-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency/": {
+      "source_md": "docs/controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-2-management/2.2-environment-groups-and-tier-classification/": {
+      "source_md": "docs/controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework/": {
+      "source_md": "docs/controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-2-management/2.21-ai-marketing-claims-and-substantiation/": {
+      "source_md": "docs/controls/pillar-2-management/2.21-ai-marketing-claims-and-substantiation.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-2-management/2.22-inactivity-timeout-enforcement/": {
+      "source_md": "docs/controls/pillar-2-management/2.22-inactivity-timeout-enforcement.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-2-management/2.23-user-consent-and-ai-disclosure-enforcement/": {
+      "source_md": "docs/controls/pillar-2-management/2.23-user-consent-and-ai-disclosure-enforcement.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance/": {
+      "source_md": "docs/controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-2-management/2.25-agent-365-admin-center-governance-console/": {
+      "source_md": "docs/controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-2-management/2.26-entra-agent-id-identity-governance/": {
+      "source_md": "docs/controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-2-management/2.3-change-management-and-release-planning/": {
+      "source_md": "docs/controls/pillar-2-management/2.3-change-management-and-release-planning.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-2-management/2.4-business-continuity-and-disaster-recovery/": {
+      "source_md": "docs/controls/pillar-2-management/2.4-business-continuity-and-disaster-recovery.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-2-management/2.5-testing-validation-and-quality-assurance/": {
+      "source_md": "docs/controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-2-management/2.6-model-risk-management-sr-26-2/": {
+      "source_md": "docs/controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-2-management/2.7-vendor-and-third-party-risk-management/": {
+      "source_md": "docs/controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-2-management/2.8-access-control-and-segregation-of-duties/": {
+      "source_md": "docs/controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-2-management/2.9-agent-performance-monitoring-and-optimization/": {
+      "source_md": "docs/controls/pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-2-management/": {
+      "source_md": "docs/controls/pillar-2-management/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management/": {
+      "source_md": "docs/controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md",
+      "expected_mermaid_count": 1,
+      "expected_diagram_links": [
+        "images/diagrams/3-1-agent-inventory-and-metadata-management-unified-agent-vi.png",
+        "images/diagrams/3-1-agent-inventory-and-metadata-management-unified-agent-vi.svg"
+      ],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-3-reporting/3.10-hallucination-feedback-loop/": {
+      "source_md": "docs/controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement/": {
+      "source_md": "docs/controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-3-reporting/3.12-agent-governance-exception-and-override-management/": {
+      "source_md": "docs/controls/pillar-3-reporting/3.12-agent-governance-exception-and-override-management.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-3-reporting/3.13-agent-365-admin-center-analytics/": {
+      "source_md": "docs/controls/pillar-3-reporting/3.13-agent-365-admin-center-analytics.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-3-reporting/3.14-agent-365-observability-sdk/": {
+      "source_md": "docs/controls/pillar-3-reporting/3.14-agent-365-observability-sdk.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring/": {
+      "source_md": "docs/controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting/": {
+      "source_md": "docs/controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis/": {
+      "source_md": "docs/controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-3-reporting/3.5-cost-allocation-and-budget-tracking/": {
+      "source_md": "docs/controls/pillar-3-reporting/3.5-cost-allocation-and-budget-tracking.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation/": {
+      "source_md": "docs/controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-3-reporting/3.7-ppac-security-posture-assessment/": {
+      "source_md": "docs/controls/pillar-3-reporting/3.7-ppac-security-posture-assessment.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard/": {
+      "source_md": "docs/controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-3-reporting/3.9-microsoft-sentinel-integration/": {
+      "source_md": "docs/controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-3-reporting/": {
+      "source_md": "docs/controls/pillar-3-reporting/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery/": {
+      "source_md": "docs/controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-4-sharepoint/4.2-site-access-reviews-and-certification/": {
+      "source_md": "docs/controls/pillar-4-sharepoint/4.2-site-access-reviews-and-certification.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-4-sharepoint/4.3-site-and-document-retention-management/": {
+      "source_md": "docs/controls/pillar-4-sharepoint/4.3-site-and-document-retention-management.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-4-sharepoint/4.4-guest-and-external-user-access-controls/": {
+      "source_md": "docs/controls/pillar-4-sharepoint/4.4-guest-and-external-user-access-controls.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring/": {
+      "source_md": "docs/controls/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-4-sharepoint/4.6-grounding-scope-governance/": {
+      "source_md": "docs/controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance/": {
+      "source_md": "docs/controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-4-sharepoint/4.8-item-level-permission-scanning-agent-knowledge-sources/": {
+      "source_md": "docs/controls/pillar-4-sharepoint/4.8-item-level-permission-scanning-agent-knowledge-sources.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-4-sharepoint/4.9-embedded-file-content-governance/": {
+      "source_md": "docs/controls/pillar-4-sharepoint/4.9-embedded-file-content-governance.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/controls/pillar-4-sharepoint/": {
+      "source_md": "docs/controls/pillar-4-sharepoint/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/disclaimer/": {
+      "source_md": "docs/disclaimer.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/downloads/": {
+      "source_md": "docs/downloads/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/framework/adoption-roadmap/": {
+      "source_md": "docs/framework/adoption-roadmap.md",
+      "expected_mermaid_count": 1,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/framework/agent-identity-architecture/": {
+      "source_md": "docs/framework/agent-identity-architecture.md",
+      "expected_mermaid_count": 3,
+      "expected_diagram_links": [
+        "images/diagrams/agent-identity-architecture-agent-365-control-plane-architec.png",
+        "images/diagrams/agent-identity-architecture-agent-365-control-plane-architec.svg",
+        "images/diagrams/agent-identity-architecture-entra-agent-id-architecture-flow.png",
+        "images/diagrams/agent-identity-architecture-entra-agent-id-architecture-flow.svg",
+        "images/diagrams/agent-identity-architecture-m365-admin-center-agent-settings.png",
+        "images/diagrams/agent-identity-architecture-m365-admin-center-agent-settings.svg"
+      ],
+      "expected_asset_links": []
+    },
+    "/framework/agent-lifecycle/": {
+      "source_md": "docs/framework/agent-lifecycle.md",
+      "expected_mermaid_count": 1,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/framework/agentic-capability-drivers/": {
+      "source_md": "docs/framework/agentic-capability-drivers.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/framework/agentic-coe/": {
+      "source_md": "docs/framework/agentic-coe.md",
+      "expected_mermaid_count": 2,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/framework/executive-summary/": {
+      "source_md": "docs/framework/executive-summary.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/framework/governance-cadence/": {
+      "source_md": "docs/framework/governance-cadence.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/framework/governance-fundamentals/": {
+      "source_md": "docs/framework/governance-fundamentals.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/framework/": {
+      "source_md": "docs/framework/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/framework/operating-model/": {
+      "source_md": "docs/framework/operating-model.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/framework/regulatory-framework/": {
+      "source_md": "docs/framework/regulatory-framework.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/framework/relationship-to-copilotgov/": {
+      "source_md": "docs/framework/relationship-to-copilotgov.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/framework/solutions-integration/": {
+      "source_md": "docs/framework/solutions-integration.md",
+      "expected_mermaid_count": 2,
+      "expected_diagram_links": [
+        "images/diagrams/solutions-integration-integration-architecture.png",
+        "images/diagrams/solutions-integration-integration-architecture.svg",
+        "images/diagrams/solutions-integration-overview.png",
+        "images/diagrams/solutions-integration-overview.svg"
+      ],
+      "expected_asset_links": []
+    },
+    "/framework/transformation-patterns/": {
+      "source_md": "docs/framework/transformation-patterns.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/framework/zones-and-tiers/": {
+      "source_md": "docs/framework/zones-and-tiers.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/getting-started/checklist/": {
+      "source_md": "docs/getting-started/checklist.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/getting-started/": {
+      "source_md": "docs/getting-started/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/getting-started/quick-start/": {
+      "source_md": "docs/getting-started/quick-start.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/": {
+      "source_md": "docs/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/javascripts/lib/VENDOR-MANIFEST/": {
+      "source_md": "docs/javascripts/lib/VENDOR-MANIFEST.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/_shared/powershell-baseline/": {
+      "source_md": "docs/playbooks/_shared/powershell-baseline.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/agent-365-observability/alerting-configuration/": {
+      "source_md": "docs/playbooks/advanced-implementations/agent-365-observability/alerting-configuration.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/agent-365-observability/application-insights-workbooks/": {
+      "source_md": "docs/playbooks/advanced-implementations/agent-365-observability/application-insights-workbooks.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/agent-365-observability/": {
+      "source_md": "docs/playbooks/advanced-implementations/agent-365-observability/index.md",
+      "expected_mermaid_count": 1,
+      "expected_diagram_links": [
+        "images/diagrams/index-architecture-overview.png",
+        "images/diagrams/index-architecture-overview.svg"
+      ],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/agent-365-observability/opentelemetry-setup/": {
+      "source_md": "docs/playbooks/advanced-implementations/agent-365-observability/opentelemetry-setup.md",
+      "expected_mermaid_count": 1,
+      "expected_diagram_links": [
+        "images/diagrams/opentelemetry-setup-architecture.png",
+        "images/diagrams/opentelemetry-setup-architecture.svg"
+      ],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/agent-blueprint-promotion-gates/gate-definitions/": {
+      "source_md": "docs/playbooks/advanced-implementations/agent-blueprint-promotion-gates/gate-definitions.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/agent-blueprint-promotion-gates/implementation-guide/": {
+      "source_md": "docs/playbooks/advanced-implementations/agent-blueprint-promotion-gates/implementation-guide.md",
+      "expected_mermaid_count": 1,
+      "expected_diagram_links": [
+        "images/diagrams/implementation-guide-architecture-overview.png",
+        "images/diagrams/implementation-guide-architecture-overview.svg"
+      ],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/agent-blueprint-promotion-gates/": {
+      "source_md": "docs/playbooks/advanced-implementations/agent-blueprint-promotion-gates/index.md",
+      "expected_mermaid_count": 1,
+      "expected_diagram_links": [
+        "images/diagrams/index-blueprint-lifecycle-phases.png",
+        "images/diagrams/index-blueprint-lifecycle-phases.svg"
+      ],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/agent-usage-workbook/customization-guide/": {
+      "source_md": "docs/playbooks/advanced-implementations/agent-usage-workbook/customization-guide.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/agent-usage-workbook/deployment-guide/": {
+      "source_md": "docs/playbooks/advanced-implementations/agent-usage-workbook/deployment-guide.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/agent-usage-workbook/": {
+      "source_md": "docs/playbooks/advanced-implementations/agent-usage-workbook/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/agent-usage-workbook/telemetry-schema/": {
+      "source_md": "docs/playbooks/advanced-implementations/agent-usage-workbook/telemetry-schema.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/conditional-access-automation/deployment-guide/": {
+      "source_md": "docs/playbooks/advanced-implementations/conditional-access-automation/deployment-guide.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/conditional-access-automation/": {
+      "source_md": "docs/playbooks/advanced-implementations/conditional-access-automation/index.md",
+      "expected_mermaid_count": 1,
+      "expected_diagram_links": [
+        "images/diagrams/index-solution-overview-3.png",
+        "images/diagrams/index-solution-overview-3.svg"
+      ],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/confidence-and-routing/": {
+      "source_md": "docs/playbooks/advanced-implementations/confidence-and-routing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/configuration-hardening-baseline/": {
+      "source_md": "docs/playbooks/advanced-implementations/configuration-hardening-baseline/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/deny-event-correlation-report/app-insights-rai-telemetry/": {
+      "source_md": "docs/playbooks/advanced-implementations/deny-event-correlation-report/app-insights-rai-telemetry.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/deny-event-correlation-report/deployment-guide/": {
+      "source_md": "docs/playbooks/advanced-implementations/deny-event-correlation-report/deployment-guide.md",
+      "expected_mermaid_count": 1,
+      "expected_diagram_links": [
+        "images/diagrams/deployment-guide-deployment-architecture.png",
+        "images/diagrams/deployment-guide-deployment-architecture.svg"
+      ],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/deny-event-correlation-report/dlp-event-extraction/": {
+      "source_md": "docs/playbooks/advanced-implementations/deny-event-correlation-report/dlp-event-extraction.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/deny-event-correlation-report/": {
+      "source_md": "docs/playbooks/advanced-implementations/deny-event-correlation-report/index.md",
+      "expected_mermaid_count": 2,
+      "expected_diagram_links": [
+        "images/diagrams/index-daily-orchestration.png",
+        "images/diagrams/index-daily-orchestration.svg",
+        "images/diagrams/index-solution-overview-2.png",
+        "images/diagrams/index-solution-overview-2.svg"
+      ],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/deny-event-correlation-report/power-bi-correlation/": {
+      "source_md": "docs/playbooks/advanced-implementations/deny-event-correlation-report/power-bi-correlation.md",
+      "expected_mermaid_count": 1,
+      "expected_diagram_links": [
+        "images/diagrams/power-bi-correlation-dataverse-tables.png",
+        "images/diagrams/power-bi-correlation-dataverse-tables.svg"
+      ],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/deny-event-correlation-report/purview-audit-extraction/": {
+      "source_md": "docs/playbooks/advanced-implementations/deny-event-correlation-report/purview-audit-extraction.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/dspm-for-ai-policy-pack/": {
+      "source_md": "docs/playbooks/advanced-implementations/dspm-for-ai-policy-pack.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/environment-lifecycle-management/architecture/": {
+      "source_md": "docs/playbooks/advanced-implementations/environment-lifecycle-management/architecture.md",
+      "expected_mermaid_count": 4,
+      "expected_diagram_links": [
+        "images/diagrams/architecture-async-polling-pattern.png",
+        "images/diagrams/architecture-async-polling-pattern.svg",
+        "images/diagrams/architecture-component-overview-2.png",
+        "images/diagrams/architecture-component-overview-2.svg",
+        "images/diagrams/architecture-security-model-diagram.png",
+        "images/diagrams/architecture-security-model-diagram.svg",
+        "images/diagrams/architecture-workflow-state-machine-2.png",
+        "images/diagrams/architecture-workflow-state-machine-2.svg"
+      ],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/environment-lifecycle-management/evidence-and-audit/": {
+      "source_md": "docs/playbooks/advanced-implementations/environment-lifecycle-management/evidence-and-audit.md",
+      "expected_mermaid_count": 1,
+      "expected_diagram_links": [
+        "images/diagrams/evidence-and-audit-evidence-architecture.png",
+        "images/diagrams/evidence-and-audit-evidence-architecture.svg"
+      ],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/environment-lifecycle-management/implementation-approval/": {
+      "source_md": "docs/playbooks/advanced-implementations/environment-lifecycle-management/implementation-approval.md",
+      "expected_mermaid_count": 1,
+      "expected_diagram_links": [
+        "images/diagrams/implementation-approval-approval-flow-architecture.png",
+        "images/diagrams/implementation-approval-approval-flow-architecture.svg"
+      ],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/environment-lifecycle-management/implementation-copilot-intake/": {
+      "source_md": "docs/playbooks/advanced-implementations/environment-lifecycle-management/implementation-copilot-intake.md",
+      "expected_mermaid_count": 1,
+      "expected_diagram_links": [
+        "images/diagrams/implementation-copilot-intake-intake-agent-architecture.png",
+        "images/diagrams/implementation-copilot-intake-intake-agent-architecture.svg"
+      ],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/environment-lifecycle-management/implementation-provisioning/": {
+      "source_md": "docs/playbooks/advanced-implementations/environment-lifecycle-management/implementation-provisioning.md",
+      "expected_mermaid_count": 2,
+      "expected_diagram_links": [
+        "images/diagrams/implementation-provisioning-provisioning-architecture.png",
+        "images/diagrams/implementation-provisioning-provisioning-architecture.svg",
+        "images/diagrams/implementation-provisioning-rollback-procedure.png",
+        "images/diagrams/implementation-provisioning-rollback-procedure.svg"
+      ],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/environment-lifecycle-management/": {
+      "source_md": "docs/playbooks/advanced-implementations/environment-lifecycle-management/index.md",
+      "expected_mermaid_count": 1,
+      "expected_diagram_links": [
+        "images/diagrams/index-solution-overview-4.png",
+        "images/diagrams/index-solution-overview-4.svg"
+      ],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/environment-lifecycle-management/labs/": {
+      "source_md": "docs/playbooks/advanced-implementations/environment-lifecycle-management/labs.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/human-in-the-loop-triggers/": {
+      "source_md": "docs/playbooks/advanced-implementations/human-in-the-loop-triggers.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/mcp-server-governance/": {
+      "source_md": "docs/playbooks/advanced-implementations/mcp-server-governance/index.md",
+      "expected_mermaid_count": 2,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/microsoft-audit-reporting-tools/": {
+      "source_md": "docs/playbooks/advanced-implementations/microsoft-audit-reporting-tools.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/platform-change-governance/architecture/": {
+      "source_md": "docs/playbooks/advanced-implementations/platform-change-governance/architecture.md",
+      "expected_mermaid_count": 2,
+      "expected_diagram_links": [
+        "images/diagrams/architecture-component-overview.png",
+        "images/diagrams/architecture-component-overview.svg",
+        "images/diagrams/architecture-workflow-state-machine.png",
+        "images/diagrams/architecture-workflow-state-machine.svg"
+      ],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/platform-change-governance/evidence-and-audit/": {
+      "source_md": "docs/playbooks/advanced-implementations/platform-change-governance/evidence-and-audit.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/platform-change-governance/implementation-path-a/": {
+      "source_md": "docs/playbooks/advanced-implementations/platform-change-governance/implementation-path-a.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/platform-change-governance/implementation-path-b/": {
+      "source_md": "docs/playbooks/advanced-implementations/platform-change-governance/implementation-path-b.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/platform-change-governance/": {
+      "source_md": "docs/playbooks/advanced-implementations/platform-change-governance/index.md",
+      "expected_mermaid_count": 1,
+      "expected_diagram_links": [
+        "images/diagrams/index-solution-overview.png",
+        "images/diagrams/index-solution-overview.svg"
+      ],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/platform-change-governance/labs/": {
+      "source_md": "docs/playbooks/advanced-implementations/platform-change-governance/labs.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/sharepoint-copilot-preflight/": {
+      "source_md": "docs/playbooks/advanced-implementations/sharepoint-copilot-preflight/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/unrestricted-agent-sharing-detector/deployment-guide/": {
+      "source_md": "docs/playbooks/advanced-implementations/unrestricted-agent-sharing-detector/deployment-guide.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/unrestricted-agent-sharing-detector/": {
+      "source_md": "docs/playbooks/advanced-implementations/unrestricted-agent-sharing-detector/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/advanced-implementations/zone1-min-explainability/": {
+      "source_md": "docs/playbooks/advanced-implementations/zone1-min-explainability.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/agent-lifecycle/agent-decommissioning/": {
+      "source_md": "docs/playbooks/agent-lifecycle/agent-decommissioning.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/agent-lifecycle/agent-inventory-entry/": {
+      "source_md": "docs/playbooks/agent-lifecycle/agent-inventory-entry.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/agent-lifecycle/agent-promotion-checklist/": {
+      "source_md": "docs/playbooks/agent-lifecycle/agent-promotion-checklist.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/agent-lifecycle/per-agent-data-policy/": {
+      "source_md": "docs/playbooks/agent-lifecycle/per-agent-data-policy.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/asard-deployment-guide/": {
+      "source_md": "docs/playbooks/asard-deployment-guide.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/asard-exception-management/": {
+      "source_md": "docs/playbooks/asard-exception-management.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/asard-troubleshooting-guide/": {
+      "source_md": "docs/playbooks/asard-troubleshooting-guide.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/compliance-and-audit/audit-readiness-checklist/": {
+      "source_md": "docs/playbooks/compliance-and-audit/audit-readiness-checklist.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/compliance-and-audit/evidence-pack-assembly/": {
+      "source_md": "docs/playbooks/compliance-and-audit/evidence-pack-assembly.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/compliance-and-audit/examination-response-guide/": {
+      "source_md": "docs/playbooks/compliance-and-audit/examination-response-guide.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.10/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/1.10/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.10/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/1.10/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.10/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/1.10/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.10/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/1.10/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.11/conditional-access-agent-templates/": {
+      "source_md": "docs/playbooks/control-implementations/1.11/conditional-access-agent-templates.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.11/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/1.11/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.11/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/1.11/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.11/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/1.11/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.11/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/1.11/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.12/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/1.12/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.12/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/1.12/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.12/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/1.12/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.12/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/1.12/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.13/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/1.13/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.13/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/1.13/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.13/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/1.13/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.13/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/1.13/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.14/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/1.14/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.14/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/1.14/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.14/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/1.14/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.14/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/1.14/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.15/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/1.15/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.15/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/1.15/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.15/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/1.15/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.15/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/1.15/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.16/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/1.16/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.16/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/1.16/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.16/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/1.16/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.16/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/1.16/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.17/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/1.17/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.17/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/1.17/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.17/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/1.17/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.17/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/1.17/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.18/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/1.18/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.18/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/1.18/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.18/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/1.18/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.18/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/1.18/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.19/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/1.19/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.19/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/1.19/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.19/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/1.19/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.19/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/1.19/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.1/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/1.1/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.1/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/1.1/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.1/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/1.1/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.1/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/1.1/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.20/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/1.20/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.20/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/1.20/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.20/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/1.20/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.20/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/1.20/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.21/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/1.21/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.21/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/1.21/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.21/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/1.21/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.21/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/1.21/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.22/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/1.22/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.22/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/1.22/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.22/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/1.22/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.22/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/1.22/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.23/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/1.23/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.23/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/1.23/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.23/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/1.23/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.23/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/1.23/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.24/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/1.24/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.24/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/1.24/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.24/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/1.24/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.24/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/1.24/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.25/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/1.25/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.25/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/1.25/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.25/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/1.25/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.25/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/1.25/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.26/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/1.26/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.26/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/1.26/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.26/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/1.26/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.26/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/1.26/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.27/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/1.27/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.27/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/1.27/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.27/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/1.27/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.27/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/1.27/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.28/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/1.28/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.28/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/1.28/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.28/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/1.28/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.28/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/1.28/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.29/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/1.29/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.29/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/1.29/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.29/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/1.29/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.29/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/1.29/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.2/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/1.2/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.2/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/1.2/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.2/sponsorship-lifecycle-workflows/": {
+      "source_md": "docs/playbooks/control-implementations/1.2/sponsorship-lifecycle-workflows.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.2/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/1.2/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.2/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/1.2/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.3/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/1.3/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.3/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/1.3/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.3/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/1.3/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.3/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/1.3/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.4/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/1.4/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.4/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/1.4/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.4/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/1.4/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.4/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/1.4/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.5/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/1.5/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.5/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/1.5/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.5/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/1.5/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.5/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/1.5/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.6/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/1.6/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.6/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/1.6/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.6/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/1.6/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.6/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/1.6/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.7/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/1.7/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.7/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/1.7/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.7/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/1.7/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.7/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/1.7/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.8/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/1.8/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.8/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/1.8/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.8/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/1.8/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.8/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/1.8/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.9/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/1.9/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.9/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/1.9/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.9/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/1.9/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/1.9/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/1.9/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.10/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/2.10/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.10/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/2.10/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.10/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/2.10/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.10/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/2.10/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.11/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/2.11/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.11/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/2.11/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.11/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/2.11/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.11/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/2.11/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.12/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/2.12/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.12/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/2.12/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.12/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/2.12/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.12/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/2.12/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.13/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/2.13/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.13/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/2.13/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.13/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/2.13/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.13/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/2.13/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.14/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/2.14/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.14/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/2.14/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.14/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/2.14/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.14/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/2.14/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.15/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/2.15/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.15/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/2.15/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.15/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/2.15/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.15/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/2.15/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.16/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/2.16/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.16/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/2.16/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.16/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/2.16/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.16/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/2.16/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.17/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/2.17/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.17/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/2.17/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.17/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/2.17/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.17/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/2.17/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.18/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/2.18/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.18/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/2.18/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.18/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/2.18/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.18/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/2.18/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.19/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/2.19/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.19/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/2.19/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.19/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/2.19/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.19/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/2.19/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.1/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/2.1/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.1/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/2.1/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.1/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/2.1/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.1/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/2.1/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.20/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/2.20/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.20/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/2.20/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.20/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/2.20/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.20/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/2.20/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.21/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/2.21/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.21/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/2.21/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.21/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/2.21/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.21/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/2.21/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.22/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/2.22/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.22/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/2.22/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.22/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/2.22/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.22/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/2.22/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.23/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/2.23/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.23/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/2.23/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.23/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/2.23/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.23/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/2.23/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.24/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/2.24/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.24/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/2.24/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.24/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/2.24/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.24/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/2.24/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.25/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/2.25/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.25/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/2.25/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.25/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/2.25/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.25/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/2.25/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.26/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/2.26/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.26/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/2.26/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.26/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/2.26/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.26/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/2.26/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.2/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/2.2/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.2/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/2.2/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.2/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/2.2/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.2/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/2.2/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.3/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/2.3/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.3/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/2.3/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.3/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/2.3/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.3/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/2.3/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.4/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/2.4/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.4/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/2.4/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.4/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/2.4/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.4/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/2.4/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.5/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/2.5/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.5/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/2.5/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.5/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/2.5/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.5/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/2.5/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.6/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/2.6/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.6/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/2.6/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.6/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/2.6/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.6/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/2.6/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.7/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/2.7/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.7/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/2.7/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.7/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/2.7/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.7/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/2.7/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.8/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/2.8/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.8/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/2.8/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.8/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/2.8/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.8/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/2.8/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.9/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/2.9/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.9/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/2.9/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.9/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/2.9/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/2.9/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/2.9/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.10/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/3.10/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.10/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/3.10/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.10/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/3.10/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.10/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/3.10/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.11/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/3.11/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.11/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/3.11/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.11/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/3.11/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.11/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/3.11/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.12/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/3.12/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.12/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/3.12/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.12/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/3.12/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.12/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/3.12/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.13/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/3.13/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.13/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/3.13/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.13/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/3.13/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.13/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/3.13/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.14/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/3.14/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.14/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/3.14/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.14/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/3.14/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.14/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/3.14/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.1/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/3.1/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.1/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/3.1/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.1/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/3.1/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.1/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/3.1/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.2/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/3.2/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.2/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/3.2/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.2/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/3.2/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.2/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/3.2/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.3/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/3.3/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.3/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/3.3/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.3/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/3.3/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.3/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/3.3/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.4/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/3.4/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.4/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/3.4/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.4/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/3.4/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.4/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/3.4/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.5/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/3.5/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.5/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/3.5/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.5/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/3.5/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.5/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/3.5/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.6/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/3.6/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.6/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/3.6/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.6/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/3.6/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.6/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/3.6/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.7/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/3.7/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.7/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/3.7/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.7/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/3.7/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.7/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/3.7/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.8/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/3.8/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.8/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/3.8/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.8/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/3.8/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.8/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/3.8/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.9/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/3.9/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.9/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/3.9/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.9/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/3.9/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/3.9/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/3.9/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.1/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/4.1/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.1/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/4.1/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.1/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/4.1/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.1/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/4.1/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.2/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/4.2/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.2/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/4.2/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.2/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/4.2/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.2/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/4.2/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.3/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/4.3/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.3/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/4.3/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.3/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/4.3/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.3/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/4.3/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.4/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/4.4/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.4/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/4.4/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.4/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/4.4/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.4/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/4.4/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.5/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/4.5/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.5/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/4.5/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.5/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/4.5/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.5/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/4.5/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.6/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/4.6/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.6/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/4.6/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.6/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/4.6/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.6/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/4.6/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.7/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/4.7/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.7/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/4.7/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.7/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/4.7/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.7/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/4.7/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.8/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/4.8/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.8/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/4.8/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.8/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/4.8/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.8/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/4.8/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.9/portal-walkthrough/": {
+      "source_md": "docs/playbooks/control-implementations/4.9/portal-walkthrough.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.9/powershell-setup/": {
+      "source_md": "docs/playbooks/control-implementations/4.9/powershell-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.9/troubleshooting/": {
+      "source_md": "docs/playbooks/control-implementations/4.9/troubleshooting.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/4.9/verification-testing/": {
+      "source_md": "docs/playbooks/control-implementations/4.9/verification-testing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/control-implementations/": {
+      "source_md": "docs/playbooks/control-implementations/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/getting-started/phase-0-governance-setup/": {
+      "source_md": "docs/playbooks/getting-started/phase-0-governance-setup.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/getting-started/phase-1-minimal-viable-controls/": {
+      "source_md": "docs/playbooks/getting-started/phase-1-minimal-viable-controls.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/getting-started/phase-2-hardening/": {
+      "source_md": "docs/playbooks/getting-started/phase-2-hardening.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/governance-operations/action-authorization-matrix/": {
+      "source_md": "docs/playbooks/governance-operations/action-authorization-matrix.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/governance-operations/decision-log-schema/": {
+      "source_md": "docs/playbooks/governance-operations/decision-log-schema.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/governance-operations/escalation-matrix/": {
+      "source_md": "docs/playbooks/governance-operations/escalation-matrix.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/governance-operations/governance-operating-calendar/": {
+      "source_md": "docs/playbooks/governance-operations/governance-operating-calendar.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/governance-operations/raci-governance-template/": {
+      "source_md": "docs/playbooks/governance-operations/raci-governance-template.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/incident-and-risk/ai-incident-response-playbook/": {
+      "source_md": "docs/playbooks/incident-and-risk/ai-incident-response-playbook.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/incident-and-risk/ai-risk-assessment-template/": {
+      "source_md": "docs/playbooks/incident-and-risk/ai-risk-assessment-template.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/incident-and-risk/remediation-tracking/": {
+      "source_md": "docs/playbooks/incident-and-risk/remediation-tracking.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/": {
+      "source_md": "docs/playbooks/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/monitoring-and-validation/health-check-procedures/": {
+      "source_md": "docs/playbooks/monitoring-and-validation/health-check-procedures.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/monitoring-and-validation/purview-audit-query-pack/": {
+      "source_md": "docs/playbooks/monitoring-and-validation/purview-audit-query-pack.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/monitoring-and-validation/real-time-compliance-dashboard/": {
+      "source_md": "docs/playbooks/monitoring-and-validation/real-time-compliance-dashboard.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/monitoring-and-validation/scope-creep-detection/": {
+      "source_md": "docs/playbooks/monitoring-and-validation/scope-creep-detection.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/monitoring-and-validation/semantic-index-governance-queries/": {
+      "source_md": "docs/playbooks/monitoring-and-validation/semantic-index-governance-queries.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/regulatory-modules/colorado-ai-act-readiness/": {
+      "source_md": "docs/playbooks/regulatory-modules/colorado-ai-act-readiness.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/regulatory-modules/colorado-ai-impact-assessment/": {
+      "source_md": "docs/playbooks/regulatory-modules/colorado-ai-impact-assessment.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/regulatory-modules/supply-chain-risk-register-entry/": {
+      "source_md": "docs/playbooks/regulatory-modules/supply-chain-risk-register-entry.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/validation-testing/": {
+      "source_md": "docs/playbooks/validation-testing/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/playbooks/validation-testing/script-validation-guide/": {
+      "source_md": "docs/playbooks/validation-testing/script-validation-guide.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/agent-365-capabilities-summary/": {
+      "source_md": "docs/reference/agent-365-capabilities-summary.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/agent-audit-event-taxonomy/": {
+      "source_md": "docs/reference/agent-audit-event-taxonomy.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/agent-essentials-control-mapping/": {
+      "source_md": "docs/reference/agent-essentials-control-mapping.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/assessment-coverage/": {
+      "source_md": "docs/reference/assessment-coverage.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/cco-quick-reference/": {
+      "source_md": "docs/reference/cco-quick-reference.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/compliance-manager-templates/": {
+      "source_md": "docs/reference/compliance-manager-templates.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/csa-positioning-guide/": {
+      "source_md": "docs/reference/csa-positioning-guide.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/csa-quick-reference/": {
+      "source_md": "docs/reference/csa-quick-reference.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/diagram-catalog/": {
+      "source_md": "docs/reference/diagram-catalog.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/evidence-standards/": {
+      "source_md": "docs/reference/evidence-standards.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/examiner-first-day-letter-response/": {
+      "source_md": "docs/reference/examiner-first-day-letter-response.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/faq/": {
+      "source_md": "docs/reference/faq.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/frontier-assessment-coverage/": {
+      "source_md": "docs/reference/frontier-assessment-coverage.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/fsi-configuration-examples/": {
+      "source_md": "docs/reference/fsi-configuration-examples.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/glossary/": {
+      "source_md": "docs/reference/glossary.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/": {
+      "source_md": "docs/reference/index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/iso-42001-mapping/": {
+      "source_md": "docs/reference/iso-42001-mapping.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/learn-monitor-ai-enhancement/": {
+      "source_md": "docs/reference/learn-monitor-ai-enhancement.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/learn-monitor-guide/": {
+      "source_md": "docs/reference/learn-monitor-guide.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/license-requirements/": {
+      "source_md": "docs/reference/license-requirements.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/microsoft-cape-crosswalk/": {
+      "source_md": "docs/reference/microsoft-cape-crosswalk.md",
+      "expected_mermaid_count": 1,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/microsoft-learn-urls/": {
+      "source_md": "docs/reference/microsoft-learn-urls.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/microsoft-rai-v2-mapping/": {
+      "source_md": "docs/reference/microsoft-rai-v2-mapping.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/monitoring-architecture/": {
+      "source_md": "docs/reference/monitoring-architecture.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/nist-ai-rmf-crosswalk/": {
+      "source_md": "docs/reference/nist-ai-rmf-crosswalk.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/pattern-coverage/": {
+      "source_md": "docs/reference/pattern-coverage.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/portal-paths-quick-reference/": {
+      "source_md": "docs/reference/portal-paths-quick-reference.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/power-platform-sspm-control-mapping/": {
+      "source_md": "docs/reference/power-platform-sspm-control-mapping.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/purview-soc-analyst-roles/": {
+      "source_md": "docs/reference/purview-soc-analyst-roles.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/raci-matrix/": {
+      "source_md": "docs/reference/raci-matrix.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/regulatory-mappings/": {
+      "source_md": "docs/reference/regulatory-mappings.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/role-catalog/": {
+      "source_md": "docs/reference/role-catalog.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/service-trust-portal-attestation-guide/": {
+      "source_md": "docs/reference/service-trust-portal-attestation-guide.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/sharepoint-advanced-management-licensing/": {
+      "source_md": "docs/reference/sharepoint-advanced-management-licensing.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/solutions-architecture-guide/": {
+      "source_md": "docs/reference/solutions-architecture-guide.md",
+      "expected_mermaid_count": 3,
+      "expected_diagram_links": [
+        "images/diagrams/solutions-architecture-guide-azure-key-vault-integration.png",
+        "images/diagrams/solutions-architecture-guide-azure-key-vault-integration.svg",
+        "images/diagrams/solutions-architecture-guide-high-security-deployment-vnet-i.png",
+        "images/diagrams/solutions-architecture-guide-high-security-deployment-vnet-i.svg",
+        "images/diagrams/solutions-architecture-guide-streaming-architecture-near-rea.png",
+        "images/diagrams/solutions-architecture-guide-streaming-architecture-near-rea.svg"
+      ],
+      "expected_asset_links": []
+    },
+    "/reference/solutions-contract/": {
+      "source_md": "docs/reference/solutions-contract.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/solutions-coverage-gaps/": {
+      "source_md": "docs/reference/solutions-coverage-gaps.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/solutions-index/": {
+      "source_md": "docs/reference/solutions-index.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/sovereign-cloud-parity-matrix/": {
+      "source_md": "docs/reference/sovereign-cloud-parity-matrix.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/versioning-and-support/": {
+      "source_md": "docs/reference/versioning-and-support.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/windows-365-for-agents/": {
+      "source_md": "docs/reference/windows-365-for-agents.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/reference/work-iq-governance/": {
+      "source_md": "docs/reference/work-iq-governance.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    },
+    "/start-here/": {
+      "source_md": "docs/start-here.md",
+      "expected_mermaid_count": 0,
+      "expected_diagram_links": [],
+      "expected_asset_links": []
+    }
+  },
+  "summary": {
+    "total_pages": 688,
+    "pages_with_mermaid": 26,
+    "total_mermaid_blocks": 39,
+    "total_diagram_links": 64,
+    "total_asset_links": 0
+  }
+}

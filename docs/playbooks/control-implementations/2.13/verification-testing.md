@@ -10,7 +10,7 @@
 
 ## Regulatory hedging notice
 
-This verification playbook is intended to help support FSI organizations in confirming that documentation and record-keeping controls are configured and operating as expected. It aids in meeting expectations from FINRA Rule 4511, FINRA Rule 3110, SEC Rules 17a-3/4, SOX §§302/404, GLBA 501(b), OCC Bulletin 2011-12, Federal Reserve SR 11-7, and CFTC Regulation 1.31.
+This verification playbook is intended to help support FSI organizations in confirming that documentation and record-keeping controls are configured and operating as expected. It aids in meeting expectations from FINRA Rule 4511, FINRA Rule 3110, SEC Rules 17a-3/4, SOX §§302/404, GLBA 501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), and CFTC Regulation 1.31.
 
 A clean run of this playbook **does not guarantee legal or regulatory compliance**, does not by itself constitute a 17a-4(f) attestation, and does not replace the firm's written supervisory procedures or independent records-management assessment. Organizations should verify configuration meets their specific regulatory obligations.
 
@@ -198,13 +198,13 @@ Before executing test cases, confirm the following pre-gates are met:
 
 ---
 
-### TC-2.13-012 — OCC 2011-12 / Fed SR 11-7 Model Documentation (Zone 3)
+### TC-2.13-012 — OCC Bulletin 2026-13 / Fed SR 26-2 Model Documentation (Zone 3)
 
 | Field | Detail |
 |---|---|
-| **Objective** | Verify that agents classified as models have model risk documentation per OCC 2011-12 / Fed SR 11-7 |
+| **Objective** | Verify that agents classified as models have model risk documentation per OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) |
 | **Zone Applicability** | Zone 3 (agents classified as models) |
-| **Preconditions** | Agent classified as a model per OCC 2011-12 definition |
+| **Preconditions** | Agent classified as a model per OCC Bulletin 2026-13 (formerly OCC 2011-12) definition |
 | **Steps** | 1. Review the model inventory (per [Control 3.1](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md)) for agents classified as models<br>2. For each model-classified agent, verify the following documentation exists in the governance library:<br>   - Model development documentation (purpose, methodology, assumptions)<br>   - Validation evidence (initial validation and most recent periodic review)<br>   - Ongoing monitoring reports (performance metrics, drift analysis)<br>   - Change documentation (configuration changes with approvals)<br>3. Verify the `FSI-Agent-ModelRisk-6Year` retention label is applied to all model documentation<br>4. Verify a named Model Risk Manager is assigned |
 | **Expected Result** | Complete model risk documentation exists for each model-classified agent |
 | **Pass Criteria** | All four documentation categories present, correct retention label applied, owner assigned |

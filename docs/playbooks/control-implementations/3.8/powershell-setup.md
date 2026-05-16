@@ -37,7 +37,7 @@ if ($PSVersionTable.PSEdition -ne 'Desktop') {
 Add-PowerAppsAccount -Endpoint $ppac
 ```
 
-> **Service principal authentication** for unattended runs: use Entra app registration with `Group.ReadWrite.All`, `AuditLog.Read.All`, `Reports.Read.All` (application). Document the consent in your change ticket and rotate secrets per OCC 2011-12.
+> **Service principal authentication** for unattended runs: use Entra app registration with `Group.ReadWrite.All`, `AuditLog.Read.All`, `Reports.Read.All` (application). Document the consent in your change ticket and rotate secrets per OCC Bulletin 2026-13 (formerly OCC 2011-12).
 
 ---
 

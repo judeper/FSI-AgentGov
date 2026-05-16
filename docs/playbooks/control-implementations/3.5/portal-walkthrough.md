@@ -64,7 +64,7 @@ Cost-allocation work touches four trust boundaries (M365 Copilot billing, Power 
 | Examiner walkthrough preparation | **Compliance Officer** + **Cost Management Reader** | Standing OK | Read-only across scope; sign-off via separate workflow. |
 
 !!! danger "Do not attach Global Admin to a service principal for cost automation"
-    Cost automation (exports, budget creation, billing-policy assignment via Graph) must use a **dedicated app registration** with the smallest scope that satisfies the operation. Global Admin on an unattended principal is an immediate FINRA Rule 3110 supervisory finding and an OCC 2011-12 third-party-risk concern.
+    Cost automation (exports, budget creation, billing-policy assignment via Graph) must use a **dedicated app registration** with the smallest scope that satisfies the operation. Global Admin on an unattended principal is an immediate FINRA Rule 3110 supervisory finding and an OCC Bulletin 2026-13 (formerly OCC 2011-12) third-party-risk concern.
 
 ### 0.2 Pre-work checklist
 

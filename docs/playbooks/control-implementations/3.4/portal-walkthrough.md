@@ -1144,7 +1144,7 @@ When facts change after an initial 8-K is filed, **Item 1.05(c)** requires an **
     5. Where Defer: re-convene UTC and the eventual final determination record.
 
 !!! tip "Cross-Reference"
-    Model-risk implications of a Material AI-agent incident (e.g., model retirement triggers under SR 11-7) are owned by [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md). A Material AI-agent integrity incident typically triggers MRM challenge re-validation in addition to disclosure obligations.
+    Model-risk implications of a Material AI-agent incident (e.g., model retirement triggers under Fed SR 26-2 (formerly SR 11-7)) are owned by [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md). A Material AI-agent integrity incident typically triggers MRM challenge re-validation in addition to disclosure obligations.
 
 ## 11. OFAC Sanctions Screening — Pre-Payment Gate for Extortion Demands
 
@@ -1242,7 +1242,7 @@ Rotate across the following scenarios (minimum one per quarter):
 | **Insider exfiltration via Copilot** — Departing financial advisor uses Copilot to collate client lists into a single export. | Reg S-P, state BNs, Protocol for Broker Recruiting if applicable | 1.5, 1.12, 2.12, 3.4 |
 | **Ransomware with extortion of agent training data** — Threat actor encrypts and threatens to leak the firm's fine-tuning corpus (which contains NPI). | NYDFS-24h-Ransom, Reg S-P, FTC, OFAC pre-screen | 1.7, 1.8, 1.9, 3.4 (incl. §11) |
 | **Third-party Copilot connector compromise** — An ISV-provided Copilot connector is compromised upstream; the firm's data accessed via the connector is potentially exfiltrated. | Reg S-P, NYDFS third-party-service-provider provisions, banking 36h | 1.5, 1.8, 2.6, 3.4 |
-| **MRM-triggering integrity incident** — A Copilot agent used in a credit-decisioning workflow is shown to drift outside its validated boundaries. | OCC 2011-12 / SR 11-7 escalation, fair-lending considerations | 2.6, 3.4 |
+| **MRM-triggering integrity incident** — A Copilot agent used in a credit-decisioning workflow is shown to drift outside its validated boundaries. | OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) escalation, fair-lending considerations | 2.6, 3.4 |
 
 ### 12.3 Exercise structure
 

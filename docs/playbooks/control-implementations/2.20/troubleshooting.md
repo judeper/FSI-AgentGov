@@ -2,7 +2,7 @@
 
 > **Scope.** This playbook supports the team operating Control 2.20 — *Adversarial Testing and Red Team Framework* — when probes misbehave, evidence packs do not validate, gates fail to fire, or findings are misclassified. It assumes the program is deployed per the [portal walkthrough](portal-walkthrough.md), [PowerShell setup](powershell-setup.md), and [verification & testing](verification-testing.md) playbooks.
 >
-> **Hedging.** Nothing here constitutes legal advice or a guarantee of regulatory compliance. The procedures below **support compliance with** OCC Bulletin 2011-12, Federal Reserve SR 11-7, FINRA Rule 3110 / Notice 25-07, SEC Rule 17a-4(b)(4) / 17a-4(f), and GLBA §501(b). Final responsibility for filing decisions rests with Legal, Compliance, and the named regulator-facing officer.
+> **Hedging.** Nothing here constitutes legal advice or a guarantee of regulatory compliance. The procedures below **support compliance with** OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), FINRA Rule 3110 / Notice 25-07, SEC Rule 17a-4(b)(4) / 17a-4(f), and GLBA §501(b). Final responsibility for filing decisions rests with Legal, Compliance, and the named regulator-facing officer.
 >
 > **Reality check.** Adversarial testing is **probabilistic**. The same prompt can elicit different responses across runs because the underlying model is non-deterministic. Treat single-run failures as signals to investigate, not as definitive defects, and require N-of-M reproducibility before declaring a finding (see §3.2).
 

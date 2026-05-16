@@ -81,7 +81,7 @@ CAPE describes a **Frontier Center of Excellence (CoE)** as the missing operatin
 | **Optimize** | Monitoring, evaluation, accuracy tracking, drift detection, improvement cycles. |
 | **Scale** | Intake pipeline, patterns, reuse, standardized architecture, portfolio management. |
 
-CAPE describes three CoE shapes — **Centralized**, **Hybrid**, and **Federated** — chosen by pattern (Source: *Patterns Playbook*, pp. 9–24 per pattern). FSI-AgentGov adopts the four-function vocabulary as a layer above the existing [Operating Model](../framework/operating-model.md) and [Governance Cadence](../framework/governance-cadence.md), with a hard guardrail that **federation does not transfer regulated supervisory accountability** under FINRA Rule 3110, OCC Bulletin 2011-12, or Fed SR 26-2 (formerly SR 11-7).
+CAPE describes three CoE shapes — **Centralized**, **Hybrid**, and **Federated** — chosen by pattern (Source: *Patterns Playbook*, pp. 9–24 per pattern). FSI-AgentGov adopts the four-function vocabulary as a layer above the existing [Operating Model](../framework/operating-model.md) and [Governance Cadence](../framework/governance-cadence.md), with a hard guardrail that **federation does not transfer regulated supervisory accountability** under FINRA Rule 3110, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), or Fed SR 26-2 (formerly SR 11-7).
 
 > **Detailed treatment:** the FSI CoE blueprint, decision-rights matrix, role mapping, and anti-patterns live in [`docs/framework/agentic-coe.md`](../framework/agentic-coe.md).
 
@@ -144,7 +144,7 @@ This matrix states, for each CAPE pattern, which FSI zones are *typical*, which 
 | **3 — Workplace & IT Services** | ❌ Not appropriate | ✅ Typical home for low-risk services | ✅ **Required** when service touches PII, payroll, trade settlement, or customer files |
 | **4 — Core Business Process Transformation** | ❌ Not appropriate | ⚠ Only for non-customer-facing internal sub-processes | ✅ **Mandatory** in FSI; applies to KYC, claims, financial close, regulatory reporting |
 | **5 — External Engagement** | ❌ Not appropriate | ❌ Not appropriate | ✅ **Mandatory** in FSI; subject to FINRA 2210, Reg BI, ECOA/Reg B, Reg E, GLBA 501(b), state AI disclosure laws |
-| **6 — AI-First Capabilities** | ❌ Not appropriate | ⚠ Permitted only for fully internal sandbox capabilities with no production decision rights | ✅ **Mandatory** in FSI **with the autonomy guardrail in §4.6**; OCC 2011-12 and SR 26-2 model risk apply |
+| **6 — AI-First Capabilities** | ❌ Not appropriate | ⚠ Permitted only for fully internal sandbox capabilities with no production decision rights | ✅ **Mandatory** in FSI **with the autonomy guardrail in §4.6**; OCC Bulletin 2026-13 (formerly OCC 2011-12) and SR 26-2 model risk apply |
 
 Legend: ✅ supported · ⚠ permitted with caveats · ❌ not appropriate (architecture mismatch) · **Mandatory** (cannot deploy below this zone in FSI).
 
@@ -219,7 +219,7 @@ Editable Mermaid source: [`docs/images/diagrams/source/cape/pattern-zone-matrix.
 !!! danger "Regulatory Exposure — Pattern 2 (Business Expert Empowerment)"
     | Row | Content |
     |---|---|
-    | **Primary regulations** | FINRA Rule 3110, FINRA Rule 4511 (books and records — the Q&A trail is a record), SEC 17a-4 (record retention), OCC 2011-12 / Fed SR 26-2 if the SME content is model-related. |
+    | **Primary regulations** | FINRA Rule 3110, FINRA Rule 4511 (books and records — the Q&A trail is a record), SEC 17a-4 (record retention), OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 if the SME content is model-related. |
     | **Default zone** | Zone 2; **Zone 3 if the SME domain is regulated** (compliance, supervision, model risk, fair lending). |
     | **Mandatory FSI-AgentGov controls** | [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md), [2.13](../controls/pillar-2-management/2.13-documentation-and-record-keeping.md), [2.16](../controls/pillar-2-management/2.16-rag-source-integrity-validation.md), [3.10](../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md), [4.1](../controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md), [4.6](../controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md). |
     | **Autonomy cap** | Agent answers are advisory only. A documented human supervisor (the named SME) must attest to and own any answer relied upon for a regulatory or supervisory decision. |
@@ -258,7 +258,7 @@ Each of these independently triggers a different US regulatory regime. Treating 
 
 **Mandatory FSI-AgentGov controls (call out from the callout below).** Beyond the Zone 3 baseline, Pattern 4 requires:
 
-- **Model risk (OCC 2011-12 / SR 26-2):** [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md). Every decisioning model in the flow needs a documented model risk tier, validation report, and ongoing monitoring plan. The CAPE phrase "agents make routine decisions autonomously and escalate exceptions to humans" lands directly on §V (ongoing monitoring, outcomes analysis, change control) of OCC 2011-12.
+- **Model risk (OCC Bulletin 2026-13 (formerly OCC 2011-12) / SR 26-2):** [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md). Every decisioning model in the flow needs a documented model risk tier, validation report, and ongoing monitoring plan. The CAPE phrase "agents make routine decisions autonomously and escalate exceptions to humans" lands directly on §V (ongoing monitoring, outcomes analysis, change control) of OCC Bulletin 2026-13 (formerly OCC 2011-12).
 - **Supervision (FINRA 3110):** [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md). A designated registered principal (B-D) or designated control function (bank) is the named supervisor; the agent is not.
 - **Books and records (FINRA 4511 / SEC 17a-3 and 17a-4 / CFTC 1.31):** [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), [2.13](../controls/pillar-2-management/2.13-documentation-and-record-keeping.md), [3.1](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md), [3.11](../controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement.md). Every decision the agent makes is a record; the model version, prompt, retrieved sources, and inputs must be reconstructable for the full retention period.
 - **Bias, fair lending (Reg B / ECOA, FHA):** [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md), [2.18](../controls/pillar-2-management/2.18-automated-conflict-of-interest-testing.md). KYC outcomes that influence credit (directly or indirectly) trigger Reg B; the firm must be able to state the *principal reasons* for an adverse action.
@@ -267,7 +267,7 @@ Each of these independently triggers a different US regulatory regime. Treating 
 - **Hallucination and exception management:** [3.10](../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md), [3.12](../controls/pillar-3-reporting/3.12-agent-governance-exception-and-override-management.md).
 - **Change management:** [2.3](../controls/pillar-2-management/2.3-change-management-and-release-planning.md). Any retraining, prompt change, or RAG corpus change is a change event subject to SR 26-2 re-validation thresholds.
 
-**Autonomy cap.** Decisions made by the agent must be *reproducible* from the logged inputs, the model version, and the prompt. Material model changes (re-training, prompt redesign, RAG corpus change) trigger independent re-validation per OCC 2011-12 §V. Where the agent's output influences credit, suitability, or any consumer-impacting decision, a designated human supervisor must record approval before the decision is final.
+**Autonomy cap.** Decisions made by the agent must be *reproducible* from the logged inputs, the model version, and the prompt. Material model changes (re-training, prompt redesign, RAG corpus change) trigger independent re-validation per OCC Bulletin 2026-13 (formerly OCC 2011-12) §V. Where the agent's output influences credit, suitability, or any consumer-impacting decision, a designated human supervisor must record approval before the decision is final.
 
 **Examiner Q&A pre-empts.** A CCO preparing an OCC, FINRA, or Fed examination on a Pattern 4 deployment should be able to answer:
 
@@ -287,10 +287,10 @@ Each of these independently triggers a different US regulatory regime. Treating 
 !!! danger "Regulatory Exposure — Pattern 4 (Core Business Process Transformation)"
     | Row | Content |
     |---|---|
-    | **Primary regulations** | OCC Bulletin 2011-12 / Fed SR 26-2 (model risk), SOX 302/404 (financial close ICFR), BSA/AML 31 CFR 1020.220 + OFAC (KYC/CDD), Reg B / ECOA 12 CFR 1002.9 (fair lending principal reasons), FINRA Rule 3110 (supervision), FINRA Rule 4511 / SEC 17a-3 and 17a-4 / CFTC 1.31 (books and records). |
+    | **Primary regulations** | OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Fed SR 26-2 (model risk), SOX 302/404 (financial close ICFR), BSA/AML 31 CFR 1020.220 + OFAC (KYC/CDD), Reg B / ECOA 12 CFR 1002.9 (fair lending principal reasons), FINRA Rule 3110 (supervision), FINRA Rule 4511 / SEC 17a-3 and 17a-4 / CFTC 1.31 (books and records). |
     | **Default zone** | **Zone 3 — mandatory.** No Pattern 4 deployment in Zone 1 or Zone 2 in FSI. |
     | **Mandatory FSI-AgentGov controls** | [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md), [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md), [2.8](../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md), [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md), [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md), [2.13](../controls/pillar-2-management/2.13-documentation-and-record-keeping.md), [2.16](../controls/pillar-2-management/2.16-rag-source-integrity-validation.md), [2.18](../controls/pillar-2-management/2.18-automated-conflict-of-interest-testing.md), [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), [3.1](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md), [3.10](../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md), [3.11](../controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement.md). |
-    | **Autonomy cap** | Agent decisions must be reproducible from logged inputs, model version, and prompt. Human-in-the-loop required for any consumer-impacting decision (credit, claim outcome, account status). Material model changes trigger independent re-validation under OCC 2011-12 §V. |
+    | **Autonomy cap** | Agent decisions must be reproducible from logged inputs, model version, and prompt. Human-in-the-loop required for any consumer-impacting decision (credit, claim outcome, account status). Material model changes trigger independent re-validation under OCC Bulletin 2026-13 (formerly OCC 2011-12) §V. |
     | **Examiner red flags** | Model validation report dated > 12 months old; no documented designated supervisor; decision reconstruction takes > 1 business day; bias testing not stratified by protected-class proxies; multi-agent chains where individual agents lack inventory entries. |
     | **CAPE language to reframe** | *"Agents make routine decisions autonomously"* → "Agent executes within documented decision boundaries; supervisor retains accountability"; *"Self-improving systems"* → "Continuously monitored, version-controlled, change-managed"; *"Sense-decide-act loops"* → not appropriate for Pattern 4 in FSI Zone 3. |
 
@@ -351,7 +351,7 @@ Each of these independently triggers a different US regulatory regime. Treating 
 
 ### Pattern 6 — AI-First Capabilities **[DEEP DIVE]**
 
-**FSI translation.** CAPE positions this pattern as net-new capabilities only possible with AI: continuous-optimization engines, predictive planning systems, autonomous workflow generation, multi-agent orchestration (Source: *Patterns Playbook*, pp. 22–24; *Walking Deck*, slide 14). The CAPE descriptors include "sense-decide-act autonomous loops," "continuous learning loops," and "agents that design and optimize their own processes." Each of these phrases is a textbook OCC 2011-12 high-risk model description with the additional regulatory complication that "learning from outcomes" implies in-production drift outside change management.
+**FSI translation.** CAPE positions this pattern as net-new capabilities only possible with AI: continuous-optimization engines, predictive planning systems, autonomous workflow generation, multi-agent orchestration (Source: *Patterns Playbook*, pp. 22–24; *Walking Deck*, slide 14). The CAPE descriptors include "sense-decide-act autonomous loops," "continuous learning loops," and "agents that design and optimize their own processes." Each of these phrases is a textbook OCC Bulletin 2026-13 (formerly OCC 2011-12) high-risk model description with the additional regulatory complication that "learning from outcomes" implies in-production drift outside change management.
 
 > **FSI guardrail (Council decision D3, accepted by user):**
 >
@@ -366,11 +366,11 @@ Each of these independently triggers a different US regulatory regime. Treating 
 - Multi-agent research orchestration where each component agent is individually inventoried and individually supervisable.
 - Internal anomaly-detection multi-agent systems whose outputs feed into existing AML/fraud workflows under the supervision of [Control 2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md).
 
-**Required Zone 3 governance.** Pattern 6 cannot deploy below Zone 3 in FSI. The Zone 3 baseline plus the OCC 2011-12 high-risk model tier are non-negotiable.
+**Required Zone 3 governance.** Pattern 6 cannot deploy below Zone 3 in FSI. The Zone 3 baseline plus the OCC Bulletin 2026-13 (formerly OCC 2011-12) high-risk model tier are non-negotiable.
 
 **Mandatory FSI-AgentGov controls (beyond the Zone 3 baseline):**
 
-- **Model risk (high-risk tier):** [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md). Pattern 6 systems are presumed *high-risk* under OCC 2011-12 unless the firm documents otherwise. Independent validation, ongoing monitoring, outcomes analysis, and change control are required by §V.
+- **Model risk (high-risk tier):** [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md). Pattern 6 systems are presumed *high-risk* under OCC Bulletin 2026-13 (formerly OCC 2011-12) unless the firm documents otherwise. Independent validation, ongoing monitoring, outcomes analysis, and change control are required by §V.
 - **Multi-agent orchestration limits (the highest-leverage Pattern 6 control):** [2.17](../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md). Every agent in a chain must be individually inventoried under [Control 3.1](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) and individually supervisable under [Control 2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md). Chained-agent decisions where reasoning cannot be attributed to a specific agent fail Reg B's principal-reasons requirement and FINRA 3110's supervisory-attribution requirement.
 - **Adversarial testing:** [2.20](../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md). Pattern 6's "learning loops" expand the attack surface; periodic red-team exercises are required.
 - **Hallucination feedback and observability SDK:** [3.10](../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md), [3.14](../controls/pillar-3-reporting/3.14-agent-365-observability-sdk.md). The continuous-monitoring evidence base.
@@ -382,7 +382,7 @@ Each of these independently triggers a different US regulatory regime. Treating 
 
 **Examiner Q&A pre-empts.**
 
-1. "Show me the OCC 2011-12 model-risk-tier classification for each agent in this multi-agent system."
+1. "Show me the OCC Bulletin 2026-13 (formerly OCC 2011-12) model-risk-tier classification for each agent in this multi-agent system."
 2. "Show me the independent validation report and the date of last re-validation."
 3. "Reconstruct the decision pathway through the agent chain that produced this output. Which agent contributed which piece of reasoning?"
 4. "Show me the change-management ticket for the most recent retraining or prompt change, and the re-baselining results."
@@ -401,7 +401,7 @@ Each of these independently triggers a different US regulatory regime. Treating 
 !!! danger "Regulatory Exposure — Pattern 6 (AI-First Capabilities)"
     | Row | Content |
     |---|---|
-    | **Primary regulations** | OCC Bulletin 2011-12 / Fed SR 26-2 (model risk — presumed high-risk tier), FINRA Rule 3110 (supervision; multi-agent attribution), FINRA Rule 4511 / SEC 17a-3 and 17a-4 / CFTC 1.31 (books and records — agent-to-agent messages), Reg B / ECOA 12 CFR 1002.9 (principal-reasons for adverse action), SOX 302/404 (where the system affects financial reporting), NYDFS Cybersecurity Regulation 23 NYCRR 500 (where in scope). |
+    | **Primary regulations** | OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Fed SR 26-2 (model risk — presumed high-risk tier), FINRA Rule 3110 (supervision; multi-agent attribution), FINRA Rule 4511 / SEC 17a-3 and 17a-4 / CFTC 1.31 (books and records — agent-to-agent messages), Reg B / ECOA 12 CFR 1002.9 (principal-reasons for adverse action), SOX 302/404 (where the system affects financial reporting), NYDFS Cybersecurity Regulation 23 NYCRR 500 (where in scope). |
     | **Default zone** | **Zone 3 — mandatory.** Customer-impacting fully autonomous Pattern 6 deployments are **not currently supported** without documented regulator pre-approval. |
     | **Mandatory FSI-AgentGov controls** | [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), [2.3](../controls/pillar-2-management/2.3-change-management-and-release-planning.md), [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md), [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md), [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md), [2.13](../controls/pillar-2-management/2.13-documentation-and-record-keeping.md), [2.17](../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md), [2.20](../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md), [3.1](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md), [3.10](../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md), [3.14](../controls/pillar-3-reporting/3.14-agent-365-observability-sdk.md). |
     | **Autonomy cap** | No fully autonomous customer-impacting deployment in Zone 3 without documented regulator pre-approval. Where permitted: every agent in a chain individually supervisable; every material model change re-validated by an independent function before production; reasoning capture sufficient for Reg B principal-reasons. |
@@ -412,20 +412,20 @@ Each of these independently triggers a different US regulatory regime. Treating 
 
 ### FSI Maturity Translation Table
 
-CAPE's Level 500 maturity descriptors are written for an industry-agnostic audience. Several of them, if adopted into FSI documentation verbatim, are direct landmines under OCC 2011-12, Fed SR 26-2, FINRA Rule 3110, FINRA Rule 4511, and Reg B. The table below records the verbatim CAPE descriptor (for reference only), the regulatory landmine, and the FSI-acceptable reframing. **Use the FSI reframing in any FSI document.**
+CAPE's Level 500 maturity descriptors are written for an industry-agnostic audience. Several of them, if adopted into FSI documentation verbatim, are direct landmines under OCC Bulletin 2026-13 (formerly OCC 2011-12), Fed SR 26-2, FINRA Rule 3110, FINRA Rule 4511, and Reg B. The table below records the verbatim CAPE descriptor (for reference only), the regulatory landmine, and the FSI-acceptable reframing. **Use the FSI reframing in any FSI document.**
 
 | CAPE descriptor (verbatim from source) | Why it's a regulatory landmine | FSI-AgentGov reframing |
 |---|---|---|
-| *"Self-improving systems"* (Technology & Data 500) | Implies in-production model self-modification outside change management; OCC 2011-12 §V (change control); FINRA Rule 3110 supervision of associated changes; FINRA 4511 books-and-records of model state. | "Continuously monitored, version-controlled systems where retraining is gated by independent validation." |
+| *"Self-improving systems"* (Technology & Data 500) | Implies in-production model self-modification outside change management; OCC Bulletin 2026-13 (formerly OCC 2011-12) §V (change control); FINRA Rule 3110 supervision of associated changes; FINRA 4511 books-and-records of model state. | "Continuously monitored, version-controlled systems where retraining is gated by independent validation." |
 | *"Autonomous decision-making"* (recurring across drivers) | Implies decisions without human review; Reg B fair-lending principal-reasons obligation; Reg BI care obligation; FINRA 3110 supervision; SR 26-2 model risk. | "Pre-approved decision automation operating within documented bounds with named supervisor accountability." |
-| *"Adaptive, autonomous processes"* (Business Strategy 500) | Implies behavior change without governance review; OCC 2011-12 §V; FINRA 3110 supervision-of-change. | "Configurable behavior within version-controlled parameters; material change triggers governance review." |
+| *"Adaptive, autonomous processes"* (Business Strategy 500) | Implies behavior change without governance review; OCC Bulletin 2026-13 (formerly OCC 2011-12) §V; FINRA 3110 supervision-of-change. | "Configurable behavior within version-controlled parameters; material change triggers governance review." |
 | *"Predictive, self-optimising operations"* (AI Governance & Security 500) | Implies model self-modification; FINRA 4511 books-and-records of model state; SR 26-2 ongoing monitoring. | "Model-monitored optimization where parameter tuning is human-in-the-loop and change-managed." |
 | *"AI-first culture, autonomous, self-improving"* (Organization & Culture 500) | Implies culture norms around unsupervised model evolution; FINRA 3110 supervisor culture; FINRA 2210 communications culture. | "Trained-supervisor culture with documented review obligations and continuous-improvement discipline within change control." |
-| *"Agent decides"* / *"agent approves"* (recurring across patterns) | Implies the agent has supervisory authority; FINRA 3110 supervision must be discharged by a designated registered principal; OCC 2011-12 model accountability. | "Agent recommends; the designated supervisor approves and is accountable." |
-| *"Sense-decide-act autonomous loops"* (Pattern 6) | Implies closed-loop autonomy without human oversight; OCC 2011-12 high-risk model; Reg B principal-reasons; FINRA 3110. | "Sensor-driven decision support with documented human approval gates and reasoning capture." |
-| *"Continuous learning loops"* (Pattern 6) | Implies in-production learning outside change management; OCC 2011-12 §V change control. | "Monitoring-driven retraining gated by independent validation and bias re-baselining." |
-| *"Agents that design and optimize their own processes"* (Pattern 6) | Implies the system writes its own controls; SOX 404 ICFR; OCC 2011-12 model governance; FINRA 3110 supervision-of-change. | "Systems whose configuration parameters are tunable within version-controlled bounds; material changes subject to independent validation." |
-| *"Without human review"* (across multiple Level 400/500 descriptors) | Implies the absence of supervisor review; FINRA 3110; Reg BI care; Reg B; OCC 2011-12. | "With documented per-decision sampling and exception review by a named supervisor." |
+| *"Agent decides"* / *"agent approves"* (recurring across patterns) | Implies the agent has supervisory authority; FINRA 3110 supervision must be discharged by a designated registered principal; OCC Bulletin 2026-13 (formerly OCC 2011-12) model accountability. | "Agent recommends; the designated supervisor approves and is accountable." |
+| *"Sense-decide-act autonomous loops"* (Pattern 6) | Implies closed-loop autonomy without human oversight; OCC Bulletin 2026-13 (formerly OCC 2011-12) high-risk model; Reg B principal-reasons; FINRA 3110. | "Sensor-driven decision support with documented human approval gates and reasoning capture." |
+| *"Continuous learning loops"* (Pattern 6) | Implies in-production learning outside change management; OCC Bulletin 2026-13 (formerly OCC 2011-12) §V change control. | "Monitoring-driven retraining gated by independent validation and bias re-baselining." |
+| *"Agents that design and optimize their own processes"* (Pattern 6) | Implies the system writes its own controls; SOX 404 ICFR; OCC Bulletin 2026-13 (formerly OCC 2011-12) model governance; FINRA 3110 supervision-of-change. | "Systems whose configuration parameters are tunable within version-controlled bounds; material changes subject to independent validation." |
+| *"Without human review"* (across multiple Level 400/500 descriptors) | Implies the absence of supervisor review; FINRA 3110; Reg BI care; Reg B; OCC Bulletin 2026-13 (formerly OCC 2011-12). | "With documented per-decision sampling and exception review by a named supervisor." |
 
 This table is the single source of truth for FSI reframing of CAPE language. The phrases in the left column may appear elsewhere in FSI-AgentGov documentation **only** in (a) this translation table and (b) the *CAPE language to reframe* row of the Regulatory Exposure callouts above. Outside these contexts, the FSI reframing is required and the Phase 1 extension to `scripts/verify_language_rules.py` enforces this for `docs/framework/**`, `docs/controls/**`, and `docs/reference/cco-quick-reference.md`.
 
@@ -450,7 +450,7 @@ The companion repository [`FSI-AgentGov-Solutions`](https://github.com/judeper/F
 
 ## 6. CAPE × FSI Regulatory mapping (cross-reference)
 
-This crosswalk does not duplicate the full regulation-to-control matrix. The authoritative regulatory mapping is [`docs/reference/regulatory-mappings.md`](regulatory-mappings.md), which organizes by regulation (FINRA 4511, FINRA 3110, SEC 17a-4, OCC 2011-12, GLBA 501(b), Reg E, Reg P, ECOA, SOX, CFTC 1.31, NYDFS Cybersecurity, etc.). The forward-looking [`docs/reference/cco-quick-reference.md`](cco-quick-reference.md) provides the inverse view (regulation → control → evidence artifact → examiner question → owning role) and is the recommended starting point for an examiner-facing summary.
+This crosswalk does not duplicate the full regulation-to-control matrix. The authoritative regulatory mapping is [`docs/reference/regulatory-mappings.md`](regulatory-mappings.md), which organizes by regulation (FINRA 4511, FINRA 3110, SEC 17a-4, OCC Bulletin 2026-13 (formerly OCC 2011-12), GLBA 501(b), Reg E, Reg P, ECOA, SOX, CFTC 1.31, NYDFS Cybersecurity, etc.). The forward-looking [`docs/reference/cco-quick-reference.md`](cco-quick-reference.md) provides the inverse view (regulation → control → evidence artifact → examiner question → owning role) and is the recommended starting point for an examiner-facing summary.
 
 The CAPE overlay added by this crosswalk is the **per-pattern Regulatory Exposure callouts** in Section 4 above. Each callout names the regulations triggered by the pattern, the mandatory controls that support compliance with them, and the examiner red flags. CCOs should treat the callouts as the conversational summary; `regulatory-mappings.md` and the underlying control documentation are the workpaper-grade artifacts.
 
@@ -537,7 +537,7 @@ This document paraphrases Microsoft CAPE materials with citation. No verbatim Mi
 - `docs/reference/csa-quick-reference.md` — Partner/CSA engagement summary; pattern-to-control quick lookup; conversation starters by audience. *(Phase 4 deliverable.)*
 - `docs/reference/csa-positioning-guide.md` — Positioning narrative and competitive differentiation. *(Phase 4 deliverable.)*
 - [`docs/reference/nist-ai-rmf-crosswalk.md`](nist-ai-rmf-crosswalk.md) — NIST AI RMF GOVERN/MAP/MEASURE/MANAGE crosswalk; complementary to this document.
-- [`docs/reference/regulatory-mappings.md`](regulatory-mappings.md) — Regulation-to-control mapping (FINRA 4511, FINRA 3110, SEC 17a-3 and 17a-4, OCC 2011-12, SR 26-2, GLBA 501(b), Reg E, ECOA/Reg B, SOX, CFTC 1.31, NYDFS).
+- [`docs/reference/regulatory-mappings.md`](regulatory-mappings.md) — Regulation-to-control mapping (FINRA 4511, FINRA 3110, SEC 17a-3 and 17a-4, OCC Bulletin 2026-13 (formerly OCC 2011-12), SR 26-2, GLBA 501(b), Reg E, ECOA/Reg B, SOX, CFTC 1.31, NYDFS).
 - [`docs/reference/role-catalog.md`](role-catalog.md) — Canonical FSI role names, including the *Microsoft CAPE Role Mapping* cross-reference table.
 - [`docs/framework/zones-and-tiers.md`](../framework/zones-and-tiers.md) — Three-Zone governance model and per-zone requirements.
 - [`docs/framework/regulatory-framework.md`](../framework/regulatory-framework.md) — US FSI regulatory landscape and zone-by-zone regulatory exposure.
@@ -549,7 +549,7 @@ This document paraphrases Microsoft CAPE materials with citation. No verbatim Mi
 - NIST AI Risk Management Framework 1.0 — [nist.gov/itl/ai-risk-management-framework](https://www.nist.gov/itl/ai-risk-management-framework).
 - ISO/IEC 42001:2023 AI Management Systems — [iso.org/standard/81230.html](https://www.iso.org/standard/81230.html).
 - FINRA — [finra.org](https://www.finra.org/), Notice 24-09 (technology-neutral supervision).
-- OCC Bulletin 2011-12 / Fed SR 26-2 — model risk management.
+- OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Fed SR 26-2 — model risk management.
 - US Treasury *AI in Financial Services* report (December 2024).
 
 ---

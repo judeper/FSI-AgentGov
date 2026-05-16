@@ -583,7 +583,7 @@ View and manage registered agents directly in the Microsoft 365 Admin Center:
 
 **FSI Use Case:**
 
-Compliance teams can query the registry during examinations to demonstrate comprehensive agent inventory (FINRA 4511, OCC 2011-12 model inventory requirements).
+Compliance teams can query the registry during examinations to demonstrate comprehensive agent inventory (FINRA 4511, OCC Bulletin 2026-13 model inventory requirements).
 
 ### M365 Admin Center Agent Settings Hierarchy
 
@@ -960,18 +960,18 @@ Agent 365 and Entra Agent ID help support multiple FSI regulatory requirements b
 - Implement workspace access controls to prevent unauthorized log deletion
 - Map agent activity logs to SEC 17a-4's "communications" definition for recordkeeping scope
 
-### OCC 2011-12 / Fed SR 26-2 (formerly SR 11-7): Model Risk Management
+### OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7): Model Risk Management
 
 **How Agent 365 and Entra Agent ID Help Support Compliance:**
 
-- **Comprehensive Inventory:** Agent 365 unified registry provides single source of truth for all agents (supports OCC 2011-12's model inventory mandate)
+- **Comprehensive Inventory:** Agent 365 unified registry provides single source of truth for all agents (supports OCC Bulletin 2026-13's model inventory mandate)
 - **Rich Metadata:** Registry captures business purpose, data sources, risk ratings, and approval status (helps support model governance)
 - **Lifecycle Management:** Promotion gates help enforce formal approval workflows before agents move to production (aids in meeting model validation requirements)
-- **Ongoing Monitoring:** Observability and security posture dashboard enable continuous monitoring (recommended for OCC 2011-12's ongoing monitoring requirement)
+- **Ongoing Monitoring:** Observability and security posture dashboard enable continuous monitoring (recommended for OCC Bulletin 2026-13's ongoing monitoring requirement)
 
 **Implementation Guidance:**
 
-- Map Agent 365 unified registry to OCC 2011-12's "model inventory" requirement
+- Map Agent 365 unified registry to OCC Bulletin 2026-13's "model inventory" requirement
 - Tag agents with OCC risk ratings (low/medium/high) using custom metadata in registry
 - Configure promotion gates to require validation team approval (align with three-line defense model)
 - Implement drift detection monitoring using Application Insights telemetry (aids in identifying model changes)

@@ -5,7 +5,7 @@
 **Estimated Time:** 2–3 hours per subscription (initial enablement); ~30 min/week ongoing review
 **Audience:** M365 administrators in US financial services
 
-> **Hedging note:** Enabling AI-SPM helps support OCC 2011-12, Fed SR 11-7, and FINRA 25-07 expectations for AI inventory and model risk monitoring. It does not, by itself, satisfy those obligations — supervisory procedures, evidence retention, and Model Risk Committee review are also required.
+> **Hedging note:** Enabling AI-SPM helps support OCC Bulletin 2026-13 (formerly OCC 2011-12), Fed SR 26-2 (formerly SR 11-7), and FINRA 25-07 expectations for AI inventory and model risk monitoring. It does not, by itself, satisfy those obligations — supervisory procedures, evidence retention, and Model Risk Committee review are also required.
 
 ---
 

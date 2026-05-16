@@ -6,7 +6,7 @@
 
 ---
 
-## Re-verification cadence (SR 11-7 alignment)
+## Re-verification cadence (SR 26-2 alignment)
 
 | Cadence | Activity | Owner |
 |---|---|---|

@@ -66,7 +66,7 @@
 - Is a documented AI governance framework (NIST AI RMF or equivalent) in place?
 
 ### Section F — Model Risk and Recordkeeping Integration
-- Does the vendor support OCC 2011-12 / Fed SR 11-7 model risk management workflows (model inventory, validation evidence)?
+- Does the vendor support OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) model risk management workflows (model inventory, validation evidence)?
 - Can AI-generated content be archived in a SEC 17a-4(f) / FINRA 4511-compliant manner?
 - Can records be distinguished as AI-generated vs human-generated?
 

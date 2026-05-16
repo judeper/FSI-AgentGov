@@ -107,7 +107,7 @@ Zone 3 findings are automatically escalated by one severity level to reflect the
 | **SEC 17a-3/4** | Records preservation with audit trail | Dataverse persistence supports compliance history with access controls |
 | **SOX 302/404** | Internal control testing and certification | Automated validation supports control testing evidence |
 | **GLBA 501(b)** | Administrative safeguards | CA policy validation helps verify access control safeguards |
-| **OCC 2011-12** | Model risk documentation | Zone-specific validation documents risk-tiered security controls |
+| **OCC Bulletin 2026-13 (formerly OCC 2011-12)** | Model risk documentation | Zone-specific validation documents risk-tiered security controls |
 
 ---
 

@@ -11,7 +11,7 @@
 
 ## Regulatory hedging notice
 
-This walkthrough is intended to help support FSI organizations in configuring documentation and record-keeping infrastructure for AI agents. It aids in meeting expectations from FINRA Rule 4511 (books and records), FINRA Rule 3110 (supervision documentation), FINRA 25-07 (AI communications recordkeeping), SEC Rule 17a-3 (record creation), SEC Rule 17a-4 (record preservation, including the October 2022 amendments / May 2023 compliance date for the audit-trail alternative), SOX §§302/404 (internal controls documentation), GLBA 501(b) (safeguards documentation), OCC Bulletin 2011-12 / Federal Reserve SR 11-7 (model risk management documentation), and CFTC Regulation 1.31 (5-year retention for FCMs, swap dealers, CPOs).
+This walkthrough is intended to help support FSI organizations in configuring documentation and record-keeping infrastructure for AI agents. It aids in meeting expectations from FINRA Rule 4511 (books and records), FINRA Rule 3110 (supervision documentation), FINRA 25-07 (AI communications recordkeeping), SEC Rule 17a-3 (record creation), SEC Rule 17a-4 (record preservation, including the October 2022 amendments / May 2023 compliance date for the audit-trail alternative), SOX §§302/404 (internal controls documentation), GLBA 501(b) (safeguards documentation), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7) (model risk management documentation), and CFTC Regulation 1.31 (5-year retention for FCMs, swap dealers, CPOs).
 
 Completion of this walkthrough **does not guarantee legal or regulatory compliance**, does not by itself constitute a 17a-4(f) attestation, and does not replace the firm's written supervisory procedures or independent records-management assessment. Organizations should verify configuration meets their specific regulatory obligations.
 
@@ -118,7 +118,7 @@ Zone 2 adds Purview retention labels, auto-labeling, documented approval chains,
 
 | Column Name | Internal Name | Type | Choices / Format |
 |---|---|---|---|
-| Regulatory Reference | `RegReference` | Choice (allow multiple) | FINRA 4511, FINRA 3110, SEC 17a-3, SEC 17a-4, SOX 302, SOX 404, GLBA 501(b), OCC 2011-12, Fed SR 11-7, CFTC 1.31 |
+| Regulatory Reference | `RegReference` | Choice (allow multiple) | FINRA 4511, FINRA 3110, SEC 17a-3, SEC 17a-4, SOX 302, SOX 404, GLBA 501(b), OCC Bulletin 2026-13 (formerly OCC 2011-12), Fed SR 26-2 (formerly SR 11-7), CFTC 1.31 |
 | Retention Period | `RetentionPeriod` | Choice | 3 years, 5 years, 6 years, 7 years, 10 years, Permanent |
 | Record Owner | `RecordOwner` | Person or Group | N/A |
 | Governance Zone | `GovZone` | Choice | Zone 1, Zone 2, Zone 3 |
@@ -249,7 +249,7 @@ Per the October 2022 SEC amendments (compliance date May 3, 2023), broker-dealer
 |---|---|---|---|---|
 | `FSI-Agent-RegRecord-7Year` | 7 years | Delete items automatically | Regulatory record | SEC 17a-4 (6-year + buffer) |
 | `FSI-Agent-CFTC-5Year` | 5 years | Delete items automatically | Regulatory record | CFTC 1.31 — derivatives records |
-| `FSI-Agent-ModelRisk-6Year` | 6 years | Delete items automatically | Record | OCC 2011-12 / Fed SR 11-7 — model documentation |
+| `FSI-Agent-ModelRisk-6Year` | 6 years | Delete items automatically | Record | OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) — model documentation |
 | `FSI-Agent-Permanent` | Indefinite | No action | Regulatory record | Board approvals, critical governance |
 
 3. Mark as **Regulatory record** where indicated — this designation prevents label removal and deletion by any user, including administrators

@@ -10,7 +10,7 @@
 
 ## Regulatory hedging notice
 
-This playbook helps support FSI organizations in meeting expectations from FINRA Rule 4511 (books and records), FINRA Rule 3110 (supervision), FINRA Regulatory Notice 25-07 (generative-AI supervision), SEC Rule 17a-4(b)(4) and 17a-4(g) (records retention and third-party custody), SOX §§302/404 (internal control over financial reporting), GLBA 501(b) Safeguards Rule, FTC Safeguards Rule 16 CFR §314.4(c) (asset inventory and access controls), OCC Bulletin 2011-12 / Federal Reserve SR 11-7 (model risk management — inventory and accountable ownership), CFTC Regulation 1.31, NYDFS 23 NYCRR Part 500.07 / 500.16 / 500.17 (privileged access, incident response, asset inventory), NIST AI RMF 1.0 GOVERN 1.4 and GOVERN 1.6 (accountable AI inventory and roles), and ISO/IEC 42001:2023 where applicable.
+This playbook helps support FSI organizations in meeting expectations from FINRA Rule 4511 (books and records), FINRA Rule 3110 (supervision), FINRA Regulatory Notice 25-07 (generative-AI supervision), SEC Rule 17a-4(b)(4) and 17a-4(g) (records retention and third-party custody), SOX §§302/404 (internal control over financial reporting), GLBA 501(b) Safeguards Rule, FTC Safeguards Rule 16 CFR §314.4(c) (asset inventory and access controls), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7) (model risk management — inventory and accountable ownership), CFTC Regulation 1.31, NYDFS 23 NYCRR Part 500.07 / 500.16 / 500.17 (privileged access, incident response, asset inventory), NIST AI RMF 1.0 GOVERN 1.4 and GOVERN 1.6 (accountable AI inventory and roles), and ISO/IEC 42001:2023 where applicable.
 
 A clean run of this playbook **does not guarantee legal or regulatory compliance**, does not replace independent supervisory review, does not substitute for the firm's written supervisory procedures, and does not by itself prove the absence of unknown agents in surfaces this playbook did not enumerate. Implementation requires organization-specific risk assessment, legal review, and integration with the firm's broader compliance program. Organizations should verify current Microsoft Learn documentation, sovereign-cloud feature parity, tenant-specific entitlements, and Entra / Microsoft 365 / Power Platform admin-surface availability at each cycle. Numeric thresholds, SLA windows, sample sizes, and rotation cadences in this playbook are **calibrated to the tenant baseline captured in PRE-04**; they are not portable between tenants without recalibration.
 
@@ -45,7 +45,7 @@ The playbook treats all three failure categories as first-class conditions. **Si
 | **Purview Compliance Admin** | Pulls UAL events for `Add application`, `Add app role assignment grant to user`, `Consent to application`, `Update application — Certificates and secrets management`, `Add owner to application`, etc.; verifies records are immutable. |
 | **Entra Global Admin** | Activated through Entra PIM, time-bound, never standing. Used only where a non-elevated role cannot complete the action. |
 | **Internal Audit** | Uses the evidence pack and three-signature chain as the testable artifact for SOX-style and FINRA-supervision walkthroughs and runs the quarterly examiner-style audit (Section 10). |
-| **Model Risk Manager** | Reviews REG / OWN / SPONSOR evidence under SR 11-7 / OCC 2011-12 inventory and accountable-ownership expectations for higher-risk agents. |
+| **Model Risk Manager** | Reviews REG / OWN / SPONSOR evidence under Fed SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC 2011-12) inventory and accountable-ownership expectations for higher-risk agents. |
 
 Run order each cycle: **Section 5 PRE gates → Section 7 §REG → §OWN → §PERM → §CRED → §CONSENT → §CA → §SPONSOR → §SOV → Section 8 evidence pack assembly → Section 9 attestation chain**. Any PRE-* failure or any REG-* FAIL halts the cycle.
 
@@ -1036,7 +1036,7 @@ Once per year, AI Governance Lead, Compliance Officer, and Internal Audit jointl
 | **Quarterly audit packs** | All four quarterly audit packs from §9 |
 | **Exception register** | Every exception in force during the period, with rationale, sign-off, expiry, and resolution status |
 | **Incident references** | Cross-references to any AI Incident Response invocations during the period that touched the registration plane |
-| **Regulatory mapping** | Per-regulation crosswalk: FINRA Rule 4511 / Notice 25-07, SEC 17a-4, SOX §§302/404, GLBA / FTC Safeguards 16 CFR §314.4(c), OCC 2011-12 / SR 11-7, NYDFS 23 NYCRR Part 500.07 / 500.16, NIST AI RMF GOVERN 1.4 / 1.6, ISO/IEC 42001:2023 — for each, name the controls and tests in this playbook that support the requirement, with the explicit caveat that "supports" is not "guarantees" |
+| **Regulatory mapping** | Per-regulation crosswalk: FINRA Rule 4511 / Notice 25-07, SEC 17a-4, SOX §§302/404, GLBA / FTC Safeguards 16 CFR §314.4(c), OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7), NYDFS 23 NYCRR Part 500.07 / 500.16, NIST AI RMF GOVERN 1.4 / 1.6, ISO/IEC 42001:2023 — for each, name the controls and tests in this playbook that support the requirement, with the explicit caveat that "supports" is not "guarantees" |
 | **Attestation statement** | Three-signature statement from AI Governance Lead, Compliance Officer, and Internal Audit affirming the period's coverage, completeness, and limitations |
 | **Limitations and exclusions** | A frank inventory of what the pack does NOT cover (surfaces not enumerated, controls outside scope, regulatory frameworks not mapped, sovereign clouds not exercised) |
 
@@ -1127,8 +1127,8 @@ Findings from internal audit walkthroughs, examiner observations, and peer-firm 
 - **SOX §§302 and 404** — Internal control over financial reporting
 - **GLBA Title V — 15 USC §§6801–6809** — Financial-institution safeguards
 - **FTC Safeguards Rule** — 16 CFR §314.4(c) — written information security program; access controls; asset inventory
-- **OCC Bulletin 2011-12** — Sound practices for model risk management
-- **Federal Reserve Supervisory Letter SR 11-7** — Guidance on model risk management (joint with OCC 2011-12)
+- **OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12)** — Sound practices for model risk management
+- **Federal Reserve Supervisory Letter Fed SR 26-2 (formerly SR 11-7)** — Guidance on model risk management (joint with OCC Bulletin 2026-13 (formerly OCC 2011-12))
 - **CFTC Regulation 1.31** — Books and records
 - **NYDFS 23 NYCRR Part 500** — Cybersecurity requirements for financial services companies (notably 500.07 access privileges, 500.16 incident response, 500.17 reporting)
 

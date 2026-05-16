@@ -36,7 +36,7 @@ A confirmed grounding-scope failure is, by default, treated as a potential **NY 
 | Books-and-records gap (RCD or RSS change not auditable; grounding-scope change not retained) | Compliance Officer + General Counsel | **FINRA Rule 4511** / **SEC 17a-4(f)** books-and-records integrity |
 | Insider misconduct using Copilot to bypass a known RCD scope | HR + General Counsel + Compliance Officer | **FINRA Rule 4530(b)** disclosure obligations; firm misconduct reporting |
 | Records event affecting covered swap / trading content | Compliance Officer | **CFTC Rule 1.31** record retention |
-| Agent grounded on uncontrolled scope and deployed to production (operational risk from the model surface itself) | Model Risk + Compliance Officer | **OCC Bulletin 2011-12 / Fed SR 11-7** model risk management |
+| Agent grounded on uncontrolled scope and deployed to production (operational risk from the model surface itself) | Model Risk + Compliance Officer | **OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Fed SR 26-2 (formerly SR 11-7)** model risk management |
 | Aggregated AI-surfaced data reaches financial-disclosure-adjacent processes | Internal Audit + Compliance Officer | **SOX §302 / §404** ICFR |
 
 **Engineering rule.** Engineering surfaces facts to Compliance / Legal / Privacy. Engineering does not assert "this is not a reportable event."
