@@ -43,7 +43,7 @@
 
 #Requires -Version 7.0
 
-[CmdletBinding()]
+[CmdletBinding(SupportsShouldProcess)]
 param(
     [Parameter(Mandatory)]
     [ValidateNotNullOrEmpty()]
@@ -75,6 +75,21 @@ if (-not (Test-Path $collectedDir)) {
 }
 $outputFile = Join-Path $collectedDir 'graph.json'
 
+function Invoke-CollectorOperation {
+    param(
+        [Parameter(Mandatory)][string]$Target,
+        [Parameter(Mandatory)][string]$Action,
+        [Parameter(Mandatory)][scriptblock]$ScriptBlock
+    )
+
+    if (-not $PSCmdlet.ShouldProcess($Target, $Action)) {
+        Write-Verbose "Skipping $Action on $Target because -WhatIf was specified."
+        return $null
+    }
+
+    & $ScriptBlock
+}
+
 # ─── Module Imports ──────────────────────────────────────────────────
 Import-Module Microsoft.Graph.Authentication    -ErrorAction Stop
 Import-Module Microsoft.Graph.Identity.SignIns  -ErrorAction Stop
@@ -88,7 +103,9 @@ $requiredScopes = @('Policy.Read.All', 'Group.Read.All', 'Directory.Read.All', '
 Write-Verbose "Authenticating to Microsoft Graph in $AuthMode mode..."
 
 if ($AuthMode -eq 'Interactive') {
-    Connect-MgGraph -TenantId $TenantId -Scopes $requiredScopes -ErrorAction Stop
+    Invoke-CollectorOperation -Target "Microsoft Graph tenant $TenantId" -Action 'Connect to Microsoft Graph (interactive)' -ScriptBlock {
+        Connect-MgGraph -TenantId $TenantId -Scopes $requiredScopes -ErrorAction Stop
+    } | Out-Null
 }
 else {
     if (-not $ClientId -or -not $ClientSecret) {
@@ -102,10 +119,12 @@ else {
         grant_type    = 'client_credentials'
     }
     # Use Connect-MgGraph with client secret credential
-    Connect-MgGraph -TenantId $TenantId -ClientSecretCredential $credential -ErrorAction Stop
+    Invoke-CollectorOperation -Target "Microsoft Graph tenant $TenantId" -Action 'Connect to Microsoft Graph (service principal)' -ScriptBlock {
+        Connect-MgGraph -TenantId $TenantId -ClientSecretCredential $credential -ErrorAction Stop
+    } | Out-Null
 }
 
-Write-Verbose "Microsoft Graph authentication successful."
+Write-Verbose "Microsoft Graph authentication stage complete."
 
 # ═══════════════════════════════════════════════════════════════════════
 # Section 1: Conditional Access Policies
@@ -115,7 +134,9 @@ Write-Verbose "Microsoft Graph authentication successful."
 $conditionalAccessPolicies = $null
 try {
     Write-Verbose "Section 1: Collecting Conditional Access policies..."
-    $rawPolicies = Get-MgIdentityConditionalAccessPolicy -All -ErrorAction Stop
+    $rawPolicies = Invoke-CollectorOperation -Target "Microsoft Graph tenant $TenantId" -Action 'List conditional access policies' -ScriptBlock {
+        Get-MgIdentityConditionalAccessPolicy -All -ErrorAction Stop
+    }
     $conditionalAccessPolicies = $rawPolicies | ForEach-Object {
         [PSCustomObject]@{
             Id                    = $_.Id
@@ -148,14 +169,18 @@ catch {
 $fsiSecurityGroups = $null
 try {
     Write-Verbose "Section 2: Collecting FSI-Agent-* security groups..."
-    $rawGroups = Get-MgGroup -Filter "startsWith(displayName,'FSI-Agent-')" -All `
-        -Property Id, DisplayName, SecurityEnabled, GroupTypes, MembershipRule -ErrorAction Stop
+    $rawGroups = Invoke-CollectorOperation -Target "Microsoft Graph tenant $TenantId" -Action 'List FSI-Agent security groups' -ScriptBlock {
+        Get-MgGroup -Filter "startsWith(displayName,'FSI-Agent-')" -All `
+            -Property Id, DisplayName, SecurityEnabled, GroupTypes, MembershipRule -ErrorAction Stop
+    }
 
     $fsiSecurityGroups = foreach ($grp in $rawGroups) {
         # Get member count via a separate call
         $memberCount = 0
         try {
-            $members = Get-MgGroupMember -GroupId $grp.Id -All -ErrorAction Stop
+            $members = Invoke-CollectorOperation -Target $grp.Id -Action 'List group members' -ScriptBlock {
+                Get-MgGroupMember -GroupId $grp.Id -All -ErrorAction Stop
+            }
             $memberCount = @($members).Count
         }
         catch {
@@ -190,7 +215,9 @@ try {
     $ibModule = Get-Module -ListAvailable -Name ExchangeOnlineManagement -ErrorAction SilentlyContinue
     if ($ibModule) {
         Import-Module ExchangeOnlineManagement -ErrorAction Stop
-        $rawIb = Get-InformationBarrierPolicy -ErrorAction Stop
+        $rawIb = Invoke-CollectorOperation -Target "Microsoft Graph tenant $TenantId" -Action 'List information barrier policies' -ScriptBlock {
+            Get-InformationBarrierPolicy -ErrorAction Stop
+        }
         $informationBarriers = $rawIb | ForEach-Object {
             [PSCustomObject]@{
                 Identity     = $_.Identity
@@ -224,11 +251,15 @@ try {
     $targetRoleNames = @('Power Platform Administrator', 'Dynamics 365 Administrator')
 
     # Get all role definitions to map IDs to names
-    $roleDefinitions = Get-MgRoleManagementDirectoryRoleDefinition -All -ErrorAction Stop
+    $roleDefinitions = Invoke-CollectorOperation -Target "Microsoft Graph tenant $TenantId" -Action 'List privileged role definitions' -ScriptBlock {
+        Get-MgRoleManagementDirectoryRoleDefinition -All -ErrorAction Stop
+    }
     $targetRoles = $roleDefinitions | Where-Object { $targetRoleNames -contains $_.DisplayName }
 
     $privilegedRoleAssignments = foreach ($role in $targetRoles) {
-        $assignments = Get-MgRoleManagementDirectoryRoleAssignment -Filter "roleDefinitionId eq '$($role.Id)'" -All -ErrorAction Stop
+        $assignments = Invoke-CollectorOperation -Target $role.Id -Action 'List privileged role assignments' -ScriptBlock {
+            Get-MgRoleManagementDirectoryRoleAssignment -Filter "roleDefinitionId eq '$($role.Id)'" -All -ErrorAction Stop
+        }
         foreach ($assignment in $assignments) {
             [PSCustomObject]@{
                 RoleDefinitionId   = $role.Id
@@ -262,7 +293,9 @@ try {
 
     $copilotServicePrincipals = foreach ($filterExpr in $filterConditions) {
         try {
-            $sps = Get-MgServicePrincipal -Filter $filterExpr -All -ErrorAction Stop
+            $sps = Invoke-CollectorOperation -Target "Microsoft Graph tenant $TenantId" -Action "List service principals matching filter $filterExpr" -ScriptBlock {
+                Get-MgServicePrincipal -Filter $filterExpr -All -ErrorAction Stop
+            }
             foreach ($sp in $sps) {
                 [PSCustomObject]@{
                     AppId          = $sp.AppId
@@ -294,27 +327,34 @@ catch {
 $tenantSecuritySettings = $null
 try {
     Write-Verbose "Section 6: Collecting tenant security settings via Get-MgOrganization..."
-    $org = Get-MgOrganization -ErrorAction Stop | Select-Object -First 1
-
-    $tenantSecuritySettings = [PSCustomObject]@{
-        DisplayName               = $org.DisplayName
-        TenantId                  = $org.Id
-        TenantType                = $org.TenantType
-        SecurityComplianceNotificationMails = $org.SecurityComplianceNotificationMails
-        SecurityComplianceNotificationPhones = $org.SecurityComplianceNotificationPhones
-        TechnicalNotificationMails = $org.TechnicalNotificationMails
-        VerifiedDomains           = $org.VerifiedDomains | ForEach-Object {
-            [PSCustomObject]@{
-                Name       = $_.Name
-                IsDefault  = $_.IsDefault
-                IsInitial  = $_.IsInitial
-                Type       = $_.Type
-            }
-        }
-        CreatedDateTime           = $org.CreatedDateTime
-        OnPremisesSyncEnabled     = $org.OnPremisesSyncEnabled
+    $org = Invoke-CollectorOperation -Target "Microsoft Graph tenant $TenantId" -Action 'Get organization settings' -ScriptBlock {
+        Get-MgOrganization -ErrorAction Stop | Select-Object -First 1
     }
-    Write-Verbose "  Tenant security settings collected."
+
+    if ($org) {
+        $tenantSecuritySettings = [PSCustomObject]@{
+            DisplayName               = $org.DisplayName
+            TenantId                  = $org.Id
+            TenantType                = $org.TenantType
+            SecurityComplianceNotificationMails = $org.SecurityComplianceNotificationMails
+            SecurityComplianceNotificationPhones = $org.SecurityComplianceNotificationPhones
+            TechnicalNotificationMails = $org.TechnicalNotificationMails
+            VerifiedDomains           = $org.VerifiedDomains | ForEach-Object {
+                [PSCustomObject]@{
+                    Name       = $_.Name
+                    IsDefault  = $_.IsDefault
+                    IsInitial  = $_.IsInitial
+                    Type       = $_.Type
+                }
+            }
+            CreatedDateTime           = $org.CreatedDateTime
+            OnPremisesSyncEnabled     = $org.OnPremisesSyncEnabled
+        }
+        Write-Verbose "  Tenant security settings collected."
+    }
+    else {
+        Write-Verbose "  Tenant security settings collection skipped."
+    }
 }
 catch {
     $warnings.Add("Section 6 (Tenant Security Settings) failed: $($_.Exception.Message)")
@@ -345,16 +385,26 @@ try {
     # Two narrow server-side filters to limit API response volume
     $rawUsers = @()
     try {
-        $rawUsers += @(Get-MgUser -Filter "startswith(jobTitle,'Chief')" `
-            -Property $selectProps -All -ErrorAction Stop)
+        $chiefUsers = Invoke-CollectorOperation -Target "Microsoft Graph tenant $TenantId" -Action "List users matching job title prefix 'Chief'" -ScriptBlock {
+            Get-MgUser -Filter "startswith(jobTitle,'Chief')" `
+                -Property $selectProps -All -ErrorAction Stop
+        }
+        if ($chiefUsers) {
+            $rawUsers += @($chiefUsers)
+        }
     }
     catch {
         $warnings.Add("Section 7 filter 'Chief' failed: $($_.Exception.Message)")
         Write-Warning $warnings[-1]
     }
     try {
-        $rawUsers += @(Get-MgUser -Filter "startswith(jobTitle,'Head of') or startswith(jobTitle,'VP of') or startswith(jobTitle,'Director of') or startswith(jobTitle,'AI ')" `
-            -Property $selectProps -All -ErrorAction Stop)
+        $leadershipUsers = Invoke-CollectorOperation -Target "Microsoft Graph tenant $TenantId" -Action "List users matching AI leadership job title filters" -ScriptBlock {
+            Get-MgUser -Filter "startswith(jobTitle,'Head of') or startswith(jobTitle,'VP of') or startswith(jobTitle,'Director of') or startswith(jobTitle,'AI ')" `
+                -Property $selectProps -All -ErrorAction Stop
+        }
+        if ($leadershipUsers) {
+            $rawUsers += @($leadershipUsers)
+        }
     }
     catch {
         $warnings.Add("Section 7 filter 'Head/VP/Director/AI' failed: $($_.Exception.Message)")
