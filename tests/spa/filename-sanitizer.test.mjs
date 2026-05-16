@@ -24,7 +24,9 @@
  * bidi-override marks (CVE-2021-42574), path separators, and shell metas;
  * collapses whitespace + multi-dash; trims leading/trailing dashes + dots;
  * and guards against Windows reserved device names (CON, NUL, COM1-9,
- * LPT1-9) by prefixing with underscore.
+ * LPT1-9) by prefixing with underscore. The reserved-name guard catches
+ * BOTH the bare form ("CON") AND the with-extension form ("CON.txt") because
+ * Windows refuses to open either (see Microsoft's filesystem naming docs).
  */
 import { describe, it, expect, beforeAll } from "vitest";
 import { loadSpa } from "./_loadSpa.mjs";
@@ -178,7 +180,24 @@ describe("_sanitizeFilenameStem (AS18b)", () => {
       ["COM9", "_COM9"],
       ["LPT1", "_LPT1"],
       ["LPT9", "_LPT9"],
-    ])("prefixes reserved name %j with underscore → %j", (input, expected) => {
+    ])("prefixes bare reserved name %j with underscore → %j", (input, expected) => {
+      expect(SPA._sanitizeFilenameStem(input)).toBe(expected);
+    });
+
+    it.each([
+      // Per https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file
+      // Windows refuses to open reserved names followed by an extension too:
+      // "NUL.txt" is not recommended.
+      ["CON.txt", "_CON.txt"],
+      ["con.json", "_con.json"],
+      ["PRN.csv", "_PRN.csv"],
+      ["AUX.xlsx", "_AUX.xlsx"],
+      ["NUL.md", "_NUL.md"],
+      ["COM1.log", "_COM1.log"],
+      ["LPT9.pdf", "_LPT9.pdf"],
+      // Multiple extensions: still reserved on the first dot-segment.
+      ["CON.tar.gz", "_CON.tar.gz"],
+    ])("prefixes reserved-name-with-extension %j with underscore → %j", (input, expected) => {
       expect(SPA._sanitizeFilenameStem(input)).toBe(expected);
     });
 
@@ -187,6 +206,11 @@ describe("_sanitizeFilenameStem (AS18b)", () => {
       expect(SPA._sanitizeFilenameStem("Concorde")).toBe("Concorde");
       // "COM10" is not in the reserved list (only COM1-9)
       expect(SPA._sanitizeFilenameStem("COM10")).toBe("COM10");
+      // "MyCON.txt" contains CON but isn't anchored at the start
+      expect(SPA._sanitizeFilenameStem("MyCON.txt")).toBe("MyCON.txt");
+      // "Auxiliary" starts with "AUX" but isn't the bare token or
+      // followed immediately by a dot
+      expect(SPA._sanitizeFilenameStem("Auxiliary")).toBe("Auxiliary");
     });
   });
 });

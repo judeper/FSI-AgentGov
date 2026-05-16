@@ -6,10 +6,34 @@ test.skip(!PROD, "prod-probe only runs with PROD_URL set");
 
 test("@prod-probe assessment SPA loads on production", async ({ page }) => {
   const errors = [];
+  // IGNORE_PATTERNS: only true browser-or-platform limitations that produce
+  // unavoidable console noise on every load. Anything else must surface as a
+  // failure so production regressions don't silently pass.
+  //
+  // Closes F-CSP-PROD-PROBE-CONNECTSRC-SUPPRESS-01: the previous
+  //   /violates the following Content Security Policy directive: "connect-src/i
+  // pattern was a defensive carve-out added during the audit transition (when
+  // the connect-src allowlist was being tightened from `*` down to
+  // `'self' https://api.github.com`). Now that the audit is deployed
+  // (PR #255 → c39e4762; prod-smoke green on every run since 2026-05-14)
+  // and `connect-src` is finalized, the broad regex masks real regressions —
+  // any future connect-src violation indicates either an unintended outbound
+  // fetch or a CSP misconfiguration, both of which we want to learn about
+  // immediately. Restoration path if a legitimate, transient connect-src
+  // warning appears: add a narrow, origin-specific pattern (e.g.,
+  //   /Refused to connect to 'https:\/\/expected-origin\.example'/
+  // ) — never a substring match on the directive name alone.
   const IGNORE_PATTERNS = [
+    // frame-ancestors via <meta> is browser-ignored by spec (CSP3 §3.1.1).
+    // GitHub Pages doesn't allow custom HTTP response headers, so we ship
+    // an inline JS frame-busting guard instead. The console warning is
+    // intentional and unavoidable.
     /Content Security Policy directive 'frame-ancestors' is ignored/i,
+    // mkdocs-material announce-bar release-version fetch occasionally surfaces
+    // a CSP-shaped warning during preflight even though api.github.com is in
+    // the connect-src allowlist; the actual fetch succeeds. Narrow regex —
+    // only api.github.com/repos/* paths.
     /api\.github\.com\/repos\/.+Content Security Policy/i,
-    /violates the following Content Security Policy directive: "connect-src/i,
   ];
   const isIgnorable = (text) => IGNORE_PATTERNS.some((re) => re.test(text));
   page.on("pageerror", (e) => {
