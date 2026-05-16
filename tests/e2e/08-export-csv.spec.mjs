@@ -32,6 +32,31 @@ import {
  * is `no` with the unicode-trick notes string, but for the formula
  * injection check we install a separate `=cmd|...` notes string on a
  * "no" answer (1.3) so it lands in the gap list.
+ *
+ * COUNCIL CRITIQUE GAPS — UTF-8 BOM + CRLF + accent round-trip (Phase 0I):
+ *   Bug class A — Missing UTF-8 BOM:
+ *     The SPA creates the CSV Blob without a BOM prefix. Excel on Windows
+ *     opens BOM-less CSV files using the system locale encoding (typically
+ *     Windows-1252 on en-US machines). Non-ASCII characters such as accented
+ *     letters in customer or organisation names become garbage: "Société
+ *     Générale" → "SociÃ©tÃ© GÃ©nÃ©rale". FSI customers who share gap
+ *     reports with their compliance team across mixed Excel versions will
+ *     have corrupted firm names in exported records.
+ *     Expected today: FAIL (no BOM). Fix: prepend "\uFEFF" to the CSV string.
+ *
+ *   Bug class B — LF-only line endings:
+ *     The SPA joins rows with "\n". Excel on Windows expects CRLF (\r\n) in
+ *     CSV files. In some regional configurations (Japanese, Korean, certain
+ *     European locales) LF-only CSV files cause all rows to be imported into
+ *     a single cell, making the gap report unreadable.
+ *     Expected today: FAIL (LF only). Fix: join rows with "\r\n".
+ *
+ *   Accent round-trip (informational):
+ *     If BOM and CRLF are present, the UTF-8 bytes for accented characters
+ *     should decode correctly in Node.js. This assertion verifies that the
+ *     SPA does not double-encode non-ASCII content. If BOM is missing this
+ *     test still passes at the byte level — the assertion is GREEN today but
+ *     the Excel-visible corruption (Bug class A) remains.
  */
 
 const ATTACK_NOTES = '=cmd|" /c calc"!A1';
@@ -132,7 +157,7 @@ test.describe("export CSV @regression", () => {
     });
     expect(suggestedName).toMatch(/-gaps\.csv$/);
 
-    const text = readFileSync(path, "utf8");
+    const text = readFileSync(path, "utf8").replace(/^\uFEFF/, "");
     const rows = parseCsv(text);
 
     // Header row.
@@ -165,5 +190,109 @@ test.describe("export CSV @regression", () => {
     ).toBe(true);
     expect(notesCell.slice(1)).toBe(ATTACK_NOTES);
     expect(/^[=+\-@]/.test(notesCell)).toBe(false);
+  });
+
+  // ── COUNCIL CRITIQUE GAPS: UTF-8 BOM + CRLF + accent round-trip ─────────
+  test("UTF-8 BOM, CRLF line endings, and accented-org round-trip @regression", async ({
+    page,
+  }) => {
+    page.on("dialog", (d) => d.dismiss().catch(() => {}));
+    await freezeTime(page);
+
+    await page.goto("/assessment/", { waitUntil: "domcontentloaded" });
+    await clearPageStorage(page);
+    await page.reload({ waitUntil: "domcontentloaded" });
+
+    // Clone minimal-ciso and inject the accented organisation name so the
+    // non-ASCII string flows through the SPA's CSV pipeline. The org name
+    // itself is NOT written to the gap-list CSV body (the CSV format contains
+    // only gap-control rows), so we also plant it in the notes field of a gap
+    // control (1.7 = "no") to verify the encoding round-trip through csvField.
+    const persona = loadPersona("minimal-ciso");
+    const accentPersona = JSON.parse(JSON.stringify(persona));
+    accentPersona.scoping.organizationName = "Société Générale";
+    await seedScoping(page, accentPersona);
+
+    // Two gap controls: 1.5 (partial) and 1.7 (no). Notes on 1.7 carry the
+    // accented string so it appears in the exported CSV body.
+    await answerControl(page, "1.5", "Partial");
+    await answerControl(page, "1.7", "No");
+    await page.locator("#ag-notes-1\\.7").fill("Société Générale — review note");
+    await page.waitForTimeout(700);
+
+    await navClick(page, "View Results");
+    await page.locator(".ag-score-big").first().waitFor();
+    await navClick(page, "Export Results");
+    await page.getByRole("heading", { name: "Export Results" }).waitFor();
+
+    const { path } = await expectDownload(page, async () => {
+      await navClick(page, /Export as Gap List/);
+    });
+
+    // Read as raw bytes (Buffer) so we can inspect the BOM independently of
+    // Node's string-level UTF-8 decoding, which masks a missing BOM.
+    const raw = readFileSync(path);
+
+    // ── ASSERTION 1: UTF-8 BOM (bytes 0xEF 0xBB 0xBF) ──────────────────────
+    // Without a BOM, Excel on Windows opens the file in the system locale
+    // encoding (often Windows-1252). "Société Générale" renders as
+    // "SociÃ©tÃ© GÃ©nÃ©rale". An FSI firm whose name contains accented
+    // characters will have its name corrupted in every gap report exported
+    // from this tool and opened natively in Excel.
+    // Expected today: FAIL — the SPA emits `new Blob([csv], {type:"text/csv"})`
+    // with no BOM. Fix: prepend "\uFEFF" to the csv string before the Blob.
+    expect(
+      [raw[0], raw[1], raw[2]],
+      "CSV must begin with UTF-8 BOM bytes [0xEF, 0xBB, 0xBF]. Without a BOM, " +
+        "Excel on Windows interprets the file in the system locale encoding " +
+        "(typically Windows-1252) and mangles all non-ASCII characters — " +
+        "'Société Générale' becomes 'SociÃ©tÃ© GÃ©nÃ©rale'. FSI customers " +
+        "sharing gap reports across mixed Excel versions will have corrupted " +
+        "firm names in exported compliance records. " +
+        "Fix: change exportCSV to prepend '\\uFEFF' to the csv string.",
+    ).toEqual([0xef, 0xbb, 0xbf]);
+
+    // Decode as UTF-8 for the remaining assertions (strip BOM if present so
+    // the header-row check works regardless of BOM fix status).
+    const text = raw.toString("utf8").replace(/^\uFEFF/, "");
+
+    // ── ASSERTION 2: Accented string round-trip ──────────────────────────────
+    // Verify the SPA does not double-encode non-ASCII content. Even without a
+    // BOM, the raw UTF-8 bytes for "Société Générale" should be present and
+    // decodable by Node's UTF-8 decoder. If the SPA serialises through a
+    // non-UTF-8 path (e.g. encodeURIComponent without decode, or TextEncoder
+    // with wrong label) the bytes would be corrupted at the source and no BOM
+    // would rescue them.
+    // NOTE: This assertion is likely GREEN today — Node decodes the UTF-8
+    // bytes correctly even without a BOM. The Excel-visible corruption (BOM
+    // assertion above) is the primary customer-impact bug; this assertion
+    // verifies the byte content is correct, so that fixing the BOM is
+    // sufficient.
+    expect(
+      text,
+      "CSV body must contain the literal accented string 'Société Générale' " +
+        "(planted in control 1.7 notes). If this fails, the SPA double-encoded " +
+        "non-ASCII characters or stripped them — either defect corrupts FSI " +
+        "customer names and organisation references in downstream compliance " +
+        "reporting systems that import the gap report.",
+    ).toContain("Société Générale");
+
+    // ── ASSERTION 3: CRLF line endings ──────────────────────────────────────
+    // Excel on Windows uses CRLF as the row delimiter when parsing CSV. An
+    // LF-only file opens correctly in English-locale Excel but collapses all
+    // rows into a single cell in some regional configurations (Japanese,
+    // Korean, several European locales). FSI compliance officers running gap
+    // analysis on a regional Windows machine will see an unreadable blob.
+    // Expected today: FAIL — the SPA joins rows with "\n" (LF only).
+    // Fix: change `rows.join("\n")` to `rows.join("\r\n")` in exportCSV.
+    expect(
+      text.includes("\r\n"),
+      "CSV must use CRLF (\\r\\n) line endings. LF-only line endings mangle " +
+        "row parsing in regional Excel configurations on Windows. A compliance " +
+        "officer opening this gap report in Japanese or Korean Excel, or in " +
+        "some European locale settings, will see every row concatenated into a " +
+        "single cell, making the report completely unreadable. " +
+        "Fix: change rows.join('\\n') to rows.join('\\r\\n') in exportCSV.",
+    ).toBe(true);
   });
 });

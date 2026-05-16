@@ -90,7 +90,7 @@ Create one report per zone with these visuals (minimum):
 | Visual | Source | Purpose |
 |---|---|---|
 | KPI cards: sessions / 24h, error rate, p95 response time, CSAT | Application Insights or ADLS export | Operational glance |
-| Latency percentiles (p50 / p95 / p99) over 30 days | Application Insights `requests` / `customMetrics` | SR 11-7 performance trend |
+| Latency percentiles (p50 / p95 / p99) over 30 days | Application Insights `requests` / `customMetrics` | Fed SR 26-2 (formerly SR 11-7) performance trend |
 | Error rate by agent (stacked) | Application Insights `exceptions` | Hotspot identification |
 | Topic resolution & escalation funnel | ADLS export — topic table | Completion quality |
 | CSAT distribution + trend | ADLS export — satisfaction table | Customer-impact signal |
@@ -134,7 +134,7 @@ The pre-built [Agent Usage & Performance Workbook](../../advanced-implementation
 |---|---|---|---|
 | Operational | Weekly (Zone 2/3); monthly (Zone 1) | Ops, Agent Owners | Alert log, top error topics, CSAT delta |
 | Business | Monthly | AI Governance Lead, Stakeholders | KPI trend, ROI workbook, optimization backlog |
-| Model risk | Quarterly (Zone 3) | Model Risk Manager, AI Governance Lead | SR 11-7 monitoring memo, hallucination/grounding metrics, drift analysis |
+| Model risk | Quarterly (Zone 3) | Model Risk Manager, AI Governance Lead | Fed SR 26-2 (formerly SR 11-7) monitoring memo, hallucination/grounding metrics, drift analysis |
 | Executive | Quarterly | Leadership, Compliance, Internal Audit | Cross-zone scorecard, regulatory posture, incidents |
 
 Document the schedule in your supervisory procedures (FINRA Rule 3110) and store meeting minutes on WORM-capable SharePoint or Purview-retained storage.

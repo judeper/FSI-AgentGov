@@ -28,7 +28,7 @@ Version 1.6.x ships in three releases — v1.6.0 (Solutions Discoverability), v1
 
 - **Frontier Readiness auto-scoring**: Six telemetry-driven evaluators (Q01, Q03, Q13, Q16, Q17, Q18) take Frontier auto-evaluable coverage from 0% to 24%. The remaining 76% are facilitator-only by design (board attestation, written policy text, executive interviews, regulatory committee minutes) and cannot be honestly derived from M365/PPAC/Sentinel/SharePoint telemetry. See the [Frontier assessment coverage](docs/reference/frontier-assessment-coverage.md) honest report.
 - **Honesty principle for Frontier**: Every evaluator is **partial-capped** — none ever returns `"yes"`. Each cites the residual facilitator burden in its evidence string.
-- **CAPE alignment metadata**: All 35 companion solutions are tagged with `applicable_patterns`, `applicable_drivers`, and `coe_function` frontmatter in the FSI-AgentGov-Solutions repo; this framework regenerates `pattern-coverage.md` from those tags via a CI drift gate. See [Solutions Index](docs/reference/solutions-index.md) and [Pattern Coverage](docs/reference/pattern-coverage.md).
+- **CAPE alignment metadata**: All 35 live companion solutions are tagged with `applicable_patterns`, `applicable_drivers`, and `coe_function` frontmatter in the FSI-AgentGov-Solutions repo (the preview `agent-intake` solution is not yet tagged); this framework regenerates `pattern-coverage.md` from those tags via a CI drift gate. See [Solutions Index](docs/reference/solutions-index.md) and [Pattern Coverage](docs/reference/pattern-coverage.md).
 - **Microsoft Learn drift patches**: Five upstream Microsoft documentation changes (analytics retention, 7-area effectiveness scoring, Purview policy refresh, AI agent license footprint, communication-compliance scope) propagated across 5 controls + 5 playbooks + `license-requirements.md`.
 - **Agent 365 enrichment**: Repo-wide truthfulness sweep (current-state version strings, Quick Start control counts, control cross-references), license overlay normalization for Agent 365 / E7 controls, and four net-new content drops — Bring Your Own MCP server (BYO MCP) terminology in the [MCP server governance playbook](docs/playbooks/advanced-implementations/mcp-server-governance/index.md), [Work IQ governance reference](docs/reference/work-iq-governance.md), [Windows 365 for Agents (W365A) reference](docs/reference/windows-365-for-agents.md), and a Secure Web and AI Gateway subsection in [Control 1.29](docs/controls/pillar-1-security/1.29-global-secure-access-network-controls.md). Pillar 1 substantive Microsoft Learn drift fixes (controls 1.5/1.6/1.9/1.10) and Control 3.13 hero-metrics correction also landed.
 
@@ -168,9 +168,9 @@ Step-by-step procedures in `docs/playbooks/control-implementations/`:
 - **Implementation-Checklist.md** - [Implementation roadmap](docs/getting-started/checklist.md)
 - **FAQ.md** - [Frequently asked questions](docs/reference/faq.md)
 
-### Companion Solutions (36 Live Solutions)
+### Companion Solutions (36 Companion Solutions: 35 Live + 1 Preview)
 Companion automation lives in the **[FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions)** repository:
-- 36 live solution implementations aligned to the companion repository inventory
+- 36 companion solution implementations (35 live + 1 preview) aligned to the companion repository inventory
 - Coverage spans security, management, reporting, SharePoint governance, and cross-solution integration
 - Solutions provide deployment documentation, governance scripts, KQL queries, and templates for manual Power Platform builds
 - Framework-native assets without matching top-level solution folders remain documented in this repository and are not counted as companion solutions
@@ -275,7 +275,7 @@ graph TD
 
 ## 🔗 Companion Solutions
 
-The **[FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions)** repository provides **36 live solution implementations** that operationalize framework controls. The live catalog remains aligned to the top-level companion repository inventory.
+The **[FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions)** repository provides **36 companion solution implementations (35 live + 1 preview)** that operationalize framework controls. The companion catalog remains aligned to the top-level companion repository inventory.
 
 Companion solutions provide deployment documentation, governance scripts, KQL queries, and templates for manual Power Platform builds instead of exported runtime artifacts. Coverage spans step-up authentication, lifecycle governance, access monitoring, analytics, RAG source validation, supervision workflows, disaster recovery testing, and SharePoint knowledge source controls.
 

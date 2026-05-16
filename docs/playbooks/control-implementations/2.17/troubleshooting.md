@@ -156,7 +156,7 @@ If the issue persists after diagnostic steps:
 1. **Power Platform Admin** — environment, DLP, connector, or PPAC configuration questions
 2. **Copilot Studio Agent Author** — topic, variable, and tool-registration issues
 3. **AI Governance Lead** — policy, limits, registry, or attestation-quality questions
-4. **Compliance Officer** — supervisory-review (FINRA 3110), recordkeeping (FINRA 4511 / SEC 17a-4), or model-risk (OCC 2011-12 / Fed SR 11-7) interpretation
+4. **Compliance Officer** — supervisory-review (FINRA 3110), recordkeeping (FINRA 4511 / SEC 17a-4), or model-risk (OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7)) interpretation
 5. **Microsoft Support** — platform behavior gaps, audit record-type changes, or suspected platform regressions; cite Microsoft Learn references and your tenant ID
 
 For incidents involving customer impact, regulated data, or material financial decisions: open a Control 3.4 incident *first*, then troubleshoot.

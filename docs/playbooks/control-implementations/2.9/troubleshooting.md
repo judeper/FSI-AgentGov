@@ -143,7 +143,7 @@ if (-not $envs) {
 1. **Agent Owner** — agent-specific issues, topic edits
 2. **Power Platform Admin / AI Administrator** — analytics, App Insights linkage, environment capacity
 3. **AI Governance Lead** — KPI definitions, threshold tuning, cross-zone trends
-4. **Model Risk Manager** — sustained Zone 3 degradation, MRM memo updates (OCC 2011-12 / SR 11-7)
+4. **Model Risk Manager** — sustained Zone 3 degradation, MRM memo updates (OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7))
 5. **Microsoft Support** — platform issues confirmed reproducible after triage
 
 ---

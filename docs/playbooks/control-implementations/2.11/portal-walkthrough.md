@@ -57,11 +57,11 @@ Capture the agent's scope decision in a one-page memo signed by the Compliance O
 
 | Metric | Definition | Suggested Threshold | Regulatory Anchor |
 |--------|------------|---------------------|-------------------|
-| **Demographic Parity** | Equal positive-outcome rate across groups | ≤5 percentage-point gap **and** statistically significant test | Fed SR 11-7 disparate-outcome review |
+| **Demographic Parity** | Equal positive-outcome rate across groups | ≤5 percentage-point gap **and** statistically significant test | Fed SR 26-2 (formerly SR 11-7) disparate-outcome review |
 | **Disparate Impact Ratio (Four-Fifths Rule)** | min(group rate) / max(group rate) ≥ 0.80 | Ratio ≥ 0.80 | EEOC 29 CFR § 1607.4(D) (industry benchmark also referenced in fair-lending exams) |
-| **Equalized Odds** | Equal TPR and FPR across groups | ≤5 pp gap on each | SR 11-7 model performance assessment |
+| **Equalized Odds** | Equal TPR and FPR across groups | ≤5 pp gap on each | Fed SR 26-2 (formerly SR 11-7) model performance assessment |
 | **Equal Opportunity** | Equal TPR across groups | ≤5 pp gap | Used when false negatives are the harm |
-| **Calibration** | Predicted probability matches actual rate | ≤10 pp gap by decile | SR 11-7 model accuracy |
+| **Calibration** | Predicted probability matches actual rate | ≤10 pp gap by decile | Fed SR 26-2 (formerly SR 11-7) model accuracy |
 
 > A single "±5%" threshold is **not** sufficient as a pass/fail gate. Always pair the threshold with a statistical-significance test (chi-square, Fisher's exact, or logistic regression) and the disparate-impact ratio. See [verification-testing.md](verification-testing.md) for sample-size guidance.
 
@@ -125,7 +125,7 @@ Capture the agent's scope decision in a one-page memo signed by the Compliance O
 | **Test Dataset Size** | 500 / group | 1,000 / group | 2,000 / group + intersectional pairs |
 | **Metrics** | Demographic parity | + Equalized odds | + Disparate-impact ratio (4/5ths) + calibration |
 | **Statistical Test** | Optional | Chi-square / Fisher's exact | Chi-square + logistic regression with confidence intervals |
-| **Independent Validation** | Not required | Internal peer review | Independent function (SR 11-7 effective challenge) |
+| **Independent Validation** | Not required | Internal peer review | Independent function (Fed SR 26-2 (formerly SR 11-7) effective challenge) |
 | **Documentation** | Summary memo | Full report | Full report + independent attestation |
 | **Remediation SLA** | 30 days | 14 days | Critical 24h / High 7d / Medium 30d |
 | **Evidence Retention** | 3 years | 5 years | ≥7 years WORM (FINRA 4511 / SEC 17a-4(f)) |

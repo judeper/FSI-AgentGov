@@ -10,7 +10,7 @@
 | Test | Helps demonstrate |
 |---|---|
 | TC-2.9-01 to TC-2.9-04 | FINRA 4511 / SEC 17a-3/4 record-keeping; FINRA 25-07 supervisory review |
-| TC-2.9-05 to TC-2.9-07 | OCC 2011-12 / Fed SR 11-7 ongoing model performance monitoring |
+| TC-2.9-05 to TC-2.9-07 | OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) ongoing model performance monitoring |
 | TC-2.9-08 to TC-2.9-09 | SOX 404 control-effectiveness testing |
 | TC-2.9-10 | GLBA 501(b) integrity of customer-information processing |
 
@@ -61,7 +61,7 @@
     - Drift indicators (input distribution, output quality)
     - Hallucination / grounding metrics where measured
     - Optimization actions taken and their results
-2. **Expected:** memo exists, dated within the prior quarter, referenced in MRM register per OCC 2011-12.
+2. **Expected:** memo exists, dated within the prior quarter, referenced in MRM register per OCC Bulletin 2026-13 (formerly OCC 2011-12).
 
 ### Test 7 — Hallucination / grounding telemetry (TC-2.9-07, Zone 3 — if implemented)
 

@@ -2,14 +2,14 @@
 
 > **Companion playbooks.** [Portal walkthrough](portal-walkthrough.md) · [PowerShell setup](powershell-setup.md) · [Verification & testing](verification-testing.md)
 >
-> **Sibling control references.** [Control 3.5 — Cost Allocation and Budget Tracking](../../../controls/pillar-3-reporting/3.5-cost-allocation-and-budget-tracking.md) · [Control 3.1 — Agent Inventory and Metadata Management](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) · [Control 1.9 — Data Retention and Deletion Policies](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) · [Control 2.1 — Managed Environments](../../../controls/pillar-2-management/2.1-managed-environments.md) · [Control 2.6 — Model Risk Management (OCC 2011-12, SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md)
+> **Sibling control references.** [Control 3.5 — Cost Allocation and Budget Tracking](../../../controls/pillar-3-reporting/3.5-cost-allocation-and-budget-tracking.md) · [Control 3.1 — Agent Inventory and Metadata Management](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) · [Control 1.9 — Data Retention and Deletion Policies](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) · [Control 2.1 — Managed Environments](../../../controls/pillar-2-management/2.1-managed-environments.md) · [Control 2.6 — Model Risk Management (OCC Bulletin 2026-13 (formerly OCC 2011-12), Fed SR 26-2 (formerly SR 11-7))](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md)
 >
 > **Last UI verified:** April 2026.
 
 ---
 
 !!! warning "Hedged language"
-    The mitigations below **support compliance with** SOX 302/404, GLBA 501(b), OCC 2011-12, FINRA Rules 4511 and 3110, and SEC Rule 17a-4(b)(4). They do not "ensure" or "guarantee" compliance. Implementation requires named owners, quarterly drills, and recalibration as Microsoft surfaces evolve.
+    The mitigations below **support compliance with** SOX 302/404, GLBA 501(b), OCC Bulletin 2026-13 (formerly OCC 2011-12), FINRA Rules 4511 and 3110, and SEC Rule 17a-4(b)(4). They do not "ensure" or "guarantee" compliance. Implementation requires named owners, quarterly drills, and recalibration as Microsoft surfaces evolve.
 
 ---
 
@@ -250,7 +250,7 @@ Test deliverability via the TC-5 quarterly drill.
 - Backfill: variance memo for the over-spend, with named accountability and the corrective action.
 
 !!! danger "Examiner-facing risk"
-    Sustained over-spend without enforcement is a SOX 404 ITGC weakness and an OCC 2011-12 third-party-risk concern. Address before the next exam cycle.
+    Sustained over-spend without enforcement is a SOX 404 ITGC weakness and an OCC Bulletin 2026-13 (formerly OCC 2011-12) third-party-risk concern. Address before the next exam cycle.
 
 ---
 

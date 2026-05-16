@@ -100,7 +100,7 @@ A "±5% threshold" gate is meaningless without a sample-size justification. Use 
 1. List open remediation items in the Power BI dashboard or work-item tracker.
 2. For each, verify owner, severity, SLA target, and current status.
 3. For closed items, verify re-test evidence (a follow-up `2.11-bias-results-*.json` post-fix).
-4. Confirm material model changes triggered SR 11-7 re-validation.
+4. Confirm material model changes triggered Fed SR 26-2 (formerly SR 11-7) re-validation.
 5. **Expected:** Open items within SLA; closed items have re-test evidence.
 
 ### Test 6 — Verify Independent Validation (Zone 3)

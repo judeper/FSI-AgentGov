@@ -23,7 +23,7 @@
 | Evidence retention | 6 years on WORM-protected storage or the SEC Rule 17a-4(f) audit-trail alternative (FINRA Rule 4511 / SEC Rule 17a-4(b)(4)). Rule 3120 working papers, principal designation records, and sovereign quarterly attestations are retained under the same policy, with the first two years easily accessible. |
 | Hashing | SHA-256 over canonical JSON; per-record hashes are chained into a Merkle root and signed in `attestation.json` per §17. |
 | Canonical roles | Per [docs/reference/role-catalog.md](../../../reference/role-catalog.md). This playbook references **Compliance Officer**, **Designated Principal / Qualified Supervisor**, **AI Governance Lead**, **AI Administrator**, **Agent Owner**, **Entra Global Admin**, **Purview Compliance Admin**, **Power Platform Admin**, **Exchange Online Admin**, and **Entra Security Reader** only. |
-| Regulatory framing | This playbook **helps meet** recordkeeping, supervision, and oversight expectations under FINRA Rules 3110 / 3120 / 2210 / 4511, FINRA Regulatory Notice 24-09 (Gen AI / LLM guidance), SEC Rules 17a-3 / 17a-4, SOX §§302 / 404, GLBA §501(b), OCC Bulletin 2011-12 (SR 11-7), NYDFS 23 NYCRR 500, and the FFIEC IT Examination Handbook. It does **not** by itself ensure compliance; organizations should verify findings against their own legal and regulatory obligations and tailor sample sizes, SLAs, and zone thresholds to their documented risk appetite. |
+| Regulatory framing | This playbook **helps meet** recordkeeping, supervision, and oversight expectations under FINRA Rules 3110 / 3120 / 2210 / 4511, FINRA Regulatory Notice 24-09 (Gen AI / LLM guidance), SEC Rules 17a-3 / 17a-4, SOX §§302 / 404, GLBA §501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (Fed SR 26-2 (formerly SR 11-7)), NYDFS 23 NYCRR 500, and the FFIEC IT Examination Handbook. It does **not** by itself ensure compliance; organizations should verify findings against their own legal and regulatory obligations and tailor sample sizes, SLAs, and zone thresholds to their documented risk appetite. |
 
 > **FINRA 3110 non-substitution, restated.** Tests in this playbook verify that WSPs exist, that reviewers are qualified, that decisions are captured with rationale, and that evidence is retained. They do not verify that the reviewer's *decision* was correct. The decision correctness test is a qualitative supervisory review performed by the Designated Principal during Rule 3120 annual testing (§9) and documented in Rule 3120 working papers.
 
@@ -2535,8 +2535,8 @@ Each metric should appear on the council's quarterly scorecard with a sparkline 
 * SEC Rule 17a-4 — Records to be Preserved by Certain Exchange Members (especially 17a-4(b)(4) and 17a-4(f))
 * SOX §302 / §404 — Management certification and internal controls over financial reporting
 * GLBA Safeguards Rule (16 CFR Part 314) — administrative safeguards
-* OCC Bulletin 2011-12 — Model Risk Management (where AI agents are model-bearing)
-* Federal Reserve SR 11-7 — Guidance on Model Risk Management
+* OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) — Model Risk Management (where AI agents are model-bearing)
+* Federal Reserve SR 26-2 (formerly SR 11-7) — Guidance on Model Risk Management
 
 ### 20.4 Microsoft Learn references
 

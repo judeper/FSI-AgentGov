@@ -64,7 +64,7 @@ def _compute_sha() -> str:
                 .decode("ascii")
             )
         except Exception:
-            sha = f"dev-{int(_dt.datetime.utcnow().timestamp())}"
+            sha = f"dev-{int(_dt.datetime.now(_dt.timezone.utc).timestamp())}"
     _BUILD_SHA = sha
     return sha
 
@@ -80,7 +80,7 @@ def on_pre_build(config, **_kwargs):
     payload = {
         "version": _read_canonical_version(config),
         "sha": sha,
-        "builtAt": _dt.datetime.utcnow().replace(microsecond=0).isoformat() + "Z",
+        "builtAt": _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
     }
     (docs_dir / "version.json").write_text(
         json.dumps(payload, indent=2) + "\n", encoding="utf-8"

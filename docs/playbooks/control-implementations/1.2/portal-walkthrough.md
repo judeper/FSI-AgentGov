@@ -1086,7 +1086,7 @@ When portal steps in this playbook fail or surface unexpected state, route to `.
 
 ### 21.5 Closing Hedged-Language Reminder
 
-This playbook describes a configuration and operating discipline that **supports compliance with** FINRA Rule 4511, FINRA Notice 25-07, SEC Rule 17a-4(b)(4) and 17a-4(g), SOX Sections 302 and 404, GLBA Section 501(b), NYDFS 23 NYCRR 500.07 / 500.16 / 500.17, OCC Bulletin 2011-12, Federal Reserve SR 11-7, NIST AI RMF GOVERN 1.4 and 1.6, FTC Safeguards Rule 16 CFR §314.4(c), and CFTC Rule 1.31. **Implementation requires sustained operator discipline; organizations should verify configuration against current regulatory expectations and their own legal counsel's interpretation. The procedures in this playbook do not constitute legal advice and do not, by themselves, demonstrate regulatory compliance.**
+This playbook describes a configuration and operating discipline that **supports compliance with** FINRA Rule 4511, FINRA Notice 25-07, SEC Rule 17a-4(b)(4) and 17a-4(g), SOX Sections 302 and 404, GLBA Section 501(b), NYDFS 23 NYCRR 500.07 / 500.16 / 500.17, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), NIST AI RMF GOVERN 1.4 and 1.6, FTC Safeguards Rule 16 CFR §314.4(c), and CFTC Rule 1.31. **Implementation requires sustained operator discipline; organizations should verify configuration against current regulatory expectations and their own legal counsel's interpretation. The procedures in this playbook do not constitute legal advice and do not, by themselves, demonstrate regulatory compliance.**
 
 ---
 

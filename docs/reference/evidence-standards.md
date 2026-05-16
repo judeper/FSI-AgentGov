@@ -225,7 +225,7 @@ For large log volumes, document sampling methodology:
 | **SEC 17a-4** | 6 years | Agent interaction records, configuration |
 | **FINRA 4511** | 6 years | Supervision records, compliance evidence |
 | **SOX 404** | 7 years | Control testing, change documentation |
-| **OCC 2011-12** | Duration of model use + 3 years | Model validation, performance monitoring |
+| **OCC Bulletin 2026-13 (formerly OCC 2011-12)** | Duration of model use + 3 years | Model validation, performance monitoring |
 | **GLBA 501(b)** | Duration of customer relationship + 6 years | Security control evidence |
 
 ---

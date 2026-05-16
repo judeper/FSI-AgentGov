@@ -71,7 +71,7 @@ For SEV-1 and confirmed SEV-2, walk this tree before remediating. Do **not** rel
 | Material cybersecurity incident at SEC registrant | SEC 8-K Item 1.05 (issuers); Form ADV-C (advisers) | "Material" thresholds — escalate to GC/CCO |
 | FINRA member firm — significant event | FINRA Rule 4530 | Rule-defined window per event category |
 | Broker-dealer record preservation failure | SEC 17a-4(f) third-party access undertaking implications | Escalate to CCO immediately |
-| Bank model risk event (validation evidence loss) | OCC 2011-12 / Federal Reserve SR 11-7 examiner notification | Per supervisory guidance |
+| Bank model risk event (validation evidence loss) | OCC Bulletin 2026-13 (formerly OCC 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7) examiner notification | Per supervisory guidance |
 | FCM / swap dealer / CPO record loss | CFTC 1.31 | Per CFTC guidance |
 
 ### 1.3 Evidence preservation BEFORE remediation

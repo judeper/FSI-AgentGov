@@ -59,7 +59,7 @@ Without connector governance, business users could create MCP servers that conne
 | **FINRA 4511** | Recordkeeping for agent-to-MCP-server interactions |
 | **SEC 17a-4** | Retention of communications routed through MCP servers |
 | **GLBA 501(b)** | Safeguards for customer data accessed via MCP connections |
-| **OCC 2011-12** | Model risk assessment for agents using external data sources |
+| **OCC Bulletin 2026-13 (formerly OCC 2011-12)** | Model risk assessment for agents using external data sources |
 | **SOX 302/404** | Internal controls over financial data accessed by agents |
 
 !!! note "Implementation Caveat"
@@ -252,7 +252,7 @@ MCP server call events are captured through Copilot Studio agent telemetry:
 | Data source accessed | Which data source the MCP server queried | SEC 17a-4 — communication records |
 | Authentication event | OAuth token issuance or API key usage | GLBA 501(b) — access safeguards |
 | DLP policy evaluation | Connector policy enforcement result | SOX 404 — internal controls |
-| Error / failure event | MCP server call failures | OCC 2011-12 — model performance |
+| Error / failure event | MCP server call failures | OCC Bulletin 2026-13 (formerly OCC 2011-12) — model performance |
 
 ### Purview Integration
 

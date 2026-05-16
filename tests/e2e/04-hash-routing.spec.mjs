@@ -63,35 +63,43 @@ test.describe("hash routing @regression", () => {
   });
 
   test.skip(
-    "click navigation updates location.hash (FUTURE: hash routing) @regression",
+    "click navigation updates ?step= query (FUTURE: SPA routing) @regression",
     async ({ page }) => {
-      // Skipped until SPA implements hash routing. Asserted contract:
+      // AS8 landed `?step=welcome|scoping|phase1|phase2|results|export`
+      // (matches STEP_IDS in assessment-app.js). Query-based, not hash —
+      // mkdocs Material's `navigation.tracking` (mkdocs.yml:29)
+      // scroll-rewrites `location.hash`, so hashes cannot be used. When
+      // this test is unskipped, asserted contract:
       //   await navClick(page, "Start New Assessment");
-      //   expect(page.url()).toMatch(/#\/scope$/);
+      //   expect(page.url()).toMatch(/[?&]step=scoping(?:&|#|$)/);
       //   await navClick(page, "Begin Assessment");
-      //   expect(page.url()).toMatch(/#\/phase1$/);
+      //   expect(page.url()).toMatch(/[?&]step=phase1(?:&|#|$)/);
       void page;
     },
   );
 
   test.skip(
-    "browser Back button restores prior SPA screen (FUTURE: hash routing) @regression",
+    "browser Back button restores prior SPA screen (FUTURE: SPA routing) @regression",
     async ({ page }) => {
-      // Skipped until SPA implements hash routing. Asserted contract:
+      // AS8 covers this — see tests/e2e/34-history-bfcache.spec.mjs Test 3.
+      // Asserted contract (after AS8):
       //   ...navigate Welcome → Scoping → Phase 1
       //   await page.goBack();
-      //   expect(page.url()).toMatch(/#\/scope$/);
+      //   expect(page.url()).toMatch(/[?&]step=scoping(?:&|#|$)/);
       //   await expect(page.getByRole("heading", { name: "Assessment Scoping" })).toBeVisible();
       void page;
     },
   );
 
   test.skip(
-    "deep-link #/phase1?id=<savedId> resumes that assessment (FUTURE: deep-link param) @regression",
+    "deep-link ?step=phase1&id=<savedId> resumes that assessment (FUTURE: deep-link param) @regression",
     async ({ page }) => {
       // Skipped until SPA parses the `id` deep-link parameter. Today,
       // resuming a specific saved assessment requires clicking its
-      // "Resume <name>" button on the welcome screen.
+      // "Resume <name>" button on the welcome screen. Note: AS8 already
+      // supports `?step=phase1` (state-recovery via loadFromStorage if
+      // state is null), but does NOT yet parse `?id=<savedId>` to pick
+      // a specific saved assessment.
       void page;
     },
   );

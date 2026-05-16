@@ -4,7 +4,7 @@
 >
 > **Scope of this playbook:** Microsoft Purview Communication Compliance (CC) — policy inventory, classifier coverage, review-percentage validation, reviewer/role-group assignments, pseudonymization controls, the Copilot interactions template (Microsoft 365 Copilot, Microsoft 365 Copilot Chat, Enterprise AI apps, Other AI apps), Administrative Units (AU) scoping, Policy Match Preservation, and the investigate / remediate / eDiscovery escalation chain. **Out of scope here:** unified audit retention horizons (verified under [Control 1.7](../1.7/verification-testing.md)) and SEC 17a-4 records-retention chain (verified under [Control 1.12](../1.12/verification-testing.md)). CC's Policy Match Preservation is **not** a records-retention control under SEC 17a-4 — see §8 anti-pattern.
 >
-> **Audience:** M365 administrator at a US financial services organization producing audit-defensible evidence for FINRA Rule 3110 / 3110.06 / 25-07, FINRA Rule 4511, SEC Rule 17a-4, OCC 2011-12 / Fed SR 11-7, and GLBA 501(b) examiners.
+> **Audience:** M365 administrator at a US financial services organization producing audit-defensible evidence for FINRA Rule 3110 / 3110.06 / 25-07, FINRA Rule 4511, SEC Rule 17a-4, OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7), and GLBA 501(b) examiners.
 >
 > **Sovereign clouds:** Commercial · GCC · GCC High · DoD — see §5 for variants and feature-parity caveats.
 >
@@ -30,7 +30,7 @@ Each test below maps explicitly to the failure mode it detects and is reproducib
 
 ## 1. Re-Verification Cadence
 
-Communication Compliance signals are **non-static**. Microsoft ships classifier updates, the Copilot interactions template gained scope additions (Enterprise AI apps, Other AI apps), and Policy Match Preservation defaults shifted in 2025. Each test runs on its own cadence rather than a single annual binder refresh, aligned to OCC 2011-12 / Federal Reserve SR 11-7 ongoing-monitoring expectations for model and supervisory systems.
+Communication Compliance signals are **non-static**. Microsoft ships classifier updates, the Copilot interactions template gained scope additions (Enterprise AI apps, Other AI apps), and Policy Match Preservation defaults shifted in 2025. Each test runs on its own cadence rather than a single annual binder refresh, aligned to OCC Bulletin 2026-13 (formerly OCC 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7) ongoing-monitoring expectations for model and supervisory systems.
 
 | Test ID | Frequency | Owner role | Evidence retention | Regulatory driver |
 |---|---|---|---|---|
@@ -38,7 +38,7 @@ Communication Compliance signals are **non-static**. Microsoft ships classifier 
 | 1.10-AUD-01 | Weekly | Purview Audit Admin | 7 years | FINRA 4511, SEC 17a-4(f) |
 | 1.10-PSE-01 | Monthly | Purview Compliance Admin | 7 years | GLBA 501(b), Reg S-P, EU GDPR (where applicable to US-listed FSI) |
 | 1.10-POL-01 | Monthly | Purview Compliance Admin | 7 years | FINRA 3110 / 3110.06 / 25-07, FINRA 4511 |
-| 1.10-COP-01 | Monthly (preview status) | Purview Compliance Admin + AI Governance Lead | 7 years | FINRA 25-07, OCC 2011-12 / Fed SR 11-7 |
+| 1.10-COP-01 | Monthly (preview status) | Purview Compliance Admin + AI Governance Lead | 7 years | FINRA 25-07, OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) |
 | 1.10-CLS-01 | Monthly | Purview Compliance Admin | 7 years | FINRA 3110, FINRA 2210, FINRA 25-07 |
 | 1.10-SAM-01 | Quarterly | Purview Compliance Admin + Compliance Supervisor | 7 years | FINRA 3110.06 (supervisory sampling rationale) |
 | 1.10-OME-01 | Quarterly | Purview Compliance Admin + Exchange Online Admin | 7 years | FINRA 4511, GLBA 501(b) |

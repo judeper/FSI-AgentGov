@@ -6,7 +6,7 @@
 **Sovereign clouds:** Commercial, GCC, GCC High, DoD (per-cloud feature parity tracked in §5)  
 **Cross-links:** 1.6 (Customer Lockbox & data export), 1.7 (Audit log retention), 1.8 (eDiscovery & legal hold), 1.10 (Communication Compliance), 1.13 (Defender for Cloud Apps AI monitoring), 1.14 (DSPM for AI), 1.19 (Sensitivity labels), 1.24 (Sentinel analytics for Copilot), 3.4 (Incident response), 3.9 (Tabletop exercises), 4.6 (Operational telemetry)
 
-> **Regulatory hedging notice.** This playbook describes verification procedures intended to **support compliance with** FINRA 4511, FINRA Regulatory Notice 25-07 (AI supervision), SEC 17a-4(f) (WORM/immutable retention), SEC Reg S-P (2024 amendments — incident response), SOX 404 (control design and operating effectiveness), GLBA 501(b) Safeguards Rule, OCC Bulletin 2011-12 (model risk management), Federal Reserve SR 11-7 (model risk management), and CFTC Regulation 1.31 (recordkeeping). Implementation **does not guarantee** legal compliance. Organizations should verify applicability with qualified counsel and confirm tenant-specific behaviour against current Microsoft Learn documentation.
+> **Regulatory hedging notice.** This playbook describes verification procedures intended to **support compliance with** FINRA 4511, FINRA Regulatory Notice 25-07 (AI supervision), SEC 17a-4(f) (WORM/immutable retention), SEC Reg S-P (2024 amendments — incident response), SOX 404 (control design and operating effectiveness), GLBA 501(b) Safeguards Rule, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (model risk management), Federal Reserve SR 26-2 (formerly SR 11-7) (model risk management), and CFTC Regulation 1.31 (recordkeeping). Implementation **does not guarantee** legal compliance. Organizations should verify applicability with qualified counsel and confirm tenant-specific behaviour against current Microsoft Learn documentation.
 
 ---
 
@@ -1275,7 +1275,7 @@ After the manifest is built it must be either: (a) committed to an immutable Azu
 |---|---|---|---|
 | Per-test JSON evidence records | 6 years | FINRA 4511, SEC 17a-4(f), CFTC 1.31 | Audit Premium 10y add-on **or** Sentinel `Logs` workspace ≥ 2190d **or** immutable Azure blob with legal-hold. |
 | Cycle manifest + summary | 6 years | Chain-of-custody pin | Same as evidence records; manifest must be in an immutable / signed location. |
-| Tabletop artifacts (IR-01, IR-02) | 6 years | SEC Reg S-P 2024, OCC 2011-12 | Same as evidence records; must include legal-counsel sign-off reference. |
+| Tabletop artifacts (IR-01, IR-02) | 6 years | SEC Reg S-P 2024, OCC Bulletin 2026-13 (formerly OCC 2011-12) | Same as evidence records; must include legal-counsel sign-off reference. |
 | Pattern library versions | Lifetime of any cycle that referenced them + 6 years | Reproducibility of detection tests | Source-controlled repository with tag-based version pinning. |
 | Validator source code | Lifetime of any cycle that ran it + 6 years | Reproducibility of evidence | Source-controlled repository with tag-based version pinning; tag referenced in cycle manifest's `tooling` section. |
 

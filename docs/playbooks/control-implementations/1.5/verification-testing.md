@@ -13,7 +13,7 @@
 
 ## Regulatory Hedging Notice
 
-This playbook describes verification procedures that **support compliance with** FINRA Rules 3110 / 4511 / 17a-4, SEC Reg S-P (2024 amendments), SEC Reg S-ID, GLBA Safeguards Rule, SOX §404, OCC Bulletin 2013-29 / 2021-39, Federal Reserve SR 11-7, and CFTC Regulation 1.31. Running these tests **does not guarantee** regulatory compliance, **does not prevent** every data-loss scenario, and **does not eliminate** customer-information risk. Implementation requires legal review against the firm's WSPs, examiner expectations, and the specific sovereign-cloud tenancy in scope. Organizations should verify control efficacy through independent audit and validate sovereign-cloud parity gaps with Microsoft account teams before treating any test result as evidence of a fully-mitigated risk.
+This playbook describes verification procedures that **support compliance with** FINRA Rules 3110 / 4511 / 17a-4, SEC Reg S-P (2024 amendments), SEC Reg S-ID, GLBA Safeguards Rule, SOX §404, OCC Bulletin 2013-29 / 2021-39, Federal Reserve SR 26-2 (formerly SR 11-7), and CFTC Regulation 1.31. Running these tests **does not guarantee** regulatory compliance, **does not prevent** every data-loss scenario, and **does not eliminate** customer-information risk. Implementation requires legal review against the firm's WSPs, examiner expectations, and the specific sovereign-cloud tenancy in scope. Organizations should verify control efficacy through independent audit and validate sovereign-cloud parity gaps with Microsoft account teams before treating any test result as evidence of a fully-mitigated risk.
 
 ---
 

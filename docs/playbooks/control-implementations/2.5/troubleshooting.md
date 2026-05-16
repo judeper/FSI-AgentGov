@@ -25,7 +25,7 @@
 
 ## §1 — FSI Incident Handling for Testing & Validation Failures
 
-Testing and validation failures in Microsoft 365 AI agents are not purely engineering bugs. In a US financial services firm they may simultaneously constitute (a) a Sarbanes-Oxley internal-control deficiency over financial reporting, (b) a FINRA Rule 3110 supervisory failure, (c) a SR 11-7 / OCC 2011-12 model risk-management deficiency, (d) a GLBA 501(b) safeguards weakness, and (e) under FINRA Notice 25-07 a registered-representative-conduct concern when an AI agent is producing supervised communications. Treating a failed evaluator score, a leaked holdout dataset, or a bypassed pipeline gate as a routine ticket — without classifying severity, preserving evidence, and consulting the reportability tree — creates legal, regulatory, and reputational exposure that can be material.
+Testing and validation failures in Microsoft 365 AI agents are not purely engineering bugs. In a US financial services firm they may simultaneously constitute (a) a Sarbanes-Oxley internal-control deficiency over financial reporting, (b) a FINRA Rule 3110 supervisory failure, (c) a Fed SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC 2011-12) model risk-management deficiency, (d) a GLBA 501(b) safeguards weakness, and (e) under FINRA Notice 25-07 a registered-representative-conduct concern when an AI agent is producing supervised communications. Treating a failed evaluator score, a leaked holdout dataset, or a bypassed pipeline gate as a routine ticket — without classifying severity, preserving evidence, and consulting the reportability tree — creates legal, regulatory, and reputational exposure that can be material.
 
 This section provides the spine that all later remediations and runbooks share.
 
@@ -40,7 +40,7 @@ Severity is the first decision. It governs response time, escalation depth, comm
 | **SEV-3** | Defect or process gap affecting a Zone-2 (team) agent, or a recoverable evaluator/quota incident with no governance breach. | Foundry quota exhaustion mid-run; transient grader timeouts; analytics dashboard data lag; a single failed verification criterion in a Zone-2 pilot. | Triage within next business day. Document remediation plan. | Agent Owner, AI Governance Lead (informed). |
 | **SEV-4** | Cosmetic, documentation, or single-developer issue with no governance, regulatory, or production impact. | Test Pane authentication hiccup affecting one developer; manifest validation warnings in M365 Agents Toolkit; mis-labeled evaluator in a non-prod report. | Standard ticket queue. | Agent author, team lead. |
 
-**Re-classification rule.** Severity may only move *up* without additional approval; downgrades require AI Governance Lead and Compliance Officer concurrence and a written rationale appended to the incident record. This supports SR 11-7 expectations that model-risk findings cannot be silently de-escalated.
+**Re-classification rule.** Severity may only move *up* without additional approval; downgrades require AI Governance Lead and Compliance Officer concurrence and a written rationale appended to the incident record. This supports Fed SR 26-2 (formerly SR 11-7) expectations that model-risk findings cannot be silently de-escalated.
 
 ### §1.2 — Reportability Decision Tree
 
@@ -49,7 +49,7 @@ After severity is set, walk this tree before *any* external communication. Answe
 - **Q1 — Customer impact?** Did an AI agent provide materially inaccurate, misleading, biased, or unsafe output to a customer, prospective customer, or registered representative who acted on it? If Yes → Legal and CCO engaged within 4 hours; evaluate Reg S-P / GLBA notification, FINRA 4530 reporting (customer complaint, settlement, regulatory action), state breach laws.
 - **Q2 — Books-and-records integrity?** Did the failure compromise the completeness, accuracy, or immutability of records subject to SEC 17a-4(b)(4) or FINRA 4511 retention? If Yes → Records Manager and Legal within 4 hours; document the gap, remediation, and whether a 17a-4(f) attestation is implicated.
 - **Q3 — Supervisory failure?** Did the failure indicate that the firm's written supervisory procedures (WSPs) under FINRA 3110 did not detect, prevent, or escalate AI-generated supervised communications? If Yes → Designated Supervisor and Legal; assess WSP gap and whether a Form U4/U5 disclosure is implicated for any registered person.
-- **Q4 — Model risk materiality?** Is the affected agent classified as a "model" under SR 11-7 / OCC 2011-12, and does the failure represent a material change in performance, soundness, or use? If Yes → Model Risk Manager logs an MRM finding; notify Operational Risk Committee.
+- **Q4 — Model risk materiality?** Is the affected agent classified as a "model" under Fed SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC 2011-12), and does the failure represent a material change in performance, soundness, or use? If Yes → Model Risk Manager logs an MRM finding; notify Operational Risk Committee.
 - **Q5 — Privacy or NPI exposure?** Did the failure disclose, log, or expose nonpublic personal information (NPI) under GLBA, PHI under HIPAA-adjacent rules, or PII under state privacy laws (e.g., CCPA/CPRA, NYDFS Part 500)? If Yes → Privacy Officer and Legal within 2 hours; preserve evidence per §4; evaluate breach notification clocks.
 - **Q6 — Anti-fraud, AML, or market-conduct nexus?** Could the failure obstruct or compromise BSA/AML monitoring, market-abuse surveillance, or trade-supervision logic? If Yes → BSA Officer or AML Compliance; consider SAR filing implications.
 - **Q7 — External examination active?** Is an SEC, FINRA, OCC, Fed, CFPB, or state regulator examination, sweep, or inquiry currently open touching this agent, this product, or this evaluation evidence? If Yes → Legal *only* communicates with examiners; freeze evidence per §4 and assume all artifacts are discoverable.
@@ -58,7 +58,7 @@ If all answers are No after Legal review, the incident is internal; document the
 
 ### §1.3 — Evidence Floor
 
-For every SEV-1 and SEV-2 incident, and recommended for SEV-3, capture at minimum the following artifacts before any remediation that would alter system state. Hash and timestamp at capture; store in immutable retention (Purview retention label aligned to Control 1.7 and Control 1.21). Failure to capture this floor is itself a SR 11-7 / FINRA 3110 finding.
+For every SEV-1 and SEV-2 incident, and recommended for SEV-3, capture at minimum the following artifacts before any remediation that would alter system state. Hash and timestamp at capture; store in immutable retention (Purview retention label aligned to Control 1.7 and Control 1.21). Failure to capture this floor is itself a Fed SR 26-2 (formerly SR 11-7) / FINRA 3110 finding.
 
 | ID | Artifact | Source |
 |---|---|---|
@@ -102,7 +102,7 @@ Before paging an executive or convening a war-room, the on-call AI Governance Le
 6. Sovereign-cloud scope identified (which tenants / environments / clouds are affected).
 7. Last-known-good validation evidence located (E-04).
 
-Skipping this checklist is the most common reason post-incident reviews find that "the firm reacted before it understood" — a finding that itself becomes an SR 11-7 governance deficiency.
+Skipping this checklist is the most common reason post-incident reviews find that "the firm reacted before it understood" — a finding that itself becomes an Fed SR 26-2 (formerly SR 11-7) governance deficiency.
 
 ### §1.6 — Communication Ladder
 
@@ -269,7 +269,7 @@ Each pillar follows the same shape: **Symptom → Likely Root Causes → Diagnos
 - Campaign was run by an identity lacking permission to write results to the configured storage account.
 
 **Diagnostic steps:**
-1. Pin and record exact versions: `pyrit`, scorer plugins, judge model, target agent version. This is required for reproducibility (an SR 11-7 expectation).
+1. Pin and record exact versions: `pyrit`, scorer plugins, judge model, target agent version. This is required for reproducibility (an Fed SR 26-2 (formerly SR 11-7) expectation).
 2. Inspect orchestrator logs for the exact failure stage (seed → attack → scoring → write).
 3. Re-run a 5-prompt smoke campaign against a non-prod replica of the agent.
 4. Confirm storage account RBAC and that the storage account is in an approved sovereign-cloud region.
@@ -308,7 +308,7 @@ Each pillar follows the same shape: **Symptom → Likely Root Causes → Diagnos
 
 **Validation:** Pipeline completes end-to-end; Solution Checker is clean (or all suppressions are documented); the deployed solution hash matches the source artifact.
 
-**Evidence & reportability:** Capture E-09 (pipeline run + approvers) and E-10 (Solution Checker report). A bypassed gate is an SR 11-7 / FINRA 3110 concern — see §3 Runbook 3.
+**Evidence & reportability:** Capture E-09 (pipeline run + approvers) and E-10 (Solution Checker report). A bypassed gate is an Fed SR 26-2 (formerly SR 11-7) / FINRA 3110 concern — see §3 Runbook 3.
 
 ### Pillar 2.6 — M365 Agents Toolkit Local Sideload Failures
 
@@ -383,7 +383,7 @@ Each pillar follows the same shape: **Symptom → Likely Root Causes → Diagnos
 
 **Validation:** Compensating control is operating (sampling rate, reviewer roster, evidence collection); zone restriction is enforced in the relevant environment.
 
-**Evidence & reportability:** Capture E-11 (sovereign-cloud inventory) and the compensating-control approval. A sovereign-cloud parity gap that is *not* covered by a compensating control and where an agent has been deployed anyway is an SR 11-7 deficiency — escalate per §3 Runbook 7.
+**Evidence & reportability:** Capture E-11 (sovereign-cloud inventory) and the compensating-control approval. A sovereign-cloud parity gap that is *not* covered by a compensating control and where an agent has been deployed anyway is an Fed SR 26-2 (formerly SR 11-7) deficiency — escalate per §3 Runbook 7.
 
 ---
 
@@ -395,9 +395,9 @@ These runbooks are deliberately written in narrative form. Each represents a cla
 
 **Scenario.** During a quarterly attestation cycle the AI Governance Lead reviews the validation evidence pack for a Zone-3 customer-service agent and notices that several rows in the holdout dataset used to score the latest release also appear, verbatim, in the supervised fine-tuning corpus that the prompt-engineering team built when iterating on the system prompt. In other words, the holdout was not actually held out — the agent's "high" quality scores were partially memorization. The agent has been live for six weeks.
 
-This pattern — holdout leakage — is one of the most common and most damaging defects in AI validation. It is the reason SR 11-7 emphasizes *independent* validation: a developer who creates the test set and the training data is structurally biased toward leakage even when acting in good faith. It is also why FINRA Notice 25-07 expects firms to demonstrate not just that they tested an AI tool but that the tests were *meaningful* tests.
+This pattern — holdout leakage — is one of the most common and most damaging defects in AI validation. It is the reason Fed SR 26-2 (formerly SR 11-7) emphasizes *independent* validation: a developer who creates the test set and the training data is structurally biased toward leakage even when acting in good faith. It is also why FINRA Notice 25-07 expects firms to demonstrate not just that they tested an AI tool but that the tests were *meaningful* tests.
 
-**Severity classification.** SEV-1. The integrity of validation evidence is in doubt for a deployed Zone-3 agent. This is true even if the agent's actual production behavior has been acceptable, because the evidence on which the deployment decision rested is now unreliable. Re-classifying downward without re-validation would itself be an SR 11-7 finding.
+**Severity classification.** SEV-1. The integrity of validation evidence is in doubt for a deployed Zone-3 agent. This is true even if the agent's actual production behavior has been acceptable, because the evidence on which the deployment decision rested is now unreliable. Re-classifying downward without re-validation would itself be an Fed SR 26-2 (formerly SR 11-7) finding.
 
 **Immediate actions (T+0 to T+1h).**
 1. Page Model Risk Manager, Compliance Officer, AI Governance Lead, Agent Owner. Open incident channel.
@@ -433,7 +433,7 @@ This pattern — holdout leakage — is one of the most common and most damaging
 
 **Scenario.** During an internal audit the auditor pulls the sign-off chain for the last three Zone-3 agent releases. In all three, the validator listed in the evidence pack is the same person as either the prompt author, the knowledge-source curator, or the pipeline approver. In one case the same individual appears in all four roles. The agents were promoted; the evidence packs are signed; the audit log shows no anomalies.
 
-This is a **segregation-of-duties (SoD) violation** with respect to Control 2.5 and Control 2.1. SR 11-7 explicitly requires independence between model development and model validation; FINRA 3110 supervisory expectations are similar in spirit (the supervisor is not the supervised). When the same human plays both roles, the validation is not independent, regardless of how technically rigorous it was.
+This is a **segregation-of-duties (SoD) violation** with respect to Control 2.5 and Control 2.1. Fed SR 26-2 (formerly SR 11-7) explicitly requires independence between model development and model validation; FINRA 3110 supervisory expectations are similar in spirit (the supervisor is not the supervised). When the same human plays both roles, the validation is not independent, regardless of how technically rigorous it was.
 
 **Severity classification.** SEV-2 if discovered before any customer-facing harm and the agent is performing acceptably. SEV-1 if combined with any other finding (drift breach, leakage, customer complaint) or if discovered during an external examination.
 
@@ -506,7 +506,7 @@ A pipeline gate bypass is one of the most serious findings in any deployment-con
 
 **Scenario.** A monthly PyRIT campaign against a deployed Zone-3 financial-services research agent surfaces a previously unknown indirect prompt-injection class: a particular pattern of footnote markup embedded in PDF research notes causes the agent to leak portions of its system prompt and, in two of fifty trials, to follow attacker-controlled instructions to produce non-compliant disclaimers. The pattern was not present in the validation safety battery used at deployment; the agent has been live for two months serving registered representatives.
 
-This is the "the world moved" failure mode: validation was honest at deployment, but the adversarial surface evolved. SR 11-7 anticipates this — model performance and soundness must be monitored continuously, not just at release. FINRA Notice 25-07 explicitly contemplates new attack patterns emerging post-deployment as part of the AI risk landscape.
+This is the "the world moved" failure mode: validation was honest at deployment, but the adversarial surface evolved. Fed SR 26-2 (formerly SR 11-7) anticipates this — model performance and soundness must be monitored continuously, not just at release. FINRA Notice 25-07 explicitly contemplates new attack patterns emerging post-deployment as part of the AI risk landscape.
 
 **Severity classification.** SEV-1 if the new attack class produces customer-facing or supervised-communication-facing output (as in this scenario, since registered representatives are the audience). SEV-2 if the attack succeeds only in lab conditions with no production exposure. The decision rests on whether the attack is reachable from production input channels — in this case, yes, because research PDFs are routinely uploaded by reps.
 
@@ -575,7 +575,7 @@ Drift breaches are the most-anticipated and least-prepared-for incident class in
 
 **Scenario.** The firm's platform team migrates a Zone-3 Copilot Studio agent from one underlying model to a successor model that Microsoft has positioned as a drop-in upgrade. The migration is treated as a configuration change. Within ten days, two business units report degraded behavior: more verbose responses, occasional refusals on previously-handled queries, and one near-miss where the agent provided generic guidance where the prior model would have escalated to a human. No formal A/B challenger evaluation was run; the prior model is no longer easy to revert to because the platform team has decommissioned the prior deployment.
 
-Model swap is the single most under-appreciated change-management category in M365 AI agent governance. From a pure-config perspective it is one click. From an SR 11-7 perspective it is a re-validation trigger and arguably a re-approval trigger, because the model is the most material component of the agent.
+Model swap is the single most under-appreciated change-management category in M365 AI agent governance. From a pure-config perspective it is one click. From an Fed SR 26-2 (formerly SR 11-7) perspective it is a re-validation trigger and arguably a re-approval trigger, because the model is the most material component of the agent.
 
 **Severity classification.** SEV-1 if the swap targeted Production / Zone-3 and re-validation was not performed (this scenario). SEV-2 if the swap targeted Zone-2 or if a partial re-validation was performed but did not meet the firm's full threshold.
 
@@ -599,7 +599,7 @@ Model swap is the single most under-appreciated change-management category in M3
 
 **Recovery.** Complete the proper re-validation of the new model. If it passes, deploy with enhanced monitoring and an updated evidence pack. If it fails, retain the rollback (or substitute another model that does pass).
 
-**Lessons learned.** The vendor's framing of a model upgrade is the vendor's framing. The firm's framing must be governed by SR 11-7 and the firm's own MRM policy. Conflating those framings — letting the vendor's "drop-in" language lower the firm's bar — is the recurring mistake.
+**Lessons learned.** The vendor's framing of a model upgrade is the vendor's framing. The firm's framing must be governed by Fed SR 26-2 (formerly SR 11-7) and the firm's own MRM policy. Conflating those framings — letting the vendor's "drop-in" language lower the firm's bar — is the recurring mistake.
 
 **Regulatory reporting decision tree.** Q3 (supervisory) is typically Yes. Q4 (model risk) is Yes by definition. Q1 depends on whether the regression produced customer-facing harm. Q7 elevates urgency if any examination touches model-risk practices.
 
@@ -642,7 +642,7 @@ This is the recurring sovereign-cloud parity dilemma. The temptation is to call 
 
 **Scenario.** During an examination, the firm runs an integrity check across its evidence repository for Control 2.5 packs covering the prior eighteen months. Three packs return hash mismatches relative to the hashes recorded at sign-off. One pack contains a signed PDF whose signature no longer validates. None of the affected agents have been retired; all are live in Production.
 
-Evidence integrity is the bedrock of every regulatory framework that touches the firm — SEC 17a-4(b)(4) for records, SR 11-7 for model documentation, SOX 404 for ICFR. An evidence pack whose contents do not match the recorded hash, or whose digital signature no longer validates, is *as if it did not exist* from a regulator's perspective. The firm cannot prove what was approved.
+Evidence integrity is the bedrock of every regulatory framework that touches the firm — SEC 17a-4(b)(4) for records, Fed SR 26-2 (formerly SR 11-7) for model documentation, SOX 404 for ICFR. An evidence pack whose contents do not match the recorded hash, or whose digital signature no longer validates, is *as if it did not exist* from a regulator's perspective. The firm cannot prove what was approved.
 
 **Severity classification.** SEV-1 by default. The presumption is that integrity is broken until the firm can demonstrate either (a) a benign cause (e.g., re-encoding by a storage-tier migration that preserved logical content) or (b) a malicious or negligent cause requiring investigation.
 
@@ -724,7 +724,7 @@ Evidence preservation is the connective tissue between Control 2.5 (testing and 
 
 **How.** Capture artifacts in their native format (CSV, JSON, PDF, screenshots) with metadata: source system, query or export command used, timestamp in UTC, capturing identity, hash (SHA-256 or stronger). Store in immutable storage with Purview retention labels. Sign-off artifacts (evidence packs, attestations) should be digitally signed where possible and the signature itself preserved with the document.
 
-**How long.** Align to SEC 17a-4(b)(4) and FINRA 4511 for any artifact that constitutes a books-and-records record (typically six years, with the first two years easily accessible). Align to SR 11-7 / OCC 2011-12 model-risk documentation expectations (often longer; firm-specific MRM policy governs). Align to GLBA 501(b) for any artifact containing NPI. The longest applicable retention governs.
+**How long.** Align to SEC 17a-4(b)(4) and FINRA 4511 for any artifact that constitutes a books-and-records record (typically six years, with the first two years easily accessible). Align to Fed SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC 2011-12) model-risk documentation expectations (often longer; firm-specific MRM policy governs). Align to GLBA 501(b) for any artifact containing NPI. The longest applicable retention governs.
 
 **Under what controls.** Write-once-read-many (WORM) where supported. Periodic integrity checks (weekly minimum) per Runbook 8 lessons. Access controls scoped to the smallest necessary group, with all access logged. Disposition reviews before any retention-period-driven deletion, with sign-off recorded.
 
@@ -743,7 +743,7 @@ Each of these failure modes is itself a Control 2.5 finding when surfaced.
 
 Section §1.6 defined the communication ladder. This section expands on the *patterns* that recur across incidents and where firms most often stumble.
 
-**Pattern A — The reporting clock starts at detection, not at confirmation.** The most common mistake in escalation is to delay the page until "we know what we have." For SEV-1 and SEV-2 candidates the right posture is to page early on the *suspicion* and downgrade if the suspicion is not confirmed, rather than to wait for confirmation and lose the first hour. SR 11-7 and FINRA 3110 evaluators are unsympathetic to firms that delayed escalation in order to clean up the story.
+**Pattern A — The reporting clock starts at detection, not at confirmation.** The most common mistake in escalation is to delay the page until "we know what we have." For SEV-1 and SEV-2 candidates the right posture is to page early on the *suspicion* and downgrade if the suspicion is not confirmed, rather than to wait for confirmation and lose the first hour. Fed SR 26-2 (formerly SR 11-7) and FINRA 3110 evaluators are unsympathetic to firms that delayed escalation in order to clean up the story.
 
 **Pattern B — Engineering does not communicate outward.** Customer communications, regulatory communications, and external counsel communications are owned by Legal and Compliance, not by the engineering team that surfaced the incident. Engineers communicate inward (to Legal, Compliance, MRM) and provide factual material; the outbound voice is owned upstream. Mixing these channels creates legal exposure.
 
@@ -807,7 +807,7 @@ A non-exhaustive list of anti-patterns observed in Control 2.5 implementations a
 3. **"The model swap is just a config change."** Categorical mis-labeling. Produces Runbook 6.
 4. **"The validator is the same person as the author because we're a small team."** Convenience SoD violation. Produces Runbook 2. The fix is platform enforcement, not policy memos.
 5. **"Solution Checker findings are mostly false positives."** Bulk-suppression mindset. Produces real defects reaching production hidden in the suppression noise.
-6. **"We'll page when we know what we have."** Delayed escalation. Produces compounding regulatory exposure under SR 11-7 and FINRA 3110 and weakens the PIR record.
+6. **"We'll page when we know what we have."** Delayed escalation. Produces compounding regulatory exposure under Fed SR 26-2 (formerly SR 11-7) and FINRA 3110 and weakens the PIR record.
 7. **"Engineering can update the customer."** Channel confusion. Produces Legal exposure. Reserve outbound communication to Legal/Compliance/Communications.
 8. **"The evidence is in someone's OneDrive, we'll consolidate later."** Evidence-repository drift. Produces Runbook 8 conditions and examination-response chaos (Runbook 9).
 9. **"GCC-High doesn't have that evaluator yet, we'll just deploy without it."** Uncovered sovereign-cloud parity gap. Produces Runbook 7 in its worst form.

@@ -57,7 +57,7 @@ For each rule listed in the [Control 2.2 zone matrix](../../../controls/pillar-2
 |---|------|---------------|
 | 1 | Accessing transcripts | Set to **Enable** in every zone — this is the primary capture for FINRA 4511 / SEC 17a-4 evidence of agent conversations. |
 | 9 | External models | Set to **Disabled** in every zone unless an explicit model-risk-management approval is recorded under [Control 1.x model governance]. |
-| 12 | Preview and experimental AI models | Set to **Disabled** in Zone 2 and Zone 3. Helps keep unvalidated models out of regulated workloads (OCC 2011-12 / SR 11-7). |
+| 12 | Preview and experimental AI models | Set to **Disabled** in Zone 2 and Zone 3. Helps keep unvalidated models out of regulated workloads (OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7)). |
 | 14, 15 | Sharing agents (Editor / Viewer) | Use the dialog to set **organization-wide cap = 0** for Zone 1 Editor sharing; cap Editor sharing in Zone 3 to force ALM. |
 | 16, 17 | Sharing controls (canvas apps / solution flows) | Set to **Specific security groups only** with a small approver-managed group. |
 | 19 | Solution checker enforcement | Zone 1 = **None**, Zone 2 = **Warn**, Zone 3 = **Block**. Block prevents import of solutions with known issues. |

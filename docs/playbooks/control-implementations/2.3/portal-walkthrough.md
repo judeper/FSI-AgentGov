@@ -215,7 +215,7 @@ Use the Microsoft Graph **Service Communications API** to pull Message Center me
 ### Zone 2 → Zone 3 Checklist
 
 - [ ] All Zone 1 → Zone 2 requirements
-- [ ] Risk assessment completed (model risk per OCC 2011-12 if applicable)
+- [ ] Risk assessment completed (model risk per OCC Bulletin 2026-13 (formerly OCC 2011-12) if applicable)
 - [ ] Full security assessment by Entra Security Admin
 - [ ] Compliance review (FINRA, SOX, GLBA scope confirmed)
 - [ ] Performance and load testing completed

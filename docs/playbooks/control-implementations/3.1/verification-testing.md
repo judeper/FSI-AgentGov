@@ -10,7 +10,7 @@
 
 ## Regulatory hedging notice
 
-This playbook helps support FSI organizations in meeting expectations from FINRA Rule 4511 (books and records), FINRA Regulatory Notice 25-07 (generative-AI supervision), SEC Rule 17a-4(b)(4) (records retention), SOX §§302/404 (internal control over financial reporting), GLBA Safeguards Rule 501(b), FTC Safeguards Rule 16 CFR §314, OCC Bulletin 2011-12 / Federal Reserve SR 11-7 (model risk management), CFTC Regulation 1.31, NYDFS 23 NYCRR Part 500.16 / 500.17, NIST AI RMF 1.0 GOVERN 1.6, and ISO/IEC 42001 where applicable.
+This playbook helps support FSI organizations in meeting expectations from FINRA Rule 4511 (books and records), FINRA Regulatory Notice 25-07 (generative-AI supervision), SEC Rule 17a-4(b)(4) (records retention), SOX §§302/404 (internal control over financial reporting), GLBA Safeguards Rule 501(b), FTC Safeguards Rule 16 CFR §314, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7) (model risk management), CFTC Regulation 1.31, NYDFS 23 NYCRR Part 500.16 / 500.17, NIST AI RMF 1.0 GOVERN 1.6, and ISO/IEC 42001 where applicable.
 
 A clean run of this playbook **does not guarantee legal or regulatory compliance**, does not replace independent validation, and does not substitute for written supervisory procedures. Implementation requires organization-specific risk assessment, legal review, and integration with the firm's broader compliance program. Organizations should verify current Microsoft Learn documentation, sovereign-cloud feature parity, and tenant-specific entitlements at each cycle. Cadence values, SLA windows, and reconciliation thresholds in this playbook are **calibrated to the tenant baseline captured in PRE-04**; they are not portable between tenants without recalibration.
 
@@ -42,7 +42,7 @@ Both failure modes are first-class FAIL conditions. The playbook is structured s
 | **AI Administrator** | Confirms Microsoft 365 admin center Copilot agent inventory exports are complete and reconciles declarative, shared, and Microsoft-provided agents. |
 | **Entra Agent ID Admin** | Confirms Entra Agent ID directory enumeration is complete and that AgentID-to-Entra-identity joins resolve. |
 | **Internal Audit** | Uses the evidence pack and three-signature attestation chain as the testable artifact for SOX-style and FINRA-supervision walkthroughs and the basis for the quarterly examiner-style audit (Section 9). |
-| **Model Risk Manager** | Reviews REG-* and ACC-* evidence under SR 11-7 / OCC 2011-12 model-risk inventory expectations. |
+| **Model Risk Manager** | Reviews REG-* and ACC-* evidence under Fed SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC 2011-12) model-risk inventory expectations. |
 
 Run order each cycle: **Section 5 PRE gates → Section 7 §COMP tests → §ACC → §DRIFT → §OWN → §LIFE → §DLP → §REG → §SOV → Section 8 evidence pack assembly → Section 11 attestation chain**. A blocker, a PRE failure, or any COMP-* FAIL halts the cycle.
 
@@ -1070,7 +1070,7 @@ The continuous-improvement loop is itself reviewed annually for effectiveness, a
 
 - **NIST AI Risk Management Framework 1.0**, GOVERN 1.6 — Mechanisms are in place to inventory AI systems and are resourced according to organizational risk priorities. https://www.nist.gov/itl/ai-risk-management-framework
 - **OCC Bulletin 2011-12 — Sound Practices for Model Risk Management** — Higher-risk model inventory expectations. https://www.occ.gov/news-issuances/bulletins/2011/bulletin-2011-12.html
-- **Federal Reserve SR 11-7 — Guidance on Model Risk Management** — Companion guidance to OCC 2011-12. https://www.federalreserve.gov/supervisionreg/srletters/SR2602.htm
+- **Federal Reserve SR 26-2 (formerly SR 11-7) — Guidance on Model Risk Management** — Companion guidance to OCC Bulletin 2026-13 (formerly OCC 2011-12). https://www.federalreserve.gov/supervisionreg/srletters/SR2602.htm
 - **FINRA Regulatory Notice 25-07 (March 2025)** — Generative-AI tool supervision; firms should be able to enumerate, supervise, and explain generative-AI use. https://www.finra.org/rules-guidance/notices/25-07
 - **FINRA Rule 4511** — Books and records general requirements.
 - **FINRA Rule 2210** — Communications with the public.

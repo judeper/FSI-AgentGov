@@ -37,6 +37,17 @@ LOCK_PATH = ROOT / "assessment" / "data" / "solutions-lock.json"
 SOLUTIONS_REPO = "judeper/FSI-AgentGov-Solutions"
 RAW_BASE = f"https://raw.githubusercontent.com/{SOLUTIONS_REPO}"
 
+# TODO(audit-AS22): the upstream FSI-AgentGov-Solutions ``solutions.json``
+# emits the ``description`` field for ``model-risk-management-automation``
+# using the legacy "OCC 2011-12 and Fed SR 11-7" naming. The framework's
+# ``verify_regulatory_naming.py`` (extended in AS22) now scans this lock
+# file and will fail CI if a future re-fetch reintroduces the legacy
+# wording. Producer-side fix: update the source manifest in
+# FSI-AgentGov-Solutions to "OCC Bulletin 2026-13 (formerly OCC 2011-12)
+# and Fed SR 26-2 (formerly SR 11-7)". Until that ships, framework
+# operators must hand-patch ``assessment/data/solutions-lock.json`` after
+# every refresh-tag run.
+
 # Solutions added in v1.4.0 — must be present in the refreshed lock.
 EXPECTED_NEW_IDS = (
     "agent-365-lifecycle-governance",

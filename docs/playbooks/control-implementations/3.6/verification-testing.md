@@ -12,7 +12,7 @@
 
 This playbook is the verification-and-testing artifact for [Control 3.6 — Orphaned Agent Detection and Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md). It is authored against framework version v1.4 and cites Microsoft UI and API surfaces as last verified in April 2026.
 
-- **Hedged regulatory language.** This playbook supports compliance with FINRA Rule 3110 (Supervision), FINRA Rule 4511 (Books and Records), FINRA Regulatory Notice 25-07 (Generative-AI Supervision), SEC Rules 17a-3 / 17a-4 (Records and Retention), SOX Sections 302 / 404 (Internal Control over Financial Reporting), GLBA §501(b), OCC Bulletin 2011-12, Federal Reserve SR 11-7 (Model Risk Management), CFTC Regulation 1.31, and NYDFS 23 NYCRR Part 500. A clean execution **does not guarantee** compliance, **does not replace** written supervisory procedures, and **supports — does not replace — registered-principal supervisory review under FINRA Rule 3110**. Implementation requires organization-specific risk assessment and legal review. Organizations should verify current Microsoft Learn documentation, sovereign-cloud feature parity, and tenant entitlements at each cycle.
+- **Hedged regulatory language.** This playbook supports compliance with FINRA Rule 3110 (Supervision), FINRA Rule 4511 (Books and Records), FINRA Regulatory Notice 25-07 (Generative-AI Supervision), SEC Rules 17a-3 / 17a-4 (Records and Retention), SOX Sections 302 / 404 (Internal Control over Financial Reporting), GLBA §501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7) (Model Risk Management), CFTC Regulation 1.31, and NYDFS 23 NYCRR Part 500. A clean execution **does not guarantee** compliance, **does not replace** written supervisory procedures, and **supports — does not replace — registered-principal supervisory review under FINRA Rule 3110**. Implementation requires organization-specific risk assessment and legal review. Organizations should verify current Microsoft Learn documentation, sovereign-cloud feature parity, and tenant entitlements at each cycle.
 - **Canonical role names.** AI Administrator, Power Platform Admin, Entra Agent ID Admin, Entra Identity Governance Admin, Entra Global Reader, AI Governance Lead, Compliance Officer, Purview Compliance Admin, HR / People Operations. No title substitution (for example, "Global Administrator" is not a substitute for "Entra Global Admin").
 - **Terminology.** The framework term is **orphaned agent** (five loss-of-accountability categories — see the control document); Microsoft surface terminology is **ownerless agent** (narrow definition — owner principal unset). Every ownerless agent is an orphaned agent; not every orphaned agent is ownerless.
 - **Backtick rule.** Code identifiers are fenced with backticks in body text but not inside headings. Where a heading references `(GCC / GCC High / DoD)`, the anchor slug is `gcc-gcc-high-dod` (no parentheses).
@@ -226,8 +226,8 @@ Field semantics (abbreviated where identical to peer controls):
 | `SOX-302` | Sarbanes-Oxley §302 (Management Certification) |
 | `SOX-404` | Sarbanes-Oxley §404 (Internal Control over Financial Reporting) |
 | `GLBA-501b` | Gramm-Leach-Bliley Act §501(b) (Safeguards) |
-| `OCC-2011-12` | OCC Bulletin 2011-12 (Third-Party / Technology Risk) |
-| `FED-SR-11-7` | Federal Reserve SR 11-7 (Model Risk Management) |
+| `OCC-2011-12` | OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (Third-Party / Technology Risk) |
+| `FED-SR-11-7` | Federal Reserve SR 26-2 (formerly SR 11-7) (Model Risk Management) |
 | `CFTC-1.31` | CFTC Regulation 1.31 (Recordkeeping) |
 | `NYDFS-500` | NYDFS 23 NYCRR Part 500 (Cybersecurity) |
 | `FFIEC-MGMT` | FFIEC IT Examination Handbook — Management booklet |
@@ -375,7 +375,7 @@ Describe "AGT36-DETECT" -Tag 'Control3.6','VC-1' {
 | FINRA Notice 25-07 | Documented periodic monitoring of generative-AI inventory accountability |
 | SOX §404 | Operating effectiveness of the detection control over financial-reporting-relevant agents |
 | NYDFS Part 500 | Documented monitoring activity on technology assets |
-| Federal Reserve SR 11-7 | Ongoing model-risk monitoring on identity-bound model assets |
+| Federal Reserve SR 26-2 (formerly SR 11-7) | Ongoing model-risk monitoring on identity-bound model assets |
 
 ---
 
@@ -1339,7 +1339,7 @@ Re-read the current Microsoft Learn documentation for the Agent 365 Ownerless Ag
 
 ## §14 Examiner-Facing Test Scenarios
 
-Each scenario is an end-to-end narrative with expected evidence. Examiners frequently ask for these during SOX walkthroughs, FINRA sweeps, NYDFS audits, and Fed SR 11-7 reviews.
+Each scenario is an end-to-end narrative with expected evidence. Examiners frequently ask for these during SOX walkthroughs, FINRA sweeps, NYDFS audits, and Fed SR 26-2 (formerly SR 11-7) reviews.
 
 ### Scenario A — M&A divestiture / mass-RIF orphan wave
 
@@ -1707,8 +1707,8 @@ If any dependency is in WARN or FAIL for the quarter, the 3.6 attestation must d
 - SEC Rule 17a-4 (Records Retention; WORM)
 - Sarbanes-Oxley Act §302, §404
 - Gramm-Leach-Bliley Act §501(b)
-- OCC Bulletin 2011-12 (Third-Party / Technology Risk)
-- Federal Reserve SR 11-7 (Model Risk Management)
+- OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (Third-Party / Technology Risk)
+- Federal Reserve SR 26-2 (formerly SR 11-7) (Model Risk Management)
 - CFTC Regulation 1.31 (Recordkeeping)
 - NYDFS 23 NYCRR Part 500 (Cybersecurity)
 - FFIEC IT Examination Handbook — Management booklet

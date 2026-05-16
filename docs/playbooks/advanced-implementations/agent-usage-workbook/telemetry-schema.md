@@ -200,7 +200,7 @@ This telemetry schema supports FSI governance reporting across several regulator
 | **SEC Rules 17a-3 / 17a-4** | Record creation and retention — broker-dealers must create and retain specified records | Application Insights retention policies (up to 730 days) can be configured to help support retention period requirements; organizations should verify alignment with their specific retention obligations |
 | **SOX Section 404** | Internal controls over financial reporting — management must assess effectiveness of internal controls | Agent usage telemetry provides evidence of AI agent activity, exception rates, and escalation patterns that can support internal control monitoring and assessment |
 | **FINRA Rule 3110** | Supervision — firms must establish supervisory procedures | Channel-level usage data and escalation tracking help support supervisory review of AI agent interactions |
-| **OCC Bulletin 2011-12** | Model risk management — sound practices for model risk management | Performance telemetry (error rates, exception patterns, dependency failures) aids in ongoing model monitoring as recommended by supervisory guidance |
+| **OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12)** | Model risk management — sound practices for model risk management | Performance telemetry (error rates, exception patterns, dependency failures) aids in ongoing model monitoring as recommended by supervisory guidance |
 
 !!! note "Regulatory Disclaimer"
     This telemetry schema reference is provided for informational purposes. Each organization must evaluate whether the captured telemetry, combined with other compliance mechanisms, satisfies their specific regulatory obligations. This framework does not constitute legal or compliance advice.
