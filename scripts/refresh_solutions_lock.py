@@ -16,9 +16,11 @@ The script will:
 1. Fetch ``solutions.json`` from the specified tag of
    ``judeper/FSI-AgentGov-Solutions`` over raw.githubusercontent.com.
 2. Verify ``schemaVersion`` starts with the major.minor of ``--tag``.
-3. Verify the count of solutions matches ``--expect-count`` (default 35).
-4. Verify the 7 previously-missing solution IDs are present.
-5. Atomically write to ``assessment/data/solutions-lock.json``.
+3. Verify the canonical ``counts`` block exists and matches the per-solution
+   ``status`` rollup.
+4. Verify the total count matches ``--expect-count`` (default 36).
+5. Verify key solution IDs are present.
+6. Atomically write to ``assessment/data/solutions-lock.json``.
 
 Exit codes: 0 = refreshed; 1 = verification failure; 2 = network/IO error.
 """
@@ -37,18 +39,7 @@ LOCK_PATH = ROOT / "assessment" / "data" / "solutions-lock.json"
 SOLUTIONS_REPO = "judeper/FSI-AgentGov-Solutions"
 RAW_BASE = f"https://raw.githubusercontent.com/{SOLUTIONS_REPO}"
 
-# TODO(audit-AS22): the upstream FSI-AgentGov-Solutions ``solutions.json``
-# emits the ``description`` field for ``model-risk-management-automation``
-# using the legacy "OCC 2011-12 and Fed SR 11-7" naming. The framework's
-# ``verify_regulatory_naming.py`` (extended in AS22) now scans this lock
-# file and will fail CI if a future re-fetch reintroduces the legacy
-# wording. Producer-side fix: update the source manifest in
-# FSI-AgentGov-Solutions to "OCC Bulletin 2026-13 (formerly OCC 2011-12)
-# and Fed SR 26-2 (formerly SR 11-7)". Until that ships, framework
-# operators must hand-patch ``assessment/data/solutions-lock.json`` after
-# every refresh-tag run.
-
-# Solutions added in v1.4.0 — must be present in the refreshed lock.
+# Key v1.4+ solution IDs — must be present in the refreshed lock.
 EXPECTED_NEW_IDS = (
     "agent-365-lifecycle-governance",
     "agent-knowledge-source-scanner",
@@ -81,7 +72,7 @@ def main() -> int:
         help="Path to solutions manifest within the solutions repo.",
     )
     parser.add_argument(
-        "--expect-count", type=int, default=35, help="Expected solution count."
+        "--expect-count", type=int, default=36, help="Expected solution count."
     )
     parser.add_argument(
         "--expect-ids",
@@ -144,13 +135,41 @@ def main() -> int:
         )
         return 1
 
-    sols = data.get("solutions", {})
-    sol_ids = set(sols.keys()) if isinstance(sols, dict) else {
-        s.get("id") for s in sols if isinstance(s, dict)
-    }
-    if len(sol_ids) != args.expect_count:
+    counts = data.get("counts")
+    if not isinstance(counts, dict) or any(
+        not isinstance(counts.get(key), int) for key in ("total", "live", "preview")
+    ):
         print(
-            f"ERROR: expected {args.expect_count} solutions, got {len(sol_ids)}",
+            "ERROR: solutions.json is missing the canonical counts block "
+            "(integer total/live/preview keys required)",
+            file=sys.stderr,
+        )
+        return 1
+
+    sols = data.get("solutions", {})
+    if isinstance(sols, dict):
+        sol_ids = set(sols.keys())
+        items = [body for body in sols.values() if isinstance(body, dict)]
+    else:
+        items = [s for s in sols if isinstance(s, dict)]
+        sol_ids = {s.get("id") for s in items if s.get("id")}
+
+    derived_counts = {"total": len(sol_ids), "live": 0, "preview": 0}
+    for item in items:
+        status = item.get("status")
+        if status in ("live", "preview"):
+            derived_counts[status] += 1
+
+    if counts != derived_counts:
+        print(
+            f"ERROR: counts block {counts} does not match derived status rollup {derived_counts}",
+            file=sys.stderr,
+        )
+        return 1
+
+    if counts["total"] != args.expect_count:
+        print(
+            f"ERROR: expected counts.total={args.expect_count}, got {counts['total']}",
             file=sys.stderr,
         )
         return 1
@@ -163,7 +182,10 @@ def main() -> int:
         return 1
 
     if args.dry_run:
-        print(f"OK (dry-run): {len(sol_ids)} solutions, schemaVersion={sv}")
+        print(
+            "OK (dry-run): "
+            f"schemaVersion={sv}, counts={counts}, totalSolutions={len(sol_ids)}"
+        )
         return 0
 
     LOCK_PATH.parent.mkdir(parents=True, exist_ok=True)

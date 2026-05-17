@@ -186,6 +186,8 @@ jobs:
           python-version: '3.11'
       - name: Verify solution and regulatory prose counts match canonical sources
         run: python scripts/verify_prose_counts.py --check
+      - name: Verify solution docs consume the pinned solutions lock contract
+        run: python scripts/verify_solutions_docs.py --check
 
   regulatory_naming:
     name: regulatory naming (OCC/SR canonical)

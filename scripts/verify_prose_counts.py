@@ -155,20 +155,41 @@ PROSE_PATTERNS: list[tuple[str, re.Pattern[str], str]] = [
 
 
 def load_lock_counts(lock_path: Path) -> dict[str, int]:
-    """Return canonical solution counts from solutions-lock.json."""
+    """Return canonical solution counts from solutions-lock.json.
+
+    The committed lock file must consume the producer's canonical ``counts``
+    block directly. We still derive totals from the per-solution ``status``
+    fields as a safety check so stale or hand-edited rollups fail loudly.
+    """
     data = json.loads(lock_path.read_text(encoding="utf-8"))
+    counts = data.get("counts")
+    required = ("total", "live", "preview")
+    if not isinstance(counts, dict):
+        raise ValueError("solutions-lock.json is missing the canonical 'counts' block")
+    if any(not isinstance(counts.get(key), int) for key in required):
+        raise ValueError(
+            "solutions-lock.json counts block must contain integer total/live/preview keys"
+        )
+
     solutions = data.get("solutions") or {}
     if isinstance(solutions, dict):
         items: Iterable[dict] = solutions.values()
     else:
         items = solutions
-    counts = {"total": 0, "live": 0, "preview": 0}
+    derived = {"total": 0, "live": 0, "preview": 0}
     for item in items:
-        counts["total"] += 1
+        derived["total"] += 1
         status = item.get("status", "")
-        if status in counts:
-            counts[status] += 1
-    return counts
+        if status in derived:
+            derived[status] += 1
+
+    canonical = {key: int(counts[key]) for key in required}
+    if canonical != derived:
+        raise ValueError(
+            "solutions-lock.json counts block does not match per-solution status rollups: "
+            f"counts={canonical}, derived={derived}"
+        )
+    return canonical
 
 
 def iter_lines_skipping_fences(
@@ -385,8 +406,11 @@ def run_all_checks() -> tuple[int, list[str], dict[str, int]]:
     """Run all three checks. Return (failure_count, messages, lock_counts)."""
     if not LOCK_FILE.exists():
         return 1, [f"FAIL: {LOCK_FILE} not found"], {}
-    counts = load_lock_counts(LOCK_FILE)
     messages: list[str] = []
+    try:
+        counts = load_lock_counts(LOCK_FILE)
+    except ValueError as exc:
+        return 1, [f"FAIL: {exc}"], {}
     messages.extend(check_regulatory_table(REGULATORY_FILE))
     messages.extend(
         check_inventory_row_count(SOLUTIONS_INDEX, counts["total"])

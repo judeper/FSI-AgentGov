@@ -127,7 +127,8 @@ The companion repo contains 4 companion solutions.
 def _write_lock(tmp_path: Path) -> Path:
     lock = tmp_path / "solutions-lock.json"
     payload = {
-        "schemaVersion": "1.0.0",
+        "schemaVersion": "1.5.0",
+        "counts": {"total": 3, "live": 2, "preview": 1},
         "solutions": {
             "alpha": {"id": "alpha", "status": "live"},
             "beta": {"id": "beta", "status": "live"},
@@ -297,3 +298,20 @@ def test_default_mode_returns_zero_even_on_drift(monkeypatch, tmp_path):
     )
     rc = vpc.main([])
     assert rc == 0
+
+
+def test_fails_when_canonical_counts_block_is_missing(monkeypatch, tmp_path):
+    _setup(
+        monkeypatch, tmp_path,
+        regulatory=CLEAN_REGULATORY,
+        inventory=CLEAN_INVENTORY,
+        prose_files={"readme.md": PROSE_GOOD_README},
+    )
+    payload = json.loads(vpc.LOCK_FILE.read_text(encoding="utf-8"))
+    payload.pop("counts")
+    vpc.LOCK_FILE.write_text(json.dumps(payload), encoding="utf-8")
+
+    n, msgs, counts = vpc.run_all_checks()
+    assert n == 1
+    assert counts == {}
+    assert any("canonical 'counts' block" in msg for msg in msgs)
