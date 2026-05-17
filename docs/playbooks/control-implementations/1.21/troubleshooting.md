@@ -748,4 +748,4 @@ Maintain a rolling 12-month trend-watch table that the Control 1.21 owner review
 
 ---
 
-*Updated: April 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

@@ -202,4 +202,4 @@ ACP-only mode bypasses **all** classic DLP evaluation for affected environments.
 
 ---
 
-*Updated: April 2026 | Version: v1.6.2*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

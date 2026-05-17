@@ -1260,4 +1260,4 @@ The following 15 patterns are **non-conformance** to Control 1.13 and must be re
 
 ---
 
-*Updated: April 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

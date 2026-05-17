@@ -234,3 +234,6 @@ An evidence pack is complete when:
 - All controls operational
 - No material findings
 - Quarterly review complete (approved 2026-01-05)
+---
+
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

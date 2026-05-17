@@ -805,13 +805,4 @@ Before declaring Control 2.26 implemented, confirm:
 
 ---
 
-*Updated: May 2026 | Version: v1.0.0 | UI Verification Status: Verified against Entra admin center navigation as of April 2026 and refreshed for the May 2026 Agent 365 / Entra Agent ID GA. Portal navigation may shift across Wave 1 / Wave 2 release cycles; consult `learn.microsoft.com/entra/agent-id/whats-new-agent-id` if blade names diverge.*
-
-
-
-
-
-
-
-
-
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

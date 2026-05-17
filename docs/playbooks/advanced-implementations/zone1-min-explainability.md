@@ -120,13 +120,12 @@ Weekly:
 
 ---
 
-*FSI Agent Governance Framework v1.2.53 - March 2026*
-
----
-
 ## Related Specifications
 
 | Specification | Relationship |
 |--------------|-------------|
 | [Confidence and Routing](confidence-and-routing.md) | Defines the confidence scoring model whose outputs this spec requires to be displayed |
 | [Human-in-the-Loop Triggers](human-in-the-loop-triggers.md) | Defines escalation triggers that may need explainability context when presented to reviewers |
+---
+
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

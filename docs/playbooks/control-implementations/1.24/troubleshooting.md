@@ -199,3 +199,6 @@ Get-AzRoleAssignment -SignInName (Get-AzContext).Account.Id |
 ---
 
 [Back to Control 1.24](../../../controls/pillar-1-security/1.24-defender-ai-security-posture-management.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md)
+---
+
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

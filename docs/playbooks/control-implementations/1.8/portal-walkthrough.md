@@ -710,4 +710,4 @@ A confirmed runtime event detected by Control 1.8 (e.g., a sustained jailbreak a
 
 ---
 
-*Updated: May-2026 | Version: v1.6.2 | UI Verification Status: Current (commercial); GCC / GCC High / DoD per Sovereign Cloud Availability table*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

@@ -128,3 +128,6 @@ Each rule maps an audience (**Everyone** or a specific Microsoft Entra security 
 ---
 
 [Back to Control 2.15](../../../controls/pillar-2-management/2.15-environment-routing.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+---
+
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

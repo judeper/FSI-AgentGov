@@ -162,3 +162,6 @@ if (-not $envs) {
 ---
 
 [Back to Control 2.9](../../../controls/pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification & Testing](verification-testing.md)
+---
+
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

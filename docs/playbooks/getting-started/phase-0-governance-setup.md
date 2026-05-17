@@ -271,5 +271,4 @@ Proceed to [Phase 1: Minimal Viable Controls](phase-1-minimal-viable-controls.md
 
 ---
 
-*Last Updated: January 2026*
-*FSI Agent Governance Framework v1.2*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

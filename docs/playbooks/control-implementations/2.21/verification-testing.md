@@ -202,7 +202,7 @@ The wording below is intended as a starting point. Compliance and Legal should a
 ```
 AI MARKETING CLAIMS CONTROL — ATTESTATION
 Control 2.21 — AI Marketing Claims and Substantiation
-Framework Version: 1.3.3
+Framework Version: v1.6.2
 
 Organization: ____________________________________
 Attestation Period: ______________________________
@@ -259,3 +259,6 @@ Date:         ______________________________________
 ---
 
 [Back to Control 2.21](../../../controls/pillar-2-management/2.21-ai-marketing-claims-and-substantiation.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md)
+---
+
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

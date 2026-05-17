@@ -1129,7 +1129,4 @@ This control does not stand alone. The following cross-references connect Contro
 
 ---
 
-*Updated: April 2026 | Version: v1.6.2 | UI Verification Status: Current*
-
-
-
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

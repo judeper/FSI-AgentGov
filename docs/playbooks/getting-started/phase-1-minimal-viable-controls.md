@@ -362,5 +362,4 @@ Proceed to [Phase 2: Hardening](phase-2-hardening.md) to implement advanced secu
 
 ---
 
-*Last Updated: January 2026*
-*FSI Agent Governance Framework v1.2*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

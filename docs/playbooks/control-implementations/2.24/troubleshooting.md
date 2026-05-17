@@ -1008,4 +1008,4 @@ This attestation **supports** examiner response and post-incident review. It doe
 
 ---
 
-*Updated: April 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
