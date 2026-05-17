@@ -329,4 +329,4 @@ Retain this completed attestation form as a business record. For Zone 3 firms, r
 
 [Back to Control 3.13](../../../controls/pillar-3-reporting/3.13-agent-365-admin-center-analytics.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md)
 
-*Updated: April 2026 | Version: v1.6.2*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

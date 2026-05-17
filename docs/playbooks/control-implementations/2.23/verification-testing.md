@@ -223,3 +223,6 @@ Naming convention: `2.23-test{NN}-{short-description}-YYYYMMDD-HHMMSS.{ext}`.
 ---
 
 [Back to Control 2.23](../../../controls/pillar-2-management/2.23-user-consent-and-ai-disclosure-enforcement.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md)
+---
+
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

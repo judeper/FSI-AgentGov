@@ -207,4 +207,4 @@ This telemetry schema supports FSI governance reporting across several regulator
 
 ---
 
-*Updated: February 2026 | Version: v1.6.2 | Framework: FSI Agent Governance*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

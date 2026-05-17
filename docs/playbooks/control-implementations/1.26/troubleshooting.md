@@ -288,3 +288,6 @@ Get-AdminPowerAppEnvironment | Measure-Object
 ---
 
 [Back to Control 1.26](../../../controls/pillar-1-security/1.26-agent-file-upload-and-file-analysis-restrictions.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification & Testing](verification-testing.md)
+---
+
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

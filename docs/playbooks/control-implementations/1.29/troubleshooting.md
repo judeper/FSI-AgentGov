@@ -368,4 +368,4 @@ For Sentinel-specific issues, refer to Control 3.9 (Microsoft Sentinel Integrati
 
 [Back to Control 1.29](../../../controls/pillar-1-security/1.29-global-secure-access-network-controls.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md)
 
-*Updated: April 2026 | Version: v1.6.2*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

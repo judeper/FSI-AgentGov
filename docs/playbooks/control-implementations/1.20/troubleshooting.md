@@ -177,3 +177,6 @@ See the [PowerShell baseline](../../_shared/powershell-baseline.md) §3 for the 
 ---
 
 [Back to Control 1.20](../../../controls/pillar-1-security/1.20-network-isolation-private-connectivity.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification & Testing](verification-testing.md)
+---
+
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

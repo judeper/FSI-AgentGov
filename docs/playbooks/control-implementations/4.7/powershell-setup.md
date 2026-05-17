@@ -1030,4 +1030,4 @@ The 18 anti-patterns below are the false-clean and silent-failure modes most oft
 
 ---
 
-*Updated: April 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

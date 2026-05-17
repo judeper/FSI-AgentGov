@@ -214,3 +214,6 @@ I have reviewed the evidence pack referenced below and attest to the following f
 ---
 
 [Back to Control 2.17](../../../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md)
+---
+
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

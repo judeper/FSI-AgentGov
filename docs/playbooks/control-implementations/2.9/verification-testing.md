@@ -165,3 +165,6 @@ I attest that, for the period above:
 ---
 
 [Back to Control 2.9](../../../controls/pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md)
+---
+
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

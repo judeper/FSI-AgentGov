@@ -491,3 +491,6 @@ $report | ConvertTo-Json -Depth 8 | Set-Content $jsonPath
 ---
 
 [Back to Control 1.15](../../../controls/pillar-1-security/1.15-encryption-data-in-transit-and-at-rest.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+---
+
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

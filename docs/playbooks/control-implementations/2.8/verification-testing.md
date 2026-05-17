@@ -155,3 +155,6 @@ Per FINRA Rule 3110 supervisory expectations, the **signer of this attestation m
 ---
 
 [Back to Control 2.8](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md)
+---
+
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
