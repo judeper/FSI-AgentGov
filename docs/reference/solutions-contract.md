@@ -14,8 +14,8 @@ other to avoid silent breakage.
 The framework repository (this one) owns the **78-control taxonomy**, the
 control manifest at `assessment/manifest/controls.json`, the assessment
 engine, and the regulatory-mapping documentation. The Solutions repository
-owns the 35 reference implementation solutions that map back to those
-controls.
+owns the 36 companion solution implementations (35 live + 1 preview) that map
+back to those controls.
 
 The Solutions repository validates each solution's `manifest.yaml` against
 the framework's `controls.json` to ensure every claimed control mapping is
@@ -37,7 +37,7 @@ to a framework release tag, not to `main`**.
 | Control IDs and pillar numbers | Framework | Solutions, downstream docs | Removal or renumbering = **major** version bump |
 | Pass-condition strings (`pass_condition`) | Framework | Assessment engine evaluators | Renaming = **minor** unless the evaluator is also updated atomically |
 | Solution → control mappings | Solutions | Framework `solutions-integration.md` | Solutions cite framework tag in `manifest.yaml` |
-| Generated `solutions.json` | Solutions | Framework `solutions-index.md` | Solutions repo publishes per-tag artifacts |
+| Generated `solutions.json` (counts + per-solution version/status/controls) | Solutions | Framework `assessment/data/solutions-lock.json`, `solutions-index.md`, prose validators | Solutions repo publishes per-tag artifacts; framework pins the JSON into `solutions-lock.json` for reproducible builds |
 
 ### Framework commitments
 

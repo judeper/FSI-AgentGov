@@ -1,6 +1,11 @@
 {
   "schemaVersion": "1.5.0",
   "generatedBy": "scripts/build-manifest.py",
+  "counts": {
+    "total": 36,
+    "live": 35,
+    "preview": 1
+  },
   "solutions": {
     "action-confirmation-auditor": {
       "id": "action-confirmation-auditor",
@@ -803,7 +808,7 @@
       "domain": "compliance-audit",
       "tier": "2",
       "status": "live",
-      "description": "Automated OCC Bulletin 2026-13 (formerly OCC 2011-12) and Fed SR 26-2 (formerly SR 11-7) model risk management for AI agents deployed on Power Platform. This solution automates model inventory submission, risk scoring, independent validation workflows, ongoing monitoring, and examiner-facing Agent Card generation.",
+      "description": "Automated model risk management workflows for AI agents deployed on Power Platform, aligned to OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) and Fed SR 26-2 (formerly Fed SR 11-7) principles where applicable. This solution automates model inventory submission, risk scoring, independent validation workflows, ongoing monitoring, and examiner-facing Agent Card generation.",
       "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/model-risk-management-automation/",
       "controls": [
         "2.6",

@@ -7,14 +7,14 @@ locally so framework builds are reproducible.
 
 Rules enforced:
 
-* ``schemaVersion`` must start with ``"1.4."`` or ``"1.5."`` (both
-  accepted; 1.5.0 made the producer-side ``zones`` field required, but
-  the consumer treats either version as structurally valid).
+* ``schemaVersion`` must start with ``"1.4."`` or ``"1.5."``.
+* Top-level ``counts`` must exist with integer ``total``, ``live``, and
+  ``preview`` keys, and must match the per-solution ``status`` rollup.
 * ``solutions`` is an object keyed by kebab-case folder-name ID (or a
   list of objects with the same fields — both shapes accepted).
-* Each solution has: ``id``, ``name``, ``version``, ``domain``,
-  ``tier`` ∈ {"1","2","3"}, ``description``, ``url``, ``prerequisites``
-  (object), ``verification`` (string).
+* Each solution has: ``id``, ``name``, ``version``, ``status``, ``domain``,
+  ``tier`` ∈ {"1","2","3"}, ``description``, ``url``, ``controls``
+  (list), ``prerequisites`` (object), and ``verification`` (string).
 
 Cross-check (warning only — graceful degradation per spec):
 * Every solution id referenced in ``controls.json.solutions[]`` should
@@ -36,16 +36,21 @@ LOCK_DEFAULT = ROOT / "assessment" / "data" / "solutions-lock.json"
 MANIFEST_DEFAULT = ROOT / "assessment" / "manifest" / "controls.json"
 
 SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
+CONTROL_ID_RE = re.compile(r"^\d+\.\d+$")
 TIER_VALUES = {"1", "2", "3"}
+STATUS_VALUES = {"live", "preview"}
+COUNT_KEYS = ("total", "live", "preview")
 ACCEPTED_SCHEMA_PREFIXES = ("1.4.", "1.5.")
 REQUIRED_FIELDS = (
     "id",
     "name",
     "version",
+    "status",
     "domain",
     "tier",
     "description",
     "url",
+    "controls",
     "prerequisites",
     "verification",
 )
@@ -80,6 +85,21 @@ def validate_solution(sid: str, body: dict[str, Any]) -> list[str]:
             f"solutions[{sid}].tier must be in {sorted(TIER_VALUES)} (got {body['tier']!r})"
         )
 
+    if "status" in body and body["status"] not in STATUS_VALUES:
+        errs.append(
+            f"solutions[{sid}].status must be in {sorted(STATUS_VALUES)} (got {body['status']!r})"
+        )
+
+    if "controls" in body:
+        if not isinstance(body["controls"], list):
+            errs.append(f"solutions[{sid}].controls must be a list")
+        else:
+            for control_id in body["controls"]:
+                if not isinstance(control_id, str) or not CONTROL_ID_RE.match(control_id):
+                    errs.append(
+                        f"solutions[{sid}].controls contains invalid control ID {control_id!r}"
+                    )
+
     if "prerequisites" in body and not isinstance(body["prerequisites"], (dict, list)):
         errs.append(f"solutions[{sid}].prerequisites must be an object or list")
 
@@ -88,6 +108,33 @@ def validate_solution(sid: str, body: dict[str, Any]) -> list[str]:
     ):
         errs.append(f"solutions[{sid}].url must be http(s)")
 
+    return errs
+
+
+def validate_counts(lock: dict[str, Any]) -> list[str]:
+    errs: list[str] = []
+    counts = lock.get("counts")
+    if not isinstance(counts, dict):
+        return ["counts block must be present at the top level of solutions-lock.json"]
+    for key in COUNT_KEYS:
+        if not isinstance(counts.get(key), int):
+            errs.append(f"counts.{key} must be an integer")
+
+    if errs:
+        return errs
+
+    derived = {"total": 0, "live": 0, "preview": 0}
+    for _sid, body in iter_solutions(lock):
+        derived["total"] += 1
+        status = body.get("status") if isinstance(body, dict) else None
+        if status in ("live", "preview"):
+            derived[status] += 1
+
+    for key in COUNT_KEYS:
+        if counts[key] != derived[key]:
+            errs.append(
+                f"counts.{key} ({counts[key]!r}) does not match derived value {derived[key]!r}"
+            )
     return errs
 
 
@@ -141,6 +188,8 @@ def main() -> int:
             f"schemaVersion must start with one of {accepted} (got {sv!r}); "
             "refresh the lock against a supported FSI-AgentGov-Solutions release tag."
         )
+
+    errs.extend(validate_counts(lock))
 
     sol_count = 0
     for sid, body in iter_solutions(lock):

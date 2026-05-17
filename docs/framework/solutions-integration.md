@@ -18,7 +18,7 @@ flowchart TB
         P4[Pillar 4: SharePoint<br/>9 Controls]
     end
 
-    subgraph Solutions["FSI-AgentGov-Solutions (19 of 36 Solutions Shown)"]
+    subgraph Solutions["FSI-AgentGov-Solutions (Representative Solutions)"]
         direction TB
         ELM[Environment Lifecycle<br/>Management]
         MCM[Message Center<br/>Monitor]
@@ -72,6 +72,9 @@ flowchart TB
 
 ## Solution-to-Control Mapping
 
+!!! note "Representative examples"
+    This section intentionally highlights representative solution-to-control examples rather than re-publishing the full companion inventory. The canonical live/preview status, version, and full control coverage for each solution live in `assessment/data/solutions-lock.json` and the [Solutions Index](../reference/solutions-index.md). CI validates that any control IDs listed here are a subset of the linked solution's canonical `controls` array.
+
 ### Environment Lifecycle Management
 
 Automates environment provisioning with zone classification.
@@ -80,9 +83,11 @@ Automates environment provisioning with zone classification.
 |---------|-------------------|
 | **2.1 Managed Environments** | Automatically enables managed environment settings during provisioning |
 | **2.2 Environment Groups** | Assigns environments to zone-appropriate environment groups |
-| **2.15 Environment Routing** | Implements default environment policies through provisioning workflow |
+| **2.8 Access Control and Segregation of Duties** | Supports governed environment ownership and maker-checker separation in production paths |
 
 **Applicable Zones:** Zone 2, Zone 3
+
+**Repository Link:** [environment-lifecycle-management](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/environment-lifecycle-management)
 
 **Playbook:** [Environment Lifecycle Management](../playbooks/advanced-implementations/environment-lifecycle-management/index.md)
 
@@ -95,9 +100,10 @@ Operationalizes platform change tracking for governance workflows.
 | Control | How Solution Helps |
 |---------|-------------------|
 | **2.3 Change Management** | Delivers structured notifications for platform changes requiring assessment |
-| **2.10 Patch Management** | Tracks Microsoft-initiated updates affecting Power Platform and M365 |
 
 **Applicable Zones:** All zones (organization-wide)
+
+**Repository Link:** [message-center-monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/message-center-monitor)
 
 **Playbook:** [Platform Change Governance](../playbooks/advanced-implementations/platform-change-governance/index.md)
 
@@ -112,6 +118,8 @@ Transitions from personal to centralized deployment pipelines.
 | **2.3 Change Management** | Enforces centralized ALM governance by removing ungoverned personal pipelines |
 
 **Applicable Zones:** Zone 2, Zone 3 (production-path environments)
+
+**Repository Link:** [pipeline-governance-cleanup](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/pipeline-governance-cleanup)
 
 **Related Control:** [2.3 - Change Management](../controls/pillar-2-management/2.3-change-management-and-release-planning.md)
 
@@ -129,7 +137,7 @@ Aggregates block events for unified compliance visibility.
 
 **Applicable Zones:** Zone 2, Zone 3
 
-**Status:** Validated
+**Repository Link:** [deny-event-correlation-report](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report)
 
 **Playbook:** [Deny Event Correlation Report](../playbooks/advanced-implementations/deny-event-correlation-report/index.md)
 
@@ -147,7 +155,6 @@ Automates supervision queue for AI agent outputs supporting FINRA Rule 3110.
 
 **Applicable Zones:** Zone 2, Zone 3
 
-**Status:** Validated
 
 **Repository Link:** [finra-supervision-workflow](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/finra-supervision-workflow)
 
@@ -170,7 +177,6 @@ Automates CA policy deployment and compliance monitoring for AI workloads.
 
 **Applicable Zones:** All zones (zone-specific policy requirements)
 
-**Status:** Completed
 
 **Repository Link:** [conditional-access-automation](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/conditional-access-automation)
 
@@ -193,7 +199,6 @@ Unified compliance visibility across the framework control catalog.
 
 **Applicable Zones:** All zones (organization-wide reporting)
 
-**Status:** Completed
 
 **Repository Link:** [compliance-dashboard](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/compliance-dashboard)
 
@@ -216,7 +221,6 @@ Identifies and helps prevent SoD violations in agent development workflows.
 
 **Applicable Zones:** Zone 2, Zone 3
 
-**Status:** Validated
 
 **Repository Link:** [segregation-detector](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/segregation-detector)
 
@@ -239,7 +243,6 @@ Detects agent data access beyond declared operational scope.
 
 **Applicable Zones:** Zone 2, Zone 3
 
-**Status:** Completed
 
 **Repository Link:** [scope-drift-monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/scope-drift-monitor)
 
@@ -262,7 +265,6 @@ Validates integrity of RAG knowledge sources with change detection.
 
 **Applicable Zones:** Zone 2, Zone 3
 
-**Status:** Work In Progress
 
 **Repository Link:** [rag-source-validator](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/rag-source-validator)
 
@@ -285,7 +287,6 @@ Automated testing for conflicts of interest in agent recommendations.
 
 **Applicable Zones:** Zone 2, Zone 3
 
-**Status:** Work In Progress
 
 **Repository Link:** [coi-testing](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/coi-testing)
 
@@ -308,7 +309,6 @@ Feedback aggregation for hallucination pattern analysis.
 
 **Applicable Zones:** Zone 2, Zone 3
 
-**Status:** Work In Progress
 
 **Repository Link:** [hallucination-tracker](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/hallucination-tracker)
 
@@ -331,7 +331,6 @@ Automated disaster recovery testing for AI agent infrastructure.
 
 **Applicable Zones:** Zone 3 (Enterprise Managed)
 
-**Status:** Work In Progress
 
 **Repository Link:** [dr-testing-framework](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/dr-testing-framework)
 
@@ -353,7 +352,6 @@ Validates session security settings per governance zone with drift detection and
 
 **Applicable Zones:** Zone 2, Zone 3
 
-**Status:** Completed
 
 **Repository Link:** [session-security-configurator](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/session-security-configurator)
 
@@ -371,7 +369,6 @@ Validates per-agent file upload settings against zone governance policies with d
 
 **Applicable Zones:** Zone 2, Zone 3
 
-**Status:** Completed
 
 **Repository Link:** [file-upload-security](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/file-upload-security)
 
@@ -387,7 +384,6 @@ Validates tenant and environment audit configurations, detects compliance gaps, 
 
 **Applicable Zones:** All zones
 
-**Status:** Completed
 
 **Repository Link:** [audit-compliance-manager](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/audit-compliance-manager)
 
@@ -403,7 +399,6 @@ Detects overly permissive agent access configurations per governance zone.
 
 **Applicable Zones:** All zones
 
-**Status:** Work In Progress
 
 **Repository Link:** [agent-access-monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-access-monitor)
 
@@ -420,7 +415,6 @@ Validates per-agent content moderation levels against zone-specific governance r
 
 **Applicable Zones:** Zone 2, Zone 3
 
-**Status:** Completed
 
 **Repository Link:** [content-moderation-monitor](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/content-moderation-monitor)
 
