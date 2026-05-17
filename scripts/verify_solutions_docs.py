@@ -234,7 +234,7 @@ def check_solutions_integration(path: Path, solutions: dict[str, dict]) -> list[
             )
             continue
         allowed = set(solution.get("controls", []))
-        for relative_line_no, cid in controls:
+        for _relative_line_no, cid in controls:
             if cid not in allowed:
                 failures.append(
                     f"FAIL: {path}: solution example {heading!r} cites control {cid!r}, but {folder!r} canonical controls are {solution.get('controls', [])!r}."
