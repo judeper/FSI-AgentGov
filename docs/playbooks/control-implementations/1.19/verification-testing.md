@@ -940,4 +940,4 @@ Each row pairs an anti-pattern with the test(s) that detect it. A cycle that pas
 
 ---
 
-*Updated: April 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

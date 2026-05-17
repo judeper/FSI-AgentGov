@@ -154,3 +154,6 @@ Minimum metrics per agent (weekly):
 - Use Purview audit logs as the canonical “what resources were accessed” signal for Copilot/agent interactions, because records include `AccessedResources` and label IDs. <sup>[16]</sup>
 - Decision logs provide the “why” and “what was attempted,” which complements audit metadata.
 - Keep false positives low by separating “hard” drift (policy boundary crossings) from “soft” drift (anomalies) and requiring human review before enforcement escalation for soft signals.
+---
+
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

@@ -473,4 +473,4 @@ $results | Format-Table -AutoSize
 
 ---
 
-*Updated: April 2026 | Version: v1.6.2*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

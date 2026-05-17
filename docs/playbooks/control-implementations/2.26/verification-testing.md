@@ -1870,3 +1870,6 @@ A `PASS` from this validator is the green light to file with the Board secretari
 | **Updated** | April 2026 |
 
 > This playbook supports — but does not by itself ensure — compliance with FINRA Rules 3110 and 4511, FINRA Notice 25-07, SEC Rule 17a-4, SOX §404, GLBA §501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), and the FFIEC IT Examination Handbook. Organizations should verify findings against their own legal and regulatory obligations and tailor zone thresholds to their documented risk appetite.
+---
+
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

@@ -176,3 +176,6 @@
 ---
 
 [Back to Control 1.22](../../../controls/pillar-1-security/1.22-information-barriers.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md)
+---
+
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

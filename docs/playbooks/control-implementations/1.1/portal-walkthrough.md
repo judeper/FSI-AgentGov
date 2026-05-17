@@ -263,4 +263,4 @@ After completing these steps, verify:
 
 ---
 
-*Updated: April 2026 | Version: v1.6.2 | Classification: Portal Walkthrough*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

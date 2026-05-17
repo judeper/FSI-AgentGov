@@ -149,3 +149,6 @@ The values above are framework defaults. Your firm's WSPs and record-retention s
 ---
 
 [Back to Control 2.14](../../../controls/pillar-2-management/2.14-training-and-awareness-program.md) | [PowerShell Setup](powershell-setup.md) | [Verification & Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+---
+
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

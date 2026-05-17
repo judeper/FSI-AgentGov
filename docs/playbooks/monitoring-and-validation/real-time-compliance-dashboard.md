@@ -168,3 +168,6 @@ Microsoft Purview highlights auditing, retention, and eDiscovery as mechanisms t
 
 Purview Copilot audit logs include `AccessedResources` with `SensitivityLabelId`, `PolicyDetails`, and `XPIADetected`, and include agent identity fields like `AgentId`, `AgentName`, and `AgentVersion`. <sup>[16]</sup>  
 Purview also supports compliance operations for AI interactions including auditing and eDiscovery/retention, which should be referenced as part of the governance evidence approach. <sup>[17]</sup>
+---
+
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

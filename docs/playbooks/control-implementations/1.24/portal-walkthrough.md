@@ -171,3 +171,6 @@ Retain for the longer of: FINRA WORM retention (6 years per Rule 4511), SOX rete
 ---
 
 [Back to Control 1.24](../../../controls/pillar-1-security/1.24-defender-ai-security-posture-management.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+---
+
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
