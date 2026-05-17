@@ -588,25 +588,25 @@ For organizations implementing the full framework, deploy solutions in this orde
 
 ```
 FSI-AgentGov-Solutions/
-├── environment-lifecycle-management/      # v1.1.2 (Completed)
-├── message-center-monitor/               # v2.5.0 (Live)
-├── pipeline-governance-cleanup/          # v1.0.8 (Completed)
-├── deny-event-correlation-report/        # v2.0.0 (Completed)
-├── finra-supervision-workflow/           # v1.0.0 (Validated)
-├── conditional-access-automation/        # v1.1.0 (Completed)
-├── compliance-dashboard/                 # v1.0.0 (Completed)
-├── segregation-detector/                 # v1.0.0 (Validated)
-├── scope-drift-monitor/                  # v1.1.0 (Completed)
-├── rag-source-validator/                 # v1.0.0 (Work In Progress)
-├── session-security-configurator/        # v1.0.0 (Completed)
-├── file-upload-security/                 # v1.0.0 (Completed)
-├── audit-compliance-manager/             # v1.0.0 (Completed)
-├── agent-access-monitor/                 # v1.0.0 (Work In Progress)
-├── content-moderation-monitor/           # v1.0.0 (Completed)
-├── coi-testing/                          # v1.0.0 (Work In Progress)
-├── hallucination-tracker/                # v1.0.0 (Work In Progress)
-├── dr-testing-framework/                 # v1.0.0 (Work In Progress)
-├── cross-solution-integration/           # v1.0.0 (Completed)
+├── environment-lifecycle-management/
+├── message-center-monitor/
+├── pipeline-governance-cleanup/
+├── deny-event-correlation-report/
+├── finra-supervision-workflow/
+├── conditional-access-automation/
+├── compliance-dashboard/
+├── segregation-detector/
+├── scope-drift-monitor/
+├── rag-source-validator/
+├── session-security-configurator/
+├── file-upload-security/
+├── audit-compliance-manager/
+├── agent-access-monitor/
+├── content-moderation-monitor/
+├── coi-testing/
+├── hallucination-tracker/
+├── dr-testing-framework/
+├── cross-solution-integration/
 │   ├── flows/                            # Power Automate flow templates
 │   ├── scripts/powershell/               # PowerShell modules and scripts
 │   ├── docs/                             # Integration documentation
@@ -614,6 +614,10 @@ FSI-AgentGov-Solutions/
 ├── scripts/
 │   └── hooks/
 └── .claude/
+
+(See the [Solutions Index](../reference/solutions-index.md) for the
+authoritative per-solution version + status table — the inventory
+above is illustrative of repository shape, not a versioning source.)
 ```
 
 ---
@@ -657,19 +661,12 @@ For detailed architecture guidance including scalability limits and alternative 
 
 ## Summary Statistics
 
-**Solutions:** 27 automation solutions (25 deployable in FSI-AgentGov-Solutions + 2 framework-integrated advanced implementations)
-**Control Coverage:** 34 mapped controls have direct solution support
-**Status Distribution:**
-- Completed: 19 solutions (ELM, MCM, PGC, FUS, ACM, SSC, CMM, CAA, Compliance Dashboard, Scope Drift, Cross-Solution Integration, CHB, AUPW, UASD, ASCG, MIME, ITE, ASARD, AOF)
-- Validated: 3 solutions (DECR, FINRA Supervision Workflow, Segregation Detector)
-- Work In Progress: 5 solutions (RAG Source Validator, AAM, COI Testing, Hallucination Tracker, DR Testing)
-- Planned: 0 solutions
-
-**Pillar Support:**
-- Pillar 1 (Security): 7 solutions (+ cross-solution integration)
-- Pillar 2 (Management): 8 solutions
-- Pillar 3 (Reporting): 4 solutions (+ cross-solution integration)
-- Pillar 4 (SharePoint): 0 solutions
+For the authoritative count, per-solution version, and status of every
+companion solution, see the [Solutions Index](../reference/solutions-index.md).
+The Solutions Index is the single source of truth for solution inventory
+metrics; numeric rollups previously published here were withdrawn pending
+a refresh against the current 78-control catalog and v1.6.2 solutions
+catalog.
 
 ---
 
