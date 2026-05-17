@@ -69,10 +69,12 @@ Each Excel checklist includes:
 ### Entra Global Admin
 - 1.11 Conditional Access and Phishing-Resistant MFA
 - 1.12 Insider Risk Detection and Response
-- 1.18 Application-Level Authorization and RBAC
+- 1.18 Application-Level Authorization and Role-Based Access Control (RBAC)
+- 2.26 Entra Agent ID — Identity Governance for Agents
 - 3.1 Agent Inventory and Metadata Management (Agent ID section)
 
 ### Power Platform Admin
+- 1.29 Global Secure Access: Network Controls for Copilot Studio Agents
 - 2.1 Managed Environments
 - 2.2 Environment Groups and Tier Classification
 - 2.15 Environment Routing and Auto-Provisioning
@@ -91,19 +93,21 @@ Each Excel checklist includes:
 - 1.22 Information Barriers for AI Agents
 
 ### SharePoint Admin
-- 4.1 SharePoint Information Access Governance (IAG)
+- 4.1 SharePoint Information Access Governance (IAG) / Restricted Content Discovery
 - 4.2 Site Access Reviews and Certification
 - 4.3 Site and Document Retention Management
 - 4.4 Guest and External User Access Controls
 - 4.5 SharePoint Security and Compliance Monitoring
 - 4.6 Grounding Scope Governance
 - 4.7 Microsoft 365 Copilot Data Governance
+- 4.8 Item-Level Permission Scanning
+- 4.9 Embedded File Content Governance
 
 ### Compliance Officer
 - 1.7 Comprehensive Audit Logging and Compliance
 - 1.19 eDiscovery for Agent Interactions
 - 1.22 Information Barriers for AI Agents
-- 2.6 Model Risk Management (OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7))
+- 2.6 Model Risk Management (OCC Bulletin 2026-13 / Fed SR 26-2)
 - 2.11 Bias Testing and Fairness Assessment
 - 2.12 Supervision and Oversight (FINRA Rule 3110)
 - 2.13 Documentation and Record Keeping
