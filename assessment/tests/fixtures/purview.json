@@ -1,25 +1,25 @@
 {
   "_metadata": {
-    "collector": "Purview",
+    "collector": "Collect-Purview",
     "timestamp": "2026-03-25T21:00:00Z",
     "tenant_id": "test-tenant",
     "warnings": []
   },
-  "audit_config": {
+  "auditConfig": {
     "UnifiedAuditLogIngestionEnabled": true
   },
-  "dlp_policies": [],
-  "retention_policies": [
+  "dlpCompliancePolicies": [],
+  "retentionPolicies": [
     {
       "Name": "Copilot Retention",
       "Workload": "CopilotInteraction",
       "Enabled": true
     }
   ],
-  "communication_compliance": [],
-  "ediscovery_cases": [],
-  "insider_risk_policies": [],
-  "dspm_for_ai": null,
-  "sensitivity_labels": [],
-  "endpoint_dlp": []
+  "communicationCompliance": [],
+  "eDiscoveryCases": [],
+  "insiderRiskPolicies": [],
+  "dspmForAi": null,
+  "sensitivityLabelPolicies": [],
+  "endpointDlp": []
 }

@@ -25,6 +25,9 @@ All data stays in your browser.
 
 The Governance Readiness Assessment is an interactive tool that helps organizations evaluate their implementation of the [FSI Agent Governance Framework](../framework/index.md) across all 78 controls. It produces a personalized scorecard, gap analysis, and remediation roadmap.
 
+!!! note "Assessment surface distinction"
+    The browser-based assessment SPA is a self-assessment questionnaire that scores answers entered by the assessor against the manifest's zone requirements. The Python assessment engine is a telemetry-driven scorer that evaluates collected tenant data (PPAC, Graph, Purview, SharePoint, Sentinel) against manifest `pass_condition` values. The two surfaces serve different audiences and operate on different inputs by design — the SPA is for facilitated self-assessment, the engine is for automated tenant verification. They share `assessment/manifest/controls.json` as a common source of truth but apply it differently.
+
 **New in v1.4:** The assessment tool now includes a per-control "How to verify" drawer showing portal paths, PowerShell commands, expected evidence, and collector field mappings. Sector calibration adjusts control thresholds for 8 institution types (bank, broker-dealer, investment-adviser, insurance-carrier, insurance-wholesale, credit-union, holding-company, other). The solutions bridge integrates with the companion [FSI-AgentGov-Solutions](https://judeper.github.io/FSI-AgentGov-Solutions/) repository, displaying matched automation solutions with tier badges and version pills in the verification drawer and remediation roadmap. Per-role pre-session homework pages group controls by administrator role for delegated pre-assessment review.
 
 ### How It Works
