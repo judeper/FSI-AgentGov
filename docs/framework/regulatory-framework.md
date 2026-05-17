@@ -416,13 +416,29 @@ The 2026 Annual Regulatory Oversight Report contains FINRA's most detailed AI ag
 
 ---
 
-## State-Level Regulations (For Awareness)
+## State-Level Regulations
+
+### NYDFS Part 500 (23 NYCRR 500)
+
+The [New York Department of Financial Services Cybersecurity Regulation](https://www.dfs.ny.gov/industry_guidance/cybersecurity) (23 NYCRR Part 500), as amended in 2023, applies to all NYDFS-licensed financial institutions. For AI agent deployments, the most directly applicable requirements are:
+
+- **§500.11** Third-Party Service Provider Security Policy
+- **§500.15** Encryption of Nonpublic Information
+- **§500.16** Incident Response Plan
+- **§500.06** Audit Trail
+- **§500.07** Access Privileges and Management
+- **§500.12** Multi-Factor Authentication
+
+A complete per-section mapping with applicable framework controls is available in the [Regulatory Mappings reference](../reference/regulatory-mappings.md) (search for "NYDFS Part 500"). Additionally, the 2024 NYDFS AI Cybersecurity Guidance letter (October 16, 2024) and the dual-signature certification requirement (April 15, 2024) are also reflected in the detailed mapping.
+
+**Applicability:** Banks, insurance companies, mortgage providers, money transmitters, and other entities licensed by NYDFS.
+
+### Other State-Level Regulations (For Awareness)
 
 The following state regulations may apply but are beyond the primary scope of this framework:
 
 | Regulation | Jurisdiction | Focus | Framework Relevance |
 |------------|--------------|-------|---------------------|
-| **NYDFS Part 500** | New York | Cybersecurity | Controls 1.11, 1.15, 3.4 |
 | **CCPA/CPRA** | California | Consumer privacy | Controls 1.5, 1.9, 4.4 |
 | **Colorado AI Act** | Colorado | High-risk AI | Controls 2.6, 2.11, 2.19 |
 
