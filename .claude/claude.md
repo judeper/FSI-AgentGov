@@ -8,7 +8,7 @@
 - **78 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
 - **3 governance zones** (Personal Productivity, Team Collaboration, Enterprise Managed)
 - **3-layer documentation** (Framework → Controls → Playbooks)
-- **6 advanced implementations** (Platform Change Governance, Environment Lifecycle Management, Agent 365 Observability, etc.)
+- **Advanced implementation guides and solution/workflow packages** (Platform Change Governance, Environment Lifecycle Management, Agent 365 Observability, MCP governance, SharePoint preflight, and related workflows)
 - **Target regulations:** FINRA 4511/3110/25-07, SEC 17a-3/4, SOX 302/404, GLBA 501(b), OCC Bulletin 2026-13 (formerly OCC 2011-12), Fed SR 26-2 (formerly Fed SR 11-7), CFTC 1.31
 - **Documentation:** MkDocs Material-based site published to GitHub Pages
 - **Audience:** M365 administrators in US financial services
@@ -19,7 +19,7 @@
 
 **Documentation:**
 - `scripts/README.md` - Shared hooks documentation
-- `.claude/README.md` - Claude Code configuration guide
+- `.claude/claude.md` - Claude Code repository instructions and workflow guide
 - See `docs/framework/solutions-integration.md` for framework mapping
 - See `docs/reference/solutions-index.md` for complete catalog
 
@@ -28,7 +28,7 @@
 When working with both repositories:
 
 **Primary Working Directory:** FSI-AgentGov (this repo)
-- Has MkDocs, comprehensive CLAUDE.md, and skills
+- Has MkDocs, comprehensive claude.md, and skills
 - Boundary hooks allow access to FSI-AgentGov-Solutions
 
 **Hook Scope:**
@@ -90,7 +90,7 @@ Read these files for context:
 ```
 FSI-AgentGov/
 ├── .claude/
-│   ├── CLAUDE.md              # This file (core instructions)
+│   ├── claude.md              # This file (core instructions)
 │   ├── settings.json          # Team-shared settings (hooks, permissions)
 │   ├── settings.local.json    # Local overrides (not committed)
 │   └── skills/                # On-demand workflow guides (YAML frontmatter)
@@ -103,7 +103,7 @@ FSI-AgentGov/
 │   │   └── pillar-4-sharepoint/   # 4.1-4.9 (9 controls)
 │   ├── playbooks/             # Layer 3: Implementation guides (control, advanced, operations, lifecycle)
 │   │   ├── control-implementations/  # 312 standard playbooks + 2 supplemental control guides
-│   │   └── advanced-implementations/ # Complex multi-control solutions (31 files)
+│   │   └── advanced-implementations/ # Complex multi-control solutions and supporting guides (11 directories + 5 standalone markdown guides)
 │   ├── assessment/            # Interactive readiness assessment tool
 │   ├── reference/             # Supporting materials (incl. CSA quick-reference & positioning guide)
 │   ├── downloads/             # Excel templates
@@ -331,7 +331,9 @@ See `docs/reference/learn-monitor-ai-enhancement.md` for the full design.
 
 **Workflow editing rules** (full rationale in `.github/AUDIT-METHODOLOGY.md` Lessons 16–18):
 
-- Any workflow whose jobs are required by branch protection must include `.github/workflows/**` in its `paths:` filter, or workflow-only PRs will deadlock on "11 of 11 expected" checks.
+(See `.github/AUDIT-METHODOLOGY.md` Lessons 19-23 for May 2026 audit triage lessons including multi-audit cross-reference, parallel sub-agent fleet, mergeStateStatus quirks, CHANGELOG paths fix, and scoped-sweep enumeration discipline.)
+
+- Any workflow whose jobs are required by branch protection must include `.github/workflows/**` in its `paths:` filter, and `python-quality.yml` should keep `CHANGELOG.md` in `pull_request.paths`, or workflow-only/changelog-only PRs will deadlock on "11 of 11 expected" checks.
 - When you change a real workflow's `paths:`, mirror the change in `required-check-shims.yml`'s `paths-ignore:` in the same commit to preserve single-firing for the pure-bot-PR case (mixed PRs harmlessly fire both).
 - Never add a CLI flag to a workflow without running `<tool> <subcommand> --help` first. `mkdocs gh-deploy` does **not** accept `--site-url` (this cost the docs site 5 commits of downtime in May 2026 — see PR #267).
 
@@ -414,7 +416,7 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 ## Current State
 
 **Version:** v1.6.2 (May 2026)
-**Status:** 78 controls published, 314 control-implementation markdown docs (312 standard playbooks + 2 supplemental guides), 41 advanced implementation docs, build passing, Learn monitor active (207 URLs), interactive assessment tool live, CSA reference guides published, exportable diagrams available
+**Status:** 78 controls published, 315 control-implementation markdown files (312 standard playbooks + 2 supplemental guides + 1 index), 42 advanced implementation markdown files, build passing, Learn monitor active (207 URLs), interactive assessment tool live, CSA reference guides published, exportable diagrams available
 
 **Key capabilities in recent releases:**
 

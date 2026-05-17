@@ -194,7 +194,7 @@ This repository supports three AI tools and uses [Worktrunk](https://worktrunk.d
 | Tool | Config | Primary Role |
 |------|--------|-------------|
 | GitHub Copilot | `.github/agents/`, `.github/prompts/`, `.github/instructions/` | Documentation generation |
-| Claude Code | `.claude/CLAUDE.md`, `.claude/skills/` | Verification and QA |
+| Claude Code | `.claude/claude.md`, `.claude/skills/` | Verification and QA |
 | Codex CLI | `.codex/config.toml` | Documentation generation |
 | Worktrunk | `.config/wt.toml` | Worktree management for parallel agent runs |
 
@@ -294,7 +294,7 @@ python scripts/verify_language_rules.py
 | `spa-tests.yml` | PR / push (SPA) | Vitest suite for assessment SPA |
 | `required-check-shims.yml` | PR / push (bot file paths) | Report success for `e2e-smoke`/`mkdocs-strict` on bot PRs that don't trigger the real workflows. See `.github/AUDIT-METHODOLOGY.md` Lessons 17–18; the shim's `paths-ignore:` mirrors the real workflow's `paths:` (single-firing for pure bot PRs; both fire harmlessly on mixed PRs). |
 
-**Workflow editing rules:** Any workflow whose jobs are required by branch protection must include `.github/workflows/**` in its `paths:` filter (workflow-only PRs would otherwise deadlock on "11 of 11 expected"). When editing a real workflow's `paths:`, mirror the change in `required-check-shims.yml`'s `paths-ignore:` in the same commit. Never add a CLI flag to a workflow without `<tool> <subcommand> --help` verification first.
+**Workflow editing rules:** Any workflow whose jobs are required by branch protection must include `.github/workflows/**` in its `paths:` filter (workflow-only PRs would otherwise deadlock on "11 of 11 expected"). Keep `CHANGELOG.md` in `python-quality.yml`'s `pull_request.paths` as well so changelog-only PRs still report the required named checks. When editing a real workflow's `paths:`, mirror the change in `required-check-shims.yml`'s `paths-ignore:` in the same commit. Never add a CLI flag to a workflow without `<tool> <subcommand> --help` verification first. (See `.github/AUDIT-METHODOLOGY.md` Lessons 19-23 for May 2026 audit triage lessons including multi-audit cross-reference, parallel sub-agent fleet, mergeStateStatus quirks, CHANGELOG paths fix, and scoped-sweep enumeration discipline.)
 
 PowerShell static-analysis ruleset lives at root `PSScriptAnalyzerSettings.psd1`. Ruff config lives at root `pyproject.toml`.
 

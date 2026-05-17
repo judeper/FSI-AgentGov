@@ -77,7 +77,7 @@ Controls follow a standardized format with header metadata, 10 sections, and foo
 
 **Regulatory Mapping:**
 - Reference specific regulation sections (e.g., "SEC 17a-3/4" not just "SEC")
-- Map to FINRA, SEC, SOX, GLBA, OCC, or Fed SR 11-7 as applicable
+- Map to FINRA, SEC, SOX, GLBA, OCC Bulletin 2026-13 / Fed SR 26-2, or other mapped frameworks (for example CFTC Rule 1.31, Reg S-P, NAIC AI, NFA 2-9) as applicable
 - Update `docs/reference/regulatory-mappings.md` if adding new mappings
 
 **Testing:**
@@ -116,7 +116,7 @@ The validator's `--allow-todo` mode permits CI to pass during progressive matura
 If you're using AI assistants with this repository:
 
 - **`.github/copilot-instructions.md`** - Repository-wide context for GitHub Copilot
-- **`.claude/CLAUDE.md`** - Core instructions for Claude Code
+- **`.claude/claude.md`** - Core instructions for Claude Code
 - **`.claude/skills/`** - On-demand workflow guides for Claude Code:
   - `/update-control` - Modifying existing controls
   - `/add-control` - Adding new controls
