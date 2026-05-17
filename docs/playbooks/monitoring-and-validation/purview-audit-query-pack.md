@@ -263,3 +263,6 @@ See the [Deny Event Correlation Report Playbook](../advanced-implementations/den
 - **Approval date:**
 - **Version:**
 - **Change ticket/PR:**
+---
+
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

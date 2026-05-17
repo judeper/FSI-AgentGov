@@ -1360,4 +1360,4 @@ The verification cycle owner closes the cycle by producing the TC-17 signed bund
 
 For implementation context, see [Portal Walkthrough](./portal-walkthrough.md), [PowerShell Setup](./powershell-setup.md), and [Troubleshooting](./troubleshooting.md). For the upstream control specification, see [Control 3.9 — Microsoft Sentinel Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md).
 
-*Updated: April 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

@@ -244,4 +244,4 @@ These tools enhance the following FSI Agent Governance Framework controls:
 
 ---
 
-*Last Updated: March 2026 | Version: v1.2.53*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

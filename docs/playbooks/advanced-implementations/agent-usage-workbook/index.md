@@ -47,4 +47,4 @@ See the [Telemetry Schema Reference](telemetry-schema.md) for detailed prerequis
 
 ---
 
-*Updated: February 2026 | Version: v1.2.51 | Framework: FSI Agent Governance*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

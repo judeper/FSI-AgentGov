@@ -413,7 +413,7 @@ Settings are merged at runtime: `settings.json` provides the base, `settings.loc
 
 ## Current State
 
-**Version:** 1.3.0 (March 2026)
+**Version:** v1.6.2 (May 2026)
 **Status:** 78 controls published, 314 control-implementation markdown docs (312 standard playbooks + 2 supplemental guides), 41 advanced implementation docs, build passing, Learn monitor active (207 URLs), interactive assessment tool live, CSA reference guides published, exportable diagrams available
 
 **Key capabilities in recent releases:**

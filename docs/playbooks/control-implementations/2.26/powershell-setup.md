@@ -1687,4 +1687,6 @@ Implementation caveats to retain in narrative reports:
 **Updated:** April 2026
 **Version:** 1.0
 **UI Verification Status:** Verified against Entra admin centre (April 2026 preview). Re-verify when Microsoft announces Entra Agent ID GA or sovereign cloud parity.
+---
 
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
