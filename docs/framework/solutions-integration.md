@@ -66,7 +66,7 @@ flowchart TB
     CSI --> ELM
 ```
 
-> :inbox_tray: **Download diagram:** [PNG](../images/diagrams/solutions-integration-overview.png) | [SVG](../images/diagrams/solutions-integration-overview.svg)
+> :inbox_tray: **Download diagram:** [SVG](../images/diagrams/solutions-integration-overview.svg)
 
 ---
 
