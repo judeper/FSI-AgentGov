@@ -151,4 +151,4 @@ Procurement should confirm the following clauses are present (or risk-accepted w
 
 ---
 
-*Updated: April 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

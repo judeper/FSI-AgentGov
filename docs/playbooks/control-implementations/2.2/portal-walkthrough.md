@@ -123,6 +123,7 @@ Before closing the change ticket, confirm:
 
 ---
 
-*Updated: April 2026 | Version: v1.6.2*
-
 [Back to Control 2.2](../../../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) | [PowerShell Setup](powershell-setup.md) | [Verification & Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+---
+
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

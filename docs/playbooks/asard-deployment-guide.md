@@ -502,4 +502,4 @@ If initial scan reveals a large number of violations:
 
 ---
 
-*Updated: February 2026 | Version: v1.2*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

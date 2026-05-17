@@ -840,7 +840,4 @@ Pin and record every tool version in E-14. Versions current as of the document's
 - [`../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md`](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) — Control 3.6 orphaned-agent detection; downstream consumer of DQ-4.
 
 ---
-*Updated: April 2026 | Version: v1.6.2 | Maintained by: AI Governance Team*
-
-
-
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

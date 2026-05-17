@@ -176,4 +176,4 @@ Store in immutable storage (Purview retention label, SharePoint hold, or WORM bl
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current (commercial); GCC High / DoD verified per cloud-availability table*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
