@@ -1,32 +1,33 @@
 {
   "_metadata": {
-    "collector": "Graph",
+    "collector": "Collect-Graph",
     "timestamp": "2026-03-25T21:00:00Z",
     "tenant_id": "test-tenant",
     "warnings": []
   },
-  "conditional_access_policies": [
+  "conditionalAccessPolicies": [
     {
-      "displayName": "Require MFA for Copilot Studio",
-      "state": "enabled",
-      "conditions": {
-        "applications": {
-          "includeApplications": ["96ff4394-9197-43aa-b393-6a41652e21f8"]
-        }
+      "DisplayName": "Require MFA for Copilot Studio",
+      "State": "enabled",
+      "IncludeApplications": ["96ff4394-9197-43aa-b393-6a41652e21f8"],
+      "ExcludeApplications": [],
+      "IncludeUsers": [],
+      "ExcludeUsers": [],
+      "IncludeGroups": [],
+      "ExcludeGroups": [],
+      "BuiltInControls": ["mfa"],
+      "Operator": "OR",
+      "SignInFrequency": {
+        "value": 4,
+        "type": "hours"
       },
-      "grantControls": {
-        "builtInControls": ["mfa"]
-      },
-      "sessionControls": {
-        "signInFrequency": {
-          "value": 4,
-          "type": "hours"
-        }
-      }
+      "PersistentBrowser": null
     }
   ],
-  "fsi_security_groups": [],
-  "privileged_roles": [],
-  "integrated_apps": [],
-  "tenant_settings": {}
+  "fsiSecurityGroups": [],
+  "informationBarriers": [],
+  "privilegedRoleAssignments": [],
+  "copilotServicePrincipals": [],
+  "tenantSecuritySettings": {},
+  "aiLeadershipUsers": []
 }

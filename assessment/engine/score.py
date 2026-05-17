@@ -215,6 +215,277 @@ def load_collected_data(
     return collected, load_warnings
 
 
+def _first_present(mapping: dict, *keys: str) -> object:
+    """Return the first present non-None value from *mapping* for *keys*."""
+    for key in keys:
+        if key in mapping and mapping.get(key) is not None:
+            return mapping.get(key)
+    return None
+
+
+def _normalize_ppac_data(ppac: dict) -> dict:
+    """Backfill legacy evaluator keys from collector-real PPAC payloads."""
+    normalized = dict(ppac)
+
+    if normalized.get("role_assignments") is None:
+        role_assignments = _first_present(ppac, "roleAssignments")
+        if isinstance(role_assignments, list):
+            assignment_map: dict[str, list[dict]] = {}
+            for entry in role_assignments:
+                if not isinstance(entry, dict):
+                    continue
+                env_name = _first_present(
+                    entry,
+                    "EnvironmentName",
+                    "environmentName",
+                    "DisplayName",
+                    "displayName",
+                )
+                if not env_name:
+                    continue
+                assignments = _first_present(entry, "Assignments", "assignments")
+                normalized_roles: list[dict] = []
+                if isinstance(assignments, list):
+                    for role in assignments:
+                        if not isinstance(role, dict):
+                            continue
+                        normalized_roles.append(
+                            {
+                                "PrincipalType": _first_present(
+                                    role, "PrincipalType", "principalType"
+                                ),
+                                "PrincipalObjectId": _first_present(
+                                    role, "PrincipalObjectId", "principalObjectId"
+                                ),
+                                "PrincipalDisplayName": _first_present(
+                                    role,
+                                    "PrincipalDisplayName",
+                                    "principalDisplayName",
+                                ),
+                                "RoleDefinition": _first_present(
+                                    role, "RoleDefinition", "roleDefinition"
+                                ),
+                            }
+                        )
+                assignment_map[str(env_name)] = normalized_roles
+            normalized["role_assignments"] = assignment_map
+
+    return normalized
+
+
+def _normalize_graph_policy(policy: dict) -> dict:
+    """Normalize current Graph collector policy fields to evaluator shape."""
+    conditions = policy.get("conditions") or {}
+    applications = conditions.get("applications") or {}
+    users = conditions.get("users") or {}
+    grant_controls = policy.get("grantControls") or {}
+    session_controls = policy.get("sessionControls") or {}
+
+    state = _first_present(policy, "state", "State")
+    if isinstance(state, str):
+        state = state.lower()
+
+    include_applications = _first_present(policy, "IncludeApplications")
+    if include_applications is None:
+        include_applications = applications.get("includeApplications", [])
+    exclude_applications = _first_present(policy, "ExcludeApplications")
+    if exclude_applications is None:
+        exclude_applications = applications.get("excludeApplications", [])
+    include_users = _first_present(policy, "IncludeUsers")
+    if include_users is None:
+        include_users = users.get("includeUsers", [])
+    exclude_users = _first_present(policy, "ExcludeUsers")
+    if exclude_users is None:
+        exclude_users = users.get("excludeUsers", [])
+    include_groups = _first_present(policy, "IncludeGroups")
+    if include_groups is None:
+        include_groups = users.get("includeGroups", [])
+    exclude_groups = _first_present(policy, "ExcludeGroups")
+    if exclude_groups is None:
+        exclude_groups = users.get("excludeGroups", [])
+    built_in_controls = _first_present(policy, "BuiltInControls")
+    if built_in_controls is None:
+        built_in_controls = grant_controls.get("builtInControls", [])
+    operator = _first_present(policy, "Operator")
+    if operator is None:
+        operator = grant_controls.get("operator")
+    sign_in_frequency = _first_present(policy, "SignInFrequency")
+    if sign_in_frequency is None:
+        sign_in_frequency = session_controls.get("signInFrequency")
+    persistent_browser = _first_present(policy, "PersistentBrowser")
+    if persistent_browser is None:
+        persistent_browser = session_controls.get("persistentBrowser")
+
+    return {
+        "id": _first_present(policy, "id", "Id"),
+        "displayName": _first_present(policy, "displayName", "DisplayName"),
+        "state": state,
+        "conditions": {
+            "applications": {
+                "includeApplications": include_applications or [],
+                "excludeApplications": exclude_applications or [],
+            },
+            "users": {
+                "includeUsers": include_users or [],
+                "excludeUsers": exclude_users or [],
+                "includeGroups": include_groups or [],
+                "excludeGroups": exclude_groups or [],
+            },
+        },
+        "grantControls": {
+            "builtInControls": built_in_controls or [],
+            "operator": operator,
+        },
+        "sessionControls": {
+            "signInFrequency": sign_in_frequency,
+            "persistentBrowser": persistent_browser,
+        },
+    }
+
+
+def _normalize_graph_data(graph: dict) -> dict:
+    """Backfill legacy evaluator keys from collector-real Graph payloads."""
+    normalized = dict(graph)
+
+    if normalized.get("conditional_access_policies") is None:
+        policies = _first_present(graph, "conditionalAccessPolicies")
+        if isinstance(policies, list):
+            normalized["conditional_access_policies"] = [
+                _normalize_graph_policy(policy)
+                for policy in policies
+                if isinstance(policy, dict)
+            ]
+
+    if normalized.get("fsi_security_groups") is None:
+        groups = _first_present(graph, "fsiSecurityGroups")
+        if isinstance(groups, list):
+            normalized["fsi_security_groups"] = [
+                {
+                    "id": _first_present(group, "id", "Id"),
+                    "displayName": _first_present(
+                        group, "displayName", "DisplayName"
+                    ),
+                    "securityEnabled": _first_present(
+                        group, "securityEnabled", "SecurityEnabled"
+                    ),
+                    "groupTypes": _first_present(group, "groupTypes", "GroupTypes"),
+                    "membershipRule": _first_present(
+                        group, "membershipRule", "MembershipRule"
+                    ),
+                    "memberCount": _first_present(group, "memberCount", "MemberCount"),
+                }
+                for group in groups
+                if isinstance(group, dict)
+            ]
+
+    return normalized
+
+
+def _normalize_purview_data(purview: dict) -> dict:
+    """Backfill legacy evaluator keys from collector-real Purview payloads."""
+    normalized = dict(purview)
+
+    if normalized.get("audit_config") is None:
+        audit_config = _first_present(purview, "auditConfig")
+        if isinstance(audit_config, dict):
+            normalized["audit_config"] = audit_config
+
+    if normalized.get("retention_policies") is None:
+        retention_policies = _first_present(purview, "retentionPolicies")
+        if isinstance(retention_policies, list):
+            normalized["retention_policies"] = retention_policies
+
+    return normalized
+
+
+def _normalize_sharepoint_data(sharepoint: dict) -> dict:
+    """Backfill legacy evaluator keys from collector-real SharePoint payloads."""
+    normalized = dict(sharepoint)
+
+    if normalized.get("external_sharing") is None:
+        external_sharing = _first_present(sharepoint, "externalSharing")
+        if isinstance(external_sharing, list):
+            normalized["external_sharing"] = {
+                str(site_id): capability
+                for site_id, capability in (
+                    (
+                        _first_present(record, "SiteId", "siteId"),
+                        _first_present(
+                            record, "SharingCapability", "sharingCapability"
+                        ),
+                    )
+                    for record in external_sharing
+                    if isinstance(record, dict)
+                )
+                if site_id is not None
+            }
+
+    if normalized.get("sites") is None:
+        site_inventory = _first_present(sharepoint, "siteInventory")
+        sharing_lookup = normalized.get("external_sharing") or {}
+        if isinstance(site_inventory, list):
+            normalized["sites"] = [
+                {
+                    "id": _first_present(site, "id", "Id"),
+                    "displayName": _first_present(
+                        site, "displayName", "DisplayName"
+                    ),
+                    "webUrl": _first_present(site, "webUrl", "WebUrl"),
+                    "sharingCapability": (
+                        sharing_lookup.get(str(site_id))
+                        if site_id is not None and isinstance(sharing_lookup, dict)
+                        else _first_present(
+                            site, "sharingCapability", "SharingCapability"
+                        )
+                    ),
+                }
+                for site in site_inventory
+                if isinstance(site, dict)
+                for site_id in [_first_present(site, "id", "Id")]
+            ]
+
+    if normalized.get("grounding_scope") is None:
+        grounding_cross_ref = _first_present(sharepoint, "groundingCrossRef")
+        if isinstance(grounding_cross_ref, dict):
+            approved = _first_present(
+                grounding_cross_ref,
+                "ApprovedSites",
+                "approved",
+            )
+            unapproved = _first_present(
+                grounding_cross_ref,
+                "UnapprovedSites",
+                "unapproved",
+            )
+            normalized["grounding_scope"] = {
+                "approved": approved if isinstance(approved, list) else [],
+                "unapproved": unapproved if isinstance(unapproved, list) else [],
+            }
+
+    return normalized
+
+
+def normalize_collected_data(
+    collected: dict[str, dict | None],
+) -> dict[str, dict | None]:
+    """Normalize live collector payloads to evaluator-expected compatibility keys."""
+    normalized: dict[str, dict | None] = {}
+    for source_key, payload in collected.items():
+        if payload is None:
+            normalized[source_key] = None
+        elif source_key == "ppac":
+            normalized[source_key] = _normalize_ppac_data(payload)
+        elif source_key == "graph":
+            normalized[source_key] = _normalize_graph_data(payload)
+        elif source_key == "purview":
+            normalized[source_key] = _normalize_purview_data(payload)
+        elif source_key == "sharepoint":
+            normalized[source_key] = _normalize_sharepoint_data(payload)
+        else:
+            normalized[source_key] = payload
+    return normalized
+
+
 def _coerce_diagnostic_list(raw: object) -> list[str]:
     """Coerce a ``_metadata.warnings`` / ``_metadata.errors`` field to
     a clean list of strings.
@@ -372,7 +643,8 @@ def _eval_share_everyone_disabled(
         for env_id, roles in assignments.items():
             for role in roles:
                 principal = (role.get("PrincipalDisplayName") or "").lower()
-                if principal in ("everyone", "all users"):
+                ptype = (role.get("PrincipalType") or "").lower()
+                if principal in ("everyone", "all users") or ptype == "tenant":
                     return (
                         False,
                         f"Share with Everyone found in environment {env_id}",
@@ -1073,6 +1345,7 @@ def run(
 
     log.info("Loading collected data from %s", collected_p)
     collected, load_warnings = load_collected_data(collected_p)
+    collected = normalize_collected_data(collected)
     collector_warnings = extract_collector_warnings(collected, load_warnings)
 
     log.info("Scoring %d controls for zone %d", len(controls), zone)
