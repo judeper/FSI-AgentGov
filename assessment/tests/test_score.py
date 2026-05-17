@@ -136,7 +136,7 @@ class TestPartialFailControl:
         result = json.loads(output_path.read_text(encoding="utf-8"))
         ctrl = next(c for c in result["controls"] if c["id"] == "1.1")
 
-        # fsi_security_groups is empty in graph.json, so check 1.1.b fails.
+        # fsiSecurityGroups is empty in graph.json, so check 1.1.b fails.
         # Zone 2 requires min 2 checks passed → below threshold → maturity 0.
         assert ctrl["checks_passed"] < ctrl["min_checks_required"]
         assert ctrl["maturity_score"] == 0
@@ -237,17 +237,19 @@ class TestMissingDataLowConfidence:
         # Write PPAC with null critical fields
         null_ppac = {
             "_metadata": {
-                "collector": "PPAC",
+                "collector": "Collect-PPAC",
                 "timestamp": "2026-03-25T21:00:00Z",
                 "tenant_id": "test-tenant",
                 "warnings": ["Failed to retrieve environments"],
             },
             "environments": None,
-            "dlp_policies": None,
-            "role_assignments": None,
-            "environment_settings": None,
-            "security_posture": None,
-            "agent_feature_flags": None,
+            "dlpPolicies": None,
+            "roleAssignments": None,
+            "routingRules": None,
+            "inactivityTimeout": None,
+            "securityPosture": None,
+            "agentFeatureFlags": None,
+            "environmentGroups": None,
         }
         write_json(collected / "ppac.json", null_ppac)
 
@@ -301,7 +303,7 @@ class TestZoneThresholdBoundary:
 
         # Graph: include an FSI publisher security group so check 1.1.b passes
         graph_data = load_fixture("graph.json")
-        graph_data["fsi_security_groups"] = [
+        graph_data["fsiSecurityGroups"] = [
             {
                 "displayName": "FSI Agent Publishers",
                 "id": "sg-publishers-001",

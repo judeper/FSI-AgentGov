@@ -1,35 +1,61 @@
 {
   "_metadata": {
-    "collector": "SharePoint",
+    "collector": "Collect-SharePoint",
     "timestamp": "2026-03-25T21:00:00Z",
     "tenant_id": "test-tenant",
     "warnings": []
   },
-  "sites": [
+  "siteInventory": [
     {
-      "id": "site-001",
-      "displayName": "Agent Knowledge Base",
-      "webUrl": "https://contoso.sharepoint.com/sites/agentKB",
-      "sharingCapability": "Disabled"
+      "Id": "site-001",
+      "DisplayName": "Agent Knowledge Base",
+      "WebUrl": "https://contoso.sharepoint.com/sites/agentKB",
+      "CreatedDateTime": "2026-03-01T00:00:00Z",
+      "IsPersonalSite": false
     }
   ],
-  "external_sharing": {
-    "site-001": "Disabled"
-  },
-  "retention_labels": {
-    "site-001": ["Retain-7Years"]
-  },
-  "guest_access": {
-    "site-001": false
-  },
-  "permission_scan": {
-    "site-001": {
-      "files_scanned": 50,
-      "overshared_files": []
+  "externalSharing": [
+    {
+      "SiteId": "site-001",
+      "DisplayName": "Agent Knowledge Base",
+      "WebUrl": "https://contoso.sharepoint.com/sites/agentKB",
+      "SharingCapability": "Disabled"
     }
-  },
-  "grounding_scope": {
-    "approved": ["https://contoso.sharepoint.com/sites/agentKB"],
-    "unapproved": []
+  ],
+  "retentionLabels": [
+    {
+      "SiteId": "site-001",
+      "SiteDisplayName": "Agent Knowledge Base",
+      "ListId": "list-001",
+      "ListDisplayName": "Documents",
+      "ListTemplate": "documentLibrary",
+      "ContentTypesEnabled": true
+    }
+  ],
+  "guestAccess": [
+    {
+      "SiteId": "site-001",
+      "DisplayName": "Agent Knowledge Base",
+      "WebUrl": "https://contoso.sharepoint.com/sites/agentKB",
+      "GuestCount": 0,
+      "HasGuestAccess": false
+    }
+  ],
+  "itemLevelPermissions": [
+    {
+      "SiteId": "site-001",
+      "DisplayName": "Agent Knowledge Base",
+      "WebUrl": "https://contoso.sharepoint.com/sites/agentKB",
+      "SampledItems": 50,
+      "FlaggedItems": [],
+      "FlaggedCount": 0
+    }
+  ],
+  "groundingCrossRef": {
+    "ApprovedSitesTotal": 1,
+    "ApprovedFound": 1,
+    "ApprovedMissing": [],
+    "UnapprovedSiteCount": 0,
+    "UnapprovedSites": []
   }
 }

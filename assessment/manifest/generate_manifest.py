@@ -129,21 +129,21 @@ CHECKS_DB = {
         ("1.6.a","DSPM for AI policy exists in Purview","Get-DlpCompliancePolicy","dspm_policy_exists",[2,3]),
     ],
     "1.7": [
-        ("1.7.a","Unified audit logging enabled","Get-AdminAuditLogConfig","audit_logging_enabled",[1,2,3]),
+        ("1.7.a","Unified audit logging enabled","Get-AdminAuditLogConfig","audit_log_enabled",[1,2,3]),
         ("1.7.b","M365 Audit plan tier is E5 or equivalent","Get-AdminAuditLogConfig","audit_plan_tier_adequate",[2,3]),
     ],
     "1.8": [
         ("1.8.a","Sentinel alerts configured for agent anomalies","Invoke-AzOperationalInsightsQuery","sentinel_agent_alerts_exist",[2,3]),
     ],
     "1.9": [
-        ("1.9.a","Retention policy scoped to Copilot interactions exists","Get-RetentionCompliancePolicy","copilot_retention_exists",[1,2,3]),
+        ("1.9.a","Retention policy scoped to Copilot interactions exists","Get-RetentionCompliancePolicy","copilot_retention_policy_exists",[1,2,3]),
         ("1.9.b","Retention duration meets zone requirements","Get-RetentionCompliancePolicy","retention_duration_adequate",[2,3]),
     ],
     "1.10": [
         ("1.10.a","Communication compliance policy targeting agents exists","Get-SupervisoryReviewPolicyV2","comm_compliance_policy_exists",[2,3]),
     ],
     "1.11": [
-        ("1.11.a","CA policy targeting Copilot Studio app enforces MFA","Get-MgIdentityConditionalAccessPolicy","ca_mfa_enforced",[1,2,3]),
+        ("1.11.a","CA policy targeting Copilot Studio app enforces MFA","Get-MgIdentityConditionalAccessPolicy","ca_policy_requires_mfa",[1,2,3]),
         ("1.11.b","Sign-in frequency policy set for agent sessions","Get-MgIdentityConditionalAccessPolicy","signin_frequency_set",[2,3]),
         ("1.11.c","Phishing-resistant MFA required for Zone 3","Get-MgIdentityConditionalAccessPolicy","phishing_resistant_mfa",[3]),
     ],
@@ -209,7 +209,7 @@ CHECKS_DB = {
     ],
     # Pillar 2
     "2.1": [
-        ("2.1.a","All production environments have IsManaged: true","Get-AdminPowerAppEnvironment","all_prod_managed",[1,2,3]),
+        ("2.1.a","All production environments have IsManaged: true","Get-AdminPowerAppEnvironment","prod_env_is_managed",[1,2,3]),
         ("2.1.b","Managed environment policies enforced","Get-AdminPowerAppEnvironment","managed_policies_enforced",[2,3]),
     ],
     "2.2": [
@@ -314,7 +314,7 @@ CHECKS_DB = {
         ("4.3.b","Retention duration meets regulatory minimums","Get-RetentionCompliancePolicy","sp_retention_duration_ok",[2,3]),
     ],
     "4.4": [
-        ("4.4.a","External sharing disabled on grounding sites","Get-MgSite","external_sharing_disabled",[1,2,3]),
+        ("4.4.a","External sharing disabled on grounding sites","Get-MgSite","no_external_sharing_on_grounding",[1,2,3]),
         ("4.4.b","Guest access disabled on knowledge source sites","Get-MgSite","guest_access_disabled",[2,3]),
     ],
     "4.5": [
@@ -322,7 +322,7 @@ CHECKS_DB = {
     ],
     "4.6": [
         ("4.6.a","Grounding scope restricted to approved sites only","Get-AdminPowerAppEnvironment","grounding_scope_restricted",[1,2,3]),
-        ("4.6.b","No unapproved sites in agent knowledge source configuration","Get-MgSite","no_unapproved_grounding",[2,3]),
+        ("4.6.b","No unapproved sites in agent knowledge source configuration","Get-MgSite","grounding_sources_approved",[2,3]),
     ],
     "4.7": [],  # manual only
     "4.8": [

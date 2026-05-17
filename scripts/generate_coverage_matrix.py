@@ -321,12 +321,16 @@ def render_frontier(manifest: dict) -> str:
         "from `assessment/manifest/frontier-readiness.json`. Do not edit by hand."
     )
     lines.append("")
+    auto_now = state_counts.get("auto_evaluable", 0)
+    manual_now = state_counts.get("manual_only", 0)
+    unimplemented_now = state_counts.get("unimplemented_evaluator", 0)
+    auto_pct = (auto_now / total_q * 100) if total_q else 0
     lines.append(
         "It is the honest answer to *what does the Frontier Readiness assessment "
-        "actually automate today?* Per the v1.0 design, all 25 questions are "
-        "facilitator-answered by design — no automatic evaluators are wired up. "
-        "Future versions may add bespoke evaluators for questions with "
-        "telemetry-derivable answers."
+        "actually automate today?* In the current manifest, "
+        f"{auto_now} of {total_q} questions ({auto_pct:.1f}%) are telemetry-backed, "
+        f"{manual_now} remain facilitator-answered by design, and "
+        f"{unimplemented_now} still declare automation that is not yet wired."
     )
     lines.append("")
     lines.append("## Evaluator states")
@@ -399,17 +403,21 @@ def render_frontier(manifest: dict) -> str:
     lines.append("## Future evaluator candidates")
     lines.append("")
     lines.append(
-        "The following questions have `pass_condition` strings populated, "
-        "suggesting they could be auto-evaluated in a future release if a "
-        "bespoke evaluator is implemented. Currently all are facilitator-answered."
+        "The remaining manual questions already carry `pass_condition` strings "
+        "in the manifest, so the per-question table above is the live backlog for "
+        "future evaluator work. Add an explicit shortlist here when a specific "
+        "implementation wave is planned."
     )
     lines.append("")
-    for qid, driver_id, level, pc, source in _FRONTIER_EVALUATOR_CANDIDATES:
-        driver_name = driver_lookup[driver_id]["name"]
-        lines.append(
-            f"- **{qid}** ({driver_name}, L{level}): pass_condition `{pc}` — "
-            f"*plausible automation source: {source}*"
-        )
+    if _FRONTIER_EVALUATOR_CANDIDATES:
+        for qid, driver_id, level, pc, source in _FRONTIER_EVALUATOR_CANDIDATES:
+            driver_name = driver_lookup[driver_id]["name"]
+            lines.append(
+                f"- **{qid}** ({driver_name}, L{level}): pass_condition `{pc}` — "
+                f"*plausible automation source: {source}*"
+            )
+    else:
+        lines.append("No separate future-evaluator shortlist is maintained yet.")
     lines.append("")
     lines.append("## How to wire up an evaluator (future)")
     lines.append("")
