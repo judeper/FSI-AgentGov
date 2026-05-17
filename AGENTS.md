@@ -155,7 +155,7 @@ Three tools operate on this repository:
 |------|-------------|-----------------|
 | **Codex CLI** | Documentation generation | `.codex/config.toml` |
 | **GitHub Copilot** | Documentation writing, GSD workflows | `.github/agents/`, `.github/prompts/` |
-| **Claude Code** | Verification, QA, GSD workflows | `.claude/CLAUDE.md`, `.claude/skills/` |
+| **Claude Code** | Verification, QA, GSD workflows | `.claude/claude.md`, `.claude/skills/` |
 
 ### Session Ownership Protocol
 
@@ -365,12 +365,12 @@ CI enforces all of the above. See `.github/workflows/python-quality.yml`, `power
 Three workflow-level patterns established during the May 2026 backlog drain — read `.github/AUDIT-METHODOLOGY.md` Lessons 16–18 before editing any workflow:
 
 - **Required-check shims** (`required-check-shims.yml`): bot PRs that touch only `data/monitor-state.json`, `scripts/requirements.txt`, or `reports/monitoring/**` cannot trigger the real `e2e-smoke`/`mkdocs-strict` workflows (paths-filter excludes them). The shim emits a success status for the same check name on `paths-ignore:`-mirrored triggers so branch protection is satisfied. **Mutual exclusion holds only for pure bot PRs** (every changed file in the shim's ignore list); mixed PRs that touch both ignored and non-ignored paths cause both the shim and the real workflow to fire harmlessly. When you edit a real workflow's `paths:`, still mirror the change in the shim's `paths-ignore:` in the same commit to preserve single-firing for the bot-PR case.
-- **`.github/workflows/**` in `python-quality.yml` paths**: workflow-only PRs (e.g., editing `publish_docs.yml`) must still trigger the required-check gate. Including `.github/workflows/**` in the trigger paths prevents the "11 of 11 expected" deadlock that would otherwise block any workflow-only PR.
+- **Workflow-only and changelog-only PR coverage in `python-quality.yml`**: keep `.github/workflows/**` and `CHANGELOG.md` in the `pull_request.paths` filter so workflow-only PRs (for example `publish_docs.yml`) and changelog-only PRs still report the required named checks. This prevents the "11 of 11 expected" deadlock on branch-protected PRs.
 - **No invented CLI flags in workflow YAML**: `mkdocs gh-deploy` does **not** accept `--site-url` (only `mkdocs build`/`serve` do). Always run `<tool> <subcommand> --help` locally before "hardening" a workflow with a new flag. The defense-in-depth equivalent of an explicit `site_url` at deploy time is a grep-based pre-deploy assertion step, not a CLI flag.
 
 ## Auditing for repo-wide drift
 
-When making changes that could plausibly affect multiple file types or directories — version bumps, count changes, structural renames, repo-wide claims — use the **Scorched-Earth Enumeration + Classify-Then-Act** methodology in `.github/AUDIT-METHODOLOGY.md`. Do NOT rely on "deep audits" by sampling — every prior sampling pass missed P0 issues that a fourth pass surfaced. The methodology is mandatory for these change classes; for single-file fixes or typo passes it is not needed.
+When making changes that could plausibly affect multiple file types or directories — version bumps, count changes, structural renames, repo-wide claims — use the **Scorched-Earth Enumeration + Classify-Then-Act** methodology in `.github/AUDIT-METHODOLOGY.md`. Do NOT rely on "deep audits" by sampling — every prior sampling pass missed P0 issues that a fourth pass surfaced. The methodology is mandatory for these change classes; for single-file fixes or typo passes it is not needed. (See `.github/AUDIT-METHODOLOGY.md` Lessons 19-23 for May 2026 audit triage lessons including multi-audit cross-reference, parallel sub-agent fleet, mergeStateStatus quirks, CHANGELOG paths fix, and scoped-sweep enumeration discipline.)
 
 ## Automated Assessment Engine
 
@@ -417,7 +417,7 @@ If you encounter:
 
 | Tool | Config | Details |
 |------|--------|---------|
-| **Claude Code** | `.claude/CLAUDE.md` | Full project context, skills, hooks |
+| **Claude Code** | `.claude/claude.md` | Full project context, skills, hooks |
 | **Claude Code Skills** | `.claude/skills/` | On-demand workflows (`/update-control`, `/add-control`, etc.) |
 | **Codex CLI** | `.codex/config.toml` | Model, sandbox, approval policy (local only, gitignored) |
 | **Copilot Agents** | `.github/agents/` | Custom agents (doc-writer, GSD workflow agents) |

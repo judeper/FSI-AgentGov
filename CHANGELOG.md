@@ -118,6 +118,42 @@ The Frontier auto-evaluable backlog is closed. Future Frontier work belongs in t
 
 No further Frontier evaluator wiring is planned. The 76% manual floor is a feature, not a defect.
 
+### Post-release triage fix cycle (2026-05-17)
+
+Triage of 3 independent external audits (51 unified findings + 8 rubber-duck additions = 59 total). 12 PRs merged on 2026-05-17. No VERSION bump — fixes stay under v1.6.2.
+
+**Regulatory correctness**
+- **PR-3** (#273): Added SR 26-2 / OCC 2026-13 generative-AI scope caveat to `docs/reference/regulatory-mappings.md` and `docs/framework/regulatory-framework.md`. The interagency MRM guidance issued April 17, 2026 explicitly excludes generative AI and agentic AI from scope per primary-source verification. Re-characterized GenAI-specific control mappings (Controls 2.11, 2.16, 2.20, 3.10) as analogous principles rather than direct regulatory obligations.
+- **PR-4** (#280): Added NAIC Model Bulletin on Use of AI by Insurance Companies (December 2023), NFA Compliance Rule 2-9 (FCM/IB/CPO/CTA supervisory baseline), SEC Regulation S-P (including the May 2024 30-day NPI notification amendments). Upgraded NYDFS Part 500 surfacing in `regulatory-framework.md`. Added OCC Bulletin 2023-17 number to existing Interagency Third-Party Guidance citations.
+- **PR-6** (#281): Resolved 624 sector-specific TODO placeholders in `assessment/manifest/controls.json` (replaced with `null` per schema preservation). Canonicalized 61 stale `OCC-2011-12` / `Fed-SR-11-7` machine-readable codes to `OCC-2026-13` / `Fed-SR-26-2`.
+
+**Assessment engine**
+- **PR-5** (#276): Fixed 8 of 11 evaluator drift (6 manifest `pass_condition` strings rewired, 2 preserved for future wiring). Added collector payload normalization layer in `score.py`. Regenerated `frontier-assessment-coverage.md` (correctly shows 6/25 = 24% — previously stale at 0%). Documented SPA vs Python engine semantic divergence in `assessment/README.md` and `docs/assessment/index.md`. Auto-evaluable controls: 1/78 → 7/78.
+
+**Customer-facing surfaces**
+- **PR-1** (#271): Fixed count drift on home page (`5 → 6 Regulatory Frameworks`) + Solutions Integration repo-structure block + Summary Statistics block.
+- **PR-2** (#275): ~240 playbook footer canonicalizations + 6 stale non-playbook stamps brought to canonical `v1.6.2 / May 2026`.
+- **PR-7** (#274): Refreshed all 6 Excel templates from `v1.4.0 — April 2026` to `v1.6.2 — May 2026`. Restored 20 dashboard rollup formulas (`governance-maturity-dashboard.xlsx`). Added missing controls 2.26 / 1.29 / 4.8 / 4.9 to `docs/downloads/index.md`. Hardened `scripts/verify_excel_templates.py`.
+- **PR-8** (#279): Corrected Control 1.1 SEC 17a-4(f) overclaim to align with Control 1.7's capture-vs-preservation framing. Removed duplicate `AIAppInteraction` bullet from Control 1.7.
+- **PR-11** (#270): Corrected static SVG pillar counts in `solutions-integration-overview.svg` (28/24/12/7 → 29/26/14/9).
+- **PR-13** (#269): Replaced 2 redirecting Microsoft Learn URLs across 8 files.
+- **PR-15** (#282): Final footer cleanup on 7 top-level customer-facing pages that PR-2's playbook-scoped sweep didn't reach.
+
+**Hygiene**
+- **PR-14** (#272): Clarified `CHANGELOG.md` test-count narrative (114 release-time vs 140 current). Also added `CHANGELOG.md` to `python-quality.yml` paths trigger so changelog-only PRs satisfy branch protection.
+
+**Companion repository (FSI-AgentGov-Solutions)**
+- 5 GitHub issues drafted and posted at #143–#147 for future work (MRM Automation regulatory refresh, solutions inventory reconciliation, version drift between site and repo, preview-vs-live status, canonical control-coverage metadata export).
+
+**Audit artifacts (private, gitignored)**
+- All 3 external audits + 12 verification tracks + 8 enumeration follow-ups + Phase 3 rubber-duck critique + unified findings register (59 findings) + fix plan + final QA + handoff brief stored in `maintainers-local/audits/2026-05-16/` for internal record.
+
+**Net findings disposition**: 30 confirmed-fixed / 13 rejected (audits read stale corpus state) / 9 deferred-informational / 7 pending external Microsoft product-surface research.
+
+**Pending user actions (not blocking customer handoff)**
+- Forward 7 Microsoft product-surface researcher prompts to specialized researcher (`maintainers-local/audits/2026-05-16/findings/track-j-msft-research-prompts.md`)
+- Review 5 companion-repo issues #143–#147 in FSI-AgentGov-Solutions
+
 ---
 
 ## [1.6.1] — May 10, 2026 (Microsoft Learn drift patch)

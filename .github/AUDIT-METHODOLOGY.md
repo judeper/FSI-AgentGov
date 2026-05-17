@@ -317,6 +317,68 @@ The library tests were green throughout. Each library function in isolation work
 
 **Citations:** PR #260 `c1e28091` (created `.github/workflows/required-check-shims.yml` with `e2e-smoke` + `mkdocs-strict` shims after 4 Learn Monitor PRs and 1 Dependabot PR were stuck behind required-check gates), AS-RECON cascade where 5 merged PRs followed within the next 90 minutes once the shim was live. Mixed-PR double-fire observed and documented on PR #268 (docs/AI-config refresh: shim + real `e2e-smoke` and `mkdocs-strict` both reported success).
 
+### Lesson 19 — Multi-audit cross-reference triage
+
+**Pattern:** May 2026 the framework received three independent external audits within 24 hours. Audit #1 was harsh and raised 3 P0 findings on regulatory accuracy. Audits #2 and #3 reviewed the same content and judged the regulatory mappings accurate. The conflict had to be resolved before any P0 fix was attempted; resolving via "majority wins" would have shipped the wrong outcome on one P0 (SR 26-2 GenAI exclusion — Audit #1 was right and the others missed it).
+
+**Discipline going forward:**
+
+> **When you receive multiple external audits, build a unified findings register with explicit `consensus_level` per finding (3-of-3 / 2-of-3 / 1-of-3-contradicted / 1-of-3-unilateral). For every contradicted finding, verify against PRIMARY SOURCES (regulator.gov, official product docs) before acting — do not majority-vote your way to the wrong answer. About 60% of audit-specific `file:line` claims in this cycle turned out to be false positives (the audits had been reading stale corpus state); about 40% revealed real issues that our v1.6.x cleanup hadn't reached.**
+>
+> Practical: dispatch a per-audit verification sub-agent per dimension (regulatory-source verification, local-artifact verification, count-drift enumeration, version-stamp enumeration). The verification tracks become the authoritative input for the synthesis register. Audit text becomes input, not truth.
+
+**Citations:** Audit triage cycle 2026-05-16 — `maintainers-local/audits/2026-05-16/unified-findings-register.md` (59 unified findings); `findings/track-c-regulatory-verification.md` (the primary-source verification that confirmed Audit #1's SR 26-2 P0).
+
+### Lesson 20 — Parallel sub-agent fleet via worktrees + tokenized URLs
+
+**Pattern:** During the 2026-05-17 fix cycle, 6 PRs needed to be edited and pushed roughly in parallel. The naive pattern (each sub-agent operating in the same working directory and doing `gh auth switch -u judeper` before pushing) hit two failure modes immediately: (a) git branch-checkout collisions, (b) global `gh auth switch` state races between concurrent sub-agents.
+
+**Discipline going forward:**
+
+> **For parallel PR sub-agent dispatch, use the worktree + tokenized URL pattern:**
+>
+> 1. Each sub-agent creates its own worktree: `git worktree add ../FSI-AgentGov.pr-N -b chore/pr-N-slug origin/main` (filesystem isolation; no checkout collisions).
+> 2. Each sub-agent grabs the judeper token explicitly: `$tok = gh auth token --user judeper` and pushes via tokenized URL: `git push "https://judeper:$tok@github.com/judeper/FSI-AgentGov.git" chore/pr-N-slug` (avoids the global `gh auth switch` state).
+> 3. Sub-agents STOP before `gh pr create` / merge — the orchestrator serializes those operations because they need consistent active-account state.
+>
+> Validated 2026-05-17 by running 6 PR sub-agents (PR-2, 3, 5, 7, 8, 15) in parallel without conflicts.
+
+**Citations:** PR-2 (#275), PR-3 (#273), PR-5 (#276), PR-7 (#274), PR-8 (#279), PR-15 (#282).
+
+### Lesson 21 — `mergeStateStatus = UNKNOWN` does not mean blocked
+
+**Pattern:** GitHub's GraphQL `mergeStateStatus` field can sit at `UNKNOWN` for 10+ minutes during high-load periods, especially after a flurry of branch updates. Polling for `CLEAN` before attempting to merge wasted significant time. PR #276 (PR-5 assessment engine) was stuck at `UNKNOWN` for ~15 minutes despite all 11 required checks reporting green. A direct REST API merge (`PUT /repos/.../pulls/N/merge`) succeeded on the first attempt without waiting for `CLEAN`.
+
+**Discipline going forward:**
+
+> **Don't poll `mergeStateStatus` waiting for `CLEAN`. Once the actual required status checks are green, attempt the merge via direct REST API. If the merge would genuinely be blocked, the API will return a 405 with a specific reason (e.g., "Required status check 'X' is in progress"). The `UNKNOWN` state is GitHub's internal mergeability cache, not a blocker.**
+
+**Citations:** Cycle 2026-05-17 — PR #276 merged successfully while `mergeStateStatus` reported `UNKNOWN`.
+
+### Lesson 22 — `CHANGELOG.md` needs explicit `paths` entry on the required-checks workflow
+
+**Pattern:** Branch protection requires 11 named status checks (e2e-smoke, mkdocs-strict, ruff, pytest (assessment + scripts), manifest / index / nav drift, FSI language rules, verify_version_stamps, Analyze (python), Analyze (javascript), gitleaks, dependency-review). 5 of those names are reported by `python-quality.yml`. The workflow's `pull_request.paths` filter didn't include `CHANGELOG.md`, so a CHANGELOG-only PR (#272 PR-14) didn't trigger `python-quality.yml`, and 5 required checks never reported — branch protection blocked the merge with "11 of 11 expected" even though every relevant check that COULD have run was green.
+
+**Discipline going forward:**
+
+> **When adding `paths` filters to workflows that report required checks, enumerate every meta-file branch protection cares about — including documentation files like `CHANGELOG.md` that a contributor might edit in isolation. The marginal CI cost of running the quality jobs on a changelog-only PR is ~30s; the cost of an unmergeable PR is much higher.**
+>
+> Generalization: the `required-check-shims.yml` pattern (Lesson 18) handles bot PRs whose diffs are out-of-scope by design. For meta-file edits that we WANT to run quality jobs on, the cleaner answer is to extend the real workflow's `paths` rather than add the file to the shim's `paths-ignore`.
+
+**Citations:** Cycle 2026-05-17 — PR #272 `687c996ce` (added `CHANGELOG.md` to `python-quality.yml` paths).
+
+### Lesson 23 — Scoped sweeps must explicitly enumerate ALL in-scope surfaces
+
+**Pattern:** PR-2 was scoped as "playbook footer canonicalization" based on the enum-01 verification track which scoped itself to `docs/playbooks/**`. The PR landed successfully (240+ files updated) but final QA discovered 6 top-level customer-facing pages (`docs/index.md`, `docs/getting-started/index.md`, `docs/reference/{regulatory-mappings,assessment-coverage,frontier-assessment-coverage,solutions-index}.md`) also had missing or stale footers that PR-2's scope didn't reach. This required a post-QA PR-15 cleanup.
+
+**Discipline going forward:**
+
+> **When planning a corpus-wide hygiene PR, the scope-definition step must explicitly enumerate every directory + file pattern that could contain the target artifact (footer, version stamp, count claim, etc.), even if some are "different format" or "low priority". The canonical-footer template for top-level pages differed from the per-control / per-playbook footer template — but a missing footer is still a missing footer to a customer.**
+>
+> Concrete rule: before dispatching the sweep, run a corpus-wide grep for the target pattern (or its absence) across ALL `docs/**` plus top-level files. Compare the grep results to the planned sweep scope. If the sweep's scope is narrower than the grep, expand the sweep or document a deliberate exclusion.
+
+**Citations:** Cycle 2026-05-17 — PR-2 (#275) landed; PR-15 (#282) needed for the residual 7 files.
+
 ## When to invoke this methodology
 
 **USE for:**
@@ -340,15 +402,15 @@ Dimensions A–L are the original 12 (April 2026). Dimensions M–Q were added P
 
 | Dim | Name | Symptom regex | Notes |
 |---|---|---|---|
-| A | Version stamps | `v1\.[0-3](\.\d+)?` | Exclude `CHANGELOG-v1.[0-3].md`, `package-lock.json`, `node_modules/`, `site/`, `releases/` |
-| B | Solution count | `\b(28\|33\|35)\s+(live\s+)?solutions?\b` | `35 live = 35 lock entries` is consistent (preview-placeholder concept retired in v1.4.0) |
+| A | Version stamps | `v1\.[0-5](\.\d+)?` | Exclude `CHANGELOG-v1.*.md`, `package-lock.json`, `node_modules/`, `site/`, `releases/` |
+| B | Solution count | `\b(28\|33\|35\|36)\s+((live\s+\+\s+1\s+preview|live\s+)?solutions?)\b` | Canonical current state: 36 companion solutions (35 live + 1 preview); `35 live` is only valid when explicitly contrasted with the preview solution. |
 | C | Control count | `\b(71\|72)[\s\-]+controls?\b` | Historical changelog rows are MUST_KEEP; check live docs |
 | D | Year/month stamps | `v1\.4\.0[\s\-—\|]+(NotApril)\s+2026` | Catches footer date mismatches |
 | E | Manifest field completeness | Programmatic JSON walk for empty fields | Catches "wired-to-nothing" patterns like Solutions Bridge |
 | F | Lock file cross-consistency | Diff `solutions-lock.json` keys vs companion-repo folders | Catches added/removed solutions out of sync |
 | G | Excel templates | openpyxl walk over `docs/downloads/*.xlsx` for v1.3 / 71 / 72 | AMWINS downloads these |
-| H | Workflow / CI files | Grep `.github/workflows/*.yml` for v1.3 + counts | Catches CI depending on stale paths/versions |
-| I | Top-level meta files | Grep root `*.md` for v1.0-v1.3 | README, AGENTS.md, CONTRIBUTING — historical changelog table is OK |
+| H | Workflow / CI files | Grep `.github/workflows/*.yml` for stale version strings, counts, and path-filter drift | Catches CI depending on stale paths/versions |
+| I | Top-level meta files | Grep root `*.md` for v1.0-v1.5 | README, AGENTS.md, CONTRIBUTING — historical changelog table is OK |
 | J | Companion repo cross-refs | Grep companion repo for "v1.3 framework" | **AUDIT-ONLY by default per rule 11** — bumping requires positive re-validation |
 | K | Schema / template files | `docs/templates/**/*.md` | Affects future content — P1 not P0 |
 | L | Assessment SPA | `docs/javascripts/assessment*.js`, `docs/stylesheets/assessment.css`, `overrides/main.html` | Customer-visible, P0 |

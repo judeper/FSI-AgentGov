@@ -37,7 +37,7 @@ agent deployments.
   </div>
 </div>
 <p class="metrics-regulations">
-  FINRA · SEC · SOX · GLBA · OCC Bulletin 2026-13 · Fed SR 26-2
+  FINRA · SEC · SOX · GLBA · OCC Bulletin 2026-13 / Fed SR 26-2 · CFTC Rule 1.31
 </p>
 
 ## Quick Start by Role
@@ -154,8 +154,12 @@ High Risk · Committee Approval
 501(b)
 </div>
 <div class="arch-card arch-reg">
-<strong>OCC</strong>
-Bulletin 2026-13
+<strong>OCC / Fed</strong>
+2026-13 / SR 26-2
+</div>
+<div class="arch-card arch-reg">
+<strong>CFTC</strong>
+Rule 1.31
 </div>
 </div>
 </div>
