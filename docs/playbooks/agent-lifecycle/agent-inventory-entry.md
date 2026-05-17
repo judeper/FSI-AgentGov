@@ -131,4 +131,4 @@ Free-form notes for anything unusual (exception approvals, known limitations, ro
 
 ---
 
-*Updated: February 2026 | Version: v1.2*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

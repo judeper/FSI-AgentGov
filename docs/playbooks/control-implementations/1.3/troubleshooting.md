@@ -260,4 +260,4 @@ A healthy Zone 3 site returns: tenant `Disabled`, site `Disabled`, label set, `R
 
 ---
 
-*Updated: April 2026 | Version: v1.6.2*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

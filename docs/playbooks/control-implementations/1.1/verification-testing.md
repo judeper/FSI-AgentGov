@@ -286,4 +286,4 @@ if ($failures -gt 0) { exit 1 } else { exit 0 }
 
 [Back to Control 1.1](../../../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Troubleshooting](troubleshooting.md)
 
-*Updated: April 2026 | Version: v1.6.2 | Classification: Verification Testing*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

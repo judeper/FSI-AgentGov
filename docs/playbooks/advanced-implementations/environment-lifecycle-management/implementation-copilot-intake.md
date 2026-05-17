@@ -545,4 +545,4 @@ Configure Copilot Studio authentication to:
 
 ---
 
-*FSI Agent Governance Framework v1.2.12 - January 2026*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

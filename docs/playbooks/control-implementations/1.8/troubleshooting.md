@@ -614,4 +614,4 @@ Microsoft Support typical first response is per the contracted SLA (Premier: sev
 
 ---
 
-*Updated: February 2026 | Version: v1.6.2*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
