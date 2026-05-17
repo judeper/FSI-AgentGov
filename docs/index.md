@@ -165,3 +165,5 @@ Bulletin 2026-13
 
 !!! warning "Disclaimer"
     This framework is provided for informational purposes only and does not constitute legal, regulatory, or compliance advice. Organizations should consult with their legal counsel and compliance teams. See [Disclaimer](disclaimer.md) for full details.
+
+*FSI Agent Governance Framework v1.6.2 - May 2026*

@@ -397,3 +397,5 @@ Pattern, Driver, and CoE columns appear in the live inventory table below and ar
 - **Drivers:** AI Governance, Technology & Data
 - **CoE function:** Optimize
 - **Summary:** Continuous detection of overly permissive agent sharing.
+
+*FSI Agent Governance Framework v1.6.2 - May 2026*
