@@ -85,7 +85,7 @@ Requires written policies and procedures for supervision of agents and AI techno
 | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision and Oversight | Define supervisory procedures |
 | [2.3](../controls/pillar-2-management/2.3-change-management-and-release-planning.md) | Change Management | Change control and approval |
 | [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Testing and Validation | QA before production |
-| [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Model Risk Management | SR 26-2 (formerly SR 11-7) alignment |
+| [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Model Risk Management | OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Fed SR 26-2 (formerly SR 11-7) alignment |
 | [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) | Bias Testing | Fairness assessment |
 | [2.15](../controls/pillar-2-management/2.15-environment-routing.md) | Environment Routing | Enforce routing rules based on role/group membership for supervision |
 | [2.17](../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) | Multi-Agent Orchestration Limits | Supervise agent interactions |
@@ -760,6 +760,11 @@ Framework controls relevant to GLBA safeguards are listed in the Applicable Cont
 ### Overview
 Applies to national banks and federal savings associations. Requires governance framework for models used in business decisions.
 
+!!! warning "Generative AI and agentic AI excluded from scope"
+    Per the Federal Reserve's [SR 26-2](https://www.federalreserve.gov/supervisionreg/srletters/sr2602.htm) and OCC Bulletin 2026-13 (issued April 17, 2026), the underlying interagency Model Risk Management guidance explicitly states: *"Generative AI and agentic AI models are novel and rapidly evolving. As such, they are not within the scope of this guidance."* The mappings below apply to **traditional model risk** (algorithmic credit scoring, fraud detection, statistical models). The agencies have indicated they will issue a separate AI-specific request for information; until then, controls relating to generative or agentic AI capabilities reflect **analogous sound risk management principles** rather than direct SR 26-2 / OCC 2026-13 obligations.
+
+    The guidance is described as "most relevant to" banking organizations with **over $30 billion in total assets**, but it may also apply to smaller institutions with complex model portfolios. It does NOT apply to broker-dealers, RIAs, credit unions, or insurance carriers as a standalone regulatory authority for those institution types.
+
 ### Applicable Controls
 
 **Pillar 1 - Security Controls (7 controls):**
@@ -788,14 +793,14 @@ Applies to national banks and federal savings associations. Requires governance 
 | [2.7](../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md) | Vendor Risk Management | Third-party model governance |
 | [2.8](../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md) | Access Control and SoD | Model development controls |
 | [2.9](../controls/pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md) | Performance Monitoring | Model performance tracking |
-| [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) | Bias Testing | Fairness and discrimination testing |
+| [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) | Bias Testing | Fairness and discrimination testing for traditional models; analogous principle for GenAI fairness review |
 | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Model governance oversight |
 | [2.13](../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) | Documentation | Model documentation |
 | [2.15](../controls/pillar-2-management/2.15-environment-routing.md) | Environment Routing | Model environment governance |
-| [2.16](../controls/pillar-2-management/2.16-rag-source-integrity-validation.md) | RAG Source Integrity | Model data source validation |
+| [2.16](../controls/pillar-2-management/2.16-rag-source-integrity-validation.md) | RAG Source Integrity | Analogous principle for GenAI grounding-source validation |
 | [2.17](../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) | Multi-Agent Orchestration | Complex model governance |
 | [2.18](../controls/pillar-2-management/2.18-automated-conflict-of-interest-testing.md) | Conflict of Interest Testing | Model bias detection |
-| [2.20](../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) | Adversarial Testing | Model robustness testing |
+| [2.20](../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) | Adversarial Testing | Analogous principle for GenAI adversarial robustness testing |
 | [2.24](../controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance.md) | Feature Enablement Governance | Model risk management for AI capability controls |
 
 | Control | Requirement | SR 26-2 (formerly SR 11-7) Mapping |
@@ -807,7 +812,7 @@ Applies to national banks and federal savings associations. Requires governance 
 | [3.6](../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) | Orphaned Agent Detection | Model lifecycle management |
 | [3.7](../controls/pillar-3-reporting/3.7-ppac-security-posture-assessment.md) | Security Posture | Model security assessment |
 | [3.8](../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) | Copilot Hub | Model governance dashboard |
-| [3.10](../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md) | Hallucination Feedback Loop | Model output accuracy monitoring |
+| [3.10](../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md) | Hallucination Feedback Loop | Analogous principle for GenAI output-quality monitoring |
 | [3.11](../controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement.md) | Centralized Inventory Enforcement | Model inventory and ongoing monitoring |
 | [3.12](../controls/pillar-3-reporting/3.12-agent-governance-exception-and-override-management.md) | Exception Management | Model governance exception and override tracking |
 
