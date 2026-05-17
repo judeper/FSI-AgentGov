@@ -869,4 +869,4 @@ Continue with [`./verification-testing.md`](./verification-testing.md) to run th
 
 ---
 
-*Updated: April 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

@@ -172,5 +172,4 @@ Prepare responses for these frequently requested items:
 
 ---
 
-*Last Updated: January 2026*
-*FSI Agent Governance Framework v1.2*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

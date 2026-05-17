@@ -1009,4 +1009,4 @@ Before declaring this control operational, confirm all of the following:
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current (May 2026, post-GA prerequisite refresh)*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

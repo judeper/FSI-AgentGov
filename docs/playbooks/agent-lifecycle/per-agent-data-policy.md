@@ -156,3 +156,6 @@ Only list the sources the agent may use.
 - **Approved by (Platform owner):**
 - **Approval date:**
 - **Change record (ticket/PR):**
+---
+
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

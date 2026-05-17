@@ -1208,4 +1208,4 @@ A **false-clean** outcome (the harness reports green when the underlying control
 
 ---
 
-*Updated: April 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

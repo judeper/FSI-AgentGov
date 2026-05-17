@@ -122,3 +122,6 @@ These feed the [Real-time Compliance Dashboard](../monitoring-and-validation/rea
 - **Approved by (Platform owner):**
 - **Approval date:**
 - **Change record (ticket/PR):**
+---
+
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

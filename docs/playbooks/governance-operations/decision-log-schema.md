@@ -165,3 +165,6 @@ DSPM for AI prerequisites include Purview auditing being enabled and licensing/p
 - **Next review:**
 
 Changes to the schema should be treated like a governed interface (versioned, backward-compatible where possible) to preserve audit continuity.
+---
+
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

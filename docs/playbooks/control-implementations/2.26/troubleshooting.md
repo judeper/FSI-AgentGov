@@ -1207,3 +1207,6 @@ For each pillar §2–§10, the verification-testing pack ([`./verification-test
 | Version | 1.0 |
 | Last UI verified | See `2.26-entra-agent-id-identity-governance.md` header |
 | Cross-references | [`./portal-walkthrough.md`](./portal-walkthrough.md) · [`./powershell-setup.md`](./powershell-setup.md) · [`./verification-testing.md`](./verification-testing.md) · [`../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md`](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) · [`../../_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) |
+---
+
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

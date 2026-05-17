@@ -270,4 +270,4 @@ For Zone 3 environments run weekly via a service principal in Azure Automation o
 
 ---
 
-*Updated: April 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

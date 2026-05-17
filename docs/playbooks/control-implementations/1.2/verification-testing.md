@@ -1161,7 +1161,4 @@ A clean `mkdocs build --strict` confirms the cross-links resolve and the navigat
 
 ---
 
-*Updated: April 2026 | Version: v1.6.2 | Maintained by: AI Governance Team*
-
-
----
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

@@ -152,3 +152,6 @@ Minimum evidence for Zone 3:
 - **Version:**
 
 > Any update to allowed/prohibited actions should go through formal change management (align to your existing management controls).
+---
+
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

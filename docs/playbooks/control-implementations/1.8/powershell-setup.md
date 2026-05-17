@@ -1239,4 +1239,4 @@ Every item in this list maps to a real failure mode discovered during Control 1.
 
 ---
 
-*Updated: February 2026 | Version: v1.6.2*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

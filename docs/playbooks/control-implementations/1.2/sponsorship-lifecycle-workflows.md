@@ -944,4 +944,4 @@ Refer to [Troubleshooting](./troubleshooting.md) for registry-level issues and t
 
 [Back to Control 1.2](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) · [Portal Walkthrough](./portal-walkthrough.md) · [PowerShell Setup](./powershell-setup.md) · [Verification Testing](./verification-testing.md) · [Troubleshooting](./troubleshooting.md)
 
-*Updated: April 2026 | Version: v1.6.2 | Maintained by: AI Governance Team*
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
