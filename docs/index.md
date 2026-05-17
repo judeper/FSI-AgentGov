@@ -28,7 +28,7 @@ agent deployments.
     <span class="metric-label">Governance Pillars</span>
   </div>
   <div class="metric">
-    <span class="metric-number">5</span>
+    <span class="metric-number">6</span>
     <span class="metric-label">Regulatory Frameworks</span>
   </div>
   <div class="metric">
