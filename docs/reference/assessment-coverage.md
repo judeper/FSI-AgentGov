@@ -18,18 +18,18 @@ It is the honest answer to *what does the assessment engine actually automate to
 
 | State | Count | Share |
 |-------|-------|-------|
-| ✅ Auto | 1 | 1.3% |
-| 📝 Manual | 39 | 50.0% |
-| ⚠️ Unimplemented | 38 | 48.7% |
+| ✅ Auto | 7 | 9.0% |
+| 📝 Manual | 38 | 48.7% |
+| ⚠️ Unimplemented | 33 | 42.3% |
 | **Total** | **78** | 100% |
 
 ### By check
 
 | State | Count | Share |
 |-------|-------|-------|
-| ✅ Auto | 3 | 3.2% |
-| 📝 Manual | 21 | 22.3% |
-| ⚠️ Unimplemented | 70 | 74.5% |
+| ✅ Auto | 9 | 9.6% |
+| 📝 Manual | 20 | 21.3% |
+| ⚠️ Unimplemented | 65 | 69.1% |
 | **Total** | **94** | 100% |
 
 ### Registered evaluators
@@ -50,14 +50,8 @@ It is the honest answer to *what does the assessment engine actually automate to
 
 **Drift warning** — the following evaluators are registered but no manifest check uses them as a `pass_condition`. This usually means the manifest condition string drifted from the evaluator key:
 
-- `audit_log_enabled`
-- `ca_policy_requires_mfa`
 - `ca_policy_targets_copilot_studio`
-- `copilot_retention_policy_exists`
-- `grounding_sources_approved`
-- `no_external_sharing_on_grounding`
 - `prod_env_has_security_group`
-- `prod_env_is_managed`
 
 ## Per-pillar matrix
 
@@ -67,7 +61,7 @@ It is the honest answer to *what does the assessment engine actually automate to
 |---------|-------|-------|------|--------|--------|------------|---------|
 | 1.1 | Control 1.1: Restrict Agent Publishing by Authorization | ✅ Auto | 3 | 0 | 0 | Graph_API, PPAC_PowerShell |  |
 | 1.10 | Control 1.10: Communication Compliance Monitoring | ⚠️ Unimplemented | 0 | 1 | 0 | Purview_PowerShell | `pass_condition: comm_compliance_policy_exists` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. |
-| 1.11 | Control 1.11: Conditional Access and Phishing-Resistant MFA | ⚠️ Unimplemented | 0 | 3 | 0 | Graph_API | `pass_condition: ca_mfa_enforced` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. `pass_condition: signin_frequency_set` declared in manifest but no bespoke evaluator registered in score.py… |
+| 1.11 | Control 1.11: Conditional Access and Phishing-Resistant MFA | ✅ Auto | 1 | 2 | 0 | Graph_API | `pass_condition: signin_frequency_set` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. `pass_condition: phishing_resistant_mfa` declared in manifest but no bespoke evaluator registered in s… |
 | 1.12 | Control 1.12: Insider Risk Detection and Response | ⚠️ Unimplemented | 0 | 1 | 0 | Purview_PowerShell | `pass_condition: insider_risk_policy_exists` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. |
 | 1.13 | Control 1.13: Sensitive Information Types (SITs) and Pattern Recognition | ⚠️ Unimplemented | 0 | 2 | 0 | PPAC_PowerShell, Purview_PowerShell | `pass_condition: sit_count_adequate` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. `pass_condition: dlp_references_sits` declared in manifest but no bespoke evaluator registered in score.… |
 | 1.14 | Control 1.14: Data Minimization and Agent Scope Control | 📝 Manual | 0 | 0 | 0 | — |  |
@@ -91,15 +85,15 @@ It is the honest answer to *what does the assessment engine actually automate to
 | 1.4 | Control 1.4: Advanced Connector Policies (ACP) | ⚠️ Unimplemented | 0 | 3 | 0 | PPAC_PowerShell | `pass_condition: dlp_policy_exists` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. `pass_condition: acp_allowlist_configured` declared in manifest but no bespoke evaluator registered in sc… |
 | 1.5 | Control 1.5: Data Loss Prevention (DLP) and Sensitivity Labels | ⚠️ Unimplemented | 0 | 2 | 0 | PPAC_PowerShell, Purview_PowerShell | `pass_condition: dlp_scope_covers_agents` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. `pass_condition: sensitivity_labels_enabled` declared in manifest but no bespoke evaluator register… |
 | 1.6 | Control 1.6: Microsoft Purview DSPM for AI | ⚠️ Unimplemented | 0 | 1 | 0 | Purview_PowerShell | `pass_condition: dspm_policy_exists` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. |
-| 1.7 | Control 1.7: Comprehensive Audit Logging and Compliance | ⚠️ Unimplemented | 0 | 2 | 0 | Purview_PowerShell | `pass_condition: audit_logging_enabled` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. `pass_condition: audit_plan_tier_adequate` declared in manifest but no bespoke evaluator registered i… |
+| 1.7 | Control 1.7: Comprehensive Audit Logging and Compliance | ✅ Auto | 1 | 1 | 0 | Purview_PowerShell | `pass_condition: audit_plan_tier_adequate` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. |
 | 1.8 | Control 1.8: Runtime Protection and External Threat Detection | 📝 Manual | 0 | 0 | 1 | Sentinel_KQL | Manual review required. |
-| 1.9 | Control 1.9: Data Retention and Deletion Policies | ⚠️ Unimplemented | 0 | 2 | 0 | Purview_PowerShell | `pass_condition: copilot_retention_exists` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. `pass_condition: retention_duration_adequate` declared in manifest but no bespoke evaluator regist… |
+| 1.9 | Control 1.9: Data Retention and Deletion Policies | ✅ Auto | 1 | 1 | 0 | Purview_PowerShell | `pass_condition: retention_duration_adequate` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. |
 
 ### Pillar 2 – Management
 
 | Control | Title | State | Auto | Unimpl | Manual | Collection | Caveats |
 |---------|-------|-------|------|--------|--------|------------|---------|
-| 2.1 | Control 2.1: Managed Environments | ⚠️ Unimplemented | 0 | 2 | 0 | PPAC_PowerShell | `pass_condition: all_prod_managed` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. `pass_condition: managed_policies_enforced` declared in manifest but no bespoke evaluator registered in sc… |
+| 2.1 | Control 2.1: Managed Environments | ✅ Auto | 1 | 1 | 0 | PPAC_PowerShell | `pass_condition: managed_policies_enforced` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. |
 | 2.10 | Control 2.10: Patch Management and System Updates | ⚠️ Unimplemented | 0 | 1 | 0 | PPAC_PowerShell | `pass_condition: version_info_available` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. |
 | 2.11 | Control 2.11: Bias Testing and Fairness Assessment | 📝 Manual | 0 | 0 | 0 | — |  |
 | 2.12 | Control 2.12: Supervision and Oversight (FINRA Rule 3110) | 📝 Manual | 0 | 0 | 0 | — |  |
@@ -152,9 +146,9 @@ It is the honest answer to *what does the assessment engine actually automate to
 | 4.1 | Control 4.1: SharePoint Information Access Governance (IAG) / Restricted Content Discovery | 📝 Manual | 0 | 0 | 2 | SharePoint_Graph | Manual review required. |
 | 4.2 | Control 4.2: Site Access Reviews and Certification | 📝 Manual | 0 | 0 | 1 | SharePoint_Graph | Manual review required. |
 | 4.3 | Control 4.3: Site and Document Retention Management | 📝 Manual | 0 | 0 | 2 | SharePoint_Graph | Manual review required. |
-| 4.4 | Control 4.4: Guest and External User Access Controls | 📝 Manual | 0 | 0 | 2 | SharePoint_Graph | Manual review required. |
+| 4.4 | Control 4.4: Guest and External User Access Controls | ✅ Auto | 1 | 0 | 1 | SharePoint_Graph | Manual review required. |
 | 4.5 | Control 4.5: SharePoint Security and Compliance Monitoring | 📝 Manual | 0 | 0 | 1 | SharePoint_Graph | Manual review required. |
-| 4.6 | Control 4.6: Grounding Scope Governance | ⚠️ Unimplemented | 0 | 2 | 0 | PPAC_PowerShell, SharePoint_Graph | `pass_condition: grounding_scope_restricted` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. `pass_condition: no_unapproved_grounding` declared in manifest but no bespoke evaluator register… |
+| 4.6 | Control 4.6: Grounding Scope Governance | ✅ Auto | 1 | 1 | 0 | PPAC_PowerShell, SharePoint_Graph | `pass_condition: grounding_scope_restricted` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. |
 | 4.7 | Control 4.7: Microsoft 365 Copilot Data Governance | 📝 Manual | 0 | 0 | 0 | — |  |
 | 4.8 | Control 4.8: Item-Level Permission Scanning for Agent Knowledge Sources | 📝 Manual | 0 | 0 | 2 | SharePoint_Graph | Manual review required. |
 | 4.9 | Control 4.9: Embedded File Content Governance | 📝 Manual | 0 | 0 | 0 | — |  |
@@ -167,3 +161,5 @@ It is the honest answer to *what does the assessment engine actually automate to
 4. Re-run `python scripts/generate_coverage_matrix.py` and commit the regenerated `docs/reference/assessment-coverage.md`.
 
 <!-- This page is generated by scripts/generate_coverage_matrix.py. Do not edit by hand. -->
+
+*FSI Agent Governance Framework v1.6.2 - May 2026*

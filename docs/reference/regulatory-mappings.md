@@ -755,6 +755,32 @@ Framework controls relevant to GLBA safeguards are listed in the Applicable Cont
 
 ---
 
+## SEC Regulation S-P - Privacy of Consumer Financial Information
+
+### Overview
+[SEC Regulation S-P](https://www.sec.gov/files/rules/final/2024/34-100155.pdf) (17 CFR Part 248) governs privacy of consumer nonpublic personal information held by broker-dealers and investment advisers. The SEC adopted significant amendments effective May 16, 2024 (Release IA-6634) that require:
+
+- **Customer notification within 30 days** of discovering unauthorized access to or use of customer nonpublic personal information (NPI)
+- Enhanced incident response policies and procedures
+- Service provider oversight for NPI handling
+
+### Applicable Controls
+
+| Control | Reg S-P Requirement |
+|---------|---------------------|
+| [1.5](../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) | DLP controls over NPI in agent interactions |
+| [1.8](../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md) | Runtime protection and unauthorized access detection |
+| [3.4](../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) | Incident response with a 30-day customer notification workflow |
+| [2.7](../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md) | Service provider oversight for NPI handling |
+
+### Compliance Dates
+Most provisions become effective December 3, 2025 for larger entities and June 3, 2026 for smaller entities.
+
+### Framework Coverage
+Framework controls relevant to SEC Regulation S-P are listed in the Applicable Controls table above. Broker-dealers and investment advisers should validate implementation against their written incident response, customer notification, and service provider oversight obligations.
+
+---
+
 ## OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Fed SR 26-2 (formerly SR 11-7) - Model Risk Management
 
 ### Overview
@@ -985,6 +1011,28 @@ Framework provides audit and recordkeeping controls. Organizations with CFTC-reg
 
 ---
 
+## NFA Compliance Rule 2-9 - Supervision
+
+### Overview
+The [National Futures Association Compliance Rule 2-9](https://www.nfa.futures.org/rulebook/rules.aspx?Section=4&RuleID=RULE%202-9) requires each FCM, IB, CPO, or CTA Member to diligently supervise its employees and agents in the conduct of their commodity interest activities for or on behalf of the Member. This is the NFA's supervisory baseline for futures-registered entities, analogous to FINRA Rule 3110 for broker-dealers. The rule was most recently amended March 18, 2026.
+
+### Applicable Controls
+
+| Control | Supervisory Requirement |
+|---------|--------------------------|
+| [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Written supervisory procedures for AI agent activities |
+| [3.3](../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) | Documented supervisory review of agent-driven futures activities |
+| [1.1](../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md) | Authorization controls over agent deployment |
+| [2.3](../controls/pillar-2-management/2.3-change-management-and-release-planning.md) | Change management with supervisory approval |
+
+### Applicability
+FCMs, IBs, CPOs, and CTAs registered with the NFA.
+
+### Framework Coverage
+Framework controls relevant to NFA Compliance Rule 2-9 are listed in the Applicable Controls table above. Futures-registered entities should validate these controls against their written supervisory procedures and NFA examination expectations.
+
+---
+
 ## CFPB Guidance - Algorithmic Accountability and UDAAP
 
 ### Overview
@@ -1138,7 +1186,7 @@ FDIC-supervised institutions follow the same interagency guidance as OCC and Fed
 | Guidance | FDIC Applicability | Framework Alignment |
 |----------|-------------------|---------------------|
 | Interagency Model Risk Guidance (SR 26-2 (formerly SR 11-7)) | Adopted by FDIC | Control 2.6, 2.11 |
-| Interagency Third-Party Guidance (2023) | Joint OCC/Fed/FDIC | Control 2.7 |
+| OCC Bulletin 2023-17 / FRB SR 23-4 / FDIC FIL 29-2023 — Interagency Guidance on Third-Party Relationships | Joint OCC/Fed/FDIC | Control 2.7 |
 | FFIEC IT Examination Handbook | Primary reference | Pillars 1-4 |
 | GLBA Safeguards Rule | Required | Pillar 1 Security |
 
@@ -1152,7 +1200,7 @@ All framework controls apply to FDIC-supervised institutions. Key controls inclu
 | [1.11](../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) | Conditional Access/MFA | FFIEC Authentication Guidance |
 | [1.15](../controls/pillar-1-security/1.15-encryption-data-in-transit-and-at-rest.md) | Encryption | FFIEC Information Security |
 | [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Model Risk Management | Interagency SR 26-2 (formerly SR 11-7) guidance |
-| [2.7](../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md) | Third-Party Risk | Interagency Third-Party Guidance (2023) |
+| [2.7](../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md) | Third-Party Risk | OCC Bulletin 2023-17 / FRB SR 23-4 / FDIC FIL 29-2023 — Interagency Guidance on Third-Party Relationships |
 | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision | Examination expectations |
 
 ### FFIEC IT Examination Alignment
@@ -1422,6 +1470,22 @@ Many states have adopted versions of the NAIC Insurance Data Security Model Law,
 | Incident Response | Section 5 | Control 3.4 |
 | Investigation and Notification | Section 6 | Control 3.4 |
 
+### NAIC Model Bulletin on Use of Artificial Intelligence by Insurance Companies (December 2023)
+
+The National Association of Insurance Commissioners adopted the [Model Bulletin on the Use of Artificial Intelligence by Insurance Companies](https://content.naic.org/cipr-topics/artificial-intelligence) in December 2023. The bulletin establishes principles for responsible AI use by insurers, including governance, risk management, testing, oversight, transparency, and consumer protection. Adopted in some form by more than 20 state insurance regulators by mid-2025, implementation details still vary by jurisdiction.
+
+**Applicable Controls:**
+
+| Control | Bulletin Principle |
+|---------|---------------------|
+| [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | AI Governance and Risk Management |
+| [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) | Bias Testing and Fairness |
+| [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision and Oversight |
+| [2.19](../controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) | Consumer Transparency and Disclosure |
+| [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md) | Testing and Validation |
+
+**Note:** State adoption varies; insurers should verify current bulletin status in their licensed jurisdictions.
+
 ### Framework Applicability to Insurers
 
 The framework controls are generally applicable to insurance companies:
@@ -1463,15 +1527,18 @@ Insurers should consult their primary state insurance regulator and legal counse
 | SEC Marketing Rule (206(4)-1) | AI marketing claims - Control 2.21 |
 | SOX 302/404 | Substantial coverage |
 | GLBA 501-505 | Substantial coverage |
+| Reg S-P (2024 amendments) | BD/RIA customer NPI / 30-day notification - Controls 1.5, 1.8, 3.4, 2.7 |
 | OCC Bulletin 2026-13 (formerly OCC 2011-12) | Partial - model risk focus |
 | Fed SR 26-2 (formerly SR 11-7) | Partial - model risk focus |
 | Fed ECOA | Minimal - bias testing only |
 | CFPB / UDAAP | Consumer protection + disclosure focus |
 | CFTC Rule 1.31 | Recordkeeping for derivatives/commodities |
+| NFA Compliance Rule 2-9 | FCM/IB/CPO/CTA supervision - Controls 2.12, 3.3, 1.1, 2.3 |
 | FDIC (Interagency) | Full applicability; align to interagency guidance |
 | NCUA Part 748 | Security program alignment |
-| NYDFS Part 500 | State-level awareness |
+| NYDFS Part 500 | Detailed per-section mapping for NYDFS-licensed entities |
 | NAIC Model Law | Insurance awareness |
+| NAIC Model Bulletin on AI (Dec 2023) | Insurance AI governance - Controls 2.6, 2.11, 2.12, 2.19, 2.5 |
 | State AI Laws | Emerging - transparency, bias, human review |
 
 > **Note:** Implementation Status describes the qualitative scope of framework coverage for each regulation. Actual compliance requires implementation, validation, and ongoing maintenance. Consult legal counsel for regulatory interpretation. See [Disclaimer](../disclaimer.md).
@@ -1536,4 +1603,4 @@ The FSI-AgentGov framework addresses FINOS AIGF v2.0 risks through defense-in-de
 
 ---
 
-*FSI Agent Governance Framework v1.2 - February 2026*
+*FSI Agent Governance Framework v1.6.2 - May 2026*
