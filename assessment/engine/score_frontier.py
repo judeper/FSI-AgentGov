@@ -559,6 +559,8 @@ def _q13_audit_enabled(purview: dict) -> bool | None:
     """
     config = purview.get("audit_config")
     if config is None:
+        config = purview.get("auditConfig")
+    if config is None:
         return None
     enabled = config.get("UnifiedAuditLogIngestionEnabled")
     if enabled is True:
@@ -660,7 +662,7 @@ def _eval_zone_classification_with_audit_supervision_and_model_risk(
             f"(UnifiedAuditLogIngestionEnabled={str(audit_enabled).lower()})"
         )
     elif purview_available:
-        audit_evidence = "audit_config field absent in Purview data"
+        audit_evidence = "auditConfig/audit_config field absent in Purview data"
     else:
         audit_evidence = f"Purview data unavailable: {purview_err}"
 

@@ -13,6 +13,16 @@ Financial Services. Two complementary assessments share the same orchestrator:
   Frontier Transformation Patterns. Audience: CIO, CDAO, AI Governance Lead,
   AI Program Sponsor.
 
+> **Assessment surface note:** The browser-based assessment SPA is a
+> self-assessment questionnaire that scores answers entered by the assessor
+> against the manifest's zone requirements. The Python assessment engine is a
+> telemetry-driven scorer that evaluates collected tenant data (PPAC, Graph,
+> Purview, SharePoint, Sentinel) against manifest `pass_condition` values. The
+> two surfaces serve different audiences and operate on different inputs by
+> design — the SPA is for facilitated self-assessment, the engine is for
+> automated tenant verification. They share `assessment/manifest/controls.json`
+> as a common source of truth but apply it differently.
+
 ## When to Run Which Assessment
 
 | Run **Controls** if... | Run **Frontier Readiness** if... | Run **Both** if... |
@@ -42,7 +52,7 @@ run-assessment.ps1                           ← Orchestrator (PowerShell, -Asse
 │   ├── score_frontier.py                    ← 5-driver scoring (100–500)
 │   └── report.py                            ← --type controls | frontier | both
 ├── manifest/
-│   ├── controls.json                        ← 78-control definition manifest
+│   ├── controls.json                        ← authoritative source 78-control manifest
 │   └── frontier-readiness.json             ← 25-question Frontier manifest
 ├── tests/
 │   ├── fixtures/
@@ -61,6 +71,11 @@ run-assessment.ps1                           ← Orchestrator (PowerShell, -Asse
     ├── frontier-prefilled.md               ← Frontier assessment
     └── capability-driver-rollup.json       ← Generated only when -AssessmentType Both
 ```
+
+`assessment/manifest/controls.json` is the authored source manifest for both
+assessment surfaces. The documentation build copies it to the SPA's runtime
+asset path (`docs/assessment/data/controls.json` / `/assessment/data/controls.json`),
+but contributor edits should always start in `assessment/manifest/controls.json`.
 
 ## Prerequisites
 

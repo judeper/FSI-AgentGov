@@ -707,7 +707,7 @@
         "check_id": "1.7.a",
         "description": "Unified audit logging enabled",
         "api_call": "Get-AdminAuditLogConfig",
-        "pass_condition": "audit_logging_enabled",
+        "pass_condition": "audit_log_enabled",
         "zone_required": [
           1,
           2,
@@ -921,7 +921,7 @@
         "check_id": "1.9.a",
         "description": "Retention policy scoped to Copilot interactions exists",
         "api_call": "Get-RetentionCompliancePolicy",
-        "pass_condition": "copilot_retention_exists",
+        "pass_condition": "copilot_retention_policy_exists",
         "zone_required": [
           1,
           2,
@@ -1128,7 +1128,7 @@
         "check_id": "1.11.a",
         "description": "CA policy targeting Copilot Studio app enforces MFA",
         "api_call": "Get-MgIdentityConditionalAccessPolicy",
-        "pass_condition": "ca_mfa_enforced",
+        "pass_condition": "ca_policy_requires_mfa",
         "zone_required": [
           1,
           2,
@@ -3091,7 +3091,7 @@
         "check_id": "2.1.a",
         "description": "All production environments have IsManaged: true",
         "api_call": "Get-AdminPowerAppEnvironment",
-        "pass_condition": "all_prod_managed",
+        "pass_condition": "prod_env_is_managed",
         "zone_required": [
           1,
           2,
@@ -7196,7 +7196,7 @@
         "check_id": "4.4.a",
         "description": "External sharing disabled on grounding sites",
         "api_call": "Get-MgSite",
-        "pass_condition": "external_sharing_disabled",
+        "pass_condition": "no_external_sharing_on_grounding",
         "zone_required": [
           1,
           2,
@@ -7411,7 +7411,7 @@
         "check_id": "4.6.b",
         "description": "No unapproved sites in agent knowledge source configuration",
         "api_call": "Get-MgSite",
-        "pass_condition": "no_unapproved_grounding",
+        "pass_condition": "grounding_sources_approved",
         "zone_required": [
           2,
           3

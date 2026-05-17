@@ -128,7 +128,8 @@ Write-Verbose "Microsoft Graph authentication stage complete."
 
 # ═══════════════════════════════════════════════════════════════════════
 # Section 1: Conditional Access Policies
-# Supports: Control 1.1 (Agent Authentication Enforcement), MFA requirements
+# Supports: Control 1.11 (Conditional Access and Phishing-Resistant MFA),
+#           Control 1.29 (Global Secure Access network policy dependencies)
 # Pattern: restrict-agent-publishing.ps1 — CA policy evaluation
 # ═══════════════════════════════════════════════════════════════════════
 $conditionalAccessPolicies = $null
@@ -163,7 +164,7 @@ catch {
 
 # ═══════════════════════════════════════════════════════════════════════
 # Section 2: FSI-Agent Security Groups
-# Supports: Control 1.1 (Security Group Governance), 2.1 (Managed Environments)
+# Supports: Control 1.1 (Restrict Agent Publishing by Authorization)
 # Pattern: Invoke-HardeningBaselineCheck.ps1 Item 17 (Security Groups)
 # ═══════════════════════════════════════════════════════════════════════
 $fsiSecurityGroups = $null
@@ -241,7 +242,8 @@ catch {
 
 # ═══════════════════════════════════════════════════════════════════════
 # Section 4: Privileged Role Assignments
-# Supports: Control 3.7 (Least-Privilege Access), admin role auditing
+# Supports: Control 1.18 (Application-Level Authorization and RBAC),
+#           Control 2.8 (Access Control and Segregation of Duties)
 # ═══════════════════════════════════════════════════════════════════════
 $privilegedRoleAssignments = $null
 try {
@@ -278,7 +280,8 @@ catch {
 
 # ═══════════════════════════════════════════════════════════════════════
 # Section 5: M365 Integrated Apps — Copilot Studio Service Principals
-# Supports: Control 1.1 (Agent Authentication), app registration auditing
+# Supports: Control 1.2 (Agent Registry and Integrated Apps Management),
+#           Control 3.1 (Agent Inventory and Metadata Management)
 # ═══════════════════════════════════════════════════════════════════════
 $copilotServicePrincipals = $null
 try {
