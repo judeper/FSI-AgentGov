@@ -79,7 +79,7 @@
       "SOX-404",
       "GLBA",
       "OCC-2023-17",
-      "Fed-SR-11-7"
+      "Fed-SR-26-2"
     ],
     "priority": "critical",
     "applicable_drivers": [
@@ -107,14 +107,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/1.1/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "Is publishing in production environments restricted to a named publisher security group with approval, and is share-with-everyone disabled?",
@@ -205,8 +205,8 @@
       "SEC-17a-4",
       "SOX-404",
       "GLBA",
-      "OCC-2011-12",
-      "Fed-SR-11-7",
+      "OCC-2026-13",
+      "Fed-SR-26-2",
       "NIST-AI-RMF",
       "NYDFS-500"
     ],
@@ -234,14 +234,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/1.2/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "Do you maintain a single registry of all agents and integrated apps with named owners, sponsors, and approved permission scopes?",
@@ -342,14 +342,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/1.3/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "Are SharePoint sites used as agent knowledge sources scoped with least-privilege permissions, sensitivity labels, and RAC/RCD where appropriate?",
@@ -459,14 +459,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/1.4/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "Are Copilot Studio agents restricted to an explicit connector allowlist with action-level controls via Advanced Connector Policies and classic DLP?",
@@ -547,7 +547,7 @@
       "Reg-S-P",
       "SOX-404",
       "GLBA",
-      "OCC-2011-12",
+      "OCC-2026-13",
       "NYDFS-500",
       "PCI-DSS"
     ],
@@ -574,14 +574,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/1.5/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "Do you have DLP policies explicitly scoped to Copilot and Copilot Studio agents across SharePoint, OneDrive, Exchange, Teams, and Endpoint?",
@@ -676,14 +676,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/1.6/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "Has DSPM for AI been activated with one-click policies, sensitive-interaction monitoring, and weekly risk assessments scoped to FSI knowledge sites?",
@@ -762,8 +762,8 @@
       "SEC-17a-4",
       "SOX-404",
       "GLBA",
-      "OCC-2011-12",
-      "Fed-SR-11-7",
+      "OCC-2026-13",
+      "Fed-SR-26-2",
       "CFTC-1.31"
     ],
     "priority": "critical",
@@ -789,14 +789,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/1.7/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "Is Audit Premium enabled with custom retention policies that hold Copilot and agent audit events for the 6-year FINRA 4511 / SEC 17a-4 window?",
@@ -887,14 +887,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/1.8/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "Are Prompt Shields, content moderation, and Defender for Cloud Apps AI Agent Protection enabled for all Zone 2/3 Copilot Studio agents?",
@@ -997,14 +997,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/1.9/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -1095,14 +1095,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/1.10/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "Do Communication Compliance policies monitor Microsoft 365 Copilot interactions and Copilot Studio agent outputs for FINRA-relevant content?",
@@ -1199,8 +1199,8 @@
       "Reg-S-P",
       "SOX-404",
       "GLBA",
-      "OCC-2011-12",
-      "Fed-SR-11-7",
+      "OCC-2026-13",
+      "Fed-SR-26-2",
       "NYDFS-500"
     ],
     "priority": "critical",
@@ -1226,14 +1226,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/1.11/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "Does Conditional Access require phishing-resistant MFA for agent makers, owners, and admins, plus workload-identity CA for service principals?",
@@ -1305,8 +1305,8 @@
       "Reg-S-P",
       "SOX-404",
       "GLBA",
-      "OCC-2011-12",
-      "Fed-SR-11-7",
+      "OCC-2026-13",
+      "Fed-SR-26-2",
       "NYDFS-500"
     ],
     "priority": "high",
@@ -1332,14 +1332,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/1.12/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "Are Insider Risk Management Risky AI usage and Risky Agents policies active with assigned investigators and integration to Adaptive Protection?",
@@ -1417,8 +1417,8 @@
       "Reg-S-P",
       "SOX-404",
       "GLBA",
-      "OCC-2011-12",
-      "Fed-SR-11-7",
+      "OCC-2026-13",
+      "Fed-SR-26-2",
       "CFTC-1.31",
       "PCI-DSS"
     ],
@@ -1445,14 +1445,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/1.13/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "Do you have built-in and custom FSI SITs (CRD, MNPI, internal account formats) wired into DLP and DSPM for AI policies?",
@@ -1532,14 +1532,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/1.14/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "Is each Zone 2/3 agent's grounding scope documented, approved, and monitored for drift beyond declared sources?",
@@ -1643,14 +1643,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/1.15/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -1725,14 +1725,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/1.16/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -1820,14 +1820,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/1.17/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "Are Windows/macOS endpoints onboarded with Endpoint DLP policies including Edge for Business browser controls for unmanaged AI apps?",
@@ -1926,14 +1926,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/1.18/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -2037,14 +2037,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/1.19/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -2113,7 +2113,7 @@
       "FINRA-25-07",
       "SEC-17a-4",
       "GLBA",
-      "OCC-2011-12"
+      "OCC-2026-13"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -2138,14 +2138,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/1.20/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -2215,8 +2215,8 @@
       "FINRA-25-07",
       "SEC-17a-4",
       "GLBA",
-      "OCC-2011-12",
-      "Fed-SR-11-7",
+      "OCC-2026-13",
+      "Fed-SR-26-2",
       "NIST-AI-RMF"
     ],
     "priority": "high",
@@ -2243,14 +2243,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/1.21/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "Are prompt-injection and jailbreak signals captured from Prompt Shields, Defender XDR, Comm Compliance, and DSPM for AI, then correlated in Sentinel?",
@@ -2318,7 +2318,7 @@
     ],
     "regulatory": [
       "FINRA-25-07",
-      "OCC-2011-12"
+      "OCC-2026-13"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -2343,14 +2343,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/1.22/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -2435,14 +2435,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/1.23/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -2495,8 +2495,8 @@
     "regulatory": [
       "FINRA-25-07",
       "GLBA",
-      "OCC-2011-12",
-      "Fed-SR-11-7",
+      "OCC-2026-13",
+      "Fed-SR-26-2",
       "NIST-AI-RMF"
     ],
     "priority": "TODO: critical|high|medium|low",
@@ -2523,14 +2523,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/1.24/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -2604,7 +2604,7 @@
       "FINRA-25-07",
       "SEC-17a-4",
       "GLBA",
-      "OCC-2011-12"
+      "OCC-2026-13"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -2629,14 +2629,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/1.25/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -2710,7 +2710,7 @@
       "FINRA-25-07",
       "SEC-17a-4",
       "GLBA",
-      "OCC-2011-12"
+      "OCC-2026-13"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -2735,14 +2735,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/1.26/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -2849,14 +2849,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/1.27/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -2928,8 +2928,8 @@
       "FINRA-3110",
       "FINRA-25-07",
       "SOX-404",
-      "OCC-2011-12",
-      "Fed-SR-11-7"
+      "OCC-2026-13",
+      "Fed-SR-26-2"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -2954,14 +2954,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/1.28/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -3035,7 +3035,7 @@
       "FINRA-25-07",
       "SOX-404",
       "GLBA",
-      "OCC-2011-12"
+      "OCC-2026-13"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -3060,14 +3060,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/1.29/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -3144,8 +3144,8 @@
       "SEC-17a-3",
       "SOX-404",
       "GLBA",
-      "OCC-2011-12",
-      "Fed-SR-11-7",
+      "OCC-2026-13",
+      "Fed-SR-26-2",
       "NYDFS-500"
     ],
     "priority": "critical",
@@ -3172,14 +3172,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/2.1/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "Are all Zone 2/3 Power Platform environments designated as Managed Environments with sharing limits and solution-checker enforcement?",
@@ -3258,7 +3258,7 @@
       "FINRA-25-07",
       "SOX-404",
       "GLBA",
-      "OCC-2011-12"
+      "OCC-2026-13"
     ],
     "priority": "high",
     "applicable_drivers": [
@@ -3284,14 +3284,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/2.2/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "Are environment groups configured for Zones 1/2/3 with published rules and Computer-Using Agents disabled tenant-wide?",
@@ -3381,14 +3381,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/2.3/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -3455,7 +3455,7 @@
       "FINRA-25-07",
       "SOX-404",
       "GLBA",
-      "OCC-2011-12"
+      "OCC-2026-13"
     ],
     "priority": "medium",
     "applicable_drivers": [
@@ -3480,14 +3480,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/2.4/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "Are critical Copilot Studio agents tier-classified with RTO/RPO, secondary-region failover, and an annually tested DR runbook?",
@@ -3541,8 +3541,8 @@
       "SEC-17a-4",
       "SOX-404",
       "GLBA",
-      "OCC-2011-12",
-      "Fed-SR-11-7",
+      "OCC-2026-13",
+      "Fed-SR-26-2",
       "NIST-AI-RMF"
     ],
     "priority": "TODO: critical|high|medium|low",
@@ -3569,14 +3569,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/2.5/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -3631,8 +3631,8 @@
       "SEC-17a-3",
       "SOX-404",
       "GLBA",
-      "OCC-2011-12",
-      "Fed-SR-11-7",
+      "OCC-2026-13",
+      "Fed-SR-26-2",
       "NYDFS-500"
     ],
     "priority": "high",
@@ -3660,14 +3660,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/2.6/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "Are AI agents that inform decisions or customer interactions inventoried, validated independently, and monitored under the firm's MRM program?",
@@ -3716,7 +3716,7 @@
       "FINRA-25-07",
       "SOX-404",
       "GLBA",
-      "OCC-2011-12"
+      "OCC-2026-13"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -3742,14 +3742,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/2.7/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -3847,14 +3847,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/2.8/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -3946,14 +3946,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/2.9/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -4042,14 +4042,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/2.10/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -4097,7 +4097,7 @@
       "Governance Lead"
     ],
     "regulatory": [
-      "Fed-SR-11-7"
+      "Fed-SR-26-2"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -4125,14 +4125,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/2.11/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -4212,14 +4212,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/2.12/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "Has the firm's WSP been amended to include AI agent supervision with HITL for Zone 3 customer-facing outputs and a designated registered principal?",
@@ -4299,14 +4299,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/2.13/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -4382,14 +4382,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/2.14/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -4460,7 +4460,7 @@
       "FINRA-25-07",
       "SOX-404",
       "GLBA",
-      "OCC-2011-12"
+      "OCC-2026-13"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -4485,14 +4485,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/2.15/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -4552,8 +4552,8 @@
     "regulatory": [
       "FINRA-4511",
       "FINRA-25-07",
-      "OCC-2011-12",
-      "Fed-SR-11-7"
+      "OCC-2026-13",
+      "Fed-SR-26-2"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -4581,14 +4581,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/2.16/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -4648,8 +4648,8 @@
     "regulatory": [
       "FINRA-25-07",
       "SOX-404",
-      "OCC-2011-12",
-      "Fed-SR-11-7"
+      "OCC-2026-13",
+      "Fed-SR-26-2"
     ],
     "priority": "medium",
     "applicable_drivers": [
@@ -4677,14 +4677,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/2.17/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "Are multi-agent and MCP orchestration patterns documented with delegation depth limits, circuit breakers, and inventoried in the agent registry?",
@@ -4755,14 +4755,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/2.18/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -4839,14 +4839,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/2.19/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -4892,8 +4892,8 @@
       "Security Team"
     ],
     "regulatory": [
-      "OCC-2011-12",
-      "Fed-SR-11-7",
+      "OCC-2026-13",
+      "Fed-SR-26-2",
       "NIST-AI-RMF"
     ],
     "priority": "TODO: critical|high|medium|low",
@@ -4922,14 +4922,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/2.20/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -4999,14 +4999,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/2.21/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -5103,14 +5103,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/2.22/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -5187,14 +5187,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/2.23/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -5273,8 +5273,8 @@
       "FINRA-25-07",
       "SOX-404",
       "GLBA",
-      "OCC-2011-12",
-      "Fed-SR-11-7"
+      "OCC-2026-13",
+      "Fed-SR-26-2"
     ],
     "priority": "medium",
     "applicable_drivers": [
@@ -5300,14 +5300,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/2.24/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "Do you maintain a per-zone catalog of approved Copilot/Copilot Studio features with enforcement at tenant, environment, and agent levels?",
@@ -5387,7 +5387,7 @@
       "SEC-17a-3",
       "SOX-404",
       "GLBA",
-      "OCC-2011-12",
+      "OCC-2026-13",
       "NYDFS-500"
     ],
     "priority": "TODO: critical|high|medium|low",
@@ -5414,14 +5414,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/2.25/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -5497,7 +5497,7 @@
       "FINRA-25-07",
       "SOX-404",
       "GLBA",
-      "OCC-2011-12"
+      "OCC-2026-13"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -5525,14 +5525,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/2.26/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -5610,8 +5610,8 @@
       "SEC-17a-4",
       "SOX-404",
       "GLBA",
-      "OCC-2011-12",
-      "Fed-SR-11-7",
+      "OCC-2026-13",
+      "Fed-SR-26-2",
       "NIST-AI-RMF",
       "NYDFS-500"
     ],
@@ -5639,14 +5639,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/3.1/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -5724,14 +5724,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/3.2/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -5797,7 +5797,7 @@
       "SEC-17a-3",
       "SOX-404",
       "GLBA",
-      "OCC-2011-12"
+      "OCC-2026-13"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -5822,14 +5822,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/3.3/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -5927,14 +5927,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/3.4/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "Does the firm's written incident response program address AI agent incidents and the parallel NYDFS/SEC/federal banking/Reg S-P notification clocks?",
@@ -6010,7 +6010,7 @@
       "FINRA-25-07",
       "SOX-404",
       "GLBA",
-      "OCC-2011-12"
+      "OCC-2026-13"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -6036,14 +6036,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/3.5/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -6099,7 +6099,7 @@
       "SEC-17a-3",
       "SOX-404",
       "GLBA",
-      "OCC-2011-12",
+      "OCC-2026-13",
       "NYDFS-500"
     ],
     "priority": "TODO: critical|high|medium|low",
@@ -6126,14 +6126,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/3.6/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -6207,7 +6207,7 @@
       "FINRA-25-07",
       "SOX-404",
       "GLBA",
-      "OCC-2011-12"
+      "OCC-2026-13"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -6233,14 +6233,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/3.7/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -6318,14 +6318,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/3.8/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -6403,8 +6403,8 @@
       "SEC-17a-4",
       "SEC-17a-3",
       "SOX-404",
-      "OCC-2011-12",
-      "Fed-SR-11-7",
+      "OCC-2026-13",
+      "Fed-SR-26-2",
       "NYDFS-500"
     ],
     "priority": "high",
@@ -6433,14 +6433,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/3.9/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "Does Sentinel ingest Power Platform Admin Activity, CopilotInteraction, and service-principal sign-ins with AI-specific analytics rules and playbooks?",
@@ -6515,14 +6515,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/3.10/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -6575,8 +6575,8 @@
       "FINRA-4511",
       "FINRA-25-07",
       "SOX-404",
-      "OCC-2011-12",
-      "Fed-SR-11-7"
+      "OCC-2026-13",
+      "Fed-SR-26-2"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -6602,14 +6602,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/3.11/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -6659,8 +6659,8 @@
       "FINRA-3110",
       "FINRA-25-07",
       "SOX-404",
-      "OCC-2011-12",
-      "Fed-SR-11-7"
+      "OCC-2026-13",
+      "Fed-SR-26-2"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -6685,14 +6685,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/3.12/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -6768,14 +6768,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/3.13/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "Do you run a recurring review of Agent 365 hero metrics, pending requests, and ownerless agents with monthly inventory export?",
@@ -6827,7 +6827,7 @@
       "SEC-17a-4",
       "SEC-17a-3",
       "SOX-404",
-      "OCC-2011-12"
+      "OCC-2026-13"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -6854,14 +6854,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/3.14/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -6960,14 +6960,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/4.1/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -7058,14 +7058,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/4.2/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -7165,14 +7165,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/4.3/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -7273,14 +7273,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/4.4/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -7368,14 +7368,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/4.5/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -7451,7 +7451,7 @@
       "SEC-17a-3",
       "SOX-404",
       "GLBA",
-      "OCC-2011-12"
+      "OCC-2026-13"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -7477,14 +7477,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/4.6/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -7545,8 +7545,8 @@
       "Reg-S-P",
       "SOX-404",
       "GLBA",
-      "OCC-2011-12",
-      "Fed-SR-11-7",
+      "OCC-2026-13",
+      "Fed-SR-26-2",
       "NYDFS-500"
     ],
     "priority": "TODO: critical|high|medium|low",
@@ -7573,14 +7573,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/4.7/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -7653,7 +7653,7 @@
     "regulatory": [
       "SEC-17a-4",
       "GLBA",
-      "Fed-SR-11-7",
+      "Fed-SR-26-2",
       "NIST-AI-RMF"
     ],
     "priority": "TODO: critical|high|medium|low",
@@ -7679,14 +7679,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/4.8/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
@@ -7762,14 +7762,14 @@
     "portalPlaybookUrl": "/playbooks/control-implementations/4.9/portal-walkthrough/",
     "collectorField": "",
     "sectorYesBar": {
-      "bank": "TODO: sector-specific yes-bar",
-      "broker-dealer": "TODO: sector-specific yes-bar",
-      "investment-adviser": "TODO: sector-specific yes-bar",
-      "insurance-carrier": "TODO: sector-specific yes-bar",
-      "insurance-wholesale": "TODO: sector-specific yes-bar",
-      "credit-union": "TODO: sector-specific yes-bar",
-      "holding-company": "TODO: sector-specific yes-bar",
-      "other": "TODO: sector-specific yes-bar"
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
     },
     "facilitatorNotes": {
       "ask": "TODO: facilitator question",
