@@ -227,7 +227,7 @@ In the Microsoft Purview portal:
 In the Purview portal:
 
 1. Open **Audit > New search**.
-2. Set **Date and time range (UTC)** for the period of interest. The portal search window is capped at **180 days**; for longer windows use PowerShell `Search-UnifiedAuditLog -SessionCommand ReturnLargeSet` paginated to completion, or the [Audit Search Graph API](https://learn.microsoft.com/en-us/purview/audit-log-search) (supported on both Audit Standard and Audit Premium).
+2. Set **Date and time range (UTC)** for the period of interest. The portal search window is capped at **180 days**; for longer windows use PowerShell `Search-UnifiedAuditLog -SessionCommand ReturnLargeSet` paginated to completion, or the [Audit Search Graph API](https://learn.microsoft.com/en-us/purview/audit-search) (supported on both Audit Standard and Audit Premium).
 3. In **Record types**, select the Copilot / agent types in scope:
     - `CopilotInteraction` — Microsoft 365 Copilot interactions.
     - `ConnectedAIAppInteraction` — Connected AI app interactions (Microsoft-built Copilot Studio agents at no incremental cost; some non-Microsoft AI app scenarios under this RecordType are PAYG-billable — see §6).

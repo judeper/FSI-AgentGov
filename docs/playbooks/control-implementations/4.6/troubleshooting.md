@@ -238,7 +238,7 @@ Get-SPOSite -Identity 'https://contoso.sharepoint.com/sites/legal-drafts' |
 
 **Learn.**
 - https://learn.microsoft.com/sharepoint/restricted-content-discovery
-- https://learn.microsoft.com/microsoft-365-copilot/microsoft-365-copilot-privacy
+- https://learn.microsoft.com/en-us/microsoft-365/copilot/microsoft-365-copilot-privacy
 - https://learn.microsoft.com/en-us/purview/dlp-microsoft365-copilot-location-default-policy
 
 ---
@@ -355,7 +355,7 @@ Get-SPOSite -Identity 'https://contoso.sharepoint.com/sites/legal-drafts' |
 
 **Learn.**
 - https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio
-- https://learn.microsoft.com/microsoft-365-copilot/microsoft-365-copilot-privacy
+- https://learn.microsoft.com/en-us/microsoft-365/copilot/microsoft-365-copilot-privacy
 
 ---
 
@@ -676,7 +676,7 @@ External (verify URL currency at time of operation):
 - https://learn.microsoft.com/sharepoint/restricted-sharepoint-search
 - https://learn.microsoft.com/sharepoint/advanced-management
 - https://learn.microsoft.com/sharepoint/data-access-governance-reports
-- https://learn.microsoft.com/microsoft-365-copilot/microsoft-365-copilot-privacy
+- https://learn.microsoft.com/en-us/microsoft-365/copilot/microsoft-365-copilot-privacy
 - https://learn.microsoft.com/microsoft-365-copilot/microsoft-365-copilot-licensing
 - https://learn.microsoft.com/en-us/purview/dlp-microsoft365-copilot-location-default-policy
 - https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio
