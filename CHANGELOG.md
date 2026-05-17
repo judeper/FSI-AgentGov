@@ -79,7 +79,8 @@ Generator update: `scripts/generate_coverage_matrix.py` `_FRONTIER_EVALUATOR_CAN
 - After #215: 81 tests (+9 for Q16 + Q17)
 - After #218: 85 tests (+4 for Q13)
 - After #219: 93 tests (+8 for Q01)
-- After #220: **114 tests** (+21 for Q18 + Q03)
+- After #220: **114 tests** (+21 for Q18 + Q03) — release-time count for v1.6.2 PR-wave-220
+- Current suite (post-release additions): **140 tests** (verified 2026-05-16)
 
 All six evaluators ship with `NEVER_returns_yes` invariant tests, evidence-string assertions, and facilitator-override (driver-level upgrade/downgrade) tests.
 

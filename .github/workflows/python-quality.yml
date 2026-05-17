@@ -21,6 +21,12 @@ on:
       # Version-stamp gate (verify_version_stamps job) needs to run when any
       # canonical-version surface changes, even if no Python/scripts changed.
       - 'VERSION'
+      # CHANGELOG.md must trigger python-quality so the 5 required-check
+      # named jobs report on changelog-only PRs (otherwise branch protection
+      # blocks with "11 of 11 expected" because verify_version_stamps, ruff,
+      # pytest, manifest drift, and FSI language rules never trigger). The
+      # quality jobs are fast (~30s) so the marginal CI cost is acceptable.
+      - 'CHANGELOG.md'
       - 'README.md'
       - 'DISCLAIMER.md'
       - '.claude/claude.md'
