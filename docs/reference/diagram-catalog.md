@@ -100,7 +100,7 @@ The [FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions) 
 | `solutions-architecture-guide-azure-key-vault-integration.{png,svg}` | Azure Key Vault integration | FSI Architect, CISO | Hardening solution secrets management |
 | `solutions-architecture-guide-high-security-deployment-vnet-i.{png,svg}` | High-security deployment with VNet isolation | FSI Architect, CISO | Designing the highest-assurance solution posture |
 | `solutions-architecture-guide-streaming-architecture-near-rea.{png,svg}` | Streaming / near-real-time architecture | FSI Architect, Solution Developer | Streaming-data solution patterns |
-| `solutions-integration-overview.{png,svg}` | Cross-solution integration overview | FSI Architect | Multi-solution architecture conversations |
+| `solutions-integration-overview.svg` | Cross-solution integration overview | FSI Architect | Multi-solution architecture conversations |
 | `solutions-integration-integration-architecture.{png,svg}` | Detailed integration architecture | FSI Architect | Designing integration fan-out across solutions |
 
 ---
