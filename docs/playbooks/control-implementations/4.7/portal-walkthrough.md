@@ -641,7 +641,7 @@ This portal walkthrough hands off to its siblings as follows:
 
 ### 13.3 External references
 
-- Microsoft Learn — [Microsoft 365 Copilot data, privacy, and security](https://learn.microsoft.com/microsoft-365-copilot/microsoft-365-copilot-privacy)
+- Microsoft Learn — [Microsoft 365 Copilot data, privacy, and security](https://learn.microsoft.com/en-us/microsoft-365/copilot/microsoft-365-copilot-privacy)
 - Microsoft Learn — [Sensitivity labels for Copilot](https://learn.microsoft.com/purview/sensitivity-labels-coauthoring)
 - Microsoft Learn — [DLP for Microsoft 365 Copilot](https://learn.microsoft.com/en-us/purview/dlp-microsoft365-copilot-location-learn-about)
 - Microsoft Learn — [Restricted SharePoint Search](https://learn.microsoft.com/sharepoint/restricted-sharepoint-search)
