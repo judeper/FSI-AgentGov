@@ -35,6 +35,7 @@ MANIFEST_PATH = REPO_ROOT / "assessment" / "manifest" / "controls.json"
 OUTPUT_PATH = REPO_ROOT / "docs" / "reference" / "assessment-coverage.md"
 FRONTIER_MANIFEST_PATH = REPO_ROOT / "assessment" / "manifest" / "frontier-readiness.json"
 FRONTIER_OUTPUT_PATH = REPO_ROOT / "docs" / "reference" / "frontier-assessment-coverage.md"
+CANONICAL_TOP_LEVEL_FOOTER = "*FSI Agent Governance Framework v1.6.2 - May 2026*"
 
 sys.path.insert(0, str(ENGINE_DIR))
 
@@ -266,6 +267,7 @@ def render(controls: list[dict]) -> str:
         "Do not edit by hand. -->"
     )
     lines.append("")
+    lines.append(CANONICAL_TOP_LEVEL_FOOTER)
     return "\n".join(lines)
 
 
@@ -443,6 +445,7 @@ def render_frontier(manifest: dict) -> str:
         "Do not edit by hand. -->"
     )
     lines.append("")
+    lines.append(CANONICAL_TOP_LEVEL_FOOTER)
     return "\n".join(lines)
 
 
