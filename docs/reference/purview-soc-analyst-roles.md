@@ -114,4 +114,4 @@ Assign only when the SOC team is responsible for these workloads:
 
 ---
 
-*Updated: April 2026 | Version: v1.3 | Framework: FSI Agent Governance*
+*Updated: May 2026 | Version: v1.6.2 | Framework: FSI Agent Governance*

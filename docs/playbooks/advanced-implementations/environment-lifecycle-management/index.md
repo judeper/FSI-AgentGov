@@ -1,6 +1,6 @@
 # Environment Lifecycle Management
 
-**Status:** January 2026 - FSI-AgentGov v1.2.12
+**Status:** May 2026 - FSI-AgentGov v1.6.2
 **Related Controls:** 2.1 (Managed Environments), 2.2 (Environment Groups), 2.3 (Change Management), 2.8 (Access Control & SoD), 2.13 (Documentation), 2.15 (Environment Routing), 1.7 (Audit Logging), 3.1 (Agent Inventory), 3.2 (Usage Analytics), 3.6 (Orphaned Agent Detection)
 
 ---

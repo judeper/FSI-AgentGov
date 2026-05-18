@@ -257,4 +257,4 @@ Federation of CoE roles to business units does NOT transfer regulated supervisor
 
 ---
 
-*FSI Agent Governance Framework v1.5.0 - May 2026*
+*FSI Agent Governance Framework v1.6.2 - May 2026*

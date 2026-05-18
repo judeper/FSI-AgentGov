@@ -8,7 +8,7 @@ Reference guide for enterprise scalability, platform selection, and operational 
 
 This guide provides architecture guidance for organizations deploying FSI-AgentGov-Solutions at enterprise scale. It documents platform limits, alternative architectures, and operational best practices validated against Microsoft guidance.
 
-**Last Updated:** January 2026
+**Last Updated:** May 2026
 
 ---
 
@@ -441,4 +441,4 @@ flowchart TB
 
 ---
 
-*FSI Agent Governance Framework v1.2.53 - March 2026*
+*FSI Agent Governance Framework v1.6.2 - May 2026*

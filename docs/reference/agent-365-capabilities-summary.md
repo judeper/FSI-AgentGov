@@ -1,7 +1,7 @@
 # Agent 365 Capabilities Summary
 
-**Last Updated:** March 2026
-**Version:** v1.2.53
+**Last Updated:** May 2026
+**Version:** v1.6.2
 
 ---
 
@@ -207,4 +207,4 @@ Agent 365 capabilities support FSI regulatory requirements:
 
 ---
 
-*FSI Agent Governance Framework v1.2.53 - March 2026*
+*FSI Agent Governance Framework v1.6.2 - May 2026*
