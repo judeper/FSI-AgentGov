@@ -2,18 +2,18 @@
 
 ## Expected Screenshots
 
-### Screenshot 1: Agent-Level Content Moderation Setting (High)
-**Portal Path:** Microsoft Copilot Studio → [Agent] → Topics → System → [Generative AI topic] → Content moderation
+### Screenshot 1: Agent-Effective Default Moderation Setting (High)
+**Portal Path:** Microsoft Copilot Studio → [Agent] → Topics → System → [Conversational boosting / Generative AI topic] → Generative answers node → Content moderation
 **What to capture:**
-- Content moderation dropdown or selector showing "High" selected
+- Per-prompt content moderation slider showing "High" selected
 - Agent name visible in the header or breadcrumb
-- Prompt builder context showing this is the agent-level default
+- Prompt builder context showing this is the system topic (acts as the agent-effective default)
 - Save button visible
 
-### Screenshot 2: Agent-Level Content Moderation Setting (Medium)
-**Portal Path:** Copilot Studio → [Agent] → Topics → System → [Generative AI topic] → Content moderation
+### Screenshot 2: Agent-Effective Default Moderation Setting (Moderate)
+**Portal Path:** Copilot Studio → [Agent] → Topics → System → [Conversational boosting / Generative AI topic] → Generative answers node → Content moderation
 **What to capture:**
-- Content moderation dropdown or selector showing "Medium" selected
+- Per-prompt content moderation slider showing "Moderate" selected (some UI builds may label this position **Medium** — capture either label and note in the caption)
 - Agent name visible in the header
 - Demonstration of Zone 1 configuration
 
@@ -41,15 +41,16 @@
 - Agent response displaying the custom safety message
 - Timestamp and conversation context visible
 
-### Screenshot 6: Moderation Level Options
-**Portal Path:** Copilot Studio → [Agent] → Topics → System → [Generative AI topic] → Content moderation dropdown
+### Screenshot 6: Per-Prompt Moderation Level Options
+**Portal Path:** Copilot Studio → [Agent] → Topics → System → [Conversational boosting / Generative AI topic] → Generative answers node → Content moderation slider
 **What to capture:**
-- Content moderation dropdown expanded showing all three options:
+- Per-prompt content moderation slider expanded showing all three options:
   - Low
-  - Medium
+  - Moderate (labelled "Medium" in some UI builds — note in caption)
   - High
 - Descriptions or tooltips if visible
 - Agent context visible
+- This is the **per-prompt** slider (3 positions). The separate **agent-level** slider at Settings → Generative AI → Content moderation has **5 positions** and is captured under Control 1.8 screenshots.
 
 ### Screenshot 7: Purview Audit Log for Moderation Change
 **Portal Path:** Microsoft Purview Compliance Portal → Audit → Search results
@@ -68,7 +69,7 @@
 - Table or list displaying:
   - Environment names
   - Agent names
-  - Moderation levels (Low/Medium/High)
+  - Per-prompt moderation levels (Low/Moderate/High; UI may show "Medium" in place of "Moderate")
   - Custom safety message status (True/False)
   - Last modified dates
 - Summary counts (total agents, compliant agents, non-compliant agents)
@@ -102,16 +103,16 @@
 - Use non-sensitive agent names and prompts for screenshots
 - Include timestamps to demonstrate currency
 - Verify UI matches documentation after Microsoft portal updates
-- Content moderation settings are located in the generative AI topic's prompt builder, not in the agent's general Settings panel
-- Capture both agent-level and topic-level moderation settings to show the dual-control model
-- Demonstrate the difference between Low, Medium, and High moderation levels where possible
+- Content moderation settings are located in the generative AI topic's prompt builder, not in the agent's general Settings panel (the agent-level slider in Settings → Generative AI is a separate 5-position surface — see Control 1.8)
+- Capture both agent-effective default (system topic) and per-topic override (custom topic Generative answers node) per-prompt settings to show the dual-control model
+- Demonstrate the difference between Low, Moderate, and High per-prompt moderation levels where possible (these are the 3 positions on the per-prompt slider)
 - For Zone 3 documentation, ensure custom safety messages are captured
 
 ---
 
 ## Feature Availability Note
 
-Content moderation levels (Low, Medium, High) with agent-level and topic-level configuration became GA on January 31, 2026 (MC1217615). If your tenant has not yet received this update:
+Per-prompt content moderation levels (Low, Moderate, High) with agent-effective-default and per-topic configuration became GA on January 31, 2026 (MC1217615). If your tenant has not yet received this update:
 
 - Moderation settings may appear in a different location
 - Feature may be under preview or feature flag
@@ -123,12 +124,12 @@ Content moderation levels (Low, Medium, High) with agent-level and topic-level c
 ## Screenshot Organization
 
 Organize screenshots in this directory as:
-- `1.27-01-moderation-high.png` — Agent-level moderation set to High
-- `1.27-02-moderation-medium.png` — Agent-level moderation set to Medium
-- `1.27-03-topic-moderation-override.png` — Topic-level moderation override
+- `1.27-01-moderation-high.png` — Agent-effective default per-prompt moderation set to High
+- `1.27-02-moderation-moderate.png` — Agent-effective default per-prompt moderation set to Moderate (labelled "Medium" in some UI builds)
+- `1.27-03-topic-moderation-override.png` — Per-topic moderation override
 - `1.27-04-custom-safety-message.png` — Custom safety message configuration
 - `1.27-05-safety-message-test.png` — Safety message in test panel
-- `1.27-06-moderation-level-options.png` — Moderation level dropdown options
+- `1.27-06-moderation-level-options.png` — Per-prompt moderation slider options (Low / Moderate / High)
 - `1.27-07-audit-log-moderation.png` — Purview audit log for moderation change
 - `1.27-08-moderation-inventory.png` — PowerShell moderation inventory output
 - `1.27-09-topic-override-report.png` — PowerShell topic override report

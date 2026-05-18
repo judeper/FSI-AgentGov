@@ -113,7 +113,7 @@ For PowerShell parity, see [powershell-setup.md](powershell-setup.md) and `docs/
 | Native real-time runtime alerts on Copilot Studio agents | Defender XDR custom detection rules on `CloudAppEvents` (where available) plus per-agent App Insights alerts on RAI `ContentFiltered` events; SIEM-side correlation rules — see [Control 1.21](../../../controls/pillar-1-security/1.21-adversarial-input-logging.md) |
 | AISPM posture management for AI agents | Quarterly attestation by Power Platform Admin against the [Control 1.1](../../../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md) inventory; mapped to FFIEC AIO §III.B model risk inventory |
 | Copilot Studio Prompt Shields not at parity | Disable affected agent classes in PPAC environment policies; route to compensating Microsoft Purview DLP for AI prompts — [Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) |
-| Per-agent content moderation Low/Medium/High not at parity | Limit agents to Zone 1 (read-only, internal-only); require human-in-the-loop confirmation node before any external action — see [Control 1.23](../../../controls/pillar-1-security/1.23-step-up-authentication-for-agent-operations.md) |
+| Per-agent content moderation slider (5 positions: Lowest / Low / Medium / High / Highest) not at parity | Limit agents to Zone 1 (read-only, internal-only); require human-in-the-loop confirmation node before any external action — see [Control 1.23](../../../controls/pillar-1-security/1.23-step-up-authentication-for-agent-operations.md) |
 
 ---
 ## Section 2 — Pre-flight gates
@@ -125,7 +125,7 @@ Complete every gate **before** opening Section 4. Each gate has explicit pass cr
 | Capability | Required licensing | Verification |
 |---|---|---|
 | Defender for Cloud Apps **AI Agent Protection** + AISPM | **Agent 365 license** (required after 2026-07-01). **Grace period until 2026-07-01:** Microsoft Defender for Cloud Apps standalone license or included via Microsoft 365 E5 / E5 Security. After 2026-07-01, Agent 365 is required to retain AI Agent Inventory access. Verify Defender XDR plan against ([protect-copilot-studio](https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-protection)) | Microsoft Defender portal → Settings → Cloud apps → tenant licensing summary |
-| Copilot Studio Prompt Shields + content moderation Low/Medium/High | Copilot Studio license (per-tenant or per-user); generative-AI capacity (PAYG or pre-paid messages) per [security-and-governance](https://learn.microsoft.com/en-us/microsoft-copilot-studio/security-and-governance) | PPAC → Resources → Capacity → Copilot Studio messages |
+| Copilot Studio Prompt Shields + agent-level content moderation slider (Lowest / Low / Medium / High / Highest) | Copilot Studio license (per-tenant or per-user); generative-AI capacity (PAYG or pre-paid messages) per [security-and-governance](https://learn.microsoft.com/en-us/microsoft-copilot-studio/security-and-governance) | PPAC → Resources → Capacity → Copilot Studio messages |
 | PPAC **Threat Protection** (native + Additional) | Power Platform Admin role; capability gated by Defender for Cloud Apps preview opt-in for native handshake | PPAC → Security → Threat Protection visible in left rail |
 | Microsoft Entra **app registration + Federated Identity Credential** | Entra App Admin (Application Administrator) **or** Cloud Application Administrator | Microsoft Entra admin center → Identity → Applications |
 | Application Insights per-agent | Azure subscription with Application Insights workspace; Owner / Contributor on the workspace; instrumentation key or connection string | Azure portal → Application Insights resource → Properties |
@@ -221,7 +221,7 @@ Use the canonical role names from [`docs/reference/role-catalog.md`](../../../re
 | 4b-2 | Federated Identity Credential — copy server-issued subject from PPAC UI | Entra App Admin **+** Power Platform Admin | Yes |
 | 4b-3 | PPAC Additional Threat Detection — bind webhook | Power Platform Admin | Yes |
 | 4c | Verify Prompt Shields tenant-wide setting | Power Platform Admin | Read-only |
-| 4d | Per-agent content moderation level | Copilot Studio author on the target environment | Per environment policy |
+| 4d | Per-agent content moderation slider (5 positions: Lowest / Low / Medium / High / Highest) | Copilot Studio author on the target environment | Per environment policy |
 | 4e | AISPM dashboard verification | Entra Security Admin **or** Entra Security Reader | Read-only |
 | 4f | Defender XDR custom detection rule on `CloudAppEvents` | Entra Security Admin | Yes |
 | 4g | Per-agent Application Insights connection string | Copilot Studio author **+** Azure Application Insights Contributor | Yes |
@@ -349,28 +349,30 @@ Reference: [security-and-governance](https://learn.microsoft.com/en-us/microsoft
 
 > Prompt Shields and content moderation are **distinct** capabilities. Prompt Shields targets prompt-injection and jailbreak; content moderation targets harmful-content generation across Hate / Sexual / Violence / Self-Harm. Conflating the two is the most common Control 1.8 design defect.
 
-### 4d — Per-agent content moderation Low / Medium / High
+### 4d — Per-agent content moderation (agent-level slider — 5 positions: Lowest / Low / Medium / High / Highest)
 
 **Lifecycle:** GA. Configured **per agent**, at design time, in Copilot Studio.
 
-Copilot Studio exposes three content-moderation levels — **Low**, **Medium**, **High** — that map to Azure AI Content Safety severity thresholds across four harm categories: **Hate**, **Sexual**, **Violence**, **Self-Harm** ([content-safety/concepts/harm-categories](https://learn.microsoft.com/en-us/azure/ai-services/content-safety/concepts/harm-categories); [content-safety/overview](https://learn.microsoft.com/en-us/azure/ai-services/content-safety/overview)).
+Copilot Studio exposes a **per-agent content-moderation slider** with **5 positions** — **Lowest**, **Low**, **Medium**, **High**, **Highest** — that maps to Azure AI Content Safety severity thresholds across four harm categories: **Hate**, **Sexual**, **Violence**, **Self-Harm** ([content-safety/concepts/harm-categories](https://learn.microsoft.com/en-us/azure/ai-services/content-safety/concepts/harm-categories); [content-safety/overview](https://learn.microsoft.com/en-us/azure/ai-services/content-safety/overview)). This is the **agent-level** slider configured at **Settings → Generative AI → Content moderation** and is the surface this control covers. The separate **per-prompt** slider exposed in the prompt builder (3 positions: Low / Moderate / High, managed GPT models only) is governed by **Control 1.27** and is configured independently.
 
-| Copilot Studio level | Blocks severity ≥ | What still passes | FSI guidance |
-|---|---|---|---|
-| **Low** | 6 (High only) | Severity 0 (Safe), 2 (Low), 4 (Medium) | Most permissive — **not** recommended for any zone in regulated FSI workloads |
-| **Medium** (default) | 4 (Medium and High) | Severity 0, 2 | Acceptable for Zone 1 internal-only agents only |
-| **High** | 2 (Low, Medium, High) | Severity 0 (Safe) only | **Recommended for FSI Zone 2 and Zone 3** — strictest available; no `Strict` level exists |
+| Copilot Studio agent-level position | Relative strictness | FSI guidance |
+|---|---|---|
+| **Lowest** | Most permissive available — minimal filtering | **Not recommended** for any FSI zone; requires explicit documented risk acceptance |
+| **Low** | Light filtering | Not recommended for FSI |
+| **Medium** | Balanced filtering — blocks clearly harmful content | Acceptable for Zone 1 internal-only agents only |
+| **High** | Strict filtering — blocks potentially sensitive or harmful content | **Recommended minimum for FSI Zone 2 and Zone 3** |
+| **Highest** | Maximum available filtering — most restrictive option | Recommended for highest-risk Zone 3 customer-facing or regulated agents |
 
-> There is no level above **High**. Any documentation referencing a `Strict` level is incorrect — `Strict` is not a Copilot Studio content-moderation value.
+> **Severity-threshold mapping.** Exact Azure AI Content Safety severity thresholds per slider position are not publicly enumerated for all five positions in Microsoft Learn at this writing. The directional intent is **Lowest = most permissive**, **Highest = strictest**, with Medium / High covering the documented FSI minimums. When designing the §4 test matrix below, anchor expectations to **Microsoft Learn at the time of testing** and record any drift in the configuration baseline.
 
 **Steps (per in-scope agent):**
 
 1. Copilot Studio → open the agent (e.g., `1.8-TEST-Agent-Z2`).
 2. **Settings** → **Generative AI** → **Content moderation**.
-3. Set the level per the FSI guidance column above:
+3. Set the slider position per the FSI guidance column above:
     - `1.8-TEST-Agent-Z1-Control` → **Medium** (baseline)
     - `1.8-TEST-Agent-Z2` → **High**
-    - `1.8-TEST-Agent-Z3` → **High**
+    - `1.8-TEST-Agent-Z3` → **High** (or **Highest** for the highest-risk customer-facing agents)
 4. Save.
 5. Screenshot per agent: `1.8-RTP-04d-<agent-id>_<UTC>_<test-id>_content-moderation-level.png`.
 

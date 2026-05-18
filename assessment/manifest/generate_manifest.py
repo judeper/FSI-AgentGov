@@ -196,7 +196,7 @@ CHECKS_DB = {
     ],
     "1.27": [
         ("1.27.a","Content moderation level set per agent","Get-CopilotStudioAgentConfig","moderation_level_set",[1,2,3]),
-        ("1.27.b","Moderation level meets zone minimum (Medium for Z2, High for Z3)","Get-CopilotStudioAgentConfig","moderation_zone_compliant",[2,3]),
+        ("1.27.b","Per-prompt moderation level meets zone minimum (Moderate for Z2, High for Z3)","Get-CopilotStudioAgentConfig","moderation_zone_compliant",[2,3]),
         ("1.27.c","Custom safety messages configured for Zone 3 agents","Get-CopilotStudioAgentConfig","safety_messages_configured",[3]),
     ],
     "1.28": [
