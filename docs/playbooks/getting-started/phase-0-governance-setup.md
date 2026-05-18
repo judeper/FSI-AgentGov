@@ -55,13 +55,13 @@ Conduct kickoff meeting with key stakeholders:
 **Steps:**
 
 1. Navigate to Power Platform Admin Center (PPAC)
-2. Go to Environments > [Zone 2 Environment] > Settings
-3. Enable "Managed Environment"
+2. Go to **Manage > Environments**, select the Zone 2 environment row, and choose **Edit Managed Environment** from the toolbar or the environment ellipsis (...). ([Enable Managed Environments](https://learn.microsoft.com/en-us/power-platform/admin/managed-environment-enable))
+3. Toggle **Enable Managed Environments** on, then select **Save**. ([Enable Managed Environments](https://learn.microsoft.com/en-us/power-platform/admin/managed-environment-enable))
 4. Configure baseline settings
 
 **Verification:**
 
-- [ ] Managed Environment shows as enabled
+- [ ] Managed Environments status shows as enabled
 - [ ] Environment details show managed features available
 
 ### Control 1.1: Restrict Agent Publishing
@@ -107,8 +107,8 @@ Conduct kickoff meeting with key stakeholders:
 
 **Steps:**
 
-1. Navigate to Microsoft Purview compliance portal
-2. Go to Audit
+1. Navigate to the **Microsoft Purview portal** (`https://purview.microsoft.com`). ([Microsoft Purview portal overview](https://learn.microsoft.com/en-us/purview/purview-portal))
+2. Open **Solutions > Audit** (or the Audit card on the home page). ([Search the audit log in the Purview portal](https://learn.microsoft.com/en-us/purview/audit-search))
 3. Verify auditing is enabled for Power Platform
 4. Configure retention (30 days for Zone 1, 1 year for Zone 2)
 
@@ -153,10 +153,10 @@ Configure environment groups in PPAC:
 
 **Steps:**
 
-1. Navigate to PPAC > Manage > Default environment routing
-2. Enable routing
-3. Map security groups to environments
-4. Configure fallback environment
+1. Navigate to PPAC > **Manage > Tenant settings > Environment routing**. ([Default environment routing](https://learn.microsoft.com/en-us/power-platform/admin/default-environment-routing))
+2. Set **Environment routing** to **On**. ([Default environment routing](https://learn.microsoft.com/en-us/power-platform/admin/default-environment-routing))
+3. Configure routing rules by defining attribute conditions and the target environment. ([Default environment routing](https://learn.microsoft.com/en-us/power-platform/admin/default-environment-routing))
+4. Configure the fallback environment. ([Default environment routing](https://learn.microsoft.com/en-us/power-platform/admin/default-environment-routing))
 
 **Verification:**
 
