@@ -446,7 +446,7 @@ This document defines the organizational structure, roles, and accountability fo
 
 ## Agentic Center of Excellence
 
-The operating model defined above — roles, RACI, and decision rights — is the canonical FSI governance structure for this framework. FSI-AgentGov v1.5.0 introduces a **Center of Excellence (CoE) blueprint** specifically for AI agent governance, adapted from Microsoft's Frontier CoE materials with FSI guardrails. The CoE blueprint complements the FSI operating model: it is a specialized operational structure for the AI program, not a replacement for the firm's overall governance architecture. The RACI assignments and role accountabilities above remain load-bearing for examiner workpapers (FFIEC IT examination, FINRA WSP supervisory documentation). The CoE blueprint adds a vocabulary for *organizing the work* above the RACI spine.
+The operating model defined above — roles, RACI, and decision rights — is the canonical FSI governance structure for this framework. FSI-AgentGov introduced a **Center of Excellence (CoE) blueprint** in v1.5.0 (current at v1.6.2), specifically for AI agent governance, adapted from Microsoft's Frontier CoE materials with FSI guardrails. The CoE blueprint complements the FSI operating model: it is a specialized operational structure for the AI program, not a replacement for the firm's overall governance architecture. The RACI assignments and role accountabilities above remain load-bearing for examiner workpapers (FFIEC IT examination, FINRA WSP supervisory documentation). The CoE blueprint adds a vocabulary for *organizing the work* above the RACI spine.
 
 ### Four CoE Functions and Three Shapes
 

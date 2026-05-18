@@ -125,7 +125,7 @@ The framework organizes 78 controls across four pillars:
 
 The framework's 78 controls describe *what to implement and how to verify it*. [Capability Drivers](../reference/glossary.md) describe *whether your organization is capable of implementing and operating it at scale*.
 
-Microsoft's Copilot Acceleration Engineering (CAPE) materials introduced five **Capability Drivers** as organizational readiness dimensions whose collective maturity determines an enterprise's capacity to deploy AI agents sustainably. FSI-AgentGov v1.5.0 adopts Capability Drivers as a first-class framework concept, complementing — not replacing — the control-by-control governance lens. The five drivers are:
+Microsoft's Copilot Acceleration Engineering (CAPE) materials introduced five **Capability Drivers** as organizational readiness dimensions whose collective maturity determines an enterprise's capacity to deploy AI agents sustainably. FSI-AgentGov adopted Capability Drivers as a first-class framework concept in v1.5.0 (current at v1.6.2), complementing — not replacing — the control-by-control governance lens. The five drivers are:
 
 | Capability Driver | What It Measures |
 |-------------------|------------------|
