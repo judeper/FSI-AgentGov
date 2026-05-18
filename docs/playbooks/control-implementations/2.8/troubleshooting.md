@@ -93,7 +93,7 @@
 
 **Diagnosis:**
 
-1. Confirm the affected app supports CAE (Power Platform admin app, Microsoft Graph, Copilot Studio do; some third-party apps proxied through the tenant may not).
+1. Confirm the affected app supports CAE (Power Platform admin app, Microsoft Graph, Microsoft Copilot Studio do; some third-party apps proxied through the tenant may not).
 2. Confirm the Conditional Access policy is **not** in **Report-only** mode.
 3. Confirm the user signed in via a CAE-aware client (modern auth + Continuous access evaluation enabled clients).
 

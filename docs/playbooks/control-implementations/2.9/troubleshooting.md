@@ -9,7 +9,7 @@
 
 | Symptom | Likely cause | First action |
 |---|---|---|
-| Analytics dashboard empty for new agents | Pre-populate window (24–48 h) not elapsed; or analytics disabled | Confirm in PPAC → Analytics → Copilot Studio |
+| Analytics dashboard empty for new agents | Pre-populate window (24–48 h) not elapsed; or analytics disabled | Confirm in PPAC → Analytics → Microsoft Copilot Studio |
 | Sovereign tenant returns no data | Wrong `-Endpoint` on `Add-PowerAppsAccount`; commercial endpoint hit instead of GCC / GCC High / DoD | Re-run with the correct endpoint per the [PowerShell baseline](../../_shared/powershell-baseline.md) |
 | App Insights "configured" but no telemetry | Connection string typo; ingestion lag; sampling at 0% | Run Script 2 in `powershell-setup.md`; check sampling settings |
 | Power BI dashboard stale | Dataflow refresh failure; ADLS export lag; gateway down | Check refresh history; manually refresh |

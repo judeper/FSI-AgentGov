@@ -8,7 +8,7 @@
 
 ## Audience and Scope
 
-This walkthrough is for **M365 administrators** in US financial services who own Power Platform governance for Copilot Studio agents. Azure resource provisioning steps assume coordination with your Azure platform team (Network Contributor on the target subscription/resource group). PPAC steps are owned by the **Power Platform Admin**.
+This walkthrough is for **M365 administrators** in US financial services who own Power Platform governance for Microsoft Copilot Studio agents. Azure resource provisioning steps assume coordination with your Azure platform team (Network Contributor on the target subscription/resource group). PPAC steps are owned by the **Power Platform Admin**.
 
 Use this playbook when implementing Control 1.20 for a Zone 2 (recommended) or Zone 3 (mandatory) environment. For Zone 1, only the documentation step at the end applies.
 

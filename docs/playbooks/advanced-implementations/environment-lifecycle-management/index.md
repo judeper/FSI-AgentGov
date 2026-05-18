@@ -28,7 +28,7 @@ Financial services organizations face a compliance gap between:
 
 ## Solution Overview
 
-A Copilot Studio intake agent collects environment requirements through conversational interface, automatically classifies governance zone, and triggers Power Automate provisioning flows that create environments with consistent baseline configuration.
+A Microsoft Copilot Studio intake agent collects environment requirements through conversational interface, automatically classifies governance zone, and triggers Power Automate provisioning flows that create environments with consistent baseline configuration.
 
 ```mermaid
 flowchart LR

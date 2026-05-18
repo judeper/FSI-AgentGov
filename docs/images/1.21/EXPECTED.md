@@ -7,7 +7,7 @@
 **What to capture:**
 - Activity policy creation screen
 - Policy name field showing "FSI-Adversarial-Input-Detection"
-- App filter configured for Microsoft 365 Copilot/Copilot Studio
+- App filter configured for Microsoft 365 Copilot/Microsoft Copilot Studio
 - Severity set to High
 
 ### Screenshot 2: Sentinel Analytics Rule Configuration

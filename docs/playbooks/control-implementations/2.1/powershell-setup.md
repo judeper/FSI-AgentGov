@@ -722,7 +722,7 @@ function Disable-Fsi-ManagedEnvironment {
 ## §5 — Sharing Limits
 
 !!! info "Sharing limits scope — standalone cloud flows are NOT governed"
-    Managed Environment sharing limits govern **Power Apps**, **solution-aware Power Automate flows**, **Copilot Studio agents**, and the **Editor / Viewer roles** on those resources. They **do not govern standalone cloud flows** that live outside a solution, and they do not govern flows that share via a connection-reference rather than a direct flow share. Operators who rely solely on this helper for share-blast prevention will leak. **Enforce standalone-cloud-flow sharing at the DLP layer (Control 1.5)**, which is the control that actually owns connector-level egress restriction. The verification helper `Test-Fsi-Control21-SharingLimitsBaseline` cross-validates that Control 1.5 has the matching DLP coverage in place before declaring `Clean`.
+    Managed Environment sharing limits govern **Power Apps**, **solution-aware Power Automate flows**, **Microsoft Copilot Studio agents**, and the **Editor / Viewer roles** on those resources. They **do not govern standalone cloud flows** that live outside a solution, and they do not govern flows that share via a connection-reference rather than a direct flow share. Operators who rely solely on this helper for share-blast prevention will leak. **Enforce standalone-cloud-flow sharing at the DLP layer (Control 1.5)**, which is the control that actually owns connector-level egress restriction. The verification helper `Test-Fsi-Control21-SharingLimitsBaseline` cross-validates that Control 1.5 has the matching DLP coverage in place before declaring `Clean`.
 
 ### 5.1 Set-Fsi-SharingLimits
 

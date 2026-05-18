@@ -21,7 +21,7 @@ This playbook provides test procedures, expected results, and evidence collectio
 **Steps:**
 
 1. Export the agent knowledge source inventory from the scanning tool or manual documentation
-2. Cross-reference against the Copilot Studio agent list (all environments)
+2. Cross-reference against the Microsoft Copilot Studio agent list (all environments)
 3. Verify each agent's knowledge sources are captured
 
 **Expected Results:**

@@ -91,7 +91,7 @@ For reviewers with on-premises mailboxes (hybrid Exchange tenants), migrate the 
 
 ### 4. Pay-as-you-go (PAYG) billing — required for non-M365 AI scope
 
-Any policy whose **Locations** include **Enterprise AI apps**, **Other AI apps**, or non-Microsoft 365 generative AI data (Copilot in Fabric, Microsoft Security Copilot, connected external AI applications, Copilot Studio non-M365 content) requires **Microsoft Purview pay-as-you-go (PAYG) billing** linked to an Azure subscription. The **Microsoft Copilot experiences** location (M365 Copilot and Copilot Chat) does **not** require PAYG.
+Any policy whose **Locations** include **Enterprise AI apps**, **Other AI apps**, or non-Microsoft 365 generative AI data (Copilot in Fabric, Microsoft Security Copilot, connected external AI applications, Microsoft Copilot Studio non-M365 content) requires **Microsoft Purview pay-as-you-go (PAYG) billing** linked to an Azure subscription. The **Microsoft Copilot experiences** location (M365 Copilot and Copilot Chat) does **not** require PAYG.
 
 PAYG is also required for **OCR processing** on policy attachments (see Step 5).
 

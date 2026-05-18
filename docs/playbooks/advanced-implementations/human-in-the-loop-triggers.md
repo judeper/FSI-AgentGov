@@ -24,7 +24,7 @@ This specification aligns with the risk-based guardrail approach reflected in **
 **References:** [NIST AI RMF 1.0](https://www.nist.gov/itl/ai-risk-management-framework), [FINOS AI Readiness / AI Governance Framework](https://www.finos.org/ai-readiness)
 
 !!! note "FSI-AgentGov Interpretation Layer"
-    The mapping above reflects FSI-AgentGov's interpretation of NIST AI RMF 1.0 and FINOS AI governance guardrail concepts applied to Microsoft 365 Copilot Studio agents. The specific control mappings (AAM, HITL triggers, etc.) are FSI-AgentGov framework extensions designed for Microsoft Power Platform implementations.
+    The mapping above reflects FSI-AgentGov's interpretation of NIST AI RMF 1.0 and FINOS AI governance guardrail concepts applied to Microsoft 365 Microsoft Copilot Studio agents. The specific control mappings (AAM, HITL triggers, etc.) are FSI-AgentGov framework extensions designed for Microsoft Power Platform implementations.
 
 ---
 

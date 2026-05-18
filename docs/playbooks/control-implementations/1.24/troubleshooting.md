@@ -83,7 +83,7 @@
 **Resolution:**
 
 1. Confirm the agent has had at least one inference call after AI-SPM enablement (BOM discovery is partly traffic-driven).
-2. For Copilot Studio agents, ensure the agent is **published** in the environment, not just in draft.
+2. For Microsoft Copilot Studio agents, ensure the agent is **published** in the environment, not just in draft.
 3. For Azure AI Foundry projects, confirm models are deployed to an endpoint (deployments populate the BOM; registered-only models may not).
 4. Refresh the inventory page after 4 hours.
 5. Where BOM is incomplete after 48 hours, file an Azure support ticket with severity matched to the workload sensitivity.

@@ -1,7 +1,7 @@
 # Portal Walkthrough — Control 2.24: Agent Feature Enablement and Restriction Governance
 
 !!! danger "READ FIRST — Scope and Sibling Routing"
-    **This playbook configures feature-level governance for Microsoft 365 Copilot, Copilot Studio, declarative agents, Microsoft Agent Framework, and MCP-connector tools** across the **Microsoft 365 Copilot admin center**, the **Power Platform admin center Copilot hub**, **PPAC environment features**, **Copilot Studio per-agent settings**, the **feature catalog** (Dataverse or SharePoint), and **Purview / DLP** enforcement surfaces required to satisfy Verification Criteria 1–10 of [Control 2.24](../../../controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance.md).
+    **This playbook configures feature-level governance for Microsoft 365 Copilot, Microsoft Copilot Studio, declarative agents, Microsoft Agent Framework, and MCP-connector tools** across the **Microsoft 365 Copilot admin center**, the **Power Platform admin center Copilot hub**, **PPAC environment features**, **Copilot Studio per-agent settings**, the **feature catalog** (Dataverse or SharePoint), and **Purview / DLP** enforcement surfaces required to satisfy Verification Criteria 1–10 of [Control 2.24](../../../controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance.md).
 
     **This walkthrough IS for:**
 

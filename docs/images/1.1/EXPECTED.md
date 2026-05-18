@@ -9,7 +9,7 @@
 | `03-ppac-environment-settings.png` | PPAC | Environments → [env] → Settings | Environment settings panel |
 | `04-ppac-security-roles.png` | PPAC | Environments → Security roles | Security roles list and assignment |
 | `05-ppac-maker-permissions.png` | PPAC | Environments → Users + permissions | Maker permission configuration |
-| `06-copilot-settings-access.png` | Copilot | Settings → Security | Access restriction settings in Copilot Studio |
+| `06-copilot-settings-access.png` | Copilot | Settings → Security | Access restriction settings in Microsoft Copilot Studio |
 | `07-copilot-verify-restricted.png` | Copilot | Copilots list | Verification that unauthorized users cannot create |
 
 ## Verification Focus

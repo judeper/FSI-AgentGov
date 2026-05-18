@@ -1,6 +1,6 @@
 # Control 2.7: Vendor and Third-Party Risk Management — Troubleshooting
 
-> Companion to [Control 2.7](../../../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md). Common failure modes and resolutions for vendor and connector risk management in M365 / Power Platform / Copilot Studio.
+> Companion to [Control 2.7](../../../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md). Common failure modes and resolutions for vendor and connector risk management in M365 / Power Platform / Microsoft Copilot Studio.
 
 ---
 

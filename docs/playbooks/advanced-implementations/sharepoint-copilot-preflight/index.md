@@ -89,7 +89,7 @@ Get-SPOSite -Identity "https://contoso.sharepoint.com/sites/hr-personnel" | Sele
 ### 2.2 DLP Policies for Copilot Studio Knowledge Sources
 
 - [ ] Create DLP policy in Power Platform Admin Center
-- [ ] Add the **Copilot Studio Knowledge Sources** DLP category for SharePoint and OneDrive knowledge sources. ([DLP connector classifications](https://learn.microsoft.com/en-us/power-platform/admin/dlp-connector-classification))
+- [ ] Add the **Microsoft Copilot Studio Knowledge Sources** DLP category for SharePoint and OneDrive knowledge sources. ([DLP connector classifications](https://learn.microsoft.com/en-us/power-platform/admin/dlp-connector-classification))
 - [ ] Configure endpoint filtering (allowlist or blocklist approach)
 - [ ] Apply policy to production environments
 - [ ] Test policy enforcement with sample agent

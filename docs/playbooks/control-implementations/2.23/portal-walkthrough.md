@@ -1,7 +1,7 @@
 # Portal Walkthrough: Control 2.23 - User Consent and AI Disclosure Enforcement
 
 **Last Updated:** April 2026
-**Portals:** Microsoft 365 Admin Center, Copilot Studio, Power Apps (Dataverse)
+**Portals:** Microsoft 365 Admin Center, Microsoft Copilot Studio, Power Apps (Dataverse)
 **Estimated Time:** 30–45 minutes
 
 ## Prerequisites

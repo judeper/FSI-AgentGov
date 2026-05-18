@@ -227,7 +227,7 @@ In addition to inactivity timeout, configure session expiration to enforce an ab
 
 ## Step 8: Configure Agent-Level Session Timeout
 
-In addition to environment-level timeout settings, individual Copilot Studio agents have conversation session timeout configurations that control when agent conversation context expires. Configuring agent-level timeouts supports defense-in-depth session security across both platform and agent layers.
+In addition to environment-level timeout settings, individual Microsoft Copilot Studio agents have conversation session timeout configurations that control when agent conversation context expires. Configuring agent-level timeouts supports defense-in-depth session security across both platform and agent layers.
 
 1. Navigate to [Copilot Studio](https://copilotstudio.microsoft.com) and sign in with your Power Platform Admin or Copilot Studio maker credentials
 2. Select the target agent from the agent list

@@ -22,7 +22,7 @@ This playbook provides the test plan, evidence collection checklist, and attesta
 
 1. Pilot user signs in interactively at `T0`, completes phishing-resistant MFA.
 2. Wait until `T0 + 16 minutes`.
-3. Initiate a Copilot Studio agent action wired to context `c1` (e.g., test "Submit Trade").
+3. Initiate a Microsoft Copilot Studio agent action wired to context `c1` (e.g., test "Submit Trade").
 4. **Expected:** Re-authentication prompt presented; the prompt shows the policy display name `FSI-StepUp-c1-FinancialTxn` in the diagnostic tooltip.
 5. **Expected:** Action proceeds only after fresh phishing-resistant MFA.
 

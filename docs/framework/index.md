@@ -3,7 +3,7 @@
 !!! info "Current version: v1.6.2 (May 2026)"
     See [What's New](../changelog.md) for the latest release notes and the full version history.
 
-The FSI Agent Governance Framework provides comprehensive governance guidance for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
+The FSI Agent Governance Framework provides comprehensive governance guidance for Microsoft 365 AI agents (Microsoft Copilot Studio, Agent Builder) in US financial services organizations.
 
 ---
 

@@ -2,7 +2,7 @@
 
 **Last Updated:** April 2026
 **Cadence:** Pre-go-live, on every disclosure-copy change, and at least quarterly thereafter
-**Primary Owner:** Copilot Studio Agent Author (with Compliance Officer sign-off on test evidence)
+**Primary Owner:** Microsoft Copilot Studio Agent Author (with Compliance Officer sign-off on test evidence)
 
 ---
 

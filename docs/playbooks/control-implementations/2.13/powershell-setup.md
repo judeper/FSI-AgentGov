@@ -48,7 +48,7 @@ Install-Module -Name ExchangeOnlineManagement `
 | SharePoint site and library provisioning | **SharePoint Admin** |
 | Retention label and policy creation | **Purview Records Manager** + **Purview Compliance Admin** |
 | Auto-labeling policy creation | **Purview Compliance Admin** |
-| Copilot Studio agent metadata export | **Power Platform Admin** |
+| Microsoft Copilot Studio agent metadata export | **Power Platform Admin** |
 
 ### 1.3 Initialize evidence directory and transcript
 

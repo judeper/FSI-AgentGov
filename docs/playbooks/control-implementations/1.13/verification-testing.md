@@ -1,6 +1,6 @@
 # Verification & Testing — Control 1.13: Sensitive Information Types and Pattern Recognition
 
-> **Scope.** Operational verification procedures for Control 1.13 across Microsoft 365 Copilot, Copilot Studio, Power Platform, and SharePoint-grounded agents in US financial-services tenants.
+> **Scope.** Operational verification procedures for Control 1.13 across Microsoft 365 Copilot, Microsoft Copilot Studio, Power Platform, and SharePoint-grounded agents in US financial-services tenants.
 > **Audience.** Microsoft 365 administrators, Purview engineers, internal auditors, and supervisory examiners at FINRA member firms, SEC-registered investment advisers, OCC/FRB-supervised banks, and CFTC-registered swap dealers.
 > **Sovereign coverage.** Commercial · GCC · GCC High · DoD — see §5 for parity caveats.
 > **Cross-links.** [Portal walkthrough](portal-walkthrough.md) · [PowerShell setup](powershell-setup.md) · `troubleshooting.md` (sibling playbook — pending publication) · [Shared PowerShell baseline](../../_shared/powershell-baseline.md)

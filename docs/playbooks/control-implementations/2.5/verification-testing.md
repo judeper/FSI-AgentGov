@@ -98,7 +98,7 @@ This playbook mirrors Control 4.7's fail-closed posture: if any blocker remains 
 - **Recommended attestation note.** "BLK-03 was reviewed at cycle start and found to be resolved or explicitly excepted with a signed expiry date. The exception, if any, does not by itself waive the need for the affected §4 tests."
 
 ### BLK-04 — Evaluation or adversarial toolchain not operational
-- **Why this is a blocker.** This playbook treats Copilot Studio Evaluation, PyRIT (or a documented equivalent), Solution Checker, and the promotion pipeline as part of the control surface. If one of the required toolchain elements is unavailable without a compensating control, the cycle should not be reported as complete.
+- **Why this is a blocker.** This playbook treats Microsoft Copilot Studio Evaluation, PyRIT (or a documented equivalent), Solution Checker, and the promotion pipeline as part of the control surface. If one of the required toolchain elements is unavailable without a compensating control, the cycle should not be reported as complete.
 - **Required evidence.** `blk-04-toolchain-health.json` listing tool versions, endpoint reachability, and fallback methods if any.
 - **Resolution rule.** Stop the cycle unless the gap is explicitly mapped to a compensating control and the affected tests are recorded as justified Skip values.
 - **Recommended attestation note.** "BLK-04 was reviewed at cycle start and found to be resolved or explicitly excepted with a signed expiry date. The exception, if any, does not by itself waive the need for the affected §4 tests."

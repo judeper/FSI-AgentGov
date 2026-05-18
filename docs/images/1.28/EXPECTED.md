@@ -34,7 +34,7 @@
 - Environment count and summary
 
 ### Screenshot 4: Security Scan - DLP Violation Detected
-**Portal Path:** Copilot Studio → [Agent] → Publish → Security scan results
+**Portal Path:** Microsoft Copilot Studio → [Agent] → Publish → Security scan results
 **What to capture:**
 - Security scan panel with red error indicator
 - Error message: "This agent cannot be published due to DLP policy violations"

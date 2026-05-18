@@ -35,7 +35,7 @@ All steps below start from one of these entry points:
 | Surface | URL | Used for |
 |---|---|---|
 | Microsoft Purview portal | `https://purview.microsoft.com` | Retention labels, label policies, retention policies, Records Management, Disposition, eDiscovery, Audit |
-| Power Platform Admin Center | `https://admin.powerplatform.microsoft.com` | Dataverse long-term retention for Copilot Studio environments |
+| Power Platform Admin Center | `https://admin.powerplatform.microsoft.com` | Dataverse long-term retention for Microsoft Copilot Studio environments |
 | Exchange admin center (legacy holds) | `https://admin.exchange.microsoft.com` | In-Place Hold / Litigation Hold on individual mailboxes (use only when eDiscovery hold is impractical) |
 
 ---

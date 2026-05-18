@@ -3,7 +3,7 @@
 **Last Updated:** April 2026
 
 !!! warning "Republish before validating production behavior"
-    The Copilot Studio test panel reflects **unpublished** edits immediately. Production behavior only changes after you click **Publish** and propagation completes (5–10 minutes). Capture evidence from the **published** channel (Teams, web channel, or Copilot connector) — not the test panel — for any TC that asserts production-state behavior.
+    The Microsoft Copilot Studio test panel reflects **unpublished** edits immediately. Production behavior only changes after you click **Publish** and propagation completes (5–10 minutes). Capture evidence from the **published** channel (Teams, web channel, or Copilot connector) — not the test panel — for any TC that asserts production-state behavior.
 
 !!! warning "Run adversarial tests in pre-production only"
     TC-1.27-08 and the adversarial prompts in this playbook can surface jailbreaks. Run them in a sandbox / pre-production environment so any unfiltered output stays inside a contained boundary. Redact PII before adding transcripts to the evidence pack.

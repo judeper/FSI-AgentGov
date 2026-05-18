@@ -135,7 +135,7 @@ $dep.SecurityEnabled; $dep.MailEnabled  # must be True; False
 
 ### 2.3 Agent registry incomplete or inaccurate
 
-**Symptoms:** Known agents missing; counts disagree with Copilot Studio inventory.
+**Symptoms:** Known agents missing; counts disagree with Microsoft Copilot Studio inventory.
 
 **Resolution:**
 

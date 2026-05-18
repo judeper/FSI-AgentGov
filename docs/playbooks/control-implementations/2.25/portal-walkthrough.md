@@ -110,7 +110,7 @@ Use the canonical role names from [`docs/reference/role-catalog.md`](../../../re
 | **AI Administrator** | Day-to-day approval, registry, deployment, blocking, and template-application tasks. This is the daily operator role. | Entra → Roles & admins → search "AI Administrator" |
 | **Entra Global Reader** | Evidence-only access for auditors, examiners, and the Compliance Officer collecting screenshots without change rights. | Entra → Roles & admins |
 | **Purview Compliance Admin** | Cross-reference for retention labels and Purview Audit / AI Compliance Assessment policies surfaced inside Default and Custom Governance Templates. | Purview → Roles & scopes |
-| **Power Platform Admin** | Cross-reference where a published agent originates from Copilot Studio and overlaps with environment-level governance (Pillar 2 controls 2.10–2.16). | Power Platform admin center → Settings |
+| **Power Platform Admin** | Cross-reference where a published agent originates from Microsoft Copilot Studio and overlaps with environment-level governance (Pillar 2 controls 2.10–2.16). | Power Platform admin center → Settings |
 
 1. In Entra, navigate to **Identity → Roles & admins → Roles**.
 2. Search for each role above and click into it. Confirm at minimum **two named human accounts** (no service principals, no break-glass) hold each operating role per FINRA dual-control expectations.

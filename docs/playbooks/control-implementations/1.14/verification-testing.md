@@ -1,6 +1,6 @@
 # Verification & Testing — Control 1.14: Data Minimization and Agent Scope Control
 
-> **Scope.** This playbook verifies that every Microsoft 365, Power Platform, and Copilot Studio agent registered against Control 1.14 is grounded only in the data sources, connectors, and OAuth scopes documented in the per-agent inventory, and that any change to that scope is detected, approved, and recorded in the Unified Audit Log (UAL) within published processing windows.
+> **Scope.** This playbook verifies that every Microsoft 365, Power Platform, and Microsoft Copilot Studio agent registered against Control 1.14 is grounded only in the data sources, connectors, and OAuth scopes documented in the per-agent inventory, and that any change to that scope is detected, approved, and recorded in the Unified Audit Log (UAL) within published processing windows.
 >
 > **Audience.** AI Governance Lead (Responsible), Power Platform Admin and Purview Compliance Admin (Accountable for primary tooling), CISO and Compliance Officer (Approver), Audit Manager (Consulted on evidence retention), Information Protection Admin and Purview Data Security AI Admin (Consulted on DSPM for AI signals), Entra Identity Governance Admin (Consulted on access reviews), SharePoint Admin (Consulted on grounding scope).
 >

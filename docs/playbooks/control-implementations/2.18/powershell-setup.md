@@ -4,7 +4,7 @@
     Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
 
 **Last Updated:** April 2026<br>
-**Modules Required:** `Microsoft.Graph` (audit log queries), `Microsoft.PowerApps.Administration.PowerShell` (agent inventory), `ImportExcel` (reporting). Custom HTTP calls to the Copilot Studio evaluation endpoint use the agent's REST surface — no dedicated PowerShell module exists for evaluation runs as of April 2026.<br>
+**Modules Required:** `Microsoft.Graph` (audit log queries), `Microsoft.PowerApps.Administration.PowerShell` (agent inventory), `ImportExcel` (reporting). Custom HTTP calls to the Microsoft Copilot Studio evaluation endpoint use the agent's REST surface — no dedicated PowerShell module exists for evaluation runs as of April 2026.<br>
 **Tenant Footprint:** Read-only against tenant data; writes only to the local evidence working directory and (optionally) to a configured SharePoint evidence library.
 
 This playbook automates the **execution, evidence collection, and validation** layers of Control 2.18. The portal walkthrough remains the canonical place to *configure* test sets and graders; PowerShell is for running the suite, hashing the artefacts, and producing the compliance pack.

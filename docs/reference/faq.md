@@ -442,7 +442,7 @@ See Control 3.4: Incident Reporting for details.
 
 A: Microsoft 365 agents and related in-suite Copilot experiences, including:
 
-- Copilot Studio agents
+- Microsoft Copilot Studio agents
 - Agent Builder agents
 - SharePoint agents
 - Teams agents

@@ -3,7 +3,7 @@
 ## Required Screenshots
 
 ### Screenshot 1: Copilot Studio Agent Knowledge Sources
-**Portal Path:** Copilot Studio → Agents → [Agent Name] → Knowledge
+**Portal Path:** Microsoft Copilot Studio → Agents → [Agent Name] → Knowledge
 **What to capture:**
 - Agent knowledge source list showing connected SharePoint libraries
 - SharePoint site URL and library/folder path for each knowledge source

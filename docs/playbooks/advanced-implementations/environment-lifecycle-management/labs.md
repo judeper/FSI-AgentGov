@@ -285,7 +285,7 @@ Build the conversational intake agent that collects environment requests.
 ### Prerequisites
 
 - Lab 1 complete (Dataverse tables exist)
-- Copilot Studio license
+- Microsoft Copilot Studio license
 - Access to copilotstudio.microsoft.com
 
 ### Step 2.1: Create New Agent

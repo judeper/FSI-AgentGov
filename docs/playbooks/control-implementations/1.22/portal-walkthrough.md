@@ -8,7 +8,7 @@
 
 ## Audience and Scope
 
-This walkthrough is for **M365 administrators** in US financial services who own Microsoft Purview Information Barriers (IB) for an organization that deploys M365 Copilot, declarative agents, and Copilot Studio agents. It assumes the firm has already classified its regulated business units (e.g., research, sales-and-trading, investment banking public/private side, municipal advisory, fiduciary) under FINRA 2241/2242, FINRA 3110/25-07, MSRB G-23/G-37, and SEC §15(g).
+This walkthrough is for **M365 administrators** in US financial services who own Microsoft Purview Information Barriers (IB) for an organization that deploys M365 Copilot, declarative agents, and Microsoft Copilot Studio agents. It assumes the firm has already classified its regulated business units (e.g., research, sales-and-trading, investment banking public/private side, municipal advisory, fiduciary) under FINRA 2241/2242, FINRA 3110/25-07, MSRB G-23/G-37, and SEC §15(g).
 
 Use this playbook when implementing Control 1.22 for a Zone 2 (recommended) or Zone 3 (mandatory) environment. Zone 1 deployments still rely on the IB policies configured here, but the operational responsibility is per-user inheritance rather than admin-managed knowledge-source curation.
 

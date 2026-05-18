@@ -19,7 +19,7 @@
 1. CSAT toggle disabled at the agent level
 2. Agent published before CSAT was enabled (changes not yet propagated)
 3. Channel-specific renderer does not support CSAT (older Teams clients, custom Direct Line clients)
-4. Tenant-level Copilot Studio analytics setting disabled
+4. Tenant-level Microsoft Copilot Studio analytics setting disabled
 
 **Resolution Steps:**
 

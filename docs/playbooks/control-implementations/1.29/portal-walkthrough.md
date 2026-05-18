@@ -1,7 +1,7 @@
 # Control 1.29 — Portal Walkthrough: Global Secure Access Network Controls
 
 **Playbook Type:** Portal Walkthrough
-**Control:** 1.29 — Global Secure Access: Network Controls for Copilot Studio Agents
+**Control:** 1.29 — Global Secure Access: Network Controls for Microsoft Copilot Studio Agents
 **Audience:** Power Platform Admins, Entra Security Admins
 **Estimated Duration:** 60–90 minutes for full configuration across a single environment
 **Prerequisites:** Global Secure Access license, Power Platform Admin role, Entra Security Admin role

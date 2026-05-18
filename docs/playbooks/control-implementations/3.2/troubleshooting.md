@@ -78,7 +78,7 @@
 
 2. Review session definitions in documentation
 
-3. Compare with Copilot Studio built-in analytics
+3. Compare with Microsoft Copilot Studio built-in analytics
 
 4. Check for environment or agent filter issues
 

@@ -189,7 +189,7 @@ foreach ($env in $targets) {
 
 ## Script 4 — Audit Published Copilot Studio Agents (Read-Only Evidence)
 
-This script enumerates Copilot Studio agents (Dataverse `bot` rows) per environment and exports their key publish-status fields to CSV with a SHA-256 evidence hash. It does **not** attempt to evaluate DLP compliance per agent — there is no first-party cmdlet that returns "this agent passes DLP" today, so connector-by-connector compliance must be reconciled against the in-product Copilot Studio publish dialog or a Dataverse query of the agent's component set.
+This script enumerates Microsoft Copilot Studio agents (Dataverse `bot` rows) per environment and exports their key publish-status fields to CSV with a SHA-256 evidence hash. It does **not** attempt to evaluate DLP compliance per agent — there is no first-party cmdlet that returns "this agent passes DLP" today, so connector-by-connector compliance must be reconciled against the in-product Copilot Studio publish dialog or a Dataverse query of the agent's component set.
 
 ```powershell
 <#

@@ -2,7 +2,7 @@
 
 **Last Updated:** April 2026
 **Estimated Time:** 30–45 minutes (full pass)
-**Re-test cadence:** After each tenant configuration change, after each Copilot Studio agent publish, and at minimum quarterly for Zone 3.
+**Re-test cadence:** After each tenant configuration change, after each Microsoft Copilot Studio agent publish, and at minimum quarterly for Zone 3.
 
 ## Test Scope
 

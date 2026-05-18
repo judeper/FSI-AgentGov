@@ -393,7 +393,7 @@ Capture E-01 (`Get-Agt226Health`) and E-08 (Agent 365 / M365 E7 license assignme
 
 | RC | Description | Likelihood | Confirm |
 |----|-------------|-----------|---------|
-| RC-A | Agent registered via Power Platform / Copilot Studio before sponsor field was added (legacy) | High in tenants that adopted preview early | Created date < Agent ID GA cutover (May 1, 2026) or pre-GA Frontier enable date for tenants that participated in early access |
+| RC-A | Agent registered via Power Platform / Microsoft Copilot Studio before sponsor field was added (legacy) | High in tenants that adopted preview early | Created date < Agent ID GA cutover (May 1, 2026) or pre-GA Frontier enable date for tenants that participated in early access |
 | RC-B | Service-principal create script omits the `sponsor` claim | High (CI pipelines) | Inspect the create call payload |
 | RC-C | Sponsor specified a **disabled** or **deleted** UPN (silently dropped) | Medium | `Get-MgUser -UserId <upn>` returns 404 or `AccountEnabled=False` |
 | RC-D | Bulk reorg invalidated existing sponsor assignments | Situational | Recent `employeeLeaveDateTime` clusters in HR feed |

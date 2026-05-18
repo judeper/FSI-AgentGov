@@ -10,7 +10,7 @@
 
 - **Agent name:**
 - **Agent ID (unique):**
-- **Agent type:** (M365 Copilot Agent / Copilot Studio Agent used with M365 Copilot)
+- **Agent type:** (M365 Copilot Agent / Microsoft Copilot Studio Agent used with M365 Copilot)
 - **Owner (business):**
 - **Owner (technical):**
 - **Approver (Compliance/Risk):**

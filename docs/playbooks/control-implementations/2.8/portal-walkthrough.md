@@ -1,7 +1,7 @@
 # Portal Walkthrough: Control 2.8 — Access Control and Segregation of Duties
 
 **Last Updated:** April 2026
-**Portals:** Microsoft Entra Admin Center, Microsoft 365 Admin Center, Power Platform Admin Center (PPAC), Copilot Studio, Power Automate
+**Portals:** Microsoft Entra Admin Center, Microsoft 365 Admin Center, Power Platform Admin Center (PPAC), Microsoft Copilot Studio, Power Automate
 **Estimated Time:** 3–4 hours for the initial Zone 3 build; ~30 min/quarter for ongoing review tasks
 **Audience:** M365 administrators in US financial services responsible for AI agent governance
 

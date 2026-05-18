@@ -41,7 +41,7 @@
 - Page timestamp or "Last Updated" date visible
 
 ### Screenshot 5: Copilot Studio - Agent Greeting Topic with AI Disclosure (Zone 1)
-**Portal Path:** Copilot Studio → [Agent] → Topics → System → Greeting
+**Portal Path:** Microsoft Copilot Studio → [Agent] → Topics → System → Greeting
 **What to capture:**
 - Greeting topic editor in Copilot Studio
 - Message node showing Zone 1 AI disclosure language (general disclosure)

@@ -197,7 +197,7 @@ Agent 365 capabilities support FSI regulatory requirements:
 - [Microsoft Learn: Agent 365 Blueprint (Preview)](https://learn.microsoft.com/en-us/microsoft-365/copilot/agent-essentials/m365-agents-blueprint)
 - [Microsoft Learn: Microsoft Entra Agent ID](https://learn.microsoft.com/en-us/entra/agent-id/)
 - [Microsoft Learn: Agent 365 Observability (Preview)](https://learn.microsoft.com/en-us/microsoft-agent-365/developer/observability)
-- [Microsoft Learn: Copilot Studio Kit — Compliance Hub](https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/whats-new) — additional compliance resource for Copilot Studio governance guidance and release tracking
+- [Microsoft Learn: Copilot Studio Kit — Compliance Hub](https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/whats-new) — additional compliance resource for Microsoft Copilot Studio governance guidance and release tracking
 
 ### FSI-AgentGov Resources
 

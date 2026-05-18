@@ -40,7 +40,7 @@ Each item below is binary pass/fail. Capture evidence (screenshot, JSON export, 
 6. **Expected:** the connector is either not surfaced or, if surfaced, displays `This connector is blocked by your administrator` and cannot be added.
 7. Capture the error banner screenshot.
 
-> If design-time enforcement is not yet GA in the maker portal under test (per the Microsoft rollout order: Power Automate → Copilot Studio → Power Apps), the block manifests at runtime instead — repeat the test by attempting to **save and run** a flow built outside the regulated environment and imported.
+> If design-time enforcement is not yet GA in the maker portal under test (per the Microsoft rollout order: Power Automate → Microsoft Copilot Studio → Power Apps), the block manifests at runtime instead — repeat the test by attempting to **save and run** a flow built outside the regulated environment and imported.
 
 ---
 

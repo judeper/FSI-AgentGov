@@ -51,7 +51,7 @@ This playbook covers operational failures of the COI testing pipeline configured
 4. **Test set deployed without expected-failure seeds.** The suite never tests the failure path.
 
 **Diagnostics.**
-1. Confirm the endpoint URL in the most recent run matches the production agent (compare with the agent's published endpoint in Copilot Studio).
+1. Confirm the endpoint URL in the most recent run matches the production agent (compare with the agent's published endpoint in Microsoft Copilot Studio).
 2. Re-run the [PowerShell validator](powershell-setup.md#4-validate-control-218-configuration-read-only) and review the `Cloud` property.
 3. Add a deliberate fail-seed scenario (e.g., a prompt that should produce an unsolicited cross-sell pitch); confirm the grader flags it.
 4. Inspect grader configuration — confirm the threshold is the value documented in the methodology memo.

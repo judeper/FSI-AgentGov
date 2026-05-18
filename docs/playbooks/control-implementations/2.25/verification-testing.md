@@ -42,7 +42,7 @@ The operator running this playbook must hold one of the following Entra role ass
 | AI Administrator | Day-to-day reads against the Microsoft Agent 365 Admin Center: agent inventory (§3, §4, §5, §7), pending approvals queue (§3), governance template assignments (§6), exception-rate metric (§8), Researcher with Computer Use policy (§9). Read-only operations only in this playbook. | 4 hours, just-in-time |
 | Entra Global Reader | Evidence-only verification access where AI Administrator is unavailable; supports the dual-control witness pattern in §11.4 | 4 hours |
 | Purview Compliance Admin | Read access to Purview audit retention labels referenced by Agent 365 governance templates (§6); read access to the Audit (Premium) search that backs the SIEM forwarding evidence in §9 | 4 hours |
-| Power Platform Admin | Read access to Copilot Studio environment governance metadata for agents that surface in Agent 365 from Copilot Studio (cross-referenced in §6) | 2 hours |
+| Power Platform Admin | Read access to Microsoft Copilot Studio environment governance metadata for agents that surface in Agent 365 from Copilot Studio (cross-referenced in §6) | 2 hours |
 | AI Governance Lead | Counter-signs the quarterly attestation packet in §14; reviews Pending Requests and Ownerless Agents governance cards on the documented cadence; signs the evidence pack in §11 | Standing assignment with quarterly recertification per Control 2.8 |
 | Compliance Officer | Counter-signs the quarterly attestation packet in §14; signs Zone 3 governance template variances; signs the §10 sovereign quarterly attestation | Standing |
 | Information Security Officer | Reviews exception-rate threshold variances; reviews Researcher with Computer Use Zone 3 configurations | Standing |

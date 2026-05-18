@@ -10,7 +10,7 @@ hide:
 
 Govern Microsoft 365 AI agents with confidence — from policy to production.
 78 controls across 4 pillars and 3 governance zones, 36 companion solutions,
-implementation playbooks, and regulatory mappings for Copilot Studio, Agent Builder, and custom
+implementation playbooks, and regulatory mappings for Microsoft Copilot Studio, Agent Builder, and custom
 agent deployments.
 
 [Get Started](getting-started/quick-start.md){ .md-button .md-button--primary }

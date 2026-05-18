@@ -61,7 +61,7 @@ All pre-flight gates **must pass** before any test family runs. The validator ru
 
 **Objective.** Confirm the operator does not hold conflicting roles that would compromise OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) model-validation independence.
 
-**Required separation.** The operator may hold **one** of: Cloud Security Architect, Security Architect, AI Governance Lead. The operator must **not** simultaneously be the Agent Owner or Copilot Studio Agent Author of the agent under test. Exceptions require a co-signer from the AI Governance team.
+**Required separation.** The operator may hold **one** of: Cloud Security Architect, Security Architect, AI Governance Lead. The operator must **not** simultaneously be the Agent Owner or Microsoft Copilot Studio Agent Author of the agent under test. Exceptions require a co-signer from the AI Governance team.
 
 **How to verify.** `Get-MgRoleManagementDirectoryRoleAssignment -Filter "principalId eq '<operatorId>'"` plus inspection of the agent's owner field in Copilot Studio / Foundry.
 

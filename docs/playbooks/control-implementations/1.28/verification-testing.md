@@ -8,7 +8,7 @@
 
 This playbook defines test cases that confirm policy-based publishing restrictions are operational across Zone 1, Zone 2, and Zone 3. Tests focus on what the platform actually enforces (DLP at runtime and publish time, channel allowlisting, audit capture) and what the organization enforces around the platform (approval gates via Power Automate or Pipelines, change-control documentation).
 
-> **Hedged outcome language:** Each test case lists *expected behavior given current platform behavior as of April 2026*. The Copilot Studio publish dialog wording, severity icons, and finding categories evolve; treat the in-product messages as authoritative if they diverge from the wording below.
+> **Hedged outcome language:** Each test case lists *expected behavior given current platform behavior as of April 2026*. The Microsoft Copilot Studio publish dialog wording, severity icons, and finding categories evolve; treat the in-product messages as authoritative if they diverge from the wording below.
 
 ---
 

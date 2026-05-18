@@ -19,7 +19,7 @@
 | Scoring | Every test emits one of `Clean / Anomaly / Pending / NotApplicable / Error` per §11. The MRM Committee — not this playbook — accepts or rejects the underlying validation. |
 | Evidence retention | Six (6) years on 17a-4(f)-compliant media (Purview retention label with deletion lock, or an approved 17a-4(f) vendor) for: model-classification decisions, Agent Cards, validation memos, MRM Committee minutes, monitoring reports, outcomes-analysis runs, vendor-model dispositions, and retirement records. The first two years must be readily accessible. |
 
-> **Non-substitution.** Microsoft Purview DSPM for AI, the Agent 365 Admin Center, the Power Platform CoE export, Copilot Studio Analytics, Azure AI Foundry monitoring and evaluators, and Microsoft Entra Agent ID are **inventory, evaluation, and evidence-collection surfaces**. They do **not** replace, and must not be presented to the MRM Committee or to examiners as a substitute for, the firm's MRM Committee, independent validation function, effective-challenge process, three-lines-of-defense governance, registered-principal supervision under FINRA Rule 3110, or 17a-4(f) books-and-records retention.
+> **Non-substitution.** Microsoft Purview DSPM for AI, the Agent 365 Admin Center, the Power Platform CoE export, Microsoft Copilot Studio Analytics, Azure AI Foundry monitoring and evaluators, and Microsoft Entra Agent ID are **inventory, evaluation, and evidence-collection surfaces**. They do **not** replace, and must not be presented to the MRM Committee or to examiners as a substitute for, the firm's MRM Committee, independent validation function, effective-challenge process, three-lines-of-defense governance, registered-principal supervision under FINRA Rule 3110, or 17a-4(f) books-and-records retention.
 
 ---
 
@@ -287,7 +287,7 @@ For each Microsoft / vendor surface that can change the underlying model behind 
 
 | Vendor event | Surface to monitor | Disposition owner | Required lead time |
 |---|---|---|---|
-| Microsoft Copilot Studio default-model migration (e.g., GPT-5 → next default) | Microsoft 365 Message Center; Power Platform release plan | AI Governance Lead + Model Risk Manager | ≥ 30 days before effective date for Tier 1; per policy for lower tiers |
+| Copilot Studio default-model migration (e.g., GPT-5 → next default) | Microsoft 365 Message Center; Power Platform release plan | AI Governance Lead + Model Risk Manager | ≥ 30 days before effective date for Tier 1; per policy for lower tiers |
 | Foundry model deprecation | Azure AI Foundry "Models" page; Azure Service Health | AI Administrator + Model Risk Manager | Per Microsoft published deprecation window |
 | Foundry evaluator changes (judge-model updates, evaluator GA / deprecation) | Foundry release notes | Model Risk Manager | Before next outcomes-analysis run |
 | Anthropic Claude availability changes in Copilot Studio (commercial-cloud and sovereign-cloud delta) | Copilot Studio release notes; sovereign roadmap | AI Governance Lead | Before publication / activation in production |

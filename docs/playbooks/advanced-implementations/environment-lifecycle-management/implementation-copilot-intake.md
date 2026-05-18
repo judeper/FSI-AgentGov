@@ -7,7 +7,7 @@
 
 ## Overview
 
-This document provides implementation guidance for the Copilot Studio intake agent that collects environment requests through conversational interface, performs zone classification, and triggers provisioning workflows.
+This document provides implementation guidance for the Microsoft Copilot Studio intake agent that collects environment requests through conversational interface, performs zone classification, and triggers provisioning workflows.
 
 ---
 

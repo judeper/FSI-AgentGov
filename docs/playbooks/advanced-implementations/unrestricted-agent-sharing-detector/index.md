@@ -7,7 +7,7 @@
 
 ## Overview
 
-The Unrestricted Agent Sharing Detector (UASD) is a continuous compliance solution that scans Copilot Studio agents for sharing configurations that violate organizational policy. It complements the existing Agent Access Governance Monitor (AAM) — where AAM validates environment-level access settings, UASD operates at the per-agent sharing level.
+The Unrestricted Agent Sharing Detector (UASD) is a continuous compliance solution that scans Microsoft Copilot Studio agents for sharing configurations that violate organizational policy. It complements the existing Agent Access Governance Monitor (AAM) — where AAM validates environment-level access settings, UASD operates at the per-agent sharing level.
 
 UASD detects five violation types, records findings in Dataverse, drives remediation through Power Automate approval workflows, and manages time-bound exceptions via a canvas app.
 

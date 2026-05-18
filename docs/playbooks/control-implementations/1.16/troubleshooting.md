@@ -47,7 +47,7 @@ Get-AipServiceConfiguration | Select-Object FunctionalState, LicenseValidityDura
 ### Scenario B — Agent Cannot Read IRM-Protected Content
 
 **Symptoms**
-- Copilot Studio agent returns a generic "I couldn't find an answer" or surfaces a permission error in trace logs.
+- Microsoft Copilot Studio agent returns a generic "I couldn't find an answer" or surfaces a permission error in trace logs.
 - The same content is accessible to interactive users with the same nominal permissions.
 
 **Diagnosis**

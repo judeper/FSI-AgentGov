@@ -7,7 +7,7 @@
 
 ## Overview
 
-The Agent Usage & Performance Workbook is an Azure Monitor Workbook that provides unified visibility into Copilot Studio agent activity across an FSI organization. Built on Application Insights telemetry, the workbook consolidates usage metrics, performance indicators, and governance signals into a single operational dashboard.
+The Agent Usage & Performance Workbook is an Azure Monitor Workbook that provides unified visibility into Microsoft Copilot Studio agent activity across an FSI organization. Built on Application Insights telemetry, the workbook consolidates usage metrics, performance indicators, and governance signals into a single operational dashboard.
 
 The workbook is designed for M365 administrators, compliance officers, and AI governance leads who need to monitor agent adoption, identify performance issues, and support regulatory reporting requirements.
 

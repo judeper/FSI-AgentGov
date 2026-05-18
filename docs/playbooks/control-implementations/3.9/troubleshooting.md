@@ -3,7 +3,7 @@
 **Companion to:** [Control 3.9 — Microsoft Sentinel Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md)
 **Sibling playbooks:** [Portal Walkthrough](./portal-walkthrough.md) · [PowerShell Setup](./powershell-setup.md) · [Verification & Testing](./verification-testing.md)
 **Audience:** Sentinel Admin, SOC Analyst (Tier 1 / Tier 2 / Tier 3), Defender XDR Operator, AI Governance Lead, Purview Compliance Admin (for evidence and retention coordination), Power Platform Admin (for upstream connector and transcript settings).
-**Scope:** Symptom-first diagnostic guide for the Sentinel surface that monitors Microsoft 365 Copilot, Copilot Studio agents, Power Platform agents, Researcher with Computer Use, and Agent 365 supervisory events. Twenty-two production-derived scenarios (TC-01..TC-22) covering connector outages, schema gotchas, analytic-rule tuning, MCP Server behaviour, playbook (Logic Apps) failures, sovereign-cloud parity gaps, retention conflicts, ingestion-cost spikes, and a data-spill emergency runbook for inadvertent conversation-transcript capture.
+**Scope:** Symptom-first diagnostic guide for the Sentinel surface that monitors Microsoft 365 Copilot, Microsoft Copilot Studio agents, Power Platform agents, Researcher with Computer Use, and Agent 365 supervisory events. Twenty-two production-derived scenarios (TC-01..TC-22) covering connector outages, schema gotchas, analytic-rule tuning, MCP Server behaviour, playbook (Logic Apps) failures, sovereign-cloud parity gaps, retention conflicts, ingestion-cost spikes, and a data-spill emergency runbook for inadvertent conversation-transcript capture.
 
 ---
 

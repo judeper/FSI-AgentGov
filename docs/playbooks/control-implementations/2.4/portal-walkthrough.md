@@ -6,7 +6,7 @@
 
 ## Audience and Scope
 
-This walkthrough is for **M365 administrators** in US financial services who configure Power Platform business continuity and disaster recovery (BC/DR) for Copilot Studio agents. It covers customer-managed steps in the Power Platform Admin Center (PPAC), Power Apps maker portal, Microsoft 365 admin center, and Microsoft Entra admin center as of **April 2026**. It does **not** cover Microsoft-side platform recovery, which is governed by the Online Services Terms and SLA.
+This walkthrough is for **M365 administrators** in US financial services who configure Power Platform business continuity and disaster recovery (BC/DR) for Microsoft Copilot Studio agents. It covers customer-managed steps in the Power Platform Admin Center (PPAC), Power Apps maker portal, Microsoft 365 admin center, and Microsoft Entra admin center as of **April 2026**. It does **not** cover Microsoft-side platform recovery, which is governed by the Online Services Terms and SLA.
 
 !!! warning "Microsoft does not auto-failover Dataverse cross-region"
     Microsoft maintains in-region high availability for Dataverse and Copilot Studio. **Cross-region recovery is the customer's responsibility** and requires a pre-provisioned secondary-region environment, customer-managed solution and data exports, and a documented runbook. The steps below operationalize that responsibility.
@@ -189,7 +189,7 @@ Entra app registrations, service principals, federated credentials, and Entra Ag
 3. Subscribe a **DR distribution list** (not a single inbox) to alerts for:
    - Power Platform
    - Dynamics 365 (covers Dataverse advisories)
-   - Microsoft Copilot Studio
+   - Copilot Studio
    - Microsoft Entra
    - Power Automate
 4. Repeat for **Message Center** under **Health** → **Message center** → **Preferences** → enable email digest for the same audiences

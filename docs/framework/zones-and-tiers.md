@@ -68,7 +68,7 @@ An **App Builder agent** is a Frontier agent developed by Microsoft. Microsoft d
 
 ### Workflows agent
 
-A **Workflows agent** is a Frontier agent developed by Microsoft that creates flows on the user's behalf. Microsoft documents that flows created in Copilot are saved to the **default environment** unless [environment routing](../controls/pillar-2-management/2.15-environment-routing.md) is enabled for Copilot Studio.
+A **Workflows agent** is a Frontier agent developed by Microsoft that creates flows on the user's behalf. Microsoft documents that flows created in Copilot are saved to the **default environment** unless [environment routing](../controls/pillar-2-management/2.15-environment-routing.md) is enabled for Microsoft Copilot Studio.
 
 !!! warning "Environment routing is the minimum guardrail for Workflows agent"
     If environment routing is not enabled, Workflows agent flows can remain in the default environment and miss Zone 2 or Zone 3 governance baselines. Treat Workflows agent enablement as dependent on [Managed Environments](../controls/pillar-2-management/2.1-managed-environments.md) and environment routing.

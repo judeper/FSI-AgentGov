@@ -424,7 +424,7 @@ The 17 test cases below are grouped into six namespaces. Each namespace produces
 
 1. **Pre-record baseline.** Capture the `lastTriggeredUtc` for `AI-RULE-01` and the current `SecurityIncident` row count for the sandbox agent.
 
-2. **Inject the canary.** From a sandboxed Copilot Studio agent or an MCP test harness, submit the canary prompt-injection payload as a single user turn.
+2. **Inject the canary.** From a sandboxed Microsoft Copilot Studio agent or an MCP test harness, submit the canary prompt-injection payload as a single user turn.
 
 3. **Wait for the analytics-rule cycle** (rule frequency typically 5 min; tolerance 15 min for end-to-end).
 

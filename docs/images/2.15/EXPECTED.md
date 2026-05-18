@@ -9,7 +9,7 @@
 | `03-ppac-tenant-settings-routing.png` | PPAC | Manage → Tenant settings → Environment routing | Routing toggle On + product portal selections |
 | `04-ppac-routing-rule-list.png` | PPAC | Manage → Tenant settings → Environment routing | Ordered list of routing rules (audience → target group) |
 | `05-ppac-routing-rule-detail.png` | PPAC | Manage → Tenant settings → Environment routing → \[rule\] | Single rule detail showing audience scope and target group |
-| `06-test-maker-routed-env.png` | Copilot Studio / PPAC | New maker session, then PPAC env detail | Auto-provisioned dev env appears in expected target group |
+| `06-test-maker-routed-env.png` | Microsoft Copilot Studio / PPAC | New maker session, then PPAC env detail | Auto-provisioned dev env appears in expected target group |
 
 ## Verification Focus
 

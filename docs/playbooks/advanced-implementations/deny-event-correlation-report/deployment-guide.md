@@ -158,7 +158,7 @@ az keyvault secret set `
 
 ### Step 1.5: Configure Application Insights
 
-For each Zone 2/3 Copilot Studio agent:
+For each Zone 2/3 Microsoft Copilot Studio agent:
 
 1. Open Copilot Studio portal
 2. Select agent > **Settings** > **Generative AI**

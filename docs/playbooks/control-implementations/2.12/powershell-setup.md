@@ -43,7 +43,7 @@ This playbook automates the operational PowerShell surface for **Control 2.12 �
 !!! warning "Sovereign cloud reality (April 2026)"
     FINRA Rule 3110 applies identically in commercial, GCC, GCC High, and DoD tenants. Several Microsoft surfaces this playbook reads, however, have **parity gaps** in sovereign clouds:
 
-    - Copilot Studio human-agent handoff and approval actions — verify availability in your sovereign tenant before relying on the §4 helpers.
+    - Microsoft Copilot Studio human-agent handoff and approval actions — verify availability in your sovereign tenant before relying on the §4 helpers.
     - Microsoft Agent Framework HITL (`RequestPort` / `request_info()` / checkpointed pending requests) — the framework is available, but evidence-export integrations referenced in §6 may lag.
     - Microsoft Entra Agent ID sponsorship and Lifecycle Workflows — no announced sovereign-cloud GA as of April 2026 (see Control 2.26).
     - Microsoft Agent 365 admin center — no announced sovereign-cloud GA (see Control 2.25).

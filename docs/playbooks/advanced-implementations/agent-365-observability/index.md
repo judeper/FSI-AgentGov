@@ -7,7 +7,7 @@
 
 ## Overview
 
-This playbook provides implementation guidance for Microsoft Agent 365 SDK observability features, enabling enterprise-grade telemetry capture for AI agents. The observability framework supports Copilot Studio custom-engine agents and Microsoft-built agents, with declarative agents primarily relying on native telemetry surfaces. ([Agent types](https://learn.microsoft.com/microsoft-365/copilot/extensibility/agents-overview#choose-what-type-of-agent-to-build))
+This playbook provides implementation guidance for Microsoft Agent 365 SDK observability features, enabling enterprise-grade telemetry capture for AI agents. The observability framework supports Microsoft Copilot Studio custom-engine agents and Microsoft-built agents, with declarative agents primarily relying on native telemetry surfaces. ([Agent types](https://learn.microsoft.com/microsoft-365/copilot/extensibility/agents-overview#choose-what-type-of-agent-to-build))
 
 !!! note "Preview Features"
     Agent 365 SDK observability features are in preview. Telemetry schemas and configuration options may change before general availability.

@@ -4,7 +4,7 @@
 **Applies to:** Zone 3 (required), Zone 2 (recommended for medium/high impact agents).  
 **Related controls (examples):** 1.7 Audit logging, 2.5 QA/validation, 2.9 Performance monitoring, 3.2 Usage analytics, 3.3 Compliance reporting.
 
-> Implementation note (Copilot Studio): Copilot Studio activities are available in Microsoft Purview Audit, and user interaction events (CopilotInteraction) include a transcript thread ID; full chat text is not in the Purview Audit event itself and is retrieved via DSPM for AI in supported scenarios.  
+> Implementation note (Microsoft Copilot Studio): Copilot Studio activities are available in Microsoft Purview Audit, and user interaction events (CopilotInteraction) include a transcript thread ID; full chat text is not in the Purview Audit event itself and is retrieved via DSPM for AI in supported scenarios.  
 > Implementation note (DSPM for AI): DSPM for AI depends on Purview auditing being enabled and has prerequisites and collection/policy concepts that affect whether prompt/response content is captured and visible.
 
 ---

@@ -26,7 +26,7 @@
 
 ### Step 2: Create Custom Dataverse Security Roles
 
-> **Dataverse-only.** Steps 2–3 apply to Dataverse-backed environments (all Copilot Studio environments). For non-Dataverse environments, use environment-level role assignments via PPAC > Environments > Settings > Users + permissions.
+> **Dataverse-only.** Steps 2–3 apply to Dataverse-backed environments (all Microsoft Copilot Studio environments). For non-Dataverse environments, use environment-level role assignments via PPAC > Environments > Settings > Users + permissions.
 
 1. Open [Power Platform Admin Center](https://admin.powerplatform.microsoft.com)
 2. Select environment > **Settings** > **Users + permissions** > **Security roles**

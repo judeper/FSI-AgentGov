@@ -25,7 +25,7 @@ The framework's promise here is a **blueprint, not a turnkey operating model**: 
 | Function | Mandate | Primary FSI roles | Cross-link |
 |----------|---------|-------------------|------------|
 | **Govern** | Policy, controls, audit readiness, risk register, release gates | AI Governance Lead, CCO, CRO, CISO | [Pillar 1 controls](../controls/CONTROL-INDEX.md#pillar-1-security-controls-29-controls) |
-| **Enable** | Builder enablement, knowledge sources, design patterns, training, community | AI Governance Lead, Adoption Lead, SME, Copilot Studio Agent Author | [Pillar 2 controls](../controls/CONTROL-INDEX.md#pillar-2-management-controls-26-controls) |
+| **Enable** | Builder enablement, knowledge sources, design patterns, training, community | AI Governance Lead, Adoption Lead, SME, Microsoft Copilot Studio Agent Author | [Pillar 2 controls](../controls/CONTROL-INDEX.md#pillar-2-management-controls-26-controls) |
 | **Optimize** | Performance monitoring, drift detection, hallucination tracking, agent retirement signal | Service Owner, Power Platform Admin, SOC Analyst | [Pillar 3 controls](../controls/CONTROL-INDEX.md#pillar-3-agent-reporting-14-controls) |
 | **Scale** | Pattern intake, portfolio prioritization, business-line expansion, productization | Executive Sponsor, Agent Product Owner, Business Owner | [Operating model](operating-model.md) |
 

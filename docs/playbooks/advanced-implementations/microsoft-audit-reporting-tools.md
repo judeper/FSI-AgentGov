@@ -8,7 +8,7 @@
 
 ## Background: M365 Admin Center Reporting Limitations
 
-Organizations deploying Microsoft 365 Copilot and Copilot Studio agents face a common challenge: **native M365 Admin Center reporting provides limited granularity**, and Viva Insights data is de-identified for privacy. For FSI compliance needs, detailed per-user and per-agent analytics often require direct access to the Unified Audit Log.
+Organizations deploying Microsoft 365 Copilot and Microsoft Copilot Studio agents face a common challenge: **native M365 Admin Center reporting provides limited granularity**, and Viva Insights data is de-identified for privacy. For FSI compliance needs, detailed per-user and per-agent analytics often require direct access to the Unified Audit Log.
 
 The broader [Analytics Hub](https://github.com/microsoft/Analytics-Hub) catalogs multiple Microsoft open-source analytics repositories. For AgentGov, the most relevant discovery and companion repositories are listed below:
 

@@ -45,7 +45,7 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 |------------|------------------|----------------------|
 | **User limit** | 300 maximum | Unlimited |
 | **Base license** | M365 Business SKUs | M365 E3/E5 |
-| **Copilot Studio** | Included (limited) | Full Copilot Studio |
+| **Microsoft Copilot Studio** | Included (limited) | Full Copilot Studio |
 | **Advanced compliance** | Basic | Full Purview integration |
 
 **FSI Applicability:** Smaller broker-dealers, RIAs, or credit unions with under 300 users may find this SKU more cost-effective than enterprise licensing. However, organizations with significant regulatory compliance requirements (FINRA 4511 long-term retention, comprehensive audit) should evaluate whether Microsoft Purview Suite features are necessary before selecting the Business SKU.

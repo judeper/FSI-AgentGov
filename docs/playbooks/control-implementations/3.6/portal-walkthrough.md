@@ -1,7 +1,7 @@
 # Portal Walkthrough — Control 3.6: Orphaned Agent Detection and Remediation
 
 !!! danger "READ FIRST — Scope and Sibling Routing"
-    This walkthrough covers **portal-first detection and remediation of orphaned agents** across Microsoft 365 Copilot, Copilot Studio, Power Platform, SharePoint, and Entra. It is the primary operational procedure for Control 3.6.
+    This walkthrough covers **portal-first detection and remediation of orphaned agents** across Microsoft 365 Copilot, Microsoft Copilot Studio, Power Platform, SharePoint, and Entra. It is the primary operational procedure for Control 3.6.
 
     **In scope**
 

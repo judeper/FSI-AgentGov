@@ -21,7 +21,7 @@ Adaptive governance rests on three operational pillars:
 
 ## Framework Overview
 
-The FSI Agent Governance Framework provides complete guidance for deploying, governing, and managing Microsoft 365 agents (Copilot Studio, Agent Builder, and related AI services) in regulated financial services environments.
+The FSI Agent Governance Framework provides complete guidance for deploying, governing, and managing Microsoft 365 agents (Microsoft Copilot Studio, Agent Builder, and related AI services) in regulated financial services environments.
 
 **Version:** v1.6.2 (May 2026)
 **Target Audience:** US Financial Services Organizations

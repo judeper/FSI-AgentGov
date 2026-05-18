@@ -2,7 +2,7 @@
 
 > Verification procedures for [Control 4.6 — Grounding Scope Governance](../../../controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md). Run each test on the cadence in §1, capture evidence per §6, and complete the attestation in §7 each cycle.
 >
-> **Scope of this playbook.** Control 4.6 governs *grounding scope* — which SharePoint and OneDrive content surfaces to AI agents (Microsoft 365 Copilot chat / Business Chat, Copilot Studio agents, declarative Agent Builder agents) for grounding and citation. The control under test is the **union** of seven mechanisms, not RCD alone:
+> **Scope of this playbook.** Control 4.6 governs *grounding scope* — which SharePoint and OneDrive content surfaces to AI agents (Microsoft 365 Copilot chat / Business Chat, Microsoft Copilot Studio agents, declarative Agent Builder agents) for grounding and citation. The control under test is the **union** of seven mechanisms, not RCD alone:
 >
 > 1. **RCD — Restricted Content Discovery** (per-site exclusion at SharePoint Admin Center; affects tenant-wide search and Microsoft 365 Copilot chat / Business Chat).
 > 2. **RSS — Restricted SharePoint Search** (tenant allowed-list of up to 100 sites; positions itself as a *short-term* containment measure, **not** a security boundary).

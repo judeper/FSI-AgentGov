@@ -188,7 +188,7 @@ AgentGovernance_CL
 | Ownerless Agents card CSV | Agent 365 Admin Center | CSV | On-demand |
 | DLP policy inventory | Power Platform Admin Center | JSON (`Get-AdminDlpPolicy`) | Daily |
 | Environment admin audit | Power Platform Admin Center | CSV | On-demand |
-| Copilot Studio publisher audit | Copilot Studio Admin | CSV | On-demand |
+| Microsoft Copilot Studio publisher audit | Copilot Studio Admin | CSV | On-demand |
 
 ### 1.5 Evidence Floor
 

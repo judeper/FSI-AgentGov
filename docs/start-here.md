@@ -30,7 +30,7 @@ For the full per-control breakdown, see the **[License Requirements Matrix](refe
 ### Use this framework if you are:
 
 - an **AI governance lead, Power Platform Admin, compliance lead, security architect, auditor, or business sponsor** responsible for Microsoft 365 AI agents
-- deploying **Copilot Studio**, **Agent Builder**, or related custom agent capabilities at a bank, insurer, broker-dealer, or similar US financial institution
+- deploying **Microsoft Copilot Studio**, **Agent Builder**, or related custom agent capabilities at a bank, insurer, broker-dealer, or similar US financial institution
 - trying to decide what governance controls should exist **before agents move from experimentation into broader use**
 - looking for a structured path from **governance strategy** to **technical implementation**
 

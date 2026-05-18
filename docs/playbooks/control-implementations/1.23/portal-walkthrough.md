@@ -25,7 +25,7 @@
 
 1. Open the [Microsoft Entra admin center](https://entra.microsoft.com).
 2. Navigate to **Protection → Conditional Access → Authentication contexts**.
-3. Select **+ New authentication context** and create the following five entries. **Publish to apps** must be checked or downstream services (Copilot Studio flows, Graph, SharePoint, Purview) cannot request the context.
+3. Select **+ New authentication context** and create the following five entries. **Publish to apps** must be checked or downstream services (Microsoft Copilot Studio flows, Graph, SharePoint, Purview) cannot request the context.
 
 | ID  | Display name             | Description                                | Publish to apps |
 |-----|--------------------------|--------------------------------------------|-----------------|

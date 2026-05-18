@@ -10,7 +10,7 @@
 
 > **Regulatory framing.** Feature toggles are *technical guardrails*. They support — but do not substitute for — the model risk lifecycle (Control 2.6, Fed SR 26-2 (formerly SR 11-7)), supervisory written procedures (Control 2.12, FINRA 3110), or the AI guardrail framework (Control 1.1). Every remediation in this playbook must be paired with the corresponding governance artifact (MRM change record, supervisor attestation, AI risk acceptance) before closure.
 
-> **Sovereign-cloud caveat.** Microsoft 365 GCC, GCC High, and DoD lag commercial Copilot / Copilot Studio / MCP / Agent Framework features by **6–18 months**, and a non-trivial subset of capabilities never reach sovereign clouds at all. Maintain a **cloud-segregated feature catalog**, never assume admin-center parity, and document every commercial-only feature as out-of-scope for sovereign tenants in the catalog itself.
+> **Sovereign-cloud caveat.** Microsoft 365 GCC, GCC High, and DoD lag commercial Copilot / Microsoft Copilot Studio / MCP / Agent Framework features by **6–18 months**, and a non-trivial subset of capabilities never reach sovereign clouds at all. Maintain a **cloud-segregated feature catalog**, never assume admin-center parity, and document every commercial-only feature as out-of-scope for sovereign tenants in the catalog itself.
 
 ---
 

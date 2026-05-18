@@ -18,7 +18,7 @@
 | **PowerShell 7.2 LTS or 7.4** | Required for `PnP.PowerShell` v2+ and `Microsoft.Graph` |
 | **PnP.PowerShell (pinned, v2+)** | Replace `<version>` below with the version approved by your Change Advisory Board (CAB). v2+ requires Entra app registration with explicit consent — do not silently upgrade from v1 |
 | **Microsoft.Graph (pinned)** | Used for citation telemetry reads via Service Communications and Reports APIs |
-| **Microsoft.PowerApps.Administration.PowerShell (pinned)** | **Windows PowerShell 5.1 only** — required to enumerate Copilot Studio environments |
+| **Microsoft.PowerApps.Administration.PowerShell (pinned)** | **Windows PowerShell 5.1 only** — required to enumerate Microsoft Copilot Studio environments |
 | **Graph permissions** | `Sites.Read.All`, `Files.Read.All` (delegated or application). Application permissions require Entra Global Admin consent. |
 | **PnP app registration** | Entra app registered with `Sites.FullControl.All` *application* or `Sites.Read.All` *delegated*; consent recorded in the change ticket |
 | **Sovereign cloud** | Confirm correct `Connect-PnPOnline -AzureEnvironment` and `Connect-MgGraph -Environment` values before first run. See baseline section 3 |

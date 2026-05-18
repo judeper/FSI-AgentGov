@@ -1,7 +1,7 @@
 # Control 1.29 — Verification Testing: Global Secure Access Network Controls
 
 **Playbook Type:** Verification Testing
-**Control:** 1.29 — Global Secure Access: Network Controls for Copilot Studio Agents
+**Control:** 1.29 — Global Secure Access: Network Controls for Microsoft Copilot Studio Agents
 **Audience:** Security Engineers, Quality Assurance, Internal Audit
 **Estimated Duration:** 90–120 minutes for full test suite execution
 **Prerequisites:** GSA forwarding enabled per Portal Walkthrough; all three filtering policies created and linked to baseline profile; access to a non-production Copilot Studio environment for testing

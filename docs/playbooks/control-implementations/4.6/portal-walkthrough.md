@@ -2,7 +2,7 @@
 
 **Control:** [4.6 Grounding Scope Governance](../../../controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md)
 **Audience:** SharePoint Admin, Power Platform Admin, Purview Compliance Admin, Entra Global Admin
-**Surfaces:** SharePoint Admin Center (SPAC) · Power Platform Admin Center (PPAC) · Copilot Studio (validation only)
+**Surfaces:** SharePoint Admin Center (SPAC) · Power Platform Admin Center (PPAC) · Microsoft Copilot Studio (validation only)
 **Estimated time:** 90–120 minutes for the full walkthrough across both portals (excluding tenant-wide rollouts)
 **Last UI verified:** April 2026
 

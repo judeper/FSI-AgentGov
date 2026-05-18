@@ -13,7 +13,7 @@
 | Setting still editable in member environment | Rule not published or 15-min propagation delay | Verify Published timestamp; wait 15 min |
 | New maker landed in ungrouped env | Routing target points to non-grouped env | Fix routing target ([Control 2.15](../../../controls/pillar-2-management/2.15-environment-routing.md)) |
 | External models still configurable | Wrong rule edited; or env in a different group | Verify environment's group on the env's PPAC page |
-| CUA usage detected | CUA is governed by Copilot Studio admin, not this control | Disable in Copilot Studio admin ([Control 2.24](../../../controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance.md)) |
+| CUA usage detected | CUA is governed by Microsoft Copilot Studio admin, not this control | Disable in Copilot Studio admin ([Control 2.24](../../../controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance.md)) |
 | Group not visible in PPAC | Missing Power Platform Admin role | Confirm role in M365 admin / Entra |
 | Cannot remove a rule once published | Rules cannot be unpublished — only changed | Edit rule to default value and re-publish |
 | Maker complains setting is locked unexpectedly | Group inheritance is working as designed | Confirm with maker; document in maker FAQ |

@@ -32,7 +32,7 @@
 - Does not certify that any specific Copilot response is free of hallucinations, fabricated citations, or model-introduced bias - that is the function of human supervisory review under FINRA 3110 and 25-07, not technical verification
 - Does not replace OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) model risk management documentation, model inventory entries, ongoing performance monitoring, or independent model validation
 - Does not satisfy FINRA Reg Notice 24-09 supervisory procedure attestation by itself - that requires written supervisory procedures, named principal sign-off, and supervisor training records held outside this technical playbook
-- Does not cover Copilot Studio, custom agents, declarative agents, or third-party Copilot-branded extensions - those are governed by control 4.8 and Pillar 1 / 2 controls for agent identity, action allow-listing, and connector governance
+- Does not cover Microsoft Copilot Studio, custom agents, declarative agents, or third-party Copilot-branded extensions - those are governed by control 4.8 and Pillar 1 / 2 controls for agent identity, action allow-listing, and connector governance
 - Does not validate Microsoft's underlying foundation-model behaviour, training data lineage, or subprocessor (including Anthropic) operational controls - those are vendor-attested artefacts retrieved through the Microsoft Service Trust Portal and reviewed under control 1.5
 - Does not, on its own, prove that retained Copilot interactions are SEC 17a-4(f) WORM-immutable - that depends on the underlying Purview retention lock, lock-policy, and Preservation Lock configuration verified separately under control 4.5
 

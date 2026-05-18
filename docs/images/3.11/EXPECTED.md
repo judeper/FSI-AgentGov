@@ -73,7 +73,7 @@
 ---
 
 ### Screenshot 5: Agent with Complete Metadata (Zone 3 Compliant)
-**Portal Path:** PPAC → Environments → [Zone 3 Environment] → Resources → Copilot Studio agents → [Agent Details]
+**Portal Path:** PPAC → Environments → [Zone 3 Environment] → Resources → Microsoft Copilot Studio agents → [Agent Details]
 **What to capture:**
 - Agent detail page showing fully populated metadata
 - Fields visible:

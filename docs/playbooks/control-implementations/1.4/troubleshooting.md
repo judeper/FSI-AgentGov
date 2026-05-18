@@ -40,7 +40,7 @@ ACP panel header shows **Status: Not applied** even after **Save**.
 ## Issue 3 — Maker still sees a blocked connector at design time
 
 ### Symptom
-A connector that is **not** on the allowlist still appears selectable to a maker in Power Automate / Copilot Studio / Power Apps.
+A connector that is **not** on the allowlist still appears selectable to a maker in Power Automate / Microsoft Copilot Studio / Power Apps.
 
 ### Cause (one of)
 - Design-time enforcement has not yet rolled out to that maker portal (rollout order: **Power Automate → Copilot Studio → Power Apps**); ACP is enforcing at runtime only for that workload.

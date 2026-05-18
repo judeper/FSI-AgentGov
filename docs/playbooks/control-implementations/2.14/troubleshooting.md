@@ -101,7 +101,7 @@ This playbook lists the issues most commonly encountered when operating Control 
 
 **Diagnostics:**
 
-1. There is **no native PPAC or Copilot Studio toggle** for "require training to publish." This is process-only — implemented in your approval Power Automate flow. Confirm the flow exists and is wired to the right environments.
+1. There is **no native PPAC or Microsoft Copilot Studio toggle** for "require training to publish." This is process-only — implemented in your approval Power Automate flow. Confirm the flow exists and is wired to the right environments.
 2. Inspect the most recent approval run history. The flow should have a step that queries the LMS (or the latest `training-compliance-*.json`) and short-circuits the approval if the maker is `Expired` or `NotCompleted`.
 3. Confirm the data the flow reads from is fresh. A daily refresh is typical; longer staleness creates audit findings.
 

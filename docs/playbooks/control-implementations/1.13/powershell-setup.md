@@ -188,7 +188,7 @@ Import-Module $mod.Path -Force
 
 PowerShell is authoritative for inventory, idempotent rollout, drift detection, rollback, and evidence. It is *not* authoritative for everything. Be explicit with operators about which tasks must be done where.
 
-| Task | PowerShell | Purview portal | Maker (Power Platform / Copilot Studio) |
+| Task | PowerShell | Purview portal | Maker (Power Platform / Microsoft Copilot Studio) |
 |---|:-:|:-:|:-:|
 | Inventory all SITs / dictionaries / classifiers / EDM schemas | ✅ Required | Read-only | n/a |
 | Create / update / remove a *custom pattern* SIT (regex + keyword + Luhn) | ✅ Authoritative (XML rule package) | ⚠ Convenient for first draft, but no version control | n/a |

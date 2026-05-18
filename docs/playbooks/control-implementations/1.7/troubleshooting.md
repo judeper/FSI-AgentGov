@@ -246,7 +246,7 @@ Verify in the Microsoft Purview portal: **Settings > Audit > Pay-as-you-go billi
 
 **Likely cause.** This is **expected behavior**, not a defect. Per the [Control 1.7 RecordType description](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md#control-description) (verified against Microsoft Learn April 2026):
 
-- Microsoft-built Copilot Studio agents and other Microsoft AI applications surfaced via Connected AI App are **included in Audit (Standard)** at no incremental cost.
+- Microsoft-built Microsoft Copilot Studio agents and other Microsoft AI applications surfaced via Connected AI App are **included in Audit (Standard)** at no incremental cost.
 - **Some** scenarios under the same `ConnectedAIAppInteraction` RecordType — specifically, interactions with **non-Microsoft AI apps** surfaced via Connected AI App — fall under **Audit pay-as-you-go (PAYG) billing** and require explicit PAYG opt-in.
 
 The single RecordType name spans both regimes; the split is by app provenance, not by event shape.

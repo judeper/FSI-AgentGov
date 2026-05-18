@@ -2,7 +2,7 @@
 
 **Control:** [1.14 Data Minimization and Agent Scope Control](../../../controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control.md)
 **Audience:** Power Platform Admin, AI Administrator, SharePoint Admin, Purview Compliance Admin, Purview Data Security AI Admin, Entra Identity Governance Admin, AI Governance Lead
-**Surfaces:** Copilot Studio · Power Platform Admin Center (PPAC) · Microsoft Purview portal (DSPM for AI, Audit, DLP, Alert policies, Activity Explorer) · SharePoint Admin Center (SPAC) · Microsoft Entra admin center · Microsoft Sentinel (Zone 3 only)
+**Surfaces:** Microsoft Copilot Studio · Power Platform Admin Center (PPAC) · Microsoft Purview portal (DSPM for AI, Audit, DLP, Alert policies, Activity Explorer) · SharePoint Admin Center (SPAC) · Microsoft Entra admin center · Microsoft Sentinel (Zone 3 only)
 **Estimated time:** 8–14 hours initial setup per zone (excluding Control 1.2 inventory build and Control 4.6 SharePoint enforcement); monthly review cadence in Zone 3, quarterly in Zone 2, annual in Zone 1
 **Last UI Verified:** April 2026
 

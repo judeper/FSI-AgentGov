@@ -82,7 +82,7 @@ For critical issues requiring an immediate response. Authorized for the roles li
 
 ### 1. Suspend the Agent
 
-- [ ] Open Copilot Studio and select the affected agent
+- [ ] Open Microsoft Copilot Studio and select the affected agent
 - [ ] Settings > Publish: set status to **Draft** (unpublishes from production channels)
 - [ ] Confirm the suspension is reflected in the agent registry (Control 3.1)
 - [ ] Record: time _____, operator _____

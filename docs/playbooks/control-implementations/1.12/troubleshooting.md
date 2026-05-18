@@ -221,7 +221,7 @@ Apply one or more while IRM is degraded; document the compensating control in th
 - **Defender for Cloud Apps anomaly detection hunts** — Cloud App Security UEBA produces independent anomaly signals (mass download, impossible travel, unusual SaaS activity).
 - **Microsoft Sentinel UEBA / hunting queries** (Control 3.9) where deployed — Sentinel UEBA produces an independent peer-baseline view; cross-correlate with surviving IRM signals where available.
 - **Manual HR notification flow for departures** — if the HR connector is degraded, invoke the firm's documented manual departure notification (HR → IRM Admin → Compliance) for known leavers within the lookback window.
-- **Freeze of new Zone 3 agent activations** (Controls 2.1, 2.16) — do not expand the agent surface during an insider-risk detection degradation; freeze new Copilot Studio publish actions and new Zone 3 agent registrations until IRM coverage is restored.
+- **Freeze of new Zone 3 agent activations** (Controls 2.1, 2.16) — do not expand the agent surface during an insider-risk detection degradation; freeze new Microsoft Copilot Studio publish actions and new Zone 3 agent registrations until IRM coverage is restored.
 - **Manual Forensic Evidence substitute** — for a known high-risk subject during an IRM Forensic Evidence outage, work with Legal to invoke a documented manual evidence-collection procedure (e.g., MDE live response, eDiscovery (Premium) collection on the user's mailbox/OneDrive). Do **not** improvise endpoint-recording mechanisms outside documented procedure.
 
 ---

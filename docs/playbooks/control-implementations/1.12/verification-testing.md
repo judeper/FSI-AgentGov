@@ -365,7 +365,7 @@ FINRA 3110 · OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerl
 #### Setup
 
 - Operator: Purview Compliance Admin + IRM Analyst.
-- Reference: Risky Agents is a **default-applied** policy template in IRM and covers Microsoft 365 Copilot agents, Copilot Studio agents, and Azure AI Foundry agents registered to the tenant.
+- Reference: Risky Agents is a **default-applied** policy template in IRM and covers Microsoft 365 Copilot agents, Microsoft Copilot Studio agents, and Azure AI Foundry agents registered to the tenant.
 
 #### Steps
 

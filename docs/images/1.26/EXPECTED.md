@@ -3,7 +3,7 @@
 ## Expected Screenshots
 
 ### Screenshot 1: Copilot Studio File Upload Toggle (Enabled)
-**Portal Path:** Copilot Studio → [Agent] → Settings → Security → File Upload
+**Portal Path:** Microsoft Copilot Studio → [Agent] → Settings → Security → File Upload
 **What to capture:**
 - File Upload toggle in the enabled state
 - Agent name visible in the header

@@ -21,7 +21,7 @@ Microsoft's Agent Essentials defines 8 governance categories for enterprise AI a
 | Category | Focus Area | Primary Concern |
 |----------|------------|-----------------|
 | 1. Access & Availability | Who can use agents | Identity and access management |
-| 2. Copilot Studio Experience | Maker portal configuration | Development environment |
+| 2. Microsoft Copilot Studio Experience | Maker portal configuration | Development environment |
 | 3. Agent Builder | In-app agent creation | Citizen development governance |
 | 4. Application Lifecycle | DevOps and ALM | Change management |
 | 5. Copilot Studio Creation | Agent building controls | Development governance |

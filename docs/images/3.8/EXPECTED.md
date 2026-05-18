@@ -11,7 +11,7 @@
 | `05-m365-copilot-usage.png` | M365 | Reports → Usage → Copilot | Copilot usage reports |
 | `06-m365-integrated-apps.png` | M365 | Settings → Integrated apps | Published agents |
 | `07-ppac-copilot-section.png` | PPAC | Copilot | PPAC Copilot section |
-| `08-ppac-copilot-studio.png` | PPAC | Copilot → Copilot Studio | Copilot Studio settings |
+| `08-ppac-copilot-studio.png` | PPAC | Copilot → Microsoft Copilot Studio | Copilot Studio settings |
 
 ## Notes for Verification
 

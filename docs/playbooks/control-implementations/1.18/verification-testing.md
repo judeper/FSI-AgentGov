@@ -26,7 +26,7 @@ This playbook is the auditor-facing verification procedure for Control 1.18. It 
 | C6 | Column-level security enforces NPI/PII restrictions | Unauthorised user sees masked or hidden values | Side-by-side test screenshots |
 | C7 | Access reviews are scheduled and within cadence | Last review ≤ cadence window; next review scheduled | Entra > Identity Governance export |
 | C8 | Agent action consent enabled on all published agents | Every tool on every published Zone 2/3 agent has "Ask the user before running this action" enabled | Per-agent screenshot or PPAC compliance report |
-| C9 | Connected agents disabled by default | Inventory of agents with "Let other agents connect" enabled matches approved-exception list | Copilot Studio settings export |
+| C9 | Connected agents disabled by default | Inventory of agents with "Let other agents connect" enabled matches approved-exception list | Microsoft Copilot Studio settings export |
 | C10 | Environment admin count below threshold | < 10 environment-level System Administrators per Zone 3 environment | PPAC user-list export with role filter |
 | C11 | Service principals not assigned admin roles | No service principal in `System Administrator` or `Environment Admin` | Filtered user-list export (Principal Type = Application) |
 | C12 | Service principal credential rotation | Last credential rotation ≤ 90 days for every SPN with Power Platform access (Zone 3) | Entra app-credential export |

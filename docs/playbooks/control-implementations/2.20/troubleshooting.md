@@ -61,7 +61,7 @@ Do **not** average a known-bad cycle into the trend chart "for completeness". Th
 
 1. Compare `2.20-rai-policy-*.json` between cycles. Was the RAI policy reverted? Did Prompt Shields posture change?
 2. Check Foundry deployment metadata — did the underlying model version (e.g. `gpt-4o-2024-08-06` → `gpt-4o-2024-11-20`) silently roll forward?
-3. Check Copilot Studio agent solution version — was a managed solution upgrade applied without re-baselining 2.20?
+3. Check Microsoft Copilot Studio agent solution version — was a managed solution upgrade applied without re-baselining 2.20?
 
 **Resolution.**
 

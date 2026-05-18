@@ -9,7 +9,7 @@
 
 ## Audience
 
-M365 administrators in US financial services automating customer-side BC/DR operations for Power Platform and Copilot Studio agents. All scripts are designed for review by a Change Advisory Board before being scheduled in production tenants.
+M365 administrators in US financial services automating customer-side BC/DR operations for Power Platform and Microsoft Copilot Studio agents. All scripts are designed for review by a Change Advisory Board before being scheduled in production tenants.
 
 ---
 

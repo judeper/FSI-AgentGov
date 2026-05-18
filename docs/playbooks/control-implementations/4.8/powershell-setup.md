@@ -11,7 +11,7 @@
 
 ## Overview
 
-This playbook provides PowerShell automation for item-level permission scanning of SharePoint libraries connected as Copilot Studio agent knowledge sources. The primary automation is the `Get-KnowledgeSourceItemPermissions.ps1` script from the [FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-knowledge-source-scanner) companion repository.
+This playbook provides PowerShell automation for item-level permission scanning of SharePoint libraries connected as Microsoft Copilot Studio agent knowledge sources. The primary automation is the `Get-KnowledgeSourceItemPermissions.ps1` script from the [FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-knowledge-source-scanner) companion repository.
 
 ---
 

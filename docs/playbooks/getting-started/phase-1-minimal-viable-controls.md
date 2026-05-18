@@ -86,7 +86,7 @@ Phase 1 implements the controls needed to support production agents in Zone 3, i
 
 **Steps:**
 
-1. Open PPAC > **Analytics** and select the applicable analytics experience (Dataverse, Power Automate, Power Apps, or Copilot Studio). ([Power Platform analytics overview](https://learn.microsoft.com/en-us/power-platform/admin/analytics-powerapps))
+1. Open PPAC > **Analytics** and select the applicable analytics experience (Dataverse, Power Automate, Power Apps, or Microsoft Copilot Studio). ([Power Platform analytics overview](https://learn.microsoft.com/en-us/power-platform/admin/analytics-powerapps))
 2. Configure usage reports
 3. Create monitoring dashboard
 4. Set up anomaly alerts

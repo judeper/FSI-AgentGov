@@ -27,7 +27,7 @@ Quick navigation paths for all admin portals used in the FSI Agent Governance Fr
 | **Analytics** | **Analytics** (left nav) |
 | Power Automate Analytics | **Analytics** > **Power Automate** |
 | Power Apps Analytics | **Analytics** > **Power Apps** |
-| Copilot Studio Analytics | **Analytics** > **Copilot Studio** |
+| Microsoft Copilot Studio Analytics | **Analytics** > **Copilot Studio** |
 
 ---
 

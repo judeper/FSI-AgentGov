@@ -12,7 +12,7 @@ This guide covers extracting CopilotInteraction deny events from Microsoft Purvi
 
 ## CopilotInteraction Deny Event Schema
 
-When a Copilot or Copilot Studio agent encounters a policy block, the audit record includes specific indicators:
+When a Copilot or Microsoft Copilot Studio agent encounters a policy block, the audit record includes specific indicators:
 
 ### AccessedResources Array
 

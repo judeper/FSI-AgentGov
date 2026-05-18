@@ -110,7 +110,7 @@ Before beginning this walkthrough, confirm the following:
 **5.3** If the external partner agent count has increased since the last review, identify the new partner agents in the All Agents list (Step 6) and confirm they have been reviewed through the firm's third-party risk management process.
 
 **5.4** Locate the **Agents by Platforms** chart. Review the distribution across:
-- Copilot Studio (Full License)
+- Microsoft Copilot Studio (Full License)
 - Copilot Studio (Lite License)
 - Azure AI Foundry
 - External partner platforms

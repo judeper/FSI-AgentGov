@@ -17,7 +17,7 @@
     - **Additional Threat Detection / Security Webhooks API** — Prerelease in commercial; verify Azure Entra Federated Identity Credential parity for the target cloud ([external-security-provider](https://learn.microsoft.com/en-us/microsoft-copilot-studio/external-security-provider))
     - **AISPM dashboard in Defender XDR** — verify per-cloud availability against current Microsoft 365 Roadmap
 
-    Copilot Studio core (Prompt Shields, content moderation, generative answers) is GA in GCC and GCC High per [requirements-licensing-gcc](https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-licensing-gcc); generative-AI dependencies have separate availability constraints by cloud.
+    Microsoft Copilot Studio core (Prompt Shields, content moderation, generative answers) is GA in GCC and GCC High per [requirements-licensing-gcc](https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-licensing-gcc); generative-AI dependencies have separate availability constraints by cloud.
 
     Before you start work in this playbook:
 
@@ -55,7 +55,7 @@
 
 ## Section 0 — Coverage boundary
 
-This playbook covers the **portal-driven** configuration of Control 1.8 across **two portals** (Microsoft Defender + Power Platform Admin Center) and **one product surface** (Microsoft Copilot Studio per-agent settings). The control has **six functional surfaces** that must be configured together; do not deploy any one in isolation.
+This playbook covers the **portal-driven** configuration of Control 1.8 across **two portals** (Microsoft Defender + Power Platform Admin Center) and **one product surface** (Copilot Studio per-agent settings). The control has **six functional surfaces** that must be configured together; do not deploy any one in isolation.
 
 ### Surface inventory
 
@@ -248,7 +248,7 @@ The native handshake requires **both** portals to be configured. Either side alo
 4. In the left rail, expand **Connected apps** → **App Connectors**.
 5. Confirm **Microsoft 365** is `Connected` per Section 2.2.
 6. Return to **Settings** → **Cloud apps** root.
-7. In the left rail, locate **Microsoft Copilot Studio** under the AI / Generative-AI section.
+7. In the left rail, locate **Copilot Studio** under the AI / Generative-AI section.
 8. Toggle **AI Agents** → **On**.
 9. Save and capture screenshot `1.8-RTP-04a1_<UTC>_<test-id>_defender-cloud-apps-copilot-studio-toggle.png`.
 

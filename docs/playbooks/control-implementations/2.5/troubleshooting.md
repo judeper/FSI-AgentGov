@@ -3,7 +3,7 @@
 **Pillar:** 2 — Management & Lifecycle Governance
 **Control:** 2.5 — Testing, Validation, and Quality Assurance
 **Playbook Type:** Troubleshooting & Incident Response
-**Audience:** AI Governance Lead, Model Risk Manager, Copilot Studio Agent Authors, Compliance Officer, Designated Supervisor / Registered Principal, Power Platform Admin, Purview Compliance Admin
+**Audience:** AI Governance Lead, Model Risk Manager, Microsoft Copilot Studio Agent Authors, Compliance Officer, Designated Supervisor / Registered Principal, Power Platform Admin, Purview Compliance Admin
 **Scope:** Failures, defects, governance breaches, and incidents arising across the five evaluation planes — Test Pane (developer smoke), Copilot Studio Agent Evaluation (repeatable batch), Azure AI Foundry / Evaluation SDK (quantitative quality and safety), PyRIT (adversarial), and Copilot Studio Analytics + production telemetry (post-deployment monitoring).
 
 > **READ FIRST — §1 establishes the FSI incident-handling spine for this playbook.** All §2 pillar remediations and §3 runbooks reference §1 severity, evidence, and reportability constructs. Do not begin remediation work without classifying severity per §1.1 and consulting the reportability decision tree in §1.2.

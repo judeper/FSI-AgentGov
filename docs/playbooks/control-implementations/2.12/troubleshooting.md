@@ -1470,7 +1470,7 @@ Escalation is a governance act, not a technical one. The matrix below names the 
 
 | Domain | Support Channel | When to Engage | Severity Mapping |
 |---|---|---|---|
-| Copilot Studio agent behavior, trigger routing, publish failures | Microsoft Copilot Studio support (via M365 Admin Center → Support) | §3, §4, §8, §13 pillars where root cause is product behavior vs config | Sev1 → Severity A; Sev2 → Severity B |
+| Copilot Studio agent behavior, trigger routing, publish failures | Copilot Studio support (via M365 Admin Center → Support) | §3, §4, §8, §13 pillars where root cause is product behavior vs config | Sev1 → Severity A; Sev2 → Severity B |
 | Power Automate flow execution, connector failures, premium-connector faults | Power Platform support | §4 QUEUE-STUCK root causes involving flow internals | Sev1 → Severity A |
 | Agent Framework (Azure AI Foundry Agents) runtime, thread API failures, checkpoint store | Azure support (Agent Framework SKU, SLA per subscription tier) | §13 AGF-CHECKPOINT-LOSS escalations beyond local recovery | Follow Azure severity classifications |
 | Entra ID agent-identity issues, Lifecycle Workflows | Entra support | §10 SPONSOR-ATTESTATION-FAIL escalations; identity / lifecycle product issues | Severity per Entra support matrix |

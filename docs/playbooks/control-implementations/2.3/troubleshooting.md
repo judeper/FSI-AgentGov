@@ -239,7 +239,7 @@ For a production-ready implementation, see the [Pipeline Governance Cleanup Solu
 
 ## Out-of-Solution Components
 
-**Symptom:** After importing a Copilot Studio agent solution, the agent behaves differently than in source.
+**Symptom:** After importing a Microsoft Copilot Studio agent solution, the agent behaves differently than in source.
 
 **Likely cause:** Components stored outside the solution boundary were not included in export.
 

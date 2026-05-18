@@ -7,7 +7,7 @@
 
 ## Purpose
 
-This playbook consolidates security-critical configuration settings across Power Platform, Copilot Studio, and the Microsoft 365 admin center into a single reviewable hardening baseline. It enables FSI organizations to proactively verify their configuration posture across agent authentication, audit logging, content moderation, RBAC, environment governance, and AI feature access — addressing the settings most commonly flagged by security posture assessments.
+This playbook consolidates security-critical configuration settings across Power Platform, Microsoft Copilot Studio, and the Microsoft 365 admin center into a single reviewable hardening baseline. It enables FSI organizations to proactively verify their configuration posture across agent authentication, audit logging, content moderation, RBAC, environment governance, and AI feature access — addressing the settings most commonly flagged by security posture assessments.
 
 **Applies to:** All zones; baseline settings apply organization-wide, with stricter requirements for Zone 2/3 environments.
 

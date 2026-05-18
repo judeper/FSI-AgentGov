@@ -136,7 +136,7 @@ Document this mapping in a Power BI dataset or Dataverse reference table; do not
    |----------|------|-------------------|
    | Dataverse storage (database, file, log) | GB | Included with licenses + add-on capacity packs |
    | AI Builder credits | Credits | Included with Premium + add-on credit packs |
-   | Copilot Studio messages | Messages | Per-tenant pool, license- and add-on-driven |
+   | Microsoft Copilot Studio messages | Messages | Per-tenant pool, license- and add-on-driven |
    | Power Automate per-flow / per-user runs | Runs | License-driven |
 
 4. Drill into **Per-environment** view to see consumption by environment.

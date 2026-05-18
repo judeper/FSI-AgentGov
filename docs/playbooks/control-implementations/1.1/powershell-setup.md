@@ -7,7 +7,7 @@
 **Modules Required:** `Microsoft.PowerApps.Administration.PowerShell` (pinned), optional `Microsoft.Xrm.Data.PowerShell` for Dataverse role assignment
 
 !!! warning "Critical: Dataverse-backed environments"
-    The legacy `*-AdminPowerAppEnvironmentRoleAssignment` cmdlets used in this playbook **only work on environments without a Dataverse database**. Every governed Copilot Studio production environment is Dataverse-backed.
+    The legacy `*-AdminPowerAppEnvironmentRoleAssignment` cmdlets used in this playbook **only work on environments without a Dataverse database**. Every governed Microsoft Copilot Studio production environment is Dataverse-backed.
 
     On a Dataverse environment:
 

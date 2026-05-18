@@ -27,7 +27,7 @@ This walkthrough configures, in order:
 2. A pipelines host environment and pipeline stages (Dev → Test → Prod)
 3. Delegated deployment under a service principal for Zone 3 Prod
 4. A Power Automate approval flow on the `OnApprovalStarted` trigger
-5. The Copilot Studio publishing approval workflow as a complementary native gate
+5. The Microsoft Copilot Studio publishing approval workflow as a complementary native gate
 6. Microsoft 365 Message Center monitoring as input to the change-management process
 
 ---

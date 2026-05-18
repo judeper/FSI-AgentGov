@@ -54,7 +54,7 @@
 
 > **Test in non-production only.** Coordinate with SOC before running. Document as a controlled test in the security event log.
 
-1. Open a Copilot Studio agent in a non-production environment connected to Azure AI / Azure OpenAI.
+1. Open a Microsoft Copilot Studio agent in a non-production environment connected to Azure AI / Azure OpenAI.
 2. Issue a known-benign jailbreak test prompt from the [Microsoft Defender XDR public test suite](https://learn.microsoft.com/en-us/azure/defender-for-cloud/ai-threat-protection) (e.g., the documented `ignore previous instructions` test pattern).
 3. Within ~5 minutes, confirm an alert appears in **Microsoft Defender XDR → Incidents & alerts** with title containing `jailbreak`.
 4. Document the alert ID and route through the SOC runbook.

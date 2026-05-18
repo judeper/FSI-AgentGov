@@ -25,7 +25,7 @@
     | 5 | Endpoint DLP — Win 10/11, Win Server 2019/2022, last 3 macOS | Purview DLP location `Devices` (§7) |
     | 6 | Microsoft 365 Copilot & Copilot Chat — block by label (GA) | Purview DLP location `Microsoft 365 Copilot and Copilot Chat`, Custom template (§8) |
     | 7 | Microsoft 365 Copilot & Copilot Chat — block prompts by SIT (preview) | Same location, separate rule (§8) |
-    | 8 | Power Platform connector classification (Copilot Studio agents) | PPAC `Policies > Data policies` (§9) |
+    | 8 | Power Platform connector classification (Microsoft Copilot Studio agents) | PPAC `Policies > Data policies` (§9) |
     | 9 | Power Platform HTTP endpoint filtering (preview) | PPAC connector configuration (§9) |
     | 10 | Edge for Business — unmanaged AI (preview) — ChatGPT, Gemini, DeepSeek, Copilot consumer | Purview Endpoint DLP browser/site restrictions + Edge configuration policy (§10) |
     | 11 | Network DLP for unmanaged AI (preview) | Purview Endpoint DLP **Network activity** rules (§10) |

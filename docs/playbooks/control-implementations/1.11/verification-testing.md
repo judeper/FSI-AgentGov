@@ -63,7 +63,7 @@ Verification reads from identity, sign-in, audit, Power Platform, and Sentinel s
 | Authentication Administrator | Reads per-user method registration; can reset methods only as part of an approved remediation | 4 hours, just-in-time |
 | Entra Identity Governance Admin | Reads PIM eligible / active assignments, access reviews, lifecycle workflows | 4 hours, just-in-time |
 | Entra Agent ID Admin | Reads Agent ID enrollment, sponsor assignments, agent custom security attributes | 4 hours, just-in-time |
-| AI Administrator | Reads Agent 365 Admin Center, Copilot Studio environment posture, agent inventory | 4 hours, just-in-time |
+| AI Administrator | Reads Agent 365 Admin Center, Microsoft Copilot Studio environment posture, agent inventory | 4 hours, just-in-time |
 | Power Platform Admin | Reads PPAC environment, maker, and DLP policy state; reads PPAC change-log for TC-12 | 4 hours, just-in-time |
 | Purview Compliance Admin | Reads retention-label binding on evidence locations, UAL coverage | 4 hours, just-in-time |
 | Sentinel Contributor / Reader | Runs KQL across `SigninLogs`, `AADServicePrincipalSignInLogs`, `AuditLogs`, `PowerPlatformAdminActivity`; reads CA Insights and Identity Protection workbooks | Standing read; contributor is JIT |

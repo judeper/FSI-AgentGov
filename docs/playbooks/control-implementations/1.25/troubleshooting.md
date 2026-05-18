@@ -14,7 +14,7 @@
 | Defender for Cloud Apps file policy not flagging spoofed MIME | API connector not enabled for the target SaaS app, or scan not yet completed | Verify connector status in Defender XDR → Cloud apps → Connected apps; allow up to 15 min for near-real-time scan |
 | Sentinel query returns no results | Diagnostic settings not configured or data latency | Enable Power Platform admin activity connector in Sentinel |
 | FsiMimeControl module import errors | Module not found or PowerShell version mismatch | Import module from repository path and verify PowerShell 7.0+ |
-| Copilot Studio per-agent toggle reverts after save | Stale browser session or maker without environment-level rights | Clear session, re-authenticate as AI Administrator or environment maker |
+| Microsoft Copilot Studio per-agent toggle reverts after save | Stale browser session or maker without environment-level rights | Clear session, re-authenticate as AI Administrator or environment maker |
 | Knowledge-source upload fails for supported format | File >512 MB, password-protected, or has sensitivity label | Check Copilot Studio quotas; remove password protection; review sensitivity label policy |
 | SharePoint blocked-extension list ignored on browser upload | SharePoint tenant blocked-file-types only blocks the OneDrive sync client, not browser uploads | Use PPAC + Defender for Cloud Apps for browser-upload coverage |
 

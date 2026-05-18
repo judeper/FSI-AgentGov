@@ -76,7 +76,7 @@ This playbook addresses the most common failure modes encountered when implement
 - Users acknowledge consent (`Yes`) but no Dataverse rows are created, or rows appear sporadically.
 
 **Likely root causes**
-1. The `Log-AIConsent` flow is failing silently (Copilot Studio swallows action errors unless the topic is configured to react).
+1. The `Log-AIConsent` flow is failing silently (Microsoft Copilot Studio swallows action errors unless the topic is configured to react).
 2. The flow's connection uses a personal account that has lost permission to the table.
 3. Service principal lacks `Create` on `fsi_aiconsents` (typo in the security role).
 4. Required column missing a value (Dataverse rejects writes when a required column is null).

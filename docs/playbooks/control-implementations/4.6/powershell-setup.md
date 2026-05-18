@@ -1,7 +1,7 @@
 # Control 4.6 – PowerShell Setup: Grounding Scope Governance
 
 > **DANGER — Mutation safety required.**
-> This playbook configures **tenant-wide search behaviour** (Restricted SharePoint Search), **per-site discoverability** (Restricted Content Discoverability), and **Power Platform DLP** for the SharePoint connector consumed by Copilot Studio knowledge sources. A misconfiguration can either (a) hide legitimate content from Microsoft 365 Copilot and grounded agents or (b) expose oversharing-risk content to agent grounding. **Every mutating script in this suite uses `[CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]`. Always run with `-WhatIf` first, capture the transcript, review the before-snapshot, and only then re-run with `-Confirm:$false` inside a change window.**
+> This playbook configures **tenant-wide search behaviour** (Restricted SharePoint Search), **per-site discoverability** (Restricted Content Discoverability), and **Power Platform DLP** for the SharePoint connector consumed by Microsoft Copilot Studio knowledge sources. A misconfiguration can either (a) hide legitimate content from Microsoft 365 Copilot and grounded agents or (b) expose oversharing-risk content to agent grounding. **Every mutating script in this suite uses `[CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]`. Always run with `-WhatIf` first, capture the transcript, review the before-snapshot, and only then re-run with `-Confirm:$false` inside a change window.**
 
 **Control:** [4.6 – Grounding Scope Governance](../../../controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md)
 **Pillar:** Pillar 4 — SharePoint

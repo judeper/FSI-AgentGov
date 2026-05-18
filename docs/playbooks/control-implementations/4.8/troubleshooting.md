@@ -213,7 +213,7 @@ Write-Host "Folders: $FolderCount (limit: 50)"
 4. **Document the gap** — Note which items are not currently indexed by the agent so that examiner inquiries can be answered accurately
 
 !!! info "Why scan items the agent will not retrieve"
-    Items that exceed Copilot Studio's indexing limits are not currently served by the agent, but they remain a SharePoint oversharing risk. They may become indexed if Microsoft adjusts limits, the library is restructured, or files are moved into the indexed scope. Continuing to scan supports the full SharePoint posture rather than only the current agent retrieval surface.
+    Items that exceed Microsoft Copilot Studio's indexing limits are not currently served by the agent, but they remain a SharePoint oversharing risk. They may become indexed if Microsoft adjusts limits, the library is restructured, or files are moved into the indexed scope. Continuing to scan supports the full SharePoint posture rather than only the current agent retrieval surface.
 
 ---
 

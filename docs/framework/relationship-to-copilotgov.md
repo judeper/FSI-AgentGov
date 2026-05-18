@@ -9,7 +9,7 @@ Scope boundary between FSI-AgentGov and FSI-CopilotGov, with guidance on when to
 Microsoft 365 AI governance spans two related but distinct questions:
 
 1. How should an organization govern **Microsoft 365 Copilot experiences** embedded in apps such as Word, Outlook, Teams, and Copilot Chat?
-2. How should an organization govern **custom and managed AI agents** built through Copilot Studio, Agent Builder, and related Microsoft 365 / Power Platform controls?
+2. How should an organization govern **custom and managed AI agents** built through Microsoft Copilot Studio, Agent Builder, and related Microsoft 365 / Power Platform controls?
 
 **FSI-CopilotGov** addresses the first question. **FSI-AgentGov** addresses the second.
 

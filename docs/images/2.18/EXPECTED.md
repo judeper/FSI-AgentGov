@@ -3,7 +3,7 @@
 ## Required Screenshots
 
 ### Screenshot 1: Copilot Studio Evaluation Framework
-**Portal Path:** Copilot Studio → Agents → [Agent] → Analytics → Evaluation
+**Portal Path:** Microsoft Copilot Studio → Agents → [Agent] → Analytics → Evaluation
 **What to capture:**
 - Evaluation run results showing classification grading
 - Test scenario categories (proprietary bias, commission bias, suitability)

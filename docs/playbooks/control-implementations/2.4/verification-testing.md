@@ -6,7 +6,7 @@
 
 ## Audience
 
-M365 administrators, AI Governance Leads, and Compliance Officers in US financial services who need to evidence that customer-side BC/DR controls for Copilot Studio agents operate effectively. Evidence produced by these tests supports FFIEC BCM examination, FINRA Rule 4370 review, SEC 17a-4 reconstruction obligations, SOX 404 ITGC testing, and OCC Heightened Standards (Appendix D) independent assurance.
+M365 administrators, AI Governance Leads, and Compliance Officers in US financial services who need to evidence that customer-side BC/DR controls for Microsoft Copilot Studio agents operate effectively. Evidence produced by these tests supports FFIEC BCM examination, FINRA Rule 4370 review, SEC 17a-4 reconstruction obligations, SOX 404 ITGC testing, and OCC Heightened Standards (Appendix D) independent assurance.
 
 ---
 

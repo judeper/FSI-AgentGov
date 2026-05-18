@@ -26,7 +26,7 @@ Run each item; record PASS / FAIL / N/A and capture the named evidence artifact.
 | 7 | Disposition review fires at retention end and produces reviewer audit trail | Test scenario T-2 below | Item appears in disposition queue; reviewer decision recorded | Disposition decision CSV export |
 | 8 | eDiscovery hold preserves content past retention disposition | Test scenario T-3 below | Item retained even though retention would dispose; release of hold restores normal behavior | Hold inventory export |
 | 9 | Audit log captures retention/deletion event types | Portal: Audit > Search | Event types in §5 of [PowerShell setup](./powershell-setup.md) all return results | Audit search CSV export |
-| 10 | Dataverse long-term retention is configured for Copilot Studio environments | PPAC > Environments > Long-term retention | Policy exists for `botcomponent`, `conversationtranscript`, `botsession`/`botinteraction` | PPAC screenshot + Dataverse policy export |
+| 10 | Dataverse long-term retention is configured for Microsoft Copilot Studio environments | PPAC > Environments > Long-term retention | Policy exists for `botcomponent`, `conversationtranscript`, `botsession`/`botinteraction` | PPAC screenshot + Dataverse policy export |
 | 11 | Storage tiering plan documents hot → cool transition at year 2 | Document review | Plan names tier, retrieval SLA, who owns retrieval | `storage-tiering-plan-YYYYMM.md` |
 | 12 | D3P arrangement exists if any 17a-4(f) attestation is claimed | Vendor contract review | Signed Designated Third Party undertaking on file | `d3p-undertaking-YYYY.pdf` (or "N/A — no 17a-4(f) claim") |
 

@@ -1,7 +1,7 @@
 # Portal Walkthrough — Control 3.9: Microsoft Sentinel Integration for AI Agent Monitoring
 
 !!! danger "READ FIRST — Scope and Sibling Routing"
-    This walkthrough covers **portal-first deployment of Microsoft Sentinel for AI agent monitoring** across Microsoft 365 Copilot, Copilot Studio, Power Platform agents, and Entra workload identities. It is the primary operational procedure for Control 3.9 and is intended to be executed by the **Sentinel Admin** with input from the **SOC Analyst**, **AI Governance Lead**, **Entra Security Admin**, and **Power Platform Admin**.
+    This walkthrough covers **portal-first deployment of Microsoft Sentinel for AI agent monitoring** across Microsoft 365 Copilot, Microsoft Copilot Studio, Power Platform agents, and Entra workload identities. It is the primary operational procedure for Control 3.9 and is intended to be executed by the **Sentinel Admin** with input from the **SOC Analyst**, **AI Governance Lead**, **Entra Security Admin**, and **Power Platform Admin**.
 
     **In scope**
 

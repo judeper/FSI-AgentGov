@@ -1,6 +1,6 @@
 # Control 1.14 — PowerShell Setup: Data Minimization and Agent Scope Control
 
-> **Scope.** This playbook is the canonical PowerShell automation reference for Control 1.14 — *Data Minimization and Agent Scope Control*. It enumerates Copilot Studio (Dataverse-backed) agents and Power Platform agent surfaces, builds a dedupe-keyed agent ↔ grounding-surface inventory, joins inventory to Power Platform DLP and to Microsoft Entra ID Governance Access Reviews, detects scope drift from the Unified Audit Log (UAL), reconciles SharePoint grounding against Control 4.6's Restricted Content Discovery (RCD) posture, and emits a SHA-256 evidence manifest. It supports US financial-services tenants in the Microsoft Commercial, GCC, GCC High, and DoD clouds.
+> **Scope.** This playbook is the canonical PowerShell automation reference for Control 1.14 — *Data Minimization and Agent Scope Control*. It enumerates Microsoft Copilot Studio (Dataverse-backed) agents and Power Platform agent surfaces, builds a dedupe-keyed agent ↔ grounding-surface inventory, joins inventory to Power Platform DLP and to Microsoft Entra ID Governance Access Reviews, detects scope drift from the Unified Audit Log (UAL), reconciles SharePoint grounding against Control 4.6's Restricted Content Discovery (RCD) posture, and emits a SHA-256 evidence manifest. It supports US financial-services tenants in the Microsoft Commercial, GCC, GCC High, and DoD clouds.
 >
 > **Companion documents.**
 >
@@ -476,7 +476,7 @@ function Get-Agt114CopilotStudioAgents {
 }
 ```
 
-The `componenttype` column is the discriminator that drives the grounding-surface enumeration in §7. Microsoft documents the enumeration values in the Microsoft Copilot Studio component reference. Common values seen in 1.14:
+The `componenttype` column is the discriminator that drives the grounding-surface enumeration in §7. Microsoft documents the enumeration values in the Copilot Studio component reference. Common values seen in 1.14:
 
 | `componenttype` | Surface category |
 |---|---|

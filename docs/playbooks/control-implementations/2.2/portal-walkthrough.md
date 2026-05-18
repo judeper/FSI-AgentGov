@@ -91,7 +91,7 @@ The following settings sometimes appear in environment-group conversations but a
 
 | Setting | Where it's configured | Related control |
 |---|---|---|
-| Computer-Using Agents (CUA) | Copilot Studio admin / Microsoft 365 admin center | [Control 2.24](../../../controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance.md) |
+| Computer-Using Agents (CUA) | Microsoft Copilot Studio admin / Microsoft 365 admin center | [Control 2.24](../../../controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance.md) |
 | Agent authentication mode | Per agent in Copilot Studio | Copilot Studio agent settings |
 | IP firewall / IP cookie binding | Per Managed Environment | [Control 2.1](../../../controls/pillar-2-management/2.1-managed-environments.md) |
 | Customer Managed Key (CMK) | Per Managed Environment | [Control 1.15](../../../controls/pillar-1-security/1.15-encryption-data-in-transit-and-at-rest.md) |

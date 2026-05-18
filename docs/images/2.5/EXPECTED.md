@@ -16,6 +16,6 @@
 ## Verification Focus
 
 - Test environment mirrors production configuration
-- Copilot Studio test panel works correctly
+- Microsoft Copilot Studio test panel works correctly
 - Test plans cover agent scenarios
 - Test results are tracked and archived

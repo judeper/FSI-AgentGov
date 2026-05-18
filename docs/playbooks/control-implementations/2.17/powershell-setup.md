@@ -5,7 +5,7 @@
 
 **Last Updated:** April 2026
 **Modules required:** `ExchangeOnlineManagement`, `Microsoft.PowerApps.Administration.PowerShell`, `Microsoft.Graph.Reports`
-**Operation type:** Read-only (audit-log query, telemetry inspection, configuration reporting). No mutation cmdlets are required for this control — the orchestration controls themselves are authored in Copilot Studio and Power Automate (see *Portal Walkthrough*).
+**Operation type:** Read-only (audit-log query, telemetry inspection, configuration reporting). No mutation cmdlets are required for this control — the orchestration controls themselves are authored in Microsoft Copilot Studio and Power Automate (see *Portal Walkthrough*).
 
 ---
 

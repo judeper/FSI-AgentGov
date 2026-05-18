@@ -51,7 +51,7 @@ Capture, do **not** mutate first:
 
 - Increase Communication Compliance review cadence (Control 1.10) on in-scope reviewers
 - Tighten DLP for Copilot location (Control 1.5) to Block where previously TestWithNotifications
-- Freeze new Zone 3 agent activations / new Copilot Studio publishes (Control 2.1, 2.16)
+- Freeze new Zone 3 agent activations / new Microsoft Copilot Studio publishes (Control 2.1, 2.16)
 - Manually search Unified Audit Log daily for `CopilotInteraction` events (Control 1.7)
 - Increase manual supervisory review of AI-assisted content for in-scope user populations
 

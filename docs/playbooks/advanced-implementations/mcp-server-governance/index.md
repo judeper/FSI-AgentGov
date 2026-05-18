@@ -7,7 +7,7 @@
 
 ## Overview
 
-The **Model Context Protocol (MCP)** is an open standard that enables Copilot Studio agents to connect to external data sources and tools through custom MCP servers. In Copilot Studio, organizations can create new MCP servers or connect agents to existing ones, allowing agents to retrieve real-time data from internal APIs, databases, and third-party services.
+The **Model Context Protocol (MCP)** is an open standard that enables Microsoft Copilot Studio agents to connect to external data sources and tools through custom MCP servers. In Copilot Studio, organizations can create new MCP servers or connect agents to existing ones, allowing agents to retrieve real-time data from internal APIs, databases, and third-party services.
 
 MCP servers surface as **custom connectors** within the Power Platform connector framework. This means they inherit the same DLP policy controls, environment scoping, and governance mechanisms that apply to any Power Platform connector — but they also introduce new risks specific to regulated environments.
 

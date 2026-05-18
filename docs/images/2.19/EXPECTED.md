@@ -3,7 +3,7 @@
 ## Required Screenshots
 
 ### Screenshot 1: AI Identification in Agent Greeting
-**Portal Path:** Copilot Studio → Agents → [Agent] → Topics → Greeting
+**Portal Path:** Microsoft Copilot Studio → Agents → [Agent] → Topics → Greeting
 **What to capture:**
 - Greeting topic configuration with AI identification message
 - Persistent disclosure that user is interacting with AI agent

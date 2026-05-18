@@ -13,7 +13,7 @@
 |---|---|
 | **AI Administrator** role (preferred) | Sufficient for Copilot Settings, feature access, deployment groups, Admin Exclusion Groups, agent registry review. Aligns with FINRA 3110 / SOX 404 least-privilege guidance. |
 | **Entra Global Admin** role | Required only for initial tenant setup, broad Graph API consent, billing changes, and creating the `CopilotForM365AdminExclude` security group. Use Entra PIM for just-in-time elevation. |
-| **Power Platform Admin** role | Required for PPAC Copilot Studio settings, environment-level generative AI features, and tenant DLP policies. |
+| **Power Platform Admin** role | Required for PPAC Microsoft Copilot Studio settings, environment-level generative AI features, and tenant DLP policies. |
 | Microsoft 365 Copilot licensing | Required for the Copilot Hub surfaces to render. |
 | (Optional) Agent 365 or M365 E7 per-user licensing | Required to view Agent overview hero metrics at GA on May 1, 2026. |
 

@@ -10,7 +10,7 @@
 Control 1.22 is verified through three concurrent test tracks. Each track produces evidence retained **6+ years** to align with SEC 17a-4(b), FINRA 4511(b), and CFTC 1.31:
 
 1. **Configuration verification** — that segments, policies, modes, and SharePoint site segments match the design.
-2. **Behavioral verification** — that AI agent surfaces (M365 Copilot, declarative agents, Copilot Studio per-user agents, Channel Agents) actually trim cross-segment retrieval.
+2. **Behavioral verification** — that AI agent surfaces (M365 Copilot, declarative agents, Microsoft Copilot Studio per-user agents, Channel Agents) actually trim cross-segment retrieval.
 3. **Operational verification** — that wall-crossing, monitoring, and exception workflows function as documented and produce records.
 
 ---
