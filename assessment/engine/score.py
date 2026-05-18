@@ -223,9 +223,59 @@ def _first_present(mapping: dict, *keys: str) -> object:
     return None
 
 
+def _normalize_ppac_environment(environment: dict) -> dict:
+    """Normalize PPAC environment records to the evaluator-facing shape."""
+    normalized_environment = dict(environment)
+
+    properties = normalized_environment.get("Properties")
+    if isinstance(properties, dict):
+        properties = dict(properties)
+    else:
+        properties = {}
+
+    linked_metadata = properties.get("linkedEnvironmentMetadata")
+    if isinstance(linked_metadata, dict):
+        linked_metadata = dict(linked_metadata)
+    else:
+        linked_metadata = {}
+
+    environment_sku = properties.get("environmentSku")
+    if environment_sku is None:
+        environment_sku = _first_present(environment, "EnvironmentSku")
+    if environment_sku is not None:
+        properties["environmentSku"] = environment_sku
+
+    linked_type = linked_metadata.get("type")
+    if linked_type is None:
+        linked_type = _first_present(environment, "LinkedEnvironmentType")
+    if linked_type is not None:
+        linked_metadata["type"] = linked_type
+
+    security_group_id = linked_metadata.get("securityGroupId")
+    if security_group_id is None:
+        security_group_id = _first_present(environment, "SecurityGroupId")
+    if security_group_id is not None:
+        linked_metadata["securityGroupId"] = security_group_id
+
+    if linked_metadata:
+        properties["linkedEnvironmentMetadata"] = linked_metadata
+    if properties:
+        normalized_environment["Properties"] = properties
+
+    return normalized_environment
+
+
 def _normalize_ppac_data(ppac: dict) -> dict:
     """Backfill legacy evaluator keys from collector-real PPAC payloads."""
     normalized = dict(ppac)
+
+    environments = normalized.get("environments")
+    if isinstance(environments, list):
+        normalized["environments"] = [
+            _normalize_ppac_environment(environment)
+            for environment in environments
+            if isinstance(environment, dict)
+        ]
 
     if normalized.get("role_assignments") is None:
         role_assignments = _first_present(ppac, "roleAssignments")
