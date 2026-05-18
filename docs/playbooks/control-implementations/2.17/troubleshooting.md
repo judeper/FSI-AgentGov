@@ -1,6 +1,6 @@
 # Troubleshooting: Control 2.17 — Multi-Agent Orchestration Limits
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 
 This guide covers the high-frequency failure modes observed when implementing the orchestration controls. The emphasis is on **false-clean** patterns — situations where the control *appears* to be working but is silently failing — because those are the highest-risk failures for FSI audit defensibility.
 
@@ -144,7 +144,7 @@ Treat any drift event as a Control 3.4 incident and document in the quarterly at
 | No native circuit breaker | Custom Power Automate flow required | Documented in *Portal Walkthrough* Step 4 |
 | Limited cross-environment orchestration visibility | Reconstructing chains spanning environments requires manual correlation | Use Pattern B + correlation-ID propagation; consider keeping Zone 3 chains within a single environment |
 | HITL via adaptive cards uses polling | Latency between approval and resume | Use Microsoft Agent Framework HITL primitives where available — they integrate with checkpoint persistence |
-| Custom MCP servers in preview (April 2026) | Behavior may change before GA | Do not promote custom MCP servers to Zone 3 production until GA confirmed on Microsoft Learn |
+| Custom MCP servers reached GA in April 2026 (post-preview) | Post-GA behavior may continue to evolve | Verify capabilities against current Microsoft Learn before promoting custom MCP servers to Zone 3 production |
 | 128-tool-per-agent ceiling | Large delegation trees can hit ceiling silently | Run Section 4 of *PowerShell Setup* monthly to track headroom |
 
 ---
