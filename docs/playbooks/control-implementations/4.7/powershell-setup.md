@@ -316,7 +316,7 @@ The `Write-Agt47Evidence` helper used throughout this playbook is defined in §1
 
 ## 4. Sensitivity label policy: `Set-Agt47LabelPolicy`
 
-Sensitivity labels are the cornerstone of Copilot grounding governance. Labels drive which content Copilot can summarize, paraphrase, and cite, which content is excluded from grounding via DLP rules (§5), and which content is excluded from search index expansion via RSS (§6). FSI tenants typically operate four labels: `Public`, `Internal`, `Confidential`, and `Highly Confidential\NPI` (or `MNPI`). The label structure is created through Control 4.6 (Information Protection labels). This control consumes that label taxonomy and configures the **policy** that publishes labels to Copilot-licensed users.
+Sensitivity labels are the cornerstone of Copilot grounding governance. Labels drive which content Copilot can summarize, paraphrase, and cite, which content is excluded from grounding via DLP rules (§5), and which content is excluded from search index expansion via RSS (§6). FSI tenants typically operate four labels: `Public`, `Internal`, `Confidential`, and `Highly Confidential\NPI` (or `MNPI`). The label structure is created through Control 1.5 (Data Loss Prevention (DLP) and Sensitivity Labels). This control consumes that label taxonomy and configures the **policy** that publishes labels to Copilot-licensed users.
 
 The mutation pattern follows [BL-§4](../../_shared/powershell-baseline.md#4-mutation-safety-supportsshouldprocess-whatif-snapshot):
 
@@ -508,7 +508,7 @@ function Set-Agt47CopilotDlp {
 
 - The prompt-block rule **does not** prevent a user from seeing labeled content in SharePoint — it only blocks Copilot from grounding on it and from accepting prompts that contain selected SITs. Use this rule to enforce SEC Reg S-P customer-information protections inside Copilot prompts.
 - For MNPI/NPI grounding exclusion, set `BlockAccessScope = 'PerUser'`, not `'All'`. `'All'` blocks anonymous web crawlers as well, which has no effect on Copilot but generates noisy alerts.
-- Set `GenerateAlert = $true` so violations land in Defender XDR for SOC review under Control 3.6 (Risky Use Detection).
+- Set `GenerateAlert = $true` so violations land in Defender XDR for SOC review under Control 1.12 (Insider Risk Detection and Response).
 - Audit Copilot prompt and response activity via `UnifiedAuditLog` (record types `CopilotInteraction`, `CopilotEvent`); Control 1.7 (Comprehensive Audit Logging and Compliance) covers the export pipeline.
 
 ---
@@ -686,7 +686,7 @@ Copilot Pages and Copilot Notebooks are stored in **SharePoint Embedded** contai
 
 1. The standard SharePoint and OneDrive retention policies **do not apply automatically** to Copilot Pages and Notebooks. A separate Microsoft Purview retention policy targeting `CopilotInteractions` (and where applicable, Copilot Pages containers) must be configured.
 2. Copilot Notebooks **do not have a recycle bin** in the user-facing UI. Once a user "deletes" a notebook, recovery requires admin intervention against the SharePoint Embedded container — within the retention window only.
-3. **Manual hold** (eDiscovery preservation hold) on Copilot containers is a separate operation; legal hold under Control 3.13 (Legal Hold) must explicitly target the Copilot Pages container set.
+3. **Manual hold** (eDiscovery preservation hold) on Copilot containers is a separate operation; legal hold under Control 1.19 (eDiscovery for Agent Interactions) must explicitly target the Copilot Pages container set.
 
 ```powershell
 function Set-Agt47CopilotRetention {
@@ -746,11 +746,11 @@ function Set-Agt47CopilotRetention {
 
 **FSI guidance.**
 
-- For SEC 17a-4(f) immutability, set `RetentionComplianceAction = 'RetainAndDelete'` and combine with **Preservation Lock** (Control 3.5) so the policy itself cannot be shortened or deleted. Without preservation lock, an administrator can reduce retention and you lose immutability.
+- For SEC 17a-4(f) immutability, set `RetentionComplianceAction = 'RetainAndDelete'` and combine with **Preservation Lock** (Control 1.7) so the policy itself cannot be shortened or deleted. Without preservation lock, an administrator can reduce retention and you lose immutability.
 - 7 years aligns with FINRA 4511 default; 6 years is the SEC 17a-4(b) minimum for most records. Prefer the longer of the two unless legal explicitly approves a shorter window.
 - Copilot Pages **content** (the rich-text page itself) is captured by the SharePoint Embedded retention policy; Copilot Pages **chat sidebar interactions** are captured by the `TeamsChatLocation` scope above.
-- Manual hold via `New-CaseHoldPolicy` against the Copilot container set is a Control 3.13 procedure; it overrides this policy for legal hold scope only.
-- Document the retention design in your WORM/SEC 17a-4 evidence pack alongside Control 3.5 (Immutable Storage).
+- Manual hold via `New-CaseHoldPolicy` against the Copilot container set is a Control 1.19 procedure; it overrides this policy for legal hold scope only.
+- Document the retention design in your WORM/SEC 17a-4 evidence pack alongside Control 1.7 (Comprehensive Audit Logging and Compliance).
 
 ---
 
@@ -1000,7 +1000,7 @@ The 18 anti-patterns below are the false-clean and silent-failure modes most oft
 | 7 | Endpoint DLP rule with no Edge in `AllowedBrowsers` | `pasteToCopilot` restriction does not reach Copilot for Web; web prompts leak | §7 hard-fails if Edge missing |
 | 8 | Endpoint DLP rule applied to non-onboarded devices | Rule does nothing on devices not enrolled in Defender for Endpoint | §7 guidance + Control 1.10 onboarding gate |
 | 9 | Standard SharePoint/OneDrive retention policy assumed to cover Copilot Pages | Pages live in SharePoint Embedded; standard policy does not bind | §8 dedicated retention policy targeting `TeamsChatLocation` and Copilot containers |
-| 10 | No preservation lock on Copilot retention policy | Admin can shorten retention later; SEC 17a-4(f) immutability fails | §8 guidance + Control 3.5 (Preservation Lock) |
+| 10 | No preservation lock on Copilot retention policy | Admin can shorten retention later; SEC 17a-4(f) immutability fails | §8 guidance + Control 1.7 (Comprehensive Audit Logging and Compliance) |
 | 11 | Treating Copilot Notebook deletion as recoverable from a recycle bin | No user-facing recycle bin; recovery requires admin within retention window | §8 guidance |
 | 12 | Skipping `-WhatIf` on first run in production | Drift surface created without rehearsal; rollback hard | §4/§5/§6/§7/§8 mutation pattern requires `-WhatIf` then `-Force` |
 | 13 | Ignoring `Disconnected` cached tokens between runs | Stale delegated context masks a missing app role | §2 explicit `Disconnect-MgGraph` at session open |

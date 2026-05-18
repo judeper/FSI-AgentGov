@@ -1041,7 +1041,7 @@ Material learnings that affect framework controls are routed back to:
 - **Control 2.13 (Documentation and Record Keeping)** — audit-trail gaps
 - **Control 3.6 (Orphaned Agent Detection)** — orphan-classification rules
 - **Control 3.8 (Copilot Hub Dashboard)** — dashboard inputs
-- **Control 3.11 (Quarterly Compliance Reporting)** — reporting-data lineage
+- **Control 3.3 (Compliance and Regulatory Reporting)** — reporting-data lineage
 - **AI Incident Response Playbook** — incident triggers and severity calibration
 
 The continuous-improvement loop is itself reviewed annually for effectiveness, and the annual review is included in the External Attestation Pack (Section 10).

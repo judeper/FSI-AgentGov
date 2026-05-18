@@ -1134,7 +1134,7 @@ Each scenario below defines a likely examiner question, the evidence-pack files 
 
 - Quarterly `zone-rollup-{runId}.json` for each quarter in the certification period.
 - `change-events-90d-{runId}.json` rolled forward through the period showing both enable and disable events ticketed.
-- Companion pack from Control 2.10 (Privileged Access Management) showing PIM logs for AI Administrator activations.
+- Companion pack from Control 2.8 (Access Control and Segregation of Duties) showing PIM logs for AI Administrator activations.
 
 **Namespaces cited.** CHANGE (both directions), ZONE (rollup), CATALOG (review cadence).
 
