@@ -1,6 +1,6 @@
 # MCP Server Governance for FSI
 
-**Last Updated:** March 2026
+**Last Updated:** May 2026
 **Version:** v1.6.2
 
 ---
@@ -11,8 +11,8 @@ The **Model Context Protocol (MCP)** is an open standard that enables Microsoft 
 
 MCP servers surface as **custom connectors** within the Power Platform connector framework. This means they inherit the same DLP policy controls, environment scoping, and governance mechanisms that apply to any Power Platform connector — but they also introduce new risks specific to regulated environments.
 
-!!! warning "Preview Feature — Custom MCP Servers"
-    Custom MCP Servers in Copilot Studio are in **Preview** as of April 2026, with general availability planned for **October 2026**. Configuration options, authentication flows, and administrative controls may change before GA. Organizations should verify current capabilities against [Microsoft Learn documentation](https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-create-new-server) before production deployment.
+!!! info "GA Feature — Custom MCP Servers"
+    Custom MCP Servers in Copilot Studio entered **public preview in March 2026** and reached **general availability in April 2026**. Configuration options, authentication flows, and administrative controls may continue to evolve after GA. Organizations should verify current capabilities against [Microsoft Learn documentation](https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-create-new-server) before production deployment.
 
 This playbook provides FSI-specific governance guidance for MCP server integration, covering DLP connector policy scoping, authentication governance, network isolation, and audit requirements.
 
