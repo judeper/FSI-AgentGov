@@ -133,7 +133,7 @@ Graph API throttling applies to all solutions using Microsoft 365 data.
 
 ### Dataverse Capacity
 
-As of December 2025, Microsoft significantly increased default Dataverse capacity.
+As of December 2025, Microsoft significantly increased default Dataverse capacity for several Power Platform licenses. Copilot Studio remains separate: it uses the tenant default environment baseline (3 GB database + 3 GB file + 1 GB log = 7 GB) plus per-license accruals rather than a fixed 15 GB default.
 
 | License | Previous Database Capacity | New Database Capacity (Dec 2025) |
 |---------|---------------------------:|---------------------------------:|
@@ -141,10 +141,10 @@ As of December 2025, Microsoft significantly increased default Dataverse capacit
 | Power Apps Premium | 10 GB | 20 GB |
 | Power Automate Premium | 10 GB | 20 GB |
 | Dynamics 365 Sales/CS | 10 GB | 30 GB |
-| Copilot Studio | 5 GB | 15 GB |
+| Copilot Studio | Not documented as fixed amount | Tenant default environment baseline (3 GB database + 3 GB file + 1 GB log = 7 GB) plus per-license accruals |
 
 !!! note "No Technical Limit"
-    There's no technical limit on Dataverse environment size—limits are entitlement-based. Organizations can purchase additional capacity if needed.
+    There's no technical limit on Dataverse environment size—limits are entitlement-based. Organizations can purchase additional capacity if needed. For Copilot Studio, verify actual tenant capacity in [Power Platform Admin Center](https://learn.microsoft.com/en-us/power-platform/admin/capacity-storage) rather than assuming a fixed 15 GB default.
 
 **ELM Capacity Guidance:**
 
@@ -153,7 +153,7 @@ For Environment Lifecycle Management:
 - EnvironmentRequest records: ~2 KB each
 - ProvisioningLog records: ~1 KB each
 - 100 environments/month = ~0.5 MB/month
-- 15 GB default capacity supports years of requests
+- The documented 3 GB default database baseline alone supports years of requests at this volume; verify total tenant capacity in Power Platform Admin Center.
 
 **Sources:**
 - [Dataverse capacity-based storage details](https://learn.microsoft.com/en-us/power-platform/admin/capacity-storage)
