@@ -186,15 +186,15 @@ Phase 1 implements the controls needed to support production agents in Zone 3, i
 - [ ] Process documented
 - [ ] Template available
 
-### Control 1.9: 10-Year Retention
+### Control 1.9: Record-Class Retention
 
-**Purpose:** Configure retention for Zone 3 regulatory requirements
+**Purpose:** Configure retention for Zone 3 regulatory requirements per the record-class schedule defined in [Control 1.7](../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md)
 
 **Steps:**
 
 1. Navigate to Microsoft Purview
 2. Open **Solutions > Data Lifecycle Management > Policies > Retention policies > + New retention policy** and create the Zone 3 retention policy. ([Create retention policies](https://learn.microsoft.com/en-us/purview/retention))
-3. Configure 10-year retention
+3. Configure record-class retention per [Control 1.7](../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) (3 years for communications under SEC 17a-4(b)(4); 6 years for financial-governance records under 17a-4(a) / FINRA Rule 4511(b); 5 years for CFTC-regulated activity under Rule 1.31; longer only where a specific rule requires it)
 4. Apply to Zone 3 environments
 
 **Verification:**
@@ -327,7 +327,7 @@ Conduct comprehensive review:
 
 - [ ] Governance committee operational
 - [ ] Approval workflow documented
-- [ ] 10-year retention configured
+- [ ] Record-class retention configured per Control 1.7
 - [ ] Supervision procedures documented
 
 ### Testing and Validation
@@ -350,7 +350,7 @@ Phase 1 is complete when:
 
 1. Governance committee is operational with documented procedures
 2. At least one Zone 3 agent is deployed with full governance
-3. Comprehensive audit logging with 10-year retention is active
+3. Comprehensive audit logging with record-class retention per Control 1.7 is active
 4. Compliance reporting process is established
 5. First quarterly governance review is completed
 
