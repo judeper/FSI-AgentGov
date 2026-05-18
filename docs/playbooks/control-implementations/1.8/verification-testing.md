@@ -46,7 +46,7 @@ All timestamps in this playbook are **UTC**. Local-time timestamps are not accep
 | DEF-01 to DEF-04 | Monthly | Security Operations | 7 years | NY DFS 500.16 incident response; SEC Reg S-P §248.30 |
 | CAE-01 | Quarterly | Security Operations | 7 years | NY DFS 500.06; FINRA 4530 |
 | WEB-01 to WEB-04 | Monthly | Security Operations + Application Administrator | 7 years | NY DFS 500.11 third-party; FFIEC AIO booklet |
-| ERR-01 | Monthly + on-change | Security Operations | 7 years | NY DFS 500.11; FFIEC AIO booklet |
+| ERR-01 | Monthly + on-change | Security Operations | 7 years | NY DFS 500.16; FFIEC AIO booklet |
 | AGT-01 | Quarterly | Power Platform Admin | 7 years | OCC Bulletin 2026-13 (formerly OCC 2011-12) (inventory) |
 | CFG-01 to CFG-02 | Quarterly | Power Platform Admin + Application Administrator | 7 years | NY DFS 500.07; SEC Reg S-P §248.30 |
 | VRA-01 | Annually | AI Governance Lead | 7 years | Fed SR 26-2 (formerly SR 11-7) (model risk validation) |
