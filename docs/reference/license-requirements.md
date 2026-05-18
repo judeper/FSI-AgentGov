@@ -219,11 +219,11 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 
 | Product | Premium Connectors | Dataverse Access | Notes |
 |---------|-------------------|------------------|-------|
-| **Copilot Studio** | ✅ Included | ✅ Included (15 GB default) | No additional connector licensing required |
+| **Copilot Studio** | ✅ Included | ✅ Included via tenant default environment baseline (3 GB database + 3 GB file + 1 GB log = 7 GB) plus per-license accruals | No fixed '15 GB default'; verify tenant capacity in [Power Platform Admin Center](https://learn.microsoft.com/en-us/power-platform/admin/capacity-storage) |
 | **Power Apps** | Requires Premium license | Requires Premium license | Per-user or per-app licensing |
 | **Power Automate** | Requires Premium license | Requires Premium license | Per-user or per-flow licensing |
 
-**Common Misconception:** Teams building Copilot Studio agents do NOT need separate premium connector licenses. All premium connectors and Dataverse access (15 GB default capacity) are included with the Copilot Studio license at no additional cost.
+**Common Misconception:** Teams building Copilot Studio agents do NOT need separate premium connector licenses. Copilot Studio — Dataverse — Included via tenant default environment baseline (3 GB database + 3 GB file + 1 GB log = 7 GB) plus per-license accruals. No fixed '15 GB default'; verify tenant capacity in [Power Platform Admin Center](https://learn.microsoft.com/en-us/power-platform/admin/capacity-storage).
 
 **Power Apps/Power Automate Context:** Premium connector and Dataverse access require Power Apps Premium, Power Apps per app, Power Automate Premium, or Power Automate per flow licenses for all accessing users.
 
