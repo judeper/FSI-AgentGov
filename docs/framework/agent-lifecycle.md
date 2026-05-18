@@ -387,7 +387,7 @@ For Zone 3 agents:
 | Deployment | Phased rollout, all channels (approved) |
 | Monitoring | Daily metrics, continuous compliance |
 | Maintenance | CAB approval, formal change process |
-| Decommission | Full audit trail, 10-year retention |
+| Decommission | Full audit trail, record-class retention per [Control 1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) |
 
 ---
 

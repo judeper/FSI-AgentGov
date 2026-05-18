@@ -55,7 +55,7 @@ Use this checklist to prepare for FINRA, SEC, OCC, or internal audit examination
 
 - [ ] Audit log retention verified (Control 1.7)
   - [ ] Zone 2: 1-year retention confirmed
-  - [ ] Zone 3: 10-year retention confirmed
+  - [ ] Zone 3: record-class retention confirmed per [Control 1.7](../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) (3 yr communications, 6 yr financial-governance, 5 yr CFTC; longer where rule requires)
 - [ ] Sample audit log exports tested
 - [ ] eDiscovery search capability verified (Control 1.19)
 - [ ] Audit log export procedures documented
