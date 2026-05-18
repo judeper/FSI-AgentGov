@@ -68,7 +68,7 @@ If you are reviewing FSI-AgentGov coverage against a Power Platform SSPM assessm
 | SSPM Control | FSI-AgentGov Control(s) | Coverage | Notes |
 |---|---|---|---|
 | SSPM-9: Audit Logging Enabled| [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), [3.9](../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) | Full | Comprehensive logging + Sentinel SIEM |
-| SSPM-11: Audit Log Retention (≥180 days) | [1.9](../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md), [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Full | 10-year retention for Zone 3 (exceeds 180-day minimum) |
+| SSPM-11: Audit Log Retention (≥180 days) | [1.9](../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md), [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Full | Record-class retention per [Control 1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) for Zone 3 (3 yr communications / 6 yr financial-governance / 5 yr CFTC; longer where rule requires — all exceed 180-day SSPM minimum) |
 | SSPM-31: Dataverse Auditing Policy | [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), [2.1](../controls/pillar-2-management/2.1-managed-environments.md) | Full | Managed Environments enforce Dataverse auditing |
 | SSPM-36: Conversational Transcript Access | [1.19](../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md), [2.13](../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) | Full | eDiscovery + RBAC controls |
 
