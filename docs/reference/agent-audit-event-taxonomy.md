@@ -1,7 +1,7 @@
 # Agent Audit Event Taxonomy Reference
 
-**Last Updated:** February 2026
-**Version:** v1.2.51
+**Last Updated:** May 2026
+**Version:** v1.6.2
 
 ---
 
@@ -440,4 +440,4 @@ $results | ForEach-Object {
 
 ---
 
-*FSI Agent Governance Framework v1.2.51 - February 2026*
+*FSI Agent Governance Framework v1.6.2 - May 2026*

@@ -1,6 +1,6 @@
 # Path B: Dataverse + Azure DevOps Integration
 
-**Status:** February 2026 - FSI-AgentGov v1.2.51
+**Status:** May 2026 - FSI-AgentGov v1.6.2
 **Estimated Effort:** 2-4 hours (after Path A complete)
 **Prerequisites:** [Path A](implementation-path-a.md) fully implemented
 

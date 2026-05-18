@@ -1,6 +1,6 @@
 # Platform Change Governance
 
-**Status:** February 2026 - FSI-AgentGov v1.2.51
+**Status:** May 2026 - FSI-AgentGov v1.6.2
 **Related Controls:** 2.3 (Change Management), 2.10 (Patch Management), 2.13 (Documentation)
 
 ---
