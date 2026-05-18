@@ -336,6 +336,49 @@ class TestZoneThresholdBoundary:
 
 
 # ---------------------------------------------------------------------------
+# Test: collector-real PPAC payloads normalize into score.py's contract
+# ---------------------------------------------------------------------------
+
+class TestCollectorContractNormalization:
+    """Representative collector payloads should score without contract drift."""
+
+    def test_ppac_collector_shape_supports_control_2_1(
+        self, tmp_path: Path, manifest: dict
+    ):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        collected = tmp_path / "collected"
+        collected.mkdir()
+
+        write_json(
+            collected / "ppac.json",
+            load_fixture("ppac_collector_contract.json"),
+        )
+        for name in ("graph", "purview", "sharepoint", "sentinel"):
+            write_json(collected / f"{name}.json", load_fixture(f"{name}.json"))
+
+        manifest_path = tmp_path / "controls.json"
+        output_path = tmp_path / "scores.json"
+        write_json(manifest_path, manifest)
+
+        score.run(
+            manifest_path=str(manifest_path),
+            collected_dir=str(collected),
+            zone=2,
+            output_path=str(output_path),
+        )
+
+        result = json.loads(output_path.read_text(encoding="utf-8"))
+        ctrl = next(c for c in result["controls"] if c["id"] == "2.1")
+
+        assert ctrl["checks_passed"] == 2
+        assert ctrl["maturity_score"] == 2
+        assert ctrl["evidence"]["2.1.a"]["result"] == "pass"
+        assert "securityGroupId" in ctrl["evidence"]["2.1.a"]["value"]
+        assert ctrl["evidence"]["2.1.b"]["result"] == "pass"
+
+
+# ---------------------------------------------------------------------------
 # Test: summary calculation matches individual controls
 # ---------------------------------------------------------------------------
 
