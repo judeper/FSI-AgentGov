@@ -492,7 +492,7 @@ Organizations should conduct separate analysis for state-specific requirements.
 
 ## Microsoft CAPE alignment cross-reference
 
-FSI-AgentGov v1.5.0 includes a Microsoft CAPE alignment layer that maps Microsoft's six Frontier Transformation Patterns onto FSI zones, controls, and regulatory exposure. This alignment does not modify the underlying 78-control framework, which remains the definitive governance structure for US financial services AI deployments. CAPE is a Microsoft business-strategy framework designed to accelerate enterprise AI transformation, not a regulatory framework. Any deployment using CAPE Patterns 4–6 sits inside the FSI regulatory perimeter and triggers the same regulatory obligations as any other AI deployment subject to FINRA, SEC, OCC, Fed, GLBA, SOX, and state regulatory oversight.
+FSI-AgentGov has included a Microsoft CAPE alignment layer since v1.5.0 (current at v1.6.2) that maps Microsoft's six Frontier Transformation Patterns onto FSI zones, controls, and regulatory exposure. This alignment does not modify the underlying 78-control framework, which remains the definitive governance structure for US financial services AI deployments. CAPE is a Microsoft business-strategy framework designed to accelerate enterprise AI transformation, not a regulatory framework. Any deployment using CAPE Patterns 4–6 sits inside the FSI regulatory perimeter and triggers the same regulatory obligations as any other AI deployment subject to FINRA, SEC, OCC, Fed, GLBA, SOX, and state regulatory oversight.
 
 The [Microsoft CAPE crosswalk](../reference/microsoft-cape-crosswalk.md) provides the canonical mapping between CAPE vocabulary and FSI governance requirements. For each CAPE pattern, the crosswalk identifies:
 
