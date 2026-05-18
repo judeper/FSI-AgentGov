@@ -61,7 +61,9 @@ Financial services organizations face continuous configuration drift risk across
 
 | # | Setting | Portal Path | Expected Value (Zone 2/3) | Severity | Automation |
 |---|---------|-------------|---------------------------|----------|------------|
-| 10 | Content moderation level | Copilot Studio > Agent > Settings > Generative AI > Content moderation ([Content moderation in Copilot Studio](https://learn.microsoft.com/microsoft-copilot-studio/knowledge-copilot-studio#content-moderation)) | High | High | Manual Attestation |
+| 10 | Agent-level content moderation slider (5 positions: Lowest / Low / Medium / High / Highest) | Copilot Studio > Agent > Settings > Generative AI > Content moderation ([Content moderation in Copilot Studio](https://learn.microsoft.com/microsoft-copilot-studio/knowledge-copilot-studio#content-moderation)) | High (Highest for highest-risk Zone 3) | High | Manual Attestation |
+
+> **Two distinct moderation surfaces.** Item 10 above is the **agent-level** slider (5 positions, governed by Control 1.8 runtime protection). The separate **per-prompt** slider (3 positions: Low / Moderate / High) inside the prompt builder is governed by **Control 1.27**; it is configured independently and is not represented by a single tenant-wide value, so it is reviewed under the 1.27 implementation playbook rather than this baseline.
 
 ### RBAC and Agent Governance (Control 1.18)
 

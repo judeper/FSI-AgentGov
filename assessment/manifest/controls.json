@@ -2809,7 +2809,7 @@
       },
       {
         "check_id": "1.27.b",
-        "description": "Moderation level meets zone minimum (Medium for Z2, High for Z3)",
+        "description": "Per-prompt moderation level meets zone minimum (Moderate for Z2, High for Z3)",
         "api_call": "Get-CopilotStudioAgentConfig",
         "pass_condition": "moderation_zone_compliant",
         "zone_required": [

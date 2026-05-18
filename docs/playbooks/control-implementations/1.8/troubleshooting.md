@@ -5,7 +5,7 @@
 **Audience:** Power Platform Admin, Microsoft Defender XDR System Administrator, AI Governance Lead, SOC Analyst
 **Last UI Verified:** February 2026
 
-> **Scope.** This playbook diagnoses runtime-protection failures across the four enforcement surfaces of Control 1.8: (1) native Defender for Cloud Apps **AI Agent Protection** (real-time evaluation through the Microsoft 365 App Connector), (2) **Additional Threat Detection** webhook callout from Microsoft Copilot Studio to an external security provider, (3) **Prompt Shields** for jailbreak/indirect-injection defense, and (4) **content moderation** Low/Medium/High thresholds. It also covers the **AI Security Posture Management (AISPM)** dashboard surface and per-agent **Responsible AI (RAI) App Insights** telemetry. Classic (non-generative) Copilot Studio agents are out of scope for Defender AI Agent Protection — see §4 for details.
+> **Scope.** This playbook diagnoses runtime-protection failures across the four enforcement surfaces of Control 1.8: (1) native Defender for Cloud Apps **AI Agent Protection** (real-time evaluation through the Microsoft 365 App Connector), (2) **Additional Threat Detection** webhook callout from Microsoft Copilot Studio to an external security provider, (3) **Prompt Shields** for jailbreak/indirect-injection defense, and (4) **agent-level content moderation slider** (5 positions: Lowest / Low / Medium / High / Highest). It also covers the **AI Security Posture Management (AISPM)** dashboard surface and per-agent **Responsible AI (RAI) App Insights** telemetry. Classic (non-generative) Copilot Studio agents are out of scope for Defender AI Agent Protection — see §4 for details. The separate **per-prompt** moderation slider (3 positions: Low / Moderate / High, managed GPT models only) inside the prompt builder is governed by Control 1.27, not this playbook.
 
 > **Two-portal architecture.** Control 1.8 is enforced through **two portals that must be configured in handshake**: Microsoft Defender XDR portal (`security.microsoft.com`) for the Defender side, and Power Platform Admin Center (`admin.powerplatform.microsoft.com`) for the Copilot Studio side. A toggle in one portal without the matching toggle in the other produces silent failure — see §2 row 1 and §6.1.
 
@@ -64,7 +64,7 @@ Runtime-protection remediation often involves toggling Defender or PPAC settings
 2. **Defender XDR toggle state** — screenshot of `Defender XDR → Settings → Cloud apps → AI Agent Protection` showing preview opt-in and Connector binding. Capture the M365 App Connector status (Connected / Disconnected / Error).
 3. **M365 App Connector health** — `Defender XDR → Settings → Cloud apps → App Connectors → Microsoft 365` last-sync timestamp and any error string.
 4. **FIC (federated identity credential) configuration** — for each agent that calls an external webhook, capture the FIC subject, issuer, and audience values from the App Registration (`Entra ID → App registrations → <app> → Certificates & secrets → Federated credentials`). Mismatched FIC produces 401 from the webhook but the agent may still respond — see §6.5.
-5. **Content moderation level snapshot** — for each affected agent, the configured Low / Medium / High level for hate, sexual, violence, self-harm. Export via Copilot Studio admin API or screenshot from the agent's `Settings → Generative AI → Content moderation`.
+5. **Content moderation level snapshot** — for each affected agent, the configured agent-level slider position (Lowest / Low / Medium / High / Highest) for hate, sexual, violence, self-harm. Export via Copilot Studio admin API or screenshot from the agent's `Settings → Generative AI → Content moderation`.
 6. **App Insights connection string per agent** — RAI telemetry binding for each affected agent. Without per-agent App Insights, `RAI:ContentFiltered`, `RAI:JailbreakDetected`, and `RAI:GroundingFailed` events are not retrievable for that agent. Capture the resource ID and the connection string redacted (last-4 only) for evidence.
 7. **AISPM dashboard screenshot** — current alert list, suppressed alerts, and the timestamp of the last AISPM refresh (note the up-to-15-minute latency disclaimer).
 8. **CloudAppEvents export (Defender)** — Advanced hunting export covering the failure window plus 24 hours before/after. Use the Learn-documented `CloudAppEvents` schema; this is operational telemetry, **not** a books-and-records source — see disclaimer below.
@@ -526,7 +526,7 @@ Configuration confirmed correct (per FSI Control 1.8 §6 troubleshooting):
 - [x] errorBehavior = Block for affected agent(s)
 - [x] FIC binding validated (subject/issuer/audience match Learn doc for <cloud>)
 - [x] Per-agent App Insights connection string present
-- [x] Content moderation level confirmed (Low|Medium|High) and matches Zone policy
+- [x] Content moderation level confirmed (Lowest|Low|Medium|High|Highest) and matches Zone policy
 
 Recent configuration changes (last 14 days):
 - <date> — <change> — <change ticket id>
@@ -576,7 +576,7 @@ Microsoft Support typical first response is per the contracted SLA (Premier: sev
 | [1.10 — Communication Compliance Monitoring](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) | Surfaces policy violations in agent input/output for supervisory review. Runtime protection (1.8) blocks; Communication Compliance (1.10) supervises and routes to a reviewer. Together they help satisfy supervision under FINRA Rule 3110. |
 | [1.21 — Adversarial Input Logging](../../../controls/pillar-1-security/1.21-adversarial-input-logging.md) | Captures jailbreak / prompt-injection attempts for forensic review. Companion to 1.8 — runtime protection blocks; 1.21 ensures the attempt is preserved for analysis and trend-detection. |
 | [1.24 — Defender AI Security Posture Management](../../../controls/pillar-1-security/1.24-defender-ai-security-posture-management.md) | The AISPM dashboard and posture surface referenced throughout §1.3, §1.5, and §6 of this playbook. 1.24 governs the dashboard configuration; 1.8 governs the runtime enforcement that feeds it. |
-| [1.27 — AI Agent Content Moderation Enforcement](../../../controls/pillar-1-security/1.27-ai-agent-content-moderation-enforcement.md) | Sets the Low/Medium/High content-moderation thresholds enforced at runtime by 1.8. §6.8 of this playbook references the 1.27 zone-minimum policy. |
+| [1.27 — AI Agent Content Moderation Enforcement](../../../controls/pillar-1-security/1.27-ai-agent-content-moderation-enforcement.md) | Governs the **per-prompt** moderation slider (3 positions: Low / Moderate / High) inside the prompt builder for managed GPT models. Complementary to the **agent-level** slider (5 positions: Lowest / Low / Medium / High / Highest) enforced at runtime by 1.8. §6.8 of this playbook references the 1.27 zone-minimum policy where it overlaps. |
 
 ### 8.2 Sibling 1.8 playbooks
 
