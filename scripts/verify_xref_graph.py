@@ -236,9 +236,29 @@ def should_validate_label(label: str | None) -> bool:
     return starts_like_title and len(meaningful_tokens(stripped)) >= 2
 
 
+EXCLUDED_BARE_PREFIX_WORDS = (
+    'section',
+    'figure',
+    'table',
+    'item',
+    'step',
+    'rule',
+    'iso',
+    'iso/iec',
+)
+
+
 def is_excluded_bare_reference(line: str, match_start: int) -> bool:
     prefix = line[max(0, match_start - 16):match_start].lower()
-    return prefix.endswith('section ') or prefix.endswith('v')
+    if prefix.endswith('v'):
+        return True
+    rstripped = prefix.rstrip()
+    if rstripped.endswith('§'):
+        return True
+    for word in EXCLUDED_BARE_PREFIX_WORDS:
+        if prefix.endswith(word + ' '):
+            return True
+    return False
 
 
 def overlaps(existing_spans: list[tuple[int, int]], start: int, end: int) -> bool:
@@ -325,17 +345,22 @@ def scan_files(canonical: dict[str, str]) -> tuple[int, int, list[Finding], list
                     label = reference.label or ''
                     if not label_matches_canonical(label, canonical_name):
                         likely_control_id = best_canonical_label_match(label, canonical, reference.control_id)
-                        if likely_control_id:
-                            mislabeled.append(
-                                Finding(
-                                    file=relative_path,
-                                    line=line_number,
-                                    severity='MISLABELED',
-                                    found_text=reference.found_text,
-                                    control_id=reference.control_id,
-                                    expected=canonical_name,
-                                )
+                        expected_text = canonical_name
+                        if likely_control_id and likely_control_id in canonical:
+                            expected_text = (
+                                f'{canonical_name} '
+                                f'(label appears to match Control {likely_control_id}: {canonical[likely_control_id]})'
                             )
+                        mislabeled.append(
+                            Finding(
+                                file=relative_path,
+                                line=line_number,
+                                severity='MISLABELED',
+                                found_text=reference.found_text,
+                                control_id=reference.control_id,
+                                expected=expected_text,
+                            )
+                        )
 
     return files_scanned, refs_found, broken_id, mislabeled
 

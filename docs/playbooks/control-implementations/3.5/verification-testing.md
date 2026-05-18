@@ -499,9 +499,9 @@ The examiner's most common follow-up: "Show me a non-Clean run from the past 12 
 | TC-3 sustained non-compliance | Control 3.1 (Agent Inventory) | Tag values are owned by the inventory metadata model |
 | TC-6 unregistered live policy | Control 2.12 (Supervision FINRA 3110) | Out-of-process change to a financial control |
 | TC-1 variance >5 % | Control 3.7 (Anomaly Detection) | Persistent variance may indicate consumption-pattern anomalies |
-| TC-7 idle seats >25 % of assigned | Control 2.5 (License Optimization) — if the firm tracks separately | Operational efficiency referral |
+| TC-7 idle seats >25 % of assigned | License optimization (firm-specific operational tracking) | Operational efficiency referral |
 | TC-2 immutability not Locked | Control 1.9 (Data Retention) | Records-management surface owner |
-| TC-12 sovereign compensating-control gap | Control 2.21 (Sovereign Cloud Operations) — if defined | Tenant-level control |
+| TC-12 sovereign compensating-control gap | Sovereign cloud operations (firm-specific, if defined) | Tenant-level control |
 
 ---
 
