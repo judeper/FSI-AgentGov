@@ -14,6 +14,7 @@ Usage:
 """
 
 import os
+import re
 import sys
 import zipfile
 from pathlib import Path
@@ -41,6 +42,24 @@ STALE_PATTERNS = {
 
 DASHBOARD_WORKBOOK = "governance-maturity-dashboard.xlsx"
 DASHBOARD_SUMMARY_SHEET = "Summary"
+CONTROL_INDEX_PATH = Path(__file__).resolve().parent.parent / "docs" / "controls" / "CONTROL-INDEX.md"
+CONTROL_INDEX_PATTERN = re.compile(r"\|\s*(\d+\.\d+)\s*\|\s*\[([^\]]+)\]")
+
+
+def load_canonical_control_titles(control_index_path):
+    """Load canonical control titles from CONTROL-INDEX.md."""
+
+    if not control_index_path.exists():
+        return {}
+
+    text = control_index_path.read_text(encoding="utf-8")
+    return {
+        match.group(1): match.group(2).strip()
+        for match in CONTROL_INDEX_PATTERN.finditer(text)
+    }
+
+
+CANONICAL_CONTROL_TITLES = load_canonical_control_titles(CONTROL_INDEX_PATH)
 
 
 def is_control_id(value):
@@ -115,6 +134,45 @@ def verify_excel_file(file_path):
             print("\n   Control breakdown by sheet:")
             for sheet_name, count in control_breakdown.items():
                 print(f"   - {sheet_name}: {count} controls")
+
+        print("\n   Checking control titles...")
+        title_mismatches = []
+        for sheet in workbook.worksheets:
+            for row_idx, row in enumerate(sheet.iter_rows(values_only=True), start=1):
+                if not row or len(row) < 2:
+                    continue
+
+                control_id = row[0]
+                control_name = row[1]
+                if not control_id or not is_control_id(control_id) or not isinstance(control_name, str):
+                    continue
+
+                canonical_title = CANONICAL_CONTROL_TITLES.get(str(control_id).strip())
+                if canonical_title and control_name.strip() != canonical_title:
+                    title_mismatches.append(
+                        {
+                            "sheet": sheet.title,
+                            "cell": f"B{row_idx}",
+                            "control_id": str(control_id).strip(),
+                            "value": control_name[:100],
+                            "expected": canonical_title[:100],
+                        }
+                    )
+
+        if title_mismatches:
+            issues.append(
+                f"[FAIL] Found {len(title_mismatches)} stale control title(s) that do not match CONTROL-INDEX.md"
+            )
+            for mismatch in title_mismatches[:5]:
+                print(
+                    "   [FAIL] "
+                    f"{mismatch['sheet']}!{mismatch['cell']} {mismatch['control_id']}: "
+                    f"'{mismatch['value']}' != '{mismatch['expected']}'"
+                )
+            if len(title_mismatches) > 5:
+                print(f"   ... and {len(title_mismatches) - 5} more")
+        else:
+            print("   [PASS] Control titles match CONTROL-INDEX.md")
 
         print("\n   Checking for stale content...")
         stale_findings = {pattern: [] for pattern in STALE_PATTERNS}

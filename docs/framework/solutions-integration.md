@@ -6,7 +6,7 @@ How FSI-AgentGov-Solutions automation aligns with the governance framework.
 
 ## Overview
 
-The FSI Agent Governance Framework defines **what** controls organizations should implement. The FSI-AgentGov-Solutions repository provides **how**—ready-to-deploy automation that operationalizes key controls.
+The FSI Agent Governance Framework defines **what** controls organizations should implement. The FSI-AgentGov-Solutions repository provides **how**—ready-to-deploy automation that operationalizes key controls. The current companion catalog includes **36 solutions (35 live + 1 preview)** aligned to the framework's 78-control baseline, while this page focuses on representative integrations. Use the [Solutions Index](../reference/solutions-index.md) for the authoritative per-solution version and live/preview status details.
 
 ```mermaid
 flowchart TB
@@ -30,7 +30,7 @@ flowchart TB
         SDD[Segregation<br/>Detector]
         SDM[Scope Drift<br/>Monitor]
         RSV[RAG Source<br/>Validator]
-        COI[COI Testing<br/>Framework]
+        COI[COI<br/>Testing]
         HT[Hallucination<br/>Tracker]
         DR[DR Testing<br/>Framework]
         SSC[Session Security<br/>Configurator]
@@ -209,7 +209,7 @@ Unified compliance visibility across the framework control catalog.
 
 ---
 
-### Segregation of Duties Detector
+### Segregation Detector
 
 Identifies and helps prevent SoD violations in agent development workflows.
 
@@ -275,7 +275,7 @@ Validates integrity of RAG knowledge sources with change detection.
 
 ---
 
-### Conflict of Interest Testing Framework
+### COI Testing
 
 Automated testing for conflicts of interest in agent recommendations.
 
@@ -357,7 +357,7 @@ Validates session security settings per governance zone with drift detection and
 
 ---
 
-### File Upload Security Configurator
+### File Upload Security
 
 Validates per-agent file upload settings against zone governance policies with drift detection.
 
@@ -389,7 +389,7 @@ Validates tenant and environment audit configurations, detects compliance gaps, 
 
 ---
 
-### Agent Access Governance Monitor
+### Agent Access Monitor
 
 Detects overly permissive agent access configurations per governance zone.
 
@@ -404,7 +404,7 @@ Detects overly permissive agent access configurations per governance zone.
 
 ---
 
-### Content Moderation Governance Monitor
+### Content Moderation Monitor
 
 Validates per-agent content moderation levels against zone-specific governance requirements.
 
@@ -551,27 +551,27 @@ Each Tier 2 solution stores compliance status in different formats. The integrat
 
 ## Deployment Sequence
 
-For organizations implementing the full framework, deploy solutions in this order:
+For organizations implementing a representative subset of the live catalog, this staged order can help sequence dependencies:
 
-**Phase 1: Foundation (Completed Solutions)**
+**Phase 1: Foundation**
 1. **Message Center Monitor** — Establishes platform change visibility
 2. **Environment Lifecycle Management** — Provides governed provisioning
 3. **Pipeline Governance Cleanup** — Transitions to centralized ALM
 
-**Phase 2: Compliance & Access Controls (Completed)**
+**Phase 2: Compliance & Access Controls**
 4. **Conditional Access Automation** — Deploys Zero Trust access policies
 5. **Deny Event Correlation** — Aggregates security events
 6. **Compliance Dashboard** — Establishes baseline compliance visibility
 7. **Scope Drift Monitor** — Monitors data access patterns
 8. **Session Security Configurator** — Validates session security per zone
 
-**Phase 3: Regulatory & Operational (Validated/In Progress)**
+**Phase 3: Regulatory & Operational**
 9. **FINRA Supervision Workflow** — Routes customer-facing content for review
 10. **Segregation Detector** — Validates role separation before production use
 11. **RAG Source Validator** — Validates knowledge source integrity
 12. **Cross-Solution Integration** — Wires Tier 2 solutions into Compliance Dashboard
 
-**Phase 4: Quality & Resilience (Work In Progress)**
+**Phase 4: Quality & Resilience**
 13. **COI Testing** — Tests for conflicts of interest
 14. **Hallucination Tracker** — Collects feedback for model improvement
 15. **DR Testing Framework** — Validates disaster recovery procedures
@@ -609,9 +609,7 @@ FSI-AgentGov-Solutions/
 │   └── hooks/
 └── .claude/
 
-(See the [Solutions Index](../reference/solutions-index.md) for the
-authoritative per-solution version + status table — the inventory
-above is illustrative of repository shape, not a versioning source.)
+(See the [Solutions Index](../reference/solutions-index.md) for the authoritative per-solution version and status table — the inventory above is illustrative of repository shape, not a versioning source.)
 ```
 
 ---
@@ -655,12 +653,7 @@ For detailed architecture guidance including scalability limits and alternative 
 
 ## Summary Statistics
 
-For the authoritative count, per-solution version, and status of every
-companion solution, see the [Solutions Index](../reference/solutions-index.md).
-The Solutions Index is the single source of truth for solution inventory
-metrics; numeric rollups previously published here were withdrawn pending
-a refresh against the current 78-control catalog and v1.6.2 solutions
-catalog.
+The current companion catalog includes **36 solutions (35 live + 1 preview)** aligned to the framework's **78 controls across 4 pillars**. For the authoritative per-solution version, status, and control coverage details, see the [Solutions Index](../reference/solutions-index.md).
 
 ---
 
