@@ -380,6 +380,8 @@ Each test is deterministic: a named test user, a known input, and an asserted ou
 
 **Evidence collected.** Per sub-case: body file with SHA-256, sender screenshot with UTC clock, reviewer-portal screenshot with the yellow-banner classifier visible (pseudonymized usernames), `Get-SupervisoryReviewActivity` CSV, transcript. SHA-256 sidecars.
 
+**Additional requirement for sub-case 1.10-CLS-01e (Customer complaints).** After the `Pending` entry appears, apply the firm's AI-customer-complaint tag, record the interaction reference (message ID, conversation ID, or evidence-manifest pointer), and capture the case or register export showing that the complaint feeds the FINRA Rule 4530(d) quarterly statistics process.
+
 ---
 
 ### 1.10-SAM-01 — Review percentage verification
@@ -724,7 +726,7 @@ $entries = Get-ChildItem $evidenceDir -File -Exclude *.sha256,manifest.json |
 | 3 | Pseudonymization settings screenshot + opt-out trail CSV | 1.10-PSE-01 |
 | 4 | Policy inventory CSV + full policy JSON | 1.10-POL-01 |
 | 5 | Copilot location screenshot + policy/rules JSON + Copilot prompt screenshot + audit CSV + PAYG attestation reference | 1.10-COP-01 |
-| 6 | Per-classifier sub-case body files + sender + reviewer screenshots + activity CSVs | 1.10-CLS-01 |
+| 6 | Per-classifier sub-case body files + sender + reviewer screenshots + activity CSVs; for 1.10-CLS-01e also include complaint-tag screenshot + quarterly-report register or case export | 1.10-CLS-01 |
 | 7 | Sampling-rate diff CSV + signed supervisory plan reference | 1.10-SAM-01 |
 | 8 | OME sender screenshot + reviewer-portal screenshot + audit CSV + exclusions list | 1.10-OME-01 |
 | 9 | Three tag-action portal screenshots + activity CSV + notify-user email screenshot | 1.10-INV-01 |

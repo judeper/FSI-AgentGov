@@ -322,6 +322,7 @@ For every template below:
 - Reviewers: registered principals with the appropriate qualification per population
 - Direction: Inbound + Outbound (template-locked)
 - Review percentage: **100%** for supervised populations; document any population kept at 10% with risk-based justification
+- Complaint workflow: apply a firm-defined AI-customer-complaint tag, record the message ID or Copilot conversation reference in the case note, and route tagged alerts to the Compliance Officer's FINRA Rule 4530(d) quarterly complaint register
 
 ### Policy C — Copilot interactions (the AI-monitoring template)
 
@@ -539,9 +540,16 @@ Document in your firm's WSP — not in CC settings — the reviewer SLAs (e.g., 
 | CC Analyst | CC Investigator (escalate alert) | Alert confirmed as a violation |
 | CC Investigator | HR | Personnel-conduct violation |
 | CC Investigator | Legal | Regulatory violation; possible disclosure obligation |
+| CC Investigator | Compliance Officer | Written customer complaint tied to an AI-assisted communication; determine FINRA Rule 4530(d) treatment and supervisory disposition |
 | CC Investigator | eDiscovery ([Control 1.19](../../../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md)) | Legal hold or production scope expansion needed |
 | CC Investigator | Insider Risk Management ([Control 1.12](../../../controls/pillar-1-security/1.12-insider-risk-detection-and-response.md)) | Pattern of risky behavior across multiple alerts |
 | CC Investigator | CISO + Legal | Cyber / data-loss event; trigger SEV-1/2 incident handling per [Control 1.10 troubleshooting §1](troubleshooting.md) |
+
+### Customer complaint routing (FINRA Rule 4530(d))
+
+1. When a reviewer confirms a written complaint about an AI-generated or AI-assisted communication, apply the firm's complaint tag and record the underlying message ID, prompt/response reference, or Copilot conversation ID in the case note.
+2. Escalate the tagged item to the Compliance Officer or designated registered principal for reportability review, and notify the records team if additional preservation steps are required under Controls 1.7 and 1.9.
+3. Export tagged complaint counts and dispositions into the firm's quarterly FINRA Rule 4530(d) complaint-statistics workflow. Verify the same complaint is not double-counted across manual and automated queues.
 
 ### Integration with Insider Risk Management (Control 1.12)
 
