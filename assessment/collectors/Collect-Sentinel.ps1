@@ -272,7 +272,7 @@ try {
     Write-Verbose "Section 3: Running KQL audit check for CopilotInteraction records..."
 
     if ($workspaceInfo) {
-        $kqlQuery = 'AuditLogs | where OperationName contains "CopilotInteraction" | where TimeGenerated > ago(7d) | count'
+        $kqlQuery = 'OfficeActivity | where OfficeWorkload == "Copilot" or RecordType == "CopilotInteraction" | where TimeGenerated > ago(7d) | count'
 
         $queryResult = Invoke-CollectorOperation -Target $workspaceInfo.WorkspaceId -Action 'Run Copilot interaction KQL audit query' -ScriptBlock {
             Invoke-AzOperationalInsightsQuery `
