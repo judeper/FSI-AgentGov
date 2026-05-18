@@ -135,4 +135,4 @@ These diagrams visualize the FSI-AgentGov framework's mapping of Microsoft CAPE 
 
 ---
 
-*Updated: May 2026 | Version: v1.5.0 | Audience: CSAs, partner architects, FSI customer architects*
+*Updated: May 2026 | Version: v1.6.2 | Audience: CSAs, partner architects, FSI customer architects*

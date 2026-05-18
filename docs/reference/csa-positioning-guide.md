@@ -389,4 +389,4 @@ The framework is opinionated, ships frequently, and is honest about what it does
 
 ---
 
-*FSI Agent Governance Framework v1.5.0 — Microsoft CAPE Alignment Release | Updated: May 2026 | UI Verification Status: Current*
+*FSI Agent Governance Framework v1.6.2 | Updated: May 2026 | UI Verification Status: Current*

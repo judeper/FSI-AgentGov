@@ -2,7 +2,7 @@
 
 [Playbooks](../../index.md) > Advanced Implementations > [Agent Usage & Performance Workbook](index.md) > Customization Guide
 
-**Status:** February 2026 — FSI-AgentGov v1.2.51
+**Status:** May 2026 — FSI-AgentGov v1.6.2
 **Related Controls:** 3.1, 3.2, 3.3, 3.7, 3.8
 
 ---

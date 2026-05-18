@@ -1,6 +1,6 @@
 # Verification & Testing: Control 1.17 — Endpoint Data Loss Prevention
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 **Audience:** M365 administrators, compliance officers, internal/external auditors
 
 This playbook provides numbered, repeatable test procedures with documented expected results and the auditor evidence to capture for each scenario. Tests are zone-aware; perform the row appropriate to the device's governance zone.
@@ -243,7 +243,7 @@ Generate SHA-256 hashes for every artefact (see [PowerShell Setup](powershell-se
 **Policy Mode at Test:** [TestWithNotifications | Enable]
 **Tester(s):** [Name, role]
 
-I attest that on the date above, the following controls were validated against the FSI Agent Governance Framework v1.3.3 Control 1.17:
+I attest that on the date above, the following controls were validated against the FSI Agent Governance Framework v1.6.2 Control 1.17:
 
 1. **Device Onboarding** — [Total devices] target devices were onboarded to Microsoft Defender for Endpoint with healthy status; [Total] showed last activity within 24 hours.
 2. **Policy Coverage** — Endpoint DLP policies in scope: Zone 1 [count], Zone 2 [count], Zone 3 [count]. All policies in mode [Test/Enable].
