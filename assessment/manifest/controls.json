@@ -1049,7 +1049,7 @@
         "maturity_score": 4
       }
     },
-    "manual_question": "Has the supervision review queue been reviewed by a compliance officer in the last 30 days?",
+    "manual_question": "Has the supervision review queue been reviewed by a compliance officer in the last 30 days, and does the Communication Compliance configuration capture and tag AI-related customer complaints with linkage to the underlying agent interaction and feed into the FINRA Rule 4530(d) quarterly report?",
     "name": "Communication Compliance Monitoring",
     "zonesApplicable": [
       2,

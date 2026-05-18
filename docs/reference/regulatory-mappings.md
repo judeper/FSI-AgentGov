@@ -136,6 +136,25 @@ Framework provides supervision procedure guidance through 8 mapped controls. Imp
 
 ---
 
+## FINRA Rule 4530(d) - Quarterly Customer Complaint Reporting
+
+### Overview
+Requires firms to file quarterly statistical reports for written customer complaints. Written complaints about AI-assisted or AI-generated communications, including allegations of misleading, fabricated, or confidential-data-exposing outputs, should be routed into this reporting workflow when received in writing.
+
+### Applicable Controls
+
+| Control | Requirement | Mapping |
+|---------|-------------|---------|
+| [1.10](../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) | Communication Compliance | AI-related written customer complaints detected, tagged, and routed for quarterly FINRA Rule 4530(d) complaint statistics |
+| [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Comprehensive Audit Logging | Preserves the underlying interaction reference and evidence chain supporting complaint reconstruction |
+| [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision and Oversight | Written supervisory procedures define complaint escalation and reportability review |
+| [3.3](../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) | Compliance Reporting | Aggregates complaint counts, supervisory metrics, and quarterly reporting outputs |
+
+### Framework Coverage
+Framework coverage depends on aligning complaint detection, evidence linkage, and quarterly reporting across the mapped controls above. Implementation requires firms to validate how AI-related complaints enter the firm's established FINRA Rule 4530(d) reporting process.
+
+---
+
 ## FINRA AI Supervision and Governance
 
 !!! warning "FINRA Notice 25-07 Clarification"
