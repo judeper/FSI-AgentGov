@@ -331,8 +331,9 @@ When writing control documentation:
 Always run before completing work:
 
 ```bash
-mkdocs build --strict              # Validates links and structure
-python scripts/verify_controls.py  # Validates control files
+mkdocs build --strict                # Validates links and structure
+python scripts/verify_build_output.py  # Verifies built site completeness
+python scripts/verify_controls.py    # Validates control files
 ```
 
 Additional validations (when applicable):

@@ -247,6 +247,7 @@ See `AGENTS.md` Multi-Agent Coordination section for full protocol.
 ```bash
 # Validate site builds without errors
 mkdocs build --strict
+python scripts/verify_build_output.py
 
 # Preview locally
 mkdocs serve

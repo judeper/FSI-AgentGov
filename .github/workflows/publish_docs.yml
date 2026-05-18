@@ -70,6 +70,9 @@ jobs:
       - name: Validate Documentation
         run: mkdocs build --strict
 
+      - name: Verify built site output completeness
+        run: python scripts/verify_build_output.py site
+
       - name: Verify mkdocs.yml site_url is explicit (defense-in-depth)
         shell: bash
         run: |
