@@ -713,11 +713,43 @@
   };
 
   /**
+   * Strip TODO authoring placeholders from a manifest string field. Returns ""
+   * for unauthored values so downstream UI guards (e.g. `if (ctrl.yesBar)`)
+   * skip rendering rather than leaking the literal "TODO: ..." text to the
+   * customer-facing surface. See finding U-022.
+   */
+  function _scrubManifestTodo(s) {
+    if (typeof s !== "string") return "";
+    var trimmed = s.trim();
+    if (!trimmed) return "";
+    if (trimmed.indexOf("TODO:") === 0) return "";
+    return s;
+  }
+
+  /**
+   * Scrub TODO placeholders from a facilitatorNotes object. Returns a new
+   * object with the same shape, replacing TODO-valued `ask` / `followUp`
+   * strings with "". `timeBudgetMinutes` is preserved verbatim.
+   */
+  function _scrubFacilitatorNotes(fn) {
+    if (!fn || typeof fn !== "object") return {};
+    var out = {};
+    for (var k in fn) {
+      if (!Object.prototype.hasOwnProperty.call(fn, k)) continue;
+      var v = fn[k];
+      out[k] = (typeof v === "string") ? _scrubManifestTodo(v) : v;
+    }
+    return out;
+  }
+
+  /**
    * Merge v1.4 manifest fields (yesBar/partialBar/noBar/sectorYesBar/verifyIn/
    * verifyPowerShell/evidenceExpected/controlDocUrl/portalPlaybookUrl/solutions/
    * facilitatorNotes/zonesApplicable) onto the legacy control objects loaded
-   * from assessment-data.json. Existing fields are preserved when the manifest
-   * value is missing or a TODO placeholder.
+   * from assessment-data.json. TODO: placeholder values in priority, yesBar,
+   * partialBar, noBar, and facilitatorNotes.ask/followUp are scrubbed to ""
+   * here so they never reach the SPA drawer or agenda exports (finding U-022).
+   * The manifest itself retains the TODO markers as an authoring backlog.
    */
   AssessmentApp.prototype.mergeManifestIntoControls = function () {
     if (!this.data || !Array.isArray(this.data.controls)) return;
@@ -727,17 +759,23 @@
     this.data.controls.forEach(function (c) {
       var m = byId[c.id];
       if (!m) return;
-      // Manifest is authoritative for these new fields.
-      c.yesBar = m.yesBar || "";
-      c.partialBar = m.partialBar || "";
-      c.noBar = m.noBar || "";
+      // Manifest is authoritative for these new fields. TODO placeholders are
+      // scrubbed to empty strings — the SPA already guards on truthy values.
+      c.yesBar = _scrubManifestTodo(m.yesBar);
+      c.partialBar = _scrubManifestTodo(m.partialBar);
+      c.noBar = _scrubManifestTodo(m.noBar);
       c.sectorYesBar = m.sectorYesBar || {};
       c.verifyIn = Array.isArray(m.verifyIn) ? m.verifyIn : [];
       c.verifyPowerShell = m.verifyPowerShell || "";
       c.evidenceExpected = Array.isArray(m.evidenceExpected) ? m.evidenceExpected : [];
       c.controlDocUrl = withBasePath(m.controlDocUrl || "");
       c.portalPlaybookUrl = withBasePath(m.portalPlaybookUrl || "");
-      c.facilitatorNotes = m.facilitatorNotes || {};
+      c.facilitatorNotes = _scrubFacilitatorNotes(m.facilitatorNotes);
+      // priority — surface only authored values so badges/sorts skip placeholders.
+      if (typeof m.priority === "string") {
+        var pri = _scrubManifestTodo(m.priority);
+        if (pri) c.manifestPriority = pri;
+      }
       c.zonesApplicable = Array.isArray(m.zonesApplicable) && m.zonesApplicable.length
         ? m.zonesApplicable.slice() : (c.zones || [1, 2, 3]);
       // Prefer manifest solutions IDs (v1.4 source of truth) when non-empty.
