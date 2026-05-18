@@ -41,7 +41,7 @@ Runtime-protection failures are **not automatically reportable**. The decision i
    - **YES →** FINRA Rule 4530(b) written report due within 30 calendar days of firm conclusion that a reportable event occurred. CCO drafts; Legal reviews.
    - **NO →** continue to step 3.
 3. **Books-and-records gap that prevents reconstruction of an agent interaction subject to FINRA Rule 4511 or SEC Rule 17a-3/17a-4?**
-   - **YES →** This is a supervision deficiency under FINRA Rule 3110 and a recordkeeping gap under SEC Rule 17a-4. Document the gap, the corrective action, and the supervisory review in the firm's WSPs. **Do not** rely on Defender XDR / CloudAppEvents alerts as the books-and-records source — those are operational telemetry, not WORM-preserved customer communications. See Controls 1.5 and 1.7 for the WORM-preserved record sources, and 1.9 for retention enforcement.
+   - **YES →** This is a supervision deficiency under FINRA Rule 3110 and a recordkeeping gap under SEC Rule 17a-4. Document the gap, the corrective action, and the supervisory review in the firm's WSPs. **Do not** rely on Defender XDR / CloudAppEvents alerts as the books-and-records source — those are operational telemetry, not WORM-preserved customer communications. See Control 1.7 for the audit trail, Control 1.10 for supervisory review, and 1.9 for retention enforcement.
    - **NO →** continue to step 4.
 4. **Model-risk control failure under OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7) (e.g., generative AI model produced uncontrolled output that materially affected a customer or a credit decision)?**
    - **YES →** Model Risk Management is engaged; document in the model inventory and trigger an out-of-cycle effective-challenge review.
@@ -74,7 +74,7 @@ Runtime-protection remediation often involves toggling Defender or PPAC settings
 12. **Sovereign cloud confirmation** — explicit record of the cloud (Commercial / GCC / GCC High / DoD), because Defender for Cloud Apps AI Agent Protection has Commercial-only parity as of Q1 2026 (see §4). The cloud determines which evidence sources are available.
 13. **SHA-256 manifest** — produce a manifest file listing every evidence file captured above with its SHA-256. Sign the manifest (or store in a WORM location) so its integrity can be demonstrated to a regulator. This is the chain-of-custody anchor; without it, every other artifact is challengeable.
 
-> **Defender XDR / CloudAppEvents retention disclaimer.** Defender XDR alerts and the `CloudAppEvents` Advanced Hunting table are **operational telemetry**, retained for 30 days (default) in Advanced Hunting. They are **not** WORM, **not** a books-and-records source under SEC Rule 17a-4, and **not** sufficient on their own to satisfy FINRA Rule 4511. Cross-link Controls 1.5 (Purview audit retention), 1.7 (Communication Compliance / supervision), and 1.9 (immutable retention) for the WORM-preserved record. If your incident involves a books-and-records claim, capture the WORM-side evidence in addition to the Defender-side telemetry.
+> **Defender XDR / CloudAppEvents retention disclaimer.** Defender XDR alerts and the `CloudAppEvents` Advanced Hunting table are **operational telemetry**, retained for 30 days (default) in Advanced Hunting. They are **not** WORM, **not** a books-and-records source under SEC Rule 17a-4, and **not** sufficient on their own to satisfy FINRA Rule 4511. Cross-link Control 1.7 (Comprehensive Audit Logging and Compliance) for the audit trail, Control 1.10 (Communication Compliance Monitoring) for supervisory review, and Control 1.9 (Data Retention and Deletion Policies) for retention enforcement. If your incident involves a books-and-records claim, capture the WORM-side evidence in addition to the Defender-side telemetry.
 
 ### 1.4 Compensating controls during remediation
 
@@ -121,7 +121,7 @@ Run this checklist before paging L2 or L3. Items failed → capture in the escal
 
 **Step 4 — root-cause investigation.** Was this a real attack or a false positive? KQL against `RAI:JailbreakDetected` plus the webhook-provider's own log shows the prompt was an indirect-injection probe embedded in a SharePoint document the agent grounded against. Block was correct.
 
-**Step 5 — remediation.** No remediation needed for the runtime layer (it worked). Refer the SharePoint grounding source to Control 1.5 (Communication Compliance) and 4.x (SharePoint AI governance) for content review. File a ticket against the SharePoint owner.
+**Step 5 — remediation.** No remediation needed for the runtime layer (it worked). Refer the SharePoint grounding source to Control 1.5 (Data Loss Prevention (DLP) and Sensitivity Labels) and 4.x (SharePoint AI governance) for content review. File a ticket against the SharePoint owner.
 
 **Step 6 — governance cadence.** Logged in monthly AI governance review; no policy change.
 
@@ -156,7 +156,7 @@ Use this table as a triage entry point. Each row is a recurring failure mode in 
 These ten anti-patterns produce silent or under-detected failures. Each is observed in real FSI deployments. Audit your environment against this list quarterly.
 
 1. **Toggling AI Agent Protection in PPAC only (or Defender XDR only).** Both portals must be On. Single-side On = silent no-op for the unbound side. Mitigation: include both portal screenshots in every change-management ticket touching this control.
-2. **Treating Defender XDR alerts / `CloudAppEvents` as books-and-records.** They are operational telemetry, 30-day default retention, not WORM. SEC Rule 17a-4 and FINRA Rule 4511 require WORM-preserved customer communications via Purview (Controls 1.5, 1.7, 1.9). Mitigation: never cite CloudAppEvents alone as the recordkeeping source in a regulatory response.
+2. **Treating Defender XDR alerts / `CloudAppEvents` as books-and-records.** They are operational telemetry, 30-day default retention, not WORM. SEC Rule 17a-4 and FINRA Rule 4511 require the recordkeeping and supervision controls in 1.7, 1.9, and 1.10. Mitigation: never cite CloudAppEvents alone as the recordkeeping source in a regulatory response.
 3. **Configuring Additional Threat Detection without binding a per-agent App Insights resource.** The webhook callout is logged in the provider's logs but the *Copilot Studio side* of the interaction (RAI events, grounding failures) is lost without App Insights. Mitigation: bind App Insights *before* enabling Additional Threat Detection on a Zone 2/3 agent.
 4. **Setting `errorBehavior=Allow` on Zone 2/3 agents.** When the webhook times out (1-second hard limit) or the provider returns 5xx, Allow lets the response through unprotected. For Zone 2/3 the only acceptable value is Block. Mitigation: enforce Block via tenant policy and audit every agent quarterly.
 5. **Relying on AISPM dashboard freshness for live incident triage.** AISPM has up to 15-minute latency. During an active incident, query Defender XDR Advanced Hunting (`CloudAppEvents`) and the per-agent App Insights resource directly. Mitigation: train SOC on direct KQL, not dashboard polling.
@@ -164,7 +164,7 @@ These ten anti-patterns produce silent or under-detected failures. Each is obser
 7. **Configuring the FIC binding from documentation written for a different cloud.** Audience values differ between Commercial / GCC / GCC High / DoD. A FIC bound with the Commercial audience in a GCC High tenant produces 401s. Mitigation: cite the Learn URL for *your specific cloud* in the FIC change ticket; cross-check audience against `external-security-provider` Learn page.
 8. **Querying `PowerPlatformAdminActivity` with `Operation` instead of `EventOriginalType`.** Returns empty silently. Mitigation: code-review every KQL query that touches this table; reject reviews that use `Operation`.
 9. **Querying UAL with `-RecordType CopilotStudio` (does not exist) or single-shot without `-SessionId`.** Both return incomplete data silently. The first returns nothing; the second hard-caps at 5,000 rows. Mitigation: every UAL Copilot query must use `-RecordType CopilotInteraction` AND `-SessionId` + `-SessionCommand ReturnLargeSet`. Add this to the SOC runbook template.
-10. **Treating a successful `block` event as proof the threat was external.** Indirect prompt-injection often originates inside the tenant — in a SharePoint document, an internal chat message, or a connector-fetched data source. A `block` confirms the response layer worked but does not absolve the *grounding source* — refer the source to Control 1.5 / 4.x for review.
+10. **Treating a successful `block` event as proof the threat was external.** Indirect prompt-injection often originates inside the tenant — in a SharePoint document, an internal chat message, or a connector-fetched data source. A `block` confirms the response layer worked but does not absolve the *grounding source* — refer the source to the relevant upstream-governance control (for example, Control 1.5 for DLP / labels, Control 1.10 for communication monitoring, or 4.x for SharePoint governance).
 
 ---
 
@@ -440,7 +440,7 @@ customEvents
 - `learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio#content-moderation`
 - `learn.microsoft.com/azure/ai-services/content-safety/concepts/harm-categories`
 
-**Fix.** Raise to Medium (Zone 2) or High (Zone 3). Audit the prior 30-day output for what was allowed through; coordinate with Communication Compliance (Control 1.7) to review for policy violations. Document for governance review.
+**Fix.** Raise to Medium (Zone 2) or High (Zone 3). Audit the prior 30-day output for what was allowed through; coordinate with Communication Compliance (Control 1.10) to review for policy violations. Document for governance review.
 
 ### 6.9 Per-agent App Insights binding missing (RAI telemetry gap)
 
