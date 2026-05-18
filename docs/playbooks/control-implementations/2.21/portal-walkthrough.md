@@ -160,7 +160,7 @@ In **List settings** → **Permissions for this list**:
 1. **Stop inheriting permissions** (only if necessary; usually inherited site permissions are sufficient).
 2. Add a SharePoint group `AI Claims Approvers` containing only the named Compliance Officer(s), AI Governance Lead, and Legal reviewer(s). Grant **Edit**.
 3. Confirm marketing submitters have **Contribute** but cannot edit other users' items (set in Step 2).
-4. Document the group membership in the WSP and in Control 1.4 (Privileged Access Reviews) scope, if applicable.
+4. Document the group membership in the WSP and in Control 2.8 (Access Control and Segregation of Duties) scope, if applicable.
 
 ---
 

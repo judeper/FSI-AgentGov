@@ -765,7 +765,7 @@ function Get-Cc110ReviewerReconciliation {
 }
 ```
 
-> Use the **`ActedButNotDeclared`** column as a flag: anyone who tagged messages on a policy but is not in the policy's declared reviewer list is either (a) a permitted CC Admin acting on behalf of a reviewer — record the rationale, or (b) a permission gap that needs Control 1.10 + Control 1.2 (Identity & Access) follow-up. Anyone in **`DeclaredButNeverActed`** for 90+ days is a reviewer-rotation candidate — surface them in your monthly attestation.
+> Use the **`ActedButNotDeclared`** column as a flag: anyone who tagged messages on a policy but is not in the policy's declared reviewer list is either (a) a permitted CC Admin acting on behalf of a reviewer — record the rationale, or (b) a permission gap that needs Control 1.10 + Control 2.8 (Access Control and Segregation of Duties) follow-up. Anyone in **`DeclaredButNeverActed`** for 90+ days is a reviewer-rotation candidate — surface them in your monthly attestation.
 
 ---
 
