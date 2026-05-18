@@ -53,7 +53,7 @@ Each Excel checklist includes:
 |------------------------------|------------------------|
 | Microsoft Entra | Entra Administrator |
 | Power Platform Admin Center | Power Platform Admin |
-| Microsoft Purview | Purview Administrator |
+| Microsoft Purview | Purview Compliance Admin |
 | SharePoint Online | SharePoint Admin |
 | Regulatory compliance / Audits | Compliance Officer |
 | Overall governance program | Governance Maturity Dashboard |
@@ -65,6 +65,8 @@ Each Excel checklist includes:
 ---
 
 ## Control Assignments by Role
+
+The lists below mirror the control coverage currently shipped in each role workbook.
 
 ### Entra Global Admin
 - 1.11 Conditional Access and Phishing-Resistant MFA
@@ -83,9 +85,9 @@ Each Excel checklist includes:
 - 3.7 PPAC Security Posture Assessment
 - 3.8 Copilot Hub
 
-### Purview Administrator
+### Purview Compliance Admin
 - 1.5 Data Loss Prevention (DLP) and Sensitivity Labels
-- 1.6 Microsoft Purview DSPM for AI
+- 1.6 Microsoft Purview: DSPM for AI
 - 1.7 Comprehensive Audit Logging and Compliance
 - 1.9 Data Retention and Deletion Policies
 - 1.10 Communication Compliance Monitoring
@@ -100,14 +102,14 @@ Each Excel checklist includes:
 - 4.5 SharePoint Security and Compliance Monitoring
 - 4.6 Grounding Scope Governance
 - 4.7 Microsoft 365 Copilot Data Governance
-- 4.8 Item-Level Permission Scanning
+- 4.8 Item-Level Permission Scanning for Agent Knowledge Sources
 - 4.9 Embedded File Content Governance
 
 ### Compliance Officer
 - 1.7 Comprehensive Audit Logging and Compliance
 - 1.19 eDiscovery for Agent Interactions
 - 1.22 Information Barriers for AI Agents
-- 2.6 Model Risk Management (OCC Bulletin 2026-13 / Fed SR 26-2)
+- 2.6 Model Risk Management (Alignment with OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7))
 - 2.11 Bias Testing and Fairness Assessment
 - 2.12 Supervision and Oversight (FINRA Rule 3110)
 - 2.13 Documentation and Record Keeping
