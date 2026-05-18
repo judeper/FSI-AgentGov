@@ -37,7 +37,7 @@ These steps require no configuration — they verify the encryption baseline is 
     - `<tenant>.sharepoint.com`
     - `<tenant>-my.sharepoint.com`
     - `outlook.office.com` (Microsoft-managed; informational)
-    - Any custom domain bound to Exchange / SharePoint / a Copilot Studio agent direct-line endpoint
+    - Any custom domain bound to Exchange / SharePoint / a Microsoft Copilot Studio agent direct-line endpoint
 3. **Expected:** Grade A or A+; TLS 1.2 and TLS 1.3 supported; TLS 1.0 / 1.1 / SSL 3.0 = No; no RC4, no 3DES, no export-grade ciphers; valid certificate chain ≥ 60 days from expiry.
 4. Save the SSL Labs PDF/PNG result to your evidence store with the date.
 

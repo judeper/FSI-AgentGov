@@ -27,7 +27,7 @@
    - **Overview** - Platform health summary
    - **Alerts (Preview)** - Alert rules and notifications
    - **Logs** - Activity and error logs
-   - **Copilot Studio** - Agent-specific metrics
+   - **Microsoft Copilot Studio** - Agent-specific metrics
 
 ### Step 2: Review Monitor Overview
 

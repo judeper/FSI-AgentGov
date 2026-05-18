@@ -38,7 +38,7 @@ This playbook stands up the SharePoint Advanced Management (SAM) Data Access Gov
    - **Sharing links** — surfaces "Anyone with the link" and high-fan-out internal share links
    - **Site permissions** — sites with large numbers of unique users or unusual permission level distributions
    - **Oversharing baseline using permissions** (GA) — sites whose actual sharing exceeds the baseline expected for their sensitivity label
-   - **Agent Insights** and **Agent Access Insights** — sites where Microsoft 365 Copilot agents and Copilot Studio agents are most active
+   - **Agent Insights** and **Agent Access Insights** — sites where Microsoft 365 Copilot agents and Microsoft Copilot Studio agents are most active
    - **Content Management Assessment** — Copilot readiness scoring per site
 4. Export each report (CSV) and stage to your evidence repository.
 

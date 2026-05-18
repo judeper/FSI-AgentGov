@@ -12,7 +12,7 @@
 | `06-sharepoint-list-columns.png` | SharePoint | List settings → Columns | Metadata columns configuration |
 | `07-ppac-environments-list.png` | PPAC | Environments | Environment list for discovery |
 | `08-ppac-environment-resources.png` | PPAC | Environments → [env] → Resources | Resources panel showing agents |
-| `09-ppac-copilot-agents.png` | PPAC | Resources → Copilot Studio agents | Agent list in environment |
+| `09-ppac-copilot-agents.png` | PPAC | Resources → Microsoft Copilot Studio agents | Agent list in environment |
 | `10-copilot-environment-picker.png` | Copilot | Environment dropdown | Environment selection |
 | `11-copilot-agents-list.png` | Copilot | Copilots | List of agents in environment |
 | `12-copilot-agent-details.png` | Copilot | Copilots → [agent] | Agent details with knowledge/connectors |

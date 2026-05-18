@@ -97,7 +97,7 @@ The self-test rollup status (`Clean` / `Anomaly` / `Pending` / `NotApplicable` /
 
 ## §2 Scenario 1 — Costs Not Appearing in Cost Management
 
-**Symptom.** A subscription with known AI workload activity (Copilot Studio messages, AI Builder credits, deployed Azure OpenAI) shows zero or near-zero cost in Cost Management for the period.
+**Symptom.** A subscription with known AI workload activity (Microsoft Copilot Studio messages, AI Builder credits, deployed Azure OpenAI) shows zero or near-zero cost in Cost Management for the period.
 
 **Root causes (ordered by frequency).**
 

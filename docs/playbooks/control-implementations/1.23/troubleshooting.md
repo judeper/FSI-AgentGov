@@ -32,7 +32,7 @@ This playbook indexes the most common failures observed when deploying step-up a
 
 **Resolution:**
 
-1. Confirm the downstream service (Copilot Studio flow, custom connector, SharePoint site) is wired to request the context — see [Portal Walkthrough Step 6](portal-walkthrough.md#step-6-map-sensitive-agent-actions-to-authentication-contexts).
+1. Confirm the downstream service (Microsoft Copilot Studio flow, custom connector, SharePoint site) is wired to request the context — see [Portal Walkthrough Step 6](portal-walkthrough.md#step-6-map-sensitive-agent-actions-to-authentication-contexts).
 2. Confirm the policy is not in report-only mode.
 3. Confirm the user is not in any exclusion group other than the documented break-glass group.
 4. Confirm no other CA policy with a less restrictive grant (`Require MFA` only) is shadowing the step-up policy; CA evaluates all matching policies and the most restrictive grant wins, but a `Block` in another policy can short-circuit evaluation.

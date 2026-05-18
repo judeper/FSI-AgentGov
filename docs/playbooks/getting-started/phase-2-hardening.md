@@ -37,7 +37,7 @@ Phase 2 implements advanced security controls, monitoring integration, and adver
 
 **Verification:**
 
-- [ ] Microsoft Copilot Studio agent protection configured
+- [ ] Copilot Studio agent protection configured
 - [ ] Policies active
 - [ ] Test alert fires correctly
 

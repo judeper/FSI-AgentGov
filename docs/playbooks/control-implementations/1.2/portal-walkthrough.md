@@ -53,7 +53,7 @@
     | Conditional Access for workload identities (§12) | **Microsoft Entra Workload Identities Premium** (separate add-on; not part of Entra ID P2) |
     | Identity Governance access reviews on app assignments and owners | **Microsoft Entra ID Governance** (or Entra ID P2 for the basic access review feature) |
     | Lifecycle Workflows for sponsor-departure automation | Microsoft Entra ID Governance |
-    | Agent ID surface in Enterprise Applications | Tenant must have **Microsoft 365 Copilot** licenses provisioned; surface enables only after first agent is created in Copilot Studio or Agent Builder |
+    | Agent ID surface in Enterprise Applications | Tenant must have **Microsoft 365 Copilot** licenses provisioned; surface enables only after first agent is created in Microsoft Copilot Studio or Agent Builder |
     | Microsoft 365 Integrated Apps blade (deploy / block / pending requests) | Microsoft 365 Apps for Enterprise or higher |
     | Microsoft 365 Agents blade and Agent 365 (preview) | **Microsoft 365 Copilot** + tenant opt-in to Agent 365 preview program |
     | Power Platform Admin Center → Copilot agents resource view | Power Platform admin center access (no additional SKU); managed environments features require **Power Platform Managed Environments** add-on |

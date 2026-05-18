@@ -1,7 +1,7 @@
 # Portal Walkthrough: Control 2.11 - Bias Testing and Fairness Assessment
 
 **Last Updated:** April 2026<br>
-**Portals:** Copilot Studio (test pane + analytics), Power Automate (orchestration), Power BI (fairness dashboard), Microsoft Purview (WORM evidence retention), SharePoint (evidence library)<br>
+**Portals:** Microsoft Copilot Studio (test pane + analytics), Power Automate (orchestration), Power BI (fairness dashboard), Microsoft Purview (WORM evidence retention), SharePoint (evidence library)<br>
 **Estimated Time:** 8–16 hours for the initial assessment; 2–4 hours per quarterly cycle once automated
 
 > **Audience:** AI Governance Lead, Data Science Team, Compliance Officer, Agent Owner. M365 admin role required to configure WORM retention and the SharePoint evidence library.

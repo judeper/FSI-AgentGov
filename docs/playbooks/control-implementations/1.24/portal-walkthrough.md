@@ -74,7 +74,7 @@ If a known resource is missing, see [Troubleshooting](troubleshooting.md) — *A
 2. **Filter** → Resource type → select AI resource types.
 3. Review attack paths. Common AI-specific scenarios as of April 2026:
    - Internet-exposed Azure OpenAI endpoint with access to sensitive data store
-   - Copilot Studio agent with over-permissive Dataverse role chained to a public-facing trigger
+   - Microsoft Copilot Studio agent with over-permissive Dataverse role chained to a public-facing trigger
    - AI Foundry project with managed identity granting access to a Key Vault containing customer secrets
    - Indirect prompt injection chain (external content source → agent → privileged action)
 4. For each path, click **Insights** to review evidence, then **Remediate** for prioritized recommendations.

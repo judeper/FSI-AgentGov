@@ -29,7 +29,7 @@ Skipping evidence preservation can convert a recoverable operational issue into 
 
 | Severity | Examples | Response window |
 |---|---|---|
-| **SEV-1 — record-keeping integrity at risk** | Retention silently disabled or unscoped from production tenant; Preservation Lock missing on Zone 3 policy that should be locked; in-scope agent transcripts disposed before retention end; eDiscovery hold inactive while litigation pending; Dataverse long-term retention silently failing on Copilot Studio environment | Immediate (page on-call); preserve evidence within 1 hour |
+| **SEV-1 — record-keeping integrity at risk** | Retention silently disabled or unscoped from production tenant; Preservation Lock missing on Zone 3 policy that should be locked; in-scope agent transcripts disposed before retention end; eDiscovery hold inactive while litigation pending; Dataverse long-term retention silently failing on Microsoft Copilot Studio environment | Immediate (page on-call); preserve evidence within 1 hour |
 | **SEV-2 — retention gap with bounded blast radius** | Single Zone 2 location dropped from a label policy; disposition queue stuck >7 days; one AI-experience policy distribution status `Pending` >72h; locked policy permits a permitted-but-unintended extension | Within business day |
 | **SEV-3 — operational only** | `Get-ComplianceTag` cmdlet throttling; portal label-publish UI lag <24h; reviewer email notification delivery delay | Routine queue |
 

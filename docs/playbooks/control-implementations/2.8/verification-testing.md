@@ -68,7 +68,7 @@
 | TC-2.8-03 | Self-approval blocked by Power Automate flow | Reject branch fires; audit row written | |
 | TC-2.8-04 | PIM activation requires MFA + justification + approval (Zone 3) | Approval queued; not auto-active | |
 | TC-2.8-05 | Access Reviews scheduled at correct cadence per zone | Four series visible | |
-| TC-2.8-06 | Copilot Studio maker is **not** Platform Admin | No overlap or documented exception | |
+| TC-2.8-06 | Microsoft Copilot Studio maker is **not** Platform Admin | No overlap or documented exception | |
 | TC-2.8-07 | Dataverse System Administrator population in Zone 3 = break-glass only | Documented in runbook | |
 | TC-2.8-08 | CAE revokes token within 5 min of user disable | 401 with claims challenge | |
 | TC-2.8-09 | Approver group membership recertified within review window | 100% completion or documented escalation | |

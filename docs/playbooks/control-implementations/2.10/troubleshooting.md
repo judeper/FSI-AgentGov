@@ -146,7 +146,7 @@ Connect-FsiTenant -Cloud GCCHigh -Scopes 'ServiceMessage.Read.All'
 
 **Symptoms:** A platform change has degraded agent behavior, but the documented rollback plan does not work because the change is server-side.
 
-**Cause:** Some changes (Copilot Studio platform behavior, Microsoft 365 Copilot model updates, connector authentication changes initiated by Microsoft) cannot be reverted by the customer. The customer can only **mitigate**.
+**Cause:** Some changes (Microsoft Copilot Studio platform behavior, Microsoft 365 Copilot model updates, connector authentication changes initiated by Microsoft) cannot be reverted by the customer. The customer can only **mitigate**.
 
 **Resolution:**
 

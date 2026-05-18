@@ -17,7 +17,7 @@
 **What to capture:**
 - Tenant settings or Global features section expanded
 - Feature toggles visible:
-  - Copilot Studio enabled (toggle state)
+  - Microsoft Copilot Studio enabled (toggle state)
   - Generative AI features (toggle state)
   - Preview features (toggle state)
   - Agent sharing (toggle state)

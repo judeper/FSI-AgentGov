@@ -21,7 +21,7 @@
 
 ### Test 3: Verify Copilot Studio Dashboard
 
-1. Navigate to **Monitor** > **Copilot Studio**
+1. Navigate to **Monitor** > **Microsoft Copilot Studio**
 2. Review agent health metrics
 3. Verify success rate metrics are displayed
 4. Check recent sessions list

@@ -1,7 +1,7 @@
 # Portal Walkthrough: Control 2.17 — Multi-Agent Orchestration Limits
 
 **Last Updated:** April 2026
-**Portals:** Copilot Studio, Power Automate, Power Platform Admin Center (PPAC), Application Insights
+**Portals:** Microsoft Copilot Studio, Power Automate, Power Platform Admin Center (PPAC), Application Insights
 **Estimated Time:** 2–4 hours per orchestration pattern (initial); ~30 minutes per quarterly review
 **Audience:** AI Governance Lead, Power Platform Admin, Copilot Studio Agent Author
 

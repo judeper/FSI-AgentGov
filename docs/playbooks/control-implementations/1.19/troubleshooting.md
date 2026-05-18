@@ -1,6 +1,6 @@
 # Control 1.19 — eDiscovery for Agent Interactions: Troubleshooting & Incident Response
 
-> **Scope.** This playbook covers operational failures, evidence-preservation incidents, and litigation-hold breakdowns specific to eDiscovery (Premium) for Microsoft 365 Copilot, Copilot Studio agent transcripts, and declared agent interactions. It assumes the unified eDiscovery experience at `https://purview.microsoft.com` (classic eDiscovery was retired August 31, 2025 in commercial clouds; only the 21Vianet sovereign cloud retains the classic experience as of this revision).
+> **Scope.** This playbook covers operational failures, evidence-preservation incidents, and litigation-hold breakdowns specific to eDiscovery (Premium) for Microsoft 365 Copilot, Microsoft Copilot Studio agent transcripts, and declared agent interactions. It assumes the unified eDiscovery experience at `https://purview.microsoft.com` (classic eDiscovery was retired August 31, 2025 in commercial clouds; only the 21Vianet sovereign cloud retains the classic experience as of this revision).
 >
 > **Companion documents.**
 > - Parent control: [`1.19 — eDiscovery for Agent Interactions`](../../../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md)

@@ -1023,7 +1023,7 @@ function New-Fsi-CAPolicy-HumanPrivilegedMFA {
 
 ### 5.2 `New-Fsi-CAPolicy-MakerCompliantDevice`
 
-Requires Intune-compliant device for makers (Copilot Studio, Power Apps, Power Automate developers). Targets the security group containing AI maker personas (typically `AIG-Makers-All`).
+Requires Intune-compliant device for makers (Microsoft Copilot Studio, Power Apps, Power Automate developers). Targets the security group containing AI maker personas (typically `AIG-Makers-All`).
 
 ```powershell
 function New-Fsi-CAPolicy-MakerCompliantDevice {

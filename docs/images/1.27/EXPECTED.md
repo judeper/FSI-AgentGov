@@ -3,7 +3,7 @@
 ## Expected Screenshots
 
 ### Screenshot 1: Agent-Level Content Moderation Setting (High)
-**Portal Path:** Copilot Studio → [Agent] → Topics → System → [Generative AI topic] → Content moderation
+**Portal Path:** Microsoft Copilot Studio → [Agent] → Topics → System → [Generative AI topic] → Content moderation
 **What to capture:**
 - Content moderation dropdown or selector showing "High" selected
 - Agent name visible in the header or breadcrumb

@@ -6,7 +6,7 @@ This playbook is the FSI-grade incident response and troubleshooting guide for *
 >
 > **Scope:** Microsoft 365 Copilot (BizChat, Copilot in Word/Excel/PowerPoint/Outlook/Teams), Copilot Pages, Copilot Notebooks, Restricted Content Discovery (RCD), Restricted SharePoint Search (RSS), DLP for Copilot, Endpoint DLP for Copilot, Microsoft Purview Audit (UAL), and the SEC 17a-4(f) recordkeeping perimeter that surrounds these workloads.
 >
-> **What this playbook does NOT cover:** General SharePoint sharing controls (see Control 4.1), tenant-wide DLP baselines (see Controls 1.10/1.11), retention policy authoring (see Control 3.4), Copilot Studio agent governance (see Pillar 2 controls), or general Microsoft 365 incident response (see Control 1.6).
+> **What this playbook does NOT cover:** General SharePoint sharing controls (see Control 4.1), tenant-wide DLP baselines (see Controls 1.10/1.11), retention policy authoring (see Control 3.4), Microsoft Copilot Studio agent governance (see Pillar 2 controls), or general Microsoft 365 incident response (see Control 1.6).
 
 ---
 

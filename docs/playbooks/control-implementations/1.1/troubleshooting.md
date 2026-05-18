@@ -6,7 +6,7 @@
 
 | Issue | Cause | Resolution |
 |-------|-------|------------|
-| User can still create agents | Security group not applied; user has Dataverse System Admin (bypasses Maker restriction); user already had a Copilot Studio license at time tenant author-gate was set (license-grandfathering) | Verify group membership; check Dataverse security roles in PPAC; verify license was removed for users not in the approved group |
+| User can still create agents | Security group not applied; user has Dataverse System Admin (bypasses Maker restriction); user already had a Microsoft Copilot Studio license at time tenant author-gate was set (license-grandfathering) | Verify group membership; check Dataverse security roles in PPAC; verify license was removed for users not in the approved group |
 | Authorized user cannot access | Group sync delay; nested-group not supported by destination control; user signed-in to wrong tenant | Wait up to 60 minutes for Entra sync; have user sign out/in; flatten nested groups if required; check for Conditional Access policy blocking the sign-in |
 | Publishing events not in audit | Audit not enabled at tenant or environment level; ingestion delay; wrong operation name | Verify Unified Audit Log is on; verify per-environment auditing is on; **expect ~60–90 min ingestion (no hard SLA per Microsoft); investigate if absent after several hours**. Search on `BotUpdateOperation-BotPublish` |
 | Cannot restrict Copilot Studio | Managed Environments not enabled; tenant author-gate setting renamed in your tenant | Enable Managed Environments first ([Control 2.1](../../../controls/pillar-2-management/2.1-managed-environments.md)); verify the current label of "Copilot Studio authors" in your tenant rollout |

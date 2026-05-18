@@ -34,7 +34,7 @@
 
 4. **Verify Tenant Licensing:**
    - Navigate to Microsoft 365 Admin Center → Billing → Licenses
-   - Confirm the tenant has Power Apps or Copilot Studio licensing assigned
+   - Confirm the tenant has Power Apps or Microsoft Copilot Studio licensing assigned
 
 5. **Contact Microsoft Support:**
    - If the page should be available but is not visible, open a support case

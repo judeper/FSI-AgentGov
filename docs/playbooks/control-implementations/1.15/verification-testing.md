@@ -19,7 +19,7 @@ Run through this list once per quarter for Zone 2 / Zone 3, once per annual revi
 7. [ ] **Key Vault diagnostic logs** — flowing to Sentinel/SIEM; events present in last 7 days; alert rules exist for `KeyDelete`, `KeyDisable`, `VaultDelete`
 8. [ ] **DKE label (Zone 3)** — sensitivity label with encryption type "Double Key Encryption" exists, points at customer DKE service URL, published to MNPI scope
 9. [ ] **DKE end-to-end (Zone 3)** — labelled test document is unreadable from a control account that has no DKE-service access (proof of cryptographic isolation)
-10. [ ] **Power Platform CMK** — PPAC environment shows "Encryption key managed by customer" with linked Key Vault key URI on every Managed Environment hosting a Copilot Studio agent
+10. [ ] **Power Platform CMK** — PPAC environment shows "Encryption key managed by customer" with linked Key Vault key URI on every Managed Environment hosting a Microsoft Copilot Studio agent
 11. [ ] **Copilot grounding inventory** — every Copilot grounding source mapped to its DEP coverage; inventory dated within last quarter
 12. [ ] **Key rotation evidence** — most recent rotation falls within the cadence required for the zone (Zone 2 annual / Zone 3 quarterly); rotation ticket records dual-control approval and the new key version URI
 13. [ ] **Revocation runbook (Zone 3)** — runbook exists, names approval chain, and includes a dated rehearsal report from a non-prod tenant within the last 12 months

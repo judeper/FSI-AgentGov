@@ -15,7 +15,7 @@ This guide covers the high-frequency failure modes observed when implementing th
 | Circuit breaker stuck Open | Reset timeout too long, downstream still failing, or half-open probe failing | Manually inspect `fsi_CircuitBreakerState`; verify downstream health independently |
 | Cascade failures still occurring | Circuit breaker not invoked on every delegation edge | Audit topic flow for missed `fsi-CircuitBreaker-Check` calls |
 | HITL approvals abandoned by users | Timeout too short, approver group unstaffed, or card lacks context | Tune timeout; configure secondary approver chain; enrich card metadata |
-| MCP tool invoked from unapproved server | DLP gap or registry not synced to Copilot Studio | Tighten Power Platform DLP (Control 2.14); audit registry sync |
+| MCP tool invoked from unapproved server | DLP gap or registry not synced to Microsoft Copilot Studio | Tighten Power Platform DLP (Control 2.14); audit registry sync |
 | App Insights events missing dimensions | Custom event call missing required custom-dimension keys | Update topic / flow; re-test with Test 7 from *Verification & Testing* |
 | Cross-environment depth tracking returns null | Dataverse row not written or `If-Match` ETag conflict not handled | Add retry-on-conflict in the flow; confirm row retention policy |
 

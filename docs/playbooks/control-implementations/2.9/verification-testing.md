@@ -20,7 +20,7 @@
 
 ### Test 1 — Native analytics data flow (TC-2.9-01)
 
-1. Open PPAC → **Analytics** → **Copilot Studio**.
+1. Open PPAC → **Analytics** → **Microsoft Copilot Studio**.
 2. Select an environment with Zone 2/3 agents.
 3. Confirm sessions, resolution rate, and CSAT data for the trailing 7+ days.
 4. **Expected:** non-zero sessions, recent timestamps, no banner indicating analytics is disabled.

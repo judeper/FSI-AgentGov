@@ -88,7 +88,7 @@ if ($PSCmdlet.ShouldProcess($outFile, 'Write Message Center evidence')) {
 ## Script 2 — Inventory Copilot Studio agents and tag governance zone
 
 ### Purpose
-Inventory all Copilot Studio bots across Power Platform environments and join them with your governance-zone classification (held in a CSV maintained by the FSI team). Disclosure-language presence is **not** programmatically inspectable today (Copilot Studio topic content is not exposed by the admin module), so the script flags every agent as "Manual review required" and emits the inventory for tracking.
+Inventory all Microsoft Copilot Studio bots across Power Platform environments and join them with your governance-zone classification (held in a CSV maintained by the FSI team). Disclosure-language presence is **not** programmatically inspectable today (Copilot Studio topic content is not exposed by the admin module), so the script flags every agent as "Manual review required" and emits the inventory for tracking.
 
 ### `Get-AgentZoneInventory.ps1`
 

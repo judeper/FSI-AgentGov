@@ -14,7 +14,7 @@
 
 ## Verification Focus
 
-- DSPM discovers Copilot Studio agents
+- DSPM discovers Microsoft Copilot Studio agents
 - DSPM → AI observability shows Agent 365 instances where applicable
 - Policies cover AI-specific data risks
 - Recommendations align with FSI requirements

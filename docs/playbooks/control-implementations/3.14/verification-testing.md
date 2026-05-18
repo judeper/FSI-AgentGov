@@ -4,7 +4,7 @@
 **Control:** 3.14 — Agent 365 Observability SDK and Custom Agent Telemetry
 **Pillar:** Reporting
 **Estimated Duration:** 2–3 hours
-**Required Role:** Entra Global Admin or Entra Security Reader (sign-in log review); AI Administrator (Admin Center verification); SOC Analyst (Defender verification); Purview Audit Reader (Purview verification); Copilot Studio Agent Author / Application developer (SDK-level verification)
+**Required Role:** Entra Global Admin or Entra Security Reader (sign-in log review); AI Administrator (Admin Center verification); SOC Analyst (Defender verification); Purview Audit Reader (Purview verification); Microsoft Copilot Studio Agent Author / Application developer (SDK-level verification)
 **Last Verified:** April 2026
 
 ---

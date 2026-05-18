@@ -33,7 +33,7 @@
 - Evidence of who used Copilot, when, where (AppHost), and what resources were accessed via `AccessedResources`.
 
 ### 2.2 User interactions: Copilot Studio applications (custom copilots/agents)
-Microsoft’s examples show Copilot Studio applications appear as `CopilotInteraction` with AppIdentity like `Copilot.Studio.<GUID>` and AppHost such as Teams.
+Microsoft’s examples show Microsoft Copilot Studio applications appear as `CopilotInteraction` with AppIdentity like `Copilot.Studio.<GUID>` and AppHost such as Teams.
 
 - **Operation:** `CopilotInteraction`
 - **RecordType:** `CopilotInteraction`

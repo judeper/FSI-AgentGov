@@ -2,7 +2,7 @@
 
 **Control ID:** 2.5
 **Pillar:** Management
-**Playbook Type:** Portal Walkthrough (Copilot Studio, Azure AI Foundry, Power Platform Admin Center, Microsoft 365 Agents Toolkit)
+**Playbook Type:** Portal Walkthrough (Microsoft Copilot Studio, Azure AI Foundry, Power Platform Admin Center, Microsoft 365 Agents Toolkit)
 **Last UI Verified:** April 2026
 **Estimated Time:** 12–24 hours across the five validation planes for an initial Zone 3 agent; 4–8 hours for Zone 2; 1–2 hours for Zone 1
 **Audience:** AI Governance Lead, Copilot Studio Agent Author, Power Platform Admin, Environment Admin, Model Risk Manager, Compliance Officer, Designated Supervisor / Registered Principal, Purview Audit Admin, AI Administrator
@@ -27,7 +27,7 @@
     Running the procedures in this walkthrough **supports compliance with** SOX Sections 302/404, FINRA Rule 4511, FINRA Rule 3110, FINRA Regulatory Notice 25-07, SEC Rule 17a-4(b)(4), GLBA 501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), and Federal Reserve SR 26-2 (formerly SR 11-7). It does **not** by itself certify any agent as compliant. Effectiveness depends on evaluator threshold quality, test-set coverage, role separation, supervisory review depth, evidence retention, and your firm's interpretation of the rules. Engage Compliance, Legal, Information Security, and Model Risk Management before promoting any Zone 3 agent to production.
 
 !!! info "License Requirements (verify at provisioning time)"
-    - **Microsoft Copilot Studio** — required for Test Pane and in-product Agent Evaluation
+    - **Copilot Studio** — required for Test Pane and in-product Agent Evaluation
     - **Microsoft 365 Copilot** — required for declarative-agent and Microsoft 365 extensibility test scenarios
     - **Azure AI Foundry / Azure AI Evaluation SDK** — required for Plane 3 quality and safety evaluators; consumption-based billing applies; Azure AI Content Safety is the dependency for safety evaluators
     - **Microsoft 365 Agents Toolkit** — required for declarative-agent local preview/sideload (`m365 atk validate`, `m365 atk preview`)
@@ -818,7 +818,7 @@ To grant read-only analytics access:
 
 ### 9.8 Agent effectiveness: 7-area review (May 2026 update)
 
-Microsoft Copilot Studio Analytics provides **seven core areas** for reviewing and improving conversational agent effectiveness (updated May 2026; previously six areas). Plane 5 monitoring should include a periodic sweep of the **Analyze effectiveness** page to detect gaps across all seven areas.
+Copilot Studio Analytics provides **seven core areas** for reviewing and improving conversational agent effectiveness (updated May 2026; previously six areas). Plane 5 monitoring should include a periodic sweep of the **Analyze effectiveness** page to detect gaps across all seven areas.
 
 **Portal path:** Copilot Studio → agent → **Analytics** → navigate to the effectiveness analysis section (exact tab label may vary by release wave — anchor on page title and consult [Microsoft Learn](https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-improve-agent-effectiveness)).
 

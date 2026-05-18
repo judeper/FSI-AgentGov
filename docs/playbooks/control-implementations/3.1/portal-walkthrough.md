@@ -50,7 +50,7 @@
 !!! info "License Requirements"
     Verify SKU and preview availability at deploy time against current Microsoft Learn licensing guidance and your tenant Message Center. Per-surface floor:
 
-    - **Microsoft 365 Copilot** (E3/E5 + Copilot license) — required for the Microsoft 365 Copilot Hub Inventory surface (Plane 1) and Copilot Studio agent metadata surfacing.
+    - **Microsoft 365 Copilot** (E3/E5 + Copilot license) — required for the Microsoft 365 Copilot Hub Inventory surface (Plane 1) and Microsoft Copilot Studio agent metadata surfacing.
     - **Power Platform per-app / per-user / Process licenses** — entitlement metadata flows into the Plane 2 export; **Managed Environments** is required to surface environment-level governance attributes (see [Control 2.1](../../../controls/pillar-2-management/2.1-managed-environments.md)).
     - **Microsoft Entra ID P1** (P2 recommended for PIM-elevated reads of Enterprise App registrations and the emerging Agent Registry blade).
     - **Microsoft Purview Audit (Standard or Premium)** — required for retention of registry-mutation events; Premium is recommended for Zone 3 long-horizon (≥ 1 year) audit retention.

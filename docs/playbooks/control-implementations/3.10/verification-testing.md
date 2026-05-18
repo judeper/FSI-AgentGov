@@ -12,7 +12,7 @@
 
 Before beginning verification testing, prepare:
 
-- [ ] At least one Zone 2 and one Zone 3 test agent in Copilot Studio
+- [ ] At least one Zone 2 and one Zone 3 test agent in Microsoft Copilot Studio
 - [ ] Copilot Studio CSAT enabled and `Report Inaccurate Response` topic published on each test agent
 - [ ] SharePoint `Hallucination Tracking` list provisioned with Purview retention label applied
 - [ ] Power Automate flows (`HFL-Intake-3.10`, SLA monitor, trend detector) enabled

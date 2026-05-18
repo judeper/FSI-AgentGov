@@ -10,7 +10,7 @@ This playbook is organized by symptom. Each issue is an `H3` under a topical `H2
 
 | Symptom | First check |
 |---|---|
-| **Content moderation** control not visible in prompt builder | Agent is not on Copilot Studio (modern) **or** generative AI features disabled at environment level |
+| **Content moderation** control not visible in prompt builder | Agent is not on Microsoft Copilot Studio (modern) **or** generative AI features disabled at environment level |
 | Generative answers / Conversational boosting topic missing | Generative answers disabled for the agent, or legacy PVA bot |
 | Publish fails after moderation change | Validation errors elsewhere in the agent; capacity; concurrent editing |
 | Topic override appears ignored | Agent not republished; cache; topic not actually triggered |

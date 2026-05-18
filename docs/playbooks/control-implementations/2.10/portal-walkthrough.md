@@ -12,7 +12,7 @@ Before starting, confirm:
 
 - **Roles:**
     - **Power Platform Admin** — required to set release channels and create environments in PPAC
-    - **AI Administrator** — required to track Microsoft 365 Copilot and Copilot Studio service updates and manage Copilot feature settings
+    - **AI Administrator** — required to track Microsoft 365 Copilot and Microsoft Copilot Studio service updates and manage Copilot feature settings
     - **Entra Global Reader** *or* **Microsoft 365 Service Support Admin** — required to read Message Center; an Entra Global Admin or AI Administrator can also delegate read access via the Service Communications API
     - **Reader** on the target Azure subscription(s) — required to view Service Health; **Monitoring Contributor** required to create alert rules and Azure Monitor action groups
 - **Licensing:** Managed Environments enabled on every Zone 2 / Zone 3 environment (release channel selection requires Managed Environments for full enforcement)
@@ -51,7 +51,7 @@ The Message Center is the authoritative source for Microsoft 365 platform change
     - Check **Send me a weekly digest** and **Send me emails for major updates and Message center posts that I am tagged in**.
     - Under **Choose services**, restrict to the relevant services for your AI estate. Typical FSI selection:
         - Microsoft Copilot
-        - Microsoft Copilot Studio
+        - Copilot Studio
         - Power Platform
         - Power Automate
         - Power Apps

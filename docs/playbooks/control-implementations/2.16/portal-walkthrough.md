@@ -11,7 +11,7 @@
 Before starting, confirm:
 
 - **Roles:**
-    - **AI Administrator** — required to add or remove Copilot Studio knowledge sources and to manage citation settings on tenant-wide agents
+    - **AI Administrator** — required to add or remove Microsoft Copilot Studio knowledge sources and to manage citation settings on tenant-wide agents
     - **Power Platform Admin** — required to govern environments hosting agents and to deploy Power Automate approval flows
     - **SharePoint Admin** *or* **SharePoint Site Collection Admin** — required to enable versioning, content approval, and metadata schemas on knowledge libraries
     - **Copilot Studio Agent Author** — required to bind approved knowledge sources to a specific agent

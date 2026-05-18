@@ -58,7 +58,7 @@ erDiagram
 
 The `fsi_denycorrelations` table provides pre-computed daily summaries grouped by:
 
-1. **AgentId** — Groups events per Copilot Studio agent
+1. **AgentId** — Groups events per Microsoft Copilot Studio agent
 2. **Zone** — Governance zone classification (Zone 1/2/3)
 3. **Time window** — Configurable correlation window (default 24 hours)
 

@@ -81,7 +81,7 @@ All copy below is **illustrative** — your Compliance and Legal teams should ap
 
 ## Step 4: Configure Human Handoff via the Escalate Topic + Transfer Conversation Node
 
-This is the canonical Microsoft Copilot Studio pattern (the older "Transfer to Agent" wording is deprecated).
+This is the canonical Copilot Studio pattern (the older "Transfer to Agent" wording is deprecated).
 
 1. **Topics** → System topic **Escalate** → open
 2. Confirm trigger phrases include: `talk to a person`, `talk to a human`, `representative`, `agent`, `advisor`, `human`, `complaint`

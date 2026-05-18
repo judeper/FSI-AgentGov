@@ -43,7 +43,7 @@ if ($Host.Name -eq 'Windows PowerShell ISE Host') {
 | 7 | Sovereign silent skew | GCC High report is clean while commercial shows 40 orphans | Sovereign cloud has no Graph parity for HR `employeeLeaveDateTime` | Route sovereign tenants through §8 manual reconciliation worksheet — **do not early-exit to "clean"** |
 | 8 | Throttled paging truncation | Signal #1 returns exactly 999 rows tenant-wide | `@odata.nextLink` not followed after HTTP 429 backoff | Use `Invoke-Agt36GraphPaged` with retry-after honoring |
 | 9 | Card-vs-detection drift | Admin Center card (3.13) shows 12 orphans, detection reports 8 | Detection filter excludes disabled-but-unlicensed sponsors | Align filter with 3.13 definitions (cross-check §12 RECONCILE Pester) |
-| 10 | SharePoint author disabled-user mask | Signal #5 misses Copilot Studio agents authored by disabled users | PnP.PowerShell `Get-PnPUser` caches resolved principals for 8h | Force `-Refresh` or bypass cache via Graph `directoryObjects/getByIds` |
+| 10 | SharePoint author disabled-user mask | Signal #5 misses Microsoft Copilot Studio agents authored by disabled users | PnP.PowerShell `Get-PnPUser` caches resolved principals for 8h | Force `-Refresh` or bypass cache via Graph `directoryObjects/getByIds` |
 
 ### 0.3 — Self-test before every production run
 

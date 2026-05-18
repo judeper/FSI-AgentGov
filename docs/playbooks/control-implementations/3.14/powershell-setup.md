@@ -7,7 +7,7 @@
 **Control:** 3.14 — Agent 365 Observability SDK and Custom Agent Telemetry
 **Pillar:** Reporting
 **Estimated Duration:** 3–6 hours (initial SDK integration per agent); 30–60 minutes (log retention configuration)
-**Required Role:** Copilot Studio Agent Author / Application developer (SDK implementation, non-admin role); Entra Global Admin (Entra diagnostic settings); Power Platform Admin or Azure subscription Owner (storage and Log Analytics provisioning); Purview Audit Reader (Unified Audit Log verification)
+**Required Role:** Microsoft Copilot Studio Agent Author / Application developer (SDK implementation, non-admin role); Entra Global Admin (Entra diagnostic settings); Power Platform Admin or Azure subscription Owner (storage and Log Analytics provisioning); Purview Audit Reader (Unified Audit Log verification)
 **Last Verified:** April 2026
 
 ---

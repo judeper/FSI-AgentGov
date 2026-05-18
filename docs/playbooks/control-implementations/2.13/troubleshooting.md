@@ -135,7 +135,7 @@
 
 ### Solution Layer Drift
 
-**Symptom:** Agent configurations in Copilot Studio do not match the documented configuration in the governance library, or solution layers show unauthorized changes.
+**Symptom:** Agent configurations in Microsoft Copilot Studio do not match the documented configuration in the governance library, or solution layers show unauthorized changes.
 
 **Likely Cause:**
 

@@ -72,7 +72,7 @@ If any of these are missing, **stop**. The Microsoft surfaces below have nothing
 |---|---|
 | Microsoft Purview Data Security Posture Management for AI | Microsoft 365 E5 Compliance, Purview Premium, or DSPM for AI standalone — verify in your tenant |
 | Azure AI Foundry evaluation harness and monitoring | Azure subscription with Foundry compute (AI Hub project, evaluator quota) |
-| Microsoft Copilot Studio Analytics | Copilot Studio per-tenant or per-message capacity license |
+| Copilot Studio Analytics | Copilot Studio per-tenant or per-message capacity license |
 | Microsoft 365 Copilot grounding for in-scope agents | Microsoft 365 Copilot per-user license |
 | Microsoft Agent 365 Admin Center | Microsoft 365 E7 ("Frontier Suite") or standalone Agent 365 layered on M365 Copilot |
 | Microsoft Entra Agent ID | Microsoft Entra ID Governance (P1 + ID Governance add-on, or Entra Suite) |

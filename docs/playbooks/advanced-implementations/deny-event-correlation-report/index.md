@@ -7,7 +7,7 @@
 
 ## Purpose
 
-This playbook provides a deployable solution for correlating "deny/no content returned" events across three Microsoft data sources for Copilot and Copilot Studio agents. The v2.0.0 architecture uses Dataverse for persistent storage, Power Automate for daily orchestration, Teams adaptive cards for severity-based alerting, anomaly detection for trend analysis, and SHA-256 integrity-hashed evidence export for regulatory examination readiness.
+This playbook provides a deployable solution for correlating "deny/no content returned" events across three Microsoft data sources for Copilot and Microsoft Copilot Studio agents. The v2.0.0 architecture uses Dataverse for persistent storage, Power Automate for daily orchestration, Teams adaptive cards for severity-based alerting, anomaly detection for trend analysis, and SHA-256 integrity-hashed evidence export for regulatory examination readiness.
 
 **Applies to:** Zone 2/3 environments; recommended for any organization requiring daily evidence of AI agent deny events.
 

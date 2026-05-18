@@ -12,7 +12,7 @@ This playbook provides numbered test cases (`TC-1.26-XX`) with explicit Given / 
 ### TC-1.26-01 — Per-Agent Toggle State Matches Zone Policy
 
 - **Given:** An agent classified as Zone *N* with documented approval state recorded in the per-agent inventory
-- **When:** The reviewer opens *Copilot Studio → \[Agent\] → Settings → Security → File Upload* and reads the toggle state
+- **When:** The reviewer opens *Microsoft Copilot Studio → \[Agent\] → Settings → Security → File Upload* and reads the toggle state
 - **Then:** The state matches the zone policy (Zone 1: any; Zone 2: Off unless approved; Zone 3: Off unless formally approved with risk assessment)
 - **Pass Criteria:** Observed state == Expected state for every agent in the inventory
 - **Evidence:** Screenshot of toggle state + row in `compliance-audit-<ts>.json` showing `Result = PASS`

@@ -12,7 +12,7 @@ This playbook produces audit-defensible evidence that environment routing is on,
 
 1. Sign in to [Power Platform Admin Center](https://admin.powerplatform.microsoft.com) as a Power Platform Admin.
 2. **Manage → Tenant settings → Environment routing**.
-3. **EXPECTED:** Routing toggle is **On**; the configured product portals (Copilot Studio, Power Apps, Power Automate cloud, Power Automate for desktop) match the documented scope.
+3. **EXPECTED:** Routing toggle is **On**; the configured product portals (Microsoft Copilot Studio, Power Apps, Power Automate cloud, Power Automate for desktop) match the documented scope.
 
 Programmatic equivalent:
 

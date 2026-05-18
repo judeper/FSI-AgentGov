@@ -12,7 +12,7 @@
 
 - **Agent name:**
 - **Agent ID (unique):**
-- **Agent type:** (Declarative agent / Copilot Studio custom-engine agent / Microsoft-built agent / Other)
+- **Agent type:** (Declarative agent / Microsoft Copilot Studio custom-engine agent / Microsoft-built agent / Other)
 - **Tenant/environment:** (Prod / Test / Sandbox)
 - **Primary surfaces:** (Teams / Outlook / Word / Microsoft 365 Copilot Chat / other)
 - **Owner (business):**

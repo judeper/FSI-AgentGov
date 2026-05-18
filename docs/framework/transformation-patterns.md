@@ -45,7 +45,7 @@ The following overviews state the Microsoft framing (paraphrased), the typical F
 
 **Microsoft framing.** Personal productivity and drafting assistance — research, summarization, scheduling, and individual workflow automation — where the human retains decision authority (paraphrased from CAPE *Patterns Playbook* pp. 7–8).
 
-**Typical FSI shape.** The default entry point for Microsoft 365 Copilot and personal Copilot Studio agents inside the firm. Common examples: drafting client communications before supervisor review, summarizing meeting notes, structuring research briefs, organizing calendar and inbox, generating internal memos. The human authors and is accountable for any output that reaches an external party.
+**Typical FSI shape.** The default entry point for Microsoft 365 Copilot and personal Microsoft Copilot Studio agents inside the firm. Common examples: drafting client communications before supervisor review, summarizing meeting notes, structuring research briefs, organizing calendar and inbox, generating internal memos. The human authors and is accountable for any output that reaches an external party.
 
 **Default FSI Zone.** Zone 1 by default; Zone 2 as soon as the output is shared into a team channel or used in a customer workflow; Zone 3 when regulated content is generated.
 

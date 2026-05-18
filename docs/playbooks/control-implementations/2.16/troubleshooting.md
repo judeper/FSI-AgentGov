@@ -36,7 +36,7 @@
 2. Confirm the FSI metadata is populated:
     - `Approved For Agents` must contain the agent's identifier (case-sensitive — verify exact value)
     - `Classification` must be set
-3. Re-open the agent's knowledge source filter in Copilot Studio and confirm the filter expression matches the document's metadata
+3. Re-open the agent's knowledge source filter in Microsoft Copilot Studio and confirm the filter expression matches the document's metadata
 4. Check index propagation: Copilot Studio knowledge index refreshes are platform-driven and asynchronous; allow up to 24 hours after a content or metadata change
 5. Run `Test-LibraryHardening.ps1` and confirm the library reports `Status = PASS`
 

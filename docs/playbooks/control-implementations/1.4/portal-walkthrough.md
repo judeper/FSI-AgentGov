@@ -5,7 +5,7 @@
 **Estimated Time:** 45–60 minutes (first environment group); 15 minutes per additional environment
 **Primary Owner Admin Role:** Power Platform Admin
 
-> Portal configuration guide for [Control 1.4 — Advanced Connector Policies (ACP)](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md). ACP is the default-deny, action-aware connector governance layer that supersedes the Business / Non-Business / Blocked classification model in classic data policies for **certified connectors**. Custom connectors, HTTP connectors, and Copilot Studio virtual connectors continue to require classic DLP coverage.
+> Portal configuration guide for [Control 1.4 — Advanced Connector Policies (ACP)](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md). ACP is the default-deny, action-aware connector governance layer that supersedes the Business / Non-Business / Blocked classification model in classic data policies for **certified connectors**. Custom connectors, HTTP connectors, and Microsoft Copilot Studio virtual connectors continue to require classic DLP coverage.
 
 ---
 

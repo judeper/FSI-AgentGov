@@ -7,7 +7,7 @@
 
 ## Overview
 
-This reference provides a consolidated taxonomy of audit events for Microsoft 365 AI agents, including Copilot Studio custom agents, Microsoft 365 built-in agents (Researcher, Analyst, Facilitator), and Agent 365 Blueprint-registered agents.
+This reference provides a consolidated taxonomy of audit events for Microsoft 365 AI agents, including Microsoft Copilot Studio custom agents, Microsoft 365 built-in agents (Researcher, Analyst, Facilitator), and Agent 365 Blueprint-registered agents.
 
 !!! note "Preview Features"
     Agent 365 SDK events and Agentic User events are preview features. Event schemas may change as features evolve toward general availability.

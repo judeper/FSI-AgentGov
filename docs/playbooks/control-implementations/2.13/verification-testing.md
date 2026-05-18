@@ -142,7 +142,7 @@ Before executing test cases, confirm the following pre-gates are met:
 
 | Field | Detail |
 |---|---|
-| **Objective** | Verify Copilot Studio agent publish history and version information is captured and preserved |
+| **Objective** | Verify Microsoft Copilot Studio agent publish history and version information is captured and preserved |
 | **Zone Applicability** | Zone 2, Zone 3 |
 | **Preconditions** | Power Platform Admin role, agent deployed in a managed environment |
 | **Steps** | 1. Open **Power Platform Admin Center** > **Environments** > select environment<br>2. Navigate to **Copilot Studio** > **Agents** > select agent<br>3. Review the **Publish history** — verify entries exist with timestamps and publisher identity<br>4. For agents in managed solutions: navigate to **Solutions** > select solution > review **Solution history**<br>5. Verify that an export of agent details (topics, actions, knowledge sources) has been saved to the `AgentConfigurations` library |

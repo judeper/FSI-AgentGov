@@ -24,7 +24,7 @@ Install-Module -Name MicrosoftPowerBIMgmt                         -RequiredVersi
 
 ## 1 — Inventory agents and their analytics posture
 
-This script enumerates every Copilot Studio agent in the tenant and records whether tenant analytics is reachable. **Read-only.** Safe to run in production.
+This script enumerates every Microsoft Copilot Studio agent in the tenant and records whether tenant analytics is reachable. **Read-only.** Safe to run in production.
 
 ```powershell
 <#

@@ -6,7 +6,7 @@
     Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
 
 !!! info "Read-mostly by design"
-    These scripts read tenant state and emit evidence files. They **do not** mutate DLP policies, connector classifications, or Copilot Studio settings. Use the portal walkthrough or your IaC pipeline for change-controlled mutations. All emitted files should be hashed (SHA-256) and stored in your audit-evidence repository.
+    These scripts read tenant state and emit evidence files. They **do not** mutate DLP policies, connector classifications, or Microsoft Copilot Studio settings. Use the portal walkthrough or your IaC pipeline for change-controlled mutations. All emitted files should be hashed (SHA-256) and stored in your audit-evidence repository.
 
 ---
 

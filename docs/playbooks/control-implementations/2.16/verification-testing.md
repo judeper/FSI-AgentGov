@@ -112,7 +112,7 @@ The PowerShell scripts in [PowerShell Setup](powershell-setup.md) emit configura
 - [ ] `library-hardening-*.json` for every site in scope, with SHA-256 manifest
 - [ ] `agent-knowledge-bindings-*.json` snapshots covering the audit period
 - [ ] Power Automate flow definitions (export from `make.powerautomate.com`)
-- [ ] Copilot Studio agent settings export (citations enabled, refusal-if-ungrounded for Zone 3)
+- [ ] Microsoft Copilot Studio agent settings export (citations enabled, refusal-if-ungrounded for Zone 3)
 - [ ] Site column schema export confirming the FSI metadata schema is applied
 
 ### Operating-effectiveness evidence

@@ -1,6 +1,6 @@
 # Control 2.7: Vendor and Third-Party Risk Management — Portal Walkthrough
 
-> Companion to [Control 2.7](../../../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md). Provides portal-driven configuration to inventory third-party connectors, restrict high-risk publishers, govern Copilot Studio plugins/MCP, and stand up ongoing monitoring aligned to the Interagency 2023 Third-Party Guidance, OCC 2013-29, GLBA Safeguards Rule (16 CFR Part 314), FINRA 3110/4511, and SEC 17a-4(f).
+> Companion to [Control 2.7](../../../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md). Provides portal-driven configuration to inventory third-party connectors, restrict high-risk publishers, govern Microsoft Copilot Studio plugins/MCP, and stand up ongoing monitoring aligned to the Interagency 2023 Third-Party Guidance, OCC 2013-29, GLBA Safeguards Rule (16 CFR Part 314), FINRA 3110/4511, and SEC 17a-4(f).
 
 ---
 

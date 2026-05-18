@@ -45,7 +45,7 @@ This step produces the complete list of agents that require Control 4.9 governan
 The page now displays only agents that have at least one embedded file knowledge source.
 
 !!! note "Filter Scope"
-    This filter shows agents created via Agent Builder that have files stored in SharePoint Embedded containers. Agents built in Copilot Studio or agents that use SharePoint site knowledge (not uploaded files) will not appear under this filter. If you expect an agent to appear and it does not, see the Troubleshooting playbook Section 1.
+    This filter shows agents created via Agent Builder that have files stored in SharePoint Embedded containers. Agents built in Microsoft Copilot Studio or agents that use SharePoint site knowledge (not uploaded files) will not appear under this filter. If you expect an agent to appear and it does not, see the Troubleshooting playbook Section 1.
 
 ### Step 1.3 — Export the Agent List for Audit Records
 

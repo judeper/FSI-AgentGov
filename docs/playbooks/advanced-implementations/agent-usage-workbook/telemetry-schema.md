@@ -2,7 +2,7 @@
 
 [Playbooks](../../index.md) > Advanced Implementations > [Agent Usage & Performance Workbook](index.md) > Telemetry Schema Reference
 
-**Scope:** Copilot Studio agents connected to Azure Application Insights
+**Scope:** Microsoft Copilot Studio agents connected to Azure Application Insights
 **Last Updated:** February 2026 | **Version:** v1.6.2
 
 ---

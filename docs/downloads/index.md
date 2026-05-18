@@ -76,7 +76,7 @@ The lists below mirror the control coverage currently shipped in each role workb
 - 3.1 Agent Inventory and Metadata Management (Agent ID section)
 
 ### Power Platform Admin
-- 1.29 Global Secure Access: Network Controls for Copilot Studio Agents
+- 1.29 Global Secure Access: Network Controls for Microsoft Copilot Studio Agents
 - 2.1 Managed Environments
 - 2.2 Environment Groups and Tier Classification
 - 2.15 Environment Routing and Auto-Provisioning

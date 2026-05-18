@@ -128,7 +128,7 @@ The bootstrap script `Invoke-Me21PreFlight.ps1` (in the sister [PowerShell Setup
 | Tenant identification | PRE-04 | Captures `tenantId`, `displayName`, primary verified domain for every evidence record | HALT |
 | Cloud detection | PRE-05 | Reads `(Get-MgContext).Environment` and the `-Endpoint` parameter passed to `Add-PowerAppsAccount`; maps to `Commercial / GCC / GCCH / DoD / China`; verifies the two agree | HALT on disagreement |
 | Sovereign route | PRE-06 | If cloud ∈ {GCC, GCCH, DoD, China}, sets `$script:isSovereign = $true`; downstream `Skip` flags route SOV-affected TCs to compensating substitutes | Continue with `cloud` field set; sovereign clouds route to TC-18 |
-| License gate | PRE-07 | Confirms tenant holds at least one Power Platform-bearing SKU (Power Apps Premium, Power Automate Premium, Copilot Studio, or Dynamics 365 with Power Platform usage rights). Surfaces the **June 2026 enforcement** banner — see TC-3. | HALT on absent entitlement; WARN on PAYG-only |
+| License gate | PRE-07 | Confirms tenant holds at least one Power Platform-bearing SKU (Power Apps Premium, Power Automate Premium, Microsoft Copilot Studio, or Dynamics 365 with Power Platform usage rights). Surfaces the **June 2026 enforcement** banner — see TC-3. | HALT on absent entitlement; WARN on PAYG-only |
 | Clock skew gate | PRE-08 | Compares local UTC to the `Date` header from a Graph response; aborts if drift exceeds 60 seconds | HALT — clock skew invalidates timestamp evidence for FINRA 4511 / SEC 17a-4 |
 | Evidence root writeable | PRE-09 | Confirms `$env:ME21_EVIDENCE_ROOT` exists, is writeable, and resolves to a path under WORM-eligible storage (validated by checking the parent storage account''s immutability policy where applicable) | HALT |
 

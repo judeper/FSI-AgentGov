@@ -133,7 +133,7 @@ Graph API throttling applies to all solutions using Microsoft 365 data.
 
 ### Dataverse Capacity
 
-As of December 2025, Microsoft significantly increased default Dataverse capacity for several Power Platform licenses. Copilot Studio remains separate: it uses the tenant default environment baseline (3 GB database + 3 GB file + 1 GB log = 7 GB) plus per-license accruals rather than a fixed 15 GB default.
+As of December 2025, Microsoft significantly increased default Dataverse capacity for several Power Platform licenses. Microsoft Copilot Studio remains separate: it uses the tenant default environment baseline (3 GB database + 3 GB file + 1 GB log = 7 GB) plus per-license accruals rather than a fixed 15 GB default.
 
 | License | Previous Database Capacity | New Database Capacity (Dec 2025) |
 |---------|---------------------------:|---------------------------------:|

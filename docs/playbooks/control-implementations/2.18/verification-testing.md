@@ -117,7 +117,7 @@ A "pass rate ≥ 95%" gate is meaningless without a sample-size justification. U
 
 ## Evaluation Methodology Guidance
 
-Copilot Studio's built-in [agent evaluation framework](https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-agent-evaluation-intro) is the recommended execution surface for this control. The Microsoft Learn [iterative evaluation framework](https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/evaluation-iterative-framework) describes a four-stage maturation path (define → baseline → expand → operationalize) that maps cleanly onto FSI maturity levels.
+Microsoft Copilot Studio's built-in [agent evaluation framework](https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-agent-evaluation-intro) is the recommended execution surface for this control. The Microsoft Learn [iterative evaluation framework](https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/evaluation-iterative-framework) describes a four-stage maturation path (define → baseline → expand → operationalize) that maps cleanly onto FSI maturity levels.
 
 ### Scenario Definition by Conflict Type
 

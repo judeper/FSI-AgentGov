@@ -9,7 +9,7 @@
 ---
 
 !!! danger "READ FIRST — what this walkthrough is and is NOT"
-    This walkthrough configures the **detection, alerting, supervisory-review, and evidence-preservation surfaces** for *adversarial inputs* (prompt injection, jailbreak, indirect/XPIA attacks, encoded evasion) targeting Microsoft 365 Copilot, Copilot Studio agents, and Azure OpenAI / Azure AI Foundry-backed FSI agents.
+    This walkthrough configures the **detection, alerting, supervisory-review, and evidence-preservation surfaces** for *adversarial inputs* (prompt injection, jailbreak, indirect/XPIA attacks, encoded evasion) targeting Microsoft 365 Copilot, Microsoft Copilot Studio agents, and Azure OpenAI / Azure AI Foundry-backed FSI agents.
 
     It is **NOT** a substitute for the following sibling controls. Each is a separate configuration surface with its own playbook:
 

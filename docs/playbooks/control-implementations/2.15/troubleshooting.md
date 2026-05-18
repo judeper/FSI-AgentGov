@@ -147,7 +147,7 @@ $g = (Get-TenantSettings).powerPlatform.governance
 
 ### Via Maker Experience
 
-1. Sign in as a test maker matching a specific rule. Open Copilot Studio.
+1. Sign in as a test maker matching a specific rule. Open Microsoft Copilot Studio.
 2. Confirm a new dev env is auto-provisioned in the expected group, OR (if the maker already owns a dev env) confirm routing landed them in their existing one.
 
 ---

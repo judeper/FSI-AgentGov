@@ -1,7 +1,7 @@
 # Control 1.29 — Troubleshooting: Global Secure Access Network Controls
 
 **Playbook Type:** Troubleshooting
-**Control:** 1.29 — Global Secure Access: Network Controls for Copilot Studio Agents
+**Control:** 1.29 — Global Secure Access: Network Controls for Microsoft Copilot Studio Agents
 **Audience:** Power Platform Administrators, Security Operations, Platform Engineers
 **Estimated Resolution Time:** Varies by issue — most common issues resolve in 15–60 minutes
 **Prerequisites:** Access to Power Platform admin center, Entra admin center, and GSA traffic logs

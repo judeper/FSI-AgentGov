@@ -1,6 +1,6 @@
 # Control 2.20 — PowerShell Setup: Adversarial Testing and Red Team Framework
 
-> **Scope.** This playbook is the canonical PowerShell automation reference for **Control 2.20 — Adversarial Testing and Red Team Framework**. It orchestrates pre-deployment and scheduled adversarial probes against Microsoft 365 Copilot, Copilot Studio, and Azure OpenAI / Azure AI Foundry-backed agents, and emits SHA-256-hashed evidence packs suitable for SEC 17a-4(f) WORM retention.
+> **Scope.** This playbook is the canonical PowerShell automation reference for **Control 2.20 — Adversarial Testing and Red Team Framework**. It orchestrates pre-deployment and scheduled adversarial probes against Microsoft 365 Copilot, Microsoft Copilot Studio, and Azure OpenAI / Azure AI Foundry-backed agents, and emits SHA-256-hashed evidence packs suitable for SEC 17a-4(f) WORM retention.
 >
 > **Companion documents.**
 >

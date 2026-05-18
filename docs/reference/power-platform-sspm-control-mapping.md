@@ -113,7 +113,7 @@ The following SSPM controls have no FSI-AgentGov equivalent by design:
 
 | SSPM Control | Reason |
 |---|---|
-| SSPM-1: Power Pages Table Permissions | Power Pages portal security is outside FSI-AgentGov scope (focused on Copilot Studio/Agent Builder) |
+| SSPM-1: Power Pages Table Permissions | Power Pages portal security is outside FSI-AgentGov scope (focused on Microsoft Copilot Studio/Agent Builder) |
 | SSPM-17: Old Pending Invitations (Portal) | Power Pages invitation lifecycle management is outside scope |
 
 ### Out of Scope (Dynamics 365 Email)

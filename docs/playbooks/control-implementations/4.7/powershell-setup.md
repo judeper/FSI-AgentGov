@@ -12,7 +12,7 @@
 >
 > **Roles required (canonical).** Entra Global Admin (one-time consent), Purview Compliance Admin (labels, DLP, retention), SharePoint Admin (RSS, multi-geo), Microsoft 365 Copilot administrator role for tenant-level Copilot policy in the Microsoft 365 admin center.
 >
-> **Apr 2026 sovereign and subprocessor notice.** Microsoft 365 Copilot is generally available in **Commercial**, **GCC**, and **GCC High**. Copilot is **not generally available in DoD or in the Microsoft Cloud for China operated by 21Vianet**; this playbook hard-stops in those clouds. Anthropic Claude is an enabled-by-default subprocessor for selected Researcher and Copilot Studio scenarios in **Commercial**, is **disabled by default in EU/EFTA/UK** tenants, and is **not available in GCC, GCC High, or DoD**. Anthropic processing occurs **outside the EU Data Boundary**.
+> **Apr 2026 sovereign and subprocessor notice.** Microsoft 365 Copilot is generally available in **Commercial**, **GCC**, and **GCC High**. Copilot is **not generally available in DoD or in the Microsoft Cloud for China operated by 21Vianet**; this playbook hard-stops in those clouds. Anthropic Claude is an enabled-by-default subprocessor for selected Researcher and Microsoft Copilot Studio scenarios in **Commercial**, is **disabled by default in EU/EFTA/UK** tenants, and is **not available in GCC, GCC High, or DoD**. Anthropic processing occurs **outside the EU Data Boundary**.
 
 ---
 

@@ -228,7 +228,7 @@ Always invoke first with `-WhatIf`.
 ## 8. What This Script Does **Not** Do
 
 - **Custom connectors / HTTP connectors:** not yet in ACP scope; govern via classic DLP groups and `Set-DlpPolicyConnectorConfigurations` for endpoint filtering.
-- **Copilot Studio virtual connectors:** not in ACP scope and not planned. Continue using classic DLP data policies.
+- **Microsoft Copilot Studio virtual connectors:** not in ACP scope and not planned. Continue using classic DLP data policies.
 - **MCP server tool-level blocking:** ACP supports server-level only. Tool-level toggles are configured in Copilot Studio per agent.
 - **Service-principal-bypass safety net:** classic DLP scoped at the **environment level** (not security-group level) is required to cover SP-authenticated connections — see the warning in the control doc.
 

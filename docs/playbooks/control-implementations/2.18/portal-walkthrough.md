@@ -4,7 +4,7 @@
 **Portals:** [Copilot Studio](https://copilotstudio.microsoft.com), [Power Platform admin center](https://admin.powerplatform.microsoft.com), [Microsoft Purview portal](https://purview.microsoft.com)<br>
 **Estimated Time:** 4–6 hours initial setup; recurring testing cycles per [verification-testing.md](verification-testing.md)
 
-This playbook is the operator-facing companion to [powershell-setup.md](powershell-setup.md) and [verification-testing.md](verification-testing.md). It walks an M365 administrator through configuring conflict-of-interest (COI) test scenarios in Copilot Studio's evaluation framework, wiring evidence into Purview, and operationalizing recurring testing for AI agents that produce recommendations subject to SEC Reg BI and FINRA Rules 2111 / 3110.
+This playbook is the operator-facing companion to [powershell-setup.md](powershell-setup.md) and [verification-testing.md](verification-testing.md). It walks an M365 administrator through configuring conflict-of-interest (COI) test scenarios in Microsoft Copilot Studio's evaluation framework, wiring evidence into Purview, and operationalizing recurring testing for AI agents that produce recommendations subject to SEC Reg BI and FINRA Rules 2111 / 3110.
 
 > **Scope reminder.** This control applies only to agents that produce recommendations, comparisons, or advice that a reasonable customer could act upon (Zone 2 and Zone 3). Personal Zone 1 agents that summarize, draft, or transcribe content do not require COI testing under this control — confirm scope with Compliance before investing build time.
 

@@ -7,7 +7,7 @@
 > This playbook provides step-by-step portal configuration guidance for [Control 3.10](../../../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md). It covers the full feedback loop: capture, triage, remediation, and trend reporting.
 
 !!! warning "Detection Limitations (April 2026)"
-    Microsoft Copilot Studio does not natively detect hallucinations. Every step in this playbook depends on **human-submitted feedback** (thumbs down, flag, or out-of-band escalation) and **manual or workflow-driven review**. Configure the controls below as a structured intake — not as an automated detector — and pair them with the proactive mitigations described in the parent control.
+    Copilot Studio does not natively detect hallucinations. Every step in this playbook depends on **human-submitted feedback** (thumbs down, flag, or out-of-band escalation) and **manual or workflow-driven review**. Configure the controls below as a structured intake — not as an automated detector — and pair them with the proactive mitigations described in the parent control.
 
 ---
 

@@ -12,7 +12,7 @@
 | User can chat across what should be a barrier | User has no segment, or last application has not completed | Check `Get-InformationBarrierRecipientStatus -Identity <upn>` and `Get-InformationBarrierPoliciesApplicationStatus` |
 | `Get-InformationBarrierPoliciesApplicationStatus` stuck `InProgress` > 72h | Filter targeting an empty/invalid attribute, conflicting policy, or transient service issue | Inspect failed segments; open Microsoft support case with `Identity` GUID |
 | M365 Copilot returns content from a blocked segment | User is in unintended segment, knowledge source is unsegmented, or Channel Agent surface used | Reproduce as test user; check segment membership; review knowledge-source segments |
-| Copilot Studio Channel Agent does not trim cross-segment | **Expected platform behavior** — Channel Agents do not consistently inherit IB | Apply compensating controls or republish as per-user Teams app |
+| Microsoft Copilot Studio Channel Agent does not trim cross-segment | **Expected platform behavior** — Channel Agents do not consistently inherit IB | Apply compensating controls or republish as per-user Teams app |
 | Cannot create a Microsoft 365 Group containing two users | Working as designed; users are in segments with no allow-list overlap | Use wall-crossing workflow if business-justified |
 | SharePoint site allows cross-segment members | Site has no segment assigned, or site IB mode is permissive | Assign site segment; set IB mode to `Explicit` |
 | `New-InformationBarrierPolicy` fails with `SegmentsBlocked` parameter error | Tenant is in `MultiSegment` mode (allow-list pattern) | Use `-SegmentsAllowed` instead |

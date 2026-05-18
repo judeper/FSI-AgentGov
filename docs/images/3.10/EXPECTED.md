@@ -3,7 +3,7 @@
 ## Required Screenshots
 
 ### Screenshot 1: Customer Satisfaction Settings
-**Portal Path:** Copilot Studio → Agents → [Agent] → Settings → Customer Satisfaction
+**Portal Path:** Microsoft Copilot Studio → Agents → [Agent] → Settings → Customer Satisfaction
 **What to capture:**
 - Thumbs up/down feedback mechanism enabled
 - CSAT survey configuration

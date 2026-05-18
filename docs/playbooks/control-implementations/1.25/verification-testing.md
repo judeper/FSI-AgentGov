@@ -49,7 +49,7 @@
 
 ### Test 7: Verify Copilot Studio Knowledge-Source File-Type Restrictions
 
-1. Open the agent in Copilot Studio → **Knowledge** tab
+1. Open the agent in Microsoft Copilot Studio → **Knowledge** tab
 2. Attempt to add a file knowledge source with an unsupported format (e.g., `.exe`, `.zip`, `.mp4`)
 3. **EXPECTED:** Copilot Studio rejects the upload with an unsupported-format message. Supported knowledge formats per Microsoft Learn (April 2026): `.pdf`, `.docx`, `.xlsx`, `.pptx`, `.txt`, `.md`, `.csv`, `.html`, `.json`, `.yaml`, and selected others (executable/audio/video formats are not supported).
 

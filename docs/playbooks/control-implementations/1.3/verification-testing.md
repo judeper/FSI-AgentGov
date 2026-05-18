@@ -14,7 +14,7 @@ A control 1.3 implementation is operating as intended when **all** of the follow
 2. The site has a container sensitivity label applied that matches the site's zone classification.
 3. No `Everyone` or `Everyone except external users` claim appears in `Get-SPOUser` output for the site.
 4. For Zone 3: Restricted Access Control is enabled and bound to a single named group; Restricted Content Discovery is enabled unless the site is intentionally part of the Copilot grounding surface.
-5. A least-privileged test user cannot retrieve content from any unauthorized site through Microsoft 365 Copilot or a Copilot Studio agent.
+5. A least-privileged test user cannot retrieve content from any unauthorized site through Microsoft 365 Copilot or a Microsoft Copilot Studio agent.
 6. The most recent Entra access review on the M365 group backing the site completed within the documented cadence with documented outcomes.
 7. SharePoint Advanced Management Data Access Governance reports show no unexpected oversharing for the site.
 8. A Purview DLP policy targeting agent-relevant sensitive information types covers the site and is in `Enforce` for Zone 3.

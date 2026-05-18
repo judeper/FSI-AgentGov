@@ -18,7 +18,7 @@
 | TC-1.1-03, -04 | Per-event (after any release-gate change) | + monthly sample |
 | TC-1.1-05, -06 | Continuous via SSPM / weekly spot-check | + monthly sample |
 | TC-1.1-07 | **Annual full re-attestation** + monthly sample of 5 publishes | required |
-| Full re-execution of all tests | After any tenant-level Power Platform / Copilot Studio rollout note (MC update) affecting agent governance | required |
+| Full re-execution of all tests | After any tenant-level Power Platform / Microsoft Copilot Studio rollout note (MC update) affecting agent governance | required |
 
 ## Manual Verification Steps
 

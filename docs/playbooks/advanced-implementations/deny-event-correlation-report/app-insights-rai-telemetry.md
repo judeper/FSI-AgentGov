@@ -6,7 +6,7 @@
 
 ## Overview
 
-Copilot Studio agents can be configured to send telemetry to Azure Application Insights, including Responsible AI (RAI) content filtering events. This guide covers setup and extraction of these events for correlation with Purview audit data.
+Microsoft Copilot Studio agents can be configured to send telemetry to Azure Application Insights, including Responsible AI (RAI) content filtering events. This guide covers setup and extraction of these events for correlation with Purview audit data.
 
 ---
 

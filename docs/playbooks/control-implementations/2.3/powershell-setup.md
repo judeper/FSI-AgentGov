@@ -50,7 +50,7 @@ Add-PowerAppsAccount
 
 ## 1. Solution Export
 
-> **Note:** Copilot Studio solution exports include topics, agent metadata, and packaged knowledge sources. Externally hosted knowledge sources, files referenced by URL, and tenant-level connector configurations are **not** part of the solution boundary and must be captured in a parallel inventory.
+> **Note:** Microsoft Copilot Studio solution exports include topics, agent metadata, and packaged knowledge sources. Externally hosted knowledge sources, files referenced by URL, and tenant-level connector configurations are **not** part of the solution boundary and must be captured in a parallel inventory.
 
 ```powershell
 [CmdletBinding(SupportsShouldProcess = $true)]

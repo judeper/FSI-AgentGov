@@ -40,7 +40,7 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 | **Analytics** | https://learn.microsoft.com/en-us/power-platform/admin/analytics-common-data-service | Jan 2026 |
 | Export Analytics to Azure | https://learn.microsoft.com/en-us/power-platform/admin/self-service-analytics | Jan 2026 |
 | **Power Platform Inventory** | https://learn.microsoft.com/en-us/power-platform/admin/power-platform-inventory | Mar 2026 |
-| Monitor Copilot Studio | https://learn.microsoft.com/en-us/power-platform/admin/monitoring/monitor-copilot-studio | Jan 2026 |
+| Monitor Microsoft Copilot Studio | https://learn.microsoft.com/en-us/power-platform/admin/monitoring/monitor-copilot-studio | Jan 2026 |
 | **Monitoring Hub** | https://learn.microsoft.com/en-us/power-platform/admin/monitoring/monitoring-overview | Jan 2026 |
 | Monitor Alerts | https://learn.microsoft.com/en-us/power-platform/admin/monitoring/alerts | Jan 2026 |
 | Admin Activity Logging | https://learn.microsoft.com/en-us/power-platform/admin/activity-logging-auditing/activity-logs-power-platform-admin | Feb 2026 |

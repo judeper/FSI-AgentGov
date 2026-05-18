@@ -9,7 +9,7 @@
 
 ## Overview
 
-This guide provides end-to-end deployment instructions for the Agent Usage & Performance Workbook — an Azure Monitor Workbook that surfaces Copilot Studio agent telemetry from Application Insights. The workbook addresses the ALM separation-of-duties gap identified in Control 2.8: PPAC Analytics requires Power Platform Admin or Environment Admin roles, but this workbook uses Azure RBAC (`Monitoring Reader`) to provide equivalent visibility without elevated privileges.
+This guide provides end-to-end deployment instructions for the Agent Usage & Performance Workbook — an Azure Monitor Workbook that surfaces Microsoft Copilot Studio agent telemetry from Application Insights. The workbook addresses the ALM separation-of-duties gap identified in Control 2.8: PPAC Analytics requires Power Platform Admin or Environment Admin roles, but this workbook uses Azure RBAC (`Monitoring Reader`) to provide equivalent visibility without elevated privileges.
 
 **Estimated Time:** 30–60 minutes
 

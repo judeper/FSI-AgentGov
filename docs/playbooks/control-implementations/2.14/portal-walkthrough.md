@@ -27,7 +27,7 @@ Document the role-to-training mapping before touching the portals. The matrix be
 
 | Audience | Required Training | Frequency | Owner |
 |---|---|---|---|
-| Agent Maker (Copilot Studio / Agent Builder) | AI agent fundamentals, data governance, prompt safety, firm policy | Initial + annual + on major feature change | AI Administrator |
+| Agent Maker (Microsoft Copilot Studio / Agent Builder) | AI agent fundamentals, data governance, prompt safety, firm policy | Initial + annual + on major feature change | AI Administrator |
 | Agent Approver / Reviewer | Approval criteria, supervision evidence, FINRA 3110 obligations | Initial + annual | Purview Compliance Admin |
 | Agent Supervisor (FINRA-registered) | Supervision of AI-assisted activity, escalation, recordkeeping | Initial + annual + after Reg Notice updates | Compliance / Supervisor's principal |
 | Platform Admin (PPAC / Tenant) | Environment governance, DLP, monitoring, incident response | Initial + quarterly delta | Power Platform Admin |

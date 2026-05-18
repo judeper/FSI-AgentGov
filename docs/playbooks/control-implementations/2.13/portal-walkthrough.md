@@ -26,7 +26,7 @@ Before starting, confirm the following:
 | **SharePoint Admin** role | Required for site creation, library configuration, and content type management |
 | **Purview Records Manager** role | Required for retention label creation and retention policy publishing |
 | **Purview Compliance Admin** role | Required for auto-labeling policies and compliance configuration |
-| **Power Platform Admin** role | Required for Copilot Studio environment documentation (Zone 2+) |
+| **Power Platform Admin** role | Required for Microsoft Copilot Studio environment documentation (Zone 2+) |
 | **Retention schedule approved** | Firm-specific retention schedule reviewed by Compliance Officer per FINRA 4511 / SEC 17a-4 record-type matrix |
 | **Document taxonomy defined** | Record categories, metadata fields, and classification scheme approved |
 | **License entitlements** | Microsoft 365 E5 or E5 Compliance add-on recommended for Purview Records Management, auto-labeling, and Audit Premium. E3 supports manual label application only. |

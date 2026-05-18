@@ -1161,7 +1161,7 @@ Reg SCI is not a general broker-dealer rule — it applies only to entities meet
 When an AI agent operates within an SCI entity's "SCI systems" (the systems supporting the SCI entity's core regulatory functions: trading, clearance, settlement, order routing, market data, regulation, surveillance), the agent and its supporting infrastructure are subject to the SCI entity's Reg SCI policies and procedures. This includes capacity, integrity, resiliency, availability, and security obligations; SCI event reporting; and BCP/DR.
 
 !!! warning "SCI scope test"
-    Confirm with the SCI entity's regulatory counsel whether each AI-agent surface (Copilot Studio agent, Power Platform integration, Microsoft 365 Copilot extensibility, Azure OpenAI deployment) is part of an "SCI system", "indirect SCI system", or out of SCI scope. The classification drives which controls (and which evidence-retention regimes) apply.
+    Confirm with the SCI entity's regulatory counsel whether each AI-agent surface (Microsoft Copilot Studio agent, Power Platform integration, Microsoft 365 Copilot extensibility, Azure OpenAI deployment) is part of an "SCI system", "indirect SCI system", or out of SCI scope. The classification drives which controls (and which evidence-retention regimes) apply.
 
 ### Key Reg SCI Obligations Inherited by In-Scope AI Agents
 

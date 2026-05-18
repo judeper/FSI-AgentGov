@@ -291,7 +291,7 @@
 
 **Symptoms:**
 
-- Session timeout option not visible in Copilot Studio agent settings
+- Session timeout option not visible in Microsoft Copilot Studio agent settings
 - Setting appears grayed out or read-only
 - No "Advanced" section under agent settings
 

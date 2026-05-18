@@ -12,7 +12,7 @@
 
 ## What this playbook catches
 
-This playbook proves that an FSI tenant can **detect, log, retain, and respond to** adversarial input directed at Microsoft 365 Copilot, Copilot Studio agents, Azure-AI-fronted custom agents, and connected non-Microsoft AI applications. Specifically, it verifies:
+This playbook proves that an FSI tenant can **detect, log, retain, and respond to** adversarial input directed at Microsoft 365 Copilot, Microsoft Copilot Studio agents, Azure-AI-fronted custom agents, and connected non-Microsoft AI applications. Specifically, it verifies:
 
 1. **Prompt-injection attempts** ("ignore previous instructions", role-manipulation, system-prompt extraction, instruction-hierarchy override) generate evidence in at least one of the six in-scope signal planes.
 2. **Encoded evasion payloads** (Base64, Unicode lookalikes / homoglyphs, zero-width characters) are surfaced via Azure AI Content Safety **Prompt Shields** (which is the Microsoft-supported jailbreak detection surface) — not via tenant-built KQL pattern matching alone.

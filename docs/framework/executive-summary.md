@@ -6,7 +6,7 @@ A board-level overview of AI agent governance for US financial services organiza
 
 ## The AI Agent Opportunity and Risk
 
-Microsoft 365 AI agents (Copilot Studio, Agent Builder) enable financial institutions to automate customer service, streamline operations, and enhance employee productivity. However, these capabilities introduce governance challenges that require structured oversight.
+Microsoft 365 AI agents (Microsoft Copilot Studio, Agent Builder) enable financial institutions to automate customer service, streamline operations, and enhance employee productivity. However, these capabilities introduce governance challenges that require structured oversight.
 
 **Key Business Drivers:**
 

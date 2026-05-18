@@ -2,7 +2,7 @@
 
 **Control:** [1.11 — Conditional Access and Phishing-Resistant MFA](../../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md)
 **Pillar:** 1 — Security
-**Last UI Verified:** April 2026 (Microsoft Entra admin center, Microsoft Defender portal, Power Platform admin center, Copilot Studio)
+**Last UI Verified:** April 2026 (Microsoft Entra admin center, Microsoft Defender portal, Power Platform admin center, Microsoft Copilot Studio)
 **Estimated Time:** 14–22 hours of admin effort across 5–7 calendar days (includes the mandatory 7-day Report-only soak window)
 **Governance Levels:** Baseline / Recommended / Regulated
 **Audience:** Entra Global Admin, Entra Security Admin, Authentication Policy Admin, Power Platform Admin, AI Administrator, Sentinel Admin, Purview Compliance Admin, CISO, Compliance Officer, Agent Owner, Agent Maker
@@ -398,7 +398,7 @@ The relevant cloud apps as enumerated in the Entra cloud-app picker are:
 | **Power Apps** | `475226c6-020e-4fb2-8a90-7a972cbfc1d4` | Power Apps maker portal |
 | **Power Automate** | `7df0a125-d3be-4c96-aa54-591f83ff541c` | Flow authoring |
 | **Microsoft Power Platform** | `1c75d0a8-3cd3-4a38-a5b8-e1c8b9e3ae3f` *(verify in your tenant)* | PPAC and consolidated Power Platform admin actions |
-| **Microsoft Copilot Studio** | `38e57f90-7c72-44e9-95a1-04f2f2a3a1f9` *(verify in your tenant — Copilot Studio app ID has shifted as the product was renamed from Power Virtual Agents)* | Copilot Studio maker portal |
+| **Copilot Studio** | `38e57f90-7c72-44e9-95a1-04f2f2a3a1f9` *(verify in your tenant — Copilot Studio app ID has shifted as the product was renamed from Power Virtual Agents)* | Copilot Studio maker portal |
 | **Common Data Service** *(Dataverse)* | `00000007-0000-0000-c000-000000000000` | Dataverse data plane that agents read/write |
 
 !!! info "Verify app IDs in your tenant before saving the policy"

@@ -14,7 +14,7 @@
 
     **This walkthrough IS:**
 
-    - The portal-side procedure for verifying / enabling unified audit logging, validating per-user license entitlement, authoring Audit (Premium) custom retention policies that explicitly cover the Copilot record types, enabling pay-as-you-go (PAYG) collection for non-Microsoft AI app interactions, configuring Dataverse environment-level and Copilot Studio per-table audit, capturing Entra agent sign-in telemetry, and exporting evidence to a Cohasset-attested 17a-4(f) preservation layer.
+    - The portal-side procedure for verifying / enabling unified audit logging, validating per-user license entitlement, authoring Audit (Premium) custom retention policies that explicitly cover the Copilot record types, enabling pay-as-you-go (PAYG) collection for non-Microsoft AI app interactions, configuring Dataverse environment-level and Microsoft Copilot Studio per-table audit, capturing Entra agent sign-in telemetry, and exporting evidence to a Cohasset-attested 17a-4(f) preservation layer.
     - The point-in-time **capture-trail** runbook examiners walk during books-and-records examinations.
 
     **This walkthrough is NOT (route to the linked sibling):**

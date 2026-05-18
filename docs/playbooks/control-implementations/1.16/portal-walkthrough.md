@@ -52,7 +52,7 @@
     | Compliance group (e.g., `SG-Compliance-RMS-SuperUsers`) | Co-Owner |
     | Authoring team (e.g., `SG-Advisory-Authors`) | Co-Author |
     | Reviewing audience (e.g., `SG-Advisory-Reviewers`) | Reviewer |
-    | Agent service identity (Copilot Studio app registration or M365 Copilot identity) | **Viewer** |
+    | Agent service identity (Microsoft Copilot Studio app registration or M365 Copilot identity) | **Viewer** |
 
 7. **Content marking:** Enable header, footer, and watermark as required by Zone:
     - Header (Zone 2/3): `CONFIDENTIAL — FSI INTERNAL USE`

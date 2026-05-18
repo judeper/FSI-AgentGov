@@ -40,7 +40,7 @@ The playbook treats all three failure categories as first-class conditions. **Si
 | **AI Governance Lead** | Reviews the cycle outputs against governance policy, validates the reconciliation deltas across the registration surfaces, and arbitrates failure escalations. Owns the per-cycle exception register. |
 | **Entra Application Admin** | Executes Graph-based enumeration of `/applications`, `/servicePrincipals`, `/oauth2PermissionGrants`, `/appRoleAssignments`, owners, and credentials. |
 | **Entra Identity Governance Admin** | Confirms access reviews / Lifecycle Workflows for application owners; attests the ownerless-app remediation queue. |
-| **Power Platform Admin** | Confirms PPAC and Copilot Studio agent enumeration is complete, the publisher tenant ID is recorded, and connection / connector references map cleanly to registered service principals. |
+| **Power Platform Admin** | Confirms PPAC and Microsoft Copilot Studio agent enumeration is complete, the publisher tenant ID is recorded, and connection / connector references map cleanly to registered service principals. |
 | **AI Administrator** | Confirms Microsoft 365 admin center → Copilot → Agents and Integrated Apps inventory is enumerated; reconciles declarative agents and partner-built agents to their underlying Entra app objects. |
 | **Purview Compliance Admin** | Pulls UAL events for `Add application`, `Add app role assignment grant to user`, `Consent to application`, `Update application — Certificates and secrets management`, `Add owner to application`, etc.; verifies records are immutable. |
 | **Entra Global Admin** | Activated through Entra PIM, time-bound, never standing. Used only where a non-elevated role cannot complete the action. |
@@ -1108,7 +1108,7 @@ Findings from internal audit walkthroughs, examiner observations, and peer-firm 
 - Microsoft Entra Agent ID — directory anchor for AI agents (preview / rollout state varies by cloud)
 - Microsoft Entra federated identity credentials — workload identity federation
 - Microsoft 365 admin center — Integrated apps overview, Copilot agents inventory, Agent Store governance
-- Microsoft Copilot Studio — agent registration, identity model, and tenant administration
+- Copilot Studio — agent registration, identity model, and tenant administration
 - Microsoft Power Platform admin center — agent enumeration, environment governance
 - Microsoft Agent 365 admin center — unified agent registry, shadow-agent registry actions (Quarantine / Investigate / Register)
 - Microsoft Purview Audit (UAL) — application lifecycle event schema

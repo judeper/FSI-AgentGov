@@ -110,7 +110,7 @@ The framework defines **four** sponsorship roles. Every agent — regardless of 
 | Zone | Minimum profile | Required training |
 |---|---|---|
 | Z1 | The user themselves (self-owned) | Recommended: AI Acceptable Use module |
-| Z2 | Identified individual or shared mailbox-backed team alias mapped to ≥2 named technical staff | Required: Copilot Studio Maker fundamentals; Acceptable Use |
+| Z2 | Identified individual or shared mailbox-backed team alias mapped to ≥2 named technical staff | Required: Microsoft Copilot Studio Maker fundamentals; Acceptable Use |
 | Z3 | Named individual technical lead with backup | Required: Copilot Studio Maker fundamentals; FSI Agent Governance certification; tabletop incident response participation in last 12 months |
 
 **Duties.**

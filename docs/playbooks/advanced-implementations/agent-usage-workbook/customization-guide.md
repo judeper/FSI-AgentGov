@@ -257,7 +257,7 @@ customEvents
 ```
 
 !!! note "Custom Telemetry Required"
-    CSAT tracking requires your agent topics to emit a custom event named `CustomerSatisfaction` with a `score` property in `customDimensions`. This is not part of default Copilot Studio telemetry.
+    CSAT tracking requires your agent topics to emit a custom event named `CustomerSatisfaction` with a `score` property in `customDimensions`. This is not part of default Microsoft Copilot Studio telemetry.
 
 ### SLA Compliance Tracking
 

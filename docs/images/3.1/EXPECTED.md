@@ -5,7 +5,7 @@
 | Filename | Portal | Navigation Path | What to Capture |
 |----------|--------|-----------------|-----------------|
 | `01-ppac-inventory.png` | PPAC | Manage → Inventory | Inventory dashboard |
-| `02-ppac-inventory-agents.png` | PPAC | Inventory → Copilot Studio | Agent inventory list |
+| `02-ppac-inventory-agents.png` | PPAC | Inventory → Microsoft Copilot Studio | Agent inventory list |
 | `03-ppac-inventory-export.png` | PPAC | Inventory → Export | Export options |
 | `04-m365-integrated-apps.png` | M365 | Settings → Integrated apps | Published agents |
 | `05-copilot-agents-list.png` | Copilot | Copilots | All agents view |

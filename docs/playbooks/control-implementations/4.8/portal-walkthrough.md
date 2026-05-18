@@ -8,7 +8,7 @@
 
 ## Overview
 
-This walkthrough guides administrators through identifying agent knowledge sources, reviewing item-level permissions, and establishing the pre-deployment gate for Copilot Studio agents in regulated financial services environments.
+This walkthrough guides administrators through identifying agent knowledge sources, reviewing item-level permissions, and establishing the pre-deployment gate for Microsoft Copilot Studio agents in regulated financial services environments.
 
 !!! warning "Pre-Deployment Gate"
     This control establishes a **hard gate**: agents must not go to production if CRITICAL risk items exist in their knowledge source libraries. This is a requirement, not a recommendation.

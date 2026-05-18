@@ -4,7 +4,7 @@
 
 | Filename | Portal | Navigation Path | What to Capture |
 |----------|--------|-----------------|-----------------|
-| `01-ppac-agent-resources.png` | PPAC | Environments → Resources → Copilot Studio | Agent list with details |
+| `01-ppac-agent-resources.png` | PPAC | Environments → Resources → Microsoft Copilot Studio | Agent list with details |
 | `02-ppac-agent-details.png` | PPAC | Agent → Details | Agent configuration overview |
 | `03-copilot-knowledge-sources.png` | Copilot | Agent → Knowledge | Knowledge sources list |
 | `04-copilot-manage-sources.png` | Copilot | Knowledge → Manage | Data source management |

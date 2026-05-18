@@ -166,7 +166,7 @@ Expected Result: Row count in CSV matches the agent count displayed in the All A
 Review the CSV headers and confirm the export includes at minimum:
 - [ ] Agent display name
 - [ ] Publisher / publisher type (Microsoft / Organization / Partner)
-- [ ] Platform (Copilot Studio / Azure AI Foundry / etc.)
+- [ ] Platform (Microsoft Copilot Studio / Azure AI Foundry / etc.)
 - [ ] Agent status (Active / Inactive / etc.)
 - [ ] Owner or owner email
 - [ ] Creation date or last modified date

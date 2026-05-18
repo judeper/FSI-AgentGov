@@ -4,7 +4,7 @@
 **Portal:** Power Platform Admin Center (PPAC)
 **Estimated Time:** 45–90 minutes (excluding security group readiness)
 
-> **What this playbook configures.** Tenant-level **environment routing** so that makers visiting Copilot Studio, Power Apps, or Power Automate are auto-provisioned into a personal Managed developer environment inside an admin-defined environment group. Routing rules live at **Tenant settings → Environment routing**. Policy rules (sharing limits, AI features, ALM) live at **Environment groups → Rules** — these are different surfaces and serve different purposes.
+> **What this playbook configures.** Tenant-level **environment routing** so that makers visiting Microsoft Copilot Studio, Power Apps, or Power Automate are auto-provisioned into a personal Managed developer environment inside an admin-defined environment group. Routing rules live at **Tenant settings → Environment routing**. Policy rules (sharing limits, AI features, ALM) live at **Environment groups → Rules** — these are different surfaces and serve different purposes.
 
 ---
 

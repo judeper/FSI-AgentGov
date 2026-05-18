@@ -8,7 +8,7 @@
 [PowerShell setup](./powershell-setup.md) ·
 [Verification & testing](./verification-testing.md)
 
-> **Scope.** This playbook covers the two DLP control planes governed by Control 1.5 — (1) **Microsoft Purview DLP** for Microsoft 365 Copilot and Copilot Chat, sensitivity-label enforcement, Endpoint DLP, Network DLP / Edge for Business unmanaged-AI rules, and (2) **Power Platform data policies** for Copilot Studio agents and connector classification. It also covers the cross-cutting evidence dependencies on Purview Audit (Control 1.7), DSPM for AI (Control 1.6), Sensitive Information Types (Control 1.13), and Insider Risk Management / Adaptive Protection (Control 1.12).
+> **Scope.** This playbook covers the two DLP control planes governed by Control 1.5 — (1) **Microsoft Purview DLP** for Microsoft 365 Copilot and Copilot Chat, sensitivity-label enforcement, Endpoint DLP, Network DLP / Edge for Business unmanaged-AI rules, and (2) **Power Platform data policies** for Microsoft Copilot Studio agents and connector classification. It also covers the cross-cutting evidence dependencies on Purview Audit (Control 1.7), DSPM for AI (Control 1.6), Sensitive Information Types (Control 1.13), and Insider Risk Management / Adaptive Protection (Control 1.12).
 >
 > Use this playbook when a DLP rule has produced an unexpected allow, an unexpected block, a missing audit row, a sovereign-cloud capability gap, or an examiner observation. For day-2 verification, use [verification-testing.md](./verification-testing.md). For first-time setup, use [portal-walkthrough.md](./portal-walkthrough.md) and [powershell-setup.md](./powershell-setup.md).
 

@@ -28,7 +28,7 @@ Before beginning verification testing, prepare a test environment:
 
 1. Navigate to PPAC → Manage → Inventory → Agents
 2. Note the current agent count and **Last refreshed** timestamp
-3. Create a new test agent in Copilot Studio (any test environment)
+3. Create a new test agent in Microsoft Copilot Studio (any test environment)
 4. Wait approximately 15-30 minutes for the platform-managed refresh
 5. Refresh the Inventory page in the browser
 6. Verify the new test agent appears in the inventory list

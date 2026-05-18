@@ -28,7 +28,7 @@
 **Diagnostic steps:**
 
 1. Confirm the disclosure lives in the **Conversation Start** topic (not the legacy Greeting topic) and is the first node
-2. In Copilot Studio, open the **Test bot** pane and start a new conversation — does the disclosure appear here?
+2. In Microsoft Copilot Studio, open the **Test bot** pane and start a new conversation — does the disclosure appear here?
 3. Reproduce in each customer channel (Web Chat, Teams, Omnichannel, Direct Line)
 4. For Teams: open Teams Admin Center → Manage apps → your agent → confirm no custom welcome message is set on the Teams channel that would suppress the topic
 5. For Direct Line / custom client: ensure the client sends an `event` activity of type `conversationUpdate` to fire the Conversation Start topic

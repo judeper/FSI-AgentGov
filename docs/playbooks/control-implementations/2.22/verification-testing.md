@@ -137,7 +137,7 @@
 **Steps:**
 
 1. Select a Zone 3 agent that processes customer data or PII
-2. Navigate to Copilot Studio → select the agent → Settings → Advanced → Session timeout
+2. Navigate to Microsoft Copilot Studio → select the agent → Settings → Advanced → Session timeout
 3. Verify the conversation session timeout is set to ≤60 minutes
 4. Verify the timeout setting is documented in the organization's agent inventory (Control 3.1)
 

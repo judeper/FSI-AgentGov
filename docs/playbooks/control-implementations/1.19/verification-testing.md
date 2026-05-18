@@ -12,7 +12,7 @@
 
 ## What this playbook catches
 
-This playbook proves that an FSI tenant can **preserve, search, review, and produce** Microsoft 365 Copilot and Copilot Studio agent interactions through the unified Microsoft Purview eDiscovery experience in a manner that is defensible under FINRA / SEC / FRCP scrutiny. Specifically, it verifies:
+This playbook proves that an FSI tenant can **preserve, search, review, and produce** Microsoft 365 Copilot and Microsoft Copilot Studio agent interactions through the unified Microsoft Purview eDiscovery experience in a manner that is defensible under FINRA / SEC / FRCP scrutiny. Specifically, it verifies:
 
 1. **License & role posture** — unified eDiscovery (Premium) features, Purview Audit (Premium) retention horizon, Microsoft 365 Copilot custodian licensing, and PIM-gated `eDiscovery Administrator` role separation are in place at cycle start.
 2. **Case lifecycle** — a unified eDiscovery case can be created, named per the FSI matter standard, scoped, locked, closed, and reopened, with attributable history end-to-end.

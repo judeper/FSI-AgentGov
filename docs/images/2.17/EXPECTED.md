@@ -3,7 +3,7 @@
 ## Required Screenshots
 
 ### Screenshot 1: Copilot Studio Agent Orchestration Configuration
-**Portal Path:** Copilot Studio → Agents → [Agent] → Topics → Plugin actions
+**Portal Path:** Microsoft Copilot Studio → Agents → [Agent] → Topics → Plugin actions
 **What to capture:**
 - Agent-to-agent delegation configuration (plugin actions calling other agents)
 - Orchestration topology showing which agents can invoke others

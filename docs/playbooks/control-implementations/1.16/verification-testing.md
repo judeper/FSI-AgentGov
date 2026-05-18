@@ -34,7 +34,7 @@
 
 ### Test 5 — Agent Grounds on Protected Content Without Stripping Protection
 
-1. Trigger a Copilot Studio agent (Zone 3) whose knowledge source is the IRM-enabled library.
+1. Trigger a Microsoft Copilot Studio agent (Zone 3) whose knowledge source is the IRM-enabled library.
 2. Ask a question whose answer requires content from `1.16-test.docx`.
 3. **Expected:** The agent returns a grounded answer referencing the document. The document itself is not surfaced as a downloadable, unprotected attachment.
 4. **Negative test:** Sign in as a user not entitled to the document, ask the same question — the agent should not return content from the protected file (this also exercises Control 1.5 / 4.1).

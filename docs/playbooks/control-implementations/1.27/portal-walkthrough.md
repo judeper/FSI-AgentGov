@@ -1,7 +1,7 @@
 # Portal Walkthrough: Control 1.27 — AI Agent Content Moderation Enforcement
 
 **Last Updated:** April 2026
-**Portal:** Copilot Studio (`https://copilotstudio.microsoft.com`)
+**Portal:** Microsoft Copilot Studio (`https://copilotstudio.microsoft.com`)
 **Estimated Time:** 15–25 minutes per agent (Zone 1) / 30–45 minutes per agent (Zone 3, includes safety message + adversarial spot-check)
 
 > **Scope reminder.** Content moderation is configured **per AI prompt** in the Copilot Studio prompt builder. The agent's generative answers / **Conversational boosting** system topic acts as the agent-effective default for unstructured Q&A. Custom topics that contain a **Generative answers** node carry their own per-prompt moderation setting that takes precedence at runtime for that conversation path. Topics that use only message, question, or flow nodes do **not** have a moderation setting and are out of scope for this playbook.

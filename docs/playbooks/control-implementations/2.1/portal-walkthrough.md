@@ -1,7 +1,7 @@
 # Portal Walkthrough — Control 2.1: Managed Environments
 
 !!! danger "READ FIRST — Scope, Non-Substitution, and Sibling Routing"
-    **This playbook configures Power Platform Managed Environments** — the premium governance substrate that enables sharing limits, solution-checker enforcement, IP firewall, IP-based cookie binding, Customer Lockbox, Customer-Managed Keys, maker welcome content, the weekly usage-insights digest, and tenant isolation for an environment or a group of environments. It walks you through the **Power Platform Admin Center (PPAC)** at [`https://admin.powerplatform.microsoft.com`](https://admin.powerplatform.microsoft.com) and the complementary **Microsoft 365 admin center → Agent 365** governance surface for agents that originate in Copilot Studio and surface in Microsoft 365 Copilot.
+    **This playbook configures Power Platform Managed Environments** — the premium governance substrate that enables sharing limits, solution-checker enforcement, IP firewall, IP-based cookie binding, Customer Lockbox, Customer-Managed Keys, maker welcome content, the weekly usage-insights digest, and tenant isolation for an environment or a group of environments. It walks you through the **Power Platform Admin Center (PPAC)** at [`https://admin.powerplatform.microsoft.com`](https://admin.powerplatform.microsoft.com) and the complementary **Microsoft 365 admin center → Agent 365** governance surface for agents that originate in Microsoft Copilot Studio and surface in Microsoft 365 Copilot.
 
     **Managed Environments are an enforcement substrate, not a governance program.** They do **NOT** replace:
 

@@ -10,7 +10,7 @@
 
 This playbook provides Microsoft Graph–schema CA policy templates that govern:
 
-- **Agent makers** (humans authoring agents in Copilot Studio, Power Apps, Power Automate, and Microsoft 365 Copilot Studio)
+- **Agent makers** (humans authoring agents in Microsoft Copilot Studio, Power Apps, Power Automate, and Microsoft 365 Copilot Studio)
 - **Agent administrators** (Power Platform Admins, Copilot Studio Admins, AI governance leads)
 - **Workload identities** that publish, run, or manage agents (CI/CD service principals, agent runtime SPs, agent identities surfaced under the Entra Agent ID preview)
 

@@ -31,7 +31,7 @@ Understanding the distinction between these components is critical: **Agent 365 
 
 Prior to Agent 365, financial services organizations faced fragmented governance across four administrative portals:
 
-- **Copilot Studio** agents managed in Power Platform Admin Center
+- **Microsoft Copilot Studio** agents managed in Power Platform Admin Center
 - **Agent Builder** agents managed in Microsoft 365 Admin Center
 - **Microsoft Foundry** agents managed in Azure Portal
 - **SharePoint** agents managed in SharePoint Admin Center

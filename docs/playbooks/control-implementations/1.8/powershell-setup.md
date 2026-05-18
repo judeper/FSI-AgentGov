@@ -2,7 +2,7 @@
 
 **Control:** [1.8 Runtime Protection and External Threat Detection](../../../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md)
 **Baseline:** [PowerShell baseline (`_shared/powershell-baseline.md`)](../../_shared/powershell-baseline.md)
-**Audience:** M365 administrator at a US financial services organization (FINRA / SEC / GLBA / OCC / Fed SR 26-2 (formerly SR 11-7) / CFTC oversight) operating Microsoft 365 Copilot, Agent Builder, and Copilot Studio agents.
+**Audience:** M365 administrator at a US financial services organization (FINRA / SEC / GLBA / OCC / Fed SR 26-2 (formerly SR 11-7) / CFTC oversight) operating Microsoft 365 Copilot, Agent Builder, and Microsoft Copilot Studio agents.
 **Sovereign clouds:** Commercial / GCC / GCC High / DoD — connection helper in [Section 1](#1-pre-flight) and full reference in [Section 11](#11-sovereign-cloud-reference). Several Control 1.8 surfaces (Defender for Cloud Apps AI Agent Protection, Additional Threat Detection webhooks) are **Preview** or **Prerelease** in commercial cloud and have **not** been documented at parity for US Government clouds — see [Section 11](#11-sovereign-cloud-reference) and [Section 12](#12-anti-patterns-what-not-to-do).
 
 **Required modules:**

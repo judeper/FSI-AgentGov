@@ -50,7 +50,7 @@ This section sets the boundary of what this walkthrough covers and where to swit
 - Conditional Access policies gating Copilot access (Control 1.7)
 - Audit log retention and search (Controls 3.4, 3.8)
 - Connector governance for non-Microsoft data sources (Control 1.21)
-- Agent and Copilot Studio governance (Control 2.10 and the Copilot Studio playbook set)
+- Agent and Microsoft Copilot Studio governance (Control 2.10 and the Copilot Studio playbook set)
 
 ### 0.3 Portal-vs-PowerShell decision matrix
 

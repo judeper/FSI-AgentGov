@@ -10,7 +10,7 @@
 ---
 
 !!! danger "READ FIRST — what this walkthrough is and is NOT"
-    This walkthrough configures the **case, custodian, location, search, hold, review-set, and export** surfaces of the **unified Microsoft Purview eDiscovery experience** at `purview.microsoft.com → Solutions → eDiscovery` for **Microsoft 365 Copilot and Copilot Studio agent interactions**.
+    This walkthrough configures the **case, custodian, location, search, hold, review-set, and export** surfaces of the **unified Microsoft Purview eDiscovery experience** at `purview.microsoft.com → Solutions → eDiscovery` for **Microsoft 365 Copilot and Microsoft Copilot Studio agent interactions**.
 
     It is **NOT** a substitute for the following sibling controls. Each is a separate configuration surface with its own playbook:
 

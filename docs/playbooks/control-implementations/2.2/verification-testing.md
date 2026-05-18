@@ -13,7 +13,7 @@
 | 3. Rules published | Group → **Rules** tab → Status column | All 23 rules show **Published** with timestamp |
 | 4. Inheritance works | Add a test Managed Environment to a group → wait 15 min → open env Settings | Affected settings show **Locked by environment group** |
 | 5. Quarterly re-baseline current | Governance change log | Last re-baseline date within 90 days |
-| 6. CUA disabled tenant-wide | Copilot Studio admin / [Control 2.24](../../../controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance.md) | CUA = Disabled |
+| 6. CUA disabled tenant-wide | Microsoft Copilot Studio admin / [Control 2.24](../../../controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance.md) | CUA = Disabled |
 
 ---
 

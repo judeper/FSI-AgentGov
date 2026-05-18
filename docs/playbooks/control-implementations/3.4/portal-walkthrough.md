@@ -332,7 +332,7 @@ Before assigning the incident to an analyst, walk the **Attack story** and **Ass
 | **Defender for Endpoint** | Process tree for any device-side maker / agent-runtime activity; suspicious child processes of Office, browser, or Power Platform host |
 | **Defender for Office 365** | Mail-flow telemetry for any Copilot-generated outbound email; URL detonation hits |
 | **Defender for Identity** | Lateral movement, golden-ticket-style anomalies near service-principal accounts |
-| **Defender for Cloud Apps** | Anomalous OAuth grant to a Copilot Studio agent; data-exfiltration signal to unsanctioned cloud apps |
+| **Defender for Cloud Apps** | Anomalous OAuth grant to a Microsoft Copilot Studio agent; data-exfiltration signal to unsanctioned cloud apps |
 | **Defender for Cloud** | Azure resource-side activity for any Sentinel / Logic App / Power Platform connector |
 | **Microsoft Sentinel** (where bidirectionally synced) | Custom KQL detections, watchlist hits, threat-intel matches |
 | **Microsoft Purview Information Protection** | Sensitivity-label drift, downgrade events, label-removal anomalies |

@@ -80,7 +80,7 @@ Apply one or more of the following while CC is degraded; document the compensati
 7. [ ] **Processing window elapsed** — Teams chats may take up to 48 h per Learn (`communication-compliance-channels`); do not conclude "no match" within that window
 8. [ ] **Classifier model version recorded** for any classifier-based condition; model bumps invalidate prior baselines
 9. [ ] **Sovereign-cloud parity verified** against current Microsoft Learn matrix — Communication Compliance availability and feature parity in GCC High / DoD lag Commercial; record gaps
-10. [ ] **PAYG billing enabled** for non-M365 AI sources in scope (Copilot in Fabric, Security Copilot, Microsoft Copilot Studio Copilots, connected external AI apps, "Other AI apps") — without PAYG the scope returns zero silently
+10. [ ] **PAYG billing enabled** for non-M365 AI sources in scope (Copilot in Fabric, Security Copilot, Copilot Studio Copilots, connected external AI apps, "Other AI apps") — without PAYG the scope returns zero silently
 11. [ ] **Evidence preserved** per the §1 evidence list; SHA-256 sidecars captured; manifest stored in Control 1.7 evidence bucket
 12. [ ] **Scope and Administrative Unit** verified — restricted-AU admins see only scoped users / data; an investigator opening the page from the wrong AU may see "no alerts" while alerts exist for an unrestricted admin
 13. [ ] **Pseudonymization status documented** — if pseudonymization is off, the opt-out justification, approver, and date are recorded in the privacy register; if on, no investigator should be seeing raw user names without an explicit opt-in audit
@@ -183,7 +183,7 @@ The single most common cause of misdirected investigation in FSI is reaching for
 |---|---|---|
 | Policy was built from a **non-Copilot template** (e.g., `Inappropriate content`) — that template's location is Teams + Viva Engage, not Copilot. The CC `Other AI apps` category is browser-detected via Defender for Cloud Apps catalog and is unrelated to the M365 Copilot scope | Confirm template used and locations selected on the policy | Create a new policy from `Detect Microsoft 365 Copilot and Microsoft 365 Copilot Chat interactions`; do not retrofit a Teams template |
 | User license does not include M365 Copilot | `Get-MgUserLicenseDetail` | Assign Copilot license; document gap |
-| PAYG enabled for non-M365 AI but the user's M365 Copilot interactions are routed to a Microsoft Copilot Studio Copilot (which is a non-M365 AI source) | Cross-reference the agent surface against Learn's `Microsoft Copilot experiences` vs `Enterprise AI apps` vs `Other AI apps` definitions | Confirm the source category; add the correct policy template (Microsoft Copilot Studio Copilots fall under non-M365 AI sources and require PAYG) |
+| PAYG enabled for non-M365 AI but the user's M365 Copilot interactions are routed to a Copilot Studio Copilot (which is a non-M365 AI source) | Cross-reference the agent surface against Learn's `Microsoft Copilot experiences` vs `Enterprise AI apps` vs `Other AI apps` definitions | Confirm the source category; add the correct policy template (Copilot Studio Copilots fall under non-M365 AI sources and require PAYG) |
 
 **Sovereign cloud:** Copilot scope availability in CC lags in GCC High / DoD; verify per current Learn before promising coverage.
 **Reference:** Microsoft Learn — `communication-compliance-channels` (Generative AI section).
@@ -290,7 +290,7 @@ The single most common cause of misdirected investigation in FSI is reaching for
 
 | Likely cause | Diagnostic | Fix |
 |---|---|---|
-| **Pay-as-you-go billing not enabled** in the Azure subscription backing Purview — per Learn, PAYG is required to detect inappropriate or risky interactions for non-M365 AI data (Copilot in Fabric, Security Copilot, Microsoft Copilot Studio Copilots, connected external AI apps) | Azure portal > Cost Management + Billing; Purview billing model state | Enable Purview PAYG; allow propagation; re-validate with a deterministic test from an in-scope user against an in-scope source |
+| **Pay-as-you-go billing not enabled** in the Azure subscription backing Purview — per Learn, PAYG is required to detect inappropriate or risky interactions for non-M365 AI data (Copilot in Fabric, Security Copilot, Copilot Studio Copilots, connected external AI apps) | Azure portal > Cost Management + Billing; Purview billing model state | Enable Purview PAYG; allow propagation; re-validate with a deterministic test from an in-scope user against an in-scope source |
 | Engineer assumed M365 Copilot pricing covers non-M365 AI (it does not) | Cross-reference billing model against scope | Document the billing dependency in the deployment runbook |
 
 **Sovereign cloud:** PAYG availability differs across clouds — verify per current Learn before promising non-M365 AI scope.
