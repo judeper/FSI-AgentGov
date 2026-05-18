@@ -11,6 +11,18 @@
 !!! warning "Disclaimer"
     This framework is provided for informational purposes only and does not constitute legal, regulatory, or compliance advice. See [full disclaimer](disclaimer.md).
 
+## Before you start: License prerequisites
+
+Most implementations in this framework rely on a mix of Copilot Studio, Power Platform, and Microsoft 365 security/compliance licensing rather than a single SKU. Zone 3 scenarios commonly need Microsoft 365 E5 or Microsoft Purview Suite capabilities for audit, retention, investigation, and reporting controls, while some implementations also add Microsoft Defender for Cloud Apps, Microsoft Sentinel, or SharePoint Advanced Management. Validate the exact license mix for each control before rollout.
+
+- **Copilot Studio** is the baseline for agent development across the framework.
+- **Power Platform Premium** is commonly needed for managed environments, environment governance, and related PPAC controls.
+- **Microsoft 365 E5 or Microsoft Purview Suite** is commonly needed for Purview-heavy controls such as audit logging, data retention, eDiscovery, and Communication Compliance.
+- **Microsoft 365 E5 Security or full Microsoft 365 E5** may be needed when controls depend on Microsoft Defender for Cloud Apps or Microsoft Sentinel.
+- **SharePoint Advanced Management** is commonly needed for SharePoint governance controls in Pillar 4.
+
+For the full per-control breakdown, see the **[License Requirements Matrix](reference/license-requirements.md)**.
+
 ---
 
 ## Is This the Right Repository?
