@@ -765,7 +765,7 @@ Reportability tree (initial assessment):
   Q3 (NYDFS 72hr): YES/NO/UNKNOWN
   Q4 (FINRA 4530): YES/NO/UNKNOWN
   Q5 (FTC Safeguards): YES/NO/UNKNOWN
-  Q6 (SR 11-7): YES/NO/UNKNOWN
+  Q6 (Fed SR 26-2 — formerly SR 11-7): YES/NO/UNKNOWN
   Q7 (state privacy): YES/NO/UNKNOWN
 
 Compensating controls applied: <list>

@@ -264,7 +264,7 @@ customEvents
 Extend the Q09 latency query with SLA threshold lines by adding a parameter-driven target:
 
 ```kql
-// OCC 2011-12: SLA compliance monitoring
+// OCC 2026-13 (formerly OCC 2011-12): SLA compliance monitoring
 let SLATargetMs = 5000;  // Adjust to your SLA target
 customEvents
 | where timestamp {TimeRange}

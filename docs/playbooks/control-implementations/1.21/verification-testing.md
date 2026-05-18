@@ -1001,8 +1001,8 @@ Every test emits a single JSON file conforming to this schema. The shape is inte
     "SEC Reg S-P (2024)",
     "SOX 404",
     "GLBA 501(b)",
-    "OCC 2011-12",
-    "Fed SR 11-7",
+    "OCC 2026-13 (formerly OCC 2011-12)",
+    "Fed SR 26-2 (formerly SR 11-7)",
     "CFTC 1.31"
   ],
   "schemaVersion": "1.0",
@@ -1137,7 +1137,7 @@ function Write-EvidenceRecord {
         skipReason        = $SkipReason
         auditAssertion    = $AuditAssertion
         evidenceFiles     = $hashes
-        regulatoryDriver  = @('FINRA 4511','FINRA Reg Notice 25-07','SEC 17a-4(f)','SEC Reg S-P (2024)','SOX 404','GLBA 501(b)','OCC 2011-12','Fed SR 11-7','CFTC 1.31')
+        regulatoryDriver  = @('FINRA 4511','FINRA Reg Notice 25-07','SEC 17a-4(f)','SEC Reg S-P (2024)','SOX 404','GLBA 501(b)','OCC 2026-13 (formerly OCC 2011-12)','Fed SR 26-2 (formerly SR 11-7)','CFTC 1.31')
         schemaVersion     = '1.0'
     }
     $outFile = Join-Path $cycleDir "$TestId.json"
@@ -1326,7 +1326,7 @@ The cycle attestation is a single signed statement covering the cycle's results.
     "Microsoft.PowerApps.Administration.PowerShell": "2.0.180"
   },
   "regulatoryAttestation": {
-    "statement": "The cycle results above are intended to support compliance with FINRA 4511, FINRA Regulatory Notice 25-07, SEC 17a-4(f), SEC Reg S-P (2024), SOX 404, GLBA 501(b), OCC Bulletin 2011-12, Federal Reserve SR 11-7, and CFTC Regulation 1.31. They do not guarantee legal compliance. Tenant-specific regulatory applicability has been confirmed with qualified counsel.",
+    "statement": "The cycle results above are intended to support compliance with FINRA 4511, FINRA Regulatory Notice 25-07, SEC 17a-4(f), SEC Reg S-P (2024), SOX 404, GLBA 501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), and CFTC Regulation 1.31. They do not guarantee legal compliance. Tenant-specific regulatory applicability has been confirmed with qualified counsel.",
     "caveats": [
       "Microsoft does not publish a single guaranteed SLA for Unified Audit Log ingestion; operative latency for this cycle is the tenant-measured p99 captured in PRE-04 / UAL-04, not a vendor SLA.",
       "Azure AI Content Safety Prompt Shields is the Microsoft-supported jailbreak detection surface for Azure-AI-fronted agents; first-party Microsoft 365 Copilot uses internal controls that surface (where applicable) via Defender XDR.",

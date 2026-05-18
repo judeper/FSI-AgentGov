@@ -118,7 +118,7 @@ in this attestation supports — but does not by itself establish — the firm's
   • SEC 17a-4(f) / FINRA 4511 record-preservation expectations (paired with Audit Premium / Control 1.7)
   • SEC Reg S-P §248.30(a)(4) detection support for events that may trigger customer notification
   • GLBA 501(b) safeguards expectations for customer information processed by AI
-  • OCC 2011-12 / Fed SR 11-7 model risk management ongoing-monitoring expectations
+  • OCC 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) model risk management ongoing-monitoring expectations
   • Interagency Guidance on Third-Party Relationships (OCC/FRB/FDIC) for ongoing monitoring of third-party AI
 
 This evidence does not constitute a legal determination. Reportability decisions remain with

@@ -577,7 +577,7 @@ REPORTABILITY DECISION (§1.2 result):
   Step 1 (NPI / Reg S-P):       <Y|N>  Decision-maker:  Date:
   Step 2 (FINRA 4530):          <Y|N>  Decision-maker:  Date:
   Step 3 (17a-4 books):         <Y|N>  Decision-maker:  Date:
-  Step 4 (OCC / SR 11-7):       <Y|N>  Decision-maker:  Date:
+  Step 4 (OCC 2026-13 / Fed SR 26-2 — formerly OCC 2011-12 / SR 11-7):       <Y|N>  Decision-maker:  Date:
   Step 5 (CFTC 1.31):           <Y|N>  Decision-maker:  Date:
   Step 6 (CCPA / state):        <Y|N>  Decision-maker:  Date:
 

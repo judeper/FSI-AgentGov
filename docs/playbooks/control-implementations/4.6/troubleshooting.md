@@ -625,7 +625,7 @@ Subject: Microsoft 365 Copilot grounding-scope event — [date]
    - GLBA 501(b) / SEC Reg S-P §248.30(a)(4): [if customer NPI in scope; 30-day customer-notification timeline]
    - SOX §302 / §404 ICFR: [if financial-disclosure-adjacent]
    - NY DFS 23 NYCRR 500 §500.17(a) 72-hour cybersecurity-event clock: [pending Legal | not applicable | clock running since UTC X]
-   - OCC 2011-12 / Fed SR 11-7 model risk: [if the agent surface itself produced a model-risk-adjacent failure]
+   - OCC 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) model risk: [if the agent surface itself produced a model-risk-adjacent failure]
    - CFTC Rule 1.31: [if covered swap / trading content]
    - FINRA Rule 4530: [if firm misconduct in scope]
 

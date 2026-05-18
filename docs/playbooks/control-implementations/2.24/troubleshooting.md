@@ -36,7 +36,7 @@ Symptom reported
   ├─► Voice / image / multimodal feature enabled
   │   without comms-compliance recording path?        → §11 VOICE-IMAGE-GAP
   ├─► Feature change made without MRM change record
-  │   (SR 11-7) or without model re-validation?       → §12 MRM-CASCADE-BROKEN
+  │   (Fed SR 26-2 — formerly SR 11-7) or without model re-validation?       → §12 MRM-CASCADE-BROKEN
   └─► Supervisors unaware that a feature changed,
       WSP / supervision queue not updated?            → §13 SUPERVISOR-UNAWARE
 ```
@@ -963,7 +963,7 @@ An incident under this playbook may be closed only when **all** of the following
 <which §N pillar(s); upstream contributing factors; was this a recurrence>
 
 ## 3. Cascades engaged
-- [ ] Control 2.6 (MRM / SR 11-7) — record ID:
+- [ ] Control 2.6 (MRM / Fed SR 26-2 — formerly SR 11-7) — record ID:
 - [ ] Control 2.12 (Supervision / FINRA 3110) — WSP ref:
 - [ ] Control 1.4 (ACP) — policy IDs touched:
 - [ ] Control 1.10 (CC) — policy IDs touched:
@@ -986,7 +986,7 @@ An incident under this playbook may be closed only when **all** of the following
 
 ## 7. Hedged-language confirmation
 This attestation **supports** examiner response and post-incident review. It does not substitute for:
-- the SR 11-7 model-risk record (Control 2.6),
+- the Fed SR 26-2 (formerly SR 11-7) model-risk record (Control 2.6),
 - the FINRA Rule 3110 written supervisory procedure update (Control 2.12),
 - or the AI guardrail framework (Control 1.1).
 

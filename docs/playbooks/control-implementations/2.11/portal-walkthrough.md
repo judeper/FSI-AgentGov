@@ -137,7 +137,7 @@ Capture the agent's scope decision in a one-page memo signed by the Compliance O
 ```yaml
 Agent: Retail Banking Account-Opening Assistant
 Zone: 3 (Enterprise — customer-facing, influences account-opening decisions)
-Regulatory Scope: ECOA / Reg B, FINRA 3110, SR 11-7, CFPB Circular 2023-03
+Regulatory Scope: ECOA / Reg B, FINRA 3110, Fed SR 26-2 (formerly SR 11-7), CFPB Circular 2023-03
 
 Protected Classes (in scope):
   - Race (5 categories per Census)
@@ -162,7 +162,7 @@ Metrics & Thresholds:
 Cadence:
   Pre-deployment:    Required (gate in release pipeline)
   Quarterly:         Q-end + 30 days
-  On material change: Re-validation under SR 11-7
+  On material change: Re-validation under Fed SR 26-2 (formerly SR 11-7)
 
 Evidence:
   Library: SharePoint > FSI-AIGov > Bias-Testing-Evidence
