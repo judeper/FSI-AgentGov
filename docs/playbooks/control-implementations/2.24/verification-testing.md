@@ -988,7 +988,7 @@ Describe "AGT224-SOV" -Tag 'AGT224','SOV' {
 
 ### §2.12 SIEM — forwarding to Microsoft Sentinel
 
-**Criterion mapping.** Cross-cutting; chains with Control 3.1 (Audit Log Telemetry) and Control 3.9 (SIEM Integration).
+**Criterion mapping.** Cross-cutting; chains with Control 1.7 (Comprehensive Audit Logging and Compliance) and Control 3.9 (Microsoft Sentinel Integration).
 
 **Pester suite.**
 

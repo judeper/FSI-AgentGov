@@ -509,7 +509,7 @@ function Set-Agt47CopilotDlp {
 - The prompt-block rule **does not** prevent a user from seeing labeled content in SharePoint — it only blocks Copilot from grounding on it and from accepting prompts that contain selected SITs. Use this rule to enforce SEC Reg S-P customer-information protections inside Copilot prompts.
 - For MNPI/NPI grounding exclusion, set `BlockAccessScope = 'PerUser'`, not `'All'`. `'All'` blocks anonymous web crawlers as well, which has no effect on Copilot but generates noisy alerts.
 - Set `GenerateAlert = $true` so violations land in Defender XDR for SOC review under Control 3.6 (Risky Use Detection).
-- Audit Copilot prompt and response activity via `UnifiedAuditLog` (record types `CopilotInteraction`, `CopilotEvent`); Control 3.1 (Activity Audit Log) covers the export pipeline.
+- Audit Copilot prompt and response activity via `UnifiedAuditLog` (record types `CopilotInteraction`, `CopilotEvent`); Control 1.7 (Comprehensive Audit Logging and Compliance) covers the export pipeline.
 
 ---
 

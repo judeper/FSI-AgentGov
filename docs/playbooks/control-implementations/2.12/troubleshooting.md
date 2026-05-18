@@ -68,7 +68,7 @@ Every pillar follows this standardized subsection layout to keep the on-call's c
 ### §0.5 What This Playbook Does **Not** Cover
 
 - **Copilot Studio authoring / builder issues** unrelated to HITL — see the Copilot Studio general troubleshooting guidance in Microsoft Learn.
-- **Entra directory-level identity issues** — see Control 1.1 (Entra Conditional Access) and the Entra admin center diagnostics.
+- **Entra directory-level identity issues** — see Control 1.11 (Conditional Access and Phishing-Resistant MFA) and the Entra admin center diagnostics.
 - **Power Platform DLP policy authoring** — see Control 2.14.
 - **Agent registry / metadata issues** — see [Control 3.1 — Agent Inventory and Metadata Management](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md).
 - **Incident reporting mechanics (post-incident lifecycle)** — see [Control 3.4 — Incident Reporting and Root Cause Analysis](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md). This playbook covers the **supervisory-control** incident response; Control 3.4 covers the broader incident reporting and RCA discipline.
