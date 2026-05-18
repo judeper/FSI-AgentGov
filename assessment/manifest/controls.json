@@ -72,14 +72,15 @@
       "Power Platform Admin"
     ],
     "regulatory": [
-      "FINRA-4511",
-      "FINRA-3110",
       "FINRA-25-07",
-      "SEC-17a-4",
-      "SOX-404",
+      "FINRA-3110",
+      "FINRA-4511",
+      "Fed-SR-26-2",
       "GLBA",
       "OCC-2023-17",
-      "Fed-SR-26-2"
+      "OCC-2026-13",
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "critical",
     "applicable_drivers": [
@@ -202,13 +203,14 @@
     ],
     "regulatory": [
       "FINRA-25-07",
-      "SEC-17a-4",
-      "SOX-404",
-      "GLBA",
-      "OCC-2026-13",
+      "FINRA-4511",
       "Fed-SR-26-2",
+      "GLBA",
       "NIST-AI-RMF",
-      "NYDFS-500"
+      "NYDFS-500",
+      "OCC-2026-13",
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "high",
     "applicable_drivers": [
@@ -314,10 +316,13 @@
       "Site Collection Admin"
     ],
     "regulatory": [
+      "FINRA-25-07",
+      "FINRA-3110",
       "FINRA-4511",
+      "GLBA",
       "Reg-S-P",
-      "SOX-404",
-      "GLBA"
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "critical",
     "applicable_drivers": [
@@ -428,13 +433,15 @@
       "Security Team"
     ],
     "regulatory": [
-      "FINRA-4511",
-      "FINRA-3110",
       "FINRA-25-07",
-      "SEC-17a-4",
+      "FINRA-3110",
+      "FINRA-4511",
+      "Fed-SR-26-2",
+      "GLBA",
+      "OCC-2026-13",
       "Reg-S-P",
-      "SOX-404",
-      "GLBA"
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "high",
     "applicable_drivers": [
@@ -648,9 +655,10 @@
     ],
     "regulatory": [
       "FINRA-25-07",
+      "FINRA-3110",
+      "GLBA",
       "Reg-S-P",
-      "SOX-404",
-      "GLBA"
+      "SOX-404"
     ],
     "priority": "high",
     "applicable_drivers": [
@@ -861,6 +869,7 @@
     ],
     "regulatory": [
       "FINRA-25-07",
+      "FINRA-3110",
       "GLBA"
     ],
     "priority": "high",
@@ -967,12 +976,13 @@
       "Purview Records Manager"
     ],
     "regulatory": [
-      "FINRA-4511",
+      "CFTC-1.31",
       "FINRA-25-07",
-      "SEC-17a-3",
-      "SOX-404",
+      "FINRA-4511",
       "GLBA",
-      "CFTC-1.31"
+      "SEC-17a-3",
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -1066,10 +1076,13 @@
     ],
     "regulatory": [
       "FINRA-25-07",
-      "SEC-17a-4",
-      "SEC-17a-3",
+      "FINRA-3110",
+      "FINRA-4511",
+      "FINRA-4530",
+      "GLBA",
       "Reg-S-P",
-      "GLBA"
+      "SEC-17a-3",
+      "SEC-17a-4"
     ],
     "priority": "high",
     "applicable_drivers": [
@@ -1193,15 +1206,16 @@
       "SOC Analyst (Sentinel / Defender XDR)"
     ],
     "regulatory": [
-      "FINRA-4511",
       "FINRA-25-07",
-      "SEC-17a-3",
-      "Reg-S-P",
-      "SOX-404",
-      "GLBA",
-      "OCC-2026-13",
+      "FINRA-4511",
       "Fed-SR-26-2",
-      "NYDFS-500"
+      "GLBA",
+      "NYDFS-500",
+      "OCC-2026-13",
+      "Reg-S-P",
+      "SEC-17a-3",
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "critical",
     "applicable_drivers": [
@@ -1300,14 +1314,16 @@
     ],
     "regulatory": [
       "FINRA-25-07",
-      "SEC-17a-4",
-      "SEC-17a-3",
-      "Reg-S-P",
-      "SOX-404",
-      "GLBA",
-      "OCC-2026-13",
+      "FINRA-3110",
+      "FINRA-4511",
       "Fed-SR-26-2",
-      "NYDFS-500"
+      "GLBA",
+      "NYDFS-500",
+      "OCC-2026-13",
+      "Reg-S-P",
+      "SEC-17a-3",
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "high",
     "applicable_drivers": [
@@ -1612,13 +1628,14 @@
       "SharePoint Admin"
     ],
     "regulatory": [
-      "FINRA-4511",
       "FINRA-25-07",
-      "SEC-17a-4",
-      "SOX-404",
+      "FINRA-4511",
       "GLBA",
       "NYDFS-500",
-      "PCI-DSS"
+      "PCI-DSS",
+      "Reg-S-P",
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -1790,12 +1807,15 @@
       "Purview Compliance Admin"
     ],
     "regulatory": [
-      "FINRA-4511",
       "FINRA-25-07",
-      "Reg-S-P",
-      "SOX-404",
+      "FINRA-3110",
+      "FINRA-4511",
       "GLBA",
-      "PCI-DSS"
+      "OCC-2026-13",
+      "PCI-DSS",
+      "Reg-S-P",
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "high",
     "applicable_drivers": [
@@ -1897,11 +1917,13 @@
       "Power Platform Admin"
     ],
     "regulatory": [
-      "FINRA-4511",
       "FINRA-25-07",
+      "FINRA-3110",
+      "FINRA-4511",
+      "GLBA",
       "SEC-17a-3",
-      "SOX-404",
-      "GLBA"
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -2109,11 +2131,13 @@
       "Power Platform Admin"
     ],
     "regulatory": [
-      "FINRA-3110",
       "FINRA-25-07",
-      "SEC-17a-4",
+      "FINRA-3110",
+      "Fed-SR-26-2",
       "GLBA",
-      "OCC-2026-13"
+      "NYDFS-500",
+      "OCC-2026-13",
+      "SEC-17a-4"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -2318,7 +2342,9 @@
     ],
     "regulatory": [
       "FINRA-25-07",
-      "OCC-2026-13"
+      "Fed-SR-26-2",
+      "OCC-2026-13",
+      "Reg-S-P"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -2406,11 +2432,12 @@
       "Power Platform Admin"
     ],
     "regulatory": [
-      "FINRA-4511",
       "FINRA-25-07",
-      "SOX-404",
+      "FINRA-4511",
+      "FINRA-4530",
       "GLBA",
-      "NYDFS-500"
+      "NYDFS-500",
+      "SOX-404"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -2494,10 +2521,11 @@
     ],
     "regulatory": [
       "FINRA-25-07",
-      "GLBA",
-      "OCC-2026-13",
       "Fed-SR-26-2",
-      "NIST-AI-RMF"
+      "GLBA",
+      "NIST-AI-RMF",
+      "NYDFS-500",
+      "OCC-2026-13"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -2600,11 +2628,12 @@
       "SOC Analyst"
     ],
     "regulatory": [
-      "FINRA-4511",
       "FINRA-25-07",
-      "SEC-17a-4",
+      "FINRA-3110",
+      "FINRA-4511",
       "GLBA",
-      "OCC-2026-13"
+      "OCC-2026-13",
+      "SEC-17a-4"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -2706,11 +2735,15 @@
       "Security Operations"
     ],
     "regulatory": [
-      "FINRA-4511",
+      "CFTC-1.31",
       "FINRA-25-07",
-      "SEC-17a-4",
+      "FINRA-3110",
+      "FINRA-4511",
+      "Fed-SR-26-2",
       "GLBA",
-      "OCC-2026-13"
+      "NIST-AI-RMF",
+      "OCC-2026-13",
+      "SEC-17a-4"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -2822,9 +2855,15 @@
       "Security Operations"
     ],
     "regulatory": [
+      "FINRA-25-07",
       "FINRA-3110",
+      "Fed-SR-26-2",
+      "GLBA",
+      "NIST-AI-RMF",
+      "OCC-2026-13",
       "SEC-17a-3",
-      "GLBA"
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -3140,13 +3179,15 @@
     ],
     "regulatory": [
       "FINRA-25-07",
-      "SEC-17a-4",
-      "SEC-17a-3",
-      "SOX-404",
-      "GLBA",
-      "OCC-2026-13",
+      "FINRA-3110",
+      "FINRA-4511",
       "Fed-SR-26-2",
-      "NYDFS-500"
+      "GLBA",
+      "NYDFS-500",
+      "OCC-2026-13",
+      "SEC-17a-3",
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "critical",
     "applicable_drivers": [
@@ -3254,11 +3295,14 @@
       "Power Platform Admin"
     ],
     "regulatory": [
-      "FINRA-4511",
       "FINRA-25-07",
-      "SOX-404",
+      "FINRA-3110",
+      "FINRA-4511",
+      "Fed-SR-26-2",
       "GLBA",
-      "OCC-2026-13"
+      "OCC-2026-13",
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "high",
     "applicable_drivers": [
@@ -3351,11 +3395,14 @@
       "Security Admin"
     ],
     "regulatory": [
-      "FINRA-4511",
       "FINRA-25-07",
+      "FINRA-4511",
+      "Fed-SR-26-2",
+      "GLBA",
+      "OCC-2026-13",
+      "SEC-17a-3",
       "SEC-17a-4",
-      "SOX-404",
-      "GLBA"
+      "SOX-404"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -3451,11 +3498,13 @@
       "Power Platform Admin"
     ],
     "regulatory": [
-      "FINRA-4511",
       "FINRA-25-07",
-      "SOX-404",
+      "FINRA-4511",
       "GLBA",
-      "OCC-2026-13"
+      "OCC-2026-13",
+      "SEC-17a-3",
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "medium",
     "applicable_drivers": [
@@ -3538,12 +3587,14 @@
     ],
     "regulatory": [
       "FINRA-25-07",
-      "SEC-17a-4",
-      "SOX-404",
-      "GLBA",
-      "OCC-2026-13",
+      "FINRA-3110",
+      "FINRA-4511",
       "Fed-SR-26-2",
-      "NIST-AI-RMF"
+      "GLBA",
+      "NIST-AI-RMF",
+      "OCC-2026-13",
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -3627,13 +3678,15 @@
     ],
     "regulatory": [
       "FINRA-25-07",
-      "SEC-17a-4",
-      "SEC-17a-3",
-      "SOX-404",
-      "GLBA",
-      "OCC-2026-13",
+      "FINRA-3110",
+      "FINRA-4511",
       "Fed-SR-26-2",
-      "NYDFS-500"
+      "GLBA",
+      "NYDFS-500",
+      "OCC-2026-13",
+      "SEC-17a-3",
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "high",
     "applicable_drivers": [
@@ -3714,9 +3767,13 @@
     ],
     "regulatory": [
       "FINRA-25-07",
-      "SOX-404",
+      "FINRA-3110",
+      "FINRA-4511",
+      "Fed-SR-26-2",
       "GLBA",
-      "OCC-2026-13"
+      "OCC-2026-13",
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -3816,11 +3873,12 @@
       "Power Platform Admin"
     ],
     "regulatory": [
-      "FINRA-4511",
       "FINRA-25-07",
+      "FINRA-3110",
+      "FINRA-4511",
+      "GLBA",
       "SEC-17a-4",
-      "SOX-404",
-      "GLBA"
+      "SOX-404"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -3916,11 +3974,14 @@
       "Power Platform Admin"
     ],
     "regulatory": [
-      "FINRA-4511",
       "FINRA-25-07",
+      "FINRA-4511",
+      "Fed-SR-26-2",
+      "GLBA",
+      "OCC-2026-13",
       "SEC-17a-3",
-      "SOX-404",
-      "GLBA"
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -4097,7 +4158,10 @@
       "Governance Lead"
     ],
     "regulatory": [
-      "Fed-SR-26-2"
+      "FINRA-3110",
+      "Fed-SR-26-2",
+      "NIST-AI-RMF",
+      "OCC-2026-13"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -4179,10 +4243,12 @@
       "Role (canonical — see `docs/reference/role-catalog.md`)"
     ],
     "regulatory": [
-      "SEC-17a-4",
+      "FINRA-3110",
+      "FINRA-4511",
+      "NYDFS-500",
       "SEC-17a-3",
-      "SOX-404",
-      "NYDFS-500"
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "critical",
     "applicable_drivers": [
@@ -4269,11 +4335,16 @@
       "SharePoint Admin"
     ],
     "regulatory": [
-      "FINRA-4511",
+      "CFTC-1.31",
       "FINRA-25-07",
+      "FINRA-3110",
+      "FINRA-4511",
+      "Fed-SR-26-2",
+      "GLBA",
+      "OCC-2026-13",
       "SEC-17a-3",
-      "SOX-404",
-      "GLBA"
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -4354,8 +4425,11 @@
       "Manager"
     ],
     "regulatory": [
-      "SOX-404",
-      "GLBA"
+      "FINRA-25-07",
+      "FINRA-3110",
+      "GLBA",
+      "OCC-2026-13",
+      "SOX-404"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -4730,7 +4804,8 @@
       "Model Risk Manager"
     ],
     "regulatory": [
-      "FINRA-25-07"
+      "FINRA-25-07",
+      "FINRA-3110"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -4811,7 +4886,9 @@
     ],
     "regulatory": [
       "FINRA-25-07",
-      "GLBA"
+      "FINRA-4511",
+      "GLBA",
+      "SEC-17a-4"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -4892,9 +4969,11 @@
       "Security Team"
     ],
     "regulatory": [
-      "OCC-2026-13",
+      "FINRA-25-07",
+      "FINRA-3110",
       "Fed-SR-26-2",
-      "NIST-AI-RMF"
+      "NIST-AI-RMF",
+      "OCC-2026-13"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -5075,10 +5154,11 @@
       "Power Platform Admin"
     ],
     "regulatory": [
-      "FINRA-4511",
       "FINRA-25-07",
-      "SOX-404",
-      "GLBA"
+      "FINRA-4511",
+      "GLBA",
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -5161,7 +5241,10 @@
     ],
     "regulatory": [
       "FINRA-25-07",
-      "GLBA"
+      "FINRA-3110",
+      "GLBA",
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -5383,12 +5466,14 @@
     ],
     "regulatory": [
       "FINRA-25-07",
-      "SEC-17a-4",
-      "SEC-17a-3",
-      "SOX-404",
+      "FINRA-3110",
+      "FINRA-4511",
       "GLBA",
+      "NYDFS-500",
       "OCC-2026-13",
-      "NYDFS-500"
+      "SEC-17a-3",
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -5607,13 +5692,14 @@
     ],
     "regulatory": [
       "FINRA-25-07",
-      "SEC-17a-4",
-      "SOX-404",
-      "GLBA",
-      "OCC-2026-13",
+      "FINRA-4511",
       "Fed-SR-26-2",
+      "GLBA",
       "NIST-AI-RMF",
-      "NYDFS-500"
+      "NYDFS-500",
+      "OCC-2026-13",
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -5694,11 +5780,12 @@
       "Power Platform Admin"
     ],
     "regulatory": [
-      "FINRA-4511",
       "FINRA-25-07",
+      "FINRA-4511",
+      "GLBA",
       "SEC-17a-3",
-      "SOX-404",
-      "GLBA"
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -5792,12 +5879,14 @@
       "SharePoint Site Owner"
     ],
     "regulatory": [
-      "FINRA-4511",
       "FINRA-25-07",
-      "SEC-17a-3",
-      "SOX-404",
+      "FINRA-4511",
       "GLBA",
-      "OCC-2026-13"
+      "OCC-2026-13",
+      "Reg-S-P",
+      "SEC-17a-3",
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -5895,13 +5984,15 @@
     ],
     "regulatory": [
       "FINRA-25-07",
-      "SEC-17a-4",
-      "SEC-17a-3",
-      "Reg-S-P",
-      "SOX-404",
+      "FINRA-4511",
+      "FINRA-4530",
       "GLBA",
+      "NCUA",
       "NYDFS-500",
-      "NCUA"
+      "Reg-S-P",
+      "SEC-17a-3",
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "critical",
     "applicable_drivers": [
@@ -6006,11 +6097,12 @@
       "Power Platform Admin"
     ],
     "regulatory": [
-      "FINRA-4511",
       "FINRA-25-07",
-      "SOX-404",
+      "FINRA-4511",
       "GLBA",
-      "OCC-2026-13"
+      "OCC-2026-13",
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -6095,12 +6187,14 @@
     ],
     "regulatory": [
       "FINRA-25-07",
-      "SEC-17a-4",
-      "SEC-17a-3",
-      "SOX-404",
+      "FINRA-3110",
+      "FINRA-4511",
       "GLBA",
+      "NYDFS-500",
       "OCC-2026-13",
-      "NYDFS-500"
+      "SEC-17a-3",
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -6288,11 +6382,12 @@
       "Supervisor"
     ],
     "regulatory": [
-      "FINRA-4511",
       "FINRA-25-07",
+      "FINRA-4511",
+      "GLBA",
       "SEC-17a-3",
-      "SOX-404",
-      "GLBA"
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -6400,12 +6495,13 @@
     ],
     "regulatory": [
       "FINRA-25-07",
-      "SEC-17a-4",
-      "SEC-17a-3",
-      "SOX-404",
-      "OCC-2026-13",
+      "FINRA-4511",
       "Fed-SR-26-2",
-      "NYDFS-500"
+      "NYDFS-500",
+      "OCC-2026-13",
+      "SEC-17a-3",
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "high",
     "applicable_drivers": [
@@ -6486,8 +6582,9 @@
       "QA Lead"
     ],
     "regulatory": [
-      "FINRA-4511",
       "FINRA-25-07",
+      "FINRA-3110",
+      "FINRA-4511",
       "SEC-17a-4",
       "SOX-404"
     ],
@@ -6572,11 +6669,12 @@
       "Security Operations"
     ],
     "regulatory": [
-      "FINRA-4511",
       "FINRA-25-07",
-      "SOX-404",
+      "FINRA-4511",
+      "Fed-SR-26-2",
       "OCC-2026-13",
-      "Fed-SR-26-2"
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -6740,8 +6838,10 @@
       "Third-Party Risk Manager"
     ],
     "regulatory": [
-      "SEC-17a-4",
+      "FINRA-3110",
+      "FINRA-4511",
       "SEC-17a-3",
+      "SEC-17a-4",
       "SOX-404"
     ],
     "priority": "medium",
@@ -6824,10 +6924,11 @@
       "Internal Audit"
     ],
     "regulatory": [
-      "SEC-17a-4",
+      "FINRA-4511",
+      "OCC-2026-13",
       "SEC-17a-3",
-      "SOX-404",
-      "OCC-2026-13"
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -6931,11 +7032,12 @@
       "SharePoint Site Collection Admin"
     ],
     "regulatory": [
-      "FINRA-4511",
       "FINRA-25-07",
+      "FINRA-4511",
+      "GLBA",
       "Reg-S-P",
-      "SOX-404",
-      "GLBA"
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -7028,11 +7130,12 @@
       "SharePoint Site Collection Admin"
     ],
     "regulatory": [
-      "FINRA-4511",
       "FINRA-25-07",
-      "SOX-404",
+      "FINRA-4511",
       "GLBA",
-      "NYDFS-500"
+      "NYDFS-500",
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -7135,11 +7238,12 @@
       "SharePoint Admin"
     ],
     "regulatory": [
-      "FINRA-4511",
       "FINRA-25-07",
+      "FINRA-4511",
+      "GLBA",
       "SEC-17a-3",
-      "SOX-404",
-      "GLBA"
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -7338,11 +7442,12 @@
       "SharePoint Admin"
     ],
     "regulatory": [
-      "FINRA-4511",
       "FINRA-25-07",
+      "FINRA-4511",
+      "GLBA",
       "SEC-17a-3",
-      "SOX-404",
-      "GLBA"
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -7446,12 +7551,13 @@
       "SharePoint Admin"
     ],
     "regulatory": [
-      "FINRA-4511",
       "FINRA-25-07",
-      "SEC-17a-3",
-      "SOX-404",
+      "FINRA-4511",
       "GLBA",
-      "OCC-2026-13"
+      "OCC-2026-13",
+      "SEC-17a-3",
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -7538,16 +7644,17 @@
       "eDiscovery Manager"
     ],
     "regulatory": [
-      "FINRA-4511",
-      "FINRA-3110",
       "FINRA-25-07",
-      "SEC-17a-3",
-      "Reg-S-P",
-      "SOX-404",
-      "GLBA",
-      "OCC-2026-13",
+      "FINRA-3110",
+      "FINRA-4511",
       "Fed-SR-26-2",
-      "NYDFS-500"
+      "GLBA",
+      "NYDFS-500",
+      "OCC-2026-13",
+      "Reg-S-P",
+      "SEC-17a-3",
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
@@ -7734,10 +7841,11 @@
       "SharePoint / M365 Administrator"
     ],
     "regulatory": [
-      "SEC-17a-4",
+      "FINRA-4511",
+      "GLBA",
       "SEC-17a-3",
-      "SOX-404",
-      "GLBA"
+      "SEC-17a-4",
+      "SOX-404"
     ],
     "priority": "TODO: critical|high|medium|low",
     "applicable_drivers": [
