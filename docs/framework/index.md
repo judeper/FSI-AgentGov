@@ -57,7 +57,7 @@ This separation ensures governance stability while allowing rapid updates to imp
 
 ### 1. Risk-Based Governance
 
-Controls scale with risk. Zone 1 (personal productivity) requires minimal oversight while Zone 3 (enterprise/customer-facing) requires comprehensive governance including committee approval, model risk management, and 10-year retention.
+Controls scale with risk. Zone 1 (personal productivity) requires minimal oversight while Zone 3 (enterprise/customer-facing) requires comprehensive governance including committee approval, model risk management, and record-class retention as defined in [Control 1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) rather than a blanket retention period.
 
 ### 2. Regulatory Alignment
 
