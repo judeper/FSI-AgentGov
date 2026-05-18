@@ -256,7 +256,7 @@ Ensure-SiteColumn -DisplayName 'Classification Date'-InternalName 'Classificatio
 
 # Extended columns (Zone 2+)
 Ensure-SiteColumn -DisplayName 'Regulatory Reference' -InternalName 'RegReference'    -Type Choice `
-    -Choices @('FINRA 4511','FINRA 3110','SEC 17a-3','SEC 17a-4','SOX 302','SOX 404','GLBA 501(b)','OCC 2011-12','Fed SR 11-7','CFTC 1.31')
+    -Choices @('FINRA 4511','FINRA 3110','SEC 17a-3','SEC 17a-4','SOX 302','SOX 404','GLBA 501(b)','OCC 2026-13 (formerly OCC 2011-12)','Fed SR 26-2 (formerly SR 11-7)','CFTC 1.31')
 Ensure-SiteColumn -DisplayName 'Retention Period'    -InternalName 'RetentionPeriod'  -Type Choice `
     -Choices @('3 years','5 years','6 years','7 years','10 years','Permanent')
 Ensure-SiteColumn -DisplayName 'Governance Zone'     -InternalName 'GovZone'          -Type Choice `
@@ -383,9 +383,9 @@ Ensure-RetentionLabel -Name 'FSI-Agent-CFTC-5Year' `
     -Regulatory $true `
     -ReviewerEmail $ReviewerStage2
 
-# Model risk documentation (6 years per OCC 2011-12 / Fed SR 11-7)
+# Model risk documentation (6 years per OCC 2026-13 / Fed SR 26-2 — formerly OCC 2011-12 / SR 11-7)
 Ensure-RetentionLabel -Name 'FSI-Agent-ModelRisk-6Year' `
-    -Comment 'OCC 2011-12 / Fed SR 11-7 model risk documentation. 6-year retention.' `
+    -Comment 'OCC 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) model risk documentation. 6-year retention.' `
     -RetentionDurationDays 2190 `
     -RetentionAction KeepAndDelete `
     -IsRecordLabel $true `
@@ -463,7 +463,7 @@ $Zone3Labels = @(
 Ensure-RetentionPolicy -PolicyName 'FSI-AI-Governance-Retention-Zone3' `
     -LabelNames $Zone3Labels `
     -SharePointLocation $SiteUrl `
-    -Comment 'Zone 3 regulatory record labels per SEC 17a-4(f) / CFTC 1.31 / OCC 2011-12'
+    -Comment 'Zone 3 regulatory record labels per SEC 17a-4(f) / CFTC 1.31 / OCC 2026-13 (formerly OCC 2011-12)'
 ```
 
 !!! note "Propagation delay"
@@ -576,7 +576,7 @@ function Export-AgentDocumentation {
         Exports Copilot Studio agent metadata for governance documentation.
     .DESCRIPTION
         Retrieves agent metadata from Power Platform Admin Center and exports
-        to the evidence directory for record-keeping per FINRA 4511 / OCC 2011-12.
+        to the evidence directory for record-keeping per FINRA 4511 / OCC 2026-13 (formerly OCC 2011-12).
     .PARAMETER EnvironmentId
         The Power Platform environment ID containing the agents.
     .PARAMETER EvidenceRoot

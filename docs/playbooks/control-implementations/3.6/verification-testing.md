@@ -1577,7 +1577,7 @@ The quarterly attestation is the pack's cover document. It restates the hedged l
 
 ## Statement
 
-This attestation supports compliance with FINRA 3110, 4511, and Notice 25-07, SEC Rules 17a-3 / 17a-4, SOX 302 / 404, GLBA §501(b), OCC Bulletin 2011-12, Fed SR 11-7, CFTC 1.31, and NYDFS Part 500. A clean attestation **does not guarantee** compliance, **does not replace** the firm's written supervisory procedures, and **supports — does not replace — registered-principal supervisory review under FINRA Rule 3110**.
+This attestation supports compliance with FINRA 3110, 4511, and Notice 25-07, SEC Rules 17a-3 / 17a-4, SOX 302 / 404, GLBA §501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Fed SR 26-2 (formerly SR 11-7), CFTC 1.31, and NYDFS Part 500. A clean attestation **does not guarantee** compliance, **does not replace** the firm's written supervisory procedures, and **supports — does not replace — registered-principal supervisory review under FINRA Rule 3110**.
 
 ## Namespace Summary
 

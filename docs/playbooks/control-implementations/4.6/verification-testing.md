@@ -815,7 +815,7 @@ Regulatory drivers attested against this cycle:
   - SEC Rule 17a-3 / 17a-4 / 17a-4(b) (record retention; WORM)
   - SOX 302 / 404 (internal control over financial reporting)
   - GLBA 501(b) (safeguards)
-  - OCC 2011-12 / Federal Reserve SR 11-7 (model risk management)
+  - OCC 2026-13 (formerly OCC 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7) (model risk management)
   - NYDFS 23 NYCRR 500 (Parts 500.6 audit trail; 500.11 third-party; 500.16 incident response)
 
 Caveats (this attestation is bounded by):

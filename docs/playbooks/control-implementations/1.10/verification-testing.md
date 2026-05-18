@@ -788,8 +788,8 @@ compliance with:
   • SEC Rule 17a-4 (records retention — paired with Control 1.12)
   • SEC Reg S-P / Reg S-ID (where customer information is detected)
   • GLBA 501(b) (safeguards for customer information)
-  • OCC 2011-12 / Federal Reserve SR 11-7 (model risk management ongoing
-    monitoring expectations as they apply to CC classifier coverage)
+  • OCC 2026-13 (formerly OCC 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7)
+    (model risk management ongoing monitoring expectations as they apply to CC classifier coverage)
   • SOX 404 (IT general controls over the supervisory pipeline)
 
 This attestation does not constitute a legal determination. Reportability

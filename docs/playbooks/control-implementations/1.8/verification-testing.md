@@ -666,7 +666,7 @@ For Zone 2 and Zone 3 agents this control requires content moderation **High**, 
 1. As **AI Governance Lead**, compile the prior 12 months of evidence: PSX-01..03 results, all 16 CM matrix tests, all DEF tests, WEB-01..04, ERR-01.
 2. Sample 5% of webhook ``block`` decisions and 5% of moderation blocks; review for false-positive impact on firm productivity.
 3. Sample 5% of allowed prompts that should have been blocked (escalations from end users).
-4. Produce a written validation memo per the firm's model-risk standard (aligned to [Fed SR 11-7](https://www.federalreserve.gov/supervisionreg/srletters/SR2602.htm) and [OCC 2011-12](https://www.occ.treas.gov/news-issuances/bulletins/2011/bulletin-2011-12.html)).
+4. Produce a written validation memo per the firm's model-risk standard (aligned to [Fed SR 26-2 (formerly SR 11-7)](https://www.federalreserve.gov/supervisionreg/srletters/SR2602.htm) and [OCC 2026-13 (formerly OCC 2011-12)](https://www.occ.treas.gov/news-issuances/bulletins/2011/bulletin-2011-12.html)).
 
 **Pass criterion.** Validation memo signed by AI Governance Lead, Security Operations lead, and Compliance / Audit Admin.
 

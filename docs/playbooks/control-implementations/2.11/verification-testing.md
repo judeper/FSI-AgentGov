@@ -184,7 +184,7 @@ I attest that, for the period indicated:
    All were tracked, [n_closed] closed with re-test evidence, [n_open] open within SLA.
 
 5. Material model changes during the period [were / were not] triggered;
-   if triggered, SR 11-7 re-validation [is / is not] complete.
+   if triggered, Fed SR 26-2 (formerly SR 11-7) re-validation [is / is not] complete.
 
 6. Evidence is retained in [SharePoint library URL] with Purview WORM retention
    label `[label name]` and SHA-256 integrity manifest.

@@ -1549,7 +1549,7 @@ function New-Agt226AttestationPack {
         regulatory_anchors  = @(
             'FINRA 4511 (6-year recordkeeping)',
             'SEC 17a-4 (records preservation)',
-            'OCC 2013-29 / SR 11-7 (model risk)',
+            'OCC 2013-29 / Fed SR 26-2 (formerly SR 11-7) (model risk)',
             'GLBA Safeguards Rule (access review)'
         )
         generated_at        = (Get-Date).ToUniversalTime()

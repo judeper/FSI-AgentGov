@@ -1133,7 +1133,7 @@ function Compare-Feat224ZoneCompliance {
             $findings.Add([pscustomobject]@{
                 Status      = 'Anomaly'
                 FeatureName = $name
-                Reason      = 'F15: feature enabled tenant-wide but no agent uses it (latent attack surface; SR 11-7 inventory expectation)'
+                Reason      = 'F15: feature enabled tenant-wide but no agent uses it (latent attack surface; Fed SR 26-2 (formerly SR 11-7) inventory expectation)'
             })
         }
     }

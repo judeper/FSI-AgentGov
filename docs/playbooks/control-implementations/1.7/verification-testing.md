@@ -934,7 +934,7 @@ Statements (sovereign / tamper / join):
 This attestation is intended to support — but does not by itself ensure — compliance with
 FINRA 4511, FINRA 3110, FINRA 25-07 (RFC), SEC 17a-3, SEC 17a-4 (including 17a-4(f)
 October 2022 amendments and 3 May 2023 compliance date), SOX 302/404, GLBA 501(b),
-OCC 2011-12, Federal Reserve SR 11-7, and CFTC 1.31. This attestation does not by itself
+OCC 2026-13 (formerly OCC 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), and CFTC 1.31. This attestation does not by itself
 constitute the 17a-4(f) attestation that the firm's electronic recordkeeping system is
 non-rewriteable / non-erasable; that attestation is the role of an independent third party
 (e.g., Cohasset Associates) and is referenced in this cycle's preservation evidence rather

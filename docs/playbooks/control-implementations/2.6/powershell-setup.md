@@ -841,7 +841,7 @@ $dispositionLog = $feed.Findings | Where-Object Status -in @('Anomaly','Pending'
         @{n='DispositionDecision';e={''}},
         @{n='DecisionDateUtc';e={''}}
 
-$dispositionLog | Export-Csv -Path '.\sr11-7-vendor-model-disposition.csv' -NoTypeInformation
+$dispositionLog | Export-Csv -Path '.\sr26-2-vendor-model-disposition.csv' -NoTypeInformation
 # DispositionDecision and DecisionDateUtc are filled in by the MRM Committee,
 # NOT by this script. The script produces the queue; people produce the decisions.
 ```

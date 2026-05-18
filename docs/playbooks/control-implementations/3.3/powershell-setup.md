@@ -226,7 +226,7 @@ function New-ExaminationManifest {
             '02-Technology-Risk-Controls.pdf'    = 'IT control documentation'
             '03-Business-Continuity-Plans.pdf'   = 'BCP documentation'
             '04-Change-Management-Evidence.xlsx' = 'Change control records'
-            '05-Model-Risk-Validation.pdf'       = 'OCC 2011-12 / Fed SR 11-7 model validation evidence'
+            '05-Model-Risk-Validation.pdf'       = 'OCC 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) model validation evidence'
         }
         'State' = @{
             '01-State-AI-Law-Mapping.pdf' = 'Mapping of state AI laws (e.g., NYDFS, CO SB205)'

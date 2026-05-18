@@ -517,7 +517,7 @@ Files Included:
 Regulatory References:
   GLBA 501(b) — Safeguards Rule: system security controls
   FINRA 4511  — General requirements: system security records
-  OCC 2011-12 — Technology Risk Management
+  OCC 2026-13 (formerly OCC 2011-12) — Technology Risk Management
   SOX 302/404 — IT General Controls evidence
 
 Notes:
