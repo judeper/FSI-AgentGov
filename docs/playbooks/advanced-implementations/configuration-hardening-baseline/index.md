@@ -7,7 +7,7 @@
 
 ## Purpose
 
-This playbook consolidates security-critical configuration settings across Power Platform, Copilot Studio, and M365 Admin Center into a single reviewable hardening baseline. It enables FSI organizations to proactively verify their configuration posture across agent authentication, audit logging, content moderation, RBAC, environment governance, and AI feature access — addressing the settings most commonly flagged by security posture assessments.
+This playbook consolidates security-critical configuration settings across Power Platform, Copilot Studio, and the Microsoft 365 admin center into a single reviewable hardening baseline. It enables FSI organizations to proactively verify their configuration posture across agent authentication, audit logging, content moderation, RBAC, environment governance, and AI feature access — addressing the settings most commonly flagged by security posture assessments.
 
 **Applies to:** All zones; baseline settings apply organization-wide, with stricter requirements for Zone 2/3 environments.
 
@@ -37,12 +37,12 @@ Financial services organizations face continuous configuration drift risk across
 
 | # | Setting | Portal Path | Expected Value (Zone 2/3) | Severity | Automation |
 |---|---------|-------------|---------------------------|----------|------------|
-| 1 | Agent authentication mode | Copilot Studio > Agent > Settings > Security | Not "No Authentication" | High | Semi-Automated |
-| 2 | Require users to sign in (manual auth) | Copilot Studio > Agent > Settings > Security | Enabled | High | Semi-Automated |
-| 3 | Authentication enforcement timing | Copilot Studio > Agent > Settings > Security | "Always" (not "As Needed") | High | Semi-Automated |
-| 4 | Agent sharing scope | Copilot Studio > Agent > Channels > Share Settings | Copilot Readers or Security Groups (not "Anyone") | High | Semi-Automated |
+| 1 | Agent authentication mode | Copilot Studio > Agent > Settings > Security ([Configure authentication options](https://learn.microsoft.com/en-us/microsoft-copilot-studio/configuration-end-user-authentication)) | Authentication mode is not **No authentication** | High | Semi-Automated |
+| 2 | Authentication mode selection | Copilot Studio > Agent > Settings > Security ([Configure authentication options](https://learn.microsoft.com/en-us/microsoft-copilot-studio/configuration-end-user-authentication)) | Authentication mode is **Authenticate with Microsoft** or **Authenticate manually** | High | Semi-Automated |
+| 3 | Authentication prompt timing | Copilot Studio > Agent > Settings > Security ([Configure authentication options](https://learn.microsoft.com/en-us/microsoft-copilot-studio/configuration-end-user-authentication)) | Validate the current prompt-timing label in your tenant before attesting; do not rely on legacy **Always / As Needed** wording | High | Manual Attestation |
+| 4 | Agent sharing scope | Copilot Studio > Agent > Channels ([Share an agent in Copilot Studio](https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-share-bots)) | Share only with Copilot Readers or approved security groups (not **Anyone**) | High | Semi-Automated |
 | 5 | Publish bots with AI features | PPAC > Tenant Settings | Disabled (until governance review) | High | Automated |
-| 6 | Unapproved shared agents blocked | M365 Admin > Copilot > Agents & connectors > Agent Inventory | Blocked | High | Semi-Automated |
+| 6 | Unapproved shared agents blocked | Microsoft 365 admin center > Copilot > Agents ([Manage agents in M365 admin center](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/manage-copilot-agents-integrated-apps)) | Blocked | High | Semi-Automated |
 
 !!! tip "Automated Validation Available"
     Items 1–6 can now be validated using `Test-AgentAuthConfiguration.ps1`, which reads per-agent authentication configuration via BAP/PPAC REST endpoints and validates all 6 SSPM items with zone-based logic, drift detection, and SHA-256 evidence export.
@@ -54,46 +54,46 @@ Financial services organizations face continuous configuration drift risk across
 | # | Setting | Portal Path | Expected Value | Severity | Automation |
 |---|---------|-------------|----------------|----------|------------|
 | 7 | Environment-level auditing | PPAC > Environment > Settings > Audit and logs | "Start Auditing" enabled | High | Automated |
-| 8 | Audit log retention period | PPAC > Environment > Audit settings > "Retain these logs for" | ≥ 180 days (Zone 1), ≥ 365 days (Zone 2), ≥ 730 days (Zone 3) | High | Automated |
-| 9 | Tenant-level Dataverse auditing | PPAC > Security > Compliance > Auditing | "Turn on Auditing" enabled with User Sign-In and Activity | Medium | Automated |
+| 8 | Audit log retention period | PPAC > Environment > Settings > Audit and logs > Audit settings > "Retain these logs for" ([Manage Dataverse auditing](https://learn.microsoft.com/en-us/power-platform/admin/manage-dataverse-auditing)) | ≥ 180 days (Zone 1), ≥ 365 days (Zone 2), ≥ 730 days (Zone 3) | High | Automated |
+| 9 | Tenant-wide Power Platform audit visibility | Microsoft Purview portal > Audit ([Audit in Purview portal](https://learn.microsoft.com/en-us/purview/audit-search)) | Audit searches return Power Platform activity for the required environments | Medium | Semi-Automated |
 
 ### Content Moderation (Control 1.27)
 
 | # | Setting | Portal Path | Expected Value (Zone 2/3) | Severity | Automation |
 |---|---------|-------------|---------------------------|----------|------------|
-| 10 | Content moderation level | Copilot Studio > Agent > Topics > System > Generative AI topic > Content moderation | High | High | Manual Attestation |
+| 10 | Content moderation level | Copilot Studio > Agent > Settings > Generative AI > Content moderation ([Content moderation in Copilot Studio](https://learn.microsoft.com/microsoft-copilot-studio/knowledge-copilot-studio#content-moderation)) | High | High | Manual Attestation |
 
 ### RBAC and Agent Governance (Control 1.18)
 
 | # | Setting | Portal Path | Expected Value | Severity | Automation |
 |---|---------|-------------|----------------|----------|------------|
 | 11 | Agent action user consent | Copilot Studio > Agent > Actions | "Ask the user before running this action" enabled for all actions | High | Manual Attestation |
-| 12 | Connected agent access | Copilot Studio > Agent > Settings > Connected Agents | Disabled unless explicitly approved | High | Manual Attestation |
-| 13 | Environment admin count | PPAC > Environment > Users + Permissions | < 10 System Administrators per environment | Medium | Semi-Automated |
+| 12 | Connected agent access | Copilot Studio > Agent > Settings > Agents (Connected agents) ([Add other agents overview](https://learn.microsoft.com/microsoft-copilot-studio/authoring-add-other-agents)) | Disabled unless explicitly approved | High | Manual Attestation |
+| 13 | Environment admin count | PPAC > Environment > Settings > Users + permissions > Application users / Roles ([Manage application users in the Power Platform admin center](https://learn.microsoft.com/power-platform/admin/manage-application-users)) | < 10 System Administrators per environment | Medium | Semi-Automated |
 
 ### Environment Provisioning (Control 2.1)
 
 | # | Setting | Portal Path | Expected Value | Severity | Automation |
 |---|---------|-------------|----------------|----------|------------|
-| 14 | Environment creation restriction | PPAC > Tenant Settings > Dev/Prod/Trial environment assignments | "Only specific admins" | High | Automated |
-| 15 | Environment routing | PPAC > Tenant Settings > Environment Routing | Configured for correct region | Medium | Automated |
-| 16 | Tenant isolation | PPAC > Security > Identity and access > Tenant Isolation | "Restrict Cross-Tenant Connections" enabled | High | Automated |
+| 14 | Environment creation restriction | PPAC > Tenant settings > Developer environment assignment / Production environment assignment / Trial environment assignment ([Tenant settings reference](https://learn.microsoft.com/en-us/power-platform/admin/tenant-settings)) | "Only specific admins" | High | Automated |
+| 15 | Environment routing | PPAC > Tenant settings > Environment routing ([Default environment routing](https://learn.microsoft.com/en-us/power-platform/admin/default-environment-routing)) | Configured for correct region | Medium | Automated |
+| 16 | Tenant isolation | PPAC > Security > Tenant isolation ([Tenant isolation in Power Platform](https://learn.microsoft.com/en-us/power-platform/admin/cross-tenant-restrictions)) | "Restrict Cross-Tenant Connections" enabled | High | Automated |
 | 17 | Environment security groups | PPAC > Environment details > Security group | Assigned for all Zone 2/3 environments | High | Automated |
 
 ### AI Feature Access (Control 3.8)
 
 | # | Setting | Portal Path | Expected Value (Zone 2/3) | Severity | Automation |
 |---|---------|-------------|---------------------------|----------|------------|
-| 18 | AI Prompts | PPAC > Copilot > Settings (previously under Environment > Settings > Features) | Off (unless approved) | Medium | Semi-Automated |
-| 19 | Generative Actions | Copilot Studio > Agent > Overview > Orchestration | Off (unless approved) | High | Manual Attestation |
-| 20 | File Analysis | Copilot Studio > Agent > Settings > Generative AI > File processing | Off (unless approved) | Medium | Manual Attestation |
-| 21 | Model Knowledge | Copilot Studio > Agent > Settings > Generative AI | Off for sensitive data agents | Medium | Manual Attestation |
-| 22 | Semantic Search | Copilot Studio > Agent > Settings > Generative AI | Off (unless approved) | High | Manual Attestation |
-| 23 | Generative AI features (per-env) | PPAC > Environment > Generative AI features | Restrict by default | Medium | Semi-Automated |
-| 24 | Move Data Across Regions | PPAC > Environment > Generative AI features | Off | High | Semi-Automated |
-| 25 | Bing Search | PPAC > Environment > Generative AI features | Off | Medium | Semi-Automated |
-| 26 | Conversational transcript access | PPAC > Environment > Features > Copilot Studio Agents | Restricted to authorized personnel | Medium | Semi-Automated |
-| 27 | DLP for agent publishing connectors | PPAC > Data policies | Block Copilot Studio for Teams and M365 Copilot channel in restricted environments | High | Semi-Automated |
+| 18 | AI Prompts | PPAC > Environment > Settings > Product > Features ([Environment features](https://learn.microsoft.com/en-us/power-platform/admin/settings-features)) | Off (unless approved) | Medium | Semi-Automated |
+| 19 | Generative Actions | Copilot Studio > Agent > Settings > Generative AI > Orchestration ([Generative orchestration in Copilot Studio](https://learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-generative-actions)) | Off (unless approved) | High | Manual Attestation |
+| 20 | File uploads / file analysis | Copilot Studio > Agent > Settings > Generative AI ([Unstructured data as a knowledge source](https://learn.microsoft.com/microsoft-copilot-studio/knowledge-unstructured-data)) | Validate the current file-upload label in your tenant and keep it Off unless explicitly approved | Medium | Manual Attestation |
+| 21 | Model Knowledge | Copilot Studio > Agent > Settings > Generative AI ([Knowledge sources summary](https://learn.microsoft.com/microsoft-copilot-studio/knowledge-copilot-studio)) | Off for sensitive data agents | Medium | Manual Attestation |
+| 22 | Knowledge sources semantic retrieval | Copilot Studio > Agent > Settings > Knowledge ([Knowledge sources summary](https://learn.microsoft.com/microsoft-copilot-studio/knowledge-copilot-studio#turn-on-work-iq)) | Validate the current semantic-retrieval label in your tenant; disable or scope tightly for sensitive-data agents | High | Manual Attestation |
+| 23 | Generative AI features (per-env) | PPAC > Environment > Settings > Generative AI features ([Move data across regions for Copilots, AI agents, and generative AI features](https://learn.microsoft.com/power-platform/admin/geographical-availability-copilot)) | Restrict by default | Medium | Semi-Automated |
+| 24 | Move Data Across Regions | PPAC > Environment > Settings > Generative AI features ([Move data across regions for Copilots, AI agents, and generative AI features](https://learn.microsoft.com/power-platform/admin/geographical-availability-copilot)) | Off | High | Semi-Automated |
+| 25 | Web search | PPAC > Environment > Settings > Generative AI features ([Move data across regions for Copilots, AI agents, and generative AI features](https://learn.microsoft.com/power-platform/admin/geographical-availability-copilot)) | Validate the literal label in your tenant (**Allow web search** or **Bing Search**) and keep it Off unless approved | Medium | Manual Attestation |
+| 26 | Conversational transcript access | PPAC > Environment > Settings > Product > Features ([Environment features](https://learn.microsoft.com/en-us/power-platform/admin/settings-features)) | Restricted to authorized personnel | Medium | Semi-Automated |
+| 27 | DLP for agent publishing connectors | PPAC > Data policies | Block Copilot Studio for Teams and Microsoft 365 Copilot Chat channel in restricted environments | High | Semi-Automated |
 
 ### Environment Security Settings (Controls 2.22, 3.7)
 
@@ -194,7 +194,7 @@ This hardening baseline complements existing FSI-AgentGov solutions:
 
 ### Planned Solution: Agent Security Configuration Validator
 
-A new solution is planned to automate validation of Copilot Studio agent-level settings (items 1-6, 10-12, 18-22):
+A new solution is planned to automate validation of Copilot Studio custom-engine agent-level settings (items 1-6, 10-12, 18-22):
 
 - Validates authentication mode, content moderation, connected agent access, and AI feature toggles across all agents in a tenant
 - Uses Power Platform Admin Connector + Copilot Studio management API

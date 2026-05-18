@@ -64,7 +64,7 @@ Phase 1 implements the controls needed to support production agents in Zone 3, i
 **Steps:**
 
 1. Navigate to Microsoft Entra admin center
-2. Create Conditional Access policy for Zone 3 environments
+2. Open **Protection > Conditional Access > Policies > + New policy** and create the Zone 3 Conditional Access policy. ([Create a Conditional Access policy](https://learn.microsoft.com/en-us/entra/identity/conditional-access/concept-conditional-access-policies))
 3. Configure:
    - Require phishing-resistant MFA
    - Block legacy authentication
@@ -86,7 +86,7 @@ Phase 1 implements the controls needed to support production agents in Zone 3, i
 
 **Steps:**
 
-1. Access Power Platform analytics
+1. Open PPAC > **Analytics** and select the applicable analytics experience (Dataverse, Power Automate, Power Apps, or Copilot Studio). ([Power Platform analytics overview](https://learn.microsoft.com/en-us/power-platform/admin/analytics-powerapps))
 2. Configure usage reports
 3. Create monitoring dashboard
 4. Set up anomaly alerts
@@ -119,7 +119,7 @@ Phase 1 implements the controls needed to support production agents in Zone 3, i
 **Steps:**
 
 1. Navigate to PPAC > Security
-2. Review security recommendations
+2. Review **PPAC > Security > Posture management > Recommendations**. ([View security recommendations](https://learn.microsoft.com/power-platform/admin/security-recommendations))
 3. Create remediation plan for gaps
 4. Track improvements
 
@@ -193,7 +193,7 @@ Phase 1 implements the controls needed to support production agents in Zone 3, i
 **Steps:**
 
 1. Navigate to Microsoft Purview
-2. Create retention policy for Zone 3
+2. Open **Solutions > Data Lifecycle Management > Policies > Retention policies > + New retention policy** and create the Zone 3 retention policy. ([Create retention policies](https://learn.microsoft.com/en-us/purview/retention))
 3. Configure 10-year retention
 4. Apply to Zone 3 environments
 

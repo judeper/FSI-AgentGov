@@ -12,9 +12,9 @@
 
 - **Agent name:**
 - **Agent ID (unique):**
-- **Agent type:** (M365 Copilot agent / Copilot Studio agent / other)
+- **Agent type:** (Declarative agent / Copilot Studio custom-engine agent / Microsoft-built agent / Other)
 - **Tenant/environment:** (Prod / Test / Sandbox)
-- **Primary surfaces:** (Teams / Outlook / Word / M365 Copilot chat / other)
+- **Primary surfaces:** (Teams / Outlook / Word / Microsoft 365 Copilot Chat / other)
 - **Owner (business):**
 - **Owner (technical):**
 - **Backup owner:**
@@ -23,6 +23,8 @@
 - **Go-live date:**
 - **Last modified date:**
 - **Change record / PR / ticket link:**
+
+> **Reference taxonomy:** [Agent types](https://learn.microsoft.com/microsoft-365/copilot/extensibility/agents-overview#choose-what-type-of-agent-to-build); [Microsoft 365 Copilot Chat overview](https://learn.microsoft.com/en-us/copilot/overview)
 
 ---
 

@@ -89,7 +89,7 @@ Get-SPOSite -Identity "https://contoso.sharepoint.com/sites/hr-personnel" | Sele
 ### 2.2 DLP Policies for Copilot Studio Knowledge Sources
 
 - [ ] Create DLP policy in Power Platform Admin Center
-- [ ] Add "Knowledge source with SharePoint and OneDrive in Copilot Studio" connector
+- [ ] Add the **Copilot Studio Knowledge Sources** DLP category for SharePoint and OneDrive knowledge sources. ([DLP connector classifications](https://learn.microsoft.com/en-us/power-platform/admin/dlp-connector-classification))
 - [ ] Configure endpoint filtering (allowlist or blocklist approach)
 - [ ] Apply policy to production environments
 - [ ] Test policy enforcement with sample agent
@@ -139,7 +139,7 @@ Get-SPOSite -Identity "https://contoso.sharepoint.com/sites/hr-personnel" | Sele
 
 ### 4.3 Monitoring Configuration
 
-- [ ] Enable Agent Insights in SharePoint Admin Center
+- [ ] Establish baseline monitoring using Microsoft 365 admin center > Reports > Usage > Microsoft 365 Copilot and SharePoint admin center > Reports > Data access governance. ([Microsoft 365 Copilot usage reports](https://learn.microsoft.com/en-us/microsoft-365/admin/activity-reports/microsoft-365-copilot-usage); [Data access governance reports](https://learn.microsoft.com/en-us/sharepoint/data-access-governance-reports))
 - [ ] Configure SIEM integration for Zone 3 sites
 - [ ] Establish monitoring cadence (daily for Zone 3, weekly for Zone 2)
 - [ ] Define alert thresholds and escalation procedures

@@ -142,17 +142,17 @@ Pre-flight establishes that the verification harness can run reliably and that a
 
 **Evidence.** `1.8-PSU-baseline_<UTC>_module-versions.txt`.
 
-### 2.4 — Managed Environment posture (Zone 2 / Zone 3 hosts)
+### 2.4 — Managed Environments posture (Zone 2 / Zone 3 hosts)
 
-**Objective.** Every agent in the §2.7 seed table is hosted in a Power Platform environment whose Managed Environment posture matches its zone (per [Control 2.1](../../../controls/pillar-2-management/2.1-managed-environments.md)).
+**Objective.** Every agent in the §2.7 seed table is hosted in a Power Platform environment whose Managed Environments posture matches its zone (per [Control 2.1](../../../controls/pillar-2-management/2.1-managed-environments.md)). ([Enable Managed Environments](https://learn.microsoft.com/en-us/power-platform/admin/managed-environment-enable))
 
 **Steps.**
 
 1. As **Power Platform Admin**, in PPAC → **Environments**, locate the environment for each test agent.
-2. Confirm the **Managed Environment** banner is present and **Sharing limits**, **Solution checker**, **Maker welcome content**, and **Usage insights** match Control 2.1's Z2/Z3 baselines. Capture screenshot.
+2. Confirm **Managed Environments** is **On** and that **Sharing limits**, **Solution checker**, **Maker welcome content**, and **Usage insights** match Control 2.1's Z2/Z3 baselines. Capture screenshot. ([Enable Managed Environments](https://learn.microsoft.com/en-us/power-platform/admin/managed-environment-enable))
 3. Cross-reference [Control 2.1 portal walkthrough](../2.1/portal-walkthrough.md) for the canonical posture.
 
-**Pass criterion.** Managed Environment is **On** for every Z2/Z3 agent host environment; posture matches Control 2.1.
+**Pass criterion.** Managed Environments is **On** for every Z2/Z3 agent host environment; posture matches Control 2.1.
 
 **Evidence.** `1.8-MENV-01_<UTC>_env-{name}.png` (one per environment).
 

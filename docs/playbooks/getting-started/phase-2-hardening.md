@@ -28,7 +28,7 @@ Phase 2 implements advanced security controls, monitoring integration, and adver
 **Steps:**
 
 1. Enable Microsoft Defender for Cloud Apps
-2. Configure Copilot Studio app connector
+2. In the **Microsoft Defender portal > System > Settings > Cloud Apps > Security for AI agents**, turn on **Microsoft Copilot Studio agent protection**. ([Real-time protection for Copilot Studio agents](https://learn.microsoft.com/en-us/defender-cloud-apps/real-time-agent-protection-during-runtime))
 3. Create alert policies:
    - Unusual usage patterns
    - Data exfiltration attempts
@@ -37,7 +37,7 @@ Phase 2 implements advanced security controls, monitoring integration, and adver
 
 **Verification:**
 
-- [ ] Connector configured
+- [ ] Microsoft Copilot Studio agent protection configured
 - [ ] Policies active
 - [ ] Test alert fires correctly
 
@@ -47,7 +47,7 @@ Phase 2 implements advanced security controls, monitoring integration, and adver
 
 **Steps:**
 
-1. Navigate to Microsoft Purview > Data Security Posture Management
+1. In the **Microsoft Purview portal**, open **Solutions > DSPM for AI**. ([DSPM for AI](https://learn.microsoft.com/en-us/purview/dspm-for-ai))
 2. Enable DSPM for AI
 3. Configure sensitivity scanning
 4. Review discovered data exposures
@@ -83,7 +83,7 @@ Phase 2 implements advanced security controls, monitoring integration, and adver
 **Steps:**
 
 1. Identify barrier requirements
-2. Configure segments in Entra
+2. In the **Microsoft Purview portal > Solutions > Information barriers > Segments**, define segments using Entra ID attributes. ([Information Barriers segments](https://learn.microsoft.com/en-us/purview/information-barriers-attributes))
 3. Create barrier policies
 4. Test barrier enforcement
 
@@ -104,7 +104,7 @@ Phase 2 implements advanced security controls, monitoring integration, and adver
 **Steps:**
 
 1. Navigate to Microsoft Sentinel workspace
-2. Enable Power Platform connector
+2. In **Sentinel > Content hub**, install **Microsoft Power Platform**. Then connect it under **Data connectors > Microsoft Power Platform**. ([Deploy Microsoft Power Platform solution for Sentinel](https://learn.microsoft.com/en-us/azure/sentinel/business-applications/deploy-power-platform-solution))
 3. Create analytics rules:
    - Agent configuration changes
    - DLP violations
@@ -115,7 +115,7 @@ Phase 2 implements advanced security controls, monitoring integration, and adver
 
 **Verification:**
 
-- [ ] Connector configured
+- [ ] Microsoft Power Platform solution and connector configured
 - [ ] Analytics rules active
 - [ ] Workbooks displaying data
 - [ ] Test playbook executes

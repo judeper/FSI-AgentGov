@@ -7,7 +7,7 @@
 
 ## Overview
 
-This playbook provides implementation guidance for Microsoft Agent 365 SDK observability features, enabling enterprise-grade telemetry capture for AI agents. The observability framework supports both Copilot Studio custom agents and M365 built-in agents.
+This playbook provides implementation guidance for Microsoft Agent 365 SDK observability features, enabling enterprise-grade telemetry capture for AI agents. The observability framework supports Copilot Studio custom-engine agents and Microsoft-built agents, with declarative agents primarily relying on native telemetry surfaces. ([Agent types](https://learn.microsoft.com/microsoft-365/copilot/extensibility/agents-overview#choose-what-type-of-agent-to-build))
 
 !!! note "Preview Features"
     Agent 365 SDK observability features are in preview. Telemetry schemas and configuration options may change before general availability.
@@ -115,9 +115,9 @@ flowchart TB
 
 | Agent Type | Native Telemetry | SDK Required | Custom Signals |
 |------------|------------------|--------------|----------------|
-| M365 Copilot | ✓ (UAL) | No | Limited |
-| Copilot Studio | ✓ (UAL) | Recommended | Full support |
-| M365 Built-in (Researcher, etc.) | ✓ (UAL) | No | Limited |
+| Declarative agent | ✓ (UAL) | No | Limited |
+| Copilot Studio custom-engine agent | ✓ (UAL) | Recommended | Full support |
+| Microsoft-built agent (Researcher, etc.) | ✓ (UAL) | No | Limited |
 | Blueprint-registered | ✓ | Yes | Full support |
 
 ---
@@ -144,7 +144,7 @@ Set-AzKeyVaultSecret -VaultName "kv-agent-governance" -Name "AppInsightsConnecti
 
 ### 2. Configure Agent SDK (Preview)
 
-For Copilot Studio agents with SDK observability:
+For Copilot Studio custom-engine agents with SDK observability:
 
 ```javascript
 // Agent SDK configuration (preview)
@@ -173,7 +173,7 @@ const agentConfig = {
 
 ### 3. Create Workbooks
 
-Deploy standard workbooks for FSI monitoring:
+Deploy standard workbooks from **Azure portal > Application Insights resource > Monitoring > Workbooks** for FSI monitoring. ([Application Insights Workbooks](https://learn.microsoft.com/en-us/azure/azure-monitor/visualize/workbooks-overview))
 
 - [Application Insights Workbooks](application-insights-workbooks.md) - Dashboard templates
 
