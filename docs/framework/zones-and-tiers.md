@@ -265,16 +265,14 @@ Zone 2 is subject to MODERATE regulatory oversight:
 
 - Managed Environments: Mandatory
 - DLP: Strictest policies
-- Audit: 10-year retention with WORM
+- Audit: Record-class retention per [Control 1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) (3 yr communications under SEC 17a-4(b)(4); 6 yr financial-governance under 17a-4(a) / FINRA 4511(b); 5 yr CFTC under 1.31; longer where rule requires) with WORM preservation per SEC 17a-4(f)
 - Connectors: Allowlisted only
 - MFA: Phishing-resistant (FIDO2/Windows Hello)
 - Runtime Protection: Mandatory
 - DSPM for AI: Recommended
 
 !!! note "Retention Rationale"
-    Zone 3's 10-year retention exceeds maximum regulatory requirements (SEC 17a-3/4: 6+3 years,
-    SOX: 7 years) as a conservative buffer. Organizations may use 7-year minimum with documented
-    risk assessment.
+    Zone 3 retention follows the record-class schedule defined in [Control 1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md): 3 years for communications (SEC 17a-4(b)(4)), 6 years for financial-governance records (SEC 17a-4(a) / FINRA Rule 4511(b)), 5 years for CFTC-regulated activity (CFTC Rule 1.31), and longer only where a specific rule requires it. Firms that adopt a documented over-retention policy (for example, a uniform 7- or 10-year capture window for operational simplicity) should record that as an explicit firm-policy decision rather than a regulatory floor.
 
 ### Regulatory Considerations
 
@@ -319,7 +317,7 @@ Zone 3 agents handling regulated data may be subject to comprehensive oversight 
 
 **Audit and Logging**
 
-- 10-year retention with immutable storage
+- Record-class retention per [Control 1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) with immutable storage (Azure immutable blob, 17a-4-attested vendor archive, or audit-trail alternative with DEO/DTP)
 - Real-time monitoring and alerting
 - Daily compliance reviews
 - Weekly executive reporting

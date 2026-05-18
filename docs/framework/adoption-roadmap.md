@@ -181,7 +181,7 @@ Editable Mermaid source: [`docs/images/diagrams/source/cape/cape-fsi-timeline.mm
 
 - [ ] Establish governance committee with regular meetings
 - [ ] Document Zone 3 approval workflow
-- [ ] Configure 10-year retention for Zone 3 environments (Control 1.9)
+- [ ] Configure record-class retention for Zone 3 environments per [Control 1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) (3 yr communications / 6 yr financial-governance / 5 yr CFTC; longer where rule requires) implemented through Control 1.9 retention policies
 - [ ] Implement supervision controls (Control 2.12)
 - [ ] Create Zone 3 agent deployment checklist
 
