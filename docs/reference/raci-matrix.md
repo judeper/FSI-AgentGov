@@ -433,4 +433,4 @@ The following RACI assignments apply to additional controls:
 
 ---
 
-*FSI Agent Governance Framework v1.2 - February 2026*
+*FSI Agent Governance Framework v1.6.2 - May 2026*

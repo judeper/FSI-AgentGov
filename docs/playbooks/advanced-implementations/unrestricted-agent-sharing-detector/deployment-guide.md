@@ -1,6 +1,6 @@
 # Unrestricted Agent Sharing Detector - Deployment Guide
 
-**Status:** February 2026 - FSI-AgentGov v1.2.51
+**Status:** May 2026 - FSI-AgentGov v1.6.2
 **Related Controls:** 1.1 (Restrict Agent Publishing by Authorization), 3.8 (Copilot Hub & Governance Dashboard)
 
 ---

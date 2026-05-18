@@ -554,4 +554,4 @@ This document paraphrases Microsoft CAPE materials with citation. No verbatim Mi
 
 ---
 
-*FSI Agent Governance Framework v1.5.0 — Microsoft CAPE Alignment Release | Updated: May 2026 | CAPE source last verified: 2026-05-09 | UI Verification Status: Current*
+*FSI Agent Governance Framework v1.6.2 | Updated: May 2026 | CAPE source last verified: 2026-05-09 | UI Verification Status: Current*

@@ -647,4 +647,4 @@ REGULATORY_KEYWORDS = {
 
 ---
 
-*FSI Agent Governance Framework v1.2.53 - March 2026*
+*FSI Agent Governance Framework v1.6.2 - May 2026*

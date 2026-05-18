@@ -194,4 +194,4 @@ Three short decision trees rendered as bullets — read them out loud in the mee
 
 ---
 
-*FSI Agent Governance Framework v1.5.0 — Microsoft CAPE Alignment Release | Updated: May 2026 | UI Verification Status: Current*
+*FSI Agent Governance Framework v1.6.2 | Updated: May 2026 | UI Verification Status: Current*
