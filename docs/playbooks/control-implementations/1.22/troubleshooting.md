@@ -133,7 +133,7 @@
 
 1. Multi-Segment IB is **not** enforced via Exchange Address Book Policies. Mail-flow blocking semantics differ from Legacy.
 2. If the firm requires hard mail-flow blocking between segments (e.g., research → trading), supplement IB with **Exchange transport rules** that reject messages when sender and recipient have specific group memberships or attributes.
-3. Document the supplement as a compensating control under Control 1.7 (DLP) or Control 2.13 (Communication Compliance) and reference it in the Control 1.22 attestation.
+3. Document the supplement as a compensating control under Control 1.5 (Data Loss Prevention (DLP) and Sensitivity Labels) or Control 1.10 (Communication Compliance Monitoring) and reference it in the Control 1.22 attestation.
 
 ---
 

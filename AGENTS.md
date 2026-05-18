@@ -334,6 +334,8 @@ Always run before completing work:
 mkdocs build --strict                # Validates links and structure
 python scripts/verify_build_output.py  # Verifies built site completeness
 python scripts/verify_controls.py    # Validates control files
+# Cross-reference integrity (Control X.Y IDs + inline labels)
+python scripts/verify_xref_graph.py
 ```
 
 Additional validations (when applicable):

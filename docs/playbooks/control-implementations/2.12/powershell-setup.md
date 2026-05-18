@@ -1895,7 +1895,7 @@ function Export-Sup212Rule2210Bundle {
 
 ## §11 — Sponsor Attestation Runner
 
-The sponsorship model documented in Control 2.12 (Entra Agent ID) is operationalized through quarterly Entra access reviews targeting Zone 3 agents. This section pulls the review status, flags auto-approval (defect #0.13), and emits a signed quarterly attestation evidence bundle.
+The sponsorship model documented in Control 2.26 (Entra Agent ID — Identity Governance for Agents) is operationalized through quarterly Entra access reviews targeting Zone 3 agents. This section pulls the review status, flags auto-approval (defect #0.13), and emits a signed quarterly attestation evidence bundle.
 
 ### 11.1 Get-Sup212SponsorAttestation
 

@@ -801,7 +801,7 @@ Supporting evidence for VC-1 / VC-3: the orphan detector cannot detect sponsor-d
 ### 6.2 Pre-conditions
 
 - Entra Identity Governance Admin can read `/identityGovernance/workflowsHrSync/connectors`.
-- HR connector has been configured per Control 3.5 (Identity Lifecycle for Agent Sponsors and Makers).
+- HR connector has been configured per Control 2.26 (Entra Agent ID — Identity Governance for Agents).
 
 ### 6.3 Pester suite
 
