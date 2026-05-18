@@ -1,0 +1,82 @@
+{
+  "_metadata": {
+    "collector": "Collect-Graph",
+    "timestamp": "2026-05-18T12:00:00Z",
+    "tenant_id": "test-tenant",
+    "warnings": []
+  },
+  "conditionalAccessPolicies": [
+    {
+      "Id": "ca-001",
+      "DisplayName": "Require MFA for Copilot Studio",
+      "State": "enabled",
+      "IncludeApplications": ["96ff4394-9197-43aa-b393-6a41652e21f8"],
+      "ExcludeApplications": [],
+      "IncludeUsers": ["All"],
+      "ExcludeUsers": [],
+      "IncludeGroups": [],
+      "ExcludeGroups": [],
+      "BuiltInControls": ["mfa"],
+      "Operator": "OR",
+      "SignInFrequency": {
+        "value": 4,
+        "type": "hours"
+      },
+      "PersistentBrowser": null
+    }
+  ],
+  "fsiSecurityGroups": [
+    {
+      "Id": "sg-publishers-001",
+      "DisplayName": "FSI Agent Publishers",
+      "SecurityEnabled": true,
+      "GroupTypes": [],
+      "MembershipRule": null,
+      "MemberCount": 12
+    }
+  ],
+  "informationBarriers": {
+    "available": false,
+    "reason": "ExchangeOnlineManagement module not installed — IB policies cannot be collected via Graph alone."
+  },
+  "privilegedRoleAssignments": [
+    {
+      "RoleDefinitionId": "role-001",
+      "RoleName": "Power Platform Administrator",
+      "PrincipalId": "user-001",
+      "DirectoryScopeId": "/"
+    }
+  ],
+  "copilotServicePrincipals": [
+    {
+      "AppId": "96ff4394-9197-43aa-b393-6a41652e21f8",
+      "DisplayName": "Microsoft Copilot Studio",
+      "AccountEnabled": true,
+      "Id": "sp-001",
+      "ServicePrincipalType": "Application"
+    }
+  ],
+  "tenantSecuritySettings": {
+    "DisplayName": "Contoso",
+    "TenantId": "test-tenant",
+    "TenantType": "AAD",
+    "VerifiedDomains": [
+      {
+        "Name": "contoso.com",
+        "IsDefault": true,
+        "IsInitial": false,
+        "Type": "Managed"
+      }
+    ],
+    "OnPremisesSyncEnabled": true
+  },
+  "aiLeadershipUsers": [
+    {
+      "DisplayName": "Alex Kim",
+      "UserPrincipalName": "alex.kim@contoso.com",
+      "JobTitle": "Head of AI Governance",
+      "Department": "Technology Risk",
+      "MatchedKeyword": "Head of AI"
+    }
+  ]
+}

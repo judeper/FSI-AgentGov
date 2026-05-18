@@ -61,6 +61,22 @@ def build_manifest_with_controls(controls: list[dict]) -> dict:
     }
 
 
+def build_frontier_manifest_with_questions(questions: list[dict]) -> dict:
+    """Wrap frontier question dicts into a minimal manifest envelope."""
+    return {
+        "version": "1.0.0",
+        "drivers": [
+            {"id": "ai_strategy", "name": "AI Strategy"},
+            {"id": "business_strategy", "name": "Business Strategy"},
+            {"id": "ai_governance", "name": "AI Governance"},
+            {"id": "technology_data", "name": "Technology & Data"},
+            {"id": "organization_culture", "name": "Organization & Culture"},
+        ],
+        "questions": questions,
+        "pattern_target_profiles": {},
+    }
+
+
 # ---------------------------------------------------------------------------
 # Fixtures (pytest)
 # ---------------------------------------------------------------------------
@@ -336,7 +352,7 @@ class TestZoneThresholdBoundary:
 
 
 # ---------------------------------------------------------------------------
-# Test: collector-real PPAC payloads normalize into score.py's contract
+# Test: collector-real payloads keep engine contracts stable
 # ---------------------------------------------------------------------------
 
 class TestCollectorContractNormalization:
@@ -376,6 +392,229 @@ class TestCollectorContractNormalization:
         assert ctrl["evidence"]["2.1.a"]["result"] == "pass"
         assert "securityGroupId" in ctrl["evidence"]["2.1.a"]["value"]
         assert ctrl["evidence"]["2.1.b"]["result"] == "pass"
+
+    def test_graph_collector_shape_supports_controls_1_1_and_1_3(
+        self, tmp_path: Path, manifest: dict
+    ):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        collected = tmp_path / "collected"
+        collected.mkdir()
+
+        write_json(
+            collected / "graph.json",
+            load_fixture("graph_collector_contract.json"),
+        )
+        for name in ("ppac", "purview", "sharepoint", "sentinel"):
+            write_json(collected / f"{name}.json", load_fixture(f"{name}.json"))
+
+        manifest_path = tmp_path / "controls.json"
+        output_path = tmp_path / "scores.json"
+        write_json(manifest_path, manifest)
+
+        score.run(
+            manifest_path=str(manifest_path),
+            collected_dir=str(collected),
+            zone=2,
+            output_path=str(output_path),
+        )
+
+        result = json.loads(output_path.read_text(encoding="utf-8"))
+        ctrl_11 = next(c for c in result["controls"] if c["id"] == "1.1")
+        ctrl_13 = next(c for c in result["controls"] if c["id"] == "1.3")
+
+        assert ctrl_11["evidence"]["1.1.b"]["result"] == "pass"
+        assert ctrl_13["checks_passed"] == 2
+        assert ctrl_13["maturity_score"] == 2
+        assert ctrl_13["evidence"]["1.3.a"]["result"] == "pass"
+        assert "app ID" in ctrl_13["evidence"]["1.3.a"]["value"]
+        assert ctrl_13["evidence"]["1.3.b"]["result"] == "pass"
+
+    def test_purview_collector_shape_supports_control_3_1(
+        self, tmp_path: Path, manifest: dict
+    ):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        collected = tmp_path / "collected"
+        collected.mkdir()
+
+        write_json(
+            collected / "purview.json",
+            load_fixture("purview_collector_contract.json"),
+        )
+        for name in ("ppac", "graph", "sharepoint", "sentinel"):
+            write_json(collected / f"{name}.json", load_fixture(f"{name}.json"))
+
+        manifest_path = tmp_path / "controls.json"
+        output_path = tmp_path / "scores.json"
+        write_json(manifest_path, manifest)
+
+        score.run(
+            manifest_path=str(manifest_path),
+            collected_dir=str(collected),
+            zone=2,
+            output_path=str(output_path),
+        )
+
+        result = json.loads(output_path.read_text(encoding="utf-8"))
+        ctrl = next(c for c in result["controls"] if c["id"] == "3.1")
+
+        assert ctrl["checks_passed"] == 2
+        assert ctrl["maturity_score"] == 2
+        assert ctrl["evidence"]["3.1.a"]["result"] == "pass"
+        assert "UnifiedAuditLogIngestionEnabled is true" in ctrl["evidence"]["3.1.a"]["value"]
+        assert ctrl["evidence"]["3.1.b"]["result"] == "pass"
+        assert "Copilot Interaction Retention" in ctrl["evidence"]["3.1.b"]["value"]
+
+    def test_sharepoint_collector_shape_supports_control_4_4(
+        self, tmp_path: Path, manifest: dict
+    ):
+        score = pytest.importorskip("score")  # type: ignore[import-untyped]
+
+        collected = tmp_path / "collected"
+        collected.mkdir()
+
+        write_json(
+            collected / "sharepoint.json",
+            load_fixture("sharepoint_collector_contract.json"),
+        )
+        for name in ("ppac", "graph", "purview", "sentinel"):
+            write_json(collected / f"{name}.json", load_fixture(f"{name}.json"))
+
+        manifest_path = tmp_path / "controls.json"
+        output_path = tmp_path / "scores.json"
+        write_json(manifest_path, manifest)
+
+        score.run(
+            manifest_path=str(manifest_path),
+            collected_dir=str(collected),
+            zone=2,
+            output_path=str(output_path),
+        )
+
+        result = json.loads(output_path.read_text(encoding="utf-8"))
+        ctrl = next(c for c in result["controls"] if c["id"] == "4.4")
+
+        assert ctrl["checks_passed"] == 2
+        assert ctrl["maturity_score"] == 2
+        assert ctrl["evidence"]["4.4.a"]["result"] == "pass"
+        assert ctrl["evidence"]["4.4.b"]["result"] == "pass"
+        assert "Disabled" in ctrl["evidence"]["4.4.b"]["value"]
+
+    def test_sentinel_collector_shape_supports_frontier_q17(
+        self, tmp_path: Path
+    ):
+        score_frontier = pytest.importorskip("score_frontier")  # type: ignore[import-untyped]
+
+        collected = tmp_path / "collected"
+        collected.mkdir()
+
+        write_json(collected / "ppac.json", load_fixture("ppac.json"))
+        write_json(
+            collected / "sentinel.json",
+            load_fixture("sentinel_collector_contract.json"),
+        )
+
+        manifest_data = build_frontier_manifest_with_questions(
+            [
+                {
+                    "question_id": "Q17",
+                    "driver": "technology_data",
+                    "level": 100,
+                    "question_text": "Are environments tagged and is telemetry available?",
+                    "fsi_context": "Contract test",
+                    "scoring_weight": 1.0,
+                    "answer_format": "yes_no_partial",
+                    "auto_evaluable": True,
+                    "pass_condition": "tagged_environments_with_basic_telemetry",
+                    "collection_methods": ["PPAC_PowerShell", "Sentinel"],
+                }
+            ]
+        )
+        manifest_path = tmp_path / "frontier-manifest.json"
+        output_path = tmp_path / "frontier-summary.json"
+        write_json(manifest_path, manifest_data)
+
+        result = score_frontier.run(
+            manifest_path=str(manifest_path),
+            collected_dir=str(collected),
+            output_path=str(output_path),
+        )
+
+        q17 = result["evaluator_results"]["Q17"]
+        driver = result["driver_scores"]["technology_data"]
+
+        assert q17["answer_value"] == "partial"
+        assert "Sentinel workspace" in q17["evidence"]
+        assert driver["score"] == 50
+
+    def test_frontier_collector_shape_supports_frontier_run(
+        self, tmp_path: Path
+    ):
+        score_frontier = pytest.importorskip("score_frontier")  # type: ignore[import-untyped]
+
+        collected = tmp_path / "collected"
+        collected.mkdir()
+
+        write_json(
+            collected / "frontier.json",
+            load_fixture("frontier_collector_contract.json"),
+        )
+
+        manifest_data = build_frontier_manifest_with_questions(
+            [
+                {
+                    "question_id": "Q01",
+                    "driver": "ai_strategy",
+                    "level": 100,
+                    "question_text": "Is an AI initiative owner identified?",
+                    "fsi_context": "Contract test",
+                    "scoring_weight": 1.0,
+                    "answer_format": "yes_no_partial",
+                    "auto_evaluable": False,
+                    "collection_methods": ["Manual"],
+                },
+                {
+                    "question_id": "Q02",
+                    "driver": "ai_strategy",
+                    "level": 200,
+                    "question_text": "How repeatable is the AI initiative review process?",
+                    "fsi_context": "Contract test",
+                    "scoring_weight": 1.0,
+                    "answer_format": "scale_1_5",
+                    "auto_evaluable": False,
+                    "collection_methods": ["Manual"],
+                },
+                {
+                    "question_id": "Q03",
+                    "driver": "ai_strategy",
+                    "level": 300,
+                    "question_text": "Describe where the AI strategy narrative is stored.",
+                    "fsi_context": "Contract test",
+                    "scoring_weight": 1.0,
+                    "answer_format": "text",
+                    "auto_evaluable": False,
+                    "collection_methods": ["Manual"],
+                },
+            ]
+        )
+        manifest_path = tmp_path / "frontier-manifest.json"
+        output_path = tmp_path / "frontier-summary.json"
+        write_json(manifest_path, manifest_data)
+
+        result = score_frontier.run(
+            manifest_path=str(manifest_path),
+            collected_dir=str(collected),
+            output_path=str(output_path),
+        )
+
+        driver = result["driver_scores"]["ai_strategy"]
+
+        assert driver["questions_answered"] == 2
+        assert driver["questions_total"] == 3
+        assert driver["level_breakdown"]["200"]["ratio"] == 0.75
+        assert driver["score"] == 200
+        assert result["evaluator_coverage"]["questions"]["manual_only"] == 3
 
 
 # ---------------------------------------------------------------------------

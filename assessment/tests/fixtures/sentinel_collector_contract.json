@@ -1,0 +1,47 @@
+{
+  "_metadata": {
+    "collector": "Collect-Sentinel",
+    "timestamp": "2026-05-18T12:00:00Z",
+    "tenant_id": "test-tenant",
+    "subscription_id": "sub-001",
+    "resource_group": "rg-security",
+    "workspace_name": "law-prod",
+    "warnings": []
+  },
+  "workspace": {
+    "WorkspaceId": "ws-001",
+    "ResourceId": "/subscriptions/sub-001/resourceGroups/rg-security/providers/Microsoft.OperationalInsights/workspaces/law-prod",
+    "Name": "law-prod",
+    "Location": "eastus",
+    "ProvisioningState": "Succeeded",
+    "Sku": "PerGB2018",
+    "RetentionInDays": 30,
+    "WorkspaceCapping": null
+  },
+  "dataConnectors": {
+    "TotalConnectors": 2,
+    "ConnectorSummary": [
+      {
+        "Id": "connector-001",
+        "Name": "Office365",
+        "Kind": "Office365",
+        "Etag": "etag-1"
+      },
+      {
+        "Id": "connector-002",
+        "Name": "MicrosoftCloudAppSecurity",
+        "Kind": "MicrosoftCloudAppSecurity",
+        "Etag": "etag-2"
+      }
+    ],
+    "Office365Enabled": true,
+    "McasEnabled": true
+  },
+  "kqlAuditCheck": {
+    "Query": "AuditLogs | where TimeGenerated >= ago(7d) | summarize Count = count()",
+    "RecordCount": 142,
+    "HasRecords": true,
+    "QueryTimeRange": "7 days",
+    "ExecutedAt": "2026-05-18T12:00:00Z"
+  }
+}
