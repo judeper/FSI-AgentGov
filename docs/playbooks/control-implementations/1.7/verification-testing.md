@@ -22,7 +22,7 @@ This playbook is **three-tier verification**: it confirms that audit telemetry i
 
 Microsoft 365 Audit (Standard, Premium, the 10-Year Audit Log Retention add-on, and the Pay-As-You-Go billing model for non-Microsoft AI app interactions) is **record-capture operational telemetry**. It is not, by itself, a SEC Rule 17a-4(f)–compliant electronic recordkeeping system for the books-and-records record set. The playbook treats the three tiers as separate verification problems with separate failure modes:
 
-1. **Capture-tier failures** — audit ingestion is off, a Copilot RecordType is not flowing, a Dataverse environment has audit disabled, a per-user license is missing so a Zone 3 retention policy silently downgrades to 180 days, an Audit Premium-only feature (e.g., `MailItemsAccessed`) is not firing, or an invalid `-RecordType` value is producing false-clean evidence.
+1. **Capture-tier failures** — audit ingestion is off, a Copilot RecordType is not flowing, a Dataverse environment has audit disabled, a per-user license is missing so a documented 10-year capture-window policy silently downgrades to 1 year, an Audit Premium-only feature (e.g., `MailItemsAccessed`) is not firing, or an invalid `-RecordType` value is producing false-clean evidence.
 2. **Preservation-tier failures** — for broker-dealers, FCMs, swap dealers, or CPOs, no 17a-4(f)-compliant preservation pipeline exists for the Copilot / agent communications record set; or one exists but the time-based retention policy is unlocked, or the third-party archive's attestation has lapsed, or the audit-trail alternative is in use without the Designated Executive Officer (DEO) representation / Designated Third Party (DTP) undertaking and independent records-management assessment.
 3. **Content-tier failures** — prompt and response body cannot be retrieved through DSPM for AI, eDiscovery (Premium), or Communication Compliance for a `CopilotInteraction` event identified in the audit log, breaking the join from audit metadata to communication content that an examiner expects.
 
@@ -78,7 +78,7 @@ This playbook is designed to detect defects in the **audit, preservation, and co
 1. **Unified audit ingestion off** — the tenant-level switch is `False`, or a `Get-AdminAuditLogConfig` call from the wrong session (Security & Compliance PowerShell) is producing a false `False`.
 2. **Copilot RecordType silent gaps** — `CopilotInteraction`, `ConnectedAIAppInteraction` (mixed Microsoft built-in + PAYG scope), `AIAppInteraction` (PAYG-only), or `MicrosoftCopilotStudio` returning zero rows for a window in which user activity is known to have occurred.
 3. **PAYG enablement omissions** — non-Microsoft AI app interactions and the PAYG portion of Connected AI App scope captured in audit only after explicit enablement; firms assuming default coverage produce false-clean evidence.
-4. **License-induced silent retention downgrades** — a Zone 3 user holds a Copilot license without the 10-Year Audit Log Retention add-on, so their records drop at 180 days regardless of the custom retention policy duration.
+4. **License-induced silent retention downgrades** — a user assigned to a documented 10-year capture-window policy holds a Copilot license without the 10-Year Audit Log Retention add-on, so the custom retention policy cannot extend beyond 1 year for that user.
 5. **Custom retention policy gaps** — the platform default Audit (Premium) policy excludes Copilot record types, so any RecordType not covered by an enabled custom policy falls back to 180 days.
 6. **Dataverse audit gaps** — environment-level audit disabled, retention below the zone floor, or per-table audit not enabled on the six Copilot Studio entities (`bot`, `botcomponent`, `botcomponentcollection`, `botpublishstatus`, and the current additions per the Microsoft Learn Power Platform table reference at the time of test).
 7. **Entra agent sign-in invisibility** — the `agentSignIn` log type is not forwarded to Log Analytics / SIEM, the sign-in log filter affordance for agent identities is misnamed in tenant runbooks (the prior `Is Agent = Yes` label has shifted across UI revisions — verify the live label), or `AppOwnerTenantId` / `ResourceOwnerTenantId` / `SessionId` / `SourceAppClientID` / `ASN` are missing from the SIEM ingestion schema.
@@ -166,7 +166,7 @@ The audit and preservation surfaces this playbook depends on do **not** have uni
 |---|---|---|---|---|---|
 | Unified audit log (Audit Standard) | GA | GA | GA | GA | Required everywhere; absence is a hard blocker |
 | Audit (Premium) including `MailItemsAccessed` | GA | GA | GA / verify | GA / verify | Required for breach-investigation reconstruction; record SOV-01 compensating control if unavailable |
-| 10-Year Audit Log Retention add-on | GA | GA / verify | Verify | Verify | Required for Zone 3 retention; without it, records drop at 180 days |
+| 10-Year Audit Log Retention add-on | GA | GA / verify | Verify | Verify | Required only when the firm uses a documented 10-year capture-window policy; without it, a custom policy cannot extend beyond 1 year for the affected user |
 | Audit Pay-As-You-Go billing model | GA | Verify | Verify | Verify | Required to capture `AIAppInteraction` and the PAYG portion of `ConnectedAIAppInteraction`; record SOV-02 if unavailable |
 | `CopilotInteraction` RecordType | GA | GA | GA / verify | GA / verify | Hard blocker if absent |
 | `ConnectedAIAppInteraction` RecordType (Microsoft built-in scope) | GA | GA | Verify | Verify | Hard blocker if absent for in-scope agents |
@@ -250,14 +250,18 @@ $result
 
 #### CAP-02 — Per-user license entitlement reconciliation (Audit Standard / Premium / 10-Year add-on / PAYG)
 
-**Expected:** every Copilot-licensed user has Audit Premium; every Zone 3 Copilot user additionally has the 10-Year Audit Log Retention add-on; tenants in scope for non-Microsoft AI app coverage have PAYG enrollment recorded.
+**Expected:** every Copilot-licensed user has Audit Premium; every user assigned to a documented 10-year capture-window policy additionally has the 10-Year Audit Log Retention add-on; tenants in scope for non-Microsoft AI app coverage have PAYG enrollment recorded.
 
 ```powershell
 $report = Get-MgUser -All -Property Id,UserPrincipalName,AssignedLicenses |
     ForEach-Object { Get-UserAuditEntitlement -UserId $_.Id }
 
+$tenYearScope = Get-Content '.\inputs\ten-year-capture-users.txt'
 $gaps = $report | Where-Object {
-    $_.HasCopilot -and (-not $_.HasAuditPremium -or -not $_.Has10YearRetention)
+    $_.HasCopilot -and (
+        -not $_.HasAuditPremium -or
+        ($_.UserPrincipalName -in $tenYearScope -and -not $_.Has10YearRetention)
+    )
 }
 
 # Optional: PAYG enrollment check (verify against the current Purview billing surface)
@@ -279,7 +283,7 @@ $cap02
 ```
 
 - `[PASS]` if `gapCount -eq 0` and PAYG enrollment matches the firm's regulated-data scope.
-- `[FAIL]` if any user has Copilot without Audit Premium, any Zone 3 Copilot user lacks the 10-year add-on (records will silently drop at 180 days), or the firm is in scope for non-Microsoft AI app coverage and PAYG is not enrolled.
+- `[FAIL]` if any user has Copilot without Audit Premium, any user in the documented 10-year capture-window scope lacks the 10-year add-on (the custom policy will silently fall back to 1 year for that user), or the firm is in scope for non-Microsoft AI app coverage and PAYG is not enrolled.
 
 #### CAP-03 — Copilot RecordType coverage smoke test
 
@@ -317,13 +321,13 @@ Verify the live `ConnectedAIAppInteraction` scope split (Microsoft built-in vs P
 
 #### CAP-04 — Custom retention policy coverage map and horizon
 
-**Expected:** every Copilot RecordType in scope is covered by an explicit, enabled custom retention policy with `RetentionDuration` matching the documented zone horizon.
+**Expected:** every Copilot RecordType in scope is covered by an explicit, enabled custom retention policy with `RetentionDuration` matching the documented record-class schedule and any documented 10-year capture-window extension.
 
 ```powershell
 $expected = @(
     @{ Zone = 'Zone 1'; Duration = 'SixMonths';    LicenseFloor = 'Any commercial M365 enterprise SKU' },
     @{ Zone = 'Zone 2'; Duration = 'TwelveMonths'; LicenseFloor = 'Audit Premium' },
-    @{ Zone = 'Zone 3'; Duration = 'TenYears';     LicenseFloor = 'Audit Premium + 10-Year Audit Log Retention add-on' }
+    @{ Zone = 'Zone 3'; Duration = 'RecordClassSchedule'; LicenseFloor = 'Audit Premium; add 10-Year Audit Log Retention only for users on a documented 10-year capture-window policy' }
 )
 
 $policies = Get-UnifiedAuditLogRetentionPolicy
@@ -893,7 +897,7 @@ Statements (capture tier):
 3. Each Copilot RecordType in scope returned non-zero rows, or a documented expected-zero,
    in the smoke test (sha256 {CAP-03}).
 4. Custom audit retention policies are in place for every Copilot record type in scope at
-   the documented zone horizon (sha256 {CAP-04}).
+   the documented record-class schedule and any documented 10-year capture-window extension (sha256 {CAP-04}).
 5. Per-environment Dataverse audit and per-table audit on the Copilot Studio entities
    are enabled for all {N} environments (sha256 {CAP-05}).
 6. DLP override justification is captured in the audit log (sha256 {CAP-06}).

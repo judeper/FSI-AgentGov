@@ -269,7 +269,7 @@ Requires SEC-registered firms to maintain records for varying periods: 3 years f
 
 | Control | Requirement | Mapping |
 |---------|-------------|---------|
-| [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Comprehensive Audit Logging | 6-year retention, first 2 years in easily accessible place |
+| [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Comprehensive Audit Logging | Retention per record type (3 years for communications, 6 years for financial/governance records, 5 years for CFTC records; first 2 years readily accessible where required) |
 | [1.9](../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) | Data Retention | Retention policies enforced |
 | [1.20](../controls/pillar-1-security/1.20-network-isolation-private-connectivity.md) | Network Isolation | Secure storage network architecture |
 | [1.21](../controls/pillar-1-security/1.21-adversarial-input-logging.md) | Adversarial Input Logging | Security event records |
@@ -321,7 +321,7 @@ Requires SEC-registered firms to maintain records for varying periods: 3 years f
 
 **Zone 3:**
 
-- 6-year retention, first 2 years in easily accessible place
+- Record-type-based retention: 3 years for communications, 6 years for financial/accounting and governance records, 5 years for CFTC records, with longer periods only where a specific rule or firm schedule requires them; first 2 years readily accessible where required
 - WORM or audit-trail alternative (per SEC October 2022 amendments)
 - Real-time audit trail
 - Weekly compliance verification

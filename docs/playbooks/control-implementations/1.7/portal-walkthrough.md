@@ -5,7 +5,7 @@
 **Last UI Verified:** April 2026
 **Estimated Time:** 4–8 hours initial buildout (single tenant); 60–120 minutes per environment for Dataverse audit enablement; 30–45 minutes per quarterly evidence-pack refresh
 **Audience:** Purview Audit Admin, Purview Compliance Admin, Exchange Online Organization Configuration role holder, SOC Analyst, Power Platform Admin, Entra Security Admin, Azure Storage Account Owner
-**Prerequisites:** Microsoft 365 E5 (or Office 365 E5 / Microsoft Purview Suite / E5 eDiscovery & Audit add-on) per Copilot user; per-user **10-Year Audit Log Retention** add-on for any Zone 3 user; Exchange Online PowerShell module v3.0+; Azure subscription for immutable blob storage (if WORM export is in scope); change-management ticket open for any tenant-wide audit ingestion change.
+**Prerequisites:** Microsoft 365 E5 (or Office 365 E5 / Microsoft Purview Suite / E5 eDiscovery & Audit add-on) per Copilot user; per-user **10-Year Audit Log Retention** add-on for any user placed on a documented 10-year capture-window policy; Exchange Online PowerShell module v3.0+; Azure subscription for immutable blob storage (if WORM export is in scope); change-management ticket open for any tenant-wide audit ingestion change.
 
 ---
 
@@ -167,7 +167,7 @@ Audit retention policies that exceed the entitlement of the underlying user **si
 
 1. Open `https://admin.microsoft.com` > **Billing > Licenses**.
 2. Capture the assigned counts for each of: `Microsoft 365 E5`, `Office 365 E5`, `Microsoft Purview Suite`, `E5 eDiscovery and Audit add-on`, `10-Year Audit Log Retention add-on`.
-3. Cross-reference against the user list assigned a Microsoft 365 Copilot license (any user without one of the four Audit Premium SKUs above caps at 180 days; any user assigned to a Zone 3 retention policy without the 10-Year add-on caps at 1 year).
+3. Cross-reference against the user list assigned a Microsoft 365 Copilot license (any user without one of the four Audit Premium SKUs above caps at 180 days; any user assigned to a documented 10-year capture-window policy without the 10-Year add-on caps at 1 year).
 4. Export the user × SKU × add-on matrix to CSV; SHA-256 hash and add to the evidence pack as `Control-1.7_{Tenant}_LicenseMatrix_{YYYYMMDD-UTC}.csv` plus `.sha256` sidecar.
 
 ### 1.3 Change-management gate
@@ -275,7 +275,7 @@ The audit record carries metadata only. To retrieve the prompt and response body
 | `AIAppInteraction` for non-Microsoft AI apps (network/browser DLP `AIApp` workload) | ⛔ | ⛔ unless PAYG enabled | ⛔ unless PAYG enabled | ✅ — explicit enablement; 180-day retention; consumption billed against an Azure subscription |
 | Per-user license required at event ingestion time | n/a (universal) | ✅ Yes — without it, retention silently caps at 180 days | ✅ Yes — without the add-on, retention silently caps at 1 year | n/a (PAYG fixed retention) |
 
-**There is no native 7-year tier.** To meet a 7-year SEC 17a-4 / OCC examination floor, configure a **10-year** custom retention policy and document the over-retention decision in the records schedule.
+**There is no native 3-year, 5-year, 6-year, or 7-year Audit tier.** Use the record-class schedule as the governing rule — 3 years for communications, 6 years for financial/accounting or governance records, 5 years for CFTC records, and longer only where a specific rule or the firm's records schedule requires it. If the firm wants a capture window beyond 1 year in Microsoft 365 Audit, configure a **10-year** custom retention policy only as a documented capture-window extension / over-retention choice.
 
 ---
 
@@ -289,7 +289,7 @@ The audit record carries metadata only. To retrieve the prompt and response body
 
 1. In the Purview portal Audit solution, open **Policies > Create audit retention policy**.
 2. Enter a descriptive **Policy name** that encodes the zone and intent (e.g., `FSI-Zone3-Copilot-10y`, `FSI-Zone2-Copilot-1y`).
-3. Set **Duration** to one of the supported values: `Three Months`, `Six Months`, `Nine Months`, `Twelve Months` (Audit Premium), `Ten Years` (Audit Premium + per-user 10-Year add-on). **No native 7-year tier exists** — use 10 years and record the over-retention decision.
+3. Set **Duration** to one of the supported values: `Three Months`, `Six Months`, `Nine Months`, `Twelve Months` (Audit Premium), `Ten Years` (Audit Premium + per-user 10-Year add-on). Apply the firm's record-class schedule — 3 years for communications, 6 years for financial/accounting or governance records, 5 years for CFTC records, and longer only where a specific rule or the firm's records schedule requires it — and use `Ten Years` only when the firm intentionally extends the Audit capture window beyond 1 year because Microsoft 365 Audit has no native intermediate tier for those record classes.
 4. Under **Record types**, explicitly add **every** Copilot record type in scope:
     - `CopilotInteraction`
     - `ConnectedAIAppInteraction`
@@ -473,7 +473,7 @@ Per the SEC's October 2022 amendments to Rule 17a-4(f) (compliance date 3 May 20
     - **3 years** for SEC 17a-4(b)(4) communications records (first 2 years readily accessible).
     - **5 years** for CFTC 1.31 regulatory records.
     - **6 years** for SEC 17a-4(a) financial / accounting records.
-    - **7 years** for OCC examination records (use 10 years if the firm standardizes on the 10-year retention tier).
+    - **Longer periods** only where a specific rule or the firm's records schedule requires them (for example, an OCC-driven or firm-standard over-retention decision may be documented separately).
     - **NYDFS 23 NYCRR 500.06** records retention obligation: minimum 5 years for cybersecurity-event records (verify against your firm's NYDFS program).
 5. **Lock** the policy after validation — once locked, retention can be extended but never shortened or removed. The lock action itself is auditable via Azure Activity Log.
 6. Capture the policy state and add to the evidence pack:
@@ -539,7 +539,7 @@ All artifacts: SHA-256 hashed at capture time; copied to the §10 immutable blob
 |---|---|
 | Unified audit logging | Enabled |
 | Audit retention policy | `Twelve Months` (minimum) policy named `FSI-Zone2-Copilot-1y`; consider `Ten Years` for departments touching books-and-records data |
-| 10-Year Audit Log Retention add-on | Required for any user whose interactions feed a 10-year retention policy |
+| 10-Year Audit Log Retention add-on | Required for any user whose interactions feed a documented 10-year capture-window policy |
 | PAYG `AIAppInteraction` | Required if non-Microsoft AI is in scope |
 | Dataverse environment audit | Enabled, 365-day retention, **all** non-default environments |
 | Per-table audit on Copilot Studio entities | Required across all environments hosting shared agents |
@@ -554,8 +554,8 @@ All artifacts: SHA-256 hashed at capture time; copied to the §10 immutable blob
 | Configuration | Setting |
 |---|---|
 | Unified audit logging | Enabled |
-| Audit retention policy | `Ten Years` policy named `FSI-Zone3-Copilot-10y` covering **every** Copilot record type in scope; per-user 10-Year add-on assigned to every user in scope (silent fallback to 1 year otherwise) |
-| 10-Year Audit Log Retention add-on | **Required per user**; reconcile against the §1.2 license matrix on every binder refresh |
+| Audit retention policy | Record-class-based: apply the preservation schedule from Control 1.7 (3 years for communications, 6 years for financial/accounting or governance records, 5 years for CFTC records, and longer only where a specific rule or the firm's records schedule requires it). Because Microsoft 365 Audit has no native 3-year/5-year/6-year tier, firms that need a capture window beyond 1 year typically use a documented `Ten Years` policy as a capture-window extension / over-retention choice. |
+| 10-Year Audit Log Retention add-on | Required only for users included in that documented 10-year capture-window scope; reconcile against the §1.2 license matrix on every binder refresh |
 | PAYG `AIAppInteraction` | Required (non-Microsoft AI assumed in scope unless explicitly blocked by [Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md)) |
 | Dataverse environment audit | Enabled, 730-day minimum retention (or **Forever**), all environments |
 | Per-table audit on the six Copilot Studio entities | Required across all environments |
@@ -646,7 +646,7 @@ After completing this walkthrough, hand off to [Verification & Testing](verifica
 
 1. Unified audit logging enabled (run `Get-AdminAuditLogConfig | Format-List UnifiedAuditLogIngestionEnabled` from Exchange Online PowerShell).
 2. Audit (Premium) license entitlement verified per Copilot user.
-3. Per-user 10-Year Audit Log Retention add-on assigned for every Zone 3 user.
+3. Per-user 10-Year Audit Log Retention add-on assigned for every user included in a documented 10-year capture-window policy.
 4. Copilot record types appear in audit search results.
 5. Custom audit retention policies explicitly include the Copilot record types.
 6. Retention policies configured per governance tier.

@@ -1,6 +1,6 @@
 # Troubleshooting: Control 1.1 - Restrict Agent Publishing by Authorization
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 
 ## Common Issues
 
@@ -198,7 +198,7 @@ if ($allUsers) {
 2. **Export the offending agent's full configuration** (Copilot Studio export, Dataverse solution export, or Power Platform CLI `pac copilot export`).
 3. **Capture audit log evidence** for the incident time window via `Search-UnifiedAuditLog` and export to CSV — preserve column headers; compute SHA-256.
 4. **Snapshot group memberships** at incident time (Microsoft Graph JSON export).
-5. **Hash and WORM-store everything** before applying any remediation that may alter state.
+5. **Hash and preserve everything through the Control 1.7 architecture** before applying any remediation that may alter state: Azure immutable blob storage with a locked time-based policy, a 17a-4-attested archive vendor, or the documented audit-trail alternative with DEO/DTP documentation and an independent records-management assessment.
 
 ### Compensating Controls During Outage
 
@@ -210,7 +210,7 @@ if ($allUsers) {
 
 ### Chain of Custody
 
-For each evidence artifact: file name, SHA-256, capture UTC timestamp, operator UPN, source system, storage location, retention period. Store the index in WORM-capable storage with the artifacts. Do not modify file contents after capture.
+For each evidence artifact: file name, SHA-256, capture UTC timestamp, operator UPN, source system, storage location, retention period. Store the index with the artifacts in the preservation path documented under [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md). Do not modify file contents after capture.
 
 ### Incident Report Template (Control 1.1 — stub)
 
