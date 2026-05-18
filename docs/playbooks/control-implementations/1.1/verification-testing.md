@@ -1,6 +1,6 @@
 # Verification & Testing: Control 1.1 - Restrict Agent Publishing by Authorization
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 
 !!! warning "Audit-log methodology prerequisites"
     Before running Test 4 / Test 5 / SSPM-1.1-05–06, verify the following — otherwise a second admin will get "no results" and incorrectly conclude the control is broken:
@@ -108,7 +108,7 @@ If Teams/M365 distribution is used:
 
 ## Evidence to Retain
 
-> **Audit-grade evidence requires more than screenshots.** SEC Rule 17a-4(f) and FINRA 4511(b) expect immutable, query-able, hashed records with chain of custody. Use this list as the working artifact set; store all files in WORM-capable storage (SharePoint with retention label or Azure Storage with immutability policy).
+> **Audit-grade evidence requires more than screenshots.** SEC Rule 17a-4(f) and FINRA 4511(b) expect immutable, query-able, hashed records with chain of custody. Use this list as the working artifact set; preserve all exported evidence through the Control 1.7 architecture: Azure immutable blob storage with a locked time-based policy, a 17a-4-attested archive vendor, or the documented audit-trail alternative with DEO/DTP documentation and an independent records-management assessment. Do not treat SharePoint record labels alone as the preservation layer for this evidence set.
 
 ### Identity & Authorization
 
@@ -140,7 +140,7 @@ If Teams/M365 distribution is used:
 
 ### Storage & Chain of Custody
 
-- [ ] Storage location is WORM-compliant (SharePoint with **Record** retention label, or Azure Storage with immutability policy in **Locked** state). Do not store evidence in user OneDrive.
+- [ ] Storage location follows the preservation path documented in [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md): Azure immutable blob storage with a locked time-based policy, a 17a-4-attested archive vendor, or the documented audit-trail alternative with DEO/DTP documentation and an independent records-management assessment. Do not store authoritative evidence in user OneDrive or treat SharePoint record labels alone as the preservation layer.
 - [ ] Storage region is US per data-residency requirements
 - [ ] Access to evidence container is logged and least-privileged
 
@@ -149,8 +149,8 @@ If Teams/M365 distribution is used:
 - [ ] Signed statement from control owner confirming:
   - Production publishing is restricted to `FSI-Agent-Publishers-Prod`
   - All production publishes require documented approval
-  - Evidence is retained per policy in US-only WORM-capable storage
-  - The retention period applied meets firm-specific obligations (commonly 6 years)
+  - Evidence is retained per policy through the preservation path documented in [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md)
+  - The retention period applied matches the firm's record schedule and the record-type model in Control 1.7 (3 years for communications, 6 years for financial/accounting or governance records, 5 years for CFTC records, and longer only where a specific rule or firm schedule requires it)
 
 ---
 
