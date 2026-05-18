@@ -1,0 +1,53 @@
+{
+  "_metadata": {
+    "collector": "Collect-PPAC",
+    "timestamp": "2026-03-25T21:00:00Z",
+    "tenant_id": "test-tenant",
+    "warnings": []
+  },
+  "environments": [
+    {
+      "DisplayName": "Core Dataverse",
+      "EnvironmentName": "env-prod-001",
+      "IsDefault": false,
+      "EnvironmentSku": "Production",
+      "LinkedEnvironmentType": "Dataverse",
+      "SecurityGroupId": "sg-001",
+      "States": {
+        "management": {
+          "id": "Managed"
+        }
+      }
+    }
+  ],
+  "dlpPolicies": [
+    {
+      "DisplayName": "FSI Default DLP",
+      "Environments": ["env-prod-001"],
+      "ConnectorGroups": {
+        "BusinessDataGroup": ["SharePoint"],
+        "BlockedGroup": ["Twitter"]
+      }
+    }
+  ],
+  "roleAssignments": [
+    {
+      "EnvironmentName": "env-prod-001",
+      "DisplayName": "Production",
+      "Assignments": [
+        {
+          "PrincipalType": "User",
+          "PrincipalObjectId": "user-001",
+          "RoleDefinition": {
+            "name": "Environment Maker"
+          }
+        }
+      ]
+    }
+  ],
+  "routingRules": [],
+  "inactivityTimeout": null,
+  "securityPosture": null,
+  "agentFeatureFlags": {},
+  "environmentGroups": []
+}
