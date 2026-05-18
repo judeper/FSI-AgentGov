@@ -171,7 +171,7 @@ $fsiSecurityGroups = $null
 try {
     Write-Verbose "Section 2: Collecting FSI-Agent-* security groups..."
     $rawGroups = Invoke-CollectorOperation -Target "Microsoft Graph tenant $TenantId" -Action 'List FSI-Agent security groups' -ScriptBlock {
-        Get-MgGroup -Filter "startsWith(displayName,'FSI-Agent-')" -All `
+        Get-MgGroup -Filter "startsWith(displayName,'FSI-Agent-')" -ConsistencyLevel eventual -CountVariable fsiSecurityGroupCount -All `
             -Property Id, DisplayName, SecurityEnabled, GroupTypes, MembershipRule -ErrorAction Stop
     }
 
@@ -297,7 +297,7 @@ try {
     $copilotServicePrincipals = foreach ($filterExpr in $filterConditions) {
         try {
             $sps = Invoke-CollectorOperation -Target "Microsoft Graph tenant $TenantId" -Action "List service principals matching filter $filterExpr" -ScriptBlock {
-                Get-MgServicePrincipal -Filter $filterExpr -All -ErrorAction Stop
+                Get-MgServicePrincipal -Filter $filterExpr -ConsistencyLevel eventual -CountVariable servicePrincipalCount -All -ErrorAction Stop
             }
             foreach ($sp in $sps) {
                 [PSCustomObject]@{
@@ -389,7 +389,7 @@ try {
     $rawUsers = @()
     try {
         $chiefUsers = Invoke-CollectorOperation -Target "Microsoft Graph tenant $TenantId" -Action "List users matching job title prefix 'Chief'" -ScriptBlock {
-            Get-MgUser -Filter "startswith(jobTitle,'Chief')" `
+            Get-MgUser -Filter "startswith(jobTitle,'Chief')" -ConsistencyLevel eventual -CountVariable chiefUserCount `
                 -Property $selectProps -All -ErrorAction Stop
         }
         if ($chiefUsers) {
@@ -402,7 +402,7 @@ try {
     }
     try {
         $leadershipUsers = Invoke-CollectorOperation -Target "Microsoft Graph tenant $TenantId" -Action "List users matching AI leadership job title filters" -ScriptBlock {
-            Get-MgUser -Filter "startswith(jobTitle,'Head of') or startswith(jobTitle,'VP of') or startswith(jobTitle,'Director of') or startswith(jobTitle,'AI ')" `
+            Get-MgUser -Filter "startswith(jobTitle,'Head of') or startswith(jobTitle,'VP of') or startswith(jobTitle,'Director of') or startswith(jobTitle,'AI ')" -ConsistencyLevel eventual -CountVariable leadershipUserCount `
                 -Property $selectProps -All -ErrorAction Stop
         }
         if ($leadershipUsers) {
