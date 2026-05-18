@@ -1,0 +1,29 @@
+{
+  "_metadata": {
+    "collector_version": "1.0.0",
+    "timestamp": "2026-05-18T12:00:00Z",
+    "facilitator": "Test Facilitator",
+    "session_duration_minutes": 18,
+    "mode": "batch",
+    "manifest_version": "1.0.0",
+    "warnings": [],
+    "errors": []
+  },
+  "answers": {
+    "Q01": {
+      "value": "yes",
+      "evidence_note": "Executive sponsor and AI governance lead are named in the intake charter.",
+      "respondent": "CIO"
+    },
+    "Q02": {
+      "value": 4,
+      "evidence_note": "Quarterly steering committee reviews an AI initiative portfolio.",
+      "respondent": "Risk Office"
+    },
+    "Q03": {
+      "value": "Strategy narrative stored in the governance workspace.",
+      "evidence_note": "Manual evidence link captured by facilitator.",
+      "respondent": "Program Office"
+    }
+  }
+}

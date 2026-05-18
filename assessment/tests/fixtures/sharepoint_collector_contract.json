@@ -1,0 +1,62 @@
+{
+  "_metadata": {
+    "collector": "Collect-SharePoint",
+    "timestamp": "2026-05-18T12:00:00Z",
+    "tenant_id": "test-tenant",
+    "warnings": [],
+    "approvedSitesCsvUsed": true
+  },
+  "siteInventory": [
+    {
+      "Id": "site-001",
+      "DisplayName": "Agent Knowledge Base",
+      "WebUrl": "https://contoso.sharepoint.com/sites/agentKB",
+      "CreatedDateTime": "2026-03-01T00:00:00Z",
+      "IsPersonalSite": false
+    }
+  ],
+  "externalSharing": [
+    {
+      "SiteId": "site-001",
+      "DisplayName": "Agent Knowledge Base",
+      "WebUrl": "https://contoso.sharepoint.com/sites/agentKB",
+      "SharingCapability": "Disabled"
+    }
+  ],
+  "retentionLabels": [
+    {
+      "SiteId": "site-001",
+      "SiteDisplayName": "Agent Knowledge Base",
+      "ListId": "list-001",
+      "ListDisplayName": "Documents",
+      "ListTemplate": "documentLibrary",
+      "ContentTypesEnabled": true
+    }
+  ],
+  "guestAccess": [
+    {
+      "SiteId": "site-001",
+      "DisplayName": "Agent Knowledge Base",
+      "WebUrl": "https://contoso.sharepoint.com/sites/agentKB",
+      "GuestCount": 0,
+      "HasGuestAccess": false
+    }
+  ],
+  "itemLevelPermissions": [
+    {
+      "SiteId": "site-001",
+      "DisplayName": "Agent Knowledge Base",
+      "WebUrl": "https://contoso.sharepoint.com/sites/agentKB",
+      "SampledItems": 50,
+      "FlaggedItems": [],
+      "FlaggedCount": 0
+    }
+  ],
+  "groundingCrossRef": {
+    "ApprovedSitesTotal": 1,
+    "ApprovedFound": 1,
+    "ApprovedMissing": [],
+    "UnapprovedSiteCount": 0,
+    "UnapprovedSites": []
+  }
+}

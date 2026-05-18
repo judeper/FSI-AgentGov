@@ -1,0 +1,93 @@
+{
+  "_metadata": {
+    "collector": "Collect-Purview",
+    "timestamp": "2026-05-18T12:00:00Z",
+    "tenant_id": "test-tenant",
+    "warnings": []
+  },
+  "auditConfig": {
+    "UnifiedAuditLogIngestionEnabled": true,
+    "AdminAuditLogAgeLimit": "180.00:00:00",
+    "AuditConfigurationPolicies": [
+      {
+        "Identity": "audit-standard",
+        "Priority": 1,
+        "Workload": "All"
+      }
+    ]
+  },
+  "dlpCompliancePolicies": [
+    {
+      "Name": "Copilot Data Loss Prevention",
+      "Mode": "Enable",
+      "Workload": "Exchange,SharePoint",
+      "Enabled": true,
+      "Rules": [
+        {
+          "Name": "Block public sharing of sensitive content",
+          "Disabled": false,
+          "ContentContainsSensitiveInformation": [
+            {
+              "Name": "U.S. Social Security Number"
+            }
+          ],
+          "BlockAccess": true,
+          "Priority": 0
+        }
+      ]
+    }
+  ],
+  "retentionPolicies": [
+    {
+      "Name": "Copilot Interaction Retention",
+      "Enabled": true,
+      "Mode": "Enforce",
+      "Workload": "CopilotInteraction",
+      "RetentionDuration": "365",
+      "RetentionAction": "KeepAndDelete",
+      "CopilotWorkloadFound": true
+    }
+  ],
+  "communicationCompliance": [
+    {
+      "Name": "Copilot Supervision",
+      "Mode": "Enforce",
+      "Enabled": true,
+      "PolicyType": "SupervisoryReview"
+    }
+  ],
+  "eDiscoveryCases": [
+    {
+      "Name": "AI Investigations",
+      "Status": "Active",
+      "CaseType": "Standard"
+    }
+  ],
+  "insiderRiskPolicies": [
+    {
+      "Name": "Agent Data Exfiltration",
+      "Enabled": true,
+      "Mode": "Enforce"
+    }
+  ],
+  "dspmForAi": {
+    "Available": true,
+    "AlertsEnabled": true,
+    "LastAssessment": "2026-05-18T12:00:00Z"
+  },
+  "sensitivityLabelPolicies": [
+    {
+      "Name": "Confidential Financial Data",
+      "Enabled": true,
+      "Priority": 1
+    }
+  ],
+  "endpointDlp": [
+    {
+      "Name": "Endpoint DLP Baseline",
+      "Mode": "Enable",
+      "Workload": "Endpoint",
+      "Enabled": true
+    }
+  ]
+}
