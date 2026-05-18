@@ -11,6 +11,7 @@ on:
       - 'mkdocs.yml'
       - 'overrides/**'
       - 'VERSION'
+      - 'scripts/verify_build_output.py'
       - '.github/workflows/docs-validation.yml'
       # Required-check coverage gate: mkdocs-strict is a required check by
       # branch protection. Playwright specs (tests/**) often reference docs
@@ -51,6 +52,13 @@ jobs:
 
       - name: Build documentation (strict)
         run: mkdocs build --strict
+
+      - name: Verify built site output completeness
+        # Closes U-038 — `mkdocs build --strict` can exit 0 while a widened
+        # exclude_docs pattern or partial artifact step drops major route
+        # families from site/. This asserts the expected subtrees + search
+        # asset exist before downstream validators run.
+        run: python scripts/verify_build_output.py site
 
       - name: Verify OpenGraph and Twitter Card meta tags on built site
         # Closes AS22 — verify_meta_tags.py was added in AS16 but never

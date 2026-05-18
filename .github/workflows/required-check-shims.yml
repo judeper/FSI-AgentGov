@@ -34,6 +34,7 @@ on:
       - 'overrides/**'
       - 'mkdocs.yml'
       - 'VERSION'
+      - 'scripts/verify_build_output.py'
       - '.github/workflows/e2e-smoke.yml'
       - '.github/workflows/docs-validation.yml'
 
