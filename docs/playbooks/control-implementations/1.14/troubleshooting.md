@@ -10,7 +10,7 @@
 
 ## §1 — FSI Incident Handling — READ FIRST
 
-Control 1.14 sits directly on **GLBA 501(b)** customer-NPI minimization, **SEC Regulation S-P §248.30** safeguards and customer-notification, **FINRA Rules 3110 / 4511 / 4530** supervision and recordkeeping, **FINRA Notice 25-07** (existing rules apply to AI), and **CCPA §1798.100** purpose-limitation. A scope-drift event in which a Zone 3 customer-facing agent grounds against an undeclared SharePoint site that contains customer NPI is a textbook trigger for the **NY DFS 23 NYCRR 500.17(a)** 72-hour determination clock and the **SEC Reg S-P §248.30(a)(4)** customer-notification analysis. Treat scope-control failures as incidents, not "just admin bugs."
+Control 1.14 sits directly on **GLBA 501(b)** customer-NPI minimization, **SEC Regulation S-P §248.30** safeguards and customer-notification, **FINRA Rules 3110 / 4511 / 4530** supervision and recordkeeping, **FINRA RN 24-09 / Rule 3110** (existing rules apply to AI), and **CCPA §1798.100** purpose-limitation. A scope-drift event in which a Zone 3 customer-facing agent grounds against an undeclared SharePoint site that contains customer NPI is a textbook trigger for the **NY DFS 23 NYCRR 500.17(a)** 72-hour determination clock and the **SEC Reg S-P §248.30(a)(4)** customer-notification analysis. Treat scope-control failures as incidents, not "just admin bugs."
 
 > **Determination vs. detection.** The NY DFS 500.17(a) 72-hour clock starts at the firm's **determination** that a reportable cybersecurity event occurred — not at first alert. Document the determination decision (who, when, on what evidence). That timestamp is the one regulators will examine.
 >
@@ -35,7 +35,7 @@ Control 1.14 sits directly on **GLBA 501(b)** customer-NPI minimization, **SEC R
    - **YES →** SEC Regulation S-P §248.30(a)(4) customer-notification analysis begins. Engage Legal within 4 h. Affected-customer notification window under the May 2024 amendments runs from determination (currently codified as as soon as practicable, but no later than 30 days). NY DFS 23 NYCRR 500.17(a) 72-hour notification clock starts at *determination* for Part-500-covered entities. GLBA 501(b) safeguards review triggered. State-AG notice (e.g., NY GBL §899-aa, MA 201 CMR 17.00, CA Civil Code §1798.82) may also apply — Privacy + Legal own the determination. Document the determination decision (who, when, evidence).
    - **NO →** continue.
 2. **FINRA 4530 reportable — is this a "specified event" under FINRA Rule 4530(b) (customer harm, regulatory violation, or litigation)? Examples: customer complaint involving compensatory damages ≥ $15,000 caused by AI-surfaced data; internal review concluding a registered person violated a rule; written customer complaint of theft, misappropriation, or forgery related to AI output.**
-   - **YES →** FINRA Rule 4530(b) written report due within 30 calendar days of firm conclusion. CCO drafts; Legal reviews. Pair with FINRA Notice 25-07: AI-mediated misconduct is evaluated under existing 3110/4530, not a separate AI rule.
+   - **YES →** FINRA Rule 4530(b) written report due within 30 calendar days of firm conclusion. CCO drafts; Legal reviews. Pair with FINRA RN 24-09 / Rule 3110: AI-mediated misconduct is evaluated under existing 3110/4530, not a separate AI rule.
    - **NO →** continue.
 3. **SEC 17a-4 books-and-records implication — is there a recordkeeping gap that prevents reconstruction of an agent's data-access decision subject to FINRA Rule 4511 or SEC Rule 17a-3 / 17a-4?**
    - **YES →** Supervision deficiency under FINRA Rule 3110; recordkeeping gap under SEC 17a-4(f). **Preserve all evidence on WORM** (Purview retention labels with Regulatory Record disposition + immutable Azure Storage with legal hold). Document gap, corrective action, and supervisory review in WSPs. **Do not** rely on Power Platform admin telemetry as the books-and-records source — it is operational, not WORM (Controls 1.7, 1.9, 1.19 cover the WORM side).
@@ -551,7 +551,7 @@ Mandatory data to gather **before** filing the case. Do not file without items 1
 - **FINRA Rule 3110** — supervision — `finra.org/rules-guidance/rulebooks/finra-rules/3110`
 - **FINRA Rule 4511** — books-and-records general requirements — `finra.org/rules-guidance/rulebooks/finra-rules/4511`
 - **FINRA Rule 4530** — reporting requirements — `finra.org/rules-guidance/rulebooks/finra-rules/4530`
-- **FINRA Regulatory Notice 25-07 (March 2025)** — existing rules apply to AI tools — `finra.org/rules-guidance/notices/25-07`
+- **FINRA RN 24-09 (June 2024) / Rule 3110** — generative-AI supervision expectations — `finra.org/rules-guidance/notices/24-09`
 - **OCC Bulletin 2026-13 / Federal Reserve SR 26-2** (formerly OCC Bulletin 2011-12 / SR 11-7) — model risk management — `occ.gov/news-issuances/bulletins/2026/bulletin-2026-13.html` / `federalreserve.gov/supervisionreg/srletters/SR2602.htm`
 - **CFTC Regulation 1.31** — recordkeeping — `ecfr.gov/current/title-17/chapter-I/part-1/subpart-A/section-1.31`
 - **CCPA §1798.100** — collection-and-use minimization (purpose limitation) — `leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=1798.100.&lawCode=CIV`

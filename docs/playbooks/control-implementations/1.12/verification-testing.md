@@ -13,12 +13,12 @@
 ---
 
 !!! warning "Non-Substitution"
-    This playbook **supports compliance with**, but does **not by itself ensure compliance with**, FINRA Rule 3110 (Supervision), FINRA Rule 4511 (Books and Records), FINRA Regulatory Notice 21-18 (data-stewardship guidance for cloud-hosted books and records), FINRA Regulatory Notice 25-07 (Generative AI / Large Language Models — RFC; cited contextually only and not yet binding), SEC Rules 17a-3 / 17a-4 (Recordkeeping and Retention), Regulation S-P amendments (effective compliance dates 2024–2025; 30-day customer-notice and 72-hour incident-notice expectations as adopted), GLBA §501(b) (Safeguards Rule), SOX §404 (Internal Control over Financial Reporting), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (Sound Practices for Model Risk Management) / Federal Reserve SR 26-2 (formerly SR 11-7), CFTC Regulation 1.31, NYDFS 23 NYCRR 500 §§500.06 / 500.16 / 500.17, and the FFIEC IT Examination Handbook.
+    This playbook **supports compliance with**, but does **not by itself ensure compliance with**, FINRA Rule 3110 (Supervision), FINRA Rule 4511 (Books and Records), FINRA Regulatory Notice 21-18 (data-stewardship guidance for cloud-hosted books and records), FINRA RN 25-07 (Generative AI / Large Language Models — RFC; cited contextually only and not yet binding), SEC Rules 17a-3 / 17a-4 (Recordkeeping and Retention), Regulation S-P amendments (effective compliance dates 2024–2025; 30-day customer-notice and 72-hour incident-notice expectations as adopted), GLBA §501(b) (Safeguards Rule), SOX §404 (Internal Control over Financial Reporting), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (Sound Practices for Model Risk Management) / Federal Reserve SR 26-2 (formerly SR 11-7), CFTC Regulation 1.31, NYDFS 23 NYCRR 500 §§500.06 / 500.16 / 500.17, and the FFIEC IT Examination Handbook.
 
     A clean execution of every TC in this catalog is **necessary but not sufficient**:
 
     - It does **not replace** the firm's Written Supervisory Procedures (WSP).
-    - It does **not replace** the registered-principal supervisory review obligation under FINRA Rule 3110, nor the supervisory designation expectations restated in FINRA 25-07 for AI-generated communications and AI-assisted supervisory tooling.
+    - It does **not replace** the registered-principal supervisory review obligation under FINRA Rule 3110, nor the supervisory designation expectations stated in FINRA RN 24-09 and FINRA Rule 3110 for AI-generated communications and AI-assisted supervisory tooling.
     - It does **not constitute** the firm's records-retention plane. IRM (and Forensic Evidence in particular) is an investigative surface; durable books-and-records retention is implemented separately under [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) and [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md).
     - It does **not constitute** legal advice on state employee-monitoring statutes — see TC-13.
     - It does **not** assert sovereign-cloud feature parity. Confirm each capability against current Microsoft Learn at the start of every cycle.
@@ -65,8 +65,8 @@ IRM signals are **non-static**. Microsoft ships analytics-model updates, indicat
 | TC-1 UAL + audit retention | Weekly + on-change | Purview Compliance Admin | Internal Audit | 7 years | FINRA 4511, SEC 17a-4(f), [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) |
 | TC-2 IRM role groups + SoD | Quarterly + on-change | Purview Compliance Admin | Internal Audit, GC | 7 years | FINRA 3110, SOX 404, NYDFS 500.07 |
 | TC-3 Indicator baseline attestation | Quarterly | Purview Compliance Admin | AI Governance Lead, CCO | 7 years | FINRA 3110, OCC Bulletin 2026-13 (formerly OCC 2011-12) |
-| TC-4 Risky Agents default policy | Monthly | Purview Compliance Admin | AI Governance Lead | 7 years | FINRA 25-07 (RFC), OCC Bulletin 2026-13 (formerly OCC 2011-12) |
-| TC-5 Risky AI usage + Intune extension | Monthly | Purview Compliance Admin + Intune Admin | AI Governance Lead | 7 years | FINRA 25-07 (RFC), GLBA 501(b) |
+| TC-4 Risky Agents default policy | Monthly | Purview Compliance Admin | AI Governance Lead | 7 years | FINRA RN 24-09, OCC Bulletin 2026-13 (formerly OCC 2011-12) |
+| TC-5 Risky AI usage + Intune extension | Monthly | Purview Compliance Admin + Intune Admin | AI Governance Lead | 7 years | FINRA RN 24-09, GLBA 501(b) |
 | TC-6 Departing-user data theft | Monthly | Purview Compliance Admin + HR liaison | CCO | 7 years | FINRA 3110, Reg S-P (2024) |
 | TC-7 Priority-user data leaks | Monthly | Purview Compliance Admin | CCO, GC | 7 years | FINRA 3110, GLBA 501(b), Reg S-P |
 | TC-8 Security policy violations (MDE) | Monthly | Purview Compliance Admin + MDE Admin | CISO | 7 years | FFIEC, NYDFS 500.06 |
@@ -75,7 +75,7 @@ IRM signals are **non-static**. Microsoft ships analytics-model updates, indicat
 | TC-11 Entra ID Protection signal correlation | Quarterly | Entra Security Reader + IRM Analyst | CISO | 7 years | NYDFS 500.06, FFIEC |
 | TC-12 Forensic Evidence dual-auth | Quarterly + per-capture | IRM Investigator + IRM Approver | Privacy Officer, GC | Per legal hold (else records-scope ≥7y) | SEC 17a-4(b), FINRA 4511 |
 | TC-13 State monitoring-law check | Annually + on enablement | Privacy Officer + GC | CCO | 7 years | State law (CT/DE/NY); GLBA 501(b) |
-| TC-14 Triage Agent readiness | Quarterly + 90-day refresh | AI Governance Lead + CISO | CCO | 7 years | OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7), FINRA 25-07 (RFC) |
+| TC-14 Triage Agent readiness | Quarterly + 90-day refresh | AI Governance Lead + CISO | CCO | 7 years | OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7), FINRA RN 24-09 |
 | TC-15 Adaptive Protection wiring | Quarterly | Purview Compliance Admin + Conditional Access Admin | CISO | 7 years | OCC Bulletin 2026-13 (formerly OCC 2011-12), GLBA 501(b) |
 | TC-16 Communication Compliance correlation | Quarterly | Purview Compliance Admin | CCO | 7 years | FINRA 3110, [Control 1.10](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md), [Control 2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) |
 | TC-17 Escalation chain | Quarterly + per-high-severity | IRM Analyst + CCO | CISO, GC | 7 years | FINRA 3110, NYDFS 500.17 (72h), Reg S-P (72h) |
@@ -399,7 +399,7 @@ Get-InsiderRiskPolicy | Where-Object { $_.Name -like '*Agent*' -or $_.TemplateNa
 
 #### Regulatory tie-in
 
-FINRA 25-07 (RFC; AI/LLM supervision) · OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) (agent = model surface) · [Control 1.6](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) · [Control 2.26](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) · [Control 3.1](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md).
+FINRA RN 24-09 + Rule 3110 (Gen AI supervision) · OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) (agent = model surface) · [Control 1.6](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) · [Control 2.26](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) · [Control 3.1](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md).
 
 > **Sovereign note.** Verify Risky Agents availability against current Microsoft Learn for the target sovereign cloud each cycle. Where the template is `NotApplicable`, route to TC-20.
 
@@ -450,7 +450,7 @@ $edgeForce = $profiles | Where-Object { $_.AdditionalProperties.omaSettings -mat
 
 #### Regulatory tie-in
 
-FINRA 25-07 (RFC; AI-generated communications) · GLBA 501(b) (data-leak channel) · [Control 1.6](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) · [Control 1.13](../../../controls/pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition.md).
+FINRA RN 24-09 + Rule 2210 (AI-generated communications) · GLBA 501(b) (data-leak channel) · [Control 1.6](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) · [Control 1.13](../../../controls/pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition.md).
 
 ---
 
@@ -814,7 +814,7 @@ State employee-monitoring statutes (CT §31-48d, DE Title 19 §705, NY Civil Rig
 
 1. Security Copilot portal → confirm SCU allocation ≥ firm-defined floor (record exact allocation; not Microsoft-mandated).
 2. IRM → Triage Agent → confirm `Status = Healthy`, `LastConfigRefreshUtc` ≤ 90 days ago, `LastAuthRefreshUtc` ≤ 90 days ago.
-3. Pull a 30-day sample of agent-triaged alerts; confirm each agent-recommendation has a corresponding analyst review-and-disposition record (the agent is **decision-support**, not the supervisory decision-maker — see FINRA 25-07 RFC).
+3. Pull a 30-day sample of agent-triaged alerts; confirm each agent-recommendation has a corresponding analyst review-and-disposition record (the agent is **decision-support**, not the supervisory decision-maker — see FINRA RN 24-09 and FINRA Rule 3110).
 4. Sample 5% of agent recommendations for analyst-level fidelity review (false-positive / false-negative scoring) per OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) ongoing model monitoring.
 
 #### Expected
@@ -836,7 +836,7 @@ State employee-monitoring statutes (CT §31-48d, DE Title 19 §705, NY Civil Rig
 
 #### Regulatory tie-in
 
-OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) (model risk; Triage Agent is a decision-support model surface) · FINRA 25-07 (RFC) · [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md).
+OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) (model risk; Triage Agent is a decision-support model surface) · FINRA RN 24-09 + Rule 3110 · [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md).
 
 > **Sovereign note.** Triage Agent / Security Copilot has limited sovereign availability. Where unavailable, route to TC-20.
 
@@ -1266,8 +1266,8 @@ FINRA 4511 · SEC 17a-4(f) · Reg S-P · OCC examination expectations · NYDFS 5
 | TC-1 | `tc01-ual-state.json` (+ `.sha256`) | WORM | 7 years | FINRA 4511 · SEC 17a-4(f) |
 | TC-2 | `tc02-roles.json`, `tc02-sod.json` | WORM | 7 years | FINRA 3110 · SOX 404 · NYDFS 500.07 |
 | TC-3 | `tc03-indicators-export.csv`, `tc03-indicators-diff.json`, `tc03-attestation.pdf` | WORM | 7 years | FINRA 3110 · OCC Bulletin 2026-13 (formerly OCC 2011-12) |
-| TC-4 | `tc04-risky-agents-policy.json`, `tc04-agent-reconciliation.csv` | WORM | 7 years | FINRA 25-07 (RFC) · OCC Bulletin 2026-13 (formerly OCC 2011-12) |
-| TC-5 | `tc05-policy.json`, `tc05-extension-coverage.csv`, `tc05-walkthrough-alert.json` | WORM | 7 years | FINRA 25-07 (RFC) · GLBA 501(b) |
+| TC-4 | `tc04-risky-agents-policy.json`, `tc04-agent-reconciliation.csv` | WORM | 7 years | FINRA RN 24-09 · OCC Bulletin 2026-13 (formerly OCC 2011-12) |
+| TC-5 | `tc05-policy.json`, `tc05-extension-coverage.csv`, `tc05-walkthrough-alert.json` | WORM | 7 years | FINRA RN 24-09 · GLBA 501(b) |
 | TC-6 | `tc06-hr-connector.json`, `tc06-hr-vs-irm-drift.csv` | WORM | 7 years | FINRA 3110 · Reg S-P 2024 · GLBA 501(b) |
 | TC-7 | `tc07-priority-groups.json`, `tc07-priority-policy.json` | WORM | 7 years | FINRA 3110 · GLBA 501(b) · Reg S-P |
 | TC-8 | `tc08-mde-connector.json` (+ coverage + correlation CSVs) | WORM | 7 years | FFIEC · NYDFS 500.06 |
@@ -1276,7 +1276,7 @@ FINRA 4511 · SEC 17a-4(f) · Reg S-P · OCC examination expectations · NYDFS 5
 | TC-11 | `tc11-risky-users.json`, `tc11-correlation.csv` | WORM | 7 years | NYDFS 500.06 / 500.12 |
 | TC-12 | `tc12-fe-quarterly.json`, `tc12-fe-per-capture-{caseId}.json`, `tc12-fe-decision-{caseId}.json` | WORM (+ legal-hold preservation where applicable) | Per legal hold; else 7 years for **decision metadata** | SEC 17a-4(b) · FINRA 4511 · GLBA 501(b) · State monitoring statutes |
 | TC-13 | `tc13-jurisdiction-matrix.yaml`, `tc13-attestation-{year}.pdf` | WORM | 7 years | State monitoring statutes · GLBA 501(b) |
-| TC-14 | `tc14-triage-state.json`, `tc14-fidelity-sample.csv`, `tc14-attestation.pdf` | WORM | 7 years | OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) · FINRA 25-07 (RFC) |
+| TC-14 | `tc14-triage-state.json`, `tc14-fidelity-sample.csv`, `tc14-attestation.pdf` | WORM | 7 years | OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) · FINRA RN 24-09 |
 | TC-15 | `tc15-adaptive-bindings.json`, sample-set CSV, sovereign-exception record | WORM | 7 years | OCC Bulletin 2026-13 (formerly OCC 2011-12) · GLBA 501(b) |
 | TC-16 | `tc16-cc-irm-correlation.csv`, `tc16-supervisory-tieout.csv` | WORM | 7 years | FINRA 3110 · FINRA 4511 |
 | TC-17 | `tc17-escalation-sample.csv`, `tc17-tabletop-{quarter}.pdf` | WORM | 7 years | NYDFS 500.17(a) · Reg S-P 2024 · FINRA 3110 |
@@ -1536,7 +1536,7 @@ AfterAll {
 | FINRA Rule 3110 (Supervision) | TC-2, TC-3, TC-6, TC-7, TC-9, TC-16, TC-17 |
 | FINRA Rule 4511 (Books and Records) | TC-1, TC-10, TC-12, TC-16, TC-20, TC-22 |
 | FINRA Regulatory Notice 21-18 | TC-1, TC-12, TC-22 (cloud-hosted records stewardship context) |
-| FINRA Regulatory Notice 25-07 (RFC) | TC-4, TC-5, TC-14, TC-16 (AI-supervision context; not yet binding) |
+| FINRA RN 25-07 (RFC) | TC-4, TC-5, TC-14, TC-16 (AI-supervision context; not yet binding) |
 | SEC Rule 17a-3 / 17a-4 | TC-1, TC-12, TC-22 |
 | SEC Reg S-P (2024 amendments) | TC-6, TC-7, TC-9, TC-17, TC-18, TC-22 |
 | GLBA §501(b) (Safeguards Rule) | TC-5, TC-6, TC-7, TC-9, TC-10, TC-13, TC-15, TC-18 |

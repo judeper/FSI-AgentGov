@@ -41,7 +41,7 @@
     | SharePoint grounding-source inventory and oversharing remediation | [Control 4.6 — Grounding Scope Governance](../../../controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md) and [Control 4.7 — Microsoft 365 Copilot Data Governance](../../../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) |
 
 !!! warning "Hedged-language reminder"
-    Maintaining this inventory **helps support compliance with** FINRA Rule 4511 (books-and-records), FINRA Regulatory Notice 25-07 (AI/predictive-analytics supervision), SEC Rule 17a-3(a)(17) and 17a-4(b)(4) (six-year preservation), SOX Sections 302/404 (internal control over financial reporting), GLBA 501(b) (administrative safeguards inventory), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7) (model inventory and ongoing monitoring), CFTC Rule 1.31 (recordkeeping), NYDFS 23 NYCRR Part 500.13 / 500.16 / 500.17 (asset inventory and incident response), NIST AI RMF GOVERN 1.6, and FTC Safeguards Rule 16 CFR §314. It does **not** by itself satisfy any obligation. Inventory completeness, attestation timeliness, owner accountability, and evidence integrity are operational disciplines — not one-click settings.
+    Maintaining this inventory **helps support compliance with** FINRA Rule 4511 (books-and-records), FINRA RN 24-09 / Rule 3110 (AI/predictive-analytics supervision), SEC Rule 17a-3(a)(17) and 17a-4(b)(4) (six-year preservation), SOX Sections 302/404 (internal control over financial reporting), GLBA 501(b) (administrative safeguards inventory), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7) (model inventory and ongoing monitoring), CFTC Rule 1.31 (recordkeeping), NYDFS 23 NYCRR Part 500.13 / 500.16 / 500.17 (asset inventory and incident response), NIST AI RMF GOVERN 1.6, and FTC Safeguards Rule 16 CFR §314. It does **not** by itself satisfy any obligation. Inventory completeness, attestation timeliness, owner accountability, and evidence integrity are operational disciplines — not one-click settings.
 
     **Prohibited overclaims for this control** (do not write into your WSP, attestation memo, or examiner cover letter): *"complete inventory", "real-time discoverability", "guarantees agent visibility", "single pane of glass", "ensures lineage", "automatic enrollment", "zero shadow AI", "zero blind spots", "eliminates orphan risk", "will prevent unauthorized agents".*
 
@@ -186,7 +186,7 @@ This single authoritative table is the contract every other Pillar 3 control ref
 | **Business Justification** | text | All zones | Manual; register list | At promotion + on material change | "Documented business purpose" | Non-null; ≥ 100 characters; references approving committee minute or change ticket |
 | **Zone** | enum {1, 2, 3} | All zones | Manual classification per Control 2.1 + Control 1.2 | At promotion; reviewed quarterly | "Governance zone" | Must reconcile with environment Managed-Environment classification |
 | **Data Classification** | enum {Public, Internal, Confidential, Highly Confidential / NPI / MNPI} | All zones | Sensitivity-label propagation per Control 1.13 | At promotion + on grounding-source change | "Data sensitivity" | Must reconcile with §9 Sensitivity-label inheritance check; defaults to **highest** label across grounding sources |
-| **Regulatory Scope** | multi-enum {FINRA 4511, SEC 17a-3/4, SOX 404, GLBA 501(b), OCC Bulletin 2026-13 (formerly OCC 2011-12), Fed SR 26-2 (formerly SR 11-7), NYDFS 500, CFTC 1.31, Reg BI, Reg S-P, BSA/AML, FINRA 25-07} | All zones | Manual at promotion | At promotion + on regulatory change | "Regulations the agent's outputs may touch" | At least one entry for any Zone 3 customer-facing or recordkeeping-scope agent |
+| **Regulatory Scope** | multi-enum {FINRA 4511, SEC 17a-3/4, SOX 404, GLBA 501(b), OCC Bulletin 2026-13 (formerly OCC 2011-12), Fed SR 26-2 (formerly SR 11-7), NYDFS 500, CFTC 1.31, Reg BI, Reg S-P, BSA/AML, FINRA RN 24-09} | All zones | Manual at promotion | At promotion + on regulatory change | "Regulations the agent's outputs may touch" | At least one entry for any Zone 3 customer-facing or recordkeeping-scope agent |
 | **Approval Records** | URL list (SharePoint document IDs / change tickets) | Zone 2 + Zone 3 | Manual at promotion | At promotion | "Approval evidence pack" | At least one record per zone-required signer |
 | **Lifecycle State** | enum {Draft, In Review, Approved, Active, Deprecated, Decommissioned} | All zones | Register list (canonical); source surface (advisory) | On state change | "Current lifecycle state" | Transitions logged with author UPN + timestamp; canonical state lives in the register, **not** in the source surface |
 | **Last Reviewed** | date | All zones | Register list | At each attestation | "Last attestation date" | ≤ 90 days for Zone 3; ≤ 180 days Zone 2; ≤ 365 days Zone 1 |
@@ -290,7 +290,7 @@ Use only the framework's canonical role names from `docs/reference/role-catalog.
 | **Designated Supervisor / Registered Principal** | FINRA Rule 3110 supervisory sign-off on examiner pull | Cross-surface | Named per WSP |
 | **CISO observer** | Sovereign-cloud determination; sign-off on shadow-AI register | Tenant-wide | Standing |
 
-**Separation-of-duties rule:** A single human MUST NOT hold both **Owner** of an agent and **AI Governance Lead** sign-off on the attestation for that agent — collapsing those roles undermines the FINRA 3110 supervisory-independence defense and the FINRA 25-07 governance posture.
+**Separation-of-duties rule:** A single human MUST NOT hold both **Owner** of an agent and **AI Governance Lead** sign-off on the attestation for that agent — collapsing those roles undermines the FINRA 3110 supervisory-independence defense and the FINRA RN 24-09 + Rule 3110 governance posture.
 
 **Sign-off:** AI Governance Lead countersigns `3.1-PRE-02-role-gate-{YYYY-MM-DD}.pdf`.
 
@@ -1048,7 +1048,7 @@ Each anti-pattern below has been observed in FSI tenants. Detection is part of t
 ### 15.5 The "self-attest" anti-pattern
 
 **Pattern:** The same human signs as both Owner and AI Governance Lead for the same register row.
-**Why it fails:** Defeats SoD; defeats FINRA 3110 supervisory independence; defeats FINRA 25-07 governance posture.
+**Why it fails:** Defeats SoD; defeats FINRA 3110 supervisory independence; defeats FINRA RN 24-09 + Rule 3110 governance posture.
 **Fix:** Enforced by the §12.2 SoD rule; flagged at attestation.
 
 ### 15.6 The "annual-only" anti-pattern

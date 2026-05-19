@@ -53,7 +53,7 @@
     | Incident reporting and RCA workflow after Sentinel raises an incident | [Control 3.4](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) |
     | Orphaned-agent identification and remediation cascade | [Control 3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) |
 
-    **FINRA Notice 25-07** is cited in this walkthrough as **contextual industry consultation only**. It is an RFC and does **not** create binding obligations; sections that reference it are for forward-looking program planning, not compliance attestation.
+    **FINRA RN 25-07** is cited in this walkthrough as **contextual industry consultation only**. It is an RFC and does **not** create binding obligations; sections that reference it are for forward-looking program planning, not compliance attestation.
 
     **CISA BOD 22-09** is cited as an **informative event-logging benchmark**. It is a Binding Operational Directive that applies to **federal civilian agencies**, not to private-sector financial-services firms; its EL1 / EL2 / EL3 maturity tiers are useful as a maturity yardstick for FSI logging programs but are not regulatory requirements for FSI.
 

@@ -13,7 +13,7 @@
 
 ## §1 — FSI Incident Handling — READ THIS FIRST
 
-A confirmed grounding-scope failure is, by default, treated as a potential **NY DFS 23 NYCRR 500 §500.17(a)** cybersecurity event, a potential **SEC Regulation S-P §248.30(a)(4)** customer-notification event (where customer NPI is implicated), a **FINRA Rule 4511 / SEC 17a-4(f)** books-and-records integrity event, and — where the agent involved is in scope of the firm's supervisory program — a **FINRA Rule 3110 / FINRA 25-07** AI-supervision event. Engineering does not make any reportability decision. Engineering's job is to (a) preserve evidence, (b) put compensating controls in place, (c) escalate to Compliance, Legal, Privacy, and the CISO per the matrix below.
+A confirmed grounding-scope failure is, by default, treated as a potential **NY DFS 23 NYCRR 500 §500.17(a)** cybersecurity event, a potential **SEC Regulation S-P §248.30(a)(4)** customer-notification event (where customer NPI is implicated), a **FINRA Rule 4511 / SEC 17a-4(f)** books-and-records integrity event, and — where the agent involved is in scope of the firm's supervisory program — a **FINRA Rule 3110 / FINRA RN 24-09** AI-supervision event. Engineering does not make any reportability decision. Engineering's job is to (a) preserve evidence, (b) put compensating controls in place, (c) escalate to Compliance, Legal, Privacy, and the CISO per the matrix below.
 
 ### 1.1 Severity matrix — grounding-scope events
 
@@ -32,7 +32,7 @@ A confirmed grounding-scope failure is, by default, treated as a potential **NY 
 |---|---|---|
 | Customer NPI / PII surfaced via Copilot grounding | Privacy Officer + General Counsel | **GLBA 501(b)**; **SEC Regulation S-P §248.30(a)(4)** customer-notification (30 days from determination of misuse / reasonable likelihood of misuse) |
 | Cybersecurity event materially affecting normal operations OR involving NPI of a NY-resident consumer | CISO + General Counsel | **NY DFS 23 NYCRR 500 §500.17(a)** — 72-hour Superintendent notification (clock starts at **determination**, not first alert) |
-| Loss of supervisory visibility on AI-surfaced communications (e.g., grounding scope drifted such that Communication Compliance no longer covers the surface) | Compliance Officer | **FINRA Rule 3110** supervisory system; **FINRA Notice 25-07** AI / agent supervision reminder |
+| Loss of supervisory visibility on AI-surfaced communications (e.g., grounding scope drifted such that Communication Compliance no longer covers the surface) | Compliance Officer | **FINRA Rule 3110** supervisory system; **FINRA RN 24-09 / Rule 3110** AI / agent supervision reminder |
 | Books-and-records gap (RCD or RSS change not auditable; grounding-scope change not retained) | Compliance Officer + General Counsel | **FINRA Rule 4511** / **SEC 17a-4(f)** books-and-records integrity |
 | Insider misconduct using Copilot to bypass a known RCD scope | HR + General Counsel + Compliance Officer | **FINRA Rule 4530(b)** disclosure obligations; firm misconduct reporting |
 | Records event affecting covered swap / trading content | Compliance Officer | **CFTC Rule 1.31** record retention |
@@ -620,7 +620,7 @@ Subject: Microsoft 365 Copilot grounding-scope event — [date]
 
 2. Possible regulatory exposure (§1.2 reportability triage; Legal owns determination)
    - FINRA Rule 3110 supervisory system: [yes / unclear / no]
-   - FINRA Notice 25-07 AI / agent supervision: [contextual]
+   - FINRA RN 24-09 / Rule 3110 AI / agent supervision
    - FINRA Rule 4511 / SEC 17a-4(f) books-and-records integrity: [yes / unclear / no]
    - GLBA 501(b) / SEC Reg S-P §248.30(a)(4): [if customer NPI in scope; 30-day customer-notification timeline]
    - SOX §302 / §404 ICFR: [if financial-disclosure-adjacent]

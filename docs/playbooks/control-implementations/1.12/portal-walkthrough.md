@@ -6,7 +6,7 @@
 **Cloud coverage:** Commercial · GCC · GCC High · DoD (see sovereign cloud table — **HARD GAPS exist for FSI Government-cloud tenants**)
 **Estimated Time:** 8–16 hours (excludes analytics processing windows of up to 48 hours, HR connector first-ingest cycle, and pilot validation)
 
-> This playbook provides portal configuration guidance for [Control 1.12](../../../controls/pillar-1-security/1.12-insider-risk-detection-and-response.md). It is written to support compliance with FINRA Rule 3110 (supervision), FINRA 25-07 (AI agent supervision), GLBA 501(b) (safeguards), SOX 404 (internal controls), SEC Rule 17a-4 (record retention — see boundary note), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), and NYDFS 23 NYCRR 500 §500.17(a). Insider Risk Management (IRM) is a **detect / investigate / act** surface. By itself it does not satisfy any single regulatory obligation — durable records retention is implemented separately under [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md), and incident handling is governed by your firm's Written Supervisory Procedures (WSP) and the FSI Incident Handling section of the Control 1.12 troubleshooting playbook.
+> This playbook provides portal configuration guidance for [Control 1.12](../../../controls/pillar-1-security/1.12-insider-risk-detection-and-response.md). It is written to support compliance with FINRA Rule 3110 (supervision), FINRA Regulatory Notice 24-09 (Gen AI guidance for AI agent supervision), GLBA 501(b) (safeguards), SOX 404 (internal controls), SEC Rule 17a-4 (record retention — see boundary note), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), and NYDFS 23 NYCRR 500 §500.17(a). Insider Risk Management (IRM) is a **detect / investigate / act** surface. By itself it does not satisfy any single regulatory obligation — durable records retention is implemented separately under [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md), and incident handling is governed by your firm's Written Supervisory Procedures (WSP) and the FSI Incident Handling section of the Control 1.12 troubleshooting playbook.
 
 ---
 
@@ -919,7 +919,7 @@ Document any cross-product policies in both control evidence packs (Control 1.10
 
 ### Integration with DSPM for AI (Control 1.6)
 
-DSPM for AI provides the visibility plane for AI prompts, sensitive-prompt classifiers, and unprotected grounding sources. IRM provides the **scoring and case workflow** for risky AI usage. The two are designed to be used together for FSI Copilot supervision under FINRA 25-07. See [Control 1.6](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md).
+DSPM for AI provides the visibility plane for AI prompts, sensitive-prompt classifiers, and unprotected grounding sources. IRM provides the **scoring and case workflow** for risky AI usage. The two are designed to be used together for FSI Copilot supervision under FINRA RN 24-09 + Rule 3110. See [Control 1.6](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md).
 
 ### Triage Agent (Security Copilot–powered IRM triage)
 

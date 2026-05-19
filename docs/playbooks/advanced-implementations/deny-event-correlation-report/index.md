@@ -142,7 +142,7 @@ Copilot Studio agents configured with Application Insights log `ContentFiltered`
 |------------|-------------|------------------------|
 | **FINRA 3110** | AI supervision evidence | Daily evidence of controls actively blocking inappropriate content |
 | **FINRA 4511** | Records retention | Deny events exported to compliant storage with zone-based retention |
-| **FINRA 25-07** | Communications recordkeeping | Automated deny event monitoring supports recordkeeping oversight |
+| **FINRA RN 24-09 / Rule 3110** | Communications recordkeeping | Automated deny event monitoring supports recordkeeping oversight |
 | **SEC 17a-3/4** | Supervision evidence | Shows AI agent behavior is monitored and controlled |
 | **SOX 302/404** | Internal controls | Correlation engine provides evidence of functioning internal controls |
 | **GLBA 501(b)** | Safeguards evidence | DLP blocking demonstrates NPI protection |

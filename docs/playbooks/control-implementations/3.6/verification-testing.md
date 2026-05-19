@@ -12,7 +12,7 @@
 
 This playbook is the verification-and-testing artifact for [Control 3.6 — Orphaned Agent Detection and Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md). It is authored against framework version v1.4 and cites Microsoft UI and API surfaces as last verified in April 2026.
 
-- **Hedged regulatory language.** This playbook supports compliance with FINRA Rule 3110 (Supervision), FINRA Rule 4511 (Books and Records), FINRA Regulatory Notice 25-07 (Generative-AI Supervision), SEC Rules 17a-3 / 17a-4 (Records and Retention), SOX Sections 302 / 404 (Internal Control over Financial Reporting), GLBA §501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7) (Model Risk Management), CFTC Regulation 1.31, and NYDFS 23 NYCRR Part 500. A clean execution **does not guarantee** compliance, **does not replace** written supervisory procedures, and **supports — does not replace — registered-principal supervisory review under FINRA Rule 3110**. Implementation requires organization-specific risk assessment and legal review. Organizations should verify current Microsoft Learn documentation, sovereign-cloud feature parity, and tenant entitlements at each cycle.
+- **Hedged regulatory language.** This playbook supports compliance with FINRA Rule 3110 (Supervision), FINRA Rule 4511 (Books and Records), FINRA RN 24-09 / Rule 3110 (Generative-AI Supervision), SEC Rules 17a-3 / 17a-4 (Records and Retention), SOX Sections 302 / 404 (Internal Control over Financial Reporting), GLBA §501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7) (Model Risk Management), CFTC Regulation 1.31, and NYDFS 23 NYCRR Part 500. A clean execution **does not guarantee** compliance, **does not replace** written supervisory procedures, and **supports — does not replace — registered-principal supervisory review under FINRA Rule 3110**. Implementation requires organization-specific risk assessment and legal review. Organizations should verify current Microsoft Learn documentation, sovereign-cloud feature parity, and tenant entitlements at each cycle.
 - **Canonical role names.** AI Administrator, Power Platform Admin, Entra Agent ID Admin, Entra Identity Governance Admin, Entra Global Reader, AI Governance Lead, Compliance Officer, Purview Compliance Admin, HR / People Operations. No title substitution (for example, "Global Administrator" is not a substitute for "Entra Global Admin").
 - **Terminology.** The framework term is **orphaned agent** (five loss-of-accountability categories — see the control document); Microsoft surface terminology is **ownerless agent** (narrow definition — owner principal unset). Every ownerless agent is an orphaned agent; not every orphaned agent is ownerless.
 - **Backtick rule.** Code identifiers are fenced with backticks in body text but not inside headings. Where a heading references `(GCC / GCC High / DoD)`, the anchor slug is `gcc-gcc-high-dod` (no parentheses).
@@ -220,7 +220,7 @@ Field semantics (abbreviated where identical to peer controls):
 |---|---|
 | `FINRA-3110` | FINRA Rule 3110 (Supervision) |
 | `FINRA-4511` | FINRA Rule 4511 (Books and Records) |
-| `FINRA-25-07` | FINRA Regulatory Notice 25-07 (Generative-AI Supervision) |
+| `FINRA-25-07` | FINRA RN 24-09 / Rule 3110 (Generative-AI Supervision) |
 | `SEC-17a-3` | SEC Rule 17a-3 (Records to be Made) |
 | `SEC-17a-4` | SEC Rule 17a-4 (Records Retention; WORM requirement) |
 | `SOX-302` | Sarbanes-Oxley §302 (Management Certification) |
@@ -372,7 +372,7 @@ Describe "AGT36-DETECT" -Tag 'Control3.6','VC-1' {
 | Regulator | Specifically supported by VC-1 |
 |---|---|
 | FINRA Rule 4511 / SEC 17a-3 | Continuous capture of identity-and-accountability change events for AI-enabled business activity |
-| FINRA Notice 25-07 | Documented periodic monitoring of generative-AI inventory accountability |
+| FINRA RN 24-09 / Rule 3110 | Documented periodic monitoring of generative-AI inventory accountability |
 | SOX §404 | Operating effectiveness of the detection control over financial-reporting-relevant agents |
 | NYDFS Part 500 | Documented monitoring activity on technology assets |
 | Federal Reserve SR 26-2 (formerly SR 11-7) | Ongoing model-risk monitoring on identity-bound model assets |
@@ -1702,7 +1702,7 @@ If any dependency is in WARN or FAIL for the quarter, the 3.6 attestation must d
 
 - FINRA Rule 3110 (Supervision) — fi(n)ra.org/rules/3110
 - FINRA Rule 4511 (Books and Records) — finra.org/rules/4511
-- FINRA Regulatory Notice 25-07 (Generative-AI Supervision)
+- FINRA RN 24-09 / Rule 3110 (Generative-AI Supervision)
 - SEC Rule 17a-3 (Records to be Made)
 - SEC Rule 17a-4 (Records Retention; WORM)
 - Sarbanes-Oxley Act §302, §404

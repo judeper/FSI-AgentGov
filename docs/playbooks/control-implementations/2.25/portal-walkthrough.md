@@ -33,7 +33,7 @@
     | Common errors, missing blades, console behavior anomalies, and remediation steps | [`./troubleshooting.md`](./troubleshooting.md) |
 
 !!! warning "Hedged-Language Reminder"
-    This playbook helps your organization **support compliance with** FINRA Rule 3110 (Supervision), FINRA Rule 4511 (Books and Records), FINRA Regulatory Notice 25-07 (AI Tools), SEC Rules 17a-3 / 17a-4 (Recordkeeping), SOX Sections 302/404 (Internal Controls), GLBA 501(b) (Safeguards Rule), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (Technology Risk Management), and NYDFS 23 NYCRR 500 (Cybersecurity). It does **not** by itself guarantee any regulatory outcome and **does not substitute for** the firm's obligation to assign an appropriately registered principal where Rule 3110 requires registered supervisory responsibility. Implementation requires Agent 365 licensing (Microsoft 365 E7 "Frontier Suite" or standalone Agent 365 layered on Microsoft 365 Copilot), validated change-control procedures, and independent testing by your compliance function. Organizations should verify all configurations against their own examination workpapers and legal counsel before treating these procedures as adequate evidence.
+    This playbook helps your organization **support compliance with** FINRA Rule 3110 (Supervision), FINRA Rule 4511 (Books and Records), FINRA RN 24-09 / Rule 3110 (AI Tools), SEC Rules 17a-3 / 17a-4 (Recordkeeping), SOX Sections 302/404 (Internal Controls), GLBA 501(b) (Safeguards Rule), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (Technology Risk Management), and NYDFS 23 NYCRR 500 (Cybersecurity). It does **not** by itself guarantee any regulatory outcome and **does not substitute for** the firm's obligation to assign an appropriately registered principal where Rule 3110 requires registered supervisory responsibility. Implementation requires Agent 365 licensing (Microsoft 365 E7 "Frontier Suite" or standalone Agent 365 layered on Microsoft 365 Copilot), validated change-control procedures, and independent testing by your compliance function. Organizations should verify all configurations against their own examination workpapers and legal counsel before treating these procedures as adequate evidence.
 
 !!! info "Generally Available — May 1, 2026"
     Microsoft Agent 365 reached **general availability on May 1, 2026**. Licensing options:
@@ -323,7 +323,7 @@ The Agent 365 Overview dashboard is the daily entry point for governance staff. 
     |---|---|
     | Artifact produced | Weekly (Zone 2) / daily (Zone 3) governance session minutes; Pending Requests aging report; Ownerless Agents remediation log |
     | Retention duration | 6 years (SEC 17a-4 / FINRA 4511) on Purview record label |
-    | Regulatory mapping | FINRA 3110 (supervision), FINRA Regulatory Notice 25-07 (AI tools governance), SOX §404 (control operation) |
+    | Regulatory mapping | FINRA 3110 (supervision), FINRA RN 24-09 / Rule 3110 (AI tools governance), SOX §404 (control operation) |
 
 ### 3.4 Agent Runtime trend chart
 
@@ -468,7 +468,7 @@ For Zone 3 agents (typically those with access to MNPI, customer financial data,
     |---|---|
     | Artifact produced | Agent 365 approval history entry (timestamp, approver UPN, template applied, decision comment with ticket ID); change-management ticket with Compliance Officer / Information Security Officer concurrence for Zone 3 |
     | Retention duration | 6 years (SEC 17a-4 / FINRA 4511) |
-    | Regulatory mapping | FINRA 3110 (supervision), FINRA 4511 (books and records), FINRA Regulatory Notice 25-07 (AI tools governance), SOX §302/§404 (internal controls), OCC Bulletin 2026-13 (formerly OCC 2011-12) (technology risk), NYDFS 23 NYCRR 500 |
+    | Regulatory mapping | FINRA 3110 (supervision), FINRA 4511 (books and records), FINRA RN 24-09 / Rule 3110 (AI tools governance), SOX §302/§404 (internal controls), OCC Bulletin 2026-13 (formerly OCC 2011-12) (technology risk), NYDFS 23 NYCRR 500 |
 
 For PowerShell automation of bulk publishing approvals (scripted reviews against a documented allowlist) and approval-history extraction, see [`./powershell-setup.md`](./powershell-setup.md). For end-to-end test cases including a deliberate misconfiguration to validate that the workflow rejects it, see [`./verification-testing.md`](./verification-testing.md). For common publishing wizard errors (missing template selection, owner UPN resolution failures, audience scope conflicts), see [`./troubleshooting.md`](./troubleshooting.md).
 
@@ -736,7 +736,7 @@ Researcher with Computer Use is generally available since **October 2025** for t
 *Screenshot anchor: docs/images/2.25/EXPECTED.md#10-1-researcher-cu-landing — Integrated Apps → Agents → Researcher → Computer Use configuration page.*
 
 !!! warning "Default-On Behavior — Make an Affirmative Decision"
-    Computer Use is generally enabled for tenants with Copilot licensing unless explicitly disabled by an admin. **Do not leave the configuration in the default-on state without a recorded decision.** A recorded affirmative-restrictive decision is itself the evidence examiners will request — the absence of a recorded decision is a finding under FINRA Regulatory Notice 25-07 and OCC Bulletin 2026-13 (formerly OCC 2011-12) (third-party technology risk).
+    Computer Use is generally enabled for tenants with Copilot licensing unless explicitly disabled by an admin. **Do not leave the configuration in the default-on state without a recorded decision.** A recorded affirmative-restrictive decision is itself the evidence examiners will request — the absence of a recorded decision is a finding under FINRA RN 24-09 / Rule 3110 and OCC Bulletin 2026-13 (formerly OCC 2011-12) (third-party technology risk).
 
 ### 10.2 Configure Access scope
 
@@ -794,7 +794,7 @@ Researcher with Computer Use is generally available since **October 2025** for t
     |---|---|
     | Artifact produced | Saved configuration screenshot (dated); decision record in the AI governance policy with Access scope, Work data access state, Website Access policy, justification, change-management ticket ID, approver UPN; quarterly re-verification log |
     | Retention duration | 6 years (SEC 17a-4 / FINRA 4511) |
-    | Regulatory mapping | FINRA Regulatory Notice 25-07 (AI tools governance), OCC Bulletin 2026-13 (formerly OCC 2011-12) (technology risk — third-party retrieval), NYDFS 23 NYCRR 500 (data egress controls), GLBA 501(b) (safeguards) |
+    | Regulatory mapping | FINRA RN 24-09 / Rule 3110 (AI tools governance), OCC Bulletin 2026-13 (formerly OCC 2011-12) (technology risk — third-party retrieval), NYDFS 23 NYCRR 500 (data egress controls), GLBA 501(b) (safeguards) |
 
 For PowerShell automation of Researcher Computer Use configuration export and drift detection, see [`./powershell-setup.md`](./powershell-setup.md). For test cases that validate the allowlist enforcement against a deliberately blocked URL, see [`./verification-testing.md`](./verification-testing.md).
 
@@ -804,7 +804,7 @@ For PowerShell automation of Researcher Computer Use configuration export and dr
 
 **Verification Criterion evidenced:** VC-7 (analytics signals are reviewed on a documented cadence and feed the firm's AI risk register).
 
-Agent Analytics provides the trend signals governance staff use to detect anomalies, plan capacity, and respond to FINRA Regulatory Notice 25-07-style examination questions about adoption and exposure.
+Agent Analytics provides the trend signals governance staff use to detect anomalies, plan capacity, and respond to FINRA RN 24-09 / Rule 3110-style examination questions about adoption and exposure.
 
 ### 11.1 Open the Analytics blade
 
@@ -836,7 +836,7 @@ Agent Analytics provides the trend signals governance staff use to detect anomal
     |---|---|
     | Artifact produced | Quarterly screenshots of all three Analytics panels; correlation notes against §7 lifecycle actions for any anomalous spike or drop |
     | Retention duration | 6 years (SEC 17a-4 / FINRA 4511) |
-    | Regulatory mapping | FINRA Regulatory Notice 25-07 (AI adoption metrics), SOX §404 (control monitoring), NYDFS 23 NYCRR 500 (operational metrics) |
+    | Regulatory mapping | FINRA RN 24-09 / Rule 3110 (AI adoption metrics), SOX §404 (control monitoring), NYDFS 23 NYCRR 500 (operational metrics) |
 
 For PowerShell / Microsoft Graph extraction of analytics signals into the firm's SIEM or BI estate, see [`./powershell-setup.md`](./powershell-setup.md).
 
@@ -918,7 +918,7 @@ Examiners will ask the firm to demonstrate the supervisory chain for any AI agen
 | "Demonstrate retention of these records for the required horizon." | SharePoint records-management label configuration showing 6-year WORM lock; quarterly retention attestation log | §12.3, §12.4 |
 | "Produce the lifecycle history of this specific agent." | Agent detail flyout approval history; lifecycle action audit trail (Deploy / Pin / Block / Remove / Delete) | §4.3, §7 |
 
-### 13.3 FINRA Regulatory Notice 25-07 (AI Tools)
+### 13.3 FINRA RN 24-09 / Rule 3110 (AI Tools)
 
 | Examiner question | Evidence to produce | Source section |
 |---|---|---|

@@ -59,7 +59,7 @@
 | Canonical role names | Per [`docs/reference/role-catalog.md`](../../../reference/role-catalog.md). The canonical short names used in this playbook are **Power Platform Admin**, **Entra Global Admin**, **AI Administrator**, **Purview Compliance Admin**, **Entra Security Admin**, **Entra Global Reader**, **AI Governance Lead**, **Compliance Officer**, **Information Security Officer**, **Internal Audit Lead**, **Technology Risk Manager**, **Change Management Lead**. |
 | `protectionLevel` semantics | `protectionLevel = "Standard"` ⇒ Managed Environment **ENABLED**. `protectionLevel = "Basic"` (or absent) ⇒ **DISABLED / unmanaged**. Earlier versions of these playbooks had this inverted; pre-April-2026 evidence likely reports the opposite of reality and must be re-collected. |
 
-> This playbook **helps meet** recordkeeping, supervision, change-management, access-management, and oversight expectations under FINRA Rules 3110 and 4511, FINRA Regulatory Notice 25-07, SEC Rules 17a-3 / 17a-4, SOX §§ 302 / 404, GLBA § 501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), NYDFS 23 NYCRR 500.06, and the FFIEC IT Examination Handbook. It is one component of a defensible AI / low-code governance program; it does not replace a registered-principal designation, written supervisory procedures, model risk management practices, or the firm''s own legal review.
+> This playbook **helps meet** recordkeeping, supervision, change-management, access-management, and oversight expectations under FINRA Rules 3110 and 4511, FINRA RN 24-09 / Rule 3110, SEC Rules 17a-3 / 17a-4, SOX §§ 302 / 404, GLBA § 501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), NYDFS 23 NYCRR 500.06, and the FFIEC IT Examination Handbook. It is one component of a defensible AI / low-code governance program; it does not replace a registered-principal designation, written supervisory procedures, model risk management practices, or the firm''s own legal review.
 
 ---
 
@@ -226,7 +226,7 @@ Every evidence record produced by every TC MUST conform to this schema. The sche
 |---|---|
 | `FINRA-3110` | FINRA Rule 3110 (Supervision) |
 | `FINRA-4511` | FINRA Rule 4511 (Books and Records — General Requirements) |
-| `FINRA-25-07` | FINRA Regulatory Notice 25-07 (AI Tools — RFC, contextual) |
+| `FINRA-25-07` | FINRA RN 25-07 (AI Tools — RFC, contextual) |
 | `SEC-17a-3` | SEC Rule 17a-3 (Records to be Made) |
 | `SEC-17a-4` | SEC Rule 17a-4 (Records Retention) |
 | `SOX-302` | Sarbanes-Oxley Section 302 (Management Certification) |

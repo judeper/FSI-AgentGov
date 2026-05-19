@@ -58,7 +58,7 @@ Before beginning verification testing, prepare:
 
 **Objective:** Verify Critical reports trigger Control 3.4 incident creation and Compliance notification within 1 hour.
 
-**Regulatory Anchor:** FINRA Notice 25-07 (real-time supervision), SOX 302 (material misstatement escalation)
+**Regulatory Anchor:** FINRA RN 24-09 / Rule 3110 (real-time supervision), SOX 302 (material misstatement escalation)
 
 ### Test Steps
 
@@ -209,7 +209,7 @@ Run this checklist as part of the supervisory cadence and store the completed co
 | Item | Required For | Status |
 |------|--------------|--------|
 | CSAT enabled on all in-scope published agents | Quality management — FINRA 3110 | |
-| Hallucination taxonomy reviewed and approved by Compliance | Consistent categorization — FINRA 25-07 | |
+| Hallucination taxonomy reviewed and approved by Compliance | Consistent categorization — FINRA RN 24-09 + Rule 3110 | |
 | Tracking list operational with current schema | FINRA 3110 supervisory review | |
 | Purview retention label applied (6 years) | SEC 17a-4 record retention | |
 | Intake, SLA, and trend flows all enabled (no failed runs > 5%) | Process integrity | |

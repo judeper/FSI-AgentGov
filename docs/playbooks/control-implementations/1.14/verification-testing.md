@@ -14,7 +14,7 @@
 
 ## What this verification catches
 
-This playbook is designed to detect the following failure modes, each of which has been observed in FSI Microsoft 365 deployments and each of which carries a regulatory exposure under FINRA 4511, FINRA 3110, FINRA 25-07, SEC Reg S-P (2024 amendments), SEC 17a-3 / 17a-4, GLBA 501(b), SOX 404, OCC Bulletin 2026-13 (formerly OCC 2011-12), and CCPA §1798.100:
+This playbook is designed to detect the following failure modes, each of which has been observed in FSI Microsoft 365 deployments and each of which carries a regulatory exposure under FINRA 4511, FINRA 3110, FINRA RN 24-09, SEC Reg S-P (2024 amendments), SEC 17a-3 / 17a-4, GLBA 501(b), SOX 404, OCC Bulletin 2026-13 (formerly OCC 2011-12), and CCPA §1798.100:
 
 1. **Silent NPI grounding via site-rooted scope.** A Z3 customer-facing agent is pointed at a SharePoint site root (rather than a specific document library or folder), so newly added libraries containing NPI become groundable without any change-management event.
 2. **OAuth scope creep.** A connector authorization initially granted with a narrow scope (e.g., `Files.Read`) is silently broadened on re-consent (e.g., to `Files.ReadWrite.All` or `Sites.Read.All`) without re-approval and without a UAL `Consent to application` event being reviewed.
@@ -40,8 +40,8 @@ The cadence below is the minimum re-verification frequency per zone and per test
 | INV (per-agent data-access inventory) | Annual | Quarterly | Monthly | AI Governance Lead | Compliance Officer | GLBA 501(b), FINRA 4511 |
 | DLP (connector data loss prevention) | Annual | Quarterly | Monthly | Power Platform Admin | Information Protection Admin | FINRA 3110, GLBA 501(b) |
 | OAUTH (minimum scope, re-consent) | Annual | Quarterly | Monthly | Entra Identity Governance Admin | AI Governance Lead | GLBA 501(b), SEC Reg S-P |
-| SCOPE (knowledge source, SP groups, Dataverse roles) | Annual | Quarterly | Monthly | SharePoint Admin | AI Governance Lead | FINRA 4511, FINRA 25-07 |
-| DRIFT (provoke and detect scope drift) | n/a | Quarterly | Monthly | AI Governance Lead | CISO | FINRA 3110, FINRA 25-07 |
+| SCOPE (knowledge source, SP groups, Dataverse roles) | Annual | Quarterly | Monthly | SharePoint Admin | AI Governance Lead | FINRA 4511, FINRA RN 24-09, FINRA 3110 |
+| DRIFT (provoke and detect scope drift) | n/a | Quarterly | Monthly | AI Governance Lead | CISO | FINRA 3110, FINRA RN 24-09 |
 | APR (zone approval workflow, access review) | Annual | Quarterly | Monthly | Entra Identity Governance Admin | Compliance Officer | SOX 404, GLBA 501(b) |
 | AUDIT (UAL reconciliation) | Annual | Quarterly | Monthly | Audit Manager | Compliance Officer | FINRA 4511, SEC 17a-4 |
 | NEG (negative tests) | Annual | Semi-annual | Quarterly | AI Governance Lead | Audit Manager | Control validation |

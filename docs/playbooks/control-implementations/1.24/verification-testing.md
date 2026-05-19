@@ -4,7 +4,7 @@
 **Audience:** M365 administrators in US financial services
 **Test cadence:** Monthly (Z1) / Weekly (Z2) / Daily (Z3)
 
-> **Hedging note:** The procedures below help support evidence collection for OCC Bulletin 2026-13 (formerly OCC 2011-12), FINRA 25-07, and NIST AI RMF MEASURE function. They do not by themselves attest to control effectiveness — supervisory review and Model Risk Committee sign-off are also required.
+> **Hedging note:** The procedures below help support evidence collection for OCC Bulletin 2026-13 (formerly OCC 2011-12), FINRA RN 24-09 + Rule 3110, and NIST AI RMF MEASURE function. They do not by themselves attest to control effectiveness — supervisory review and Model Risk Committee sign-off are also required.
 
 ---
 

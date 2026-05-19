@@ -10,7 +10,7 @@
 
 ## Regulatory hedging notice
 
-This playbook helps support FSI organizations in meeting expectations from FINRA Rule 4511 (books and records), FINRA Regulatory Notice 25-07 (generative-AI supervision), SEC Rule 17a-4(b)(4) (records retention), SOX §§302/404 (internal control over financial reporting), GLBA Safeguards Rule 501(b), FTC Safeguards Rule 16 CFR §314, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7) (model risk management), CFTC Regulation 1.31, NYDFS 23 NYCRR Part 500.16 / 500.17, NIST AI RMF 1.0 GOVERN 1.6, and ISO/IEC 42001 where applicable.
+This playbook helps support FSI organizations in meeting expectations from FINRA Rule 4511 (books and records), FINRA RN 24-09 / Rule 3110 (generative-AI supervision), SEC Rule 17a-4(b)(4) (records retention), SOX §§302/404 (internal control over financial reporting), GLBA Safeguards Rule 501(b), FTC Safeguards Rule 16 CFR §314, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7) (model risk management), CFTC Regulation 1.31, NYDFS 23 NYCRR Part 500.16 / 500.17, NIST AI RMF 1.0 GOVERN 1.6, and ISO/IEC 42001 where applicable.
 
 A clean run of this playbook **does not guarantee legal or regulatory compliance**, does not replace independent validation, and does not substitute for written supervisory procedures. Implementation requires organization-specific risk assessment, legal review, and integration with the firm's broader compliance program. Organizations should verify current Microsoft Learn documentation, sovereign-cloud feature parity, and tenant-specific entitlements at each cycle. Cadence values, SLA windows, and reconciliation thresholds in this playbook are **calibrated to the tenant baseline captured in PRE-04**; they are not portable between tenants without recalibration.
 
@@ -1071,7 +1071,7 @@ The continuous-improvement loop is itself reviewed annually for effectiveness, a
 - **NIST AI Risk Management Framework 1.0**, GOVERN 1.6 — Mechanisms are in place to inventory AI systems and are resourced according to organizational risk priorities. https://www.nist.gov/itl/ai-risk-management-framework
 - **OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) — Updated Interagency Guidance on Model Risk Management** — Higher-risk model inventory expectations. https://www.occ.gov/news-issuances/bulletins/2026/bulletin-2026-13.html
 - **Federal Reserve SR 26-2 (formerly SR 11-7) — Guidance on Model Risk Management** — Companion guidance to OCC Bulletin 2026-13 (formerly OCC 2011-12). https://www.federalreserve.gov/supervisionreg/srletters/SR2602.htm
-- **FINRA Regulatory Notice 25-07 (March 2025)** — Generative-AI tool supervision; firms should be able to enumerate, supervise, and explain generative-AI use. https://www.finra.org/rules-guidance/notices/25-07
+- **FINRA RN 24-09 / Rule 3110 (March 2025)** — Generative-AI tool supervision; firms should be able to enumerate, supervise, and explain generative-AI use. https://www.finra.org/rules-guidance/notices/24-09
 - **FINRA Rule 4511** — Books and records general requirements.
 - **FINRA Rule 2210** — Communications with the public.
 - **FINRA Rule 3110** — Supervision.

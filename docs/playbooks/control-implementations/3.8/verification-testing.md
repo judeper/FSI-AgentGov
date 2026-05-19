@@ -24,7 +24,7 @@
 | 2 | Web search disabled per zone | Screenshot + behavioral test | GLBA 501(b), MNPI |
 | 3 | External AI providers and third-party LLMs blocked | Screenshot | FINRA 4511 |
 | 4 | Agent approval workflow active | Pending-requests export | FINRA 3110, SEC 17a-3 |
-| 5 | Monthly usage reports archived | Export + SHA-256 manifest | FINRA 4511, FINRA 25-07 |
+| 5 | Monthly usage reports archived | Export + SHA-256 manifest | FINRA 4511, FINRA RN 24-09, FINRA 3110 |
 | 6 | MCP Server allow-list reviewed | Screenshot + change ticket | SOX 404 |
 | 7 | Transcript access restricted to Compliance | Role export | FINRA 3110 |
 | 8 | Transcript retention ≥ 7 years | Purview retention policy | FINRA 4511, SEC 17a-4 |
@@ -149,7 +149,7 @@ Each test case includes an objective, prerequisites, steps, structured pass/fail
 
 **Evidence:** screenshot of Settings → Actions, screenshot of agent gallery, install attempt screenshot.
 
-**Regulatory mapping:** FINRA 4511, FINRA 25-07 (approved tools and systems).
+**Regulatory mapping:** FINRA 4511, FINRA RN 24-09 + Rule 3110 (approved tools and systems).
 
 ---
 

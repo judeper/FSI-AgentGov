@@ -258,7 +258,7 @@ Every test case writes to one or more retention tiers. The tiers are not interch
 | TC-6 | 36h determination worksheet; primary-federal-regulator submission template; bank-affiliate identification | Books-scope | 12 CFR 53 / 225 / 304 |
 | TC-7 | Reg S-P customer-notice template; Privacy Officer + Outside Counsel sign-off; SP-contract clause sample | Books-scope + Archive | SEC Reg S-P 17 CFR 248.30 (2024 amendments) |
 | TC-8 | FINRA 4530(a) Firm Gateway draft + AI-agent event mapping memo | Books-scope | FINRA Rule 4530(a) |
-| TC-9 | FINRA 4530(d) quarterly statistical with AI-agent-channel rollup | Books-scope | FINRA Rule 4530(d); FINRA Notice 25-07 |
+| TC-9 | FINRA 4530(d) quarterly statistical with AI-agent-channel rollup | Books-scope | FINRA Rule 4530(d); FINRA RN 24-09 / Rule 3110 |
 | TC-10 | FTC Safeguards Rule 30-day notice template; ≥500-consumer trigger evidence | Books-scope | GLBA 501(b); FTC 16 CFR 314.4(j) |
 | TC-11 | State-residency map; per-state notification templates; per-state clock-trace JSON | Books-scope + Archive | NY GBL 899-aa; CA CCPA/CPRA breach rules; MA 201 CMR 17; per-state |
 | TC-12 | CISA CIRCIA quarterly horizon-check log; Federal Register monitoring evidence | Archive | CISA CIRCIA (rulemaking pending) |
@@ -270,7 +270,7 @@ Every test case writes to one or more retention tiers. The tiers are not interch
 | TC-18 | Service Health correlation log per Sev-Critical/High; pre-RCA recorded check | Archive | FFIEC IT Handbook (correlation discipline) |
 | TC-19 | Sovereign manual register exercise; manual matrix exercise; dual signature | Archive + Books-scope | Sovereign-cloud parity gap compensating control |
 | TC-20 | Annual SOX 404 incident-program self-assessment; Audit Committee minute | Corporate-records + Books-scope | SOX §§ 302 / 404 |
-| TC-21 | Quarterly AI tabletop battery; after-action reports per scenario | Archive + Books-scope | FINRA 25-07; Fed SR 26-2 (formerly SR 11-7); NYDFS 500.16 |
+| TC-21 | Quarterly AI tabletop battery; after-action reports per scenario | Archive + Books-scope | FINRA RN 24-09 + Rule 3110; Fed SR 26-2 (formerly SR 11-7); NYDFS 500.16 |
 | TC-22 | Random sample (n≥25) of >6yr records per artifact category; retrievability log | Books-scope | SEC 17a-4(b)(4); FINRA 4511 |
 
 ---
@@ -609,7 +609,7 @@ SecurityAlert
 
 **Objective.** Demonstrate that the firm's quarterly 4530(d) statistical report of written customer complaints includes an AI-channel rollup distinguishing complaints arising from interactions with AI agents from other channels.
 
-**Regulatory anchor.** FINRA Rule 4530(d); FINRA Regulatory Notice 25-07 (AI-related supervisory expectations).
+**Regulatory anchor.** FINRA Rule 4530(d); FINRA RN 24-09 / Rule 3110 (AI-related supervisory expectations).
 
 **Setup.**
 
@@ -1073,7 +1073,7 @@ union SecurityAlert, SigninLogs, OfficeActivity, AIAgentSessions_CL
 
 **Objective.** Demonstrate that, each quarter, the firm runs the four AI-specific tabletop scenarios required by the parent control: prompt-injection exfiltration; hallucinated customer communication; runaway agent on stale context; orphaned-agent cascade.
 
-**Regulatory anchor.** FINRA Regulatory Notice 25-07; Fed SR 26-2 (formerly SR 11-7); NYDFS 23 NYCRR 500.16 (incident-response-plan testing).
+**Regulatory anchor.** FINRA RN 24-09 / Rule 3110; Fed SR 26-2 (formerly SR 11-7); NYDFS 23 NYCRR 500.16 (incident-response-plan testing).
 
 **Setup.**
 

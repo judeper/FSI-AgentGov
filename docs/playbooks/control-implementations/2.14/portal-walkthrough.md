@@ -5,7 +5,7 @@
 **Estimated Time:** 4–6 hours initial setup; ongoing curriculum maintenance
 
 !!! warning "Implementation requires policy decisions outside the portals"
-    Portal configuration alone does not satisfy FINRA Rule 3110(a)(7) or FINRA Regulatory Notice 25-07. Before configuring tooling, your firm should have approved: (1) the AI governance curriculum, (2) the role-to-training matrix, (3) the passing threshold and its rationale, (4) the retention period for training evidence, and (5) the escalation path for non-completion. This walkthrough covers the platform configuration; the program substance is the firm's responsibility.
+    Portal configuration alone does not satisfy FINRA Rule 3110(a)(7) or FINRA RN 24-09 / Rule 3110. Before configuring tooling, your firm should have approved: (1) the AI governance curriculum, (2) the role-to-training matrix, (3) the passing threshold and its rationale, (4) the retention period for training evidence, and (5) the escalation path for non-completion. This walkthrough covers the platform configuration; the program substance is the firm's responsibility.
 
 ---
 

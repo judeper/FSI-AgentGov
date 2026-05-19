@@ -9,7 +9,7 @@
 > **Last UI Verified:** April 2026 · **Sovereign clouds covered:** Commercial, GCC, GCC High, DoD (parity gaps called out inline)
 
 !!! warning "Non-Substitution"
-    Microsoft Purview Insider Risk Management *supports compliance with* FINRA Rule 3110(b) supervisory expectations, FINRA Rule 4511 / SEC Rule 17a-3 / 17a-4(b)(4) make-and-preserve obligations, FINRA Notice 25-07 (Request for Comment on the integration of generative-AI tools into firm supervision), SEC Regulation S-P §248.30 (post-2024 amendments), GLBA §501(b) Safeguards Rule, NYDFS 23 NYCRR 500 §§500.06 / .16 / .17, FFIEC IT Examination Handbook expectations, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), and Fed SR 26-2 (formerly SR 11-7) model risk management — but it **does not replace** those obligations or substitute for the firm's documented supervisory procedures, model risk governance, written information security program, or registered-principal review. Implementation requires written supervisory procedures (WSPs), documented SoD across IRM role groups, signed Compliance + Legal + HR + Privacy review of the policy posture, and continuous regulator-facing evidence preservation. Microsoft does not publish IRM investigation or alert-response SLAs; any response window stated in this playbook is a **firm-defined** supervisory commitment.
+    Microsoft Purview Insider Risk Management *supports compliance with* FINRA Rule 3110(b) supervisory expectations, FINRA Rule 4511 / SEC Rule 17a-3 / 17a-4(b)(4) make-and-preserve obligations, FINRA RN 24-09 / Rule 3110 (generative-AI supervision expectations), SEC Regulation S-P §248.30 (post-2024 amendments), GLBA §501(b) Safeguards Rule, NYDFS 23 NYCRR 500 §§500.06 / .16 / .17, FFIEC IT Examination Handbook expectations, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), and Fed SR 26-2 (formerly SR 11-7) model risk management — but it **does not replace** those obligations or substitute for the firm's documented supervisory procedures, model risk governance, written information security program, or registered-principal review. Implementation requires written supervisory procedures (WSPs), documented SoD across IRM role groups, signed Compliance + Legal + HR + Privacy review of the policy posture, and continuous regulator-facing evidence preservation. Microsoft does not publish IRM investigation or alert-response SLAs; any response window stated in this playbook is a **firm-defined** supervisory commitment.
 
 !!! warning "Sovereign Cloud Availability"
     Several IRM capabilities have **limited or lagging availability in US Government clouds (GCC, GCC High, DoD)** at the time of writing — most notably **Adaptive Protection**, **Forensic Evidence**, **Triage Agent**, **Risky AI usage**, and selected **Defender for Cloud Apps connectors**. Verify the per-cloud feature matrix on Microsoft Learn at the time of every deployment, every new capability rollout, and every incident — do **not** assume Commercial parity. For unavailable features, document the gap as a control exception in the deviation register and apply the compensating-control set documented in §3 (Communication Compliance review-cadence increase, DLP block-action tightening, Defender for Cloud Apps anomaly hunts, Sentinel UEBA correlation, manual HR departure-notification flow, freeze of new Zone 3 agent activations). Document the gap as **NotApplicable** for the cloud — **not** as broken or unimplemented — and obtain CISO + Compliance + Legal sign-off on the compensating posture.
@@ -77,7 +77,7 @@ Microsoft Purview Insider Risk Management (IRM) is the **user-behavior risk plan
 
 | Trigger | Escalate to | Possible obligation (verify with counsel) |
 |---|---|---|
-| Loss of insider-risk visibility on Zone 3 FINRA-supervised population (policy off, mis-scoped, or zero-alert with seed activity present) | Compliance | **FINRA Rule 3110(b)** supervisory system — documented procedures must be followed; **FINRA Notice 25-07** firm reminders on AI/agent supervision (re-states existing 3110/4511 obligations; do not over-cite as standalone authority) |
+| Loss of insider-risk visibility on Zone 3 FINRA-supervised population (policy off, mis-scoped, or zero-alert with seed activity present) | Compliance | **FINRA Rule 3110(b)** supervisory system — documented procedures must be followed; **FINRA RN 24-09 / Rule 3110** firm reminders on AI/agent supervision (re-states existing 3110/4511 obligations; do not over-cite as standalone authority) |
 | Books-and-records gap — IRM artifacts treated as records and lost (cases closed, clips expired at 120 d, alerts deleted) | Compliance + Legal | **FINRA Rule 4511(a)/(b)** make-and-preserve; **SEC Rule 17a-3** required records; **SEC Rule 17a-4(b)(4)** non-rewriteable / non-erasable retention. **IRM is not the retention plane** — the gap is in the records pipeline (Control 1.9), not in IRM itself |
 | Customer NPI / PII surfaced via insider exfiltration alert and not contained | Privacy + Legal | **GLBA 501(b)** Safeguards; **SEC Reg S-P §248.30** customer-notification timeline (post-2024 amendments — written incident-response program, individual notice "as soon as practicable" and not later than 30 days); state breach-notification statutes |
 | Cybersecurity event determination — reasonable likelihood of material harm to normal operations | CISO + Legal | **NYDFS 23 NYCRR 500 §500.17(a)** — **72-hour** notice to Department after determination; the clock starts at **determination**, not at first alert; cross-reference §500.06 audit-trail and §500.16 incident-response-plan obligations |
@@ -376,7 +376,7 @@ OfficeActivity
 
 | Authority | Exposure |
 |---|---|
-| **FINRA Notice 25-07** | The notice re-states existing 3110/4511 obligations in the context of generative AI and agents; absence of agent-behavioral-risk detection without a documented compensating posture is a 3110(b) gap |
+| **FINRA RN 24-09 / Rule 3110** | The notice re-states existing 3110/4511 obligations in the context of generative AI and agents; absence of agent-behavioral-risk detection without a documented compensating posture is a 3110(b) gap |
 | **FINRA Rule 3110(b)** | Supervisory system must be reasonably designed to achieve compliance; for firms that deploy Copilot Studio agents to FINRA-supervised populations, agent-behavioral-risk detection is a reasonable component of the supervisory design |
 | **OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Fed SR 26-2 (formerly SR 11-7)** | Agent behavioral risk is a model-risk surface; absent IRM Risky Agents, the model-risk monitoring obligation falls to manual review (Control 2.6) |
 | **NYDFS 23 NYCRR 500 §500.16** | Incident-response plan must address insider-risk events including those originating from automated/agent identities; document the compensating posture in the IR plan |
@@ -468,7 +468,7 @@ DeviceEvents
 | Authority | Exposure |
 |---|---|
 | **FINRA Rule 3110(b)** | Supervisory system gap on AI surface; document the compensating posture in the WSP |
-| **FINRA Notice 25-07** | Generative-AI tool supervision; the firm must be able to demonstrate that its AI-usage supervision is reasonably designed even on non-supported OS classes |
+| **FINRA RN 24-09 / Rule 3110** | Generative-AI tool supervision; the firm must be able to demonstrate that its AI-usage supervision is reasonably designed even on non-supported OS classes |
 | **NYDFS 23 NYCRR 500 §500.06** | Audit-trail completeness; missing browser-extension signal creates an audit-trail gap on the AI surface |
 | **GLBA §501(b)** | Safeguards monitoring on AI surfaces that may touch NPI |
 | **SEC Reg S-P §248.30** | If the AI surface allows NPI exfiltration without detection, the firm's incident-response readiness is impaired |
@@ -1416,7 +1416,7 @@ Get-SupervisoryReviewPolicyV2 -ErrorAction SilentlyContinue
 | Authority | Exposure |
 |---|---|
 | **FINRA Rule 3110(b)** | Supervisory review of communications is a recognized 3110 component for FINRA-supervised firms; CC absence is a 3110 gap on conduct content |
-| **FINRA Notice 25-07** | Generative-AI supervision; the firm's posture should include conduct-content review of AI prompts/responses |
+| **FINRA RN 24-09 / Rule 3110** | Generative-AI supervision; the firm's posture should include conduct-content review of AI prompts/responses |
 | **SEC Reg S-P** | Conduct-content review on AI surfaces touching NPI |
 
 > **Sovereign cloud.** CC availability is at general parity; verify per current Learn.
@@ -1480,7 +1480,7 @@ BehaviorAnalytics
 
 | Authority | Exposure |
 |---|---|
-| **FINRA Notice 25-07** | Agent supervision requires correlation across signals |
+| **FINRA RN 24-09 / Rule 3110** | Agent supervision requires correlation across signals |
 | **OCC Bulletin 2013-29** | Third-party / vendor risk on agent-identity providers |
 | **NYDFS §500.06 / §500.16** | Audit-trail completeness and incident-response readiness |
 
@@ -1533,7 +1533,7 @@ SecurityAlert
 
 | Authority | Exposure |
 |---|---|
-| **FINRA Notice 25-07** | Generative-AI supervision; alert-fatigue from one agent compromises the queue |
+| **FINRA RN 24-09 / Rule 3110** | Generative-AI supervision; alert-fatigue from one agent compromises the queue |
 | **OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7)** | Agent is a model; over-tripping risk indicators is a model-performance issue |
 | **NYDFS §500.16** | Incident-response readiness; queue collapse is an operational-risk event |
 
@@ -1734,7 +1734,7 @@ SecurityAlert
 | Authority | Exposure |
 |---|---|
 | **OCC Bulletin 2026-13 (formerly OCC 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7)** | Model risk management; ongoing monitoring expectation |
-| **FINRA Notice 25-07** | Generative-AI supervision; model-performance evidence |
+| **FINRA RN 24-09 / Rule 3110** | Generative-AI supervision; model-performance evidence |
 | **NYDFS §500.16** | Incident-response readiness if drift is severe enough to be operational risk |
 
 > **Sovereign cloud.** Triage Agent availability lags in Gov clouds; verify per current Learn.

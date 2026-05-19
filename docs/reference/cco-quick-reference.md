@@ -21,8 +21,8 @@ Each question carries five elements:
 
 The two companion artifacts that make this document operational are the [Regulatory Framework](../framework/regulatory-framework.md) (regulation-by-regulation control mapping) and the [Microsoft CAPE Crosswalk](microsoft-cape-crosswalk.md) (pattern-by-pattern Regulatory Exposure callouts). Where the answer to an examiner question depends on which CAPE pattern the agent represents, the supporting-evidence section will cross-link to the relevant pattern deep-dive.
 
-!!! warning "FINRA Notice 25-07 clarification (still important)"
-    Counsel and consultants sometimes cite **FINRA Notice 25-07** as the FINRA AI position. It is not — Notice 25-07 addresses workplace modernization rules, not AI governance. The relevant FINRA AI guidance is **Notice 24-09** (technology-neutral application of supervisory rules to AI), together with **FINRA Rule 3110** (supervision), **Rule 4511** (books and records), **Rule 2210** (communications with the public), and FINRA's **Annual Regulatory Oversight Report** for current AI examination priorities. The 2025 FINRA AI sweep is the most active examiner trigger in this lane today; assume any agent that touches a customer or a registered person will be in scope.
+!!! warning "FINRA RN 25-07 clarification (still important)"
+    Counsel and consultants sometimes cite **FINRA RN 25-07** as the FINRA AI position. It is not — Notice 25-07 addresses workplace modernization rules, not AI governance. The relevant FINRA AI guidance is **Notice 24-09** (technology-neutral application of supervisory rules to AI), together with **FINRA Rule 3110** (supervision), **Rule 4511** (books and records), **Rule 2210** (communications with the public), and FINRA's **Annual Regulatory Oversight Report** for current AI examination priorities. The 2025 FINRA AI sweep is the most active examiner trigger in this lane today; assume any agent that touches a customer or a registered person will be in scope.
 
 ---
 

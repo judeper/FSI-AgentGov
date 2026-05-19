@@ -148,7 +148,7 @@ When packaging evidence for an examination or internal audit, label artifacts wi
 |-----------------------|--------------------------------------|
 | **FINRA 4511** — books and records integrity | Group-based role assignment matrix; access review completion proof; PIM activation audit log |
 | **FINRA 3110** — supervisory procedures | Approved-exception list (connected agents); attestation; access review reviewer list |
-| **FINRA Regulatory Notice 25-07** (guidance document — verify exact published title against finra.org; do not present as a Rule) — AI system access controls | Custom role privilege exports; agent action consent inventory; connected-agent inventory |
+| **FINRA RN 24-09 / Rule 3110** (guidance document — verify exact published title against finra.org; do not present as a Rule) — AI system access controls | Custom role privilege exports; agent action consent inventory; connected-agent inventory |
 | **SEC 17a-3/4** — access documentation | PPAC user export; SPN credential age report; SIEM query proof |
 | **SOX 302/404** — ICFR / segregation of duties | Negative-test screenshot pack; PIM approval workflow; service-principal admin scrub |
 | **GLBA 501(b)** — Safeguards | Column security configuration + assignment; field-level negative test |

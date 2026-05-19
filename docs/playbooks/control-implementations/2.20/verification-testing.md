@@ -5,7 +5,7 @@
 **Audience:** AI Governance Lead, Cloud Security Architect, Security Architect, Model Risk Manager, FSI Internal Audit
 **Sovereign clouds:** Commercial, GCC, GCC High, DoD (per-cloud feature parity tracked in §1)
 
-> **Regulatory hedging notice.** This playbook describes verification procedures intended to **support compliance with** OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), FINRA Rule 3110, FINRA Regulatory Notice 25-07 (March 2025), SEC Rule 17a-4(b)(4) / 18a-6, GLBA §501(b), the NIST AI RMF Generative AI Profile (NIST AI 600-1), MITRE ATLAS, and OWASP Top 10 for LLM Applications (2025). Implementation **does not guarantee** legal compliance. Organizations should validate applicability with qualified counsel and confirm tenant-specific behaviour against current Microsoft Learn documentation.
+> **Regulatory hedging notice.** This playbook describes verification procedures intended to **support compliance with** OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), FINRA Rule 3110, FINRA RN 24-09 / Rule 3110 (March 2025), SEC Rule 17a-4(b)(4) / 18a-6, GLBA §501(b), the NIST AI RMF Generative AI Profile (NIST AI 600-1), MITRE ATLAS, and OWASP Top 10 for LLM Applications (2025). Implementation **does not guarantee** legal compliance. Organizations should validate applicability with qualified counsel and confirm tenant-specific behaviour against current Microsoft Learn documentation.
 
 ---
 

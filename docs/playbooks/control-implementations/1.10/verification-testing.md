@@ -38,8 +38,8 @@ Communication Compliance signals are **non-static**. Microsoft ships classifier 
 | 1.10-AUD-01 | Weekly | Purview Audit Admin | 7 years | FINRA 4511, SEC 17a-4(f) |
 | 1.10-PSE-01 | Monthly | Purview Compliance Admin | 7 years | GLBA 501(b), Reg S-P, EU GDPR (where applicable to US-listed FSI) |
 | 1.10-POL-01 | Monthly | Purview Compliance Admin | 7 years | FINRA 3110 / 3110.06 / 25-07, FINRA 4511 |
-| 1.10-COP-01 | Monthly (preview status) | Purview Compliance Admin + AI Governance Lead | 7 years | FINRA 25-07, OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) |
-| 1.10-CLS-01 | Monthly | Purview Compliance Admin | 7 years | FINRA 3110, FINRA 2210, FINRA 25-07 |
+| 1.10-COP-01 | Monthly (preview status) | Purview Compliance Admin + AI Governance Lead | 7 years | FINRA RN 24-09, FINRA 3110, OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) |
+| 1.10-CLS-01 | Monthly | Purview Compliance Admin | 7 years | FINRA 3110, FINRA 2210, FINRA RN 24-09 |
 | 1.10-SAM-01 | Quarterly | Purview Compliance Admin + Compliance Supervisor | 7 years | FINRA 3110.06 (supervisory sampling rationale) |
 | 1.10-OME-01 | Quarterly | Purview Compliance Admin + Exchange Online Admin | 7 years | FINRA 4511, GLBA 501(b) |
 | 1.10-INV-01 | Weekly | CC Analyst + CC Investigator | 7 years | FINRA 3110, SEC 17a-4(b) |

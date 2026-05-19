@@ -142,7 +142,7 @@ applicable_regulations:
   - SEC Reg BI
   - FINRA Rule 2111
   - FINRA Rule 3110
-  - FINRA Notice 25-07
+  - FINRA RN 24-09 / Rule 3110
 
 evaluation:
   framework: Copilot Studio Agent Evaluation

@@ -66,7 +66,7 @@ Record outcomes against the test ID for the audit file.
 Review the curriculum against the current FINRA guidance set:
 
 - FINRA Rule 3110(a)(7)
-- FINRA Regulatory Notice 25-07
+- FINRA RN 24-09 / Rule 3110
 - FINRA 2026 Annual Regulatory Oversight Report — GenAI section
 
 The curriculum should explicitly address: AI capabilities, AI limitations, bias / fairness, hallucination, prompt-injection awareness, escalation, and recordkeeping. Evidence: a dated curriculum review memo signed by the AI Administrator and the Purview Compliance Admin.
@@ -129,7 +129,7 @@ Store artifacts in WORM-locked storage (Purview Records Management label, or Azu
 I attest that, for the period above:
 
 1. The AI governance curriculum was current and addressed the topics listed in
-   FINRA Regulatory Notice 25-07 and the 2026 Annual Regulatory Oversight Report.
+   FINRA RN 24-09 / Rule 3110 and the 2026 Annual Regulatory Oversight Report.
 2. Training was assigned to all in-scope personnel based on their Entra role
    and business function.
 3. Completion data was collected from [LMS / Viva Learning], reconciled against

@@ -3601,7 +3601,7 @@
   /* ---- Regulatory tab ---- */
   var REGULATION_NOTES = {
     "FINRA AI Supervision and Governance":
-      "Note: FINRA Regulatory Notice 25-07 addresses workplace modernization. " +
+      "Note: FINRA RN 25-07 addresses workplace modernization. " +
       "Its AI governance scope is limited to recordkeeping for AI-generated communications.",
   };
 
