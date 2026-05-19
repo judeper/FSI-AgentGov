@@ -269,7 +269,7 @@ catch {
 # ═══════════════════════════════════════════════════════════════════════
 $kqlAuditCheck = $null
 try {
-    Write-Verbose "Section 3: Running KQL audit check for CopilotInteraction records..."
+    Write-Verbose "Section 3: Running KQL audit check for OfficeActivity records for Copilot interactions..."
 
     if ($workspaceInfo) {
         $kqlQuery = 'OfficeActivity | where OfficeWorkload == "Copilot" or RecordType == "CopilotInteraction" | where TimeGenerated > ago(7d) | count'
@@ -303,11 +303,11 @@ try {
             }
 
             if ($recordCount -eq 0) {
-                $warnings.Add("Section 3: No CopilotInteraction audit records found in the last 7 days. Verify audit ingestion pipeline.")
+                $warnings.Add("Section 3: No OfficeActivity records for Copilot interactions found in the last 7 days. Verify audit ingestion pipeline.")
                 Write-Warning $warnings[-1]
             }
             else {
-                Write-Verbose "  Found $recordCount CopilotInteraction record(s) in the last 7 days."
+                Write-Verbose "  Found $recordCount OfficeActivity record(s) for Copilot interactions in the last 7 days."
             }
         }
         else {
