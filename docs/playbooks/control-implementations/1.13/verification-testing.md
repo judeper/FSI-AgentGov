@@ -72,7 +72,7 @@ Pre-flight tests must pass **before** any §4 test is executed. A failed pre-fli
 **Preconditions.** Audit Reader or Audit Manager role.
 
 **Steps.**
-1. Open `compliance.microsoft.com` → **Audit**.
+1. Open `purview.microsoft.com` → **Audit**.
 2. Confirm the banner does not state "Start recording user and admin activity".
 3. Run a 7-day search filtered to operations: `SitCreated`, `SitUpdated`, `SitDeleted`, `EdmSchemaCreated`, `EdmSchemaUpdated`, `EdmDataUploaded`, `DlpRuleMatch`, `CopilotInteraction`. Verify each operation appears in the dropdown (operation name autocomplete).
 4. Export results to CSV.

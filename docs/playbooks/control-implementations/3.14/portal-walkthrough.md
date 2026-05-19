@@ -147,7 +147,7 @@ Expected result: Count > 0 if service-to-service agent authentication activity h
 
 ### Step 3.1: Check Purview Audit Retention Policies
 
-**3.1.1** Navigate to Microsoft Purview compliance portal: `https://compliance.microsoft.com`
+**3.1.1** Navigate to Microsoft Purview portal: `https://purview.microsoft.com`
 
 **3.1.2** Go to: **Audit** > **Audit retention policies** (or Data lifecycle management > Retention policies if audit-specific retention is managed there in your tenant configuration)
 
@@ -220,7 +220,7 @@ After SDK implementation (Playbook 3.14-B), return to this step to confirm that 
 
 ### Step 5.1: Search Purview Audit Log for Agent Sessions
 
-**5.1.1** Navigate to Microsoft Purview: `https://compliance.microsoft.com` > **Audit** > **New search**
+**5.1.1** Navigate to Microsoft Purview portal: `https://purview.microsoft.com` > **Audit** > **New search**
 
 **5.1.2** Configure search parameters:
 - Date range: last 24 hours (or since SDK implementation)

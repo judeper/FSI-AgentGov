@@ -115,7 +115,7 @@ For Zone 3 environments, use **Power Platform Pipelines** (or ALM Accelerator) s
 
 ## Step 7 — Confirm Audit Logging in Microsoft Purview
 
-1. Open [Microsoft Purview](https://compliance.microsoft.com) → **Audit**.
+1. Open [Microsoft Purview](https://purview.microsoft.com) → **Audit**.
 2. Confirm auditing is enabled (it is on by default for new tenants since 2023).
 3. Run a search for activities related to Copilot Studio publishing. Useful filters:
    - Workload: **PowerPlatformAdmin** and **Dataverse**.

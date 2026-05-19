@@ -82,7 +82,7 @@ The following helpers, queries, and portal paths are referenced by multiple scen
 | Log Analytics workspace (Logs blade) | `https://portal.azure.com` → workspace → Logs | All TC |
 | Application Insights (linked) | `https://portal.azure.com` → AppInsights resource | TC-15, TC-22 |
 | Power Platform Admin Center | `https://admin.powerplatform.microsoft.com` | TC-02, TC-15, TC-22 |
-| Purview compliance portal | `https://compliance.microsoft.com` | TC-09, TC-10, TC-18, TC-22 |
+| Purview portal | `https://purview.microsoft.com` | TC-09, TC-10, TC-18, TC-22 |
 | Logic Apps (consumption + Standard) | `https://portal.azure.com` → Logic Apps | TC-07, TC-08, TC-12, TC-14 |
 | Entra ID Protection | `https://entra.microsoft.com` → Protection → Identity Protection | TC-20 |
 | Sentinel MCP Server (preview portal) | `https://security.microsoft.com/sentinel/mcp` | TC-06, TC-17 |

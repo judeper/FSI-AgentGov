@@ -203,9 +203,9 @@ Before you register a single agent, complete these gates. Each gate has a portal
 
 ### 2.3 Gate C — Audit Logging Active and Retention Confirmed
 
-1. Open `compliance.microsoft.com` → **Audit**.
+1. Open `purview.microsoft.com` → **Audit**.
 2. Confirm the banner reads "Auditing is on" — not "Start recording user and admin activity".
-3. Open `compliance.microsoft.com` → **Data lifecycle management → Retention policies**.
+3. Open `purview.microsoft.com` → **Data lifecycle management → Retention policies**.
 4. Confirm a retention policy named `AgentRegistry-AuditEvidence-7yr` exists, scoped to the SharePoint site that holds evidence packs (field 22 in §1), with retention period `7 years` and disposition `Retain only — do not delete`.
 5. If retention is shorter, **stop** and remediate per Control 1.7 portal walkthrough §4 — registry evidence collected before retention is right is not admissible as 17a-4 evidence.
 

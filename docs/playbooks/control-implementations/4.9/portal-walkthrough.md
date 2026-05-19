@@ -218,7 +218,7 @@ Configuring a default sensitivity label policy ensures that any file uploaded to
 
 ### Step 6.1 — Open Microsoft Purview Information Protection
 
-1. Navigate to the **Microsoft Purview Compliance Portal**: [https://compliance.microsoft.com](https://compliance.microsoft.com)
+1. Navigate to the **Microsoft Purview portal**: [https://purview.microsoft.com](https://purview.microsoft.com)
 2. In the left navigation, expand **Information protection**.
 3. Select **Label policies**.
 
