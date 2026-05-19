@@ -123,9 +123,9 @@ Run the schema creation script to create the required Dataverse tables for ASARD
        Set `DATAVERSE_ENVIRONMENT_URL` to the environment's actual URL retrieved from the Power Platform admin center or the [discovery service](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/webapi/discover-url-organization-web-api). The host suffix varies by geography:
 
        - **Commercial:** `crm.dynamics.com`, `crm2.dynamics.com`, `crm3.dynamics.com`, `crm4.dynamics.com`, … (region-dependent)
-       - **US Government (GCC):** `crm.microsoftdynamics.us`
-       - **US Government (GCC High):** `crm.appsplatform.us`
-       - **US Government (DoD):** separate sovereign endpoint (verify per published US Gov service description)
+       - **US Government (GCC):** `crm9.dynamics.com`
+       - **US Government (GCC High):** `crm.microsoftdynamics.us`
+       - **US Government (DoD):** `crm.appsplatform.us`
        - **21Vianet (China):** `crm.dynamics.cn`
 
        Hard-coding `crm.dynamics.com` will fail for sovereign-cloud and 21Vianet tenants. See the **Sovereign Cloud Deployment Notes** section near the end of this guide for additional per-cloud endpoint differences (Graph, BAP, PowerShell modules).
@@ -444,13 +444,13 @@ ASARD's default code paths and configuration examples target the **commercial Mi
 | **`Connect-MgGraph -Environment`** | `Global` | `Global` (per Microsoft Learn) | `USGov` | `USGovDoD` | `China` |
 | **`Add-PowerAppsAccount -Endpoint`** | `prod` (default) | `usgov` | `usgovhigh` | `dod` | n/a (separate guidance) |
 | **BAP admin endpoint** | `api.bap.microsoft.com` | Same in many gov scenarios — verify per the US Gov service description before relying on it | Verify per US Gov service description | Verify per US Gov service description | Verify per published 21Vianet docs |
-| **Dataverse host suffix** | `crm.dynamics.com` (and `crm2`/`crm3`/`crm4`…) | `crm.microsoftdynamics.us` | `crm.appsplatform.us` | separate sovereign endpoint | `crm.dynamics.cn` |
+| **Dataverse host suffix** | `crm.dynamics.com` (and `crm2`/`crm3`/`crm4`…) | `crm9.dynamics.com` | `crm.microsoftdynamics.us` | `crm.appsplatform.us` | `crm.dynamics.cn` |
 | **Microsoft Entra authority** | `login.microsoftonline.com` | `login.microsoftonline.com` (GCC uses worldwide) | `login.microsoftonline.us` | `login.microsoftonline.us` | `login.chinacloudapi.cn` |
 
 ### What this means for ASARD
 
 1. **PowerShell modules:** When you `Connect-MgGraph` or `Add-PowerAppsAccount` from a sovereign tenant, pass the matching `-Environment` / `-Endpoint` parameter listed above. Forgetting this causes authentication to silently succeed against the commercial endpoint and then return zero results for the gov-cloud tenant.
-2. **MSAL / azure-identity (Python):** Set the authority URL (`https://login.microsoftonline.us/<tenant-id>` for GCC High and DoD; `https://login.chinacloudapi.cn/<tenant-id>` for 21Vianet) and target the per-cloud Graph and Dataverse scopes (e.g., `https://graph.microsoft.us/.default`, `https://<org>.crm.appsplatform.us/.default`).
+2. **MSAL / azure-identity (Python):** Set the authority URL (`https://login.microsoftonline.us/<tenant-id>` for GCC High and DoD; `https://login.chinacloudapi.cn/<tenant-id>` for 21Vianet) and target the per-cloud Graph and Dataverse scopes (e.g., `https://graph.microsoft.us/.default`, `https://<org>.crm.microsoftdynamics.us/.default`).
 3. **Dataverse `DATAVERSE_ENVIRONMENT_URL`:** Use the geography-correct host suffix (see Step 2 note above). The example `https://<org>.crm.dynamics.com` only works for commercial tenants.
 4. **Teams Workflows webhook (Step 7):** Workflows is available in commercial and US Government clouds, but the issued webhook URL host differs (`*.logic.azure.com` vs the US Gov Logic Apps host). Use whichever URL the Workflows template issues in your tenant — do not transplant a commercial URL into a sovereign deployment.
 5. **Defender for Cloud Apps AI Agent Protection / Inventory:** This capability had documented preview status with possible sovereign-cloud parity gaps as of May 2026. Verify availability for your specific cloud before relying on it for ASARD evidence collection — see the [Defender for Cloud Apps US Government documentation](https://learn.microsoft.com/en-us/defender-cloud-apps/gov) and the per-cloud service descriptions.
@@ -472,16 +472,17 @@ pac org list
 pac org select --environment <env-id>
 
 # Enumerate ASARD tables via the documented EntityDefinitions endpoint.
-# Az.Accounts >= 2.13 returns Token as a [SecureString] by default — interpolating it directly
-# into "Bearer $token" produces the literal string "Bearer System.Security.SecureString".
-# Use -AsPlainText to get a plain [string] back (Get-AzAccessToken then returns the token
-# directly; no .Token accessor is needed). See https://learn.microsoft.com/en-us/powershell/azure/release-notes-azureps
-$token = Get-AzAccessToken -ResourceUrl 'https://<org>.crm.dynamics.com' -AsPlainText
+# Az.Accounts 2.13+ supports -AsSecureString (recommended for modern modules); SecureString-by-default
+# landed in a much later major (~4.0). Interpolating a [SecureString] directly into "Bearer $token"
+# produces the literal string "Bearer System.Security.SecureString", so convert to plain text first.
+# See https://learn.microsoft.com/en-us/powershell/module/az.accounts/get-azaccesstoken
+$secure = (Get-AzAccessToken -ResourceUrl 'https://<org>.crm.dynamics.com' -AsSecureString).Token
+$token  = ConvertFrom-SecureString -SecureString $secure -AsPlainText
 Invoke-RestMethod -Uri "https://<org>.crm.dynamics.com/api/data/v9.2/EntityDefinitions?`$select=LogicalName&`$filter=startswith(LogicalName,'gov_asard')" -Headers @{ Authorization = "Bearer $token"; Accept = 'application/json' }
 
-# Backward-compatible alternative for older Az.Accounts (< 2.13) installations:
-#   $secure = (Get-AzAccessToken -ResourceUrl 'https://<org>.crm.dynamics.com').Token
-#   $token  = $secure | ConvertFrom-SecureString -AsPlainText
+# Note: PowerShell 7+ is required for ConvertFrom-SecureString -AsPlainText.
+# Older Az.Accounts (< 2.13) returned a plain-text [string] in .Token; if you must
+# support that path, use: $token = (Get-AzAccessToken -ResourceUrl '...').Token
 ```
 
 **Expected output:**
