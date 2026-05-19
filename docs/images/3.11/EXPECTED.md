@@ -1,5 +1,7 @@
 # Control 3.11: Centralized Agent Inventory Enforcement - Screenshot Specifications
 
+> **Note:** Webhook examples updated from retired Office 365 Connectors (2025-12-31) to Teams Workflows webhooks.
+
 ## Required Screenshots
 
 ### Screenshot 1: PPAC Agent Inventory Dashboard - Overview
@@ -301,7 +303,7 @@
 ### Screenshot 16: PowerShell Script - Detect-OrphanedAgents.ps1 Execution
 **What to capture:**
 - PowerShell console showing execution of Detect-OrphanedAgents.ps1
-- Command line: `.\Detect-OrphanedAgents.ps1 -InventoryReportPath "C:\Reports\AgentInventory.csv" -StalenessThresholdDays 365 -TeamsWebhookUrl "https://outlook.office.com/webhook/..."`
+- Command line: `.\Detect-OrphanedAgents.ps1 -InventoryReportPath "C:\Reports\AgentInventory.csv" -StalenessThresholdDays 365 -TeamsWebhookUrl "https://prod-NN.<region>.logic.azure.com:443/workflows/..."`
 - Console output showing:
   - "Loading inventory report from C:\Reports\AgentInventory.csv..." (Cyan)
   - "Analyzing 87 agents for orphaned status..." (Cyan)
@@ -493,7 +495,7 @@
 ### Screenshot 27: Master Orchestration Script - Invoke-InventoryEnforcementSuite.ps1 Execution
 **What to capture:**
 - PowerShell console showing execution of master orchestration script
-- Command line: `.\Invoke-InventoryEnforcementSuite.ps1 -OutputPath "C:\Reports" -ZoneMappingFile "C:\Config\zone-mappings.csv" -TeamsWebhookUrl "https://outlook.office.com/webhook/..."`
+- Command line: `.\Invoke-InventoryEnforcementSuite.ps1 -OutputPath "C:\Reports" -ZoneMappingFile "C:\Config\zone-mappings.csv" -TeamsWebhookUrl "https://prod-NN.<region>.logic.azure.com:443/workflows/..."`
 - Console output showing:
   - "========================================"
   - "Agent Inventory Enforcement Suite"
@@ -528,7 +530,7 @@
 - Status: Ready (Enabled)
 - Trigger: Daily at 4:00 AM
 - Action: Start a program → PowerShell.exe with arguments:
-  - `-File C:\Scripts\Invoke-InventoryEnforcementSuite.ps1 -OutputPath C:\Reports -ZoneMappingFile C:\Config\zone-mappings.csv -TeamsWebhookUrl 'https://outlook.office.com/webhook/...'`
+  - `-File C:\Scripts\Invoke-InventoryEnforcementSuite.ps1 -OutputPath C:\Reports -ZoneMappingFile C:\Config\zone-mappings.csv -TeamsWebhookUrl 'https://prod-NN.<region>.logic.azure.com:443/workflows/...'`
 - Run with highest privileges: Yes
 - Last Run Time: 2026-02-12 04:00:00 (Success)
 - Next Run Time: 2026-02-13 04:00:00
