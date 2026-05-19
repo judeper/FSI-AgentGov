@@ -62,21 +62,43 @@ Before deploying ASARD, ensure the following prerequisites are met:
 4. **Configure API permissions:**
    - Go to **API permissions**
    - Click **Add a permission** > **APIs my organization uses**
-   - Add a permission for **Power Platform API** (`EnvironmentManagement.Environments.Read.All`, `Analytics.Read` as required by your detection flow).
-   - If the **Power Platform API** does not appear in the picker, first register it in the tenant:
+   - Add a permission for **Power Platform API**. The minimum scopes for tenant-wide environment + governance posture enumeration are:
+     - `EnvironmentManagement.Environments.Read` — list environments tenant-wide
+     - `EnvironmentManagement.Groups.Read` — list environment groups (if used by your governance posture)
+     - `AiFlows.Workflows.Read` — list AI flows / agent workflows
+     - `CopilotGovernance.Features.Read` and `CopilotGovernance.Settings.Read` — read Copilot governance posture
+     - `Analytics.AdvisorRecommendations.Read` — read advisor recommendations (closest published Analytics-tier permission; raw agent telemetry is not exposed as a PPAPI scope as of May 2026)
+   - If the **Power Platform API** does not appear in the picker, first instantiate the **PPAPI resource service principal** in the tenant so the picker can find it:
      ```powershell
-     New-AzureADServicePrincipal -AppId 8578e004-a5c6-46e7-913e-12f58912df43
+     # Microsoft.Graph PowerShell SDK; install once with:
+     # Install-Module Microsoft.Graph -Scope CurrentUser -Repository PSGallery -Force
+     Connect-MgGraph -Scopes "Application.ReadWrite.All"
+     New-MgServicePrincipal -AppId 8578e004-a5c6-46e7-913e-12f58912df43 -DisplayName "Power Platform API"
      ```
-   - For tenant-wide BAP-side enumeration via S2S, additionally register the app as an admin management application:
+     The legacy `New-AzureADServicePrincipal` cmdlet (AzureAD module) reached end-of-support **2024-03-30** and should not be used; the Microsoft Graph PowerShell SDK is Microsoft's supported replacement ([Azure AD / MSOnline deprecation](https://learn.microsoft.com/en-us/powershell/azure/active-directory/overview)).
+   - For tenant-wide BAP-side enumeration via service-principal (S2S), additionally register the app as an admin management application:
      ```http
      PUT https://api.bap.microsoft.com/providers/Microsoft.BusinessAppPlatform/adminApplications/{clientId}?api-version=2020-10-01
      ```
-   - Select **Delegated permissions** or **Application permissions** (depending on authentication mode).
+
+   !!! warning "PPAPI delegated-only design caveat"
+       Microsoft Learn states verbatim: *"Power Platform API uses delegated permissions only at this time… For service principal identities, don't use application permissions. Instead, after you create your app registration, assign it an RBAC role to grant scoped permissions (such as Contributor or Reader)."* ([Authenticate to Power Platform — v2](https://learn.microsoft.com/en-us/power-platform/admin/programmability-authentication-v2))
+
+       If ASARD detection runs as a **headless service principal** (the canonical pattern), the supported tenant-wide enumeration path is one of:
+       (a) the **admin management application** registration via the `PUT api.bap.microsoft.com/.../adminApplications/{clientId}` call above (used for legacy BAP admin endpoints), or
+       (b) a **Power Platform RBAC role assignment** (e.g., Power Platform Reader) on the app's service principal — see [Tutorial — assign RBAC role to a service principal](https://learn.microsoft.com/en-us/power-platform/admin/programmability-tutorial-rbac-role-assignment).
+
+       The PPAPI delegated scopes listed above are appropriate when ASARD runs in **delegated user context** (e.g., interactive admin-initiated detection). Do not rely on PPAPI delegated scopes as the sole tenant-wide enumeration path for an unattended SPN workload.
+
+   - Select **Delegated permissions** (PPAPI exposes Delegated only as of May 2026).
    - Click **Add a permission** again > **Microsoft Graph**
    - Add the following permissions:
      - `Group.Read.All` (to resolve security groups)
    - Click **Grant admin consent** for your tenant.
-   - Reference: [Authenticate to Power Platform with service principal](https://learn.microsoft.com/en-us/power-platform/admin/powerplatform-api-create-service-principal).
+   - References:
+     - [Power Platform API permission reference](https://learn.microsoft.com/en-us/power-platform/admin/programmability-permission-reference)
+     - [Authenticate to Power Platform — v2](https://learn.microsoft.com/en-us/power-platform/admin/programmability-authentication-v2)
+     - [Authenticate to Power Platform with service principal](https://learn.microsoft.com/en-us/power-platform/admin/powerplatform-api-create-service-principal) (BAP admin endpoint registration)
 
 5. **Record configuration values:**
    - **Application (client) ID:** Copy from Overview page
