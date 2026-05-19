@@ -62,14 +62,21 @@ Before deploying ASARD, ensure the following prerequisites are met:
 4. **Configure API permissions:**
    - Go to **API permissions**
    - Click **Add a permission** > **APIs my organization uses**
-   - Search for `PowerApps-Advisor` and select it
-   - Select **Delegated permissions** or **Application permissions** (depending on authentication mode)
-   - Add the following permissions:
-     - `Analysis.Read.All` (BAP Admin API access)
+   - Add a permission for **Power Platform API** (`EnvironmentManagement.Environments.Read.All`, `Analytics.Read` as required by your detection flow).
+   - If the **Power Platform API** does not appear in the picker, first register it in the tenant:
+     ```powershell
+     New-AzureADServicePrincipal -AppId 8578e004-a5c6-46e7-913e-12f58912df43
+     ```
+   - For tenant-wide BAP-side enumeration via S2S, additionally register the app as an admin management application:
+     ```http
+     PUT https://api.bap.microsoft.com/providers/Microsoft.BusinessAppPlatform/adminApplications/{clientId}?api-version=2020-10-01
+     ```
+   - Select **Delegated permissions** or **Application permissions** (depending on authentication mode).
    - Click **Add a permission** again > **Microsoft Graph**
    - Add the following permissions:
      - `Group.Read.All` (to resolve security groups)
-   - Click **Grant admin consent** for your tenant
+   - Click **Grant admin consent** for your tenant.
+   - Reference: [Authenticate to Power Platform with service principal](https://learn.microsoft.com/en-us/power-platform/admin/powerplatform-api-create-service-principal).
 
 5. **Record configuration values:**
    - **Application (client) ID:** Copy from Overview page
@@ -256,31 +263,30 @@ Deploy the approval and exception review workflows.
 4. **Enable flows:**
    - Turn on both flows after import and configuration
 
-### Step 7: Configure Teams Notifications
+### Step 7: Teams Notification Setup (Workflows webhook)
 
-Set up Microsoft Teams webhook for violation alerts and remediation results.
+Office 365 Connectors (Teams Incoming Webhook) were retired on **December 31, 2025**. Configure a Microsoft Teams **Workflows** webhook instead:
 
-1. **Create Teams webhook:**
-   - Open Microsoft Teams
-   - Navigate to target channel (e.g., `#power-platform-governance`)
-   - Click **···** (More options) > **Connectors**
-   - Search for **Incoming Webhook** and click **Configure**
-   - **Name:** `ASARD Notifications`
-   - **Upload image:** (optional)
-   - Click **Create**
-   - **Copy the webhook URL** (format: `https://outlook.office.com/webhook/...`)
+1. **Create the Workflows webhook:**
+   - In the target Teams channel (e.g., `#power-platform-governance`), click **···** (More options) > **Workflows**.
+   - Choose the template **"Post to a channel when a webhook request is received"** and follow the wizard.
+   - Required permissions: the workflow runs in the maker's account context; for governance scenarios, run it from a service account.
+   - After the workflow is created, copy the issued **HTTPS URL** (format: `https://prod-NN.<region>.logic.azure.com:443/workflows/<workflow-id>/triggers/manual/paths/invoke?...`).
 
 2. **Configure webhook in detection script:**
    - Open `scripts/detect_agent_sharing_violations.py`
    - Locate the `TEAMS_WEBHOOK_URL` configuration variable
-   - Set it to your webhook URL:
+   - Set it to your Workflows URL:
      ```python
-     TEAMS_WEBHOOK_URL = "https://outlook.office.com/webhook/..."
+     TEAMS_WEBHOOK_URL = "https://prod-NN.westus.logic.azure.com:443/workflows/<workflow-id>/triggers/manual/paths/invoke?..."
      ```
    - Alternatively, set environment variable:
      ```bash
-     export TEAMS_WEBHOOK_URL="https://outlook.office.com/webhook/..."
+     export TEAMS_WEBHOOK_URL="https://prod-NN.westus.logic.azure.com:443/workflows/<workflow-id>/triggers/manual/paths/invoke?..."
      ```
+   - Payload shape is **Adaptive Card v1.5** wrapped in a Workflows `attachments` array (see Step 8 for an example). The legacy `MessageCard` schema used by Office 365 Connectors is NOT compatible.
+
+   References: [Retirement of Office 365 connectors within Microsoft Teams](https://devblogs.microsoft.com/microsoft365dev/retirement-of-office-365-connectors-within-microsoft-teams/); [Post a workflow when a webhook request is received in Microsoft Teams](https://support.microsoft.com/en-us/office/post-a-workflow-when-a-webhook-request-is-received-in-microsoft-teams-8ae491c7-0394-4861-ba59-055e33f75498); [Adaptive Cards for Microsoft Teams](https://learn.microsoft.com/en-us/adaptive-cards/authoring-cards/getting-started).
 
 3. **Test notification:**
    - Run detection scan with `--notify` flag:
@@ -365,10 +371,13 @@ After deployment, verify that all components are functioning correctly.
 
 **Check tables exist:**
 ```powershell
-# Power Platform CLI
+# Power Platform CLI selects the org; metadata enumeration uses the Dataverse Web API
 pac org list
 pac org select --environment <env-id>
-pac data list-tables --filter "gov_asard"
+
+# Enumerate ASARD tables via the documented EntityDefinitions endpoint
+$token = (Get-AzAccessToken -ResourceUrl 'https://<org>.crm.dynamics.com').Token
+Invoke-RestMethod -Uri "https://<org>.crm.dynamics.com/api/data/v9.2/EntityDefinitions?`$select=LogicalName&`$filter=startswith(LogicalName,'gov_asard')" -Headers @{ Authorization = "Bearer $token"; Accept = 'application/json' }
 ```
 
 **Expected output:**
