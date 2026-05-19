@@ -38,7 +38,7 @@ Exceptions are tracked in the `gov_asardexception` Dataverse table:
 | `gov_approvedat` | DateTime | Timestamp when exception was approved (UTC) |
 | `gov_reviewdate` | DateTime | Optional: Next review date for the exception (UTC) |
 
-> **Memo column length:** `gov_justification` is a Memo (multi-line text) column. Dataverse Memo columns default to **2,000 characters** and may be configured up to **1,048,576 characters (1 MB)**. The 1 MB ceiling is configurable, not the default — confirm the deployed column was provisioned with `MaxLength = 1048576` if 1 MB justifications are required. See [Multiple lines of text columns](https://learn.microsoft.com/en-us/power-apps/maker/data-platform/types-of-fields#multiple-lines-of-text-columns).
+> **Memo column length:** `gov_justification` is a Memo (multi-line text) column. Dataverse Memo columns default to **150 characters** and may be configured up to **1,048,576 characters (1 MB)**. The 1 MB ceiling is configurable, not the default — confirm the deployed column was provisioned with `MaxLength = 1048576` if 1 MB justifications are required. See [Multiple lines of text columns](https://learn.microsoft.com/en-us/power-apps/maker/data-platform/types-of-fields#multiple-lines-of-text-columns).
 
 > **DateTime Behavior:** Configure `gov_expirationdate`, `gov_approvedat`, and `gov_reviewdate` with the **TimeZoneIndependent** Behavior. Always write and compare values as UTC ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`) to avoid Daylight Saving Time drift. See [Behavior and format of the Date and Time column](https://learn.microsoft.com/en-us/power-apps/maker/data-platform/behavior-format-date-time-field).
 
@@ -199,7 +199,6 @@ To check for expiring exceptions manually:
     <attribute name="gov_justification" />
     <filter type="and">
       <condition attribute="gov_status" operator="eq" value="2" />
-      <condition attribute="gov_expirationdate" operator="on-or-after-x-days" value="0" />
       <condition attribute="gov_expirationdate" operator="next-x-days" value="14" />
     </filter>
     <order attribute="gov_expirationdate" />
@@ -207,7 +206,7 @@ To check for expiring exceptions manually:
 </fetch>
 ```
 
-> **FetchXML date operators:** The example above uses FetchXML's built-in relative-date operators (`on-or-after-x-days`, `next-x-days`) so it works in any FetchXML consumer (Web API, SDK, XrmToolBox, etc.). The Power Automate workflow expressions `@{utcNow()}` and `@{addDays(utcNow(), 14)}` are **not** valid FetchXML date literals — they only work when running through Power Automate's **List rows** action, because Power Automate (not FetchXML) substitutes those expressions before sending the query. If you author the FetchXML inside a Power Automate **List rows** action and want it portable, prefer the relative-date operators above. See [FetchXML conditional operators](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/fetchxml/reference/condition-operators) and [FetchXML condition element](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/fetchxml/reference/condition).
+> **FetchXML date operators:** The example above uses FetchXML's built-in `next-x-days` relative-date operator, which bounds the result set to records whose `gov_expirationdate` falls within the next 14 days (from now). This works in any FetchXML consumer (Web API, SDK, XrmToolBox, etc.). The Power Automate workflow expressions `@{utcNow()}` and `@{addDays(utcNow(), 14)}` are **not** valid FetchXML date literals — they only work when running through Power Automate's **List rows** action, because Power Automate (not FetchXML) substitutes those expressions before sending the query. If you author the FetchXML inside a Power Automate **List rows** action and want it portable, prefer the relative-date operator above. See [FetchXML conditional operators](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/fetchxml/reference/operators) and [FetchXML condition element](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/fetchxml/reference/condition).
 
 **Dataverse Web API** (replace `contoso` with your organization's Dataverse host)**:**
 
