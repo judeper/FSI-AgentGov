@@ -3,7 +3,7 @@
 !!! warning "Read the FSI PowerShell baseline first"
     Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below may show abbreviated patterns; the baseline is authoritative.
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 **PowerShell Version:** Windows PowerShell 5.1 (Desktop edition) for `Microsoft.PowerApps.Administration.PowerShell`; PowerShell 7.2+ for Microsoft Graph and notifications
 **Required Modules:**
 - Microsoft.PowerApps.Administration.PowerShell (Desktop / PS 5.1 only)
@@ -92,7 +92,7 @@ Exports comprehensive agent inventory from Power Platform with metadata complete
 .NOTES
     Author: FSI-AgentGov Framework
     Version: 1.1
-    Last Updated: April 2026
+    Last Updated: May 2026
     Edition: Windows PowerShell 5.1 (Desktop) required for Microsoft.PowerApps.Administration.PowerShell
 #>
 
@@ -302,7 +302,7 @@ Identifies agents with departed owners, stale agents, and unmanaged agents requi
 .NOTES
     Author: FSI-AgentGov Framework
     Version: 1.1
-    Last Updated: April 2026
+    Last Updated: May 2026
 #>
 
 param(
@@ -514,7 +514,7 @@ Validates agent inventory against mandatory metadata requirements and generates 
 .NOTES
     Author: FSI-AgentGov Framework
     Version: 1.1
-    Last Updated: April 2026
+    Last Updated: May 2026
 #>
 
 param(
@@ -658,7 +658,7 @@ Master orchestration script that runs all inventory enforcement scripts in seque
 .NOTES
     Author: FSI-AgentGov Framework
     Version: 1.1
-    Last Updated: April 2026
+    Last Updated: May 2026
 #>
 
 param(
