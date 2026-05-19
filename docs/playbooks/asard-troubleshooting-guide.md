@@ -43,7 +43,7 @@ python detect_agent_sharing_violations.py --dry-run
 - Navigate to Azure Portal > App registrations > Your app
 - Go to **API permissions**
 - Verify the following permissions exist and are granted:
-  - `PowerApps-Advisor / Analysis.Read.All` (or appropriate BAP API permission)
+  - `Power Platform API / EnvironmentManagement.Environments.Read.All` (and `Analytics.Read` as required by your detection flow); register the API via `New-AzureADServicePrincipal -AppId 8578e004-a5c6-46e7-913e-12f58912df43` if it does not appear in the picker, and register the app as an admin management application via `PUT https://api.bap.microsoft.com/providers/Microsoft.BusinessAppPlatform/adminApplications/{clientId}?api-version=2020-10-01` for tenant-wide BAP-side enumeration. See the deployment guide and [Authenticate to Power Platform with service principal](https://learn.microsoft.com/en-us/power-platform/admin/powerplatform-api-create-service-principal) for full guidance.
   - `Microsoft Graph / Group.Read.All`
 - Check **Status** column shows "Granted for [tenant]"
 
@@ -219,8 +219,8 @@ print(f"Rate limit reset: {response.headers.get('x-ratelimit-reset')}")
 
 **2. Verify environment permissions:**
 ```powershell
-# Check service principal has access to environment
-pac admin list --environment <env-id>
+# Check service principal has access to the target environment
+pac env who --environment <env-id>
 ```
 - Service principal should appear in environment security group or have system admin role
 
@@ -563,8 +563,8 @@ print(f"Sharing: {agent.get('sharingPrincipals')}")
 
 **4. Verify permissions:**
 ```powershell
-# Check service principal role in environment
-pac admin list --environment <env-id>
+# Check service principal role in the target environment
+pac env who --environment <env-id>
 ```
 - Service principal needs **System Administrator** or **Environment Admin** role
 
@@ -581,10 +581,7 @@ pac admin list --environment <env-id>
      ]
    }
    ```
-3. **Test with Power Platform CLI:**
-   ```bash
-   pac agent share --agent-id <agent-id> --remove --principal <group-id>
-   ```
+3. **Test sharing changes outside the script:** Power Platform CLI does not expose an agent-sharing command as of 2026. Test sharing changes via the Copilot Studio web UI (`make.copilotstudio.microsoft.com` → agent → **Share** → remove principal) OR by patching the Dataverse `principalobjectaccess` rows directly via the Web API.
 
 **For validation failures (owner sharing):**
 - **Limitation:** Agent owners cannot be removed via sharing API
