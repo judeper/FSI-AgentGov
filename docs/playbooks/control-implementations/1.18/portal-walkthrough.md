@@ -47,6 +47,8 @@
 - Bot Component: Read
 - Environment: Read
 
+> **Assign / Share privileges:** For all three FSI roles above, set **Assign** and **Share** explicitly to **None** on each Bot and Bot Component entity. Setting these to None explicitly (rather than leaving them implicit) surfaces the choice during role review and lets an examiner confirm that record-sharing pathways are not granted by omission.
+
 ### Step 3: Assign Roles to Security Groups
 
 1. In Power Platform Admin Center
@@ -63,7 +65,7 @@
 3. **For directory roles** (Power Platform Admin, AI Administrator): select **Microsoft Entra roles** > **Roles** > target role > **Settings**
 4. **For environment / Dataverse access** (recommended pattern): select **Groups** > add `SG-PowerPlatform-Admins-Prod` > **Settings** > **Member** role
 5. Configure activation settings:
-   - Maximum activation duration: **4 hours** (Zone 3) / 8 hours (Zone 2)
+   - Maximum activation duration: **4 hours** (Zone 3) / **8 hours** (Zone 2). The Microsoft platform upper bound for PIM activation is **24 hours** per activation; FSI policy intentionally sets a tighter cap to support supervisory review windows. Tighter caps must be set per role/group in the PIM **Settings** blade.
    - Require approval to activate: **Yes** (Zone 3 — minimum 2 approvers from CISO/Security Lead)
    - Require MFA on activation: **Yes** (all zones)
    - Require justification on activation: **Yes**
@@ -72,10 +74,8 @@
 
 ### Step 5: Configure Column-Level Security
 
-> **Path note (April 2026):** "Field security profiles" is also accessible via the modern Power Apps maker portal at **make.powerapps.com** > Solutions > Default Solution > **Security** > **Field security profiles**. The classic path below remains supported.
-
 1. In Power Platform Admin Center > Environment > **Settings**
-2. Navigate to **Users + permissions** > **Column security profiles** (formerly "Field security profiles")
+2. Navigate to **Users + permissions** > **Field security profiles** (Microsoft Learn also uses "column-level security" interchangeably; the PPAC node remains labelled **Field security profiles**)
 3. Create profile: `FSI-SensitiveFields-Prod`
 4. Add sensitive columns by enabling **Column security** on the column definition first (Solutions > target table > column > Advanced options > **Enable column security: On**) — this is required before the column appears in the profile
 5. Common FSI columns to protect: SSN/Tax ID, account number, account balance, credit score, date of birth, government ID
@@ -110,14 +110,14 @@
 2. Navigate to **Agents** and select each agent
 3. Go to **Tools** and locate each configured tool
 4. For every action, enable **"Ask the user before running this action"**
-5. Where available, set "How do you want to ask the user?" to **"You create the message"** and configure a clear, human-written description of what the action will do
+5. On every action where consent is required, configure the user-facing prompt yourself rather than relying on the auto-generated text. Use language that names the system being touched and the data being read or written — this is what an FSI examiner will read when reviewing whether consent was meaningful.
 6. Repeat for all agents in Zone 2 and Zone 3 environments
 
 ### Step 8: Configure Connected Agent Governance
 
 1. In Copilot Studio, select each agent
-2. Navigate to **Settings** > under **Connected Agents** (Preview)
-3. Locate the toggle **"Let other agents connect to and use this one"**
+2. Navigate to **Settings** > **Connected Agents** (verify Preview vs. GA tag against the live Copilot Studio UI at apply-time; the A2A protocol underpinning cross-agent invocation reached GA in April 2026, but the per-agent connectivity toggle may still surface a Preview label in some tenants)
+3. Locate the toggle that controls whether other agents can connect to and invoke this agent
 4. Set to **Disabled** by default
 5. Enable only with:
    - Documented business justification
@@ -131,7 +131,7 @@
 2. Navigate to **Environments** > select the target environment > **Settings** > **Users + Permissions** > **Users**
 3. Review all users with **System Administrator** role
 4. For any assignment that is not justified, select the user > **Manage Roles** > remove System Administrator
-5. Ensure fewer than 10 administrators per environment
+5. Ensure fewer than 10 administrators per environment *(FSI-imposed threshold — not a Microsoft published recommendation; see footer note)*
 6. Document all admin role assignments with business justification
 
 ---
@@ -152,6 +152,12 @@ After completing these steps, verify:
 ---
 
 [Back to Control 1.18](../../../controls/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md) | [PowerShell Setup](powershell-setup.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
+
+---
+
+**Footnotes**
+
+- *The "fewer than 10 administrators per environment" target in Step 9 is an FSI-imposed threshold — it is not a Microsoft published recommendation. Microsoft advises minimizing privileged administrators in general (see [Best practices for securing Power Platform](https://learn.microsoft.com/en-us/power-platform/admin/security/best-practices-secure)); the specific numeric cap is framework-internal.*
 
 ---
 
