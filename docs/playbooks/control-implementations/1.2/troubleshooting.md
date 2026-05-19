@@ -564,7 +564,7 @@ Each pillar covers one registration surface (or cross-cutting governance plane).
 **Diagnostic steps.**
 
 1. Confirm the cloud: Entra → Properties → "Tenant ID" page shows tenant region and cloud.
-2. Pin endpoints in scripts via `Connect-MgGraph -Environment USGovHigh` / `-Environment USGovDoD`; for PPAC, use `Add-PowerAppsAccount -Endpoint usgovhigh` / `dod`.
+2. Pin endpoints in scripts via `Connect-MgGraph -Environment USGov` (GCC + GCC High) / `-Environment USGovDoD` (DoD); for PPAC, use `Add-PowerAppsAccount -Endpoint usgovhigh` / `dod`.
 3. For each control in GCC High / DoD, check the Microsoft Learn "Service description for US Government" or equivalent page.
 
 **Resolution patterns.** Maintain a per-cloud control matrix in the agent register; deploy compensating controls (per §1.5) where features lag.
@@ -796,7 +796,7 @@ Pin and record every tool version in E-14. Versions current as of the document's
 
 | Tool / Module | Minimum version | Notes |
 |---------------|-----------------|-------|
-| `Microsoft.Graph` PowerShell SDK | 2.20.0+ | Use `-Environment USGov` / `USGovHigh` / `USGovDoD` for sovereign clouds. |
+| `Microsoft.Graph` PowerShell SDK | 2.20.0+ | Use `-Environment USGov` / `USGovDoD` for sovereign clouds (USGov = GCC + GCC High; USGovDoD = DoD). |
 | `Microsoft.PowerApps.Administration.PowerShell` | 2.0.180+ | Use `Add-PowerAppsAccount -Endpoint prod\|usgov\|usgovhigh\|dod`. |
 | `ExchangeOnlineManagement` | 3.4.0+ | Required for `Search-UnifiedAuditLog`. |
 | Azure CLI | 2.55.0+ | For workload identity federation administration. |
