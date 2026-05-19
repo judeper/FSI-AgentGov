@@ -10,7 +10,7 @@ on:
       - 'package-lock.json'
       - 'overrides/**'
       - 'mkdocs.yml'
-      - '.github/workflows/e2e-smoke.yml'
+      - '.github/workflows/**'
   push:
     branches:
       - main
@@ -22,7 +22,7 @@ on:
       - 'package-lock.json'
       - 'overrides/**'
       - 'mkdocs.yml'
-      - '.github/workflows/e2e-smoke.yml'
+      - '.github/workflows/**'
 
 concurrency:
   group: e2e-smoke-${{ github.ref }}
