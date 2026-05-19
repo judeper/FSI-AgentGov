@@ -219,8 +219,8 @@ print(f"Rate limit reset: {response.headers.get('x-ratelimit-reset')}")
 
 **2. Verify environment permissions:**
 ```powershell
-# Check service principal has access to the target environment
-pac env who --environment <env-id>
+# Enumerate service principals with access to the target environment
+pac admin list-service-principal --environment <env-id>
 ```
 - Service principal should appear in environment security group or have system admin role
 
@@ -563,8 +563,8 @@ print(f"Sharing: {agent.get('sharingPrincipals')}")
 
 **4. Verify permissions:**
 ```powershell
-# Check service principal role in the target environment
-pac env who --environment <env-id>
+# Enumerate service principal role assignments in the target environment
+pac admin list-service-principal --environment <env-id>
 ```
 - Service principal needs **System Administrator** or **Environment Admin** role
 
