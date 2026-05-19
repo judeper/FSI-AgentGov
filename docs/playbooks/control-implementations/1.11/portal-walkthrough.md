@@ -33,7 +33,7 @@
     | Identity type | Examples | How MFA works | Conditional Access path |
     |---|---|---|---|
     | **Human (interactive) identity** | Agent maker, agent owner, Power Platform Admin, AI Administrator, end-user invoking a Copilot agent in Teams | Interactive MFA prompt — passkey, FIDO2 security key, Windows Hello for Business, Microsoft Authenticator (push + number match) | Standard CA policy targeting `Users and groups` |
-    | **Agent / workload identity** | Service principal that runs a Copilot Studio agent, managed identity for an autonomous agent, Entra Agent ID preview registration, third-party connector app | **Cannot perform interactive MFA** (no human at the keyboard). Governed by certificate-based auth, managed identity, secret rotation, and **Conditional Access for Workload Identities** (CA-WID) which evaluates **location, sign-in risk, and named locations** instead of MFA strength | CA policy with `Users and workload identities → Workload identities` selected (requires the **Microsoft Entra Workload Identities Premium P1 add-on** licensed per service principal in scope) |
+    | **Agent / workload identity** | Service principal that runs a Copilot Studio agent, managed identity for an autonomous agent, Entra Agent ID registration, third-party connector app | **Cannot perform interactive MFA** (no human at the keyboard). Governed by certificate-based auth, managed identity, secret rotation, and **Conditional Access for Workload Identities** (CA-WID) which evaluates **location, sign-in risk, and named locations** instead of MFA strength | CA policy with `Users and workload identities → Workload identities` selected (requires the **Microsoft Entra Workload Identities Premium P1 add-on** licensed per service principal in scope) |
 
     "MFA the agent" is a category error. Strong agent-identity governance means **(a)** issuing the agent a non-shared credential (managed identity preferred, then certificate, then secret with mandatory ≤90-day rotation), **(b)** scoping it via CA-WID to permitted IP ranges and risk thresholds, and **(c)** monitoring its sign-ins separately from human sign-ins. See §7 for the workload-identity path.
 
@@ -103,7 +103,7 @@ Confirm the roles below are present and assigned only to named individuals (not 
 | **Conditional Access Admin** *(Microsoft built-in role)* | Creating and editing CA policies | 2 |
 | **Entra Security Admin** | Reviewing risky users, managing Identity Protection | 2 |
 | **Power Platform Admin** | Validating that Policy B does not break Copilot Studio | 1+ |
-| **AI Administrator** | Reviewing agent identities (Entra Agent ID preview) and Agent 365 console | 1+ |
+| **AI Administrator** | Reviewing agent identities (Entra Agent ID, GA April 2026) and Agent 365 console | 1+ |
 | **Sentinel Admin** | Wiring the CA Insights workbook in §11 | 1 |
 
 !!! danger "Do not use 'Administrator' as a role name"
@@ -436,7 +436,7 @@ This gives you two narrowly-scoped policies (`CA-002` for makers, `CA-002b` for 
 
 ## 7. Policy C — Conditional Access for Workload Identities (agents and SPs)
 
-This policy is the **agent-identity** boundary. It targets **service principals** (including the synthetic service principals that back Entra Agent ID preview registrations) and applies **location and risk** conditions. **There is no MFA grant control for workload identities** — workload identities cannot present a second factor to a human-style challenge. The grant control is **block** based on context.
+This policy is the **agent-identity** boundary. It targets **service principals** (including the synthetic service principals that back Entra Agent ID registrations) and applies **location and risk** conditions. **There is no MFA grant control for workload identities** — workload identities cannot present a second factor to a human-style challenge. The grant control is **block** based on context.
 
 ### 7.1 Confirm the Workload Identities Premium SKU
 
@@ -454,7 +454,7 @@ If the field reads **No**, the policy will not enforce against this SP. Acquire 
 2. **Name:** `CA-003 — Workload identities — block agent SPs from non-permitted IPs and high risk`
 3. **Assignments → Users and workload identities**:
    - Switch the **Users and workload identities** dropdown to **Workload identities**.
-   - **Include → Select service principals**: add **(a)** every service principal that backs a Copilot Studio agent published to Z3, **(b)** every Entra Agent ID preview registration in Z3 (see §9), **(c)** any third-party application that has Graph or Dataverse permissions consented at admin level and is invoked on behalf of an agent.
+   - **Include → Select service principals**: add **(a)** every service principal that backs a Copilot Studio agent published to Z3, **(b)** every Entra Agent ID registration in Z3 (see §9), **(c)** any third-party application that has Graph or Dataverse permissions consented at admin level and is invoked on behalf of an agent.
    - **Exclude:** Microsoft-first-party service principals required for tenant operations (do not include service principals owned by `Microsoft Services` or with publisher domain `microsoft.com` unless you have a specific reason).
 
 4. **Target resources → Cloud apps → Include → All cloud apps**.
@@ -531,19 +531,19 @@ For a pilot, create a **separate** policy `CA-005` rather than co-mingling with 
 
 ## 9. Entra Agent ID — locating agent identities and assigning them to CA
 
-**Entra Agent ID** is the directory-level identity for AI agents. As of May 2026 it is **Generally Available** for tenants with Microsoft Agent 365 or Microsoft 365 E7 licensing. Agent identities appear in **two** places in the Entra portal — and you need to know both.
+**Entra Agent ID** is the directory-level identity for AI agents. The platform reached **General Availability in April 2026**; the licensing bundle that ships it as part of **Microsoft Agent 365** and **Microsoft 365 E7** became GA on **May 1, 2026**. Agent identities appear in **two** places in the Entra portal — and you need to know both.
 
 ### 9.1 Where agent identities appear
 
 | Surface | What you see | When to use |
 |---|---|---|
-| `Identity → Applications → Enterprise applications → All applications` | Each agent appears as a service principal with **Application type = Agent** (a new value introduced for the preview) | When binding an agent to a CA-WID policy (§7), you select its SP from this list |
+| `Identity → Applications → Enterprise applications → All applications` | Each agent appears as a service principal with **Application type = Agent** (a value introduced when Entra Agent ID first shipped) | When binding an agent to a CA-WID policy (§7), you select its SP from this list |
 | `Identity → Identity governance → Agent ID` *(Frontier-gated; may not appear in your tenant)* | The agent registry — sponsor (human owner of record), custom security attributes (zone classification, risk tier), agent collection membership | When governing the **lifecycle** of agent identities — provisioning, sponsor handoff, deprovisioning. This surface is owned by [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) at the governance-console level and by Control 2.26 (where present) at the directory level |
 
 ### 9.2 Filter the Enterprise applications blade to agent identities
 
 1. `Identity → Applications → Enterprise applications → All applications`.
-2. Add a filter: **Application type** equals **Agent** (if the value does not appear in your filter dropdown, your tenant is not yet on the Agent ID preview ring; Policy C still applies to ordinary service principals).
+2. Add a filter: **Application type** equals **Agent** (if the value does not appear in your filter dropdown, your tenant is not yet on the Agent ID rollout ring; Policy C still applies to ordinary service principals).
 3. Optionally add **Created on or after [date]** to scope to recent agents.
 
 ### 9.3 Bind agent identities to Policy C
@@ -557,8 +557,8 @@ For a pilot, create a **separate** policy `CA-005` rather than co-mingling with 
 
 Once an agent identity is in scope of Policy C, the **Agent 365 Admin Center** governance dashboard will display the CA enforcement state for that agent. Cross-reference [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) for the operational read-out — Agent Registry → `[agent]` → **Identity & Access** tab shows linked CA policies, last successful sign-in, and last blocked sign-in.
 
-!!! info "Agent ID preview is not a stable API contract"
-    Schema, attribute names, blade locations, and supported CA conditions for Agent ID may change before GA. Document the **portal version** you verified against (header **Last UI Verified** date) and re-verify after each Microsoft Wave release. Avoid scripting against undocumented Agent ID endpoints during preview — use the portal-level Enterprise applications view, which is GA, as the durable enforcement plane.
+!!! info "Entra Agent ID surfaces are still evolving post-GA"
+    Although Entra Agent ID reached GA in April 2026, schema, attribute names, and blade locations continue to evolve as Microsoft expands the surface (especially the `Identity governance → Agent ID` registry view, which remains Frontier-gated in some tenants). Document the **portal version** you verified against (header **Last UI Verified** date) and re-verify after each Microsoft Wave release. Prefer the portal-level **Enterprise applications** view as the durable enforcement plane; treat undocumented Agent ID endpoints as preview surfaces and avoid scripting against them in production.
 
 ---
 
@@ -764,7 +764,7 @@ Extend by another 7 days (no shortcut) if any of:
 | **Conditional Access for Workload Identities (CA-WID)** | GA | Verify on Learn | Verify on Learn | Verify on Learn | Product unavailability — substitute compensating controls (network segmentation, egress allow-list at firewall, certificate pinning) |
 | **Token Protection (Preview)** | Preview | Not announced | Not announced | Not announced | Product unavailability |
 | Continuous Access Evaluation | GA | GA | GA | Verify on Learn | — |
-| **Entra Agent ID (Preview)** | Public Preview (Frontier) | Not announced | Not announced | Not announced | Product unavailability — manage agent identities as ordinary service principals |
+| **Entra Agent ID** | GA (April 2026; requires Microsoft Agent 365 or M365 E7 licensing, GA May 1, 2026) | Not announced | Not announced | Not announced | Product unavailability — manage agent identities as ordinary service principals |
 | Microsoft Sentinel CA Insights workbook | GA | GA | GA | GA | — |
 | Identity Protection (risky workload identities) | GA | Verify on Learn | Verify on Learn | Verify on Learn | Compensating control: nightly KQL hunt for SP sign-in anomalies |
 | Microsoft Agent 365 Admin Center | GA (May 1, 2026) | Not announced | Not announced | Not announced | See [Control 2.25 §1 sovereign variant](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) |
