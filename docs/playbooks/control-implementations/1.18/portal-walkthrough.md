@@ -116,7 +116,7 @@
 ### Step 8: Configure Connected Agent Governance
 
 1. In Copilot Studio, select each agent
-2. Navigate to **Settings** > **Connected Agents** (verify Preview vs. GA tag against the live Copilot Studio UI at apply-time; the A2A protocol underpinning cross-agent invocation reached GA in April 2026, but the per-agent connectivity toggle may still surface a Preview label in some tenants)
+2. Navigate to **Settings** > **Connected agents** (the multi-agent collaboration surface; verify the literal menu label at apply-time — some tenants surface this as **'Agents'** depending on UI release ring. The A2A protocol underpinning cross-agent invocation reached GA in April 2026, but the per-agent connectivity toggle may still surface a Preview label in some tenants — https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-connect-agents)
 3. Locate the toggle that controls whether other agents can connect to and invoke this agent
 4. Set to **Disabled** by default
 5. Enable only with:
