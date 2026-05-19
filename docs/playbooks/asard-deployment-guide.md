@@ -26,7 +26,7 @@ Before deploying ASARD, ensure the following prerequisites are met:
 - **Environment access:** Ability to query all environments in the tenant (for agent enumeration)
 
 ### Development Environment
-- **Python 3.9 or later:** Verified with Python 3.9, 3.10, 3.11
+- **Python 3.11 or later:** Verified with Python 3.11, 3.12, 3.13. Python 3.9 reached end-of-life on **2025-10-31** ([Status of Python versions](https://devguide.python.org/versions/), [endoflife.date/python](https://endoflife.date/python)) and is no longer supported for new deployments.
 - **Python packages:** Install required dependencies:
   ```bash
   pip install msal requests azure-identity
@@ -94,6 +94,7 @@ Before deploying ASARD, ensure the following prerequisites are met:
    - Click **Add a permission** again > **Microsoft Graph**
    - Add the following permissions:
      - `Group.Read.All` (to resolve security groups)
+     - `GroupMember.Read.All` — required for nested-group / transitive membership queries via [`/groups/{id}/transitiveMembers`](https://learn.microsoft.com/en-us/graph/api/group-list-transitivemembers). Advanced query options on this endpoint (`$count`, `$search`, advanced `$filter`) also require the `ConsistencyLevel: eventual` request header — see [advanced query capabilities](https://learn.microsoft.com/en-us/graph/aad-advanced-queries).
    - Click **Grant admin consent** for your tenant.
    - References:
      - [Power Platform API permission reference](https://learn.microsoft.com/en-us/power-platform/admin/programmability-permission-reference)
@@ -117,6 +118,17 @@ Run the schema creation script to create the required Dataverse tables for ASARD
    export AZURE_TENANT_ID="<tenant-id>"
    export DATAVERSE_ENVIRONMENT_URL="https://<org>.crm.dynamics.com"
    ```
+
+   !!! note "Geography-specific Dataverse host suffix"
+       Set `DATAVERSE_ENVIRONMENT_URL` to the environment's actual URL retrieved from the Power Platform admin center or the [discovery service](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/webapi/discover-url-organization-web-api). The host suffix varies by geography:
+
+       - **Commercial:** `crm.dynamics.com`, `crm2.dynamics.com`, `crm3.dynamics.com`, `crm4.dynamics.com`, … (region-dependent)
+       - **US Government (GCC):** `crm.microsoftdynamics.us`
+       - **US Government (GCC High):** `crm.appsplatform.us`
+       - **US Government (DoD):** separate sovereign endpoint (verify per published US Gov service description)
+       - **21Vianet (China):** `crm.dynamics.cn`
+
+       Hard-coding `crm.dynamics.com` will fail for sovereign-cloud and 21Vianet tenants. See the **Sovereign Cloud Deployment Notes** section near the end of this guide for additional per-cloud endpoint differences (Graph, BAP, PowerShell modules).
 
 2. **Run schema creation script:**
    ```bash
@@ -165,7 +177,7 @@ Configure which Microsoft Entra ID security groups are approved for agent sharin
      ```python
      # Example: Add approved group via API
      import requests
-     
+
      dataverse_url = "https://<org>.crm.dynamics.com/api/data/v9.2"
      group_policy = {
          "gov_groupobjectid": "12345678-1234-1234-1234-123456789abc",
@@ -173,10 +185,23 @@ Configure which Microsoft Entra ID security groups are approved for agent sharin
          "gov_zone": "production",
          "gov_isactive": True
      }
-     
+
+     # Dataverse Web API required headers — see
+     # https://learn.microsoft.com/en-us/power-apps/developer/data-platform/webapi/compose-http-requests-handle-errors#http-headers
+     # Prefer: return=representation is needed only if you want the created record echoed back
+     # in the response body (otherwise Dataverse returns 204 No Content + the entity URI in OData-EntityId).
+     headers = {
+         "Authorization": f"Bearer {token}",
+         "OData-MaxVersion": "4.0",
+         "OData-Version": "4.0",
+         "Accept": "application/json",
+         "Content-Type": "application/json; charset=utf-8",
+         "Prefer": "return=representation"
+     }
+
      response = requests.post(
          f"{dataverse_url}/gov_asardsecuritygrouppolicies",
-         headers={"Authorization": f"Bearer {token}"},
+         headers=headers,
          json=group_policy
      )
      ```
@@ -318,6 +343,28 @@ Office 365 Connectors (Teams Incoming Webhook) were retired on **December 31, 20
    - Verify notification received in Teams channel
    - Check that adaptive card renders correctly
 
+4. **Paste-ready curl test (Adaptive Card v1.5 payload):**
+   The Workflows webhook expects a `message` envelope with an `attachments` array containing an Adaptive Card v1.5 payload. The legacy `MessageCard` schema used by Office 365 Connectors is NOT compatible. References: [Post a workflow when a webhook request is received](https://support.microsoft.com/en-us/office/post-a-workflow-when-a-webhook-request-is-received-in-microsoft-teams-8ae491c7-0394-4861-ba59-055e33f75498); [Adaptive Cards for Microsoft Teams](https://learn.microsoft.com/en-us/adaptive-cards/authoring-cards/getting-started).
+
+   ```bash
+   curl -X POST "$WEBHOOK_URL" -H 'Content-Type: application/json' -d '{
+     "type": "message",
+     "attachments": [{
+       "contentType": "application/vnd.microsoft.card.adaptive",
+       "content": {
+         "type": "AdaptiveCard",
+         "version": "1.5",
+         "body": [{
+           "type": "TextBlock",
+           "text": "ASARD detection: <agent-name> shared with unapproved principal"
+         }]
+       }
+     }]
+   }'
+   ```
+
+   A successful test returns HTTP 200/202 and the card appears in the target channel within a few seconds.
+
 ### Step 8: Schedule Recurring Scans
 
 Automate regular detection scans to continuously monitor agent sharing compliance.
@@ -335,7 +382,7 @@ Automate regular detection scans to continuously monitor agent sharing complianc
      - Recur every 1 day
    - **Actions:**
      - New action > Start a program
-     - Program: `C:\Python39\python.exe`
+     - Program: `C:\Python313\python.exe` (or your installed Python 3.11+ path; Python 3.9 reached end-of-life 2025-10-31 and should not be used for new deployments)
      - Arguments: `C:\dev\scripts\detect_agent_sharing_violations.py --notify`
      - Start in: `C:\dev\scripts`
    - **Conditions:** Adjust power and network settings as needed
@@ -360,7 +407,7 @@ Automate regular detection scans to continuously monitor agent sharing complianc
    steps:
    - task: UsePythonVersion@0
      inputs:
-       versionSpec: '3.9'
+       versionSpec: '3.13'  # Python 3.11+ required; 3.9 reached EOL 2025-10-31
    
    - script: |
        pip install msal requests azure-identity
@@ -385,6 +432,33 @@ Automate regular detection scans to continuously monitor agent sharing complianc
    - Action: **HTTP** request to Azure Function or Logic App that runs detection script
    - (Requires hosting the Python script as an Azure Function)
 
+## Sovereign Cloud Deployment Notes
+
+ASARD's default code paths and configuration examples target the **commercial Microsoft 365 / Azure / Power Platform cloud**. Customers deploying into US Government (GCC, GCC High, DoD), 21Vianet (China), or other sovereign clouds must override several endpoints. Authoritative references: [Power Platform US Government overview](https://learn.microsoft.com/en-us/power-platform/admin/microsoft-dynamics-365-government), [Microsoft Graph national clouds](https://learn.microsoft.com/en-us/graph/deployments).
+
+### Per-cloud endpoint overrides
+
+| Component | Commercial | GCC | GCC High | DoD | 21Vianet |
+|-----------|-----------|-----|----------|-----|----------|
+| **Microsoft Graph base URL** | `graph.microsoft.com` | `graph.microsoft.com` (M365 GCC uses worldwide) | `graph.microsoft.us` | `dod-graph.microsoft.us` | `microsoftgraph.chinacloudapi.cn` |
+| **`Connect-MgGraph -Environment`** | `Global` | `Global` (per Microsoft Learn) | `USGov` | `USGovDoD` | `China` |
+| **`Add-PowerAppsAccount -Endpoint`** | `prod` (default) | `usgov` | `usgovhigh` | `dod` | n/a (separate guidance) |
+| **BAP admin endpoint** | `api.bap.microsoft.com` | Same in many gov scenarios — verify per the US Gov service description before relying on it | Verify per US Gov service description | Verify per US Gov service description | Verify per published 21Vianet docs |
+| **Dataverse host suffix** | `crm.dynamics.com` (and `crm2`/`crm3`/`crm4`…) | `crm.microsoftdynamics.us` | `crm.appsplatform.us` | separate sovereign endpoint | `crm.dynamics.cn` |
+| **Microsoft Entra authority** | `login.microsoftonline.com` | `login.microsoftonline.com` (GCC uses worldwide) | `login.microsoftonline.us` | `login.microsoftonline.us` | `login.chinacloudapi.cn` |
+
+### What this means for ASARD
+
+1. **PowerShell modules:** When you `Connect-MgGraph` or `Add-PowerAppsAccount` from a sovereign tenant, pass the matching `-Environment` / `-Endpoint` parameter listed above. Forgetting this causes authentication to silently succeed against the commercial endpoint and then return zero results for the gov-cloud tenant.
+2. **MSAL / azure-identity (Python):** Set the authority URL (`https://login.microsoftonline.us/<tenant-id>` for GCC High and DoD; `https://login.chinacloudapi.cn/<tenant-id>` for 21Vianet) and target the per-cloud Graph and Dataverse scopes (e.g., `https://graph.microsoft.us/.default`, `https://<org>.crm.appsplatform.us/.default`).
+3. **Dataverse `DATAVERSE_ENVIRONMENT_URL`:** Use the geography-correct host suffix (see Step 2 note above). The example `https://<org>.crm.dynamics.com` only works for commercial tenants.
+4. **Teams Workflows webhook (Step 7):** Workflows is available in commercial and US Government clouds, but the issued webhook URL host differs (`*.logic.azure.com` vs the US Gov Logic Apps host). Use whichever URL the Workflows template issues in your tenant — do not transplant a commercial URL into a sovereign deployment.
+5. **Defender for Cloud Apps AI Agent Protection / Inventory:** This capability had documented preview status with possible sovereign-cloud parity gaps as of May 2026. Verify availability for your specific cloud before relying on it for ASARD evidence collection — see the [Defender for Cloud Apps US Government documentation](https://learn.microsoft.com/en-us/defender-cloud-apps/gov) and the per-cloud service descriptions.
+
+### Implementation caveat
+
+This framework does not enumerate every per-cloud endpoint difference. Treat the table above as a **starting checklist** and always validate against Microsoft's current US Government / 21Vianet service descriptions before production deployment. Configuration that works in commercial may need to be re-tested end-to-end in each sovereign cloud.
+
 ## Verification
 
 After deployment, verify that all components are functioning correctly.
@@ -397,9 +471,17 @@ After deployment, verify that all components are functioning correctly.
 pac org list
 pac org select --environment <env-id>
 
-# Enumerate ASARD tables via the documented EntityDefinitions endpoint
-$token = (Get-AzAccessToken -ResourceUrl 'https://<org>.crm.dynamics.com').Token
+# Enumerate ASARD tables via the documented EntityDefinitions endpoint.
+# Az.Accounts >= 2.13 returns Token as a [SecureString] by default — interpolating it directly
+# into "Bearer $token" produces the literal string "Bearer System.Security.SecureString".
+# Use -AsPlainText to get a plain [string] back (Get-AzAccessToken then returns the token
+# directly; no .Token accessor is needed). See https://learn.microsoft.com/en-us/powershell/azure/release-notes-azureps
+$token = Get-AzAccessToken -ResourceUrl 'https://<org>.crm.dynamics.com' -AsPlainText
 Invoke-RestMethod -Uri "https://<org>.crm.dynamics.com/api/data/v9.2/EntityDefinitions?`$select=LogicalName&`$filter=startswith(LogicalName,'gov_asard')" -Headers @{ Authorization = "Bearer $token"; Accept = 'application/json' }
+
+# Backward-compatible alternative for older Az.Accounts (< 2.13) installations:
+#   $secure = (Get-AzAccessToken -ResourceUrl 'https://<org>.crm.dynamics.com').Token
+#   $token  = $secure | ConvertFrom-SecureString -AsPlainText
 ```
 
 **Expected output:**
