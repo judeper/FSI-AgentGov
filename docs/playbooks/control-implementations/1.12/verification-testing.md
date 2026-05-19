@@ -13,7 +13,7 @@
 ---
 
 !!! warning "Non-Substitution"
-    This playbook **supports compliance with**, but does **not by itself ensure compliance with**, FINRA Rule 3110 (Supervision), FINRA Rule 4511 (Books and Records), FINRA Regulatory Notice 21-18 (data-stewardship guidance for cloud-hosted books and records), FINRA RN 25-07 (Generative AI / Large Language Models — RFC; cited contextually only and not yet binding), SEC Rules 17a-3 / 17a-4 (Recordkeeping and Retention), Regulation S-P amendments (effective compliance dates 2024–2025; 30-day customer-notice and 72-hour incident-notice expectations as adopted), GLBA §501(b) (Safeguards Rule), SOX §404 (Internal Control over Financial Reporting), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (Sound Practices for Model Risk Management) / Federal Reserve SR 26-2 (formerly SR 11-7), CFTC Regulation 1.31, NYDFS 23 NYCRR 500 §§500.06 / 500.16 / 500.17, and the FFIEC IT Examination Handbook.
+    This playbook **supports compliance with**, but does **not by itself ensure compliance with**, FINRA Rule 3110 (Supervision), FINRA Rule 4511 (Books and Records), FINRA Regulatory Notice 21-18 (data-stewardship guidance for cloud-hosted books and records), FINRA RN 25-07 (workplace modernization Regulatory Notice; cited contextually only — substantive AI supervisory authority is FINRA RN 24-09 + Rule 3110, see framework/regulatory-framework.md), SEC Rules 17a-3 / 17a-4 (Recordkeeping and Retention), Regulation S-P amendments (effective compliance dates 2024–2025; 30-day customer-notice and 72-hour incident-notice expectations as adopted), GLBA §501(b) (Safeguards Rule), SOX §404 (Internal Control over Financial Reporting), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (Sound Practices for Model Risk Management) / Federal Reserve SR 26-2 (formerly SR 11-7), CFTC Regulation 1.31, NYDFS 23 NYCRR 500 §§500.06 / 500.16 / 500.17, and the FFIEC IT Examination Handbook.
 
     A clean execution of every TC in this catalog is **necessary but not sufficient**:
 
@@ -1536,7 +1536,7 @@ AfterAll {
 | FINRA Rule 3110 (Supervision) | TC-2, TC-3, TC-6, TC-7, TC-9, TC-16, TC-17 |
 | FINRA Rule 4511 (Books and Records) | TC-1, TC-10, TC-12, TC-16, TC-20, TC-22 |
 | FINRA Regulatory Notice 21-18 | TC-1, TC-12, TC-22 (cloud-hosted records stewardship context) |
-| FINRA RN 25-07 (RFC) | TC-4, TC-5, TC-14, TC-16 (AI-supervision context; not yet binding) |
+| FINRA RN 24-09 / Rule 3110 | TC-4, TC-5, TC-14, TC-16 (Gen AI supervision; technology-neutral application of existing supervisory and recordkeeping rules) |
 | SEC Rule 17a-3 / 17a-4 | TC-1, TC-12, TC-22 |
 | SEC Reg S-P (2024 amendments) | TC-6, TC-7, TC-9, TC-17, TC-18, TC-22 |
 | GLBA §501(b) (Safeguards Rule) | TC-5, TC-6, TC-7, TC-9, TC-10, TC-13, TC-15, TC-18 |

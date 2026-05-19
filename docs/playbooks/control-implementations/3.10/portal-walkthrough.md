@@ -43,7 +43,7 @@
 6. Click **Save**
 7. **Publish** the agent so the configuration takes effect in deployed channels
 
-> **Zone 3 Requirement:** CSAT must be enabled with comment box on every published agent. Document the agent inventory and CSAT status as part of your supervisory procedures (FINRA Rule 3110 / Notice 25-07).
+> **Zone 3 Requirement:** CSAT must be enabled with comment box on every published agent. Document the agent inventory and CSAT status as part of your supervisory procedures (FINRA Rule 3110 / RN 24-09).
 
 #### Step 2: Add an "Escalate to Human Review" Topic (Recommended)
 

@@ -14,7 +14,7 @@ Control 1.14 sits directly on **GLBA 501(b)** customer-NPI minimization, **SEC R
 
 > **Determination vs. detection.** The NY DFS 500.17(a) 72-hour clock starts at the firm's **determination** that a reportable cybersecurity event occurred — not at first alert. Document the determination decision (who, when, on what evidence). That timestamp is the one regulators will examine.
 >
-> **Notice 25-07 reminder (FINRA, March 2025).** There is no separate "AI rule." Supervisory failures (3110), recordkeeping gaps (4511), and reportable events (4530) involving AI agents are evaluated under the *existing* rules.
+> **FINRA Gen AI guidance reminder (RN 24-09, June 2024).** There is no separate "AI rule." Supervisory failures (Rule 3110), recordkeeping gaps (Rule 4511), and reportable events (Rule 4530) involving AI agents are evaluated under the *existing* rules; RN 24-09 applies these on a technology-neutral basis.
 
 ### §1.1 Incident severity matrix (Zone-aware)
 
