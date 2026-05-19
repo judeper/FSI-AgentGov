@@ -10,7 +10,7 @@
     The scripts on this page **bootstrap and inventory** Control 1.18 only — they create the Entra security groups and emit role-assignment evidence. They do **not** create Dataverse custom security roles, assign groups to environment or Dataverse roles, configure PIM-for-Groups, configure column-level security, or schedule access reviews. Those steps require the Power Platform Admin Center (Dataverse Security Roles) and the Entra ID Governance experience — see the [Portal Walkthrough](portal-walkthrough.md) for the full procedure. Running the scripts on this page **alone** does **not** satisfy Control 1.18; the evidence will show the bootstrap is complete but RBAC is not yet enforced.
 
 !!! warning "Dataverse compatibility limitation"
-    The cmdlet family `Get/Set/Remove-AdminPowerAppEnvironmentRoleAssignment` per [Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/microsoft.powerapps.administration.powershell/get-adminpowerappenvironmentroleassignment) only functions on environments **without** a Common Data Service / Dataverse database. Microsoft Copilot Studio environments are Dataverse-backed by definition, so on those environments `Get-` returns empty (no error) and `Set-/Remove-` returns 403. The scripts below detect Dataverse and refuse to run; for Dataverse environments use the Dataverse Web API or PPAC Dataverse Security Roles (see Portal Walkthrough).
+    The cmdlet family `Get/Set/Remove-AdminPowerAppEnvironmentRoleAssignment` per [Microsoft Learn](https://learn.microsoft.com/en-us/powershell/module/microsoft.powerapps.administration.powershell/get-adminpowerappenvironmentroleassignment) only functions on environments **without** a Common Data Service / Dataverse database. Microsoft Copilot Studio environments are Dataverse-backed by definition. On Dataverse-backed environments the `Get-` cmdlet returns no records (commonly observed as a silent empty result), and `Set-/Remove-` calls fail with an authorization error. Microsoft documents the limitation but does not pin specific HTTP status codes; rely on the documented restriction, not the field-observed code. The scripts below detect Dataverse and refuse to run; for Dataverse environments use the Dataverse Web API or PPAC Dataverse Security Roles (see Portal Walkthrough).
 
 ## Prerequisites
 
@@ -91,6 +91,11 @@ $endpointMap = @{ Commercial='prod'; USGov='usgov'; USGovHigh='usgovhigh'; DoD='
 Add-PowerAppsAccount -Endpoint $endpointMap[$Cloud]
 
 # Refuse to run on Dataverse — Get-AdminPowerAppEnvironmentRoleAssignment returns empty silently.
+# Detect Dataverse via CommonDataServiceDatabaseType (Get-AdminPowerAppEnvironment also exposes
+# CommonDataServiceDatabaseProvisioningState). Microsoft does not contractually pin the exact
+# "no database" sentinel string, so treat any value other than the observed 'none' literal as
+# Dataverse-backed and pin the sentinel via a unit test rather than relying on the string literal
+# alone — a cmdlet output change must not silently break this gate.
 $env = Get-AdminPowerAppEnvironment -EnvironmentName $EnvironmentId
 if ($env.CommonDataServiceDatabaseType -and $env.CommonDataServiceDatabaseType -ne 'none') {
     Stop-Transcript
