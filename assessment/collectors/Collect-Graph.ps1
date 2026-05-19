@@ -295,7 +295,8 @@ try {
     $copilotAppIds = @(
         '38e57bc7-9498-4bcc-b6b6-37001619bd96',  # Microsoft Copilot Studio (current)
         '96ff4394-9197-43aa-b393-6a41652e21f8',  # Power Virtual Agents (legacy)
-        '5bdf5494-2491-4cb6-b4f9-92dbed25ff86'   # Power Virtual Agents Service (legacy)
+        '5bdf5494-2491-4cb6-b4f9-92dbed25ff86',  # Power Virtual Agents Service (legacy)
+        '38e15ad7-bb74-4ac3-9aef-f4b720b51c20'   # Power Virtual Agents Service (Copilot Studio runtime; per 1.11 CA templates)
     )
     $appIdFilter = "appId in ('{0}')" -f ($copilotAppIds -join "','")
     try {
