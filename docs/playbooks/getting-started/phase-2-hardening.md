@@ -28,7 +28,7 @@ Phase 2 implements advanced security controls, monitoring integration, and adver
 **Steps:**
 
 1. Enable Microsoft Defender for Cloud Apps
-2. In the **Microsoft Defender portal > System > Settings > Cloud Apps > Security for AI agents**, turn on **Microsoft Copilot Studio agent protection**. ([Real-time protection for Copilot Studio agents](https://learn.microsoft.com/en-us/defender-cloud-apps/real-time-agent-protection-during-runtime))
+2. In the **Microsoft Defender portal > System > Settings > Security for AI**, turn on **Microsoft Copilot Studio agent protection** (the runtime integration that replaces the older "Copilot Studio app connector" concept). ([Real-time protection for Copilot Studio agents](https://learn.microsoft.com/en-us/defender-cloud-apps/real-time-agent-protection-during-runtime))
 3. Create alert policies:
    - Unusual usage patterns
    - Data exfiltration attempts
