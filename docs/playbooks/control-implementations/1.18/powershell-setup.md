@@ -226,7 +226,12 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $endpointMap = @{ Commercial='prod'; USGov='usgov'; USGovHigh='usgovhigh'; DoD='dod'; China='china' }
-$mgEnvMap    = @{ Commercial='Global'; USGov='USGov'; USGovHigh='USGovDoD'; DoD='USGovDoD'; China='China' }
+# Microsoft Graph national cloud names per Connect-MgGraph -Environment:
+# Global = commercial (graph.microsoft.com); USGov = GCC High & GCC (graph.microsoft.us);
+# USGovDoD = DoD L5 (dod-graph.microsoft.us); China = 21Vianet (microsoftgraph.chinacloudapi.cn).
+# FSI USGov (commercial GCC) and USGovHigh (GCC High) both map to Microsoft Graph 'USGov'.
+# Only DoD maps to 'USGovDoD'. See: https://learn.microsoft.com/en-us/graph/deployments
+$mgEnvMap    = @{ Commercial='Global'; USGov='USGov'; USGovHigh='USGov'; DoD='USGovDoD'; China='China' }
 
 Add-PowerAppsAccount -Endpoint $endpointMap[$Cloud]
 Connect-MgGraph -Scopes @("Group.Read.All","RoleManagement.Read.Directory","PrivilegedAccess.Read.AzureADGroup") `
@@ -339,7 +344,12 @@ New-Item -ItemType Directory -Force -Path $EvidencePath | Out-Null
 Start-Transcript -Path (Join-Path $EvidencePath "transcript-bootstrap-$ts.log") -IncludeInvocationHeader
 
 $endpointMap = @{ Commercial='prod'; USGov='usgov'; USGovHigh='usgovhigh'; DoD='dod'; China='china' }
-$mgEnvMap    = @{ Commercial='Global'; USGov='USGov'; USGovHigh='USGovDoD'; DoD='USGovDoD'; China='China' }
+# Microsoft Graph national cloud names per Connect-MgGraph -Environment:
+# Global = commercial (graph.microsoft.com); USGov = GCC High & GCC (graph.microsoft.us);
+# USGovDoD = DoD L5 (dod-graph.microsoft.us); China = 21Vianet (microsoftgraph.chinacloudapi.cn).
+# FSI USGov (commercial GCC) and USGovHigh (GCC High) both map to Microsoft Graph 'USGov'.
+# Only DoD maps to 'USGovDoD'. See: https://learn.microsoft.com/en-us/graph/deployments
+$mgEnvMap    = @{ Commercial='Global'; USGov='USGov'; USGovHigh='USGov'; DoD='USGovDoD'; China='China' }
 
 try {
     Connect-MgGraph -Scopes "Group.ReadWrite.All" -Environment $mgEnvMap[$Cloud] -NoWelcome
