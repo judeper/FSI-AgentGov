@@ -94,7 +94,7 @@ This playbook is the auditor-facing verification procedure for Control 1.18. It 
 ### Test 7 — Connected-agent inventory
 
 1. In Copilot Studio, open each agent in a Zone 2/3 environment.
-2. Navigate to **Settings** > **Connected agents** (the multi-agent collaboration surface; verify the literal menu label at apply-time — some tenants surface this as **'Agents'** depending on UI release ring. The A2A protocol underpinning cross-agent invocation reached GA in April 2026, but the per-agent connectivity toggle may still surface a Preview label in some tenants — https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-connect-agents).
+2. Navigate to **Settings** > **Connected agents** (the multi-agent collaboration surface; verify the literal menu label at apply-time — some tenants surface this as **'Agents'** depending on UI release ring. The A2A protocol underpinning cross-agent invocation reached GA in April 2026, but the per-agent connectivity toggle may still surface a Preview label in some tenants — https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-add-other-agents).
 3. Inspect the toggle "Let other agents connect to and use this one".
 4. **Expected:** Connected-agent toggle for the agent is **Disabled** unless the agent appears on the FSI-maintained approved cross-agent connectivity list (filed with the AI Governance Lead). Microsoft Copilot Studio does not surface this exception list natively; the FSI repository is the source of truth.
 5. **Evidence:** Settings screenshot per agent + the current approved-exception list with sign-off dates.
@@ -204,7 +204,7 @@ I attest that, for the reporting period above:
 | Test ID | Configuration Point | Expected Result | Portal Path | Evidence |
 |---------|--------------------|-----------------|-------------|----------|
 | SSPM-1.18-01 | Agent tool consent | Enabled for all published agents | Copilot Studio > Agent > Tools > "Ask the user before running this action" | Per-agent screenshot |
-| SSPM-1.18-02 | Connected agents | Disabled or restricted to approved list | Copilot Studio > Agent > Settings > Connected agents (verify the literal menu label at apply-time — may surface as 'Agents' depending on UI release ring; A2A reached GA in April 2026 but per-agent toggle may still show Preview — [Learn](https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-connect-agents)) | Per-agent screenshot |
+| SSPM-1.18-02 | Connected agents | Disabled or restricted to approved list | Copilot Studio > Agent > Settings > Connected agents (verify the literal menu label at apply-time — may surface as 'Agents' depending on UI release ring; A2A reached GA in April 2026 but per-agent toggle may still show Preview — [Learn](https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-add-other-agents)) | Per-agent screenshot |
 | SSPM-1.18-03 | Admin count | < 10 environment-level admins per environment | PPAC > Environments > [env] > Settings > Users + permissions > Security roles > System Administrator | Filtered user export |
 | SSPM-1.18-04 | RPA / SPN admin roles | No service principals in admin roles | PPAC > Environments > [env] > Settings > Users + permissions > Users (filter Type = Application) | Filtered user export |
 
@@ -219,7 +219,7 @@ I attest that, for the reporting period above:
 
 **SSPM-1.18-02 — Connected agents**
 
-1. Open Copilot Studio > select agent > **Settings** > **Connected agents** (the multi-agent collaboration surface; verify the literal menu label at apply-time — some tenants surface this as **'Agents'** depending on UI release ring. The A2A protocol underpinning cross-agent invocation reached GA in April 2026, but the per-agent connectivity toggle may still surface a Preview label in some tenants — https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-connect-agents).
+1. Open Copilot Studio > select agent > **Settings** > **Connected agents** (the multi-agent collaboration surface; verify the literal menu label at apply-time — some tenants surface this as **'Agents'** depending on UI release ring. The A2A protocol underpinning cross-agent invocation reached GA in April 2026, but the per-agent connectivity toggle may still surface a Preview label in some tenants — https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-add-other-agents).
 2. Confirm "Let other agents connect to and use this one" = **Disabled**, or that the agent is on the documented approved-exception list.
 3. **Pass criteria:** Connected-agent enablement matches the approved-exception list.
 4. **Evidence:** Settings screenshot + approved-exception list reference.
