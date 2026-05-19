@@ -296,7 +296,8 @@ Identifies agents with departed owners, stale agents, and unmanaged agents requi
     orphaned agent alert to Teams channel.
 
 .EXAMPLE
-    .\Detect-OrphanedAgents.ps1 -InventoryReportPath "C:\Reports\AgentInventory.csv" -StalenessThresholdDays 365 -TeamsWebhookUrl "https://outlook.office.com/webhook/..."
+    # NOTE: Office 365 Connectors retired 2025-12-31; use Teams Workflows webhooks (Adaptive Card v1.5 payload).
+    .\Detect-OrphanedAgents.ps1 -InventoryReportPath "C:\Reports\AgentInventory.csv" -StalenessThresholdDays 365 -TeamsWebhookUrl "https://prod-NN.westus.logic.azure.com:443/workflows/<workflow-id>/triggers/manual/paths/invoke?..."
 
 .NOTES
     Author: FSI-AgentGov Framework
@@ -652,7 +653,7 @@ Master orchestration script that runs all inventory enforcement scripts in seque
     Number of days since last modification to consider an agent "stale". Default: 365.
 
 .EXAMPLE
-    .\Invoke-InventoryEnforcementSuite.ps1 -OutputPath "C:\Reports" -ZoneMappingFile "C:\Config\zone-mappings.csv" -TeamsWebhookUrl "https://outlook.office.com/webhook/..."
+    .\Invoke-InventoryEnforcementSuite.ps1 -OutputPath "C:\Reports" -ZoneMappingFile "C:\Config\zone-mappings.csv" -TeamsWebhookUrl "https://prod-NN.westus.logic.azure.com:443/workflows/<workflow-id>/triggers/manual/paths/invoke?..."
 
 .NOTES
     Author: FSI-AgentGov Framework
@@ -763,7 +764,7 @@ To run the enforcement suite on a schedule:
 
 ```powershell
 # Create scheduled task (run as administrator)
-$action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-File C:\Scripts\Invoke-InventoryEnforcementSuite.ps1 -OutputPath C:\Reports -ZoneMappingFile C:\Config\zone-mappings.csv -TeamsWebhookUrl 'https://outlook.office.com/webhook/...'"
+$action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-File C:\Scripts\Invoke-InventoryEnforcementSuite.ps1 -OutputPath C:\Reports -ZoneMappingFile C:\Config\zone-mappings.csv -TeamsWebhookUrl 'https://prod-NN.westus.logic.azure.com:443/workflows/<workflow-id>/triggers/manual/paths/invoke?...'"
 
 # Run daily at 4:00 AM
 $trigger = New-ScheduledTaskTrigger -Daily -At 4:00AM
