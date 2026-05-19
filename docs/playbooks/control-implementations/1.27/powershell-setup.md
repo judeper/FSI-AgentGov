@@ -276,7 +276,7 @@ $summary | Select-Object Total, Compliant, NonCompliant, HighSeverity | Format-T
 .SYNOPSIS
     Pulls per-topic Generative answers nodes for a given agent via Dataverse Web API.
 .PARAMETER OrgUrl
-    e.g., https://contoso.crm.dynamics.com  (or .crm9. for GCC, .crm.appsplatform.us for GCC High, etc.)
+    e.g., https://contoso.crm.dynamics.com  (or .crm9. for GCC, .crm.microsoftdynamics.us for GCC High, .crm.appsplatform.us for DoD, etc.)
 .PARAMETER BotId
     The Dataverse bot id (ChatbotName from Script 1 output).
 .PARAMETER AccessToken
