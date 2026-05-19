@@ -135,7 +135,7 @@ For each evidence artifact: capture at original resolution, embed timestamp, has
 - [ ] Service principal credential age report
 - [ ] Agent action consent inventory (per-agent or PPAC compliance report)
 - [ ] Connected-agent enablement inventory + approved-exception list
-- [ ] Sentinel/SIEM query proof for `Operation = AdministrativeUnit*` and `PrivilegedRoleAssignment*` (Zone 3)
+- [ ] Sentinel/SIEM KQL query proof from the `AuditLogs` table filtered to `Category == "AdministrativeUnit"` (administrative-unit lifecycle and membership events) and `Category == "RoleManagement"` for PIM role-assignment activities such as `"Add member to role completed (PIM activation)"` (Zone 3) — verify the current activity-name strings against the [Entra audit activities reference](https://learn.microsoft.com/en-us/entra/identity/monitoring-health/reference-audit-activities) at apply-time, as Microsoft updates this taxonomy periodically
 - [ ] Signed attestation (template below)
 
 ---
