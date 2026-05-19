@@ -37,7 +37,7 @@ Identify retention requirements for your organization:
 | SEC Rule 17a-4(a) | 6 years (first 2 readily accessible) | Financial / accounting records |
 | SOX Section 802 / SEC Reg S-X Rule 2-06 | 7 years | Audit workpapers and supporting records |
 | GLBA Section 501(b) | Not specified by statute | Customer information; align with internal records-retention schedule (commonly 5–7 years in practice) |
-| FINRA Notice 25-07 (AI supervision) | Aligns with underlying record type | Supervisory artifacts for AI/agent activities |
+| FINRA RN 24-09 / Rule 3110 (AI supervision) | Aligns with underlying record type | Supervisory artifacts for AI/agent activities |
 
 > **Note:** GLBA does not prescribe a specific retention period. The 5–7-year range reflects common industry practice; verify your organization's obligations independently.
 

@@ -605,7 +605,7 @@ This walkthrough is designed to support compliance with the following — it doe
 |---|---|
 | **FINRA Rule 4511** | Books-and-records retention. §5 (custom retention) + §10 (preservation layer) + §11 (evidence pack). |
 | **FINRA Rule 3110** | Supervision of communications. Audit capture in §3 + content-tier handoff to [Control 1.10](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) and [Control 2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md). |
-| **FINRA Notice 25-07 (Request for Comment, April 2025)** | RFC on workplace modernization including AI-generated communications recordkeeping. **Not final guidance**; this walkthrough anticipates the direction of the RFC by capturing AI origin (`ApplicationId`, `AgentId`) and metadata that supports human vs AI attribution. Monitor for final-rule publication. |
+| **FINRA RN 25-07 (Request for Comment, April 2025)** | RFC on workplace modernization including AI-generated communications recordkeeping. **Not final guidance**; this walkthrough anticipates the direction of the RFC by capturing AI origin (`ApplicationId`, `AgentId`) and metadata that supports human vs AI attribution. Monitor for final-rule publication. |
 | **SEC Rule 17a-3** | Record creation. Audit captures the *creation* events for required books and records. |
 | **SEC Rule 17a-4(a)** | Financial / accounting records — 6-year retention. §10 retention floor table. |
 | **SEC Rule 17a-4(b)(4)** | Communications records — 3-year retention (first 2 years readily accessible). Agent conversation logs typically qualify as communications. |

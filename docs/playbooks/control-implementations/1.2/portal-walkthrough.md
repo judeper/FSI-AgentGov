@@ -203,9 +203,9 @@ Before you register a single agent, complete these gates. Each gate has a portal
 
 ### 2.3 Gate C — Audit Logging Active and Retention Confirmed
 
-1. Open `compliance.microsoft.com` → **Audit**.
+1. Open `purview.microsoft.com` → **Audit**.
 2. Confirm the banner reads "Auditing is on" — not "Start recording user and admin activity".
-3. Open `compliance.microsoft.com` → **Data lifecycle management → Retention policies**.
+3. Open `purview.microsoft.com` → **Data lifecycle management → Retention policies**.
 4. Confirm a retention policy named `AgentRegistry-AuditEvidence-7yr` exists, scoped to the SharePoint site that holds evidence packs (field 22 in §1), with retention period `7 years` and disposition `Retain only — do not delete`.
 5. If retention is shorter, **stop** and remediate per Control 1.7 portal walkthrough §4 — registry evidence collected before retention is right is not admissible as 17a-4 evidence.
 
@@ -1086,7 +1086,7 @@ When portal steps in this playbook fail or surface unexpected state, route to `.
 
 ### 21.5 Closing Hedged-Language Reminder
 
-This playbook describes a configuration and operating discipline that **supports compliance with** FINRA Rule 4511, FINRA Notice 25-07, SEC Rule 17a-4(b)(4) and 17a-4(g), SOX Sections 302 and 404, GLBA Section 501(b), NYDFS 23 NYCRR 500.07 / 500.16 / 500.17, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), NIST AI RMF GOVERN 1.4 and 1.6, FTC Safeguards Rule 16 CFR §314.4(c), and CFTC Rule 1.31. **Implementation requires sustained operator discipline; organizations should verify configuration against current regulatory expectations and their own legal counsel's interpretation. The procedures in this playbook do not constitute legal advice and do not, by themselves, demonstrate regulatory compliance.**
+This playbook describes a configuration and operating discipline that **supports compliance with** FINRA Rule 4511, FINRA RN 24-09 / Rule 3110, SEC Rule 17a-4(b)(4) and 17a-4(g), SOX Sections 302 and 404, GLBA Section 501(b), NYDFS 23 NYCRR 500.07 / 500.16 / 500.17, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), NIST AI RMF GOVERN 1.4 and 1.6, FTC Safeguards Rule 16 CFR §314.4(c), and CFTC Rule 1.31. **Implementation requires sustained operator discipline; organizations should verify configuration against current regulatory expectations and their own legal counsel's interpretation. The procedures in this playbook do not constitute legal advice and do not, by themselves, demonstrate regulatory compliance.**
 
 ---
 

@@ -204,7 +204,7 @@ Apply to: Dataverse exports
 
 Configure auto-labeling for PCG evidence:
 
-1. Go to [Microsoft Purview Compliance Portal](https://purview.microsoft.com)
+1. Go to [Microsoft Purview portal](https://purview.microsoft.com)
 2. **Information protection** → **Auto-labeling**
 3. Create policy:
    - Name: `PCG Evidence Auto-Label`

@@ -114,7 +114,7 @@ Tenant: __________________________  Cloud: ☐ Commercial ☐ GCC ☐ GCC High �
 I have executed the test catalog above for the period covered. The evidence pack referenced
 in this attestation supports — but does not by itself establish — the firm's compliance with:
 
-  • FINRA Rule 3110 / 25-07 supervisory-system requirements applicable to AI surfaces
+  • FINRA Rule 3110 / RN 24-09 supervisory-system requirements applicable to AI surfaces
   • SEC 17a-4(f) / FINRA 4511 record-preservation expectations (paired with Audit Premium / Control 1.7)
   • SEC Reg S-P §248.30(a)(4) detection support for events that may trigger customer notification
   • GLBA 501(b) safeguards expectations for customer information processed by AI

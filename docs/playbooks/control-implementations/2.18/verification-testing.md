@@ -12,7 +12,7 @@ This playbook is the audit-facing companion to [portal-walkthrough.md](portal-wa
 |------------|--------|----------------------------------|
 | Best-interest standard for retail recommendations | SEC Reg BI (17 CFR 240.15l-1) | Documented testing that AI recommendations are not steered by firm interest |
 | Suitability for non-retail and pre-Reg-BI scenarios | FINRA Rule 2111 | Recommendations align with stated customer profile and risk tolerance |
-| Reasonable supervision of AI-assisted recommendations | FINRA Rule 3110; FINRA Notice 25-07 | Pre-deployment + ongoing testing, supervisory review, and documented WSPs |
+| Reasonable supervision of AI-assisted recommendations | FINRA Rule 3110; FINRA RN 24-09 / Rule 3110 | Pre-deployment + ongoing testing, supervisory review, and documented WSPs |
 | AI / GenAI governance expectations | FINRA 2026 Annual Regulatory Oversight Report (GenAI section) | Pre-deployment testing, monitoring, model risk management, technology-neutral application of obligations |
 | Anti-fraud / no self-serving recommendations | SEC Rule 10b-5 | Tests for proprietary bias and conflict steering |
 | Books-and-records | SEC Rule 17a-4(b)(4); FINRA Rule 4511 | Evidence retention with chain of custody |

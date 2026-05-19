@@ -46,7 +46,7 @@ Walk every SEV-1 and SEV-2 inventory incident through Q1–Q10 within the first 
 | **Q1** | FINRA Rule 3110 (Supervision) | Did the inventory gap remove a supervisor's, principal's, or compliance officer's ability to see, monitor, or supervise an agent that produces or assists with communications, advice, recommendations, or trading activity? | Escalate to CCO; document the supervisory blind window (start time, end time); preserve all interactions in the window. |
 | **Q2** | FINRA Rule 4511 / SEC Rule 17a-4(b)(4)/(f) | Could the gap have caused a record required to be made or preserved (including agent metadata, configuration, prompts, outputs, or audit trails) to be lost, altered, deleted, or rendered non-WORM? | Escalate to CCO + Records Management; trigger 17a-4(f) WORM preservation review; preserve under retention hold. |
 | **Q3** | FINRA Rule 4530 | Is there evidence of insider misconduct, intentional concealment, or a registered representative attempting to evade supervision via the agent? | Escalate to CCO + HR + Legal; preserve all evidence under privilege; consider 4530(a)/(b)/(d) reporting paths. |
-| **Q4** | FINRA Notice 25-07 (AI obligations) | Did the gap involve an AI tool used in a member-firm capacity (research, advice, communications, surveillance) such that supervisory and recordkeeping obligations under existing rules apply with AI-specific considerations? | Escalate to CCO; document the AI-specific control gap; align response with existing 3110/4511 obligations. |
+| **Q4** | FINRA RN 24-09 / Rule 3110 (AI obligations) | Did the gap involve an AI tool used in a member-firm capacity (research, advice, communications, surveillance) such that supervisory and recordkeeping obligations under existing rules apply with AI-specific considerations? | Escalate to CCO; document the AI-specific control gap; align response with existing 3110/4511 obligations. |
 | **Q5** | SEC Reg S-P §248.30(a)(3) | Did the agent have access to, or could the gap have caused unauthorized exposure of, customer non-public personal information (NPI)? | Escalate to CCO + Privacy Officer + Legal; trigger Reg S-P incident-response procedures; assess customer notification. |
 | **Q6** | SEC Form 8-K Item 1.05 (registrant) | Has a "material" cybersecurity incident likely occurred (qualitative / quantitative materiality)? | Escalate to CCO + General Counsel + Disclosure Committee; **4-business-day clock starts upon materiality determination**. |
 | **Q7** | NYDFS 23 NYCRR §500.17(a) | Has a cybersecurity event materially affecting normal operations or requiring notice to a government / SRO occurred? | Escalate to CISO + General Counsel; **72-hour determination/notification clock starts upon discovery**. |
@@ -727,7 +727,7 @@ Inventory metadata, agent configuration, prompts, outputs, and audit trails are 
 
 If an inventory anomaly is correlated with insider misconduct (intentional concealment, attempts to evade supervision, unauthorized agent creation by a registered representative), 4530(a) / (b) / (d) reporting paths may be triggered. Engage HR and Legal under privilege immediately.
 
-### §4.4 FINRA Notice 25-07 — AI-Specific Obligations
+### §4.4 FINRA RN 24-09 / Rule 3110 — AI-Specific Obligations
 
 Existing supervisory and recordkeeping obligations apply to AI tools used in member-firm capacity. AI-specific considerations include: model versioning, prompt versioning, output traceability, third-party model dependencies. An inventory gap on an AI tool is a control gap on these obligations.
 

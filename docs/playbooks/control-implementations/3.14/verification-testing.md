@@ -43,7 +43,7 @@ Before running tests, ensure the following are in place:
 2. The agent's Entra app registration has been confirmed active.
 3. You have access to all four verification destinations:
    - M365 Admin Center (Entra Global Admin or AI Administrator)
-   - Microsoft Purview compliance portal (Purview Audit Reader)
+   - Microsoft Purview portal (Purview Audit Reader)
    - Microsoft Defender portal (Entra Security Reader or above)
    - Azure Log Analytics workspace (Log Analytics Reader)
 4. The agent under test can be invoked manually with a simple test query.
@@ -186,7 +186,7 @@ Purview audit log ingestion may take 30–90 minutes. Wait at least 90 minutes a
 
 **T3.3 — Purview Audit Search**
 
-Navigate to Microsoft Purview compliance portal > Audit > New search:
+Navigate to Microsoft Purview portal > Audit > New search:
 - **Start date**: 2 hours before the test invocation
 - **End date**: current time
 - **Activities**: Search for "Agent" in the activity filter; select all agent-related activities available

@@ -10,7 +10,7 @@
 
 ## Regulatory hedging notice
 
-This playbook helps support FSI organizations in meeting expectations from FINRA Rule 4511 (books and records), FINRA Rule 3110 (supervision), FINRA Regulatory Notice 25-07 (generative-AI supervision), SEC Rule 17a-4(b)(4) and 17a-4(g) (records retention and third-party custody), SOX §§302/404 (internal control over financial reporting), GLBA 501(b) Safeguards Rule, FTC Safeguards Rule 16 CFR §314.4(c) (asset inventory and access controls), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7) (model risk management — inventory and accountable ownership), CFTC Regulation 1.31, NYDFS 23 NYCRR Part 500.07 / 500.16 / 500.17 (privileged access, incident response, asset inventory), NIST AI RMF 1.0 GOVERN 1.4 and GOVERN 1.6 (accountable AI inventory and roles), and ISO/IEC 42001:2023 where applicable.
+This playbook helps support FSI organizations in meeting expectations from FINRA Rule 4511 (books and records), FINRA Rule 3110 (supervision), FINRA RN 24-09 / Rule 3110 (generative-AI supervision), SEC Rule 17a-4(b)(4) and 17a-4(g) (records retention and third-party custody), SOX §§302/404 (internal control over financial reporting), GLBA 501(b) Safeguards Rule, FTC Safeguards Rule 16 CFR §314.4(c) (asset inventory and access controls), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7) (model risk management — inventory and accountable ownership), CFTC Regulation 1.31, NYDFS 23 NYCRR Part 500.07 / 500.16 / 500.17 (privileged access, incident response, asset inventory), NIST AI RMF 1.0 GOVERN 1.4 and GOVERN 1.6 (accountable AI inventory and roles), and ISO/IEC 42001:2023 where applicable.
 
 A clean run of this playbook **does not guarantee legal or regulatory compliance**, does not replace independent supervisory review, does not substitute for the firm's written supervisory procedures, and does not by itself prove the absence of unknown agents in surfaces this playbook did not enumerate. Implementation requires organization-specific risk assessment, legal review, and integration with the firm's broader compliance program. Organizations should verify current Microsoft Learn documentation, sovereign-cloud feature parity, tenant-specific entitlements, and Entra / Microsoft 365 / Power Platform admin-surface availability at each cycle. Numeric thresholds, SLA windows, sample sizes, and rotation cadences in this playbook are **calibrated to the tenant baseline captured in PRE-04**; they are not portable between tenants without recalibration.
 
@@ -1036,7 +1036,7 @@ Once per year, AI Governance Lead, Compliance Officer, and Internal Audit jointl
 | **Quarterly audit packs** | All four quarterly audit packs from §9 |
 | **Exception register** | Every exception in force during the period, with rationale, sign-off, expiry, and resolution status |
 | **Incident references** | Cross-references to any AI Incident Response invocations during the period that touched the registration plane |
-| **Regulatory mapping** | Per-regulation crosswalk: FINRA Rule 4511 / Notice 25-07, SEC 17a-4, SOX §§302/404, GLBA / FTC Safeguards 16 CFR §314.4(c), OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7), NYDFS 23 NYCRR Part 500.07 / 500.16, NIST AI RMF GOVERN 1.4 / 1.6, ISO/IEC 42001:2023 — for each, name the controls and tests in this playbook that support the requirement, with the explicit caveat that "supports" is not "guarantees" |
+| **Regulatory mapping** | Per-regulation crosswalk: FINRA Rule 4511 / RN 24-09 / Rule 3110, SEC 17a-4, SOX §§302/404, GLBA / FTC Safeguards 16 CFR §314.4(c), OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7), NYDFS 23 NYCRR Part 500.07 / 500.16, NIST AI RMF GOVERN 1.4 / 1.6, ISO/IEC 42001:2023 — for each, name the controls and tests in this playbook that support the requirement, with the explicit caveat that "supports" is not "guarantees" |
 | **Attestation statement** | Three-signature statement from AI Governance Lead, Compliance Officer, and Internal Audit affirming the period's coverage, completeness, and limitations |
 | **Limitations and exclusions** | A frank inventory of what the pack does NOT cover (surfaces not enumerated, controls outside scope, regulatory frameworks not mapped, sovereign clouds not exercised) |
 
@@ -1121,7 +1121,7 @@ Findings from internal audit walkthroughs, examiner observations, and peer-firm 
 
 - **FINRA Rule 4511** — Books and records general requirements
 - **FINRA Rule 3110** — Supervision
-- **FINRA Regulatory Notice 25-07** — Supervision of generative-AI applications
+- **FINRA RN 24-09 / Rule 3110** — Supervision of generative-AI applications
 - **SEC Rule 17a-4(b)(4) and 17a-4(g)** — Records preservation; third-party recordkeeper requirements; non-rewriteable / non-erasable storage
 - **SEC Rule 17a-3** — Records to be made by certain exchange members, brokers, and dealers
 - **SOX §§302 and 404** — Internal control over financial reporting

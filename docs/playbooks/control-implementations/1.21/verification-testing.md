@@ -6,7 +6,7 @@
 **Sovereign clouds:** Commercial, GCC, GCC High, DoD (per-cloud feature parity tracked in §5)  
 **Cross-links:** 1.6 (Customer Lockbox & data export), 1.7 (Audit log retention), 1.8 (eDiscovery & legal hold), 1.10 (Communication Compliance), 1.13 (Defender for Cloud Apps AI monitoring), 1.14 (DSPM for AI), 1.19 (Sensitivity labels), 1.24 (Sentinel analytics for Copilot), 3.4 (Incident response), 3.9 (Tabletop exercises), 4.6 (Operational telemetry)
 
-> **Regulatory hedging notice.** This playbook describes verification procedures intended to **support compliance with** FINRA 4511, FINRA Regulatory Notice 25-07 (AI supervision), SEC 17a-4(f) (WORM/immutable retention), SEC Reg S-P (2024 amendments — incident response), SOX 404 (control design and operating effectiveness), GLBA 501(b) Safeguards Rule, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (model risk management), Federal Reserve SR 26-2 (formerly SR 11-7) (model risk management), and CFTC Regulation 1.31 (recordkeeping). Implementation **does not guarantee** legal compliance. Organizations should verify applicability with qualified counsel and confirm tenant-specific behaviour against current Microsoft Learn documentation.
+> **Regulatory hedging notice.** This playbook describes verification procedures intended to **support compliance with** FINRA 4511, FINRA RN 24-09 / Rule 3110 (AI supervision), SEC 17a-4(f) (WORM/immutable retention), SEC Reg S-P (2024 amendments — incident response), SOX 404 (control design and operating effectiveness), GLBA 501(b) Safeguards Rule, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (model risk management), Federal Reserve SR 26-2 (formerly SR 11-7) (model risk management), and CFTC Regulation 1.31 (recordkeeping). Implementation **does not guarantee** legal compliance. Organizations should verify applicability with qualified counsel and confirm tenant-specific behaviour against current Microsoft Learn documentation.
 
 ---
 
@@ -996,7 +996,7 @@ Every test emits a single JSON file conforming to this schema. The shape is inte
   ],
   "regulatoryDriver": [
     "FINRA 4511",
-    "FINRA Reg Notice 25-07",
+    "FINRA Reg Notice 24-09",
     "SEC 17a-4(f)",
     "SEC Reg S-P (2024)",
     "SOX 404",
@@ -1137,7 +1137,7 @@ function Write-EvidenceRecord {
         skipReason        = $SkipReason
         auditAssertion    = $AuditAssertion
         evidenceFiles     = $hashes
-        regulatoryDriver  = @('FINRA 4511','FINRA Reg Notice 25-07','SEC 17a-4(f)','SEC Reg S-P (2024)','SOX 404','GLBA 501(b)','OCC 2026-13 (formerly OCC 2011-12)','Fed SR 26-2 (formerly SR 11-7)','CFTC 1.31')
+        regulatoryDriver  = @('FINRA 4511','FINRA Reg Notice 24-09','SEC 17a-4(f)','SEC Reg S-P (2024)','SOX 404','GLBA 501(b)','OCC 2026-13 (formerly OCC 2011-12)','Fed SR 26-2 (formerly SR 11-7)','CFTC 1.31')
         schemaVersion     = '1.0'
     }
     $outFile = Join-Path $cycleDir "$TestId.json"
@@ -1326,7 +1326,7 @@ The cycle attestation is a single signed statement covering the cycle's results.
     "Microsoft.PowerApps.Administration.PowerShell": "2.0.180"
   },
   "regulatoryAttestation": {
-    "statement": "The cycle results above are intended to support compliance with FINRA 4511, FINRA Regulatory Notice 25-07, SEC 17a-4(f), SEC Reg S-P (2024), SOX 404, GLBA 501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), and CFTC Regulation 1.31. They do not guarantee legal compliance. Tenant-specific regulatory applicability has been confirmed with qualified counsel.",
+    "statement": "The cycle results above are intended to support compliance with FINRA 4511, FINRA RN 24-09 / Rule 3110, SEC 17a-4(f), SEC Reg S-P (2024), SOX 404, GLBA 501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), and CFTC Regulation 1.31. They do not guarantee legal compliance. Tenant-specific regulatory applicability has been confirmed with qualified counsel.",
     "caveats": [
       "Microsoft does not publish a single guaranteed SLA for Unified Audit Log ingestion; operative latency for this cycle is the tenant-measured p99 captured in PRE-04 / UAL-04, not a vendor SLA.",
       "Azure AI Content Safety Prompt Shields is the Microsoft-supported jailbreak detection surface for Azure-AI-fronted agents; first-party Microsoft 365 Copilot uses internal controls that surface (where applicable) via Defender XDR.",

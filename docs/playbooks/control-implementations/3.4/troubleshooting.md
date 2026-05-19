@@ -446,7 +446,7 @@ If `Status == "Failed"`, the `Reason` and `ExtendedProperties` columns explain w
 
 **Diagnostic steps.**
 
-*Portal:* Open `https://compliance.microsoft.com` → **Insider risk management** → **Cases** → the pseudonymised case. The case header shows the case ID, the policy that triggered it, the case priority, and the days-open count. Click **Activity log** to see whether an unmask request has been filed and what its status is.
+*Portal:* Open `https://purview.microsoft.com` → **Insider risk management** → **Cases** → the pseudonymised case. The case header shows the case ID, the policy that triggered it, the case priority, and the days-open count. Click **Activity log** to see whether an unmask request has been filed and what its status is.
 
 Open `https://make.powerautomate.com` → **My flows** → the unmask-approval flow → **Run history** → the relevant run. The run history shows where the approval has stalled (typically in an "Approve or Reject — Wait for an approval" step).
 
@@ -467,7 +467,7 @@ Open `https://make.powerautomate.com` → **My flows** → the unmask-approval f
 
 **Diagnostic steps.**
 
-*Portal:* Open `https://compliance.microsoft.com` → **eDiscovery → Premium** → the case → the **Holds** tab → the hold → **Statistics**. The statistics tab shows, per custodian, the count of items held and the per-location status (Active / Failed / Pending). Failed locations show a per-location error message.
+*Portal:* Open `https://purview.microsoft.com` → **eDiscovery → Premium** → the case → the **Holds** tab → the hold → **Statistics**. The statistics tab shows, per custodian, the count of items held and the per-location status (Active / Failed / Pending). Failed locations show a per-location error message.
 
 *PowerShell:* `Get-Agt34LegalHold -CaseId <id>` returns the per-custodian, per-location status with the last-evaluated timestamp. The output supports a "which custodians and which locations are in failed state" diagnostic. Cross-reference against `Get-CaseHoldPolicy` and `Get-CaseHoldRule` from the Security & Compliance PowerShell module for additional detail.
 

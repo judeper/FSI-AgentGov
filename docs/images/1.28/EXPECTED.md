@@ -177,7 +177,7 @@
   - Approval workflow status
 
 ### Screenshot 15: Purview Audit Log - Agent Publishing Event
-**Portal Path:** Microsoft Purview Compliance Portal → Audit → Search results
+**Portal Path:** Microsoft Purview portal → Audit → Search results
 **What to capture:**
 - Audit log entry for agent publishing showing:
   - **Activity:** "Publish chatbot" or "Create chatbot"
@@ -193,7 +193,7 @@
 - Export button for compliance records
 
 ### Screenshot 16: Purview Audit Log - DLP Violation Event
-**Portal Path:** Microsoft Purview Compliance Portal → Audit → Search results
+**Portal Path:** Microsoft Purview portal → Audit → Search results
 **What to capture:**
 - Audit log entry for DLP violation showing:
   - **Activity:** "DLP policy violation detected"
@@ -208,7 +208,7 @@
   - Publishing attempt result: "Blocked"
 
 ### Screenshot 17: Purview Audit Log - Approval Event
-**Portal Path:** Microsoft Purview Compliance Portal → Audit → Search results
+**Portal Path:** Microsoft Purview portal → Audit → Search results
 **What to capture:**
 - Audit log entry for approval showing:
   - **Activity:** "Approve chatbot publishing request"

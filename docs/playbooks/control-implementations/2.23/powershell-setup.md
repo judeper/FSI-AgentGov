@@ -297,7 +297,7 @@ For GCC, GCC High, and DoD tenants:
 - `Connect-MgGraph` requires `-Environment USGov` (GCC High) or `-Environment USGovDoD` (DoD). The Service Communications API is available in all clouds.
 - `Connect-ExchangeOnline` requires `-ExchangeEnvironmentName O365USGovGCCHigh` or `O365USGovDoD`.
 - `Add-PowerAppsAccount` requires `-Endpoint usgovhigh` / `usgovdod`.
-- Dataverse Web API hosts: `*.crm.appsplatform.us` (GCC High) and `*.crm.microsoftdynamics.us` (DoD).
+- Dataverse Web API hosts: `*.crm.microsoftdynamics.us` (GCC High) and `*.crm.appsplatform.us` (DoD).
 
 See the [PowerShell baseline](../../_shared/powershell-baseline.md) for the canonical endpoint table.
 

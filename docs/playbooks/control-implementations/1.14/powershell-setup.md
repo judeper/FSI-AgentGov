@@ -10,7 +10,7 @@
 > - Troubleshooting — `./troubleshooting.md`
 > - Shared baseline — `docs/playbooks/_shared/powershell-baseline.md`
 >
-> **Important regulatory framing.** Nothing in this playbook *guarantees* regulatory compliance. The cmdlets, scripts, and patterns below *support* control objectives required by GLBA §501(b), SEC Regulation S-P (May 2024 amendments), FINRA Rules 4511, 3110, and Regulatory Notice 25-07 (March 2025), SOX §404, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), and CCPA §1798.100. Implementation requires that organizations validate every script against their own change-management, model-risk, supervisory-review, and books-and-records processes before production rollout. The scope-drift detector is a tenant-side correlation built on `CopilotInteraction` and Power Platform record types — there is **no native** `AgentScopeExpansion` audit event. Treat the output as a triage signal, not a control attestation.
+> **Important regulatory framing.** Nothing in this playbook *guarantees* regulatory compliance. The cmdlets, scripts, and patterns below *support* control objectives required by GLBA §501(b), SEC Regulation S-P (May 2024 amendments), FINRA Rules 4511, 3110, and Regulatory Notice 24-09 (Generative AI / LLM Guidance), SOX §404, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), and CCPA §1798.100. Implementation requires that organizations validate every script against their own change-management, model-risk, supervisory-review, and books-and-records processes before production rollout. The scope-drift detector is a tenant-side correlation built on `CopilotInteraction` and Power Platform record types — there is **no native** `AgentScopeExpansion` audit event. Treat the output as a triage signal, not a control attestation.
 
 !!! warning "Read the FSI PowerShell baseline first"
     Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below may show abbreviated patterns; the baseline is authoritative when the two diverge.
@@ -200,7 +200,7 @@ function Initialize-Agt114Session {
             IPPSAuthorityUri  = 'https://login.microsoftonline.us/organizations'
             SpoRegion         = 'ITAR'
             AzEnvironment     = 'AzureUSGovernment'
-            DataverseSuffix   = 'crm.high.dynamics365.us'
+            DataverseSuffix   = 'crm.appsplatform.us'
         } }
     }
 
@@ -1054,7 +1054,7 @@ Cloud selection is made **once**, in `Initialize-Agt114Session`. Get this wrong 
 | **Commercial** | `prod` | `Global` | *(default)* | `AzureCloud` | `crm.dynamics.com` |
 | **GCC** | `usgov` | `USGov` | *(default)* | `AzureCloud` | `crm9.dynamics.com` |
 | **GCC High** | `usgovhigh` | `USGov` | `https://ps.compliance.protection.office365.us/powershell-liveid/` | `AzureUSGovernment` | `crm.microsoftdynamics.us` |
-| **DoD** | `dod` | `USGovDoD` | `https://l5.ps.compliance.protection.office365.us/powershell-liveid/` | `AzureUSGovernment` | `crm.high.dynamics365.us` |
+| **DoD** | `dod` | `USGovDoD` | `https://l5.ps.compliance.protection.office365.us/powershell-liveid/` | `AzureUSGovernment` | `crm.appsplatform.us` |
 
 ### 13.1 Per-function sovereign variants
 
@@ -1062,7 +1062,7 @@ Cloud selection is made **once**, in `Initialize-Agt114Session`. Get this wrong 
 |---|---|---|---|---|
 | `Initialize-Agt114Session` | All endpoints default | `-Endpoint usgov`; Graph `Global` (rolling to `USGov`) | `-Endpoint usgovhigh`; Graph `USGov`; IPPS sovereign URI | `-Endpoint dod`; Graph `USGovDoD`; IPPS DoD URI |
 | `Get-Agt114Environments` | No change | No change | No change — but verify SAM licence parity | Verify Copilot Studio availability; was limited preview as of early 2026 |
-| `Get-Agt114CopilotStudioAgents` | `crm.dynamics.com` | `crm9.dynamics.com` | `crm.microsoftdynamics.us` | `crm.high.dynamics365.us` |
+| `Get-Agt114CopilotStudioAgents` | `crm.dynamics.com` | `crm9.dynamics.com` | `crm.microsoftdynamics.us` | `crm.appsplatform.us` |
 | `Get-Agt114DlpJoin` | Parity | Parity | Parity | Parity |
 | `Get-Agt114AgentAccessReviews` | Parity | Parity | Parity | Parity |
 | `Find-Agt114ScopeDrift` | UAL up to 24 h latency | Same | Same | Same |

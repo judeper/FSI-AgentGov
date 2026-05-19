@@ -211,7 +211,7 @@ These seven gates must be evidenced as **Met** before stage 1 (Report-only) of t
 
 ### PRE-07: Communication and training plan signed off
 
-- **Why:** Fed SR 26-2 (formerly SR 11-7) model risk management requires user training proportionate to the model's intended use. FINRA Notice 24-09 and the FINRA 25-07 series specifically reference workforce competence with AI tools as a supervisory expectation.
+- **Why:** Fed SR 26-2 (formerly SR 11-7) model risk management requires user training proportionate to the model's intended use. FINRA Regulatory Notice 24-09 and FINRA Rule 3110 specifically reference workforce competence with AI tools as a supervisory expectation.
 - **Check:** Compliance and HR have signed off on the training curriculum, the acceptable-use policy delta, and the user communication plan (announcement, FAQ, support channel).
 - **Evidence artifact:** `pre-07-training-signoff.pdf` — signed sign-off cover sheet plus curriculum table of contents.
 - **Pass criterion:** Sign-offs from Compliance and HR on file. Training delivered to pilot population before Stage 2.
@@ -648,8 +648,8 @@ This portal walkthrough hands off to its siblings as follows:
 - Microsoft Learn — [Restricted Content Discoverability](https://learn.microsoft.com/sharepoint/restricted-content-discovery)
 - Microsoft Learn — [Endpoint DLP](https://learn.microsoft.com/purview/endpoint-dlp-learn-about)
 - Microsoft Learn — [Multi-Geo capabilities in OneDrive and SharePoint](https://learn.microsoft.com/microsoft-365/enterprise/multi-geo-capabilities-in-onedrive-and-sharepoint-online-in-microsoft-365)
-- FINRA Notice 24-09 — Use of artificial intelligence
-- FINRA Regulatory Notice 25-07 series — AI supervisory expectations
+- FINRA Regulatory Notice 24-09 — Use of artificial intelligence
+- FINRA RN 24-09 / Rule 3110 series — AI supervisory expectations
 - SEC Rule 17a-4 — Records preservation
 - NYDFS 23 NYCRR 500 — Cybersecurity requirements
 - Federal Reserve SR 26-2 (formerly SR 11-7) — Model risk management

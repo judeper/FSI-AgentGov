@@ -26,7 +26,7 @@
 - Alert details pane showing matched pattern
 
 ### Screenshot 4: Audit Log Search for Adversarial Patterns
-**Portal Path:** Microsoft Purview Compliance Portal → Audit → Search
+**Portal Path:** Microsoft Purview portal → Audit → Search
 **What to capture:**
 - Search parameters configured for CopilotInteraction
 - Search results showing detected adversarial input

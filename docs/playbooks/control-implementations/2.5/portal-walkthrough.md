@@ -24,7 +24,7 @@
     | The "why" — regulatory mapping, zone tiering, evidence retention | [Control 2.5 specification](../../../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md) |
 
 !!! warning "Hedged-language reminder"
-    Running the procedures in this walkthrough **supports compliance with** SOX Sections 302/404, FINRA Rule 4511, FINRA Rule 3110, FINRA Regulatory Notice 25-07, SEC Rule 17a-4(b)(4), GLBA 501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), and Federal Reserve SR 26-2 (formerly SR 11-7). It does **not** by itself certify any agent as compliant. Effectiveness depends on evaluator threshold quality, test-set coverage, role separation, supervisory review depth, evidence retention, and your firm's interpretation of the rules. Engage Compliance, Legal, Information Security, and Model Risk Management before promoting any Zone 3 agent to production.
+    Running the procedures in this walkthrough **supports compliance with** SOX Sections 302/404, FINRA Rule 4511, FINRA Rule 3110, FINRA RN 24-09 / Rule 3110, SEC Rule 17a-4(b)(4), GLBA 501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), and Federal Reserve SR 26-2 (formerly SR 11-7). It does **not** by itself certify any agent as compliant. Effectiveness depends on evaluator threshold quality, test-set coverage, role separation, supervisory review depth, evidence retention, and your firm's interpretation of the rules. Engage Compliance, Legal, Information Security, and Model Risk Management before promoting any Zone 3 agent to production.
 
 !!! info "License Requirements (verify at provisioning time)"
     - **Copilot Studio** — required for Test Pane and in-product Agent Evaluation
@@ -1236,7 +1236,7 @@ Use this as the operator's pre-promotion self-check and as the examiner walk-thr
 | AP-03 | Testing in the production environment because "Test environment doesn't have the data" | Production-side test artifacts contaminate real telemetry; PRE-04 violation | Stand up Test environment with synthetic data per PRE-04; never test in Prod |
 | AP-04 | No holdout set — validator evaluates on the same dataset the developer tuned against | Optimistic bias; effective-challenge ineffective | Validator maintains a holdout test set never seen by the developer; rotate quarterly |
 | AP-05 | Single-shot scoring — one Foundry run, no statistical aggregation, no confidence interval | Low-power evaluation; false-pass risk | Run sufficient row counts; document confidence-interval method in PRE-06 |
-| AP-06 | Skipping risk and safety evaluators because "we tested for accuracy" | Safety regressions undetected; FINRA 25-07 expectation unmet | Mandate full evaluator panel per zone; do not promote on quality-only evaluation |
+| AP-06 | Skipping risk and safety evaluators because "we tested for accuracy" | Safety regressions undetected; FINRA RN 24-09 + Rule 3110 expectation unmet | Mandate full evaluator panel per zone; do not promote on quality-only evaluation |
 | AP-07 | Skipping PyRIT because "Foundry already covers safety" | Adversarial-resilience evidence absent; Fed SR 26-2 (formerly SR 11-7) effective-challenge incomplete | PyRIT and Foundry are complementary; both required for Zone 3 |
 | AP-08 | Not version-pinning the test set | Regression suite drifts silently; baselines incomparable | Enforce PRE-06 with Git tags matching agent solution version |
 | AP-09 | No regression baseline captured before changing the model | Champion / challenger comparison impossible; Fed SR 26-2 (formerly SR 11-7) model-change expectation unmet | PRE-05 captures baseline before any material change |
@@ -1279,7 +1279,7 @@ Use this as the operator's pre-promotion self-check and as the examiner walk-thr
 
 ### 14.5 External references
 
-- FINRA Regulatory Notice 25-07 — AI supervisory expectations
+- FINRA RN 24-09 / Rule 3110 — AI supervisory expectations
 - FINRA Rule 4511 — General requirements for books and records
 - FINRA Rule 3110 — Supervision
 - FINRA Regulatory Notice 15-09 — Algorithmic trading strategies (precedent for automated-system testing)

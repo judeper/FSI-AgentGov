@@ -26,7 +26,7 @@
     | Sentinel content-hub install, analytics rule tuning, hunting at scale | **3.9** | 1.21 installs the *minimum* solutions needed; 3.9 owns Sentinel posture |
 
 !!! warning "Hedged-language reminder — supports, does not guarantee"
-    Configuration of these surfaces **supports** firm compliance with FINRA 3110 / Notice 25-07 / 4511, SEC 17a-4(b)(4), GLBA 501(b), OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7), NYDFS Part 500 §500.17(a), NIST SP 800-53 SI-4 / SI-10 / AU-6, and NIST AI RMF MEASURE-2.6 / MANAGE-4.1. It does **not** by itself satisfy any obligation. Designated supervisors, the compliance officer, and the CISO must independently validate that the firm's WSP, supervisory cadence, retention schedule, and incident-handling SLAs reflect the **documented latencies** of the underlying Microsoft signals (see §0).
+    Configuration of these surfaces **supports** firm compliance with FINRA Rule 3110 / RN 24-09 / Rule 4511, SEC 17a-4(b)(4), GLBA 501(b), OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7), NYDFS Part 500 §500.17(a), NIST SP 800-53 SI-4 / SI-10 / AU-6, and NIST AI RMF MEASURE-2.6 / MANAGE-4.1. It does **not** by itself satisfy any obligation. Designated supervisors, the compliance officer, and the CISO must independently validate that the firm's WSP, supervisory cadence, retention schedule, and incident-handling SLAs reflect the **documented latencies** of the underlying Microsoft signals (see §0).
 
 !!! info "What this walkthrough covers — surfaces & owners"
     | # | Surface | Portal | Owner role | Latency posture |
@@ -64,7 +64,7 @@ Out of scope (handled by sibling controls — see READ FIRST table):
 | 1 | **Inference guardrail** | Azure AI Content Safety — Prompt Shields | **Yes** (inline) | **Yes** when configured | No | GA Commercial; verify GCC/GCC-H/DoD per release |
 | 2 | **Azure AI workload telemetry** | Defender for Cloud — Threat Protection for AI Workloads | No (seconds–minutes) | No | No | **Commercial only** as of April 2026 — see §1 |
 | 3 | **M365 Copilot detection** | Defender XDR — Security for AI | No (seconds–minutes) | No (response actions via XDR/Conditional Access) | No | GA Commercial; rolling GCC; verify GCC-H/DoD |
-| 4 | **Supervisory plane** | Purview Communication Compliance — Detect Microsoft Copilot Interactions template | No (minutes–hours) | No | **Yes** (FINRA 3110 / 25-07 grade) | GA Commercial; rolling elsewhere |
+| 4 | **Supervisory plane** | Purview Communication Compliance — Detect Microsoft Copilot Interactions template | No (minutes–hours) | No | **Yes** (FINRA Rule 3110 / RN 24-09 grade) | GA Commercial; rolling elsewhere |
 | 5 | **Audit / evidence plane** | Unified Audit `CopilotInteraction` + DSPM-for-AI + eDiscovery (Control 1.19) | No (minutes–hours) | No | Audit record only (no full prompt body) | GA broadly |
 | 6 | **Cross-plane correlation** | Microsoft Sentinel + Content Hub solutions | No (per rule window) | No | No | GA across clouds (verify per solution) |
 
@@ -327,7 +327,7 @@ If Sentinel is the SOC system of record (typical for FSI), confirm that the Defe
 ## §6 Configure Purview Communication Compliance — Detect Microsoft Copilot Interactions
 
 **Owner:** Purview Communication Compliance Admin (policy author) + Designated Supervisor / Registered Principal (named reviewer)<br>
-**Surface:** Plane 4 (supervisory plane; FINRA 3110 / 25-07-grade record)
+**Surface:** Plane 4 (supervisory plane; FINRA Rule 3110 / RN 24-09-grade record)
 
 !!! warning "No PowerShell authoring path"
     As of April 2026, the **Detect Microsoft Copilot Interactions** policy template has **no PowerShell authoring or modification path** in the public Purview cmdlet surface. This step is **portal-only**. Do not attempt to script it. Capture portal screenshots of every step for the audit pack — they are the primary evidence artifact.
@@ -368,7 +368,7 @@ Document the SLA, the named Designated Supervisor, the escalation path, and the 
 3. Confirm the test interaction appears with the **Prompt Shield classifier** match flag.
 4. The Designated Supervisor opens the item, reviews, marks as **Resolved — Test fixture**, and adds a note. Capture the case ID.
 5. Repeat for the Protected Material classifier (use a benign test that includes a copyrighted excerpt — e.g. a paragraph of a known book in the prompt).
-6. Capture the case IDs and reviewer attestation timestamps for the audit pack. These are FINRA 3110 / 25-07 evidence.
+6. Capture the case IDs and reviewer attestation timestamps for the audit pack. These are FINRA 3110 / RN 24-09 evidence.
 
 ### 6.5 Common failure modes
 
@@ -718,7 +718,7 @@ The following patterns have surfaced in prior reviews and FSI audit findings aga
 3. **Treating Defender for Cloud TP for AI Workloads as available in GCC High / DoD.** Commercial-only as of April 2026. Use the §1.1 compensating-control pattern; document the gap.
 4. **Skipping the Power Platform handshake at §5.2.** Without it, Copilot Studio agents do not appear in `AIAgentsInfo` and Plane 3 telemetry is incomplete. The handshake takes up to 30 minutes — schedule it in the change window.
 5. **Authoring or modifying the Comm Compliance Copilot policy via PowerShell.** No public PowerShell authoring path exists for the *Detect Microsoft Copilot Interactions* template. Portal-only. Capture screenshots as the primary evidence artifact.
-6. **Group-only reviewer assignment in Comm Compliance.** FINRA 3110 / 25-07 requires a *named* Designated Supervisor in the WSP. Group assignment is acceptable in the tenant model but the audit pack must name the human.
+6. **Group-only reviewer assignment in Comm Compliance.** FINRA Rule 3110 / RN 24-09 requires a *named* Designated Supervisor in the WSP. Group assignment is acceptable in the tenant model but the audit pack must name the human.
 7. **Promoting Zone 3 *Block* posture to production without sandbox pilot.** *Block* can deny legitimate prompts that share lexical features with attacks. Stage in a sandbox tenant or pilot user group, capture the false-positive rate in §14 artifact 24, then promote.
 8. **Hand-rolling Sentinel KQL instead of installing Content Hub solutions.** The maintained solutions cover the common cases and are version-tracked by Microsoft. Layer custom hunting only after the baseline.
 9. **Confusing *Defender for Cloud Threat Protection for AI Workloads* with *Defender for AI Services* (Control 1.24).** Adjacent surfaces with overlapping naming. 1.21 enables the threat protection plan; 1.24 covers DSPM/CSPM for AI services. Both may be in scope; do not conflate.

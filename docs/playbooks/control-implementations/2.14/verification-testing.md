@@ -19,7 +19,7 @@ This playbook describes how to confirm that Control 2.14 is operating as documen
 | TC-2.14-07 | Approval workflow blocks publishing for non-compliant maker (Zone 3) | Submit publish request as test maker | Approval task returns "training incomplete" outcome and logs the decision |
 | TC-2.14-08 | Reminder script honors `-WhatIf` | Run Script 3 with `-WhatIf` | No mail sent; log records `WhatIf` status for each recipient |
 | TC-2.14-09 | Training evidence retained per policy | Purview policy inspection | Retention policy / records label scoped to the SharePoint site and notification mailbox |
-| TC-2.14-10 | Curriculum aligned to current FINRA guidance | Curriculum review against FINRA RN 25-07 | Curriculum addresses AI capabilities, limitations, bias, hallucination, escalation |
+| TC-2.14-10 | Curriculum aligned to current FINRA guidance | Curriculum review against FINRA RN 24-09 | Curriculum addresses AI capabilities, limitations, bias, hallucination, escalation |
 
 Record outcomes against the test ID for the audit file.
 
@@ -66,7 +66,7 @@ Record outcomes against the test ID for the audit file.
 Review the curriculum against the current FINRA guidance set:
 
 - FINRA Rule 3110(a)(7)
-- FINRA Regulatory Notice 25-07
+- FINRA RN 24-09 / Rule 3110
 - FINRA 2026 Annual Regulatory Oversight Report — GenAI section
 
 The curriculum should explicitly address: AI capabilities, AI limitations, bias / fairness, hallucination, prompt-injection awareness, escalation, and recordkeeping. Evidence: a dated curriculum review memo signed by the AI Administrator and the Purview Compliance Admin.
@@ -129,7 +129,7 @@ Store artifacts in WORM-locked storage (Purview Records Management label, or Azu
 I attest that, for the period above:
 
 1. The AI governance curriculum was current and addressed the topics listed in
-   FINRA Regulatory Notice 25-07 and the 2026 Annual Regulatory Oversight Report.
+   FINRA RN 24-09 / Rule 3110 and the 2026 Annual Regulatory Oversight Report.
 2. Training was assigned to all in-scope personnel based on their Entra role
    and business function.
 3. Completion data was collected from [LMS / Viva Learning], reconciled against

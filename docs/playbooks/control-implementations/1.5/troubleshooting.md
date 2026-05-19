@@ -62,7 +62,7 @@ Control 1.5 is the **DLP enforcement plane** for AI-surfaced data flows. A failu
 |---|---|---|
 | Customer NPI disclosed via Copilot / agent without enforcement | Privacy + Legal | **GLBA 501(b)** safeguards; **SEC Reg S-P** §248.30(a)(3)–(4) — 30-day customer-notification clock from determination of unauthorized access (post-2024 amendments); 72-hour service-provider written notice |
 | Books-and-records gap — DLP audit rows missing for Copilot interactions touching regulated content | Compliance + Legal | **SEC 17a-3 / 17a-4(f)** record integrity; **FINRA 4511** |
-| Loss of supervisory visibility on AI-surfaced communications | Compliance | **FINRA Rule 3110** supervisory system; **FINRA Notice 25-07** AI-related supervisory expectations |
+| Loss of supervisory visibility on AI-surfaced communications | Compliance | **FINRA Rule 3110** supervisory system; **FINRA RN 24-09 / Rule 3110** AI-related supervisory expectations |
 | Cybersecurity event materially affecting normal operations | CISO + Legal | **23 NYCRR 500.17** (NYDFS) — 72-hour determination |
 | Material cybersecurity incident at SEC registrant | CISO + Legal + Disclosure Committee | **SEC Form 8-K Item 1.05** — 4 business days from materiality determination |
 | AI / model-related operational risk event tied to DLP failure | Model Risk + Compliance | **OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12)** / **Fed SR 26-2 (formerly SR 11-7)** model risk management; effective-challenge process |

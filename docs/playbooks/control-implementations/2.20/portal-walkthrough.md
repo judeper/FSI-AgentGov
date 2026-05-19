@@ -24,7 +24,7 @@
     | Evidence retention to WORM under SEC 17a-4(f) | **1.19** — eDiscovery for Agent Interactions | 2.20 generates evidence; 1.19 holds it |
 
 !!! warning "Hedged-language reminder — supports, does not guarantee"
-    The procedures below **support compliance with** OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), FINRA Rule 3110, FINRA Regulatory Notice 25-07 (March 2025), SEC Rule 17a-4(b)(4), GLBA 501(b), and the NIST AI RMF Generative AI Profile (NIST AI 600-1). They **do not by themselves guarantee** regulatory compliance. The Compliance Officer, Model Risk Manager, and CISO must independently validate that the firm's WSPs reference the documented testing cadence, the actual defense-rate thresholds in use, and the firm's records-retention horizon.
+    The procedures below **support compliance with** OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), FINRA Rule 3110, FINRA RN 24-09 / Rule 3110 (March 2025), SEC Rule 17a-4(b)(4), GLBA 501(b), and the NIST AI RMF Generative AI Profile (NIST AI 600-1). They **do not by themselves guarantee** regulatory compliance. The Compliance Officer, Model Risk Manager, and CISO must independently validate that the firm's WSPs reference the documented testing cadence, the actual defense-rate thresholds in use, and the firm's records-retention horizon.
 
 !!! info "What this walkthrough covers — surfaces & owners"
     | # | Surface | Portal | Owner role | Notes |
@@ -122,7 +122,7 @@ The charter is a **documentary** prerequisite, not a portal action. Capture in t
 
 | Section | Required content |
 |---|---|
-| Purpose | Why the program exists; mapping to OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) / FINRA 3110 / Notice 25-07 |
+| Purpose | Why the program exists; mapping to OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) / FINRA 3110 / RN 24-09 |
 | Scope | Which agents, which zones, which Microsoft surfaces |
 | Authorization | Signatures: AI Governance Lead, CISO, Compliance Officer, Legal acknowledgment |
 | Rules of Engagement | Permitted tactics, prohibited actions, time windows, communication protocol |

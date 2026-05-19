@@ -31,7 +31,7 @@ Run this tree **before** changing the SIT, regardless of severity. The output is
 1. **Did the failure cause, or is it likely to have caused, unauthorized acquisition of customer NPI?**
    - Yes → Engage Compliance/Legal for **GLBA 501(b)** Safeguards assessment and **SEC Regulation S-P §248.30(a)(4)** customer-notification analysis (≤ 30-day clock from determination of misuse / reasonable likelihood of misuse). For NY-licensed entities also engage the **NY DFS 23 NYCRR 500.17(a)** 72-hour determination workflow.
 2. **Is the affected entity a registered broker-dealer, investment adviser, or member firm, and does the failure implicate communications recordkeeping, supervision, or a reportable event?**
-   - Yes → Compliance to evaluate **FINRA Rule 4530** (problem reporting), **FINRA Rule 3110** (supervision), **FINRA Rule 4511 / SEC Rule 17a-4** (books-and-records / WORM retention impact). FINRA Notice 25-07 reinforces that AI-mediated communications fall within these obligations.
+   - Yes → Compliance to evaluate **FINRA Rule 4530** (problem reporting), **FINRA Rule 3110** (supervision), **FINRA Rule 4511 / SEC Rule 17a-4** (books-and-records / WORM retention impact). FINRA RN 24-09 / Rule 3110 reinforces that AI-mediated communications fall within these obligations.
 3. **Did the failure cross a Copilot, declarative agent, Microsoft Copilot Studio agent, or third-party connector boundary?**
    - Yes → Add **Pillar 4** AI-incident path (parallel to this playbook): preserve `CopilotInteraction` and `AiAppInteraction` audit records, agent-execution logs, plugin/connector identities, and the prompt+response pair (redacted hashes only — never store the raw regulated payload outside Compliance/Legal custody).
 4. **Did the failure involve a Trainable Classifier whose drift could be characterized as model performance degradation?**
@@ -589,7 +589,7 @@ Subject: [SEV-<n>] Purview SIT detection failure impacting regulated-data DLP �
 - **FINRA Rule 4530** — problem reporting for member firms.
 - **FINRA Rule 3110** — supervision of communications and AI-mediated workflows.
 - **FINRA Rule 4511 / SEC Rule 17a-4** — books-and-records / WORM retention; SIT-mediated detections supporting supervision are themselves records.
-- **FINRA Notice 25-07** — reinforces application of supervision and recordkeeping to AI-mediated communications.
+- **FINRA RN 24-09 / Rule 3110** — reinforces application of supervision and recordkeeping to AI-mediated communications.
 - **GLBA 501(b)** — Safeguards Rule; SIT controls form part of the administrative/technical safeguards for NPI.
 - **PCI DSS 12.10** — incident-response procedures for cardholder-data environments.
 - **OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7)** — Model Risk Management; applies to Trainable Classifiers used as detective controls.

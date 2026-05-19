@@ -8,7 +8,7 @@
 >
 > **Last UI verified:** April 2026 against the post-GA Microsoft 365 admin center build 2026.04.x and the Microsoft Agent 365 Admin Center release of the same build.
 >
-> **Important regulatory framing.** This playbook **supports compliance with**, but does not by itself ensure compliance with, FINRA Rules 3110 (Supervision) and 4511 (Books and Records), FINRA Regulatory Notice 25-07 (AI Tools), SEC Rules 17a-3 / 17a-4 (Recordkeeping), SOX Sections 302 / 404 (Internal Controls), GLBA Section 501(b) (Safeguards Rule), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (Technology Risk Management), NYDFS 23 NYCRR 500 (Cybersecurity), and the FFIEC IT Examination Handbook. Where FINRA Rule 3110 obligates the firm to assign a registered principal to a supervisory function, the Agent 365 governance console **does not substitute for** that registered-principal designation; it produces the evidentiary trail that supports — but does not replace — the firm's written supervisory procedures (WSPs).
+> **Important regulatory framing.** This playbook **supports compliance with**, but does not by itself ensure compliance with, FINRA Rules 3110 (Supervision) and 4511 (Books and Records), FINRA RN 24-09 / Rule 3110 (AI Tools), SEC Rules 17a-3 / 17a-4 (Recordkeeping), SOX Sections 302 / 404 (Internal Controls), GLBA Section 501(b) (Safeguards Rule), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (Technology Risk Management), NYDFS 23 NYCRR 500 (Cybersecurity), and the FFIEC IT Examination Handbook. Where FINRA Rule 3110 obligates the firm to assign a registered principal to a supervisory function, the Agent 365 governance console **does not substitute for** that registered-principal designation; it produces the evidentiary trail that supports — but does not replace — the firm's written supervisory procedures (WSPs).
 
 ---
 
@@ -241,7 +241,7 @@ Field semantics:
 |---|---|
 | `FINRA-3110` | FINRA Rule 3110 (Supervision) |
 | `FINRA-4511` | FINRA Rule 4511 (Books and Records — General Requirements) |
-| `FINRA-25-07` | FINRA Regulatory Notice 25-07 (AI Tools) |
+| `FINRA-25-07` | FINRA RN 24-09 / Rule 3110 (AI Tools) |
 | `SEC-17a-3` | SEC Rule 17a-3 (Records to be Made) |
 | `SEC-17a-4` | SEC Rule 17a-4 (Records Retention) |
 | `SOX-302` | Sarbanes-Oxley Section 302 (Management Certification) |

@@ -34,7 +34,7 @@ Install-Module -Name Microsoft.PowerApps.Administration.PowerShell `
 | Membership / SoD audit | `Group.Read.All`, `User.Read.All`, `RoleManagement.Read.Directory` |
 | PIM eligibility audit | `RoleManagementPolicy.Read.Directory`, `PrivilegedAccess.Read.AzureADGroup` |
 
-> **Sovereign cloud note:** GCC / GCC High / DoD tenants must pass `-Environment USGov` / `USGovHigh` / `USGovDoD` to `Connect-MgGraph` and the equivalent endpoint to `Add-PowerAppsAccount`. See the baseline.
+> **Sovereign cloud note:** GCC / GCC High / DoD tenants must pass the correct `-Environment` value to `Connect-MgGraph` (valid values: `Global` for commercial + M365 GCC, `USGov` for GCC High, `USGovDoD` for DoD; `USGovHigh` is **not** a valid `-Environment` value) and the equivalent endpoint to `Add-PowerAppsAccount` (`prod` / `usgov` / `usgovhigh` / `dod`). See the baseline and [Microsoft Graph national clouds](https://learn.microsoft.com/en-us/graph/deployments).
 
 ---
 

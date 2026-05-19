@@ -27,7 +27,7 @@
     | Sentinel content-hub install, analytics rule tuning, hunting at scale | **3.9** | 1.19 references Sentinel only at the cross-plane correlation handoff |
 
 !!! warning "Hedged-language reminder — supports, does not guarantee"
-    Configuration of these surfaces **supports** firm compliance with **SEC 17a-4(b)(4)** and the **17a-4(f) audit-trail alternative (Oct 2022 amendment)**, **FINRA Rule 4511 / 8210 / 4530 / Notice 25-07**, **SOX Section 802 (18 USC §1519)**, **FRCP Rule 37(e)**, **GLBA Safeguards Rule (16 CFR Part 314)**, **Reg S-P (30-day customer notification, May 2024 amendment)**, **NYDFS 23 NYCRR Part 500 §500.17(a)**, **OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Fed SR 26-2 (formerly SR 11-7)**, and **CFTC Rule 1.31**. It does **not** by itself satisfy any obligation.
+    Configuration of these surfaces **supports** firm compliance with **SEC 17a-4(b)(4)** and the **17a-4(f) audit-trail alternative (Oct 2022 amendment)**, **FINRA Rule 4511 / 8210 / 4530 (with FINRA RN 24-09 for AI supervisory guidance)**, **SOX Section 802 (18 USC §1519)**, **FRCP Rule 37(e)**, **GLBA Safeguards Rule (16 CFR Part 314)**, **Reg S-P (30-day customer notification, May 2024 amendment)**, **NYDFS 23 NYCRR Part 500 §500.17(a)**, **OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Fed SR 26-2 (formerly SR 11-7)**, and **CFTC Rule 1.31**. It does **not** by itself satisfy any obligation.
 
     Specifically prohibited overclaims for this control: "ensures preservation", "guarantees defensible production", "complete capture of all AI interactions", "real-time discoverability", "instantaneous hold", "WORM-compliant by default". Designated Supervisors, the Compliance Officer, the Records Manager, and General Counsel must independently validate that the firm's WSP, retention schedule, hold-issuance procedure, production SLA, and incident-handling clocks reflect the **documented latencies and gaps** of the underlying Microsoft surfaces (see §0.2, §6.5, §10).
 
@@ -89,7 +89,7 @@ Out of scope (handled by sibling controls per the READ FIRST table above):
 | 6 | **Foundry/diagnostic plane (out-of-scope)** | Azure AI Foundry / Azure OpenAI resource diagnostic logs to Log Analytics workspace | Content (where logging configured) | Per ingestion pipeline | Route to Control 1.21 / 3.9 |
 
 !!! warning "Latency reality — do not write 'real-time' or 'instantaneous' into the WSP"
-    Hold propagation can take **up to 24 hours**. SubstrateHolds population for a freshly issued Copilot prompt typically lags **minutes to hours**. Search indexing for a newly added custodian is **typically 4 hours, up to 24 hours**. WSP language that promises "immediate preservation", "real-time discoverability", "instantaneous hold activation", or "complete capture of all AI interactions" overstates Microsoft surface capability and creates regulatory exposure under FINRA 25-07 (which calls for documented operational realism in AI WSPs). Use the documented latencies; build a **24-hour buffer** into FRCP 37(e) hold-issuance procedures and FINRA 8210 production timelines.
+    Hold propagation can take **up to 24 hours**. SubstrateHolds population for a freshly issued Copilot prompt typically lags **minutes to hours**. Search indexing for a newly added custodian is **typically 4 hours, up to 24 hours**. WSP language that promises "immediate preservation", "real-time discoverability", "instantaneous hold activation", or "complete capture of all AI interactions" overstates Microsoft surface capability and creates regulatory exposure under FINRA RN 24-09 and FINRA Rule 3110 (which call for documented operational realism in AI WSPs). Use the documented latencies; build a **24-hour buffer** into FRCP 37(e) hold-issuance procedures and FINRA 8210 production timelines.
 
 ### 0.3 Plane separation — content vs activity
 
@@ -300,7 +300,7 @@ For SharePoint sites, OneDrive accounts, and Teams channels that the in-scope ag
 1. **Data sources → Add data source → Add non-custodial data sources**.
 2. Choose **SharePoint sites** / **Mailboxes** / **Teams** as appropriate.
 3. Enter the location URL or UPN.
-4. **Mark each non-custodial source with a clear label** linking it to the agent registry entry under Control 1.2 (e.g., `grounding-source:Agent-WealthAdvisor-Prod-SP01`). This labelling is the audit trail that the case scope reflects the actual agent reach — required for FINRA 25-07 documented operational realism.
+4. **Mark each non-custodial source with a clear label** linking it to the agent registry entry under Control 1.2 (e.g., `grounding-source:Agent-WealthAdvisor-Prod-SP01`). This labelling is the audit trail that the case scope reflects the actual agent reach — required for FINRA RN 24-09 + Rule 3110 documented operational realism.
 5. Click **Submit**.
 
 ### 3.7 Capture custodian + non-custodial evidence
@@ -683,7 +683,7 @@ Each pathway below is a regulator-facing scenario keyed to a specific clock and 
 
 **Trigger:** routine recordkeeping audit; SEC examination; firm-internal records-completeness review.
 
-**Clock:** 17a-4(b)(4) requires 6-year retention (first 2 years easily accessible) for communications relating to the broker-dealer's business — **including** AI-mediated communications that constitute business communications under FINRA Notice 25-07 interpretive guidance.
+**Clock:** 17a-4(b)(4) requires 6-year retention (first 2 years easily accessible) for communications relating to the broker-dealer's business — **including** AI-mediated communications that constitute business communications under FINRA RN 24-09 / Rule 3110 interpretive guidance.
 
 **Pathway:**
 1. eDiscovery hold preserves availability (this control, §6).
@@ -819,7 +819,7 @@ Each pathway below is a regulator-facing scenario keyed to a specific clock and 
 
 ## §11 Quarterly Zone 3 drill
 
-A documented quarterly end-to-end exercise is the operational evidence that the Zone 3 eDiscovery posture works under timing pressure. Required for FINRA 25-07 documented operational realism and for SOX 802 anti-spoliation defensibility.
+A documented quarterly end-to-end exercise is the operational evidence that the Zone 3 eDiscovery posture works under timing pressure. Required for FINRA RN 24-09 + Rule 3110 documented operational realism and for SOX 802 anti-spoliation defensibility.
 
 ### 11.1 Drill scope
 

@@ -3,7 +3,7 @@
 **Last Updated:** May 2026
 
 !!! info "Generally Available — May 2026"
-    Agent 365 Unified Control Plane and Agent 365 Observability reached general availability on **May 1, 2026**. **Microsoft Entra Agent ID** is also generally available and is included with **Microsoft Agent 365** (standalone per-user license) or **Microsoft 365 E7** ("Frontier Suite") licensing. M365 Admin Center Agent Settings and Registry remain generally available. **Conditional Access for Agents** documentation and capabilities have expanded alongside Entra Agent ID GA; verify the current preview/GA status of specific Conditional Access for Agents surfaces against Microsoft Learn before relying on them in production policy. Some adjacent surfaces — for example the Entra `agentSignIn` log type and the `MicrosoftServicePrincipalSignInLogs` diagnostic setting — remain in **Public Preview**. Verify current GA / preview status at Microsoft Learn before implementing capabilities in production.
+    The **Microsoft Entra Agent ID** platform reached general availability in **April 2026** (see [Entra Agent ID — What's new](https://learn.microsoft.com/en-us/entra/agent-id/whats-new-agent-id)). **Microsoft Agent 365** — including the Agent 365 Unified Control Plane and Agent 365 Observability — became generally available on **May 1, 2026**, bundling Entra Agent ID licensing into the **Microsoft Agent 365** (standalone per-user license) and **Microsoft 365 E7** ("Frontier Suite") SKUs. M365 Admin Center Agent Settings and Registry remain generally available. **Conditional Access for Agents** documentation and capabilities have expanded alongside Entra Agent ID GA; verify the current preview/GA status of specific Conditional Access for Agents surfaces against Microsoft Learn before relying on them in production policy. Some adjacent surfaces — for example the Entra `agentSignIn` log type and the `MicrosoftServicePrincipalSignInLogs` diagnostic setting — remain in **Public Preview**. Verify current GA / preview status at Microsoft Learn before implementing capabilities in production.
 
     **Known Limitations (May 2026):**
 
@@ -638,7 +638,7 @@ The following status reflects the May 1, 2026 Agent 365 general availability rel
 
 | Component | Status | Notes |
 |-----------|--------|-------|
-| **Entra Agent ID** | GA (May 2026) | Identity service for AI agents; Agentic Users, sponsorship model, lifecycle workflows |
+| **Entra Agent ID** | GA (April 2026; Agent 365 / M365 E7 licensing bundle GA May 1, 2026) | Identity service for AI agents; Agentic Users, sponsorship model, lifecycle workflows |
 | **Conditional Access for Agents** | Verify per Microsoft Learn | Capabilities expanded alongside Entra Agent ID GA; some specific surfaces may remain in Public Preview — confirm status against Microsoft Learn before policy authoring. Rides on top of CA for Workload Identities |
 | **M365 Admin Center Agent Settings** | GA | Agent sharing controls, templates, user access policies |
 | **M365 Admin Center Agent Registry** | GA | Copilot Studio agents visible; Microsoft Foundry agent coverage rolling — verify against Microsoft Learn for agent types in your tenant; declarative agents appear but lack org-wide deployment capability |

@@ -10,7 +10,7 @@
 
 ## Regulatory hedging notice
 
-This playbook helps support FSI organizations in meeting expectations from FINRA Rule 4511 (books and records), FINRA Regulatory Notice 25-07 (generative-AI supervision), SEC Rule 17a-4(b)(4) (records retention), SOX §§302/404 (internal control over financial reporting), GLBA Safeguards Rule 501(b), FTC Safeguards Rule 16 CFR §314, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7) (model risk management), CFTC Regulation 1.31, NYDFS 23 NYCRR Part 500.16 / 500.17, NIST AI RMF 1.0 GOVERN 1.6, and ISO/IEC 42001 where applicable.
+This playbook helps support FSI organizations in meeting expectations from FINRA Rule 4511 (books and records), FINRA RN 24-09 / Rule 3110 (generative-AI supervision), SEC Rule 17a-4(b)(4) (records retention), SOX §§302/404 (internal control over financial reporting), GLBA Safeguards Rule 501(b), FTC Safeguards Rule 16 CFR §314, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7) (model risk management), CFTC Regulation 1.31, NYDFS 23 NYCRR Part 500.16 / 500.17, NIST AI RMF 1.0 GOVERN 1.6, and ISO/IEC 42001 where applicable.
 
 A clean run of this playbook **does not guarantee legal or regulatory compliance**, does not replace independent validation, and does not substitute for written supervisory procedures. Implementation requires organization-specific risk assessment, legal review, and integration with the firm's broader compliance program. Organizations should verify current Microsoft Learn documentation, sovereign-cloud feature parity, and tenant-specific entitlements at each cycle. Cadence values, SLA windows, and reconciliation thresholds in this playbook are **calibrated to the tenant baseline captured in PRE-04**; they are not portable between tenants without recalibration.
 
@@ -671,7 +671,7 @@ This family verifies that agents touching regulated processes are tagged into th
 
 #### 3.1-REG-01 — FINRA Communications-scope agents flagged for supervisory review
 
-- **Objective.** Confirm every agent that produces, drafts, or surfaces content classifiable as a "communication with the public" under FINRA Rule 2210 / Notice 25-07 is tagged with the FINRA Communications regulatory-scope flag and is referenced in the supervisory review queue (Control 1.7 / supervisory archive).
+- **Objective.** Confirm every agent that produces, drafts, or surfaces content classifiable as a "communication with the public" under FINRA Rule 2210 (with RN 24-09 for AI supervisory guidance) is tagged with the FINRA Communications regulatory-scope flag and is referenced in the supervisory review queue (Control 1.7 / supervisory archive).
 - **Pre-conditions.** COMP-02 PASS; FINRA scope policy from PRE-01 charter.
 - **Steps.**
   1. From the system-of-record export, identify agents whose business justification, connected actions, or output destinations match the firm's FINRA Communications inclusion rule (e.g., agents that draft client emails, generate marketing content, or surface broker-dealer correspondence).
@@ -1071,7 +1071,7 @@ The continuous-improvement loop is itself reviewed annually for effectiveness, a
 - **NIST AI Risk Management Framework 1.0**, GOVERN 1.6 — Mechanisms are in place to inventory AI systems and are resourced according to organizational risk priorities. https://www.nist.gov/itl/ai-risk-management-framework
 - **OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) — Updated Interagency Guidance on Model Risk Management** — Higher-risk model inventory expectations. https://www.occ.gov/news-issuances/bulletins/2026/bulletin-2026-13.html
 - **Federal Reserve SR 26-2 (formerly SR 11-7) — Guidance on Model Risk Management** — Companion guidance to OCC Bulletin 2026-13 (formerly OCC 2011-12). https://www.federalreserve.gov/supervisionreg/srletters/SR2602.htm
-- **FINRA Regulatory Notice 25-07 (March 2025)** — Generative-AI tool supervision; firms should be able to enumerate, supervise, and explain generative-AI use. https://www.finra.org/rules-guidance/notices/25-07
+- **FINRA RN 24-09 / Rule 3110 (March 2025)** — Generative-AI tool supervision; firms should be able to enumerate, supervise, and explain generative-AI use. https://www.finra.org/rules-guidance/notices/24-09
 - **FINRA Rule 4511** — Books and records general requirements.
 - **FINRA Rule 2210** — Communications with the public.
 - **FINRA Rule 3110** — Supervision.

@@ -287,32 +287,70 @@ $copilotServicePrincipals = $null
 try {
     Write-Verbose "Section 5: Collecting Copilot Studio service principals..."
 
-    # Filter for known Copilot Studio / Power Virtual Agents app names
-    $filterConditions = @(
-        "startsWith(displayName,'Copilot Studio')",
-        "startsWith(displayName,'Power Virtual Agents')",
-        "startsWith(displayName,'Microsoft Copilot Studio')"
+    # Primary lookup by stable AppIds (Microsoft Copilot Studio current + PVA legacy x2)
+    # Display-name lookups miss tenants where the SPs have been rebranded from
+    # "Power Virtual Agents" to "Microsoft Copilot Studio". AppIds are stable across
+    # the rebrand. Display-name filter retained below as fallback for tenants
+    # without any of these AppIds provisioned.
+    $copilotAppIds = @(
+        '38e57bc7-9498-4bcc-b6b6-37001619bd96',  # Microsoft Copilot Studio (current)
+        '96ff4394-9197-43aa-b393-6a41652e21f8',  # Power Virtual Agents (legacy)
+        '5bdf5494-2491-4cb6-b4f9-92dbed25ff86',  # Power Virtual Agents Service (legacy)
+        '38e15ad7-bb74-4ac3-9aef-f4b720b51c20'   # Power Virtual Agents Service (Copilot Studio runtime; per 1.11 CA templates)
     )
+    $appIdFilter = "appId in ('{0}')" -f ($copilotAppIds -join "','")
+    try {
+        $copilotServicePrincipals = Invoke-CollectorOperation -Target "Microsoft Graph tenant $TenantId" -Action "List Copilot Studio service principals by AppId" -ScriptBlock {
+            Get-MgServicePrincipal -Filter $appIdFilter -ConsistencyLevel eventual -CountVariable servicePrincipalCount -All -ErrorAction Stop |
+                ForEach-Object {
+                    [PSCustomObject]@{
+                        AppId          = $_.AppId
+                        DisplayName    = $_.DisplayName
+                        AccountEnabled = $_.AccountEnabled
+                        Id             = $_.Id
+                        ServicePrincipalType = $_.ServicePrincipalType
+                    }
+                }
+        }
+        $copilotServicePrincipals = @($copilotServicePrincipals)
+    }
+    catch {
+        $warnings.Add("Section 5 AppId lookup failed: $($_.Exception.Message)")
+        Write-Warning $warnings[-1]
+        $copilotServicePrincipals = @()
+    }
 
-    $copilotServicePrincipals = foreach ($filterExpr in $filterConditions) {
-        try {
-            $sps = Invoke-CollectorOperation -Target "Microsoft Graph tenant $TenantId" -Action "List service principals matching filter $filterExpr" -ScriptBlock {
-                Get-MgServicePrincipal -Filter $filterExpr -ConsistencyLevel eventual -CountVariable servicePrincipalCount -All -ErrorAction Stop
-            }
-            foreach ($sp in $sps) {
-                [PSCustomObject]@{
-                    AppId          = $sp.AppId
-                    DisplayName    = $sp.DisplayName
-                    AccountEnabled = $sp.AccountEnabled
-                    Id             = $sp.Id
-                    ServicePrincipalType = $sp.ServicePrincipalType
+    # Fallback: if AppId lookup returns 0 (rare — tenant has neither current nor legacy SP),
+    # retry display-name filters and warn that results may miss rebranded SPs.
+    if ($copilotServicePrincipals.Count -eq 0) {
+        $warnings.Add("Section 5: AppId lookup returned 0 service principals; falling back to display-name lookup (fallback-only — may miss rebranded SPs).")
+        Write-Warning $warnings[-1]
+        $filterConditions = @(
+            "startsWith(displayName,'Copilot Studio')",
+            "startsWith(displayName,'Power Virtual Agents')",
+            "startsWith(displayName,'Microsoft Copilot Studio')"
+        )
+        $copilotServicePrincipals = foreach ($filterExpr in $filterConditions) {
+            try {
+                $sps = Invoke-CollectorOperation -Target "Microsoft Graph tenant $TenantId" -Action "List service principals matching filter $filterExpr" -ScriptBlock {
+                    Get-MgServicePrincipal -Filter $filterExpr -ConsistencyLevel eventual -CountVariable servicePrincipalCount -All -ErrorAction Stop
+                }
+                foreach ($sp in $sps) {
+                    [PSCustomObject]@{
+                        AppId          = $sp.AppId
+                        DisplayName    = $sp.DisplayName
+                        AccountEnabled = $sp.AccountEnabled
+                        Id             = $sp.Id
+                        ServicePrincipalType = $sp.ServicePrincipalType
+                    }
                 }
             }
+            catch {
+                $warnings.Add("SP filter '$filterExpr' failed: $($_.Exception.Message)")
+                Write-Warning $warnings[-1]
+            }
         }
-        catch {
-            $warnings.Add("SP filter '$filterExpr' failed: $($_.Exception.Message)")
-            Write-Warning $warnings[-1]
-        }
+        $copilotServicePrincipals = @($copilotServicePrincipals)
     }
     # Deduplicate by AppId
     $copilotServicePrincipals = @($copilotServicePrincipals | Sort-Object AppId -Unique)

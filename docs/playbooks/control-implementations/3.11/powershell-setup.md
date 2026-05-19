@@ -3,7 +3,7 @@
 !!! warning "Read the FSI PowerShell baseline first"
     Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below may show abbreviated patterns; the baseline is authoritative.
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 **PowerShell Version:** Windows PowerShell 5.1 (Desktop edition) for `Microsoft.PowerApps.Administration.PowerShell`; PowerShell 7.2+ for Microsoft Graph and notifications
 **Required Modules:**
 - Microsoft.PowerApps.Administration.PowerShell (Desktop / PS 5.1 only)
@@ -92,7 +92,7 @@ Exports comprehensive agent inventory from Power Platform with metadata complete
 .NOTES
     Author: FSI-AgentGov Framework
     Version: 1.1
-    Last Updated: April 2026
+    Last Updated: May 2026
     Edition: Windows PowerShell 5.1 (Desktop) required for Microsoft.PowerApps.Administration.PowerShell
 #>
 
@@ -296,12 +296,13 @@ Identifies agents with departed owners, stale agents, and unmanaged agents requi
     orphaned agent alert to Teams channel.
 
 .EXAMPLE
-    .\Detect-OrphanedAgents.ps1 -InventoryReportPath "C:\Reports\AgentInventory.csv" -StalenessThresholdDays 365 -TeamsWebhookUrl "https://outlook.office.com/webhook/..."
+    # NOTE: Office 365 Connectors retired 2025-12-31; use Teams Workflows webhooks (Adaptive Card v1.5 payload).
+    .\Detect-OrphanedAgents.ps1 -InventoryReportPath "C:\Reports\AgentInventory.csv" -StalenessThresholdDays 365 -TeamsWebhookUrl "https://prod-NN.westus.logic.azure.com:443/workflows/<workflow-id>/triggers/manual/paths/invoke?..."
 
 .NOTES
     Author: FSI-AgentGov Framework
     Version: 1.1
-    Last Updated: April 2026
+    Last Updated: May 2026
 #>
 
 param(
@@ -513,7 +514,7 @@ Validates agent inventory against mandatory metadata requirements and generates 
 .NOTES
     Author: FSI-AgentGov Framework
     Version: 1.1
-    Last Updated: April 2026
+    Last Updated: May 2026
 #>
 
 param(
@@ -652,12 +653,12 @@ Master orchestration script that runs all inventory enforcement scripts in seque
     Number of days since last modification to consider an agent "stale". Default: 365.
 
 .EXAMPLE
-    .\Invoke-InventoryEnforcementSuite.ps1 -OutputPath "C:\Reports" -ZoneMappingFile "C:\Config\zone-mappings.csv" -TeamsWebhookUrl "https://outlook.office.com/webhook/..."
+    .\Invoke-InventoryEnforcementSuite.ps1 -OutputPath "C:\Reports" -ZoneMappingFile "C:\Config\zone-mappings.csv" -TeamsWebhookUrl "https://prod-NN.westus.logic.azure.com:443/workflows/<workflow-id>/triggers/manual/paths/invoke?..."
 
 .NOTES
     Author: FSI-AgentGov Framework
     Version: 1.1
-    Last Updated: April 2026
+    Last Updated: May 2026
 #>
 
 param(
@@ -763,7 +764,7 @@ To run the enforcement suite on a schedule:
 
 ```powershell
 # Create scheduled task (run as administrator)
-$action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-File C:\Scripts\Invoke-InventoryEnforcementSuite.ps1 -OutputPath C:\Reports -ZoneMappingFile C:\Config\zone-mappings.csv -TeamsWebhookUrl 'https://outlook.office.com/webhook/...'"
+$action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-File C:\Scripts\Invoke-InventoryEnforcementSuite.ps1 -OutputPath C:\Reports -ZoneMappingFile C:\Config\zone-mappings.csv -TeamsWebhookUrl 'https://prod-NN.westus.logic.azure.com:443/workflows/<workflow-id>/triggers/manual/paths/invoke?...'"
 
 # Run daily at 4:00 AM
 $trigger = New-ScheduledTaskTrigger -Daily -At 4:00AM

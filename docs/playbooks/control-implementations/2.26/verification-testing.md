@@ -24,7 +24,7 @@
 | Hashing | SHA-256 over canonical JSON; chain hashes in `attestation.json` per §10. |
 | Sovereign anchor | All sovereign-aware functions reference `../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod`. |
 
-> **Regulatory framing.** This playbook helps meet recordkeeping, access-management, and oversight expectations under FINRA Rules 3110 and 4511, FINRA Notice 25-07, SEC Rule 17a-4, SOX §404, GLBA §501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), and FFIEC IT Examination Handbook (Information Security & Management). It does **not** by itself ensure compliance; organizations should verify findings against their own legal and regulatory obligations and tailor thresholds to their risk appetite.
+> **Regulatory framing.** This playbook helps meet recordkeeping, access-management, and oversight expectations under FINRA Rules 3110 and 4511, FINRA RN 24-09 / Rule 3110, SEC Rule 17a-4, SOX §404, GLBA §501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), and FFIEC IT Examination Handbook (Information Security & Management). It does **not** by itself ensure compliance; organizations should verify findings against their own legal and regulatory obligations and tailor thresholds to their risk appetite.
 
 ---
 
@@ -788,7 +788,7 @@ Describe "AGT226-REVIEW" -Tag 'C2.26','REVIEW' {
     "not_reviewed_auto_denied": 1,
     "all_decisions_have_certifier": true
   },
-  "regulator_mappings": ["FINRA-3110","FINRA-25-07","SOX-404","OCC-2011-12","FFIEC-IS-AccessMgmt"],
+  "regulator_mappings": ["FINRA-3110","FINRA-RN-24-09","SOX-404","OCC-2011-12","FFIEC-IS-AccessMgmt"],
   "evidence_artifacts": ["review-decisions-Q1-2026.json"],
   "schema_version": "1.0"
 }
@@ -836,7 +836,7 @@ Describe "AGT226-REVIEW" -Tag 'C2.26','REVIEW' {
 
 ### 5.8 Regulator mapping
 
-| Test | FINRA 3110 | FINRA 25-07 | SOX §404 | OCC Bulletin 2026-13 (formerly OCC 2011-12) | FFIEC IS |
+| Test | FINRA 3110 | FINRA RN 24-09 | SOX §404 | OCC Bulletin 2026-13 (formerly OCC 2011-12) | FFIEC IS |
 |---|---|---|---|---|---|
 | Campaign exists | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Completion in quarter | ✓ | ✓ | ✓ recurring | ✓ ongoing monitoring | ✓ recertification |
@@ -1869,7 +1869,7 @@ A `PASS` from this validator is the green light to file with the Board secretari
 | **Document version** | v1.0 |
 | **Updated** | April 2026 |
 
-> This playbook supports — but does not by itself ensure — compliance with FINRA Rules 3110 and 4511, FINRA Notice 25-07, SEC Rule 17a-4, SOX §404, GLBA §501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), and the FFIEC IT Examination Handbook. Organizations should verify findings against their own legal and regulatory obligations and tailor zone thresholds to their documented risk appetite.
+> This playbook supports — but does not by itself ensure — compliance with FINRA Rules 3110 and 4511, FINRA RN 24-09 / Rule 3110, SEC Rule 17a-4, SOX §404, GLBA §501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), and the FFIEC IT Examination Handbook. Organizations should verify findings against their own legal and regulatory obligations and tailor zone thresholds to their documented risk appetite.
 ---
 
 *Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

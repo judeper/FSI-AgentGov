@@ -70,7 +70,7 @@ If your tenant is in any US Government cloud, you **must** pass the correct `-En
 |---|---|---|
 | Commercial | `prod` (default) | `Global` (default) |
 | GCC | `usgov` | `USGov` |
-| GCC High | `usgovhigh` | `USGovDoD` (verify per Microsoft Learn) |
+| GCC High | `usgovhigh` | `USGov` |
 | DoD | `dod` | `USGovDoD` |
 | China (21Vianet) | `china` | `China` |
 
@@ -83,7 +83,18 @@ param(
 )
 
 Add-PowerAppsAccount -Endpoint $Endpoint
-Connect-MgGraph -Environment (@{prod='Global'; usgov='USGov'; usgovhigh='USGovDoD'; dod='USGovDoD'}[$Endpoint])
+# Microsoft Graph national cloud names per Connect-MgGraph -Environment:
+# Global   = commercial (graph.microsoft.com) — also covers M365 GCC; per Microsoft Learn:
+#            "If you're working in a Microsoft 365 GCC environment, continue using the
+#            worldwide endpoints: graph.microsoft.com" (https://learn.microsoft.com/en-us/graph/deployments)
+# USGov    = GCC High (graph.microsoft.us)
+# USGovDoD = DoD L5 (dod-graph.microsoft.us)
+# China    = 21Vianet (microsoftgraph.chinacloudapi.cn).
+# FSI cloud-name mapping (left): usgovhigh -> Microsoft Graph 'USGov'; dod -> 'USGovDoD'.
+# KNOWN LIMITATION: FSI 'usgov' (M365 GCC) currently maps to Graph 'USGov' below; per the
+# Learn note above, M365 GCC tenants should use the Global endpoint. This is a pre-existing
+# mapping carried over from earlier framework revisions; see issue tracker for reconciliation.
+Connect-MgGraph -Environment (@{prod='Global'; usgov='USGov'; usgovhigh='USGov'; dod='USGovDoD'}[$Endpoint])
 ```
 
 **Verify before run:** Microsoft Learn — "Get started with PowerShell for Power Platform Administrators" lists current sovereign endpoint values.

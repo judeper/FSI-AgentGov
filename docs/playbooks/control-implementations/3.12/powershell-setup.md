@@ -41,7 +41,7 @@ Install-Module -Name Microsoft.Graph `
     `Microsoft.Xrm.Data.PowerShell` runs on **Windows PowerShell 5.1 (Desktop)**. Add the edition guard from baseline §2 at the top of every script. Microsoft Graph SDK requires PowerShell 7.2+. If you mix the two, run them in separate processes — do **not** import both into the same session.
 
 !!! warning "Sovereign clouds (GCC / GCC High / DoD)"
-    Every connection example below assumes the **commercial** Dataverse endpoint. For US Government tenants, set the environment URL to your sovereign endpoint (e.g., `https://orgname.crm.appsplatform.us` for GCC High, `https://orgname.crm.microsoftdynamics.us` for DoD) and pass the matching `-Environment` value to `Connect-MgGraph` per baseline §3. Running these scripts against the wrong endpoint authenticates against commercial and returns **false-clean** results.
+    Every connection example below assumes the **commercial** Dataverse endpoint. For US Government tenants, set the environment URL to your sovereign endpoint (e.g., `https://orgname.crm.microsoftdynamics.us` for GCC High, `https://orgname.crm.appsplatform.us` for DoD) and pass the matching `-Environment` value to `Connect-MgGraph` per baseline §3. Running these scripts against the wrong endpoint authenticates against commercial and returns **false-clean** results.
 
 ### Required Permissions
 

@@ -467,14 +467,14 @@ A: Some controls reference Microsoft features that are currently in preview or r
 | Feature | Status | Access |
 |---------|--------|--------|
 | **Agent 365** | GA (May 1, 2026) | Agent 365 or Microsoft 365 E7 per-user license |
-| **Entra Agent ID** | Public Preview | Available in Entra Admin Center |
+| **Entra Agent ID** | GA (April 2026; Agent 365 / M365 E7 licensing bundle GA May 1, 2026) | Available in Entra Admin Center |
 | **Advanced Connector Policies (ACP)** | Preview | Available in PPAC |
 | **Environment Groups** | Preview | Available in PPAC |
 
 **To access these features:**
 
 1. **Agent 365:** Provision Agent 365 or Microsoft 365 E7 per-user licenses from the Microsoft 365 Admin Center
-2. **Agent ID:** Navigate to Entra Admin Center → Enterprise applications → Filter by "Agent ID (Preview)"
+2. **Agent ID:** Navigate to Entra Admin Center → Enterprise applications → Filter by **Application type = Agent** (some tenants may still see a transitional "(Preview)" suffix on the filter label until portal copy fully rolls forward)
 
 Controls that reference preview features include appropriate disclaimers. Check [Microsoft Learn](https://learn.microsoft.com/en-us/entra/agent-id/) for current availability.
 

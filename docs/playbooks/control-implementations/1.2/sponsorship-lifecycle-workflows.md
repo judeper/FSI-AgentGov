@@ -50,7 +50,7 @@ Sponsorship is the artifact examiners look for first when evaluating AI agent go
 |---|---|---|
 | **FINRA Rule 3110** (Supervision) | Written supervisory procedures with named supervisors | Agent Sponsor is the named supervisor of record for the agent's business use; quarterly attestation produces the written evidence |
 | **FINRA Rule 4511** (Books and Records) | Preservation of supervisory records in non-erasable, non-rewriteable form | Sponsorship evidence pack (Section 12) captures attestation in WORM-eligible form |
-| **FINRA Notice 25-07** (Generative AI) | Member firms remain responsible for compliance regardless of AI use; supervisory framework must address gen-AI specifically | Sponsor attestation explicitly references gen-AI risk categories (hallucination, inappropriate disclosure, unauthorized advice) |
+| **FINRA RN 24-09 / Rule 3110** (Generative AI) | Member firms remain responsible for compliance regardless of AI use; supervisory framework must address gen-AI specifically | Sponsor attestation explicitly references gen-AI risk categories (hallucination, inappropriate disclosure, unauthorized advice) |
 | **SEC Rule 17a-4(b)(4)** | Retention of supervisory communications | Sponsor approval correspondence supervised under [Control 1.10](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) and retained 7 years |
 | **SOX §302/§404** | Officer certification of internal controls; ICFR effectiveness | Compliance Reviewer sign-off feeds quarterly ICFR attestation packages for any Z3 agent touching financial reporting |
 | **GLBA §501(b) / FTC Safeguards 16 CFR §314.4(c)** | Designated qualified individual; access controls; monitoring | Agent Owner is the designated technical custodian; attestation cadence aids continuous monitoring |
@@ -297,7 +297,7 @@ The quarterly attestation is the workhorse evidence artifact examiners request f
 
 The annual review is a **separate** activity from quarterly attestation. The Compliance Reviewer evaluates each Z3 agent against:
 
-- FINRA Notice 25-07 supervisory expectations for gen-AI.
+- FINRA RN 24-09 / Rule 3110 supervisory expectations for gen-AI.
 - Reg BI / Advisers Act applicability where the agent influences customer recommendations.
 - OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) effective challenge: was the model challenged by an independent party in the last 12 months?
 - DSPM for AI policy alignment: are policies still calibrated to the agent's data sensitivity?
@@ -931,7 +931,7 @@ Refer to [Troubleshooting](./troubleshooting.md) for registry-level issues and t
 - FINRA Rule 3110 — Supervision
 - FINRA Rule 3120 — Supervisory control system
 - FINRA Rule 4511 — General requirements for books and records
-- FINRA Notice 25-07 — Generative AI member firm responsibilities
+- FINRA RN 24-09 / Rule 3110 — Generative AI member firm responsibilities
 - SEC Rule 17a-4(b)(4) and 17a-4(f) — Records preservation
 - SOX §302 / §404 — Officer certification and ICFR
 - GLBA §501(b) and FTC Safeguards 16 CFR §314.4(c) — Information security program

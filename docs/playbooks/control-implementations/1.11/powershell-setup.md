@@ -269,7 +269,7 @@ function Connect-Fsi-Graph111 {
     $envMap = @{
         ''prod''      = ''Global''
         ''usgov''     = ''USGov''
-        ''usgovhigh'' = ''USGovDoD''   # Microsoft folds GCC High under USGovDoD endpoint
+        ''usgovhigh'' = ''USGov''      # GCC High = graph.microsoft.us (Microsoft Graph ''USGov''); ''USGovHigh'' is NOT a valid -Environment value per https://learn.microsoft.com/en-us/graph/deployments
         ''dod''       = ''USGovDoD''
         ''china''     = ''China''
     }

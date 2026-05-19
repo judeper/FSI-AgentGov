@@ -26,7 +26,7 @@ Before deploying ASARD, ensure the following prerequisites are met:
 - **Environment access:** Ability to query all environments in the tenant (for agent enumeration)
 
 ### Development Environment
-- **Python 3.9 or later:** Verified with Python 3.9, 3.10, 3.11
+- **Python 3.11 or later:** Verified with Python 3.11, 3.12, 3.13. Python 3.9 reached end-of-life on **2025-10-31** ([Status of Python versions](https://devguide.python.org/versions/), [endoflife.date/python](https://endoflife.date/python)) and is no longer supported for new deployments.
 - **Python packages:** Install required dependencies:
   ```bash
   pip install msal requests azure-identity
@@ -62,14 +62,44 @@ Before deploying ASARD, ensure the following prerequisites are met:
 4. **Configure API permissions:**
    - Go to **API permissions**
    - Click **Add a permission** > **APIs my organization uses**
-   - Search for `PowerApps-Advisor` and select it
-   - Select **Delegated permissions** or **Application permissions** (depending on authentication mode)
-   - Add the following permissions:
-     - `Analysis.Read.All` (BAP Admin API access)
+   - Add a permission for **Power Platform API**. The minimum scopes for tenant-wide environment + governance posture enumeration are:
+     - `EnvironmentManagement.Environments.Read` — list environments tenant-wide
+     - `EnvironmentManagement.Groups.Read` — list environment groups (if used by your governance posture)
+     - `AiFlows.Workflows.Read` — list AI flows / agent workflows
+     - `CopilotGovernance.Features.Read` and `CopilotGovernance.Settings.Read` — read Copilot governance posture
+     - `Analytics.AdvisorRecommendations.Read` — read advisor recommendations (closest published Analytics-tier permission; raw agent telemetry is not exposed as a PPAPI scope as of May 2026)
+   - If the **Power Platform API** does not appear in the picker, first instantiate the **PPAPI resource service principal** in the tenant so the picker can find it:
+     ```powershell
+     # Microsoft.Graph PowerShell SDK; install once with:
+     # Install-Module Microsoft.Graph -Scope CurrentUser -Repository PSGallery -Force
+     Connect-MgGraph -Scopes "Application.ReadWrite.All"
+     New-MgServicePrincipal -AppId 8578e004-a5c6-46e7-913e-12f58912df43 -DisplayName "Power Platform API"
+     ```
+     The legacy `New-AzureADServicePrincipal` cmdlet (AzureAD module) reached end-of-support **2024-03-30** and should not be used; the Microsoft Graph PowerShell SDK is Microsoft's supported replacement ([Azure AD / MSOnline deprecation](https://learn.microsoft.com/en-us/powershell/azure/active-directory/overview)).
+   - For tenant-wide BAP-side enumeration via service-principal (S2S), additionally register the app as an admin management application:
+     ```http
+     PUT https://api.bap.microsoft.com/providers/Microsoft.BusinessAppPlatform/adminApplications/{clientId}?api-version=2020-10-01
+     ```
+
+   !!! warning "PPAPI delegated-only design caveat"
+       Microsoft Learn states verbatim: *"Power Platform API uses delegated permissions only at this time… For service principal identities, don't use application permissions. Instead, after you create your app registration, assign it an RBAC role to grant scoped permissions (such as Contributor or Reader)."* ([Authenticate to Power Platform — v2](https://learn.microsoft.com/en-us/power-platform/admin/programmability-authentication-v2))
+
+       If ASARD detection runs as a **headless service principal** (the canonical pattern), the supported tenant-wide enumeration path is one of:
+       (a) the **admin management application** registration via the `PUT api.bap.microsoft.com/.../adminApplications/{clientId}` call above (used for legacy BAP admin endpoints), or
+       (b) a **Power Platform RBAC role assignment** (e.g., Power Platform Reader) on the app's service principal — see [Tutorial — assign RBAC role to a service principal](https://learn.microsoft.com/en-us/power-platform/admin/programmability-tutorial-rbac-role-assignment).
+
+       The PPAPI delegated scopes listed above are appropriate when ASARD runs in **delegated user context** (e.g., interactive admin-initiated detection). Do not rely on PPAPI delegated scopes as the sole tenant-wide enumeration path for an unattended SPN workload.
+
+   - Select **Delegated permissions** (PPAPI exposes Delegated only as of May 2026).
    - Click **Add a permission** again > **Microsoft Graph**
    - Add the following permissions:
      - `Group.Read.All` (to resolve security groups)
-   - Click **Grant admin consent** for your tenant
+     - `GroupMember.Read.All` — required for nested-group / transitive membership queries via [`/groups/{id}/transitiveMembers`](https://learn.microsoft.com/en-us/graph/api/group-list-transitivemembers). Advanced query options on this endpoint (`$count`, `$search`, advanced `$filter`) also require the `ConsistencyLevel: eventual` request header — see [advanced query capabilities](https://learn.microsoft.com/en-us/graph/aad-advanced-queries).
+   - Click **Grant admin consent** for your tenant.
+   - References:
+     - [Power Platform API permission reference](https://learn.microsoft.com/en-us/power-platform/admin/programmability-permission-reference)
+     - [Authenticate to Power Platform — v2](https://learn.microsoft.com/en-us/power-platform/admin/programmability-authentication-v2)
+     - [Authenticate to Power Platform with service principal](https://learn.microsoft.com/en-us/power-platform/admin/powerplatform-api-create-service-principal) (BAP admin endpoint registration)
 
 5. **Record configuration values:**
    - **Application (client) ID:** Copy from Overview page
@@ -88,6 +118,17 @@ Run the schema creation script to create the required Dataverse tables for ASARD
    export AZURE_TENANT_ID="<tenant-id>"
    export DATAVERSE_ENVIRONMENT_URL="https://<org>.crm.dynamics.com"
    ```
+
+   !!! note "Geography-specific Dataverse host suffix"
+       Set `DATAVERSE_ENVIRONMENT_URL` to the environment's actual URL retrieved from the Power Platform admin center or the [discovery service](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/webapi/discover-url-organization-web-api). The host suffix varies by geography:
+
+       - **Commercial:** `crm.dynamics.com`, `crm2.dynamics.com`, `crm3.dynamics.com`, `crm4.dynamics.com`, … (region-dependent)
+       - **US Government (GCC):** `crm9.dynamics.com`
+       - **US Government (GCC High):** `crm.microsoftdynamics.us`
+       - **US Government (DoD):** `crm.appsplatform.us`
+       - **21Vianet (China):** `crm.dynamics.cn`
+
+       Hard-coding `crm.dynamics.com` will fail for sovereign-cloud and 21Vianet tenants. See the **Sovereign Cloud Deployment Notes** section near the end of this guide for additional per-cloud endpoint differences (Graph, BAP, PowerShell modules).
 
 2. **Run schema creation script:**
    ```bash
@@ -136,7 +177,7 @@ Configure which Microsoft Entra ID security groups are approved for agent sharin
      ```python
      # Example: Add approved group via API
      import requests
-     
+
      dataverse_url = "https://<org>.crm.dynamics.com/api/data/v9.2"
      group_policy = {
          "gov_groupobjectid": "12345678-1234-1234-1234-123456789abc",
@@ -144,10 +185,23 @@ Configure which Microsoft Entra ID security groups are approved for agent sharin
          "gov_zone": "production",
          "gov_isactive": True
      }
-     
+
+     # Dataverse Web API required headers — see
+     # https://learn.microsoft.com/en-us/power-apps/developer/data-platform/webapi/compose-http-requests-handle-errors#http-headers
+     # Prefer: return=representation is needed only if you want the created record echoed back
+     # in the response body (otherwise Dataverse returns 204 No Content + the entity URI in OData-EntityId).
+     headers = {
+         "Authorization": f"Bearer {token}",
+         "OData-MaxVersion": "4.0",
+         "OData-Version": "4.0",
+         "Accept": "application/json",
+         "Content-Type": "application/json; charset=utf-8",
+         "Prefer": "return=representation"
+     }
+
      response = requests.post(
          f"{dataverse_url}/gov_asardsecuritygrouppolicies",
-         headers={"Authorization": f"Bearer {token}"},
+         headers=headers,
          json=group_policy
      )
      ```
@@ -256,31 +310,30 @@ Deploy the approval and exception review workflows.
 4. **Enable flows:**
    - Turn on both flows after import and configuration
 
-### Step 7: Configure Teams Notifications
+### Step 7: Teams Notification Setup (Workflows webhook)
 
-Set up Microsoft Teams webhook for violation alerts and remediation results.
+Office 365 Connectors (Teams Incoming Webhook) were retired on **December 31, 2025**. Configure a Microsoft Teams **Workflows** webhook instead:
 
-1. **Create Teams webhook:**
-   - Open Microsoft Teams
-   - Navigate to target channel (e.g., `#power-platform-governance`)
-   - Click **···** (More options) > **Connectors**
-   - Search for **Incoming Webhook** and click **Configure**
-   - **Name:** `ASARD Notifications`
-   - **Upload image:** (optional)
-   - Click **Create**
-   - **Copy the webhook URL** (format: `https://outlook.office.com/webhook/...`)
+1. **Create the Workflows webhook:**
+   - In the target Teams channel (e.g., `#power-platform-governance`), click **···** (More options) > **Workflows**.
+   - Choose the template **"Post to a channel when a webhook request is received"** and follow the wizard.
+   - Required permissions: the workflow runs in the maker's account context; for governance scenarios, run it from a service account.
+   - After the workflow is created, copy the issued **HTTPS URL** (format: `https://prod-NN.<region>.logic.azure.com:443/workflows/<workflow-id>/triggers/manual/paths/invoke?...`).
 
 2. **Configure webhook in detection script:**
    - Open `scripts/detect_agent_sharing_violations.py`
    - Locate the `TEAMS_WEBHOOK_URL` configuration variable
-   - Set it to your webhook URL:
+   - Set it to your Workflows URL:
      ```python
-     TEAMS_WEBHOOK_URL = "https://outlook.office.com/webhook/..."
+     TEAMS_WEBHOOK_URL = "https://prod-NN.westus.logic.azure.com:443/workflows/<workflow-id>/triggers/manual/paths/invoke?..."
      ```
    - Alternatively, set environment variable:
      ```bash
-     export TEAMS_WEBHOOK_URL="https://outlook.office.com/webhook/..."
+     export TEAMS_WEBHOOK_URL="https://prod-NN.westus.logic.azure.com:443/workflows/<workflow-id>/triggers/manual/paths/invoke?..."
      ```
+   - Payload shape is **Adaptive Card v1.5** wrapped in a Workflows `attachments` array (see Step 8 for an example). The legacy `MessageCard` schema used by Office 365 Connectors is NOT compatible.
+
+   References: [Retirement of Office 365 connectors within Microsoft Teams](https://devblogs.microsoft.com/microsoft365dev/retirement-of-office-365-connectors-within-microsoft-teams/); [Post a workflow when a webhook request is received in Microsoft Teams](https://support.microsoft.com/en-us/office/post-a-workflow-when-a-webhook-request-is-received-in-microsoft-teams-8ae491c7-0394-4861-ba59-055e33f75498); [Adaptive Cards for Microsoft Teams](https://learn.microsoft.com/en-us/adaptive-cards/authoring-cards/getting-started).
 
 3. **Test notification:**
    - Run detection scan with `--notify` flag:
@@ -289,6 +342,28 @@ Set up Microsoft Teams webhook for violation alerts and remediation results.
      ```
    - Verify notification received in Teams channel
    - Check that adaptive card renders correctly
+
+4. **Paste-ready curl test (Adaptive Card v1.5 payload):**
+   The Workflows webhook expects a `message` envelope with an `attachments` array containing an Adaptive Card v1.5 payload. The legacy `MessageCard` schema used by Office 365 Connectors is NOT compatible. References: [Post a workflow when a webhook request is received](https://support.microsoft.com/en-us/office/post-a-workflow-when-a-webhook-request-is-received-in-microsoft-teams-8ae491c7-0394-4861-ba59-055e33f75498); [Adaptive Cards for Microsoft Teams](https://learn.microsoft.com/en-us/adaptive-cards/authoring-cards/getting-started).
+
+   ```bash
+   curl -X POST "$WEBHOOK_URL" -H 'Content-Type: application/json' -d '{
+     "type": "message",
+     "attachments": [{
+       "contentType": "application/vnd.microsoft.card.adaptive",
+       "content": {
+         "type": "AdaptiveCard",
+         "version": "1.5",
+         "body": [{
+           "type": "TextBlock",
+           "text": "ASARD detection: <agent-name> shared with unapproved principal"
+         }]
+       }
+     }]
+   }'
+   ```
+
+   A successful test returns HTTP 200/202 and the card appears in the target channel within a few seconds.
 
 ### Step 8: Schedule Recurring Scans
 
@@ -307,7 +382,7 @@ Automate regular detection scans to continuously monitor agent sharing complianc
      - Recur every 1 day
    - **Actions:**
      - New action > Start a program
-     - Program: `C:\Python39\python.exe`
+     - Program: `C:\Python313\python.exe` (or your installed Python 3.11+ path; Python 3.9 reached end-of-life 2025-10-31 and should not be used for new deployments)
      - Arguments: `C:\dev\scripts\detect_agent_sharing_violations.py --notify`
      - Start in: `C:\dev\scripts`
    - **Conditions:** Adjust power and network settings as needed
@@ -332,7 +407,7 @@ Automate regular detection scans to continuously monitor agent sharing complianc
    steps:
    - task: UsePythonVersion@0
      inputs:
-       versionSpec: '3.9'
+       versionSpec: '3.13'  # Python 3.11+ required; 3.9 reached EOL 2025-10-31
    
    - script: |
        pip install msal requests azure-identity
@@ -357,6 +432,33 @@ Automate regular detection scans to continuously monitor agent sharing complianc
    - Action: **HTTP** request to Azure Function or Logic App that runs detection script
    - (Requires hosting the Python script as an Azure Function)
 
+## Sovereign Cloud Deployment Notes
+
+ASARD's default code paths and configuration examples target the **commercial Microsoft 365 / Azure / Power Platform cloud**. Customers deploying into US Government (GCC, GCC High, DoD), 21Vianet (China), or other sovereign clouds must override several endpoints. Authoritative references: [Power Platform US Government overview](https://learn.microsoft.com/en-us/power-platform/admin/microsoft-dynamics-365-government), [Microsoft Graph national clouds](https://learn.microsoft.com/en-us/graph/deployments).
+
+### Per-cloud endpoint overrides
+
+| Component | Commercial | GCC | GCC High | DoD | 21Vianet |
+|-----------|-----------|-----|----------|-----|----------|
+| **Microsoft Graph base URL** | `graph.microsoft.com` | `graph.microsoft.com` (M365 GCC uses worldwide) | `graph.microsoft.us` | `dod-graph.microsoft.us` | `microsoftgraph.chinacloudapi.cn` |
+| **`Connect-MgGraph -Environment`** | `Global` | `Global` (per Microsoft Learn) | `USGov` | `USGovDoD` | `China` |
+| **`Add-PowerAppsAccount -Endpoint`** | `prod` (default) | `usgov` | `usgovhigh` | `dod` | n/a (separate guidance) |
+| **BAP admin endpoint** | `api.bap.microsoft.com` | Same in many gov scenarios — verify per the US Gov service description before relying on it | Verify per US Gov service description | Verify per US Gov service description | Verify per published 21Vianet docs |
+| **Dataverse host suffix** | `crm.dynamics.com` (and `crm2`/`crm3`/`crm4`…) | `crm9.dynamics.com` | `crm.microsoftdynamics.us` | `crm.appsplatform.us` | `crm.dynamics.cn` |
+| **Microsoft Entra authority** | `login.microsoftonline.com` | `login.microsoftonline.com` (GCC uses worldwide) | `login.microsoftonline.us` | `login.microsoftonline.us` | `login.chinacloudapi.cn` |
+
+### What this means for ASARD
+
+1. **PowerShell modules:** When you `Connect-MgGraph` or `Add-PowerAppsAccount` from a sovereign tenant, pass the matching `-Environment` / `-Endpoint` parameter listed above. Forgetting this causes authentication to silently succeed against the commercial endpoint and then return zero results for the gov-cloud tenant.
+2. **MSAL / azure-identity (Python):** Set the authority URL (`https://login.microsoftonline.us/<tenant-id>` for GCC High and DoD; `https://login.chinacloudapi.cn/<tenant-id>` for 21Vianet) and target the per-cloud Graph and Dataverse scopes (e.g., `https://graph.microsoft.us/.default`, `https://<org>.crm.microsoftdynamics.us/.default`).
+3. **Dataverse `DATAVERSE_ENVIRONMENT_URL`:** Use the geography-correct host suffix (see Step 2 note above). The example `https://<org>.crm.dynamics.com` only works for commercial tenants.
+4. **Teams Workflows webhook (Step 7):** Workflows is available in commercial and US Government clouds, but the issued webhook URL host differs (`*.logic.azure.com` vs the US Gov Logic Apps host). Use whichever URL the Workflows template issues in your tenant — do not transplant a commercial URL into a sovereign deployment.
+5. **Defender for Cloud Apps AI Agent Protection / Inventory:** This capability had documented preview status with possible sovereign-cloud parity gaps as of May 2026. Verify availability for your specific cloud before relying on it for ASARD evidence collection — see the [Microsoft Defender for Cloud Apps overview](https://learn.microsoft.com/en-us/defender-cloud-apps/) and the per-cloud service descriptions (Microsoft does not publish a single dedicated US Government documentation page for Defender for Cloud Apps; per-cloud availability is typically reflected in the [Defender for Cloud Apps release notes](https://learn.microsoft.com/en-us/defender-cloud-apps/release-notes) and the Microsoft 365 US Government service description).
+
+### Implementation caveat
+
+This framework does not enumerate every per-cloud endpoint difference. Treat the table above as a **starting checklist** and always validate against Microsoft's current US Government / 21Vianet service descriptions before production deployment. Configuration that works in commercial may need to be re-tested end-to-end in each sovereign cloud.
+
 ## Verification
 
 After deployment, verify that all components are functioning correctly.
@@ -365,10 +467,22 @@ After deployment, verify that all components are functioning correctly.
 
 **Check tables exist:**
 ```powershell
-# Power Platform CLI
+# Power Platform CLI selects the org; metadata enumeration uses the Dataverse Web API
 pac org list
 pac org select --environment <env-id>
-pac data list-tables --filter "gov_asard"
+
+# Enumerate ASARD tables via the documented EntityDefinitions endpoint.
+# Az.Accounts 2.13+ supports -AsSecureString (recommended for modern modules); SecureString-by-default
+# landed in a much later major (~4.0). Interpolating a [SecureString] directly into "Bearer $token"
+# produces the literal string "Bearer System.Security.SecureString", so convert to plain text first.
+# See https://learn.microsoft.com/en-us/powershell/module/az.accounts/get-azaccesstoken
+$secure = (Get-AzAccessToken -ResourceUrl 'https://<org>.crm.dynamics.com' -AsSecureString).Token
+$token  = ConvertFrom-SecureString -SecureString $secure -AsPlainText
+Invoke-RestMethod -Uri "https://<org>.crm.dynamics.com/api/data/v9.2/EntityDefinitions?`$select=LogicalName&`$filter=startswith(LogicalName,'gov_asard')" -Headers @{ Authorization = "Bearer $token"; Accept = 'application/json' }
+
+# Note: PowerShell 7+ is required for ConvertFrom-SecureString -AsPlainText.
+# Older Az.Accounts (< 2.13) returned a plain-text [string] in .Token; if you must
+# support that path, use: $token = (Get-AzAccessToken -ResourceUrl '...').Token
 ```
 
 **Expected output:**

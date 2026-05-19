@@ -50,7 +50,7 @@ Runtime-protection failures are **not automatically reportable**. The decision i
    - **YES →** CFTC 1.31 retention gap analysis; document remediation.
    - **NO →** Internal incident only. Document, remediate, review at governance cadence. No external regulatory report.
 
-> **Notice 25-07 reminder.** FINRA Notice 25-07 (March 2025) reiterates that existing FINRA rules apply to AI tools used by member firms. There is no separate "AI rule" that triggers a new report — but supervisory failures and recordkeeping gaps that involve AI are evaluated under existing Rules 3110, 4511, and 4530.
+> **RN 24-09 reminder.** FINRA RN 24-09 (June 2024) reiterates that existing FINRA rules apply to generative-AI tools used by member firms. There is no separate "AI rule" that triggers a new report — but supervisory failures and recordkeeping gaps that involve AI are evaluated under existing Rules 3110, 4511, and 4530. FINRA RN 25-07 (April 2025) addresses workplace modernization recordkeeping and is cited contextually only; it is not the AI supervisory authority.
 
 > **Determination vs. detection.** NY DFS 23 NYCRR 500.17(a) 72-hour clock starts from **determination** that a reportable cybersecurity event has occurred, not from the first alert. Document the determination decision (who, when, what evidence) — this is the timestamp regulators will examine.
 
@@ -606,7 +606,7 @@ Microsoft Support typical first response is per the contracted SLA (Premier: sev
 - **FINRA Rule 4530(b)** — written reports of specified events within 30 days.
 - **FINRA Rule 3110** — supervision; written supervisory procedures (WSPs) cover AI agents.
 - **FINRA Rule 4511** — books-and-records retention applicable to communications produced by agents.
-- **FINRA Notice 25-07 (March 2025)** — existing rules apply to AI tools; no separate AI rule.
+- **FINRA RN 24-09 (June 2024)** — existing rules apply to generative-AI tools; no separate AI rule. (RN 25-07 (April 2025) workplace modernization is contextual only.)
 - **SEC Rule 17a-3 / 17a-4** — broker-dealer recordkeeping including WORM preservation.
 - **GLBA 501(b)** — safeguards rule; customer-information protection.
 - **OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7)** — model risk management for AI/ML.

@@ -95,7 +95,7 @@ Walk these questions in order. Each "yes" creates a **distinct** notification cl
 | **Q1** | Is the agent or its owner subject to FINRA membership, and could the registration defect have allowed a communication with the public, with a customer, or among associated persons that lacks required supervision? | **FINRA Rule 3110** (supervision) and **FINRA Rule 3110.18** (communications). Consider whether the firm's WSPs covered the agent's communications channel. | Internal — feeds annual 3120 report and may surface in cycle exam. |
 | **Q2** | Did the registration defect cause a books-and-records writing to be created, modified, or deleted outside a WORM-compliant store? | **SEC Rule 17a-4** (broker-dealers), **SEC Rule 204-2** (advisers), **FINRA Rule 4511**, **CFTC Rule 1.31** (FCMs/swap dealers). Books-and-records integrity issues frequently require **immediate self-report** under firm WSPs. | Self-report typically same business day per WSP; no statutory clock but examiners expect prompt disclosure. |
 | **Q3** | Does the incident involve associated-person conduct, customer complaints, or compliance violations that meet a **FINRA Rule 4530** reportable event category (statutory disqualification, customer complaint involving compensatory damages ≥$15K, internal review of associated person, etc.)? | **FINRA Rule 4530(a)/(b)/(d)** filings via the Firm Gateway. | **30 calendar days** from when the firm knew or should have known. |
-| **Q4** | Was a customer-facing AI agent involved, and could its registration defect have caused a misrepresentation, an unsuitable recommendation, an unauthorized communication, or a privacy breach to a retail customer? | **FINRA Regulatory Notice 25-07** (AI-related supervisory and disclosure expectations). Document the supervisory failure analysis even if no other rule is implicated. | Internal documentation immediate; customer remediation per Reg BI / firm policy. |
+| **Q4** | Was a customer-facing AI agent involved, and could its registration defect have caused a misrepresentation, an unsuitable recommendation, an unauthorized communication, or a privacy breach to a retail customer? | **FINRA RN 24-09 / Rule 3110** (AI-related supervisory and disclosure expectations). Document the supervisory failure analysis even if no other rule is implicated. | Internal documentation immediate; customer remediation per Reg BI / firm policy. |
 | **Q5** | Did NPI of a customer become accessible to an unauthorized person, system, or service principal as a result of the registration defect? | **SEC Regulation S-P §248.30(a)(3)–(4)** customer-notification rule (as amended 2024, effective for larger entities Dec 2025 / smaller entities Jun 2026). **GLBA §501(b)** and the **FTC Safeguards Rule** (16 CFR 314.4(j)) notification requirements. | **30 days** under amended Reg S-P (from determination of unauthorized access). FTC Safeguards: notify FTC of incidents affecting ≥500 consumers **as soon as possible and no later than 30 days**. |
 | **Q6** | Is the registrant or its parent an **SEC registrant** and does the incident meet the materiality threshold for **Form 8-K Item 1.05** (material cybersecurity incident)? | **SEC Form 8-K Item 1.05**. Materiality determination is itself a reportable event — document the determination meeting and conclusion. | **4 business days** from the date the registrant determines the incident is material. |
 | **Q7** | Is the firm a **NYDFS Part 500 covered entity**, and does the incident meet the **§500.1(g) cybersecurity event** definition (a cybersecurity event affecting the covered entity that has a reasonable likelihood of materially harming any material part of normal operations, **or** notice was provided to any government body, self-regulatory agency, or supervisory body)? | **23 NYCRR §500.17(a)** notification to the Superintendent. | **72 hours** from determination. |
@@ -196,7 +196,7 @@ Communications cascade upward and outward. Each level has defined triggers, reci
   - Add the appId to a CA workload-identity block policy — defense-in-depth.
   IC selects **all three** to be applied simultaneously at T+60. Business-unit COO accepts the productivity impact in writing (chat log captured to E-13).
 - **T+60 (10:14)** — Containment applied. CA policy hits within 90 seconds. `Get-MgServicePrincipalSignInActivity` confirms no successful sign-ins after T+62.
-- **T+90 (10:44)** — Reportability tree (§1.3) walked with Compliance. Yes answers: Q1 (3110 supervision — advisors used an unsupervised tool for customer comms), Q2 (4511 / 17a-4 — communications outside WORM store, since the app accessed mailbox content but the firm cannot yet confirm what was read or written back), Q4 (Notice 25-07), Q5 (Reg S-P NPI — clock starts at T+0 per Compliance guidance).
+- **T+90 (10:44)** — Reportability tree (§1.3) walked with Compliance. Yes answers: Q1 (3110 supervision — advisors used an unsupervised tool for customer comms), Q2 (4511 / 17a-4 — communications outside WORM store, since the app accessed mailbox content but the firm cannot yet confirm what was read or written back), Q4 (RN 24-09 — AI supervisory obligations under existing Rule 3110), Q5 (Reg S-P NPI — clock starts at T+0 per Compliance guidance).
 - **T+120 (11:14)** — L3 executive briefing memo drafted by IC, reviewed by GC, delivered to CEO/CRO/CFO at T+150.
 - **T+180 (12:14)** — Materiality assessment for SEC 8-K Item 1.05 begins (registrant is the parent holding company). GC chairs; CFO, Investor Relations, External Counsel, CISO participate. Determination by T+240: **not yet material** pending forensics on what data the app actually accessed; re-evaluate at 24h, 48h, 72h.
 - **T+240 (13:14)** — Forensics handoff. External counsel engages forensics vendor under privilege. Scope: reconstruct, per session, what mail items the app `read` and `wrote`; identify whether any customer NPI was transmitted off-tenant via the app's reply URL.
@@ -225,7 +225,7 @@ Get-MgApplication -All -Filter "createdDateTime ge $since or" `
   | Export-Csv -NoTypeInformation .\dq1-apps.csv
 ```
 
-For GCC High, set `Connect-MgGraph -Environment USGovHigh`. For DoD, `-Environment USGovDoD`.
+For GCC High, set `Connect-MgGraph -Environment USGov` (Microsoft Graph's GCC High endpoint name; not `USGovHigh`, which is not a valid `-Environment` value). For DoD, `-Environment USGovDoD`. See [Microsoft Graph national clouds](https://learn.microsoft.com/en-us/graph/deployments).
 
 **DQ-2 — Identify all service principals with high-privilege application-permission grants.**
 
@@ -564,7 +564,7 @@ Each pillar covers one registration surface (or cross-cutting governance plane).
 **Diagnostic steps.**
 
 1. Confirm the cloud: Entra → Properties → "Tenant ID" page shows tenant region and cloud.
-2. Pin endpoints in scripts via `Connect-MgGraph -Environment USGovHigh` / `-Environment USGovDoD`; for PPAC, use `Add-PowerAppsAccount -Endpoint usgovhigh` / `dod`.
+2. Pin endpoints in scripts via `Connect-MgGraph -Environment USGov` (GCC + GCC High) / `-Environment USGovDoD` (DoD); for PPAC, use `Add-PowerAppsAccount -Endpoint usgovhigh` / `dod`.
 3. For each control in GCC High / DoD, check the Microsoft Learn "Service description for US Government" or equivalent page.
 
 **Resolution patterns.** Maintain a per-cloud control matrix in the agent register; deploy compensating controls (per §1.5) where features lag.
@@ -609,7 +609,7 @@ Each runbook follows the same eight-section structure: **Severity classification
 
 **Recovery.** Restore advisor / user productivity by deploying the sanctioned replacement (or by re-enabling the now-registered original under properly scoped grants). Document a 30-day heightened-monitoring period via Sentinel.
 
-**Lessons-learned & reporting decision tree.** Walk Q1–Q10. Common "yes" answers for shadow-agent incidents: Q1 (3110 supervision), Q4 (Notice 25-07), Q5 (Reg S-P) if NPI accessed. Hold post-mortem within 14 days; root-cause typically lands on (a) user-consent permitted for a scope class that should require admin consent, (b) discovery cadence too slow, (c) agent-register intake friction encouraging shadow IT.
+**Lessons-learned & reporting decision tree.** Walk Q1–Q10. Common "yes" answers for shadow-agent incidents: Q1 (3110 supervision), Q4 (RN 24-09 AI supervisory obligations), Q5 (Reg S-P) if NPI accessed. Hold post-mortem within 14 days; root-cause typically lands on (a) user-consent permitted for a scope class that should require admin consent, (b) discovery cadence too slow, (c) agent-register intake friction encouraging shadow IT.
 
 ### Runbook 2 — Mass Departed-Owner Cascade (>50 Apps)
 
@@ -633,7 +633,7 @@ Each runbook follows the same eight-section structure: **Severity classification
 
 **Recovery.** Update the agent register with all new ownership; set the next attestation date; instrument a Sentinel rule that fires when any app's owner-set drops to zero live owners.
 
-**Lessons-learned & reporting decision tree.** Q8 (Fed SR 26-2 (formerly SR 11-7)) often "yes" if any of the orphaned apps are MRM-scope models that lapsed governance. Q9 (TPRM) if any divested entity's apps remain co-mingled. Q4 (Notice 25-07) if customer-facing apps are involved. Add a leaver-process control: HR's leaver workflow should fire a Graph webhook into the agent register to trigger pre-departure ownership transfer.
+**Lessons-learned & reporting decision tree.** Q8 (Fed SR 26-2 (formerly SR 11-7)) often "yes" if any of the orphaned apps are MRM-scope models that lapsed governance. Q9 (TPRM) if any divested entity's apps remain co-mingled. Q4 (RN 24-09 AI supervisory obligations) if customer-facing AI apps are involved. Add a leaver-process control: HR's leaver workflow should fire a Graph webhook into the agent register to trigger pre-departure ownership transfer.
 
 ### Runbook 3 — Over-Permissioned Grant Exploited
 
@@ -654,7 +654,7 @@ Each runbook follows the same eight-section structure: **Severity classification
 
 **Recovery.** Heightened monitoring 90 days; review all other apps owned by the same owner / sponsored by the same sponsor for similar over-grants.
 
-**Lessons-learned & reporting decision tree.** Almost always Q5 (Reg S-P, GLBA) if NPI; Q6 (8-K Item 1.05 materiality assessment) for SEC registrants; Q7 (NYDFS 72-hour) for covered entities; Q4 (Notice 25-07). Insurance notification typically required.
+**Lessons-learned & reporting decision tree.** Almost always Q5 (Reg S-P, GLBA) if NPI; Q6 (8-K Item 1.05 materiality assessment) for SEC registrants; Q7 (NYDFS 72-hour) for covered entities; Q4 (RN 24-09 AI supervisory obligations). Insurance notification typically required.
 
 ### Runbook 4 — Expired Secret Used in Production
 
@@ -796,7 +796,7 @@ Pin and record every tool version in E-14. Versions current as of the document's
 
 | Tool / Module | Minimum version | Notes |
 |---------------|-----------------|-------|
-| `Microsoft.Graph` PowerShell SDK | 2.20.0+ | Use `-Environment USGov` / `USGovHigh` / `USGovDoD` for sovereign clouds. |
+| `Microsoft.Graph` PowerShell SDK | 2.20.0+ | Use `-Environment USGov` / `USGovDoD` for sovereign clouds (USGov = GCC + GCC High; USGovDoD = DoD). |
 | `Microsoft.PowerApps.Administration.PowerShell` | 2.0.180+ | Use `Add-PowerAppsAccount -Endpoint prod\|usgov\|usgovhigh\|dod`. |
 | `ExchangeOnlineManagement` | 3.4.0+ | Required for `Search-UnifiedAuditLog`. |
 | Azure CLI | 2.55.0+ | For workload identity federation administration. |

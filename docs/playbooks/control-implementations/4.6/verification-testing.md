@@ -14,7 +14,7 @@
 >
 > **Out of scope here:** SharePoint records retention horizons (verified under [Control 1.9](../1.9/verification-testing.md)), unified-audit retention configuration (verified under [Control 1.7](../1.7/verification-testing.md)), and the broader sensitivity-label / DLP design beyond grounding-scope enforcement (verified under [Control 1.5](../1.5/verification-testing.md)).
 >
-> **Audience:** M365 administrator + AI Governance Lead + Compliance Officer at a US financial services organization producing audit-defensible evidence for FINRA Rule 4511 / 3110 / 25-07, SEC Rule 17a-3/4, GLBA 501(b), SOX 302/404, OCC Bulletin 2026-13 (formerly OCC 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7), and NYDFS 23 NYCRR 500 examiners.
+> **Audience:** M365 administrator + AI Governance Lead + Compliance Officer at a US financial services organization producing audit-defensible evidence for FINRA Rule 4511 / 3110 (with RN 24-09 for AI supervisory guidance), SEC Rule 17a-3/4, GLBA 501(b), SOX 302/404, OCC Bulletin 2026-13 (formerly OCC 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7), and NYDFS 23 NYCRR 500 examiners.
 >
 > **Sovereign clouds:** Commercial · GCC · GCC High · DoD — see §5 for variants. RSS, RCD, SharePoint Advanced Management (SAM), and DLP-for-Copilot have **non-parity availability** in US Government clouds; verify each capability against current Microsoft Learn before claiming PASS / FAIL on a sovereign tenant.
 >
@@ -58,30 +58,30 @@ Each test below has a primary cadence (driven by the regulator who wants to see 
 | 4.6-RCD-03 | Monthly + on-RCD-change | SharePoint Admin | 6 years (FINRA 4511) | FINRA 4511, SEC 17a-3 |
 | 4.6-RCD-04 | Quarterly | SharePoint Admin | 6 years | FINRA 3110, OCC Bulletin 2026-13 (formerly OCC 2011-12) |
 | 4.6-RCD-05 | Monthly + on-RCD-change | SharePoint Admin | 6 years | FINRA 4511 |
-| 4.6-RCD-06 | Quarterly | SharePoint Admin | 6 years | FINRA 25-07 |
+| 4.6-RCD-06 | Quarterly | SharePoint Admin | 6 years | FINRA RN 24-09, FINRA 3110 |
 | 4.6-RSS-01 | Monthly + on-RSS-change | SharePoint Admin | 6 years | FINRA 4511 |
 | 4.6-RSS-02 | Monthly + on-RSS-change | SharePoint Admin | 6 years | FINRA 4511 |
 | 4.6-RSS-03 | Monthly + on-RSS-change | SharePoint Admin | 6 years | FINRA 4511 |
 | 4.6-RSS-04 | Quarterly | SharePoint Admin | 6 years | FINRA 3110 |
-| 4.6-RSS-05 | Quarterly | AI Governance Lead | 6 years | FINRA 25-07 (NOT-A-BOUNDARY attestation) |
+| 4.6-RSS-05 | Quarterly | AI Governance Lead | 6 years | FINRA RN 24-09, FINRA 3110 (NOT-A-BOUNDARY attestation) |
 | 4.6-DLP-01 | Monthly + on-policy-change | Purview Compliance Admin | 6 years (FINRA 4511) + 7 years (SOX 404) | FINRA 4511, SOX 404, GLBA 501(b) |
 | 4.6-DLP-02 | Monthly + on-policy-change | Purview Compliance Admin | 6 years + 7 years | FINRA 4511, SOX 404 |
 | 4.6-DLP-03 | Monthly + on-policy-change | Power Platform Admin | 6 years + 7 years | FINRA 4511, SOX 404 |
 | 4.6-DLP-04 | Quarterly | Purview Compliance Admin | 6 years + 7 years | GLBA 501(b), NYDFS 500.11 |
-| 4.6-DAG-01 | Monthly | SharePoint Admin | 6 years | FINRA 3110, FINRA 25-07, SEC 17a-3 |
+| 4.6-DAG-01 | Monthly | SharePoint Admin | 6 years | FINRA 3110, FINRA RN 24-09, SEC 17a-3 |
 | 4.6-DAG-02 | Monthly | SharePoint Admin | 6 years | FINRA 3110, GLBA 501(b) |
-| 4.6-DAG-03 | Quarterly | AI Governance Lead | 6 years | FINRA 25-07 |
+| 4.6-DAG-03 | Quarterly | AI Governance Lead | 6 years | FINRA RN 24-09, FINRA 3110 |
 | 4.6-OND-01 | Quarterly | M365 Administrator | 6 years | FINRA 4511, GLBA 501(b) |
 | 4.6-OND-02 | Quarterly | AI Governance Lead | 6 years | FINRA 4511, GLBA 501(b) |
-| 4.6-INAPP-01 | Quarterly | AI Governance Lead | 6 years | FINRA 25-07 (false-fail prevention) |
-| 4.6-INAPP-02 | Quarterly | AI Governance Lead | 6 years | FINRA 25-07 |
+| 4.6-INAPP-01 | Quarterly | AI Governance Lead | 6 years | FINRA RN 24-09, FINRA 3110 (false-fail prevention) |
+| 4.6-INAPP-02 | Quarterly | AI Governance Lead | 6 years | FINRA RN 24-09, FINRA 3110 |
 | 4.6-AUDIT-01 | Monthly | Compliance Officer | 7 years (SOX 404) | SEC 17a-4(b), SOX 404 |
 | 4.6-AUDIT-02 | Monthly | Compliance Officer | 7 years | SOX 404 |
 | 4.6-AUDIT-03 | Quarterly | Compliance Officer | 7 years | SOX 404, FINRA 4511 |
-| 4.6-NEG-01 | Quarterly | SharePoint Admin | 6 years | FINRA 25-07 (negative-test discipline) |
-| 4.6-NEG-02 | Quarterly | SharePoint Admin | 6 years | FINRA 25-07 |
-| 4.6-NEG-03 | Quarterly | Purview Compliance Admin | 6 years | FINRA 25-07 |
-| 4.6-NEG-04 | Quarterly | AI Governance Lead | 6 years | FINRA 25-07 |
+| 4.6-NEG-01 | Quarterly | SharePoint Admin | 6 years | FINRA RN 24-09, FINRA 3110 (negative-test discipline) |
+| 4.6-NEG-02 | Quarterly | SharePoint Admin | 6 years | FINRA RN 24-09, FINRA 3110 |
+| 4.6-NEG-03 | Quarterly | Purview Compliance Admin | 6 years | FINRA RN 24-09, FINRA 3110 |
+| 4.6-NEG-04 | Quarterly | AI Governance Lead | 6 years | FINRA RN 24-09, FINRA 3110 |
 | 4.6-IR-01 | Annually + on-incident | AI Governance Lead + Risk Officer | 7 years (SOX 404) | OCC Bulletin 2026-13 (formerly OCC 2011-12), Fed SR 26-2 (formerly SR 11-7), NYDFS 500.16 |
 
 **On-change re-runs.** Any change to (a) the RCD list on a site, (b) the RSS allowed-list, (c) any DLP-for-Copilot policy in scope of `Microsoft 365 Copilot` location, (d) any in-scope SharePoint site''s sharing settings, or (e) the role assignments named in §2.6 triggers an immediate re-run of the affected test family within five business days. The on-change trigger is detected from the AUDIT-01 monthly diff or from change-management ticket metadata.
@@ -289,7 +289,7 @@ Each test follows the format: **Objective · Preconditions · Steps · Expected 
 
 ### 4.6-RCD-06 — RCD scope-of-applicability statement (NOT-A-TOTAL-CONTROL)
 
-- **Objective.** Produce the regulator-facing statement that records what RCD does and does not do, so that examiners receive the same scope statement under FINRA 25-07 every cycle.
+- **Objective.** Produce the regulator-facing statement that records what RCD does and does not do, so that examiners receive the same scope statement under FINRA RN 24-09 + Rule 3110 every cycle.
 - **Preconditions.** All RCD tests above PASS or have explained gaps.
 - **Steps.** Author the statement using the boilerplate in [Portal Walkthrough §RCD scope statement](portal-walkthrough.md), customized with the cycle date, the count of RCD-enabled sites, and the count of in-app carve-out tests passed (`4.6-INAPP-NN`).
 - **Expected.** A signed statement that explicitly says: RCD scopes Microsoft 365 Copilot chat / Business Chat and tenant search; RCD does **not** scope in-app Word/Excel/PowerPoint Copilot when the user has the file open; RCD does **not** apply to personal OneDrive; RCD propagation can exceed 1 week on very large sites.
@@ -811,7 +811,7 @@ Microsoft-published windows referenced (see §3):
 Regulatory drivers attested against this cycle:
   - FINRA Rule 4511 (books and records)
   - FINRA Rule 3110 (supervisory review)
-  - FINRA 25-07 (AI / agent supervision guidance)
+  - FINRA RN 24-09 (Gen AI guidance) + FINRA Rule 3110 (Supervision)
   - SEC Rule 17a-3 / 17a-4 / 17a-4(b) (record retention; WORM)
   - SOX 302 / 404 (internal control over financial reporting)
   - GLBA 501(b) (safeguards)

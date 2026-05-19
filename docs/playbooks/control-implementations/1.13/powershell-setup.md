@@ -10,7 +10,7 @@
 > - Troubleshooting — `./troubleshooting.md`
 > - Shared baseline — `docs/playbooks/_shared/powershell-baseline.md`
 >
-> **Important regulatory framing.** Nothing in this playbook *guarantees* regulatory compliance. The cmdlets, scripts, and patterns below *support* control objectives required by FINRA Rules 4511 and 25-07, SEC Rules 17a-3 / 17a-4 and Reg S-P, GLBA §501(b), SOX §404, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), and Federal Reserve SR 26-2 (formerly SR 11-7). Implementation requires that organizations validate every script against their own change-management, model-risk, and supervisory-review processes before production rollout.
+> **Important regulatory framing.** Nothing in this playbook *guarantees* regulatory compliance. The cmdlets, scripts, and patterns below *support* control objectives required by FINRA Rules 3110 and 4511 (with FINRA RN 24-09 as AI supervisory guidance), SEC Rules 17a-3 / 17a-4 and Reg S-P, GLBA §501(b), SOX §404, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), and Federal Reserve SR 26-2 (formerly SR 11-7). Implementation requires that organizations validate every script against their own change-management, model-risk, and supervisory-review processes before production rollout.
 
 ## 0. Wrong-shell trap (READ FIRST)
 

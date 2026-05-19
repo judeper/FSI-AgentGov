@@ -471,7 +471,7 @@ def test_send_teams_notification_success():
             mock_post.return_value = mock_response
             
             result = send_teams_notification(
-                "https://outlook.office.com/webhook/...",
+                "https://prod-NN.eastus.logic.azure.com:443/workflows/...",
                 results,
                 summary,
                 str(template_path),
@@ -524,7 +524,7 @@ def test_send_teams_notification_failure():
             mock_post.return_value = mock_response
             
             result = send_teams_notification(
-                "https://outlook.office.com/webhook/...",
+                "https://prod-NN.eastus.logic.azure.com:443/workflows/...",
                 results,
                 summary,
                 str(template_path),
@@ -575,7 +575,7 @@ def test_teams_card_template_population():
             mock_post.return_value = mock_response
             
             send_teams_notification(
-                "https://outlook.office.com/webhook/...",
+                "https://prod-NN.eastus.logic.azure.com:443/workflows/...",
                 results,
                 summary,
                 str(template_path),
@@ -641,7 +641,7 @@ def test_teams_notification_top_5_violations():
             mock_post.return_value = mock_response
             
             send_teams_notification(
-                "https://outlook.office.com/webhook/...",
+                "https://prod-NN.eastus.logic.azure.com:443/workflows/...",
                 results,
                 summary,
                 str(template_path),

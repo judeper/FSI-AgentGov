@@ -259,9 +259,11 @@ $inventory | Export-Csv -Path "ManualAgentInventory_$(Get-Date -Format 'yyyyMMdd
    - Copy webhook URL and compare to URL in script/flow
 
 2. **Test Webhook Directly:**
+   > **NOTE:** Office 365 Connectors retired 2025-12-31; use Teams Workflows webhooks (`https://prod-NN.<region>.logic.azure.com:443/workflows/...`) with an Adaptive Card v1.5 payload.
+
    ```powershell
    # Test webhook with simple message
-   $webhookUrl = "https://outlook.office.com/webhook/..."
+   $webhookUrl = "https://prod-NN.westus.logic.azure.com:443/workflows/<workflow-id>/triggers/manual/paths/invoke?..."
    $body = @{
        text = "Test notification from PowerShell"
    } | ConvertTo-Json

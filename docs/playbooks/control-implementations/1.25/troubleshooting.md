@@ -85,7 +85,7 @@ Power Platform Admin Center → Environments → [Environment] → Settings → 
 
 **Resolution:**
 
-1. Navigate to Microsoft Purview Compliance Portal → Data Loss Prevention → Policies
+1. Navigate to Microsoft Purview portal → Data Loss Prevention → Policies
 2. Verify a DLP policy exists that covers Power Platform connectors
 3. Check the policy scope includes the target environment
 4. Verify the policy is in **Enforce** mode (not **Test** or **Off**)

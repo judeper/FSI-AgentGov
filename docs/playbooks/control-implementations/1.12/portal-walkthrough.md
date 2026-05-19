@@ -6,7 +6,7 @@
 **Cloud coverage:** Commercial · GCC · GCC High · DoD (see sovereign cloud table — **HARD GAPS exist for FSI Government-cloud tenants**)
 **Estimated Time:** 8–16 hours (excludes analytics processing windows of up to 48 hours, HR connector first-ingest cycle, and pilot validation)
 
-> This playbook provides portal configuration guidance for [Control 1.12](../../../controls/pillar-1-security/1.12-insider-risk-detection-and-response.md). It is written to support compliance with FINRA Rule 3110 (supervision), FINRA 25-07 (AI agent supervision), GLBA 501(b) (safeguards), SOX 404 (internal controls), SEC Rule 17a-4 (record retention — see boundary note), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), and NYDFS 23 NYCRR 500 §500.17(a). Insider Risk Management (IRM) is a **detect / investigate / act** surface. By itself it does not satisfy any single regulatory obligation — durable records retention is implemented separately under [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md), and incident handling is governed by your firm's Written Supervisory Procedures (WSP) and the FSI Incident Handling section of the Control 1.12 troubleshooting playbook.
+> This playbook provides portal configuration guidance for [Control 1.12](../../../controls/pillar-1-security/1.12-insider-risk-detection-and-response.md). It is written to support compliance with FINRA Rule 3110 (supervision), FINRA Regulatory Notice 24-09 (Gen AI guidance for AI agent supervision), GLBA 501(b) (safeguards), SOX 404 (internal controls), SEC Rule 17a-4 (record retention — see boundary note), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), and NYDFS 23 NYCRR 500 §500.17(a). Insider Risk Management (IRM) is a **detect / investigate / act** surface. By itself it does not satisfy any single regulatory obligation — durable records retention is implemented separately under [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md), and incident handling is governed by your firm's Written Supervisory Procedures (WSP) and the FSI Incident Handling section of the Control 1.12 troubleshooting playbook.
 
 ---
 
@@ -919,7 +919,7 @@ Document any cross-product policies in both control evidence packs (Control 1.10
 
 ### Integration with DSPM for AI (Control 1.6)
 
-DSPM for AI provides the visibility plane for AI prompts, sensitive-prompt classifiers, and unprotected grounding sources. IRM provides the **scoring and case workflow** for risky AI usage. The two are designed to be used together for FSI Copilot supervision under FINRA 25-07. See [Control 1.6](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md).
+DSPM for AI provides the visibility plane for AI prompts, sensitive-prompt classifiers, and unprotected grounding sources. IRM provides the **scoring and case workflow** for risky AI usage. The two are designed to be used together for FSI Copilot supervision under FINRA RN 24-09 + Rule 3110. See [Control 1.6](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md).
 
 ### Triage Agent (Security Copilot–powered IRM triage)
 
@@ -1065,7 +1065,7 @@ Store in immutable storage (Purview retention label, SharePoint hold, or WORM bl
 - [Control 1.19 eDiscovery for Agent Interactions](../../../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md) — escalation path for legal hold / production
 - [Control 2.6 Model Risk Management](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) — ML risk scoring (IRM Analytics, Adaptive Protection, Risky Agents, Triage Agent) require MRM governance under OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7)
 - [Control 2.8 Access Control and Segregation of Duties](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md) — privileged-admin priority population; governs JIT elevation for IRM Admins / Investigators / Approvers
-- [Control 2.12 Supervision and Oversight (FINRA 3110)](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) — FINRA 3110 / 25-07 supervisory framing
+- [Control 2.12 Supervision and Oversight (FINRA 3110)](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) — FINRA 3110 / RN 24-09 supervisory framing
 - [Control 2.26 Entra Agent ID and Identity Governance](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) — agent / service-principal identity correlation for Risky Agents investigations
 - [Control 3.1 Agent Inventory and Metadata Management](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) — agent inventory used to scope Risky AI usage
 - [Control 3.4 Incident Reporting and Root-Cause Analysis](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) — SEV-1/2 escalation path; SEC Reg S-P, NYDFS §500.17(a), state breach-notification interfaces

@@ -33,10 +33,14 @@ Exceptions are tracked in the `gov_asardexception` Dataverse table:
 | Column | Type | Description |
 |--------|------|-------------|
 | `gov_expirationdate` | DateTime | Expiration date for the exception (UTC) |
-| `gov_justification` | Memo | Business justification for the exception (max 1MB) |
+| `gov_justification` | Memo | Business justification for the exception (configurable max length — see note below) |
 | `gov_approvedby` | String | Name or email of the approver (max 256 chars) |
 | `gov_approvedat` | DateTime | Timestamp when exception was approved (UTC) |
 | `gov_reviewdate` | DateTime | Optional: Next review date for the exception (UTC) |
+
+> **Memo column length:** `gov_justification` is a Memo (multi-line text) column. Dataverse Memo columns default to **150 characters** and may be configured up to **1,048,576 characters (1 MB)**. The 1 MB ceiling is configurable, not the default — confirm the deployed column was provisioned with `MaxLength = 1048576` if 1 MB justifications are required. See [Multiple lines of text columns](https://learn.microsoft.com/en-us/power-apps/maker/data-platform/types-of-fields#multiple-lines-of-text-columns).
+
+> **DateTime Behavior:** Configure `gov_expirationdate`, `gov_approvedat`, and `gov_reviewdate` with the **TimeZoneIndependent** Behavior. Always write and compare values as UTC ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`) to avoid Daylight Saving Time drift. See [Behavior and format of the Date and Time column](https://learn.microsoft.com/en-us/power-apps/maker/data-platform/behavior-format-date-time-field).
 
 When `gov_status = 2` (Active) **AND** `gov_expirationdate >= now()`, the agent is considered to have an active exception.
 
@@ -94,9 +98,17 @@ ASARD v1 uses manual exception entry via direct Dataverse record updates. No Can
 
 5. **Save the record**
 
-**Example Dataverse update payload (via Web API):**
+**Example Dataverse update via Web API (PATCH):**
 
-```json
+```http
+PATCH https://contoso.crm.dynamics.com/api/data/v9.2/gov_asardexceptions(<exception-id-guid>)
+Authorization: Bearer <access-token>
+If-Match: *
+OData-MaxVersion: 4.0
+OData-Version: 4.0
+Content-Type: application/json; charset=utf-8
+Accept: application/json
+
 {
   "gov_status": 2,
   "gov_expirationdate": "2026-05-15T00:00:00Z",
@@ -106,6 +118,12 @@ ASARD v1 uses manual exception entry via direct Dataverse record updates. No Can
   "gov_reviewdate": "2026-04-01T00:00:00Z"
 }
 ```
+
+> **Required PATCH headers** (per [Update and delete entities using the Web API](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/webapi/update-delete-entities-using-web-api)):
+> - `If-Match: *` — prevents the request from unintentionally creating (upserting) a new record if the target `gov_asardexceptions(<id>)` does not exist. Without this header, a PATCH against a non-existent ID will silently create the row.
+> - `OData-MaxVersion: 4.0` and `OData-Version: 4.0` — required Dataverse OData version negotiation headers.
+> - `Content-Type: application/json; charset=utf-8` — Dataverse rejects PATCH requests without an explicit JSON content type.
+> - `Accept: application/json` — instructs Dataverse to return a JSON response (default is no body on success).
 
 ### 2. Exception Renewal
 
@@ -181,22 +199,38 @@ To check for expiring exceptions manually:
     <attribute name="gov_justification" />
     <filter type="and">
       <condition attribute="gov_status" operator="eq" value="2" />
-      <condition attribute="gov_expirationdate" operator="ge" value="@{utcNow()}" />
-      <condition attribute="gov_expirationdate" operator="le" value="@{addDays(utcNow(), 14)}" />
+      <condition attribute="gov_expirationdate" operator="next-x-days" value="14" />
     </filter>
     <order attribute="gov_expirationdate" />
   </entity>
 </fetch>
 ```
 
-**Dataverse Web API** (replace `contoso` with your organization's Dataverse domain)**:**
+> **FetchXML date operators:** The example above uses FetchXML's built-in `next-x-days` relative-date operator, which bounds the result set to records whose `gov_expirationdate` falls within the next 14 days (from now). This works in any FetchXML consumer (Web API, SDK, XrmToolBox, etc.). The Power Automate workflow expressions `@{utcNow()}` and `@{addDays(utcNow(), 14)}` are **not** valid FetchXML date literals — they only work when running through Power Automate's **List rows** action, because Power Automate (not FetchXML) substitutes those expressions before sending the query. If you author the FetchXML inside a Power Automate **List rows** action and want it portable, prefer the relative-date operator above. See [FetchXML conditional operators](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/fetchxml/reference/operators) and [FetchXML condition element](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/fetchxml/reference/condition).
 
-```
+**Dataverse Web API** (replace `contoso` with your organization's Dataverse host)**:**
+
+*Option A — parameter aliases with client-resolved ISO date values* (substitute the literal dates for your current run):
+
+```http
 GET https://contoso.crm.dynamics.com/api/data/v9.2/gov_asardexceptions
 ?$select=gov_agentname,gov_environmentname,gov_expirationdate,gov_approvedby
-&$filter=gov_status eq 2 and gov_expirationdate ge @now and gov_expirationdate le @fourteendays
+&$filter=gov_status eq 2 and gov_expirationdate ge @now and gov_expirationdate le @fourteen
+&$orderby=gov_expirationdate asc
+&@now=2026-05-18T00:00:00Z
+&@fourteen=2026-06-01T00:00:00Z
+```
+
+*Option B — Dataverse relative-date function* (no client-side date computation needed):
+
+```http
+GET https://contoso.crm.dynamics.com/api/data/v9.2/gov_asardexceptions
+?$select=gov_agentname,gov_environmentname,gov_expirationdate,gov_approvedby
+&$filter=gov_status eq 2 and Microsoft.Dynamics.CRM.NextXDays(PropertyName='gov_expirationdate',PropertyValue=14)
 &$orderby=gov_expirationdate asc
 ```
+
+> **OData parameter aliases:** Parameter aliases such as `@now` and `@fourteen` are only valid when each alias is **defined elsewhere in the query string** with a literal value (for example `&@now=2026-05-18T00:00:00Z`). A bare `@now` or `@fourteendays` with no trailing definition is **not** OData-valid and will be rejected by the Dataverse Web API. For built-in date math without client-side date resolution, use the `Microsoft.Dynamics.CRM.NextXDays` function shown in Option B. See [Compose HTTP requests — parameter aliases](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/webapi/compose-http-requests-handle-errors#using-parameter-aliases-with-system-query-options) and [Use Web API functions](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/webapi/use-web-api-functions).
 
 ---
 
@@ -213,7 +247,7 @@ GET https://contoso.crm.dynamics.com/api/data/v9.2/gov_asardexceptions
 1. Grant exception via Dataverse record update (see Exception Creation procedure)
 
 2. Run detection script in dry-run mode:
-   ```powershell
+   ```bash
    python scripts/detect_agent_sharing_violations.py --dry-run --verbose
    ```
 
@@ -222,7 +256,7 @@ GET https://contoso.crm.dynamics.com/api/data/v9.2/gov_asardexceptions
    - Summary shows exception count incremented
 
 4. Run remediation script in WhatIf mode:
-   ```powershell
+   ```bash
    python scripts/remediate_agent_sharing.py --whatif --from-dataverse --verbose
    ```
 
@@ -261,7 +295,7 @@ GET https://contoso.crm.dynamics.com/api/data/v9.2/gov_asardexceptions
    - Verify all exception-related fields are null
 
 5. Run detection script:
-   ```powershell
+   ```bash
    python scripts/detect_agent_sharing_violations.py --dry-run
    ```
 
@@ -285,7 +319,7 @@ GET https://contoso.crm.dynamics.com/api/data/v9.2/gov_asardexceptions
    - `gov_expirationdate >= current UTC date`
 
 2. Check detection script logs:
-   ```powershell
+   ```bash
    python scripts/detect_agent_sharing_violations.py --verbose --log-file detect.log
    ```
 
@@ -309,13 +343,13 @@ GET https://contoso.crm.dynamics.com/api/data/v9.2/gov_asardexceptions
 **Diagnosis:**
 
 1. Verify remediation script is Phase 4 version:
-   ```powershell
+   ```bash
    grep -n "active exception" scripts/remediate_agent_sharing.py
    ```
    Expected: Line with "Agent X has active exception (expires ...)"
 
 2. Check remediation logs:
-   ```powershell
+   ```bash
    python scripts/remediate_agent_sharing.py --whatif --from-dataverse --verbose --log-file remediate.log
    ```
 
@@ -362,7 +396,7 @@ GET https://contoso.crm.dynamics.com/api/data/v9.2/gov_asardexceptions
 
 1. Verify Teams channel ID in workflow:
    - Edit workflow → "Post_Expiring_Notification" action
-   - Check `location` parameter (should be Teams channel GUID)
+   - Verify the Teams `channelId` value in the workflow uses the channel ID format `19:<id>@thread.tacv2` (or the legacy `19:<id>@thread.skype` for older channels), **not** a Microsoft Entra GUID. Teams channel IDs are opaque thread identifiers, not pure GUIDs. Retrieve the channel ID from the Teams admin center, the Microsoft Graph `/teams/{team-id}/channels` endpoint, or `Get-TeamChannel -GroupId <team-guid>` in the MicrosoftTeams PowerShell module. See [Microsoft Teams connector in Power Automate](https://learn.microsoft.com/en-us/connectors/teams/).
 
 2. Verify adaptive card template URL:
    - Edit workflow → "Load_Expiring_Card_Template" action
@@ -374,9 +408,31 @@ GET https://contoso.crm.dynamics.com/api/data/v9.2/gov_asardexceptions
 
 **Resolution:**
 
-- If channel ID invalid: Update workflow with correct Teams channel GUID
+- If channel ID invalid: Update workflow with the correct Teams channel ID (format `19:<id>@thread.tacv2`)
 - If template URL fails: Host templates in accessible location (GitHub raw, Azure Blob)
 - If card rendering fails: Fix JSON syntax errors in adaptive card template
+
+---
+
+## Sovereign Cloud Notes
+
+ASARD exception management can be deployed in Microsoft's sovereign and government clouds, but several host suffixes and authority endpoints differ from commercial. Validate the deployment manifest against the target environment before running collectors or the Exception Review Workflow.
+
+| Cloud | Microsoft Entra authority | Dataverse / BAP host suffix | M365 admin center | Graph endpoint |
+|-------|---------------------------|------------------------------|-------------------|----------------|
+| Commercial (Worldwide) | `https://login.microsoftonline.com/<tenant>` | `*.crm.dynamics.com` / `api.bap.microsoft.com` | `admin.microsoft.com` | `https://graph.microsoft.com` |
+| GCC | `https://login.microsoftonline.com/<tenant>` | `*.crm9.dynamics.com` / `api.gov.bap.microsoft.us` | `admin.microsoft.com` | `https://graph.microsoft.com` |
+| GCC High | `https://login.microsoftonline.us/<tenant>` | `*.crm.microsoftdynamics.us` / `high.api.bap.microsoft.us` | `portal.office365.us` | `https://graph.microsoft.us` |
+| DoD | `https://login.microsoftonline.us/<tenant>` | `*.crm.appsplatform.us` / `mil.api.bap.microsoft.us` | `portal.apps.mil` | `https://dod-graph.microsoft.us` |
+
+**Implementation checklist:**
+
+- Replace the example host `contoso.crm.dynamics.com` in all Web API examples with the correct Dataverse suffix for the target cloud (for example `contoso.crm.microsoftdynamics.us` for GCC High).
+- Update the Power Automate connection references for Dataverse, Teams, and Microsoft Graph to the connectors published in the target sovereign cloud — connector availability varies by cloud.
+- Update any service-principal authority URL (used by the detection/remediation scripts) to match the cloud's Entra endpoint.
+- Confirm that the Adaptive Card template URL is reachable from the sovereign cloud's outbound network (GitHub raw and public Azure Blob endpoints are typically allowed; verify with your network team).
+
+References: [US Government cloud overview (Power Platform)](https://learn.microsoft.com/en-us/power-platform/admin/microsoft-dynamics-365-government), [Microsoft Graph national cloud deployments](https://learn.microsoft.com/en-us/graph/deployments).
 
 ---
 
