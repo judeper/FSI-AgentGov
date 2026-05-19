@@ -368,7 +368,7 @@ Document the SLA, the named Designated Supervisor, the escalation path, and the 
 3. Confirm the test interaction appears with the **Prompt Shield classifier** match flag.
 4. The Designated Supervisor opens the item, reviews, marks as **Resolved — Test fixture**, and adds a note. Capture the case ID.
 5. Repeat for the Protected Material classifier (use a benign test that includes a copyrighted excerpt — e.g. a paragraph of a known book in the prompt).
-6. Capture the case IDs and reviewer attestation timestamps for the audit pack. These are FINRA 3110 / 25-07 evidence.
+6. Capture the case IDs and reviewer attestation timestamps for the audit pack. These are FINRA 3110 / RN 24-09 evidence.
 
 ### 6.5 Common failure modes
 

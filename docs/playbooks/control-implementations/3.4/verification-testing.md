@@ -653,7 +653,7 @@ ComplaintStore_CL
 **Remediation.**
 
 - If reconciliation variance > 0: investigate session-correlation gaps. Variance reflects either incomplete UAL coverage (Control 3.1) or incomplete complaint-store linkage (Control 3.5).
-- If AI-channel rollup is not produced at all: this is a direct Notice 25-07 finding; escalate to AI Governance Lead.
+- If AI-channel rollup is not produced at all: this is a direct FINRA RN 24-09 / Rule 3110 finding; escalate to AI Governance Lead.
 
 ---
 
@@ -1101,7 +1101,7 @@ union SecurityAlert, SigninLogs, OfficeActivity, AIAgentSessions_CL
 
 **Remediation.**
 
-- If any scenario is skipped in a quarter: this is a Notice 25-07 readiness gap; reschedule within the following 30 days and report to the Audit Committee.
+- If any scenario is skipped in a quarter: this is a FINRA RN 24-09 / Rule 3110 readiness gap; reschedule within the following 30 days and report to the Audit Committee.
 - If after-action reports are perfunctory: the AI Governance Lead reviews and may require re-run with an independent facilitator.
 
 ---

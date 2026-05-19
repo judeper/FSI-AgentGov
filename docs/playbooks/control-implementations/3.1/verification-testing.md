@@ -671,7 +671,7 @@ This family verifies that agents touching regulated processes are tagged into th
 
 #### 3.1-REG-01 — FINRA Communications-scope agents flagged for supervisory review
 
-- **Objective.** Confirm every agent that produces, drafts, or surfaces content classifiable as a "communication with the public" under FINRA Rule 2210 / Notice 25-07 is tagged with the FINRA Communications regulatory-scope flag and is referenced in the supervisory review queue (Control 1.7 / supervisory archive).
+- **Objective.** Confirm every agent that produces, drafts, or surfaces content classifiable as a "communication with the public" under FINRA Rule 2210 (with RN 24-09 for AI supervisory guidance) is tagged with the FINRA Communications regulatory-scope flag and is referenced in the supervisory review queue (Control 1.7 / supervisory archive).
 - **Pre-conditions.** COMP-02 PASS; FINRA scope policy from PRE-01 charter.
 - **Steps.**
   1. From the system-of-record export, identify agents whose business justification, connected actions, or output destinations match the firm's FINRA Communications inclusion rule (e.g., agents that draft client emails, generate marketing content, or surface broker-dealer correspondence).

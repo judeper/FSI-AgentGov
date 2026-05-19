@@ -143,7 +143,7 @@ This matrix covers the dominant grounding-scope failure modes (F1–F16). Use it
 | A5 | Asserting RCD effectiveness without first verifying that any user has a Microsoft 365 Copilot license | F3 — RCD without Copilot is a no-op; admin gets a false PASS |
 | A6 | Diagnosing "RCD did not work" without distinguishing Business Chat from in-app Copilot | F1 — RCD does not scope the open-document grounding inside Word / Excel / PowerPoint |
 | A7 | Treating the DAG report as real-time | F5 — DAG cadence is delayed; check the report generation timestamp before declaring a real failure |
-| A8 | Removing a low-traffic RSS allow-list entry without governance approval to make room for a new one | RSS allow-list is a regulated-scope decision (FINRA 3110 / 25-07 supervisory surface), not a housekeeping decision |
+| A8 | Removing a low-traffic RSS allow-list entry without governance approval to make room for a new one | RSS allow-list is a regulated-scope decision (FINRA 3110 / RN 24-09 supervisory surface), not a housekeeping decision |
 | A9 | Adding a Copilot Studio knowledge source pointing at a personal OneDrive | F6 — Zone leak; the agent inherits a personal-productivity grounding scope and exits the firm's controlled grounding plane |
 | A10 | One-shot `Set-SPOSite ... -RestrictContentOrgWideSearch $true` against many sites with no retry / idempotence | F13 — partial failure leaves a half-protected estate that audits as PASS at the policy level |
 | A11 | Operating RCD / RSS / DAG / DLP-for-Copilot in GCC High or DoD without documenting parity gaps | F9 — features fail silently with no portal warning; sovereign-cloud evidence pack is incomplete |
@@ -583,7 +583,7 @@ Symptom (one line):
   [e.g., "RCD applied to /sites/legal-drafts on 2026-04-10T14:00Z; site not on RSS allow-list; Business Chat returned a citation from the site to a non-privileged user on 2026-04-17T11:32Z; in-app vs Business Chat surface confirmed (Business Chat); no RCD rollback in audit log; pre-escalation checklist items 1-19 pass."]
 Pre-escalation checklist: items 1-19 confirmed PASS (per §1.5 of internal playbook).
 Business impact:
-  Confirmed / suspected disclosure of [supervisory record | draft regulatory filing | customer NPI | MNPI]; potential FINRA Rule 3110 / 4511 / 25-07 supervisory and books-and-records exposure; NY DFS 23 NYCRR 500 §500.17(a) 72-hour determination clock evaluation: [pending Legal | not applicable | clock running since UTC X]; SEC Reg S-P §248.30(a)(4) customer-notification assessment: [pending Legal | not applicable | active]; firm is in [active examination | quarter-end | none].
+  Confirmed / suspected disclosure of [supervisory record | draft regulatory filing | customer NPI | MNPI]; potential FINRA Rule 3110 / 4511 (with RN 24-09 for AI supervisory guidance) supervisory and books-and-records exposure; NY DFS 23 NYCRR 500 §500.17(a) 72-hour determination clock evaluation: [pending Legal | not applicable | clock running since UTC X]; SEC Reg S-P §248.30(a)(4) customer-notification assessment: [pending Legal | not applicable | active]; firm is in [active examination | quarter-end | none].
 RCD / RSS state dump:
   Get-SPOSite output: [attached / inline]
   Get-SPOTenant search/Copilot fields: [attached / inline]

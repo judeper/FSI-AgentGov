@@ -1009,7 +1009,7 @@ When opening a Microsoft Support case for an eDiscovery-on-agents incident, prov
 - **SEC Rule 17a-4(f)** — WORM / audit-trail-alternative requirement for electronic record storage; the audit-trail alternative requires a complete audit trail, time-date stamping, and ability to recreate the original.
 - **Reg S-P §248.30** — 30-day customer notification for unauthorized access to or use of customer information.
 - **FINRA Rule 4511** — Books and records retention and format.
-- **FINRA Rule 25-07** — Communications recordkeeping (verify current rule numbering).
+- **FINRA RN 24-09 / Rule 3110** — Generative-AI supervision and communications recordkeeping expectations applied to AI-assisted output.
 - **FINRA Rule 8210** — Provision of information and testimony to FINRA; production deadlines and the duty to respond completely.
 - **FINRA Rule 4530** — Reporting requirements for member firms.
 - **FINRA Rule 3110** — Supervision, including supervision of communications and the use of new technologies.

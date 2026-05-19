@@ -4,7 +4,7 @@
 >
 > **Scope of this playbook:** Microsoft Purview Communication Compliance (CC) — policy inventory, classifier coverage, review-percentage validation, reviewer/role-group assignments, pseudonymization controls, the Copilot interactions template (Microsoft 365 Copilot, Microsoft 365 Copilot Chat, Enterprise AI apps, Other AI apps), Administrative Units (AU) scoping, Policy Match Preservation, and the investigate / remediate / eDiscovery escalation chain. **Out of scope here:** unified audit retention horizons (verified under [Control 1.7](../1.7/verification-testing.md)) and SEC 17a-4 records-retention chain (verified under [Control 1.12](../1.12/verification-testing.md)). CC's Policy Match Preservation is **not** a records-retention control under SEC 17a-4 — see §8 anti-pattern.
 >
-> **Audience:** M365 administrator at a US financial services organization producing audit-defensible evidence for FINRA Rule 3110 / 3110.06 / 25-07, FINRA Rule 4511, SEC Rule 17a-4, OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7), and GLBA 501(b) examiners.
+> **Audience:** M365 administrator at a US financial services organization producing audit-defensible evidence for FINRA Rule 3110 / 3110.06 (with RN 24-09 for AI supervisory guidance), FINRA Rule 4511, SEC Rule 17a-4, OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7), and GLBA 501(b) examiners.
 >
 > **Sovereign clouds:** Commercial · GCC · GCC High · DoD — see §5 for variants and feature-parity caveats.
 >
@@ -37,7 +37,7 @@ Communication Compliance signals are **non-static**. Microsoft ships classifier 
 | 1.10-LIC-01 | Monthly | Entra Global Admin (read) + Purview Compliance Admin | 7 years (broker-dealer) / 6 years (other FSI) | FINRA 4511, SEC Reg S-P, GLBA 501(b) |
 | 1.10-AUD-01 | Weekly | Purview Audit Admin | 7 years | FINRA 4511, SEC 17a-4(f) |
 | 1.10-PSE-01 | Monthly | Purview Compliance Admin | 7 years | GLBA 501(b), Reg S-P, EU GDPR (where applicable to US-listed FSI) |
-| 1.10-POL-01 | Monthly | Purview Compliance Admin | 7 years | FINRA 3110 / 3110.06 / 25-07, FINRA 4511 |
+| 1.10-POL-01 | Monthly | Purview Compliance Admin | 7 years | FINRA 3110 / 3110.06 / RN 24-09, FINRA 4511 |
 | 1.10-COP-01 | Monthly (preview status) | Purview Compliance Admin + AI Governance Lead | 7 years | FINRA RN 24-09, FINRA 3110, OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) |
 | 1.10-CLS-01 | Monthly | Purview Compliance Admin | 7 years | FINRA 3110, FINRA 2210, FINRA RN 24-09 |
 | 1.10-SAM-01 | Quarterly | Purview Compliance Admin + Compliance Supervisor | 7 years | FINRA 3110.06 (supervisory sampling rationale) |
@@ -781,7 +781,7 @@ Caveats and scope limits:
 This evidence supports — but does not by itself establish — the firm's
 compliance with:
 
-  • FINRA Rule 3110 / 3110.06 / 25-07 (supervisory system over electronic
+  • FINRA Rule 3110 / 3110.06 (with RN 24-09 for AI supervisory guidance) (supervisory system over electronic
     communications and AI-assisted communications)
   • FINRA Rule 4511 (record preservation for supervised messages and policy
     state)

@@ -996,7 +996,7 @@ Every test emits a single JSON file conforming to this schema. The shape is inte
   ],
   "regulatoryDriver": [
     "FINRA 4511",
-    "FINRA Reg Notice 25-07",
+    "FINRA Reg Notice 24-09",
     "SEC 17a-4(f)",
     "SEC Reg S-P (2024)",
     "SOX 404",
@@ -1137,7 +1137,7 @@ function Write-EvidenceRecord {
         skipReason        = $SkipReason
         auditAssertion    = $AuditAssertion
         evidenceFiles     = $hashes
-        regulatoryDriver  = @('FINRA 4511','FINRA Reg Notice 25-07','SEC 17a-4(f)','SEC Reg S-P (2024)','SOX 404','GLBA 501(b)','OCC 2026-13 (formerly OCC 2011-12)','Fed SR 26-2 (formerly SR 11-7)','CFTC 1.31')
+        regulatoryDriver  = @('FINRA 4511','FINRA Reg Notice 24-09','SEC 17a-4(f)','SEC Reg S-P (2024)','SOX 404','GLBA 501(b)','OCC 2026-13 (formerly OCC 2011-12)','Fed SR 26-2 (formerly SR 11-7)','CFTC 1.31')
         schemaVersion     = '1.0'
     }
     $outFile = Join-Path $cycleDir "$TestId.json"

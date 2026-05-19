@@ -2,7 +2,7 @@
 
 > **Scope.** This playbook is the diagnostic companion to [Control 2.6 — Model Risk Management (OCC Bulletin 2026-13 / SR 26-2 — formerly OCC 2011-12 / SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md). It addresses operational failure modes in the **evidence pipeline** the firm relies on to satisfy SR 26-2 (formerly SR 11-7) — the model inventory (DSPM for AI), the underlying-model change-detection path (Microsoft Copilot Studio + Message Center), the validation evidence chain (Foundry evaluators, Committee minutes, validation memos), the 17a-4(f)-compliant retention path, the publication-approval workflow in Agent 365, sovereign-cloud parity gaps, the PowerShell helpers used to produce examiner-ready inventories, and examination-readiness rehearsal.
 >
-> **Regulatory framing.** Reliable evidence produced by the surfaces in this control *supports compliance with* OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), FDIC FIL-22-2017, FFIEC IT Handbook, FINRA Rule 3110 (Supervision), FINRA Rule 4511 and SEC 17a-3 / 17a-4 (Books and Records — including 17a-4(f) WORM retention of validation evidence and Committee minutes), SOX §§ 302 / 404 (ICFR documentation of AI controls), GLBA 501(b), and NYDFS 23 NYCRR 500 where AI agents touch covered customer information. FINRA RN 25-07 (AI Tools) is referenced **as RFC / contextual only** and is not cited as an enforceable rule. The Microsoft surfaces described here **support** the firm's MRM program; they **do not replace** the firm's Model Risk Management Committee, the independent validation function, the effective-challenge process, three-lines-of-defense governance, or registered-principal supervisory review under FINRA Rule 3110.
+> **Regulatory framing.** Reliable evidence produced by the surfaces in this control *supports compliance with* OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), FDIC FIL-22-2017, FFIEC IT Handbook, FINRA Rule 3110 (Supervision), FINRA Rule 4511 and SEC 17a-3 / 17a-4 (Books and Records — including 17a-4(f) WORM retention of validation evidence and Committee minutes), SOX §§ 302 / 404 (ICFR documentation of AI controls), GLBA 501(b), and NYDFS 23 NYCRR 500 where AI agents touch covered customer information. FINRA RN 25-07 (workplace modernization RFC) is referenced **as contextual material only** and is not cited as an enforceable AI rule. The Microsoft surfaces described here **support** the firm's MRM program; they **do not replace** the firm's Model Risk Management Committee, the independent validation function, the effective-challenge process, three-lines-of-defense governance, or registered-principal supervisory review under FINRA Rule 3110.
 >
 > **Audience.** Power Platform Admin, Purview Compliance Admin, AI Administrator, Compliance Officer, AI Governance Lead, Model Risk Manager, and second-line MRM staff supporting the firm's response to internal audit, examiner pulls, and Committee inquiries.
 >
@@ -485,7 +485,7 @@ The matrix below describes **when** to escalate and to **whom**. Substantive MRM
 - SEC Rule 17a-3 / 17a-4 (Recordkeeping; 17a-4(f) WORM retention)
 - SOX §§ 302 / 404 (Internal Controls over Financial Reporting)
 - GLBA 501(b) (Safeguards Rule); NYDFS 23 NYCRR 500
-- FINRA RN 25-07 (AI Tools — RFC, contextual only)
+- FINRA RN 25-07 (workplace modernization — RFC, contextual only)
 - [Microsoft 365 Government roadmap](https://aka.ms/m365gov-roadmap)
 
 ---

@@ -226,7 +226,7 @@ Every evidence record produced by every TC MUST conform to this schema. The sche
 |---|---|
 | `FINRA-3110` | FINRA Rule 3110 (Supervision) |
 | `FINRA-4511` | FINRA Rule 4511 (Books and Records — General Requirements) |
-| `FINRA-25-07` | FINRA RN 25-07 (AI Tools — RFC, contextual) |
+| `FINRA-25-07` | FINRA RN 25-07 (workplace modernization — RFC, contextual) |
 | `SEC-17a-3` | SEC Rule 17a-3 (Records to be Made) |
 | `SEC-17a-4` | SEC Rule 17a-4 (Records Retention) |
 | `SOX-302` | Sarbanes-Oxley Section 302 (Management Certification) |

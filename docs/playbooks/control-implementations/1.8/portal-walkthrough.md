@@ -685,7 +685,7 @@ A confirmed runtime event detected by Control 1.8 (e.g., a sustained jailbreak a
 | **SEC Regulation S-P §248.30(a)(4)** — Customer notification of unauthorized access / use of customer information | Sensitive customer information accessed or used without authorization | **As soon as practicable, but not later than 30 days** after discovery — verify against current rule text and your firm's procedures |
 | **FINRA Rule 4530** — Reporting requirements (member firms) | Specified events including certain regulatory and customer-impacting events | Per Rule 4530 schedules — typically within 30 days of becoming aware |
 | **FINRA Rule 3110** — Supervision (program-wide evidence of supervisory review) | Ongoing — supervisory reviews must be evidenced | Per WSP cadence |
-| **FINRA Rule 25-07** — AI agent supervision | Ongoing — supervisory program covering AI agents | Per WSP cadence |
+| **FINRA RN 24-09 / Rule 3110** — AI agent supervision | Ongoing — supervisory program covering AI agents under existing Rule 3110, informed by RN 24-09 guidance | Per WSP cadence |
 
 **Operating procedure cross-link:** see [troubleshooting.md §1 — FSI Incident Handling](troubleshooting.md) for the runbook that takes a Defender XDR alert + `CloudAppEvents` evidence + Copilot Studio transcript through the Compliance / Legal decision tree, the records-promotion handoff, and the regulator-notification pathway.
 

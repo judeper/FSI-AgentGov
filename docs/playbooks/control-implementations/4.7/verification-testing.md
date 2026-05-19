@@ -4,7 +4,7 @@
 
 **Control:** 4.7 - Microsoft 365 Copilot Data Governance
 **Pillar:** 4 - SharePoint & Content Governance (embedded M365 Copilot scope)
-**Regulatory References:** SEC 17a-4(f), FINRA 4511 / 3110 / 25-07 (Reg Notice 24-09 supervisory expectations for generative AI), SOX 302/404 (ICFR over AI-assisted disclosures), GLBA 501(b) / Reg S-P 30-day breach notification, FFIEC IT Handbook (AIO/Operations), OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) (Model Risk Management), CFTC 1.31, NYDFS 23 NYCRR 500 (.07/.11/.16), NIST AI RMF 1.0 (Govern/Map/Measure/Manage), NIST SP 800-53 Rev. 5 (AC-3/AC-4/AC-6/AU-2/AU-12/SC-7/SC-13/SI-4/PM-9)
+**Regulatory References:** SEC 17a-4(f), FINRA 4511 / 3110 (with Reg Notice 24-09 supervisory expectations for generative AI), SOX 302/404 (ICFR over AI-assisted disclosures), GLBA 501(b) / Reg S-P 30-day breach notification, FFIEC IT Handbook (AIO/Operations), OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) (Model Risk Management), CFTC 1.31, NYDFS 23 NYCRR 500 (.07/.11/.16), NIST AI RMF 1.0 (Govern/Map/Measure/Manage), NIST SP 800-53 Rev. 5 (AC-3/AC-4/AC-6/AU-2/AU-12/SC-7/SC-13/SI-4/PM-9)
 **Last UI Verified:** April 2026
 **Governance Levels:** Baseline, Recommended, Regulated
 
@@ -29,7 +29,7 @@
 
 ## What this playbook does NOT claim
 
-- Does not certify that any specific Copilot response is free of hallucinations, fabricated citations, or model-introduced bias - that is the function of human supervisory review under FINRA 3110 and 25-07, not technical verification
+- Does not certify that any specific Copilot response is free of hallucinations, fabricated citations, or model-introduced bias - that is the function of human supervisory review under FINRA 3110 and RN 24-09, not technical verification
 - Does not replace OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) model risk management documentation, model inventory entries, ongoing performance monitoring, or independent model validation
 - Does not satisfy FINRA Reg Notice 24-09 supervisory procedure attestation by itself - that requires written supervisory procedures, named principal sign-off, and supervisor training records held outside this technical playbook
 - Does not cover Microsoft Copilot Studio, custom agents, declarative agents, or third-party Copilot-branded extensions - those are governed by control 4.8 and Pillar 1 / 2 controls for agent identity, action allow-listing, and connector governance

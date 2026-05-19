@@ -19,7 +19,7 @@ This playbook describes how to confirm that Control 2.14 is operating as documen
 | TC-2.14-07 | Approval workflow blocks publishing for non-compliant maker (Zone 3) | Submit publish request as test maker | Approval task returns "training incomplete" outcome and logs the decision |
 | TC-2.14-08 | Reminder script honors `-WhatIf` | Run Script 3 with `-WhatIf` | No mail sent; log records `WhatIf` status for each recipient |
 | TC-2.14-09 | Training evidence retained per policy | Purview policy inspection | Retention policy / records label scoped to the SharePoint site and notification mailbox |
-| TC-2.14-10 | Curriculum aligned to current FINRA guidance | Curriculum review against FINRA RN 25-07 | Curriculum addresses AI capabilities, limitations, bias, hallucination, escalation |
+| TC-2.14-10 | Curriculum aligned to current FINRA guidance | Curriculum review against FINRA RN 24-09 | Curriculum addresses AI capabilities, limitations, bias, hallucination, escalation |
 
 Record outcomes against the test ID for the audit file.
 

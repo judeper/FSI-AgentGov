@@ -206,7 +206,7 @@ Every evidence record MUST conform to this schema. `Test-Agt39EvidenceSchema` (d
     "cascade_target_2_12_ticket": "<non-null>"
   },
   "evidence_artifacts": ["tc3-incident-7841.json","tc3-cascade-SUP-2026-04-1129.json"],
-  "regulator_mappings": ["FINRA-3110","FINRA-25-07","NYDFS-500.06","NYDFS-500.16","FFIEC-IS"],
+  "regulator_mappings": ["FINRA-3110","FINRA-RN-24-09","NYDFS-500.06","NYDFS-500.16","FFIEC-IS"],
   "remediation_ref": null,
   "operator_upn": "soc.analyst@contoso.com",
   "witness_upn": "ai.governance.lead@contoso.com",

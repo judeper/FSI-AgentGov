@@ -1036,7 +1036,7 @@ Once per year, AI Governance Lead, Compliance Officer, and Internal Audit jointl
 | **Quarterly audit packs** | All four quarterly audit packs from §9 |
 | **Exception register** | Every exception in force during the period, with rationale, sign-off, expiry, and resolution status |
 | **Incident references** | Cross-references to any AI Incident Response invocations during the period that touched the registration plane |
-| **Regulatory mapping** | Per-regulation crosswalk: FINRA Rule 4511 / Notice 25-07, SEC 17a-4, SOX §§302/404, GLBA / FTC Safeguards 16 CFR §314.4(c), OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7), NYDFS 23 NYCRR Part 500.07 / 500.16, NIST AI RMF GOVERN 1.4 / 1.6, ISO/IEC 42001:2023 — for each, name the controls and tests in this playbook that support the requirement, with the explicit caveat that "supports" is not "guarantees" |
+| **Regulatory mapping** | Per-regulation crosswalk: FINRA Rule 4511 / RN 24-09 / Rule 3110, SEC 17a-4, SOX §§302/404, GLBA / FTC Safeguards 16 CFR §314.4(c), OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7), NYDFS 23 NYCRR Part 500.07 / 500.16, NIST AI RMF GOVERN 1.4 / 1.6, ISO/IEC 42001:2023 — for each, name the controls and tests in this playbook that support the requirement, with the explicit caveat that "supports" is not "guarantees" |
 | **Attestation statement** | Three-signature statement from AI Governance Lead, Compliance Officer, and Internal Audit affirming the period's coverage, completeness, and limitations |
 | **Limitations and exclusions** | A frank inventory of what the pack does NOT cover (surfaces not enumerated, controls outside scope, regulatory frameworks not mapped, sovereign clouds not exercised) |
 

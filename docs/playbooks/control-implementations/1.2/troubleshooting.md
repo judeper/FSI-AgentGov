@@ -196,7 +196,7 @@ Communications cascade upward and outward. Each level has defined triggers, reci
   - Add the appId to a CA workload-identity block policy — defense-in-depth.
   IC selects **all three** to be applied simultaneously at T+60. Business-unit COO accepts the productivity impact in writing (chat log captured to E-13).
 - **T+60 (10:14)** — Containment applied. CA policy hits within 90 seconds. `Get-MgServicePrincipalSignInActivity` confirms no successful sign-ins after T+62.
-- **T+90 (10:44)** — Reportability tree (§1.3) walked with Compliance. Yes answers: Q1 (3110 supervision — advisors used an unsupervised tool for customer comms), Q2 (4511 / 17a-4 — communications outside WORM store, since the app accessed mailbox content but the firm cannot yet confirm what was read or written back), Q4 (Notice 25-07), Q5 (Reg S-P NPI — clock starts at T+0 per Compliance guidance).
+- **T+90 (10:44)** — Reportability tree (§1.3) walked with Compliance. Yes answers: Q1 (3110 supervision — advisors used an unsupervised tool for customer comms), Q2 (4511 / 17a-4 — communications outside WORM store, since the app accessed mailbox content but the firm cannot yet confirm what was read or written back), Q4 (RN 24-09 — AI supervisory obligations under existing Rule 3110), Q5 (Reg S-P NPI — clock starts at T+0 per Compliance guidance).
 - **T+120 (11:14)** — L3 executive briefing memo drafted by IC, reviewed by GC, delivered to CEO/CRO/CFO at T+150.
 - **T+180 (12:14)** — Materiality assessment for SEC 8-K Item 1.05 begins (registrant is the parent holding company). GC chairs; CFO, Investor Relations, External Counsel, CISO participate. Determination by T+240: **not yet material** pending forensics on what data the app actually accessed; re-evaluate at 24h, 48h, 72h.
 - **T+240 (13:14)** — Forensics handoff. External counsel engages forensics vendor under privilege. Scope: reconstruct, per session, what mail items the app `read` and `wrote`; identify whether any customer NPI was transmitted off-tenant via the app's reply URL.
@@ -609,7 +609,7 @@ Each runbook follows the same eight-section structure: **Severity classification
 
 **Recovery.** Restore advisor / user productivity by deploying the sanctioned replacement (or by re-enabling the now-registered original under properly scoped grants). Document a 30-day heightened-monitoring period via Sentinel.
 
-**Lessons-learned & reporting decision tree.** Walk Q1–Q10. Common "yes" answers for shadow-agent incidents: Q1 (3110 supervision), Q4 (Notice 25-07), Q5 (Reg S-P) if NPI accessed. Hold post-mortem within 14 days; root-cause typically lands on (a) user-consent permitted for a scope class that should require admin consent, (b) discovery cadence too slow, (c) agent-register intake friction encouraging shadow IT.
+**Lessons-learned & reporting decision tree.** Walk Q1–Q10. Common "yes" answers for shadow-agent incidents: Q1 (3110 supervision), Q4 (RN 24-09 AI supervisory obligations), Q5 (Reg S-P) if NPI accessed. Hold post-mortem within 14 days; root-cause typically lands on (a) user-consent permitted for a scope class that should require admin consent, (b) discovery cadence too slow, (c) agent-register intake friction encouraging shadow IT.
 
 ### Runbook 2 — Mass Departed-Owner Cascade (>50 Apps)
 
@@ -633,7 +633,7 @@ Each runbook follows the same eight-section structure: **Severity classification
 
 **Recovery.** Update the agent register with all new ownership; set the next attestation date; instrument a Sentinel rule that fires when any app's owner-set drops to zero live owners.
 
-**Lessons-learned & reporting decision tree.** Q8 (Fed SR 26-2 (formerly SR 11-7)) often "yes" if any of the orphaned apps are MRM-scope models that lapsed governance. Q9 (TPRM) if any divested entity's apps remain co-mingled. Q4 (Notice 25-07) if customer-facing apps are involved. Add a leaver-process control: HR's leaver workflow should fire a Graph webhook into the agent register to trigger pre-departure ownership transfer.
+**Lessons-learned & reporting decision tree.** Q8 (Fed SR 26-2 (formerly SR 11-7)) often "yes" if any of the orphaned apps are MRM-scope models that lapsed governance. Q9 (TPRM) if any divested entity's apps remain co-mingled. Q4 (RN 24-09 AI supervisory obligations) if customer-facing AI apps are involved. Add a leaver-process control: HR's leaver workflow should fire a Graph webhook into the agent register to trigger pre-departure ownership transfer.
 
 ### Runbook 3 — Over-Permissioned Grant Exploited
 
@@ -654,7 +654,7 @@ Each runbook follows the same eight-section structure: **Severity classification
 
 **Recovery.** Heightened monitoring 90 days; review all other apps owned by the same owner / sponsored by the same sponsor for similar over-grants.
 
-**Lessons-learned & reporting decision tree.** Almost always Q5 (Reg S-P, GLBA) if NPI; Q6 (8-K Item 1.05 materiality assessment) for SEC registrants; Q7 (NYDFS 72-hour) for covered entities; Q4 (Notice 25-07). Insurance notification typically required.
+**Lessons-learned & reporting decision tree.** Almost always Q5 (Reg S-P, GLBA) if NPI; Q6 (8-K Item 1.05 materiality assessment) for SEC registrants; Q7 (NYDFS 72-hour) for covered entities; Q4 (RN 24-09 AI supervisory obligations). Insurance notification typically required.
 
 ### Runbook 4 — Expired Secret Used in Production
 

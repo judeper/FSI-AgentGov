@@ -788,7 +788,7 @@ Describe "AGT226-REVIEW" -Tag 'C2.26','REVIEW' {
     "not_reviewed_auto_denied": 1,
     "all_decisions_have_certifier": true
   },
-  "regulator_mappings": ["FINRA-3110","FINRA-25-07","SOX-404","OCC-2011-12","FFIEC-IS-AccessMgmt"],
+  "regulator_mappings": ["FINRA-3110","FINRA-RN-24-09","SOX-404","OCC-2011-12","FFIEC-IS-AccessMgmt"],
   "evidence_artifacts": ["review-decisions-Q1-2026.json"],
   "schema_version": "1.0"
 }

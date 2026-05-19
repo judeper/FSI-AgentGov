@@ -299,7 +299,7 @@ try {
 
 ## Hedged language and scope reminders
 
-- These scripts **support** evidence collection for FINRA 4511 / 25-07, SEC 17a-3/4, GLBA 501(b), SOX 404. They do not by themselves constitute regulatory compliance.
+- These scripts **support** evidence collection for FINRA 4511 / RN 24-09, SEC 17a-3/4, GLBA 501(b), SOX 404. They do not by themselves constitute regulatory compliance.
 - Module pinning, sovereign cloud endpoints, and Desktop-edition guards are required per the [PowerShell baseline](../../_shared/powershell-baseline.md) — false-clean evidence is the most common audit gap.
 - Mutation cmdlets (group create, member add) implement `SupportsShouldProcess`; use `-WhatIf` in change-window dry runs.
 

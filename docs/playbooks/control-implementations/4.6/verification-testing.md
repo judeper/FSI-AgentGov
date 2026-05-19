@@ -14,7 +14,7 @@
 >
 > **Out of scope here:** SharePoint records retention horizons (verified under [Control 1.9](../1.9/verification-testing.md)), unified-audit retention configuration (verified under [Control 1.7](../1.7/verification-testing.md)), and the broader sensitivity-label / DLP design beyond grounding-scope enforcement (verified under [Control 1.5](../1.5/verification-testing.md)).
 >
-> **Audience:** M365 administrator + AI Governance Lead + Compliance Officer at a US financial services organization producing audit-defensible evidence for FINRA Rule 4511 / 3110 / 25-07, SEC Rule 17a-3/4, GLBA 501(b), SOX 302/404, OCC Bulletin 2026-13 (formerly OCC 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7), and NYDFS 23 NYCRR 500 examiners.
+> **Audience:** M365 administrator + AI Governance Lead + Compliance Officer at a US financial services organization producing audit-defensible evidence for FINRA Rule 4511 / 3110 (with RN 24-09 for AI supervisory guidance), SEC Rule 17a-3/4, GLBA 501(b), SOX 302/404, OCC Bulletin 2026-13 (formerly OCC 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7), and NYDFS 23 NYCRR 500 examiners.
 >
 > **Sovereign clouds:** Commercial · GCC · GCC High · DoD — see §5 for variants. RSS, RCD, SharePoint Advanced Management (SAM), and DLP-for-Copilot have **non-parity availability** in US Government clouds; verify each capability against current Microsoft Learn before claiming PASS / FAIL on a sovereign tenant.
 >

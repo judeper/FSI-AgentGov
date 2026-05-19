@@ -222,7 +222,7 @@ I attest that, for the period above:
 10. Audit-log and SIEM detection coverage is operational and within retention.
 
 This attestation supports compliance with FINRA Rules 2241, 2242, 3110 (and
-Notice 25-07 for AI supervision), 5270, 5280; SEC Exchange Act §15(g);
+Notice 24-09 for AI supervision), 5270, 5280; SEC Exchange Act §15(g);
 SEC Regulation Best Interest; SEC Regulation S-P; MSRB Rules G-23 and G-37;
 OCC 2026-13 (formerly OCC 2011-12); and Fed SR 26-2 (formerly SR 11-7). It does not, on its own, evidence compliance
 with any single regulation.
