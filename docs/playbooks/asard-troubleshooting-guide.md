@@ -31,11 +31,32 @@ This guide provides diagnostic procedures and resolutions for common issues enco
 ### Diagnostic Steps
 
 **1. Verify token acquisition:**
+
+Enable Azure SDK logging using the documented Python pattern (the `azure-identity` library does not consume an `AZURE_IDENTITY_LOGGING` environment variable — see [Configure logging in the Azure libraries for Python](https://learn.microsoft.com/en-us/azure/developer/python/sdk/azure-sdk-logging)):
+
+```python
+import logging
+import sys
+from azure.identity import ClientSecretCredential
+
+logger = logging.getLogger('azure')
+logger.setLevel(logging.DEBUG)
+logger.addHandler(logging.StreamHandler(stream=sys.stdout))
+
+credential = ClientSecretCredential(
+    tenant_id=os.environ["AZURE_TENANT_ID"],
+    client_id=os.environ["AZURE_CLIENT_ID"],
+    client_secret=os.environ["AZURE_CLIENT_SECRET"],
+    logging_enable=True,
+)
+```
+
+Then re-run the detection script:
+
 ```bash
-# Enable debug logging in script
-export AZURE_IDENTITY_LOGGING=1
 python detect_agent_sharing_violations.py --dry-run
 ```
+
 - Check if token is successfully acquired from Microsoft Entra ID
 - Verify token contains expected audience (Power Platform API)
 
@@ -68,10 +89,13 @@ credential = ClientSecretCredential(
     client_secret=os.environ["AZURE_CLIENT_SECRET"]
 )
 
-token = credential.get_token("https://api.bap.microsoft.com/.default")
+token = credential.get_token("https://api.powerplatform.com/.default")
 print(f"Token acquired: {token.token[:20]}...")
 print(f"Expires on: {token.expires_on}")
 ```
+
+!!! note "Resource scope selection"
+    Use `https://api.powerplatform.com/.default` for the modern Power Platform API (PPAPI) — see [Authenticate to Power Platform — v2](https://learn.microsoft.com/en-us/power-platform/admin/programmability-authentication-v2). Legacy BAP admin endpoints invoked via the `Microsoft.PowerApps.Administration.PowerShell` module use `https://service.powerapps.com/.default` instead. Avoid the undocumented `https://api.bap.microsoft.com/.default` scope.
 
 ### Resolution
 
@@ -178,10 +202,10 @@ print(f"Group: {group.display_name}")
 - **Workaround options:**
   1. **Flatten sharing:** Share agent directly with approved group (not nested)
   2. **Create exception:** Add exception record for legitimate nested group sharing
-  3. **Enhance script:** Modify `bap_admin_client.py` to recursively resolve groups (requires Microsoft Graph transitive membership query)
+  3. **Enhance script:** Modify `bap_admin_client.py` to recursively resolve groups using the Microsoft Graph `GET /groups/{id}/transitiveMembers` endpoint. Calls that use advanced query parameters (`$count`, `$search`, or advanced `$filter`) require the `ConsistencyLevel: eventual` header and `$count=true` — see [List group transitive members](https://learn.microsoft.com/en-us/graph/api/group-list-transitivemembers) and [Advanced query capabilities on directory objects](https://learn.microsoft.com/en-us/graph/aad-advanced-queries). Grant both `Group.Read.All` **and** `GroupMember.Read.All` to the app registration for this code path.
 
 **For insufficient permissions:**
-1. Verify `Group.Read.All` permission granted to app registration
+1. Verify `Group.Read.All` (and `GroupMember.Read.All` if the nested-group resolution path is enabled) permissions are granted to the app registration
 2. Grant admin consent if missing
 3. Retry detection script
 
@@ -212,10 +236,17 @@ print(f"Group: {group.display_name}")
 ```python
 # Add logging in bap_admin_client.py
 response = requests.get(url, headers=headers)
-print(f"Rate limit remaining: {response.headers.get('x-ratelimit-remaining')}")
-print(f"Rate limit reset: {response.headers.get('x-ratelimit-reset')}")
+if response.status_code in (429, 503):
+    retry_after = int(response.headers.get('Retry-After', '0'))
+    print(f'Throttled, retry after {retry_after}s')
+    # Dataverse-specific (when calling api.crm.dynamics.com):
+    burst_remaining = response.headers.get('x-ms-ratelimit-burst-remaining-xrm-requests')
+    time_remaining = response.headers.get('x-ms-ratelimit-time-remaining-xrm-requests')
+    exec_time_remaining = response.headers.get('x-ms-ratelimit-time-remaining-xrm-executiontime')
+    print(f'Dataverse rate-limit remaining: burst={burst_remaining} time={time_remaining} exec={exec_time_remaining}')
 ```
-- If `x-ratelimit-remaining` is low or 0, throttling is occurring
+- Honor the standard `Retry-After` header on any `429` or `503` response (this is the documented Microsoft pattern across Dataverse, Microsoft Graph, and Power Platform APIs)
+- For Dataverse calls specifically, the `x-ms-ratelimit-burst-remaining-xrm-requests`, `x-ms-ratelimit-time-remaining-xrm-requests`, and `x-ms-ratelimit-time-remaining-xrm-executiontime` headers indicate how close the caller is to the per-user service-protection limits — see [Service Protection API Limits](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/api-limits) and [Microsoft Graph throttling guidance](https://learn.microsoft.com/en-us/graph/throttling) (note: legacy `x-ratelimit-remaining` / `x-ratelimit-reset` header names are **not** Microsoft conventions and will always be `None`)
 
 **2. Verify environment permissions:**
 ```powershell
@@ -451,13 +482,12 @@ print(f"Sharing principals: {agent.get('sharingPrincipals', [])}")
 - Check for unexpected formats (e.g., nested arrays, null values)
 
 **3. Audit approved group policy:**
-```sql
-SELECT gov_groupobjectid, gov_groupname, gov_zone, gov_isactive
-FROM gov_asardsecuritygrouppolicy
-WHERE gov_isactive = 1
+```http
+GET /api/data/v9.2/gov_asardsecuritygrouppolicies?$select=gov_groupobjectid,gov_groupname,gov_zone,gov_isactive&$filter=gov_isactive eq true
 ```
 - Confirm all approved groups are listed
 - Verify zone assignments match actual usage
+- Dataverse does not support direct SQL `SELECT` against the primary store. If the read-only TDS endpoint is enabled on the environment, you can query the same data via SQL Server Management Studio, Power BI, or Tabular Editor at `<org>.crm.dynamics.com,5558` — see [Use SQL to query data — Dataverse TDS endpoint](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/dataverse-sql-query). TDS is read-only and is not enabled by default.
 
 **4. Trace specific violation:**
 ```bash
@@ -643,10 +673,17 @@ pac admin list-service-principal --environment <env-id>
 - Review failed runs for error details
 
 **2. Test webhook manually:**
+
+Teams Workflows webhooks (the supported replacement for retired Office 365 Connectors) reject the legacy `MessageCard` `{"text":"..."}` payload with HTTP 400. The supported payload is an Adaptive Card v1.5 wrapped in the Workflows `attachments` shape — see [Post a workflow when a webhook request is received in Microsoft Teams](https://support.microsoft.com/en-us/office/post-a-workflow-when-a-webhook-request-is-received-in-microsoft-teams-8ae491c7-0394-4861-ba59-055e33f75498):
+
 ```bash
-curl -X POST <webhook-url> \
-  -H "Content-Type: application/json" \
-  -d '{"text": "Test notification from ASARD"}'
+curl -X POST "$WEBHOOK_URL" -H 'Content-Type: application/json' -d '{
+  "type":"message",
+  "attachments":[{
+    "contentType":"application/vnd.microsoft.card.adaptive",
+    "content":{"type":"AdaptiveCard","version":"1.5","body":[{"type":"TextBlock","text":"Test from ASARD"}]}
+  }]
+}'
 ```
 - Verify notification appears in Teams channel
 
@@ -721,6 +758,25 @@ WHERE gov_expirationdate < GETDATE() AND gov_status = 'active'
 - Set up flow analytics in Power Automate
 - Configure failure notifications to governance team
 - Review run history weekly for patterns
+
+## Sovereign Cloud Notes
+
+ASARD's defaults assume the Microsoft 365 commercial (public) cloud. When operating in a US Government, US Government High, DoD, or 21Vianet (China) tenant, the following endpoints and authority hostnames change. Always source the per-cloud values from the official references: [US Government cloud overview — Power Platform](https://learn.microsoft.com/en-us/power-platform/admin/microsoft-dynamics-365-government) and [Microsoft Graph national clouds](https://learn.microsoft.com/en-us/graph/deployments).
+
+| Surface | Commercial (default) | US Gov (GCC) / GCC High / DoD | 21Vianet (China) |
+|---------|----------------------|-------------------------------|------------------|
+| Microsoft Entra authority | `login.microsoftonline.com` | `login.microsoftonline.us` | `login.partner.microsoftonline.cn` |
+| Microsoft Graph host | `graph.microsoft.com` | `graph.microsoft.us` (GCC High/DoD) / `graph.microsoft.com` (GCC) | `microsoftgraph.chinacloudapi.cn` |
+| Power Platform / BAP host | `*.powerapps.com` | `gov.powerapps.us` (GCC) · `high.powerapps.us` (GCC High) · `mil.powerapps.us` (DoD) | `*.powerapps.cn` |
+| Dataverse host suffix | `crm.dynamics.com` | `crm9.dynamics.com` (GCC) · `crm.microsoftdynamics.us` (GCC High) · `crm.appsplatform.us` (DoD) | `crm.dynamics.cn` |
+| Microsoft 365 admin center | `admin.microsoft.com` | `portal.office365.us` | `portal.partner.microsoftonline.cn` |
+
+**Troubleshooting notes:**
+
+- **`401 Unauthorized` against Power Platform API in a US Gov tenant** — `ClientSecretCredential` defaults to the commercial authority. Pass `authority="https://login.microsoftonline.us"` (or the appropriate national-cloud host) to the credential constructor, and request the cloud-specific resource scope (for example `https://gov.api.powerplatform.us/.default` for GCC instead of `https://api.powerplatform.com/.default`).
+- **Microsoft Graph 404 / `Resource not found` from a sovereign tenant** — Confirm the script is calling the national-cloud Graph host listed above; the `/transitiveMembers` endpoint exists in each cloud but only at the cloud's own hostname.
+- **Teams Workflows webhooks** — Workflow URLs are issued from the tenant's home cloud and are not cross-cloud routable. Re-issue the webhook from the corresponding national-cloud Teams client when a tenant migrates between clouds.
+- **Document the cloud per environment** — Capture each customer environment's cloud (`commercial`, `gcc`, `gcc-high`, `dod`, `china`) alongside the tenant ID in your runbook so the detection and remediation scripts can select the correct endpoint set at runtime.
 
 ## Related Documentation
 
