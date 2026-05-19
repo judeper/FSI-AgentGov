@@ -225,7 +225,7 @@ Get-MgApplication -All -Filter "createdDateTime ge $since or" `
   | Export-Csv -NoTypeInformation .\dq1-apps.csv
 ```
 
-For GCC High, set `Connect-MgGraph -Environment USGovHigh`. For DoD, `-Environment USGovDoD`.
+For GCC High, set `Connect-MgGraph -Environment USGov` (Microsoft Graph's GCC High endpoint name; not `USGovHigh`, which is not a valid `-Environment` value). For DoD, `-Environment USGovDoD`. See [Microsoft Graph national clouds](https://learn.microsoft.com/en-us/graph/deployments).
 
 **DQ-2 — Identify all service principals with high-privilege application-permission grants.**
 
