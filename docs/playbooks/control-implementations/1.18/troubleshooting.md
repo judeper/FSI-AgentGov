@@ -46,10 +46,10 @@ This playbook covers operational issues commonly encountered when implementing o
 
 **Diagnostic steps**
 
-1. Confirm the user has signed out and back in since being added to the group (token cache up to 1 hour).
+1. Confirm the user has signed out and back in since being added to the group. Microsoft Entra access tokens have an approximate 60–90 minute default lifetime; group-membership changes are not reflected until a new access token is issued. Forced sign-out / sign-in (or `Revoke-MgUserSignInSession`) refreshes the membership claim immediately.
 2. In Entra, confirm group membership is **active** (PIM-for-Groups eligible-not-active = no permissions).
 3. In PPAC, confirm the **Dataverse team** linked to the group exists and has the FSI custom role assigned. Group-only assignment without a linked Dataverse team is the most common cause.
-4. Confirm the user has a Dataverse **application user / system user** record. Users added to groups but never provisioned into Dataverse will appear in PPAC as "Disabled" or "Not present".
+4. Confirm the user has a Dataverse **application user / system user** record. Users added to an Entra group but not provisioned into the Dataverse environment will not appear (or will appear as Disabled) in the PPAC Users list for that environment. Force provisioning via PPAC > Settings > Users > **+ Add users**.
 
 **Resolution**
 
@@ -65,7 +65,7 @@ This playbook covers operational issues commonly encountered when implementing o
 **Diagnostic steps**
 
 1. Check the Entra group writeback / sync status for the affected directory.
-2. Confirm the group is **assigned**, not **dynamic** — dynamic groups can take 15–30 minutes to recompute membership after attribute changes.
+2. Confirm the group is **assigned**, not **dynamic**. Dynamic groups recompute membership asynchronously after attribute changes; processing is typically complete within minutes, but Microsoft does not commit to a hard SLA. Document the local-tenant 95th-percentile observation in the operator runbook rather than asserting a fixed window.
 3. Inspect Dataverse cache by viewing the user's effective permissions in PPAC.
 
 **Resolution**
@@ -86,7 +86,7 @@ This playbook covers operational issues commonly encountered when implementing o
 
 1. Confirm the user has an **Entra ID P2** license assigned (PIM eligibility requires P2 per assigned user).
 2. In Entra > PIM > Groups (or Roles) > **Assignments** > **Eligible**, confirm the user appears.
-3. Check whether eligibility is via direct assignment or via a parent group (group-of-groups eligibility is supported but slower to evaluate).
+3. Confirm eligibility is via direct assignment to the role-assignable group; nested-group eligibility is not consistently supported by PIM-for-Groups and may be the cause of the "Not eligible" response.
 
 **Resolution**
 
@@ -236,7 +236,7 @@ This playbook covers operational issues commonly encountered when implementing o
 **Diagnostic steps**
 
 1. Confirm the connection was not established before the toggle was disabled (existing connections may persist).
-2. Check the environment-level setting in PPAC > Environments > [env] > Settings > **Features**: enabling "Connected agents" environment-wide can override per-agent intent.
+2. Check Copilot Studio tenant-level and environment-level connected-agent settings (where exposed); verify the precise toggle name against the current Power Platform admin center UI at apply-time, since the surface has been changing through the A2A GA cycle (April 2026).
 3. Review the agent-to-agent invocation audit log (Power Platform admin analytics).
 
 **Resolution**
@@ -265,9 +265,9 @@ This playbook covers operational issues commonly encountered when implementing o
 | `Get/Set/Remove-AdminPowerAppEnvironmentRoleAssignment` cmdlets do not function on Dataverse-backed environments | PowerShell cannot directly assign Dataverse roles | Use PPAC for Dataverse role assignment; use the Dataverse Web API for read-only inventory |
 | PIM-for-Groups requires Entra ID P2 per assigned user | Without P2, eligibility-based admin access is not available | License the small admin population with P2; do not attempt to substitute group-only RBAC |
 | PIM activation maximum is bounded by tenant policy (default 8 hours, recommended ≤ 4 for Zone 3) | Long admin sessions require re-activation | Schedule maintenance windows that fit within the activation window |
-| Column-level security can degrade query performance when over-applied | Slow lists and reports | Limit secured columns to highest-sensitivity fields; mask via formatting where possible |
-| Custom Dataverse roles cannot separate every privilege below the entity level | Some operations bundle privileges (e.g., AppendTo) | Use multiple roles assigned via different groups for finer separation |
-| Connected agents preview can be re-enabled at the agent or environment level by makers | Risk of cross-agent data flow re-emerging | Quarterly inventory (Test 7); pin environment-level setting and audit changes via SIEM |
+| Column-level security adds per-record authorization checks at read time | Slow lists and reports when secured columns appear in default views, charts, or aggregate queries | Microsoft recommends limiting secured columns to the highest-sensitivity fields and avoiding their use in default views, charts, and aggregate queries; mask via formatting where possible |
+| Dataverse security roles grant privileges at table granularity (Create / Read / Write / Delete / Append / Append To / Assign / Share) with depth scoping (User / Business Unit / Parent:Child BU / Organization) | Pure security-role configuration cannot enforce row-level, field-by-field discrimination | Layer column security profiles (column granularity) or business-process flow restrictions; use multiple roles assigned via different groups for finer separation |
+| Connected-agent connectivity can be re-enabled at the agent level by an authorized maker; tenant- or environment-level override behavior has been changing through the A2A GA cycle (April 2026) | Risk of cross-agent data flow re-emerging | Quarterly inventory (Test 7); verify tenant- and environment-level controls against current Copilot Studio governance documentation at apply-time; audit changes via SIEM |
 
 ---
 
