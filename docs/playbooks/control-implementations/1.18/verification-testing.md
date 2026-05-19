@@ -26,8 +26,8 @@ This playbook is the auditor-facing verification procedure for Control 1.18. It 
 | C6 | Column-level security enforces NPI/PII restrictions | Unauthorised user sees masked or hidden values | Side-by-side test screenshots |
 | C7 | Access reviews are scheduled and within cadence | Last review ≤ cadence window; next review scheduled | Entra > Identity Governance export |
 | C8 | Agent action consent enabled on all published agents | Every tool on every published Zone 2/3 agent has "Ask the user before running this action" enabled | Per-agent screenshot or PPAC compliance report |
-| C9 | Connected agents disabled by default | Inventory of agents with "Let other agents connect" enabled matches approved-exception list | Microsoft Copilot Studio settings export |
-| C10 | Environment admin count below threshold | < 10 environment-level System Administrators per Zone 3 environment | PPAC user-list export with role filter |
+| C9 | Connected agents disabled by default | Inventory of agents with "Let other agents connect" enabled matches approved-exception list | Per-agent screenshot of Settings > Connected Agents panel, supplemented where available by per-agent metadata export via Power Platform CLI / Copilot Studio API. Microsoft does not yet publish a first-class tenant-wide connected-agent inventory report; the evidence-gathering method should be recorded explicitly in the attestation. |
+| C10 | Environment admin count below threshold | < 10 environment-level System Administrators per Zone 3 environment (FSI-imposed numeric threshold; Microsoft publishes "minimize privileged admins" without a published number) | PPAC user-list export with role filter |
 | C11 | Service principals not assigned admin roles | No service principal in `System Administrator` or `Environment Admin` | Filtered user-list export (Principal Type = Application) |
 | C12 | Service principal credential rotation | Last credential rotation ≤ 90 days for every SPN with Power Platform access (Zone 3) | Entra app-credential export |
 | C13 | Role-change events forwarded to SIEM (Zone 3) | Sentinel/SIEM contains entries for last 30 days of role assignments and PIM activations | SIEM query result export |
@@ -54,7 +54,7 @@ This playbook is the auditor-facing verification procedure for Control 1.18. It 
 4. **Expected:** Action denied or settings hidden because the eligible role is not active.
 5. Activate PIM via the Entra portal: provide MFA, justification, and ticket reference.
 6. **Expected:** Approval request appears for the configured approver(s); on approval, role becomes active for ≤ 4 hours.
-7. **Evidence:** Approval workflow screenshot, MFA challenge timestamp, Entra audit log entry showing `RoleManagement.ReadWrite.Directory` activation.
+7. **Evidence:** Approval workflow screenshot, MFA challenge timestamp, Entra audit log entry showing the PIM activation event ("Add member to role completed (PIM activation)" for directory roles, or the analogous PIM-for-Groups membership-add event) with the activator UPN, justification, and ticket reference recorded.
 
 ### Test 3 — Column-level security on PII
 
@@ -79,7 +79,7 @@ This playbook is the auditor-facing verification procedure for Control 1.18. It 
 ### Test 5 — Service principal admin scrub
 
 1. In PPAC > Environments > [target] > Settings > **Users + permissions** > **Users**.
-2. Filter by **User type** = Application (or sort by Type column).
+2. Filter or sort by principal type so that application users (service principals) are isolated from interactive users (the PPAC Users list exposes a principal-type column; the exact filter label may vary between releases).
 3. Cross-reference any returned principals against the **System Administrator** and **Environment Admin** role membership.
 4. **Expected:** Zero application principals in admin roles. Application principals should hold only purpose-built custom roles (e.g., `FSI - Service - DataReader`).
 5. **Evidence:** Filtered user export (CSV) annotated with the approved SPN list.
@@ -96,7 +96,7 @@ This playbook is the auditor-facing verification procedure for Control 1.18. It 
 1. In Copilot Studio, open each agent in a Zone 2/3 environment.
 2. Navigate to **Settings** > **Connected Agents (Preview)**.
 3. Inspect the toggle "Let other agents connect to and use this one".
-4. **Expected:** Disabled, unless the agent is on the approved cross-agent connectivity list (filed with the AI Governance Lead).
+4. **Expected:** Connected-agent toggle for the agent is **Disabled** unless the agent appears on the FSI-maintained approved cross-agent connectivity list (filed with the AI Governance Lead). Microsoft Copilot Studio does not surface this exception list natively; the FSI repository is the source of truth.
 5. **Evidence:** Settings screenshot per agent + the current approved-exception list with sign-off dates.
 
 ---
@@ -148,7 +148,7 @@ When packaging evidence for an examination or internal audit, label artifacts wi
 |-----------------------|--------------------------------------|
 | **FINRA 4511** — books and records integrity | Group-based role assignment matrix; access review completion proof; PIM activation audit log |
 | **FINRA 3110** — supervisory procedures | Approved-exception list (connected agents); attestation; access review reviewer list |
-| **FINRA 25-07** — AI system access controls | Custom role privilege exports; agent action consent inventory; connected-agent inventory |
+| **FINRA Regulatory Notice 25-07** (guidance document — verify exact published title against finra.org; do not present as a Rule) — AI system access controls | Custom role privilege exports; agent action consent inventory; connected-agent inventory |
 | **SEC 17a-3/4** — access documentation | PPAC user export; SPN credential age report; SIEM query proof |
 | **SOX 302/404** — ICFR / segregation of duties | Negative-test screenshot pack; PIM approval workflow; service-principal admin scrub |
 | **GLBA 501(b)** — Safeguards | Column security configuration + assignment; field-level negative test |
@@ -204,7 +204,7 @@ I attest that, for the reporting period above:
 | Test ID | Configuration Point | Expected Result | Portal Path | Evidence |
 |---------|--------------------|-----------------|-------------|----------|
 | SSPM-1.18-01 | Agent tool consent | Enabled for all published agents | Copilot Studio > Agent > Tools > "Ask the user before running this action" | Per-agent screenshot |
-| SSPM-1.18-02 | Connected agents | Disabled or restricted to approved list | Copilot Studio > Agent > Settings > Connected Agents (Preview) | Per-agent screenshot |
+| SSPM-1.18-02 | Connected agents | Disabled or restricted to approved list | Copilot Studio > Agent > Settings > Connected Agents (verify Preview vs. GA tag at apply-time) | Per-agent screenshot |
 | SSPM-1.18-03 | Admin count | < 10 environment-level admins per environment | PPAC > Environments > [env] > Settings > Users + permissions > Security roles > System Administrator | Filtered user export |
 | SSPM-1.18-04 | RPA / SPN admin roles | No service principals in admin roles | PPAC > Environments > [env] > Settings > Users + permissions > Users (filter Type = Application) | Filtered user export |
 
