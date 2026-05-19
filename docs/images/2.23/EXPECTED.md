@@ -134,7 +134,7 @@
 - Demonstration of consent record persistence
 
 ### Screenshot 14: Purview Audit Log - AI Disclaimer Configuration Change
-**Portal Path:** Microsoft Purview Compliance Portal → Audit → Search results
+**Portal Path:** Microsoft Purview portal → Audit → Search results
 **What to capture:**
 - Audit log search results showing an AI Disclaimer configuration change event
 - Event details:
@@ -145,7 +145,7 @@
 - Search filters showing date range and activity type
 
 ### Screenshot 15: Purview Audit Log - Consent Acknowledgment Event
-**Portal Path:** Microsoft Purview Compliance Portal → Audit → Search results
+**Portal Path:** Microsoft Purview portal → Audit → Search results
 **What to capture:**
 - Audit log search results showing a user consent acknowledgment event
 - Event details:

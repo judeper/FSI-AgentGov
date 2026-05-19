@@ -3,14 +3,14 @@
 ## Expected Screenshots
 
 ### Screenshot 1: Purview Information Barrier Segments
-**Portal Path:** Microsoft Purview Compliance Portal → Information Barriers → Segments
+**Portal Path:** Microsoft Purview portal → Information Barriers → Segments
 **What to capture:**
 - List of defined segments (IB-Research, IB-Trading, IB-InvestmentBanking, IB-Sales, IB-Compliance)
 - Segment filter attributes (Department-based Microsoft Entra ID attributes)
 - Segment status (Active)
 
 ### Screenshot 2: Information Barrier Policies
-**Portal Path:** Microsoft Purview Compliance Portal → Information Barriers → Policies
+**Portal Path:** Microsoft Purview portal → Information Barriers → Policies
 **What to capture:**
 - Configured barrier policies showing blocked segment pairs (e.g., Research ↔ Trading)
 - Policy status (Active)

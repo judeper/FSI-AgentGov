@@ -53,7 +53,7 @@
 - This is the **per-prompt** slider (3 positions). The separate **agent-level** slider at Settings → Generative AI → Content moderation has **5 positions** and is captured under Control 1.8 screenshots.
 
 ### Screenshot 7: Purview Audit Log for Moderation Change
-**Portal Path:** Microsoft Purview Compliance Portal → Audit → Search results
+**Portal Path:** Microsoft Purview portal → Audit → Search results
 **What to capture:**
 - Audit log entry showing a moderation configuration change
 - Event details including:

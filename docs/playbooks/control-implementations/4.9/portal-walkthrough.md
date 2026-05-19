@@ -122,7 +122,7 @@ This step provides a view of all SharePoint Embedded containers across the tenan
 ### Step 3.4 — Verify No Containers Were Directly Deleted
 
 1. Review the SharePoint audit log for any container deletion events.
-2. Navigate to: **Microsoft Purview Compliance Portal › Audit** and search for audit operations on SharePoint Embedded containers.
+2. Navigate to: **Microsoft Purview portal › Audit** and search for audit operations on SharePoint Embedded containers.
 3. If any container deletion events appear outside of agent deletion workflows, investigate immediately and escalate to the agent owner and compliance team.
 
 ---
@@ -270,7 +270,7 @@ If native portal alerts are not available for container creation, use the PowerS
 
 ### Step 7.3 — M365 Audit Log Alert (Recommended)
 
-1. Navigate to **Microsoft Purview Compliance Portal › Audit › Alert policies**.
+1. Navigate to **Microsoft Purview portal › Audit › Alert policies**.
 2. Create a new alert policy for SharePoint file and container events related to Declarative Agent application activity.
 3. Configure the alert to notify the SharePoint admin and compliance teams.
 4. Test the alert by creating a test agent with an embedded file.
