@@ -200,7 +200,7 @@ function Initialize-Agt114Session {
             IPPSAuthorityUri  = 'https://login.microsoftonline.us/organizations'
             SpoRegion         = 'ITAR'
             AzEnvironment     = 'AzureUSGovernment'
-            DataverseSuffix   = 'crm.high.dynamics365.us'
+            DataverseSuffix   = 'crm.appsplatform.us'
         } }
     }
 
@@ -1054,7 +1054,7 @@ Cloud selection is made **once**, in `Initialize-Agt114Session`. Get this wrong 
 | **Commercial** | `prod` | `Global` | *(default)* | `AzureCloud` | `crm.dynamics.com` |
 | **GCC** | `usgov` | `USGov` | *(default)* | `AzureCloud` | `crm9.dynamics.com` |
 | **GCC High** | `usgovhigh` | `USGov` | `https://ps.compliance.protection.office365.us/powershell-liveid/` | `AzureUSGovernment` | `crm.microsoftdynamics.us` |
-| **DoD** | `dod` | `USGovDoD` | `https://l5.ps.compliance.protection.office365.us/powershell-liveid/` | `AzureUSGovernment` | `crm.high.dynamics365.us` |
+| **DoD** | `dod` | `USGovDoD` | `https://l5.ps.compliance.protection.office365.us/powershell-liveid/` | `AzureUSGovernment` | `crm.appsplatform.us` |
 
 ### 13.1 Per-function sovereign variants
 
@@ -1062,7 +1062,7 @@ Cloud selection is made **once**, in `Initialize-Agt114Session`. Get this wrong 
 |---|---|---|---|---|
 | `Initialize-Agt114Session` | All endpoints default | `-Endpoint usgov`; Graph `Global` (rolling to `USGov`) | `-Endpoint usgovhigh`; Graph `USGov`; IPPS sovereign URI | `-Endpoint dod`; Graph `USGovDoD`; IPPS DoD URI |
 | `Get-Agt114Environments` | No change | No change | No change — but verify SAM licence parity | Verify Copilot Studio availability; was limited preview as of early 2026 |
-| `Get-Agt114CopilotStudioAgents` | `crm.dynamics.com` | `crm9.dynamics.com` | `crm.microsoftdynamics.us` | `crm.high.dynamics365.us` |
+| `Get-Agt114CopilotStudioAgents` | `crm.dynamics.com` | `crm9.dynamics.com` | `crm.microsoftdynamics.us` | `crm.appsplatform.us` |
 | `Get-Agt114DlpJoin` | Parity | Parity | Parity | Parity |
 | `Get-Agt114AgentAccessReviews` | Parity | Parity | Parity | Parity |
 | `Find-Agt114ScopeDrift` | UAL up to 24 h latency | Same | Same | Same |
