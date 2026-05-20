@@ -44,50 +44,50 @@ agent deployments.
 
 <div class="grid cards" markdown>
 
--   :material-shield-check:{ .lg .middle } **Compliance Officer**
+-   **Compliance Officer**
 
     ---
 
     Map controls to FINRA, SEC, SOX, and GLBA requirements.
     Build examination-ready evidence packs.
 
-    [:material-arrow-right: Start Here](framework/executive-summary.md)
+    [Start Here ->](framework/executive-summary.md)
 
--   :material-cog:{ .lg .middle } **Power Platform Admin**
+-   **Power Platform Admin**
 
     ---
 
     Deploy controls, run playbooks, and configure
     governance across your M365 tenant.
 
-    [:material-arrow-right: Start Here](controls/index.md)
+    [Start Here ->](controls/index.md)
 
--   :material-security:{ .lg .middle } **IT Security / InfoSec**
+-   **IT Security / InfoSec**
 
     ---
 
     Implement DLP, audit logging, encryption, MFA,
     and 29 security controls across your tenant.
 
-    [:material-arrow-right: Start Here](controls/pillar-1-security/index.md)
+    [Start Here ->](controls/pillar-1-security/index.md)
 
--   :material-file-document-check:{ .lg .middle } **Examination Readiness**
+-   **Examination Readiness**
 
     ---
 
     Prepare for FINRA/SEC examinations with
     evidence standards and audit checklists.
 
-    [:material-arrow-right: Start Here](playbooks/compliance-and-audit/audit-readiness-checklist.md)
+    [Start Here ->](playbooks/compliance-and-audit/audit-readiness-checklist.md)
 
--   :material-account-tie:{ .lg .middle } **Business Owner**
+-   **Business Owner**
 
     ---
 
     Understand zone requirements and the agent
     approval lifecycle for your team.
 
-    [:material-arrow-right: Start Here](framework/zones-and-tiers.md)
+    [Start Here ->](framework/zones-and-tiers.md)
 
 </div>
 
