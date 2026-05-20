@@ -31,6 +31,8 @@ Thank you for your interest in contributing to the FSI Agent Governance Framewor
 - Use Markdown with consistent formatting
 - Include version footer on all pages
 - Reference control IDs where applicable
+- Avoid Material icon shortcodes (`:material-*:`) in page content; with the current MkDocs emoji/CSP configuration they may render as literal text on GitHub Pages
+- Prefer plain text labels (for example `Start Here ->`) or standard Unicode symbols in Markdown content
 
 ### Control Files
 
