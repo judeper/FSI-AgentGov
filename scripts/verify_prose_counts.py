@@ -58,8 +58,6 @@ WATCHED_PROSE_FILES = [
     REPO_ROOT / "docs" / "index.md",
     REPO_ROOT / "docs" / "reference" / "solutions-index.md",
     REPO_ROOT / "docs" / "controls" / "CONTROL-INDEX.md",
-    REPO_ROOT / ".claude" / "claude.md",
-    REPO_ROOT / ".github" / "agents" / "gsd-codebase-mapper.agent.md",
 ]
 
 # H2 sections whose nearest header matches this pattern are skipped in Check 3

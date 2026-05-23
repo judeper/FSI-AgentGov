@@ -10,7 +10,7 @@ Usage:
     python scripts/update_excel_templates.py --check    # Preview changes only
     python scripts/update_excel_templates.py --update   # Apply changes
 
-Author: Claude Code
+Author: FSI-AgentGov maintainers
 """
 
 import argparse

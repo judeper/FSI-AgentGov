@@ -36,9 +36,6 @@ maintainers-local/
 # Windows artifacts
 nul
 
-# Claude Code local settings
-.claude/settings.local.json
-
 # Research prompts (local only - root level, not .github/prompts/)
 /prompts/
 
@@ -54,8 +51,6 @@ docs/javascripts/assessment-data.json
 .copilot-logs/
 .ralph-doc-worktrees/
 
-# GSD planning state (kept locally, not tracked)
-.planning/
 .codex/
 
 # Assessment engine outputs (customer data — never commit)
@@ -74,3 +69,11 @@ test-results/
 tests/e2e/__snapshots__/**/*.png-actual.png
 tests/e2e/__snapshots__/**/*-diff.png
 
+# Squad: ignore runtime state (logs, inbox, sessions)
+.squad/orchestration-log/
+.squad/log/
+.squad/decisions/inbox/
+.squad/sessions/
+.squad/.scratch/
+# Squad: SubSquad activation file (local to this machine)
+.squad-workstream
