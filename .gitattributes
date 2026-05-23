@@ -11,3 +11,8 @@ docs/javascripts/vendor/** eol=lf
 # would cause false-positive mismatches.
 docs/javascripts/lib/xlsx.full.min.js binary
 docs/javascripts/vendor/mermaid.min.js binary
+# Squad: union merge for append-only team state files
+.squad/decisions.md merge=union
+.squad/agents/*/history.md merge=union
+.squad/log/** merge=union
+.squad/orchestration-log/** merge=union
