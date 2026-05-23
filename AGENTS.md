@@ -1,6 +1,6 @@
 # AGENTS.md - Instructions for AI Agents
 
-This file provides guidance for autonomous AI agents working on this repository. It is tool-neutral and readable by Codex CLI, GitHub Copilot, and Claude Code.
+This file provides guidance for autonomous AI agents working on this repository. It is tool-neutral and readable by Codex CLI and GitHub Copilot.
 
 ## Project Overview
 
@@ -27,7 +27,7 @@ This file provides guidance for autonomous AI agents working on this repository.
 1. **Read `.github/copilot-instructions.md`** for full repository context
 2. **Understand the task scope** — is it a control edit, nav update, or new feature?
 3. **Check related files** — controls often reference each other
-4. **Check session ownership** — see Multi-Agent Coordination below
+4. **If coordinating with other agents, use separate worktrees/branches** — see Multi-Agent Coordination below
 
 ## GitHub Accounts & Push/Merge Workflow
 
@@ -149,39 +149,14 @@ enough to cause silent truncation on PRs with many checks.
 
 ## Multi-Agent Coordination
 
-Three tools operate on this repository:
+Two common tool surfaces operate on this repository:
 
 | Tool | Primary Role | Config Location |
 |------|-------------|-----------------|
-| **Codex CLI** | Documentation generation | `.codex/config.toml` |
-| **GitHub Copilot** | Documentation writing, GSD workflows | `.github/agents/`, `.github/prompts/` |
-| **Claude Code** | Verification, QA, GSD workflows | `.claude/claude.md`, `.claude/skills/` |
+| **Codex CLI** | Documentation generation and repo maintenance | `.codex/config.toml` |
+| **GitHub Copilot** | Prompt-driven repo assistance | `.github/copilot-instructions.md`, `.github/prompts/`, `.github/instructions/` |
 
-### Session Ownership Protocol
-
-Only one tool writes to GSD shared state files at a time.
-
-**Rules:**
-- Whichever tool starts a session owns GSD writes for that session
-- The session owner updates `STATE.md` with `Active Tool` at session start
-- Handoff requires the current owner to update STATE.md before the other tool begins
-- Both tools can always **read** all `.planning/` files
-- Only the session owner **writes** to `STATE.md`, `ROADMAP.md`, `config.json`
-- Phase artifacts (`PLAN.md`, `SUMMARY.md`, `RESEARCH.md`) are written by whichever tool executes the plan
-
-**Handoff format** (add to STATE.md Session Continuity section):
-```markdown
-**Active Tool:** copilot | claude-code | codex
-**Session Started:** YYYY-MM-DD HH:MM
-**Handoff Summary:** [What was done, what's next]
-```
-
-### Conflict Prevention
-
-- Before writing to `.planning/`, check `STATE.md` for `Active Tool`
-- If another tool owns the session, only read — do not write
-- If `Active Tool` is missing, claim the session by updating STATE.md
-- Phase execution artifacts are safe to write — they are scoped to the executing plan
+When multiple agents are active, prefer one branch/worktree per agent. Avoid concurrent edits to the same file and hand off work through branches, commits, or PRs rather than shared planning-state files.
 
 ### Parallel Agent Runs with Worktrunk
 
@@ -226,7 +201,6 @@ Each worktree is a full working directory at `../FSI-AgentGov.{branch-name}/`.
 - **post-create**: Copies `.venv/`, `site/`, and other gitignored files from the base worktree via `git-wt step copy-ignored`
 - **pre-merge**: Runs `mkdocs build --strict` and `python scripts/verify_controls.py` before merging
 
-**Integration with session ownership:** Worktrees provide filesystem isolation, but the GSD session ownership protocol (STATE.md `Active Tool`) still applies when writing to `.planning/` shared state files. Each worktree agent should check STATE.md before writing.
 
 ### Codex CLI Model Selection
 
@@ -257,36 +231,6 @@ Activate with `codex --profile budget` or `codex --profile quality`. The default
 3. One control (or one solution) per commit for reviewable diffs
 4. Run `mkdocs build --strict` / `verify_controls.py` after each change set; escalate to `--profile quality` when validation failures need cross-file reasoning
 
-> **Note:** Profiles control the LLM model and reasoning effort. GSD model profiles (`quality`/`balanced`/`budget` in `.planning/config.json`) control workflow behavior — research depth, verification thoroughness. They are complementary: pick a Codex profile for the LLM, and a GSD profile for the workflow.
-
-## GSD Planning Structure
-
-The `.planning/` directory contains project management state for the GSD (Get Stuff Done) workflow.
-
-```
-.planning/
-├── PROJECT.md          # Project identity, scope, key decisions
-├── ROADMAP.md          # Phase breakdown with success criteria
-├── STATE.md            # Current position, session continuity
-├── REQUIREMENTS.md     # Requirements with traceability matrix
-├── MILESTONES.md       # Historical milestone achievements
-├── config.json         # Workflow toggles and model profile
-├── phases/             # Phase execution artifacts
-│   └── {NN}-{kebab-name}/
-│       ├── {NN}-RESEARCH.md    # Phase research
-│       ├── {NN}-{PP}-PLAN.md   # Execution plans (PP = plan number)
-│       ├── {NN}-{PP}-SUMMARY.md # Execution summaries
-│       └── {NN}-VERIFICATION.md # Phase verification
-├── research/           # Cross-phase research documents
-├── codebase/           # Codebase analysis documents
-└── todos/pending/      # Deferred work items
-```
-
-**Naming conventions:**
-- Phase directories: `{NN}-{kebab-case-name}/` (e.g., `01-powershell-tech-debt/`)
-- Plan files: `{NN}-{PP}-PLAN.md` with YAML frontmatter (phase, plan, wave, dependencies)
-- Summary files: `{NN}-{PP}-SUMMARY.md` with dependency graph, tech stack, key files
-- This repo uses `.planning/` — NOT `.gsd/`
 
 ## Agent Workflows
 
@@ -414,18 +358,16 @@ If you encounter:
 - **Broken links:** Check `mkdocs.yml` nav entries match actual file paths
 - **Missing sections in controls:** Refer to `docs/templates/control-setup-template.md`
 - **Build failures:** Run `mkdocs build --strict` and fix reported issues
-- **GSD state conflicts:** Check `STATE.md` for session ownership before writing
+- **Concurrent edits:** Use separate branches/worktrees and avoid editing the same file from multiple sessions
 
 ## Tool-Specific Configuration
 
 | Tool | Config | Details |
 |------|--------|---------|
-| **Claude Code** | `.claude/claude.md` | Full project context, skills, hooks |
-| **Claude Code Skills** | `.claude/skills/` | On-demand workflows (`/update-control`, `/add-control`, etc.) |
 | **Codex CLI** | `.codex/config.toml` | Model, sandbox, approval policy (local only, gitignored) |
-| **Copilot Agents** | `.github/agents/` | Custom agents (doc-writer, GSD workflow agents) |
-| **Copilot Prompts** | `.github/prompts/` | GSD commands adapted for Copilot |
-| **Copilot Instructions** | `.github/instructions/` | Auto-included rules by file path |
+| **Copilot Context** | `.github/copilot-instructions.md` | Repository structure, workflow guardrails, and design context |
+| **Copilot Prompts** | `.github/prompts/` | Workspace prompts, including `repo-health-check*.prompt.md` and `review-learn-changes.prompt.md` |
+| **Copilot Instructions** | `.github/instructions/` | Auto-included rules, including `fsi-language-rules`, `fsi-control-template`, `build-validation`, and `git-integration` |
 | **Worktrunk** | `.config/wt.toml` | Worktree hooks for parallel agent runs |
 
 ### Copilot Tool Alias Notes

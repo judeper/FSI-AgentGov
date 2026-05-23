@@ -31,6 +31,8 @@ Thank you for your interest in contributing to the FSI Agent Governance Framewor
 - Use Markdown with consistent formatting
 - Include version footer on all pages
 - Reference control IDs where applicable
+- Avoid Material icon shortcodes (`:material-*:`) in page content; with the current MkDocs emoji/CSP configuration they may render as literal text on GitHub Pages
+- Prefer plain text labels (for example `Start Here ->`) or standard Unicode symbols in Markdown content
 
 ### Control Files
 
@@ -116,13 +118,6 @@ The validator's `--allow-todo` mode permits CI to pass during progressive matura
 If you're using AI assistants with this repository:
 
 - **`.github/copilot-instructions.md`** - Repository-wide context for GitHub Copilot
-- **`.claude/claude.md`** - Core instructions for Claude Code
-- **`.claude/skills/`** - On-demand workflow guides for Claude Code:
-  - `/update-control` - Modifying existing controls
-  - `/add-control` - Adding new controls
-  - `/update-excel` - Excel template maintenance
-  - `/verify-ui` - Screenshot verification
-  - `/review-learn-changes` - Learn Monitor change report review
 - **`AGENTS.md`** - Instructions for autonomous agent tasks
 - **`docs/templates/README.md`** - Guide to using control templates
 
@@ -157,10 +152,8 @@ This section walks through setting up a fresh machine to work on this repository
 |------|-------------|---------|
 | Python 3.9+ | Validation scripts, MkDocs | python.org or package manager |
 | Git | Version control | git-scm.com |
-| VS Code + GitHub Copilot | GSD workflows, documentation editing | VS Code marketplace |
-| Claude Code CLI | Alternative GSD interface, cross-repo QA | anthropic.com (optional) |
+| VS Code + GitHub Copilot | Repository prompts, documentation editing | VS Code marketplace |
 | Codex CLI | GPT code generation with named profiles | openai.com — requires OpenAI subscription (optional) |
-| Node.js 18+ | claude-mem MCP plugin | nodejs.org (only if using Claude Code + claude-mem) |
 
 ### Repository Setup
 
@@ -179,58 +172,17 @@ mkdocs build --strict
 python scripts/verify_controls.py
 ```
 
-### GSD Workflow Setup (No Installation Required)
+### GitHub Copilot Setup (No Additional Repository Installation Required)
 
-GSD is **not a package to install**. It is 32 prompt files, 13 agent files, and 12 instruction files committed directly to this repository under `.github/prompts/`, `.github/agents/`, and `.github/instructions/`.
+Repository-specific Copilot prompts are committed under `.github/prompts/`.
 
-- **VS Code + Copilot Chat:** Copy the example settings file, then use GSD commands in Copilot Chat:
+- **VS Code + Copilot Chat:** Copy the example settings file, then use repository prompts in Copilot Chat:
   ```bash
   cp .vscode/settings.json.example .vscode/settings.json
   ```
-  Open Copilot Chat and type `/gsd:help` to confirm GSD is available.
+  Open Copilot Chat and run `/review-learn-changes` to confirm the prompt is available.
 
-- **Claude Code CLI:** GSD commands are available automatically via the `/gsd:` prefix. Type `/gsd:help` to see available commands.
-
-- **Terminal `gh copilot`:** No GSD support. The `gh copilot` CLI is limited to quick shell help and does not load prompt/agent files.
-
-### Claude Code Setup (Optional)
-
-For maintainers using the Claude Code CLI, create `.claude/settings.local.json` with local overrides. This file is gitignored and not committed:
-
-```json
-{
-  "includeCoAuthoredBy": false,
-  "permissions": {
-    "allow": [
-      "WebFetch(domain:www.microsoft.com)",
-      "WebFetch(domain:learn.microsoft.com)",
-      "WebFetch(domain:github.com)",
-      "WebFetch(domain:judeper.github.io)",
-      "Bash(gh run list:*)"
-    ]
-  }
-}
-```
-
-What each setting does:
-
-- **`WebFetch` domains** — Allows fetching Microsoft Learn docs, GitHub issues, and the project's GitHub Pages site without per-request approval.
-- **`gh run list`** — Allows monitoring GitHub Actions workflow status.
-- **`includeCoAuthoredBy: false`** — Produces cleaner git history without Co-authored-by trailers on commits.
-
-### claude-mem Plugin Setup (Optional — Claude Code Only)
-
-The claude-mem plugin provides cross-session memory (decisions, learnings, observations) for Claude Code. It is not required for Copilot users.
-
-1. **Install from the plugin marketplace** — Open Claude Code and install `claude-mem@thedotmack`.
-2. **Enable in global settings** — Add to `~/.claude/settings.json`:
-   ```json
-   { "enabledPlugins": { "claude-mem@thedotmack": true } }
-   ```
-3. **Restart Claude Code** — The plugin auto-registers its MCP server.
-4. **Verify** — The tools `search`, `get_observations`, `save_memory`, and `timeline` should appear in available tools.
-
-Memory is persisted as JSONL files under `~/.claude/projects/`. Requires Node.js 18+ for the MCP server process.
+- **Terminal `gh copilot`:** Quick shell help only. It does not load repository prompt files.
 
 ### Codex CLI Setup (Optional — Requires OpenAI Subscription)
 
@@ -246,7 +198,7 @@ For maintainers with OpenAI access, the project includes a pre-configured `.code
 
 No additional configuration is needed — `.codex/config.toml` is included in the repository (maintained locally via `.gitignore`). See `AGENTS.md` "Codex CLI Model Selection" for the full task-to-profile mapping.
 
-> **Note:** Codex CLI does not support GSD workflows, and uses personal OpenAI quota. For GSD phase planning and execution from the terminal, use Claude Code CLI (`/gsd:` commands). For code assistance covered by your enterprise license, use VS Code Copilot Chat or `gh copilot`.
+> **Note:** Codex CLI uses personal OpenAI quota and does not load repository prompt files. For repository-specific prompts such as `/review-learn-changes`, use VS Code Copilot Chat. For quick terminal assistance covered by your enterprise license, use `gh copilot`.
 
 ### Files That Need Manual Transfer Between Machines
 
@@ -254,13 +206,12 @@ Most gitignored content can be regenerated. Only two directories contain non-reg
 
 | Path | Purpose | Transfer? | Can Regenerate? |
 |------|---------|-----------|-----------------|
-| `maintainers-local/notes/` | CLI workflow guides (Copilot, Claude Code, Codex) | Copy if available | No (written manually) |
+| `maintainers-local/notes/` | CLI workflow guides (Copilot, Codex) | Copy if available | No (written manually) |
 | `maintainers-local/reference-pack/` | Whitepapers and extracted references | Copy if needed | No (collected manually) |
 | `maintainers-local/researcher-package/` | Compiled controls for review | Skip | Yes: `python scripts/compile_researcher_package.py` |
 | `maintainers-local/reports/` | Generated analysis reports | Skip | Yes (regenerated by scripts) |
 | `maintainers-local/tenant-evidence/` | Portal screenshots for UI verification | Machine-specific | No (tenant-specific captures) |
 | `maintainers-local/tmp/` | Scratch artifacts | Skip | Not needed |
-| `.claude/settings.local.json` | Claude Code local overrides | Recreate from docs above | Yes (content documented in this guide) |
 | `.vscode/settings.json` | VS Code + Copilot config | Copy from example | Yes: `cp .vscode/settings.json.example .vscode/settings.json` |
 
 **Bottom line:** Only `maintainers-local/notes/` and `maintainers-local/reference-pack/` contain non-regenerable content worth transferring.
@@ -277,10 +228,10 @@ mkdocs build --strict
 python scripts/verify_controls.py
 ```
 
-For GSD verification:
+For Copilot prompt verification:
 
-- **VS Code Copilot Chat:** Type `/gsd:help` — should list available GSD commands.
-- **Claude Code CLI:** Type `/gsd:help` — should list available GSD commands.
+- **VS Code Copilot Chat:** Type `/review-learn-changes` — the repository prompt should be available.
+- **Terminal `gh copilot`:** Expected behavior is quick shell help only; repository prompts are not loaded there.
 
 ## Questions?
 

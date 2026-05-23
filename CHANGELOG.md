@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 <!--start-->
 
+## [Unreleased]
+
+### Fixed
+- Replaced non-rendering Material shortcode markup on the homepage quick-start cards (`docs/index.md`) with plain text labels so GitHub Pages no longer displays literal `:material-*:` tokens.
+
+### Changed
+- Added explicit Markdown authoring guidance in `README.md` and `CONTRIBUTING.md` to avoid `:material-*:` shortcodes in page content under the current CSP-safe MkDocs emoji configuration.
+
 ## [1.6.2] — May 11, 2026 (Frontier Readiness auto-evaluator wave)
 
 **Release theme:** Six-PR wave wiring telemetry-driven auto-scoring for the Frontier Readiness assessment, taking auto-evaluable coverage from **0/25 (0%)** to **6/25 (24%)**. After this release, the Frontier auto-evaluable backlog is **structurally exhausted** — the remaining 19 questions (76%) are facilitator-only by design (board attestation, written policy text, executive interviews, regulatory committee minutes, business strategy alignment) and cannot be honestly derived from M365/PPAC/Sentinel/SharePoint telemetry.

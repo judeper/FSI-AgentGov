@@ -337,6 +337,12 @@ Run these from the repo root (`FSI-AgentGov/`):
 - `python scripts/verify_excel_templates.py`
 - `mkdocs build --strict`
 
+### Markdown Icon Rendering Guidance
+
+- Do not use Material icon shortcodes such as `:material-*:` inside docs page content.
+- This repository uses `pymdownx.emoji.to_alt` in `mkdocs.yml` for CSP-safe output, so Material shortcodes can render as literal text on GitHub Pages.
+- Use plain text labels (for example `Start Here ->`) or standard Unicode symbols when icon emphasis is needed in Markdown content.
+
 ### Quick Reference Resources
 
 | Resource | Description | Location |
