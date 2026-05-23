@@ -14,7 +14,7 @@ Every prior "deep audit" of this repository was a **deeper sample**, not an enum
 |---|---|---|---|
 | Original Monday-readiness | 4 user-facing surfaces (README, site, assessment) | Solutions Bridge wired to nothing; v1.3 footers everywhere | Sampled what a customer would *click*, not what *exists* |
 | Post-fix "deep audit" | Top-of-tree docs + framework + controls + 1 shared playbook | 312 per-control playbook footers; 3 AI-config files; advanced-impl page footers | Scope was **assumption-driven** ("where I expect drift to be") not **enumeration-driven** |
-| AI-files check | `.github/copilot-instructions.md`, `.claude/CLAUDE.md`, `.claude/skills/verify-ui.md` | Per-control playbooks (3-clicks-deep) | Treated playbooks as second-tier despite customers clicking into them |
+| AI-files check | `.github/copilot-instructions.md` | Per-control playbooks (3-clicks-deep) | Treated playbooks as second-tier despite customers clicking into them |
 | Drift-sweep (this methodology) | All 12 dimensions enumerated | SPA scoring modal "72 controls" string; 16 cells across 6 Excel files; control authoring template still on v1.2 | These were caught — methodology worked |
 
 **Three structural failures we keep making:**
@@ -467,7 +467,3 @@ Every finding gets P0 / P1 / P2:
 - **P2** = Internal only (CI, scripts, AI config history lines, audit reports)
 
 Only P0 + P1 must ship before customer-facing milestones. P2 can defer.
-
-## Session ownership
-
-If this methodology is being run as part of a GSD workflow, see `.github/instructions/session-ownership.instructions.md`. Findings files (`files/audit-*.md` in session workspace) are safe to write; shared state files (`.planning/STATE.md`, `ROADMAP.md`) require ownership claim.
