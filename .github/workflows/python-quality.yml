@@ -38,6 +38,13 @@ on:
       - 'assessment/data/solutions-lock.json'
       - 'docs/**/*.md'
       - 'data/monitor-state.json'
+      # npm Dependabot PRs only change package.json / package-lock.json,
+      # which none of the 5 python-quality check names cover.  Without this
+      # entry, branch protection blocks those PRs with "6 of 11 expected"
+      # because the required check names never fire.  Same rationale as the
+      # CHANGELOG.md entry above — quality jobs are fast (~30s).
+      - 'package.json'
+      - 'package-lock.json'
       # Required-check coverage gate (mirrors pull_request paths above): see
       # comment on tests/** under pull_request.paths.
       - 'tests/**'
