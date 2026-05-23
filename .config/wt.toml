@@ -7,10 +7,8 @@
 
 # --- Post-create: runs after worktree is created (blocking) ---
 # 1. Copies Python venv and built site from base worktree
-# 2. Cleans stale GSD phase/research dirs so new milestone starts clean
 [post-create]
 copy-deps = "git-wt step copy-ignored"
-clean-planning = "pwsh -NoProfile -Command \"Remove-Item -Recurse -Force .planning/phases, .planning/research -ErrorAction SilentlyContinue\""
 
 # --- Pre-merge: validation before merging to target branch ---
 # Runs mkdocs strict build and control structure verification.

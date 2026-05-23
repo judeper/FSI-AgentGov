@@ -36,7 +36,6 @@ BOLD = "\033[1m"
 
 # Files that must all contain the same framework version number
 VERSION_FILES = [
-    (".claude/claude.md", r"Framework Version:\*\*\s*(\d+\.\d+\.\d+)"),
     (".github/copilot-instructions.md", r"Framework v(\d+\.\d+\.\d+)"),
     ("AGENTS.md", r"Framework v(\d+\.\d+\.\d+)"),
     ("docs/index.md", r"\*\*Version:\*\*\s*(\d+\.\d+\.\d+)"),

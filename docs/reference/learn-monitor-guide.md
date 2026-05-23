@@ -252,16 +252,16 @@ When the monitor detects changes and creates a PR:
 
 ### Option 1: AI-Assisted Review (Recommended)
 
-Use the `/review-learn-changes` Claude Code skill for automated analysis:
+Use the `/review-learn-changes` GitHub Copilot prompt for automated analysis:
 
 ```bash
 # 1. Checkout the PR branch
 gh pr checkout {PR_NUMBER}
 
-# 2. Run the review skill in Claude Code
+# 2. Run the review prompt in GitHub Copilot Chat
 /review-learn-changes
 
-# 3. Claude will:
+# 3. Copilot will:
 #    - Read and categorize all changes
 #    - Propose specific documentation edits
 #    - Apply edits with your confirmation
@@ -383,8 +383,7 @@ rm reports/monitoring/learn-changes-*.md
 - **Monitoring Architecture:** [monitoring-architecture.md](monitoring-architecture.md) - Comprehensive unified monitoring system documentation
 - **AI-Assisted Review:** [learn-monitor-ai-enhancement.md](learn-monitor-ai-enhancement.md) - AI-assisted review implementation guide
 - **Microsoft Learn URLs:** [microsoft-learn-urls.md](microsoft-learn-urls.md) - The watchlist of monitored URLs (~207 URLs)
-- **Claude Code Skill:** `.claude/skills/review-learn-changes.md` - User-invocable skill for reviewing changes
-- **Repository Instructions:** `.claude/CLAUDE.md` - Complete repository instructions (in project root)
+- **Copilot Prompt:** `.github/prompts/review-learn-changes.prompt.md` - User-invocable prompt for reviewing changes
 
 ---
 

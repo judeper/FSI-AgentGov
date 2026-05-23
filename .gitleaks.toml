@@ -15,6 +15,9 @@ paths = [
     '''docs/downloads/.*''',
     # Generated documentation artifacts
     '''site/.*''',
+    # Squad CLI secret-handling skill — contains example patterns for detection, not real secrets
+    '''.copilot/skills/secret-handling/.*''',
+    '''.squad/templates/skills/secret-handling/.*''',
 ]
 
 regexes = [
