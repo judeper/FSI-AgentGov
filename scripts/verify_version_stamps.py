@@ -87,11 +87,6 @@ CHECKS: list[tuple[str, re.Pattern[str], str]] = [
         ),
         "docs/disclaimer footer",
     ),
-    (
-        ".claude/claude.md",
-        re.compile(r"^- \*\*Framework Version:\*\*\s+(\d+\.\d+(?:\.\d+)?)\s*$", re.M),
-        ".claude/claude.md Framework Version field",
-    ),
 ]
 
 # Glob-based check: every framework doc footer "*Updated: ... | Version: vX.Y.Z ..."

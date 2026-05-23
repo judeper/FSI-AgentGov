@@ -1,8 +1,5 @@
 # FSI-AgentGov Git Attributes
 # Merge strategy for parallel worktree development.
-# .planning/ is GSD process state — each worktree manages its own.
-# On merge to main, always keep main's version of .planning/.
-.planning/** merge=ours
 
 # Vendored JS libraries must use LF to keep SRI hashes consistent
 docs/javascripts/lib/** eol=lf

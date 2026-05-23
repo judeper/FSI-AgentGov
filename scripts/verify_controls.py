@@ -45,7 +45,8 @@ CANON_UPDATED = f"Updated: {date.today().strftime('%B %Y')}"
 # NOTE (PR-0, Tier -1): _ACCEPTED_VERSION intentionally permits historical
 # narrative such as "Earlier in v1.5.0 we shipped..." inside control bodies.
 # Footer-stamp drift on framework-layer docs (README, DISCLAIMER, framework/*,
-# .claude/CLAUDE.md) is enforced by scripts/verify_version_stamps.py — pinning
+# and other canonical version surfaces) is enforced by
+# scripts/verify_version_stamps.py — pinning
 # *that* check to a single canonical version, not to this multi-version list.
 CANON_VERSION = "Version: v1.6"
 _ACCEPTED_UPDATED = _accepted_update_dates(lookback_months=3)

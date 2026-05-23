@@ -51,7 +51,6 @@ PILLAR_NAMES = {
 # work, shared assets, etc.).
 SOLUTION_SKIP_DIRS: frozenset[str] = frozenset(
     {
-        ".claude",
         ".codex",
         ".git",
         ".github",

@@ -47,9 +47,9 @@ scripts/
 ├── reporting/                          # Reporting automation (planned)
 │   └── README.md                       # Planned scripts overview
 │
-└── hooks/                              # Claude Code hooks
-    ├── researcher-package-reminder.py  # Remind to update researcher package
-    └── boundary-check.py               # Prevent commands outside project
+└── hooks/                              # MkDocs/build hooks
+    ├── copy_assessment_data.py         # Copy assessment data assets into built site
+    └── generate_homework_pages_hook.py # Generate per-role homework pages before build
 ```
 
 ## Prerequisites
@@ -262,8 +262,8 @@ All scripts should follow these standards:
 ### Hooks (2 scripts)
 | Script | Purpose | Last Updated |
 |--------|---------|--------------|
-| `hooks/researcher-package-reminder.py` | Claude Code post-edit reminder | Mar 2026 |
-| `hooks/boundary-check.py` | Claude Code command boundary check | Mar 2026 |
+| `hooks/copy_assessment_data.py` | Copy assessment data assets into the built site during MkDocs runs | Apr 2026 |
+| `hooks/generate_homework_pages_hook.py` | Generate per-role homework pages before MkDocs builds | Mar 2026 |
 
 ## Contributing
 
@@ -281,7 +281,6 @@ When adding new scripts:
 - [Framework Overview](../docs/framework/index.md)
 - [Control Catalog](../docs/controls/CONTROL-INDEX.md)
 - [Playbooks](../docs/playbooks/index.md)
-- [Claude Code Instructions](../.claude/CLAUDE.md)
 
 ---
 
