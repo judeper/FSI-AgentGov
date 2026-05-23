@@ -22,6 +22,12 @@ on:
       # workflow-PR coverage gap that left mkdocs-strict missing on
       # Dependabot/workflow-only PRs.
       - 'tests/**'
+      # npm Dependabot PRs only change package.json / package-lock.json.
+      # Without this entry, mkdocs-strict never fires on those PRs and
+      # branch protection blocks the merge.  The build is fast (~30s) and
+      # npm changes cannot break MkDocs, so the marginal cost is trivial.
+      - 'package.json'
+      - 'package-lock.json'
 
 permissions:
   contents: read
