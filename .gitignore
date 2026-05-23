@@ -36,9 +36,6 @@ maintainers-local/
 # Windows artifacts
 nul
 
-# Claude Code local settings
-.claude/settings.local.json
-
 # Research prompts (local only - root level, not .github/prompts/)
 /prompts/
 
@@ -54,8 +51,6 @@ docs/javascripts/assessment-data.json
 .copilot-logs/
 .ralph-doc-worktrees/
 
-# GSD planning state (kept locally, not tracked)
-.planning/
 .codex/
 
 # Assessment engine outputs (customer data — never commit)

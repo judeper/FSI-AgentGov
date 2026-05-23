@@ -1,5 +1,5 @@
 ---
-applyTo: ".planning/**,docs/**"
+applyTo: "docs/**"
 ---
 
 # Git Integration Conventions

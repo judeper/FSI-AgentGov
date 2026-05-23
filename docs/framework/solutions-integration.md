@@ -605,9 +605,8 @@ FSI-AgentGov-Solutions/
 │   ├── scripts/powershell/               # PowerShell modules and scripts
 │   ├── docs/                             # Integration documentation
 │   └── evidence/                         # Evidence export staging
-├── scripts/
-│   └── hooks/
-└── .claude/
+└── scripts/
+    └── hooks/
 
 (See the [Solutions Index](../reference/solutions-index.md) for the authoritative per-solution version and status table — the inventory above is illustrative of repository shape, not a versioning source.)
 ```
