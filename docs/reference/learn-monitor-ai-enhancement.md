@@ -10,7 +10,7 @@ This document describes the AI-assisted review capability for the unified monito
 
 **Current State:** The unified monitoring system detects changes from Microsoft Learn documentation and regulatory sources (Federal Register, FINRA). AI-assisted review provides automated drafts for Learn changes and triage analysis for regulatory changes.
 
-**How It Works:** The `/review-learn-changes` skill analyzes monitoring reports and either drafts specific documentation updates (Learn changes) or provides triage summaries (regulatory changes) for human review. Available in both Claude Code (`.claude/skills/review-learn-changes.md`) and GitHub Copilot (`.github/prompts/review-learn-changes.prompt.md`).
+**How It Works:** The `/review-learn-changes` prompt analyzes monitoring reports and either drafts specific documentation updates (Learn changes) or provides triage summaries (regulatory changes) for human review. Available in GitHub Copilot (`.github/prompts/review-learn-changes.prompt.md`).
 
 ---
 
@@ -55,7 +55,7 @@ This document describes the AI-assisted review capability for the unified monito
 │                        ▼                                                     │
 │              ┌─────────────────────┐                                         │
 │              │ /review-learn-      │ (AI-assisted review)                    │
-│              │  changes skill      │                                         │
+│              │  changes prompt     │                                         │
 │              └─────────┬───────────┘                                         │
 │                        │                                                     │
 │         ┌──────────────┴──────────────┐                                      │
@@ -80,11 +80,11 @@ This document describes the AI-assisted review capability for the unified monito
 
 ## Implementation Approach
 
-The system uses **Manual Claude Code Invocation** (formerly "Option B") with distinct workflows for different report types:
+The system uses **Manual GitHub Copilot invocation** (formerly "Option B") with distinct workflows for different report types:
 
 ### Learn Changes: Auto-Draft with Human Approval
 
-Human invokes `/review-learn-changes` skill after monitoring PR is created:
+Human invokes the `/review-learn-changes` prompt after the monitoring PR is created:
 
 1. Read Learn change report from `reports/monitoring/`
 2. Filter for HIGH priority changes
@@ -99,7 +99,7 @@ Human invokes `/review-learn-changes` skill after monitoring PR is created:
 
 ### Regulatory Changes: Triage with Human Decision
 
-Human invokes `/review-learn-changes` skill for regulatory reports:
+Human invokes the `/review-learn-changes` prompt for regulatory reports:
 
 1. Read regulatory change report from `reports/monitoring/`
 2. For each CRITICAL/HIGH item:
@@ -144,7 +144,7 @@ Human invokes `/review-learn-changes` skill for regulatory reports:
 - **Never auto-commit:** All drafts require human review
 - **Validation gate:** mkdocs build must pass after edits
 - **Regulatory language check:** Never auto-edit regulatory content per CONTRIBUTING.md
-- **Human invocation:** User decides when to run the skill
+- **Human invocation:** User decides when to run the prompt
 
 ---
 
@@ -173,16 +173,15 @@ Human invokes `/review-learn-changes` skill for regulatory reports:
 - Weekly runs via GitHub Actions
 - Produces `reports/monitoring/regulatory-changes-*.md`
 
-### Phase 3: AI-Assisted Review Skill (Complete ✅)
+### Phase 3: AI-Assisted Review Prompt (Complete ✅)
 
 **Delivered:**
 
-- Claude Code: `.claude/skills/review-learn-changes.md`
 - GitHub Copilot: `.github/prompts/review-learn-changes.prompt.md`
 
 **Workflow:**
-1. User invokes `/review-learn-changes` after monitoring PR created
-2. Skill determines report type (Learn or Regulatory)
+1. User invokes `/review-learn-changes` after the monitoring PR is created
+2. Prompt determines report type (Learn or Regulatory)
 3. For Learn reports:
    - Analyzes HIGH priority changes
    - Drafts specific documentation edits
@@ -198,7 +197,7 @@ Human invokes `/review-learn-changes` skill for regulatory reports:
 
 **GitHub Actions Integration:**
 - Automated invocation of AI review on PR creation
-- Requires Claude API key in GitHub Secrets
+- Requires authenticated model access in GitHub Actions
 - Cost vs. benefit evaluation needed
 
 ---
@@ -246,7 +245,7 @@ Human invokes `/review-learn-changes` skill for regulatory reports:
 | **Requires Review** | AI, supervision, recordkeeping, data protection keywords | Validate suggested controls, flag for human analysis |
 | **Out of Scope** | Trading rules, fee schedules, non-AI topics | Identify as dismissible |
 
-**IMPORTANT:** Regulatory changes are NEVER auto-edited. The skill produces a triage summary only.
+**IMPORTANT:** Regulatory changes are NEVER auto-edited. The prompt produces a triage summary only.
 
 ---
 
@@ -255,10 +254,10 @@ Human invokes `/review-learn-changes` skill for regulatory reports:
 ### Example 1: Learn Changes with Auto-Draft
 
 ```bash
-# User invokes skill
+# User invokes prompt
 /review-learn-changes
 
-# Skill analyzes report
+# Prompt analyzes report
 Reading reports/monitoring/learn-changes-2026-02-01.md...
 
 Found 31 HIGH priority changes affecting 15 controls.
@@ -274,7 +273,7 @@ Do you want me to apply these 12 updates?
 # User approves
 Yes, apply them
 
-# Skill applies edits and validates
+# Prompt applies edits and validates
 Applied 12 updates across 8 files
 ✓ mkdocs build --strict passed
 
@@ -285,10 +284,10 @@ Recommendation: Review changes and commit with:
 ### Example 2: Regulatory Changes with Triage
 
 ```bash
-# User invokes skill for regulatory report
+# User invokes prompt for regulatory report
 /review-learn-changes
 
-# Skill analyzes report
+# Prompt analyzes report
 Reading reports/monitoring/regulatory-changes-2026-02-04.md...
 
 Found 4 regulatory items. All classified as NOISE.
@@ -310,7 +309,6 @@ All items are out of scope. No action needed.
 
 - **Monitoring Architecture:** [monitoring-architecture.md](monitoring-architecture.md) - Unified monitoring system overview
 - **Learn Monitor Guide:** [learn-monitor-guide.md](learn-monitor-guide.md) - Learn Monitor documentation
-- **Claude Code Skill:** `.claude/skills/review-learn-changes.md` - User-invocable skill
 - **Copilot Prompt:** `.github/prompts/review-learn-changes.prompt.md` - Copilot Chat equivalent
 - **Contributing Guide:** `CONTRIBUTING.md` - Language guidelines and safety rules
 

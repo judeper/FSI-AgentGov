@@ -60,7 +60,7 @@ This document describes the comprehensive architecture of the FSI-AgentGov monit
 │  ┌────────────────────────────────────────────────────────────────┐     │
 │  │                  AI-ASSISTED REVIEW                             │     │
 │  │  ┌──────────────────────────────────────────────────────────┐  │     │
-│  │  │ .claude/skills/review-learn-changes.md                   │  │     │
+│  │  │ .github/prompts/review-learn-changes.prompt.md          │  │     │
 │  │  │ - Learn reports: Auto-draft edits                        │  │     │
 │  │  │ - Regulatory reports: Triage only                        │  │     │
 │  │  │                                                           │  │     │
@@ -293,15 +293,15 @@ This document describes the comprehensive architecture of the FSI-AgentGov monit
 
 ## AI-Assisted Review
 
-**Skill:** `.claude/skills/review-learn-changes.md`
-**Invocation:** Manual via `/review-learn-changes`
+**Prompt:** `.github/prompts/review-learn-changes.prompt.md`
+**Invocation:** Manual via `/review-learn-changes` in GitHub Copilot Chat
 
 ### Learn Report Workflow
 
 When a Learn change report is created:
 
-1. User invokes `/review-learn-changes` in Claude Code
-2. Skill reads `reports/monitoring/learn-changes-*.md`
+1. User invokes `/review-learn-changes` in GitHub Copilot Chat
+2. Prompt reads `reports/monitoring/learn-changes-*.md`
 3. For each HIGH priority change:
    - Read affected control/playbook
    - Analyze the diff from Microsoft Learn
@@ -311,7 +311,7 @@ When a Learn change report is created:
    - Flagged for human review (policy/regulatory language)
    - Skipped (formatting/noise)
 5. User confirms: "Apply the N updates"
-6. Skill applies edits using Edit tool
+6. Prompt applies edits using the Edit tool
 7. Runs `mkdocs build --strict` validation
 8. User reviews, commits, and pushes
 
@@ -332,8 +332,8 @@ When a Learn change report is created:
 
 When a regulatory change report is created:
 
-1. User invokes `/review-learn-changes` in Claude Code
-2. Skill reads `reports/monitoring/regulatory-changes-*.md`
+1. User invokes `/review-learn-changes` in GitHub Copilot Chat
+2. Prompt reads `reports/monitoring/regulatory-changes-*.md`
 3. For each CRITICAL/HIGH item:
    - Read suggested affected controls
    - Assess relevance to AI agent governance
@@ -342,9 +342,9 @@ When a regulatory change report is created:
    - Requires human review (with relevance assessment)
    - Out of scope (dismissible)
 5. User conducts detailed analysis
-6. User determines if framework updates needed
+6. User determines if framework updates are needed
 
-**IMPORTANT:** Regulatory changes are NEVER auto-edited per CONTRIBUTING.md safety rules. The skill provides triage assistance only.
+**IMPORTANT:** Regulatory changes are NEVER auto-edited per CONTRIBUTING.md safety rules. The prompt provides triage assistance only.
 
 ---
 
@@ -394,13 +394,13 @@ When a regulatory change report is created:
 
 3. **Run AI-assisted review** (if HIGH priority changes exist)
    ```bash
-   # In Claude Code
+   # In GitHub Copilot Chat
    /review-learn-changes
    ```
 
 4. **Apply updates** and validate
    ```bash
-   # After skill applies edits
+   # After the prompt applies edits
    python3 -m mkdocs build --strict
    ```
 
@@ -424,7 +424,7 @@ When a regulatory change report is created:
 
 3. **Run AI-assisted triage**
    ```bash
-   # In Claude Code
+   # In GitHub Copilot Chat
    /review-learn-changes
    ```
 
@@ -587,7 +587,7 @@ REGULATORY_KEYWORDS = {
 **Cons:**
 - **API costs:** ~$0.14 per Learn Monitor run × 365 days = ~$51/year (plus regulatory runs)
 - **Safety risk:** Automated commits of incorrect edits
-- **Claude API key in GitHub Secrets:** Security consideration
+- **Authenticated model access in GitHub Actions:** Security consideration
 - **No human review gate:** Violates CONTRIBUTING.md requirement for regulatory content
 
 **Decision:** Rejected for now. Manual invocation provides better cost control and safety. Could revisit as "Phase 4" enhancement with proper guardrails.
@@ -641,7 +641,7 @@ REGULATORY_KEYWORDS = {
 
 - **Learn Monitor Guide:** [learn-monitor-guide.md](learn-monitor-guide.md) - Learn Monitor user documentation
 - **AI-Assisted Review:** [learn-monitor-ai-enhancement.md](learn-monitor-ai-enhancement.md) - AI-assisted review implementation
-- **Claude Code Skill:** `.claude/skills/review-learn-changes.md` - User-invocable skill
+- **Copilot Prompt:** `.github/prompts/review-learn-changes.prompt.md` - User-invocable prompt
 - **Microsoft Learn URLs:** [microsoft-learn-urls.md](microsoft-learn-urls.md) - Monitored URL watchlist
 - **Contributing Guide:** `CONTRIBUTING.md` - Language guidelines and safety rules
 

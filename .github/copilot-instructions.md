@@ -173,41 +173,23 @@ Screenshots are stored locally for verifying portal instructions stay current.
 | `docs/controls/CONTROL-INDEX.md` | Master list of all 78 controls |
 | `mkdocs.yml` | Site navigation structure |
 
-## Claude Code Skills (On-Demand Workflows)
-
-For Claude Code users, detailed workflows are available as on-demand skills in `.claude/skills/`:
-
-| Skill | Use When |
-|-------|----------|
-| `/update-control` | Modifying existing control content |
-| `/add-control` | Adding a new control to a pillar |
-| `/update-excel` | Maintaining Excel checklist templates |
-| `/verify-ui` | Verifying portal screenshots match documentation |
-| `/review-learn-changes` | Reviewing Learn Monitor change reports and drafting documentation updates |
-
-These skills provide step-by-step instructions and are loaded only when invoked.
-
 ## Multi-Agent Configuration
 
-This repository supports three AI tools and uses [Worktrunk](https://worktrunk.dev/) for parallel agent runs via git worktrees:
+This repository supports GitHub Copilot and Codex CLI, and uses [Worktrunk](https://worktrunk.dev/) for parallel agent runs via git worktrees:
 
 | Tool | Config | Primary Role |
 |------|--------|-------------|
-| GitHub Copilot | `.github/agents/`, `.github/prompts/`, `.github/instructions/` | Documentation generation |
-| Claude Code | `.claude/claude.md`, `.claude/skills/` | Verification and QA |
+| GitHub Copilot | `.github/prompts/`, `.github/instructions/` | Documentation support and repo health checks |
 | Codex CLI | `.codex/config.toml` | Documentation generation |
 | Worktrunk | `.config/wt.toml` | Worktree management for parallel agent runs |
 
 **Parallel agent runs:** Use `git-wt switch --create branch-name` to create isolated worktrees for each agent session. On Windows, use `git-wt` (winget installs it alongside `wt` to avoid the Windows Terminal conflict). See `AGENTS.md` "Parallel Agent Runs with Worktrunk" for full details.
 
-### Custom Agents (13)
-Located in `.github/agents/`: `doc-writer`, `doc-verifier`, plus 11 GSD workflow agents (`gsd-planner`, `gsd-executor`, `gsd-verifier`, `gsd-debugger`, `gsd-codebase-mapper`, `gsd-roadmapper`, `gsd-project-researcher`, `gsd-phase-researcher`, `gsd-research-synthesizer`, `gsd-integration-checker`, `gsd-plan-checker`).
+### Workspace Prompts (5)
+Located in `.github/prompts/`: `repo-health-check`, `repo-health-check-analysis`, `repo-health-check-references`, `repo-health-check-scripts`, and `review-learn-changes`.
 
-### GSD Prompts (32)
-Located in `.github/prompts/`. Use `/gsd-execute-phase`, `/gsd-plan-phase`, etc.
-
-### Instruction Files (12)
-Located in `.github/instructions/`. Auto-included by `applyTo` glob patterns.
+### Instruction Files (4)
+Located in `.github/instructions/`: `fsi-language-rules`, `fsi-control-template`, `build-validation`, and `git-integration`. Auto-included by `applyTo` glob patterns.
 
 ### VS Code Setup
 Add to your `.vscode/settings.json`:
@@ -223,7 +205,7 @@ Add to your `.vscode/settings.json`:
 }
 ```
 
-### If `/gsd-*` prompts don't show up
+### If workspace prompts don't show up
 
 If built-in slash commands appear but the workspace prompts under `.github/prompts/` do not, the repo structure is usually fine and the issue is typically one of these:
 
@@ -237,10 +219,6 @@ Fastest way to see the exact reason:
 1. Open the **Chat** view.
 2. **Right-click** in the Chat view and select **Diagnostics**.
 3. In the diagnostics report, look for **Prompt files** and confirm your workspace prompts are listed as **Loaded** (or read the error message if they are **Skipped/Failed**).
-
-### Session Ownership
-Check `.planning/STATE.md` Active Tool field before writing to shared GSD state files.
-See `AGENTS.md` Multi-Agent Coordination section for full protocol.
 
 ## Build and Validate
 
