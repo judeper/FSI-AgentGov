@@ -1131,7 +1131,7 @@ The following patterns are commonly observed during external review and produce 
 
 ### Regulatory windows referenced in §1 and §7
 
-- **NY DFS 23 NYCRR 500.17** — 72-hour cybersecurity event notification ([text](https://www.dfs.ny.gov/industry_guidance/cyber_faqs))
+- **NY DFS 23 NYCRR 500.17** — 72-hour cybersecurity event notification ([text](https://www.dfs.ny.gov/industry_guidance/cybersecurity))
 - **SEC Reg S-P §248.30(a)(4)** — incident response and customer notification ([text](https://www.sec.gov/files/rules/final/2024/34-100155.pdf))
 - **FINRA Rule 4530** — reporting requirements ([text](https://www.finra.org/rules-guidance/rulebooks/finra-rules/4530))
 - **FINRA Rule 4511** / **SEC 17a-4(b)(4)** — books-and-records retention (verified under Controls 1.7 and 1.9, not this control)
