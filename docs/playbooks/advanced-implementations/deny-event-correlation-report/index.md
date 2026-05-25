@@ -185,9 +185,8 @@ The FSI-AgentGov-Solutions repository provides deployable components:
 **Solution Documentation:**
 
 - [prerequisites.md](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report/docs/prerequisites.md) — Licensing, permissions, infrastructure requirements
-- [SCHEMA.md](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report/docs/SCHEMA.md) — Dataverse table definitions and relationships
-- [FLOW_SETUP.md](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report/docs/FLOW_SETUP.md) — Power Automate orchestration configuration
-- [EVIDENCE_EXPORT.md](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report/docs/EVIDENCE_EXPORT.md) — SHA-256 evidence package setup
+- [architecture.md](https://github.com/judeper/FSI-AgentGov-Solutions/blob/main/deny-event-correlation-report/docs/architecture.md) — Solution architecture, data flow, and Dataverse schema
+- [README.md](https://github.com/judeper/FSI-AgentGov-Solutions/blob/main/deny-event-correlation-report/README.md) — Solution overview, Power Automate orchestration, and evidence export configuration
 - [troubleshooting.md](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report/docs/troubleshooting.md) — Common issues and resolution steps
 
 ---
@@ -203,7 +202,7 @@ The v2.0.0 solution uses a 4-table Dataverse schema for persistent storage of de
 | **fsi_DenyAlert** | Generated alerts with routing metadata | fsi_deny_alert_id, fsi_alert_severity, fsi_alert_type, fsi_acknowledged |
 | **fsi_DenyValidationHistory** | Validation and extraction audit trail | fsi_deny_validation_id, fsi_run_timestamp, fsi_records_processed, fsi_export_status |
 
-> **Note:** Key fields shown are primary columns. See [SCHEMA.md](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report/docs/SCHEMA.md) for canonical column definitions and data types.
+> **Note:** Key fields shown are primary columns. See [architecture.md](https://github.com/judeper/FSI-AgentGov-Solutions/blob/main/deny-event-correlation-report/docs/architecture.md) for canonical column definitions and data types.
 
 **Relationships:** fsi_DenyEvent → fsi_DenyCorrelation (many-to-one), fsi_DenyCorrelation → fsi_DenyAlert (one-to-many), evidence exports reference fsi_DenyCorrelation records.
 
@@ -357,7 +356,7 @@ For complete scalability guidance, see the [Solutions Architecture Guide](../../
 1. **Read [Purview Audit Extraction](purview-audit-extraction.md)** to understand CopilotInteraction deny events
 2. **Configure [App Insights RAI Telemetry](app-insights-rai-telemetry.md)** for Copilot Studio agents
 3. **Deploy Dataverse schema** from the FSI-AgentGov-Solutions repository
-4. **Configure Power Automate flow** using [FLOW_SETUP.md](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report/docs/FLOW_SETUP.md)
+4. **Configure Power Automate flow** using the [solution README](https://github.com/judeper/FSI-AgentGov-Solutions/blob/main/deny-event-correlation-report/README.md)
 5. **Set up Teams alerting** and configure severity routing
 6. **Schedule daily extraction** and verify correlation results in Compliance Dashboard
 
