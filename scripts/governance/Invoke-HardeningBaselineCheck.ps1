@@ -93,6 +93,25 @@ if (-not $PSCmdlet.ShouldProcess("Power Platform tenant", "Run hardening baselin
 
 # ─── Helper Functions ────────────────────────────────────────────────
 
+function Resolve-AzAccessTokenPlainText {
+    <#
+    .SYNOPSIS
+        Acquires an access token via Get-AzAccessToken and returns a plain-text string.
+    .DESCRIPTION
+        Handles both Az.Accounts 2.x (.Token as string) and 3.x+ (.Token as SecureString).
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$ResourceUrl
+    )
+    $tokenResult = Get-AzAccessToken -ResourceUrl $ResourceUrl -ErrorAction Stop
+    if ($tokenResult.Token -is [securestring]) {
+        return $tokenResult.Token | ConvertFrom-SecureString -AsPlainText
+    }
+    return $tokenResult.Token
+}
+
 function Get-EnvironmentZone {
     [CmdletBinding()]
     param(
@@ -260,7 +279,7 @@ try {
             $resourceUrl = $dataverseUrl.TrimEnd('/')  # Az.Accounts rejects trailing slash
             try {
                 $orgResponse = Invoke-RestMethod -Uri "${dataverseUrl}api/data/v9.2/organizations?`$select=isauditenabled" `
-                    -Headers @{ Authorization = "Bearer $((Get-AzAccessToken -ResourceUrl $resourceUrl).Token)" } `
+                    -Headers @{ Authorization = "Bearer $(Resolve-AzAccessTokenPlainText -ResourceUrl $resourceUrl)" } `
                     -Method Get -ErrorAction Stop
 
                 # isauditenabled is a BooleanManagedProperty — extract .Value
@@ -287,7 +306,7 @@ try {
             # Item 8 — Audit Log Retention Period
             try {
                 $retResponse = Invoke-RestMethod -Uri "${dataverseUrl}api/data/v9.2/organizations?`$select=auditretentionperiodv2" `
-                    -Headers @{ Authorization = "Bearer $((Get-AzAccessToken -ResourceUrl $resourceUrl).Token)" } `
+                    -Headers @{ Authorization = "Bearer $(Resolve-AzAccessTokenPlainText -ResourceUrl $resourceUrl)" } `
                     -Method Get -ErrorAction Stop
 
                 $retentionDays = $retResponse.value[0].auditretentionperiodv2
@@ -382,7 +401,7 @@ try {
             $defaultDataverseUrl = $defaultDataverseUrl.TrimEnd('/') + '/'
             $defaultResourceUrl = $defaultDataverseUrl.TrimEnd('/')  # Az.Accounts rejects trailing slash
             $orgResponse = Invoke-RestMethod -Uri "${defaultDataverseUrl}api/data/v9.2/organizations?`$select=isauditenabled" `
-                -Headers @{ Authorization = "Bearer $((Get-AzAccessToken -ResourceUrl $defaultResourceUrl).Token)" } `
+                -Headers @{ Authorization = "Bearer $(Resolve-AzAccessTokenPlainText -ResourceUrl $defaultResourceUrl)" } `
                 -Method Get -ErrorAction Stop
 
             # isauditenabled is a BooleanManagedProperty — extract .Value
@@ -465,7 +484,7 @@ foreach ($env in $environments) {
             'iscontentsecuritypolicyenabled,contentsecuritypolicyoptions'
         $orgResponse = Invoke-RestMethod `
             -Uri "${dataverseUrl}api/data/v9.2/organizations?`$select=$securityFields" `
-            -Headers @{ Authorization = "Bearer $((Get-AzAccessToken -ResourceUrl $resourceUrl).Token)" } `
+            -Headers @{ Authorization = "Bearer $(Resolve-AzAccessTokenPlainText -ResourceUrl $resourceUrl)" } `
             -Method Get -ErrorAction Stop
 
         $org = $orgResponse.value[0]
