@@ -1,6 +1,6 @@
 # Portal Walkthrough: Control 1.17 — Endpoint Data Loss Prevention (Endpoint DLP)
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 **Portals:** Microsoft Purview (`https://purview.microsoft.com`), Microsoft Defender (`https://security.microsoft.com`), Microsoft Intune (`https://intune.microsoft.com`), Microsoft Entra (`https://entra.microsoft.com`)
 **Estimated Time:** 4–6 hours for an initial single-zone rollout; 1–2 days for full Zone 1/2/3 deployment with pilots
 
