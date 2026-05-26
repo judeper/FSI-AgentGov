@@ -2,7 +2,7 @@
 
 **Control ID:** 1.2 — Agent Registry and Integrated Apps Management
 **Pillar:** 1 — Security & Identity
-**Last UI Verified:** April 2026
+**Last UI Verified:** May 2026
 **Estimated Time:** 6–10 hours initial buildout; 60–90 min per agent registration thereafter
 **Audience:** Entra App Admin, AI Administrator, Power Platform Admin, Compliance Officer, Agent Sponsor
 **Prerequisites:** Control 1.1 (Conditional Access for Agents) implemented; sponsor eligibility groups provisioned per `sponsorship-lifecycle-workflows.md`; Microsoft 365 E5 + Microsoft Entra ID P2 + Defender for Cloud Apps + Purview Audit (Premium) tenant licensing.

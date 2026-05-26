@@ -1,6 +1,6 @@
 # Troubleshooting: Control 1.15 — Encryption: Data in Transit and at Rest
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 
 ---
 
