@@ -1,6 +1,6 @@
 # Deny Event Correlation Report
 
-**Version:** v2.0.0 | **Status:** Production Ready | **Updated:** February 2026
+**Version:** v2.0.0 | **Status:** Production Ready | **Updated:** May 2026
 **Related Controls:** 1.5 (DLP & Sensitivity Labels), 1.7 (Audit Logging), 1.8 (Runtime Protection), 3.4 (Incident Reporting)
 
 ---
