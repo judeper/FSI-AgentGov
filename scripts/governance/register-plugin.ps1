@@ -44,7 +44,8 @@
     Preview registration without making changes.
 
 .EXAMPLE
-    $token = (Get-AzAccessToken -ResourceUrl https://org.crm.dynamics.com).Token
+    $tokenResult = Get-AzAccessToken -ResourceUrl https://org.crm.dynamics.com
+    $token = if ($tokenResult.Token -is [securestring]) { $tokenResult.Token | ConvertFrom-SecureString -AsPlainText } else { $tokenResult.Token }
     .\register-plugin.ps1 -DataverseUrl https://org.crm.dynamics.com -AssemblyPath ./bin/Release/ValidateMimeTypePlugin.dll -AccessToken $token
 
     Registers using an explicitly provided access token.
@@ -106,10 +107,9 @@ if (-not $AccessToken) {
     try {
         Write-Verbose "No AccessToken provided — acquiring via Get-AzAccessToken."
         $azToken = Get-AzAccessToken -ResourceUrl $baseUrl -ErrorAction Stop
-        # Handle SecureString .Token (Az.Accounts 5.0+) or plain string (older)
-        if ($azToken.Token -is [System.Security.SecureString]) {
-            $AccessToken = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR(
-                [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($azToken.Token))
+        # Handle SecureString .Token (Az.Accounts 3.0+) or plain string (older)
+        if ($azToken.Token -is [securestring]) {
+            $AccessToken = $azToken.Token | ConvertFrom-SecureString -AsPlainText
         } else {
             $AccessToken = $azToken.Token
         }
