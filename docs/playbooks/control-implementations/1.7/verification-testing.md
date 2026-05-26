@@ -4,7 +4,7 @@
 **Pillar:** 1 — Security
 **Audience:** Purview Audit Admin, Purview Compliance Admin, Exchange Online Admin (Organization Configuration role), AI Administrator, Power Platform Admin, Entra Security Admin, SOC Analyst, Compliance Officer, AI Governance Lead, Internal Audit, Azure Storage Account Owner / Contributor, Records Management Officer, Designated Executive Officer (DEO) or Designated Third Party (DTP) liaison
 **Sovereign-cloud scope:** Microsoft 365 Commercial, GCC, GCC High, DoD. 21Vianet is **out of scope** for this playbook.
-**Last UI verified:** April 2026
+**Last UI verified:** May 2026
 
 ---
 

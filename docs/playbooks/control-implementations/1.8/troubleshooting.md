@@ -3,7 +3,7 @@
 **Control:** 1.8 — Runtime Protection and External Threat Detection
 **Pillar:** 1 — Security
 **Audience:** Power Platform Admin, Microsoft Defender XDR System Administrator, AI Governance Lead, SOC Analyst
-**Last UI Verified:** February 2026
+**Last UI Verified:** May 2026
 
 > **Scope.** This playbook diagnoses runtime-protection failures across the four enforcement surfaces of Control 1.8: (1) native Defender for Cloud Apps **AI Agent Protection** (real-time evaluation through the Microsoft 365 App Connector), (2) **Additional Threat Detection** webhook callout from Microsoft Copilot Studio to an external security provider, (3) **Prompt Shields** for jailbreak/indirect-injection defense, and (4) **agent-level content moderation slider** (5 positions: Lowest / Low / Medium / High / Highest). It also covers the **AI Security Posture Management (AISPM)** dashboard surface and per-agent **Responsible AI (RAI) App Insights** telemetry. Classic (non-generative) Copilot Studio agents are out of scope for Defender AI Agent Protection — see §4 for details. The separate **per-prompt** moderation slider (3 positions: Low / Moderate / High, managed GPT models only) inside the prompt builder is governed by Control 1.27, not this playbook.
 
