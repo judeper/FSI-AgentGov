@@ -1,6 +1,6 @@
 # Troubleshooting: Control 1.23 — Step-Up Authentication for AI Agent Operations
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 
 This playbook indexes the most common failures observed when deploying step-up authentication for AI agent operations and maps each to the diagnostic surface and resolution. Use it during pilot, after promoting policies from report-only to enforcement, and during incident response.
 
