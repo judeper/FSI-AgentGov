@@ -48,6 +48,13 @@ on:
       # Required-check coverage gate (mirrors pull_request paths above): see
       # comment on tests/** under pull_request.paths.
       - 'tests/**'
+      # Instruction files (.github/instructions/**) are governance tooling that
+      # do not trigger e2e-smoke or docs-validation but DO need the python-quality
+      # gate so that instruction-only PRs satisfy all 11 required branch-protection
+      # checks. The shim (required-check-shims.yml) already covers e2e-smoke and
+      # mkdocs-strict for these PRs; this entry covers ruff, pytest, drift,
+      # language-rules, and verify_version_stamps.
+      - '.github/instructions/**'
   push:
     branches:
       - main

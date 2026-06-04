@@ -85,7 +85,7 @@ The following overviews state the Microsoft framing (paraphrased), the typical F
 
 **Default FSI Zone.** **Zone 3 — mandatory.** Pattern 4 cannot deploy below Zone 3 in FSI. The Zone 3 prerequisites in [Zones and Tiers](zones-and-tiers.md) — Governance Committee approval, Managed Environments, comprehensive testing, full audit retention, business continuity plan — are non-negotiable and predate any Pattern 4 work.
 
-**Regulatory exposure (headline).** High and multi-regime. Decisioning models trigger OCC Bulletin 2026-13 and Fed SR 26-2 (formerly SR 11-7) model risk requirements; KYC/CDD flows trigger BSA/AML 31 CFR 1020.220 and OFAC sanctions screening; outcomes that influence credit trigger Reg B/ECOA fair-lending principal-reasons obligations; financial-close flows trigger SOX 302/404 ICFR; supervision is governed by FINRA Rule 3110; and every decision is a record under FINRA 4511, SEC 17a-3/4, and CFTC 1.31.
+**Regulatory exposure (headline).** High and multi-regime. Decisioning models trigger OCC Bulletin 2026-13 (formerly OCC 2011-12) and Fed SR 26-2 (formerly SR 11-7) model risk requirements; KYC/CDD flows trigger BSA/AML 31 CFR 1020.220 and OFAC sanctions screening; outcomes that influence credit trigger Reg B/ECOA fair-lending principal-reasons obligations; financial-close flows trigger SOX 302/404 ICFR; supervision is governed by FINRA Rule 3110; and every decision is a record under FINRA 4511, SEC 17a-3/4, and CFTC 1.31.
 
 **For full mapping** — including the mandatory FSI-AgentGov controls, the autonomy cap (decisions must be reproducible from logged inputs, model version, prompt, and retrieved sources), examiner pre-empts, and CAPE phrases to reframe — see [Pattern 4 in the crosswalk](../reference/microsoft-cape-crosswalk.md#pattern-4-core-business-process-transformation-deep-dive).
 
@@ -109,7 +109,7 @@ The following overviews state the Microsoft framing (paraphrased), the typical F
 
 **Default FSI Zone.** **Zone 3 — mandatory** with the autonomy guardrail below. Internal-only sandbox capabilities with no production decision rights may live in Zone 2 only as proofs of concept; production deployment is Zone 3 only.
 
-**Regulatory exposure (headline).** Highest residual risk in the framework. Any consumer-impacting output triggers OCC Bulletin 2026-13 and Fed SR 26-2 model risk validation; multi-agent chains create cascading model-risk and accountability concerns that current regulator guidance does not yet address with precedent.
+**Regulatory exposure (headline).** Highest residual risk in the framework. Any consumer-impacting output triggers OCC Bulletin 2026-13 (formerly OCC 2011-12) and Fed SR 26-2 (formerly SR 11-7) model risk validation; multi-agent chains create cascading model-risk and accountability concerns that current regulator guidance does not yet address with precedent.
 
 !!! warning "Pattern 6 autonomy guardrail (FSI-AgentGov)"
     Fully autonomous customer-impacting Pattern 6 deployments are not currently supported in Zone 3 without documented regulator pre-approval.

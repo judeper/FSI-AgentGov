@@ -1,5 +1,8 @@
 # Agent Audit Event Taxonomy Reference
 
+!!! danger "Governance Categories Only — Not Searchable Purview UAL Operations"
+    The operation names and RecordType values in this taxonomy are **conceptual governance categories, not searchable Microsoft Purview Unified Audit Log (UAL) Operation values**. Microsoft currently documents only three Agent 365 operations in the Purview UAL: `AIExecuteTool`, `AIInvokeAgent`, and `AIInferenceCall` (source: [Purview Audit Log Activities — Agent 365 activities](https://learn.microsoft.com/en-us/purview/audit-log-activities)). KQL or `Search-UnifiedAuditLog` queries built on the framework operation names in this file will return zero rows. A SME-led rewrite spanning Purview UAL, Power Apps activities, Microsoft Entra agent-identity audit schema, and DLP/Defender event taxonomy is tracked in a GitHub issue. Do not use this file's operation names in production KQL or audit pipelines until the rewrite is complete.
+
 **Last Updated:** May 2026
 **Version:** v1.6.2
 

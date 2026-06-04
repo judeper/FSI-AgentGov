@@ -218,6 +218,9 @@ Entra Agent ID extends Conditional Access to agent identities, enabling risk-bas
 
 #### Policy Example 1: Block High-Risk Agent Identities
 
+!!! warning "Illustrative example — not Graph-API-ready"
+    The JSON below uses illustrative field names that align with the Conditional Access for Agents UI ("All agent identities", agent risk levels) but **do not match the published Microsoft Graph schema as of June 2026**. Risk-based blocking of agent identities is exposed in the beta Graph API as `agentIdRiskLevels` (a top-level string collection on `conditions`); JSON targeting of "All agent identities" / agent identity blueprints is currently a UI-level concept not yet documented in the public Graph schema. Configure via the Conditional Access UI per the [Conditional Access for agents](https://learn.microsoft.com/en-us/entra/identity/conditional-access/agent-id) guide until Microsoft publishes the policy-conditions JSON shape.
+
 ```json
 {
   "displayName": "Block high-risk agent identities",
@@ -235,6 +238,9 @@ Entra Agent ID extends Conditional Access to agent identities, enabling risk-bas
 ```
 
 #### Policy Example 2: Allow Only Approved Agents Using Custom Security Attributes
+
+!!! warning "Illustrative example — not Graph-API-ready"
+    The JSON below uses illustrative field names that align with the Conditional Access for Agents UI ("All agent identities", agent risk levels) but **do not match the published Microsoft Graph schema as of June 2026**. Risk-based blocking of agent identities is exposed in the beta Graph API as `agentIdRiskLevels` (a top-level string collection on `conditions`); JSON targeting of "All agent identities" / agent identity blueprints is currently a UI-level concept not yet documented in the public Graph schema. Configure via the Conditional Access UI per the [Conditional Access for agents](https://learn.microsoft.com/en-us/entra/identity/conditional-access/agent-id) guide until Microsoft publishes the policy-conditions JSON shape.
 
 ```json
 {
@@ -1079,4 +1085,4 @@ Agent 365 and Entra Agent ID help support multiple FSI regulatory requirements b
 
 ---
 
-*FSI Agent Governance Framework v1.6.2 - May 2026*
+*FSI Agent Governance Framework v1.6.2 - June 2026*
