@@ -1,6 +1,6 @@
 # Portal Walkthrough: Control 1.28 - Policy-Based Agent Publishing Restrictions
 
-**Last Updated:** April 2026<br>
+**Last Updated:** May 2026<br>
 **Portals:** Power Platform Admin Center (PPAC), Microsoft Copilot Studio, Microsoft Purview, Power Automate<br>
 **Estimated Time:** 45–60 minutes (initial setup); 10–15 minutes per environment thereafter
 

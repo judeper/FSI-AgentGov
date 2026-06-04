@@ -1,6 +1,6 @@
 # Troubleshooting: Control 1.28 - Policy-Based Agent Publishing Restrictions
 
-**Last Updated:** April 2026<br>
+**Last Updated:** May 2026<br>
 **Support Level:** L2 / L3 (Power Platform and Microsoft Copilot Studio admins)
 
 ## Overview

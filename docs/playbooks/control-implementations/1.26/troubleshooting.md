@@ -1,6 +1,6 @@
 # Troubleshooting: Control 1.26 - Agent File Upload and File Analysis Restrictions
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 **Audience:** M365 administrators, Microsoft Copilot Studio agent authors, SOC analysts
 
 This playbook is structured by **Symptom (H2) → Likely Cause and Resolution (H3)**. For each symptom, work through the resolution steps in order; each step is independently safe to skip if it does not apply.

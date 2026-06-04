@@ -76,7 +76,7 @@ Use the **[Colorado AI Impact Assessment](colorado-ai-impact-assessment.md)** te
 ---
 
 **Status:** Optional module
-**Updated:** January 2026
+**Updated:** May 2026
 **Applicability:** Colorado operations only
 ---
 

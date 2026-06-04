@@ -1,6 +1,6 @@
 # Verification & Testing: Control 1.25 - MIME Type Restrictions for File Uploads
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 
 ## Manual Verification Steps
 

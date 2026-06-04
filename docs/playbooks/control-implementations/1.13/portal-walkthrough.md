@@ -2,7 +2,7 @@
 
 **Control:** [1.13 Sensitive Information Types (SITs) and Pattern Recognition](../../../controls/pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition.md)
 **Audience:** M365 administrator (US financial services) configuring Microsoft Purview classification primitives in the unified Purview portal for the first time
-**Last UI Verified:** April 2026 (Microsoft Purview portal IA: **Solutions → Information protection → Classifiers → Sensitive info types**)
+**Last UI Verified:** May 2026 (Microsoft Purview portal IA: **Solutions → Information protection → Classifiers → Sensitive info types**)
 **Cloud coverage:** Commercial · GCC · GCC High · DoD (see Sovereign Cloud Availability — **EDM endpoints, Trainable Classifiers, DLP-for-Copilot, and DSPM for AI parity must be re-verified per release in Government clouds**)
 **Estimated time:** 12–24 hours of configuration time excluding (a) EDM hash-agent host stand-up (4–8 hours of platform engineering), (b) trainable classifier training duration (Microsoft does not publish a fixed SLA — allow several hours to multiple days per submission), and (c) DSPM for AI signal-propagation windows (allow up to several hours after a seeded prompt before the insight surfaces).
 
