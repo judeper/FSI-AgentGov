@@ -1,5 +1,33 @@
 # Linus — Review History
 
+## 2026-06-04 — Escalation Re-Verification Batch (#365 #370 #372 #373)
+
+**Mode:** REMEDIATION (4 verified SME-escalation corrections, one batch PR)
+**Scope:** 4 control files across Pillars 1 and 3
+**Result:** ✅ COMPLETE — PR #390 opened (ready for review; Danny merges)
+
+### Corrections Applied
+
+| Issue | File | Change |
+|-------|------|--------|
+| #370 | `3.9-microsoft-sentinel-integration.md` | Sentinel MCP Server: "GA November 2025" → "Preview as of September 2025" with live-page verify prompt |
+| #372 | `3.7-ppac-security-posture-assessment.md` | Actions page re-framed as top-level PPAC peer, not child of Security node |
+| #373 | `3.13-agent-365-admin-center-analytics.md` | Computer Use: removed "GA / no longer Frontier-gated"; rewritten as Frontier program (preview, Feb 2026) |
+| #365 | `1.15-encryption-data-in-transit-and-at-rest.md` | Customer Key SKU: updated both line ~51 and ~65 to match MS Learn verbatim — Premium recommended for production, Standard for testing only |
+
+### Validation Results
+- `mkdocs build --strict` ✅ zero errors, zero warnings
+- `python scripts/verify_controls.py` ✅ all 78 controls valid
+- `python scripts/verify_language_rules.py` ✅ no prohibited language found
+
+### Git / PR
+- Branch: `fix/escalation-reverify-batch-365-370-372-373`
+- Commit: `1b8324657`
+- PR: #390 https://github.com/judeper/FSI-AgentGov/pull/390 (ready-for-review; closes #365 #370 #372 #373)
+- EMU account: restored to `judep_microsoft`
+
+
+
 ## 2026-06-04 — Learn Monitor Consolidation (Follow-Up: All 9 Remaining Bot PRs)
 
 **Mode:** CONSOLIDATION (one squash PR + close 9 bot PRs)
