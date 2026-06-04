@@ -1,6 +1,6 @@
 # Verification & Testing: Control 1.26 - Agent File Upload and File Analysis Restrictions
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 **Audience:** M365 administrators, AI Governance Lead, internal/external auditors
 
 This playbook provides numbered test cases (`TC-1.26-XX`) with explicit Given / When / Then preconditions, an evidence-collection checklist, an attestation template, and a SHA-256-anchored auditor pack layout that supports SEC 17a-4(f) and FINRA 4511 preservation expectations.

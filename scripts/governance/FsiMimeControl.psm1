@@ -70,10 +70,9 @@ function Resolve-DataverseHeaders {
     if (-not $token -and $url) {
         try {
             $azToken = Get-AzAccessToken -ResourceUrl $url -ErrorAction Stop
-            # Handle SecureString .Token (Az.Accounts 5.0+) or plain string (older)
-            if ($azToken.Token -is [System.Security.SecureString]) {
-                $token = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR(
-                    [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($azToken.Token))
+            # Handle SecureString .Token (Az.Accounts 3.0+) or plain string (older)
+            if ($azToken.Token -is [securestring]) {
+                $token = $azToken.Token | ConvertFrom-SecureString -AsPlainText
             } else {
                 $token = $azToken.Token
             }
@@ -229,10 +228,9 @@ function Connect-FsiMimeDataverse {
     if (-not $token) {
         try {
             $azToken = Get-AzAccessToken -ResourceUrl $url -ErrorAction Stop
-            # Handle SecureString .Token (Az.Accounts 5.0+) or plain string (older)
-            if ($azToken.Token -is [System.Security.SecureString]) {
-                $token = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR(
-                    [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($azToken.Token))
+            # Handle SecureString .Token (Az.Accounts 3.0+) or plain string (older)
+            if ($azToken.Token -is [securestring]) {
+                $token = $azToken.Token | ConvertFrom-SecureString -AsPlainText
             } else {
                 $token = $azToken.Token
             }

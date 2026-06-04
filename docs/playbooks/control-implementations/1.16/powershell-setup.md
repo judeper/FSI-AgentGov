@@ -3,7 +3,7 @@
 !!! warning "Read the FSI PowerShell baseline first"
     Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show the surgical command surface for Control 1.16; the baseline is authoritative for the safe-execution wrapper.
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 **Modules Required:** `AIPService` (Azure RMS), `PnP.PowerShell` v2+ (SharePoint), `ExchangeOnlineManagement` (label policies — read-only verification), optional `Microsoft.Graph` (audit log retrieval).
 
 ---

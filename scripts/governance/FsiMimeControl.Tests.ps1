@@ -576,7 +576,7 @@ Describe 'Connection Management' {
         { Connect-FsiMimeDataverse -DataverseUrl 'https://invalid.example.com' -AccessToken $script:testToken } | Should -Throw
     }
 
-    It 'Handles SecureString token from Az.Accounts 5.0+' {
+    It 'Handles SecureString token from Az.Accounts 3.0+' {
         function global:Get-AzAccessToken { param($ResourceUrl, $ErrorAction) }
         Import-Module (Join-Path $PSScriptRoot 'FsiMimeControl.psm1') -Force
         Mock Invoke-RestMethod { @{ value = @(@{ organizationid = '00000000-0000-0000-0000-000000000001' }) } } -ModuleName FsiMimeControl

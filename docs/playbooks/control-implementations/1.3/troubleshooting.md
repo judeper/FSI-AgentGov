@@ -1,6 +1,6 @@
 # Troubleshooting: Control 1.3 - SharePoint Content Governance and Permissions
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 **Audience:** SharePoint Admin, AI Governance Lead, Service Desk Tier 2/3
 
 ---

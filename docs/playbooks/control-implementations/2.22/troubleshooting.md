@@ -378,7 +378,7 @@
 
 4. **If the format appears valid but still fails:**
    - Check for leading/trailing whitespace or null characters in `fsi_errorraw`
-   - Verify the flow's `Parse_Duration_Minutes` compose expression matches the current supported formats in [SOLUTION-DOCUMENTATION.md Appendix: ISO 8601 Duration Parsing](https://github.com/judeper/FSI-AgentGov-Solutions/blob/main/inactivity-timeout-enforcement/SOLUTION-DOCUMENTATION.md)
+   - Verify the flow's `Parse_Duration_Minutes` compose expression matches the current supported formats in [Inactivity Timeout Enforcement README — ISO 8601 Duration Parsing](https://github.com/judeper/FSI-AgentGov-Solutions/blob/main/inactivity-timeout-enforcement/README.md)
 
 **Root Cause:** The BAP Admin API returned an inactivity timeout duration in a format not handled by the flow's ISO 8601 parser (e.g., `P1D` for 1 day instead of `PT1440M`). This is a platform behavior — the flow cannot automatically handle all possible ISO 8601 variants.
 
