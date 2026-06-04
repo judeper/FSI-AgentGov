@@ -2,7 +2,7 @@
 
 **Control:** [1.8 Runtime Protection and External Threat Detection](../../../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md)
 **Audience:** M365 administrator (US financial services)
-**Last UI Verified:** February 2026
+**Last UI Verified:** May 2026
 **Cloud coverage:** Commercial · GCC · GCC High · DoD (see sovereign cloud table — **HARD GAPs exist for FSI Government-cloud tenants**)
 **Estimated Time:** 12–24 hours (excludes Defender preview opt-in propagation, M365 App Connector first-ingest cycle, agent-inventory population window, vendor TPRM sign-off, and pilot validation)
 

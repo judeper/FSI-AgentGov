@@ -3,7 +3,7 @@
 **Control:** [1.10 Communication Compliance Monitoring](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md)
 **Audience:** Microsoft 365 administrator at a US financial services organization, typically under audit pressure or active incident response.
 **Sovereign clouds covered:** Commercial, GCC, GCC High, DoD (parity gaps called out inline).
-**Last UI Verified:** April 2026
+**Last UI Verified:** May 2026
 
 ---
 

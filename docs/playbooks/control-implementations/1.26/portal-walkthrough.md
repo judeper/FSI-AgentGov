@@ -1,6 +1,6 @@
 # Portal Walkthrough: Control 1.26 - Agent File Upload and File Analysis Restrictions
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 **Portals:** Microsoft Copilot Studio, Power Platform Admin Center (PPAC), Microsoft Purview, Microsoft Defender XDR (Zone 3)
 **Estimated Time:** 20–40 minutes per agent (Zone 3 includes DLP and content-scanning verification)
 

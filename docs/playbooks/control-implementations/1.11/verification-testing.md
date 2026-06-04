@@ -4,7 +4,7 @@
 **Pillar:** 1 — Security
 **Audience:** Microsoft 365 administrator preparing evidence; auditor / compliance officer assembling examination binders for FINRA, SEC, NYDFS DFS-500, FFIEC, and OCC reviews.
 **Sovereign-cloud scope:** Microsoft 365 Commercial, GCC, GCC High, DoD. 21Vianet (China) is treated as out-of-scope for this verification playbook because its Conditional Access (CA), Identity Protection, and Entra Agent ID feature surfaces materially diverge from Commercial parity and require an independent validator.
-**Last UI verified:** April 2026
+**Last UI verified:** May 2026
 **Framework version:** v1.4
 
 ---

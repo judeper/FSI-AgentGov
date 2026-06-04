@@ -1,6 +1,6 @@
 # Portal Walkthrough: Control 1.22 — Information Barriers for AI Agents
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 **Portals:** Microsoft Purview portal, Microsoft Teams admin center, SharePoint admin center, Power Platform Admin Center (PPAC)
 **Estimated Time:** 6–10 hours active configuration, plus 24–72 hours asynchronous policy application before end-to-end testing
 

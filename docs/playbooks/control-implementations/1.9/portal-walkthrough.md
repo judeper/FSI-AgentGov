@@ -5,7 +5,7 @@
 **Audience:** Purview Records Manager, Purview Compliance Admin, Purview eDiscovery Roles, Compliance Officer, Power Platform Admin, Exchange Online Admin, Legal / General Counsel
 **Companion playbooks:** [PowerShell setup](./powershell-setup.md) · [Verification & testing](./verification-testing.md) · [Troubleshooting](./troubleshooting.md)
 
-> This playbook walks through the **Microsoft Purview portal** (April 2026 UI) to configure retention labels, label policies, retention policies, AI-experience retention, Preservation Lock, eDiscovery holds, and disposition review for [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md).
+> This playbook walks through the **Microsoft Purview portal** (May 2026 UI) to configure retention labels, label policies, retention policies, AI-experience retention, Preservation Lock, eDiscovery holds, and disposition review for [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md).
 >
 > **Hedging note.** Following this playbook helps meet, and is recommended to support compliance with, SEC 17 CFR 240.17a-4, FINRA 4511, SOX §404 / §802, GLBA 501(b), CFTC 1.31, and IRS recordkeeping rules. It does **not by itself** satisfy SEC 17a-4(f) — see "SEC 17a-4(f) caveat" in the parent control. Implementation requires legal review and verification against the firm's Written Supervisory Procedures (WSPs).
 
@@ -28,7 +28,7 @@ Before opening the portal:
 
 ---
 
-## Portal map (April 2026)
+## Portal map (May 2026)
 
 All steps below start from one of these entry points:
 
