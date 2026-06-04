@@ -135,7 +135,7 @@ Personal sandbox environment for makers to build and test agents with limited go
 Microsoft Purview capability for identifying, collecting, and producing electronically stored information (ESI) in response to legal requests or regulatory examinations. In the context of AI agents, eDiscovery enables search and export of agent interaction records, conversation histories, and generated content. See [Control 1.19](../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md).
 
 **Entra Agent ID**
-Microsoft Entra capability that provides first-class identity objects for AI agents, enabling Conditional Access policies, Identity Protection, and lifecycle management for non-human agent identities. Currently in Public Preview. See [Agent Identity Architecture](../framework/agent-identity-architecture.md).
+Microsoft Entra capability that provides first-class identity objects for AI agents, enabling Conditional Access policies, Identity Protection, and lifecycle management for non-human agent identities. Generally available since April 2026; the Agent 365 licensing bundle (Microsoft Agent 365 or Microsoft 365 E7 per-user license) reached GA May 1, 2026. See [Agent Identity Architecture](../framework/agent-identity-architecture.md).
 
 **ECOA (Equal Credit Opportunity Act)**
 Federal law prohibiting discrimination in lending based on protected characteristics.
