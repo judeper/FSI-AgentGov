@@ -1141,7 +1141,7 @@ function Test-Fsi-WorkloadIdentitiesPremiumSku {
             [pscustomobject]@{
                 ControlId = ''1.11''; HelperName = ''Test-Fsi-WorkloadIdentitiesPremiumSku''
                 Status = ''NotApplicable''
-                Reason = ''Workload Identities Premium SKU not present. CA WID policy creation is not supported in this tenant. See https://learn.microsoft.com/entra/workload-identities/workload-identities-faqs for licensing.''
+                Reason = ''Workload Identities Premium SKU not present. CA WID policy creation is not supported in this tenant. See https://learn.microsoft.com/en-us/entra/workload-id/workload-identities-faqs for licensing.''
                 TimestampUtc = [DateTime]::UtcNow
             }
         }
