@@ -304,7 +304,7 @@ For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Ident
 | **Immutable Blob Storage** | https://learn.microsoft.com/en-us/azure/storage/blobs/immutable-storage-overview | Jan 2026 |
 | **Azure Monitor Alerts** | https://learn.microsoft.com/en-us/azure/azure-monitor/alerts/alerts-overview | Jan 2026 |
 | **Azure Service Health** | https://learn.microsoft.com/en-us/azure/service-health/overview | Jan 2026 |
-| **Azure Information Protection** | https://learn.microsoft.com/en-us/azure/information-protection/what-is-information-protection | Jan 2026 |
+| **Microsoft Purview Information Protection** | https://learn.microsoft.com/en-us/purview/information-protection | Jan 2026 |
 | Track and Revoke Documents | https://learn.microsoft.com/en-us/purview/track-and-revoke-admin | Feb 2026 |
 | Apply IRM to SharePoint | https://learn.microsoft.com/en-us/purview/apply-irm-to-a-list-or-library | Feb 2026 |
 | **Responsible AI** | https://learn.microsoft.com/en-us/azure/machine-learning/concept-responsible-ai?view=azureml-api-2 | Jan 2026 |

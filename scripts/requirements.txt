@@ -27,6 +27,6 @@ openpyxl>=3.1.5        # Excel file manipulation
 # flake8>=6.0          # Linting
 
 # Required for Dataverse deployment (Conditional Access Automation)
-msal>=1.36.0           # MSAL authentication for Dataverse Web API
+msal>=1.37.0           # MSAL authentication for Dataverse Web API
 requests>=2.34.2       # HTTP client for Dataverse REST calls
 python-dateutil>=2.9.0.post0 # Date parsing for Dataverse exception expiry checks

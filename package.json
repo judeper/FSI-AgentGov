@@ -15,13 +15,13 @@
   "devDependencies": {
     "@axe-core/playwright": "4.11.3",
     "@playwright/test": "1.60.0",
-    "@vitest/ui": "4.1.7",
+    "@vitest/ui": "4.1.8",
     "ajv": "^8.20.0",
     "get-port": "7.2.0",
     "jsdom": "29.1.1",
     "markdown-it": "^14.2.0",
     "pdf-parse": "2.4.5",
-    "vitest": "4.1.7",
+    "vitest": "4.1.8",
     "xlsx": "^0.18.5"
   }
 }
