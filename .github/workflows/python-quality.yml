@@ -55,6 +55,9 @@ on:
       # mkdocs-strict for these PRs; this entry covers ruff, pytest, drift,
       # language-rules, and verify_version_stamps.
       - '.github/instructions/**'
+      # Squad governance files require python-quality gate so that squad-only PRs
+      # satisfy all 11 required branch-protection checks. Same rationale as instructions.
+      - '.squad/**'
   push:
     branches:
       - main
