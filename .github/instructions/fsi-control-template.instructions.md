@@ -27,7 +27,7 @@ All control files must follow the 10-section template structure defined in `docs
 5. **Zone-Specific Requirements** — Table with Zone 1/2/3 requirements and rationale
 6. **Roles & Responsibilities** — Table mapping admin roles to responsibilities
 7. **Related Controls** — Table with cross-references to related controls
-8. **Implementation Guides** — Links to 4 playbooks (portal-walkthrough, powershell-setup, verification-testing, troubleshooting)
+8. **Implementation Playbooks** — Links to 4 playbooks (portal-walkthrough, powershell-setup, verification-testing, troubleshooting)
 9. **Verification Criteria** — Numbered checklist for validating effectiveness
 10. **Additional Resources** — Microsoft Learn links
 
