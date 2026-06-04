@@ -2,7 +2,7 @@
 
 **Control:** [1.19 — eDiscovery for Agent Interactions](../../../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md)<br>
 **Pillar:** Security<br>
-**Last UI Verified:** April 2026<br>
+**Last UI Verified:** May 2026<br>
 **Estimated time:** 8–14 hours initial setup across 6+ admin roles (multi-day calendar; per-matter time variable — see §10 SLAs)<br>
 **Governance Levels:** Baseline / Recommended / Regulated<br>
 **Audience:** Purview eDiscovery Manager, eDiscovery Administrator, Reviewer, Compliance Officer, Designated Supervisor / Registered Principal, General Counsel, Records Manager, AI Governance Lead, CISO

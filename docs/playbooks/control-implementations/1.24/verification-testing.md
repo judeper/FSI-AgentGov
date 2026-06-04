@@ -1,6 +1,6 @@
 # Verification & Testing: Control 1.24 — Defender AI Security Posture Management (AI-SPM)
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 **Audience:** M365 administrators in US financial services
 **Test cadence:** Monthly (Z1) / Weekly (Z2) / Daily (Z3)
 

@@ -1,6 +1,6 @@
 # Verification & Testing: Control 1.28 - Policy-Based Agent Publishing Restrictions
 
-**Last Updated:** April 2026<br>
+**Last Updated:** May 2026<br>
 **Test Environment:** Pre-production / dedicated test environments per zone<br>
 **Estimated Time:** 45–60 minutes for the full test pass
 

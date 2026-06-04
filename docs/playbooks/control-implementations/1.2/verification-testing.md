@@ -4,7 +4,7 @@
 **Pillar:** 1 — Security
 **Audience:** Agent Sponsor, Agent Owner, Compliance Officer, AI Governance Lead, Entra Global Admin (PIM-activated only), Entra Identity Governance Admin, Entra Application Admin, AI Administrator, Power Platform Admin, Purview Compliance Admin, Internal Audit, Model Risk Manager
 **Sovereign-cloud scope:** Microsoft 365 Commercial, GCC, GCC High, DoD. 21Vianet is **out of scope** for this playbook (see PRE-06 / SOV-03).
-**Last UI verified:** April 2026
+**Last UI verified:** May 2026
 
 ---
 
