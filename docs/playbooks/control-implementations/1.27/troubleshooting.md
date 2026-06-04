@@ -1,6 +1,6 @@
 # Troubleshooting: Control 1.27 — AI Agent Content Moderation Enforcement
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 
 This playbook is organized by symptom. Each issue is an `H3` under a topical `H2`. Run [PowerShell Setup](powershell-setup.md) Script 1 first if you are unsure which agent or environment is misbehaving — it produces the inventory most other diagnostics depend on.
 
@@ -185,7 +185,7 @@ This playbook is organized by symptom. Each issue is an `H3` under a topical `H2
 
 ---
 
-## Known Limitations (April 2026)
+## Known Limitations (May 2026)
 
 | Limitation | Impact | Mitigation |
 |---|---|---|

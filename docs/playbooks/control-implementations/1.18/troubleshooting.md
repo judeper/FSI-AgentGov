@@ -1,6 +1,6 @@
 # Troubleshooting: Control 1.18 — Application-Level Authorization and RBAC
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 
 This playbook covers operational issues commonly encountered when implementing or operating Control 1.18 (Application-Level Authorization and RBAC). Issues are grouped by symptom area; each entry includes diagnostic steps, root cause guidance, and resolution actions appropriate for an FSI environment.
 

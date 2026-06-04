@@ -1,6 +1,6 @@
 # Troubleshooting: Control 1.22 — Information Barriers for AI Agents
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 **Audience:** M365 administrators and SOC / compliance engineering teams responding to IB issues
 
 ---

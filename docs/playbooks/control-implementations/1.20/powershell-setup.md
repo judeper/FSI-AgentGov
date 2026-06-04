@@ -3,7 +3,7 @@
 !!! warning "Read the FSI PowerShell baseline first"
     Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 **Modules Required:** `Az.Accounts`, `Az.Network`, `Az.KeyVault`, `Az.Sql`, `Az.Storage`, `Az.Monitor`, `Az.PrivateDns`, `Microsoft.PowerApps.Administration.PowerShell`
 **PowerShell Edition:** Windows PowerShell 5.1 (Desktop) for `Microsoft.PowerApps.Administration.PowerShell`; PowerShell 7+ acceptable for the `Az.*` portions.
 

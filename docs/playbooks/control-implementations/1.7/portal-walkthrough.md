@@ -2,7 +2,7 @@
 
 **Control ID:** 1.7 — Comprehensive Audit Logging and Compliance
 **Pillar:** 1 — Security & Identity
-**Last UI Verified:** April 2026
+**Last UI Verified:** May 2026
 **Estimated Time:** 4–8 hours initial buildout (single tenant); 60–120 minutes per environment for Dataverse audit enablement; 30–45 minutes per quarterly evidence-pack refresh
 **Audience:** Purview Audit Admin, Purview Compliance Admin, Exchange Online Organization Configuration role holder, SOC Analyst, Power Platform Admin, Entra Security Admin, Azure Storage Account Owner
 **Prerequisites:** Microsoft 365 E5 (or Office 365 E5 / Microsoft Purview Suite / E5 eDiscovery & Audit add-on) per Copilot user; per-user **10-Year Audit Log Retention** add-on for any user placed on a documented 10-year capture-window policy; Exchange Online PowerShell module v3.0+; Azure subscription for immutable blob storage (if WORM export is in scope); change-management ticket open for any tenant-wide audit ingestion change.
