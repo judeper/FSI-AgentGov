@@ -1,6 +1,6 @@
 # Troubleshooting: Control 1.17 — Endpoint Data Loss Prevention
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 
 This playbook lists the most common issues encountered when deploying and operating Endpoint DLP. Each issue follows a consistent format: **Symptoms → Likely Cause → Diagnostic Steps → Fix → Reference**.
 
@@ -322,7 +322,7 @@ Re-test from the affected user account.
 
 ---
 
-## Known Limitations (April 2026)
+## Known Limitations (May 2026)
 
 | Limitation | Impact | Mitigation |
 |---|---|---|

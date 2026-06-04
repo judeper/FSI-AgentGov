@@ -88,7 +88,7 @@ Quick navigation paths for all admin portals used in the FSI Agent Governance Fr
 | App Registrations | **Applications** > **App registrations** |
 | **Sign-in Logs** | **Monitoring** > **Sign-in logs** |
 | **Audit Logs** | **Monitoring** > **Audit logs** |
-| **Agent Identities** | **Applications** > **Agent identities** (Preview) |
+| **Agent Identities** | **Applications** > **Agent identities** |
 
 ---
 
@@ -209,5 +209,5 @@ Quick navigation paths for all admin portals used in the FSI Agent Governance Fr
 
 ---
 
-*Last Updated: February 2026*
+*Last Updated: June 2026*
 *Note: Microsoft admin portal UI changes frequently. Paths verified as of February 2026.*

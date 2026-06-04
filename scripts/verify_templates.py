@@ -84,8 +84,8 @@ def verify_markdown_template():
         "**Control ID:**",
         "**Pillar:**",
         "**Regulatory Reference:**",
-        "Updated: February 2026",
-        "Version: v1.3",
+        "Updated: April 2026",
+        "Version: v1.6.2",
         "UI Verification Status:",
     ]
     

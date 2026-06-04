@@ -1,6 +1,6 @@
 # Verification & Testing: Control 1.23 — Step-Up Authentication for AI Agent Operations
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 
 This playbook provides the test plan, evidence collection checklist, and attestation template needed to demonstrate Control 1.23 effectiveness to internal auditors and FINRA / SEC / NYDFS examiners.
 
