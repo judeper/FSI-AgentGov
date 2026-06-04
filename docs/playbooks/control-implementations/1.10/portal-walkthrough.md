@@ -2,7 +2,7 @@
 
 **Control:** [1.10 Communication Compliance Monitoring](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md)
 **Audience:** M365 administrator (US financial services)
-**Last UI Verified:** April 2026
+**Last UI Verified:** May 2026
 **Cloud coverage:** Commercial · GCC · GCC High · DoD (see sovereign cloud table below)
 **Estimated Time:** 4–8 hours (excludes Teams/Exchange processing windows and pilot validation)
 
