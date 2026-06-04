@@ -280,10 +280,10 @@ Organizations developing custom AI models beyond Microsoft 365 agents should con
 
 ### For External Auditors
 
-1. Framework demonstrates substantive alignment with NIST AI RMF (93% of subcategories addressed, 97% effective coverage of applicable areas)
+1. Framework demonstrates substantive alignment with NIST AI RMF (96% of subcategories addressed; 96% effective coverage of applicable areas)
 2. Partial coverage areas and N/A designations are documented with rationale
 3. Control documentation provides implementation evidence
-4. Five NIST subcategories not explicitly addressed relate to large-scale AI development (not applicable to Microsoft 365 agent governance)
+4. Three NIST subcategories not explicitly addressed (MAP 3.4, MAP 3.5, GOVERN 4.4) relate to large-scale AI development and AI-system development documentation (not applicable to Microsoft 365 agent governance)
 
 ---
 
