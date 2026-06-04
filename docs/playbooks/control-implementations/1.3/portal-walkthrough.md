@@ -1,6 +1,6 @@
 # Portal Walkthrough: Control 1.3 - SharePoint Content Governance and Permissions
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 **Portals:** SharePoint Admin Center, Microsoft Purview, Microsoft Entra Admin Center, Microsoft 365 admin center
 **Estimated Time:** 3–5 hours for initial Zone 3 configuration; 30–60 minutes per additional agent grounding site
 
@@ -16,7 +16,7 @@
 - [ ] [Control 1.5 — DLP & Sensitivity Labels](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) labels published to the in-scope user audience
 - [ ] An approved inventory of **agent grounding sites** (which SharePoint sites Microsoft Copilot Studio agents and Microsoft 365 Copilot are sanctioned to consume) — this is the working list referenced throughout
 
-> **April 2026 UI note:** SharePoint admin center now exposes "Restricted access control" and "Restrict content discovery" directly under each site's **Settings** flyout. The legacy "Information access" tile that some 2024–2025 documentation references has been retired. The flyout is the only supported UI surface — all other paths route here.
+> **May 2026 UI note:** SharePoint admin center now exposes "Restricted access control" and "Restrict content discovery" directly under each site's **Settings** flyout. The legacy "Information access" tile that some 2024–2025 documentation references has been retired. The flyout is the only supported UI surface — all other paths route here.
 
 ---
 

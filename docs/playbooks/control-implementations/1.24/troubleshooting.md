@@ -1,6 +1,6 @@
 # Troubleshooting: Control 1.24 — Defender AI Security Posture Management (AI-SPM)
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 **Audience:** M365 administrators in US financial services
 
 > **Hedging note:** Resolutions below address common operational issues. They do not absolve the firm of independent verification or model risk assessment obligations under OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7).
@@ -163,7 +163,7 @@ Get-AzRoleAssignment -SignInName (Get-AzContext).Account.Id |
 
 ---
 
-## Known Limitations (April 2026)
+## Known Limitations (May 2026)
 
 | Limitation | Impact | Workaround |
 |------------|--------|------------|
