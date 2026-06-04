@@ -74,3 +74,103 @@ All 9 blocks closed with citing comment via REST API (GraphQL EMU workaround):
 ## Board State After Wave 2
 
 **ZERO open PRs** (no squad, no bot) — cleanup complete
+
+---
+
+## 2026-06-04: SME Escalation Re-verification + Remediation Cycle
+
+**Verifier:** Saul (read-only QA; 2026-06-04)  
+**Authors:** Danny (Lead), Linus (Docs)  
+**Status:** 5 escalations closed; 2 PRs merged
+
+### Resolved Escalations
+
+#### #360 — Conditional Access JSON Fabrication
+
+| Field | Value |
+|-------|-------|
+| **Pillar** | Framework (Agent Identity Architecture) |
+| **Finding** | Graph-beta JSON payloads for Conditional Access policies were illustrative/fabricated, not API-ready |
+| **Verdict** | VERIFIED (corrected payloads confirmed against Graph-beta API docs) |
+| **Disposition** | Remediated + Merged |
+| **PR** | #389 (SHA `36e2b7f96d5a08264ca3bc89305a90d9169ce105`) |
+| **Citation** | https://learn.microsoft.com/en-us/graph/api/resources/conditionalaccesspolicy + 4 supporting MS Learn pages |
+
+---
+
+#### #365 — Customer Key Azure Key Vault SKU Guidance
+
+| Field | Value |
+|-------|-------|
+| **Pillar** | 1.15 (Customer Key) |
+| **Finding** | Control understated Microsoft's SKU recommendation ("Standard minimum" vs Microsoft's "Premium for production") |
+| **Verdict** | VERIFIED (MS Learn explicitly: both SKUs supported; Premium strongly recommended for production; Standard for testing/validation only) |
+| **Disposition** | Remediated + Merged (line 51 + line 65 updated; Zone 3 table already correct) |
+| **PR** | #390 (SHA `fc94872dbe43ddb5c1910e1407ec46d955398224`) |
+| **Citation** | https://learn.microsoft.com/en-us/purview/customer-key-set-up |
+
+---
+
+#### #370 — Sentinel MCP Server GA Status
+
+| Field | Value |
+|-------|-------|
+| **Pillar** | 3.9 (Microsoft Sentinel Integration) |
+| **Finding** | Claim "GA November 2025" contradicted by live MS Learn ("What's new" Sep 2025 labels MCP as Preview; Nov section: zero MCP entries) |
+| **Verdict** | REFUTED |
+| **Disposition** | Remediated + Merged (changed `(GA November 2025)` to `(Preview as of September 2025 — verify at edit time)`) |
+| **PR** | #390 (SHA `fc94872dbe43ddb5c1910e1407ec46d955398224`) |
+| **Citation** | https://learn.microsoft.com/en-us/azure/sentinel/whats-new + https://learn.microsoft.com/azure/sentinel/datalake/sentinel-mcp-overview |
+
+---
+
+#### #372 — PPAC Actions Page Navigation Hierarchy
+
+| Field | Value |
+|-------|-------|
+| **Pillar** | 3.7 (Power Platform Compliance Portal) |
+| **Finding** | Claim that Actions page lives "under Security node" contradicted by MS Learn (Actions is top-level; Security is peer that surfaces contextual recommendations from Actions) |
+| **Verdict** | REFUTED |
+| **Disposition** | Remediated + Merged (updated breadcrumb; reframed Security reference as peer surface, not parent) |
+| **PR** | #390 (SHA `fc94872dbe43ddb5c1910e1407ec46d955398224`) |
+| **Citation** | https://learn.microsoft.com/power-platform/admin/power-platform-advisor |
+
+---
+
+#### #373 — Computer Use Frontier Program Status
+
+| Field | Value |
+|-------|-------|
+| **Pillar** | 3.13 (Agent 365 Admin Center Analytics) |
+| **Finding** | Claim "GA October 2025 (no longer Frontier-gated)" contradicted by live MS Support article (Feb 2026: "currently available through the Frontier program [preview]") |
+| **Verdict** | REFUTED |
+| **Disposition** | Remediated + Merged (changed to "Researcher with Computer Use is available via the Microsoft Frontier program (preview) as of February 2026 — verify at edit time") |
+| **PR** | #390 (SHA `fc94872dbe43ddb5c1910e1407ec46d955398224`) |
+| **Citation** | https://support.microsoft.com/topic/get-started-using-researcher-with-computer-use-in-microsoft-365-copilot-frontier + https://learn.microsoft.com/microsoft-365/admin/manage/get-started-frontier |
+
+---
+
+### Durable Learning: M365 Roadmap GA Forecasts Are Not Authoritative
+
+**Pattern Drivers:** #370, #373 (informs future support-status findings)
+
+**Core Rule:** M365 Roadmap items forecast GA dates (e.g., item 511796: "Computer Use — GA November 2025"), but **live MS Learn / Support docs take precedence**. If the live doc labels a feature as Preview or Frontier, that label is source of truth.
+
+**Evidence:**
+- #370: Roadmap silent on Sentinel MCP GA; live "What's New" (Sep 2025) still says Preview.
+- #373: Roadmap forecasts GA Nov 2025; live Support article (Feb 2026) explicitly says Frontier-program.
+
+**Re-verification Protocol:** Fetch live MS Learn / Support at edit time; cite doc label only; include caveat "verify current status at edit time."
+
+---
+
+### Validation & Merge Summary
+
+| Phase | Status |
+|-------|--------|
+| #360 Remediation (Danny) | ✅ mkdocs --strict, verify_controls.py, verify_language_rules.py all pass |
+| #360 Merge (PR #389) | ✅ All 11 required checks green; merged 2026-06-04T20:08:23Z |
+| #365–#373 Remediation (Linus) | ✅ mkdocs --strict, verify_controls.py, verify_language_rules.py all pass |
+| #365–#373 Merge (PR #390) | ✅ All 11 required checks green; merged 2026-06-04T20:17:57Z; auto-closed #365, #370, #372, #373 |
+
+**Account Discipline:** All writes via `judeper` account; restored to `judep_microsoft` (EMU) post-merge.
