@@ -81,6 +81,7 @@ Canonical, framework-friendly role names used throughout this framework (control
 | **SharePoint Admin** | SharePoint tenant settings and governance | SharePoint Administrator, SharePoint Admin |
 | **SharePoint Site Collection Admin** | Site collection admin operations | Site Collection Administrator |
 | **SharePoint Site Owner** | Site-level ownership tasks | SharePoint Site Owner, Site Owner |
+| **Microsoft Sentinel Contributor** | When a control requires creating or editing Microsoft Sentinel workbooks, analytics rules, data connectors, or playbooks (Azure RBAC built-in role; does not include workspace deletion or role assignment) | Sentinel Contributor, Sentinel Admin (non-canonical) |
 
 ---
 
