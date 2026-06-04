@@ -2,7 +2,7 @@
 
 **Control:** [1.6 Microsoft Purview DSPM for AI](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md)
 **Baseline:** [PowerShell baseline (`_shared/powershell-baseline.md`)](../../_shared/powershell-baseline.md)
-**Last UI Verified:** April 2026
+**Last UI Verified:** May 2026
 
 > **Important:** There is **no dedicated `Microsoft.Purview.DSPM.AI` PowerShell module**. DSPM for AI is configured primarily through the Purview portal. PowerShell coverage is **detection / evidence / cross-control bridging** via:
 >

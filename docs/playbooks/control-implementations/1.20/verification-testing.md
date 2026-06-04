@@ -1,6 +1,6 @@
 # Verification & Testing: Control 1.20 — Network Isolation and Private Connectivity
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 **Audience:** M365 administrators, security engineers, internal audit, and compliance reviewers in US financial services.
 
 This playbook defines the test cases, evidence artifacts, and attestation template used to demonstrate that Control 1.20 is operating as designed for a given Power Platform environment. Use it after the [Portal Walkthrough](portal-walkthrough.md) and [PowerShell Setup](powershell-setup.md) playbooks have been executed.
