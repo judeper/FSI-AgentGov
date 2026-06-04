@@ -372,8 +372,10 @@ try {
                 # Attempt Graph API resolution for group name (best-effort)
                 try {
                     $graphToken = Get-AzAccessToken -ResourceUrl 'https://graph.microsoft.com' -ErrorAction Stop
+                    # Handle both Az.Accounts 2.x (.Token as string) and 3.x+ (.Token as SecureString)
+                    $graphPlainToken = if ($graphToken.Token -is [securestring]) { $graphToken.Token | ConvertFrom-SecureString -AsPlainText } else { $graphToken.Token }
                     $group = Invoke-RestMethod -Uri "https://graph.microsoft.com/v1.0/groups/$securityGroupId" `
-                        -Headers @{ Authorization = "Bearer $($graphToken.Token)" } -ErrorAction Stop
+                        -Headers @{ Authorization = "Bearer $graphPlainToken" } -ErrorAction Stop
                     $groupInfo = $group.displayName
                 }
                 catch {

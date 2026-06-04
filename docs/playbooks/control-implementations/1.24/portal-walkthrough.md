@@ -1,6 +1,6 @@
 # Portal Walkthrough: Control 1.24 — Defender AI Security Posture Management (AI-SPM)
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 **Portal:** Microsoft Defender for Cloud (Azure Portal — `portal.azure.com`)
 **Estimated Time:** 2–3 hours per subscription (initial enablement); ~30 min/week ongoing review
 **Audience:** M365 administrators in US financial services

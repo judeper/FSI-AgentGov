@@ -1,6 +1,6 @@
 # Portal Walkthrough: Control 1.18 - Application-Level Authorization and RBAC
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 **Portal:** Power Platform Admin Center, Microsoft Entra Admin Center
 **Estimated Time:** 3-5 hours
 
