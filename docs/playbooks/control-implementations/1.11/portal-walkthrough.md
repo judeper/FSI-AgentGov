@@ -2,7 +2,7 @@
 
 **Control:** [1.11 — Conditional Access and Phishing-Resistant MFA](../../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md)
 **Pillar:** 1 — Security
-**Last UI Verified:** April 2026 (Microsoft Entra admin center, Microsoft Defender portal, Power Platform admin center, Microsoft Copilot Studio)
+**Last UI Verified:** May 2026 (Microsoft Entra admin center, Microsoft Defender portal, Power Platform admin center, Microsoft Copilot Studio)
 **Estimated Time:** 14–22 hours of admin effort across 5–7 calendar days (includes the mandatory 7-day Report-only soak window)
 **Governance Levels:** Baseline / Recommended / Regulated
 **Audience:** Entra Global Admin, Entra Security Admin, Authentication Policy Admin, Power Platform Admin, AI Administrator, Sentinel Admin, Purview Compliance Admin, CISO, Compliance Officer, Agent Owner, Agent Maker
