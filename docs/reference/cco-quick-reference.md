@@ -21,8 +21,8 @@ Each question carries five elements:
 
 The two companion artifacts that make this document operational are the [Regulatory Framework](../framework/regulatory-framework.md) (regulation-by-regulation control mapping) and the [Microsoft CAPE Crosswalk](microsoft-cape-crosswalk.md) (pattern-by-pattern Regulatory Exposure callouts). Where the answer to an examiner question depends on which CAPE pattern the agent represents, the supporting-evidence section will cross-link to the relevant pattern deep-dive.
 
-!!! warning "FINRA RN 25-07 clarification (still important)"
-    Counsel and consultants sometimes cite **FINRA RN 25-07** as the FINRA AI position. It is not — Notice 25-07 addresses workplace modernization rules, not AI governance. The relevant FINRA AI guidance is **Notice 24-09** (technology-neutral application of supervisory rules to AI), together with **FINRA Rule 3110** (supervision), **Rule 4511** (books and records), **Rule 2210** (communications with the public), and FINRA's **Annual Regulatory Oversight Report** for current AI examination priorities. The 2025 FINRA AI sweep is the most active examiner trigger in this lane today; assume any agent that touches a customer or a registered person will be in scope.
+!!! warning "FINRA RN 25-07 — Monitored Proposal (Not Adopted)"
+    Counsel and consultants sometimes cite **FINRA RN 25-07** as the FINRA AI position. Notice 25-07 is a **Request for Comment (RFC)** on workplace modernization whose AI-relevant content is concentrated in Section E.3 (recordkeeping for AI-generated communications under Exchange Act Rule 17a-4(b)(4)) and Section G (AI-driven fraud); it is not an adopted rule. The relevant adopted FINRA AI guidance is **Notice 24-09** (technology-neutral application of supervisory rules to AI), together with **FINRA Rule 3110** (supervision), **Rule 4511** (books and records), **Rule 2210** (communications with the public), and FINRA's **Annual Regulatory Oversight Report** for current AI examination priorities. The 2025 FINRA AI sweep is the most active examiner trigger in this lane today; assume any agent that touches a customer or a registered person will be in scope.
 
 ---
 
@@ -267,7 +267,7 @@ This document paraphrases Microsoft CAPE materials and US financial-services reg
 
 **US financial-services regulatory sources** (cited inline above, listed here for completeness):
 
-- FINRA. Rule 3110 (Supervision); Rule 3120 (Supervisory Control System); Rule 4511 (Books and Records); Rule 2210 (Communications with the Public); Notice 24-09 (technology-neutral application to AI); Notice 25-07 (workplace modernization — *not* AI-specific); Annual Regulatory Oversight Report. [finra.org](https://www.finra.org/).
+- FINRA. Rule 3110 (Supervision); Rule 3120 (Supervisory Control System); Rule 4511 (Books and Records); Rule 2210 (Communications with the Public); Notice 24-09 (technology-neutral application to AI); Notice 25-07 (workplace modernization RFC — touches AI-generated communications recordkeeping in Section E.3; not yet adopted); Annual Regulatory Oversight Report. [finra.org](https://www.finra.org/).
 - SEC. Rule 17a-3 (record creation); Rule 17a-4 (record preservation, including 17a-4(b)(4) and 17a-4(f)); Regulation Best Interest (15 USC 80b-3a); Regulation S-P (16 CFR 248), 2024 amendments. [sec.gov](https://www.sec.gov/).
 - OCC. Bulletin 2026-13 (Sound Practices for Model Risk Management — 2026 supersession of Bulletin 2011-12); Bulletin 2013-29 (Third-Party Relationships); 2017-21 (Material Outsourcing). [occ.gov](https://www.occ.gov/).
 - Federal Reserve. SR 26-2 (formerly SR 11-7; Model Risk Management — 2026 supersession); SR 13-19 / OCC 2017-21 (third-party risk); FFIEC IT Examination Handbook. [federalreserve.gov](https://www.federalreserve.gov/).
