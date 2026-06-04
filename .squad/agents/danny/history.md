@@ -23,3 +23,10 @@
 - Auto-closed: #365, #370, #372, #373 (via Closes trailers)
 - main HEAD verified: fc94872db on origin/main
 - Account restored to judep_microsoft (EMU) for Copilot CLI license
+
+## 2026-06-04T16:30 — PR #391 merge ABORTED
+- Switched to judeper, verified account.
+- gh pr diff 391 --name-only returned 15 paths: 11 under .squad/ AND 4 under docs/controls/ (1.15, 3.7, 3.9, 3.13).
+- Per task guard ('every changed path MUST start with .squad/'), STOPPED before merge — branch reuse leaked already-merged doc changes back into the PR.
+- No merge performed. Branch not deleted. Restored EMU account (judep_microsoft).
+- Recommend: Scribe rebase #391 onto origin/main to drop the stale doc commits, then re-request merge.
