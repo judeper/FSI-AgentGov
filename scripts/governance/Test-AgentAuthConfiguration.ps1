@@ -116,8 +116,12 @@ function Get-BapApiToken {
     param()
 
     try {
-        $token = Get-AzAccessToken -ResourceUrl "https://api.bap.microsoft.com" -ErrorAction Stop
-        return $token.Token
+        $tokenResult = Get-AzAccessToken -ResourceUrl "https://api.bap.microsoft.com" -ErrorAction Stop
+        # Handle both Az.Accounts 2.x (.Token as string) and 3.x+ (.Token as SecureString)
+        if ($tokenResult.Token -is [securestring]) {
+            return $tokenResult.Token | ConvertFrom-SecureString -AsPlainText
+        }
+        return $tokenResult.Token
     }
     catch {
         throw "Failed to acquire BAP API token. Ensure you are signed in via Connect-AzAccount. Error: $($_.Exception.Message)"
@@ -511,8 +515,10 @@ try {
     # This API endpoint may not be available in all tenants
     $m365Token = Get-AzAccessToken -ResourceUrl "https://admin.microsoft.com" -ErrorAction Stop
     $blockingApiUrl = 'https://admin.microsoft.com/admin/api/settings/apps/botsapps'
+    # Handle both Az.Accounts 2.x (.Token as string) and 3.x+ (.Token as SecureString)
+    $m365PlainToken = if ($m365Token.Token -is [securestring]) { $m365Token.Token | ConvertFrom-SecureString -AsPlainText } else { $m365Token.Token }
     $blockingHeaders = @{
-        Authorization  = "Bearer $($m365Token.Token)"
+        Authorization  = "Bearer $m365PlainToken"
         'Content-Type' = 'application/json'
     }
     $blockingResponse = Invoke-RestMethod -Uri $blockingApiUrl -Method GET -Headers $blockingHeaders -ErrorAction Stop

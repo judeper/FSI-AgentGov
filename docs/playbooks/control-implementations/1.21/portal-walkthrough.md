@@ -2,7 +2,7 @@
 
 **Control:** [1.21 — Adversarial Input Logging](../../../controls/pillar-1-security/1.21-adversarial-input-logging.md)<br>
 **Pillar:** Security<br>
-**Last UI Verified:** April 2026<br>
+**Last UI Verified:** May 2026<br>
 **Estimated time:** 6–10 hours across 6+ admin roles (multi-day calendar; many gates require change-control)<br>
 **Governance Levels:** Baseline / Recommended / Regulated
 

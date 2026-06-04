@@ -1,7 +1,7 @@
 # Agent Blueprint Promotion Gates
 
-**Last Updated:** January 2026
-**Version:** v1.2.51
+**Last Updated:** May 2026
+**Version:** v1.6.2
 
 ---
 

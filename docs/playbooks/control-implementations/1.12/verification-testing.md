@@ -1411,13 +1411,13 @@ Schema rules:
 ```yaml
 schemaVersion: v1
 controlId: "1.12"
-lastReviewedUtc: "2026-04-15T00:00:00Z"
+lastReviewedUtc: "2026-05-25T00:00:00Z"
 exceptions:
   - id: "SOV-15"
     capability: "Adaptive Protection"
     affectedClouds: ["GCC", "GCC High", "DoD"]
-    learnReference: "https://learn.microsoft.com/…/adaptive-protection"
-    learnVerifiedUtc: "2026-04-12T00:00:00Z"
+    learnReference: "https://learn.microsoft.com/en-us/purview/insider-risk-management-adaptive-protection"
+    learnVerifiedUtc: "2026-05-25T00:00:00Z"
     compensatingControlId: "TC-20-AdaptiveProtection-Static-CA"
     lastExerciseUtc: "2026-04-14T00:00:00Z"
     nextExerciseDueUtc: "2026-07-13T00:00:00Z"
@@ -1426,8 +1426,8 @@ exceptions:
   - id: "SOV-09"
     capability: "Risky browser usage"
     affectedClouds: ["GCC", "GCC High", "DoD"]
-    learnReference: "https://learn.microsoft.com/…/risky-browser-usage"
-    learnVerifiedUtc: "2026-04-12T00:00:00Z"
+    learnReference: "https://learn.microsoft.com/en-us/purview/insider-risk-management-browser-support"
+    learnVerifiedUtc: "2026-05-25T00:00:00Z"
     compensatingControlId: "TC-20-RiskyBrowser-DLP-Hardening"
     lastExerciseUtc: "2026-04-14T00:00:00Z"
     nextExerciseDueUtc: "2026-07-13T00:00:00Z"

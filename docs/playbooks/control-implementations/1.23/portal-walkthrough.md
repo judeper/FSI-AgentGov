@@ -1,6 +1,6 @@
 # Portal Walkthrough: Control 1.23 — Step-Up Authentication for AI Agent Operations
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 **Portals:** Microsoft Entra Admin Center, Microsoft Entra Privileged Identity Management, Microsoft Defender XDR
 **Estimated Time:** 4–6 hours (initial deployment); allow an additional 72-hour bake window in report-only mode before enforcement
 
