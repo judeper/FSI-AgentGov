@@ -669,7 +669,7 @@ For Zone 2 and Zone 3 agents this control requires the agent-level slider be set
 1. As **AI Governance Lead**, compile the prior 12 months of evidence: PSX-01..03 results, all 16 CM matrix tests, all DEF tests, WEB-01..04, ERR-01.
 2. Sample 5% of webhook ``block`` decisions and 5% of moderation blocks; review for false-positive impact on firm productivity.
 3. Sample 5% of allowed prompts that should have been blocked (escalations from end users).
-4. Produce a written validation memo per the firm's model-risk standard (aligned to [Fed SR 26-2 (formerly SR 11-7)](https://www.federalreserve.gov/supervisionreg/srletters/SR2602.htm) and [OCC 2026-13 (formerly OCC 2011-12)](https://www.occ.treas.gov/news-issuances/bulletins/2011/bulletin-2011-12.html)).
+4. Produce a written validation memo per the firm's model-risk standard (aligned to [Fed SR 26-2 (formerly SR 11-7)](https://www.federalreserve.gov/supervisionreg/srletters/SR2602.htm) and [OCC 2026-13 (formerly OCC 2011-12)](https://www.occ.gov/news-issuances/bulletins/2026/bulletin-2026-13.html)).
 
 **Pass criterion.** Validation memo signed by AI Governance Lead, Security Operations lead, and Compliance / Audit Admin.
 
@@ -1131,7 +1131,7 @@ The following patterns are commonly observed during external review and produce 
 
 ### Regulatory windows referenced in §1 and §7
 
-- **NY DFS 23 NYCRR 500.17** — 72-hour cybersecurity event notification ([text](https://www.dfs.ny.gov/industry_guidance/cyber_faqs))
+- **NY DFS 23 NYCRR 500.17** — 72-hour cybersecurity event notification ([text](https://www.dfs.ny.gov/industry_guidance/cybersecurity))
 - **SEC Reg S-P §248.30(a)(4)** — incident response and customer notification ([text](https://www.sec.gov/files/rules/final/2024/34-100155.pdf))
 - **FINRA Rule 4530** — reporting requirements ([text](https://www.finra.org/rules-guidance/rulebooks/finra-rules/4530))
 - **FINRA Rule 4511** / **SEC 17a-4(b)(4)** — books-and-records retention (verified under Controls 1.7 and 1.9, not this control)
