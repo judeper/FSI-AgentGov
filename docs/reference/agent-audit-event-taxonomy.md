@@ -1,333 +1,295 @@
 # Agent Audit Event Taxonomy Reference
 
-!!! danger "Governance Categories Only — Not Searchable Purview UAL Operations"
-    The operation names and RecordType values in this taxonomy are **conceptual governance categories, not searchable Microsoft Purview Unified Audit Log (UAL) Operation values**. Microsoft currently documents only three Agent 365 operations in the Purview UAL: `AIExecuteTool`, `AIInvokeAgent`, and `AIInferenceCall` (source: [Purview Audit Log Activities — Agent 365 activities](https://learn.microsoft.com/en-us/purview/audit-log-activities)). KQL or `Search-UnifiedAuditLog` queries built on the framework operation names in this file will return zero rows. A SME-led rewrite spanning Purview UAL, Power Apps activities, Microsoft Entra agent-identity audit schema, and DLP/Defender event taxonomy is tracked in a GitHub issue. Do not use this file's operation names in production KQL or audit pipelines until the rewrite is complete.
+!!! warning "Published Operations vs. Conceptual Categories"
+    This taxonomy separates **published, searchable audit operations** ([Section 1](#published-searchable-audit-operations)) from **conceptual governance categories** ([Section 2](#conceptual-governance-categories-no-dedicated-microsoft-audit-operation)) that have no dedicated Microsoft audit operation as of June 2026. Build production KQL / `Search-UnifiedAuditLog` queries **only** from operations listed in Section 1. Each operation in Section 1 is cited to a specific Microsoft Learn page. See [Purview Audit Log Activities](https://learn.microsoft.com/en-us/purview/audit-log-activities) for the full catalog.
 
-**Last Updated:** May 2026
+**Last Updated:** June 2026
 **Version:** v1.6.2
 
 ---
 
 ## Overview
 
-This reference provides a consolidated taxonomy of audit events for Microsoft 365 AI agents, including Microsoft Copilot Studio custom agents, Microsoft 365 built-in agents (Researcher, Analyst, Facilitator), and Agent 365 Blueprint-registered agents.
+This reference provides a consolidated taxonomy of audit events relevant to Microsoft 365 AI agent governance, including Copilot Studio custom agents, Microsoft 365 built-in agents, and Agent 365 Blueprint-registered agents. It is organized into two sections:
+
+1. **Published & Searchable Operations** — real Operation values you can use in KQL and `Search-UnifiedAuditLog`.
+2. **Conceptual Governance Categories** — governance-driven categories from this framework that map to real operations but are not themselves searchable values.
 
 !!! note "Preview Features"
-    Agent 365 SDK events and Agentic User events are preview features. Event schemas may change as features evolve toward general availability.
+    Agent 365 SDK events and the Entra Agent ID `agentType` property extensions are evolving features. Event schemas may change as these capabilities move toward general availability. The Entra Agent ID audit properties require the `Prefer: include-unknown-enum-members` request header for evolvable enum values.
 
 ---
 
-## Event Categories
+## Published & Searchable Audit Operations
 
-| Category | Description | Primary Use Case |
-|----------|-------------|------------------|
-| **Identity Lifecycle** | Agent identity creation, modification, deletion | Regulatory audit trail, access governance |
-| **Blueprint Lifecycle** | Blueprint registration, promotion, demotion | Change management evidence |
-| **Agent Interaction** | User-agent conversations, tool invocations | FINRA 3110 supervision, FINRA 4511 recordkeeping |
-| **Configuration** | Settings changes, permission updates | SOX 404 controls, change tracking |
-| **Security** | Authentication events, policy applications | Security investigations, CA monitoring |
+All operations below are documented in Microsoft Learn as of June 2026. Use these exact strings in KQL `Operation` or `-Operations` filters.
+
+### Purview UAL — Agent 365 Activities
+
+Source: [Purview Audit Log Activities — Agent 365 activities](https://learn.microsoft.com/en-us/purview/audit-log-activities)
+
+| Operation | Friendly Name | Description | RecordType | Status |
+|-----------|---------------|-------------|------------|--------|
+| `AIExecuteTool` | Executed AI tool | Agent executed a tool call | `CopilotInteraction`¹ | GA |
+| `AIInvokeAgent` | Invoked AI agent | AI agent invoked by a user, agent, or event | `CopilotInteraction`¹ | GA |
+| `AIInferenceCall` | Made AI inference call | AI agent leveraged an AI model to produce an answer or determine next steps | `CopilotInteraction`¹ | GA |
+
+¹ RecordType not explicitly stated for Agent 365 ops; likely shares `CopilotInteraction`. See [Supported services](https://learn.microsoft.com/en-us/purview/audit-supported-services).
+
+### Purview UAL — M365 Admin Center Agent Management Activities
+
+Source: [Purview Audit Log Activities — M365 Admin Center Agent Management](https://learn.microsoft.com/en-us/purview/audit-log-activities)
+
+| Operation | Friendly Name | Description | Status |
+|-----------|---------------|-------------|--------|
+| `BlockedAgent` | Blocked Agent | Admin blocked an agent; users cannot use it | GA |
+| `DeletedAgent` | Deleted Agent | Admin deleted a shared agent and its underlying files | GA |
+| `DeployedAgent` | Deployed Agent | Admin deployed an agent for specific users/groups/org | GA |
+| `RemovedAgent` | Removed Agent | Admin removed a previously installed agent | GA |
+| `UnblockedAgent` | Unblocked Agent | Admin unblocked a previously blocked agent | GA |
+| `UpdatedAgent` | Updated Agent | Admin updated a custom agent by uploading latest manifest | GA |
+| `UpdatedTenantSettings` | Updated Tenant-level Agent Settings | Admin updated tenant-level settings that apply to agents | GA |
+
+### Purview UAL — Microsoft 365 Copilot Admin Activities
+
+Source: [Purview Audit Log Activities — M365 Copilot admin activities](https://learn.microsoft.com/en-us/purview/audit-log-activities) | [Copilot audit details](https://learn.microsoft.com/en-us/purview/audit-copilot)
+
+| Operation | Friendly Name | Description | RecordType | Status |
+|-----------|---------------|-------------|------------|--------|
+| `CopilotInteraction` | Interacted with Copilot | User entered prompts in Copilot (M365 Copilot, Security Copilot, or Copilot Studio agent) | `CopilotInteraction` | GA |
+| `CreatePlugin` | Created a new Copilot plugin | User created a new Copilot plugin | `CopilotInteraction` | GA |
+| `DeletePlugin` | Deleted a Copilot plugin | User deleted a Copilot plugin | `CopilotInteraction` | GA |
+| `DisableCopilotPlugin` | Disabled a Copilot plugin | User disabled a Copilot plugin | `CopilotInteraction` | GA |
+| `EnablePlugin` | Enabled a Copilot plugin | User enabled a Copilot plugin | `CopilotInteraction` | GA |
+| `UpdatePlugin` | Updated a Copilot plugin setting | User updated a Copilot plugin setting | `CopilotInteraction` | GA |
+| `AIEnterpriseInteractionsExported` | Exported AI Interactions | Admin exported interactions with Copilot | `CopilotInteraction` | GA |
+| `AIInteractionCreatedNotification` | Change notification — AI interaction created | Notification for new Copilot AI interaction | `CopilotInteraction` | GA |
+| `AIInteractionDeletedNotification` | Change notification — AI interaction deleted | Notification for deleted Copilot AI interaction | `CopilotInteraction` | GA |
+| `AIInteractionUpdatedNotification` | Change notification — AI interaction updated | Notification for updated Copilot AI interaction | `CopilotInteraction` | GA |
+| `SubscribedToAIInteractions` | Subscribed to AI interactions | Subscription created for Copilot AI interaction notifications | `CopilotInteraction` | GA |
+
+### Power Platform / Copilot Studio — Agent Authoring Events
+
+Source: [Copilot Studio audit logging](https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-logging-copilot-studio) | [Power Platform activity logging](https://learn.microsoft.com/en-us/power-platform/admin/logging-powerapps)
+
+RecordType: `PowerPlatformAdministratorActivity`
+
+| Operation | Category | Description | Status |
+|-----------|----------|-------------|--------|
+| `BotCreate` | Agents | Creation of a new agent | GA |
+| `BotDelete` | Agents | Deletion of an agent | GA |
+| `BotDeleteCleanup` | Agents | Cleanup of dependencies after agent deletion | GA |
+| `BotUpdateOperation-BotNameUpdate` | Agents | Updating agent name | GA |
+| `BotUpdateOperation-BotAuthUpdate` | Agents | Updating authentication settings | GA |
+| `BotUpdateOperation-BotIconUpdate` | Agents | Updating agent icon | GA |
+| `BotUpdateOperation-BotPublish` | Agents | Publishing an agent | GA |
+| `BotUpdateOperation-BotShare` | Agents | Sharing an agent to other users | GA |
+| `BotAppInsightsUpdate` | Agents | Updating App Insights logging configuration | GA |
+| `BotComponentCreate` | Agent Component | Creation of a component (topic, skill) | GA |
+| `BotComponentUpdate` | Agent Component | Update of a component | GA |
+| `BotComponentDelete` | Agent Component | Deletion of a component | GA |
+| `BotComponentCollectionCreate` | Agent Component Collection | Creation of a component collection | GA |
+| `BotComponentCollectionDelete` | Agent Component Collection | Deletion of a component collection | GA |
+| `BotComponentCollectionUpdate` | Agent Component Collection | Update of a component collection | GA |
+| `AIPluginOperationCreate` | AI Plugin | Creating an AI Plugin | GA |
+| `AIPluginOperationUpdate` | AI Plugin | Updating an AI Plugin | GA |
+| `AIPluginOperationDelete` | AI Plugin | Removing an AI Plugin | GA |
+| `EnvironmentVariableCreate` | Environment Variable | Creating an environment variable | GA |
+| `EnvironmentVariableUpdate` | Environment Variable | Updating an environment variable | GA |
+| `EnvironmentVariableDelete` | Environment Variable | Deleting an environment variable | GA |
+
+### Microsoft Entra — Agent Identity Audit Events
+
+Source: [Microsoft Entra Agent ID logs](https://learn.microsoft.com/en-us/entra/agent-id/sign-in-audit-logs-agents)
+
+!!! info "No Dedicated Agent Operations"
+    Microsoft Entra does **not** define new agent-specific Operation names. Agent identity activities are captured by existing Entra audit operations, differentiated by the `agentType` property on `initiatedBy`, `performedBy`, and `targetResources` fields.
+
+| Existing Entra Operation | Agent Action | `agentType` Value | Audit Category |
+|--------------------------|--------------|-------------------|----------------|
+| `Add application` | Create agent identity blueprint | `agenticApp` | ApplicationManagement |
+| `Add service principal` | Create agent identity instance | `agenticAppInstance` | ApplicationManagement |
+| `Add user` | Create agent's user account | `agentIDuser` | UserManagement |
+| `Update application` | Update agent identity blueprint | `agenticApp` | ApplicationManagement |
+| `Update service principal` | Update agent identity instance | `agenticAppInstance` | ApplicationManagement |
+| `Delete application` | Delete agent identity blueprint | `agenticApp` | ApplicationManagement |
+| `Delete service principal` | Delete agent identity instance | `agenticAppInstance` | ApplicationManagement |
+
+**`agentType` enum values:** `notAgentic`, `agenticApp`, `agenticAppInstance`, `agentIdentityBlueprintPrincipal`, `agentIDuser`, `unknownFutureValue`
+
+### DLP / Defender — Coverage Model
+
+Source: [Purview Audit Log Activities](https://learn.microsoft.com/en-us/purview/audit-log-activities) | [Copilot audit details](https://learn.microsoft.com/en-us/purview/audit-copilot)
+
+!!! info "No Agent-Specific DLP/Defender Operations"
+    Microsoft publishes no agent-specific DLP or Defender operations. Agent content policy enforcement appears as metadata within `CopilotInteraction` records (the `AccessedResources.PolicyDetails` field captures PolicyId, PolicyName, rules, and block status). Standard DLP RecordTypes apply to agent-generated content.
+
+| RecordType | Scope | Description |
+|------------|-------|-------------|
+| `ComplianceDLPSharePoint` | DLP | DLP rule matches on SharePoint/OneDrive content (including agent-generated) |
+| `ComplianceDLPExchange` | DLP | DLP rule matches on Exchange content |
+| `DlpSensitiveInformationType` | DLP | Sensitive information type detection events |
+| `MIPLabel` | Labels | Sensitivity label applied/changed/removed (ops: `SensitivityLabelApplied`, `FileSensitivityLabelApplied`, `SensitivityLabelUpdated`, `SensitivityLabelRemoved`) |
 
 ---
 
-## Consolidated Event Table
+## Conceptual Governance Categories (No Dedicated Microsoft Audit Operation)
 
-### Identity Lifecycle Events
+The governance categories below were originally presented as searchable operations in this file. **They are NOT valid UAL Operation or RecordType values.** They remain useful as governance planning categories; the table maps each to real adjacent events that provide equivalent evidence.
 
-| Event Name | RecordType | Category | Description | Key Fields |
-|------------|------------|----------|-------------|------------|
-| `AgentIdentityCreated` | AgentInteraction | Identity | New Agentic User created in Entra ID | UserId, AgentId, SponsorId, AgentType, Zone |
-| `AgentIdentityModified` | AgentInteraction | Identity | Agent identity properties changed | AgentId, ModifiedProperties, ModifiedBy |
-| `AgentIdentityDeleted` | AgentInteraction | Identity | Agent identity removed from Entra | AgentId, DeletedBy, RetentionStatus |
-| `AgentSponsorAssigned` | AgentInteraction | Identity | Human sponsor assigned to agent | AgentId, SponsorId, PreviousSponsorId |
-| `AgentSponsorRemoved` | AgentInteraction | Identity | Sponsor removed without replacement | AgentId, RemovedSponsorId, SuspensionStatus |
-| `AgentCollectionChanged` | AgentInteraction | Identity | Agent moved between collections | AgentId, SourceCollection, TargetCollection |
+### Identity Lifecycle (Conceptual)
 
-### Blueprint Lifecycle Events (Preview)
+| Governance Category | Purpose | How to Actually Obtain This Evidence |
+|---------------------|---------|--------------------------------------|
+| Agent identity created | Track new agent identities | Entra: `Add application` or `Add service principal` filtered by `agentType` ∈ {`agenticApp`, `agenticAppInstance`} |
+| Agent identity modified | Track identity property changes | Entra: `Update application` / `Update service principal` with `agentType` filter |
+| Agent identity deleted | Track identity removal | Entra: `Delete application` / `Delete service principal` with `agentType` filter |
+| Sponsor assigned/removed | Track human sponsor accountability | No dedicated audit event. Implement via custom logging in your governance process or monitor Entra group membership changes for sponsor-linked groups |
+| Agent collection changed | Track agent regrouping | No dedicated audit event. Monitor Entra group membership audit logs for collection-group changes |
 
-| Event Name | RecordType | Category | Description | Key Fields |
-|------------|------------|----------|-------------|------------|
-| `BlueprintRegistration` | AgentInteraction | Blueprint | Agent registered via Blueprint | BlueprintId, AgentId, RegistrationType, Manifest |
-| `BlueprintPromotion` | AgentInteraction | Blueprint | Agent promoted to next phase | BlueprintId, SourcePhase, TargetPhase, ApprovalChain |
-| `BlueprintDemotion` | AgentInteraction | Blueprint | Agent rolled back to previous phase | BlueprintId, SourcePhase, TargetPhase, Reason |
-| `BlueprintValidation` | AgentInteraction | Blueprint | Blueprint validation completed | BlueprintId, ValidationResult, Issues |
-| `BlueprintDeployment` | AgentInteraction | Blueprint | Agent deployed to target environment | BlueprintId, TargetEnvironment, DeploymentId |
+### Blueprint Lifecycle (Conceptual)
 
-### Agent Interaction Events
+| Governance Category | Purpose | How to Actually Obtain This Evidence |
+|---------------------|---------|--------------------------------------|
+| Blueprint registration | Track new agent blueprints | Entra: `Add application` with `agentType = agenticApp` |
+| Blueprint promotion/demotion | Track lifecycle phase transitions | No dedicated audit event. Implement promotion/demotion tracking via your change management system (e.g., ServiceNow, Azure DevOps); deploy events map to Admin Center `DeployedAgent` |
+| Blueprint validation | Track validation completeness | No dedicated audit event. Capture in your CI/CD pipeline or governance tooling |
+| Blueprint deployment | Track environment deployments | Admin Center: `DeployedAgent` (different scope — admin-managed agents) |
 
-| Event Name | RecordType | Category | Description | Key Fields |
-|------------|------------|----------|-------------|------------|
-| `CopilotInteraction` | CopilotInteraction | Interaction | M365 Copilot conversation | UserId, ApplicationId, PromptHash, ResponseStatus |
-| `CopilotForM365Interaction` | CopilotForM365Interaction | Interaction | Copilot for Microsoft 365 event | UserId, AppContext, DataSources, CitationCount |
-| `AgentInteraction` | AgentInteraction | Interaction | Copilot Studio agent conversation | UserId, AgentId, ConversationId, MessageCount |
-| `AgentToolInvocation` | AgentInteraction | Interaction | Agent invoked external tool/connector | AgentId, ToolName, ConnectorId, InvocationResult |
-| `AgentKnowledgeAccess` | AgentInteraction | Interaction | Agent accessed knowledge source | AgentId, DataSourceId, QueryType, ResultCount |
-| `AIAssistanceUsed` | AIAssistanceUsed | Interaction | AI assistance in document creation | UserId, DocumentId, AssistanceType, AcceptedSuggestions |
+### Security (Conceptual)
 
-### Configuration Events
-
-| Event Name | RecordType | Category | Description | Key Fields |
-|------------|------------|----------|-------------|------------|
-| `CopilotAgentCreated` | PowerAppsActivity | Configuration | New Copilot Studio agent created | CreatorId, AgentId, EnvironmentId, AgentType |
-| `CopilotAgentPublished` | PowerAppsActivity | Configuration | Agent published to channel | AgentId, PublisherId, Channel, Visibility |
-| `CopilotAgentModified` | PowerAppsActivity | Configuration | Agent configuration changed | AgentId, ModifiedBy, ChangeType, PreviousValue |
-| `CopilotAgentDeleted` | PowerAppsActivity | Configuration | Agent removed from environment | AgentId, DeletedBy, DeletionType |
-| `ConnectorAdded` | PowerAppsActivity | Configuration | Connector added to agent | AgentId, ConnectorId, ConnectorType, Permissions |
-| `ConnectorRemoved` | PowerAppsActivity | Configuration | Connector removed from agent | AgentId, ConnectorId, RemovedBy |
-| `TopicCreated` | PowerAppsActivity | Configuration | New topic added to agent | AgentId, TopicId, TopicType, TriggerPhrases |
-| `TopicModified` | PowerAppsActivity | Configuration | Topic configuration changed | AgentId, TopicId, ChangeType |
-| `ObservabilityConfigured` | AgentInteraction | Configuration | Observability SDK settings changed | AgentId, TelemetrySettings, ExporterConfig |
-
-### Security Events
-
-| Event Name | RecordType | Category | Description | Key Fields |
-|------------|------------|----------|-------------|------------|
-| `AgentSignIn` | SigninLogs | Security | Agent identity authenticated | AgentId, AuthenticationMethod, IPAddress, Location |
-| `AgentCAPolicyApplied` | SigninLogs | Security | Conditional Access policy evaluated | AgentId, PolicyId, PolicyResult, GrantControls |
-| `AgentAccessDenied` | SigninLogs | Security | Agent access blocked by policy | AgentId, DeniedReason, PolicyId, Resource |
-| `DLPPolicyTriggered` | DlpRuleMatch | Security | DLP policy matched agent content | AgentId, PolicyId, ContentLocation, Action |
-| `SensitivityLabelApplied` | MIPLabel | Security | Sensitivity label applied by agent | AgentId, LabelId, DocumentId, LabelSource |
+| Governance Category | Purpose | How to Actually Obtain This Evidence |
+|---------------------|---------|--------------------------------------|
+| Agent sign-in | Track agent authentication | Entra sign-in logs (separate from UAL): filter service principal sign-ins by `agentType` property |
+| CA policy applied/denied | Track Conditional Access evaluation for agents | Entra sign-in logs: `conditionalAccessStatus` and `appliedConditionalAccessPolicies` fields on service principal sign-ins |
+| DLP policy triggered (agent-specific) | Track policy enforcement on agent content | `CopilotInteraction` record → `AccessedResources.PolicyDetails` field; or standard `ComplianceDLPSharePoint` / `ComplianceDLPExchange` events for content created by agents |
+| Unauthorized publish | Track blocked publish attempts | Copilot Studio: failed `BotUpdateOperation-BotPublish` events (check operation outcome/status); Admin Center: no equivalent |
 
 ---
 
 ## Event-to-Control Mapping
 
-| Event Category | Primary Controls | Evidence Purpose |
-|----------------|------------------|------------------|
-| Identity Lifecycle | 1.2, 1.11, 3.6 | Agent registry, access governance, orphan detection |
-| Blueprint Lifecycle | 2.3, 2.5, 2.13 | Change management, testing, documentation |
-| Agent Interaction | 1.7, 1.10, 2.12 | Audit logging, compliance monitoring, supervision |
-| Configuration | 2.1, 2.3, 3.1 | Managed environments, change management, inventory |
-| Security | 1.5, 1.7, 1.11 | DLP, audit logging, conditional access |
-
----
-
-## Key Field Schemas
-
-### Common Fields (All Events)
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `TimeGenerated` | datetime | Event timestamp (UTC) |
-| `OperationName` | string | Event operation name |
-| `UserId` | string | Acting user ID (human initiator) |
-| `UserPrincipalName` | string | Acting user UPN |
-| `CorrelationId` | guid | Request correlation ID |
-| `TenantId` | guid | Tenant identifier |
-| `RecordType` | string | Audit record type |
-| `Workload` | string | Source workload (PowerApps, Copilot, etc.) |
-
-### Agent-Specific Fields
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `AgentId` | guid | Unique agent identifier |
-| `AgentName` | string | Display name of agent |
-| `AgentType` | string | Agent type (CustomCopilot, M365Agent, Blueprint) |
-| `EnvironmentId` | guid | Power Platform environment ID |
-| `Zone` | string | Governance zone (Zone1, Zone2, Zone3) |
-| `SponsorId` | guid | Human sponsor Entra ID |
-
-### Blueprint-Specific Fields (Preview)
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `BlueprintId` | guid | Blueprint registration ID |
-| `BlueprintPhase` | string | Current phase (Design, Build, Deploy) |
-| `ManifestVersion` | string | Blueprint manifest version |
-| `ApprovalChain` | array | Approval records with timestamps |
-
-### Interaction-Specific Fields
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `ConversationId` | guid | Conversation session ID |
-| `MessageId` | guid | Individual message ID |
-| `PromptHash` | string | SHA-256 hash of user prompt |
-| `ResponseStatus` | string | Success, Filtered, Error |
-| `ToolCalls` | array | Tools invoked during interaction |
-| `DataSources` | array | Knowledge sources accessed |
-| `CitationCount` | int | Number of citations in response |
-
----
-
-## Alert Severity by Zone
-
-### Recommended Alert Thresholds
-
-| Event | Zone 1 | Zone 2 | Zone 3 |
-|-------|--------|--------|--------|
-| `AgentIdentityCreated` | Info | Low | Medium |
-| `AgentIdentityDeleted` | Info | Medium | High |
-| `BlueprintPromotion` | N/A | Medium | High |
-| `BlueprintDemotion` | N/A | Medium | Critical |
-| `AgentAccessDenied` | Low | Medium | High |
-| `DLPPolicyTriggered` | Low | Medium | Critical |
-| `AgentSponsorRemoved` | Info | High | Critical |
-| `UnauthorizedPublish` | Medium | High | Critical |
-
-### Alert Definitions
-
-```kql
-// Critical: Zone 3 Blueprint Demotion
-OfficeActivity
-| where TimeGenerated > ago(1h)
-| where Operation == "BlueprintDemotion"
-| extend zone = tostring(parse_json(AuditData).Zone)
-| where zone == "Zone3"
-| project TimeGenerated, AgentId = parse_json(AuditData).AgentId, Reason = parse_json(AuditData).Reason
-```
-
-```kql
-// High: Sponsor Removed Without Replacement
-OfficeActivity
-| where TimeGenerated > ago(24h)
-| where Operation == "AgentSponsorRemoved"
-| extend
-    agentId = tostring(parse_json(AuditData).AgentId),
-    zone = tostring(parse_json(AuditData).Zone)
-| where zone in ("Zone2", "Zone3")
-| project TimeGenerated, agentId, zone, RemovedSponsor = parse_json(AuditData).RemovedSponsorId
-```
+| Evidence Domain | Primary Controls | Evidence Purpose |
+|-----------------|------------------|------------------|
+| Entra Agent Identity (via `agentType` filter) | 1.2, 1.11, 3.6 | Agent registry, access governance, orphan detection |
+| Admin Center Agent Mgmt + Copilot Studio authoring | 2.1, 2.3, 3.1 | Managed environments, change management, inventory |
+| CopilotInteraction + Agent 365 ops | 1.7, 1.10, 2.12 | Audit logging, compliance monitoring, supervision |
+| Copilot Studio authoring (`Bot*`, `AIPlugin*`) | 2.3, 2.5, 2.13 | Change management, testing, configuration tracking |
+| DLP RecordTypes + CopilotInteraction PolicyDetails | 1.5, 1.7, 1.11 | DLP, audit logging, conditional access |
 
 ---
 
 ## KQL Query Pack
 
-### Query 1: Blueprint Promotion Tracking
+### Query 1: Agent 365 Tool Execution Tracking
 
-Track all Blueprint promotions with approval chain for change management evidence.
+Track Agent 365 tool executions for change management and supervision evidence.
 
 ```kql
-// Blueprint Promotion Audit Trail
+// Agent 365 Tool Execution Audit Trail
 OfficeActivity
 | where TimeGenerated > ago(30d)
-| where Operation in ("BlueprintPromotion", "BlueprintDemotion", "BlueprintRegistration")
+| where Operation in ("AIExecuteTool", "AIInvokeAgent", "AIInferenceCall")
 | extend
-    blueprintId = tostring(parse_json(AuditData).BlueprintId),
     agentId = tostring(parse_json(AuditData).AgentId),
-    sourcePhase = tostring(parse_json(AuditData).SourcePhase),
-    targetPhase = tostring(parse_json(AuditData).TargetPhase),
-    approvalChain = parse_json(AuditData).ApprovalChain,
-    zone = tostring(parse_json(AuditData).Zone)
+    toolName = tostring(parse_json(AuditData).ToolName),
+    userId = UserId
 | project
     TimeGenerated,
     Operation,
-    blueprintId,
     agentId,
-    Transition = strcat(sourcePhase, " → ", targetPhase),
-    zone,
-    ApproverCount = array_length(approvalChain),
+    toolName,
+    userId
+| order by TimeGenerated desc
+```
+
+### Query 2: Copilot Studio Agent Configuration Changes
+
+Monitor agent creation, deletion, publishing, and component changes.
+
+```kql
+// Copilot Studio Configuration Audit
+OfficeActivity
+| where TimeGenerated > ago(7d)
+| where Operation in (
+    "BotCreate", "BotDelete", "BotUpdateOperation-BotPublish",
+    "BotUpdateOperation-BotShare", "BotUpdateOperation-BotAuthUpdate",
+    "BotComponentCreate", "BotComponentUpdate", "BotComponentDelete"
+)
+| extend
+    botId = tostring(parse_json(AuditData).BotId),
+    environmentId = tostring(parse_json(AuditData).EnvironmentId)
+| project
+    TimeGenerated,
+    Operation,
+    botId,
+    environmentId,
     InitiatedBy = UserId
 | order by TimeGenerated desc
 ```
 
-### Query 2: Agent Identity Lifecycle Events
+### Query 3: CopilotInteraction Audit for FINRA 3110/4511
 
-Monitor agent identity creation, modification, and deletion for access governance.
-
-```kql
-// Agent Identity Lifecycle Audit
-OfficeActivity
-| where TimeGenerated > ago(7d)
-| where Operation in ("AgentIdentityCreated", "AgentIdentityModified", "AgentIdentityDeleted", "AgentSponsorAssigned", "AgentSponsorRemoved")
-| extend
-    agentId = tostring(parse_json(AuditData).AgentId),
-    sponsorId = tostring(parse_json(AuditData).SponsorId),
-    zone = tostring(parse_json(AuditData).Zone),
-    agentType = tostring(parse_json(AuditData).AgentType)
-| summarize
-    EventCount = count(),
-    LastEvent = max(TimeGenerated),
-    Operations = make_set(Operation)
-    by agentId, zone, agentType
-| order by EventCount desc
-```
-
-### Query 3: Agent Interaction Audit for FINRA 3110/4511
-
-Capture agent interactions with prompt/response tracking for regulatory compliance.
+Capture Copilot interactions with prompt/response tracking for regulatory record-keeping.
 
 ```kql
-// FINRA 3110/4511 Agent Interaction Audit
+// FINRA 3110/4511 Copilot Interaction Audit
 OfficeActivity
 | where TimeGenerated > ago(24h)
-| where RecordType in ("CopilotInteraction", "AgentInteraction", "CopilotForM365Interaction")
+| where RecordType == "CopilotInteraction"
+| where Operation == "CopilotInteraction"
 | extend
     userId = UserId,
-    agentId = coalesce(
-        tostring(parse_json(AuditData).AgentId),
-        tostring(parse_json(AuditData).ApplicationId)
-    ),
+    appHost = tostring(parse_json(AuditData).AppHost),
     conversationId = tostring(parse_json(AuditData).ConversationId),
-    promptHash = tostring(parse_json(AuditData).PromptHash),
-    responseStatus = tostring(parse_json(AuditData).ResponseStatus),
-    dataSources = parse_json(AuditData).DataSources,
-    citationCount = toint(parse_json(AuditData).CitationCount)
+    accessedResources = parse_json(AuditData).AccessedResources,
+    policyDetails = parse_json(AuditData).AccessedResources[0].PolicyDetails
 | project
     TimeGenerated,
     userId,
-    agentId,
+    appHost,
     conversationId,
-    promptHash,
-    responseStatus,
-    SourceCount = array_length(dataSources),
-    citationCount
+    ResourceCount = array_length(accessedResources),
+    PolicyBlocked = isnotempty(policyDetails)
 | order by TimeGenerated desc
 ```
 
-### Query 4: Anomaly Detection Patterns
+### Query 4: Admin Center Agent Deployment and Blocking
 
-Identify unusual agent behavior patterns for security monitoring.
+Track admin-level agent management actions (deployments, blocks, removals).
 
 ```kql
-// Agent Behavior Anomaly Detection
-let baseline = OfficeActivity
-| where TimeGenerated between (ago(30d) .. ago(7d))
-| where RecordType == "AgentInteraction"
-| extend agentId = tostring(parse_json(AuditData).AgentId)
-| summarize
-    avgDailyInteractions = count() / 23,
-    avgDataSources = avg(array_length(parse_json(AuditData).DataSources))
-    by agentId;
-
+// Admin Center Agent Management Audit
 OfficeActivity
-| where TimeGenerated > ago(24h)
-| where RecordType == "AgentInteraction"
-| extend agentId = tostring(parse_json(AuditData).AgentId)
-| summarize
-    currentInteractions = count(),
-    currentAvgSources = avg(array_length(parse_json(AuditData).DataSources))
-    by agentId
-| join kind=leftouter baseline on agentId
-| extend
-    interactionAnomaly = currentInteractions > (avgDailyInteractions * 3),
-    sourceAnomaly = currentAvgSources > (avgDataSources * 2)
-| where interactionAnomaly or sourceAnomaly
-| project agentId, currentInteractions, avgDailyInteractions, interactionAnomaly, sourceAnomaly
+| where TimeGenerated > ago(30d)
+| where Operation in ("DeployedAgent", "BlockedAgent", "UnblockedAgent", "RemovedAgent", "DeletedAgent", "UpdatedAgent")
+| project
+    TimeGenerated,
+    Operation,
+    UserId,
+    AgentName = tostring(parse_json(AuditData).AgentName),
+    TargetScope = tostring(parse_json(AuditData).TargetScope)
+| order by TimeGenerated desc
 ```
 
-### Query 5: DLP Policy Enforcement on Agent Content
+### Query 5: DLP Policy Matches on Agent-Adjacent Content
 
-Track DLP policy matches for agent-generated content.
+Track DLP rule matches that may involve agent-generated content.
 
 ```kql
-// Agent DLP Policy Enforcement
+// DLP Policy Matches (filter for agent-related where possible)
 OfficeActivity
 | where TimeGenerated > ago(7d)
-| where RecordType == "DlpRuleMatch"
+| where RecordType in ("ComplianceDLPSharePoint", "ComplianceDLPExchange")
 | extend
-    agentId = tostring(parse_json(AuditData).AgentId),
     policyName = tostring(parse_json(AuditData).PolicyName),
     ruleName = tostring(parse_json(AuditData).RuleName),
-    action = tostring(parse_json(AuditData).Action),
-    sensitiveInfoTypes = parse_json(AuditData).SensitiveInfoTypes
-| where isnotempty(agentId)
+    action = tostring(parse_json(AuditData).Actions),
+    sensitiveInfoTypes = parse_json(AuditData).SensitiveInfoTypeData
 | summarize
     MatchCount = count(),
-    BlockCount = countif(action == "Block"),
-    WarnCount = countif(action == "Warn"),
-    SITTypes = make_set(sensitiveInfoTypes)
-    by agentId, policyName, ruleName, bin(TimeGenerated, 1d)
+    Policies = make_set(policyName)
+    by ruleName, action, bin(TimeGenerated, 1d)
 | order by MatchCount desc
 ```
 
@@ -335,112 +297,124 @@ OfficeActivity
 
 ## UAL Search Equivalents
 
-For environments without Microsoft Sentinel, use the Unified Audit Log search.
+For environments without Microsoft Sentinel, use the Unified Audit Log via PowerShell.
 
 !!! warning "Pagination"
     `Search-UnifiedAuditLog` returns a maximum of 5,000 records per call.
     Use `-SessionId` and `-SessionCommand ReturnLargeSet` for pagination in
     high-volume environments. See [Microsoft documentation](https://learn.microsoft.com/en-us/powershell/module/exchange/search-unifiedauditlog).
 
-### PowerShell: Agent Lifecycle Events
+### PowerShell: Agent 365 Operations
 
 ```powershell
-# Search for agent identity lifecycle events
+# Search for Agent 365 tool execution events
 $startDate = (Get-Date).AddDays(-7)
 $endDate = Get-Date
 
 $results = Search-UnifiedAuditLog `
     -StartDate $startDate `
     -EndDate $endDate `
-    -RecordType AgentInteraction `
-    -Operations "AgentIdentityCreated", "AgentIdentityModified", "AgentIdentityDeleted" `
+    -Operations "AIExecuteTool", "AIInvokeAgent", "AIInferenceCall" `
     -ResultSize 5000
 
 $results | ForEach-Object {
     $auditData = $_.AuditData | ConvertFrom-Json
     [PSCustomObject]@{
-        Timestamp = $_.CreationDate
-        Operation = $_.Operations
-        AgentId = $auditData.AgentId
-        SponsorId = $auditData.SponsorId
-        Zone = $auditData.Zone
-        PerformedBy = $_.UserIds
+        Timestamp  = $_.CreationDate
+        Operation  = $_.Operations
+        AgentId    = $auditData.AgentId
+        ToolName   = $auditData.ToolName
+        UserId     = $_.UserIds
     }
-} | Export-Csv -Path "AgentLifecycleAudit.csv" -NoTypeInformation
+} | Export-Csv -Path "Agent365Audit.csv" -NoTypeInformation
 ```
 
-### PowerShell: Agent Interactions (FINRA 3110/4511)
+### PowerShell: Copilot Interactions (FINRA 3110/4511)
 
 ```powershell
-# Search for agent interactions (regulatory evidence)
+# Search for Copilot interactions (regulatory record-keeping evidence)
 $results = Search-UnifiedAuditLog `
     -StartDate $startDate `
     -EndDate $endDate `
-    -RecordType CopilotInteraction, AgentInteraction `
+    -RecordType CopilotInteraction `
+    -Operations "CopilotInteraction" `
     -ResultSize 5000
 
 $results | ForEach-Object {
     $auditData = $_.AuditData | ConvertFrom-Json
     [PSCustomObject]@{
-        Timestamp = $_.CreationDate
-        RecordType = $_.RecordType
-        UserId = $_.UserIds
-        AgentId = $auditData.AgentId ?? $auditData.ApplicationId
+        Timestamp      = $_.CreationDate
+        UserId         = $_.UserIds
+        AppHost        = $auditData.AppHost
         ConversationId = $auditData.ConversationId
-        ResponseStatus = $auditData.ResponseStatus
-        DataSourceCount = ($auditData.DataSources | Measure-Object).Count
+        ResourceCount  = ($auditData.AccessedResources | Measure-Object).Count
     }
-} | Export-Csv -Path "AgentInteractionAudit.csv" -NoTypeInformation
+} | Export-Csv -Path "CopilotInteractionAudit.csv" -NoTypeInformation
 ```
 
-### PowerShell: Blueprint Promotions
+### PowerShell: Copilot Studio Configuration Changes
 
 ```powershell
-# Search for Blueprint lifecycle events
+# Search for Copilot Studio agent authoring events
 $results = Search-UnifiedAuditLog `
     -StartDate $startDate `
     -EndDate $endDate `
-    -RecordType AgentInteraction `
-    -Operations "BlueprintPromotion", "BlueprintDemotion", "BlueprintRegistration" `
+    -Operations "BotCreate", "BotDelete", "BotUpdateOperation-BotPublish", "BotUpdateOperation-BotShare", "BotComponentCreate", "BotComponentUpdate", "BotComponentDelete" `
     -ResultSize 5000
 
 $results | ForEach-Object {
     $auditData = $_.AuditData | ConvertFrom-Json
     [PSCustomObject]@{
-        Timestamp = $_.CreationDate
-        Operation = $_.Operations
-        BlueprintId = $auditData.BlueprintId
-        AgentId = $auditData.AgentId
-        SourcePhase = $auditData.SourcePhase
-        TargetPhase = $auditData.TargetPhase
-        ApproverCount = ($auditData.ApprovalChain | Measure-Object).Count
-        InitiatedBy = $_.UserIds
+        Timestamp     = $_.CreationDate
+        Operation     = $_.Operations
+        BotId         = $auditData.BotId
+        EnvironmentId = $auditData.EnvironmentId
+        InitiatedBy   = $_.UserIds
     }
-} | Export-Csv -Path "BlueprintPromotionAudit.csv" -NoTypeInformation
+} | Export-Csv -Path "CopilotStudioAudit.csv" -NoTypeInformation
 ```
+
+---
+
+## Alert Severity by Zone (Recommended)
+
+The thresholds below reference real operations and evidence sources. Implement alerts using the actual operations from Section 1 or the adjacent evidence paths from Section 2.
+
+| Evidence Source | Alert Trigger | Zone 1 | Zone 2 | Zone 3 |
+|----------------|---------------|--------|--------|--------|
+| Entra: `Add service principal` (agentType filter) | New agent identity created | Info | Low | Medium |
+| Entra: `Delete service principal` (agentType filter) | Agent identity deleted | Info | Medium | High |
+| Admin Center: `DeployedAgent` | Agent deployed to production | Info | Medium | High |
+| Admin Center: `BlockedAgent` | Agent blocked by admin | Low | Medium | High |
+| `CopilotInteraction` → PolicyDetails blocked | DLP policy blocked agent access | Low | Medium | Critical |
+| Copilot Studio: `BotUpdateOperation-BotPublish` | Agent published (potential unauthorized) | Low | Medium | High |
+| Entra sign-in logs: SP sign-in failure | Agent access denied | Low | Medium | High |
 
 ---
 
 ## Retention Requirements
 
-| Event Category | Zone 1 | Zone 2 | Zone 3 | Regulatory Driver |
-|----------------|--------|--------|--------|-------------------|
-| Identity Lifecycle | 180 days | 1 year | 7-10 years | FINRA 4511, SEC 17a-4 |
-| Blueprint Lifecycle | N/A | 1 year | 7-10 years | SOX 404, SEC 17a-4 |
-| Agent Interaction | 180 days | 1 year | 7-10 years | FINRA 4511, SEC 17a-3 |
-| Configuration | 180 days | 1 year | 7-10 years | SOX 404 |
-| Security | 180 days | 1 year | 7-10 years | GLBA 501(b) |
+| Evidence Domain | Zone 1 | Zone 2 | Zone 3 | Regulatory Driver |
+|-----------------|--------|--------|--------|-------------------|
+| Agent Identity (Entra audit) | 180 days | 1 year | 7–10 years | FINRA 4511, SEC 17a-4 |
+| Agent Configuration (Copilot Studio + Admin Center) | 180 days | 1 year | 7–10 years | SOX 404, SEC 17a-4 |
+| CopilotInteraction records | 180 days | 1 year | 7–10 years | FINRA 4511, SEC 17a-3 |
+| DLP / Sensitivity Labels | 180 days | 1 year | 7–10 years | GLBA 501(b) |
+| Entra Sign-in Logs (agent SPs) | 180 days | 1 year | 7–10 years | GLBA 501(b) |
 
 ---
 
 ## Related Resources
 
-- [Control 1.7 - Comprehensive Audit Logging](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md)
-- [Control 3.9 - Microsoft Sentinel Integration](../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md)
+- [Control 1.7 — Comprehensive Audit Logging](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md)
+- [Control 3.9 — Microsoft Sentinel Integration](../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md)
 - [Purview Audit Query Pack](../playbooks/monitoring-and-validation/purview-audit-query-pack.md)
 - [Microsoft Learn: Audit Log Activities](https://learn.microsoft.com/en-us/purview/audit-log-activities)
+- [Microsoft Learn: Copilot Studio Audit Logging](https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-logging-copilot-studio)
+- [Microsoft Learn: Entra Agent ID Logs](https://learn.microsoft.com/en-us/entra/agent-id/sign-in-audit-logs-agents)
+- [Microsoft Learn: Copilot Audit Details](https://learn.microsoft.com/en-us/purview/audit-copilot)
 - [Microsoft Learn: Agent 365 SDK (Preview)](https://learn.microsoft.com/en-us/microsoft-agent-365/developer/)
 
 ---
 
-*FSI Agent Governance Framework v1.6.2 - May 2026*
+*FSI Agent Governance Framework v1.6.2 — June 2026*
