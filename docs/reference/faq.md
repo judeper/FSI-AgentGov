@@ -468,8 +468,8 @@ A: Some controls reference Microsoft features that are currently in preview or r
 |---------|--------|--------|
 | **Agent 365** | GA (May 1, 2026) | Agent 365 or Microsoft 365 E7 per-user license |
 | **Entra Agent ID** | GA (April 2026; Agent 365 / M365 E7 licensing bundle GA May 1, 2026) | Available in Entra Admin Center |
-| **Advanced Connector Policies (ACP)** | Preview | Available in PPAC |
-| **Environment Groups** | Preview | Available in PPAC |
+| **Advanced Connector Policies (ACP)** | GA (runtime enforcement; design-time enforcement rolling out per maker portal — Power Automate first, then Copilot Studio, then Power Apps) | Available in PPAC |
+| **Environment Groups** | Generally Available | Available in PPAC |
 
 **To access these features:**
 
