@@ -8,6 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Added
+- Consolidated 9 Learn Monitor daily drift reports (2026-05-27 through 2026-06-04) from bot PRs #343–#383 into main via consolidation PR #385. Superseded PRs closed; `data/monitor-state.json` updated to newest cumulative state.
+
 ### Fixed
 - Replaced non-rendering Material shortcode markup on the homepage quick-start cards (`docs/index.md`) with plain text labels so GitHub Pages no longer displays literal `:material-*:` tokens.
 
