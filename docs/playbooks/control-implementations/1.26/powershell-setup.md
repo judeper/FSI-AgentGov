@@ -3,7 +3,7 @@
 !!! warning "Read the FSI PowerShell baseline first"
     Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show the abbreviated forms; the baseline is authoritative.
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 **Modules Required:** `Microsoft.PowerApps.Administration.PowerShell`, `Microsoft.Graph` (for activity log queries)
 **Sovereign clouds:** GCC / GCC High / DoD endpoints — see the [PowerShell Authoring Baseline](../../_shared/powershell-baseline.md) for the correct `-Endpoint` parameter
 

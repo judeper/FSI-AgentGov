@@ -37,7 +37,7 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 | **Price** | $21/user/month |
 | **User Limit** | Up to 300 users per tenant |
 | **GA Date** | December 1, 2025 |
-| **Prerequisites** | Microsoft 365 Business Basic, Standard, or Premium |
+| **Prerequisites** | Microsoft 365 Business Basic, Standard, Premium, or Apps for Business |
 
 **Key Differences from Enterprise Copilot:**
 

@@ -1,7 +1,7 @@
 # Agent 365 Observability Implementation Guide
 
-**Last Updated:** January 2026
-**Version:** v1.2.51
+**Last Updated:** May 2026
+**Version:** v1.6.2
 
 ---
 

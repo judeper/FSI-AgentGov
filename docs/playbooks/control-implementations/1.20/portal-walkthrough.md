@@ -1,6 +1,6 @@
 # Portal Walkthrough: Control 1.20 — Network Isolation and Private Connectivity
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 **Portals:** Power Platform Admin Center (PPAC), Azure Portal
 **Estimated Time:** 30–45 minutes for IP firewall + cookie binding; 4–8 hours end-to-end for full VNet + Private Endpoint deployment (excluding Azure platform-team change windows)
 

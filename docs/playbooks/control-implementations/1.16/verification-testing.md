@@ -1,6 +1,6 @@
 # Verification & Testing: Control 1.16 — Information Rights Management (IRM)
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 **Cadence:** Initial implementation, then quarterly (Zone 3) / semi-annually (Zone 2) — aligned with [Control 1.18](../../../controls/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md) access review cadence.
 
 ---

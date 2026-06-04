@@ -1,6 +1,6 @@
 # Verification & Testing: Control 1.27 — AI Agent Content Moderation Enforcement
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 
 !!! warning "Republish before validating production behavior"
     The Microsoft Copilot Studio test panel reflects **unpublished** edits immediately. Production behavior only changes after you click **Publish** and propagation completes (5–10 minutes). Capture evidence from the **published** channel (Teams, web channel, or Copilot connector) — not the test panel — for any TC that asserts production-state behavior.
