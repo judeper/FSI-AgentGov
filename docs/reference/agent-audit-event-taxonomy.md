@@ -98,6 +98,19 @@ RecordType: `PowerPlatformAdministratorActivity`
 | `EnvironmentVariableUpdate` | Environment Variable | Updating an environment variable | GA |
 | `EnvironmentVariableDelete` | Environment Variable | Deleting an environment variable | GA |
 
+### Power Platform / Copilot Studio — Agent Usage Events
+
+Source: [Copilot Studio audit logging — agent usage](https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-logging-copilot-studio) (§ "See audited events (agent usage)")
+
+The Copilot Studio admin-logging page documents a separate **"agent usage"** audit table distinct from the authoring events above. This captures end-user interactions with Copilot Studio-built agents.
+
+| Operation | Category | RecordType | Description | Governance Use | Status |
+|-----------|----------|------------|-------------|----------------|--------|
+| `CopilotInteraction` | Users | `CopilotInteraction` | End-user interaction with a Copilot Studio-built agent | Supervision of CS-built agents (FINRA 3110); distinguish from M365 Copilot interactions via `AppHost` value identifying Copilot Studio origin | GA |
+
+!!! tip "Distinguishing Copilot Studio Agent Usage from M365 Copilot"
+    Both Copilot Studio agent usage and M365 Copilot prompt interactions emit `CopilotInteraction` as the Operation and RecordType. The `AppHost` property in the audit record differentiates the source — Copilot Studio-built agents report a distinct `AppHost` value. Filter on `AppHost` to isolate supervision evidence for custom agents built in Copilot Studio.
+
 ### Microsoft Entra — Agent Identity Audit Events
 
 Source: [Microsoft Entra Agent ID logs](https://learn.microsoft.com/en-us/entra/agent-id/sign-in-audit-logs-agents)
@@ -160,7 +173,7 @@ The governance categories below were originally presented as searchable operatio
 
 | Governance Category | Purpose | How to Actually Obtain This Evidence |
 |---------------------|---------|--------------------------------------|
-| Agent sign-in | Track agent authentication | Entra sign-in logs (separate from UAL): filter service principal sign-ins by `agentType` property |
+| Agent sign-in | Track agent authentication | Entra sign-in logs (separate from UAL): event type `agentSignIn`; Graph filter: `signInEventTypes/any(t: t eq 'servicePrincipal') and agent/agentType eq 'AgentIdentity'`. Source: [Entra Agent ID sign-in logs](https://learn.microsoft.com/en-us/entra/agent-id/sign-in-audit-logs-agents) (§ "Sign-in logs") |
 | CA policy applied/denied | Track Conditional Access evaluation for agents | Entra sign-in logs: `conditionalAccessStatus` and `appliedConditionalAccessPolicies` fields on service principal sign-ins |
 | DLP policy triggered (agent-specific) | Track policy enforcement on agent content | `CopilotInteraction` record → `AccessedResources.PolicyDetails` field; or standard `ComplianceDLPSharePoint` / `ComplianceDLPExchange` events for content created by agents |
 | Unauthorized publish | Track blocked publish attempts | Copilot Studio: failed `BotUpdateOperation-BotPublish` events (check operation outcome/status); Admin Center: no equivalent |
@@ -242,15 +255,14 @@ OfficeActivity
     userId = UserId,
     appHost = tostring(parse_json(AuditData).AppHost),
     conversationId = tostring(parse_json(AuditData).ConversationId),
-    accessedResources = parse_json(AuditData).AccessedResources,
-    policyDetails = parse_json(AuditData).AccessedResources[0].PolicyDetails
-| project
-    TimeGenerated,
-    userId,
-    appHost,
-    conversationId,
-    ResourceCount = array_length(accessedResources),
-    PolicyBlocked = isnotempty(policyDetails)
+    accessedResources = parse_json(AuditData).AccessedResources
+| mv-expand AccessedResources = accessedResources
+| extend
+    policyDetails = AccessedResources.PolicyDetails
+| summarize
+    ResourceCount = dcount(tostring(AccessedResources)),
+    PolicyBlocked = countif(isnotempty(policyDetails))
+    by TimeGenerated, userId, appHost, conversationId
 | order by TimeGenerated desc
 ```
 
