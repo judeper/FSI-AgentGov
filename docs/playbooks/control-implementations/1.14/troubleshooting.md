@@ -2,7 +2,7 @@
 
 **Control:** [1.14 Data Minimization and Agent Scope Control](../../../controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control.md)
 **Pillar:** 1 — Security
-**Last UI Verified:** April 2026
+**Last UI Verified:** May 2026
 
 > **READ §1 FIRST** if you are responding to a live event. Do **not** mutate configuration before evidence capture (§1.3). Re-scoping a knowledge source, removing a connector, or rotating an agent credential will destroy the access-pattern record that regulators will request.
 

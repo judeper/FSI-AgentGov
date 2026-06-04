@@ -2,7 +2,7 @@
 
 **Control:** [1.5 Data Loss Prevention and Sensitivity Labels](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md)
 **Pillar:** 1 — Security & Identity
-**Last UI Verified:** April 2026 (Microsoft Purview portal `purview.microsoft.com`, Power Platform Admin Center `admin.powerplatform.microsoft.com`, Microsoft 365 admin center)
+**Last UI Verified:** May 2026 (Microsoft Purview portal `purview.microsoft.com`, Power Platform Admin Center `admin.powerplatform.microsoft.com`, Microsoft 365 admin center)
 **Audience:** M365 administrator at a US financial services firm (bank, broker-dealer, insurance carrier, investment adviser, credit union)
 **Cloud coverage:** Commercial · GCC · GCC High · DoD (sovereign cloud parity table in §2)
 **Estimated time:** 8–14 hours initial buildout (covers all 13 DLP surfaces); 2–3 hours per surface refresh thereafter; pilot validation windows excluded

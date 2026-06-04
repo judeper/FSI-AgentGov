@@ -1,6 +1,6 @@
 # Portal Walkthrough: Control 1.25 - MIME Type Restrictions for File Uploads
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 **Portals:** Power Platform Admin Center (PPAC), Microsoft Copilot Studio, Microsoft Defender for Cloud Apps, SharePoint Admin Center
 **Estimated Time:** 30-45 minutes (full Zone 3 walkthrough including per-agent and Defender for Cloud Apps configuration)
 

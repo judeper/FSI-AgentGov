@@ -1,6 +1,6 @@
 # Portal Walkthrough: Control 1.1 - Restrict Agent Publishing by Authorization
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 **Portal:** Power Platform Admin Center, Microsoft Entra Admin Center, M365 Admin Center, Microsoft Copilot Studio
 **Estimated Time:** 30-60 minutes
 
