@@ -50,7 +50,7 @@ ALL_CONTROLS = {
         ("2.3", "Change Management and Release Planning"),
         ("2.4", "Business Continuity and Disaster Recovery"),
         ("2.5", "Testing, Validation, and Quality Assurance"),
-        ("2.6", "Model Risk Management (OCC 2011-12 / SR 11-7)"),
+        ("2.6", "Model Risk Management (OCC Bulletin 2026-13 / Fed SR 26-2)"),
         ("2.7", "Vendor and Third-Party Risk Management"),
         ("2.8", "Access Control and Segregation of Duties"),
         ("2.9", "Agent Performance Monitoring and Optimization"),
