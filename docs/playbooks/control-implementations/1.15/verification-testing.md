@@ -1,6 +1,6 @@
 # Verification & Testing: Control 1.15 — Encryption: Data in Transit and at Rest
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 
 This playbook produces auditor-ready evidence for GLBA 501(b), SEC Reg S-P 17 CFR 248.30, NY DFS 23 NYCRR 500.15, FFIEC IT Examination Handbook, and SOX 404 testing.
 

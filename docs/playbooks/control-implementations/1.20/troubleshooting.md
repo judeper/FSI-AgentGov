@@ -1,6 +1,6 @@
 # Troubleshooting: Control 1.20 — Network Isolation and Private Connectivity
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 **Audience:** M365 administrators, Power Platform admins, and Azure platform engineers responding to network-isolation incidents in US financial services tenants.
 
 This playbook is the failure-mode catalog for Control 1.20. Pair it with the [Portal Walkthrough](portal-walkthrough.md), [PowerShell Setup](powershell-setup.md), and [Verification & Testing](verification-testing.md) playbooks.
@@ -162,7 +162,7 @@ See the [PowerShell baseline](../../_shared/powershell-baseline.md) §3 for the 
 
 ---
 
-## Known Limitations (April 2026)
+## Known Limitations (May 2026)
 
 | Limitation | Impact | Workaround / Note |
 |---|---|---|

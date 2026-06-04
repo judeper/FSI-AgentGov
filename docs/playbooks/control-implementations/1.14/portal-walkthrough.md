@@ -4,7 +4,7 @@
 **Audience:** Power Platform Admin, AI Administrator, SharePoint Admin, Purview Compliance Admin, Purview Data Security AI Admin, Entra Identity Governance Admin, AI Governance Lead
 **Surfaces:** Microsoft Copilot Studio · Power Platform Admin Center (PPAC) · Microsoft Purview portal (DSPM for AI, Audit, DLP, Alert policies, Activity Explorer) · SharePoint Admin Center (SPAC) · Microsoft Entra admin center · Microsoft Sentinel (Zone 3 only)
 **Estimated time:** 8–14 hours initial setup per zone (excluding Control 1.2 inventory build and Control 4.6 SharePoint enforcement); monthly review cadence in Zone 3, quarterly in Zone 2, annual in Zone 1
-**Last UI Verified:** April 2026
+**Last UI Verified:** May 2026
 
 !!! danger "READ FIRST — boundaries with Controls 1.2, 1.4, 1.13, 1.18, and 4.6"
     This walkthrough governs **per-agent data minimization**: which grounding surfaces an agent may reach (SharePoint libraries, OneDrive, Dataverse tables, Graph connectors, file uploads, image uploads, public web, enterprise URLs, connector references, declarative agents / API plugins), how that scope is approved, and how scope drift is detected.
@@ -76,7 +76,7 @@ Out of scope for Control 1.14 (covered by sibling controls):
 
 ### 0.2 Surface inventory (where each setting actually lives in April 2026)
 
-| # | Setting | Portal path (April 2026 UI) | Sovereign clouds where path applies |
+| # | Setting | Portal path (May 2026 UI) | Sovereign clouds where path applies |
 | --- | --- | --- | --- |
 | S1 | Per-agent knowledge sources | `Copilot Studio → [agent] → Knowledge → + Add knowledge` | Commercial, GCC; verify GCC High limited preview, DoD verify |
 | S2 | Per-agent SharePoint knowledge — folder scope | `Copilot Studio → [agent] → Knowledge → + Add knowledge → SharePoint → choose specific document library or folder` | Commercial, GCC; verify GCC High / DoD |

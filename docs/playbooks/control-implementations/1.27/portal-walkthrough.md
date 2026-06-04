@@ -1,6 +1,6 @@
 # Portal Walkthrough: Control 1.27 — AI Agent Content Moderation Enforcement
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 **Portal:** Microsoft Copilot Studio (`https://copilotstudio.microsoft.com`)
 **Estimated Time:** 15–25 minutes per agent (Zone 1) / 30–45 minutes per agent (Zone 3, includes safety message + adversarial spot-check)
 

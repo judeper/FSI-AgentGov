@@ -1,6 +1,6 @@
 # Troubleshooting: Control 1.16 — Information Rights Management (IRM)
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 
 ---
 
