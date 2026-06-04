@@ -1,3 +1,10 @@
+
+## 2026-06-04 — #364 FINRA RN 25-07 reframing (PR #393)
+
+- Implemented Option 1 (maintainer-selected): reframed FINRA RN 25-07 from "target regulation" / "not AI governance" to "monitored RFC touching AI-generated communications recordkeeping (Section E.3)."
+- Scorched-earth enumeration: 2 class (a) mischaracterizations fixed, 13 class (b) contradictions fixed, ~70+ class (c) neutral citations left as-is.
+- 15 files changed. All validations green (mkdocs strict, verify_controls, verify_language_rules).
+- Decision file: `.squad/decisions/inbox/danny-364-reconciliation.md`
 
 ## 2026-06-04 — #360 CA JSON remediation (PR #389)
 
@@ -30,3 +37,10 @@
 - Per task guard ('every changed path MUST start with .squad/'), STOPPED before merge — branch reuse leaked already-merged doc changes back into the PR.
 - No merge performed. Branch not deleted. Restored EMU account (judep_microsoft).
 - Recommend: Scribe rebase #391 onto origin/main to drop the stale doc commits, then re-request merge.
+
+## 2026-06-04 — Merged PR #392 (Class B) and #391 (squad memory)
+
+- **PR #392** squash-merged at `84228b6f425665b0cdf4d7ba801b5ed63a2c2621` (branch deleted). Auto-closed #363, #371. #381 intentionally left open (partial).
+- **PR #391** required rebase onto main (branch was BEHIND; protection requires up-to-date). Clean rebase, no conflicts. Re-pushed via tokenized URL with explicit `--force-with-lease` value. Squash-merged at `4116323d74633f26b8d08876b9446e067600cfda` (branch deleted).
+- All required CI gates green on both merges (Microsoft Learn URL health failure ignored — non-required).
+- Account restored to `judep_microsoft` (EMU) for Copilot CLI license.
