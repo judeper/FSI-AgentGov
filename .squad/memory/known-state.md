@@ -1,11 +1,11 @@
 # Squad Memory: Known State Tracker
 
-**Last updated:** 2026-06-04  
+**Last updated:** 2026-06-04 (updated after #398 resolution)  
 **Scope:** Active and recently closed issues in FSI-AgentGov review squad
 
 ---
 
-## Issue Tracker (4 Total, 3 Closed / 1 Open)
+## Issue Tracker (4 Total, 4 Closed / 0 Open)
 
 ### #364 — FINRA RN 25-07 Mischaracterization
 
@@ -46,12 +46,13 @@
 
 ### #398 — NIST AI RMF 1.0 Label Drift in MEASURE 2.x
 
-**Status:** 🔴 **OPEN**  
-**Opened:** 2026-06-04 (uncovered during #381 verification)  
-**Finding:** Saul (owl-mode) identified ~7 of 11 MEASURE 2.x rows (2.1, 2.3, 2.4, 2.5, 2.7, 2.9, 2.10) carry labels that don't match NIST AI 100-1 §5.3 subcategory text; also an "Effective Coverage" wording quirk (line ~230).  
-**Scope:** Systemic label drift (out of scope for #381).  
-**Status:** SME-gated, tracked for future NIST-SME pass.  
-**Decision record:** `.squad/decisions/archive/381-nist-crosswalk-mapping.md` (documented as follow-up finding)
+**Status:** 🟢 **CLOSED**  
+**PR:** #400 (squash-merged `ac51ddb93`, 2026-06-04)  
+**Finding:** Saul (owl-mode verification, #381) identified ~7 of 11 MEASURE 2.x rows (2.1, 2.3, 2.4, 2.5, 2.7, 2.9, 2.10) carrying labels that didn't match NIST AI 100-1 §5.3 subcategory text. Also identified two missing rows (2.12 Environmental impact, 2.13 TEVV effectiveness) and one non-NIST row (Human-AI interaction).  
+**Disposition:** Systemic realignment: realigned all 13 MEASURE row labels to correct NIST subcategory numbers; added missing rows 2.12/2.13; dropped non-NIST row; recomputed coverage rollup (69 addressed / 64 full / 3 partial / 2 N/A); fixed two stale "For External Auditors" prose lines with incorrect percentages.  
+**Governance chain:** Researcher (opus-4.6, read-only compile NIST labels) → Linus (opus-4.6 author) → Saul (opus-4.7-high, owl-mode verification: all 13 labels confirmed verbatim vs NIST AI 100-1 PDF; PARTIALLY VERIFIED, D1/D2 auditor percentage defects found) → Linus (remediation, D1/D2 fixed) → Final verification VERIFIED.  
+**Owner:** Linus (author), Saul (verifier, owl-mode), judep (approver)  
+**Decision record:** `.squad/decisions/archive/398-nist-measure-2x-label-drift.md`
 
 ---
 
@@ -103,9 +104,9 @@
 
 ## Escalation Backlog Status
 
-**CLEARED:** #364, #380, #381 all closed (PRs #393, #395, #397 merged, 2026-06-04)
+**FULLY CLEARED:** #364, #380, #381, #398 all closed (PRs #393, #395, #397, #400 merged, 2026-06-04)
 
-**New tracked item:** #398 OPEN (SME-gated, documented in decision records)
+**SME-escalation backlog is now empty.** All tracked regulatory/mapping findings from the review squad have been resolved and archived.
 
 ---
 
