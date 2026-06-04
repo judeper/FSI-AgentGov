@@ -218,17 +218,24 @@ Entra Agent ID extends Conditional Access to agent identities, enabling risk-bas
 
 #### Policy Example 1: Block High-Risk Agent Identities
 
-!!! warning "Illustrative example — not Graph-API-ready"
-    The JSON below uses illustrative field names that align with the Conditional Access for Agents UI ("All agent identities", agent risk levels) but **do not match the published Microsoft Graph schema as of June 2026**. Risk-based blocking of agent identities is exposed in the beta Graph API as `agentIdRiskLevels` (a top-level string collection on `conditions`); JSON targeting of "All agent identities" / agent identity blueprints is currently a UI-level concept not yet documented in the public Graph schema. Configure via the Conditional Access UI per the [Conditional Access for agents](https://learn.microsoft.com/en-us/entra/identity/conditional-access/agent-id) guide until Microsoft publishes the policy-conditions JSON shape.
+!!! note "Beta Graph API — subject to change"
+    The JSON below targets the **`/beta` Microsoft Graph endpoint**: `POST https://graph.microsoft.com/beta/identity/conditionalAccess/policies`. Beta APIs are not supported for production and the schema may change. Validated against MS Learn on 2026-06-04. See [Conditional Access for agents](https://learn.microsoft.com/en-us/entra/identity/conditional-access/agent-id) and [Create conditionalAccessPolicy (beta)](https://learn.microsoft.com/en-us/graph/api/conditionalaccessroot-post-policies?view=graph-rest-beta) for the authoritative reference.
 
 ```json
 {
   "displayName": "Block high-risk agent identities",
-  "state": "enabled",
+  "state": "enabledForReportingButNotEnforced",
   "conditions": {
-    "users": { "includeAgents": "all" },
-    "applications": { "includeApplications": ["All"] },
-    "agentRisk": { "riskLevels": ["high"] }
+    "clientApplications": {
+      "includeAgentIdServicePrincipals": ["All"],
+      "excludeAgentIdServicePrincipals": [],
+      "agentIdServicePrincipalFilter": null
+    },
+    "applications": {
+      "includeApplications": ["All"],
+      "excludeApplications": []
+    },
+    "agentIdRiskLevels": "high"
   },
   "grantControls": {
     "operator": "AND",
@@ -239,32 +246,28 @@ Entra Agent ID extends Conditional Access to agent identities, enabling risk-bas
 
 #### Policy Example 2: Allow Only Approved Agents Using Custom Security Attributes
 
-!!! warning "Illustrative example — not Graph-API-ready"
-    The JSON below uses illustrative field names that align with the Conditional Access for Agents UI ("All agent identities", agent risk levels) but **do not match the published Microsoft Graph schema as of June 2026**. Risk-based blocking of agent identities is exposed in the beta Graph API as `agentIdRiskLevels` (a top-level string collection on `conditions`); JSON targeting of "All agent identities" / agent identity blueprints is currently a UI-level concept not yet documented in the public Graph schema. Configure via the Conditional Access UI per the [Conditional Access for agents](https://learn.microsoft.com/en-us/entra/identity/conditional-access/agent-id) guide until Microsoft publishes the policy-conditions JSON shape.
+!!! note "Beta Graph API — subject to change"
+    The JSON below targets the **`/beta` Microsoft Graph endpoint**: `POST https://graph.microsoft.com/beta/identity/conditionalAccess/policies`. Beta APIs are not supported for production and the schema may change. Validated against MS Learn on 2026-06-04. See [Conditional Access for agents](https://learn.microsoft.com/en-us/entra/identity/conditional-access/agent-id) and [Create conditionalAccessPolicy (beta)](https://learn.microsoft.com/en-us/graph/api/conditionalaccessroot-post-policies?view=graph-rest-beta) for the authoritative reference.
 
 ```json
 {
   "displayName": "Allow only HR-approved agents to access HR resources",
-  "state": "enabled",
+  "state": "enabledForReportingButNotEnforced",
   "conditions": {
-    "users": {
-      "includeAgents": "all",
-      "excludeAgents": {
-        "attributeFilter": {
-          "attribute": "AgentApprovalStatus",
-          "operator": "Contains",
-          "value": "HR_Approved"
-        }
+    "clientApplications": {
+      "includeAgentIdServicePrincipals": ["All"],
+      "excludeAgentIdServicePrincipals": [],
+      "agentIdServicePrincipalFilter": {
+        "mode": "exclude",
+        "rule": "CustomSecurityAttribute.AgentAttributes_AgentApprovalStatus -eq \"HR_Approved\""
       }
     },
     "applications": {
       "includeApplications": ["All"],
-      "excludeApplications": {
-        "attributeFilter": {
-          "attribute": "Department",
-          "operator": "Contains",
-          "value": "HR"
-        }
+      "excludeApplications": [],
+      "applicationFilter": {
+        "mode": "exclude",
+        "rule": "CustomSecurityAttribute.ResourceAttributes_Department -eq \"HR\""
       }
     }
   },
