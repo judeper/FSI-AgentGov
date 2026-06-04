@@ -6,7 +6,7 @@
 !!! danger "Customer Key revocation is permanent and destroys data by design"
     Several cmdlets in this playbook (`Set-DataEncryptionPolicy -Refresh`, `Remove-DataEncryptionPolicy`, anything that disables or deletes a vault key under an active DEP) sit on the **data-purge path**. Once you initiate revocation and the purge window completes, Microsoft cannot recover the affected data — by design. Always run with `-WhatIf` first, snapshot before-state, and require dual approval. Revocation belongs to a documented break-glass runbook, not a routine operations script.
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 **Modules Required:** `Az.Accounts`, `Az.KeyVault`, `ExchangeOnlineManagement`, `Microsoft.Online.SharePoint.PowerShell`, `Microsoft.Graph` (for service principal lookup)
 **PowerShell Edition:** PowerShell 7.4 LTS for Az and Graph modules; **Windows PowerShell 5.1** for `Microsoft.Online.SharePoint.PowerShell`
 
