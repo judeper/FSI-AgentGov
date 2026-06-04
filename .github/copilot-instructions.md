@@ -7,7 +7,8 @@ FSI Agent Governance Framework v1.6.2 - A governance framework for Microsoft 365
 - **78 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
 - **3 governance zones** (Personal Productivity, Team Collaboration, Enterprise Managed)
 - **3-layer documentation** (Framework → Controls → Playbooks)
-- **Target regulations:** FINRA 4511/3110/25-07, SEC 17a-3/4, SOX 302/404, GLBA 501(b), OCC Bulletin 2026-13 (formerly OCC 2011-12), Fed SR 26-2 (formerly Fed SR 11-7), CFTC 1.31
+- **Target regulations:** FINRA 4511/3110, SEC 17a-3/4, SOX 302/404, GLBA 501(b), OCC Bulletin 2026-13 (formerly OCC 2011-12), Fed SR 26-2 (formerly Fed SR 11-7), CFTC 1.31
+- **Monitored proposals:** FINRA RN 25-07 (RFC — workplace modernization touching AI-generated communications recordkeeping; not yet adopted)
 - **Documentation site:** Built with MkDocs Material, published to GitHub Pages
 
 ## Design Decisions

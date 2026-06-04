@@ -121,8 +121,8 @@ See: [FINRA Rule 3120](https://www.finra.org/rules-guidance/rulebooks/finra-rule
 
 ### FINRA AI Supervision Requirements
 
-!!! warning "FINRA Notice 25-07 Clarification"
-    FINRA Regulatory Notice 25-07 (April 2025) addresses **workplace modernization rules**, not AI governance. For AI supervision requirements, refer to **FINRA Regulatory Notice 24-09** (Gen AI guidance), **FINRA Rule 3110** (Supervision), **FINRA Rule 2111** (Suitability), and **FINRA's Annual Regulatory Oversight Report** for current AI examination priorities.
+!!! warning "FINRA Notice 25-07 — Monitored Proposal (Not Adopted)"
+    FINRA Regulatory Notice 25-07 (April 2025) is a **Request for Comment (RFC)** on workplace modernization, not an adopted rule. Its AI-relevant content is concentrated in **Section E.3** (recordkeeping challenges for AI-generated communications under Exchange Act Rule 17a-4(b)(4)) and **Section G** (AI-driven fraud). The comment window closed July 2025; no final rule has been adopted. This framework monitors 25-07 for potential future recordkeeping requirements but does not treat it as binding. For current, adopted AI supervision guidance, refer to **FINRA Regulatory Notice 24-09** (Gen AI guidance), **FINRA Rule 3110** (Supervision), **FINRA Rule 2111** (Suitability), and **FINRA's Annual Regulatory Oversight Report** for current AI examination priorities.
 
 !!! info "FINRA Regulatory Notice 24-09 (June 2024)"
     FINRA Notice 24-09 provides official guidance on generative AI and large language model (LLM) obligations. Key points:
