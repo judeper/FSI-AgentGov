@@ -1,6 +1,6 @@
 # Verification & Testing: Control 1.18 — Application-Level Authorization and RBAC
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 **Estimated Time:** 2–3 hours per environment (Zone 3); 30–60 minutes (Zone 1/2)
 **Cadence:** Quarterly (Zone 3), semi-annual (Zone 2), annual (Zone 1), plus ad-hoc on role-change events
 

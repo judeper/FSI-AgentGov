@@ -1,6 +1,6 @@
 # Portal Walkthrough: Control 1.4 — Advanced Connector Policies (ACP)
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
 **Portal:** Power Platform Admin Center (`https://admin.powerplatform.microsoft.com`)
 **Estimated Time:** 45–60 minutes (first environment group); 15 minutes per additional environment
 **Primary Owner Admin Role:** Power Platform Admin

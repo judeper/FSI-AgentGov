@@ -181,8 +181,12 @@ function Get-FlowApiToken {
     param()
 
     try {
-        $token = Get-AzAccessToken -ResourceUrl 'https://service.flow.microsoft.com/' -ErrorAction Stop
-        return $token.Token
+        $tokenResult = Get-AzAccessToken -ResourceUrl 'https://service.flow.microsoft.com/' -ErrorAction Stop
+        # Handle both Az.Accounts 2.x (.Token as string) and 3.x+ (.Token as SecureString)
+        if ($tokenResult.Token -is [securestring]) {
+            return $tokenResult.Token | ConvertFrom-SecureString -AsPlainText
+        }
+        return $tokenResult.Token
     }
     catch {
         throw "Failed to acquire Flow API token. Ensure you are signed in via Connect-AzAccount. Error: $($_.Exception.Message)"
@@ -205,8 +209,12 @@ function Get-DataverseToken {
     )
 
     try {
-        $token = Get-AzAccessToken -ResourceUrl $ResourceUrl -ErrorAction Stop
-        return $token.Token
+        $tokenResult = Get-AzAccessToken -ResourceUrl $ResourceUrl -ErrorAction Stop
+        # Handle both Az.Accounts 2.x (.Token as string) and 3.x+ (.Token as SecureString)
+        if ($tokenResult.Token -is [securestring]) {
+            return $tokenResult.Token | ConvertFrom-SecureString -AsPlainText
+        }
+        return $tokenResult.Token
     }
     catch {
         throw "Failed to acquire Dataverse token. Ensure you are signed in via Connect-AzAccount. Error: $($_.Exception.Message)"

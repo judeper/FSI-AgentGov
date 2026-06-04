@@ -2,7 +2,7 @@
 
 **Control:** [1.12 Insider Risk Detection and Response](../../../controls/pillar-1-security/1.12-insider-risk-detection-and-response.md)
 **Audience:** M365 administrator (US financial services)
-**Last UI Verified:** April 2026
+**Last UI Verified:** May 2026
 **Cloud coverage:** Commercial · GCC · GCC High · DoD (see sovereign cloud table — **HARD GAPS exist for FSI Government-cloud tenants**)
 **Estimated Time:** 8–16 hours (excludes analytics processing windows of up to 48 hours, HR connector first-ingest cycle, and pilot validation)
 

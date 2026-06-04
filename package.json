@@ -19,7 +19,7 @@
     "ajv": "^8.20.0",
     "get-port": "7.2.0",
     "jsdom": "29.1.1",
-    "markdown-it": "^14.1.1",
+    "markdown-it": "^14.2.0",
     "pdf-parse": "2.4.5",
     "vitest": "4.1.7",
     "xlsx": "^0.18.5"
