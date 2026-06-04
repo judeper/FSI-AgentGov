@@ -135,17 +135,19 @@ The NIST AI RMF provides a structured approach to managing AI risks through four
 
 | NIST AI RMF Category | FSI Controls | Coverage |
 |---------------------|--------------|----------|
-| **MEASURE 2.1:** Tested against trustworthiness characteristics | [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md), [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Full |
+| **MEASURE 2.1:** Test sets, metrics, and details documented (TEVV) | [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md), [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Full |
 | **MEASURE 2.2:** Evaluations involving human subjects meet applicable requirements | [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md), [2.14](../controls/pillar-2-management/2.14-training-and-awareness-program.md) | Full |
-| **MEASURE 2.3:** Security and resilience evaluated | [1.8](../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md), Pillar 1 Security | Full |
-| **MEASURE 2.4:** Explainability evaluated | [Zone 1 Explainability](../playbooks/advanced-implementations/zone1-min-explainability.md) | Partial |
-| **MEASURE 2.5:** Privacy evaluated | [1.5](../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md), [1.6](../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md), [1.14](../controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control.md) | Full |
+| **MEASURE 2.3:** Performance and assurance criteria measured | [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md), [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md), [2.9](../controls/pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md) | Full |
+| **MEASURE 2.4:** Functionality and behavior monitored in production | [3.2](../controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring.md), [2.9](../controls/pillar-2-management/2.9-agent-performance-monitoring-and-optimization.md), [3.10](../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md) | Full |
+| **MEASURE 2.5:** Validity and reliability demonstrated | [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md), [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Full |
 | **MEASURE 2.6:** Safety evaluated | [1.8](../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md), [2.20](../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md) | Full |
-| **MEASURE 2.7:** Human-AI interaction evaluated | [Human-in-the-Loop](../playbooks/advanced-implementations/human-in-the-loop-triggers.md), [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Full |
-| **MEASURE 2.8:** Transparency claims verified | [2.19](../controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md), [2.21](../controls/pillar-2-management/2.21-ai-marketing-claims-and-substantiation.md) | Full |
-| **MEASURE 2.9:** Environmental impact evaluated | Out of scope (not primary FSI concern) | N/A |
-| **MEASURE 2.10:** Validity and reliability evaluated | [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md), [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Full |
+| **MEASURE 2.7:** Security and resilience evaluated | [1.8](../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md), [2.20](../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md), Pillar 1 Security | Full |
+| **MEASURE 2.8:** Transparency and accountability risks examined | [2.19](../controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md), [2.21](../controls/pillar-2-management/2.21-ai-marketing-claims-and-substantiation.md) | Full |
+| **MEASURE 2.9:** AI model explained, validated, and documented | [Zone 1 Explainability](../playbooks/advanced-implementations/zone1-min-explainability.md), [2.19](../controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency.md) | Partial |
+| **MEASURE 2.10:** Privacy risk examined and documented | [1.5](../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md), [1.6](../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md), [1.14](../controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control.md) | Full |
 | **MEASURE 2.11:** Fairness and bias evaluated | [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) | Full |
+| **MEASURE 2.12:** Environmental impact and sustainability assessed | Out of scope (Microsoft-managed infrastructure; not primary FSI concern) | N/A |
+| **MEASURE 2.13:** Effectiveness of measurement (TEVV) evaluated | [2.5](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md), [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Partial |
 
 ### MEASURE 3: Mechanisms for tracking identified AI risks
 
@@ -207,7 +209,7 @@ The NIST AI RMF provides a structured approach to managing AI risks through four
 
 ### Methodology
 
-This crosswalk maps FSI Agent Governance Framework controls to the NIST AI RMF 1.0 subcategories. The table below reflects the subcategories explicitly addressed in this document. The official NIST AI RMF 1.0 contains 72 subcategories; this crosswalk addresses 67 subcategories that are most relevant to Microsoft 365 AI agent governance in financial services.
+This crosswalk maps FSI Agent Governance Framework controls to the NIST AI RMF 1.0 subcategories. The table below reflects the subcategories explicitly addressed in this document. The official NIST AI RMF 1.0 contains 72 subcategories; this crosswalk addresses 69 subcategories that are most relevant to Microsoft 365 AI agent governance in financial services.
 
 ### Subcategory Coverage
 
@@ -215,19 +217,19 @@ This crosswalk maps FSI Agent Governance Framework controls to the NIST AI RMF 1
 |---------------------|-------------------------|---------------|------------------|----------------|
 | **GOVERN** | 19 | 18 | 1 | 0 |
 | **MAP** | 16 | 15 | 0 | 1 |
-| **MEASURE** | 19 | 17 | 1 | 1 |
+| **MEASURE** | 21 | 18 | 2 | 1 |
 | **MANAGE** | 13 | 13 | 0 | 0 |
-| **TOTAL** | **67** | **63** | **2** | **2** |
+| **TOTAL** | **69** | **64** | **3** | **2** |
 
 ### Coverage Calculation
 
-- **Subcategories addressed:** 67 of 72 NIST AI RMF subcategories (93%)
-- **Full coverage:** 63 of 67 addressed subcategories (94%)
-- **Partial coverage:** 2 subcategories (GOVERN 3.1, MEASURE 2.4)
-- **Not applicable to FSI agent governance:** 2 subcategories (MAP 5.2, MEASURE 2.9 - environmental impact)
-- **Not explicitly addressed:** 5 subcategories (MEASURE 2.12, 2.13, and others focused on large-scale AI system development not applicable to Microsoft 365 agents)
+- **Subcategories addressed:** 69 of 72 NIST AI RMF subcategories (96%)
+- **Full coverage:** 64 of 69 addressed subcategories (93%)
+- **Partial coverage:** 3 subcategories (GOVERN 3.1, MEASURE 2.9, MEASURE 2.13)
+- **Not applicable to FSI agent governance:** 2 subcategories (MAP 5.2, MEASURE 2.12 - environmental impact)
+- **Not explicitly addressed:** 3 of 72 subcategories (focused on large-scale AI system development not applicable to Microsoft 365 agents)
 
-**Effective Coverage of Applicable Subcategories:** 97% (63 full + 2 partial of 65 applicable)
+**Effective Coverage of Applicable Subcategories:** 96% (67 of 70 applicable subcategories covered: 64 full + 3 partial; 2 subcategories are N/A and excluded)
 
 ---
 
@@ -238,14 +240,15 @@ This crosswalk maps FSI Agent Governance Framework controls to the NIST AI RMF 1
 | Category | Gap | Remediation |
 |----------|-----|-------------|
 | **GOVERN 3.1** (Diverse team) | Framework does not mandate diversity requirements | Organizational hiring/team practices; out of technical scope |
-| **MEASURE 2.4** (Explainability) | Basic explainability guidance only | Enhance Zone 1 explainability playbook for enterprise needs |
+| **MEASURE 2.9** (AI model explained, validated, and documented) | Basic explainability guidance only | Enhance Zone 1 explainability playbook for enterprise needs |
+| **MEASURE 2.13** (Effectiveness of measurement/TEVV) | Testing controls cover TEVV but effectiveness is not separately tracked | Add periodic TEVV effectiveness review to governance cadence |
 
 ### Not Applicable Areas
 
 | Category | Rationale |
 |----------|-----------|
 | **MAP 5.2** (Environmental) | Environmental impact not primary FSI regulatory concern |
-| **MEASURE 2.9** (Environmental) | Environmental impact not primary FSI regulatory concern |
+| **MEASURE 2.12** (Environmental impact and sustainability) | Microsoft-managed infrastructure; not primary FSI regulatory concern |
 
 ### Subcategories Not Explicitly Addressed
 
@@ -253,8 +256,6 @@ The following NIST AI RMF subcategories are not explicitly addressed in this cro
 
 | Category | Description | Rationale |
 |----------|-------------|-----------|
-| **MEASURE 2.12** | Environmental impact quantified | Not applicable - Microsoft manages infrastructure environmental impact |
-| **MEASURE 2.13** | Effectiveness of risk mitigations verified | Covered implicitly through testing controls (2.5, 2.6) but not separately tracked |
 | **MAP 3.4** | Assumptions about data validated | Microsoft manages Copilot training data; organization controls grounding data via Pillar 4 |
 | **MAP 3.5** | Data provenance documented | Microsoft manages model data provenance; framework covers grounding data governance |
 | **GOVERN 4.4** | Documentation of AI system development | Not applicable - framework governs deployed agents, not AI development |
@@ -279,10 +280,10 @@ Organizations developing custom AI models beyond Microsoft 365 agents should con
 
 ### For External Auditors
 
-1. Framework demonstrates substantive alignment with NIST AI RMF (93% of subcategories addressed, 97% effective coverage of applicable areas)
+1. Framework demonstrates substantive alignment with NIST AI RMF (96% of subcategories addressed; 96% effective coverage of applicable areas)
 2. Partial coverage areas and N/A designations are documented with rationale
 3. Control documentation provides implementation evidence
-4. Five NIST subcategories not explicitly addressed relate to large-scale AI development (not applicable to Microsoft 365 agent governance)
+4. Three NIST subcategories not explicitly addressed (MAP 3.4, MAP 3.5, GOVERN 4.4) relate to large-scale AI development and AI-system development documentation (not applicable to Microsoft 365 agent governance)
 
 ---
 
