@@ -5,7 +5,7 @@
 
 ---
 
-## Issue Tracker (3 Total, 2 Closed / 1 Open)
+## Issue Tracker (4 Total, 3 Closed / 1 Open)
 
 ### #364 — FINRA RN 25-07 Mischaracterization
 
@@ -34,10 +34,24 @@
 
 ### #381 — NIST Mapping + Coverage Rollup
 
-**Status:** 🟡 **OPEN**  
-**Last action:** PR #392 (labels fixed for consistency)  
-**Scope:** Complete NIST SP 800-53 Rev 5 AI control mappings; regenerate honest assessment-coverage matrix.  
-**Notes:** Labels normalization completed; mapping and coverage work pending detailed design.
+**Status:** 🟢 **CLOSED**  
+**PR:** #397 (squash-merged `edba6f09c`, 2026-06-04)  
+**Finding:** NIST AI RMF crosswalk (PR #392) label fixes left control mappings misaligned; SME-gated reconciliation required.  
+**Disposition:** Option 1 — apply SME-derived mapping (Linus author → Saul verification → Linus remediation).  
+**Remediation:** MEASURE 2.6/2.11/2.2 mappings corrected; Control 2.7 orphan status verified; coverage rollup recalculated (UNCHANGED: 93%/94%/97%).  
+**Owner:** Linus (author), Saul (verifier, owl-mode), judep (approver)  
+**Decision record:** `.squad/decisions/archive/381-nist-crosswalk-mapping.md`
+
+---
+
+### #398 — NIST AI RMF 1.0 Label Drift in MEASURE 2.x
+
+**Status:** 🔴 **OPEN**  
+**Opened:** 2026-06-04 (uncovered during #381 verification)  
+**Finding:** Saul (owl-mode) identified ~7 of 11 MEASURE 2.x rows (2.1, 2.3, 2.4, 2.5, 2.7, 2.9, 2.10) carry labels that don't match NIST AI 100-1 §5.3 subcategory text; also an "Effective Coverage" wording quirk (line ~230).  
+**Scope:** Systemic label drift (out of scope for #381).  
+**Status:** SME-gated, tracked for future NIST-SME pass.  
+**Decision record:** `.squad/decisions/archive/381-nist-crosswalk-mapping.md` (documented as follow-up finding)
 
 ---
 
@@ -72,13 +86,36 @@
 
 **Source:** Decision record `380-audit-taxonomy-rewrite.md` (verified by Saul, 2026-06-04)
 
+---
+
+### NIST AI RMF Crosswalk Historical Label Drift
+
+**Principle:** `docs/reference/nist-ai-rmf-crosswalk.md` historically used in-house summary labels that DON'T match NIST AI 100-1 §5.3 subcategory numbering.
+
+**Procedure:**
+- When touching any MEASURE/MAP/GOVERN row, verify the label against the official NIST PDF (https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf)
+- Re-decide the entangled control mapping after label verification
+- Recompute the bottom-of-file coverage rollup after any change
+
+**Source:** Decision record `381-nist-crosswalk-mapping.md` (verified by Saul, owl-mode, 2026-06-04); systemic findings tracked in #398
+
+---
+
+## Escalation Backlog Status
+
+**CLEARED:** #364, #380, #381 all closed (PRs #393, #395, #397 merged, 2026-06-04)
+
+**New tracked item:** #398 OPEN (SME-gated, documented in decision records)
+
+---
+
 ## Inbox Archive Status
 
-**Moved to archive during #364 closeout:**
-- `danny-364-reconciliation.md` → Sourced for decision record
+**Moved to archive during closeout cycle:**
+- `danny-364-reconciliation.md` → Sourced for #364 decision record
+- `saul-classB-reverify.md` → Sourced for #380/#381/#398 decision records + durable learnings
 
-**Still in inbox (other issues):**
-- `saul-classB-reverify.md` (contains #380 + #381 sections; keep open)
-- `linus-classB-remediation.md`
+**Still in inbox (completed items moved to decision records):**
+- `linus-classB-remediation.md` (completed; source for #381/#380)
 - `linus-learn-monitor-cleanup.md`
 - `rusty-dependabot-cleanup.md`
