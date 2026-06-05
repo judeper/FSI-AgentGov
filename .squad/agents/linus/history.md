@@ -1,5 +1,45 @@
 # Linus — Review History
 
+## 2026-06-04 — Sovereign-Cloud Removal (Pillar-1 Playbooks 1.11–1.20, Wave B)
+
+**Mode:** XCUT SOVEREIGN REMOVAL — Pillar-1 playbooks, controls 1.11–1.20
+**Branch:** `fix/pb-xcut-sov-pb-p1`
+**Commit:** `836aefaaa`
+**Result:** ✅ COMPLETE — local branch only; coordinator pushes
+
+### Summary
+
+- **30 files modified**, 618 insertions / 2,196 deletions
+- Re-grep returned **ZERO** files with sovereign content in 1.11–1.20 scope
+  (only `1.12/troubleshooting.md` remained — intentionally skipped per mission)
+- `python scripts/verify_language_rules.py` ✅ no prohibited language found
+
+### Recipe learnings (wave B additions)
+
+- **3-pass Python script approach** again required. Pass 1 (~70% of hits via
+  section-deletion and code-block cleanup), pass 2 (~90% via generic patterns
+  and file-specific handlers), pass 3 (~99% surgical edits). Final 2 hits were
+  direct `edit` tool calls.
+- **`!!! warning/danger` admonition removal** needs an extra regex that matches
+  the `!!! ... "..."` header line plus the indented body lines that follow — the
+  generic pass-2 `delete_admonition_block` helper works well for this.
+- **Lowercase `**note.**` blockquotes** (as opposed to `**Sovereign note.**`)
+  were missed by pass-2 patterns; always check for case variants.
+- **Table column removal** (e.g., "Sovereign clouds where path applies" column
+  in 1.14 portal walkthrough) requires a dedicated helper that tracks which
+  column index to drop across header, separator, and data rows.
+- **JSON `"cloud"` enum fields** (`["Commercial","GCC","GCCHigh","DoD"]`) in
+  evidence schema code blocks are easy to miss — target with explicit regex.
+- **21Vianet carve-outs** in eDiscovery files (1.19) are a separate sovereign
+  pattern. The "Classic eDiscovery retired — except 21Vianet" danger admonition
+  required editing the heading + removing the carve-out paragraph while
+  preserving the core retirement notice.
+- **`sovereignCloud` property in PS output objects** (e.g., `sovereignCloud =
+  $Session.Cloud`) needs targeted removal — generic SOV_PAT picks it up but
+  Python regex for output object fields needs a line-level match.
+
+---
+
 ## 2026-06-04 — Sovereign-Cloud Removal (Pillar-1 Playbooks 1.1–1.10, Wave A)
 
 **Mode:** XCUT SOVEREIGN REMOVAL — Pillar-1 playbooks, controls 1.1–1.10 + `_shared/powershell-baseline.md`
