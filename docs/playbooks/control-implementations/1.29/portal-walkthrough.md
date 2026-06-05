@@ -175,9 +175,9 @@ Configure the following rules based on your zone and data protection requirement
 
 ### Step 5.1 — Open the baseline profile
 
-1. In Entra admin center, navigate to **Global Secure Access** > **Connect**.
-2. Select **Traffic forwarding**.
-3. In the Traffic forwarding page, locate and click the **Baseline profile**.
+1. In Entra admin center, navigate to **Global Secure Access** > **Secure** > **Security profiles**.
+2. Select the **Baseline profile** tab.
+3. Select **Edit** to edit the baseline profile rules, then use **Link a policy** to attach each existing policy.
 
 ### Step 5.2 — Link the web content filtering policy
 
