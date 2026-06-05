@@ -17,9 +17,7 @@ Conflating the two leaves an evidence gap — examiners typically want both Micr
 
 | Cloud | URL | Sign-in |
 |-------|-----|---------|
-| Commercial | [`https://servicetrust.microsoft.com`](https://servicetrust.microsoft.com) | Work or school account; no special role required to browse the public report library, but downloads require sign-in |
-| GCC / GCC High / DoD | Same URL — surface is the same; per-cloud applicability is annotated within each report | US-government work account |
-| 21Vianet (China) | Verify per Microsoft documentation; some attestations are provided by 21Vianet with separate audit scope | 21Vianet operator account |
+| Commercial (Global) | [`https://servicetrust.microsoft.com`](https://servicetrust.microsoft.com) | Work or school account; no special role required to browse the public report library, but downloads require sign-in |
 
 **No tenant-side configuration required.** Any signed-in customer can access STP. There is no Compliance Manager dependency, no Purview entitlement, and no Power Platform requirement.
 
@@ -45,7 +43,7 @@ Conflating the two leaves an evidence gap — examiners typically want both Micr
 | **EU Model Clauses / DPA** | Microsoft Online Services Data Protection Addendum, Standard Contractual Clauses | Updated as regulation evolves | GDPR Article 28 processor evidence |
 | **Country / region-specific** | Australia IRAP, Singapore MTCS, Japan ISMAP, Spain ENS, etc. | Per scheme cadence | Cross-border subsidiaries |
 
-> **Verify per service and per cloud.** Microsoft's attestation scope varies by cloud (Commercial vs GCC / GCC High / DoD vs 21Vianet) and by service. Always open the actual report and check the **scope** section before relying on it for a specific Microsoft service in a specific cloud.
+> **Verify per service.** Microsoft's attestation scope varies by service. Always open the actual report and check the **scope** section before relying on it for a specific Microsoft service.
 
 ---
 
@@ -94,7 +92,6 @@ The acceptance below reflects common examiner expectations; the firm should alwa
 | **NYDFS** (23 NYCRR 500) | SOC 2 Type 2, ISO 27001 / 27017 / 27018, FedRAMP | NYDFS expects the firm to perform its own Third-Party Service Provider risk assessment per 500.11 — Microsoft attestations are an input |
 | **CFPB** (consumer financial protection — Reg Z, Reg E, etc.) | SOC 2 Type 2, ISO 27001 / 27018 / 27701 | Privacy attestations especially relevant for ECOA / fair-lending agent scenarios |
 | **State insurance regulators** (NAIC Insurance Data Security Model Law adopters) | SOC 2 Type 2, ISO 27001 | State-by-state variability; verify per insurance commissioner |
-| **Federal contractors / financial-sector federal customers** | FedRAMP Moderate (commercial baseline) or FedRAMP High (sensitive / national-security) | Use Azure Government / GCC / GCC High / DoD per the workload's classification |
 
 > **Examiner-pack pattern.** A typical examiner submission for a Microsoft 365 AI agent program includes: **(1)** Microsoft SOC 2 Type 2 (current report + bridge letter), **(2)** Microsoft FedRAMP attestation if a regulated affiliate is in scope, **(3)** Microsoft ISO 27001 + 27017 + 27018, **(4)** the firm's own Compliance Manager assessment for the relevant US framework (FFIEC, GLBA, SOX, NYDFS), **(5)** the firm's [Automated Assessment Engine](assessment-coverage.md) output mapped to the framework controls, and **(6)** Microsoft's DPA + Standard Contractual Clauses where any non-US data is in scope.
 

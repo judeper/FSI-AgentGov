@@ -234,7 +234,6 @@ Human invokes the `/review-learn-changes` prompt for regulatory reports:
 | Formatting only | No substantive change |
 | Date metadata | Noise |
 | Minor wording tweaks | Low impact |
-| 21Vianet-only changes | Not applicable to US FSI |
 
 ### Regulatory Changes
 

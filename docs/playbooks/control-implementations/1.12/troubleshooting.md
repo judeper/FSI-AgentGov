@@ -1,18 +1,15 @@
 # Control 1.12 — Troubleshooting: Insider Risk Detection and Response
 
-> **Scope.** This playbook is the symptom-first diagnostic companion to [Control 1.12 — Insider Risk Detection and Response](../../../controls/pillar-1-security/1.12-insider-risk-detection-and-response.md). It covers Microsoft Purview Insider Risk Management (IRM) detection failures across the FSI-relevant surface — Risky Agents, Risky AI usage, Data leaks (priority users), Security policy violations, Adaptive Protection, Forensic Evidence (dual-auth, 120-day clip retention), Triage Agent, HR connector, browser-extension Windows-only constraint, pseudonymization, sovereign-cloud parity gaps (GCC / GCC High / DoD), and the cross-control handoffs to Communication Compliance (1.10), eDiscovery (1.19), Sentinel UEBA (3.9), Incident Reporting (3.4), and Model Risk (2.6).
+> **Scope.** This playbook is the symptom-first diagnostic companion to [Control 1.12 — Insider Risk Detection and Response](../../../controls/pillar-1-security/1.12-insider-risk-detection-and-response.md). It covers Microsoft Purview Insider Risk Management (IRM) detection failures across the FSI-relevant surface — Risky Agents, Risky AI usage, Data leaks (priority users), Security policy violations, Adaptive Protection, Forensic Evidence (dual-auth, 120-day clip retention), Triage Agent, HR connector, browser-extension Windows-only constraint, pseudonymization, and the cross-control handoffs to Communication Compliance (1.10), eDiscovery (1.19), Sentinel UEBA (3.9), Incident Reporting (3.4), and Model Risk (2.6).
 >
 > **Audience.** Insider Risk Management Admin, Insider Risk Management Analyst, Insider Risk Management Investigator, Insider Risk Management Auditor, Insider Risk Management Approver, Purview Compliance Admin, Privacy Officer, General Counsel, HR Privileged, SOC Analyst, AI Governance Lead. Roles named per [`docs/reference/role-catalog.md`](../../../reference/role-catalog.md).
 >
 > **Sibling playbooks.** [portal-walkthrough.md](portal-walkthrough.md) · [verification-testing.md](verification-testing.md)
 >
-> **Last UI Verified:** April 2026 · **Sovereign clouds covered:** Commercial, GCC, GCC High, DoD (parity gaps called out inline)
+> **Last UI Verified:** April 2026
 
 !!! warning "Non-Substitution"
     Microsoft Purview Insider Risk Management *supports compliance with* FINRA Rule 3110(b) supervisory expectations, FINRA Rule 4511 / SEC Rule 17a-3 / 17a-4(b)(4) make-and-preserve obligations, FINRA RN 24-09 / Rule 3110 (generative-AI supervision expectations), SEC Regulation S-P §248.30 (post-2024 amendments), GLBA §501(b) Safeguards Rule, NYDFS 23 NYCRR 500 §§500.06 / .16 / .17, FFIEC IT Examination Handbook expectations, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), and Fed SR 26-2 (formerly SR 11-7) model risk management — but it **does not replace** those obligations or substitute for the firm's documented supervisory procedures, model risk governance, written information security program, or registered-principal review. Implementation requires written supervisory procedures (WSPs), documented SoD across IRM role groups, signed Compliance + Legal + HR + Privacy review of the policy posture, and continuous regulator-facing evidence preservation. Microsoft does not publish IRM investigation or alert-response SLAs; any response window stated in this playbook is a **firm-defined** supervisory commitment.
-
-!!! warning "Sovereign Cloud Availability"
-    Several IRM capabilities have **limited or lagging availability in US Government clouds (GCC, GCC High, DoD)** at the time of writing — most notably **Adaptive Protection**, **Forensic Evidence**, **Triage Agent**, **Risky AI usage**, and selected **Defender for Cloud Apps connectors**. Verify the per-cloud feature matrix on Microsoft Learn at the time of every deployment, every new capability rollout, and every incident — do **not** assume Commercial parity. For unavailable features, document the gap as a control exception in the deviation register and apply the compensating-control set documented in §3 (Communication Compliance review-cadence increase, DLP block-action tightening, Defender for Cloud Apps anomaly hunts, Sentinel UEBA correlation, manual HR departure-notification flow, freeze of new Zone 3 agent activations). Document the gap as **NotApplicable** for the cloud — **not** as broken or unimplemented — and obtain CISO + Compliance + Legal sign-off on the compensating posture.
 
 ---
 
@@ -22,7 +19,7 @@
 - [§1 Evidence Preservation Before Remediation](#1-evidence-preservation-before-remediation)
 - [§2 Decision Matrix — IRM vs CC vs eDiscovery vs DLP vs Sentinel](#2-decision-matrix-irm-vs-cc-vs-ediscovery-vs-dlp-vs-sentinel)
 - [§3 Compensating Controls During an IRM Degradation](#3-compensating-controls-during-an-irm-degradation)
-- [§4 Symptom-Driven Diagnostics — 25 Scenarios](#4-symptom-driven-diagnostics-25-scenarios)
+- [§4 Symptom-Driven Diagnostics — 23 Scenarios](#4-symptom-driven-diagnostics-23-scenarios)
   - [Scenario 1 — Unified Audit Log not capturing IRM alerts](#scenario-1-unified-audit-log-not-capturing-irm-alerts)
   - [Scenario 2 — Risky Agents (preview) policy not visible in portal](#scenario-2-risky-agents-preview-policy-not-visible-in-portal)
   - [Scenario 3 — Risky AI usage policy not generating alerts](#scenario-3-risky-ai-usage-policy-not-generating-alerts)
@@ -36,7 +33,6 @@
   - [Scenario 11 — Forensic clip approaching 120-day expiry without export](#scenario-11-forensic-clip-approaching-120-day-expiry-without-export)
   - [Scenario 12 — State employee-monitoring law non-compliance discovered post-deployment](#scenario-12-state-employee-monitoring-law-non-compliance-discovered-post-deployment)
   - [Scenario 13 — Triage Agent fails to refresh after 90 days](#scenario-13-triage-agent-fails-to-refresh-after-90-days)
-  - [Scenario 14 — Adaptive Protection silently inactive in sovereign cloud](#scenario-14-adaptive-protection-silently-inactive-in-sovereign-cloud)
   - [Scenario 15 — Pseudonymization broken (anonymization toggled off)](#scenario-15-pseudonymization-broken-anonymization-toggled-off)
   - [Scenario 16 — Pseudonymization → non-pseudonymized escalation lacks HR + Legal sign-off](#scenario-16-pseudonymization-non-pseudonymized-escalation-lacks-hr-legal-sign-off)
   - [Scenario 17 — Communication Compliance correlation missing](#scenario-17-communication-compliance-correlation-missing)
@@ -46,11 +42,9 @@
   - [Scenario 21 — SoD violation found in IRM role groups](#scenario-21-sod-violation-found-in-irm-role-groups)
   - [Scenario 22 — Forensic Evidence exposed PII to non-cleared reviewer](#scenario-22-forensic-evidence-exposed-pii-to-non-cleared-reviewer)
   - [Scenario 23 — AI-driven risk score (Triage Agent / ML scoring) drifts](#scenario-23-ai-driven-risk-score-triage-agent-ml-scoring-drifts)
-  - [Scenario 24 — Sovereign cloud (GCC High / DoD) — Forensic Evidence unavailable](#scenario-24-gcc-high-dod-forensic-evidence-unavailable)
   - [Scenario 25 — Examiner request for IRM evidence cannot be produced](#scenario-25-examiner-request-for-irm-evidence-cannot-be-produced)
-- [§5 Sovereign Cloud Parity Matrix](#5-sovereign-cloud-parity-matrix)
-- [§6 Escalation Matrix](#6-escalation-matrix)
-- [§7 Cross-References](#7-cross-references)
+- [§5 Escalation Matrix](#5-escalation-matrix)
+- [§6 Cross-References](#6-cross-references)
 
 ---
 
@@ -90,7 +84,7 @@ Microsoft Purview Insider Risk Management (IRM) is the **user-behavior risk plan
 
 ### 0.3 Pre-escalation checklist (≥ 16 items)
 
-1. [ ] **Tenant ID and cloud** confirmed (Commercial / GCC / GCC High / DoD)
+1. [ ] **Tenant ID** confirmed
 2. [ ] **IRM SKU verified** — Microsoft 365 E5, E5 Compliance, Insider Risk Management standalone, or Microsoft Purview Suite (per-user); PAYG enabled where required (notably Forensic Evidence)
 3. [ ] **Unified Audit Log on** — `Get-AdminAuditLogConfig` from a `Connect-ExchangeOnline` session shows `UnifiedAuditLogIngestionEnabled : True` (UAL off is the **most common silent-failure mode** in IRM)
 4. [ ] **HR connector last-success ≤ 24 h**; field mapping for `EmployeeID`, `ResignationDate`, `LastWorkingDate`, `EmploymentStatus` verified against the source HRIS schema
@@ -103,7 +97,6 @@ Microsoft Purview Insider Risk Management (IRM) is the **user-behavior risk plan
 11. [ ] **Priority user group membership snapshot** captured (membership at incident UTC); group is **role-based**, not "everyone"
 12. [ ] **Priority content list snapshot** captured (SharePoint sites / sensitive-info types)
 13. [ ] **Administrative units exclusion check** — restricted-AU admins/investigators see only their scoped users
-14. [ ] **Sovereign-cloud parity row consulted** for every in-scope feature (Risky AI usage, Risky Agents, Adaptive Protection, Forensic Evidence, Triage Agent)
 15. [ ] **Compliance + Legal + HR notified** per severity matrix; Privacy notified for any pseudonymization-related, NPI-related, or Forensic-Evidence-related event; **NYDFS 72-hour determination** evaluated by Legal where applicable
 16. [ ] **Evidence preserved** per §1; SHA-256 sidecars captured; manifest stored in Control 1.7 evidence bucket
 17. [ ] **Companion-control health checked** — DLP (1.5), DSPM (1.6), Audit (1.7), Records (1.9), CC (1.10), Conditional Access (1.11), eDiscovery (1.19), Sentinel (3.9), Incident Reporting (3.4), Model Risk (2.6) — none silently degraded in a way that compounds the IRM symptom
@@ -131,7 +124,6 @@ A common audit finding in FSI is *"the policy was modified before the failing-st
 | **E-11** | Audit-search export (`Search-UnifiedAuditLog` filtered for IRM admin actions and unmask events) — paginated, raw-JSON, SHA-256-sidecared | Exchange Online PowerShell | 7 y |
 | **E-12** | Defender for Cloud Apps connector health for any SaaS source feeding IRM (Box, Dropbox, Google Drive, Amazon S3, Azure) | Defender for Cloud Apps — Connectors | 7 y |
 | **E-13** | Defender for Endpoint integration state (required for Security policy violations templates) | Defender XDR — Settings > Integrations | 7 y |
-| **E-14** | Sovereign-cloud parity confirmation — record cloud (Commercial / GCC / GCC High / DoD) and verify against current Learn matrix | Microsoft Learn (printed PDF + URL + retrieval UTC) | 7 y |
 | **E-15** | PAYG billing state for Forensic Evidence and other PAYG-dependent capabilities | Azure subscription — Cost Management | 7 y |
 | **E-16** | Tenant ID, cloud, affected user/policy/case list, UTC window, role used, identity that performed the failing-state observation, browser, sign-in method | Operator-captured incident header | 7 y |
 | **E-17** | SHA-256 manifest sidecar covering every artifact above; stored in Control 1.7 evidence bucket with WORM retention (Control 1.9) | Operator-generated | 7 y (immutable) |
@@ -148,7 +140,7 @@ Only after the evidence pack is sealed and hashed should the policy be modified,
 param(
   [Parameter(Mandatory)] [string] $IncidentId,
   [Parameter(Mandatory)] [string] $TenantId,
-  [Parameter(Mandatory)] [ValidateSet('Commercial','GCC','GCCH','DoD')] [string] $Cloud,
+  [string] $Cloud = 'Commercial',
   [datetime] $WindowStartUtc = (Get-Date).ToUniversalTime().AddDays(-7),
   [datetime] $WindowEndUtc   = (Get-Date).ToUniversalTime()
 )
@@ -226,9 +218,9 @@ Apply one or more while IRM is degraded; document the compensating control in th
 
 ---
 
-## §4 Symptom-Driven Diagnostics — 25 Scenarios
+## §4 Symptom-Driven Diagnostics — 23 Scenarios
 
-> **Format for every scenario.** Symptom · Likely Cause · Diagnostic Steps (portal + KQL/PowerShell) · Resolution · Prevention · Regulatory-evidence implications. Sovereign-cloud variants are called out inline. Do not skip the diagnostic step — fixing without diagnosing is what got you here.
+> **Format for every scenario.** Symptom · Likely Cause · Diagnostic Steps (portal + KQL/PowerShell) · Resolution · Prevention · Regulatory-evidence implications. Do not skip the diagnostic step — fixing without diagnosing is what got you here.
 
 ### Scenario 1 — Unified Audit Log not capturing IRM alerts
 
@@ -309,8 +301,6 @@ If the KQL returns **zero rows** while you know IRM admins were active in the wi
 | **NYDFS 23 NYCRR 500 §500.06** | Audit-trail requirements; the firm must maintain audit trails sufficient to detect and respond to cybersecurity events; UAL off is a §500.06 finding waiting to happen |
 | **GLBA §501(b)** | Safeguards monitoring presupposes that the monitoring is happening; silent UAL is an internal control weakness |
 
-> **Sovereign cloud.** UAL toggle behavior is at parity across Commercial / GCC / GCC High / DoD; ingestion latency may be slightly higher in Gov clouds — verify on current Microsoft Learn before concluding failure inside the warmup window.
-
 ---
 
 ### Scenario 2 — Risky Agents (preview) policy not visible in portal
@@ -321,8 +311,7 @@ If the KQL returns **zero rows** while you know IRM admins were active in the wi
 
 1. **Tenant has not yet been opted into the preview / GA wave** — feature is gated by a rollout ring; the tenant is in a later ring.
 2. **IRM has never been initialized** — Risky Agents auto-applies only after IRM is configured (analytics enabled, role groups populated, at least one explicit policy created).
-3. **Sovereign-cloud unavailability** — Risky Agents follows IRM general availability per cloud; lagging in GCC High / DoD at the time of writing.
-4. **Region or licensing gate** — Microsoft Learn calls out PAYG / licensing prerequisites for selected Copilot-aware IRM features.
+3. **Region or licensing gate** — Microsoft Learn calls out PAYG / licensing prerequisites for selected Copilot-aware IRM features.
 5. **AU-restricted observer** — the IRM Admin viewing the Policies list is restricted to an Administrative Unit and the Risky Agents default policy is scoped tenant-wide; the AU view filters it out.
 
 **Diagnostic Steps.**
@@ -361,16 +350,15 @@ OfficeActivity
 
 **Resolution.**
 
-1. **Confirm cloud and ring.** Capture the cloud (`Get-MgEnvironment`) and the tenant ring (Microsoft 365 Roadmap feature ID). If Gov cloud and the feature is documented as unavailable, **document as `NotApplicable`** in the deviation register and apply compensating controls per §3 (Sentinel UEBA correlation on agent service-principal sign-ins per Control 3.9; Communication Compliance increase on Copilot conduct content per Control 1.10; Defender for Cloud Apps anomaly hunts on agent-owned SaaS access).
+1. **Confirm cloud and ring.** Capture the tenant ring (Microsoft 365 Roadmap feature ID). If the feature is gated for the current rollout ring, await the ring expansion or open a support ticket per §5 L4.
 2. **Initialize IRM** if not already done — populate role groups (Insider Risk Management Admins, Analysts, Investigators, Auditors, Approvers; **Approvers distinct from Investigators**), enable analytics, create at least one explicit policy (e.g., `Data theft by departing users`).
-3. **Wait the documented Risky Agents auto-application window** (Microsoft Learn does not publish a definitive SLA — observe; if not present after 7 d post-initialization, open a Microsoft support ticket per §6 L4 with the payload template).
+3. **Wait the documented Risky Agents auto-application window** (Microsoft Learn does not publish a definitive SLA — observe; if not present after 7 d post-initialization, open a Microsoft support ticket per §5 L4 with the payload template).
 4. **Tune scope, do not delete.** Once visible, do not delete the Risky Agents policy. Tune via priority user groups (agent admins, agent owners) and priority content (sensitive SharePoint sites). Document the tuning rationale.
 
 **Prevention.**
 
 - **Initialization checklist.** Maintain an IRM-readiness checklist that a new IRM Admin must complete before declaring the tenant "IRM-ready" — this checklist must include the Risky Agents auto-application observation step.
 - **Roadmap subscription.** AI Governance Lead subscribes to the Microsoft 365 Roadmap RSS for IRM and Copilot features; quarterly review of upcoming gates.
-- **Sovereign-cloud parity register.** A living register of features documented as `NotApplicable` per cloud, with the compensating-control set, signed by CISO + Compliance + Legal.
 
 **Regulatory-evidence implications.**
 
@@ -380,8 +368,6 @@ OfficeActivity
 | **FINRA Rule 3110(b)** | Supervisory system must be reasonably designed to achieve compliance; for firms that deploy Copilot Studio agents to FINRA-supervised populations, agent-behavioral-risk detection is a reasonable component of the supervisory design |
 | **OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Fed SR 26-2 (formerly SR 11-7)** | Agent behavioral risk is a model-risk surface; absent IRM Risky Agents, the model-risk monitoring obligation falls to manual review (Control 2.6) |
 | **NYDFS 23 NYCRR 500 §500.16** | Incident-response plan must address insider-risk events including those originating from automated/agent identities; document the compensating posture in the IR plan |
-
-> **Sovereign cloud.** Risky Agents lags Commercial in GCC / GCC High / DoD. Verify on current Microsoft Learn at every IR cycle. If unavailable, document as `NotApplicable` and stand up the Sentinel UEBA + CC + Defender for Cloud Apps compensating set; **do not** open a Microsoft support ticket on a documented Gov-cloud parity gap.
 
 ---
 
@@ -473,8 +459,6 @@ DeviceEvents
 | **GLBA §501(b)** | Safeguards monitoring on AI surfaces that may touch NPI |
 | **SEC Reg S-P §248.30** | If the AI surface allows NPI exfiltration without detection, the firm's incident-response readiness is impaired |
 
-> **Sovereign cloud.** Browser-extension support and Risky AI usage availability lag Commercial in GCC High / DoD; verify on current Microsoft Learn before promising coverage. The Windows-only constraint applies in all clouds.
-
 ---
 
 ### Scenario 4 — Data leaks (priority users) over-alerting
@@ -546,8 +530,6 @@ irmAlerts
 | **FINRA Rule 3110(a)** | Designation of supervisory personnel — reviewer assignment per priority user group must be documented |
 | **OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7)** | Threshold tuning is a model-input change; document under Control 2.6 |
 | **State employment law** | Priority user group should not become a proxy for protected-class characteristics |
-
-> **Sovereign cloud.** Behavior at parity. Tuning workflow is identical across clouds.
 
 ---
 
@@ -623,8 +605,6 @@ AlertInfo
 | **GLBA §501(b)** | Endpoint safeguards monitoring |
 | **SEC Reg S-P §248.30** | Endpoint compromise that touches NPI requires the firm's documented incident response — IRM correlation accelerates the determination clock |
 
-> **Sovereign cloud.** MDE integration availability is at general parity; verify connector behavior on current Microsoft Learn.
-
 ---
 
 ### Scenario 6 — Defender for Cloud Apps anomaly silence post-June-2025 migration
@@ -637,7 +617,6 @@ AlertInfo
 2. **Legacy detection disabled / retired**; replacement detection requires explicit opt-in.
 3. **Connector schema change**; the IRM-side ingestion silently drops events that no longer match the expected schema.
 4. **Permission scope expanded** by the migration; the connector's service principal now lacks a newly-required scope.
-5. **Sovereign-cloud lag**; the migration rolled to Commercial first and Gov clouds later, creating a parity gap window.
 
 **Diagnostic Steps.**
 
@@ -700,8 +679,6 @@ OfficeActivity
 | **FINRA Rule 3110(b)** | Document the supervisory-system response to vendor migration windows |
 | **OCC Bulletin 2013-29** | Third-party / vendor risk — Microsoft is a critical third party; vendor-side changes must be tracked and assessed |
 | **OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7)** | If anomaly detection is treated as a model input, the migration is a model change requiring reassessment |
-
-> **Sovereign cloud.** Verify the migration rollout calendar per cloud on current Microsoft Learn; Gov clouds typically lag Commercial.
 
 ---
 
@@ -785,8 +762,6 @@ OfficeActivity
 | **GLBA §501(b)** | Identity-based access control on systems handling NPI |
 | **NYDFS §500.16** | Incident-response plan must address compromised-credential events |
 
-> **Sovereign cloud.** Entra ID Protection is at general parity across clouds; verify per current Learn.
-
 ---
 
 ### Scenario 8 — HR connector health red
@@ -856,8 +831,6 @@ Import-Csv .\hr-upload-2026-04-15.csv |
 | **FINRA Rule 4530** | If a leaver event surfaces misconduct, the firm's reporting obligations apply |
 | **GLBA §501(b)** | Departing-user NPI exfiltration is a classic safeguards-monitoring trigger |
 | **SEC Reg S-P §248.30** | Departing-user breach scenarios fall within the firm's incident-response readiness |
-
-> **Sovereign cloud.** HR connector availability is at general parity; verify any preview features per current Microsoft Learn.
 
 ---
 
@@ -934,8 +907,6 @@ OfficeActivity
 | **SOX §404 ICFR** | Dual-control on evidence collection is an ITGC pattern |
 | **State employee-monitoring law (CT, DE, NY)** | Dual-auth is part of the documented monitoring posture; absence undermines the firm's "reasonable" employer-monitoring posture |
 
-> **Sovereign cloud.** Forensic Evidence is **lagging** in GCC High / DoD; if unavailable, see Scenario 24.
-
 ---
 
 ### Scenario 10 — Forensic Evidence policy creation rejected
@@ -948,8 +919,7 @@ OfficeActivity
 2. **PAYG billing not enabled** on the tenant; Forensic Evidence is a PAYG capability.
 3. **Devices not onboarded** to Microsoft Purview (separate from Microsoft Defender for Endpoint onboarding).
 4. **Windows edition mismatch** — devices are Windows 10/11 Pro (not Enterprise); Forensic Evidence is Enterprise-only.
-5. **Region / sovereign-cloud unavailability** — Forensic Evidence not available in the tenant's cloud.
-6. **Capture-policy prerequisite missing** — the upstream IRM policy referenced by the Forensic Evidence policy is not yet created or is in Test mode.
+5. **Capture-policy prerequisite missing** — the upstream IRM policy referenced by the Forensic Evidence policy is not yet created or is in Test mode.
 
 **Diagnostic Steps.**
 
@@ -985,8 +955,7 @@ DeviceInfo
 2. **Push the Microsoft Purview Client** via Intune to the in-scope Windows 10/11 Enterprise population. Validate coverage report.
 3. **Onboard missing devices** to Microsoft Purview (separate from MDE; both are required).
 4. **Edition gap** — coordinate with the device-management team to upgrade Windows 10/11 Pro devices to Enterprise via the firm's licensing program where Forensic Evidence is required.
-5. **Sovereign-cloud unavailability** — see Scenario 24.
-6. **Re-attempt policy creation** after each prerequisite is satisfied.
+5. **Re-attempt policy creation** after each prerequisite is satisfied.
 
 **Prevention.**
 
@@ -1001,8 +970,6 @@ DeviceInfo
 | **FINRA Rule 3110(b)** | Forensic Evidence absence does not by itself create a 3110 finding, but the firm should document its evidence-collection capability in the WSP |
 | **State employee-monitoring law (CT, DE, NY)** | The firm must document the monitoring posture **before** capture; pre-flight notice is part of the posture |
 | **GLBA §501(b)** | Evidence-collection capability supports the safeguards monitoring program |
-
-> **Sovereign cloud.** Forensic Evidence is **lagging** in GCC High / DoD per current Microsoft Learn; do not promise it without verifying the cloud row.
 
 ---
 
@@ -1076,8 +1043,6 @@ OfficeActivity
 | **CFTC Rule 1.31** | If the case touches covered swap / trading activity, CFTC retention applies |
 | **NYDFS §500.06** | Audit-trail completeness; clip loss is an audit-trail gap |
 
-> **Sovereign cloud.** 120-day auto-delete behavior is at parity where the feature is available.
-
 ---
 
 ### Scenario 12 — State employee-monitoring law non-compliance discovered post-deployment
@@ -1139,8 +1104,6 @@ $captures | Where-Object { $_.SubjectUpn -in $inSubjectStates.UserPrincipalName 
 | **GLBA §501(b)** | Privacy program obligations; non-compliance is a programmatic finding |
 | **NYDFS 23 NYCRR 500 §500.16** | Incident-response plan must address monitoring-program incidents |
 | **State AG enforcement** | Several state AGs have brought employee-monitoring enforcement actions |
-
-> **Sovereign cloud.** State-law obligations apply regardless of cloud; Gov clouds do not exempt the firm.
 
 ---
 
@@ -1207,57 +1170,6 @@ OfficeActivity
 | **OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7)** | The Triage Agent is a model; its availability is part of the model's operational risk; document outages in the model inventory (Control 2.6) |
 | **FINRA Rule 3110(b)** | Manual triage is an acceptable compensating mechanism if documented; silent degradation without compensation is the gap |
 
-> **Sovereign cloud.** Triage Agent lags Commercial in Gov clouds; verify on current Learn.
-
----
-
-### Scenario 14 — Adaptive Protection silently inactive in sovereign cloud
-
-**Symptom.** A GCC High tenant's IRM configuration page references **Adaptive Protection** in the navigation, but on selecting it the page either does not load, shows an unavailability banner, or the user-risk distribution view is empty regardless of upstream signal density. Conditional Access (Control 1.11) was configured to consume the insider-risk-level signal but no users ever cross the threshold.
-
-**Likely Cause.** **Adaptive Protection has limited / lagging availability in GCC, GCC High, and DoD** per Microsoft Learn. The feature may surface in the navigation without being functionally available.
-
-**Diagnostic Steps.**
-
-*Portal.* Microsoft Purview → **Insider Risk Management** → **Adaptive Protection** → **User risk distribution** — empty / unavailable banner. Cross-check on Microsoft Learn `insider-risk-management-adaptive-protection` for the cloud-availability row at the time of check.
-
-*PowerShell.*
-
-```powershell
-# Confirm cloud
-Connect-MgGraph -Scopes 'Directory.Read.All' -NoWelcome
-(Get-MgEnvironment).Name
-# Expected GCCH: USGov; DoD: USGovDoD
-```
-
-**Resolution — Reframe as `NotApplicable` and apply compensating controls.**
-
-1. **Document Adaptive Protection as `NotApplicable`** in the cloud's deviation register; do not raise a Microsoft support ticket on a documented Gov-cloud parity gap.
-2. **Compensating controls (must be in place; signed off by CISO + Compliance + Legal):**
-   - Communication Compliance review-cadence increase on in-scope Copilot conduct content (Control 1.10)
-   - DLP-for-Copilot block actions tightened from `TestWithNotifications` to `Enable` for NPI / MNPI categories (Control 1.5)
-   - Defender for Cloud Apps anomaly hunts on the in-scope SaaS surface
-   - Sentinel UEBA peer-baseline correlation queries (Control 3.9)
-   - Manual periodic risk-tier review by Compliance for the in-scope priority user groups
-   - Conditional Access policy uses **alternative** signals (sign-in risk from Entra ID Protection, device compliance state, named-location restrictions) instead of Adaptive Protection insider-risk-level
-3. **Re-validate per cloud refresh** — quarterly check whether Microsoft has shipped Adaptive Protection to the cloud; if shipped, plan migration off the compensating posture under Control 2.3 Change Management.
-
-**Prevention.**
-
-- **Sovereign-cloud parity register** as a living document; quarterly review.
-- **Compensating-control attestation** — quarterly attestation that the compensating controls are in force.
-- **Do not** declare Adaptive Protection compliance in Gov clouds without verifying availability.
-
-**Regulatory-evidence implications.**
-
-| Authority | Exposure |
-|---|---|
-| **FINRA Rule 3110(b)** | The supervisory system must be reasonably designed for the cloud the firm operates in; documented compensating controls support reasonableness |
-| **OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7)** | Adaptive Protection is a model; absence requires the model-risk profile to be reframed |
-| **NYDFS 23 NYCRR 500** | Incident-response plan and authentication-policy obligations independent of cloud |
-
-> **Sovereign cloud.** This scenario is itself the canonical sovereign-cloud-gap pattern.
-
 ---
 
 ### Scenario 15 — Pseudonymization broken (anonymization toggled off)
@@ -1320,8 +1232,6 @@ OfficeActivity
 | **NYDFS 23 NYCRR 500 §500.16** | Incident-response plan covers privacy-program incidents |
 | **Internal privacy policy** | The firm's own privacy policy may set a higher bar than statute |
 
-> **Sovereign cloud.** Behavior at parity; obligations apply in all clouds.
-
 ---
 
 ### Scenario 16 — Pseudonymization → non-pseudonymized escalation lacks HR + Legal sign-off
@@ -1373,8 +1283,6 @@ $rows | Select-Object CreationDate, UserIds, Operations, AuditData
 | **State employee-monitoring law** | Documented sign-off is part of the reasonable-employer-monitoring posture |
 | **FINRA Rule 3110(b)** | Process compliance with the firm's WSP |
 
-> **Sovereign cloud.** Behavior at parity.
-
 ---
 
 ### Scenario 17 — Communication Compliance correlation missing
@@ -1418,8 +1326,6 @@ Get-SupervisoryReviewPolicyV2 -ErrorAction SilentlyContinue
 | **FINRA Rule 3110(b)** | Supervisory review of communications is a recognized 3110 component for FINRA-supervised firms; CC absence is a 3110 gap on conduct content |
 | **FINRA RN 24-09 / Rule 3110** | Generative-AI supervision; the firm's posture should include conduct-content review of AI prompts/responses |
 | **SEC Reg S-P** | Conduct-content review on AI surfaces touching NPI |
-
-> **Sovereign cloud.** CC availability is at general parity; verify per current Learn.
 
 ---
 
@@ -1484,8 +1390,6 @@ BehaviorAnalytics
 | **OCC Bulletin 2013-29** | Third-party / vendor risk on agent-identity providers |
 | **NYDFS §500.06 / §500.16** | Audit-trail completeness and incident-response readiness |
 
-> **Sovereign cloud.** Sentinel is available across clouds; verify connector availability per cloud.
-
 ---
 
 ### Scenario 19 — Risky Agents alert volume from one Copilot Studio agent overwhelms queue
@@ -1537,8 +1441,6 @@ SecurityAlert
 | **OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7)** | Agent is a model; over-tripping risk indicators is a model-performance issue |
 | **NYDFS §500.16** | Incident-response readiness; queue collapse is an operational-risk event |
 
-> **Sovereign cloud.** Risky Agents indicator availability lags in Gov clouds; verify on current Learn.
-
 ---
 
 ### Scenario 20 — IRM alert escalates to incident; legal hold + regulator clock
@@ -1575,8 +1477,6 @@ SecurityAlert
 | **SEC Reg S-P Amendments** | 30-day notification on incidents involving sensitive customer information |
 | **FINRA Rule 4530** | Reporting of certain events |
 | **SEC 17a-4(f)** | Books-and-records preservation in WORM |
-
-> **Sovereign cloud.** eDiscovery (Premium) and IRM both available in Gov clouds; Forensic Evidence parity gap is the constraint (see Scenario 24).
 
 ---
 
@@ -1627,8 +1527,6 @@ OfficeActivity
 | **FINRA Rule 3110(b)** | Supervisory system requires SoD between supervisor and supervised |
 | **NYDFS §500.07** | Access-privilege management |
 | **GLBA §501(b)** | Privacy-by-design SoD between Investigator and Approver of unmask actions |
-
-> **Sovereign cloud.** Behavior at parity.
 
 ---
 
@@ -1687,8 +1585,6 @@ OfficeActivity
 | **NYDFS 23 NYCRR 500.17** | Cybersecurity-event determination; 72-hour clock evaluation |
 | **Internal privacy policy** | The firm's own policy may require employee-affected notifications |
 
-> **Sovereign cloud.** Forensic Evidence parity is a Gov-cloud gap (Scenario 24); in commercial this scenario is fully exercised.
-
 ---
 
 ### Scenario 23 — AI-driven risk score (Triage Agent / ML scoring) drifts
@@ -1736,46 +1632,6 @@ SecurityAlert
 | **OCC Bulletin 2026-13 (formerly OCC 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7)** | Model risk management; ongoing monitoring expectation |
 | **FINRA RN 24-09 / Rule 3110** | Generative-AI supervision; model-performance evidence |
 | **NYDFS §500.16** | Incident-response readiness if drift is severe enough to be operational risk |
-
-> **Sovereign cloud.** Triage Agent availability lags in Gov clouds; verify per current Learn.
-
----
-
-### Scenario 24 — GCC High / DoD: Forensic Evidence unavailable
-
-**Symptom.** A DoD tenant's IRM operator attempts to enable Forensic Evidence; the option is absent from the navigation, or surfaces with an unavailability banner. Investigators in DoD have no clip-capture capability for visual-context evidence.
-
-**Likely Cause.** Forensic Evidence has lagging / limited availability in GCC, GCC High, and DoD per current Microsoft Learn.
-
-**Diagnostic Steps.** Verify cloud (`(Get-MgEnvironment).Name`) and Microsoft Learn `insider-risk-management-forensic-evidence` cloud-availability row at time of check.
-
-**Resolution — Compensating manual investigation pattern.**
-
-1. **Document Forensic Evidence as `NotApplicable`** in the DoD deviation register.
-2. **Compensating posture (must be in place; CISO + Compliance + Legal sign-off):**
-   - **Microsoft Defender for Endpoint Live Response** for on-demand forensic acquisition during an active investigation (target the user's device, capture relevant logs and process trees)
-   - **eDiscovery (Premium)** content collection (Control 1.19) — mailbox, OneDrive, Teams, SharePoint, and Copilot interaction collection on the custodian; this captures content but not visual context
-   - **MDE timeline** for endpoint activity context (file, process, network)
-   - **Audit log (UAL)** for service-side evidence (Control 1.7)
-   - **Defender for Cloud Apps** activity log for SaaS-side evidence
-3. **Investigator runbook** documents the compensating evidence-acquisition sequence and produces an evidence package equivalent to (but distinct from) Forensic Evidence clips.
-4. **Re-validate per cloud refresh** — quarterly check whether Microsoft has shipped Forensic Evidence to the cloud; plan migration under Control 2.3 Change Management when available.
-
-**Prevention.**
-
-- **Sovereign-cloud parity register** (see §5).
-- **Quarterly compensating-control attestation.**
-- **Tabletop exercise** of the compensating evidence-acquisition runbook quarterly with the IRM Investigator + SOC + Legal.
-
-**Regulatory-evidence implications.**
-
-| Authority | Exposure |
-|---|---|
-| **FINRA Rule 3110(b)** | Reasonable supervisory system in the cloud the firm operates in |
-| **DoD-specific contractual obligations** | Cleared-environment compensating-evidence acquisition |
-| **NYDFS §500.16** | Incident-response plan adapted to cloud |
-
-> **Sovereign cloud.** This scenario IS the canonical Gov-cloud Forensic Evidence gap.
 
 ---
 
@@ -1840,47 +1696,16 @@ Search-UnifiedAuditLog -StartDate $start -EndDate $end -RecordType ComplianceCen
 | **SEC Rule 204-2 (Advisers Act)** | Adviser books-and-records |
 | **Examiner-specific deadlines** | Failure-to-produce is itself a finding distinct from the underlying matter |
 
-> **Sovereign cloud.** Behavior at parity; Records Retention and eDiscovery (Premium) available across clouds.
-
 ---
 
-## §5 Sovereign Cloud Parity Matrix
-
-The IRM control surface does **not** ship at parity across Commercial, GCC, GCC High, and DoD. The following matrix is a snapshot — operators **must** verify each row on Microsoft Learn at the time of design and at quarterly cadence, and update the firm's deviation register accordingly.
-
-> **How to read this matrix.** `Available` = generally available in the cloud at time of writing. `Limited` = present but with documented constraints (lagging features, region restrictions). `NotApplicable` = not shipped to the cloud; do **not** raise a Microsoft support ticket; document compensating controls. `Verify` = status was changing at time of writing; consult current Learn before deployment.
-
-| Capability | Commercial | GCC | GCC High | DoD | Compensating control if `NotApplicable` / `Limited` |
-|---|---|---|---|---|---|
-| IRM core (policies, indicators, alerts, cases) | Available | Available | Available | Available | n/a |
-| HR connector | Available | Available | Verify | Verify | Manual user-attribute import via Graph; Entra access packages |
-| Microsoft Defender for Endpoint integration | Available | Available | Available | Verify | MDE Live Response runbook (Scenario 24) |
-| Defender for Cloud Apps connectors | Available | Limited | Limited | Limited | Manual SaaS log ingestion to Sentinel; UEBA queries |
-| Browser extension (Edge / Chrome, Windows-only) | Available | Available | Verify | Verify | Endpoint DLP (Control 1.17) for non-Windows or Gov gaps |
-| Risky Agents indicator | Available | Verify | Verify | Verify | Manual agent inventory review (Control 2.25); Sentinel KQL (Control 3.9) |
-| Risky AI usage indicator | Available | Verify | Verify | Verify | Communication Compliance (Control 1.10) on Copilot conduct content |
-| Adaptive Protection | Available | Limited | Limited | Limited | Conditional Access alternate signals (Scenario 14) |
-| Forensic Evidence | Available | Limited | Limited | Verify | MDE Live Response + eDiscovery (Premium) collection (Scenario 24) |
-| Triage Agent (Security Copilot) | Available | Verify | Verify | Verify | Manual triage; documented SLA increase |
-| Pseudonymization (privacy-by-design) | Available | Available | Available | Available | n/a |
-| Administrative Units (AU) scoping | Available | Available | Available | Available | n/a |
-| Communication Compliance (Control 1.10) join | Available | Available | Available | Available | n/a |
-| eDiscovery (Premium) (Control 1.19) join | Available | Available | Available | Available | n/a |
-| Sentinel ingestion (Control 3.9) | Available | Available | Available | Available | n/a |
-| Portal hostname | `purview.microsoft.com` | `purview.microsoft.us` (verify) | `purview.microsoft.us` (verify) | `purview.microsoft.us` (verify) | n/a |
-
-**Quarterly attestation.** The AI Governance Lead attests quarterly that this matrix reflects current Microsoft Learn and that compensating controls for each non-`Available` row are in force.
-
----
-
-## §6 Escalation Matrix
+## §5 Escalation Matrix
 
 ### Tiered escalation
 
 | Tier | Owner | Trigger | Time-to-engage |
 |---|---|---|---|
 | **L1** | Insider Risk Management Admin | Operational alert / configuration drift; non-PII; non-incident | Same business day |
-| **L2** | AI Governance Lead + Privacy Officer | Cross-control gap; pseudonymization issue; sovereign-cloud reframe; model drift | 1 business day |
+| **L2** | AI Governance Lead + Privacy Officer | Cross-control gap; pseudonymization issue; model drift | 1 business day |
 | **L3** | CISO + Compliance + Legal + HR | Confirmed PII/NPI exposure; case escalating to incident; SoD violation; examiner request | 1 hour (PII/NPI) — 1 business day (other) |
 | **L4** | Microsoft support (Premier / Unified) | Product defect; service-side failure not attributable to configuration | After L1/L2 root-cause confirms product responsibility |
 | **L5** | Internal Compliance + Legal + HR communication | Disclosure decision; regulator-clock evaluation; employee-affected notification | Per regulator / statute clocks |
@@ -1890,10 +1715,10 @@ The IRM control surface does **not** ship at parity across Commercial, GCC, GCC 
 Use this payload when opening a Microsoft support case for an IRM product issue (after L1/L2 root-cause confirms the issue is product-side, not configuration).
 
 ```text
-Title: [IRM] <Concise symptom> — <Cloud> — Tenant <TenantId>
+Title: [IRM] <Concise symptom> — Tenant <TenantId>
 
 Tenant: <TenantId>
-Cloud: Commercial | GCC | GCC High | DoD
+Cloud: Commercial (Global)
 Affected workload: Insider Risk Management
 Affected feature: <Triage Agent | Adaptive Protection | Forensic Evidence | Risky Agents | Risky AI usage | Browser extension | HR connector | Other>
 Date/time of first observation (UTC): <yyyy-mm-ddThh:mm:ssZ>
@@ -1999,7 +1824,7 @@ Privileged-communication review: <Legal Counsel>
 
 ---
 
-## §7 Cross-References
+## §6 Cross-References
 
 ### Cross-control links
 
