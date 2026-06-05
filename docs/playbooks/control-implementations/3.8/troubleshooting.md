@@ -183,7 +183,9 @@ Confirm Purview Audit is enabled in the Microsoft Purview portal.
 
 ### 3.2 `Add-PowerAppsAccount` returns zero environments
 
-**Almost always a sovereign-cloud endpoint mismatch** — see [PowerShell baseline §3](../../_shared/powershell-baseline.md). Pass `-Endpoint usgov` / `usgovhigh` / `dod` / `china` for the appropriate cloud. Commercial-endpoint authentication against a sovereign tenant returns false-clean (zero) results.
+**Cause:** The executing identity lacks the Power Platform Admin role, or the cmdlets are running under PowerShell 7 instead of Windows PowerShell 5.1. See §3.3 below.
+
+**Resolution:** Confirm the account holds Power Platform Admin. Run PPAC governance scripts in Windows PowerShell 5.1 only.
 
 ---
 

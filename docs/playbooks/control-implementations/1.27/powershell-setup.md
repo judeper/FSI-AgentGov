@@ -1,7 +1,7 @@
 # PowerShell Setup: Control 1.27 — AI Agent Content Moderation Enforcement
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, the `Write-FsiEvidence` SHA-256 evidence pattern, and the Desktop-edition guard. Snippets below intentionally re-use those patterns; the baseline is authoritative.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, the `Write-FsiEvidence` SHA-256 evidence pattern, and the Desktop-edition guard. Snippets below intentionally re-use those patterns; the baseline is authoritative.
 
 **Last Updated:** May 2026
 **Primary Modules:** `Microsoft.PowerApps.Administration.PowerShell` (Desktop / Windows PowerShell 5.1 only), `ExchangeOnlineManagement` (Search-UnifiedAuditLog).
@@ -12,7 +12,6 @@
 
 - [ ] **Role:** Power Platform Admin (cross-environment inventory) **or** Entra Global Admin. For Script 2 audit queries, also assign **Purview Audit Reader** (least-privilege) or **Purview Compliance Admin**.
 - [ ] **PowerShell edition:** Windows PowerShell 5.1 (Desktop) is **required** for `Microsoft.PowerApps.Administration.PowerShell`. The Desktop guard from the baseline (§2) is included in every script below — do not remove it.
-- [ ] **Sovereign cloud:** if your tenant is GCC / GCC High / DoD, pass the correct `-Endpoint` value to `Add-PowerAppsAccount`. Otherwise the cmdlet authenticates against commercial endpoints and returns zero environments — producing **false-clean evidence**. See baseline §3.
 - [ ] **Module pinning:** baseline §1. Substitute `<version>` with the version approved by your CAB.
 
 ---
@@ -27,11 +26,7 @@ Install-Module -Name Microsoft.PowerApps.Administration.PowerShell `
 Install-Module -Name ExchangeOnlineManagement `
     -RequiredVersion '<version>' -Repository PSGallery -Scope CurrentUser -AllowClobber -AcceptLicense
 
-# Sovereign-aware sign-in (baseline §3)
-param(
-    [ValidateSet('prod','usgov','usgovhigh','dod')] [string]$Endpoint = 'prod'
-)
-Add-PowerAppsAccount -Endpoint $Endpoint
+Add-PowerAppsAccount -Endpoint prod
 # Replace admin@yourdomain.com with your privileged-access workstation account
 Connect-ExchangeOnline -UserPrincipalName admin@yourdomain.com -ShowBanner:$false
 ```
@@ -55,7 +50,7 @@ Connect-ExchangeOnline -UserPrincipalName admin@yourdomain.com -ShowBanner:$fals
 ## Shared evidence helper (used by all scripts)
 
 ```powershell
-# Re-use Write-FsiEvidence from the baseline (§5). Inlined here for self-containment.
+# Re-use Write-FsiEvidence from the baseline (§4). Inlined here for self-containment.
 function Write-FsiEvidence {
     param(
         [Parameter(Mandatory)] $Object,
@@ -99,7 +94,7 @@ function Write-FsiEvidence {
 [CmdletBinding()]
 param(
     [string]$EvidencePath = ".\evidence\1.27",
-    [ValidateSet('prod','usgov','usgovhigh','dod')] [string]$Endpoint = 'prod',
+    [string]$Endpoint = 'prod',
     [string[]]$EnvironmentFilter   # optional: limit to named environments
 )
 
@@ -276,7 +271,7 @@ $summary | Select-Object Total, Compliant, NonCompliant, HighSeverity | Format-T
 .SYNOPSIS
     Pulls per-topic Generative answers nodes for a given agent via Dataverse Web API.
 .PARAMETER OrgUrl
-    e.g., https://contoso.crm.dynamics.com  (or .crm9. for GCC, .crm.microsoftdynamics.us for GCC High, .crm.appsplatform.us for DoD, etc.)
+    e.g., https://contoso.crm.dynamics.com
 .PARAMETER BotId
     The Dataverse bot id (ChatbotName from Script 1 output).
 .PARAMETER AccessToken

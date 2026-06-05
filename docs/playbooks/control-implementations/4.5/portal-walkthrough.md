@@ -19,9 +19,6 @@ Before starting, confirm:
 | **Unified audit logging** enabled in Microsoft Purview | See Step 0 below to confirm before relying on any monitoring evidence |
 | **Audit retention policy** sized to your regulatory retention period | SEC 17a-4 / FINRA 4511 typically requires 6 years; Standard audit retains 180 days and Premium audit retains 1 year by default — extend via a Purview audit retention policy |
 
-!!! warning "Sovereign cloud tenants"
-    GCC, GCC High, and DoD tenants use different admin URLs (e.g., `https://<tenant>-admin.sharepoint.us`). Substitute the correct hostname throughout. Some Advanced Management features may have a delayed rollout in sovereign clouds — verify availability via the Microsoft 365 Roadmap before assuming feature parity.
-
 ---
 
 ## Step 0: Confirm Foundational Logging is in Place

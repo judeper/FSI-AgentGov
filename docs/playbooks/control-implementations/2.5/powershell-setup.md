@@ -2,7 +2,7 @@
 
 > **Scope.** This playbook automates the evidence-bearing planes of Control 2.5 for Microsoft 365 Copilot agents, Microsoft Copilot Studio agents, and Azure AI Foundry-hosted agents in US financial services tenants. It assumes you have already read [`../../_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) (referenced below as **BL-§N**) and the parent control specification [`../../../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md`](../../../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md).
 >
-> **What this playbook is.** A reproducible, fail-closed harness that (a) pins versions, (b) bootstraps a sovereign-aware session, (c) executes the five Control 2.5 evidence planes (Copilot Studio test sets, Azure AI Evaluation SDK metrics, PyRIT adversarial campaigns, Power Platform Solution Checker, Pipelines deployment gates), (d) emits SHA-256-hashed evidence with a signed manifest, and (e) supports the three-signature attestation chain (developer / validator / supervisor).
+> **What this playbook is.** A reproducible, fail-closed harness that (a) pins versions, (b) bootstraps a commercial Microsoft 365 session, (c) executes the five Control 2.5 evidence planes (Copilot Studio test sets, Azure AI Evaluation SDK metrics, PyRIT adversarial campaigns, Power Platform Solution Checker, Pipelines deployment gates), (d) emits SHA-256-hashed evidence with a signed manifest, and (e) supports the three-signature attestation chain (developer / validator / supervisor).
 >
 > **What this playbook is not.** It does not replace human red-team review, model-risk-management sign-off, or Designated Supervisor attestation. The harness raises evidence; people accept risk.
 >
@@ -14,7 +14,6 @@
 | Pillar | Management |
 | Playbook | PowerShell Setup |
 | PowerShell Edition | 7.4 LTS Core (primary); 5.1 Desktop sub-shell guarded for `Microsoft.PowerApps.Administration.PowerShell` only |
-| Sovereign Clouds | Public, GCC, GCC High, DoD, China (21Vianet) — see §11 matrix |
 | Last UI Verified | April 2026 |
 | Companion Playbooks | [`portal-walkthrough.md`](portal-walkthrough.md) · [`verification-testing.md`](verification-testing.md) · [`troubleshooting.md`](troubleshooting.md) |
 
@@ -45,16 +44,16 @@ if ($desktopPaths) {
 
 **Tooling matrix (April 2026 baseline).**
 
-| Tool | Minimum version | Purpose | Sovereign notes |
-|---|---|---|---|
-| PowerShell Core | 7.4.0 LTS | Primary shell | All clouds |
-| Windows PowerShell Desktop | 5.1 | `Microsoft.PowerApps.Administration.PowerShell` sub-shell only (BL-§2) | Windows hosts only |
-| Power Platform CLI (`pac`) | 1.36.0 | Solution Checker, Pipelines, agent export | `--cloud {Public\|UsGov\|UsGovHigh\|DoD}` |
-| Azure CLI (`az`) | 2.60.0 | AI Foundry project lookup, Log Analytics ingest token | `az cloud set --name {AzureCloud\|AzureUSGovernment\|AzureChinaCloud}` |
-| Microsoft 365 Agents Toolkit CLI (`m365`) | 6.0.0 | Declarative-agent provisioning + manifest hashing | Public + GCC verified; GCC-High limited |
-| Python | 3.11.0 | `azure-ai-evaluation`, `pyrit` | OSS, portable across all clouds |
-| Git | 2.40.0 | Manifest provenance | n/a |
-| OpenSSL or `Get-FileHash` | n/a | SHA-256 evidence hashes (BL-§5) | n/a |
+| Tool | Minimum version | Purpose |
+|---|---|---|
+| PowerShell Core | 7.4.0 LTS | Primary shell |
+| Windows PowerShell Desktop | 5.1 | `Microsoft.PowerApps.Administration.PowerShell` sub-shell only (BL-§2) |
+| Power Platform CLI (`pac`) | 1.36.0 | Solution Checker, Pipelines, agent export |
+| Azure CLI (`az`) | 2.60.0 | AI Foundry project lookup, Log Analytics ingest token |
+| Microsoft 365 Agents Toolkit CLI (`m365`) | 6.0.0 | Declarative-agent provisioning + manifest hashing |
+| Python | 3.11.0 | `azure-ai-evaluation`, `pyrit` |
+| Git | 2.40.0 | Manifest provenance |
+| OpenSSL or `Get-FileHash` | n/a | SHA-256 evidence hashes (BL-§4) |
 
 **Fail-closed conditions:**
 
@@ -173,34 +172,10 @@ if ($badGraph -or $badPnP) {
 
 ---
 
-## §2 — `Initialize-Agt25Session`: sovereign-aware bootstrap
+## §2 — `Initialize-Agt25Session`: bootstrap
 
-**Why this section exists.** Every Control 2.5 run must declare its sovereign cloud once, derive every endpoint from that declaration, and refuse to mix endpoints across clouds. A silent cross-cloud call (e.g., issuing a Public-cloud OpenAI evaluator request against a GCC High agent) produces evidence that cannot be admitted by an examiner because the data crossed an authorization boundary.
+**Why this section exists.** Every Control 2.5 run must establish a repeatable commercial Microsoft 365 session, clear stale profiles, connect required services, and write session metadata for downstream evidence and attestation.
 
-**Cloud profile resolver.**
-
-```powershell
-function Resolve-Agt25CloudProfile {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)]
-        [ValidateSet('Public','GCC','GCCHigh','DoD','China')]
-        [string]$Cloud
-    )
-    switch ($Cloud) {
-        'Public'   { return [pscustomobject]@{
-            Cloud='Public'; PacCloud='Public';   AzCloud='AzureCloud';            GraphEnv='Global';     GraphHost='graph.microsoft.com';        AiFoundryHost='ai.azure.com';                 LogAnalyticsHost='ods.opinsights.azure.com';        CopilotStudioGA=$true;  AiFoundryEvalGA=$true  } }
-        'GCC'      { return [pscustomobject]@{
-            Cloud='GCC';      PacCloud='Public';  AzCloud='AzureCloud';            GraphEnv='Global';     GraphHost='graph.microsoft.com';        AiFoundryHost='ai.azure.com';                 LogAnalyticsHost='ods.opinsights.azure.com';        CopilotStudioGA=$true;  AiFoundryEvalGA='Limited' } }
-        'GCCHigh'  { return [pscustomobject]@{
-            Cloud='GCCHigh';  PacCloud='UsGovHigh'; AzCloud='AzureUSGovernment'; GraphEnv='USGov';      GraphHost='graph.microsoft.us';         AiFoundryHost='ai.azure.us';                  LogAnalyticsHost='ods.opinsights.azure.us';         CopilotStudioGA=$true;  AiFoundryEvalGA='Limited' } }
-        'DoD'      { return [pscustomobject]@{
-            Cloud='DoD';      PacCloud='DoD';     AzCloud='AzureUSGovernment';   GraphEnv='USGovDoD';   GraphHost='dod-graph.microsoft.us';     AiFoundryHost='ai.azure.us';                  LogAnalyticsHost='ods.opinsights.azure.us';         CopilotStudioGA=$false; AiFoundryEvalGA=$false } }
-        'China'    { return [pscustomobject]@{
-            Cloud='China';    PacCloud='Public';  AzCloud='AzureChinaCloud';     GraphEnv='China';      GraphHost='microsoftgraph.chinacloudapi.cn'; AiFoundryHost='ai.azure.cn';            LogAnalyticsHost='ods.opinsights.azure.cn';         CopilotStudioGA=$false; AiFoundryEvalGA=$false } }
-    }
-}
-```
 
 **Session bootstrap.**
 
@@ -208,22 +183,12 @@ function Resolve-Agt25CloudProfile {
 function Initialize-Agt25Session {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory)] [ValidateSet('Public','GCC','GCCHigh','DoD','China')] [string]$Cloud,
         [Parameter(Mandatory)] [string]$TenantId,
         [Parameter(Mandatory)] [string]$ValidatorUpn,
         [Parameter(Mandatory)] [string]$AgentId,
         [Parameter(Mandatory)] [ValidateSet('Zone1','Zone2','Zone3')] [string]$Zone,
         [string]$RunId = ([guid]::NewGuid().ToString())
     )
-    $profile = Resolve-Agt25CloudProfile -Cloud $Cloud
-
-    # Hard-stop sovereign feature gating
-    if (-not $profile.CopilotStudioGA) {
-        Write-Warning "Copilot Studio is NOT generally available in $Cloud as of April 2026. §4 will be skipped; record an exception in the manifest."
-    }
-    if ($profile.AiFoundryEvalGA -eq $false) {
-        Write-Warning "Azure AI Foundry Evaluation is NOT GA in $Cloud. §5 must run against a Public-cloud surrogate ONLY if the dataset contains no regulated data; otherwise skip and document."
-    }
 
     # Validator/developer segregation gate (also re-enforced in §9)
     $signedInUpn = (az account show --query 'user.name' -o tsv 2>$null)
@@ -231,22 +196,19 @@ function Initialize-Agt25Session {
         Write-Warning "Signed-in az UPN ($signedInUpn) differs from declared ValidatorUpn ($ValidatorUpn). Confirm before proceeding."
     }
 
-    # Pin az and pac to the resolved cloud
-    az cloud set --name $profile.AzCloud | Out-Null
+    # Pin tools to commercial cloud defaults and clear stale profiles.
+    az cloud set --name AzureCloud | Out-Null
     pac auth clear | Out-Null
-    pac auth create --cloud $profile.PacCloud --tenant $TenantId | Out-Null
+    pac auth create --cloud Public --tenant $TenantId | Out-Null
 
-    # Connect Microsoft Graph to the correct sovereign environment
-    Connect-MgGraph -Environment $profile.GraphEnv -TenantId $TenantId -Scopes 'AuditLog.Read.All','Directory.Read.All','CopilotSettings.Read.All' -NoWelcome | Out-Null
+    Connect-MgGraph -Environment Global -TenantId $TenantId -Scopes 'AuditLog.Read.All','Directory.Read.All','CopilotSettings.Read.All' -NoWelcome | Out-Null
     $ctx = Get-MgContext
-    if ($ctx.Environment -ne $profile.GraphEnv) {
-        Write-Error "Graph connected to $($ctx.Environment), expected $($profile.GraphEnv). Aborting."; exit 2
+    if ($ctx.Environment -ne 'Global') {
+        Write-Error "Graph connected to $($ctx.Environment), expected Global. Aborting."; exit 2
     }
 
     $session = [pscustomobject]@{
         RunId        = $RunId
-        Cloud        = $Cloud
-        Profile      = $profile
         TenantId     = $TenantId
         ValidatorUpn = $ValidatorUpn
         AgentId      = $AgentId
@@ -263,17 +225,15 @@ function Initialize-Agt25Session {
 **Usage.**
 
 ```powershell
-$s = Initialize-Agt25Session -Cloud GCCHigh -TenantId '00000000-0000-0000-0000-000000000000' `
-        -ValidatorUpn 'val.smith@contoso.us' -AgentId 'cs-fsi-coi-advisor' -Zone Zone3
+$s = Initialize-Agt25Session -TenantId '00000000-0000-0000-0000-000000000000' `
+        -ValidatorUpn 'val.smith@contoso.com' -AgentId 'cs-fsi-coi-advisor' -Zone Zone3
 "Run id: $($s.RunId) | Evidence: $($s.EvidenceDir)"
 ```
 
 **Fail-closed conditions:**
 
-- Cloud parameter not in the validated set → parameter binding error (`exit 2` upstream).
 - `pac auth create --cloud` fails or is skipped → §7/§8 must `exit 2`.
-- `Connect-MgGraph -Environment` resolves to a different environment than requested → `exit 2`.
-- Sovereign hard-stops (DoD/China for Copilot Studio; DoD/China and partial GCC/GCCHigh for AI Foundry Evaluation) without a documented exception in `session.json` → §9 manifest validation `exit 2`.
+- `Connect-MgGraph -Environment Global` resolves to a different environment → `exit 2`.
 - `evidence/agt25/<RunId>/` directory cannot be created (filesystem read-only) → `exit 2`.
 
 ---
@@ -303,17 +263,15 @@ function Test-Agt25Prerequisites {
     })
     $env | ConvertTo-Json -Depth 10 | Set-Content "$($Session.EvidenceDir)/prereq-env.json" -Encoding utf8
 
-    # 2. Copilot Studio agent (skip if cloud lacks GA)
-    if ($Session.Profile.CopilotStudioGA) {
-        $bot = pac copilot list --environment $EnvironmentId --json 2>$null |
-               ConvertFrom-Json | Where-Object { $_.SchemaName -eq $Session.AgentId -or $_.DisplayName -eq $Session.AgentId }
-        $results.Add([pscustomobject]@{
-            Check='CopilotStudioAgent'; Pass=[bool]$bot; Severity='Critical'
-            Detail = if ($bot) { "id=$($bot.BotId) version=$($bot.LatestPublishedVersion)" } else { 'Not found' }
-            EvidenceRef = "$($Session.EvidenceDir)/prereq-agent.json"
-        })
-        $bot | ConvertTo-Json -Depth 10 | Set-Content "$($Session.EvidenceDir)/prereq-agent.json" -Encoding utf8
-    }
+    # 2. Copilot Studio agent
+    $bot = pac copilot list --environment $EnvironmentId --json 2>$null |
+           ConvertFrom-Json | Where-Object { $_.SchemaName -eq $Session.AgentId -or $_.DisplayName -eq $Session.AgentId }
+    $results.Add([pscustomobject]@{
+        Check='CopilotStudioAgent'; Pass=[bool]$bot; Severity='Critical'
+        Detail = if ($bot) { "id=$($bot.BotId) version=$($bot.LatestPublishedVersion)" } else { 'Not found' }
+        EvidenceRef = "$($Session.EvidenceDir)/prereq-agent.json"
+    })
+    $bot | ConvertTo-Json -Depth 10 | Set-Content "$($Session.EvidenceDir)/prereq-agent.json" -Encoding utf8
 
     # 3. AI Foundry project endpoint resolvable
     $projOk = $false
@@ -363,15 +321,12 @@ function Test-Agt25Prerequisites {
 
 - Any check with `Severity='Critical'` returns `Pass=$false` → `exit 2`.
 - Probe completes but no probes ran (zero results) → `exit 2` (defensive: indicates a logic bug).
-- Token acquisition for AI Foundry endpoint succeeds in cloud `Public` while session declares `GCCHigh`/`DoD` → `exit 2` (cross-cloud call detected).
 
 ---
 
 ## §4 — Copilot Studio test sets: export the regression baseline
 
 **Why this section exists.** The Copilot Studio Test Pane is interactive and ephemeral; its results cannot be admitted as evidence under SEC 17a-4 because they are not WORM-retained, not signed, and not reproducible. The supported evidence-bearing path is to (a) export the published agent's regression test set as JSON, (b) execute the test set headlessly via `pac copilot test run` (or the equivalent Power Platform Test Engine batch), (c) hash the input dataset and the output transcript, and (d) write both into the §9 manifest.
-
-**Skip condition.** If `$Session.Profile.CopilotStudioGA -ne $true`, write a documented exception and skip this section. DoD and China (April 2026) hard-stop here.
 
 ```powershell
 function Invoke-Agt25CopilotStudioBaseline {
@@ -382,15 +337,6 @@ function Invoke-Agt25CopilotStudioBaseline {
         [Parameter(Mandatory)] [string]$BotSchemaName,
         [Parameter(Mandatory)] [string]$TestSetName
     )
-    if (-not $Session.Profile.CopilotStudioGA) {
-        $exception = [pscustomobject]@{
-            Check='CopilotStudioBaseline'; Pass=$null; Severity='Info'
-            Detail = "Skipped: Copilot Studio not GA in $($Session.Cloud)"
-            EvidenceRef = "$($Session.EvidenceDir)/cs-skipped.json"
-        }
-        $exception | ConvertTo-Json | Set-Content $exception.EvidenceRef -Encoding utf8
-        return $exception
-    }
 
     $exportDir = Join-Path $Session.EvidenceDir 'copilot-studio'
     New-Item -ItemType Directory -Force -Path $exportDir | Out-Null
@@ -483,7 +429,7 @@ function Invoke-Agt25CopilotStudioBaseline {
 Inputs:  --dataset <path.jsonl>  --subject-model <deployment>  --judge-model <deployment>
          --project-endpoint <https://...>  --run-id <guid>  --evidence-dir <path>  --zone {Zone1,Zone2,Zone3}
 Outputs: <evidence-dir>/eval/scorecard.json  (schema: agt25.scorecard.v1)
-Exits:   0=pass, 1=soft fail (threshold), 2=hard fail (segregation, dataset, sovereign)
+Exits:   0=pass, 1=soft fail (threshold), 2=hard fail (segregation, dataset, governance)
 """
 from __future__ import annotations
 import argparse, hashlib, json, os, sys, datetime
@@ -636,9 +582,6 @@ function Invoke-Agt25AiFoundryEvaluation {
         [Parameter(Mandatory)] [string]$JudgeModelDeployment,
         [Parameter(Mandatory)] [string]$ProjectEndpoint
     )
-    if ($Session.Profile.AiFoundryEvalGA -eq $false) {
-        return [pscustomobject]@{ Check='AiFoundryEvaluation'; Pass=$null; Severity='Info'; Detail="Skipped (not GA in $($Session.Cloud))"; EvidenceRef=$null }
-    }
     & "$PSScriptRoot\.venv-agt25\Scripts\python.exe" "$PSScriptRoot\run_agt25_eval.py" `
         --dataset $DatasetPath `
         --subject-model $SubjectModelDeployment `
@@ -675,7 +618,7 @@ function Invoke-Agt25AiFoundryEvaluation {
 
 ## §6 — PyRIT: adversarial / red-team campaigns
 
-**Why this section exists.** Quality metrics from §5 measure normal-traffic behavior; they do not measure resilience to adversarial inputs (jailbreaks, prompt injection, encoding bypasses, role-play coercion). PyRIT (Python Risk Identification Toolkit) is Microsoft's OSS framework for systematic adversarial campaigns. Because PyRIT is OSS and runs locally, it is portable across all sovereign clouds — but its memory database (DuckDB) contains adversarial prompts and MUST NOT be committed to source control or stored on user OneDrive.
+**Why this section exists.** Quality metrics from §5 measure normal-traffic behavior; they do not measure resilience to adversarial inputs (jailbreaks, prompt injection, encoding bypasses, role-play coercion). PyRIT (Python Risk Identification Toolkit) is Microsoft's OSS framework for systematic adversarial campaigns. Because PyRIT is OSS and runs locally, it is portable across commercial tenant architectures — but its memory database (DuckDB) contains adversarial prompts and MUST NOT be committed to source control or stored on user OneDrive.
 
 **Components.**
 
@@ -879,7 +822,7 @@ function Invoke-Agt25SolutionChecker {
 
 ## §8 — Power Platform Pipelines: deployment gate (mutation, with `-WhatIf`)
 
-**Why this section exists.** This is the only section of the playbook that *changes tenant state*. Per BL-§4, every mutating cmdlet declares `SupportsShouldProcess` with `ConfirmImpact='High'` and demonstrates a `-WhatIf` example before any committed run. After the February 2026 deadline (see Control 2.1), Zone 3 production deployments must flow through Power Platform Pipelines with the Control 2.5 evidence pack attached as a deployment artifact.
+**Why this section exists.** This is the only section of the playbook that *changes tenant state*. Per BL-§3, every mutating cmdlet declares `SupportsShouldProcess` with `ConfirmImpact='High'` and demonstrates a `-WhatIf` example before any committed run. After the February 2026 deadline (see Control 2.1), Zone 3 production deployments must flow through Power Platform Pipelines with the Control 2.5 evidence pack attached as a deployment artifact.
 
 ```powershell
 function Invoke-Agt25PipelineDeployment {
@@ -944,13 +887,12 @@ Invoke-Agt25PipelineDeployment -Session $s `
 - Validator UPN equals developer UPN in manifest → `exit 2` (segregation).
 - `pac pipeline deploy` returns non-zero → `exit 2` (do NOT retry without manual triage).
 - Operator skips the `-WhatIf` rehearsal → policy violation; pipeline approval workflow must reject.
-- Sovereign cloud mismatch between source and target environment → `exit 2`.
 
 ---
 
 ## §9 — `Test-Agt25Implementation`: roll-up validator + signed evidence manifest
 
-**Why this section exists.** Each preceding section emits an isolated probe object. Section 9 rolls them up into a single signed manifest (`manifest.json` schema `agt25.manifest.v1`) that (a) hashes every evidence artifact, (b) records validator/developer/supervisor UPNs for the three-signature attestation, (c) re-checks segregation of duties and sovereign consistency, and (d) emits a single overall exit code that downstream Pipelines (§8), retention (Control 3.5), and Sentinel ingestion (§10) consume as the source of truth.
+**Why this section exists.** Each preceding section emits an isolated probe object. Section 9 rolls them up into a single signed manifest (`manifest.json` schema `agt25.manifest.v1`) that (a) hashes every evidence artifact, (b) records validator/developer/supervisor UPNs for the three-signature attestation, (c) re-checks segregation of duties, and (d) emits a single overall exit code that downstream Pipelines (§8), retention (Control 3.5), and Sentinel ingestion (§10) consume as the source of truth.
 
 ```powershell
 function Test-Agt25Implementation {
@@ -989,7 +931,6 @@ function Test-Agt25Implementation {
         run_id           = $Session.RunId
         agent_id         = $Session.AgentId
         zone             = $Session.Zone
-        cloud            = $Session.Cloud
         tenant_id        = $Session.TenantId
         developer_upn    = $DeveloperUpn
         validator_upn    = $Session.ValidatorUpn
@@ -1072,7 +1013,6 @@ function Send-Agt25EvidenceToLogAnalytics {
             RunId         = $manifest.run_id
             AgentId       = $manifest.agent_id
             Zone          = $manifest.zone
-            Cloud         = $manifest.cloud
             DeveloperUpn  = $manifest.developer_upn
             ValidatorUpn  = $manifest.validator_upn
             SupervisorUpn = $manifest.supervisor_upn
@@ -1111,39 +1051,17 @@ jobs:
 
 **Fail-closed conditions:**
 
-- DCE/DCR/Stream parameters point to a workspace in a different sovereign cloud than `$Session.Cloud` → `exit 2`.
 - HTTP response is not `204 No Content` → `exit 2` and queue for replay (do not silently drop).
 - Scheduled job runs under a user identity (not a service principal with workload-identity federation) → governance violation; CI must reject.
 - Manifest SHA in ingested record does not equal on-disk SHA at evidence-archive time → tamper; `exit 2`.
 
 ---
 
-## §11 — Sovereign cloud matrix
-
-| Cloud | Copilot Studio | AI Foundry Evaluation | PyRIT | Solution Checker | Pipelines | Notes |
-|---|---|---|---|---|---|---|
-| Public | GA | GA | OSS / portable | GA | GA | Baseline reference |
-| GCC | GA | Limited regional GA | OSS / portable | GA | GA | Verify evaluator region matches workspace region |
-| GCC High | GA | Limited regional GA | OSS / portable | GA | GA | `pac --cloud UsGovHigh`; `Connect-MgGraph -Environment USGov` |
-| DoD | **Not available** | **Not available** | OSS / portable | GA | GA | §4 and §5 must be skipped with documented exception |
-| China (21Vianet) | **Not available** | **Not available** | OSS / portable | GA | GA | §4 and §5 must be skipped; PyRIT may run with locally hosted scorer |
-
-**Endpoint cheat sheet.**
-
-| Surface | Public | GCC High | DoD | China |
-|---|---|---|---|---|
-| Microsoft Graph | `graph.microsoft.com` | `graph.microsoft.us` | `dod-graph.microsoft.us` | `microsoftgraph.chinacloudapi.cn` |
-| `Connect-MgGraph -Environment` | `Global` | `USGov` | `USGovDoD` | `China` |
-| `pac auth create --cloud` | `Public` | `UsGovHigh` | `DoD` | `Public` (China uses Public auth flow with regional endpoint) |
-| `az cloud set --name` | `AzureCloud` | `AzureUSGovernment` | `AzureUSGovernment` | `AzureChinaCloud` |
-| AI Foundry portal | `ai.azure.com` | `ai.azure.us` | `ai.azure.us` | `ai.azure.cn` |
-| Log Analytics ingest | `*.ods.opinsights.azure.com` | `*.ods.opinsights.azure.us` | `*.ods.opinsights.azure.us` | `*.ods.opinsights.azure.cn` |
-
 ---
 
-## §12 — Anti-patterns (false-clean traps)
+## §11 — Anti-patterns (false-clean traps)
 
-A **false-clean** outcome (the harness reports green when the underlying control is broken) is the highest-impact defect class for Control 2.5. The table below catalogs the 22 most common false-clean traps observed in FSI deployments through April 2026.
+A **false-clean** outcome (the harness reports green when the underlying control is broken) is the highest-impact defect class for Control 2.5. The table below catalogs the 21 most common false-clean traps observed in FSI deployments through April 2026.
 
 | # | Anti-pattern | False-clean symptom | Detection / mitigation |
 |---|---|---|---|
@@ -1155,32 +1073,30 @@ A **false-clean** outcome (the harness reports green when the underlying control
 | 6 | `Set-LabelPolicy` succeeds without changing the rule body | Sensitivity-label probe reports green despite missing rule | Verify with `Get-LabelPolicyRule` after set |
 | 7 | Stale Python venv with deprecated evaluator names | `evaluate()` returns `null` for renamed metrics → averages skewed | §1 venv bootstrap + pinned `azure-ai-evaluation` |
 | 8 | Mistaking the Copilot Studio Test Pane for evidence | Interactive results not WORM-retained → not admissible | §4 mandates `pac copilot testset run` headless |
-| 9 | AI Foundry cross-cloud silent downgrade | GCC High agent evaluated by Public-cloud judge model → data crosses boundary | §2 sovereign hard-stop + §11 endpoint match |
-| 10 | PyRIT memory DB committed to git | Adversarial prompts leak to source control | §6 `.gitignore` precondition + §9 manifest probe |
-| 11 | Judge model equals subject model | Self-evaluation always scores high → segregation violated | §5 and §6 hard-stop |
-| 12 | Validator UPN equals developer UPN | Self-attestation accepted; SoD broken | §9 segregation gate |
-| 13 | Solution Checker run with a permissive ruleset | High-severity findings re-classified as warnings | §7 `RuleSet='Solution Checker'` enforced |
-| 14 | Scheduled job runs under a user account | Token expires; quarterly run silently fails for weeks | §10 SP + workload-identity federation only |
-| 15 | DirectLine token from user identity (not validator SP) | PyRIT `HTTPTarget` 401s; harm count "0" misread as pass | §6 fail-closed on 401/403 |
-| 16 | Empty test set or empty prompt pack | Pass-rate computed as 0/0 → reported as 100% | §4 and §6 reject zero-row inputs |
-| 17 | Evidence written to OneDrive / synced folder | Files mutate after hash; manifest tamper | §6 sync-folder probe; §9 re-hash gate |
-| 18 | Manifest signed before all probes complete | Attestation covers partial evidence | §9 requires non-null `completed_utc` and `overall_exit` before sign |
-| 19 | `pac pipeline deploy` retried after failure without triage | Drift between dev/test/prod; manifest no longer matches deployed bits | §8 hard-stop on first non-zero |
-| 20 | Quarterly re-run skipped because "nothing changed" | Module/SKU drift unverified; control silently degrades | §10 quarterly schedule mandatory for Zone 3 |
-| 21 | Evaluator SDK upgraded mid-quarter without re-baselining | Score drift attributed to model when it is evaluator change | §1 pinning + §9 manifest records evaluator versions |
-| 22 | Content-safety severity averaged across rows instead of max | One severe row hidden in mean → false-clean | §5 uses `max_content_safety_severity`, not mean |
-
+| 9 | PyRIT memory DB committed to git | Adversarial prompts leak to source control | §6 `.gitignore` precondition + §9 manifest probe |
+| 10 | Judge model equals subject model | Self-evaluation always scores high → segregation violated | §5 and §6 hard-stop |
+| 11 | Validator UPN equals developer UPN | Self-attestation accepted; SoD broken | §9 segregation gate |
+| 12 | Solution Checker run with a permissive ruleset | High-severity findings re-classified as warnings | §7 `RuleSet='Solution Checker'` enforced |
+| 13 | Scheduled job runs under a user account | Token expires; quarterly run silently fails for weeks | §10 SP + workload-identity federation only |
+| 14 | DirectLine token from user identity (not validator SP) | PyRIT `HTTPTarget` 401s; harm count "0" misread as pass | §6 fail-closed on 401/403 |
+| 15 | Empty test set or empty prompt pack | Pass-rate computed as 0/0 → reported as 100% | §4 and §6 reject zero-row inputs |
+| 16 | Evidence written to OneDrive / synced folder | Files mutate after hash; manifest tamper | §6 sync-folder probe; §9 re-hash gate |
+| 17 | Manifest signed before all probes complete | Attestation covers partial evidence | §9 requires non-null `completed_utc` and `overall_exit` before sign |
+| 18 | `pac pipeline deploy` retried after failure without triage | Drift between dev/test/prod; manifest no longer matches deployed bits | §8 hard-stop on first non-zero |
+| 19 | Quarterly re-run skipped because "nothing changed" | Module/SKU drift unverified; control silently degrades | §10 quarterly schedule mandatory for Zone 3 |
+| 20 | Evaluator SDK upgraded mid-quarter without re-baselining | Score drift attributed to model when it is evaluator change | §1 pinning + §9 manifest records evaluator versions |
+| 21 | Content-safety severity averaged across rows instead of max | One severe row hidden in mean → false-clean | §5 uses `max_content_safety_severity`, not mean |
 **Fail-closed conditions:**
 
 - Any anti-pattern detected at runtime that is not yet caught by a §0–§10 probe → file an issue against this playbook and `exit 2` until a probe is added.
 
 ---
 
-## §13 — Cross-references
+## §12 — Cross-references
 
 **Shared baseline.**
 
-- [`../../_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) — module pinning (BL-§1), edition guard (BL-§2), sovereign endpoints (BL-§3), mutation safety (BL-§4), SHA-256 evidence (BL-§5), Dataverse cmdlet quirks (BL-§6).
+- [`../../_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) — module pinning (BL-§1), edition guard (BL-§2), mutation safety (BL-§3), SHA-256 evidence (BL-§4), Dataverse cmdlet quirks (BL-§5).
 
 **Companion playbooks for Control 2.5.**
 

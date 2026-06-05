@@ -1,7 +1,7 @@
 # PowerShell Setup: Control 2.9 - Agent Performance Monitoring and Optimization
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
 
 **Last Updated:** April 2026
 **Modules Required:** `Microsoft.PowerApps.Administration.PowerShell`, `Microsoft.Graph` (Reports + ServiceMessage), `Az.ApplicationInsights`, `Az.Monitor`, `MicrosoftPowerBIMgmt`
@@ -31,19 +31,12 @@ This script enumerates every Microsoft Copilot Studio agent in the tenant and re
 .SYNOPSIS
     Inventories Copilot Studio agents per environment and emits SHA-256 hashed evidence.
 
-.PARAMETER Endpoint
-    Sovereign cloud endpoint (prod | usgov | usgovhigh | dod). MUST be set correctly,
-    otherwise commercial endpoints are used and a sovereign tenant returns zero data
-    (false-clean evidence).
-
 .EXAMPLE
-    .\Get-AgentInventory.ps1 -Endpoint prod -EvidencePath .\evidence\2.9
+    .\Get-AgentInventory.ps1 -EvidencePath .\evidence\2.9
 #>
 
 [CmdletBinding()]
 param(
-    [ValidateSet('prod','usgov','usgovhigh','dod')]
-    [string]$Endpoint = 'prod',
     [string]$EvidencePath = ".\evidence\2.9"
 )
 
@@ -57,7 +50,7 @@ New-Item -ItemType Directory -Force -Path $EvidencePath | Out-Null
 $ts = Get-Date -Format 'yyyyMMdd-HHmmss'
 Start-Transcript -Path "$EvidencePath\transcript-inventory-$ts.log" -IncludeInvocationHeader
 
-Add-PowerAppsAccount -Endpoint $Endpoint
+Add-PowerAppsAccount
 
 $inventory = foreach ($env in (Get-AdminPowerAppEnvironment)) {
     $agents = Get-AdminPowerAppChatBot -EnvironmentName $env.EnvironmentName -ErrorAction SilentlyContinue

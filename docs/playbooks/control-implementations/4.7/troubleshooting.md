@@ -1018,15 +1018,7 @@ The following 20 anti-patterns are recurring causes of Control 4.7 incidents in 
 
 **Fix.** Layer Multi-Geo, RSS allowlist by region, and explicit content-residency policies on top of the EU Data Boundary. Document the subprocessor map.
 
-### §8.13 — Assuming Copilot Is Available in GCC-H or DoD
-
-**Pattern.** Sovereign-cloud customer assumes Microsoft 365 Copilot is generally available in GCC-H or DoD.
-
-**Why it fails.** As of April 2026, Microsoft 365 Copilot in GCC-H is in limited preview. DoD availability is even more constrained. Customers assuming general availability deploy controls expecting full feature parity that does not exist.
-
-**Fix.** Verify current Copilot availability in your sovereign cloud via Microsoft Learn and your account team. Document the feature-parity gap and adjust controls accordingly.
-
-### §8.14 — Skipping the Q1–Q7 Reportability Tree Until Day 25
+### §8.13 — Skipping the Q1–Q7 Reportability Tree Until Day 25
 
 **Pattern.** Incident detected Day 1. Compliance Officer not involved until Day 25 of the 30-day Reg S-P clock.
 

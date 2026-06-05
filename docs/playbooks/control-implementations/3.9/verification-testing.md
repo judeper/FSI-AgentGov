@@ -2,7 +2,7 @@
 
 > **Examiner-defensible evidence package** for Control 3.9. This playbook produces, signs, and retains the artifacts required to demonstrate to FINRA, SEC, NYDFS, FFIEC, OCC, and internal audit that AI-agent telemetry is centrally ingested into Microsoft Sentinel, that AI-specific analytics rules detect prompt-injection / jailbreak / anomalous workload-identity behavior, that Logic Apps response playbooks fire end-to-end, that incidents cascade correctly into Controls 2.6, 2.12, 3.4, and 3.6, and that NYDFS 23 NYCRR 500.17 72-hour timers start, escalate, and produce a signed quarterly evidence bundle.
 >
-> **Scope:** Microsoft Sentinel workspaces operating in Microsoft 365 Commercial, GCC, GCC High, and DoD tenants. The 21Vianet sovereign cloud is out of scope for this playbook (separate sovereign namespace).
+> **Scope:** Microsoft Sentinel workspaces operating in the Microsoft 365 commercial (Global) cloud.
 >
 > **Last UI verified:** April 2026 against the post-2026.04.x Defender / Microsoft Sentinel unified portal build, the Microsoft Entra portal build of the same wave, and the Logic Apps Standard runtime release of the same wave.
 >
@@ -12,9 +12,6 @@
 
 !!! warning "Scope Limit — operational monitoring evidence, not books-and-records"
     Microsoft Sentinel and the Log Analytics workspace backing it produce **operational monitoring evidence** — alert artifacts, KQL query results, incident records, automation-run logs, and workbook snapshots. They are **not** the system of record for **books-and-records retention** under **FINRA Rule 4511**, **SEC Rule 17a-3 / 17a-4**, or **NYDFS 23 NYCRR 500.06** content-level retention obligations. The firm's books-and-records evidence for Copilot prompts, agent transcripts, supervisory annotations, and recordkeeping content **must be retained through Microsoft Purview retention policies, eDiscovery exports, or an SEC 17a-4(f)-compliant archive** under [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) and [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md). This playbook **supports compliance with** FINRA 3110 (Supervision), FINRA 4511 (Books and Records), FINRA RN 24-09 / Rule 3110, SEC 17a-3/17a-4, NYDFS 500.06/500.16/500.17, FFIEC IT Examination Handbook, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), and Federal Reserve SR 26-2 (formerly SR 11-7). It **does not guarantee** compliance and **does not replace** registered-principal supervisory review under FINRA Rule 3110 or written supervisory procedures.
-
-!!! warning "Sovereign Cloud Availability"
-    Sentinel feature parity in **GCC, GCC High, and DoD** trails Commercial in several areas relevant to this playbook: the **Microsoft Copilot data connector**, **Sentinel MCP Server**, certain Logic Apps managed-identity connectors, and parts of the **Defender AI-SPM** signal set may be unavailable, in preview, or feature-limited. Where a TC depends on a feature absent in a sovereign cloud, the test emits a **`SKIPPED — product unavailability`** record with a pointer to the SOV namespace (TC-13) and the firm's compensating control. **Product unavailability is not the same as a policy exception** and must not be tracked in the policy-exception register; track it on the sovereign-cloud roadmap-watch worksheet referenced in §0.4.
 
 !!! info "Entra schema gotcha — `AADServicePrincipalSignInLogs` is distinct from `SigninLogs`"
     Workload-identity (service principal, managed identity, agent identity) sign-ins are emitted to **`AADServicePrincipalSignInLogs`**, **not** to `SigninLogs`. `SigninLogs` covers human (member and guest) interactive and non-interactive sign-ins. Several TCs below explicitly cross-check both tables; an analytics rule that filters only `SigninLogs` will silently miss every agent sign-in event and produce a false-clean evidence record. Verify the `_BilledSize` and `Count()` of both tables in TC-1.
@@ -29,9 +26,8 @@
 | Test framework | Pester 5.5+. All assertions use `Should` with `-Because` clauses for examiner traceability. |
 | Output discipline | No `Write-Host` in evidence-emitting code paths. All evidence is structured `[pscustomobject]` via `Write-Output`, then serialized with `ConvertTo-Json -Depth 8`. |
 | KQL discipline | Every KQL snippet in this playbook is labelled with a stable **query-hash** (SHA-256 of the canonical query text, lowercased, whitespace-normalised). The hash is embedded in every evidence record so any examiner can reproduce the query exactly as executed at run time. |
-| Sovereign cloud handling | Each TC detects tenant cloud (`Get-MgContext.Environment` and `Get-AzContext.Environment`); features unavailable in sovereign clouds emit `SKIPPED — product unavailability` with a SOV pointer, never `FAIL`. |
 | Evidence retention | **Operational evidence:** 1 year hot in the Sentinel workspace, 7 years in Azure Storage archive tier (firm's choice up to 12 years for Fed-supervised entities). **Books-and-records evidence** is **not** stored in Sentinel; see [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md). |
-| Hashing | SHA-256 over canonical JSON; chained leaf hashes plus a Merkle root in `attestation.json` (TC-17). |
+| Hashing | SHA-256 over canonical JSON; chained leaf hashes plus a Merkle root in `attestation.json` (TC-16). |
 | Run identifier | Every test run is tagged `AGT39-yyyyMMdd-HHmmss-<8charGuid>` and embedded in every evidence record and artifact filename. |
 | Canonical role names | Per [`docs/reference/role-catalog.md`](../../../reference/role-catalog.md). No title substitution (e.g., "Global Administrator" is not a substitute for "Entra Global Admin"). |
 
@@ -39,7 +35,7 @@
 
 ---
 
-## §0 Pre-Test Prerequisites & Sovereign Cloud Bootstrap
+## §0 Pre-Test Prerequisites
 
 ### 0.1 Operator role prerequisites
 
@@ -48,17 +44,17 @@ The verification cycle is read-mostly: §1–§17 read connector state, KQL tabl
 | Role (canonical) | Required for | PIM activation window |
 |---|---|---|
 | Sentinel Admin (Microsoft Sentinel Contributor on the workspace RG) | Reads workspace, data-connector state, analytics-rule definitions, automation rules, Logic Apps run histories, incident records; signs DETECT and AUTOMATE evidence | 4 hours, just-in-time |
-| SOC Analyst (Microsoft Sentinel Responder) | Reads incidents and entities, runs hunting queries, witnesses the cascade-cross-reference assertions in TC-15 | 4 hours, just-in-time |
-| Log Analytics Reader (subscription scope) | Read-only KQL execution against the Sentinel workspace; supports the dual-control witness pattern in TC-17 | 4 hours, standing permissible |
+| SOC Analyst (Microsoft Sentinel Responder) | Reads incidents and entities, runs hunting queries, witnesses the cascade-cross-reference assertions in TC-14 | 4 hours, just-in-time |
+| Log Analytics Reader (subscription scope) | Read-only KQL execution against the Sentinel workspace; supports the dual-control witness pattern in TC-16 | 4 hours, standing permissible |
 | Entra Global Reader | Reads `SigninLogs`, `AADServicePrincipalSignInLogs`, `AuditLogs`; verifies workload-identity coverage in TC-1 / TC-5 | 4 hours, standing permissible |
 | Purview Compliance Admin | Reads Purview retention-label state to cross-check that books-and-records retention is **not** delegated to Sentinel (TC-12); reads UAL `OfficeActivity` ingestion path | 4 hours |
 | Power Platform Admin | Reads `PowerPlatformAdminActivity` ingestion (DLP changes consumed in TC-6) and Power Platform DLP policy state for revert verification | 2 hours |
-| AI Governance Lead | Counter-signs incident-cascade evidence (TC-15), quarterly evidence bundle (TC-17), and sovereign reconciliation worksheet (TC-13) | Standing with quarterly recertification per Control 2.8 |
-| Compliance Officer | Counter-signs the NYDFS 500.17 72-hour-timer evidence (TC-11), Zone 3 supervisory-cascade evidence (TC-15), the quarterly bundle (TC-17), and the sovereign reconciliation worksheet | Standing |
-| Information Security Officer / CISO designee | Reviews Logic Apps runaway-suspension thresholds (TC-9, TC-10); counter-signs TC-17 quarterly bundle | Standing |
+| AI Governance Lead | Counter-signs incident-cascade evidence (TC-14), quarterly evidence bundle (TC-16) | Standing with quarterly recertification per Control 2.8 |
+| Compliance Officer | Counter-signs the NYDFS 500.17 72-hour-timer evidence (TC-11), Zone 3 supervisory-cascade evidence (TC-14), the quarterly bundle (TC-16) | Standing |
+| Information Security Officer / CISO designee | Reviews Logic Apps runaway-suspension thresholds (TC-9, TC-10); counter-signs TC-16 quarterly bundle | Standing |
 | Logic Apps Contributor (workflow RG) | Reads Logic Apps run history for TC-9, TC-10, TC-11; never holds standing write privilege on production playbooks | 2 hours, just-in-time |
 
-> **Least privilege.** No operator should hold **Entra Global Admin** persistently for this playbook. Day-to-day verification work is performed under the read roles above with **Entra Global Reader** as the witness. If the tenant requires Global Admin to read a transient feature surface, activate via **Entra PIM** time-bound, never standing. Standing privileged-role overlap between Preparer / Validator / Compliance signatories is a cycle-stopping FAIL (see TC-17).
+> **Least privilege.** No operator should hold **Entra Global Admin** persistently for this playbook. Day-to-day verification work is performed under the read roles above with **Entra Global Reader** as the witness. If the tenant requires Global Admin to read a transient feature surface, activate via **Entra PIM** time-bound, never standing. Standing privileged-role overlap between Preparer / Validator / Compliance signatories is a cycle-stopping FAIL (see TC-16).
 
 ### 0.2 Module baseline
 
@@ -83,11 +79,11 @@ $ErrorActionPreference = 'Stop'
 $ProgressPreference    = 'SilentlyContinue'
 ```
 
-> **Note on Sentinel API surface.** `Az.SecurityInsights` 3.x covers analytics rules, automation rules, incidents, and data-connector state for Commercial, GCC, GCC High, and DoD. Some preview features (Microsoft Copilot data connector, Sentinel MCP Server, certain UEBA models) surface only via the `2024-09-01-preview` REST API and the unified Defender portal at `security.microsoft.com`; this playbook abstracts those calls behind wrapper functions in [PowerShell Setup](./powershell-setup.md). Re-verify API versions and module noun availability after each Microsoft release wave.
+> **Note on Sentinel API surface.** `Az.SecurityInsights` 3.x covers analytics rules, automation rules, incidents, and data-connector state for the commercial cloud. Some preview features (Microsoft Copilot data connector, Sentinel MCP Server, certain UEBA models) surface only via the `2024-09-01-preview` REST API and the unified Defender portal at `security.microsoft.com`; this playbook abstracts those calls behind wrapper functions in [PowerShell Setup](./powershell-setup.md). Re-verify API versions and module noun availability after each Microsoft release wave.
 
-### 0.3 PRE gates (must all pass before TC-1 through TC-17 execute)
+### 0.3 PRE gates (must all pass before TC-1 through TC-16 execute)
 
-`Invoke-Agt39PreFlight.ps1` runs ten pre-flight gates. Any `FAIL` halts the suite and emits a single `preflight-FAILED-<runId>.json`. A `SKIPPED` on PRE-08 or PRE-09 routes the affected TC to the SOV namespace (TC-13).
+`Invoke-Agt39PreFlight.ps1` runs nine pre-flight gates. Any `FAIL` halts the suite and emits a single `preflight-FAILED-<runId>.json`.
 
 | Gate | ID | Purpose | Failure behavior |
 |---|---|---|---|
@@ -95,50 +91,13 @@ $ProgressPreference    = 'SilentlyContinue'
 | Az context | PRE-02 | Confirms `Connect-AzAccount` against the correct subscription holding the Sentinel workspace | HALT |
 | Graph context | PRE-03 | Confirms `Connect-MgGraph` with scopes `AuditLog.Read.All`, `Directory.Read.All`, `Reports.Read.All`, `SecurityEvents.Read.All`, `SecurityIncident.Read.All` | HALT |
 | Tenant identification | PRE-04 | Captures `tenantId`, `displayName`, Sentinel `workspaceId`, `workspaceResourceId`, and `verifiedDomains[0].name` for every evidence record | HALT |
-| Cloud detection | PRE-05 | Reads `(Get-MgContext).Environment` and `(Get-AzContext).Environment.Name`; maps to `Commercial / GCC / GCCH / DoD` | Continue; sovereign clouds route specific TCs to TC-13 |
-| Workspace reachability | PRE-06 | Probes `Invoke-AzOperationalInsightsQuery -Query 'print 1'` for HTTP 200 within 30s | HALT — without workspace reachability, no KQL evidence can be produced |
-| Clock skew gate | PRE-07 | Compares local UTC to the workspace `TimeGenerated` of `print now()`; aborts on > 60s drift | HALT — skew invalidates timestamp evidence under FINRA 4511 / SEC 17a-4 |
-| Microsoft Copilot connector reachability | PRE-08 | Probes the Microsoft Copilot data connector status via `Get-AzSentinelDataConnector`; in sovereign clouds expects `NotFound` and routes Copilot-dependent TCs to TC-13 | Commercial NotFound → HALT; sovereign NotFound → route to TC-13 |
-| Logic Apps runtime reachability | PRE-09 | Probes the Logic Apps Standard runtime hosting suspend-agent / notify / NYDFS-72h playbooks (`Get-AzLogicApp` enumeration and a `GET` against the Workflow Management API `/health` endpoint) | HALT if Commercial runtime unreachable; SOV-route if a sovereign-cloud-only Logic Apps SKU mismatch is detected |
-| Evidence root writeable | PRE-10 | Confirms `$env:AGT39_EVIDENCE_ROOT` exists, is writeable, resolves to WORM-eligible storage (Azure Blob immutability policy in `Locked` state on the parent container) | HALT |
+| Workspace reachability | PRE-05 | Probes `Invoke-AzOperationalInsightsQuery -Query 'print 1'` for HTTP 200 within 30s | HALT — without workspace reachability, no KQL evidence can be produced |
+| Clock skew gate | PRE-06 | Compares local UTC to the workspace `TimeGenerated` of `print now()`; aborts on > 60s drift | HALT — skew invalidates timestamp evidence under FINRA 4511 / SEC 17a-4 |
+| Microsoft Copilot connector reachability | PRE-07 | Probes the Microsoft Copilot data connector status via `Get-AzSentinelDataConnector`; `NotFound` halts the suite | HALT |
+| Logic Apps runtime reachability | PRE-08 | Probes the Logic Apps Standard runtime hosting suspend-agent / notify / NYDFS-72h playbooks (`Get-AzLogicApp` enumeration and a `GET` against the Workflow Management API `/health` endpoint) | HALT |
+| Evidence root writeable | PRE-09 | Confirms `$env:AGT39_EVIDENCE_ROOT` exists, is writeable, resolves to WORM-eligible storage (Azure Blob immutability policy in `Locked` state on the parent container) | HALT |
 
-### 0.4 Sovereign bootstrap pattern
-
-```powershell
-function Test-Agt39SovereignTenant {
-    [CmdletBinding()]
-    [OutputType([pscustomobject])]
-    param()
-
-    $mgCtx = Get-MgContext
-    $azCtx = Get-AzContext
-    if (-not $mgCtx) { throw "PRE-03 failed: no Graph context. Run Connect-MgGraph first." }
-    if (-not $azCtx) { throw "PRE-02 failed: no Az context. Run Connect-AzAccount first." }
-
-    $cloud = switch ($mgCtx.Environment) {
-        'Global'    { 'Commercial' }
-        'USGov'     { 'GCC' }
-        'USGovDoD'  { 'DoD' }
-        'USGovHigh' { 'GCCH' }
-        default     { 'Unknown' }
-    }
-
-    [pscustomobject]@{
-        cloud                    = $cloud
-        is_sovereign             = $cloud -in @('GCC','GCCH','DoD')
-        tenant_id                = $mgCtx.TenantId
-        az_subscription_id       = $azCtx.Subscription.Id
-        sentinel_workspace_id    = $env:AGT39_WORKSPACE_ID
-        detected_at              = (Get-Date).ToUniversalTime().ToString('o')
-        roadmap_watch_worksheet  = 'control-3.9-sovereign-roadmap-watch.xlsx'
-        compensating_control_ref = 'TC-13 SOV namespace; quarterly dual-signed manual reconciliation'
-    }
-}
-```
-
-When `is_sovereign` is `$true`, each TC in the suite that references a feature unavailable in that cloud emits a `SKIPPED — product unavailability` record with a pointer to TC-13 and to the firm's roadmap-watch worksheet. This produces an examiner-defensible trail showing the test was attempted, was correctly skipped on regulatory-sound grounds, and was supplemented by the manual dual-signed worksheet. **Product unavailability is logged separately from policy exceptions.**
-
-### 0.5 Run identifier and evidence root
+### 0.4 Run identifier and evidence root
 
 ```powershell
 function New-Agt39RunId {
@@ -153,9 +112,9 @@ $script:EvidenceRoot = Join-Path $env:AGT39_EVIDENCE_ROOT $script:RunId
 New-Item -Path $script:EvidenceRoot -ItemType Directory -Force | Out-Null
 ```
 
-Every evidence record produced in TC-1 through TC-17 is written under `$script:EvidenceRoot`, and the `runId` is embedded in the filename of every artifact assembled into the TC-17 quarterly evidence bundle.
+Every evidence record produced in TC-1 through TC-16 is written under `$script:EvidenceRoot`, and the `runId` is embedded in the filename of every artifact assembled into the TC-16 quarterly evidence bundle.
 
-### 0.6 KQL query-hash convention
+### 0.5 KQL query-hash convention
 
 ```powershell
 function Get-Agt39QueryHash {
@@ -171,11 +130,11 @@ function Get-Agt39QueryHash {
 }
 ```
 
-Every KQL snippet in this playbook is presented with its canonical form and a `query_hash` field stamped into the corresponding evidence record. Examiners can recompute the hash from the snippet text in the playbook to confirm that the query executed at run time matches the published query. Drift in the hash without a corresponding change-ticket reference is itself a TC-17 FAIL.
+Every KQL snippet in this playbook is presented with its canonical form and a `query_hash` field stamped into the corresponding evidence record. Examiners can recompute the hash from the snippet text in the playbook to confirm that the query executed at run time matches the published query. Drift in the hash without a corresponding change-ticket reference is itself a TC-16 FAIL.
 
 ### 0.7 Evidence record schema (canonical)
 
-Every evidence record MUST conform to this schema. `Test-Agt39EvidenceSchema` (defined in [PowerShell Setup](./powershell-setup.md)) enforces it; the TC-17 bundle assembler refuses to publish a bundle containing any record that fails validation.
+Every evidence record MUST conform to this schema. `Test-Agt39EvidenceSchema` (defined in [PowerShell Setup](./powershell-setup.md)) enforces it; the TC-16 bundle assembler refuses to publish a bundle containing any record that fails validation.
 
 ```json
 {
@@ -218,16 +177,16 @@ Every evidence record MUST conform to this schema. `Test-Agt39EvidenceSchema` (d
 
 ## §1 Test Case Catalog
 
-The 17 test cases below are grouped into six namespaces. Each namespace produces independent evidence records that combine into the single signed quarterly bundle in TC-17.
+The 17 test cases below are grouped into six namespaces. Each namespace produces independent evidence records that combine into the single signed quarterly bundle in TC-16.
 
 | Namespace | Test cases | Cadence | Owner |
 |---|---|---|---|
 | `INGEST`   | TC-1, TC-12, TC-13          | Daily (TC-1); Quarterly (TC-12, TC-13) | Sentinel Admin |
-| `DETECT`   | TC-2, TC-3, TC-4, TC-5, TC-6, TC-7, TC-9, TC-16 | Weekly (most); Per-cycle (TC-3, TC-6) | SOC Analyst |
-| `CASCADE`  | TC-8, TC-15                  | Per cycle | AI Governance Lead |
+| `DETECT`   | TC-2, TC-3, TC-4, TC-5, TC-6, TC-7, TC-9, TC-15 | Weekly (most); Per-cycle (TC-3, TC-6) | SOC Analyst |
+| `CASCADE`  | TC-8, TC-14                  | Per cycle | AI Governance Lead |
 | `AUTOMATE` | TC-9, TC-10, TC-11           | Per cycle (TC-10); on-demand (TC-9); per-incident (TC-11) | Sentinel Admin + Compliance Officer |
-| `WORKBOOK` | TC-14                        | Weekly | SOC Analyst |
-| `ATTEST`   | TC-17                        | Quarterly | Compliance Officer |
+| `WORKBOOK` | TC-13                        | Weekly | SOC Analyst |
+| `ATTEST`   | TC-16                        | Quarterly | Compliance Officer |
 
 ---
 
@@ -252,7 +211,7 @@ The 17 test cases below are grouped into six namespaces. Each namespace produces
 | `CloudAppEvents` | Defender for Cloud Apps | Runtime threat detections, shadow-app, mass-download (consumed by TC-9) |
 | `AlertInfo`, `AlertEvidence` | Microsoft 365 Defender | XDR alerts, including Defender AI-SPM (Control 1.24) |
 | `DeviceEvents` | Microsoft 365 Defender | Endpoint behavior correlated to agent activity |
-| `SecurityIncident` | Microsoft Sentinel | Native incident table — used by TC-15 cascade assertions |
+| `SecurityIncident` | Microsoft Sentinel | Native incident table — used by TC-14 cascade assertions |
 
 ### Steps
 
@@ -343,7 +302,7 @@ The 17 test cases below are grouped into six namespaces. Each namespace produces
 - **`FAIL-Stale` on `OfficeActivity`:** check Microsoft 365 connector ingestion delay; common causes are deferred backfill after a connector restart and tenant-level audit ingestion lag (cap typically ~30 min, occasional 60–90 min).
 - **`FAIL-Stale` on `PowerPlatformAdminActivity`:** verify the Power Platform Admin Activity connector is still in `Connected` state and the diagnostic-setting on the Power Platform tenant points to this workspace; remediation in [PowerShell Setup](./powershell-setup.md).
 - **`FAIL-NoData` on `AlertInfo` / `AlertEvidence`:** Defender XDR connector likely disconnected; cross-check Control 1.24 verification evidence for AI-SPM signal presence before concluding root cause.
-- A FAIL on TC-1 is a **cycle-stopping** result for the daily run; downstream TC-2 through TC-16 emit `BLOCKED — TC-1 not green` until TC-1 returns to PASS.
+- A FAIL on TC-1 is a **cycle-stopping** result for the daily run; downstream TC-2 through TC-15 emit `BLOCKED — TC-1 not green` until TC-1 returns to PASS.
 
 ---
 
@@ -479,7 +438,7 @@ The 17 test cases below are grouped into six namespaces. Each namespace produces
 
 ### Remediation
 
-- **No alert raised within 15 min:** verify (a) sandbox agent is in scope of `AI-RULE-01` (`extend agentInScope = ...` in the rule), (b) the canary payload still matches the rule heuristics (Microsoft signature updates may neutralise older canaries), (c) the Microsoft Copilot data connector is healthy in TC-1 — sovereign clouds may emit `SKIPPED — product unavailability` here and route to TC-13.
+- **No alert raised within 15 min:** verify (a) sandbox agent is in scope of `AI-RULE-01` (`extend agentInScope = ...` in the rule), (b) the canary payload still matches the rule heuristics (Microsoft signature updates may neutralise older canaries), (c) the Microsoft Copilot data connector is healthy in TC-1 — if the connector shows `NotFound`, remediate per the troubleshooting playbook.
 - **Alert raised but no incident:** check Sentinel incident-creation setting on the rule (`createIncident: true`).
 - **Incident created but no cascade comment:** the automation rule is broken or disabled; cross-reference TC-10 Logic Apps run history for the failure.
 - **Cascade comment present but no Control 2.12 ticket exists:** Control 2.12 supervisory queue intake is broken; raise a Control 3.4 incident. **Do not close TC-3 with `PASS` if the downstream ticket cannot be retrieved.**
@@ -546,7 +505,7 @@ The 17 test cases below are grouped into six namespaces. Each namespace produces
 
 - **Detection misses the canary connector:** confirm the watchlist `AgentConnectorBaseline` refresh job ran (Logic App `wf-baseline-refresh`); a stale baseline causes false negatives.
 - **Enrichment missing `agentRegistryRef`:** the Agent Registry sync into Sentinel watchlists is broken; cross-reference Control 2.25 verification evidence for the watchlist export job.
-- **Sovereign cloud:** if `PowerPlatformAdminActivity` is gated in the sovereign cloud or the MCP server feature is unavailable, emit `SKIPPED — product unavailability` to TC-13.
+
 
 ---
 
@@ -886,7 +845,7 @@ The 17 test cases below are grouped into six namespaces. Each namespace produces
 
 ### Expected
 
-- All four Logic Apps have at least one `Succeeded` run in the cycle (TC-6, TC-9, TC-11 produce a run; TC-15 produces a notification run).
+- All four Logic Apps have at least one `Succeeded` run in the cycle (TC-6, TC-9, TC-11 produce a run; TC-14 produces a notification run).
 - No `Failed` runs without a corresponding Control 3.4 incident.
 - Definition hashes match the catalog (no drift).
 - Sampled deep-evidence run shows expected action sequence end-to-end.
@@ -904,7 +863,7 @@ The 17 test cases below are grouped into six namespaces. Each namespace produces
 
 - **Definition hash drift:** treat as a high-severity change-management incident under Control 3.4; the Logic App must be redeployed from the pinned template, not patched in-portal.
 - **Repeated `Failed` runs without an open incident:** the failure-handling automation is broken; remediate per [Troubleshooting](./troubleshooting.md).
-- **Sovereign cloud:** if a triggered connector (e.g., Microsoft Copilot connector) is unavailable, the Logic App emits `SKIPPED — product unavailability` and the cascade falls through to TC-13.
+
 
 ---
 
@@ -1012,49 +971,7 @@ The 17 test cases below are grouped into six namespaces. Each namespace produces
 
 ---
 
-## §14 TC-13 — Sovereign Cloud Parity Matrix (GCC / GCC High / DoD)
-
-**Namespace:** `ATTEST` | **Owner:** Sentinel Admin (witness: Compliance Officer) | **Cadence:** Quarterly + on Microsoft sovereign-roadmap update
-
-### Setup
-
-- Firm operates in commercial cloud, GCC, GCC High, or DoD. The TC executes once per cloud the firm operates in.
-- Firm's `sovereign-feature-matrix.json` lists, per cloud, which Microsoft AI / Sentinel / Defender features are GA, in preview, or unavailable. The matrix is owned by the AI Governance Lead and refreshed monthly from Microsoft Learn and the firm's Microsoft account team.
-
-### Steps
-
-1. For each TC-1 through TC-11 result of the cycle, classify each `SKIPPED` outcome as either:
-    - `SKIPPED — product unavailability` (the underlying Microsoft service / feature is not available in this cloud), with a reference to the matrix row, **or**
-    - `SKIPPED — policy exception` (the firm has chosen not to exercise the capability; rare and requires CISO sign-off).
-
-2. Confirm no `SKIPPED` outcome is uncategorised.
-
-3. For each `SKIPPED — product unavailability`, confirm a corresponding row exists in the firm's **sovereign-roadmap-watch** worksheet, with: feature name, expected GA date (Microsoft public commitment if any), compensating control reference, and last-reviewed date (within the cycle).
-
-### Expected
-
-- Every `SKIPPED` outcome from TC-1 through TC-11 is classified.
-- Every `SKIPPED — product unavailability` has a watch-worksheet row.
-- No `SKIPPED — policy exception` exists without a CISO-signed exception.
-
-### Evidence Capture
-
-| Artifact | Filename pattern | Retention tier |
-|---|---|---|
-| Sovereign feature-matrix snapshot | `tc13-matrix-<runId>.json` | Operational — 1y hot, 7y archive |
-| Per-`SKIPPED` classification | `tc13-classifications-<runId>.json` | Operational — 1y hot, 7y archive |
-| Sovereign-roadmap-watch worksheet snapshot | `tc13-watchlist-<runId>.json` | **Books-and-records scope** — 6y/7y per NYDFS 500.06 |
-| CISO exception sign-off (where applicable) | `tc13-exception-<exceptionId>.json` | **Books-and-records scope** — 6y/7y |
-
-### Remediation
-
-- **Uncategorised `SKIPPED`:** the operator did not classify; this is itself a procedural finding (Control 3.4) and must be closed by classification before TC-13 can `PASS`.
-- **`SKIPPED — product unavailability` without watchlist row:** the AI Governance Lead opens a watchlist entry and a follow-up review is scheduled.
-- **`SKIPPED — policy exception` without CISO sign-off:** the test outcome cannot be closed `PASS`; escalate immediately to the CISO.
-
----
-
-## §15 TC-14 — Workbook Health (AI Agent Security Posture + Conditional Access Insights)
+## §14 TC-13 — Workbook Health (AI Agent Security Posture + Conditional Access Insights)
 
 **Namespace:** `WORKBOOK` | **Owner:** Sentinel Admin (witness: AI Governance Lead) | **Cadence:** Per cycle
 
@@ -1105,13 +1022,13 @@ The 17 test cases below are grouped into six namespaces. Each namespace produces
 
 ---
 
-## §16 TC-15 — Cross-Control Cascade Evidence (Tagging into 3.4, 2.12, 2.6, 3.6)
+## §15 TC-14 — Cross-Control Cascade Evidence (Tagging into 3.4, 2.12, 2.6, 3.6)
 
 **Namespace:** `CASCADE` | **Owner:** AI Governance Lead (witness: SOC Analyst + Compliance Officer) | **Cadence:** Per cycle
 
 ### Setup
 
-- All cascades emitted by automation rules in this control set carry a structured `cascade-source` tag of the form `cascade-source=<targetControlId>:<eventId>`. The ingest of these tags into downstream registers/queues is what TC-15 audits.
+- All cascades emitted by automation rules in this control set carry a structured `cascade-source` tag of the form `cascade-source=<targetControlId>:<eventId>`. The ingest of these tags into downstream registers/queues is what TC-14 audits.
 - Downstream targets:
     - Control 3.4 incident management
     - Control 2.12 supervisory queue
@@ -1163,7 +1080,7 @@ The 17 test cases below are grouped into six namespaces. Each namespace produces
 
 ---
 
-## §17 TC-16 — Break-Glass Account Sign-In Alert Wiring (Control 1.11 Cross-Reference)
+## §16 TC-15 — Break-Glass Account Sign-In Alert Wiring (Control 1.11 Cross-Reference)
 
 **Namespace:** `DETECT` | **Owner:** SOC Analyst (witness: CISO) | **Cadence:** Per cycle (live trigger annually with CISO authorisation)
 
@@ -1224,17 +1141,17 @@ The 17 test cases below are grouped into six namespaces. Each namespace produces
 
 - **Rule disabled:** P1 finding; re-enable immediately and open a Control 3.4 incident against the operator who disabled it (segregation-of-duties review under Control 2.8).
 - **Rule modified to remove a break-glass UPN:** P1 finding; treat as potential insider-risk indicator and escalate to CISO + insider-threat program.
-- **Live trigger did not produce alert:** the rule is silently broken; this is an existential finding for Control 1.11 and TC-16 returns `FAIL` regardless of all other passes.
+- **Live trigger did not produce alert:** the rule is silently broken; this is an existential finding for Control 1.11 and TC-15 returns `FAIL` regardless of all other passes.
 
 ---
 
-## §18 TC-17 — Quarterly Evidence Bundle (Signed JSON Manifest with Five Attestations)
+## §17 TC-16 — Quarterly Evidence Bundle (Signed JSON Manifest with Five Attestations)
 
 **Namespace:** `ATTEST` | **Owner:** AI Governance Lead (signers: Sentinel Admin + SOC Lead + AI Governance Lead + Compliance Officer + CISO) | **Cadence:** Quarterly
 
 ### Setup
 
-- The cycle's TC-1 through TC-16 evidence records are collected from the operational evidence store.
+- The cycle's TC-1 through TC-15 evidence records are collected from the operational evidence store.
 - The firm's evidence-bundle signing key is held in Azure Key Vault under the `ai-governance-bundle-signer` key, with key-access policy restricted to the AI Governance Lead's HSM-backed identity. Implementation requires that the firm's Key Vault access reviews (Control 2.8) include this key.
 
 ### Steps
@@ -1334,29 +1251,29 @@ The following table is the canonical mapping for the cycle. It is the artifact i
 | TC-13 | `tc13-classifications-<runId>.json` | Operational — 1y / 7y | NYDFS-500.06 |
 | TC-13 | `tc13-watchlist-<runId>.json` | **Books-and-records — 6y / 7y** | NYDFS-500.06 |
 | TC-13 | `tc13-exception-<exceptionId>.json` | **Books-and-records — 6y / 7y** | NYDFS-500.06 |
-| TC-14 | `tc14-workbook-<DisplayName>-<runId>.json` | Operational — 1y / 7y | FFIEC-IS |
-| TC-14 | `tc14-panel-<DisplayName>-<panel>-<runId>.png` | Operational — 1y / 7y | FFIEC-IS |
-| TC-14 | `tc14-recon-<runId>.json` | Operational — 1y / 7y | FFIEC-IS |
-| TC-15 | `tc15-out-<runId>.json` | Operational — 1y / 7y | FFIEC-IS |
-| TC-15 | `tc15-in-<targetControl>-<runId>.json` | Operational — 1y / 7y | FFIEC-IS |
-| TC-15 | `tc15-loss-<runId>.json` | **Books-and-records — 6y / 7y** | FINRA-4511 |
-| TC-15 | `tc15-deep-<targetControl>-<eventId>.json` | Operational — 1y / 7y | FFIEC-IS |
-| TC-15 | `tc15-attest-<runId>.json` | **Books-and-records — 6y / 7y** | FINRA-4511 |
-| TC-16 | `tc16-rule-<runId>.json` | **Books-and-records — 6y / 7y** | FINRA-4511, SEC-17a-4 |
-| TC-16 | `tc16-alert-<systemAlertId>.json`, `tc16-incident-<incidentNumber>.json` | **Books-and-records — 6y / 7y** | NYDFS-500.16 |
-| TC-16 | `tc16-teams-<messageId>.json` | Operational — 1y / 7y | FFIEC-IS |
-| TC-16 | `tc16-bglog-<entryId>.json` | **Books-and-records — 6y / 7y** | FINRA-4511, NYDFS-500.06 |
-| TC-16 | `tc16-ciso-auth-<runId>.json` | **Books-and-records — 6y / 7y** | NYDFS-500.06 |
-| TC-17 | `tc17-manifest-<cycleId>.json` | **Books-and-records — 6y / 7y** | FINRA-4511, SEC-17a-4, SOX-404 |
-| TC-17 | `tc17-query-hash-manifest-<cycleId>.json` | **Books-and-records — 6y / 7y** | FINRA-4511, SOX-404 |
-| TC-17 | `tc17-signed-bundle-<cycleId>.json.sig` | **Books-and-records — 6y / 7y** | FINRA-4511, SEC-17a-4, SOX-404, NYDFS-500.06 |
-| TC-17 | `tc17-lodgement-<cycleId>.json` | **Books-and-records — 6y / 7y** | FINRA-4511, SEC-17a-4 |
+| TC-13 | `tc14-workbook-<DisplayName>-<runId>.json` | Operational — 1y / 7y | FFIEC-IS |
+| TC-13 | `tc14-panel-<DisplayName>-<panel>-<runId>.png` | Operational — 1y / 7y | FFIEC-IS |
+| TC-13 | `tc14-recon-<runId>.json` | Operational — 1y / 7y | FFIEC-IS |
+| TC-14 | `tc15-out-<runId>.json` | Operational — 1y / 7y | FFIEC-IS |
+| TC-14 | `tc15-in-<targetControl>-<runId>.json` | Operational — 1y / 7y | FFIEC-IS |
+| TC-14 | `tc15-loss-<runId>.json` | **Books-and-records — 6y / 7y** | FINRA-4511 |
+| TC-14 | `tc15-deep-<targetControl>-<eventId>.json` | Operational — 1y / 7y | FFIEC-IS |
+| TC-14 | `tc15-attest-<runId>.json` | **Books-and-records — 6y / 7y** | FINRA-4511 |
+| TC-15 | `tc16-rule-<runId>.json` | **Books-and-records — 6y / 7y** | FINRA-4511, SEC-17a-4 |
+| TC-15 | `tc16-alert-<systemAlertId>.json`, `tc16-incident-<incidentNumber>.json` | **Books-and-records — 6y / 7y** | NYDFS-500.16 |
+| TC-15 | `tc16-teams-<messageId>.json` | Operational — 1y / 7y | FFIEC-IS |
+| TC-15 | `tc16-bglog-<entryId>.json` | **Books-and-records — 6y / 7y** | FINRA-4511, NYDFS-500.06 |
+| TC-15 | `tc16-ciso-auth-<runId>.json` | **Books-and-records — 6y / 7y** | NYDFS-500.06 |
+| TC-16 | `tc17-manifest-<cycleId>.json` | **Books-and-records — 6y / 7y** | FINRA-4511, SEC-17a-4, SOX-404 |
+| TC-16 | `tc17-query-hash-manifest-<cycleId>.json` | **Books-and-records — 6y / 7y** | FINRA-4511, SOX-404 |
+| TC-16 | `tc17-signed-bundle-<cycleId>.json.sig` | **Books-and-records — 6y / 7y** | FINRA-4511, SEC-17a-4, SOX-404, NYDFS-500.06 |
+| TC-16 | `tc17-lodgement-<cycleId>.json` | **Books-and-records — 6y / 7y** | FINRA-4511, SEC-17a-4 |
 
 ---
 
 ## §20 Document Footer
 
-The verification cycle owner closes the cycle by producing the TC-17 signed bundle. Operational evidence is retained in the firm's evidence store; books-and-records-scope evidence is lodged in the Purview-labelled books-and-records store under the locked-retention policies verified by Controls 1.7 and 1.9.
+The verification cycle owner closes the cycle by producing the TC-16 signed bundle. Operational evidence is retained in the firm's evidence store; books-and-records-scope evidence is lodged in the Purview-labelled books-and-records store under the locked-retention policies verified by Controls 1.7 and 1.9.
 
 For implementation context, see [Portal Walkthrough](./portal-walkthrough.md), [PowerShell Setup](./powershell-setup.md), and [Troubleshooting](./troubleshooting.md). For the upstream control specification, see [Control 3.9 — Microsoft Sentinel Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md).
 

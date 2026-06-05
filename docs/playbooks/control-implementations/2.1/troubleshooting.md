@@ -3,27 +3,10 @@
 **Companion to:** [Control 2.1 — Managed Environments](../../../controls/pillar-2-management/2.1-managed-environments.md)
 **Sibling playbooks:** [Portal Walkthrough](./portal-walkthrough.md) · [PowerShell Setup](./powershell-setup.md) · [Verification & Testing](./verification-testing.md)
 **Audience:** Power Platform Admin, Power Platform Service Admin, M365 Admin, AI Governance Lead, Purview Compliance Admin, Entra Global Reader, makers and environment owners encountering production issues.
-**Scope:** Symptom-first diagnostic and remediation runbook for Managed Environments configuration drift, license-enforcement events, sharing-limit gaps, IP firewall failures, Customer Managed Key (CMK) recovery, tenant isolation exceptions, weekly digest interruptions, environment routing failures, pipeline targeting, inactive-resource detection lag, sovereign-cloud parity gaps, and SOX 404 IT-general-controls audit findings traceable to Managed Environment state. Aligns with FINRA Rule 4511 books-and-records, FINRA RN 24-09 / Rule 3110 (generative-AI supervision expectations), SEC Rule 17a-3/17a-4 retention, SOX §302 / §404 ITGC, GLBA Safeguards Rule §501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7) model risk management, NYDFS 23 NYCRR 500.06 audit trail, CFTC Regulation 1.31, and FFIEC IT examination handbook expectations.
+**Scope:** Symptom-first diagnostic and remediation runbook for Managed Environments configuration drift, license-enforcement events, sharing-limit gaps, IP firewall failures, Customer Managed Key (CMK) recovery, tenant isolation exceptions, weekly digest interruptions, environment routing failures, pipeline targeting, inactive-resource detection lag, and SOX 404 IT-general-controls audit findings traceable to Managed Environment state. Aligns with FINRA Rule 4511 books-and-records, FINRA RN 24-09 / Rule 3110 (generative-AI supervision expectations), SEC Rule 17a-3/17a-4 retention, SOX §302 / §404 ITGC, GLBA Safeguards Rule §501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7) model risk management, NYDFS 23 NYCRR 500.06 audit trail, CFTC Regulation 1.31, and FFIEC IT examination handbook expectations.
 
 !!! danger "Non-Substitution"
     The procedures in this playbook **support compliance with** the cited regulations; they do **not** substitute for the regulated firm's supervisory, recordkeeping, or model-risk obligations. Managed Environments is a tenant configuration surface that **aids in** the enforcement of governance policy. It does not by itself satisfy FINRA Rule 3110 supervisory review, SEC Rule 17a-4(f) WORM retention, OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) model validation, or GLBA §501(b) safeguarding obligations. Each remediation that mutates a Zone 3 (Enterprise) production environment **requires** prior change-management approval per [Control 2.3](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md) and post-change evidence preservation per [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md). Organizations should verify each procedure in a non-production tenant before production execution and engage Legal / Compliance before altering any setting that has produced examiner-reviewable evidence within an active examination window.
-
-!!! warning "Sovereign Cloud Availability"
-    Managed Environments is generally available in Commercial, GCC, GCC High, DoD, and China (21Vianet) clouds — but **specific sub-features are not at parity** as of April 2026:
-
-    | Sub-feature | Commercial | GCC | GCC High | DoD | China |
-    |---|---|---|---|---|---|
-    | Managed Environments enable / sharing limits / solution checker / IP firewall | ✅ | ✅ | ✅ | ✅ | ✅ |
-    | **Weekly maker activity digest (email)** | ✅ | ⚠️ Limited | ❌ Not available | ❌ Not available | ⚠️ Verify |
-    | Customer Managed Key (CMK) | ✅ | ✅ | ✅ | ✅ | ✅ |
-    | **Tenant Isolation (cross-tenant inbound/outbound)** | ✅ | ✅ | ⚠️ Verify | ⚠️ Verify | ⚠️ Verify |
-    | **Microsoft Agent 365 Admin Center governance console** | ✅ (GA May 1, 2026) | ❌ | ❌ | ❌ | ❌ |
-    | License consumption (preview) report | ✅ | ✅ | ⚠️ Verify | ⚠️ Verify | ⚠️ Verify |
-    | Customer Lockbox approvals | ✅ | ✅ | ✅ | ✅ | ⚠️ Verify |
-    | Pipelines (Power Platform) Managed-target enforcement | ✅ | ✅ | ⚠️ Verify | ⚠️ Verify | ⚠️ Verify |
-    | Environment Routing (default-environment routing) | ✅ | ✅ | ⚠️ Verify | ⚠️ Verify | ⚠️ Verify |
-
-    Sovereign-tenant operators must use the compensating-control runbook (Scenario 23) for any feature marked ❌ or ⚠️ and document the parity gap in the tenant Risk Register before relying on the affected procedure.
 
 !!! warning "June 2026 License Enforcement Rollout"
     Microsoft has communicated that beginning **June 2026**, end-user license-compliance notifications will progressively roll out to environments where Managed Environments is enabled but per-user / per-app premium license coverage is incomplete. **Pay-As-You-Go (PAYG) meter attachment does NOT satisfy the Managed Environments licensing floor** for the purposes of these notifications — only Power Apps Premium (per-user or per-app), Power Automate Premium, or Microsoft 365 / Dynamics 365 plans that include the relevant entitlement count. Firms that rely on PAYG to cover maker workloads in Zone 3 environments should treat Scenarios 9, 10, and 14 as in-scope priority work between April and June 2026. Consult the [Power Platform licensing guide](https://go.microsoft.com/fwlink/?linkid=2085130) for current SKU mapping and verify with your Microsoft account team before relying on any specific SKU as the compliance basis.
@@ -47,33 +30,32 @@ This troubleshooting playbook is **symptom-first**. Each scenario follows the sa
 
 ### §0.1 Triage Tree (Symptom Index)
 
-| # | Symptom (one-line) | Severity baseline | Sovereign caveat |
-|---|---|---|---|
-| 1 | Managed Environments toggle reverts to Off after enable | Sev2 | None |
-| 2 | "You don't have permission" when toggling ME from PPAC | Sev3 | None |
-| 3 | `protectionLevel` returns blank or `Unknown` from PowerShell | Sev3 | Module pin issue |
-| 4 | Sharing-limit policy ignored — flow shared with 50 users | Sev2 | None — by design |
-| 5 | Solution checker blocks valid solution import | Sev3 | None |
-| 6 | IP firewall lockout — admins cannot reach Dataverse | **Sev1** | None |
-| 7 | Sensitive PII discovered in maker welcome content | Sev2 | CMK exclusion |
-| 8 | Weekly maker digest not arriving Mondays | Sev3 | GCC-H/DoD ❌ |
-| 9 | License-compliance banner appears for premium-licensed maker | Sev2 | None |
-| 10 | Mass license-enforcement event after June 2026 rollout | **Sev1** | None |
-| 11 | CMK key rotation fails / environment shows "Encryption pending" | **Sev1** | None |
-| 12 | Tenant Isolation blocks legitimate vendor connector | Sev2 | None |
-| 13 | Cross-tenant data movement detected from Managed Environment | **Sev1** | Tenant Isolation gap |
-| 14 | Pipelines deploy to Unmanaged target despite policy | Sev2 | GCC-H/DoD ⚠️ |
-| 15 | Environment Routing sends new makers to wrong default | Sev3 | GCC-H/DoD ⚠️ |
-| 16 | Inactive-resource cleanup deleted business-critical app | **Sev1** | None |
-| 17 | Customer Lockbox approval request not appearing | Sev2 | China ⚠️ |
-| 18 | Maker cannot create flow despite Premium license | Sev3 | None |
-| 19 | Solution checker results not exporting / report empty | Sev3 | None |
-| 20 | DLP exception requested for Managed Environment connector | Sev3 | Cross-ref Control 1.4/1.5 |
-| 21 | ME enabled but usage insights show no data | Sev3 | None |
-| 22 | Audit log gap during Managed Environments configuration window | **Sev1** | None |
-| 23 | Sovereign cloud parity gap discovered during examiner walkthrough | Sev2 | All non-Commercial |
-| 24 | Drift between IaC (Terraform/Bicep) state and tenant reality | Sev2 | None |
-| 25 | Examiner production request — full Managed Environments evidence package | Sev2 | None |
+| # | Symptom (one-line) | Severity baseline |
+|---|---|---|
+| 1 | Managed Environments toggle reverts to Off after enable | Sev2 |
+| 2 | "You don't have permission" when toggling ME from PPAC | Sev3 |
+| 3 | `protectionLevel` returns blank or `Unknown` from PowerShell | Sev3 |
+| 4 | Sharing-limit policy ignored — flow shared with 50 users | Sev2 |
+| 5 | Solution checker blocks valid solution import | Sev3 |
+| 6 | IP firewall lockout — admins cannot reach Dataverse | **Sev1** |
+| 7 | Sensitive PII discovered in maker welcome content | Sev2 |
+| 8 | Weekly maker digest not arriving Mondays | Sev3 |
+| 9 | License-compliance banner appears for premium-licensed maker | Sev2 |
+| 10 | Mass license-enforcement event after June 2026 rollout | **Sev1** |
+| 11 | CMK key rotation fails / environment shows "Encryption pending" | **Sev1** |
+| 12 | Tenant Isolation blocks legitimate vendor connector | Sev2 |
+| 13 | Cross-tenant data movement detected from Managed Environment | **Sev1** |
+| 14 | Pipelines deploy to Unmanaged target despite policy | Sev2 |
+| 15 | Environment Routing sends new makers to wrong default | Sev3 |
+| 16 | Inactive-resource cleanup deleted business-critical app | **Sev1** |
+| 17 | Customer Lockbox approval request not appearing | Sev2 |
+| 18 | Maker cannot create flow despite Premium license | Sev3 |
+| 19 | Solution checker results not exporting / report empty | Sev3 |
+| 20 | DLP exception requested for Managed Environment connector | Sev3 |
+| 21 | ME enabled but usage insights show no data | Sev3 |
+| 22 | Audit log gap during Managed Environments configuration window | **Sev1** |
+| 23 | Drift between IaC (Terraform/Bicep) state and tenant reality | Sev2 |
+| 24 | Examiner production request — full Managed Environments evidence package | Sev2 |
 
 ### §0.2 Severity Matrix
 
@@ -90,12 +72,11 @@ Before paging on-call, the reporting Power Platform Admin must complete:
 
 1. ☐ Tenant ID captured.
 2. ☐ Environment GUID + DisplayName captured (do not use display name alone — multiple environments can share a name across regions).
-3. ☐ Cloud identified (Commercial / GCC / GCC High / DoD / China).
-4. ☐ Current `protectionLevel` value captured via `Get-AdminPowerAppEnvironment` (Standard = Managed; Basic = Unmanaged).
-5. ☐ Reporter's role captured (Power Platform Admin / Power Platform Service Admin / Dynamics 365 Admin / Environment Admin / Maker).
-6. ☐ Affected zone(s) identified (Zone 1 Personal / Zone 2 Team / Zone 3 Enterprise per [Control 2.2](../../../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md)).
-7. ☐ Examiner-active status checked (FINRA / SEC / OCC / Fed / state-regulator examination in flight). If yes, escalate immediately and **do not** mutate state until Legal acknowledges.
-8. ☐ Initial evidence floor captured (PPAC screenshot with timestamp, PowerShell read-only inventory, Purview audit log slice).
+3. ☐ Current `protectionLevel` value captured via `Get-AdminPowerAppEnvironment` (Standard = Managed; Basic = Unmanaged).
+4. ☐ Reporter's role captured (Power Platform Admin / Power Platform Service Admin / Dynamics 365 Admin / Environment Admin / Maker).
+5. ☐ Affected zone(s) identified (Zone 1 Personal / Zone 2 Team / Zone 3 Enterprise per [Control 2.2](../../../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md)).
+6. ☐ Examiner-active status checked (FINRA / SEC / OCC / Fed / state-regulator examination in flight). If yes, escalate immediately and **do not** mutate state until Legal acknowledges.
+7. ☐ Initial evidence floor captured (PPAC screenshot with timestamp, PowerShell read-only inventory, Purview audit log slice).
 
 ### §0.4 Evidence Preservation Floor (BEFORE Remediation)
 
@@ -123,7 +104,7 @@ Store under `Control-2.1/incidents/{YYYYMMDD-incident-id}/pre-remediation/`. Has
 
 ### §1.1 PowerShell module pinning
 
-All inventory commands in this playbook require **`Microsoft.PowerApps.Administration.PowerShell`** pinned to a known-good version. As of April 2026 the recommended minimum is **2.0.190**. The module supports **Windows PowerShell 5.1** for the admin scenarios used here; PowerShell 7+ is **not** supported for `Add-PowerAppsAccount -Endpoint` against US Government clouds at parity. See the [PowerShell baseline](../../_shared/powershell-baseline.md).
+All inventory commands in this playbook require **`Microsoft.PowerApps.Administration.PowerShell`** pinned to a known-good version. As of April 2026 the recommended minimum is **2.0.190**. The module supports **Windows PowerShell 5.1** for the admin scenarios used here; PowerShell 7+ is **not** supported for these admin scenarios. See the [PowerShell baseline](../../_shared/powershell-baseline.md).
 
 ```powershell
 # Run from an elevated Windows PowerShell 5.1 session
@@ -135,9 +116,7 @@ if (-not (Get-Module -ListAvailable -Name Microsoft.PowerApps.Administration.Pow
 }
 Import-Module Microsoft.PowerApps.Administration.PowerShell -RequiredVersion $ModuleVersion
 
-# Sovereign endpoint selection
-$Cloud = 'prod'      # prod | usgov | usgovhigh | dod | china
-Add-PowerAppsAccount -Endpoint $Cloud
+Add-PowerAppsAccount
 ```
 
 ### §1.2 Helper-cmdlet catalog (read-only)
@@ -295,7 +274,6 @@ Search-UnifiedAuditLog -StartDate (Get-Date).AddHours(-48) -EndDate (Get-Date) `
 1. The user holds **Environment Admin** or **Delegated Admin** but not a tenant-level role. Managed Environments enable/disable requires **Power Platform Admin** or **Dynamics 365 Admin** at the tenant level.
 2. The user holds the role via **PIM Eligible** but has not activated the role for the current session.
 3. The role assignment is scoped to an **Administrative Unit** that does not include the environment's owning Dataverse instance (rare but possible in segmented FSI tenants).
-4. The user's session was authenticated against the wrong cloud (e.g., Commercial token used against a GCC tenant).
 
 **Diagnostic Steps (Portal).**
 1. Entra Admin Center → **Roles & admins** → search for the user → confirm `Power Platform Administrator` or `Dynamics 365 Administrator` is **Active** (not just Eligible).
@@ -318,7 +296,6 @@ Get-MgRoleManagementDirectoryRoleAssignment -Filter "principalId eq '$($user.Id)
 1. Activate the appropriate tenant-level role via PIM, with justification, for the minimum window required.
 2. If the user genuinely needs persistent access: document a role-assignment change ticket and have the Entra Global Admin assign Power Platform Admin via PIM Eligible (never permanently active).
 3. Re-attempt the PPAC operation in a new browser session (clear cached tokens) after activation.
-4. If the cloud was wrong: sign out, sign in to `https://admin.powerplatform.microsoft.us` (GCC), `https://high.admin.powerplatform.microsoft.us` (GCC High), `https://admin.appsplatform.us` (DoD), or `https://admin.powerplatform.partner.microsoftonline.cn` (China).
 
 **Prevention.**
 - Maintain the canonical role catalog ([role-catalog.md](../../../reference/role-catalog.md)) and reconcile quarterly against actual PIM assignments.
@@ -363,8 +340,7 @@ Invoke-PowerAppsApi -Method GET -Route "providers/Microsoft.BusinessAppPlatform/
 **Resolution.**
 1. Upgrade the module to ≥ 2.0.190: `Update-Module Microsoft.PowerApps.Administration.PowerShell`.
 2. Re-run the inventory under Windows PowerShell 5.1 (`powershell.exe`, not `pwsh.exe`).
-3. Re-authenticate with `Add-PowerAppsAccount -Endpoint <prod|usgov|usgovhigh|dod|china>` matching the tenant cloud.
-4. Re-issue the inventory; confirm `protectionLevel` is now populated.
+3. Re-authenticate with `Add-PowerAppsAccount` and re-issue the inventory; confirm `protectionLevel` is now populated.
 
 **Prevention.**
 - Pin the module version in the [PowerShell baseline](../../_shared/powershell-baseline.md) and enforce in CI/CD via `Required-Module` manifests.
@@ -572,8 +548,7 @@ Get-AdminPowerAppEnvironment |
 1. The recipient mailbox / shared mailbox bounced or quarantined the digest (Exchange Online transport rule, Defender for Office 365 phishing classifier, or full mailbox).
 2. The digest sender address is on the Exchange tenant block list (rare but seen after over-aggressive cleanup of safe-senders).
 3. The environment was newly created and has not yet generated enough activity to produce a digest; or the environment was disabled / soft-deleted.
-4. **Sovereign cloud caveat:** the digest is **not available in GCC High or DoD** as of April 2026. In GCC it is "limited" — frequency may differ; verify Microsoft Learn current status. In China, verify with Microsoft 21Vianet.
-5. The recipient was removed from the digest distribution group; no one is now receiving it.
+4. The recipient was removed from the digest distribution group; no one is now receiving it.
 
 **Diagnostic Steps (Portal).**
 1. PPAC → environment → **Settings** → **Audit and logs** → **Weekly digest** → confirm enablement, recipient list, last send timestamp.
@@ -596,13 +571,11 @@ Get-MessageTrace -SenderAddress 'noreply@microsoft.com' `
 **Resolution.**
 1. If quarantined: release the message and add the digest sender to the Allow list (Defender → Policies → Anti-phishing). Document in the change log.
 2. If recipient removed: re-add the recipient and confirm with Exchange Online Admin that the distribution list has the correct nesting.
-3. If sovereign-cloud parity gap: implement the **compensating control** — schedule a PowerShell job that runs every Monday and emails an equivalent digest derived from `Get-AdminPowerAppEnvironment` + `Get-AdminFlow` + `Get-AdminPowerApp` to the same distribution list. Document in the Risk Register that the sovereign-tenant digest is a custom artifact, not the Microsoft product feature.
-4. If new environment / soft-deleted: no remediation; document state.
+3. If new environment / soft-deleted: no remediation; document state.
 
 **Prevention.**
 - Monitor digest receipt as a heartbeat: if no digest received by Tuesday end-of-day, fire a Sentinel alert.
 - Maintain the digest recipient list as a role-mailbox-backed distribution group (e.g., `pplat-digest@contoso.com`) so individual departures do not break delivery.
-- For sovereign tenants, build the compensating digest **before** declaring Managed Environments operational, not after the first miss.
 
 **Regulatory-Evidence Implications.** The weekly digest is a supervisory-attention artifact: it surfaces new makers, new flows, and orphaned artifacts. If the digest is missing, the firm's FINRA Rule 3110 supervision narrative loses one of its evidence sources. Document gaps explicitly. Capture screenshots of received digests and retain 7 years.
 
@@ -858,7 +831,6 @@ Get-AdminFlow -EnvironmentName '<env-guid>' |
 1. The Pipelines configuration references the target by **DisplayName** rather than by **environment GUID**. A new environment with the same DisplayName was created and is being resolved instead.
 2. The intended Managed target was reverted to Unmanaged (correlate with Scenario 1) and the pipeline ran during the gap.
 3. The Pipelines host environment's deployment-stage configuration was edited by a maker without change control.
-4. **Sovereign cloud caveat:** in GCC High / DoD, Pipelines Managed-target enforcement is at "verify" parity status; the firm should confirm enforcement against current Microsoft documentation.
 
 **Diagnostic Steps (Portal).**
 1. Power Apps maker portal → **Pipelines** → the pipeline definition → review each deployment stage's target environment GUID (not just name).
@@ -901,8 +873,7 @@ Get-CrmRecords -conn $conn -EntityLogicalName deploymentstage -Fields name,targe
 1. Environment Routing was not enabled tenant-wide. Routing requires explicit opt-in.
 2. Environment Routing is enabled but the routing rules do not match this maker's persona (e.g., the rules require the maker to be in a specific Entra group; the maker is not yet a member).
 3. The maker's first action was not eligible for routing (e.g., they opened a shared app rather than creating a new one). Routing fires only on certain "first-touch" actions.
-4. The Routing feature is at "verify" parity status in GCC High / DoD as of April 2026; the firm may be operating without it in those clouds.
-5. Provisioning of the per-user developer environment failed (capacity exhausted); routing fell back to Default.
+4. Provisioning of the per-user developer environment failed (capacity exhausted); routing fell back to Default.
 
 **Diagnostic Steps (Portal).**
 1. PPAC → **Environments** → tenant-level **Settings** → **Environment Routing** → confirm enablement, rules, and target group.
@@ -927,8 +898,7 @@ Get-AdminPowerAppEnvironment | Where-Object { $_.EnvironmentType -eq 'Developer'
 1. If Routing is disabled: open a change ticket; enable Routing under [Control 2.15](../../../controls/pillar-2-management/2.15-environment-routing.md).
 2. If maker not in eligible group: add via the standard provisioning workflow.
 3. If capacity exhausted: provision additional developer environment quota (Microsoft Power Platform admin → Resources → Capacity); document.
-4. If sovereign-cloud parity gap: implement compensating control — a runbook that the help desk uses on first-maker contact to manually provision a developer environment and migrate any work from Default. Document.
-5. Migrate the maker's existing work from Default to the correct environment; archive the artifacts in Default per the decommission plan.
+4. Migrate the maker's existing work from Default to the correct environment; archive the artifacts in Default per the decommission plan.
 
 **Prevention.**
 - Enable Environment Routing tenant-wide before disabling Default for maker creation.
@@ -1000,8 +970,7 @@ Get-AdminPowerAppEnvironment -EnvironmentName '<env-guid>' |
 1. Customer Lockbox is enabled at the M365 tenant level but not enabled for Power Platform specifically; verify both surfaces.
 2. The approver group is misconfigured (empty, or pointing to a deactivated mailbox).
 3. The request is awaiting Microsoft-side initiation; the Microsoft engineer has not yet triggered it.
-4. **Sovereign cloud caveat:** in China (21Vianet), Customer Lockbox availability and operation should be verified independently.
-5. The notification is being filtered by Defender for Office 365 (rare; Microsoft sender should be on the safe-senders list).
+4. The notification is being filtered by Defender for Office 365 (rare; Microsoft sender should be on the safe-senders list).
 
 **Diagnostic Steps (Portal).**
 1. M365 Admin Center → **Settings** → **Org settings** → **Security & privacy** → **Customer Lockbox** → confirm enabled and approvers.
@@ -1023,8 +992,7 @@ pac admin tenant-settings list --json | ConvertFrom-Json |
 1. If not enabled for Power Platform: open a change ticket and enable. Document policy.
 2. If approver group misconfigured: re-point to a monitored role mailbox (e.g., `lockbox-approvers@contoso.com`); ensure the mailbox has multiple human approvers.
 3. If Microsoft has not yet initiated: contact the Microsoft case owner.
-4. If sovereign-cloud gap: implement compensating control — require Microsoft engineers to use a documented just-in-time access workflow with explicit firm approval out-of-band.
-5. If quarantined: release; whitelist the Customer Lockbox sender.
+4. If quarantined: release; whitelist the Customer Lockbox sender.
 
 **Prevention.**
 - Backstop the approver mailbox with at least two named individuals plus one role mailbox.
@@ -1247,44 +1215,7 @@ Invoke-PowerAppsApi -Method GET -Route "providers/Microsoft.BusinessAppPlatform/
 
 ---
 
-### Scenario 23 — Sovereign cloud parity gap discovered during examiner walkthrough
-
-**Symptom.** During an examiner walkthrough of the firm's GCC High tenant, the examiner asks to see the weekly maker activity digest, the Microsoft Agent 365 Admin Center governance console, and the License Consumption preview report. The Power Platform Admin discovers that one or more of these features are not available in GCC High as of April 2026.
-
-**Likely Cause.** Documented sovereign-cloud parity gaps. Not a malfunction — a structural reality. See the §Sovereign Cloud Availability admonition above.
-
-**Diagnostic Steps.** Verify current parity at:
-- [Microsoft 365 sovereign cloud feature availability](https://learn.microsoft.com/en-us/office365/servicedescriptions/office-365-platform-service-description/office-365-us-government/gcc-high-and-dod)
-- [Power Platform US Government availability](https://learn.microsoft.com/en-us/power-platform/admin/powerapps-us-government)
-- [Power Platform DoD availability](https://learn.microsoft.com/en-us/power-platform/admin/powerapps-us-government)
-- [Microsoft Cloud for Sovereignty roadmap](https://www.microsoft.com/en-us/industry/sovereignty/cloud)
-
-Capture the URL and timestamp of each verification.
-
-**Resolution (compensating controls).**
-- **Weekly digest:** schedule a PowerShell job that produces an equivalent weekly summary (new makers, new flows, new apps, orphaned resources) and emails it to the same distribution list. Document the artifact as the firm's compensating control.
-- **Agent 365 governance console:** until GA in sovereign cloud (no announced date as of April 2026), use the [Control 2.25 portal walkthrough](../2.25/portal-walkthrough.md) compensating-control runbook to manually produce the equivalent governance posture report from PowerShell + Purview.
-- **License Consumption preview:** derive equivalent metrics from `Get-AdminPowerAppEnvironment` + `Get-MgUserLicenseDetail` joined per maker; document and retain the report.
-- **Tenant Isolation, Pipelines, Environment Routing:** where status is "verify", confirm against current Microsoft documentation each quarter; if confirmed unavailable, document the compensating control (manual review, alternate enforcement at network or DLP layer).
-
-**Documentation requirement.** Each parity gap must be:
-1. Recorded in the firm's Risk Register with the parity-gap rationale, the compensating control, and a re-verification date (typically 90 days).
-2. Disclosed in the firm's M365 / Power Platform governance documentation.
-3. Acknowledged by the AI Governance Committee at the next meeting.
-4. Surfaced to examiners proactively as part of the firm's transparency posture, not discovered by them mid-walkthrough.
-
-**Prevention.**
-- Maintain a quarterly sovereign-cloud parity tracker.
-- Subscribe to Microsoft Cloud for Sovereignty release notes.
-- Engage Microsoft account team annually to confirm roadmap commitments for sovereign-cloud parity.
-
-**Regulatory-Evidence Implications.** Sovereign-cloud gaps are not themselves a violation — but failure to identify, compensate, and document them undermines the firm's governance maturity narrative. FINRA RN 24-09 / Rule 3110 and Fed SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC 2011-12) emphasize program maturity; a parity-gap inventory with compensating controls is a positive indicator. Capture the Risk Register entries, compensating-control evidence, and re-verification cycles. Retain 7 years.
-
-**Cross-references.** [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) · [Control 3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) · [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md)
-
----
-
-### Scenario 24 — Drift between IaC desired state and tenant reality
+### Scenario 23 — Drift between IaC desired state and tenant reality
 
 **Symptom.** The firm uses Terraform / Bicep / a custom IaC pipeline to manage Managed Environments configuration. A scheduled drift-detection job (`Get-Agt21Drift`) reports that for one or more Zone 3 environments, the actual `protectionLevel`, sharing-limit threshold, IP firewall rule set, or CMK key URI does not match the IaC desired state.
 
@@ -1330,7 +1261,7 @@ Invoke-RestMethod -Uri "https://dev.azure.com/<org>/<proj>/_apis/build/builds?de
 
 ---
 
-### Scenario 25 — Examiner production request for a full Managed Environments evidence package
+### Scenario 24 — Examiner production request for a full Managed Environments evidence package
 
 **Symptom.** A FINRA, SEC, OCC, Federal Reserve, NYDFS, or state-regulator examiner issues a written request for "the firm's complete Managed Environments configuration, change history, and supervisory artifacts for the period [start] to [end] for the following environments: [list]."
 
@@ -1361,12 +1292,11 @@ Invoke-RestMethod -Uri "https://dev.azure.com/<org>/<proj>/_apis/build/builds?de
 | 12 | Environment Routing configuration history | Tenant settings audit | Power Platform Admin |
 | 13 | Inactive-resource cleanup history | Cleanup policy audit + restore events | Power Platform Admin |
 | 14 | Drift detection reports for the window | `Get-Agt21Drift` archive | Power Platform Admin |
-| 15 | Sovereign-cloud parity tracker (if applicable) | Risk Register | AI Governance Lead |
-| 16 | AI Governance Committee minutes covering Managed Environments decisions | Governance archive | AI Governance Lead |
-| 17 | Role assignment + PIM activation history for Power Platform Admin / Dynamics 365 Admin | Entra audit + PIM logs | Entra Global Admin |
-| 18 | Maker community communications regarding governance changes | Comms archive | AI Governance Lead |
-| 19 | Hash manifest + chain-of-custody record for the entire production package | Manual | Power Platform Admin (countersigned) |
-| 20 | Cover narrative explaining the package, methodology, scope limitations, and any known gaps (per Scenario 22, 23) | Manual | AI Governance Lead + Legal review |
+| 15 | AI Governance Committee minutes covering Managed Environments decisions | Governance archive | AI Governance Lead |
+| 16 | Role assignment + PIM activation history for Power Platform Admin / Dynamics 365 Admin | Entra audit + PIM logs | Entra Global Admin |
+| 17 | Maker community communications regarding governance changes | Comms archive | AI Governance Lead |
+| 18 | Hash manifest + chain-of-custody record for the entire production package | Manual | Power Platform Admin (countersigned) |
+| 19 | Cover narrative explaining the package, methodology, scope limitations, and any known gaps (per Scenario 22) | Manual | AI Governance Lead + Legal review |
 
 **Production hygiene.**
 - Every artifact is hashed (SHA-256) and the hash is recorded on an index.
@@ -1378,7 +1308,7 @@ Invoke-RestMethod -Uri "https://dev.azure.com/<org>/<proj>/_apis/build/builds?de
 1. Re-run the inventory against the live tenant; spot-check that historical snapshots reconcile to the live state with documented intervening changes.
 2. Reconcile audit log timestamps against ServiceNow tickets; explain any unmatched events.
 3. Where evidence is incomplete (e.g., the `Last UI Verified` date precedes a Microsoft change and the screenshot may not reflect current UI), state this in the cover narrative.
-4. Where compensating controls were used (sovereign cloud, audit log gap), describe each.
+4. Where compensating controls were used (e.g., audit log gap), describe each.
 
 **Regulatory-Evidence Implications.** This scenario *is* the regulatory-evidence implication. The cumulative quality of every prior playbook scenario is materialized in this single deliverable. FINRA 4511, FINRA RN 24-09 / Rule 3110, SEC Rule 17a-3 / 17a-4, SOX §302 / §404, GLBA §501(b), OCC Bulletin 2026-13 (formerly OCC 2011-12), Fed SR 26-2 (formerly SR 11-7), NYDFS 500.06, CFTC 1.31, FFIEC IT examination handbook — all of these regulatory frames may inform what the examiner expects to see. The firm's posture should be: comprehensive, transparent about limits, evidence-rich, and humble about anything it cannot demonstrate.
 
@@ -1392,7 +1322,6 @@ This playbook is a living document. Quarterly review by the Power Platform Admin
 - New Microsoft platform features or deprecations affecting Managed Environments
 - New regulatory guidance (e.g., new FINRA notices, SEC rule amendments, NYDFS revisions)
 - Any Sev1 incident — append the lessons-learned to the relevant scenario and tag the change in the version history
-- Sovereign-cloud parity changes
 - Feedback from examiner walkthroughs
 
 Pair this playbook with:

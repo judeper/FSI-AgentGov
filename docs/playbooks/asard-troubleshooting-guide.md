@@ -759,25 +759,6 @@ WHERE gov_expirationdate < GETDATE() AND gov_status = 'active'
 - Configure failure notifications to governance team
 - Review run history weekly for patterns
 
-## Sovereign Cloud Notes
-
-ASARD's defaults assume the Microsoft 365 commercial (public) cloud. When operating in a US Government, US Government High, DoD, or 21Vianet (China) tenant, the following endpoints and authority hostnames change. Always source the per-cloud values from the official references: [US Government cloud overview — Power Platform](https://learn.microsoft.com/en-us/power-platform/admin/microsoft-dynamics-365-government) and [Microsoft Graph national clouds](https://learn.microsoft.com/en-us/graph/deployments).
-
-| Surface | Commercial (default) | US Gov (GCC) / GCC High / DoD | 21Vianet (China) |
-|---------|----------------------|-------------------------------|------------------|
-| Microsoft Entra authority | `login.microsoftonline.com` | `login.microsoftonline.us` | `login.partner.microsoftonline.cn` |
-| Microsoft Graph host | `graph.microsoft.com` | `graph.microsoft.us` (GCC High/DoD) / `graph.microsoft.com` (GCC) | `microsoftgraph.chinacloudapi.cn` |
-| Power Platform / BAP host | `*.powerapps.com` | `gov.powerapps.us` (GCC) · `high.powerapps.us` (GCC High) · `mil.powerapps.us` (DoD) | `*.powerapps.cn` |
-| Dataverse host suffix | `crm.dynamics.com` | `crm9.dynamics.com` (GCC) · `crm.microsoftdynamics.us` (GCC High) · `crm.appsplatform.us` (DoD) | `crm.dynamics.cn` |
-| Microsoft 365 admin center | `admin.microsoft.com` | `portal.office365.us` | `portal.partner.microsoftonline.cn` |
-
-**Troubleshooting notes:**
-
-- **`401 Unauthorized` against Power Platform API in a US Gov tenant** — `ClientSecretCredential` defaults to the commercial authority. Pass `authority="https://login.microsoftonline.us"` (or the appropriate national-cloud host) to the credential constructor, and request the cloud-specific resource scope (for example `https://gov.api.powerplatform.us/.default` for GCC instead of `https://api.powerplatform.com/.default`).
-- **Microsoft Graph 404 / `Resource not found` from a sovereign tenant** — Confirm the script is calling the national-cloud Graph host listed above; the `/transitiveMembers` endpoint exists in each cloud but only at the cloud's own hostname.
-- **Teams Workflows webhooks** — Workflow URLs are issued from the tenant's home cloud and are not cross-cloud routable. Re-issue the webhook from the corresponding national-cloud Teams client when a tenant migrates between clouds.
-- **Document the cloud per environment** — Capture each customer environment's cloud (`commercial`, `gcc`, `gcc-high`, `dod`, `china`) alongside the tenant ID in your runbook so the detection and remediation scripts can select the correct endpoint set at runtime.
-
 ## Related Documentation
 
 - [ASARD Deployment Guide](asard-deployment-guide.md)

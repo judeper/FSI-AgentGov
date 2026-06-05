@@ -4,8 +4,6 @@
 >
 > **Audience.** Chief Information Security Officer (CISO), Chief Compliance Officer (CCO), General Counsel (GC), Privacy Officer, AI Governance Lead, Internal Audit, IRM role-group holders (Admins / Analysts / Investigators / Auditors / Approvers), and the examiner-facing Compliance Officer who assembles the annual program self-assessment and per-incident evidence packages.
 >
-> **Sovereign clouds in scope.** Microsoft 365 Commercial · GCC · GCC High · DoD. 21Vianet is out of scope. Sovereign-cloud parity for Insider Risk Management — and especially **Adaptive Protection**, **Risky AI usage**, **Risky Agents**, **Forensic Evidence**, and the **Triage Agent** — is not equivalent to commercial. Each TC below specifies sovereign behavior or routes to TC-20 compensating-control evidence.
->
 > **Cross-links.** [Portal Walkthrough](portal-walkthrough.md) · [PowerShell Setup](powershell-setup.md) · [Troubleshooting](troubleshooting.md) · [PowerShell Authoring Baseline](../../_shared/powershell-baseline.md).
 >
 > **Last UI Verified:** April 2026 against Microsoft Purview portal build 2026.04.x and Insider Risk Management Wave 1 release.
@@ -21,22 +19,6 @@
     - It does **not replace** the registered-principal supervisory review obligation under FINRA Rule 3110, nor the supervisory designation expectations stated in FINRA RN 24-09 and FINRA Rule 3110 for AI-generated communications and AI-assisted supervisory tooling.
     - It does **not constitute** the firm's records-retention plane. IRM (and Forensic Evidence in particular) is an investigative surface; durable books-and-records retention is implemented separately under [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) and [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md).
     - It does **not constitute** legal advice on state employee-monitoring statutes — see TC-13.
-    - It does **not** assert sovereign-cloud feature parity. Confirm each capability against current Microsoft Learn at the start of every cycle.
-
-!!! warning "Sovereign Cloud Availability"
-    Microsoft Insider Risk Management has documented gaps in US Government cloud programs. As of the **April 2026** verification cycle:
-
-    | Capability | Commercial | GCC | GCC High | DoD |
-    |---|---|---|---|---|
-    | IRM core (policies, alerts, cases) | GA | GA (subset) | Limited | Limited |
-    | Risky Agents (default-applied) | GA | Verify Learn | Verify Learn | Verify Learn |
-    | Risky AI usage (template) | GA | Limited / N/A | Limited / N/A | Limited / N/A |
-    | Risky browser usage | Preview / GA | N/A | N/A | N/A |
-    | Adaptive Protection | GA | **N/A** | **N/A** | **N/A** |
-    | Forensic Evidence | GA (PAYG) | Verify Learn | Verify Learn | Verify Learn |
-    | Triage Agent (Security Copilot) | GA (SCU + PAYG) | Limited | Limited | Limited |
-
-    Where a capability is N/A or not yet at parity in the target cloud, mark the corresponding TC `NotApplicable — Sovereign Exception #____` and execute **TC-20 (Sovereign Compensating Control Exercise)** for that quarter. Do **not** report a "PASS" or "FAIL" against a capability that does not exist in the tenant — that is a defensible-evidence defect under FINRA 4511.
 
 ---
 
@@ -48,7 +30,7 @@
 | Regulatory hedging | "Supports compliance with" / "helps meet" / "required for" / "recommended to" / "aids in." Never overclaiming language. |
 | UTC timestamping | All evidence carries `Get-Date -AsUTC -Format 'yyyy-MM-ddTHH:mm:ssZ'`. Local-time evidence is rejected at audit. |
 | Hashing | SHA-256 over canonical JSON; SHA-256 sidecar `.sha256` file per evidence artifact. |
-| Sovereign detection | Every Pester / KQL run records `(Get-MgContext).Environment` mapped to `Commercial / GCC / GCCH / DoD` and tags the evidence record. |
+| Cloud detection | Every Pester / KQL run records `(Get-MgContext).Environment` (expected: `Global` for commercial) and tags the evidence record. |
 | Evidence retention | Two-tier: **operational** (per change ticket / 1–2 year working window) and **records-scope** (≥6 years on WORM, broker-dealer ≥7 years per FINRA 4511 / SEC 17a-4(f)). The records-scope tier is enforced via Purview retention labels with `deletionLocked = true`. |
 | Run identifier | `IRM112-yyyyMMdd-HHmmss-<8charGuid>` embedded in every evidence record and filename. |
 | Canonical role names | Per [`docs/reference/role-catalog.md`](../../../reference/role-catalog.md). No title substitution — "Global Administrator" is **not** a substitute for "Entra Global Admin"; "Compliance Administrator" is **not** a substitute for "Purview Compliance Admin". |
@@ -81,9 +63,8 @@ IRM signals are **non-static**. Microsoft ships analytics-model updates, indicat
 | TC-17 Escalation chain | Quarterly + per-high-severity | IRM Analyst + CCO | CISO, GC | 7 years | FINRA 3110, NYDFS 500.17 (72h), Reg S-P (72h) |
 | TC-18 Pseudonymization → unmask gate | Quarterly | Privacy Officer + IRM Auditor | GC, CCO | 7 years | GLBA 501(b), Reg S-P, state monitoring law |
 | TC-19 Sentinel UEBA correlation | Quarterly | SOC Analyst (Sentinel) + IRM Analyst | CISO | 7 years | NYDFS 500.06, [Control 2.26](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md), [Control 3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) |
-| TC-20 Sovereign compensating-control | Quarterly (GCC/GCCH/DoD only) | CISO + CCO | GC, AI Governance Lead | 7 years | FINRA 4511, OCC Bulletin 2026-13 (formerly OCC 2011-12), sovereign-cloud exception register |
-| TC-21 SOX 404 IRM self-assessment | Annually | CCO + Internal Audit | CISO, GC, Audit Committee | 7 years | SOX §§302/404, OCC Bulletin 2026-13 (formerly OCC 2011-12) |
-| TC-22 Examination evidence-pack pull-test | Annually + on-examiner-request | CCO | Internal Audit, GC | 7 years | FINRA 4511, SEC 17a-4(f), Reg S-P |
+| TC-20 SOX 404 IRM self-assessment | Annually | CCO + Internal Audit | CISO, GC, Audit Committee | 7 years | SOX §§302/404, OCC Bulletin 2026-13 (formerly OCC 2011-12) |
+| TC-21 Examination evidence-pack pull-test | Annually + on-examiner-request | CCO | Internal Audit, GC | 7 years | FINRA 4511, SEC 17a-4(f), Reg S-P |
 
 > **Firm-defined SLAs.** Microsoft Learn does not publish IRM alert latency, triage SLA, or investigation duration ceilings. Any SLA cited below is **firm-defined per WSP**, not Microsoft-published. The only Microsoft-published processing windows cited are the **analytics scan up to 48 hours** and **Forensic Evidence clip retention of 120 days**.
 
@@ -139,46 +120,35 @@ IRM signals are **non-static**. Microsoft ships analytics-model updates, indicat
 |---|---|---|---|
 | PRE-1 | PowerShell 7.4+ Core, Pester 5.5+ pinned per §0.2 | Purview Compliance Admin | Halt cycle; remediate workstation. |
 | PRE-2 | Tenant licensing includes Microsoft 365 E5 + Microsoft 365 E5 Compliance (or equivalent). Forensic Evidence add-on enabled (PAYG bill-meter active). | Entra Global Admin (read) | Open ticket; record TC-1 evidence with `LicenseShortfall=true`. |
-| PRE-3 | `(Get-MgContext).Environment` returns one of `Global / USGov / USGovDoD`. Tagged in every evidence record. | Purview Compliance Admin | Halt cycle if `Unknown`. |
+| PRE-3 | `(Get-MgContext).Environment` returns `Global` (commercial). Tagged in every evidence record. | Purview Compliance Admin | Halt cycle if `Unknown`. |
 | PRE-4 | UTC clock skew vs. `time.windows.com` < 2s (`w32tm /stripchart`). | Workstation owner | Re-sync NTP; rerun. |
 | PRE-5 | Evidence root path resolves to immutable / WORM-backed share with retention label `IRM-EvidenceLock-7y` (or firm equivalent). | Purview Compliance Admin | Halt cycle. |
 | PRE-6 | Pseudonymization is **enabled** in IRM settings (default: on). | Privacy Officer | Halt cycle; record incident under TC-18. |
 | PRE-7 | `UnifiedAuditLogIngestionEnabled = $true` for the tenant. | Exchange Online Admin | Halt cycle (TC-1 cannot pass). |
 | PRE-8 | Run identifier generated and bound to the cycle. | Test runner | Auto-generate. |
 
-### §0.4 Sovereign bootstrap helper
+### §0.4 Cloud context helper
 
-The helper below is referenced by every TC. It is read-only and emits a sovereign tag without mutating tenant state.
+The helper below is referenced by TC-1 and subsequent TCs. It is read-only and emits a context tag.
 
 ```powershell
-function Test-Agt112SovereignTenant {
+function Get-Agt112CloudContext {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)] [string] $RunId
     )
     $ctx = Get-MgContext
     $env = if ($ctx) { $ctx.Environment } else { 'Unknown' }
-    $cloud = switch ($env) {
-        'Global'    { 'Commercial' }
-        'USGov'     { 'GCC-or-GCCH' }   # Graph does not split GCC vs. GCCH at this layer
-        'USGovDoD'  { 'DoD' }
-        default     { 'Unknown' }
-    }
     [pscustomobject]@{
         RunId           = $RunId
         UtcTimestamp    = (Get-Date -AsUTC -Format 'yyyy-MM-ddTHH:mm:ssZ')
         GraphEnvironment= $env
-        SovereignCloud  = $cloud
-        IsSovereign     = ($cloud -in 'GCC-or-GCCH','DoD')
-        AdaptiveProtectionInScope   = ($cloud -eq 'Commercial')
-        ForensicEvidenceInScope     = $true   # verify on Microsoft Learn each cycle
-        TriageAgentInScope          = ($cloud -eq 'Commercial')
-        RiskyBrowserUsageInScope    = ($cloud -eq 'Commercial')
+        TenantId        = if ($ctx) { $ctx.TenantId } else { 'Unknown' }
     }
 }
 ```
 
-> If `SovereignCloud = 'Unknown'`, every downstream TC is invalidated. Do **not** continue.
+> If `GraphEnvironment = 'Unknown'`, every downstream TC is invalidated. Do **not** continue.
 
 ---
 
@@ -213,7 +183,7 @@ Mutation operations (policy creation, role-group membership change, license assi
 
 ```powershell
 $RunId = "IRM112-$(Get-Date -AsUTC -Format 'yyyyMMdd-HHmmss')-$([Guid]::NewGuid().ToString('N').Substring(0,8))"
-$sov = Test-Agt112SovereignTenant -RunId $RunId
+$ctx = Get-Agt112CloudContext -RunId $RunId
 
 # 1. Confirm UAL ingestion is enabled
 $cfg = Get-AdminAuditLogConfig
@@ -240,7 +210,7 @@ $hits = Search-UnifiedAuditLog -StartDate $start -EndDate $end -Operations $ops 
 
 #### Evidence Capture
 
-- `tc01-ual-state.json` — `{ RunId, Sovereign, UnifiedAuditLogIngestionEnabled, OperationsObserved[] }` + `.sha256`.
+- `tc01-ual-state.json` — `{ RunId, CloudEnvironment, UnifiedAuditLogIngestionEnabled, OperationsObserved[] }` + `.sha256`.
 - Screenshot: Purview portal → Audit → Search → filter `InsiderRiskMgmt*` over 7 days → result count and CSV export header captured.
 - Retention: 7 years (records-scope) per FINRA 4511 / SEC 17a-4(f).
 
@@ -400,8 +370,6 @@ Get-InsiderRiskPolicy | Where-Object { $_.Name -like '*Agent*' -or $_.TemplateNa
 #### Regulatory tie-in
 
 FINRA RN 24-09 + Rule 3110 (Gen AI supervision) · OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) (agent = model surface) · [Control 1.6](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) · [Control 2.26](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) · [Control 3.1](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md).
-
-> **Sovereign note.** Verify Risky Agents availability against current Microsoft Learn for the target sovereign cloud each cycle. Where the template is `NotApplicable`, route to TC-20.
 
 ---
 
@@ -600,8 +568,6 @@ FFIEC IT Handbook · NYDFS 500.06 · OCC heightened standards.
 
 FINRA 3110 · GLBA 501(b) · Reg S-P.
 
-> **Sovereign note.** Risky browser usage is **N/A** in GCC / GCC High / DoD as of the April 2026 cycle. Route to TC-20 in those clouds.
-
 ---
 
 ### TC-10 · Defender for Cloud Apps signal correlation (June 2025 dynamic threat detection)
@@ -636,8 +602,6 @@ FINRA 3110 · GLBA 501(b) · Reg S-P.
 #### Regulatory tie-in
 
 FINRA 4511 · GLBA 501(b) · NYDFS 500.06.
-
-> **Sovereign note.** Verify dynamic threat detection availability in the target sovereign cloud. Where unavailable, route to TC-20.
 
 ---
 
@@ -838,48 +802,35 @@ State employee-monitoring statutes (CT §31-48d, DE Title 19 §705, NY Civil Rig
 
 OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) (model risk; Triage Agent is a decision-support model surface) · FINRA RN 24-09 + Rule 3110 · [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md).
 
-> **Sovereign note.** Triage Agent / Security Copilot has limited sovereign availability. Where unavailable, route to TC-20.
-
 ---
 
-### TC-15 · Adaptive Protection wiring (sovereign-aware)
+### TC-15 · Adaptive Protection wiring
 **Frequency:** Quarterly · **Owner:** Purview Compliance Admin + Conditional Access Admin · **Counter-signer:** CISO
 
 #### Setup
 
 - Adaptive Protection links IRM risk levels (Minor / Moderate / Elevated) to dynamic enforcement in DLP, Conditional Access, and Data Lifecycle Management.
-- **Adaptive Protection is `NotApplicable` in GCC, GCC High, and DoD** as of the April 2026 cycle (verify Microsoft Learn each cycle).
 - Operator: Purview Compliance Admin + Conditional Access Admin.
 
 #### Steps
-
-**Commercial cloud:**
 
 1. Purview IRM → Adaptive Protection → confirm risk-level → policy bindings exist for Minor / Moderate / Elevated and reference firm-approved DLP and Conditional Access policies.
 2. Pull a 30-day sample of users who entered each risk band; confirm enforcement applied.
 3. Confirm de-escalation (risk band drop) removes enforcement after the documented cool-down window.
 
-**Sovereign clouds (GCC / GCCH / DoD):**
-
-- Mark this TC `NotApplicable — Sovereign Exception #15` and execute TC-20 with the **Adaptive Protection compensating-control** scenario:
-  - Static Conditional Access policy targeting documented priority-user risk groups.
-  - Manual analyst-driven escalation procedure (documented SLA).
-  - Quarterly review of escalation outcomes.
-
-#### Expected (commercial)
+#### Expected
 
 - Bindings present for all three bands.
 - Enforcement applied + de-escalated cleanly in samples.
 
 #### Evidence Capture
 
-- `tc15-adaptive-bindings.json`, sample-set CSV, sovereign-exception record where applicable.
+- `tc15-adaptive-bindings.json`, sample-set CSV.
 - Retention: 7 years.
 
 #### Remediation
 
 - Binding missing → re-bind per [`powershell-setup.md` §11](powershell-setup.md).
-- Sovereign cloud → TC-20 compensating-control execution.
 
 #### Regulatory tie-in
 
@@ -1122,57 +1073,7 @@ NYDFS 500.06 / 500.16 · FFIEC · [Control 2.26](../../../controls/pillar-2-mana
 
 ---
 
-### TC-20 · Sovereign compensating-control exercise
-**Frequency:** Quarterly (GCC / GCC High / DoD only) · **Owner:** CISO + CCO · **Counter-signer:** GC, AI Governance Lead
-
-#### Setup
-
-- Required for any TC marked `NotApplicable — Sovereign Exception #N` in the current cycle.
-- Operator: CISO + CCO + GC + AI Governance Lead.
-
-#### Steps
-
-For each sovereign exception, document and exercise the compensating control. Canonical mapping:
-
-| Sovereign exception | Compensating control |
-|---|---|
-| Adaptive Protection (TC-15) N/A | Static Conditional Access policy bound to documented priority-user risk groups + manual analyst escalation procedure with documented SLA + quarterly outcome review. |
-| Risky AI usage (TC-5) limited / N/A | DLP + Purview audit + manual sample-based prompt review by AI Governance Lead (sandbox-only). |
-| Risky browser usage (TC-9) N/A | DLP + endpoint AV / EDR controls + browser ADMX hardening + analyst sample review. |
-| Triage Agent (TC-14) limited | Manual analyst triage SLA documented in WSP; OCC Bulletin 2026-13 (formerly OCC 2011-12) model-monitoring evidence assembled by hand each cycle. |
-| Forensic Evidence (TC-12) limited | Documented sovereign-friendly evidence procedure (e.g., MDE Live Response with dual-auth + WORM evidence store). |
-| Defender for Cloud Apps dynamic threat detection (TC-10) N/A | Static MDA policies + manual anomaly review on quarterly cadence. |
-
-For each entry, the exercise:
-
-1. Documents the sovereign-exception register entry (cloud, capability, Microsoft Learn link, date verified).
-2. Exercises the compensating control end-to-end (test alert / test policy / sample review) and produces a structured evidence record.
-3. Files the exercise outcome with CCO + CISO sign-off.
-
-#### Expected
-
-- Every active sovereign exception has a current (≤ 90-day) compensating-control exercise on file.
-- Exception register matches Microsoft Learn current state (re-verified each cycle).
-
-#### Evidence Capture
-
-- `tc20-exception-register.yaml` (versioned).
-- `tc20-exercise-{exception}.json` per exception.
-- `tc20-attestation-{quarter}.pdf` (signed by CISO + CCO + GC + AI Governance Lead).
-- Retention: 7 years.
-
-#### Remediation
-
-- Stale exception (> 90 days without exercise) → freeze the affected workload (scope-out IRM-dependent operations) until the exercise completes.
-- Microsoft Learn now reports parity → close the exception via change ticket; restore the corresponding TC to in-scope status.
-
-#### Regulatory tie-in
-
-FINRA 4511 (defensible evidence) · OCC Bulletin 2026-13 (formerly OCC 2011-12) (compensating-control documentation) · sovereign-cloud exception register.
-
----
-
-### TC-21 · SOX 404 IRM self-assessment
+### TC-20 · SOX 404 IRM self-assessment
 **Frequency:** Annually · **Owner:** CCO + Internal Audit · **Counter-signer:** CISO, GC, Audit Committee
 
 #### Setup
@@ -1182,7 +1083,7 @@ FINRA 4511 (defensible evidence) · OCC Bulletin 2026-13 (formerly OCC 2011-12) 
 
 #### Steps
 
-1. Compile the year's TC-1 through TC-20 evidence packages.
+1. Compile the year's TC-1 through TC-19 evidence packages.
 2. Score each control against the firm's ICFR rubric: Designed-effectively / Operating-effectively / Deficient / Material weakness.
 3. Run a tabletop test of three FSI scenarios end-to-end:
    - Front-office data theft by a departing wealth advisor.
@@ -1198,8 +1099,8 @@ FINRA 4511 (defensible evidence) · OCC Bulletin 2026-13 (formerly OCC 2011-12) 
 
 #### Evidence Capture
 
-- `tc21-soa-{year}.pdf` (self-assessment).
-- `tc21-tabletop-{year}-{scenario}.pdf`.
+- `tc20-soa-{year}.pdf` (self-assessment).
+- `tc20-tabletop-{year}-{scenario}.pdf`.
 - Retention: 7 years.
 
 #### Remediation
@@ -1212,7 +1113,7 @@ SOX §§302 / 404 · OCC Bulletin 2026-13 (formerly OCC 2011-12) · NYDFS 500.06
 
 ---
 
-### TC-22 · Examination evidence-pack pull-test
+### TC-21 · Examination evidence-pack pull-test
 **Frequency:** Annually + on-examiner-request · **Owner:** CCO · **Counter-signer:** Internal Audit, GC
 
 #### Setup
@@ -1233,7 +1134,6 @@ SOX §§302 / 404 · OCC Bulletin 2026-13 (formerly OCC 2011-12) · NYDFS 500.06
    - TC-17 escalation-sample CSV.
    - TC-18 unmask-audit CSV.
    - TC-19 Sentinel KQL outputs.
-   - TC-20 sovereign-exception exercises (if applicable).
 3. Verify all artifacts resolve from the WORM store with intact `.sha256` sidecars and integrity check passes.
 4. Time the assembly: target ≤ 48h end-to-end (firm-defined SLA).
 
@@ -1244,8 +1144,8 @@ SOX §§302 / 404 · OCC Bulletin 2026-13 (formerly OCC 2011-12) · NYDFS 500.06
 
 #### Evidence Capture
 
-- `tc22-pulltest-{window}.json` (artefact list + hash verification + assembly elapsed time).
-- `tc22-attestation-{year}.pdf` signed by CCO, Internal Audit, GC.
+- `tc21-pulltest-{window}.json` (artefact list + hash verification + assembly elapsed time).
+- `tc21-attestation-{year}.pdf` signed by CCO, Internal Audit, GC.
 - Retention: 7 years.
 
 #### Remediation
@@ -1277,14 +1177,13 @@ FINRA 4511 · SEC 17a-4(f) · Reg S-P · OCC examination expectations · NYDFS 5
 | TC-12 | `tc12-fe-quarterly.json`, `tc12-fe-per-capture-{caseId}.json`, `tc12-fe-decision-{caseId}.json` | WORM (+ legal-hold preservation where applicable) | Per legal hold; else 7 years for **decision metadata** | SEC 17a-4(b) · FINRA 4511 · GLBA 501(b) · State monitoring statutes |
 | TC-13 | `tc13-jurisdiction-matrix.yaml`, `tc13-attestation-{year}.pdf` | WORM | 7 years | State monitoring statutes · GLBA 501(b) |
 | TC-14 | `tc14-triage-state.json`, `tc14-fidelity-sample.csv`, `tc14-attestation.pdf` | WORM | 7 years | OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) · FINRA RN 24-09 |
-| TC-15 | `tc15-adaptive-bindings.json`, sample-set CSV, sovereign-exception record | WORM | 7 years | OCC Bulletin 2026-13 (formerly OCC 2011-12) · GLBA 501(b) |
+| TC-15 | `tc15-adaptive-bindings.json`, sample-set CSV | WORM | 7 years | OCC Bulletin 2026-13 (formerly OCC 2011-12) · GLBA 501(b) |
 | TC-16 | `tc16-cc-irm-correlation.csv`, `tc16-supervisory-tieout.csv` | WORM | 7 years | FINRA 3110 · FINRA 4511 |
 | TC-17 | `tc17-escalation-sample.csv`, `tc17-tabletop-{quarter}.pdf` | WORM | 7 years | NYDFS 500.17(a) · Reg S-P 2024 · FINRA 3110 |
 | TC-18 | `tc18-unmask-audit.csv` (hashed target IDs) | WORM | 7 years | GLBA 501(b) · Reg S-P · State statutes |
 | TC-19 | `tc19-{query}.csv` per KQL query | WORM | 7 years | NYDFS 500.06 / 500.16 · FFIEC |
-| TC-20 | `tc20-exception-register.yaml`, `tc20-exercise-{exception}.json`, `tc20-attestation-{quarter}.pdf` | WORM | 7 years | FINRA 4511 · OCC Bulletin 2026-13 (formerly OCC 2011-12) |
-| TC-21 | `tc21-soa-{year}.pdf`, `tc21-tabletop-{year}-{scenario}.pdf` | WORM | 7 years | SOX §§302 / 404 · OCC Bulletin 2026-13 (formerly OCC 2011-12) |
-| TC-22 | `tc22-pulltest-{window}.json`, `tc22-attestation-{year}.pdf` | WORM | 7 years | FINRA 4511 · SEC 17a-4(f) · Reg S-P |
+| TC-20 | `tc20-soa-{year}.pdf`, `tc20-tabletop-{year}-{scenario}.pdf` | WORM | 7 years | SOX §§302 / 404 · OCC Bulletin 2026-13 (formerly OCC 2011-12) |
+| TC-21 | `tc21-pulltest-{window}.json`, `tc21-attestation-{year}.pdf` | WORM | 7 years | FINRA 4511 · SEC 17a-4(f) · Reg S-P |
 
 > **Two-tier retention reminder.** The **operational** tier (working window 1–2 years) is for live triage and analyst handoff; the **records-scope** tier above (7 years on WORM with `deletionLocked = true` retention labels) is for examination-ready evidence. **Forensic Evidence clip media** themselves remain on the Microsoft 120-day clip-deletion ceiling unless exported under legal hold — only the **decision metadata** records-tier-retains.
 
@@ -1299,12 +1198,12 @@ The following officers sign the annual IRM program attestation:
 | Officer (canonical) | Scope of attestation |
 |---|---|
 | Chief Compliance Officer (CCO) | Program-level effectiveness; FINRA 3110 / 4511 / Reg S-P / NYDFS 500 readiness; books-and-records integrity for IRM evidence. |
-| Chief Information Security Officer (CISO) | Technical control state across TC-1 → TC-20; sovereign-exception register accuracy; Sentinel correlation health (TC-19). |
+| Chief Information Security Officer (CISO) | Technical control state across TC-1 → TC-19; Sentinel correlation health (TC-19). |
 | Privacy Officer | Pseudonymization integrity (TC-18); state-law jurisdiction matrix (TC-13); employee-notice mechanism operating. |
 | General Counsel (GC) | Legal interpretation of state monitoring statutes; Forensic Evidence dual-auth chain (TC-12); legal-hold preservation paths. |
 | AI Governance Lead | Risky Agents / Risky AI usage policy posture (TC-4 / TC-5); Triage Agent fidelity (TC-14); model-risk alignment with OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7). |
-| Internal Audit | Independent verification of evidence integrity and SoD; pull-test results (TC-22); SOX 404 self-assessment (TC-21). |
-| Audit Committee Chair | Acceptance of self-assessment memo and remediation plan (TC-21). |
+| Internal Audit | Independent verification of evidence integrity and SoD; pull-test results (TC-21); SOX 404 self-assessment (TC-20). |
+| Audit Committee Chair | Acceptance of self-assessment memo and remediation plan (TC-20). |
 
 ### §4.2 Per-incident sign-off
 
@@ -1315,15 +1214,14 @@ For every high-severity incident touching the 72-hour clocks (NYDFS 500.17(a) / 
 3. GC review of state-monitoring-law implications (where Forensic Evidence or unmask was invoked).
 4. CISO sign-off on technical containment.
 5. Regulator-notification draft and submission references (where in-scope).
-6. Hash + WORM-storage reference to the assembled TC-22 sub-pack supporting the incident.
+6. Hash + WORM-storage reference to the assembled TC-21 sub-pack supporting the incident.
 
 ### §4.3 Cycle close
 
 - Run identifier `IRM112-yyyyMMdd-HHmmss-<8charGuid>` archived.
 - All TC artefacts hash-verified and resolved from WORM.
-- Sovereign-exception register reviewed and updated against Microsoft Learn.
 - Indicator baseline diff (TC-3) reviewed; any approved drift incorporated into `governance/irm-indicators/baseline.yaml` under change control.
-- Next-cycle calendar items scheduled (weekly TC-1, monthly TC-4 → TC-9, quarterly TC-2 / TC-3 / TC-10 → TC-19 / TC-20, annual TC-21 / TC-22).
+- Next-cycle calendar items scheduled (weekly TC-1, monthly TC-4 → TC-9, quarterly TC-2 / TC-3 / TC-10 → TC-19, annual TC-20 / TC-21).
 
 ### §4.4 Cross-references (canonical)
 
@@ -1367,13 +1265,9 @@ Every TC emits a JSON evidence record that conforms to this schema (firm-defined
   "Frequency": "QuarterlyAndPerCapture",
   "UtcExecutionStart": "2026-04-15T09:32:15Z",
   "UtcExecutionEnd": "2026-04-15T09:34:02Z",
-  "Sovereign": {
+  "CloudContext": {
     "GraphEnvironment": "Global",
-    "Cloud": "Commercial",
-    "AdaptiveProtectionInScope": true,
-    "ForensicEvidenceInScope": true,
-    "TriageAgentInScope": true,
-    "RiskyBrowserUsageInScope": true
+    "Cloud": "Commercial"
   },
   "Operator": {
     "PrincipalUpnHash": "sha256:5f1d…",
@@ -1400,44 +1294,11 @@ Schema rules:
 
 - `RunId` MUST follow `IRM112-yyyyMMdd-HHmmss-<8charGuid>`.
 - `UtcExecutionStart` and `UtcExecutionEnd` MUST be ISO 8601 in UTC.
-- `Result` ∈ {`Pass`, `Fail`, `NotApplicable`, `Skipped`}; `NotApplicable` and `Skipped` MUST include a `Reason` field referencing the sovereign-exception register entry where applicable.
+- `Result` ∈ {`Pass`, `Fail`, `NotApplicable`, `Skipped`}; `NotApplicable` and `Skipped` MUST include a `Reason` field with a documented rationale.
 - `Operator.PrincipalUpnHash` is SHA-256 over the lower-cased UPN to support pseudonymization at the evidence layer.
 - `Artefacts[].Sha256` MUST match the `.sha256` sidecar contents (verified at TC-22 pull-test).
 
-### §5.2 Appendix B — Sovereign exception register template
-
-`governance/sovereign-exceptions.yaml`:
-
-```yaml
-schemaVersion: v1
-controlId: "1.12"
-lastReviewedUtc: "2026-05-25T00:00:00Z"
-exceptions:
-  - id: "SOV-15"
-    capability: "Adaptive Protection"
-    affectedClouds: ["GCC", "GCC High", "DoD"]
-    learnReference: "https://learn.microsoft.com/en-us/purview/insider-risk-management-adaptive-protection"
-    learnVerifiedUtc: "2026-05-25T00:00:00Z"
-    compensatingControlId: "TC-20-AdaptiveProtection-Static-CA"
-    lastExerciseUtc: "2026-04-14T00:00:00Z"
-    nextExerciseDueUtc: "2026-07-13T00:00:00Z"
-    owner: "CISO"
-    counterSigner: "CCO"
-  - id: "SOV-09"
-    capability: "Risky browser usage"
-    affectedClouds: ["GCC", "GCC High", "DoD"]
-    learnReference: "https://learn.microsoft.com/en-us/purview/insider-risk-management-browser-support"
-    learnVerifiedUtc: "2026-05-25T00:00:00Z"
-    compensatingControlId: "TC-20-RiskyBrowser-DLP-Hardening"
-    lastExerciseUtc: "2026-04-14T00:00:00Z"
-    nextExerciseDueUtc: "2026-07-13T00:00:00Z"
-    owner: "AI Governance Lead"
-    counterSigner: "CISO"
-```
-
-The register is **versioned in source control** so that historical examination questions ("what was the sovereign-exception posture in Q3-2025?") can be answered by checkout.
-
-### §5.3 Appendix C — Indicator baseline excerpt (`baseline.yaml`)
+### §5.2 Appendix B — Indicator baseline excerpt (`baseline.yaml`)
 
 ```yaml
 schemaVersion: v1
@@ -1473,7 +1334,7 @@ priorityUserGroups:
   - "FSI-PrivilegedAdmins"
 ```
 
-### §5.4 Appendix D — Pester scaffolding skeleton
+### §5.3 Appendix C — Pester scaffolding skeleton
 
 ```powershell
 #Requires -Version 7.4
@@ -1481,14 +1342,14 @@ priorityUserGroups:
 
 BeforeAll {
     $script:RunId = "IRM112-$(Get-Date -AsUTC -Format 'yyyyMMdd-HHmmss')-$([Guid]::NewGuid().ToString('N').Substring(0,8))"
-    $script:Sov   = Test-Agt112SovereignTenant -RunId $script:RunId
+    $script:CloudCtx = Get-Agt112CloudContext -RunId $script:RunId
 }
 
 Describe 'Control 1.12 · Verification (read-only)' {
 
     Context 'PRE gates' {
         It 'PRE-1 PowerShell baseline'   { $PSVersionTable.PSVersion.Major | Should -BeGreaterOrEqual 7 }
-        It 'PRE-3 Sovereign tag known'  { $script:Sov.SovereignCloud | Should -Not -Be 'Unknown' }
+        It 'PRE-3 Cloud environment known'  { $script:CloudCtx.GraphEnvironment | Should -Not -Be 'Unknown' }
         It 'PRE-6 Pseudonymization on'  { (Get-InsiderRiskTenantSettings).PseudonymizationEnabled | Should -BeTrue }
         It 'PRE-7 UAL ingestion on'     { (Get-AdminAuditLogConfig).UnifiedAuditLogIngestionEnabled | Should -BeTrue }
     }
@@ -1529,7 +1390,7 @@ AfterAll {
 }
 ```
 
-### §5.5 Appendix E — TC-to-regulation matrix
+### §5.4 Appendix D — TC-to-regulation matrix
 
 | Regulation | TCs that primarily evidence it |
 |---|---|
@@ -1549,11 +1410,11 @@ AfterAll {
 | FFIEC IT Examination Handbook | TC-8, TC-11, TC-19 |
 | State employee-monitoring statutes (CT §31-48d, DE Title 19 §705, NY Civil Rights Law §52-bis) | TC-12 (gating), TC-13 (primary), TC-18 (operational) |
 
-### §5.6 Appendix F — Glossary (subset)
+### §5.5 Appendix E — Glossary (subset)
 
 | Term | Meaning |
 |---|---|
-| Adaptive Protection | IRM capability that links risk levels to dynamic enforcement in DLP / Conditional Access / DLM. **N/A in GCC / GCC High / DoD** as of April 2026. |
+| Adaptive Protection | IRM capability that links risk levels to dynamic enforcement in DLP / Conditional Access / DLM. |
 | Catch-all role group | The default `Insider Risk Management` role group; bundles all permissions and is **prohibited** in regulated FSI tenants. |
 | Forensic Evidence | IRM screen-recording capability; PAYG-billed; 120-day clip auto-delete; dual-authorization. **Investigative**, not records-tier. |
 | HR connector | Purview connector that ingests `EmployeeID`, `ResignationDate`, `LastWorkingDate` for the departing-user template. |
@@ -1566,11 +1427,10 @@ AfterAll {
 | Risky browser usage | IRM policy template covering risky browsing categories; same extension dependency. |
 | Run identifier | `IRM112-yyyyMMdd-HHmmss-<8charGuid>`; binds all evidence in a verification cycle. |
 | Saved-auth refresh (Triage Agent) | 90-day refresh requirement for Security Copilot Triage Agent saved authentication and configuration. |
-| Sovereign exception | Documented gap between commercial and a sovereign cloud, with compensating-control evidence (TC-20). |
 | Triage Agent | Security Copilot agent that triages IRM alerts; depends on SCU + PAYG; decision-support, not supervisory decision-maker. |
 | WORM | Write-Once-Read-Many storage tier supporting `deletionLocked = true` retention labels. |
 
-### §5.7 Appendix G — Examiner-facing crib sheet
+### §5.6 Appendix F — Examiner-facing crib sheet
 
 For the CCO presenting to a regulator, the answer to "show me your IRM evidence" is the following six-question rubric:
 
@@ -1581,7 +1441,7 @@ For the CCO presenting to a regulator, the answer to "show me your IRM evidence"
 5. **How do you tie IRM to your supervisory program?** → TC-16 CC correlation + TC-17 escalation chain (72-hour clocks).
 6. **How is your AI / agent surface governed?** → TC-4 / TC-5 / TC-14 + Control 2.6 (model-risk) + Control 2.26 (agent identity).
 
-### §5.8 Appendix H — Out-of-scope clarifications
+### §5.7 Appendix G — Out-of-scope clarifications
 
 - **Books-and-records retention** is implemented under [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) and [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), not by IRM or Forensic Evidence.
 - **DLP authoring** is implemented under [Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md). IRM consumes DLP signals; it does not author DLP.
@@ -1594,7 +1454,7 @@ For the CCO presenting to a regulator, the answer to "show me your IRM evidence"
 - **Agent inventory** is implemented under [Control 3.1](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md).
 - **Sentinel workspace authoring and detection-rule lifecycle** are implemented under [Control 3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md). The KQL in TC-19 is read-only verification, not detection-rule authoring.
 
-### §5.9 Appendix I — Change-log discipline
+### §5.8 Appendix H — Change-log discipline
 
 Any modification to this verification catalogue requires:
 
@@ -1607,7 +1467,7 @@ Any modification to this verification catalogue requires:
 
 ---
 
-### §5.10 Appendix J — Extended KQL hunting library
+### §5.9 Appendix I — Extended KQL hunting library
 
 The queries below extend TC-19 with additional hunting patterns the SOC may schedule independently. They are **hunting-tier** (not detection rules) and are referenced by the TC-19 evidence record where the SOC Analyst includes them in the cycle.
 
@@ -1706,9 +1566,9 @@ agentRecs
 | summarize Total = count(), Agree = sum(Agreement), AgreementRate = todouble(sum(Agreement)) / todouble(count())
 ```
 
-> **Hunting-tier note.** Operation names in the above queries reflect commercial-cloud OfficeActivity emissions as observed in the April 2026 cycle. Sovereign cloud emission names may differ; verify against your tenant's Sentinel ingestion before scheduling.
+> **Hunting-tier note.** Operation names in the above queries reflect commercial-cloud OfficeActivity emissions as observed in the April 2026 cycle. Verify against your tenant's Sentinel ingestion before scheduling.
 
-### §5.11 Appendix K — Operational dashboards reference
+### §5.10 Appendix J — Operational dashboards reference
 
 The firm publishes the following IRM dashboards (Power BI / Sentinel Workbooks). They are **operational-tier** (consumption views), not records-tier evidence:
 
@@ -1717,13 +1577,12 @@ The firm publishes the following IRM dashboards (Power BI / Sentinel Workbooks).
 | IRM Health (UAL ingest, connector state, policy state) | CISO, Purview Compliance Admin | Hourly | Sentinel + Purview |
 | IRM Alert / Case Volumetrics | CCO, IRM Analyst | Daily | Sentinel |
 | Forensic Evidence Capture Ledger | GC, Privacy Officer, IRM Approver | On-event | Sentinel |
-| Sovereign Exception Posture | CISO, CCO | Daily | `governance/sovereign-exceptions.yaml` + Sentinel |
 | AI / Agent Surface (Risky Agents, Risky AI usage, Triage Agent) | AI Governance Lead, CCO | Daily | Sentinel + Purview DSPM for AI |
 | Supervisory Tie-out (CC ↔ IRM) | CCO | Weekly | Sentinel |
 
 Dashboards are **not** a substitute for the TC artefacts in §3 — they are derived views, not WORM-stored evidence.
 
-### §5.12 Appendix L — On-change triggers
+### §5.11 Appendix K — On-change triggers
 
 The following events MUST trigger off-cycle re-execution of the indicated TCs:
 
@@ -1732,9 +1591,7 @@ The following events MUST trigger off-cycle re-execution of the indicated TCs:
 | New IRM policy created or modified | TC-3, TC-4, TC-5, TC-6, TC-7, TC-9 (any affected) | Same business day |
 | IRM role-group membership change | TC-2, TC-12 (re-assert SoD) | Within 24h |
 | Forensic Evidence enabled in a new jurisdiction | TC-13, TC-12 | Before first capture |
-| Sovereign-exception register updated | TC-20 (affected exception only) | Within 7 days |
-| Tenant migration (commercial → sovereign or vice-versa) | All TCs (full cycle) | Within 30 days post-migration |
-| Microsoft Learn change to a referenced capability (Adaptive Protection, Risky Agents, Forensic Evidence, Triage Agent) | TC-3 (indicator implications), TC-4 / TC-5 / TC-9 / TC-12 / TC-14 / TC-15 / TC-20 (as applicable) | Within 30 days of Microsoft change |
+| Microsoft Learn change to a referenced capability (Adaptive Protection, Risky Agents, Forensic Evidence, Triage Agent) | TC-3 (indicator implications), TC-4 / TC-5 / TC-9 / TC-12 / TC-14 / TC-15 (as applicable) | Within 30 days of Microsoft change |
 | Indicator baseline change (RFC approved) | TC-3 | Same business day |
 | Intune extension force-install policy change | TC-5, TC-9 | Within 7 days |
 | HR connector schema change (added / removed field) | TC-6 | Same business day |
@@ -1744,7 +1601,7 @@ The following events MUST trigger off-cycle re-execution of the indicated TCs:
 | Sentinel connector health change | TC-19 | Within 24h |
 | State employee-monitoring statute change (legislative or regulatory) | TC-13 | Within 30 days; suspend affected captures pending GC review |
 
-### §5.13 Appendix M — Firm-defined SLA register (illustrative)
+### §5.12 Appendix L — Firm-defined SLA register (illustrative)
 
 > Microsoft does **not** publish IRM alert latency, triage SLA, or investigation duration ceilings. The values below are **firm-defined per WSP** and serve as defaults; tune via your governance process.
 
@@ -1758,10 +1615,10 @@ The following events MUST trigger off-cycle re-execution of the indicated TCs:
 | Forensic Evidence approval → 100-day decision (extend / hold / auto-delete) | 100 days from approval | IRM Investigator |
 | Triage Agent saved-auth/config refresh | 90 days | AI Governance Lead |
 | TC-22 pull-test assembly | 48 hours | CCO + records-management custodian |
-| Sovereign-exception compensating-control exercise | 90 days | Per exception owner |
+| Compensating-control exercise | N/A — all TCs target commercial capabilities | N/A |
 | Indicator baseline RFC review | 14 calendar days | Purview Compliance Admin + AI Governance Lead |
 
-### §5.14 Appendix N — Failure-mode catalogue (selected)
+### §5.13 Appendix M — Failure-mode catalogue (selected)
 
 | Failure mode | Detected by | Immediate action | Long-term action |
 |---|---|---|---|
@@ -1774,7 +1631,6 @@ The following events MUST trigger off-cycle re-execution of the indicated TCs:
 | HR connector stale > 24h | TC-6 | Manual sync; investigate field mapping | Add health-monitor alert on connector last-sync age |
 | MDA dynamic threat detection disabled or unhealthy | TC-10 | Re-enable; SOC sample review | Add connector-health detection rule |
 | Sentinel KQL hits but no IRM artefact | TC-19 | Analyst follow-up; document benign rationale | Tune detection rule or IRM policy as appropriate |
-| Sovereign capability changes parity (Microsoft Learn) | TC-15 / TC-20 quarterly verification | Update `governance/sovereign-exceptions.yaml`; rerun TC | Add Microsoft Learn change-watch process to AI Governance Lead's intake |
 | Forensic Evidence clip auto-delete imminent (≤ 20 days) without 100-day decision | TC-12 (per-capture) | Investigator decides extend / hold / auto-delete | Add automated reminder at 80-day mark |
 | State statute change | TC-13 | Suspend captures in jurisdiction; GC review | Subscribe to legislative-tracking service |
 | Triage Agent saved-auth expiring | TC-14 | Refresh under change ticket | Add 14-day pre-expiry alert |
@@ -1782,20 +1638,19 @@ The following events MUST trigger off-cycle re-execution of the indicated TCs:
 | 72-hour clock breach | TC-17 | RCA within 7 business days | Process-engineering review; tabletop reset |
 | TC-22 artefact missing or sidecar mismatch | TC-22 | Records-management incident | Audit Committee escalation |
 
-### §5.15 Appendix O — Microsoft Learn watch-list (re-verify each cycle)
+### §5.14 Appendix N — Microsoft Learn watch-list (re-verify each cycle)
 
-Each cycle, the AI Governance Lead re-verifies the following Microsoft Learn topics and records `learnVerifiedUtc` against the sovereign-exception register and the indicator baseline:
+Each cycle, the AI Governance Lead re-verifies the following Microsoft Learn topics and records `learnVerifiedUtc` against the indicator baseline:
 
 - Insider Risk Management — overview and policy templates.
 - Insider Risk Management — Forensic Evidence (PAYG, 120-day clip retention).
-- Insider Risk Management — Adaptive Protection (sovereign availability).
+- Insider Risk Management — Adaptive Protection (commercial availability and configuration).
 - Insider Risk Management — Risky AI usage (extension prerequisites).
 - Insider Risk Management — Risky Agents (default-applied policy; agent-class indicators).
 - Insider Risk Management — Risky browser usage.
 - Insider Risk Management — Communication Compliance integration.
 - Insider Risk Management — Defender for Cloud Apps integration.
 - Insider Risk Management — Triage Agent (Security Copilot) requirements.
-- Insider Risk Management — sovereign cloud parity matrix.
 - Microsoft Sentinel — OfficeActivity table for `InsiderRiskMgmt*` operations.
 - Microsoft Purview — pseudonymization and unmask audit operations.
 

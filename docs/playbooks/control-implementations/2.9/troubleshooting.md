@@ -10,7 +10,6 @@
 | Symptom | Likely cause | First action |
 |---|---|---|
 | Analytics dashboard empty for new agents | Pre-populate window (24–48 h) not elapsed; or analytics disabled | Confirm in PPAC → Analytics → Microsoft Copilot Studio |
-| Sovereign tenant returns no data | Wrong `-Endpoint` on `Add-PowerAppsAccount`; commercial endpoint hit instead of GCC / GCC High / DoD | Re-run with the correct endpoint per the [PowerShell baseline](../../_shared/powershell-baseline.md) |
 | App Insights "configured" but no telemetry | Connection string typo; ingestion lag; sampling at 0% | Run Script 2 in `powershell-setup.md`; check sampling settings |
 | Power BI dashboard stale | Dataflow refresh failure; ADLS export lag; gateway down | Check refresh history; manually refresh |
 | Alerts not firing | Power Automate flow disabled; threshold above current values; smart detection still in baselining | Verify flow run history; lower threshold to test |
@@ -30,32 +29,12 @@
 1. Confirm the agent is **published** (analytics aggregates only published-channel sessions, not test-pane traffic).
 2. Confirm at least 24 h has elapsed since first user session — initial population is not real-time.
 3. Confirm the user viewing analytics has either **AI Administrator**, **Power Platform Admin**, or **environment Maker** role on the environment.
-4. In sovereign tenants, confirm the analytics service is **GA in your cloud** — GCC High / DoD historically lag commercial by several months.
 
 **Resolution:** Wait the documented lag, then verify role and publication. If still empty after 72 h with confirmed user activity, open a Microsoft support ticket — this is platform-side.
 
 ---
 
-### Issue 2 — False-clean evidence in sovereign clouds
-
-**Symptoms:** PowerShell scripts complete with `Write-Host "PASS"` lines but report zero environments / zero agents in a tenant known to have many.
-
-**Root cause:** `Add-PowerAppsAccount` was called without an `-Endpoint` parameter (or with `prod`), authenticating against the commercial cloud while the tenant lives in `usgov`, `usgovhigh`, or `dod`. **No error is thrown** — the cmdlet returns an empty collection.
-
-**Resolution:** Always parameterize the endpoint per the [PowerShell baseline](../../_shared/powershell-baseline.md). Add a guard:
-
-```powershell
-$envs = Get-AdminPowerAppEnvironment
-if (-not $envs) {
-    throw "No environments returned. Verify the -Endpoint parameter matches your tenant's sovereign cloud."
-}
-```
-
-**FSI impact:** Any monitoring evidence collected with the wrong endpoint must be discarded and the run repeated. Document the corrected run in your audit trail.
-
----
-
-### Issue 3 — Application Insights linked but no telemetry ingested
+### Issue 2 — Application Insights linked but no telemetry ingested
 
 **Symptoms:** Settings → Application Insights shows a connection string; KQL `requests | where timestamp > ago(24h) | count` returns 0.
 
@@ -71,7 +50,7 @@ if (-not $envs) {
 
 ---
 
-### Issue 4 — Power BI dashboard not refreshing
+### Issue 3 — Power BI dashboard not refreshing
 
 **Symptoms:** Dashboard tiles show stale timestamps or refresh history shows failures.
 
@@ -87,7 +66,7 @@ if (-not $envs) {
 
 ---
 
-### Issue 5 — Alert flow / rule not triggering on threshold breach
+### Issue 4 — Alert flow / rule not triggering on threshold breach
 
 **Symptoms:** Threshold is clearly exceeded in the dashboard but no notification arrived.
 
@@ -108,7 +87,7 @@ if (-not $envs) {
 
 ---
 
-### Issue 6 — Performance degradation detected
+### Issue 5 — Performance degradation detected
 
 **Symptoms:** Error rate or p95 latency exceeds zone threshold sustained over multiple intervals.
 
@@ -124,7 +103,7 @@ if (-not $envs) {
 
 ---
 
-### Issue 7 — Hallucination / grounding metrics absent (Zone 3)
+### Issue 6 — Hallucination / grounding metrics absent (Zone 3)
 
 **Symptoms:** RAI dashboard shows no events or zero rate.
 
@@ -156,7 +135,6 @@ if (-not $envs) {
 | CSAT requires user prompt | No score without a survey topic | Publish satisfaction survey at end of conversation |
 | Cross-environment views in PPAC are limited | Multi-environment tenants need manual aggregation | Use ADLS export + Power BI to unify |
 | Application Insights minimum sampling | Very low-traffic agents may not show events | Set sampling to 100% for Zone 3 small-volume agents |
-| Sovereign cloud feature drift | Some features lag commercial by months | Verify feature parity each quarter; document gaps |
 | `*-AdminPowerAppEnvironmentRoleAssignment` does not work on Dataverse-backed environments | Returns empty silently | Use PPAC Dataverse Security Roles per the [PowerShell baseline](../../_shared/powershell-baseline.md) |
 
 ---

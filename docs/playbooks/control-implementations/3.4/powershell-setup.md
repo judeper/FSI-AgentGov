@@ -1,4 +1,4 @@
----
+﻿---
 title: "Control 3.4 — PowerShell Setup (Incident Reporting and Root Cause Analysis)"
 control_id: "3.4"
 playbook_type: "powershell-setup"
@@ -35,7 +35,7 @@ related_controls: ["1.5", "1.7", "1.8", "1.9", "1.11", "1.12", "2.6", "2.12", "2
 >
 > **Sister playbooks:** [Portal Walkthrough](./portal-walkthrough.md) · [Verification & Testing](./verification-testing.md) · Troubleshooting (forthcoming)
 >
-> **Shared baseline:** [`_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) — module pinning, sovereign endpoint matrix, mutation safety, evidence emission, SHA-256 manifest format. **Read it once before running any helper here.**
+> **Shared baseline:** [`_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) — module pinning, mutation safety, evidence emission, SHA-256 manifest format. **Read it once before running any helper here.**
 >
 > **Namespace.** Every exported function in this playbook uses the literal name from the Control 3.4 portal walkthrough specification (e.g., `New-Fsi-IncidentList`, `Start-Fsi-RegulatorTimer`). Internal-only helpers use the `Fsi34` prefix (e.g., `Assert-Fsi34ShellHost`) so they cannot collide with peer-control automation (`Agt36`, `Agt225`, `Agt226`, `Agt12`).
 
@@ -51,16 +51,8 @@ related_controls: ["1.5", "1.7", "1.8", "1.9", "1.11", "1.12", "2.6", "2.12", "2
 
     Tooling **aids in** meeting these obligations. It does not satisfy them.
 
-!!! warning "Sovereign Cloud Availability"
-    Several surfaces this playbook touches have **no parity** in US Government clouds (GCC / GCC High / DoD) at the time of this verification (April 2026):
 
-    - **Microsoft Sentinel content hub solutions** for AI-agent incident playbooks ship to **Commercial first**; sovereign builds typically lag 60–120 days. Operators must verify availability per workspace before relying on the deployers in §5.
-    - **Insider Risk Management Graph beta** parity (§6) is partial in GCC and unreleased in GCC High at this verification date — `Get-Fsi-IRMCase` returns `Status='NotApplicable'` with `Reason='SovereignParityUnavailable'` and points to the compensating-control worksheet.
-    - **Service Health correlation** (§8) emits a different schema in sovereign tenants; the helper detects the cloud profile and reads the appropriate beta endpoint.
-
-    The bootstrap helper in §2 detects sovereign tenants and routes each downstream call to the correct endpoint or returns a structured `NotApplicable` with a compensating-control reference. **It does not silently emit `Clean` against a surface that does not exist.** Refer to baseline [§3 — Sovereign Cloud Endpoints](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod).
-
-> **Hedged-language reminder.** Throughout this playbook, governance helpers **support compliance with** NYDFS 23 NYCRR 500.16 / 500.17, SEC Rule 8-K Item 1.05, the federal banking 36-hour rule (12 CFR Parts 53 / 225 / 304), Regulation S-P (2024 amendments), FINRA Rules 4530(a)/(d) and 4511, the FTC Safeguards Rule 30-day notification requirement, state breach-notification statutes, the CISA CIRCIA proposed/horizon rule, FFIEC IT Examination Handbook expectations, SOX §§302 / 404 ITGC, and SEC Rule 17a-3/17a-4 books-and-records requirements. They do **not** "ensure," "guarantee," or "eliminate risk." Implementation requires named owners, calibrated severity definitions, and quarterly tabletop validation. Organizations should verify per-tenant and per-cloud parity using the §13 self-test before relying on any output as regulatory evidence.
+> **Hedged-language reminder.** Throughout this playbook, governance helpers **support compliance with** NYDFS 23 NYCRR 500.16 / 500.17, SEC Rule 8-K Item 1.05, the federal banking 36-hour rule (12 CFR Parts 53 / 225 / 304), Regulation S-P (2024 amendments), FINRA Rules 4530(a)/(d) and 4511, the FTC Safeguards Rule 30-day notification requirement, state breach-notification statutes, the CISA CIRCIA proposed/horizon rule, FFIEC IT Examination Handbook expectations, SOX §§302 / 404 ITGC, and SEC Rule 17a-3/17a-4 books-and-records requirements. They do **not** "ensure," "guarantee," or "eliminate risk." Implementation requires named owners, calibrated severity definitions, and quarterly tabletop validation. Organizations should verify per-tenant configuration parity using the §13 self-test before relying on any output as regulatory evidence.
 
 ---
 
@@ -72,7 +64,7 @@ Control 3.4 false negatives almost always stem from running the wrong shell, mix
 
 - **Windows PowerShell 5.1 is not supported for the Graph + Az path.** `Microsoft.Graph` v2.25 and `Az.SecurityInsights` v3.1 require PowerShell 7.4+. Running under 5.1 silently loads the v1.x legacy `Microsoft.Graph` module if present and returns partial security-incident payloads — entire alert chains drop, and helpers downstream report "no anomalies."
 - **Windows PowerShell 5.1 IS REQUIRED for the Power Platform suspension path** (`Microsoft.PowerApps.Administration.PowerShell`). The agent-suspension Logic Apps playbook in §5.2 invokes the Desktop-edition module via a 5.1 sidecar runspace; do not attempt to load that module in PS 7.4.
-- **Integrated Script Environment (ISE) is not supported** for interactive sovereign-cloud bootstrap — device-code flow UI is clipped at 80 columns. Use Windows Terminal + `pwsh.exe` for the 7.4 path and a separate `powershell.exe` window for the 5.1 sidecar.
+- **Integrated Script Environment (ISE) is not supported** — device-code flow UI is clipped at 80 columns. Use Windows Terminal + `pwsh.exe` for the 7.4 path and a separate `powershell.exe` window for the 5.1 sidecar.
 - **Azure Cloud Shell has no Power Platform module and no PnP.PowerShell v2 build path.** Run this playbook from a privileged-access workstation (PAW) — never from Cloud Shell — for any tenant with regulator-notification timers running.
 
 ```powershell
@@ -101,7 +93,6 @@ function Assert-Fsi34ShellHost {
 | # | Defect | Symptom | Root cause | Mitigation in this playbook |
 |---|--------|---------|------------|-----------------------------|
 | 1 | Wrong PowerShell host on detection path | `Get-Fsi-DefenderIncident` returns `@()` against tenants with active incidents | PS 5.1 loaded `Microsoft.Graph` 1.x alongside 2.25 | `Assert-Fsi34ShellHost` (above) refuses to proceed |
-| 2 | Sovereign tenant treated as commercial | Helpers run, return `Clean`, against a `.us` tenant where the underlying surface is GCC-only | `Connect-MgGraph` defaulted to `-Environment Global`; `Connect-AzAccount` defaulted to `AzureCloud` | `Resolve-Fsi34CloudProfile` (§2.2) — sovereign-aware routing |
 | 3 | Read-only token used against mutation surface | Logic Apps deployer fails with `403`, helper swallows and reports "deployer skipped" | Caller used `SecurityIncident.Read.All` only when `SecurityActions.ReadWrite.All` was needed | `Test-Fsi34GraphScopes` preflight (§1.4) refuses to dispatch mutation helpers without ReadWrite scope |
 | 4 | Sentinel paged response truncated at 50 | Incident pull undercounts in busy tenants; missed open incidents past SLA | Operator forgot `-MaxResults` defaulted to 50 in `Get-AzSentinelIncident` | `Invoke-Fsi34SentinelPaged` (§4.4) follows `nextLink` and asserts page count |
 | 5 | Throttled ARM call returned empty body | Helper interprets HTTP 429 with empty JSON as "no incidents" | No retry/backoff wrapper around Az.SecurityInsights | `Invoke-Fsi34Throttled` (§4.5) honors `Retry-After`; raises `Status='Error'` after 3 retries |
@@ -128,7 +119,7 @@ Every scheduled detection or evidence-bundling job **must** invoke `Invoke-Fsi34
 
 ### 1.1 — Module version matrix
 
-Pin exact minimum versions. Later minor versions are acceptable, but do **not** float to an unpinned `-MinimumVersion` — `Az.SecurityInsights` v3.2 has been observed to regress on Logic Apps-playbook association in sovereign clouds, and `Microsoft.Graph.Security` v2.26 changed the `incidents/{id}/comments` payload shape between minor builds.
+Pin exact minimum versions. Later minor versions are acceptable, but do **not** float to an unpinned `-MinimumVersion` — `Az.SecurityInsights` v3.2 has been observed to regress on Logic Apps-playbook association, and `Microsoft.Graph.Security` v2.26 changed the `incidents/{id}/comments` payload shape between minor builds.
 
 ```powershell
 $Fsi34ModuleMatrix = @(
@@ -309,51 +300,12 @@ function Test-Fsi34PreviewGating {
 
 ---
 
-## §2 — Sovereign-aware bootstrap, connection helper, and Sentinel workspace resolution
+## §2 — Session bootstrap, connection helper, and Sentinel workspace resolution
 
-The bootstrap helpers establish all four sessions this control needs (Microsoft Graph, Azure ARM, PnP SharePoint, Exchange Online), decide which sovereign environment to target, validate scopes against the live token, resolve the Sentinel workspace from a structured tag query, and emit a `SessionContext` object that every subsequent helper consumes. Three rules are non-negotiable:
+The bootstrap helpers establish all four sessions this control needs (Microsoft Graph, Azure ARM, PnP SharePoint, Exchange Online), validate scopes against the live token, resolve the Sentinel workspace from a structured tag query, and emit a `SessionContext` object that every subsequent helper consumes. Three rules are non-negotiable:
 
-1. **Sovereign tenants route through the sovereign endpoint matrix** — never default to `Global` / `AzureCloud`.
-2. **Every session is initialized with `Disconnect-MgGraph` / `Disconnect-AzAccount` first** so cached cross-tenant tokens cannot leak into the wrong evidence pack.
+1. **Always connect to the commercial (Global) endpoints** — never float to unvalidated environments.
 3. **Throttling is wrapped at the bootstrap layer** so callers in §4 onward never need to write their own retry loops.
-
-### 2.1 — `Resolve-Fsi34CloudProfile`
-
-```powershell
-function Resolve-Fsi34CloudProfile {
-<#
-.SYNOPSIS
-    Returns the canonical sovereign-cloud profile for the current run.
-.PARAMETER Cloud
-    One of Commercial | GCC | GCCHigh | DoD. Defaults to Commercial.
-.OUTPUTS
-    [pscustomobject] with GraphEnv, AzEnv, SentinelEnv, Status, Reason fields.
-.NOTES
-    Control: 3.4. See _shared/powershell-baseline.md §3 for endpoint authority.
-#>
-    [CmdletBinding()]
-    param(
-        [ValidateSet('Commercial','GCC','GCCHigh','DoD')]
-        [string]$Cloud = 'Commercial'
-    )
-    $map = @{
-        Commercial = @{ GraphEnv='Global';   AzEnv='AzureCloud';        Sentinel='Global'   }
-        GCC        = @{ GraphEnv='USGov';    AzEnv='AzureUSGovernment'; Sentinel='USGov'    }
-        GCCHigh    = @{ GraphEnv='USGovDoD'; AzEnv='AzureUSGovernment'; Sentinel='USGovHigh'}
-        DoD        = @{ GraphEnv='USGovDoD'; AzEnv='AzureUSGovernment'; Sentinel='USGovDoD' }
-    }
-    $p = $map[$Cloud]
-    [pscustomobject]@{
-        Cloud       = $Cloud
-        GraphEnv    = $p.GraphEnv
-        AzEnv       = $p.AzEnv
-        SentinelEnv = $p.Sentinel
-        Status      = 'Clean'
-        Reason      = ''
-        ResolvedAt  = (Get-Date).ToUniversalTime().ToString('o')
-    }
-}
-```
 
 ### 2.2 — `Initialize-Fsi34Session`
 
@@ -363,13 +315,11 @@ function Initialize-Fsi34Session {
 .SYNOPSIS
     Establishes Graph + Az + (optionally) PnP + EXO sessions for Control 3.4 helpers.
 .DESCRIPTION
-    Disconnects any cached sessions first, then connects to Graph and Az with the
-    sovereign-aware environment, validates required scopes, and returns a
+    Disconnects any cached sessions first, then connects to Graph and Az against the commercial
+    (Global) environment, validates required scopes, and returns a
     SessionContext object consumed by every helper in §4 onward.
 .PARAMETER TenantId
     Tenant GUID or verified-domain string.
-.PARAMETER Cloud
-    Commercial | GCC | GCCHigh | DoD. Defaults to Commercial.
 .PARAMETER Mode
     Read | Mutate | LegalHold. Drives which scope set is requested. Mutate and LegalHold
     require a documented ChangeTicketId.
@@ -378,15 +328,13 @@ function Initialize-Fsi34Session {
 .PARAMETER AllowPreviewSurfaces
     Affirmative opt-in for preview surfaces (IRM lineage, threat assessment feed).
 .OUTPUTS
-    [pscustomobject] SessionContext with Status, Cloud, TenantId, Mode, Scopes, Reason.
+    [pscustomobject] SessionContext with Status, TenantId, Mode, Scopes, Reason.
 .NOTES
     Control: 3.4 — Incident Reporting and Root Cause Analysis. Last UI verified: April 2026.
 #>
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact='Medium')]
     param(
         [Parameter(Mandatory)] [string]$TenantId,
-        [ValidateSet('Commercial','GCC','GCCHigh','DoD')]
-        [string]$Cloud = 'Commercial',
         [ValidateSet('Read','Mutate','LegalHold')]
         [string]$Mode = 'Read',
         [string]$ChangeTicketId,
@@ -399,7 +347,6 @@ function Initialize-Fsi34Session {
         throw "Fsi34-MissingChangeTicket: Mode '$Mode' requires -ChangeTicketId for SOX 404 / OCC 2023-17 evidence."
     }
 
-    $profile = Resolve-Fsi34CloudProfile -Cloud $Cloud
     $previewDecision = Test-Fsi34PreviewGating -AllowPreviewSurfaces:$AllowPreviewSurfaces
 
     # Always disconnect first to evict cached cross-tenant tokens (defect #8).
@@ -412,9 +359,9 @@ function Initialize-Fsi34Session {
         'LegalHold' { $Fsi34Scopes.Read + $Fsi34Scopes.LegalHold }
     }
 
-    if ($PSCmdlet.ShouldProcess($TenantId, "Connect-MgGraph + Connect-AzAccount in $($profile.GraphEnv)/$($profile.AzEnv)")) {
-        Connect-MgGraph -TenantId $TenantId -Environment $profile.GraphEnv -Scopes $scopes -NoWelcome | Out-Null
-        Connect-AzAccount -Tenant $TenantId -Environment $profile.AzEnv -WarningAction SilentlyContinue | Out-Null
+    if ($PSCmdlet.ShouldProcess($TenantId, "Connect-MgGraph + Connect-AzAccount (Global/AzureCloud)")) {
+        Connect-MgGraph -TenantId $TenantId -Environment 'Global' -Scopes $scopes -NoWelcome | Out-Null
+        Connect-AzAccount -Tenant $TenantId -Environment 'AzureCloud' -WarningAction SilentlyContinue | Out-Null
     }
 
     $tokenScopes = (Get-MgContext).Scopes
@@ -426,11 +373,9 @@ function Initialize-Fsi34Session {
         Status              = $status
         Reason              = $reason
         TenantId            = $TenantId
-        Cloud               = $Cloud
         Mode                = $Mode
         ChangeTicketId      = $ChangeTicketId
         Scopes              = $tokenScopes
-        Profile             = $profile
         PreviewDecision     = $previewDecision
         InitializedAtUtc    = (Get-Date).ToUniversalTime().ToString('o')
     }
@@ -439,29 +384,29 @@ function Initialize-Fsi34Session {
 
 ### 2.3 — `Resolve-Fsi34SentinelWorkspace`
 
-The Sentinel workspace must be resolved from tags (not a hardcoded resource ID) so the orchestrator can re-deploy across environments without code edits. The expected tag set is `governance=fsi-agentgov`, `control=3.4`, `cloud=<Commercial|GCC|GCCHigh|DoD>`.
+The Sentinel workspace must be resolved from tags (not a hardcoded resource ID) so the orchestrator can re-deploy across environments without code edits. The expected tag set is `governance=fsi-agentgov`, `control=3.4`.
 
 ```powershell
 function Resolve-Fsi34SentinelWorkspace {
 <#
 .SYNOPSIS
-    Resolves the Sentinel workspace + resource group for the current cloud via Az.Resources tag query.
+    Resolves the Sentinel workspace + resource group via Az.Resources tag query.
 .OUTPUTS
     [pscustomobject] @{ Status; SubscriptionId; ResourceGroup; WorkspaceName; WorkspaceId; Reason }
 .NOTES
     Control: 3.4 — Incident Reporting and Root Cause Analysis. Last UI verified: April 2026.
 #>
     [CmdletBinding()]
-    param([Parameter(Mandatory)] [string]$Cloud)
+    param([string]$WorkspaceTag = 'fsi-agentgov')
 
-    $tagFilter = @{ governance='fsi-agentgov'; control='3.4'; cloud=$Cloud }
+    $tagFilter = @{ governance='fsi-agentgov'; control='3.4' }
     $candidates = Get-AzResource -ResourceType 'Microsoft.OperationalInsights/workspaces' -Tag $tagFilter -ErrorAction SilentlyContinue
 
     if (-not $candidates) {
         return [pscustomobject]@{
             Status         = 'Anomaly'
             SubscriptionId = ''; ResourceGroup = ''; WorkspaceName = ''; WorkspaceId = ''
-            Reason         = "NoTaggedSentinelWorkspaceFound for cloud=$Cloud (expected tag governance=fsi-agentgov + control=3.4)"
+            Reason         = "NoTaggedSentinelWorkspaceFound for cloud=Commercial (expected tag governance=fsi-agentgov + control=3.4)"
         }
     }
     if ($candidates.Count -gt 1) {
@@ -507,7 +452,7 @@ function Get-RunMetadata {
         run_id          = [guid]::NewGuid().ToString()
         run_utc         = (Get-Date).ToUniversalTime().ToString('o')
         tenant_id       = $SessionContext.TenantId
-        cloud           = $SessionContext.Cloud
+        cloud           = 'Commercial'
         mode            = $SessionContext.Mode
         change_ticket   = $ChangeTicketId
         operator_upn    = (Get-MgContext).Account
@@ -894,7 +839,7 @@ function Export-Fsi-IncidentEvidenceBundle {
             foreach ($bm in $sent.Bookmarks) {
                 if ($bm.Query) {
                     try {
-                        $rows = Invoke-AzOperationalInsightsQuery -WorkspaceId (Resolve-Fsi34SentinelWorkspace -Cloud $SessionContext.Cloud).WorkspaceId -Query $bm.Query -ErrorAction Stop
+                        $rows = Invoke-AzOperationalInsightsQuery -WorkspaceId (Resolve-Fsi34SentinelWorkspace).WorkspaceId -Query $bm.Query -ErrorAction Stop
                         $artifacts += _emit -Object @{ bookmark=$bm.DisplayName; query=$bm.Query; results=$rows.Results } -Name "kql-$($bm.Name)" -Source 'Sentinel/Hunting/Bookmark'
                     } catch {
                         $artifacts += _emit -Object @{ bookmark=$bm.DisplayName; query=$bm.Query; error=$_.Exception.Message } -Name "kql-$($bm.Name)-error" -Source 'Sentinel/Hunting/Bookmark'
@@ -988,7 +933,7 @@ function Invoke-Fsi34Throttled {
 
 This section installs the Logic Apps playbooks that wire Sentinel incidents into the FSI regulator-notification clock, the disclosure committee, and the cross-control suspension workflow ([Control 1.11](../../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) workload-identity policy). Each deployer creates the Logic App, the API connection objects, and the Sentinel automation rule that fires it.
 
-**All deployers are mutation helpers.** They require `Mode=Mutate` on the session, a CAB-approved `ChangeTicketId`, and `Logic Apps Contributor` + `Sentinel Contributor` role on the workspace resource group, activated via PIM with an 8-hour ceiling. Every deployer uses `[CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]` and writes a before-deploy snapshot to disk per the baseline §4 mutation pattern.
+**All deployers are mutation helpers.** They require `Mode=Mutate` on the session, a CAB-approved `ChangeTicketId`, and `Logic Apps Contributor` + `Sentinel Contributor` role on the workspace resource group, activated via PIM with an 8-hour ceiling. Every deployer uses `[CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]` and writes a before-deploy snapshot to disk per the baseline §3 mutation pattern.
 
 ### 5.1 — `New-Fsi-SentinelPlaybook-NotifyCISO-CCO-GC`
 
@@ -1415,7 +1360,7 @@ function Get-Fsi-IRMCase {
     [pscustomobject] @{ Status; Case; Alerts; Reason }
 .NOTES
     Control: 3.4 (cross-reference Control 1.12). Last UI verified: April 2026. Beta surface —
-    helper returns NotApplicable in sovereign tenants where IRM Graph beta is not yet GA.
+    helper returns NotApplicable where IRM Graph beta is not yet GA.
 #>
     [CmdletBinding()]
     param(
@@ -1423,8 +1368,8 @@ function Get-Fsi-IRMCase {
         [Parameter(Mandatory)] $SessionContext
     )
     $meta = Get-RunMetadata -SessionContext $SessionContext -Helper 'Get-Fsi-IRMCase'
-    if ($SessionContext.Cloud -in @('GCCHigh','DoD')) {
-        return [pscustomobject]@{ Status='NotApplicable'; Case=$null; Alerts=@(); Meta=$meta; Reason='SovereignParityUnavailable: IRM Graph beta not yet GA in this cloud.' }
+    if (-not $SessionContext.PreviewDecision.AllowPreviewSurfaces) {
+        return [pscustomobject]@{ Status='NotApplicable'; Case=$null; Alerts=@(); Meta=$meta; Reason='PreviewSurfaceNotEnabled: pass -AllowPreviewSurfaces on Initialize-Fsi34Session.' }
     }
     if (-not $SessionContext.PreviewDecision.AllowPreviewSurfaces) {
         return [pscustomobject]@{ Status='NotApplicable'; Case=$null; Alerts=@(); Meta=$meta; Reason='PreviewSurfaceNotEnabled: pass -AllowPreviewSurfaces on Initialize-Fsi34Session.' }
@@ -2218,7 +2163,6 @@ function Invoke-Fsi-Control34Setup {
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]
     param(
         [Parameter(Mandatory)] [ValidateSet('Provision','Verify','Quarterly')] [string]$Mode,
-        [Parameter(Mandatory)] [ValidateSet('Commercial','GCC','GCCHigh','DoD')] [string]$Cloud,
         [Parameter(Mandatory)] [string]$TenantId,
         [Parameter(Mandatory)] [string]$SiteUrl,
         [string]$SubscriptionId,
@@ -2230,7 +2174,7 @@ function Invoke-Fsi-Control34Setup {
     )
     Assert-Fsi34ShellHost
     $sessionMode = if ($Mode -eq 'Provision') { 'Mutate' } else { 'ReadOnly' }
-    $session = Initialize-Fsi34Session -Cloud $Cloud -TenantId $TenantId -Mode $sessionMode
+    $session = Initialize-Fsi34Session -TenantId $TenantId -Mode $sessionMode
 
     switch ($Mode) {
         'Provision' {
@@ -2294,7 +2238,7 @@ function Invoke-Fsi34SelfTest {
 | # | Anti-pattern | Why it fails | Correct approach |
 |---|--------------|--------------|------------------|
 | 1 | Running mutation helpers from Windows PowerShell 5.1 | Many Graph/PnP cmdlets target PS 7+ only; silent module-load mismatches mask real failures | `pwsh` 7.4+; `Assert-Fsi34ShellHost` enforces |
-| 2 | Calling `Az.Sentinel` cmdlets without `Resolve-Fsi34SentinelWorkspace` | Workspace-resource-id mismatches in sovereign tenants; rules deploy to the wrong workspace | Always pre-resolve via §2.3 |
+| 2 | Calling `Az.Sentinel` cmdlets without `Resolve-Fsi34SentinelWorkspace` | Workspace-resource-id mismatches if the tag query is misconfigured; rules deploy to the wrong workspace | Always pre-resolve via §2.3 |
 | 3 | Hard-coded notification timer hours | Regulator rule changes silently invalidate the constant; operators rely on stale values | Source of truth is the §9 table; verify against current rule text |
 | 4 | Closing an NYDFS24 ransom timer without OFAC checkpoint | Sanctions-screening attestation gap creates Treasury-OFAC liability | §5.4 `!!! danger` block plus §9 NYDFS24 hand-off |
 | 5 | Naming an internal owner as RCA without Service Health correlation | Microsoft-side outage is misattributed; downstream corrective actions misallocated | §8 `Get-Fsi-M365ServiceHealthIncident` is mandatory pre-RCA for Sev1/Sev2 |
@@ -2344,7 +2288,7 @@ function Invoke-Fsi34SelfTest {
 | [3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) | Orphaned agent detection and remediation | The §10 OrphanedAgentCascade scenario validates 3.6 hand-off |
 | [3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) | Microsoft Sentinel integration | §4 and §5 helpers presume the 3.9 Sentinel baseline |
 
-See also: [`docs/playbooks/_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) — module pinning, sovereign endpoints, mutation safety, evidence emission.
+See also: [`docs/playbooks/_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) — module pinning, mutation safety, evidence emission.
 
 ---
 

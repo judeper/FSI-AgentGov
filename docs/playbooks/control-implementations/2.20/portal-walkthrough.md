@@ -24,7 +24,7 @@
     | Evidence retention to WORM under SEC 17a-4(f) | **1.19** — eDiscovery for Agent Interactions | 2.20 generates evidence; 1.19 holds it |
 
 !!! warning "Hedged-language reminder — supports, does not guarantee"
-    The procedures below **support compliance with** OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), FINRA Rule 3110, FINRA RN 24-09 / Rule 3110 (March 2025), SEC Rule 17a-4(b)(4), GLBA 501(b), and the NIST AI RMF Generative AI Profile (NIST AI 600-1). They **do not by themselves guarantee** regulatory compliance. The Compliance Officer, Model Risk Manager, and CISO must independently validate that the firm's WSPs reference the documented testing cadence, the actual defense-rate thresholds in use, and the firm's records-retention horizon.
+    The procedures below **support compliance with** OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), FINRA Rule 3110, FINRA RN 24-09 / Rule 3110 (June 2024), SEC Rule 17a-4(b)(4), GLBA 501(b), and the NIST AI RMF Generative AI Profile (NIST AI 600-1). They **do not by themselves guarantee** regulatory compliance. The Compliance Officer, Model Risk Manager, and CISO must independently validate that the firm's WSPs reference the documented testing cadence, the actual defense-rate thresholds in use, and the firm's records-retention horizon.
 
 !!! info "What this walkthrough covers — surfaces & owners"
     | # | Surface | Portal | Owner role | Notes |
@@ -40,7 +40,7 @@
 
 ---
 
-## §0 Coverage boundary, sovereign-cloud notes, and portal vs script matrix
+## §0 Coverage boundary and portal vs script matrix
 
 ### 0.1 Coverage boundary
 
@@ -54,19 +54,7 @@ Out of scope (handled by sibling controls — see READ FIRST):
 
 - Production detection (1.21), eDiscovery hold (1.19), bias testing (2.11), general QA (2.5), connector / DLP authoring (3.1), and incident response workflow (3.4).
 
-### 0.2 Sovereign-cloud applicability
-
-| Capability | Commercial | GCC | GCC High | DoD | Notes |
-|---|---|---|---|---|---|
-| Copilot Studio test environment | GA | GA | Limited preview — verify | Limited — verify | Re-confirm against M365 Government service description |
-| Azure AI Foundry — Risk and Safety Evaluations | GA | Rolling | Lagging — verify | Lagging — verify | Substitute: PyRIT + custom scoring on Foundry diagnostic logs |
-| Microsoft PyRIT | OSS — runs anywhere | OSS | OSS | OSS | The toolkit is open source; sovereign concern is the *target* surface, not PyRIT itself |
-| Azure AI Content Safety — Prompt Shields | GA | Rolling | Lagging — verify | Lagging — verify | If Prompt Shields is unavailable, document compensating control (pre-prompt classifier in app code) |
-
-!!! warning "Treat any cross-cloud parity claim as time-bound"
-    Re-verify against the [Microsoft 365 Government service description](https://learn.microsoft.com/en-us/office365/servicedescriptions/office-365-platform-service-description/office-365-us-government/office-365-us-government) **before** treating any item above as a primary control in GCC / GCC High / DoD. Document the verification date in the change ticket.
-
-### 0.3 Portal vs script matrix
+### 0.2 Portal vs script matrix
 
 | Step | Portal? | Script? | Notes |
 |---|---|---|---|

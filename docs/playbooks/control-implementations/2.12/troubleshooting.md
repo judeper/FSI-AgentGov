@@ -3,11 +3,9 @@
 **Companion to:** [Control 2.12 — Supervision and Oversight (FINRA Rule 3110)](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md)
 **Sibling playbooks:** [Portal Walkthrough](./portal-walkthrough.md) · [PowerShell Setup](./powershell-setup.md) · [Verification & Testing](./verification-testing.md)
 **Audience:** Designated Principal (Series 24 / 66 / 65), Compliance Officer, AI Governance Lead, AI Administrator, Purview Compliance Admin, Power Platform Admin, Exchange Online Admin, Entra Global Reader, IR on-call.
-**Scope:** Diagnose and remediate failures in the human-in-the-loop (HITL) supervisory workflow for Microsoft Copilot Studio, Microsoft Agent Framework (`RequestPort` / `request_info()` / checkpointed pending requests), Power Automate approval actions, the Zone 3 supervisory review queue, Rule 2210 classification and principal pre-use approval, Rule 3120 annual testing, WSP-to-deployed-config reconciliation, designated-principal qualification, sponsorship-derived accountability (cascade from Control 2.26), orphaned-agent supervisory re-entry (cascade from Control 3.6), reviewer-decision evidence retention (FINRA 4511 / SEC 17a-4(b)(4) / (f)), and sovereign-cloud compensating-control operation.
+**Scope:** Diagnose and remediate failures in the human-in-the-loop (HITL) supervisory workflow for Microsoft Copilot Studio, Microsoft Agent Framework (`RequestPort` / `request_info()` / checkpointed pending requests), Power Automate approval actions, the Zone 3 supervisory review queue, Rule 2210 classification and principal pre-use approval, Rule 3120 annual testing, WSP-to-deployed-config reconciliation, designated-principal qualification, sponsorship-derived accountability (cascade from Control 2.26), orphaned-agent supervisory re-entry (cascade from Control 3.6), reviewer-decision evidence retention (FINRA 4511 / SEC 17a-4(b)(4) / (f)).
 
-> **Regulatory framing (non-substitution).** This playbook describes diagnostic and remediation procedures that **support compliance with** FINRA Rule 3110 (Supervision), Rule 3120 (Supervisory Control System), Rule 2210 (Communications with the Public), Rule 4511 (Books and Records), FINRA Regulatory Notice 24-09 (Gen AI / LLM Guidance), SEC Rules 17a-3 / 17a-4, SOX §§ 302 / 404, GLBA Safeguards Rule § 314.4, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Fed SR 26-2 (formerly SR 11-7), CFTC Regulation 1.31, and NYDFS 23 NYCRR 500. The Copilot Studio HITL surface, Agent Framework request/response API, Power Automate approval actions, and Entra Agent ID sponsorship constitute supervisory **tooling**; they do **not** substitute for (a) the firm's written supervisory procedures, (b) the designation of an appropriately registered principal (Series 24 for broker-dealer supervisory scope; Series 66 / 65 for RIA scope), or (c) the registered-principal supervisory review and principal pre-use approval required by FINRA Rule 3110 and Rule 2210 for the business activities involved. Controls 2.25, 2.26, and 3.6 reference Control 2.12 as the authoritative non-substitution anchor. When troubleshooting, a successful remediation that restores tooling does **not** close the supervisory gap for any interaction that occurred while the tooling was broken — that gap remains for Legal / Compliance disposition (see §23 RB-01, RB-03, RB-04).
-
-> **Sovereign-cloud caveat.** As of April 2026, the Copilot Studio human-agent handoff, certain Power Automate approval action surfaces, Microsoft Agent Framework downstream evidence-export integrations, Entra Agent ID sponsorship / Lifecycle Workflows, and the Microsoft Agent 365 admin center are **not at feature parity** in GCC, GCC High, or DoD. Sovereign-tenant operators must use the compensating-control runbook in §12 (`SOV-TOOLING-GAP`) and document the parity gap in the tenant Risk Register and the firm's WSP addendum before relying on any procedure in this playbook. See [PowerShell baseline · §3 Sovereign Cloud Endpoints](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod) and [Control 2.12 — Sovereign Cloud Availability admonition](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md).
+> **Regulatory framing (non-substitution).** This playbook describes diagnostic and remediation procedures that **support compliance with** FINRA Rule 3110 (Supervision), Rule 3120 (Supervisory Control System), Rule 2210 (Communications with the Public), Rule 4511 (Books and Records), FINRA Regulatory Notice 24-09 (Gen AI / LLM Guidance), SEC Rules 17a-3 / 17a-4, SOX §§ 302 / 404, GLBA Safeguards Rule § 314.4, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Fed SR 26-2 (formerly SR 11-7), CFTC Regulation 1.31, and NYDFS 23 NYCRR 500. The Copilot Studio HITL surface, Agent Framework request/response API, Power Automate approval actions, and Entra Agent ID sponsorship constitute supervisory **tooling**; they do **not** substitute for (a) the firm's written supervisory procedures, (b) the designation of an appropriately registered principal (Series 24 for broker-dealer supervisory scope; Series 66 / 65 for RIA scope), or (c) the registered-principal supervisory review and principal pre-use approval required by FINRA Rule 3110 and Rule 2210 for the business activities involved. Controls 2.25, 2.26, and 3.6 reference Control 2.12 as the authoritative non-substitution anchor. When troubleshooting, a successful remediation that restores tooling does **not** close the supervisory gap for any interaction that occurred while the tooling was broken — that gap remains for Legal / Compliance disposition (see §21 RB-01, RB-03, RB-04).
 
 > **Hedged language reminder.** Throughout this playbook, phrases such as "supports", "helps meet", "aids in demonstrating", and "recommended" are used intentionally. This playbook does not guarantee, ensure, or eliminate any regulatory outcome. Implementation requires firm-specific calibration of WSP language, sampling rates, principal designation, and SLA definitions. Organizations should verify every procedure in a non-production tenant and validate with Legal / Compliance before executing a remediation that mutates production supervisory state.
 
@@ -20,10 +18,10 @@
 This playbook is the first-line reference for on-call supervisory-control operators responding to a symptom or incident that implicates the Control 2.12 HITL surface. It is organized so that the on-call can:
 
 1. Triage the symptom in ≤ 5 minutes (§1);
-2. Jump to the correct diagnostic pillar (§2–§13) or situational runbook (§14–§20);
+2. Jump to the correct diagnostic pillar (§2–§12) or situational runbook (§13–§19);
 3. Execute the diagnostic, resolution, prevention, and evidence-capture procedures for that pillar;
-4. Escalate per the matrix in §21 when tenant-side remediation is exhausted;
-5. Deliver the examiner-grade evidence bundle per §23.
+4. Escalate per the matrix in §20 when tenant-side remediation is exhausted;
+5. Deliver the examiner-grade evidence bundle per §21.
 
 The playbook assumes the reader has read [PowerShell Setup](./powershell-setup.md), has loaded the `Agt212` helper module, and has a session authenticated to the PIM-elevated role required for the action in progress.
 
@@ -33,13 +31,13 @@ The playbook assumes the reader has read [PowerShell Setup](./powershell-setup.m
 |---|---|
 | **Designated Principal / Qualified Supervisor** (Series 24 / 66 / 65) | Final supervisory authority; signs post-incident supervisory determinations; owns principal pre-use approvals under Rule 2210; **cannot** be substituted by any automation. |
 | **Compliance Officer** | Owns the WSP addendum; signs Rule 3120 testing evidence; disposition authority for `WSP-DRIFT`, `R2210-MISCLASSIFICATION`, `R3120-TEST-FAIL`. |
-| **AI Governance Lead** | Incident commander for Sev1/Sev2 HITL incidents; owns sampling protocol calibration; coordinates sovereign-cloud compensating controls. |
+| **AI Governance Lead** | Incident commander for Sev1/Sev2 HITL incidents; owns sampling protocol calibration. |
 | **AI Administrator** | Microsoft-admin-surface operator for Copilot Studio, Power Automate, Agent Framework configuration; executes remediation commands under AI Governance Lead direction. |
 | **Purview Compliance Admin** | Owns retention labels, immutable evidence library, and the audit-log export pipeline feeding WORM / 17a-4(f) storage. |
 | **Exchange Online Admin** | Owns retention policy operational verification (`Get-RetentionCompliancePolicy`), mailbox-routed approval actions. |
 | **Power Platform Admin** | Owns Power Automate approval flow health, environment-level DLP, and flow ownership. |
 | **Entra Global Reader** | Evidence-collection role; read-only access to sign-in logs, audit logs, role assignments; used during triage to avoid mutating state. |
-| **IR on-call** | First responder for Sev1; initiates §23 evidence snapshot before any mutation. |
+| **IR on-call** | First responder for Sev1; initiates §21 evidence snapshot before any mutation. |
 
 > **SoD (separation-of-duties) reminder.** The AI Administrator who operates Microsoft admin surfaces **must not** be the same natural person as the Designated Principal who signs supervisory decisions. If the same individual is named to both roles in the firm's WSP, the firm is out of line with FINRA 3110(b)(6) SoD expectations; log this as a WSP exception per §6.
 
@@ -47,13 +45,13 @@ The playbook assumes the reader has read [PowerShell Setup](./powershell-setup.m
 
 | Severity | Trigger | Response SLA | Examiner-artifact preservation |
 |---|---|---|---|
-| **Sev1** | HITL not firing for Zone 3 agents in production, OR a known Rule 2210 retail communication was sent without principal pre-use approval, OR reviewer-decision audit trail is missing for a named customer interaction under examiner inquiry, OR a designated-principal registration has lapsed and no qualified replacement is in place | On-call engaged in 15 min; AI Governance Lead + Compliance Officer in 30 min; Legal notified within 60 min if customer-impacting | **Mandatory before any remediation:** full evidence snapshot per §22 (E-01..E-14) |
-| **Sev2** | Review queue SLA breached but not during examiner-active window; a single pillar degraded; sovereign-cloud parity gap newly discovered; Rule 3120 annual-test finding of operating deficiency | 2 business hours; AI Governance Lead within 4 business hours | Snapshot per §22 if Zone 3 affected |
+| **Sev1** | HITL not firing for Zone 3 agents in production, OR a known Rule 2210 retail communication was sent without principal pre-use approval, OR reviewer-decision audit trail is missing for a named customer interaction under examiner inquiry, OR a designated-principal registration has lapsed and no qualified replacement is in place | On-call engaged in 15 min; AI Governance Lead + Compliance Officer in 30 min; Legal notified within 60 min if customer-impacting | **Mandatory before any remediation:** full evidence snapshot per §21 (E-01..E-14) |
+| **Sev2** | Review queue SLA breached but not during examiner-active window; a single pillar degraded; Rule 3120 annual-test finding of operating deficiency | 2 business hours; AI Governance Lead within 4 business hours | Snapshot per §21 if Zone 3 affected |
 | **Sev3** | Single agent / single template affected; Zone 1 or Zone 2 only; administrative / cosmetic drift; documented compensating-control in place | Next business day | Change-log entry; optional snapshot |
 
 **Examiner-active posture:** If FINRA, SEC, OCC, Fed, CFTC, or NYDFS has an examination in flight or has issued an inquiry within the preceding 60 days, **every** Sev2 is upgraded to Sev1 for purposes of evidence preservation and Legal notification.
 
-### §0.4 Structure of Each Pillar (§3–§14)
+### §0.4 Structure of Each Pillar (§3–§13)
 
 Every pillar follows this standardized subsection layout to keep the on-call's cognitive load minimal:
 
@@ -62,7 +60,7 @@ Every pillar follows this standardized subsection layout to keep the on-call's c
 - **.3 Diagnostic Steps** — ordered, non-mutating, read-only evidence gathering first
 - **.4 Resolution Steps** — per-RC remediation, with `-WhatIf` safety and SoD gating
 - **.5 Prevention** — configuration, monitoring, and WSP controls to prevent recurrence
-- **.6 Evidence to Capture** — pillar-specific artifacts that append to the §23 bundle
+- **.6 Evidence to Capture** — pillar-specific artifacts that append to the §21 bundle
 - **.7 Cross-References** — related pillars, runbooks, and controls
 
 ### §0.5 What This Playbook Does **Not** Cover
@@ -91,18 +89,17 @@ This section is the entry point for every page, ticket, or examiner-driven inqui
 | WSP addendum says "pre-use approval required for retail comms" but deployed agent configuration does not route through approval | §7 WSP-DRIFT | §8 R2210-MISCLASSIFICATION |
 | Agent output reached > 25 retail investors within 30 days without pre-use approval | §8 R2210-MISCLASSIFICATION | §7 WSP-DRIFT |
 | Zone 3 agent is classified "fully autonomous" in registry but lacks exceptional-controls documentation | §9 AUTONOMY-MISMATCH | §7 WSP-DRIFT |
-| Entra Agent ID sponsor UPN is disabled / departed; no replacement sponsor attestation on file | §10 SPONSOR-ATTESTATION-FAIL | §21 RB-07 (cascade via Control 3.6) |
-| Reviewer decision captured but rationale field null, or reviewer UPN null, or retention < 6 years | §11 EVIDENCE-GAP | §23 (bundle) |
-| GCC / GCC High / DoD tenant cannot invoke Copilot Studio handoff / Agent Framework `request_info` / approval action | §12 SOV-TOOLING-GAP | (compensating control) |
-| Agent Framework workflow resumed but pending request not re-emitted; orphaned request ID with no response | §13 AGF-CHECKPOINT-LOSS | §11 EVIDENCE-GAP |
-| Annual Rule 3120 testing found a design or operating deficiency | §14 R3120-TEST-FAIL | (applicable pillar) |
-| Examiner inquiry about a named customer interaction cannot produce HITL record | §15 RB-01 (examiner HITL production) | §11 EVIDENCE-GAP |
-| Designated principal's Series 24 registration lapsed mid-quarter | §16 RB-02 (principal lapse) | §5 REVIEWER-UNQUALIFIED |
-| HITL bypassed due to configuration error (post-incident) | §17 RB-03 (post-incident HITL bypass) | §3 HITL-NOT-FIRING |
-| Retail communication sent without pre-use approval (post-incident) | §18 RB-04 (2210 post-incident) | §8 R2210-MISCLASSIFICATION |
-| SOX § 302 / § 404 management-cert deadline and supervision evidence incomplete | §19 RB-05 (SOX cert) | §11 EVIDENCE-GAP |
-| Surprise Zone 3 audit; reviewer-decision audit trail has gaps | §20 RB-06 (surprise Z3 audit) | §11 EVIDENCE-GAP |
-| Sponsor mass-termination; Z3 agents pending reassignment | §21 RB-07 (sponsor cascade) | [Control 3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) |
+| Entra Agent ID sponsor UPN is disabled / departed; no replacement sponsor attestation on file | §10 SPONSOR-ATTESTATION-FAIL | §20 RB-07 (cascade via Control 3.6) |
+| Reviewer decision captured but rationale field null, or reviewer UPN null, or retention < 6 years | §11 EVIDENCE-GAP | §21 (bundle) |
+| Agent Framework workflow resumed but pending request not re-emitted; orphaned request ID with no response | §12 AGF-CHECKPOINT-LOSS | §11 EVIDENCE-GAP |
+| Annual Rule 3120 testing found a design or operating deficiency | §13 R3120-TEST-FAIL | (applicable pillar) |
+| Examiner inquiry about a named customer interaction cannot produce HITL record | §14 RB-01 (examiner HITL production) | §11 EVIDENCE-GAP |
+| Designated principal's Series 24 registration lapsed mid-quarter | §15 RB-02 (principal lapse) | §5 REVIEWER-UNQUALIFIED |
+| HITL bypassed due to configuration error (post-incident) | §16 RB-03 (post-incident HITL bypass) | §3 HITL-NOT-FIRING |
+| Retail communication sent without pre-use approval (post-incident) | §17 RB-04 (2210 post-incident) | §8 R2210-MISCLASSIFICATION |
+| SOX § 302 / § 404 management-cert deadline and supervision evidence incomplete | §18 RB-05 (SOX cert) | §11 EVIDENCE-GAP |
+| Surprise Zone 3 audit; reviewer-decision audit trail has gaps | §19 RB-06 (surprise Z3 audit) | §11 EVIDENCE-GAP |
+| Sponsor mass-termination; Z3 agents pending reassignment | §20 RB-07 (sponsor cascade) | [Control 3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) |
 
 ### §1.2 Severity Fast-Classify
 
@@ -119,7 +116,7 @@ Within the first 5 minutes, the on-call determines severity using:
 Before paging the AI Governance Lead or Compliance Officer, the on-call must complete:
 
 1. **Freeze state.** Do **not** re-deploy, re-publish, or re-bind any agent. Mutation before evidence capture destroys examiner-grade artifacts.
-2. **Capture initial evidence floor.** Invoke `Invoke-Agt212EvidenceSnapshot -IncidentId <id> -Stage Initial -Destination AgentGov-Evidence-212` (produces E-01 through E-05). See §23.
+2. **Capture initial evidence floor.** Invoke `Invoke-Agt212EvidenceSnapshot -IncidentId <id> -Stage Initial -Destination AgentGov-Evidence-212` (produces E-01 through E-05). See §21.
 3. **Identify affected agents.** Run `Get-Agt212Agent -Scope Incident -IncidentId <id>` and capture the list of agent IDs, zones, sponsors, designated principals, autonomy levels.
 4. **Identify affected interactions.** Run `Get-Agt212Interaction -AgentId <id> -From <utc> -To <utc>` and determine whether any interaction in the window (a) should have routed to HITL per WSP, (b) actually did, and (c) produced a reviewer decision.
 5. **Confirm examiner posture.** Query the firm's examination-tracking system; if an exam is in flight or an inquiry is open, mark incident `ExaminerActive=true` in the ticket.
@@ -128,7 +125,7 @@ Before paging the AI Governance Lead or Compliance Officer, the on-call must com
 
 ### §1.4 When to Skip Straight to a Runbook
 
-Bypass the pillar tree and go directly to the §15–§21 runbook when:
+Bypass the pillar tree and go directly to the §13–§19 runbook when:
 
 - The incident is **post-incident** (the fault has already occurred; the work now is reconstruction and regulator response) — use RB-01, RB-03, RB-04, or RB-06.
 - The incident is **cross-control** (spans 2.12 + 2.26 + 3.6 via sponsor cascade) — use RB-07.
@@ -139,7 +136,7 @@ Bypass the pillar tree and go directly to the §15–§21 runbook when:
 
 ## §2 Diagnostic Data Collection (Reference Catalog)
 
-This section enumerates the helper cmdlets, Graph queries, KQL queries, and Dataverse queries referenced throughout §3–§21. All cmdlet examples assume PowerShell 7.4 Core and the helper module loaded per [PowerShell Setup](./powershell-setup.md).
+This section enumerates the helper cmdlets, Graph queries, KQL queries, and Dataverse queries referenced throughout §3–§20. All cmdlet examples assume PowerShell 7.4 Core and the helper module loaded per [PowerShell Setup](./powershell-setup.md).
 
 ```powershell
 #Requires -Version 7.4
@@ -168,7 +165,6 @@ This section enumerates the helper cmdlets, Graph queries, KQL queries, and Data
 | `Invoke-Agt212HitlRebind` | Rebinds a Copilot Studio HITL pattern or Agent Framework handler binding; `-WhatIf` supported | Yes |
 | `Invoke-Agt212QueueReassign` | Reassigns pending review items from an unavailable reviewer to a backup principal; `-WhatIf` supported | Yes |
 | `Invoke-Agt212WspReconcile` | Re-applies WSP-sourced config to deployed agent; `-WhatIf` supported; requires Compliance Officer co-sign | Yes |
-| `Invoke-Agt212SovCompensatingControl` | Initiates the sovereign-cloud manual-review compensating-control cycle for a batch of Zone 3 agents | Yes (generates attestation record) |
 
 All mutating cmdlets honor `-WhatIf` and emit a SHA-256 evidence hash per the [PowerShell Authoring Baseline](../../_shared/powershell-baseline.md).
 
@@ -332,12 +328,6 @@ Get-Agt212ReviewQueue -Backend Dataverse -OlderThanMinutes 240
 Get-Agt212ReviewQueue -Backend SharePoint -SiteUrl https://contoso.sharepoint.com/sites/AIGovernance -ListName AgentSupervisionLog -ExportPath .\sup-log.csv
 ```
 
-### §2.5 Sovereign-Cloud Endpoint Substitution
-
-For GCC, GCC High, and DoD tenants, replace `graph.microsoft.com` with the sovereign endpoint per [PowerShell baseline · §3](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod). The `/beta/admin/agentFramework`, `/beta/copilotStudio/agents/*/hitlConfiguration`, and `/beta/identity/agenticUsers` namespaces are **not at parity** in sovereign clouds as of April 2026; queries may return `404 Not Found` or `403 Forbidden`. Use the compensating-control posture in §12 and the manual-review register instead.
-
----
-
 ## §3 Pillar: HITL-NOT-FIRING
 
 The Copilot Studio human-agent handoff, Power Automate approval action, or Agent Framework `request_info()` invocation does not fire when the firm's WSP says it should. This is the most consequential supervisory failure: an agent output reaches a customer **as if approved** when no principal has approved it.
@@ -405,7 +395,7 @@ All resolutions require a post-remediation verification test (§3.5) before re-o
 
 ### §3.6 Evidence to Capture
 
-Append to the §23 bundle:
+Append to the §21 bundle:
 
 - **E-HITL-01** — `Get-Agt212HitlStatus` output at fault time and at recovery close.
 - **E-HITL-02** — `Get-Agt212WspReconciliation` output at fault time.
@@ -419,7 +409,7 @@ Append to the §23 bundle:
 - §4 QUEUE-STUCK — if HITL fires but review never completes.
 - §7 WSP-DRIFT — structural drift that underlies RC-A / RC-C.
 - §8 R2210-MISCLASSIFICATION — if the missed HITL was a retail-communication pre-use approval.
-- §17 RB-03 — post-incident HITL bypass runbook.
+- §16 RB-03 — post-incident HITL bypass runbook.
 - [Control 1.5 — Data Loss Prevention and Sensitivity Labels](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) — if DLP is blocking the approval connector.
 - [Control 3.4 — Incident Reporting and Root Cause Analysis](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) — upstream incident discipline.
 
@@ -575,7 +565,7 @@ The reviewer who acted on a queue item lacks the current, valid qualification re
 
 ### §5.7 Cross-References
 
-- §16 RB-02 — principal lapse mid-quarter runbook.
+- §15 RB-02 — principal lapse mid-quarter runbook.
 - §4 QUEUE-STUCK — RC-A coverage gap relates to queue availability.
 - §10 SPONSOR-ATTESTATION-FAIL — sponsor qualification has a separate discipline from principal qualification; both apply.
 - [Control 1.7 — Comprehensive Audit Logging and Compliance](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) — enforces audit-trail capture for principal decisions.
@@ -798,7 +788,7 @@ An agent output was classified as Correspondence (post-use review acceptable) wh
 
 - §3 HITL-NOT-FIRING — when pre-use approval itself is the failure mode.
 - §7 WSP-DRIFT — classification drift as structural cause.
-- §18 RB-04 — post-incident 2210 runbook.
+- §17 RB-04 — post-incident 2210 runbook.
 - [Control 2.13 — Documentation and Record-Keeping](../../../controls/pillar-2-management/2.13-documentation-and-record-keeping.md).
 
 ---
@@ -936,7 +926,7 @@ The Entra Agent ID sponsor for an agent has departed, been disabled, or has not 
 
 - [Control 2.26 — Entra Agent ID Identity Governance](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md).
 - [Control 3.6 — Orphaned Agent Detection and Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md).
-- §21 RB-07 — sponsor cascade runbook.
+- §20 RB-07 — sponsor cascade runbook.
 
 ---
 
@@ -1010,92 +1000,15 @@ Reviewer decision evidence is missing, incomplete, or below-retention for an int
 
 - [Control 1.7 — Comprehensive Audit Logging and Compliance](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md).
 - [Control 2.13 — Documentation and Record-Keeping](../../../controls/pillar-2-management/2.13-documentation-and-record-keeping.md).
-- §20 RB-06 — surprise Z3 audit runbook.
+- §19 RB-06 — surprise Z3 audit runbook.
 
 ---
 
-## §12 Pillar: SOV-TOOLING-GAP
-
-The firm operates a GCC, GCC High, or DoD tenant and discovers (either during onboarding, a quarterly parity re-verification, or an incident) that a Copilot Studio, Agent Framework, Power Automate, or Entra Agent ID feature used by the WSP is not available or behaves differently in the sovereign cloud. The control's Sovereign Cloud Availability admonition requires compensating manual-review controls; this pillar is the operational diagnosis and activation procedure.
-
-### §12.1 Symptom Catalog
-
-| Code | Symptom | Severity hint |
-|---|---|---|
-| **P12-S1** | Graph query returns 404 / 403 for `/beta/admin/agentFramework/*` in sovereign tenant | Sev2 |
-| **P12-S2** | Copilot Studio human-agent handoff option not visible in sovereign tenant | Sev1 if relied upon for Z3 |
-| **P12-S3** | Entra Agent ID sponsorship model not available | Sev2 (use manual accountability register) |
-| **P12-S4** | Power Automate approval connector returns "unsupported in cloud" error | Sev1 if relied upon for Z3 |
-| **P12-S5** | Compensating-control attestation cycle not running | Sev1 |
-| **P12-S6** | WSP addendum claims technical enforcement that the sovereign tenant cannot provide | Sev1 |
-| **P12-S7** | Quarterly parity re-verification missed | Sev2 |
-
-### §12.2 Root Cause Matrix
-
-| Code | Root cause | Confirmation signal |
-|---|---|---|
-| **RC-A** | Feature not GA in sovereign cloud. | Microsoft Learn sovereign-availability page confirms. |
-| **RC-B** | Feature available in sovereign but requires different endpoint / module version. | Endpoint substitution not applied. |
-| **RC-C** | Tenant classified Commercial but is actually sovereign. | Environment metadata mismatch. |
-| **RC-D** | Compensating-control cycle scheduled but operator unavailable. | Attestation record missing. |
-| **RC-E** | WSP over-claims enforcement. | WSP language says "Copilot Studio handoff ensures Z3 HITL" for a sovereign tenant. |
-
-### §12.3 Diagnostic Steps
-
-1. Evidence floor.
-2. Run `Get-Agt212Health -Verbose` — inspect the `SovereignCloud` block; note parity flags per feature.
-3. Cross-reference WSP-claimed features against parity: any claim without parity → RC-E (immediate WSP update required).
-4. Verify the compensating-control cycle: `Invoke-Agt212SovCompensatingControl -Mode Report -ExportPath .\compensating.csv` — confirms last cycle date, coverage, signer.
-5. For sovereign-tenant-specific feature gaps: check the most recent Microsoft Learn availability announcement.
-
-### §12.4 Resolution Steps
-
-| Root cause | Resolution |
-|---|---|
-| RC-A | Activate compensating-control cycle; update WSP to describe the manual control and the parity-gap disclosure. Do not claim technical enforcement of Z3 HITL. |
-| RC-B | Apply endpoint substitution per PowerShell baseline §3; rerun. |
-| RC-C | Correct tenant classification; rerun with sovereign endpoints. |
-| RC-D | Reassign operator; execute delayed cycle; document cycle gap. |
-| RC-E | Amend WSP language to hedged, accurate description of the manual compensating control. Re-attest. |
-
-### §12.5 Compensating-Control Operation
-
-For sovereign tenants, the compensating-control cycle must:
-
-1. Run at the zone-appropriate sampling rate (Z3: 100% pre-use for retail communications, statistical sampling for other interactions; Z2: 10% sampling; Z1: spot check).
-2. Be executed by a qualified Designated Principal (not an AI Administrator).
-3. Be evidenced in the supervision register under the Control 2.12 retention table.
-4. Be reconciled against the Control 1.2 / 3.1 agent registry so untracked agents cannot escape review.
-5. Be signed with the principal's UPN, timestamp (ISO 8601 UTC), and disposition.
-
-### §12.6 Prevention
-
-1. **Parity-first feature adoption.** Before adding a Microsoft feature to the WSP, verify parity in all tenant flavors the firm operates.
-2. **Quarterly re-verification.** AI Governance Lead runs the parity probe quarterly; results to Risk Register.
-3. **WSP hedging library.** Standard language for sovereign-tenant disclosures.
-4. **Compensating-control operator roster.** Named principals with backup, PIM-eligible at all times.
-
-### §12.7 Evidence to Capture
-
-- **E-SOV-01** — Parity probe report.
-- **E-SOV-02** — Compensating-control cycle log.
-- **E-SOV-03** — Principal attestation per cycle.
-- **E-SOV-04** — WSP addendum revision if RC-E.
-- **E-SOV-05** — Risk Register entry for parity gap.
-
-### §12.8 Cross-References
-
-- [PowerShell Baseline §3 — Sovereign Cloud Endpoints](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod).
-- [Control 2.25 — Agent 365 Admin Center Governance](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) — sovereign parity pillar.
-- [Control 2.26 — Entra Agent ID Governance](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) — sponsorship parity.
-
----
-
-## §13 Pillar: AGF-CHECKPOINT-LOSS
+## §12 Pillar: AGF-CHECKPOINT-LOSS
 
 Microsoft Agent Framework supports human-in-the-loop via `RequestPort` / `request_info()` with pending requests preserved in checkpoints. When a workflow is restored from a checkpoint, pending requests should be re-emitted so supervisory review can resume. This pillar covers the failure mode where checkpoints are not persisted, not restored cleanly, or the request/response pair becomes orphaned — leaving an interaction in a supervisory limbo state.
 
-### §13.1 Symptom Catalog
+### §12.1 Symptom Catalog
 
 | Code | Symptom | Severity hint |
 |---|---|---|
@@ -1107,7 +1020,7 @@ Microsoft Agent Framework supports human-in-the-loop via `RequestPort` / `reques
 | **P13-S6** | Request ID collision across workflows | Sev2 |
 | **P13-S7** | Checkpoint contains pending requests older than retention | Sev2 |
 
-### §13.2 Root Cause Matrix
+### §12.2 Root Cause Matrix
 
 | Code | Root cause | Confirmation signal |
 |---|---|---|
@@ -1119,7 +1032,7 @@ Microsoft Agent Framework supports human-in-the-loop via `RequestPort` / `reques
 | **RC-F** | Clock skew / ordering issues. | Timestamps out of order. |
 | **RC-G** | Retention policy evicts checkpoints before reviewer responds (SLA > retention). | Policy SLA mismatch. |
 
-### §13.3 Diagnostic Steps
+### §12.3 Diagnostic Steps
 
 1. Evidence floor; capture the checkpoint store state before any repair.
 2. KQL-07 — identify orphan rate and affected request IDs.
@@ -1128,7 +1041,7 @@ Microsoft Agent Framework supports human-in-the-loop via `RequestPort` / `reques
 5. Code review of the `request_info()` code path and response handler bindings.
 6. Verify checkpoint retention policy vs SLA: retention must be > SLA + safety margin.
 
-### §13.4 Resolution Steps
+### §12.4 Resolution Steps
 
 | Root cause | Resolution |
 |---|---|
@@ -1140,21 +1053,21 @@ Microsoft Agent Framework supports human-in-the-loop via `RequestPort` / `reques
 | RC-F | NTP sync; authoritative timestamp from service. |
 | RC-G | Increase checkpoint retention beyond SLA; surface misconfiguration alert. |
 
-### §13.5 Prevention
+### §12.5 Prevention
 
 1. **Checkpoint-invariant test.** Every `request_info()` call is preceded by a verified checkpoint write; test-covered.
 2. **Orphan alarm.** KQL-07 orphan rate > 0 pages AI Administrator within 15 min.
 3. **Retention > SLA.** Firm invariant.
 4. **Request ID uniqueness.** Enforced via UUIDv4; collision test.
 
-### §13.6 Evidence to Capture
+### §12.6 Evidence to Capture
 
 - **E-AGF-01** — Checkpoint store state at fault time.
 - **E-AGF-02** — List of orphan request IDs.
 - **E-AGF-03** — Reconstruction of affected interactions.
 - **E-AGF-04** — Code diff for RC-A / RC-D.
 
-### §13.7 Cross-References
+### §12.7 Cross-References
 
 - §3 HITL-NOT-FIRING — related downstream symptom.
 - §11 EVIDENCE-GAP — orphan responses generate evidence gaps.
@@ -1162,11 +1075,11 @@ Microsoft Agent Framework supports human-in-the-loop via `RequestPort` / `reques
 
 ---
 
-## §14 Pillar: R3120-TEST-FAIL
+## §13 Pillar: R3120-TEST-FAIL
 
 FINRA Rule 3120 requires annual testing and verification of supervisory controls. When the annual test reveals a design or operating deficiency in the Control 2.12 supervisory controls, this pillar covers the response: characterizing the finding, executing remediation, documenting exceptions, and preparing examiner-grade attestation. A failed 3120 test is not merely a compliance artifact — it is an exception record under FINRA 4511 and must be preserved for 6 years under SEC 17a-4(b)(4).
 
-### §14.1 Symptom Catalog
+### §13.1 Symptom Catalog
 
 | Code | Symptom | Severity hint |
 |---|---|---|
@@ -1179,7 +1092,7 @@ FINRA Rule 3120 requires annual testing and verification of supervisory controls
 | **P14-S7** | Design Effectiveness: WSP does not address a known AI agent supervision risk | Sev2 |
 | **P14-S8** | Test was not performed within the annual window | Sev1 |
 
-### §14.2 Root Cause Matrix
+### §13.2 Root Cause Matrix
 
 | Code | Root cause | Confirmation signal |
 |---|---|---|
@@ -1189,15 +1102,15 @@ FINRA Rule 3120 requires annual testing and verification of supervisory controls
 | **RC-D** | Testing not independent. | Tester also operated the control during the period. |
 | **RC-E** | Test evidence incomplete. | Working papers missing signatures, dates, exception resolution. |
 
-### §14.3 Diagnostic Steps
+### §13.3 Diagnostic Steps
 
 1. Review 3120 working papers for completeness.
-2. For each failed test area, trace finding to control (pillars §3–§13) and apply that pillar's diagnostics.
+2. For each failed test area, trace finding to control (pillars §3–§12) and apply that pillar's diagnostics.
 3. Validate sampling methodology against firm SOP.
 4. Confirm tester independence.
 5. Identify the exception window: when did the deficiency begin, end, and what was the customer-facing blast radius?
 
-### §14.4 Resolution Steps
+### §13.4 Resolution Steps
 
 | Root cause | Resolution |
 |---|---|
@@ -1207,14 +1120,14 @@ FINRA Rule 3120 requires annual testing and verification of supervisory controls
 | RC-D | Re-execute test with independent tester. |
 | RC-E | Complete working papers; re-sign; preserve. |
 
-### §14.5 Prevention
+### §13.5 Prevention
 
 1. **Continuous-testing posture.** Run 3120 test sub-procedures monthly rather than only annually; surface findings earlier.
 2. **Tester-independence rotation.** Tester pool separated from operator pool.
 3. **Working-papers template.** Standardized to force complete documentation.
 4. **Remediation SLA.** Findings have remediation due dates; tracked to closure.
 
-### §14.6 Evidence to Capture
+### §13.6 Evidence to Capture
 
 - **E-3120-01** — 3120 working papers at test close.
 - **E-3120-02** — Exception register.
@@ -1222,14 +1135,14 @@ FINRA Rule 3120 requires annual testing and verification of supervisory controls
 - **E-3120-04** — Re-test results.
 - **E-3120-05** — Principal sign-off on final attestation.
 
-### §14.7 Cross-References
+### §13.7 Cross-References
 
 - [Control 2.12 — Rule 3120 Annual Testing Requirements](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md).
-- All §3–§13 pillars as potential root-cause sources.
+- All §3–§12 pillars as potential root-cause sources.
 
 ---
 
-## §15 Runbook RB-01: Examiner Finds Missing HITL Review for Named Customer Interaction
+## §14 Runbook RB-01: Examiner Finds Missing HITL Review for Named Customer Interaction
 
 **Trigger:** FINRA / SEC / OCC / Fed / NYDFS examiner (or internal audit acting as examiner proxy) submits a written inquiry naming a customer interaction (conversation ID, date, or customer name) and requesting the corresponding HITL supervisory-review record. Initial query of `Get-Agt212Evidence -ConversationId <id>` returns no record, incomplete record, or a record attributable to an unqualified reviewer.
 
@@ -1244,7 +1157,7 @@ FINRA Rule 3120 requires annual testing and verification of supervisory controls
 | # | Step | Owner | Evidence |
 |---|---|---|---|
 | 1 | **Freeze state.** Do not modify any agent, flow, policy, or retention label until evidence is preserved. | IR on-call | Change-freeze notice |
-| 2 | Capture full evidence bundle §23 (E-01..E-14) with `Invoke-Agt212EvidenceSnapshot -IncidentId <id> -Stage Initial -Destination AgentGov-Evidence-212`. | AI Administrator | Snapshot manifest |
+| 2 | Capture full evidence bundle §21 (E-01..E-14) with `Invoke-Agt212EvidenceSnapshot -IncidentId <id> -Stage Initial -Destination AgentGov-Evidence-212`. | AI Administrator | Snapshot manifest |
 | 3 | Notify Legal. Legal owns all outbound communication to the examiner from this point forward. | AI Governance Lead | Legal intake ticket |
 | 4 | Retrieve the named interaction: `Get-Agt212Interaction -ConversationId <id> -IncludeAll`. Confirm agent ID, user UPN, timestamp, WSP-mapped trigger criteria, actual routing outcome. | AI Administrator | Interaction record |
 | 5 | Determine the expected supervisory path: cross-reference interaction content against WSP addendum. Was HITL required? What reviewer / group? What decision fields? | Compliance Officer | WSP mapping memo |
@@ -1273,7 +1186,7 @@ Language in the examiner response matters. Use "the firm has reconstructed the f
 
 ---
 
-## §16 Runbook RB-02: Designated Principal's Series 24 Lapses Mid-Quarter
+## §15 Runbook RB-02: Designated Principal's Series 24 Lapses Mid-Quarter
 
 **Trigger:** CRD / WebCRD extract, HR notification, or attestation process reveals that a currently designated principal's Series 24 (or 66 / 65 for RIA scope) is in `Lapsed` or `Inactive` status.
 
@@ -1306,7 +1219,7 @@ Language in the examiner response matters. Use "the firm has reconstructed the f
 
 ---
 
-## §17 Runbook RB-03: HITL Bypassed Due to Configuration Error (Post-Incident)
+## §16 Runbook RB-03: HITL Bypassed Due to Configuration Error (Post-Incident)
 
 **Trigger:** Post-hoc discovery (via KQL-04, user report, or audit) that a Zone 3 agent processed customer interactions during a window with HITL misconfigured — the firm's WSP required HITL but deployed configuration did not enforce it. Fault window is bounded.
 
@@ -1319,7 +1232,7 @@ Language in the examiner response matters. Use "the firm has reconstructed the f
 | # | Step | Owner | Evidence |
 |---|---|---|---|
 | 1 | Freeze state. Pause the affected agent (disable publish, or disable the channel routing customer traffic) while evidence is captured. | AI Administrator under AI Governance Lead direction | Pause artifact |
-| 2 | Capture full §23 evidence bundle at the fault-state configuration. This preserves what the misconfigured state looked like. | AI Administrator | Snapshot manifest |
+| 2 | Capture full §21 evidence bundle at the fault-state configuration. This preserves what the misconfigured state looked like. | AI Administrator | Snapshot manifest |
 | 3 | Characterize the fault window: earliest and latest interactions affected, number of affected customers, business activity category. Use `Get-Agt212Interaction` over the window. | AI Governance Lead | Window memo |
 | 4 | Identify the config-error mechanism: apply §3 HITL-NOT-FIRING diagnostic matrix to determine which RC (A-H) applies. | AI Administrator | Pillar diagnostic |
 | 5 | Produce the supervisory-gap set: every interaction in the window that should have routed to HITL but did not. | AI Governance Lead | Gap set |
@@ -1339,7 +1252,7 @@ Language in the examiner response matters. Use "the firm has reconstructed the f
 
 ---
 
-## §18 Runbook RB-04: Retail Communication Sent Without Pre-Use Approval (Post-Incident)
+## §17 Runbook RB-04: Retail Communication Sent Without Pre-Use Approval (Post-Incident)
 
 **Trigger:** Post-hoc discovery that an AI agent delivered a retail communication (Rule 2210 definition: to > 25 retail investors within any 30 calendar-day period, and not subject to an enumerated Rule 2210(b)(1) exclusion) without the required principal pre-use approval. Trigger may come from KQL-06, audience-monitoring alert, or customer complaint.
 
@@ -1352,7 +1265,7 @@ Language in the examiner response matters. Use "the firm has reconstructed the f
 | # | Step | Owner | Evidence |
 |---|---|---|---|
 | 1 | Freeze: pause the template / agent distribution channel. | AI Administrator | Pause record |
-| 2 | Capture §23 evidence bundle. | AI Administrator | Snapshot |
+| 2 | Capture §21 evidence bundle. | AI Administrator | Snapshot |
 | 3 | Reconstruct distribution: how many retail investors received the communication, over what window, via what channels? | Marketing Ops + AI Governance Lead | Distribution reconstruction |
 | 4 | Confirm classification misapplication: follow §8 diagnostic matrix (RC-A..G). | Compliance Officer | Pillar diagnostic |
 | 5 | Engage Legal. Legal owns FINRA notification decisions and customer-communication decisions. | Legal | Legal intake |
@@ -1371,7 +1284,7 @@ A missed pre-use approval is a procedural exception if the content was nonethele
 
 ---
 
-## §19 Runbook RB-05: SOX Management-Cert Deadline, Supervision Evidence Incomplete
+## §18 Runbook RB-05: SOX Management-Cert Deadline, Supervision Evidence Incomplete
 
 **Trigger:** SOX § 302 or § 404 management certification deadline approaches (typically quarterly 10-Q and annual 10-K). Control self-assessment identifies that Control 2.12 supervision evidence is incomplete for the certification period.
 
@@ -1402,7 +1315,7 @@ A missed pre-use approval is a procedural exception if the content was nonethele
 
 ---
 
-## §20 Runbook RB-06: Surprise Audit of Zone 3 Agent — Reviewer-Decision Audit Trail Has Gaps
+## §19 Runbook RB-06: Surprise Audit of Zone 3 Agent — Reviewer-Decision Audit Trail Has Gaps
 
 **Trigger:** Unannounced internal audit, FINRA cycle exam, or acquirer-driven due diligence requests full reviewer-decision audit trail for one or more Z3 agents. Sampling reveals gaps.
 
@@ -1415,7 +1328,7 @@ A missed pre-use approval is a procedural exception if the content was nonethele
 | # | Step | Owner | Evidence |
 |---|---|---|---|
 | 1 | Freeze state. | AI Administrator | Change-freeze notice |
-| 2 | Capture §23 evidence bundle. | AI Administrator | Snapshot |
+| 2 | Capture §21 evidence bundle. | AI Administrator | Snapshot |
 | 3 | Determine the auditor's scope: which agents, which time window, which decision fields? | AI Governance Lead | Scope memo |
 | 4 | For the requested scope, produce the evidence bundle: `Get-Agt212Evidence -Scope <scope> -ExportPath .\audit.csv`. | AI Administrator | Evidence export |
 | 5 | Apply §11 EVIDENCE-GAP diagnostic matrix to characterize each gap. | Compliance Officer | Gap matrix |
@@ -1432,7 +1345,7 @@ A missed pre-use approval is a procedural exception if the content was nonethele
 
 ---
 
-## §21 Runbook RB-07: Sponsor Terminates; Z3 Agents Pending Reassignment (Cascade with Control 3.6)
+## §20 Runbook RB-07: Sponsor Terminates; Z3 Agents Pending Reassignment (Cascade with Control 3.6)
 
 **Trigger:** Sponsor (Entra Agent ID sponsor role) termination event for a sponsor covering multiple Z3 agents. This is a cascade event intersecting Control 2.12 (supervision), Control 2.26 (sponsorship), and Control 3.6 (orphaned-agent detection and remediation).
 
@@ -1446,7 +1359,7 @@ A missed pre-use approval is a procedural exception if the content was nonethele
 |---|---|---|---|
 | 1 | HR termination feed triggers Entra Lifecycle Workflow. Confirm workflow executed; capture workflow log. | HR + AI Administrator | Workflow log |
 | 2 | Enumerate agents with terminated UPN as sponsor: `Get-Agt212SponsorState -SponsorUPN <upn>`. | AI Administrator | Affected-agent list |
-| 3 | Capture §23 evidence bundle for affected agents. | AI Administrator | Snapshot |
+| 3 | Capture §21 evidence bundle for affected agents. | AI Administrator | Snapshot |
 | 4 | Invoke Control 3.6 orphan-detection procedure on the affected agents — this is the authoritative orphan-response path. See [Control 3.6 — Orphaned Agent Detection and Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md). | AI Governance Lead | 3.6 procedure output |
 | 5 | For each Z3 orphaned agent, apply Control 2.12 interim supervisory posture: until sponsor reassigned, increase principal oversight to 100% review pending assignment. | Designated Principal | Interim oversight log |
 | 6 | Assign replacement sponsors (primary + backup) per WSP; document attestation. | Compliance Officer + affected business-line lead | Sponsor attestation |
@@ -1462,29 +1375,28 @@ This runbook intentionally **does not** duplicate the Control 3.6 orphaned-agent
 
 ---
 
-## §22 Escalation Matrix
+## §21 Escalation Matrix
 
 Escalation is a governance act, not a technical one. The matrix below names the path for each incident class. Firms should verify against their own escalation SOP.
 
-### §22.1 Microsoft Support Tiers
+### §21.1 Microsoft Support Tiers
 
 | Domain | Support Channel | When to Engage | Severity Mapping |
 |---|---|---|---|
-| Copilot Studio agent behavior, trigger routing, publish failures | Copilot Studio support (via M365 Admin Center → Support) | §3, §4, §8, §13 pillars where root cause is product behavior vs config | Sev1 → Severity A; Sev2 → Severity B |
+| Copilot Studio agent behavior, trigger routing, publish failures | Copilot Studio support (via M365 Admin Center → Support) | §3, §4, §8, §12 pillars where root cause is product behavior vs config | Sev1 → Severity A; Sev2 → Severity B |
 | Power Automate flow execution, connector failures, premium-connector faults | Power Platform support | §4 QUEUE-STUCK root causes involving flow internals | Sev1 → Severity A |
-| Agent Framework (Azure AI Foundry Agents) runtime, thread API failures, checkpoint store | Azure support (Agent Framework SKU, SLA per subscription tier) | §13 AGF-CHECKPOINT-LOSS escalations beyond local recovery | Follow Azure severity classifications |
+| Agent Framework (Azure AI Foundry Agents) runtime, thread API failures, checkpoint store | Azure support (Agent Framework SKU, SLA per subscription tier) | §12 AGF-CHECKPOINT-LOSS escalations beyond local recovery | Follow Azure severity classifications |
 | Entra ID agent-identity issues, Lifecycle Workflows | Entra support | §10 SPONSOR-ATTESTATION-FAIL escalations; identity / lifecycle product issues | Severity per Entra support matrix |
 | Purview eDiscovery, retention label propagation, audit search gaps | Purview support (compliance tier) | §11 EVIDENCE-GAP where audit events are missing at source | Severity per M365 support matrix |
 | Teams (if supervisory approvals use Adaptive Cards in Teams) | Teams support | §4 QUEUE-STUCK where approvals fail at Teams channel | Severity per M365 support matrix |
-| Sovereign / government clouds | Government-cloud-specific support contact per tenant contract | §12 SOV-TOOLING-GAP escalations | Per contract SLA |
 
 **Engagement expectations:**
 
 - Open a Severity A case only when operational impact warrants; escalation of severity via Microsoft's premium support (Unified / Premier) is the normal route for examiner-active incidents.
-- Attach the §23 evidence bundle to every support case where possible.
+- Attach the §21 evidence bundle to every support case where possible.
 - Log case IDs in the incident record and in the 3120 exception register entry.
 
-### §22.2 Internal Compliance and Business Escalation
+### §21.2 Internal Compliance and Business Escalation
 
 | Trigger | First-Line | Second-Line | Third-Line |
 |---|---|---|---|
@@ -1496,7 +1408,7 @@ Escalation is a governance act, not a technical one. The matrix below names the 
 | Principal CRD lapse with customer-facing decisions | Compliance Officer | CCO + General Counsel | CEO / Board (per firm SOP) |
 | Sponsor mass-termination cascade | AI Governance Lead | Compliance Officer + HR | CCO |
 
-### §22.3 Legal Notification
+### §21.3 Legal Notification
 
 | Scenario | Legal Notification SLA |
 |---|---|
@@ -1506,7 +1418,7 @@ Escalation is a governance act, not a technical one. The matrix below names the 
 | Customer-impact assessment required | Immediately upon gap characterization |
 | Regulatory notification contemplated | Legal owns the notification decision |
 
-### §22.4 Regulatory Notification — Firm SOP Dependent
+### §21.4 Regulatory Notification — Firm SOP Dependent
 
 The following timelines reflect commonly referenced regulatory expectations. **They are not a substitute for firm Legal analysis and firm regulatory-reporting SOP.** Firms should consult rule text and counsel for each case.
 
@@ -1519,22 +1431,22 @@ The following timelines reflect commonly referenced regulatory expectations. **T
 | NYDFS | 23 NYCRR 500 § 500.17 cybersecurity-event notification | 72 hours for qualifying events |
 | State regulators | Varies | Per rule |
 
-### §22.5 Severity-to-Escalation Flow
+### §21.5 Severity-to-Escalation Flow
 
 ```
 Sev3  → AI Administrator resolves; AI Governance Lead informed next business day.
 Sev2  → AI Governance Lead directs; Compliance Officer informed within 8 hours.
-Sev1  → Compliance Officer on bridge; Legal notified per §22.3; CCO informed immediately.
+Sev1  → Compliance Officer on bridge; Legal notified per §21.3; CCO informed immediately.
 Sev1 (examiner) → Legal leads external comms; CCO + General Counsel on bridge; IR + RCA activate.
 ```
 
 ---
 
-## §23 Evidence Collection During Incident
+## §22 Evidence Collection During Incident
 
 Every incident produces evidence. Evidence collection is itself a Control 2.12 deliverable — the firm's ability to reconstruct the incident and demonstrate response discipline is a supervisory artifact.
 
-### §23.1 The E-Bundle
+### §22.1 The E-Bundle
 
 | Code | Artifact | Source | Collector | Retention Target | Regulatory Anchor |
 |---|---|---|---|---|---|
@@ -1553,7 +1465,7 @@ Every incident produces evidence. Evidence collection is itself a Control 2.12 d
 | E-13 | Customer-impact memo and disposition (if any) | Legal / Compliance | Legal | Retain per Legal hold | Rule 4530, state consumer-protection |
 | E-14 | Regulatory-notification records (if any) | Legal | Legal | Retain per Legal hold | Rule-specific |
 
-### §23.2 Snapshot Invocation
+### §22.2 Snapshot Invocation
 
 ```powershell
 # Initial snapshot at incident declaration:
@@ -1575,7 +1487,7 @@ Invoke-Agt212EvidenceSnapshot -IncidentId <id> -Stage PostRCA
 
 Each invocation produces a manifest (JSON) listing every artifact, SHA-256 hash, source system, and retention label. The manifest is itself E-01 attachment.
 
-### §23.3 Retention and WORM Discipline
+### §22.3 Retention and WORM Discipline
 
 Evidence destined for 17a-4(f) style recordkeeping is written to storage configured for Write-Once-Read-Many (WORM) immutability. For the Microsoft 365 stack, this is typically Purview retention labels with "Records" disposition and the label marked as regulatory (legal hold override). Firms should verify that:
 
@@ -1584,7 +1496,7 @@ Evidence destined for 17a-4(f) style recordkeeping is written to storage configu
 3. Retention policy is **6 years** at minimum (FINRA 4511) or firm-required longer horizon.
 4. Disposition review is governed by Compliance; no deletion occurs silently.
 
-### §23.4 Chain of Custody
+### §22.4 Chain of Custody
 
 | Step | Control |
 |---|---|
@@ -1594,7 +1506,7 @@ Evidence destined for 17a-4(f) style recordkeeping is written to storage configu
 | Access log | Audit every read of the evidence bundle; investigator UPN and purpose logged |
 | Legal hold | Legal applies hold labels to incident artifacts upon Sev1 declaration |
 
-### §23.5 Evidence Gaps Are Themselves Evidence
+### §22.5 Evidence Gaps Are Themselves Evidence
 
 If an artifact cannot be collected (e.g., retention policy was not applied in time and the audit log aged out), document the gap explicitly in E-12 RCA with:
 
@@ -1607,15 +1519,15 @@ Do not omit. Do not describe reconstructed artifacts as if they were primary. Ex
 
 ---
 
-## §24 Cross-References
+## §23 Cross-References
 
-### §24.1 Sibling Playbooks for Control 2.12
+### §23.1 Sibling Playbooks for Control 2.12
 
 - [Portal Walkthrough](portal-walkthrough.md) — step-by-step portal configuration for HITL routing, reviewer groups, audit retention.
 - [PowerShell Setup](powershell-setup.md) — automation scripts (`Export-SupervisionLog.ps1`, SharePoint list `AgentSupervisionLog`, roster sync).
 - [Verification and Testing](verification-testing.md) — test cases TC-2.12-01..05 and Rule 3120 annual test plan.
 
-### §24.2 Related Controls
+### §23.2 Related Controls
 
 | Control | Why Linked |
 |---|---|
@@ -1628,21 +1540,21 @@ Do not omit. Do not describe reconstructed artifacts as if they were primary. Ex
 | [3.4 — Incident Reporting and Root Cause Analysis](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) | All Sev1/Sev2 runbooks open a 3.4 incident |
 | [3.6 — Orphaned Agent Detection and Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) | RB-07 cascades with 3.6 |
 
-### §24.3 Framework Documents
+### §23.3 Framework Documents
 
 - [Agent Identity Architecture](../../../framework/agent-identity-architecture.md)
 - [Zones and Tiers](../../../framework/zones-and-tiers.md)
 - [Agent Lifecycle](../../../framework/agent-lifecycle.md)
 - [Operating Model](../../../framework/operating-model.md)
 
-### §24.4 Reference
+### §23.4 Reference
 
 - [Role Catalog](../../../reference/role-catalog.md) — canonical short names used throughout this playbook.
 - [Regulatory Mappings](../../../reference/regulatory-mappings.md) — FINRA 3110, 3120, 2210; SEA 17a-4; SOX § 302/404; Reg SCI.
-- [PowerShell Baseline](../../_shared/powershell-baseline.md) — helper module conventions, sovereign-cloud endpoint substitution.
+- [PowerShell Baseline](../../_shared/powershell-baseline.md) — helper module conventions.
 - [Solutions Index](../../../reference/solutions-index.md) — deployable artifacts in the `FSI-AgentGov-Solutions` repo.
 
-### §24.5 External References
+### §23.5 External References
 
 - FINRA Rule 3110 — Supervision
 - FINRA Rule 3120 — Supervisory Control System
@@ -1659,3 +1571,4 @@ Do not omit. Do not describe reconstructed artifacts as if they were primary. Ex
 ---
 
 *Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+

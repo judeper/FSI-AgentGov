@@ -3,7 +3,7 @@
 **Control:** 3.6 — Orphaned Agent Detection and Remediation
 **Pillar:** 3 — Reporting
 **Audience:** AI Governance Lead, Compliance Officer, AI Administrator, Power Platform Admin, Entra Agent ID Admin, Entra Identity Governance Admin, Entra Global Reader, Purview Compliance Admin, HR / People Operations liaison, Internal Audit
-**Sovereign-cloud scope:** Microsoft 365 Commercial, GCC, GCC High, DoD. 21Vianet is out of scope for this playbook (see SOV namespace).
+**Cloud scope:** Microsoft 365 Commercial (Global) cloud. This framework targets the commercial Microsoft 365 deployment surface for US financial-services customers.
 **Last UI verified:** April 2026
 
 ---
@@ -12,17 +12,17 @@
 
 This playbook is the verification-and-testing artifact for [Control 3.6 — Orphaned Agent Detection and Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md). It is authored against framework version v1.4 and cites Microsoft UI and API surfaces as last verified in April 2026.
 
-- **Hedged regulatory language.** This playbook supports compliance with FINRA Rule 3110 (Supervision), FINRA Rule 4511 (Books and Records), FINRA RN 24-09 / Rule 3110 (Generative-AI Supervision), SEC Rules 17a-3 / 17a-4 (Records and Retention), SOX Sections 302 / 404 (Internal Control over Financial Reporting), GLBA §501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7) (Model Risk Management), CFTC Regulation 1.31, and NYDFS 23 NYCRR Part 500. A clean execution **does not guarantee** compliance, **does not replace** written supervisory procedures, and **supports — does not replace — registered-principal supervisory review under FINRA Rule 3110**. Implementation requires organization-specific risk assessment and legal review. Organizations should verify current Microsoft Learn documentation, sovereign-cloud feature parity, and tenant entitlements at each cycle.
+- **Hedged regulatory language.** This playbook supports compliance with FINRA Rule 3110 (Supervision), FINRA Rule 4511 (Books and Records), FINRA RN 24-09 / Rule 3110 (Generative-AI Supervision), SEC Rules 17a-3 / 17a-4 (Records and Retention), SOX Sections 302 / 404 (Internal Control over Financial Reporting), GLBA §501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7) (Model Risk Management), CFTC Regulation 1.31, and NYDFS 23 NYCRR Part 500. A clean execution **does not guarantee** compliance, **does not replace** written supervisory procedures, and **supports — does not replace — registered-principal supervisory review under FINRA Rule 3110**. Implementation requires organization-specific risk assessment and legal review. Organizations should verify current Microsoft Learn documentation and tenant entitlements at each cycle.
 - **Canonical role names.** AI Administrator, Power Platform Admin, Entra Agent ID Admin, Entra Identity Governance Admin, Entra Global Reader, AI Governance Lead, Compliance Officer, Purview Compliance Admin, HR / People Operations. No title substitution (for example, "Global Administrator" is not a substitute for "Entra Global Admin").
 - **Terminology.** The framework term is **orphaned agent** (five loss-of-accountability categories — see the control document); Microsoft surface terminology is **ownerless agent** (narrow definition — owner principal unset). Every ownerless agent is an orphaned agent; not every orphaned agent is ownerless.
-- **Backtick rule.** Code identifiers are fenced with backticks in body text but not inside headings. Where a heading references `(GCC / GCC High / DoD)`, the anchor slug is `gcc-gcc-high-dod` (no parentheses).
+- **Backtick rule.** Code identifiers are fenced with backticks in body text but not inside headings.
 - **PowerShell 7.4 + Pester 5.5.** All automated assertions use Pester 5.5 `Describe/Context/It` blocks; all code is executable against PowerShell 7.4. Module versions are pinned in §0.2.
 - **Evidence schema.** Every test emits a JSON evidence record conforming to §1.3. The §14 pack assembler refuses to publish packs containing records that fail schema validation.
-- **What this playbook does NOT claim.** It does not prove the absence of undiscovered shadow agents; it does not replace the registered-principal supervisory review required by FINRA Rule 3110 where that rule applies; it does not guarantee sovereign-cloud parity with commercial-cloud feature availability; and it does not substitute for the firm's written supervisory procedures or books-and-records program.
+- **What this playbook does NOT claim.** It does not prove the absence of undiscovered shadow agents; it does not replace the registered-principal supervisory review required by FINRA Rule 3110 where that rule applies; it does not guarantee commercial-cloud feature availability; and it does not substitute for the firm's written supervisory procedures or books-and-records program.
 
 ---
 
-## §0 Pre-Test Prerequisites and Sovereign Cloud Bootstrap
+## §0 Pre-Test Prerequisites
 
 ### 0.1 Operator role prerequisites
 
@@ -36,8 +36,8 @@ Orphan detection, reconciliation, and remediation read from identity, directory,
 | Entra Identity Governance Admin | Reads HR connector attribute mapping (`employeeLeaveDateTime`), lifecycle-workflow definitions | 4 hours, just-in-time |
 | Entra Global Reader | Read-only Entra user / service-principal / sign-in evidence; witness-role for dual-control attestation in §14 | 4 hours, standing permissible |
 | Purview Compliance Admin | Reads retention-label configuration bound to the orphan register and snapshots; reads UAL evidence for SIEM forwarding | 4 hours |
-| AI Governance Lead | Owns the orphan register; counter-signs REASSIGN, TERMINAL, SOV, and quarterly attestation evidence | Standing with quarterly recertification per Control 2.8 |
-| Compliance Officer | Counter-signs TERMINAL delete decisions; counter-signs quarterly attestation and sovereign reconciliation worksheet | Standing |
+| AI Governance Lead | Owns the orphan register; counter-signs REASSIGN, TERMINAL, and quarterly attestation evidence | Standing with quarterly recertification per Control 2.8 |
+| Compliance Officer | Counter-signs TERMINAL delete decisions; counter-signs quarterly attestation | Standing |
 | HR / People Operations liaison | Confirms HR connector feed integrity (leaver / mover / joiner with `employeeLeaveDateTime`) that drives SPONSOR and HR namespaces | Standing, read-only |
 
 > **Least privilege.** No operator should hold **Entra Global Admin** persistently. This playbook does not require Global Admin; if a tenant insists on it for Agent 365 blade reads, activate through Entra PIM time-bound, never standing. Standing privileged role overlap between Preparer / Validator / Compliance signatories is a cycle-stopping FAIL (see §14).
@@ -67,52 +67,21 @@ $ProgressPreference    = 'SilentlyContinue'
 
 ### 0.3 PRE gates (must all pass before §2–§12 execute)
 
-`Invoke-Agt36PreFlight.ps1` runs nine pre-flight gates. Any `FAIL` halts the suite and emits a single `preflight-FAILED-<runId>.json`. A `SKIPPED` on PRE-06 routes the run to the SOV namespace (§10).
+`Invoke-Agt36PreFlight.ps1` runs nine pre-flight gates. Any `FAIL` halts the suite and emits a single `preflight-FAILED-<runId>.json`. 
 
 | Gate | ID | Purpose | Failure behavior |
 |---|---|---|---|
 | Module presence | PRE-01 | Confirms modules loaded at the pinned versions in §0.2 | HALT |
 | Graph context | PRE-02 | Confirms `Connect-MgGraph` with scopes `AgentGovernance.Read.All`, `Directory.Read.All`, `User.Read.All`, `Application.Read.All`, `LifecycleWorkflows.Read.All`, `AuditLog.Read.All`, `Reports.Read.All` | HALT |
 | Tenant identification | PRE-03 | Captures `tenantId`, `displayName`, `verifiedDomains[0].name` for every evidence record | HALT |
-| Cloud detection | PRE-04 | Reads `(Get-MgContext).Environment`; maps to `Commercial / GCC / GCCH / DoD` | Continue; sovereign clouds route to §10 |
+| Cloud detection | PRE-04 | Reads `(Get-MgContext).Environment`; confirms `Commercial` | HALT if not commercial |
 | HR connector health | PRE-05 | Confirms at least one Entra HR provisioning connector with status `Healthy` in the last 24h and last-sync within tenant SLA | HALT — without HR feed, SPONSOR and HR namespaces cannot attest |
-| Agent 365 Ownerless card reachability | PRE-06 | Probes `/beta/agentGovernance/ownerlessAgents?$top=1`; in sovereign clouds expects 404/501 and routes to §10 | Commercial 404/403/501 → HALT; sovereign → route to §10 |
+| Agent 365 Ownerless card reachability | PRE-06 | Probes `/beta/agentGovernance/ownerlessAgents?$top=1`; any error → HALT | HALT |
 | Orphan register endpoint | PRE-07 | Confirms the SharePoint or Dataverse orphan register is reachable, has versioning enabled, and is bound to a `≥6-year` Purview retention label with `deletionLocked=true` | HALT — without the system of record, no evidence can be assembled |
 | Clock skew gate | PRE-08 | Compares local UTC to Graph `Date` header; aborts on > 60s drift | HALT — skew invalidates timestamp evidence under FINRA 4511 / SEC 17a-4 |
 | Evidence root writeable | PRE-09 | Confirms `$env:AGT36_EVIDENCE_ROOT` exists, is writeable, resolves to WORM-eligible storage | HALT |
 
-### 0.4 Sovereign bootstrap pattern
-
-```powershell
-function Test-Agt36SovereignTenant {
-    [CmdletBinding()]
-    [OutputType([pscustomobject])]
-    param()
-
-    $ctx = Get-MgContext
-    if (-not $ctx) { throw "PRE-02 failed: no Graph context. Run Connect-MgGraph first." }
-
-    $cloud = switch ($ctx.Environment) {
-        'Global'    { 'Commercial' }
-        'USGov'     { 'GCC' }
-        'USGovDoD'  { 'DoD' }
-        'USGovHigh' { 'GCCH' }
-        default     { 'Unknown' }
-    }
-
-    [pscustomobject]@{
-        cloud         = $cloud
-        is_sovereign  = $cloud -in @('GCC','GCCH','DoD')
-        tenant_id     = $ctx.TenantId
-        detected_at   = (Get-Date).ToUniversalTime().ToString('o')
-        compensating_ref = 'control-3.6-sovereign-manual-reconciliation'
-    }
-}
-```
-
-When `is_sovereign` is `$true`, each automated `It` block in §2–§9 and §11–§12 emits a `SKIPPED` record with the compensating-control pointer to §10 SOV. This produces an examiner-defensible trail showing the test was attempted, was correctly skipped on regulatory-sound grounds, and was supplemented by the manual dual-signed worksheet in §10.
-
-### 0.5 Run identifier and evidence root
+### 0.4 Run identifier and evidence root
 
 ```powershell
 function New-Agt36RunId {
@@ -133,7 +102,7 @@ Every evidence record written in §2–§12 is stored under `$script:EvidenceRoo
 
 ## §1 Namespace Catalog
 
-The eight Verification Criteria from [Control 3.6 §Verification Criteria](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md#verification-criteria) — hereafter "VC-1 … VC-8" — are evidenced by the nine test namespaces below. Each namespace produces independent evidence records that combine into a single signed pack (§14).
+The eight Verification Criteria from [Control 3.6 §Verification Criteria](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md#verification-criteria) — hereafter "VC-1 … VC-8" — are evidenced by the eight test namespaces below. Each namespace produces independent evidence records that combine into a single signed pack (§14).
 
 | Namespace | Section | Evidences | Cadence | Owner |
 |---|---|---|---|---|
@@ -144,10 +113,9 @@ The eight Verification Criteria from [Control 3.6 §Verification Criteria](../..
 | `HR` | §6 | Supporting — HR leaver / mover / `employeeLeaveDateTime` feed integrity that powers sponsor / owner / maker-departure detection | Weekly | Entra Identity Governance Admin |
 | `SPONSOR` | §7 | Supporting — Entra Agent ID sponsor-departure cascade (one sponsor → many agents); feeds DETECT category #2 | Per cycle | Entra Agent ID Admin |
 | `BULK` | §8 | Supporting — Bulk-reassign safety (dry-run, exclusion of distribution-list-owned agents, false-positive rate) | Per bulk run | Power Platform Admin |
-| `SOV` | §9 | VC-6 — Sovereign-cloud compensating control (quarterly dual-signed manual reconciliation) — sovereign tenants only | Quarterly | AI Governance Lead + Compliance Officer |
-| `SIEM` | §10 | Supporting — Detection-run logs, remediation tickets, and approval artifacts forwarded to SIEM; 6-year retention enforced | Weekly | Purview Compliance Admin |
-| `RETAIN` | §11 | VC-7 — Purview retention-label enforcement on orphan register, snapshots, and approvals (`≥6-year`, deletion locked) | Monthly | Purview Compliance Admin |
-| `PREVENT` | §12 | VC-8 — Pre-orphan prevention rate (orphans-avoided ÷ agents-created) with YoY trend | Quarterly | AI Governance Lead |
+| `SIEM` | §9 | Supporting — Detection-run logs, remediation tickets, and approval artifacts forwarded to SIEM; 6-year retention enforced | Weekly | Purview Compliance Admin |
+| `RETAIN` | §10 | VC-6 — Purview retention-label enforcement on orphan register, snapshots, and approvals (`≥6-year`, deletion locked) | Monthly | Purview Compliance Admin |
+| `PREVENT` | §11 | VC-7 — Pre-orphan prevention rate (orphans-avoided ÷ agents-created) with YoY trend | Quarterly | AI Governance Lead |
 
 Each namespace section follows an identical 8-part structure, mirroring the sibling [Control 2.25](../2.25/verification-testing.md) and [Control 2.26](../2.26/verification-testing.md) verification playbooks:
 
@@ -205,9 +173,9 @@ Field semantics (abbreviated where identical to peer controls):
 |---|---|---|
 | `control_id` | string | Always `"3.6"` for this playbook. |
 | `run_id` | string | Output of `New-Agt36RunId`; identical across every record in a run. |
-| `cloud` | enum | `Commercial / GCC / GCCH / DoD / Unknown`. |
+| `cloud` | enum | `Commercial`. |
 | `zone` | enum | `1 / 2 / 3 / all`. |
-| `namespace` | enum | One of `DETECT / RECONCILE / TERMINAL / REASSIGN / HR / SPONSOR / BULK / SOV / SIEM / RETAIN / PREVENT`. |
+| `namespace` | enum | One of `DETECT / RECONCILE / TERMINAL / REASSIGN / HR / SPONSOR / BULK / SIEM / RETAIN / PREVENT`. |
 | `criterion` | enum | `VC-1` … `VC-8`, `supporting`, or `VC-1..8 (compensating)` for SOV. |
 | `subject_id` | string | Agent ID, cycle ID, template ID, policy ID, or workflow ID. |
 | `subject_type` | enum | `agent / detection_run / reconciliation / remediation_ticket / reassignment / sponsor_task / hr_feed / retention_label / attestation / manual_attestation`. |
@@ -255,10 +223,6 @@ This namespace evidences **VC-1** of [Control 3.6 §Verification Criteria](../..
 Describe "AGT36-DETECT" -Tag 'Control3.6','VC-1' {
 
     BeforeAll {
-        $sov = Test-Agt36SovereignTenant
-        if ($sov.is_sovereign) {
-            Set-ItResult -Skipped -Because "Sovereign cloud ($($sov.cloud)); see §9 SOV"
-        }
         $script:Cycles = Get-Agt36DetectionCycle -LookbackDays 100
     }
 
@@ -388,7 +352,7 @@ VC-2: "For every reconciliation cycle, the count from the Microsoft 365 Agent 36
 ### 3.2 Pre-conditions
 
 - DETECT cycle for the same window has PASS status.
-- AI Administrator can read the Ownerless Agents card via Graph (`/beta/agentGovernance/ownerlessAgents`) or Agent 365 admin center; in sovereign clouds this routes to §9 SOV.
+- AI Administrator can read the Ownerless Agents card via Graph (`/beta/agentGovernance/ownerlessAgents`) or Agent 365 admin center.
 - Orphan register query supports filter `category=1 AND status IN ('open','reassigned-pending','terminal-pending')`.
 
 ### 3.3 Pester suite
@@ -397,9 +361,6 @@ VC-2: "For every reconciliation cycle, the count from the Microsoft 365 Agent 36
 Describe "AGT36-RECONCILE" -Tag 'Control3.6','VC-2' {
 
     BeforeAll {
-        if ((Test-Agt36SovereignTenant).is_sovereign) {
-            Set-ItResult -Skipped -Because "Ownerless card not GA in sovereign clouds; see §9"
-        }
         $script:Card     = Get-Agt36OwnerlessCard
         $script:Register = Get-Agt36OrphanRegister -Category 1 -Status 'open','reassigned-pending','terminal-pending'
     }
@@ -1035,100 +996,13 @@ Z3: false-positive rate ≤1%, dual-control on every commit, dry-run pairing. Z2
 
 ---
 
-## §9 SOV — Sovereign-Cloud Compensating Control { #sov }
+## §9 SIEM — Detection/Remediation Event Forwarding
 
 ### 9.1 Criterion mapping
 
-**VC-6.** As of April 2026, Microsoft has **not** announced general availability of the Microsoft 365 Agent 365 Ownerless Agents card or of Entra Agent ID lifecycle workflows in GCC, GCC High, or DoD. Sovereign tenants therefore rely on a **manual quarterly reconciliation worksheet**, dual-signed by the AI Governance Lead and the Compliance Officer, that recomputes every category-1 entry from raw Graph and Power Platform queries. This is a **compensating control** — not a substitute for the commercial-cloud automation. Re-verify Microsoft Learn at each quarterly cycle for parity announcements.
-
-### 9.2 GCC / GCC High / DoD bootstrap
-
-Run `Test-Agt36SovereignTenant` (§0.4). When `is_sovereign=$true`, every automated `It` in §2–§8 and §10–§12 emits a `SKIPPED` evidence record with `remediation_ref="see §9 SOV"`. The SOV namespace is the **only** namespace that produces a substantive PASS for sovereign tenants.
-
-### 9.3 Manual worksheet inputs
-
-The worksheet is a versioned, locked template (`SOV-Reconcile-3.6-{YYYY}Q{N}.xlsx`) with the following sheets:
-
-1. `Sources` — Graph and Power Platform query exports (CSV) with run timestamps and SHA-256.
-2. `Category-1 (Ownerless)` — synthesized list of agents whose owner principal is unset or deleted.
-3. `Category-2 through 10` — one sheet per Detection Signal Source; each row carries detection date, category, zone, and proposed remediation.
-4. `Reconcile` — formula sheet that compares the synthesized list to the orphan register.
-5. `Variance` — substantiation memo per variance.
-6. `Sign-off` — dual signatures (AI Governance Lead + Compliance Officer), capture date, hash of all preceding sheets.
-
-### 9.4 Manual procedure (quarterly)
-
-1. **Capture sources.** Power Platform Admin runs `Get-AdminPowerApp`, `Get-AdminPowerAppEnvironment`, and the maker / connector exports; AI Administrator runs the agent-inventory Graph query (`/beta/agentGovernance/agents` if available, else `/beta/applications` filtered to agent-bearing app templates); Entra Identity Governance Admin exports HR-driven leaver list; SharePoint Admin exports SharePoint-agent author state.
-2. **Compute category-1.** Join exports on owner principal; the synthesized count is the category-1 ground truth for the quarter.
-3. **Compare to register.** Reconcile sheet computes variance per category; every nonzero variance gets a substantiation memo on the Variance sheet.
-4. **Sign.** AI Governance Lead and Compliance Officer sign on the Sign-off sheet. The worksheet is exported to PDF, hashed, and locked.
-5. **Persist.** PDF + XLSX + raw CSVs assembled into the §14 evidence pack; retention label `FSI-Records-6Y-WORM`, deletion locked.
-
-### 9.5 Sample SOV evidence record
-
-```json
-{
-  "control_id":"3.6","namespace":"SOV","criterion":"VC-6","zone":"3",
-  "cloud":"GCCH",
-  "subject_id":"sov-reconcile-2026Q1","subject_type":"manual_attestation",
-  "status":"PASS",
-  "assertion":"Quarterly manual reconciliation completed; category-1 synthesized count (24) matches register (24); variance 0; dual signatures captured.",
-  "observed_value":{
-    "synth_cat1_count":24,"register_cat1_count":24,"variance":0,
-    "signed_by":[
-      {"role":"AI Governance Lead","upn":"jane.doe@contoso.gov","signed_at":"2026-04-15T18:11:02Z"},
-      {"role":"Compliance Officer", "upn":"carlos.k@contoso.gov","signed_at":"2026-04-15T18:14:48Z"}
-    ],
-    "worksheet_sha256":"e7d4…","worksheet_pdf_sha256":"71aa…"
-  },
-  "evidence_artifacts":[
-    "SOV-Reconcile-3.6-2026Q1.xlsx","SOV-Reconcile-3.6-2026Q1.pdf",
-    "raw-graph-agents-2026Q1.csv","raw-pp-apps-2026Q1.csv","raw-hr-leavers-2026Q1.csv"
-  ],
-  "regulator_mappings":["FINRA-3110","FINRA-4511","FINRA-25-07","SEC-17a-4","SOX-302","SOX-404","NYDFS-500","FED-SR-11-7","OCC-2011-12"]
-}
-```
-
-### 9.6 Pester wrapper for SOV (light-touch)
-
-```powershell
-Describe "AGT36-SOV" -Tag 'Control3.6','VC-6' {
-
-    BeforeAll {
-        if (-not (Test-Agt36SovereignTenant).is_sovereign) {
-            Set-ItResult -Skipped -Because "Commercial cloud — automated namespaces apply"
-        }
-        $script:Wk = Get-Agt36SovereignWorksheet -QuarterId (Get-Agt36Quarter)
-    }
-
-    It "current quarter's worksheet exists and is hash-locked" {
-        $script:Wk | Should -Not -BeNullOrEmpty
-        $script:Wk.WorksheetSha256 | Should -Not -BeNullOrEmpty
-        $script:Wk.PdfSha256       | Should -Not -BeNullOrEmpty
-    }
-    It "worksheet carries dual signatures from AI Governance Lead and Compliance Officer" {
-        ($script:Wk.Signers.Role | Sort-Object -Unique) | Should -Contain 'AI Governance Lead'
-        ($script:Wk.Signers.Role | Sort-Object -Unique) | Should -Contain 'Compliance Officer'
-    }
-    It "variance is documented when nonzero" {
-        if ($script:Wk.Variance -gt 0) { $script:Wk.SubstantiationMemoUri | Should -Not -BeNullOrEmpty }
-    }
-}
-```
-
-### 9.7 Examiner narrative
-
-> "Microsoft 365 Agent 365's Ownerless Agents card and Entra Agent ID lifecycle workflows are not generally available in GCC / GCC High / DoD as of the verification date (April 2026). To compensate, we perform a quarterly manual reconciliation that recomputes the category-1 ownerless set from raw Graph and Power Platform queries, dual-signed by the AI Governance Lead and the Compliance Officer, and retained for 6 years WORM. We re-verify Microsoft Learn each quarter for parity announcements and are prepared to retire the manual worksheet within one cycle of GA."
-
----
-
-## §10 SIEM — Detection/Remediation Event Forwarding
-
-### 10.1 Criterion mapping
-
 Supporting — the orphan register and the detection / remediation event streams must forward to the enterprise SIEM with 6-year retention so that examiners can reconstruct any cycle, sponsor departure, or delete decision independently of the Microsoft tenant.
 
-### 10.2 Pester suite
+### 9.2 Pester suite
 
 ```powershell
 Describe "AGT36-SIEM" -Tag 'Control3.6','Supporting' {
@@ -1162,7 +1036,7 @@ Describe "AGT36-SIEM" -Tag 'Control3.6','Supporting' {
 }
 ```
 
-### 10.3 Sample evidence
+### 9.3 Sample evidence
 
 ```json
 {
@@ -1175,19 +1049,19 @@ Describe "AGT36-SIEM" -Tag 'Control3.6','Supporting' {
 }
 ```
 
-### 10.4 Thresholds & regulators
+### 9.4 Thresholds & regulators
 
 Z3/Z2/Z1 share the same PASS: all three streams Active, ≥6Y retention, last-event age ≤168h, sample-cycle hash match. Regulators: `FINRA-4511`, `SEC-17a-3`, `SEC-17a-4`, `SOX-404`, `NYDFS-500`, `OCC-2011-12`, `FFIEC-MGMT`.
 
 ---
 
-## §11 RETAIN — Purview Retention Enforcement (VC-7)
+## §10 RETAIN — Purview Retention Enforcement (VC-7)
 
-### 11.1 Criterion mapping
+### 10.1 Criterion mapping
 
-VC-7: "The orphan register, all weekly card snapshots, detection-run bundles, remediation tickets, approval artifacts, quarterly attestation PDFs, and sovereign reconciliation worksheets are bound to a Purview retention label with retention ≥6 years, deletion-locked, and verified each month."
+VC-7: "The orphan register, all weekly card snapshots, detection-run bundles, remediation tickets, approval artifacts, quarterly attestation PDFs are bound to a Purview retention label with retention ≥6 years, deletion-locked, and verified each month."
 
-### 11.2 Pester suite
+### 10.2 Pester suite
 
 ```powershell
 Describe "AGT36-RETAIN" -Tag 'Control3.6','VC-7' {
@@ -1196,7 +1070,7 @@ Describe "AGT36-RETAIN" -Tag 'Control3.6','VC-7' {
         $script:Labels   = Get-Agt36RetentionLabelBinding
         $script:Artifacts = @(
             'orphan-register','ownerless-card-snapshot','detection-run-log',
-            'remediation-ticket','approval-artifact','quarterly-attestation','sovereign-reconciliation'
+            'remediation-ticket','approval-artifact','quarterly-attestation'
         )
     }
 
@@ -1214,7 +1088,7 @@ Describe "AGT36-RETAIN" -Tag 'Control3.6','VC-7' {
 }
 ```
 
-### 11.3 Sample evidence
+### 10.3 Sample evidence
 
 ```json
 {
@@ -1227,19 +1101,19 @@ Describe "AGT36-RETAIN" -Tag 'Control3.6','VC-7' {
 }
 ```
 
-### 11.4 Thresholds & regulators
+### 10.4 Thresholds & regulators
 
 Z3/Z2/Z1: all 7 artifact classes bound, ≥6Y, deletion-locked, behaviour `retainAsRecord` or `retainAsRegulatoryRecord`. Any unbound artifact class is a FAIL at any zone. Regulators: `FINRA-4511`, `SEC-17a-3`, `SEC-17a-4`, `SOX-302`, `SOX-404`, `CFTC-1.31`, `NYDFS-500`, `OCC-2011-12`.
 
 ---
 
-## §12 PREVENT — Pre-Orphan Prevention Rate (VC-8)
+## §11 PREVENT — Pre-Orphan Prevention Rate (VC-8)
 
-### 12.1 Criterion mapping
+### 11.1 Criterion mapping
 
 VC-8: "Each quarter, measure the *pre-orphan prevention rate* — the proportion of agents created in the quarter whose ownership / sponsorship was kept current (no orphan event in the quarter of creation plus one) — and track year-over-year trend."
 
-### 12.2 Formula
+### 11.2 Formula
 
 ```
 pre_orphan_prevention_rate(Q) =
@@ -1249,7 +1123,7 @@ pre_orphan_prevention_rate(Q) =
 
 Computed per zone, reported at quarterly governance review.
 
-### 12.3 Pester suite
+### 11.3 Pester suite
 
 ```powershell
 Describe "AGT36-PREVENT" -Tag 'Control3.6','VC-8' {
@@ -1280,7 +1154,7 @@ Describe "AGT36-PREVENT" -Tag 'Control3.6','VC-8' {
 }
 ```
 
-### 12.4 Sample evidence
+### 11.4 Sample evidence
 
 ```json
 {
@@ -1297,7 +1171,7 @@ Describe "AGT36-PREVENT" -Tag 'Control3.6','VC-8' {
 }
 ```
 
-### 12.5 Thresholds & regulators
+### 11.5 Thresholds & regulators
 
 | Zone | PASS | WARN | FAIL |
 |---|---|---|---|
@@ -1309,11 +1183,11 @@ Regulators: `FINRA-25-07` (periodic monitoring of generative-AI supervisory prog
 
 ---
 
-## §13 Manual Verification Procedures
+## §12 Manual Verification Procedures
 
 Automation cannot cover every assertion. The following are performed manually each quarter and captured as PDF manual-attestation evidence records.
 
-### 13.1 Supervisory review walkthrough (FINRA 3110)
+### 12.1 Supervisory review walkthrough (FINRA 3110)
 
 **Performer:** AI Governance Lead in the presence of a registered principal (for firms to which FINRA 3110 applies).
 **Procedure:**
@@ -1323,21 +1197,21 @@ Automation cannot cover every assertion. The following are performed manually ea
 3. Record principal's signed acknowledgement that the evidence supports supervisory review per the firm's written supervisory procedures.
 4. This walkthrough **supports — does not replace** the registered-principal supervisory review under FINRA Rule 3110; the firm's WSPs remain authoritative.
 
-### 13.2 Shadow-agent sweep review (category 10)
+### 12.2 Shadow-agent sweep review (category 10)
 
 Shadow-agent detection (Detection Signal Source #10) is the most error-prone source because it relies on pattern-matching naming conventions, connector usage, and Dataverse table heuristics. Each quarter, the AI Governance Lead reviews a 5-agent sample of category-10 detections with the Power Platform Admin to confirm true positives and to capture learnings into detector rules.
 
-### 13.3 Litigation-hold interaction check
+### 12.3 Litigation-hold interaction check
 
 Every quarter, confirm with the Purview Compliance Admin that **no** orphan register entry or related record has been moved to a terminal-delete state while under a legal or litigation hold. Any conflict is a cycle-stopping FAIL and routes to legal.
 
-### 13.4 Microsoft Learn parity re-verification
+### 12.4 Microsoft Learn parity re-verification
 
-Re-read the current Microsoft Learn documentation for the Agent 365 Ownerless Agents card, Entra Agent ID lifecycle workflows, and Power Platform maker-departure telemetry. Note any new zone or sovereign-cloud availability. Any material change triggers an update to this playbook and to [Control 3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md).
+Re-read the current Microsoft Learn documentation for the Agent 365 Ownerless Agents card, Entra Agent ID lifecycle workflows, and Power Platform maker-departure telemetry. Note any new zone availability. Any material change triggers an update to this playbook and to [Control 3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md).
 
 ---
 
-## §14 Examiner-Facing Test Scenarios
+## §13 Examiner-Facing Test Scenarios
 
 Each scenario is an end-to-end narrative with expected evidence. Examiners frequently ask for these during SOX walkthroughs, FINRA sweeps, NYDFS audits, and Fed SR 26-2 (formerly SR 11-7) reviews.
 
@@ -1384,38 +1258,7 @@ Each scenario is an end-to-end narrative with expected evidence. Examiners frequ
 2. If any DL-owner slipped through, it is listed in FalsePositives and routed to §15 triage `TRG-BULK-02`.
 3. AI Governance Lead approval ticket captures the corrective scope-reduction.
 
-### Scenario E — Sovereign manual quarterly reconciliation
-
-**Trigger:** GCC High tenant — quarterly SOV namespace produces evidence (§9).
-**Expected evidence:**
-
-1. `SOV-Reconcile-3.6-{YYYY}Q{N}.xlsx` + PDF with dual signatures.
-2. Raw CSV exports with SHA-256 manifests.
-3. Variance substantiation memos (if any).
-4. Skipped evidence records for §2–§8, §10–§12 referencing §9 SOV.
-
-### Scenario F — SOX zero-orphan attestation evidence pack
-
-**Trigger:** SOX 404 cycle requires a zero-orphan attestation for Z3 financial-reporting-relevant agents.
-**Expected evidence:**
-
-1. Full DETECT + RECONCILE + TERMINAL + RETAIN + PREVENT PASS for the relevant Z3 scope.
-2. §16 pack manifest with SHA-256 for every artifact.
-3. §18 signatures (Preparer / Validator / Compliance).
-4. PREVENT rate ≥0.95 with non-regressive YoY.
-
-### Scenario G — Litigation hold preventing terminal delete
-
-**Trigger:** An agent meets category-1 terminal-delete criteria but is under legal hold.
-**Expected evidence:**
-
-1. TERMINAL delete suite (§4) shows the attempted delete was **blocked** by the Purview legal-hold check.
-2. Manual verification §13.3 captures the legal-hold interaction and the documented decision to retain.
-3. Orphan register entry transitions to `terminal-held-for-legal`, not `terminal-deleted`.
-
----
-
-## §15 Failure Triage Matrix
+## §14 Failure Triage Matrix
 
 Triage IDs referenced from FAIL evidence records via `remediation_ref`. Each entry includes likely root cause, first-responder role, first actions, and the sibling playbook to consult.
 
@@ -1435,26 +1278,24 @@ Triage IDs referenced from FAIL evidence records via `remediation_ref`. Each ent
 | TRG-SPONSOR-01 | SPONSOR | Cascade incomplete after 24h Z3 | Workflow disabled, SLA timer drift | Entra Agent ID Admin | Re-enable workflow, recompute cascade, document gap | [powershell-setup.md](./powershell-setup.md) |
 | TRG-BULK-01 | BULK | Commit without dry-run pairing | Operator bypass | AI Governance Lead | Halt bulk tooling, require approval ticket, add guardrail in CLI | [Control 2.8](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md) |
 | TRG-BULK-02 | BULK | DL/MI/role-group owner in scope | Exclusion list drifted | Power Platform Admin | Restore exclusion list, remove false positives, replay | [troubleshooting.md](./troubleshooting.md) |
-| TRG-SOV-01 | SOV | Worksheet missing signature | Counter-signer on leave | AI Governance Lead | Route to backup signer per succession plan, document lag | [portal-walkthrough.md](./portal-walkthrough.md) |
 | TRG-SIEM-01 | SIEM | Stream inactive or retention < 6Y | Forwarder misconfig, policy drift | Purview Compliance Admin | Reconfigure forwarder, rebind retention, open gap ticket | [Control 3.2](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) |
 | TRG-RETAIN-01 | RETAIN | Artifact class unbound to label | New artifact class introduced without label | Purview Compliance Admin | Bind label, rerun RETAIN, backfill prior artifacts if possible | [Control 2.3](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) |
 | TRG-PREVENT-01 | PREVENT | Rate below zone target | Detection/remediation drift causing repeat orphans | AI Governance Lead | Root-cause analysis, update governance playbook, report to steering | [Control 1.2](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) |
 
 ---
 
-## §16 Evidence Pack Assembly and Signing
+## §15 Evidence Pack Assembly and Signing
 
 ### 16.1 Pack contents (mirrors [Control 3.6 §Evidence and Retention](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md#evidence-and-retention))
 
 The quarterly evidence pack for Control 3.6 contains:
 
 1. **Orphan register export** (CSV + PDF) — system of record, all open and closed events in the quarter.
-2. **Weekly Ownerless Agents card snapshot** (PNG + CSV) — one per week; sovereign tenants substitute SOV worksheet.
+2. **Weekly Ownerless Agents card snapshot** (PNG + CSV) — one per week.
 3. **Detection-run bundles** (JSON + detached signatures) — one per cycle, one per zone.
 4. **Remediation tickets** (PDF export from ITSM) — one per closed terminal.
 5. **Sponsor / owner reassignment approval artifacts** (PDF) — sample-per-quarter, plus all Z3.
-6. **Quarterly governance attestation PDF** (§19 template output, dual-signed).
-7. **Sovereign-cloud reconciliation worksheet** (XLSX + PDF, dual-signed) — sovereign tenants only.
+6. **Quarterly governance attestation PDF** (§19 template output, dual-signed).
 8. **Pack manifest** (`manifest.json`) with SHA-256 for every artifact and a top-level manifest hash.
 9. **Pack signature** (`manifest.sig`) — detached X.509 signature by AI Governance Lead; second detached signature by Compliance Officer.
 
@@ -1527,7 +1368,7 @@ function Test-Agt36EvidenceSchema {
 
 ---
 
-## §17 Sign-off Workflow
+## §16 Sign-off Workflow
 
 ### 17.1 Three-signature chain
 
@@ -1561,7 +1402,7 @@ signoff-AGT36-<QuarterId>-<RunId>.json
 
 ---
 
-## §18 Quarterly Attestation Template
+## §17 Quarterly Attestation Template
 
 The quarterly attestation is the pack's cover document. It restates the hedged language of §Document Conventions, summarises per-namespace status, restates per-zone threshold attainment, discloses every WARN / FAIL with its remediation pointer, and captures the dual signatures that bind the quarter.
 
@@ -1570,7 +1411,7 @@ The quarterly attestation is the pack's cover document. It restates the hedged l
 
 **Framework version:** v1.4
 **Control:** 3.6 Orphaned Agent Detection and Remediation
-**Cloud:** {Commercial / GCC / GCCH / DoD}
+**Cloud:** Commercial
 **Cycle dates:** {start} – {end}
 **Pack root:** AGT36-{QuarterId}-{RunId}
 **Pack manifest SHA-256:** {hash}
@@ -1590,7 +1431,7 @@ This attestation supports compliance with FINRA 3110, 4511, and RN 24-09, SEC Ru
 | 6 | HR | supporting | ✓ | ✓ | ✓ | PASS | — |
 | 7 | SPONSOR | supporting | ✓ | ✓ | ✓ | PASS | — |
 | 8 | BULK | supporting | ✓ | ✓ | ✓ | PASS | — |
-| 9 | SOV | VC-6 | n/a | n/a | n/a | n/a (Commercial) | — |
+
 | 10 | SIEM | supporting | ✓ | ✓ | ✓ | PASS | — |
 | 11 | RETAIN | VC-7 | ✓ | ✓ | ✓ | PASS | — |
 | 12 | PREVENT | VC-8 | ✓ | ✓ | ✓ | PASS | — |
@@ -1629,7 +1470,7 @@ This attestation supports compliance with FINRA 3110, 4511, and RN 24-09, SEC Ru
 
 ---
 
-## §19 Continuous-Improvement Metrics
+## §18 Continuous-Improvement Metrics
 
 Beyond VC-8 (prevention rate), the program tracks:
 
@@ -1642,7 +1483,6 @@ Beyond VC-8 (prevention rate), the program tracks:
 | Variance substantiation time | hours from variance to signed memo | ≤24h Z3 | quarterly |
 | Shadow-agent false-positive rate | category-10 FPs ÷ category-10 detections | ≤5% | quarterly |
 | Pack assembly reproducibility | independent re-run produces identical manifest hash | 100% | per pack |
-| Sovereign manual-worksheet lag | days from quarter-end to signed worksheet | ≤15 days | quarterly |
 
 ### 19.1 YoY trend table
 
@@ -1656,7 +1496,7 @@ Beyond VC-8 (prevention rate), the program tracks:
 
 ---
 
-## §20 Cross-Control Verification Dependencies
+## §19 Cross-Control Verification Dependencies
 
 Control 3.6 does not stand alone. Evidence from the following controls must be in PASS state for the 3.6 attestation to be defensible:
 
@@ -1676,7 +1516,7 @@ If any dependency is in WARN or FAIL for the quarter, the 3.6 attestation must d
 
 ---
 
-## §21 References
+## §20 References
 
 ### 21.1 Source control document
 

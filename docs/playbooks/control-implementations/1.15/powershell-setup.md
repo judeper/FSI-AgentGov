@@ -1,7 +1,7 @@
 # PowerShell Setup: Control 1.15 — Encryption: Data in Transit and at Rest
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), and SHA-256 evidence emission. Snippets below show the encryption-specific patterns; the baseline is authoritative for the rest.
+ Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning mutation safety (`-WhatIf` / `SupportsShouldProcess`), and SHA-256 evidence emission. Snippets below show the encryption-specific patterns; the baseline is authoritative for the rest.
 
 !!! danger "Customer Key revocation is permanent and destroys data by design"
     Several cmdlets in this playbook (`Set-DataEncryptionPolicy -Refresh`, `Remove-DataEncryptionPolicy`, anything that disables or deletes a vault key under an active DEP) sit on the **data-purge path**. Once you initiate revocation and the purge window completes, Microsoft cannot recover the affected data — by design. Always run with `-WhatIf` first, snapshot before-state, and require dual approval. Revocation belongs to a documented break-glass runbook, not a routine operations script.

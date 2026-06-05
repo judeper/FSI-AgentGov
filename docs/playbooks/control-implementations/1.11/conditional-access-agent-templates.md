@@ -45,7 +45,7 @@ All templates align to the three-zone agent governance model documented in Contr
 | Microsoft-managed agent baseline | Entra Agent ID preview entitlement | CA-WI-003 |
 
 !!! warning "Workload Identities Premium is licensed per service principal"
-    Conditional Access for Workload Identities (CA-WID) requires **Microsoft Entra Workload Identities Premium**, billed per-SP per-month. Without this SKU, `New-MgIdentityConditionalAccessPolicy` calls that target service principals will be **rejected at deployment** (not silently fail). Confirm the SKU is assigned and the count of agent SPs is budgeted before deploying CA-WI-001 / CA-WI-002. As of April 2026, Workload Identities Premium availability **lags in GCC High and DoD sovereign clouds** — verify cloud parity before production rollout.
+    Conditional Access for Workload Identities (CA-WID) requires **Microsoft Entra Workload Identities Premium**, billed per-SP per-month. Without this SKU, `New-MgIdentityConditionalAccessPolicy` calls that target service principals will be **rejected at deployment** (not silently fail). Confirm the SKU is assigned and the count of agent SPs is budgeted before deploying CA-WI-001 / CA-WI-002.
 
 ### RBAC roles needed
 
@@ -71,7 +71,7 @@ All templates align to the three-zone agent governance model documented in Contr
 ## 3. Critical pre-deployment step: verify application IDs in your tenant
 
 !!! danger "First-party application IDs MUST be verified per tenant before deployment"
-    The application IDs reproduced in Section 5 are Microsoft's **commercial-cloud, well-known** app IDs as of April 2026 publication. They are **not stable across sovereign clouds** (GCC, GCC High, DoD), and Microsoft has historically renamed and re-issued IDs across the Bing Chat → Microsoft 365 Chat → Microsoft 365 Copilot rebranding sequence. A CA policy that pins an application ID **the tenant does not actually expose** is accepted by Microsoft Graph and **matches zero sign-ins** — i.e., it fails open silently. Always run the discovery snippet below, compare results to the templates, and substitute the IDs returned by your tenant.
+    The application IDs reproduced in Section 5 are Microsoft's **commercial-cloud, well-known** app IDs as of April 2026 publication. Microsoft has Microsoft has historically renamed and re-issued IDs across the Bing Chat → Microsoft 365 Chat → Microsoft 365 Copilot rebranding sequence. A CA policy that pins an application ID **the tenant does not actually expose** is accepted by Microsoft Graph and **matches zero sign-ins** — i.e., it fails open silently. Always run the discovery snippet below, compare results to the templates, and substitute the IDs returned by your tenant.
 
 ### App ID discovery script (run before every deployment)
 
@@ -632,7 +632,6 @@ Invoke-MgGraphRequest -Method POST `
 | 13 | Editing a Microsoft-managed CA baseline policy | Tenant edits to Microsoft-managed policies are rejected or overwritten | File a Microsoft support exception; document override decisions in the agent registry with CISO sign-off |
 | 14 | Skipping the `clientAppTypes` condition | Default behaviour omits legacy auth coverage in some scenarios; explicit is safer | Always set `clientAppTypes` explicitly (`["all"]` or the specific subset) |
 | 15 | Using a single break-glass account | No redundancy if the account / FIDO2 key is compromised or lost | Always provision **two** BG accounts in physically separate safes; alternate quarterly testing |
-| 16 | Pinning commercial-cloud app IDs in GCC High / DoD tenants | Sovereign-cloud app IDs differ; policy matches nothing in the wrong cloud | Run discovery script in the **target sovereign cloud**; never copy IDs across clouds |
 
 ---
 

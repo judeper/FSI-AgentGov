@@ -3,7 +3,7 @@
 **Companion to:** [Control 1.11 — Entra Conditional Access and Phishing-Resistant MFA](../../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md)
 **Sibling playbooks:** [Portal Walkthrough](./portal-walkthrough.md) · [PowerShell Setup](./powershell-setup.md) · [Verification & Testing](./verification-testing.md) · [CA Agent Templates](./conditional-access-agent-templates.md)
 **Audience:** Authentication Policy Admin, Entra Security Admin, Entra Privileged Role Admin, Entra Global Admin (PIM-elevated, break-glass only), AI Administrator, Purview Compliance Admin, SOC analyst on call, Service Desk Tier 2/3.
-**Scope:** Symptom-first diagnosis and remediation for Conditional Access (CA) policy enforcement, phishing-resistant authentication strengths, FIDO2 / Windows Hello for Business registration, Token Protection, Continuous Access Evaluation (CAE), CA for Workload Identities, Entra Agent ID preview targeting, break-glass discipline, and sovereign-cloud parity gaps as they affect Microsoft 365 AI agents (Copilot, Microsoft Copilot Studio agents, Power Platform agents, custom Graph-calling apps).
+**Scope:** Symptom-first diagnosis and remediation for Conditional Access (CA) policy enforcement, phishing-resistant authentication strengths, FIDO2 / Windows Hello for Business registration, Token Protection, Continuous Access Evaluation (CAE), CA for Workload Identities, Entra Agent ID preview targeting, break-glass discipline).
 
 > **Regulatory framing.** The procedures in this playbook **support compliance with** FFIEC Authentication Guidance, NYDFS 23 NYCRR Part 500 (notably §500.12 MFA — fully effective November 1, 2025 — and §500.17(a) 72-hour notification), FINRA Rule 3110 (supervision) and Rule 4511 (records), SEC Rule 17a-4(f) (WORM evidence retention), SOX §404 ITGC change-control and access-provisioning expectations, GLBA / FTC Safeguards Rule 16 CFR §314.4(c)(5) (MFA), OCC Heightened Standards / Bulletin 2011-12, Federal Reserve SR 26-2 (formerly SR 11-7), and CFTC Regulation 1.31. They do **not** by themselves guarantee any regulatory outcome. Implementation requires the SKUs (Entra ID P2, Workload Identities Premium where applicable), role separations, change-control discipline, and annual exception approvals described below; organizations should verify each procedure end-to-end in a non-production tenant before production execution and engage Legal / Compliance before any tenant-wide CA mutation.
 
@@ -16,16 +16,6 @@
     - **Post-incident root-cause analysis and reporting** — feed findings into [Control 3.4 — Incident Reporting and Root Cause Analysis](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md).
 
     If the presenting symptom does not appear in the §0 triage tree below, consult the supervisory or records playbook before mutating any CA or auth-method policy state.
-
-!!! warning "Sovereign Cloud Availability"
-    As of April 2026, the following Control 1.11 capabilities are **not at parity** in Microsoft Cloud for US Government (GCC), GCC High, or DoD:
-
-    - **Conditional Access for Workload Identities** (general availability is commercial-cloud only; sovereign tenants must use the §15 compensating-control runbook).
-    - **Entra Agent ID** preview targeting in CA policies (preview-flag controlled in commercial; not yet enabled in sovereign).
-    - **Token Protection for sign-in tokens** (Edge-only enforcement available in commercial; sovereign Edge build parity verified per release).
-    - **Authentication Strengths "Phishing-resistant MFA" built-in** (available in sovereign; FIDO2 attestation services for non-Microsoft AAGUIDs may have limited reachability — verify per release notes).
-
-    Sovereign-tenant operators must document the parity gap in the tenant Risk Register, apply the compensating controls in §15, and re-verify at each Microsoft sovereign-cloud feature-availability publication.
 
 !!! danger "Break-Glass Discipline"
     A break-glass (BG) account is invoked **only** when **all** of the following are true:
@@ -55,11 +45,10 @@
 | 9 | An AI Administrator who can sign in to the Entra portal is denied at the Microsoft Agent 365 Admin Center (`Sorry, access denied. Conditional Access policy required.`) after a CA tenant flip | [§9](#9-microsoft-agent-365-admin-center-access-denied-after-ca-policy-flip) |
 | 10 | A user was disabled or had their refresh tokens revoked, but is still seen accessing Copilot, SharePoint, or a Zone 3 agent for >30 minutes after revocation | [§10](#10-continuous-access-evaluation-not-propagating-revocations) |
 | 11 | A user's sign-in shows `ConditionalAccessStatus = notApplied` or two CA policies producing contradictory results; the audit shows multiple `Source = Microsoft` policies overlapping a custom policy | [§11](#11-conflicting-conditional-access-policies-producing-inconclusive-or-contradictory-results) |
-| 12 | A GCC High or DoD tenant cannot find the **Conditional Access > Workload Identities** blade or the policy author returns `featureNotAvailable` | [§12](#12-sovereign-cloud-gcc-high-dod-conditional-access-for-workload-identities-unavailable) |
-| 13 | Authentication Strengths blade is not visible under **Entra → Protection → Authentication methods**, or "Phishing-resistant MFA" cannot be selected as a grant control | [§13](#13-authentication-strengths-ui-not-visible) |
-| 14 | A managed identity attached to a Logic App or Function App is being denied by a CA Workload Identities policy that was meant to target only third-party SaaS service principals | [§14](#14-managed-identity-blocked-by-over-broad-ca-workload-identity-policy) |
-| 15 | Copilot Studio publish action returns `conditional access required` even though the maker has registered a passkey and signed in successfully ten minutes earlier | [§15](#15-copilot-studio-publish-fails-with-conditional-access-required-despite-registered-passkey) |
-| 16 | An Entra Agent ID preview workload identity for a newly-deployed Copilot Studio agent does not appear in CA Workload Identities policy targeting pickers | [§16](#16-entra-agent-id-preview-service-principals-not-appearing-in-conditional-access-targeting) |
+| 12 | Authentication Strengths blade is not visible under **Entra → Protection → Authentication methods**, or "Phishing-resistant MFA" cannot be selected as a grant control | [§12](#12-authentication-strengths-ui-not-visible) |
+| 13 | A managed identity attached to a Logic App or Function App is being denied by a CA Workload Identities policy that was meant to target only third-party SaaS service principals | [§13](#13-managed-identity-blocked-by-over-broad-ca-workload-identity-policy) |
+| 14 | Copilot Studio publish action returns `conditional access required` even though the maker has registered a passkey and signed in successfully ten minutes earlier | [§14](#14-copilot-studio-publish-fails-with-conditional-access-required-despite-registered-passkey) |
+| 15 | An Entra Agent ID preview workload identity for a newly-deployed Copilot Studio agent does not appear in CA Workload Identities policy targeting pickers | [§15](#15-entra-agent-id-preview-service-principals-not-appearing-in-conditional-access-targeting) |
 
 > **How to use this tree.** Identify the presenting symptom first. Each scenario below is structured: **Symptom → Likely Cause (frequency-ordered) → Diagnostic Steps → Resolution → Prevention → Regulatory / Evidence Implications**. Do not skip the diagnostic steps — every resolution that mutates a CA policy or an auth-method policy is gated on the diagnostic evidence captured first.
 
@@ -372,7 +361,7 @@ A scheduled batch — Logic App, Function App, Azure Automation runbook, custom 
 ### Likely Cause (frequency-ordered)
 
 1. **CA Workload Identities policy now requires a named-location IP** for non-interactive SP sign-ins, and the SP egresses from an IP not yet on the allow-list (newly provisioned Function App, regional failover, partner SaaS IP rotation).
-2. **The policy targets `All workload identities`** rather than a `Selected` set — see §14 for the related root cause.
+2. **The policy targets `All workload identities`** rather than a `Selected` set — see §13 for the related root cause.
 3. **The SP authenticates with a client secret**, and the policy's grant control is now "Block" for client-secret SPs as part of a phishing-resistant migration to certificate-based or federated credentials.
 4. **The SP is missing from the included scope** because the CA Workload Identities policy targets a curated `Approved-WorkloadIdentities` group and the SP was never added (governance gap).
 5. **Workload Identities Premium SKU is not assigned**, so the policy authored successfully but is enforcing inconsistently — see §1.5 of the Pre-Escalation Checklist in the parent control documentation.
@@ -433,12 +422,12 @@ AADServicePrincipalSignInLogs
    # Implementation: New-MgServicePrincipalKey ... ; followed by Remove-MgServicePrincipalPassword after cutover validation.
    ```
 
-4. **If Workload Identities Premium is not assigned**: open a license ticket; until the SKU is assigned, document the SP-side risk in the Risk Register and constrain the SP via narrow Graph permissions and a Sentinel detection rule (see §15 compensating controls).
+4. **If Workload Identities Premium is not assigned**: open a license ticket; until the SKU is assigned, document the SP-side risk in the Risk Register and constrain the SP via narrow Graph permissions and a Sentinel detection rule (see §14 compensating controls).
 
 ### Prevention
 
 - **Workload Identities Premium SKU** in place tenant-wide before any CA Workload Identities policy is authored.
-- **Selected-not-All targeting** — every CA Workload Identities policy targets `Selected service principals` from a curated approved-list group, never `All workload identities` (see §14).
+- **Selected-not-All targeting** — every CA Workload Identities policy targets `Selected service principals` from a curated approved-list group, never `All workload identities` (see §13).
 - **Credential standards** — the firm's identity standards prohibit new SPs with client-secret auth in production; certificate or federated credentials are the standard. Existing client-secret SPs are tracked in the Risk Register with a remediation deadline.
 - **Named-location lifecycle for workload egress** — Networking owns a separate `Trusted-WorkloadEgress` named location distinct from end-user egress; refresh quarterly.
 - See [Control 2.6 — Identity Lifecycle Management](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) for the SP / workload-identity inventory and [Control 2.14 — Privileged Identity Management](../../../controls/pillar-2-management/2.14-training-and-awareness-program.md) for the privileged SP review cadence.
@@ -854,48 +843,8 @@ SigninLogs
 
 ---
 
-## §12 Sovereign Cloud (GCC High / DoD) — Conditional Access for Workload Identities Unavailable
 
-### Symptom
-
-The firm operates in GCC High or DoD and attempts to author a CA Workload Identities policy to constrain agent service principals. The policy blade is unavailable, the Workload Identities Premium SKU does not appear in the license catalog, or the policy authors but does not enforce. Microsoft documentation indicates feature parity gaps for sovereign clouds.
-
-### Likely Cause
-
-1. **Product unavailability** — CA for Workload Identities (Workload Identities Premium) has historically had delayed or limited availability in GCC High and DoD. Verify current state in Microsoft sovereign-cloud feature parity documentation before designing the control.
-2. **Tenant SKU mismatch** — even where the SKU exists, it may not be assigned to the sovereign tenant.
-
-> **!!! warning Sovereign Cloud Availability.** As re-emphasized in §0, this playbook describes the commercial-cloud feature surface. Sovereign-cloud feature parity changes; verify against Microsoft's current GCC High / DoD parity matrix before designing or operating this control. The compensating controls below describe a defensible control posture where the native CA Workload Identities surface is unavailable.
-
-### Diagnostic Steps
-
-1. **Microsoft Learn** — sovereign-cloud feature parity documentation for Conditional Access and Workload Identities Premium.
-2. **Entra (sovereign tenant) → Protection → Conditional Access → Policies → New policy → Workload identities** — confirm the option is or is not present.
-3. **Microsoft 365 admin center → Billing → Licenses** — confirm SKU availability.
-
-### Resolution / Compensating Controls
-
-Where CA for Workload Identities is unavailable in the sovereign tenant, document the gap in the Risk Register and apply the following compensating controls:
-
-1. **Stricter credential standards** — workload identities use certificate-based or federated credentials only; no client secrets in production.
-2. **Narrowed Graph permissions** — every SP holds the minimum API permissions required; quarterly attestation by the SP owner.
-3. **Sentinel detection coverage** — `AADServicePrincipalSignInLogs` analytics rules detect SP sign-ins from unexpected IPs, unusual API surfaces, or anomalous volumes (cross-ref [Control 3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md)).
-4. **Network egress constraint** — SPs running in the firm's Azure environment egress through a known IP range; partner SPs are constrained by an upstream firewall rule where feasible.
-5. **Quarterly SP review** by the Authentication Policy Admin and AI Governance Lead per [Control 1.21 — Service Principal Management](../../../controls/pillar-1-security/1.21-adversarial-input-logging.md).
-
-### Prevention
-
-- **Sovereign-cloud parity tracking** — the firm maintains a quarterly tracker of Microsoft sovereign-cloud feature parity for the controls in this framework; the AI Governance Lead reviews and updates the Risk Register accordingly.
-- **No silent control assumption** — control narrative explicitly states which compensating controls substitute for the native control where parity is incomplete.
-
-### Regulatory / Evidence Implications
-
-- **NYDFS §500.03 / FFIEC** — control documentation must reflect actual implementation; do not document "CA for Workload Identities" as in place where the sovereign tenant lacks the feature. Document compensating controls explicitly.
-- **DFARS / CMMC (DoD context)** — workload-identity governance is part of the access-control family; compensating-control evidence is mandatory.
-
----
-
-## §13 Authentication Strengths UI Not Visible
+## §12 Authentication Strengths UI Not Visible
 
 ### Symptom
 
@@ -905,7 +854,7 @@ The Authentication Policy Admin opens **Entra → Protection → Authentication 
 
 1. **License tier** — Authentication Strengths is an Entra ID Premium **P1** feature, but Workload Identities and some advanced bindings require **P2**. Verify the directory's license inventory.
 2. **Directory role** — the user must hold `Authentication Policy Administrator` or higher; `Authentication Administrator` does not surface the strength-authoring UI.
-3. **Tenant region / sovereign cloud** — see §12 for sovereign parity caveats.
+3. **Tenant region**.
 4. **Browser cache / preview-feature flag** — clear cache; toggle the preview-features banner in the Entra portal.
 
 ### Diagnostic Steps
@@ -918,7 +867,6 @@ The Authentication Policy Admin opens **Entra → Protection → Authentication 
 
 1. **Assign appropriate license** to the directory and to the admin.
 2. **Assign Authentication Policy Admin** role via PIM eligible assignment (not active) per [Control 2.14](../../../controls/pillar-2-management/2.14-training-and-awareness-program.md).
-3. **If sovereign-cloud limitation**, document under §12 compensating controls.
 
 ### Prevention
 
@@ -931,7 +879,7 @@ The Authentication Policy Admin opens **Entra → Protection → Authentication 
 
 ---
 
-## §14 Managed Identity Blocked by Over-Broad CA Workload Identity Policy
+## §13 Managed Identity Blocked by Over-Broad CA Workload Identity Policy
 
 ### Symptom
 
@@ -981,7 +929,7 @@ Write-Host "WhatIf: would PATCH policy $polId conditions.clientApplications.incl
 
 ---
 
-## §15 Copilot Studio Publish Fails with "Conditional Access Required" Despite Registered Passkey
+## §14 Copilot Studio Publish Fails with "Conditional Access Required" Despite Registered Passkey
 
 ### Symptom
 
@@ -1018,7 +966,7 @@ A maker registered with a FIDO2 passkey attempts to publish a Copilot Studio age
 
 ---
 
-## §16 Entra Agent ID Preview Service Principals Not Appearing in Conditional Access Targeting
+## §15 Entra Agent ID Preview Service Principals Not Appearing in Conditional Access Targeting
 
 ### Symptom
 

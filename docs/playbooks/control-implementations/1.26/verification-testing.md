@@ -122,7 +122,7 @@ This playbook provides numbered test cases (`TC-1.26-XX`) with explicit Given / 
 - [ ] Screenshot: Defender XDR quarantine alert for renamed executable (TC-1.26-06)
 - [ ] Export: SPE container access controls and retention policy configuration
 - [ ] Approval records (ticket / record IDs) for every Zone 2/3 agent with File Upload enabled
-- [ ] `manifest.json` indexing all artifacts by SHA-256 (canonical pattern per PowerShell baseline §5)
+- [ ] `manifest.json` indexing all artifacts by SHA-256 (canonical pattern per PowerShell baseline §4)
 
 ---
 
@@ -152,7 +152,7 @@ auditor-pack-1.26-<yyyymmdd>/
     └── activity-log-queries.json        ← Output from queries below
 ```
 
-The `manifest.json` should follow the canonical PowerShell baseline §5 schema:
+The `manifest.json` should follow the canonical PowerShell baseline §4 schema:
 
 ```json
 [
@@ -193,7 +193,7 @@ I attest that, for the reporting period above:
 5. Defender for Cloud Apps true-MIME content inspection was active for every Zone 3 agent
 6. SharePoint Embedded container access controls and Purview retention policies were verified
 7. Periodic review cadence was met: Zone 1 quarterly, Zone 2 monthly, Zone 3 weekly
-8. Evidence was collected, hashed (SHA-256), and indexed in `manifest.json` per the FSI PowerShell Authoring Baseline §5
+8. Evidence was collected, hashed (SHA-256), and indexed in `manifest.json` per the FSI PowerShell Authoring Baseline §4
 9. Evidence was landed in WORM storage consistent with SEC 17a-4(f) preservation requirements
 
 **Total agents assessed:** [Count]

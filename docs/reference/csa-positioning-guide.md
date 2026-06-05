@@ -362,8 +362,6 @@ The framework is opinionated, ships frequently, and is honest about what it does
 
 - **The framework ships frequently.** v1.5.0 is the Microsoft CAPE Alignment Release; future minor versions will add controls, refine zone thresholds, and deepen the assessment evaluator coverage. Customers should subscribe to releases (the [Versioning and Support](versioning-and-support.md) reference describes the cadence and the SBOM / Sigstore attestation chain attached to release tags).
 
-- **Sovereign-cloud parity is uneven and now quantified.** For FSI tenants in **GCC, GCC High, DoD IL5, or 21Vianet** — including public-sector-adjacent broker-dealers, federal-advisory RIAs, and FFIEC-regulated entities with US-Gov subsidiaries — capability parity with commercial varies materially. Roughly 36% of the 78-control catalog has a documented sovereign-cloud caveat (Insider Risk Adaptive Protection, Entra Agent ID, Agent 365 Admin Center, several DSPM-for-AI surfaces, Power Platform Usage insights, Anthropic Claude in M365 Copilot, and others). The new [Sovereign Cloud Parity Matrix](sovereign-cloud-parity-matrix.md) aggregates the per-control caveats into a single scannable view so CSAs can answer the *"will this work in our Government cloud tenant?"* question without re-deriving it per opportunity. Use it as the reference data when handling the sovereign-cloud objection in Section 3 and when scoping public-sector-adjacent FSI conversations.
-
 ---
 
 ## Related documents

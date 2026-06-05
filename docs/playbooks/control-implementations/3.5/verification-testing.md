@@ -2,7 +2,7 @@
 
 > **Examiner-defensible evidence package** for Control 3.5. This playbook produces, signs, and retains the artifacts required to demonstrate to FINRA, the SEC, the OCC, the Federal Reserve, the FDIC (FFIEC member agencies), state banking regulators, external auditors performing SOX 404 walkthroughs, and the firm's Audit Committee that AI-agent-related Microsoft consumption is captured, attributed, charged back, retained as books-and-records under SEC Rule 17a-4(b)(4) / FINRA Rule 4511, and reconciled to invoices on the firm's financial close cadence.
 >
-> **Scope:** Microsoft 365 Commercial, GCC, GCC High, and DoD tenants. China (21Vianet) is out of scope. Where Microsoft 365 Copilot PAYG / Credit billing policies, the Cost Management connector, or the Storage immutability surface have parity gaps in sovereign clouds, this playbook routes the test to the §SOV manual compensating-control namespace; see TC-12.
+> **Scope:** Microsoft 365 Commercial (Global) cloud tenants. This framework targets the commercial Microsoft 365 deployment surface for US financial-services customers.
 >
 > **Companion controls:**
 >
@@ -25,15 +25,7 @@
     - **External auditor sign-off** on SOX 404 ITGC walkthroughs.
     - **Hard cost caps.** No test in this playbook stops spend; tests confirm that *notification* surfaces are configured and firing.
 
-    A clean PASS across TC-1 through TC-12 produces an examiner-defensible evidence package. It does not by itself ensure compliance with any single regulation.
-
-!!! warning "Sovereign Cloud Availability — GCC, GCC High, DoD"
-    The following surfaces touched by this playbook may have parity gaps as of April 2026; tests detect and route to TC-12 (manual compensating control) rather than failing:
-
-    - **Microsoft 365 Copilot PAYG billing policies** — verify GA in target sovereign cloud
-    - **Microsoft 365 Copilot Credit policies (April 2026 GA)** — sovereign GA dates pending
-    - **Cost Management Power BI connector** — generally available; verify dataset coverage
-    - **Storage immutability policy in DoD regions** — verify region-by-region
+    A clean PASS across TC-1 through TC-11 produces an examiner-defensible evidence package. It does not by itself ensure compliance with any single regulation.
 
 ---
 
@@ -49,7 +41,7 @@
 | Evidence retention | 6 years on WORM-equivalent storage for the full signed evidence pack — aligning to FINRA Rule 4511 / SEC Rule 17a-4(b)(4)(f). The firm's records-retention schedule may extend this. |
 | Variance threshold | ±5 % between Cost Management ledger total and the Microsoft Customer Agreement / EA invoice for the same period. Threshold is a default; the Controller may set a tighter or looser threshold and document the rationale. |
 | Canonical roles | Per [`docs/reference/role-catalog.md`](../../../reference/role-catalog.md). Use the canonical short names (`AI Administrator`, `Power Platform Admin`, `Compliance Officer`, etc.). |
-| Cadence | TC-1 / TC-2 / TC-3 monthly; TC-4 / TC-5 / TC-6 quarterly; TC-7 / TC-8 quarterly; TC-9 / TC-10 monthly; TC-11 annual; TC-12 quarterly (sovereign tenants) |
+| Cadence | TC-1 / TC-2 / TC-3 monthly; TC-4 / TC-5 / TC-6 quarterly; TC-7 / TC-8 quarterly; TC-9 / TC-10 monthly; TC-11 annual |
 
 ---
 
@@ -68,7 +60,6 @@
 | TC-9 (Rate-card retrieval) | Read on rate-card storage | Storage container |
 | TC-10 (Chargeback ledger) | Aggregate of TC-1 + TC-9 | All |
 | TC-11 (SOX 404 sample walkthrough) | `Compliance Officer` + observer | Documented |
-| TC-12 (Sovereign compensating control) | Per-cloud — see TC-12 section | Per cloud |
 
 All Pester suites are read-only with respect to production financial data; mutation tests run only in the dedicated cost-test sandbox subscription tagged `Environment=CostTest`.
 
@@ -100,7 +91,6 @@ Every test emits one row of the canonical schema. The schema is the contract bet
   "TestCaseTitle":    "Cost Management variance vs invoice",
   "Status":           "Clean | Anomaly | Pending | NotApplicable | Error",
   "Reason":           "<empty when Clean>",
-  "Cloud":            "Commercial | GCC | GCCHigh | DoD",
   "Scope":            "/providers/Microsoft.Management/managementGroups/...",
   "PeriodStart":      "2026-04-01T00:00:00Z",
   "PeriodEnd":        "2026-04-30T23:59:59Z",
@@ -427,23 +417,6 @@ Describe 'TC-10: Monthly chargeback ledger end-to-end' {
 
 ---
 
-### TC-12 — Sovereign cloud compensating control
-
-**Objective.** For tenants in GCC / GCC High / DoD where one or more surfaces this playbook depends on are not at parity, demonstrate the firm has a documented manual compensating control, exercises it on the same cadence, and produces equivalent evidence.
-
-**Cadence.** Quarterly for sovereign tenants.
-
-**Procedure.**
-
-1. Identify which surfaces are non-parity for the current cloud (consult Microsoft account team, [Microsoft 365 Government roadmap](https://aka.ms/m365gov-roadmap), and the [Azure Government services availability](https://learn.microsoft.com/en-us/azure/azure-government/compare-azure-government-global-azure)).
-2. For each gap, document the manual compensating control:
-   - **No M365 Copilot PAYG in DoD** → manual seat-based chargeback driven by license assignment; rate per assigned seat per month.
-   - **No Cost Management Power BI connector for the relevant scope** → manual export to Excel; chargeback ledger built in Excel with formula audit.
-3. Run the manual procedure for the period.
-4. Emit an evidence row with `Status='Clean'` and `Cloud='GCCHigh'` (etc.); the `Note` field describes which surface was substituted.
-
----
-
 ## §3 Evidence-Pack Assembly
 
 ```powershell
@@ -458,8 +431,7 @@ $evidence = @(
     'tc8-pp-capacity.json',
     'tc9-rate-card.json',
     'tc10-ledger.csv',
-    'tc11-sox-walkthrough.pdf',
-    'tc12-sovereign-compensating.json'
+    'tc11-sox-walkthrough.pdf'
 ) | ForEach-Object { Join-Path $EvidenceRoot $_ } | Where-Object { Test-Path $_ }
 
 $manifest = New-Fsi-Control35-EvidenceManifest `
@@ -501,7 +473,6 @@ The examiner's most common follow-up: "Show me a non-Clean run from the past 12 
 | TC-1 variance >5 % | Control 3.7 (Anomaly Detection) | Persistent variance may indicate consumption-pattern anomalies |
 | TC-7 idle seats >25 % of assigned | License optimization (firm-specific operational tracking) | Operational efficiency referral |
 | TC-2 immutability not Locked | Control 1.9 (Data Retention) | Records-management surface owner |
-| TC-12 sovereign compensating-control gap | Sovereign cloud operations (firm-specific, if defined) | Tenant-level control |
 
 ---
 

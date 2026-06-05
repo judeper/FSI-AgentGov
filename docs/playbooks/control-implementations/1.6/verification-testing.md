@@ -14,7 +14,7 @@
 | Weekly | Default Weekly Risk Assessment review (top 100 sites); deterministic `1.6-ACT-01` test | Compliance Admin |
 | Monthly | License entitlement reconciliation (`1.6-LIC-01`); one-click policy inventory (`1.6-POL-01`) | Compliance Admin |
 | Quarterly | Negative test suite (`1.6-NEG-01`…`1.6-NEG-05`); attestation pack | Compliance Admin + AI Governance Lead |
-| On-change | Re-run any test affected by license change, role change, policy change, sovereign-cloud change | Change requester |
+| On-change | Re-run any test affected by license change, role change, or policy change | Change requester |
 | On-incident | `1.6-INC-01` — full evidence preservation per troubleshooting playbook | Incident commander |
 
 ---
@@ -49,9 +49,9 @@ Each test specifies prerequisites, deterministic input/output, and audit-binder 
 
 Label a source doc → invoke Copilot summarization → assert response carries label or restriction per Copilot label inheritance behavior. (Per Learn `microsoft-365-copilot-architecture-data-protection-auditing`.)
 
-### `1.6-AP-01` — Adaptive Protection threshold fires (Commercial / GCC only)
+### `1.6-AP-01` — Adaptive Protection threshold fires (Commercial)
 
-Induce a user into the elevated risk tier (test tenant) → attempt sensitive prompt → assert configured DLP action (warn / audit / block) fires and Activity Explorer + IRM both reflect the event. **Skip on GCC High / DoD** with documented exception.
+Induce a user into the elevated risk tier (test tenant) → attempt sensitive prompt → assert configured DLP action (warn / audit / block) fires and Activity Explorer + IRM both reflect the event.
 
 ### `1.6-WRA-01` — Weekly Risk Assessment cadence
 
@@ -78,7 +78,7 @@ Induce a user into the elevated risk tier (test tenant) → attempt sensitive pr
 
 ### `1.6-DSPMv-01` — Unified DSPM accessibility
 
-Verify the unified **DSPM** node (GA May 2026, Commercial / GCC per MC1191257) loads and `Posture / Objectives / AI observability / Discover > Activity explorer > AI activities / Discover > Data risk assessments` are reachable. The classic path `DSPM for AI > Activity explorer` remains valid where the unified DSPM experience isn't yet available. If your tenant is in a sovereign cloud where the new unified DSPM has not been announced, document and skip — do not assert UI affordances that have not yet shipped to your tenant's cloud.
+Verify the unified **DSPM** node (GA May 2026, Commercial per MC1191257) loads and `Posture / Objectives / AI observability / Discover > Activity explorer > AI activities / Discover > Data risk assessments` are reachable. The classic path `DSPM for AI > Activity explorer` remains valid where the unified DSPM experience isn't yet available.
 
 ---
 
@@ -95,7 +95,7 @@ Required artifacts per quarter:
 - `1.6-LIC-01` license entitlement reconciliation (CSV)
 - `1.6-POL-01` one-click policy inventory (JSON)
 - `1.6-LBL-01` propagation test result (PDF + screenshots)
-- `1.6-AP-01` Adaptive Protection result (CSV + IRM event export) **or** documented sovereign exception
+- `1.6-AP-01` Adaptive Protection result (CSV + IRM event export)
 - `1.6-WRA-01` weekly assessment summaries × 13 weeks (PDF + CSV)
 - `1.6-NEG-01..05` negative-test results (CSV + screenshots)
 - `1.6-WORM-01` immutable-storage attestation (signed)
@@ -109,7 +109,7 @@ Required artifacts per quarter:
 ```text
 Control 1.6 — Microsoft Purview DSPM for AI
 Quarter: Q_____ FY_____
-Tenant: __________________________  Cloud: ☐ Commercial ☐ GCC ☐ GCC High ☐ DoD  Zone: ☐ 1 ☐ 2 ☐ 3
+Tenant: __________________________  Zone: ☐ 1 ☐ 2 ☐ 3
 
 I have executed the test catalog above for the period covered. The evidence pack referenced
 in this attestation supports — but does not by itself establish — the firm's compliance with:

@@ -1,7 +1,7 @@
 # PowerShell Setup: Control 2.19 — Customer AI Disclosure and Transparency
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below are abbreviated; the baseline is authoritative.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below are abbreviated; the baseline is authoritative.
 
 **Last Updated:** April 2026
 **Modules Required:** `Microsoft.PowerApps.Administration.PowerShell` (Windows PowerShell 5.1, Desktop edition only) for environment metadata; `Microsoft.PowerPlatform.Dataverse.Client` (preferred) **or** `Microsoft.Xrm.Data.PowerShell` (legacy, still supported) for Dataverse log queries; `Az.OperationalInsights` if logs land in a Log Analytics workspace
@@ -32,8 +32,6 @@ if ($PSVersionTable.PSEdition -ne 'Desktop') {
     throw "Microsoft.PowerApps.Administration.PowerShell requires Windows PowerShell 5.1 (Desktop). Detected: $($PSVersionTable.PSEdition) $($PSVersionTable.PSVersion)."
 }
 ```
-
-For sovereign tenants (GCC / GCC High / DoD), set the appropriate cloud endpoint per the baseline before connecting.
 
 ---
 
@@ -144,7 +142,7 @@ $rows | Export-Csv -Path $csvPath -NoTypeInformation -Encoding UTF8
     GeneratedUtc              = (Get-Date).ToUniversalTime()
 } | ConvertTo-Json -Depth 4 | Out-File -FilePath $jsonPath -Encoding UTF8
 
-# --- Evidence integrity (per baseline §6) ---
+# --- Evidence integrity (per baseline §4) ---
 $csvHash  = (Get-FileHash -Path $csvPath  -Algorithm SHA256).Hash
 $jsonHash = (Get-FileHash -Path $jsonPath -Algorithm SHA256).Hash
 "$csvHash  $(Split-Path $csvPath  -Leaf)"  | Out-File -FilePath (Join-Path $OutputPath 'SHA256SUMS.txt') -Append -Encoding UTF8
@@ -314,7 +312,6 @@ exit $exit
 
 - **No mutation cmdlets** are included — disclosure copy and the **Transfer conversation** node must be edited in the Copilot Studio portal (see [portal walkthrough](portal-walkthrough.md))
 - For Power Automate flow exports (the `LogAiDisclosureEvent` flow), use the standard solution-export pipeline (Control 2.4) — do **not** edit flow JSON in place
-- For sovereign tenants, replace authentication with managed-identity / certificate flows per baseline §3
 - Schedule Script 1 + Script 2 as a monthly Azure Automation runbook; deposit outputs in an immutable storage account (WORM/legal-hold) to support SEC 17a-4 / FINRA 4511 retention
 
 ---

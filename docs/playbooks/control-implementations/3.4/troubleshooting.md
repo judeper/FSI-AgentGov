@@ -1,4 +1,4 @@
-# Control 3.4 — Troubleshooting: Incident Reporting and Root Cause Analysis
+﻿# Control 3.4 — Troubleshooting: Incident Reporting and Root Cause Analysis
 
 > **Companion playbooks.** [Portal walkthrough](portal-walkthrough.md) · [PowerShell setup](powershell-setup.md) · [Verification & testing](verification-testing.md)
 >
@@ -7,8 +7,6 @@
 !!! warning "Non-substitution"
     This playbook describes diagnostic and remediation patterns for the Microsoft 365, Defender XDR, Microsoft Sentinel, and Microsoft Purview portals as observed in tenant UIs current as of April 2026. It is **not** legal, regulatory, or compliance advice. Regulatory clocks (NYDFS Part 500.17(a) 72-hour notice, SEC Regulation S-K Item 1.05 four-business-day disclosure, Reg S-P amended §248.30 30-day customer notification, FINRA Rule 4530, FRB SR 22-4 / OCC Bulletin 2022-3 36-hour banking incident notice, CFTC Part 23 / Part 39 notification, CIRCIA covered-entity reporting, OFAC reporting obligations) are determined by counsel and the firm''s compliance leadership using the firm''s own facts and circumstances. Where this document discusses elapsed-time triggers, it is documenting **how the platform records timestamps** so that those records may support — but never substitute for — the firm''s regulatory determination.
 
-!!! warning "Sovereign cloud availability"
-    Several Defender XDR and Microsoft Sentinel features referenced in this playbook (Copilot for Security automation, Threat Analytics enrichment, certain UEBA models, External ID federation, and selected built-in connectors) reach Government Community Cloud (GCC), GCC High, and DoD environments **on a delayed schedule** and in some cases not at all. Before relying on a runbook step in a sovereign tenant, verify availability against the Microsoft 365 service description for that cloud and against [`../../_shared/powershell-baseline.md` §3 Sovereign cloud endpoints](../../_shared/powershell-baseline.md). Where a feature is unavailable, [Scenario 21](#22-scenario-21-sovereign-cloud-feature-gap-gcc-high-dod-defender-xdr) describes the documented compensating-control pattern.
 
 > **Regulatory framing.** The control objective behind 3.4 is that an FSI firm operating Microsoft 365 AI agents (Microsoft Copilot Studio agents, Microsoft 365 Copilot agents, Power Platform AI Builder flows, Azure AI Foundry / Azure OpenAI direct-call applications) can (a) **detect** an agent-related incident, (b) **classify and triage** it within an evidence-preserving framework, (c) **report** it to internal stakeholders and external regulators inside the applicable statutory clock, and (d) produce a **root-cause analysis** that meets examiner expectations for repeatability and corrective-action tracking. Each scenario in this playbook documents a failure mode that has been observed (or that is highly likely given platform behaviour) which would prevent one of those four outcomes, together with the specific portal navigation, KQL, and PowerShell needed to detect, contain, and remediate it. Roles named throughout follow the canonical short forms in [`../../../reference/role-catalog.md`](../../../reference/role-catalog.md).
 
@@ -17,9 +15,9 @@
 
 - §0 Triage tree, severity matrix, and pre-escalation checklist
 - §1 Diagnostic data collection — the `Get-Agt34*` helper catalog
-- §§2–26 Scenarios 1–25
-- §27 Escalation matrix and evidence-collection summary
-- §28 Cross-references
+- §§2–25 Scenarios 1–24
+- §26 Escalation matrix and evidence-collection summary
+- §27 Cross-references
 
 ---
 
@@ -51,11 +49,10 @@ The following table is the *first* thing an on-call SOC analyst, the Incident Co
 | 18 | We notified the regulator before the cyber-insurance carrier and the policy may exclude coverage | Scenario 18 | Risk Officer + GC | Insurance policy notification window |
 | 19 | The agent failure crosses a SOX 404 ICFR material-weakness threshold but the Audit Committee hasn''t been briefed | Scenario 19 | Internal Audit + CFO + Audit Committee Chair | SOX §404, NYSE / Nasdaq listing rules, 10-Q filing window |
 | 20 | Examiner asks for Sentinel data older than our 90-day operational tier | Scenario 20 | Sentinel Admin + Records Officer | SEC 17a-4(f), FINRA 4511, CFTC 1.31 |
-| 21 | A Defender XDR feature in our runbook isn''t available in GCC High | Scenario 21 | Sentinel Admin + CISO | Internal SLA + DFARS / ITAR considerations |
-| 22 | Sentinel custom logs contain raw conversation transcripts with PII / PCI / PHI | Scenario 22 | Sentinel Admin + Privacy Officer + DPO | Reg S-P, GLBA Safeguards Rule, state breach laws |
-| 23 | OFAC partial-match alert during a ransom-payment decision and counsel needs a decision package | Scenario 23 | GC + CCO + CFO | OFAC SDN List + 50% Rule |
-| 24 | CIRCIA final-rule effective date is mid-quarter and our runbook hasn''t been updated | Scenario 24 | CCO + GC + CISO | CIRCIA covered-cyber-incident reporting |
-| 25 | State AG portal rejected our breach notice for per-state format mismatch | Scenario 25 | Privacy Officer + GC | State breach-notification statute clocks |
+| 21 | Sentinel custom logs contain raw conversation transcripts with PII / PCI / PHI | Scenario 22 | Sentinel Admin + Privacy Officer + DPO | Reg S-P, GLBA Safeguards Rule, state breach laws |
+| 22 | OFAC partial-match alert during a ransom-payment decision and counsel needs a decision package | Scenario 23 | GC + CCO + CFO | OFAC SDN List + 50% Rule |
+| 23 | CIRCIA final-rule effective date is mid-quarter and our runbook hasn''t been updated | Scenario 24 | CCO + GC + CISO | CIRCIA covered-cyber-incident reporting |
+| 24 | State AG portal rejected our breach notice for per-state format mismatch | Scenario 25 | Privacy Officer + GC | State breach-notification statute clocks |
 
 ### 0.2 Severity matrix
 
@@ -635,25 +632,7 @@ Open `https://make.powerautomate.com` → **My flows** → the IR-close approval
 
 ---
 
-## §22 Scenario 21 — Sovereign cloud feature gap (GCC High / DoD Defender XDR)
-**Symptom.** The firm''s commercial-tenant runbook calls for a specific Defender XDR feature (e.g., Copilot for Security to summarise incident timelines, Threat Analytics enrichment for IOC pivoting, Attack Disruption to auto-isolate compromised devices). The firm operates a separate GCC High tenant for federal-contracted business and the on-call SOC analyst discovers that the feature is unavailable in GCC High.
-
-**Likely cause.** Microsoft''s commercial cloud receives feature updates first; GCC, GCC High, and DoD environments receive features on a delayed schedule and in some cases not at all. The runbook was authored for the commercial tenant and was not adapted for the sovereign-tenant feature surface.
-
-**Diagnostic steps.**
-
-*Portal:* Open the Microsoft 365 service description for the affected feature (linked from the feature''s commercial documentation page). The service description lists availability per cloud (Commercial, GCC, GCC High, DoD). Confirm the gap.
-
-*PowerShell:* `Get-Agt34SovereignCloudFeatureMatrix -TenantId <id>` (companion cmdlet) returns the firm''s configured feature matrix per tenant and per cloud, with last-verified timestamps. If the feature is marked Unavailable in the relevant cloud, the gap is documented.
-
-**Resolution.** (1) The on-call SOC analyst implements the documented compensating-control pattern from the runbook''s sovereign-cloud appendix. Common compensating controls: (a) for Copilot for Security unavailability, the Sentinel Admin manually summarises the incident timeline using a `Get-Agt34Incident` JSON export and a markdown template; (b) for Threat Analytics unavailability, the SOC pivots IOCs through MISP / OpenCTI / commercial threat intelligence integrations; (c) for Attack Disruption unavailability, the SOC issues containment actions via the standard Defender XDR Live Response mechanism with explicit human approval. (2) The Sentinel Admin updates the SharePoint IR record with the feature gap, the compensating control used, and the operational impact (typically a longer time-to-containment than would be achieved in commercial). (3) Outside the incident, the CISO and the M365 Service Owner monitor Microsoft''s sovereign-cloud roadmap publications and update the feature matrix when new GA announcements occur.
-
-**Prevention.** (1) Maintain a "feature matrix" per tenant and per cloud, with each runbook step tagged for cloud-availability and with a documented compensating control where the feature is unavailable in the firm''s sovereign tenant. (2) Quarterly review by the CISO and M365 Service Owner against Microsoft''s service description publications. (3) Sovereign-cloud-specific tabletop exercises (Scenario 16) at least annually. (4) The runbook''s sovereign-cloud appendix is itself an examiner-facing artifact in regulated-government engagements (DFARS 252.204-7012, FedRAMP continuous monitoring); maintaining it is part of meeting those obligations. Cross-reference [`../../_shared/powershell-baseline.md` §3 Sovereign cloud endpoints](../../_shared/powershell-baseline.md).
-
-**Regulatory-evidence implications.** Federal-contractor obligations (DFARS, FedRAMP, ITAR) require certain data and workloads to remain in sovereign clouds; the firm cannot simply "fall back" to commercial features that handle that data. The compensating-control documentation, the feature matrix, and the operational-impact records together support the firm''s ability to demonstrate that the sovereign-cloud constraints are understood and that incident response operates within them.
-
----
-## §23 Scenario 22 — PII spill into Sentinel through Application Insights
+## §22 Scenario 21 — PII spill into Sentinel through Application Insights
 !!! danger "PII spill — emergency remediation"
     A PII spill into a logging or monitoring system that was not designed for that data class is itself a regulatory event. Customer NPI in Sentinel custom logs may trigger Reg S-P (SEC §248.30), GLBA Safeguards Rule notification, state breach-notification statutes, and (where the data also includes payment-card information) PCI DSS incident-handling requirements. Treat a confirmed spill as a Sev 1 event in its own right with its own SharePoint IR record, its own clock log, and its own evidence-collection workflow per §0.4. Cross-reference [Control 1.7 — Comprehensive audit logging](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), [Control 1.9 — Data retention](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md), and the parent control [3.4 (Reg S-P TC-7 trigger condition)](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md). **Do not attempt to "delete the data" through portal actions until the GC and Privacy Officer have formally instructed.** Premature deletion may itself constitute spoliation if the spill is the subject of a regulator inquiry; the standard remediation pattern is a controlled purge after evidence preservation, not an immediate delete.
 
@@ -693,7 +672,7 @@ AppEvents
 
 ---
 
-## §24 Scenario 23 — OFAC ransom-payment ambiguous match
+## §23 Scenario 22 — OFAC ransom-payment ambiguous match
 !!! danger "OFAC sanctions screening"
     This scenario continues from Scenario 17. An "ambiguous match" — where the OFAC screening service returns a partial-name match, a partial-address-prefix match for a cryptocurrency address, or a hit on a near-match list (such as the Counter-Narcotics Trafficking List or sectoral sanctions identifications) — is *not* a clean clearance. The firm''s decision whether to proceed with a payment in the face of an ambiguous match is governed by OFAC enforcement guidance and the firm''s OFAC compliance program; the determination is made by the GC and Outside Counsel in consultation with the OFAC Screening Officer, not by the platform. **An ambiguous match resolved in favour of payment without a documented decision package is a regulatory finding waiting to happen.** The decision package described below is the firm''s primary defence in any subsequent OFAC enforcement inquiry.
 
@@ -715,7 +694,7 @@ AppEvents
 
 ---
 
-## §25 Scenario 24 — CIRCIA rulemaking effective mid-quarter
+## §24 Scenario 23 — CIRCIA rulemaking effective mid-quarter
 **Symptom.** The Cyber Incident Reporting for Critical Infrastructure Act of 2022 (CIRCIA) final rule from CISA becomes effective mid-quarter, several months after the firm''s most recent annual runbook review. The new requirements include reporting "covered cyber incidents" within 72 hours of reasonable belief (and ransom payments within 24 hours), with specific definitional coverage that may include some of the firm''s business lines depending on its sector classification. The firm''s current runbook does not reference CIRCIA.
 
 **Likely cause.** Annual runbook review is well-suited to stable regulatory regimes but lags behind active rulemaking. CIRCIA''s definitional scope (which entities are "covered" depends on whether they fall within one of CISA''s sixteen critical-infrastructure sectors and whether they meet additional size or activity thresholds) requires legal analysis specific to each business line.
@@ -732,7 +711,7 @@ AppEvents
 
 ---
 
-## §26 Scenario 25 — State AG portal submission rejected for per-state format mismatch
+## §25 Scenario 24 — State AG portal submission rejected for per-state format mismatch
 **Symptom.** Following an incident that triggers per-state breach-notification submissions in 14 states, the Privacy Officer''s submissions to two of the state-AG portals are rejected for format mismatch: California requires a specific paginated PDF format with mandatory fields in a specific order; New York requires submission through a specific online portal with character-limited free-text fields; Massachusetts requires fields the firm''s standard template doesn''t include.
 
 **Likely cause.** State breach-notification statutes are highly heterogeneous in both substantive scope and submission-format mechanics. The firm''s template was built around the most common pattern (Reg S-P-style notice content) and does not address the specific format requirements of each state-AG portal.
@@ -748,7 +727,7 @@ AppEvents
 **Regulatory-evidence implications.** State AG enforcement actions for breach-notification non-compliance frequently focus on the per-state format and timing requirements. The per-state template inventory, the format-specific templates, the pre-validation script, and the rejection-remediation records together support the firm''s ability to demonstrate good-faith compliance. Cross-reference Scenario 8 (residency map) for the upstream determination of which states are in scope.
 
 ---
-## §27 Escalation matrix and evidence-collection summary
+## §26 Escalation matrix and evidence-collection summary
 
 ### 27.1 Escalation matrix
 
@@ -787,7 +766,7 @@ Every diagnostic operation in this playbook calls one of the cmdlets in [§1.1](
 
 ---
 
-## §28 Cross-references
+## §27 Cross-references
 
 ### 28.1 Sibling playbooks (Control 3.4)
 
@@ -801,12 +780,12 @@ Every diagnostic operation in this playbook calls one of the cmdlets in [§1.1](
 - [Control 1.9 — Data retention and deletion policies](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) — provides the data-retention schedule used in Scenario 20 (Sentinel retention) and Scenario 22 (PII-spill controlled purge). Cross-referenced by §27.3.
 - [Control 1.11 — Conditional Access and phishing-resistant MFA](../../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) — Conditional Access workload-identity policy is the access-control surface that Scenario 9 references when diagnosing automation-rule RBAC failures, and that Scenarios 17 and 23 implicitly rely on for the OFAC Screening Officer''s privileged-access path.
 - [Control 2.16 — RAG source integrity validation](../../../controls/pillar-2-management/2.16-rag-source-integrity-validation.md) — the agent-grounding integrity controls that Scenario 7 cross-references when investigating why an agent produced complaint-generating responses, and that Scenario 19 cross-references when scoping SOX-relevant agents.
-- [Control 3.4 — Incident reporting and root cause analysis](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) — the parent control. The "trigger conditions" sub-section of the parent control enumerates the full set of TC-1 through TC-10 that map to the 25 scenarios in this playbook.
+- [Control 3.4 — Incident reporting and root cause analysis](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) — the parent control. The "trigger conditions" sub-section of the parent control enumerates the full set of TC-1 through TC-10 that map to the 24 scenarios in this playbook.
 
 ### 28.3 Reference materials
 
 - [Role catalog](../../../reference/role-catalog.md) — canonical short forms for every administrative role referenced in the matrices and runbooks.
-- [PowerShell baseline](../../_shared/powershell-baseline.md) — JIT / PIM session pattern, sovereign-cloud endpoint mappings (§3), and the module-loading conventions for the `FsiAgtGov.Agt34` module.
+- [PowerShell baseline](../../_shared/powershell-baseline.md) — JIT / PIM session pattern, and the module-loading conventions for the `FsiAgtGov.Agt34` module.
 
 ### 28.4 Regulatory references mentioned in this playbook
 

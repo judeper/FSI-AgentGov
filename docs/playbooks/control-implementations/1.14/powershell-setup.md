@@ -1,6 +1,6 @@
 # Control 1.14 — PowerShell Setup: Data Minimization and Agent Scope Control
 
-> **Scope.** This playbook is the canonical PowerShell automation reference for Control 1.14 — *Data Minimization and Agent Scope Control*. It enumerates Microsoft Copilot Studio (Dataverse-backed) agents and Power Platform agent surfaces, builds a dedupe-keyed agent ↔ grounding-surface inventory, joins inventory to Power Platform DLP and to Microsoft Entra ID Governance Access Reviews, detects scope drift from the Unified Audit Log (UAL), reconciles SharePoint grounding against Control 4.6's Restricted Content Discovery (RCD) posture, and emits a SHA-256 evidence manifest. It supports US financial-services tenants in the Microsoft Commercial, GCC, GCC High, and DoD clouds.
+> **Scope.** This playbook is the canonical PowerShell automation reference for Control 1.14 — *Data Minimization and Agent Scope Control*. It enumerates Microsoft Copilot Studio (Dataverse-backed) agents and Power Platform agent surfaces, builds a dedupe-keyed agent ↔ grounding-surface inventory, joins inventory to Power Platform DLP and to Microsoft Entra ID Governance Access Reviews, detects scope drift from the Unified Audit Log (UAL), reconciles SharePoint grounding against Control 4.6's Restricted Content Discovery (RCD) posture, and emits a SHA-256 evidence manifest.
 >
 > **Companion documents.**
 >
@@ -13,16 +13,16 @@
 > **Important regulatory framing.** Nothing in this playbook *guarantees* regulatory compliance. The cmdlets, scripts, and patterns below *support* control objectives required by GLBA §501(b), SEC Regulation S-P (May 2024 amendments), FINRA Rules 4511, 3110, and Regulatory Notice 24-09 (Generative AI / LLM Guidance), SOX §404, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), and CCPA §1798.100. Implementation requires that organizations validate every script against their own change-management, model-risk, supervisory-review, and books-and-records processes before production rollout. The scope-drift detector is a tenant-side correlation built on `CopilotInteraction` and Power Platform record types — there is **no native** `AgentScopeExpansion` audit event. Treat the output as a triage signal, not a control attestation.
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below may show abbreviated patterns; the baseline is authoritative when the two diverge.
+ Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below may show abbreviated patterns; the baseline is authoritative when the two diverge.
 
 ---
 
 ## 0. Wrong-shell trap (READ FIRST)
 
-Control 1.14 spans **five** PowerShell surfaces. Choosing the wrong one (or invoking the right one without sovereign-cloud parameters) produces silent false-clean evidence — empty inventories, missed connector references, missing Access Reviews — that will not survive supervisory testing.
+Control 1.14 spans **five** PowerShell surfaces. Choosing the wrong one produces silent false-clean evidence — empty inventories, missed connector references, missing Access Reviews — that will not survive supervisory testing.
 
 | Surface | Connect cmdlet | Module(s) | What it covers in 1.14 |
-|---|---|---|---|
+
 | **Power Platform Admin** | `Add-PowerAppsAccount` | `Microsoft.PowerApps.Administration.PowerShell`, `Microsoft.PowerApps.PowerShell` | Environments, DLP policies, environment-level connector & connection enumeration |
 | **Dataverse Web API** | OAuth bearer token via `Get-AzAccessToken` or MSAL | `Az.Accounts` (token broker only) | Copilot Studio bot definitions (`bot`, `botcomponent`, `connectionreference`, `msdyn_aimodel`, `msdyn_knowledgesource`) — the only authoritative agent surface |
 | **Microsoft Graph** | `Connect-MgGraph` | `Microsoft.Graph.Authentication`, `Microsoft.Graph.Identity.Governance`, `Microsoft.Graph.Identity.DirectoryManagement` | Agent service principals (Entra Agent ID), Access Reviews, role-assignment evidence |
@@ -38,7 +38,7 @@ Control 1.14 spans **five** PowerShell surfaces. Choosing the wrong one (or invo
 Power Platform connectors have **two** names and they are not interchangeable in scripts:
 
 | Friendly display name | Canonical connector ID |
-|---|---|
+
 | SharePoint | `shared_sharepointonline` |
 | Office 365 Users | `shared_office365users` |
 | Office 365 Outlook | `shared_office365` |
@@ -116,7 +116,7 @@ foreach ($m in $modules) {
 
 ## 2. Pre-flight: `Initialize-Agt114Session` bootstrap
 
-Every Control 1.14 script begins from the same bootstrap: edition pinned, modules pinned, sovereign endpoints resolved, transcript started, IPPS + Graph + Power Apps + Dataverse + SharePoint connections opened, role and licence checks performed. Bundle them into one helper so individual scripts do not drift.
+Every Control 1.14 script begins from the same bootstrap: edition pinned, modules pinned resolved, transcript started, IPPS + Graph + Power Apps + Dataverse + SharePoint connections opened, role and licence checks performed. Bundle them into one helper so individual scripts do not drift.
 
 Save as `Initialize-Agt114Session.ps1`:
 
@@ -127,11 +127,11 @@ Save as `Initialize-Agt114Session.ps1`:
 <#
 .SYNOPSIS
     Bootstraps a Control 1.14 admin session across Power Platform, Dataverse,
-    Microsoft Graph, IPPS, and SharePoint Online in the correct sovereign cloud.
+    Microsoft Graph, IPPS, and SharePoint Online.
 .PARAMETER AdminUpn
     UPN of the admin executing the run (used for Graph + IPPS connection and audit attribution).
 .PARAMETER Cloud
-    One of: Commercial, GCC, GCCHigh, DoD.
+    Use Commercial for this framework.
 .PARAMETER EvidenceRoot
     Absolute path to the evidence directory.
 .PARAMETER RequiredRoles
@@ -140,13 +140,13 @@ Save as `Initialize-Agt114Session.ps1`:
     Tenant SKUs that must be present (E5 Compliance for DSPM-for-AI and DLP-for-Copilot;
     Entra ID P2 for Access Reviews). Verified via Get-MgSubscribedSku.
 .PARAMETER SharePointAdminUrl
-    Tenant SharePoint admin URL, e.g. https://contoso-admin.sharepoint.com (or .sharepoint.us for sovereign).
+    Tenant SharePoint admin URL, e.g. https://contoso-admin.sharepoint.com.
 #>
 function Initialize-Agt114Session {
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
     param(
         [Parameter(Mandatory)] [string] $AdminUpn,
-        [Parameter(Mandatory)] [ValidateSet('Commercial','GCC','GCCHigh','DoD')] [string] $Cloud,
+        [Parameter(Mandatory)] [string] $Cloud = 'Commercial',
         [Parameter(Mandatory)] [string] $EvidenceRoot,
         [Parameter(Mandatory)] [string] $SharePointAdminUrl,
         [string[]] $RequiredRoles = @(
@@ -160,48 +160,15 @@ function Initialize-Agt114Session {
 
     $ErrorActionPreference = 'Stop'
 
-    # 1. Resolve sovereign endpoints (full matrix in §13).
-    $endpoints = switch ($Cloud) {
-        'Commercial' { @{
-            PowerAppsEndpoint = 'prod'
-            GraphEnvironment  = 'Global'
-            ExoEnvironment    = 'O365Default'
-            IPPSConnectionUri = $null
-            IPPSAuthorityUri  = $null
-            SpoRegion         = 'Default'
-            AzEnvironment     = 'AzureCloud'
-            DataverseSuffix   = 'crm.dynamics.com'
-        } }
-        'GCC' { @{
-            PowerAppsEndpoint = 'usgov'
-            GraphEnvironment  = 'USGov'
-            ExoEnvironment    = 'O365USGovGCCHigh'   # GCC mailflow uses commercial; IPPS uses commercial endpoints
-            IPPSConnectionUri = $null
-            IPPSAuthorityUri  = $null
-            SpoRegion         = 'ITAR'
-            AzEnvironment     = 'AzureCloud'
-            DataverseSuffix   = 'crm9.dynamics.com'
-        } }
-        'GCCHigh' { @{
-            PowerAppsEndpoint = 'usgovhigh'
-            GraphEnvironment  = 'USGov'
-            ExoEnvironment    = 'O365USGovGCCHigh'
-            IPPSConnectionUri = 'https://ps.compliance.protection.office365.us/powershell-liveid/'
-            IPPSAuthorityUri  = 'https://login.microsoftonline.us/organizations'
-            SpoRegion         = 'ITAR'
-            AzEnvironment     = 'AzureUSGovernment'
-            DataverseSuffix   = 'crm.microsoftdynamics.us'
-        } }
-        'DoD' { @{
-            PowerAppsEndpoint = 'dod'
-            GraphEnvironment  = 'USGovDoD'
-            ExoEnvironment    = 'O365USGovDoD'
-            IPPSConnectionUri = 'https://l5.ps.compliance.protection.office365.us/powershell-liveid/'
-            IPPSAuthorityUri  = 'https://login.microsoftonline.us/organizations'
-            SpoRegion         = 'ITAR'
-            AzEnvironment     = 'AzureUSGovernment'
-            DataverseSuffix   = 'crm.appsplatform.us'
-        } }
+    $endpoints = @{
+        PowerAppsEndpoint = 'prod'
+        GraphEnvironment  = 'Global'
+        ExoEnvironment    = 'O365Default'
+        IPPSConnectionUri = $null
+        IPPSAuthorityUri  = $null
+        SpoRegion         = 'Default'
+        AzEnvironment     = 'AzureCloud'
+        DataverseSuffix   = 'crm.dynamics.com'
     }
 
     # 2. Evidence root + transcript.
@@ -218,12 +185,10 @@ function Initialize-Agt114Session {
 
     Write-Information "Run $runId — Cloud=$Cloud — Evidence=$EvidenceRoot" -InformationAction Continue
 
-    # 3. Power Apps (sovereign-aware).
     if ($PSCmdlet.ShouldProcess("Power Apps ($Cloud)", 'Add-PowerAppsAccount')) {
         Add-PowerAppsAccount -Endpoint $endpoints.PowerAppsEndpoint
     }
 
-    # 4. Microsoft Graph (sovereign-aware).
     if ($PSCmdlet.ShouldProcess("Graph ($Cloud)", 'Connect-MgGraph')) {
         Connect-MgGraph `
             -Environment $endpoints.GraphEnvironment `
@@ -237,7 +202,6 @@ function Initialize-Agt114Session {
             -NoWelcome
     }
 
-    # 5. IPPS (sovereign-aware).
     $ippsParams = @{ UserPrincipalName = $AdminUpn; ShowBanner = $false }
     if ($endpoints.IPPSConnectionUri) { $ippsParams.ConnectionUri                  = $endpoints.IPPSConnectionUri }
     if ($endpoints.IPPSAuthorityUri)  { $ippsParams.AzureADAuthorizationEndpointUri = $endpoints.IPPSAuthorityUri }
@@ -245,7 +209,6 @@ function Initialize-Agt114Session {
         Connect-IPPSSession @ippsParams
     }
 
-    # 6. SharePoint Online admin (sovereign-aware via SpoRegion).
     if ($PSCmdlet.ShouldProcess($SharePointAdminUrl, 'Connect-SPOService')) {
         $spoParams = @{ Url = $SharePointAdminUrl }
         if ($endpoints.SpoRegion -ne 'Default') { $spoParams.Region = $endpoints.SpoRegion }
@@ -299,7 +262,7 @@ function Initialize-Agt114Session {
 }
 ```
 
-**Always invoke first with `-WhatIf`** to confirm sovereign endpoints and transcript path before establishing connections in production.
+**Always invoke first with `-WhatIf`** before establishing connections in production.
 
 ---
 
@@ -479,7 +442,7 @@ function Get-Agt114CopilotStudioAgents {
 The `componenttype` column is the discriminator that drives the grounding-surface enumeration in §7. Microsoft documents the enumeration values in the Copilot Studio component reference. Common values seen in 1.14:
 
 | `componenttype` | Surface category |
-|---|---|
+
 | `0` | Topic |
 | `9` | Knowledge source (SharePoint, file, public web, enterprise web, Dataverse) |
 | `10` | Action / plugin (Power Automate flow, connector action, custom code) |
@@ -1045,35 +1008,8 @@ The cmdlet name `Get-PnPTenantRestrictedSearchAllowedList` reflects the PnP.Powe
 
 ---
 
-## 13. Sovereign-cloud reference
 
-Cloud selection is made **once**, in `Initialize-Agt114Session`. Get this wrong and every subsequent function authenticates against the wrong tenant ring, returns empty results, and produces false-clean evidence.
-
-| Cloud | `Add-PowerAppsAccount -Endpoint` | `Connect-MgGraph -Environment` | `Connect-IPPSSession -ConnectionUri` | `Connect-AzAccount -Environment` | Dataverse URL suffix |
-|---|---|---|---|---|---|
-| **Commercial** | `prod` | `Global` | *(default)* | `AzureCloud` | `crm.dynamics.com` |
-| **GCC** | `usgov` | `USGov` | *(default)* | `AzureCloud` | `crm9.dynamics.com` |
-| **GCC High** | `usgovhigh` | `USGov` | `https://ps.compliance.protection.office365.us/powershell-liveid/` | `AzureUSGovernment` | `crm.microsoftdynamics.us` |
-| **DoD** | `dod` | `USGovDoD` | `https://l5.ps.compliance.protection.office365.us/powershell-liveid/` | `AzureUSGovernment` | `crm.appsplatform.us` |
-
-### 13.1 Per-function sovereign variants
-
-| Function | Commercial | GCC | GCC High | DoD |
-|---|---|---|---|---|
-| `Initialize-Agt114Session` | All endpoints default | `-Endpoint usgov`; Graph `Global` (rolling to `USGov`) | `-Endpoint usgovhigh`; Graph `USGov`; IPPS sovereign URI | `-Endpoint dod`; Graph `USGovDoD`; IPPS DoD URI |
-| `Get-Agt114Environments` | No change | No change | No change — but verify SAM licence parity | Verify Copilot Studio availability; was limited preview as of early 2026 |
-| `Get-Agt114CopilotStudioAgents` | `crm.dynamics.com` | `crm9.dynamics.com` | `crm.microsoftdynamics.us` | `crm.appsplatform.us` |
-| `Get-Agt114DlpJoin` | Parity | Parity | Parity | Parity |
-| `Get-Agt114AgentAccessReviews` | Parity | Parity | Parity | Parity |
-| `Find-Agt114ScopeDrift` | UAL up to 24 h latency | Same | Same | Same |
-| `Get-Agt114RcdReconciliation` | SAM GA | SAM GA | **SAM availability limited** — verify; function will return warning + empty if cmdlet absent | **Limited** — confirm SAM availability before relying |
-| `Test-Agt114LicenceGate` | All gates apply | DSPM-for-AI rolling — gate may warn-skip | DSPM-for-AI lag — gate may warn-skip | DSPM-for-AI lag — gate may warn-skip |
-
-> **Verify the DoD endpoint URLs before each change window.** The DoD ring is the most volatile of the four sovereign rings; the URLs above were current as of the playbook's last verification date but change without notice.
-
----
-
-## 14. SHA-256 evidence manifest and JSON export
+## 13. SHA-256 evidence manifest and JSON export
 
 Every Control 1.14 run emits an evidence pack containing the inventory, DLP join, Access Review report, drift report, RCD reconciliation, transcript, and a `manifest.json` binding them with SHA-256 hashes and run metadata.
 
@@ -1138,7 +1074,7 @@ Call `Write-Agt114Evidence` as the **last** step of every run — after any muta
 
 ---
 
-## 15. End-to-end driver script
+## 14. End-to-end driver script
 
 The canonical end-to-end run for a single change window:
 
@@ -1148,7 +1084,7 @@ The canonical end-to-end run for a single change window:
 
 param(
     [Parameter(Mandatory)] [string] $AdminUpn,
-    [Parameter(Mandatory)] [ValidateSet('Commercial','GCC','GCCHigh','DoD')] [string] $Cloud,
+    [Parameter(Mandatory)] [string] $Cloud = 'Commercial',
     [Parameter(Mandatory)] [string] $EvidenceRoot,
     [Parameter(Mandatory)] [string] $SharePointAdminUrl,
     [string] $Control46RegisterPath,
@@ -1195,11 +1131,11 @@ Run first with `$ChangeRef = 'AGT114-DRY-RUN'` and review the `manifest.json` be
 
 ---
 
-## 16. Validation checks (real queries, not `Write-Host`)
+## 15. Validation checks (real queries, not `Write-Host`)
 
 These five checks run after the driver script and produce machine-readable pass/fail records that supervisory testing consumes directly.
 
-### 16.1 Check 1 — every active agent appears in the inventory
+### 15.1 Check 1 — every active agent appears in the inventory
 
 ```powershell
 function Test-Agt114InventoryCompleteness {
@@ -1228,7 +1164,7 @@ function Test-Agt114InventoryCompleteness {
 }
 ```
 
-### 16.2 Check 2 — no inventory row has a duplicate natural key
+### 15.2 Check 2 — no inventory row has a duplicate natural key
 
 ```powershell
 function Test-Agt114NoDuplicateKeys {
@@ -1246,7 +1182,7 @@ function Test-Agt114NoDuplicateKeys {
 }
 ```
 
-### 16.3 Check 3 — every agent connector reference resolves to a canonical connector ID
+### 15.3 Check 3 — every agent connector reference resolves to a canonical connector ID
 
 ```powershell
 function Test-Agt114CanonicalConnectorIds {
@@ -1267,7 +1203,7 @@ function Test-Agt114CanonicalConnectorIds {
 
 This is the check that historically read `Write-Host "Looks good"` and produced no evidence. Replacing it with a real query on the inventory output is the single highest-value defect fix in the v1.4 rewrite.
 
-### 16.4 Check 4 — Zone 3 agents have public-web grounding disabled
+### 15.4 Check 4 — Zone 3 agents have public-web grounding disabled
 
 ```powershell
 function Test-Agt114Zone3PublicWebOff {
@@ -1292,7 +1228,7 @@ function Test-Agt114Zone3PublicWebOff {
 }
 ```
 
-### 16.5 Check 5 — no agent uses a Blocked or Unclassified connector
+### 15.5 Check 5 — no agent uses a Blocked or Unclassified connector
 
 ```powershell
 function Test-Agt114NoBlockedConnectors {
@@ -1309,7 +1245,7 @@ function Test-Agt114NoBlockedConnectors {
 }
 ```
 
-### 16.6 Driver
+### 15.6 Driver
 
 ```powershell
 $checks = @(
@@ -1328,13 +1264,13 @@ A run is **pass** only if all five checks return `Pass = $true`. Any false resul
 
 ---
 
-## 17. Idempotency, drift detection, and rollback
+## 16. Idempotency, drift detection, and rollback
 
-### 17.1 Idempotency
+### 16.1 Idempotency
 
-Every read-only function in this playbook is idempotent by construction — re-running produces the same output (modulo `ModifiedOn` updates on Dataverse rows and any genuine tenant change). The mutating helpers (the `[CmdletBinding(SupportsShouldProcess)]` ones in §2 and §14) follow the canonical before-snapshot / mutate / after-snapshot / diff pattern from the shared baseline.
+Every read-only function in this playbook is idempotent by construction — re-running produces the same output (modulo `ModifiedOn` updates on Dataverse rows and any genuine tenant change). The mutating helpers (the `[CmdletBinding(SupportsShouldProcess)]` ones in §2 and §13) follow the canonical before-snapshot / mutate / after-snapshot / diff pattern from the shared baseline.
 
-### 17.2 Day-over-day drift
+### 16.2 Day-over-day drift
 
 ```powershell
 $today     = Get-Content "$EvidenceRoot\agt114-$todayStamp\inventory.json"     | ConvertFrom-Json
@@ -1350,24 +1286,23 @@ if ($diff) {
 }
 ```
 
-### 17.3 Rollback
+### 16.3 Rollback
 
-Inventory is a read-only artifact; there is nothing to roll back from `Build-Agt114Inventory`. Mutations made elsewhere — for example, removing a connector from an agent because §16.5 flagged it — must be tracked in their own change record with their own before/after snapshots and `Set-` invocation. The 1.14 evidence pack records the **state at run time**; remediation is the next change ticket.
+Inventory is a read-only artifact; there is nothing to roll back from `Build-Agt114Inventory`. Mutations made elsewhere — for example, removing a connector from an agent because §15.5 flagged it — must be tracked in their own change record with their own before/after snapshots and `Set-` invocation. The 1.14 evidence pack records the **state at run time**; remediation is the next change ticket.
 
 ---
 
-## 18. Anti-patterns
+## 17. Anti-patterns
 
 The patterns below have all caused production incidents in FSI tenants. None is acceptable in a Control 1.14 runbook.
 
 | # | Anti-pattern | Why it fails | Correct pattern |
-|---|---|---|---|
+
 | 1 | Targeting Power Apps via `Get-AdminPowerApp` and treating those as "agents" | Power Apps are not Copilot Studio agents. The two surfaces are distinct; an apps-only enumeration misses every Copilot Studio agent in the tenant. | Enumerate Dataverse `bot` table per environment via the Web API (§6). |
 | 2 | Iterating `apps × connections` and emitting one row per pair | Cartesian explosion; duplicate rows with different `ComponentId`s skew DLP join counts and produce false-positive scope-drift alerts. | Dedupe on `(EnvironmentId, AgentId, SurfaceClass, ConnectorId, SurfaceId, ComponentId)` (§8). |
 | 3 | Comparing connector references by friendly name (`"SharePoint"`, `"Office 365 Outlook"`) | Friendly names are localised and non-unique; comparisons silently miss matches in non-English tenants and after Microsoft renames. | Compare on canonical `ConnectorId` (`shared_sharepointonline`, `shared_office365`); never on display name (§0.1, §9). |
-| 4 | `Write-Host "Validation passed"` as a validation check | Produces no evidence; cannot be rolled into a `manifest.json`; supervisory testing has nothing to verify. | Write `Test-*` functions that return `[PSCustomObject]@{ Check; Pass; ... }` and serialise to JSON (§16). |
-| 5 | `Add-PowerAppsAccount` without `-Endpoint` in GCC / GCC High / DoD | Authenticates against the commercial endpoint; returns zero environments; produces a clean-looking but **empty** inventory. False-clean evidence. | `Add-PowerAppsAccount -Endpoint usgov` / `usgovhigh` / `dod` (§2, §13). |
-| 6 | Mutating cmdlets without `[CmdletBinding(SupportsShouldProcess)]` | No `-WhatIf` preview; no `ShouldProcess` audit trail; mutation cannot be safely run dry. | Declare `SupportsShouldProcess` and gate every mutation on `if ($PSCmdlet.ShouldProcess(...))` (shared baseline §4). |
+| 4 | `Write-Host "Validation passed"` as a validation check | Produces no evidence; cannot be rolled into a `manifest.json`; supervisory testing has nothing to verify. | Write `Test-*` functions that return `[PSCustomObject]@{ Check; Pass; ... }` and serialise to JSON (§15). |
+| 6 | Mutating cmdlets without `[CmdletBinding(SupportsShouldProcess)]` | No `-WhatIf` preview; no `ShouldProcess` audit trail; mutation cannot be safely run dry. | Declare `SupportsShouldProcess` and gate every mutation on `if ($PSCmdlet.ShouldProcess(...))` (shared baseline §3). |
 | 7 | No PSEdition / version guard | Script silently runs on Windows PowerShell 5.1, hits cmdlets that only exist in 7.x (PnP v2+), and either errors opaquely or returns wrong-shape objects. | `#Requires -Version 7.4` + `#Requires -PSEdition Core` + the explicit guard in §0.2. |
 | 8 | Skipping `@odata.nextLink` paging on Dataverse Web API queries | Truncation at 5,000 rows; large environments emit incomplete inventories. | Loop until `@odata.nextLink` is null (§5). |
 | 9 | Skipping `SessionId` / `SessionCommand 'ReturnLargeSet'` paging on `Search-UnifiedAuditLog` | Truncation at 5,000 records; high-volume tenants miss the bulk of drift evidence. | Use the paging idiom in §11. |
@@ -1380,7 +1315,7 @@ The patterns below have all caused production incidents in FSI tenants. None is 
 
 ---
 
-## 19. Cross-links
+## 18. Cross-links
 
 - **Control 1.2 — Agent registry and integrated apps.** Source-of-truth agent inventory; this playbook reconciles to it. `docs/controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md`
 - **Control 1.4 — Advanced connector policies (ACP).** DLP policy authoring and connector classification; this playbook **joins** to its output. `docs/controls/pillar-1-security/1.4-advanced-connector-policies-acp.md`
@@ -1389,7 +1324,7 @@ The patterns below have all caused production incidents in FSI tenants. None is 
 - **Control 1.19 — eDiscovery for agent interactions.** Evidence retrieval over `CopilotInteraction` records — the same record type the drift detector consumes for scope-expansion signals. `docs/controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md`
 - **Control 4.6 — Grounding scope governance.** The SharePoint enforcement layer (RCD, RSS allowed list, Data Access Governance reports). The reconciliation function in §12 joins to its output. `docs/controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md`
 - **AI incident-response playbook.** Standing on-call runbook for scope-drift candidates. `docs/playbooks/incident-and-risk/ai-incident-response-playbook.md`
-- **Shared PowerShell baseline.** Module pinning, sovereign endpoints, mutation safety, evidence emission. `docs/playbooks/_shared/powershell-baseline.md`
+- **Shared PowerShell baseline.** Module pinning, mutation safety, evidence emission. `docs/playbooks/_shared/powershell-baseline.md`
 
 ---
 

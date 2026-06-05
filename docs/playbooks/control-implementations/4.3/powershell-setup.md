@@ -1,7 +1,7 @@
 # Control 4.3: Site and Document Retention Management - PowerShell Setup
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show the canonical patterns; the baseline is authoritative.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show the canonical patterns; the baseline is authoritative.
 
 > This playbook provides PowerShell automation guidance for [Control 4.3](../../../controls/pillar-4-sharepoint/4.3-site-and-document-retention-management.md).
 
@@ -28,43 +28,30 @@ Install-Module -Name Microsoft.Online.SharePoint.PowerShell `
 
 ---
 
-## Connect to Services (Sovereign-Cloud Aware)
+## Connect to Services
 
 ```powershell
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)] [string]$AdminUpn,
-    [Parameter(Mandatory)] [string]$SpoAdminUrl,  # e.g. https://contoso-admin.sharepoint.com
-    [ValidateSet('Commercial','GCC','GCCHigh','DoD')]
-    [string]$Cloud = 'Commercial'
+    [Parameter(Mandatory)] [string]$SpoAdminUrl  # e.g. https://contoso-admin.sharepoint.com
 )
 
 $ErrorActionPreference = 'Stop'
 
-# Sovereign-cloud routing for Security & Compliance PowerShell (see baseline §3)
-$ippsParams = @{ UserPrincipalName = $AdminUpn }
-switch ($Cloud) {
-    'GCC'      { $ippsParams.ConnectionUri = 'https://ps.compliance.protection.outlook.com/PowerShell-LiveID' }
-    'GCCHigh'  { $ippsParams.ConnectionUri = 'https://ps.compliance.protection.office365.us/PowerShell-LiveID'
-                 $ippsParams.AzureADAuthorizationEndpointUri = 'https://login.microsoftonline.us/common' }
-    'DoD'      { $ippsParams.ConnectionUri = 'https://l5.ps.compliance.protection.office365.us/PowerShell-LiveID'
-                 $ippsParams.AzureADAuthorizationEndpointUri = 'https://login.microsoftonline.us/common' }
-}
-Connect-IPPSSession @ippsParams
+Connect-IPPSSession -UserPrincipalName $AdminUpn
 
 Connect-SPOService -Url $SpoAdminUrl
 
-# Smoke test — silent failure here usually means wrong cloud / wrong UPN
+# Smoke test — silent failure here usually means wrong UPN or missing role
 Get-RetentionCompliancePolicy | Select-Object Name, Enabled, Mode | Format-Table
 ```
-
-> **Verify before run:** check the current sovereign-cloud connection URIs on Microsoft Learn — Microsoft has changed these URLs more than once.
 
 ---
 
 ## Evidence Helper (SHA-256 + Manifest)
 
-Per baseline §5, every artifact emitted from this control should be hashed and listed in `manifest.json`. Source the helper once, then reuse.
+Per baseline §4, every artifact emitted from this control should be hashed and listed in `manifest.json`. Source the helper once, then reuse.
 
 ```powershell
 function Write-FsiEvidence {

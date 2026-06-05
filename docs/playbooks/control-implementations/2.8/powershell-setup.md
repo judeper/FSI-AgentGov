@@ -1,7 +1,7 @@
 # PowerShell Setup: Control 2.8 — Access Control and Segregation of Duties
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
 
 **Last Updated:** April 2026
 **Modules Required:** `Microsoft.Graph` (v2.x, pinned), `Microsoft.PowerApps.Administration.PowerShell` (Windows PowerShell 5.1 only)
@@ -33,8 +33,6 @@ Install-Module -Name Microsoft.PowerApps.Administration.PowerShell `
 | Group creation | `Group.ReadWrite.All`, `Directory.ReadWrite.All`, `RoleManagement.ReadWrite.Directory` |
 | Membership / SoD audit | `Group.Read.All`, `User.Read.All`, `RoleManagement.Read.Directory` |
 | PIM eligibility audit | `RoleManagementPolicy.Read.Directory`, `PrivilegedAccess.Read.AzureADGroup` |
-
-> **Sovereign cloud note:** GCC / GCC High / DoD tenants must pass the correct `-Environment` value to `Connect-MgGraph` (valid values: `Global` for commercial + M365 GCC, `USGov` for GCC High, `USGovDoD` for DoD; `USGovHigh` is **not** a valid `-Environment` value) and the equivalent endpoint to `Add-PowerAppsAccount` (`prod` / `usgov` / `usgovhigh` / `dod`). See the baseline and [Microsoft Graph national clouds](https://learn.microsoft.com/en-us/graph/deployments).
 
 ---
 
@@ -275,7 +273,7 @@ Dataverse System Administrator is **outside** the Entra group model, so this che
 if ($PSVersionTable.PSEdition -ne 'Desktop') {
     throw "Run from Windows PowerShell 5.1 (Desktop edition)."
 }
-Add-PowerAppsAccount   # add -Endpoint usgov / usgovhigh / dod for sovereign clouds
+Add-PowerAppsAccount   # Required: Windows PowerShell 5.1 (Desktop edition)
 
 $envs = Get-AdminPowerAppEnvironment | Where-Object { $_.EnvironmentType -in 'Production','Sandbox' }
 $rows = foreach ($e in $envs) {
