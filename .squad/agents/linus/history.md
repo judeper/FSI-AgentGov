@@ -1,5 +1,118 @@
 # Linus — Review History
 
+## 2026-06-04 — Sovereign-Cloud Removal (Pillar-1 Playbooks 1.21–1.29, Wave C)
+
+**Mode:** XCUT SOVEREIGN REMOVAL — Pillar-1 playbooks, controls 1.21–1.29
+**Branch:** `fix/pb-xcut-sov-pb-p1`
+**Commit:** `407b1cef3`
+**Result:** ✅ COMPLETE — local branch only; coordinator pushes
+
+### Summary
+
+- **17 files modified**, 113 insertions / 347 deletions
+- Re-grep returned **ZERO** files with sovereign content in 1.21–1.29 scope
+- `python scripts/verify_language_rules.py` ✅ no prohibited language found
+
+### Recipe learnings (wave C additions)
+
+- **Large 1.21 files (65–88KB each)** required a two-pass Python approach.
+  `del_section` with `\n` in the end_re pattern silently matched nothing and
+  deleted from the start heading to EOF. Use explicit line-by-line iteration
+  (`line.strip() == "## exact heading"`) for section start/end detection.
+- **Markdown trailing spaces** (`  ` at end of line for line-break) cause exact
+  string replacement misses. When a `rpl` call reports MISSING on a line you can
+  see in the file, check for trailing whitespace; use `readlines()` + iteration
+  instead of full-string replace.
+- **Column removal from 7-column tables** (e.g., "Sovereign-cloud parity (re-verify)"
+  in the 1.21 portal-walkthrough table) is safest done as one `rpl` per cell value,
+  not a regex column-strip.
+- **PIR question renumbering**: when item N is deleted via a paired-line replace
+  ("N. old\n N+1. next" → "N. next"), the subsequent items still carry their old
+  numbers. Map out the actual item numbers from the file before writing the
+  renumber `rpl` calls — miscount leads to MISSING errors.
+- **Anti-pattern back-references**: when an anti-pattern row is deleted and the
+  table is renumbered, check inline back-references (e.g., "anti-pattern §3.11"
+  in PIR questions or prose) and update them in the same pass.
+
+---
+
+## 2026-06-04 — Sovereign-Cloud Removal (Pillar-1 Playbooks 1.11–1.20, Wave B)
+
+**Mode:** XCUT SOVEREIGN REMOVAL — Pillar-1 playbooks, controls 1.11–1.20
+**Branch:** `fix/pb-xcut-sov-pb-p1`
+**Commit:** `836aefaaa`
+**Result:** ✅ COMPLETE — local branch only; coordinator pushes
+
+### Summary
+
+- **30 files modified**, 618 insertions / 2,196 deletions
+- Re-grep returned **ZERO** files with sovereign content in 1.11–1.20 scope
+  (only `1.12/troubleshooting.md` remained — intentionally skipped per mission)
+- `python scripts/verify_language_rules.py` ✅ no prohibited language found
+
+### Recipe learnings (wave B additions)
+
+- **3-pass Python script approach** again required. Pass 1 (~70% of hits via
+  section-deletion and code-block cleanup), pass 2 (~90% via generic patterns
+  and file-specific handlers), pass 3 (~99% surgical edits). Final 2 hits were
+  direct `edit` tool calls.
+- **`!!! warning/danger` admonition removal** needs an extra regex that matches
+  the `!!! ... "..."` header line plus the indented body lines that follow — the
+  generic pass-2 `delete_admonition_block` helper works well for this.
+- **Lowercase `**note.**` blockquotes** (as opposed to `**Sovereign note.**`)
+  were missed by pass-2 patterns; always check for case variants.
+- **Table column removal** (e.g., "Sovereign clouds where path applies" column
+  in 1.14 portal walkthrough) requires a dedicated helper that tracks which
+  column index to drop across header, separator, and data rows.
+- **JSON `"cloud"` enum fields** (`["Commercial","GCC","GCCHigh","DoD"]`) in
+  evidence schema code blocks are easy to miss — target with explicit regex.
+- **21Vianet carve-outs** in eDiscovery files (1.19) are a separate sovereign
+  pattern. The "Classic eDiscovery retired — except 21Vianet" danger admonition
+  required editing the heading + removing the carve-out paragraph while
+  preserving the core retirement notice.
+- **`sovereignCloud` property in PS output objects** (e.g., `sovereignCloud =
+  $Session.Cloud`) needs targeted removal — generic SOV_PAT picks it up but
+  Python regex for output object fields needs a line-level match.
+
+---
+
+## 2026-06-04 — Sovereign-Cloud Removal (Pillar-1 Playbooks 1.1–1.10, Wave A)
+
+**Mode:** XCUT SOVEREIGN REMOVAL — Pillar-1 playbooks, controls 1.1–1.10 + `_shared/powershell-baseline.md`
+**Branch:** `fix/pb-xcut-sov-pb-p1`
+**Commit:** `d35196bc4`
+**Result:** ✅ COMPLETE — local branch only; coordinator pushes
+
+### Summary
+
+- **33 files modified**, 256 insertions / 2,375 deletions
+- Verified re-grep returned **ZERO** files with sovereign content in scope
+- `python scripts/verify_language_rules.py` ✅ no prohibited language found
+
+### Recipe learnings (sovereign removal)
+
+- **Multi-pass approach required.** The first Python script (pass 1) handled
+  ~70% of hits via exact-string replacement. The second and third passes caught
+  sections that had slightly different text than expected. Total: 3 Python
+  scripts + 8 surgical direct `edit` calls.
+- **`[ValidateSet]` removal:** the pattern `[ValidateSet(...)]` on one line,
+  `[string]$Param = 'default'` on the next is common. Use a single regex
+  that matches both lines together; removing just the ValidateSet line leaves
+  a standalone `[string]$Param...` that still passes grep if the removed
+  ValidateSet contained gov cloud names.
+- **Section-header only removals:** when all table rows are removed but the
+  section header (e.g., `## Sovereign Cloud Availability`) remains, it still
+  shows up in grep. Always remove headers together with their content in one
+  pass.
+- **Attestation language:** hardcoded phrases like "in the declared sovereign
+  cloud" appear in many attestation note sections verbatim. Search for "declared
+  sovereign" as a reliable pattern.
+- **SOV-* test namespaces:** renamed to FEAT-* (feature availability
+  verification) rather than deleted — the underlying Audit Premium / PAYG
+  availability checks are still valid for commercial tenants.
+- **1.2/powershell-setup.md is large (~100KB).** The `Resolve-Agt12CloudProfile`
+  helper was replaced with a simplified `Initialize-Agt12Session` that targets
+  Global/Commercial only. The §2 section was rewritten inline in the script.
 ## Learnings
 
 ### Sovereign-Removal Recipe (2026-06-04)

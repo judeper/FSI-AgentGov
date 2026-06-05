@@ -1,7 +1,7 @@
 # PowerShell Setup: Control 1.18 - Application-Level Authorization and RBAC
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below may show abbreviated patterns; the baseline is authoritative.
+ Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below may show abbreviated patterns; the baseline is authoritative.
 
 **Last Updated:** May 2026
 **Modules Required:** Microsoft.Graph, Microsoft.PowerApps.Administration.PowerShell
@@ -65,7 +65,7 @@ Install-Module -Name Microsoft.PowerApps.Administration.PowerShell `
     Folder for evidence output (default: current directory).
 
 .PARAMETER Cloud
-    Sovereign cloud for FSI tenants regulated by OCC/Fed in GCC, GCC High, or DoD.
+    Cloud environment. Use Commercial for this framework.
 
 .EXAMPLE
     .\Export-SecurityRoles.ps1 -EnvironmentId "env-guid" -OutputPath ".\evidence" -Cloud Commercial
@@ -74,7 +74,6 @@ Install-Module -Name Microsoft.PowerApps.Administration.PowerShell `
 param(
     [Parameter(Mandatory=$true)] [string]$EnvironmentId,
     [string]$OutputPath = ".",
-    [ValidateSet('Commercial','USGov','USGovHigh','DoD','China')]
     [string]$Cloud = 'Commercial'
 )
 
@@ -87,8 +86,8 @@ Start-Transcript -Path (Join-Path $OutputPath "transcript-export-$ts.log") -Incl
 Get-Module Microsoft.PowerApps.Administration.PowerShell -ListAvailable |
     Select-Object Name, Version | Format-Table | Out-String | Write-Host
 
-$endpointMap = @{ Commercial='prod'; USGov='usgov'; USGovHigh='usgovhigh'; DoD='dod'; China='china' }
-Add-PowerAppsAccount -Endpoint $endpointMap[$Cloud]
+$endpointMap = @{ Commercial='prod' }
+Add-PowerAppsAccount -Endpoint prod
 
 # Refuse to run on Dataverse — Get-AdminPowerAppEnvironmentRoleAssignment returns empty silently.
 # Detect Dataverse via CommonDataServiceDatabaseType (Get-AdminPowerAppEnvironment also exposes
@@ -225,28 +224,17 @@ Stop-Transcript
 param(
     [Parameter(Mandatory=$true)] [string]$EnvironmentId,
     [Parameter(Mandatory=$true)] [string]$EnvironmentSuffix,
-    [ValidateSet('Commercial','USGov','USGovHigh','DoD','China')]
     [string]$Cloud = 'Commercial'
 )
 
 $ErrorActionPreference = 'Stop'
-$endpointMap = @{ Commercial='prod'; USGov='usgov'; USGovHigh='usgovhigh'; DoD='dod'; China='china' }
-# Microsoft Graph national cloud names per Connect-MgGraph -Environment:
-# Global   = commercial (graph.microsoft.com) — also covers M365 GCC; per Microsoft Learn:
-#            "If you're working in a Microsoft 365 GCC environment, continue using the
-#            worldwide endpoints: graph.microsoft.com" (https://learn.microsoft.com/en-us/graph/deployments)
-# USGov    = GCC High (graph.microsoft.us)
-# USGovDoD = DoD L5 (dod-graph.microsoft.us)
-# China    = 21Vianet (microsoftgraph.chinacloudapi.cn).
-# FSI cloud-name mapping (left): USGovHigh -> Microsoft Graph 'USGov'; DoD -> 'USGovDoD'.
-# KNOWN LIMITATION: FSI 'USGov' (M365 GCC) currently maps to Graph 'USGov' below; per the
-# Learn note above, M365 GCC tenants should use the Global endpoint. This is a pre-existing
-# mapping carried over from earlier framework revisions; see issue tracker for reconciliation.
-$mgEnvMap    = @{ Commercial='Global'; USGov='USGov'; USGovHigh='USGov'; DoD='USGovDoD'; China='China' }
+$endpointMap = @{ Commercial='prod' }
+# Global = commercial graph.microsoft.com endpoint (https://learn.microsoft.com/en-us/graph/deployments)
+$mgEnvMap = @{ Commercial='Global' }
 
-Add-PowerAppsAccount -Endpoint $endpointMap[$Cloud]
+Add-PowerAppsAccount -Endpoint prod
 Connect-MgGraph -Scopes @("Group.Read.All","RoleManagement.Read.Directory","PrivilegedAccess.Read.AzureADGroup") `
-    -Environment $mgEnvMap[$Cloud] -NoWelcome
+    -Environment Global -NoWelcome
 
 $pass = $true
 
@@ -345,7 +333,6 @@ param(
     [Parameter(Mandatory=$true)] [string]$EnvironmentId,
     [Parameter(Mandatory=$true)] [string]$EnvironmentSuffix,
     [string]$EvidencePath = ".\evidence",
-    [ValidateSet('Commercial','USGov','USGovHigh','DoD','China')]
     [string]$Cloud = 'Commercial'
 )
 
@@ -354,23 +341,13 @@ $ts = Get-Date -Format 'yyyyMMddTHHmmssZ'
 New-Item -ItemType Directory -Force -Path $EvidencePath | Out-Null
 Start-Transcript -Path (Join-Path $EvidencePath "transcript-bootstrap-$ts.log") -IncludeInvocationHeader
 
-$endpointMap = @{ Commercial='prod'; USGov='usgov'; USGovHigh='usgovhigh'; DoD='dod'; China='china' }
-# Microsoft Graph national cloud names per Connect-MgGraph -Environment:
-# Global   = commercial (graph.microsoft.com) — also covers M365 GCC; per Microsoft Learn:
-#            "If you're working in a Microsoft 365 GCC environment, continue using the
-#            worldwide endpoints: graph.microsoft.com" (https://learn.microsoft.com/en-us/graph/deployments)
-# USGov    = GCC High (graph.microsoft.us)
-# USGovDoD = DoD L5 (dod-graph.microsoft.us)
-# China    = 21Vianet (microsoftgraph.chinacloudapi.cn).
-# FSI cloud-name mapping (left): USGovHigh -> Microsoft Graph 'USGov'; DoD -> 'USGovDoD'.
-# KNOWN LIMITATION: FSI 'USGov' (M365 GCC) currently maps to Graph 'USGov' below; per the
-# Learn note above, M365 GCC tenants should use the Global endpoint. This is a pre-existing
-# mapping carried over from earlier framework revisions; see issue tracker for reconciliation.
-$mgEnvMap    = @{ Commercial='Global'; USGov='USGov'; USGovHigh='USGov'; DoD='USGovDoD'; China='China' }
+$endpointMap = @{ Commercial='prod' }
+# Global = commercial graph.microsoft.com endpoint (https://learn.microsoft.com/en-us/graph/deployments)
+$mgEnvMap = @{ Commercial='Global' }
 
 try {
-    Connect-MgGraph -Scopes "Group.ReadWrite.All" -Environment $mgEnvMap[$Cloud] -NoWelcome
-    Add-PowerAppsAccount -Endpoint $endpointMap[$Cloud]
+    Connect-MgGraph -Scopes "Group.ReadWrite.All" -Environment Global -NoWelcome
+    Add-PowerAppsAccount -Endpoint prod
 
     # Step 1: Refuse to mutate Dataverse-backed environments via the legacy cmdlets.
     $env = Get-AdminPowerAppEnvironment -EnvironmentName $EnvironmentId

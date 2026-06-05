@@ -31,10 +31,9 @@
   - [Scenario 8 — Sentinel not ingesting `CopilotInteraction`](#scenario-8-sentinel-not-ingesting-copilotinteraction)
   - [Scenario 9 — Per-table Dataverse audit not enabled on Copilot Studio entities](#scenario-9-per-table-dataverse-audit-not-enabled-on-copilot-studio-entities)
   - [Scenario 10 — Audit retention dropped from Premium to Standard mid-year](#scenario-10-audit-retention-dropped-from-premium-to-standard-mid-year)
-  - [Scenario 11 — GCC High / DoD missing AI App PAYG / Premium event parity](#scenario-11-gcc-high-dod-missing-ai-app-payg-premium-event-parity)
-  - [Scenario 12 — NYDFS 500.06 / 500.16 / 500.17 — single-artifact 12-month AI audit evidence](#scenario-12-nydfs-50006-50016-50017-single-artifact-12-month-ai-audit-evidence)
-  - [Scenario 13 — Audit shows event but content is gone (mailbox deleted)](#scenario-13-audit-shows-event-but-content-is-gone-mailbox-deleted)
-  - [Scenario 14 — FFIEC IT Examination wants tamper-evident audit](#scenario-14-ffiec-it-examination-wants-tamper-evident-audit)
+  - [Scenario 11 — NYDFS 500.06 / 500.16 / 500.17 — single-artifact 12-month AI audit evidence](#scenario-11-nydfs-50006-50016-50017-single-artifact-12-month-ai-audit-evidence)
+  - [Scenario 12 — Audit shows event but content is gone (mailbox deleted)](#scenario-12-audit-shows-event-but-content-is-gone-mailbox-deleted)
+  - [Scenario 13 — FFIEC IT Examination wants tamper-evident audit](#scenario-13-ffiec-it-examination-wants-tamper-evident-audit)
 - [§4. Anti-Patterns](#4-anti-patterns)
 - [§5. Cross-References](#5-cross-references)
 
@@ -107,9 +106,8 @@ Before paging a Microsoft Support escalation, verify:
 7. Custom retention policy explicitly names the record type (default policy excludes Copilot)
 8. License entitlement gap report is empty for the user/event in question
 9. PAYG enablement state captured if `AIAppInteraction` involved
-10. Sovereign cloud endpoint correct for tenant
-11. Module versions captured and within the CAB-pinned range
-12. End-to-end latency measured and outside empirical ceiling (not a fabricated SLA)
+10. Module versions captured and within the CAB-pinned range
+11. End-to-end latency measured and outside empirical ceiling (not a fabricated SLA)
 
 ---
 
@@ -201,8 +199,7 @@ In all three cases, the 10-Year audit retention add-on remains useful as the **a
 1. Audit pay-as-you-go (PAYG) billing is not opted-in for the tenant.
 2. Network/browser DLP is not configured to capture non-Microsoft AI traffic — Edge for Business unmanaged-AI policy ([Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md)) is the upstream feeder for the `AIApp` workload.
 3. Affected users lack the appropriate license (Audit Premium tier prerequisites).
-4. Tenant is in a region or sovereign cloud where the PAYG `AIAppInteraction` event is not yet at parity (see Scenario 11).
-5. Date window is older than the **180-day** retention horizon for PAYG-captured records.
+4. Date window is older than the **180-day** retention horizon for PAYG-captured records.
 
 **Diagnostic.**
 
@@ -522,33 +519,7 @@ foreach ($t in $tables) {
 
 ---
 
-### Scenario 11 — GCC High / DoD missing AI App PAYG / Premium event parity
-
-**Symptom.** A federal contractor or DoD-cleared business unit operating in GCC High or DoD discovers that one or more AI audit features available in commercial cloud — typically the PAYG `AIAppInteraction` capture, certain Audit Premium event types, or specific Connected AI App event coverage — are not yet at parity in the sovereign cloud.
-
-**Likely cause.** *Sovereign reality.* Microsoft preview and PAYG features routinely lag commercial parity in GCC High and DoD. This is structural to the sovereign cloud release process and is not, on its own, a bug.
-
-**Resolution.** Build a **compensating evidence path** and document it in the WSPs. The compensating path typically combines:
-
-1. **Substrate-tier retrieval** via the GCC High / DoD equivalents of DSPM for AI ([Control 1.6](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md)), eDiscovery (Premium) ([Control 1.19](../../../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md)), and Communication Compliance ([Control 1.10](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md)) — verify per-feature availability against the current sovereign-cloud documentation.
-2. **Sentinel ingestion** of the available record types in the sovereign cloud, with KQL detections covering as much of the missing-event surface as can be reconstructed from adjacent telemetry.
-3. **Third-party SEC 17a-4-attested archive** journaling, where the vendor offers a sovereign-cloud-compatible deployment.
-4. **Endpoint / network DLP** ([Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md)) to capture non-Microsoft AI activity at the device or proxy layer when the cloud-side `AIAppInteraction` event is unavailable.
-
-Verify sovereign endpoint configuration:
-
-| Cloud | EXO parameter | Purview URL | PPAC URL |
-|---|---|---|---|
-| Commercial | `-ExchangeEnvironmentName O365Default` | `purview.microsoft.com` | `admin.powerplatform.microsoft.com` |
-| GCC | (commercial endpoints — verify per tenant) | (verify) | `gcc.admin.powerplatform.microsoft.us` |
-| GCC High | `-ExchangeEnvironmentName O365USGovGCCHigh` | `purview.microsoft.us` | `high.admin.powerplatform.microsoft.us` |
-| DoD | `-ExchangeEnvironmentName O365USGovDoD` | `compliance.apps.mil` | `admin.appsplatform.us` |
-
-**What good looks like.** Sovereign-cloud feature-parity gap is enumerated against the current Microsoft sovereign-cloud roadmap; each gap has a documented compensating evidence path (Substrate + Sentinel + DLP + third-party archive, as applicable); WSPs explicitly disclose the compensating model so examiners are not surprised.
-
----
-
-### Scenario 12 — NYDFS 500.06 / 500.16 / 500.17 — single-artifact 12-month AI audit evidence
+### Scenario 11 — NYDFS 500.06 / 500.16 / 500.17 — single-artifact 12-month AI audit evidence
 
 **Symptom.** NY DFS examiner under Part 500 (specifically 23 NYCRR 500.06 audit trail, 500.16 incident response, and 500.17 notice of cybersecurity event) requests a **single artifact** showing all AI-related audit events for the past 12 months, joined across record types, with the preservation-tier export evidence demonstrating the artifact is anchored to the 17a-4(f) vault.
 
@@ -601,7 +572,7 @@ Pin the workbook, schedule the monthly export, and persist exports to the 17a-4(
 
 ---
 
-### Scenario 13 — Audit shows event but content is gone (mailbox deleted)
+### Scenario 12 — Audit shows event but content is gone (mailbox deleted)
 
 **Symptom.** `Search-UnifiedAuditLog -RecordType CopilotInteraction` shows events for a former employee, but eDiscovery / DSPM for AI / Communication Compliance retrieval comes back empty for the verbatim prompt and response. Investigation shows the user's mailbox was deleted as part of the leaver process, and the Substrate Copilot interactions mailbox was deleted with it.
 
@@ -618,7 +589,7 @@ Pin the workbook, schedule the monthly export, and persist exports to the 17a-4(
 
 ---
 
-### Scenario 14 — FFIEC IT Examination wants tamper-evident audit
+### Scenario 13 — FFIEC IT Examination wants tamper-evident audit
 
 **Symptom.** FFIEC IT Examination Handbook–driven examiner asks the firm to demonstrate that the AI audit trail is **tamper-evident** — that is, that no insider (including the highest-privileged tenant admin) can alter or delete historical audit records without detection.
 
@@ -659,7 +630,7 @@ Get-AzStorageContainerImmutabilityPolicy `
 | Using `Search-AdminAuditLog` for new automation | Deprecated 15 September 2024. Migrate to `Search-UnifiedAuditLog` (legacy but supported) or the Graph audit search API (strategic). |
 | Citing fabricated "15-minute SIEM SLA" or "24-hour audit SLA" | Microsoft does not publish a hard SLA. Examiners will challenge specific numerical claims. Document the empirical ceiling instead. (Scenario 8.) |
 | Downgrading audit licenses on users in regulated populations to optimize cost | Silent retention re-tiering creates evidence gaps and possible disclosure obligations. Hard-gate the downgrade. (Scenario 10.) |
-| Running the leaver workflow before applying retention/hold to the user's Copilot mailbox | Audit row survives, content does not — a worst-case examiner scenario. Sequence hold-before-delete. (Scenario 13.) |
+| Running the leaver workflow before applying retention/hold to the user's Copilot mailbox | Audit row survives, content does not — a worst-case examiner scenario. Sequence hold-before-delete. (Scenario 12.) |
 | Treating `agentSignIn` as GA without verification | Preview surfaces evolve; verify against the live tenant and Microsoft Learn before documenting. |
 | Stamping `[PASS]` immediately after `Set-AdminAuditLogConfig` | Configuration takes up to 60 minutes to propagate; ingestion takes longer. Re-verify after the propagation window. |
 
@@ -667,14 +638,14 @@ Get-AzStorageContainerImmutabilityPolicy `
 
 ## 5. Cross-References
 
-- [Control 1.5 — Microsoft Purview Data Loss Prevention](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) … endpoint and browser DLP (Edge for Business unmanaged-AI policy) is the upstream feeder for the `AIApp` workload that surfaces `AIAppInteraction` events. Without DLP capture, PAYG opt-in alone produces no events. (Scenarios 3, 11.)
-- [Control 1.6 — Microsoft Purview DSPM for AI](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) … one of three Substrate-tier paths for retrieving the verbatim prompt and response text that the audit record references by message ID. (Scenarios 1, 10, 11, 13.)
-- [Control 1.10 — Communication Compliance for AI Interactions](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) … Substrate-tier path for policy-driven supervisory review of AI-generated communications; FINRA Rule 3110 alignment. (Scenarios 1, 10, 11, 13.)
-- [Control 1.19 — eDiscovery for Agent Interactions](../../../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md) … Substrate-tier path for legal hold, collection, and review of Copilot interactions; the canonical regulator/litigation export channel. (Scenarios 1, 10, 11, 13.)
-- [Control 2.6 — Data Handling, Retention and Archival Procedures](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) … Records Management retention design covering the Copilot interactions location; gates the leaver-workflow content-loss scenario. (Scenario 13.)
+- [Control 1.5 — Microsoft Purview Data Loss Prevention](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) … endpoint and browser DLP (Edge for Business unmanaged-AI policy) is the upstream feeder for the `AIApp` workload that surfaces `AIAppInteraction` events. Without DLP capture, PAYG opt-in alone produces no events. (Scenario 3.)
+- [Control 1.6 — Microsoft Purview DSPM for AI](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) … one of three Substrate-tier paths for retrieving the verbatim prompt and response text that the audit record references by message ID. (Scenarios 1, 10, 12.)
+- [Control 1.10 — Communication Compliance for AI Interactions](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) … Substrate-tier path for policy-driven supervisory review of AI-generated communications; FINRA Rule 3110 alignment. (Scenarios 1, 10, 12.)
+- [Control 1.19 — eDiscovery for Agent Interactions](../../../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md) … Substrate-tier path for legal hold, collection, and review of Copilot interactions; the canonical regulator/litigation export channel. (Scenarios 1, 10, 12.)
+- [Control 2.6 — Data Handling, Retention and Archival Procedures](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) … Records Management retention design covering the Copilot interactions location; gates the leaver-workflow content-loss scenario. (Scenario 12.)
 - [Control 2.12 — Agent Lifecycle Management](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) … leaver / mover sequencing for agent owners and users; ensures hold-before-delete and license-tier guard for regulated populations.
-- [Control 3.4 — Audit and Compliance Reporting](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) … independent control testing layer in the tamper-evidence narrative; periodic attestation of the audit-logging stack. (Scenario 14.)
-- [Control 3.9 — Microsoft Sentinel Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) … canonical Sentinel ingestion architecture for AI audit events; second-plane tamper-evidence and the workbook channel for the NYDFS 12-month artifact. (Scenarios 8, 12, 14.)
+- [Control 3.4 — Audit and Compliance Reporting](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) … independent control testing layer in the tamper-evidence narrative; periodic attestation of the audit-logging stack. (Scenario 13.)
+- [Control 3.9 — Microsoft Sentinel Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) … canonical Sentinel ingestion architecture for AI audit events; second-plane tamper-evidence and the workbook channel for the NYDFS 12-month artifact. (Scenarios 8, 11, 13.)
 
 ---
 

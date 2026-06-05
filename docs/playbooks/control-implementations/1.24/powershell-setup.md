@@ -1,7 +1,7 @@
 # PowerShell Setup: Control 1.24 — Defender AI Security Posture Management (AI-SPM)
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
 
 **Last Updated:** May 2026
 **Modules Required:** `Az.Accounts` ≥ 3.0, `Az.Security` ≥ 1.6, `Az.ResourceGraph` ≥ 1.0
@@ -19,8 +19,6 @@ Install-Module -Name Az.Accounts      -RequiredVersion 3.0.4 -Scope CurrentUser 
 Install-Module -Name Az.Security      -RequiredVersion 1.6.0 -Scope CurrentUser -Force
 Install-Module -Name Az.ResourceGraph -RequiredVersion 1.0.0 -Scope CurrentUser -Force
 
-# Sovereign-cloud users: connect with the appropriate environment switch
-# Connect-AzAccount -Environment AzureUSGovernment   # GCC High / DoD
 ```
 
 Required Azure RBAC: **Security Reader** to inspect; **Security Admin** + subscription **Owner/Contributor** to enable plans.
@@ -245,19 +243,6 @@ if ($failures) {
 }
 Write-Host "Validation PASSED — evidence: $OutputPath (SHA256 $hash)" -ForegroundColor Green
 ```
-
----
-
-## Sovereign-Cloud Notes (GCC / GCC High / DoD)
-
-| Cloud | Az.Accounts environment | AI-SPM availability (April 2026) |
-|-------|--------------------------|-----------------------------------|
-| Commercial | `AzureCloud` (default) | GA |
-| GCC | `AzureCloud` (commercial-backed) | GA |
-| GCC High | `AzureUSGovernment` | GA — confirm regional availability |
-| DoD | `AzureUSGovernment` | Limited — confirm with Microsoft FedRAMP team |
-
-Replace REST endpoints with `https://management.usgovcloudapi.net/` for sovereign deployments.
 
 ---
 

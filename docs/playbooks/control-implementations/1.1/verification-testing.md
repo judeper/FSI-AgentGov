@@ -162,12 +162,11 @@ If Teams/M365 distribution is used:
 # Illustrative validation - see restrict-agent-publishing.ps1 for production version
 param(
     [Parameter(Mandatory=$true)][string]$EnvironmentName,
-    [Parameter(Mandatory=$true)][string]$SecurityGroupId,
-    [ValidateSet('prod','usgov','usgovhigh','dod')][string]$Endpoint = 'prod'
-)
+    [Parameter(Mandatory=$true)][string]$SecurityGroupId
+    )
 
 if ($PSVersionTable.PSEdition -ne 'Desktop') { throw "Run in Windows PowerShell 5.1." }
-if ($Endpoint -eq 'prod') { Add-PowerAppsAccount } else { Add-PowerAppsAccount -Endpoint $Endpoint }
+Add-PowerAppsAccount
 
 Write-Host "=== Control 1.1 Validation ===" -ForegroundColor Cyan
 $failures = 0

@@ -1,7 +1,7 @@
 # PowerShell Setup: Control 1.23 — Step-Up Authentication for AI Agent Operations
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
 
 **Last Updated:** May 2026
 **Modules Required:** `Microsoft.Graph.Identity.SignIns`, `Microsoft.Graph.Identity.Governance`, `Microsoft.Graph.Reports`
@@ -18,7 +18,6 @@ Install-Module Microsoft.Graph.Identity.Governance   -Scope CurrentUser -Force
 Install-Module Microsoft.Graph.Reports               -Scope CurrentUser -Force
 ```
 
-> **Sovereign cloud note:** For GCC High and DoD tenants, append `-Environment USGov` or `-Environment USGovDoD` to every `Connect-MgGraph` call.
 
 ---
 

@@ -14,7 +14,7 @@
 | Pillar | 1 — Security |
 | Playbook | PowerShell Setup |
 | PowerShell Edition | 7.4 LTS Core (orchestrator, Graph, Az.Storage); 5.1 Desktop (Power Apps Administration sub-shell for Dataverse audit, JSON-bridged); both Desktop and Core supported for `Connect-ExchangeOnline` and `Connect-IPPSSession` (verify against your CAB-pinned `ExchangeOnlineManagement` version) |
-| Sovereign Clouds | Commercial, GCC, GCC High, DoD — see §2 sovereign matrix; sovereign feature gaps for PAYG and the new Audit Search Graph API documented in §5 and §7 |
+| Cloud Scope | Commercial |
 | Last UI Verified | April 2026 |
 | Companion Playbooks | [`portal-walkthrough.md`](portal-walkthrough.md) · `verification-testing.md` (planned) · [`troubleshooting.md`](troubleshooting.md) |
 | Related Controls | [1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) · [1.6](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) · [1.10](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) · [1.19](../../../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md) · [2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) · [2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) · [3.4](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) · [3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) |
@@ -51,7 +51,7 @@ A script that ignores this reality produces a **false-clean audit posture** — 
 | 7 | Tenant-level Dataverse audit on, per-table audit off | UAL has Dataverse signal but content lacks before/after values | §9 `Get-FsiCopilotStudioDataverseAudit` walks six entities per environment |
 | 8 | "Audit captured = books-and-records preserved" assumption | 17a-4(f) attestation chain broken | §10 `Test-FsiAuditTo17a4Preservation` verifies immutable container with **locked** time-based policy |
 | 9 | Sentinel connector enabled but no analytics rule on `CopilotInteraction` | Events ingested, never alerted | §11 `Test-FsiAuditToSentinel` verifies connector + rule presence |
-| 10 | `Connect-MgGraph` without `-Environment USGov` on a sovereign tenant | Audit Search Graph API returns commercial-tenant scope; zero results | §2 sovereign bootstrap fails closed when cloud discriminator mismatches |
+| 10 | `Connect-MgGraph` without `-Environment 'Global'` | Audit Search Graph API may return wrong tenant scope | §2 bootstrap asserts the Graph environment is `Global` before proceeding |
 
 **Required shell guard (run this at the top of every Control 1.7 session).**
 
@@ -91,12 +91,12 @@ Write-Verbose "Control 1.7 shell guard passed: pwsh $($PSVersionTable.PSVersion)
 | `ExchangeOnlineManagement` | Core or Desktop (verify per version) | `Install-Module ExchangeOnlineManagement -RequiredVersion '<CAB version>' -Repository PSGallery -Scope CurrentUser` | `Connect-ExchangeOnline` for `Get/Set-AdminAuditLogConfig`, `Get/Set-MailboxAuditBypassAssociation`. **Separate** `Connect-IPPSSession` for compliance cmdlets (`Search-UnifiedAuditLog`, `Get-UnifiedAuditLogRetentionPolicy`, `New-ComplianceCase`, `New-ComplianceSearch`). See [Connect to Exchange Online PowerShell](https://learn.microsoft.com/en-us/powershell/exchange/connect-to-exchange-online-powershell) and [Connect to Security & Compliance PowerShell](https://learn.microsoft.com/en-us/powershell/exchange/connect-to-scc-powershell). |
 | `Microsoft.Graph.Reports` | Core | `Install-Module Microsoft.Graph.Reports -RequiredVersion '<CAB version>' -Repository PSGallery -Scope CurrentUser` | `Get-MgAuditLogDirectoryAudit`, `Get-MgAuditLogSignIn` — strategic forward path replacing legacy `Search-AdminAuditLog`. See [Microsoft Graph audit logs](https://learn.microsoft.com/en-us/graph/api/resources/azure-ad-auditlog-overview). |
 | `Microsoft.Graph.Beta.Reports` | Core | Same pattern; **beta** | Audit Search query API (`/security/auditLog/queries`) — preview surface for the new Microsoft 365 audit search experience. See [auditLogQuery resource type (beta)](https://learn.microsoft.com/en-us/graph/api/resources/security-auditlogquery). Treat as additive evidence pending GA. |
-| `Microsoft.Graph.Authentication` | Core | Pinned with the meta module | `Connect-MgGraph` with sovereign `-Environment` per BL-§3. |
+| `Microsoft.Graph.Authentication` | Core | Pinned with the meta module | `Connect-MgGraph -Environment 'Global'` for commercial tenants. |
 | `Microsoft.Graph.Users` / `Microsoft.Graph.Identity.DirectoryManagement` | Core | Pinned with the meta module | License entitlement reconciliation (§4) and tenant SKU enumeration. |
 | `Microsoft.PowerApps.Administration.PowerShell` | **Desktop only** (PS 5.1) per BL-§2 | `Install-Module Microsoft.PowerApps.Administration.PowerShell -RequiredVersion '<CAB version>' -Repository PSGallery -Scope CurrentUser` | Enumerate Power Platform environments for §9 Dataverse per-table audit walk. **Silently returns empty arrays under PowerShell 7** — spawn a 5.1 child process. |
 | `Az.Accounts`, `Az.Storage` | Core | `Install-Module Az.Storage -RequiredVersion '<CAB version>'` | §10 17a-4(f) preservation pipeline: enumerate immutable containers, verify time-based retention is **locked**, validate export blobs. |
 | `Az.OperationalInsights`, `Az.SecurityInsights` | Core | Same pattern | §11 Sentinel Office 365 connector + analytics rule discovery. |
-| Microsoft Power Platform CLI (`pac`) | n/a | Pinned via MSI / `dotnet tool install --version` | Optional alternative for §9 Dataverse audit (`pac admin list`, `pac org settings list`). Sovereign-aware via `pac auth create --cloud UsGov | UsGovHigh | DoD`. |
+| Microsoft Power Platform CLI (`pac`) | n/a | Pinned via MSI / `dotnet tool install --version` | Optional alternative for §9 Dataverse audit (`pac admin list`, `pac org settings list`). Use `pac auth create --cloud Public` for commercial. |
 
 ### 1.2 Permission matrix (least-privilege; separate read and write principals)
 
@@ -116,66 +116,37 @@ Write-Verbose "Control 1.7 shell guard passed: pwsh $($PSVersionTable.PSVersion)
 
 ---
 
-## §2 — Sovereign-aware bootstrap
+## §2 — Authentication bootstrap
 
-**Why this section exists.** A `Connect-ExchangeOnline` without `-ExchangeEnvironmentName O365USGovGCCHigh` or a `Connect-MgGraph` without `-Environment USGov` on a sovereign tenant authenticates against commercial endpoints and **returns zero results with exit code 0**. See **BL-§3** for the canonical sovereign matrix.
+**Why this section exists.** A `Connect-ExchangeOnline` without proper configuration or a `Connect-MgGraph` without the correct environment on a commercial tenant may return zero results. The helpers below establish two distinct connections (EXO and Security & Compliance) plus a Graph context, and assert that the correct session is active before any audit query runs.
 
-### 2.1 Cloud profile resolver
-
-```powershell
-function Resolve-Agt17CloudProfile {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)]
-        [ValidateSet('Commercial','GCC','GCCHigh','DoD')]
-        [string]$Cloud
-    )
-    $map = @{
-        Commercial = @{ Exo = 'O365Default';        Ipps = 'O365Default';        Graph = 'Global';     Az = 'AzureCloud';        Pac = 'Public' }
-        GCC        = @{ Exo = 'O365USGovGCCHigh';   Ipps = 'O365USGovGCCHigh';   Graph = 'USGov';      Az = 'AzureUSGovernment'; Pac = 'UsGov' }     # GCC commonly uses commercial endpoints; verify per tenant
-        GCCHigh    = @{ Exo = 'O365USGovGCCHigh';   Ipps = 'O365USGovGCCHigh';   Graph = 'USGov';      Az = 'AzureUSGovernment'; Pac = 'UsGovHigh' }
-        DoD        = @{ Exo = 'O365USGovDoD';       Ipps = 'O365USGovDoD';       Graph = 'USGovDOD';   Az = 'AzureUSGovernment'; Pac = 'DoD' }
-    }
-    [pscustomobject]$map[$Cloud]
-}
-```
-
-### 2.2 Two distinct connections (interactive flow)
+### 2.1 Two distinct connections (interactive flow)
 
 ```powershell
 function Connect-Agt17Audit {
     [CmdletBinding(SupportsShouldProcess)]
     param(
-        [Parameter(Mandatory)] [ValidateSet('Commercial','GCC','GCCHigh','DoD')] [string]$Cloud,
         [Parameter(Mandatory)] [string]$UserPrincipalName
     )
-    $profile = Resolve-Agt17CloudProfile -Cloud $Cloud
 
     if ($PSCmdlet.ShouldProcess('Exchange Online','Connect-ExchangeOnline')) {
-        Connect-ExchangeOnline -ExchangeEnvironmentName $profile.Exo -UserPrincipalName $UserPrincipalName -ShowBanner:$false
+        Connect-ExchangeOnline -UserPrincipalName $UserPrincipalName -ShowBanner:$false
     }
     if ($PSCmdlet.ShouldProcess('Security & Compliance','Connect-IPPSSession')) {
-        Connect-IPPSSession -ConnectionUri (
-            switch ($Cloud) {
-                'Commercial' { 'https://ps.compliance.protection.outlook.com/PowerShell-LiveId' }
-                'GCC'        { 'https://ps.compliance.protection.outlook.com/PowerShell-LiveId' }
-                'GCCHigh'    { 'https://ps.compliance.protection.office365.us/PowerShell-LiveId' }
-                'DoD'        { 'https://l5.ps.compliance.protection.office365.us/PowerShell-LiveId' }
-            }
-        ) -UserPrincipalName $UserPrincipalName
+        Connect-IPPSSession -UserPrincipalName $UserPrincipalName
     }
     if ($PSCmdlet.ShouldProcess('Microsoft Graph','Connect-MgGraph')) {
-        Connect-MgGraph -Environment $profile.Graph -Scopes @(
+        Connect-MgGraph -Environment 'Global' -Scopes @(
             'AuditLog.Read.All','Directory.Read.All','Organization.Read.All','User.Read.All','SecurityEvents.Read.All'
         ) -NoWelcome
     }
     if ($PSCmdlet.ShouldProcess('Azure','Connect-AzAccount')) {
-        Connect-AzAccount -Environment $profile.Az | Out-Null
+        Connect-AzAccount -Environment 'AzureCloud' | Out-Null
     }
 }
 ```
 
-### 2.3 Service-principal-with-certificate flow (recommended for unattended)
+### 2.2 Service-principal-with-certificate flow (recommended for unattended)
 
 Do **not** ship plaintext client secrets. Use a certificate from Key Vault or the local certificate store; rotate per BL-§4.
 
@@ -183,23 +154,18 @@ Do **not** ship plaintext client secrets. Use a certificate from Key Vault or th
 function Connect-Agt17AuditAsApp {
     [CmdletBinding(SupportsShouldProcess)]
     param(
-        [Parameter(Mandatory)] [ValidateSet('Commercial','GCC','GCCHigh','DoD')] [string]$Cloud,
         [Parameter(Mandatory)] [string]$AppId,
         [Parameter(Mandatory)] [string]$CertificateThumbprint,
-        [Parameter(Mandatory)] [string]$Organization,   # e.g., 'contoso.onmicrosoft.us'
+        [Parameter(Mandatory)] [string]$Organization,   # e.g., 'contoso.onmicrosoft.com'
         [Parameter(Mandatory)] [string]$TenantId
     )
-    $profile = Resolve-Agt17CloudProfile -Cloud $Cloud
 
     if ($PSCmdlet.ShouldProcess('Exchange Online','Connect-ExchangeOnline (cert)')) {
-        Connect-ExchangeOnline -ExchangeEnvironmentName $profile.Exo `
+        Connect-ExchangeOnline `
             -AppId $AppId -CertificateThumbprint $CertificateThumbprint -Organization $Organization -ShowBanner:$false
     }
-    # NOTE (April 2026): Connect-IPPSSession certificate-based app-only auth is documented for commercial;
-    # parity in sovereign clouds shifts between module versions — verify per release. Until parity is confirmed
-    # in your tenant, run §7 compliance searches under a delegated session.
     if ($PSCmdlet.ShouldProcess('Microsoft Graph','Connect-MgGraph (cert)')) {
-        Connect-MgGraph -Environment $profile.Graph -ClientId $AppId -CertificateThumbprint $CertificateThumbprint -TenantId $TenantId -NoWelcome
+        Connect-MgGraph -Environment 'Global' -ClientId $AppId -CertificateThumbprint $CertificateThumbprint -TenantId $TenantId -NoWelcome
     }
     # Verify granted scopes match requested scopes (BL-§3 false-clean trap)
     $missing = @('AuditLog.Read.All','Directory.Read.All','Organization.Read.All') |
@@ -208,14 +174,14 @@ function Connect-Agt17AuditAsApp {
 }
 ```
 
-### 2.4 Defensive session-URI assertion (called by every helper)
+### 2.3 Defensive session-URI assertion (called by every helper)
 
 ```powershell
 function Assert-FsiExoSession {
     [CmdletBinding()]
     param()
     $conn = Get-ConnectionInformation | Where-Object State -eq 'Connected' |
-        Where-Object { $_.ConnectionUri -match 'outlook\.office365\.(com|us)' } |
+        Where-Object { $_.ConnectionUri -match 'outlook\.office365\.com' } |
         Select-Object -First 1
     if (-not $conn) {
         throw "No Exchange Online session detected. Get-AdminAuditLogConfig from a Security & Compliance session ALWAYS reports UnifiedAuditLogIngestionEnabled=False. Run Connect-Agt17Audit first."
@@ -391,20 +357,9 @@ function Get-FsiAuditPaygEnablement {
     [CmdletBinding()]
     [OutputType([pscustomobject])]
     param(
-        [ValidateSet('Commercial','GCC','GCCHigh','DoD')] [string]$Cloud = 'Commercial',
         [int]$LookbackDays = 30
     )
     try {
-        # Sovereign-cloud applicability: Audit PAYG availability in GCC High / DoD has historically lagged commercial.
-        # Verify against current Microsoft Learn before stamping NotApplicable.
-        if ($Cloud -in 'GCCHigh','DoD') {
-            return [pscustomobject]@{
-                ControlId='1.7'; Helper='Get-FsiAuditPaygEnablement'; Status='NotApplicable'
-                Cloud=$Cloud; CapturedAtUtc=(Get-Date).ToUniversalTime().ToString('o')
-                Note='Audit PAYG (AIAppInteraction) availability lags in sovereign clouds as of April 2026. Verify Microsoft Learn before relying on this RecordType in GCC High / DoD; until parity, treat shadow-AI capture as Defender for Cloud Apps responsibility.'
-            }
-        }
-
         $start = (Get-Date).ToUniversalTime().AddDays(-$LookbackDays)
         $end   = (Get-Date).ToUniversalTime()
         $hit   = Search-UnifiedAuditLog -StartDate $start -EndDate $end -RecordType AIAppInteraction -ResultSize 1 -ErrorAction SilentlyContinue
@@ -424,7 +379,6 @@ function Get-FsiAuditPaygEnablement {
             ControlId         = '1.7'
             Helper            = 'Get-FsiAuditPaygEnablement'
             Status            = $status
-            Cloud             = $Cloud
             AIAppInteractionObservedInLookback = $observed
             AzureBillingBound = $billingBound
             LookbackDays      = $LookbackDays
@@ -660,16 +614,13 @@ function Get-FsiCopilotStudioDataverseAudit {
     #>
     [CmdletBinding()]
     [OutputType([pscustomobject])]
-    param(
-        [ValidateSet('Commercial','GCC','GCCHigh','DoD')] [string]$Cloud = 'Commercial'
-    )
+    param()
     try {
-        $profile = Resolve-Agt17CloudProfile -Cloud $Cloud
         $entities = @('bot','botcomponent','botcomponentcollection','conversationtranscript','aiplugin','aipluginauth')
 
         # Spawn PS 5.1 child to enumerate environments
         $child = @"
-            Add-PowerAppsAccount -Endpoint '$($profile.Pac.ToLower())' | Out-Null
+            Add-PowerAppsAccount | Out-Null
             Get-AdminPowerAppEnvironment |
                 Where-Object { `$_.CommonDataServiceDatabaseProvisioningState -eq 'Succeeded' } |
                 Select-Object EnvironmentName, DisplayName, @{n='WebApiUrl';e={`$_.Internal.properties.linkedEnvironmentMetadata.instanceApiUrl}} |
@@ -879,17 +830,9 @@ function Test-FsiAuditToSentinel {
     [OutputType([pscustomobject])]
     param(
         [Parameter(Mandatory)] [string]$ResourceGroupName,
-        [Parameter(Mandatory)] [string]$WorkspaceName,
-        [ValidateSet('Commercial','GCC','GCCHigh','DoD')] [string]$Cloud = 'Commercial'
+        [Parameter(Mandatory)] [string]$WorkspaceName
     )
     try {
-        if ($Cloud -in 'DoD') {
-            return [pscustomobject]@{
-                ControlId='1.7'; Helper='Test-FsiAuditToSentinel'; Status='NotApplicable'
-                Note='Microsoft Sentinel availability and connector parity in DoD require per-tenant verification at every change window; helper returns NotApplicable until you confirm parity in Microsoft Learn for your tenant.'
-                CapturedAtUtc=(Get-Date).ToUniversalTime().ToString('o')
-            }
-        }
         $connector = Get-AzSentinelDataConnector -ResourceGroupName $ResourceGroupName -WorkspaceName $WorkspaceName -ErrorAction SilentlyContinue |
             Where-Object { $_.Kind -eq 'Office365' }
         $rules = Get-AzSentinelAlertRule -ResourceGroupName $ResourceGroupName -WorkspaceName $WorkspaceName -ErrorAction SilentlyContinue
@@ -1019,7 +962,6 @@ After the run, copy the `evidence\1.7\` folder into the immutable container veri
 - ❌ Treating the 10-Year Audit Log Retention add-on as a 17a-4(f) preservation layer — it is record-CAPTURE telemetry; preservation requires `Test-FsiAuditTo17a4Preservation` to pass.
 - ❌ Enabling the Sentinel Office 365 connector and not authoring an analytics rule on `CopilotInteraction` — events ingested, never alerted.
 - ❌ Using the same service principal for both `Set-AdminAuditLogConfig` and the audit-evidence pack — SOX 404 separation-of-duties violation.
-- ❌ Connecting to Microsoft Graph or Power Apps without the sovereign `-Environment` / `-Endpoint` on a GCC / GCC High / DoD tenant — false-clean exit 0.
 
 ---
 

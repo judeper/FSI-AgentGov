@@ -2,7 +2,7 @@
 
 **Control:** [1.10 Communication Compliance Monitoring](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md)
 **Audience:** Microsoft 365 administrator at a US financial services organization, typically under audit pressure or active incident response.
-**Sovereign clouds covered:** Commercial, GCC, GCC High, DoD (parity gaps called out inline).
+**Cloud:** Commercial (Global) — the deployment surface for US financial-services customers.
 **Last UI Verified:** May 2026
 
 ---
@@ -51,7 +51,7 @@ A common audit finding in FSI is _"the policy was modified before the failing-st
 5. **Privacy / pseudonymization settings screenshot** — Communication Compliance > Settings > Privacy. Capture the pseudonymization state and the identity that last toggled it.
 6. **Audit-search export** for the suspect window from a `Connect-ExchangeOnline` session (NOT IPPS): `Search-UnifiedAuditLog` filtered for record types relevant to CC actions and message processing — verify the record-type names against the current Microsoft Learn `audit-log-activities` reference; do not assume names from prior playbooks. Paginate; cap 50,000 per session.
 7. **Classifier model version** — for any classifier-based policy, record the classifier and (where surfaced) the model version that was active at the time of the suspect window. A classifier model bump after the fact invalidates the prior baseline.
-8. **Sovereign-cloud parity confirmation** — record cloud (Commercial / GCC / GCC High / DoD) and verify against current Microsoft Learn matrix that the in-scope features were available in that cloud at the time of the suspect window.
+8. **Feature availability confirmation** — verify against current Microsoft Learn that the in-scope features are available and enabled in the tenant.
 9. **PAYG billing state** for any in-scope non-Microsoft-365 generative AI source (Copilot in Fabric, Security Copilot, Microsoft Copilot Studio Copilots, connected external AI apps, browser-detected "Other AI apps"). Per Learn (`communication-compliance-channels`), PAYG is **required** for non-M365 AI sources; without it, the scope is silently empty.
 10. **Tenant ID, cloud, affected user/policy/channel list, UTC window, role used, identity that performed the failing-state observation, browser, sign-in method.**
 11. **SHA-256 manifest sidecar** covering every artifact above; store in the Control 1.7 evidence bucket with WORM retention (Control 1.9 Data Retention and Deletion Policies).
@@ -71,7 +71,7 @@ Apply one or more of the following while CC is degraded; document the compensati
 
 ### Pre-escalation checklist (≥ 12 items)
 
-1. [ ] Tenant ID and cloud confirmed (Commercial / GCC / GCC High / DoD)
+1. [ ] Tenant ID confirmed
 2. [ ] **Audit ingestion** verified `True` from an **EXO** session (`Get-AdminAuditLogConfig`) — the IPPS value can be cached / stale
 3. [ ] **License entitlement** verified for every reviewer and every in-scope user (E5 / E5 Compliance / Purview Suite as applicable; per-user M365 Copilot license verified for Copilot-scoped policies via `Get-MgUserLicenseDetail`)
 4. [ ] **Reviewer Exchange Online mailbox** present for every reviewer (a reviewer without an EXO mailbox cannot receive notifications and may not be able to open message bodies)
@@ -79,7 +79,7 @@ Apply one or more of the following while CC is degraded; document the compensati
 6. [ ] **Policy enabled** and within its effective scope (locations, direction, user scope, conditions, review percentage)
 7. [ ] **Processing window elapsed** — Teams chats may take up to 48 h per Learn (`communication-compliance-channels`); do not conclude "no match" within that window
 8. [ ] **Classifier model version recorded** for any classifier-based condition; model bumps invalidate prior baselines
-9. [ ] **Sovereign-cloud parity verified** against current Microsoft Learn matrix — Communication Compliance availability and feature parity in GCC High / DoD lag Commercial; record gaps
+
 10. [ ] **PAYG billing enabled** for non-M365 AI sources in scope (Copilot in Fabric, Security Copilot, Copilot Studio Copilots, connected external AI apps, "Other AI apps") — without PAYG the scope returns zero silently
 11. [ ] **Evidence preserved** per the §1 evidence list; SHA-256 sidecars captured; manifest stored in Control 1.7 evidence bucket
 12. [ ] **Scope and Administrative Unit** verified — restricted-AU admins see only scoped users / data; an investigator opening the page from the wrong AU may see "no alerts" while alerts exist for an unrestricted admin
@@ -137,7 +137,7 @@ The single most common cause of misdirected investigation in FSI is reaching for
 
 ## §4 — Symptom-driven diagnostics
 
-> Format: **Symptom → Likely cause → Diagnostic → Fix → Reference.** Sovereign-cloud variants are called out inline. Do not skip the diagnostic step — fixing without diagnosing is what got you here.
+> Format: **Symptom → Likely cause → Diagnostic → Fix → Reference.** Do not skip the diagnostic step — fixing without diagnosing is what got you here.
 
 ### Symptom 1 — Known test message never creates a match
 
@@ -150,7 +150,6 @@ The single most common cause of misdirected investigation in FSI is reaching for
 | Review percentage is **< 100%** and the test message was outside the sampled set | Policy > Review percentage | Set 100% for in-scope FINRA-supervised reps; document any sampling deviation |
 | Classifier-only condition and the test content is below the classifier confidence threshold | Test with content that previously matched the classifier | Add a deterministic SIT or keyword condition for the test; do not rely on classifier confidence for go/no-go validation |
 
-**Sovereign cloud:** GCC High / DoD may lag on classifier model availability; verify the classifier exists in the cloud before testing.
 **Reference:** Microsoft Learn — `communication-compliance-policies`, `communication-compliance-channels`.
 
 ### Symptom 2 — Reviewer can see alert count but cannot open the message body
@@ -162,7 +161,6 @@ The single most common cause of misdirected investigation in FSI is reaching for
 | Reviewer is **AU-restricted** and the alert's user is outside their AU scope | Reviewer's AU scope vs alert's user | Use an unrestricted reviewer; or re-scope the AU; document |
 | Reviewer's **EXO mailbox** is missing or disabled | EXO recipient lookup | Provision / re-enable mailbox; CC reviewer access requires an active EXO mailbox |
 
-**Sovereign cloud:** Role-group permissions are at parity across clouds; AU support has historically lagged in DoD — verify against current Learn.
 **Reference:** Microsoft Learn — `communication-compliance-permissions`.
 
 ### Symptom 3 — Teams private / public / shared channel items not captured
@@ -174,7 +172,6 @@ The single most common cause of misdirected investigation in FSI is reaching for
 | Modern attachment (`.docx`, `.xlsx`, `.xls`, `.csv`, `.pptx`, `.txt`, `.pdf`) text not extracted | Verify file type is in the supported list per Learn; non-supported types are not extracted | Convert to a supported type for review; do not expect extraction outside the documented list |
 | Teams chat propagation up to 48 h | Record UTC | Wait the window |
 
-**Sovereign cloud:** Teams parity is generally close in GCC High; verify any preview channel-type coverage against current Learn.
 **Reference:** Microsoft Learn — `communication-compliance-channels`.
 
 ### Symptom 4 — Copilot interactions appear under "Other AI apps" but not under "Microsoft Copilot experiences"
@@ -185,7 +182,6 @@ The single most common cause of misdirected investigation in FSI is reaching for
 | User license does not include M365 Copilot | `Get-MgUserLicenseDetail` | Assign Copilot license; document gap |
 | PAYG enabled for non-M365 AI but the user's M365 Copilot interactions are routed to a Copilot Studio Copilot (which is a non-M365 AI source) | Cross-reference the agent surface against Learn's `Microsoft Copilot experiences` vs `Enterprise AI apps` vs `Other AI apps` definitions | Confirm the source category; add the correct policy template (Copilot Studio Copilots fall under non-M365 AI sources and require PAYG) |
 
-**Sovereign cloud:** Copilot scope availability in CC lags in GCC High / DoD; verify per current Learn before promising coverage.
 **Reference:** Microsoft Learn — `communication-compliance-channels` (Generative AI section).
 
 ### Symptom 5 — OCR text not extracted from attachments
@@ -197,7 +193,6 @@ The single most common cause of misdirected investigation in FSI is reaching for
 | Attachment over the supported size limit | Verify size limit on current Learn; surface large-file gap as a known limitation |
 | Image embedded in a Teams modern attachment that itself is not in the supported file list | Confirm container file type is in the supported modern-attachment list |
 
-**Sovereign cloud:** OCR availability in DoD has historically lagged; verify per current Learn.
 **Reference:** Microsoft Learn — `communication-compliance-feature-reference` (verify; if 404, use `communication-compliance` index).
 
 ### Symptom 6 — Non-English messages need translation
@@ -208,7 +203,6 @@ The single most common cause of misdirected investigation in FSI is reaching for
 | Translation feature not enabled in tenant region | Verify per current Learn; document if unavailable |
 | Language not in the supported translation list | Verify supported languages on current Learn; document unsupported languages as a known gap; supplement with manual translation in the supervisory record |
 
-**Sovereign cloud:** Translation availability in GCC High / DoD lags; verify per current Learn.
 **Reference:** Microsoft Learn — `communication-compliance-investigate-remediate`, `communication-compliance-permissions`.
 
 ### Symptom 7 — False-positive spike after classifier model update
@@ -218,7 +212,6 @@ The single most common cause of misdirected investigation in FSI is reaching for
 | Microsoft published a classifier model update; the classifier behaves differently than the prior baseline | Compare alert volume week-over-week; check the classifier name in alert details against the recorded baseline classifier model version | Re-baseline the classifier; document the model-version change in the supervisory record; **do not** silently re-tune the policy without preserving the prior baseline (auditor needs to see what changed and when) |
 | Tuning that previously suppressed a class of alerts no longer applies under the new model | Review tuning rules / exclusions | Re-validate exclusions; re-test against the prior known-match corpus |
 
-**Sovereign cloud:** Classifier model rollout cadence may differ in sovereign clouds; record cloud-specific model versions.
 **Reference:** Microsoft Learn — `communication-compliance-feature-reference` (classifiers section); supervisory-record template in Control 2.12.
 
 ### Symptom 8 — Historical matches disappeared due to Policy Match Preservation expiry
@@ -228,7 +221,6 @@ The single most common cause of misdirected investigation in FSI is reaching for
 | Policy was **deleted** — per Learn, deleting a CC policy deletes the copies of messages associated with it | Audit-log search for policy deletion event; reconcile against the policy export captured before deletion (you did capture it per §1, right?) | Restore from the pre-deletion evidence pack and the Records Management retention pipeline (Control 1.9); CC is **not** the SEC 17a-4 records mechanism — see §3 |
 | Reviewer cleared / resolved alerts past the firm's review-record retention | Cross-reference with retention schedule | Re-export the policy CSV; pair with eDiscovery (Control 1.19) hold for the relevant period |
 
-**Sovereign cloud:** Behavior is at parity; the records-retention substrate is the same.
 **Reference:** Microsoft Learn — `communication-compliance-channels` (retention section); Control 1.9 Data Retention and Deletion Policies; Control 1.19 eDiscovery.
 
 ### Symptom 9 — External / non-Microsoft source delayed or appears out of scope
@@ -240,7 +232,6 @@ The single most common cause of misdirected investigation in FSI is reaching for
 | `Other AI apps` category — relies on Defender for Cloud Apps browser-activity detection; affected user's device is not onboarded or browser extension missing | Verify Defender for Cloud Apps coverage on the device class; push browser extension via Intune |
 | External email / chat ingested via a third-party connector — connector schema mismatch | Verify connector schema against current Learn; do not assume internal CC behavior maps to external connectors 1:1 |
 
-**Sovereign cloud:** PAYG availability and connector parity differ in GCC High / DoD; verify per current Learn before relying on non-M365 AI scope.
 **Reference:** Microsoft Learn — `communication-compliance-channels` (Generative AI), `purview-billing-models`.
 
 ### Symptom 10 — "Encrypted email" symptom that actually belongs to OME / Message Encryption
@@ -251,84 +242,12 @@ The single most common cause of misdirected investigation in FSI is reaching for
 | Message has a sensitivity label with encryption applied; CC analyzes content but reviewer perception of "encrypted" may reflect label-driven rights, not CC visibility | Verify the label rights and the reviewer's role group access; CC reviewer access is governed by role group, not label |
 | Inbound encrypted email from external sender — content may not be decrypted for CC analysis | Document the external-encryption gap; route via DLP at the gateway or via a documented decryption pipeline |
 
-**Sovereign cloud:** OME parity differs slightly in DoD; verify per current Learn.
 **Reference:** Microsoft Learn — Office Message Encryption documentation (out of scope for this control); Control 1.5 DLP.
 
-### Symptom 11 — GCC High parity gap mistaken for break/fix
-
-| Likely cause | Fix |
-|---|---|
-| Feature in question is **not yet available** in GCC High / DoD; engineer assumed parity with Commercial and opened a "broken" ticket | Cross-reference current Microsoft Learn US Government cloud service description against the feature; record the gap in the deviation register |
-| Portal hostname is wrong — engineer is hitting `purview.microsoft.com` on a `.us` tenant and getting a silently-different scope | Use `purview.microsoft.us` (GCC High) or the documented DoD hostname per current Learn; never `.com` on a `.us` tenant |
-| PowerShell endpoint is wrong cloud (`-ExchangeEnvironmentName` mismatch) | Use `O365USGovGCCHigh` / `O365USGovDoD` / `O365USGovGCC` per cloud |
-
-**Reference:** Microsoft Learn — Service Description for US Government clouds (verify against current page).
-
-### Symptom 12 — Per-policy reviewer present in role group but cannot view alerts
-
-| Likely cause | Diagnostic | Fix |
-|---|---|---|
-| Reviewer is in `Communication Compliance Investigators` (or similar) role group but was **not added as a per-policy reviewer** on this specific policy | Policy > Reviewers list — confirm the named reviewer | Add as per-policy reviewer; allow up to 30 min per Learn for permission propagation |
-| Up to 30 min permission propagation has not elapsed since role-group change | Compare role-group change UTC to test UTC | Wait the documented window |
-| Reviewer is AU-restricted and the policy / alert user is outside their AU | Reviewer AU vs alert user | Re-scope or use unrestricted reviewer |
-
-**Sovereign cloud:** Permission propagation behavior is at parity; AU support varies — verify per current Learn.
-**Reference:** Microsoft Learn — `communication-compliance-permissions`.
-
-### Symptom 13 — Pseudonymization on but investigator sees raw user names without opt-in audit
-
-| Likely cause | Diagnostic | Fix |
-|---|---|---|
-| **Show usernames** has been toggled by the investigator without an opt-in audit trail | Communication Compliance > Privacy settings; audit-log search for the toggle event; reviewer identity that performed it | Re-enable pseudonymization; require opt-in via documented privacy procedure (named approver, justification, time-bound); capture before/after evidence; treat as a SEV-2 privacy event under §1 |
-| Reviewer has been granted a role group that bypasses pseudonymization (e.g., escalated to a role with full identity access) | Cross-reference role group | Reassign to least-privilege role group consistent with the investigation's needs |
-| Pseudonymization was disabled at tenant level historically without a documented change | Settings audit | Document the historical change; restore default; raise to Privacy + Compliance |
-
-**Sovereign cloud:** Behavior is at parity; the privacy obligations are jurisdictional (state breach laws may apply to mishandling).
-**Reference:** Microsoft Learn — `communication-compliance` (Privacy by design); Control 2.12 supervision.
-
-### Symptom 14 — PAYG not enabled — non-M365 AI scope silently produces zero matches
-
-| Likely cause | Diagnostic | Fix |
-|---|---|---|
-| **Pay-as-you-go billing not enabled** in the Azure subscription backing Purview — per Learn, PAYG is required to detect inappropriate or risky interactions for non-M365 AI data (Copilot in Fabric, Security Copilot, Copilot Studio Copilots, connected external AI apps) | Azure portal > Cost Management + Billing; Purview billing model state | Enable Purview PAYG; allow propagation; re-validate with a deterministic test from an in-scope user against an in-scope source |
-| Engineer assumed M365 Copilot pricing covers non-M365 AI (it does not) | Cross-reference billing model against scope | Document the billing dependency in the deployment runbook |
-
-**Sovereign cloud:** PAYG availability differs across clouds — verify per current Learn before promising non-M365 AI scope.
-**Reference:** Microsoft Learn — `purview-billing-models`, `communication-compliance-channels` (Generative AI section).
-
-### Symptom 15 — Reviewer notification email never delivered
-
-| Likely cause | Fix |
-|---|---|
-| Reviewer EXO mailbox missing / disabled | Provision / re-enable |
-| Notification toggle off on the policy | Policy > Notifications > enable |
-| Mail flow blocked by a transport rule (Exchange Online) | Message trace from the CC notification sender to the reviewer mailbox; remove blocking rule |
-| Reviewer in a recipient block list / quarantine | Remove from block list; release from quarantine |
-
-**Sovereign cloud:** EXO mail flow at parity across clouds; verify connector configuration in GCC High / DoD.
-**Reference:** Microsoft Learn — `communication-compliance-investigate-remediate`.
-
+---
 ---
 
-## §5 — Sovereign cloud notes (summary)
-
-| Capability | Commercial | GCC | GCC High | DoD |
-|---|---|---|---|---|
-| Communication Compliance core (policy, alerts, role groups) | ✅ GA | ✅ | ✅ (verify per Learn) | ✅ (verify per Learn) |
-| `Detect Microsoft 365 Copilot and Microsoft 365 Copilot Chat interactions` template | ✅ | ⚠️ Verify per Learn | ⚠️ Lagging — verify per Learn | ⚠️ Lagging — verify per Learn |
-| Non-M365 AI sources (Copilot in Fabric, Security Copilot, Copilot Studio Copilots, connected external AI) — requires PAYG | ✅ | ⚠️ Verify PAYG availability | ⚠️ Lagging | ⚠️ Lagging |
-| `Other AI apps` (Defender for Cloud Apps browser-detected) | ✅ | ⚠️ Verify | ⚠️ Lagging | ⚠️ Lagging |
-| OCR / Translation | ✅ | ✅ (verify language list) | ⚠️ Verify | ⚠️ Lagging |
-| Administrative units in CC | ✅ | ✅ | ✅ (verify per Learn) | ⚠️ Verify |
-| Pseudonymization (default on) | ✅ | ✅ | ✅ | ✅ |
-| Power Automate flows on alerts | ✅ | ✅ | ⚠️ Verify | ⚠️ Verify |
-| Portal hostname | `purview.microsoft.com` | `compliance.microsoft.com` | `purview.microsoft.us` | `purview.apps.mil` (verify current) |
-
-Document any sovereign-cloud exception in the control's deviation register; re-check on each Microsoft Learn refresh.
-
----
-
-## §6 — Escalation
+## §5 — Escalation
 
 ### L1 — Communication Compliance Admin (within 1 h SEV-1; 4 h SEV-2)
 
@@ -353,7 +272,7 @@ Use this payload template when opening the Microsoft support ticket (paste into 
 ```
 Severity: [SEV-1 | SEV-2 | SEV-3]
 Tenant ID: [GUID]
-Cloud: [Commercial | GCC | GCC High | DoD]
+Cloud: Commercial (Global)
 Affected workload: Microsoft Purview Communication Compliance
 Affected scope: [policy name(s); user count; channel(s); UTC window start–end]
 Symptom: [one-line description, e.g., "CC policy 'Reps-Copilot-Supervision' producing zero matches since 2026-04-12T14:00Z despite known-match test message at 2026-04-12T15:30Z; outside Teams 48h processing window."]
@@ -388,7 +307,7 @@ Subject: Communication Compliance supervisory-review degradation — [date]
 
 3. Evidence preserved (§1)
    - Policy export, role-group snapshot, reviewer-assignment snapshot, Pending-queue screenshot,
-     audit-search export, classifier model version, PAYG state, sovereign-cloud parity confirmation,
+     audit-search export, classifier model version, PAYG state,
      SHA-256 manifest. Stored in Control 1.7 evidence bucket reference [ID].
 
 4. Compensating controls in place
@@ -407,7 +326,7 @@ Subject: Communication Compliance supervisory-review degradation — [date]
 
 ---
 
-## §7 — Cross-links
+## §6 — Cross-links
 
 - [Control 1.10 Communication Compliance Monitoring](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) — control of record
 - [Control 1.10 Portal Walkthrough](portal-walkthrough.md)

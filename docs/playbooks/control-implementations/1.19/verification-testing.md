@@ -3,7 +3,6 @@
 **Control:** 1.19 — eDiscovery for Agent Interactions
 **Pillar:** 1 — Security
 **Audience:** AI Governance Lead, Purview eDiscovery Manager, Legal/Compliance Officer (or General Counsel delegate), Purview Compliance Admin, Microsoft 365 Records Manager, FSI Internal Audit
-**Sovereign clouds:** Commercial, GCC, GCC High, DoD (per-cloud feature parity tracked in §5; 21Vianet treated as out-of-scope — see PRE-06)
 **Cross-links:** 1.5 (DLP & sensitivity labels), 1.6 (DSPM for AI), 1.7 (Audit logging), 1.9 (Retention & deletion), 1.10 (Communication Compliance), 1.13 (DCA AI monitoring), 1.14 (Data minimization), 1.21 (Adversarial input logging — preserves adversarial events under hold), 1.24 (Sentinel analytics), 2.13 (Documentation & record-keeping), 4.6 (Grounding scope governance), AI IR Playbook
 
 > **Regulatory hedging notice.** This playbook describes verification procedures intended to **support compliance with** SEC Rule 17a-4 (including the October 2022 audit-trail-alternative amendment), SEC Rule 17a-3, FINRA Rule 4511, FINRA Rule 3110, FINRA RN 24-09 / Rule 3110 (AI supervision), FINRA Rule 8210 (information requests), SOX Section 802 (anti-spoliation) and SOX Section 404 (operating effectiveness), GLBA 501(b) Safeguards Rule, FRCP Rule 37(e) (preservation of ESI), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7) (model risk management — applied to AI agent records), and CFTC Regulation 1.31 (recordkeeping). Implementation **does not guarantee** legal compliance. Organizations should verify applicability with qualified counsel and confirm tenant-specific behaviour against current Microsoft Learn documentation at the cycle's `lastVerifiedUtc` date.
@@ -24,9 +23,7 @@ This playbook proves that an FSI tenant can **preserve, search, review, and prod
 8. **Defensible export** — the export package contains native content + load file + metadata + chain-of-custody log; every artifact in the package carries a SHA-256 hash recorded in a manifest; the manifest is committed to immutable storage external to the live tenant before the SEC 17a-4(f) audit-trail-alternative claim is made.
 9. **Audit reconciliation** — UAL events under the `Discovery` / `eDiscovery` RecordTypes (case create, hold create, search create, search export, role assignment) appear within the tenant ingestion baseline and are retained for the 6+ year FSI horizon.
 10. **Negative controls** — retired classic eDiscovery cmdlets (`New-ComplianceCase`, `New-CaseHoldPolicy`, `Search-Mailbox` in eDiscovery contexts) **fail safely** post-August 2025 retirement; the `from:Copilot` keyword anti-pattern returns zero / wrong results; bulk `eDiscovery Administrator` assignment without PIM is detected.
-11. **Sovereign-cloud parity & incident readiness** — Commercial / GCC / GCC High / DoD parity for the **Copilot interactions** location, conversation reconstruction, and Copilot custodian licensing is re-verified each cycle; an annual FRCP 37(e) preservation tabletop and a FINRA 8210 production drill (against the typical ~30-day examiner SLA) are signed and retained.
 
-> **What this playbook does NOT claim.** It does **not** assert any single numeric Microsoft SLA for case provisioning, hold propagation, or KeyQL index lag — Microsoft Learn explicitly states these are eventually-consistent and can take hours; the operative threshold for any cycle is the tenant baseline measured in PRE-04 and re-asserted in AUDIT-01. It does **not** treat the `CopilotInteraction` UAL `AuditData` body as authoritative for full prompt-and-response content for legal production — UAL is the **occurrence** signal; the substrate item placed under hold is the **content** evidence, and the two streams must be reconciled by ConversationId / time-window correlation. It does **not** treat the **Copilot activity** condition card as an exhaustive AI inventory — it is an additive scope filter on a search whose primary scope is the location set. It does **not** assert that placing a hold retroactively preserves content created before the hold's effective time; a hold preserves from the moment the hold takes effect, not before. It does **not** apply to organizations on Microsoft 365 operated by 21Vianet (China), which continues to use the classic eDiscovery experience and requires a separate validator (out of scope here).
 
 ---
 ## 1. Cadence Matrix
@@ -34,7 +31,7 @@ This playbook proves that an FSI tenant can **preserve, search, review, and prod
 Each verification family has a defined cadence per zone. **Grace windows:** monthly = 35 days, quarterly = 100 days, annual = 400 days from the previous successful cycle's `cycleCompletedUtc`. A cycle that exceeds its grace window without an `acceptedRiskUntilUtc` exception (signed by AI Governance Lead AND Legal Officer) is reported as a finding to FSI Internal Audit.
 
 | Family | Zone 1 (Personal) | Zone 2 (Team) | Zone 3 (Enterprise / Regulated) | Owner | Reviewer |
-|---|---|---|---|---|---|
+
 | LIC — License & role posture | Quarterly | Monthly | Monthly | Purview Compliance Admin | AI Governance Lead |
 | CASE — Case lifecycle | Quarterly | Quarterly | Monthly | Purview eDiscovery Manager | Legal Officer |
 | CUSTODIAN — Custodian & source assignment | Quarterly | Quarterly | Monthly | Purview eDiscovery Manager | Legal Officer |
@@ -45,8 +42,8 @@ Each verification family has a defined cadence per zone. **Grace windows:** mont
 | EXPORT — Hash-chain export & immutable handoff | Annual | Quarterly | Quarterly | Purview eDiscovery Manager | Records Manager |
 | AUDIT — UAL eDiscovery RecordType reconciliation | Quarterly | Monthly | Monthly | Purview Compliance Admin | FSI Internal Audit |
 | NEG — Negative / anti-pattern controls | Quarterly | Quarterly | Monthly | AI Governance Lead | FSI Internal Audit |
-| SOV — Sovereign-cloud parity re-check | Annual | Annual | Quarterly | AI Governance Lead | Legal Officer |
-| IR — FRCP 37(e) tabletop & FINRA 8210 production drill | Annual | Annual | Annual | Legal Officer | AI Governance Lead + FSI Internal Audit |
+|Annual|Annual|Quarterly|AI Governance Lead|Legal Officer|
+| Annual | Annual | Annual | Legal Officer | AI Governance Lead + FSI Internal Audit |
 
 > **Drift rule.** If any test in the COPILOT, HOLD, EXPORT, AUDIT, or NEG family fails twice in two consecutive cycles, the next cycle's cadence for that family **escalates one tier** (annual → quarterly → monthly) and remains escalated until two consecutive clean cycles, after which it returns to the matrix default.
 
@@ -98,11 +95,11 @@ PRE gates run **before** any test in §4. If any PRE gate returns FAIL, the vali
 
 ### PRE-06 — Cloud-environment guard
 
-- **Objective.** Refuse to run if the operator targets an unsupported cloud (21Vianet) or if the cloud cannot be unambiguously identified.
-- **How to verify.** Query `Get-OrganizationConfig` for `IsTenantInGracePeriod` and the connection's `AzureADAuthorizationEndpointUri`; classify as Commercial / GCC / GCC High / DoD; HALT if endpoint resolves to `partner.microsoftonline.cn` (21Vianet) or if classification is ambiguous.
+- **Objective.** Refuse to run if the cloud cannot be unambiguously identified.
+- **How to verify.** Query `Get-OrganizationConfig` and `Get-MgContext` to confirm the cloud is `Global` (Commercial).
 - **Evidence.** `pre-06-cloud.json` with classified cloud, endpoint URI, and tenant region.
-- **Pass.** Cloud is one of {Commercial, GCC, GCC High, DoD} AND matches the cloud declared in the cycle's `manifest.tenant.cloud`.
-- **Audit assertion.** "Cycle executed against the declared sovereign cloud; no cross-cloud contamination."
+- **Pass.** Cloud is one of {Commercial} AND matches the cloud declared in the cycle's `manifest.tenant.cloud`.
+- **Audit assertion.** "Cycle executed against the Commercial (Global) cloud."
 
 ### PRE-07 — Synthetic-only fixture invariant
 
@@ -118,12 +115,12 @@ PRE gates run **before** any test in §4. If any PRE gate returns FAIL, the vali
 The table below captures **only** Microsoft-documented behaviours. Where Microsoft Learn does not publish a numeric SLA, the column reads "no documented numeric SLA — use tenant baseline from PRE-04". **Do not invent SLAs.**
 
 | Operation | Documented behaviour (Microsoft Learn) | Operative threshold for this cycle |
-|---|---|---|
+
 | Hold propagation to all in-scope locations | "May take up to 24 hours" — eDiscovery hold guidance | 24h ceiling; pass condition is hold confirmation observable in case detail before retry budget exhausted |
 | Query-based hold cleanup of items no longer matching | Reconciled every 7–14 days | Cycle does not test removal latency directly; HOLD-04 documents acceptance |
 | UAL ingestion for core services | "Within 60–90 minutes for most services" — service-class statement, NOT an SLA | Use PRE-04 measured P95 as fail-closed ceiling |
 | Completed audit-search retention | Audit search results retained 30 days from completion | Evidence pack must be exported within 30 days of search completion (see EXPORT-01) |
-| Classic eDiscovery (Standard / Premium) availability | Retired August 31, 2025 in Commercial / GCC / GCC High / DoD; remains for Microsoft 365 operated by 21Vianet | NEG-01 asserts the retired cmdlets fail safely |
+| Classic eDiscovery (Standard / Premium) availability | Retired August 31, 2025 | NEG-01 asserts the retired cmdlets fail safely |
 | Copilot interactions location surface | Documented as a selectable location in unified eDiscovery search and as the **Copilot activity** condition card | COPILOT-01 / COPILOT-02 verify both surfaces |
 | SubstrateHolds container | Documented as the system mailbox container that preserves Copilot prompts and responses under hold | HOLD-03 verifies survivability of held content after end-user delete |
 | Copilot Studio agent transcripts persisted to Dataverse | Not natively in M365 substrate; covered by Dataverse retention, not by M365 Copilot interactions location | COPILOT-04 detects and documents the gap (cross-link 1.9) |
@@ -273,7 +270,7 @@ The table below captures **only** Microsoft-documented behaviours. Where Microso
 - **Objective.** Confirm the location appears as a selectable scope in the unified eDiscovery new-search wizard.
 - **Preconditions.** LIC-01 PASS, PRE-06 PASS.
 - **Steps.** Portal: New search → Locations → confirm "Copilot interactions" tile present; capture screenshot with cycle marker overlay.
-- **Expected.** Location selectable in current cloud per §5 sovereign matrix.
+- **Expected.** Location selectable.
 - **Pass criteria.** Tile present AND selectable AND not greyed out.
 - **Audit assertion.** "UI parity for Copilot interactions location confirmed at cycle time."
 - **Evidence.** `copilot-01-location.png`, `copilot-01-confirmation.json`.
@@ -349,7 +346,7 @@ The table below captures **only** Microsoft-documented behaviours. Where Microso
 - **Audit assertion.** "Hold release behaves per Microsoft's documented model — no silent retroactive purge."
 - **Evidence.** `hold-04-release.json`.
 
-### 4.7 REVIEW — Review-Set Integrity & SoD (2 tests)
+### 4.7 REVIEW — Review-Set Integrity & SoD
 
 #### REVIEW-01 — Review-set load report shows zero unjustified drops
 
@@ -421,7 +418,7 @@ The table below captures **only** Microsoft-documented behaviours. Where Microso
 - **Preconditions.** PRE-04 PASS.
 - **Steps.** `Search-UnifiedAuditLog -RecordType CopilotInteraction -StartDate ... -EndDate ...` filtered by cycle marker; parse `AuditData` JSON.
 - **Expected.** All three marker events present; ConversationIds match COPILOT-03 substrate items.
-- **Pass criteria.** 100% reconciliation; UAL is treated as **occurrence** evidence and the substrate item is **content** evidence (no conflation — see anti-pattern §8 row 1).
+- **Pass criteria.** 100% reconciliation; UAL is treated as **occurrence** evidence and the substrate item is **content** evidence (no conflation — see anti-pattern §7 row 1).
 - **Audit assertion.** "Occurrence (UAL) and content (substrate) streams reconcile by ConversationId — supports FINRA 4511 dual-record defensibility."
 - **Evidence.** `audit-02-copilot-ual.json`.
 
@@ -439,8 +436,8 @@ The table below captures **only** Microsoft-documented behaviours. Where Microso
 
 #### NEG-01 — Retired classic eDiscovery cmdlets fail safely (post Aug-31-2025)
 
-- **Objective.** Confirm `New-ComplianceCase`, `New-CaseHoldPolicy`, `Set-CaseHoldPolicy`, `New-ComplianceSearch`, and similar classic cmdlets either error or return clear deprecation messages in Commercial / GCC / GCC High / DoD.
-- **Preconditions.** PRE-06 PASS (cloud != 21Vianet).
+- **Objective.** Confirm `New-ComplianceCase`, `New-CaseHoldPolicy`, `Set-CaseHoldPolicy`, `New-ComplianceSearch`, and similar classic cmdlets either error or return clear deprecation messages in.
+- **Preconditions.** PRE-06 PASS.
 - **Steps.** Connect to Security & Compliance PowerShell; invoke each retired cmdlet with safe parameters; capture error stream.
 - **Expected.** Each invocation either fails with deprecation/not-found error OR succeeds against an empty no-op pathway with no side effect.
 - **Pass criteria.** No retired cmdlet creates new case/hold/search artifacts in the tenant.
@@ -467,29 +464,8 @@ The table below captures **only** Microsoft-documented behaviours. Where Microso
 - **Audit assertion.** "Standing-privilege escalation attempts are detected by an independent control plane."
 - **Evidence.** `neg-03-detection.json`, Sentinel incident ID where applicable.
 
-### 4.11 SOV — Sovereign-Cloud Parity Re-check (2 tests)
 
-#### SOV-01 — Per-cloud feature parity re-asserted from Microsoft Learn
-
-- **Objective.** Re-confirm that the Copilot interactions location, Copilot activity condition, SubstrateHolds, and unified eDiscovery export are **currently** documented as available in this cycle's cloud at `lastVerifiedUtc`.
-- **Preconditions.** PRE-06 PASS.
-- **Steps.** Open Microsoft Learn pages for unified eDiscovery, Copilot interactions location, and Copilot audit; record `lastVerifiedUtc` of the verification, current page version (where shown), and any per-cloud notes.
-- **Expected.** Cloud parity confirmed for cycle's cloud OR a deviation is recorded.
-- **Pass criteria.** Confirmation captured AND deviation list (if any) is non-silent.
-- **Audit assertion.** "Sovereign-cloud parity is not assumed; it is re-verified each cycle."
-- **Evidence.** `sov-01-parity.json` with Learn URLs and verification notes.
-
-#### SOV-02 — Cycle execution against declared cloud only
-
-- **Objective.** Confirm no test in §4 unintentionally crossed cloud boundaries (e.g., evidence pack written to Commercial Azure storage from a GCC High cycle).
-- **Preconditions.** PRE-06 PASS, EXPORT-03 PASS.
-- **Steps.** Inventory all evidence-pack write targets; map each to a sovereign cloud; assert all match `manifest.tenant.cloud`.
-- **Expected.** All writes within the declared cloud's data-residency boundary.
-- **Pass criteria.** Zero cross-cloud writes.
-- **Audit assertion.** "Cycle observed sovereign-cloud data-residency for all evidence artifacts."
-- **Evidence.** `sov-02-residency.json`.
-
-### 4.12 IR — Incident Readiness Drills (2 tests)
+### 4.11 IR — Incident Readiness Drills
 
 #### IR-01 — Annual FRCP 37(e) preservation tabletop
 
@@ -512,30 +488,10 @@ The table below captures **only** Microsoft-documented behaviours. Where Microso
 - **Evidence.** `ir-02-production.json`, chain-of-custody PDF.
 
 ---
-## 5. Sovereign-Cloud Matrix
 
-Each cycle re-asserts this matrix from Microsoft Learn at `lastVerifiedUtc`. Do **not** treat any cell as static between cycles.
+## 5. Evidence Pack
 
-| Capability | Commercial | GCC | GCC High | DoD | 21Vianet |
-|---|---|---|---|---|---|
-| Unified eDiscovery (formerly Premium) | GA | GA | GA | GA | Not available — classic only |
-| Classic eDiscovery (Standard / Premium) | Retired Aug 31, 2025 | Retired Aug 31, 2025 | Retired Aug 31, 2025 | Retired Aug 31, 2025 | In use |
-| Copilot interactions location | Available | Verify per cycle | Verify per cycle | Verify per cycle | N/A |
-| Copilot activity condition card | Available | Verify per cycle | Verify per cycle | Verify per cycle | N/A |
-| SubstrateHolds container behaviour | Documented | Verify per cycle | Verify per cycle | Verify per cycle | N/A |
-| Microsoft 365 Copilot license SKU | Available | Available (per Microsoft licensing matrix) | Verify per cycle | Verify per cycle | N/A |
-| Purview Audit (Premium) | Available | Available | Available | Available | Verify per cycle |
-| Hash-chain export package | Available | Available | Available | Available | N/A (classic surface differs) |
-| Microsoft Graph eDiscovery API | GA in v1.0 / beta per resource | Verify per cycle | Verify per cycle | Verify per cycle | N/A |
-| Sentinel cross-control integration (1.24) | Available | Available | Available | Available | Out of scope |
-
-> Cycle execution is **forbidden** in 21Vianet via this playbook (PRE-06 halts). A separate validator targeting the classic experience is out of scope here.
-
----
-
-## 6. Evidence Pack
-
-### 6.1 JSON Schema (cycle artifact)
+### 5.1 JSON Schema (cycle artifact)
 
 The cycle's top-level evidence artifact is a JSON document conforming to the schema below. The schema is intentionally permissive on test field shapes (each test serializes its own evidence sub-document referenced by file path) but strict on the cycle envelope.
 
@@ -564,7 +520,7 @@ Use `fsi-agentgov.example` as a placeholder identifier only (placeholder — rep
       "required": ["tenantId", "cloud", "region"],
       "properties": {
         "tenantId": { "type": "string", "format": "uuid" },
-        "cloud":    { "enum": ["Commercial", "GCC", "GCCHigh", "DoD"] },
+        "cloud": { "const": "Commercial" },
         "region":   { "type": "string" }
       }
     },
@@ -647,7 +603,7 @@ Use `fsi-agentgov.example` as a placeholder identifier only (placeholder — rep
 }
 ```
 
-### 6.2 PowerShell Validator (skeleton)
+### 5.2 PowerShell Validator (skeleton)
 
 The validator returns three exit codes: **0** = all PRE and tests PASS (or SKIP with valid `acceptedRiskUntilUtc`); **1** = any test FAIL or unjustified SKIP; **2** = any PRE gate FAIL (cycle halted before §4 executed).
 
@@ -660,7 +616,7 @@ The validator returns three exit codes: **0** = all PRE and tests PASS (or SKIP 
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)] [string] $CycleId,
-    [Parameter(Mandatory)] [ValidateSet('Commercial','GCC','GCCHigh','DoD')] [string] $Cloud,
+    [Parameter(Mandatory)] [string] $Cloud,
     [Parameter(Mandatory)] [string] $EvidenceRoot,
     [string] $PlaybookVersion = 'v1.4'
 )
@@ -767,7 +723,7 @@ $failed = $cycle.tests | Where-Object {
 if ($failed) { exit 1 } else { exit 0 }
 ```
 
-### 6.3 Manifest Builder
+### 5.3 Manifest Builder
 
 The manifest is constructed at cycle start and amended at cycle end. It is the single source of truth for *what the cycle was supposed to do*; the evidence pack is *what the cycle actually did*. They must reconcile.
 
@@ -776,7 +732,7 @@ function New-CycleManifest {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)] [string] $CycleId,
-        [Parameter(Mandatory)] [ValidateSet('Commercial','GCC','GCCHigh','DoD')] [string] $Cloud,
+        [Parameter(Mandatory)] [string] $Cloud,
         [Parameter(Mandatory)] [string] $TenantId,
         [Parameter(Mandatory)] [string] $PreviousCycleAttestationSha256,
         [string[]] $Custodians,
@@ -806,14 +762,14 @@ function New-CycleManifest {
 }
 ```
 
-### 6.4 Artifact Catalog
+### 5.4 Artifact Catalog
 
 Every cycle produces (at minimum) the following artifacts under `$EvidenceRoot/{cycleId}/`:
 
 | Artifact | Path (relative to cycle root) | Producer | Required |
-|---|---|---|---|
-| Cycle envelope | `cycle-evidence.json` | Validator (§6.2) | Yes |
-| Cycle manifest | `manifest.json` | Manifest builder (§6.3) | Yes |
+
+| Cycle envelope | `cycle-evidence.json` | Validator (§5.2) | Yes |
+| Cycle manifest | `manifest.json` | Manifest builder (§5.3) | Yes |
 | PRE-gate evidences | `preflight/pre-0{1..7}-*.json` | Gate functions | Yes |
 | Test evidences | `tests/{namespace}/{id}.json` | Test functions | Yes (35) |
 | Portal screenshots | `screenshots/{id}.png` | Operator | Where listed in §4 |
@@ -824,12 +780,12 @@ Every cycle produces (at minimum) the following artifacts under `$EvidenceRoot/{
 | Sentinel incident refs | `cross-controls/1.24/{incidentId}.json` | NEG-03 | If raised |
 | Tabletop minutes | `ir/ir-01-tabletop.signed.pdf` | Legal Officer | Annual cycle |
 | Production-drill log | `ir/ir-02-production.signed.pdf` | Legal Officer | Annual cycle |
-| Attestation | `attestation.signed.json` | §7 | Yes |
+| Attestation | `attestation.signed.json` | §6 | Yes |
 
-### 6.5 Retention Table
+### 5.5 Retention Table
 
 | Artifact class | Minimum retention | Storage class | Rationale |
-|---|---|---|---|
+
 | `cycle-evidence.json`, `manifest.json`, `attestation.signed.json` | 7 years | Immutable (WORM-equivalent) | FINRA 4511 / SEC 17a-4 evidence of supervisory control operating effectiveness |
 | Per-test evidence JSONs | 7 years | Immutable | Same |
 | Export packages + manifests | 7 years (or matter-life if longer) | Immutable | SEC 17a-4(f) audit-trail-alternative anchor |
@@ -840,7 +796,7 @@ Every cycle produces (at minimum) the following artifacts under `$EvidenceRoot/{
 
 ---
 
-## 7. Attestation Block
+## 6. Attestation Block
 
 A cycle is not complete until the attestation is signed by **three** roles. The attestation is a JSON document with a stable canonicalisation, hashed with SHA-256, and the hash is recorded in the next cycle's `previousCycleAttestationSha256` to form a chain.
 
@@ -887,19 +843,19 @@ A cycle is not complete until the attestation is signed by **three** roles. The 
       "signature": "<base64-detached-signature-over-attestationSha256>"
     }
   ],
-  "statement": "We attest that the verification cycle described herein was executed by the named operator under PIM-activated privileged roles; that PRE gates 01–07 returned PASS prior to any §4 test execution; that the §4 test results recorded in cycle-evidence.json reflect the actual tenant behaviour observed at cycleCompletedUtc; that all evidence artifacts have been committed to immutable storage as required by §6.5; and that this attestation is intended to support compliance with the regulations enumerated in the playbook's hedging notice and does not guarantee legal compliance."
+  "statement": "We attest that the verification cycle described herein was executed by the named operator under PIM-activated privileged roles; that PRE gates 01–07 returned PASS prior to any §4 test execution; that the §4 test results recorded in cycle-evidence.json reflect the actual tenant behaviour observed at cycleCompletedUtc; that all evidence artifacts have been committed to immutable storage as required by §5.5; and that this attestation is intended to support compliance with the regulations enumerated in the playbook's hedging notice and does not guarantee legal compliance."
 }
 ```
 
 > **Hash-chain rule.** A cycle whose `previousCycleAttestationSha256` does not equal the prior cycle's `attestationSha256` (post-signature, computed over the same canonicalisation as the prior cycle) is treated as a chain break and reported to FSI Internal Audit.
 
 ---
-## 8. Anti-Patterns
+## 7. Anti-Patterns
 
 Each row pairs an anti-pattern with the test(s) that detect it. A cycle that passes §4 but fails to detect any of these is treated as a methodology gap and surfaced to AI Governance Lead for playbook revision.
 
 | # | Anti-pattern | Why it fails defensibility | Detected by |
-|---|---|---|---|
+
 | 1 | Treating the `CopilotInteraction` UAL `AuditData` body as the authoritative full prompt-and-response payload for legal production | UAL is the **occurrence** signal; the substrate item placed under hold is the **content** evidence. Conflating the two undermines completeness arguments under FRCP 37(e) and SEC 17a-4. | AUDIT-02, COPILOT-03 |
 | 2 | Producing a Copilot interaction in discovery without first verifying it resides in `SubstrateHolds` for the held custodian | A "hold" that did not actually preserve the substrate item is the most common silent-failure mode for Copilot eDiscovery. | HOLD-03 |
 | 3 | Using real custodian UPNs or live matter IDs in test fixtures | Mixes test artifacts with real evidence and risks GLBA 501(b) and SOX 802 spoliation findings. | PRE-07 |
@@ -908,8 +864,7 @@ Each row pairs an anti-pattern with the test(s) that detect it. A cycle that pas
 | 6 | Issuing a litigation hold to a custodian without delivering the legal hold notification | FRCP and many state-bar rules require notice; absence of notice undermines the reasonable-steps defense. | IR-01 (tabletop) |
 | 7 | Granting `eDiscovery Administrator` as a permanent assignment to one or more identities | Standing tenant-wide eDiscovery power; SOX 404 and FFIEC ITRMP §III.A.4 SoD violation. | PRE-02, NEG-03 |
 | 8 | Granting export permission to identities that also hold `Reviewer` role | Single-role compromise can both review and exfiltrate evidence. | LIC-03, REVIEW-02 |
-| 9 | Assuming Commercial-cloud feature parity in GCC / GCC High / DoD without per-cycle re-verification | Sovereign-cloud feature surfaces drift; assumption produces false-positive PASS records. | SOV-01, PRE-06 |
-| 10 | Calling retired classic eDiscovery cmdlets after Aug 31, 2025 in non-21Vianet clouds | Cycles built on retired surfaces are not reproducible and may silently fall back to no-op behaviour. | NEG-01 |
+| 9 | Calling retired classic eDiscovery cmdlets after Aug 31, 2025 | Cycles built on retired surfaces are not reproducible | §3 — use `New-MgSecurityCaseEdiscoveryCase`. |
 | 11 | Relying on the M365 Copilot interactions location to discover Copilot Studio agents that persist transcripts to Dataverse | These transcripts are NOT in the M365 substrate and require a separate Dataverse retention story (1.9). | COPILOT-04 |
 | 12 | Claiming SEC 17a-4(f) audit-trail-alternative compliance with exports stored only in mutable tenant-internal locations | The standard requires WORM-equivalent preservation outside the live tenant. | EXPORT-03 |
 | 13 | Single-administrator hold creation and confirmation (no four-eyes / Legal sign-off) | Allows a single insider to silently weaken preservation; FINRA 3110 supervisory structure failure. | LIC-03, IR-01 |
@@ -917,14 +872,14 @@ Each row pairs an anti-pattern with the test(s) that detect it. A cycle that pas
 | 15 | Using `from:Copilot` (or similar sender-style filters) in KeyQL to find Copilot prompts | Copilot is not a chat sender; the filter returns wrong/empty results and gives a false sense of completeness. | NEG-02 |
 | 16 | Relying on Content Search (find-only) for litigation events instead of creating a hold | Content Search does not preserve; matching items can be modified or deleted before export. | HOLD-01 |
 | 17 | Inventing or quoting a numeric SLA for hold propagation, KeyQL index lag, or UAL ingestion | Microsoft does not publish single-number SLAs for these; assertions create misrepresentation risk. | §3, PRE-04 |
-| 18 | Not capturing per-cycle Microsoft Learn `lastVerifiedUtc` for the sovereign-cloud parity claim | Without a verification timestamp, the parity claim is undated and cannot be defended a year later. | SOV-01 |
+|18|Without a verification timestamp, the parity claim is undated and cannot be defended a year later.|SOV-01|
 
 ---
 
-## 9. Cross-Links
+## 8. Cross-Links
 
 | Reference | Why it matters here |
-|---|---|
+
 | Control 1.5 — DLP & sensitivity labels | Labels travel with substrate items; eDiscovery review sets surface label state for production decisioning. |
 | Control 1.6 — DSPM for AI | DSPM AI inventory feeds candidate prompts for SEARCH-02 / COPILOT-02 sampling. |
 | Control 1.7 — Audit logging | UAL is the occurrence stream reconciled in AUDIT-01..03. |
@@ -934,7 +889,7 @@ Each row pairs an anti-pattern with the test(s) that detect it. A cycle that pas
 | Control 1.14 — Data minimization | Shapes which prompt/response fields are exported in EXPORT-02. |
 | Control 1.21 — Adversarial input logging | Adversarial events are preserved under the same hold infrastructure exercised here. |
 | Control 1.24 — Sentinel analytics | Provides NEG-03 detection of bulk privileged-role assignment. |
-| Control 2.13 — Documentation & record-keeping | Owns the long-term retention catalog into which §6.5 plugs. |
+| Control 2.13 — Documentation & record-keeping | Owns the long-term retention catalog into which §5.5 plugs. |
 | Control 4.6 — Grounding scope governance | Owns the Copilot Studio agent inventory used in COPILOT-04. |
 | AI Incident Response Playbook | Defines IR-01 and IR-02 trigger memos and signed-minute templates. |
 
