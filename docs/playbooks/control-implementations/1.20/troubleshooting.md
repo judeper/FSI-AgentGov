@@ -118,25 +118,6 @@ This playbook is the failure-mode catalog for Control 1.20. Pair it with the [Po
 
 ---
 
-### Issue 6 — Cmdlet returns empty results in a sovereign-cloud tenant
-
-**Symptoms.** `Get-AdminPowerAppEnvironment` returns no environments, or the validation script shows `EnterprisePolicyLinked: False` for an environment that is clearly linked in the GCC / GCC High / DoD portal.
-
-**Likely cause.** `Add-PowerAppsAccount` was called without `-Endpoint`, so the cmdlet authenticated against commercial endpoints and silently returned an empty result set ("false-clean").
-
-**Resolution.**
-
-1. Stop. **Do not** trust the empty result.
-2. Re-authenticate using the sovereign-cloud helper from the [PowerShell Setup playbook](powershell-setup.md):
-    ```powershell
-    Connect-FsiClouds -Cloud GCCHigh -TenantId <tenant>
-    ```
-3. Re-run the validation. Confirm against the matching sovereign PPAC URL.
-4. Add a guard to your scripts that asserts a non-empty environment list and throws if zero results are returned in production.
-
-See the [PowerShell baseline](../../_shared/powershell-baseline.md) §3 for the canonical sovereign-aware authentication pattern.
-
----
 
 ### Issue 7 — Subnet too small / cannot expand later
 

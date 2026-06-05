@@ -4,7 +4,6 @@
 >
 > **Audience.** AI Governance Lead (Responsible), Power Platform Admin and Purview Compliance Admin (Accountable for primary tooling), CISO and Compliance Officer (Approver), Audit Manager (Consulted on evidence retention), Information Protection Admin and Purview Data Security AI Admin (Consulted on DSPM for AI signals), Entra Identity Governance Admin (Consulted on access reviews), SharePoint Admin (Consulted on grounding scope).
 >
-> **Sovereign clouds.** Commercial, GCC, GCC High, DoD. Cmdlet endpoints, DSPM for AI availability, Restricted SharePoint Search availability, and connector certification dates differ by cloud — see §5. This playbook does not assume Commercial parity in sovereign tenants; organizations should verify each cmdlet endpoint and each Purview signal class against the Microsoft Learn page for the relevant cloud before relying on a test result.
 >
 > **Cross-links.** Controls [1.2 Agent Registry](../1.2/portal-walkthrough.md) · [1.4 Connector Governance](../1.4/portal-walkthrough.md) · [1.10 Conditional Access for Agents](../1.10/portal-walkthrough.md) · [1.13 SIT-Aware DLP for Copilot](../1.13/verification-testing.md) · [1.17 Agent Identity Lifecycle](../1.17/portal-walkthrough.md) · [1.18 OAuth Consent Governance](../1.18/portal-walkthrough.md) · [1.19 Service Principal Hygiene](../1.19/portal-walkthrough.md) · [4.6 Grounding Scope Governance](../4.6/portal-walkthrough.md) · [AI Incident Response Playbook](../../incident-and-risk/ai-incident-response-playbook.md) · [PowerShell Baseline](../../_shared/powershell-baseline.md).
 >
@@ -34,8 +33,8 @@ This playbook is designed to detect the following failure modes, each of which h
 The cadence below is the minimum re-verification frequency per zone and per test family. Z3 agents (enterprise / customer-facing / regulated) require monthly re-verification of all families because changes to grounding, connector scope, or OAuth consent on a Z3 agent carry the highest NPI-exposure and SEC Reg S-P notification risk. Z1 agents (personal productivity) are re-verified annually as a control sample; the NEG family includes a Z1 control-arm test (NEG-02) so that drift detection is demonstrated to be tuned and not firing globally.
 
 | Test family | Z1 (Personal) | Z2 (Team) | Z3 (Enterprise) | Owner | Reviewer | Regulatory driver |
-|---|---|---|---|---|---|---|
-| LIC (license, role separation, sovereign) | Annual | Quarterly | Monthly | Power Platform Admin | AI Governance Lead | FINRA 4511, SOX 404 |
+
+| LIC (license and role separation) | Annual | Quarterly | Monthly | Power Platform Admin | AI Governance Lead | FINRA 4511, SOX 404 |
 | UAL (audit log enablement and event flow) | Annual | Quarterly | Monthly | Purview Compliance Admin | Audit Manager | FINRA 4511, SEC 17a-4 |
 | INV (per-agent data-access inventory) | Annual | Quarterly | Monthly | AI Governance Lead | Compliance Officer | GLBA 501(b), FINRA 4511 |
 | DLP (connector data loss prevention) | Annual | Quarterly | Monthly | Power Platform Admin | Information Protection Admin | FINRA 3110, GLBA 501(b) |
@@ -47,7 +46,7 @@ The cadence below is the minimum re-verification frequency per zone and per test
 | NEG (negative tests) | Annual | Semi-annual | Quarterly | AI Governance Lead | Audit Manager | Control validation |
 | IR (incident-response tabletop) | n/a | Annual | Annual | CISO | CRO | SEC Reg S-P 2024, GLBA 501(b) |
 
-**Cadence enforcement.** The PowerShell validator in §6.2 emits a `lastRunUtc` field per test family. The companion solution `scope-drift-monitor` in `FSI-AgentGov-Solutions` raises an alert when a family's `lastRunUtc` exceeds the cadence shown above by more than 7 days. Cadence drift is itself a finding under SOX 404 (control operating effectiveness) and should be tracked in the issues register, not silently re-baselined.
+**Cadence enforcement.** The PowerShell validator in §5.2 emits a `lastRunUtc` field per test family. The companion solution `scope-drift-monitor` in `FSI-AgentGov-Solutions` raises an alert when a family's `lastRunUtc` exceeds the cadence shown above by more than 7 days. Cadence drift is itself a finding under SOX 404 (control operating effectiveness) and should be tracked in the issues register, not silently re-baselined.
 
 ---
 
@@ -65,7 +64,7 @@ Pre-flight tests confirm that the verification harness can run reliably and that
 
 1. From Power Platform Admin Center, capture the Managed Environment licensing status: **Manage > Tenant settings > Managed Environment**.
 2. From the Microsoft 365 admin center > Billing > Licenses, export the SKU assignments to CSV.
-3. From the Microsoft Purview portal, navigate to **DSPM for AI > Get started** and confirm that signal collection is enabled and reporting (DSPM for AI requires a Microsoft 365 E5 or equivalent SKU and may not be available in all sovereign clouds — see §5).
+3. From the Microsoft Purview portal, navigate to **DSPM for AI > Get started** and confirm that signal collection is enabled and reporting.
 4. From the Microsoft Entra admin center, navigate to **Identity Governance > Access reviews** and confirm the feature is licensed (P2 or Microsoft Entra ID Governance SKU).
 
 **Expected.** All four feature areas show entitled status and the SKU export shows at least one assignment of the required SKU(s) per zone test user.
@@ -96,26 +95,6 @@ Pre-flight tests confirm that the verification harness can run reliably and that
 
 **Evidence collected.** `1.14-PRE-02_role-assignments.json`, `1.14-PRE-02_distinct-principal-report.csv`.
 
-### 1.14-PRE-03 — Sovereign-cloud parity check
-
-**Objective.** Confirm that the cmdlets and portals used by the verification harness are available in the target cloud (Commercial, GCC, GCC High, or DoD) and that DSPM for AI is generally available in the target cloud. If DSPM for AI is not yet GA in the target cloud, document the compensating control (typically additional manual review per Control 4.6).
-
-**Preconditions.** Knowledge of the target cloud; the Microsoft Learn pages for Power Platform US Government and Purview availability by cloud.
-
-**Steps.**
-
-1. Connect to the cloud-specific Power Platform endpoint with `Add-PowerAppsAccount -Endpoint {usgov|usgovhigh|dod}` and confirm the connection succeeds.
-2. Run `Get-AdminPowerAppEnvironment` and confirm at least one environment is returned for the tenant in the target cloud.
-3. Open the Microsoft Purview portal for the cloud variant and confirm DSPM for AI tile presence; if absent, capture a screenshot and record the compensating control.
-4. Compare the cmdlet endpoint list against the Microsoft Learn US Government parity page and record any gaps.
-
-**Expected.** Cmdlet connections succeed in the target cloud; any DSPM for AI gap is documented with a compensating control referenced.
-
-**Pass criteria.** Sovereign-parity report present and signed by the AI Governance Lead.
-
-**Audit assertion.** "Verification harness confirmed operational in cloud `{cloud}` for tenant `{tenantId}` on `{utcDate}` with `{n}` documented gaps and compensating controls."
-
-**Evidence collected.** `1.14-PRE-03_sovereign-parity.md`, `1.14-PRE-03_environment-list.json`.
 
 ### 1.14-PRE-04 — Unified Audit Log enabled and ingesting
 
@@ -127,7 +106,7 @@ Pre-flight tests confirm that the verification harness can run reliably and that
 
 1. Run `Get-AdminAuditLogConfig | Select UnifiedAuditLogIngestionEnabled` and confirm `True`.
 2. For each workload above, run `Search-UnifiedAuditLog -StartDate (Get-Date).AddDays(-7) -EndDate (Get-Date) -RecordType {workload} -ResultSize 1` and confirm at least one row is returned.
-3. Page the search using `-SessionId` and `-SessionCommand ReturnLargeSet` to confirm the harness avoids the basic 10,000-row cap (this is the same trap class documented in 1.13 anti-pattern §8.13).
+3. Page the search using `-SessionId` and `-SessionCommand ReturnLargeSet` to confirm the harness avoids the basic 10,000-row cap (this is the same trap class documented in 1.13 anti-pattern §7.13).
 
 **Expected.** UAL enabled; each workload returns at least one event in the last 7 days; paged search completes without exceeding the cap.
 
@@ -145,7 +124,7 @@ Pre-flight tests confirm that the verification harness can run reliably and that
 
 **Steps.**
 
-1. Run the module-pinning block from `_shared/powershell-baseline.md` (also reproduced in §6.2 of this playbook).
+1. Run the module-pinning block from `_shared/powershell-baseline.md` (also reproduced in §5.2 of this playbook).
 2. Capture `Get-Module -ListAvailable | Where-Object Name -in @('Microsoft.PowerApps.Administration.PowerShell','Microsoft.Online.SharePoint.PowerShell','PnP.PowerShell','ExchangeOnlineManagement','Microsoft.Graph.Authentication','Microsoft.Graph.Identity.SignIns','Microsoft.Graph.Applications')` and export to JSON.
 3. Confirm the tenant-approved `Microsoft.Online.SharePoint.PowerShell` build is current enough to expose the Restricted Content Discovery / Restricted SharePoint Search cmdlets used by Control 4.6 validation; if not, record a fail or skip rather than asserting clean SharePoint scope evidence.
 
@@ -192,7 +171,7 @@ Pre-flight tests confirm that the verification harness can run reliably and that
 
 **Expected.** All three test users, three test agents, and one test site present; corpus seeded.
 
-**Pass criteria.** Test manifest validates against `evidence-manifest-v1.json` schema (see §6.1).
+**Pass criteria.** Test manifest validates against `evidence-manifest-v1.json` schema (see §5.1).
 
 **Audit assertion.** "Test fixtures present for tenant `{tenantId}` on `{utcDate}`: 3 users, 3 agents, 1 site, 15 corpus documents."
 
@@ -205,7 +184,7 @@ Pre-flight tests confirm that the verification harness can run reliably and that
 Each test in §4 has an "Expected" clause that depends on a Microsoft-published or Microsoft-documented processing window between an action being taken and a signal becoming visible to the verifier. These windows are reproduced below; if a test fails because a signal is not yet visible, the verifier should re-run after the window has elapsed before raising a finding.
 
 | Signal source | Action → signal visibility window | Source | Used by |
-|---|---|---|---|
+
 | Power Platform DLP policy propagation (tenant-wide) | Up to 24 hours after policy change | Microsoft Learn — *Data loss prevention policies* | DLP-01..05 |
 | Power Platform DLP policy propagation (single environment) | Up to 1 hour after policy change | Microsoft Learn — *Data loss prevention policies* | DLP-01..05 |
 | DSPM for AI activity collection | Up to 24 hours after agent interaction | Microsoft Learn — *Microsoft Purview DSPM for AI* | DRIFT-01, DRIFT-03, AUDIT-01, NEG-01 |
@@ -216,7 +195,7 @@ Each test in §4 has an "Expected" clause that depends on a Microsoft-published 
 | Microsoft Graph `oauth2PermissionGrants` reflection of consent | Near-real-time (under 5 minutes) | Microsoft Learn — *oauth2PermissionGrants resource* | OAUTH-01, OAUTH-02 |
 | Defender for Cloud Apps alert generation | Up to 60 minutes from signal | Microsoft Learn — *Investigate alerts in Defender for Cloud Apps* | DRIFT-04 |
 
-**Window-aware retry policy.** The validator (§6.2) supports a `-WaitForWindow` switch that re-runs each test after its documented window has elapsed if the first attempt returns `Skip` due to "signal not yet visible." This avoids false-fail findings on tests that simply ran too quickly after the provoking action.
+**Window-aware retry policy.** The validator (§5.2) supports a `-WaitForWindow` switch that re-runs each test after its documented window has elapsed if the first attempt returns `Skip` due to "signal not yet visible." This avoids false-fail findings on tests that simply ran too quickly after the provoking action.
 
 ---
 
@@ -224,7 +203,7 @@ Each test in §4 has an "Expected" clause that depends on a Microsoft-published 
 
 The 37 tests below form the auditable core of Control 1.14. Each test follows the canonical 7-field structure (Objective · Preconditions · Steps · Expected · Pass criteria · Audit assertion · Evidence collected) and is named `1.14-{FAMILY}-{NN}` to support paged search and cross-control reuse. Test IDs are stable; if a test is retired, its ID is not reused.
 
-### LIC — License, role separation, sovereign cloud
+### LIC — License and role separation
 
 #### 1.14-LIC-01 — Power Platform + Copilot Studio + Purview DSPM for AI entitlement attested per tenant
 
@@ -266,25 +245,6 @@ The 37 tests below form the auditable core of Control 1.14. Each test follows th
 
 **Evidence collected.** `1.14-LIC-02_distinct-principals.csv`, `1.14-LIC-02_exceptions.json`.
 
-#### 1.14-LIC-03 — Sovereign-cloud parity check (cmdlet endpoints, DSPM for AI availability)
-
-**Objective.** Confirm cloud-specific feature availability for tenants in GCC, GCC High, or DoD.
-
-**Preconditions.** PRE-03 passed.
-
-**Steps.**
-
-1. For the target cloud, enumerate the cmdlet endpoints used by the harness against the Microsoft Learn parity page; record any "Not available in this cloud."
-2. Confirm DSPM for AI availability; if not GA in the target cloud, document the compensating manual review per Control 4.6.
-3. Capture cloud-specific feature parity in `1.14-LIC-03_sovereign-parity.md`.
-
-**Expected.** All cmdlets used by the harness available in the target cloud, or documented compensating control in place.
-
-**Pass criteria.** Sovereign-parity report signed by AI Governance Lead.
-
-**Audit assertion.** "Sovereign-cloud parity for cloud `{cloud}` was verified on `{utcDate}` with `{n}` documented gaps."
-
-**Evidence collected.** `1.14-LIC-03_sovereign-parity.md`.
 
 ### UAL — Unified Audit Log enablement and event flow
 
@@ -398,7 +358,7 @@ The 37 tests below form the auditable core of Control 1.14. Each test follows th
 
 **Steps.**
 
-1. Validate each inventory row against the schema in §6.1 `agent-inventory-row-v1.json` (required: `agentId`, `dataSourceId`, `dataSourceType`, `businessJustification`, `dataClassification`, `zone`, `requestedBy`, `approvedBy`, `lastReviewedUtc`).
+1. Validate each inventory row against the schema in §5.1 `agent-inventory-row-v1.json` (required: `agentId`, `dataSourceId`, `dataSourceType`, `businessJustification`, `dataClassification`, `zone`, `requestedBy`, `approvedBy`, `lastReviewedUtc`).
 2. List rows missing any required field.
 
 **Expected.** Zero rows fail validation.
@@ -979,31 +939,10 @@ The 37 tests below form the auditable core of Control 1.14. Each test follows th
 
 ---
 
-## §5 Sovereign cloud variant matrix
 
-The matrix below records cloud-by-cloud variances for each test family. Where a feature is "Not GA" or "Not available," the verifier should use the listed compensating control and document the variance in `1.14-LIC-03_sovereign-parity.md`. Organizations should verify each row against the latest Microsoft Learn page for the relevant cloud, as availability dates change frequently.
+## §5 Evidence pack
 
-| Test family | Commercial | GCC | GCC High | DoD | Compensating control if not available |
-|---|---|---|---|---|---|
-| LIC | All cmdlets and DSPM for AI available. | DSPM for AI availability per Microsoft Learn; verify date. | DSPM for AI availability per Microsoft Learn; verify date. | DSPM for AI availability per Microsoft Learn; verify date. | Manual quarterly inventory review per Control 4.6. |
-| UAL | `Search-UnifiedAuditLog` available; all RecordTypes flow. | Available; some RecordTypes may have higher latency. | Available with cloud-specific endpoint. | Available with cloud-specific endpoint. | Extended retry window; document in PRE-04 evidence. |
-| INV | Standard. | Standard. | Standard. | Standard. | n/a — INV is data-side only. |
-| DLP | All connectors classifiable. | Connector certification dates may differ; verify per Microsoft Learn US Government page. | Connector availability subset; verify. | Connector availability subset; verify. | Block-by-default for any connector not yet certified in the cloud. |
-| OAUTH | Microsoft Graph standard. | Microsoft Graph US Government endpoint. | Microsoft Graph US Government High endpoint. | Microsoft Graph DoD endpoint. | Use cloud-specific Graph endpoint in OAUTH-01 cmdlet calls. |
-| SCOPE | RSS and RCD GA. | Verify RSS / RCD availability. | Verify RSS / RCD availability. | Verify RSS / RCD availability. | Site-collection-level Restricted Search; document under 4.6. |
-| DRIFT | Full Defender / Sentinel routing. | Verify Defender for Cloud Apps availability. | Verify Defender for Cloud Apps availability. | Verify Defender for Cloud Apps availability. | Sentinel-only routing; document in DRIFT-04 evidence. |
-| APR | Microsoft Entra Access Reviews available. | Verify P2 / Entra ID Governance availability. | Verify P2 / Entra ID Governance availability. | Verify P2 / Entra ID Governance availability. | Manual quarterly review documented in `1.14-APR-04_manual.md`. |
-| AUDIT | Standard. | Standard, with cloud-specific endpoint. | Standard, with cloud-specific endpoint. | Standard, with cloud-specific endpoint. | n/a — UAL paged search is universal. |
-| NEG | Standard. | Standard. | Standard. | Standard. | n/a. |
-| IR | AI Incident Response playbook tabletop. | Same; participants must include cloud-specific liaison. | Same; participants must include cloud-specific liaison. | Same; participants must include cloud-specific liaison. | DoD-specific timelines may apply for incident reporting; consult cloud-specific guidance. |
-
-**Sovereign-cloud caveat.** This matrix is informational. The Control 1.14 specification (`1.14-data-minimization-and-agent-scope-control.md` Sovereign Cloud Parity warning, lines 69–76) makes the same point: organizations should not assume Commercial parity in sovereign tenants and should verify availability per Microsoft Learn before relying on a test outcome.
-
----
-
-## §6 Evidence pack
-
-### §6.1 Evidence manifest schema
+### §5.1 Evidence manifest schema
 
 The evidence manifest is a JSON document conforming to `evidence-manifest-v1.json`. Each verification run produces exactly one manifest, hashed with SHA-256 and stored alongside the evidence files. Manifests are immutable; a re-run produces a new manifest with a new `generatedUtc`.
 
@@ -1017,7 +956,7 @@ The evidence manifest is a JSON document conforming to `evidence-manifest-v1.jso
     "controlId":    { "const": "1.14" },
     "tenantId":     { "type": "string", "format": "uuid" },
     "zone":         { "enum": ["Z1", "Z2", "Z3"] },
-    "cloud":        { "enum": ["Commercial", "GCC", "GCCH", "DoD"] },
+    "cloud": { "const": "Commercial" },
     "generatedUtc": { "type": "string", "format": "date-time" },
     "files": {
       "type": "array",
@@ -1063,7 +1002,7 @@ A companion schema `agent-inventory-row-v1.json` validates the per-row inventory
 }
 ```
 
-### §6.2 Validator (PowerShell)
+### §5.2 Validator (PowerShell)
 
 The validator below is the canonical harness for Control 1.14. Drop into `assessment/collectors/Verify-Control-1.14.ps1`. The skeleton enforces module pinning, runs each test family, emits one JSON line per test, and writes a SHA-256 manifest of evidence files. Real implementations of each `Test-*` function should be added incrementally; the skeleton fails-closed on `Skip` so missing implementations cannot be silently passed when invoked with `-Strict`.
 
@@ -1086,7 +1025,7 @@ param(
     [Parameter(Mandatory)] [ValidateSet('Z1','Z2','Z3')] [string] $Zone,
     [Parameter(Mandatory)] [string] $EnvironmentId,
     [Parameter(Mandatory)] [string] $EvidencePath,
-    [ValidateSet('Commercial','GCC','GCCH','DoD')] [string] $Cloud = 'Commercial',
+    [string] $Cloud = 'Commercial',
     [string[]] $TestFilter,
     [switch] $Strict,
     [switch] $WaitForWindow
@@ -1137,7 +1076,6 @@ function Emit-Result {
 # --- Test family stubs (implement per §4 of the playbook) -----------------
 function Test-1.14-PRE-01 { Emit-Result -TestId '1.14-PRE-01' -Status 'Skip' -Detail 'TODO: license entitlement attested' }
 function Test-1.14-PRE-02 { Emit-Result -TestId '1.14-PRE-02' -Status 'Skip' -Detail 'TODO: role separation' }
-function Test-1.14-PRE-03 { Emit-Result -TestId '1.14-PRE-03' -Status 'Skip' -Detail 'TODO: sovereign-cloud parity' }
 function Test-1.14-PRE-04 { Emit-Result -TestId '1.14-PRE-04' -Status 'Skip' -Detail 'TODO: UAL enabled and ingesting' }
 function Test-1.14-PRE-05 { Emit-Result -TestId '1.14-PRE-05' -Status 'Skip' -Detail 'TODO: module pinning verified' }
 function Test-1.14-PRE-06 { Emit-Result -TestId '1.14-PRE-06' -Status 'Skip' -Detail 'TODO: two-portal precondition' }
@@ -1145,7 +1083,6 @@ function Test-1.14-PRE-07 { Emit-Result -TestId '1.14-PRE-07' -Status 'Skip' -De
 
 function Test-1.14-LIC-01 { Emit-Result -TestId '1.14-LIC-01' -Status 'Skip' -Detail 'TODO: PPAC + Purview DSPM-for-AI entitlement' }
 function Test-1.14-LIC-02 { Emit-Result -TestId '1.14-LIC-02' -Status 'Skip' -Detail 'TODO: Graph role-assignment SoD export' }
-function Test-1.14-LIC-03 { Emit-Result -TestId '1.14-LIC-03' -Status 'Skip' -Detail 'TODO: sovereign-cloud cmdlet/endpoint parity' }
 
 function Test-1.14-UAL-01 { Emit-Result -TestId '1.14-UAL-01' -Status 'Skip' -Detail 'TODO: Search-UnifiedAuditLog -RecordType MicrosoftCopilotStudio,PowerPlatformConnector,SharePoint last 7d' }
 function Test-1.14-UAL-02 { Emit-Result -TestId '1.14-UAL-02' -Status 'Skip' -Detail 'TODO: filter Operations -eq "Consent to application"' }
@@ -1204,7 +1141,7 @@ New-Item -ItemType Directory -Force -Path $EvidencePath | Out-Null
 $ndjson = Join-Path $EvidencePath ("Control-1.14_Results_{0:yyyyMMddHHmmss}.ndjson" -f (Get-Date))
 $Results | ForEach-Object { $_ | ConvertTo-Json -Compress -Depth 6 } | Set-Content -Path $ndjson -Encoding utf8
 
-# --- SHA-256 manifest (§6.1) ----------------------------------------------
+# --- SHA-256 manifest (§5.1) ----------------------------------------------
 $manifest = Get-ChildItem -Path $EvidencePath -File -Recurse | ForEach-Object {
     [pscustomobject]@{
         path        = (Resolve-Path -LiteralPath $_.FullName -Relative)
@@ -1233,7 +1170,7 @@ if ($Strict -and $skip) { exit 2 }
 exit 0
 ```
 
-### §6.3 Manifest builder & validator
+### §5.3 Manifest builder & validator
 
 Validate any existing manifest with the following one-liner (requires `Test-Json` from PowerShell 7.4+):
 
@@ -1252,10 +1189,10 @@ if (-not (Test-Json -Json $manifest -Schema $schema)) {
 }
 ```
 
-### §6.4 Artifacts table
+### §5.4 Artifacts table
 
 | Test ID prefix | Filename pattern | Format | Producer |
-|---|---|---|---|
+
 | `1.14-PRE-*` | `1.14-PRE-NN_{descriptor}.{json,csv,png}` | JSON / CSV / PNG | Verifier |
 | `1.14-LIC-*` | `1.14-LIC-NN_{descriptor}.{json,csv,png}` | JSON / CSV / PNG | Verifier |
 | `1.14-UAL-*` | `1.14-UAL-NN_{descriptor}.csv` | CSV | `Search-UnifiedAuditLog` |
@@ -1271,12 +1208,12 @@ if (-not (Test-Json -Json $manifest -Schema $schema)) {
 | Manifest | `Control-1.14_Manifest_{yyyyMMdd}.json` | JSON | Validator |
 | NDJSON results | `Control-1.14_Results_{yyyyMMddHHmmss}.ndjson` | NDJSON | Validator |
 
-### §6.5 Retention and WORM storage
+### §5.5 Retention and WORM storage
 
 Evidence supports compliance with the following retention obligations and should be preserved for the longest applicable period. Implementation requires the storage tier to enforce immutability (WORM); organizations should verify their storage configuration meets the regulator's expectations.
 
 | Regulation | Minimum retention | Notes |
-|---|---|---|
+
 | FINRA Rule 4511 (general books and records) | 6 years | Applies to broker-dealer in-scope evidence. |
 | SEC 17 CFR 240.17a-4(f) (electronic records) | 6 years (first 2 in easily accessible place) | WORM or audit-trail-equivalent storage required. |
 | SEC Reg S-P (2024 amendments) | 6 years | Customer-notification artifacts and incident records. |
@@ -1288,7 +1225,7 @@ Recommended storage: Microsoft 365 Records Management with a retention label `1.
 
 ---
 
-## §7 Attestation block
+## §6 Attestation block
 
 Each verification run produces a signed attestation. The attestation is itself an evidence artifact and is hashed into the manifest. Multi-role sign-off supports compliance with SOX 404 segregation-of-duties expectations and with FINRA 3110 supervisory review.
 
@@ -1297,8 +1234,8 @@ CONTROL 1.14 — DATA MINIMIZATION AND AGENT SCOPE CONTROL
 Verification attestation
 
 Tenant ID:        {tenantId}
-Cloud:            {Commercial | GCC | GCCH | DoD}
-Zone(s) covered:  {Z1 | Z2 | Z3 | All}
+Cloud: Commercial
+Zone(s) covered:  {Z1  All}
 Run window:       {startUtc} → {endUtc}
 Manifest SHA-256: {hash}
 NDJSON results:   {filename}
@@ -1311,7 +1248,6 @@ Test summary:
 
 Findings opened in issues register: {ticket-ids}
 Cadence drift since prior run:      {none | family list}
-Sovereign-cloud variances:          {none | reference 1.14-LIC-03}
 
 Sign-off (RACI):
   Responsible (Tester)        — AI Governance Lead
@@ -1340,7 +1276,7 @@ The attestation block is filed as `Control-1.14_Attestation_{yyyyMMdd}.txt` in t
 
 ---
 
-## §8 Anti-patterns and known traps
+## §7 Anti-patterns and known traps
 
 The following anti-patterns have been observed in FSI deployments. Each is paired with the test that detects it, so a verifier can confirm the anti-pattern is not present.
 
@@ -1358,14 +1294,13 @@ The following anti-patterns have been observed in FSI deployments. Each is paire
 12. **Quarterly review documented but no evidence of revocations.** Detected by APR-04.
 13. **UAL search using basic search (10,000-row cap) instead of paged `Search-UnifiedAuditLog -SessionCommand ReturnLargeSet`.** Detected by AUDIT-01 (paged retrieval mandatory).
 14. **Evidence stored in a non-WORM location violating SEC 17a-4(f).** Detected by NEG-04 (decommission-preserves-evidence test will surface the storage gap).
-15. **SHA-256 manifest generated once at write time and never re-validated.** Detected by §6.3 validator one-liner.
-16. **Sovereign-cloud rollout assumes Commercial cmdlet/endpoint parity (DSPM for AI availability differs).** Detected by LIC-03.
+15. **SHA-256 manifest generated once at write time and never re-validated.** Detected by §5.3 validator one-liner.
 17. **Removing a connector from DLP without first revoking existing agent grants ("zombie OAuth").** Detected by OAUTH-01 diff against documented minimum.
 18. **Treating Restricted SharePoint Search as a long-term Z3 boundary** (Microsoft positions RSS as a short-term remediation step pending SharePoint Advanced Management deployment — see Control 4.6). Detected by SCOPE-01 (RSS does not eliminate the requirement to scope knowledge sources to a folder).
 
 ---
 
-## §9 Cross-links
+## §8 Cross-links
 
 - Control [1.2 Agent Registry](../1.2/portal-walkthrough.md) — source of truth for the registered agent set used by INV-01.
 - Control [1.4 Connector Governance](../1.4/portal-walkthrough.md) — DLP and ACP configuration tested by DLP-01..05.
@@ -1376,7 +1311,7 @@ The following anti-patterns have been observed in FSI deployments. Each is paire
 - Control [1.19 Service Principal Hygiene](../1.19/portal-walkthrough.md) — service principal documentation referenced by LIC-02.
 - Control [4.6 Grounding Scope Governance](../4.6/portal-walkthrough.md) — RSS / RCD decisions cross-referenced by SCOPE-02.
 - [AI Incident Response Playbook](../../incident-and-risk/ai-incident-response-playbook.md) — exercised by IR-01.
-- [Shared PowerShell Baseline](../../_shared/powershell-baseline.md) — module pinning and connection patterns used by §6.2 validator.
+- [Shared PowerShell Baseline](../../_shared/powershell-baseline.md) — module pinning and connection patterns used by §5.2 validator.
 - Microsoft Learn — *Data loss prevention policies* — <https://learn.microsoft.com/en-us/power-platform/admin/wp-data-loss-prevention>
 - Microsoft Learn — *Connector classification* — <https://learn.microsoft.com/en-us/power-platform/admin/dlp-connector-classification>
 - Microsoft Learn — *Advanced Connector Policies* — <https://learn.microsoft.com/en-us/power-platform/admin/connector-action-control>
@@ -1388,7 +1323,6 @@ The following anti-patterns have been observed in FSI deployments. Each is paire
 - Microsoft Learn — *Audited activities reference* — <https://learn.microsoft.com/en-us/purview/audit-log-activities>
 - Microsoft Learn — *Microsoft Graph oauth2PermissionGrants resource* — <https://learn.microsoft.com/en-us/graph/api/resources/oauth2permissiongrant>
 - Microsoft Learn — *Power Platform Managed Environments* — <https://learn.microsoft.com/en-us/power-platform/admin/managed-environment-overview>
-- Microsoft Learn — *Power Platform US Government (sovereign cloud parity)* — <https://learn.microsoft.com/en-us/power-platform/admin/powerapps-us-government>
 
 
 

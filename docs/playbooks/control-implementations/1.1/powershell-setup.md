@@ -1,7 +1,7 @@
 # PowerShell Setup: Control 1.1 - Restrict Agent Publishing by Authorization
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below may show abbreviated patterns; the baseline is authoritative.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below may show abbreviated patterns; the baseline is authoritative.
 
 **Last Updated:** May 2026
 **Modules Required:** `Microsoft.PowerApps.Administration.PowerShell` (pinned), optional `Microsoft.Xrm.Data.PowerShell` for Dataverse role assignment
@@ -16,10 +16,6 @@
 
     **An empty `Get-` result is NOT proof the environment is hardened — it may simply mean the cmdlet doesn't apply.** Always check `IsDefault` and the environment's Dataverse provisioning status first; for Dataverse environments, do role assignment via PPAC (Settings > Users + permissions > Security roles) or the Dataverse Web API. The script below detects this and routes accordingly.
 
-!!! warning "Sovereign cloud (GCC / GCC-High / DoD)"
-    The default `Add-PowerAppsAccount` authenticates against **commercial** endpoints. In a sovereign tenant, this returns 0 environments and reports a false-clean PASS.
-
-    For sovereign tenants, add `-Endpoint usgov`, `-Endpoint usgovhigh`, or `-Endpoint dod` to **every** Power Apps cmdlet in this playbook (including `Add-PowerAppsAccount`, `Get-AdminPowerAppEnvironment`, `Get-AdminPowerAppEnvironmentRoleAssignment`, `Get-TenantSettings`, `Set-TenantSettings`).
 
 ## Prerequisites
 
@@ -43,7 +39,6 @@ Install-Module -Name Microsoft.PowerApps.Administration.PowerShell `
 Import-Module Microsoft.PowerApps.Administration.PowerShell -RequiredVersion $ApprovedModuleVersion
 
 # Connect to Power Platform (interactive authentication for COMMERCIAL tenants).
-# For sovereign tenants, add -Endpoint usgov | usgovhigh | dod
 Add-PowerAppsAccount
 
 # For automated/unattended scenarios, use service principal authentication:
@@ -228,8 +223,6 @@ if ($settings.disableShareWithEveryone -eq $true) {
 .PARAMETER EvidencePath
     Directory for tenant-settings snapshot, JSON evidence emit, and SHA-256 hash file.
 
-.PARAMETER Endpoint
-    'prod' (default), 'usgov', 'usgovhigh', 'dod'. MUST match your tenant's sovereign cloud.
 
 .EXAMPLE
     .\Configure-Control-1.1.ps1 -EnvironmentName "abc..." -SecurityGroupId "def..." -EvidencePath "C:\Evidence\1.1"
@@ -252,10 +245,7 @@ param(
     [string]$SecurityGroupId,
 
     [Parameter(Mandatory = $true)]
-    [string]$EvidencePath,
-
-    [ValidateSet('prod','usgov','usgovhigh','dod')]
-    [string]$Endpoint = 'prod'
+    [string]$EvidencePath
 )
 
 if ($PSVersionTable.PSEdition -ne 'Desktop') {
@@ -271,7 +261,6 @@ $evidence = [ordered]@{
     Control            = '1.1'
     RunUtc             = (Get-Date).ToUniversalTime().ToString('o')
     Operator           = "$env:USERDOMAIN\$env:USERNAME"
-    Endpoint           = $Endpoint
     EnvironmentName    = $EnvironmentName
     SecurityGroupId    = $SecurityGroupId
     Actions            = @()
@@ -279,11 +268,7 @@ $evidence = [ordered]@{
 }
 
 try {
-    if ($Endpoint -eq 'prod') {
-        Add-PowerAppsAccount
-    } else {
-        Add-PowerAppsAccount -Endpoint $Endpoint
-    }
+    Add-PowerAppsAccount
 
     Write-Host "Configuring Control 1.1 for environment: $EnvironmentName (endpoint: $Endpoint)" -ForegroundColor Cyan
 

@@ -3,20 +3,17 @@
 **Control:** [1.6 Microsoft Purview DSPM for AI](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md)
 **Audience:** M365 administrator (US financial services)
 **Last UI Verified:** May 2026
-**Cloud coverage:** Commercial · GCC · GCC High · DoD (see sovereign cloud table below)
+**Cloud coverage:** Commercial (Global)
 
 ---
 
-## Sovereign cloud URLs and feature parity
+## Portal URLs
 
 | Cloud | Portal URL | DSPM for AI (classic) | Unified DSPM | IRM-backed templates | Adaptive Protection |
 |---|---|---|---|---|---|
 | Commercial | `https://purview.microsoft.com` | GA | GA (May 2026, MC1191257) | GA | GA |
-| GCC | `https://purview.microsoft.com` | GA | GA (May 2026, commercial-first) | GA | GA |
-| GCC High | `https://purview.microsoft.us` | GA (May 2025) | Not announced as of May 2026 | Limited (verify per workload) | Not at parity |
-| DoD | `https://purview.microsoft.us` (DoD instance) | GA (May 2025) | Not announced as of May 2026 | Limited (verify per workload) | Not at parity |
 
-> Verify your tenant's cloud before relying on the new unified DSPM. Insider Risk Management is not at parity in US Government clouds — IRM-backed one-click templates may be unavailable. Partner solutions for non-Microsoft data sources and the Data Security Posture Agent remain in preview even in Commercial / GCC.
+> Verify the new unified DSPM availability in your tenant (MC1191257). Partner solutions for non-Microsoft data sources and the Data Security Posture Agent remain in preview.
 
 ---
 
@@ -50,7 +47,7 @@
 
 ### Step 1 — Open DSPM for AI (classic)
 
-1. Sign in to your tenant cloud's Purview URL (see sovereign cloud table)
+1. Sign in to the [Microsoft Purview portal](https://purview.microsoft.com)
 2. **Solutions** > **DSPM for AI (classic)**
 3. Confirm the **Overview** page loads (this gates further role-related troubleshooting)
 
@@ -78,7 +75,7 @@
 
 - Requires **Insider Risk Management** role group
 - Enables IRM-backed signals (Adaptive Protection, Risky AI usage)
-- Not available at parity in GCC High / DoD — record the exception in your Zone-3 register
+- Verify current availability in your tenant before relying on this feature
 
 ### Step 6 — Inventory & enable one-click policy templates
 
@@ -136,7 +133,7 @@ In **Apps and agents**, export the inventory and reconcile to your CMDB / agent 
 
 ## Unified DSPM — generally available callout
 
-The new unified **DSPM** experience consolidating DSPM and DSPM for AI reached general availability in May 2026 (Commercial / GCC) per **MC1191257**. Specific UI affordances continue to evolve; verify against current Microsoft Learn (`data-security-posture-management-learn-about`) at each portal session, and **do not commit to specific widget names, dashboard digest schedules, or "Enhanced CSV" semantics** in your evidence binder until they appear on Learn. Partner solutions for non-Microsoft data sources and the Data Security Posture Agent remain in preview.
+The new unified **DSPM** experience consolidating DSPM and DSPM for AI reached general availability in May 2026 (Commercial) per **MC1191257**. Specific UI affordances continue to evolve; verify against current Microsoft Learn (`data-security-posture-management-learn-about`) at each portal session, and **do not commit to specific widget names, dashboard digest schedules, or "Enhanced CSV" semantics** in your evidence binder until they appear on Learn. Partner solutions for non-Microsoft data sources and the Data Security Posture Agent remain in preview.
 
 ---
 

@@ -28,28 +28,15 @@ Always assert session state at the top of every script.
 
 ---
 
-## Sovereign cloud connection parameters
+## Commercial connection
 
 ```powershell
 # Commercial
 Connect-ExchangeOnline -UserPrincipalName $upn
 Connect-IPPSSession -UserPrincipalName $upn
 
-# GCC High
-Connect-ExchangeOnline -UserPrincipalName $upn -ExchangeEnvironmentName O365USGovGCCHigh
-Connect-IPPSSession -UserPrincipalName $upn `
-    -ConnectionUri 'https://ps.compliance.protection.microsoftonline.us/PowerShell-LiveId' `
-    -AzureADAuthorizationEndpointUri 'https://login.microsoftonline.us/common'
 
-# DoD
-Connect-ExchangeOnline -UserPrincipalName $upn -ExchangeEnvironmentName O365USGovDoD
-Connect-IPPSSession -UserPrincipalName $upn `
-    -ConnectionUri 'https://l5.ps.compliance.protection.office365.us/PowerShell-LiveId' `
-    -AzureADAuthorizationEndpointUri 'https://login.microsoftonline.us/common'
 
-# Graph (sovereign)
-Connect-MgGraph -Environment USGov     # GCC / GCC High
-Connect-MgGraph -Environment USGovDoD  # DoD
 ```
 
 ---
@@ -66,7 +53,7 @@ Connect-MgGraph -Environment USGovDoD  # DoD
 [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
 param(
     [Parameter(Mandatory)] [string] $TenantId,
-    [Parameter(Mandatory)] [ValidateSet('Commercial','GCC','GCCHigh','DoD')] [string] $Cloud,
+    [string] $Cloud = 'Commercial',
     [Parameter(Mandatory)] [string] $UPN,
     [Parameter(Mandatory)] [string] $EvidencePath
 )

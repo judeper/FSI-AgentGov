@@ -10,7 +10,7 @@
 
 > **Scope.** This playbook covers the two DLP control planes governed by Control 1.5 — (1) **Microsoft Purview DLP** for Microsoft 365 Copilot and Copilot Chat, sensitivity-label enforcement, Endpoint DLP, Network DLP / Edge for Business unmanaged-AI rules, and (2) **Power Platform data policies** for Microsoft Copilot Studio agents and connector classification. It also covers the cross-cutting evidence dependencies on Purview Audit (Control 1.7), DSPM for AI (Control 1.6), Sensitive Information Types (Control 1.13), and Insider Risk Management / Adaptive Protection (Control 1.12).
 >
-> Use this playbook when a DLP rule has produced an unexpected allow, an unexpected block, a missing audit row, a sovereign-cloud capability gap, or an examiner observation. For day-2 verification, use [verification-testing.md](./verification-testing.md). For first-time setup, use [portal-walkthrough.md](./portal-walkthrough.md) and [powershell-setup.md](./powershell-setup.md).
+> Use this playbook when a DLP rule has produced an unexpected allow, an unexpected block, a missing audit row, or an examiner observation. For day-2 verification, use [verification-testing.md](./verification-testing.md). For first-time setup, use [portal-walkthrough.md](./portal-walkthrough.md) and [powershell-setup.md](./powershell-setup.md).
 
 ---
 
@@ -19,23 +19,21 @@
 - [§1 FSI Incident Handling — read first](#1-fsi-incident-handling-read-first)
 - [§2 Plane decision matrix — DSPM vs Audit vs DLP enforcement](#2-plane-decision-matrix-dspm-vs-audit-vs-dlp-enforcement)
 - [§3 Anti-patterns (do not do)](#3-anti-patterns-do-not-do)
-- [§4 Symptom-driven scenarios (FSI critical 13)](#4-symptom-driven-scenarios-fsi-critical-13)
+- [§4 Symptom-driven scenarios (FSI critical 12)](#4-symptom-driven-scenarios-fsi-critical-12)
   - [Scenario 1 — DLP policy didn't fire on Copilot prompt or response](#scenario-1-dlp-policy-didnt-fire-on-copilot-prompt-or-response)
   - [Scenario 2 — Endpoint DLP not enforcing on macOS device](#scenario-2-endpoint-dlp-not-enforcing-on-macos-device)
   - [Scenario 3 — Unmanaged-AI rule (Edge for Business / Network DLP) not blocking](#scenario-3-unmanaged-ai-rule-edge-for-business-network-dlp-not-blocking)
   - [Scenario 4 — Power Platform connector still allowed in environment despite tenant DLP](#scenario-4-power-platform-connector-still-allowed-in-environment-despite-tenant-dlp)
   - [Scenario 5 — Sensitivity label not applied to SharePoint grounding source — Copilot returned restricted content](#scenario-5-sensitivity-label-not-applied-to-sharepoint-grounding-source-copilot-returned-restricted-content)
-  - [Scenario 6 — Adaptive Protection unavailable in GCC / GCC High / DoD](#scenario-6-adaptive-protection-unavailable-in-gcc-gcc-high-dod)
-  - [Scenario 7 — DLP override justification not captured in audit](#scenario-7-dlp-override-justification-not-captured-in-audit)
-  - [Scenario 8 — EDM detection not matching real customer account numbers](#scenario-8-edm-detection-not-matching-real-customer-account-numbers)
-  - [Scenario 9 — DKE-protected file unreadable in Copilot](#scenario-9-dke-protected-file-unreadable-in-copilot)
-  - [Scenario 10 — Simulation produced no hits but Turn-it-on caused floods](#scenario-10-simulation-produced-no-hits-but-turn-it-on-caused-floods)
-  - [Scenario 11 — Audit shows DLP event but Sentinel didn't ingest](#scenario-11-audit-shows-dlp-event-but-sentinel-didnt-ingest)
-  - [Scenario 12 — FSI false-positive flood from a generic SIT](#scenario-12-fsi-false-positive-flood-from-a-generic-sit)
-  - [Scenario 13 — DLP coverage gap surfaced during exam](#scenario-13-dlp-coverage-gap-surfaced-during-exam)
-- [§5 Sovereign-cloud differences (summary)](#5-sovereign-cloud-differences-summary)
-- [§6 Escalation path](#6-escalation-path)
-- [§7 Cross-references](#7-cross-references)
+  - [Scenario 6 — DLP override justification not captured in audit](#scenario-6-dlp-override-justification-not-captured-in-audit)
+  - [Scenario 7 — EDM detection not matching real customer account numbers](#scenario-7-edm-detection-not-matching-real-customer-account-numbers)
+  - [Scenario 8 — DKE-protected file unreadable in Copilot](#scenario-8-dke-protected-file-unreadable-in-copilot)
+  - [Scenario 9 — Simulation produced no hits but Turn-it-on caused floods](#scenario-9-simulation-produced-no-hits-but-turn-it-on-caused-floods)
+  - [Scenario 10 — Audit shows DLP event but Sentinel didn't ingest](#scenario-10-audit-shows-dlp-event-but-sentinel-didnt-ingest)
+  - [Scenario 11 — FSI false-positive flood from a generic SIT](#scenario-11-fsi-false-positive-flood-from-a-generic-sit)
+  - [Scenario 12 — DLP coverage gap surfaced during exam](#scenario-12-dlp-coverage-gap-surfaced-during-exam)
+- [§5 Escalation path](#5-escalation-path)
+- [§6 Cross-references](#6-cross-references)
 
 ---
 
@@ -108,7 +106,7 @@ Apply one or more while the rule is being repaired. Document in the incident tic
 
 ### 1.5 Pre-escalation checklist (≥ 15 items)
 
-1. [ ] Tenant ID and cloud confirmed (Commercial / GCC / GCC High / DoD)
+1. [ ] Tenant ID confirmed (Commercial cloud)
 2. [ ] Policy + rule identity captured (`Get-DlpCompliancePolicy`, `Get-DlpComplianceRule` from IPPS)
 3. [ ] Mode confirmed — `Enable` vs `TestWithNotifications` vs `TestWithoutNotifications` vs `Disable`
 4. [ ] Locations enumerated — `Microsoft 365 Copilot and Copilot Chat` location is present and the policy was built from the **Custom** template (one-click templates omit it)
@@ -120,7 +118,6 @@ Apply one or more while the rule is being repaired. Document in the incident tic
 10. [ ] Propagation window honored — ≥ 4 hours since the last rule save (Microsoft-documented for the Copilot location)
 11. [ ] Administrative-unit scope ruled out — the Copilot DLP location does not support AUs; an AU-scoped admin's rule silently never applies
 12. [ ] Power Platform DLP state captured for any Copilot Studio surface (`Get-DlpPolicy`, environment scope, connector classification)
-13. [ ] Sovereign-cloud parity verified — Adaptive Protection, IRM, and some Copilot DLP previews are not at parity in GCC / GCC High / DoD
 14. [ ] Endpoint DLP device-onboarding state verified for any Endpoint surface (Defender for Endpoint or standalone Purview onboarding)
 15. [ ] Last known-good evidence pack timestamp (Control 1.7) recorded
 16. [ ] Compliance + Legal notified per severity matrix; Privacy notified for any NPI-touching SEV-1 / SEV-2
@@ -158,17 +155,17 @@ Control 1.5 owns the **DLP enforcement plane**. The other two columns reference 
 | Writing an auto-labeling policy that targets "AI interactions" as a location | No such location exists for auto-labeling | Auto-label the underlying SPO / OneDrive / Exchange items; let the Copilot DLP rule act on the labeled items |
 | Validating a new Copilot DLP rule by testing immediately after save | Documented propagation is **up to 4 hours** | Wait the documented window; record the rule-save UTC timestamp |
 | Scoping a Copilot DLP rule to a Restricted Administrative Unit | Copilot DLP location does not support AUs — the rule silently never applies | Author with a tenant-scoped Compliance Admin |
-| Assuming **Adaptive Protection** is at parity in GCC / GCC High / DoD | IRM is not available in any US Government cloud per Microsoft Learn | Document the sovereign-cloud exception; use static role-based DLP — see Scenario 6 |
+| Assuming **Adaptive Protection** is at parity across all commercial Purview features | Dynamic risk-based DLP depends on IRM policies being active and connected | Verify IRM policy and Adaptive Protection wiring per Control 1.12 before building DLP rules conditioned on risk tier |
 | Trusting the citation list as evidence the file was "blocked" | The Prevent-Copilot-from-processing-content action stops summarization, but the item still appears in citations with a click-through link | Combine with site / library access controls (Control 1.3); do not rely on the DLP action alone |
 | Using `Get-AdminAuditLogConfig` from `Connect-IPPSSession` to verify audit ingestion | IPPS can return a cached / stale value | Always run from `Connect-ExchangeOnline` |
 
 ---
 
-## §4 Symptom-driven scenarios (FSI critical 13)
+## §4 Symptom-driven scenarios (FSI critical 12)
 
 > Format: **Symptom → Likely cause → Diagnostic (PowerShell + portal path) → Resolution → What good looks like (exit criteria)**.
 >
-> All snippets below assume connection helpers from [`powershell-setup.md`](./powershell-setup.md) — specifically `Connect-Purview-IPPS`, `Connect-Purview-EXO`, `Connect-PowerPlatform`, and `Get-EvidenceStamp`. Do not redefine them inline. Sovereign-cloud parameters are in the baseline at [`docs/playbooks/_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md).
+> All snippets below assume connection helpers from [`powershell-setup.md`](./powershell-setup.md) — specifically `Connect-Purview-IPPS`, `Connect-Purview-EXO`, `Connect-PowerPlatform`, and `Get-EvidenceStamp`. Do not redefine them inline.
 
 ---
 
@@ -442,50 +439,7 @@ Get-AutoSensitivityLabelPolicy | Select-Object Name, Mode, ApplySensitivityLabel
 
 ---
 
-### Scenario 6 — Adaptive Protection unavailable in GCC / GCC High / DoD
-
-A DLP rule conditioned on Adaptive Protection risk tier (low / moderate / elevated) does nothing in a US Government cloud tenant.
-
-**This is not a defect.** Microsoft Learn documents that **Insider Risk Management is not available in any US Government cloud (GCC, GCC High, or DoD)** ([Adaptive Protection in Microsoft Purview](https://learn.microsoft.com/en-us/purview/insider-risk-management-adaptive-protection)). Adaptive Protection depends on IRM; therefore the dependency cannot be satisfied in those clouds.
-
-**Diagnostic — PowerShell**
-
-```powershell
-Connect-Purview-IPPS
-
-# Confirm cloud + IRM cmdlet absence
-$env:USERDOMAIN
-(Get-OrganizationConfig).Identity                   # tenant identity hint
-Get-Command Get-InsiderRiskPolicy -ErrorAction SilentlyContinue   # null in US Gov clouds
-
-# Confirm the DLP rule references the IRM-derived condition
-$rule = Get-DlpComplianceRule -Policy '<policy>'
-$rule | Where-Object { $_.RawContent -match 'AdaptiveProtection|InsiderRisk' } |
-        Select-Object Name, RawContent
-```
-
-**Diagnostic — portal**
-
-- Purview → **Insider Risk Management** — in a US Government tenant, this solution does not appear in the left navigation (or is greyed out).
-
-**Resolution (compensating control)**
-
-- Use **static, role-based DLP** in GCC / GCC High / DoD: scope by group membership (e.g., front-office, M&A, research), by Azure AD role, by sensitivity label, and by SIT — not by risk tier.
-- Document the parity gap in Written Supervisory Procedures **and** in the firm's deviation register, citing the Microsoft Learn link above.
-- Increase **Communication Compliance** review cadence (Control 1.10) for high-risk populations as a behavioral compensating layer.
-- Re-check on each Microsoft Learn refresh; if Microsoft adds IRM to the relevant cloud, schedule a review.
-
-**What good looks like**
-
-- All DLP rules in the US Gov tenant use static conditions only (no `AdaptiveProtection*` references).
-- The deviation register entry cites the Microsoft Learn parity statement and lists the named compensating control (static DLP + elevated CommComp cadence).
-- The WSP section on AI supervision references the deviation register entry.
-
-... see Control 1.5 §"Sovereign Cloud Availability" and the deviation register pattern from Control 2.6.
-
----
-
-### Scenario 7 — DLP override justification not captured in audit
+### Scenario 6 — DLP override justification not captured in audit
 
 A user clicked "Override" on a DLP policy tip but the audit row contains no justification text, breaking the supervisory-review chain.
 
@@ -493,7 +447,7 @@ A user clicked "Override" on a DLP policy tip but the audit row contains no just
 
 1. The rule was authored with `NotifyAllowOverride 'WithoutJustification'` (or override was not enabled).
 2. Audit logging is not at Purview Audit **Standard** / **Premium** for the relevant `RecordType`.
-3. Forwarding to Sentinel is mis-scoped and the row exists in Audit but not in Sentinel — see Scenario 11.
+3. Forwarding to Sentinel is mis-scoped and the row exists in Audit but not in Sentinel — see Scenario 10.
 
 **Diagnostic — PowerShell**
 
@@ -534,7 +488,7 @@ Get-AdminAuditLogConfig | Select-Object UnifiedAuditLogIngestionEnabled,
 
 ---
 
-### Scenario 8 — EDM detection not matching real customer account numbers
+### Scenario 7 — EDM detection not matching real customer account numbers
 
 An Exact Data Match (EDM) SIT built from the firm's customer-master file is not matching real account numbers in test prompts.
 
@@ -586,7 +540,7 @@ $rule | Select-Object Name, ContentContainsSensitiveInformation
 
 ---
 
-### Scenario 9 — DKE-protected file unreadable in Copilot
+### Scenario 8 — DKE-protected file unreadable in Copilot
 
 Copilot returns "I couldn't access this content" or omits a Double Key Encryption (DKE)-protected file from grounding even though the user has access in SPO.
 
@@ -617,7 +571,7 @@ Copilot returns "I couldn't access this content" or omits a Double Key Encryptio
 
 ---
 
-### Scenario 10 — Simulation produced no hits but Turn-it-on caused floods
+### Scenario 9 — Simulation produced no hits but Turn-it-on caused floods
 
 A new policy was run in `TestWithoutNotifications` for two weeks with zero hits; on flipping to `Enable` it produced thousands of matches in the first hour.
 
@@ -669,7 +623,7 @@ Get-DlpDetailReport -StartDate (Get-Date).AddHours(-1) -EndDate (Get-Date) |
 
 ---
 
-### Scenario 11 — Audit shows DLP event but Sentinel didn't ingest
+### Scenario 10 — Audit shows DLP event but Sentinel didn't ingest
 
 A `ComplianceDLPSharePoint` event is visible in the Purview Audit search but the corresponding Sentinel analytics rule never fired.
 
@@ -713,7 +667,7 @@ If the query returns zero with rows present in Purview Audit, the gap is at the 
 
 ---
 
-### Scenario 12 — FSI false-positive flood from a generic SIT
+### Scenario 11 — FSI false-positive flood from a generic SIT
 
 A rule using the built-in **U.S. Bank Account Number** SIT (or another generic 9-digit numeric SIT) is producing thousands of false positives on internal documents containing order numbers, ticket numbers, or part numbers.
 
@@ -755,7 +709,7 @@ Get-DlpDetailReport -StartDate (Get-Date).AddDays(-7) -EndDate (Get-Date) |
 
 ---
 
-### Scenario 13 — DLP coverage gap surfaced during exam
+### Scenario 12 — DLP coverage gap surfaced during exam
 
 A FINRA, SEC, OCC, Fed, NYDFS, or state examiner identifies that a specific surface (e.g., Exchange Online for an associated-person population) is uninstrumented for a regulated content type, and asks the firm to remediate.
 
@@ -781,31 +735,7 @@ A FINRA, SEC, OCC, Fed, NYDFS, or state examiner identifies that a specific surf
 
 ---
 
-## §5 Sovereign-cloud differences (summary)
-
-| Capability | Commercial | GCC | GCC High | DoD |
-|---|---|---|---|---|
-| Purview DLP for Microsoft 365 Copilot and Copilot Chat (block by label) | ✅ GA | ⚠️ Verify Roadmap / MC | ⚠️ Verify — staged | ⚠️ Verify — staged |
-| Purview DLP for Copilot prompts (SIT) | Preview | Verify | Verify | Verify |
-| Power Platform data policies | ✅ GA | ✅ GA | ✅ GA (verify connector parity) | ✅ GA (verify connector parity) |
-| Connector endpoint filtering | Preview | Verify | Verify | Verify |
-| Sensitivity labels (file / email) | ✅ GA | ✅ GA | ✅ GA | ✅ GA |
-| Auto-labeling (SPO / ODB / Exchange) | ✅ GA | ✅ GA | ✅ GA (verify model parity) | ✅ GA (verify model parity) |
-| Endpoint DLP (Win + macOS) | ✅ | ✅ | ✅ | ✅ |
-| Insider Risk Management + Adaptive Protection | ✅ GA | ❌ Not available | ❌ Not available | ❌ Not available |
-| DSPM for AI | Staged | Verify | Verify | Verify |
-
-**Portal endpoints**
-
-- Commercial: `https://purview.microsoft.com` and `https://admin.powerplatform.microsoft.com`
-- GCC: `https://compliance.microsoft.com` (transitioning to `purview.microsoft.com`); PPAC `admin.powerplatform.microsoft.us`
-- GCC High / DoD: `https://purview.microsoft.us` and `https://admin.powerplatform.microsoft.us`
-
-Document any sovereign-cloud exception in the control's deviation register; re-check on each Microsoft Learn refresh.
-
----
-
-## §6 Escalation path
+## §5 Escalation path
 
 1. **L1 — Purview Compliance Admin** (within 1 h SEV-1; 4 h SEV-2): preserve evidence per §1.3; run §1.5 pre-escalation checklist.
 2. **L2 — AI Governance Lead** (within 1 h SEV-1): triage cross-control impact (1.3, 1.6, 1.7, 1.10, 1.12, 1.13, 2.1, 2.16, 3.4, 3.9).
@@ -815,7 +745,7 @@ Document any sovereign-cloud exception in the control's deviation register; re-c
 
 ---
 
-## §7 Cross-references
+## §6 Cross-references
 
 - [Control 1.5 Portal Walkthrough](portal-walkthrough.md)
 - [Control 1.5 PowerShell Setup](powershell-setup.md)

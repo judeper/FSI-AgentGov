@@ -15,7 +15,7 @@
 | External sharing still possible despite tenant `Disabled` | Site-level setting more permissive (sites can be more restrictive than tenant, never more permissive — check for older site that retained value before tenant tightened) | Re-apply `Set-SPOSite -SharingCapability Disabled`; verify no scripts reset values |
 | RAC blocks legitimate Power Automate / agent service flows | Service account / managed identity not in RAC group | Add the service identity to the bound RAC group; never disable RAC as a workaround |
 | RCD not suppressing content from Copilot | Propagation delay; user has direct access via another path; RCD applied to wrong site | Wait up to 24h; confirm via `Get-SPOSite -Detailed`; check user's effective permissions |
-| `Set-SPOSite -RestrictedAccessControl` parameter not found | Module version too old or sovereign cloud lacks the surface | Pin newer SPO Management Shell; use the SharePoint admin center flyout as fallback |
+| `Set-SPOSite -RestrictedAccessControl` parameter not found | Module version too old or cmdlet not yet available | Pin newer SPO Management Shell; use the SharePoint admin center flyout as fallback |
 | Access review not sending notifications | Reviewers have no mailbox / are guest accounts; mail-flow restricted; review still queued | Confirm reviewers are licensed; check Exchange Online flow; wait for cycle start |
 | DAG report shows broad sharing on a site you remediated | Report is cached/scheduled, not real-time | Force re-run from the report page; expect 24–48h refresh |
 | Restricted SharePoint Search blocks Copilot for sanctioned sites | Site missing from the allow-list (max 100) | Add site or, better, complete RAC/RCD remediation and disable Restricted SharePoint Search |

@@ -3,7 +3,7 @@
 **Control:** [1.8 Runtime Protection and External Threat Detection](../../../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md)
 **Baseline:** [PowerShell baseline (`_shared/powershell-baseline.md`)](../../_shared/powershell-baseline.md)
 **Audience:** M365 administrator at a US financial services organization (FINRA / SEC / GLBA / OCC / Fed SR 26-2 (formerly SR 11-7) / CFTC oversight) operating Microsoft 365 Copilot, Agent Builder, and Microsoft Copilot Studio agents.
-**Sovereign clouds:** Commercial / GCC / GCC High / DoD — connection helper in [Section 1](#1-pre-flight) and full reference in [Section 11](#11-sovereign-cloud-reference). Several Control 1.8 surfaces (Defender for Cloud Apps AI Agent Protection, Additional Threat Detection webhooks) are **Preview** or **Prerelease** in commercial cloud and have **not** been documented at parity for US Government clouds — see [Section 11](#11-sovereign-cloud-reference) and [Section 12](#12-anti-patterns-what-not-to-do).
+**Cloud:** Commercial (Global) — the deployment surface for US financial-services customers.
 
 **Required modules:**
 
@@ -14,7 +14,7 @@
 - `ExchangeOnlineManagement` ≥ 3.5.0 — provides `Connect-IPPSSession` and `Search-UnifiedAuditLog` (paged) for the Copilot Studio and Microsoft 365 Copilot audit families.
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), transcript capture, and SHA-256 evidence emission. Snippets below assume you have already complied with that baseline.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), transcript capture, and SHA-256 evidence emission. Snippets below assume you have already complied with that baseline.
 
 !!! danger "READ FIRST — Control 1.8 has FOUR surfaces, TWO portals, and a hard PowerShell ceiling"
 
@@ -27,7 +27,7 @@
 
     **What PowerShell *can* do for Control 1.8:**
 
-    - Pre-flight role / license / module / sovereign-endpoint / Managed-Environments / M365 App Connector status.
+    - Pre-flight role / license / module / Managed-Environments / M365 App Connector status.
     - Inventory environments (with the **correct** managed-environment property path), webhook FIC bindings on the registered app, and DLP policies that govern connector egress.
     - **Mutate** the Entra app registration and federated identity credential that backs Additional Threat Detection — but only after the operator has copied the **PPAC-issued `subject` and `issuer`** from the portal.
     - Collect audit-log evidence (`Search-UnifiedAuditLog`, paged) across **two** RecordType families that surface Copilot Studio runtime threat events, and reconcile them.
@@ -78,7 +78,7 @@ if ($PSVersionTable.PSEdition -ne 'Core' -or $PSVersionTable.PSVersion.Major -lt
 Every Control 1.8 PowerShell session **must** start with the same nine steps:
 
 1. Pin module versions (CAB-approved): `Microsoft.PowerApps.Administration.PowerShell`, `Microsoft.Graph.Authentication`, `Microsoft.Graph.Applications`, `Microsoft.Graph.Beta.Security`, `ExchangeOnlineManagement`.
-2. Resolve sovereign-cloud connection parameters from a single `-Cloud` switch and **emit a clear warning** if the cloud is GCC / GCC High / DoD — Defender for Cloud Apps AI Agent Protection and Additional Threat Detection have **not** been documented at parity in those clouds.
+2. Verify connection parameters and open a Microsoft Graph session.
 3. Connect to **Power Platform** (Desktop session only; the helper detects edition and skips the PPAC connection from Core sessions, leaving it to a sibling Desktop entrypoint).
 4. Connect to **Microsoft Graph** with the read / write scopes required for app-registration + FIC mutation, Defender alert read, and Sentinel hunting query execution.
 5. Connect to **IPPS** (Security & Compliance) — Copilot Studio audit operations are IPPS-only.
@@ -101,7 +101,7 @@ function Initialize-Agt18Session {
     .SYNOPSIS
         Pre-flight for Control 1.8 (Runtime Protection and External Threat Detection).
     .DESCRIPTION
-        Resolves sovereign endpoint, opens a Microsoft Graph session (v1.0 + beta)
+        Opens a Microsoft Graph session (v1.0 + beta)
         with the scopes required for app registration, FIC mutation, Defender
         alert read, and Sentinel hunting query execution; opens an IPPS session
         for Copilot Studio audit; asserts module version pins; asserts caller
@@ -120,12 +120,11 @@ function Initialize-Agt18Session {
         Caller must be assigned at least one of these directory roles. Default
         list covers PPAC enumeration, Graph app mutation, and UAL search.
     .EXAMPLE
-        $ctx = Initialize-Agt18Session -UserPrincipalName admin@contoso.com -Cloud GCCHigh
+        $ctx = Initialize-Agt18Session -UserPrincipalName admin@contoso.com
     #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)] [string] $UserPrincipalName,
-        [ValidateSet('Commercial','GCC','GCCHigh','DoD')]
         [string] $Cloud = 'Commercial',
         [string[]] $RequiredDirectoryRoles = @(
             'Power Platform Administrator',
@@ -152,7 +151,7 @@ function Initialize-Agt18Session {
         Import-Module $r.Name -RequiredVersion $m.Version -Force | Out-Null
     }
 
-    # 2. Resolve sovereign endpoints ----------------------------------------
+    # 2. Set connection parameters
     $endpoint = switch ($Cloud) {
         'Commercial' { @{
             IppsUri    = 'https://ps.compliance.protection.outlook.com/powershell-liveid/'
@@ -161,51 +160,10 @@ function Initialize-Agt18Session {
             GraphHost  = 'https://graph.microsoft.com'
             PpacEndpt  = 'prod'
         } }
-        'GCC'        { @{
-            IppsUri    = 'https://ps.compliance.protection.outlook.com/powershell-liveid/'
-            Aad        = 'https://login.microsoftonline.com/organizations'
-            GraphEnv   = 'Global'
-            GraphHost  = 'https://graph.microsoft.com'
-            PpacEndpt  = 'usgov'
-        } }
-        'GCCHigh'    { @{
-            IppsUri    = 'https://ps.compliance.protection.office365.us/powershell-liveid/'
-            Aad        = 'https://login.microsoftonline.us/organizations'
-            GraphEnv   = 'USGov'
-            GraphHost  = 'https://graph.microsoft.us'
-            PpacEndpt  = 'usgovhigh'
-        } }
-        'DoD'        { @{
-            IppsUri    = 'https://l5.ps.compliance.protection.office365.us/powershell-liveid/'
-            Aad        = 'https://login.microsoftonline.us/organizations'
-            GraphEnv   = 'USGovDoD'
-            GraphHost  = 'https://dod-graph.microsoft.us'
-            PpacEndpt  = 'dod'
-        } }
+
     }
 
-    # 2a. Sovereign-availability warning (CRITICAL — Defender AI Agent Protection
-    #     and Additional Threat Detection are documented for Commercial only;
-    #     gov-cloud parity is undocumented as of February 2026)
-    if ($Cloud -in @('GCC','GCCHigh','DoD')) {
-        Write-Warning @"
-Control 1.8 has LIMITED documented availability in $Cloud per Microsoft Learn:
-  - Defender for Cloud Apps AI Agent Protection (Preview, commercial only):
-    https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-protection
-  - Additional Threat Detection / Security Webhooks API (Prerelease, commercial only):
-    https://learn.microsoft.com/en-us/microsoft-copilot-studio/external-security-provider
-  - Copilot Studio is GA in GCC and GCC High per requirements-licensing-gcc, but
-    generative-AI dependencies (Prompt Shields, content moderation) have separate
-    availability constraints by cloud.
-ZERO ROWS IN $Cloud DOES NOT MEAN A CLEAN TENANT.
-Document the gap as a Control 1.8 exception in your control register and apply
-compensating controls: Prompt Shields + content moderation (per-agent, Maker
-portal), DLP for connector egress (Control 1.4), Audit Premium (Control 1.7),
-Communication Compliance (Control 1.10), and Microsoft Sentinel hunting queries
-against the Power Platform connector. Reverify gov-cloud availability against
-Microsoft Learn before each change window.
-"@
-    }
+
 
     # 3. Open Microsoft Graph session (v1.0 + beta share the same connection)
     #    Scopes:
@@ -360,12 +318,11 @@ function Initialize-Agt18PpacSession {
         Pre-flight for the PPAC half of Control 1.8 (Power Platform Admin
         cmdlets, which require Windows PowerShell 5.1).
     .DESCRIPTION
-        Asserts edition, pins module version, resolves the sovereign
-        -Endpoint switch, and opens an Add-PowerAppsAccount session. Read-only.
+        Asserts edition, pins module version, and opens an Add-PowerAppsAccount
+        session to the commercial endpoint. Read-only.
     #>
     [CmdletBinding()]
     param(
-        [ValidateSet('Commercial','GCC','GCCHigh','DoD')]
         [string] $Cloud = 'Commercial'
     )
 
@@ -382,17 +339,8 @@ function Initialize-Agt18PpacSession {
     }
     Import-Module $m.Name -RequiredVersion $m.Version -Force
 
-    $ppacEndpoint = switch ($Cloud) {
-        'Commercial' { 'prod' }
-        'GCC'        { 'usgov' }
-        'GCCHigh'    { 'usgovhigh' }
-        'DoD'        { 'dod' }
-    }
-
-    Add-PowerAppsAccount -Endpoint $ppacEndpoint | Out-Null
+    Add-PowerAppsAccount | Out-Null
     [PSCustomObject]@{
-        Cloud         = $Cloud
-        PpacEndpoint  = $ppacEndpoint
         ModuleVersion = $m.Version.ToString()
         Edition       = $PSVersionTable.PSEdition
         InitializedUtc= (Get-Date).ToUniversalTime().ToString('o')
@@ -646,7 +594,6 @@ function Get-Agt18WebhookFicInventory {
 [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
 param(
     [Parameter(Mandatory)] [string] $UserPrincipalName,
-    [ValidateSet('Commercial','GCC','GCCHigh','DoD')]
     [string] $Cloud = 'Commercial',
 
     # App registration parameters -------------------------------------------
@@ -795,7 +742,6 @@ Always query **both** RecordTypes and reconcile in [Section 7](#7-reconciliation
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)] [string] $UserPrincipalName,
-    [ValidateSet('Commercial','GCC','GCCHigh','DoD')]
     [string] $Cloud = 'Commercial',
     [Parameter(Mandatory)] [datetime] $StartUtc,
     [Parameter(Mandatory)] [datetime] $EndUtc,
@@ -1114,7 +1060,7 @@ Removes the FIC and the app registration created by `Configure-AdditionalThreatD
 [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
 param(
     [Parameter(Mandatory)] [string] $UserPrincipalName,
-    [ValidateSet('Commercial','GCC','GCCHigh','DoD')] [string] $Cloud = 'Commercial',
+    [string] $Cloud = 'Commercial',
     [Parameter(Mandatory)] [string] $AppObjectId,
     [Parameter(Mandatory)] [string] $OutputDirectory,
     [string] $RequiredTag = 'fsi:control:1.8:webhook-provider'
@@ -1182,27 +1128,9 @@ Disconnect-ExchangeOnline -Confirm:$false
 
 ---
 
-## 11. Sovereign cloud reference
-
-| Cloud | Connect-MgGraph -Environment | Graph host | IPPS ConnectionUri | AAD authority | PPAC `-Endpoint` | Notes |
-|---|---|---|---|---|---|---|
-| Commercial | `Global` | `https://graph.microsoft.com` | `https://ps.compliance.protection.outlook.com/powershell-liveid/` | `https://login.microsoftonline.com/organizations` | `prod` | Defender AI Agent Protection in Preview; Additional Threat Detection in Prerelease — verify per change window. |
-| GCC | `Global` | `https://graph.microsoft.com` | `https://ps.compliance.protection.outlook.com/powershell-liveid/` | `https://login.microsoftonline.com/organizations` | `usgov` | Same Graph endpoints as Commercial. **Defender AI Agent Protection and Additional Threat Detection availability NOT documented at parity** — apply compensating controls. |
-| GCC High | `USGov` | `https://graph.microsoft.us` | `https://ps.compliance.protection.office365.us/powershell-liveid/` | `https://login.microsoftonline.us/organizations` | `usgovhigh` | Distinct Graph + IPPS hosts. Verify Copilot Studio + Defender for Cloud Apps availability against [requirements-licensing-gcc](https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-licensing-gcc) before each change window. |
-| DoD (L5) | `USGovDoD` | `https://dod-graph.microsoft.us` | `https://l5.ps.compliance.protection.office365.us/powershell-liveid/` | `https://login.microsoftonline.us/organizations` | `dod` | Dedicated L5 IPPS host. Generative-AI dependencies have separate availability constraints — reverify per change window. |
-
-Sources:
-
-- [Connect-MgGraph -Environment values](https://learn.microsoft.com/en-us/powershell/microsoftgraph/authentication-commands)
-- [Connect-IPPSSession sovereign endpoints](https://learn.microsoft.com/en-us/powershell/exchange/connect-to-scc-powershell)
-- [Add-PowerAppsAccount -Endpoint values](https://learn.microsoft.com/en-us/power-platform/admin/powerapps-powershell)
-- [Microsoft Copilot Studio licensing requirements (US Government clouds)](https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-licensing-gcc)
-
-> **ZERO ROWS IN A GOV CLOUD DOES NOT MEAN A CLEAN TENANT.** Several Control 1.8 surfaces are not available in GCC / GCC High / DoD as of February 2026. A successful run that returns no Defender alerts and no `CopilotStudio` audit rows in those clouds means *the surfaces are not active*, not *the tenant is clean*. Document the gap and apply compensating controls.
-
 ---
 
-## 12. Anti-patterns — what NOT to do
+## 11. Anti-patterns — what NOT to do
 
 Every item in this list maps to a real failure mode discovered during Control 1.8 review.
 
@@ -1216,15 +1144,14 @@ Every item in this list maps to a real failure mode discovered during Control 1.
 8. **Reading `$env.Properties.protectionLevel` to detect Managed Environments.** The current schema exposes the value at `$env.Internal.properties.governanceConfiguration.protectionLevel` (or `$env.Properties.governanceConfiguration.protectionLevel` depending on module version). The wrong path returns `$null`, which the script then false-clean reports as "not managed".
 9. **Mutation cmdlets without `[CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]`.** No `-WhatIf` or `-Confirm` support means the change-management trail is missing. CAB will reject.
 10. **Removing app registrations without a provenance tag check.** `Remove-MgApplication` is irreversible. The rollback script must refuse to operate on apps without the `fsi:control:1.8:webhook-provider` tag (or whatever tag the Configure script set).
-11. **Wrapping `Connect-*` or `Disconnect-*` with `-ErrorAction SilentlyContinue`.** Both signals matter — a failed connect is a sovereign-endpoint or scope problem; a failed disconnect is a parallel-session problem. Suppressing them produces silent drift.
+11. **Wrapping `Connect-*` or `Disconnect-*` with `-ErrorAction SilentlyContinue`.** Both signals matter — a failed connect indicates an endpoint or scope problem; a failed disconnect indicates a parallel-session problem. Suppressing them produces silent drift.
 12. **Skipping the role pre-flight.** Without an `Application Administrator` (or higher) role, `New-MgApplication` returns 403 — but a Graph session opened with delegated `Application.ReadWrite.OwnedBy` will sometimes accept the call and create an app the operator cannot manage afterwards. Always assert role membership in `Initialize-Agt18Session`.
 13. **Skipping the Microsoft 365 App Connector health check.** Defender for Cloud Apps AI Agents Inventory will be empty or stale if the connector is degraded. Empty inventory looks identical to "no agents in tenant" — false-clean.
-14. **Treating commercial-cloud Learn URLs as authoritative for GCC / GCC High / DoD.** Several Control 1.8 surfaces have no documented gov-cloud parity. Reverify per cloud against the [GCC requirements page](https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-licensing-gcc) and, where the surface is unavailable, document the gap and apply compensating controls.
 15. **Skipping transcript capture.** `Start-Transcript` + `-IncludeInvocationHeader` is what your auditor will read when reconstructing what happened in the session. It is not optional for mutation scripts.
 
 ---
 
-## 13. Cross-links
+## 12. Cross-links
 
 | Related control | Why it matters for Control 1.8 |
 |---|---|
