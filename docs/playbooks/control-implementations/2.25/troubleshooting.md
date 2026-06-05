@@ -3,17 +3,16 @@
 **Companion to:** [Control 2.25 — Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md)
 **Sibling playbooks:** [Portal Walkthrough](./portal-walkthrough.md) · [PowerShell Setup](./powershell-setup.md) · [Verification & Testing](./verification-testing.md)
 **Audience:** AI Administrator, Entra Global Reader, AI Governance Lead, Purview Compliance Admin, Power Platform Admin, IR on-call.
-**Scope:** Diagnose and remediate failures in the Microsoft Agent 365 Admin Center (GA May 1, 2026), Default and Custom Governance Templates, admin-gated approval workflows, agent publish/deploy actions, inventory export, Researcher with Computer Use configuration, and sovereign-cloud parity gaps. Aligns with FINRA Rule 3110 supervisory tooling expectations, SEC Rule 17a-4 evidence preservation, SOX ITGC change-control proof, GLBA Safeguards Rule §314.4(c)(1) access enforcement, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Fed SR 26-2 (formerly SR 11-7) model risk oversight, and CFTC Reg 1.31 retention.
+**Scope:** Diagnose and remediate failures in the Microsoft Agent 365 Admin Center (GA May 1, 2026), Default and Custom Governance Templates, admin-gated approval workflows, agent publish/deploy actions, inventory export, Researcher with Computer Use configuration. Aligns with FINRA Rule 3110 supervisory tooling expectations, SEC Rule 17a-4 evidence preservation, SOX ITGC change-control proof, GLBA Safeguards Rule §314.4(c)(1) access enforcement, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Fed SR 26-2 (formerly SR 11-7) model risk oversight, and CFTC Reg 1.31 retention.
 
 > **Regulatory framing.** This playbook describes diagnostic and remediation procedures that **support compliance with** the cited regulations. The Agent 365 Admin Center provides supervisory tooling; it does **not** substitute for the registered-principal supervisory obligations under FINRA Rule 3110. Organizations should verify each procedure in a non-production tenant before production execution, and engage Legal / Compliance before altering any governance template or approval workflow that has produced examiner-reviewable evidence.
 
-> **Sovereign-cloud caveat.** Microsoft Agent 365 Admin Center, Default Governance Template, Custom Governance Templates, and admin-gated approval workflows are **not at parity** in GCC, GCC High, or DoD as of April 2026. Sovereign-tenant operators must use the compensating-control runbook in §10 (`PILLAR-SOV-PARITY-GAP`) and document the parity gap in the tenant Risk Register before relying on any procedure in this playbook. See [PowerShell baseline · §3 Sovereign Cloud Endpoints](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod).
 
 ---
 
 ## §0 Triage Tree
 
-Use this section as the entry point for every Sev1/Sev2/Sev3 incident touching Control 2.25. The triage tree maps observed symptoms to one of nine diagnostic pillars (§2–§10) or one of seven situational runbooks (§11–§17). Severity is determined by the matrix below and drives examiner-artifact preservation requirements.
+Use this section as the entry point for every Sev1/Sev2/Sev3 incident touching Control 2.25. The triage tree maps observed symptoms to one of eight diagnostic pillars (§2–§9) or one of seven situational runbooks (§10–§16). Severity is determined by the matrix below and drives examiner-artifact preservation requirements.
 
 ### §0.1 Symptom → Pillar Map
 
@@ -28,9 +27,8 @@ Use this section as the entry point for every Sev1/Sev2/Sev3 incident touching C
 | Deploy / Reassign / Disable bulk action fails for one or more agents | §7 DEPLOY-ACTION-FAIL | §4 OWNERLESS-AGENTS-MISMATCH |
 | Inventory export (CSV / JSON / Graph) returns truncated rows or missing columns | §8 INVENTORY-EXPORT-INCOMPLETE | §4 OWNERLESS-AGENTS-MISMATCH |
 | Researcher with Computer Use suddenly available to users not in approved group | §9 RESEARCHER-CONFIG-DRIFT | §5 TEMPLATE-APPLY-FAIL |
-| Sovereign tenant (GCC / GCC High / DoD) cannot access Admin Center features | §10 SOV-PARITY-GAP | (compensating-control activation) |
-| Multiple symptoms above, post-acquisition or post-reorg | §11 RB-01 (mass re-onboarding) | applicable pillar |
-| Examiner request received and queue is stale | §12 RB-02 (examiner pull) | §3 APPROVAL-QUEUE-STALE |
+| Multiple symptoms above, post-acquisition or post-reorg | §10 RB-01 (mass re-onboarding) | applicable pillar |
+| Examiner request received and queue is stale | §11 RB-02 (examiner pull) | §3 APPROVAL-QUEUE-STALE |
 
 ### §0.2 Severity Matrix
 
@@ -47,20 +45,20 @@ Before paging the AI Governance Lead or Entra Global Admin (PIM-elevated), the o
 1. Confirm GA status: tenant is on Microsoft Agent 365 Admin Center GA build (≥ May 1, 2026). Pre-GA preview tenants follow a different support path; see §2.4.
 2. Confirm reporter''s license posture: M365 E7 "Frontier Suite" OR standalone Agent 365 + Copilot prerequisite (`Get-Agt225LicenseAssignment -UserPrincipalName <upn>`).
 3. Confirm reporter''s role: AI Administrator, Entra Global Reader, AI Governance Lead, or other role per [Role Catalog](../../../reference/role-catalog.md). PIM activation timestamp captured.
-4. Capture initial evidence floor (E-01 console screenshot, E-02 Graph activity log, E-03 PowerShell session transcript). See §1.5.
+4. Capture initial evidence floor (E-01 console screenshot, E-02 Graph activity log, E-03 PowerShell session transcript). See §1.4.
 5. Identify affected zone(s): Zone 1 Personal, Zone 2 Team, Zone 3 Enterprise. Zone 3 escalations require Compliance Officer notification within 1 hour.
 6. Determine examiner-active status (FINRA / SEC / OCC / Fed exam in flight). If yes, escalate immediately and **do not** mutate state until Legal acknowledges.
 
 ### §0.4 Examiner-Artifact Preservation (SEC 17a-4 / CFTC 1.31)
 
-Any remediation that mutates console state (template re-apply, approval queue replay, owner reassignment, license change) must be preceded by an evidence snapshot meeting SEC Rule 17a-4(f) WORM-equivalent retention and CFTC Regulation 1.31 record-keeping. The snapshot bundle is enumerated in §1.5 (E-01 through E-09) and is delivered to the Purview-configured immutable evidence library (`AgentGov-Evidence-225`).
+Any remediation that mutates console state (template re-apply, approval queue replay, owner reassignment, license change) must be preceded by an evidence snapshot meeting SEC Rule 17a-4(f) WORM-equivalent retention and CFTC Regulation 1.31 record-keeping. The snapshot bundle is enumerated in §1.4 (E-01 through E-09) and is delivered to the Purview-configured immutable evidence library (`AgentGov-Evidence-225`).
 
 > **Hedged language reminder.** Snapshots **support** the regulated firm''s ability to reconstruct the supervisory state at a point in time; they do not by themselves satisfy retention obligations. The retention SLA depends on the firm''s configured Purview retention label and immutability policy. Verify with the Purview Compliance Admin before relying on the snapshot for examiner production.
 
 ---
 ## §1 Diagnostic Data Collection
 
-This section catalogs the helper cmdlets, Graph queries, and KQL queries used throughout §2–§17. All examples assume PowerShell 7.4 Core and the helper module loaded per [PowerShell Setup §2](./powershell-setup.md).
+This section catalogs the helper cmdlets, Graph queries, and KQL queries used throughout §2–§16. All examples assume PowerShell 7.4 Core and the helper module loaded per [PowerShell Setup §2](./powershell-setup.md).
 
 ```powershell
 #Requires -Version 7.4
@@ -186,11 +184,7 @@ AgentGovActivity
 | order by FailureRatePct desc
 ```
 
-### §1.4 Sovereign-Cloud Endpoint Substitution
-
-For GCC, GCC High, and DoD tenants, replace `graph.microsoft.com` with the appropriate sovereign endpoint per [PowerShell baseline · §3](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod). **Note:** the `/beta/admin/agent365` namespace is not at parity in sovereign clouds as of April 2026; queries will return `404 Not Found` or `403 Forbidden`. Use the compensating-control runbook in §10.
-
-### §1.5 Evidence Floor (E-01..E-09)
+### §1.4 Evidence Floor (E-01..E-09)
 
 Every Sev1 and every Zone-3 Sev2 incident must produce the following bundle via `Invoke-Agt225EvidenceSnapshot -IncidentId <id> -Destination AgentGov-Evidence-225`:
 
@@ -264,10 +258,10 @@ If the tenant is stuck on `preview-deprecated`, open a Microsoft 365 service req
 |---|---|
 | RC-A | Re-activate PIM role; if eligible-only without active assignment, request activation justification per Privileged Access Workflow. Document in change log. |
 | RC-B | File Microsoft service request to graduate tenant to GA channel. **Do not** attempt local workarounds. |
-| RC-C | Coordinate with Procurement to remediate license; until remediated, sovereign-style compensating controls (§10) apply. |
+| RC-C | Coordinate with Procurement to remediate license; until remediated, document the manual review fallback in the incident record. |
 | RC-D | Instruct reporter to clear site data; if recurring, file an internal IT ticket to investigate browser policy preventing cache refresh. |
 | RC-E | Coordinate with Identity team to evaluate the blocking Conditional Access policy. Common cause is a new device-compliance grant control rolled out without admin-workstation exemption. |
-| RC-F | Wait on Microsoft mitigation; activate §10 compensating-control posture if examiner-active or Sev1. |
+| RC-F | Wait on Microsoft mitigation; activate manual evidence preservation and review fallback if examiner-active or Sev1. |
 
 ### §2.6 Verification
 
@@ -649,7 +643,7 @@ Each batch produces a distinct correlation ID, which simplifies the SOX ITGC cha
 | Root cause | Resolution |
 |---|---|
 | RC-A | Repair dynamic group rule via Identity team; OR target a static group; re-run failed batch only. |
-| RC-B | Coordinate license remediation per RB-04 (§14); re-run after coverage restored. |
+| RC-B | Coordinate license remediation per RB-04 (§13); re-run after coverage restored. |
 | RC-C | Coordinate Conditional Access exemption per §2 RC-E. |
 | RC-D | Re-order action in topological order per §7.4 helper; reassign roots first, dependents second. |
 | RC-E | Re-partition action per §7.4. |
@@ -828,79 +822,18 @@ The cmdlet writes a `Feature.ResearcherComputerUse.ScopeChanged` audit event wit
 
 ---
 
-## §10 Pillar: SOV-PARITY-GAP — Sovereign Cloud Compensating Controls
-
-Microsoft Agent 365 Admin Center, Default and Custom Governance Templates, admin-gated approval workflows, and Researcher with Computer Use are **not at parity** in GCC, GCC High, or DoD as of April 2026. Sovereign-tenant operators cannot use the procedures in §2–§9 directly. This pillar documents the compensating-control posture that **supports** equivalent governance outcomes pending Microsoft sovereign-cloud parity.
-
-> **Hedged framing.** Compensating controls **support** the firm''s objective of equivalent governance posture. They do **not** guarantee functional equivalence with the commercial-cloud Admin Center. Document the gap, the compensating controls in effect, and the residual risk in the tenant Risk Register, reviewed quarterly by the AI Governance Lead and the Information Security Officer.
-
-### §10.1 Parity Status (April 2026)
-
-| Capability | Commercial | GCC | GCC High | DoD |
-|---|---|---|---|---|
-| Agent 365 Admin Center | GA | Not available | Not available | Not available |
-| Default Governance Template | GA | Not available | Not available | Not available |
-| Custom Governance Templates | GA | Not available | Not available | Not available |
-| Admin-gated approval workflows | GA | Not available | Not available | Not available |
-| Researcher with Computer Use | GA (Oct 2025) | Not available | Not available | Not available |
-| `/beta/admin/agent365` Graph namespace | Available | Not available | Not available | Not available |
-| Purview Audit (`Agent365AdminCenter` workload) | Available | Audit available, workload tag not yet emitted | Audit available, workload tag not yet emitted | Audit available, workload tag not yet emitted |
-
-Sovereign-cloud operators should subscribe to the Microsoft Cloud Sovereignty roadmap and revalidate this table quarterly.
-
-### §10.2 Compensating Control Posture
-
-For each Admin Center capability not available in sovereign clouds, the following compensating controls apply:
-
-| Capability gap | Compensating control | Owner | Evidence pattern |
-|---|---|---|---|
-| Console inventory & ownership view | Agent Registry export (Control 1.2 PowerShell) | AI Administrator | Registry CSV/JSON to immutable evidence library, daily |
-| Default Template auto-bundle | Manual binding of each underlying control via per-control PowerShell scripts | AI Administrator + per-control owners | Per-control verification logs |
-| Custom Template extension | Manual binding of Entra Access Packages, GSA, Purview KYD, SCPI via per-control scripts | AI Administrator | Per-control verification logs |
-| Admin-gated approval workflow | Manual approval workflow via ServiceNow / Jira ticket + Power Automate flow against the Agent Registry | AI Governance Lead | Ticket archive + Registry change log |
-| Researcher with Computer Use scoping | Feature unavailable in sovereign clouds; document non-applicability | AI Governance Lead | Risk Register entry |
-| Inventory export | `Get-AgtRegistry -Export` (Control 1.2) | AI Administrator | UTF-8 + SHA-256 to immutable evidence library |
-
-### §10.3 Sovereign Cloud Activation Runbook
-
-When a sovereign-tenant on-call engineer is paged for a Control 2.25 incident, the response is **always** to activate compensating controls and **never** to attempt commercial-cloud procedures (which will fail with 404 / 403).
-
-1. **Acknowledge the parity gap** in the incident record (template text in `runbooks/sov-225-ack.md`).
-2. **Identify the requested operation** (inventory pull, approval, ownership change, template apply equivalent).
-3. **Map to the compensating control** per §10.2 and execute via Control 1.2 / Control 3.6 / per-control PowerShell.
-4. **Capture evidence** to the sovereign-tenant immutable evidence library (`AgentGov-Evidence-225-Sov`).
-5. **File a quarterly Risk Register update** noting the incident as evidence of the residual risk.
-
-### §10.4 Sovereign Endpoint Reference
-
-All sovereign-cloud diagnostic queries must use the appropriate endpoint. See [PowerShell Baseline §3](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod) for the canonical endpoint list. The `Get-Agt225*` helpers detect cloud environment via `Get-MgEnvironment` and substitute endpoints automatically; manual Graph queries must substitute by hand.
-
-### §10.5 Verification
-
-1. Sovereign tenant Risk Register entry exists, updated within last 90 days.
-2. Compensating-control evidence is being produced on the documented cadence (e.g., daily Registry export).
-3. Pester `TRG-225-10` (Sovereign Compensating Control Activation) passes — the test verifies that `Get-Agt225Health` correctly reports `SovereignCompensatingMode: true` on a sovereign tenant.
-4. Quarterly review attestation signed by AI Governance Lead + Information Security Officer.
-
-### §10.6 Cross-References
-
-- [PowerShell Baseline §3 — Sovereign Endpoints](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod)
-- [Control 1.2 — Agent Registry](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md)
-- [Control 3.6 — Orphaned Agent Detection and Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md)
-
----
-## §11 Runbook RB-01 — Mass Agent Re-onboarding After Acquisition
+## §10 Runbook RB-01 — Mass Agent Re-onboarding After Acquisition
 
 **Trigger.** The firm has acquired another organization and 10+ agents from the acquired tenant must be onboarded into the Frontier-Suite tenant''s Console with template binding, ownership assignment, and approval. Sev2 unless examiner-active or > 200 agents (Sev1).
 
-### §11.1 Pre-Conditions
+### §10.1 Pre-Conditions
 
 - Acquired-tenant inventory exported as CSV/JSON with at minimum: agent display name, owner UPN (mapped to acquirer-tenant UPN), zone classification, current template binding, license requirement.
 - Frontier Suite seats provisioned for inbound owners (verified via `Get-Agt225LicenseAssignment -TenantScope -IncludeSeatAccounting`).
 - Default Governance Template and any required Custom Templates are in `prerequisiteState: Satisfied`.
 - Change-management ticket open with rollback plan.
 
-### §11.2 Procedure
+### §10.2 Procedure
 
 1. **Stage inventory**: import the acquired CSV; validate UPN mapping; flag rows without acquirer-tenant UPN (these block the run).
 2. **Partition by zone**: Zone 3 agents must bind to a Custom Template with Entra Access Package; do these in a separate batch.
@@ -917,7 +850,7 @@ All sovereign-cloud diagnostic queries must use the appropriate endpoint. See [P
 5. **Apply template** per §5.5 procedure.
 6. **Verify** via `Get-Agt225Agent` sample of 10% (or all if N < 100).
 
-### §11.3 Evidence Bundle
+### §10.3 Evidence Bundle
 
 - E-04 approval queue snapshot at start, mid-point, end
 - E-05 per-agent records post-onboarding
@@ -926,28 +859,28 @@ All sovereign-cloud diagnostic queries must use the appropriate endpoint. See [P
 - Acquisition CSV + UPN mapping spreadsheet
 - Change-management ticket with sign-off chain
 
-### §11.4 Rollback
+### §10.4 Rollback
 
 If onboarding produces unexpected failures (> 5% per batch), pause via `Suspend-Agt225BulkOperation -CorrelationIdPrefix "rb01-..."`. Disable agents created in the failing batch via `Invoke-Agt225BulkAction -ActionType Disable`. Document and re-plan.
 
-### §11.5 Cross-References
+### §10.5 Cross-References
 
-- [Verification & Testing §11 — Mass onboarding tests](./verification-testing.md)
+- [Verification & Testing §10 — Mass onboarding tests](./verification-testing.md)
 - [Control 2.3 — Change Management and Release Planning](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md)
 
 ---
 
-## §12 Runbook RB-02 — Examiner Pulls Quarterly Governance Evidence with Stale Approval Queue
+## §11 Runbook RB-02 — Examiner Pulls Quarterly Governance Evidence with Stale Approval Queue
 
 **Trigger.** A FINRA / SEC / OCC / Fed examiner has issued a request for quarterly governance evidence (typically: ownerless inventory, approval audit, template-state snapshot, Researcher scope evidence) and the approval queue is stale per §3. Sev1 by default.
 
-### §12.1 Pre-Conditions
+### §11.1 Pre-Conditions
 
 - Examiner request acknowledged in Compliance ticketing system with response SLA documented.
 - Legal has reviewed the request scope.
 - Incident commander assigned (AI Governance Lead).
 
-### §12.2 Procedure
+### §11.2 Procedure
 
 1. **Freeze the queue state immediately**: capture E-04 (queue snapshot), E-08 (audit log) for the examiner-requested window. **Do not** mutate state until evidence is preserved.
 2. **Diagnose the staleness** per §3 in parallel with the examiner-evidence collection. Engage Microsoft Support if RC-A or RC-F suspected.
@@ -960,7 +893,7 @@ If onboarding produces unexpected failures (> 5% per batch), pause via `Suspend-
    - Researcher scope: `Get-Agt225ResearcherConfig -Detailed` snapshot
 5. **Document the staleness** in the production package README. Disclose: "The Agent 365 Admin Center approval queue experienced a Sev1 staleness incident from {start} to {end}; manual supervisory review continued throughout per FINRA Rule 3110 § (b); evidence of the manual review is in Section X of this package."
 
-### §12.3 Examiner-Production Package Structure
+### §11.3 Examiner-Production Package Structure
 
 ```
 examiner-prod-2026Q1/
@@ -974,24 +907,24 @@ examiner-prod-2026Q1/
 └── attestation.pdf (signed by AI Governance Lead + Compliance Officer)
 ```
 
-### §12.4 Cross-References
+### §11.4 Cross-References
 
 - [Control 2.12 — Supervision and Oversight (FINRA Rule 3110)](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md)
 - [Control 3.3 — Compliance and Regulatory Reporting](../../../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md)
 
 ---
 
-## §13 Runbook RB-03 — Bulk Owner Reassignment After Team Reorganization
+## §12 Runbook RB-03 — Bulk Owner Reassignment After Team Reorganization
 
 **Trigger.** A business-unit reorganization has changed reporting lines for 25+ agent owners; the Console "Owner" field must be updated to reflect new ownership without breaking template bindings or approval workflows. Sev2.
 
-### §13.1 Pre-Conditions
+### §12.1 Pre-Conditions
 
 - HR-system export of leaver-joiner mapping (old UPN → new UPN) validated by HR data steward.
 - New owners have Frontier Suite / Agent 365 license assignment.
 - New owners hold an Agent Owner role binding (or a group containing them does).
 
-### §13.2 Procedure
+### §12.2 Procedure
 
 1. **Stage mapping**: import HR CSV; validate every old UPN appears exactly once.
 2. **Capture pre-state**: `Get-Agt225InventoryExport -Format Json` to evidence.
@@ -1008,30 +941,30 @@ examiner-prod-2026Q1/
 4. **Verify**: post-state export; diff to pre-state should match the mapping table exactly.
 5. **Confirm no reassignment loop** per §4.4 (no automation should be reverting these changes).
 
-### §13.3 Evidence Bundle
+### §12.3 Evidence Bundle
 
 - HR mapping CSV
 - Pre/post inventory exports
 - E-08 audit log for the reassignment window
 - Confirmation of zero-loop check (KQL `Agent.OwnerChanged` showing each agent changed exactly once)
 
-### §13.4 Cross-References
+### §12.4 Cross-References
 
-- [Verification & Testing §13 — Reassignment tests](./verification-testing.md)
+- [Verification & Testing §12 — Reassignment tests](./verification-testing.md)
 - [Control 1.2 — Agent Registry](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md)
 
 ---
 
-## §14 Runbook RB-04 — License Coverage Gap (Agent Acting OBO Unlicensed User)
+## §13 Runbook RB-04 — License Coverage Gap (Agent Acting OBO Unlicensed User)
 
 **Trigger.** Audit reveals one or more agents performing OBO (on-behalf-of) operations for users whose Frontier Suite / Agent 365 / Copilot license has lapsed. Sev1 because the firm is consuming a service that the user is not licensed for, with potential contractual and audit consequences.
 
-### §14.1 Pre-Conditions
+### §13.1 Pre-Conditions
 
 - License-coverage gap identified, typically via `Get-Agt225LicenseAssignment -GroupId <agentTargetGroup> -IncludeMissingMembers`.
 - Procurement engaged for emergency license review.
 
-### §14.2 Procedure
+### §13.2 Procedure
 
 1. **Identify scope**: enumerate agents, target users, and time window of OBO activity for unlicensed users.
 2. **Immediate containment**: disable the affected agents via `Invoke-Agt225BulkAction -ActionType Disable -AgentIds @(...)` to stop further unlicensed OBO activity.
@@ -1041,7 +974,7 @@ examiner-prod-2026Q1/
    - If users should not be licensed: remove users from the target group; re-enable agents with corrected scope; document rationale.
 5. **Notify Compliance Officer** for assessment of contractual exposure.
 
-### §14.3 Evidence Bundle
+### §13.3 Evidence Bundle
 
 - License-gap analysis output
 - Disable bulk-action correlation IDs
@@ -1049,23 +982,23 @@ examiner-prod-2026Q1/
 - Procurement decision record OR target-group correction record
 - Compliance Officer acknowledgement
 
-### §14.4 Cross-References
+### §13.4 Cross-References
 
 - [Control 2.7 — Vendor and Third-Party Risk Management](../../../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md)
-- [Verification & Testing §14 — License coverage tests](./verification-testing.md)
+- [Verification & Testing §13 — License coverage tests](./verification-testing.md)
 
 ---
 
-## §15 Runbook RB-05 — Agent Suggestions Feature Lighting Up Unexpectedly
+## §14 Runbook RB-05 — Agent Suggestions Feature Lighting Up Unexpectedly
 
 **Trigger.** Agent Suggestions (Microsoft-planned for 2026 Wave 1, **not yet GA** as of April 2026) appears in the Admin Center or in user surfaces unexpectedly — either via a Microsoft preview rollout or via a misconfigured tenant flighting flag. Sev2 because the feature has no FSI risk-acceptance documentation yet.
 
-### §15.1 Pre-Conditions
+### §14.1 Pre-Conditions
 
 - Detection: Console UI shows a "Suggestions" blade not previously present, OR users report receiving "suggested agents" notifications.
 - AI Governance Lead has not yet approved Agent Suggestions for this tenant.
 
-### §15.2 Procedure
+### §14.2 Procedure
 
 1. **Capture evidence** of the unexpected feature appearance: E-01 console screenshot; any user notification screenshots; release-notes search for "Agent Suggestions" GA status.
 2. **Disable at tenant scope** if a feature toggle is exposed:
@@ -1078,31 +1011,31 @@ examiner-prod-2026Q1/
 4. **Open Risk Register entry** noting the unsanctioned feature appearance, dates, and remediation.
 5. **Schedule risk review** when GA is announced; do **not** rely on the silently-flighted feature for any production workflow.
 
-### §15.3 Evidence Bundle
+### §14.3 Evidence Bundle
 
 - Screenshots of unexpected feature appearance
 - Microsoft service request reference
 - Risk Register entry
 - AI Governance Lead acknowledgement
 
-### §15.4 Cross-References
+### §14.4 Cross-References
 
 - [Control 2.24 — Agent Feature Enablement and Restriction Governance](../../../controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance.md)
 - [Control 2.3 — Change Management and Release Planning](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md)
 
 ---
 
-## §16 Runbook RB-06 — Frontier-Suite → Agent 365 GA Migration Day Issues (May 1, 2026 Transition)
+## §15 Runbook RB-06 — Frontier-Suite → Agent 365 GA Migration Day Issues (May 1, 2026 Transition)
 
 **Trigger.** On the May 1, 2026 GA cutover, tenants enrolled in pre-GA preview migrate to GA. Symptoms during the cutover window can include: console blade reshuffling, deprecated flighting flags, transient template-prerequisite check failures, audit-pipeline correlation-ID format changes. Sev2 by default; Sev1 if examiner-active during the cutover.
 
-### §16.1 Pre-Conditions
+### §15.1 Pre-Conditions
 
 - Pre-GA preview tenants identified; AI Administrator subscribed to Microsoft cutover communications.
 - Cutover window (Microsoft-published) captured in the change-management calendar.
 - Examiner-active windows checked against cutover; Compliance notified if conflict.
 
-### §16.2 Procedure
+### §15.2 Procedure
 
 1. **T-7d**: Validate `Get-Agt225Health -Verbose` returns `Channel: PreviewLatest`; capture baseline E-01..E-09.
 2. **T-1d**: Capture full evidence baseline (E-04, E-05, E-06, E-08).
@@ -1111,7 +1044,7 @@ examiner-prod-2026Q1/
 5. **T+24h → T+7d**: Monitor KQL-01 / KQL-02 / KQL-03 daily for elevated failure rates. Microsoft typically issues post-cutover hotfixes during this window.
 6. **T+7d**: Capture post-migration evidence baseline; archive comparison artifacts.
 
-### §16.3 Cutover Failure Modes
+### §15.3 Cutover Failure Modes
 
 | Mode | Symptom | Action |
 |---|---|---|
@@ -1120,25 +1053,25 @@ examiner-prod-2026Q1/
 | Audit correlation-ID format change | KQL queries that parse correlation IDs may break | Update KQL parsers per Microsoft cutover release notes |
 | Researcher scope drift to default-on | Cross-link §9 RC-A | Apply §9.4 immediately |
 
-### §16.4 Cross-References
+### §15.4 Cross-References
 
-- [Verification & Testing §16 — Cutover validation suite](./verification-testing.md)
+- [Verification & Testing §15 — Cutover validation suite](./verification-testing.md)
 - [Control 2.3 — Change Management and Release Planning](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md)
 - [Control 2.4 — Business Continuity and Disaster Recovery](../../../controls/pillar-2-management/2.4-business-continuity-and-disaster-recovery.md)
 
 ---
 
-## §17 Runbook RB-07 — SOX Audit Cycle: Prove Approval Chain for Every Zone 3 Agent
+## §16 Runbook RB-07 — SOX Audit Cycle: Prove Approval Chain for Every Zone 3 Agent
 
 **Trigger.** SOX ITGC audit cycle (typically annual + interim) requires evidence that every Zone 3 (Enterprise) agent in production was approved through the admin-gated workflow with a documented approver, justification, and template binding. Sev2 (audit-driven, scheduled).
 
-### §17.1 Pre-Conditions
+### §16.1 Pre-Conditions
 
 - SOX audit scope includes Agent 365 Admin Center governance (confirmed with internal audit).
 - Audit window dates captured.
 - Auditor evidence-format preference captured (typically: per-agent record + approval audit log + template state snapshot).
 
-### §17.2 Procedure
+### §16.2 Procedure
 
 1. **Enumerate Zone 3 production agents**:
    ```powershell
@@ -1155,7 +1088,7 @@ examiner-prod-2026Q1/
 4. **Produce the auditor package** in the auditor''s preferred format; include attestation by AI Governance Lead.
 5. **Schedule remediation** for any exceptions before the audit close date.
 
-### §17.3 SOX Exception Categories
+### §16.3 SOX Exception Categories
 
 | Category | Cause | Remediation |
 |---|---|---|
@@ -1163,7 +1096,7 @@ examiner-prod-2026Q1/
 | Emergency publish (out-of-band) | Sev1 incident required immediate publish bypassing the queue | Disclose; provide IR ticket + retroactive approval record |
 | Approver impersonation | Service principal used to approve (anti-pattern) | Remediate; replace with named approver; potential SOD finding |
 
-### §17.4 Evidence Bundle
+### §16.4 Evidence Bundle
 
 - Per-agent approval-chain records
 - KQL approval audit (full scope)
@@ -1172,7 +1105,7 @@ examiner-prod-2026Q1/
 - SOX exception log with remediation status
 - AI Governance Lead attestation
 
-### §17.5 Cross-References
+### §16.5 Cross-References
 
 - [Control 2.8 — Access Control and Segregation of Duties](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md)
 - [Control 2.13 — Documentation and Record Keeping](../../../controls/pillar-2-management/2.13-documentation-and-record-keeping.md)
@@ -1187,7 +1120,7 @@ After any Sev1 or Zone-3 Sev2 incident under Control 2.25, the incident commande
 ### §X.1 Recovery Verification Checklist
 
 1. The triggering symptom is no longer reproducible (validated by re-running the relevant pillar §N.6 verification block).
-2. All evidence E-01..E-08 captured to `AgentGov-Evidence-225` (or `-Sov` for sovereign tenants).
+2. All evidence E-01..E-08 captured to `AgentGov-Evidence-225`.
 3. Pester suite for the affected pillar passes (`Invoke-Pester -Path ./tests/trg-225-NN.tests.ps1`).
 4. KQL-01 (console availability) and KQL-02 (queue ingestion) return baseline metrics for the most recent 1 h bin.
 5. No outstanding Microsoft service request blocking — OR open service request documented with target ETA in the incident record.
@@ -1207,7 +1140,6 @@ Root cause: <RC code(s) from §N.2>
 Evidence bundle: AgentGov-Evidence-225/<incident-id>/ (E-01..E-08 verified present)
 Verification: §X.1 checklist all items pass; pester TRG-225-NN green
 FINRA 3110 fallback: <Activated|Not activated>; if activated, stood down with registered principal sign-off on <date>
-Compensating controls (if sovereign): <list>
 Residual risk: <description>
 Risk Register update: <Y|N>; ticket <ref>
 Signed: AI Governance Lead, <name>, <date>

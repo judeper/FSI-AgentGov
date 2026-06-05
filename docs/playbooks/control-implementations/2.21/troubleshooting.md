@@ -114,7 +114,7 @@ When a claim or workflow is not behaving as expected, work through the diagnosti
 
 1. Confirm PowerShell edition is **7.2 or later** — PnP.PowerShell v2 will not load on Windows PowerShell 5.1.
 2. Confirm the module is loaded at the CAB-pinned version: `Get-Module PnP.PowerShell | Format-List Name, Version`.
-3. Confirm `-AzureEnvironment` matches the tenant cloud. A Commercial connection against a GCC High tenant returns zero results without error — a classic source of false-clean evidence.
+3. Confirm the executing account has at least **Read** on the AI Governance site.
 4. Confirm the executing account has at least **Read** on the AI Governance site.
 5. For a list with more than 5,000 items, ensure `-PageSize 500` is set and that you are not hitting a list-view threshold caused by an unindexed filter.
 

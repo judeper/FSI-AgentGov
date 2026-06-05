@@ -3,7 +3,6 @@
 **Control:** 2.5 — Testing, Validation, and Quality Assurance  
 **Pillar:** 2 — Management  
 **Audience:** AI Governance Lead, QA Lead, Compliance Officer, Power Platform Admin, Pipeline Admin, Internal Audit, Model Risk Manager  
-**Sovereign-cloud scope:** Microsoft 365 Commercial, GCC, GCC High, DoD. 21Vianet is **out of scope** for this playbook (see PRE-06 / BLK-07).  
 **Last UI verified:** April 2026
 
 ---
@@ -12,7 +11,7 @@
 
 This playbook helps support FSI organizations in meeting expectations from FINRA Rule 3110 (supervision), SEC Rule 17a-4 (records retention), SOX §404 (internal control over financial reporting), GLBA Safeguards Rule 501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7) (model risk management), CFTC Regulation 1.31, NIST AI RMF (Measure function), ISO/IEC 42001, and NYDFS 23 NYCRR 500 where applicable.
 
-A clean run of this playbook **does not guarantee legal or regulatory compliance**, does not replace independent validation, and does not substitute for written supervisory procedures. Implementation requires organization-specific risk assessment, legal review, and integration with the firm's broader compliance program. Organizations should verify current Microsoft Learn documentation, sovereign-cloud feature parity, and tenant-specific entitlements at each cycle. Numeric thresholds in this playbook are **calibrated to the tenant baseline captured in PRE-04**; they are not portable between tenants without recalibration.
+A clean run of this playbook **does not guarantee legal or regulatory compliance**, does not replace independent validation, and does not substitute for written supervisory procedures. Implementation requires organization-specific risk assessment, legal review, and integration with the firm's broader compliance program. Organizations should verify current Microsoft Learn documentation and tenant-specific entitlements at each cycle. Numeric thresholds in this playbook are **calibrated to the tenant baseline captured in PRE-04**; they are not portable between tenants without recalibration.
 
 This playbook is **meta-validation**: its job is to verify that the testing program for Microsoft 365 AI agents is itself operating effectively, not to test any specific agent. Agent-level testing belongs in the per-release QA plan that this playbook governs.
 
@@ -61,7 +60,6 @@ This playbook is designed to detect defects in the **testing program**, not just
 7. **PyRIT or equivalent omitted** — the adversarial test plane is skipped without a documented compensating control.
 8. **No explicit Compliance or SME review for sensitive prompts** — disclosure, fairness, or refusal scenarios approved only by the builder.
 9. **Cherry-picked dashboards** — KPI views that hide failure categories or reorder cohorts to look favorable.
-10. **Silent sovereign-cloud gaps** — Commercial-cloud feature assumptions leaking into GCC High / DoD evidence.
 11. **Permanent exceptions instead of re-validation** — temporary waivers that quietly become standing waivers.
 12. **Tamper-prone evidence with no manifest or attestation chain** — evidence that cannot be independently re-verified.
 
@@ -69,13 +67,13 @@ This playbook is designed to detect defects in the **testing program**, not just
 
 ## What this playbook does NOT claim
 
-This playbook **does not** prove future agent perfection, **does not** replace human supervision or independent model validation, **does not** make one good cycle into permanent evidence, **does not** assume universal sovereign-cloud feature parity, and **does not** guarantee legal or regulatory compliance merely because the cycle returns a clean validator exit code. A clean cycle is one defensible data point against the firm's broader supervisory and risk-management obligations; it is not a substitute for them.
+This playbook **does not** prove future agent perfection, **does not** replace human supervision or independent model validation, **does not** make one good cycle into permanent evidence, and **does not** guarantee legal or regulatory compliance merely because the cycle returns a clean validator exit code. A clean cycle is one defensible data point against the firm's broader supervisory and risk-management obligations; it is not a substitute for them.
 
 ---
 
 ---
 
-## Section 0 — Pre-flight blockers (BLK-01 through BLK-07)
+## Section 0 — Pre-flight blockers (BLK-01 through BLK-06)
 
 This playbook mirrors Control 4.7's fail-closed posture: if any blocker remains unresolved, the cycle halts and the validator returns exit code **2**.
 
@@ -115,17 +113,11 @@ This playbook mirrors Control 4.7's fail-closed posture: if any blocker remains 
 - **Resolution rule.** No cycle should continue when role collision exists unless a co-signed exception is documented for a lower zone and expires immediately after the run.
 - **Recommended attestation note.** "BLK-06 was reviewed at cycle start and found to be resolved or explicitly excepted with a signed expiry date. The exception, if any, does not by itself waive the need for the affected §4 tests."
 
-### BLK-07 — Unsupported or ambiguous sovereign-cloud posture
-- **Why this is a blocker.** This playbook refuses to assert results when the cloud classification is unclear, unsupported, or materially different from the feature assumptions used by the validator. 21Vianet should be treated as out of scope unless a dedicated local validator exists.
-- **Required evidence.** `blk-07-cloud-guard.json` with tenant ID, primary domain, cloud classification, and parity-check timestamp.
-- **Resolution rule.** Halt the cycle on ambiguity, or route to a separate cloud-specific validation path.
-- **Recommended attestation note.** "BLK-07 was reviewed at cycle start and found to be resolved or explicitly excepted with a signed expiry date. The exception, if any, does not by itself waive the need for the affected §4 tests."
-
 ---
 
-## Section 1 — Required **11 × 3 cadence matrix**
+## Section 1 — Required **10 × 3 cadence matrix**
 
-This playbook includes a cadence table using the 11 namespaces below as rows and the three governance zones as the primary frequency columns.
+This playbook includes a cadence table using the 10 namespaces below as rows and the three governance zones as the primary frequency columns.
 
 **Cadence rule.** Monthly cycles have a 35-day grace window, quarterly cycles have a 100-day grace window, and annual cycles have a 400-day grace window. A family that fails in two consecutive cycles should automatically escalate one tier until two clean cycles are observed.
 
@@ -140,12 +132,11 @@ This playbook includes a cadence table using the 11 namespaces below as rows and
 | **PIPE** | Pipeline enforcement and deployment controls | Quarterly | Monthly | Monthly | Pipeline Admin | Power Platform Admin | 35d / 100d / 400d | Ensures the CI/CD layer implements the policy as code, not only as prose. |
 | **PANE** | Panel review and human adjudication evidence | Annual | Quarterly | Monthly | Business Owner | Compliance Officer | 35d / 100d / 400d | Adds human review for high-risk prompts, disclosures, fairness, and appeals. |
 | **KPI** | Quality KPI thresholding and drift monitoring | Quarterly | Monthly | Monthly | AI Governance Lead | Compliance Officer | 35d / 100d / 400d | Tracks whether the QA program is improving, drifting, or gaming its own numbers. |
-| **SOV** | Sovereign-cloud parity and compensating controls | Annual | Semi-annual | Quarterly | AI Governance Lead | Compliance Officer | 35d / 200d / 400d | Prevents Commercial-only assumptions from leaking into sovereign assertions. |
 | **IR** | Incident response and validation-escape handling | Annual | Annual | Quarterly | Incident Response Lead | Compliance Officer + AI Governance Lead | 35d / 400d / 400d | Verifies the organization can respond when the testing program misses a meaningful issue. |
 
 ---
 
-## Section 2 — Pre-flight gates (PRE-01 through PRE-07)
+## Section 2 — Pre-flight gates (PRE-01 through PRE-06)
 
 All PRE gates should pass before any §4 test runs. A PRE failure should halt the cycle and return exit code **2**.
 
@@ -165,10 +156,10 @@ All PRE gates should pass before any §4 test runs. A PRE failure should halt th
 
 ### PRE-03 — License and environment floor
 - **Objective.** Confirm the tenant has the required feature entitlements for Copilot Studio Evaluation, Managed Environments, pipeline gating, Purview Audit, and any other services the testing program relies on.
-- **How to verify.** Capture tenant SKUs, environment classification, Managed Environment status, and evaluation feature availability; if a feature is absent in a sovereign cloud, record the compensating manual path.
+- **How to verify.** Capture tenant SKUs, environment classification, Managed Environment status, and evaluation feature availability; record any compensating manual path required for unavailable features.
 - **Evidence.** `pre-03-licensing-and-env.json`
-- **Pass criteria.** All exercised features are entitled and reachable, or a compensating control is documented and tied to the relevant SOV test.
-- **Audit assertion.** "The cycle only relied on features the tenant is actually entitled to use in the declared cloud."
+- **Pass criteria.** All exercised features are entitled and reachable, or a compensating control is documented and tied to the relevant test.
+- **Audit assertion.** "The cycle only relied on features the tenant is actually entitled to use in the commercial tenant."
 
 ### PRE-04 — Baseline and numeric provenance capture
 - **Objective.** Establish the tenant-specific baseline for latency, pass-rate trend, hallucination rate, grading scores, and alert timing before any release candidate is judged.
@@ -184,17 +175,10 @@ All PRE gates should pass before any §4 test runs. A PRE failure should halt th
 - **Pass criteria.** The artifact under test is unchanged during the cycle or any change is explicitly recorded and forces a re-run.
 - **Audit assertion.** "The evidence pack corresponds to one stable release candidate and can therefore support defensible promotion or hold decisions."
 
-### PRE-06 — Cloud guard and sovereign parity pre-check
-- **Objective.** Confirm the tenant cloud is correctly classified as Commercial, GCC, GCC High, or DoD, and refuse to run if the cloud is unsupported or ambiguous for this playbook's assumptions.
-- **How to verify.** Query organization metadata, connection endpoints, and cloud instance; compare to the declared cloud in the cycle manifest.
-- **Evidence.** `pre-06-cloud-guard.json`
-- **Pass criteria.** The declared cloud and the observed cloud match exactly; unsupported clouds halt.
-- **Audit assertion.** "No cross-cloud assumptions were made silently, and the cycle executed in the environment it claims to describe."
-
-### PRE-07 — Fixture integrity and corpus hash pinning
+### PRE-06 — Fixture integrity and corpus hash pinning
 - **Objective.** Confirm the golden dataset, negative-test set, disclosure prompts, fairness scenarios, accessibility cases, and PyRIT prompt corpus are all versioned, hashed, synthetic where required, and approved for the cycle.
 - **How to verify.** Compute SHA-256 on all fixture files, validate naming conventions, run PII screen on the corpus, and record the approved version IDs.
-- **Evidence.** `pre-07-fixtures.json`, `manifest.sha256`
+- **Evidence.** `pre-06-fixtures.json`, `manifest.sha256`
 - **Pass criteria.** Every fixture matches the expected hash, the corpus is synthetic or approved, and the test IDs referenced later are resolvable to an actual stored file.
 - **Audit assertion.** "The cycle's test inputs are stable, traceable, and free from accidental live-customer data contamination."
 
@@ -216,7 +200,7 @@ This playbook includes a short timing table, but it must keep the same disciplin
 
 ---
 
-## Section 4 — Test catalog (**33 tests across 11 namespaces**)
+## Section 4 — Test catalog (**30 tests across 10 namespaces**)
 
 This playbook present the test catalog in the same disciplined style used by the gold-standard verification playbooks: each test has a stable ID, one clear objective, specific preconditions, operator-runnable steps, expected behavior, a Boolean pass condition, an audit assertion, and named evidence artifacts.
 
@@ -230,7 +214,6 @@ This playbook present the test catalog in the same disciplined style used by the
 - **PIPE** — Pipeline enforcement and deployment controls  
 - **PANE** — Panel review and human adjudication evidence  
 - **KPI** — Quality KPI thresholding and drift monitoring  
-- **SOV** — Sovereign-cloud parity and compensating controls  
 - **IR** — Incident response and validation-escape handling
 
 ### 4.VAL — Validation design and traceability
@@ -240,7 +223,7 @@ This family verifies that the testing program is mapped, traceable, and evidence
 #### 2.5-VAL-01 — Zone-based coverage of mandatory test domains
 
 - **Objective.** Confirm that the QA plan covers all mandatory domains required by Control 2.5 for the agent's zone: functional, security, regression, performance, UAT, and—where applicable—bias, accessibility, and adversarial testing.
-- **Preconditions.** PRE-03 and PRE-07 PASS; the agent is classified to a zone and has a current risk classification in the agent inventory or release record.
+- **Preconditions.** PRE-03 and PRE-06 PASS; the agent is classified to a zone and has a current risk classification in the agent inventory or release record.
 - **Steps.**
   1. Retrieve the release-candidate test plan and normalize it into a matrix of test families versus zone requirements. Confirm that Zone 1, Zone 2, and Zone 3 rows align to the control's stated minimums rather than an ad hoc local checklist.
   2. Cross-check the matrix against actual evidence artifacts already generated for the candidate release. The test must distinguish between a planned case and an executed case; a placeholder row does not count as coverage.
@@ -296,7 +279,7 @@ This family proves that the QA program can actually stop deployment. A regulated
 #### 2.5-HOLD-02 — High-severity findings prevent promotion until disposition
 
 - **Objective.** Confirm that high-severity unresolved findings from evaluation, security testing, fairness review, or PyRIT are not silently downgraded or ignored during release approval.
-- **Preconditions.** PRE-04 and PRE-07 PASS; at least one seeded high-severity defect or synthetic failure condition exists for a deliberate gate challenge.
+- **Preconditions.** PRE-04 and PRE-06 PASS; at least one seeded high-severity defect or synthetic failure condition exists for a deliberate gate challenge.
 - **Steps.**
   1. Inject a synthetic High-severity result into the test summary using the normal defect-triage path, not by editing raw files after the fact. The point is to validate governance behavior, not to tamper with evidence.
   2. Observe whether the release pipeline or promotion checklist moves to blocked status and whether the release note references the open finding ID, owner, and target closure date.
@@ -326,7 +309,7 @@ This family confirms the testing program can replay prior issues, prove fixes, a
 #### 2.5-REG-01 — Golden-dataset replay reproducibility
 
 - **Objective.** Confirm that the same versioned golden dataset can be replayed against the current and prior release candidate with stable scoring logic and preserved denominator integrity.
-- **Preconditions.** PRE-04 and PRE-07 PASS; at least two adjacent release candidates or model versions exist for comparison.
+- **Preconditions.** PRE-04 and PRE-06 PASS; at least two adjacent release candidates or model versions exist for comparison.
 - **Steps.**
   1. Run the full golden dataset or a documented representative subset against both releases using the same scoring rubric, same environment classification, and same evaluation version.
   2. Compare pass/fail, hallucination, citation, decline, and latency distributions side by side; ensure the comparison excludes no cases and records all error conditions rather than hiding them in an 'unscored' bucket.
@@ -369,7 +352,7 @@ This family validates set-level grading, threshold discipline, and export retent
 #### 2.5-EVAL-01 — Versioned test-set and grader configuration
 
 - **Objective.** Confirm that evaluation test sets, grading dimensions, expected-answer rules, and threshold settings are versioned and attached to the exact release candidate under review.
-- **Preconditions.** PRE-03 and PRE-07 PASS; the agent uses Copilot Studio Evaluation or a documented equivalent in the current cloud.
+- **Preconditions.** PRE-03 and PRE-06 PASS; the agent uses Copilot Studio Evaluation or a documented equivalent in the current cloud.
 - **Steps.**
   1. Export the evaluation configuration, including test-set identifier, grader definitions, threshold floor, and any custom scoring logic. Record the release candidate and model version to which the configuration applies.
   2. Verify that the program does not run free-form or ad hoc evaluation sets whose origin cannot later be reconstructed. The test set should be pinned and recoverable from storage or version control.
@@ -412,7 +395,7 @@ This family brings adversarial validation into the QA-program control model and 
 #### 2.5-PYRIT-01 — Direct prompt-injection corpus executed per release candidate
 
 - **Objective.** Confirm that a current prompt-injection / jailbreak corpus is run against in-scope release candidates at the required zone cadence and before promotion.
-- **Preconditions.** PRE-01 and PRE-07 PASS; PyRIT or an approved equivalent is available for the cycle.
+- **Preconditions.** PRE-01 and PRE-06 PASS; PyRIT or an approved equivalent is available for the cycle.
 - **Steps.**
   1. Execute the direct-attack corpus against a test fixture for the current release candidate, recording the tool version, corpus hash, and scenario IDs.
   2. Verify that the run is tied to the exact release candidate rather than a prior candidate or a generic shared dev bot. The release note should identify the tested artifact by package or build hash.
@@ -425,7 +408,7 @@ This family brings adversarial validation into the QA-program control model and 
 #### 2.5-PYRIT-02 — Indirect, encoded, and evasion-style adversarial coverage
 
 - **Objective.** Confirm that the security test program includes more than obvious direct injections by covering encoded, nested, indirect, and instruction-smuggling scenarios relevant to grounded agents.
-- **Preconditions.** PRE-07 PASS and the corpus includes encoded / indirect cases.
+- **Preconditions.** PRE-06 PASS and the corpus includes encoded / indirect cases.
 - **Steps.**
   1. Review the attack corpus for coverage of indirect prompt injection, instruction hierarchy abuse, embedded policy evasion, and encoded payload variants. The playbook should call out that direct-only coverage is inadequate for regulated use cases.
   2. Run a representative sample of these cases and confirm the evidence distinguishes between safe refusal, partial containment, and unsafe compliance.
@@ -468,7 +451,7 @@ This family protects evidence integrity through schema validation, manifest chec
 #### 2.5-SCHK-02 — SHA-256 manifest and validator module hash integrity
 
 - **Objective.** Confirm every artifact in the cycle is covered by a line-per-file SHA-256 manifest and that the validator module used for the cycle matches the pinned hash recorded at run start.
-- **Preconditions.** PRE-01 and PRE-07 PASS; evidence directory populated.
+- **Preconditions.** PRE-01 and PRE-06 PASS; evidence directory populated.
 - **Steps.**
   1. Generate or re-check `manifest.sha256` across the cycle directory and compare the recorded hash for each file to the live file hash at review time.
   2. Check `module.sha256` against the validator file or package used for the run. A mismatch should be treated as potential tamper or unapproved mid-cycle change.
@@ -620,49 +603,6 @@ This family turns benchmark tables into provenance-aware metrics suitable for le
 - **Audit assertion.** "Published QA metrics for this cycle reconciled to the raw evidence set and did not exclude material failures or outlier conditions."
 - **Evidence.** `2.5-KPI-03_dashboard-reconcile.json`
 
-### 4.SOV — Sovereign-cloud parity and compensating controls
-
-This family verifies cloud-specific feature parity and requires explicit compensating controls for gaps.
-
-#### 2.5-SOV-01 — Feature parity verification for evaluation and pipeline surfaces
-
-- **Objective.** Confirm which QA-related features are available in the declared cloud—Copilot Studio Evaluation, export capability, managed environments, audit visibility, and pipeline gating—and whether the cycle relied only on supported surfaces.
-- **Preconditions.** PRE-06 PASS and the sovereign parity matrix is current for the cycle.
-- **Steps.**
-  1. Walk the feature list relevant to the current cycle and confirm availability in the cloud using current platform behavior and, where necessary, current Microsoft documentation captured at `lastVerifiedUtc`.
-  2. Record each feature as Available, Limited, Confirm, or Not Supported. Where the value is not Available, bind the gap to a compensating control or force the affected test to justified Skip with explicit explanation.
-  3. Verify that the final attestation does not overstate parity beyond what this matrix actually confirms.
-- **Expected.** The cycle accurately describes what the cloud can and cannot do for the QA program.
-- **Pass criteria.** Feature status recorded for all exercised surfaces; no silent parity assumptions.
-- **Audit assertion.** "The QA program's cloud-specific feature dependencies were reviewed and recorded before the cycle's results were asserted."
-- **Evidence.** `2.5-SOV-01_parity.json`
-
-#### 2.5-SOV-02 — Retention and evidence path parity by cloud
-
-- **Objective.** Confirm that the evidence store, audit trail, and artifact export path used by the QA program are valid in the declared cloud and meet the control's retention expectations.
-- **Preconditions.** BLK-05 resolved.
-- **Steps.**
-  1. Verify the storage and export path for the current cloud—Purview-governed SharePoint, immutable Azure Blob, or equivalent—and confirm the evidence copy succeeded for the current cycle.
-  2. Check whether the same retention label, legal hold, or immutability behavior exists in the sovereign cloud if the organization claims a common control posture across tenants.
-  3. Where a difference exists, require the evidence pack to record the variance and the compensating process rather than calling the control uniformly implemented.
-- **Expected.** Evidence storage and retention claims are true for the declared cloud, not just for the Commercial reference tenant.
-- **Pass criteria.** Current cloud evidence path validated; any variance is documented with a compensating control.
-- **Audit assertion.** "QA evidence retention and export controls for this cycle were verified against the declared cloud's actual capabilities and storage path."
-- **Evidence.** `2.5-SOV-02_retention-path.json`
-
-#### 2.5-SOV-03 — Compensating-control governance for cloud gaps
-
-- **Objective.** Confirm that any cloud-limited feature is paired with a documented fallback method, approval, and retest rule rather than being ignored.
-- **Preconditions.** At least one feature in the sovereign matrix is marked Limited, Confirm, or Not Supported, or else mark this as Pass with no gaps found.
-- **Steps.**
-  1. Review the compensating control register and confirm each gap has an owner, a rationale, a fallback method, and a next review date.
-  2. Ensure the affected test cases reference the compensating control by ID and that the attestation summary mentions the existence of the gap where material.
-  3. Verify that a cloud gap cannot remain unresolved forever without re-review; the fallback must be refreshed on the next cycle.
-- **Expected.** Cloud gaps are governed explicitly and do not disappear into tribal knowledge.
-- **Pass criteria.** All gaps have documented compensating controls and next review dates.
-- **Audit assertion.** "Cloud-specific limitations affecting QA validation were controlled through explicit compensating controls rather than silent assumption."
-- **Evidence.** `2.5-SOV-03_comp-controls.json`
-
 ### 4.IR — Incident response and validation-escape handling
 
 This family covers what happens when the testing program itself fails or is bypassed.
@@ -721,7 +661,7 @@ evidence/2.5/<cycleId>/
   pre-04-baseline.json
   pre-05-freeze.json
   pre-06-cloud-guard.json
-  pre-07-fixtures.json
+  pre-06-fixtures.json
   tests/
     2.5-VAL-01_coverage-matrix.json
     2.5-VAL-02_traceability.json
@@ -750,9 +690,7 @@ evidence/2.5/<cycleId>/
     2.5-KPI-01_thresholds.json
     2.5-KPI-02_trends.json
     2.5-KPI-03_dashboard-reconcile.json
-    2.5-SOV-01_parity.json
-    2.5-SOV-02_retention-path.json
-    2.5-SOV-03_comp-controls.json
+    2.5-IR-01_comp-controls.json
     2.5-IR-01_issue-register.json
     2.5-IR-02_tabletop.json
     2.5-IR-03_rollback-drill.json
@@ -805,7 +743,7 @@ Use `fsi-agentgov.example` as a placeholder identifier only (placeholder — rep
       "properties": {
         "tenantId": { "type": "string", "format": "uuid" },
         "primaryDomain": { "type": "string" },
-        "cloudInstance": { "enum": ["Commercial", "GCC", "GCCHigh", "DoD"] }
+        "cloudInstance": { "enum": ["Commercial"] }
       }
     },
     "windowUtc": {
@@ -819,13 +757,13 @@ Use `fsi-agentgov.example` as a placeholder identifier only (placeholder — rep
     },
     "blockers": {
       "type": "array",
-      "minItems": 7,
-      "maxItems": 7,
+      "minItems": 6,
+      "maxItems": 6,
       "items": {
         "type": "object",
         "required": ["id", "status", "evidenceFile"],
         "properties": {
-          "id": { "pattern": "^BLK-0[1-7]$" },
+          "id": { "pattern": "^BLK-0[1-6]$" },
           "status": { "enum": ["resolved", "exception", "open"] },
           "evidenceFile": { "type": "string" },
           "exceptionRef": { "type": "string" }
@@ -834,9 +772,9 @@ Use `fsi-agentgov.example` as a placeholder identifier only (placeholder — rep
     },
     "preflightGates": {
       "type": "object",
-      "required": ["PRE-01", "PRE-02", "PRE-03", "PRE-04", "PRE-05", "PRE-06", "PRE-07"],
+      "required": ["PRE-01", "PRE-02", "PRE-03", "PRE-04", "PRE-05", "PRE-06"],
       "patternProperties": {
-        "^PRE-0[1-7]$": {
+        "^PRE-0[1-6]$": {
           "type": "object",
           "required": ["status", "evidenceFile", "sha256"],
           "properties": {
@@ -850,8 +788,8 @@ Use `fsi-agentgov.example` as a placeholder identifier only (placeholder — rep
     },
     "tests": {
       "type": "array",
-      "minItems": 33,
-      "maxItems": 33,
+      "minItems": 30,
+      "maxItems": 30,
       "items": {
         "type": "object",
         "required": [
@@ -861,10 +799,10 @@ Use `fsi-agentgov.example` as a placeholder identifier only (placeholder — rep
         "properties": {
           "testId": {
             "type": "string",
-            "pattern": "^2\\.5-(VAL|HOLD|REG|EVAL|PYRIT|SCHK|PIPE|PANE|KPI|SOV|IR)-0[1-3]$"
+            "pattern": "^2\\.5-(VAL|HOLD|REG|EVAL|PYRIT|SCHK|PIPE|PANE|KPI|IR)-0[1-3]$"
           },
           "namespace": {
-            "enum": ["VAL", "HOLD", "REG", "EVAL", "PYRIT", "SCHK", "PIPE", "PANE", "KPI", "SOV", "IR"]
+            "enum": ["VAL", "HOLD", "REG", "EVAL", "PYRIT", "SCHK", "PIPE", "PANE", "KPI", "IR"]
           },
           "status": { "enum": ["PASS", "FAIL", "SKIP", "ERROR"] },
           "zone": { "enum": ["Z1", "Z2", "Z3"] },
@@ -940,7 +878,7 @@ This playbook contains a validator skeleton or reference contract substantially 
 param(
     [Parameter(Mandatory)] [string] $CyclePath,
     [Parameter(Mandatory)] [string] $SchemaPath,
-    [ValidateSet('Commercial','GCC','GCCHigh','DoD')] [string] $Cloud = 'Commercial',
+    [ValidateSet('Commercial')] [string] $Cloud = 'Commercial',
     [ValidateSet('Z1','Z2','Z3','All')] [string] $Zone = 'All'
 )
 
@@ -965,7 +903,7 @@ function Test-Blockers {
 }
 
 function Test-Preflight {
-    foreach ($pre in @('PRE-01','PRE-02','PRE-03','PRE-04','PRE-05','PRE-06','PRE-07')) {
+    foreach ($pre in @('PRE-01','PRE-02','PRE-03','PRE-04','PRE-05','PRE-06','PRE-06')) {
         $obj = (Get-Content (Join-Path $CyclePath ($pre.ToLower() + '.json')) -ErrorAction Stop) | ConvertFrom-Json
         if ($obj.status -ne 'PASS') {
             Write-CycleLog -Level 'ERROR' -Message "$pre failed"
@@ -1141,40 +1079,18 @@ This playbook includes a numbered anti-pattern table modeled after the stronger 
 | AP-10 | Evidence stored only in transient CI workspace | Pipeline logs often expire too quickly for FSI books-and-records expectations. | BLK-05, PIPE-03 |
 | AP-11 | Model or provider changed but old evaluation results were reused | The evidence is stale relative to the behavior surface under review. | REG-03, PYRIT-03 |
 | AP-12 | Dashboard reports only aggregate success and hides failure categories | Cherry-picked presentation can mislead approvers and weakens the truthfulness of management reporting. | KPI-03 |
-| AP-13 | Commercial-cloud features assumed to exist in GCC High or DoD | Silent parity assumptions are a chronic source of false-clean evidence in sovereign environments. | SOV-01, PRE-06 |
-| AP-14 | Compensating control mentioned vaguely with no owner or review date | A gap without accountable fallback is not a control; it is a known weakness. | SOV-03 |
-| AP-15 | Same person executes, validates, and approves the cycle | This collapses the separation-of-duties intent of the entire QA control environment. | PRE-02, VAL-03 |
-| AP-16 | Metrics copied from another tenant or prior year without baseline recalibration | Static borrowed thresholds can produce both false passes and false failures. | PRE-04, KPI-01 |
-| AP-17 | Exception remains open for multiple cycles with no re-test | A temporary override becomes a de facto permanent waiver and erodes the testing program. | HOLD-03, IR-01 |
-| AP-18 | Validator module modified mid-cycle without new hash pin | Tamper of the verification instrument itself undermines the credibility of all downstream evidence. | SCHK-02 |
-| AP-19 | Release hold reason exists only in email or chat and not in the evidence pack | The hold happened, but its rationale is not retained in a defensible location. | HOLD-01, PIPE-03 |
-| AP-20 | SME or Compliance panel review happens verbally with no structured disposition | Human review without retained verdicts is difficult to supervise and nearly impossible to audit. | PANE-01, PANE-02 |
-| AP-21 | QA incident occurs but no regression test is added | The organization learns once, then forgets; control maturity stalls. | REG-02, IR-01 |
-| AP-22 | Chain attestation signed by fewer than three distinct people | The hash chain may exist technically, but the supervisory value collapses when roles are not actually independent. | Section 7, SCHK-02 |
-
+| AP-13 | Compensating control mentioned vaguely with no owner or review date | A gap without accountable fallback is not a control; it is a known weakness. | HOLD-03, IR-01 |
+| AP-14 | Same person executes, validates, and approves the cycle | This collapses the separation-of-duties intent of the entire QA control environment. | PRE-02, VAL-03 |
+| AP-15 | Metrics copied from another tenant or prior year without baseline recalibration | Static borrowed thresholds can produce both false passes and false failures. | PRE-04, KPI-01 |
+| AP-16 | Exception remains open for multiple cycles with no re-test | A temporary override becomes a de facto permanent waiver and erodes the testing program. | HOLD-03, IR-01 |
+| AP-17 | Validator module modified mid-cycle without new hash pin | Tamper of the verification instrument itself undermines the credibility of all downstream evidence. | SCHK-02 |
+| AP-18 | Release hold reason exists only in email or chat and not in the evidence pack | The hold happened, but its rationale is not retained in a defensible location. | HOLD-01, PIPE-03 |
+| AP-19 | SME or Compliance panel review happens verbally with no structured disposition | Human review without retained verdicts is difficult to supervise and nearly impossible to audit. | PANE-01, PANE-02 |
+| AP-20 | QA incident occurs but no regression test is added | The organization learns once, then forgets; control maturity stalls. | REG-02, IR-01 |
+| AP-21 | Chain attestation signed by fewer than three distinct people | The hash chain may exist technically, but the supervisory value collapses when roles are not actually independent. | Section 7, SCHK-02 |
 ---
 
-## Section 9 — Sovereign parity matrix
-
-The sovereign matrix below is explicit and practical. It does not assert permanent feature parity. Status values are **Available**, **Confirm**, **Limited**, or **Out of scope**. Cycle owners must re-verify at `lastVerifiedUtc` against the current platform behavior and any current Microsoft Learn references.
-
-| Feature or capability | Commercial | GCC | GCC High | DoD | Compensating control if not fully available |
-|---|---|---|---|---|---|
-| Copilot Studio core authoring and deployment | Available | Available | Confirm current parity | Confirm current parity | If limited, scope this playbook to available release surfaces only and record the gap in SOV-01. |
-| Copilot Studio Agent Evaluation — set-level grading | Available | Confirm | Confirm | Confirm | Use manual scored golden-dataset review with retained rubric if feature not available. |
-| Evaluation import / export for version control | Available | Confirm | Confirm | Confirm | Retain exported CSV/JSON and hash it manually if native export differs by cloud. |
-| Managed Environments and promotion-gate governance | Available | Available | Confirm | Confirm | Use explicit environment-approval workflow if the managed-environment path differs. |
-| Purview Audit visibility for QA and release artifacts | Available | Available | Confirm | Confirm | Where the signal surface is weaker, rely on pipeline artifacts plus immutable retention rather than claiming identical UAL depth. |
-| Purview or records retention path for evidence storage | Available | Available | Confirm | Confirm | Use immutable Azure storage or equivalent if local retention scope differs. |
-| PyRIT installation and execution | Available | Available | Available | Available with offline packaging if required | Vendor and hash-pin dependencies where internet egress is restricted. |
-| Pipeline-native gating and exit-code enforcement | Available | Available | Available | Available | Fallback to a manual approval gate only with explicit documentation and short expiry. |
-| Agent 365 SDK testing support | Preview or confirm | Preview or confirm | Likely limited or confirm | Likely limited or confirm | Do not make the playbook depend exclusively on preview features; provide pipeline-native alternatives. |
-| Dashboard and KPI telemetry export | Available | Confirm | Confirm | Confirm | If dashboard export differs, store raw metric files and rebuild the scorecard from source evidence. |
-| 21Vianet handling | Out of scope for this spec | Out of scope | Out of scope | Out of scope | Run a separate validator; PRE-06 should halt rather than pretend parity exists. |
-
----
-
-## Section 10 — Required cross-links (**12 entries**)
+## Section 9 — Required cross-links (**12 entries**)
 
 | Control or playbook | Why it links to 2.5 verification | Reference path |
 |---|---|---|

@@ -3,7 +3,6 @@ control_id: "2.26"
 title: "PowerShell Setup — Control 2.26: Entra Agent ID Identity Governance"
 pillar: "2 — Management"
 powershell_edition: "7.4 LTS Core"
-sovereign_clouds: "Commercial only (early-exit on GCC, GCC High, DoD — no GA announced for sovereign tenants as of May 2026)"
 last_ui_verified: "May 2026"
 ---
 
@@ -14,8 +13,6 @@ last_ui_verified: "May 2026"
 > **Post-GA status (May 2026).** Microsoft Agent 365 reached general availability on May 1, 2026 and Microsoft Entra Agent ID is generally available. The pre-GA "Frontier program enrollment" prerequisite is replaced by **Microsoft Agent 365 / Microsoft 365 E7 license assignment**. The `Test-Agt226PreviewGating` helper and the `PreviewGatingNotSatisfied` exception type retain their pre-GA names for backward compatibility — the underlying check (whether the operating principal can reach the agent identity surface) remains valid because both the pre-GA Frontier gate and the post-GA license assignment manifest as the same API reachability state. A follow-up issue tracks renaming the helper and exception type to license-coverage terms.
 >
 > **License gating.** Entra Agent ID requires **Microsoft Agent 365** licensing (standalone per-user) or **Microsoft 365 E7** ("Frontier Suite," which bundles Microsoft 365 Copilot + Agent 365 + Entra Suite + E5). Tenants without either license will see empty result sets — not errors. The §1 preflight explicitly flags this false-clean condition.
->
-> **Sovereign clouds.** Entra Agent ID is currently a Commercial-cloud surface. Code paths in this playbook **early-exit** on GCC, GCC High, DoD, and China cloud profiles with structured compensating-control instructions rather than degrading silently. See §2.
 >
 > **Sponsor-departure model.** When a sponsor's `accountEnabled` flips to `false` or `employeeLeaveDateTime` passes, Entra's default behaviour transfers the agent's sponsor relationship to the departing sponsor's manager (per the standard lifecycle workflow template). The helpers in this file **read** that state to surface anomalies; they do not override the transfer. Reassignment overrides go through the §8 audited bulk path.
 >
@@ -62,10 +59,9 @@ The table below enumerates defect classes specific to Entra Agent ID telemetry. 
 
 | # | Defect | Symptom | Why it appears clean | Structural guard |
 |---|--------|---------|----------------------|------------------|
-| 0.1 | Preview gating not satisfied | `Get-MgServicePrincipal -Filter "tags/any(t:t eq 'AgentIdentity')"` returns zero rows | No exception is thrown; the tenant simply has no agent identities reachable to the calling principal because the operating account lacks Microsoft Agent 365 / Microsoft 365 E7 license coverage (post-GA gating mechanism) | §1 preflight calls `Test-Agt226PreviewGating` (name retained for backward-compat) which checks both Microsoft 365 Copilot SKU coverage and Agent ID API surface reachability, and aborts with a structured `PreviewGatingNotSatisfied` exception (name retained) before any inventory pass |
+| 0.1 | Preview gating not satisfied | `Get-MgServicePrincipal -Filter "tags/any(t:t eq 'AgentIdentity')"` returns zero rows | No exception is thrown; the tenant has no agent identities reachable to the calling principal because the operating account lacks Microsoft Agent 365 / Microsoft 365 E7 license coverage (post-GA gating mechanism) | §1 preflight calls `Test-Agt226PreviewGating` (name retained for backward-compat) which checks both Microsoft 365 Copilot SKU coverage and Agent ID API surface reachability, and aborts with a structured `PreviewGatingNotSatisfied` exception (name retained) before any inventory pass |
 | 0.2 | Wrong shell edition | All inventory cmdlets succeed but return `@()` | Microsoft.Graph 2.x assemblies fail to bind under Desktop edition; the SDK swallows the bind failure and returns empty | `Assert-Agt226Shell` (above) blocks Desktop edition entirely |
 | 0.3 | Stale delegated token | Helpers run, return data, but `sponsorRelationships` collection is always null | Delegated token issued before the AgentIdentity.Read.All scope was granted; Graph silently omits the navigation property | §1 `Test-Agt226GraphScopes` re-asserts scopes against the live token and forces re-consent if mismatched |
-| 0.4 | Sovereign cloud silent skew | Helpers run against GCC High and return zero agents | Entra Agent ID preview endpoints are not deployed to sovereign clouds; the SDK resolves the wrong base URI and 404s are swallowed by the ForEach pipeline | §2 `Resolve-Agt226CloudProfile` early-exits with a structured `SovereignCloudNotSupported` exception and logs the compensating control |
 | 0.5 | Manager-transfer race window | An agent appears orphaned for ~5–15 minutes after a sponsor's `accountEnabled` flips to false | Lifecycle workflow has not yet run; transfer to manager is queued but not committed | §4 `Get-Agt226OrphanedAgent` accepts a `-GraceWindowMinutes` parameter (default 30) and tags rows below the threshold as `PendingLifecycleTransfer` rather than `Orphaned` |
 | 0.6 | Access package assignment without ownership chain | Agent holds an access package assignment whose policy has no approver | Default Entitlement Management catalog allows policies without approvers; assignments evaluate as valid | §5 `Get-Agt226AgentAccessPackageAssignment` joins the policy and emits `PolicyApproverMissing=$true` for any assignment lacking a primary approver |
 | 0.7 | Audit log retention assumption | Operator queries `AuditLogs` for a 90-day window and finds nothing for an agent decommissioned 6 months ago | Entra retains directory audit logs for 30 days by default; FINRA 4511 requires 6 years; the SIEM is the system of record but operators forget to query it | §10 `Test-Agt226SiemForwarding` emits an explicit `EntraNativeRetentionDays=30` field and a remediation pointer to control 1.7 |
@@ -252,67 +248,11 @@ function Test-Agt226PreviewGating {
 ```
 
 
-## 2. Sovereign cloud bootstrap and session initialization
+## 2. Session initialization
 
-Entra Agent ID is **generally available in the Microsoft 365 Commercial cloud** (May 2026). As of the May 2026 verification window, GA has not been announced for GCC, GCC High, DoD, or China cloud profiles — verify current sovereign-cloud availability against Microsoft Learn before proceeding. The bootstrap below detects the cloud profile **before** any Graph call and **early-exits** with a structured exception when running in a non-Commercial tenant. Silent degradation is the highest-impact false-clean defect for this control: helpers must never return `Clean` when the underlying surface area is not present.
+Entra Agent ID is generally available in the Microsoft 365 Commercial cloud (May 2026). The bootstrap below connects to Microsoft Graph Global and verifies the commercial Agent ID surface before inventory or evidence helpers run.
 
-> **Compensating control on sovereign clouds.** Until Agent ID reaches sovereign parity, the §13 attestation pack must be supplemented with: (a) a documented attestation that no agent identities exist in the tenant; (b) a quarterly re-test once Microsoft announces sovereign availability; and (c) a manual lifecycle review of any Microsoft Copilot Studio agents using non-Entra-managed identities. See [`../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md`](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) for the full compensating-control matrix.
-
-### 2.1 Cloud profile resolution
-
-```powershell
-function Resolve-Agt226CloudProfile {
-    [CmdletBinding()]
-    [OutputType([pscustomobject])]
-    param(
-        [Parameter()]
-        [ValidateSet('Commercial','USGov','USGovDoD','China','Auto')]
-        [string]$Hint = 'Auto'
-    )
-
-    # Resolve via tenant initial domain when Hint=Auto. The initial domain
-    # suffix is a reliable indicator pre-authentication.
-    $profile = if ($Hint -ne 'Auto') {
-        $Hint
-    } else {
-        $context = Get-MgContext -ErrorAction SilentlyContinue
-        if ($context) {
-            switch -Regex ($context.TenantId) {
-                default { 'Commercial' }
-            }
-        } else {
-            # Without an existing context we must require an explicit hint.
-            'Commercial'
-        }
-    }
-
-    $supported = $profile -eq 'Commercial'
-
-    if (-not $supported) {
-        $msg = @"
-Entra Agent ID preview is not available in cloud profile '$profile'.
-Refusing to continue. Apply the compensating control documented in
-control 2.26 §Sovereign Cloud Considerations and re-test once Microsoft
-announces sovereign parity.
-"@
-        $exception = [System.InvalidOperationException]::new($msg)
-        $exception.Data['ControlId']      = '2.26'
-        $exception.Data['CloudProfile']   = $profile
-        $exception.Data['ExitReason']     = 'SovereignCloudNotSupported'
-        throw $exception
-    }
-
-    [pscustomobject]@{
-        CloudProfile      = $profile
-        Supported         = $true
-        GraphEndpoint     = 'https://graph.microsoft.com'
-        GraphBetaEndpoint = 'https://graph.microsoft.com/beta'
-        Status            = 'Clean'
-    }
-}
-```
-
-### 2.2 Session initialization
+### 2.1 Session initialization
 
 ```powershell
 function Initialize-Agt226Session {
@@ -321,10 +261,6 @@ function Initialize-Agt226Session {
         [Parameter()]
         [ValidateSet('ReadOnly','Mutation')]
         [string]$ScopeProfile = 'ReadOnly',
-
-        [Parameter()]
-        [ValidateSet('Commercial','USGov','USGovDoD','China','Auto')]
-        [string]$CloudHint = 'Auto',
 
         [Parameter()]
         [string]$TenantId,
@@ -338,7 +274,6 @@ function Initialize-Agt226Session {
 
     Assert-Agt226Shell
 
-    $cloud = Resolve-Agt226CloudProfile -Hint $CloudHint
 
     $scopes = switch ($ScopeProfile) {
         'ReadOnly' {
@@ -371,10 +306,10 @@ function Initialize-Agt226Session {
 
     $session = [pscustomobject]@{
         ControlId           = '2.26'
-        CloudProfile        = $cloud.CloudProfile
+        Cloud               = 'Commercial'
         ScopeProfile        = $ScopeProfile
-        GraphEndpoint       = $cloud.GraphEndpoint
-        GraphBetaEndpoint   = $cloud.GraphBetaEndpoint
+        GraphEndpoint       = 'https://graph.microsoft.com'
+        GraphBetaEndpoint   = 'https://graph.microsoft.com/beta'
         TenantId            = (Get-MgContext).TenantId
         SessionStarted      = (Get-Date).ToUniversalTime()
         PimActivationAge    = $null
@@ -387,7 +322,7 @@ function Initialize-Agt226Session {
 }
 ```
 
-### 2.3 Throttle helper (referenced from §11)
+### 2.2 Throttle helper (referenced from §11)
 
 A minimal exponential-backoff wrapper used by every helper in this file. The full implementation lives in §11; the bootstrap exposes the function name so that §1 preflights can call it without forward-reference errors.
 
@@ -1134,7 +1069,7 @@ function Export-Agt226EvidencePack {
         zone            = $Zone
         namespace       = 'fsi-agentgov.entra-agentid'
         tenant_id       = (Get-MgContext).TenantId
-        cloud_profile   = $script:Agt226Session.CloudProfile
+        cloud             = 'Commercial'
         preview_gating  = $script:Agt226Session.PreviewGating
         criteria        = $criteria
     }
@@ -1186,7 +1121,7 @@ function Export-Agt226EvidencePack {
   "zone": "Zone1|Zone2|Zone3|All",
   "namespace": "fsi-agentgov.entra-agentid",
   "tenant_id": "guid",
-  "cloud_profile": "Commercial",
+  "cloud": "Commercial",
   "preview_gating": "Clean|NotApplicable",
   "criteria": {
     "AgentSponsorInventory": [ /* rows */ ],
@@ -1248,7 +1183,7 @@ function Test-Agt226SiemForwarding {
     if (-not $signinFwd) { $missing += 'SignInLogs' }
 
     # Sample one recent agent-touching event so the SIEM team has a known
-    # correlation target. We do not filter — we just emit the most recent
+    # correlation target. We do not filter — we emit the most recent
     # Add/Remove/Update event whose target is a service principal tagged
     # AgentIdentity.
     $recent = Invoke-Agt226WithThrottle -ScriptBlock {
@@ -1541,7 +1476,7 @@ function New-Agt226AttestationPack {
         attestation_period  = "$Year-$Quarter"
         attesting_operator  = $AttestingOperator
         tenant_id           = $session.TenantId
-        cloud_profile       = $session.CloudProfile
+        cloud             = 'Commercial'
         preview_gating      = $session.PreviewGating
         evidence_pack_sha256 = $pack.Sha256
         evidence_pack_path  = $pack.JsonPath
@@ -1592,7 +1527,6 @@ function Test-Agt226PlaybookHealth {
     $checks = @(
         @{ Name = 'ShellEdition';      Test = { Assert-Agt226Shell; $true } }
         @{ Name = 'ModulesPinned';     Test = { (Install-Agt226ModuleBaseline).Status -eq 'Clean' } }
-        @{ Name = 'CloudProfile';      Test = { (Resolve-Agt226CloudProfile).Supported } }
         @{ Name = 'GraphScopes';       Test = { (Test-Agt226GraphScopes -Profile ReadOnly).Status -eq 'Clean' } }
         @{ Name = 'PreviewGating';     Test = { (Test-Agt226PreviewGating).Status -in @('Clean','NotApplicable') } }
     )
@@ -1613,7 +1547,7 @@ function Test-Agt226PlaybookHealth {
 | # | Anti-pattern | Why it fails | Sanctioned alternative |
 |---|--------------|--------------|------------------------|
 | 14.1 | Calling `Update-MgServicePrincipal` to swap a sponsor reference directly | Bypasses the §8 audit trail and the lifecycle workflow correlation | `Set-Agt226BulkSponsorReassignment` |
-| 14.2 | Treating an empty `Get-MgServicePrincipal` result as `Clean` | Preview gating may be unsatisfied; sovereign cloud may be unsupported | Always check `Status='NotApplicable'` and the `Reason` field |
+| 14.2 | Treating an empty `Get-MgServicePrincipal` result as `Clean` | Preview gating may be unsatisfied | Always check `Status='NotApplicable'` and the `Reason` field |
 | 14.3 | Filtering audit logs in PowerShell to find sponsor mutations | Graph audit query surface is rate-limited and field-incomplete | Forward to SIEM via §10; query the SIEM |
 | 14.4 | Running helpers under PowerShell 5.1 because "it imports the modules fine" | Microsoft.Graph 2.x assemblies bind incorrectly under Desktop edition; calls return empty | `Assert-Agt226Shell` blocks Desktop edition |
 | 14.5 | Granting `EntitlementManagement.ReadWrite.All` to a long-lived service principal for unattended runs | Mutation path requires interactive operator and a change ticket | Use ReadOnly scope for unattended runs; mutation is delegated only |
@@ -1621,7 +1555,6 @@ function Test-Agt226PlaybookHealth {
 | 14.7 | Ignoring `PendingLifecycleTransfer` rows because "the workflow will fix it" | Some workflow runs fail; Pending rows aging past 24 hours indicate a real problem | Aging rule lives in control 3.6; do not drop the rows |
 | 14.8 | Hardcoding tenant IDs in helpers | Breaks multi-tenant runbooks | Pass `-TenantId` to `Initialize-Agt226Session` |
 | 14.9 | Skipping the `@odata.count` assertion on paginated queries | Throttled mid-pagination calls silently truncate | Use `Invoke-Agt226PagedQuery` from §11.1 |
-| 14.10 | Assuming sovereign clouds will reach parity "soon" and pre-deploying code paths | Code paths drift; helpers degrade silently | Keep early-exit in §2; revisit only when Microsoft announces sovereign GA |
 
 ### 14.3 Operating cadence
 
@@ -1634,7 +1567,6 @@ function Test-Agt226PlaybookHealth {
 | **Monthly** | Review access package assignments expiring within 60 days | Entra Agent ID Admin | §5 |
 | **Quarterly** | Run `New-Agt226AttestationPack` and lodge with records system | AI Administrator + Purview Compliance Admin | §13 |
 | **Quarterly** | Review anti-patterns table against actual operator behaviour | Entra Identity Governance Admin | §14.2 |
-| **Annually** | Re-test sovereign cloud availability and remove early-exit if Microsoft has announced GA | Entra Identity Governance Admin | §2 |
 
 ### 14.4 Hedged language reminder
 
@@ -1642,13 +1574,13 @@ When operators document findings produced by these helpers, use only the hedged 
 
 - ✅ "Supports compliance with FINRA 4511 by surfacing sponsor accountability per agent identity."
 - ✅ "Helps meet OCC 2013-29 model risk expectations through documented sponsor and access review chains."
-- ❌ "Ensures compliance with..." — implies a legal guarantee.
+- ❌ "Certifies compliance with..." — implies a legal conclusion.
 - ❌ "Eliminates orphaned agents" — overclaims.
 - ❌ "Will prevent unauthorized sponsor changes" — overclaims.
 
-Implementation caveats to retain in narrative reports:
+Implementation caveat to retain in narrative reports:
 
-> "Implementation requires an active Microsoft 365 Copilot license and either a Microsoft Agent 365 (standalone) or Microsoft 365 E7 (Frontier Suite) license assigned to each operating principal. Organizations should verify license-coverage gating before relying on inventory completeness. Sovereign-cloud tenants must apply the documented compensating control until Agent 365 / Entra Agent ID parity is announced for GCC, GCC High, DoD, and China cloud profiles."
+> "Implementation requires an active Microsoft 365 Copilot license and either a Microsoft Agent 365 (standalone) or Microsoft 365 E7 (Frontier Suite) license assigned to each operating principal. Organizations should verify license-coverage gating before relying on inventory completeness."
 
 
 ---
@@ -1668,7 +1600,6 @@ Implementation caveats to retain in narrative reports:
 **Shared playbook baseline**
 
 - [PowerShell baseline conventions](../../_shared/powershell-baseline.md)
-- [Sovereign cloud endpoint matrix](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod)
 
 **Related controls referenced in this playbook**
 
@@ -1686,7 +1617,8 @@ Implementation caveats to retain in narrative reports:
 
 **Updated:** April 2026
 **Version:** 1.0
-**UI Verification Status:** Verified against Entra admin centre (April 2026 preview). Re-verify when Microsoft announces Entra Agent ID GA or sovereign cloud parity.
+**UI Verification Status:** Verified against Entra admin centre (April 2026 preview). Re-verify when Microsoft announces major Entra Agent ID changes.
 ---
 
 *Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+

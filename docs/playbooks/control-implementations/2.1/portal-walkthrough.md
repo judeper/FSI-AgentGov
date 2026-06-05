@@ -57,34 +57,6 @@
 
     Action: complete the §1 license-consumption precheck **before** enabling Managed Environment on any environment that hosts users not already covered by a qualifying entitlement. Document remediation (assign licenses, remove users, or reclassify the environment as Zone 1 personal-productivity with no premium-feature use) in your change-management ticket. Re-run the precheck **30 days before** the enforcement date and again **7 days before** to confirm coverage.
 
-!!! warning "Sovereign Cloud Availability — GCC, GCC High, DoD, China"
-    Managed Environments are available in sovereign clouds with **material feature gaps** that affect FSI evidence pipelines:
-
-    | Feature | Commercial | GCC | GCC High | DoD | China (21Vianet) | Substitute approach |
-    |---|---|---|---|---|---|---|
-    | Managed Environment toggle | ✅ | ✅ | ✅ | ✅ | ✅ | — |
-    | Sharing limits | ✅ | ✅ | ✅ | ✅ | ✅ | — |
-    | Solution checker enforcement | ✅ | ✅ | ✅ | ✅ | ✅ | — |
-    | IP firewall + IP cookie binding | ✅ | ✅ | ✅ | ✅ | ✅ | — |
-    | Customer Lockbox | ✅ | ✅ | ✅ | ✅ | ❌ | Document exclusion in WSP |
-    | Customer-Managed Keys | ✅ (broad coverage) | ⚠️ Partial | ⚠️ Partial (differs from commercial) | ⚠️ Partial | ⚠️ Verify | Verify per-service coverage in [Learn — Customer-managed key](https://learn.microsoft.com/en-us/power-platform/admin/customer-managed-key) before asserting CMK in your control narrative |
-    | Usage insights / weekly digest | ✅ | ❌ | ❌ | ❌ | ❌ | Microsoft Graph activity exports + Purview audit ([Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) / [Control 3.1](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md)) + Sentinel ([Control 3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md)) |
-    | Tenant Isolation | ✅ | ✅ | ✅ | ✅ | ✅ | — |
-    | Agent 365 governance console | ✅ (GA May 1, 2026) | ❌ Not announced | ❌ Not announced | ❌ Not announced | ❌ | Manual quarterly attestation per [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) §1 substitute path |
-
-    Re-verify sovereign-cloud parity quarterly via the [Microsoft 365 Government roadmap](https://aka.ms/m365gov-roadmap) and the [Power Platform US Government documentation](https://learn.microsoft.com/en-us/power-platform/admin/powerapps-us-government). Where a feature is unavailable, disclose the absence in the firm's WSPs and document the substitute control. See §18 for the consolidated sovereign compensating-control table.
-
-!!! info "Sovereign Cloud URLs"
-    | Cloud | PPAC URL |
-    |---|---|
-    | Commercial | `https://admin.powerplatform.microsoft.com` |
-    | GCC | `https://gcc.admin.powerplatform.microsoft.us` |
-    | GCC High | `https://high.admin.powerplatform.microsoft.us` |
-    | DoD | `https://admin.appsplatform.us` |
-    | China (21Vianet) | `https://admin.powerplatform.partner.microsoftonline.cn` |
-
-    Verify the current URL against [Microsoft Learn — Power Apps US Government](https://learn.microsoft.com/en-us/power-platform/admin/powerapps-us-government) before bookmarking.
-
 ---
 
 ## Document Map
@@ -109,8 +81,7 @@
 | 15 | [Microsoft Agent 365 / M365 Admin Center Governance Integration](#15-microsoft-agent-365-m365-admin-center-governance-integration) | VC-12 |
 | 16 | [Maker / Approver / Admin Separation](#16-maker-approver-admin-separation) | VC-13 |
 | 17 | [Inactive Resource View — Orphan Detection Feed](#17-inactive-resource-view-orphan-detection-feed) | VC-14 |
-| 18 | [Sovereign Cloud Compensating Controls](#18-sovereign-cloud-compensating-controls) | All (substitute path) |
-| 19 | [Closing Decision Matrix — Portal vs PowerShell vs Graph](#19-closing-decision-matrix-portal-vs-powershell-vs-graph) | Operational reference |
+| 18 | [Closing Decision Matrix — Portal vs PowerShell vs Graph](#18-closing-decision-matrix-portal-vs-powershell-vs-graph) | Operational reference |
 
 ---
 ## 0. Pre-flight Prerequisites and Triage
@@ -125,7 +96,7 @@ Before clicking anything in any portal, run through this gate. Skipping a gate p
 4. Confirm **Country or region** matches the regulated entity. For US broker-dealers and banks this is typically `United States`.
 
 !!! warning "Tenant Cloud Detection"
-    If the URL bar shows `admin.microsoft.us` (GCC High / DoD) or you authenticate against `login.microsoftonline.us`, the usage-insights digest (§7) and the Agent 365 governance integration (§15) are unavailable. Continue this playbook for the §2–§6, §8–§14, §16–§17 surfaces that **are** available, and substitute the §18 compensating controls for §7 and §15.
+    Confirm you are signed into `https://admin.powerplatform.microsoft.com`. If the URL shows a different domain, verify you are in the correct tenant before proceeding.
 
 ### 0.2 Confirm role assignments
 
@@ -138,7 +109,7 @@ Use the canonical role names from [`docs/reference/role-catalog.md`](../../../re
 | **Entra Global Admin** | Tenant-wide identity and Cross-Tenant Access settings; CMK Enterprise Policy creation that requires both Power Platform Admin and Entra Global Admin role activation; emergency lifecycle actions. **PIM-eligible only.** | Entra → Roles & admins |
 | **M365 Admin** | Agent 365 governance integration (§15); license assignment; Customer Lockbox tenant-wide enable surface in M365 admin center. | Entra → Roles & admins |
 | **AI Governance Lead** | Approver of zone classification, sharing-limit baselines, solution-checker enforcement level, and welcome-content text per the firm's AI governance policy. Documented in change ticket; not necessarily an Entra role. | Internal RACI |
-| **Compliance Officer** | Read-only review of Managed Environments configuration and weekly digest distribution; signs off on books-and-records substitution path in sovereign clouds. | Entra → Roles & admins → **Entra Global Reader** |
+| **Compliance Officer** | Read-only review of Managed Environments configuration and weekly digest distribution. | Entra → Roles & admins → **Entra Global Reader** |
 | **CISO** | Final approver for IP firewall enforcement flip, CMK assignment, Tenant Isolation enforcement, and any deviation from the documented Zone 3 baseline. | Internal RACI |
 | **Purview Compliance Admin** | Cross-reference for retention labels and Purview Audit policies aligned with the weekly digest and CMK exclusion list. | Purview → Roles & scopes |
 
@@ -171,12 +142,11 @@ For **each** environment you intend to enable Managed Environment on:
 Do not proceed past this section unless **all** of the following are true:
 
 - [ ] You are signed in to the correct tenant and have captured the tenant ID.
-- [ ] Tenant cloud is identified and you have read the §0.1 sovereign-cloud warning.
 - [ ] At least two named humans hold each governance role in §0.2.
 - [ ] **Entra Global Admin** and **Power Platform Admin** are PIM-eligible (not active by default).
 - [ ] Target environment GUID, region, Dataverse status, zone, DLP plan, and license-coverage status are recorded.
 - [ ] Change-management ticket is open and references the environment GUID.
-- [ ] Your governance runbook records the firm's documented SLAs for Managed Environments review (illustrative defaults: weekly digest review every Monday 09:00 ET; quarterly sovereign substitute attestation — examiners will hold the firm to its own documented SLA).
+- [ ] Your governance runbook records the firm's documented SLAs for Managed Environments review (illustrative defaults: weekly digest review every Monday 09:00 ET — examiners will hold the firm to its own documented SLA).
 
 !!! tip "If a Gate Fails"
     Open [`./troubleshooting.md`](./troubleshooting.md) and search for the gate name. Do not attempt workarounds in production until the gate clears — most workarounds for missing licensing or roles create their own audit findings under FINRA 3110 and SOX §404.
@@ -244,7 +214,7 @@ This procedure enables the Managed Environments substrate on **one** environment
 
 3. **Recommended posture for first-enable**:
    - **Limit sharing**: configure per zone (see §4 baselines below). For Zone 3, set to **Limit total individuals who can share to** with a small named cap (illustrative default: 5) and **exclude security groups: Off** to force named-individual sharing only.
-   - **Usage insights**: **On** in commercial; recipients = security distribution + governance distribution + AI Governance Lead. (Sovereign clouds: leave **On** if available; otherwise rely on §18 substitutes.)
+   - **Usage insights**: **On**; recipients = security distribution + governance distribution + AI Governance Lead.
    - **Maker welcome content**: paste the firm's policy text (≤ 1500 characters) or link to the WSP intranet location. See §6 CMK exclusion warning.
    - **Solution checker**: **Warn** in Zone 1/2; **Block** in Zone 3.
    - **IP firewall**: **Off** at the wizard step. Configure separately in §8 with the **audit-only first** workflow.
@@ -511,10 +481,7 @@ Maker welcome content is rendered to a maker the first time they enter the envir
 
 ## 7. Usage Insights — Weekly Digest and Recipients
 
-!!! warning "Sovereign Cloud Unavailability"
-    The usage insights / weekly digest feature is **unavailable in GCC, GCC High, DoD, and China (21Vianet)**. In sovereign clouds, substitute the §18.2 compensating-control pipeline (Microsoft Graph activity exports + Purview audit + Sentinel workbook). Do **not** assert "weekly governance review" in your control narrative for sovereign-cloud environments without naming the substitute pipeline and the named-recipient distribution list.
-
-### 7.1 Configure recipients (commercial)
+### 7.1 Configure recipients
 
 1. **PPAC → Environments → {env} → Settings → Product → Usage insights**.
 2. Toggle **Weekly digest** to **On**.
@@ -727,11 +694,7 @@ Per [Microsoft Learn — Customer-managed key — Excluded data](https://learn.m
 
 **Verify the current excluded-data list against Microsoft documentation each quarter** — Microsoft can add or remove categories as the platform evolves. Document any change in the firm's risk register.
 
-### 11.3 Sovereign-cloud CMK coverage differs
-
-The set of services covered by CMK in **GCC High** and **DoD** differs from the commercial coverage. Do not assert CMK coverage in your control narrative without validating the per-service support matrix in the cloud you operate in. Check [Microsoft Learn — Customer-managed key — US Government](https://learn.microsoft.com/en-us/power-platform/admin/customer-managed-key) and the Power Platform US Government documentation.
-
-### 11.4 Prerequisites
+### 11.3 Prerequisites
 
 - Azure subscription owned by the firm with **Key Vault** provisioned in the **same Azure region** as the Power Platform environment.
 - Azure Key Vault configured with **purge protection enabled** and **soft-delete enabled** (Microsoft will not accept a key from a Key Vault without these).
@@ -874,9 +837,6 @@ For full Agent 365 console coverage, see [Control 2.25 — Agent 365 Admin Cente
 - [ ] Sentinel ingests Agent 365 audit events ([Control 3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md)).
 - [ ] Quarterly attestation: the firm's agent inventory ([Control 1.2](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md), [Control 3.1](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md)) reconciles to Agent 365's view of published agents in the tenant.
 
-!!! warning "Agent 365 Sovereign-Cloud Status"
-    Agent 365 reached commercial GA on May 1, 2026. **No GA date has been announced for GCC, GCC High, DoD, or China (21Vianet)** at the time of this playbook. In sovereign clouds, substitute the §18 manual quarterly attestation pipeline.
-
 ---
 
 ## 16. Maker / Approver / Admin Separation
@@ -934,46 +894,7 @@ The Pipeline Governance Cleanup solution (referenced in §14.3) and the orphan-d
 
 ---
 
-## 18. Sovereign Cloud Compensating Controls
-
-For **GCC, GCC High, DoD, and China (21Vianet)** environments where the §7 weekly digest and the §15 Agent 365 governance integration are unavailable (or where CMK service coverage differs per §11.3), apply this consolidated compensating-control matrix and document each named owner in the firm's WSP.
-
-### 18.1 Compensating-control matrix
-
-| Commercial feature unavailable | Sovereign-cloud substitute | Named owner | Cadence | Evidence |
-|---|---|---|---|---|
-| Weekly usage-insights digest (§7) | Microsoft Graph activity exports → Purview audit ingestion → Sentinel workbook with KQL queries equivalent to the digest contents | AI Governance Lead | Weekly review; quarterly attestation | Sentinel workbook export; signed-off review minutes; 6-year retention |
-| Agent 365 governance console (§15) | Manual quarterly attestation: Power Apps admin app + Power Automate admin app + Copilot Studio admin app exports reconciled against Entra published-agent registrations and against [Control 1.2](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) registry | AI Governance Lead | Quarterly | Reconciliation workbook + signed attestation; 6-year retention |
-| CMK partial service coverage (§11.3) | Per-service inventory: list each Power Platform service used in the environment; mark CMK-covered vs Microsoft-managed-key for each; document residual risk in firm's risk register; offset with stricter [Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) DLP and tenant-level Customer Lockbox | CISO | Quarterly review | Per-service CMK coverage CSV; risk-register entry; 6-year retention |
-| Customer Lockbox unavailable (China only) | Document Microsoft access exclusion in WSP; require contractual approval from Microsoft for any data-access escalation in China cloud | CISO + Legal | Per support case | Contract clause; per-incident approval evidence; 6-year retention |
-
-### 18.2 Substitute Sentinel workbook outline (for §18.1 row 1)
-
-The Sentinel substitute for the weekly digest aggregates over a rolling 7-day window, per environment GUID:
-
-- Active maker count (distinct UPN with a `MakerSession` event)
-- App launch count and top-N apps by launch count
-- Cloud flow run count and failure count
-- Solution-checker result counts by severity
-- Sharing-limit enforcement event count (if logged in audit)
-- IP firewall would-be-blocked / blocked event counts
-- New users routed via Environment Routing (§13)
-
-The workbook is deployed to the firm's Sentinel workspace and emails the §7.1 distribution lists every Monday 09:00 UTC via a Logic App.
-
-### 18.3 Quarterly sovereign-substitute attestation
-
-The AI Governance Lead signs a quarterly attestation that:
-
-- The compensating controls in §18.1 are operating.
-- No commercial-only feature has been claimed in a regulator-facing artifact for a sovereign-cloud environment.
-- The firm's WSP language for sovereign clouds reflects the actual implemented substitute pipeline.
-
-The signed attestation is preserved in the governance evidence library for 6 years.
-
----
-
-## 19. Closing Decision Matrix — Portal vs PowerShell vs Graph
+## 18. Closing Decision Matrix — Portal vs PowerShell vs Graph
 
 | Task | Portal (this playbook) | PowerShell ([`./powershell-setup.md`](./powershell-setup.md)) | Microsoft Graph / Power Platform API |
 |---|---|---|---|
@@ -1028,9 +949,7 @@ The cadences below are illustrative defaults; the firm's documented WSP cadences
 |---|---|---|---|---|
 | License-consumption precheck before any new Managed Environment enable | Per change | Power Platform Admin | Annotated `License-consumption-{env}-{date}.csv` attached to change ticket | 6 years |
 | License-consumption precheck before June 2026 enforcement | T-30 days; T-7 days | Power Platform Admin | Two annotated CSVs in change ticket; CISO notification on residual gap | 6 years |
-| Weekly digest review (commercial) | Weekly (Monday 09:00 ET) | AI Governance Lead delegate | Signed-off review note in governance evidence library | 6 years |
-| Sovereign substitute Sentinel review (sovereign) | Weekly (Monday 09:00 ET) | AI Governance Lead delegate | Signed-off Sentinel workbook screenshot + review note | 6 years |
-| Quarterly sovereign substitute attestation | Quarterly | AI Governance Lead | Signed attestation cover letter | 6 years |
+| Weekly digest review | Weekly (Monday 09:00 ET) | AI Governance Lead delegate | Signed-off review note in governance evidence library | 6 years |
 | Sharing-limit posture review | Quarterly | AI Governance Lead + Compliance Officer | Signed posture review minutes | 6 years |
 | Solution-checker exception register review | Monthly | AI Governance Lead | Exception register snapshot with disposition column | 6 years |
 | IP firewall allow-list review | Monthly | Network Engineering + AI Governance Lead | Signed CIDR list (current vs prior diff) | 6 years |
@@ -1041,7 +960,6 @@ The cadences below are illustrative defaults; the firm's documented WSP cadences
 | Pipeline-target Managed-status sweep | Weekly (automated) + monthly (signed review) | AI Governance Lead | Pipeline Governance Cleanup weekly report; monthly attestation | 6 years |
 | Inactive resources orphan review (handoff to Control 3.6) | Weekly (automated) + monthly (signed review) | AI Governance Lead | Weekly inactive-resource export; monthly orphan-disposition log | 6 years |
 | Maker / Approver / Admin segregation Access Review | Quarterly | AI Governance Lead | Entra Access Review completion report | 6 years |
-| Quarterly sovereign-cloud parity verification (Microsoft roadmaps) | Quarterly | AI Governance Lead | Roadmap-delta memo to CISO + Compliance | 6 years |
 
 ---
 

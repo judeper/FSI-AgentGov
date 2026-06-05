@@ -19,7 +19,7 @@
 - [ ] [PowerShell baseline](../../_shared/powershell-baseline.md) reviewed before running any scripts in [powershell-setup.md](powershell-setup.md)
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any of the supporting PowerShell, read the [PowerShell Authoring Baseline for FSI Implementations](../../_shared/powershell-baseline.md). It is the canonical source for module pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), and SHA-256 evidence emission.
+    Before running any of the supporting PowerShell, read the [PowerShell Authoring Baseline for FSI Implementations](../../_shared/powershell-baseline.md). It is the canonical source for module pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), and SHA-256 evidence emission.
 
 ---
 

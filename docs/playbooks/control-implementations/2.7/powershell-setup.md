@@ -3,7 +3,7 @@
 > Companion to [Control 2.7](../../../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md). Provides read-mostly PowerShell automation for connector inventory, DLP analysis, custom-connector enumeration, and vendor evidence collection.
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
 
 !!! info "Read-mostly by design"
     These scripts read tenant state and emit evidence files. They **do not** mutate DLP policies, connector classifications, or Microsoft Copilot Studio settings. Use the portal walkthrough or your IaC pipeline for change-controlled mutations. All emitted files should be hashed (SHA-256) and stored in your audit-evidence repository.
@@ -19,7 +19,7 @@ Install-Module -Name Microsoft.Graph.DeviceManagement.Enrollment -Scope CurrentU
 Install-Module -Name Microsoft.Graph.Reports -Scope CurrentUser -Force
 
 # Interactive auth (use device code in restricted endpoints)
-Add-PowerAppsAccount -Endpoint prod    # use 'usgov', 'usgovhigh', 'dod' for sovereign clouds
+Add-PowerAppsAccount -Endpoint prod
 
 # Required role: Power Platform Admin (read-only sufficient for inventory)
 Get-AdminPowerAppEnvironment | Select-Object DisplayName, EnvironmentName, EnvironmentType | Format-Table
@@ -222,7 +222,6 @@ Invoke-Control27Snapshot
 
 - **No mutations.** Every cmdlet above is read-only. Never wrap these in scripts that change DLP classification without `-WhatIf`/`-Confirm`, change tickets, and a documented rollback.
 - **Service principal usage.** For unattended collection, follow the FSI baseline pattern (certificate-based auth, just-in-time vault retrieval, scoped admin role). Avoid storing client secrets on disk.
-- **Sovereign clouds.** For GCC, GCC High, or DoD tenants, pass the appropriate `-Endpoint` to `Add-PowerAppsAccount` and the equivalent national-cloud endpoint to `Connect-MgGraph`.
 - **Evidence handling.** Snapshot output may include connector names that are themselves sensitive (e.g., internal API surface). Store in a least-privilege evidence repository governed by Purview retention.
 
 ---

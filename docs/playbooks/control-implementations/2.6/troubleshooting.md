@@ -1,6 +1,6 @@
 # Control 2.6 — Troubleshooting: Model Risk Management (OCC Bulletin 2026-13 / SR 26-2 — formerly OCC 2011-12 / SR 11-7) Evidence Pipeline and Examination Readiness
 
-> **Scope.** This playbook is the diagnostic companion to [Control 2.6 — Model Risk Management (OCC Bulletin 2026-13 / SR 26-2 — formerly OCC 2011-12 / SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md). It addresses operational failure modes in the **evidence pipeline** the firm relies on to satisfy SR 26-2 (formerly SR 11-7) — the model inventory (DSPM for AI), the underlying-model change-detection path (Microsoft Copilot Studio + Message Center), the validation evidence chain (Foundry evaluators, Committee minutes, validation memos), the 17a-4(f)-compliant retention path, the publication-approval workflow in Agent 365, sovereign-cloud parity gaps, the PowerShell helpers used to produce examiner-ready inventories, and examination-readiness rehearsal.
+> **Scope.** This playbook is the diagnostic companion to [Control 2.6 — Model Risk Management (OCC Bulletin 2026-13 / SR 26-2 — formerly OCC 2011-12 / SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md). It addresses operational failure modes in the **evidence pipeline** the firm relies on to satisfy SR 26-2 (formerly SR 11-7) — the model inventory (DSPM for AI), the underlying-model change-detection path (Microsoft Copilot Studio + Message Center), the validation evidence chain (Foundry evaluators, Committee minutes, validation memos), the 17a-4(f)-compliant retention path, the publication-approval workflow in Agent 365, the PowerShell helpers used to produce examiner-ready inventories, and examination-readiness rehearsal.
 >
 > **Regulatory framing.** Reliable evidence produced by the surfaces in this control *supports compliance with* OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), FDIC FIL-22-2017, FFIEC IT Handbook, FINRA Rule 3110 (Supervision), FINRA Rule 4511 and SEC 17a-3 / 17a-4 (Books and Records — including 17a-4(f) WORM retention of validation evidence and Committee minutes), SOX §§ 302 / 404 (ICFR documentation of AI controls), GLBA 501(b), and NYDFS 23 NYCRR 500 where AI agents touch covered customer information. FINRA RN 25-07 (workplace modernization RFC) is referenced **as contextual material only** and is not cited as an enforceable AI rule. The Microsoft surfaces described here **support** the firm's MRM program; they **do not replace** the firm's Model Risk Management Committee, the independent validation function, the effective-challenge process, three-lines-of-defense governance, or registered-principal supervisory review under FINRA Rule 3110.
 >
@@ -26,12 +26,11 @@
 - [§6 Issue 6 — Effective-Challenge Evidence Weak: Committee Minutes Generic](#6-issue-6-effective-challenge-evidence-weak-committee-minutes-generic)
 - [§7 Issue 7 — Validation Evidence Retention Not 17a-4(f)-Compliant](#7-issue-7-validation-evidence-retention-not-17a-4f-compliant)
 - [§8 Issue 8 — Agent 365 Publication-Approval Workflow Not Blocking Publish](#8-issue-8-agent-365-publication-approval-workflow-not-blocking-publish)
-- [§9 Issue 9 — GCC / GCC High / DoD Tenant: Foundry Evaluators or DSPM for AI Not Available](#9-issue-9-gcc-gcc-high-dod-tenant-foundry-evaluators-or-dspm-for-ai-not-available)
-- [§10 Issue 10 — Model-Retirement Evidence Missing](#10-issue-10-model-retirement-evidence-missing)
-- [§11 Issue 11 — PowerShell Helper Returns Status=Error](#11-issue-11-powershell-helper-returns-statuserror)
-- [§12 Issue 12 — Examiner Asks for Inventory of In-Scope Agents and Firm Cannot Produce in Real Time](#12-issue-12-examiner-asks-for-inventory-of-in-scope-agents-and-firm-cannot-produce-in-real-time)
-- [§13 Escalation Paths](#13-escalation-paths)
-- [§14 Cross-References](#14-cross-references)
+- [§9 Issue 9 — Model-Retirement Evidence Missing](#9-issue-9-model-retirement-evidence-missing)
+- [§10 Issue 10 — PowerShell Helper Returns Status=Error](#10-issue-10-powershell-helper-returns-statuserror)
+- [§11 Issue 11 — Examiner Asks for Inventory of In-Scope Agents and Firm Cannot Produce in Real Time](#11-issue-11-examiner-asks-for-inventory-of-in-scope-agents-and-firm-cannot-produce-in-real-time)
+- [§12 Escalation Paths](#12-escalation-paths)
+- [§13 Cross-References](#13-cross-references)
 
 ---
 
@@ -49,10 +48,9 @@
 | 6 | Committee minutes describe approvals in generic terms; effective-challenge evidence weak | [§6](#6-issue-6-effective-challenge-evidence-weak-committee-minutes-generic) | Minute-template review |
 | 7 | Validation memos / Committee minutes stored only in M365 Audit Premium or general SharePoint | [§7](#7-issue-7-validation-evidence-retention-not-17a-4f-compliant) | Retention-label / WORM audit |
 | 8 | Agent 365 publication-approval workflow does not block publish for non-MRM-approved agents | [§8](#8-issue-8-agent-365-publication-approval-workflow-not-blocking-publish) | Governance template scope check |
-| 9 | Sovereign tenant — Foundry evaluators / DSPM for AI not surfaced | [§9](#9-issue-9-gcc-gcc-high-dod-tenant-foundry-evaluators-or-dspm-for-ai-not-available) | Sovereign roadmap re-verification |
-| 10 | Tier 1 agent retired; decision, last validation, and final monitoring snapshot not retained | [§10](#10-issue-10-model-retirement-evidence-missing) | Change-history reconstruction |
-| 11 | PowerShell helper returns `Status=Error` | [§11](#11-issue-11-powershell-helper-returns-statuserror) | Module / connection / endpoint check |
-| 12 | Examiner asks for in-scope agent inventory in real time and firm cannot produce | [§12](#12-issue-12-examiner-asks-for-inventory-of-in-scope-agents-and-firm-cannot-produce-in-real-time) | On-demand PS helper + rehearsal review |
+| 9 | Tier 1 agent retired; decision, last validation, and final monitoring snapshot not retained | [§9](#9-issue-9-model-retirement-evidence-missing) | Change-history reconstruction |
+| 10 | PowerShell helper returns `Status=Error` | [§10](#10-issue-10-powershell-helper-returns-statuserror) | Module / connection / endpoint check |
+| 11 | Examiner asks for in-scope agent inventory in real time and firm cannot produce | [§11](#11-issue-11-examiner-asks-for-inventory-of-in-scope-agents-and-firm-cannot-produce-in-real-time) | On-demand PS helper + rehearsal review |
 
 ### 0.2 Severity Matrix
 
@@ -68,7 +66,7 @@
 Before taking any remediation action recorded in this playbook:
 
 1. **Preserve current state.** Snapshot the affected agent's Agent Card, model-inventory row, current validation memo, and most recent Committee disposition to a Purview-retention-protected location before edits.
-2. **Confirm scope.** Tier (1 / 2 / 3), Zone (1 / 2 / 3), tenant cloud (Commercial / GCC / GCC High / DoD), business owner, and whether the agent is customer-facing or decision-support.
+2. **Confirm scope.** Tier (1 / 2 / 3), Zone (1 / 2 / 3), business owner, and whether the agent is customer-facing or decision-support.
 3. **Examination flag.** Confirm with Compliance / Legal whether the affected agent is subject to an active examination, internal investigation, subpoena, or litigation hold. If yes, proceed only under written direction.
 4. **Reserve MRM judgment.** Record that any remediation produces or repairs **evidence**; the MRM Committee retains the substantive validation, tiering, and approval decisions.
 
@@ -84,7 +82,6 @@ Before taking any remediation action recorded in this playbook:
 - **Region / rollout lag.** DSPM for AI feature rollout proceeds wave-by-wave by region and tenant. Newly provisioned tenants or recently created environments may not have completed first-time discovery.
 - **Connector enablement.** The Copilot, Copilot Studio, Foundry, and Entra-registered-AI-app connectors in DSPM for AI are individually enableable; one or more may be off in the tenant.
 - **Identity / Entra Agent ID propagation lag.** Agents not yet registered in Entra Agent ID (Control 2.26) may be invisible to the DSPM for AI discovery surface that pivots on Entra identity.
-- **Sovereign-cloud parity gap.** DSPM for AI rollout in **GCC, GCC High, and DoD lags commercial**. As of the verification date in this document, full evaluator and connector parity has not been confirmed across sovereign clouds. Treat sovereign tenants as compensating-control tenants until parity is verified per [Issue 9](#9-issue-9-gcc-gcc-high-dod-tenant-foundry-evaluators-or-dspm-for-ai-not-available).
 
 **Resolution.**
 
@@ -92,7 +89,6 @@ Before taking any remediation action recorded in this playbook:
 2. **Connector audit.** In Purview > **Settings** > **DSPM for AI** > **Connectors**, confirm that Copilot, Copilot Studio, Foundry, and Entra-registered AI app connectors are enabled. Where a connector is disabled, document the business reason; if there is none, enable it under change control.
 3. **Force a discovery pass.** In commercial cloud, the DSPM for AI inventory refresh is on a service-managed cadence and cannot be forced by the customer. Document the expected refresh window (verify the current SLA in Microsoft Learn) and re-check after the window has elapsed.
 4. **Cross-check with Power Platform admin export.** Use the inventory PowerShell helper from [`powershell-setup.md`](powershell-setup.md) to enumerate agents from the Power Platform admin endpoint, and diff against the DSPM for AI export. Investigate every agent present in one source and not the other.
-5. **Sovereign-cloud caveat.** If the tenant is GCC, GCC High, or DoD, **do not assume DSPM for AI inventory is authoritative**. Operate the [§9](#9-issue-9-gcc-gcc-high-dod-tenant-foundry-evaluators-or-dspm-for-ai-not-available) compensating-control inventory (manual SharePoint list backed by Purview retention) as the inventory of record, and use any DSPM for AI data that is available as a corroborating source only.
 
 **Verification.**
 
@@ -170,7 +166,7 @@ Before taking any remediation action recorded in this playbook:
 **Resolution.**
 
 1. **Quarantine or dispose.** Pending assessment, the MRM Committee may direct the agent owner to either (a) revert to a pre-approved model on the firm's approved-model list, or (b) restrict the agent to Zone 1 / non-production use until assessment completes. Record the disposition.
-2. **Perform post-hoc vendor-model assessment.** Apply the firm's vendor-model assessment under SR 26-2 §V (formerly SR 11-7 §V) — covering the vendor's model documentation, training-data disclosures, evaluation results, sovereign-cloud availability, terms-of-service review, data-handling commitments, and the vendor's incident-disclosure history. Coordinate with Vendor Risk Management (Control 2.7).
+2. **Perform post-hoc vendor-model assessment.** Apply the firm's vendor-model assessment under SR 26-2 §V (formerly SR 11-7 §V) — covering the vendor's model documentation, training-data disclosures, evaluation results, terms-of-service review, data-handling commitments, and the vendor's incident-disclosure history. Coordinate with Vendor Risk Management (Control 2.7).
 3. **MRM Committee disposition.** The Committee renders an explicit disposition: approved / approved-with-conditions / not approved. Disposition, conditions, and effective dates are recorded in Committee minutes and routed to retention.
 4. **Update Agent Card and approved-model list.** Update the Agent Card to record the specific vendor model and version, the assessment reference, and the Committee disposition. Update the firm's approved-model list and re-publish to model owners.
 5. **Add a technical guardrail (forward-looking).** Where supported, configure Power Platform DLP and / or the Agent 365 governance template so that selection of a non-approved vendor model in Zone 2 / 3 either blocks publish or routes through an approval workflow (see [Issue 8](#8-issue-8-agent-365-publication-approval-workflow-not-blocking-publish)).
@@ -194,7 +190,6 @@ Before taking any remediation action recorded in this playbook:
 - Foundry project for the agent was never linked to the Copilot Studio agent / endpoint.
 - Evaluator suite was scoped at design time but not scheduled, or schedule was disabled after a quota change.
 - Evaluation dataset is empty or stale; runs were skipped because no inputs were available.
-- Sovereign-cloud parity gap — Foundry evaluators are not yet available in the tenant's cloud (see [Issue 9](#9-issue-9-gcc-gcc-high-dod-tenant-foundry-evaluators-or-dspm-for-ai-not-available)).
 
 **Resolution.**
 
@@ -308,37 +303,8 @@ Before taking any remediation action recorded in this playbook:
 
 ---
 
-## §9 Issue 9 — GCC / GCC High / DoD Tenant: Foundry Evaluators or DSPM for AI Not Available
 
-**Symptom.** The tenant operates in GCC, GCC High, or DoD. One or more of the surfaces this control depends on — DSPM for AI, Foundry evaluators (especially safety evaluators that depend on commercial-cloud-hosted judge models), the Agent 365 Admin Center governance console, Entra Agent ID lifecycle workflows, or Anthropic Claude / other vendor models in Copilot Studio — is not available, is in limited preview, or has reduced parity. Sovereign parity gap.
-
-**Root causes (typical).**
-
-- Microsoft surface availability in sovereign clouds is independently gated and lags commercial GA.
-- Some Foundry safety evaluators rely on judge models hosted in commercial cloud and are not yet operational in sovereign clouds.
-- Third-party model availability (e.g., Anthropic Claude) in sovereign clouds is independently gated by both the third party and Microsoft.
-
-**Resolution.**
-
-1. **Invoke compensating manual controls** until Microsoft confirms parity for the affected surface:
-    - **Manual model inventory.** Maintain a SharePoint list (backed by a Purview retention label, see [§7](#7-issue-7-validation-evidence-retention-not-17a-4f-compliant)) covering every AI agent that meets the firm's model-classification criteria. Treat this list as the inventory of record in sovereign clouds.
-    - **Manual validation by the firm's MRM function.** Perform validation under the firm's existing model risk policy, using the Foundry evaluator suite where available and substituting documented manual evaluation (golden-dataset regression, SME review, sampling) where Foundry is not.
-    - **17a-4(f) retention for all artifacts.** All MRM artifacts go to the 17a-4(f)-compliant path described in [§7](#7-issue-7-validation-evidence-retention-not-17a-4f-compliant).
-2. **Document the sovereign-parity gap as an explicit finding.** The firm's MRM policy / WSPs and the Committee minutes should record which surfaces are unavailable, which compensating controls are in force, and the re-verification cadence.
-3. **Re-verify quarterly.** Re-check parity quarterly via the [Microsoft 365 Government roadmap](https://aka.ms/m365gov-roadmap) and the Azure Government / DoD service status pages. Record each re-verification in the Committee minutes. As surfaces become available, plan a controlled migration from compensating controls to the automated path.
-4. **Do not represent the compensating-control posture as equivalent to the commercial-cloud automated path** in examiner-facing communications. Disclose the sovereign-parity posture honestly.
-
-**Verification.**
-
-- Manual model-inventory SharePoint list exists, is retention-labeled, and is current.
-- Quarterly re-verification memo is filed with the Committee.
-- Compensating-control posture is described in MRM policy and Committee minutes.
-
-**Cross-link.** [Control 2.25 — Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) · [Control 2.26 — Entra Agent ID Identity Governance](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) · [Control 2.7 — Vendor and Third-Party Risk Management](../../../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md).
-
----
-
-## §10 Issue 10 — Model-Retirement Evidence Missing
+## §9 Issue 9 — Model-Retirement Evidence Missing
 
 **Symptom.** A Tier 1 agent was retired, but the firm cannot produce, on demand, the **retirement decision** (who, when, why), the **last validation memo** that was current at retirement, and the **final monitoring snapshot** (Foundry evaluator results, Copilot Studio analytics, Agent 365 usage). Retired-model evidence gap.
 
@@ -372,7 +338,7 @@ Before taking any remediation action recorded in this playbook:
 
 ---
 
-## §11 Issue 11 — PowerShell Helper Returns Status=Error
+## §10 Issue 10 — PowerShell Helper Returns Status=Error
 
 **Symptom.** A PowerShell helper from [`powershell-setup.md`](powershell-setup.md) (model-inventory enumeration, manifest export, MRM compliance report, model-change monitoring, end-to-end configuration) returns `Status=Error`, throws an unhandled exception, or exits non-zero.
 
@@ -384,29 +350,26 @@ Before taking any remediation action recorded in this playbook:
 | **Required module missing or wrong version** | `The term 'Add-PowerAppsAccount' is not recognized`; cmdlet-not-found | Pin module versions per the baseline; reinstall with `-Force -Scope CurrentUser`; verify with `Get-Module -ListAvailable` |
 | **Not connected to Power Platform admin endpoint** | `Unauthorized`; empty result sets | Re-run `Add-PowerAppsAccount` (or the service-principal variant); confirm the connection token has not expired |
 | **Not connected to Exchange Online** | `Search-UnifiedAuditLog` not recognized | Re-run `Connect-ExchangeOnline` with the appropriate role assignment |
-| **Sovereign endpoint mismatch** | Connections appear to succeed but return commercial-cloud data, or fail with TLS / endpoint errors | Set the `-Endpoint` parameter explicitly per the baseline (GCC / GCC High / DoD endpoints differ); verify with the baseline's endpoint table |
 | **Insufficient role assignment** | `Forbidden` on specific endpoints | Confirm the executing principal holds the documented roles (Power Platform Admin, Entra Global Reader for inventory, Purview Compliance Admin where DSPM for AI is queried) |
 | **Dataverse compatibility** | Date / decimal serialization mismatch | Use the baseline's Dataverse-safe serialization helpers; do not pass raw `[datetime]` to Dataverse without ISO-8601 conversion |
 | **Missing inventory CSV / file path** | `[WARN] Model inventory not found` | Confirm the `-ModelInventoryPath` parameter resolves to a real file; the helper will create a template if absent — verify the template was not committed as production inventory |
 
 **Resolution (general).**
 
-1. Re-read [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the authoritative source for module pinning, sovereign endpoint selection, mutation safety (`-WhatIf` / `SupportsShouldProcess`), and SHA-256 evidence emission.
+1. Re-read [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the authoritative source for module pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), and SHA-256 evidence emission.
 2. Run the helper with `-Verbose` and `-Debug` to surface the failing call.
 3. For Graph throttling, capture the `Retry-After` header and back off; for persistent throttling, open a Microsoft Support case.
-4. For sovereign endpoint mismatches, never assume commercial-cloud defaults — set endpoints explicitly.
 5. Capture the failing run output and command line in the incident record before retrying.
 
 **Verification.**
 
 - Helper completes with `Status=OK` and emits the documented evidence artifact (CSV / JSON / HTML).
-- For sovereign tenants, output references the sovereign endpoint used.
 
 **Cross-link.** [`_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) · [Control 3.9 — Microsoft Sentinel Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md).
 
 ---
 
-## §12 Issue 12 — Examiner Asks for Inventory of In-Scope Agents and Firm Cannot Produce in Real Time
+## §11 Issue 11 — Examiner Asks for Inventory of In-Scope Agents and Firm Cannot Produce in Real Time
 
 **Symptom.** A regulator (OCC, Federal Reserve, SEC, FINRA, FDIC, NYDFS) requests, during an examination, an inventory of AI agents the firm treats as models under SR 26-2 (formerly SR 11-7). The firm cannot produce the inventory within the requested window (typically same-day or next business day for routine pulls). Process and tooling gap.
 
@@ -434,7 +397,7 @@ Before taking any remediation action recorded in this playbook:
 
 ---
 
-## §13 Escalation Paths
+## §12 Escalation Paths
 
 The matrix below describes **when** to escalate and to **whom**. Substantive MRM judgments — model tiering, validation disposition, effective challenge, model retirement — are reserved to the MRM Committee and the independent validation function and are not delegable to administrators.
 
@@ -448,16 +411,15 @@ The matrix below describes **when** to escalate and to **whom**. Substantive MRM
 | Examiner / regulator request the firm cannot satisfy in-window | **Compliance Officer** + **Legal** (immediate) | All examiner-facing communications coordinated; rehearsal failure tracked as a finding |
 | Subpoena, litigation hold, or active examination touching an in-scope agent | **Legal** (immediate) | Preservation direction; remediation gating |
 | Microsoft surface defect impacting MRM evidence (DSPM for AI, Foundry evaluators, Agent 365) | **Microsoft Support** (Premier / Unified per the firm's contract) | Vendor-side root-cause and resolution; evidence collection for the firm's record |
-| Sovereign-parity gap that materially constrains the firm's MRM posture | **MRM Committee** + **Compliance Officer** | Compensating-control approval; quarterly re-verification owner |
 | Cross-jurisdictional examination, novel regulatory question, or potential rule violation | **External counsel** (via Legal) | Specialist guidance |
 
 **Examiner-facing communication — non-delegation.** No administrator, helper script, or evidence-collection tool transmits inventory, validation memos, Committee minutes, or any other record directly to a regulator, examiner, or external auditor. **All examiner-facing communications are coordinated through Compliance and Legal.** Administrators provide the underlying evidence artifacts on request and, where appropriate, attend in a technical-support capacity at the direction of Compliance / Legal.
 
-**Microsoft Support engagement.** When opening a Premier / Unified Support case for a surface defect, attach the diagnostic output from [§11](#11-issue-11-powershell-helper-returns-statuserror), identify the affected tenant cloud (Commercial / GCC / GCC High / DoD), and label the case severity per the firm's support contract. Retain the case correspondence as evidence; route to 17a-4(f) retention if the case touches an in-scope model artifact.
+**Microsoft Support engagement.** When opening a Premier / Unified Support case for a surface defect, attach the diagnostic output from [§10](#10-issue-10-powershell-helper-returns-statuserror), identify affected surfaces and label the case severity per the firm's support contract. Retain the case correspondence as evidence; route to 17a-4(f) retention if the case touches an in-scope model artifact.
 
 ---
 
-## §14 Cross-References
+## §13 Cross-References
 
 **Sibling playbooks.** [portal-walkthrough.md](portal-walkthrough.md) · [powershell-setup.md](powershell-setup.md) · [verification-testing.md](verification-testing.md)
 
