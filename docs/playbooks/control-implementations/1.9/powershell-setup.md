@@ -201,14 +201,27 @@ function Ensure-RetentionPolicy {
 ### 3.2 Microsoft 365 Copilot and AI experiences
 
 ```powershell
-Ensure-RetentionPolicy -PolicyName 'FSI-Copilot-AIExperiences-Retention' `
-    -RuleName  'FSI-Copilot-AIExperiences-6Year' `
-    -RetentionDurationDays 2190 `
-    -LocationParams @{ ModernGroupLocation = 'All' }
-# NOTE: The exact location switch for Copilot/AI experiences may be named differently
-# (e.g., -CopilotLocation, -CopilotExperiencesLocation, -ModernGroupLocation in some
-# configurations). Verify with `Get-Help New-RetentionCompliancePolicy -Full` against
-# your pinned ExchangeOnlineManagement module before running in production.
+# BLOCKED: The PowerShell location parameter for "Microsoft Copilot experiences"
+# retention has not been confirmed against the published New-RetentionCompliancePolicy
+# syntax. ModernGroupLocation targets Microsoft 365 Group mailboxes — NOT Copilot AI
+# interaction content — and must not be used here.
+#
+# ACTION REQUIRED before un-commenting:
+#   Run: Get-Help New-RetentionCompliancePolicy -Full | Out-String |
+#        Select-String 'Copilot','AIApp','Location'
+#   Confirm the correct -Location parameter for your pinned ExchangeOnlineManagement
+#   module version.
+#
+# RECOMMENDED: Create FSI-Copilot-AIExperiences-Retention via the Microsoft Purview
+# portal (Purview → Data lifecycle management → Retention policies → New retention
+# policy → select "Microsoft Copilot experiences" as the location) until the correct
+# PowerShell parameter is confirmed for your module version.
+Write-Error ("ACTION REQUIRED: Confirm the Copilot/AI experiences retention location " +
+    "parameter name from 'Get-Help New-RetentionCompliancePolicy -Full' before " +
+    "running this section. ModernGroupLocation targets M365 Group mailboxes, NOT " +
+    "Copilot AI interaction content. Use the Purview portal to create the " +
+    "FSI-Copilot-AIExperiences-Retention policy until the correct parameter is " +
+    "confirmed.") -ErrorAction Stop
 ```
 
 ### 3.3 Agent-related Exchange email retention (content-match safety net)
