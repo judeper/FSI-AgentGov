@@ -1,6 +1,6 @@
 # PowerShell Authoring Baseline for FSI Implementations
 
-**Purpose:** Pre-flight requirements that apply to **every** PowerShell playbook in this framework. Read this **once** before running any control's PowerShell setup, and treat it as the canonical source for module versions, sovereign-cloud endpoints, mutation safety, and evidence emission.
+**Purpose:** Pre-flight requirements that apply to **every** PowerShell playbook in this framework. Read this **once** before running any control's PowerShell setup, and treat it as the canonical source for module versions, mutation safety, and evidence emission.
 
 **Audience:** M365 administrators executing controls in production tenants subject to FINRA / SEC / GLBA / OCC / Fed SR 26-2 (formerly SR 11-7) / CFTC oversight.
 
@@ -62,46 +62,7 @@ Without this guard, scripts run in PowerShell 7 silently fail or return empty re
 
 ---
 
-## 3. Sovereign Cloud Endpoints (GCC / GCC High / DoD)
-
-If your tenant is in any US Government cloud, you **must** pass the correct `-Endpoint` parameter on `Add-PowerAppsAccount`, or the cmdlet authenticates against commercial endpoints, returns zero environments, and produces **false-clean** assessment results.
-
-| Cloud | `-Endpoint` value | `Connect-MgGraph -Environment` |
-|---|---|---|
-| Commercial | `prod` (default) | `Global` (default) |
-| GCC | `usgov` | `USGov` |
-| GCC High | `usgovhigh` | `USGov` |
-| DoD | `dod` | `USGovDoD` |
-| China (21Vianet) | `china` | `China` |
-
-**Canonical sovereign-aware authentication:**
-
-```powershell
-param(
-    [ValidateSet('prod','usgov','usgovhigh','dod')]
-    [string]$Endpoint = 'prod'
-)
-
-Add-PowerAppsAccount -Endpoint $Endpoint
-# Microsoft Graph national cloud names per Connect-MgGraph -Environment:
-# Global   = commercial (graph.microsoft.com) — also covers M365 GCC; per Microsoft Learn:
-#            "If you're working in a Microsoft 365 GCC environment, continue using the
-#            worldwide endpoints: graph.microsoft.com" (https://learn.microsoft.com/en-us/graph/deployments)
-# USGov    = GCC High (graph.microsoft.us)
-# USGovDoD = DoD L5 (dod-graph.microsoft.us)
-# China    = 21Vianet (microsoftgraph.chinacloudapi.cn).
-# FSI cloud-name mapping (left): usgovhigh -> Microsoft Graph 'USGov'; dod -> 'USGovDoD'.
-# KNOWN LIMITATION: FSI 'usgov' (M365 GCC) currently maps to Graph 'USGov' below; per the
-# Learn note above, M365 GCC tenants should use the Global endpoint. This is a pre-existing
-# mapping carried over from earlier framework revisions; see issue tracker for reconciliation.
-Connect-MgGraph -Environment (@{prod='Global'; usgov='USGov'; usgovhigh='USGov'; dod='USGovDoD'}[$Endpoint])
-```
-
-**Verify before run:** Microsoft Learn — "Get started with PowerShell for Power Platform Administrators" lists current sovereign endpoint values.
-
----
-
-## 4. Mutation Safety: SupportsShouldProcess / -WhatIf / Snapshot
+## 3. Mutation Safety: SupportsShouldProcess / -WhatIf / Snapshot
 
 Any script that **changes tenant state** (creates / modifies / deletes role assignments, DLP policies, environments, agent settings, etc.) **must**:
 
@@ -139,7 +100,7 @@ Stop-Transcript
 
 ---
 
-## 5. Evidence Emission: SHA-256 Integrity
+## 4. Evidence Emission: SHA-256 Integrity
 
 Audit-defensible evidence requires **content-integrity proofs**. Screenshots alone are not sufficient under SEC 17a-4(f) WORM requirements or FINRA 4511 record-keeping rules.
 
@@ -180,7 +141,7 @@ function Write-FsiEvidence {
 
 ---
 
-## 6. Dataverse Compatibility for Power Apps Admin Cmdlets
+## 5. Dataverse Compatibility for Power Apps Admin Cmdlets
 
 The `*-AdminPowerAppEnvironmentRoleAssignment` cmdlets **only function on environments that do NOT have a Dataverse database**. On Dataverse-backed environments:
 
@@ -203,12 +164,12 @@ if ($env.CommonDataServiceDatabaseProvisioningState -eq 'Succeeded') {
 
 ---
 
-## 7. Authoring Convention for Playbook Authors
+## 6. Authoring Convention for Playbook Authors
 
 When you contribute a new PowerShell playbook to this framework, the playbook **must**:
 
 - Link to this baseline at the top.
-- Use the canonical patterns from sections 1, 3, 4, 5, and 6 instead of re-deriving them.
+- Use the canonical patterns from sections 1, 3, 4, and 5 instead of re-deriving them.
 - Document any module-specific deviations explicitly.
 - Pass the validation script (see `scripts/verify_controls.py`).
 

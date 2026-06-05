@@ -318,7 +318,7 @@ The `Write-Agt47Evidence` helper used throughout this playbook is defined in §1
 
 Sensitivity labels are the cornerstone of Copilot grounding governance. Labels drive which content Copilot can summarize, paraphrase, and cite, which content is excluded from grounding via DLP rules (§5), and which content is excluded from search index expansion via RSS (§6). FSI tenants typically operate four labels: `Public`, `Internal`, `Confidential`, and `Highly Confidential\NPI` (or `MNPI`). The label structure is created through Control 1.5 (Data Loss Prevention (DLP) and Sensitivity Labels). This control consumes that label taxonomy and configures the **policy** that publishes labels to Copilot-licensed users.
 
-The mutation pattern follows [BL-§4](../../_shared/powershell-baseline.md#4-mutation-safety-supportsshouldprocess-whatif-snapshot):
+The mutation pattern follows [BL-§3](../../_shared/powershell-baseline.md#3-mutation-safety-supportsshouldprocess-whatif-snapshot):
 
 1. Bootstrap session (§2)
 2. Pre-flight gates (§3)

@@ -70,7 +70,7 @@ Connect-MgGraph -Environment $graphEnv -Scopes 'SecurityEvents.Read.All','Policy
 
 ## Evidence emission helper (baseline §5)
 
-The posture collector uses the canonical `Write-FsiEvidence` helper from [powershell-baseline.md §5](../../_shared/powershell-baseline.md#5-evidence-emission-sha-256-integrity). Copy the function from the baseline into your script library or dot-source it.
+The posture collector uses the canonical `Write-FsiEvidence` helper from [powershell-baseline.md §4](../../_shared/powershell-baseline.md#4-evidence-emission-sha-256-integrity). Copy the function from the baseline into your script library or dot-source it.
 
 ---
 
