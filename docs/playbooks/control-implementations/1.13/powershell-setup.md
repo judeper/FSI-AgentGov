@@ -979,7 +979,7 @@ The following patterns appear in the wild and have all caused production inciden
 
 ## 14. Evidence pack and `Write-FsiEvidence`
 
-Every change window produces an evidence pack containing the transcript, the before/after JSON snapshots, audit-log exports, `Test-DataClassification` reports, and a SHA-256 manifest binding them together. The shared baseline (`docs/playbooks/_shared/powershell-baseline.md` §5) defines the helper:
+Every change window produces an evidence pack containing the transcript, the before/after JSON snapshots, audit-log exports, `Test-DataClassification` reports, and a SHA-256 manifest binding them together. The shared baseline (`docs/playbooks/_shared/powershell-baseline.md` §4) defines the helper:
 
 ```powershell
 function Write-FsiEvidence {

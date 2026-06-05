@@ -91,12 +91,12 @@ Search-UnifiedAuditLog -StartDate (Get-Date).AddDays(-7) -EndDate (Get-Date) `
 
 1. **Pilot every retention policy** in a non-production scope (single test site or OneDrive) before broad publication.
 2. **Pin module versions** per the [PowerShell Authoring Baseline §1](../../_shared/powershell-baseline.md); record the pinned version in the change ticket.
-3. **Use `-WhatIf`** on every mutating cmdlet before running for real; capture before/after snapshots per baseline §4.
+3. **Use `-WhatIf`** on every mutating cmdlet before running for real; capture before/after snapshots per baseline §3.
 4. **Apply Preservation Lock only after** at least one full review cycle has confirmed scope and duration are correct — it is irreversible.
 5. **Coordinate with Legal and the eDiscovery owner** (Control 1.19) before publishing or modifying any policy that may interact with active holds.
 6. **Train site owners** on retention label application and the meaning of Preservation Hold Library.
 7. **Run the coverage report monthly**: every Copilot/agent knowledge source site without a retention policy is a finding.
-8. **Land all evidence** in WORM-configured storage with SHA-256 hashes recorded in `manifest.json` per baseline §5.
+8. **Land all evidence** in WORM-configured storage with SHA-256 hashes recorded in `manifest.json` per baseline §4.
 
 ---
 

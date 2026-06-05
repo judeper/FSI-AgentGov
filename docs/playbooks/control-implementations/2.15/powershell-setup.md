@@ -70,7 +70,7 @@ This script changes tenant state. It follows the FSI baseline: `SupportsShouldPr
     - Snapshots current tenant settings to disk for rollback.
     - Sets enableDefaultEnvironmentRouting = $true.
     - Optionally sets environmentRoutingAllMakers and the primary target group.
-    - Emits SHA-256-hashed evidence + manifest per FSI baseline section 5.
+    - Emits SHA-256-hashed evidence + manifest per FSI baseline section 4.
 
 .PARAMETER TargetEnvironmentGroupId
     GUID of the environment group that will hold catch-all routed dev envs.

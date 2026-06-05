@@ -2401,7 +2401,7 @@ Cross-ref:      Control 1.7, Control 1.9 (records routing)
 
 ## §11 — Orchestrator: `Invoke-Fsi-Control39Setup`
 
-The orchestrator wires the helpers into one safe, idempotent entry point with three modes (`ReportOnly`, `Enforce`, `Verify`). The orchestrator wraps execution in a transcript per [baseline §4](../../_shared/powershell-baseline.md), emits a single rollup contract object, and **never** moves from `ReportOnly` to mutation without explicit operator action.
+The orchestrator wires the helpers into one safe, idempotent entry point with three modes (`ReportOnly`, `Enforce`, `Verify`). The orchestrator wraps execution in a transcript per [baseline §3](../../_shared/powershell-baseline.md), emits a single rollup contract object, and **never** moves from `ReportOnly` to mutation without explicit operator action.
 
 ```powershell
 function Invoke-Fsi-Control39Setup {

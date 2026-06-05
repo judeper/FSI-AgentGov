@@ -84,7 +84,7 @@ If any v1.0 SignIns module is loaded before its Beta counterpart, **close the ho
 | 9 | Synced (cross-device) passkeys treated as AAL3 | Auditor report claims AAL3 coverage; NIST SP 800-63B requires device-bound credential at AAL3 | `New-Fsi-PhishingResistantAuthStrength` ([§4](#4-authentication-strength-deployer)) | Strength definition includes `passkeys (FIDO2)` with the `attestation = required` and explicit `deviceBound` flag where supported |
 | 10 | Report-only metrics interpreted before 7 full days of evaluation | Operator promotes a policy to `enabled` after 24 hours; legacy clients break in production | `Invoke-Fsi-CAReportOnlyReview` ([§6](#6-report-only-analytics)) | Refuses to recommend promotion if `lookbackDays < 7` or `dailySignInVolume < 100` per policy |
 
-> **Return-contract reminder.** Every public helper in §3-§9 returns `[pscustomobject]` with at minimum: `Status`, `Reason`, `ControlId = ''1.11''`, `HelperName`, `TimestampUtc`, plus helper-specific data fields. The orchestrator at [§9](#9-orchestrator) refuses to write the evidence manifest if any helper returns `$null`, an empty array, or omits a required field. See [`_shared/powershell-baseline.md` §5](../../_shared/powershell-baseline.md#5-evidence-emission-sha-256-integrity).
+> **Return-contract reminder.** Every public helper in §3-§9 returns `[pscustomobject]` with at minimum: `Status`, `Reason`, `ControlId = ''1.11''`, `HelperName`, `TimestampUtc`, plus helper-specific data fields. The orchestrator at [§9](#9-orchestrator) refuses to write the evidence manifest if any helper returns `$null`, an empty array, or omits a required field. See [`_shared/powershell-baseline.md` §4](../../_shared/powershell-baseline.md#4-evidence-emission-sha-256-integrity).
 
 ---
 
@@ -1790,7 +1790,7 @@ function Invoke-Fsi-Control111Setup {
     End-to-end orchestrator for Control 1.11. Modes: ReadOnly | Verify | Enforce.
 .DESCRIPTION
     Composes every Control 1.11 helper into a single deterministic flow with transcript,
-    structured evidence emission (per _shared/powershell-baseline.md §5), and SHA-256 manifest.
+    structured evidence emission (per _shared/powershell-baseline.md §4), and SHA-256 manifest.
     Refuses to enter Enforce mode without (a) explicit -IUnderstandThisMutatesProduction switch,
     (b) PIM-activated Entra Global Admin context, (c) successful 7-day report-only review per §6.
 .PARAMETER Mode
@@ -1888,7 +1888,7 @@ function Invoke-Fsi-Control111Setup {
         # Phase 5: emit evidence pack
         $results | ConvertTo-Json -Depth 8 | Set-Content -Path (Join-Path $packPath ''results.json'') -Encoding UTF8
 
-        # SHA-256 manifest per _shared/powershell-baseline.md §5
+        # SHA-256 manifest per _shared/powershell-baseline.md §4
         $manifest = Get-ChildItem $packPath -File | ForEach-Object {
             [pscustomobject]@{
                 File = $_.Name
@@ -1938,7 +1938,7 @@ The orchestrator emits the following artefacts to `$EvidenceRoot/<UTC-timestamp>
 |------|----------|
 | `transcript.log` | Full PowerShell transcript of the orchestrator run. |
 | `results.json` | Array of every helper''s `[pscustomobject]` return, in execution order, depth-8 JSON. |
-| `manifest.json` | SHA-256 hash and byte size of every file in the pack (per [`_shared/powershell-baseline.md` §5](../../_shared/powershell-baseline.md#5-evidence-emission-sha-256-integrity)). |
+| `manifest.json` | SHA-256 hash and byte size of every file in the pack (per [`_shared/powershell-baseline.md` §4](../../_shared/powershell-baseline.md#4-evidence-emission-sha-256-integrity)). |
 
 **Retention.** Per SEC Rule 17a-4(b)(4), CA-related sign-in evidence must be retained for **at least 6 years** in WORM-compliant storage. Per SOX 404, the evidence pack should be tagged for the relevant ICFR control owner. Per FINRA Rule 4511, electronic records require a designated principal''s review documented separately.
 

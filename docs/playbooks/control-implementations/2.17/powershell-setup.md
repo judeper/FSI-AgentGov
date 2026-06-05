@@ -113,7 +113,7 @@ $events = foreach ($r in $all) {
     }
 }
 
-# Emit evidence (JSON + CSV + SHA-256 manifest per baseline §5)
+# Emit evidence (JSON + CSV + SHA-256 manifest per baseline §4)
 $jsonPath = Join-Path $EvidencePath "orchestration-events-$ts.json"
 $csvPath  = Join-Path $EvidencePath "orchestration-events-$ts.csv"
 $events | ConvertTo-Json -Depth 10 | Set-Content -Path $jsonPath -Encoding UTF8

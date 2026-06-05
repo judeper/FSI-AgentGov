@@ -112,7 +112,7 @@ $results = foreach ($env in (Get-AdminPowerAppEnvironment)) {
     }
 }
 
-# Emit JSON + SHA-256 manifest entry (canonical pattern from baseline §5)
+# Emit JSON + SHA-256 manifest entry (canonical pattern from baseline §4)
 $jsonPath = Join-Path $EvidencePath "agent-file-upload-inventory-$ts.json"
 $results | ConvertTo-Json -Depth 10 | Set-Content -Path $jsonPath -Encoding UTF8
 $hash = (Get-FileHash -Path $jsonPath -Algorithm SHA256).Hash
@@ -220,11 +220,11 @@ $findings | Format-Table -AutoSize
     Idempotent — agents already in the desired state are skipped with [OK].
 
 .DESCRIPTION
-    Canonical mutation pattern per the FSI PowerShell Authoring Baseline §4:
+    Canonical mutation pattern per the FSI PowerShell Authoring Baseline §3:
       - SupportsShouldProcess + ConfirmImpact='High'
       - Before-mutation snapshot to disk for rollback
       - Start-Transcript for full session capture
-      - SHA-256 evidence emission per baseline §5
+      - SHA-256 evidence emission per baseline §4
       - -WhatIf produces a true preview without state change
 
 .PARAMETER EnvironmentId

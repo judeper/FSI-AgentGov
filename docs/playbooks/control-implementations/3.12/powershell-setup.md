@@ -599,7 +599,7 @@ Write-Host "Script completed successfully." -ForegroundColor Cyan
 ## Script 4: Create Audit-Ready Evidence Export
 
 ### Purpose
-Generate a SHA-256 hashed evidence package with `manifest.json` for regulatory examination, aligned to the [PowerShell Authoring Baseline §5](../../_shared/powershell-baseline.md). The manifest records `{file, sha256, bytes, generated_utc, script_version}` for every artifact and supports chain-of-custody for SEC 17a-4(f) WORM evidence and FINRA Rule 4511 record-keeping.
+Generate a SHA-256 hashed evidence package with `manifest.json` for regulatory examination, aligned to the [PowerShell Authoring Baseline §4](../../_shared/powershell-baseline.md). The manifest records `{file, sha256, bytes, generated_utc, script_version}` for every artifact and supports chain-of-custody for SEC 17a-4(f) WORM evidence and FINRA Rule 4511 record-keeping.
 
 !!! warning "Land artifacts in WORM storage"
     The script writes to a local directory for review, but audit-defensible evidence must land in storage configured for write-once-read-many — Microsoft Purview Data Lifecycle Management retention lock, SharePoint records center with retention label, or Azure Storage immutability policy. Local disk is **not** sufficient under SEC 17a-4(f) or FINRA Rule 4511.
@@ -795,7 +795,7 @@ $hashFile = Join-Path $evidenceDir "SHA256_HASH.txt"
 
 Write-Host "✓ Hash verification file created" -ForegroundColor Green
 
-# Emit canonical manifest.json (baseline §5) for chain-of-custody and downstream verifiers
+# Emit canonical manifest.json (baseline §4) for chain-of-custody and downstream verifiers
 $manifestPath = Join-Path $evidenceDir "manifest.json"
 $scriptVersion = "1.3.3"
 $manifestEntries = @()
@@ -824,7 +824,7 @@ Write-Host "Files included:" -ForegroundColor Cyan
 Write-Host "  - ExceptionRegister.csv (exception data)" -ForegroundColor White
 Write-Host "  - EVIDENCE_METADATA.txt (chain of custody)" -ForegroundColor White
 Write-Host "  - SHA256_HASH.txt (integrity verification)" -ForegroundColor White
-Write-Host "  - manifest.json (canonical evidence manifest per FSI baseline §5)" -ForegroundColor White
+Write-Host "  - manifest.json (canonical evidence manifest per FSI baseline §4)" -ForegroundColor White
 Write-Host "  - transcript-$timestamp.log (full PowerShell session transcript)" -ForegroundColor White
 Write-Host ""
 Write-Host "To verify file integrity later, run:" -ForegroundColor Cyan

@@ -63,7 +63,7 @@
 | Site coverage report (sites without retention) | PowerShell `Get-SPOSite` | SHA-256 in `manifest.json` | 6 years |
 | Functional test evidence (deletion → Preservation Hold) | Purview audit log export | SHA-256 in `manifest.json` | 6 years |
 
-> All evidence emitted by the Control 4.3 PowerShell setup is hashed and listed in `manifest.json` per the [PowerShell Authoring Baseline §5](../../_shared/powershell-baseline.md). Land artifacts in WORM-configured storage to support SEC 17a-4(f) record-keeping.
+> All evidence emitted by the Control 4.3 PowerShell setup is hashed and listed in `manifest.json` per the [PowerShell Authoring Baseline §4](../../_shared/powershell-baseline.md). Land artifacts in WORM-configured storage to support SEC 17a-4(f) record-keeping.
 
 ---
 
