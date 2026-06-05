@@ -18,7 +18,6 @@
 | **Agent surfacing stale content** | Content past business freshness, but still within retention | Apply Restricted Content Discovery (Control 4.1) and metadata-based filtering on the agent's knowledge source; do **not** shorten retention to remove content from agent surface |
 | **Audit events missing for retention actions** | Unified audit log disabled, or audit query scope wrong | Confirm audit logging is on (Control 1.7); search the Purview Audit log under **File and page activities** and **Compliance setting changes** |
 | **Inactive site policy not detecting sites** | Site recently active, or policy scope filter excludes site template | Confirm inactivity threshold met (last access date), and that template/sensitivity filter does not exclude site; SAM evaluates daily but updates can lag 24 h |
-| **Sovereign-cloud connection silently returns empty results** | Connected to commercial endpoint from a Gov tenant | Reconnect with the correct `-ConnectionUri` / `-AzureADAuthorizationEndpointUri` per the [PowerShell Authoring Baseline §3](../../_shared/powershell-baseline.md) |
 | **`-SharePointLocation` rejects wildcard URL** | Wildcards not supported on this parameter | List explicit URLs, or use `-SharePointLocation All` to scope to every SPO site |
 
 ---
@@ -85,7 +84,6 @@ Search-UnifiedAuditLog -StartDate (Get-Date).AddDays(-7) -EndDate (Get-Date) `
 | Content deletion despite active retention or legal hold | Compliance Officer → Legal → Microsoft Support | Immediate |
 | Audit logging gaps for retention actions | Security Admin → Purview Support | 1 business day |
 | Preservation Lock applied in error | Legal Department → Microsoft Support — note that Preservation Lock cannot be reversed; escalation focuses on impact mitigation | Same day |
-| Sovereign-cloud connection failures returning empty results | SharePoint Admin → Microsoft Government Support | 1 business day |
 
 ---
 

@@ -10,7 +10,7 @@ This guide covers the high-frequency failure modes observed when implementing th
 
 | Symptom | Most likely cause | Fix |
 |---------|------------------|-----|
-| Audit query returns zero events | Wrong cloud endpoint, audit logging disabled, or record type renamed | Verify `-Endpoint` / `-ExchangeEnvironmentName`; confirm Control 1.7 is implemented; cross-check current Microsoft Learn record types |
+| Audit query returns zero events | Audit logging disabled or record type renamed | Confirm Control 1.7 is implemented; cross-check current Microsoft Learn record types |
 | Depth limit not enforcing | Tracking variable not incremented or not passed to child agents | Audit topic flow; confirm increment occurs *before* delegation |
 | Circuit breaker stuck Open | Reset timeout too long, downstream still failing, or half-open probe failing | Manually inspect `fsi_CircuitBreakerState`; verify downstream health independently |
 | Cascade failures still occurring | Circuit breaker not invoked on every delegation edge | Audit topic flow for missed `fsi-CircuitBreaker-Check` calls |
@@ -25,19 +25,7 @@ This guide covers the high-frequency failure modes observed when implementing th
 
 These patterns produce evidence that *looks* compliant but is not. Hunt them actively during quarterly reviews.
 
-### Pattern 1 — Sovereign-cloud endpoint omission
-
-**Symptom:** PowerShell evidence script reports zero orchestration events; tenant clearly has Copilot Studio activity.
-
-**Root cause:** Cmdlet authenticated against commercial endpoints from a GCC / GCC High / DoD operator workstation. Output is real but from the wrong tenant — likely empty or from an unrelated commercial tenant.
-
-**Detection:** Compare the tenant ID returned by `Get-MgContext` (or `Get-AdminPowerAppEnvironment | Select -First 1`) against the expected target tenant ID before treating evidence as authoritative.
-
-**Fix:** Always pass `-Endpoint` (Power Apps) and `-ExchangeEnvironmentName` (EXO) explicitly. See PowerShell baseline §3.
-
----
-
-### Pattern 2 — Depth variable not threaded through child agents
+### Pattern 1 — Depth variable not threaded through child agents
 
 **Symptom:** Each individual agent appears to enforce depth correctly; Test 1 (depth violation) passes locally per agent. But end-to-end test exceeds the limit.
 
@@ -47,7 +35,7 @@ These patterns produce evidence that *looks* compliant but is not. Hunt them act
 
 ---
 
-### Pattern 3 — HITL timestamp drift indicating rubber-stamping
+### Pattern 2 — HITL timestamp drift indicating rubber-stamping
 
 **Symptom:** HITL telemetry shows uniformly short `waitDurationMs` (e.g., consistently <30 seconds across all approvers).
 
@@ -57,7 +45,7 @@ These patterns produce evidence that *looks* compliant but is not. Hunt them act
 
 ---
 
-### Pattern 4 — Audit log retention shorter than 6 years
+### Pattern 3 — Audit log retention shorter than 6 years
 
 **Symptom:** Quarterly evidence pack succeeds for the 90-day window but historical reconstruction fails for prior periods.
 
@@ -67,7 +55,7 @@ These patterns produce evidence that *looks* compliant but is not. Hunt them act
 
 ---
 
-### Pattern 5 — Telemetry emitted but not correlated
+### Pattern 4 — Telemetry emitted but not correlated
 
 **Symptom:** Custom events visible in App Insights and audit records visible in Purview, but no way to reconstruct an end-to-end chain.
 

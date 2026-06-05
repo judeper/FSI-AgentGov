@@ -1,8 +1,8 @@
 # Control 3.6 — PowerShell Setup: Orphaned Agent Detection and Remediation
 
-> **Scope.** This playbook automates the five primary detection signal sources, the four-tier remediation ladder, the cross-surface reconciliation engine, the bulk-reassignment safety gates, the sovereign-cloud manual reconciliation worksheet, and the SIEM forwarding pipeline defined in [Control 3.6 — Orphaned Agent Detection and Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md).
+> **Scope.** This playbook automates the five primary detection signal sources, the four-tier remediation ladder, the cross-surface reconciliation engine, the bulk-reassignment safety gates, and the SIEM forwarding pipeline defined in [Control 3.6 — Orphaned Agent Detection and Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md).
 >
-> **Baseline.** All scripts assume the conventions in [_shared/powershell-baseline.md](../../_shared/powershell-baseline.md). Sovereign-cloud endpoints are documented in [§3 — Sovereign Cloud Endpoints (GCC, GCC High, DoD)](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod).
+> **Baseline.** All scripts assume the conventions in [_shared/powershell-baseline.md](../../_shared/powershell-baseline.md).
 >
 > **Namespace.** All functions in this playbook use the `Agt36` prefix to prevent collision with peer-control automation (`Agt225`, `Agt226`, `Agt12`).
 >
@@ -17,7 +17,7 @@ Control 3.6 false negatives almost always stem from running the wrong shell, the
 ### 0.1 — Wrong-shell trap
 
 - **Windows PowerShell 5.1 is not supported.** `Microsoft.Graph` v2.19+ requires PowerShell 7.4+. Running under 5.1 installs the v1.x legacy module path and returns partial `ServicePrincipal` payloads without the `tags` collection — signal #1 (ownerless Entra Agent ID) will silently return zero rows.
-- **Integrated Script Environment (ISE) is not supported** for interactive sovereign-cloud bootstrap — device-code flow UI is clipped. Use Windows Terminal + `pwsh.exe`.
+- **Integrated Script Environment (ISE) is not supported** — device-code flow UI is clipped. Use Windows Terminal + `pwsh.exe`.
 - **Azure Cloud Shell has no Power Platform module.** Signals #3 and #4 will fail to load `Microsoft.PowerApps.Administration.PowerShell`. Run this playbook from a privileged admin workstation, not Cloud Shell.
 
 ```powershell
@@ -40,10 +40,9 @@ if ($Host.Name -eq 'Windows PowerShell ISE Host') {
 | 4 | Deleted environment ghost | Signal #4 reports "env owner departed" for already-deleted envs | Soft-deleted envs linger 7 days in `Get-AdminPowerAppEnvironment -Filter "Deleted"` | Exclude `properties.provisioningState -eq 'Deleted'` before join |
 | 5 | Cross-surface duplicate explosion | One agent appears 5x in orphan register | Reconciliation engine keys on per-surface ID instead of canonical `AgentId` | Canonicalize on 1.2 registry `AgentId` before `Merge-Agt36OrphanRegister` |
 | 6 | Grace-window race | Agent marked orphan the instant sponsor termed, before HR grace window | Detection runs at T+0 but SLA clock starts at T+24h per zone | Apply `Get-Agt36GraceWindow -Zone -SignalSource` before SLA aging |
-| 7 | Sovereign silent skew | GCC High report is clean while commercial shows 40 orphans | Sovereign cloud has no Graph parity for HR `employeeLeaveDateTime` | Route sovereign tenants through §8 manual reconciliation worksheet — **do not early-exit to "clean"** |
-| 8 | Throttled paging truncation | Signal #1 returns exactly 999 rows tenant-wide | `@odata.nextLink` not followed after HTTP 429 backoff | Use `Invoke-Agt36GraphPaged` with retry-after honoring |
-| 9 | Card-vs-detection drift | Admin Center card (3.13) shows 12 orphans, detection reports 8 | Detection filter excludes disabled-but-unlicensed sponsors | Align filter with 3.13 definitions (cross-check §12 RECONCILE Pester) |
-| 10 | SharePoint author disabled-user mask | Signal #5 misses Microsoft Copilot Studio agents authored by disabled users | PnP.PowerShell `Get-PnPUser` caches resolved principals for 8h | Force `-Refresh` or bypass cache via Graph `directoryObjects/getByIds` |
+| 7 | Throttled paging truncation | Signal #1 returns exactly 999 rows tenant-wide | `@odata.nextLink` not followed after HTTP 429 backoff | Use `Invoke-Agt36GraphPaged` with retry-after honoring |
+| 8 | Card-vs-detection drift | Admin Center card (3.13) shows 12 orphans, detection reports 8 | Detection filter excludes disabled-but-unlicensed sponsors | Align filter with 3.13 definitions (cross-check §12 RECONCILE Pester) |
+| 9 | SharePoint author disabled-user mask | Signal #5 misses Microsoft Copilot Studio agents authored by disabled users | PnP.PowerShell `Get-PnPUser` caches resolved principals for 8h | Force `-Refresh` or bypass cache via Graph `directoryObjects/getByIds` |
 
 ### 0.3 — Self-test before every production run
 
@@ -54,7 +53,7 @@ Every scheduled detection job **must** invoke `Invoke-Agt36SelfTest` (§13) befo
 
 ### 1.1 — Module version matrix
 
-Pin exact minimum versions. Later minor versions are acceptable, but do **not** float to an unpinned `-MinimumVersion` — sovereign-cloud tenants have observed Graph SDK v2.21 regressions on `tags` OData serialization.
+Pin exact minimum versions. Later minor versions are acceptable, but do **not** float to an unpinned `-MinimumVersion` — Graph SDK v2.21 has known regressions on `tags` OData serialization.
 
 ```powershell
 $Agt36ModuleMatrix = @(
@@ -155,44 +154,7 @@ function Request-Agt36PimActivation {
 
 ---
 
-## §2 — Sovereign-cloud bootstrap (GCC, GCC High, DoD)
-
-> **Critical difference vs. 2.26.** Control 3.6 does **not** early-exit on sovereign clouds. Sovereign tenants must still produce a reconciliation artifact — the compensating control is a **quarterly manual reconciliation worksheet** (§8) joining HR leaver lists, Entra disabled-user exports, Power Platform maker/env-owner exports, and the 1.2 agent inventory registry.
-
-```powershell
-function Initialize-Agt36SovereignContext {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)][ValidateSet('Commercial','USGov','USGovHigh','USGovDoD')]
-        [string]$Cloud
-    )
-    $endpoints = switch ($Cloud) {
-        'Commercial'  { @{ Graph='https://graph.microsoft.com';        AzureAD='https://login.microsoftonline.com';      PP='prod';      PnPEnv='Production' } }
-        'USGov'       { @{ Graph='https://graph.microsoft.us';         AzureAD='https://login.microsoftonline.us';       PP='usgov';     PnPEnv='USGovernment' } }
-        'USGovHigh'   { @{ Graph='https://graph.microsoft.us';         AzureAD='https://login.microsoftonline.us';       PP='usgovhigh'; PnPEnv='USGovernmentHigh' } }
-        'USGovDoD'    { @{ Graph='https://dod-graph.microsoft.us';     AzureAD='https://login.microsoftonline.us';       PP='dod';       PnPEnv='USGovernmentDoD' } }
-    }
-    $ctx = [pscustomobject]@{
-        Cloud               = $Cloud
-        GraphEndpoint       = $endpoints.Graph
-        AzureADEndpoint     = $endpoints.AzureAD
-        PowerPlatformEnv    = $endpoints.PP
-        PnPEnvironment      = $endpoints.PnPEnv
-        RequiresManualRecon = $Cloud -ne 'Commercial'
-        HRConnectorParity   = $Cloud -eq 'Commercial'   # employeeLeaveDateTime parity
-        InitializedAtUtc    = (Get-Date).ToUniversalTime()
-    }
-    if ($ctx.RequiresManualRecon) {
-        Write-Warning "Sovereign cloud '$Cloud' detected. Signal #2 (sponsor-departed via employeeLeaveDateTime) has no Graph parity. Route to Export-Agt36SovereignReconciliationWorksheet (§8). DO NOT treat detection output as authoritative."
-    }
-    $ctx
-}
-```
-
-The returned context object is threaded through every detection function so that sovereign-specific branching (manual reconciliation fallback for signal #2, reduced HR freshness gates) is an **explicit parameter**, never a global state flag.
-
----
-## §3 — Connection helper (`Initialize-Agt36Session`)
+## §2 — Connection helper (`Initialize-Agt36Session`)
 
 A single entry point connects to every surface needed for cross-signal detection. Failures are **never** swallowed — a surface that cannot connect returns a session object with `Status = 'Error'` for that surface, and downstream detection functions emit `Status = 'NotApplicable'` for their signal rather than falsely reporting `Clean`.
 
@@ -203,16 +165,13 @@ function Initialize-Agt36Session {
         [Parameter(Mandatory)][string]$TenantId,
         [Parameter(Mandatory)][ValidateSet('Detect','Remediate','SponsorTransfer','PowerPlatform','Terminal','Evidence')]
         [string]$Profile,
-        [Parameter(Mandatory)][ValidateSet('Commercial','USGov','USGovHigh','USGovDoD')]
-        [string]$Cloud,
         [string]$ChangeTicketId
     )
-    $sovereign = Initialize-Agt36SovereignContext -Cloud $Cloud
     $scopes    = if ($Profile -eq 'Detect') { $Agt36Scopes.Detect } else { $Agt36Scopes.Remediate }
     $session = [pscustomobject]@{
         TenantId         = $TenantId
         Profile          = $Profile
-        Sovereign        = $sovereign
+        Cloud            = 'Commercial'
         ChangeTicketId   = $ChangeTicketId
         ConnectedAtUtc   = (Get-Date).ToUniversalTime()
         GraphStatus      = 'Pending'
@@ -224,16 +183,14 @@ function Initialize-Agt36Session {
 
     # Graph
     try {
-        Connect-MgGraph -TenantId $TenantId -Scopes $scopes -Environment (
-            switch ($Cloud) {
-                'Commercial'{'Global'} 'USGov'{'USGov'} 'USGovHigh'{'USGovHigh'} 'USGovDoD'{'USGovDoD'}
-            }) -NoWelcome -ErrorAction Stop
+        Connect-MgGraph -TenantId $TenantId -Scopes $scopes -Environment 'Global' `
+            -NoWelcome -ErrorAction Stop
         $session.GraphStatus = 'Connected'
     } catch { $session.GraphStatus = 'Error'; $session.Errors += "Graph: $($_.Exception.Message)" }
 
     # Power Platform
     try {
-        Add-PowerAppsAccount -Endpoint $sovereign.PowerPlatformEnv -ErrorAction Stop | Out-Null
+        Add-PowerAppsAccount -Endpoint 'prod' -ErrorAction Stop | Out-Null
         $session.PowerPlatformStatus = 'Connected'
     } catch { $session.PowerPlatformStatus = 'Error'; $session.Errors += "PowerPlatform: $($_.Exception.Message)" }
 
@@ -256,11 +213,11 @@ function Initialize-Agt36Session {
 
 ---
 
-## §4 — Detection functions (Signals 1–5)
+## §3 — Detection functions (Signals 1–5)
 
 Every detection helper returns a **structured object** with `Status` ∈ `{Clean, Anomaly, Pending, NotApplicable, Error}`. Returning `$null`, an empty array without a status wrapper, or an untyped hashtable is considered a **bug** — see §0.2 defect #1 and §13 Pester `DETECT` namespace.
 
-### 4.1 — Signal #1: Ownerless Entra Agent ID service principals
+### 3.1 — Signal #1: Ownerless Entra Agent ID service principals
 
 ```powershell
 function Get-Agt36OwnerlessAgent {
@@ -306,9 +263,7 @@ function Get-Agt36OwnerlessAgent {
 }
 ```
 
-### 4.2 — Signal #2: Sponsor-departed (HR `employeeLeaveDateTime` correlation)
-
-This signal has **no sovereign-cloud parity** — `employeeLeaveDateTime` is not surfaced in GCC/GCC High/DoD Graph. Sovereign tenants must use §8.
+### 3.2 — Signal #2: Sponsor-departed (HR `employeeLeaveDateTime` correlation)
 
 ```powershell
 function Get-Agt36SponsorDepartedAgent {
@@ -319,13 +274,6 @@ function Get-Agt36SponsorDepartedAgent {
         [int]$LookbackDays = 90,
         [switch]$RealtimeMode
     )
-    if ($Session.Sovereign.RequiresManualRecon) {
-        return [pscustomobject]@{
-            SignalId=2; Status='NotApplicable';
-            Reason="Sovereign cloud '$($Session.Sovereign.Cloud)' lacks employeeLeaveDateTime parity. Use Export-Agt36SovereignReconciliationWorksheet.";
-            Findings=@()
-        }
-    }
     if (-not (Test-Agt36HRFreshness -Session $Session -MaxAgeHours 24)) {
         return [pscustomobject]@{ SignalId=2; Status='Pending'; Reason='HR connector stale > 24h'; Findings=@() }
     }
@@ -377,7 +325,7 @@ function Test-Agt36HRFreshness {
     $true
 }
 ```
-### 4.3 — Signal #3: Power Platform maker-departed agents
+### 3.3 — Signal #3: Power Platform maker-departed agents
 
 ```powershell
 function Get-Agt36MakerDepartedAgent {
@@ -436,7 +384,7 @@ function Get-Agt36MakerDepartedAgent {
 }
 ```
 
-### 4.4 — Signal #4: Environment-owner departed
+### 3.4 — Signal #4: Environment-owner departed
 
 ```powershell
 function Get-Agt36EnvironmentOwnerDepartedAgent {
@@ -484,7 +432,7 @@ function Get-Agt36EnvironmentOwnerDepartedAgent {
 }
 ```
 
-### 4.5 — Signal #5: SharePoint-hosted Copilot Studio author disabled
+### 3.5 — Signal #5: SharePoint-hosted Copilot Studio author disabled
 
 ```powershell
 function Get-Agt36SharePointAuthorDisabledAgent {
@@ -500,7 +448,7 @@ function Get-Agt36SharePointAuthorDisabledAgent {
     $findings = @()
     foreach ($url in $SiteCollectionUrls) {
         try {
-            Connect-PnPOnline -Url $url -Interactive -AzureEnvironment $Session.Sovereign.PnPEnvironment -ErrorAction Stop
+            Connect-PnPOnline -Url $url -Interactive -ErrorAction Stop
             # Copilot Studio author principals are stored as SharePoint site users; resolve
             # through Graph (not PnP cache — see §0.2 defect #10).
             $siteUsers = Get-PnPUser | Where-Object { $_.PrincipalType -eq 'User' -and $_.LoginName -match 'i:0#.f\|membership\|' }
@@ -533,7 +481,7 @@ function Get-Agt36SharePointAuthorDisabledAgent {
 }
 ```
 
-### 4.6 — Signals #6–#10 (short helpers)
+### 3.6 — Signals #6–#10 (short helpers)
 
 Signals #6–#10 (Teams-scoped agents without channel owner, deleted-group affiliation, license-expired maker, connector-owner departed, consent-grantor departed) share the same return-object contract. Stubs are provided for symmetry; full implementations are delivered incrementally as signal-by-signal PRs to prevent a single monolithic change from masking false-clean regressions.
 
@@ -545,7 +493,7 @@ function Get-Agt36ConnectorOwnerDepartedAgent   { param($Session,[int]$Zone) ; [
 function Get-Agt36ConsentGrantorDepartedAgent   { param($Session,[int]$Zone) ; [pscustomobject]@{SignalId=10;Status='Pending';Findings=@()} }
 ```
 
-### 4.7 — Paged Graph helper with throttle handling
+### 3.7 — Paged Graph helper with throttle handling
 
 ```powershell
 function Invoke-Agt36GraphPaged {
@@ -582,7 +530,7 @@ function Invoke-Agt36GraphPaged {
 ```
 
 ---
-## §5 — Reconciliation engine (`Merge-Agt36OrphanRegister`)
+## §4 — Reconciliation engine (`Merge-Agt36OrphanRegister`)
 
 The reconciliation engine joins all signal-source outputs into a **unified orphan register** keyed on the canonical `AgentId` from the 1.2 Agent Inventory Registry. History is append-only — every detection run creates a new row; prior rows are never updated in place (supports SOX ITGC non-repudiation and SEC 17a-4(f) WORM semantics).
 
@@ -658,7 +606,7 @@ function Write-Agt36RegisterAppend {
 }
 ```
 
-### 5.1 — Card-vs-detection parity check
+### 4.1 — Card-vs-detection parity check
 
 Verification Criterion #2 requires **zero tolerated variance** between the orphan count on the 3.13 Admin Center card and the detection register. Implement as a first-class assertion in every scheduled run.
 
@@ -673,11 +621,11 @@ function Assert-Agt36CardParity {
 
 ---
 
-## §6 — Remediation tiers
+## §5 — Remediation tiers
 
 The control defines a four-tier remediation ladder. Every tier function is `SupportsShouldProcess` + `ConfirmImpact='High'` and records an immutable journal entry before mutation.
 
-### 6.1 — Tier 1: Inline owner reassignment (Entra SP)
+### 5.1 — Tier 1: Inline owner reassignment (Entra SP)
 
 ```powershell
 function Set-Agt36AgentOwnerInline {
@@ -704,7 +652,7 @@ function Set-Agt36AgentOwnerInline {
 }
 ```
 
-### 6.2 — Tier 2: Sponsor manager transfer override (Signal #2)
+### 5.2 — Tier 2: Sponsor manager transfer override (Signal #2)
 
 When a sponsor has departed (signal #2), the canonical remediation is to transfer sponsorship to the departed sponsor's **manager**, preserving the 1.7 sponsor-lineage chain. This is a dedicated path — **do not** conflate with Tier-1.
 
@@ -737,7 +685,7 @@ function Invoke-Agt36SponsorManagerTransferOverride {
 }
 ```
 
-### 6.3 — Tier 3: Power Platform owner reassignment
+### 5.3 — Tier 3: Power Platform owner reassignment
 
 ```powershell
 function Set-Agt36PowerAppOwner {
@@ -761,7 +709,7 @@ function Set-Agt36PowerAppOwner {
 }
 ```
 
-### 6.4 — Tier 4: Terminal disposal handoff (to Control 2.25)
+### 5.4 — Tier 4: Terminal disposal handoff (to Control 2.25)
 
 Tier-4 is **not a mutation** performed by this playbook. It is a structured handoff to Control 2.25's service-principal lifecycle disposal workflow. This playbook only emits the handoff evidence and updates the orphan register status to `HandedOff-2.25`.
 
@@ -793,7 +741,7 @@ function Invoke-Agt36TerminalDisposalHandoff {
 }
 ```
 
-### 6.5 — Pre-flight prerequisites
+### 5.5 — Pre-flight prerequisites
 
 ```powershell
 function Test-Agt36ReassignmentPrerequisite {
@@ -819,7 +767,7 @@ function Test-Agt36ReassignmentPrerequisite {
 ```
 
 ---
-## §7 — Bulk reassignment safety gates {#bulk-maker-reassignment}
+## §6 — Bulk reassignment safety gates {#bulk-maker-reassignment}
 
 Bulk remediation is high-risk. The control requires mandatory gates before any multi-target mutation:
 
@@ -959,103 +907,7 @@ function Test-Agt36ApproverMembership { param([string]$ApproverObjectId,$Session
 
 ---
 
-## §8 — Sovereign-cloud manual reconciliation worksheet
-
-> Sovereign tenants (GCC, GCC High, DoD) cannot detect signal #2 (sponsor-departed) in real time because `employeeLeaveDateTime` is not surfaced in sovereign Graph. The **compensating control** is a quarterly manual reconciliation worksheet that an Entra Identity Governance Admin reviews alongside an AI Governance Lead. This worksheet is authoritative evidence for FINRA 3110/SEC 17a-4(f) on sovereign clouds.
-
-```powershell
-function Export-Agt36SovereignReconciliationWorksheet {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)]$Session,
-        [int]$LookbackDays = 90,
-        [Parameter(Mandatory)][string]$OutputDirectory,
-        [string]$ChangeTicketId
-    )
-    if (-not $Session.Sovereign.RequiresManualRecon) {
-        Write-Warning "Session cloud '$($Session.Sovereign.Cloud)' has HR parity. Manual worksheet is not required — prefer real-time detection via Get-Agt36SponsorDepartedAgent."
-    }
-    New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
-    $runId = Get-Date -Format 'yyyyMMdd-HHmmss'
-
-    # 1. HR leaver list — exported offline from HR system; imported as CSV.
-    $hrLeaverCsv = Join-Path $OutputDirectory 'input-hr-leavers.csv'
-    if (-not (Test-Path $hrLeaverCsv)) {
-        Write-Warning "Place HR leaver export (columns: EmployeeId,Upn,LeaveDateUtc,Manager) at: $hrLeaverCsv, then re-run."
-        return $null
-    }
-    $hr = Import-Csv -LiteralPath $hrLeaverCsv
-
-    # 2. Entra disabled users (last $LookbackDays)
-    $sinceIso = (Get-Date).AddDays(-$LookbackDays).ToString('o')
-    $disabled = Get-MgUser -Filter "accountEnabled eq false" -Property 'id,userPrincipalName,accountEnabled,createdDateTime' -All
-
-    # 3. Power Platform maker & env-owner exports
-    $envs  = Get-AdminPowerAppEnvironment | Where-Object { $_.Properties.provisioningState -ne 'Deleted' }
-    $apps  = foreach ($e in $envs) { Get-AdminPowerApp -EnvironmentName $e.EnvironmentName }
-
-    # 4. 1.2 agent inventory registry
-    $registry = Get-Agt12AgentRegistry -Session $Session
-
-    # Join: an agent is flagged on the worksheet if any of:
-    #  - its sponsor UPN matches an HR leaver
-    #  - its sponsor objectId matches a disabled Entra user
-    #  - its Power Platform maker matches either of the above
-    $disabledIndex = @{}; foreach ($u in $disabled) { $disabledIndex[$u.Id] = $u }
-    $hrIndex       = @{}; foreach ($h in $hr)       { $hrIndex[$h.Upn] = $h }
-
-    $rows = foreach ($a in $registry) {
-        $flags = @()
-        if ($hrIndex.ContainsKey($a.SponsorUpn))              { $flags += 'HR-Leaver' }
-        if ($disabledIndex.ContainsKey($a.SponsorObjectId))   { $flags += 'Entra-Disabled' }
-        if ($flags.Count -gt 0) {
-            [pscustomobject]@{
-                AgentId          = $a.AgentId
-                DisplayName      = $a.DisplayName
-                Zone             = $a.Zone
-                SponsorUpn       = $a.SponsorUpn
-                SponsorObjectId  = $a.SponsorObjectId
-                Flags            = ($flags -join ',')
-                ProposedNewSponsor = $hrIndex[$a.SponsorUpn].Manager
-                ReviewerDecision = ''   # filled by reviewer
-                ReviewerSignoff  = ''
-                ReviewerDateUtc  = ''
-            }
-        }
-    }
-
-    $csvPath = Join-Path $OutputDirectory "sovereign-reconciliation-$runId.csv"
-    $rows | Export-Csv -LiteralPath $csvPath -NoTypeInformation -Encoding UTF8
-    $hash = (Get-FileHash -LiteralPath $csvPath -Algorithm SHA256).Hash
-
-    # PDF scaffold (cover sheet — reviewers print, sign, scan back, attach to Purview label)
-    $pdfCover = Join-Path $OutputDirectory "sovereign-reconciliation-$runId-cover.md"
-    @"
-# Control 3.6 — Sovereign Reconciliation Worksheet
-- RunId: $runId
-- Tenant cloud: $($Session.Sovereign.Cloud)
-- Lookback: $LookbackDays days
-- Rows flagged: $($rows.Count)
-- CSV SHA-256: $hash
-- ChangeTicketId: $ChangeTicketId
-- Reviewers (required signatures):
-  1. Entra Identity Governance Admin: __________________ Date: _______
-  2. AI Governance Lead:               __________________ Date: _______
-"@ | Set-Content -LiteralPath $pdfCover -Encoding UTF8
-
-    [pscustomobject]@{
-        RunId         = $runId
-        CsvPath       = $csvPath
-        CoverPath     = $pdfCover
-        Sha256        = $hash
-        RowsFlagged   = $rows.Count
-        Cloud         = $Session.Sovereign.Cloud
-    }
-}
-```
-
----
-## §9 — SIEM forwarding (`Send-Agt36DetectionLogBundle`)
+## §7 — SIEM forwarding (`Send-Agt36DetectionLogBundle`)
 
 Every scheduled detection run produces a JSON bundle with an integrity hash, signed and forwarded to the SIEM cold-storage index. Failures to forward are **retry-with-backoff** and ultimately emit an operational alert — a failed forward does **not** suppress the local evidence record.
 
@@ -1074,7 +926,7 @@ function Send-Agt36DetectionLogBundle {
         schema           = 'agt36.detection.bundle.v1'
         runId            = $RunId
         tenantId         = $Session.TenantId
-        cloud            = $Session.Sovereign.Cloud
+        cloud            = 'Commercial'
         runAtUtc         = (Get-Date).ToUniversalTime()
         signalSummary    = $SignalResults | ForEach-Object { @{ signalId=$_.SignalId; status=$_.Status; findingCount=@($_.Findings).Count } }
         registerSummary  = @{
@@ -1124,7 +976,7 @@ function Write-Agt36OperationalAlert {
 
 ---
 
-## §10 — Scheduling and Power Automate trigger integration
+## §8 — Scheduling and Power Automate trigger integration
 
 Scheduled execution happens on a hardened admin workstation or an Azure Automation account running in the tenant's privileged security context. Two triggers are supported:
 
@@ -1138,7 +990,6 @@ function Invoke-Agt36ScheduledDetectionRun {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)][string]$TenantId,
-        [Parameter(Mandatory)][ValidateSet('Commercial','USGov','USGovHigh','USGovDoD')][string]$Cloud,
         [Parameter(Mandatory)][ValidateSet(1,2,3)][int]$Zone,
         [string[]]$SharePointSiteUrls,
         [Parameter(Mandatory)][string]$SiemEndpointUri,
@@ -1147,7 +998,7 @@ function Invoke-Agt36ScheduledDetectionRun {
     $runId = "agt36-$(Get-Date -Format 'yyyyMMddHHmmss')-$([Guid]::NewGuid().ToString('N').Substring(0,8))"
     try {
         Test-Agt36ModuleMatrix | Out-Null
-        $session = Initialize-Agt36Session -TenantId $TenantId -Profile Detect -Cloud $Cloud
+        $session = Initialize-Agt36Session -TenantId $TenantId -Profile Detect
 
         # Self-test gate (see §13)
         $selfTest = Invoke-Agt36SelfTest -Session $session
@@ -1189,7 +1040,7 @@ Power Automate realtime trigger payload shape (signal #2):
 
 ---
 
-## §11 — Evidence capture and 6-year WORM retention
+## §9 — Evidence capture and 6-year WORM retention
 
 Every artifact produced by Agt36 is **retention-labeled** via Purview with a 6-year WORM label. The label is applied at **write time**, not retrospectively. Absence of the label on an audit sample is a Verification Criterion #4 failure.
 
@@ -1198,7 +1049,6 @@ Every artifact produced by Agt36 is **retention-labeled** via Purview with a 6-y
 | Detection log bundle (JSON) | SIEM cold storage | `Agt36-Detect-6y` | 6 years, regulatory |
 | Orphan register JSONL | Secure storage account, immutable blob | `Agt36-Register-6y` | 6 years, regulatory |
 | Remediation journal + manifest | Secure storage account, immutable blob | `Agt36-Remediation-6y` | 6 years, regulatory |
-| Sovereign reconciliation worksheet CSV + signed cover | SharePoint Online records site | `Agt36-Sovereign-6y` | 6 years, regulatory |
 | Self-test output | SIEM cold storage | `Agt36-SelfTest-6y` | 6 years |
 | Dry-run receipts | Secure storage | `Agt36-DryRun-2y` | 2 years (operational) |
 
@@ -1207,7 +1057,7 @@ function Set-Agt36PurviewRetentionLabel {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)][string]$SharePointFileUrl,
-        [Parameter(Mandatory)][ValidateSet('Agt36-Detect-6y','Agt36-Register-6y','Agt36-Remediation-6y','Agt36-Sovereign-6y','Agt36-SelfTest-6y','Agt36-DryRun-2y')]
+        [Parameter(Mandatory)][ValidateSet('Agt36-Detect-6y','Agt36-Register-6y','Agt36-Remediation-6y','Agt36-SelfTest-6y','Agt36-DryRun-2y')]
         [string]$LabelName
     )
     # Production: Connect-PnPOnline to site, then Set-PnPListItem ... -Values @{ '_ComplianceTag' = $LabelName }
@@ -1230,7 +1080,7 @@ function Test-Agt36RetentionLabelCoverage {
 
 ---
 
-## §12 — Pester namespace stubs
+## §10 — Pester namespace stubs
 
 The [verification-testing.md](verification-testing.md) sibling uses Pester 5 with the following namespaces. Each namespace has a failure-is-loud contract — a missing fixture fails the namespace (never `Inconclusive`).
 
@@ -1244,25 +1094,15 @@ The [verification-testing.md](verification-testing.md) sibling uses Pester 5 wit
 | `TERMINAL` | Tier-4 handoff writes to 2.25 queue + journal; never mutates directly |
 | `RECONCILE` | Canonical AgentId mapping; duplicate explosion regression; card-vs-detection parity |
 | `SIEM` | Bundle schema, signature validity, retry backoff, failure alert emission |
-| `SOV` | Sovereign cloud does NOT early-exit; worksheet export produces CSV + cover + SHA-256 |
 
 ```powershell
 # Example stub — see verification-testing.md for full specs
 Describe 'Agt36 DETECT' {
     It 'Get-Agt36OwnerlessAgent returns Status when Graph is not connected' {
-        $fakeSession = [pscustomobject]@{ GraphStatus='Error'; Sovereign=[pscustomobject]@{RequiresManualRecon=$false} }
+        $fakeSession = [pscustomobject]@{ GraphStatus='Error'; Cloud='Commercial' }
         $result = Get-Agt36OwnerlessAgent -Session $fakeSession -Zone 3
         $result.Status | Should -Be 'NotApplicable'
         $result.Findings | Should -BeOfType [System.Object[]]
-    }
-}
-Describe 'Agt36 SOV' {
-    It 'Get-Agt36SponsorDepartedAgent short-circuits to NotApplicable on sovereign cloud' {
-        $sov = [pscustomobject]@{ RequiresManualRecon=$true; Cloud='USGovHigh' }
-        $session = [pscustomobject]@{ Sovereign=$sov; GraphStatus='Connected' }
-        $result = Get-Agt36SponsorDepartedAgent -Session $session -Zone 3
-        $result.Status | Should -Be 'NotApplicable'
-        $result.Reason | Should -Match 'Sovereign'
     }
 }
 Describe 'Agt36 BULK' {
@@ -1274,9 +1114,9 @@ Describe 'Agt36 BULK' {
 ```
 
 ---
-## §13 — Validation harness, anti-patterns, and operating cadence
+## §11 — Validation harness, anti-patterns, and operating cadence
 
-### 13.1 — `Invoke-Agt36SelfTest`
+### 11.1 — `Invoke-Agt36SelfTest`
 
 Runs before every production detection batch. A failure suppresses the batch and emits an operational alert — it **does not** emit a misleading "clean" result.
 
@@ -1291,9 +1131,8 @@ function Invoke-Agt36SelfTest {
     & $add 'Not ISE'             ($Host.Name -ne 'Windows PowerShell ISE Host')
     & $add 'Modules pinned'      ($true) 'Test-Agt36ModuleMatrix succeeded earlier'
     & $add 'Graph connected'     ($Session.GraphStatus -eq 'Connected')
-    & $add 'PP connected or NA'  ($Session.PowerPlatformStatus -in 'Connected','Error') 'Error is acceptable only if all PP signals report NotApplicable'
-    & $add 'Sovereign context'   ($null -ne $Session.Sovereign.Cloud)
-    & $add 'HR freshness'        (Test-Agt36HRFreshness -Session $Session) 'Required for signal #2 except sovereign'
+    & $add 'PP connected or NA'  ($Session.PowerPlatformStatus -in 'Connected','Error') 'Error is acceptable only if all PP signals report NotApplicable'
+    & $add 'HR freshness'        (Test-Agt36HRFreshness -Session $Session)
     & $add 'SIEM endpoint reachable' ($true) 'Production implementation: HEAD probe with cert auth'
 
     $failed = $checks | Where-Object { -not $_.Ok }
@@ -1305,7 +1144,7 @@ function Invoke-Agt36SelfTest {
 }
 ```
 
-### 13.2 — Anti-patterns (do not ship)
+### 11.2 — Anti-patterns (do not ship)
 
 | Anti-pattern | Why it fails | Correct path |
 |--------------|--------------|--------------|
@@ -1313,37 +1152,35 @@ function Invoke-Agt36SelfTest {
 | Wrapping `try/catch` and returning `$null` | Swallows throttle + auth errors | Propagate `Status='Error'` with `$_.Exception.Message` |
 | Calling `Get-MgServicePrincipal -All` with no filter | Returns every SP; breaks signal #1 scope | Use `tags/any(t:t eq 'AgentIdentity')` with `ConsistencyLevel=eventual` |
 | Using `userType eq 'AgenticUser'` | No such userType exists; retracted from control doc | Filter SPs by `tags`, not user types |
-| Treating sovereign tenants as "clean" | Signal #2 silently skipped; FINRA gap | Always route to §8 worksheet |
 | Single-shot Graph call | Truncates at 999 at scale | Use `Invoke-Agt36GraphPaged` |
 | Skipping dry-run on bulk remediation | Irreversible misassignment | `Set-Agt36BulkOwnerReassignment` refuses without receipt |
 | Reassigning to a disabled user | Re-orphans immediately | `Test-Agt36ReassignmentPrerequisite` blocks it |
 | Updating orphan register rows in place | Violates SOX ITGC non-repudiation | Append-only JSONL + SHA-256 manifest |
 | Local-time timestamps | Breaks cross-tenant correlation | Always `.ToUniversalTime()` |
 
-### 13.3 — Operating cadence
+### 11.3 — Operating cadence
 
 | Activity | Cadence | Owner |
 |----------|---------|-------|
 | Scheduled detection run | Z3: 2h · Z2: 6h · Z1: daily | AI Administrator |
 | Self-test review | Daily | AI Administrator |
 | Card-vs-detection parity check | Every run | Automated; escalates to AI Governance Lead on variance |
-| Sovereign reconciliation worksheet | Quarterly | Entra Identity Governance Admin + AI Governance Lead |
 | Bulk remediation campaign | As needed, max 1 per week per zone | Power Platform Admin (Tier-3), Entra Agent ID Admin (Tier-1) |
 | Module pinning review | Monthly | AI Administrator |
 | PIM activation audit | Monthly | Entra Global Reader (reads) + AI Governance Lead (attests) |
 | Evidence retention sample test | Monthly | Purview Compliance Admin |
 | Control attestation | Annual, or on material change | AI Governance Lead |
 
-### 13.4 — Hedged-language reminder
+### 11.4 — Hedged-language reminder
 
-Detection output, remediation journals, and the sovereign worksheet **support compliance with** FINRA Rule 3110 supervisory review, SEC 17a-4(f) records retention, SOX ITGC ownership integrity, GLBA safeguards, OCC 2013-29 third-party risk (where agent is a third-party integration), and Federal Reserve SR 26-2 (formerly SR 11-7) model risk (where agent participates in a model). They **do not replace** registered-principal supervisory review, and they **do not guarantee** detection completeness in the presence of unpinned modules, stale HR connectors, or manual reconciliation drift on sovereign clouds. Organizations should verify tenant-specific parity via §13.1 self-test before relying on output for regulatory evidence.
+Detection output and remediation journals **support compliance with** FINRA Rule 3110 supervisory review, SEC 17a-4(f) records retention, SOX ITGC ownership integrity, GLBA safeguards, OCC 2013-29 third-party risk (where agent is a third-party integration), and Federal Reserve SR 26-2 (formerly SR 11-7) model risk (where agent participates in a model). They **do not replace** registered-principal supervisory review, and they **do not guarantee** detection completeness in the presence of unpinned modules, stale HR connectors,. Organizations should verify tenant-specific parity via §13.1 self-test before relying on output for regulatory evidence.
 
 ---
 ## Cross-references
 
 - Control: [3.6 — Orphaned Agent Detection and Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md)
 - Siblings: [portal-walkthrough.md](portal-walkthrough.md) · [verification-testing.md](verification-testing.md) · [troubleshooting.md](troubleshooting.md)
-- Baseline: [_shared/powershell-baseline.md](../../_shared/powershell-baseline.md) — especially [§3 Sovereign Cloud Endpoints](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod)
+- Baseline: [_shared/powershell-baseline.md](../../_shared/powershell-baseline.md)
 - Related controls:
   - [1.2 — Agent Registry and Integrated Apps Management](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) — authoritative inventory feed for canonical `AgentId` resolution and sponsor lineage
   - [1.7 — Comprehensive Audit Logging and Compliance](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) — last-activity feed used for dormancy signals and supervisory evidence

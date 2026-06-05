@@ -68,10 +68,6 @@ Microsoft 365 AI agents (Microsoft Copilot Studio, Agent Builder) enable financi
 
 **Note:** Zone 1 agents are intended for unregulated personal productivity scenarios and are generally not the focus of regulatory examination, provided their use remains restricted to unregulated activities. Any spillover into customer or trading data would move such agents into Zone 2 or 3.
 
-### Sovereign Cloud Posture
-
-For FSI tenants operating in **Microsoft 365 GCC, GCC High, DoD IL5, or 21Vianet (China)**, capability parity with Microsoft commercial cloud is uneven across the 78-control catalog. Roughly 36% of controls — including Insider Risk Adaptive Protection, Entra Agent ID, the Agent 365 Admin Center, several DSPM-for-AI surfaces, the Power Platform Usage insights digest, and Anthropic Claude in M365 Copilot — have material sovereign-cloud caveats that change the implementation pattern. The [Sovereign Cloud Parity Matrix](../reference/sovereign-cloud-parity-matrix.md) aggregates those per-control caveats into a single scannable view so that architects can quantify the gap before committing to a target architecture; status must be re-verified against the [Microsoft 365 Government roadmap](https://aka.ms/m365gov-roadmap) and tenant Message Center on a quarterly cadence.
-
 ---
 
 ## Governance Model Summary

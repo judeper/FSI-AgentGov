@@ -1,7 +1,7 @@
 # Control 4.4: Guest and External User Access Controls — PowerShell Setup
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show the abbreviated patterns; the baseline is authoritative.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show the abbreviated patterns; the baseline is authoritative.
 
 > This playbook provides PowerShell automation guidance for [Control 4.4](../../../controls/pillar-4-sharepoint/4.4-guest-and-external-user-access-controls.md).
 
@@ -28,28 +28,17 @@ Install-Module -Name ExchangeOnlineManagement `
 
 ---
 
-## Sovereign-aware connection (Commercial / GCC / GCC High / DoD)
-
-Per the baseline, sovereign-cloud tenants must pass explicit endpoint parameters or risk **false-clean evidence** from queries hitting the wrong cloud.
+## Connect to Services
 
 ```powershell
 param(
-    [Parameter(Mandatory)] [string]$TenantName,                 # e.g., "contoso" -> contoso-admin.sharepoint.com
-    [ValidateSet('Commercial','GCC','GCCHigh','DoD')] [string]$Cloud = 'Commercial'
+    [Parameter(Mandatory)] [string]$TenantName  # e.g., "contoso" -> contoso-admin.sharepoint.com
 )
 
-# SharePoint admin URL pattern by cloud (verify on Microsoft Learn for current values)
-$adminHost = switch ($Cloud) {
-    'Commercial' { "$TenantName-admin.sharepoint.com" }
-    'GCC'        { "$TenantName-admin.sharepoint.com" }
-    'GCCHigh'    { "$TenantName-admin.sharepoint.us" }
-    'DoD'        { "$TenantName-admin.dps.mil" }
-}
-Connect-SPOService -Url "https://$adminHost"
+Connect-SPOService -Url "https://$TenantName-admin.sharepoint.com"
 
 # Microsoft Graph connection for guest user lifecycle
-$graphEnv = @{ Commercial='Global'; GCC='USGov'; GCCHigh='USGovDoD'; DoD='USGovDoD' }[$Cloud]
-Connect-MgGraph -Environment $graphEnv -Scopes 'User.ReadWrite.All','Directory.Read.All'
+Connect-MgGraph -Environment 'Global' -Scopes 'User.ReadWrite.All','Directory.Read.All'
 ```
 
 ---

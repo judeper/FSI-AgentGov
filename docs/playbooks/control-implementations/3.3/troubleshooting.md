@@ -11,7 +11,6 @@
 | Power Automate flow fails on Compliance Manager call | Graph compliance API not yet GA in your tenant or scope missing | Fall back to portal CSV export; request `ComplianceManager.Read.All` scope |
 | Records library does not auto-apply retention label | Label not published, or scope excludes the site | Republish retention label policy with site in scope; wait 24 h |
 | `Add-PnPFile` returns 403 | Service account lacks Contribute on the library, or library is on retention hold blocking writes | Grant least-privilege Contribute; check Preservation Hold settings |
-| Sovereign tenant returns zero data | Graph or PnP connected to wrong cloud | Pass `-Environment USGov` / `USGovDoD` and verify with `Get-MgContext` |
 | Approval emails not delivered | Mail flow rule blocks sender; recipient mailbox on litigation hold | Allow `noreply@microsoft.com`; verify recipient mailbox state |
 | Power BI dashboard refresh fails | Dataverse / SharePoint connector credentials expired | Re-authenticate the dataset gateway; rotate service-account credential |
 
@@ -92,24 +91,6 @@
 - Use a least-privilege service account with **Contribute** on the specific library only — do **not** grant tenant-wide SharePoint Admin to flow connections.
 - If a preservation hold blocks new content, work with the eDiscovery team to scope the hold off the report library.
 - Shorten file/folder names if URL length is the cause.
-
----
-
-### Issue: Sovereign Cloud Tenant Returns Zero Data
-
-**Symptoms:** Scripts complete successfully but return empty results in a GCC, GCC High, or DoD tenant.
-
-**Diagnostic Steps:**
-
-1. Run `Get-MgContext` and confirm `Environment` matches your tenant's cloud (`USGov`, `USGovDoD`).
-2. For PnP, confirm `Connect-PnPOnline` was called against the correct sovereign URL (e.g., `*.sharepoint.us`).
-3. Check the SHA-256 evidence row — it records the resolved environment and operator.
-
-**Resolution:**
-
-- Reconnect with the correct `-Environment` parameter per the [PowerShell Authoring Baseline §3](../../_shared/powershell-baseline.md).
-- Add an environment guard at the top of every script that throws when `Get-MgContext` returns the wrong cloud.
-- **Do not treat empty results as "all clean"** — empty often means misconnected. This is the single most common false-clean pattern in regulated tenants.
 
 ---
 
@@ -197,7 +178,6 @@ try {
 | Report generation failure (single flow) | IT Operations / Power Platform Admin | 4 business hours |
 | Compliance Manager score discrepancy | Purview Compliance Admin | 1 business day |
 | Records library retention misconfiguration | Purview Records Manager + SharePoint Admin | 1 business day |
-| Sovereign cloud misconnection (false-clean risk) | CISO + Compliance Officer | Immediate |
 | Examination deadline at risk | CCO + Outside Counsel | Immediate |
 | Reg S-P 30-day notification timer concern | CCO + CISO + General Counsel | Immediate |
 | Microsoft platform bug or outage | Microsoft Support (premium / unified) | Per support SLA |

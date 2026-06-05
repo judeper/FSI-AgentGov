@@ -6,7 +6,7 @@
 **Companion playbooks:** [Portal Walkthrough](./portal-walkthrough.md) · [Verification & Testing](./verification-testing.md) · [Troubleshooting](./troubleshooting.md)
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below may show abbreviated patterns; the baseline is authoritative.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below may show abbreviated patterns; the baseline is authoritative.
 
 > This playbook automates Control 2.13 via **PnP.PowerShell** (SharePoint site and library provisioning) and **ExchangeOnlineManagement** (the IPPS endpoint for Purview retention labels and policies). Every mutating command is wrapped in idempotency checks, supports `-WhatIf`, emits SHA-256 evidence hashes, and writes to a timestamped transcript.
 >
@@ -111,10 +111,6 @@ Connect-PnPOnline -Url $TenantAdminUrl -Interactive
 
 # Connect to Security & Compliance (Purview)
 Connect-IPPSSession -ShowBanner:$false
-
-# GCC High alternative:
-# Connect-IPPSSession -ConnectionUri https://ps.compliance.protection.office365.us/powershell-liveid/ `
-#     -AzureADAuthorizationEndpointUri https://login.microsoftonline.us/common -ShowBanner:$false
 ```
 
 ---
@@ -598,7 +594,7 @@ function Export-AgentDocumentation {
     }
 
     Import-Module Microsoft.PowerApps.Administration.PowerShell -ErrorAction Stop
-    Add-PowerAppsAccount  # Interactive login; use -Endpoint 'usgov' for GCC
+    Add-PowerAppsAccount  # Interactive login
 
     $localStamp = (Get-Date).ToString('yyyyMMdd-HHmmss')
     $agents = Get-AdminPowerAppEnvironment -EnvironmentName $EnvironmentId |

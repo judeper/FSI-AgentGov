@@ -1,7 +1,7 @@
 # PowerShell Setup: Control 2.14 — Training and Awareness Program
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show the patterns; the baseline is authoritative.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show the patterns; the baseline is authoritative.
 
 **Last Updated:** April 2026
 **Modules Required:** `Microsoft.Graph` (User.Read.All, RoleManagement.Read.All, optional Mail.Send), `ExchangeOnlineManagement` (only if mail-flow analysis is needed)
@@ -33,7 +33,6 @@ Install-Module Microsoft.Graph `
     -Scope CurrentUser `
     -AcceptLicense
 
-# Sovereign-cloud aware connection (commercial shown; see baseline for GCC / GCC High / DoD)
 Connect-MgGraph -Scopes 'User.Read.All','RoleManagement.Read.All' -Environment Global
 ```
 

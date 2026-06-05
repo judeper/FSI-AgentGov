@@ -2,61 +2,25 @@
 
 > **Scope.** This playbook automates the **insider-risk detection and adaptive-protection plane** for Control 1.12 across **Microsoft Purview Insider Risk Management (IRM), Adaptive Protection, the Microsoft 365 HR data connector, Defender for Endpoint / Defender for Cloud Apps signal sources, DLP rule integration with risk tiers, custom indicators for AI-agent abuse, and alert routing into Sentinel and supervisory queues** in US financial services tenants. It assumes you have already read [`../../_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) (referenced below as **BL-§N**) and the parent control specification [`../../../controls/pillar-1-security/1.12-insider-risk-detection-and-response.md`](../../../controls/pillar-1-security/1.12-insider-risk-detection-and-response.md).
 >
-> **What this playbook is.** A reproducible, sovereign-aware harness that (a) pins module versions and verifies cmdlet surface; (b) bootstraps a certificate-authenticated, audit-only IRM reader principal that is distinct from the IRM Admin / Investigator / Approver principals; (c) enumerates IRM policy templates, deployed policies, scope, and tenant configuration; (d) audits Adaptive Protection enablement and the DLP rules that consume IRM risk tiers (Elevated / Moderate / Minor); (e) verifies HR connector freshness and signal-source coverage (Defender for Endpoint, Defender for Cloud Apps, audit feeds, browser extension where applicable); (f) emits custom-indicator inventory for AI-agent abuse signals (excessive prompt rate, MNPI grounding queries, off-hours bursts) per Control 1.5 / 1.6 telemetry contracts; and (g) writes evidence with SHA-256 manifests for the quarterly attestation pack.
+> **What this playbook is.** A reproducible, reproducible harness that (a) pins module versions and verifies cmdlet surface; (b) bootstraps a certificate-authenticated, audit-only IRM reader principal that is distinct from the IRM Admin / Investigator / Approver principals; (c) enumerates IRM policy templates, deployed policies, scope, and tenant configuration; (d) audits Adaptive Protection enablement and the DLP rules that consume IRM risk tiers (Elevated / Moderate / Minor); (e) verifies HR connector freshness and signal-source coverage (Defender for Endpoint, Defender for Cloud Apps, audit feeds, browser extension where applicable); (f) emits custom-indicator inventory for AI-agent abuse signals (excessive prompt rate, MNPI grounding queries, off-hours bursts) per Control 1.5 / 1.6 telemetry contracts; and (g) writes evidence with SHA-256 manifests for the quarterly attestation pack.
 >
 > **What this playbook is not.** It is not a substitute for the firm's Written Supervisory Procedures (FINRA Rule 3110), HR investigation workflows, legal-hold decisions, or supervisory review by a registered principal. It does not, by itself, configure or enable Forensic Evidence — that capability requires dual-authorization (Investigator request + Approver consent) executed in the Purview portal per [Control 1.12 § Forensic Evidence](../../../controls/pillar-1-security/1.12-insider-risk-detection-and-response.md). It does not retain books-and-records artifacts; durable retention is the responsibility of [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) and [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md).
 >
-> **Sovereign-cloud reality (read before any other section).** Per Microsoft Learn ([`insider-risk-management-adaptive-protection`](https://learn.microsoft.com/en-us/purview/insider-risk-management-adaptive-protection)), **Insider Risk Management and Adaptive Protection are not available in any US Government cloud (GCC, GCC High, DoD)** at the time of authoring. Every helper in this playbook detects sovereign cloud and returns `Status = NotApplicable` with a written rationale rather than a false-clean `Clean` result. Compensating-control guidance for Zone 3 in those clouds is documented in §12.
 >
-> **Hedged language reminder.** Output of this harness *supports* compliance with FINRA Rule 3110 / 4511, FINRA RN 25-07 (RFC, contextual only), SEC Rule 17a-3 / 17a-4, SEC Regulation S-P (2024 amendments), GLBA 501(b), SOX 302/404, NYDFS 23 NYCRR §500.06 / §500.16 / §500.17, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Fed SR 26-2 (formerly SR 11-7), and FFIEC IT Examination Handbook expectations. It does not, by itself, *ensure* a passing examination, *guarantee* that every insider event is detected, *prevent* exfiltration, or *eliminate* false negatives in ML-driven scoring. Implementation requires that organizations verify endpoint availability, module pinning, sovereign feature parity, HR connector accuracy, and signal-source coverage at every change window, and that they treat any preview surface (Risky Agents, Risky AI usage, Triage Agent) as **additive** evidence rather than a complete substitute for human supervisory review.
+> **Hedged language reminder.** Output of this harness *supports* compliance with FINRA Rule 3110 / 4511, FINRA RN 25-07 (RFC, contextual only), SEC Rule 17a-3 / 17a-4, SEC Regulation S-P (2024 amendments), GLBA 501(b), SOX 302/404, NYDFS 23 NYCRR §500.06 / §500.16 / §500.17, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Fed SR 26-2 (formerly SR 11-7), and FFIEC IT Examination Handbook expectations. It does not, by itself, *ensure* a passing examination, *guarantee* that every insider event is detected, *prevent* exfiltration, or *eliminate* false negatives in ML-driven scoring. Implementation requires that organizations verify endpoint availability, module pinning, HR connector accuracy, and signal-source coverage at every change window, and that they treat any preview surface (Risky Agents, Risky AI usage, Triage Agent) as **additive** evidence rather than a complete substitute for human supervisory review.
 
 | Field | Value |
-|---|---|
+
 | Control ID | 1.12 |
 | Pillar | 1 — Security |
 | Playbook | PowerShell Setup |
 | PowerShell Edition | 7.4 LTS Core (orchestrator); 5.1 Desktop available for any Windows-only legacy fallback |
-| Sovereign Clouds | Commercial only for IRM / Adaptive Protection; GCC / GCC High / DoD return `NotApplicable` (see §0 and §12) |
 | Last UI Verified | April 2026 |
 | Companion Playbooks | [`portal-walkthrough.md`](portal-walkthrough.md) · [`verification-testing.md`](verification-testing.md) · [`troubleshooting.md`](troubleshooting.md) |
 | Related Controls | [1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) · [1.6](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) · [1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) · [1.10](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) · [1.21](../../../controls/pillar-1-security/1.21-adversarial-input-logging.md) · [2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) · [2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) · [3.4](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) · [3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) |
 
 ---
 
-## §0 — Sovereign-cloud reality and false-clean defects (READ FIRST)
-
-**The defining fact of Control 1.12.** Insider Risk Management and Adaptive Protection are **commercial-cloud-only** capabilities at the time of authoring. Per Microsoft Learn ([`insider-risk-management-adaptive-protection`](https://learn.microsoft.com/en-us/purview/insider-risk-management-adaptive-protection)) and the IRM availability matrix, **GCC, GCC High, and DoD tenants do not have Adaptive Protection**, and several IRM detection surfaces (Risky Agents preview, Risky AI usage, Forensic Evidence, Triage Agent) require feature-by-feature parity verification before being claimed in scope for any sovereign tenant. A script that runs `Get-InsiderRiskPolicy` against a GCC High tenant will return either an empty array or an "operation not supported" error with a non-zero exit code that frequently gets swallowed by `try { } catch { }` boilerplate — **producing a false-clean evidence artifact that understates the firm's true control posture under NYDFS §500.06, GLBA 501(b), and SOX 404**.
-
-A script that ignores this reality produces a **false-clean IRM posture** — the worst Control 1.12 outcome. False-clean posture artifacts are particularly dangerous in regulated FSI tenants because IRM is frequently presented to examiners as the firm's primary insider-threat detection surface; if that surface is silently absent, the compensating controls (DLP, Communication Compliance, Sentinel UEBA) must be evidenced explicitly, not assumed.
-
-**Why this section exists.** Seven classes of silent failure produce false-clean IRM output specifically:
-
-1. **Wrong cloud, no warning.** `Connect-IPPSSession` without `-ConnectionUri` for the sovereign cloud authenticates against commercial endpoints; for a sovereign tenant the connection succeeds against the wrong tenant or fails with a generic auth error that masks the real issue. `Connect-MgGraph` without `-Environment USGov` / `USGovDoD` does the same (BL-§3).
-2. **IRM cmdlets unavailable in the cloud.** Even on commercial, `Get-InsiderRiskPolicy` requires the operator be assigned **Insider Risk Management Admins** (or the catch-all **Insider Risk Management** role group) in Purview; without it, calls return permission errors that scripts often log-and-continue.
-3. **Adaptive Protection assumed enabled.** The Adaptive Protection toggle is separate from any IRM policy. A tenant can have IRM policies in place with Adaptive Protection disabled, in which case DLP / Conditional Access / DLM never receive the risk-tier signal and the control is functionally inert.
-4. **HR connector silently stale.** The Microsoft 365 HR connector ingests CSV on a scheduled cadence; if the upstream HRIS export breaks, the connector continues to report "healthy" with stale data. *Data theft by departing users* and *Data leaks by risky users* policies will not fire on terminations the system has never seen.
-5. **Browser-signal prerequisites not in place.** *Risky AI usage*, *Risky browser usage*, and several browser-derived indicators require the Microsoft Insider risk extension (Edge) or the Microsoft Purview extension (Chrome) on **Windows-only** devices onboarded to Microsoft Purview. Policies will exist and be reported as "deployed" while producing zero signal.
-6. **Signal-source gaps invisible at the IRM layer.** *Security policy violations* templates require Defender for Endpoint integration; cloud-app indicators in *Data theft by departing users* require Defender for Cloud Apps connectors (Box, Dropbox, Google Drive, Amazon S3, Azure). Without the connector, the policy template is registered but produces no events.
-7. **Single principal for read and write.** Running this harness with the same principal that *configures* IRM policies breaks SOX 404 separation of duties — the principal that produces the evidence could be the principal that altered the configuration the evidence describes. Use a distinct **Insider Risk Management Auditors** role-group principal for read-only assessment.
-
-**Top false-clean defects unique to IRM automation.**
-
-| # | Defect | What it looks like | How this playbook traps it |
-|---|---|---|---|
-| 1 | `Get-InsiderRiskPolicy` against a GCC / GCC High / DoD tenant | Empty array or generic auth error; exit 0 | §2 detects sovereign cloud and short-circuits every helper to `Status = NotApplicable` with rationale (`Get-FsiIrmCloudGate`) |
-| 2 | Adaptive Protection assumed enabled because IRM policies exist | Risk tiers never propagate to DLP / CA / DLM | §4 `Get-FsiAdaptiveProtectionStatus` reads the AP toggle and walks DLP rules for `IRMSettings` integration |
-| 3 | HR connector reported "healthy" with stale data | Departing-user policies never fire | §5 `Get-FsiIrmHrConnectorState` compares last-sync time against firm-defined lag threshold |
-| 4 | DLP rules reference IRM tiers but tier definitions are empty | `IRMSettings` present but no `RiskLevel` mapping | §11 cross-walks DLP rule `IRMSettings` with the IRM tier definitions |
-| 5 | Browser-signal indicators enabled with no extension deployed | Risky AI usage policy exists, produces no signal | §6 `Get-FsiIrmSignalCoverage` flags browser-dependent policies without an extension presence signal |
-| 6 | Anonymization disabled without recorded privacy approval | Identifies users in alerts that should be pseudonymized | §8 `Test-FsiIrmAnonymization` confirms `AnonymizationEnabled` posture |
-| 7 | IRM alerts not forwarded to Sentinel | Insider events isolated from SOC | §7 `Test-FsiIrmAlertRouting` checks Office 365 connector tables in Sentinel for IRM event types |
-| 8 | Same principal as IRM Admin and IRM Auditor | SOX 404 separation-of-duties break | §1 separate `agt112-irm-reader` audit-only principal |
-| 9 | Custom indicators for agent abuse missing entirely | AI-specific signal absent | §9 `Get-FsiIrmAgentAbuseIndicators` enumerates required indicators per FSI use case and reports gaps |
-| 10 | `Get-DlpComplianceRule` walked without `IRMSettings` expansion | Adaptive Protection integration appears absent when only the property was suppressed | §11 explicit `-Properties IRMSettings` expansion |
-
-**Required shell guard (run this at the top of every Control 1.12 session).**
-
-```powershell
 # Save as: scripts/Assert-Agt112Shell.ps1
 [CmdletBinding()]
 [OutputType([void])]
@@ -135,7 +99,7 @@ foreach ($m in $modules) {
 ### 1.2 Role-group and permission matrix
 
 | Operation | Required role group / scope | Notes |
-|---|---|---|
+
 | `Get-InsiderRiskPolicy`, `Get-IRMConfiguration`, `Get-PolicyConfig` (read) | **Insider Risk Management Auditors** (recommended) or **Insider Risk Management Admins** | Use a dedicated read-only principal for evidence collection (§1.3) |
 | `New-InsiderRiskPolicy`, `Set-InsiderRiskPolicy` (write) | **Insider Risk Management Admins** | SOX 404: must NOT be the same principal as the auditor / reader |
 | Forensic Evidence capture request | **Insider Risk Management Investigators** | Request only — approval is a separate role (Approvers) |
@@ -145,17 +109,13 @@ foreach ($m in $modules) {
 
 ### 1.3 Separate audit-only principal (recommended)
 
-Create a service principal — `agt112-irm-reader` — that holds **Insider Risk Management Auditors** in Purview plus the read-only Graph scopes above. Never assign it Admin / Investigator / Approver. Authenticate it with a certificate, not a secret (BL-§3).
+Create a service principal — `agt112-irm-reader` — that holds **Insider Risk Management Auditors** in Purview plus the read-only Graph scopes above. Never assign it Admin / Investigator / Approver. Authenticate it with a certificate, not a secret (BL-§2).
 
 ---
 
-## §2 — Sovereign-aware authentication bootstrap
-
-```powershell
 # Save as: scripts/Connect-Agt112.ps1
 [CmdletBinding()]
 param(
-    [ValidateSet('Commercial','GCC','GCCHigh','DoD')]
     [string]$Cloud = 'Commercial',
 
     [Parameter(Mandatory)] [string]$TenantId,
@@ -167,30 +127,22 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-# Sovereign cloud detection — see §0 for the false-clean rationale.
-# Helpers in §3-§9 read this variable to short-circuit to NotApplicable.
+# Helpers in §2-§8 read this variable to short-circuit to NotApplicable.
 $script:FsiCloud = $Cloud
 
 $mgEnv = @{
     Commercial = 'Global'
-    GCC        = 'USGov'
-    GCCHigh    = 'USGovDoD'
-    DoD        = 'USGovDoD'
 }[$Cloud]
 
 $ippsUri = @{
     Commercial = 'https://ps.compliance.protection.outlook.com/PowerShell-LiveID'
-    GCC        = 'https://ps.compliance.protection.office365.us/PowerShell-LiveID'
-    GCCHigh    = 'https://ps.compliance.protection.office365.us/PowerShell-LiveID'
-    DoD        = 'https://l5.ps.compliance.protection.office365.us/PowerShell-LiveID'
 }[$Cloud]
 
 Connect-MgGraph -TenantId $TenantId -ClientId $AppId `
     -CertificateThumbprint $CertificateThumbprint -Environment $mgEnv -NoWelcome
 
 # Connect-IPPSSession is the gateway for IRM cmdlets in commercial cloud.
-# In sovereign clouds the connection succeeds but IRM cmdlets return errors;
-# §3-§9 detect that and report NotApplicable rather than failing.
+# §2-§8 detect that and report NotApplicable rather than failing.
 Connect-IPPSSession -UserPrincipalName $UserPrincipalName -ConnectionUri $ippsUri
 
 Write-Verbose "Connected: cloud=$Cloud tenant=$TenantId mgEnv=$mgEnv"
@@ -198,27 +150,17 @@ Write-Verbose "Connected: cloud=$Cloud tenant=$TenantId mgEnv=$mgEnv"
 
 **Service-principal-with-cert flow** is shown above (preferred for unattended runs). For interactive operator triage, omit `-ClientId` / `-CertificateThumbprint` and pass `-Scopes` explicitly to `Connect-MgGraph`, and run `Connect-IPPSSession` without parameters to get the device-code prompt.
 
-**Sovereign cloud gate helper** — every helper in §3–§9 calls this first:
 
 ```powershell
 function Get-FsiIrmCloudGate {
     [CmdletBinding()] [OutputType([pscustomobject])] param()
-    if ($script:FsiCloud -in @('GCC','GCCHigh','DoD')) {
-        return [pscustomobject]@{
-            Status      = 'NotApplicable'
-            Cloud       = $script:FsiCloud
-            Rationale   = 'Insider Risk Management / Adaptive Protection are not available in US Government cloud programs (GCC, GCC High, DoD) per Microsoft Learn (insider-risk-management-adaptive-protection). Apply compensating controls — see Control 1.12 §12.'
-            Reference   = 'https://learn.microsoft.com/en-us/purview/insider-risk-management-adaptive-protection'
-            CheckedUtc  = (Get-Date).ToUniversalTime().ToString('o')
-        }
-    }
     return $null  # null means "proceed"
 }
 ```
 
 ---
 
-## §3 — Helper: `Get-FsiIrmPolicyInventory`
+## §2 — Helper: `Get-FsiIrmPolicyInventory`
 
 ```powershell
 function Get-FsiIrmPolicyInventory {
@@ -276,7 +218,7 @@ function Get-FsiIrmPolicyInventory {
 
 ---
 
-## §4 — Helper: `Get-FsiAdaptiveProtectionStatus`
+## §3 — Helper: `Get-FsiAdaptiveProtectionStatus`
 
 ```powershell
 function Get-FsiAdaptiveProtectionStatus {
@@ -293,7 +235,7 @@ function Get-FsiAdaptiveProtectionStatus {
 #>
     [CmdletBinding()] [OutputType([pscustomobject])] param()
     $gate = Get-FsiIrmCloudGate
-    if ($gate) { return $gate }   # NotApplicable in GCC / GCC High / DoD
+    if ($gate) { return $gate }
 
     try {
         $policyConfig = Get-PolicyConfig -ErrorAction Stop
@@ -342,7 +284,7 @@ function Get-FsiAdaptiveProtectionStatus {
 
 ---
 
-## §5 — Helper: `Get-FsiIrmHrConnectorState`
+## §4 — Helper: `Get-FsiIrmHrConnectorState`
 
 ```powershell
 function Get-FsiIrmHrConnectorState {
@@ -411,7 +353,7 @@ function Get-FsiIrmHrConnectorState {
 
 ---
 
-## §6 — Helper: `Get-FsiIrmSignalCoverage`
+## §5 — Helper: `Get-FsiIrmSignalCoverage`
 
 ```powershell
 function Get-FsiIrmSignalCoverage {
@@ -482,7 +424,7 @@ function Get-FsiIrmSignalCoverage {
 
 ---
 
-## §7 — Helper: `Test-FsiIrmAlertRouting`
+## §6 — Helper: `Test-FsiIrmAlertRouting`
 
 ```powershell
 function Test-FsiIrmAlertRouting {
@@ -550,7 +492,7 @@ function Test-FsiIrmAlertRouting {
 
 ---
 
-## §8 — Helper: `Test-FsiIrmAnonymization`
+## §7 — Helper: `Test-FsiIrmAnonymization`
 
 ```powershell
 function Test-FsiIrmAnonymization {
@@ -593,7 +535,7 @@ function Test-FsiIrmAnonymization {
 
 ---
 
-## §9 — Helper: `Get-FsiIrmAgentAbuseIndicators`
+## §8 — Helper: `Get-FsiIrmAgentAbuseIndicators`
 
 ```powershell
 function Get-FsiIrmAgentAbuseIndicators {
@@ -658,7 +600,7 @@ function Get-FsiIrmAgentAbuseIndicators {
 
 ---
 
-## §10 — Mutating: create or update an IRM policy (idempotent, Get-then-Set)
+## §9 — Mutating: create or update an IRM policy (idempotent, Get-then-Set)
 
 > **Mutation safety.** All mutations use `[CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]` and snapshot before write per BL-§3. Always invoke first with `-WhatIf`.
 
@@ -677,7 +619,6 @@ function New-FsiIrmDataLeaksPolicy {
     )
     $gate = Get-FsiIrmCloudGate
     if ($gate) {
-        Write-Warning "Sovereign cloud detected ($($gate.Cloud)) — IRM policy mutation skipped. Apply compensating controls per Control 1.12 §12."
         return $gate
     }
 
@@ -731,7 +672,7 @@ function Enable-FsiAdaptiveProtection {
 
 ---
 
-## §11 — DLP rule integration with risk tiers (Adaptive Protection escalation)
+## §10 — DLP rule integration with risk tiers (Adaptive Protection escalation)
 
 Adaptive Protection escalates DLP rule actions based on the user's calculated IRM risk tier — **Elevated** > **Moderate** > **Minor**. The `Set-DlpComplianceRule -IRMSettings` parameter wires a DLP rule into the tier system.
 
@@ -770,47 +711,8 @@ function Set-FsiDlpRuleForRiskTier {
 
 ---
 
-## §12 — Compensating controls in US Government clouds (GCC, GCC High, DoD)
 
-Because IRM and Adaptive Protection are **not available** in US Gov clouds at the time of authoring, Zone 3 deployments in those tenants must evidence the following stack as the documented compensating control posture. Record the substitution as a control exception in the firm's GRC tool with quarterly re-verification of Microsoft Learn for parity changes.
-
-| Compensating control | Replaces (in IRM gap) | This framework reference |
-|---|---|---|
-| Static role-based DLP with elevated actions for priority user groups | Adaptive-Protection-driven DLP escalation by risk tier | [Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) |
-| Communication Compliance with risky-language and sensitive-content policies | Risky AI usage / Risky browser usage signal | [Control 1.10](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) |
-| Microsoft Sentinel UEBA + custom analytics rules for departing-user / off-hours / volume anomalies | Data theft by departing users; ML-driven scoring | [Control 3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) |
-| Audit (Premium) with retained Copilot interaction logs and adversarial-input logs | IRM policy-derived audit trail | [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), [Control 1.21](../../../controls/pillar-1-security/1.21-adversarial-input-logging.md) |
-| Manual supervisory review under WSP, escalated to MRM for AI-scored signals | Triage Agent | [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md), [Control 2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) |
-
-```powershell
-function Get-FsiIrmCompensatingPosture {
-<#
-.SYNOPSIS
-    For sovereign tenants, returns the compensating-control coverage state across DLP, Comm
-    Compliance, Sentinel UEBA, and Audit (Premium). Returns NotApplicable on commercial cloud.
-#>
-    [CmdletBinding()] [OutputType([pscustomobject])] param()
-    if ($script:FsiCloud -notin @('GCC','GCCHigh','DoD')) {
-        return [pscustomobject]@{
-            Status     = 'NotApplicable'
-            Cloud      = $script:FsiCloud
-            Rationale  = 'Compensating-posture helper applies only to sovereign clouds. Commercial tenants should run Get-FsiIrmPolicyInventory and Get-FsiAdaptiveProtectionStatus instead.'
-            CheckedUtc = (Get-Date).ToUniversalTime().ToString('o')
-        }
-    }
-    # Stubbed: callers supply DLP / CC / Sentinel posture from their respective control playbooks.
-    return [pscustomobject]@{
-        Status     = 'Pending'
-        Cloud      = $script:FsiCloud
-        Guidance   = 'Cross-walk with Control 1.5, 1.7, 1.10, 1.21, 2.12, and 3.9 helpers and aggregate.'
-        CheckedUtc = (Get-Date).ToUniversalTime().ToString('o')
-    }
-}
-```
-
----
-
-## §13 — Evidence emission and scheduler integration
+## §11 — Evidence emission and scheduler integration
 
 All helpers return `[pscustomobject]` shapes that flow into the canonical evidence emitter from BL-§4. A reference orchestrator that runs the full Control 1.12 sweep:
 
@@ -833,7 +735,6 @@ $results = [ordered]@{
     AlertRouting         = if ($WorkspaceId) { Test-FsiIrmAlertRouting -WorkspaceId $WorkspaceId } else { $null }
     Anonymization        = Test-FsiIrmAnonymization
     AgentAbuseIndicators = Get-FsiIrmAgentAbuseIndicators
-    CompensatingPosture  = Get-FsiIrmCompensatingPosture
 }
 
 # Emit each artifact with SHA-256 manifest per BL-§4

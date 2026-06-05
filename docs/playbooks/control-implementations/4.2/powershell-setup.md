@@ -1,7 +1,7 @@
 # Control 4.2: Site Access Reviews and Certification — PowerShell Setup
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
 
 > Automation guidance for [Control 4.2 — Site Access Reviews and Certification](../../../controls/pillar-4-sharepoint/4.2-site-access-reviews-and-certification.md).
 
@@ -21,7 +21,6 @@ Install-Module Microsoft.Online.SharePoint.PowerShell -RequiredVersion 16.0.2621
 Install-Module PnP.PowerShell                          -RequiredVersion 2.99.0           -Scope CurrentUser
 Install-Module Microsoft.Graph                         -RequiredVersion 2.30.0           -Scope CurrentUser
 
-# SharePoint Online — commercial endpoint shown; use admin.sharepoint.us / .sharepoint-mil.us for sovereign clouds
 $adminUrl = "https://contoso-admin.sharepoint.com"
 Connect-SPOService -Url $adminUrl
 
@@ -275,7 +274,7 @@ Write-Host "Verify these operations appear in the Purview audit log for the last
       4. Exports current access review decisions
 
 .PARAMETER TenantAdminUrl
-    SharePoint Admin Center URL (commercial / GCC / GCC High / DoD endpoint).
+    SharePoint Admin Center URL (e.g. https://contoso-admin.sharepoint.com).
 
 .PARAMETER EvidencePath
     Local directory where evidence CSVs and SHA-256 manifests are emitted.

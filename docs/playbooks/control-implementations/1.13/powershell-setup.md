@@ -1,6 +1,6 @@
 # Control 1.13 — PowerShell Setup: Sensitive Information Types and Pattern Recognition
 
-> **Scope.** This playbook is the canonical PowerShell automation reference for Control 1.13 — *Sensitive Information Types (SITs) and Pattern Recognition*. It covers the six Microsoft Purview detection paths (built-in SITs, custom pattern SITs, named entities, trainable classifiers, Exact Data Match (EDM), and keyword dictionaries) as they apply to AI-agent governance for US financial-services tenants in the Microsoft Commercial, GCC, GCC High, and DoD clouds.
+> **Scope.** This playbook is the canonical PowerShell automation reference for Control 1.13 — *Sensitive Information Types (SITs) and Pattern Recognition*. It covers the six Microsoft Purview detection paths (built-in SITs, custom pattern SITs, named entities, trainable classifiers, Exact Data Match (EDM), and keyword dictionaries) as they apply to AI-agent governance for US financial-services tenants in the Microsoft the Microsoft commercial cloud.
 >
 > **Companion documents.**
 >
@@ -17,7 +17,7 @@
 Control 1.13 has *three* PowerShell surfaces that look interchangeable and are not. Choosing the wrong one is the single most common failure mode and produces silent false-clean evidence.
 
 | Surface | Connect cmdlet | Module | Purpose | Typical 1.13 use |
-|---|---|---|---|---|
+
 | **Security & Compliance PowerShell (IPPS)** | `Connect-IPPSSession` | `ExchangeOnlineManagement` v3.5+ | Purview / DLP / SIT / EDM / dictionaries / classifiers | **Almost everything in this playbook** |
 | **Exchange Online (EXO)** | `Connect-ExchangeOnline` | `ExchangeOnlineManagement` v3.5+ | Mail-flow, transport rules, mailbox audit | Cross-checks against §11 reconciliation only |
 | **Microsoft Graph PowerShell** | `Connect-MgGraph` | `Microsoft.Graph` v2.x | Directory, role, license, audit-log read | Pre-flight licence and role checks (§1) |
@@ -43,7 +43,7 @@ If a script must run under Windows PowerShell 5.1 (for example because it calls 
 
 ## 1. Pre-flight: session bootstrap, role and licence checks
 
-Every Control 1.13 script begins with the same five preconditions: PowerShell edition pinned, module version pinned, sovereign endpoint resolved, IPPS session opened with banner suppression, and admin role + licence verified through Microsoft Graph. Bundle them once into a reusable `Initialize-Agt113Session` helper so individual scripts do not drift.
+Every Control 1.13 script begins with the same five preconditions: PowerShell edition pinned, module version pinned, IPPS session opened with banner suppression, and admin role + licence verified through Microsoft Graph. Bundle them once into a reusable `Initialize-Agt113Session` helper so individual scripts do not drift.
 
 ### 1.1 The session bootstrap helper
 
@@ -59,12 +59,12 @@ Save as `Initialize-Agt113Session.ps1` in your shared automation library:
 <#
 .SYNOPSIS
     Bootstraps a Control 1.13 admin session: opens IPPS + Graph in the correct
-    sovereign cloud, verifies role assignment and SKU entitlement, and starts a
+    verifies role assignment and SKU entitlement, and starts a
     timestamped transcript for evidence collection.
 .PARAMETER AdminUpn
     UPN of the admin executing the change. Used for role-assignment lookup.
 .PARAMETER Cloud
-    One of: Commercial, GCC, GCCHigh, DoD. Selects ConnectionUri/AuthorityUri.
+    Commercial (the target cloud for this framework).
 .PARAMETER EvidenceRoot
     Absolute path to the evidence directory (transcript + JSON + manifest land here).
 .PARAMETER RequiredRoles
@@ -77,8 +77,7 @@ Save as `Initialize-Agt113Session.ps1` in your shared automation library:
 function Initialize-Agt113Session {
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
     param(
-        [Parameter(Mandatory)] [string]   $AdminUpn,
-        [Parameter(Mandatory)] [ValidateSet('Commercial','GCC','GCCHigh','DoD')] [string] $Cloud,
+        [Parameter(Mandatory)] [string]   $AdminUpn,    [Parameter(Mandatory)] [string] $Cloud = 'Commercial',
         [Parameter(Mandatory)] [string]   $EvidenceRoot,
         [string[]] $RequiredRoles = @(
             'Compliance Administrator',
@@ -88,19 +87,8 @@ function Initialize-Agt113Session {
         [string[]] $RequiredSkuPartNumbers = @('SPE_E5')
     )
 
-    # 1. Resolve sovereign endpoints (see §11 for the full matrix).
-    $endpoints = switch ($Cloud) {
-        'Commercial' { @{ IPPSConnectionUri = $null; IPPSAuthorityUri = $null;
-                          GraphEnvironment  = 'Global' } }
-        'GCC'        { @{ IPPSConnectionUri = $null; IPPSAuthorityUri = $null;
-                          GraphEnvironment  = 'Global' } }
-        'GCCHigh'    { @{ IPPSConnectionUri = 'https://ps.compliance.protection.office365.us/powershell-liveid/';
-                          IPPSAuthorityUri  = 'https://login.microsoftonline.us/organizations';
-                          GraphEnvironment  = 'USGov' } }
-        'DoD'        { @{ IPPSConnectionUri = 'https://l5.ps.compliance.protection.office365.us/powershell-liveid/';
-                          IPPSAuthorityUri  = 'https://login.microsoftonline.us/organizations';
-                          GraphEnvironment  = 'USGovDoD' } }
-    }
+    $endpoints = @{ IPPSConnectionUri = $null; IPPSAuthorityUri = $null;
+                    GraphEnvironment  = 'Global' }
 
     # 2. Evidence root + transcript.
     if (-not (Test-Path $EvidenceRoot)) {
@@ -111,7 +99,6 @@ function Initialize-Agt113Session {
     Start-Transcript -Path $transcript -IncludeInvocationHeader | Out-Null
     Write-Information "Transcript: $transcript" -InformationAction Continue
 
-    # 3. Connect-IPPSSession (banner suppressed, sovereign-aware).
     $ippsParams = @{ UserPrincipalName = $AdminUpn; ShowBanner = $false }
     if ($endpoints.IPPSConnectionUri) { $ippsParams.ConnectionUri = $endpoints.IPPSConnectionUri }
     if ($endpoints.IPPSAuthorityUri)  { $ippsParams.AzureADAuthorizationEndpointUri = $endpoints.IPPSAuthorityUri }
@@ -159,7 +146,7 @@ function Initialize-Agt113Session {
 ### 1.2 Minimum-privilege role expectations
 
 | Task | Minimum role (Purview) | Notes |
-|---|---|---|
+
 | Read SIT / dictionary / classifier inventory | Compliance Data Administrator | Read-only; preferred for inventory scripts |
 | Author or modify SITs, dictionaries, EDM schemas | Compliance Administrator **or** Information Protection Administrator | Use Information Protection Administrator where the tenant has split duties |
 | Author DLP policies that bind SITs to Copilot / Exchange / SharePoint workloads | Compliance Administrator | Policy cmdlets enforce this server-side |
@@ -272,7 +259,7 @@ $rules = Get-DlpComplianceRule    | Select-Object Name, ParentPolicyName, Disabl
 $pols  | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $out 'dlp-policies.json') -Encoding utf8
 $rules | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $out 'dlp-rules.json')    -Encoding utf8
 
-# 7. SHA-256 manifest (see §15).
+# 7. SHA-256 manifest (see §14).
 Get-ChildItem $out -File | ForEach-Object {
     [PSCustomObject]@{
         File   = $_.Name
@@ -368,7 +355,7 @@ Write-Information ("Dictionary '{0}' now contains {1} terms." -f $Name, $after.K
 This is the highest-leverage and highest-risk operation in 1.13. A *rule package* is an XML container that may publish one or many SITs. The cmdlets are:
 
 | Operation | Cmdlet | Notes |
-|---|---|---|
+
 | Create rule package | `New-DlpSensitiveInformationTypeRulePackage -FileData $bytes` | XML must be UTF-8 byte array |
 | Update rule package | `Set-DlpSensitiveInformationTypeRulePackage -Identity <Name> -FileData $bytes` | Bump `RulePack/Version` first |
 | Remove rule package | `Remove-DlpSensitiveInformationTypeRulePackage -Identity <Name>` | Will fail while any DLP rule binds a SIT it defines |
@@ -632,10 +619,10 @@ Write-Information "EDM schema '$SchemaName' state: $($after.State). Data store: 
 
 ### 7.2 Data upload (`EdmUploadAgent.exe`)
 
-`EdmUploadAgent.exe` is a separate Windows utility, not a PowerShell module. Microsoft ships **three** installer packages: Commercial+GCC, GCC High, and DoD. They differ only in the embedded service endpoint URLs, which can also be overridden in `EdmUploadAgent.exe.config` for sovereign tenants. Install only the package matching your cloud.
+`EdmUploadAgent.exe` is a separate Windows utility, not a PowerShell module. Download the installer package matching your cloud from Microsoft Learn.
 
 | Step | Subcommand | Purpose |
-|---|---|---|
+
 | 1 | `EdmUploadAgent.exe /ValidateData /DataFile <csv> /Schema <schema.xml>` | Confirms CSV column count + types match schema |
 | 2 | `EdmUploadAgent.exe /Authorize /TenantId <guid>` | Interactive AAD login; persists refresh token for the agent service identity |
 | 3 | `EdmUploadAgent.exe /CreateHash /DataFile <csv> /Schema <schema.xml> /OutputDir <dir>` | Salts and one-way hashes data locally — cleartext stays on host |
@@ -802,7 +789,7 @@ Write-Information "Copilot DLP policy '$PolicyName' / rule '$RuleName' published
 
 - Always start in `TestWithNotifications` mode. Move to `Enable` only after a documented soak window and after Activity Explorer (§11) shows the expected match rate against test traffic.
 - The `RestrictAccess` setting `ExcludeContentProcessing` = `Block` is what tells Copilot to *exclude* the matching content from its grounding/answer generation. This is the correct lever for "the agent must not surface this content in its answer."
-- For SharePoint grounding scope, this rule complements (does not replace) Control 4.6. See cross-links at §16.
+- For SharePoint grounding scope, this rule complements (does not replace) Control 4.6. See cross-links at §15.
 
 ## 10. `Test-DataClassification` harness
 
@@ -958,7 +945,7 @@ DLP rule  ──binds──▶  SIT  ──packaged in──▶  Rule package
 To remove cleanly:
 
 | Object class | Remove first | Then |
-|---|---|---|
+
 | Rule package | All `DlpComplianceRule`s referencing any SIT in the pack | `Remove-DlpSensitiveInformationTypeRulePackage` |
 | Document fingerprint SIT | All rules referencing it | `Remove-DlpSensitiveInformationType` |
 | Keyword dictionary | All rules and rule-pack `<Match>` references | `Remove-DlpKeywordDictionary` |
@@ -968,27 +955,13 @@ To remove cleanly:
 
 A pre-canned rollback for every change record means: archived before-snapshot JSON + the exact `Set-` / `Remove-` invocation that restores it. Treat rollback scripts as production code — code-review them, version them, store them next to the change record.
 
-## 13. Sovereign-cloud reference
 
-Cloud selection is made once, in `Initialize-Agt113Session`. Get this wrong and `Connect-IPPSSession` will silently authenticate to the wrong tenant ring.
-
-| Cloud | `Connect-IPPSSession -ConnectionUri` | `-AzureADAuthorizationEndpointUri` | `Connect-MgGraph -Environment` | EDM agent installer |
-|---|---|---|---|---|
-| **Commercial** | *(default — omit)* | *(default — omit)* | `Global` | EDM Upload Agent — Commercial / GCC |
-| **GCC** | *(default — same as Commercial)* | *(default)* | `Global` | EDM Upload Agent — Commercial / GCC |
-| **GCC High** | `https://ps.compliance.protection.office365.us/powershell-liveid/` | `https://login.microsoftonline.us/organizations` | `USGov` | EDM Upload Agent — GCC High |
-| **DoD** | `https://l5.ps.compliance.protection.office365.us/powershell-liveid/` | `https://login.microsoftonline.us/organizations` | `USGovDoD` | EDM Upload Agent — DoD |
-
-> **Verify the DoD endpoint.** The DoD ring URL is the most volatile of the four. Confirm against the current Microsoft Learn article *"Connect to Security & Compliance PowerShell"* before each change window. If the EDM Upload Agent fails to authenticate in DoD or GCC High, edit `EdmUploadAgent.exe.config` to override the service endpoint URLs (the installer ships with the correct defaults but configuration drift on long-lived hosts is common).
-
-Cross-tenant scenarios (a US bank operating both a Commercial tenant for non-regulated subsidiaries and a GCC High tenant for federal contracts) require **two completely separate** automation profiles — different module installations are not required, but separate connection profiles, separate evidence stores, and separate change-record systems are mandatory. Do not attempt to share a session across clouds.
-
-## 14. Anti-patterns
+## 13. Anti-patterns
 
 The following patterns appear in the wild and have all caused production incidents in FSI tenants. None of them is acceptable in a Control 1.13 runbook.
 
 | # | Anti-pattern | Why it fails | Correct pattern |
-|---|---|---|---|
+
 | 1 | Reading `$result.SensitiveInformation` from `Test-DataClassification` | The property does not exist. Returns `$null` → false-clean evidence. | Read `$result.ClassificationResults` and project `SensitiveTypeName`, `Count`, `Confidence`. |
 | 2 | UTF-8 encoding for `New-DlpKeywordDictionary -FileData` | The cmdlet requires UTF-16 (Unicode). UTF-8 yields a corrupt or empty dictionary; non-ASCII names ("Société Générale") silently disappear. | `[System.Text.Encoding]::Unicode.GetBytes(...)` with `\r\n` line terminators. |
 | 3 | `<Regex>` or `<Keyword>` placed inside `<Entity>` instead of as siblings inside `<Rules>` | Schema rejects the rule package with an opaque error. | Definitions are siblings of `<Entity>` inside `<Rules>`; `<Entity>` references them via `<IdMatch idRef="…">` / `<Match idRef="…">`. |
@@ -1004,7 +977,7 @@ The following patterns appear in the wild and have all caused production inciden
 | 13 | Skipping `-ResultSize Unlimited` on inventory cmdlets | Silent truncation at 1,000 objects; drift detection misses changes beyond the cap. | Always pass `-ResultSize Unlimited` on `Get-DlpSensitiveInformationType`, `Get-DlpComplianceRule`, `Search-UnifiedAuditLog`. |
 | 14 | Custom SIT without `<ExcludedMatch>` test sentinels | First wave of false positives comes from synthetic data in pre-production environments. Operators learn to ignore SIT alerts. | Every custom SIT excludes `TEST-`, `SAMPLE-`, and a tenant UAT prefix. |
 
-## 15. Evidence pack and `Write-FsiEvidence`
+## 14. Evidence pack and `Write-FsiEvidence`
 
 Every change window produces an evidence pack containing the transcript, the before/after JSON snapshots, audit-log exports, `Test-DataClassification` reports, and a SHA-256 manifest binding them together. The shared baseline (`docs/playbooks/_shared/powershell-baseline.md` §4) defines the helper:
 
@@ -1061,7 +1034,7 @@ Stop-Transcript
 
 `Disconnect-IPPSSession` is a frequently-imagined cmdlet that does not exist. Calling it raises `CommandNotFoundException` and — because `Disconnect-ExchangeOnline` was never called — leaves the IPPS REST session live until token expiry. In a shared jump-host environment this can leak credentials between operators.
 
-## 16. Cross-links
+## 15. Cross-links
 
 - **Control 1.5 — Identity baseline for agent makers and admins.** SIT authoring requires the privileged-role and Conditional Access posture defined there. `docs/controls/pillar-1-security/1.5-identity-baseline-for-agent-makers-and-admins.md`
 - **Control 1.6 — Sensitivity labels and label policies.** SIT detection drives auto-labelling; labels in turn drive Copilot grounding eligibility. `docs/controls/pillar-1-security/1.6-sensitivity-labels-for-ai-content.md`
@@ -1069,7 +1042,7 @@ Stop-Transcript
 - **Control 1.10 — Customer Lockbox / data-residency boundary.** Customer Lockbox and data-residency posture are covered in Control 2.1 Managed Environments — see the *Customer Lockbox & Data Residency Posture* sub-section.
 - **Control 4.6 — SharePoint grounding scope governance.** SIT-based DLP rules complement scope governance for what an agent can ground on. `docs/controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md`
 - **AI Incident Response Playbook.** Standing on-call runbook for SIT/DLP alerts that fire against agent traffic. `docs/playbooks/incident-and-risk/ai-incident-response-playbook.md`
-- **Shared PowerShell baseline.** Module pinning, sovereign endpoints, transcript and evidence helpers. `docs/playbooks/_shared/powershell-baseline.md`
+- **Shared PowerShell baseline.** Module pinning, transcript and evidence helpers. `docs/playbooks/_shared/powershell-baseline.md`
 
 ---
 

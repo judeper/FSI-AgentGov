@@ -1,7 +1,7 @@
 # PowerShell Setup: Control 1.22 — Information Barriers for AI Agents
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
 
 **Last Updated:** May 2026
 **Modules Required:** `ExchangeOnlineManagement` (Compliance PowerShell — `Connect-IPPSSession`), `Microsoft.Graph` (for HR-of-record attribute reads and segment-coverage reporting), optional `PnP.PowerShell` v2+ (for SharePoint site-segment validation)
@@ -326,24 +326,6 @@ if ($failures) {
 }
 Write-Host "[PASS] Control 1.22 validation succeeded" -ForegroundColor Green
 exit 0
-```
-
----
-
-## Sovereign-Cloud Connection Notes
-
-For GCC High and DoD tenants, `Connect-IPPSSession` requires explicit endpoints:
-
-```powershell
-# GCC High
-Connect-IPPSSession `
-    -ConnectionUri 'https://ps.compliance.protection.office365.us/powershell-liveid/' `
-    -AzureADAuthorizationEndpointUri 'https://login.microsoftonline.us/common'
-
-# DoD
-Connect-IPPSSession `
-    -ConnectionUri 'https://l5.ps.compliance.protection.office365.us/powershell-liveid/' `
-    -AzureADAuthorizationEndpointUri 'https://login.microsoftonline.us/common'
 ```
 
 ---

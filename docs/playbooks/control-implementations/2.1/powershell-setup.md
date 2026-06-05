@@ -24,15 +24,12 @@ related_controls: ["1.4", "1.5", "1.20", "2.2", "2.3", "2.15", "2.22"]
 >
 > **Sister playbooks:** [Portal Walkthrough](./portal-walkthrough.md) · [Verification & Testing](./verification-testing.md) · [Troubleshooting](./troubleshooting.md)
 >
-> **Shared baseline:** [`_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) — module pinning, sovereign endpoint matrix, mutation safety, evidence emission, SHA-256 manifest format, Dataverse-cmdlet quirks.
+> **Shared baseline:** [`_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) — module pinning, mutation safety, evidence emission, SHA-256 manifest format, Dataverse-cmdlet quirks.
 
 This playbook automates the **enablement, configuration, evidence capture, and quarterly attestation** of the Microsoft Power Platform **Managed Environments** capability for a US financial-services tenant. Every helper introduced here is prefixed with `Fsi-` (matching the verb-noun convention used in the request) and follows the structural pattern of the sister playbooks for [Control 2.25](../2.25/powershell-setup.md) and [Control 2.26](../2.26/powershell-setup.md). Where those sister playbooks operate against the unified Microsoft Graph surface, this playbook deals with **two parallel cmdlet families** — the legacy `Microsoft.PowerApps.Administration.PowerShell` module (Windows PowerShell 5.1 only) and the modern `Az.PowerPlatform` Enterprise Policies family (PowerShell 7.4+). Bridging those two worlds correctly is the single largest source of false-clean defects in this control; §0.2 catalogues each one.
 
 !!! danger "Non-Substitution"
     The helpers in this file **do not substitute** for the supervisory review obligations imposed by FINRA Rule 3110 (with RN 24-09 for AI supervisory guidance), the books-and-records obligations of SEC Rules 17a-3 and 17a-4, the ITGC change-control obligations of SOX §302/§404, the safeguards obligations of GLBA §501(b), the third-party risk-management obligations of OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), the model-risk obligations of Federal Reserve SR 26-2 (formerly SR 11-7), the cybersecurity-program obligations of NYDFS 23 NYCRR 500.06, or the IT examination obligations expressed in the FFIEC IT Examination Handbook. They **support compliance with** those obligations by emitting structured, hash-anchored evidence that a human reviewer (the **AI Governance Lead**, the **Power Platform Admin**, or — for FINRA-regulated firms — a **registered principal**) then reviews and counter-signs. No automation in this file approves, attests to, or certifies compliance on behalf of any human officer of the firm.
-
-!!! warning "Sovereign Cloud Availability"
-    Several Managed Environments features described here have **partial or deferred availability** in GCC, GCC High, DoD, and China (21Vianet). The most material gaps as of April 2026 are: weekly **Usage Insights digest** (commercial-only at GA, planned for sovereign Q3 2026), **Customer-Managed Keys** for Power Platform (GCC/GCC High only, **not** DoD), and **Customer Lockbox for Power Platform** (verify per-cloud roadmap). The bootstrap helper in §2 detects the sovereign tenant via the `-Cloud` parameter and routes affected calls through `Get-Fsi-UsageInsightsAvailability`, `Get-Fsi-CMKServiceCoverage`, and `Export-Fsi-SovereignCompensatingEvidence` (§15) so that downstream evidence packs **never silently emit `Clean` against a surface that does not exist in the tenant's cloud**. Operators on sovereign clouds must read [`_shared/powershell-baseline.md` §3](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod) before any first run.
 
 !!! note "Hedged-language reminder"
     Throughout this playbook, governance helpers **support compliance with**, **help meet**, and **aid in** the regulatory obligations enumerated above. They do **not** "ensure compliance", "guarantee" any outcome, "eliminate risk", or "prevent" any policy violation. Implementation requires the operator to verify each helper's output against the firm's written supervisory procedures (WSPs) and to retain the SHA-256 manifest of each evidence pack in WORM storage for the regulator-mandated retention period (typically 7 years for SEC 17a-4(f); verify against the firm's record-retention schedule).
@@ -55,7 +52,7 @@ The Power Platform Admin cmdlet surface is split across **two shells that cannot
 Operators who try to run the entire workflow in a single shell will see one of two failure modes:
 
 1. **Run the whole thing in PS 7.4** — `Add-PowerAppsAccount` either fails to import or imports an older orphan version that returns empty environment lists. **False clean: zero environments returned, treated as "no work to do".**
-2. **Run the whole thing in PS 5.1** — `Connect-AzAccount -Environment AzureUSGovernment` works, but `Az.PowerPlatform` cmdlet output marshalling drops the `properties.encryption` block silently. **False clean: CMK appears applied but the policy ARM ID is never recorded against the environment.**
+2. **Run the whole thing in PS 5.1** — `Az.PowerPlatform` cmdlet output marshalling drops the `properties.encryption` block silently. **False clean: CMK appears applied but the policy ARM ID is never recorded against the environment.**
 
 The orchestrator in §17 (`Invoke-Fsi-Control21Setup`) **does not paper over this split**. It documents which sub-step requires which shell, and it produces a single signed evidence manifest by stitching the JSON outputs of both shells. Operators who try to "simplify" the workflow into one shell will defeat the false-clean mitigation.
 
@@ -64,8 +61,6 @@ The orchestrator in §17 (`Invoke-Fsi-Control21Setup`) **does not paper over thi
 | # | Defect | Symptom | Root cause | Mitigation in this playbook |
 |---|---|---|---|---|
 | 1 | Wrong-shell trap (PS 7 + Desktop module) | `Get-AdminPowerAppEnvironment` returns `@()`; helper records "no managed environments" | PS 7.4 silently loaded a stale 1.x version of the Administration module from the user module path | `Assert-Fsi-LegacyShell` (§2.1) throws `Fsi21-WrongShell` |
-| 2 | Sovereign endpoint defaulted to commercial | Helpers run, return `Clean`, but enumerate the **wrong tenant** (commercial instead of `.us`) | `Add-PowerAppsAccount` was called without `-Endpoint usgov` | `Initialize-Fsi-PPSession` (§2.3) requires `-Cloud` and asserts endpoint after connect |
-| 3 | License-consumption read against wrong cloud | Graph returned 0 active makers for an active GCC High tenant | `Connect-MgGraph -Environment` defaulted to `Global` | `Resolve-Fsi-CloudProfile` (§2.2) emits `[pscustomobject]` with `GraphEnv` and asserts via `Get-MgContext` |
 | 4 | Sharing limits set on standalone cloud flow | Operator believed flow shares were governed; production share leaked at 200+ recipients | Managed-Environment sharing limits **do not govern standalone cloud flows** (only solution-aware flows) | `Set-Fsi-SharingLimits` emits `!!! info` with explicit caveat; verification helper `Test-Fsi-Control21-SharingLimitsBaseline` separately attests DLP coverage from Control 1.5 |
 | 5 | Solution checker `Warn` mode treated as enforcement | Audit binder said "enforced"; non-compliant solution imported | Operator misread PPAC dropdown; `Warn` is advisory only | `Set-Fsi-SolutionCheckerEnforcement` accepts only `None`, `Warn`, `Block`; verification helper requires `Block` for Zone 3 |
 | 6 | Maker welcome content embedded sensitive WSP excerpt | Examiner found PII in welcome text; tenant could not produce CMK proof for that content | Maker welcome content is **excluded** from CMK encryption — Microsoft-managed only | `Set-Fsi-MakerWelcome` emits `!!! note` and refuses to write content longer than 1500 characters or matching a sensitive-pattern regex |
@@ -73,7 +68,6 @@ The orchestrator in §17 (`Invoke-Fsi-Control21Setup`) **does not paper over thi
 | 8 | CMK exclusion list never captured | Examiner asked which artefacts remain Microsoft-managed; tenant could not produce list | Operator assumed CMK applied to *all* environment data | `Add-Fsi-CMKPolicyToEnvironment` writes the exclusion list (maker welcome, solution-checker results, display names, descriptions, connection metadata, Agent 365 audit logging) as a JSON evidence artefact; `Test-Fsi-CMKExclusions` regenerates the narrative |
 | 9 | Tenant isolation enabled with Azure DevOps still allowed | Believed all cross-tenant traffic blocked; AzDO connector silently bypassed | Documented Microsoft known-issue: AzDO connector is not Entra-ID-authenticated and is excluded from tenant isolation | `Set-Fsi-TenantIsolation` emits explicit warning; verification helper requires the AzDO exception to be documented in DLP (Control 1.5) |
 | 10 | Pipeline target environments not Managed | Solution promoted from Dev → Test → Prod; Test environment not Managed; sharing limits not enforced during UAT | Operators enabled Managed on Prod only; pipeline targets missed | `Get-Fsi-PipelineTargets` enumerates tenant-wide; `Enable-Fsi-PipelineTargetsManagedEnv` covers them in bulk |
-| 11 | Sovereign tenant submitted commercial weekly digest | Quarterly evidence pack contained a digest that did not exist in GCC High | Operator copy-pasted commercial template | `Get-Fsi-UsageInsightsAvailability` returns `Status='NotApplicable'` for sovereign; `Export-Fsi-SovereignCompensatingEvidence` produces the substitute evidence bundle |
 | 12 | License-coverage check ran against stale entitlements | June 2026 enforcement enabled in-product banner for 47 makers; firm had no remediation backlog | Operator ran license check once, did not re-run before quarterly attestation | `Test-Fsi-ManagedEnvLicensing` is a quarterly verification helper; orchestrator `-Mode Quarterly` always runs it |
 | 13 | Disable performed without `ChangeTicketId` | Audit could not reconstruct who disabled Managed on Prod environment | No ITGC linkage to Disable cmdlet | `Disable-Fsi-ManagedEnvironment` requires `-ChangeTicketId`, `-WhatIf` first, and writes a signed before-snapshot |
 | 14 | Empty result conflated with "clean" | `$null` returned when no rows found; downstream pack said `Clean` | Helpers must distinguish `Clean` from `NotApplicable` from `Error` from `Pending` | All helpers return `[pscustomobject]` with explicit `Status` enum value drawn from `Clean | Anomaly | Pending | NotApplicable | Error` — **never `$null` and never `@()` as a clean signal** |
@@ -136,8 +130,8 @@ The legacy-shell guard helper (`Assert-Fsi-LegacyShell`) and the modern-shell gu
 | `Organization.Read.All` | License SKU enumeration for entitlement audit | `Test-Fsi-ManagedEnvLicensing` | Helper returns `Status='Error'`, `Reason='ScopeMissing:Organization.Read.All'` |
 | `Directory.Read.All` | Resolve maker UPNs for uncovered-user list | `Test-Fsi-ManagedEnvLicensing` | UPNs render as `(unresolved)`; helper still returns `Anomaly` per row |
 | `User.Read.All` | License-assignment per user (`/users/{id}/licenseDetails`) | `Test-Fsi-ManagedEnvLicensing` | Per-user details degrade; SKU-level totals still computed |
-| `Reports.Read.All` | License-consumption usage reports | `Get-Fsi-UsageInsightsAvailability` (commercial only) | Helper degrades to `NotApplicable` |
-| `ServiceHealth.Read.All` | Service Health correlation when CMK rotation correlates with incidents | `Get-Fsi-CMKServiceCoverage` | Correlation column rendered as `(no service-health context)`; status `Anomaly` |
+| `Reports.Read.All` | License-consumption usage reports | `Test-Fsi-ManagedEnvLicensing` | Helper degrades when report data is unavailable |
+| `ServiceHealth.Read.All` | Service Health correlation when CMK rotation correlates with incidents | CMK rotation review | Correlation column rendered as `(no service-health context)`; status `Anomaly` |
 
 ### 1.4 Required Az / ARM RBAC
 
@@ -201,16 +195,14 @@ function Get-RunMetadata {
 #>
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory)] [string] $RunId,
-        [Parameter(Mandatory)] [string] $TenantId,
-        [Parameter(Mandatory)] [ValidateSet('Commercial','GCC','GCCHigh','DoD','China')] [string] $Cloud,
+        [string] $RunId = "fsi21-$((Get-Date).ToUniversalTime().ToString('yyyyMMddHHmmss'))",
+        [string] $TenantId = '',
         [string] $ChangeTicketId
     )
     [pscustomobject]@{
         run_id          = $RunId
         run_timestamp   = (Get-Date).ToUniversalTime().ToString('o')
         tenant_id       = $TenantId
-        cloud           = $Cloud
         control_id      = '2.1'
         playbook_version = 'v1.4'
         change_ticket   = $ChangeTicketId
@@ -225,13 +217,12 @@ function Get-RunMetadata {
 ---
 
 
-## §2 — Sovereign-Aware Bootstrap (Two Shells, One Session Context)
+## §2 — Bootstrap (Two Shells, One Session Context)
 
-The bootstrap layer establishes both the legacy and the modern shell sessions, resolves the cloud, validates Az and Graph contexts, and produces a single `SessionContext` `[pscustomobject]` consumed by every helper in §3 onward. Three rules are non-negotiable:
+The bootstrap layer establishes both the legacy and the modern shell sessions, validates Az and Graph contexts, and produces a single `SessionContext` `[pscustomobject]` consumed by every helper in §3 onward. Two rules are non-negotiable:
 
-1. **Sovereign tenants are detected and tagged at bootstrap**, not silently re-routed mid-flow.
-2. **Both shells initialise with `Disconnect-*` first** so cached cross-tenant tokens cannot leak.
-3. **Signed transcripts** capture every operator action; `Start-Transcript` is the first call after shell assertion.
+1. **Both shells initialise with `Disconnect-*` first** so cached cross-tenant tokens cannot leak.
+2. **Signed transcripts** capture every operator action; `Start-Transcript` is the first call after shell assertion.
 
 ### 2.1 Shell-host assertions
 
@@ -301,60 +292,19 @@ function Assert-Fsi-AzShell {
 }
 ```
 
-### 2.2 Resolve-Fsi-CloudProfile
-
-```powershell
-function Resolve-Fsi-CloudProfile {
-<#
-.SYNOPSIS
-    Resolves the operator-supplied -Cloud value to the matching Power Apps endpoint, Az environment,
-    and Microsoft Graph environment. Emits an explicit feature-availability matrix.
-.NOTES
-    Control 2.1 — Managed Environments. Last UI verified: April 2026.
-#>
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)] [ValidateSet('Commercial','GCC','GCCHigh','DoD','China')] [string]$Cloud
-    )
-    $map = @{
-        Commercial = @{ PPEndpoint='prod';      AzEnv='AzureCloud';            GraphEnv='Global';   Cmk=$true;  UsageInsights=$true;  Lockbox=$true  }
-        GCC        = @{ PPEndpoint='usgov';     AzEnv='AzureUSGovernment';     GraphEnv='USGov';    Cmk=$true;  UsageInsights=$false; Lockbox=$true  }
-        GCCHigh    = @{ PPEndpoint='usgovhigh'; AzEnv='AzureUSGovernment';     GraphEnv='USGovDoD'; Cmk=$true;  UsageInsights=$false; Lockbox=$true  }
-        DoD        = @{ PPEndpoint='dod';       AzEnv='AzureUSGovernment';     GraphEnv='USGovDoD'; Cmk=$false; UsageInsights=$false; Lockbox=$false }
-        China      = @{ PPEndpoint='china';     AzEnv='AzureChinaCloud';       GraphEnv='China';    Cmk=$false; UsageInsights=$false; Lockbox=$false }
-    }
-    $row = $map[$Cloud]
-    [pscustomobject]@{
-        Cloud                  = $Cloud
-        PowerAppsEndpoint      = $row.PPEndpoint
-        AzEnvironment          = $row.AzEnv
-        GraphEnvironment       = $row.GraphEnv
-        CmkSupported           = $row.Cmk
-        UsageInsightsAvailable = $row.UsageInsights
-        CustomerLockbox        = $row.Lockbox
-        ResolvedAt             = (Get-Date).ToUniversalTime().ToString('o')
-        Status                 = 'Clean'
-        Reason                 = ''
-    }
-}
-```
-
-The output of this helper is the **single source of truth** for which sovereign-aware fallbacks the rest of the playbook will engage. Operators must not bypass it; the orchestrator in §17 refuses to run without a `Resolve-Fsi-CloudProfile` result.
-
 ### 2.3 Initialize-Fsi-PPSession
 
 ```powershell
 function Initialize-Fsi-PPSession {
 <#
 .SYNOPSIS
-    Connects the legacy Power Apps Admin shell against the resolved cloud and verifies
-    tenant entitlements. Run in Windows PowerShell 5.1 only.
+    Connects the legacy Power Apps Admin shell and verifies tenant entitlements.
+    Run in Windows PowerShell 5.1 only.
 .NOTES
     Control 2.1 — Managed Environments. Last UI verified: April 2026.
 #>
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory)] [object] $CloudProfile,
         [Parameter(Mandatory)] [string] $RunId,
         [Parameter(Mandatory)] [string] $EvidencePath
     )
@@ -364,7 +314,7 @@ function Initialize-Fsi-PPSession {
     Start-Transcript -Path (Join-Path $EvidencePath "transcript-pp-$ts.log") -IncludeInvocationHeader | Out-Null
 
     Remove-PowerAppsAccount -ErrorAction SilentlyContinue | Out-Null
-    Add-PowerAppsAccount -Endpoint $CloudProfile.PowerAppsEndpoint -ErrorAction Stop
+    Add-PowerAppsAccount -ErrorAction Stop
 
     # Sanity probe: must return at least one environment for a non-empty tenant.
     $probe = Get-AdminPowerAppEnvironment -ErrorAction Stop
@@ -372,11 +322,10 @@ function Initialize-Fsi-PPSession {
         Stop-Transcript | Out-Null
         throw [System.InvalidOperationException]::new(
             "Fsi21-EmptyEnvList: Add-PowerAppsAccount returned zero environments for tenant. " +
-            "Most likely cause: -Endpoint mismatch ($($CloudProfile.PowerAppsEndpoint)) against the wrong sovereign cloud.")
+            "Verify tenant access, Power Platform Admin role assignment, and module authentication state.")
     }
     [pscustomobject]@{
         RunId             = $RunId
-        Cloud             = $CloudProfile.Cloud
         EnvironmentsSeen  = $probe.Count
         TranscriptPath    = (Join-Path $EvidencePath "transcript-pp-$ts.log")
         Status            = 'Clean'
@@ -391,14 +340,13 @@ function Initialize-Fsi-PPSession {
 function Initialize-Fsi-AzSession {
 <#
 .SYNOPSIS
-    Connects PowerShell 7.4 Core to Azure (sovereign-aware), Az.PowerPlatform, and Microsoft Graph.
+    Connects PowerShell 7.4 Core to Azure, Az.PowerPlatform, and Microsoft Graph.
     Required for CMK Enterprise Policy operations and license-consumption reads.
 .NOTES
     Control 2.1 — Managed Environments. Last UI verified: April 2026.
 #>
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory)] [object] $CloudProfile,
         [Parameter(Mandatory)] [string] $RunId,
         [Parameter(Mandatory)] [string] $TenantId,
         [Parameter(Mandatory)] [string] $SubscriptionId,
@@ -419,19 +367,13 @@ function Initialize-Fsi-AzSession {
     Disconnect-AzAccount -ErrorAction SilentlyContinue | Out-Null
     Disconnect-MgGraph   -ErrorAction SilentlyContinue | Out-Null
 
-    Connect-AzAccount -Tenant $TenantId -Subscription $SubscriptionId -Environment $CloudProfile.AzEnvironment -ErrorAction Stop | Out-Null
-    Connect-MgGraph   -TenantId $TenantId -Scopes $GraphScopes -Environment $CloudProfile.GraphEnvironment -NoWelcome -ErrorAction Stop
+    Connect-AzAccount -Tenant $TenantId -Subscription $SubscriptionId -ErrorAction Stop | Out-Null
+    Connect-MgGraph   -TenantId $TenantId -Scopes $GraphScopes -NoWelcome -ErrorAction Stop
 
     $azCtx = Get-AzContext
     $mgCtx = Get-MgContext
-    if ($azCtx.Environment.Name -ne $CloudProfile.AzEnvironment) {
-        Stop-Transcript | Out-Null
-        throw [System.InvalidOperationException]::new(
-            "Fsi21-CloudMismatch: AzContext is $($azCtx.Environment.Name); expected $($CloudProfile.AzEnvironment).")
-    }
     [pscustomobject]@{
         RunId             = $RunId
-        Cloud             = $CloudProfile.Cloud
         AzEnvironment     = $azCtx.Environment.Name
         GraphEnvironment  = $mgCtx.Environment
         ScopesGranted     = $mgCtx.Scopes
@@ -530,7 +472,6 @@ function Test-Fsi-ManagedEnvLicensing {
         [string[]] $QualifyingSkuPartNumbers = @(
             'POWERAPPS_PER_USER',
             'FLOW_PER_USER',
-            'POWERAPPS_PER_USER_GCC',
             'POWER_AUTOMATE_PREMIUM',
             'COPILOT_STUDIO_USER_PRO',
             'DYN365_ENTERPRISE_PLAN1'
@@ -1085,23 +1026,14 @@ function Set-Fsi-CustomerLockbox {
     is provisioned (M365 E5 / E5 Compliance / equivalent) before applying.
 .NOTES
     Control 2.1 — Managed Environments. Last UI verified: April 2026.
-    Customer Lockbox for Power Platform is unavailable in DoD and China as of April 2026.
 #>
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]
     param(
         [Parameter(Mandatory)] [string] $EnvironmentName,
         [Parameter(Mandatory)] [bool] $Enabled,
-        [Parameter(Mandatory)] [object] $CloudProfile,
         [Parameter(Mandatory)] [string] $ChangeTicketId,
         [Parameter(Mandatory)] [string] $EvidencePath
     )
-    if (-not $CloudProfile.CustomerLockbox) {
-        return [pscustomobject]@{
-            EnvironmentId = $EnvironmentName
-            Status        = 'NotApplicable'
-            Reason        = "CustomerLockboxUnavailableIn:$($CloudProfile.Cloud)"
-        }
-    }
     $null = Assert-Fsi-LegacyShell
     # Tier probe: read tenant Lockbox setting from SCC (Search-AdminAuditLog or Microsoft.Graph)
     try {
@@ -1114,7 +1046,7 @@ function Set-Fsi-CustomerLockbox {
             }
         }
     } catch {
-        # If Graph endpoint is unavailable in this cloud, fall through with a Pending status.
+        # If the Graph endpoint is unavailable, fall through and rely on the configuration write result.
     }
     $ts = Get-Date -Format 'yyyyMMdd-HHmmss'
     $body = @{ customerLockbox = @{ enabled = $Enabled } }
@@ -1558,144 +1490,6 @@ function Enable-Fsi-PipelineTargetsManagedEnv {
 ---
 
 
-## §15 — Sovereign Cloud Helpers
-
-The Managed-Environment surface in GCC, GCC High, DoD, and China differs from commercial in three concrete ways: the **weekly Usage Insights digest** does not arrive in those clouds (April 2026); the **CMK service coverage** matrix differs (DoD does not yet support Power Platform CMK); and **Customer Lockbox** is unavailable in DoD and China. The helpers below produce structured `NotApplicable` rows and a substitute evidence bundle so that the absence of those features is itself documented evidence — never silent.
-
-### 15.1 Get-Fsi-UsageInsightsAvailability
-
-```powershell
-function Get-Fsi-UsageInsightsAvailability {
-<#
-.SYNOPSIS
-    Returns whether the weekly Managed-Environment usage-insights digest is available in the
-    target cloud and, when not, names the documented compensating control.
-.NOTES
-    Control 2.1 — Managed Environments. Last UI verified: April 2026.
-#>
-    [CmdletBinding()]
-    param([Parameter(Mandatory)] [ValidateSet("Commercial","GCC","GCCHigh","DoD","China")] [string] $Cloud)
-    $available = $Cloud -eq "Commercial"
-    [pscustomobject]@{
-        Cloud                    = $Cloud
-        UsageInsightsAvailable   = $available
-        Status                   = if ($available) { "Clean" } else { "NotApplicable" }
-        Reason                   = if ($available) { "" } else { "WeeklyDigestNotAvailableIn:$Cloud" }
-        CompensatingControl      = if ($available) { "" } else { "Use Export-Fsi-SovereignCompensatingEvidence; cross-references Controls 3.1 and 3.6." }
-        EvidencePath             = if ($available) { "PPAC->Resources->UsageInsights (weekly digest email)" } else { "Microsoft Graph activity export + Purview audit + Sentinel KQL bundle" }
-    }
-}
-```
-
-### 15.2 Get-Fsi-CMKServiceCoverage
-
-```powershell
-function Get-Fsi-CMKServiceCoverage {
-<#
-.SYNOPSIS
-    Emits per-service CMK coverage for the target cloud as of April 2026. Verify against
-    Microsoft Learn (Customer-managed keys for Power Platform) before each major run.
-.NOTES
-    Control 2.1 — Managed Environments. Last UI verified: April 2026.
-#>
-    [CmdletBinding()]
-    param([Parameter(Mandatory)] [ValidateSet("Commercial","GCC","GCCHigh","DoD","China")] [string] $Cloud)
-    $matrix = @{
-        Commercial = @{ Dataverse=$true;  PowerAutomate=$true;  PowerApps=$true;  CopilotStudio=$true;  Agent365=$true  }
-        GCC        = @{ Dataverse=$true;  PowerAutomate=$true;  PowerApps=$true;  CopilotStudio=$true;  Agent365=$false }
-        GCCHigh    = @{ Dataverse=$true;  PowerAutomate=$true;  PowerApps=$true;  CopilotStudio=$true;  Agent365=$false }
-        DoD        = @{ Dataverse=$false; PowerAutomate=$false; PowerApps=$false; CopilotStudio=$false; Agent365=$false }
-        China      = @{ Dataverse=$false; PowerAutomate=$false; PowerApps=$false; CopilotStudio=$false; Agent365=$false }
-    }
-    $row = $matrix[$Cloud]
-    [pscustomobject]@{
-        Cloud         = $Cloud
-        Dataverse     = $row.Dataverse
-        PowerAutomate = $row.PowerAutomate
-        PowerApps     = $row.PowerApps
-        CopilotStudio = $row.CopilotStudio
-        Agent365      = $row.Agent365
-        Status        = if ($row.Dataverse) { "Clean" } else { "NotApplicable" }
-        Reason        = if ($row.Dataverse) { "" } else { "CMKUnavailableIn:$Cloud" }
-        VerifiedAt    = "2026-04-15"
-    }
-}
-```
-
-### 15.3 Export-Fsi-SovereignCompensatingEvidence
-
-```powershell
-function Export-Fsi-SovereignCompensatingEvidence {
-<#
-.SYNOPSIS
-    Produces the substitute weekly evidence bundle for sovereign tenants where the commercial
-    Usage Insights digest is unavailable. Bundles a Microsoft Graph activity export, a Purview
-    unified audit search, and a Sentinel KQL query result against the Power Platform tables.
-.NOTES
-    Control 2.1 — Managed Environments. Last UI verified: April 2026.
-#>
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)] [ValidateSet("Commercial","GCC","GCCHigh","DoD","China")] [string] $Cloud,
-        [Parameter(Mandatory)] [string] $EnvironmentName,
-        [Parameter(Mandatory)] [string] $Quarter,    # e.g. 2026Q2
-        [Parameter(Mandatory)] [string] $EvidencePath
-    )
-    if ($Cloud -eq "Commercial") {
-        return [pscustomobject]@{ Status="NotApplicable"; Reason="UseCommercialUsageInsightsDigest" }
-    }
-    $null = Assert-Fsi-AzShell
-    $ts = Get-Date -Format "yyyyMMdd-HHmmss"
-
-    # 1. Microsoft Graph activity export (auditLogs/directoryAudits filtered to PowerPlatform / Dataverse).
-    $graphRows = @()
-    try {
-        $uri = "/v1.0/auditLogs/directoryAudits?`$filter=loggedByService eq 'PowerPlatform' and activityDateTime gt $((Get-Date).AddDays(-7).ToString('o'))"
-        $graphRows = Invoke-MgGraphRequest -Method GET -Uri $uri | Select-Object -ExpandProperty value
-    } catch {
-        $graphRows = @()
-    }
-
-    # 2. Purview unified audit search.
-    $purviewRows = @()
-    try {
-        $purviewRows = Search-UnifiedAuditLog -StartDate (Get-Date).AddDays(-7) -EndDate (Get-Date) `
-            -RecordType PowerPlatformAdministratorActivity -ResultSize 5000
-    } catch {
-        $purviewRows = @()
-    }
-
-    # 3. Sentinel KQL query (returns the path to the saved query; execution is out-of-band).
-    $sentinelKql = "PowerPlatformAdminActivity | where TimeGenerated > ago(7d) | where EnvironmentId == ""$EnvironmentName"" | summarize Activities=count() by Operation, UserPrincipalName, bin(TimeGenerated, 1d)"
-
-    $bundle = [pscustomobject]@{
-        EnvironmentId      = $EnvironmentName
-        Cloud              = $Cloud
-        Quarter            = $Quarter
-        ExportedAt         = (Get-Date).ToUniversalTime().ToString("o")
-        GraphActivityCount = $graphRows.Count
-        GraphSampleRows    = ($graphRows | Select-Object -First 100)
-        PurviewAuditCount  = $purviewRows.Count
-        PurviewSampleRows  = ($purviewRows | Select-Object -First 100)
-        SentinelKql        = $sentinelKql
-        Status             = if ($graphRows.Count -gt 0 -or $purviewRows.Count -gt 0) { "Clean" } else { "Anomaly" }
-        Reason             = if ($graphRows.Count -gt 0 -or $purviewRows.Count -gt 0) { "" } else { "NoActivityInWindow" }
-    }
-    $artPath = Join-Path $EvidencePath "sovereign-compensating-$EnvironmentName-$Quarter-$ts.json"
-    $bundle | ConvertTo-Json -Depth 8 | Set-Content $artPath
-    [pscustomobject]@{
-        EnvironmentId  = $EnvironmentName
-        Cloud          = $Cloud
-        Quarter        = $Quarter
-        ArtefactPath   = $artPath
-        ArtefactSha256 = (Get-FileHash $artPath -Algorithm SHA256).Hash
-        Status         = $bundle.Status
-        Reason         = $bundle.Reason
-    }
-}
-```
-
----
 
 ## §16 — Verification Helpers
 
@@ -2006,7 +1800,7 @@ function Test-Fsi-Control21-TenantIsolationEnabled {
         Enabled              = $enabled
         Inbound              = $inbound
         Outbound             = $outbound
-        AzDoDlpExceptionLogged = [bool]$azdoCovered
+        AzureDevOpsDlpExceptionLogged = [bool]$azdoCovered
         Exceptions           = $exceptions
         Status               = $status
         Reason               = if ($status -eq "Clean") { "" }
@@ -2016,54 +1810,11 @@ function Test-Fsi-Control21-TenantIsolationEnabled {
 }
 ```
 
-### 16.8 Test-Fsi-Control21-SovereignCompensating
-
-```powershell
-function Test-Fsi-Control21-SovereignCompensating {
-<#
-.SYNOPSIS
-    For sovereign tenants, verifies that quarterly compensating-evidence bundles exist for every
-    Managed Environment for the named quarter.
-.NOTES
-    Control 2.1 — Managed Environments. Last UI verified: April 2026.
-#>
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)] [ValidateSet("Commercial","GCC","GCCHigh","DoD","China")] [string] $Cloud,
-        [Parameter(Mandatory)] [object] $Inventory,
-        [Parameter(Mandatory)] [string] $Quarter,
-        [Parameter(Mandatory)] [string] $EvidencePath
-    )
-    if ($Cloud -eq "Commercial") {
-        return [pscustomobject]@{ Status="NotApplicable"; Reason="CommercialUsesNativeUsageInsightsDigest" }
-    }
-    $rows = foreach ($env in ($Inventory.Rows | Where-Object ManagedEnvironmentEnabled)) {
-        $artefact = Get-ChildItem -Path $EvidencePath -Filter "sovereign-compensating-$($env.EnvironmentId)-$Quarter-*.json" -ErrorAction SilentlyContinue |
-            Sort-Object LastWriteTime -Descending | Select-Object -First 1
-        [pscustomobject]@{
-            EnvironmentId = $env.EnvironmentId
-            Quarter       = $Quarter
-            ArtefactPath  = if ($artefact) { $artefact.FullName } else { $null }
-            Status        = if ($artefact) { "Clean" } else { "Anomaly" }
-            Reason        = if ($artefact) { "" } else { "CompensatingEvidenceMissing" }
-        }
-    }
-    [pscustomobject]@{
-        Cloud  = $Cloud
-        Quarter = $Quarter
-        Count  = $rows.Count
-        Rows   = $rows
-        Status = if ($rows | Where-Object Status -eq "Anomaly") { "Anomaly" } else { "Clean" }
-        Reason = ""
-    }
-}
-```
-
 ---
 
 ## §17 — Quarterly Evidence Bundle
 
-The quarterly evidence bundle is the primary attestation artefact for Control 2.1. It is produced by `Export-Fsi-Control21-QuarterlyEvidence`, which composes the §3 inventory, the §16 verification helpers, and (in sovereign clouds) the §15.3 compensating-evidence bundle into a single signed JSON manifest. The bundle supports compliance with FINRA Rule 3110 (supervision), SEC Rule 17a-4 (records retention), and OCC Bulletin 2013-29 (third-party / model-risk management) when paired with the parent control narrative — it is a record of administrative state, not a substitute for the legal narrative the Compliance Officer and AI Governance Lead must author.
+The quarterly evidence bundle is the primary attestation artefact for Control 2.1. It is produced by `Export-Fsi-Control21-QuarterlyEvidence`, which composes the §3 inventory and the §16 verification helpers into a single signed JSON manifest. The bundle supports compliance with FINRA Rule 3110 (supervision), SEC Rule 17a-4 (records retention), and OCC Bulletin 2013-29 (third-party / model-risk management) when paired with the parent control narrative — it is a record of administrative state, not a substitute for the legal narrative the Compliance Officer and AI Governance Lead must author.
 
 ### 17.1 Bundle contract
 
@@ -2077,7 +1828,6 @@ The quarterly evidence bundle is the primary attestation artefact for Control 2.
 | `cmkExclusions` | `Test-Fsi-Control21-CMKExclusionsDocumented` | Verbatim 8-item exclusion narrative coverage |
 | `tenantIsolation` | `Test-Fsi-Control21-TenantIsolationEnabled` | Both-direction state + 1.5 DLP cross-reference for AzDO |
 | `pipelineTargets` | `Get-Fsi-PipelineTargets` + `Test-Fsi-Control21-EnablementCoverage` | All ALM targets are Managed |
-| `sovereignCompensating` | `Test-Fsi-Control21-SovereignCompensating` | Substitute for missing UsageInsights digest |
 | `signatures` | Three named signers | Power Platform Admin + AI Governance Lead + Compliance Officer |
 
 ### 17.2 Export-Fsi-Control21-QuarterlyEvidence
@@ -2096,7 +1846,6 @@ function Export-Fsi-Control21-QuarterlyEvidence {
 #>
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]
     param(
-        [Parameter(Mandatory)] [ValidateSet("Commercial","GCC","GCCHigh","DoD","China")] [string] $Cloud,
         [Parameter(Mandatory)] [string] $Quarter,                    # e.g. 2026Q2
         [Parameter(Mandatory)] [hashtable] $ZoneAssignments,
         [Parameter(Mandatory)] [object] $Dlp15ExceptionTable,
@@ -2104,17 +1853,17 @@ function Export-Fsi-Control21-QuarterlyEvidence {
         [Parameter(Mandatory)] [string] $ChangeTicketId,
         [Parameter(Mandatory)] [hashtable] $Signers                  # @{ PowerPlatformAdmin='upn'; AIGovernanceLead='upn'; ComplianceOfficer='upn' }
     )
-    if (-not $PSCmdlet.ShouldProcess("Control 2.1 Q=$Quarter Cloud=$Cloud", "Export quarterly evidence bundle")) { return }
+    if (-not $PSCmdlet.ShouldProcess("Control 2.1 Q=$Quarter", "Export quarterly evidence bundle")) { return }
     foreach ($k in 'PowerPlatformAdmin','AIGovernanceLead','ComplianceOfficer') {
         if (-not $Signers.ContainsKey($k) -or [string]::IsNullOrWhiteSpace($Signers[$k])) {
             throw "Fsi21-MissingSigner:$k"
         }
     }
     $ts = Get-Date -Format "yyyyMMdd-HHmmss"
-    $runMeta = Get-RunMetadata -ChangeTicketId $ChangeTicketId -ControlId "2.1" -Cloud $Cloud
+    $runMeta = Get-RunMetadata -ChangeTicketId $ChangeTicketId
 
     Write-Host "[Fsi21] Collecting inventory..."
-    $inv = Get-Fsi-PPEnvironment -Cloud $Cloud
+    $inv = Get-Fsi-PPEnvironment
     $lic = Test-Fsi-ManagedEnvLicensing -Inventory $inv
     $pipe = Get-Fsi-PipelineTargets
 
@@ -2128,9 +1877,6 @@ function Export-Fsi-Control21-QuarterlyEvidence {
         cmkExclusions         = (Test-Fsi-Control21-CMKExclusionsDocumented -Inventory $inv -EvidencePath $EvidencePath)
         tenantIsolation       = (Test-Fsi-Control21-TenantIsolationEnabled -Dlp15ExceptionTable $Dlp15ExceptionTable)
         pipelineTargets       = (Test-Fsi-Control21-EnablementCoverage -Inventory $inv -PipelineTargetReport $pipe -ZoneAssignments $ZoneAssignments)
-        sovereignCompensating = (Test-Fsi-Control21-SovereignCompensating -Cloud $Cloud -Inventory $inv -Quarter $Quarter -EvidencePath $EvidencePath)
-        cmkServiceCoverage    = (Get-Fsi-CMKServiceCoverage -Cloud $Cloud)
-        usageInsightsAvailability = (Get-Fsi-UsageInsightsAvailability -Cloud $Cloud)
     }
 
     # Aggregate the cross-section status. Pending is preserved separately from Anomaly.
@@ -2144,7 +1890,6 @@ function Export-Fsi-Control21-QuarterlyEvidence {
         controlId       = "2.1"
         controlName     = "Managed Environments"
         quarter         = $Quarter
-        cloud           = $Cloud
         generatedAtUtc  = (Get-Date).ToUniversalTime().ToString("o")
         bundleStatus    = $bundleStatus
         sections        = $sections
@@ -2159,14 +1904,13 @@ function Export-Fsi-Control21-QuarterlyEvidence {
         }
     }
 
-    $artPath = Join-Path $EvidencePath "control-2.1-quarterly-$Quarter-$Cloud-$ts.json"
+    $artPath = Join-Path $EvidencePath "control-2.1-quarterly-$Quarter-$ts.json"
     $manifest | ConvertTo-Json -Depth 12 | Set-Content $artPath -Encoding utf8
     $sha = (Get-FileHash $artPath -Algorithm SHA256).Hash
 
     [pscustomobject]@{
         ControlId      = "2.1"
         Quarter        = $Quarter
-        Cloud          = $Cloud
         ArtefactPath   = $artPath
         ArtefactSha256 = $sha
         BundleStatus   = $bundleStatus
@@ -2192,7 +1936,7 @@ The bundle is emitted with `Status=Pending` and `SignersPending` populated. Each
 | Mode | Purpose | Mutates tenant? | Typical caller |
 |---|---|---|---|
 | `Provision` | Apply the FSI baseline (enable Managed, set sharing limits, set solution-checker, configure IP firewall in AuditOnly, configure tenant isolation) to a named environment list | **Yes** — gated by `-WhatIf` and `-ChangeTicketId` | Power Platform Admin during onboarding |
-| `Verify` | Run all eight §16 helpers and produce a console summary; no mutation | No | Power Platform Admin (weekly) |
+| `Verify` | Run all §16 helpers and produce a console summary; no mutation | No | Power Platform Admin (weekly) |
 | `Quarterly` | Verify + produce the §17 signed evidence bundle | No (read-only mutation: writes evidence file) | AI Governance Lead (quarterly) |
 
 ### 18.2 Invoke-Fsi-Control21Setup
@@ -2208,7 +1952,6 @@ function Invoke-Fsi-Control21Setup {
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]
     param(
         [Parameter(Mandatory)] [ValidateSet("Provision","Verify","Quarterly")] [string] $Mode,
-        [Parameter(Mandatory)] [ValidateSet("Commercial","GCC","GCCHigh","DoD","China")] [string] $Cloud,
         [Parameter(Mandatory)] [hashtable] $ZoneAssignments,
         [Parameter()] [object] $Dlp15ExceptionTable,
         [Parameter()] [string[]] $EnvironmentIds,
@@ -2218,15 +1961,15 @@ function Invoke-Fsi-Control21Setup {
         [Parameter()] [hashtable] $Signers
     )
     if (-not (Test-Path $EvidencePath)) { New-Item -Path $EvidencePath -ItemType Directory -Force | Out-Null }
-    $cloudProfile = Resolve-Fsi-CloudProfile -Cloud $Cloud
-    Write-Host "[Fsi21] Mode=$Mode Cloud=$Cloud Profile=$($cloudProfile | ConvertTo-Json -Compress)"
+    $runId = "fsi21-$((Get-Date).ToUniversalTime().ToString('yyyyMMddHHmmss'))"
+    Write-Host "[Fsi21] Mode=$Mode"
 
     switch ($Mode) {
         "Provision" {
             $null = Assert-Fsi-LegacyShell
             if (-not $ChangeTicketId)         { throw "Fsi21-NoChangeTicket" }
             if (-not $EnvironmentIds)         { throw "Fsi21-EmptyEnvList" }
-            Initialize-Fsi-PPSession -Cloud $Cloud
+            Initialize-Fsi-PPSession -RunId $runId -EvidencePath $EvidencePath
             foreach ($eid in $EnvironmentIds) {
                 if ($PSCmdlet.ShouldProcess($eid, "Apply Control 2.1 baseline")) {
                     Enable-Fsi-ManagedEnvironment       -EnvironmentName $eid -ChangeTicketId $ChangeTicketId -EvidencePath $EvidencePath
@@ -2242,8 +1985,8 @@ function Invoke-Fsi-Control21Setup {
         }
         "Verify" {
             $null = Assert-Fsi-LegacyShell
-            Initialize-Fsi-PPSession -Cloud $Cloud
-            $inv = Get-Fsi-PPEnvironment -Cloud $Cloud
+            Initialize-Fsi-PPSession -RunId $runId -EvidencePath $EvidencePath
+            $inv = Get-Fsi-PPEnvironment
             $lic = Test-Fsi-ManagedEnvLicensing -Inventory $inv
             $pipe = Get-Fsi-PipelineTargets
             $results = [ordered]@{
@@ -2254,7 +1997,6 @@ function Invoke-Fsi-Control21Setup {
                 IPFirewallEnforced    = Test-Fsi-Control21-IPFirewallEnforced    -Inventory $inv -ZoneAssignments $ZoneAssignments
                 CMKExclusions         = Test-Fsi-Control21-CMKExclusionsDocumented -Inventory $inv -EvidencePath $EvidencePath
                 TenantIsolation       = Test-Fsi-Control21-TenantIsolationEnabled -Dlp15ExceptionTable $Dlp15ExceptionTable
-                SovereignCompensating = Test-Fsi-Control21-SovereignCompensating -Cloud $Cloud -Inventory $inv -Quarter ($Quarter ?? "(adhoc)") -EvidencePath $EvidencePath
             }
             $statuses = $results.Values | ForEach-Object { $_.Status }
             $overall = if ($statuses -contains 'Anomaly') { 'Anomaly' }
@@ -2264,22 +2006,16 @@ function Invoke-Fsi-Control21Setup {
             $results.GetEnumerator() | ForEach-Object {
                 Write-Host ("  {0,-26} {1,-12} {2}" -f $_.Key, $_.Value.Status, ($_.Value.Reason ?? ""))
             }
-            return [pscustomobject]@{ Mode='Verify'; Cloud=$Cloud; Status=$overall; Sections=$results }
+            return [pscustomobject]@{ Mode='Verify'; Status=$overall; Sections=$results }
         }
         "Quarterly" {
             if (-not $Quarter)        { throw "Fsi21-MissingQuarter" }
             if (-not $Signers)        { throw "Fsi21-MissingSigners" }
             if (-not $ChangeTicketId) { throw "Fsi21-NoChangeTicket" }
             $null = Assert-Fsi-LegacyShell
-            Initialize-Fsi-PPSession -Cloud $Cloud
-            if ($cloudProfile.UsageInsights -eq $false) {
-                $inv2 = Get-Fsi-PPEnvironment -Cloud $Cloud
-                foreach ($e in ($inv2.Rows | Where-Object ManagedEnvironmentEnabled)) {
-                    Export-Fsi-SovereignCompensatingEvidence -Cloud $Cloud -EnvironmentName $e.EnvironmentId -Quarter $Quarter -EvidencePath $EvidencePath | Out-Null
-                }
-            }
+            Initialize-Fsi-PPSession -RunId $runId -EvidencePath $EvidencePath
             return Export-Fsi-Control21-QuarterlyEvidence `
-                -Cloud $Cloud -Quarter $Quarter -ZoneAssignments $ZoneAssignments `
+                -Quarter $Quarter -ZoneAssignments $ZoneAssignments `
                 -Dlp15ExceptionTable $Dlp15ExceptionTable -EvidencePath $EvidencePath `
                 -ChangeTicketId $ChangeTicketId -Signers $Signers
         }
@@ -2292,7 +2028,6 @@ function Invoke-Fsi-Control21Setup {
 ```powershell
 # Provision a new Zone-2 environment (Power Platform Admin, Windows PowerShell 5.1).
 Invoke-Fsi-Control21Setup -Mode Provision `
-    -Cloud Commercial `
     -EnvironmentIds @("e1c4f8a0-...") `
     -ZoneAssignments @{ "e1c4f8a0-..." = "Zone2" } `
     -ChangeTicketId "CHG0091233" `
@@ -2300,19 +2035,18 @@ Invoke-Fsi-Control21Setup -Mode Provision `
 
 # Weekly verify (Power Platform Admin).
 Invoke-Fsi-Control21Setup -Mode Verify `
-    -Cloud Commercial `
     -ZoneAssignments $zoneMap `
     -Dlp15ExceptionTable $dlpExceptions
 
 # Quarterly evidence (AI Governance Lead, post-attestation).
 Invoke-Fsi-Control21Setup -Mode Quarterly `
-    -Cloud GCCHigh -Quarter "2026Q2" `
+    -Quarter "2026Q2" `
     -ZoneAssignments $zoneMap -Dlp15ExceptionTable $dlpExceptions `
     -ChangeTicketId "CHG0091290" `
     -Signers @{
-        PowerPlatformAdmin = "ppa@fsi.example.gov"
-        AIGovernanceLead   = "aigov@fsi.example.gov"
-        ComplianceOfficer  = "comp@fsi.example.gov"
+        PowerPlatformAdmin = "ppa@fsi.example.com"
+        AIGovernanceLead   = "aigov@fsi.example.com"
+        ComplianceOfficer  = "comp@fsi.example.com"
     }
 ```
 
@@ -2327,8 +2061,8 @@ The helpers in this playbook are amenable to integration-style Pester tests agai
 ```powershell
 Describe "Control 2.1 — verification helpers" {
     BeforeAll {
-        Initialize-Fsi-PPSession -Cloud Commercial
-        $script:inv  = Get-Fsi-PPEnvironment -Cloud Commercial
+        Initialize-Fsi-PPSession -RunId "pester-control-2.1" -EvidencePath $TestDrive
+        $script:inv  = Get-Fsi-PPEnvironment
         $script:zone = @{}  # populate from your zone assignment store
         $script:dlp  = @()  # populate from your Control 1.5 export
     }
@@ -2341,16 +2075,12 @@ Describe "Control 2.1 — verification helpers" {
         $r.Status | Should -Be 'Anomaly'
         $r.Reason | Should -Match 'AzDoConnector'
     }
-    It "SovereignCompensating returns NotApplicable in Commercial" {
-        $r = Test-Fsi-Control21-SovereignCompensating -Cloud Commercial -Inventory $inv -Quarter "2026Q2" -EvidencePath $TestDrive
-        $r.Status | Should -Be 'NotApplicable'
-    }
     It "IPFirewallEnforced returns Pending for AuditOnly under tolerance" {
         # Synthetic inventory with AuditOnly aged 5 days.
         # ... shape the input accordingly ...
     }
     It "Quarterly bundle status reports Pending until three signatures are added" {
-        # Smoke test against TestDrive, mocking Get-Fsi-PPEnvironment and the eight Test-* helpers.
+        # Smoke test against TestDrive, mocking Get-Fsi-PPEnvironment and the Test-* helpers.
     }
 }
 ```
@@ -2376,8 +2106,7 @@ Describe "Control 2.1 — verification helpers" {
 |---|---|---|---|
 | On environment creation | Apply baseline | `Invoke-Fsi-Control21Setup -Mode Provision` | Power Platform Admin |
 | Weekly | Status verify | `Invoke-Fsi-Control21Setup -Mode Verify` | Power Platform Admin |
-| Weekly (commercial only) | Read Usage Insights digest | `Get-Fsi-UsageInsightsAvailability` (sanity) | AI Governance Lead |
-| Weekly (sovereign only) | Compensating evidence | `Export-Fsi-SovereignCompensatingEvidence` | AI Governance Lead |
+| Weekly | Read Usage Insights digest | PPAC weekly digest review | AI Governance Lead |
 | Within 28 days of IP Firewall enablement | AuditOnly → Enforce | `Get-Fsi-IPFirewallAuditLog`, then `Set-Fsi-IPFirewall -Mode Enforce` | Power Platform Admin |
 | Quarterly | Signed evidence bundle | `Invoke-Fsi-Control21Setup -Mode Quarterly` | AI Governance Lead (orchestrates), Compliance Officer (signs) |
 | Quarterly | Tenant-isolation exception re-attestation | `Test-Fsi-Control21-TenantIsolationEnabled` | Power Platform Admin |
@@ -2391,8 +2120,7 @@ The following table lists every `Fsi-*` helper introduced in this playbook, the 
 |---|---|---|---|
 | `Assert-Fsi-LegacyShell` | n/a (env check) | 5.1 Desktop | Throws `Fsi21-WrongShell` on 7.x |
 | `Assert-Fsi-AzShell` | n/a (env check) | 7.4 Core | Throws `Fsi21-WrongShell` on 5.1 |
-| `Resolve-Fsi-CloudProfile` | n/a (table) | both | Returns feature-availability matrix |
-| `Initialize-Fsi-PPSession` | Microsoft.PowerApps.Administration.PowerShell | 5.1 Desktop | Sovereign-aware |
+| `Initialize-Fsi-PPSession` | Microsoft.PowerApps.Administration.PowerShell | 5.1 Desktop | Session bootstrap |
 | `Initialize-Fsi-AzSession` | Az.Accounts, Az.PowerPlatform, Microsoft.Graph | 7.4 Core | Conditional-access aware |
 | `Get-Fsi-CmdletAvailability` | n/a (introspection) | both | Diagnostic |
 | `Get-RunMetadata` | shared baseline | both | Standard run header |
@@ -2406,7 +2134,7 @@ The following table lists every `Fsi-*` helper introduced in this playbook, the 
 | `Set-Fsi-IPFirewall` | Microsoft.PowerApps.Administration.PowerShell | 5.1 Desktop | Mutation; default AuditOnly |
 | `Get-Fsi-IPFirewallAuditLog` | Az.PowerPlatform / REST | 7.4 Core | Calibration source |
 | `Set-Fsi-IPCookieBinding` | Microsoft.PowerApps.Administration.PowerShell | 5.1 Desktop | Mutation |
-| `Set-Fsi-CustomerLockbox` | Az.PowerPlatform / REST | 7.4 Core | Mutation; cloud-gated |
+| `Set-Fsi-CustomerLockbox` | Az.PowerPlatform / REST | 7.4 Core | Mutation |
 | `New-Fsi-CMKPolicy` | Az.PowerPlatform | 7.4 Core | Mutation; KV hardening required |
 | `Add-Fsi-CMKPolicyToEnvironment` | Az.PowerPlatform | 7.4 Core | Mutation; emits exclusion narrative |
 | `Test-Fsi-CMKExclusions` | Az.PowerPlatform | 7.4 Core | Read-only |
@@ -2415,9 +2143,6 @@ The following table lists every `Fsi-*` helper introduced in this playbook, the 
 | `Set-Fsi-EnvironmentRouting` | Microsoft.PowerApps.Administration.PowerShell | 5.1 Desktop | Mutation; not region selection |
 | `Get-Fsi-PipelineTargets` | Microsoft.PowerApps.Administration.PowerShell | 5.1 Desktop | Inventory |
 | `Enable-Fsi-PipelineTargetsManagedEnv` | Microsoft.PowerApps.Administration.PowerShell | 5.1 Desktop | Mutation |
-| `Get-Fsi-UsageInsightsAvailability` | n/a (table) | both | Sovereign-aware |
-| `Get-Fsi-CMKServiceCoverage` | n/a (table) | both | Sovereign-aware |
-| `Export-Fsi-SovereignCompensatingEvidence` | Microsoft.Graph, ExchangeOnlineManagement (Search-UnifiedAuditLog) | 7.4 Core | Substitute evidence |
 | `Test-Fsi-Control21-EnablementCoverage` | composes inventory | 5.1 Desktop | Verification |
 | `Test-Fsi-Control21-LicensingCoverage` | wraps Test-Fsi-ManagedEnvLicensing | both | Verification |
 | `Test-Fsi-Control21-SharingLimitsBaseline` | Microsoft.PowerApps.Administration.PowerShell | 5.1 Desktop | Verification |
@@ -2425,7 +2150,6 @@ The following table lists every `Fsi-*` helper introduced in this playbook, the 
 | `Test-Fsi-Control21-IPFirewallEnforced` | Microsoft.PowerApps.Administration.PowerShell | 5.1 Desktop | Verification |
 | `Test-Fsi-Control21-CMKExclusionsDocumented` | filesystem | both | Verification |
 | `Test-Fsi-Control21-TenantIsolationEnabled` | Microsoft.PowerApps.Administration.PowerShell | 5.1 Desktop | Verification |
-| `Test-Fsi-Control21-SovereignCompensating` | filesystem | both | Verification |
 | `Export-Fsi-Control21-QuarterlyEvidence` | composes §16 helpers | 5.1 Desktop (driver) | Three-signer manifest |
 | `Invoke-Fsi-Control21Setup` | composes everything above | 5.1 Desktop (driver) | Top-level orchestrator |
 

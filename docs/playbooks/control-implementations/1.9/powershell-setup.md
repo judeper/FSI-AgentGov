@@ -6,7 +6,7 @@
 **Companion playbooks:** [Portal walkthrough](./portal-walkthrough.md) · [Verification & testing](./verification-testing.md) · [Troubleshooting](./troubleshooting.md)
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running anything below, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for `ExchangeOnlineManagement` version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), and SHA-256 evidence emission. Snippets below assume that baseline is in effect.
+    Before running anything below, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for `ExchangeOnlineManagement` version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), and SHA-256 evidence emission. Snippets below assume that baseline is in effect.
 
 > This playbook automates Control 1.9 via **Security & Compliance PowerShell** (the IPPS endpoint exposed by `ExchangeOnlineManagement`). Every mutating command below is wrapped in safety checks, supports `-WhatIf`, and writes evidence artifacts intended for examiner production.
 >
@@ -42,13 +42,7 @@ The signed-in account must hold **Purview Records Manager** *and* **Purview Comp
 # Commercial cloud
 Connect-IPPSSession -ShowBanner:$false
 
-# GCC High
-# Connect-IPPSSession -ConnectionUri https://ps.compliance.protection.office365.us/powershell-liveid/ `
-#     -AzureADAuthorizationEndpointUri https://login.microsoftonline.us/common -ShowBanner:$false
 
-# DoD
-# Connect-IPPSSession -ConnectionUri https://l5.ps.compliance.protection.office365.us/powershell-liveid/ `
-#     -AzureADAuthorizationEndpointUri https://login.microsoftonline.us/common -ShowBanner:$false
 ```
 
 Verify the session:

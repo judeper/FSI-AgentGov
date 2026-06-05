@@ -1,7 +1,7 @@
 # PowerShell Setup: Control 1.4 — Advanced Connector Policies (ACP)
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
 
 > Automation guide for [Control 1.4 — Advanced Connector Policies (ACP)](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md). ACP rule authoring is currently a portal + Power Platform REST API operation — the `Microsoft.PowerApps.Administration.PowerShell` and `Microsoft.PowerApps.PowerShell` modules expose the **prerequisite** Managed Environment, environment group, and classic DLP surface plus **evidence-collection** read paths. Use REST for the ACP rule body itself.
 
@@ -27,21 +27,20 @@ if ($PSVersionTable.PSEdition -ne 'Desktop') {
 
 ---
 
-## 2. Authenticate (sovereign-cloud aware)
+## 2. Authenticate
 
 ```powershell
 param(
-    [ValidateSet('prod','usgov','usgovhigh','dod')] [string]$Endpoint = 'prod'
+    [string]$Endpoint = 'prod'
 )
 
 # Interactive (recommended for change windows under PIM elevation)
-Add-PowerAppsAccount -Endpoint $Endpoint
+Add-PowerAppsAccount
 
 # Unattended (service principal). Store secret in Key Vault, never in source.
-# Add-PowerAppsAccount -Endpoint $Endpoint -ApplicationId $appId -ClientSecret $secret -TenantID $tenantId
+# Add-PowerAppsAccount -ApplicationId $appId -ClientSecret $secret -TenantID $tenantId
 ```
 
-Wrong `-Endpoint` against a sovereign tenant returns zero environments and produces **false-clean** evidence. See baseline §3.
 
 ---
 
@@ -65,7 +64,7 @@ if (-not $isManaged) {
 }
 
 # 3b. Confirm region is United States
-if ($env.Location -notmatch '^(unitedstates|usgov|usgovhigh|dod)') {
+if ($env.Location -notmatch '^unitedstates') {
     Write-Warning "Environment region '$($env.Location)' is not US. Confirm zone classification before proceeding."
 }
 

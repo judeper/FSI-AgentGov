@@ -1,7 +1,7 @@
 # Control 3.7: PPAC Security Posture Assessment — PowerShell Setup
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running anything in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below assume those patterns and reference them by section number.
+    Before running anything in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below assume those patterns and reference them by section number.
 
 > Automation scripts for [Control 3.7](../../../controls/pillar-3-reporting/3.7-ppac-security-posture-assessment.md). All cmdlets in this playbook are **read-only collectors** — they do not change tenant state. Even so, scripts emit SHA-256-hashed evidence so the posture review itself is audit-defensible under SEC 17a-4(f) and FINRA 4511.
 
@@ -39,32 +39,16 @@ Install-Module -Name Microsoft.Graph `
 
 ---
 
-## Sovereign-aware authentication (baseline §3)
+## Commercial cloud authentication
 
 ```powershell
 param(
-    [ValidateSet('prod','usgov','usgovhigh','dod')]
     [string]$Endpoint = 'prod'
 )
 
-# Microsoft Graph national cloud names per Connect-MgGraph -Environment:
-# Global   = commercial (graph.microsoft.com) — also covers M365 GCC; per Microsoft Learn:
-#            "If you're working in a Microsoft 365 GCC environment, continue using the
-#            worldwide endpoints: graph.microsoft.com" (https://learn.microsoft.com/en-us/graph/deployments)
-# USGov    = GCC High (graph.microsoft.us)
-# USGovDoD = DoD L5 (dod-graph.microsoft.us)
-# China    = 21Vianet (microsoftgraph.chinacloudapi.cn).
-# FSI cloud-name mapping (left): usgovhigh -> Microsoft Graph 'USGov'; dod -> 'USGovDoD'.
-# KNOWN LIMITATION: FSI 'usgov' (M365 GCC) currently maps to Graph 'USGov' below; per the
-# Learn note above, M365 GCC tenants should use the Global endpoint. This is a pre-existing
-# mapping carried over from earlier framework revisions; see issue tracker for reconciliation.
-$graphEnv = @{ prod='Global'; usgov='USGov'; usgovhigh='USGov'; dod='USGovDoD' }[$Endpoint]
-
 Add-PowerAppsAccount -Endpoint $Endpoint
-Connect-MgGraph -Environment $graphEnv -Scopes 'SecurityEvents.Read.All','Policy.Read.All'
+Connect-MgGraph -Environment 'Global' -Scopes 'SecurityEvents.Read.All','Policy.Read.All'
 ```
-
-> **Failure to pass `-Endpoint` in a sovereign tenant authenticates against commercial endpoints, returns zero environments, and produces false-clean assessment results.**
 
 ---
 
@@ -175,7 +159,7 @@ function Get-Control37TenantSettings {
     DOES NOT mutate tenant state.
 
 .PARAMETER Endpoint
-    Sovereign cloud endpoint: prod | usgov | usgovhigh | dod (baseline §3).
+    Power Platform endpoint: prod (default).
 
 .PARAMETER EvidencePath
     Output directory for evidence and report. Defaults to .\evidence-3.7.
@@ -185,7 +169,6 @@ function Get-Control37TenantSettings {
 #>
 [CmdletBinding()]
 param(
-    [ValidateSet('prod','usgov','usgovhigh','dod')]
     [string]$Endpoint = 'prod',
 
     [string]$EvidencePath = ".\evidence-3.7"
@@ -203,21 +186,9 @@ $ts = Get-Date -Format 'yyyyMMdd-HHmmss'
 Start-Transcript -Path "$EvidencePath\transcript-$ts.log" -IncludeInvocationHeader
 
 try {
-    # Sovereign-aware sign-in (baseline §3)
-    # Microsoft Graph national cloud names per Connect-MgGraph -Environment:
-    # Global   = commercial (graph.microsoft.com) — also covers M365 GCC; per Microsoft Learn:
-    #            "If you're working in a Microsoft 365 GCC environment, continue using the
-    #            worldwide endpoints: graph.microsoft.com" (https://learn.microsoft.com/en-us/graph/deployments)
-    # USGov    = GCC High (graph.microsoft.us)
-    # USGovDoD = DoD L5 (dod-graph.microsoft.us)
-    # China    = 21Vianet (microsoftgraph.chinacloudapi.cn).
-    # FSI cloud-name mapping (left): usgovhigh -> Microsoft Graph 'USGov'; dod -> 'USGovDoD'.
-    # KNOWN LIMITATION: FSI 'usgov' (M365 GCC) currently maps to Graph 'USGov' below; per the
-    # Learn note above, M365 GCC tenants should use the Global endpoint. This is a pre-existing
-    # mapping carried over from earlier framework revisions; see issue tracker for reconciliation.
-    $graphEnv = @{ prod='Global'; usgov='USGov'; usgovhigh='USGov'; dod='USGovDoD' }[$Endpoint]
+    # Commercial cloud sign-in
     Add-PowerAppsAccount -Endpoint $Endpoint | Out-Null
-    Connect-MgGraph -Environment $graphEnv -Scopes 'SecurityEvents.Read.All','Policy.Read.All' -NoWelcome | Out-Null
+    Connect-MgGraph -Environment 'Global' -Scopes 'SecurityEvents.Read.All','Policy.Read.All' -NoWelcome | Out-Null
 
     Write-Host "Collecting environment posture..." -ForegroundColor Cyan
     $envPosture = Get-Control37EnvironmentPosture

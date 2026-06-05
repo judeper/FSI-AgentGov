@@ -1,4 +1,4 @@
-# Control 4.7: M365 Copilot Data Governance — PowerShell Setup
+﻿# Control 4.7: M365 Copilot Data Governance — PowerShell Setup
 
 > **Companion documents:** [Control 4.7](../../../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) · [Portal Walkthrough](portal-walkthrough.md) · [Verification & Testing](verification-testing.md) · [Troubleshooting](troubleshooting.md) · [PowerShell Baseline](../../_shared/powershell-baseline.md)
 >
@@ -12,7 +12,7 @@
 >
 > **Roles required (canonical).** Entra Global Admin (one-time consent), Purview Compliance Admin (labels, DLP, retention), SharePoint Admin (RSS, multi-geo), Microsoft 365 Copilot administrator role for tenant-level Copilot policy in the Microsoft 365 admin center.
 >
-> **Apr 2026 sovereign and subprocessor notice.** Microsoft 365 Copilot is generally available in **Commercial**, **GCC**, and **GCC High**. Copilot is **not generally available in DoD or in the Microsoft Cloud for China operated by 21Vianet**; this playbook hard-stops in those clouds. Anthropic Claude is an enabled-by-default subprocessor for selected Researcher and Microsoft Copilot Studio scenarios in **Commercial**, is **disabled by default in EU/EFTA/UK** tenants, and is **not available in GCC, GCC High, or DoD**. Anthropic processing occurs **outside the EU Data Boundary**.
+> **Apr 2026 subprocessor notice.** This playbook targets the Microsoft Commercial/Global cloud. Anthropic Claude is an enabled-by-default subprocessor for selected Researcher and Microsoft Copilot Studio scenarios in Commercial, is **disabled by default in EU/EFTA/UK** tenants, and is not available in EU/EFTA/UK tenants without explicit opt-in. Anthropic processing occurs **outside the EU Data Boundary**.
 
 ---
 
@@ -41,10 +41,10 @@ if ($PSVersionTable.PSEdition -ne 'Core' -or $PSVersionTable.PSVersion -lt [Vers
 - **PnP v1 still on PSModulePath.** Even in PS 7.4, if a stale v1 assembly loads first (`Import-Module PnP.PowerShell -RequiredVersion 1.12.0` from a prior session), Copilot Pages container cmdlets are missing. Validate with `(Get-Module PnP.PowerShell).Version.Major -eq 2`.
 - **Microsoft.Graph autoload of v1.** A user-scope `Microsoft.Graph 1.x` install can preempt the system-wide v2 install. Pin with `-RequiredVersion` (§1).
 - **Cached delegated tokens.** A previous interactive Graph session can mask a missing app role. Always run `Disconnect-MgGraph` in the session opener.
-- **Region-mismatched SPO Admin URL.** Connecting to the wrong sovereign endpoint (e.g., `.com` against a GCC High tenant) returns `403 Forbidden` on tenant cmdlets — never `404` — which scripts often treat as a transient error. The bootstrap resolves the endpoint per cloud (§2) before any tenant call.
+
 - **"Set-LabelPolicy succeeded" with no actual rule change.** `Set-LabelPolicy` returns success when only metadata fields change, leaving the rule body untouched. The mutation pattern in §4 always re-reads via `Get-LabelPolicy` and verifies the field after the change.
 
-> **Reminder:** This playbook is a programmatic complement to the [PowerShell Baseline](../../_shared/powershell-baseline.md). Section numbers in the baseline are referenced inline (BL-§1 = module pinning, BL-§2 = edition, BL-§3 = mutation safety, BL-§4 = SHA-256 evidence, BL-§5 = Dataverse cmdlet quirks, BL-§6 = authoring convention).
+> **Reminder:** This playbook is a programmatic complement to the [PowerShell Baseline](../../_shared/powershell-baseline.md). Section numbers in the baseline are referenced inline (BL-§1 = module pinning, BL-§2 = edition, BL-§4 = mutation safety, BL-§5 = SHA-256 evidence).
 
 ---
 
@@ -86,87 +86,16 @@ foreach ($m in $Required) {
 
 ---
 
-## 2. Sovereign-aware bootstrap: `Initialize-Agt47Session`
+## 2. Bootstrap: `Initialize-Agt47Session`
 
-The bootstrap resolves the sovereign cloud, validates the shell and modules, opens authenticated sessions to Graph, the Security & Compliance Center (IPPS), SharePoint Online, and PnP, and emits a session manifest. It is the **only entry point** for every other function in this playbook. See [BL-§3](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod) for sovereign endpoint reference.
+The bootstrap validates the shell and modules, opens authenticated sessions to Graph, the Security & Compliance Center (IPPS), SharePoint Online, and PnP, and emits a session manifest. It is the **only entry point** for every other function in this playbook.
 
 ```powershell
-function Resolve-Agt47CloudProfile {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)]
-        [ValidateSet('Commercial','GCC','GCCHigh','DoD','China')]
-        [string]$Cloud,
-
-        [Parameter(Mandatory)]
-        [string]$TenantDomainPrefix
-    )
-
-    switch ($Cloud) {
-        'Commercial' {
-            return [pscustomobject]@{
-                Cloud         = 'Commercial'
-                GraphEnv      = 'Global'
-                SpoAdminUrl   = "https://$TenantDomainPrefix-admin.sharepoint.com"
-                IppsConnUri   = $null  # default
-                AzureEnv      = 'AzureCloud'
-                CopilotGA     = $true
-                AnthropicDefault = 'Enabled-NonEU'
-            }
-        }
-        'GCC' {
-            return [pscustomobject]@{
-                Cloud         = 'GCC'
-                GraphEnv      = 'USGov'
-                SpoAdminUrl   = "https://$TenantDomainPrefix-admin.sharepoint.com"
-                IppsConnUri   = $null
-                AzureEnv      = 'AzureUSGovernment'
-                CopilotGA     = $true
-                AnthropicDefault = 'NotAvailable'
-            }
-        }
-        'GCCHigh' {
-            return [pscustomobject]@{
-                Cloud         = 'GCCHigh'
-                GraphEnv      = 'USGov'
-                SpoAdminUrl   = "https://$TenantDomainPrefix-admin.sharepoint.us"
-                IppsConnUri   = 'https://ps.compliance.protection.office365.us/powershell-liveid/'
-                AzureEnv      = 'AzureUSGovernment'
-                CopilotGA     = $true
-                AnthropicDefault = 'NotAvailable'
-            }
-        }
-        'DoD' {
-            return [pscustomobject]@{
-                Cloud         = 'DoD'
-                GraphEnv      = 'USGovDoD'
-                SpoAdminUrl   = "https://$TenantDomainPrefix-admin.sharepoint-mil.us"
-                IppsConnUri   = 'https://l5.ps.compliance.protection.office365.us/powershell-liveid/'
-                AzureEnv      = 'AzureUSGovernment'
-                CopilotGA     = $false
-                AnthropicDefault = 'NotAvailable'
-            }
-        }
-        'China' {
-            return [pscustomobject]@{
-                Cloud         = 'China'
-                GraphEnv      = 'China'
-                SpoAdminUrl   = "https://$TenantDomainPrefix-admin.sharepoint.cn"
-                IppsConnUri   = 'https://ps.compliance.protection.partner.outlook.cn/powershell-liveid/'
-                AzureEnv      = 'AzureChinaCloud'
-                CopilotGA     = $false
-                AnthropicDefault = 'NotAvailable'
-            }
-        }
-    }
-}
-
 function Initialize-Agt47Session {
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact='Medium')]
     param(
         [Parameter(Mandatory)] [string] $TenantId,
         [Parameter(Mandatory)] [string] $TenantDomainPrefix,
-        [Parameter(Mandatory)] [ValidateSet('Commercial','GCC','GCCHigh','DoD','China')] [string] $Cloud,
         [Parameter(Mandatory)] [string] $EvidenceRoot,
         [string] $RunId = (Get-Date -Format 'yyyyMMdd-HHmmss')
     )
@@ -175,68 +104,56 @@ function Initialize-Agt47Session {
         Write-Error "Agt47: PowerShell 7.4+ Core required. Exiting fail-closed."; exit 2
     }
 
-    $profile = Resolve-Agt47CloudProfile -Cloud $Cloud -TenantDomainPrefix $TenantDomainPrefix
-    if (-not $profile.CopilotGA) {
-        Write-Error "Agt47: Microsoft 365 Copilot is not generally available in $Cloud. Hard-stop."; exit 2
-    }
-
-    $sessionDir = Join-Path $EvidenceRoot "agt47-$RunId"
+    $spoAdminUrl = "https://$TenantDomainPrefix-admin.sharepoint.com"
+    $sessionDir  = Join-Path $EvidenceRoot "agt47-$RunId"
     $null = New-Item -ItemType Directory -Path $sessionDir -Force
 
     Disconnect-MgGraph -ErrorAction SilentlyContinue | Out-Null
-    Connect-MgGraph -TenantId $TenantId -Environment $profile.GraphEnv -Scopes @(
+    Connect-MgGraph -TenantId $TenantId -Environment 'Global' -Scopes @(
         'Directory.Read.All','Policy.Read.All','RoleManagement.Read.Directory',
         'InformationProtectionPolicy.Read','User.Read.All'
     ) -NoWelcome
 
-    Connect-Agt47Compliance  -Profile $profile
-    Connect-Agt47SharePoint  -Profile $profile
-    Connect-PnPOnline -Url $profile.SpoAdminUrl -Interactive -AzureEnvironment $profile.AzureEnv | Out-Null
+    Connect-Agt47Compliance
+    Connect-Agt47SharePoint -SpoAdminUrl $spoAdminUrl
+    Connect-PnPOnline -Url $spoAdminUrl -Interactive -AzureEnvironment 'Production' | Out-Null
 
     $session = [pscustomobject]@{
-        RunId            = $RunId
-        Cloud            = $profile.Cloud
-        TenantId         = $TenantId
-        SpoAdminUrl      = $profile.SpoAdminUrl
-        IppsConnUri      = $profile.IppsConnUri
-        SessionDir       = $sessionDir
-        StartedAtUtc     = (Get-Date).ToUniversalTime().ToString('o')
-        ShellEdition     = $PSVersionTable.PSEdition
-        ShellVersion     = $PSVersionTable.PSVersion.ToString()
-        Modules          = (Get-Module Microsoft.Graph,Microsoft.Graph.Beta,Microsoft.Online.SharePoint.PowerShell,ExchangeOnlineManagement,PnP.PowerShell |
-                              Select-Object Name,Version)
-        AnthropicDefault = $profile.AnthropicDefault
+        RunId        = $RunId
+        Cloud        = 'Commercial'
+        TenantId     = $TenantId
+        SpoAdminUrl  = $spoAdminUrl
+        SessionDir   = $sessionDir
+        StartedAtUtc = (Get-Date).ToUniversalTime().ToString('o')
+        ShellEdition = $PSVersionTable.PSEdition
+        ShellVersion = $PSVersionTable.PSVersion.ToString()
+        Modules      = (Get-Module Microsoft.Graph,Microsoft.Graph.Beta,Microsoft.Online.SharePoint.PowerShell,ExchangeOnlineManagement,PnP.PowerShell |
+                          Select-Object Name,Version)
     }
     $session | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $sessionDir 'session.json') -Encoding utf8
     return $session
 }
 
 function Connect-Agt47Compliance {
-    param([Parameter(Mandatory)] $Profile)
-    if ($Profile.IppsConnUri) {
-        Connect-IPPSSession -ConnectionUri $Profile.IppsConnUri -ShowBanner:$false
-    } else {
-        Connect-IPPSSession -ShowBanner:$false
-    }
+    Connect-IPPSSession -ShowBanner:$false
 }
 
 function Connect-Agt47SharePoint {
-    param([Parameter(Mandatory)] $Profile)
-    Connect-SPOService -Url $Profile.SpoAdminUrl
+    param([Parameter(Mandatory)] [string] $SpoAdminUrl)
+    Connect-SPOService -Url $SpoAdminUrl
 }
 ```
 
-**Why a single bootstrap.** Every state-changing function in this playbook (`Set-Agt47*`) refuses to run unless `$script:Agt47Session` is populated by `Initialize-Agt47Session`. This guarantees that sovereign endpoint resolution, shell validation, evidence-folder creation, and module pinning occur exactly once per run, and that every mutation is recorded against a single `RunId`.
+**Why a single bootstrap.** Every state-changing function in this playbook (`Set-Agt47*`) refuses to run unless `$script:Agt47Session` is populated by `Initialize-Agt47Session`. This guarantees that shell validation, evidence-folder creation, and module pinning occur exactly once per run, and that every mutation is recorded against a single `RunId`.
 
 ---
-
 ## 3. Pre-flight gates: `Test-Agt47Prerequisites`
 
 Pre-flight gates are mandatory. They run after the bootstrap and before any mutation, and they fail closed if any of the following are missing.
 
 | Gate | Verifies | Fail-closed exit |
 |---|---|---|
-| License inventory | At least one assigned `Microsoft_365_Copilot` SKU (or `Microsoft_365_Copilot_for_Government` in GCC/GCC High) | exit 2 |
+| License inventory | At least one assigned `Microsoft_365_Copilot` SKU | exit 2 |
 | RBAC: Compliance Administrator | Caller holds the role required for label and DLP cmdlets | exit 2 |
 | RBAC: SharePoint Administrator | Caller holds the role required for `Set-SPOTenant` and RSS cmdlets | exit 2 |
 | Cmdlet surface: RSS | `Set-SPOTenant` exposes `-RestrictedSearchApplicableToAllSites` (preferred) OR `Set-SPOTenantRestrictedSearchMode` is present (fallback) | exit 2 |
@@ -252,7 +169,7 @@ function Test-Agt47Prerequisites {
 
     # License
     $skus = Get-MgSubscribedSku -All
-    $copilotSkus = @('Microsoft_365_Copilot','Microsoft_365_Copilot_for_Government')
+    $copilotSkus = @('Microsoft_365_Copilot')
     $assigned = $skus | Where-Object { $copilotSkus -contains $_.SkuPartNumber -and $_.ConsumedUnits -gt 0 }
     if (-not $assigned) {
         $issues += [pscustomobject]@{ Severity='Blocker'; Gate='License';      Detail='No assigned Microsoft 365 Copilot SKU detected.' }
@@ -318,7 +235,7 @@ The `Write-Agt47Evidence` helper used throughout this playbook is defined in §1
 
 Sensitivity labels are the cornerstone of Copilot grounding governance. Labels drive which content Copilot can summarize, paraphrase, and cite, which content is excluded from grounding via DLP rules (§5), and which content is excluded from search index expansion via RSS (§6). FSI tenants typically operate four labels: `Public`, `Internal`, `Confidential`, and `Highly Confidential\NPI` (or `MNPI`). The label structure is created through Control 1.5 (Data Loss Prevention (DLP) and Sensitivity Labels). This control consumes that label taxonomy and configures the **policy** that publishes labels to Copilot-licensed users.
 
-The mutation pattern follows [BL-§3](../../_shared/powershell-baseline.md#3-mutation-safety-supportsshouldprocess-whatif-snapshot):
+The mutation pattern follows [BL-§4](../../_shared/powershell-baseline.md#4-mutation-safety-supportsshouldprocess-whatif-snapshot):
 
 1. Bootstrap session (§2)
 2. Pre-flight gates (§3)
@@ -794,7 +711,6 @@ function Test-Agt47MultiGeoScope {
         CrossGeoMoved   = $crossGeo
         CrossGeoSearch  = $crossGeoSearch
         Issues          = $issues
-        AnthropicDefault = $Session.AnthropicDefault
     }
     if ($issues) { return 1 } else { return 0 }
 }
@@ -804,7 +720,6 @@ function Test-Agt47MultiGeoScope {
 
 - For tenants with an EU/EFTA/UK footprint, confirm that the **Anthropic Claude subprocessor is disabled by default** and that no admin override has flipped it on for a Researcher or Copilot Studio scenario. Anthropic processing is **outside the EU Data Boundary**.
 - For US-only tenants in Commercial cloud, Anthropic is **enabled by default** for selected scenarios; document this in your Vendor & Subprocessor inventory under Control 2.7 and the Procurement Diligence pack (Control 2.10).
-- In GCC, GCC High, and DoD, Anthropic is **not available**; this function will not flag anything beyond the standard multi-geo posture.
 
 ---
 
@@ -895,11 +810,6 @@ function Test-Agt47Implementation {
     $retention = Get-RetentionCompliancePolicy | Where-Object { $_.TeamsChatLocation }
     if (-not $retention) { Add-F 'Blocker' 'Retention' 'No retention policy targets Copilot interactions (TeamsChatLocation).' }
 
-    # Sovereign / Anthropic posture
-    if ($Session.Cloud -in @('GCC','GCCHigh','DoD','China') -and $Session.AnthropicDefault -ne 'NotAvailable') {
-        Add-F 'Blocker' 'Subprocessor' 'Anthropic posture mismatch for sovereign cloud; investigate.'
-    }
-
     Write-Agt47Evidence -Session $Session -Stage 'validate' -Payload @{ Findings=$findings }
 
     $blockers = $findings | Where-Object Severity -eq 'Blocker'
@@ -922,10 +832,9 @@ function Invoke-Agt47Verification {
     param(
         [Parameter(Mandatory)] [string] $TenantId,
         [Parameter(Mandatory)] [string] $TenantDomainPrefix,
-        [Parameter(Mandatory)] [ValidateSet('Commercial','GCC','GCCHigh','DoD','China')] [string] $Cloud,
         [Parameter(Mandatory)] [string] $EvidenceRoot
     )
-    $session = Initialize-Agt47Session -TenantId $TenantId -TenantDomainPrefix $TenantDomainPrefix -Cloud $Cloud -EvidenceRoot $EvidenceRoot
+    $session = Initialize-Agt47Session -TenantId $TenantId -TenantDomainPrefix $TenantDomainPrefix -EvidenceRoot $EvidenceRoot
     $script:Agt47Session = $session
     $pf = Test-Agt47Prerequisites -Session $session
     if ($pf -eq 2) { exit 2 }
@@ -961,31 +870,7 @@ The `Digest` field in `manifest.json` is the SHA-256 of the pipe-joined per-file
 
 ---
 
-## 11. Sovereign cloud matrix
-
-The matrix below is normative for `Initialize-Agt47Session` and `Resolve-Agt47CloudProfile`. Verify each value against your tenant before scripting against a new cloud.
-
-| Cloud | Graph `-Environment` | SPO Admin URL pattern | IPPS `-ConnectionUri` | Azure environment | Copilot GA | Anthropic default |
-|---|---|---|---|---|---|---|
-| Commercial | `Global` | `https://<tenant>-admin.sharepoint.com` | (default) | `AzureCloud` | Yes | Enabled (non-EU/EFTA/UK) |
-| GCC | `USGov` | `https://<tenant>-admin.sharepoint.com` | (default) | `AzureUSGovernment` | Yes | Not available |
-| GCC High | `USGov` | `https://<tenant>-admin.sharepoint.us` | `https://ps.compliance.protection.office365.us/powershell-liveid/` | `AzureUSGovernment` | Yes | Not available |
-| DoD | `USGovDoD` | `https://<tenant>-admin.sharepoint-mil.us` | `https://l5.ps.compliance.protection.office365.us/powershell-liveid/` | `AzureUSGovernment` | **No (hard-stop)** | Not available |
-| China (21Vianet) | `China` | `https://<tenant>-admin.sharepoint.cn` | `https://ps.compliance.protection.partner.outlook.cn/powershell-liveid/` | `AzureChinaCloud` | **No (hard-stop)** | Not available |
-
-**Cmdlet surface differences worth noting.**
-
-- **GCC High and DoD** lag Commercial by 1-2 release trains for `Set-SPOTenant` parameters. The §6 probe accommodates this; if you encounter `RestrictedSearchApplicableToAllSites` missing in a GCC High tenant, use the legacy fallback and open a ticket with Microsoft 365 Government cmdlet support to request parity.
-- **DoD and China** are excluded by `Initialize-Agt47Session` because Microsoft 365 Copilot is not generally available there as of April 2026. Re-evaluate every release; remove the hard-stop only after Microsoft confirms GA in your specific cloud.
-- **Anthropic posture in Commercial EU/EFTA/UK** is **disabled by default**. The `AnthropicDefault` value in the session manifest helps your auditor confirm the posture at run-time.
-
-**Sample evidence pack disclosure (FINRA 3110 supervisory binder).**
-
-> "On 2026-04-15 at 13:42 UTC the Agt47 verification suite ran against tenant `contoso.onmicrosoft.us` (GCC High) under run ID `20260415-134200`. Restricted SharePoint Search is enabled; allow-list contains 38 sites; DLP policy `FSI-Copilot-Governance` enforces both prompt-side SIT block and grounding-side label exclusion under the `MicrosoftCopilotExperience` workload; Endpoint DLP rule `FSI-Copilot-Endpoint` blocks `pasteToCopilot` on Edge and Chrome; retention policy `FSI-Copilot-7yr` enforces 7-year retain-and-delete; Anthropic subprocessor is reported `NotAvailable` (correct for GCC High). Manifest digest `4f6c...e1a9`."
-
----
-
-## 12. Anti-patterns
+## 11. Anti-patterns
 
 The 18 anti-patterns below are the false-clean and silent-failure modes most often observed in FSI Copilot governance engagements. Each names the symptom, the root cause, and the §-anchored remediation.
 
@@ -1004,11 +889,10 @@ The 18 anti-patterns below are the false-clean and silent-failure modes most oft
 | 11 | Treating Copilot Notebook deletion as recoverable from a recycle bin | No user-facing recycle bin; recovery requires admin within retention window | §8 guidance |
 | 12 | Skipping `-WhatIf` on first run in production | Drift surface created without rehearsal; rollback hard | §4/§5/§6/§7/§8 mutation pattern requires `-WhatIf` then `-Force` |
 | 13 | Ignoring `Disconnected` cached tokens between runs | Stale delegated context masks a missing app role | §2 explicit `Disconnect-MgGraph` at session open |
-| 14 | Connecting to commercial SPO Admin URL in a sovereign tenant | `403 Forbidden` mistaken for transient; script "succeeds" with no changes | §2 sovereign profile resolution before any tenant call |
-| 15 | Anthropic enabled in EU/EFTA/UK without admin override review | Customer data may leave EU Data Boundary unexpectedly | §9 multi-geo posture probe; document under Control 2.10 |
-| 16 | Running `Set-LabelPolicy` without re-reading the policy after | Cmdlet returns success even when no rule body changed; drift goes unnoticed | §4 after-snapshot and field-level verify |
-| 17 | Allowing `BlockAccessScope = 'All'` on grounding-side rule | Generates noisy alerts against anonymous web crawlers; obscures real Copilot violations | §5 enforces `'PerUser'` |
-| 18 | Skipping pre-flight gates because "the policy already exists" | Misses license drift, RBAC loss, cmdlet-surface regression | §3 mandatory; `Invoke-Agt47Verification` always runs `Test-Agt47Prerequisites` first |
+| 14 | Anthropic enabled in EU/EFTA/UK without admin override review | Customer data may leave EU Data Boundary unexpectedly | §9 multi-geo posture probe; document under Control 2.10 |
+| 15 | Running `Set-LabelPolicy` without re-reading the policy after | Cmdlet returns success even when no rule body changed; drift goes unnoticed | §4 after-snapshot and field-level verify |
+| 16 | Allowing `BlockAccessScope = 'All'` on grounding-side rule | Generates noisy alerts against anonymous web crawlers; obscures real Copilot violations | §5 enforces `'PerUser'` |
+| 17 | Skipping pre-flight gates because "the policy already exists" | Misses license drift, RBAC loss, cmdlet-surface regression | §3 mandatory; `Invoke-Agt47Verification` always runs `Test-Agt47Prerequisites` first |
 
 ---
 
@@ -1026,7 +910,7 @@ The 18 anti-patterns below are the false-clean and silent-failure modes most oft
 - **Control 2.7** — Change Management (governs module pinning updates in §1)
 - **Control 2.10** — Procurement Diligence (Anthropic / subprocessor disclosure)
 - **Control 1.10** — Defender for Endpoint onboarding (gates §7)
-- **PowerShell Baseline** — [Shared module pinning, sovereign endpoints, mutation safety, evidence](../../_shared/powershell-baseline.md)
+- **PowerShell Baseline** — [Shared module pinning, mutation safety, evidence](../../_shared/powershell-baseline.md)
 
 ---
 

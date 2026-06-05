@@ -2,13 +2,13 @@
 
 > **Examiner-defensible evidence package** for Control 2.24. This playbook produces, signs, and retains the artifacts required to demonstrate to FINRA, SEC, OCC, FFIEC, NYDFS, the Federal Reserve (Fed SR 26-2 (formerly SR 11-7)), the CFTC, and internal audit that every Microsoft 365 Copilot, Microsoft Copilot Studio, and declarative-agent capability — across the tenant Copilot hub, environment-level controls, agent-level settings, MCP connectors, and Agent Framework feature flags — is enumerated in a documented feature catalog, allow-listed by zone, gated by change management (forward and reverse), DLP-enforced where the runtime supports it, and re-assessed quarterly.
 >
-> **Scope:** All Microsoft 365 Copilot, Copilot Studio, and declarative-agent capabilities reachable in the tenant under examination, across **all** governance zones (Zone 1 / 2 / 3) and **all** Power Platform environments. Includes the **AI Administrator** controls in the Microsoft 365 admin center (per the v1.3.3 control patch), the Copilot governance page in the Power Platform admin center, environment-level feature toggles, agent-level tool selections, MCP connector enablement, and Agent Framework feature flags. Sovereign clouds (GCC, GCC High, DoD) follow the dedicated SOV namespace because Microsoft 365 Copilot capability availability lags commercial by 6–18 months and a separate per-cloud catalog is required.
+> **Scope:** All Microsoft 365 Copilot, Copilot Studio, and declarative-agent capabilities reachable in the tenant under examination, across **all** governance zones (Zone 1 / 2 / 3) and **all** Power Platform environments. Includes the **AI Administrator** controls in the Microsoft 365 admin center (per the v1.3.3 control patch), the Copilot governance page in the Power Platform admin center, environment-level feature toggles, agent-level tool selections, MCP connector enablement, and Agent Framework feature flags.
 >
 > **Companion controls:** [1.1 Restrict Agent Publishing by Authorization](../../../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md), [1.2 Agent Registry & Integrated Apps Management](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md), [1.4 Advanced Connector Policies (ACP)](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md), [1.10 Communication Compliance Monitoring](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md), [1.25 MIME Type Restrictions](../../../controls/pillar-1-security/1.25-mime-type-restrictions.md), [2.2 Environment Groups and Tier Classification](../../../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md), [2.6 Model Risk Management Alignment with OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md), [2.12 Supervision and Oversight (FINRA Rule 3110)](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md), [2.17 Multi-Agent Orchestration Limits](../../../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md), [2.25 Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md).
 >
 > **Last UI verified:** April 2026 against Microsoft 365 admin center build 2026.04.x (AI Administrator role GA), Power Platform admin center Copilot hub build 2026.04, Copilot Studio Wave 1 2026, and the Agent Framework preview ring documented at the time of pack publication.
 >
-> **Important regulatory framing.** This playbook **supports compliance with**, but does not by itself ensure compliance with, Federal Reserve SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (Model Risk Management), FFIEC IT Risk Management Handbook, FINRA Rules 3110 (Supervision) and 4511 (Books and Records), FINRA RN 25-07 (cited as RFC context only — not binding), SEC Rules 17a-3 / 17a-4 (Recordkeeping), SEC Regulation SCI §§242.1001(a) and 242.1003 (SCI entities only), SOX Sections 302 / 404 (Internal Controls), GLBA Section 501(b) (Safeguards Rule), NYDFS 23 NYCRR 500, and CFTC Regulation 1.31 (recordkeeping). **Non-substitution principle:** feature toggles enforce what a capability *can* do; they do **not** validate that a capability is fit for purpose. Enabling a generative capability on a Zone 2 or Zone 3 agent is treated as a model change under Fed SR 26-2 (formerly SR 11-7) §V and **must** trigger — not replace — the Model Risk Management re-validation in [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md), the supervisory-procedures update in [Control 2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md), the AI guardrails reassessment in [Control 1.1](../../../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md), and the communication-compliance scope update in [Control 1.10](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md). Where FINRA Rule 3110 obligates the firm to assign a registered principal to a supervisory function, this playbook **does not substitute for** that registered-principal designation; it produces the evidentiary trail that supports — but does not replace — the firm's written supervisory procedures (WSPs).
+> **Important regulatory framing.** This playbook **supports compliance with**, but does not by itself satisfy, Federal Reserve SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (Model Risk Management), FFIEC IT Risk Management Handbook, FINRA Rules 3110 (Supervision) and 4511 (Books and Records), FINRA RN 25-07 (cited as RFC context only — not binding), SEC Rules 17a-3 / 17a-4 (Recordkeeping), SEC Regulation SCI §§242.1001(a) and 242.1003 (SCI entities only), SOX Sections 302 / 404 (Internal Controls), GLBA Section 501(b) (Safeguards Rule), NYDFS 23 NYCRR 500, and CFTC Regulation 1.31 (recordkeeping). **Non-substitution principle:** feature toggles enforce what a capability *can* do; they do **not** validate that a capability is fit for purpose. Enabling a generative capability on a Zone 2 or Zone 3 agent is treated as a model change under Fed SR 26-2 (formerly SR 11-7) §V and **must** trigger — not replace — the Model Risk Management re-validation in [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md), the supervisory-procedures update in [Control 2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md), the AI guardrails reassessment in [Control 1.1](../../../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md), and the communication-compliance scope update in [Control 1.10](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md). Where FINRA Rule 3110 obligates the firm to assign a registered principal to a supervisory function, this playbook **does not substitute for** that registered-principal designation; it produces the evidentiary trail that supports — but does not replace — the firm's written supervisory procedures (WSPs).
 
 ---
 
@@ -19,10 +19,8 @@
 | PowerShell baseline | PowerShell 7.4+ Core; `#Requires -Version 7.4` at the top of every executable script. |
 | Test framework | Pester 5.5+. All assertions use `Should` with `-Because` clauses for examiner traceability. |
 | Output discipline | No `Write-Host`. All evidence emitted as structured `[pscustomobject]` instances via `Write-Output`, then serialized with `ConvertTo-Json -Depth 8` to evidence files. |
-| Sovereign cloud handling | All Pester suites detect tenant cloud and emit `SKIPPED` records with a compensating-control pointer to §2.12 (SOV namespace) rather than `FAIL`. |
-| Evidence retention | Six (6) years on WORM-protected storage for the full signed evidence pack — aligning to FINRA Rule 4511 / SEC Rule 17a-4(f) / CFTC Reg 1.31. Sovereign tenants add a 1-year buffer. |
+| Evidence retention | Six (6) years on WORM-protected storage for the full signed evidence pack — aligning to FINRA Rule 4511 / SEC Rule 17a-4(f) / CFTC Reg 1.31.  |
 | Hashing | SHA-256 over canonical JSON; chained leaf hashes plus a Merkle root in `attestation.json` (§5.4). |
-| Sovereign anchor | Sovereign-aware functions reference [`../../_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md). |
 | Run identifier | Every test run is tagged `AGT224-yyyyMMdd-HHmmss-<8charGuid>` and embedded in every evidence record and artifact filename. |
 | Canonical role names | Per [`docs/reference/role-catalog.md`](../../../reference/role-catalog.md). At v1.3.3 the **AI Administrator** role is the preferred operator for tenant-level Copilot capability allow-list reads in the M365 admin center; **Power Platform Admin** for PPAC and environment-level reads; **Entra Global Admin** is reserved for emergency write paths under PIM. |
 
@@ -30,7 +28,7 @@
 
 ---
 
-## §0 Test Overview, Success Definition & Pre-Flight
+## §0 Test Overview, Success Definition & Pre-Test Prerequisites
 
 ### 0.1 What this playbook proves
 
@@ -41,7 +39,7 @@ This playbook produces, signs, and retains evidence that the firm satisfies the 
 | VC-1 | PPAC Copilot governance page configured with environment-specific feature restrictions aligned with zones; tenant-level capability allow-list configured in the Microsoft 365 admin center; agent-level settings constrained by environment | M365HUB, PPAC, ENV, AGENT |
 | VC-2 | Zone 3 environments have preview / experimental features disabled (or documented exceptions with affirmative approval) | ZONE, AGF, ENV |
 | VC-3 | Generative AI features restricted to an approved allow-list in Zone 3; Zone 2 has documented approval for each enabled generative action | CATALOG, ZONE |
-| VC-4 | Feature catalog deployed and maintained with current status for all Copilot Studio, Copilot, declarative-agent, MCP, and Agent Framework features; **separate variant per cloud** (commercial / GCC / GCC High / DoD) | CATALOG, SOV |
+| VC-4 | Feature catalog deployed and maintained with current status for all Copilot Studio, Copilot, declarative-agent, MCP, and Agent Framework features | CATALOG |
 | VC-5 | High-risk features (code interpreter, unapproved orchestration, web search on customer-facing agents, image generation without DLP coverage) are disabled in Zone 2 and Zone 3 | ZONE, AGENT |
 | VC-6 | DLP policies (Control 1.4) enforce feature restrictions by blocking prohibited connectors and data sources at runtime where the runtime supports it | DLP |
 | VC-7 | Change-management process is operational with documented approvals for Zone 2 / Zone 3 feature changes — **forward (enablement) AND reverse (disablement / withdrawal)** flows both evidenced | CHANGE |
@@ -53,9 +51,9 @@ This playbook produces, signs, and retains evidence that the firm satisfies the 
 
 A run of this playbook is considered **PASS** when, for the tenant under examination:
 
-1. PRE-01 through PRE-10 (§0.4) all pass.
-2. Every namespace suite in §2 emits at least the minimum expected number of evidence records for the cloud detected (Commercial: all 12 namespaces; sovereign: 11 namespaces with `SKIPPED` routing through SOV).
-3. No record carries `status = ERROR`. (`SKIPPED` records are acceptable in the sovereign path; `WARN` records are acceptable subject to §3 manual sign-off.)
+1. PRE-01 through PRE-09 (§0.4) all pass.
+2. Every namespace suite in §2 emits at least the minimum expected number of evidence records for the cloud detected (Commercial: all 11 namespaces).
+3. No record carries `status = ERROR`. (`WARN` records are acceptable subject to §3 manual sign-off.)
 4. The §5 evidence pack assembles cleanly, the Merkle root is computable, and `Test-Agt224PackIntegrity` returns true.
 5. The §6 sign-off triad (AI Governance Lead, Compliance Officer, Security Architect) all sign the published pack.
 
@@ -73,54 +71,23 @@ For the avoidance of doubt — and to anchor the non-substitution principle in t
 
 ### 0.4 PRE gates (must all pass before §2 executes)
 
-The bootstrap script `Invoke-Agt224PreFlight.ps1` runs ten pre-flight gates. Any `FAIL` halts the suite and emits a single evidence artifact `preflight-FAILED-<runId>.json`. Any `SKIPPED` from PRE-04 redirects the run to the SOV namespace (§2.12).
+The bootstrap script `Invoke-Agt224PreFlight.ps1` runs nine pre-flight gates. Any `FAIL` halts the suite and emits a single evidence artifact `preflight-FAILED-<runId>.json`. 
 
 | Gate | ID | Purpose | Failure behavior |
 |---|---|---|---|
 | Module presence | PRE-01 | Confirms `Microsoft.Graph.*` (2.25+), `Microsoft.PowerApps.Administration.PowerShell` (2.0.196+), `MicrosoftPowerBIMgmt`, `Pester` (5.5+) all loaded at pinned versions | HALT |
-| Graph context | PRE-02 | Confirms `Connect-MgGraph` with scopes: `Directory.Read.All`, `Application.Read.All`, `Policy.Read.All`, `AuditLog.Read.All`, `AgentGovernance.Read.All`, `CopilotSettings.Read.All` (preview scope; falls back to `Directory.Read.All` with a documented compensating gap if not yet released in the operator's tenant) | HALT |
+| Graph context | PRE-02 | Confirms `Connect-MgGraph` with scopes: `Directory.Read.All`, `Application.Read.All`, `Policy.Read.All`, `AuditLog.Read.All`, `AgentGovernance.Read.All`, `CopilotSettings.Read.All` | HALT |
 | Tenant identification | PRE-03 | Captures `tenantId`, `displayName`, `verifiedDomains[0].name` for every evidence record | HALT |
-| Cloud detection | PRE-04 | Reads `(Get-MgContext).Environment` and maps to `Commercial / GCC / GCCH / DoD`; sovereign clouds route through SOV | Continue with `cloud` field set |
-| Catalog presence | PRE-05 | Confirms `$env:AGT224_FEATURE_CATALOG_ROOT` exists and contains a per-cloud catalog file matching the detected cloud (`catalog.commercial.json`, `catalog.gcc.json`, `catalog.gcch.json`, `catalog.dod.json`); HALT if the cloud-specific file is missing — a single shared catalog is **not** acceptable per the sovereign caveat in the control doc | HALT |
-| Catalog schema | PRE-06 | Validates the cloud-specific catalog against the §1.5 schema (all VC-9 fields present, no nulls in required columns, all `Zone*Status` values from the controlled vocabulary `Allowed / Restricted / Prohibited / Unavailable`) | HALT |
-| PPAC reachability | PRE-07 | Probes PPAC Copilot governance endpoint via `Get-AdminPowerAppEnvironment` and a follow-up read against the Copilot governance metadata API; HALT in commercial; route to SOV in sovereign if 404/501 | HALT (commercial) |
-| M365 admin Copilot blade | PRE-08 | Probes the Microsoft 365 admin center Copilot capability blade via Graph (`/beta/copilot/admin/settings`); falls back to a manual UI verification record under §3 if the Graph endpoint is not yet available in the tenant's release ring | Continue with `manual_verification_required` flag set |
-| Clock skew | PRE-09 | Compares local UTC to the `Date` header from Graph; aborts if drift > 60 s — clock skew invalidates timestamp evidence for FINRA 4511 / SEC 17a-4 / CFTC 1.31 | HALT |
-| Evidence root writeable | PRE-10 | Confirms `$env:AGT224_EVIDENCE_ROOT` exists, is writeable, and resolves to a path under WORM-eligible storage | HALT |
+| Catalog presence | PRE-04 | Confirms `$env:AGT224_FEATURE_CATALOG_ROOT` exists and contains `catalog.commercial.json` | HALT |
+| Catalog schema | PRE-05 | Validates the commercial catalog against the §1.5 schema | HALT |
+| PPAC reachability | PRE-06 | Probes PPAC Copilot governance endpoint via `Get-AdminPowerAppEnvironment` and a follow-up read against the Copilot governance metadata API | HALT |
+| M365 admin Copilot blade | PRE-07 | Probes the Microsoft 365 admin center Copilot capability blade via Graph (`/beta/copilot/admin/settings`) | Continue with `manual_verification_required` flag set |
+| Clock skew | PRE-08 | Compares local UTC to the `Date` header from Graph; aborts if drift > 60 s | HALT |
+| Evidence root writeable | PRE-09 | Confirms `$env:AGT224_EVIDENCE_ROOT` exists, is writeable, and resolves to a path under WORM-eligible storage | HALT |
 
-### 0.5 Sovereign bootstrap pattern
+### 0.5 Run identifier and evidence root
 
-```powershell
-function Test-Agt224SovereignTenant {
-    [CmdletBinding()]
-    [OutputType([pscustomobject])]
-    param()
 
-    $ctx = Get-MgContext
-    if (-not $ctx) { throw "PRE-02 failed: no Graph context. Run Connect-MgGraph first." }
-
-    $cloud = switch ($ctx.Environment) {
-        'Global'    { 'Commercial' }
-        'USGov'     { 'GCC' }
-        'USGovDoD'  { 'DoD' }
-        'USGovHigh' { 'GCCH' }
-        default     { 'Unknown' }
-    }
-
-    [pscustomobject]@{
-        cloud         = $cloud
-        is_sovereign  = $cloud -in @('GCC','GCCH','DoD')
-        tenant_id     = $ctx.TenantId
-        detected_at   = (Get-Date).ToUniversalTime().ToString('o')
-        catalog_file  = "catalog.$($cloud.ToLower()).json"
-        endpoint_ref  = '../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod'
-    }
-}
-```
-
-When `is_sovereign` is `$true`, every Pester `It` block in §2 (except SOV itself) emits a `SKIPPED` record routed to SOV. Crucially, sovereign-tenant runs **do not** inherit the commercial catalog: PRE-05 enforces the per-cloud catalog requirement called out in the control doc's sovereign caveat.
-
-### 0.6 Run identifier and evidence root
 
 ```powershell
 function New-Agt224RunId {
@@ -139,13 +106,13 @@ New-Item -ItemType Directory -Path $script:EvidenceRoot -Force | Out-Null
 
 ## §1 Namespace Taxonomy
 
-The ten Verification Criteria are evidenced by **twelve test namespaces**. Each namespace produces independent evidence records that combine into a single signed evidence pack (§5). The split between M365HUB / PPAC / ENV / AGENT corresponds to the **three configuration surfaces** named in the control description (tenant Copilot hub, environment-level features, agent-level settings) plus the cross-cutting catalog, DLP, MCP, Agent Framework, zone roll-up, change management, sovereign, and SIEM forwarding namespaces.
+The ten Verification Criteria are evidenced by **eleven test namespaces**. Each namespace produces independent evidence records that combine into a single signed evidence pack (§5). The split between M365HUB / PPAC / ENV / AGENT corresponds to the **three configuration surfaces** named in the control description (tenant Copilot hub, environment-level features, agent-level settings) plus the cross-cutting catalog, DLP, MCP, Agent Framework, zone roll-up, change management, and SIEM forwarding namespaces.
 
 ### 1.1 Namespace catalog
 
 | Namespace | Section | Surface / scope | Evidences VC | Cadence | Owner |
 |---|---|---|---|---|---|
-| `CATALOG` | §2.1 | Feature catalog file (per cloud) | VC-3, VC-4, VC-9, VC-10 | Monthly + on-change | AI Governance Lead |
+| `CATALOG` | §2.1 | Feature catalog file | VC-3, VC-4, VC-9, VC-10 | Monthly + on-change | AI Governance Lead |
 | `M365HUB` | §2.2 | Microsoft 365 admin center → Copilot → declarative-agent capability allow-list | VC-1, VC-3, VC-5 | Daily (Z3) / Weekly (full) | AI Administrator |
 | `PPAC` | §2.3 | Power Platform admin center → Copilot → Governance | VC-1, VC-3 | Weekly | Power Platform Admin |
 | `ENV` | §2.4 | Per-environment feature toggles in PPAC | VC-1, VC-2, VC-5 | Weekly | Power Platform Admin |
@@ -155,12 +122,11 @@ The ten Verification Criteria are evidenced by **twelve test namespaces**. Each 
 | `AGF` | §2.8 | Agent Framework feature flags and preview-ring tools | VC-2, VC-5, VC-7 | Weekly + on flag flip | AI Administrator |
 | `ZONE` | §2.9 | Zone-by-zone roll-up against the Zone-Based Feature Exposure Model | VC-1, VC-2, VC-5 | Weekly | AI Governance Lead |
 | `CHANGE` | §2.10 | Change-management workflow — forward (enable) AND reverse (disable / withdraw) | VC-7, VC-10 | Per-change + monthly reconciliation | Change Management Team |
-| `SOV` | §2.11 | Sovereign-cloud compensating attestation (sovereign tenants) and per-cloud parity check (commercial vs sovereign) | All VCs (compensating) | Quarterly | AI Governance Lead + Compliance Officer |
-| `SIEM` | §2.12 | Forwarding of feature-change events to SIEM (Microsoft Sentinel) for 6-year retention; chains with Control 3.1 / 3.9 | Cross-cutting | Weekly | Security Architect + Entra Security Admin |
+| `SIEM` | §2.11 | Forwarding of feature-change events to SIEM (Microsoft Sentinel) for 6-year retention; chains with Control 3.1 / 3.9 | Cross-cutting | Weekly | Security Architect + Entra Security Admin |
 
 ### 1.2 Eight-part section structure
 
-Each namespace section (§2.1 – §2.12) follows the same eight-part structure used by the Control 2.25 and 3.6 verification playbooks:
+Each namespace section (§2.1 – §2.11) follows the same eight-part structure used by the Control 2.25 and 3.6 verification playbooks:
 
 1. **Criterion mapping** — explicit pointer to which numbered VC in Control 2.24 §Verification Criteria is satisfied.
 2. **Pre-conditions** — what must already be true (PRE gates passed; reference data present; Graph scopes granted).
@@ -222,14 +188,14 @@ Field semantics:
 | `run_id` | string | Output of `New-Agt224RunId`; identical across every record in a single run. |
 | `run_timestamp` | ISO-8601 string | Captured at `BeforeAll` time, frozen for the run. |
 | `tenant_id` / `tenant_display_name` | string | From PRE-03. |
-| `cloud` | enum | `Commercial / GCC / GCCH / DoD / Unknown`. |
+| `cloud` | enum | `Commercial / Unknown`. |
 | `zone` | enum | `1 / 2 / 3 / all`. `all` is used for tenant-wide records (M365HUB tenant toggles, CATALOG schema, SIEM). |
 | `namespace` | enum | One of the namespace IDs in §1.1. |
-| `criterion` | enum | `VC-1` … `VC-10`, or `VC-1..10 (compensating)` for SOV. |
+| `criterion` | enum | `VC-1` … `VC-10`. |
 | `subject_id` | string | The agent ID, environment ID, capability ID, MCP connector ID, feature-flag ID, or change ticket reference. |
 | `subject_type` | enum | `capability_toggle / environment_setting / agent_setting / dlp_policy / mcp_connector / agent_framework_flag / zone_rollup / change_ticket / catalog_entry / siem_forward`. |
 | `surface` | enum | `m365-admin-center / ppac-copilot-hub / ppac-environment / copilot-studio-agent / dlp-policy-store / mcp-registry / agent-framework / catalog-store / siem`. |
-| `status` | enum | `PASS / WARN / FAIL / SKIPPED / ERROR`. `ERROR` indicates the test could not run; `SKIPPED` is the sovereign-or-not-applicable case. |
+| `status` | enum | `PASS / WARN / FAIL / SKIPPED / ERROR`. `ERROR` indicates the test could not run; `SKIPPED` indicates a non-applicable test case. |
 | `assertion` | string | Human-readable statement of what was tested; written to be examiner-readable without context. |
 | `observed_value` / `expected_value` | object | Free-form structured payload; both fields MUST be present even when one is trivial. |
 | `catalog_ref` | object or null | Required for any record that asserts a feature or capability state; null only for cross-cutting records (CHANGE, SIEM). |
@@ -263,7 +229,7 @@ Field semantics:
 
 > **Non-substitution reminder.** Wherever `FINRA-3110` appears in a regulator-mapping table in §2, it indicates that the control element **supports** the firm's Rule 3110 supervisory obligation by providing reviewable evidence of feature-change oversight. It does **not** indicate that this playbook substitutes for the firm's obligation to designate an appropriately registered principal. The firm's WSPs remain the authoritative supervisory document; this playbook's evidence supports those WSPs. The same logic applies to `FED-SR-11-7` / `OCC-2011-12` and the firm's MRM framework (Control 2.6).
 
-### 1.5 Catalog schema (referenced by VC-9 and PRE-06)
+### 1.5 Catalog schema (referenced by VC-9 and PRE-04)
 
 ```json
 {
@@ -312,17 +278,16 @@ Each namespace lives in its own file (`tests\agt224\AGT224-{NS}.Tests.ps1`) and 
 
 ### §2.1 CATALOG — feature catalog integrity
 
-**Criterion mapping.** VC-3 (allow-list semantics), VC-4 (catalog presence per cloud), VC-9 (schema field set), VC-10 (quarterly review evidence).
+**Criterion mapping.** VC-3 (allow-list semantics), VC-4 (catalog presence), VC-9 (schema field set), VC-10 (quarterly review evidence).
 
-**Pre-conditions.** PRE-05 and PRE-06 passed; `$env:AGT224_FEATURE_CATALOG_ROOT` resolves to a directory containing the cloud-specific catalog file; the catalog file's `next_quarterly_review_due` is parseable as an ISO date.
+**Pre-conditions.** PRE-04 and PRE-05 passed; `$env:AGT224_FEATURE_CATALOG_ROOT` resolves to a directory containing `catalog.commercial.json`; the catalog file's `next_quarterly_review_due` is parseable as an ISO date.
 
 **Pester suite.**
 
 ```powershell
 Describe "AGT224-CATALOG" -Tag 'AGT224','CATALOG' {
     BeforeAll {
-        $cloud = (Test-Agt224SovereignTenant).cloud
-        $catalogPath = Join-Path $env:AGT224_FEATURE_CATALOG_ROOT "catalog.$($cloud.ToLower()).json"
+        $catalogPath = Join-Path $env:AGT224_FEATURE_CATALOG_ROOT "catalog.commercial.json"
         $script:catalog = Get-Content $catalogPath -Raw | ConvertFrom-Json -Depth 12
         $script:requiredFields = @(
             'FeatureName','FeatureCategory','Surface','Cloud',
@@ -427,7 +392,7 @@ Describe "AGT224-CATALOG" -Tag 'AGT224','CATALOG' {
 
 **Criterion mapping.** VC-1 (tenant declarative-agent capability allow-list), VC-3 (generative allow-list at tenant), VC-5 (high-risk capabilities disabled at tenant for downstream Z2/Z3 binding).
 
-**Pre-conditions.** PRE-08 passed (or `manual_verification_required` flag set, in which case this namespace emits one `WARN` record pointing at §3.2 and the rest of the section is skipped). Operator runs with the **AI Administrator** role; if running with Entra Global Admin, an `operator_role` field in each record records `'global-admin-elevated'` for audit transparency.
+**Pre-conditions.** PRE-04 passed (or `manual_verification_required` flag set, in which case this namespace emits one `WARN` record pointing at §3.2 and the rest of the section is skipped). Operator runs with the **AI Administrator** role; if running with Entra Global Admin, an `operator_role` field in each record records `'global-admin-elevated'` for audit transparency.
 
 **Pester suite.**
 
@@ -508,7 +473,7 @@ Describe "AGT224-M365HUB" -Tag 'AGT224','M365HUB' {
 
 **Criterion mapping.** VC-1 (tenant-wide PPAC governance page), VC-3 (Z3 generative-feature gating).
 
-**Pre-conditions.** PRE-07 passed; `Get-AdminPowerAppEnvironment` returns ≥ 1 environment.
+**Pre-conditions.** PRE-04 passed; `Get-AdminPowerAppEnvironment` returns ≥ 1 environment.
 
 **Pester suite.**
 
@@ -579,7 +544,7 @@ Describe "AGT224-PPAC" -Tag 'AGT224','PPAC' {
 
 **Criterion mapping.** VC-1, VC-2 (Z3 preview disabled), VC-5 (high-risk Z2/Z3 disabled).
 
-**Pre-conditions.** PRE-07 passed; environment classification metadata available (Control 2.7).
+**Pre-conditions.** PRE-04 passed; environment classification metadata available (Control 2.7).
 
 **Pester suite.**
 
@@ -726,7 +691,7 @@ Context "Author reality check (VC-8)" {
 
 **Criterion mapping.** VC-6 (DLP enforces feature restrictions where the runtime supports it).
 
-**Pre-conditions.** PRE-07 passed; Power Platform DLP policies enumerable via `Get-DlpPolicy`. Cross-references Control 1.4 (ACP) for the connector-level policy content.
+**Pre-conditions.** PRE-04 passed; Power Platform DLP policies enumerable via `Get-DlpPolicy`. Cross-references Control 1.4 (ACP) for the connector-level policy content.
 
 **Pester suite.**
 
@@ -945,48 +910,7 @@ Describe "AGT224-CHANGE" -Tag 'AGT224','CHANGE' {
 
 ---
 
-### §2.11 SOV — sovereign-cloud compensating attestation and parity
-
-**Criterion mapping.** All VCs (compensating). The SOV namespace serves two purposes:
-
-1. In sovereign tenants (GCC, GCC High, DoD), it is the destination namespace for `SKIPPED` records emitted when a commercial-cloud capability is not yet available in the operator's cloud — those skips are NOT failures, but they MUST be attested as such.
-2. In commercial tenants that operate sovereign tenants in parallel, it produces a quarterly **catalog parity attestation** comparing the commercial and sovereign catalogs.
-
-**Pester suite.**
-
-```powershell
-Describe "AGT224-SOV" -Tag 'AGT224','SOV' {
-    Context "Sovereign-tenant skips" {
-        It "every SKIPPED record from another namespace has a SOV-justification entry" {
-            $skipped = Get-Agt224RunRecords -RunId $script:RunId -Status 'SKIPPED'
-            foreach ($s in $skipped) {
-                $j = Get-Agt224SovJustification -Feature $s.subject_id
-                $j | Should -Not -BeNullOrEmpty
-                $j.reason | Should -BeIn @('NotAvailableInCloud','SovereignVariantPending','PolicyDeferred','VendorRoadmap')
-            }
-        }
-    }
-    Context "Catalog parity (commercial firms operating sovereign tenants)" {
-        It "every commercial Z3-Allowed feature has a corresponding sovereign catalog row (Allowed, Restricted, OR Unavailable)" {
-            if (Test-Path "$($env:AGT224_FEATURE_CATALOG_ROOT)\catalog.gcch.json") {
-                $sov = Get-Content "$($env:AGT224_FEATURE_CATALOG_ROOT)\catalog.gcch.json" -Raw | ConvertFrom-Json
-                foreach ($cf in $script:catalog.features | Where-Object Zone3Status -eq 'Allowed') {
-                    ($sov.features | Where-Object FeatureName -eq $cf.FeatureName) |
-                        Should -Not -BeNullOrEmpty
-                }
-            }
-        }
-    }
-}
-```
-
-**Examiner artifact.** `sov-justification-{runId}.json` and (where relevant) `parity-report-{quarter}.json`. Retained 6 years.
-
-**Regulator mapping.** `FED-SR-11-7`, `OCC-2011-12`, `FFIEC-MGMT`, `FINRA-3110`, `SOX-404`. SOV records carry the additional token `SOVEREIGN-COMPENSATING` to flag examiner attention.
-
----
-
-### §2.12 SIEM — forwarding to Microsoft Sentinel
+### §2.11 SIEM — forwarding to Microsoft Sentinel
 
 **Criterion mapping.** Cross-cutting; chains with Control 1.7 (Comprehensive Audit Logging and Compliance) and Control 3.9 (Microsoft Sentinel Integration).
 
@@ -1156,21 +1080,7 @@ Each scenario below defines a likely examiner question, the evidence-pack files 
 
 **Regulatory anchor.** `SEC-REG-SCI-1003`. **Important:** the playbook supports the notification process by providing the change record; the actual notification filing is the firm's Reg SCI program responsibility.
 
-### 4.5 Surprise audit — commercial vs sovereign catalog parity
-
-**Examiner question.** "You operate both a commercial tenant and a GCC High tenant. Show me that the feature catalog and exposure model are managed consistently across the two."
-
-**Evidence path.**
-
-- `parity-report-{quarter}.json` from SOV namespace.
-- Both `catalog.commercial.json` and `catalog.gcch.json` snapshots from the same quarter.
-- SOV justifications explaining each `Unavailable` entry in the GCC High catalog.
-
-**Namespaces cited.** SOV (parity), CATALOG (both clouds), CHANGE (any cross-cloud cascade).
-
-**Regulatory anchor.** `FED-SR-11-7`, `FFIEC-MGMT`, `OCC-2011-12`. Parity gaps are acceptable when explained as product unavailability; they are not policy exceptions.
-
-### 4.6 CVE / preview withdrawal — reverse-flow demonstration
+ — reverse-flow demonstration
 
 **Examiner question.** "Microsoft retracted a preview connector on June 7 due to a CVE. Show me your reverse-flow handling."
 
@@ -1184,7 +1094,7 @@ Each scenario below defines a likely examiner question, the evidence-pack files 
 
 **Regulatory anchor.** `FED-SR-11-7`, `FFIEC-IS`, `NYDFS-500`.
 
-### 4.7 Voice / image enabled without Purview / DLP coverage update
+### 4.6 Voice / image enabled without Purview / DLP coverage update
 
 **Examiner question.** "You enabled voice output on agent X on July 9. Show me how Communication Compliance scope was updated."
 
@@ -1230,7 +1140,7 @@ Each VC's pack is the union of the namespace records that prove it, plus the cor
 | VC-1 | `M365HUB`, `PPAC`, `ENV`, `AGENT` | `m365hub-capabilities-*`, `ppac-governance-*`, `env-features-*`, `agent-enumeration-*` |
 | VC-2 | `ENV` (Z3 preview), `AGF` (preview ring) | `env-features-*` (Z3 subset), `agf-flags-*` |
 | VC-3 | `CATALOG`, `M365HUB`, `PPAC`, `MCP` | `catalog-snapshot-*`, `mcp-registry-*` |
-| VC-4 | `CATALOG`, `SOV` | `catalog-snapshot-*` (per cloud), `parity-report-*` |
+| VC-4 | `CATALOG` | `catalog-snapshot-*` |
 | VC-5 | `M365HUB`, `ENV`, `AGENT`, `MCP`, `AGF` | All zone-flagged subsets |
 | VC-6 | `DLP` | `dlp-binding-*` |
 | VC-7 | `CHANGE` (forward + reverse), `MCP`, `AGF` | `change-events-90d-*`, `mcp-enablement-events-*`, `agf-audit-*` |
@@ -1295,7 +1205,7 @@ The published evidence pack is countersigned by three roles. Each signer's respo
 
 | Role | Responsibility | Signature artifact |
 |---|---|---|
-| **AI Governance Lead** | Pack integrity; Merkle root computed and verified; all ten VCs evidenced; sovereign justifications complete | `manifest.json.sig.aigov` |
+| **AI Governance Lead** | Pack integrity; Merkle root computed and verified; all ten VCs evidenced | `manifest.json.sig.aigov` |
 | **Compliance Officer** | Regulator-mapping accuracy; non-substitution principle observed; FINRA / SEC / SOX / Fed SR 26-2 (formerly SR 11-7) citations correctly applied; Reg SCI applicability correctly identified | `manifest.json.sig.compliance` |
 | **Security Architect** | High-risk feature attestation: every Z2/Z3 enablement of code-interpreter, image-generation, web-search, external-orchestration, or any High-RiskRating MCP connector is reviewed and accepted; SIEM forwarding healthy | `manifest.json.sig.security` |
 
@@ -1324,8 +1234,7 @@ A quarterly attestation packet bundles the most recent run from each month of th
 2. `quarterly-assessment-{YYYY-Qn}.json` containing per-feature review status, risk-rating changes, expirations, additions, and removals.
 3. Threshold variance log: any run with WARN or FAIL records, with disposition.
 4. Cross-control evidence pointers (2.6 MRM, 2.12 Supervision, 1.4 ACP, 1.10 CC, 2.25 Agent 365 Admin, 3.1 / 3.9 SIEM).
-5. Sovereign parity report (where applicable).
-6. Triad sign-off.
+5. Triad sign-off.
 
 ### 7.3 Distribution
 
@@ -1339,7 +1248,7 @@ A quarterly attestation packet bundles the most recent run from each month of th
 
 ### 7.4 Threshold variance log
 
-Any run within the quarter that emitted WARN or FAIL records is recorded here with: run ID, namespace, criterion, severity, remediation pointer, owner, target date, and current status. The variance log is itself evidence — examiners use it to test the firm's responsiveness, not just its initial detection.
+Any run within the quarter that emitted WARN or FAIL records is recorded here with: run ID, namespace, criterion, severity, remediation pointer, owner, target date, and current status. The variance log is itself evidence — examiners use it to test the firm's responsiveness, not only its initial detection.
 
 ---
 
@@ -1353,7 +1262,6 @@ These metrics feed the firm's quarterly governance review. Targets are illustrat
 | Mean time to remediation (MTTR) | Time from FAIL emission to corresponding PASS in next run | ≤ 7 d (Critical), ≤ 30 d (High), ≤ 90 d (Medium) | Owning admin role |
 | Catalog drift rate | `(features active in surface but not in catalog) / total features` | ≤ 1 % | AI Governance Lead |
 | Exception expiry compliance | `(catalog rows with expired ExpirationDate disabled in change log) / (catalog rows with expired ExpirationDate)` | 100 % | Change Management Team |
-| Sovereign parity gap count | Count of commercial Z3-Allowed features without a sovereign catalog row | 0 (or all explained as `Unavailable` in SOV justifications) | AI Governance Lead + Compliance Officer |
 | Reverse-flow evidence rate | `(disable events with CHG ticket and reason) / (total disable events)` | 100 % | Change Management Team |
 | Author probe coverage | `(Z2/Z3 envs with at least one author probe per quarter) / (total Z2/Z3 envs)` | 100 % | AI Administrator |
 | SIEM ingest health | Events ingested / events generated (cross-checked with Control 3.1) | ≥ 99.5 % | Security Architect |
@@ -1393,7 +1301,7 @@ Trend charts of each metric across rolling four quarters are included in the qua
 
 ### 9.4 Reference material
 
-- [Shared PowerShell baseline](../../_shared/powershell-baseline.md) — module versions, sovereign endpoints, helper functions.
+- [Shared PowerShell baseline](../../_shared/powershell-baseline.md) — module versions and helper functions.
 - [Role catalog](../../../reference/role-catalog.md) — canonical names for AI Administrator, Power Platform Admin, Entra Global Admin, Compliance Officer, Security Architect.
 - [Regulatory mappings](../../../reference/regulatory-mappings.md) — full citation index keyed to control IDs.
 
@@ -1414,3 +1322,4 @@ Trend charts of each metric across rolling four quarters are included in the qua
 
 
 *Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+

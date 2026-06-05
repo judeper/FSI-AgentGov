@@ -54,16 +54,16 @@ Out of scope for Control 4.6 (covered by sibling controls — see §9):
 
 ### 0.2 Surface inventory (where each setting actually lives in April 2026)
 
-| # | Setting | Portal path (April 2026 UI) | Sovereign clouds where path applies |
-| --- | --- | --- | --- |
-| S1 | DAG reports — Site permissions | `SPAC → Reports → Data access governance → Site permissions` | Commercial, GCC, GCC High, DoD |
-| S2 | DAG reports — Sharing links activity | `SPAC → Reports → Data access governance → Sharing links activity` | Commercial, GCC, GCC High, DoD |
-| S3 | DAG reports — EEEU activity ("Everyone except external users") | `SPAC → Reports → Data access governance → EEEU activity` | Commercial, GCC, GCC High, DoD |
-| S4 | Per‑site RCD | `SPAC → Sites → Active sites → [select site] → Settings tab → Restrict content from Microsoft 365 Copilot → On → Save` | Commercial, GCC, GCC High, DoD |
-| S5 | RCD delegation flag | PowerShell only — `Set-SPOTenant -DelegateRestrictedContentDiscoverabilityManagement $true` | Commercial, GCC, GCC High, DoD |
-| S6 | Restricted SharePoint Search (tenant toggle + allowed‑list) | `SPAC → Settings → Restricted SharePoint Search` (tenant toggle + allowed list management); PowerShell mirror `Set-SPOTenantRestrictedSearchMode -Mode Enabled` | Commercial, GCC, GCC High, DoD |
-| S7 | Power Platform DLP for Copilot Studio knowledge connectors | `PPAC → Policies → Data policies → + New policy` (then classify the Copilot Studio knowledge connectors and apply endpoint filtering) | Commercial, GCC, GCC High, DoD |
-| S8 | Copilot Studio knowledge picker validation | `Copilot Studio → [agent] → Knowledge → + Add knowledge → SharePoint / OneDrive` | Commercial, GCC, GCC High, DoD |
+| # | Setting | Portal path (April 2026 UI) |
+| --- | --- | --- |
+| S1 | DAG reports — Site permissions | `SPAC → Reports → Data access governance → Site permissions` |
+| S2 | DAG reports — Sharing links activity | `SPAC → Reports → Data access governance → Sharing links activity` |
+| S3 | DAG reports — EEEU activity ("Everyone except external users") | `SPAC → Reports → Data access governance → EEEU activity` |
+| S4 | Per‑site RCD | `SPAC → Sites → Active sites → [select site] → Settings tab → Restrict content from Microsoft 365 Copilot → On → Save` |
+| S5 | RCD delegation flag | PowerShell only — `Set-SPOTenant -DelegateRestrictedContentDiscoverabilityManagement $true` |
+| S6 | Restricted SharePoint Search (tenant toggle + allowed‑list) | `SPAC → Settings → Restricted SharePoint Search` (tenant toggle + allowed list management); PowerShell mirror `Set-SPOTenantRestrictedSearchMode -Mode Enabled` |
+| S7 | Power Platform DLP for Copilot Studio knowledge connectors | `PPAC → Policies → Data policies → + New policy` (then classify the Copilot Studio knowledge connectors and apply endpoint filtering) |
+| S8 | Copilot Studio knowledge picker validation | `Copilot Studio → [agent] → Knowledge → + Add knowledge → SharePoint / OneDrive` |
 
 ### 0.3 Portal vs PowerShell — when to use which
 
@@ -82,32 +82,7 @@ Out of scope for Control 4.6 (covered by sibling controls — see §9):
     The portal gives you change‑managed UI evidence (screenshots) that auditors expect for SOX 302/404 control walkthroughs. PowerShell gives you the deterministic, reproducible read‑backs that satisfy SEC 17a‑4 / FINRA 4511 evidence preservation and let you scale beyond what the SPAC UI can handle. Use both — never one alone.
 
 
----
-
-## §1 Sovereign cloud applicability matrix
-
-Use this matrix at the top of every change record so reviewers can see at a glance whether the steps in §4 apply to your tenant.
-
-| Capability | Commercial | GCC | GCC High | DoD | Gallatin (China 21Vianet) |
-| --- | --- | --- | --- | --- | --- |
-| SPAC → Reports → Data access governance | ✅ Available | ✅ Available | ✅ Available | ✅ Available | ❌ Not available |
-| Per‑site RCD (`RestrictContentOrgWideSearch`) | ✅ Available | ✅ Available | ✅ Available | ✅ Available | ❌ Not available |
-| RCD delegation flag | ✅ Available | ✅ Available | ✅ Available | ✅ Available | ❌ Not available |
-| Restricted SharePoint Search (RSS) | ✅ Available | ✅ Available | ✅ Available | ✅ Available | ❌ Not available |
-| Power Platform DLP for Copilot Studio knowledge connectors | ✅ Available | ✅ Available (verify connector availability per environment) | ✅ Available (verify connector availability per environment) | ✅ Available (verify connector availability per environment) | ❌ Not available |
-| Microsoft 365 Copilot grounding on SharePoint | ✅ Available | ✅ Available (license‑gated) | ✅ Available (license‑gated, region‑restricted) | ✅ Available (license‑gated, region‑restricted) | ❌ Not available |
-| Copilot Studio agents grounding on SharePoint | ✅ Available | ✅ Available (validate connector parity) | ✅ Available (validate connector parity, **payload limit ≈ 450 KB vs 5 MB commercial**) | ✅ Available (validate connector parity, payload limit applies) | ❌ Not available |
-
-### 1.1 Compensating controls when a capability is not available
-
-If you operate in **Gallatin (China 21Vianet)** or any other tenant where the capabilities above are not available, do not skip Control 4.6 — apply the following compensating controls and record the deviation in your control register:
-
-- **Compensate for missing RCD:** Use sensitivity labels (Control 1.5) with encryption + content marking on every container that must be hidden from broad search; combine with per‑site search visibility settings (`Set-SPOSite -NoCrawl $true` for canary sites only — never as a production strategy because it removes the site from the index entirely).
-- **Compensate for missing RSS:** Reduce the surface area of `Everyone except external users` (EEEU) groups (Control 4.1), tighten default sharing settings, and apply per‑site sharing restrictions through SPAC.
-- **Compensate for missing Copilot Studio DLP coverage:** Restrict the list of Copilot Studio environments where SharePoint / OneDrive connectors can be added (Power Platform environment strategy), and disable maker self‑service for the SharePoint connector entirely if the connector is unavailable.
-- **Compensate for missing DAG reports:** Run scheduled Microsoft Graph queries against `/sites` and `/sites/{id}/permissions` and stage the output in a governed Microsoft Lists / Dataverse table that your SOC reviews on the same cadence DAG would have driven.
-
-### 1.2 Per‑surface caveats you must record before acting
+### Implementation caveats
 
 | Caveat | What it means in practice |
 | --- | --- |
@@ -115,7 +90,6 @@ If you operate in **Gallatin (China 21Vianet)** or any other tenant where the ca
 | **RSS is short‑term remediation only.** | RSS is not a security boundary. It limits which sites the org‑wide search index can return for grounding queries, but it does not change file‑level permissions, sharing links, or a determined user's ability to navigate directly. Use it to buy time while you roll out RCD per site. |
 | **DAG reports lag.** | Reports refresh on a tenant‑managed cadence (typically every 24–72 hours). Do not assume a report run immediately after a permission change reflects the new state — capture both the pre‑change and post‑change report runs as evidence. |
 | **DLP for Copilot Studio names connectors specifically.** | Verify the connector display names in your tenant before authoring DLP rules — Microsoft has renamed and split these connectors several times. As of April 2026 the canonical name set includes "Knowledge source with SharePoint and OneDrive in Copilot Studio" and sibling connectors for public websites and uploaded documents. |
-| **GCC High / DoD payload limits.** | The Copilot Studio SharePoint / OneDrive knowledge connector enforces a smaller payload limit in GCC High (≈ 450 KB) than in commercial (≈ 5 MB). Test agents must use representative content sizes. |
 
 ---
 
@@ -547,10 +521,6 @@ For Zone 3 (Enterprise Managed) agents, repeat §4e.1–§4e.4 with these differ
 - **Environment scope:** Zone 3 environment(s) only; never apply Zone 2 and Zone 3 policies to the same environment.
 - **Endpoint allow list:** Restrict to the curated Zone 3 grounding sites only. Zone 3 is typically the **smallest** allowed list, not the largest.
 
-### 4e.6 GCC / GCC High / DoD payload caveat
-
-In GCC High and DoD, the SharePoint / OneDrive knowledge connector enforces a smaller payload limit (≈ 450 KB vs. the ≈ 5 MB commercial limit). Test agents in §4f must use representative content sizes — large PDFs that ground successfully in commercial may silently truncate or fail in GCC High. Record the payload limit in the change record so future maker requests are routed correctly.
-
 ---
 
 ## §4f — Copilot Studio: validate the SPAC ↔ PPAC handshake
@@ -716,7 +686,7 @@ Each scenario below is a named, reproducible test that validates one specific as
 
 **Pass criteria:** Bind succeeds and grounded answer is returned.
 
-### 5.7 OneDrive cannot‑RCD compensating control test (Gallatin compatible)
+### 5.7 OneDrive cannot‑RCD compensating control test
 
 **Goal:** Confirm that the compensating control for OneDrive (sensitivity label + DLP endpoint deny) prevents grounding on a OneDrive document that should not be reachable.
 
@@ -827,11 +797,9 @@ The following anti‑patterns have caused real production incidents in FSI tenan
 
 11. **Setting `DelegateRestrictedContentDiscoverabilityManagement = $true` without a written justification.** This flag widens RCD authority beyond SharePoint Admin and must be approved by Compliance + Risk. Always log the justification to the change record before flipping the flag.
 
-12. **Forgetting the GCC High / DoD payload limit.** A test that succeeds in commercial with a 1 MB document will silently fail in GCC High where the payload limit is ≈ 450 KB. Test agents must use representative content sizes for the target sovereign cloud.
+12. **Conflating "Copilot in the site" with "org‑wide Copilot grounding".** RCD removes the site from org‑wide grounding; it does **not** remove the user's ability to invoke Copilot when they are inside the site. Reports that conflate the two lead to incorrect rollbacks.
 
-13. **Conflating "Copilot in the site" with "org‑wide Copilot grounding".** RCD removes the site from org‑wide grounding; it does **not** remove the user's ability to invoke Copilot when they are inside the site. Reports that conflate the two lead to incorrect rollbacks.
-
-14. **Promoting a Zone 2 change to Zone 3 with the same allowed list.** Zone 3 is typically the smallest allowed list, not the largest. Re‑curate the list for Zone 3 — do not simply copy Zone 2.
+13. **Promoting a Zone 2 change to Zone 3 with the same allowed list.** Zone 3 is typically the smallest allowed list, not the largest. Re‑curate the list for Zone 3 — do not simply copy Zone 2.
 
 ---
 

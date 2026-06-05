@@ -1,7 +1,7 @@
 # PowerShell Setup: Control 3.12 - Agent Governance Exception and Override Management
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below may show abbreviated patterns; the baseline is authoritative.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below may show abbreviated patterns; the baseline is authoritative.
 
 **Last Updated:** April 2026
 **Prerequisites:** Microsoft.PowerApps.Administration.PowerShell module, Microsoft Graph PowerShell SDK
@@ -39,9 +39,6 @@ Install-Module -Name Microsoft.Graph `
 
 !!! note "Edition requirement"
     `Microsoft.Xrm.Data.PowerShell` runs on **Windows PowerShell 5.1 (Desktop)**. Add the edition guard from baseline §2 at the top of every script. Microsoft Graph SDK requires PowerShell 7.2+. If you mix the two, run them in separate processes — do **not** import both into the same session.
-
-!!! warning "Sovereign clouds (GCC / GCC High / DoD)"
-    Every connection example below assumes the **commercial** Dataverse endpoint. For US Government tenants, set the environment URL to your sovereign endpoint (e.g., `https://orgname.crm.microsoftdynamics.us` for GCC High, `https://orgname.crm.appsplatform.us` for DoD) and pass the matching `-Environment` value to `Connect-MgGraph` per baseline §3. Running these scripts against the wrong endpoint authenticates against commercial and returns **false-clean** results.
 
 ### Required Permissions
 
