@@ -117,9 +117,8 @@ Before escalating from L1 → L2, L2 → L3, or L3 → L4 (see §5), the on-call
 - [ ] **C-13.** Sentinel incident comments updated with all KQL queries run, with results pasted as evidence (do not rely on query re-runnability — Sentinel data may roll out of hot retention).
 - [ ] **C-14.** Defender XDR incident is **classified** (true positive / benign positive / false positive) with **determination** (e.g., "Compromised account," "Malicious user activity") set — not left blank. Blank classification breaks Microsoft Support case continuity.
 - [ ] **C-15.** Microsoft 365 Copilot license state of the affected principal verified at incident time and retained in E-09 (license churn after the fact destroys context).
-- [ ] **C-16.** Sovereign cloud (§4) confirmed. Do **not** assume Commercial procedures apply to GCC, GCC High, or DoD without verifying parity.
-- [ ] **C-17 (recommended).** PyRIT or equivalent red-team artifact attached if the incident emerged from a scheduled adversarial exercise.
-- [ ] **C-18 (recommended).** Trust & Safety case reference (§1.6) attached if a Prompt Shield bypass is confirmed.
+- [ ] **C-16 (recommended).** PyRIT or equivalent red-team artifact attached if the incident emerged from a scheduled adversarial exercise.
+- [ ] **C-17 (recommended).** Trust & Safety case reference (§1.6) attached if a Prompt Shield bypass is confirmed.
 
 ### §1.6 Communication Tree
 
@@ -290,7 +289,7 @@ SecurityIncident
 
 **Symptoms.** Red-team or production prompt that should have triggered a UPIA or XPIA alert in Defender XDR produced no Defender XDR alert; only Prompt Shields verdict (E-03) is present, no E-04.
 
-**Root cause.** (a) The tenant lacks a Microsoft 365 Copilot license on the affected principal at prompt time — Defender XDR M365 Copilot alerts require licensed scope. (b) The Microsoft Defender XDR add-on for Copilot is not enabled in the tenant's Defender plan. (c) Alert tuning rules in Defender XDR have suppressed the alert class. (d) Sovereign-cloud feature parity gap (see §4 row for Defender XDR — UPIA/XPIA).
+**Root cause.** (a) The tenant lacks a Microsoft 365 Copilot license on the affected principal at prompt time — Defender XDR M365 Copilot alerts require licensed scope. (b) The Microsoft Defender XDR add-on for Copilot is not enabled in the tenant's Defender plan. (c) Alert tuning rules in Defender XDR have suppressed the alert class.
 
 **Diagnostic queries.**
 
@@ -311,8 +310,7 @@ Get-MgUser -UserId <upn> -Property AssignedLicenses,AssignedPlans |
 1. Verify and remediate license state for the affected principal (and for the test pool — anti-pattern §3.12).
 2. Confirm Defender XDR Copilot integration is enabled (Microsoft 365 Defender portal → Settings → Microsoft 365 Copilot).
 3. Review and remove inappropriate alert-suppression rules; document the change.
-4. For sovereign-cloud parity gaps, document the gap as a §1.4 standing compensating control and confirm Comm Compliance + Sentinel correlation provide coverage.
-5. Open Microsoft Support case Severity B if Defender XDR is fully enabled and licensed but alerts still do not fire on the verification scenario.
+4. Open Microsoft Support case Severity B if Defender XDR is fully enabled and licensed but alerts still do not fire on the verification scenario.
 
 **Validation.** Re-run the [verification-testing.md](verification-testing.md) Defender XDR test cases; expect alerts within near-real-time SLA.
 
@@ -496,39 +494,13 @@ The following anti-patterns are **observed in real FSI deployments** of Control 
 | **3.4** | **The agent owner reviews and dismisses Comm Compliance matches on their own agent.** | Segregation-of-duties violation. FINRA 3110 supervision and Fed SR 26-2 (formerly SR 11-7) independent-validation principles both require an independent reviewer. SOX 404 likewise. | Comm Compliance reviewer pool **must exclude the agent owner and the agent owner's direct reporting line**. Configure reviewer assignment in the policy so this is enforced, not policy-by-convention. |
 | **3.5** | **"Search-UnifiedAuditLog single-shot, no pagination."** | The cmdlet returns at most ~5,000 records per call and silently truncates. Investigations spanning >1 day or busy users miss records. Evidence E-02 captured this way is incomplete. | Use the documented pagination pattern with `SessionId` + `SessionCommand "ReturnLargeSet"` and loop until the result set returns < page size. Or use the Office 365 Management Activity API for incidents with >5,000 expected events. |
 | **3.6** | **Mutating evidence before §1.3 capture** — re-running the Defender alert through "Resolve," editing the Sentinel incident comments to add summary, dismissing the Comm Compliance match before exporting. | Destroys the original-state record. Exam staff and counsel cannot rely on after-the-fact reconstructions. **This is itself a SEV-2 finding** per §1.1 escalation rule. | Capture E-01 through E-13 **before** any state change in the source system. If a state change is required for containment (e.g., Resolve to suppress further automation), capture-then-change. Document the order in the IR ticket. |
-| **3.7** | **"Sovereign cloud parity assumption"** — assuming Commercial procedures (cmdlets, portal URLs, classifier availability) work identically in GCC, GCC High, or DoD. | Several Defender for Cloud AI features and Comm Compliance templates have **different GA timelines** in sovereign clouds. Procedures that "work in Commercial" may silently fail in GCC High and produce zero detections without raising an error. | Maintain the §4 sovereign cloud matrix and **verify per-cloud** during quarterly verification. Open Microsoft Support cases when parity gaps block control objectives; document the gap as a temporary compensating control under §1.4. |
-| **3.8** | **Treating Power Platform admin telemetry as books-and-records evidence.** | Power Platform admin analytics is **operational telemetry**, not a SEC 17a-4 / FINRA 3110 record. Retention windows, immutability, and reviewer audit trails do not meet 17a-4(f) WORM requirements. | Source books-and-records evidence from **UAL + Purview Comm Compliance + Sentinel + retention-labeled exports**. Use Power Platform telemetry for operations only, not as the system of record for §1.3 evidence. |
-| **3.9** | **"Owner-as-sole-approver"** — same Entra principal owns the agent, approves Comm Compliance matches, and signs off on the agent's quarterly review. | SoD and FINRA 3110 violation. Also creates Entra privileged-role concentration that conflicts with PIM-just-in-time recommendations (Control 1.6). | Enforce three-role separation: **Agent Builder** (creates), **Compliance Reviewer** (reviews matches), **Agent Owner** (accepts business risk). Document the matrix in the agent's onboarding record. |
-| **3.10** | **Deleting Sentinel rules to "clean up" false-positive alert flood.** | Loses the rule lineage. After deletion, the firm cannot demonstrate that detection was in place at the time of the prior incident — which destroys evidence E-07 retroactively. | **Disable** rules instead of deleting; or version the rule and supersede. Maintain rule history in source control (the [PowerShell setup playbook](powershell-setup.md) §4 covers Sentinel-as-code patterns). |
-| **3.11** | **Believing a Defender XDR auto-resolution = case closed.** | Auto-resolution suppresses the case from the queue but does **not** populate `Classification` or `Determination`, which leaves §1.5 C-14 incomplete. Microsoft Support and T&S also lose continuity. | Always set Classification + Determination explicitly. Use auto-resolution only after manual review for SEV-3/4. |
-| **3.12** | **"License the user, then revoke after testing"** to keep cost down on red-team accounts. | Destroys the principal context (E-09) and breaks the link from a test prompt to its UAL record. License-state at incident time is part of the evidence floor. | Maintain a **persistent test license pool** (5–10 seats) for red-team and verification work. Document the pool in [verification-testing.md](verification-testing.md). |
-| **3.13** | **Trusting a single signal plane** — e.g., "Prompt Shields blocked it, no further action needed." | Single-plane trust misses XPIA cases where the prompt itself is benign but a grounded source carried the injection. Defender XDR XPIA, Comm Compliance, and Sentinel correlation all add coverage that Prompt Shields alone does not. | Treat the four planes as **defense-in-depth**. The §1.5 checklist (C-12) requires cross-reference review for every SEV-1/2 case. |
-| **3.14** | **Cross-tenant guest activity ignored** because "they're a B2B guest, that's the home tenant's problem." | If the guest used **your** Copilot license to generate adversarial output against **your** data, the events are **your** UAL records and **your** §1.3 / §1.2 obligations. The home tenant has no standing to file your Reg S-P notice. | Treat guest activity as **first-party** for Control 1.21 purposes. Confirm Conditional Access for B2B guests scopes Copilot resources, and that External Identities settings restrict guest access to declarative agents. Cross-reference Control 1.19 (cross-tenant access). |
-
----
-
-## §4. Sovereign Cloud Matrix
-
-
-The signal planes that feed Control 1.21 have **different feature availability** across Microsoft sovereign clouds. The matrix below summarizes the operational baseline as of the *Last UI Verified* date in the parent control. **Verify per-cloud during quarterly verification** — the matrix changes as Microsoft rolls features out. Anti-pattern §3.7 covers the parity-assumption failure mode.
-
-| Capability | Commercial | GCC | GCC High | DoD |
-|---|---|---|---|---|
-| **Azure AI Content Safety — Prompt Shields** | GA, all classifiers (jailbreak, indirect injection, protected material, groundedness) | GA, all classifiers | GA, jailbreak + indirect injection; verify protected-material/groundedness regional availability | Verify regional availability; some classifiers may follow Commercial by 1–2 quarters |
-| **Defender for Cloud — Threat Protection for AI workloads** | GA | GA (verify regional) | Limited GA; check current Microsoft Learn matrix per release | Plan-by-plan verification required |
-| **Defender XDR — UPIA/XPIA alerts for M365 Copilot** | GA | GA | GA | Verify with Microsoft account team |
-| **Purview Communication Compliance — "Detect Microsoft Copilot Interactions" template** | GA | GA | GA (template parity confirmed; verify Prompt Shield + Protected Material classifier integration) | Verify per-tenant |
-| **Microsoft Sentinel — content hub solutions for M365 + Defender XDR** | GA | GA (Azure Government) | GA (Azure Government Secret may differ) | Azure Government Secret / Top Secret — verify per-environment |
-| **`CopilotInteraction` UAL record type** | GA | GA | GA | GA |
-| **Microsoft 365 Copilot license SKU** | GA | GA | GA (with documented capability differences vs. Commercial) | Verify availability and capability scope |
-| **Microsoft Copilot Trust & Safety escalation** | Standard path via Unified Support | Standard path | Verify intake path with account team — sovereign-specific T&S queue may differ | Sovereign-specific intake; confirm with account team |
-
-**Sovereign-cloud operational notes.**
-
-1. **GCC High** Defender for Cloud AI workload protection coverage often lags Commercial by one to two release cycles. Until parity, treat Defender XDR + Comm Compliance as the primary detection planes, and document the gap as a **standing compensating control** under §1.4 in the control's risk register.
-2. **DoD** environments routinely require **manual feature enablement** through the Microsoft account team for AI-related capabilities. Maintain a per-feature enablement record so that during exam, the firm can demonstrate when each plane became available.
-3. **Cross-cloud B2B guests** (e.g., Commercial guest in a GCC tenant) compound the parity problem: the guest's home-tenant policies do not apply in your tenant, and your tenant's Prompt Shields **do** apply but classifier behavior may differ from what the guest's home tenant tested. Cross-reference Control 1.19.
-4. **Cmdlet endpoint differences.** PowerShell modules (`Connect-IPPSSession`, `Connect-MgGraph`, `Connect-AzAccount`) require sovereign-specific environment switches (`-AzureEnvironmentName`, `-Environment USGov`/`USGovHigh`/`USGovDoD`). Scripts in [powershell-setup.md](powershell-setup.md) must be run with the correct switch — the §3.7 parity anti-pattern is most often a script-misconfiguration root cause.
+| **3.7** | **Treating Power Platform admin telemetry as books-and-records evidence.** | Power Platform admin analytics is **operational telemetry**, not a SEC 17a-4 / FINRA 3110 record. Retention windows, immutability, and reviewer audit trails do not meet 17a-4(f) WORM requirements. | Source books-and-records evidence from **UAL + Purview Comm Compliance + Sentinel + retention-labeled exports**. Use Power Platform telemetry for operations only, not as the system of record for §1.3 evidence. |
+| **3.8** | **"Owner-as-sole-approver"** — same Entra principal owns the agent, approves Comm Compliance matches, and signs off on the agent's quarterly review. | SoD and FINRA 3110 violation. Also creates Entra privileged-role concentration that conflicts with PIM-just-in-time recommendations (Control 1.6). | Enforce three-role separation: **Agent Builder** (creates), **Compliance Reviewer** (reviews matches), **Agent Owner** (accepts business risk). Document the matrix in the agent's onboarding record. |
+| **3.9** | **Deleting Sentinel rules to "clean up" false-positive alert flood.** | Loses the rule lineage. After deletion, the firm cannot demonstrate that detection was in place at the time of the prior incident — which destroys evidence E-07 retroactively. | **Disable** rules instead of deleting; or version the rule and supersede. Maintain rule history in source control (the [PowerShell setup playbook](powershell-setup.md) §4 covers Sentinel-as-code patterns). |
+| **3.10** | **Believing a Defender XDR auto-resolution = case closed.** | Auto-resolution suppresses the case from the queue but does **not** populate `Classification` or `Determination`, which leaves §1.5 C-14 incomplete. Microsoft Support and T&S also lose continuity. | Always set Classification + Determination explicitly. Use auto-resolution only after manual review for SEV-3/4. |
+| **3.11** | **"License the user, then revoke after testing"** to keep cost down on red-team accounts. | Destroys the principal context (E-09) and breaks the link from a test prompt to its UAL record. License-state at incident time is part of the evidence floor. | Maintain a **persistent test license pool** (5–10 seats) for red-team and verification work. Document the pool in [verification-testing.md](verification-testing.md). |
+| **3.12** | **Trusting a single signal plane** — e.g., "Prompt Shields blocked it, no further action needed." | Single-plane trust misses XPIA cases where the prompt itself is benign but a grounded source carried the injection. Defender XDR XPIA, Comm Compliance, and Sentinel correlation all add coverage that Prompt Shields alone does not. | Treat the four planes as **defense-in-depth**. The §1.5 checklist (C-12) requires cross-reference review for every SEV-1/2 case. |
+| **3.13** | **Cross-tenant guest activity ignored** because "they're a B2B guest, that's the home tenant's problem." | If the guest used **your** Copilot license to generate adversarial output against **your** data, the events are **your** UAL records and **your** §1.3 / §1.2 obligations. The home tenant has no standing to file your Reg S-P notice. | Treat guest activity as **first-party** for Control 1.21 purposes. Confirm Conditional Access for B2B guests scopes Copilot resources, and that External Identities settings restrict guest access to declarative agents. Cross-reference Control 1.19 (cross-tenant access). |
 
 ---
 
@@ -564,9 +536,8 @@ When opening a Microsoft Unified Support case for a Control 1.21 issue, attach t
 5. **Prompt Shields verdict export** (E-03) including all classifier scores, not just the verdict label.
 6. **Comm Compliance match record** (E-06) with reviewer disposition.
 7. **Sentinel incident export** (E-07) including the analytic rule's KQL.
-8. **Sovereign cloud designation** (Commercial / GCC / GCC High / DoD) — this materially changes the support routing.
-9. **Severity classification + business impact statement** — why this is Severity A/B/C in your environment, with a one-paragraph reference to the §1.2 reportability outcome.
-10. **Reproduction steps** when applicable: prompt body (sanitized), agent definition, grounding sources.
+8. **Severity classification + business impact statement** — why this is Severity A/B/C in your environment, with a one-paragraph reference to the §1.2 reportability outcome.
+9. **Reproduction steps** when applicable: prompt body (sanitized), agent definition, grounding sources.
 
 **Severity-specific additions.**
 - **Severity A (SEV-1 confirmed Prompt Shields bypass or active exfiltration):** request **Microsoft Copilot Trust & Safety** engagement in the case opening notes; reference the classifier defect explicitly. Include the prompt + completion exactly as observed.
@@ -576,8 +547,7 @@ When opening a Microsoft Unified Support case for a Control 1.21 issue, attach t
 **What Microsoft Support cannot do.**
 - Make the firm's reportability decision.
 - Provide the firm's evidence preservation (the firm owns 17a-4(f) WORM).
-- Restore deleted Sentinel rules or Comm Compliance policies — preserve them via §3.10 alternative.
-- Override per-cloud feature availability — sovereign-cloud parity gaps are roadmap items, not support tickets.
+- Restore deleted Sentinel rules or Comm Compliance policies — preserve them via §3.9 alternative.
 
 ---
 
@@ -607,7 +577,6 @@ When opening a Microsoft Unified Support case for a Control 1.21 issue, attach t
 - *Microsoft Purview Audit — `CopilotInteraction` record schema* — field-level reference confirming prompt body is **not** included.
 - *Microsoft Sentinel — Microsoft 365 Copilot solution + Defender XDR connector* — content hub solution catalog and KQL pattern library.
 - *Microsoft Purview — Records management and SEC 17a-4(f) attestation* — WORM configuration and Designated Third Party (D3P) requirements.
-- *PowerShell modules — sovereign cloud connection switches* — `Connect-MgGraph -Environment`, `Connect-AzAccount -Environment`, `Connect-IPPSSession -ConnectionUri`.
 
 **Regulatory anchors** (paraphrased — consult counsel for authoritative text):
 
@@ -710,22 +679,21 @@ PIR — IR-<ticket-id>
 
 The questions below **must** be answered in every Control 1.21 PIR. They are diagnostic, not bureaucratic — repeated "yes" answers across PIRs surface a systemic issue that the trend-watch (§8.3) will not catch on its own.
 
-1. Did the firm rely on a single signal plane for detection? (anti-pattern §3.13)
+1. Did the firm rely on a single signal plane for detection? (anti-pattern §3.12)
 2. Was any KQL query run against `CopilotInteraction` for prompt-content matching? (anti-pattern §3.2)
 3. Was the agent owner involved in approving any compliance match on their own agent? (anti-pattern §3.4)
 4. Was Prompt Shields severity threshold tuned during the incident? If yes, who authorized? (anti-pattern §3.1)
 5. Was any evidence captured **after** state change in the source system? (anti-pattern §3.6)
-6. Was sovereign-cloud parity assumed at any step? (anti-pattern §3.7)
-7. Was the §1.5 pre-escalation checklist completed before each escalation tier transition?
-8. Was the §1.2 reportability tree walked end-to-end with every "No" reasoned?
-9. Was the determination timestamp (E-01) recorded contemporaneously, or back-filled?
-10. Did any Sentinel alerts auto-resolve without §1.5 C-14 Classification + Determination set? (anti-pattern §3.11)
-11. Did UAL ingestion lag affect the investigation? If yes, was a Microsoft Support case opened?
-12. Was a cross-tenant guest involved? If yes, did the firm treat the events as first-party? (anti-pattern §3.14)
-13. Was a Microsoft Copilot Trust & Safety case opened where a Prompt Shields bypass was confirmed?
-14. Did any related control (1.6, 1.7, 1.8, 1.10, 1.13, 1.14, 1.19, 1.24, 3.4, 3.9, 4.6) surface a finding during root cause? If yes, is a corrective action open in that control?
-15. Did the §3 anti-pattern catalog need an update from this incident? If yes, raise the change in the next monthly Control 1.21 review.
-16. Did the firm's PyRIT (or equivalent) red-team exercise foresee this attack class? If no, queue a scenario addition for the next quarterly red-team cycle.
+6. Was the §1.5 pre-escalation checklist completed before each escalation tier transition?
+7. Was the §1.2 reportability tree walked end-to-end with every "No" reasoned?
+8. Was the determination timestamp (E-01) recorded contemporaneously, or back-filled?
+9. Did any Sentinel alerts auto-resolve without §1.5 C-14 Classification + Determination set? (anti-pattern §3.10)
+10. Did UAL ingestion lag affect the investigation? If yes, was a Microsoft Support case opened?
+11. Was a cross-tenant guest involved? If yes, did the firm treat the events as first-party? (anti-pattern §3.13)
+12. Was a Microsoft Copilot Trust & Safety case opened where a Prompt Shields bypass was confirmed?
+13. Did any related control (1.6, 1.7, 1.8, 1.10, 1.13, 1.14, 1.19, 1.24, 3.4, 3.9, 4.6) surface a finding during root cause? If yes, is a corrective action open in that control?
+14. Did the §3 anti-pattern catalog need an update from this incident? If yes, raise the change in the next monthly Control 1.21 review.
+15. Did the firm's PyRIT (or equivalent) red-team exercise foresee this attack class? If no, queue a scenario addition for the next quarterly red-team cycle.
 
 #### §8.3 12-Month Trend-Watch (Reviewed Quarterly)
 
@@ -740,7 +708,6 @@ Maintain a rolling 12-month trend-watch table that the Control 1.21 owner review
 | **Audit ingestion lag** | Median + 95th percentile UAL-to-Sentinel latency | Track | Open Microsoft Support case; update SLA documentation if persistent |
 | **Comm Compliance reviewer turnaround** | Median time from policy match to reviewer disposition | Track | Resource the reviewer pool; ensure §3.4 SoD does not bottleneck on a single individual |
 | **Sentinel false-positive rate** | False-positive % per analytic rule | Track per rule | Tune the rule (not the classifier); document tuning evidence |
-| **Sovereign-cloud parity gap** | Number of capabilities behind Commercial in firm's primary sovereign cloud | Track | Refresh §4 matrix; update §1.4 compensating controls accordingly |
 | **Prompt Shields bypass candidates** | Count of T&S cases opened | Track | Quarterly review with Microsoft account team |
 | **Agent decommissioning evidence gaps** | PIRs that surfaced 1.24 evidence-loss findings | Track | Reinforce 1.24 retention design before agent retirement |
 

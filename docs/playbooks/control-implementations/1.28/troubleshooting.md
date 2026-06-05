@@ -224,7 +224,6 @@ In the portal, confirm Policies → Data policies → [Policy] → **Scope** lis
 ### Likely Causes
 
 - The session is running in PowerShell 7 (Core) instead of Windows PowerShell 5.1; `Microsoft.PowerApps.Administration.PowerShell` requires Desktop edition and silently returns empty results otherwise.
-- The session authenticated against the wrong cloud (commercial endpoint while the tenant is in GCC / GCC High / DoD).
 - The signed-in account does not have Power Platform Admin (read access only via the portal does not grant cmdlet access to all properties).
 
 ### Diagnostics
@@ -240,13 +239,12 @@ $PSVersionTable.PSVersion       # Should be 5.1.x
 ### Resolution Options
 
 - Switch to a Windows PowerShell 5.1 session.
-- Re-authenticate with the correct sovereign-cloud endpoint: `Add-PowerAppsAccount -Endpoint usgov` (GCC) / `usgovhigh` (GCC High) / `dod` (DoD).
 - Confirm the signed-in account holds the Power Platform Admin role (or use a service principal that does).
 
 ### Prevention
 
 - Add the PowerShell guard from the [PowerShell Setup](powershell-setup.md) playbook to every script. It throws when running under a non-Desktop edition rather than producing false-clean evidence.
-- Document the sovereign-cloud endpoint in your runbooks; do not rely on per-operator memory.
+- Document authentication details in your runbooks.
 
 ---
 

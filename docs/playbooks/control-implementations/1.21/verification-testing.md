@@ -3,7 +3,6 @@
 **Control:** 1.21 — Adversarial Input Logging  
 **Pillar:** 1 — Security  
 **Audience:** AI Governance Lead, SOC analyst (Sentinel + Defender XDR), Purview Compliance Admin, Azure AI Owner, FSI Internal Audit  
-**Sovereign clouds:** Commercial, GCC, GCC High, DoD (per-cloud feature parity tracked in §5)  
 **Cross-links:** 1.6 (Customer Lockbox & data export), 1.7 (Audit log retention), 1.8 (eDiscovery & legal hold), 1.10 (Communication Compliance), 1.13 (Defender for Cloud Apps AI monitoring), 1.14 (DSPM for AI), 1.19 (Sensitivity labels), 1.24 (Sentinel analytics for Copilot), 3.4 (Incident response), 3.9 (Tabletop exercises), 4.6 (Operational telemetry)
 
 > **Regulatory hedging notice.** This playbook describes verification procedures intended to **support compliance with** FINRA 4511, FINRA RN 24-09 / Rule 3110 (AI supervision), SEC 17a-4(f) (WORM/immutable retention), SEC Reg S-P (2024 amendments — incident response), SOX 404 (control design and operating effectiveness), GLBA 501(b) Safeguards Rule, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (model risk management), Federal Reserve SR 26-2 (formerly SR 11-7) (model risk management), and CFTC Regulation 1.31 (recordkeeping). Implementation **does not guarantee** legal compliance. Organizations should verify applicability with qualified counsel and confirm tenant-specific behaviour against current Microsoft Learn documentation.
@@ -24,7 +23,6 @@ This playbook proves that an FSI tenant can **detect, log, retain, and respond t
 8. **False positives are controlled** — benign prompts that resemble injections do not fire detections (NEG family).
 9. **Evidence is preserved** for the FSI retention horizon (6+ years for FINRA 4511 / SEC 17a-4(f)) via Audit Premium 10-year add-on **or** documented Sentinel / external WORM export with chain-of-custody attestation.
 10. **Incident response is exercised** — an annual SOC tabletop verifies SEC Reg S-P 2024 customer-notification analysis when adversarial input touches non-public information (NPI).
-11. **Sovereign-cloud parity** is tracked per cloud (Commercial / GCC / GCC High / DoD), with compensating controls documented where Prompt Shields, DSPM for AI, or Audit Premium are not yet GA.
 
 > **What this playbook does NOT claim.** It does not assert that Microsoft 365 Copilot has a dedicated `AdversarialInput` UAL operation (none is published). It does not assert any single numeric latency SLA for UAL ingestion, Sentinel rule firing, or Defender XDR alert appearance — every numeric latency value in this file is either (a) a Microsoft Learn-cited range or (b) a **tenant-measured baseline** captured during pre-flight (PRE-04) and re-asserted as a tenant-specific SLO. It does not conflate Prompt Shields detections (which surface in Azure AI Content Safety logs and Defender XDR) with UAL records (which capture the agent interaction body). The two evidence streams must be reconciled by ConversationId, not assumed equivalent.
 
@@ -36,7 +34,6 @@ Every test family runs on a fixed cadence per zone. Cadence is enforced by the `
 
 | Family | Z1 (Personal) | Z2 (Team) | Z3 (Enterprise) | Owner | Reviewer |
 |---|---|---|---|---|---|
-| **LIC** — Licensing & sovereign parity | Annual | Annual | Annual | AI Governance Lead | FSI Internal Audit |
 | **UAL** — Unified Audit Log presence & latency baseline | Annual | Quarterly | Monthly | Purview Compliance Admin | SOC Lead |
 | **DET** — Pattern-library detection | Annual | Quarterly | Monthly | SOC Analyst | AI Governance Lead |
 | **CONTENT-SAFETY** — Prompt Shields (User & Document attacks) | N/A (Z1 typically not Azure-AI-fronted) | Quarterly (where applicable) | Monthly | Azure AI Owner | SOC Lead |
@@ -108,7 +105,7 @@ All pre-flight gates **must pass** before any test family is run. The validator 
 
 **Evidence.** `1.21-PRE-03_licensing.json` — SKU GUIDs, friendly names, consumed/total seats, Content Safety resource list with region.
 
-**Pass criteria.** All required SKUs present **or** documented compensating control with explicit reference to §5 sovereign matrix.
+**Pass criteria.** All required SKUs present.
 
 **Audit assertion.** "Tenant {tenantId} entitled to Microsoft-published features required for Control 1.21 in cloud {cloud} as of {runUtc}."
 
@@ -203,7 +200,7 @@ Each test below has the same seven-field structure as Control 1.14:
 6. **Audit assertion** — single-sentence statement written into the JSON evidence record.
 7. **Evidence** — files written to the evidence directory, all SHA-256 hashed.
 
-**Result values.** Every test emits `result: "Pass" | "Fail" | "Skip"`. `Skip` is reserved for PRE-induced halts and sovereign-cloud gaps; it is **not** a substitute for an unexamined test.
+**Result values.** Every test emits `result: "Pass" | "Fail" | "Skip"`. `Skip` is reserved for PRE-induced halts; it is **not** a substitute for an unexamined test.
 
 ---
 
@@ -248,24 +245,6 @@ Each test below has the same seven-field structure as Control 1.14:
 **Audit assertion.** "Role separation across Security, Compliance, SOC, and AI Governance functions verified for Control 1.21 at {runUtc}, with all overlaps mitigated by documented co-signers."
 
 **Evidence.** `1.21-LIC-02_role-matrix.json`.
-
-#### 1.21-LIC-03 — Sovereign-cloud feature parity check
-
-**Objective.** Confirm that the features this playbook depends on are actually GA (or in supported preview with a documented compensating control) in the operating cloud.
-
-**Preconditions.** PRE-03 pass; cloud parameter set.
-
-**Steps.**
-1. For the cloud parameter (`Commercial | GCC | GCCHigh | DoD`), look up the §5 sovereign matrix entry for: Prompt Shields, DSPM for AI, Defender for Cloud Apps AI agent inventory, Audit Premium 10y add-on, Sentinel NRT rules.
-2. For any feature listed as "Preview" or "Not GA," confirm a compensating control is referenced.
-
-**Expected.** Every required feature is GA, or has a compensating control reference.
-
-**Pass criteria.** `parityGaps.uncompensatedCount == 0`.
-
-**Audit assertion.** "Sovereign-cloud feature parity for Control 1.21 in cloud {cloud} confirmed; gaps (if any) carry documented compensating controls as of {runUtc}."
-
-**Evidence.** `1.21-LIC-03_parity.json`.
 
 ---
 
@@ -902,27 +881,6 @@ IR tests are tabletop exercises; the validator's role is to confirm a signed tab
 
 ---
 
-## §5 — Sovereign-Cloud Matrix
-
-This matrix tracks the status of each Microsoft feature this playbook depends on, per cloud, with compensating controls where a feature is not yet GA. **Confirm currency at the playbook's `lastVerifiedUtc` footer date** — sovereign-cloud GA status changes regularly and Microsoft Learn is the source of truth.
-
-| Feature | Commercial | GCC | GCC High | DoD | Compensating control if not GA |
-|---|---|---|---|---|---|
-| Microsoft 365 Copilot (`CopilotInteraction` UAL records) | GA | GA (with regional variances — confirm) | GA (lagging features common — confirm) | Limited GA — confirm | If Copilot not GA in cloud, mark Z2/Z3 Microsoft-Copilot tests Skip; substitute Studio agent with `AIAppInteraction` records. |
-| `AIAppInteraction` / `ConnectedAiAppInteraction` UAL record types | GA | GA | Confirm | Confirm | If not available, route AI app telemetry directly to Sentinel via diagnostic settings; document in §6.4 evidence pack. |
-| Azure AI Content Safety — Prompt Shields | GA | Confirm regional availability | Limited / preview — confirm | Limited / preview — confirm | If Prompt Shields not GA, mark CONTENT-SAFETY family Skip and rely on Sentinel KQL pattern detection (DET family) plus Defender XDR (DXR family); document the gap in `1.21-LIC-03_parity.json`. |
-| Microsoft Defender for Cloud Apps — AI agent inventory | Preview / GA — confirm | Preview / lagging — confirm | Preview / lagging — confirm | Preview / lagging — confirm | If not available, build a tenant-maintained agent inventory via Power Platform CoE + Copilot Studio APIs; mark DXR-02 Skip with reference to compensating inventory. |
-| Microsoft Defender XDR (advanced hunting + AlertV2 API) | GA | GA | GA | GA | N/A (broadly available across sovereign clouds). |
-| Microsoft Sentinel — scheduled analytics rules | GA | GA | GA | GA | N/A. |
-| Microsoft Sentinel — NRT (near-real-time) analytics rules | GA | GA | Confirm | Confirm | If NRT not GA, use scheduled rules with the shortest supported cadence (5 minutes) and document the increased detection-latency exposure as a Z3 risk acceptance. |
-| Microsoft Purview Audit (Premium) — 10-year retention add-on | GA (separate add-on) | GA | Confirm | Confirm | If 10-year add-on unavailable, route audit logs to Sentinel `Logs` workspace with retention extended to ≥ 2190 days, **or** export to immutable Azure blob with legal-hold, **or** to attested third-party WORM store. Document path in AUDIT-02 evidence. |
-| Microsoft Purview DSPM for AI | GA | Confirm | Confirm | Confirm | Cross-link to Control 1.14 verification for DSPM-specific compensating controls. |
-| Communication Compliance — adverse-content policies | GA | GA | Confirm | Confirm | Cross-link to Control 1.10 verification (out of 1.21 scope). |
-
-> **How to refresh this matrix.** At each cycle, the AI Governance Lead spot-checks each "Confirm" cell against current Microsoft Learn product-availability documentation and updates the row. Material changes (a feature moves from preview to GA, or vice versa) trigger a `v1.x.0` minor version bump on this playbook.
-
----
-
 ## §6 — Evidence Pack
 
 ### 6.1 — JSON Schema (per-test evidence record)
@@ -1043,8 +1001,7 @@ The canonical implementation lives in the companion repository. The shape below 
     Entra tenant GUID under verification.
 
 .PARAMETER Cloud
-    Sovereign cloud: Commercial | GCC | GCCHigh | DoD. Affects endpoint
-    discovery and the §5 sovereign-matrix lookups.
+    Cloud target. Default: 'Commercial' (Microsoft commercial Global cloud).
 
 .PARAMETER Zone
     Z1 | Z2 | Z3 | All. Filters which agents are exercised.
@@ -1085,7 +1042,7 @@ The canonical implementation lives in the companion repository. The shape below 
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)] [string] $TenantId,
-    [ValidateSet('Commercial','GCC','GCCHigh','DoD')] [string] $Cloud = 'Commercial',
+    [string] $Cloud = 'Commercial',
     [ValidateSet('Z1','Z2','Z3','All')] [string] $Zone = 'All',
     [ValidateSet('LIC','UAL','DET','CONTENT-SAFETY','ENCODING','SENT','DXR','ZONE','NEG','AUDIT','IR','All')] [string] $TestFamily = 'All',
     [string] $AgentId,
@@ -1256,7 +1213,7 @@ After the manifest is built it must be either: (a) committed to an immutable Azu
 | Family | Per-test files | Purpose |
 |---|---|---|
 | PRE | `1.21-PRE-{nn}_*.json` | Gate results — drive fail-closed posture. |
-| LIC | `1.21-LIC-{nn}_*.json` | SKU + role + sovereign-parity evidence. |
+| LIC | `1.21-LIC-{nn}_*.json` | SKU + role evidence. |
 | UAL | `1.21-UAL-{nn}_*.json` | Unified Audit Log presence + latency baselines. |
 | DET | `1.21-DET-{nn}_stimulus.json`, `_ual-record.json`, `_correlation.json` | Stimulus / response / correlation tuple per detection test. |
 | CONTENT-SAFETY | `1.21-CONTENT-SAFETY-{nn}_request.json`, `_response.json`, `_agent-response.json` | Prompt Shields request + response (synchronous). |
@@ -1306,8 +1263,7 @@ The cycle attestation is a single signed statement covering the cycle's results.
       {
         "testId": "1.21-DXR-02",
         "reason": "Defender for Cloud Apps AI agent inventory in preview in operating cloud; compensating tenant-maintained inventory referenced in 1.21-LIC-03_parity.json.",
-        "compensatingControlRef": "1.21-LIC-03_parity.json#/sovereignGaps/0"
-      }
+          }
     ]
   },
   "tenantSloSeconds": {
@@ -1330,8 +1286,7 @@ The cycle attestation is a single signed statement covering the cycle's results.
     "caveats": [
       "Microsoft does not publish a single guaranteed SLA for Unified Audit Log ingestion; operative latency for this cycle is the tenant-measured p99 captured in PRE-04 / UAL-04, not a vendor SLA.",
       "Azure AI Content Safety Prompt Shields is the Microsoft-supported jailbreak detection surface for Azure-AI-fronted agents; first-party Microsoft 365 Copilot uses internal controls that surface (where applicable) via Defender XDR.",
-      "Sovereign-cloud feature parity is point-in-time as of the cycle close date; refer to the §5 sovereign matrix for any compensating controls in force."
-    ]
+          ]
   },
   "manifestRef": "1.21-manifest_{cycleId}.json",
   "manifestSha256": "<hash>",

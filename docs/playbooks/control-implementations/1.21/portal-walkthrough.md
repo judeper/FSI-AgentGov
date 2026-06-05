@@ -59,14 +59,14 @@ Out of scope (handled by sibling controls — see READ FIRST table):
 
 ### 0.2 The four Microsoft signal planes plus audit + correlation
 
-| # | Plane | Microsoft surface | Synchronous? | Blocks? | Produces supervisory record? | Sovereign-cloud parity (re-verify) |
+| # | Plane | Microsoft surface | Synchronous? | Blocks? | Produces supervisory record? |
 |---|---|---|---|---|---|---|
-| 1 | **Inference guardrail** | Azure AI Content Safety — Prompt Shields | **Yes** (inline) | **Yes** when configured | No | GA Commercial; verify GCC/GCC-H/DoD per release |
-| 2 | **Azure AI workload telemetry** | Defender for Cloud — Threat Protection for AI Workloads | No (seconds–minutes) | No | No | **Commercial only** as of April 2026 — see §1 |
-| 3 | **M365 Copilot detection** | Defender XDR — Security for AI | No (seconds–minutes) | No (response actions via XDR/Conditional Access) | No | GA Commercial; rolling GCC; verify GCC-H/DoD |
-| 4 | **Supervisory plane** | Purview Communication Compliance — Detect Microsoft Copilot Interactions template | No (minutes–hours) | No | **Yes** (FINRA Rule 3110 / RN 24-09 grade) | GA Commercial; rolling elsewhere |
-| 5 | **Audit / evidence plane** | Unified Audit `CopilotInteraction` + DSPM-for-AI + eDiscovery (Control 1.19) | No (minutes–hours) | No | Audit record only (no full prompt body) | GA broadly |
-| 6 | **Cross-plane correlation** | Microsoft Sentinel + Content Hub solutions | No (per rule window) | No | No | GA across clouds (verify per solution) |
+| 1 | **Inference guardrail** | Azure AI Content Safety — Prompt Shields | **Yes** (inline) | **Yes** when configured | No |
+| 2 | **Azure AI workload telemetry** | Defender for Cloud — Threat Protection for AI Workloads | No (seconds–minutes) | No | No |
+| 3 | **M365 Copilot detection** | Defender XDR — Security for AI | No (seconds–minutes) | No (response actions via XDR/Conditional Access) | No |
+| 4 | **Supervisory plane** | Purview Communication Compliance — Detect Microsoft Copilot Interactions template | No (minutes–hours) | No | **Yes** (FINRA Rule 3110 / RN 24-09 grade) |
+| 5 | **Audit / evidence plane** | Unified Audit `CopilotInteraction` + DSPM-for-AI + eDiscovery (Control 1.19) | No (minutes–hours) | No | Audit record only (no full prompt body) |
+| 6 | **Cross-plane correlation** | Microsoft Sentinel + Content Hub solutions | No (per rule window) | No | No |
 
 !!! warning "Latency reality — do not write 'real-time' into the WSP"
     Only Plane 1 (Prompt Shields) is synchronous with the prompt. Planes 2–3 are typically seconds–minutes. Planes 4–5 lag minutes–hours. Sentinel rule windows can add 5 minutes to several hours on top. WSP language must reference these documented latencies. Phrases like "ensures real-time prevention" or "guarantees blocking of all prompt injection" are **not supportable** by these surfaces and create regulatory exposure.
@@ -86,33 +86,6 @@ Out of scope (handled by sibling controls — see READ FIRST table):
 
 ---
 
-## §1 Sovereign cloud applicability matrix
-
-!!! danger "Cross-cloud parity is not symmetric — verify at deploy time"
-    The matrix below reflects publicly documented availability as of **April 2026**. Microsoft adds and removes sovereign-cloud parity on a per-feature, per-region cadence. Re-verify against the [Microsoft 365 Government service description](https://learn.microsoft.com/en-us/office365/servicedescriptions/office-365-platform-service-description/office-365-us-government/office-365-us-government) and the [Defender for Cloud cloud-availability matrix](https://learn.microsoft.com/en-us/azure/defender-for-cloud/support-matrix-defender-for-cloud) **before** treating any item below as a primary control in GCC / GCC High / DoD.
-
-| Capability | Commercial | GCC | GCC High | DoD | Compensating control if unavailable |
-|---|---|---|---|---|---|
-| Azure AI Content Safety — Prompt Shields | GA | Verify per release | **Often lagging — verify** | **Often lagging — verify** | Pre-prompt classifier in app code; document-quarantine on ingest; manual reviewer SLA in Comm Compliance |
-| Defender for Cloud — Threat Protection for AI Workloads | GA | Rolling | **Lagging — verify** | **Lagging — verify** | **Defender for AI Services is commercial-only as of Apr 2026** — substitute Sentinel custom analytics on Content Safety logs + Foundry diagnostic logs; document the gap to the AI Governance Lead |
-| Defender XDR — Security for AI / Copilot detections | GA | Rolling | Lagging — verify | Lagging — verify | Scheduled Sentinel hunting queries against Unified Audit + Foundry logs; Comm Compliance reviewer SLA tightened |
-| Purview Comm Compliance — Detect Microsoft Copilot Interactions (Prompt Shield + Protected Material classifiers) | GA | Rolling | Lagging — verify | Lagging — verify | Manual reviewer queue using offensive-language + custom keyword classifiers; widen sample rate to 100% in Zone 3 |
-| Purview DSPM for AI | GA | Rolling | Lagging — verify | Lagging — verify | Activity Explorer + Audit Search manual review |
-| M365 Copilot / Copilot Studio | GA | GA | **Limited preview as of early 2026 — verify** | **Limited / verify** | Restrict Zone 3 agents to Azure AI Foundry-backed surfaces with Prompt Shields + Defender for Cloud (where available) |
-| Sentinel Content Hub — *Microsoft 365 Copilot* solution | GA | GA | GA (verify version) | GA (verify version) | n/a |
-| Sentinel Content Hub — *Microsoft Defender for Cloud* solution | GA | GA | GA (verify version) | GA (verify version) | n/a |
-
-### 1.1 Per-surface caveats by sovereign cloud
-
-**Commercial.** All planes available. Default reference posture for this walkthrough.
-
-**GCC.** Treat as Commercial-minus-30-days. Re-verify Prompt Shields category coverage and Comm Compliance classifier availability before relying on either as a primary control.
-
-**GCC High.** Defender for Cloud — Threat Protection for AI Workloads is **not generally available** as of April 2026. Substitute: ingest Azure AI Foundry diagnostic logs + Content Safety annotation logs into Sentinel and apply the analytics rules from the *Microsoft 365 Copilot* Content Hub solution (which is GA across clouds). Document the substitution to the AI Governance Lead and CISO; capture the compensating-control evidence in the agent risk register (Control 1.2).
-
-**DoD.** As GCC High, plus: Microsoft 365 Copilot itself may be limited or unavailable. If Copilot is not deployed, planes 3–4 are not in scope; rely on plane 1 (Prompt Shields on Foundry-backed agents only) and the Sentinel correlation plane. Document the reduced surface to the Designated Supervisor.
-
----
 ## §2 Pre-flight gates
 
 Complete every gate below **before** opening any portal. Most failures during this walkthrough trace back to a missed gate.
@@ -236,7 +209,7 @@ Stage the following **before** §3, in a sandbox or non-production tenant where 
 **Surface:** Plane 2 (Azure AI workload telemetry; seconds–minutes latency)
 
 !!! danger "Commercial-only as of April 2026"
-    Defender for Cloud — Threat Protection for AI Workloads is **not generally available** in Azure Government (GCC High / DoD), 21Vianet, or AWS / GCP connected accounts as of April 2026. If your tenant is GCC High or DoD, **do not rely on this plane as a primary control** — implement the compensating-control pattern in §1.1 (Sentinel custom analytics on Foundry diagnostic logs + Content Safety annotation logs), and document the gap to the AI Governance Lead and CISO.
+    Defender for Cloud — Threat Protection for AI Workloads is not available for AWS / GCP connected accounts as of April 2026. For Azure commercial deployments, the plan is available — enable it per the steps below.
 
 ### 4.1 Enable the plan (per subscription)
 
@@ -488,7 +461,6 @@ Use this matrix to confirm the configured posture matches the firm's zone defini
 | Sentinel — Copilot solution analytics rules | Informational severity | Medium severity → SOC | High severity → SOC + on-call page |
 | Sentinel — Defender for Cloud AI rules | Informational | Medium → SOC | High → SOC + on-call |
 | Quarterly PyRIT red-team (§11) | Optional | Recommended | **Required**; findings into Control 1.2 risk register |
-| Sovereign-cloud parity verification | Annual | Annual | **Per-release**; documented in audit pack |
 | Attack evidence retention | Standard org policy | Standard org policy | **6 years (first 2 easily accessible)** per SEC 17a-4(b)(4) — hold via Control 1.19 |
 | WSP language | Brief mention | Documented review cadence | **Full incident-handling pathway** (see §10), named Supervisor, latency caveats, regulator notification clocks |
 | Reviewer escalation path | Manager | Compliance Officer | CISO + Compliance Officer + General Counsel; trigger §10 clocks |
@@ -632,8 +604,7 @@ The verification playbook covers, at minimum:
 4. Cross-plane correlation query (the §8.3 hunting query) → expected joins.
 5. Comm Compliance reviewer attestation timestamp capture.
 6. eDiscovery hold receipt verification (handoff to Control 1.19 verification).
-7. Sovereign-cloud parity verification template.
-8. Quarterly PyRIT exercise pass/fail criteria.
+7. Quarterly PyRIT exercise pass/fail criteria.
 
 The 12 verification criteria from the parent control map 1:1 to evidence items collected in §14.
 
@@ -653,7 +624,6 @@ The troubleshooting playbook covers, at minimum:
 - Comm Compliance Copilot policy stuck in *Draft*.
 - `CopilotInteraction` audit records missing or delayed.
 - Sentinel Content Hub rules installed but not triggering.
-- Sovereign-cloud parity gaps and supported compensating controls.
 - Latency exceeds documented expectations.
 - Reviewer attestation lost during eDiscovery export.
 - PyRIT execution generating false-positive incident floods.
@@ -661,7 +631,7 @@ The troubleshooting playbook covers, at minimum:
 ---
 ## §14 Evidence pack — manifest, SHA-256, and 12 anti-patterns
 
-The audit pack is the per-deployment artifact set that proves the configured planes are in place at a point in time. Capture once at go-live, then refresh per the §1 sovereign-cloud "verify per release" cadence (recommended quarterly for Zone 3, annually for Zones 1–2).
+The audit pack is the per-deployment artifact set that proves the configured planes are in place at a point in time. Capture once at go-live, then refresh quarterly for Zone 3 and annually for Zones 1–2.
 
 ### 14.1 Required artifacts
 
@@ -687,11 +657,10 @@ The audit pack is the per-deployment artifact set that proves the configured pla
 | 18 | Cross-plane hunting query result | §8.3 | CSV | Sentinel SOC Analyst |
 | 19 | Zone-aware response matrix sign-off | §9 | PDF | AI Governance Lead |
 | 20 | Per-zone agent inventory cross-check (zone × Prompt Shields × Defender × Comm Compliance × eDiscovery) | §9.1 | CSV | AI Governance Lead |
-| 21 | Sovereign-cloud parity verification per primitive | §1 | CSV | AI Governance Lead |
-| 22 | eDiscovery hold receipt (handoff from Control 1.19) | §10.1 | PDF | Purview eDiscovery Manager |
-| 23 | Quarterly PyRIT exercise report (most recent) | §11 | PDF | AI Red Team / Pen-test Owner |
-| 24 | False-positive review log (rolling 90 days) | §3.4, §6.4 | CSV | Designated Supervisor |
-| 25 | Manifest with SHA-256 of each artifact above | this section | `manifest.txt` | Compliance Officer |
+| 21 | eDiscovery hold receipt (handoff from Control 1.19) | §10.1 | PDF | Purview eDiscovery Manager |
+| 22 | Quarterly PyRIT exercise report (most recent) | §11 | PDF | AI Red Team / Pen-test Owner |
+| 23 | False-positive review log (rolling 90 days) | §3.4, §6.4 | CSV | Designated Supervisor |
+| 24 | Manifest with SHA-256 of each artifact above | this section | `manifest.txt` | Compliance Officer |
 
 ### 14.2 SHA-256 manifest pattern
 
@@ -715,16 +684,15 @@ The following patterns have surfaced in prior reviews and FSI audit findings aga
 
 1. **Querying `AuditLogs.TargetResources` for prompt body text.** Wrong table (Entra audit), wrong field. Prompt body is not in the standard `CopilotInteraction` schema. Source prompt-content signals from Prompt Shields, Defender for Cloud, Defender XDR, or Comm Compliance — never from KQL on `AuditLogs`.
 2. **Writing "real-time" or "ensures prevention" into the WSP.** Only Prompt Shields is synchronous. Defender alerts run seconds–minutes; Comm Compliance + audit run minutes–hours. Use the documented latencies; Microsoft surfaces *support* compliance but do not *guarantee* prevention.
-3. **Treating Defender for Cloud TP for AI Workloads as available in GCC High / DoD.** Commercial-only as of April 2026. Use the §1.1 compensating-control pattern; document the gap.
-4. **Skipping the Power Platform handshake at §5.2.** Without it, Copilot Studio agents do not appear in `AIAgentsInfo` and Plane 3 telemetry is incomplete. The handshake takes up to 30 minutes — schedule it in the change window.
-5. **Authoring or modifying the Comm Compliance Copilot policy via PowerShell.** No public PowerShell authoring path exists for the *Detect Microsoft Copilot Interactions* template. Portal-only. Capture screenshots as the primary evidence artifact.
-6. **Group-only reviewer assignment in Comm Compliance.** FINRA Rule 3110 / RN 24-09 requires a *named* Designated Supervisor in the WSP. Group assignment is acceptable in the tenant model but the audit pack must name the human.
-7. **Promoting Zone 3 *Block* posture to production without sandbox pilot.** *Block* can deny legitimate prompts that share lexical features with attacks. Stage in a sandbox tenant or pilot user group, capture the false-positive rate in §14 artifact 24, then promote.
-8. **Hand-rolling Sentinel KQL instead of installing Content Hub solutions.** The maintained solutions cover the common cases and are version-tracked by Microsoft. Layer custom hunting only after the baseline.
-9. **Confusing *Defender for Cloud Threat Protection for AI Workloads* with *Defender for AI Services* (Control 1.24).** Adjacent surfaces with overlapping naming. 1.21 enables the threat protection plan; 1.24 covers DSPM/CSPM for AI services. Both may be in scope; do not conflate.
-10. **Assuming `CopilotInteraction` audit retention by default.** Standard Audit retention is short. For Zone 3, pair with Advanced Audit retention and an eDiscovery hold via Control 1.19 — pure audit search alone does not satisfy SEC 17a-4(b)(4).
-11. **Running PyRIT against production without CISO sign-off and blast-radius limit.** Real attack prompts pollute reviewer queues and Defender XDR incidents. Sandbox first; production only with documented sign-off and pre-notification of the SOC and supervisory chain (§11.4).
-12. **Treating eDiscovery hold as a substitute for SEC 17a-4(f) WORM.** eDiscovery hold preserves *availability*; 17a-4(f) requires *immutable format*. Pair with Purview Records Management + Preservation Lock per §10.6.
+3. **Skipping the Power Platform handshake at §5.2.** Without it, Copilot Studio agents do not appear in `AIAgentsInfo` and Plane 3 telemetry is incomplete. The handshake takes up to 30 minutes — schedule it in the change window.
+4. **Authoring or modifying the Comm Compliance Copilot policy via PowerShell.** No public PowerShell authoring path exists for the *Detect Microsoft Copilot Interactions* template. Portal-only. Capture screenshots as the primary evidence artifact.
+5. **Group-only reviewer assignment in Comm Compliance.** FINRA Rule 3110 / RN 24-09 requires a *named* Designated Supervisor in the WSP. Group assignment is acceptable in the tenant model but the audit pack must name the human.
+6. **Promoting Zone 3 *Block* posture to production without sandbox pilot.** *Block* can deny legitimate prompts that share lexical features with attacks. Stage in a sandbox tenant or pilot user group, capture the false-positive rate in §14 artifact 24, then promote.
+7. **Hand-rolling Sentinel KQL instead of installing Content Hub solutions.** The maintained solutions cover the common cases and are version-tracked by Microsoft. Layer custom hunting only after the baseline.
+8. **Confusing *Defender for Cloud Threat Protection for AI Workloads* with *Defender for AI Services* (Control 1.24).** Adjacent surfaces with overlapping naming. 1.21 enables the threat protection plan; 1.24 covers DSPM/CSPM for AI services. Both may be in scope; do not conflate.
+9. **Assuming `CopilotInteraction` audit retention by default.** Standard Audit retention is short. For Zone 3, pair with Advanced Audit retention and an eDiscovery hold via Control 1.19 — pure audit search alone does not satisfy SEC 17a-4(b)(4).
+10. **Running PyRIT against production without CISO sign-off and blast-radius limit.** Real attack prompts pollute reviewer queues and Defender XDR incidents. Sandbox first; production only with documented sign-off and pre-notification of the SOC and supervisory chain (§11.4).
+11. **Treating eDiscovery hold as a substitute for SEC 17a-4(f) WORM.** eDiscovery hold preserves *availability*; 17a-4(f) requires *immutable format*. Pair with Purview Records Management + Preservation Lock per §10.6.
 
 ---
 
@@ -733,7 +701,7 @@ The following patterns have surfaced in prior reviews and FSI audit findings aga
 Final state, post-walkthrough:
 
 - Plane 1 (Prompt Shields) configured per zone on every Foundry / Azure OpenAI deployment backing an FSI agent.
-- Plane 2 (Defender for Cloud TP for AI Workloads) on for every relevant subscription in commercial cloud, with documented compensating controls in GCC High / DoD.
+- Plane 2 (Defender for Cloud TP for AI Workloads) on for every relevant subscription.
 - Plane 3 (Defender XDR Security for AI) enabled, Power Platform handshake complete, Copilot inventory populated.
 - Plane 4 (Comm Compliance Detect Microsoft Copilot Interactions) active for Zones 2 and 3, named Designated Supervisor, reviewer SLA in WSP.
 - Plane 5 (Unified Audit `CopilotInteraction`) verified, eDiscovery hold pathway through Control 1.19 documented.
