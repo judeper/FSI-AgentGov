@@ -1,4 +1,4 @@
-# Control 4.7 Verification & Testing Playbook
+﻿# Control 4.7 Verification & Testing Playbook
 
 ## Microsoft 365 Copilot Data Governance - FSI Verification Bundle
 
@@ -10,7 +10,7 @@
 
 > **Regulatory hedging notice.** This playbook documents verification procedures that support compliance with the regulations listed above. Successful execution of all tests does not by itself guarantee or ensure compliance. Each US financial services organization must validate that its specific regulatory obligations, supervisory commitments (including any FINRA Reg Notice 24-09 attestations or SEC examination undertakings), state-level requirements, and contractual obligations to clients and counterparties are met. The maturity ratings and pass thresholds in this document are calibrated against tenant-specific baselines captured in PRE-04 and PRE-07; do not adopt them as absolute targets without organization-specific recalibration. Generative AI behavior is non-deterministic; verification gives statistical assurance, not deterministic proof. Microsoft service surfaces, Graph API shapes, audit schemas, and portal paths change without notice - re-verify against the **Last UI Verified** date in the header of every cycle.
 
-> **Subprocessor caveat.** Microsoft 365 Copilot may, at Microsoft's option and within the boundaries documented in the Microsoft Products and Services Data Protection Addendum (DPA), invoke third-party model providers (including Anthropic) as subprocessors for selected reasoning workloads. FSI tenants must (a) confirm acceptance of the current subprocessor list under their Enterprise Agreement, (b) ensure that residency, prompt-logging, and customer-data-not-used-for-training commitments extend to those subprocessors, and (c) re-attest at every renewal. SOV-01 through SOV-03 below verify per-cloud parity but do not by themselves confirm subprocessor acceptance - that is a procurement and legal artefact captured in PRE-02.
+> **Subprocessor caveat.** Microsoft 365 Copilot may, at Microsoft's option and within the boundaries documented in the Microsoft Products and Services Data Protection Addendum (DPA), invoke third-party model providers (including Anthropic) as subprocessors for selected reasoning workloads. FSI tenants must (a) confirm acceptance of the current subprocessor list under their Enterprise Agreement, (b) ensure that residency, prompt-logging, and customer-data-not-used-for-training commitments extend to those subprocessors, and (c) re-attest at every renewal. The verification procedures below do not by themselves confirm subprocessor acceptance - that is a procurement and legal artefact captured in PRE-02.
 
 ---
 
@@ -24,7 +24,6 @@
 - Copilot Pages (Loop component) and Notebooks created by Copilot users that fall outside the Microsoft Purview retention scope - SEC 17a-4(f) and FINRA 4511 require comprehensive capture of business records irrespective of the surface they are authored on (PAGES-01, PAGES-02, NOTEBOOKS-01, NOTEBOOKS-02, NOTEBOOKS-03)
 - Multi-geo tenants where Copilot grounding crosses an OST or PDL boundary into a non-permitted region, breaching client residency commitments and, for non-US affiliates of US registrants, potentially triggering host-country data export obligations (MULTIGEO-01, MULTIGEO-02, MULTIGEO-03)
 - Negative-control synthetic prompts (NEG-01, NEG-02, NEG-03) that prove the guardrails actually fire under attack conditions, not just under happy-path observation
-- Sovereign-cloud parity gaps (SOV-01, SOV-02, SOV-03) where Commercial-tenant configurations have not been mirrored into GCC, GCC High, DoD, or 21Vianet tenants - a chronic source of cross-tenant regulatory drift in firms with US plus non-US operations
 - DLP-to-Sentinel and DLP-to-Reg-S-P breach-notification routing failures that would prevent the firm from meeting the GLBA Reg S-P 30-day notification clock for a Copilot-mediated incident (IR-01, IR-02, IR-03)
 
 ## What this playbook does NOT claim
@@ -38,7 +37,7 @@
 
 ---
 
-## Section 0 - Pre-flight blockers (BLK-01 through BLK-07)
+## Section 0 - Pre-flight blockers (BLK-01 through BLK-06)
 
 A verification cycle MUST NOT proceed past Section 1 if any of the following blocking conditions is true. Each blocker is a fail-closed gate; the validator (Section 6) exits with code 2 if any blocker is unresolved at cycle start. Document blocker resolution or formal exception (with named accountable principal and expiry date) before re-running.
 
@@ -66,9 +65,6 @@ The firm must hold a current decision (governance committee minute, change-advis
 
 Confirm that Purview retention policies are explicitly extended to: (i) Teams chat (Copilot prompts and responses are persisted as Teams 1:1 chat-equivalent records under user mailboxes), (ii) SharePoint and OneDrive (for Copilot Pages, Loop components, and Notebooks), (iii) Exchange (for Copilot-in-Outlook drafts and summaries), and (iv) the dedicated `CopilotInteraction` retention scope where licensed. Any of these missing is a hard blocker because SEC 17a-4(f) and FINRA 4511 require capture of business records irrespective of authoring surface.
 
-### BLK-07 - Sovereign tenant configuration drift from Commercial baseline
-
-For firms operating Commercial plus any of GCC, GCC High, DoD, or 21Vianet, confirm that the most recent SOV-01 parity scan (Section 4) recorded zero unresolved deltas in the LIC, LABEL, DLP, RSS, and EDLP control families. Drift between sovereign and Commercial tenants is a chronic source of cross-tenant regulatory exposure - permit the cycle to proceed only if an exception with named accountable principal and remediation deadline is on file.
 
 
 ---
@@ -86,8 +82,7 @@ For firms operating Commercial plus any of GCC, GCC High, DoD, or 21Vianet, conf
 | 7 | Copilot Notebooks and OneNote retention (NOTEBOOKS) | New-notebook count vs retention scope | Spot-check 25 notebooks for retention label | Re-validate retention scope expression | Records-management deep dive on samples | Records Management | Compliance Principal | 8 hours daily, 1 business day monthly |
 | 8 | Multi-geo grounding boundary (MULTIGEO) | Cross-region grounding event count | Per-PDL grounding heat-map | Re-attest per-PDL Copilot eligibility list | Privacy review of cross-border flows | Multi-geo Service Owner | Privacy Office | 4 hours daily, 1 business day monthly |
 | 9 | Negative-control synthetic suite (NEG) | Run NEG-01, NEG-02, NEG-03 fixtures | Trend pass-rate vs PRE-07 baseline | Refresh fixture corpus with new attack patterns | Red-team review and fixture rotation | Compliance Engineering | InfoSec Red Team | 4 hours daily, 5 business days quarterly |
-| 10 | Sovereign-cloud parity (SOV) | Drift indicator vs Commercial baseline | Per-tenant drift report | Per-tenant remediation plan | Cross-tenant governance committee | Tenant Governance Lead | Sovereign Compliance Officer | 24 hours daily, 5 business days monthly |
-| 11 | Incident-response routing (IR) | DLP-to-Sentinel route health | End-to-end synthetic incident drill | Reg S-P 30-day-clock readiness review | Tabletop with Incident Response and Legal | SOC Manager | CISO and General Counsel | 8 hours daily, 5 business days monthly |
+| 10 | Incident-response routing (IR) | DLP-to-Sentinel route health | End-to-end synthetic incident drill | Reg S-P 30-day-clock readiness review | Tabletop with Incident Response and Legal | SOC Manager | CISO and General Counsel | 8 hours daily, 5 business days monthly |
 
 **Cadence rules.**
 
@@ -105,9 +100,9 @@ PRE-* gates run automatically at the start of every cycle. They establish that t
 
 ### PRE-01 - Tenant identity and service plan confirmation
 
-Resolve `(Get-MgOrganization).Id`, `(Get-MgOrganization).VerifiedDomains`, and the active Microsoft 365 Copilot SKUs from `Get-MgSubscribedSku`. Pin tenant ID, primary verified domain, sovereign cloud (Commercial / GCC / GCC High / DoD / 21Vianet), and SKU GUIDs into the cycle metadata. This artefact is the anchor that downstream evidence files reference; a mismatch between PRE-01 metadata and any evidence file's `tenantId` field is automatic fail.
+Resolve `(Get-MgOrganization).Id`, `(Get-MgOrganization).VerifiedDomains`, and the active Microsoft 365 Copilot SKUs from `Get-MgSubscribedSku`. Pin tenant ID, primary verified domain, and SKU GUIDs into the cycle metadata. This artefact is the anchor that downstream evidence files reference; a mismatch between PRE-01 metadata and any evidence file's `tenantId` field is automatic fail.
 
-**Pass criteria.** Tenant ID matches the firm's authoritative tenant register; sovereign cloud matches BLK-07 ratification; at least one Microsoft 365 Copilot SKU is in `enabled` state with `consumedUnits` greater than zero.
+**Pass criteria.** Tenant ID matches the firm's authoritative tenant register; at least one Microsoft 365 Copilot SKU is in `enabled` state with `consumedUnits` greater than zero.
 
 **Evidence.** `pre-01-tenant.json` containing `{tenantId, primaryDomain, cloudInstance, subscribedSkus[]}`.
 
@@ -473,38 +468,6 @@ Each test uses the 7-field format: **Test ID** / **Trigger** / **Steps** / **Exp
 - **Failure mode:** Prompt-injection bypasses guardrails; broader red-team finding triggered.
 - **Owner:** InfoSec Red Team; reviewer Compliance Engineering.
 
-### Namespace SOV - Sovereign-cloud parity
-
-#### SOV-01 - Per-cloud configuration parity scan
-
-- **Test ID:** SOV-01
-- **Trigger:** Daily for firms with multiple sovereign tenants
-- **Steps:** (1) For each tenant (Commercial, GCC, GCC High, DoD, 21Vianet), pull the configuration manifest for: LIC SKUs and assignment policy, LABEL policies and protection templates, DLP policies and rule modes, RSS mode and IncludedSiteIds, EDLP policies and modes. (2) Compute per-control-family delta vs Commercial baseline. (3) Any delta NOT explicitly captured in the firm's per-cloud variance register (which documents legitimate cloud-by-cloud differences) is FIND-SOV-01-DRIFT.
-- **Expected:** Zero unregistered deltas; all registered variances are dated and signed by the sovereign-compliance officer.
-- **Evidence:** `sov-01-parity.json` with `{tenantId, cloud, controlFamily, deltaCount, registeredVariances[], unregisteredDeltas[]}`.
-- **Failure mode:** **Critical.** Commercial-tenant hardening not mirrored to GCC High; cleared-personnel users on GCC High get weaker controls than commercial peers; cross-tenant audit finding inevitable.
-- **Owner:** Tenant Governance Lead; reviewer Sovereign Compliance Officer.
-
-#### SOV-02 - Sovereign-cloud feature-availability gap log
-
-- **Test ID:** SOV-02
-- **Trigger:** Monthly
-- **Steps:** (1) Pull Microsoft's published feature-availability matrix for the sovereign clouds in scope. (2) For each Copilot-related capability used in Commercial, confirm availability in each sovereign cloud. (3) Where a feature is unavailable, document the compensating control (manual process, reduced-scope deployment, or formal exception).
-- **Expected:** All Commercial Copilot capabilities have either parity in sovereign clouds OR a documented compensating control with sovereign-compliance-officer sign-off.
-- **Evidence:** `sov-02-feature-gap.json` with `{capability, commercialAvailable, sovereignCloud, sovereignAvailable, compensatingControl, signoffRef}`.
-- **Failure mode:** Sovereign cloud lacks a Copilot capability assumed by other controls; compensating control absent; partial deployment to sovereign cloud creates expectation gap.
-- **Owner:** Sovereign Compliance Officer.
-
-#### SOV-03 - Cross-tenant evidence consolidation
-
-- **Test ID:** SOV-03
-- **Trigger:** Monthly
-- **Steps:** (1) For each tenant in scope, retrieve the prior month's evidence pack archives. (2) Confirm each pack carries the per-cloud `cloudInstance` field correctly. (3) Confirm SHA-256 manifests are valid in each pack. (4) Generate a cross-tenant consolidated index for audit-committee submission.
-- **Expected:** All sovereign-tenant evidence packs are present, intact, and indexed; consolidated index hash is published.
-- **Evidence:** `sov-03-consolidated.json` with `{cloud, packPath, manifestValid, packSha256}`.
-- **Failure mode:** Sovereign-tenant evidence missed in audit prep; auditor finding for incomplete control-evidence chain.
-- **Owner:** Tenant Governance Lead.
-
 ### Namespace IR - Incident response routing
 
 #### IR-01 - DLP-to-Sentinel route plus Reg S-P 30-day clock readiness
@@ -536,25 +499,6 @@ Each test uses the 7-field format: **Test ID** / **Trigger** / **Steps** / **Exp
 - **Evidence:** `ir-03-supervisory.json` with `{drillId, alertUtc, principalUpn, reviewUtc, dispositionUtc, retentionConfirmed, slaMet}`.
 - **Failure mode:** Supervisory alert never reaches named principal; FINRA Reg Notice 24-09 attestation breaks; potential AWC.
 - **Owner:** Compliance Principal; reviewer Surveillance System Owner.
-
----
-
-## Section 5 - Sovereign-cloud parity matrix
-
-| Capability | Commercial | GCC | GCC High | DoD | 21Vianet | Notes |
-|---|---|---|---|---|---|---|
-| Microsoft 365 Copilot service plan | Generally available | Generally available | Generally available | Limited | Not available | 21Vianet operated by independent partner; consult Microsoft for current status |
-| `CopilotInteraction` audit record type | Yes | Yes | Yes | Yes | Yes (subject to operator) | Schema parity expected; verify with PRE-03 |
-| Sensitivity labels with encryption | Yes | Yes | Yes | Yes | Yes | DoD requires FIPS 140-2 validated cipher suites |
-| DLP for Copilot location | Yes | Yes | Yes | Yes | Yes | Per-cloud rule shapes may differ; SOV-01 catches drift |
-| Restricted SharePoint Search | Yes | Yes | Yes | Yes | Verify availability | Allow-list semantics identical across clouds |
-| Endpoint DLP for Copilot-on-Edge | Yes | Yes | Yes | Yes | Verify availability | Edge channel availability differs per cloud |
-| Microsoft Purview retention for Copilot | Yes | Yes | Yes | Yes | Yes | Retention lock and Preservation Lock available across clouds |
-| Sentinel ingestion | Yes | Yes | Yes | Yes | Verify | Sentinel availability and pricing differ per cloud |
-| Subprocessor list including model providers | Yes (Microsoft public list) | Yes (per GCC DPA) | Yes (per GCC High DPA) | Yes (per DoD DPA) | Operator-published | PRE-02 acknowledges per-cloud list |
-| FedRAMP authorization scope | High (commercial baseline) | Moderate (GCC) / High (GCC High) | High plus DoD IL4/IL5 | DoD IL5 | Out of scope (operator-attested) | Confirm current ATO state at the Microsoft Service Trust Portal |
-
-**Per-cloud variance register.** Maintain a register at `evidence/sovereign/variance-register.json` listing each known legitimate cloud-by-cloud difference (capability, cloud, reason, compensating control, signoff). SOV-01 reads this register to differentiate registered variance from unregistered drift.
 
 ---
 
@@ -598,11 +542,7 @@ evidence/4.7/<cycleId>/
     multigeo-03-site-attestation.json
     neg-01-mnpi.json
     neg-02-pii.json
-    neg-03-injection.json
-    sov-01-parity.json
-    sov-02-feature-gap.json
-    sov-03-consolidated.json
-    ir-01-route.json
+    neg-03-injection.json    ir-01-route.json
     ir-02-tabletop.json
     ir-03-supervisory.json
   manifest.sha256       # SHA-256 of every file above, line-per-file
@@ -631,7 +571,7 @@ The evidence pack root is a single JSON file `cycle.json` that references the ev
       "properties": {
         "tenantId":      { "type": "string", "format": "uuid" },
         "primaryDomain": { "type": "string", "format": "hostname" },
-        "cloudInstance": { "enum": ["Commercial", "GCC", "GCCHigh", "DoD", "21Vianet"] }
+        "cloudInstance": { "const": "Commercial" }
       }
     },
     "windowUtc": {
@@ -937,13 +877,11 @@ Each cycle produces an `attestation.json` carrying three distinct-role signature
 | 14 | Multi-geo cross-region grounding without permitted-matrix governance | EU-resident user grounds against US-resident site; GDPR exposure | MULTIGEO-01 |
 | 15 | PDL change without HR-validated business reason | Insider-driven cross-border movement vector | MULTIGEO-02 |
 | 16 | Synthetic negative-control suite never executed under enforcement | "It works in audit-mode" provides no assurance about enforce-mode behaviour | NEG-01, NEG-02, NEG-03 |
-| 17 | Sovereign tenant deployment lags Commercial baseline configuration | Cleared-personnel users get weaker controls than commercial peers | SOV-01 |
-| 18 | Sovereign-cloud capability gap not paired to a compensating control | Implicit assumption that all clouds match Commercial; assumption is wrong | SOV-02 |
-| 19 | DLP-to-Sentinel route never end-to-end tested under synthetic load | Real incident is the first drill; Reg S-P 30-day clock starts unmonitored | IR-01 |
-| 20 | Supervisory escalation alert never reaches the named principal | FINRA Reg Notice 24-09 attestation breaks; potential AWC | IR-03 |
-| 21 | Numeric thresholds copy-pasted from another tenant without local baseline | False sense of "passing" against irrelevant numerics | PRE-04, PRE-07 (validator `Test-NumericProvenance`) |
-| 22 | Validator module modified mid-cycle without hash re-pin | Tamper-undetectable mid-cycle change to assertion logic | PRE-07 (validator `Test-ModuleHash`) |
-| 23 | Three-signature attestation collapsed to one signer with role-pivot | Defeats separation-of-duties intent; auditor red flag | Section 7, validator `Test-AttestationChain` |
+| 17 | DLP-to-Sentinel route never end-to-end tested under synthetic load | Real incident is the first drill; Reg S-P 30-day clock starts unmonitored | IR-01 |
+| 18 | Supervisory escalation alert never reaches the named principal | FINRA Reg Notice 24-09 attestation breaks; potential AWC | IR-03 |
+| 19 | Numeric thresholds copy-pasted from another tenant without local baseline | False sense of "passing" against irrelevant numerics | PRE-04, PRE-07 (validator `Test-NumericProvenance`) |
+| 20 | Validator module modified mid-cycle without hash re-pin | Tamper-undetectable mid-cycle change to assertion logic | PRE-07 (validator `Test-ModuleHash`) |
+| 21 | Three-signature attestation collapsed to one signer with role-pivot | Defeats separation-of-duties intent; auditor red flag | Section 7, validator `Test-AttestationChain` |
 
 ---
 

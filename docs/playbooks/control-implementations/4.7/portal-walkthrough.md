@@ -1,4 +1,4 @@
-# Control 4.7 — Portal Walkthrough: Microsoft 365 Copilot Data Governance
+﻿# Control 4.7 — Portal Walkthrough: Microsoft 365 Copilot Data Governance
 
 **Control ID:** 4.7
 **Pillar:** SharePoint and OneDrive Governance
@@ -41,7 +41,6 @@ This section sets the boundary of what this walkthrough covers and where to swit
 - Pages (in OneDrive) and Notebooks (in Loop containers) protection scope
 - Data residency confirmation, EU Data Boundary verification, and the Anthropic exception
 - Multi-Geo behavior for tenants spanning multiple data regions
-- Sovereign cloud parity (Commercial / GCC / GCC High / DoD) — current state and gaps
 
 ### 0.2 What this playbook does NOT cover
 
@@ -122,50 +121,9 @@ The single most common root cause of Microsoft 365 Copilot oversharing in US fin
 
 ---
 
-## §2. Sovereign cloud parity matrix (April 2026)
+## §2. Pre-rollout gates PRE-01 through PRE-07
 
-Microsoft 365 Copilot availability and feature parity differs across Microsoft sovereign cloud offerings. This matrix reflects the state as of April 2026. **Verify against the Microsoft 365 roadmap and your contracted service descriptions before relying on this for procurement decisions.**
-
-| Capability | Commercial | GCC | GCC High | DoD |
-|---|:---:|:---:|:---:|:---:|
-| Microsoft 365 Copilot Chat (work) | ✅ GA | ✅ GA | ⚠️ Limited preview | ❌ Not available |
-| Copilot in Word/Excel/PowerPoint/Outlook | ✅ GA | ✅ GA | ⚠️ Limited preview | ❌ Not available |
-| Copilot in Teams | ✅ GA | ✅ GA | ⚠️ Limited preview | ❌ Not available |
-| Sensitivity Labels for Copilot | ✅ GA | ✅ GA | ⚠️ Preview | ❌ |
-| DLP for Microsoft 365 Copilot | ✅ GA | ✅ GA | ⚠️ Preview | ❌ |
-| Restricted SharePoint Search (RSS) | ✅ GA | ✅ GA | ✅ GA | N/A |
-| Restricted Content Discoverability (RCD) | ✅ GA | ✅ GA | ⚠️ Preview | N/A |
-| Endpoint DLP for Copilot in Edge | ✅ GA | ✅ GA | ⚠️ Preview | ❌ |
-| Pages (OneDrive-backed) | ✅ GA | ✅ GA | ❌ | ❌ |
-| Notebooks (Loop containers) | ✅ GA | ⚠️ Preview | ❌ | ❌ |
-| EU Data Boundary (EUDB) | ✅ GA (EU tenants) | N/A | N/A | N/A |
-| Anthropic models in Copilot | ✅ Opt-in (Commercial only) | ❌ | ❌ | ❌ |
-
-### 2.1 Anthropic in Copilot — sovereign cloud reality
-
-As of January 7, 2026, Microsoft enabled Anthropic models (Claude family) as an **opt-in** option for Microsoft 365 Copilot in Commercial cloud only. Key facts for FSI governance:
-
-- **Not available in GCC, GCC High, or DoD** — sovereign cloud customers cannot opt in.
-- **Not in the EU Data Boundary** — Anthropic processing occurs outside EUDB. EU tenants that opt in lose EUDB protection for Anthropic-routed prompts.
-- **Tenant-level opt-in, not user-level** — once enabled, eligible users can route prompts to Anthropic. There is no per-user gating in the admin UI as of April 2026.
-- **No additional DPA terms beyond the Microsoft Online Services DPA** — Microsoft's processing terms govern; verify with Legal whether your firm requires a supplemental Anthropic-specific risk assessment.
-- **Audit-log enrichment is partial** — model selection appears in audit events but downstream telemetry parity with Azure OpenAI Service is limited as of April 2026.
-
-**FSI recommendation:** Default to **opt-out** for regulated personas (RIAs, broker-dealers, fund accounting, treasury). Permit Anthropic opt-in only for narrowly-scoped personas with explicit Compliance sign-off. Document the decision in the Risk Acceptance log.
-
-### 2.2 Operational implication for multi-cloud firms
-
-Firms operating across Commercial and GCC High (a common pattern for broker-dealer subsidiaries with US Government clients):
-
-- **Cannot achieve identical Copilot capability across both tenants** — feature parity is not on the GCC High roadmap with parity timing as of April 2026.
-- **Should design two distinct governance baselines** — one for Commercial, one for GCC High — rather than seeking a "lowest common denominator" that throttles Commercial productivity.
-- **Should track GCC High feature releases monthly** via the Microsoft 365 admin center Message Center and the Microsoft 365 government roadmap.
-
----
-
-## §3. Pre-rollout gates PRE-01 through PRE-07
-
-These seven gates must be evidenced as **Met** before stage 1 (Report-only) of the rollout in §4. Each gate has a **Why**, a **Portal click-path or check**, and an **Evidence artifact**. The evidence artifacts feed the §12 evidence pack.
+These seven gates must be evidenced as **Met** before stage 1 (Report-only) of the rollout in §3. Each gate has a **Why**, a **Portal click-path or check**, and an **Evidence artifact**. The evidence artifacts feed the §12 evidence pack.
 
 ### PRE-01: Tenant license posture confirmed
 
@@ -218,7 +176,7 @@ These seven gates must be evidenced as **Met** before stage 1 (Report-only) of t
 
 ---
 
-## §4. Three-stage rollout — Report-only → Pilot → Broad
+## §3. Three-stage rollout — Report-only → Pilot → Broad
 
 This rollout sequence is mandatory for Zone 2 and Zone 3 deployments under Control 4.7. Zone 1 (personal productivity) may compress Stages 1 and 2 with documented Compliance acknowledgment.
 
@@ -287,7 +245,7 @@ This rollout sequence is mandatory for Zone 2 and Zone 3 deployments under Contr
 
 ---
 
-## §5. Sensitivity Labels for Copilot
+## §4. Sensitivity Labels for Copilot
 
 Sensitivity Labels for Copilot govern (a) **whether Copilot can ground on a labeled file or email**, and (b) **what label is applied to Copilot-generated content** (Pages, summaries, drafts).
 
@@ -332,7 +290,7 @@ For Copilot-generated content destined for SharePoint or OneDrive, configure aut
 
 ---
 
-## §6. Data Loss Prevention for Microsoft 365 Copilot
+## §5. Data Loss Prevention for Microsoft 365 Copilot
 
 DLP for Microsoft 365 Copilot is a **distinct DLP location** in the Purview portal. It is not the same as Endpoint DLP, Exchange DLP, or SharePoint DLP. It evaluates **both prompt content and response content**.
 
@@ -379,7 +337,7 @@ This means a permissive label posture cannot be "rescued" by aggressive DLP — 
 
 ---
 
-## §7. Restricted SharePoint Search (RSS)
+## §6. Restricted SharePoint Search (RSS)
 
 Restricted SharePoint Search (RSS) is a tenant-wide setting that limits Copilot's organizational search to a curated allow-list of SharePoint sites. It is a coarse-but-effective tool for tenants that have not yet completed broad permissions remediation.
 
@@ -392,7 +350,7 @@ Restricted SharePoint Search (RSS) is a tenant-wide setting that limits Copilot'
 ### 7.2 When NOT to use RSS
 
 - Tenant has mature permissions hygiene and the productivity loss from RSS would be significant.
-- The desired outcome is per-site exclusion only — use RCD instead (see §7.4).
+- The desired outcome is per-site exclusion only — use RCD instead (see §6.4).
 
 ### 7.3 Click-path: enable RSS
 
@@ -423,7 +381,7 @@ RCD is the per-site complement to RSS. Use RCD when you need to exclude specific
 
 ---
 
-## §8. Endpoint DLP for Copilot in Edge
+## §7. Endpoint DLP for Copilot in Edge
 
 Endpoint DLP rules can govern Copilot interactions in **Microsoft Edge**. As of April 2026, Endpoint DLP for Copilot is **Edge-only** — Chrome, Firefox, and Safari are documented gaps.
 
@@ -457,7 +415,7 @@ Endpoint DLP rules can govern Copilot interactions in **Microsoft Edge**. As of 
 
 ---
 
-## §9. Pages and Notebooks — protection scope
+## §8. Pages and Notebooks — protection scope
 
 Copilot Pages and Copilot Notebooks are governance edge cases because they live in **non-obvious storage**.
 
@@ -465,7 +423,7 @@ Copilot Pages and Copilot Notebooks are governance edge cases because they live 
 
 - **Storage:** OneDrive, as `.fluid` artifact files.
 - **Permission model:** OneDrive sharing model — initially private to the creator, shareable via link or direct invite.
-- **Sensitivity label:** Inherits the OneDrive default label (set in §5.3); auto-labeling rules with OneDrive scope apply.
+- **Sensitivity label:** Inherits the OneDrive default label (set in §4.3); auto-labeling rules with OneDrive scope apply.
 - **DLP:** OneDrive DLP location applies. DLP for M365 Copilot **does not** evaluate Page content directly — it evaluates the prompt that generated the Page.
 - **Audit:** Page creation, edit, share appear as OneDrive activities in the unified audit log with Copilot correlation IDs.
 - **Retention:** Inherits OneDrive retention. If OneDrive retention is 7 years, Pages are retained 7 years.
@@ -485,7 +443,7 @@ Copilot Pages and Copilot Notebooks are governance edge cases because they live 
 
 ---
 
-## §10. Data residency, Multi-Geo, and the Anthropic exception
+## §9. Data residency, Multi-Geo, and the Anthropic exception
 
 ### 10.1 Default data residency
 
@@ -518,13 +476,13 @@ For EU tenants, Microsoft's EU Data Boundary commitment applies to Copilot **wit
 Anthropic models opted-in for Copilot:
 
 - Are **not in EUDB**.
-- Are **not in any sovereign cloud** (Commercial only).
+- Are Commercial cloud only.
 - Are subject to the standard Microsoft Online Services DPA — verify with your Legal team whether your firm requires a supplemental Anthropic-specific risk assessment.
 - Have **partial audit-event parity** with Azure-hosted models — model selection appears in audit events; downstream telemetry is incomplete.
 
 ---
 
-## §11. FSI incident response clocks
+## §10. FSI incident response clocks
 
 Copilot-related incidents in US financial services tenants are subject to multiple regulatory clocks. The following are the clocks most commonly cited as relevant to AI governance incidents (verify with Legal for your specific obligations).
 
@@ -544,7 +502,7 @@ Copilot-related incidents in US financial services tenants are subject to multip
 
 ---
 
-## §12. Evidence pack — 19 artifacts with SHA-256 hashes
+## §11. Evidence pack — 19 artifacts with SHA-256 hashes
 
 The following 19 artifacts constitute the evidence pack for a Control 4.7 attestation. Generate them at the close of each rollout stage and at each quarterly attestation cycle. Compute SHA-256 hashes for tamper evidence and store them with the artifacts. Use the [PowerShell Setup](powershell-setup.md) sibling to script generation.
 
@@ -590,7 +548,7 @@ Get-ChildItem -File | ForEach-Object {
 
 ---
 
-## §13. Cross-references and companion playbook handoff
+## §12. Cross-references and companion playbook handoff
 
 ### 13.1 Related controls
 
@@ -615,7 +573,7 @@ This portal walkthrough hands off to its siblings as follows:
 
 **To [PowerShell Setup](powershell-setup.md):**
 
-- Use when planning the §12 evidence pack — all 19 artifacts have scripted generation paths in PowerShell Setup §3.
+- Use when planning the §12 evidence pack — all 19 artifacts have scripted generation paths in PowerShell Setup §2.
 - Use when scaling RCD beyond 25 sites — PowerShell Setup §4 covers `Set-SPOSite -RestrictContentOrgWideSearch` bulk patterns.
 - Use when standing up the quarterly attestation automation (Control 3.4 cadence).
 - Use when integrating with your CI/CD-style configuration pipeline (e.g., M365 DSC, Microsoft Graph PowerShell-based GitOps).
@@ -656,27 +614,27 @@ This portal walkthrough hands off to its siblings as follows:
 
 ---
 
-## §14. Anti-patterns — at least 15 things NOT to do
+## §13. Anti-patterns — at least 15 things NOT to do
 
 These anti-patterns are derived from observed FSI Copilot rollouts. Each carries a specific harm and the section that addresses it.
 
 | # | Anti-pattern | Harm | Addressed in |
 |---|---|---|---|
 | AP-01 | Enabling Copilot for all users on Day 1 without DAG report review | Mass oversharing; potential GLBA 501(b) and FINRA 4511 implications | §1.3, §3 PRE-06 |
-| AP-02 | Assuming a "Confidential" sensitivity label blocks Copilot grounding | False sense of security; grounding occurs anyway | §5.1 |
+| AP-02 | Assuming a "Confidential" sensitivity label blocks Copilot grounding | False sense of security; grounding occurs anyway | §4.1 |
 | AP-03 | Skipping Stage 1 (Report-only) and going straight to enforcement | High false-positive rate; user revolt; helpdesk overwhelm | §4 Stage 1 |
-| AP-04 | Configuring DLP only on the prompt side ("if we block the input we're done") | Grounding-driven exfiltration uncaught | §6.3 |
+| AP-04 | Configuring DLP only on the prompt side ("if we block the input we're done") | Grounding-driven exfiltration uncaught | §5.3 |
 | AP-05 | Using Global Admin for routine Copilot policy changes | Audit-trail mess; least-privilege violation; Fed SR 26-2 (formerly SR 11-7) finding | §3 PRE-02 |
-| AP-06 | Enabling Restricted Content Discoverability before assigning any Copilot license | Toggle silently fails; perceived control is absent | §3 PRE-05, §7.4 |
-| AP-07 | Enabling Anthropic opt-in tenant-wide without persona analysis | EUDB exit; sovereign cloud confusion; opaque audit trail | §2.1, §10.4 |
-| AP-08 | Allowing Chrome/Firefox/Safari for Copilot and assuming Endpoint DLP applies | Endpoint DLP for Copilot is Edge-only; gap unmitigated | §8.1 |
-| AP-09 | Treating Pages as ephemeral / out-of-scope for governance | Pages live in OneDrive; full retention and label scope applies | §9.1 |
-| AP-10 | Treating Notebooks the same as Pages | Notebooks live in Loop containers — different permission and DLP coverage | §9.2 |
-| AP-11 | Setting RSS allow-list and forgetting to maintain it | Drift; productivity loss; users route around RSS via direct URLs | §7.3 |
-| AP-12 | Auto-labeling production rollout without simulation | Mass relabeling event; user confusion; potential disclosure incidents | §5.4 |
+| AP-06 | Enabling Restricted Content Discoverability before assigning any Copilot license | Toggle silently fails; perceived control is absent | §3 PRE-05, §6.4 |
+| AP-07 | Enabling Anthropic opt-in tenant-wide without persona analysis | EUDB exit; opaque audit trail | §9.4 |
+| AP-08 | Allowing Chrome/Firefox/Safari for Copilot and assuming Endpoint DLP applies | Endpoint DLP for Copilot is Edge-only; gap unmitigated | §7.1 |
+| AP-09 | Treating Pages as ephemeral / out-of-scope for governance | Pages live in OneDrive; full retention and label scope applies | §8.1 |
+| AP-10 | Treating Notebooks the same as Pages | Notebooks live in Loop containers — different permission and DLP coverage | §8.2 |
+| AP-11 | Setting RSS allow-list and forgetting to maintain it | Drift; productivity loss; users route around RSS via direct URLs | §6.3 |
+| AP-12 | Auto-labeling production rollout without simulation | Mass relabeling event; user confusion; potential disclosure incidents | §4.4 |
 | AP-13 | Audit log retention configured for default 90 days | Cannot meet FINRA 4511 / SEC 17a-4 evidence requirements | §3 PRE-04 |
-| AP-14 | Same DLP policy spans Exchange, SharePoint, Devices, and Copilot | Telemetry impossible to interpret; tuning impossible | §6.2 |
-| AP-15 | No quarterly attestation cycle scheduled at rollout | Drift goes undetected; audit findings at next exam | §12, §13.1 (3.4 link) |
+| AP-14 | Same DLP policy spans Exchange, SharePoint, Devices, and Copilot | Telemetry impossible to interpret; tuning impossible | §5.2 |
+| AP-15 | No quarterly attestation cycle scheduled at rollout | Drift goes undetected; audit findings at next exam | §12, §12.1 (3.4 link) |
 | AP-16 | Pilot population chosen from a single business function | Misses cross-functional failure modes; pilot signal is unrepresentative | §4 Stage 2 |
 | AP-17 | Compliance not part of false-positive triage during pilot | Rule tuning drifts away from supervisory intent | §4 Stage 1 exit, §4 Stage 2 |
 | AP-18 | Treating the §12 evidence pack as a one-time generation | Drift between attestations is invisible; quarterly cycle becomes a fire drill | §12 |

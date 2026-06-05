@@ -4,7 +4,6 @@
 >
 > **Last UI Verified:** April 2026
 > **Audience:** SharePoint Admin, Power Platform Admin, Purview Compliance Admin, AI Governance Lead, Compliance Officer, Privacy Officer, Incident Response Lead.
-> **Sovereign clouds covered:** Commercial, GCC, GCC High, DoD (parity caveats noted in §4).
 > **Severity-of-control statement.** Grounding-scope failures expose the firm to: customer NPI / MNPI / supervisory-record / draft-filing disclosure via Microsoft 365 Copilot; loss of supervisory visibility; books-and-records integrity gaps. **Treat suspected scope leaks as cybersecurity events first, configuration issues second.**
 
 > **Disclaimer.** This playbook supports compliance with FINRA, SEC, NY DFS, GLBA, OCC, Fed, and CFTC requirements; it does not by itself satisfy any regulatory obligation. Implementation requires firm-specific policy, role assignment, and Compliance / Legal review. Microsoft does not publish per-incident SLAs for grounding-scope misconfiguration; all response windows below are firm-defined targets, not vendor commitments.
@@ -55,7 +54,7 @@ Capture **all** of the following before any change is made, in this order. Hash 
 8. Data Access Governance (DAG) report for the affected sites at time of detection — capture **report generation timestamp**, not just download timestamp.
 9. DLP-for-Copilot policy snapshot: `Get-DlpCompliancePolicy`, `Get-DlpComplianceRule` for any policy with the Copilot location enabled.
 10. Zone classification register entry for the affected site / agent (per Control 2.1).
-11. Tenant ID, cloud (Commercial / GCC / GCC High / DoD), UTC window of the incident, role used for capture, requesting user, affected user(s), and citation URL(s).
+11. Tenant ID, UTC window of the incident, role used for capture, requesting user, affected user(s), and citation URL(s).
 12. Record-retention proof: confirmation that the audit window covering the change is within retention (per Control 1.7) and that holds (per Control 1.13 / 1.14) are in place if litigation or examination is foreseeable.
 13. Page composition snapshot for the affected site (modern vs classic ASPX) to rule in / rule out F10.
 
@@ -73,7 +72,7 @@ Apply as many as are operationally feasible without destroying evidence. Documen
 
 ### 1.5 Pre-escalation checklist (≥ 15 items — complete before opening a Microsoft Support ticket)
 
-1. [ ] Tenant ID and cloud (Commercial / GCC / GCC High / DoD) confirmed.
+1. [ ] Tenant ID confirmed.
 2. [ ] Copilot SKU inventory verified — at least one user has a Microsoft 365 Copilot license (rules out F3 silent no-op).
 3. [ ] Affected site URL(s), RCD state, and RSS allow-list membership state captured per §1.3.
 4. [ ] Surface confirmed: **Business Chat** vs **in-app Copilot** (Word / Excel / PowerPoint / Outlook sidecar) vs **Copilot Studio agent** (rules in / out F1).
@@ -81,25 +80,24 @@ Apply as many as are operationally feasible without destroying evidence. Documen
 6. [ ] Copilot Studio knowledge-source inventory captured for every environment whose agents are in scope.
 7. [ ] Direct-URL bypass check completed: any knowledge source pointing at a URL not in the sanctioned connector list (rules in F4).
 8. [ ] OneDrive content path check for declarative agents — no personal OneDrive paths in any in-scope agent's knowledge source (rules in F6).
-9. [ ] Page composition check: modern vs classic ASPX site contents enumerated (rules in F10).
+9. [ ] Page composition check: modern vs classic ASPX site contents enumerated (rules in F9).
 10. [ ] DAG report generation timestamp recorded; staleness assessed against the documented Microsoft Learn cadence (rules in F5).
-11. [ ] Sovereign cloud parity verified for **every** capability invoked in §4 (rules in F9).
-12. [ ] Restricted-AU admin scenario ruled out (rules in F15) — confirm the operating admin is tenant-scoped, not Administrative Unit-scoped.
-13. [ ] Bulk-change idempotency verified — no half-applied state left by a prior batched `Set-SPOSite` run (rules in F13).
-14. [ ] Audit retention sufficient to evidence the change end-to-end (per Control 1.7 backbone).
-15. [ ] Compliance Officer + General Counsel notified per the §1.1 severity matrix.
-16. [ ] Privacy Officer notified if customer NPI / PII may be implicated.
-17. [ ] Evidence pack hash + storage location recorded in the incident ticket.
-18. [ ] Communication Compliance scope reviewed (does the affected surface still fall under a CC policy?).
-19. [ ] Compensating controls listed in §1.4 applied or explicitly deferred with reason.
+11. [ ] Restricted-AU admin scenario ruled out (rules in F14) — confirm the operating admin is tenant-scoped, not Administrative Unit-scoped.
+12. [ ] Bulk-change idempotency verified — no half-applied state left by a prior batched `Set-SPOSite` run (rules in F12).
+13. [ ] Audit retention sufficient to evidence the change end-to-end (per Control 1.7 backbone).
+14. [ ] Compliance Officer + General Counsel notified per the §1.1 severity matrix.
+15. [ ] Privacy Officer notified if customer NPI / PII may be implicated.
+16. [ ] Evidence pack hash + storage location recorded in the incident ticket.
+17. [ ] Communication Compliance scope reviewed (does the affected surface still fall under a CC policy?).
+18. [ ] Compensating controls listed in §1.4 applied or explicitly deferred with reason.
 
 ### 1.6 Worked example — confidential legal / M&A memo via mis-scoped surface
 
 > **Scenario.** Compliance reports that a draft policy memo marked `Confidential — Legal` (alternate scenario: a draft M&A memo containing a non-public counterparty name) appeared as a citation in a Business Chat response for a user who is not on the deal team and should not have access. RCD was applied to `/sites/legal-drafts` last week.
 >
-> **Triage (first 30 minutes).** Severity = **SEV-1** candidate (confirmed disclosure of a supervisory / legal record; potential MNPI). Pause: confirm whether the surface was Business Chat (in scope of RCD / RSS) or in-app Copilot inside Word with the file already open (out of RCD scope — see F1). Capture the citation URL, the citation timestamp, the user account, and the tenant cloud. Run `Get-SPOSite -Identity https://contoso.sharepoint.com/sites/legal-drafts | Select Url, RestrictContentOrgWideSearch, LockState` — confirms `RestrictContentOrgWideSearch = True`. Run `Get-SPOTenantRestrictedSearchAllowedList` — site is **not** on the RSS allow-list. Run a Unified Audit Log search for the user's `CopilotInteraction` events in a tight UTC window around the citation; export paginated with SHA-256 sidecar.
+> **Triage (first 30 minutes).** Severity = **SEV-1** candidate (confirmed disclosure of a supervisory / legal record; potential MNPI). Pause: confirm whether the surface was Business Chat (in scope of RCD / RSS) or in-app Copilot inside Word with the file already open (out of RCD scope — see F1). Capture the citation URL, the citation timestamp, and the user account. Run `Get-SPOSite -Identity https://contoso.sharepoint.com/sites/legal-drafts | Select Url, RestrictContentOrgWideSearch, LockState` — confirms `RestrictContentOrgWideSearch = True`. Run `Get-SPOTenantRestrictedSearchAllowedList` — site is **not** on the RSS allow-list. Run a Unified Audit Log search for the user's `CopilotInteraction` events in a tight UTC window around the citation; export paginated with SHA-256 sidecar.
 >
-> **Root cause path — investigate in this order.** (a) Propagation incomplete — rules in if the change is recent and the documented Learn propagation window has not elapsed. (b) **F11** — site is also on the RSS allow-list (RSS allow-list contains a site whose RCD is also `True`; depending on order of evaluation the user may experience apparent inclusion); fix is to remove from one of the two and document. (c) **F1** — user invoked Copilot in-app inside Word with the file already open; RCD does not scope the open-document grounding inside an Office app. (d) **F6** — file was duplicated to a OneDrive that backs a published declarative agent's knowledge source; the agent grounded on the OneDrive copy, not the SharePoint copy. (e) **F4** — a Copilot Studio agent has a direct-URL knowledge source pointing at the legal-drafts site that bypasses the SharePoint connector DLP block.
+> **Root cause path — investigate in this order.** (a) Propagation incomplete — rules in if the change is recent and the documented Learn propagation window has not elapsed. (b) **F10** — site is also on the RSS allow-list (RSS allow-list contains a site whose RCD is also `True`; depending on order of evaluation the user may experience apparent inclusion); fix is to remove from one of the two and document. (c) **F1** — user invoked Copilot in-app inside Word with the file already open; RCD does not scope the open-document grounding inside an Office app. (d) **F6** — file was duplicated to a OneDrive that backs a published declarative agent's knowledge source; the agent grounded on the OneDrive copy, not the SharePoint copy. (e) **F4** — a Copilot Studio agent has a direct-URL knowledge source pointing at the legal-drafts site that bypasses the SharePoint connector DLP block.
 >
 > **Containment.** Suspend any Copilot Studio agents whose knowledge source includes the site or any related OneDrive (Control 2.16). Tighten DLP-for-Copilot to Block on the relevant sensitive information type / label (Control 1.5). Freeze new Copilot Studio publishes in the affected environment (Control 2.1). Notify Compliance + Legal + Privacy. **Start the NY DFS §500.17(a) 72-hour determination clock with Legal** if NY-resident NPI or material cybersecurity-event criteria are implicated. **Open the Reg S-P §248.30(a)(4) 30-day customer-notification assessment** with Legal if customer NPI is implicated. If the memo concerns non-public deal information, notify the firm's MNPI / information-barrier monitor.
 >
@@ -121,14 +119,13 @@ This matrix covers the dominant grounding-scope failure modes (F1–F16). Use it
 | F6 | **Personal OneDrive content** appears in a declarative agent's grounding | Zone misconfiguration — Zone 1 personal-productivity content path reaching a Zone 2 / Zone 3 agent's knowledge source | Inventory each in-scope agent's knowledge sources; flag any OneDrive personal path | Remove the OneDrive knowledge source; suspend the agent (Control 2.16); update Zone register; cross-reference Controls 4.7, 1.5 | Power Platform Admin + AI Governance Lead |
 | F7 | RSS 100-site ceiling reached; new site cannot be added | Governance-ceiling event, not a config event; RSS at the ceiling has effectively become a manually curated allow-list | `(Get-SPOTenantRestrictedSearchAllowedList).Count` | Convene RSS allow-list change-control board; document add / remove with business case ledger; do not "make room" without governance approval | SharePoint Admin + AI Governance Lead |
 | F8 | Copilot Studio knowledge-source change not visible | Sync window — verify current sync window on Microsoft Learn | Note change UTC; re-test after documented window | Wait documented window; re-test; do not escalate before window elapses | Power Platform Admin |
-| F9 | Sovereign cloud (GCC / GCC High / DoD): RCD / RSS / SAM / DAG / DLP-for-Copilot not at parity with Commercial | Operations fail silently with no portal warning | Re-confirm capability at https://learn.microsoft.com cloud parity matrix at time of operation | Document parity gap and apply fallback per §4; flag the affected control evidence as "operating with documented parity exception" | AI Governance Lead + SharePoint Admin |
 | F10 | Modern pages indexed; classic ASPX pages on the same site still leak | Modern and classic pages flow through different indexing paths; site appears RCD-protected but classic content leaks | Enumerate site page library; classify modern vs classic | Convert classic to modern OR explicitly scope classic page content out via permissions / archive | SharePoint Admin |
 | F11 | RSS allow-list contains a site whose RCD is also `True` | Conflicting scopes; depending on order of evaluation user may experience apparent inclusion or apparent zero results | `Get-SPOTenantRestrictedSearchAllowedList` cross-joined with `Get-SPOSite ... | Select RestrictContentOrgWideSearch` | Decide the intended state; remove the site from one of the two; document the decision in the RSS change log | SharePoint Admin |
 | F12 | `CopilotReady` (or any custom) property bag value not persisting | PnP module stale; site read-only / archive; site collection admin missing | `Update-Module PnP.PowerShell`; check `Get-SPOSite ... | Select LockState, Status`; verify SCA on the site | Update PnP; resolve site state; re-add SCA; retry idempotently | SharePoint Admin |
 | F13 | Bulk `Set-SPOSite -RestrictContentOrgWideSearch $true` partial failure | Throttling; locked sites; archive state — needs an idempotent retry pattern, not a one-shot loop | Re-run with per-site try / catch; collect failures; verify by re-querying every site | Implement idempotent retry with exponential backoff; produce a per-site PASS / FAIL report and remediate failures individually | SharePoint Admin |
 | F14 | Guest / external user appears to inherit broader grounding than internal users | RCD does not change SharePoint permissions; B2B + grounding interaction surfaces what the guest already had access to | Audit the guest's effective SharePoint permissions; cross-reference Control 4.4 external sharing posture | Tighten SharePoint sharing posture; re-evaluate guest access model; do not treat as an RCD failure unless permissions are correct and grounding still leaks | SharePoint Admin + Entra Global Admin |
 | F15 | Restricted-AU (Administrative Unit) admin attempting an RCD / RSS change and receiving an unexpected error | Some SPO admin surfaces do not honor AU scoping; the operating admin needs tenant scope | Confirm admin role assignment scope; reproduce as a tenant-scoped SharePoint Admin | Use a tenant-scoped admin; document the AU limitation in the runbook | Entra Global Admin + SharePoint Admin |
-| F16 | Audit evidence of the RCD / RSS change cannot be produced for an examiner | Audit retention insufficient OR event-type filter incorrect OR the event was never written | Re-run UAL search with the documented event-type list; check retention setting per Control 1.7 | Extend retention; engage Microsoft Support if events are missing; document the gap in the Compliance file | Compliance Officer + Purview Compliance Admin |
+| F9 | Audit evidence of the RCD / RSS change cannot be produced for an examiner | Audit retention insufficient OR event-type filter incorrect OR the event was never written | Re-run UAL search with the documented event-type list; check retention setting per Control 1.7 | Extend retention; engage Microsoft Support if events are missing; document the gap in the Compliance file | Compliance Officer + Purview Compliance Admin |
 
 ---
 
@@ -139,41 +136,19 @@ This matrix covers the dominant grounding-scope failure modes (F1–F16). Use it
 | A1 | Marking RCD as enforcing because it was set last week, without re-running the deterministic check today | Propagation, license absence (F3), or RSS conflict (F11) can leave the control no-op; control evidence becomes false PASS |
 | A2 | Treating an empty `Get-SPOTenantRestrictedSearchAllowedList` as "RSS not in effect" | Silent-zero-row trap; confirm `Get-SPOTenant.EnableRestrictedSearchAllList` first |
 | A3 | Blocking only the SharePoint connector via DLP-for-Copilot | F4 — makers add the site via direct URL in Copilot Studio knowledge sources; both enforcement vectors are required |
-| A4 | Using Commercial portal URLs (e.g., `purview.microsoft.com`) on a `.us` (GCC High / DoD) tenant | Wrong scope; misleads the admin into believing a feature is missing when it is the wrong portal |
-| A5 | Asserting RCD effectiveness without first verifying that any user has a Microsoft 365 Copilot license | F3 — RCD without Copilot is a no-op; admin gets a false PASS |
-| A6 | Diagnosing "RCD did not work" without distinguishing Business Chat from in-app Copilot | F1 — RCD does not scope the open-document grounding inside Word / Excel / PowerPoint |
-| A7 | Treating the DAG report as real-time | F5 — DAG cadence is delayed; check the report generation timestamp before declaring a real failure |
-| A8 | Removing a low-traffic RSS allow-list entry without governance approval to make room for a new one | RSS allow-list is a regulated-scope decision (FINRA 3110 / RN 24-09 supervisory surface), not a housekeeping decision |
-| A9 | Adding a Copilot Studio knowledge source pointing at a personal OneDrive | F6 — Zone leak; the agent inherits a personal-productivity grounding scope and exits the firm's controlled grounding plane |
-| A10 | One-shot `Set-SPOSite ... -RestrictContentOrgWideSearch $true` against many sites with no retry / idempotence | F13 — partial failure leaves a half-protected estate that audits as PASS at the policy level |
-| A11 | Operating RCD / RSS / DAG / DLP-for-Copilot in GCC High or DoD without documenting parity gaps | F9 — features fail silently with no portal warning; sovereign-cloud evidence pack is incomplete |
-| A12 | Closing an incident before producing the audit-evidenced timeline of the RCD / RSS change | FINRA 4511 / SEC 17a-4(f) books-and-records integrity gap; examiner cannot reconstruct the change |
-| A13 | Using `$variable -eq $null` instead of `$null -eq $variable` in PowerShell detection scripts | PowerShell idiom; comparison against a collection on the left side returns the filtered collection rather than `$true` / `$false` and produces silent false negatives |
-| A14 | Treating Restricted SharePoint Search as a security boundary | RSS is a **scope** mechanism, not a security boundary. Recent-interaction, sharing, and ownership carve-outs are by design; permissions and DLP remain the security plane |
-| A15 | Re-using a single RSS allow-list across sovereign and Commercial tenants without per-cloud verification | Capability and operational behavior differ per cloud; the same allow-list can produce different effective scope |
+| A4 | Asserting RCD effectiveness without first verifying that any user has a Microsoft 365 Copilot license | F3 — RCD without Copilot is a no-op; admin gets a false PASS |
+| A5 | Diagnosing "RCD did not work" without distinguishing Business Chat from in-app Copilot | F1 — RCD does not scope the open-document grounding inside Word / Excel / PowerPoint |
+| A6 | Treating the DAG report as real-time | F5 — DAG cadence is delayed; check the report generation timestamp before declaring a real failure |
+| A7 | Removing a low-traffic RSS allow-list entry without governance approval to make room for a new one | RSS allow-list is a regulated-scope decision (FINRA 3110 / RN 24-09 supervisory surface), not a housekeeping decision |
+| A8 | Adding a Copilot Studio knowledge source pointing at a personal OneDrive | F6 — Zone leak; the agent inherits a personal-productivity grounding scope and exits the firm's controlled grounding plane |
+| A9 | One-shot `Set-SPOSite ... -RestrictContentOrgWideSearch $true` against many sites with no retry / idempotence | F12 — partial failure leaves a half-protected estate that audits as PASS at the policy level |
+| A10 | Closing an incident before producing the audit-evidenced timeline of the RCD / RSS change | FINRA 4511 / SEC 17a-4(f) books-and-records integrity gap; examiner cannot reconstruct the change |
+| A11 | Using `$variable -eq $null` instead of `$null -eq $variable` in PowerShell detection scripts | PowerShell idiom; comparison against a collection on the left side returns the filtered collection rather than `$true` / `$false` and produces silent false negatives |
+| A12 | Treating Restricted SharePoint Search as a security boundary | RSS is a **scope** mechanism, not a security boundary. Recent-interaction, sharing, and ownership carve-outs are by design; permissions and DLP remain the security plane |
 
 ---
 
-## §4 — Sovereign cloud matrix
-
-The matrix below records the operating posture per cloud. **Microsoft cloud-feature parity changes; verify against the Microsoft Learn cloud-parity matrix at the time of operation.** Document the verification date in the evidence pack.
-
-| Capability | Commercial | GCC | GCC High | DoD | Fallback when not at parity |
-|---|---|---|---|---|---|
-| RCD (`RestrictContentOrgWideSearch` per site) | Available | Verify | Verify per release | Verify per release | Manual site-scoping plus RSS allow-list curation; document exception in evidence pack |
-| RSS (`EnableRestrictedSearchAllList` plus allow-list) | Available | Verify | Verify per release | Verify per release | Manual site-by-site scoping; agent-level knowledge-source allow-listing in Copilot Studio |
-| SharePoint Advanced Management (SAM) features that RCD / RSS depend on | Available | Verify | Verify | Verify | Confirm SAM SKU availability for the cloud; if absent, RCD itself may be unavailable |
-| Data Access Governance (DAG) reports | Available | Verify | Verify | Verify | Manual oversharing review via site-permission export; cross-reference Control 4.8 |
-| Copilot Studio knowledge source on SharePoint Online | Available | Varies | Verify per release | Verify per release | Restrict to first-party connectors only; document in environment policy (Control 2.1) |
-| Microsoft 365 Copilot (license SKU) | Available | Varies | Verify per release | Verify per release | If Copilot SKU unavailable for the cloud, RCD / RSS still configurable but a no-op until SKU lands; record as documented exception |
-| DLP-for-Copilot location | Available | Verify | Verify | Verify | Tighten upstream DLP on SharePoint and OneDrive locations to compensate |
-| Adaptive Protection / IRM signals into grounding-scope decisions | Available | Verify | Typically not available | Typically not available | Static scoping; periodic manual review per Control 1.6 cadence |
-
-> Operating any of the above in GCC High or DoD without confirming current parity creates a silent-failure surface. Document the parity verification date and the operating posture in the evidence pack. Where a capability is unavailable, record the fallback explicitly so an examiner can reconstruct the firm's compensating posture.
-
----
-
-## §5 — Escalation L1 → L4
+## §4 — Escalation L1 → L4
 
 > **Response windows below are firm-defined sample targets**, not Microsoft commitments. Microsoft does not publish per-incident SLAs for grounding-scope misconfiguration. Tune to your firm's IR runbook.
 
@@ -190,7 +165,7 @@ The matrix below records the operating posture per cloud. **Microsoft cloud-feat
 - Triage cross-control impact: Controls 1.5 (DLP-for-Copilot), 1.6 (DSPM for AI), 1.7 (audit backbone), 2.1 (environment governance), 2.16 (agent lifecycle), 4.1 (sensitivity labels in SPO), 4.7 (Copilot data governance), 4.8 (item-level permission scanning).
 - Inventory all Copilot Studio knowledge sources in the affected environment; quarantine any unsanctioned source.
 - Confirm Zone classification register entries for the affected sites and agents (per Control 2.1).
-- Coordinate with SharePoint Admin on RCD / RSS state and bulk remediation idempotency (F13).
+- Coordinate with SharePoint Admin on RCD / RSS state and bulk remediation idempotency (F12).
 - Sample target: SEV-1 within 1 h; SEV-2 within 4 h.
 
 ### L3 — CISO + Compliance Officer + General Counsel + Privacy Officer
@@ -205,15 +180,15 @@ The matrix below records the operating posture per cloud. **Microsoft cloud-feat
 
 ### L4 — Microsoft Support ticket
 
-Open a Microsoft Support ticket only after L1, L2, and L3 are engaged. Use the §7 payload template. Attach the evidence pack reference (do not attach raw evidence to the ticket without a redaction review). For any artifact containing customer NPI / MNPI, share **out of band** under NDA.
+Open a Microsoft Support ticket only after L1, L2, and L3 are engaged. Use the §6 payload template. Attach the evidence pack reference (do not attach raw evidence to the ticket without a redaction review). For any artifact containing customer NPI / MNPI, share **out of band** under NDA.
 
 ### L5 — Internal Compliance / Legal / HR communication
 
-Use the §7 internal communication template alongside the L4 Microsoft ticket. The internal communication is the official intake into the firm's compliance file and the basis for the regulator-notification posture.
+Use the §6 internal communication template alongside the L4 Microsoft ticket. The internal communication is the official intake into the firm's compliance file and the basis for the regulator-notification posture.
 
 ---
 
-## §6 — Detailed failure modes
+## §5 — Detailed failure modes
 
 For each failure mode below: symptom, likely cause, deterministic diagnostic (PowerShell / Graph / portal path), fix, verification, and Microsoft Learn references.
 
@@ -397,24 +372,6 @@ $count = (Get-SPOTenantRestrictedSearchAllowedList).Count
 
 ---
 
-### F9 — Sovereign cloud parity gap
-
-**Symptom.** A capability that operates in Commercial does not behave the same way (or is unavailable) in GCC, GCC High, or DoD.
-
-**Likely cause.** Cloud-feature parity gap. Microsoft does not publish a single SLA for parity; capabilities land at different times in sovereign clouds.
-
-**Diagnostic.** Re-confirm the capability against the Microsoft Learn cloud-parity matrix at the time of operation. Do not rely on cached parity assumptions older than the operating quarter.
-
-**Fix.** Apply the §4 fallback for the affected capability. Document the parity verification date and the operating posture in the evidence pack.
-
-**Verification.** Evidence pack contains the parity verification date, the cloud, and the fallback posture.
-
-**Learn.**
-- https://learn.microsoft.com/en-us/office365/servicedescriptions/office-365-platform-service-description/office-365-us-government/gcc-high-and-dod
-- https://learn.microsoft.com/en-us/office365/servicedescriptions/office-365-platform-service-description/office-365-us-government/gcc-high-and-dod
-
----
-
 ### F10 — Modern indexed; classic ASPX not
 
 **Symptom.** A site is RCD-protected and the modern pages are correctly excluded from grounding; classic ASPX page content from the same site continues to surface.
@@ -545,11 +502,11 @@ $report | Where { -not $_.RCD } | Export-Csv -Path .\rcd-misses.csv -NoTypeInfor
 
 ---
 
-### F16 — Audit evidence of RCD / RSS change cannot be produced for examiner
+### F9 — Audit evidence of RCD / RSS change cannot be produced for examiner
 
 **Symptom.** During an examination or internal audit, the RCD / RSS change history for a site cannot be produced from the Unified Audit Log.
 
-**Likely cause.** Audit retention insufficient for the period in question; OR the wrong event-type filter was used; OR the event was never written (a sovereign-cloud or licensing parity gap can mute certain admin-event categories).
+**Likely cause.** Audit retention insufficient for the period in question; OR the wrong event-type filter was used; OR the event was never written.
 
 **Diagnostic.** Re-run the UAL search with the documented event-type list current at the time of the change. Check the audit retention setting per Control 1.7. Verify the audit log was enabled at the time of the change.
 
@@ -563,14 +520,14 @@ $report | Where { -not $_.RCD } | Export-Csv -Path .\rcd-misses.csv -NoTypeInfor
 
 ---
 
-## §7 — Microsoft Support escalation payload + internal Compliance / Legal communication template
+## §6 — Microsoft Support escalation payload + internal Compliance / Legal communication template
 
 ### 7.1 Microsoft Support ticket payload (paste verbatim; fill bracketed fields)
 
 ```
 Severity: [SEV-1 | SEV-2 | SEV-3]
 Tenant ID: [GUID]
-Cloud: [Commercial | GCC | GCC High | DoD]
+Cloud: Commercial
 Affected workload: Microsoft 365 Copilot grounding scope (RCD / RSS / Copilot Studio knowledge source / DLP-for-Copilot)
 Affected feature: [RCD | RSS | SharePoint Advanced Management | DAG | Copilot Studio knowledge source | DLP-for-Copilot | combination]
 Affected scope:
@@ -630,7 +587,7 @@ Subject: Microsoft 365 Copilot grounding-scope event — [date]
    - FINRA Rule 4530: [if firm misconduct in scope]
 
 3. Evidence preserved (per §1.3)
-   - Site state dumps, tenant state, RSS allow-list export, Copilot SKU inventory, Copilot Studio knowledge-source inventory, paginated UAL export with SHA-256 sidecars, DAG report with generation timestamp, DLP-for-Copilot policy snapshot, Zone register entries, page composition snapshot, parity verification date for sovereign cloud
+   - Site state dumps, tenant state, RSS allow-list export, Copilot SKU inventory, Copilot Studio knowledge-source inventory, paginated UAL export with SHA-256 sidecars, DAG report with generation timestamp, DLP-for-Copilot policy snapshot, Zone register entries, page composition snapshot
    - Stored in Control 1.7 evidence bucket reference [ID]
 
 4. Compensating controls in place (per §1.4)
@@ -654,7 +611,7 @@ Subject: Microsoft 365 Copilot grounding-scope event — [date]
 
 ---
 
-## §8 — Cross-references
+## §7 — Cross-references
 
 - [Control 4.6 — Grounding Scope Governance](../../../controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md) (parent control)
 - [Control 4.6 portal walkthrough](portal-walkthrough.md)

@@ -144,7 +144,7 @@ Get-ComplianceTag |
 **Attestation Date:** [Date]
 **Attested By:** [Name / Role]
 **Tenant:** [Tenant ID]
-**Cloud:** [Commercial / GCC / GCC High / DoD]
+**Cloud:** Commercial
 
 ## Policy Status
 
