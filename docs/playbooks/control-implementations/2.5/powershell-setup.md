@@ -1061,7 +1061,7 @@ jobs:
 
 ## §11 — Anti-patterns (false-clean traps)
 
-A **false-clean** outcome (the harness reports green when the underlying control is broken) is the highest-impact defect class for Control 2.5. The table below catalogs the 22 most common false-clean traps observed in FSI deployments through April 2026.
+A **false-clean** outcome (the harness reports green when the underlying control is broken) is the highest-impact defect class for Control 2.5. The table below catalogs the 21 most common false-clean traps observed in FSI deployments through April 2026.
 
 | # | Anti-pattern | False-clean symptom | Detection / mitigation |
 |---|---|---|---|
@@ -1092,7 +1092,7 @@ A **false-clean** outcome (the harness reports green when the underlying control
 
 ---
 
-## §11 — Cross-references
+## §12 — Cross-references
 
 **Shared baseline.**
 

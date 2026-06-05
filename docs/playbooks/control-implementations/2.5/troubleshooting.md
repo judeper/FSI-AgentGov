@@ -622,7 +622,7 @@ Evidence integrity is the bedrock of every regulatory framework that touches the
 
 **Evidence references.** E-04 (the affected packs, quarantined originals plus snapshot), storage-account access logs, integrity-check tooling output, signing-certificate validation reports, and the post-incident immutable-storage configuration.
 
-### Runbook 7 — Examiner / External Auditor Request for Testing Evidence
+### Runbook 8 — Examiner / External Auditor Request for Testing Evidence
 
 **Scenario.** A FINRA examiner sends a written request to the firm asking for: (a) the inventory of AI-enabled supervised-communications tools in production, (b) the testing and validation evidence for two specific named agents, including pre-deployment evaluation results and post-deployment monitoring outputs, (c) the supervisory procedures governing those tools, and (d) any incidents involving those tools in the prior twelve months. Response is requested within ten business days.
 

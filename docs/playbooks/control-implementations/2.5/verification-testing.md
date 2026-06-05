@@ -1061,7 +1061,7 @@ This playbook reuse the excellent chain-of-custody style already visible in 1.19
 
 ---
 
-## Section 8 — Anti-pattern catalog (**22 entries**)
+## Section 8 — Anti-pattern catalog (**21 entries**)
 
 This playbook includes a numbered anti-pattern table modeled after the stronger verification playbooks. This is important because a good test suite not only says what to do; it also documents the most common ways teams accidentally or intentionally weaken the methodology.
 

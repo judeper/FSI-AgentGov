@@ -104,7 +104,7 @@ Store under `Control-2.1/incidents/{YYYYMMDD-incident-id}/pre-remediation/`. Has
 
 ### §1.1 PowerShell module pinning
 
-All inventory commands in this playbook require **`Microsoft.PowerApps.Administration.PowerShell`** pinned to a known-good version. As of April 2026 the recommended minimum is **2.0.190**. The module supports **Windows PowerShell 5.1** for the admin scenarios used here; PowerShell 7+ is **not** supported for `Add-PowerAppsAccount -Endpoint` against US Government clouds at parity. See the [PowerShell baseline](../../_shared/powershell-baseline.md).
+All inventory commands in this playbook require **`Microsoft.PowerApps.Administration.PowerShell`** pinned to a known-good version. As of April 2026 the recommended minimum is **2.0.190**. The module supports **Windows PowerShell 5.1** for the admin scenarios used here; PowerShell 7+ is **not** supported for these admin scenarios. See the [PowerShell baseline](../../_shared/powershell-baseline.md).
 
 ```powershell
 # Run from an elevated Windows PowerShell 5.1 session
@@ -274,7 +274,6 @@ Search-UnifiedAuditLog -StartDate (Get-Date).AddHours(-48) -EndDate (Get-Date) `
 1. The user holds **Environment Admin** or **Delegated Admin** but not a tenant-level role. Managed Environments enable/disable requires **Power Platform Admin** or **Dynamics 365 Admin** at the tenant level.
 2. The user holds the role via **PIM Eligible** but has not activated the role for the current session.
 3. The role assignment is scoped to an **Administrative Unit** that does not include the environment's owning Dataverse instance (rare but possible in segmented FSI tenants).
-4. The user's session was authenticated against the wrong cloud (e.g., Commercial token used against a GCC tenant).
 
 **Diagnostic Steps (Portal).**
 1. Entra Admin Center → **Roles & admins** → search for the user → confirm `Power Platform Administrator` or `Dynamics 365 Administrator` is **Active** (not just Eligible).

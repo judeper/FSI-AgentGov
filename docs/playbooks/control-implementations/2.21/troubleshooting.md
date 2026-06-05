@@ -120,8 +120,8 @@ When a claim or workflow is not behaving as expected, work through the diagnosti
 
 **Resolution**
 
-- Re-run with the correct PowerShell edition, pinned module version, and `-AzureEnvironment` value.
-- Re-authenticate: `Disconnect-PnPOnline; Connect-PnPOnline -Url $SiteUrl -Interactive -AzureEnvironment <env>`.
+- Re-run with the correct PowerShell edition and pinned module version.
+- Re-authenticate: `Disconnect-PnPOnline; Connect-PnPOnline -Url $SiteUrl -Interactive`.
 - Add an index on `NextReviewDate` and `ClaimStatus` if you frequently query large historical datasets.
 
 ---

@@ -300,7 +300,7 @@ Cross-cutting pattern for every TC: emit a single evidence record (the §0.6 sch
     ```powershell
     # Pipelines surface via the Dataverse `deploymentpipeline`, `deploymentstage`,
     # and `deploymentenvironment` tables in the pipeline host environment.
-    Add-PowerAppsAccount -Endpoint $Endpoint
+    Add-PowerAppsAccount -Endpoint 'prod'
     $hostEnv = $env:ME21_PIPELINE_HOST
 
     # Use the WebAPI (the admin module does not expose pipeline tables directly).
@@ -367,7 +367,7 @@ Cross-cutting pattern for every TC: emit a single evidence record (the §0.6 sch
 2. Pull the per-environment, per-maker license posture via the admin module:
 
     ```powershell
-    Add-PowerAppsAccount -Endpoint $Endpoint
+    Add-PowerAppsAccount -Endpoint 'prod'
     $envs = Get-AdminPowerAppEnvironment | Where-Object {
         ($register.environments | Where-Object id -eq $_.EnvironmentName).zone -in '2','3'
     }

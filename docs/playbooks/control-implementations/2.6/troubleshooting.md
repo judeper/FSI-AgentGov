@@ -448,7 +448,6 @@ The matrix below describes **when** to escalate and to **whom**. Substantive MRM
 - SOX §§ 302 / 404 (Internal Controls over Financial Reporting)
 - GLBA 501(b) (Safeguards Rule); NYDFS 23 NYCRR 500
 - FINRA RN 25-07 (workplace modernization — RFC, contextual only)
-- [Microsoft 365 Government roadmap](https://aka.ms/m365gov-roadmap)
 
 ---
 
