@@ -33,16 +33,16 @@
   - [Scenario 11 — Forensic clip approaching 120-day expiry without export](#scenario-11-forensic-clip-approaching-120-day-expiry-without-export)
   - [Scenario 12 — State employee-monitoring law non-compliance discovered post-deployment](#scenario-12-state-employee-monitoring-law-non-compliance-discovered-post-deployment)
   - [Scenario 13 — Triage Agent fails to refresh after 90 days](#scenario-13-triage-agent-fails-to-refresh-after-90-days)
-  - [Scenario 15 — Pseudonymization broken (anonymization toggled off)](#scenario-15-pseudonymization-broken-anonymization-toggled-off)
-  - [Scenario 16 — Pseudonymization → non-pseudonymized escalation lacks HR + Legal sign-off](#scenario-16-pseudonymization-non-pseudonymized-escalation-lacks-hr-legal-sign-off)
-  - [Scenario 17 — Communication Compliance correlation missing](#scenario-17-communication-compliance-correlation-missing)
-  - [Scenario 18 — Sentinel UEBA service-principal anomaly not joined with IRM alert](#scenario-18-sentinel-ueba-service-principal-anomaly-not-joined-with-irm-alert)
-  - [Scenario 19 — Risky Agents alert volume from one Copilot Studio agent overwhelms queue](#scenario-19-risky-agents-alert-volume-from-one-copilot-studio-agent-overwhelms-queue)
-  - [Scenario 20 — IRM alert escalates to incident — handoff to Control 3.4 + legal hold](#scenario-20-irm-alert-escalates-to-incident-legal-hold-regulator-clock)
-  - [Scenario 21 — SoD violation found in IRM role groups](#scenario-21-sod-violation-found-in-irm-role-groups)
-  - [Scenario 22 — Forensic Evidence exposed PII to non-cleared reviewer](#scenario-22-forensic-evidence-exposed-pii-to-non-cleared-reviewer)
-  - [Scenario 23 — AI-driven risk score (Triage Agent / ML scoring) drifts](#scenario-23-ai-driven-risk-score-triage-agent-ml-scoring-drifts)
-  - [Scenario 25 — Examiner request for IRM evidence cannot be produced](#scenario-25-examiner-request-for-irm-evidence-cannot-be-produced)
+  - [Scenario 14 — Pseudonymization broken (anonymization toggled off)](#scenario-14-pseudonymization-broken-anonymization-toggled-off)
+  - [Scenario 15 — Pseudonymization → non-pseudonymized escalation lacks HR + Legal sign-off](#scenario-15-pseudonymization-non-pseudonymized-escalation-lacks-hr-legal-sign-off)
+  - [Scenario 16 — Communication Compliance correlation missing](#scenario-16-communication-compliance-correlation-missing)
+  - [Scenario 17 — Sentinel UEBA service-principal anomaly not joined with IRM alert](#scenario-17-sentinel-ueba-service-principal-anomaly-not-joined-with-irm-alert)
+  - [Scenario 18 — Risky Agents alert volume from one Copilot Studio agent overwhelms queue](#scenario-18-risky-agents-alert-volume-from-one-copilot-studio-agent-overwhelms-queue)
+  - [Scenario 19 — IRM alert escalates to incident — handoff to Control 3.4 + legal hold](#scenario-19-irm-alert-escalates-to-incident-legal-hold-regulator-clock)
+  - [Scenario 20 — SoD violation found in IRM role groups](#scenario-20-sod-violation-found-in-irm-role-groups)
+  - [Scenario 21 — Forensic Evidence exposed PII to non-cleared reviewer](#scenario-21-forensic-evidence-exposed-pii-to-non-cleared-reviewer)
+  - [Scenario 22 — AI-driven risk score (Triage Agent / ML scoring) drifts](#scenario-22-ai-driven-risk-score-triage-agent-ml-scoring-drifts)
+  - [Scenario 23 — Examiner request for IRM evidence cannot be produced](#scenario-23-examiner-request-for-irm-evidence-cannot-be-produced)
 - [§5 Escalation Matrix](#5-escalation-matrix)
 - [§6 Cross-References](#6-cross-references)
 
@@ -58,7 +58,7 @@ Microsoft Purview Insider Risk Management (IRM) is the **user-behavior risk plan
 
 | Severity | Trigger (IRM-specific) | Response window (firm-defined) | Escalation |
 |---|---|---|---|
-| **SEV-1** | An IRM policy covering a Zone 3 population (FINRA-supervised registered representatives, RIA staff, trading desk, MNPI-handlers, agent admins) is **off, deleted, mis-scoped, or producing zero alerts** during a window where seed/test activity is known to have occurred; the **Risky Agents** default policy is missing or scoped to zero users; HR connector last-success > 24 h while a known leaver's `LastWorkingDate` is within the policy lookback window; Forensic Evidence captures are running **without** dual-auth or **without** state-law notice; pseudonymization was disabled tenant-wide; Unified Audit Log is **off** (silent-zero-row trap); a Forensic Evidence approver group is empty (zero-approver state); priority user group includes the entire tenant ("everyone is priority" defeats focused review); PII surfaced via Forensic Evidence to a non-cleared reviewer (Scenario 22); examiner cannot be served on time (Scenario 25) | Immediate | CISO + Compliance + Legal + HR + Privacy within 1 h; NYDFS 23 NYCRR 500 §500.17(a) **72-hour cybersecurity-event clock** evaluated by Legal |
+| **SEV-1** | An IRM policy covering a Zone 3 population (FINRA-supervised registered representatives, RIA staff, trading desk, MNPI-handlers, agent admins) is **off, deleted, mis-scoped, or producing zero alerts** during a window where seed/test activity is known to have occurred; the **Risky Agents** default policy is missing or scoped to zero users; HR connector last-success > 24 h while a known leaver's `LastWorkingDate` is within the policy lookback window; Forensic Evidence captures are running **without** dual-auth or **without** state-law notice; pseudonymization was disabled tenant-wide; Unified Audit Log is **off** (silent-zero-row trap); a Forensic Evidence approver group is empty (zero-approver state); priority user group includes the entire tenant ("everyone is priority" defeats focused review); PII surfaced via Forensic Evidence to a non-cleared reviewer (Scenario 21); examiner cannot be served on time (Scenario 23) | Immediate | CISO + Compliance + Legal + HR + Privacy within 1 h; NYDFS 23 NYCRR 500 §500.17(a) **72-hour cybersecurity-event clock** evaluated by Legal |
 | **SEV-2** | Coverage gap on a Zone 2 population (single business unit excluded from a Risky AI usage policy; browser extension missing from an OS class; non-Windows population excluded silently); HR connector field-mapping drift (e.g., `ResignationDate` populated but `LastWorkingDate` blank → departing-user template silently quiet); Adaptive Protection threshold no longer triggering after a baseline shift; classifier / ML model bump invalidated the prior week's alert baseline; Auditor role group empty (no independent assurance trail for unmask events); Investigator role group also assigned as Approver (separation-of-duties violation for Forensic Evidence) | 4 h | IRM Admin → AI Governance Lead / Insider Risk Lead within 4 h; Compliance notified |
 | **SEV-3** | Single-user / single-channel coverage gap; Forensic Evidence storage cap approaching; analytics scan stalled past the documented 48 h window; Triage Agent unavailable (capacity / Preview→GA churn); Defender for Cloud Apps connector for a single SaaS source delayed; case-to-eDiscovery escalation failing for a single case | 1 business day | IRM Admin |
 | **SEV-4** | Cosmetic UI drift; tooltip / column-order changes; preview-feature regression that does not affect coverage, evidence, or reviewer access | Best effort | Track in known-issues log |
@@ -272,7 +272,7 @@ OfficeActivity
 | order by Events desc
 ```
 
-If the KQL returns **zero rows** while you know IRM admins were active in the window, suspect UAL ingestion is off **or** the Office 365 / Defender XDR connector to Sentinel has stopped (cross-reference Scenario 18).
+If the KQL returns **zero rows** while you know IRM admins were active in the window, suspect UAL ingestion is off **or** the Office 365 / Defender XDR connector to Sentinel has stopped (cross-reference Scenario 17).
 
 **Resolution.**
 
@@ -886,7 +886,7 @@ OfficeActivity
 **Resolution.**
 
 1. **Populate the Approvers role group** with members **distinct from Investigators** as **Purview Compliance Admin**. Recommended membership: a small set of senior personnel from Compliance + Privacy + an independent senior IRM Analyst, signed off by CISO and General Counsel.
-2. **Resolve any Investigator-Approver overlap** — remove the overlap as a SEV-2 SoD remediation per Scenario 21.
+2. **Resolve any Investigator-Approver overlap** — remove the overlap as a SEV-2 SoD remediation per Scenario 20.
 3. **Wait the documented role-propagation window** (up to 30 min per Microsoft Learn) before re-attempting submit.
 4. **Re-submit the request** as the same Investigator; confirm an Approver is now assigned; Approver reviews and approves with documented justification (state-law notice posture, investigation reason).
 5. **Document the dead window** and any compensating evidence-collection (e.g., MDE live response, eDiscovery (Premium) collection) used during the window.
@@ -894,7 +894,7 @@ OfficeActivity
 **Prevention.**
 
 - **Approvers-not-empty SLO.** Daily check; alert SEV-1 if `Insider Risk Management Approvers` membership = 0.
-- **SoD daily check.** Daily intersection check between Investigators and Approvers; intersection ≠ 0 is SEV-2 (Scenario 21).
+- **SoD daily check.** Daily intersection check between Investigators and Approvers; intersection ≠ 0 is SEV-2 (Scenario 20).
 - **Approver coverage matrix.** Document at least N=3 active Approvers with distinct PTO / holiday schedules so single-approver absence does not block evidence collection.
 - **Approval SLA.** Define a firm SLA for Approver response (e.g., 4 h business hours); breach triggers an escalation to the AI Governance Lead.
 
@@ -1172,7 +1172,7 @@ OfficeActivity
 
 ---
 
-### Scenario 15 — Pseudonymization broken (anonymization toggled off)
+### Scenario 14 — Pseudonymization broken (anonymization toggled off)
 
 **Symptom.** Privacy Officer notices that the IRM alerts queue suddenly displays raw user UPNs in place of pseudonyms (`user-9c3f-44a7@…` previously; now `jane.doe@contoso.com`). UAL search confirms the Pseudonymization tenant-wide setting was **toggled off** by an IRM Admin two days ago. The privacy-by-design baseline is broken; investigators have been viewing raw identities for two days without going through the per-investigation unmask flow.
 
@@ -1234,7 +1234,7 @@ OfficeActivity
 
 ---
 
-### Scenario 16 — Pseudonymization → non-pseudonymized escalation lacks HR + Legal sign-off
+### Scenario 15 — Pseudonymization → non-pseudonymized escalation lacks HR + Legal sign-off
 
 **Symptom.** Audit review finds that an Investigator unmasked 14 pseudonymized identities over the last 90 days **without** documented HR + Legal sign-off on each unmask. The unmasks were logged (the audit row exists with the investigator's name and timestamp) but the firm's documented procedure requires HR + Legal sign-off before unmask, which was not captured.
 
@@ -1285,7 +1285,7 @@ $rows | Select-Object CreationDate, UserIds, Operations, AuditData
 
 ---
 
-### Scenario 17 — Communication Compliance correlation missing
+### Scenario 16 — Communication Compliance correlation missing
 
 **Symptom.** An IRM `Risky AI usage` alert fires on a user. Compliance attempts to cross-reference the user's recent Communication Compliance alerts to view the conduct content (the actual prompts the user sent to Copilot). **No CC alerts exist for the user**, even though the user has been in scope of CC. Compliance asks why behavioral risk is firing without conduct-content correlation; the AI Governance Lead realizes **Control 1.10 (Communication Compliance Monitoring) was never deployed**.
 
@@ -1329,7 +1329,7 @@ Get-SupervisoryReviewPolicyV2 -ErrorAction SilentlyContinue
 
 ---
 
-### Scenario 18 — Sentinel UEBA service-principal anomaly not joined with IRM alert
+### Scenario 17 — Sentinel UEBA service-principal anomaly not joined with IRM alert
 
 **Symptom.** Microsoft Sentinel UEBA fires an anomaly on a Copilot Studio agent's service-principal sign-in (impossible-travel pattern across two regions). The SOC analyst expects the IRM Risky Agents queue to show a corresponding alert for the agent. **No IRM alert exists.** The two signals do not join; the SOC analyst has to manually correlate.
 
@@ -1392,7 +1392,7 @@ BehaviorAnalytics
 
 ---
 
-### Scenario 19 — Risky Agents alert volume from one Copilot Studio agent overwhelms queue
+### Scenario 18 — Risky Agents alert volume from one Copilot Studio agent overwhelms queue
 
 **Symptom.** A single Copilot Studio agent (e.g., a high-traffic customer-service agent) is generating 80%+ of the IRM **Risky Agents** alert volume. Analysts cannot triage real signal; queue SLA collapses.
 
@@ -1443,7 +1443,7 @@ SecurityAlert
 
 ---
 
-### Scenario 20 — IRM alert escalates to incident; legal hold + regulator clock
+### Scenario 19 — IRM alert escalates to incident; legal hold + regulator clock
 
 **Symptom.** A high-severity IRM alert (e.g., bulk MNPI exfiltration to personal storage) is confirmed by the IRM Investigator. The case is being escalated to an incident; CISO has been notified. Compliance and Legal need an immediate sequenced response covering: incident-reporting handoff (Control 3.4), legal hold (Control 1.19), and regulator-clock evaluation.
 
@@ -1480,7 +1480,7 @@ SecurityAlert
 
 ---
 
-### Scenario 21 — SoD violation found in IRM role groups
+### Scenario 20 — SoD violation found in IRM role groups
 
 **Symptom.** Quarterly access review finds that user `alice@contoso.com` is a member of **both** the `Insider Risk Management Investigators` and `Insider Risk Management Approvers` role groups, defeating segregation of duties. Audit trail confirms the dual assignment has existed for 47 days.
 
@@ -1530,7 +1530,7 @@ OfficeActivity
 
 ---
 
-### Scenario 22 — Forensic Evidence exposed PII to non-cleared reviewer
+### Scenario 21 — Forensic Evidence exposed PII to non-cleared reviewer
 
 !!! danger "PII / NPI handling"
     This scenario involves confirmed exposure of personally identifiable information (PII) and possibly nonpublic personal information (NPI) to a non-cleared reviewer. **Stop normal triage; convene Privacy + Compliance + Legal + CISO immediately.** Capture all evidence per §1 before any remediation. Decisions about disclosure to affected individuals and regulators must be made by Legal — do not act unilaterally.
@@ -1587,7 +1587,7 @@ OfficeActivity
 
 ---
 
-### Scenario 23 — AI-driven risk score (Triage Agent / ML scoring) drifts
+### Scenario 22 — AI-driven risk score (Triage Agent / ML scoring) drifts
 
 **Symptom.** Over a quarter, the Triage Agent's risk-score distribution shifts: the median priority score climbs 18 points; the alert volume in the "high" tier doubles without a corresponding change in workforce composition or business activity. Compliance asks whether the model is drifting.
 
@@ -1635,7 +1635,7 @@ SecurityAlert
 
 ---
 
-### Scenario 25 — Examiner request for IRM evidence cannot be produced
+### Scenario 23 — Examiner request for IRM evidence cannot be produced
 
 !!! danger "PII / NPI handling"
     Examiner-evidence requests touch employee-monitoring records, PII, and potentially NPI / MNPI from IRM cases. **All evidence production must be Legal-reviewed before transmission.** Privilege and confidentiality designations are required. Pseudonymization decisions on examiner-bound evidence (whether to pseudonymize, fully unmask, or partially redact) are Legal-led, not Compliance-led.
