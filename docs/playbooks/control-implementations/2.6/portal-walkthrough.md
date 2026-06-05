@@ -8,7 +8,7 @@
     | What the firm must do (people, not platforms) | Where it lives |
     |---|---|
     | **Model Risk Management Committee** — formal model definition, tiering, approval, retirement decisions | Firm's MRM charter and minutes |
-    | **Independent model validation function** — SR 26-2 §V (formerly SR 11-7 §V) *independence* test (organizationally and functionally separate from model owner / developer) | Firm's second-line MRM staff (internal is sufficient; third-party is one way, not the only way, to demonstrate independence) |
+    | **Independent model validation function** — SR 26-2 (formerly SR 11-7) *independence* test (organizationally and functionally separate from model owner / developer) | Firm's second-line MRM staff (internal is sufficient; third-party is one way, not the only way, to demonstrate independence) |
     | **Effective challenge** — critical, objective review by qualified personnel not involved in model development | MRM Committee or independent reviewer working papers |
     | **Three-lines-of-defense governance** — first line (model owner/developer), second line (MRM/validation/compliance), third line (Internal Audit) | Firm's risk taxonomy and reporting lines |
     | **Registered-principal supervisory review** under FINRA Rule 3110 for any AI-agent business activity | WSPs and supervisory log (see Control 2.12) |
@@ -30,7 +30,7 @@
 | 1 | [Conceptual Soundness Evidence Surfaces](#1-conceptual-soundness-evidence-surfaces) | Conceptual soundness | VC-3, VC-4 |
 | 2 | [Ongoing Monitoring Evidence Surfaces](#2-ongoing-monitoring-evidence-surfaces) | Ongoing monitoring | VC-5, VC-6 |
 | 3 | [Outcomes Analysis Evidence Surfaces](#3-outcomes-analysis-evidence-surfaces) | Outcomes analysis | VC-7 |
-| 4 | [Vendor Model Governance (SR 26-2 §V (formerly SR 11-7 §V))](#4-vendor-model-governance-sr-11-7-v) | Vendor models | VC-8 |
+| 4 | [Vendor Model Governance (SR 26-2, formerly SR 11-7)](#4-vendor-model-governance-sr-26-2) | Vendor models | VC-8 |
 | 5 | [Validation Evidence Retention Path](#5-validation-evidence-retention-path) | Books and records | VC-9 |
 | 6 | [Verification Checklist](#6-verification-checklist) | All | VC-1 → VC-10 |
 | 7 | [Common Pitfalls](#7-common-pitfalls) | All | Operational |
@@ -49,7 +49,7 @@ Before configuring any portal:
 1. Confirm the firm's **Model Risk Management Committee charter** exists, names a Model Risk Manager, and defines model-tiering criteria (Tier 1 / Tier 2 / Tier 3) and validation cadence.
 2. Confirm the firm's **MRM policy** explicitly addresses AI agents — that is, it states whether and when an AI agent meets the firm's definition of a "model" under OCC Bulletin 2026-13 / SR 26-2 (formerly OCC 2011-12 / SR 11-7), and assigns first-line, second-line, and third-line responsibilities.
 3. Confirm the **WSPs** (broker-dealers) or equivalent supervisory procedures (banks, IAs, NYDFS-covered firms) name the registered principal or supervisor responsible for AI-agent supervision under **FINRA Rule 3110**. This designation must exist in writing **before** any in-scope agent is published.
-4. Confirm the **independent validation function** under SR 26-2 §V (formerly SR 11-7 §V) is identified by name and reporting line. Internal second-line MRM staff who are organizationally and functionally separate from the model owner / developer satisfy the *independence* test. Third-party engagement is one way to demonstrate independence; it is not required and is not equivalent.
+4. Confirm the **independent validation function** under SR 26-2 (formerly SR 11-7) is identified by name and reporting line. Internal second-line MRM staff who are organizationally and functionally separate from the model owner / developer satisfy the *independence* test. Third-party engagement is one way to demonstrate independence; it is not required and is not equivalent.
 
 If any of these are missing, **stop**. The Microsoft surfaces below have nothing to evidence until the firm's MRM governance exists.
 
@@ -298,9 +298,9 @@ Capture each re-validation as a discrete validation memo retained under §5.
 
 ---
 
-## 4. Vendor Model Governance (SR 26-2 §V (formerly SR 11-7 §V)) {#4-vendor-model-governance-sr-11-7-v}
+## 4. Vendor Model Governance (SR 26-2, formerly SR 11-7) {#4-vendor-model-governance-sr-26-2}
 
-SR 26-2 §V (formerly SR 11-7 §V) applies to vendor and externally developed models with the same rigor as internal models. The validation function must assess the vendor model and document independence.
+SR 26-2 (formerly SR 11-7) applies to vendor and externally developed models with the same rigor as internal models. The validation function must assess the vendor model and document independence.
 
 ### 4.1 Capture vendor-model selection and provider evidence
 
@@ -383,7 +383,7 @@ The MRM Committee, on demand, can produce each of the following. The verificatio
 | Pitfall | Why it fails | What to do instead |
 |---|---|---|
 | **Treating Copilot Studio Analytics as the validation.** Pointing examiners at a dashboard and saying "monitoring is in place." | Analytics is operational telemetry — it is **the evidence**, not the validation. The validation is the MRM Committee's review and effective challenge using that evidence. | Produce the validation memo that **references** the Analytics export, authored by the independent validation function. |
-| **Calling third-party engagement "independent validation" without substantiating independence.** Engaging an external firm and inferring SR 26-2 §V (formerly SR 11-7 §V) independence from the engagement alone. | SR 26-2 (formerly SR 11-7) independence is a **functional and organizational** test, not a contractual one. An internal second-line MRM team that is functionally separate from the model owner / developer satisfies independence. A third party that is not appropriately scoped or qualified does not. | Document the validator's reporting line, scope of work, qualifications, and absence of conflicts. Independence is the test; third-party is one way to demonstrate it, not the test itself. |
+| **Calling third-party engagement "independent validation" without substantiating independence.** Engaging an external firm and inferring SR 26-2 (formerly SR 11-7) independence from the engagement alone. | SR 26-2 (formerly SR 11-7) independence is a **functional and organizational** test, not a contractual one. An internal second-line MRM team that is functionally separate from the model owner / developer satisfies independence. A third party that is not appropriately scoped or qualified does not. | Document the validator's reporting line, scope of work, qualifications, and absence of conflicts. Independence is the test; third-party is one way to demonstrate it, not the test itself. |
 | **Not capturing vendor-model changes as model changes.** Treating a Microsoft default-model migration as a routine platform update. | A foundation-model change alters the model under SR 26-2 (formerly SR 11-7) and triggers re-validation. Missing this is a recordkeeping and validation gap. | Subscribe to Microsoft 365 Message Center and the Power Platform release plan; activate the §4.2 runbook on every announced default-model migration. |
 | **Relying on M365 Audit Premium retention as 17a-4(f) WORM.** Storing validation memos in audit logs and assuming they meet broker-dealer recordkeeping. | M365 Audit Premium is **operational telemetry**, not WORM. It does not meet 17a-4(f) attestation requirements. | Retain validation memos under Purview retention with a locked Regulatory Record label, or in an approved 17a-4(f) vendor (Smarsh, Global Relay, Proofpoint, Mimecast). See [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md). |
 | **Treating DSPM for AI inventory as the model inventory.** Using DSPM for AI as the firm's authoritative Agent Card record. | DSPM for AI captures activity; it does not capture tier, owner-of-record, validation memo URI, or registered-principal designee. | Maintain the Agent Card SharePoint list as the authoritative inventory and reconcile against DSPM for AI monthly. |
