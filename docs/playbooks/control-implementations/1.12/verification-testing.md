@@ -1334,7 +1334,7 @@ priorityUserGroups:
   - "FSI-PrivilegedAdmins"
 ```
 
-### §5.4 Appendix D — Pester scaffolding skeleton
+### §5.3 Appendix C — Pester scaffolding skeleton
 
 ```powershell
 #Requires -Version 7.4
@@ -1390,7 +1390,7 @@ AfterAll {
 }
 ```
 
-### §5.5 Appendix E — TC-to-regulation matrix
+### §5.4 Appendix D — TC-to-regulation matrix
 
 | Regulation | TCs that primarily evidence it |
 |---|---|
@@ -1410,7 +1410,7 @@ AfterAll {
 | FFIEC IT Examination Handbook | TC-8, TC-11, TC-19 |
 | State employee-monitoring statutes (CT §31-48d, DE Title 19 §705, NY Civil Rights Law §52-bis) | TC-12 (gating), TC-13 (primary), TC-18 (operational) |
 
-### §5.6 Appendix F — Glossary (subset)
+### §5.5 Appendix E — Glossary (subset)
 
 | Term | Meaning |
 |---|---|
@@ -1430,7 +1430,7 @@ AfterAll {
 | Triage Agent | Security Copilot agent that triages IRM alerts; depends on SCU + PAYG; decision-support, not supervisory decision-maker. |
 | WORM | Write-Once-Read-Many storage tier supporting `deletionLocked = true` retention labels. |
 
-### §5.7 Appendix G — Examiner-facing crib sheet
+### §5.6 Appendix F — Examiner-facing crib sheet
 
 For the CCO presenting to a regulator, the answer to "show me your IRM evidence" is the following six-question rubric:
 
@@ -1441,7 +1441,7 @@ For the CCO presenting to a regulator, the answer to "show me your IRM evidence"
 5. **How do you tie IRM to your supervisory program?** → TC-16 CC correlation + TC-17 escalation chain (72-hour clocks).
 6. **How is your AI / agent surface governed?** → TC-4 / TC-5 / TC-14 + Control 2.6 (model-risk) + Control 2.26 (agent identity).
 
-### §5.8 Appendix H — Out-of-scope clarifications
+### §5.7 Appendix G — Out-of-scope clarifications
 
 - **Books-and-records retention** is implemented under [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) and [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), not by IRM or Forensic Evidence.
 - **DLP authoring** is implemented under [Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md). IRM consumes DLP signals; it does not author DLP.
@@ -1454,7 +1454,7 @@ For the CCO presenting to a regulator, the answer to "show me your IRM evidence"
 - **Agent inventory** is implemented under [Control 3.1](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md).
 - **Sentinel workspace authoring and detection-rule lifecycle** are implemented under [Control 3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md). The KQL in TC-19 is read-only verification, not detection-rule authoring.
 
-### §5.9 Appendix I — Change-log discipline
+### §5.8 Appendix H — Change-log discipline
 
 Any modification to this verification catalogue requires:
 
@@ -1467,7 +1467,7 @@ Any modification to this verification catalogue requires:
 
 ---
 
-### §5.10 Appendix J — Extended KQL hunting library
+### §5.9 Appendix I — Extended KQL hunting library
 
 The queries below extend TC-19 with additional hunting patterns the SOC may schedule independently. They are **hunting-tier** (not detection rules) and are referenced by the TC-19 evidence record where the SOC Analyst includes them in the cycle.
 
@@ -1568,7 +1568,7 @@ agentRecs
 
 > **Hunting-tier note.** Operation names in the above queries reflect commercial-cloud OfficeActivity emissions as observed in the April 2026 cycle. Verify against your tenant's Sentinel ingestion before scheduling.
 
-### §5.11 Appendix K — Operational dashboards reference
+### §5.10 Appendix J — Operational dashboards reference
 
 The firm publishes the following IRM dashboards (Power BI / Sentinel Workbooks). They are **operational-tier** (consumption views), not records-tier evidence:
 
@@ -1582,7 +1582,7 @@ The firm publishes the following IRM dashboards (Power BI / Sentinel Workbooks).
 
 Dashboards are **not** a substitute for the TC artefacts in §3 — they are derived views, not WORM-stored evidence.
 
-### §5.12 Appendix L — On-change triggers
+### §5.11 Appendix K — On-change triggers
 
 The following events MUST trigger off-cycle re-execution of the indicated TCs:
 
@@ -1601,7 +1601,7 @@ The following events MUST trigger off-cycle re-execution of the indicated TCs:
 | Sentinel connector health change | TC-19 | Within 24h |
 | State employee-monitoring statute change (legislative or regulatory) | TC-13 | Within 30 days; suspend affected captures pending GC review |
 
-### §5.13 Appendix M — Firm-defined SLA register (illustrative)
+### §5.12 Appendix L — Firm-defined SLA register (illustrative)
 
 > Microsoft does **not** publish IRM alert latency, triage SLA, or investigation duration ceilings. The values below are **firm-defined per WSP** and serve as defaults; tune via your governance process.
 
@@ -1618,7 +1618,7 @@ The following events MUST trigger off-cycle re-execution of the indicated TCs:
 | Compensating-control exercise | N/A — all TCs target commercial capabilities | N/A |
 | Indicator baseline RFC review | 14 calendar days | Purview Compliance Admin + AI Governance Lead |
 
-### §5.14 Appendix N — Failure-mode catalogue (selected)
+### §5.13 Appendix M — Failure-mode catalogue (selected)
 
 | Failure mode | Detected by | Immediate action | Long-term action |
 |---|---|---|---|
@@ -1638,7 +1638,7 @@ The following events MUST trigger off-cycle re-execution of the indicated TCs:
 | 72-hour clock breach | TC-17 | RCA within 7 business days | Process-engineering review; tabletop reset |
 | TC-22 artefact missing or sidecar mismatch | TC-22 | Records-management incident | Audit Committee escalation |
 
-### §5.15 Appendix O — Microsoft Learn watch-list (re-verify each cycle)
+### §5.14 Appendix N — Microsoft Learn watch-list (re-verify each cycle)
 
 Each cycle, the AI Governance Lead re-verifies the following Microsoft Learn topics and records `learnVerifiedUtc` against the indicator baseline:
 
