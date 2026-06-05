@@ -8,6 +8,8 @@
 !!! danger "API Surface — Verify Cmdlet Availability Before Mutation"
     The per-agent file upload toggle is exposed via `Get-AdminPowerAppChatbot` / `Set-AdminPowerAppChatbot` in `Microsoft.PowerApps.Administration.PowerShell`. The `-FileUploadEnabled` parameter availability and property name (`Properties.FileUploadEnabled`) is based on Microsoft's anticipated April 2026 schema and may differ between module versions. Run the cmdlet-availability probe in *Script 0* before executing any `Set-` operation. If the parameter is not exposed in your tenant, fall back to the [Portal Walkthrough](portal-walkthrough.md) for manual configuration and use the `Get-` script for inventory only.
 
+    > **UI Verification Status note:** The "UI Verification Status: Current" footer applies to portal-surface verification only. The cmdlet surface (`-FileUploadEnabled` parameter) requires in-tenant verification before treating Script 3 (mutation) output as audit-grade evidence. In tenants where the cmdlet surface is absent, the auditor pack is a portal-screenshot pack only.
+
 ## Prerequisites
 
 ```powershell
@@ -432,4 +434,4 @@ Land the bundle in WORM storage (Microsoft Purview Data Lifecycle Management ret
 [Back to Control 1.26](../../../controls/pillar-1-security/1.26-agent-file-upload-and-file-analysis-restrictions.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification & Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: June 2026 | Version: v1.6.2 | UI Verification Status: Current*
