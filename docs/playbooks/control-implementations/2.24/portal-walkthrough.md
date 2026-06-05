@@ -14,7 +14,6 @@
     | Feature catalog authoring and change workflow (forward **and reverse**) | Dataverse table / SharePoint list + ServiceNow / Jira / SPO | Every Z2/Z3 capability has an authorised record with expiration, risk rating, and reverse-change path |
     | MCP connector and Agent Framework feature-flag governance (external tool egress) | PPAC → Data policies + Copilot Studio → [agent] → Actions → MCP | External tool egress is allowlisted, justified, and monitored |
     | Voice and image-upload toggles (recording consent + Purview DLP for images) | M365 admin center → Copilot → Voice; Purview → DLP | Consent banner and DLP classifier coverage verified |
-    | Sovereign-cloud compensating feature catalog (GCC / GCC High / DoD) | Separate catalog instance + attestation workbook | Cloud-specific allow-list with no inheritance from Commercial |
 
     **This walkthrough is NOT for:**
 
@@ -34,7 +33,7 @@
     | Missing blades, greyed-out toggles, propagation delays, and remediation steps | [`./troubleshooting.md`](./troubleshooting.md) |
 
 !!! warning "Hedged-Language Reminder"
-    This playbook helps your organization **support compliance with** SOX §302/404 (internal controls over financial reporting), FINRA Rule 3110 (supervision), FINRA Rule 4511 / SEC 17a-4 (recordkeeping), Federal Reserve SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (model risk management), FFIEC IT Risk Management Handbook, GLBA 501(b) (safeguards), and, for SCI entities, SEC Regulation SCI §242.1001(a) / §242.1003. It does **not** by itself guarantee any regulatory outcome. Implementation requires Microsoft 365 Copilot licensing, Power Platform administrative access, validated change-control procedures, documented supervisory procedures, and independent testing by your compliance function. Organizations should verify all configurations against their own regulatory examination workpapers and legal counsel before treating these procedures as adequate evidence. FINRA RN 25-07 is cited in the parent control as industry consultation only; it is an RFC, not binding guidance.
+    This playbook helps your organization **support compliance with** SOX §302/404 (internal controls over financial reporting), FINRA Rule 3110 (supervision), FINRA Rule 4511 / SEC 17a-4 (recordkeeping), Federal Reserve SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (model risk management), FFIEC IT Risk Management Handbook, GLBA 501(b) (safeguards), and, for SCI entities, SEC Regulation SCI §242.1001(a) / §242.1003. It does **not** by itself certify any regulatory outcome. Implementation requires Microsoft 365 Copilot licensing, Power Platform administrative access, validated change-control procedures, documented supervisory procedures, and independent testing by your compliance function. Organizations should verify all configurations against their own regulatory examination workpapers and legal counsel before treating these procedures as adequate evidence. FINRA RN 25-07 is cited in the parent control as industry consultation only; it is an RFC, not binding guidance.
 
 !!! danger "Non-Substitution Principle — Feature Toggles Do NOT Replace MRM, Supervision, or Publishing Authorisation"
     A feature toggle restricts what a capability **can do** at runtime. It does **not** validate that the capability is **fit for purpose** and it does **not** grant anyone permission to deploy an agent that uses it. Enabling a capability on a Zone 2 or Zone 3 agent should **trigger — not replace**:
@@ -46,15 +45,6 @@
 
     Treat this control as the **enforcement and evidence layer** that presupposes an **approval layer elsewhere**. "The toggle is on" is never a complete answer to an examiner.
 
-!!! warning "Sovereign Cloud Caveat (GCC / GCC High / DoD)"
-    Microsoft 365 Copilot, Copilot Studio, declarative-agent capabilities, MCP connectors, and Agent Framework tools reach General Availability on the **Commercial cloud first**. M365 GCC, GCC High, DoD, and other sovereign clouds typically lag Commercial by **6–18 months**, and some preview capabilities (select MCP connectors, image-generation models, third-party plugin types, voice) may **never** become available in sovereign clouds. FSI organisations operating in sovereign tenants must:
-
-    - Maintain a **separate feature catalog per cloud** (Commercial vs GCC vs GCC High vs DoD) — never a shared catalog.
-    - Treat any "allow in Zone 2/3" decision in Commercial as **not inherited** into sovereign; each cloud requires its own approval record, change ticket, and MRM re-validation trigger.
-    - Verify capability availability against the cloud-specific service description (Microsoft 365 for Government, Copilot for GCC / GCC High) before publishing a feature allow-list entry.
-    - Record capabilities that are **unavailable** in the sovereign cloud as a **product unavailability** line item in examination briefings — not as a policy exception or compensating control.
-
-    See [§9 — Sovereign Cloud Compensating Control](#9-sovereign-cloud-compensating-control-gcc-gcc-high-dod) for the concrete dual-catalog procedure.
 
 !!! info "License, Role, and Program Requirements"
     | Requirement | Why | Where to verify |
@@ -91,10 +81,9 @@
 | 6 | [Change-Management Workflow — Forward and Reverse](#6-change-management-workflow-forward-and-reverse) | VC-7 |
 | 7 | [MCP Connectors and Agent Framework Feature Flags](#7-mcp-connectors-and-agent-framework-feature-flags) | VC-6, VC-8 |
 | 8 | [Voice and Image-Upload Toggles (Consent and DLP)](#8-voice-and-image-upload-toggles-consent-and-dlp) | VC-5, VC-6 |
-| 9 | [Sovereign Cloud Compensating Control (GCC / GCC High / DoD)](#9-sovereign-cloud-compensating-control-gcc-gcc-high-dod) | All (substitute path) |
-| 10 | [Zone Cadence Checklists (Z1 / Z2 / Z3)](#10-zone-cadence-checklists-z1-z2-z3) | VC-10 |
-| 11 | [Evidence Capture per Session](#11-evidence-capture-per-session) | All (evidence) |
-| 12 | [Cross-References and Sibling Routing](#12-cross-references-and-sibling-routing) | Operational reference |
+| 9 | [Zone Cadence Checklists (Z1 / Z2 / Z3)](#9-zone-cadence-checklists-z1-z2-z3) | VC-10 |
+| 10 | [Evidence Capture per Session](#10-evidence-capture-per-session) | All (evidence) |
+| 11 | [Cross-References and Sibling Routing](#11-cross-references-and-sibling-routing) | Operational reference |
 | ★ | [Closing Decision Matrix and Readiness Checklist](#closing-decision-matrix-and-readiness-checklist) | Operational reference |
 
 ---
@@ -107,15 +96,11 @@ Before you click anything in any portal, run through this gate. Skipping a gate 
 
 1. Sign in to [`https://admin.microsoft.com`](https://admin.microsoft.com) as an account that holds at least **AI Administrator** (preferred) or **Entra Global Admin** (exceptional only).
 2. In the upper-right corner, click your profile photo → **Switch tenant** if you are a multi-tenant operator. Confirm you are in the tenant you intend to govern and capture the **Tenant ID** GUID and **Primary domain** for your runbook (Settings → Org settings → Organization profile).
-3. Inspect the URL bar:
-    - `admin.microsoft.com` → M365 Commercial. Continue with §1–§8.
-    - `portal.office365.us` / `admin.microsoft.us` → **sovereign cloud**. Stop and jump to [§9](#9-sovereign-cloud-compensating-control-gcc-gcc-high-dod).
+3. Inspect the URL bar and confirm it shows `admin.microsoft.com` for M365 Commercial.
 4. Navigate to **Copilot → Overview**. Confirm Copilot is provisioned for the tenant — if you see a "Get started with Copilot" splash instead of the Overview tiles, return to licensing in §0.3.
 
 *Screenshot anchor: `docs/images/2.24/EXPECTED.md#0-1-copilot-overview` — M365 admin center Copilot Overview blade with tenant-ID banner visible.*
 
-!!! warning "Tenant Cloud Detection Is the First Branch"
-    Every subsequent section assumes Commercial. If you continue in a `*.us` or DoD tenant, capability toggles for preview features, MCP connectors, voice, and image upload will not render — and the resulting blank-screen output can be misread as "feature is disabled" when in fact the **feature does not exist** in that cloud. Record the cloud at the top of your evidence pack.
 
 ### 0.2 Confirm role assignments (PIM-aware)
 
@@ -125,7 +110,7 @@ Before you click anything in any portal, run through this gate. Skipping a gate 
 | **Power Platform Admin** | PPAC Copilot hub (§2), environment features (§3), DLP (§7) | PPAC → Admins |
 | **Copilot Studio Agent Author** | Per-agent configuration (§4) in authoring environments | Environment security role `Copilot Studio Author` |
 | **Compliance Officer** | Review / approve Z2 / Z3 capability changes (§6) | Purview → Roles & scopes |
-| **AI Governance Lead** | Feature catalog authority (§5), quarterly risk assessment (§10) | Governance RACI; typically granted Dataverse `Feature Catalog Owner` security role or SPO list owner |
+| **AI Governance Lead** | Feature catalog authority (§5), quarterly risk assessment (§9) | Governance RACI; typically granted Dataverse `Feature Catalog Owner` security role or SPO list owner |
 | **Security Architect** | Compensating-control design for high-risk capabilities | Governance RACI |
 | **Change Management Team** | Forward / reverse change processing (§6) | ServiceNow / Jira / SPO |
 | **Entra Global Admin** | **Exceptional only** — program enrolment, emergency rollback | Entra → Roles & admins (break-glass only) |
@@ -159,7 +144,7 @@ Before you click anything in any portal, run through this gate. Skipping a gate 
 Do not proceed past this section unless **all** of the following are true:
 
 - [ ] You are signed in to the correct tenant and have captured the tenant ID.
-- [ ] Tenant cloud is identified (Commercial → §1–§8; sovereign → §9).
+- [ ] Tenant is in M365 Commercial cloud.
 - [ ] At least two named humans hold each governance role in §0.2, **AI Administrator is PIM-eligible not permanent**.
 - [ ] Microsoft 365 Copilot and Power Platform licences are assigned to intended sponsors and authors.
 - [ ] A dedicated governance environment (Dataverse) or governance SPO site exists to host the feature catalog.
@@ -421,7 +406,7 @@ Open each Zone 1 environment:
 
 1. Settings → Product → Features.
 2. Recommended posture:
-    - **Preview features** → **On** (Zone 1 is the testbed for preview evaluation — usage drives the next quarterly risk assessment under §10)
+    - **Preview features** → **On** (Zone 1 is the testbed for preview evaluation — usage drives the next quarterly risk assessment under §9)
     - **Generative actions** → **On**
     - **All other features** → Microsoft default
 3. Save. Record a single "Zone 1 default posture" entry in the feature catalog per environment; you do not need a per-toggle record in Z1.
@@ -432,7 +417,7 @@ Microsoft regularly (a) graduates preview features to GA, (b) withdraws preview 
 
 | Microsoft action | Feature catalog action | Reverse-change action |
 |---|---|---|
-| Preview → GA | Re-evaluate under §10 quarterly risk assessment; promote to Z2/Z3 allow-list if approved | — |
+| Preview → GA | Re-evaluate under §9 quarterly risk assessment; promote to Z2/Z3 allow-list if approved | — |
 | Preview withdrawn | Mark catalog entry `Retired` with reason `Microsoft withdrawn`; capture screenshot of Message Center notice | Disable in any environment where still present; open reverse CR (§6.4) |
 | Feature rename | Update `FeatureName` field; preserve original as `PreviousFeatureName` for audit trail | — |
 | Preview expires (time-bound Z1/Z2 exception) | Trigger reverse CR 7 days before expiration | Disable in environment and mark catalog entry `Expired` |
@@ -567,7 +552,7 @@ Document the decision in the parent control's "Backing store selection" section 
     - **fsi_featurename** (Single line of text, 200 char) — human-readable capability name
     - **fsi_featureid** (Single line of text, 100, unique key) — stable ID (e.g., `copilot.websearch`, `ppac.preview-features`, `mcp.external-server.<host>`)
     - **fsi_surface** (Choice) — `M365 Copilot Admin`, `PPAC Copilot Hub`, `PPAC Environment`, `Copilot Studio Agent`, `DLP`, `Purview`, `Other`
-    - **fsi_cloudscope** (Choice) — `Commercial`, `GCC`, `GCC High`, `DoD` (one row per cloud — never shared)
+    - **fsi_cloudscope** (Choice) — `Commercial`
     - **fsi_z1status** (Choice) — `Allowed`, `Restricted`, `Prohibited`, `Retired`
     - **fsi_z2status** (Choice) — same
     - **fsi_z3status** (Choice) — same
@@ -615,7 +600,6 @@ Populate at minimum one row per capability you configured in §1–§4. Minimum 
 | `ppac.env.custom-connectors` | PPAC Environment | Commercial | Allowed | Allowed (DLP-gated) | Restricted | Medium |
 | `agent.auth.anonymous` | Copilot Studio Agent | Commercial | Restricted | Prohibited | Prohibited | Critical |
 
-Replicate every row for each **sovereign cloud** you operate in (§9). **Never** share a row across clouds.
 
 ### 5.5 Wire the catalog to the change workflow
 
@@ -652,7 +636,6 @@ Create a change request template in your change-management system. Required fiel
 - **Feature ID** (matches `fsi_featureid` in the catalog)
 - **Target zone(s):** Z1 / Z2 / Z3
 - **Target environment(s) / tenant surface**
-- **Cloud:** Commercial / GCC / GCC High / DoD
 - **Requester** (agent author or business owner)
 - **Business justification** (≥ 200 words for Z3)
 - **Risk assessment** — security, regulatory, operational (reference Control 2.6 MRM ticket for High/Critical risk)
@@ -676,7 +659,7 @@ Create a second template — **do not reuse the forward template**. Reverse chan
     - MRM re-validation failed (attach Control 2.6 memo)
     - Supervision review failed (attach Control 2.12 finding)
     - Expiration of time-bound exception
-    - Quarterly risk-assessment re-rating (§10)
+    - Quarterly risk-assessment re-rating (§9)
     - Customer complaint / regulatory enquiry
 - **Affected agents / environments** (query via Control 1.2 agent registry)
 - **Immediate vs scheduled withdrawal**
@@ -759,7 +742,7 @@ MCP (Model Context Protocol) connectors and Microsoft Agent Framework feature fl
 
 1. In PPAC → **Data policies**, open the policy that covers your Z3 environments.
 2. Locate the **MCP** or **Custom connectors** classification (UI naming varies).
-3. Ensure it is placed in the **Blocked** group for Z3 unless a specific allow-list entry exists.
+3. Confirm it is placed in the **Blocked** group for Z3 unless a specific allow-list entry exists.
 4. For Z2, place in **Non-business** (preventing cross-use with Business data) and maintain a small allow-list.
 5. For Z1, Microsoft default posture may be acceptable; document in the feature catalog.
 6. Save.
@@ -813,7 +796,7 @@ Voice and image-upload are covered separately because they carry **specific regu
 3. If On for Z1/Z2:
     - **Consent banner** — set to **Required** (shown to caller before recording starts)
     - **Recording retention** — align to Control 2.9 / FINRA 4511 — minimum 3 years, typically 7 years for broker-dealers
-    - **Transcription routing** — ensure transcripts are written to a Purview-labelled location covered by Control 1.10 Communication Compliance
+    - **Transcription routing** — confirm transcripts are written to a Purview-labelled location covered by Control 1.10 Communication Compliance
     - **Cross-border** — if the tenant serves EU / UK / CA / AU residents, wire GDPR / PIPEDA / Privacy Act consent flows; disable voice for those locales if consent cannot be captured
 4. Save. Record in feature catalog: Feature ID `copilot.voice`, Risk `High`.
 
@@ -828,7 +811,7 @@ Voice and image-upload are covered separately because they carry **specific regu
     - **Purview DLP for images** — confirm **On**. Requires Purview Premium / Information Protection add-on in some tenancies.
     - **OCR classification** — confirm **On** so that Purview can scan image contents for sensitive-information types.
     - **Blocked classifiers** — add at minimum: `Credit Card Number`, `U.S. Social Security Number`, `U.S. Bank Account Number`, `ABA Routing Number`, `U.S. Driver's License Number`, `U.S. Passport Number`. Firm-specific classifiers (customer account numbers) should also be included.
-    - **Action on match** — **Block** upload and notify Security Architect (not just warn).
+    - **Action on match** — **Block** upload and notify Security Architect (not only warn).
 4. Save. Record in feature catalog: Feature ID `copilot.image-upload`, Risk `Medium`–`High` depending on zone.
 5. In Purview → **Data Loss Prevention → Policies**, confirm an image-classification policy covers the same sensitive-information types and is **scoped to Copilot workload** (if that scope is exposed in your tenant).
 
@@ -850,59 +833,13 @@ Voice and image-upload are covered separately because they carry **specific regu
 
 ---
 
-## 9. Sovereign Cloud Compensating Control (GCC / GCC High / DoD)
-
-**Audience:** operators in M365 GCC, GCC High, or DoD tenants. Skip this section if you are in M365 Commercial.
-
-As of the verification date, many capabilities documented above (select MCP connectors, image generation, voice, and most Agent Framework features) are **not available** in US sovereign clouds. Microsoft has not committed to timelines for most of them. Until parity arrives, sovereign-cloud FSI organisations cannot rely on the admin-center surfaces described in §1, §7, and §8. Examiners (FFIEC IT Handbook, OCC Heightened Standards, DoD SRG) will still expect equivalent governance evidence. The substitute is a **dual-catalog + quarterly attestation** pattern.
-
-### 9.1 Separate feature catalog per sovereign cloud
-
-1. Provision a **separate Dataverse instance** (or separate SharePoint site) **in the sovereign tenant** — never in Commercial, never shared. The sovereign instance hosts its own `fsi_featurecatalog` with the same schema as §5.2 but with `fsi_cloudscope` set to the sovereign cloud.
-2. **Do not copy rows from the Commercial catalog.** Each capability in sovereign requires an independent approval record, risk assessment, and (where applicable) MRM ticket. Inherited approvals are an audit finding under OCC 2013-29.
-3. Seed the sovereign catalog with **only** the capabilities available in that cloud, per the cloud-specific service description. Mark unavailable capabilities as `Unavailable (product gap)` — not as `Prohibited`. This is a Microsoft product limitation, not an FSI policy decision, and belongs in examination briefing materials under that framing.
-
-### 9.2 Manual quarterly attestation for sovereign feature inventory
-
-1. Pull the sovereign feature-catalog CSV and the agent-registry CSV from [Control 1.2](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md).
-2. Distribute to AI Governance Lead, Compliance Officer, and each agent sponsor via a Purview-labelled attestation workbook.
-3. Each sponsor attests in writing that:
-    - They understand the capability posture currently allowed in the sovereign cloud.
-    - They have not attempted to reach Commercial-only capabilities via unapproved channels (e.g., cross-cloud tenants, shadow IT).
-    - Any capability gap vs Commercial is documented and accepted.
-4. Archive attestations in a Purview-immutable location with 6-year retention (records-management label, locked policy).
-
-### 9.3 Compensating-control mapping (Commercial capability → sovereign substitute)
-
-| Commercial capability | Sovereign substitute | Residual risk |
-|---|---|---|
-| Tenant-level MCP connector allow-list | Hard prohibition in DLP (Control 1.4) + manual attestation that no out-of-band MCP channel exists | Shadow-IT circumvention risk |
-| Voice capability with Purview-labelled transcripts | Third-party (e.g., Teams Phone recording with on-tenant retention) — document as Control 2.9 variant | Feature-parity lag |
-| Image upload with Purview DLP classifiers | Block uploads at Copilot tenant level; manually review any approved use case via Control 1.10 | OCR-DLP not available in all sovereign tiers |
-| Preview-feature exposure | Preview features are typically unavailable in sovereign; this is neutral — note in feature catalog | — |
-| Agent Framework autonomous triggers | Not available; document product gap | Feature-parity lag |
-| Message Center notices re: preview withdrawal | Sovereign Message Center lags; check Commercial Message Center for forward-looking visibility and plan ahead | Withdrawal-notice latency |
-
-### 9.4 Cloud-parity cutover
-
-When Microsoft announces a capability GA for your sovereign cloud, do **not** silently enable it. Treat cloud parity as a **controlled change**: open a forward change ticket per §6, dual-run Commercial + sovereign catalogs for one full quarter, obtain compliance sign-off, and only then retire the `Unavailable` marker in the sovereign catalog. Document the cutover in your change-management system per Control 2.16.
-
-!!! example "Examiner Evidence Box — Sovereign Compensating Control"
-    | Element | Value |
-    |---|---|
-    | Artifact produced | Sovereign feature-catalog export + quarterly attestation archive + compensating-control mapping memo + Microsoft service description citations |
-    | Retention duration | 6 years (SEC 17a-4 / FINRA 4511); longer where DoD contract schedules require |
-    | Regulatory mapping | FFIEC IT Handbook, OCC 2013-29 (third-party / cloud risk), DoD SRG (sovereign cloud controls), FINRA 3110 (supervision — feature-parity gaps), Fed SR 26-2 (formerly SR 11-7) (model-inventory per cloud) |
-
----
-
-## 10. Zone Cadence Checklists (Z1 / Z2 / Z3)
+## 9. Zone Cadence Checklists (Z1 / Z2 / Z3)
 
 **Verification Criterion evidenced:** VC-10 (quarterly feature risk assessment with documented results).
 
 Cadence is the discipline that keeps this control effective over time. Microsoft ships new capabilities roughly monthly; without a cadence the feature catalog decays into fiction.
 
-### 10.1 Zone 1 cadence — Personal productivity
+### 9.1 Zone 1 cadence — Personal productivity
 
 | Cadence | Activity | Owner | Evidence |
 |---|---|---|---|
@@ -911,7 +848,7 @@ Cadence is the discipline that keeps this control effective over time. Microsoft
 | Quarterly | Risk assessment of every Z1 capability currently in use; promote candidates to Z2/Z3 review | AI Governance Lead + Security Architect | Risk-assessment memo + catalog `fsi_lastreviewedon` update |
 | On preview withdrawal | Reverse change per §6.5 | Change Management Team | Reverse change ticket |
 
-### 10.2 Zone 2 cadence — Team collaboration
+### 9.2 Zone 2 cadence — Team collaboration
 
 | Cadence | Activity | Owner | Evidence |
 |---|---|---|---|
@@ -921,7 +858,7 @@ Cadence is the discipline that keeps this control effective over time. Microsoft
 | On expiration | Reverse change per §6.5 | Change Management Team | Reverse change ticket |
 | On MRM trigger | Re-validation per Control 2.6 | MRM team | MRM memo referenced in `fsi_mrmticket` |
 
-### 10.3 Zone 3 cadence — Enterprise / regulated
+### 9.3 Zone 3 cadence — Enterprise / regulated
 
 | Cadence | Activity | Owner | Evidence |
 |---|---|---|---|
@@ -944,11 +881,11 @@ Cadence is the discipline that keeps this control effective over time. Microsoft
 
 ---
 
-## 11. Evidence Capture per Session
+## 10. Evidence Capture per Session
 
 Every session in which you change capability posture — even a single toggle — should produce a named evidence bundle. This section prescribes the minimum bundle and folder convention so examiner walk-throughs do not require forensic reconstruction.
 
-### 11.1 Folder convention
+### 10.1 Folder convention
 
 ```
 Control-2.24/
@@ -964,7 +901,7 @@ Control-2.24/
         README.md                  # Session narrative
 ```
 
-### 11.2 Minimum bundle contents per session
+### 10.2 Minimum bundle contents per session
 
 - [ ] **README.md** with session narrative (who, when, why, what changed, which change ticket)
 - [ ] **Baseline CSV / screenshots** captured **before** any change
@@ -975,7 +912,7 @@ Control-2.24/
 - [ ] **Change-ticket PDF** with approval chain visible
 - [ ] **Hash file** (SHA-256) of every binary artefact in the bundle
 
-### 11.3 Session README template
+### 10.3 Session README template
 
 ```markdown
 # Control 2.24 Session Evidence — <YYYY-MM-DD> — <activity>
@@ -983,7 +920,6 @@ Control-2.24/
 **Operator:** <UPN>
 **Role activated (PIM):** AI Administrator / Power Platform Admin
 **Tenant:** <domain> (Tenant ID: <GUID>)
-**Cloud:** Commercial / GCC / GCC High / DoD
 **Change tickets:** CR-#####, CR-#####
 **Verification Criteria addressed:** VC-1, VC-5
 
@@ -1008,13 +944,13 @@ Control-2.24/
 - Control 2.12 register update filed under CR-12347
 ```
 
-### 11.4 Retention
+### 10.4 Retention
 
-Bundle retention is **6 years** per SEC 17a-4 / FINRA 4511. For tenants that operate under DoD contract or additional state-level retention (NYDFS, MA 201 CMR 17), extend per the longer schedule. Store in an immutable (WORM) Purview records location or equivalent.
+Bundle retention is **6 years** per SEC 17a-4 / FINRA 4511. For tenants that operate under additional state-level retention (NYDFS, MA 201 CMR 17), extend per the longer schedule. Store in an immutable (WORM) Purview records location or equivalent.
 
 ---
 
-## 12. Cross-References and Sibling Routing
+## 11. Cross-References and Sibling Routing
 
 | If you need to … | Use this control / playbook |
 |---|---|
@@ -1078,10 +1014,9 @@ Before declaring Control 2.24 implemented, confirm:
 - [ ] §6 forward AND reverse change templates exist in change-management system; approval matrix documented; walk-through of one forward change and one reverse change completed and archived.
 - [ ] §7 MCP allow-list configured (or Off); Agent Framework autonomous/background flags Off in Z2/Z3; DLP enforcement aligned with Control 1.4.
 - [ ] §8 voice posture aligned to FINRA 2210/3110; image-upload Purview DLP classifiers active and tested with synthetic content.
-- [ ] §9 sovereign compensating control implemented (separate catalog, quarterly attestation) if operating in GCC / GCC High / DoD.
-- [ ] §10 zone-cadence calendar entries created; quarterly risk-assessment memo template published.
-- [ ] §11 evidence-bundle folder convention in use; at least one session archived to validate the process.
-- [ ] §12 cross-references communicated to AI Governance Lead and Compliance Officer; sibling playbooks (`powershell-setup.md`, `verification-testing.md`, `troubleshooting.md`) reviewed.
+- [ ] §9 zone-cadence calendar entries created; quarterly risk-assessment memo template published.
+- [ ] §10 evidence-bundle folder convention in use; at least one session archived to validate the process.
+- [ ] §11 cross-references communicated to AI Governance Lead and Compliance Officer; sibling playbooks (`powershell-setup.md`, `verification-testing.md`, `troubleshooting.md`) reviewed.
 - [ ] Control 1.1 publishing-authorisation, Control 2.6 MRM, and Control 2.12 supervisory register all updated to reflect current capability posture.
 
 ---

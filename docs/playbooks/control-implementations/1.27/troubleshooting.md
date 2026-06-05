@@ -17,7 +17,7 @@ This playbook is organized by symptom. Each issue is an `H3` under a topical `H2
 | **High** blocks legitimate prompts | False positive; topic override or prompt redesign needed |
 | Custom safety message not appearing | Not saved; not republished; field empty |
 | Purview / Sentinel shows no moderation events | Audit not enabled; Power Platform → Sentinel export not configured; propagation delay |
-| `Get-AdminPowerAppChatbot` returns nothing | Wrong sovereign endpoint; wrong PS edition; insufficient role |
+| `Get-AdminPowerAppChatbot` returns nothing | Wrong PS edition; insufficient role |
 | `Search-UnifiedAuditLog` cmdlet missing | `ExchangeOnlineManagement` not installed or not connected |
 | Inventory shows `NotExposedByApi` everywhere | API surface does not expose `ContentModeration` for your tenant — fall back to portal inventory |
 
@@ -135,8 +135,7 @@ This playbook is organized by symptom. Each issue is an `H3` under a topical `H2
 
 **Resolution.**
 
-1. **Sovereign cloud check.** GCC / GCC High / DoD tenants must call `Add-PowerAppsAccount -Endpoint usgov | usgovhigh | dod`. Without the right endpoint, you authenticate against commercial and see 0 environments — **false-clean**. See PowerShell baseline §3.
-2. **PowerShell edition check.** `Microsoft.PowerApps.Administration.PowerShell` is **Desktop only** (Windows PS 5.1). Running in PS 7 silently returns nothing in some module versions. Every Script in the [PowerShell Setup](powershell-setup.md) playbook includes the Desktop guard — do not strip it.
+1. **PowerShell edition check.** `Microsoft.PowerApps.Administration.PowerShell` is **Desktop only** (Windows PS 5.1). Running in PS 7 silently returns nothing in some module versions. Every Script in the [PowerShell Setup](powershell-setup.md) playbook includes the Desktop guard — do not strip it.
 3. **Role check.** Confirm Power Platform Admin or Entra Global Admin assignment.
 4. **Module version.** Pin to the CAB-approved version per baseline §1; do not float.
 

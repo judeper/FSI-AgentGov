@@ -1,7 +1,7 @@
 # PowerShell Setup: Control 2.15 — Environment Routing and Auto-Provisioning
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. The snippets below intentionally show abbreviated patterns; the baseline is authoritative.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. The snippets below intentionally show abbreviated patterns; the baseline is authoritative.
 
 **Last Updated:** April 2026
 **Modules Required:** `Microsoft.PowerApps.Administration.PowerShell` (Desktop edition / Windows PowerShell 5.1 only)
@@ -25,15 +25,13 @@ if ($PSVersionTable.PSEdition -ne 'Desktop') {
     throw "Microsoft.PowerApps.Administration.PowerShell requires Windows PowerShell 5.1 (Desktop). Detected: $($PSVersionTable.PSEdition) $($PSVersionTable.PSVersion)."
 }
 
-# Sovereign-aware connect (default 'prod' = commercial)
 param(
-    [ValidateSet('prod','usgov','usgovhigh','dod')] [string] $Endpoint = 'prod',
     [Parameter(Mandatory)] [string] $TenantId
 )
-Add-PowerAppsAccount -Endpoint $Endpoint -TenantID $TenantId
+Add-PowerAppsAccount -TenantID $TenantId
 ```
 
-> **For unattended runs**, supply `-ApplicationId` / `-ClientSecret` to `Add-PowerAppsAccount`. The service principal must hold the Power Platform Admin role assignment and (if scripts run cross-cloud) be registered in the matching cloud.
+> **For unattended runs**, supply `-ApplicationId` / `-ClientSecret` to `Add-PowerAppsAccount`. The service principal must hold the Power Platform Admin role assignment.
 
 ---
 
@@ -87,7 +85,6 @@ This script changes tenant state. It follows the FSI baseline: `SupportsShouldPr
 [CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]
 param(
     [Parameter(Mandatory)] [string] $TenantId,
-    [ValidateSet('prod','usgov','usgovhigh','dod')] [string] $Endpoint = 'prod',
     [Parameter(Mandatory)] [string] $TargetEnvironmentGroupId,
     [string] $TargetSecurityGroupId,
     [switch] $AllMakers,
@@ -105,7 +102,7 @@ $ts = Get-Date -Format 'yyyyMMddTHHmmssZ'
 Start-Transcript -Path "$EvidencePath\transcript-$ts.log" -IncludeInvocationHeader
 
 try {
-    Add-PowerAppsAccount -Endpoint $Endpoint -TenantID $TenantId
+    Add-PowerAppsAccount -TenantID $TenantId
 
     # 1. BEFORE snapshot (required for rollback evidence)
     $before = Get-TenantSettings
@@ -162,11 +159,10 @@ finally {
 [CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]
 param(
     [Parameter(Mandatory)] [string] $TenantId,
-    [ValidateSet('prod','usgov','usgovhigh','dod')] [string] $Endpoint = 'prod',
     [string] $EvidencePath = ".\evidence\2.15"
 )
 $ErrorActionPreference = 'Stop'
-Add-PowerAppsAccount -Endpoint $Endpoint -TenantID $TenantId
+Add-PowerAppsAccount -TenantID $TenantId
 
 $before = Get-TenantSettings
 $ts = Get-Date -Format 'yyyyMMddTHHmmssZ'

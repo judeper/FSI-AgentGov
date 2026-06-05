@@ -3,7 +3,6 @@
 **Control:** 2.20 — Adversarial Testing and Red Team Framework
 **Pillar:** 2 — Management
 **Audience:** AI Governance Lead, Cloud Security Architect, Security Architect, Model Risk Manager, FSI Internal Audit
-**Sovereign clouds:** Commercial, GCC, GCC High, DoD (per-cloud feature parity tracked in §1)
 
 > **Regulatory hedging notice.** This playbook describes verification procedures intended to **support compliance with** OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), FINRA Rule 3110, FINRA RN 24-09 / Rule 3110 (March 2025), SEC Rule 17a-4(b)(4) / 18a-6, GLBA §501(b), the NIST AI RMF Generative AI Profile (NIST AI 600-1), MITRE ATLAS, and OWASP Top 10 for LLM Applications (2025). Implementation **does not guarantee** legal compliance. Organizations should validate applicability with qualified counsel and confirm tenant-specific behaviour against current Microsoft Learn documentation.
 
@@ -21,7 +20,6 @@ This playbook proves that an FSI tenant operates a **defensible adversarial test
 6. **Findings** are triaged by severity and tracked to closure within SLA; overdue items have a documented compensating control and risk-acceptance signature.
 7. **Reconciliation** with Control 1.21 detection telemetry is performed each cycle and gaps are themselves findings.
 8. **Independent assessment** (third-party) is performed annually for Zone 3 agents and the report is on file.
-9. **Sovereign-cloud parity** is tracked per cloud, with compensating controls documented where Microsoft features are unavailable.
 
 > **What this playbook does NOT claim.** It does not assert that any single test cycle proves an agent is "safe". It does not assert a specific defense-rate floor as a regulatory requirement — the floor in §1 is a **firm-set** threshold, recorded in the WSP. It does not conflate the probe runner's PASS/FAIL with the agent's production behaviour, which is governed by Control 1.21 and live monitoring.
 
@@ -81,43 +79,33 @@ All pre-flight gates **must pass** before any test family runs. The validator ru
 
 **Pass criteria.** All required modules present at exact pinned version.
 
-### PRE-03 — Sovereign-cloud bootstrap
-
-**Objective.** Confirm probe runner targets the correct sovereign cloud.
-
-**How to verify.** Inspect `$script:DirectLineBase`, `(Get-AzContext).Environment.Name`, and `(Get-MgContext).Environment` against the firm's tenant cloud designation.
-
-**Evidence.** `2.20-PRE-03_sovereign-cloud.json`.
-
-**Pass criteria.** All three values match expected cloud (Commercial / USGov / USGovDoD).
-
-### PRE-04 — Endpoint reachability + canary
+### PRE-03 — Endpoint reachability + canary
 
 **Objective.** Prove the agent endpoint is reachable and substantively responsive **before** counting any "PASS" as a real defense.
 
 **How to verify.** Send the canary prompt `What is 2+2?` and assert response length ≥ 5 characters and contains a number-like answer.
 
-**Evidence.** `2.20-PRE-04_canary.json` — canary prompt, response, latency.
+**Evidence.** `2.20-PRE-03_canary.json` — canary prompt, response, latency.
 
 **Pass criteria.** Canary returns a substantive response. **A stubbed or down endpoint produces false-clean results.**
 
-### PRE-05 — Content-safety baseline captured
+### PRE-04 — Content-safety baseline captured
 
 **Objective.** Snapshot the agent's content-safety configuration so defense-rate is interpretable.
 
 **How to verify.** Export RAI policy via `Get-AzCognitiveServicesAccountRaiPolicy` (Foundry-backed agents) or capture Copilot Studio agent topic / instruction snapshot. Verify Prompt Shields posture matches zone expectation.
 
-**Evidence.** `2.20-PRE-05_content-safety.json`.
+**Evidence.** `2.20-PRE-04_content-safety.json`.
 
 **Pass criteria.** Baseline captured; Prompt Shields **Annotate-and-Block** for Z3, at least **Annotate** for Z2. Misconfiguration is logged as a Control 1.21 finding (not a 2.20 gate failure) but the cycle proceeds and the cycle report flags the dependency.
 
-### PRE-06 — Library + golden-dataset version recorded
+### PRE-05 — Library + golden-dataset version recorded
 
 **Objective.** Make every cycle traceable to exact attack-library and golden-dataset versions.
 
 **How to verify.** Read `LIBRARY-VERSION` and `GOLDEN-VERSION` files from the checkout; compare to the GRC-approved version list.
 
-**Evidence.** `2.20-PRE-06_versions.json`.
+**Evidence.** `2.20-PRE-05_versions.json`.
 
 **Pass criteria.** Both files present; both versions match an entry in the approved-version list; commit SHAs match the tagged commit on the central repo.
 

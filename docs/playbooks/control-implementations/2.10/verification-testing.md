@@ -141,8 +141,7 @@ A simulated platform update has caused a regression in the production agent. Exe
 | TC-2.10-06 | Wave validation drill executed for current wave | Triage + sandbox validation + production confirmation all logged | |
 | TC-2.10-07 | Rollback drill completed within RTO | Restoration within documented window; outcome logged | |
 | TC-2.10-08 | Patch history CSV passes SHA-256 integrity check (re-hash matches manifest) | Hash matches recorded value in `manifest.json` | |
-| TC-2.10-09 | Sovereign-cloud script reports correct endpoint (GCC/GCCHigh/DoD only) | `Connect-MgGraph` shows USGov / USGovDoD environment | |
-| TC-2.10-10 | Agent regression test suite passes after most recent platform change | All critical and high-priority tests pass | |
+| TC-2.10-09 | Agent regression test suite passes after most recent platform change | All critical and high-priority tests pass | |
 
 ---
 
@@ -172,7 +171,6 @@ Use at the close of each fiscal quarter. File the signed attestation in the evid
 
 **Organization:** [Organization Name]
 **Tenant:** [Tenant ID]
-**Sovereign Cloud:** Commercial | GCC | GCCHigh | DoD
 **Control Owner:** [Power Platform Admin name and UPN]
 **Period Covered:** [Quarter, e.g., Q2 2026]
 
@@ -200,7 +198,7 @@ I attest, based on review of the artifacts in `FSI-Patch-Evidence`, that during 
 
 After completing all four parts, confirm:
 
-- [ ] All 10 test cases above have a recorded Pass result, or open findings have remediation plans
+- [ ] All 9 test cases above have a recorded Pass result, or open findings have remediation plans
 - [ ] Wave validation drill executed for the most recent Microsoft release wave
 - [ ] Rollback drill executed within the last 12 months (Zone 3)
 - [ ] Quarterly attestation signed and filed

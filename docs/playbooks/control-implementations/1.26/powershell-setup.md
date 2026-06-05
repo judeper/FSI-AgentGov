@@ -1,12 +1,10 @@
 # PowerShell Setup: Control 1.26 - Agent File Upload and File Analysis Restrictions
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show the abbreviated forms; the baseline is authoritative.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show the abbreviated forms; the baseline is authoritative.
 
 **Last Updated:** May 2026
 **Modules Required:** `Microsoft.PowerApps.Administration.PowerShell`, `Microsoft.Graph` (for activity log queries)
-**Sovereign clouds:** GCC / GCC High / DoD endpoints — see the [PowerShell Authoring Baseline](../../_shared/powershell-baseline.md) for the correct `-Endpoint` parameter
-
 !!! danger "API Surface — Verify Cmdlet Availability Before Mutation"
     The per-agent file upload toggle is exposed via `Get-AdminPowerAppChatbot` / `Set-AdminPowerAppChatbot` in `Microsoft.PowerApps.Administration.PowerShell`. The `-FileUploadEnabled` parameter availability and property name (`Properties.FileUploadEnabled`) is based on Microsoft's anticipated April 2026 schema and may differ between module versions. Run the cmdlet-availability probe in *Script 0* before executing any `Set-` operation. If the parameter is not exposed in your tenant, fall back to the [Portal Walkthrough](portal-walkthrough.md) for manual configuration and use the `Get-` script for inventory only.
 
@@ -28,15 +26,10 @@ if ($PSVersionTable.PSEdition -ne 'Desktop') {
     throw "Microsoft.PowerApps.Administration.PowerShell requires Windows PowerShell 5.1 (Desktop edition). Detected: $($PSVersionTable.PSEdition) $($PSVersionTable.PSVersion)."
 }
 
-# Sovereign-cloud-aware authentication (default: commercial)
-param(
-    [ValidateSet('prod','usgov','usgovhigh','dod')]
-    [string]$Endpoint = 'prod'
-)
-Add-PowerAppsAccount -Endpoint $Endpoint
+Add-PowerAppsAccount -Endpoint prod
 ```
 
-> **Required role:** AI Administrator or Power Platform Admin. Verify before running mutations: `Get-AdminPowerAppEnvironment | Measure-Object` should return your full environment list. A zero count typically means wrong sovereign endpoint.
+> **Required role:** AI Administrator or Power Platform Admin. Verify before running mutations: `Get-AdminPowerAppEnvironment | Measure-Object` should return your full environment list. A zero count typically means a role or authentication issue — check the running account's Power Platform Admin assignment.
 
 ---
 

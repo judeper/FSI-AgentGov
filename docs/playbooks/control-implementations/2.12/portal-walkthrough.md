@@ -1,7 +1,7 @@
 # Portal Walkthrough — Control 2.12: Supervision and Oversight (FINRA Rule 3110)
 
 !!! danger "READ FIRST — Scope and Sibling Routing"
-    **This playbook configures the supervisory control surfaces that FINRA Rule 3110 requires a firm to operate on top of AI agents** — Written Supervisory Procedures (WSP) addendum authoring, designated-principal designation and CRD verification, Microsoft Copilot Studio supervisory patterns (human-agent handoff, approval actions, generative-answers guardrails), Microsoft Agent Framework human-in-the-loop (HITL) using `RequestPort` / `request_info()` / checkpointed pending requests, Power Automate supervisory review queues, Entra ID Governance sponsor attestation, Rule 2210 communication classification, Rule 3120 annual testing, and the sovereign-cloud compensating control.
+    **This playbook configures the supervisory control surfaces that FINRA Rule 3110 requires a firm to operate on top of AI agents** — Written Supervisory Procedures (WSP) addendum authoring, designated-principal designation and CRD verification, Microsoft Copilot Studio supervisory patterns (human-agent handoff, approval actions, generative-answers guardrails), Microsoft Agent Framework human-in-the-loop (HITL) using `RequestPort` / `request_info()` / checkpointed pending requests, Power Automate supervisory review queues, Entra ID Governance sponsor attestation, Rule 2210 communication classification, Rule 3120 annual testing.
 
     **Control 2.12 is the FINRA Rule 3110 non-substitution anchor for the framework.** Controls [2.25 (Agent 365 admin center)](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md), [2.26 (Entra Agent ID)](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md), and [3.6 (orphaned-agent detection)](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) provide tooling that **supports** supervision; they do **not substitute for** the principal-led supervisory review configured here.
 
@@ -19,7 +19,6 @@
     | Configuring **Entra ID Governance sponsor attestation** (quarterly access review for Z3 agents) | Entra → Identity Governance → Access reviews | Quarterly sponsor attestation evidence |
     | Operating the **Rule 2210 classification** workflow (Correspondence / Retail / Institutional) | Copilot Studio metadata + approval flow | Per-template classification with principal pre-use approval where required |
     | Operating the **Rule 3120 annual testing** workflow (design, operating, exception) | Purview + firm test repository | Signed annual testing report |
-    | Operating the **sovereign-cloud compensating control** (principal-led manual review) | Firm supervision register + Control 1.2 registry | Documented manual sampling where tooling parity is absent |
     | Capturing per-session evidence (screenshots, exports, reviewer-decision audit trail) | SharePoint retention labels / Purview / WORM archive | 6-year retention aligned to SEC 17a-4 |
 
     **This walkthrough is NOT for:**
@@ -53,19 +52,6 @@
     | FINRA Gateway access (or firm CRD-evidence repository) | Required to verify principal registration | <https://www.finra.org/filing-reporting/finra-gateway> |
     | Microsoft Agent Framework SDK (optional) | Required for HITL patterns using `RequestPort` / `request_info()` / checkpoints when building code-first agents | Developer workstation with the Agent Framework runtime |
 
-!!! warning "Sovereign Cloud Availability — GCC, GCC High, DoD"
-    Supervisory obligations under FINRA Rule 3110 apply equally to agents deployed in commercial, GCC, GCC High, and DoD tenants. Several of the Microsoft tools referenced here have parity gaps in sovereign clouds as of April 2026:
-
-    | Capability | Commercial | GCC | GCC High | DoD |
-    |---|---|---|---|---|
-    | Copilot Studio human-agent handoff | ✅ GA | ⚠️ verify | ⚠️ verify | ⚠️ verify |
-    | Copilot Studio approval actions (Power Automate) | ✅ GA | ✅ GA | ⚠️ verify | ⚠️ verify |
-    | Agent Framework HITL (`RequestPort`, `request_info()`) | ✅ GA (runtime) | ⚠️ evidence-export may lag | ⚠️ evidence-export may lag | ⚠️ evidence-export may lag |
-    | Entra Agent ID sponsorship attestation | ✅ Preview | ❌ not announced | ❌ not announced | ❌ not announced |
-    | Agent 365 admin center | ✅ GA May 1, 2026 | ❌ not announced | ❌ not announced | ❌ not announced |
-
-    **If your tenant URL ends in `admin.microsoft.us` or you authenticate against `login.microsoftonline.us`, jump to [§10 — Sovereign Cloud Compensating Control](#10-sovereign-cloud-compensating-control-gcc-gcc-high-dod) before configuring anything else.** FSI firms operating sovereign tenants must maintain a **documented compensating supervisory control** — principal-led manual review at the zone-appropriate sampling rate, reconciled against the Control 1.2 / 3.1 agent registry — and must not claim technical enforcement of Zone 3 HITL in sovereign clouds unless Microsoft has published parity for the specific feature being claimed.
-
 !!! tip "Portal Navigation May Shift"
     Microsoft refines Copilot Studio, Power Automate, and Entra navigation regularly. If a blade name does not match what you see, anchor on the underlying noun ("Topics", "Actions", "Moderation", "Approvals", "Access reviews") and consult Microsoft Learn. Screenshot anchors in this playbook record the navigation that was verified at the **Last UI Verified** date in the [Control 2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) header (April 2026).
 
@@ -88,9 +74,8 @@
 | 7 | [Rule 2210 Classification Workflow](#7-rule-2210-classification-workflow) | VC-8 |
 | 8 | [Rule 3120 Annual Testing Workflow](#8-rule-3120-annual-testing-workflow) | VC-9 |
 | 9 | [Evidence Capture Per Session](#9-evidence-capture-per-session) | VC-10 |
-| 10 | [Sovereign Cloud Compensating Control — GCC, GCC High, DoD](#10-sovereign-cloud-compensating-control-gcc-gcc-high-dod) | VC-1 through VC-10 (substitute path) |
-| 11 | [Zone Cadence Checklists](#11-zone-cadence-checklists) | Operational rhythm |
-| 12 | [Cross-References and Sibling Routing](#12-cross-references-and-sibling-routing) | Navigation |
+| 10 | [Zone Cadence Checklists](#10-zone-cadence-checklists) | Operational rhythm |
+| 11 | [Cross-References and Sibling Routing](#11-cross-references-and-sibling-routing) | Navigation |
 
 ---
 
@@ -98,18 +83,12 @@
 
 Before opening any portal blade, walk through this gate. A failed gate is itself an auditable finding and must be logged in the control session worksheet. Skipping a gate produces silent failures later — for example, Copilot Studio approval actions will not run if the Power Automate connector is not licensed to the agent's publishing environment.
 
-### 0.1 Confirm tenant cloud and in-scope entity
+### 0.1 Confirm tenant and in-scope entity
 
 1. Sign in to [`https://admin.microsoft.com`](https://admin.microsoft.com) as a user holding **Global Reader** (or higher).
 2. In the upper-right profile menu, confirm the tenant name matches the **regulated legal entity** (broker-dealer, registered investment adviser, bank holding company, or affiliate) whose WSP you are amending. Firms with multiple regulated entities under one tenant must produce a separate WSP addendum per entity and keep the cross-tenant registry aligned with [Control 1.2](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md).
 3. Record the **Tenant ID** (GUID) and the **Primary domain** in the control session worksheet.
-4. Identify the cloud:
-    - Commercial → continue with §1 onward.
-    - GCC → continue with §1 onward, but verify each feature against the Sovereign Cloud table before relying on it.
-    - **GCC High / DoD → stop here and jump to [§10](#10-sovereign-cloud-compensating-control-gcc-gcc-high-dod).**
-
-!!! warning "Tenant Cloud Detection"
-    If the URL bar shows `admin.microsoft.us`, `entra.microsoft.us`, or you authenticate against `login.microsoftonline.us`, treat the tenant as GCC High or DoD and operate the compensating control in §10. Do not silently fall through; examiners will ask which variant was used.
+4. Confirm the tenant is the commercial Microsoft 365 Global cloud tenant in scope for this framework.
 
 ### 0.2 Confirm role assignments
 
@@ -119,7 +98,7 @@ Every section below assumes **two named humans hold each role** per FINRA dual-c
 |---|---|---|
 | **Compliance Officer** | WSP addendum ownership, Rule 3120 annual testing sign-off, regulatory-alignment review | Firm compliance org chart (governance artifact, not an Entra role) |
 | **Designated Principal / Qualified Supervisor** (Series 24 for BD; Series 66 / 65 for RIA) | Principal review / approval of flagged outputs, Rule 2210 pre-use approvals, Rule 3120 evidence signature | Firm registered-principal roster; verified against FINRA CRD quarterly (§2) |
-| **AI Governance Lead** | Framework-level supervision design, sampling protocols, sovereign compensating-control operation, internal-audit liaison | Firm governance committee charter |
+| **AI Governance Lead** | Framework-level supervision design, sampling protocols, internal-audit liaison | Firm governance committee charter |
 | **AI Administrator** | Copilot Studio HITL / handoff / approval configuration; Agent Framework HITL evidence export; maintains admin-configured SoD boundaries | Power Platform Admin + Copilot Studio Admin in M365 admin center |
 | **Agent Owner** | Ensures each assigned agent is registered in Control 1.2 / 3.1, zone-classified, and operating within approved scope | Agent's sponsor record (see [Control 2.26](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md)) |
 | **Entra Global Admin** | One-time Access Review scope creation for sponsor attestation (§6) | Entra → Roles & admins |
@@ -193,9 +172,8 @@ At minimum, the addendum must contain the sections listed below. Each section ha
 | 7 | Rule 3120 annual testing | Test design, operating effectiveness, exception handling | — |
 | 8 | Exception escalation | Triggers, routing, SLAs, incident-reporting interface to Control 3.4 | — |
 | 9 | Record-keeping | Retention paths, retention duration, 17a-4(f) attestation | — |
-| 10 | Sovereign-cloud compensating control | Description of manual principal-led review when tooling parity is absent | "Where Microsoft has not published parity for a referenced supervisory tool in the firm's sovereign tenant, the firm operates a compensating manual principal-led review that supports — and does not substitute for — the supervisory obligations of FINRA Rule 3110." |
-| 11 | Review and amendment | Annual review cadence; material-change trigger list | — |
-| 12 | Approval | Registered-principal signature, effective date, version history | — |
+| 10 | Review and amendment | Annual review cadence; material-change trigger list | — |
+| 11 | Approval | Registered-principal signature, effective date, version history | — |
 
 ### 1.3 Principal review and signature
 
@@ -441,7 +419,7 @@ Guardrails constrain what the agent can cite and say. For Zone 2 agents operatin
 #### 3c.4 Sample the output
 
 1. Configure the **Analytics** or **Insights** pane to export conversations to a SharePoint list monitored by the designated principal.
-2. Apply the firm's sampling protocol (§11) to draw the per-period sample.
+2. Apply the firm's sampling protocol (§10) to draw the per-period sample.
 3. Have the principal complete a documented review (approve / reject / coach) and write the decision to the supervision review register.
 
 #### 3c.5 Publish and record
@@ -535,9 +513,6 @@ In every surface, the decision record **must** capture the authenticated reviewe
     - `requestId`, `agentId`, `conversationId`, `outcome`, `approverUpn`, `decisionUtc`, `rule2210Classification`, `riskTier`.
 2. Forward the events to the firm's SIEM and to a WORM archive under [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md).
 3. Build a weekly Logic App / Data Factory pipeline that exports the week's supervision decisions to a signed CSV and stores at `SharePoint/Compliance/Supervision/2.12/agent-framework/weekly/{yyyy}-W{ww}.csv`.
-
-!!! warning "Sovereign-cloud evidence-export caveat"
-    In GCC High / DoD, some Agent Framework evidence-export integrations (e.g., specific Azure Monitor sinks, Application Insights connectors) may lag commercial. If your firm deploys Agent Framework HITL in sovereign clouds, verify that every component of the evidence pipeline is available in the sovereign cloud before relying on it. Where a sink is unavailable, operate the §10 compensating control on top of the Agent Framework HITL until parity lands.
 
 ### 4.6 Test and document
 
@@ -808,7 +783,6 @@ At the top of each session, the operator (typically the AI Administrator or AI G
 | 7 | Rule 2210 classification table | Dataverse / SharePoint |
 | 7 | Annual exclusion-reliance attestation | `SharePoint/Compliance/Supervision/2.12/rule-2210/{YYYY}-exclusion-attestation.pdf` |
 | 8 | Annual Rule 3120 test report | `SharePoint/Compliance/Supervision/2.12/rule-3120/{YYYY}-test-report.pdf` |
-| 10 | Sovereign compensating-control register | `SharePoint/Compliance/Supervision/2.12/sovereign/{YYYY-Q#}-register.xlsx` |
 
 ### 9.3 Retention
 
@@ -825,63 +799,11 @@ All evidence in §9.2 must be retained for **6 years** under SEC 17a-4(b)(4) on 
 
 ---
 
-## 10. Sovereign Cloud Compensating Control — GCC, GCC High, DoD
-
-Firms operating in GCC High / DoD (and some GCC tenants where a specific feature has not landed) must operate a **documented compensating supervisory control**: principal-led manual review at the zone-appropriate sampling rate, evidenced in the supervision register, and reconciled against the Control 1.2 / 3.1 agent registry.
-
-!!! warning "Scope — do not claim what you have not configured"
-    The firm's WSP must **not** claim technical enforcement of Zone 3 HITL in sovereign clouds for any feature Microsoft has not published parity for. Disclose the absence of native technical enforcement so FINRA / OCC / SEC / NYDFS examiners are not surprised.
-
-### 10.1 Identify the parity gap
-
-1. On the first business day of each quarter, re-read the Microsoft 365 roadmap and the Agent 365 / Copilot Studio / Entra release notes for sovereign clouds.
-2. Populate the **sovereign parity register** at `SharePoint/Compliance/Supervision/2.12/sovereign/{YYYY-Q#}-register.xlsx` with columns:
-    - `Feature` (e.g., Copilot Studio approval actions, Entra Agent ID sponsorship)
-    - `Commercial Status`, `GCC Status`, `GCC High Status`, `DoD Status`
-    - `CompensatingControlApplied` (Y/N)
-    - `CompensatingControlDescription`
-    - `ReconciledToRegistry` (Y/N + date)
-3. The AI Governance Lead signs the quarterly register.
-
-### 10.2 Operate the manual principal-led review
-
-For every Zone 3 agent whose native supervisory feature is unavailable:
-
-1. The Agent Owner assembles a weekly sample of the agent's customer-facing outputs (the sampling rate follows §11's Z3 table — 100% for high-risk, statistical for routine).
-2. The sample is delivered to the designated principal via a monitored SharePoint folder or secure file share.
-3. The designated principal reviews each output and records a decision (Approve / Flag / Escalate) in a manual-review worksheet at `SharePoint/Compliance/Supervision/2.12/sovereign/manual-reviews/{agent}/{yyyy-Www}.xlsx`.
-4. Flagged outputs generate incident records under [Control 3.4](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md).
-5. The Compliance Officer reconciles weekly samples against the Control 1.2 / 3.1 registry to confirm no in-scope agent was omitted.
-
-### 10.3 Document the compensating control in the WSP
-
-Section §1.2 row 10 of the WSP addendum must describe the compensating control in concrete terms — which feature is absent, which manual procedure substitutes, who operates it, what the sampling rate is, and how reconciliation against the registry works. Re-sign the WSP when the parity gap closes (if a feature lands in sovereign) and adjust the control.
-
-### 10.4 Examiner-ready story
-
-When an examiner asks how the firm supervises AI agents in the sovereign tenant, the Compliance Officer produces:
-
-1. The quarterly sovereign parity register.
-2. The manual-review worksheets for the examination period.
-3. The reconciliation log against the Control 1.2 / 3.1 registry.
-4. The WSP addendum section describing the compensating control.
-5. The Rule 3120 annual test report, which must include a dedicated subsection on compensating-control operating effectiveness.
-
-!!! example "Examiner Evidence Box — Sovereign Compensating Control"
-    | Element | Value |
-    |---|---|
-    | Quarterly parity register | `SharePoint/Compliance/Supervision/2.12/sovereign/{YYYY-Q#}-register.xlsx` |
-    | Weekly manual-review worksheets | `SharePoint/Compliance/Supervision/2.12/sovereign/manual-reviews/{agent}/{yyyy-Www}.xlsx` |
-    | Reconciliation log | `SharePoint/Compliance/Supervision/2.12/sovereign/reconciliation-{YYYY-Q#}.xlsx` |
-    | WSP addendum section | §1.2 row 10 of the current WSP version |
-
----
-
-## 11. Zone Cadence Checklists
+## 10. Zone Cadence Checklists
 
 The zone cadence integrates this control's obligations with the broader supervisory rhythm. Cadence is authoritative; frequency deviations require a WSP amendment.
 
-### 11.1 Zone 1 (Personal) cadence
+### 10.1 Zone 1 (Personal) cadence
 
 | Cadence | Activity | Owner | Evidence |
 |---|---|---|---|
@@ -889,7 +811,7 @@ The zone cadence integrates this control's obligations with the broader supervis
 | Monthly | 1% spot-check of outputs (or any output that triggers an exception) | Agent Owner | Spot-check worksheet |
 | On change | Re-register in Control 1.2 / 3.1 if scope changes | Agent Owner | Registry audit trail |
 
-### 11.2 Zone 2 (Team) cadence
+### 10.2 Zone 2 (Team) cadence
 
 | Cadence | Activity | Owner | Evidence |
 |---|---|---|---|
@@ -899,7 +821,7 @@ The zone cadence integrates this control's obligations with the broader supervis
 | Annual | Rule 3120 operating-effectiveness test subset for Z2 | Compliance Officer | Test working papers |
 | On change | WSP re-review if the agent's scope changes materially | Compliance Officer | WSP version bump |
 
-### 11.3 Zone 3 (Enterprise) cadence
+### 10.3 Zone 3 (Enterprise) cadence
 
 | Cadence | Activity | Owner | Evidence |
 |---|---|---|---|
@@ -912,7 +834,6 @@ The zone cadence integrates this control's obligations with the broader supervis
 | Quarterly | Sponsor attestation access review | Sponsor + Compliance Officer | Access review result |
 | Quarterly | Principal CRD verification refresh | Compliance Officer | CRD evidence PDFs |
 | Quarterly | Rule 2210 template re-classification | AI Governance Lead + Compliance Officer | Classification table |
-| Quarterly | Sovereign parity register (sovereign tenants only) | AI Governance Lead | Parity register |
 | Annual | Rule 3120 test (design + operating + exception) | Compliance Officer | Test report |
 | Annual | Rule 2210 exclusion-reliance attestation | Compliance Officer | Signed attestation |
 | Annual | WSP addendum re-review and re-signature | Compliance Officer + Designated Principal | New WSP version |
@@ -921,15 +842,15 @@ The zone cadence integrates this control's obligations with the broader supervis
 
 ---
 
-## 12. Cross-References and Sibling Routing
+## 11. Cross-References and Sibling Routing
 
-### 12.1 Sibling playbooks (same control)
+### 11.1 Sibling playbooks (same control)
 
 - [PowerShell Setup](./powershell-setup.md) — automation scripts for the supervisory surfaces
 - [Verification Testing](./verification-testing.md) — test cases, sample queries, evidence collection
 - [Troubleshooting](./troubleshooting.md) — common errors, missing blades, remediation
 
-### 12.2 Related controls
+### 11.2 Related controls
 
 - [Control 1.2 — Agent Registry and Integrated Apps Management](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) — authoritative registry; supervision scope is bounded here.
 - [Control 1.7 — Comprehensive Audit Logging and Compliance](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) — supervision events feed the immutable audit log.
@@ -941,11 +862,11 @@ The zone cadence integrates this control's obligations with the broader supervis
 - [Control 3.4 — Incident Reporting and Root Cause Analysis](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) — supervisory failures and timeouts escalate here.
 - [Control 3.6 — Orphaned Agent Detection and Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) — orphaned agents re-enter this control's supervisory scope until reassignment. Non-substitution anchor for 3.6.
 
-### 12.3 Control source
+### 11.3 Control source
 
 - [Control 2.12 — Supervision and Oversight (FINRA Rule 3110)](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md)
 
-### 12.4 External references
+### 11.4 External references
 
 - [FINRA Rule 3110 — Supervision](https://www.finra.org/rules-guidance/rulebooks/finra-rules/3110)
 - [FINRA Rule 3120 — Supervisory Control System](https://www.finra.org/rules-guidance/rulebooks/finra-rules/3120)

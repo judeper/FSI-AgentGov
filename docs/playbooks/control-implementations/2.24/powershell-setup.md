@@ -1,6 +1,6 @@
 ---
 title: "Control 2.24 — PowerShell Setup: Agent Feature Enablement and Restriction Governance"
-description: "PowerShell automation aids in inventorying, validating, and forwarding evidence for Microsoft 365 / Power Platform / Copilot Studio agent feature toggles across commercial and sovereign clouds."
+description: "PowerShell automation aids in inventorying, validating, and forwarding evidence for Microsoft 365 / Power Platform / Copilot Studio agent feature toggles across the commercial cloud."
 control_id: "2.24"
 control_title: "Agent Feature Enablement and Restriction Governance"
 playbook_type: "powershell-setup"
@@ -33,18 +33,16 @@ regulatory_anchors:
 > **Sister playbooks:**
 > [Portal Walkthrough](portal-walkthrough.md) · [Verification & Testing](verification-testing.md) · [Troubleshooting](troubleshooting.md)
 >
-> **Shared baseline:** [PowerShell Baseline & Sovereign Cloud Endpoints](../../_shared/powershell-baseline.md)
+> **Shared baseline:** [PowerShell Baseline](../../_shared/powershell-baseline.md)
 
 The scripts in this playbook **aid in** discovering which Microsoft 365 / Power Platform / Microsoft Copilot Studio / Agent Framework features are currently enabled in a tenant, **help meet** the SOX-302, FINRA 3110/4511 (with RN 24-09 for AI supervisory guidance), Fed SR 26-2 (formerly SR 11-7), OCC Bulletin 2026-13 (formerly OCC 2011-12), FFIEC IT-RM, GLBA 501(b), and SEC Reg SCI evidence expectations summarised in the parent control, and **support compliance with** change-management gating for any feature toggle that affects an in-scope agent. They do **not** themselves authorize a feature to be enabled, replace Model Risk Management review (Control 2.6), substitute for the supervision program (Control 2.12), or grant publishing authorization (Control 1.1). Every output is a *signal* that an Agent Governance Lead, AI Administrator, or Change Advisory Board member must reconcile against an approved Feature Catalog entry before declaring the tenant state compliant. Implementation requires the canonical role assignments listed in [`docs/reference/role-catalog.md`](../../../reference/role-catalog.md); organizations should verify each helper's behaviour in a non-production tenant before scheduling it.
-
-> **⚠️ Sovereign cloud parity gap (April 2026).** Several Microsoft 365 Copilot admin center surfaces, Agent Framework feature flags, and MCP connector enumeration endpoints have **not** reached parity in GCC, GCC High, or DoD as of the `last_ui_verified` date above. The bootstrap helper in §2 redirects sovereign callers into the §11 compensating runner rather than throwing, and produces a separate per-cloud catalog plus a parity-diff report. Treat any "Clean" status emitted by a commercial-cloud helper running against a sovereign tenant as **`Anomaly`** until the parity tracker in §11 confirms the surface is generally available. See [Sovereign Cloud Endpoints (GCC / GCC High / DoD)](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod).
 
 ## Scope
 
 | # | Automation area | Primary helper | Pester namespace |
 |---|---|---|---|
 | 1 | Module pinning, Graph scope matrix, RBAC + PIM gating | `Initialize-Feat224Session` | (prereq) |
-| 2 | Cloud-aware bootstrap with sovereign redirect | `Resolve-Feat224CloudProfile` | (prereq) |
+| 2 | Commercial bootstrap and helper utilities | `Initialize-Feat224Session` | (prereq) |
 | 3 | Dataverse Feature Catalog table provisioning | `Deploy-Feat224FeatureCatalog` | `CATALOG` |
 | 4 | Microsoft 365 admin center / Copilot hub reader | `Get-Feat224M365FeatureState` | `M365HUB` |
 | 5 | Power Platform Admin Center reader | `Get-Feat224PpacFeatureState` | `PPAC`, `ENV` |
@@ -53,11 +51,10 @@ The scripts in this playbook **aid in** discovering which Microsoft 365 / Power 
 | 8 | Zone (1/2/3) compliance diff | `Compare-Feat224ZoneCompliance` | `ZONE` |
 | 9 | MCP connector + Agent Framework flag enumeration | `Get-Feat224McpAgfState` | `MCP`, `AGF` |
 | 10 | Change-management evidence exporter | `Export-Feat224ChangeEvidence` | `CHANGE` |
-| 11 | Sovereign-cloud compensating runner | `Invoke-Feat224SovereignRegister` | `SOV` |
-| 12 | Sentinel / SIEM forwarding | `Send-Feat224SiemEvent` | `SIEM` |
-| 13 | Scheduling (Az Automation / scheduled jobs) | `Register-Feat224Schedule` | (operational) |
-| 14 | Retention alignment with Control 2.13 | `Set-Feat224EvidenceRetention` | (operational) |
-| 15 | Cross-control references | (documentation) | — |
+| 11 | Sentinel / SIEM forwarding | `Send-Feat224SiemEvent` | `SIEM` |
+| 12 | Scheduling (Az Automation / scheduled jobs) | `Register-Feat224Schedule` | (operational) |
+| 13 | Retention alignment with Control 2.13 | `Set-Feat224EvidenceRetention` | (operational) |
+| 14 | Cross-control references | (documentation) | — |
 
 ## Audience
 
@@ -67,7 +64,7 @@ These scripts are written for **AI Administrators** (the primary owner of tenant
 
 ## §0 — Wrong-shell traps and the false-clean defect catalog
 
-Before running anything in this playbook, confirm you are in the **correct elevated shell** and that prior Graph / Power Platform sessions are not silently masking failures. The following defect catalog enumerates the fifteen most common ways a 2.24 helper has historically returned `Status = 'Clean'` when the tenant was, in fact, non-compliant. Every helper in §§3–12 includes a `Reason` populated from this catalog whenever it downgrades a result to `Anomaly`.
+Before running anything in this playbook, confirm you are in the **correct elevated shell** and that prior Graph / Power Platform sessions are not silently masking failures. The following defect catalog enumerates the fifteen most common ways a 2.24 helper has historically returned `Status = 'Clean'` when the tenant was, in fact, non-compliant. Every helper in §§2–10 includes a `Reason` populated from this catalog whenever it downgrades a result to `Anomaly`.
 
 ### Wrong-shell traps
 
@@ -75,9 +72,8 @@ Before running anything in this playbook, confirm you are in the **correct eleva
 |---|---|---|---|
 | W1 | `Connect-MgGraph` returns instantly with no prompt | Cached delegated token from a different tenant | Run `Disconnect-MgGraph; Clear-MgContext` before §2 bootstrap |
 | W2 | `Add-PowerAppsAccount` succeeds in Windows PowerShell 5.1 but `Get-AdminPowerApp` throws `MethodNotFound` | Module loaded into the wrong runtime | Use **PowerShell 7.4+ (pwsh)** exclusively; `Assert-Feat224ShellHost` blocks 5.1 |
-| W3 | Sovereign tenant returns commercial-cloud feature flags | `-Endpoint prod` defaulted instead of `usgov` / `usgovhigh` / `dod` | `Resolve-Feat224CloudProfile` (§2) sets `$env:PowerAppsEndpoint` per cloud |
 | W4 | Pester `BeforeAll` runs as a different identity than `It` blocks | Mixed device-code + cert auth in one session | Pin a single auth method per shell; `Initialize-Feat224Session` enforces |
-| W5 | `Invoke-MgGraphRequest` 401 silently swallowed by `try/catch` returning `@()` | Helper treats empty array as Clean | All §§4–9 helpers emit `Status = 'Error'` on caught 4xx/5xx |
+| W5 | `Invoke-MgGraphRequest` 401 silently swallowed by `try/catch` returning `@()` | Helper treats empty array as Clean | All §§4–10 helpers emit `Status = 'Error'` on caught 4xx/5xx |
 
 ### False-clean defect catalog
 
@@ -90,7 +86,6 @@ Before running anything in this playbook, confirm you are in the **correct eleva
 | F5 | M365 admin center shows `Copilot Pages` Off, but a Graph beta endpoint reports it enabled per group | Tenant-wide toggle "matches" catalog `Off` | Group-scoped override drift; FINRA 3110 supervision blind spot | `Get-Feat224M365FeatureState` |
 | F6 | PPAC environment has feature `On`, environment is in **Default** environment group | Feature governed at Default group | Default group is reserved for personal productivity (Zone 1) and must not host shared agents per Control 2.2 | `Get-Feat224PpacFeatureState` |
 | F7 | Agent Framework workflow tool registered, no entry in catalog | Workflow does not appear in the M365 hub | AGF feature flags are not surfaced in the admin center; require direct enumeration | `Get-Feat224McpAgfState` |
-| F8 | Sovereign tenant returns no `CopilotPages` configuration | Helper interprets `null` as `Off` | The endpoint is **Not Available** in GCC High; `null` ≠ `Off` | `Invoke-Feat224SovereignRegister` |
 | F9 | Catalog row marks a feature `Approved`, but `ApprovalDate` precedes the feature's GA date | Approval looks valid | CAB approved an unreleased capability; revisit per OCC Bulletin 2026-13 (formerly OCC 2011-12) | `Deploy-Feat224FeatureCatalog` validator |
 | F10 | Per-agent override disables a feature the tenant has enabled | Conservative posture | Hidden override removes a control the supervision program (2.12) is monitoring | `Get-Feat224AgentFeatureState` |
 | F11 | Evidence manifest written, but hash chain breaks vs. previous run | Manifest exists | Tampering or unsynced clock; SOX-302 attestation invalid | `New-Feat224EvidenceManifest` |
@@ -141,14 +136,14 @@ function Install-Feat224Modules {
 
 ### 1.2 Microsoft Graph scope matrix
 
-| Helper | Delegated scope(s) | Application scope(s) | Cloud parity |
-|---|---|---|---|
-| `Get-Feat224M365FeatureState` | `CopilotSettings.Read.All`, `Directory.Read.All` | `CopilotSettings.Read.All` | GCC partial; GCC High **gap** |
-| `Get-Feat224AgentFeatureState` | `CopilotStudio.Read.All`, `Bot.Read.All` (beta) | `CopilotStudio.Read.All` | GCC partial; GCC High/DoD **gap** |
-| `Get-Feat224McpAgfState` | `Agent.Read.All` (beta), `Application.Read.All` | `Agent.Read.All` | All sovereign clouds **gap** |
-| `Compare-Feat224DlpAlignment` | n/a (PPAC SDK) | n/a | Commercial + GCC; GCC High partial |
-| `Export-Feat224ChangeEvidence` | `AuditLog.Read.All`, `SecurityEvents.Read.All` | `AuditLog.Read.All` | All clouds (delayed in sovereign) |
-| `Send-Feat224SiemEvent` | n/a (Az + DCR) | Monitoring Metrics Publisher on DCR | All clouds |
+| Helper | Delegated scope(s) | Application scope(s) |
+|---|---|---|
+| `Get-Feat224M365FeatureState` | `CopilotSettings.Read.All`, `Directory.Read.All` | `CopilotSettings.Read.All` |
+| `Get-Feat224AgentFeatureState` | `CopilotStudio.Read.All`, `Bot.Read.All` (beta) | `CopilotStudio.Read.All` |
+| `Get-Feat224McpAgfState` | `Agent.Read.All` (beta), `Application.Read.All` | `Agent.Read.All` |
+| `Compare-Feat224DlpAlignment` | n/a (PPAC SDK) | n/a |
+| `Export-Feat224ChangeEvidence` | `AuditLog.Read.All`, `SecurityEvents.Read.All` | `AuditLog.Read.All` |
+| `Send-Feat224SiemEvent` | n/a (Az + DCR) | Monitoring Metrics Publisher on DCR |
 
 ### 1.3 RBAC requirements (canonical role names)
 
@@ -157,7 +152,7 @@ function Install-Feat224Modules {
 | Read tenant Copilot toggles | **AI Administrator** (preferred) or Reports Reader | Per the v1.3.3 patch to Control 2.24, AI Administrator is the standing role for tenant-level reads |
 | Mutate tenant Copilot toggles | **AI Administrator** with PIM activation | **Entra Global Admin** reserved for exceptional changes only |
 | Read Power Platform environments | **Power Platform Admin** (Reader is insufficient for feature-flag enumeration) | |
-| Provision Dataverse `fsi_featurecatalog` table | **System Customizer** + **Power Platform Admin** | Idempotent — see §3 |
+| Provision Dataverse `fsi_featurecatalog` table | **System Customizer** + **Power Platform Admin** | Idempotent — see §2 |
 | Read Copilot Studio agent definitions | **Copilot Studio Maker** + **Power Platform Admin** | |
 | Forward to Sentinel | **Monitoring Metrics Publisher** on the DCR | Resource-scoped, not tenant-wide |
 | Sign evidence manifests | **AI Governance Lead** (key holder) | Manifests countersigned by **Compliance Officer** |
@@ -222,11 +217,11 @@ function Request-Feat224PimActivation {
 }
 ```
 
-> **Hedged claim:** PIM activation **aids in** segregation-of-duties enforcement under SOX-404 and FFIEC IT-RM, but does **not** by itself satisfy the dual-control expectation. Defect F14 in §0 must be evaluated by `Export-Feat224ChangeEvidence` (§10).
+> **Hedged claim:** PIM activation **aids in** segregation-of-duties enforcement under SOX-404 and FFIEC IT-RM, but does **not** by itself satisfy the dual-control expectation. Defect F14 in §0 must be evaluated by `Export-Feat224ChangeEvidence` (§2).
 
 ---
 
-## §2 — Cloud-aware bootstrap with sovereign redirect
+## §2 — Commercial bootstrap and helper utilities
 
 ### 2.1 Preview-feature gating
 
@@ -287,69 +282,13 @@ function Assert-Feat224ShellHost {
 }
 ```
 
-### 2.3 Cloud-profile resolver
-
-```powershell
-function Resolve-Feat224CloudProfile {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)] [ValidateSet('Commercial','GCC','GCCHigh','DoD')]
-        [string] $Cloud
-    )
-
-    $profile = switch ($Cloud) {
-        'Commercial' { @{
-            GraphEnvironment   = 'Global'
-            PowerAppsEndpoint  = 'prod'
-            AzureEnvironment   = 'AzureCloud'
-            SovereignRedirect  = $false
-        }}
-        'GCC'        { @{
-            GraphEnvironment   = 'USGov'
-            PowerAppsEndpoint  = 'usgov'
-            AzureEnvironment   = 'AzureUSGovernment'
-            SovereignRedirect  = $true
-        }}
-        'GCCHigh'    { @{
-            GraphEnvironment   = 'USGovHigh'
-            PowerAppsEndpoint  = 'usgovhigh'
-            AzureEnvironment   = 'AzureUSGovernment'
-            SovereignRedirect  = $true
-        }}
-        'DoD'        { @{
-            GraphEnvironment   = 'USGovDoD'
-            PowerAppsEndpoint  = 'dod'
-            AzureEnvironment   = 'AzureUSGovernment'
-            SovereignRedirect  = $true
-        }}
-    }
-
-    $env:PowerAppsEndpoint = $profile.PowerAppsEndpoint
-
-    return [pscustomobject]@{
-        Status            = 'Clean'
-        Cloud             = $Cloud
-        GraphEnvironment  = $profile.GraphEnvironment
-        PowerAppsEndpoint = $profile.PowerAppsEndpoint
-        AzureEnvironment  = $profile.AzureEnvironment
-        SovereignRedirect = $profile.SovereignRedirect
-        Reason            = if ($profile.SovereignRedirect) {
-            "Sovereign cloud detected — §11 Invoke-Feat224SovereignRegister will run instead of §§4–9 commercial helpers (defect F8)."
-        } else { $null }
-    }
-}
-```
-
-See [Sovereign Cloud Endpoints (GCC / GCC High / DoD)](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod) for the underlying endpoint table.
-
-### 2.4 Session initializer
+### 2.3 Session initializer
 
 ```powershell
 function Initialize-Feat224Session {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)] [string] $TenantId,
-        [Parameter(Mandatory)] [ValidateSet('Commercial','GCC','GCCHigh','DoD')] [string] $Cloud,
         [Parameter(Mandatory)] [string] $JustificationTicket,
         [string[]] $GraphScopes = @('CopilotSettings.Read.All','Directory.Read.All','AuditLog.Read.All','CopilotStudio.Read.All','Agent.Read.All','Application.Read.All'),
         [switch] $AcceptPreview
@@ -357,31 +296,25 @@ function Initialize-Feat224Session {
 
     $shell   = Assert-Feat224ShellHost
     $preview = Confirm-Feat224PreviewGate -AcceptPreview:$AcceptPreview -TicketId $JustificationTicket
-    $cp      = Resolve-Feat224CloudProfile -Cloud $Cloud
 
     Disconnect-MgGraph -ErrorAction SilentlyContinue | Out-Null
-    Connect-MgGraph -TenantId $TenantId -Scopes $GraphScopes -Environment $cp.GraphEnvironment -NoWelcome
-
-    if ($cp.AzureEnvironment) {
-        Connect-AzAccount -Tenant $TenantId -Environment $cp.AzureEnvironment -ErrorAction Stop | Out-Null
-    }
-
-    Add-PowerAppsAccount -Endpoint $cp.PowerAppsEndpoint | Out-Null
+    Connect-MgGraph -TenantId $TenantId -Scopes $GraphScopes -Environment 'Global' -NoWelcome
+    Connect-AzAccount -Tenant $TenantId -Environment 'AzureCloud' -ErrorAction Stop | Out-Null
+    Add-PowerAppsAccount -Endpoint 'prod' | Out-Null
 
     return [pscustomobject]@{
-        Status            = if ($preview.Status -eq 'Clean') { 'Clean' } else { $preview.Status }
-        TenantId          = $TenantId
-        Cloud             = $Cloud
-        SovereignRedirect = $cp.SovereignRedirect
-        Shell             = $shell
-        PreviewGate       = $preview
-        GraphScopes       = $GraphScopes
-        Reason            = if ($preview.Status -ne 'Clean') { $preview.Reason } else { $null }
+        Status      = if ($preview.Status -eq 'Clean') { 'Clean' } else { $preview.Status }
+        TenantId    = $TenantId
+        Cloud       = 'Commercial'
+        Shell       = $shell
+        PreviewGate = $preview
+        GraphScopes = $GraphScopes
+        Reason      = if ($preview.Status -ne 'Clean') { $preview.Reason } else { $null }
     }
 }
 ```
 
-### 2.5 Graph scope verifier
+### 2.4 Graph scope verifier
 
 ```powershell
 function Test-Feat224GraphScopes {
@@ -404,7 +337,7 @@ function Test-Feat224GraphScopes {
 }
 ```
 
-### 2.6 Paged Graph helper
+### 2.5 Paged Graph helper
 
 ```powershell
 function Invoke-Feat224PagedQuery {
@@ -440,7 +373,7 @@ function Invoke-Feat224PagedQuery {
 }
 ```
 
-### 2.7 Throttle wrapper
+### 2.6 Throttle wrapper
 
 ```powershell
 function Invoke-Feat224Throttled {
@@ -468,7 +401,7 @@ function Invoke-Feat224Throttled {
 }
 ```
 
-### 2.8 Configuration JSON schema
+### 2.7 Configuration JSON schema
 
 `feat224.config.json` lives under `evidence\config\` and is hash-pinned in every manifest.
 
@@ -493,7 +426,7 @@ function Invoke-Feat224Throttled {
 }
 ```
 
-### 2.9 Evidence manifest helper
+### 2.8 Evidence manifest helper
 
 ```powershell
 function New-Feat224EvidenceManifest {
@@ -544,7 +477,7 @@ function New-Feat224EvidenceManifest {
 
 ## §3 — Dataverse Feature Catalog table provisioning
 
-The **Feature Catalog** is the authoritative list of every Microsoft 365 / Power Platform / Copilot Studio / Agent Framework / MCP feature an organization has approved (or explicitly disallowed). It is stored in a Dataverse table, `fsi_featurecatalog`, in a dedicated **Governance** environment (Tier 0 per Control 2.2). The table must exist before any §§4–9 helper runs because every observation is reconciled against a catalog row.
+The **Feature Catalog** is the authoritative list of every Microsoft 365 / Power Platform / Copilot Studio / Agent Framework / MCP feature an organization has approved (or explicitly disallowed). It is stored in a Dataverse table, `fsi_featurecatalog`, in a dedicated **Governance** environment (Tier 0 per Control 2.2). The table must exist before any §§4–10 observation helper runs because every observation is reconciled against a catalog row.
 
 ### 3.1 Table schema
 
@@ -552,7 +485,7 @@ The **Feature Catalog** is the authoritative list of every Microsoft 365 / Power
 |---|---|---|---|---|
 | `fsi_featurename` | Feature Name | Text(200) | Yes | Vendor-supplied identifier (e.g., `CopilotPages`, `M365Copilot.Generative.Answers`) |
 | `fsi_surface` | Surface | Choice | Yes | `M365Hub`, `PPAC`, `CopilotStudio`, `AgentFramework`, `MCP`, `DLP` |
-| `fsi_cloudscope` | Cloud Scope | Choice | Yes | `Commercial`, `GCC`, `GCCHigh`, `DoD`, `All` |
+| `fsi_cloudscope` | Cloud Scope | Choice | Yes | `Commercial` |
 | `fsi_zonestatus` | Zone Status | Choice | Yes | `Zone1Personal`, `Zone2Team`, `Zone3Enterprise`, `Disallowed` |
 | `fsi_approvaldate` | Approval Date | Date | Yes | F9: must be ≥ vendor GA date |
 | `fsi_changeticket` | Change Ticket | Text(50) | Yes | ServiceNow / Jira reference |
@@ -1089,7 +1022,7 @@ Describe 'Feat224 — DLP namespace' -Tag DLP {
 
 ## §8 — Zone (1/2/3) compliance diff
 
-This is the **central reconciliation helper**. It joins (a) the M365 hub findings (§4), (b) the PPAC findings (§5), (c) per-agent findings (§6), and (d) the catalog itself, and emits one of: `Clean`, `Anomaly`, `Pending` (catalog row exists but no observation yet — defect F13), `NotApplicable`, or `Error`. It also surfaces defect **F15** (`UnusedEnabled`) — features the tenant has enabled but no observed agent uses.
+This is the **central reconciliation helper**. It joins (a) the M365 hub findings (§2), (b) the PPAC findings (§2), (c) per-agent findings (§2), and (d) the catalog itself, and emits one of: `Clean`, `Anomaly`, `Pending` (catalog row exists but no observation yet — defect F13), `NotApplicable`, or `Error`. It also surfaces defect **F15** (`UnusedEnabled`) — features the tenant has enabled but no observed agent uses.
 
 ### 8.1 Helper
 
@@ -1313,7 +1246,7 @@ Describe 'Feat224 — MCP + AGF namespaces' -Tag MCP,AGF {
 
 ## §10 — Change-management evidence exporter
 
-Every observation in §§4–9 must be reconcilable to a Change Management ticket — defect **F2**. This helper emits a forward-and-reverse trail (catalog → ticket → audit log entry → admin actor) plus a segregation-of-duties check for defect **F14**.
+Every observation in §§2–9 must be reconcilable to a Change Management ticket — defect **F2**. This helper emits a forward-and-reverse trail (catalog → ticket → audit log entry → admin actor) plus a segregation-of-duties check for defect **F14**.
 
 ### 10.1 Helper
 
@@ -1424,113 +1357,11 @@ Describe 'Feat224 — CHANGE namespace' -Tag CHANGE {
 
 ---
 
-## §11 — Sovereign-cloud compensating runner
-
-Because **GCC**, **GCC High**, and **DoD** tenants do not yet (April 2026) expose the same Copilot admin-center, Copilot Studio beta, and Agent Framework endpoints as commercial, this helper is the documented compensating control. It runs the subset of helpers that *do* work in sovereign clouds, marks the rest `NotApplicable`, produces a separate per-cloud catalog snapshot, and emits a parity-diff report so that the AI Governance Lead can track surfaces as they reach GA in sovereign.
-
-### 11.1 Helper
-
-```powershell
-function Invoke-Feat224SovereignRegister {
-    [CmdletBinding(SupportsShouldProcess)]
-    param(
-        [Parameter(Mandatory)] [string] $TenantId,
-        [Parameter(Mandatory)] [ValidateSet('GCC','GCCHigh','DoD')] [string] $Cloud,
-        [Parameter(Mandatory)] [string] $JustificationTicket,
-        [Parameter(Mandatory)] [string] $EvidenceRoot,
-        [hashtable] $CatalogIndex
-    )
-
-    $session = Initialize-Feat224Session -TenantId $TenantId -Cloud $Cloud -JustificationTicket $JustificationTicket -AcceptPreview
-    if ($session.Status -in 'Anomaly','Error') { return $session }
-
-    $parityMatrix = @(
-        @{ Surface = 'M365Hub';        Endpoint = 'graph/v1.0/copilot/settings';         GccStatus='Partial'; GccHighStatus='Gap';     DoDStatus='Gap'    },
-        @{ Surface = 'M365Hub.Beta';   Endpoint = 'graph/beta/copilot/features';         GccStatus='Gap';     GccHighStatus='Gap';     DoDStatus='Gap'    },
-        @{ Surface = 'PPAC';           Endpoint = 'BAP/scopes/admin/environments';       GccStatus='Available';GccHighStatus='Partial';DoDStatus='Partial'},
-        @{ Surface = 'CopilotStudio';  Endpoint = 'graph/beta/copilotStudio/agents';     GccStatus='Partial'; GccHighStatus='Gap';     DoDStatus='Gap'    },
-        @{ Surface = 'MCP';            Endpoint = 'agent.mcpServers (beta)';             GccStatus='Gap';     GccHighStatus='Gap';     DoDStatus='Gap'    },
-        @{ Surface = 'AgentFramework'; Endpoint = 'graph/beta/agents/{id}/tools';        GccStatus='Gap';     GccHighStatus='Gap';     DoDStatus='Gap'    },
-        @{ Surface = 'DLP';            Endpoint = 'BAP/dlpPolicies';                     GccStatus='Available';GccHighStatus='Available';DoDStatus='Available'},
-        @{ Surface = 'AuditLog';       Endpoint = 'graph/beta/auditLogs/directoryAudits';GccStatus='Available';GccHighStatus='Available';DoDStatus='Available'}
-    )
-
-    $cloudKey = "$($Cloud)Status"
-    $findings = New-Object System.Collections.Generic.List[object]
-
-    foreach ($row in $parityMatrix) {
-        $statusInCloud = $row[$cloudKey]
-        if ($statusInCloud -eq 'Available') {
-            switch ($row.Surface) {
-                'PPAC'      { $findings.Add((Get-Feat224PpacFeatureState  -CatalogIndex $CatalogIndex)) }
-                'DLP'       { $findings.Add((Compare-Feat224DlpAlignment  -CatalogIndex $CatalogIndex -McpInventory @())) }
-                default     {
-                    $findings.Add([pscustomobject]@{
-                        Status = 'NotApplicable'; Surface = $row.Surface
-                        Reason = "Surface marked Available but no compensating helper wired in v1.4 — track in next release"
-                    })
-                }
-            }
-        } elseif ($statusInCloud -eq 'Partial') {
-            $findings.Add([pscustomobject]@{
-                Status  = 'Pending'
-                Surface = $row.Surface
-                Reason  = "F8 mitigation: $($row.Surface) is PARTIAL in $Cloud — invoke commercial helper but treat null/empty results as Anomaly until GA"
-            })
-        } else {
-            $findings.Add([pscustomobject]@{
-                Status  = 'NotApplicable'
-                Surface = $row.Surface
-                Reason  = "F8: $($row.Surface) endpoint '$($row.Endpoint)' is not available in $Cloud as of 2026-04-15. Compensating: manual portal evidence (see portal-walkthrough.md §11)."
-            })
-        }
-    }
-
-    $sovereignDir = Join-Path $EvidenceRoot "$Cloud\$(Get-Date -Format 'yyyyMMdd-HHmmss')"
-    if ($PSCmdlet.ShouldProcess($sovereignDir, 'Write sovereign parity report')) {
-        New-Item -ItemType Directory -Path $sovereignDir -Force | Out-Null
-        $parityMatrix | ConvertTo-Json -Depth 6 | Set-Content (Join-Path $sovereignDir 'parity-matrix.json') -Encoding UTF8
-        $findings | ConvertTo-Json -Depth 8     | Set-Content (Join-Path $sovereignDir 'findings.json')      -Encoding UTF8
-    }
-
-    $rollup = if ($findings | Where-Object Status -eq 'Anomaly') { 'Anomaly' }
-              elseif ($findings | Where-Object Status -eq 'Pending') { 'Pending' }
-              else { 'Clean' }
-
-    return [pscustomobject]@{
-        Status         = $rollup
-        Cloud          = $Cloud
-        ParityMatrix   = $parityMatrix
-        Findings       = $findings.ToArray()
-        EvidenceFolder = $sovereignDir
-        Reason         = if ($rollup -ne 'Clean') { "$Cloud parity gaps require manual evidence — see portal-walkthrough.md §11." } else { $null }
-    }
-}
-```
-
-### 11.2 Pester (`SOV`)
-
-```powershell
-Describe 'Feat224 — SOV namespace' -Tag SOV {
-    It 'returns NotApplicable for surfaces with sovereign gaps' {
-        Mock Initialize-Feat224Session { [pscustomobject]@{ Status='Clean' } }
-        Mock Get-Feat224PpacFeatureState { [pscustomobject]@{ Status='Clean'; Findings=@() } }
-        Mock Compare-Feat224DlpAlignment { [pscustomobject]@{ Status='Clean'; Findings=@() } }
-        $r = Invoke-Feat224SovereignRegister -TenantId 't' -Cloud 'GCCHigh' -JustificationTicket 'CHG-1' -EvidenceRoot $env:TEMP -CatalogIndex @{} -WhatIf
-        ($r.Findings | Where-Object { $_.Surface -eq 'MCP' -and $_.Status -eq 'NotApplicable' }).Count | Should -BeGreaterThan 0
-    }
-}
-```
-
-> **Hedged claim.** This compensating runner **aids in** maintaining a defensible inventory in sovereign clouds while Microsoft closes parity gaps; it does **not** substitute for the commercial-cloud helpers and does **not** guarantee detection of unauthorized features that live exclusively in sovereign-only surfaces.
-
----
-
-## §12 — Sentinel / SIEM forwarding
+## §11 — Sentinel / SIEM forwarding
 
 Per Control 2.12 (Supervision) and Control 1.10 (Communication Compliance Monitoring), feature-change events must reach the SIEM. This helper uses the **Logs Ingestion API** via a Data Collection Endpoint (DCE) and Data Collection Rule (DCR), plus a canary event with a known correlation ID to detect defect **F12** (DCR-side filtering silently dropping events).
 
-### 12.1 Helper
+### 11.1 Helper
 
 ```powershell
 function Send-Feat224SiemEvent {
@@ -1588,7 +1419,7 @@ function Send-Feat224SiemEvent {
 }
 ```
 
-### 12.2 Pester (`SIEM`)
+### 11.2 Pester (`SIEM`)
 
 ```powershell
 Describe 'Feat224 — SIEM namespace' -Tag SIEM {
@@ -1611,11 +1442,11 @@ Describe 'Feat224 — SIEM namespace' -Tag SIEM {
 
 ---
 
-## §13 — Scheduling
+## §12 — Scheduling
 
 Two scheduling modes are supported: (a) **Az Automation** (recommended for enterprise, integrates with Managed Identity), and (b) local **Scheduled Jobs** (acceptable for lab/sandbox tenants).
 
-### 13.1 Az Automation runbook registration
+### 12.1 Az Automation runbook registration
 
 ```powershell
 function Register-Feat224Schedule {
@@ -1648,7 +1479,7 @@ function Register-Feat224Schedule {
 }
 ```
 
-### 13.2 Cadence guidance
+### 12.2 Cadence guidance
 
 | Helper | Recommended cadence | Why |
 |---|---|---|
@@ -1659,14 +1490,13 @@ function Register-Feat224Schedule {
 | `Compare-Feat224DlpAlignment`        | Daily 03:00 UTC | DLP changes are change-managed |
 | `Compare-Feat224ZoneCompliance`      | After each upstream run | Pure rollup |
 | `Export-Feat224ChangeEvidence`       | Weekly + ad-hoc on Anomaly | Heavy audit pull |
-| `Invoke-Feat224SovereignRegister`    | Daily 04:00 UTC | Sovereign tenants only |
 | `Send-Feat224SiemEvent`              | After each rollup | Real-time supervision feed |
 
 > **Hedged claim.** Cadence is a recommendation that **helps meet** FINRA 3110 supervisory expectations and Fed SR 26-2 (formerly SR 11-7) ongoing-monitoring expectations. Organizations should validate that their ticketing and CAB workflow can absorb the volume of daily evidence and adjust accordingly.
 
 ---
 
-## §14 — Retention alignment with Control 2.13
+## §13 — Retention alignment with Control 2.13
 
 Evidence manifests are governance records and inherit the retention scheme defined in Control 2.13. The default is **7 years** for SOX-aligned manifests and **6 years** for FINRA 4511 supervisory evidence; whichever is longer wins.
 
@@ -1703,25 +1533,26 @@ function Set-Feat224EvidenceRetention {
 
 ---
 
-## §15 — Cross-control references
+## §14 — Cross-control references
 
-This control's PowerShell evidence depends on, or is consumed by, the following sister controls. The links below are the canonical anchors used by the §10 evidence exporter when generating cross-references inside manifest payloads.
+This control's PowerShell evidence depends on, or is consumed by, the following sister controls. The links below are the canonical anchors used by the §2 evidence exporter when generating cross-references inside manifest payloads.
 
 | Control | Title | Why it matters here |
 |---|---|---|
 | [1.1](../../../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md) | Restrict Agent Publishing by Authorization | A "Clean" feature catalog row does **not** imply publishing authorization; defect-catalog F1–F15 explicitly avoid that conflation |
-| [1.2](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) | Agent Registry and Integrated Apps Management | The §6 agent reader joins on AgentId from this registry; broken joins become `Pending` |
-| [1.4](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md) | Advanced Connector Policies (ACP) | §7 DLP correlation reads policies governed under 1.4 |
-| [1.10](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) | Communication Compliance Monitoring | §12 SIEM forwarding lands events that supplement 1.10's CC policies |
-| [1.25](../../../controls/pillar-1-security/1.25-mime-type-restrictions.md) | MIME Type Restrictions | A feature toggle that re-enables a previously restricted MIME path is captured by §6 + §8 |
+| [1.2](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) | Agent Registry and Integrated Apps Management | The §2 agent reader joins on AgentId from this registry; broken joins become `Pending` |
+| [1.4](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md) | Advanced Connector Policies (ACP) | §2 DLP correlation reads policies governed under 1.4 |
+| [1.10](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) | Communication Compliance Monitoring | §10 SIEM forwarding lands events that supplement 1.10's CC policies |
+| [1.25](../../../controls/pillar-1-security/1.25-mime-type-restrictions.md) | MIME Type Restrictions | A feature toggle that re-enables a previously restricted MIME path is captured by §2 + §2 |
 | [2.2](../../../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) | Environment Groups and Tier Classification | Defect F6 (Default-environment misuse) and F3 (Zone elevation) anchor here |
 | [2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Model Risk Management Alignment (OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7)) | Catalog rows with `RiskRating in {High, Critical}` require an MRM Review ID |
 | [2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervision and Oversight (FINRA Rule 3110) | Defect F10 (silent agent override) is a direct supervision-program risk |
-| [2.17](../../../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) | Multi-Agent Orchestration Limits | AGF workflow tools enumerated in §9 surface multi-agent paths |
-| [2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) | Agent 365 Admin Center Governance Console | The §4 M365 hub reader and 2.25's console must agree; disagreement is treated as Anomaly |
+| [2.17](../../../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) | Multi-Agent Orchestration Limits | AGF workflow tools enumerated in §2 surface multi-agent paths |
+| [2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) | Agent 365 Admin Center Governance Console | The §2 M365 hub reader and 2.25's console must agree; disagreement is treated as Anomaly |
 
-> **Final hedged statement.** The helpers documented in §§3–14 **aid in** producing a defensible, auditable record of which Microsoft 365 / Power Platform / Copilot Studio / Agent Framework / MCP features are enabled in which environments, on which agents, under which catalog approval, with which change ticket. They do **not**, individually or collectively, constitute legal compliance certification. A "Clean" rollup means *the configuration matches the approved catalog as of the run timestamp*. Implementation requires the role assignments listed in §1.3 and the sovereign-cloud caveats in §11. Organizations should verify each helper's behaviour in a non-production tenant, retain at least one prior manifest for hash-chain validation, and route any `Anomaly` or `Pending` finding to the AI Governance Lead for adjudication before the next supervisory cycle.
+> **Final hedged statement.** The helpers documented in §§2–14 **aid in** producing a defensible, auditable record of which Microsoft 365 / Power Platform / Copilot Studio / Agent Framework / MCP features are enabled in which environments, on which agents, under which catalog approval, with which change ticket. They do **not**, individually or collectively, constitute legal compliance certification. A "Clean" rollup means *the configuration matches the approved catalog as of the run timestamp*. Implementation requires the role assignments listed in §1.3. Organizations should verify each helper's behaviour in a non-production tenant, retain at least one prior manifest for hash-chain validation, and route any `Anomaly` or `Pending` finding to the AI Governance Lead for adjudication before the next supervisory cycle.
 
 ---
 
 *Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+

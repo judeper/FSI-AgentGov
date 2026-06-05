@@ -24,7 +24,6 @@ Use this playbook when implementing Control 1.20 for a Zone 2 (recommended) or Z
 - [ ] CIDRs of the firm's egress IPs (proxy, VPN, ZTNA egress) confirmed with the network team — **not** internal RFC1918 ranges unless those actually egress directly.
 - [ ] Change ticket open with reviewers from Security and Compliance assigned.
 
-> **Sovereign clouds.** PPAC URLs differ for GCC (`https://gcc.admin.powerplatform.microsoft.us`), GCC High (`https://high.admin.powerplatform.microsoft.us`), and DoD (`https://admin.appsplatform.us`). Use the matching portal for your tenant.
 
 ---
 

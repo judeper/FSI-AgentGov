@@ -17,7 +17,6 @@ Before starting, confirm:
     - **Copilot Studio Agent Author** — required to bind approved knowledge sources to a specific agent
     - **Compliance Officer** *or* **Purview Compliance Admin** — required to validate retention alignment with SEC 17a-4 / FINRA 4511 on knowledge source libraries
 - **Licensing:** Copilot Studio capacity allocated to the target environment; SharePoint Online plan that supports versioning and content approval
-- **Sovereign cloud:** If the tenant is GCC, GCC High, or DoD, confirm correct admin URLs (`admin.microsoft.us`, `gcchigh.copilotstudio.microsoft.us`, etc.); commercial URLs will not work — see the [PowerShell Setup](powershell-setup.md) playbook for the canonical endpoint table
 - **Evidence store:** A SharePoint document library or Dataverse table designated for source-approval evidence, ideally with retention lock per [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md)
 - **Source inventory baseline:** A current list of every Copilot Studio agent in scope and its declared knowledge sources
 
@@ -43,7 +42,7 @@ This walkthrough configures, in order:
 
 The inventory is the authoritative list of every source any agent in scope is permitted to use. Without it, source approval, staleness review, and audit response are not defensible.
 
-1. Open [Copilot Studio](https://copilotstudio.microsoft.com) (or the appropriate sovereign URL).
+1. Open [Copilot Studio](https://copilotstudio.microsoft.com).
 2. Select the in-scope environment from the environment picker.
 3. For each agent, open **Knowledge** and record:
     - Source type (SharePoint, Dataverse, OneDrive, uploaded file, public website, Bing Custom Search)

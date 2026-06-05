@@ -1,6 +1,6 @@
 # Control 1.21 — PowerShell Setup: Adversarial Input Logging
 
-> **Scope.** This playbook is the canonical PowerShell automation reference for Control 1.21 — *Adversarial Input Logging*. It enables and verifies the four Microsoft signal planes that detect prompt-injection / jailbreak / XPIA against AI agents — **Azure AI Content Safety Prompt Shields** (inference-time, synchronous), **Microsoft Defender for Cloud — Threat Protection for AI Workloads** (Azure-side AI alerts), **Microsoft Defender XDR for Microsoft 365 Copilot** (UPIA / XPIA alerts on Copilot), and **Microsoft Purview Communication Compliance** (supervisory queue) — plus cross-plane correlation in **Microsoft Sentinel** (Content Hub solutions for *Microsoft 365 Copilot* and *Defender for Cloud*) and audit retrieval from the **Microsoft 365 Unified Audit Log** (`CopilotInteraction` record type). It supports US financial-services tenants in the Microsoft Commercial, GCC, GCC High, and DoD clouds.
+> **Scope.** This playbook is the canonical PowerShell automation reference for Control 1.21 — *Adversarial Input Logging*. It enables and verifies the four Microsoft signal planes that detect prompt-injection / jailbreak / XPIA against AI agents — **Azure AI Content Safety Prompt Shields** (inference-time, synchronous), **Microsoft Defender for Cloud — Threat Protection for AI Workloads** (Azure-side AI alerts), **Microsoft Defender XDR for Microsoft 365 Copilot** (UPIA / XPIA alerts on Copilot), and **Microsoft Purview Communication Compliance** (supervisory queue) — plus cross-plane correlation in **Microsoft Sentinel** (Content Hub solutions for *Microsoft 365 Copilot* and *Defender for Cloud*) and audit retrieval from the **Microsoft 365 Unified Audit Log** (`CopilotInteraction` record type). It targets US financial-services tenants in the Microsoft commercial (Global) cloud.
 >
 > **Companion documents.**
 >
@@ -15,13 +15,13 @@
 > **Latency reality (do not overclaim).** Only **Prompt Shields** is genuinely synchronous with the prompt. **Defender for Cloud / Defender XDR** alerts arrive in seconds-to-minutes. **Communication Compliance**, **DSPM for AI**, and **`CopilotInteraction`-derived** signals can lag from minutes to hours and Microsoft does not publish a hard SLA for the Unified Audit Log surface. Detection rules and WSP language must be written against these documented latencies.
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), and SHA-256 evidence emission. Snippets below may show abbreviated patterns; the baseline is authoritative when the two diverge.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), and SHA-256 evidence emission. Snippets below may show abbreviated patterns; the baseline is authoritative when the two diverge.
 
 ---
 
 ## 0. Wrong-shell trap (READ FIRST)
 
-Control 1.21 spans **six** PowerShell / REST surfaces. Choosing the wrong one (or invoking the right one without sovereign-cloud parameters) produces silent false-clean evidence — empty alert queries, misrouted Sentinel rules, Prompt Shields unset on production deployments — that will not survive supervisory testing.
+Control 1.21 spans **six** PowerShell / REST surfaces. Choosing the wrong one produces silent false-clean evidence — empty alert queries, misrouted Sentinel rules, Prompt Shields unset on production deployments — that will not survive supervisory testing.
 
 | Surface | Connect cmdlet | Module(s) | What it covers in 1.21 |
 |---|---|---|---|
@@ -43,8 +43,6 @@ Control 1.21 spans **six** PowerShell / REST surfaces. Choosing the wrong one (o
 | Defect | Symptom | Guard |
 |---|---|---|
 | Hand-rolled KQL against `AuditLogs` for prompt-content matching | Zero hits, "no adversarial inputs detected" | The standard `CopilotInteraction` audit record **does not carry full prompt body text**. Pattern matching on prompt content must come from Prompt Shields / Defender for Cloud / Defender XDR / Comm Compliance — not from KQL on Entra audit or Unified Audit. The §8 paged UAL pull reads metadata only; rule logic lives in the four detection planes. |
-| `Connect-IPPSSession` with no `-ConnectionUri` in GCC High / DoD | Authenticates against commercial; returns zero records; *clean* report | The §2 bootstrap branches `IPPSConnectionUri` per cloud. Never call `Connect-IPPSSession` bare in a sovereign tenant. |
-| `Connect-AzAccount` with no `-Environment` in GCC High / DoD | Wrong tenant ring; zero subscriptions visible; AI plan toggles do nothing | The §2 bootstrap branches `AzEnvironment` per cloud (`AzureUSGovernment`, `AzureUSGovernment2` for DoD where required). |
 | `Install-Module ... -Force` with no `-RequiredVersion` | Floating module versions; reproducibility broken; SOX §404 / OCC 2023-17 evidence rejected | Use the §1 install loop with explicit `-RequiredVersion`. |
 
 ### 0.2 PowerShell edition guard
@@ -107,7 +105,7 @@ foreach ($m in $modules) {
 
 ## 2. Pre-flight: `Initialize-Agt121Session` bootstrap
 
-Every Control 1.21 script begins from the same bootstrap: edition pinned, modules pinned, sovereign endpoints resolved, transcript started, IPPS + Graph + Az connections opened, role and licence checks performed. Bundle them into one helper so individual scripts do not drift.
+Every Control 1.21 script begins from the same bootstrap: edition pinned, modules pinned, transcript started, IPPS + Graph + Az connections opened, role and licence checks performed. Bundle them into one helper so individual scripts do not drift.
 
 Save as `Initialize-Agt121Session.ps1`:
 
@@ -119,11 +117,10 @@ Save as `Initialize-Agt121Session.ps1`:
 .SYNOPSIS
     Bootstraps a Control 1.21 admin session across Az (Defender for Cloud, Sentinel,
     Cognitive Services), Microsoft Graph (Defender XDR alerts), and IPPS (Unified Audit)
-    in the correct sovereign cloud.
 .PARAMETER AdminUpn
     UPN of the admin executing the run (used for Graph + IPPS connection and audit attribution).
 .PARAMETER Cloud
-    One of: Commercial, GCC, GCCHigh, DoD.
+    Cloud target for this session. Default: 'Commercial'.
 .PARAMETER EvidenceRoot
     Absolute path to the evidence directory.
 .PARAMETER RequiredRoles
@@ -137,7 +134,7 @@ function Initialize-Agt121Session {
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
     param(
         [Parameter(Mandatory)] [string] $AdminUpn,
-        [Parameter(Mandatory)] [ValidateSet('Commercial','GCC','GCCHigh','DoD')] [string] $Cloud,
+        [string] $Cloud = 'Commercial',
         [Parameter(Mandatory)] [string] $EvidenceRoot,
         [string[]] $RequiredRoles = @(
             'Security Administrator',
@@ -150,49 +147,16 @@ function Initialize-Agt121Session {
 
     $ErrorActionPreference = 'Stop'
 
-    # 1. Resolve sovereign endpoints (full matrix in §12).
-    $endpoints = switch ($Cloud) {
-        'Commercial' { @{
-            GraphEnvironment   = 'Global'
-            IPPSConnectionUri  = $null
-            IPPSAuthorityUri   = $null
-            AzEnvironment      = 'AzureCloud'
-            ArmEndpoint        = 'https://management.azure.com'
-            CognitiveSuffix    = 'cognitiveservices.azure.com'
-            AzureOpenAiSuffix  = 'openai.azure.com'
-            DefenderPortalHost = 'security.microsoft.com'
-        } }
-        'GCC' { @{
-            GraphEnvironment   = 'USGov'
-            IPPSConnectionUri  = $null
-            IPPSAuthorityUri   = $null
-            AzEnvironment      = 'AzureCloud'
-            ArmEndpoint        = 'https://management.azure.com'
-            CognitiveSuffix    = 'cognitiveservices.azure.com'
-            AzureOpenAiSuffix  = 'openai.azure.com'
-            DefenderPortalHost = 'security.microsoft.com'
-        } }
-        'GCCHigh' { @{
-            GraphEnvironment   = 'USGov'
-            IPPSConnectionUri  = 'https://ps.compliance.protection.office365.us/powershell-liveid/'
-            IPPSAuthorityUri   = 'https://login.microsoftonline.us/organizations'
-            AzEnvironment      = 'AzureUSGovernment'
-            ArmEndpoint        = 'https://management.usgovcloudapi.net'
-            CognitiveSuffix    = 'cognitiveservices.azure.us'
-            AzureOpenAiSuffix  = 'openai.azure.us'
-            DefenderPortalHost = 'security.microsoft.us'
-        } }
-        'DoD' { @{
-            GraphEnvironment   = 'USGovDoD'
-            IPPSConnectionUri  = 'https://l5.ps.compliance.protection.office365.us/powershell-liveid/'
-            IPPSAuthorityUri   = 'https://login.microsoftonline.us/organizations'
-            # Some tenants in DoD use AzureUSGovernment2 — verify per Microsoft Learn at run time
-            AzEnvironment      = 'AzureUSGovernment'
-            ArmEndpoint        = 'https://management.usgovcloudapi.net'
-            CognitiveSuffix    = 'cognitiveservices.azure.us'
-            AzureOpenAiSuffix  = 'openai.azure.us'
-            DefenderPortalHost = 'security.apps.mil'
-        } }
+    # 1. Resolve endpoints for the Microsoft commercial (Global) cloud.
+    $endpoints = @{
+        GraphEnvironment   = 'Global'
+        IPPSConnectionUri  = $null
+        IPPSAuthorityUri   = $null
+        AzEnvironment      = 'AzureCloud'
+        ArmEndpoint        = 'https://management.azure.com'
+        CognitiveSuffix    = 'cognitiveservices.azure.com'
+        AzureOpenAiSuffix  = 'openai.azure.com'
+        DefenderPortalHost = 'security.microsoft.com'
     }
 
     # 2. Evidence root + transcript.
@@ -206,15 +170,15 @@ function Initialize-Agt121Session {
     if ($PSCmdlet.ShouldProcess($transcript, 'Start-Transcript')) {
         Start-Transcript -Path $transcript -IncludeInvocationHeader | Out-Null
     }
-    Write-Information "Run $runId — Cloud=$Cloud — Evidence=$EvidenceRoot" -InformationAction Continue
+    Write-Information "Run $runId — Evidence=$EvidenceRoot" -InformationAction Continue
 
-    # 3. Az (sovereign-aware).
-    if ($PSCmdlet.ShouldProcess("Az ($Cloud)", 'Connect-AzAccount')) {
+    # 3. Connect Az.
+    if ($PSCmdlet.ShouldProcess('Az', 'Connect-AzAccount')) {
         Connect-AzAccount -Environment $endpoints.AzEnvironment -WarningAction SilentlyContinue | Out-Null
     }
 
-    # 4. Microsoft Graph (sovereign-aware).
-    if ($PSCmdlet.ShouldProcess("Graph ($Cloud)", 'Connect-MgGraph')) {
+    # 4. Microsoft Graph.
+    if ($PSCmdlet.ShouldProcess('Graph', 'Connect-MgGraph')) {
         Connect-MgGraph `
             -Environment $endpoints.GraphEnvironment `
             -Scopes @(
@@ -226,11 +190,11 @@ function Initialize-Agt121Session {
             -NoWelcome
     }
 
-    # 5. IPPS (sovereign-aware) — required for §8 UAL pull.
+    # 5. IPPS — required for §8 UAL pull.
     $ippsParams = @{ UserPrincipalName = $AdminUpn; ShowBanner = $false }
     if ($endpoints.IPPSConnectionUri) { $ippsParams.ConnectionUri                  = $endpoints.IPPSConnectionUri }
     if ($endpoints.IPPSAuthorityUri)  { $ippsParams.AzureADAuthorizationEndpointUri = $endpoints.IPPSAuthorityUri }
-    if ($PSCmdlet.ShouldProcess("IPPS ($Cloud)", 'Connect-IPPSSession')) {
+    if ($PSCmdlet.ShouldProcess('IPPS', 'Connect-IPPSSession')) {
         Connect-IPPSSession @ippsParams
     }
 
@@ -286,7 +250,7 @@ function Initialize-Agt121Session {
 }
 ```
 
-**Always invoke first with `-WhatIf`** to confirm sovereign endpoints and transcript path before establishing connections in production.
+**Always invoke first with `-WhatIf`** to confirm transcript path before establishing connections in production.
 
 ---
 
@@ -903,7 +867,7 @@ Call `Write-Agt121Evidence` as the **last** step of every run — after any muta
 
 param(
     [Parameter(Mandatory)] [string] $AdminUpn,
-    [Parameter(Mandatory)] [ValidateSet('Commercial','GCC','GCCHigh','DoD')] [string] $Cloud,
+    [string] $Cloud = 'Commercial',
     [Parameter(Mandatory)] [string] $EvidenceRoot,
     [Parameter(Mandatory)] [object[]] $AgentDeployments,
     [Parameter(Mandatory)] [string] $SentinelResourceGroupName,
@@ -1118,34 +1082,7 @@ A run is **pass** only if all six checks return `Pass = $true`. Any false result
 
 ---
 
-## 12. Sovereign-cloud reference
-
-Cloud selection is made **once**, in `Initialize-Agt121Session`. Get this wrong and every subsequent function authenticates against the wrong tenant ring, returns empty results, and produces false-clean evidence.
-
-| Cloud | `Connect-MgGraph -Environment` | `Connect-IPPSSession -ConnectionUri` | `Connect-AzAccount -Environment` | ARM endpoint | Cognitive suffix |
-|---|---|---|---|---|---|
-| **Commercial** | `Global` | *(default)* | `AzureCloud` | `https://management.azure.com` | `cognitiveservices.azure.com` |
-| **GCC** | `USGov` | *(default)* | `AzureCloud` | `https://management.azure.com` | `cognitiveservices.azure.com` |
-| **GCC High** | `USGov` | `https://ps.compliance.protection.office365.us/powershell-liveid/` | `AzureUSGovernment` | `https://management.usgovcloudapi.net` | `cognitiveservices.azure.us` |
-| **DoD** | `USGovDoD` | `https://l5.ps.compliance.protection.office365.us/powershell-liveid/` | `AzureUSGovernment` (verify `AzureUSGovernment2` per resource) | `https://management.usgovcloudapi.net` | `cognitiveservices.azure.us` |
-
-### 12.1 Per-function sovereign variants
-
-| Function | Commercial | GCC | GCC High | DoD |
-|---|---|---|---|---|
-| `Initialize-Agt121Session` | All endpoints default | Graph rolling to `USGov`; AzureCloud | Sovereign IPPS URI; `AzureUSGovernment` | DoD IPPS URI; verify `AzureUSGovernment` vs `AzureUSGovernment2` per resource |
-| `Set-Agt121PromptShieldPolicy` | `cognitiveservices.azure.com` | `cognitiveservices.azure.com` | `cognitiveservices.azure.us` — **verify Prompt Shields GA in cloud before relying** | `cognitiveservices.azure.us` — **verify Prompt Shields availability; was lagging as of early 2026** |
-| `Test-Agt121PromptShieldEndpoint` | Parity | Parity | Parity *if* Content Safety resource is provisioned in the ring | Parity *if* available; treat as compensating-control conversation if not |
-| `Enable-Agt121DefenderAiPlan` | GA | Rolling — verify per release | Lagging — verify availability; `Set-AzSecurityPricing -Name 'AI'` may return *plan not found* | Lagging — verify; same |
-| `Get-Agt121AdversarialAlerts` | `Get-MgSecurityAlertV2` against Graph `Global` | Graph `USGov` | Graph `USGov` | Graph `USGovDoD` |
-| `New-Agt121SentinelRuleFromTemplate` | All Content Hub solutions GA | All Content Hub solutions GA | Most solutions GA; **verify per solution** | Most solutions GA; **verify per solution** |
-| `Get-Agt121CopilotInteractions` | IPPS default URI | IPPS default URI | IPPS sovereign URI **required** | IPPS DoD URI **required** |
-
-> **Verify the DoD endpoint URLs and Prompt Shields availability before each change window.** The DoD ring is the most volatile of the four sovereign rings; URLs above were current as of the playbook's last verification date but change without notice. Treat any cross-cloud parity gap as a compensating-control conversation, not an assumption.
-
----
-
-## 13. Anti-patterns
+## 12. Anti-patterns
 
 The patterns below have all caused production incidents in FSI tenants. None is acceptable in a Control 1.21 runbook.
 
@@ -1154,22 +1091,20 @@ The patterns below have all caused production incidents in FSI tenants. None is 
 | 1 | KQL against `AuditLogs` (Entra audit) using `has_any` over `TargetResources` to "detect prompt injection" | `AuditLogs` is the Entra **directory** audit table, not a Copilot table. `TargetResources` is a `dynamic` of objects; `has_any` over it does not match the way authors expect. The detection silently fires zero. The standard `CopilotInteraction` audit record also does **not** carry full prompt body text. | Use Prompt Shields (§4) for synchronous prompt-content detection; Defender for Cloud AI alerts (§5) for Azure-side ML detection; Defender XDR Copilot detections (§6) for M365 Copilot UPIA / XPIA; Comm Compliance (portal) for supervisory queue. Use UAL (§8) only for *who / when / which agent / which thread* metadata correlation. |
 | 2 | "Sentinel rule creator" that imports `Az.SecurityInsights` and only `Write-Host`s a rule body | No rule is created. Workspace stays empty. Verification looks at `Get-AzSentinelAlertRule` and finds nothing. | Call **`New-AzSentinelAlertRule`** (the real cmdlet) from a Content Hub template (§7); verify with `Get-AzSentinelAlertRule` (§11.4). |
 | 3 | Missing `#Requires -Version 7.4 -PSEdition Core` | Script silently runs on Windows PowerShell 5.1; some `Az.Security` / `Az.SecurityInsights` cmdlets return wrong-shape objects on 5.1; `Invoke-RestMethod` body handling differs. | Pin the requires statement and add the explicit edition guard from §0.2. |
-| 4 | `Connect-IPPSSession` with no `-ConnectionUri` in GCC High / DoD | Authenticates against commercial endpoints; returns zero `CopilotInteraction` records; produces false-clean evidence. | §2 bootstrap branches `IPPSConnectionUri` per cloud (`https://ps.compliance.protection.office365.us/...` for GCC High; `https://l5.ps.compliance.protection.office365.us/...` for DoD). |
-| 5 | `Connect-AzAccount` with no `-Environment` in GCC High / DoD | Wrong tenant ring; zero subscriptions visible; `Set-AzSecurityPricing -Name 'AI'` returns *plan not found*; `Get-AzSentinelAlertRule` empty. | `Connect-AzAccount -Environment AzureUSGovernment` (verify `AzureUSGovernment2` for some DoD resources). §2 bootstrap branches `AzEnvironment` per cloud. |
-| 6 | No SHA-256 evidence manifest | Evidence files cannot be proven untampered; SEC 17a-4(f) WORM expectation fails; supervisory testing rejects the pack. | §10 `Write-Agt121Evidence` emits `manifest.json` with per-file `SHA256`, run metadata, module versions; pack is landed in WORM storage. |
-| 7 | Mutating cmdlets without `[CmdletBinding(SupportsShouldProcess)]` | No `-WhatIf` preview; no `ShouldProcess` audit trail; mutation cannot be safely run dry. | Declare `SupportsShouldProcess` and gate every mutation on `if ($PSCmdlet.ShouldProcess(...))` (shared baseline §4). Every mutating function in §4 / §5 / §7 / §9 / §10 in this playbook does this. |
-| 8 | `Install-Module ... -Force` without `-RequiredVersion` | Floating module versions; reproducibility broken; SOX §404 / OCC 2023-17 evidence rejected; subtle behavioural changes between minor versions go undetected. | §1 install loop with explicit `-RequiredVersion`. Record pinned versions in the change ticket. |
-| 9 | Searching PSGallery for "Enable-PromptShield" or "Set-AzPromptShield" | No such cmdlet exists. Authors who paste a fake cmdlet from an LLM-suggested snippet ship a no-op. | Configure Prompt Shields as an RAI policy via the ARM control plane (`Microsoft.CognitiveServices/accounts/raiPolicies`) — §4 `Set-Agt121PromptShieldPolicy`. |
-| 10 | Treating `New-AzSentinelAlertRule` parameter names as stable across major versions | Parameter renames between `Az.SecurityInsights` 2.x → 3.x cause silent script failure or wrong-shape rules. | Pin `Az.SecurityInsights` to a CAB-approved version in §1; re-verify parameter names after every upgrade. |
-| 11 | `Search-UnifiedAuditLog` without `SessionId` + `SessionCommand 'ReturnLargeSet'` paging | Truncation at 5,000 records; high-volume tenants miss the bulk of `CopilotInteraction` records and the report looks clean but is incomplete. | §8 paging idiom — loop until the batch returns fewer than `ResultSize` rows. |
-| 12 | Promising "real-time review of audit logs" in the WSP | Microsoft does not publish a hard SLA for Unified Audit ingestion; "typically within 60 minutes" is the documented expectation, and Comm Compliance / DSPM-for-AI lag from minutes to hours. | WSP language reflects the documented latency per signal plane; only Prompt Shields is genuinely synchronous. |
-| 13 | Hand-rolling KQL over `CopilotInteraction` to pattern-match prompt body content | The standard record body does not carry full prompt text. The hand-rolled rule fires zero. | Use Prompt Shields / Defender for Cloud AI alerts / Defender XDR / Comm Compliance Prompt Shield classifier — they are the planes that see the prompt content. |
-| 14 | Hard-coded admin UPN, subscription ID, or workspace name in scripts | Operator identity is wrong in audit logs; rotation requires a code change; cross-tenant deployment requires a fork. | `param([Parameter(Mandatory)] ...)` for every environment-specific value; load tenant config from a sealed JSON beside the script. |
-| 15 | Disabling alert noise by tightening the regex in §6 instead of tuning Defender for Cloud / Sentinel server-side | Loses real detections; client-side filter drift produces silent gaps. | Tune at the source — Defender for Cloud alert suppression rules; Sentinel analytics-rule grouping and entity mapping; Comm Compliance reviewer-tier policy. Keep the §6 regex broad. |
+| 4 | No SHA-256 evidence manifest | Evidence files cannot be proven untampered; SEC 17a-4(f) WORM expectation fails; supervisory testing rejects the pack. | §10 `Write-Agt121Evidence` emits `manifest.json` with per-file `SHA256`, run metadata, module versions; pack is landed in WORM storage. |
+| 5 | Mutating cmdlets without `[CmdletBinding(SupportsShouldProcess)]` | No `-WhatIf` preview; no `ShouldProcess` audit trail; mutation cannot be safely run dry. | Declare `SupportsShouldProcess` and gate every mutation on `if ($PSCmdlet.ShouldProcess(...))` (shared baseline §4). Every mutating function in §4 / §5 / §7 / §9 / §10 in this playbook does this. |
+| 6 | `Install-Module ... -Force` without `-RequiredVersion` | Floating module versions; reproducibility broken; SOX §404 / OCC 2023-17 evidence rejected; subtle behavioural changes between minor versions go undetected. | §1 install loop with explicit `-RequiredVersion`. Record pinned versions in the change ticket. |
+| 7 | Searching PSGallery for "Enable-PromptShield" or "Set-AzPromptShield" | No such cmdlet exists. Authors who paste a fake cmdlet from an LLM-suggested snippet ship a no-op. | Configure Prompt Shields as an RAI policy via the ARM control plane (`Microsoft.CognitiveServices/accounts/raiPolicies`) — §4 `Set-Agt121PromptShieldPolicy`. |
+| 8 | Treating `New-AzSentinelAlertRule` parameter names as stable across major versions | Parameter renames between `Az.SecurityInsights` 2.x → 3.x cause silent script failure or wrong-shape rules. | Pin `Az.SecurityInsights` to a CAB-approved version in §1; re-verify parameter names after every upgrade. |
+| 9 | `Search-UnifiedAuditLog` without `SessionId` + `SessionCommand 'ReturnLargeSet'` paging | Truncation at 5,000 records; high-volume tenants miss the bulk of `CopilotInteraction` records and the report looks clean but is incomplete. | §8 paging idiom — loop until the batch returns fewer than `ResultSize` rows. |
+| 10 | Promising "real-time review of audit logs" in the WSP | Microsoft does not publish a hard SLA for Unified Audit ingestion; "typically within 60 minutes" is the documented expectation, and Comm Compliance / DSPM-for-AI lag from minutes to hours. | WSP language reflects the documented latency per signal plane; only Prompt Shields is genuinely synchronous. |
+| 11 | Hand-rolling KQL over `CopilotInteraction` to pattern-match prompt body content | The standard record body does not carry full prompt text. The hand-rolled rule fires zero. | Use Prompt Shields / Defender for Cloud AI alerts / Defender XDR / Comm Compliance Prompt Shield classifier — they are the planes that see the prompt content. |
+| 12 | Hard-coded admin UPN, subscription ID, or workspace name in scripts | Operator identity is wrong in audit logs; rotation requires a code change; cross-tenant deployment requires a fork. | `param([Parameter(Mandatory)] ...)` for every environment-specific value; load tenant config from a sealed JSON beside the script. |
+| 13 | Disabling alert noise by tightening the regex in §6 instead of tuning Defender for Cloud / Sentinel server-side | Loses real detections; client-side filter drift produces silent gaps. | Tune at the source — Defender for Cloud alert suppression rules; Sentinel analytics-rule grouping and entity mapping; Comm Compliance reviewer-tier policy. Keep the §6 regex broad. |
 
 ---
 
-## 14. Cross-links
+## 13. Cross-links
 
 - **Control 1.2 — Agent registry and integrated apps.** Source-of-truth zone assignment for §9. `docs/controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md`
 - **Control 1.7 — Comprehensive audit logging.** Provides the `CopilotInteraction` records §8 retrieves. `docs/controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md`
@@ -1181,7 +1116,7 @@ The patterns below have all caused production incidents in FSI tenants. None is 
 - **Control 3.4 — Incident reporting.** Incident response and root-cause analysis for confirmed adversarial events. `docs/controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md`
 - **Control 3.9 — Sentinel integration.** Cross-plane correlation, Content Hub solutions referenced in §7, hunting queries. `docs/controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md`
 - **Control 4.6 — Grounding scope governance.** Reduces the corpus an attacker can poison for XPIA — primary preventive mitigation. `docs/controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md`
-- **Shared PowerShell baseline.** Module pinning, sovereign endpoints, mutation safety, evidence emission. `docs/playbooks/_shared/powershell-baseline.md`
+- **Shared PowerShell baseline.** Module pinning, mutation safety, evidence emission. `docs/playbooks/_shared/powershell-baseline.md`
 
 ---
 

@@ -14,7 +14,6 @@
 | Citations missing from agent responses | Citation setting disabled, response not grounded, or channel suppresses citations | Re-test the same prompt in M365 Chat or Teams; check agent settings |
 | Agent surfacing outdated content | Index has not refreshed since the major version was published | Wait the documented index window (up to 24h); confirm the new version is the current major |
 | Unauthorized knowledge source bound to an agent | Maker added the source without approval | Remove the binding; capture evidence; review maker permissions and Power Platform DLP |
-| Validation script returns zero items in GCC High | Connected to commercial endpoints (false-clean) | Re-run with `-Cloud GCCHigh` and the correct PnP `-AzureEnvironment` |
 | `Get-AdminPowerAppEnvironmentRoleAssignment` returns nothing | Environment is Dataverse-backed | Use PPAC Dataverse Security Roles, not the cmdlet (baseline section 6) |
 | `Test-LibraryHardening.ps1` reports `FAIL` on `Modified` field references | Field internal name differs in classic vs modern sites | Confirm via `Get-PnPField -List $lib` and update the script's field reference |
 | Power Automate approval flow not firing | Trigger scoped to wrong library, or flow disabled | Open flow run history; re-confirm the SharePoint trigger scope |
@@ -94,26 +93,7 @@
 - Review the maker's environment permissions and the Power Platform DLP policy that should have prevented the addition
 - Capture the audit event and the removal as evidence
 
-### Issue 5 — Sovereign-cloud false-clean
-
-**Symptoms:** `Test-LibraryHardening.ps1` returns "0 libraries found" against a tenant that you know has libraries.
-
-**Diagnostic steps:**
-
-1. Confirm the `-Cloud` parameter matches the tenant cloud (`Commercial`, `GCC`, `GCCHigh`, `DoD`)
-2. Confirm `Connect-PnPOnline -AzureEnvironment` resolved to the right value (`Production`, `USGovernment`, `USGovernmentHigh`, `USGovernmentDoD`)
-3. Try the equivalent operation in PnP interactively, e.g.:
-    ```powershell
-    Connect-PnPOnline -Url <site> -Interactive -AzureEnvironment USGovernmentHigh -ClientId <id>
-    Get-PnPList | Select-Object Title, BaseTemplate, ItemCount
-    ```
-
-**Remediation:**
-
-- Re-run with the correct `-Cloud` parameter
-- File a finding noting that the previous "clean" run was false-clean and re-collect evidence
-
-### Issue 6 — Dataverse compatibility on Power Apps admin cmdlets
+### Issue 5 — Dataverse compatibility on Power Apps admin cmdlets
 
 **Symptoms:** `Get-AdminPowerAppEnvironmentRoleAssignment` returns empty silently, or `Set-` returns 403 Forbidden.
 
@@ -130,7 +110,7 @@
 - For Dataverse environments, use **PPAC > Environment > Settings > Users + permissions > Security roles** instead of the admin cmdlets
 - This is documented Microsoft behavior; it is not a defect
 
-### Issue 7 — `Modified` date triggers spurious staleness alerts
+### Issue 6 — `Modified` date triggers spurious staleness alerts
 
 **Symptoms:** Documents whose content has not changed appear in stale-content reports because metadata edits update `Modified`.
 
@@ -144,7 +124,7 @@
 - Switch the staleness signal from SharePoint `Modified` to the **content hash** maintained by the [RAG Source Validator](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/rag-source-validator) solution
 - Update the staleness Power Automate flow to read from the validator's Dataverse table
 
-### Issue 8 — Approval flow not firing for new content
+### Issue 7 — Approval flow not firing for new content
 
 **Symptoms:** New uploads bypass approval and are immediately visible to the agent.
 
@@ -202,7 +182,6 @@
 | Power Automate flow failures | Power Platform Admin | Power Automate Admin → Microsoft Support |
 | Content accuracy or staleness | Source Owner | Content Owner's manager → AI Governance Lead |
 | Unauthorized binding (suspected insider risk) | AI Governance Lead | Compliance Officer → SOC Analyst |
-| Sovereign-cloud connectivity / false-clean | SharePoint Admin | Microsoft Premier / Unified Support |
 
 ---
 

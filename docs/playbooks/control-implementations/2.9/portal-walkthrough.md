@@ -14,16 +14,12 @@
 - [ ] **Owner** or **Contributor** on the target Azure subscription (to create Application Insights / Log Analytics workspace)
 - [ ] **Power BI Pro or PPU** license for any user authoring dashboards (Premium capacity recommended for Zone 3 datasets)
 - [ ] KPI thresholds documented per zone and approved by AI Governance Lead and (for Zone 3) Model Risk Manager
-- [ ] Sovereign cloud determined (Commercial / GCC / GCC High / DoD) and feature parity confirmed against Microsoft Learn
-
-!!! warning "Sovereign cloud feature drift"
-    Copilot Studio analytics, Application Insights linkage, and Power Platform analytics export to Azure Data Lake have **reduced or staggered availability** in GCC High and DoD. Verify each step against your cloud's current service description before assuming a control is implemented. A "configured" view that returns no data is **false-clean evidence** for FINRA / SEC examiners.
 
 ---
 
 ## Step 1 — Confirm tenant analytics is enabled (Power Platform Admin Center)
 
-1. Open **[Power Platform Admin Center](https://admin.powerplatform.microsoft.com)** (commercial) or the appropriate sovereign URL.
+1. Open **[Power Platform Admin Center](https://admin.powerplatform.microsoft.com)**.
 2. Navigate to **Analytics** → **Copilot Studio**.
 3. Confirm the analytics dashboard renders for at least one environment (data may take 24–48 hours after first agent activity).
 4. Available native metrics include: sessions, conversations, resolution rate, escalation rate, customer satisfaction (CSAT), average handling time, and abandonment.
@@ -78,8 +74,6 @@ For dashboarding, longitudinal trend analysis, and cross-environment views.
     - **Frequency:** daily incremental
 3. Save. The first export typically lands within 24 hours.
 4. In Power BI, create workspace **`Agent-Performance-Analytics`** and connect to the ADLS Gen2 export via a Dataflow Gen2 or direct Azure Data Lake Storage Gen2 connector.
-
-**Sovereign caveat:** self-service analytics export to ADLS Gen2 is not available in all government clouds. If unavailable, fall back to Application Insights + Log Analytics + Power BI (KQL-based) as the primary analytics pipeline.
 
 ---
 
@@ -159,7 +153,7 @@ Document the schedule in your supervisory procedures (FINRA Rule 3110) and store
 
 - [ ] PPAC → Analytics → Copilot Studio renders data
 - [ ] Each Zone 2/3 agent shows a configured Application Insights resource ID
-- [ ] ADLS export shows recent files (or a documented sovereign-cloud exception)
+- [ ] ADLS export shows recent files
 - [ ] Power BI workspace `Agent-Performance-Analytics` exists with at least one published report and a recent refresh
 - [ ] At least one alert rule fires successfully against a temporarily lowered threshold
 - [ ] Review cadence is documented in supervisory procedures with named attendees

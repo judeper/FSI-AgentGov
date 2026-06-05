@@ -18,7 +18,6 @@ Before starting, confirm:
 - **Licensing:** Managed Environments enabled on every Zone 2 / Zone 3 environment (release channel selection requires Managed Environments for full enforcement)
 - **Identity:** A change-intake distribution list (or Teams channel) routed to the AI Governance Lead and the Power Platform Admin
 - **Source-control / evidence store:** A SharePoint document library or Dataverse table designated for patch evidence, ideally with retention lock per [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md)
-- **Sovereign cloud:** If the tenant is GCC, GCC High, or DoD, identify the correct admin endpoints up front (commercial admin URLs will not work) — see the [PowerShell Setup](powershell-setup.md) playbook for the canonical endpoint table
 
 > **Implementation caveat:** Microsoft owns the platform release cadence. The configuration below governs **awareness, validation, and response** — not suppression of vendor-driven changes.
 
@@ -94,7 +93,7 @@ Service Health surfaces live service incidents and planned maintenance. Use it t
         - Microsoft 365 Apps (if applicable)
         - Azure Key Vault (if any agent retrieves secrets from a Key Vault)
         - Application Insights / Log Analytics (if used for agent telemetry)
-    - **Regions:** the regions hosting your environments (US East/Central/West for most US FSI tenants; sovereign-cloud customers select GCC/GCC High regions).
+    - **Regions:** the regions hosting your environments (US East/Central/West for most US FSI tenants).
     - **Event type:** Service issue, Planned maintenance, Health advisory, Security advisory.
 5. Under **Actions**, attach an **Azure Monitor action group**:
     - If none exists, select **Create action group**.
@@ -251,7 +250,7 @@ After completing the configuration, confirm:
 
 ## Related Playbooks
 
-- [PowerShell Setup](powershell-setup.md) — Pinned-module, sovereign-aware automation for Message Center polling, evidence emission, and validation runs
+- [PowerShell Setup](powershell-setup.md) — Pinned-module automation for Message Center polling, evidence emission, and validation runs
 - [Verification & Testing](verification-testing.md) — Test cases, rollback drill, evidence collection
 - [Troubleshooting](troubleshooting.md) — Common issues with Message Center, release channels, and Service Health alerts
 

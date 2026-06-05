@@ -6,7 +6,7 @@
 **Last UI Verified:** April 2026
 **Estimated Time:** 12–24 hours across the five validation planes for an initial Zone 3 agent; 4–8 hours for Zone 2; 1–2 hours for Zone 1
 **Audience:** AI Governance Lead, Copilot Studio Agent Author, Power Platform Admin, Environment Admin, Model Risk Manager, Compliance Officer, Designated Supervisor / Registered Principal, Purview Audit Admin, AI Administrator
-**Prerequisites:** Pre-flight gates PRE-01 through PRE-08 (see §3) completed and evidenced
+**Prerequisites:** Pre-flight gates PRE-01 through PRE-07 (see §2) completed and evidenced
 
 ---
 
@@ -34,10 +34,7 @@
     - **Power Platform Pipelines + Managed Environments** — required to enforce promotion gates and segregation-of-duties approvals; Managed Environments licensing applies to all stage targets
     - **Microsoft Purview Audit (Standard or Premium)** — required for durable retention of approval and validation events; Premium recommended for Zone 3 (1-year+ retention)
     - **Microsoft Purview eDiscovery (Premium)** — recommended where validation evidence may become subject to legal hold
-    - **PyRIT** — open source (Microsoft AI Red Team org on GitHub); runs on customer infrastructure (laptop for Zone 1 dev work, Azure ML or Azure Government compute for Zone 2/3)
-
-!!! warning "Sovereign cloud parity caveat"
-    Copilot Studio is broadly available across **Commercial**, **GCC**, and **GCC High**, but feature parity for **Azure AI Foundry evaluators**, **safety evaluator families** (Hate/Unfairness, Self-Harm, Sexual, Violence, Protected Material, Indirect Attack, Code Vulnerability, Ungrounded Attributes), **Copilot Studio Agent Evaluation**, and **third-party model endpoints** can lag in **GCC**, **GCC High**, and **DoD**. The §2 sovereign cloud matrix documents the April 2026 state. Verify availability against your tenant before relying on any evaluator, and document compensating controls when a required evaluator is not available in your cloud.
+    - **PyRIT** — open source (Microsoft AI Red Team org on GitHub); runs on customer infrastructure (laptop for Zone 1 dev work, Azure ML or approved customer-hosted compute for Zone 2/3)
 
 ---
 
@@ -61,7 +58,6 @@ This section sets the boundary of what this walkthrough covers, distinguishes Co
 - **Three-signature attestation workflow** (Developer / Independent Validator / Compliance Officer)
 - **Material-change re-validation triggers** (model swap, prompt-orchestration change, knowledge-source change, action/plugin change)
 - **Zone-specific portal workflows** (Zone 1 / Zone 2 / Zone 3) with differentiated gate rigor and approval chains
-- **Sovereign cloud caveats** (Commercial / GCC / GCC High / DoD) per portal surface
 
 ### 0.2 What this playbook does NOT cover
 
@@ -103,7 +99,7 @@ Use this table to decide which surface is the correct one. The criterion is **ar
 | Curated test-set batch run (set-level scoring) | Copilot Studio → agent → **Tests** (Agent Evaluation) | Test Pane (no batch, no scoring, no version comparison) |
 | Quantitative quality grading (Groundedness, Relevance, Coherence, Fluency, Similarity, F1) | Azure AI Foundry → project → **Evaluation** → **+ New evaluation** | Copilot Studio Agent Evaluation (the in-product grader is not the same as Foundry's evaluator family) |
 | Risk and safety evaluators (Violence, Sexual, Self-Harm, Hate/Unfairness, Protected Material, Indirect Attack, Code Vulnerability, Ungrounded Attributes) | Azure AI Foundry → **Evaluation** → **Risk and safety evaluators** (backed by Azure AI Content Safety) | Copilot Studio Analytics (telemetry, not pre-deployment evaluation) |
-| Adversarial / red-team automation (jailbreak, indirect attack, RAG poisoning) | **PyRIT** (Python, local for Zone 1, Azure ML or Azure Government compute for Zone 2/3) → results into Foundry comparison or Sentinel | Manual prompt typing in Test Pane (not reproducible, not grader-scored) |
+| Adversarial / red-team automation (jailbreak, indirect attack, RAG poisoning) | **PyRIT** (Python, local for Zone 1, Azure ML or approved customer-hosted compute for Zone 2/3) → results into Foundry comparison or Sentinel | Manual prompt typing in Test Pane (not reproducible, not grader-scored) |
 | Solution-level static analysis | Power Apps maker → solution → **…** → **Solution checker** → **Run** | Pipelines stage approval (downstream of Checker; cannot substitute) |
 | Stage promotion (Dev → Test → Prod) with approval | Power Platform Admin Center (`admin.powerplatform.microsoft.com`) → **Pipelines** → pipeline → **Deployment stages** | Manual solution export/import (no approval audit, no SoD enforcement) |
 | Declarative-agent manifest lint + local sideload | **Microsoft 365 Agents Toolkit** in VS Code or `m365 atk validate` / `m365 atk preview` CLI | Test Pane (does not parse the declarative-agent manifest) |
@@ -123,7 +119,7 @@ Use this table to decide which surface is the correct one. The criterion is **ar
 - PyRIT documentation — <https://microsoft.github.io/PyRIT/>
 - Microsoft AI Red Team — <https://learn.microsoft.com/en-us/security/ai-red-team/>
 
-**Cloud parity:** All decision-matrix entries are GA in **Commercial**. **GCC** parity is current for Test Pane, Solution Checker, Pipelines, ATK, and Analytics; **rolling** for Agent Evaluation and Foundry evaluators. **GCC High** and **DoD** require explicit verification (see §2).
+**Availability:** All decision-matrix entries are GA in Commercial.
 **Roles touched:** AI Governance Lead, Copilot Studio Agent Author, Model Risk Manager, Power Platform Admin, Compliance Officer
 **Cross-links:** [Control 1.21](../../../controls/pillar-1-security/1.21-adversarial-input-logging.md), [Control 2.20](../../../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md), [Control 2.8](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md)
 
@@ -142,14 +138,14 @@ Every validation activity in this playbook produces an artifact in a different s
 | Power Platform Solution Checker | Static analysis of Power Platform solution | Developer / Validator | GA | Checker run + findings export (CSV/JSON) |
 | Power Platform Pipelines | Stage promotion + approval | Validator / Release Manager | GA | Pipeline + stage-approval audit |
 | Azure AI Foundry — Quality Evaluators | Groundedness, Relevance, Coherence, Fluency, Similarity, F1 | Independent Validator (Plane 3) | GA | Evaluation run + scorecard JSON |
-| Azure AI Foundry — Risk & Safety Evaluators | Hate/Unfairness, Self-Harm, Sexual, Violence, Protected Material, Indirect Attack, Code Vulnerability, Ungrounded Attributes | Independent Validator (Plane 3) | GA (Commercial); rolling in sovereign | Evaluation run + scorecard JSON |
+| Azure AI Foundry — Risk & Safety Evaluators | Hate/Unfairness, Self-Harm, Sexual, Violence, Protected Material, Indirect Attack, Code Vulnerability, Ungrounded Attributes | Independent Validator (Plane 3) | GA | Evaluation run + scorecard JSON |
 | PyRIT (open source) | Orchestrated adversarial probing | Independent Validator + AI Red Team (Plane 4) | OSS, no SLA | PyRIT YAML + JSONL results |
 | Microsoft 365 Agents Toolkit (CLI + VS Code) | Declarative-agent manifest validate / preview / sideload | Developer | GA | Local validation log + sideload bundle |
 | Copilot Studio Analytics → Quality | Production telemetry: abandonment, escalation, deflection, satisfaction | Operations + Compliance Officer (Plane 5) | GA | Analytics export (CSV/JSON), Quality dashboard snapshot |
-| Microsoft Purview DSPM for AI | Production prompt/response capture, sensitive-data interactions | Compliance + Operations | GA (Commercial); rolling in sovereign | DSPM report |
+| Microsoft Purview DSPM for AI | Production prompt/response capture, sensitive-data interactions | Compliance + Operations | GA | DSPM report |
 | Microsoft Purview Audit (Standard/Premium) | Durable retention of approval, evaluation, promotion events | Purview Audit Admin | GA | Audit log query export |
 
-### 1.2 Propagation and latency table (verify in pilot tenant during PRE-08)
+### 1.2 Propagation and latency table (verify in pilot tenant during PRE-05)
 
 | Action | Typical observed latency | Worst case observed | Notes |
 |---|---|---|---|
@@ -171,67 +167,18 @@ Every validation activity in this playbook produces an artifact in a different s
 !!! tip "Plan promotion windows around Plane 5 latency"
     The most common scheduling error is closing the post-deployment review gate before Analytics has surfaced the first 24 hours of production traffic. For Zone 3 agents, schedule the post-deployment validation review **no earlier than 48 hours after first production traffic**, and confirm Analytics has populated before counting the gate.
 
-**Cloud parity:** Latency floors are **roughly comparable** in **GCC**. **GCC High** and **DoD** can be 1.5×–3× slower for Foundry, DSPM, and Audit indexing during regional rollout windows; budget accordingly.
 **Roles touched:** All Plane 1–5 owners; AI Governance Lead for cadence calibration
 **Cross-links:** [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) for audit indexing, [Control 1.6](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) for DSPM cadence
 
 ---
 
-## §2. Sovereign cloud parity matrix (Commercial / GCC / GCC High / DoD)
-
-This section is the single source of truth for which validation surfaces are usable in which US sovereign cloud, **as of April 2026**. Verify against your tenant before relying on any row. When a required surface is not available, document the **compensating control** in the Validation Evidence Pack (§12) and obtain explicit acceptance per OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) model-risk expectations.
-
-### 2.1 Parity table
-
-| Surface | Commercial | GCC | GCC High | DoD |
-|---|---|---|---|---|
-| Copilot Studio Test Pane | GA | GA | GA | Verify in tenant |
-| Copilot Studio Topic Test | GA | GA | Rolling | Verify |
-| Copilot Studio Agent Evaluation (test sets, batch) | GA | Rolling | Not yet GA | Not yet GA |
-| Power Platform Solution Checker | GA | GA | GA | GA |
-| Power Platform Pipelines | GA | GA | Rolling | Verify |
-| Power Platform Managed Environments | GA | GA | GA | GA |
-| Azure AI Foundry — Quality evaluators (Groundedness, Relevance, Coherence, Fluency, Similarity, F1) | GA | Rolling (region-limited) | Not yet GA | Not yet GA |
-| Azure AI Foundry — Risk & Safety evaluators (full family) | GA | Rolling (region-limited; Self-Harm and Indirect Attack typically last) | Not yet GA | Not yet GA |
-| Azure AI Content Safety (backing for safety evaluators) | GA | Rolling | Limited | Limited |
-| PyRIT (OSS, customer-hosted) | Yes (any compute) | Yes (Azure compute) | Yes (Azure Government compute) | Yes (customer-hosted Azure Government) |
-| Microsoft 365 Agents Toolkit (CLI + VS Code) | GA | GA | GA | GA |
-| Copilot Studio Analytics → Quality | GA | GA | Rolling | Verify |
-| Microsoft Purview DSPM for AI | GA | Rolling | Verify | Verify |
-| Microsoft Purview Audit Premium | GA | GA | GA | GA |
-| Third-party model endpoints in Copilot (e.g., Anthropic Claude variants) | GA, opt-in | Limited | Not available without explicit agreement | Not available without explicit agreement |
-
-### 2.2 Operational implication for sovereign-cloud FSI tenants
-
-For **GCC High** and **DoD** customers who cannot rely on Azure AI Foundry evaluators or full safety evaluator parity, the interim Zone 3 validation stack is:
-
-1. **Plane 1+2 in tenant** — Copilot Studio Test Pane saved sets and (where available) Agent Evaluation, exported as evidence.
-2. **Plane 3 substitute** — PyRIT-on-Azure-Government compute running quality scorers (e.g., custom groundedness scorer using a tenant-approved model endpoint) plus content-safety scorer (where Azure AI Content Safety is available in the region) **OR** a documented manual SME quality review against a versioned rubric.
-3. **Plane 4** — PyRIT-on-Azure-Government adversarial campaign (PyRIT itself is OSS and runs anywhere; only the *target* and *scorer* model endpoints are constrained).
-4. **Plane 5** — Copilot Studio Analytics (where available) and tenant-side conversation logging via **[Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md)** as the closest sovereign-equivalent.
-5. **Compensating evidence** — Explicit Compliance Officer + Model Risk Manager memo accepting the model-risk gap, signed and stored in the Evidence Pack (§12), with quarterly re-evaluation as Foundry parity ships.
-
-### 2.3 Sovereign cloud reference URLs
-
-- Copilot Studio for US Government — <https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-licensing-gcc>
-- Microsoft 365 US Government service description — <https://learn.microsoft.com/en-us/office365/servicedescriptions/office-365-platform-service-description/office-365-us-government>
-- Azure Government documentation — <https://learn.microsoft.com/en-us/azure/azure-government/>
-- Power Platform US Government overview — <https://learn.microsoft.com/en-us/power-platform/admin/powerapps-us-government>
-
-!!! danger "Do not assume parity"
-    A repeat examiner finding in regulated-cloud FSI tenants is the **silent assumption** that a Commercial-cloud evaluator is also available in GCC High or DoD. Verify each evaluator family at the tenant level, and re-verify after every Microsoft service rollout window (typically monthly). Capture the verification step in the Evidence Pack with a timestamp and operator identity.
-
-**Cloud parity:** This entire section *is* the parity statement.
-**Roles touched:** AI Governance Lead, Power Platform Admin, Model Risk Manager, Compliance Officer
-**Cross-links:** [Control 4.7 §2.1](../../../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) for data residency and EU Data Boundary parity considerations
-
 ---
 
-## §3. Pre-flight gates PRE-01 through PRE-08
+## §2. Pre-flight gates PRE-01 through PRE-07
 
 These are the gates that **must close before any of Planes 1–4 is run** for a Zone 2 or Zone 3 agent. Each gate has a pass criterion, an evidence artifact, an owner, and a fail-closed action. The fail-closed action means the validation activity **does not start** until the gate is remediated.
 
-### 3.1 Gate definitions
+### 2.1 Gate definitions
 
 | Gate | Purpose | Owner | Fail-closed action |
 |---|---|---|---|
@@ -242,9 +189,8 @@ These are the gates that **must close before any of Planes 1–4 is run** for a 
 | **PRE-05** | Regression baseline established (prior production version's Foundry scorecard archived; if first release, golden-dataset baseline approved) | Model Risk Manager | Block Plane 3 run until baseline is in the Evidence Pack |
 | **PRE-06** | Regression suite version-pinned (test set + evaluator set + threshold file committed to source control with tag matching agent solution version) | Copilot Studio Agent Author + AI Governance Lead | Block validator handoff until version pin is in place |
 | **PRE-07** | Change-control window opened (RFC ticket linked to Pipelines stage approval; cross-link [Control 2.3](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md)) | Release Manager / AI Governance Lead | Block stage promotion until ticket is opened and approver named |
-| **PRE-08** | Sovereign cloud parity verified for the agent's target cloud (per §2 matrix); compensating controls documented if any required evaluator is unavailable | AI Governance Lead + Compliance Officer | Block Plane 3 / Plane 4 substitution path until compensating-control memo is signed |
 
-### 3.2 PRE-01 — Role separation (SR 26-2 segregation of duties)
+### 2.2 PRE-01 — Role separation (SR 26-2 segregation of duties)
 
 This gate is fail-closed and non-negotiable for Zone 3. It is the most frequent Fed SR 26-2 (formerly SR 11-7) examiner finding when AI testing programs are built without governance discipline.
 
@@ -255,13 +201,13 @@ This gate is fail-closed and non-negotiable for Zone 3. It is the most frequent 
 1. In Power Platform Admin Center (`admin.powerplatform.microsoft.com`) → **Pipelines** → select the pipeline → **Stages** → for each stage, list **Approvers**.
 2. In the **Test → Prod** stage, the **Approver** must not be a member of the **Maker** security role on the source environment.
 3. In Copilot Studio → agent → **Settings** → **Authors and editors**, list authors. None of the listed authors may be the Test → Prod approver.
-4. Capture screenshot evidence: `2.5-PRE01-roleseparation-<agent>-<yyyymmdd>.png`. Store in the Evidence Pack staging library (§12).
+4. Capture screenshot evidence: `2.5-PRE01-roleseparation-<agent>-<yyyymmdd>.png`. Store in the Evidence Pack staging library (§11).
 
 *Screenshot description: Power Platform Admin Center → Pipelines blade with the Test → Prod stage selected, showing the "Approvers" list with two named compliance roles, and a separate Copilot Studio Authors and editors blade showing distinct developer identities. The two lists have no overlap, and a callout annotation indicates "PRE-01 PASS — segregation of duties verified."*
 
 **Fail-closed action.** If overlap exists, raise a PRE-01 finding ticket against the agent owner, freeze the pipeline stage approval, and require remediation (re-assignment of approver, or recusal and named delegate) before any further validation activity proceeds. Document the freeze in the change-control ticket per [Control 2.3](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md) and [Control 2.8](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md).
 
-### 3.3 PRE-02 — Licensing posture
+### 2.3 PRE-02 — Licensing posture
 
 For each surface used in this playbook, confirm a current, paid license is provisioned **and** that the consumption budget for evaluator runs is approved. Foundry quality and safety evaluators are consumption-billed and have observed cost spikes when 10k+ row datasets are run without a budget cap.
 
@@ -274,13 +220,13 @@ For each surface used in this playbook, confirm a current, paid license is provi
 | Purview Audit Premium | Microsoft 365 admin center → **Billing** → confirm SKU | Subscription screenshot |
 | Azure AI Content Safety (backing safety evaluators) | Azure portal → Content Safety resource → **Pricing tier** | Resource pricing screenshot |
 
-### 3.4 PRE-03 — Environment isolation
+### 2.4 PRE-03 — Environment isolation
 
 Three Power Platform environments named (suggested convention) `<Agent>-Dev`, `<Agent>-Test`, `<Agent>-Prod`. Each with a **distinct DLP policy** scoped via Power Platform Admin Center → **Policies** → **Data policies**. The Test environment DLP policy must mirror the Prod policy as closely as possible (the only acceptable deltas are test-only connectors explicitly approved by the AI Governance Lead). Cross-link [Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) for DLP authoring and [Control 2.1](../../../controls/pillar-2-management/2.1-managed-environments.md) for Managed Environments policy.
 
 **Portal check:** Power Platform Admin Center → **Policies** → **Data policies** → list policies → confirm one policy bound to each environment. Export each policy's connector classification list as JSON evidence: `2.5-PRE03-dlp-<env>-<yyyymmdd>.json`.
 
-### 3.5 PRE-04 — Test data governance
+### 2.5 PRE-04 — Test data governance
 
 No production customer PII, MNPI, account numbers, or transaction-level financial data may be staged in `<Agent>-Dev` or `<Agent>-Test` without:
 
@@ -295,70 +241,62 @@ No production customer PII, MNPI, account numbers, or transaction-level financia
 - Public regulatory exam scenario corpora (FINRA exam priorities letters, SEC enforcement actions)
 - Internally authored "policy challenge" prompts derived from supervisory procedures, with all customer-identifying details replaced
 
-### 3.6 PRE-05 — Regression baseline
+### 2.6 PRE-05 — Regression baseline
 
 Before changing the model, prompt orchestration, knowledge source, or any plugin/action: capture the **current production version's** Foundry scorecard for both quality and safety evaluators against the version-pinned regression test set. Archive as `2.5-PRE05-baseline-<agent>-v<oldver>-<yyyymmdd>.json` in the Evidence Pack. This is the diff anchor for the next Plane 3 run.
 
 If the agent has no prior production version (first release), substitute a **golden-dataset baseline**: a Compliance Officer–approved set of 50–200 expected-answer prompts, run through the proposed agent, with each response scored by a named SME against a published rubric. Store the rubric and per-row scoring in the Evidence Pack.
 
-### 3.7 PRE-06 — Regression suite version-pinning
+### 2.7 PRE-06 — Regression suite version-pinning
 
 The validator's evaluation must be **reproducible**. That requires three artifacts committed to source control with a tag matching the agent solution version:
 
 1. `tests/agent-evaluation-set.jsonl` — the test set (input prompts, expected behaviors, context where applicable)
 2. `tests/foundry-evaluator-config.json` — the evaluator selection (which evaluators, which target endpoint, which thresholds)
-3. `tests/zone-thresholds.json` — the firm-defined pass thresholds per zone (see §7.7)
+3. `tests/zone-thresholds.json` — the firm-defined pass thresholds per zone (see §6.7)
 
 Store these in a Git repository under access control matching the agent's risk classification. Cross-link [Control 2.13](../../../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) for record-keeping requirements.
 
-### 3.8 PRE-07 — Change-control window
+### 2.8 PRE-07 — Change-control window
 
 A Pipelines stage promotion (Test → Prod for Zone 2; Dev → Test and Test → Prod for Zone 3) requires an open RFC ticket per [Control 2.3](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md). The ticket number must be referenced in the Pipelines stage **Comments** field at approval time and captured in the Evidence Pack.
 
-### 3.9 PRE-08 — Sovereign cloud parity verification
-
-For the target cloud, run the §2 parity matrix as a checklist. For any row showing "Rolling," "Not yet GA," or "Verify," document the substitute or compensating control in a memo signed by the AI Governance Lead and Compliance Officer. This memo is required evidence for Zone 3 promotion in any non-Commercial cloud.
-
-**Cloud parity:** PRE-08 is the parity gate itself.
-**Roles touched:** AI Governance Lead, Power Platform Admin, Environment Admin, Compliance Officer, Model Risk Manager, Purview Records Manager
-**Cross-links:** [Control 2.1](../../../controls/pillar-2-management/2.1-managed-environments.md), [Control 2.3](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md), [Control 2.8](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md), [Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md), [Control 1.14](../../../controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control.md)
-
 ---
 
-## §4. Roles, RBAC, and the SR 26-2 effective-challenge model
+## §3. Roles, RBAC, and the SR 26-2 effective-challenge model
 
-### 4.1 Canonical role mapping
+### 3.1 Canonical role mapping
 
 All role names below are drawn from `docs/reference/role-catalog.md`. Use these exact names in evidence artifacts and approval records to keep the Evidence Pack greppable across agents and audits.
 
 | Role | Plane(s) | Responsibility in this playbook |
 |---|---|---|
-| **AI Governance Lead** | All | Owns the testing standard, threshold catalog, exception path, and PRE-gate enforcement; chairs the three-signature attestation (§12) |
+| **AI Governance Lead** | All | Owns the testing standard, threshold catalog, exception path, and PRE-gate enforcement; chairs the three-signature attestation (§11) |
 | **AI Administrator** | 1, 2, 5 | Operates Microsoft 365 Copilot tenant settings that influence agent behavior; participates in re-validation review on tenant-policy change |
 | **Copilot Studio Agent Author** | 1, 2 | Performs developer smoke testing in Test Pane; authors Topic Tests; maintains the version-controlled regression suite (PRE-06); self-runs Solution Checker |
 | **Power Platform Admin** | 3 (PRE-02), 11 | Maintains Test environments, Solution Checker posture, Pipelines, Managed Environments policy, and capacity |
 | **Environment Admin** | 3 (PRE-03), 11 | Owns Dev/Test/Prod environment isolation, DLP scoping, and connector classification per environment |
 | **Pipeline Admin** | 11 | Configures Pipelines stages, approver rosters, and pre-deployment checks |
-| **Model Risk Manager** | 3, 4 | Performs **functionally independent** validation of Plane 3 evaluator scorecards and Plane 4 PyRIT campaign results; signs the Independent Validation Memo (§12.5) |
+| **Model Risk Manager** | 3, 4 | Performs **functionally independent** validation of Plane 3 evaluator scorecards and Plane 4 PyRIT campaign results; signs the Independent Validation Memo (§11.5) |
 | **Compliance Officer** | All | Reviews and signs higher-risk validation packages; verifies regulatory evidence for FINRA / SOX / OCC alignment; approves Test → Prod for Zone 3 |
 | **Designated Supervisor / Registered Principal** | 5, 6, 11 | Provides supervisory sign-off where AI-generated customer or broker-dealer communications are in scope under FINRA Rule 3110 |
 | **Purview Records Manager** | 12 | Confirms retention and defensible preservation of test evidence, approvals, and monitoring artifacts |
-| **Purview Audit Admin** | 12 | Operates the audit-log query and export workflow that provides durable evidence for the §12 pack |
+| **Purview Audit Admin** | 12 | Operates the audit-log query and export workflow that provides durable evidence for the §11 pack |
 | **Agent Owner** | All | Business-side accountability for the use case; signs UAT; provides production-readiness sign-off |
 | **AI Red Team** | 4 | Designs and executes the PyRIT campaign on the validator's behalf for Zone 3; reports findings to the Model Risk Manager |
 
-### 4.2 SR 26-2 effective challenge
+### 3.2 SR 26-2 effective challenge
 
 Federal Reserve SR 26-2 (formerly SR 11-7) (and OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12)) requires that material model risk decisions be subject to **effective challenge** — a critical analysis by objective, informed parties who can identify model limitations and assumptions and produce appropriate changes. In an AI-agent testing program this translates to three structural requirements:
 
 1. **Functional independence.** The validator does not report into, share incentive structures with, or owe deliverables to the developer. PRE-01 enforces this at the role level.
-2. **Documented challenge.** The Independent Validation Memo (§12.5) must record specific limitations, assumptions, and changes recommended or required. A memo that says "validation complete, no findings" without enumerating what was actually challenged is **not** effective challenge.
+2. **Documented challenge.** The Independent Validation Memo (§11.5) must record specific limitations, assumptions, and changes recommended or required. A memo that says "validation complete, no findings" without enumerating what was actually challenged is **not** effective challenge.
 3. **Influence.** The validator must have the authority to **fail** a Test → Prod promotion. The Pipelines stage approver routing in PRE-01 implements this.
 
 !!! warning "Effective challenge is not a checklist tick"
-    Examiners look at the **content** of the validation memo, not just the signature. The memo should reference specific evaluator scores, specific PyRIT findings, specific test-set rows that failed, and specific remediation. Memos that read as boilerplate are an examiner red flag. See §12.5 for the recommended memo structure.
+    Examiners look at the **content** of the validation memo, not just the signature. The memo should reference specific evaluator scores, specific PyRIT findings, specific test-set rows that failed, and specific remediation. Memos that read as boilerplate are an examiner red flag. See §11.5 for the recommended memo structure.
 
-### 4.3 Three-signature attestation chain
+### 3.3 Three-signature attestation chain
 
 Every Zone 3 promotion to production requires **three distinct signatures** captured durably in the Evidence Pack:
 
@@ -366,20 +304,19 @@ Every Zone 3 promotion to production requires **three distinct signatures** capt
 |---|---|---|
 | **Signature 1 — Developer** | Copilot Studio Agent Author | "I have run all developer tests, remediated all defects classified Critical or High, and the version-pinned test set in PRE-06 reflects the agent's intended behavior." |
 | **Signature 2 — Independent Validator** | Model Risk Manager | "I have independently run Plane 3 and Plane 4, the Evidence Pack accurately reflects the results, the agent meets the firm-defined Zone 3 thresholds, and I have applied effective challenge per Fed SR 26-2 (formerly SR 11-7)." |
-| **Signature 3 — Compliance Approver** | Compliance Officer | "I have reviewed the evidence pack, confirmed regulatory evidence captured, and approve promotion subject to the post-deployment monitoring cadence in §9." |
+| **Signature 3 — Compliance Approver** | Compliance Officer | "I have reviewed the evidence pack, confirmed regulatory evidence captured, and approve promotion subject to the post-deployment monitoring cadence in §8." |
 
 Where the agent participates in AI-generated customer or broker-dealer communications under FINRA Rule 3110, a **fourth** signature is required from the **Designated Supervisor / Registered Principal**.
 
-**Cloud parity:** Role separation enforcement is portal-feature-equivalent across Commercial, GCC, GCC High, DoD.
 **Roles touched:** All catalog roles named above
 **Cross-links:** [Control 2.8](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md), [Control 2.13](../../../controls/pillar-2-management/2.13-documentation-and-record-keeping.md), [docs/reference/role-catalog.md](../../../reference/role-catalog.md)
 
 ---
-## §5. Plane 1 — Copilot Studio Test Pane (developer smoke testing)
+## §4. Plane 1 — Copilot Studio Test Pane (developer smoke testing)
 
 The Test Pane is the right-rail conversational tester inside the Copilot Studio maker portal. It is **author-time, single-session, in-memory** testing. It is the right tool for a developer to verify a topic edit reflects in the conversation, to inspect variable state, and to capture a topic trace. It is **the wrong tool** to offer as Zone 2 or Zone 3 independent-validation evidence.
 
-### 5.1 Click-path
+### 4.1 Click-path
 
 1. Open Copilot Studio: <https://copilotstudio.microsoft.com>.
 2. Select the **Environment** matching the test stage (Dev or Test) from the environment switcher in the top right. Confirm the environment label in the breadcrumb. Wrong-environment testing is a recurring evidence error.
@@ -388,52 +325,51 @@ The Test Pane is the right-rail conversational tester inside the Copilot Studio 
 
 *Screenshot description: Copilot Studio agent canvas with the Test your agent pane open on the right. The pane shows a multi-turn conversation, a "Track between topics" toggle in the pane header, and a small "Reset" link to clear conversation state. The breadcrumb at the top reads "<Environment-Test> > Agents > <agent name>" so the environment context is visible.*
 
-### 5.2 Single-turn smoke test procedure
+### 4.2 Single-turn smoke test procedure
 
 1. In the Test Pane input, enter a representative utterance from the version-pinned regression set (PRE-06).
 2. Observe which **topic is triggered** (visible in the activity tray when "Track between topics" is enabled).
 3. Capture the response. If the response is wrong, navigate to the topic that should have triggered, fix the trigger phrases or routing, and use **Save & rerun** (GA) to retry without losing conversation context.
-4. Capture screenshot evidence per scenario tested: `2.5-S5-testpane-<agent>-<scenario>-<yyyymmdd>.png`. Store in the Evidence Pack staging library (§12).
+4. Capture screenshot evidence per scenario tested: `2.5-S5-testpane-<agent>-<scenario>-<yyyymmdd>.png`. Store in the Evidence Pack staging library (§11).
 
-### 5.3 Multi-turn scenario test procedure
+### 4.3 Multi-turn scenario test procedure
 
 1. Plan a scripted conversation that covers a **branching path** through the topic: a happy path, a clarification path, a refusal path, and an escalation path.
 2. Drive the script turn-by-turn in the Test Pane. After each turn, expand the activity tray to confirm the variable state (slot fill, entity capture, authentication state).
 3. Where the topic invokes a Power Automate flow or an action, verify the flow's run history in `make.powerautomate.com` for the same correlation ID. The Test Pane shows the flow was called; only the flow's run history confirms what it actually did.
 4. Capture a single screenshot of the full conversation transcript and save the transcript text via the **…** menu → **Copy conversation** (where available) into a `.txt` file: `2.5-S5-transcript-<agent>-<scenario>-<yyyymmdd>.txt`.
 
-### 5.4 Variable inspection and topic trace
+### 4.4 Variable inspection and topic trace
 
 1. In the Test Pane, with **Track between topics** enabled, expand the activity tray after a turn that should have triggered a topic redirection.
 2. Verify the **topic stack** shows the expected topic transition (e.g., "Greeting → Authenticate User → Account Inquiry").
 3. For each topic in the trace, expand the **Variables** view to confirm the slot values, entity captures, and any system variables (e.g., `User.DisplayName`, `Conversation.Id`).
 4. Where a variable is `null` or unexpected, return to the topic editor, locate the node responsible, fix, and re-run.
 
-### 5.5 What the Test Pane does *not* prove
+### 4.5 What the Test Pane does *not* prove
 
 | Claim that the Test Pane cannot support on its own | Where to go instead |
 |---|---|
 | "The agent passes the regression suite" | Plane 2 (Agent Evaluation) or Plane 3 (Foundry Evaluation) with a documented test set and pass threshold |
 | "The agent is groundedness-safe" | Plane 3 with the Groundedness evaluator |
 | "The agent is jailbreak-resilient" | Plane 4 (PyRIT) with documented orchestrators and scorers |
-| "The agent is approved by an independent validator" | §12 Independent Validation Memo signed by Model Risk Manager |
-| "The agent is fit for production" | The full §12 three-signature attestation chain |
+| "The agent is approved by an independent validator" | §11 Independent Validation Memo signed by Model Risk Manager |
+| "The agent is fit for production" | The full §11 three-signature attestation chain |
 
-**Inline references for §5:**
+**Inline references for §4:**
 
 - Test your agent — <https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-test-bot>
 
-**Cloud parity:** GA in Commercial, GCC, GCC High; verify in DoD.
 **Roles touched:** Copilot Studio Agent Author
-**Cross-links:** §6 (the next plane), [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) for evidence retention
+**Cross-links:** §5 (the next plane), [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) for evidence retention
 
 ---
 
-## §6. Plane 2 — Copilot Studio Agent Evaluation (curated test sets, batch, version compare)
+## §5. Plane 2 — Copilot Studio Agent Evaluation (curated test sets, batch, version compare)
 
 Agent Evaluation runs a curated test set (a JSONL or in-product authored set) against the published agent and produces per-row scoring against expected behaviors. It is the **regression harness** between releases and the **version-comparison** surface for promotion gating.
 
-### 6.1 Click-path
+### 5.1 Click-path
 
 1. Copilot Studio → agent → **Tests** (left nav under the agent; label may also appear as **Evaluation** depending on the rollout — verify in your tenant).
 2. **+ New test** to author a new test set, or **Import** to pull a JSONL test set from disk or a SharePoint library.
@@ -445,23 +381,23 @@ Agent Evaluation runs a curated test set (a JSONL or in-product authored set) ag
 
 *Screenshot description: Copilot Studio Tests blade with a list of saved test sets. The selected test set is open showing 47 test rows, each with columns for Input, Expected topic, Expected response substring, and Last result (Pass/Fail/Warn). The header shows "Run all," "Compare versions," and "Export" buttons.*
 
-### 6.2 Importing test sets from production conversations
+### 5.2 Importing test sets from production conversations
 
 A high-value source of new test rows is the **production conversation log**. Mining real conversations into the regression suite supports Fed SR 26-2 (formerly SR 11-7) ongoing-monitoring expectations and FINRA Rule 3110 supervisory testing scope.
 
-1. From the agent's Analytics blade (§9), filter to conversations with **negative feedback**, **escalations**, or **abandonment**.
+1. From the agent's Analytics blade (§8), filter to conversations with **negative feedback**, **escalations**, or **abandonment**.
 2. Export the filtered conversation transcripts to JSONL.
 3. Run the **synthesis pipeline** in `tests/import-prod-conversations.ipynb` (or your firm's equivalent) to anonymize, generalize, and convert each transcript into a test row with an expected behavior. **Anonymization is mandatory** — see PRE-04 and [Control 1.14](../../../controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control.md).
 4. Stage the new rows for review by the AI Governance Lead before merging into the version-pinned regression set.
 
-### 6.3 Batch run
+### 5.3 Batch run
 
 1. With a test set selected, click **Run all**. The batch executes against the **published** agent in the current environment.
 2. Wait for completion (latency floor 3–15 minutes for 50–200 row sets; longer for larger sets). Refresh the run if Analytics has not surfaced.
 3. Inspect the per-row results: **Pass / Warn / Fail**, with the first reason for failure surfaced inline.
 4. Click **Export results** → save as `2.5-S6-eval-<agent>-v<ver>-<yyyymmdd>.csv` (or `.json`) in the Evidence Pack staging library.
 
-### 6.4 Version comparison
+### 5.4 Version comparison
 
 1. With two versions of the agent published (e.g., v1.7 currently in Prod, v1.8 candidate in Test), use **Compare versions** in the Tests blade.
 2. The compare view shows row-by-row deltas: rows that newly pass, newly fail, or whose response materially changed.
@@ -470,11 +406,11 @@ A high-value source of new test rows is the **production conversation log**. Min
     - **Newly passing rows** — confirm intentional and update the regression baseline (PRE-05).
     - **Materially changed responses on still-passing rows** — sample 10% for human review by the Agent Author; escalate any concerning samples to the Independent Validator.
 
-### 6.5 Multi-dimensional graders
+### 5.5 Multi-dimensional graders
 
 Agent Evaluation supports lightweight in-product graders for response shape (substring match, regex match, expected-topic-triggered). For **semantic quality** grading (Groundedness, Relevance, Coherence) you should run the same test set through Plane 3 (Foundry). Treat Plane 2 as the **gatekeeper** (does the agent route correctly and produce a response in the expected shape?) and Plane 3 as the **quality scorer**.
 
-### 6.6 Scheduled runs
+### 5.6 Scheduled runs
 
 For Zone 2 and Zone 3 agents, schedule the Plane 2 batch on a recurring cadence aligned to the agent's risk classification:
 
@@ -486,22 +422,21 @@ For Zone 2 and Zone 3 agents, schedule the Plane 2 batch on a recurring cadence 
 
 Schedule via the Pipelines stage's pre-deployment check or via PowerShell automation in the [PowerShell Setup sibling playbook](powershell-setup.md).
 
-**Inline references for §6:**
+**Inline references for §5:**
 
 - Generate and import test sets — <https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-agent-evaluation-create>
 - Agent Evaluation overview — <https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-agent-evaluation-intro>
 
-**Cloud parity:** GA in Commercial. Rolling in GCC. Not yet GA in GCC High / DoD; sovereign-cloud customers should run an equivalent regression harness via PyRIT-on-Azure-Government per §2.2.
 **Roles touched:** Copilot Studio Agent Author, AI Governance Lead, Model Risk Manager (for compare-version review on Zone 3)
-**Cross-links:** §7 (Plane 3), §11 (Pipelines pre-deployment check wiring)
+**Cross-links:** §6 (Plane 3), §10 (Pipelines pre-deployment check wiring)
 
 ---
 
-## §7. Plane 3 — Azure AI Foundry Evaluation (quality + safety evaluators)
+## §6. Plane 3 — Azure AI Foundry Evaluation (quality + safety evaluators)
 
 This is the **load-bearing** independent-validation surface for Zone 2 and Zone 3 agents in Commercial cloud. It produces reproducible quantitative scores against documented evaluator families and is the surface most useful to Compliance and Model Risk for Fed SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC 2011-12) evidence.
 
-### 7.1 Project setup and dataset upload
+### 6.1 Project setup and dataset upload
 
 1. Open Azure AI Foundry: <https://ai.azure.com>.
 2. Select (or create) the **Hub** and **Project** matching the agent's environment. Naming convention: `<agent>-validation-<env>`.
@@ -517,7 +452,7 @@ This is the **load-bearing** independent-validation surface for Zone 2 and Zone 
 
 5. Tag the dataset version with the agent solution version (e.g., `agent-v1.8`) so the run is traceable in the Evidence Pack.
 
-### 7.2 Evaluator selection — Quality
+### 6.2 Evaluator selection — Quality
 
 | Evaluator | What it scores | When to use it |
 |---|---|---|
@@ -528,7 +463,7 @@ This is the **load-bearing** independent-validation surface for Zone 2 and Zone 
 | **Similarity** (AI-assisted) | Semantic similarity to a `ground_truth` reference | Agents with deterministic expected answers |
 | **F1** | Token-overlap measure against `ground_truth` | Extraction or summarization agents |
 
-### 7.3 Evaluator selection — Risk and Safety
+### 6.3 Evaluator selection — Risk and Safety
 
 Risk and Safety evaluators are backed by Azure AI Content Safety. Confirm region availability in your tenant.
 
@@ -543,25 +478,25 @@ Risk and Safety evaluators are backed by Azure AI Content Safety. Confirm region
 | **Code Vulnerability** | Generated code containing common vulnerability patterns (where the agent emits code) |
 | **Ungrounded Attributes** | Hallucinated attributes about people, organizations, or entities |
 
-### 7.4 Custom evaluators (FSI-specific)
+### 6.4 Custom evaluators (FSI-specific)
 
 Where firm-defined criteria (e.g., **suitability** for advice, **best-execution language** for trade communications, **conflict-of-interest disclosure** presence) are not covered by built-ins, author a custom evaluator using the Azure AI Evaluation SDK. Cross-link [Control 2.18](../../../controls/pillar-2-management/2.18-automated-conflict-of-interest-testing.md) for the conflict-of-interest custom evaluator pattern.
 
-### 7.5 Batch run procedure
+### 6.5 Batch run procedure
 
 1. Foundry project → **Evaluation** → **+ New evaluation**.
-2. Step 1 — **Basics**: name the run `<agent>-v<ver>-<env>-<yyyymmdd>`; select the dataset uploaded in §7.1.
+2. Step 1 — **Basics**: name the run `<agent>-v<ver>-<env>-<yyyymmdd>`; select the dataset uploaded in §6.1.
 3. Step 2 — **Target**: choose the agent endpoint. Options:
     - **Deployed Copilot Studio agent endpoint** (DirectLine secret) — closest to production behavior
     - **Azure OpenAI / model endpoint** behind the agent — for orchestration-isolated grading
     - **Pre-collected response file** — for offline grading where live invocation is not feasible
-4. Step 3 — **Evaluators**: select quality and safety evaluators from §7.2 and §7.3.
+4. Step 3 — **Evaluators**: select quality and safety evaluators from §6.2 and §6.3.
 5. Step 4 — **Run**: confirm consumption budget warning, click **Submit**.
 6. Wait for completion (10–45 min typical; see §1.2 latency table). Foundry surfaces a progress bar and per-evaluator status.
 
 *Screenshot description: Azure AI Foundry Evaluation wizard at the Evaluators step, showing checkboxes for Groundedness (selected), Relevance (selected), Coherence (selected), Fluency (selected), Similarity (selected), F1 (selected), Hate/Unfairness (selected), Self-Harm (selected), Sexual (selected), Violence (selected), Protected Material (selected), Indirect Attack (selected), and Ungrounded Attributes (selected). A consumption-cost estimate of "$~14 USD for 100 rows" appears at the bottom.*
 
-### 7.6 Scorecard interpretation
+### 6.6 Scorecard interpretation
 
 The completed evaluation surfaces:
 
@@ -572,7 +507,7 @@ The completed evaluation surfaces:
 
 Export the scorecard as JSON for the Evidence Pack: **Evaluation → Run → … → Export results** → save as `2.5-S7-foundry-<agent>-v<ver>-<yyyymmdd>.json`.
 
-### 7.7 Threshold configuration by zone (firm-defined; example baseline)
+### 6.7 Threshold configuration by zone (firm-defined; example baseline)
 
 These are illustrative defaults; your firm's AI Governance Lead and Model Risk Manager **must** ratify the actual thresholds and review them quarterly.
 
@@ -594,15 +529,15 @@ These are illustrative defaults; your firm's AI Governance Lead and Model Risk M
 !!! warning "Thresholds are firm-set, not Microsoft-set"
     Microsoft does not define your firm's pass mark for any evaluator. The values above are starting points derived from observed FSI-pilot baselines; your governance committee must ratify them and document the rationale in [Control 2.13](../../../controls/pillar-2-management/2.13-documentation-and-record-keeping.md). Do not approve a release on a single evaluator passing — promotion requires the **full evaluator panel** at zone-appropriate thresholds.
 
-### 7.8 Promotion gate wiring
+### 6.8 Promotion gate wiring
 
 1. Save the threshold config in `tests/zone-thresholds.json` (per PRE-06).
 2. After each Plane 3 run, the validator (Model Risk Manager) compares the scorecard JSON against the threshold JSON. The PowerShell helper `Compare-FoundryScorecardToThresholds.ps1` (in the [PowerShell Setup sibling playbook](powershell-setup.md)) automates this.
-3. Any threshold miss is a **fail-closed** event for the Pipelines Test → Prod stage. The validator records the miss in the Independent Validation Memo (§12.5) with recommended remediation.
+3. Any threshold miss is a **fail-closed** event for the Pipelines Test → Prod stage. The validator records the miss in the Independent Validation Memo (§11.5) with recommended remediation.
 
-### 7.9 Re-evaluation triggers
+### 6.9 Re-evaluation triggers
 
-Treat each of the following as a mandatory Plane 3 re-run, not an optional one. See §13 for the full material-change re-validation policy.
+Treat each of the following as a mandatory Plane 3 re-run, not an optional one. See §12 for the full material-change re-validation policy.
 
 - Foundation-model swap (e.g., GPT-4o → GPT-4.1; Anthropic Claude variant change)
 - Prompt-orchestration material change (system prompt, instruction set, persona)
@@ -610,33 +545,32 @@ Treat each of the following as a mandatory Plane 3 re-run, not an optional one. 
 - Action / plugin addition or material change
 - Microsoft service-side change in evaluator behavior (validate quarterly that Microsoft has not silently changed an evaluator's scoring scale)
 
-**Inline references for §7:**
+**Inline references for §6:**
 
 - Built-in evaluators reference — <https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/evaluation-metrics-built-in>
 - Run evaluations from Foundry portal — <https://learn.microsoft.com/en-us/azure/ai-foundry/how-to/develop/evaluate-sdk>
 - Evaluation approach — <https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/evaluation-approach-gen-ai>
 - Azure AI Content Safety overview — <https://learn.microsoft.com/en-us/azure/ai-services/content-safety/overview>
 
-**Cloud parity:** GA in Commercial. Rolling in GCC (region-bound). Not yet GA in GCC High / DoD — substitute per §2.2.
 **Roles touched:** Model Risk Manager (primary), Compliance Officer (review), Copilot Studio Agent Author (response capture support)
-**Cross-links:** §8 (Plane 4), §12 (Evidence Pack), [Control 2.11](../../../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md), [Control 2.18](../../../controls/pillar-2-management/2.18-automated-conflict-of-interest-testing.md)
+**Cross-links:** §7 (Plane 4), §11 (Evidence Pack), [Control 2.11](../../../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md), [Control 2.18](../../../controls/pillar-2-management/2.18-automated-conflict-of-interest-testing.md)
 
 ---
-## §8. Plane 4 — PyRIT adversarial campaign
+## §7. Plane 4 — PyRIT adversarial campaign
 
 PyRIT (Python Risk Identification Toolkit) is the Microsoft AI Red Team's open-source orchestration framework for adversarial probing of generative AI systems. It is not a portal feature — it is a Python library you run on customer-controlled compute. It is included in this Control 2.5 walkthrough because the **adversarial-resilience leg** of independent validation is required for Zone 3 agents and recommended for Zone 2 agents that interact with external users.
 
 For the broader red-team program design (attacker personas, campaign scoping, kill-chain coverage), see [Control 1.21 — Adversarial Input Logging](../../../controls/pillar-1-security/1.21-adversarial-input-logging.md) and [Control 2.20 — Adversarial Testing and Red Team Framework](../../../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md). This section covers the **portal hand-off** — where PyRIT inputs come from, how PyRIT outputs feed the Evidence Pack, and which portals operators look at to confirm a campaign is wired correctly.
 
-### 8.1 Hosting choice by zone
+### 7.1 Hosting choice by zone
 
 | Zone | Recommended PyRIT host | Rationale |
 |---|---|---|
 | Zone 1 (Personal) | Local laptop (developer use only) | No customer data exposure; not approved as Zone 2/3 evidence |
 | Zone 2 (Team) | Azure ML compute in the validator's subscription | Reproducible compute identity; tied to validator role |
-| Zone 3 (Enterprise) | Azure ML compute in a dedicated validation subscription with restricted access; **Azure Government** compute for sovereign-cloud agents | Validator-only access; logged compute identity; sovereign data path |
+| Zone 3 (Enterprise) | Azure ML compute in a dedicated validation subscription with restricted access | Validator-only access; logged compute identity |
 
-### 8.2 Orchestrator setup wizard (PyRIT side; portal-adjacent setup)
+### 7.2 Orchestrator setup wizard (PyRIT side; portal-adjacent setup)
 
 PyRIT does not have a portal "wizard" in the Copilot Studio sense — orchestrators are configured in YAML or Python. The portal-adjacent setup steps a validator performs are:
 
@@ -648,7 +582,7 @@ PyRIT does not have a portal "wizard" in the Copilot Studio sense — orchestrat
 3. **Bind scorer.** Choose which scoring backend: PyRIT's `SelfAskCategoryScorer`, `SubStringScorer`, or `AzureContentFilterScorer` (delegated to Azure AI Content Safety). For Zone 3, use a combination — substring for deterministic policy violations, content-safety for high-risk categories, self-ask for nuanced refusals.
 4. **Capture campaign config.** The PyRIT YAML or Python script is committed to the same Git repository as the regression suite (PRE-06), tagged with the agent solution version.
 
-### 8.3 Attack strategy selection (orchestrators and converters)
+### 7.3 Attack strategy selection (orchestrators and converters)
 
 | Orchestrator | What it does | When to use |
 |---|---|---|
@@ -668,7 +602,7 @@ PyRIT does not have a portal "wizard" in the Copilot Studio sense — orchestrat
 
 For Zone 3, the FSI baseline campaign should run **at least three converters** (`Base64`, `Persuasion`, `Translation`) across the `Crescendo` and `XPIA` orchestrators, plus a baseline `PromptSendingOrchestrator` run with no converter.
 
-### 8.4 Jailbreak / prompt-injection / safety battery
+### 7.4 Jailbreak / prompt-injection / safety battery
 
 The minimum FSI Zone 3 PyRIT battery covers the following categories. Each category should have **≥ 50 probes** drawn from a curated FSI corpus (the corpus itself is governed under [Control 1.21](../../../controls/pillar-1-security/1.21-adversarial-input-logging.md)):
 
@@ -685,7 +619,7 @@ The minimum FSI Zone 3 PyRIT battery covers the following categories. Each categ
 | RAG poisoning simulation | Test grounding documents with adversarial content |
 | Fairness probes | Demographic-attribute probes for disparate treatment (cross-link [Control 2.11](../../../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md)) |
 
-### 8.5 Campaign execution
+### 7.5 Campaign execution
 
 1. Validator (Model Risk Manager or AI Red Team operating on validator's behalf) executes the PyRIT script on the bound compute.
 2. PyRIT writes results as JSONL to the configured output path. Each row contains: prompt, response, scorer output, orchestrator name, converter chain, timestamp, target identifier.
@@ -701,7 +635,7 @@ The minimum FSI Zone 3 PyRIT battery covers the following categories. Each categ
 | Tool / connector misuse | ≤ 2% | ≤ 0.5% |
 | Refusal bypass | ≤ 5% | ≤ 1% |
 
-### 8.6 Results to Evidence Pack and Sentinel
+### 7.6 Results to Evidence Pack and Sentinel
 
 1. **Evidence Pack.** Save the PyRIT results JSONL and the summary scorecard:
     - `2.5-S8-pyrit-results-<agent>-v<ver>-<yyyymmdd>.jsonl`
@@ -709,7 +643,7 @@ The minimum FSI Zone 3 PyRIT battery covers the following categories. Each categ
 2. **Sentinel ingestion (Zone 3).** Stream the results JSONL into a Microsoft Sentinel custom table (`PyRITResults_CL`) via Azure Monitor Agent or Logic Apps. This connects PyRIT findings to Microsoft Defender for Cloud AI Threat Protection alerts and to the broader detection pipeline. Cross-link [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) and the [AI Incident Response Playbook](../../incident-and-risk/ai-incident-response-playbook.md).
 3. **Hand-off to detection tuning.** PyRIT findings should drive guardrail / prompt / knowledge-source / DLP rule improvements. Track each finding to a remediation ticket; the Evidence Pack records the ticket ID for each defect-rate-threshold miss.
 
-### 8.7 Cadence
+### 7.7 Cadence
 
 | Zone | Cadence | Trigger |
 |---|---|---|
@@ -717,24 +651,23 @@ The minimum FSI Zone 3 PyRIT battery covers the following categories. Each categ
 | Zone 2 | Monthly | Scheduled, plus on material change |
 | Zone 3 | Weekly | Scheduled, plus on material change, plus after any Plane 5 escalation spike |
 
-**Inline references for §8:**
+**Inline references for §7:**
 
 - PyRIT documentation — <https://microsoft.github.io/PyRIT/>
 - PyRIT install / getting started — <https://microsoft.github.io/PyRIT/getting-started/install/>
 - Microsoft AI Red Team — <https://learn.microsoft.com/en-us/security/ai-red-team/>
 - Run AI Red Teaming Agent (Foundry-hosted alternative) — <https://learn.microsoft.com/en-us/azure/ai-foundry/how-to/develop/run-scans-ai-red-teaming-agent>
 
-**Cloud parity:** PyRIT itself runs on any Python-capable compute. Targets and scorers are constrained by §2.
 **Roles touched:** Model Risk Manager, AI Red Team, Compliance Officer (review)
 **Cross-links:** [Control 1.21](../../../controls/pillar-1-security/1.21-adversarial-input-logging.md), [Control 2.20](../../../controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework.md), [AI Incident Response Playbook](../../incident-and-risk/ai-incident-response-playbook.md)
 
 ---
 
-## §9. Plane 5 — Post-deployment monitoring (Copilot Studio Analytics → Quality)
+## §8. Plane 5 — Post-deployment monitoring (Copilot Studio Analytics → Quality)
 
 Plane 5 is the **production-side closing leg** of the validation lifecycle. It is monitoring telemetry, not pre-deployment evidence. Its job is to detect drift, surface rotted edge cases, and trigger re-validation when production behavior diverges from the validated baseline.
 
-### 9.1 Click-path
+### 8.1 Click-path
 
 1. Copilot Studio → agent → **Analytics** (left nav).
 2. Default tab is **Overview**. Switch to the **Quality** tab (label may vary by rollout — verify in your tenant).
@@ -748,7 +681,7 @@ Plane 5 is the **production-side closing leg** of the validation lifecycle. It i
 
 *Screenshot description: Copilot Studio Analytics Quality tab showing four KPI tiles (Abandonment 7%, Escalation 12%, Satisfaction 4.1/5, p95 latency 2.4s), a 30-day trend chart, and a topic distribution bar chart at the bottom. A "Compare to baseline" toggle is visible in the header.*
 
-### 9.2 KPI interpretation for FSI
+### 8.2 KPI interpretation for FSI
 
 | KPI | FSI signal | Re-validation trigger |
 |---|---|---|
@@ -759,40 +692,39 @@ Plane 5 is the **production-side closing leg** of the validation lifecycle. It i
 | **Latency** | Performance and infrastructure signal; not a quality regression on its own but can mask grounding failures (e.g., RAG timeout falling back to ungrounded response) | Trigger orchestration review when p95 > documented SLO |
 | **Topic coverage drift** | Distribution change can indicate user behavior change or topic-routing regression | Trigger Plane 1 + Plane 2 re-run on material distribution shift |
 
-### 9.3 Drift threshold configuration
+### 8.3 Drift threshold configuration
 
 Set drift thresholds in `tests/zone-thresholds.json` (per PRE-06) so the Plane 5 alert wiring can fire automatically. Thresholds must be ratified by the AI Governance Lead and reviewed quarterly.
 
-### 9.4 Hand-off to DSPM for AI on flagged sessions
+### 8.4 Hand-off to DSPM for AI on flagged sessions
 
 For sessions flagged by negative feedback, escalation, or threshold breach, hand off to **Microsoft Purview DSPM for AI** ([Control 1.6](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md)) for prompt/response inspection and sensitive-data-interaction analysis. DSPM surfaces the actual conversation content (subject to the firm's retention and privacy policy).
 
-### 9.5 When to trigger formal re-validation
+### 8.5 When to trigger formal re-validation
 
 Plane 5 is **not** a substitute for re-validation. It is the **trigger** for re-running Planes 2, 3, and 4. Triggers are:
 
-1. Any drift threshold (§9.3) breached for the documented sustained-period
+1. Any drift threshold (§8.3) breached for the documented sustained-period
 2. Any safety-evaluator-relevant finding from Plane 5 (e.g., a flagged session containing what appears to be a successful jailbreak)
 3. Any Microsoft service-side change (model rollout, evaluator update, content-safety policy change)
-4. Any material change covered in §13
+4. Any material change covered in §12
 5. The agent's quarterly governance review cycle (cross-link [Control 3.8](../../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md))
 
-### 9.6 Hand-off to executive reporting
+### 8.6 Hand-off to executive reporting
 
 Monthly Quality KPI rollup feeds the executive governance dashboard via [Control 3.8](../../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md). Plane 5 is the source telemetry; Control 3.8 is the audience-formatted view.
 
-**Inline references for §9:**
+**Inline references for §8:**
 
 - Analytics overview — <https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-overview>
 - Measure and improve with analytics — <https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/analytics>
 - Analyze conversational agent effectiveness — <https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-improve-agent-effectiveness>
 - Analyze autonomous agent performance — <https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-improve-agent-health>
 
-**Cloud parity:** GA in Commercial, GA in GCC; rolling in GCC High; verify in DoD.
 **Roles touched:** Agent Owner, Compliance Officer, AI Governance Lead, Designated Supervisor / Registered Principal (FINRA 3110 escalation review)
 **Cross-links:** [Control 1.6](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md), [Control 3.8](../../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md)
 
-### 9.7 Granting read-only Analytics access (Analytics Viewer sharing role)
+### 8.7 Granting read-only Analytics access (Analytics Viewer sharing role)
 
 Plane 5 reviewers (Compliance Officer, Designated Supervisor, Model Risk Manager, Internal Audit) typically need to consult the Analytics tab without holding edit rights on the agent itself. Granting full agent edit rights to a reviewer creates a separation-of-duties finding under FINRA Rule 3110 and OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7).
 
@@ -802,21 +734,21 @@ To grant read-only analytics access:
 2. Open Copilot Studio → the agent → **three-dots (...)** menu (top-right of the agent header) → **Share**.
 3. In the Share dialog, search for the named individual reviewer.
 4. Set the role to **Analytics viewer**. This grants read-only access to the agent's Analytics page (Overview, Quality, Sessions, CSAT, Topics) without conferring permission to modify topics, knowledge, actions, or publish settings.
-5. (Optional, recommended for §9.4 hand-off) Also assign **Bot Transcript Viewer** to the same individual to expose conversation transcripts referenced from flagged Analytics rows.
+5. (Optional, recommended for §8.4 hand-off) Also assign **Bot Transcript Viewer** to the same individual to expose conversation transcripts referenced from flagged Analytics rows.
 6. Save.
 
 !!! warning "Individual users only — no security groups"
-    The Analytics Viewer role **can only be assigned to individual users**. Microsoft Entra security groups, distribution lists, and Microsoft 365 groups are **not supported** as assignment targets. Maintain a named-individual attestation list (suggested location: the Validation Evidence Pack, §12) and review it at the quarterly governance cycle. This list supports examiner traceability of who held read-only Analytics access during any given supervisory period.
+    The Analytics Viewer role **can only be assigned to individual users**. Microsoft Entra security groups, distribution lists, and Microsoft 365 groups are **not supported** as assignment targets. Maintain a named-individual attestation list (suggested location: the Validation Evidence Pack, §11) and review it at the quarterly governance cycle. This list supports examiner traceability of who held read-only Analytics access during any given supervisory period.
 
 !!! note "FSI mapping"
-    Use of Analytics Viewer (read-only) versus Co-owner (read-write) for reviewers helps meet the Fed SR 26-2 (formerly SR 11-7) effective-challenge expectation that independent validators do not also hold operational change rights on the model under review. Document the role split in the Validation Evidence Pack (§12) and in the role matrix at §4.
+    Use of Analytics Viewer (read-only) versus Co-owner (read-write) for reviewers helps meet the Fed SR 26-2 (formerly SR 11-7) effective-challenge expectation that independent validators do not also hold operational change rights on the model under review. Document the role split in the Validation Evidence Pack (§11) and in the role matrix at §3.
 
-**Inline references for §9.7:**
+**Inline references for §8.7:**
 
 - Share an agent — <https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-share-bots>
 - Analytics overview — <https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-overview>
 
-### 9.8 Agent effectiveness: 7-area review (May 2026 update)
+### 8.8 Agent effectiveness: 7-area review (May 2026 update)
 
 Copilot Studio Analytics provides **seven core areas** for reviewing and improving conversational agent effectiveness (updated May 2026; previously six areas). Plane 5 monitoring should include a periodic sweep of the **Analyze effectiveness** page to detect gaps across all seven areas.
 
@@ -833,25 +765,25 @@ The seven core areas are:
 7. **Knowledge source use** *(added May 2026)* — Learning how often individual knowledge sources are used and how often they return errors helps you improve the quality and coverage of your agent's answers.
 
 !!! note "FSI monitoring signal — Knowledge source use (area 7)"
-    The **Knowledge source use** panel is particularly relevant for RAG-grounded agents in FSI use cases. Rising knowledge-source error rates can indicate stale, unavailable, or misconfigured sources — a signal that should feed the re-validation trigger logic in §9.5 and the knowledge-source integrity checks in [Control 2.16](../../../controls/pillar-2-management/2.16-rag-source-integrity-validation.md). Document knowledge-source error rate baselines in the zone threshold file (`tests/zone-thresholds.json`, PRE-06) and configure threshold alerts.
+    The **Knowledge source use** panel is particularly relevant for RAG-grounded agents in FSI use cases. Rising knowledge-source error rates can indicate stale, unavailable, or misconfigured sources — a signal that should feed the re-validation trigger logic in §8.5 and the knowledge-source integrity checks in [Control 2.16](../../../controls/pillar-2-management/2.16-rag-source-integrity-validation.md). Document knowledge-source error rate baselines in the zone threshold file (`tests/zone-thresholds.json`, PRE-06) and configure threshold alerts.
 
 !!! info "Analytics data retention (May 2026)"
     Analytics data is available for up to **180 days**; session details and transcript information is available for the last **28 days** (per Microsoft Learn). Export flagged-session transcripts and quality snapshots to the Evidence Pack or a retention-bound store before the 28-day session window closes, especially for Zone 3 sessions subject to regulatory examination.
 
-**Inline references for §9.8:**
+**Inline references for §8.8:**
 
 - Analyze conversational agent effectiveness — <https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-improve-agent-effectiveness>
 - Analytics overview — <https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-overview>
 
-**Cross-links:** [Control 2.16](../../../controls/pillar-2-management/2.16-rag-source-integrity-validation.md) (RAG source integrity), §9.5 (re-validation triggers)
+**Cross-links:** [Control 2.16](../../../controls/pillar-2-management/2.16-rag-source-integrity-validation.md) (RAG source integrity), §8.5 (re-validation triggers)
 
 ---
 
-## §10. Microsoft 365 Agents Toolkit — local sideload and manifest validation
+## §9. Microsoft 365 Agents Toolkit — local sideload and manifest validation
 
 For declarative agents and other Microsoft 365 Copilot extensibility scenarios, the Microsoft 365 Agents Toolkit (ATK) is the **only pre-flight surface that parses the declarative-agent manifest**. Treat it as a developer-side validation surface that must close before the package enters the formal promotion pipeline.
 
-### 10.1 Click-path (VS Code)
+### 9.1 Click-path (VS Code)
 
 1. Open Visual Studio Code with the Microsoft 365 Agents Toolkit extension installed (search "Microsoft 365 Agents Toolkit" in the VS Code Extensions view).
 2. **File → Open Folder** → open the declarative-agent project folder.
@@ -859,7 +791,7 @@ For declarative agents and other Microsoft 365 Copilot extensibility scenarios, 
 4. **Preview** → **Microsoft 365 Copilot** → the toolkit launches a sideload session in the developer tenant; the agent appears in the M365 Copilot agent picker.
 5. Drive a representative scenario through the agent in the sideload session. Capture screenshot evidence.
 
-### 10.2 CLI-equivalent path
+### 9.2 CLI-equivalent path
 
 For repeatable validation in CI:
 
@@ -870,15 +802,15 @@ m365 atk preview --tenant <dev-tenant>
 
 Capture the validation log as `2.5-S10-atk-validate-<agent>-<yyyymmdd>.log` for the Evidence Pack.
 
-### 10.3 GitHub Actions / Azure DevOps wiring
+### 9.3 GitHub Actions / Azure DevOps wiring
 
 Wire `m365 atk validate` into the PR build for the declarative-agent repository. A failed validate is a fail-closed event for PR merge. Capture the GitHub Actions run URL in the Evidence Pack alongside the local validate log.
 
-### 10.4 Hand-off to formal promotion
+### 9.4 Hand-off to formal promotion
 
-ATK does **not** deploy declarative agents to production. Production deployment routes through the standard Microsoft 365 app-catalog path (admin center → **Integrated apps**) or, for tenant-managed declarative agents, through the Pipelines flow described in §11. ATK is the lint and preview gate; promotion is the catalog or Pipelines gate.
+ATK does **not** deploy declarative agents to production. Production deployment routes through the standard Microsoft 365 app-catalog path (admin center → **Integrated apps**) or, for tenant-managed declarative agents, through the Pipelines flow described in §10. ATK is the lint and preview gate; promotion is the catalog or Pipelines gate.
 
-**Inline references for §10:**
+**Inline references for §9:**
 
 - Microsoft 365 Agents Toolkit fundamentals — <https://learn.microsoft.com/en-us/microsoftteams/platform/toolkit/agents-toolkit-fundamentals>
 - Debug local / sideload — <https://learn.microsoft.com/en-us/microsoftteams/platform/toolkit/debug-local>
@@ -886,17 +818,16 @@ ATK does **not** deploy declarative agents to production. Production deployment 
 - Declarative agent overview — <https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/overview-declarative-agent>
 - ATK CLI (community) — <https://pnp.github.io/cli-microsoft365/>
 
-**Cloud parity:** ATK CLI runs on any developer workstation. Sideload availability follows the M365 Copilot tenant's cloud (Commercial / GCC / GCC High / DoD).
 **Roles touched:** Copilot Studio Agent Author (for declarative agents), Power Platform Admin (for catalog promotion)
-**Cross-links:** §11, [Control 2.1](../../../controls/pillar-2-management/2.1-managed-environments.md)
+**Cross-links:** §10, [Control 2.1](../../../controls/pillar-2-management/2.1-managed-environments.md)
 
 ---
 
-## §11. Power Platform Solution Checker and Pipelines as promotion gates
+## §10. Power Platform Solution Checker and Pipelines as promotion gates
 
 This section covers the **deployment-side gates**: static analysis (Solution Checker) and approval-routed promotion (Pipelines). They are distinct from behavioral evaluation (Planes 1–4) and from production telemetry (Plane 5). All four gate families must close for a Zone 3 release.
 
-### 11.1 Solution Checker
+### 10.1 Solution Checker
 
 **Click-path:**
 
@@ -920,7 +851,7 @@ This section covers the **deployment-side gates**: static analysis (Solution Che
 
 **Exception register.** For any High exception, capture an entry: agent name, agent version, rule ID, rationale for the exception, residual risk statement, AI Governance Lead signature, expiry date (≤ 90 days; must re-evaluate at expiry).
 
-### 11.2 Power Platform Pipelines
+### 10.2 Power Platform Pipelines
 
 **Click-path:**
 
@@ -934,7 +865,7 @@ This section covers the **deployment-side gates**: static analysis (Solution Che
     - **Pre-deployment checks** (Solution Checker re-run, Managed Environment policy eval, DLP impact preview)
     - **Post-deployment validation** (optional; can wire to Plane 2 batch trigger)
 
-### 11.3 Stage approval workflow
+### 10.3 Stage approval workflow
 
 When a stage promotion is requested:
 
@@ -947,7 +878,7 @@ When a stage promotion is requested:
     - The Evidence Pack link (provided in the request **Comments** field)
 4. Approver clicks **Approve** or **Reject**. The decision is captured in the pipeline run history with timestamp and approver identity.
 
-### 11.4 Pre-deployment checks built into Pipelines
+### 10.4 Pre-deployment checks built into Pipelines
 
 | Check | Purpose | Configurable per stage |
 |---|---|---|
@@ -956,7 +887,7 @@ When a stage promotion is requested:
 | **DLP impact preview** | Surface connectors that would be newly blocked or newly allowed | Yes; recommend ON for Test → Prod |
 | **Solution-import dry-run** | Verify the import will succeed | Yes; recommend ON for all stages |
 
-### 11.5 Rollback
+### 10.5 Rollback
 
 Pipelines retains deployment history per stage. Rollback path:
 
@@ -966,7 +897,7 @@ Pipelines retains deployment history per stage. Rollback path:
 
 **Practice the rollback drill quarterly.** A rollback that has never been exercised should not be relied on at incident time.
 
-### 11.6 Mapping to the parent control's Gate framework
+### 10.6 Mapping to the parent control's Gate framework
 
 The parent Control 2.5 names four lifecycle gates (Gate 1 / 2 / 3 / 4). The Pipelines stages map as follows:
 
@@ -975,9 +906,9 @@ The parent Control 2.5 names four lifecycle gates (Gate 1 / 2 / 3 / 4). The Pipe
 | Gate 1 (Design → Build) | Pre-pipeline; tracked in change-control ticket per [Control 2.3](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md) |
 | Gate 2 (Build → Evaluate) | Dev → Test pipeline stage approval (validator approves) |
 | Gate 3 (Evaluate → Deploy) | Test → UAT or Test → Prod pipeline stage approval (Compliance approves) |
-| Gate 4 (Deploy → Monitor) | Plane 5 cadence + post-deployment review captured in §12.7 |
+| Gate 4 (Deploy → Monitor) | Plane 5 cadence + post-deployment review captured in §11.7 |
 
-**Inline references for §11:**
+**Inline references for §10:**
 
 - Solution Checker overview — <https://learn.microsoft.com/en-us/power-apps/maker/data-platform/diagnose-solutions>
 - Use Solution Checker — <https://learn.microsoft.com/en-us/power-apps/maker/data-platform/diagnose-solutions>
@@ -985,16 +916,15 @@ The parent Control 2.5 names four lifecycle gates (Gate 1 / 2 / 3 / 4). The Pipe
 - Managed Environments overview — <https://learn.microsoft.com/en-us/power-platform/admin/managed-environment-overview>
 - Power Platform Build Tools (Azure DevOps) — <https://learn.microsoft.com/en-us/power-platform/alm/devops-build-tools>
 
-**Cloud parity:** Solution Checker GA across Commercial, GCC, GCC High, DoD. Pipelines GA in Commercial and GCC; rolling in GCC High; verify in DoD. Managed Environments GA across all clouds.
 **Roles touched:** Power Platform Admin, Pipeline Admin, Environment Admin, AI Governance Lead, Compliance Officer
-**Cross-links:** §10, §12, [Control 2.1](../../../controls/pillar-2-management/2.1-managed-environments.md), [Control 2.3](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md), [Control 2.8](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md)
+**Cross-links:** §9, §11, [Control 2.1](../../../controls/pillar-2-management/2.1-managed-environments.md), [Control 2.3](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md), [Control 2.8](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md)
 
 ---
-## §12. Validation Evidence Pack assembly with SHA-256 hashing and three-signature attestation
+## §11. Validation Evidence Pack assembly with SHA-256 hashing and three-signature attestation
 
 The Evidence Pack is the durable, audit-ready artifact bundle that supports a Zone 2 or Zone 3 promotion decision. It is the artifact a regulator, internal auditor, or independent validator inspects months or years later. Its structure must be predictable, hashed for tamper-evidence, and stored in a retention-policy-bound location.
 
-### 12.1 Storage location
+### 11.1 Storage location
 
 | Zone | Storage | Retention | Tamper-evidence |
 |---|---|---|---|
@@ -1005,7 +935,7 @@ The Evidence Pack is the durable, audit-ready artifact bundle that supports a Zo
 !!! warning "Personal OneDrive is not Evidence Pack storage"
     A repeat finding: Evidence Packs stored in a developer's or validator's personal OneDrive. Personal OneDrive is not retention-policy-bound, is not hold-eligible, and does not survive identity changes. The Evidence Pack must live in a shared, retention-bound, role-restricted library.
 
-### 12.2 Naming convention
+### 11.2 Naming convention
 
 `2.5-S<section>-<artifact>-<agent>-v<version>-<yyyymmdd>.<ext>`
 
@@ -1017,7 +947,7 @@ Examples:
 - `2.5-S8-pyrit-summary-CustomerInquiryAgent-v1.8-20260415.json`
 - `2.5-S12-attestation-CustomerInquiryAgent-v1.8-20260415.pdf`
 
-### 12.3 Required artifacts (≥ 20 numbered)
+### 11.3 Required artifacts (≥ 20 numbered)
 
 | # | Artifact | Producer (role) | Plane / Stage | Format | Retention (Z1 / Z2 / Z3) |
 |---|---|---|---|---|---|
@@ -1029,30 +959,28 @@ Examples:
 | 6 | Regression baseline scorecard (PRE-05) | Model Risk Manager | PRE | JSON | 1 / 3 / 6 yr |
 | 7 | Version-pinned test set + evaluator config + thresholds (PRE-06) | Copilot Studio Agent Author + AI Governance Lead | PRE | JSONL + JSON | 1 / 3 / 6 yr |
 | 8 | Change-control ticket reference (PRE-07) | Release Manager | PRE | URL + PDF | 1 / 3 / 6 yr |
-| 9 | Sovereign-cloud parity verification + compensating-control memo (PRE-08) | AI Governance Lead + Compliance Officer | PRE | PDF | 1 / 3 / 6 yr |
-| 10 | Test Pane saved scenarios (Plane 1) | Copilot Studio Agent Author | Plane 1 | PNG + TXT transcripts | 1 / 3 / 6 yr |
-| 11 | Topic Test all-paths matrix (Plane 1) | Copilot Studio Agent Author | Plane 1 | XLSX / CSV | 1 / 3 / 6 yr |
-| 12 | Agent Evaluation batch run results (Plane 2) | Copilot Studio Agent Author | Plane 2 | CSV / JSON | 1 / 3 / 6 yr |
-| 13 | Agent Evaluation version-comparison report (Plane 2) | Copilot Studio Agent Author | Plane 2 | PDF / JSON | n/a / 3 / 6 yr |
-| 14 | Foundry quality evaluator scorecard (Plane 3) | Model Risk Manager | Plane 3 | JSON | n/a / 3 / 6 yr |
-| 15 | Foundry risk & safety evaluator scorecard (Plane 3) | Model Risk Manager | Plane 3 | JSON | n/a / 3 / 6 yr |
-| 16 | PyRIT campaign config + results JSONL (Plane 4) | Model Risk Manager + AI Red Team | Plane 4 | YAML + JSONL | n/a / 3 / 6 yr |
-| 17 | PyRIT defect-rate summary scorecard (Plane 4) | Model Risk Manager | Plane 4 | JSON | n/a / 3 / 6 yr |
-| 18 | Solution Checker findings export (developer self-run) | Copilot Studio Agent Author | Plane 11 | CSV / JSON | 1 / 3 / 6 yr |
-| 19 | Solution Checker findings export (validator re-run) | Model Risk Manager | Plane 11 | CSV / JSON | n/a / 3 / 6 yr |
-| 20 | ATK validate log (declarative agents only) | Copilot Studio Agent Author | Plane 10 | TXT | 1 / 3 / 6 yr |
-| 21 | Pipelines stage approval audit (Dev → Test, Test → Prod) | Pipeline Admin | Plane 11 | JSON / PDF | 1 / 3 / 6 yr |
-| 22 | Independent Validation Memo (§12.5) | Model Risk Manager | Stage 2 | PDF, signed | n/a / 3 / 6 yr |
-| 23 | UAT sign-off | Agent Owner | Stage 2 | PDF | 1 / 3 / 6 yr |
-| 24 | RCA report on any failure that blocked promotion | Copilot Studio Agent Author + Model Risk Manager | Stage 2 | PDF | n/a / 3 / 6 yr |
-| 25 | Compliance Officer production-readiness sign-off (Zone 3) | Compliance Officer | Stage 2 | PDF, signed | n/a / n/a / 6 yr |
-| 26 | Designated Supervisor / Registered Principal sign-off (FINRA 3110 in scope) | Designated Supervisor / Registered Principal | Stage 2 | PDF, signed | n/a / n/a / 6 yr |
-| 27 | Plane 5 monthly Quality export | Agent Owner | Plane 5 | CSV / JSON | 1 / 3 / 6 yr (rolling) |
-| 28 | Purview DSPM for AI monthly report | Compliance Officer | Plane 5 | PDF / CSV | 1 / 3 / 6 yr (rolling) |
-| 29 | Drift-trigger ticket linking back to Plane 2/3/4 re-validation | AI Governance Lead | Plane 5 | URL + PDF | n/a / 3 / 6 yr |
-| 30 | Manifest of all artifacts above with SHA-256 hashes | AI Governance Lead | Stage 2 | TSV / JSON | 1 / 3 / 6 yr |
-
-### 12.4 SHA-256 capture (PowerShell snippet)
+| 9 | Test Pane saved scenarios (Plane 1) | Copilot Studio Agent Author | Plane 1 | PNG + TXT transcripts | 1 / 3 / 6 yr |
+| 10 | Topic Test all-paths matrix (Plane 1) | Copilot Studio Agent Author | Plane 1 | XLSX / CSV | 1 / 3 / 6 yr |
+| 11 | Agent Evaluation batch run results (Plane 2) | Copilot Studio Agent Author | Plane 2 | CSV / JSON | 1 / 3 / 6 yr |
+| 12 | Agent Evaluation version-comparison report (Plane 2) | Copilot Studio Agent Author | Plane 2 | PDF / JSON | n/a / 3 / 6 yr |
+| 13 | Foundry quality evaluator scorecard (Plane 3) | Model Risk Manager | Plane 3 | JSON | n/a / 3 / 6 yr |
+| 14 | Foundry risk & safety evaluator scorecard (Plane 3) | Model Risk Manager | Plane 3 | JSON | n/a / 3 / 6 yr |
+| 15 | PyRIT campaign config + results JSONL (Plane 4) | Model Risk Manager + AI Red Team | Plane 4 | YAML + JSONL | n/a / 3 / 6 yr |
+| 16 | PyRIT defect-rate summary scorecard (Plane 4) | Model Risk Manager | Plane 4 | JSON | n/a / 3 / 6 yr |
+| 17 | Solution Checker findings export (developer self-run) | Copilot Studio Agent Author | Plane 11 | CSV / JSON | 1 / 3 / 6 yr |
+| 18 | Solution Checker findings export (validator re-run) | Model Risk Manager | Plane 11 | CSV / JSON | n/a / 3 / 6 yr |
+| 19 | ATK validate log (declarative agents only) | Copilot Studio Agent Author | Plane 10 | TXT | 1 / 3 / 6 yr |
+| 20 | Pipelines stage approval audit (Dev → Test, Test → Prod) | Pipeline Admin | Plane 11 | JSON / PDF | 1 / 3 / 6 yr |
+| 21 | Independent Validation Memo (§11.5) | Model Risk Manager | Stage 2 | PDF, signed | n/a / 3 / 6 yr |
+| 22 | UAT sign-off | Agent Owner | Stage 2 | PDF | 1 / 3 / 6 yr |
+| 23 | RCA report on any failure that blocked promotion | Copilot Studio Agent Author + Model Risk Manager | Stage 2 | PDF | n/a / 3 / 6 yr |
+| 24 | Compliance Officer production-readiness sign-off (Zone 3) | Compliance Officer | Stage 2 | PDF, signed | n/a / n/a / 6 yr |
+| 25 | Designated Supervisor / Registered Principal sign-off (FINRA 3110 in scope) | Designated Supervisor / Registered Principal | Stage 2 | PDF, signed | n/a / n/a / 6 yr |
+| 26 | Plane 5 monthly Quality export | Agent Owner | Plane 5 | CSV / JSON | 1 / 3 / 6 yr (rolling) |
+| 27 | Purview DSPM for AI monthly report | Compliance Officer | Plane 5 | PDF / CSV | 1 / 3 / 6 yr (rolling) |
+| 28 | Drift-trigger ticket linking back to Plane 2/3/4 re-validation | AI Governance Lead | Plane 5 | URL + PDF | n/a / 3 / 6 yr |
+| 29 | Manifest of all artifacts above with SHA-256 hashes | AI Governance Lead | Stage 2 | TSV / JSON | 1 / 3 / 6 yr |
+### 11.4 SHA-256 capture (PowerShell snippet)
 
 For each artifact, capture the hash at deposit time. The full automation is in the [PowerShell Setup sibling playbook](powershell-setup.md). The minimum interactive capture is:
 
@@ -1064,7 +992,7 @@ Get-ChildItem -Path .\evidence\2.5\<agent>\v<ver>\ -File -Recurse |
 
 The resulting `manifest-sha256.tsv` is artifact #30. Subsequent re-hash on inspection should produce identical hashes; any delta is a tamper-evidence finding.
 
-### 12.5 Independent Validation Memo structure (Zone 3)
+### 11.5 Independent Validation Memo structure (Zone 3)
 
 The memo is artifact #22 and is the heart of the Fed SR 26-2 (formerly SR 11-7) effective-challenge evidence. It should be 3–10 pages and structured as follows:
 
@@ -1078,7 +1006,7 @@ The memo is artifact #22 and is the heart of the Fed SR 26-2 (formerly SR 11-7) 
 8. **Promotion decision.** Recommend / Recommend-with-conditions / Do-not-promote. Conditions enumerated.
 9. **Validator signature.** Name, role, date, signature.
 
-### 12.6 Three-signature attestation workflow
+### 11.6 Three-signature attestation workflow
 
 The promotion decision is recorded as a single attestation document (artifact #25 for Zone 3) signed by three (or four for FINRA 3110 in-scope) parties. Suggested workflow:
 
@@ -1090,7 +1018,7 @@ The promotion decision is recorded as a single attestation document (artifact #2
 
 *Screenshot description: Signed attestation PDF showing four signature blocks — Developer (Copilot Studio Agent Author), Independent Validator (Model Risk Manager), Compliance Approver (Compliance Officer), Supervisory Approver (Designated Supervisor / Registered Principal) — each with name, role, date, and digital signature certificate metadata. The document SHA-256 is printed in the footer.*
 
-### 12.7 Post-deployment review (Gate 4 closing)
+### 11.7 Post-deployment review (Gate 4 closing)
 
 For Zone 3, schedule the **post-deployment review** 30 days after first production traffic. Review:
 
@@ -1101,31 +1029,29 @@ For Zone 3, schedule the **post-deployment review** 30 days after first producti
 
 The post-deployment review minutes are added to the Evidence Pack as artifact #29 (or a dated rolling record). Failure to complete the post-deployment review on cadence is itself an examiner finding.
 
-**Cloud parity:** Evidence storage and SHA-256 capture are tooling-equivalent across all clouds. eDiscovery and Purview Audit Premium availability follows §2.
-**Roles touched:** All catalog roles named in §4
+**Roles touched:** All catalog roles named in §3
 **Cross-links:** [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), [Control 1.19](../../../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md), [Control 2.13](../../../controls/pillar-2-management/2.13-documentation-and-record-keeping.md)
 
 ---
 
-## §13. Material-change re-validation triggers and zone-specific portal workflows
+## §12. Material-change re-validation triggers and zone-specific portal workflows
 
-### 13.1 Material-change re-validation triggers
+### 12.1 Material-change re-validation triggers
 
 Each of the events below is a **mandatory re-validation event**. The minimum re-validation scope is shown for each. The AI Governance Lead may broaden scope based on the magnitude of the change.
 
 | Trigger | Minimum re-run | Rationale |
 |---|---|---|
 | **Foundation-model swap** (e.g., GPT-4o ↔ GPT-4.1; Anthropic Claude variant change) | Plane 2 + Plane 3 (full evaluator panel) + Plane 4 | Model behavior, safety, latency, and groundedness can shift materially across models; Fed SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC 2011-12) model-change expectation |
-| **Provider change** (e.g., switch from Azure OpenAI to a third-party provider for any path) | Plane 2 + Plane 3 + Plane 4 + PRE-08 sovereign re-verification | New subprocessor implications, new safety stance, new data path |
+| **Provider change** (e.g., switch from Azure OpenAI to a third-party provider for any path) | Plane 2 + Plane 3 + Plane 4 | New subprocessor implications, new safety stance, new data path |
 | **Prompt-orchestration change** (system prompt, instructions, persona, tool-use policy) | Plane 2 + Plane 3 (Groundedness, Relevance, Indirect Attack at minimum) | Orchestration changes can silently change refusal behavior, scope adherence, and grounding fidelity |
 | **Knowledge-source change** (new SharePoint site, new RAG index, new connector, removal of an existing source) | Plane 2 + Plane 3 (Groundedness, Indirect Attack) + Plane 4 (XPIA orchestrator) | New grounding can introduce indirect-attack vectors; removed grounding can cause silent quality regression |
 | **Action / plugin change** (new connector, new Power Automate flow, modified scope) | Plane 2 + Plane 3 + Plane 4 (Tool / connector misuse category) + DLP impact preview in Pipelines | Connector scope changes can introduce data egress paths |
 | **Material change to existing topic logic** | Plane 1 + Plane 2 | Single-topic regression risk |
 | **Microsoft service-side rollout** (model rollout, evaluator update, content-safety policy change) | Quarterly Plane 3 re-run; ad-hoc if Microsoft notes a material change | Microsoft does not always pre-announce evaluator changes |
 | **Drift threshold breach in Plane 5** | Plane 2 + Plane 3 (the evaluator family aligned to the breached KPI) | Production drift trigger |
-| **Sovereign cloud rollout change** | Re-run PRE-08 + any newly available evaluator family | Compensating-control memo may be retirable |
 
-### 13.2 Champion / challenger A/B comparison
+### 12.2 Champion / challenger A/B comparison
 
 For material model swaps, run a **champion / challenger** comparison:
 
@@ -1135,9 +1061,9 @@ For material model swaps, run a **champion / challenger** comparison:
 4. Produce a side-by-side scorecard (per-evaluator delta with statistical significance where dataset size supports it).
 5. Promotion of the challenger requires the AI Governance Lead and Compliance Officer to accept the deltas in writing. Any regression > 5% on a quality evaluator or any new safety-evaluator threshold miss is a fail-closed event.
 
-### 13.3 Zone-specific portal workflows
+### 12.3 Zone-specific portal workflows
 
-#### 13.3.1 Zone 1 (Personal)
+#### 12.3.1 Zone 1 (Personal)
 
 | Aspect | Zone 1 expectation |
 |---|---|
@@ -1150,7 +1076,7 @@ For material model swaps, run a **champion / challenger** comparison:
 | Evidence Pack retention | 1 year minimum |
 | Re-validation triggers | Material change to model, prompt, knowledge source |
 
-#### 13.3.2 Zone 2 (Team)
+#### 12.3.2 Zone 2 (Team)
 
 | Aspect | Zone 2 expectation |
 |---|---|
@@ -1163,7 +1089,7 @@ For material model swaps, run a **champion / challenger** comparison:
 | Evidence Pack retention | 3 years minimum |
 | Re-validation triggers | Material change to model, prompt, knowledge source, action; quarterly |
 
-#### 13.3.3 Zone 3 (Enterprise)
+#### 12.3.3 Zone 3 (Enterprise)
 
 | Aspect | Zone 3 expectation |
 |---|---|
@@ -1174,20 +1100,19 @@ For material model swaps, run a **champion / challenger** comparison:
 | Analytics (Plane 5) | **Required**; weekly review; monthly Compliance Officer review |
 | Approval chain | **Three-signature** (Developer + Independent Validator + Compliance Officer); **four-signature** if FINRA 3110 communications in scope |
 | Evidence Pack retention | 6 years minimum (FINRA 4511 / SEC 17a-4(b)(4) baseline; verify against firm WSP) |
-| Re-validation triggers | All triggers in §13.1; mandatory re-validation on every material change |
+| Re-validation triggers | All triggers in §12.1; mandatory re-validation on every material change |
 | Independent validation | **Required** per Fed SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC 2011-12); documented Independent Validation Memo |
 | Supervisory review | **Required** for AI-generated customer / broker-dealer communications per FINRA Rule 3110 |
 | Post-deployment review | **Required** at 30 days post-promotion |
 
-**Cloud parity:** Zone-tier expectations are policy-equivalent across clouds; satisfaction depends on §2 surface availability.
 **Roles touched:** All catalog roles
 **Cross-links:** [Control 2.3](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md), [Control 3.1](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md), [Control 3.8](../../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md)
 
 ---
 
-## §14. Verification checklist, anti-patterns, and companion playbook handoffs
+## §13. Verification checklist, anti-patterns, and companion playbook handoffs
 
-### 14.1 Verification checklist (≥ 30 numbered)
+### 13.1 Verification checklist (≥ 30 numbered)
 
 Use this as the operator's pre-promotion self-check and as the examiner walk-through script.
 
@@ -1198,36 +1123,33 @@ Use this as the operator's pre-promotion self-check and as the examiner walk-thr
 5. PRE-05 regression baseline scorecard archived with timestamp matching the prior production version.
 6. PRE-06 version-pinned test set, evaluator config, and threshold file committed to source control with a tag matching the agent solution version.
 7. PRE-07 change-control ticket open and referenced in Pipelines stage Comments.
-8. PRE-08 sovereign cloud parity verification completed; compensating-control memo signed if required.
-9. Plane 1 Test Pane scenarios run for happy path, clarification, refusal, and escalation; screenshots captured.
-10. Plane 1 Topic Test trigger-phrase coverage: each declared phrase exercised at least once; per-topic all-paths matrix completed.
-11. Plane 2 Agent Evaluation batch run executed against the published Test-environment agent; results exported.
-12. Plane 2 version-comparison run executed (where prior version exists); newly failing rows triaged; newly passing rows confirmed intentional.
-13. Plane 3 Foundry quality evaluator panel (Groundedness, Relevance, Coherence, Fluency, Similarity, F1) executed; scorecard exported.
-14. Plane 3 Foundry safety evaluator panel (Hate/Unfairness, Self-Harm, Sexual, Violence, Protected Material, Indirect Attack, Code Vulnerability where applicable, Ungrounded Attributes) executed; scorecard exported.
-15. Plane 3 thresholds met per zone; any miss triaged with documented remediation or accepted exception.
-16. Plane 4 PyRIT campaign executed by validator-identity compute (not developer); orchestrators include Crescendo and XPIA at minimum for Zone 3.
-17. Plane 4 defect rates met per zone; any miss triaged.
-18. Plane 4 results streamed into Sentinel custom table for Zone 3.
-19. Plane 5 Analytics baseline captured; drift thresholds set; cadence scheduled.
-20. ATK validate log present for declarative agents; ATK preview sideload exercised.
-21. Solution Checker run by author; Critical = 0; High remediated or exception-registered.
-22. Solution Checker re-run by validator; results match author run within tolerance.
-23. Pipelines stages configured with PRE-01-compliant approver rosters; pre-deployment checks enabled (Solution Checker re-run, Managed Environment policy eval, DLP impact preview).
-24. Pipelines Dev → Test stage approved by validator (≠ developer); audit captured.
-25. Pipelines Test → Prod stage approved by Compliance Officer (and Designated Supervisor / Registered Principal where FINRA 3110 in scope); audit captured.
-26. Independent Validation Memo authored, signed, and attached to Evidence Pack for Zone 3.
-27. Three-signature (or four-signature) attestation document signed and hashed.
-28. Evidence Pack stored in retention-bound SharePoint or eDiscovery hold container per §12.1.
-29. Evidence Pack manifest with SHA-256 hashes generated and stored as artifact #30.
-30. Plane 5 post-deployment review scheduled at 30 days for Zone 3; calendar invite sent.
-31. Material-change re-validation triggers documented in agent's metadata record per [Control 3.1](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md).
-32. Plane 5 monthly KPI rollup wired to [Control 3.8](../../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) executive dashboard.
-33. Rollback drill exercised within the past quarter and result documented.
-34. Quarterly threshold review scheduled; AI Governance Lead and Model Risk Manager on the invite.
-35. Sovereign cloud parity re-verification scheduled monthly for non-Commercial agents.
-
-### 14.2 Anti-patterns (≥ 20 numbered)
+8. Plane 1 Test Pane scenarios run for happy path, clarification, refusal, and escalation; screenshots captured.
+9. Plane 1 Topic Test trigger-phrase coverage: each declared phrase exercised at least once; per-topic all-paths matrix completed.
+10. Plane 2 Agent Evaluation batch run executed against the published Test-environment agent; results exported.
+11. Plane 2 version-comparison run executed (where prior version exists); newly failing rows triaged; newly passing rows confirmed intentional.
+12. Plane 3 Foundry quality evaluator panel (Groundedness, Relevance, Coherence, Fluency, Similarity, F1) executed; scorecard exported.
+13. Plane 3 Foundry safety evaluator panel (Hate/Unfairness, Self-Harm, Sexual, Violence, Protected Material, Indirect Attack, Code Vulnerability where applicable, Ungrounded Attributes) executed; scorecard exported.
+14. Plane 3 thresholds met per zone; any miss triaged with documented remediation or accepted exception.
+15. Plane 4 PyRIT campaign executed by validator-identity compute (not developer); orchestrators include Crescendo and XPIA at minimum for Zone 3.
+16. Plane 4 defect rates met per zone; any miss triaged.
+17. Plane 4 results streamed into Sentinel custom table for Zone 3.
+18. Plane 5 Analytics baseline captured; drift thresholds set; cadence scheduled.
+19. ATK validate log present for declarative agents; ATK preview sideload exercised.
+20. Solution Checker run by author; Critical = 0; High remediated or exception-registered.
+21. Solution Checker re-run by validator; results match author run within tolerance.
+22. Pipelines stages configured with PRE-01-compliant approver rosters; pre-deployment checks enabled (Solution Checker re-run, Managed Environment policy eval, DLP impact preview).
+23. Pipelines Dev → Test stage approved by validator (≠ developer); audit captured.
+24. Pipelines Test → Prod stage approved by Compliance Officer (and Designated Supervisor / Registered Principal where FINRA 3110 in scope); audit captured.
+25. Independent Validation Memo authored, signed, and attached to Evidence Pack for Zone 3.
+26. Three-signature (or four-signature) attestation document signed and hashed.
+27. Evidence Pack stored in retention-bound SharePoint or eDiscovery hold container per §11.1.
+28. Evidence Pack manifest with SHA-256 hashes generated and stored as artifact #30.
+29. Plane 5 post-deployment review scheduled at 30 days for Zone 3; calendar invite sent.
+30. Material-change re-validation triggers documented in agent's metadata record per [Control 3.1](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md).
+31. Plane 5 monthly KPI rollup wired to [Control 3.8](../../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) executive dashboard.
+32. Rollback drill exercised within the past quarter and result documented.
+33. Quarterly threshold review scheduled; AI Governance Lead and Model Risk Manager on the invite.
+### 13.2 Anti-patterns (≥ 20 numbered)
 
 | # | Anti-pattern | Harm | Corrective action |
 |---|---|---|---|
@@ -1249,16 +1171,14 @@ Use this as the operator's pre-promotion self-check and as the examiner walk-thr
 | AP-16 | Treating Copilot Studio Analytics as validation evidence rather than monitoring telemetry | Plane 5 misclassified as pre-deployment evidence; books-and-records gap | Analytics is monitoring; durable evidence routes through Purview Audit per [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) |
 | AP-17 | No drift threshold configured — Plane 5 monitoring exists but never triggers re-validation | Drift goes undetected; production quality regresses | Set drift thresholds per zone and wire to alerts in PRE-06 thresholds file |
 | AP-18 | Conflating deflection rate and escalation rate when reporting ROI | Misreporting; refusal-bypass risk masked as "ROI improvement" | Report deflection and escalation as separate metrics; investigate sudden deflection rises |
-| AP-19 | Storing Evidence Pack in personal OneDrive instead of retention-policy-bound SharePoint library | Records not preservable; audit and eDiscovery gaps | Use the §12.1 storage model; personal OneDrive banned for Zone 2/3 evidence |
-| AP-20 | Re-using the same PyRIT seed across runs so adversarial coverage stops growing | Coverage plateau; new attack families undetected | Rotate seeds and orchestrator combinations; cadence in §8.7 |
+| AP-19 | Storing Evidence Pack in personal OneDrive instead of retention-policy-bound SharePoint library | Records not preservable; audit and eDiscovery gaps | Use the §11.1 storage model; personal OneDrive banned for Zone 2/3 evidence |
+| AP-20 | Re-using the same PyRIT seed across runs so adversarial coverage stops growing | Coverage plateau; new attack families undetected | Rotate seeds and orchestrator combinations; cadence in §7.7 |
 | AP-21 | Approving release on a single evaluator passing (e.g., Groundedness only) | Multi-dimensional risk obscured | Require full evaluator panel at zone-appropriate thresholds; document exception path |
 | AP-22 | Treating Foundry default scores as universal pass marks | Threshold ownership unclear; firm-specific risk appetite ignored | Firm-set thresholds in PRE-06; review quarterly |
-| AP-23 | Skipping re-validation after a model, connector, prompt, or knowledge-source change | Fed SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC 2011-12) model-change expectation unmet | Material-change triggers in §13.1 enforced; gate Pipelines on re-validation evidence |
-| AP-24 | Assuming GCC High / DoD supports all Commercial evaluation features | Sovereign-cloud customers operate without required evaluators | PRE-08 verification + compensating-control memo per §2.2 |
-| AP-25 | Never refreshing the test set from production learnings | Test set diverges from real user behavior; regression suite ages out of relevance | Mine production conversations into test rows per §6.2 (with PRE-04 anonymization); rotate quarterly |
-| AP-26 | Writing regulatory statements as guarantees ("ensures FINRA compliance") | Overclaims liability; framework-policy violation | Use hedged language: "supports compliance with," "helps meet," "required for" |
-
-### 14.3 Companion playbook hand-offs
+| AP-23 | Skipping re-validation after a model, connector, prompt, or knowledge-source change | Fed SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC 2011-12) model-change expectation unmet | Material-change triggers in §12.1 enforced; gate Pipelines on re-validation evidence |
+| AP-24 | Never refreshing the test set from production learnings | Test set diverges from real user behavior; regression suite ages out of relevance | Mine production conversations into test rows per §5.2 (with PRE-04 anonymization); rotate quarterly |
+| AP-25 | Writing regulatory statements as guarantees ("ensures FINRA compliance") | Overclaims liability; framework-policy violation | Use hedged language: "supports compliance with," "helps meet," "required for" |
+### 13.3 Companion playbook hand-offs
 
 | Task | Companion playbook |
 |---|---|
@@ -1268,16 +1188,16 @@ Use this as the operator's pre-promotion self-check and as the examiner walk-thr
 | Live incident triage when a Plane 4 or Plane 5 finding indicates an active production exposure | [AI Incident Response Playbook](../../incident-and-risk/ai-incident-response-playbook.md) |
 | Risk classification, Zone tiering, and the parent control specification | [Control 2.5 specification](../../../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md) |
 
-### 14.4 What to do next
+### 13.4 What to do next
 
-1. Run §3 PRE-gates today; capture missing PRE artifacts as remediation tickets.
+1. Run §2 PRE-gates today; capture missing PRE artifacts as remediation tickets.
 2. Schedule the Plane 2 cadence per zone and wire to Pipelines pre-deployment checks.
 3. Stand up the Foundry project for Plane 3 and run a baseline evaluation against the current production agent (PRE-05).
-4. Provision Azure ML compute (or Azure Government compute) for Plane 4; commit the PyRIT campaign config to Git.
+4. Provision Azure ML compute or approved customer-hosted compute for Plane 4; commit the PyRIT campaign config to Git.
 5. Wire Plane 5 Analytics to [Control 3.8](../../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) for the executive dashboard.
 6. Schedule the next quarterly threshold review; AI Governance Lead and Model Risk Manager on the invite.
 
-### 14.5 External references
+### 13.5 External references
 
 - FINRA RN 24-09 / Rule 3110 — AI supervisory expectations
 - FINRA Rule 4511 — General requirements for books and records

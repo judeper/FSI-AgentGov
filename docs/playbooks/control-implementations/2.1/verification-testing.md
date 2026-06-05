@@ -2,7 +2,7 @@
 
 > **Examiner-defensible evidence package** for Control 2.1. This playbook produces, signs, and retains the artifacts required to demonstrate to FINRA, SEC, OCC, FFIEC, NYDFS, and internal audit that every Power Platform environment in scope of US financial-services governance is correctly enrolled as a Microsoft Power Platform **Managed Environment** (`protectionLevel = Standard`), is licensed at the prescribed entitlement floor, has zone-appropriate sharing limits, solution-checker enforcement, IP firewall, IP-bound cookies, Customer Lockbox, Customer-Managed Keys, Tenant Isolation, environment routing, governance-console integration, and segregation of duties — and that the evidentiary chain for each of those configurations is reproducible, hash-chained, and retained on WORM-protected storage for the FINRA Rule 4511 / SEC Rule 17a-4 six-year horizon.
 >
-> **Scope:** All Power Platform environments classified Zone 2 (Team) or Zone 3 (Enterprise). Zone 1 (Personal Productivity / developer / individual maker) environments are tested only for clean delineation from Zone 2/3 (TC-1) and for routing-rule placement (TC-14); they are not in scope for Managed-Environments enablement. Sovereign clouds (GCC, GCC High, DoD, China 21Vianet) follow the compensating-control patterns in TC-8, TC-15, and TC-18.
+> **Scope:** All Power Platform environments classified Zone 2 (Team) or Zone 3 (Enterprise). Zone 1 (Personal Productivity / developer / individual maker) environments are tested only for clean delineation from Zone 2/3 (TC-1) and for routing-rule placement (TC-14); they are not in scope for Managed-Environments enablement.
 >
 > **Companion controls:** [1.4 Advanced Connector Policies](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md), [1.5 DLP and Sensitivity Labels](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md), [1.7 Comprehensive Audit Logging](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), [1.20 Network Isolation](../../../controls/pillar-1-security/1.20-network-isolation-private-connectivity.md), [2.2 Environment Groups](../../../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md), [2.3 Change Management](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md), [2.8 Access Control & SoD](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md), [2.14 Training & Awareness](../../../controls/pillar-2-management/2.14-training-and-awareness-program.md), [2.15 Environment Routing](../../../controls/pillar-2-management/2.15-environment-routing.md), [2.25 Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md), [3.1 Agent Inventory & Metadata](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md), [3.6 Orphaned Agent Detection](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md), [3.9 Microsoft Sentinel Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md).
 >
@@ -21,25 +21,6 @@
 
     Treat Managed Environments as the **enforcement substrate** that makes the human-and-process controls above auditable. Where a TC below uses language like "blocks" or "enforces", read it as "produces the technical signal that the firm''s WSP designates as the gating control"; the gate is the WSP, not the toggle.
 
-!!! warning "Sovereign Cloud Availability — feature gaps that change evidence patterns"
-    The following Managed Environments features have **material gaps** in sovereign clouds at the time of this playbook''s last UI verification. Sovereign tenants must apply the compensating-control substitutions in TC-8, TC-15, and TC-18; the §3 evidence-capture master table flags affected artifacts with a `SOV-SUB` annotation:
-
-    | Feature | Commercial | GCC | GCC High | DoD | China (21Vianet) |
-    |---|---|---|---|---|---|
-    | Managed Environments enablement | GA | GA | GA | GA | Available |
-    | Sharing limits per resource family | GA | GA | GA | GA | Available |
-    | Solution checker enforcement | GA | GA | GA | GA | Available |
-    | IP firewall + AuditOnly mode | GA | GA | GA | GA | Verify per [Learn — IP firewall](https://learn.microsoft.com/en-us/power-platform/admin/ip-firewall) |
-    | IP-based cookie binding | GA | GA | GA | GA | Verify |
-    | Customer Lockbox | GA | GA | GA | Limited tier coverage | Not available |
-    | Customer-Managed Keys (CMK) | GA — service coverage varies | Partial — verify per service | Partial | Partial | Partial |
-    | Weekly usage-insights digest | GA | **Not available** | **Not available** | **Not available** | **Not available** |
-    | Tenant Isolation | GA | GA | GA | GA | Available |
-    | Environment routing | GA | GA | GA | GA | Available |
-    | Microsoft Agent 365 Admin Center governance console | GA (May 2026) | **Not at parity** | **Not at parity** | **Not at parity** | Not available |
-
-    Re-verify sovereign-cloud parity quarterly via the [Microsoft 365 Government roadmap](https://aka.ms/m365gov-roadmap) and the linked Learn pages, and update the §3 evidence-capture master table with any change in availability before the next quarterly evidence pack is sealed.
-
 ---
 
 ## Document Conventions
@@ -50,11 +31,9 @@
 | PowerShell baseline (Power Platform admin module) | Windows PowerShell 5.1; `Microsoft.PowerApps.Administration.PowerShell` does **not** load on PowerShell 7+ for admin scenarios as of this writing — see the sister [PowerShell Setup](powershell-setup.md). |
 | Test framework | Pester 5.5+. All assertions use `Should` with `-Because` clauses for examiner traceability. |
 | Output discipline | No `Write-Host` in evidence emission. All evidence emitted as structured `[pscustomobject]` instances, then serialized with `ConvertTo-Json -Depth 8` to evidence files. |
-| Sovereign cloud handling | Pester suites detect cloud and emit `SKIPPED` records routed to TC-18 rather than `FAIL`. |
 | Evidence retention — records scope | Six (6) years on WORM-protected storage for any artifact the firm''s WSPs designate as a books-and-records artifact. Aligns with FINRA 4511 / SEC 17a-4(f). Distinguished from operational scope in §3. |
 | Evidence retention — operational scope | Three (3) years on tamper-evident storage for operational telemetry the firm has documented as out-of-scope of supervisory recordkeeping (e.g., the weekly digest itself, license-consumption snapshots used for capacity planning). |
 | Hashing | SHA-256 over canonical JSON; chained leaf hashes plus a Merkle root in `attestation.json` (see §4.3). |
-| Sovereign anchor | Sovereign-aware functions reference [`../../_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md). |
 | Run identifier | Every test run is tagged `ME-yyyyMMdd-HHmmss-<8charGuid>` (e.g., `ME-20260415-093012-a1b2c3d4`) and embedded in every evidence record and artifact filename. |
 | Canonical role names | Per [`docs/reference/role-catalog.md`](../../../reference/role-catalog.md). The canonical short names used in this playbook are **Power Platform Admin**, **Entra Global Admin**, **AI Administrator**, **Purview Compliance Admin**, **Entra Security Admin**, **Entra Global Reader**, **AI Governance Lead**, **Compliance Officer**, **Information Security Officer**, **Internal Audit Lead**, **Technology Risk Manager**, **Change Management Lead**. |
 | `protectionLevel` semantics | `protectionLevel = "Standard"` ⇒ Managed Environment **ENABLED**. `protectionLevel = "Basic"` (or absent) ⇒ **DISABLED / unmanaged**. Earlier versions of these playbooks had this inverted; pre-April-2026 evidence likely reports the opposite of reality and must be re-collected. |
@@ -63,7 +42,7 @@
 
 ---
 
-## §0 Pre-Test Prerequisites & Sovereign Cloud Bootstrap
+## §0 Pre-Test Prerequisites & Bootstrap
 
 ### 0.1 Operator role prerequisites
 
@@ -74,11 +53,11 @@ The operator running this playbook must hold one of the following role assignmen
 | Power Platform Admin | Tenant-scope reads against PPAC governance configuration (TC-1 through TC-17); `Get-AdminPowerAppEnvironment`, `Get-AdminPowerAppEnvironmentGovernanceConfiguration`; emergency execution of remediation runbooks | 4 hours, just-in-time, ticketed |
 | Entra Global Admin | Tenant-scope reads where Power Platform Admin is insufficient (TC-3 license-consumption Graph endpoint, TC-11 Lockbox tenant-tier read, TC-13 Tenant Isolation tenant-level read) | 2 hours, JIT, ticketed |
 | AI Administrator | Reads against Microsoft Agent 365 Admin Center inventory + governance template assignments (TC-15) | 4 hours, JIT |
-| Purview Compliance Admin | Read access to the audit-log substitute data path used in sovereign clouds (TC-8 SOV substitution; TC-18) and to Purview retention labels referenced from the §3 evidence-capture master table | 4 hours |
-| Entra Security Admin | Reads against the Microsoft Sentinel workspace used for sovereign substitution (TC-8, TC-18) and against Conditional Access policies that gate IP firewall coverage (TC-9) | 4 hours |
+| Purview Compliance Admin | Read access to Purview retention labels referenced from the §3 evidence-capture master table | 4 hours |
+| Entra Security Admin | Reads against the Microsoft Sentinel workspace and Conditional Access policies that gate IP firewall coverage (TC-9) | 4 hours |
 | Entra Global Reader | Witness role for the dual-control evidence-pack signing pattern in §4.3 | 4 hours |
 | AI Governance Lead | Counter-signs the quarterly attestation packet in §4; reviews the per-environment owner field in the §3 master table; signs the §4 evidence pack as primary signatory | Standing; quarterly recertification per Control 2.8 |
-| Compliance Officer | Counter-signs the quarterly attestation packet in §4; signs Zone 3 sharing-limit and CMK variances; signs the TC-18 sovereign quarterly attestation; produces the examiner-facing evidence pack in §5 | Standing |
+| Compliance Officer | Counter-signs the quarterly attestation packet in §4; signs Zone 3 sharing-limit and CMK variances; produces the examiner-facing evidence pack in §5 | Standing |
 | Information Security Officer | Reviews IP firewall AuditOnly-to-Enforce promotion (TC-9), IP-cookie-binding posture (TC-10), Lockbox tier (TC-11), CMK exclusion narrative (TC-12), Tenant Isolation posture (TC-13) | Standing |
 | Internal Audit Lead | Receives the §4 evidence pack and integrates it into the firm''s SOX 404 internal-controls-over-financial-reporting (ICFR) workpapers; signs the §4 annual self-assessment (TC-19) | Standing |
 | Technology Risk Manager | Receives the §4 evidence pack and integrates it into the firm''s technology-risk reporting per OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) | Standing |
@@ -91,7 +70,7 @@ The operator running this playbook must hold one of the following role assignmen
 Pin to specific module versions to keep evidence packs reproducible across machines and over time. Re-validate against newer module versions before promoting them to the standing schedule.
 
 ```powershell
-# Read-only Graph operations (TC-3 license consumption, TC-15 Agent 365, TC-18 sovereign substitute)
+# Read-only Graph operations (TC-3 license consumption, TC-15 Agent 365)
 #Requires -Version 7.4
 #Requires -Modules @{ ModuleName='Microsoft.Graph.Authentication';                ModuleVersion='2.25.0' }
 #Requires -Modules @{ ModuleName='Microsoft.Graph.Identity.DirectoryManagement';  ModuleVersion='2.25.0' }
@@ -114,68 +93,24 @@ $ProgressPreference    = 'SilentlyContinue'
 $ErrorActionPreference = 'Stop'
 ```
 
-> **Why two shells?** The Power Platform admin module does not load on PowerShell 7+ for admin scenarios as of this writing. Graph-based assertions (TC-3, TC-15, TC-18) run on PowerShell 7.4 with `Microsoft.Graph` v2.25; PPAC-surfaced assertions (everything else) run on Windows PowerShell 5.1. The §4 evidence-pack assembler reconciles JSON outputs from both shells. The sister [PowerShell Setup](powershell-setup.md) §1 documents the cross-shell hand-off pattern.
+> **Why two shells?** The Power Platform admin module does not load on PowerShell 7+ for admin scenarios as of this writing. Graph-based assertions (TC-3, TC-15) run on PowerShell 7.4 with `Microsoft.Graph` v2.25; PPAC-surfaced assertions (everything else) run on Windows PowerShell 5.1. The §4 evidence-pack assembler reconciles JSON outputs from both shells. The sister [PowerShell Setup](powershell-setup.md) §1 documents the cross-shell hand-off pattern.
 
 ### 0.3 PRE gates (must all pass before TC-1 — TC-20 execute)
 
-The bootstrap script `Invoke-Me21PreFlight.ps1` (in the sister [PowerShell Setup](powershell-setup.md) playbook) runs nine pre-flight gates. Any `FAIL` halts the suite and emits a single evidence artifact `preflight-FAILED-<runId>.json`. Any `SKIPPED` from PRE-06 redirects the run to TC-18 (sovereign compensating control).
+The bootstrap script `Invoke-Me21PreFlight.ps1` (in the sister [PowerShell Setup](powershell-setup.md) playbook) runs eight pre-flight gates. Any `FAIL` halts the suite and emits a single evidence artifact `preflight-FAILED-<runId>.json`.
 
 | Gate | ID | Purpose | Failure behavior |
 |---|---|---|---|
 | Module presence | PRE-01 | Confirms required modules loaded at the pinned versions in §0.2 | HALT |
-| Power Platform context | PRE-02 | Confirms `Add-PowerAppsAccount -Endpoint <cloud>` established and that `Get-AdminPowerAppEnvironment` returns at least one environment | HALT |
+| Power Platform context | PRE-02 | Confirms `Add-PowerAppsAccount` established and that `Get-AdminPowerAppEnvironment` returns at least one environment | HALT |
 | Graph context | PRE-03 | Confirms `Connect-MgGraph` established with required scopes (`Directory.Read.All`, `Reports.Read.All`, `Application.Read.All`, `User.Read.All`, `AuditLog.Read.All`, `AgentGovernance.Read.All` on commercial) | HALT |
 | Tenant identification | PRE-04 | Captures `tenantId`, `displayName`, primary verified domain for every evidence record | HALT |
-| Cloud detection | PRE-05 | Reads `(Get-MgContext).Environment` and the `-Endpoint` parameter passed to `Add-PowerAppsAccount`; maps to `Commercial / GCC / GCCH / DoD / China`; verifies the two agree | HALT on disagreement |
-| Sovereign route | PRE-06 | If cloud ∈ {GCC, GCCH, DoD, China}, sets `$script:isSovereign = $true`; downstream `Skip` flags route SOV-affected TCs to compensating substitutes | Continue with `cloud` field set; sovereign clouds route to TC-18 |
-| License gate | PRE-07 | Confirms tenant holds at least one Power Platform-bearing SKU (Power Apps Premium, Power Automate Premium, Microsoft Copilot Studio, or Dynamics 365 with Power Platform usage rights). Surfaces the **June 2026 enforcement** banner — see TC-3. | HALT on absent entitlement; WARN on PAYG-only |
-| Clock skew gate | PRE-08 | Compares local UTC to the `Date` header from a Graph response; aborts if drift exceeds 60 seconds | HALT — clock skew invalidates timestamp evidence for FINRA 4511 / SEC 17a-4 |
-| Evidence root writeable | PRE-09 | Confirms `$env:ME21_EVIDENCE_ROOT` exists, is writeable, and resolves to a path under WORM-eligible storage (validated by checking the parent storage account''s immutability policy where applicable) | HALT |
+| Cloud detection | PRE-05 | Reads `(Get-MgContext).Environment`; verifies it is `Global` (commercial) | HALT on non-commercial |
+| License gate | PRE-06 | Confirms tenant holds at least one Power Platform-bearing SKU (Power Apps Premium, Power Automate Premium, Microsoft Copilot Studio, or Dynamics 365 with Power Platform usage rights). Surfaces the **June 2026 enforcement** banner — see TC-3. | HALT on absent entitlement; WARN on PAYG-only |
+| Clock skew gate | PRE-07 | Compares local UTC to the `Date` header from a Graph response; aborts if drift exceeds 60 seconds | HALT — clock skew invalidates timestamp evidence for FINRA 4511 / SEC 17a-4 |
+| Evidence root writeable | PRE-08 | Confirms `$env:ME21_EVIDENCE_ROOT` exists, is writeable, and resolves to a path under WORM-eligible storage (validated by checking the parent storage account''s immutability policy where applicable) | HALT |
 
-### 0.4 Sovereign bootstrap pattern
-
-```powershell
-function Test-Me21SovereignTenant {
-    [CmdletBinding()]
-    [OutputType([pscustomobject])]
-    param(
-        [Parameter(Mandatory)]
-        [ValidateSet('prod','usgov','usgovhigh','dod','china')]
-        [string] $PowerPlatformEndpoint
-    )
-
-    $cloud = switch ($PowerPlatformEndpoint) {
-        'prod'       { 'Commercial' }
-        'usgov'      { 'GCC' }
-        'usgovhigh'  { 'GCCH' }
-        'dod'        { 'DoD' }
-        'china'      { 'China' }
-    }
-
-    [pscustomobject]@{
-        cloud         = $cloud
-        is_sovereign  = $cloud -in @('GCC','GCCH','DoD','China')
-        endpoint      = $PowerPlatformEndpoint
-        detected_at   = (Get-Date).ToUniversalTime().ToString('o')
-        endpoint_ref  = '../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod'
-    }
-}
-```
-
-When `is_sovereign` is `$true`, the affected `It` blocks in TC-8, TC-15, and (where called out) TC-9, TC-11, TC-12 emit a `SKIPPED` record with a pointer to the TC-18 substitute, rather than a `FAIL`:
-
-```json
-{
-  "status": "SKIPPED",
-  "reason": "Feature not at parity in sovereign cloud at run time",
-  "compensating_control_ref": "TC-18 sovereign substitute namespace",
-  "next_check_due": "2026-07-15T00:00:00Z"
-}
-```
-
-This produces an examiner-defensible audit trail showing the test was attempted, was correctly skipped on regulatory-sound grounds, and was supplemented by the manual attestation in TC-18 — rather than appearing as an unexplained gap. The `next_check_due` date is set to the start of the following quarter so the sovereign roadmap re-verification cadence is itself evidenced.
-
-### 0.5 Run identifier and evidence root
+### 0.4 Run identifier and evidence root
 
 ```powershell
 function New-Me21RunId {
@@ -265,20 +200,20 @@ Cross-cutting pattern for every TC: emit a single evidence record (the §0.6 sch
 
 #### Setup
 
-- PRE-01 through PRE-09 passed.
+- PRE-01 through PRE-08 passed.
 - Operator activated as **Power Platform Admin** under PIM with a justification referencing `ME21-TC-01-<runId>`.
 - Reference data: the firm''s zone-classification register (`zone-register.json`, maintained by the AI Governance Lead per Control 2.2) is available at `$env:ME21_ZONE_REGISTER`. This file enumerates every environment ID with its assigned zone (`1`, `2`, or `3`), owner UPN, and creation justification. Zone classification is the firm''s assertion; this TC verifies enablement against that assertion.
 - The Power Platform tenant has at least one environment of each in-scope zone (Z1 personal/dev, Z2 team, Z3 enterprise).
 
 #### Steps
 
-1. Sign into PPAC at the cloud-appropriate URL ([Commercial](https://admin.powerplatform.microsoft.com); GCC `https://gcc.admin.powerplatform.microsoft.us`; GCC High `https://high.admin.powerplatform.microsoft.us`; DoD `https://admin.appsplatform.us`; China `https://admin.powerplatform.partner.microsoftonline.cn`).
+1. Sign into [PPAC](https://admin.powerplatform.microsoft.com).
 2. Navigate **Manage → Environments**.
 3. In the environment grid, sort by **Managed environment** column. Capture a full-page screenshot.
 4. Run the inventory snapshot:
 
     ```powershell
-    Add-PowerAppsAccount -Endpoint $Endpoint
+    Add-PowerAppsAccount
     $register = Get-Content $env:ME21_ZONE_REGISTER | ConvertFrom-Json
 
     $envs = Get-AdminPowerAppEnvironment |
@@ -365,7 +300,7 @@ Cross-cutting pattern for every TC: emit a single evidence record (the §0.6 sch
     ```powershell
     # Pipelines surface via the Dataverse `deploymentpipeline`, `deploymentstage`,
     # and `deploymentenvironment` tables in the pipeline host environment.
-    Add-PowerAppsAccount -Endpoint $Endpoint
+    Add-PowerAppsAccount -Endpoint 'prod'
     $hostEnv = $env:ME21_PIPELINE_HOST
 
     # Use the WebAPI (the admin module does not expose pipeline tables directly).
@@ -432,7 +367,7 @@ Cross-cutting pattern for every TC: emit a single evidence record (the §0.6 sch
 2. Pull the per-environment, per-maker license posture via the admin module:
 
     ```powershell
-    Add-PowerAppsAccount -Endpoint $Endpoint
+    Add-PowerAppsAccount -Endpoint 'prod'
     $envs = Get-AdminPowerAppEnvironment | Where-Object {
         ($register.environments | Where-Object id -eq $_.EnvironmentName).zone -in '2','3'
     }
@@ -776,72 +711,33 @@ Cross-cutting pattern for every TC: emit a single evidence record (the §0.6 sch
 
 ---
 
-### TC-8 — Weekly usage-insights digest current (commercial); sovereign substitute via Graph + Purview + Sentinel
+### TC-8 — Weekly usage-insights digest current
 
-**Criterion mapped:** Verification Criterion 7 (usage telemetry available to supervisors). On commercial cloud, the PPAC weekly usage-insights digest is the canonical source. Sovereign clouds **do not** offer the weekly digest at this time; the firm must operate a compensating control assembled from Microsoft Graph reports, Purview unified audit logs (per [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) and [Control 3.1](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md)), and Microsoft Sentinel queries (per [Control 3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md)).
+**Criterion mapped:** Verification Criterion 7 (usage telemetry available to supervisors). The PPAC weekly usage-insights digest is the canonical source for maker activity evidence.
 
-#### Setup — commercial path
+#### Setup
 
-- PRE gates passed; cloud = `Commercial`; Power Platform Admin activated.
+- PRE gates passed; Power Platform Admin activated.
 - Reference data: digest delivery list (`$env:ME21_DIGEST_RECIPIENTS`) — which Power Platform Admins are configured to receive the weekly digest.
 
-#### Setup — sovereign path
-
-- PRE gates passed; cloud ∈ {GCC, GCCH, DoD, China}.
-- Operator activated as **Purview Compliance Admin** + **Entra Security Admin**.
-- The firm''s Sentinel workspace ID is at `$env:ME21_SENTINEL_WS`.
-
-#### Steps — commercial
+#### Steps
 
 1. PPAC **Environments → Analytics → Usage insights**: confirm a digest dated within the last 7 days and capture screenshot.
 2. Confirm digest recipients via **Settings → Notifications → Weekly digest** matches the reference list.
 
-#### Steps — sovereign
-
-1. Pull the equivalent activity surface via the Graph audit-log endpoint:
-
-    ```powershell
-    Connect-MgGraph -Scopes 'AuditLog.Read.All','Directory.Read.All' -NoWelcome
-    $since = (Get-Date).AddDays(-7).ToUniversalTime().ToString('o')
-    $events = Get-MgAuditLogDirectoryAudit -Filter "activityDateTime ge $since and category eq 'PowerPlatform'" -All
-    $events | ConvertTo-Json -Depth 8 |
-        Out-File (Join-Path $script:EvidenceRoot "tc08-graph-audit-$($script:RunId).json") -Encoding utf8
-    ```
-
-2. Run the Sentinel KQL substitute query against the workspace where Purview audit is forwarded:
-
-    ```kusto
-    // TC-8 sovereign substitute — weekly Power Platform admin activity summary
-    AuditLogs
-    | where TimeGenerated >= ago(7d)
-    | where LoggedByService in ("Power Apps","Power Automate","Microsoft Power Platform","Copilot Studio","Microsoft Agent 365")
-    | extend EnvironmentId = tostring(parse_json(AdditionalDetails)[0].value)
-    | summarize EventCount = count(),
-                ActiveMakers = dcount(InitiatedBy.user.userPrincipalName),
-                FirstEvent = min(TimeGenerated),
-                LastEvent  = max(TimeGenerated)
-        by EnvironmentId, OperationName, ResultType
-    | order by EventCount desc
-    ```
-
-3. Emit a `PASS` only if both data paths return non-empty results and the Compliance Officer has signed the weekly compensating-control attestation (`tc08-compensating-attestation-<runId>.json`) within the last 7 days.
-
 #### Expected
 
-- Commercial: PPAC digest exists within the last 7 days; recipient list matches.
-- Sovereign: Graph + Sentinel return data; Compliance Officer attestation signed within 7 days.
+- PPAC digest exists within the last 7 days; recipient list matches.
 
 #### Evidence Capture
 
-- Commercial files: `tc08-digest-screenshot-<runId>.png`, `tc08-recipients-<runId>.json`.
-- Sovereign files: `tc08-graph-audit-<runId>.json`, `tc08-sentinel-query-<runId>.kql`, `tc08-sentinel-results-<runId>.json`, `tc08-compensating-attestation-<runId>.json`.
+- Files: `tc08-digest-screenshot-<runId>.png`, `tc08-recipients-<runId>.json`.
 - Retention: **records scope (6 years)** — supervisory-evidence input.
-- §3 master-table rows: row 8 (commercial), row 8-SOV (sovereign).
+- §3 master-table row: row 8.
 
 #### Remediation
 
-- Commercial digest gap: re-enable in **Settings → Notifications**; verify mailbox routing for digest recipients.
-- Sovereign substitute gap: rerun [Control 3.9 §4 — Sentinel ingestion verification](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) and [Control 1.7 §5 — Purview ingestion verification](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md).
+- Digest gap: re-enable in **Settings → Notifications**; verify mailbox routing for digest recipients.
 
 ---
 
@@ -960,14 +856,13 @@ Cross-cutting pattern for every TC: emit a single evidence record (the §0.6 sch
 
 ### TC-11 — Customer Lockbox enabled; tier verified; 8-hour approval runbook tested
 
-**Criterion mapped:** Verification Criterion 11. Microsoft Customer Lockbox provides documented, time-bound, tenant-administrator approval over Microsoft engineer access. Lockbox tier coverage varies by sovereign cloud (see top admonition).
+**Criterion mapped:** Verification Criterion 11. Microsoft Customer Lockbox provides documented, time-bound, tenant-administrator approval over Microsoft engineer access.
 
 #### Setup
 
 - PRE gates passed.
 - Operator: **Power Platform Admin** (read configuration); **Entra Global Admin** (read tenant-tier Lockbox enrollment via M365 admin center under PIM); **Compliance Officer** (counter-signs the approval-runbook walkthrough).
 - Reference data: Lockbox approver list (`lockbox-approvers.json`) — Power Platform Admins and Entra Global Admins designated to receive Lockbox approval requests, with on-call rotation.
-- Sovereign-aware: Lockbox is **not available in China 21Vianet** at the time of this writing; route to TC-18.
 
 #### Steps
 
@@ -1163,13 +1058,12 @@ Cross-cutting pattern for every TC: emit a single evidence record (the §0.6 sch
 
 ### TC-15 — Microsoft Agent 365 / M365 admin center governance console — Copilot Studio shared agents in catalog
 
-**Criterion mapped:** Cross-reference to [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md). Every Copilot Studio agent shared from a Z2/Z3 environment must appear in the Microsoft Agent 365 catalog with correct owner, environment, and policy assignment. Sovereign clouds: not at parity — route to TC-18.
+**Criterion mapped:** Cross-reference to [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md). Every Copilot Studio agent shared from a Z2/Z3 environment must appear in the Microsoft Agent 365 catalog with correct owner, environment, and policy assignment.
 
 #### Setup
 
 - PRE gates passed; cloud = `Commercial`.
 - Operator: **AI Administrator** (read Agent 365 catalog) + **Entra Global Reader** (witness).
-- Sovereign route: emit `SKIPPED` and route to TC-18.
 
 #### Steps
 
@@ -1196,7 +1090,6 @@ Cross-cutting pattern for every TC: emit a single evidence record (the §0.6 sch
 #### Expected
 
 - Every shared Copilot Studio agent in Z2/Z3 environments appears in Agent 365 catalog with owner/environment/policy assignment populated.
-- For sovereign clouds: `SKIPPED` record with TC-18 substitute pointer.
 
 #### Evidence Capture
 
@@ -1309,68 +1202,7 @@ Cross-cutting pattern for every TC: emit a single evidence record (the §0.6 sch
 
 ---
 
-### TC-18 — Sovereign cloud compensating-control exercise; Agent 365 parity gap documented
-
-**Criterion mapped:** Sovereign substitute for TC-8, TC-15, and any other SOV-skipped TCs. This TC produces a single composite attestation that the firm''s sovereign tenant is governed by the documented compensating controls and that the Compliance Officer + AI Governance Lead have reviewed within the quarter.
-
-#### Setup
-
-- PRE gates passed; cloud ∈ {GCC, GCCH, DoD, China}.
-- Operator: **Purview Compliance Admin** + **Entra Security Admin**; counter-signed by **Compliance Officer** + **AI Governance Lead**.
-
-#### Steps
-
-1. Enumerate every TC in this run that emitted a `SKIPPED` due to sovereign:
-
-    ```powershell
-    $skipped = Get-ChildItem $script:EvidenceRoot -Recurse -Filter '*.ndjson' |
-        Get-Content | ConvertFrom-Json |
-        Where-Object { $_.status -eq 'SKIPPED' -and $_.compensating_control_ref -like 'TC-18*' }
-    ```
-
-2. For each skipped TC, confirm the substitute artifact exists in this run (e.g., `tc08-sentinel-results-<runId>.json` for TC-8 sovereign).
-3. Document the **Microsoft Agent 365 parity gap**: Agent 365 governance console is not at parity in sovereign clouds. The compensating evidence is:
-   - Graph beta agent enumeration (where available in the sovereign cloud — limited at this writing).
-   - Purview unified-audit-log forwarded events for `Microsoft Power Platform` / `Copilot Studio`.
-   - Sentinel KQL summary per TC-8 sovereign path.
-4. Compose the quarterly sovereign attestation:
-
-    ```powershell
-    $attest = [pscustomobject]@{
-        control_id                   = '2.1'
-        run_id                       = $script:RunId
-        cloud                        = $cloud
-        skipped_test_cases           = $skipped.test_case | Select-Object -Unique
-        substitute_artifacts_present = $true
-        agent365_parity_gap          = 'Documented; substituted via Graph + Purview + Sentinel'
-        signed_by                    = @('Compliance Officer','AI Governance Lead')
-        signed_at                    = (Get-Date).ToUniversalTime().ToString('o')
-        next_review_due              = (Get-Date).AddDays(90).ToUniversalTime().ToString('o')
-        regulator_mappings           = @('FINRA-3110','FINRA-4511','SEC-17a-4','SOX-404','GLBA-501b','OCC-2011-12','SR-11-7','NYDFS-500-06','FFIEC-IS','FFIEC-MGMT')
-    }
-    $attest | ConvertTo-Json -Depth 6 |
-        Out-File (Join-Path $script:EvidenceRoot "tc18-sovereign-attestation-$($script:RunId).json") -Encoding utf8
-    ```
-
-#### Expected
-
-- Every `SKIPPED` record has a corresponding substitute artifact.
-- Attestation signed by Compliance Officer + AI Governance Lead within the current quarter.
-
-#### Evidence Capture
-
-- File: `tc18-sovereign-attestation-<runId>.json`.
-- Retention: **records scope (6 years)**.
-- §3 master-table row: row 18.
-
-#### Remediation
-
-- Missing substitute artifacts: rerun the affected TC''s sovereign path.
-- Stale attestation: route via e-signature; do not commingle with operator-only evidence.
-
----
-
-### TC-19 — Annual SOX 404 self-assessment to Audit Committee
+### TC-18 — Annual SOX 404 self-assessment to Audit Committee
 
 **Criterion mapped:** SOX § 404 management-assertion support. Once per fiscal year, the AI Governance Lead, Compliance Officer, Information Security Officer, and Internal Audit Lead jointly produce a self-assessment of Control 2.1 effectiveness for delivery to the firm''s Audit Committee.
 
@@ -1393,8 +1225,7 @@ Cross-cutting pattern for every TC: emit a single evidence record (the §0.6 sch
    - PASS rate per TC, per quarter.
    - Median time-to-remediate for FAIL records.
    - Open exceptions at fiscal year end.
-   - Sovereign substitution count.
-3. Author `tc19-annual-self-assessment-FY<yyyy>.md` from the firm''s template.
+3. Author `tc18-annual-self-assessment-FY<yyyy>.md` from the firm''s template.
 4. Route for signature: AI Governance Lead → Compliance Officer → Information Security Officer → Internal Audit Lead → Audit Committee acknowledgement.
 
 #### Expected
@@ -1404,9 +1235,9 @@ Cross-cutting pattern for every TC: emit a single evidence record (the §0.6 sch
 
 #### Evidence Capture
 
-- File: `tc19-annual-self-assessment-FY<yyyy>.md` + signature manifest.
+- File: `tc18-annual-self-assessment-FY<yyyy>.md` + signature manifest.
 - Retention: **records scope (6 years)**.
-- §3 master-table row: row 19.
+- §3 master-table row: row 18.
 
 #### Remediation
 
@@ -1414,7 +1245,7 @@ Cross-cutting pattern for every TC: emit a single evidence record (the §0.6 sch
 
 ---
 
-### TC-20 — Examination-ready evidence pack pull-test
+### TC-19 — Examination-ready evidence pack pull-test
 
 **Criterion mapped:** A regulator (FINRA, SEC, OCC, NYDFS, FFIEC) can request evidence with short notice (often ≤ 7 business days). This TC is a quarterly **fire drill**: the Compliance Officer requests a focused pack from a randomly chosen prior-quarter run; the Power Platform Admin and AI Governance Lead must produce the focused pack within 4 business hours.
 
@@ -1456,7 +1287,7 @@ Cross-cutting pattern for every TC: emit a single evidence record (the §0.6 sch
 ---
 ## §3 Evidence-Capture Master Table
 
-This table is the canonical mapping from each TC to the evidence artifact(s) it produces, the retention scope under [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), and the regulator citations that justify the retention. Sovereign-affected rows are marked `SOV-SUB`.
+This table is the canonical mapping from each TC to the evidence artifact(s) it produces, the retention scope under [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), and the regulator citations that justify the retention.
 
 | Row | TC | Artifact filename pattern | Retention scope | Retention period | Regulator mapping |
 |---|---|---|---|---|---|
@@ -1471,8 +1302,7 @@ This table is the canonical mapping from each TC to the evidence artifact(s) it 
 | 5 | TC-5 | `tc05-sharing-limits-<runId>.json` | Records (Z3) / Operational (Z2) | 6 / 3 years | FINRA-3110, GLBA-501b, NYDFS-500-06 |
 | 6 | TC-6 | `tc06-solution-checker-<runId>.json`, `tc06-exception-register-snapshot-<runId>.csv` | Records | 6 years | SOX-404, OCC-2011-12, FFIEC-MGMT |
 | 7 | TC-7 | `tc07-welcome-content-<runId>.json`, `tc07-welcome-dlp-scan-<runId>.json`, `cmk-exclusion-narrative.md` | Records | 6 years | FINRA-3110, GLBA-501b |
-| 8 | TC-8 (Commercial) | `tc08-digest-screenshot-<runId>.png`, `tc08-recipients-<runId>.json` | Records | 6 years | FINRA-3110, FINRA-4511 |
-| 8-SOV | TC-8 (Sovereign) — `SOV-SUB` | `tc08-graph-audit-<runId>.json`, `tc08-sentinel-query-<runId>.kql`, `tc08-sentinel-results-<runId>.json`, `tc08-compensating-attestation-<runId>.json` | Records | 6 years | FINRA-3110, FINRA-4511, NYDFS-500-06 |
+| 8 | TC-8 | `tc08-digest-screenshot-<runId>.png`, `tc08-recipients-<runId>.json` | Records | 6 years | FINRA-3110, FINRA-4511 |
 | 9 | TC-9 | `tc09-ip-firewall-<runId>.json`, `tc09-egress-gap-<runId>.ndjson` | Records (Z3) / Operational (Z2) | 6 / 3 years | GLBA-501b, NYDFS-500-06, FFIEC-IS |
 | 10 | TC-10 | `tc10-ip-cookie-binding-<runId>.json` + screenshot | Records | 6 years | GLBA-501b, NYDFS-500-06, FFIEC-IS |
 | 11 | TC-11 | `tc11-lockbox-<runId>.json`, `tc11-lockbox-tier-screenshot-<runId>.png`, `tc11-tabletop-pointer-<runId>.json` | Records | 6 years | GLBA-501b, NYDFS-500-06, OCC-2011-12 |
@@ -1482,9 +1312,8 @@ This table is the canonical mapping from each TC to the evidence artifact(s) it 
 | 15 | TC-15 | `tc15-agent365-inventory-<runId>.json`, `tc15-catalog-gap-<runId>.json` | Records | 6 years | FINRA-4511, SEC-17a-4, FINRA-25-07 |
 | 16 | TC-16 | `tc16-sod-<runId>.ndjson` | Records | 6 years | SOX-404, OCC-2011-12, FFIEC-MGMT |
 | 17 | TC-17 | `tc17-inactive-<runId>.json` + screenshot | Operational | 3 years | FFIEC-MGMT |
-| 18 | TC-18 | `tc18-sovereign-attestation-<runId>.json` | Records | 6 years | FINRA-3110, FINRA-4511, SOX-404, GLBA-501b, OCC-2011-12, NYDFS-500-06, FFIEC-IS, FFIEC-MGMT |
-| 19 | TC-19 | `tc19-annual-self-assessment-FY<yyyy>.md` + signature manifest | Records | 6 years | SOX-302, SOX-404, FINRA-3110, FFIEC-MGMT |
-| 20 | TC-20 | `tc20-pulltest-slice-<runId>/*.json`, `tc20-pulltest-timing-<runId>.json`, `tc20-pulltest-merkle-proof-<runId>.json` | Records | 6 years | FINRA-4511, SEC-17a-4, OCC-2011-12 |
+| 18 | TC-18 | `tc18-annual-self-assessment-FY<yyyy>.md` + signature manifest | Records | 6 years | SOX-302, SOX-404, FINRA-3110, FFIEC-MGMT |
+| 19 | TC-19 | `tc19-pulltest-slice-<runId>/*.json`, `tc19-pulltest-timing-<runId>.json`, `tc19-pulltest-merkle-proof-<runId>.json` | Records | 6 years | FINRA-4511, SEC-17a-4, OCC-2011-12 |
 
 > **WORM placement.** Records-scope artifacts mirror to the firm''s WORM-protected blob storage account (Azure Blob with immutability policy in `Locked` mode) within 24 hours of pack sealing. Operational-scope artifacts live in the firm''s standard tamper-evident log store. The §4.4 sealing job emits a `worm-mirror-<runId>.json` manifest confirming each records-scope artifact''s WORM URL and immutability-policy retention period.
 
@@ -1498,8 +1327,8 @@ This table is the canonical mapping from each TC to the evidence artifact(s) it 
 pack-<runId>.zip
 ├── attestation.json         # Merkle root, signatures, regulator mapping summary
 ├── manifest.ndjson          # one line per evidence artifact (path + SHA-256 leaf)
-├── preflight-<runId>.json   # PRE-01..PRE-09 results
-├── tc01/ ... tc20/          # one folder per TC
+├── preflight-<runId>.json   # PRE-01..PRE-08 results
+├── tc01/ ... tc19/          # one folder per TC
 └── README.md                # pack overview, regulator mapping, signature block
 ```
 
@@ -1621,16 +1450,15 @@ Each calendar quarter, the AI Governance Lead and Compliance Officer co-sign `at
 - PASS rate per TC, per zone.
 - All FAIL records and their remediation status.
 - All WARN records aged > 30 days.
-- All sovereign `SKIPPED` records and the corresponding TC-18 attestations.
 - Carry-forward exceptions from prior quarters.
 
 The packet attaches the four most-recent monthly pack ZIPs and is delivered to: AI Governance Lead, Compliance Officer, Information Security Officer, Internal Audit Lead, Technology Risk Manager.
 
 ---
 
-## §5 Examiner-Facing Evidence Pack Production (TC-20 pull-test substrate)
+## §5 Examiner-Facing Evidence Pack Production (TC-19 pull-test substrate)
 
-When a regulator (FINRA, SEC, OCC, NYDFS, FFIEC) requests evidence on short notice, the **Compliance Officer** is the firm''s single point of contact. The evidence-pack production sequence, as exercised quarterly via TC-20:
+When a regulator (FINRA, SEC, OCC, NYDFS, FFIEC) requests evidence on short notice, the **Compliance Officer** is the firm''s single point of contact. The evidence-pack production sequence, as exercised quarterly via TC-19:
 
 1. **Receipt and triage.** Compliance Officer receives the request, identifies which TCs and which environments are in scope, and opens a request ticket referencing the regulator name, exam ID, and SLA.
 2. **Slice extraction.** Power Platform Admin runs `Get-Me21EvidenceSlice` against the relevant pack(s).
@@ -1645,7 +1473,7 @@ When a regulator (FINRA, SEC, OCC, NYDFS, FFIEC) requests evidence on short noti
 - "How does the firm supervise maker activity in production environments?" — answer based on TC-5, TC-6, TC-8, TC-16.
 - "What encryption protections apply to data at rest in your production Power Platform environments, and what are the documented exclusions?" — answer based on TC-12 and the CMK exclusion narrative.
 - "How does the firm prevent cross-tenant data exfiltration via Power Platform connectors?" — answer based on TC-13 plus Control 1.4 / 1.5.
-- "How does the firm govern AI agents shared from Copilot Studio at scale?" — answer based on TC-15 and Control 2.25; sovereign clouds answer via TC-18.
+- "How does the firm govern AI agents shared from Copilot Studio at scale?" — answer based on TC-15 and Control 2.25.
 - "What is the firm''s evidence-retention scheme for AI-governance artifacts, and how does it map to FINRA Rule 4511 / SEC Rule 17a-4?" — answer based on §3 master table and Control 1.7.
 
 ---
@@ -1675,7 +1503,7 @@ Describe 'Control 2.1 — Managed Environments' -Tag 'me21' {
         }
     }
 
-    # ... TC-2, TC-4 .. TC-20 follow the same pattern
+    # ... TC-2, TC-4 .. TC-19 follow the same pattern
 }
 ```
 

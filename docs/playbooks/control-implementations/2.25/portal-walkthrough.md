@@ -33,7 +33,7 @@
     | Common errors, missing blades, console behavior anomalies, and remediation steps | [`./troubleshooting.md`](./troubleshooting.md) |
 
 !!! warning "Hedged-Language Reminder"
-    This playbook helps your organization **support compliance with** FINRA Rule 3110 (Supervision), FINRA Rule 4511 (Books and Records), FINRA RN 24-09 / Rule 3110 (AI Tools), SEC Rules 17a-3 / 17a-4 (Recordkeeping), SOX Sections 302/404 (Internal Controls), GLBA 501(b) (Safeguards Rule), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (Technology Risk Management), and NYDFS 23 NYCRR 500 (Cybersecurity). It does **not** by itself guarantee any regulatory outcome and **does not substitute for** the firm's obligation to assign an appropriately registered principal where Rule 3110 requires registered supervisory responsibility. Implementation requires Agent 365 licensing (Microsoft 365 E7 "Frontier Suite" or standalone Agent 365 layered on Microsoft 365 Copilot), validated change-control procedures, and independent testing by your compliance function. Organizations should verify all configurations against their own examination workpapers and legal counsel before treating these procedures as adequate evidence.
+    This playbook helps your organization **support compliance with** FINRA Rule 3110 (Supervision), FINRA Rule 4511 (Books and Records), FINRA RN 24-09 / Rule 3110 (AI Tools), SEC Rules 17a-3 / 17a-4 (Recordkeeping), SOX Sections 302/404 (Internal Controls), GLBA 501(b) (Safeguards Rule), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (Technology Risk Management), and NYDFS 23 NYCRR 500 (Cybersecurity). It does **not** by itself provide any regulatory outcome and **does not substitute for** the firm's obligation to assign an appropriately registered principal where Rule 3110 requires registered supervisory responsibility. Implementation requires Agent 365 licensing (Microsoft 365 E7 "Frontier Suite" or standalone Agent 365 layered on Microsoft 365 Copilot), validated change-control procedures, and independent testing by your compliance function. Organizations should verify all configurations against their own examination workpapers and legal counsel before treating these procedures as adequate evidence.
 
 !!! info "Generally Available — May 1, 2026"
     Microsoft Agent 365 reached **general availability on May 1, 2026**. Licensing options:
@@ -45,17 +45,6 @@
 
     Tenants that did not participate in the pre-GA Frontier feature program can adopt Agent 365 directly at GA without prior enrollment. Microsoft now documents a tenant-enablement prerequisite: at least one user must be assigned a qualifying Microsoft Agent 365 license before Agent 365 can be enabled. See [Agent 365 overview](https://learn.microsoft.com/en-us/microsoft-agent-365/overview) for current SKU and entitlement guidance. Configuration steps in this playbook were verified against the pre-GA Frontier experience in March 2026, refreshed for the GA release in April 2026, and updated for the May 2026 Learn prerequisite clarification — re-verify portal navigation periodically as 2026 Wave 1 and Wave 2 release cycles are expected to evolve naming, entry points, and the Default Governance Template policy composition.
 
-!!! warning "Sovereign Cloud Availability — GCC, GCC High, DoD"
-    As of GA (May 1, 2026), Microsoft has **not announced parity availability for the Agent 365 Admin Center, governance templates, or admin-gated publish/activate workflows in GCC, GCC High, or DoD**. Underlying Copilot agents (Researcher, Analyst) are rolling into US Gov clouds on a separate, lagging schedule, and no public Microsoft roadmap item names "Agent 365 admin center governance console" parity for sovereign clouds. **If your tenant URL ends in `admin.microsoft.us` or you authenticate against `login.microsoftonline.us`, stop here and jump to [§1 — Sovereign Cloud Variant](#1-sovereign-cloud-variant-and-compensating-controls).**
-
-    | Cloud | Agent 365 Admin Center | Governance Templates | Substitute approach |
-    |---|---|---|---|
-    | M365 Commercial | ✅ GA (May 1, 2026) | ✅ GA | Follow this playbook end-to-end |
-    | GCC | ❌ Not announced | ❌ Not announced | §1 manual quarterly attestation + Control 1.2 + Control 2.3 + Control 2.8 |
-    | GCC High | ❌ Not announced | ❌ Not announced | §1 manual quarterly attestation + Control 1.2 + Control 2.3 + Control 2.8 |
-    | DoD | ❌ Not announced | ❌ Not announced | §1 manual quarterly attestation + Control 1.2 + Control 2.3 + Control 2.8 |
-
-    See [`../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod`](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod) for sovereign endpoint resolution if you ever need to script against the commercial-only surface from a sovereign management workstation.
 
 !!! tip "Portal Navigation May Shift Post-GA"
     Microsoft is expected to refine Agent 365 navigation through 2026 Wave 1 and Wave 2 release cycles. If a blade name in this playbook does not match what you see, search the admin center for the underlying noun ("Agent 365", "Pending Requests", "Governance Templates", "Researcher") and consult [Microsoft Learn — Microsoft Agent 365](https://learn.microsoft.com/en-us/microsoft-agent-365/overview). Screenshot anchors in this playbook record the navigation that was verified at the **Last UI Verified** date in the [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) header (May 2026, post-GA prerequisite refresh).
@@ -67,20 +56,19 @@
 | § | Section | Verification Criterion Evidenced |
 |---|---|---|
 | 0 | [Pre-flight Prerequisites and Triage](#0-pre-flight-prerequisites-and-triage) | All — gating checks |
-| 1 | [Sovereign Cloud Variant and Compensating Controls](#1-sovereign-cloud-variant-and-compensating-controls) | All (substitute path) |
-| 2 | [Initial Console Access and Role Validation](#2-initial-console-access-and-role-validation) | VC-1 |
-| 3 | [Overview Dashboard Tour and Governance Card Rhythm](#3-overview-dashboard-tour-and-governance-card-rhythm) | VC-1, VC-2 |
-| 4 | [Agent Registry — Filtering, Inspection, and Export](#4-agent-registry-filtering-inspection-and-export) | VC-3, VC-7 |
-| 5 | [Publishing Approval Workflow](#5-publishing-approval-workflow) | VC-2, VC-4 |
-| 6 | [Activation Approval Workflow](#6-activation-approval-workflow) | VC-2, VC-4 |
-| 7 | [Lifecycle Actions — Deploy, Pin, Block, Remove, Delete](#7-lifecycle-actions-deploy-pin-block-remove-delete) | VC-5 |
-| 8 | [Approve Updates — Version-Pinning Workflow](#8-approve-updates-version-pinning-workflow) | VC-5 |
-| 9 | [Governance Templates — Default and Custom](#9-governance-templates-default-and-custom) | VC-4 |
-| 10 | [Researcher with Computer Use Configuration](#10-researcher-with-computer-use-configuration) | VC-6 |
-| 11 | [Agent Analytics Navigation](#11-agent-analytics-navigation) | VC-7 |
-| 12 | [Inventory Export and Retention](#12-inventory-export-and-retention) | VC-7, VC-8 |
-| 13 | [Examiner Evidence Collection Patterns](#13-examiner-evidence-collection-patterns) | VC-8 |
-| 14 | [Closing Decision Matrix — Portal vs PowerShell vs Graph](#14-closing-decision-matrix-portal-vs-powershell-vs-graph) | Operational reference |
+| 1 | [Initial Console Access and Role Validation](#1-initial-console-access-and-role-validation) | VC-1 |
+| 2 | [Overview Dashboard Tour and Governance Card Rhythm](#2-overview-dashboard-tour-and-governance-card-rhythm) | VC-1, VC-2 |
+| 3 | [Agent Registry — Filtering, Inspection, and Export](#3-agent-registry-filtering-inspection-and-export) | VC-3, VC-7 |
+| 4 | [Publishing Approval Workflow](#4-publishing-approval-workflow) | VC-2, VC-4 |
+| 5 | [Activation Approval Workflow](#5-activation-approval-workflow) | VC-2, VC-4 |
+| 6 | [Lifecycle Actions — Deploy, Pin, Block, Remove, Delete](#6-lifecycle-actions-deploy-pin-block-remove-delete) | VC-5 |
+| 7 | [Approve Updates — Version-Pinning Workflow](#7-approve-updates-version-pinning-workflow) | VC-5 |
+| 8 | [Governance Templates — Default and Custom](#8-governance-templates-default-and-custom) | VC-4 |
+| 9 | [Researcher with Computer Use Configuration](#9-researcher-with-computer-use-configuration) | VC-6 |
+| 10 | [Agent Analytics Navigation](#10-agent-analytics-navigation) | VC-7 |
+| 11 | [Inventory Export and Retention](#11-inventory-export-and-retention) | VC-7, VC-8 |
+| 12 | [Examiner Evidence Collection Patterns](#12-examiner-evidence-collection-patterns) | VC-8 |
+| 13 | [Closing Decision Matrix — Portal vs PowerShell vs Graph](#13-closing-decision-matrix-portal-vs-powershell-vs-graph) | Operational reference |
 
 ---
 
@@ -97,8 +85,6 @@ Before you click anything in any portal, run through this gate. Skipping a gate 
 
 *Screenshot anchor: docs/images/2.25/EXPECTED.md#0-1-tenant-overview — M365 admin Organization profile blade showing Tenant ID, Primary domain, and Country.*
 
-!!! warning "Tenant Cloud Detection"
-    If the URL bar shows `admin.microsoft.us` (GCC High / DoD) or you authenticate against `login.microsoftonline.us`, **stop here and jump to [§1](#1-sovereign-cloud-variant-and-compensating-controls)**. Continuing this playbook in a sovereign tenant will fail at §2 because the Agent 365 admin center has no announced parity in `*.us` clouds as of GA (May 1, 2026).
 
 ### 0.2 Confirm role assignments
 
@@ -153,7 +139,7 @@ Use the canonical role names from [`docs/reference/role-catalog.md`](../../../re
 Do not proceed past this section unless **all** of the following are true:
 
 - [ ] You are signed in to the correct tenant and have captured the tenant ID.
-- [ ] Tenant is in M365 Commercial cloud (or you have switched to §1 sovereign path).
+- [ ] Tenant is in M365 Commercial cloud.
 - [ ] At least two named humans hold each governance role in §0.2.
 - [ ] **Entra Global Admin** is assigned via PIM (eligible, not active by default).
 - [ ] At least one named user who will sponsor or own agents has Microsoft 365 E7 or standalone Agent 365 assigned.
@@ -166,72 +152,11 @@ Do not proceed past this section unless **all** of the following are true:
 
 ---
 
-## 1. Sovereign Cloud Variant and Compensating Controls
-
-**Audience:** Operators in M365 GCC, GCC High, or DoD tenants. Skip this section if you are in M365 Commercial.
-
-As of GA (May 1, 2026), **the Microsoft Agent 365 Admin Center is not announced for any US sovereign cloud**. Microsoft has not committed to a sovereign GA timeline. Until parity arrives, sovereign-cloud organizations cannot rely on the admin-gated publish/activate workflow, governance template engine, or Pending Requests / Ownerless Agents governance cards described in §3–§13. Examiners (FINRA 3110, OCC Heightened Standards, FFIEC IT Handbook, NYDFS 23 NYCRR 500) will still expect equivalent governance evidence. The substitute is a **manual quarterly attestation pattern** anchored on the agent registry from [Control 1.2](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md), enforced through the firm's change-management workflow ([Control 2.3](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md)) and segregation-of-duties controls ([Control 2.8](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md)).
-
-If Agent 365 ships in your sovereign cloud after this playbook's verification date, **do not silently switch over**. Treat parity arrival as a controlled change: dual-run the §3–§13 portal procedure alongside the §1 manual procedure for at least one full quarter, reconcile the two sources, obtain compliance officer sign-off, and document the cutover per [Control 2.3](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md) before retiring the manual attestation.
-
-### 1.1 Sovereign substitute — agent registry as the system of record
-
-1. Confirm the firm maintains a Control 1.2 Agent Registry CSV (or equivalent SharePoint list) containing at minimum: `agent_id`, `agent_display_name`, `publisher`, `platform`, `zone`, `owner_upn`, `owner_manager_upn`, `governance_template_documented`, `last_attested_date`, `last_change_approval_id`. If any of those columns is missing, treat the registry as non-compliant and remediate before proceeding.
-2. Apply a Microsoft Purview retention label of **6 years** with **WORM (records management) enforcement** to the registry storage location (SharePoint document library or Dataverse table). FINRA 4511 and SEC 17a-4 expect immutability for the retention horizon.
-3. Designate a named human owner — typically the **AI Governance Lead** — accountable for the registry. Backup ownership goes to the **Information Security Officer**.
-
-*Screenshot anchor: docs/images/2.25/EXPECTED.md#1-1-sovereign-registry — SharePoint list view of the Control 1.2 agent registry with the 6-year retention label applied and column set visible.*
-
-### 1.2 Manual quarterly attestation
-
-1. On the first business day of each calendar quarter, the **AI Governance Lead** exports the agent registry to CSV and distributes it via a Purview-labeled (Confidential / Internal) attestation workbook to each named **Agent Owner**.
-2. Each Agent Owner confirms in writing (Microsoft Forms response, signed PDF, or Power Automate approval task) that:
-   - They still own the agent and remain accountable for its operation.
-   - The agent's listed permissions, data connections, and grounding sources remain necessary and proportionate.
-   - The agent is operating within the documented zone (Zone 1 / 2 / 3) and no scope expansion has occurred without a Control 2.3 change approval.
-   - No undisclosed third-party agents are operating under their sponsorship.
-3. The **Compliance Officer** archives signed attestations to the Purview-immutable location alongside the registry snapshot. Use ISO 8601 file naming: `agent-registry-attestation-YYYY-QN.csv` and `agent-attestation-responses-YYYY-QN.zip`.
-4. Any agent without a returned attestation within **14 calendar days** of the campaign deadline is treated as **orphaned** and routed through [Control 3.6 — Orphaned Agent Detection and Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) for disable-or-delete. Document the disable action in the change-management system.
-
-*Screenshot anchor: docs/images/2.25/EXPECTED.md#1-2-attestation-workbook — sample Microsoft Forms attestation response page and the resulting Power Automate approval audit trail.*
-
-!!! example "Examiner Evidence Box — Sovereign Manual Attestation"
-    | Element | Value |
-    |---|---|
-    | Artifact produced | Quarterly attestation CSV, signed Agent Owner responses, non-response remediation log, change-management ticket IDs for any disable actions |
-    | Retention duration | 6 years on Purview record label (WORM) |
-    | Regulatory mapping | FINRA 3110 (supervision), FINRA 4511 (books and records), SEC 17a-3/17a-4 (recordkeeping), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (technology risk), FFIEC IT Handbook (governance), NYDFS 23 NYCRR 500 (cybersecurity governance) |
-
-### 1.3 Compensating control mapping
-
-| Commercial-only Agent 365 surface | Sovereign substitute | Residual risk |
-|---|---|---|
-| Agent 365 admin-gated publish workflow | Control 2.3 change-management approval before manual deployment by **Power Platform Admin** or equivalent platform admin | Manual workflow drift; reviewer fatigue |
-| Agent 365 admin-gated activation workflow | Control 2.8 segregation of duties — distinct **Change Management Lead** approval before the **Power Platform Admin** activates | Latency; possible weekend gaps in coverage |
-| Default Governance Template auto-application | Documented zone-mapped policy bundle in the Agent Registry; manual application of equivalent Entra Identity Protection, SharePoint access, and Purview Audit / AI Compliance Assessment policies | Manual data drift between platform configuration and registry record |
-| Pending Requests governance card | Weekly (Zone 2) / daily (Zone 3) review meeting — captured in a recurring Outlook calendar invite with the agenda and decisions logged in the change-management system | No native oldest-pending sort; manual queue management |
-| Ownerless Agents governance card | Quarterly attestation non-response report (§1.2 step 4) | Detection latency up to 14 days |
-| Inventory Export | Manual CSV export of the agent registry with ISO 8601 filename | Same retention obligations apply |
-| Researcher with Computer Use admin scoping | If Computer Use is unavailable in your sovereign cloud, document the absence; if available, configure it via the M365 admin center → Integrated Apps surface and apply Zone 3 restrictions identically | Verify sovereign availability per Microsoft 365 Government roadmap |
-
-### 1.4 Sovereign roadmap monitoring cadence
-
-1. The **Technology Risk Manager** re-verifies the sovereign roadmap **quarterly** via:
-   - [Microsoft 365 Government roadmap](https://aka.ms/m365gov-roadmap)
-   - [Microsoft Agent 365 overview](https://learn.microsoft.com/en-us/microsoft-agent-365/overview)
-   - The firm's Microsoft FastTrack contact (where applicable)
-2. Status changes are reported to the AI Governance Council and recorded in the firm's AI risk register.
-3. Disclose the absence of native technical enforcement in the firm's Written Supervisory Procedures so FINRA, OCC, or NYDFS examiners are not surprised by the substitute pattern.
-
-**End of sovereign substitute path. Sections §2–§13 below assume an M365 Commercial tenant.**
-
----
-
-## 2. Initial Console Access and Role Validation
+## 1. Initial Console Access and Role Validation
 
 **Verification Criterion evidenced:** VC-1 (Agent 365 admin center is accessible and the operating roles are correctly assigned and least-privileged).
 
-### 2.1 Activate Entra Global Admin via PIM (only when needed)
+### 1.1 Activate Entra Global Admin via PIM (only when needed)
 
 The **Entra Global Admin** role is required for tenant enrollment, licensing changes, first-time governance template authoring, and emergency lifecycle actions (such as bulk Block or Delete during an incident). For routine governance work, you should be operating as **AI Administrator**.
 
@@ -239,14 +164,14 @@ The **Entra Global Admin** role is required for tenant enrollment, licensing cha
 2. Navigate to **Identity governance → Privileged Identity Management → My roles**.
 3. Locate **Global Administrator** in the **Eligible assignments** tab.
 4. Click **Activate**, set the activation duration to the **shortest interval consistent with the change window** (typically 1–4 hours), and provide a business justification that names the change-management ticket ID per [Control 2.3](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md).
-5. Complete any MFA challenge. PIM activation events are logged to the Entra audit log with the justification text and ticket ID — examiners may request these logs as evidence of just-in-time elevation.
+5. Complete any MFA challenge. PIM activation events are logged to the Entra audit log with the justification text and ticket ID — examiners may request these logs as evidence of JIT elevation.
 
 *Screenshot anchor: docs/images/2.25/EXPECTED.md#2-1-pim-activation — PIM My roles blade showing Global Administrator eligible and the activation form with justification field populated.*
 
 !!! warning "Do Not Operate Daily as Entra Global Admin"
-    Daily operations as Entra Global Admin breaks the segregation-of-duties expectations of [Control 2.8](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md) and creates an audit finding under FINRA 3110 and SOX §404. Use **AI Administrator** for the §3–§13 procedures below; activate Entra Global Admin only for the discrete tasks that explicitly require it.
+    Daily operations as Entra Global Admin breaks the segregation-of-duties expectations of [Control 2.8](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md) and creates an audit finding under FINRA 3110 and SOX §404. Use **AI Administrator** for the §2–§12 procedures below; activate Entra Global Admin only for the discrete tasks that explicitly require it.
 
-### 2.2 Sign in to the M365 admin center as AI Administrator
+### 1.2 Sign in to the M365 admin center as AI Administrator
 
 1. Sign in to [`https://admin.microsoft.com`](https://admin.microsoft.com) as your **AI Administrator** account.
 2. Confirm the upper-right user chip shows the AI Administrator account, not your Entra Global Admin account.
@@ -255,7 +180,7 @@ The **Entra Global Admin** role is required for tenant enrollment, licensing cha
 
 *Screenshot anchor: docs/images/2.25/EXPECTED.md#2-2-agent365-overview-landing — Agent 365 Overview landing page with the AI Administrator persona visible in the upper-right user chip.*
 
-### 2.3 Validate read-only access for the Compliance Officer
+### 1.3 Validate read-only access for the Compliance Officer
 
 1. Have the **Compliance Officer** sign in to the same URL using their **Entra Global Reader** account.
 2. Confirm they see the Overview, Agents, Pending Requests, Governance, and Analytics blades **but cannot perform any approve/deploy/block/delete action** — write controls should be greyed out or absent.
@@ -270,13 +195,13 @@ The **Entra Global Admin** role is required for tenant enrollment, licensing cha
 
 ---
 
-## 3. Overview Dashboard Tour and Governance Card Rhythm
+## 2. Overview Dashboard Tour and Governance Card Rhythm
 
 **Verification Criteria evidenced:** VC-1 (Agent 365 admin center is configured and accessible), VC-2 (governance cards are reviewed on a documented cadence with named owners).
 
 The Agent 365 Overview dashboard is the daily entry point for governance staff. It surfaces five hero metrics, two persistent governance cards, and one trend chart. The Overview is read-only — it drives the AI Administrator's queue but the lifecycle actions themselves happen on the Agent Registry and Pending Requests blades.
 
-### 3.1 Hero metrics panel
+### 2.1 Hero metrics panel
 
 1. From **Agent 365 → Overview**, scroll to the top of the page. You should see five tiles in this order (subject to change in 2026 Wave 1):
 
@@ -293,7 +218,7 @@ The Agent 365 Overview dashboard is the daily entry point for governance staff. 
 
 *Screenshot anchor: docs/images/2.25/EXPECTED.md#3-1-hero-metrics — Agent 365 Overview top-of-page tile row with the five hero metrics labeled.*
 
-### 3.2 Pending Requests governance card
+### 2.2 Pending Requests governance card
 
 1. Scroll to the **Pending Requests** card on the Overview page.
 2. Confirm the card shows the count of pending publish and activate requests, sorted oldest-first, with a week-over-week delta badge (▲ / ▼).
@@ -301,7 +226,7 @@ The Agent 365 Overview dashboard is the daily entry point for governance staff. 
    - **Zone 2 (illustrative default):** weekly governance session, 5-business-day SLA on individual requests.
    - **Zone 3 (illustrative default):** daily review, 2-business-day SLA on individual requests.
    - **Examiners will hold the firm to its own documented SLA, not these illustrative defaults.** Document the chosen cadence and SLA in the AI governance policy and the firm's Written Supervisory Procedures.
-4. Click **View all** on the card to navigate to **Agent 365 → Pending Requests**, where the full list is filterable by zone, requester, agent platform, and submission date. The publishing approval workflow itself is detailed in §5; activation in §6.
+4. Click **View all** on the card to navigate to **Agent 365 → Pending Requests**, where the full list is filterable by zone, requester, agent platform, and submission date. The publishing approval workflow itself is detailed in §4; activation in §5.
 5. Record the count, the oldest-pending age, and any SLA breaches in the weekly governance session minutes. SLA breaches should be escalated to the **AI Governance Lead** and recorded against [Control 2.3](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md).
 
 *Screenshot anchor: docs/images/2.25/EXPECTED.md#3-2-pending-requests-card — Pending Requests governance card showing oldest-pending age and the week-over-week delta badge.*
@@ -309,7 +234,7 @@ The Agent 365 Overview dashboard is the daily entry point for governance staff. 
 !!! warning "Stale Pending Requests Are an Audit Finding"
     A pending request older than the firm's documented SLA is itself evidence that the supervisory chain required by FINRA Rule 3110 has degraded. Examiners reviewing the inventory export and the Pending Requests card history will compare oldest-pending dates against the WSP-documented SLA. Do not let the queue age past the documented threshold without an escalation note in the change-management system.
 
-### 3.3 Ownerless Agents governance card
+### 2.3 Ownerless Agents governance card
 
 1. Scroll to the **Ownerless Agents** card on the Overview page.
 2. Confirm the card shows the count of agents whose **Owner UPN** field is blank, points to a disabled Entra account, or points to a user whose `employeeLeaveDateTime` has passed.
@@ -325,7 +250,7 @@ The Agent 365 Overview dashboard is the daily entry point for governance staff. 
     | Retention duration | 6 years (SEC 17a-4 / FINRA 4511) on Purview record label |
     | Regulatory mapping | FINRA 3110 (supervision), FINRA RN 24-09 / Rule 3110 (AI tools governance), SOX §404 (control operation) |
 
-### 3.4 Agent Runtime trend chart
+### 2.4 Agent Runtime trend chart
 
 1. Below the governance cards, locate the **Agent Runtime trend** chart (typically a 90-day line chart of aggregate runtime).
 2. Use this chart for capacity planning input, cost forecasting, and anomaly detection (sudden spikes may indicate runaway agents or test traffic in production).
@@ -337,21 +262,21 @@ For PowerShell automation of governance card data extraction (oldest-pending age
 
 ---
 
-## 4. Agent Registry — Filtering, Inspection, and Export
+## 3. Agent Registry — Filtering, Inspection, and Export
 
 **Verification Criteria evidenced:** VC-3 (Agent Registry maintained as the system of record), VC-7 (inventory export produced on a documented cadence and retained per SEC 17a-4 / FINRA 4511).
 
 The Agent Registry is the authoritative inventory of all agents discoverable in the tenant — Microsoft-published (Researcher, Analyst, Sales, Service), org-published (Copilot Studio agents your firm built), and third-party agents registered through the Microsoft Agent Framework. The registry powers every other governance action in this control.
 
-### 4.1 Open the Agent Registry
+### 3.1 Open the Agent Registry
 
 1. From **Agent 365 → Agents**, click **All Agents**. The grid loads with default columns: **Display name**, **Publisher**, **Platform**, **Owner**, **Status**, **Deployment scope**, **Last modified**.
-2. Use the column chooser (gear icon, upper-right of the grid) to add: **Agent ID**, **Governance template applied**, **Last approval timestamp**, **Approver UPN**. These columns are required for the §12 inventory export.
-3. Confirm the grid row count matches the **Agent Registry count** hero tile on the Overview (§3.1). A mismatch indicates a filter is applied or the page has not refreshed.
+2. Use the column chooser (gear icon, upper-right of the grid) to add: **Agent ID**, **Governance template applied**, **Last approval timestamp**, **Approver UPN**. These columns are required for the §11 inventory export.
+3. Confirm the grid row count matches the **Agent Registry count** hero tile on the Overview (§2.1). A mismatch indicates a filter is applied or the page has not refreshed.
 
 *Screenshot anchor: docs/images/2.25/EXPECTED.md#4-1-registry-grid — Agent Registry grid with the full column set visible and the row count matching the Overview hero tile.*
 
-### 4.2 Filter the registry
+### 3.2 Filter the registry
 
 1. Use the filter chips above the grid to narrow by:
    - **Publisher** — Microsoft / Organization / Partner (third-party).
@@ -364,7 +289,7 @@ The Agent Registry is the authoritative inventory of all agents discoverable in 
 
 *Screenshot anchor: docs/images/2.25/EXPECTED.md#4-2-filters — Agent Registry with filter chips applied (Publisher = Organization, Status = Active, Governance template applied = None).*
 
-### 4.3 Inspect a single agent
+### 3.3 Inspect a single agent
 
 1. Click any agent row to open the agent detail flyout.
 2. Confirm the flyout exposes:
@@ -378,14 +303,14 @@ The Agent Registry is the authoritative inventory of all agents discoverable in 
 
 *Screenshot anchor: docs/images/2.25/EXPECTED.md#4-3-agent-detail — Agent detail flyout showing metadata, owner, data connections, tools, governance template, and approval history sections.*
 
-### 4.4 Export the registry
+### 3.4 Export the registry
 
 1. From **Agent 365 → Agents → All Agents**, click **Export** (top-right of the grid).
 2. Choose the format the tenant offers — typically **CSV** or **Excel**. Microsoft has stated CSV/Excel are the supported export formats at GA; verify against the current Microsoft Learn documentation if a different format appears in your tenant.
 3. Confirm the export contains, at minimum:
    - `agent_id`, `display_name`, `publisher`, `platform`, `owner_upn`, `status`, `deployment_scope`, `governance_template_applied`, `last_approval_timestamp`, `approver_upn`.
 4. Where Microsoft's export omits any of those fields, supplement with the Microsoft Graph API export (see [`./powershell-setup.md`](./powershell-setup.md)) or with the [Control 1.2 Agent Registry](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) record. Document the supplementation in the export manifest.
-5. Save the export with an ISO 8601 filename: `agent365-registry-YYYY-MM-DD.csv`. Retention and WORM placement are detailed in §12.
+5. Save the export with an ISO 8601 filename: `agent365-registry-YYYY-MM-DD.csv`. Retention and WORM placement are detailed in §11.
 
 *Screenshot anchor: docs/images/2.25/EXPECTED.md#4-4-export — Agent Registry export dialog with CSV format selected and the destination path visible.*
 
@@ -400,13 +325,13 @@ For PowerShell automation of registry export, scheduled snapshots, and Microsoft
 
 ---
 
-## 5. Publishing Approval Workflow
+## 4. Publishing Approval Workflow
 
 **Verification Criteria evidenced:** VC-2 (admin-gated publication is enforced as the default for Zone 2 / Zone 3 agents), VC-4 (governance template is applied at publish time).
 
 The publishing approval workflow is the primary supervisory checkpoint for agents entering org-wide visibility. Microsoft's design intent is that an agent moves from author-private to org-published only after an **AI Administrator** (or higher) has reviewed the agent's description, owner, data connections, tools, and intended audience, and has applied an appropriate governance template. **Do not bypass this workflow** by granting end users self-service publish rights in Zone 2 or Zone 3.
 
-### 5.1 Open the Pending Requests blade
+### 4.1 Open the Pending Requests blade
 
 1. From **Agent 365 → Pending Requests**, select the **Publishing** tab.
 2. The grid lists every agent awaiting publication approval, sorted oldest-first by submission timestamp.
@@ -414,7 +339,7 @@ The publishing approval workflow is the primary supervisory checkpoint for agent
 
 *Screenshot anchor: docs/images/2.25/EXPECTED.md#5-1-publishing-queue — Pending Requests blade with the Publishing tab selected and the oldest-first sort visible.*
 
-### 5.2 Review the agent under request
+### 4.2 Review the agent under request
 
 1. Click the agent row to open the Publishing review wizard.
 2. **Step 1 — Agent Overview:** Confirm the **display name** is professional and unambiguous (no internal codenames in production); the **description** clearly states purpose, data scope, and intended user population; the **publisher** matches the firm or an approved partner.
@@ -422,23 +347,23 @@ The publishing approval workflow is the primary supervisory checkpoint for agent
 4. **Step 3 — Data Connections:** Inspect every connection: SharePoint sites, Dataverse tables, Microsoft Graph endpoints, third-party connectors. For each, confirm:
    - The connection is documented in the Control 1.2 Agent Registry record.
    - The data scope aligns with the agent's stated purpose (no over-broad connections).
-   - Sensitive sources (MNPI, PII, customer financial data, trading data) trigger Zone 3 requirements (§5.5).
+   - Sensitive sources (MNPI, PII, customer financial data, trading data) trigger Zone 3 requirements (§4.5).
 5. **Step 4 — Tools:** Inspect every tool / plugin / OpenAPI action. Tools with **write** capability or **external-network** capability require an explicit business justification recorded in the change-management ticket.
 6. **Step 5 — Audience Scoping:** The default scope is **No Users** (visible in the registry but not deployed). Confirm the requested audience (specific groups, all users) is appropriate for the zone.
 
 *Screenshot anchor: docs/images/2.25/EXPECTED.md#5-2-publishing-review — Publishing review wizard Step 1 with display name, description, and publisher fields visible.*
 
-### 5.3 Apply the governance template
+### 4.3 Apply the governance template
 
 1. **Step 6 — Apply Template:** This step is **mandatory** for Zone 2 and Zone 3 agents. Select from:
    - **Default Governance Template** — Microsoft documents the GA Default as bundling a baseline set of **Microsoft Entra Identity Protection**, **Lifecycle Management**, **SharePoint access**, and **Microsoft Purview Audit / AI Compliance Assessment** policies, plus auto-assignment of the Agent 365 license. **Verify the exact policy composition in your tenant after each Microsoft release wave before asserting any specific policy is enforced.**
-   - **Custom Governance Template** — extends the Default with additional policies. For Zone 3 the Custom template **must** include an **Entra Access Package** for scoped, time-bound access authorization (see §9.3). Optional extensions include **Global Secure Access (GSA)** network visibility, **Purview Know Your Data** classification feedback, and **SharePoint Content Permissions Insights**.
+   - **Custom Governance Template** — extends the Default with additional policies. For Zone 3 the Custom template **must** include an **Entra Access Package** for scoped, time-bound access authorization (see §8.3). Optional extensions include **Global Secure Access (GSA)** network visibility, **Purview Know Your Data** classification feedback, and **SharePoint Content Permissions Insights**.
 2. Do not skip this step. A blank template selection on a Zone 2 or Zone 3 publish is itself an audit finding under FINRA 3110 (supervisory chain) and SOX §404 (control operation).
-3. The template selection is recorded against the agent's approval history and surfaces in the inventory export `governance_template_applied` column (§4.4).
+3. The template selection is recorded against the agent's approval history and surfaces in the inventory export `governance_template_applied` column (§3.4).
 
 *Screenshot anchor: docs/images/2.25/EXPECTED.md#5-3-apply-template — Publishing wizard Step 6 with the Default Governance Template selected and the policy composition list expanded.*
 
-### 5.4 Approve, request changes, or reject
+### 4.4 Approve, request changes, or reject
 
 1. **Step 7 — Decision:** Choose one of:
    - **Approve & Publish** — agent moves to **Active** status with the selected audience scope and template applied.
@@ -449,13 +374,13 @@ The publishing approval workflow is the primary supervisory checkpoint for agent
 
 *Screenshot anchor: docs/images/2.25/EXPECTED.md#5-4-decision — Publishing wizard Step 7 with the Approve & Publish action selected and the change-management ticket ID in the comment field.*
 
-### 5.5 Zone 3 additional requirements
+### 4.5 Zone 3 additional requirements
 
 For Zone 3 agents (typically those with access to MNPI, customer financial data, trading data, or other regulated content), the following additional steps are required before clicking **Approve & Publish**:
 
 1. **Compliance Officer concurrence:** the Compliance Officer must record concurrence in the change-management ticket. Capture the ticket URL in the publishing decision comment.
 2. **Information Security Officer review:** for any agent with external-network tool capability, the Information Security Officer must concur on the network egress posture. Capture the concurrence in the change-management ticket.
-3. **Custom Governance Template with Entra Access Package:** the template selected at §5.3 must be a Custom template that includes a named Entra Access Package. Audience scoping at §5.2 Step 5 must default to **No Users** at publish time — actual user assignment happens through the Access Package after publication.
+3. **Custom Governance Template with Entra Access Package:** the template selected at §4.3 must be a Custom template that includes a named Entra Access Package. Audience scoping at §4.2 Step 5 must default to **No Users** at publish time — actual user assignment happens through the Access Package after publication.
 4. **Documented business justification in WSPs:** Zone 3 agents must be enumerated in the firm's Written Supervisory Procedures with named registered principal supervisory responsibility per FINRA Rule 3110.
 
 !!! warning "Zone 3 Without Compliance Concurrence Is a Finding"
@@ -474,13 +399,13 @@ For PowerShell automation of bulk publishing approvals (scripted reviews against
 
 ---
 
-## 6. Activation Approval Workflow
+## 5. Activation Approval Workflow
 
 **Verification Criteria evidenced:** VC-2 (admin-gated activation is enforced for agents requiring an instance to be created), VC-4 (governance template is reapplied or confirmed at activation time).
 
 For agent platforms that distinguish **publication** (the agent is org-visible and assignable) from **activation** (an instance of the agent is created for a specific user, group, or environment), the activation step is reviewed separately. This separation enables phased rollouts — for example, publishing an agent broadly but activating it only in pilot environments first.
 
-### 6.1 Open the Activation queue
+### 5.1 Open the Activation queue
 
 1. From **Agent 365 → Pending Requests**, select the **Activation** tab.
 2. The grid lists every activation request awaiting approval, sorted oldest-first.
@@ -488,18 +413,18 @@ For agent platforms that distinguish **publication** (the agent is org-visible a
 
 *Screenshot anchor: docs/images/2.25/EXPECTED.md#6-1-activation-queue — Pending Requests blade with the Activation tab selected.*
 
-### 6.2 Review the activation request
+### 5.2 Review the activation request
 
 1. Click the activation request row to open the Activation review flyout.
 2. Confirm:
-   - The agent is already **Active** (publication-approved) per §5.
+   - The agent is already **Active** (publication-approved) per §4.
    - The **target audience or environment** for activation matches the firm's documented rollout plan.
    - The **governance template** previously applied at publish time is still appropriate for the activation scope. If the activation expands scope (for example, from a pilot group to a broader audience), the template may need to be upgraded to a Custom template with additional policies.
 3. For Zone 3 activations, reconfirm Compliance Officer concurrence in the change-management ticket — concurrence at publish time does not automatically extend to subsequent activation expansions.
 
 *Screenshot anchor: docs/images/2.25/EXPECTED.md#6-2-activation-review — Activation review flyout showing the agent's current status, target audience, and governance template.*
 
-### 6.3 Approve, request changes, or reject
+### 5.3 Approve, request changes, or reject
 
 1. Choose **Approve & Activate**, **Request Changes**, or **Reject**. The decision is logged to the approval history with timestamp and approver UPN.
 2. Capture the change-management ticket ID in the decision comment.
@@ -518,7 +443,7 @@ For PowerShell automation of activation approvals and bulk activation against an
 
 ---
 
-## 7. Lifecycle Actions — Deploy, Pin, Block, Remove, Delete
+## 6. Lifecycle Actions — Deploy, Pin, Block, Remove, Delete
 
 **Verification Criterion evidenced:** VC-5 (lifecycle actions are exercised under documented authorization with attribution).
 
@@ -532,24 +457,24 @@ After publication and activation, the **AI Administrator** uses five lifecycle a
 | **Remove** | Removes the agent from active inventory. The agent record is retained for audit but no users see or invoke it. **Re-addable** by an admin. | Yes — by re-adding. | Change-management ticket; **AI Administrator**. |
 | **Delete** | Permanently deletes the agent and its associated files (knowledge sources, conversation history per Microsoft's retention policy). **Not reversible.** | **No.** | Change-management ticket + Compliance Officer concurrence + (for Zone 3) Information Security Officer concurrence; deletion of any agent with regulated-content access requires WSP-aligned retention review before action. |
 
-### 7.1 Open the lifecycle actions menu
+### 6.1 Open the lifecycle actions menu
 
 1. From **Agent 365 → Agents → All Agents**, locate the target agent and click the row to open the agent detail flyout.
 2. In the flyout header, click **Manage**. The lifecycle actions menu surfaces the five actions above (some actions may be greyed out if the agent's current status disallows the action — for example, **Activate** is unavailable for an already-active agent).
 
 *Screenshot anchor: docs/images/2.25/EXPECTED.md#7-1-manage-menu — Agent detail flyout with the Manage menu expanded showing Deploy, Pin, Block, Remove, Delete options.*
 
-### 7.2 Deploy
+### 6.2 Deploy
 
 1. Click **Manage → Deploy**.
 2. In the Deploy dialog, select the target audience: **All Users**, **Specific Groups** (Entra security groups or M365 groups), or **Specific Users** (UPN list).
-3. For Zone 3 agents with regulated-content access, the audience must be the Entra Access Package assigned through the Custom Governance Template (see §9.3) — do not deploy to **All Users**.
+3. For Zone 3 agents with regulated-content access, the audience must be the Entra Access Package assigned through the Custom Governance Template (see §8.3) — do not deploy to **All Users**.
 4. Capture the change-management ticket ID in the deployment comment field.
 5. Click **Deploy**. The audience receives the agent within minutes.
 
 *Screenshot anchor: docs/images/2.25/EXPECTED.md#7-2-deploy-dialog — Deploy dialog showing audience selection and the change-management ticket ID in the comment field.*
 
-### 7.3 Pin
+### 6.3 Pin
 
 1. Click **Manage → Pin**.
 2. Select the audience for whom the agent should be pinned (typically a subset of the deployed audience — for example, pin only for the operations team within a broader deployment).
@@ -558,7 +483,7 @@ After publication and activation, the **AI Administrator** uses five lifecycle a
 
 *Screenshot anchor: docs/images/2.25/EXPECTED.md#7-3-pin-dialog — Pin dialog showing audience selection.*
 
-### 7.4 Block
+### 6.4 Block
 
 1. Click **Manage → Block**.
 2. Select the block scope: **All Users** (full org-wide block) or **Specific Groups / Users** (selective block, for example to remove access from a departed team).
@@ -570,7 +495,7 @@ After publication and activation, the **AI Administrator** uses five lifecycle a
 !!! warning "Block as Incident Containment"
     The Block action is the fastest tenant-level kill switch for an agent that is malfunctioning, leaking data, or behaving anomalously. Information Security Officers and AI Administrators should rehearse the Block action quarterly so the team is fluent under incident pressure. Document the rehearsal in the incident response runbook per [Control 2.3](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md).
 
-### 7.5 Remove
+### 6.5 Remove
 
 1. Click **Manage → Remove**.
 2. Confirm the agent removal. The agent record is retained but the agent disappears from end-user surfaces.
@@ -578,7 +503,7 @@ After publication and activation, the **AI Administrator** uses five lifecycle a
 
 *Screenshot anchor: docs/images/2.25/EXPECTED.md#7-5-remove-dialog — Remove confirmation dialog.*
 
-### 7.6 Delete
+### 6.6 Delete
 
 1. Click **Manage → Delete**.
 2. Read the warning carefully — Delete is **permanent** and removes associated agent files (knowledge sources, conversation history per Microsoft's retention policy for the platform). For agents with regulated-content access, confirm that all retention obligations have been satisfied (records exported and archived to Purview WORM storage) **before** deleting.
@@ -602,20 +527,20 @@ For PowerShell automation of bulk lifecycle actions (for example, scripted Block
 
 ---
 
-## 8. Approve Updates — Version-Pinning Workflow
+## 7. Approve Updates — Version-Pinning Workflow
 
 **Verification Criterion evidenced:** VC-5 (agent updates are admin-reviewed before reaching users; the previous version remains active until approval).
 
 When an agent author publishes a new version of an existing agent, the new version is held in **Pending Update Approval** state. The previous version remains active for end users until an **AI Administrator** reviews and approves the update. This version-pinning behavior is the primary control against unreviewed prompt-injection vectors, scope creep, and capability changes that bypass the original publication review.
 
-### 8.1 Open the Updates queue
+### 7.1 Open the Updates queue
 
 1. From **Agent 365 → Pending Requests**, select the **Updates** tab.
 2. The grid lists every agent version awaiting approval, with columns: **Agent display name**, **Current active version**, **Pending version**, **Submitted by**, **Submitted at**, **Diff summary** (where the platform provides one).
 
 *Screenshot anchor: docs/images/2.25/EXPECTED.md#8-1-updates-queue — Pending Requests blade with the Updates tab selected showing version diffs.*
 
-### 8.2 Review the update diff
+### 7.2 Review the update diff
 
 1. Click the row to open the Update review flyout.
 2. The flyout surfaces a diff between the active version and the pending version, including:
@@ -623,11 +548,11 @@ When an agent author publishes a new version of an existing agent, the new versi
    - **Data connection changes** — added or removed SharePoint sites, Dataverse tables, Microsoft Graph endpoints, third-party connectors. Each addition requires re-review against the original publication scope.
    - **Tool changes** — added or removed plugins, OpenAPI actions. New tools with write or external-network capability require explicit business justification.
    - **Audience scope changes** — any expansion to a broader audience requires re-review against the zone classification.
-3. If the diff includes any change that materially expands the agent's capability, sensitivity, or audience beyond the original publication approval, the update must be treated as a **new publication** and routed through the §5 publishing workflow with full Compliance Officer / Information Security Officer concurrence (for Zone 3).
+3. If the diff includes any change that materially expands the agent's capability, sensitivity, or audience beyond the original publication approval, the update must be treated as a **new publication** and routed through the §4 publishing workflow with full Compliance Officer / Information Security Officer concurrence (for Zone 3).
 
 *Screenshot anchor: docs/images/2.25/EXPECTED.md#8-2-update-diff — Update review flyout showing the diff between active and pending versions across instruction, data connections, tools, and audience.*
 
-### 8.3 Approve, request changes, or reject
+### 7.3 Approve, request changes, or reject
 
 1. Choose **Approve Update**, **Request Changes**, or **Reject**.
 2. **Approve Update:** the pending version becomes active immediately; users transition to the new version on their next agent invocation. The previous version is retained in version history for audit reference.
@@ -638,7 +563,7 @@ When an agent author publishes a new version of an existing agent, the new versi
 *Screenshot anchor: docs/images/2.25/EXPECTED.md#8-3-update-decision — Update review flyout with Approve Update selected and the change-management ticket ID in the comment.*
 
 !!! warning "Approve Updates Is Not Optional"
-    Leaving updates in the queue indefinitely creates two risks: (1) the author may bypass the queue by editing other surfaces (Copilot Studio, Azure AI Foundry) and re-submitting, creating governance gaps; (2) examiners reviewing oldest-pending update age will compare it to the firm's documented SLA for [Control 2.3 change management](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md). Process the Updates queue on the same cadence as the Pending Requests queue (§3.2).
+    Leaving updates in the queue indefinitely creates two risks: (1) the author may bypass the queue by editing other surfaces (Copilot Studio, Azure AI Foundry) and re-submitting, creating governance gaps; (2) examiners reviewing oldest-pending update age will compare it to the firm's documented SLA for [Control 2.3 change management](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md). Process the Updates queue on the same cadence as the Pending Requests queue (§2.2).
 
 !!! example "Examiner Evidence Box — Update Approval Audit Trail"
     | Element | Value |
@@ -651,13 +576,13 @@ For PowerShell automation of update queue extraction and bulk approval against a
 
 ---
 
-## 9. Governance Templates — Default and Custom
+## 8. Governance Templates — Default and Custom
 
 **Verification Criterion evidenced:** VC-4 (governance templates are configured per zone and applied at publish/activate time).
 
 Governance templates are configurable policy bundles applied at publish or activate time. They are the primary mechanism by which the Agent 365 console wires an agent into the firm's broader Microsoft Entra, Microsoft Purview, and SharePoint policy estate.
 
-### 9.1 Verify the Default Governance Template composition
+### 8.1 Verify the Default Governance Template composition
 
 1. From **Agent 365 → Governance → Templates**, select the **Default** template.
 2. Review the policy composition. Microsoft documents the GA Default as bundling a baseline set of:
@@ -674,7 +599,7 @@ Governance templates are configurable policy bundles applied at publish or activ
 !!! warning "Do Not Assume the Default Template Composition"
     The framework documentation and Microsoft Learn both describe the Default template at a moment in time. Do not assert in a Written Supervisory Procedures document that "the Default template enforces X" without a screenshot from your tenant, dated to your verification cycle. Examiners will compare your WSP language against the live composition; mismatches are findings.
 
-### 9.2 Create a Custom Governance Template
+### 8.2 Create a Custom Governance Template
 
 1. From **Agent 365 → Governance → Templates**, click **Create template**.
 2. Provide a clear, zone-aligned name: for example, `Z3-trading-desk-template`, `Z3-research-mnpi-template`, `Z2-marketing-template`.
@@ -685,11 +610,11 @@ Governance templates are configurable policy bundles applied at publish or activ
    - **Microsoft Purview Know Your Data** — feeds classification signals back to the AI governance posture.
    - **SharePoint Content Permissions Insights** — surfaces over-permissioned data the agent might reach.
    - **Additional Microsoft Purview retention labels** — apply records-management labels to agent-generated content.
-5. Save the template. New publications can now select this Custom template at §5.3 Step 6.
+5. Save the template. New publications can now select this Custom template at §4.3 Step 6.
 
 *Screenshot anchor: docs/images/2.25/EXPECTED.md#9-2-custom-template-create — Create Custom Governance Template wizard with the Default selected as base and the Entra Access Package + GSA + Know Your Data extensions added.*
 
-### 9.3 Wire an Entra Access Package into a Zone 3 Custom Template
+### 8.3 Wire an Entra Access Package into a Zone 3 Custom Template
 
 1. Before creating the Custom template, the **Entra Identity Governance Admin** creates the Access Package in **Entra → Identity Governance → Entitlement management → Access packages**. The Access Package defines:
    - Resources granted (the agent's required Entra security group, SharePoint site memberships, Dataverse roles).
@@ -697,16 +622,16 @@ Governance templates are configurable policy bundles applied at publish or activ
    - Approval workflow (typically the Agent Owner + Compliance Officer for Zone 3).
    - Lifecycle (recurring access reviews, expiration).
 2. In the Custom Governance Template, add the Access Package as a referenced policy.
-3. At publish time (§5), the Zone 3 audience scope defaults to **No Users** — actual user assignment happens through the Access Package request/approval workflow, not through Deploy.
-4. Cross-reference: see [Control 2.26 — Entra Agent ID Identity Governance](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) §4 for the Entitlement Management catalog and Access Package authoring procedure.
+3. At publish time (§4), the Zone 3 audience scope defaults to **No Users** — actual user assignment happens through the Access Package request/approval workflow, not through Deploy.
+4. Cross-reference: see [Control 2.26 — Entra Agent ID Identity Governance](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) §3 for the Entitlement Management catalog and Access Package authoring procedure.
 
 *Screenshot anchor: docs/images/2.25/EXPECTED.md#9-3-access-package — Custom Governance Template detail view showing the linked Entra Access Package with its resource list and approval workflow.*
 
-### 9.4 Govern template change management
+### 8.4 Govern template change management
 
 1. Any change to the Default or a Custom template is itself a control change. Route every template edit through [Control 2.3 — Change Management and Release Planning](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md).
 2. Capture before/after screenshots of the template detail view in the change-management ticket.
-3. Re-run the §9.1 verification of the Default template composition after every Microsoft release wave (typically Wave 1 in spring, Wave 2 in autumn).
+3. Re-run the §8.1 verification of the Default template composition after every Microsoft release wave (typically Wave 1 in spring, Wave 2 in autumn).
 4. The **Change Management Lead** is the named owner of the template change-management workflow; the **AI Governance Lead** is the named owner of the template content.
 
 !!! example "Examiner Evidence Box — Governance Template Configuration"
@@ -720,13 +645,13 @@ For PowerShell automation of template composition export, see [`./powershell-set
 
 ---
 
-## 10. Researcher with Computer Use Configuration
+## 9. Researcher with Computer Use Configuration
 
 **Verification Criterion evidenced:** VC-6 (Researcher with Computer Use is configured with an affirmative, zone-appropriate access decision and a documented website allowlist where required).
 
 Researcher with Computer Use is generally available since **October 2025** for tenants with Microsoft 365 Copilot licensing (no longer Frontier-gated). It allows the Researcher agent to operate a virtual browser to retrieve and synthesize information from web sources. It is **default-on** for tenants with Copilot licensing — FSI Zone 2 and Zone 3 organizations should make an **affirmative restrictive decision** rather than relying on default-on, because uncontrolled Computer Use creates regulatory and data-leakage risk that examiners will probe.
 
-### 10.1 Open the Researcher Computer Use surface
+### 9.1 Open the Researcher Computer Use surface
 
 1. Sign in to [`https://admin.microsoft.com`](https://admin.microsoft.com) as **AI Administrator**.
 2. Navigate to **Integrated Apps** (under **Settings** in the left navigation, or via the admin center search bar).
@@ -738,7 +663,7 @@ Researcher with Computer Use is generally available since **October 2025** for t
 !!! warning "Default-On Behavior — Make an Affirmative Decision"
     Computer Use is generally enabled for tenants with Copilot licensing unless explicitly disabled by an admin. **Do not leave the configuration in the default-on state without a recorded decision.** A recorded affirmative-restrictive decision is itself the evidence examiners will request — the absence of a recorded decision is a finding under FINRA RN 24-09 / Rule 3110 and OCC Bulletin 2026-13 (formerly OCC 2011-12) (third-party technology risk).
 
-### 10.2 Configure Access scope
+### 9.2 Configure Access scope
 
 1. The **Access** setting controls which users may invoke Computer Use through the Researcher agent. Options:
    - **All Users** — every Copilot-licensed user can invoke Computer Use.
@@ -756,7 +681,7 @@ Researcher with Computer Use is generally available since **October 2025** for t
 
 *Screenshot anchor: docs/images/2.25/EXPECTED.md#10-2-cu-access — Computer Use Access scope configured to Specific Groups with a named research-desk security group selected.*
 
-### 10.3 Configure Work data access
+### 9.3 Configure Work data access
 
 1. The **Work data access** toggle controls whether Computer Use sessions can incorporate the user's Microsoft 365 work data (mail, calendar, files) as grounding context.
 2. The toggle is **off by default**, but in many tenants is **user-enableable** unless an admin explicitly restricts it.
@@ -764,7 +689,7 @@ Researcher with Computer Use is generally available since **October 2025** for t
 
 *Screenshot anchor: docs/images/2.25/EXPECTED.md#10-3-cu-work-data — Computer Use Work data access toggle showing the admin-restricted (user-cannot-enable) state.*
 
-### 10.4 Configure Website Access policy
+### 9.4 Configure Website Access policy
 
 1. The **Website Access** policy controls which web destinations Computer Use sessions may browse. Options:
    - **Allow All** — Computer Use can browse any reachable URL (the default behavior in many tenants).
@@ -782,7 +707,7 @@ Researcher with Computer Use is generally available since **October 2025** for t
 
 *Screenshot anchor: docs/images/2.25/EXPECTED.md#10-4-cu-website-access — Computer Use Website Access configured to Specific URLs with the firm's allowlist visible.*
 
-### 10.5 Record the affirmative decision
+### 9.5 Record the affirmative decision
 
 1. Save the configuration. The Researcher Computer Use configuration page displays the current Access, Work data access, and Website Access settings.
 2. Capture a screenshot of the saved configuration page and archive it to the firm's compliance evidence repository with the change-management ticket ID.
@@ -800,33 +725,33 @@ For PowerShell automation of Researcher Computer Use configuration export and dr
 
 ---
 
-## 11. Agent Analytics Navigation
+## 10. Agent Analytics Navigation
 
 **Verification Criterion evidenced:** VC-7 (analytics signals are reviewed on a documented cadence and feed the firm's AI risk register).
 
 Agent Analytics provides the trend signals governance staff use to detect anomalies, plan capacity, and respond to FINRA RN 24-09 / Rule 3110-style examination questions about adoption and exposure.
 
-### 11.1 Open the Analytics blade
+### 10.1 Open the Analytics blade
 
 1. From **Agent 365 → Analytics**, the landing page surfaces three primary panels: **Agents by Publisher**, **Agents by Platform**, and **Active Users Over Time**.
 
 *Screenshot anchor: docs/images/2.25/EXPECTED.md#11-1-analytics-landing — Agent 365 Analytics landing page with the three primary panels visible.*
 
-### 11.2 Agents by Publisher panel
+### 10.2 Agents by Publisher panel
 
 1. Review the breakdown across **Microsoft / Organization / Partner (third-party)** publishers.
 2. A growing **Partner** count without commensurate growth in publishing approvals is a shadow-AI signal — investigate whether agents are being side-loaded.
 3. Capture a quarterly screenshot for the AI risk register.
 
-### 11.3 Agents by Platform panel
+### 10.3 Agents by Platform panel
 
 1. Review the breakdown across **Microsoft 365 Copilot / Copilot Studio / Azure AI Foundry / Microsoft Agent Framework / Partner**.
 2. The platform mix informs which Pillar 2 controls (2.10–2.16 for Copilot Studio governance, 2.20+ for Azure AI Foundry) require deeper attention.
 
-### 11.4 Active Users Over Time panel
+### 10.4 Active Users Over Time panel
 
 1. Review the trend chart for the firm's chosen lookback window (default 30 days; many tenants offer 90-day and 12-month options).
-2. Sudden spikes correlate with new deployments or pin actions — verify against the §7 lifecycle action history.
+2. Sudden spikes correlate with new deployments or pin actions — verify against the §6 lifecycle action history.
 3. Sudden drops may indicate an outage, a Block action, or end-user dissatisfaction — investigate via incident response.
 
 *Screenshot anchor: docs/images/2.25/EXPECTED.md#11-4-active-users-trend — Active Users Over Time chart with a 90-day window selected.*
@@ -834,7 +759,7 @@ Agent Analytics provides the trend signals governance staff use to detect anomal
 !!! example "Examiner Evidence Box — Analytics Trend Review"
     | Element | Value |
     |---|---|
-    | Artifact produced | Quarterly screenshots of all three Analytics panels; correlation notes against §7 lifecycle actions for any anomalous spike or drop |
+    | Artifact produced | Quarterly screenshots of all three Analytics panels; correlation notes against §6 lifecycle actions for any anomalous spike or drop |
     | Retention duration | 6 years (SEC 17a-4 / FINRA 4511) |
     | Regulatory mapping | FINRA RN 24-09 / Rule 3110 (AI adoption metrics), SOX §404 (control monitoring), NYDFS 23 NYCRR 500 (operational metrics) |
 
@@ -842,26 +767,26 @@ For PowerShell / Microsoft Graph extraction of analytics signals into the firm's
 
 ---
 
-## 12. Inventory Export and Retention
+## 11. Inventory Export and Retention
 
 **Verification Criteria evidenced:** VC-7 (inventory export produced on a documented cadence), VC-8 (retention placement satisfies SEC 17a-4 / FINRA 4511 obligations).
 
-The inventory export is the primary artifact examiners request to validate the firm's claim that the agent registry is the system of record. The §4.4 procedure produced an export; this section governs the **retention** of those exports.
+The inventory export is the primary artifact examiners request to validate the firm's claim that the agent registry is the system of record. The §3.4 procedure produced an export; this section governs the **retention** of those exports.
 
-### 12.1 Schedule the export cadence
+### 11.1 Schedule the export cadence
 
 1. The **AI Administrator** (or a delegated PowerShell-automated job — see [`./powershell-setup.md`](./powershell-setup.md)) produces an inventory export on the firm's documented cadence:
    - **Zone 2 default:** monthly.
    - **Zone 3 default:** monthly with weekly delta exports during high-change periods.
 2. Document the cadence in the firm's AI governance policy and in the records-management calendar.
 
-### 12.2 Apply ISO 8601 file naming
+### 11.2 Apply ISO 8601 file naming
 
 1. Name every export `agent365-registry-YYYY-MM-DD.csv` (or `.xlsx` per the chosen export format).
 2. Where supplementation is required (a column the Microsoft export omits, filled from Microsoft Graph or the Control 1.2 registry), produce a parallel manifest file `agent365-registry-YYYY-MM-DD-manifest.txt` documenting which columns were supplemented and from which source.
 3. ISO 8601 naming makes chronological sorting unambiguous and survives copy-paste into examination response packages.
 
-### 12.3 Place exports in WORM-protected retention
+### 11.3 Place exports in WORM-protected retention
 
 1. The retention destination is a Microsoft Purview records-management labeled location — typically a SharePoint document library or a Microsoft 365 Records Management retention label applied to a container.
 2. Apply a label of **6 years** with **records management (WORM)** lock so that exports cannot be modified or deleted before the retention horizon expires.
@@ -870,7 +795,7 @@ The inventory export is the primary artifact examiners request to validate the f
 
 *Screenshot anchor: docs/images/2.25/EXPECTED.md#12-3-worm-label — SharePoint document library settings showing the 6-year records-management label applied to the Agent 365 export folder.*
 
-### 12.4 Verify retention quarterly
+### 11.4 Verify retention quarterly
 
 1. Each quarter, the **Compliance Officer** (or **Purview Compliance Admin**) verifies:
    - Exports for every month in the prior quarter are present.
@@ -893,63 +818,63 @@ For PowerShell automation of the scheduled export, manifest generation, and Purv
 
 ---
 
-## 13. Examiner Evidence Collection Patterns
+## 12. Examiner Evidence Collection Patterns
 
 **Verification Criterion evidenced:** VC-8 (the firm can produce a complete examiner evidence package on demand).
 
-This section consolidates the evidence patterns referenced throughout §0–§12 into examiner-ready bundles. Each bundle maps to a specific regulator's typical examination question pattern. **None of these patterns substitutes for the firm's Written Supervisory Procedures or for assignment of an appropriately registered principal under FINRA Rule 3110**; they help the firm produce evidence that the supervisory and control framework is operating.
+This section consolidates the evidence patterns referenced throughout §0–§11 into examiner-ready bundles. Each bundle maps to a specific regulator's typical examination question pattern. **None of these patterns substitutes for the firm's Written Supervisory Procedures or for assignment of an appropriately registered principal under FINRA Rule 3110**; they help the firm produce evidence that the supervisory and control framework is operating.
 
-### 13.1 FINRA Rule 3110 (Supervision) — agent supervisory chain
+### 12.1 FINRA Rule 3110 (Supervision) — agent supervisory chain
 
 Examiners will ask the firm to demonstrate the supervisory chain for any AI agent that interacts with customers, registered representatives, or registered-principal-supervised activities.
 
 | Examiner question | Evidence to produce | Source section |
 |---|---|---|
 | "Show me the registered principal responsible for supervising AI agent use." | Firm's Written Supervisory Procedures naming the registered principal; the §0.2 role-coverage CSV demonstrating dual-control on the operating roles | §0.2, WSP (out-of-scope artifact) |
-| "Show me the approval record for this agent." | Agent 365 approval history flyout (publish + activate + last update) with timestamp, approver UPN, governance template applied; cross-referenced change-management ticket | §5, §6, §8 |
-| "Show me the queue review cadence." | Weekly (Zone 2) / daily (Zone 3) governance session minutes; Pending Requests aging report | §3.2 |
-| "Show me what happens when an owner leaves." | Ownerless Agents card remediation log; Control 2.26 lifecycle workflow evidence; Control 3.6 orphaned agent remediation log | §3.3, [Control 2.26](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md), [Control 3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) |
+| "Show me the approval record for this agent." | Agent 365 approval history flyout (publish + activate + last update) with timestamp, approver UPN, governance template applied; cross-referenced change-management ticket | §4, §5, §7 |
+| "Show me the queue review cadence." | Weekly (Zone 2) / daily (Zone 3) governance session minutes; Pending Requests aging report | §2.2 |
+| "Show me what happens when an owner leaves." | Ownerless Agents card remediation log; Control 2.26 lifecycle workflow evidence; Control 3.6 orphaned agent remediation log | §2.3, [Control 2.26](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md), [Control 3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) |
 
-### 13.2 FINRA Rule 4511 / SEC Rules 17a-3 and 17a-4 (Books and Records)
-
-| Examiner question | Evidence to produce | Source section |
-|---|---|---|
-| "Produce the inventory of all AI agents active in your firm during the examination period." | Monthly inventory exports (CSV / Excel) with ISO 8601 filenames; supplementation manifests | §4.4, §12 |
-| "Demonstrate retention of these records for the required horizon." | SharePoint records-management label configuration showing 6-year WORM lock; quarterly retention attestation log | §12.3, §12.4 |
-| "Produce the lifecycle history of this specific agent." | Agent detail flyout approval history; lifecycle action audit trail (Deploy / Pin / Block / Remove / Delete) | §4.3, §7 |
-
-### 13.3 FINRA RN 24-09 / Rule 3110 (AI Tools)
+### 12.2 FINRA Rule 4511 / SEC Rules 17a-3 and 17a-4 (Books and Records)
 
 | Examiner question | Evidence to produce | Source section |
 |---|---|---|
-| "What governance applies to your firm's AI tools?" | AI governance policy referencing this control framework; Default and Custom Governance Template definitions | §9 |
-| "How do you control external data retrieval by AI tools?" | Researcher Computer Use configuration screenshot; Website Access allowlist / denylist; quarterly re-verification log | §10 |
-| "How do you respond to an AI tool malfunction?" | Block action quarterly rehearsal record; incident response runbook | §7.4 |
-| "Show your AI adoption metrics." | Quarterly Analytics screenshots; Active Users Over Time chart | §3.1, §11 |
+| "Produce the inventory of all AI agents active in your firm during the examination period." | Monthly inventory exports (CSV / Excel) with ISO 8601 filenames; supplementation manifests | §3.4, §11 |
+| "Demonstrate retention of these records for the required horizon." | SharePoint records-management label configuration showing 6-year WORM lock; quarterly retention attestation log | §11.3, §11.4 |
+| "Produce the lifecycle history of this specific agent." | Agent detail flyout approval history; lifecycle action audit trail (Deploy / Pin / Block / Remove / Delete) | §3.3, §6 |
 
-### 13.4 SEC Sections 302 / 404 (SOX Internal Controls)
-
-| Examiner question | Evidence to produce | Source section |
-|---|---|---|
-| "Demonstrate segregation of duties between agent authoring, approving, and operating roles." | Role-coverage CSV (§0.2); PIM activation log for any Entra Global Admin activations | §0.2, §2.1 |
-| "Demonstrate that template changes follow change control." | Change-management tickets for every template edit with before/after screenshots | §9.4 |
-| "Demonstrate that updates are reviewed before reaching users." | Approve Updates queue history; version diff snapshots; rejected-update records | §8 |
-
-### 13.5 OCC Bulletin 2026-13 (Technology Risk Management)
+### 12.3 FINRA RN 24-09 / Rule 3110 (AI Tools)
 
 | Examiner question | Evidence to produce | Source section |
 |---|---|---|
-| "Show your inventory of third-party AI agents in use." | Agents by Publisher analytics panel; Partner-publisher filtered registry view | §4.2, §11.2 |
-| "Show your control framework for those third-party agents." | Custom Governance Template applied to third-party publications; Compliance Officer / Information Security Officer concurrence records | §5.5, §9.2 |
-| "Show your monitoring of third-party agent operation." | Exception Rate hero metric; Agent Runtime trend; SIEM forwarding evidence | §3.1, §3.4 |
+| "What governance applies to your firm's AI tools?" | AI governance policy referencing this control framework; Default and Custom Governance Template definitions | §8 |
+| "How do you control external data retrieval by AI tools?" | Researcher Computer Use configuration screenshot; Website Access allowlist / denylist; quarterly re-verification log | §9 |
+| "How do you respond to an AI tool malfunction?" | Block action quarterly rehearsal record; incident response runbook | §6.4 |
+| "Show your AI adoption metrics." | Quarterly Analytics screenshots; Active Users Over Time chart | §2.1, §10 |
 
-### 13.6 NYDFS 23 NYCRR 500 (Cybersecurity)
+### 12.4 SEC Sections 302 / 404 (SOX Internal Controls)
 
 | Examiner question | Evidence to produce | Source section |
 |---|---|---|
-| "Show your asset inventory for AI agents." | Monthly inventory exports | §4.4, §12 |
-| "Show your access governance for AI agents." | Custom Governance Template with Entra Access Package; access review evidence (cross-reference to [Control 2.26 §6](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md)) | §9.3 |
-| "Show your incident response readiness for AI agents." | Block action rehearsal record; incident response runbook | §7.4 |
+| "Demonstrate segregation of duties between agent authoring, approving, and operating roles." | Role-coverage CSV (§0.2); PIM activation log for any Entra Global Admin activations | §0.2, §1.1 |
+| "Demonstrate that template changes follow change control." | Change-management tickets for every template edit with before/after screenshots | §8.4 |
+| "Demonstrate that updates are reviewed before reaching users." | Approve Updates queue history; version diff snapshots; rejected-update records | §7 |
+
+### 12.5 OCC Bulletin 2026-13 (Technology Risk Management)
+
+| Examiner question | Evidence to produce | Source section |
+|---|---|---|
+| "Show your inventory of third-party AI agents in use." | Agents by Publisher analytics panel; Partner-publisher filtered registry view | §3.2, §10.2 |
+| "Show your control framework for those third-party agents." | Custom Governance Template applied to third-party publications; Compliance Officer / Information Security Officer concurrence records | §4.5, §8.2 |
+| "Show your monitoring of third-party agent operation." | Exception Rate hero metric; Agent Runtime trend; SIEM forwarding evidence | §2.1, §2.4 |
+
+### 12.6 NYDFS 23 NYCRR 500 (Cybersecurity)
+
+| Examiner question | Evidence to produce | Source section |
+|---|---|---|
+| "Show your asset inventory for AI agents." | Monthly inventory exports | §3.4, §11 |
+| "Show your access governance for AI agents." | Custom Governance Template with Entra Access Package; access review evidence (cross-reference to [Control 2.26 §5](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md)) | §8.3 |
+| "Show your incident response readiness for AI agents." | Block action rehearsal record; incident response runbook | §6.4 |
 
 !!! example "Examiner Evidence Box — Examination-Ready Bundle Composition"
     | Element | Value |
@@ -962,7 +887,7 @@ For PowerShell automation that assembles the examination-ready bundle into a sin
 
 ---
 
-## 14. Closing Decision Matrix — Portal vs PowerShell vs Graph
+## 13. Closing Decision Matrix — Portal vs PowerShell vs Graph
 
 Use this matrix to decide which surface to operate for each governance task. Portal is correct for ad-hoc, low-volume, evidence-rich work; PowerShell is correct for scheduled, repeatable, scripted work; Microsoft Graph is correct for integration with the firm's broader BI / SIEM / change-management estate.
 
@@ -988,19 +913,18 @@ Use this matrix to decide which surface to operate for each governance task. Por
 Before declaring this control operational, confirm all of the following:
 
 - [ ] §0 pre-flight gates passed (tenant ID captured, roles dual-covered, Agent 365 licensed and visible).
-- [ ] §1 sovereign-cloud variant applied if applicable, with documented compensating controls and quarterly attestation cadence.
-- [ ] §2 Entra Global Admin operates only via PIM with justification; AI Administrator is the daily operator.
-- [ ] §3 governance card review cadence and SLAs documented in the firm's WSPs.
-- [ ] §4 Agent Registry exports include all required columns; supplementation manifest in place where needed.
-- [ ] §5 publishing approval workflow exercised end-to-end with a Zone 2 and a Zone 3 test agent.
-- [ ] §6 activation approval workflow exercised end-to-end.
-- [ ] §7 Deploy / Pin / Block / Remove / Delete actions rehearsed; quarterly Block drill scheduled.
-- [ ] §8 Approve Updates queue is reviewed on the documented cadence; no stale pending updates.
-- [ ] §9 Default Governance Template composition verified and screenshotted; Custom templates created for Zone 3 with linked Entra Access Packages.
-- [ ] §10 Researcher Computer Use configured with affirmative restrictive decision per zone; allowlist (Zone 3) maintained under change control.
-- [ ] §11 Analytics review captured in the AI risk register quarterly.
-- [ ] §12 Inventory exports produced monthly with ISO 8601 names, placed under Purview 6-year WORM retention.
-- [ ] §13 Examination-ready bundle assembled and verified.
+- [ ] §1 Entra Global Admin operates only via PIM with justification; AI Administrator is the daily operator.
+- [ ] §2 governance card review cadence and SLAs documented in the firm's WSPs.
+- [ ] §3 Agent Registry exports include all required columns; supplementation manifest in place where needed.
+- [ ] §4 publishing approval workflow exercised end-to-end with a Zone 2 and a Zone 3 test agent.
+- [ ] §5 activation approval workflow exercised end-to-end.
+- [ ] §6 Deploy / Pin / Block / Remove / Delete actions rehearsed; quarterly Block drill scheduled.
+- [ ] §7 Approve Updates queue is reviewed on the documented cadence; no stale pending updates.
+- [ ] §8 Default Governance Template composition verified and screenshotted; Custom templates created for Zone 3 with linked Entra Access Packages.
+- [ ] §9 Researcher Computer Use configured with affirmative restrictive decision per zone; allowlist (Zone 3) maintained under change control.
+- [ ] §10 Analytics review captured in the AI risk register quarterly.
+- [ ] §11 Inventory exports produced monthly with ISO 8601 names, placed under Purview 6-year WORM retention.
+- [ ] §12 Examination-ready bundle assembled and verified.
 - [ ] Cross-references to [Control 1.2](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md), [Control 2.3](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md), [Control 2.8](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md), [Control 2.26](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md), and [Control 3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) are wired into the firm's evidence pack.
 - [ ] Sibling playbooks reviewed: [`./powershell-setup.md`](./powershell-setup.md), [`./verification-testing.md`](./verification-testing.md), [`./troubleshooting.md`](./troubleshooting.md).
 

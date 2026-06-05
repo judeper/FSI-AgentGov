@@ -13,7 +13,7 @@
 | Sharing still works | Wrong sharing-limit blade configured (canvas-app limits ≠ agent limits); existing shares not retroactively removed | Configure the **agent** sharing rules in Managed Environment (Editor / Viewer / individuals-only / viewer-cap). Note settings are not retroactive; remove existing over-broad shares manually |
 | Group membership not reflected | Entra ID sync delay | Wait up to 60 minutes for directory sync |
 | Role assignment fails (403) | Trying to use `Set-AdminPowerAppEnvironmentRoleAssignment` on a Dataverse-backed environment (cmdlet does not work there) | Assign the Dataverse "Environment Maker" / "Copilot Author" role via PPAC > Settings > Users + permissions > Security roles, or via the Dataverse Web API |
-| `Get-AdminPowerAppEnvironmentRoleAssignment` returns empty | Dataverse-backed environment (cmdlet returns nothing); module version returning a different shape; sovereign-cloud endpoint mismatch | Check `(Get-AdminPowerAppEnvironment -EnvironmentName <id>).CommonDataServiceDatabaseProvisioningState`. If `Succeeded`, use PPAC. Verify module version with `Get-Module Microsoft.PowerApps.Administration.PowerShell`. For sovereign tenants, add `-Endpoint usgov\|usgovhigh\|dod` to every cmdlet |
+| `Get-AdminPowerAppEnvironmentRoleAssignment` returns empty | Dataverse-backed environment (cmdlet returns nothing); module version returning a different shape | Check `(Get-AdminPowerAppEnvironment -EnvironmentName <id>).CommonDataServiceDatabaseProvisioningState`. If `Succeeded`, use PPAC. Verify module version with `Get-Module Microsoft.PowerApps.Administration.PowerShell`. |
 | Validation script reports PASS but the environment is wide open | Script filtered on the wrong field (`RoleType` vs `RoleName`) or wrong tenant-setting path | See the corrected validation script in `verification-testing.md`. Always verify property names with `... \| Get-Member` after a module update |
 | Authentication change not enforced | Authentication settings take effect **only after the next publish** of each agent | Re-publish the agent after changing authentication; verify in test session |
 
@@ -241,7 +241,7 @@ For each evidence artifact: file name, SHA-256, capture UTC timestamp, operator 
 - [ ] Reproduction steps (numbered, exact clicks / cmdlets / API calls)
 - [ ] Expected vs observed behavior
 - [ ] Power Platform admin module version (`Get-Module Microsoft.PowerApps.Administration.PowerShell`)
-- [ ] Browser + OS + tenant cloud (commercial / GCC / GCC-High / DoD)
+- [ ] Browser + OS
 - [ ] Audit search export covering the issue window (CSV, with `Date` column intact)
 - [ ] Screenshots showing the issue (annotated with UTC timestamps)
 - [ ] Any recent MC notices that may be related

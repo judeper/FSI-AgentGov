@@ -3,7 +3,7 @@
 **Control:** 1.2 — Agent Registry and Integrated Apps Management
 **Pillar:** 1 — Security
 **Audience:** Agent Sponsor, Agent Owner, Compliance Officer, AI Governance Lead, Entra Global Admin (PIM-activated only), Entra Identity Governance Admin, Entra Application Admin, AI Administrator, Power Platform Admin, Purview Compliance Admin, Internal Audit, Model Risk Manager
-**Sovereign-cloud scope:** Microsoft 365 Commercial, GCC, GCC High, DoD. 21Vianet is **out of scope** for this playbook (see PRE-06 / SOV-03).
+**Scope:** Microsoft 365 Commercial (Global) cloud — the deployment surface for US financial-services customers.
 **Last UI verified:** May 2026
 
 ---
@@ -12,15 +12,15 @@
 
 This playbook helps support FSI organizations in meeting expectations from FINRA Rule 4511 (books and records), FINRA Rule 3110 (supervision), FINRA RN 24-09 / Rule 3110 (generative-AI supervision), SEC Rule 17a-4(b)(4) and 17a-4(g) (records retention and third-party custody), SOX §§302/404 (internal control over financial reporting), GLBA 501(b) Safeguards Rule, FTC Safeguards Rule 16 CFR §314.4(c) (asset inventory and access controls), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7) (model risk management — inventory and accountable ownership), CFTC Regulation 1.31, NYDFS 23 NYCRR Part 500.07 / 500.16 / 500.17 (privileged access, incident response, asset inventory), NIST AI RMF 1.0 GOVERN 1.4 and GOVERN 1.6 (accountable AI inventory and roles), and ISO/IEC 42001:2023 where applicable.
 
-A clean run of this playbook **does not guarantee legal or regulatory compliance**, does not replace independent supervisory review, does not substitute for the firm's written supervisory procedures, and does not by itself prove the absence of unknown agents in surfaces this playbook did not enumerate. Implementation requires organization-specific risk assessment, legal review, and integration with the firm's broader compliance program. Organizations should verify current Microsoft Learn documentation, sovereign-cloud feature parity, tenant-specific entitlements, and Entra / Microsoft 365 / Power Platform admin-surface availability at each cycle. Numeric thresholds, SLA windows, sample sizes, and rotation cadences in this playbook are **calibrated to the tenant baseline captured in PRE-04**; they are not portable between tenants without recalibration.
+A clean run of this playbook **does not guarantee legal or regulatory compliance**, does not replace independent supervisory review, does not substitute for the firm's written supervisory procedures, and does not by itself prove the absence of unknown agents in surfaces this playbook did not enumerate. Implementation requires organization-specific risk assessment, legal review, and integration with the firm's broader compliance program. Organizations should verify current Microsoft Learn documentation, tenant-specific entitlements, and Entra / Microsoft 365 / Power Platform admin-surface availability at each cycle. Numeric thresholds, SLA windows, sample sizes, and rotation cadences in this playbook are **calibrated to the tenant baseline captured in PRE-04**; they are not portable between tenants without recalibration.
 
-This playbook is **registration-plane verification**: its purpose is to verify that every AI agent and integrated application deployed in the tenant is **completely registered, authorized, properly governed, owned by a named accountable person, scoped to least privilege, credentialed in a hygienic manner, sponsored under a current attestation, and reconciled to the declared sovereign-cloud boundary**. Control 1.2 is the foundation control for the **agent identity and registration plane**; it is the upstream sister to Control 3.1 (Agent Inventory and Metadata Management). If a registration is incomplete, every downstream control that assumes a governed identity anchor — Conditional Access (Control 1.4 / 1.5), audit logging (Control 1.7), eDiscovery (Control 1.19), step-up auth (Control 1.23), Defender posture management (Control 1.24), managed environments (Control 2.1), QA (Control 2.5), and inventory reporting (Controls 3.1 / 3.6 / 3.11) — has nothing to bind to.
+This playbook is **registration-plane verification**: its purpose is to verify that every AI agent and integrated application deployed in the tenant is **completely registered, authorized, properly governed, owned by a named accountable person, scoped to least privilege, credentialed in a hygienic manner, sponsored under a current attestation, and maintained in a current attestation state**. Control 1.2 is the foundation control for the **agent identity and registration plane**; it is the upstream sister to Control 3.1 (Agent Inventory and Metadata Management). If a registration is incomplete, every downstream control that assumes a governed identity anchor — Conditional Access (Control 1.4 / 1.5), audit logging (Control 1.7), eDiscovery (Control 1.19), step-up auth (Control 1.23), Defender posture management (Control 1.24), managed environments (Control 2.1), QA (Control 2.5), and inventory reporting (Controls 3.1 / 3.6 / 3.11) — has nothing to bind to.
 
 ---
 
 ## Why this playbook is foundational
 
-The registration plane is where an AI agent acquires a tenant identity (Entra App Registration, service principal, or Entra Agent ID), accepts permission grants, accumulates credentials, declares an owner and sponsor, and chooses a sovereign-cloud anchor. Every other security and governance control assumes those facts are correct. Three categories of failure propagate silently from this plane:
+The registration plane is where an AI agent acquires a tenant identity (Entra App Registration, service principal, or Entra Agent ID), accepts permission grants, accumulates credentials, declares an owner and sponsor, and is assigned a governance owner. Every other security and governance control assumes those facts are correct. Three categories of failure propagate silently from this plane:
 
 1. **Identity-anchor gaps.** An agent runs on an unregistered identity, an undocumented service principal, or a permanent client secret with no owner of record. Conditional Access cannot target it; audit logs cannot attribute its actions; incident response cannot disable it cleanly.
 2. **Authorization drift.** A registration acquires an additional Graph permission, a new credential, a re-consented OAuth scope, or a new owner without re-attestation. The cycle was clean last quarter; the registration is now over-scoped, but no surface flags the change unless this playbook looks for it.
@@ -85,15 +85,14 @@ This playbook is designed to detect defects in the **registration program**, not
 7. **Consent-workflow degradation** — admin consent workflow disabled, reviewer queue backlog beyond SLA, user consent not restricted to verified publishers and low-risk scopes per the firm's policy.
 8. **Conditional Access for workload identities gap** — Zone 3 service principals not covered by an SP-targeted Conditional Access policy; sign-in risk policy for workload identities disabled or misscoped.
 9. **Sponsorship lapses** — Zone 2 / Zone 3 agents with no active Sponsor + Backup; sponsor approval audit trail missing; quarterly sponsor attestation overdue.
-10. **Sovereign-cloud assumption leakage** — registration entries with no cloud designation, cross-cloud service principals (multi-tenant home cloud mismatch) unflagged, per-cloud feature parity gaps undocumented.
-11. **Publisher-verification gaps** — partner-built agents and Integrated Apps published by unverified publishers without a documented compensating review.
-12. **Hash-chain breaks across cycles** — a previous cycle's manifest hash that does not match the current cycle's `previousManifestHash` field, indicating tampering or evidence loss.
+10. **Publisher-verification gaps** — partner-built agents and Integrated Apps published by unverified publishers without a documented compensating review.
+11. **Hash-chain breaks across cycles** — a previous cycle's manifest hash that does not match the current cycle's `previousManifestHash` field, indicating tampering or evidence loss.
 
 ---
 
 ## What this playbook does NOT claim
 
-This playbook **does not** prove the absence of unknown agents in surfaces it did not enumerate, **does not** validate the runtime behavior of any agent, **does not** independently verify the publisher claims of partner-built agents beyond what Microsoft's publisher-verification program records, **does not** guarantee that least-privilege grants are operationally minimal (only that they conform to the documented Graph permissions matrix at the cycle start), **does not** substitute for the firm's third-party / vendor-risk-management program for partner-built agents, **does not** replace the AI Incident Response Playbook for live identity-compromise events, and **does not** assume universal sovereign-cloud feature parity. A clean cycle is a defensible attestation that the registration plane is governed against the policy in force on the cycle start date; it is not a statement about the firm's complete identity-security posture.
+This playbook **does not** prove the absence of unknown agents in surfaces it did not enumerate, **does not** validate the runtime behavior of any agent, **does not** independently verify the publisher claims of partner-built agents beyond what Microsoft's publisher-verification program records, **does not** guarantee that least-privilege grants are operationally minimal (only that they conform to the documented Graph permissions matrix at the cycle start), **does not** substitute for the firm's third-party / vendor-risk-management program for partner-built agents, **does not** replace the AI Incident Response Playbook for live identity-compromise events, and. A clean cycle is a defensible attestation that the registration plane is governed against the policy in force on the cycle start date; it is not a statement about the firm's complete identity-security posture.
 
 ---
 
@@ -106,8 +105,8 @@ Every registration verification cycle terminates in a **three-signature attestat
 | Signature | Role (canonical) | What this signature attests |
 |---|---|---|
 | **Sponsor** | Agent Sponsor | "I confirm that the agents in scope for this cycle remain business-justified; that the zone classification and regulatory tagging on each one match my current understanding of how the agent is used; that I am the named accountable sponsor for each Zone 2 / Zone 3 agent in scope, or have an active Backup Sponsor of record; and that I have re-attested any agent whose connectors, grounding sources, permission set, or business purpose materially changed during the cycle window." |
-| **Owner** | Agent Owner | "I executed the REG, OWN, PERM, CRED, CONSENT, CA, SPONSOR, and SOV tests as documented; I assembled the evidence pack listed in the manifest; the SHA-256 hashes in the manifest match the artifacts in the evidence store; I have not altered any source export after capture; every remediation action recorded in the cycle was completed by a named operator under documented change control." |
-| **Compliance** | Compliance Officer | "I reviewed the evidence pack from a supervisory and regulatory-readiness perspective; the residual gaps documented in this cycle are acceptable for the firm's current risk posture or are tracked to a dated remediation plan; the consent-workflow, publisher-verification, and sovereign-cloud designation evidence is suitable for inclusion in the firm's books-and-records repository under the applicable retention period." |
+| **Owner** | Agent Owner | "I executed the REG, OWN, PERM, CRED, CONSENT, CA, and SPONSOR tests as documented; I assembled the evidence pack listed in the manifest; the SHA-256 hashes in the manifest match the artifacts in the evidence store; I have not altered any source export after capture; every remediation action recorded in the cycle was completed by a named operator under documented change control." |
+| **Compliance** | Compliance Officer | "I reviewed the evidence pack from a supervisory and regulatory-readiness perspective; the residual gaps documented in this cycle are acceptable for the firm's current risk posture or are tracked to a dated remediation plan; the consent-workflow and publisher-verification evidence is suitable for inclusion in the firm's books-and-records repository under the applicable retention period." |
 
 The three signatures **must** be three distinct natural persons. Role collision (the same person signing two roles) is a cycle-stopping FAIL recorded in PRE-02. A documented temporary exception for a Zone 1-only scope is allowed only with a co-signed expiry and a return-to-three-person review on the next cycle.
 
@@ -144,7 +143,7 @@ Example `attestation.json` skeleton:
 
 ### 1.3 Attestation note language
 
-The Owner attestation should include the literal language: *"This cycle was executed against the registration surfaces and tenant entitlements available as of the cycle start date in the declared sovereign cloud. A clean cycle does not by itself guarantee regulatory compliance, model-risk completeness, or freedom from shadow registrations in surfaces this cycle did not enumerate."* Sponsor and Compliance signatures should each include a reference to the policy document identifier and effective date that they are attesting against, plus the specific Graph permissions matrix version used to evaluate PERM-* tests.
+The Owner attestation should include the literal language: *"This cycle was executed against the registration surfaces and tenant entitlements available as of the cycle start date. A clean cycle does not by itself guarantee regulatory compliance, model-risk completeness, or freedom from shadow registrations in surfaces this cycle did not enumerate."* Sponsor and Compliance signatures should each include a reference to the policy document identifier and effective date, plus the specific Graph permissions matrix version used to evaluate PERM-* tests.
 
 ### 1.4 Signature method requirements
 
@@ -155,35 +154,6 @@ The Owner attestation should include the literal language: *"This cycle was exec
 | Zone 3 | Hardware-token-protected key (FIPS 140-2 or 140-3 validated) | HSM-resident signing key with dual-control activation |
 
 The signature method is recorded in the `method` field; verification at audit replay time confirms the method satisfied the zone minimum at the cycle start.
-
----
-
-## Section 2 — Sovereign Cloud parity matrix per surface
-
-The registration surfaces this playbook depends on do **not** have uniform feature parity across Microsoft 365 sovereign clouds as of April 2026. The matrix below is the operative parity reference for the cycle. Any cell marked *Verify* should be re-checked against the tenant Message Center and Microsoft Learn at cycle start; the cycle should record what was observed, not what was assumed.
-
-| Registration surface / capability | Commercial | GCC | GCC High | DoD | Cycle implication if unavailable |
-|---|---|---|---|---|---|
-| Microsoft Entra App Registration (`/applications`) | GA | GA | GA | GA | Required everywhere; absence is a hard blocker |
-| Microsoft Entra service principal (`/servicePrincipals`) | GA | GA | GA | GA | Required everywhere; absence is a hard blocker |
-| Microsoft Entra Agent ID directory | Preview / rolling | Limited preview / verify | Verify | Verify | Use Entra app + SP as identity anchor; record SOV-03 compensating control |
-| Integrated Apps (M365 admin center) | GA | GA / verify rollout | Verify | Verify | Fall back to Entra-only enumeration; record SOV-03 |
-| App consent workflow | GA | GA | GA / verify UX parity | GA / verify UX parity | Required for CONSENT-01; verify UX parity at cycle start |
-| User consent restriction settings | GA | GA | GA | GA | Required everywhere |
-| Conditional Access for workload identities | GA | GA | Verify rollout | Verify rollout | If unavailable, document compensating control via tenant restrictions and IP allow-listing |
-| Workload identity sign-in risk policies (Identity Protection) | GA (P2) | GA (P2) | Verify | Verify | Compensating control via Defender for Cloud Apps anomaly policies if unavailable |
-| Microsoft Graph `/oauth2PermissionGrants`, `/appRoleAssignments` | GA | GA | GA | GA | Required everywhere |
-| Microsoft Graph application credential enumeration | GA | GA | GA | GA | Required for CRED-* tests |
-| Federated identity credentials (workload identity federation) | GA | GA | Verify rollout | Verify rollout | Where unavailable, document the compensating credential-rotation cadence |
-| Service principal sign-in audit | GA | GA | GA | GA | Required for CONSENT-04, CRED-04 |
-| Power Platform Copilot Studio registration | GA | GA / verify feature scope | Verify | Verify | Fall back to Dataverse-side enumeration; record SOV-03 |
-| Defender for Cloud Apps (app governance) | GA | Rolling / verify | Limited / verify | Verify | PERM-04 enrichment skipped; record SOV-03 |
-| Microsoft Agent 365 admin center | Preview / rolling | Limited / verify | Verify | Verify | Treat as additive only; do not rely on as system of record |
-| Purview Audit (UAL) — application lifecycle events | GA | GA | GA | GA | Required everywhere; absence is a hard blocker |
-| Purview eDiscovery for app-related artifacts | GA | GA | GA | GA | Required for evidence-pack retention |
-| WORM / immutable retention for evidence | GA | GA | GA | GA | Required everywhere |
-
-**Parity rule.** Any surface marked *Verify*, *Limited*, or *Preview* should be paired with a documented compensating control in the cycle's SOV-03 evidence. Treat any parity gap as a **compensating-control conversation**, not an assumption of feature equivalence across clouds. 21Vianet is out of scope for this playbook; tenants in 21Vianet should run a separate cloud-specific cycle.
 
 ---
 
@@ -261,7 +231,6 @@ Write permissions are **never** held by the cycle-execution principal. Remediati
 | **CONSENT** | Consent governance integrity (admin consent workflow active; reviewer queue SLA met; user consent restrictions enforced) | Quarterly | Monthly | Monthly | Compliance Officer | AI Governance Lead |
 | **CA** | Conditional Access for workload identities (Z3 SPs covered by SP-targeted CA policy; sign-in risk policies active) | Annual | Quarterly | Monthly | Conditional Access Admin | AI Governance Lead |
 | **SPONSOR** | Sponsorship integrity (Z2 / Z3 agents have active Sponsor + Backup; sponsor approval audit trail; quarterly attestation) | Annual | Quarterly | Quarterly | Agent Sponsor | Compliance Officer |
-| **SOV** | Sovereign cloud boundary (every registration entry has cloud designation; cross-cloud SPs flagged; per-cloud parity gaps documented) | Annual | Semi-annual | Quarterly | AI Governance Lead | Compliance Officer |
 
 **Cadence rule.** Monthly cycles have a 35-day grace window, quarterly cycles have a 100-day grace window, semi-annual cycles have a 200-day grace window, annual cycles have a 400-day grace window. A namespace that fails in two consecutive cycles automatically escalates one tier (Zone 1 → Zone 2 cadence, Zone 2 → Zone 3 cadence) until two clean cycles are observed. The escalation is recorded in the AI Governance Lead's exception register and is itself an artifact in the next cycle's evidence pack.
 
@@ -273,7 +242,7 @@ All PRE gates should pass before any §7 test runs. A PRE failure halts the cycl
 
 ### PRE-01 — Registration governance charter and Graph permissions matrix in force
 
-- **Objective.** Confirm the organization has a current, signed registration-governance charter that defines the canonical metadata schema (App ID, SP Object ID, Entra Agent ID where applicable, Sponsor, Owner, Backup Owner, Zone, Permission Set, Credential Type, Sovereign Cloud, Publisher Verification State, etc.) and the Graph permissions matrix that PERM-* tests evaluate against.
+- **Objective.** Confirm the organization has a current, signed registration-governance charter that defines the canonical metadata schema (App ID, SP Object ID, Entra Agent ID where applicable, Sponsor, Owner, Backup Owner, Zone, Permission Set, Credential Type, Publisher Verification State, etc.) and the Graph permissions matrix that PERM-* tests evaluate against.
 - **How to verify.** Pull the charter document and Graph permissions matrix from the policy repository; confirm signatures from AI Governance Lead and Compliance Officer; confirm effective date is current and review date has not lapsed; confirm the matrix version is referenced in the cycle manifest.
 - **Evidence.** `pre-01-registration-charter.json` referencing policy ID, effective date, review date, owner, sign-off roster, Graph matrix version.
 - **Pass criteria.** Charter exists, is signed, has not lapsed its review date, and the metadata schema and Graph matrix in force match the schema and matrix this cycle is enforcing.
@@ -292,9 +261,9 @@ All PRE gates should pass before any §7 test runs. A PRE failure halts the cycl
 ### PRE-03 — License and entitlement floor
 
 - **Objective.** Confirm the tenant has the entitlements required for every registration surface and source-of-truth system the cycle relies on (Entra ID P1 / P2, Workload ID Premium, Identity Governance, Microsoft 365 Copilot, Power Platform admin, Purview Audit, optional MDA / Agent 365).
-- **How to verify.** Capture tenant SKU report, Entra ID tier, Workload ID Premium activation state, Identity Governance state, and entitlement availability for each surface; if a surface is absent in the declared sovereign cloud, record the compensating manual path.
+- **How to verify.** Capture tenant SKU report, Entra ID tier, Workload ID Premium activation state, Identity Governance state, and entitlement availability for each surface; if a surface is absent or unavailable, record the compensating manual path.
 - **Evidence.** `pre-03-licensing-and-env.json`
-- **Pass criteria.** All exercised surfaces are entitled and reachable, or a compensating control is documented and tied to the relevant SOV-* test.
+- **Pass criteria.** All exercised surfaces are entitled and reachable, or a compensating control is documented and tied to the relevant test.
 - **Failure remediation.** Acquire the missing entitlement or formally narrow the cycle scope (e.g., drop CA-02 if Identity Protection P2 is unavailable) with AI Governance Lead sign-off.
 - **Audit assertion.** "The cycle relied only on features the tenant is entitled to use in the declared cloud."
 
@@ -315,15 +284,6 @@ All PRE gates should pass before any §7 test runs. A PRE failure halts the cycl
 - **Pass criteria.** Snapshot start and end SHA-256 values match (the snapshot did not mutate during the cycle), and each surface snapshot is outside the documented refresh window.
 - **Failure remediation.** Re-take the snapshot outside the refresh window and restart the cycle.
 - **Audit assertion.** "The cycle's evidence corresponds to a stable snapshot taken outside the platform refresh window and unchanged for the cycle duration."
-
-### PRE-06 — Cloud guard and sovereign parity pre-check
-
-- **Objective.** Confirm the tenant cloud is correctly classified (Commercial, GCC, GCC High, DoD) and refuse to run if the cloud is unsupported or ambiguous.
-- **How to verify.** Query organization metadata, connection endpoints, and cloud instance; compare to declared cloud in the cycle manifest; verify the Section 2 parity matrix matches what is observable in the tenant Message Center.
-- **Evidence.** `pre-06-cloud-guard.json`
-- **Pass criteria.** Declared cloud and observed cloud match exactly; unsupported clouds (21Vianet) halt.
-- **Failure remediation.** Reset the cycle scope to match the actual cloud, or split into per-cloud cycles for multi-cloud tenants.
-- **Audit assertion.** "No cross-cloud assumptions were made silently, and the cycle executed in the environment it claims to describe."
 
 ### PRE-07 — Evidence store reachability and write-protection
 
@@ -358,7 +318,7 @@ This playbook does **not invent SLAs**. Where Microsoft documentation is qualita
 
 ## Section 7 — Test catalog (28 tests across 8 namespaces)
 
-Each test has a stable ID, one clear objective, specific preconditions, operator-runnable steps, deterministic expected behavior and pass criteria, named evidence artifacts, the failure remediation path, the cycle cadence, the named owning role, and zone applicability. The order is fixed: **REG → OWN → PERM → CRED → CONSENT → CA → SPONSOR → SOV**. A REG-* FAIL halts the cycle.
+Each test has a stable ID, one clear objective, specific preconditions, operator-runnable steps, deterministic expected behavior and pass criteria, named evidence artifacts, the failure remediation path, the cycle cadence, the named owning role, and zone applicability. The order is fixed: **REG → OWN → PERM → CRED → CONSENT → CA → SPONSOR**. A REG-* FAIL halts the cycle.
 
 ### Namespace expansion
 
@@ -369,7 +329,6 @@ Each test has a stable ID, one clear objective, specific preconditions, operator
 - **CONSENT** — Consent governance integrity (workflow active, queue SLA, user-consent restrictions, audit trail)
 - **CA** — Conditional Access for workload identities; sign-in risk policies
 - **SPONSOR** — Sponsorship integrity; approval audit trail; quarterly attestation; departure handling
-- **SOV** — Sovereign cloud boundary attestation; cross-cloud detection; parity-gap compensating-control register
 
 ---
 
@@ -379,17 +338,17 @@ This family verifies that no agent is silently missing from the registration pla
 
 #### 1.2-REG-01 — Registration surface enumeration completeness
 
-- **Objective.** Confirm that the cycle enumerated every registration surface that can host or anchor an AI agent identity in the declared sovereign cloud.
+- **Objective.** Confirm that the cycle enumerated every registration surface that can host or anchor an AI agent identity in the tenant.
 - **Pre-conditions.** PRE-01, PRE-03, PRE-05, PRE-06, PRE-07 PASS.
 - **Steps.**
   1. Enumerate Entra App Registrations via Microsoft Graph: `GET /applications?$select=id,appId,displayName,publisherDomain,verifiedPublisher,signInAudience,createdDateTime,tags`. Save as `surface-entra-apps.json`.
   2. Enumerate Entra Service Principals: `GET /servicePrincipals?$select=id,appId,displayName,servicePrincipalType,accountEnabled,appOwnerOrganizationId,tags,signInAudience`. Save as `surface-entra-sps.json`.
-  3. Enumerate Entra Agent IDs (where preview / GA in the declared cloud): pull the Agent ID directory listing; save as `surface-entra-agentids.json`. If unavailable, record the absence in SOV-03 and fall back to the App + SP join as the identity anchor.
+  3. Enumerate Entra Agent IDs (where preview / GA): pull the Agent ID directory listing; save as `surface-entra-agentids.json`. If unavailable, record the absence and fall back to the App + SP join as the identity anchor.
   4. Export Integrated Apps from **Microsoft 365 admin center → Settings → Integrated apps**: save as `surface-integrated-apps.csv` with capture timestamp.
   5. Export Microsoft 365 admin center → Copilot → Agents inventory: save as `surface-m365-copilot-agents.csv`.
   6. Export Power Platform Copilot Studio agents (per environment, across all environments) using `Get-AdminPowerApp` / `Get-AdminBot` (verify current cmdlet) or PPAC export: save as `surface-copilot-studio-agents.csv`. If the tenant exceeds the PPAC display ceiling, fall back to Azure Resource Graph and record the fallback.
   7. Enumerate MCP server registrations (Entra App Registrations tagged as MCP per the firm's tagging convention, or via the firm's MCP registration register): save as `surface-mcp-servers.csv`.
-  8. Where available in the declared cloud, export the Microsoft Agent 365 admin-center surface as `surface-agent365.csv`. Treat as **additive** only; absence in GCC High / DoD does not FAIL this test but should be recorded in SOV-03.
+  8. Where available, export the Microsoft Agent 365 admin-center surface as `surface-agent365.csv`. Treat as **additive** only; absence does not FAIL this test but should be noted.
   9. Pull a Purview Audit (UAL) export of `Add application`, `Add service principal`, `Update application`, `Update service principal`, `Add owner to application`, `Remove owner from application`, `Add app role assignment grant to user`, `Consent to application`, and `Update application — Certificates and secrets management` events for the trailing reconciliation window. Save as `surface-ual-app-events.csv`.
   10. Compute SHA-256 for each surface export and write into `manifest.sha256`.
 - **Expected result.** Eight to nine surface exports (or seven plus a documented additive-skip for Agent 365 and Entra Agent ID) exist with timestamps and hashes. Each enumeration completed without truncation warnings.
@@ -887,278 +846,3 @@ This family verifies that every Zone 2 / Zone 3 agent has an active Sponsor and 
 - **Owner.** Agent Sponsor.
 - **Zone applicability.** Zone 2 and Zone 3.
 
----
-
-### 7.SOV — Sovereign cloud boundary attestation
-
-This family verifies that every registration entry has a sovereign-cloud designation, that cross-cloud service principals are detected and flagged, and that per-cloud feature parity gaps are documented as compensating-control conversations.
-
-#### 1.2-SOV-01 — Cloud designation present on every registration
-
-- **Objective.** Confirm that every registration entry in the governance store has an explicit sovereign-cloud designation field (Commercial, GCC, GCC High, DoD), and that the designation matches the cloud the cycle is executing against.
-- **Pre-conditions.** PRE-06 PASS.
-- **Steps.**
-  1. Pull the cloud designation field from the registration governance store for every in-scope agent.
-  2. Cross-reference to the cycle's declared cloud.
-  3. Output `sov-01-cloud-designation.csv` with classification: `DESIGNATED_MATCHES`, `DESIGNATED_MISMATCH`, `MISSING`.
-- **Expected result.** All `DESIGNATED_MATCHES`.
-- **Pass criteria.** `MISSING` and `DESIGNATED_MISMATCH` counts 0.
-- **Failure remediation.** Populate missing designations from the tenant cloud at PRE-06; for mismatches, investigate and correct the governance record.
-- **Evidence.** `sov-01-cloud-designation.csv`.
-- **Cadence.** Zone 1 annual · Zone 2 semi-annual · Zone 3 quarterly.
-- **Owner.** AI Governance Lead.
-- **Zone applicability.** All zones.
-
-#### 1.2-SOV-02 — Cross-cloud service principal detection
-
-- **Objective.** Confirm that no service principal in the home tenant has a `appOwnerOrganizationId` that resolves to a tenant in a different sovereign cloud than the one declared, except for explicitly approved cross-cloud integrations.
-- **Pre-conditions.** REG-01 PASS, PRE-06 PASS.
-- **Steps.**
-  1. For each home-tenant service principal, resolve `appOwnerOrganizationId` to its home tenant's cloud (where determinable from public metadata or the firm's cross-tenant collaboration register).
-  2. Identify any SP whose home cloud does not match the declared cloud and is not on the approved cross-cloud list.
-  3. Output `sov-02-cross-cloud.csv`.
-- **Expected result.** Zero unapproved cross-cloud SPs.
-- **Pass criteria.** Unapproved cross-cloud count 0 OR every row is in active TPRM review with restriction in place.
-- **Failure remediation.** Restrict the SP via Conditional Access or remove the consent; engage TPRM for cross-cloud risk review; update the cross-cloud approved list if accepted.
-- **Evidence.** `sov-02-cross-cloud.csv`, `sov-02-tprm-references.json`.
-- **Cadence.** Zone 1 annual · Zone 2 semi-annual · Zone 3 quarterly.
-- **Owner.** AI Governance Lead.
-- **Zone applicability.** All zones; binding for tenants operating in GCC High or DoD.
-
-#### 1.2-SOV-03 — Per-cloud parity gaps documented as compensating-control register
-
-- **Objective.** Confirm that every Section 2 cell that the cycle observed as `Verify`, `Limited`, or `Preview` is paired with a documented compensating control in the cycle's evidence pack, and that the compensating control register is current.
-- **Pre-conditions.** PRE-06 PASS, Section 2 reviewed at cycle start.
-- **Steps.**
-  1. Cross-reference Section 2 against the tenant Message Center observations.
-  2. For each `Verify` / `Limited` / `Preview` cell that applies to a surface this cycle exercised, write a register entry containing: surface name, observed state, compensating control description, owning role, expiry date.
-  3. Output `sov-03-compensating-controls.csv`.
-- **Expected result.** Every applicable cell is paired with a current compensating control entry.
-- **Pass criteria.** Coverage of applicable cells is 100%; no entry expired without renewal.
-- **Failure remediation.** Author the missing entries with AI Governance Lead and Compliance Officer co-signature; renew expired entries.
-- **Evidence.** `sov-03-compensating-controls.csv`.
-- **Cadence.** Zone 1 annual · Zone 2 semi-annual · Zone 3 quarterly.
-- **Owner.** AI Governance Lead.
-- **Zone applicability.** All zones.
-
----
-
-## Section 8 — Reconciliation evidence pack
-
-Every cycle produces a single immutable evidence pack named `1.2-{cycleId}.zip` written to the WORM-protected evidence store referenced in PRE-07. The pack contains the artifacts named in each test, plus the cycle-level files below. The pack is the artifact handed to internal audit and external examiners; nothing referenced in Section 9 / Section 10 lives outside this pack.
-
-### 8.1 Cycle-level files (always present)
-
-| File | Purpose |
-|---|---|
-| `attestation.json` | Three-signature attestation chain (Section 1) including hash-chain fields |
-| `manifest.sha256` | SHA-256 of every artifact in the pack |
-| `cycle-summary.md` | Human-readable cycle summary: scope, cloud, namespace results, exception count, sign-off roster |
-| `pre-01-registration-charter.json` ... `pre-07-evidence-store.json` | Pre-flight gate evidence |
-| `baseline.json` | Copy of the baseline file in force (PRE-04) |
-| `graph-permissions-matrix.json` | Copy of the matrix version evaluated against (PRE-01) |
-| `surface-*.{json,csv}` | All registration-surface exports from REG-01 |
-| `<test-id>-*` | Per-test artifacts as named in §7 |
-| `exceptions-register.csv` | All exceptions in force during this cycle, with expiry dates |
-| `remediation-actions.json` | All remediation actions taken during the cycle, with operator UPN, timestamp, and UAL reference |
-| `cycle-log.txt` | Full chronological log of cycle execution including operator commands, timing, and any platform errors |
-
-### 8.2 Pack assembly procedure
-
-1. Author closes all per-test artifacts and computes SHA-256 for each; writes `manifest.sha256`.
-2. Author authors `cycle-summary.md` from a template that names every test, its result (PASS / FAIL / EXCEPTION), and the relevant artifact file.
-3. Author writes `attestation.json` with `manifestHash` populated; obtains Owner signature.
-4. Sponsor reviews `cycle-summary.md`, the SPONSOR-* outputs, and the exceptions register; signs.
-5. Compliance Officer reviews the entire pack including audit trail completeness in CONSENT-04 and consent-workflow integrity in CONSENT-01 / CONSENT-02; signs.
-6. Once all three signatures are present, the pack is sealed by writing `chainHash` and applying the WORM retention label.
-7. Pack is written to the immutable evidence store; an entry is appended to the cycle index.
-
-### 8.3 Retention
-
-The evidence pack is retained per the firm's records-retention schedule; for FSI organizations subject to SEC Rule 17a-4 / FINRA Rule 4511, the minimum is six years in WORM storage with a non-rewriteable, non-erasable format and an indexed retrieval capability. Compliance Officer is responsible for confirming the Purview retention label applied to the pack matches the firm's adopted retention schedule.
-
-### 8.4 Pack integrity verification at audit time
-
-When an internal auditor or external examiner retrieves a pack, the verification procedure is:
-1. Recompute SHA-256 over each artifact in the pack and compare to `manifest.sha256`.
-2. Recompute the SHA-256 of `manifest.sha256` and compare to `manifestHash` in `attestation.json`.
-3. Recompute `chainHash` and compare to the recorded value.
-4. Retrieve the prior cycle's pack and confirm `previousManifestHash` matches that pack's `manifestHash`.
-5. Validate each signature's signing key against its issuance record at the cycle date; confirm the signing method satisfied the zone minimum at the cycle start.
-
-A failure at any of steps 1–5 triggers the failure escalation matrix in Section 11.
-
----
-
-## Section 9 — Quarterly examiner-style audit (randomized seeded sample)
-
-In addition to the regular cycle cadence, AI Governance Lead and Internal Audit jointly execute a **quarterly examiner-style audit** designed to mirror the kind of sampling-based review that a FINRA, OCC, or SEC examiner would conduct. The sampling is reproducible: every cycle uses a documented seed so the same sample can be re-derived from the cycle ID and the in-scope agent set.
-
-### 9.1 Sampling procedure
-
-1. Determine the in-scope agent population for the quarter (typically all Zone 2 + Zone 3 agents in the declared cloud).
-2. Compute the seed: `seed = SHA-256(cycleId || "quarterly-audit-sample" || tenantId)`.
-3. Use the seed to drive a deterministic shuffle (e.g., Fisher–Yates with a SHA-256 PRNG); select the first **N** rows where N is the larger of 25 or 10% of the population (capped at 60 to keep the audit feasible).
-4. For each sampled agent, perform a full registration trace from REG-01 through SOV-03, capturing source-of-truth evidence rather than relying on the cycle's pre-computed CSVs.
-5. Independently re-derive the agent's owner, sponsor, permission set, credential type, CA coverage, and cloud designation from primary sources (Microsoft Graph, PPAC, Purview UAL).
-
-### 9.2 Re-attestation expectation
-
-For each sampled agent, the auditor re-issues a single-line attestation: "On {date}, I, {auditor UPN}, independently verified that agent {appId / displayName} has registration anchor {App ID + SP ID + Agent ID}, owner {UPN}, sponsor {UPN}, zone {Z}, cloud {C}, permission set hash {SHA-256 of normalized scope set}, credential type {type}, CA coverage {policy ID(s)}, and conforms to the firm's registration governance policy in force on the cycle date. Discrepancies, if any, are recorded in `quarterly-audit-{cycleId}-discrepancies.csv`."
-
-### 9.3 Discrepancy handling
-
-| Discrepancy class | Definition | Action |
-|---|---|---|
-| **Class A — Material registration gap** | Sampled agent is shadow, ownerless, has expired credential in use, or has unattested high-privilege scope grant | Cycle is reopened; affected control fails retroactively; a corrective cycle runs immediately; AI Governance Committee notified |
-| **Class B — Documentation drift** | Governance store and primary source disagree on a metadata field (zone, sponsor, owner, cloud) but no security exposure | Governance store is reconciled; cycle is amended with corrected evidence and re-signed |
-| **Class C — Stylistic / formatting** | Field-format inconsistency (e.g., UPN casing, ID-format) | Captured in continuous-improvement register (Section 12); no cycle reopen |
-
-### 9.4 Quarterly audit evidence pack
-
-The audit produces a self-contained pack `1.2-quarterly-audit-{cycleId}.zip` containing the sample list, the re-derivation outputs, the attestations, the discrepancy register, and a summary signed by AI Governance Lead and Internal Audit. The pack is stored in the same WORM evidence store as the cycle pack.
-
----
-
-## Section 10 — Annual external attestation pack
-
-Once per year, AI Governance Lead, Compliance Officer, and Internal Audit jointly assemble an **annual external attestation pack** intended to satisfy external supervisory or examiner requests under FINRA, SEC, OCC, Federal Reserve, or NYDFS supervisory programs. The pack is structured to be readable by an external party who has no prior context on the firm's tenant.
-
-### 10.1 Pack contents
-
-| Section | Contents |
-|---|---|
-| **Cover memo** | Scope, cloud(s), tenant identifier, attestation period, signatories, and a plain-language explanation of what the pack represents (and what it does not — see hedging notice) |
-| **Policy basis** | The registration-governance charter (PRE-01) effective during the period, the Graph permissions matrix versions in force, the zone classification policy, and the records-retention policy |
-| **Cycle index** | A table listing every cycle executed during the period, with cycleId, date, scope, cloud, sign-off roster, and PASS / FAIL summary |
-| **Hash chain trace** | A computed verification of the hash chain across all cycles in the period, demonstrating no chain breaks |
-| **Sampled cycle artifacts** | A representative sample of cycle packs (typically: first cycle of each quarter, plus any cycle that had a Critical or High finding) attached in full |
-| **Quarterly audit packs** | All four quarterly audit packs from §9 |
-| **Exception register** | Every exception in force during the period, with rationale, sign-off, expiry, and resolution status |
-| **Incident references** | Cross-references to any AI Incident Response invocations during the period that touched the registration plane |
-| **Regulatory mapping** | Per-regulation crosswalk: FINRA Rule 4511 / RN 24-09 / Rule 3110, SEC 17a-4, SOX §§302/404, GLBA / FTC Safeguards 16 CFR §314.4(c), OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7), NYDFS 23 NYCRR Part 500.07 / 500.16, NIST AI RMF GOVERN 1.4 / 1.6, ISO/IEC 42001:2023 — for each, name the controls and tests in this playbook that support the requirement, with the explicit caveat that "supports" is not "guarantees" |
-| **Attestation statement** | Three-signature statement from AI Governance Lead, Compliance Officer, and Internal Audit affirming the period's coverage, completeness, and limitations |
-| **Limitations and exclusions** | A frank inventory of what the pack does NOT cover (surfaces not enumerated, controls outside scope, regulatory frameworks not mapped, sovereign clouds not exercised) |
-
-### 10.2 External-readability requirements
-
-The pack should be readable by a reviewer with: knowledge of US FSI supervisory frameworks; general knowledge of Microsoft 365 and Microsoft Entra; **no** prior knowledge of the firm's tenant, internal naming, or undocumented conventions. Every internal acronym is expanded on first use; every internal role is mapped to a canonical Microsoft role (or labeled as a firm-specific role with a one-line description).
-
-### 10.3 Retention and availability
-
-The annual pack is retained for the longer of (a) the records-retention period of the underlying evidence packs and (b) seven years; it is held in the WORM evidence store with an indexed retrieval capability suitable for examiner production within standard supervisory timelines.
-
----
-
-## Section 11 — Failure escalation matrix
-
-Every test in §7 has a declared severity floor. When a test FAILs, the escalation path below is invoked.
-
-| Severity | Examples | Initial response | Escalation | Containment SLA | Cycle impact |
-|---|---|---|---|---|---|
-| **Critical** | REG-02 Z3 shadow agent; PERM-01 high-privilege over-scope; CRED-01 expired-secret-in-use; CONSENT-04 missing UAL trail for Z3 sensitive scope | Page on-call AI Governance Lead and Entra Application Admin; immediately quarantine the affected agent (block via CA, disable SP, or revoke credential as appropriate) | AI Governance Committee notified within 4 hours; AI Incident Response Playbook invoked if compromise suspected | Containment ≤ 4 hours; full remediation ≤ 5 business days | Cycle FAILs; corrective cycle runs immediately; current cycle is sealed with FAIL and a parallel remediation cycle is opened |
-| **High** | OWN-01 ownerless app in Z2/Z3; PERM-02 orphan grant for previously-deleted sensitive scope; SPONSOR-04 over-SLA reassignment in Z3; CA-01 uncovered Z3 SP; SOV-02 unapproved cross-cloud SP | Notify Agent Owner, Agent Sponsor, AI Governance Lead within 1 business day | Compliance Officer review within 5 business days | Remediation ≤ 14 days | Cycle records FAIL on the test; cycle PASSes overall only if remediation is completed and re-tested within the cycle window |
-| **Medium** | OWN-02 missing Backup Owner; CRED-03 over-cadence credential not yet at hard expiry; CONSENT-02 over-SLA queue item; CA-03 undocumented exclusion (non-Z3); SOV-03 missing compensating-control entry | Notify Agent Owner; create remediation ticket | AI Governance Lead at the cycle close | Remediation ≤ 30 days | Recorded as a finding; does not FAIL the cycle if remediation is on track |
-| **Low** | Stylistic discrepancies; documentation drift class C; informational reconciliation deltas | Note in cycle log | Continuous-improvement review (Section 12) | None | No cycle impact |
-
-Cross-references for invocation paths:
-- AI Incident Response Playbook: [`../../incident-and-risk/ai-incident-response-playbook.md`](../../incident-and-risk/ai-incident-response-playbook.md)
-- Control 3.6 Orphaned Agent Detection (forced decommission): [`../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md`](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md)
-- Control 1.7 Audit Logging (evidence-trail integrity): [`../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md`](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md)
-- Sponsorship Lifecycle Workflows (sponsor reassignment ceremony): [`./sponsorship-lifecycle-workflows.md`](./sponsorship-lifecycle-workflows.md)
-
----
-
-## Section 12 — Continuous improvement
-
-Each cycle contributes lessons-learned that feed the next cycle. The continuous-improvement loop is itself an evidence artifact.
-
-### 12.1 Per-cycle retrospective
-
-Within five business days of cycle close, AI Governance Lead facilitates a 30-minute retrospective with Sponsor, Owner, and Compliance Officer covering: what worked, what was harder than expected, what evidence proved insufficient at audit, what numerical thresholds need recalibration in PRE-04, what additional surfaces or namespaces should be added, and what test steps can be automated further. The retrospective output is `retro-{cycleId}.md` filed alongside the cycle pack.
-
-### 12.2 Threshold and policy recalibration
-
-Numerical thresholds (rotation windows, queue SLAs, coverage rates, sample sizes) are reviewed every two cycles against the trailing performance trend. A threshold change requires AI Governance Lead and Compliance Officer co-signature, is recorded in the policy register with effective date, and propagates to the next cycle's PRE-04 baseline.
-
-### 12.3 Surface coverage review
-
-Microsoft's agent surfaces are evolving. Once per quarter, AI Administrator and AI Governance Lead review the Microsoft Learn roadmap, the tenant Message Center, and the firm's third-party / partner-built agent intake to identify any new surface that should be added to REG-01. Adding a surface mid-period is allowed but requires re-baselining PRE-04 and noting the change in the next cycle's `cycle-summary.md`.
-
-### 12.4 Automation maturity
-
-This playbook is written to be operator-runnable end-to-end, but mature implementations automate large portions: Graph enumeration, hash-chain computation, manifest assembly, evidence-store writes, exception-register reconciliation, drift detection. Automation should never replace the three-signature attestation chain, the pre-flight gates, or the discrepancy adjudication; automation reduces fatigue but should not absorb judgment. Every automation change is itself controlled by the firm's change management and is recorded in the cycle log.
-
-### 12.5 External feedback integration
-
-Findings from internal audit walkthroughs, examiner observations, and peer-firm benchmarking that touch the registration plane are routed to AI Governance Lead for inclusion in the next cycle's playbook revision. Material revisions trigger a playbook version bump and are recorded in the change log at the bottom of this document.
-
----
-
-## Section 13 — References
-
-### 13.1 Microsoft Learn (verify currency at each cycle — content drifts; April 2026 was the verification baseline for this revision)
-
-- Microsoft Entra application and service principal objects — overview and lifecycle
-- Microsoft Entra App Registrations — `applications`, `servicePrincipals`, `oauth2PermissionGrants`, `appRoleAssignments` Graph reference
-- Microsoft Entra Verified Publisher program
-- Microsoft Entra Workload Identities — Conditional Access for workload identities, Identity Protection workload identity risk
-- Microsoft Entra ID Governance — Lifecycle Workflows, access reviews
-- Microsoft Entra Privileged Identity Management (PIM) — eligible vs. active assignment
-- Microsoft Entra Agent ID — directory anchor for AI agents (preview / rollout state varies by cloud)
-- Microsoft Entra federated identity credentials — workload identity federation
-- Microsoft 365 admin center — Integrated apps overview, Copilot agents inventory, Agent Store governance
-- Copilot Studio — agent registration, identity model, and tenant administration
-- Microsoft Power Platform admin center — agent enumeration, environment governance
-- Microsoft Agent 365 admin center — unified agent registry, shadow-agent registry actions (Quarantine / Investigate / Register)
-- Microsoft Purview Audit (UAL) — application lifecycle event schema
-- Microsoft Purview retention — Locked retention labels and WORM behavior
-- Microsoft Defender for Cloud Apps — App Governance for OAuth applications
-- Microsoft Graph permissions reference — full scope catalog
-- Microsoft sovereign-cloud documentation — Commercial, GCC, GCC High, DoD parity matrices and Message Center
-
-### 13.2 Regulatory and supervisory references
-
-- **FINRA Rule 4511** — Books and records general requirements
-- **FINRA Rule 3110** — Supervision
-- **FINRA RN 24-09 / Rule 3110** — Supervision of generative-AI applications
-- **SEC Rule 17a-4(b)(4) and 17a-4(g)** — Records preservation; third-party recordkeeper requirements; non-rewriteable / non-erasable storage
-- **SEC Rule 17a-3** — Records to be made by certain exchange members, brokers, and dealers
-- **SOX §§302 and 404** — Internal control over financial reporting
-- **GLBA Title V — 15 USC §§6801–6809** — Financial-institution safeguards
-- **FTC Safeguards Rule** — 16 CFR §314.4(c) — written information security program; access controls; asset inventory
-- **OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12)** — Sound practices for model risk management
-- **Federal Reserve Supervisory Letter Fed SR 26-2 (formerly SR 11-7)** — Guidance on model risk management (joint with OCC Bulletin 2026-13 (formerly OCC 2011-12))
-- **CFTC Regulation 1.31** — Books and records
-- **NYDFS 23 NYCRR Part 500** — Cybersecurity requirements for financial services companies (notably 500.07 access privileges, 500.16 incident response, 500.17 reporting)
-
-### 13.3 Voluntary frameworks and standards
-
-- **NIST AI RMF 1.0** — particularly **GOVERN 1.4** (governance and accountability roles) and **GOVERN 1.6** (inventory of AI systems)
-- **NIST SP 800-53 Rev. 5** — IA-5 (authenticator management), AC-2 (account management), AC-6 (least privilege), AU-2 (event logging)
-- **ISO/IEC 42001:2023** — AI management system requirements
-- **ISO/IEC 27001:2022** — Information security management
-
-### 13.4 Companion artifacts in this repository
-
-- Control specification: [`../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md`](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md)
-- Sponsorship lifecycle workflows: [`./sponsorship-lifecycle-workflows.md`](./sponsorship-lifecycle-workflows.md)
-- Portal walkthrough: [`./portal-walkthrough.md`](./portal-walkthrough.md)
-- PowerShell setup: [`./powershell-setup.md`](./powershell-setup.md)
-- Troubleshooting: [`./troubleshooting.md`](./troubleshooting.md)
-- AI Incident Response Playbook: [`../../incident-and-risk/ai-incident-response-playbook.md`](../../incident-and-risk/ai-incident-response-playbook.md)
-
-### 13.5 Validation commands
-
-After modifying this playbook, run from the repository root:
-
-```powershell
-mkdocs build --strict
-python scripts/verify_controls.py
-```
-
-A clean `mkdocs build --strict` confirms the cross-links resolve and the navigation is intact; a clean `verify_controls.py` confirms the control-side metadata still aligns. Both should be re-run after any cycle that adds or removes a cross-referenced playbook.
-
----
-
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

@@ -5,7 +5,7 @@
 | **Control** | 1.5 — Data Loss Prevention (DLP) and Sensitivity Labels |
 | **Pillar** | Pillar 1 — Security |
 | **Audience** | Purview Compliance Admin · Purview DLP Admin · Power Platform Admin · Defender Admin · Sentinel Engineer · FINRA-registered Supervisor · Internal Audit · External Examiner |
-| **Sovereign-cloud scope** | Commercial · GCC · GCC High · DoD (parity gaps called out per surface) |
+| **Cloud** | Commercial (Global) |
 | **Last UI verified** | April 2026 |
 | **Verifier output contract** | `[pscustomobject]` with `TestId`, `Status ∈ {Clean, Anomaly, Pending, NotApplicable, Error}`, `Evidence`, `Notes`, `TimestampUtc` |
 
@@ -13,7 +13,7 @@
 
 ## Regulatory Hedging Notice
 
-This playbook describes verification procedures that **support compliance with** FINRA Rules 3110 / 4511 / 17a-4, SEC Reg S-P (2024 amendments), SEC Reg S-ID, GLBA Safeguards Rule, SOX §404, OCC Bulletin 2013-29 / 2021-39, Federal Reserve SR 26-2 (formerly SR 11-7), and CFTC Regulation 1.31. Running these tests **does not guarantee** regulatory compliance, **does not prevent** every data-loss scenario, and **does not eliminate** customer-information risk. Implementation requires legal review against the firm's WSPs, examiner expectations, and the specific sovereign-cloud tenancy in scope. Organizations should verify control efficacy through independent audit and validate sovereign-cloud parity gaps with Microsoft account teams before treating any test result as evidence of a fully-mitigated risk.
+This playbook describes verification procedures that **support compliance with** FINRA Rules 3110 / 4511 / 17a-4, SEC Reg S-P (2024 amendments), SEC Reg S-ID, GLBA Safeguards Rule, SOX §404, OCC Bulletin 2013-29 / 2021-39, Federal Reserve SR 26-2 (formerly SR 11-7), and CFTC Regulation 1.31. Running these tests **does not guarantee** regulatory compliance, **does not prevent** every data-loss scenario, and **does not eliminate** customer-information risk. Implementation requires legal review against the firm's WSPs, examiner expectations, and the tenant environment in scope. Organizations should verify control efficacy through independent audit before treating any test result as evidence of a fully-mitigated risk.
 
 ---
 
@@ -21,7 +21,7 @@ This playbook describes verification procedures that **support compliance with**
 
 Control 1.5 governs the perimeter that decides whether non-public information (NPI), Material Non-Public Information (MNPI), customer PII, and other regulated data can be ingested by, surfaced through, or exfiltrated by Microsoft 365 Copilot, Microsoft Copilot Studio agents, declarative agents, and connected Power Platform / Defender for Cloud Apps surfaces. Failures here cascade into Reg S-P incident-notification clocks (Control 3.4), supervisory review obligations (Control 2.12), audit-record fidelity (Control 1.7), and Sentinel detection coverage (Control 3.9). A single missed surface — for example, an unmanaged Edge for Business AI session, a Power Platform HTTP connector, or a Power BI workspace without label inheritance — can become the examiner finding that defines the firm's next cycle.
 
-This playbook operationalizes the 13-surface DLP coverage matrix from the Control 1.5 specification, the Reg S-P 2024 dual-clock readiness drill, the override-telemetry chain, and the sovereign-cloud parity matrix. Each test produces machine-verifiable evidence consumable by the assessment manifest (`collectorField`) and the v1.4 evidence pack.
+This playbook operationalizes the 13-surface DLP coverage matrix from the Control 1.5 specification, the Reg S-P 2024 dual-clock readiness drill, the override-telemetry chain,  Each test produces machine-verifiable evidence consumable by the assessment manifest (`collectorField`) and the v1.4 evidence pack.
 
 ---
 
@@ -66,7 +66,6 @@ This playbook operationalizes the 13-surface DLP coverage matrix from the Contro
 - Override events that never reach the supervisor queue (broken telemetry chain).
 - Audit pipeline gaps — RecordType counts diverging from policy hit counts.
 - Reg S-P 2024 dual-clock readiness gaps (incident playbook missing, RACI undefined, escalation untested).
-- Sovereign-cloud parity gaps where IRM or Adaptive Protection are silently assumed in GCC / GCC High / DoD.
 
 ## What This Playbook Does NOT Claim
 
@@ -105,37 +104,11 @@ attestation.compliance = Sign(manifest.sha256 || attestation.sponsor || attestat
 |---|---|
 | **Zone 1 — Personal productivity** | DocuSign or Adobe Sign with audit trail; signer identity bound to Entra UPN. |
 | **Zone 2 — Team / departmental** | Hardware-backed Entra ID Verifiable Credential OR FIDO2 security key signing the manifest hash. |
-| **Zone 3 — Enterprise / regulated** | HSM-backed signing key (Azure Key Vault Premium, FIPS 140-2 Level 3 in commercial; FIPS 140-3 in GCC High / DoD); signer requires PIM-elevated role with break-glass logging. |
+| **Zone 3 — Enterprise / regulated** | HSM-backed signing key (Azure Key Vault Premium, FIPS 140-2 Level 3 validated); signer requires PIM-elevated role with break-glass logging. |
 
 Signatures are stored alongside the manifest in the WORM-treated evidence archive (Section 8).
 
 ---
-
-## Section 2 — Sovereign Cloud Parity Matrix per Surface
-
-| Surface | Commercial | GCC | GCC High | DoD | Notes |
-|---|---|---|---|---|---|
-| SharePoint Online DLP | ✅ | ✅ | ✅ | ✅ | Full parity. |
-| OneDrive for Business DLP | ✅ | ✅ | ✅ | ✅ | Full parity. |
-| Exchange Online DLP | ✅ | ✅ | ✅ | ✅ | Full parity. |
-| Teams chat & channel DLP | ✅ | ✅ | ✅ | ✅ | Private-channel coverage requires same-tenant policy scope. |
-| Endpoint DLP (Devices) | ✅ | ✅ | ✅ | ✅ | macOS support: last 3 versions only. |
-| Copilot block-by-label (GA) | ✅ | ⚠️ | ⚠️ | ⚠️ | GA in commercial; verify GCC roadmap with account team — sovereign tenancies may lag. |
-| Copilot block-by-SIT-prompt (preview) | ⚠️ Preview | ❌ | ❌ | ❌ | Preview feature; sovereign clouds: not available — document compensating control in WSPs. |
-| PP connector classification (PPAC) | ✅ | ✅ | ✅ | ✅ | Full parity. API↔portal label mapping: `Confidential`→`Business`, `General`→`Non-Business`, `Blocked`→`Blocked`. |
-| PP HTTP endpoint filtering (preview) | ⚠️ Preview | ⚠️ Preview | ❌ | ❌ | Preview status; verify with account team. |
-| Edge for Business unmanaged AI (preview) | ⚠️ Preview | ❌ | ❌ | ❌ | ChatGPT / Gemini / DeepSeek targeting — preview only. |
-| Network DLP for unmanaged AI (preview) | ⚠️ Preview | ❌ | ❌ | ❌ | Preview only; sovereign clouds: not available. |
-| Defender for Cloud Apps file policy | ✅ | ✅ | ⚠️ | ⚠️ | GCC High / DoD: reduced connector catalog — confirm covered SaaS list. |
-| Power BI / Fabric workspace label inheritance | ✅ | ✅ | ⚠️ | ⚠️ | Fabric availability varies; confirm with account team. |
-| **IRM (Information Rights Management)** | ✅ | ❌ | ❌ | ❌ | **Not available in GCC / GCC High / DoD.** Document static role-based DLP rules as compensating control in WSPs. |
-| **Adaptive Protection** | ✅ | ❌ | ❌ | ❌ | **Not available in GCC / GCC High / DoD.** Document static-threshold DLP rules as compensating control in WSPs. |
-| Purview IP scanner (on-prem repositories) | ✅ | ✅ | ✅ | ✅ | Required for on-prem file shares feeding M365 Search / Copilot grounding. |
-
-**Compensating-control guidance:** for any ❌ in Zone 3 sovereign deployments, the firm's WSPs must explicitly name (a) the surface, (b) the unavailable Microsoft control, (c) the static-rule or process compensating control, (d) the residual risk, and (e) the Sponsor sign-off (Section 1).
-
----
-
 
 ## Section 3 — Prerequisites
 
@@ -197,7 +170,6 @@ All verifier scripts in this playbook invoke `Test-PreFlight` (defined in [`powe
 | OVERRIDE | Weekly | Weekly | Daily | Telemetry sweep: audit → Sentinel → supervisor queue. |
 | AUDIT | Weekly | Weekly | Daily | RecordType integrity. |
 | INCIDENT | Annually | Semi-annually | Quarterly | Reg S-P 2024 dual-clock drill. |
-| SOV | Per-tenancy quarterly | Per-tenancy quarterly | Per-tenancy quarterly | Sovereign-cloud parity confirmation. |
 | **Per-change** | Within propagation window + 24h | Within propagation window + 24h | Within propagation window + 24h | Re-run affected namespace after any DLP rule, label, license, IRM tier, or connector inventory change. |
 
 **Evidence retention:** 7 years on WORM-treated storage with SHA-256 sidecars (SEC Rule 17a-4 broker-dealer requirement). Ties to FINRA 3110 supervision evidence and SOX §404 IT control testing.
@@ -211,7 +183,7 @@ All seven gates must return `Status ∈ {Clean, NotApplicable}` before any names
 | Gate | Check | Pass criterion |
 |---|---|---|
 | **PRE-01** | Correct PowerShell session for the cmdlet family in scope | `Test-PreFlight -CmdletFamily <name>` returns `Clean`. |
-| **PRE-02** | Tenant region and sovereign cloud match the playbook scope | `Get-OrganizationConfig` `.Identity` resolves to expected tenancy; cloud parameter matches expected (`AzureCloud`, `AzureUSGovernment`, `AzureUSGovernment2`, `AzureUSGovernment3`). |
+| **PRE-02** | Tenant identity confirmed | `Get-OrganizationConfig` `.Identity` resolves to the expected commercial tenancy. |
 | **PRE-03** | Required licenses present and assigned | License inventory snapshot ≥ required SKU count for in-scope users. |
 | **PRE-04** | Operator role membership at minimum required scope (least privilege) | PIM-elevated only for the duration of the test window; activation event captured. |
 | **PRE-05** | Audit pipeline healthy (UAL ingestion lag < 30 minutes) | Last DLP RecordType timestamp within 30 minutes of NOW. |
@@ -273,9 +245,8 @@ Each test returns `[pscustomobject]@{ TestId; Status; Evidence; Notes; Timestamp
 | 13 | Power BI / Fabric workspace label inheritance | Fabric admin API: `admin/workspaces/scanResult` |
 
 **Status mapping.**
-- All 13 `Present` (or `NotApplicable` per sovereign matrix with documented compensating control) → `Clean`.
+- All surfaces `Present` → `Clean`.
 - Any `Missing` without a referenced compensating control → `Anomaly`.
-- Any preview surface in a sovereign cloud where preview is unavailable → `NotApplicable`.
 
 **Evidence.** `surface-coverage-<UTC>.json` listing all 13 surfaces with `Status`, `RuleCount`, `WspReference`.
 
@@ -351,7 +322,7 @@ Post a Teams chat (in a non-private test channel) containing synthetic CC number
 
 #### T-SYNTH-05 — Copilot prompt synthetic SIT (block-by-SIT-prompt, preview)
 
-In Copilot Chat, submit a prompt containing synthetic CC content. Expected (preview): block by SIT-prompt rule. `Status = NotApplicable` in sovereign clouds where preview is unavailable. `Status = Pending` within 4-hour propagation window.
+In Copilot Chat, submit a prompt containing synthetic CC content. Expected (preview): block by SIT-prompt rule. `Status = Pending` within 4-hour propagation window.
 
 #### T-SYNTH-06 — Copilot grounding on labelled file (block-by-label, GA)
 
@@ -377,7 +348,7 @@ Authorized user requests Copilot summary of a folder containing a labelled-and-e
 
 #### T-COPILOT-02 — Block-by-SIT-prompt (preview) end-to-end
 
-User submits a prompt containing synthetic CC data. Expected (preview, commercial only): prompt blocked with policy-tip; UAL records the prompt-block event. `NotApplicable` in sovereign clouds.
+User submits a prompt containing synthetic CC data. Expected (preview): prompt blocked with policy-tip; UAL records the prompt-block event.
 
 #### T-COPILOT-03 — Copilot Studio agent grounding source DLP coverage
 
@@ -449,21 +420,6 @@ Sample most-recent DLP RecordType entry; compare to NOW. Lag > 30 minutes → `P
 
 ---
 
-### Namespace: SOV — Sovereign-cloud parity
-
-#### T-SOV-01 — IRM and Adaptive Protection N/A documentation
-
-In any GCC / GCC High / DoD tenancy, confirm:
-1. IRM is not enabled (it cannot be); WSPs reference the static role-based DLP rules acting as compensating control.
-2. Adaptive Protection is not enabled (it cannot be); WSPs reference static-threshold DLP rules as compensating control.
-3. Sponsor sign-off (Section 1) explicitly accepts the residual risk for the cycle.
-
-`Status = Clean` only when all three artifacts exist with current-cycle signatures.
-
-#### T-SOV-02 — Preview feature exclusion confirmation
-
-For each preview-only surface (Copilot block-by-SIT-prompt, PP HTTP filtering, Edge unmanaged-AI, Network DLP unmanaged-AI), confirm the surface is documented as `NotApplicable` in the active sovereign tenancy with a compensating-control reference.
-
 ---
 
 
@@ -495,8 +451,6 @@ evidence-pack/<YYYY-QN>/
     ual-lag-<UTC>.json               # T-AUDIT-02
   incident/
     regsp-drill-<UTC>.json           # T-INCIDENT-01
-  sov/
-    sovereign-parity-<UTC>.json      # T-SOV-01..02
   rollup/
     summary-<UTC>.json               # Get-FsiVerifierRollup output for collectorField
   attestation/
@@ -516,7 +470,7 @@ Internal Audit performs a seeded sampling pass each quarter:
 1. Random sample 10 DLP rules across SharePoint, Exchange, Teams, Endpoint, Copilot.
 2. Walk each rule from portal definition → PowerShell export → UAL hit history → supervisor queue (where overrides exist).
 3. Sample 5 override events from the cycle; confirm justification adequacy and supervisor closure.
-4. Sample 3 preview-feature surfaces; confirm sovereign-cloud `NotApplicable` documentation.
+4. Sample 3 preview-feature surfaces; confirm documented compensating controls where features are unavailable.
 5. Re-execute T-INCIDENT-01 with a different synthetic scenario.
 6. Issue findings; route any `Anomaly` to the escalation matrix (Section 11).
 
@@ -532,7 +486,6 @@ Once per fiscal year, compile:
 - The 13-surface coverage trend across all four quarters (gaps opened, gaps closed).
 - Override telemetry trend (volume, justification quality, supervisor closure SLA).
 - Reg S-P drill outcomes for the year.
-- Sovereign-cloud parity confirmations for each tenancy.
 - All attestation signatures and the SHA-256 chain across the four quarters.
 - WSP excerpts referencing the compensating controls invoked per surface.
 - Microsoft roadmap delta (preview → GA transitions affecting the firm during the year).
@@ -556,7 +509,7 @@ Provide to external auditor / examiner under the firm's standard records-request
 
 - Track each `Anomaly` to a remediation ticket and a root cause (cross-link Control 3.4).
 - Review Microsoft roadmap monthly for preview → GA transitions; reclassify `NotApplicable` results once a feature reaches GA in the firm's tenancy.
-- Re-run the SURFACE namespace within the propagation window + 24 hours after every license, role, or sovereign-cloud change.
+- Re-run the SURFACE namespace within the propagation window + 24 hours after every license or role change.
 - Feed override-telemetry trend into supervisor training (Control 2.12).
 - Update the synthetic-data corpus annually to track new SIT and EDM coverage.
 

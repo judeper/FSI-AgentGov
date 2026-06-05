@@ -8,9 +8,6 @@
 !!! warning "Design patterns, not platform-enforced controls"
     Copilot Studio does **not** natively enforce delegation depth limits, circuit breakers, financial stop-loss caps, or HITL checkpoints. The portal steps below configure the *building blocks* (topics, variables, Power Automate flows, telemetry); the *limits themselves* are enforced by the orchestration logic you author. Treat this playbook as a design and configuration aid — not as a one-click compliance switch.
 
-!!! info "Sovereign cloud (GCC / GCC High / DoD)"
-    Replace `https://copilotstudio.microsoft.com` with your government cloud equivalent (e.g., `copilotstudio.microsoft.us` for GCC High). Confirm the current URL in the Microsoft 365 admin center before each session — sovereign-cloud URLs change less often than commercial but are not interchangeable.
-
 ---
 
 ## Prerequisites

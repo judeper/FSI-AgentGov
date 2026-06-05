@@ -1,7 +1,7 @@
 # PowerShell Setup: Control 1.28 - Policy-Based Agent Publishing Restrictions
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
 
 **Last Updated:** May 2026<br>
 **Primary Module:** `Microsoft.PowerApps.Administration.PowerShell` (Windows PowerShell 5.1, Desktop edition)<br>
@@ -14,7 +14,6 @@
 - [ ] Windows PowerShell 5.1 (Desktop edition) — required for `Microsoft.PowerApps.Administration.PowerShell`
 - [ ] Power Platform Admin role on the target tenant
 - [ ] CAB-approved pinned versions of the modules listed below
-- [ ] Sovereign-cloud `-Endpoint` value documented (commercial / GCC / GCC High / DoD)
 
 ---
 
@@ -38,7 +37,7 @@ Install-Module -Name Microsoft.PowerApps.PowerShell `
 
 Import-Module Microsoft.PowerApps.Administration.PowerShell
 
-# Sovereign-aware authentication. Replace -Endpoint with usgov / usgovhigh / dod for US Government clouds.
+# Authenticate to the Power Platform service.
 Add-PowerAppsAccount -Endpoint prod
 ```
 
