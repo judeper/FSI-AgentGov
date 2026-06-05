@@ -19,21 +19,21 @@
 - [§1 FSI Incident Handling — read first](#1-fsi-incident-handling-read-first)
 - [§2 Plane decision matrix — DSPM vs Audit vs DLP enforcement](#2-plane-decision-matrix-dspm-vs-audit-vs-dlp-enforcement)
 - [§3 Anti-patterns (do not do)](#3-anti-patterns-do-not-do)
-- [§4 Symptom-driven scenarios (FSI critical 13)](#4-symptom-driven-scenarios-fsi-critical-13)
+- [§4 Symptom-driven scenarios (FSI critical 12)](#4-symptom-driven-scenarios-fsi-critical-12)
   - [Scenario 1 — DLP policy didn't fire on Copilot prompt or response](#scenario-1-dlp-policy-didnt-fire-on-copilot-prompt-or-response)
   - [Scenario 2 — Endpoint DLP not enforcing on macOS device](#scenario-2-endpoint-dlp-not-enforcing-on-macos-device)
   - [Scenario 3 — Unmanaged-AI rule (Edge for Business / Network DLP) not blocking](#scenario-3-unmanaged-ai-rule-edge-for-business-network-dlp-not-blocking)
   - [Scenario 4 — Power Platform connector still allowed in environment despite tenant DLP](#scenario-4-power-platform-connector-still-allowed-in-environment-despite-tenant-dlp)
   - [Scenario 5 — Sensitivity label not applied to SharePoint grounding source — Copilot returned restricted content](#scenario-5-sensitivity-label-not-applied-to-sharepoint-grounding-source-copilot-returned-restricted-content)
-  - [Scenario 7 — DLP override justification not captured in audit](#scenario-7-dlp-override-justification-not-captured-in-audit)
-  - [Scenario 8 — EDM detection not matching real customer account numbers](#scenario-8-edm-detection-not-matching-real-customer-account-numbers)
-  - [Scenario 9 — DKE-protected file unreadable in Copilot](#scenario-9-dke-protected-file-unreadable-in-copilot)
-  - [Scenario 10 — Simulation produced no hits but Turn-it-on caused floods](#scenario-10-simulation-produced-no-hits-but-turn-it-on-caused-floods)
-  - [Scenario 11 — Audit shows DLP event but Sentinel didn't ingest](#scenario-11-audit-shows-dlp-event-but-sentinel-didnt-ingest)
-  - [Scenario 12 — FSI false-positive flood from a generic SIT](#scenario-12-fsi-false-positive-flood-from-a-generic-sit)
-  - [Scenario 13 — DLP coverage gap surfaced during exam](#scenario-13-dlp-coverage-gap-surfaced-during-exam)
-- [§6 Escalation path](#6-escalation-path)
-- [§7 Cross-references](#7-cross-references)
+  - [Scenario 6 — DLP override justification not captured in audit](#scenario-6-dlp-override-justification-not-captured-in-audit)
+  - [Scenario 7 — EDM detection not matching real customer account numbers](#scenario-7-edm-detection-not-matching-real-customer-account-numbers)
+  - [Scenario 8 — DKE-protected file unreadable in Copilot](#scenario-8-dke-protected-file-unreadable-in-copilot)
+  - [Scenario 9 — Simulation produced no hits but Turn-it-on caused floods](#scenario-9-simulation-produced-no-hits-but-turn-it-on-caused-floods)
+  - [Scenario 10 — Audit shows DLP event but Sentinel didn't ingest](#scenario-10-audit-shows-dlp-event-but-sentinel-didnt-ingest)
+  - [Scenario 11 — FSI false-positive flood from a generic SIT](#scenario-11-fsi-false-positive-flood-from-a-generic-sit)
+  - [Scenario 12 — DLP coverage gap surfaced during exam](#scenario-12-dlp-coverage-gap-surfaced-during-exam)
+- [§5 Escalation path](#5-escalation-path)
+- [§6 Cross-references](#6-cross-references)
 
 ---
 
@@ -106,7 +106,7 @@ Apply one or more while the rule is being repaired. Document in the incident tic
 
 ### 1.5 Pre-escalation checklist (≥ 15 items)
 
-1. [ ] Tenant ID confirmed
+1. [ ] Tenant ID confirmed (Commercial cloud)
 2. [ ] Policy + rule identity captured (`Get-DlpCompliancePolicy`, `Get-DlpComplianceRule` from IPPS)
 3. [ ] Mode confirmed — `Enable` vs `TestWithNotifications` vs `TestWithoutNotifications` vs `Disable`
 4. [ ] Locations enumerated — `Microsoft 365 Copilot and Copilot Chat` location is present and the policy was built from the **Custom** template (one-click templates omit it)
@@ -118,7 +118,6 @@ Apply one or more while the rule is being repaired. Document in the incident tic
 10. [ ] Propagation window honored — ≥ 4 hours since the last rule save (Microsoft-documented for the Copilot location)
 11. [ ] Administrative-unit scope ruled out — the Copilot DLP location does not support AUs; an AU-scoped admin's rule silently never applies
 12. [ ] Power Platform DLP state captured for any Copilot Studio surface (`Get-DlpPolicy`, environment scope, connector classification)
-
 14. [ ] Endpoint DLP device-onboarding state verified for any Endpoint surface (Defender for Endpoint or standalone Purview onboarding)
 15. [ ] Last known-good evidence pack timestamp (Control 1.7) recorded
 16. [ ] Compliance + Legal notified per severity matrix; Privacy notified for any NPI-touching SEV-1 / SEV-2
@@ -156,17 +155,17 @@ Control 1.5 owns the **DLP enforcement plane**. The other two columns reference 
 | Writing an auto-labeling policy that targets "AI interactions" as a location | No such location exists for auto-labeling | Auto-label the underlying SPO / OneDrive / Exchange items; let the Copilot DLP rule act on the labeled items |
 | Validating a new Copilot DLP rule by testing immediately after save | Documented propagation is **up to 4 hours** | Wait the documented window; record the rule-save UTC timestamp |
 | Scoping a Copilot DLP rule to a Restricted Administrative Unit | Copilot DLP location does not support AUs — the rule silently never applies | Author with a tenant-scoped Compliance Admin |
-
+| Assuming **Adaptive Protection** is at parity across all commercial Purview features | Dynamic risk-based DLP depends on IRM policies being active and connected | Verify IRM policy and Adaptive Protection wiring per Control 1.12 before building DLP rules conditioned on risk tier |
 | Trusting the citation list as evidence the file was "blocked" | The Prevent-Copilot-from-processing-content action stops summarization, but the item still appears in citations with a click-through link | Combine with site / library access controls (Control 1.3); do not rely on the DLP action alone |
 | Using `Get-AdminAuditLogConfig` from `Connect-IPPSSession` to verify audit ingestion | IPPS can return a cached / stale value | Always run from `Connect-ExchangeOnline` |
 
 ---
 
-## §4 Symptom-driven scenarios (FSI critical 13)
+## §4 Symptom-driven scenarios (FSI critical 12)
 
 > Format: **Symptom → Likely cause → Diagnostic (PowerShell + portal path) → Resolution → What good looks like (exit criteria)**.
 >
-> All snippets below assume connection helpers from [`powershell-setup.md`](./powershell-setup.md) — specifically `Connect-Purview-IPPS`, `Connect-Purview-EXO`, `Connect-PowerPlatform`, and `Get-EvidenceStamp`. Do not redefine them inline..
+> All snippets below assume connection helpers from [`powershell-setup.md`](./powershell-setup.md) — specifically `Connect-Purview-IPPS`, `Connect-Purview-EXO`, `Connect-PowerPlatform`, and `Get-EvidenceStamp`. Do not redefine them inline.
 
 ---
 
@@ -440,3 +439,331 @@ Get-AutoSensitivityLabelPolicy | Select-Object Name, Mode, ApplySensitivityLabel
 
 ---
 
+### Scenario 6 — DLP override justification not captured in audit
+
+A user clicked "Override" on a DLP policy tip but the audit row contains no justification text, breaking the supervisory-review chain.
+
+**Likely causes**
+
+1. The rule was authored with `NotifyAllowOverride 'WithoutJustification'` (or override was not enabled).
+2. Audit logging is not at Purview Audit **Standard** / **Premium** for the relevant `RecordType`.
+3. Forwarding to Sentinel is mis-scoped and the row exists in Audit but not in Sentinel — see Scenario 10.
+
+**Diagnostic — PowerShell**
+
+```powershell
+Connect-Purview-IPPS
+
+Get-DlpComplianceRule -Policy '<policy>' |
+    Select-Object Name,
+                  NotifyUser, NotifyAllowOverride,
+                  @{N='OverrideRequiresJustification';E={
+                       $_.NotifyAllowOverride -contains 'WithJustification' }},
+                  IncidentReportContent
+
+# Confirm audit ingestion (run from EXO, not IPPS)
+Connect-Purview-EXO
+Get-AdminAuditLogConfig | Select-Object UnifiedAuditLogIngestionEnabled,
+                                        AdminAuditLogEnabled
+```
+
+**Diagnostic — portal**
+
+- Purview → DLP → policy → rule → **User notifications → Allow overrides** — confirm `Require a business justification to override` is checked.
+- Purview → **Audit** — search for `ComplianceDLPSharePoint` / `ComplianceDLPExchange` in the suspect window; expand the event JSON and locate `UserJustification` / `OverrideReasons`.
+
+**Resolution**
+
+- Update the rule: `Set-DlpComplianceRule -Identity '<rule>' -NotifyAllowOverride 'WithJustification'`. Re-save and wait the propagation window.
+- Confirm `UnifiedAuditLogIngestionEnabled = True` from an **EXO** session (IPPS can return a stale value — see §3 anti-pattern).
+- Confirm the Sentinel Office 365 connector includes the relevant workload — refer Control 3.9.
+
+**What good looks like**
+
+- `Get-DlpComplianceRule` shows `NotifyAllowOverride` containing `WithJustification`.
+- A test override produces an audit event with non-empty `UserJustification`.
+- The same event appears in Sentinel within the connector's documented latency window.
+
+... see Control 3.9 — Sentinel forwarding and analytics.
+
+---
+
+### Scenario 7 — EDM detection not matching real customer account numbers
+
+An Exact Data Match (EDM) SIT built from the firm's customer-master file is not matching real account numbers in test prompts.
+
+**Likely causes**
+
+1. **Schema mismatch** — the EDM schema column names or order differ from the uploaded CSV.
+2. **Data refresh cadence** — the sensitive-data-store upload completed, but indexing has not finished, or the upload is stale relative to the test data.
+3. Sensitive-data-store upload errors (silent partial uploads).
+4. **Case sensitivity** — the EDM schema is configured case-sensitive but the test data differs in casing.
+5. **Field type** — numeric vs string mismatch in the schema.
+6. The SIT lacks a proximity dictionary, and the test prompt does not include a corroborating keyword to meet the configured confidence floor.
+
+**Diagnostic — PowerShell**
+
+```powershell
+Connect-Purview-IPPS
+
+# (a) EDM schema and data store state
+Get-DlpEdmSchema    | Select-Object Name, State, CreationTime, LastModifiedTime
+Get-DlpSensitiveInformationTypeRulePackage |
+    Where-Object { $_.Name -match 'EDM' } |
+    Select-Object Name, Identity, LastModifiedTime
+
+# (b) Confidence threshold and minimum count on the EDM SIT reference
+$rule = Get-DlpComplianceRule -Policy '<policy>'
+$rule | Select-Object Name, ContentContainsSensitiveInformation
+```
+
+**Diagnostic — portal**
+
+- Purview → **Data classification → Exact data matches → [schema]** — confirm `State = Indexed` and `Last refreshed` is recent.
+- Purview → **Data classification → Sensitive info types → [EDM SIT]** — verify the SIT references the indexed store.
+- Use **Test** (Purview → Data classification → Sensitive info types → Test) with a known-good account number from the source file.
+
+**Resolution**
+
+- Re-upload the sensitive data store, verifying the schema column order and casing match the CSV header exactly. Wait for indexing to complete before testing.
+- Where false negatives persist, lower the confidence threshold incrementally **only** with documented evidence that false-positive rate stays acceptable.
+- Add a proximity dictionary (e.g., "Account", "Acct #", "Customer ID") to lift confidence when the surrounding context is present.
+- Where the schema cannot be fixed quickly, fall back to a regex SIT with high specificity as an interim and record the gap in WSPs.
+
+**What good looks like**
+
+- Purview EDM portal shows `State = Indexed` and a `Last refreshed` timestamp inside the agreed refresh SLA.
+- The Purview SIT **Test** view returns a hit on a known-good account number from the source file.
+- A controlled DLP test prompt produces a `ComplianceDLP*` audit row referencing the EDM SIT with the expected confidence value.
+
+... see Control 1.13 — Sensitive Information Types and pattern recognition.
+
+---
+
+### Scenario 8 — DKE-protected file unreadable in Copilot
+
+Copilot returns "I couldn't access this content" or omits a Double Key Encryption (DKE)-protected file from grounding even though the user has access in SPO.
+
+**This is expected behavior.** DKE applies a customer-held second key in addition to the Microsoft-managed key; **Microsoft (and therefore Copilot) cannot decrypt the content.** The trade-off is intentional.
+
+**Diagnostic**
+
+- Confirm the file's label uses the **Double Key Encryption** action (not standard Microsoft-managed encryption) — Purview → Information Protection → **Labels → [label] → Encryption**.
+- Confirm the user can open the file in Office desktop while connected to the DKE service.
+- Confirm Copilot's behavior is consistent across users and prompts; intermittent access points to a different cause (label scope, sharing, conditional access).
+
+**Resolution / decision framework**
+
+- DKE is a **deliberate** trade-off: it provides the strongest customer-controlled confidentiality but blocks every cloud service (Copilot, eDiscovery, server-side auto-labeling, server-side DLP scanning).
+- Before applying DKE to a content set, document the trade-off against:
+  - **NYDFS 23 NYCRR 500.15** encryption-of-NPI expectations (DKE meets the spirit but at the cost of cloud productivity)
+  - State regulator expectations (e.g., where the regulator expects the firm to be able to retrieve and produce records)
+  - **SEC Rule 17a-4(f)** — DKE-encrypted records must still be reproducible to the SEC; verify your DKE deployment supports controlled decryption-for-production
+- Where Copilot productivity is required on the same content set, use **standard Microsoft-managed encryption** with sensitivity labels; reserve DKE for the highest-sensitivity tier (board materials, M&A deal rooms) and accept that those tiers are not Copilot-eligible.
+
+**What good looks like**
+
+- DKE deployment scope, decryption-for-production runbook, and Copilot-incompatibility statement are documented in Control 1.15 evidence.
+- The firm's WSPs explicitly identify which content tiers are DKE-protected and therefore not Copilot-eligible.
+- No DLP incident is opened for "Copilot couldn't read DKE content" — it is logged as expected behavior.
+
+... see Control 1.15 — Encryption key custody and DKE.
+
+---
+
+### Scenario 9 — Simulation produced no hits but Turn-it-on caused floods
+
+A new policy was run in `TestWithoutNotifications` for two weeks with zero hits; on flipping to `Enable` it produced thousands of matches in the first hour.
+
+**Likely causes**
+
+1. Simulation did not cover all locations / scopes — for example, simulated SPO only, then enforced added Exchange + Endpoint.
+2. SIT confidence-level threshold was set higher in the simulation rule and lowered for enforcement.
+3. **Trainable-classifier training drift** — the classifier was retrained between simulation and enforcement and now matches more broadly.
+4. The user / group scope expanded between simulation and enforcement.
+5. Simulation results were not actually reviewed — the count was zero because no hits made it past an upstream allow rule.
+
+**Diagnostic — PowerShell**
+
+```powershell
+Connect-Purview-IPPS
+
+# (a) Compare current rule to the simulation snapshot (kept in evidence per §1.3)
+$current = Get-DlpComplianceRule -Policy '<policy>'
+$snapshot = Get-Content '.\evidence\1.5\rules_<sim-timestamp>.json' | ConvertFrom-Json
+
+Compare-Object $current $snapshot -Property Name, Disabled, Priority,
+              ContentContainsSensitiveInformation, ContentMatchesLabel,
+              IncludedUserGroups, ExcludedUserGroups, BlockAccess
+
+# (b) DLP detail report for the first hour of enforcement
+Get-DlpDetailReport -StartDate (Get-Date).AddHours(-1) -EndDate (Get-Date) |
+    Group-Object Action, RuleName | Sort-Object Count -Descending
+```
+
+**Diagnostic — portal**
+
+- Purview → **DLP → Reports → DLP policy matches** — compare the simulation window vs the enforcement window.
+- Purview → **Trainable classifiers → [classifier] → Versions** — confirm whether the classifier was retrained between the two windows.
+
+**Resolution**
+
+- Always re-run simulation **after** any rule change (location, condition, classifier version) and **before** advancing to enforcement.
+- Use **incremental enablement**: enforce on a pilot group first (1–5% of users), monitor for 72 hours, then expand in 10–25% rings.
+- Pin classifier versions where possible; record the version in the rule's evidence pack.
+- Document the simulation-to-enforcement comparison method as a standing pre-flight check in the change record.
+
+**What good looks like**
+
+- A diff between simulation snapshot and enforcement-time rule shows zero unintended changes.
+- The pilot ring produces a hit volume within 1–2× the simulation projection; a flood (≥ 10×) blocks promotion to the next ring.
+- The change ticket attaches both snapshots and the diff.
+
+... see Control 2.3 — Change management and release planning.
+
+---
+
+### Scenario 10 — Audit shows DLP event but Sentinel didn't ingest
+
+A `ComplianceDLPSharePoint` event is visible in the Purview Audit search but the corresponding Sentinel analytics rule never fired.
+
+**Likely causes**
+
+1. The Sentinel **Office 365** connector scope does not include the relevant workload (SharePoint / Exchange / Teams) or does not include `Audit.General`, where some DLP records land.
+2. **UEBA mapping** — UEBA enrichment expects fields that the DLP record schema does not populate; the analytics rule's `where` clause filters the event out.
+3. The analytics rule conditions reference a `RecordType` enum value that does not match the ingested string (case, hyphenation).
+4. Latency — the connector ingestion latency window was shorter than the test interval. Verify against the connector's documented SLA.
+
+**Diagnostic — KQL (Sentinel)**
+
+```kql
+OfficeActivity
+| where TimeGenerated between (ago(2h) .. now())
+| where RecordType in ("ComplianceDLPSharePoint","ComplianceDLPExchange","DlpEndpoint")
+| summarize count() by RecordType, Operation, bin(TimeGenerated, 5m)
+```
+
+If the query returns zero with rows present in Purview Audit, the gap is at the connector. If it returns rows but the analytics rule did not trigger, the gap is in the rule logic.
+
+**Diagnostic — Sentinel portal**
+
+- Sentinel → **Data connectors → Office 365** — confirm the connector status is **Connected** and SharePoint / Exchange / Teams are toggled on.
+- Sentinel → **Analytics → [rule] → Edit → Query** — re-run the query in the Logs blade against the test event window.
+
+**Resolution**
+
+- Add the missing workload to the Office 365 connector and wait the documented backfill window (typically minutes to hours; verify against Microsoft Learn for the current SLA).
+- Adjust the analytics rule to match the actual `RecordType` string emitted by the connector.
+- Where UEBA enrichment is required, confirm the upstream identity records are also being ingested.
+- Validate end-to-end with a controlled test event and document the latency.
+
+**What good looks like**
+
+- A controlled DLP test event appears in `OfficeActivity` within the connector's documented latency window.
+- The analytics rule fires on the test event and produces an incident with the expected severity and entities.
+- The end-to-end latency (Purview Audit → Sentinel → incident) is recorded in the connector's runbook.
+
+... see Control 3.9 — Sentinel forwarding, analytics, and SOAR.
+
+---
+
+### Scenario 11 — FSI false-positive flood from a generic SIT
+
+A rule using the built-in **U.S. Bank Account Number** SIT (or another generic 9-digit numeric SIT) is producing thousands of false positives on internal documents containing order numbers, ticket numbers, or part numbers.
+
+**Likely causes**
+
+1. The built-in SIT uses a permissive regex with low confidence; without a proximity dictionary it matches any 9-digit run.
+2. The confidence threshold on the rule is set too low.
+3. The SIT lacks a corroborating keyword list relevant to the firm's actual data (e.g., "account", "acct #", "customer", "routing").
+
+**Diagnostic — PowerShell**
+
+```powershell
+Connect-Purview-IPPS
+
+$rule = Get-DlpComplianceRule -Policy '<policy>'
+$rule | Select-Object Name,
+       @{N='SITs';E={ ($_.ContentContainsSensitiveInformation | ConvertTo-Json -Compress) }}
+
+# (b) Top false-positive sources from DLP detail report
+Get-DlpDetailReport -StartDate (Get-Date).AddDays(-7) -EndDate (Get-Date) |
+    Where-Object { $_.RuleName -eq '<rule>' } |
+    Group-Object Source, Title | Sort-Object Count -Descending | Select-Object -First 25
+```
+
+**Resolution**
+
+- Replace the generic SIT with an **EDM SIT** built from the firm's real customer-account list (Scenario 8 covers EDM mechanics; refer Control 1.13).
+- Raise the confidence threshold on the existing SIT (e.g., from `Low` to `High`) and require a corroborating keyword via a proximity dictionary.
+- Combine SIT with a sensitivity-label condition in a **separate rule** (remember: Copilot location does not allow SIT + label in the same rule — see §3) so that only files already labeled Confidential are scanned for the SIT.
+- Re-validate via simulation before advancing to enforcement (Scenario 10).
+
+**What good looks like**
+
+- Weekly false-positive count drops by ≥ 90% compared to the baseline week.
+- True-positive recall remains within tolerance (validated via a labeled test corpus).
+- The SIT change is recorded in Control 1.13's tuning log with a SHA-256 evidence stamp.
+
+... see Control 1.13 — SIT tuning and EDM lifecycle.
+
+---
+
+### Scenario 12 — DLP coverage gap surfaced during exam
+
+A FINRA, SEC, OCC, Fed, NYDFS, or state examiner identifies that a specific surface (e.g., Exchange Online for an associated-person population) is uninstrumented for a regulated content type, and asks the firm to remediate.
+
+**This is an escalation, not a debug.** The diagnostic question is not "what's broken" — the surface was simply not instrumented. The remediation path is procedural.
+
+**Procedure**
+
+1. **Document the gap** in the firm's deviation register and incident ticket with: surface, content type, regulatory reference, date of examiner observation, and named owner.
+2. **Apply a compensating control immediately** from §1.4 (e.g., site-level block at SPO, external sharing freeze, elevated CommComp review cadence).
+3. **Define the remediation timeline** with concrete milestones: gap-closure design (T+5 business days), pilot enablement (T+15), full enforcement (T+30 or earlier per examiner expectation).
+4. **Update Written Supervisory Procedures** to reflect both the new control and the compensating control during the gap.
+5. **Log the gap closure under the firm's effective-challenge process** per **Fed SR 26-2 (formerly SR 11-7)** / OCC Bulletin 2026-13 (formerly OCC 2011-12) — the AI Governance Lead and Model Risk function must independently challenge the closure design before sign-off. Refer Control 2.6.
+6. **Provide examiner evidence**: the deviation register entry, the change ticket, the dated screenshots of policy state pre- and post-remediation, the SHA-256-stamped PowerShell exports, and the Sentinel ingestion proof for the new surface.
+
+**What good looks like**
+
+- The deviation register entry exists with a clear close-by date and named owner.
+- A documented compensating control is in place from the moment the gap was identified through the moment full enforcement is verified.
+- The remediation passes effective-challenge per Fed SR 26-2 (formerly SR 11-7) and is signed off by Model Risk + AI Governance + Compliance.
+- The examiner closes the observation against documented evidence.
+
+... see Control 2.6 — Effective challenge and Fed SR 26-2 (formerly SR 11-7) alignment, and Control 3.4 — Incident reporting and RCA.
+
+---
+
+## §5 Escalation path
+
+1. **L1 — Purview Compliance Admin** (within 1 h SEV-1; 4 h SEV-2): preserve evidence per §1.3; run §1.5 pre-escalation checklist.
+2. **L2 — AI Governance Lead** (within 1 h SEV-1): triage cross-control impact (1.3, 1.6, 1.7, 1.10, 1.12, 1.13, 2.1, 2.16, 3.4, 3.9).
+3. **L3 — CISO + Compliance Officer + Privacy + Legal** (within 1 h SEV-1): reportability determination per §1.2 decision tree.
+4. **L4 — Microsoft support**: tenant ID, cloud, affected workload, UTC window, evidence pack reference, severity, business impact.
+5. **L5 — Regulator notifications** (FINRA / SEC / NYDFS / state AGs / OCC / Fed / CFTC) as determined by Legal and Compliance.
+
+---
+
+## §6 Cross-references
+
+- [Control 1.5 Portal Walkthrough](portal-walkthrough.md)
+- [Control 1.5 PowerShell Setup](powershell-setup.md)
+- [Control 1.5 Verification & Testing](verification-testing.md)
+- [Control 1.3 — SharePoint & OneDrive Governance](../1.3/troubleshooting.md) ... site-level compensating control
+- [Control 1.6 — DSPM for AI Troubleshooting](../1.6/troubleshooting.md) ... detection plane
+- [Control 1.7 — Audit Troubleshooting](../1.7/troubleshooting.md) ... evidence plane
+- [Control 1.10 — Communication Compliance](../1.10/troubleshooting.md) ... compensating supervisory control
+- [Control 1.12 — Insider Risk Detection](../1.12/troubleshooting.md) ... Adaptive Protection dependency (Commercial only)
+- [Control 1.13 — Sensitive Information Types](../1.13/troubleshooting.md) ... SIT and EDM readiness for DLP rules
+- [Control 1.15 — Encryption Key Custody](../1.15/troubleshooting.md) ... DKE trade-offs vs Copilot
+- [Control 2.1 — Copilot Studio Governance](../2.1/troubleshooting.md) ... Power Platform DLP precedence
+- [Control 2.3 — Change Management and Release Planning](../2.3/troubleshooting.md) ... incremental enablement gates
+- [Control 2.6 — Records Management and Effective Challenge (Fed SR 26-2 (formerly SR 11-7))](../2.6/troubleshooting.md) ... exam-driven gap closure
+- [Control 2.16 — Agent Publishing Channels](../2.16/troubleshooting.md) ... channel-level DLP enforcement
+- [Control 3.4 — Incident Reporting and RCA](../3.4/troubleshooting.md) ... Reg S-P 2024 notification clocks
+- [Control 3.9 — Sentinel Forwarding and Analytics](../3.9/troubleshooting.md) ... DLP → Sentinel ingestion
+
+---
+
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

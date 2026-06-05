@@ -6,7 +6,7 @@
 >
 > **What this playbook is not.** It does not replace the authoritative system of record (the Control 3.1 inventory, the GRC tool, or the SharePoint sponsorship register). It does not, by itself, *guarantee* completeness — Microsoft Entra Agent ID, Agent 365 admin endpoints, and several Integrated Apps Graph routes remain preview-dependent in April 2026 (documented in §0 and §12), and organizations should compensate with manual attestation and Defender for Cloud Apps shadow-IT detection. It does not, by itself, *approve, decommission, transfer, or rotate* registrations; it raises evidence and recommends action, and humans accept risk.
 >
-> **Hedged language reminder.** Output of this harness *supports* compliance with FINRA Rule 4511, FINRA RN 24-09 / Rule 3110, SEC Rule 17a-4(b)(4) / 17a-4(g), SOX 302/404, GLBA 501(b), NYDFS 23 NYCRR 500.07 / 500.16 / 500.17, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Fed SR 26-2 (formerly SR 11-7), NIST AI RMF GOVERN 1.4 / 1.6, and FTC Safeguards Rule 16 CFR §314.4(c). It does not, by itself, *ensure* a passing examination, *guarantee* that every shadow registration has been discovered, or *eliminate* the risk that Microsoft moves an endpoint between v1.0 and beta between releases. Implementation requires that organizations verify endpoint availability, module pinning, at every change window, and that they treat any preview surface (Entra Agent ID, Agent 365, `/admin/microsoft365apps`) as **additive** evidence rather than the sole source of truth.
+> **Hedged language reminder.** Output of this harness *supports* compliance with FINRA Rule 4511, FINRA RN 24-09 / Rule 3110, SEC Rule 17a-4(b)(4) / 17a-4(g), SOX 302/404, GLBA 501(b), NYDFS 23 NYCRR 500.07 / 500.16 / 500.17, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Fed SR 26-2 (formerly SR 11-7), NIST AI RMF GOVERN 1.4 / 1.6, and FTC Safeguards Rule 16 CFR §314.4(c). It does not, by itself, *ensure* a passing examination, *guarantee* that every shadow registration has been discovered, or *eliminate* the risk that Microsoft moves an endpoint between v1.0 and beta between releases. Implementation requires that organizations verify endpoint availability and module pinning at every change window, and that they treat any preview surface (Entra Agent ID, Agent 365, `/admin/microsoft365apps`) as **additive** evidence rather than the sole source of truth.
 
 | Field | Value |
 |---|---|
@@ -14,7 +14,7 @@
 | Pillar | 1 — Security |
 | Playbook | PowerShell Setup |
 | PowerShell Edition | 7.4 LTS Core (orchestrator); 5.1 Desktop (Power Apps Administration sub-shell, JSON-bridged) |
-| Cloud | Commercial (Global) |
+| Cloud Scope | Commercial |
 | Last UI Verified | April 2026 |
 | Companion Playbooks | `portal-walkthrough.md` (planned) · [`verification-testing.md`](verification-testing.md) · `troubleshooting.md` (planned) · [`sponsorship-lifecycle-workflows.md`](sponsorship-lifecycle-workflows.md) |
 | Related Controls | [1.4](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md) · [1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) · [1.19](../../../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md) · [1.21](../../../controls/pillar-1-security/1.21-adversarial-input-logging.md) · [1.23](../../../controls/pillar-1-security/1.23-step-up-authentication-for-agent-operations.md) · [1.24](../../../controls/pillar-1-security/1.24-defender-ai-security-posture-management.md) · [2.1](../../../controls/pillar-2-management/2.1-managed-environments.md) · [3.1](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) · [3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) |
@@ -27,13 +27,13 @@
 
 A script that ignores this reality produces a **false-clean registry** — the worst Control 1.2 outcome. False-clean registries understate identity exposure under NYDFS 500.07 / 500.16, leave ownerless privilege grants undetected (NIST AI RMF GOVERN 1.4), and break the approval-trail evidence FINRA Rule 4511 and SEC 17a-4(b)(4) examiners ask for first.
 
-**Why this section exists.** Six classes of silent failure produce false-clean registry output in Control 1.2 specifically:
+**Why this section exists.** Five classes of silent failure produce false-clean registry output in Control 1.2 specifically:
 
 1. **Wrong PowerShell edition for the plane being queried.** `Microsoft.PowerApps.Administration.PowerShell` is **Desktop-only** (Windows PowerShell 5.1) and silently returns empty arrays under PowerShell 7. `Microsoft.Graph` v2+, `Az.Accounts` v3+, and `MSCommerce` are **Core-only**. A registry harness that runs end-to-end in one edition is necessarily incomplete on at least one plane (BL-§2).
-3. **Beta vs v1.0 Microsoft Graph drift on registration endpoints.** `/applications` agent-tag filters, `/servicePrincipals/{id}/appRoleAssignments`, `/identity/conditionalAccess/policies` workload-identity targeting, `/identityProtection/riskyServicePrincipals`, `/admin/microsoft365apps` (April 2026 preview), and `/agents` (Entra Agent ID preview) move between beta and v1.0 quarterly, with breaking shape changes between minor SDK releases.
-4. **Granted-scope mismatch.** `Connect-MgGraph -Scopes 'Application.Read.All'` requests the scope; the call returns `200` with an empty `value` array if admin consent was never granted. Verify `(Get-MgContext).Scopes` against the requested set after every connect.
-5. **Tag taxonomy churn.** Microsoft has shipped multiple agent-tag values across releases (`DeclarativeAgent`, `CopilotAgent`, `M365CopilotPlugin`, `CopilotExtension`, `Bot`, `ChatBot`, `CopilotStudioBot`, `AgentApplication`). A hard-coded filter on a single tag misses every agent registered under a sibling tag.
-6. **Single-credential read+write.** Running this harness with the same service principal that *creates* or *modifies* applications breaks SOX 404 separation of duties — the principal that produces the evidence could be the principal that altered the configuration the evidence describes.
+2. **Beta vs v1.0 Microsoft Graph drift on registration endpoints.** `/applications` agent-tag filters, `/servicePrincipals/{id}/appRoleAssignments`, `/identity/conditionalAccess/policies` workload-identity targeting, `/identityProtection/riskyServicePrincipals`, `/admin/microsoft365apps` (April 2026 preview), and `/agents` (Entra Agent ID preview) move between beta and v1.0 quarterly, with breaking shape changes between minor SDK releases.
+3. **Granted-scope mismatch.** `Connect-MgGraph -Scopes 'Application.Read.All'` requests the scope; the call returns `200` with an empty `value` array if admin consent was never granted. Verify `(Get-MgContext).Scopes` against the requested set after every connect.
+4. **Tag taxonomy churn.** Microsoft has shipped multiple agent-tag values across releases (`DeclarativeAgent`, `CopilotAgent`, `M365CopilotPlugin`, `CopilotExtension`, `Bot`, `ChatBot`, `CopilotStudioBot`, `AgentApplication`). A hard-coded filter on a single tag misses every agent registered under a sibling tag.
+5. **Single-credential read+write.** Running this harness with the same service principal that *creates* or *modifies* applications breaks SOX 404 separation of duties — the principal that produces the evidence could be the principal that altered the configuration the evidence describes.
 
 **Top false-clean defects unique to registration automation.**
 
@@ -46,9 +46,9 @@ A script that ignores this reality produces a **false-clean registry** — the w
 | 5 | Consent-policy assessment via `Get-MgPolicyAuthorizationPolicy` only | Misses the per-app admin-consent-request policy and reviewer queue size | §7 reads `/policies/adminConsentRequestPolicy` plus reviewer queue via `/identityGovernance/appConsent/appConsentRequests` |
 | 6 | SP sign-in audit via `Get-MgAuditLogSignIn` without `-Filter "signInEventTypes/any(t:t eq 'servicePrincipal')"` | Returns user sign-ins; SP risk invisible | §8 explicit SP-only filter and Identity Protection `riskyServicePrincipals` cross-check |
 | 7 | Conditional Access for workload identities listed but not validated against the SP set | A policy exists but excludes the SPs that need it | §9 resolves each policy's `conditions.clientApplications.includeServicePrincipals` against the §3 inventory and reports gaps |
-| 8 | MCP enumeration via `Get-MgApplication` only (they are **service principals** with characteristic redirect URIs) | Entire MCP population missing | §11 walks `Get-MgServicePrincipal` with redirect-URI pattern matching plus tag filter |
-| 9 | Integrated Apps assumed equal to the Power Platform inventory | Org-wide-deployed third-party apps with no PA footprint missed | §12 reads `/admin/microsoft365apps/installedApps` (preview) plus the Exchange Online add-in surface as a fallback |
-| 10 | Reconciliation that overwrites the canonical record on every run | History destroyed; deltas invisible to examiners | §13 emits run-id-stamped subfolders to a WORM root and signs the manifest |
+| 8 | MCP enumeration via `Get-MgApplication` only (they are **service principals** with characteristic redirect URIs) | Entire MCP population missing | §10 walks `Get-MgServicePrincipal` with redirect-URI pattern matching plus tag filter |
+| 9 | Integrated Apps assumed equal to the Power Platform inventory | Org-wide-deployed third-party apps with no PA footprint missed | §11 reads `/admin/microsoft365apps/installedApps` (preview) plus the Exchange Online add-in surface as a fallback |
+| 10 | Reconciliation that overwrites the canonical record on every run | History destroyed; deltas invisible to examiners | §12 emits run-id-stamped subfolders to a WORM root and signs the manifest |
 | 11 | Single SP for both registry-read and tenant-write | Breaks SOX 404 separation of duties | §1 separate `agt12-registry-reader` audit-only principal |
 
 **Required shell guard (run this at the top of every Control 1.2 session).**
@@ -187,9 +187,9 @@ if ($PSCmdlet.ShouldProcess("AzureAD legacy fallback (5.1 only)", 'Install-Modul
 
 | Tool | Minimum | Used for | Notes |
 |---|---|---|---|
-| Power Platform CLI (`pac`) | **1.45.0** | `pac copilot list`, `pac admin list-app-resources`, `pac auth create` | Use `--cloud Public` for commercial deployments |
-| Microsoft Graph PowerShell SDK | 2.25.0 | All §3–§9 / §12 enumeration | `Connect-MgGraph -Environment` |
-| Azure CLI (`az`) | 2.60.0 | Azure managed identity / federated credential cross-check | Use `az cloud set --name AzureCloud` for commercial deployments |
+| Power Platform CLI (`pac`) | **1.45.0** | `pac copilot list`, `pac admin list-app-resources`, `pac auth create --cloud` | Pass `--cloud Public` for commercial |
+| Microsoft Graph PowerShell SDK | 2.25.0 | All §3–§9 / §12 enumeration | `Connect-MgGraph -Environment 'Global'` |
+| Azure CLI (`az`) | 2.60.0 | Azure managed identity / federated credential cross-check | `az cloud set --name AzureCloud` |
 | `Get-FileHash` (built-in) | n/a | SHA-256 evidence hashes | n/a |
 | `Set-AuthenticodeSignature` | n/a | Manifest signing in §13 | Code-signing cert must chain to a CA approved by Information Security |
 
@@ -258,26 +258,42 @@ The registry harness must run unattended on a schedule. The Registry Reader serv
 
 ---
 
-## §2 — Authentication bootstrap (`Initialize-Agt12Session`)
+## §2 — Authentication bootstrap
 
-**Why this section exists.** Every cmdlet in §3–§12 requires an authenticated session against the Microsoft commercial endpoints. The helper below produces a single `[Agt12Session]`-shaped object the rest of the playbook consumes, and explicitly **rejects** the bootstrap if the bound principal is the same identity used elsewhere for write operations. This framework targets the Microsoft commercial (Global) cloud, the deployment surface for US financial-services customers.
+**Why this section exists.** The helpers below produce a single `[Agt12Session]`-shaped object the rest of the playbook consumes, and explicitly **reject** the bootstrap if the bound principal is the same identity used elsewhere for write operations.
+
+### 2.1 `Initialize-Agt12Session`
 
 ```powershell
 # scripts/Initialize-Agt12Session.ps1
 function Initialize-Agt12Session {
 <#
 .SYNOPSIS
-    Authenticates the registry-reader principal to every plane Control 1.2 reads from.
+    Authenticates the registry-reader principal to every plane Control 1.2 reads from, using a single
+    certificate-based service principal and verifying that the granted scopes match the requested set.
+.DESCRIPTION
+    Performs Connect-MgGraph (cert-based) and Connect-AzAccount (cert-based, optional). Defers the
+    Power Apps Administration leg to a 5.1 child process spawned in §10. Hard-fails (exit 2) if
+    the bound principal returns fewer scopes than requested. Refuses to bootstrap if the supplied
+    ClientId matches the documented write-principal application id (separation-of-duties enforcement).
 .PARAMETER TenantId
 .PARAMETER RegistryReaderClientId
     Application (client) id of the audit-only registry reader SP. MUST NOT match any write principal.
 .PARAMETER CertificateThumbprint
 .PARAMETER WritePrincipalClientIdsToReject
     Optional list of application ids that this script will refuse to bind as the registry reader.
+    Populate from your tenant's documented write principals (e.g., the SP used by Control 1.4 for
+    DLP edits, or the SP used by Control 2.1 for label propagation).
 .OUTPUTS
-    [pscustomobject] with MgContext, ConnectedAt, RunId.
+    [pscustomobject] with MgContext, AzContext, ConnectedAt, RunId.
 .EXAMPLE
     PS> $session = Initialize-Agt12Session -TenantId $tid -RegistryReaderClientId $cid -CertificateThumbprint $thumb
+.EXAMPLE
+    PS> $session = Initialize-Agt12Session -TenantId $tid -RegistryReaderClientId $cid -CertificateThumbprint $thumb -WhatIf
+    Shows the connect actions that would be performed without contacting any endpoint.
+.NOTES
+    Idempotent. Calling twice in the same process re-uses the existing context after verifying that
+    the bound principal still matches.
 #>
     [CmdletBinding(SupportsShouldProcess)]
     [OutputType([pscustomobject])]
@@ -291,11 +307,12 @@ function Initialize-Agt12Session {
     $ErrorActionPreference = 'Stop'
 
     if ($RegistryReaderClientId -in $WritePrincipalClientIdsToReject) {
-        Write-Error "Refusing to bootstrap: RegistryReaderClientId $RegistryReaderClientId is in the documented write-principal list. SOX 404 separation-of-duties requires a distinct read-only principal for §3-§12."
+        Write-Error "Refusing to bootstrap: RegistryReaderClientId $RegistryReaderClientId is in the documented write-principal list. SOX 404 separation-of-duties requires a distinct read-only principal for §3-§12. Provision agt12-registry-reader and retry."
         exit 2
     }
 
     $runId = [guid]::NewGuid().ToString()
+
     $requestedScopes = @(
         'Application.Read.All','Directory.Read.All','DelegatedPermissionGrant.Read.All',
         'AppRoleAssignment.Read.All','Policy.Read.All','AuditLog.Read.All',
@@ -306,23 +323,95 @@ function Initialize-Agt12Session {
         try {
             Connect-MgGraph -TenantId $TenantId -ClientId $RegistryReaderClientId `
                 -CertificateThumbprint $CertificateThumbprint `
-                -Environment Global -NoWelcome -ErrorAction Stop | Out-Null
+                -Environment 'Global' -NoWelcome -ErrorAction Stop | Out-Null
         } catch {
-            Write-Error "Connect-MgGraph failed: $($_.Exception.Message)"
+            Write-Error "Connect-MgGraph failed: $($_.Exception.Message). Verify the certificate is installed in Cert:\CurrentUser\My or Cert:\LocalMachine\My, that the SP has the cert credential registered, and that the tenant id matches the SP's home tenant."
             throw
         }
     }
     $ctx = Get-MgContext
-    $grantedScopes = $ctx.Scopes
-    $missingScopes  = $requestedScopes | Where-Object { $_ -notin $grantedScopes }
-    if ($missingScopes) {
-        Write-Error "Missing Graph scopes: $($missingScopes -join ', '). Re-grant admin consent and retry."
-        exit 2
+    $missing = $requestedScopes | Where-Object { $_ -notin $ctx.Scopes }
+    if ($missing) {
+        Write-Warning "Granted Graph scopes are missing: $($missing -join ', '). Some legs will degrade gracefully (Status=PermissionDenied rows) rather than throw, but examiners expect explicit grant. File a consent request and re-run."
     }
+
+    if ($PSCmdlet.ShouldProcess('AzureCloud','Connect-AzAccount (certificate, optional)')) {
+        try {
+            Connect-AzAccount -ServicePrincipal -Tenant $TenantId -ApplicationId $RegistryReaderClientId `
+                -CertificateThumbprint $CertificateThumbprint `
+                -Environment 'AzureCloud' -WarningAction SilentlyContinue | Out-Null
+        } catch {
+            Write-Warning "Connect-AzAccount failed: $($_.Exception.Message). Azure-side managed-identity / federated-credential cross-checks in §6 will be skipped; primary registry data unaffected."
+        }
+    }
+
     [pscustomobject]@{
-        MgContext   = $ctx
-        ConnectedAt = (Get-Date).ToUniversalTime()
-        RunId       = $runId
+        RunId        = $runId
+        MgContext    = $ctx
+        ConnectedAt  = (Get-Date).ToUniversalTime()
+        TenantId     = $TenantId
+        ClientId     = $RegistryReaderClientId
+        Thumbprint   = $CertificateThumbprint
+    }
+}
+```
+
+**Fail-closed conditions enforced by this section:**
+
+- ClientId matches a documented write-principal id → `exit 2` (separation of duties).
+- Cert thumbprint not present in `Cert:\CurrentUser\My` or `Cert:\LocalMachine\My` → throw.
+- Az leg failure is **best-effort**; primary registry data is collected from Microsoft Graph and unaffected.
+
+### 2.2 Throttle helper used by every leg
+
+```powershell
+function Invoke-Agt12WithThrottle {
+<#
+.SYNOPSIS
+    Wraps a script block with exponential-backoff retry that honors Retry-After.
+.DESCRIPTION
+    Catches HTTP 429 / 503 / 504 from Microsoft Graph and Power Platform admin endpoints. Reads
+    Retry-After when present; falls back to 2^attempt seconds capped at 60. Maximum 6 attempts.
+    Re-throws on any other exception.
+.PARAMETER ScriptBlock
+.PARAMETER MaxAttempts
+.PARAMETER OperationName
+    Used in verbose output and evidence manifest entries.
+.OUTPUTS
+    Whatever the script block emits.
+.EXAMPLE
+    PS> Invoke-Agt12WithThrottle -OperationName 'Get-MgApplication' -ScriptBlock { Get-MgApplication -All }
+.NOTES
+    Power Platform admin APIs may impose long cool-downs (>60s). 429 after MaxAttempts is re-thrown.
+#>
+    [CmdletBinding()]
+    [OutputType([object])]
+    param(
+        [Parameter(Mandatory)] [scriptblock]$ScriptBlock,
+        [Parameter()] [int]$MaxAttempts = 6,
+        [Parameter(Mandatory)] [string]$OperationName
+    )
+    Set-StrictMode -Version Latest
+    $ErrorActionPreference = 'Stop'
+
+    for ($attempt = 1; $attempt -le $MaxAttempts; $attempt++) {
+        try {
+            return & $ScriptBlock
+        } catch {
+            $resp = $_.Exception.Response
+            $status = if ($resp) { [int]$resp.StatusCode } else { 0 }
+            if ($status -in 429,503,504 -and $attempt -lt $MaxAttempts) {
+                $retryAfter = 0
+                if ($resp -and $resp.Headers -and $resp.Headers.'Retry-After') {
+                    [int]::TryParse(($resp.Headers.'Retry-After' | Select-Object -First 1), [ref]$retryAfter) | Out-Null
+                }
+                if ($retryAfter -le 0) { $retryAfter = [Math]::Min([Math]::Pow(2, $attempt), 60) }
+                Write-Verbose "[$OperationName] HTTP $status on attempt $attempt; sleeping ${retryAfter}s before retry"
+                Start-Sleep -Seconds $retryAfter
+                continue
+            }
+            throw
+        }
     }
 }
 ```
@@ -1177,7 +1266,7 @@ Add-PowerAppsAccount -Endpoint '$endpoint' -TenantID '$TenantId' -ApplicationId 
 }
 ```
 
-**Fail-closed conditions enforced by this leg:** non-Windows hosts throw rather than silently returning empty; PAC/Power Apps Admin module absence is caught by §1.2 tooling check; endpoint defaults to the commercial (`prod`) value.
+**Fail-closed conditions enforced by this leg:** non-Windows hosts throw rather than silently returning empty; PAC/Power Apps Admin module absence is caught by §1.2 tooling check.
 
 ---
 
@@ -1237,7 +1326,7 @@ function Get-Agt12McpServerRegistrations {
 
 ## §12 — Integrated Apps enumeration (`Get-Agt12IntegratedApps`)
 
-**Why this section exists.** Integrated Apps surface Office add-ins, Teams apps, and Copilot agents that admins have deployed. The April 2026 GA endpoint `/admin/microsoft365apps/installedApps` returns the canonical list; the Exchange add-in fallback (`Get-App` against `OrganizationConfig`) is used when the preview endpoint is not yet available.
+**Why this section exists.** Integrated Apps surface Office add-ins, Teams apps, and Copilot agents that admins have deployed. The April 2026 GA endpoint `/admin/microsoft365apps/installedApps` returns the canonical list; the Exchange add-in fallback (`Get-App` against `OrganizationConfig`) is used when the preview endpoint is unavailable.
 
 ```powershell
 # scripts/legs/Get-Agt12IntegratedApps.ps1
@@ -1251,7 +1340,7 @@ function Get-Agt12IntegratedApps {
 .EXAMPLE
     PS> $ia = Get-Agt12IntegratedApps -Session $session
 .NOTES
-    /admin/microsoft365apps/installedApps is April 2026 preview; only Commercial as of writing.
+    /admin/microsoft365apps/installedApps is April 2026 preview.
 #>
     [CmdletBinding()]
     [OutputType([pscustomobject[]])]
@@ -1260,26 +1349,22 @@ function Get-Agt12IntegratedApps {
     $ErrorActionPreference = 'Stop'
 
     $rows = New-Object System.Collections.Generic.List[pscustomobject]
-    if ($Session.Profile.M365AppsAdminStatus -eq 'Preview') {
-        try {
-            $apps = Invoke-Agt12WithThrottle -OperationName 'Graph:IntegratedApps' -ScriptBlock {
-                Invoke-MgGraphRequest -Method GET -Uri "$($Session.Profile.GraphBaseUri)/v1.0/admin/microsoft365apps/installedApps" -ErrorAction Stop
-            }
-            foreach ($a in $apps.value) {
-                $rows.Add([pscustomobject]@{
-                    Kind='IntegratedApp'; Source='M365AppsAdmin'; Id=$a.id; DisplayName=$a.displayName;
-                    Publisher=$a.publisher; AppType=$a.appType; State=$a.state;
-                    CollectedAt=(Get-Date).ToUniversalTime()
-                })
-            }
-        } catch { Write-Warning "Integrated Apps preview endpoint failed: $($_.Exception.Message). Falling back to Exchange add-ins." }
-    } else {
-        Write-Warning "M365 Apps admin endpoint not available in cloud $($Session.Profile.Cloud); using Exchange add-in fallback."
-    }
+    try {
+        $apps = Invoke-Agt12WithThrottle -OperationName 'Graph:IntegratedApps' -ScriptBlock {
+            Invoke-MgGraphRequest -Method GET -Uri 'https://graph.microsoft.com/v1.0/admin/microsoft365apps/installedApps' -ErrorAction Stop
+        }
+        foreach ($a in $apps.value) {
+            $rows.Add([pscustomobject]@{
+                Kind='IntegratedApp'; Source='M365AppsAdmin'; Id=$a.id; DisplayName=$a.displayName;
+                Publisher=$a.publisher; AppType=$a.appType; State=$a.state;
+                CollectedAt=(Get-Date).ToUniversalTime()
+            })
+        }
+    } catch { Write-Warning "Integrated Apps preview endpoint failed: $($_.Exception.Message). Falling back to Exchange add-ins." }
 
     # Exchange add-in fallback
     try {
-        Connect-ExchangeOnline -ShowBanner:$false -ExchangeEnvironmentName $Session.Profile.ExoEnvironmentName -ErrorAction Stop | Out-Null
+        Connect-ExchangeOnline -ShowBanner:$false -ErrorAction Stop | Out-Null
         $orgApps = Get-App -OrganizationApp -ErrorAction Stop
         foreach ($a in $orgApps) {
             $rows.Add([pscustomobject]@{
@@ -1296,7 +1381,7 @@ function Get-Agt12IntegratedApps {
 }
 ```
 
-**Fail-closed conditions enforced by this leg:** when the preview endpoint is not yet available, Exchange add-in records are still produced; both data sources are tagged in the `Source` field so reconciliation can deduplicate.
+**Fail-closed conditions enforced by this leg:** both data sources are tagged in the `Source` field so reconciliation can deduplicate.
 
 ---
 ## §13 — Reconciliation into Control 3.1 canonical schema and quarterly attestation pack
@@ -1523,13 +1608,13 @@ function Test-Agt12Implementation {
 
 | # | Anti-pattern | Why it is rejected | Correct approach |
 |---|---|---|---|
-| 1 | Hardcoding the Graph endpoint URI | Endpoint shape may change between SDK versions | Use `-Environment Global` on `Connect-MgGraph` (commercial default) |
+| 1 | Hard-coding a tenant-specific URI in Connect-MgGraph instead of `-Environment 'Global'` | Breaks reproducibility and makes the runbook non-portable | Always use `-Environment 'Global'` for commercial tenants |
 | 2 | Using `Get-MgApplication -All` without `-ExpandProperty owners` | `.Owners` returns empty; ownership audit is silently 100% Ownerless | Always expand `owners` (and `extensionProperties` when applicable) |
 | 3 | Filtering sign-ins by UPN containing `svc_` or `app_` | Hostname / pretty-name heuristics miss SPs without convention; capture user sign-ins | Use `signInEventTypes/any(t:t eq 'servicePrincipal')` exclusively |
 | 4 | Loading `AzureAD` and `Microsoft.Graph` in the same session | Cmdlet name collisions silently resolve to the deprecated module | 5.1 child process pattern (§3.4) |
 | 5 | Auto-applying owner reassignment from manager-hierarchy proposals | SOX 404 SoD: bulk identity changes require human approval | Emit-and-route to PIM-activated writer with `-WhatIf` first |
 | 6 | Omitting beta tag-drift sweep | New Microsoft agent tags arrive between releases; known-tag list goes stale | Run §3 step (3) on every quarterly attestation |
-| 7 | Treating empty Integrated Apps response as "no agents" | Preview endpoint may not yet be available in all tenants | Always run Exchange add-in fallback; never treat an empty response as clean |
+| 7 | Treating empty Integrated Apps response as "no agents" | The preview endpoint may be unavailable | Always run Exchange add-in fallback; always check both sources |
 | 8 | Using the same SP for read and write operations | Defeats SoD; one compromised credential becomes both audit and remediation | Two principals: `agt12-registry-reader` (unattended) and `agt12-registry-writer` (PIM-only) |
 | 9 | Skipping Authenticode signature on the manifest | Examiner cannot prove pack integrity; defeats the evidence chain | Set-AuthenticodeSignature with code-signing cert + timestamp; throw on `Status != Valid` |
 | 10 | Catching exceptions silently in legs | Partial / wrong-shape data masquerades as clean | Catch-and-emit a `Status='*Failed'` row — never swallow |

@@ -31,9 +31,9 @@
   - [Scenario 8 — Sentinel not ingesting `CopilotInteraction`](#scenario-8-sentinel-not-ingesting-copilotinteraction)
   - [Scenario 9 — Per-table Dataverse audit not enabled on Copilot Studio entities](#scenario-9-per-table-dataverse-audit-not-enabled-on-copilot-studio-entities)
   - [Scenario 10 — Audit retention dropped from Premium to Standard mid-year](#scenario-10-audit-retention-dropped-from-premium-to-standard-mid-year)
-  - [Scenario 12 — NYDFS 500.06 / 500.16 / 500.17 — single-artifact 12-month AI audit evidence](#scenario-12-nydfs-50006-50016-50017-single-artifact-12-month-ai-audit-evidence)
-  - [Scenario 13 — Audit shows event but content is gone (mailbox deleted)](#scenario-13-audit-shows-event-but-content-is-gone-mailbox-deleted)
-  - [Scenario 14 — FFIEC IT Examination wants tamper-evident audit](#scenario-14-ffiec-it-examination-wants-tamper-evident-audit)
+  - [Scenario 11 — NYDFS 500.06 / 500.16 / 500.17 — single-artifact 12-month AI audit evidence](#scenario-11-nydfs-50006-50016-50017-single-artifact-12-month-ai-audit-evidence)
+  - [Scenario 12 — Audit shows event but content is gone (mailbox deleted)](#scenario-12-audit-shows-event-but-content-is-gone-mailbox-deleted)
+  - [Scenario 13 — FFIEC IT Examination wants tamper-evident audit](#scenario-13-ffiec-it-examination-wants-tamper-evident-audit)
 - [§4. Anti-Patterns](#4-anti-patterns)
 - [§5. Cross-References](#5-cross-references)
 
@@ -106,8 +106,8 @@ Before paging a Microsoft Support escalation, verify:
 7. Custom retention policy explicitly names the record type (default policy excludes Copilot)
 8. License entitlement gap report is empty for the user/event in question
 9. PAYG enablement state captured if `AIAppInteraction` involved
-11. Module versions captured and within the CAB-pinned range
-12. End-to-end latency measured and outside empirical ceiling (not a fabricated SLA)
+10. Module versions captured and within the CAB-pinned range
+11. End-to-end latency measured and outside empirical ceiling (not a fabricated SLA)
 
 ---
 
@@ -199,8 +199,7 @@ In all three cases, the 10-Year audit retention add-on remains useful as the **a
 1. Audit pay-as-you-go (PAYG) billing is not opted-in for the tenant.
 2. Network/browser DLP is not configured to capture non-Microsoft AI traffic — Edge for Business unmanaged-AI policy ([Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md)) is the upstream feeder for the `AIApp` workload.
 3. Affected users lack the appropriate license (Audit Premium tier prerequisites).
-4. Tenant PAYG `AIAppInteraction` events may not be enabled — verify PAYG opt-in status.
-5. Date window is older than the **180-day** retention horizon for PAYG-captured records.
+4. Date window is older than the **180-day** retention horizon for PAYG-captured records.
 
 **Diagnostic.**
 
@@ -520,3 +519,138 @@ foreach ($t in $tables) {
 
 ---
 
+### Scenario 11 — NYDFS 500.06 / 500.16 / 500.17 — single-artifact 12-month AI audit evidence
+
+**Symptom.** NY DFS examiner under Part 500 (specifically 23 NYCRR 500.06 audit trail, 500.16 incident response, and 500.17 notice of cybersecurity event) requests a **single artifact** showing all AI-related audit events for the past 12 months, joined across record types, with the preservation-tier export evidence demonstrating the artifact is anchored to the 17a-4(f) vault.
+
+**Likely cause.** Not a defect — a normal NYDFS examiner request. Most firms have not pre-built the joined query and scramble to assemble it under a regulator clock.
+
+**Resolution.** Pre-build the artifact as a **named saved query** so it can be re-run on demand. Two equivalent paths:
+
+**Path A — Microsoft Graph audit search API**, scheduled monthly, output to immutable blob:
+
+```powershell
+# Submit a 12-month query covering all four AI record types
+$body = @{
+  '@odata.type'       = '#microsoft.graph.security.auditLogQuery'
+  displayName         = "NYDFS-500-AI-Audit-$(Get-Date -Format 'yyyyMMdd')"
+  filterStartDateTime = (Get-Date).AddMonths(-12).ToString('o')
+  filterEndDateTime   = (Get-Date).ToString('o')
+  recordTypeFilters   = @(
+    'copilotInteraction',
+    'connectedAIAppInteraction',
+    'aiAppInteraction',
+    'microsoftCopilotStudio'
+  )
+} | ConvertTo-Json
+$q = Invoke-MgGraphRequest -Method POST `
+  -Uri 'https://graph.microsoft.com/v1.0/security/auditLog/queries' -Body $body
+# Poll $q.id, then page /queries/{id}/records, write output as NDJSON,
+# SHA-256 hash, push to Cohasset-attested immutable blob container.
+```
+
+**Path B — Sentinel workbook** (preferred when Sentinel is the SIEM of record):
+
+```kusto
+// NYDFS 500 — AI audit join, last 12 months
+let lookback = 365d;
+OfficeActivity
+| where TimeGenerated > ago(lookback)
+| where RecordType in ("CopilotInteraction","ConnectedAIAppInteraction",
+                       "AIAppInteraction","MicrosoftCopilotStudio")
+| extend EventDate = bin(TimeGenerated, 1d)
+| summarize EventCount = count(),
+            DistinctUsers = dcount(UserId),
+            DistinctAgents = dcount(tostring(parse_json(AuditData).AgentId))
+            by RecordType, EventDate
+| order by EventDate asc, RecordType asc
+```
+
+Pin the workbook, schedule the monthly export, and persist exports to the 17a-4(f) preservation tier with SHA-256 sidecars. The deliverable handed to the examiner is **three artifacts together**: the joined query result, the chain-of-custody manifest, and the preservation-tier confirmation (immutable-blob policy state, or vendor archive attestation).
+
+**What good looks like.** Saved query / workbook exists, has been run monthly for at least 12 months with outputs in the preservation tier, and can be produced for the examiner within the firm's documented response window. WSPs name the artifact and the responsible role.
+
+---
+
+### Scenario 12 — Audit shows event but content is gone (mailbox deleted)
+
+**Symptom.** `Search-UnifiedAuditLog -RecordType CopilotInteraction` shows events for a former employee, but eDiscovery / DSPM for AI / Communication Compliance retrieval comes back empty for the verbatim prompt and response. Investigation shows the user's mailbox was deleted as part of the leaver process, and the Substrate Copilot interactions mailbox was deleted with it.
+
+**Likely cause.** No legal hold or records-management retention policy was in place on the affected user's Copilot interactions mailbox, and the standard leaver workflow purged it. The audit log (operational telemetry) survived because it is tenant-scoped, but the content store (per-user Substrate mailbox) did not.
+
+**Resolution.**
+
+1. **Enable Records Management retention** ([Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) for retention design; [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) for information-protection alignment) covering the Copilot interactions location, with a retention duration aligned to the applicable regulatory horizon (3 years for SEC 17a-4(b)(4) communications; 5 years for CFTC 1.31; longer per firm policy).
+2. **Apply In-Place Hold / Litigation Hold** to mailboxes of users in scope of regulatory recordkeeping at the moment of separation, **before** the leaver workflow runs the mailbox-delete step. Make this a hard gate in the leaver runbook.
+3. **Sequence the leaver workflow** so retention/hold is verified present before any delete or disable action.
+4. For the immediate incident, the content is not recoverable from the deleted mailbox. Reconstruct what is available from the preservation tier (if exports were running), document the residual gap, and walk the [§1.2 reportability tree](#12-reportability-decision-tree) with General Counsel.
+
+**What good looks like.** Retention policy covering Copilot interactions is in place and verified for all in-scope users; leaver runbook gates mailbox-delete on hold-present check; periodic verification job confirms holds are intact for the regulated population; no `CopilotInteraction` audit row exists for which the content store cannot be retrieved.
+
+---
+
+### Scenario 13 — FFIEC IT Examination wants tamper-evident audit
+
+**Symptom.** FFIEC IT Examination Handbook–driven examiner asks the firm to demonstrate that the AI audit trail is **tamper-evident** — that is, that no insider (including the highest-privileged tenant admin) can alter or delete historical audit records without detection.
+
+**Likely cause.** Not a defect — a normal control attestation question. The firm needs to articulate the layered tamper-evidence model.
+
+**Resolution.** Walk the examiner through the layered tamper-evidence story:
+
+1. **Service-layer tamper-evidence (Microsoft 365 Audit).** Microsoft 365 Audit is tamper-evident at the service level: no administrator role — including Global Administrator — can edit historical audit records via supported product surfaces. Audit ingestion is a one-way write; the cmdlet surface exposes only **read** and **search** operations against historical records. Reference the current Microsoft Purview Audit documentation for the canonical Microsoft statement.
+2. **Disablement-detection layer.** While history cannot be edited, audit ingestion *itself* can in principle be disabled by a tenant admin. Mitigate with an alerting rule that fires if `UnifiedAuditLogIngestionEnabled` flips to `False` (this is itself an auditable configuration change). Wire the alert into the SOC pager.
+3. **Cryptographic / WORM evidence layer.** For regulator-requested cryptographic evidence, supplement with: (a) Sentinel ingestion ([Control 3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md)) — the Sentinel workspace is a separate plane from the M365 Audit service, so collusion across both planes would be required to suppress an event; (b) immutable-blob export with a **locked** time-based retention policy (Cohasset-attested for SEC 17a-4(f), CFTC 1.31, FINRA 4511); (c) WORM seal on the export with SHA-256 manifests anchored to a separate identity boundary (different subscription, different RBAC, different break-glass).
+4. **Independent validation layer.** Periodic independent control testing per [Control 3.4 — Audit and Compliance Reporting](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md), and (for broker-dealers) the independent records-management assessment under the SEC 17a-4(f) audit-trail alternative.
+
+```powershell
+# Verify the Azure immutable blob policy is locked
+Get-AzStorageContainerImmutabilityPolicy `
+  -ResourceGroupName 'rg-fsi-audit-vault' `
+  -StorageAccountName 'fsiauditvault' -ContainerName 'm365-audit-export' |
+  Select-Object State, ImmutabilityPeriodSinceCreationInDays
+# Expected: State = Locked
+```
+
+**What good looks like.** The firm can present a **four-layer tamper-evidence narrative** (service, disablement-detection, WORM/Sentinel, independent assessment); the immutable storage policy is in `Locked` state with hash sidecars; the disablement-detection alert exists and has been tested; control testing per Control 3.4 is current.
+
+---
+
+## 4. Anti-Patterns
+
+| Anti-pattern | Why it's harmful |
+|---|---|
+| Equating "10-Year Audit Retention" with SEC 17a-4(f) compliance | Capture is not preservation. The add-on extends operational telemetry retention; it does not constitute a 17a-4(f) electronic recordkeeping system. (Scenario 2.) |
+| Asking the audit log alone for prompt and response text | The `CopilotInteraction` record holds metadata and message IDs only. Verbatim text lives in the Substrate, retrieved via DSPM for AI / eDiscovery / Communication Compliance. (Scenario 1.) |
+| Hardcoding the "Is Agent = Yes" filter chip into a runbook | Entra UI affordance naming has shifted across recent revisions. Document the live label and revisit after each UI revision. (Scenario 5.) |
+| Hardcoding the free-vs-PAYG split for `ConnectedAIAppInteraction` | Microsoft has revised the boundary more than once. Link to the live Microsoft Learn billing page; do not restate the split in a static runbook. (Scenario 4.) |
+| `-ErrorAction SilentlyContinue` in audit verification scripts | Hides exactly the failures you're verifying. Always `Stop` or `Continue` with logging. |
+| Assuming the default Audit Premium retention policy covers Copilot record types | It does not — only AAD/Exchange/OneDrive/SharePoint. Always create a custom policy explicitly naming Copilot record types. (Scenario 6.) |
+| Reading `Get-AdminAuditLogConfig` from Security & Compliance PowerShell | Always returns `False` for `UnifiedAuditLogIngestionEnabled` regardless of true tenant state. Use Exchange Online PowerShell. (Scenario 6.) |
+| Single-shot `Search-UnifiedAuditLog -ResultSize 5000` for high-volume pulls | Caps at 5,000 per call and 50,000 per session. Migrate to the Graph audit search API. (Scenario 7.) |
+| Using `Search-AdminAuditLog` for new automation | Deprecated 15 September 2024. Migrate to `Search-UnifiedAuditLog` (legacy but supported) or the Graph audit search API (strategic). |
+| Citing fabricated "15-minute SIEM SLA" or "24-hour audit SLA" | Microsoft does not publish a hard SLA. Examiners will challenge specific numerical claims. Document the empirical ceiling instead. (Scenario 8.) |
+| Downgrading audit licenses on users in regulated populations to optimize cost | Silent retention re-tiering creates evidence gaps and possible disclosure obligations. Hard-gate the downgrade. (Scenario 10.) |
+| Running the leaver workflow before applying retention/hold to the user's Copilot mailbox | Audit row survives, content does not — a worst-case examiner scenario. Sequence hold-before-delete. (Scenario 12.) |
+| Treating `agentSignIn` as GA without verification | Preview surfaces evolve; verify against the live tenant and Microsoft Learn before documenting. |
+| Stamping `[PASS]` immediately after `Set-AdminAuditLogConfig` | Configuration takes up to 60 minutes to propagate; ingestion takes longer. Re-verify after the propagation window. |
+
+---
+
+## 5. Cross-References
+
+- [Control 1.5 — Microsoft Purview Data Loss Prevention](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) … endpoint and browser DLP (Edge for Business unmanaged-AI policy) is the upstream feeder for the `AIApp` workload that surfaces `AIAppInteraction` events. Without DLP capture, PAYG opt-in alone produces no events. (Scenario 3.)
+- [Control 1.6 — Microsoft Purview DSPM for AI](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) … one of three Substrate-tier paths for retrieving the verbatim prompt and response text that the audit record references by message ID. (Scenarios 1, 10, 12.)
+- [Control 1.10 — Communication Compliance for AI Interactions](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) … Substrate-tier path for policy-driven supervisory review of AI-generated communications; FINRA Rule 3110 alignment. (Scenarios 1, 10, 12.)
+- [Control 1.19 — eDiscovery for Agent Interactions](../../../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md) … Substrate-tier path for legal hold, collection, and review of Copilot interactions; the canonical regulator/litigation export channel. (Scenarios 1, 10, 12.)
+- [Control 2.6 — Data Handling, Retention and Archival Procedures](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) … Records Management retention design covering the Copilot interactions location; gates the leaver-workflow content-loss scenario. (Scenario 12.)
+- [Control 2.12 — Agent Lifecycle Management](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) … leaver / mover sequencing for agent owners and users; ensures hold-before-delete and license-tier guard for regulated populations.
+- [Control 3.4 — Audit and Compliance Reporting](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) … independent control testing layer in the tamper-evidence narrative; periodic attestation of the audit-logging stack. (Scenario 13.)
+- [Control 3.9 — Microsoft Sentinel Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) … canonical Sentinel ingestion architecture for AI audit events; second-plane tamper-evidence and the workbook channel for the NYDFS 12-month artifact. (Scenarios 8, 11, 13.)
+
+---
+
+[Back to Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification & Testing](verification-testing.md)
+
+---
+
+*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

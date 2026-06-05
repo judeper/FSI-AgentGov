@@ -1,6 +1,6 @@
 # Control 1.19 — PowerShell Setup: eDiscovery for Agent Interactions
 
-> **Scope.** This playbook is the canonical PowerShell automation reference for Control 1.19 — *eDiscovery for Agent Interactions*. It exercises the **unified eDiscovery experience** in Microsoft Purview through the **Microsoft Graph eDiscovery API** (`Microsoft.Graph.Security`) — case creation, custodian and location-source assignment, KeyQL-based search with the **Copilot interactions** scope, the **legal hold** preservation primitive, review-set add and analytics, defensible review-set export, and Unified Audit Log corroboration via `Search-UnifiedAuditLog`.
+> **Scope.** This playbook is the canonical PowerShell automation reference for Control 1.19 — *eDiscovery for Agent Interactions*. It exercises the **unified eDiscovery experience** in Microsoft Purview through the **Microsoft Graph eDiscovery API** (`Microsoft.Graph.Security`) — case creation, custodian and location-source assignment, KeyQL-based search with the **Copilot interactions** scope, the **legal hold** preservation primitive, review-set add and analytics, defensible review-set export, and Unified Audit Log corroboration via `Search-UnifiedAuditLog`. It targets US financial-services tenants in the Microsoft Commercial cloud.
 >
 > **Companion documents.**
 >
@@ -15,7 +15,7 @@
 > **Latency reality (do not overclaim).** The unified eDiscovery experience does not provide synchronous preservation. Microsoft does not publish a hard SLA for new content to become searchable inside an eDiscovery case; new Copilot interactions can take from minutes to hours to be indexed and to fall under the scope of a previously-created search. **Hold attachment, however, is effective at the time the legal-hold resource is created against a custodian source** — preservation is what defends the duty under FRCP 37(e), not searchability.
 
 !!! warning "Read the FSI PowerShell baseline first"
- Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning mutation safety (`-WhatIf` / `SupportsShouldProcess`), and SHA-256 evidence emission. Snippets below may show abbreviated patterns; the baseline is authoritative when the two diverge.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), and SHA-256 evidence emission. Snippets below may show abbreviated patterns; the baseline is authoritative when the two diverge.
 
 !!! danger "Classic eDiscovery retired 31 August 2025"
     Microsoft retired the classic Standard and classic Premium / Advanced eDiscovery experiences on **31 August 2025**. The IPPS cmdlets that authored those experiences — `New-ComplianceCase -CaseType "AdvancedEdiscovery"`, `New-ComplianceSearch`, `Start-ComplianceSearch`, `New-ComplianceSearchAction -Action Export`, `New-CaseHoldPolicy` + `New-CaseHoldRule` — are **not** the authoring surface for new cases. The unified eDiscovery experience is exposed in three ways: the Microsoft Purview portal, the **Microsoft Graph eDiscovery API** (`/security/cases/ediscoveryCases` — the canonical PowerShell control plane), and a small set of read-only IPPS noun-equivalents that continue to function for transitional cases. This playbook is **Graph-first**.
@@ -24,10 +24,10 @@
 
 ## 0. Wrong-shell trap (READ FIRST)
 
-Control 1.19 spans **three** PowerShell surfaces. Choosing the wrong one produces silent false-clean evidence — empty case lists, holds that bind to nothing, exports with zero items, audit pulls truncated at 5 000 rows — that will not survive supervisory testing under FINRA Rule 4511 / SEC Rule 17a-4(b)(4) / FRCP 37(e).
+Control 1.19 spans **three** PowerShell surfaces. Choosing the wrong surface, or misconfiguring the connection, produces silent false-clean evidence — empty case lists, holds that bind to nothing, exports with zero items, audit pulls truncated at 5 000 rows — that will not survive supervisory testing under FINRA Rule 4511 / SEC Rule 17a-4(b)(4) / FRCP 37(e).
 
 | Surface | Connect cmdlet | Module(s) | What it covers in 1.19 |
-
+|---|---|---|---|
 | **Microsoft Graph eDiscovery API** | `Connect-MgGraph` | `Microsoft.Graph.Authentication`, `Microsoft.Graph.Security`, `Microsoft.Graph.Users`, `Microsoft.Graph.Sites` | **Canonical authoring surface.** Cases, custodians, custodian user / site sources, non-custodial sources, searches, legal holds, review sets, review-set queries, tags, exports, async-operation polling. |
 | **Microsoft 365 Unified Audit (IPPS)** | `Connect-IPPSSession` | `ExchangeOnlineManagement` v3.5+ | Paged retrieval of `Discovery` (`RecordType` 28) and `AeD` (`RecordType` 54) audit records — *who created what case, who applied which hold, which export was downloaded, by whom, when*. Also used for `Get-RoleGroupMember` Purview eDiscovery role-group checks. |
 | **Microsoft Purview portal** | n/a | n/a | Some artefacts remain portal-only as of April 2026: case templates, certain reviewer-set tag policies, and the human-workflow custodian hold-notice acknowledgement page. PowerShell can read state for evidence joining; it does not author these artefacts. |
@@ -36,13 +36,13 @@ Control 1.19 spans **three** PowerShell surfaces. Choosing the wrong one produce
 
 > **A search is not a hold.** `New-MgSecurityCaseEdiscoveryCaseSearch` performs *discovery*; it does **not** preserve. The duty-to-preserve under FRCP 37(e) and FINRA Rule 3110 (Supervision) as informed by FINRA RN 24-09 (Gen AI guidance) is met by a `legalHold` resource on the case (§6) bound to per-custodian `legalHoldUserSource` and per-site `legalHoldSiteSource` rows. Treating a search as preservation is the spoliation pattern that drew sanctions in *Zubulake v. UBS Warburg LLC*, 220 F.R.D. 212 (S.D.N.Y. 2003) — and it remains the most common implementation defect in supervisory testing.
 
-> **Microsoft has revised the `Microsoft.Graph.Security` cmdlet noun bindings between 2.x minor versions.** the exact noun and parameter names of every `*-MgSecurityCaseEdiscoveryCase*` cmdlet against `Get-Help` and `Get-Command` in your CAB-pinned module version before relying on a literal in a runbook. Where a typed cmdlet is missing or renamed, fall back to `Invoke-MgGraphRequest` against the documented Graph endpoint — never fall back to the retired `New-Compliance*` IPPS path.
+> **Microsoft has revised the `Microsoft.Graph.Security` cmdlet noun bindings between 2.x minor versions.** Re-verify the exact noun and parameter names of every `*-MgSecurityCaseEdiscoveryCase*` cmdlet against `Get-Help` and `Get-Command` in your CAB-pinned module version before relying on a literal in a runbook. Where a typed cmdlet is missing or renamed, fall back to `Invoke-MgGraphRequest` against the documented Graph endpoint — never fall back to the retired `New-Compliance*` IPPS path.
 
 ### 0.1 The five most common false-clean defects (do not ship without all five guards)
 
 | Defect | Symptom | Guard |
-
-| Calling `New-ComplianceCase -CaseType "AdvancedEdiscovery"` after 31 Aug 2025 | Cmdlet either errors out or silently creates a transitional shim that the new portal cannot finish processing; SEC 17a-4 production fails | §3 uses `New-MgSecurityCaseEdiscoveryCase`. The retired cmdlet appears in §13 anti-pattern row 1 only. |
+|---|---|---|
+| Calling `New-ComplianceCase -CaseType "AdvancedEdiscovery"` after 31 Aug 2025 | Cmdlet either errors out or silently creates a transitional shim that the new portal cannot finish processing; SEC 17a-4 production fails | §3 uses `New-MgSecurityCaseEdiscoveryCase`. The retired cmdlet appears in §12 anti-pattern row 1 only. |
 | Content Search treated as preservation | Search returns hits; custodian deletes the Copilot chat; re-search returns zero; spoliation under FRCP 37(e) | §6 creates a `legalHold` and binds `legalHoldUserSource` per custodian *before* §5 search runs. §11 check 2 hard-fails if any custodian lacks an enabled hold. |
 | KeyQL `kind:microsoftteams AND from:"Copilot"` for Copilot scope | Copilot interactions are not Teams chat items with author "Copilot"; they live in the substrate mailbox under a hidden `Copilot Chats` folder; search returns zero | §5 uses `kind:CopilotInteraction` (the canonical Copilot location class) and binds the custodian *mailbox* source — that is what brings Copilot conversations into scope. |
 
@@ -66,7 +66,7 @@ if ($PSVersionTable.PSVersion -lt [version]'7.4.0') {
 
 ## 1. Module install and version pinning
 
-Every module must be pinned to a CAB-approved version. The list below is the minimum surface for Control 1.19; record exact versions in your change ticket and substitute the version your CAB has approved. The illustrative pins shown are the framework's April 2026 baseline; **Microsoft revises the `Microsoft.Graph.*` cmdlet surface between 2.x minor versions** — every `*-MgSecurityCaseEdiscoveryCase*` noun against `Get-Help` in the pinned version before publishing the runbook.
+Every module must be pinned to a CAB-approved version. The list below is the minimum surface for Control 1.19; record exact versions in your change ticket and substitute the version your CAB has approved. The illustrative pins shown are the framework's April 2026 baseline; **Microsoft revises the `Microsoft.Graph.*` cmdlet surface between 2.x minor versions** — re-verify every `*-MgSecurityCaseEdiscoveryCase*` noun against `Get-Help` in the pinned version before publishing the runbook.
 
 ```powershell
 #Requires -Version 7.4
@@ -105,7 +105,7 @@ Treat `Install-Module ... -Force` *without* `-RequiredVersion` as an unacceptabl
 The following table is the authoring guard for this control. Every cmdlet that existed under the classic Standard / Premium experiences has either been retired or replaced; copying a pre-2025 runbook into a 2026 change window is the most common cause of a silent eDiscovery failure.
 
 | Cmdlet | Module | Status as of April 2026 | Use in 1.19? |
-
+|---|---|---|---|
 | `New-ComplianceCase -CaseType "AdvancedEdiscovery"` | `ExchangeOnlineManagement` (IPPS) | **Retired for new cases** — the `AdvancedEdiscovery` case type is gone. Some tenants may still create a transitional shim with `-CaseType "eDiscovery"`. | **No.** Anti-pattern row 1. |
 | `New-ComplianceCase` (other case kinds — DSR, Insider Risk) | IPPS | Continues to function for non-eDiscovery case kinds. | Out of scope for 1.19. |
 | `Get-ComplianceCase` | IPPS | Read-only enumeration of legacy / transitional cases. Continues to function. | **Read-only fallback only**, flagged as transitional. |
@@ -146,7 +146,7 @@ The following table is the authoring guard for this control. Every cmdlet that e
 ### 1.2 Graph delegated permissions required
 
 | Scope | Why |
-
+|---|---|
 | `eDiscovery.Read.All` | Read cases, custodians, searches, holds, review sets |
 | `eDiscovery.ReadWrite.All` | Mutate cases, holds, searches, exports |
 | `User.Read.All` | Resolve custodian UPN → object ID for user-source attach |
@@ -159,7 +159,7 @@ The following table is the authoring guard for this control. Every cmdlet that e
 ### 1.3 Purview eDiscovery role groups — pre-flight membership
 
 | Role group | Why it must be checked in §2 |
-
+|---|---|
 | **eDiscovery Manager** | Default operator role; case-scoped. Required to create a case and act on cases the operator owns. |
 | **eDiscovery Administrator** | Tenant-scoped superset; required to act on any case in the tenant and to **release holds**. Treat as super-user; assign sparingly and via Entra PIM. |
 | **Reviewer** | Review-set view-only. Optional for the runtime path; required only if §11 reads tag state from a non-owner principal. |
@@ -167,6 +167,128 @@ The following table is the authoring guard for this control. Every cmdlet that e
 ---
 
 
+## 2. Bootstrap — `Initialize-Agt119Session`
+
+`Initialize-Agt119Session` is the canonical entry point for every Control 1.19 runbook. It performs seven things in order:
+
+1. Asserts PowerShell 7.4 Core (re-checks §0.2).
+2. Validates that the operator UPN exists in the directory.
+3. Connects to Microsoft Graph with the §1.2 delegated scopes (or, where MFA is enforced, with `-UseDeviceAuthentication`).
+4. Connects to IPPS for the §9 audit-log integration only.
+5. Verifies operator membership in the **eDiscovery Manager** role group (or **eDiscovery Administrator** for hold-release operations).
+6. Creates the evidence root for the session (`./evidence/1.19/<UTC stamp>/`) and emits a session manifest.
+7. Returns a typed `[pscustomobject]` session context that downstream cmdlets accept on the pipeline.
+
+`Initialize-Agt119Session` **does not mutate tenant state**. It is safe to run in a dry-run pipeline against any cloud.
+
+```powershell
+function Initialize-Agt119Session {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [ValidatePattern('^[^@\s]+@[^@\s]+\.[^@\s]+$')]
+        [string] $OperatorUpn,
+
+        [Parameter(Mandatory)]
+        [ValidatePattern('^[A-Za-z0-9-]{4,64}$')]
+        [string] $CaseTag,
+
+        [ValidateScript({ Test-Path -Path (Split-Path $_ -Parent) -PathType Container })]
+        [string] $EvidenceRoot = (Join-Path (Get-Location) 'evidence/1.19'),
+
+        [ValidateSet('eDiscoveryManager','eDiscoveryAdministrator')]
+        [string] $RequiredRole = 'eDiscoveryManager',
+
+        [switch] $UseDeviceAuthentication
+    )
+
+    # ---- 1. PowerShell edition / version guard ------------------------------
+    if ($PSVersionTable.PSEdition -ne 'Core' -or $PSVersionTable.PSVersion -lt [version]'7.4.0') {
+        throw "Initialize-Agt119Session requires PowerShell 7.4+ (Core). Detected: $($PSVersionTable.PSEdition) $($PSVersionTable.PSVersion)."
+    }
+
+    # ---- 2. Evidence root ---------------------------------------------------
+    $stamp = (Get-Date).ToUniversalTime().ToString('yyyyMMddTHHmmssZ')
+    $sessionRoot = Join-Path $EvidenceRoot ("{0}-{1}" -f $stamp, $CaseTag)
+    $null = New-Item -Path $sessionRoot -ItemType Directory -Force
+
+    # ---- 3. Connect Microsoft Graph -----------------------------------------
+    $graphScopes = @(
+        'eDiscovery.Read.All'
+        'eDiscovery.ReadWrite.All'
+        'User.Read.All'
+        'Sites.Read.All'
+        'AuditLog.Read.All'
+        'Directory.Read.All'
+    )
+    if ($UseDeviceAuthentication) {
+        Connect-MgGraph -Environment 'Global' -Scopes $graphScopes -UseDeviceAuthentication -NoWelcome -ErrorAction Stop | Out-Null
+    } else {
+        Connect-MgGraph -Environment 'Global' -Scopes $graphScopes -NoWelcome -ErrorAction Stop | Out-Null
+    }
+    $ctxGraph = Get-MgContext
+    if (-not $ctxGraph) { throw "Connect-MgGraph did not establish a context." }
+    if ($ctxGraph.Account -ne $OperatorUpn) {
+        Write-Warning "Connected Graph account '$($ctxGraph.Account)' does not match -OperatorUpn '$OperatorUpn'. Attribution evidence will record the connected account."
+    }
+    foreach ($scope in $graphScopes) {
+        if ($ctxGraph.Scopes -notcontains $scope) {
+            throw "Required Graph scope '$scope' was not granted. Granted: $($ctxGraph.Scopes -join ', ')"
+        }
+    }
+
+    # ---- 4. Connect IPPS for §9 audit pull ----------------------------------
+    Connect-IPPSSession -UserPrincipalName $OperatorUpn -ErrorAction Stop | Out-Null
+
+    # ---- 5. Role-group membership check -------------------------------------
+    $roleName = if ($RequiredRole -eq 'eDiscoveryAdministrator') { 'eDiscovery Administrator' } else { 'eDiscovery Manager' }
+    $members = Get-RoleGroupMember -Identity $roleName -ErrorAction Stop
+    $upns = @($members | ForEach-Object {
+        try { (Get-User -Identity $_.Name -ErrorAction Stop).UserPrincipalName } catch { $_.Name }
+    })
+    if ($upns -notcontains $OperatorUpn) {
+        throw "Operator '$OperatorUpn' is not a member of Purview role group '$roleName'. Assign via Entra PIM with a time-bounded activation before re-running."
+    }
+
+    # ---- 6. Session manifest ------------------------------------------------
+    $session = [pscustomobject]@{
+        ModuleVersion       = 'Agt119/1.4'
+        Cloud               = 'Commercial'
+        GraphEnvironment    = 'Global'
+        IPPSConnectionUri   = 'https://ps.compliance.protection.outlook.com/powershell-liveid/'
+        AzureEnvironment    = 'AzureCloud'
+        OperatorUpn         = $OperatorUpn
+        ConnectedGraphUpn   = $ctxGraph.Account
+        TenantId            = $ctxGraph.TenantId
+        CaseTag             = $CaseTag
+        SessionRoot         = $sessionRoot
+        StartedUtc          = (Get-Date).ToUniversalTime().ToString('o')
+        GrantedGraphScopes  = $ctxGraph.Scopes
+        RequiredRole        = $roleName
+        PSVersion           = $PSVersionTable.PSVersion.ToString()
+    }
+    $manifestPath = Join-Path $sessionRoot 'session-manifest.json'
+    $session | ConvertTo-Json -Depth 6 | Set-Content -Path $manifestPath -Encoding utf8
+
+    # ---- 7. Return ----------------------------------------------------------
+    Write-Verbose "Session initialised. Evidence root: $sessionRoot"
+    return $session
+}
+```
+
+**Usage.**
+
+```powershell
+$session = Initialize-Agt119Session `
+    -OperatorUpn   'jane.doe@contoso.com' `
+    -CaseTag       'matter-2026-0418-supervisory' `
+    -RequiredRole  eDiscoveryManager `
+    -Verbose
+```
+
+The `$session` object is the input to every subsequent helper in this playbook.
+
+---
 
 ## 3. Create the eDiscovery case
 
@@ -224,7 +346,7 @@ function New-Agt119Case {
 The custodian is the human; the **sources** are the locations that custodian's content lives in. For Copilot interaction discovery, the relevant source classes are:
 
 | Source class | Where Copilot interactions land | Cmdlet |
-
+|---|---|---|
 | `userSource` (mailbox) | Substrate-stored Copilot conversations live in the custodian's mailbox under hidden folders. **This is the source that brings Copilot chats into scope.** | `New-MgSecurityCaseEdiscoveryCaseCustodianUserSource` |
 | `userSource` (OneDrive) | Files referenced by Copilot prompts; some agent file outputs | Same cmdlet, OneDrive URL |
 | `siteSource` | SharePoint sites referenced by grounded prompts | `New-MgSecurityCaseEdiscoveryCaseCustodianSiteSource` |
@@ -305,7 +427,7 @@ The search resource carries the **KeyQL** content query and the bound sources. F
 ### 5.1 KeyQL — the small set of clauses you actually need for 1.19
 
 | Clause | Meaning | Notes |
-
+|---|---|---|
 | `kind:CopilotInteraction` | Limit hits to Copilot prompt / response items | The canonical Copilot scope. **Do not** substitute `kind:microsoftteams` — Copilot conversations are not Teams chat items. |
 | `(received>=2026-01-01 AND received<=2026-04-30)` | Inclusive date window | KeyQL date math is UTC. |
 | `participants:user@contoso.us` | Restricts to messages where the UPN appears as a participant | Useful when one custodian's chats with a *specific* counterparty are in scope. |
@@ -495,6 +617,7 @@ function New-Agt119Hold {
             sites           = $SiteUrls
             issuedBy        = $Session.ConnectedGraphUpn
             issuedUtc       = (Get-Date).ToUniversalTime().ToString('o')
+            cloud           = $Session.Cloud
             acknowledgement = 'pending portal acknowledgement (read via Get-MgSecurityCaseEdiscoveryCaseLegalHold expanded property)'
         } | ConvertTo-Json -Depth 5 | Set-Content -Path $notifyPath -Encoding utf8
 
@@ -694,6 +817,7 @@ function Export-Agt119ReviewSet {
             files          = $perFile
             exportedBy     = $Session.ConnectedGraphUpn
             exportedUtc    = (Get-Date).ToUniversalTime().ToString('o')
+            cloud          = $Session.Cloud
         }
         $manifestPath = Join-Path $Session.SessionRoot ("export-manifest-{0}.json" -f $latest.Id)
         $manifest | ConvertTo-Json -Depth 8 | Set-Content -Path $manifestPath -Encoding utf8
@@ -793,6 +917,8 @@ function Get-Agt119AuditEvents {
     return $allEvents
 }
 ```
+
+The complementary Graph audit endpoint (`/auditLogs/directoryAudits` and `/security/auditLog/queries`) is the **strategic forward path** for programmatic audit search. `Search-UnifiedAuditLog` remains the regulator-recognised supervisory artefact for Microsoft 365 audit retrieval while it is supported.
 
 ---
 
@@ -997,31 +1123,30 @@ function Test-Agt119Implementation {
 
 ---
 
-
-## 13. Anti-patterns — what not to do (and why)
+## 12. Anti-patterns — what not to do (and why)
 
 | # | Anti-pattern | Why it's wrong | Correct path |
-
+|---|---|---|---|
 | 1 | `New-ComplianceCase -CaseType "AdvancedEdiscovery"` | Retired 31 Aug 2025. Cmdlet either errors or creates a transitional shim that the new portal cannot finish processing — SEC 17a-4 production fails. | §3 — `New-MgSecurityCaseEdiscoveryCase`. |
-| 4 | Treating a search as preservation | A search is discovery, not preservation. Custodian deletes content between search and export → re-search returns zero → spoliation under FRCP 37(e). The *Zubulake* line of cases. | §6 — create a `legalHold` and bind `legalHoldUserSource` per custodian *before* the search runs. §11 check 2 enforces this. |
-| 5 | `kind:microsoftteams AND from:"Copilot"` for Copilot scope | Copilot conversations are not Teams chat items with author "Copilot". They live in the substrate mailbox under a hidden `Copilot Chats` folder; the search returns zero. | §5 — `kind:CopilotInteraction` and bind the custodian *mailbox* source. |
-| 6 | Bare `Search-UnifiedAuditLog` with no `SessionId` / `SessionCommand` | Returns max 5 000 rows; silently truncates evidence; truncation is invisible without a manual count. | §9 — paged loop with stable `SessionId` + `SessionCommand 'ReturnLargeSet'`, until last batch < `ResultSize`. |
-| 7 | `Install-Module … -Force` with no `-RequiredVersion` | Breaks reproducibility; CAB cannot tie evidence to a known cmdlet surface. Fails SOX §404 / OCC 2023-17 evidence. | §1 — pin every module to a CAB-approved version; record release-notes review in change ticket. |
-| 8 | Authenticating with a service principal for eDiscovery operations | Several Graph eDiscovery operations require *delegated* permissions; even where app-only works, attribution evidence under FINRA 3110 expects a human operator UPN. | §2 — delegated `Connect-MgGraph` with operator UPN; service principals are not a substitute. |
-| 9 | Hold release in a non-interactive pipeline with no ticket reference | High-impact destructive operation; without an approver and ticket, defensibility under FRCP 37(e) collapses. | §6.1 — `Disable-Agt119Hold -ReleaseTicket -Approver`; gated to eDiscovery Administrator role. |
-| 10 | Exporting to a writable local directory | Operator can mutate the export after the fact; chain-of-custody breaks. | §8 — land the bundle in an Azure Storage container with a **locked** time-based immutability policy (SEC 17a-4(f) WORM). |
-| 11 | Skipping the operation-poll loop and assuming the `Invoke-…` return value is the result | `estimateStatistics`, `addToReviewSet`, `exportReviewSet` are all asynchronous. The synchronous return is acknowledgement, not result. Treating it as result yields false-clean evidence. | §5 / §7 / §8 — poll `Get-MgSecurityCaseEdiscoveryCaseOperation` with timeout. |
-| 12 | Mutating the evidence pack after the fact | Breaks SHA-256 manifest; §11 check 6 fails. | §10 — append commentary as a sibling file and re-hash; never edit `evidence.jsonl` rows. |
-| 13 | Combining `WhatIf` and a destructive action in the same call by accident | `New-MgSecurityCaseEdiscoveryCase -BodyParameter ... -WhatIf` returns the parameter set without creating; downstream cmdlets fail with "case not found" but the operator sees an apparent success in the console. | All mutating cmdlets in this playbook implement `SupportsShouldProcess` with `ConfirmImpact='Medium'` or `'High'`; the wrapper functions check `$PSCmdlet.ShouldProcess(...)` explicitly. |
-| 14 | Using `Get-ComplianceCase` as the case-existence check after migration | Legacy cmdlet enumerates only legacy / transitional cases; new unified cases do not appear; idempotency check (§3) silently always returns "not found" and creates duplicate cases. | §3 — idempotency check uses `Get-MgSecurityCaseEdiscoveryCase -All`. |
-| 15 | Pulling > 31 days in a single `Search-UnifiedAuditLog` window | Microsoft documents reduced reliability for windows > 31 days; pages may be silently dropped. | §9 — split windows ≤ 31 days; the helper warns when the window is too wide. |
-| 16 | Trusting `IsEnabled = $true` on the *hold* alone as proof of preservation | A hold with no `legalHoldUserSource` rows preserves nothing. | §11 check 2 — enforces that every expected custodian appears as a `userSource` on an enabled hold. |
-| 17 | Leaving the operator in the **eDiscovery Administrator** role group permanently | Tenant-scoped superset; should be JIT via Entra PIM. Permanent assignment violates Fed SR 26-2 (formerly SR 11-7) separation-of-duties expectations. | §2 `RequiredRole eDiscoveryAdministrator` only for hold-release operations; default operator role is **eDiscovery Manager**. |
-| 18 | Calling `Disconnect-MgGraph` and re-`Connect-MgGraph` mid-pipeline to "refresh tokens" | Invalidates cached operation IDs and may switch tenant ring if `-Environment` is omitted on the reconnect. | §2 — establish the session once at the top of the runbook; rely on MSAL token refresh transparently. |
+| 2 | Treating a search as preservation | A search is discovery, not preservation. Custodian deletes content between search and export → re-search returns zero → spoliation under FRCP 37(e). The *Zubulake* line of cases. | §6 — create a `legalHold` and bind `legalHoldUserSource` per custodian *before* the search runs. §11 check 2 enforces this. |
+| 3 | `kind:microsoftteams AND from:"Copilot"` for Copilot scope | Copilot conversations are not Teams chat items with author "Copilot". They live in the substrate mailbox under a hidden `Copilot Chats` folder; the search returns zero. | §5 — `kind:CopilotInteraction` and bind the custodian *mailbox* source. |
+| 4 | Bare `Search-UnifiedAuditLog` with no `SessionId` / `SessionCommand` | Returns max 5 000 rows; silently truncates evidence; truncation is invisible without a manual count. | §9 — paged loop with stable `SessionId` + `SessionCommand 'ReturnLargeSet'`, until last batch < `ResultSize`. |
+| 5 | `Install-Module … -Force` with no `-RequiredVersion` | Breaks reproducibility; CAB cannot tie evidence to a known cmdlet surface. Fails SOX §404 / OCC 2023-17 evidence. | §1 — pin every module to a CAB-approved version; record release-notes review in change ticket. |
+| 6 | Authenticating with a service principal for eDiscovery operations | Several Graph eDiscovery operations require *delegated* permissions; even where app-only works, attribution evidence under FINRA 3110 expects a human operator UPN. | §2 — delegated `Connect-MgGraph` with operator UPN; service principals are not a substitute. |
+| 7 | Hold release in a non-interactive pipeline with no ticket reference | High-impact destructive operation; without an approver and ticket, defensibility under FRCP 37(e) collapses. | §6.1 — `Disable-Agt119Hold -ReleaseTicket -Approver`; gated to eDiscovery Administrator role. |
+| 8 | Exporting to a writable local directory | Operator can mutate the export after the fact; chain-of-custody breaks. | §8 — land the bundle in an Azure Storage container with a **locked** time-based immutability policy (SEC 17a-4(f) WORM). |
+| 9 | Skipping the operation-poll loop and assuming the `Invoke-…` return value is the result | `estimateStatistics`, `addToReviewSet`, `exportReviewSet` are all asynchronous. The synchronous return is acknowledgement, not result. Treating it as result yields false-clean evidence. | §5 / §7 / §8 — poll `Get-MgSecurityCaseEdiscoveryCaseOperation` with timeout. |
+| 10 | Mutating the evidence pack after the fact | Breaks SHA-256 manifest; §11 check 6 fails. | §10 — append commentary as a sibling file and re-hash; never edit `evidence.jsonl` rows. |
+| 11 | Combining `WhatIf` and a destructive action in the same call by accident | `New-MgSecurityCaseEdiscoveryCase -BodyParameter ... -WhatIf` returns the parameter set without creating; downstream cmdlets fail with "case not found" but the operator sees an apparent success in the console. | All mutating cmdlets in this playbook implement `SupportsShouldProcess` with `ConfirmImpact='Medium'` or `'High'`; the wrapper functions check `$PSCmdlet.ShouldProcess(...)` explicitly. |
+| 12 | Using `Get-ComplianceCase` as the case-existence check after migration | Legacy cmdlet enumerates only legacy / transitional cases; new unified cases do not appear; idempotency check (§3) silently always returns "not found" and creates duplicate cases. | §3 — idempotency check uses `Get-MgSecurityCaseEdiscoveryCase -All`. |
+| 13 | Pulling > 31 days in a single `Search-UnifiedAuditLog` window | Microsoft documents reduced reliability for windows > 31 days; pages may be silently dropped. | §9 — split windows ≤ 31 days; the helper warns when the window is too wide. |
+| 14 | Trusting `IsEnabled = $true` on the *hold* alone as proof of preservation | A hold with no `legalHoldUserSource` rows preserves nothing. | §11 check 2 — enforces that every expected custodian appears as a `userSource` on an enabled hold. |
+| 15 | Leaving the operator in the **eDiscovery Administrator** role group permanently | Tenant-scoped superset; should be JIT via Entra PIM. Permanent assignment violates Fed SR 26-2 (formerly SR 11-7) separation-of-duties expectations. | §2 `RequiredRole eDiscoveryAdministrator` only for hold-release operations; default operator role is **eDiscovery Manager**. |
+| 16 | Calling `Disconnect-MgGraph` and re-`Connect-MgGraph` mid-pipeline to "refresh tokens" | Invalidates cached operation IDs and may switch tenant context if `-Environment` is omitted on the reconnect. | §2 — establish the session once at the top of the runbook; rely on MSAL token refresh transparently. |
 
 ---
 
-## 14. Cross-links
+## 13. Cross-links
 
 - **Control specification:** `docs/controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md`
 - **Portal walkthrough:** `./portal-walkthrough.md`

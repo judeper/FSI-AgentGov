@@ -41,13 +41,13 @@ related_controls: ["1.21", "1.23", "1.24", "2.6", "2.8", "2.12", "2.25", "2.26",
     - **Break-glass attestation** — the helpers verify that two break-glass accounts are excluded from every policy. They do **not** verify that those accounts'' credentials are escrowed, tested quarterly, or roster-attested. That is a [Control 2.8](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md) and SOX 404 obligation.
 
 !!! danger "License Dependency — Conditional Access for Workload Identities"
-    Conditional Access policies that target service principals, managed identities, or Entra Agent ID principals require the **Microsoft Entra Workload ID Premium** add-on SKU (priced per workload identity per month). Microsoft Entra ID P1 and P2 alone are **not sufficient**. Section [§5.3](#53-new-fsi-capolicy-workloadidentity) will refuse to deploy a workload-identity policy if the SKU is absent.
+    Conditional Access policies that target service principals, managed identities, or Entra Agent ID principals require the **Microsoft Entra Workload ID Premium** add-on SKU (priced per workload identity per month). Microsoft Entra ID P1 and P2 alone are **not sufficient**. Section [§5.3](#53-new-fsi-capolicy-workloadidentity) will refuse to deploy a workload-identity policy if the SKU is absent.     Confirm SKU availability with your Microsoft account team before running enforcement mode.
 
 !!! warning "Token Protection Is Public Preview, Windows + Browser Specific"
     Token Protection for sign-in tokens is in **Public Preview** as of April 2026. It is currently effective only on Windows 10/11 with Microsoft Edge or Chrome via WAM (Web Account Manager). On macOS, iOS, Android, Linux, or unsupported browsers the policy **falls through** — the user is still challenged for MFA but the token is not cryptographically bound to the device. Do not rely on Token Protection as a sole compensating control for token-theft risk on heterogeneous fleets. Treat the helper [§5.4](#54-new-fsi-capolicy-sessioncontrols) as a **pilot deployment**, not a global enforcement.
 
 !!! warning "Authentication Methods Policy Migration — Pre-flight Required"
-    Microsoft retired the legacy MFA / SSPR policy surface in **September 2025**. Phishing-resistant Conditional Access grants will not evaluate as expected unless your tenant''s Authentication Methods Policy reports `policyMigrationState = migrationComplete`. The bootstrap calls `Test-Fsi-AuthMethodsMigrationState` and **throws** if the migration is incomplete.
+    Microsoft retired the legacy MFA / SSPR policy surface in **September 2025**. Phishing-resistant Conditional Access grants will not evaluate as expected unless your tenant''s Authentication Methods Policy reports `policyMigrationState = migrationComplete`.     the bootstrap in [§2](#2-bootstrap) calls `Test-Fsi-AuthMethodsMigrationState` and **throws** if the migration is incomplete.
 
 !!! info "Sign-in Log Tables Are Distinct"
     `SigninLogs` (interactive and non-interactive **user** sign-ins) and `AADServicePrincipalSignInLogs` (workload identity sign-ins) are **separate Log Analytics tables**. Workload identity / agent sign-ins do **not** appear in `SigninLogs`. The Sentinel-wiring helper in [§8](#8-sentinel-wiring-stub) checks both tables; review the cross-reference to [Control 3.9 Microsoft Sentinel Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) before assuming agent-identity coverage.
@@ -74,7 +74,7 @@ If any v1.0 SignIns module is loaded before its Beta counterpart, **close the ho
 | # | Defect | Symptom | Helper that detects it | Mitigation |
 |---|--------|---------|------------------------|------------|
 | 1 | Mixed v1.0 + Beta Graph modules loaded; CA WID cmdlet binds to v1.0 stub | `New-MgIdentityConditionalAccessPolicy` succeeds; policy created without `clientApplications` block; report-only metrics show **zero workload identity sign-ins blocked** even under attack simulation | `Assert-Fsi-ShellHost` ([§2.1](#21-assert-fsi-shellhost)) | Throw on mixed modules; require `-Force` to bypass; record in evidence pack |
-| 2 | Authentication Methods Policy migration incomplete | Phishing-resistant grant evaluates as **legacy MFA**; FIDO2-only users see push prompts; SAW devices challenge for password | `Test-Fsi-AuthMethodsMigrationState` ([§2.4](#24-test-fsi-authmethodsmigrationstate)) | Throw with link to migration doc; do not deploy phishing-resistant CA grant until `migrationComplete` |
+| 2 | Authentication Methods Policy migration incomplete | Phishing-resistant grant evaluates as **legacy MFA**; FIDO2-only users see push prompts; SAW devices challenge for password | `Test-Fsi-AuthMethodsMigrationState` ([§2.3](#23-test-fsi-authmethodsmigrationstate)) | Throw with link to migration doc; do not deploy phishing-resistant CA grant until `migrationComplete` |
 | 3 | Workload Identities Premium SKU absent in tenant | CA WID policy creation returns HTTP 403 with `LicenseRequired`; or — worse — succeeds in some regions and silently no-ops | `Test-Fsi-WorkloadIdentitiesPremiumSku` ([§5.3](#53-new-fsi-capolicy-workloadidentity)) | Helper refuses to deploy; emits `Status = NotApplicable` with `Reason` naming the SKU |
 | 4 | Break-glass account excluded from policy A but **not** from policy B (operator drift) | Quarterly break-glass test fails when the missed-policy is the only one blocking break-glass IP range; firm''s incident-response RTO is breached | `Test-Fsi-BreakGlassExclusions` ([§7.3](#73-test-fsi-breakglassexclusions)) | Iterates **every** CA policy; emits `Status = Anomaly` with policy IDs missing the exclusion |
 | 5 | Managed identities and system-assigned SPs assumed to be in scope of Workload Identity CA | Operator believes 100% workload identity coverage; Microsoft excludes managed identities **by design** from Workload Identity CA scope | `Get-Fsi-WorkloadIdentityInventory` ([§3.4](#34-get-fsi-workloadidentityinventory)) | Returns explicit `InScope` and `ExcludedByDesign` properties so operators see the gap |
@@ -162,6 +162,271 @@ Use the canonical role names in [`docs/reference/role-catalog.md`](../../../refe
 
 ---
 
+## §2 — Bootstrap
+
+The bootstrap helpers establish a **deterministic** session: known modules, known endpoint, known scope set, known migration state. They **throw** rather than warn when any precondition fails.
+
+### 2.1 `Assert-Fsi-ShellHost`
+
+Validates the host is PowerShell 7.4+ Core, that the Graph v1.0 and Beta modules are not duplicated by Windows PowerShell 5.1 paths, and that no stale `*-Mg*` cmdlet is bound from an earlier session.
+
+```powershell
+function Assert-Fsi-ShellHost {
+<#
+.SYNOPSIS
+    Throws if the current host is not a clean PowerShell 7.4+ Core session suitable for Control 1.11.
+.DESCRIPTION
+    Validates: (1) PSEdition = Core, (2) PSVersion >= 7.4, (3) no Microsoft.Graph v1.0 SignIns module
+    loaded BEFORE the Beta module, (4) no Windows PowerShell 5.1 module path leaking into $env:PSModulePath.
+    Intended to be called as the very first line of any Control 1.11 helper script.
+.EXAMPLE
+    Assert-Fsi-ShellHost
+.OUTPUTS
+    [pscustomobject] with Status = ''Clean'' or throws.
+.NOTES
+    Defect catalogue #1 (mixed v1.0 + Beta Graph modules) — this is the primary mitigation.
+#>
+    [CmdletBinding()]
+    param(
+        [switch] $Force
+    )
+
+    $reasons = @()
+
+    if ($PSVersionTable.PSEdition -ne ''Core'') {
+        $reasons += "PSEdition is ''$($PSVersionTable.PSEdition)''; required ''Core''."
+    }
+    if ($PSVersionTable.PSVersion -lt [version]''7.4'') {
+        $reasons += "PSVersion is ''$($PSVersionTable.PSVersion)''; required >= 7.4."
+    }
+
+    $loaded = Get-Module Microsoft.Graph.Identity.SignIns, Microsoft.Graph.Beta.Identity.SignIns -ErrorAction SilentlyContinue
+    $v1  = $loaded | Where-Object { $_.Name -eq ''Microsoft.Graph.Identity.SignIns'' }
+    $beta = $loaded | Where-Object { $_.Name -eq ''Microsoft.Graph.Beta.Identity.SignIns'' }
+    if ($v1 -and -not $beta) {
+        $reasons += "Microsoft.Graph.Identity.SignIns (v1.0) loaded WITHOUT Beta counterpart. CA WID cmdlets will bind to v1.0 stub. Restart the host."
+    }
+
+    $win51Paths = ($env:PSModulePath -split [IO.Path]::PathSeparator) | Where-Object { $_ -match ''WindowsPowerShell\\Modules'' }
+    if ($win51Paths) {
+        $reasons += "Windows PowerShell 5.1 module path is leaking into PSModulePath: $($win51Paths -join ''; ''). Start a fresh pwsh.exe session."
+    }
+
+    if ($reasons -and -not $Force) {
+        throw "Assert-Fsi-ShellHost FAILED. Reasons: $($reasons -join '' | '')"
+    }
+
+    [pscustomobject]@{
+        ControlId    = ''1.11''
+        HelperName   = ''Assert-Fsi-ShellHost''
+        Status       = if ($reasons) { ''Anomaly'' } else { ''Clean'' }
+        Reason       = if ($reasons) { $reasons -join '' | '' } else { ''Host validated: PS 7.4+ Core; Graph modules consistent.'' }
+        TimestampUtc = [DateTime]::UtcNow
+    }
+}
+```
+
+### 2.2 `Connect-Fsi-Graph111`
+
+Connection helper for Microsoft Graph. Requests least-privilege scopes by default; mutation scopes only when `-Mode Enforce`.
+
+```powershell
+function Connect-Fsi-Graph111 {
+<#
+.SYNOPSIS
+    Connects to Microsoft Graph for Control 1.11 helpers.
+.DESCRIPTION
+    Requests the minimum scope set needed for the requested -Mode (ReadOnly | Enforce | Verify)
+    and asserts that the resulting context contains all required scopes before returning. Refuses
+    to connect with standing Global Admin in -Mode Enforce (per Control 2.8); requires PIM activation.
+.PARAMETER Mode
+    ReadOnly (default), Enforce, or Verify. Determines requested scope set.
+.PARAMETER TenantId
+    Optional; if omitted, MSAL device-code flow is used.
+.EXAMPLE
+    Connect-Fsi-Graph111 -Mode ReadOnly
+.OUTPUTS
+    [pscustomobject] with Status = 'Clean' / 'Anomaly' / 'Error'.
+.NOTES
+    Workload Identities Premium SKU is NOT verified here — see Test-Fsi-WorkloadIdentitiesPremiumSku.
+#>
+    [CmdletBinding(SupportsShouldProcess)]
+    param(
+        [ValidateSet('ReadOnly', 'Enforce', 'Verify')]
+        [string] $Mode = 'ReadOnly',
+
+        [string] $TenantId
+    )
+
+    $readScopes = @(
+        'Policy.Read.All'
+        'Application.Read.All'
+        'Directory.Read.All'
+        'AuditLog.Read.All'
+        'RoleManagement.Read.Directory'
+    )
+    $writeScopes = @( 'Policy.ReadWrite.ConditionalAccess' )
+
+    $scopes = if ($Mode -eq 'Enforce') { $readScopes + $writeScopes } else { $readScopes }
+
+    if (-not $PSCmdlet.ShouldProcess("Microsoft Graph (Global)", "Connect with scopes: $($scopes -join ', ')")) {
+        return [pscustomobject]@{
+            ControlId  = '1.11'
+            HelperName = 'Connect-Fsi-Graph111'
+            Status     = 'Pending'
+            Reason     = 'WhatIf: connection skipped.'
+            TimestampUtc = [DateTime]::UtcNow
+        }
+    }
+
+    try {
+        $connectArgs = @{
+            Environment = 'Global'
+            Scopes      = $scopes
+            NoWelcome   = $true
+            ErrorAction = 'Stop'
+        }
+        if ($TenantId) { $connectArgs['TenantId'] = $TenantId }
+
+        Connect-MgGraph @connectArgs | Out-Null
+        $ctx = Get-MgContext
+        $missing = $scopes | Where-Object { $_ -notin $ctx.Scopes }
+        if ($missing) {
+            return [pscustomobject]@{
+                ControlId  = '1.11'
+                HelperName = 'Connect-Fsi-Graph111'
+                Status     = 'Anomaly'
+                Reason     = "Connected, but missing scopes: $($missing -join ', '). Re-consent required."
+                TimestampUtc = [DateTime]::UtcNow
+            }
+        }
+
+        [pscustomobject]@{
+            ControlId    = '1.11'
+            HelperName   = 'Connect-Fsi-Graph111'
+            Status       = 'Clean'
+            Reason       = "Connected to Global tenant=$($ctx.TenantId) as $($ctx.Account) with $($scopes.Count) scopes."
+            Environment  = 'Global'
+            TenantId     = $ctx.TenantId
+            Account      = $ctx.Account
+            Scopes       = $ctx.Scopes
+            TimestampUtc = [DateTime]::UtcNow
+        }
+    }
+    catch {
+        [pscustomobject]@{
+            ControlId  = '1.11'
+            HelperName = 'Connect-Fsi-Graph111'
+            Status     = 'Error'
+            Reason     = "Connect-MgGraph failed: $($_.Exception.Message)"
+            TimestampUtc = [DateTime]::UtcNow
+        }
+    }
+}
+```
+
+### 2.3 `Test-Fsi-AuthMethodsMigrationState`
+
+Asserts the Authentication Methods Policy migration is **complete**. Throws if not. Defect catalogue #2.
+
+```powershell
+function Test-Fsi-AuthMethodsMigrationState {
+<#
+.SYNOPSIS
+    Verifies the tenant Authentication Methods Policy migration is complete.
+.DESCRIPTION
+    Microsoft retired the legacy MFA/SSPR policy surface in September 2025. Phishing-resistant
+    Conditional Access grants will not evaluate as expected unless policyMigrationState is
+    ''migrationComplete''. This helper THROWS if the migration is incomplete; this is intentional
+    — phishing-resistant CA deployment must not proceed.
+.OUTPUTS
+    [pscustomobject] with Status = ''Clean'' or throws.
+#>
+    [CmdletBinding()]
+    param()
+
+    try {
+        $policy = Get-MgPolicyAuthenticationMethodPolicy -ErrorAction Stop
+        $state  = $policy.PolicyMigrationState
+        if ($state -ne ''migrationComplete'') {
+            throw "Authentication Methods Policy migration state is ''$state''; required ''migrationComplete''. " +
+                  "Complete the migration in Entra portal > Authentication methods > Manage migration before deploying phishing-resistant CA grants."
+        }
+        [pscustomobject]@{
+            ControlId    = ''1.11''
+            HelperName   = ''Test-Fsi-AuthMethodsMigrationState''
+            Status       = ''Clean''
+            Reason       = "Authentication Methods Policy migrationState = ''migrationComplete''."
+            MigrationState = $state
+            TimestampUtc = [DateTime]::UtcNow
+        }
+    }
+    catch [System.Net.Http.HttpRequestException], [Microsoft.Graph.PowerShell.Models.OdataErrorsODataError] {
+        [pscustomobject]@{
+            ControlId  = ''1.11''
+            HelperName = ''Test-Fsi-AuthMethodsMigrationState''
+            Status     = ''Error''
+            Reason     = "Graph call failed: $($_.Exception.Message)"
+            TimestampUtc = [DateTime]::UtcNow
+        }
+    }
+}
+```
+
+### 2.4 `Initialize-Fsi-Session111`
+
+Composite bootstrap: shell assertion → connect → migration check. Returns a single session object that downstream helpers consume.
+
+```powershell
+function Initialize-Fsi-Session111 {
+<#
+.SYNOPSIS
+    Composite bootstrap for Control 1.11. Returns a session object or throws.
+.DESCRIPTION
+    Calls in order: Assert-Fsi-ShellHost, Connect-Fsi-Graph111,
+    Test-Fsi-AuthMethodsMigrationState. Any failure aborts; the orchestrator at §9 must
+    receive Status = Clean from this helper before performing any work.
+.PARAMETER Mode
+    ReadOnly | Enforce | Verify
+.PARAMETER TenantId
+    Optional; passed through to Connect-Fsi-Graph111.
+.EXAMPLE
+    $session = Initialize-Fsi-Session111 -Mode ReadOnly
+#>
+    [CmdletBinding()]
+    param(
+        [ValidateSet('ReadOnly','Enforce','Verify')]
+        [string] $Mode = 'ReadOnly',
+
+        [string] $TenantId
+    )
+
+    $shell = Assert-Fsi-ShellHost
+    if ($shell.Status -ne 'Clean') { throw "Shell host validation failed: $($shell.Reason)" }
+
+    $connectArgs = @{ Mode = $Mode }
+    if ($TenantId) { $connectArgs['TenantId'] = $TenantId }
+    $conn = Connect-Fsi-Graph111 @connectArgs
+    if ($conn.Status -ne 'Clean') { throw "Graph connection failed: $($conn.Reason)" }
+
+    $mig = Test-Fsi-AuthMethodsMigrationState
+    if ($mig.Status -ne 'Clean') { throw "Auth methods migration check failed: $($mig.Reason)" }
+
+    [pscustomobject]@{
+        ControlId    = '1.11'
+        HelperName   = 'Initialize-Fsi-Session111'
+        Status       = 'Clean'
+        Reason       = "Session initialised: mode=$Mode, tenant=$($conn.TenantId)."
+        Environment  = $conn.Environment
+        TenantId     = $conn.TenantId
+        Account      = $conn.Account
+        Mode         = $Mode
+        TimestampUtc = [DateTime]::UtcNow
+    }
+}
+```
+
+---
 
 ## §3 — Inventory Helpers
 
