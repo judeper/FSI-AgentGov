@@ -3,7 +3,7 @@
 **Control:** 1.7 — Comprehensive Audit Logging and Compliance
 **Pillar:** 1 — Security
 **Audience:** Purview Audit Admin, Purview Compliance Admin, Exchange Online Admin (Organization Configuration role), AI Administrator, Power Platform Admin, Entra Security Admin, SOC Analyst, Compliance Officer, AI Governance Lead, Internal Audit, Azure Storage Account Owner / Contributor, Records Management Officer, Designated Executive Officer (DEO) or Designated Third Party (DTP) liaison
-**Sovereign-cloud scope:** Microsoft 365 Commercial, GCC, GCC High, DoD. 21Vianet is **out of scope** for this playbook.
+**Scope:** Microsoft 365 Commercial (Global) cloud — the deployment surface for US financial-services customers.
 **Last UI verified:** May 2026
 
 ---
@@ -12,7 +12,7 @@
 
 This playbook is intended to help support FSI organizations in meeting expectations from FINRA Rule 4511 (books and records), FINRA Rule 3110 (supervision), FINRA RN 25-07 (request for comment on workplace modernization, including AI-generated communications recordkeeping — not final guidance), SEC Rule 17a-3 (record creation), SEC Rule 17a-4(a) (financial records 6-year retention), SEC Rule 17a-4(b)(4) (communications 3-year retention with first 2 in an easily accessible place), SEC Rule 17a-4(f) (electronic recordkeeping system requirements, including the October 2022 amendments / 3 May 2023 compliance date introducing the audit-trail alternative), SOX §§302/404, GLBA 501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), CFTC Regulation 1.31 (5-year retention for FCMs, swap dealers, CPOs), NYDFS 23 NYCRR Part 500.06 (audit trail), NIST AI RMF 1.0, and ISO/IEC 42001:2023 where applicable.
 
-A clean run of this playbook **does not guarantee legal or regulatory compliance**, does not by itself constitute a 17a-4(f) attestation, does not replace the firm's written supervisory procedures, does not substitute for the Cohasset (or equivalent) attestation that an electronic recordkeeping system is non-rewriteable / non-erasable, does not replace the independent records-management assessment required under the audit-trail alternative, and does not prove the absence of unaudited Copilot or agent activity in surfaces this playbook did not enumerate. Implementation requires organization-specific risk assessment, legal review, and integration with the firm's broader compliance program. Organizations should verify current Microsoft Learn documentation, sovereign-cloud feature parity, tenant-specific entitlements, and admin-surface availability at each cycle. Numeric thresholds, latency ceilings, sample sizes, and rotation cadences in this playbook are **calibrated to the tenant baseline captured in PRE-04**; they are not portable between tenants without recalibration.
+A clean run of this playbook **does not guarantee legal or regulatory compliance**, does not by itself constitute a 17a-4(f) attestation, does not replace the firm's written supervisory procedures, does not substitute for the Cohasset (or equivalent) attestation that an electronic recordkeeping system is non-rewriteable / non-erasable, does not replace the independent records-management assessment required under the audit-trail alternative, and does not prove the absence of unaudited Copilot or agent activity in surfaces this playbook did not enumerate. Implementation requires organization-specific risk assessment, legal review, and integration with the firm's broader compliance program. Organizations should verify current Microsoft Learn documentation, tenant-specific entitlements, and admin-surface availability at each cycle. Numeric thresholds, latency ceilings, sample sizes, and rotation cadences in this playbook are **calibrated to the tenant baseline captured in PRE-04**; they are not portable between tenants without recalibration.
 
 This playbook is **three-tier verification**: it confirms that audit telemetry is **captured** (capture tier), that the books-and-records record set is **preserved** in a 17a-4(f)-defensible manner where applicable (preservation tier), and that prompt and response **content** is retrievable through Substrate / DSPM for AI / eDiscovery (content tier). Control 1.7 is the foundation control for the **observability and recordkeeping plane** for Microsoft 365 Copilot and Microsoft Copilot Studio agents; if any of the three tiers fails, every downstream supervisory, examination, and incident-response control loses the evidence it depends on.
 
@@ -87,7 +87,6 @@ This playbook is designed to detect defects in the **audit, preservation, and co
 10. **Preservation tier missing** — for broker-dealer / FCM / swap dealer / CPO firms, no 17a-4(f)-defensible preservation pipeline exists for the Copilot / agent communications record set; this is a **PRES-00 FAIL** and a cycle-stopping condition with no compensating control.
 11. **Preservation tier present but defective** — Azure immutable blob container exists but the time-based retention policy is `Unlocked` (still mutable), or the third-party archive's 17a-4-attested SLA documentation has lapsed, or the audit-trail alternative is in use without the DEO representation / DTP undertaking and the independent records-management assessment.
 12. **Content-tier retrieval failure** — a `CopilotInteraction` event identified in the audit log cannot be joined to its prompt/response body via DSPM for AI, eDiscovery (Premium), or Communication Compliance, breaking the audit-to-content reconstruction expected by examiners.
-13. **Sovereign-cloud feature drift** — Audit Premium availability, PAYG availability, or IRM-dependent audit features assumed to exist in GCC / GCC High / DoD that in fact have parity gaps requiring documented compensating-control records.
 14. **Tamper-evidence absence** — disabling unified audit on a non-prod tenant does not produce a corresponding `Set-AdminAuditLogConfig` event in the tenant audit log and does not raise a Sentinel alert.
 15. **Cross-source join breakage** — the `Messages[].ID` join key does not connect a single Copilot interaction across CopilotInteraction → Substrate body → DLP event → Sentinel ingestion, breaking the canonical examiner reconstruction path.
 
@@ -95,7 +94,7 @@ This playbook is designed to detect defects in the **audit, preservation, and co
 
 ## What this playbook does NOT claim
 
-This playbook **does not** prove the absence of audit gaps in surfaces it did not enumerate, **does not** independently certify that the firm's electronic recordkeeping system is non-rewriteable / non-erasable in the SEC Rule 17a-4(f)(2)(i) sense (that certification is the role of an independent third party such as Cohasset Associates), **does not** substitute for the firm's written supervisory procedures, **does not** validate the substantive content of any AI-generated communication, **does not** replace the independent records-management assessment required under the audit-trail alternative, **does not** assume universal sovereign-cloud feature parity, and **does not** commit Microsoft to a published audit ingestion SLA. Microsoft does not publish a hard ingestion SLA for unified audit; the playbook records the empirically measured ceiling for the tenant and flags deviations against that empirical baseline rather than against a fabricated number. A clean cycle is a defensible attestation that the audit / preservation / content program operated against the policy in force on the cycle start date; it is not a statement about the firm's complete recordkeeping posture.
+This playbook **does not** prove the absence of audit gaps in surfaces it did not enumerate, **does not** independently certify that the firm's electronic recordkeeping system is non-rewriteable / non-erasable in the SEC Rule 17a-4(f)(2)(i) sense (that certification is the role of an independent third party such as Cohasset Associates), **does not** substitute for the firm's written supervisory procedures, **does not** validate the substantive content of any AI-generated communication, **does not** replace the independent records-management assessment required under the audit-trail alternative, and **does not** commit Microsoft to a published audit ingestion SLA. Microsoft does not publish a hard ingestion SLA for unified audit; the playbook records the empirically measured ceiling for the tenant and flags deviations against that empirical baseline rather than against a fabricated number. A clean cycle is a defensible attestation that the audit / preservation / content program operated against the policy in force on the cycle start date; it is not a statement about the firm's complete recordkeeping posture.
 
 ---
 
@@ -109,7 +108,7 @@ Every audit verification cycle terminates in a **three-signature attestation cha
 |---|---|---|
 | **Capture Owner** | Purview Audit Admin | "I executed CAP-01 through CAP-08; unified audit ingestion is enabled and verified from an Exchange Online PowerShell session; license entitlement is reconciled; every Copilot RecordType in scope is covered by an explicit enabled custom retention policy at the documented horizon; per-environment Dataverse audit and per-table audit on the Copilot Studio entities are enabled; agent sign-in events are flowing; DLP override justification reaches audit; `MailItemsAccessed` is firing for regulated mailboxes." |
 | **Preservation Owner** | Records Management Officer | "I executed PRES-00 through PRES-C as applicable to the firm's regulatory profile; for the broker-dealer / FCM / swap dealer / CPO scope, a 17a-4(f)-defensible preservation pipeline exists for the Copilot / agent communications record set, and the path used (A = Azure immutable blob, B = third-party 17a-4-attested archive, C = audit-trail alternative) is documented in the cycle evidence pack with its supporting attestation, vendor SLA, or DEO/DTP and independent records-management assessment artifacts." |
-| **Compliance** | Compliance Officer | "I reviewed the evidence pack including capture-tier, preservation-tier, content-tier, sovereign-cloud, tamper-resistance, and cross-source join evidence from a supervisory and regulatory-readiness perspective; the residual gaps documented in this cycle are acceptable for the firm's current risk posture or are tracked to a dated remediation plan; the evidence is suitable for inclusion in the firm's books-and-records repository under the applicable retention period." |
+| **Compliance** | Compliance Officer | "I reviewed the evidence pack including capture-tier, preservation-tier, content-tier, tamper-resistance, and cross-source join evidence from a supervisory and regulatory-readiness perspective; the residual gaps documented in this cycle are acceptable for the firm's current risk posture or are tracked to a dated remediation plan; the evidence is suitable for inclusion in the firm's books-and-records repository under the applicable retention period." |
 
 The three signatures **must** be three distinct natural persons. Role collision is a cycle-stopping FAIL recorded in PRE-02. A documented temporary exception is allowed only with a co-signed expiry and a return-to-three-person review on the next cycle.
 
@@ -144,7 +143,7 @@ A break in the chain is itself an audit finding and triggers the failure path de
 
 ### 1.3 Attestation note language
 
-The Capture Owner attestation should include the literal language: *"This cycle was executed against the audit surfaces and tenant entitlements available as of the cycle start date in the declared sovereign cloud. A clean cycle does not by itself ensure regulatory compliance, does not constitute a 17a-4(f) attestation that the firm's electronic recordkeeping system is non-rewriteable / non-erasable, and does not substitute for the firm's written supervisory procedures."*
+The Capture Owner attestation should include the literal language: *"This cycle was executed against the audit surfaces and tenant entitlements available as of the cycle start date. A clean cycle does not by itself ensure regulatory compliance, does not constitute a 17a-4(f) attestation that the firm's electronic recordkeeping system is non-rewriteable / non-erasable, and does not substitute for the firm's written supervisory procedures."*
 
 The Preservation Owner attestation should include the literal language: *"The preservation path identified in `scope.preservationPath` is the path on which the firm relies to satisfy SEC Rule 17a-4(f) for the Copilot / agent communications record set, and the supporting attestation / SLA / DEO representation / DTP undertaking / independent records-management assessment artifacts referenced in this cycle's manifest are current as of the cycle start date."*
 
@@ -158,33 +157,6 @@ The Preservation Owner attestation should include the literal language: *"The pr
 
 ---
 
-## Section 2 — Sovereign Cloud parity matrix
-
-The audit and preservation surfaces this playbook depends on do **not** have uniform feature parity across Microsoft 365 sovereign clouds as of April 2026. Cells marked *Verify* should be re-checked against the tenant Message Center and Microsoft Learn at cycle start; the cycle should record what was observed, not what was assumed.
-
-| Capability | Commercial | GCC | GCC High | DoD | Cycle implication if unavailable |
-|---|---|---|---|---|---|
-| Unified audit log (Audit Standard) | GA | GA | GA | GA | Required everywhere; absence is a hard blocker |
-| Audit (Premium) including `MailItemsAccessed` | GA | GA | GA / verify | GA / verify | Required for breach-investigation reconstruction; record SOV-01 compensating control if unavailable |
-| 10-Year Audit Log Retention add-on | GA | GA / verify | Verify | Verify | Required only when the firm uses a documented 10-year capture-window policy; without it, a custom policy cannot extend beyond 1 year for the affected user |
-| Audit Pay-As-You-Go billing model | GA | Verify | Verify | Verify | Required to capture `AIAppInteraction` and the PAYG portion of `ConnectedAIAppInteraction`; record SOV-02 if unavailable |
-| `CopilotInteraction` RecordType | GA | GA | GA / verify | GA / verify | Hard blocker if absent |
-| `ConnectedAIAppInteraction` RecordType (Microsoft built-in scope) | GA | GA | Verify | Verify | Hard blocker if absent for in-scope agents |
-| `ConnectedAIAppInteraction` RecordType (PAYG scope) | GA / opt-in | Verify | Verify | Verify | Required for non-Microsoft AI app coverage; record SOV-02 |
-| `AIAppInteraction` RecordType (PAYG-only) | GA / opt-in | Verify | Verify | Verify | Required for non-Microsoft AI app coverage |
-| `MicrosoftCopilotStudio` RecordType | GA | GA | Verify | Verify | Required for agent lifecycle audit |
-| Dataverse environment + per-table audit | GA | GA | GA | GA | Required everywhere |
-| `agentSignIn` log type (preview) | Preview | Preview / verify | Verify | Verify | Use Entra sign-in logs (service principal type) as fallback; record SOV-04 |
-| `MicrosoftServicePrincipalSignInLogs` diagnostic stream (preview) | Preview | Verify | Verify | Verify | Optional; document non-availability as gap, not failure |
-| DSPM for AI transcript surfacing | GA | GA / verify | Verify | Verify | Required for content-tier verification (CONT-02) |
-| eDiscovery (Premium) | GA | GA | GA | GA | Required for content-tier verification (CONT-01) |
-| Communication Compliance | GA | GA | GA / verify | GA / verify | Required for content-tier verification (CONT-03) |
-| Microsoft Sentinel | GA | GA | GA | GA | Required for tamper-resistance alerting (TAMP-01) and cross-source join (JOIN-01) |
-| IRM-dependent audit features | GA | **Not available** | **Not available** | **Not available** | Document as compensating-control gap in **all** US Gov clouds — none of GCC / GCC High / DoD support IRM-dependent audit features as of April 2026 |
-| Azure immutable blob storage with locked time-based retention (Cohasset-attested) | GA | GA (Azure Government) | GA (Azure Government) | GA (Azure Government Secret / Top Secret separately) | Required for PRES-A path; absence forces PRES-B or PRES-C |
-
----
-
 ## Section 3 — Re-verification cadence
 
 Audit configuration is not static — license assignments, retention policies, RecordType coverage, per-environment Dataverse settings, archive vendor SLAs, and 17a-4(f) attestations all change continuously. Run each test on its own cadence; do not rely on a single annual binder refresh.
@@ -194,9 +166,9 @@ Audit configuration is not static — license assignments, retention policies, R
 | **Daily** (automated) | CAP-01 (audit ingestion enabled), CAP-03 (Copilot RecordType smoke test — non-zero or documented zero) |
 | **Weekly** | CAP-08 (Sentinel ingestion lag against empirical ceiling), PRES-A retrieval test (random object pull from immutable blob), PRES-B retrieval test (random retrieval from third-party archive) |
 | **Monthly** | CAP-02 (license entitlement reconciliation), CAP-04 (custom retention policy coverage map), CAP-05 (Dataverse environment + per-table audit), CAP-06 (DLP override justification in audit), CAP-07 (`MailItemsAccessed` for regulated mailboxes), preservation pipeline end-to-end test (write → seal → retrieve), TAMP-01 (tamper-evidence rehearsal on non-prod) |
-| **Quarterly** | CONT-01 (eDiscovery Premium retrieval drill), CONT-02 (DSPM for AI transcript drill), CONT-03 (Communication Compliance review drill), CONT-04 (worked examiner reconstruction example), JOIN-01 (cross-source join), 17a-4(f) attestation review (Cohasset attestation currency or vendor SLA currency or DEO representation / DTP undertaking currency), SOV-* parity matrix re-check |
+| **Quarterly** | CONT-01 (eDiscovery Premium retrieval drill), CONT-02 (DSPM for AI transcript drill), CONT-03 (Communication Compliance review drill), CONT-04 (worked examiner reconstruction example), JOIN-01 (cross-source join), 17a-4(f) attestation review (Cohasset attestation currency or vendor SLA currency or DEO representation / DTP undertaking currency), FEAT-* feature availability re-check |
 | **Annual** | Independent records-management assessment (firms relying on PRES-C audit-trail alternative — required by the October 2022 17a-4(f) amendments) |
-| **On-change** | After any retention policy create/modify, license SKU change, environment add/remove, RecordType enablement (PAYG opt-in), archive vendor change, immutable retention policy change, or sovereign-cloud feature rollout: re-run the affected CAP-* / PRES-* / SOV-* tests within 24 hours and capture evidence |
+| **On-change** | After any retention policy create/modify, license SKU change, environment add/remove, RecordType enablement (PAYG opt-in), archive vendor change, or immutable retention policy change: re-run affected tests within 24 hours and capture evidence |
 | **License event** | When a Copilot user is added/removed or 10-year add-on assignment changes: re-run CAP-02 within 24 hours |
 
 ---
@@ -672,29 +644,28 @@ $cont04 | Save-AuditEvidence -Name 'CONT-04_ExaminerReconstruction'
 $cont04
 ```
 
-### SOV — Sovereign cloud tests
+### FEAT — Feature availability verification
 
-#### SOV-01 — Audit Premium availability per current Microsoft Learn
+#### FEAT-01 — Audit Premium availability
 
-**Expected:** for tenants in GCC / GCC High / DoD, Audit Premium availability (including `MailItemsAccessed`) is verified against the current Microsoft Learn sovereign-cloud parity documentation at cycle start. Document the observed state, not the assumed state.
+**Expected:** Audit Premium availability (including `MailItemsAccessed`) is verified against current Microsoft Learn documentation at cycle start. Document the observed state.
 
-#### SOV-02 — PAYG availability per current Microsoft Learn
+#### FEAT-02 — PAYG availability
 
-**Expected:** PAYG billing model availability for `AIAppInteraction` and the PAYG portion of `ConnectedAIAppInteraction` is verified for the sovereign cloud at cycle start.
+**Expected:** PAYG billing model availability for `AIAppInteraction` and `ConnectedAIAppInteraction` is verified at cycle start.
 
-#### SOV-03 — Sign-in agent identity filter live UI affordance
+#### FEAT-03 — Sign-in agent identity filter live UI affordance
 
-**Expected:** the live Entra Sign-in logs UI filter affordance for agent identities is verified in the sovereign cloud's Entra admin center. Do not assume the prior `Is Agent = Yes` chip; the UI exposes four sign-in *types* (Interactive user / Non-interactive user / Service principal / Managed identity) plus a separate Agent activity log entry on the Monitoring & health page in current revisions, and the chip naming has changed across releases.
+**Expected:** the live Entra Sign-in logs UI filter affordance for agent identities is verified in the Entra admin center. Do not assume the prior `Is Agent = Yes` chip; the UI exposes four sign-in *types* (Interactive user / Non-interactive user / Service principal / Managed identity) plus a separate Agent activity log entry on the Monitoring & health page in current revisions, and the chip naming has changed across releases.
 
-#### SOV-04 — IRM-dependent audit features documented as compensating-control gap
+#### FEAT-04 — IRM-dependent audit features as compensating-control gap
 
-**Expected:** IRM-dependent audit features (which are **not available** in any US Gov cloud as of April 2026 — GCC, GCC High, DoD) are documented as a compensating-control gap with a corresponding Sentinel rule, Communication Compliance policy, or DLP rule that supplies the substitute coverage.
+**Expected:** IRM-dependent audit features — where unavailable — are documented as a compensating-control gap with a corresponding Sentinel rule, Communication Compliance policy, or DLP rule that supplies substitute coverage.
 
 ```powershell
-$sov = [pscustomobject]@{
-    testId                = 'SOV'
-    collectorField        = 'audit.sovereignParity'
-    cloud                 = 'GCCHigh'
+$feat = [pscustomobject]@{
+    testId                = 'FEAT'
+    collectorField        = 'audit.featureAvailability'
     auditPremiumAvailable = $true   # verify against Learn at cycle start
     paygAvailable         = $false  # verify; record as gap if false
     signInFilterLabel     = 'Sign-in type: Service principal'   # observed live label
@@ -703,8 +674,8 @@ $sov = [pscustomobject]@{
     status                = if ($auditPremiumAvailable -and $irmDependentAuditGapDocumented) { 'PASS' } else { 'FAIL' }
     capturedAtUtc         = (Get-Date).ToUniversalTime().ToString('o')
 }
-$sov | Save-AuditEvidence -Name 'SOV_ParityVariant'
-$sov
+$sov | Save-AuditEvidence -Name 'FEAT_AvailabilityVariant'
+$sov # feature availability verification
 ```
 
 ### TAMP — Tamper-resistance test
@@ -836,7 +807,7 @@ Every cycle, produce and archive these artifacts under naming convention `Contro
 | 14 | `CONT-02_DSPMTranscript.json` | DSPM for AI drill |
 | 15 | `CONT-03_CommComplianceReview.json` | Communication Compliance drill |
 | 16 | `CONT-04_ExaminerReconstruction.csv` + `.json` | Worked example |
-| 17 | `SOV_ParityVariant.json` (if applicable) | Sovereign cloud variant |
+| 17 | `FEAT_AvailabilityVariant.json` (if applicable) | Feature availability verification |
 | 18 | `TAMP-01_DisableAuditTamperEvidence.json` | Non-prod disable rehearsal |
 | 19 | `JOIN-01_CrossSourceJoin.json` | Single-interaction trace |
 | 20 | `NegativeTests.json` | Negative test matrix results |
@@ -879,7 +850,7 @@ All files are copied to immutable storage at capture time. The attestation refer
 Control 1.7 — Comprehensive Audit Logging and Compliance
 Tenant: {tenantId}
 Cycle: {YYYY-Qn}
-Cloud: {Commercial | GCC | GCCHigh | DoD}
+Cloud: Commercial (Global)
 Regulated profile: {broker-dealer | FCM | swap dealer | CPO | other}
 Preservation path: {A | B | C}
 Verification window: {start UTC} – {end UTC}
@@ -921,10 +892,10 @@ Statements (content tier):
 13. The worked examiner reconstruction example for this cycle is filed (sha256 {CONT-04})
     and completed in {N} minutes.
 
-Statements (sovereign / tamper / join):
-14. Sovereign cloud parity variant (if applicable) is verified (sha256 {SOV});
-    IRM-dependent audit features are documented as compensating-control gaps in any
-    US Gov cloud.
+Statements (tamper / join):
+14. Feature availability variant (if applicable) is verified (sha256 {FEAT});
+    IRM-dependent audit features are documented as compensating-control gaps where
+    unavailable.
 15. Tamper-resistance rehearsal on the non-prod tenant produced an audit event for the
     disable attempt and a Sentinel alert (sha256 {TAMP-01}).
 16. Cross-source join across CopilotInteraction → Substrate body → DLP (if any) →

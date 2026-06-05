@@ -2,9 +2,9 @@
 
 > **Examiner-defensible evidence package** for Control 2.26. This playbook produces, signs, and retains the artifacts required to demonstrate to FINRA, SEC, OCC, FFIEC, and internal audit that every Microsoft 365 AI agent identity in the tenant is sponsored, lifecycle-governed, periodically reviewed, and forwarded to the SIEM with 6-year retention.
 >
-> **Post-GA status (May 2026):** Microsoft Agent 365 reached general availability on May 1, 2026 and Microsoft Entra Agent ID is generally available. The pre-GA "Frontier program enrollment" gate is replaced by **Microsoft Agent 365 / Microsoft 365 E7 license assignment**. Pre-flight gate `PRE-06` and the §9 `TRG-PREVIEW-01` test retain their pre-GA names for backward compatibility; the underlying probe (HTTP 200 from `/beta/agents`) remains the correct observable because both the pre-GA Frontier enrollment and the post-GA license assignment manifest as the same API reachability state for the calling principal. A follow-up issue tracks renaming PRE-06 / TRG-PREVIEW-01 to license-coverage terms.
+> **Post-GA status (May 2026):** Microsoft Agent 365 reached general availability on May 1, 2026 and Microsoft Entra Agent ID is generally available. The pre-GA "Frontier program enrollment" gate is replaced by **Microsoft Agent 365 / Microsoft 365 E7 license assignment**. Pre-flight gate `PRE-06` and the §8 `TRG-PREVIEW-01` test retain their pre-GA names for backward compatibility; the underlying probe (HTTP 200 from `/beta/agents`) remains the correct observable because both the pre-GA Frontier enrollment and the post-GA license assignment manifest as the same API reachability state for the calling principal. A follow-up issue tracks renaming PRE-06 / TRG-PREVIEW-01 to license-coverage terms.
 >
-> **Scope:** Commercial M365 tenants with Microsoft Agent 365 or Microsoft 365 E7 licensing assigned to the operating admin and the in-scope sponsor / agent-owner users. Sovereign clouds (GCC, GCC High, DoD) follow the compensating-control pattern in §8 because the Entra Agent ID feature has no announced availability in sovereign environments at the time of this playbook's last UI verification.
+> **Scope:** Commercial M365 tenants with Microsoft Agent 365 or Microsoft 365 E7 licensing assigned to the operating admin and the in-scope sponsor / agent-owner users.
 >
 > **Companion controls:** [1.2 Agent Registry & Integrated Apps Management](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) feeds the SPONSOR namespace (§2). [3.6 Orphaned Agent Detection & Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) consumes the LIFECYCLE namespace outputs (§4).
 >
@@ -19,16 +19,14 @@
 | PowerShell baseline | PowerShell 7.4+ Core; `#Requires -Version 7.4` |
 | Test framework | Pester 5.5+ |
 | Output discipline | No `Write-Host`. All evidence emitted as structured objects via `Write-Output`, then serialized to JSON. |
-| Sovereign cloud handling | All Pester suites detect tenant cloud and emit `SKIPPED` with compensating-control pointer rather than `FAIL` (see §8). |
 | Evidence retention | 6 years (FINRA Rule 4511 / SEC 17a-4) on WORM-protected storage. |
-| Hashing | SHA-256 over canonical JSON; chain hashes in `attestation.json` per §10. |
-| Sovereign anchor | All sovereign-aware functions reference `../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod`. |
+| Hashing | SHA-256 over canonical JSON; chain hashes in `attestation.json` per §8. |
 
-> **Regulatory framing.** This playbook helps meet recordkeeping, access-management, and oversight expectations under FINRA Rules 3110 and 4511, FINRA RN 24-09 / Rule 3110, SEC Rule 17a-4, SOX §404, GLBA §501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), and FFIEC IT Examination Handbook (Information Security & Management). It does **not** by itself ensure compliance; organizations should verify findings against their own legal and regulatory obligations and tailor thresholds to their risk appetite.
+> **Regulatory framing.** This playbook helps meet recordkeeping, access-management, and oversight expectations under FINRA Rules 3110 and 4511, FINRA RN 24-09 / Rule 3110, SEC Rule 17a-4, SOX §404, GLBA §501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), and FFIEC IT Examination Handbook (Information Security & Management). It does **not** by itself support every compliance obligation; organizations should verify findings against their own legal and regulatory obligations and tailor thresholds to their risk appetite.
 
 ---
 
-## §0 Pre-Test Prerequisites & Sovereign Cloud Bootstrap
+## §0 Pre-Test Prerequisites
 
 ### 0.1 Operator prerequisites
 
@@ -37,12 +35,12 @@ The operator running this playbook must hold one of the following Entra role ass
 | Role (canonical) | Required for |
 |---|---|
 | Entra Identity Governance Admin | Access package, access review, and lifecycle workflow read APIs (§3, §4, §5, §6) |
-| Entra Agent ID Admin | Agent identity enumeration, sponsor field reads (§2, §9) |
+| Entra Agent ID Admin | Agent identity enumeration, sponsor field reads (§2, §8) |
 | Entra Security Reader | Audit log reads, sign-in log reads (§7) |
 | Purview Compliance Admin (read) | Cross-check audit retention labels in §7 |
-| AI Governance Lead | Counter-signs the quarterly attestation packet in §13 |
+| AI Governance Lead | Counter-signs the quarterly attestation packet in §8 |
 
-The Pester suites in §2–§9 are **read-only** and do not require write permissions. Remediation runbooks referenced from failure paths (e.g., `Set-AgentSponsorBulk` from the sister [PowerShell Setup](powershell-setup.md) playbook) require additional write scopes and a separate change ticket.
+The Pester suites in §2–§8 are **read-only** and do not require write permissions. Remediation runbooks referenced from failure paths (e.g., `Set-AgentSponsorBulk` from the sister [PowerShell Setup](powershell-setup.md) playbook) require additional write scopes and a separate change ticket.
 
 ### 0.2 Module baseline
 
@@ -58,91 +56,52 @@ $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 ```
 
-### 0.3 PRE gates (must all pass before §2–§9 execute)
+### 0.3 PRE gates (must all pass before §2–§8 execute)
 
-The bootstrap script `Invoke-Agt226PreFlight.ps1` runs seven pre-flight gates. Any `FAIL` halts the suite and emits a single evidence artifact `preflight-FAILED-<runId>.json`. Any `SKIPPED` from PRE-06 redirects the run to §8 (sovereign compensating control).
+The bootstrap script `Invoke-Agt226PreFlight.ps1` runs six pre-flight gates. Any `FAIL` halts the suite and emits a single evidence artifact `preflight-FAILED-<runId>.json`.
 
 | Gate | ID | Purpose | Failure behavior |
 |---|---|---|---|
 | Module presence | PRE-01 | Confirms required modules loaded at the pinned versions above | HALT |
 | Graph context | PRE-02 | Confirms Connect-MgGraph established with required scopes | HALT |
 | Tenant identification | PRE-03 | Captures `tenantId`, `displayName`, `verifiedDomains[0].name` for every evidence record | HALT |
-| Cloud detection | PRE-04 | Reads `(Get-MgContext).Environment` and maps to `Commercial / GCC / GCCH / DoD` | Continue with `cloud` field set |
-| License gate | PRE-05 | Confirms tenant holds at least one **Microsoft Agent 365** or **Microsoft 365 E7** SKU (post-GA: `SkuPartNumber -like 'Microsoft_Agent_365*' -or -like 'M365_E7*'`). Pre-GA, this gate looked for a `Microsoft_365_Copilot*` SKU — verify exact SKU part numbers in your tenant via `Get-MgSubscribedSku` and update the regex if needed. | HALT — Agent ID requires post-GA licensing |
-| Agent ID API operability gate | PRE-06 | Confirms the `/beta/agents` endpoint is reachable to the calling principal (HTTP 200 vs 404/403). Pre-GA this gate also evidenced Frontier program enrollment; post-GA a 404/403 most likely indicates a license-coverage gap, RBAC gap, or sovereign-cloud non-availability. | If 404/403 in Commercial: HALT with remediation pointer (license + RBAC); if sovereign: route to §8 |
-| Clock skew gate | PRE-07 | Compares local UTC to `Date` header from Graph response; aborts if drift > 60 seconds | HALT |
+| License gate | PRE-04 | Confirms tenant holds at least one **Microsoft Agent 365** or **Microsoft 365 E7** SKU (post-GA: `SkuPartNumber -like 'Microsoft_Agent_365*' -or -like 'M365_E7*'`). Pre-GA, this gate looked for a `Microsoft_365_Copilot*` SKU — verify exact SKU part numbers in your tenant via `Get-MgSubscribedSku` and update the regex if needed. | HALT — Agent ID requires post-GA licensing |
+| Agent ID API operability gate | PRE-05 | Confirms the `/beta/agents` endpoint is reachable to the calling principal (HTTP 200 vs 404/403). Pre-GA this gate also evidenced Frontier program enrollment; post-GA a 404/403 most likely indicates a license-coverage gap, RBAC gap, or feature non-availability. | HALT with remediation pointer (license + RBAC) |
+| Clock skew gate | PRE-06 | Compares local UTC to `Date` header from Graph response; aborts if drift > 60 seconds | HALT |
 
-### 0.4 Sovereign bootstrap pattern
 
-```powershell
-function Test-Agt226SovereignTenant {
-    [CmdletBinding()]
-    [OutputType([pscustomobject])]
-    param()
-
-    $ctx = Get-MgContext
-    if (-not $ctx) { throw "PRE-02 failed: no Graph context. Run Connect-MgGraph first." }
-
-    $cloud = switch ($ctx.Environment) {
-        'Global'    { 'Commercial' }
-        'USGov'     { 'GCC' }
-        'USGovDoD'  { 'DoD' }
-        'USGovHigh' { 'GCCH' }
-        default     { 'Unknown' }
-    }
-
-    [pscustomobject]@{
-        cloud         = $cloud
-        is_sovereign  = $cloud -in @('GCC','GCCH','DoD')
-        tenant_id     = $ctx.TenantId
-        detected_at   = (Get-Date).ToUniversalTime().ToString('o')
-    }
-}
-```
-
-When `is_sovereign` is `$true`, every Pester `It` block in §2–§7 and §9 emits:
-
-```json
-{ "status": "SKIPPED", "reason": "Entra Agent ID not GA in sovereign cloud at run time", "compensating_control_ref": "§8" }
-```
-
-This produces a defensible audit trail showing the test was attempted, was correctly skipped on regulatory-sound grounds, and was supplemented by the manual attestation in §8 — rather than appearing as an unexplained gap.
-
-### 0.5 Run identifier
-
-Every test run is tagged with a deterministic `runId` of the form `AGT226-yyyyMMdd-HHmmss-<8charGuid>`. The `runId` is embedded in every evidence record and in the filename of every artifact produced by §10.
+Every test run is tagged with a deterministic `runId` of the form `AGT226-yyyyMMdd-HHmmss-<8charGuid>`. The `runId` is embedded in every evidence record and in the filename of every artifact produced by §8.
 
 ---
 
 ## §1 Namespace Catalog
 
-The eight Verification Criteria from [Control 2.26](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) are evidenced by eight test namespaces. Each namespace produces independent evidence records that combine into a single signed evidence pack (§10).
+The eight Verification Criteria from [Control 2.26](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) are evidenced by eight test namespaces. Each namespace produces independent evidence records that combine into a single signed evidence pack (§8).
 
 | Namespace | Evidences Criterion | Section | Cadence | Owner |
 |---|---|---|---|---|
-| `PREVIEW` | C2.26-1 (Agent ID surface reachable — Microsoft Agent 365 / M365 E7 + Microsoft 365 Copilot license coverage; namespace name retained for backward-compat) | §9 | Per release / monthly | Entra Agent ID Admin |
+| `PREVIEW` | C2.26-1 (Agent ID surface reachable — Microsoft Agent 365 / M365 E7 + Microsoft 365 Copilot license coverage; namespace name retained for backward-compat) | §8 | Per release / monthly | Entra Agent ID Admin |
 | `SPONSOR` | C2.26-2 (every Z2/Z3 agent has assigned sponsor) | §2 | Daily | AI Governance Lead |
 | `ACCESSPKG` | C2.26-3 + C2.26-4 (packages exist; ≤365-day expiry; no perpetual Z3) | §3 | Daily | Entra Identity Governance Admin |
 | `LIFECYCLE` | C2.26-5 (workflow triggers on sponsor departure; manager-transfer succeeds) | §4 | Weekly | Entra Identity Governance Admin |
 | `REVIEW` | C2.26-6 (quarterly Z3 access certification) | §5 | Quarterly | Compliance Officer |
 | `EXPIRY` | C2.26-7 (renewal-with-justification or removal within 24h of expiry) | §6 | Daily | AI Governance Lead |
 | `SIEM` | C2.26-8 (events forwarded to SIEM with 6-year retention) | §7 | Weekly | Entra Security Admin |
-| `SOV` | All criteria — sovereign compensating attestation | §8 | Quarterly (sovereign tenants only) | AI Governance Lead |
 
 Each namespace section in this document follows an identical structure:
 
-1. **Criterion mapping** — explicit pointer to which numbered criterion in Control 2.26 §9 is satisfied.
+1. **Criterion mapping** — explicit pointer to which numbered criterion in Control 2.26 §8 is satisfied.
 2. **Pre-conditions** — what must already be true (e.g., access packages exist, Graph scopes granted).
 3. **Pester suite** — `Describe "AGT226-{NS}" { Context "Zone {1|2|3}" { It "..." } }` with PS 7.4 / Pester 5.5 syntax.
 4. **Sample passing JSON evidence record** — exact shape that flows into the evidence pack.
-5. **Sample failing JSON evidence record + remediation pointer** — links to a numbered triage entry in §11.
+5. **Sample failing JSON evidence record + remediation pointer** — links to a numbered triage entry in §8.
 6. **Examiner artifact** — filename pattern, retention duration, signing policy.
 7. **Zone 1 / Zone 2 / Zone 3 thresholds** — pass/warn/fail bands per zone.
 8. **Regulator mapping** — which specific regulatory citation each test supports.
 
 ### 1.1 Evidence record schema (canonical)
 
-Every evidence record produced by every namespace MUST conform to this schema. The schema is enforced by `Test-Agt226EvidenceSchema` in §10.
+Every evidence record produced by every namespace MUST conform to this schema. The schema is enforced by `Test-Agt226EvidenceSchema` in §8.
 
 ```json
 {
@@ -177,11 +136,11 @@ Every evidence record produced by every namespace MUST conform to this schema. T
 
 This namespace evidences **C2.26-2**: *every Zone 2 and Zone 3 agent identity has a non-null, currently active sponsor recorded in the Entra Agent ID extension attribute `sponsorObjectId`*. Zone 1 agents are personal-scope and inherit sponsorship from the creator's user account; the Zone 1 test therefore verifies `creator == sponsor` rather than a discrete sponsor field.
 
-The SPONSOR namespace is the keystone of Control 2.26: an unsponsored agent is, for examination purposes, an orphan. FINRA Rule 3110 (Supervision) and OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (Model Risk Management) both require a named individual accountable for the system's behavior. An empty sponsor field is therefore a Critical finding and pages the on-call AI Governance Lead within 15 minutes (see §11).
+The SPONSOR namespace is the keystone of Control 2.26: an unsponsored agent is, for examination purposes, an orphan. FINRA Rule 3110 (Supervision) and OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (Model Risk Management) both require a named individual accountable for the system's behavior. An empty sponsor field is therefore a Critical finding and pages the on-call AI Governance Lead within 15 minutes (see §8).
 
 ### 2.2 Pre-conditions
 
-- PRE-01 through PRE-07 from §0 returned `PASS`.
+- PRE-01 through PRE-06 from §0 returned `PASS`.
 - The current Graph context holds `AgentIdentity.Read.All` and `User.Read.All` delegated or application scopes.
 - The sister function `Get-AllAgentIdentities` from [PowerShell Setup §3.1](powershell-setup.md) is available in the session module path.
 - The reference dataset `agents-expected.csv` (the "golden list" maintained by the AI Governance Lead per Control 1.2) is reachable at the path supplied via `-ExpectedAgentsCsv`.
@@ -193,28 +152,13 @@ The SPONSOR namespace is the keystone of Control 2.26: an unsponsored agent is, 
 #Requires -Modules Pester
 
 BeforeDiscovery {
-    $sov = Test-Agt226SovereignTenant
-    $script:CloudTag = $sov.cloud
-    $script:IsSovereign = $sov.is_sovereign
-    if (-not $script:IsSovereign) {
-        $script:Agents = Get-AllAgentIdentities
-        $script:UnsponsoredZ23 = Get-AgentsWithoutSponsors -Zones 2,3
-    }
+    $script:Agents = Get-AllAgentIdentities
+    $script:UnsponsoredZ23 = Get-AgentsWithoutSponsors -Zones 2,3
 }
 
 Describe "AGT226-SPONSOR" -Tag 'C2.26','SPONSOR' {
 
-    Context "Sovereign cloud short-circuit" -Skip:(-not $script:IsSovereign) {
-        It "emits SKIPPED with §8 compensating control pointer" {
-            $rec = New-Agt226EvidenceRecord -Namespace 'SPONSOR' `
-                -Criterion 'C2.26-2' -Zone 'all' -Status 'SKIPPED' `
-                -Assertion 'Sovereign tenant; manual attestation per §8' `
-                -RemediationRef 'TRG-SOV-01'
-            $rec.status | Should -Be 'SKIPPED'
-        }
-    }
-
-    Context "Zone 2" -Skip:$script:IsSovereign {
+    Context "Zone 2" {
         It "every Zone 2 agent has a non-null sponsorObjectId" {
             $z2 = $script:Agents | Where-Object zone -eq 2
             $missing = $z2 | Where-Object { -not $_.sponsorObjectId }
@@ -229,7 +173,7 @@ Describe "AGT226-SPONSOR" -Tag 'C2.26','SPONSOR' {
         }
     }
 
-    Context "Zone 3" -Skip:$script:IsSovereign {
+    Context "Zone 3" {
         It "every Zone 3 agent has a sponsorObjectId AND a backup sponsor" {
             $z3 = $script:Agents | Where-Object zone -eq 3
             foreach ($a in $z3) {
@@ -245,7 +189,7 @@ Describe "AGT226-SPONSOR" -Tag 'C2.26','SPONSOR' {
         }
     }
 
-    Context "Zone 1" -Skip:$script:IsSovereign {
+    Context "Zone 1" {
         It "every Zone 1 agent's sponsor equals its creator (personal scope)" {
             $z1 = $script:Agents | Where-Object zone -eq 1
             foreach ($a in $z1) {
@@ -316,7 +260,7 @@ Describe "AGT226-SPONSOR" -Tag 'C2.26','SPONSOR' {
 }
 ```
 
-Remediation `TRG-SPONSOR-01` (see §11.2): page on-call AI Governance Lead, suspend agent within 4 hours per Z3 SLA, run `Set-AgentSponsorBulk` once a successor sponsor is named.
+Remediation `TRG-SPONSOR-01` (see §8.2): page on-call AI Governance Lead, suspend agent within 4 hours per Z3 SLA, run `Set-AgentSponsorBulk` once a successor sponsor is named.
 
 ### 2.6 Examiner artifact
 
@@ -378,7 +322,7 @@ Describe "AGT226-ACCESSPKG" -Tag 'C2.26','ACCESSPKG' {
         $script:Assignments = Get-AgentAccessPackageAssignments
     }
 
-    Context "Catalog presence (C2.26-3)" -Skip:$script:IsSovereign {
+    Context "Catalog presence (C2.26-3)" {
         It "the 'AI Agent Resources' catalog exists" {
             $script:Catalog | Should -Not -BeNullOrEmpty
         }
@@ -387,7 +331,7 @@ Describe "AGT226-ACCESSPKG" -Tag 'C2.26','ACCESSPKG' {
         }
     }
 
-    Context "Z3 channels (C2.26-3)" -Skip:$script:IsSovereign {
+    Context "Z3 channels (C2.26-3)" {
         It "no Zone 3 agent has direct group memberships outside an access package" {
             $z3 = $script:Agents | Where-Object zone -eq 3
             foreach ($a in $z3) {
@@ -406,7 +350,7 @@ Describe "AGT226-ACCESSPKG" -Tag 'C2.26','ACCESSPKG' {
         }
     }
 
-    Context "Time-bound expiry (C2.26-4)" -Skip:$script:IsSovereign {
+    Context "Time-bound expiry (C2.26-4)" {
         It "every Z2/Z3 package assignment policy has duration ≤ 365 days" {
             foreach ($pkg in $script:Packages) {
                 $policies = Get-MgEntitlementManagementAccessPackageAssignmentPolicy `
@@ -489,7 +433,7 @@ Describe "AGT226-ACCESSPKG" -Tag 'C2.26','ACCESSPKG' {
 }
 ```
 
-`TRG-ACCESSPKG-02` (§11.3): remove the direct membership within 24 hours; re-assign the agent through the access package; record the variance in the Identity Governance change log.
+`TRG-ACCESSPKG-02` (§8.3): remove the direct membership within 24 hours; re-assign the agent through the access package; record the variance in the Identity Governance change log.
 
 ### 3.6 Examiner artifact
 
@@ -524,7 +468,7 @@ Describe "AGT226-ACCESSPKG" -Tag 'C2.26','ACCESSPKG' {
 
 This namespace evidences **C2.26-5**: a Microsoft Entra **Lifecycle Workflow** is configured and active for the trigger *user account becomes inactive or marked as a leaver*, and that workflow's task on agent identities — specifically the **default automatic manager-transfer behavior of Entra** — has executed for every sponsor departure observed in the lookback window.
 
-> **Important accuracy note.** This control does **not** require organizations to build a custom suspend-on-leave workflow. Entra's default behavior, when a sponsor's user account transitions to `accountEnabled = false` or carries the `employeeLeaveDateTime` past trigger, is to transfer agent ownership to the sponsor's manager. The Pester tests verify that this default occurred. A custom suspension workflow is reserved for the case where the manager **declines** the transfer (escalation path; see §11.5).
+> **Important accuracy note.** This control does **not** require organizations to build a custom suspend-on-leave workflow. Entra's default behavior, when a sponsor's user account transitions to `accountEnabled = false` or carries the `employeeLeaveDateTime` past trigger, is to transfer agent ownership to the sponsor's manager. The Pester tests verify that this default occurred. A custom suspension workflow is reserved for the case where the manager **declines** the transfer (escalation path; see §8.5).
 
 ### 4.2 Pre-conditions
 
@@ -547,7 +491,7 @@ Describe "AGT226-LIFECYCLE" -Tag 'C2.26','LIFECYCLE' {
             -Property id,userPrincipalName,employeeLeaveDateTime,manager
     }
 
-    Context "Workflow definition" -Skip:$script:IsSovereign {
+    Context "Workflow definition" {
         It "the lifecycle workflow exists and is enabled" {
             $script:Wf | Should -Not -BeNullOrEmpty
             $script:Wf.IsEnabled | Should -BeTrue
@@ -564,7 +508,7 @@ Describe "AGT226-LIFECYCLE" -Tag 'C2.26','LIFECYCLE' {
         }
     }
 
-    Context "Workflow execution within lookback" -Skip:$script:IsSovereign {
+    Context "Workflow execution within lookback" {
         It "every departed sponsor in the lookback window has a workflow run" {
             foreach ($d in $script:Departures) {
                 $sponsoredAgents = $script:Agents | Where-Object sponsorObjectId -eq $d.Id
@@ -589,7 +533,7 @@ Describe "AGT226-LIFECYCLE" -Tag 'C2.26','LIFECYCLE' {
         }
     }
 
-    Context "Manager-transfer outcome" -Skip:$script:IsSovereign {
+    Context "Manager-transfer outcome" {
         It "for every successful run, the affected agent's sponsor now equals the departed user's manager" {
             $runs = Get-MgIdentityGovernanceLifecycleWorkflowRun `
                 -LifecycleWorkflowId $script:Wf.Id -All |
@@ -658,7 +602,7 @@ Describe "AGT226-LIFECYCLE" -Tag 'C2.26','LIFECYCLE' {
 }
 ```
 
-`TRG-LIFECYCLE-01` (§11.4): manually invoke `Set-AgentSponsorBulk` with the departed user's manager as new sponsor; open a problem ticket against the lifecycle workflow; if manager declines transfer, escalate to the suspension path in §11.5.
+`TRG-LIFECYCLE-01` (§8.4): manually invoke `Set-AgentSponsorBulk` with the departed user's manager as new sponsor; open a problem ticket against the lifecycle workflow; if manager declines transfer, escalate to the suspension path in §8.5.
 
 ### 4.6 Examiner artifact
 
@@ -709,7 +653,7 @@ Describe "AGT226-REVIEW" -Tag 'C2.26','REVIEW' {
             Where-Object { $_.DisplayName -like 'Z3 Agent Access Recertification*' }
     }
 
-    Context "Campaign existence" -Skip:$script:IsSovereign {
+    Context "Campaign existence" {
         It "the Z3 quarterly campaign exists" {
             $script:Reviews.Count | Should -BeGreaterThan 0
         }
@@ -724,7 +668,7 @@ Describe "AGT226-REVIEW" -Tag 'C2.26','REVIEW' {
         }
     }
 
-    Context "Campaign completion within prior quarter" -Skip:$script:IsSovereign {
+    Context "Campaign completion within prior quarter" {
         It "every campaign in scope completed within the prior quarter" {
             foreach ($r in $script:Reviews) {
                 $instances = Get-MgIdentityGovernanceAccessReviewDefinitionInstance `
@@ -816,7 +760,7 @@ Describe "AGT226-REVIEW" -Tag 'C2.26','REVIEW' {
 }
 ```
 
-`TRG-REVIEW-01` (§11.6): force-apply the default decision via Graph; notify the Compliance Officer; document the lapse for the next 1.2 sponsor attestation cycle.
+`TRG-REVIEW-01` (§8.6): force-apply the default decision via Graph; notify the Compliance Officer; document the lapse for the next 1.2 sponsor attestation cycle.
 
 ### 5.6 Examiner artifact
 
@@ -875,7 +819,7 @@ Describe "AGT226-EXPIRY" -Tag 'C2.26','EXPIRY' {
         $script:Renewals = Import-Csv -Path $env:AGT226_RENEWALS_CSV
     }
 
-    Context "Disposition coverage (C2.26-7)" -Skip:$script:IsSovereign {
+    Context "Disposition coverage (C2.26-7)" {
         It "every expired assignment has either renewal evidence or removal evidence" {
             foreach ($a in $script:ExpiredAssignments) {
                 $renewal = $script:Renewals | Where-Object assignmentId -eq $a.id
@@ -896,7 +840,7 @@ Describe "AGT226-EXPIRY" -Tag 'C2.26','EXPIRY' {
         }
     }
 
-    Context "Renewal quality (C2.26-7a)" -Skip:$script:IsSovereign {
+    Context "Renewal quality (C2.26-7a)" {
         It "every renewal justification is at least 50 characters and references a business reason" {
             foreach ($r in $script:Renewals) {
                 $r.justification.Length | Should -BeGreaterOrEqual 50
@@ -986,7 +930,7 @@ Describe "AGT226-EXPIRY" -Tag 'C2.26','EXPIRY' {
 }
 ```
 
-`TRG-EXPIRY-01` (§11.7): immediately remove the assignment via `Remove-MgEntitlementManagementAssignmentRequest`; open a Critical incident; capture root-cause and add to the next §13 quarterly attestation packet.
+`TRG-EXPIRY-01` (§8.7): immediately remove the assignment via `Remove-MgEntitlementManagementAssignmentRequest`; open a Critical incident; capture root-cause and add to the next §8 quarterly attestation packet.
 
 ### 6.7 Examiner artifact
 
@@ -1028,7 +972,7 @@ This namespace evidences **C2.26-8**: Entra Agent ID lifecycle events (sponsor c
 
 ### 7.2 Pre-conditions
 
-- Diagnostic Setting (e.g., `AgentID-To-SIEM`) exists at tenant scope and exports `AuditLogs`, `SignInLogs`, `IdentityRiskEvents`, and `EnrichedOffice365AuditLogs` (or sovereign-equivalent categories).
+- Diagnostic Setting (e.g., `AgentID-To-SIEM`) exists at tenant scope and exports `AuditLogs`, `SignInLogs`, `IdentityRiskEvents`, and `EnrichedOffice365AuditLogs` ().
 - A SIEM API endpoint and bearer token are available via `$env:AGT226_SIEM_BASEURL` and `$env:AGT226_SIEM_TOKEN`.
 - The SIEM correlation rule `AgentID-Lifecycle-Events` is deployed.
 
@@ -1043,7 +987,7 @@ Describe "AGT226-SIEM" -Tag 'C2.26','SIEM' {
         $script:SiemToken = $env:AGT226_SIEM_TOKEN
     }
 
-    Context "Entra-side export" -Skip:$script:IsSovereign {
+    Context "Entra-side export" {
         It "a Diagnostic Setting forwards AuditLogs to the SIEM destination" {
             $relevant = $script:DiagSettings | Where-Object {
                 $_.Logs.Category -contains 'AuditLogs' -and $_.Logs.Enabled -contains $true
@@ -1058,7 +1002,7 @@ Describe "AGT226-SIEM" -Tag 'C2.26','SIEM' {
         }
     }
 
-    Context "SIEM-side ingestion" -Skip:$script:IsSovereign {
+    Context "SIEM-side ingestion" {
         It "the SIEM has received at least one agent-identity event in the prior 24 hours" {
             $headers = @{ Authorization = "Bearer $script:SiemToken" }
             $body = @{
@@ -1128,7 +1072,7 @@ Describe "AGT226-SIEM" -Tag 'C2.26','SIEM' {
 }
 ```
 
-`TRG-SIEM-01` (§11.8): engage SecOps to extend retention; raise immutable-storage variance with the Compliance Officer; consider compensating cold-storage export to Azure Storage with WORM lock pending remediation.
+`TRG-SIEM-01` (§8.8): engage SecOps to extend retention; raise immutable-storage variance with the Compliance Officer; consider compensating cold-storage export to Azure Storage with WORM lock pending remediation.
 
 ### 7.6 Examiner artifact
 
@@ -1155,169 +1099,27 @@ Describe "AGT226-SIEM" -Tag 'C2.26','SIEM' {
 
 ---
 
-## §8 SOV — Sovereign Cloud Compensating Control
-
-### 8.1 Why this section exists
-
-At the time of this playbook's last UI verification (April 2026), the **Microsoft Entra Agent ID feature is not generally available in sovereign cloud environments** (Microsoft 365 GCC, GCC High, and DoD). Tenants in those clouds therefore cannot satisfy criteria C2.26-1 through C2.26-7 using Entra-native tooling.
-
-Rather than treating this as an automatic failure — which would understate examiner-defensible posture for organizations that legitimately operate in sovereign clouds for jurisdictional reasons — Control 2.26 §6 prescribes a **manual compensating attestation**, executed quarterly by the AI Governance Lead and counter-signed by the Compliance Officer. This section documents the test that verifies the attestation has been executed, signed, and retained.
-
-### 8.2 Compensating control flow
-
-For sovereign tenants, every Pester `Describe` block in §2–§7 and §9 short-circuits to `SKIPPED` (see §0.4). The SOV namespace is the **only** namespace that runs to completion in a sovereign tenant, and it operates against artifacts produced by the manual quarterly attestation rather than against live Graph endpoints.
-
-The manual attestation packet (`sov-attestation-<quarterLabel>.json`) is produced by the runbook in §13.4 and includes:
-
-- A statement of the agent identity inventory (collected manually from agent owner records since live `/agents` Graph enumeration is unavailable).
-- A per-agent sponsor mapping (collected from internal CMDB / IGA system that **does** operate in the sovereign cloud).
-- A per-agent access scope mapping (collected from group membership reports in the sovereign tenant).
-- Attestation that no agent identity is operating outside its assigned sponsor's accountability.
-- Sponsor and Compliance Officer digital signatures (PKCS#7 over canonical JSON).
-
-### 8.3 Pester suite
-
-```powershell
-Describe "AGT226-SOV" -Tag 'C2.26','SOV' {
-
-    BeforeAll {
-        $script:Sov = Test-Agt226SovereignTenant
-        $script:Quarter = Get-PreviousQuarterBoundary
-        $script:AttestationPath = Join-Path $env:AGT226_EVIDENCE_ROOT `
-            "sov-attestation-$($script:Quarter.label).json"
-        $script:SignaturePath   = "$script:AttestationPath.sig"
-    }
-
-    Context "Applicability" {
-        It "this suite runs only in sovereign clouds" -Skip:(-not $script:Sov.is_sovereign) {
-            $script:Sov.cloud | Should -BeIn @('GCC','GCCH','DoD')
-        }
-    }
-
-    Context "Manual attestation packet exists" -Skip:(-not $script:Sov.is_sovereign) {
-        It "the attestation file for the prior quarter is present" {
-            Test-Path $script:AttestationPath | Should -BeTrue
-        }
-        It "the attestation file is digitally signed" {
-            Test-Path $script:SignaturePath | Should -BeTrue
-            $verify = Invoke-Pkcs7Verify -DataPath $script:AttestationPath -SignaturePath $script:SignaturePath
-            $verify.IsValid | Should -BeTrue
-        }
-        It "the attestation lists at least one named sponsor and contains the manual sponsor map" {
-            $att = Get-Content $script:AttestationPath -Raw | ConvertFrom-Json
-            $att.sponsors.Count | Should -BeGreaterThan 0
-            $att.sponsors[0].sponsor_upn | Should -Not -BeNullOrEmpty
-            $att.agent_inventory.Count | Should -BeGreaterThan 0
-        }
-        It "the attestation carries both Sponsor and Compliance Officer signatures" {
-            $att = Get-Content $script:AttestationPath -Raw | ConvertFrom-Json
-            $att.signatures.sponsor             | Should -Not -BeNullOrEmpty
-            $att.signatures.compliance_officer  | Should -Not -BeNullOrEmpty
-            $att.signatures.compliance_officer.signed_at | Should -Not -BeNullOrEmpty
-        }
-        It "attestation date is within the prior quarter window" {
-            $att = Get-Content $script:AttestationPath -Raw | ConvertFrom-Json
-            $signed = [datetime]$att.signatures.compliance_officer.signed_at
-            $signed | Should -BeGreaterOrEqual $script:Quarter.start
-            $signed | Should -BeLessOrEqual $script:Quarter.end.AddDays(15) # 15-day grace for sign-off
-        }
-    }
-}
-```
-
-### 8.4 Sample passing record
-
-```json
-{
-  "control_id": "2.26",
-  "namespace": "SOV",
-  "criterion": "C2.26-1..7 (compensating)",
-  "zone": "all",
-  "subject_id": "sov-attestation-Q1-2026",
-  "subject_type": "manual_attestation",
-  "status": "PASS",
-  "assertion": "Sovereign quarterly attestation present, signed by Sponsor and Compliance Officer",
-  "observed_value": {
-    "cloud": "GCCH",
-    "quarter_label": "Q1-2026",
-    "agent_inventory_count": 23,
-    "sponsor_count": 11,
-    "sponsor_signed_at": "2026-04-08T14:00:00Z",
-    "compliance_officer_signed_at": "2026-04-09T10:30:00Z",
-    "pkcs7_signature_valid": true
-  },
-  "regulator_mappings": ["FINRA-3110","SOX-404","OCC-2011-12","GLBA-501b"],
-  "evidence_artifacts": ["sov-attestation-Q1-2026.json","sov-attestation-Q1-2026.json.sig"],
-  "schema_version": "1.0"
-}
-```
-
-### 8.5 Sample failing record
-
-```json
-{
-  "control_id": "2.26",
-  "namespace": "SOV",
-  "criterion": "C2.26-1..7 (compensating)",
-  "status": "FAIL",
-  "assertion": "Sovereign quarterly attestation must be present and dual-signed",
-  "observed_value": {
-    "attestation_present": false,
-    "last_attestation_label": "Q4-2025",
-    "days_since_last_attestation": 121
-  },
-  "remediation_ref": "TRG-SOV-02",
-  "regulator_mappings": ["FINRA-3110","OCC-2011-12"],
-  "schema_version": "1.0"
-}
-```
-
-`TRG-SOV-02` (§11.9): immediately initiate the quarterly attestation runbook (§13.4); declare the lapse to the Compliance Officer and document for board reporting; do **not** mark prior-quarter SOV as PASS retroactively.
-
-### 8.6 Examiner artifact
-
-| Artifact | Filename | Retention |
-|---|---|---|
-| Quarterly attestation packet | `sov-attestation-<quarterLabel>.json` | 7 years |
-| PKCS#7 detached signature | `sov-attestation-<quarterLabel>.json.sig` | 7 years |
-| Manual agent inventory CSV | `sov-inventory-<quarterLabel>.csv` | 6 years |
-
-### 8.7 Zone thresholds
-
-| Zone | PASS | WARN | FAIL |
-|---|---|---|---|
-| All zones (sovereign tenants only) | Quarterly attestation present, dual-signed, within 15-day grace of quarter close | Attestation 16–45 days late, with documented justification | Attestation > 45 days late or signature invalid |
-
-### 8.8 Regulator mapping
-
-| Test | FINRA 3110 | SOX §404 | OCC Bulletin 2026-13 (formerly OCC 2011-12) | FFIEC IS |
-|---|---|---|---|---|
-| Manual attestation cadence | ✓ supervision under sovereign constraints | ✓ compensating control documented | ✓ model owner accountability preserved | ✓ access management compensating |
-| Dual signature | ✓ supervisor + compliance | ✓ segregation of duties | ✓ challenger | ✓ separation |
-
----
-
-## §9 PREVIEW — Agent ID Licensing & Blade Operability Verification
+## §8 PREVIEW — Agent ID Licensing & Blade Operability Verification
 
 !!! info "Namespace name preserved for backward-compatibility"
     Pre-GA this namespace evidenced Microsoft Frontier program enrollment + Copilot licensing. Post-GA (May 2026) it evidences **Microsoft Agent 365 / Microsoft 365 E7 license assignment** plus **Agent ID API surface operability**. The `PREVIEW` namespace name, the `TRG-PREVIEW-01` runbook ID, and the `frontier_probe_status` field name are retained to keep evidence-pack schemas backward-compatible across the GA cutover. **Field semantics have changed** — see prose below.
 
-### 9.1 Criterion mapping
+### 8.1 Criterion mapping
 
 This namespace evidences **C2.26-1**: the Entra Agent ID feature is enabled in the tenant. Post-GA, enablement requires **two independent gates** to be true at the time of verification:
 
-1. The tenant holds at least one **Microsoft Agent 365** or **Microsoft 365 E7** SKU assignment (the "license gate" already executed in PRE-05). Pre-GA this gate looked for a `Microsoft_365_Copilot*` SKU; post-GA the relevant SKUs are Agent 365 (standalone) or M365 E7 (suite). Verify exact SKU part numbers in your tenant via `Get-MgSubscribedSku` before adopting the patterns below.
-2. The Agent ID API surface is reachable to the calling principal (the "operability gate" already executed in PRE-06).
+1. The tenant holds at least one **Microsoft Agent 365** or **Microsoft 365 E7** SKU assignment (the "license gate" already executed in PRE-04). Pre-GA this gate looked for a `Microsoft_365_Copilot*` SKU; post-GA the relevant SKUs are Agent 365 (standalone) or M365 E7 (suite). Verify exact SKU part numbers in your tenant via `Get-MgSubscribedSku` before adopting the patterns below.
+2. The Agent ID API surface is reachable to the calling principal (the "operability gate" already executed in PRE-05).
 
 In addition, the **Agent identities** blade must be reachable in the Microsoft Entra admin center. Because the blade itself does not have a stable Graph API for "blade rendering", the Pester test for blade visibility is replaced by an **API-surface probe**: if `/beta/agents` returns HTTP 200 with a JSON body (even an empty collection), the blade is considered present and operable.
 
-### 9.2 Pre-conditions
+### 8.2 Pre-conditions
 
-- PRE-05 (Agent 365 / M365 E7 license) and PRE-06 (Agent ID API operability) returned `PASS`.
+- PRE-04 (Agent 365 / M365 E7 license) and PRE-05 (Agent ID API operability) returned `PASS`.
 - Graph context holds `AgentIdentity.Read.All`.
-- Probe URL: `https://graph.microsoft.com/beta/agents?$top=1` for Commercial; sovereign equivalents per the [shared sovereign endpoint table](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod) (the SOV namespace handles the sovereign skip path; this section operates in Commercial only).
+- Probe URL: `https://graph.microsoft.com/beta/agents?$top=1`.
 
-### 9.3 Pester suite
+### 8.3 Pester suite
 
 ```powershell
 Describe "AGT226-PREVIEW" -Tag 'C2.26','PREVIEW' {
@@ -1341,7 +1143,7 @@ Describe "AGT226-PREVIEW" -Tag 'C2.26','PREVIEW' {
         }
     }
 
-    Context "License gate (C2.26-1a)" -Skip:$script:IsSovereign {
+    Context "License gate (C2.26-1a)" {
         It "tenant holds at least one Agent 365 / M365 E7 (or transitional Copilot) SKU" {
             $script:LicenseSkus.Count | Should -BeGreaterThan 0
         }
@@ -1351,7 +1153,7 @@ Describe "AGT226-PREVIEW" -Tag 'C2.26','PREVIEW' {
         }
     }
 
-    Context "Agent ID API operability gate (C2.26-1b)" -Skip:$script:IsSovereign {
+    Context "Agent ID API operability gate (C2.26-1b)" {
         It "the /beta/agents endpoint returns HTTP 200 (Agent ID surface reachable)" {
             $script:Probe | Should -Not -BeNullOrEmpty
             $script:Probe.value | Should -BeOfType [System.Object[]]
@@ -1367,7 +1169,7 @@ Describe "AGT226-PREVIEW" -Tag 'C2.26','PREVIEW' {
         }
     }
 
-    Context "Blade operability proxy (C2.26-1c)" -Skip:$script:IsSovereign {
+    Context "Blade operability proxy (C2.26-1c)" {
         It "blade probe did not return 403 (RBAC or license-coverage misconfiguration)" {
             $script:ProbeError | Should -NotMatch '403'
         }
@@ -1378,7 +1180,7 @@ Describe "AGT226-PREVIEW" -Tag 'C2.26','PREVIEW' {
 }
 ```
 
-### 9.4 Sample passing record
+### 8.4 Sample passing record
 
 ```json
 {
@@ -1405,7 +1207,7 @@ Describe "AGT226-PREVIEW" -Tag 'C2.26','PREVIEW' {
 
 > **Field-name carryover.** `frontier_probe_status` is retained as the field key for the HTTP status returned by the `/beta/agents` probe. The field name is preserved to keep examiner pipelines that already parse this key working across the GA cutover. Post-GA, a `200` indicates the Agent ID surface is reachable; a `403/404` indicates a license-coverage or RBAC gap, **not** a Frontier-enrollment gap.
 
-### 9.5 Sample failing record
+### 8.5 Sample failing record
 
 ```json
 {
@@ -1425,9 +1227,9 @@ Describe "AGT226-PREVIEW" -Tag 'C2.26','PREVIEW' {
 }
 ```
 
-`TRG-PREVIEW-01` (§11.10): confirm Microsoft Agent 365 / M365 E7 license is assigned to the calling principal and the tenant has at least one consumed unit; verify the calling principal holds the required RBAC role (Entra Agent ID Admin or AI Administrator); halt deployment of any new Z2/Z3 agents while the gap persists; downgrade any Z2/Z3 agents created during the gap to Z1 and re-evaluate when access is restored. If license + RBAC are confirmed and the surface is still unreachable, raise a Microsoft support case via standard support channels.
+`TRG-PREVIEW-01` (§8.10): confirm Microsoft Agent 365 / M365 E7 license is assigned to the calling principal and the tenant has at least one consumed unit; verify the calling principal holds the required RBAC role (Entra Agent ID Admin or AI Administrator); halt deployment of any new Z2/Z3 agents while the gap persists; downgrade any Z2/Z3 agents created during the gap to Z1 and re-evaluate when access is restored. If license + RBAC are confirmed and the surface is still unreachable, raise a Microsoft support case via standard support channels.
 
-### 9.6 Examiner artifact
+### 8.6 Examiner artifact
 
 | Artifact | Filename | Retention |
 |---|---|---|
@@ -1435,13 +1237,13 @@ Describe "AGT226-PREVIEW" -Tag 'C2.26','PREVIEW' {
 | Copilot SKU list | `preview-skus-<runId>.json` | 6 years |
 | Agent ID API probe response (raw) | `preview-agent-id-api-probe-<runId>.json` | 6 years |
 
-### 9.7 Zone thresholds
+### 8.7 Zone thresholds
 
 | Zone | PASS | WARN | FAIL |
 |---|---|---|---|
 | All zones | Both gates PASS AND probe returns 200 | one gate PASS, other PASS within prior 7 days but transient probe error | either gate FAIL or probe returns 403/404 |
 
-### 9.8 Regulator mapping
+### 8.8 Regulator mapping
 
 | Test | SOX §404 | OCC Bulletin 2026-13 (formerly OCC 2011-12) |
 |---|---|---|
@@ -1451,7 +1253,7 @@ Describe "AGT226-PREVIEW" -Tag 'C2.26','PREVIEW' {
 
 ---
 
-## §10 Evidence Pack Assembly, Signing & Retention
+## §9 Evidence Pack Assembly, Signing & Retention
 
 ### 10.1 Purpose
 
@@ -1470,7 +1272,6 @@ evidence-pack-AGT226-20260415-093012-a1b2c3d4/
 │   ├── 0002-SPONSOR-zone1.json
 │   ├── 0003-SPONSOR-zone2.json
 │   ├── ... (one file per evidence record)
-│   └── NNNN-SOV.json
 ├── pester/
 │   ├── pester-PREVIEW.xml
 │   ├── pester-SPONSOR.xml
@@ -1588,7 +1389,7 @@ The pack assembler MUST refuse to publish a pack containing any record that fail
 |---|---|---|---|
 | Hot | Azure Blob Storage container `agt226-evidence-hot` | 90 days | Versioning + soft delete |
 | Warm | Azure Blob Storage container `agt226-evidence-warm` (Cool tier) | 1 year | Versioning + legal hold during audits |
-| Cold | Azure Blob Storage container `agt226-evidence-cold` (Archive tier) with **immutability policy locked** | 6 years from pack date (FINRA 4511); 7 years for SOV packs | Locked time-based retention policy |
+| Cold | Azure Blob Storage container `agt226-evidence-cold` (Archive tier) with **immutability policy locked** | 6 years from pack date (FINRA 4511) | Locked time-based retention policy |
 | Mirror | SIEM index `agt226-evidence` (parsed manifest + criteria coverage only) | 6 years | Immutable index |
 
 The lifecycle policy that promotes packs from Hot → Warm → Cold is defined in [PowerShell Setup §6.3](powershell-setup.md). The immutability policy is locked at the storage account level and cannot be removed during the retention window — this is the property that satisfies SEC Rule 17a-4(f) WORM expectations.
@@ -1606,9 +1407,9 @@ Every pack ships with a `README.md` written for a non-technical examiner audienc
 
 ---
 
-## §11 Failure Triage Matrix
+## §10 Failure Triage Matrix
 
-### 11.1 Severity bands & escalation SLAs
+### 10.1 Severity bands & escalation SLAs
 
 | Severity | Meaning | Page on-call within | Containment SLA | Resolution SLA | Examples |
 |---|---|---|---|---|---|
@@ -1617,7 +1418,7 @@ Every pack ships with a `README.md` written for a non-technical examiner audienc
 | Medium | Z2 expiry > 24h–72h late, package expiry 366–400 days, manager declines transfer (escalation) | 4 hours | 24 hours | 7 days | TRG-EXPIRY-02, TRG-ACCESSPKG-01, TRG-LIFECYCLE-02 |
 | Low | Z1 sponsor != creator (data hygiene), justification < 50 chars, single transient probe error | 1 business day | 5 business days | 30 days | TRG-SPONSOR-03, TRG-EXPIRY-03 |
 
-### 11.2 TRG-SPONSOR-01 — Z3 sponsor null or inactive
+### 10.2 TRG-SPONSOR-01 — Z3 sponsor null or inactive
 
 - **Trigger:** §2 Pester suite reports a Z3 agent with `sponsorObjectId == null` or `sponsor_active == false`.
 - **Containment:** within 4 hours, suspend the agent identity (set `accountEnabled = false` via `Update-MgAgent`); notify Compliance Officer.
@@ -1625,62 +1426,57 @@ Every pack ships with a `README.md` written for a non-technical examiner audienc
 - **Evidence to attach:** the failing record, the suspension audit-event ID, the new sponsor mapping, the Compliance Officer acknowledgement.
 - **Cross-reference:** [Troubleshooting §3.1](troubleshooting.md).
 
-### 11.3 TRG-ACCESSPKG-02 — Z3 direct (non-package) assignment detected
+### 10.3 TRG-ACCESSPKG-02 — Z3 direct (non-package) assignment detected
 
 - **Trigger:** §3 reports any direct group/role assignment on a Z3 agent.
 - **Containment:** remove the direct assignment within 24 hours via `Remove-MgGroupMemberByRef` or `Remove-MgRoleManagementDirectoryRoleAssignment`.
 - **Remediation:** identify the equivalent access package and request assignment via the package; document the variance with root-cause (most commonly: emergency access not subsequently rolled into a package).
 - **Cross-reference:** [Troubleshooting §3.2](troubleshooting.md).
 
-### 11.4 TRG-LIFECYCLE-01 — Departure not processed
+### 10.4 TRG-LIFECYCLE-01 — Departure not processed
 
 - **Trigger:** §4 reports a departed sponsor whose agents still point at the departed user.
 - **Containment:** manually invoke `Set-AgentSponsorBulk` with the departed user's manager as the new sponsor.
 - **Remediation:** open a problem ticket against the lifecycle workflow; capture the workflow run failure log; if the workflow consistently fails, raise a Microsoft support case via standard support channels.
 
-### 11.5 TRG-LIFECYCLE-02 — Manager declines transfer (escalation)
+### 10.5 TRG-LIFECYCLE-02 — Manager declines transfer (escalation)
 
 - **Trigger:** §4 workflow run completes with `processing_status == 'completedWithErrors'` and the error indicates the manager declined to accept ownership.
 - **Action:** activate the **suspension** path: set agent `accountEnabled = false`; assign temporary stewardship to the AI Governance Lead; place the agent in a 30-day reassignment hold; if no permanent owner is named within 30 days, retire the agent per Control 3.6.
 - **This is the ONE case where suspension is the correct outcome.** The Pester tests do not preemptively check for suspension; they only check for the manager-transfer outcome. Suspension only enters the picture when the manager-transfer path fails.
 
-### 11.6 TRG-REVIEW-01 — Quarterly review incomplete
+### 10.6 TRG-REVIEW-01 — Quarterly review incomplete
 
 - **Trigger:** §5 reports an in-scope campaign with `status != 'Completed'` at quarter close, or pending decisions without auto-applied default.
 - **Containment:** force-apply the configured default decision (`Deny`) via `Update-MgIdentityGovernanceAccessReviewDefinitionInstance`; this removes access from any reviewer-skipped subject.
-- **Remediation:** investigate why the campaign did not complete (most commonly: reviewer absent without a configured fallback reviewer); reconfigure fallback reviewers; document the lapse for the next §13 packet and for the next 1.2 sponsor attestation cycle.
+- **Remediation:** investigate why the campaign did not complete (most commonly: reviewer absent without a configured fallback reviewer); reconfigure fallback reviewers; document the lapse for the next §8 packet and for the next 1.2 sponsor attestation cycle.
 
-### 11.7 TRG-EXPIRY-01 — Stale grant (expired but still granting access)
+### 10.7 TRG-EXPIRY-01 — Stale grant (expired but still granting access)
 
 - **Trigger:** §6 reports a Z3 assignment past its `expiredDateTime` whose underlying group/role membership still resolves.
 - **Containment:** within 1 hour, force-remove via `Remove-MgEntitlementManagementAssignmentRequest` or, failing that, direct group/role removal.
-- **Remediation:** raise a Critical incident; invoke root-cause analysis (e.g., entitlement management background job stalled, custom workflow blocking removal); add to the next §13 packet for board reporting.
+- **Remediation:** raise a Critical incident; invoke root-cause analysis (e.g., entitlement management background job stalled, custom workflow blocking removal); add to the next §8 packet for board reporting.
 
-### 11.8 TRG-SIEM-01 — SIEM retention < 6 years or not immutable
+### 10.8 TRG-SIEM-01 — SIEM retention < 6 years or not immutable
 
 - **Trigger:** §7 reports `siem_retention_days < 2190` or `siem_immutable == false`.
 - **Containment:** as a temporary compensating control, configure an Azure Storage account with an immutable, time-based retention policy of 6 years and export Entra Diagnostic Settings to that account in parallel with the SIEM.
 - **Remediation:** engage SecOps to extend SIEM retention; raise the variance with the Compliance Officer; document the temporary parallel export and decommission it once SIEM is compliant.
 
-### 11.9 TRG-SOV-02 — Sovereign attestation missing or late
 
-- **Trigger:** §8 reports the prior-quarter attestation absent or > 45 days late.
-- **Containment:** initiate the §13.4 quarterly attestation runbook immediately.
-- **Remediation:** declare the lapse; the prior quarter cannot be retroactively passed; document for board reporting.
+### 10.9 TRG-PREVIEW-01 — Agent ID licensing or operability gate FAIL
 
-### 11.10 TRG-PREVIEW-01 — Agent ID licensing or operability gate FAIL
-
-- **Trigger:** §9 reports `frontier_probe_status` of 403/404, or no Agent 365 / M365 E7 license consumed.
+- **Trigger:** §8 reports `frontier_probe_status` of 403/404, or no Agent 365 / M365 E7 license consumed.
 - **Containment:** halt deployment of any new Z2/Z3 agents.
 - **Remediation:** confirm Microsoft Agent 365 or Microsoft 365 E7 license is assigned and consumed; verify the calling principal holds the Entra Agent ID Admin or AI Administrator role; if license + RBAC are confirmed and the surface is still unreachable, raise a Microsoft support case via standard support channels. Downgrade any Z2/Z3 agents created during the gap to Z1 and re-evaluate when access is restored.
 
-### 11.11 Generic "Low" data-hygiene findings
+### 10.10 Generic "Low" data-hygiene findings
 
 Findings classified Low (e.g., justification text under 50 chars, transient probe errors, single Z1 sponsor mismatch) accumulate in a single `low-findings-<runId>.csv` artifact. They are reviewed monthly by the AI Governance Lead and any pattern (e.g., consistent under-50-char justifications from one team) is escalated to a training intervention rather than an incident.
 
 ---
 
-## §12 Cross-Control Verification Dependencies
+## §11 Cross-Control Verification Dependencies
 
 Control 2.26 does not stand alone. Two adjacent controls produce or consume data that this verification playbook depends on or feeds:
 
@@ -1712,7 +1508,7 @@ The 3.6 control's orphan registry, in turn, feeds back into the next 2.26 SPONSO
 |---|---|---|
 | `lifecycle-runs-<runId>.json` | Orphan detector parses for `completedWithErrors` runs | None (3.6 owns its own verification) |
 | `sponsor-failures-<runId>.json` | Orphan detector promotes all entries to its registry | None |
-| `criteria_coverage.C2.26-5 == FAIL` | Triggers a 3.6 sweep within 4 hours | §11.4 includes a notification step to the 3.6 owner |
+| `criteria_coverage.C2.26-5 == FAIL` | Triggers a 3.6 sweep within 4 hours | §8.4 includes a notification step to the 3.6 owner |
 
 ### 12.3 Cross-pack reconciliation test
 
@@ -1746,26 +1542,26 @@ The reconciliation evidence record is itself signed and stored alongside the 2.2
 
 ---
 
-## §13 Quarterly Attestation Runbook for the AI Governance Lead
+## §12 Quarterly Attestation Runbook for the AI Governance Lead
 
-### 13.1 Purpose
+### 12.1 Purpose
 
 The quarterly attestation is the human gate that turns a stack of automated evidence packs into a single, signed, examiner-presentable assertion: *"As AI Governance Lead, I have reviewed the prior quarter of Control 2.26 evidence and certify that all eight Verification Criteria were met, or where they were not, that the documented remediation completed within SLA."*
 
 This runbook is executed by the AI Governance Lead **within 15 calendar days of the quarter's close** and counter-signed by the Compliance Officer **within 30 days**.
 
-### 13.2 Inputs
+### 12.2 Inputs
 
 The Lead assembles, in order:
 
 1. The 12 weekly evidence packs produced over the prior quarter (one per week from the standing Pester schedule).
 2. The 90 daily SPONSOR/EXPIRY snapshots (light-weight subsets of the full pack).
 3. The prior quarter's REVIEW campaign decision exports.
-4. The most recent 1.2 sponsor attestation (upstream dependency per §12.1).
-5. The 3.6 orphan registry delta over the quarter (downstream consumer per §12.2).
-6. Any incident tickets with severity Critical or High that traced back to a §11 triage entry.
+4. The most recent 1.2 sponsor attestation (upstream dependency per §8.1).
+5. The 3.6 orphan registry delta over the quarter (downstream consumer per §8.2).
+6. Any incident tickets with severity Critical or High that traced back to a §8 triage entry.
 
-### 13.3 Procedure (Commercial cloud)
+### 12.3 Procedure (Commercial cloud)
 
 | Step | Action | Owner | Output |
 |---|---|---|---|
@@ -1778,16 +1574,8 @@ The Lead assembles, in order:
 | 7 | Promote signed packet to Cold storage with 7-year locked immutability | Compliance Officer | Immutable-locked blob URL |
 | 8 | File the packet URL with the Board Risk Committee secretariat | Compliance Officer | Board minute reference |
 
-### 13.4 Procedure (sovereign cloud variant)
 
-Sovereign tenants follow steps 1–8 above with these substitutions:
-
-- Step 1 source: manual agent inventory + sponsor map gathered from the sovereign-resident IGA / CMDB rather than from `Get-AgentGovernanceSummary`.
-- Step 2 evaluation: per-criterion attestation that the compensating manual control was performed (the SOV namespace evidence pack from §8 satisfies this).
-- Step 5: signature is over the **manual** attestation packet structured per §8.2 rather than the automated summary.
-- Step 7: 7-year retention (one year more than commercial), reflecting the higher reliance on the manual attestation as primary evidence.
-
-### 13.5 Quarterly attestation packet schema
+### 12.4 Quarterly attestation packet schema
 
 ```json
 {
@@ -1827,7 +1615,7 @@ Sovereign tenants follow steps 1–8 above with these substitutions:
 }
 ```
 
-### 13.6 Failure path within the runbook itself
+### 12.5 Failure path within the runbook itself
 
 If any criterion ends the quarter with an unremediated FAIL, the Lead MUST NOT sign a clean attestation. Instead:
 
@@ -1839,7 +1627,7 @@ If any criterion ends the quarter with an unremediated FAIL, the Lead MUST NOT s
 
 A qualified attestation is itself examiner-defensible — it documents that the control owner is aware of, and managing, an open issue. A *missing* attestation, by contrast, is not.
 
-### 13.7 Validation runbook
+### 12.6 Validation runbook
 
 After signing, the Lead runs:
 
@@ -1869,7 +1657,7 @@ A `PASS` from this validator is the green light to file with the Board secretari
 | **Document version** | v1.0 |
 | **Updated** | April 2026 |
 
-> This playbook supports — but does not by itself ensure — compliance with FINRA Rules 3110 and 4511, FINRA RN 24-09 / Rule 3110, SEC Rule 17a-4, SOX §404, GLBA §501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), and the FFIEC IT Examination Handbook. Organizations should verify findings against their own legal and regulatory obligations and tailor zone thresholds to their documented risk appetite.
+> This playbook supports — but does not by itself support every compliance obligation with FINRA Rules 3110 and 4511, FINRA RN 24-09 / Rule 3110, SEC Rule 17a-4, SOX §404, GLBA §501(b), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), and the FFIEC IT Examination Handbook. Organizations should verify findings against their own legal and regulatory obligations and tailor zone thresholds to their documented risk appetite.
 ---
 
 *Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

@@ -153,7 +153,7 @@ This playbook lists the most common issues encountered when deploying and operat
 ### Likely Cause
 
 - **Always audit file activity for devices** is disabled.
-- Device cannot reach the Microsoft 365 audit ingestion endpoint (firewall, proxy, or sovereign-cloud endpoint mismatch).
+- Device cannot reach the Microsoft 365 audit ingestion endpoint (firewall, proxy).
 - Audit log search has not finished indexing (events typically appear in 15–30 minutes; rarely longer).
 - Test user lacks the **Audit Reader** or **View-Only DLP Compliance Management** role to see the events.
 

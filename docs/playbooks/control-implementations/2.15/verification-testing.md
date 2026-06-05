@@ -59,11 +59,6 @@ For each LOB security group rule:
 1. As any routed maker, in the maker portal use the environment switcher to navigate to the default environment.
 2. **EXPECTED:** Access is **not** blocked by routing alone. This is a known limitation; default-environment hygiene depends on Control 2.16 + DLP (Control 1.4).
 
-### Test 8 — Sovereign Cloud Confirmation (GCC / GCC High / DoD only)
-
-1. Run `Get-TenantSettings` after `Add-PowerAppsAccount -Endpoint <cloud>`.
-2. **EXPECTED:** Returned tenant ID matches your sovereign tenant. If commercial values appear, the script connected to the wrong cloud — re-run with the correct `-Endpoint`.
-
 ---
 
 ## Test Cases
@@ -78,8 +73,7 @@ For each LOB security group rule:
 | TC-2.15-06 | Maker with existing dev env keeps it | Routed to existing env | |
 | TC-2.15-07 | Group-published rules inherited and locked | Locked values match group | |
 | TC-2.15-08 | Default env still reachable | Reachable (documented limitation) | |
-| TC-2.15-09 | Sovereign-cloud script binds to correct tenant | Tenant ID matches | |
-| TC-2.15-10 | Routing change requires CAB approval (Zone 3) | No undocumented changes in audit log | |
+| TC-2.15-09 | Routing change requires CAB approval (Zone 3) | No undocumented changes in audit log | |
 
 ---
 

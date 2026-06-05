@@ -1,7 +1,7 @@
 # PowerShell Setup: Control 3.11 - Centralized Agent Inventory Enforcement
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below may show abbreviated patterns; the baseline is authoritative.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below may show abbreviated patterns; the baseline is authoritative.
 
 **Last Updated:** May 2026
 **PowerShell Version:** Windows PowerShell 5.1 (Desktop edition) for `Microsoft.PowerApps.Administration.PowerShell`; PowerShell 7.2+ for Microsoft Graph and notifications
@@ -55,10 +55,6 @@ if ($PSVersionTable.PSEdition -ne 'Desktop') {
     throw "Microsoft.PowerApps.Administration.PowerShell requires Windows PowerShell 5.1 (Desktop). Detected: $($PSVersionTable.PSEdition) $($PSVersionTable.PSVersion)."
 }
 ```
-
-### Sovereign Cloud Endpoint
-
-If your tenant is GCC, GCC High, DoD, or 21Vianet, pass the correct `-Endpoint` to `Add-PowerAppsAccount` and the matching `-Environment` to `Connect-MgGraph`. Without it, the cmdlets authenticate to commercial endpoints and return zero environments — producing **false-clean evidence**. See the [PowerShell Authoring Baseline](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod) for the canonical pattern.
 
 ---
 

@@ -1,4 +1,4 @@
-# Control 3.1 — Agent Inventory and Metadata Management: Troubleshooting Playbook
+﻿# Control 3.1 — Agent Inventory and Metadata Management: Troubleshooting Playbook
 
 > **Scope.** Failure modes, diagnostics, and FSI-aligned incident handling for Control 3.1 (Agent Inventory and Metadata Management). Use this playbook when the consolidated agent inventory is incomplete, drifted, tampered with, or mis-classified across Microsoft 365 Copilot Hub, Power Platform Admin Center (PPAC), Microsoft Graph, Microsoft Purview, and the governance register.
 >
@@ -12,7 +12,7 @@
 
 ## §1 — FSI Incident Handling (READ FIRST)
 
-A missing, drifted, or tampered agent inventory is rarely "just" an inventory bug. In a regulated US financial services tenant, the consolidated inventory is the **system of record** that supervisory, books-and-records, model-risk, and privacy obligations rely on. Any meaningful gap is presumptively in scope for FINRA Rule 3110 (supervision), FINRA Rule 4511 / SEC Rule 17a-4(b)(4) (recordkeeping), SEC Reg S-P §248.30, NYDFS 23 NYCRR §500.16/§500.17, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7) (model risk management), and CFTC Rule 1.31 until proven otherwise. Treat this section as the **first thing you read** when an inventory anomaly is detected; the eight pillars (§2) and nine runbooks (§3) operate inside the framing it sets.
+A missing, drifted, or tampered agent inventory is rarely "just" an inventory bug. In a regulated US financial services tenant, the consolidated inventory is the **system of record** that supervisory, books-and-records, model-risk, and privacy obligations rely on. Any meaningful gap is presumptively in scope for FINRA Rule 3110 (supervision), FINRA Rule 4511 / SEC Rule 17a-4(b)(4) (recordkeeping), SEC Reg S-P §248.30, NYDFS 23 NYCRR §500.16/§500.17, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7) (model risk management), and CFTC Rule 1.31 until proven otherwise. Treat this section as the **first thing you read** when an inventory anomaly is detected; the seven pillars (§2) and eight runbooks (§3) operate inside the framing it sets.
 
 ### §1.1 Severity Matrix
 
@@ -20,7 +20,7 @@ The severity rating drives the response clock, the escalation ladder (L1–L5, �
 
 | Severity | Inventory-specific trigger | Initial response | Communication | Examples |
 |---|---|---|---|---|
-| **SEV-1** | A regulated-zone (Zone 3) production agent is in active use but absent from the consolidated inventory; OR inventory tampering with intent suspected; OR inventory unavailable during an active examiner / audit pull; OR cross-cloud (sovereign-boundary) agent appearance | Immediate (≤15 min triage); SIRT engaged; Compliance & Legal paged | Executive sponsor, CISO, Chief Compliance Officer, General Counsel within 1 hour | Z3 RM Copilot agent in usage logs but not in PPAC, Hub, Graph, or register; Active supervisory agent silently moved to "Decommissioned" |
+| **SEV-1** | A regulated-zone (Zone 3) production agent is in active use but absent from the consolidated inventory; OR inventory tampering with intent suspected; OR inventory unavailable during an active examiner / audit pull | Immediate (≤15 min triage); SIRT engaged; Compliance & Legal paged | Executive sponsor, CISO, Chief Compliance Officer, General Counsel within 1 hour | Z3 RM Copilot agent in usage logs but not in PPAC, Hub, Graph, or register; Active supervisory agent silently moved to "Decommissioned" |
 | **SEV-2** | Material lifecycle-state corruption; >50 orphaned (departed-owner) agents; metadata fields critical to supervision or DLP scoping (zone, owner, business unit, regulated-data flag) missing or stale at scale; reconciliation between Hub/PPAC/Graph/register diverges by >5% | ≤1 hour triage; AI Governance Lead + Purview Compliance Admin engaged | Pillar 3 stakeholders + Compliance Operations notified within 4 hours | DLP policy orphan affecting Z3 agents; Purview audit log gap >24h preventing reconciliation |
 | **SEV-3** | Single-source inventory failure with another source still authoritative (e.g., Hub list fails to render but PPAC + Graph + register agree); slow reconciliation drift <5%; metadata enrichment job failure with no regulated-zone impact | ≤4 hour triage; standard ticket | Owner + AI Governance Lead | Hub UI 500 error during refresh; nightly enrichment Logic App fails with retry |
 | **SEV-4** | Cosmetic/UX issue, single-agent metadata typo, advisory drift in non-regulated (Zone 1 personal) scope | Next business day | Ticket queue | One Z1 agent's display name mis-cased |
@@ -30,7 +30,6 @@ The severity rating drives the response clock, the escalation ladder (L1–L5, �
 - The affected agent or agent population processes customer NPI (GLBA-regulated), PHI, or material non-public information (MNPI).
 - The affected agent is classified as a "model" under Fed SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC 2011-12) (decisioning, valuation, risk scoring, surveillance).
 - The anomaly occurred during an active regulatory exam, audit, internal investigation, litigation hold, or LegalOps preservation request.
-- The anomaly affects a sovereign cloud (GCC, GCC High, or DoD) tenant, which has tighter audit and breach-reporting expectations.
 - The inventory drift is correlated with personnel changes (departing privileged user, reorganization, M&A integration).
 
 **Severity bumps must be documented**, including the operator who applied the bump, the trigger, and the time. This is examiner-grade evidence.
@@ -64,7 +63,7 @@ The evidence floor below is the **minimum** preservation set for every SEV-1 and
 |---|---|---|---|---|
 | **E-01** | Surface screenshots: Copilot Hub agent list view, PPAC Copilot agents view, Agent 365 (where licensed), governance register UI | Hub / PPAC / Agent 365 / register | Full-page screenshots with visible URL bar, timestamp, operator UPN | Capture **before** any remediation; refresh once and recapture to detect propagation lag. |
 | **E-02** | PPAC + Dataverse `bot` table snapshot | Power Platform Admin PowerShell (`Get-AdminPowerApp` for canvas apps; Dataverse Web API for bots) | `Get-AdminPowerApp -EnvironmentName <env>` (canvas only); `GET {orgUrl}/api/data/v9.2/bots` for Microsoft Copilot Studio | **Critical**: `Get-AdminPowerApp` does NOT return Copilot Studio agents. Query Dataverse `bot` and `botcomponent` tables directly. |
-| **E-03** | Microsoft Graph snapshot | `graph.microsoft.com` (or sovereign endpoint) | `GET /applications`, `GET /servicePrincipals` (with appRoleAssignments), `GET /copilot/agents` (preview), `GET /agents` (preview) | Page through all results; capture `@odata.nextLink` chain; record API version. |
+| **E-03** | Microsoft Graph snapshot | `graph.microsoft.com` | `GET /applications`, `GET /servicePrincipals` (with appRoleAssignments), `GET /copilot/agents` (preview), `GET /agents` (preview) | Page through all results; capture `@odata.nextLink` chain; record API version. |
 | **E-04** | Governance register state | Register store (SharePoint list, Dataverse table, Sentinel watchlist, etc.) | API export with timestamp + operator UPN | Capture register version/etag if available. |
 | **E-05** | Purview audit log paginated export | Purview compliance portal / `Search-UnifiedAuditLog` | Export filtered for agent operations across the incident window ±24h | Account for ~60–90 min surfacing latency; do NOT close the search until latency window has elapsed. |
 | **E-06** | Microsoft Purview DSPM for AI — Activity Explorer | Purview portal → DSPM for AI | Export filtered to affected agent(s) and zone(s) | Cross-reference to Control 1.6 evidence package. |
@@ -74,7 +73,7 @@ The evidence floor below is the **minimum** preservation set for every SEV-1 and
 | **E-10** | Entra owner / group state for the agent | Entra ID | `Get-MgApplication`, `Get-MgServicePrincipal`, owner & group memberships | Capture owners' employment status and last sign-in. |
 | **E-11** | PIM activation log | Entra PIM | PIM audit export for the incident window | Identifies who held privileged roles when the anomaly occurred. |
 | **E-12** | Sign-in logs / Defender for Cloud Apps | Entra sign-in logs + MDA | Export filtered to agent-related sign-ins and admin operations | Helps detect tampering, unusual locations, anomalous service-principal activity. |
-| **E-13** | Operator context manifest | Operator workstation | Plaintext file: operator UPN, tenant ID, cloud (`prod`/`usgov`/`usgovhigh`/`dod`), UTC timestamp, Entra role, PIM activation reference | Required for examiner-grade chain of custody. |
+| **E-13** | Operator context manifest | Operator workstation | Plaintext file: operator UPN, tenant ID, UTC timestamp, Entra role, PIM activation reference | Required for examiner-grade chain of custody. |
 | **E-14** | Module / SDK / API version manifest | Operator workstation | `Get-Module Microsoft.PowerApps.Administration.PowerShell, Microsoft.Graph, ExchangeOnlineManagement \| Format-Table Name, Version`; record API version for any REST calls | Required for reproducibility of the evidence years later. |
 | **E-15** | SHA-256 manifest of all artifacts | Operator workstation | `Get-FileHash -Algorithm SHA256` on every E-01..E-14 artifact; sign manifest and land in WORM | Establishes integrity for examiner reproducibility. |
 
@@ -106,12 +105,11 @@ Before escalating to L4 or L5 (Compliance / Legal / Executive), the on-call AI G
 10. [ ] DLP / retention / sensitivity-label / Entra-owner snapshots (E-07/08/09/10) captured.
 11. [ ] PIM activation log (E-11) reviewed for unusual privileged activations during the window.
 12. [ ] SHA-256 manifest (E-15) generated and landed in WORM.
-13. [ ] Sovereign-cloud endpoint / API parity confirmed (`prod`/`usgov`/`usgovhigh`/`dod`); known per-tenant feature gaps documented (§2 Pillar 8).
-14. [ ] PPAC steady-state refresh window (~15 min) and Purview audit surfacing window (~60–90 min) accounted for; the team has not over-attributed normal latency to a real incident.
-15. [ ] `Get-AdminPowerApp` / `Get-AdminPowerAppEnvironmentRoleAssignment` known-gotchas (canvas-only return; empty-no-error return on Dataverse-backed environments) accounted for in the diagnostic conclusion.
-16. [ ] Cross-source reconciliation (Hub vs PPAC vs Graph vs register) re-run after waiting for documented latency windows; any remaining drift quantified (count, %).
-17. [ ] Compensating controls (§1.4) applied where appropriate; freeze decisions documented.
-18. [ ] Communication ladder (§1.6) prepared — recipients, draft summary, attachment list.
+13. [ ] PPAC steady-state refresh window (~15 min) and Purview audit surfacing window (~60–90 min) accounted for; the team has not over-attributed normal latency to a real incident.
+14. [ ] `Get-AdminPowerApp` / `Get-AdminPowerAppEnvironmentRoleAssignment` known-gotchas (canvas-only return; empty-no-error return on Dataverse-backed environments) accounted for in the diagnostic conclusion.
+15. [ ] Cross-source reconciliation (Hub vs PPAC vs Graph vs register) re-run after waiting for documented latency windows; any remaining drift quantified (count, %).
+16. [ ] Compensating controls (§1.4) applied where appropriate; freeze decisions documented.
+17. [ ] Communication ladder (§1.6) prepared — recipients, draft summary, attachment list.
 
 ### §1.6 Communication Ladder (L1–L5)
 
@@ -158,13 +156,12 @@ A short index of the highest-yield diagnostic queries used throughout this playb
 | **DQ-5** | Identify zone / regulated-data classification mismatch | Cross-join governance register `zone` ↔ DSPM Activity Explorer "data classifications observed" |
 | **DQ-6** | Identify DLP scope vs. agent population drift | Cross-join `Get-DlpComplianceRule` scope ↔ Dataverse `bot` list per environment |
 | **DQ-7** | Identify retention scope vs. agent population drift | Cross-join `Get-RetentionComplianceRule` scope ↔ Dataverse `bot` outputs / Teams sites |
-| **DQ-8** | Cross-cloud (sovereign) leakage check | Compare agent connector / endpoint references against the tenant's declared cloud (`prod`/`usgov`/`usgovhigh`/`dod`) |
 
 ---
 
-## §2 — Eight Troubleshooting Pillars
+## §2 — Seven Troubleshooting Pillars
 
-The eight pillars below are organized by **inventory source** (Pillars 1–4) and **cross-cutting failure mode** (Pillars 5–8). For any incident, walk the relevant pillar first before opening a runbook in §3 — the pillar narrows the failure surface and tells you which evidence to capture.
+The seven pillars below are organized by **inventory source** (Pillars 1–4) and **cross-cutting failure mode** (Pillars 5–8). For any incident, walk the relevant pillar first before opening a runbook in §3 — the pillar narrows the failure surface and tells you which evidence to capture.
 
 ### §2.1 Pillar 1 — Microsoft 365 Copilot Hub Inventory Failures
 
@@ -182,7 +179,7 @@ The eight pillars below are organized by **inventory source** (Pillars 1–4) an
 
 1. Confirm the steady-state refresh interval: PPAC and Hub propagate inventory changes within approximately 15 minutes (per Microsoft Learn). If <15 min has elapsed since a write, the symptom is **expected propagation delay**, not a failure. Document and wait.
 2. Compare Hub against the canonical Dataverse `bot` table query (DQ-1) for the same environment. A drift of >1 bot after the propagation window is in-scope.
-3. Inspect the Hub URL bar for the `tenantId` and cloud (Hub URL differs in sovereign clouds). A mis-routed admin session in a multi-cloud relationship can present as missing agents.
+    3. Inspect the Hub URL bar for the `tenantId`. A mis-routed admin session can present as missing agents.
 4. Check Service Health for "Microsoft 365 Copilot" and "Power Platform" advisories. Hub-render failures are commonly upstream service incidents.
 5. Capture E-01 (Hub screenshot with URL + timestamp + operator UPN).
 
@@ -211,12 +208,10 @@ The eight pillars below are organized by **inventory source** (Pillars 1–4) an
 2. **Critical gotcha.** `Get-AdminPowerAppEnvironmentRoleAssignment` returns an empty array **with no error** for Dataverse-backed environments because environment-level role assignments are stored in Dataverse `systemuser` / `roleassignment`, not in the Power Platform admin role store. Use the Dataverse Web API or the Power Platform CLI (`pac admin list-app-users`) instead.
 3. Verify that the operator session has the Power Platform Admin role (or Dynamics 365 Service Admin) and that PIM has been activated. Missing scope presents as empty results, not "access denied".
 4. Verify the module version (E-14): `Microsoft.PowerApps.Administration.PowerShell` should be at the current published version; older versions silently fail on newer environment types.
-5. If the environment is sovereign, verify the `-Endpoint` parameter is set to `usgov`, `usgovhigh`, or `dod`. Default `prod` against a sovereign tenant returns empty with no error.
 
 **Anti-patterns.**
 
 - Concluding "no agents" from `Get-AdminPowerApp` or `Get-AdminPowerAppEnvironmentRoleAssignment` empty results.
-- Running PPAC PowerShell with the default endpoint against a sovereign tenant.
 - Sharing a screenshot of a PPAC empty list as evidence without the Dataverse `bot` corroboration.
 
 **Cross-links.** Pillar 3 (Graph), Pillar 5 (reconciliation), Runbook 1, Runbook 2 (departed-owner cascade), Control 3.11 (centralized inventory enforcement).
@@ -231,11 +226,10 @@ The eight pillars below are organized by **inventory source** (Pillars 1–4) an
 - `GET /applications` does not include declarative agents added via Copilot Studio publishing flow.
 - Pagination is not followed; a single page is treated as "all".
 - Throttling (HTTP 429) drops results silently in poorly written enumeration scripts.
-- Sovereign endpoint mis-routing (calling `graph.microsoft.com` against a GCC High tenant).
 
 **Diagnostics.**
 
-1. Confirm the correct Graph host: `graph.microsoft.com` (commercial), `graph.microsoft.us` (GCC / GCC High), `dod-graph.microsoft.us` (DoD). A Graph call against the wrong host can return **404 with no error context** that suggests the routing problem.
+1. Confirm the correct Graph host: `graph.microsoft.com`. A misconfigured connection can return **404 with no error context** that suggests a routing problem.
 2. Confirm the API version. `/copilot/agents` and `/agents` endpoints are preview; pin and record the version in E-14.
 3. Always page through `@odata.nextLink` until null; never rely on a single page. Capture the full page chain in E-03.
 4. Confirm the application or delegated permission scope (e.g., `Application.Read.All`, `CopilotSettings.Read.All` where required). Missing consent surfaces as 403 or as filtered (silently empty) results.
@@ -245,10 +239,9 @@ The eight pillars below are organized by **inventory source** (Pillars 1–4) an
 **Anti-patterns.**
 
 - Single-page enumeration treated as authoritative.
-- Calling commercial Graph against a sovereign tenant.
 - Using preview endpoints in production evidence packages without recording the API version in E-14.
 
-**Cross-links.** Pillar 5 (reconciliation), Pillar 8 (sovereign cloud), Runbook 9 (examiner audit-pull).
+**Cross-links.** Pillar 5 (reconciliation), Runbook 9 (examiner audit-pull).
 
 ### §2.4 Pillar 4 — Agent 365 / Agent Registry Failures
 
@@ -354,35 +347,8 @@ The eight pillars below are organized by **inventory source** (Pillars 1–4) an
 
 **Cross-links.** Runbook 7 (lifecycle state corruption), Control 3.6 (orphaned-agent detection), Control 3.12 (governance exception & override).
 
-### §2.8 Pillar 8 — Sovereign Cloud / Per-Tenant Feature Gaps
 
-**Scope.** Inventory-source behavior differences across commercial (`prod`), GCC (`usgov`), GCC High (`usgovhigh`), and DoD (`dod`) clouds, and per-tenant feature gaps (some Copilot capabilities ship later or differently in sovereign clouds).
-
-**Common symptoms.**
-
-- Graph `/copilot/agents` returns 404 in a sovereign tenant where the same call works in commercial.
-- PPAC PowerShell module called without `-Endpoint` against a sovereign tenant returns empty with no error.
-- Agent 365 features available in commercial are unavailable or reduced in GCC High.
-- Hub / PPAC URLs differ by cloud; an operator using the wrong URL sees an "empty" tenant.
-
-**Diagnostics.**
-
-1. Always set the cloud endpoint explicitly in scripts: `Add-PowerAppsAccount -Endpoint usgovhigh`; `Connect-MgGraph -Environment USGov` / `USGovDoD`. Capture in E-13 and E-14.
-2. Maintain a cloud-by-cloud feature parity table for the firm's tenants; reference it in every cross-cloud incident.
-3. For multi-cloud organizations, do **not** attempt cross-cloud joins in the consolidated inventory; maintain separate inventories per cloud and reconcile at the policy / governance layer only.
-4. For preview features (e.g., `/copilot/agents`, `/agents`), record which clouds support them and at what API version.
-
-**Anti-patterns.**
-
-- Assuming feature parity between commercial and sovereign clouds.
-- Cross-joining commercial and sovereign inventories.
-- Sharing diagnostic procedures developed in commercial without re-validating in the sovereign cloud where the incident is occurring.
-
-**Cross-links.** All §3 runbooks where the affected tenant is sovereign; Runbook 8 (cross-cloud agent / sovereign-boundary breach).
-
----
-
-## §3 — Nine Failure-Mode Runbooks
+## §3 — Eight Failure-Mode Runbooks
 
 > **Disclaimer.** Reportability columns are escalation aids. Compliance / Legal makes the final notification call.
 
@@ -396,7 +362,7 @@ Each runbook follows the eight-block shape: **Severity & triggers → Immediate 
 
 1. Acknowledge alert; capture E-01 (surface screenshots), E-13 (operator manifest), E-14 (module/SDK manifest).
 2. Identify the affected environment(s); run DQ-1 (Dataverse `bot` query) to confirm the agent exists in source.
-3. Run DQ-2 (Graph) and PPAC PowerShell against the same environment with the **correct sovereign endpoint** if applicable.
+3. Run DQ-2 (Graph) and PPAC PowerShell against the same environment .
 4. Wait the longer of 15 min (PPAC propagation) or 90 min (Purview audit surfacing) **before** concluding the gap is real, unless usage-log evidence makes the gap operationally undeniable.
 5. Walk Q1–Q10 (§1.2); record answers.
 
@@ -643,42 +609,7 @@ Each runbook follows the eight-block shape: **Severity & triggers → Immediate 
 
 **Reporting decision tree.** Q1 **Yes** if supervision was affected; Q2 **Yes** if records were lost; Q3 **Maybe** if unauthorized.
 
-### §3.8 Runbook 8 — Cross-Cloud Agent (Sovereign-Boundary Breach)
-
-**Severity & triggers.** SEV-1 in all cases. Cross-cloud appearance means: an agent or its dependencies (connectors, knowledge sources, identity references) span commercial and sovereign clouds in violation of the firm's cloud-residency policy.
-
-**Immediate actions (T+0 → T+30).**
-
-1. Capture E-01 through E-15 in **both** affected clouds simultaneously. Operator must use cloud-correct endpoints (Pillar 8) and document them in E-13.
-2. Engage the cloud-residency owner (often CISO + Privacy Officer) immediately.
-3. Walk Q1–Q10; Q5/Q7/Q9 typical; potential FedRAMP / DoD impact-level concerns if DoD cloud is involved.
-
-**Investigation.**
-
-- Identify the boundary-crossing mechanism: connector calling a commercial endpoint; knowledge source pointing to a commercial site; identity federation referencing a commercial tenant; data export to commercial storage.
-- Determine whether any data has actually crossed the boundary, or only metadata / configuration.
-
-**Containment.**
-
-- Disable the offending connector / knowledge source / identity reference.
-- Quarantine the agent (revoke share, set to Draft) pending residency remediation.
-- Apply legal hold on any data that may have crossed the boundary.
-
-**Eradication.**
-
-- Remove the cross-cloud reference; rebuild the connector / knowledge source within-cloud.
-- Add a pre-publish gate to deny cross-cloud references (governance exception required, Control 3.12).
-
-**Recovery.**
-
-- Reconcile the agent into the correct cloud's inventory only.
-- 30-day surveillance for repeat boundary crossings.
-
-**Lessons learned.** Update Control 3.12 (governance exception) to require dual-control for any cross-cloud override; update Sentinel detection (Control 3.9) for cross-cloud reference patterns.
-
-**Reporting decision tree.** Q5/Q9 **Yes** if customer NPI crossed; Q7 **Yes** for NYDFS-regulated entities; FedRAMP / DoD-specific obligations route through CISO + Privacy Officer.
-
-### §3.9 Runbook 9 — Examiner Audit-Pull (FINRA / OCC / Fed Snapshot As-Of-Date)
+### §3.8 Runbook 8 — Examiner Audit-Pull (FINRA / OCC / Fed Snapshot As-Of-Date)
 
 **Severity & triggers.** Operational, not an incident in the SEV-1..SEV-4 sense, but **handle with SEV-1-equivalent care**. Triggers include: FINRA Rule 8210 request; SEC examination request; OCC / Federal Reserve examination request; NYDFS examination request; CFTC / NFA request; internal audit; litigation discovery.
 
@@ -697,7 +628,7 @@ Each runbook follows the eight-block shape: **Severity & triggers → Immediate 
 **Production.**
 
 - Produce the response in WORM-acceptable formats (typically PDF or CSV with SHA-256 manifest).
-- Include a methodology cover note: which sources were joined, on what keys, with what latency-windows, and with what known caveats (PPAC ~15 min, Purview ~60–90 min, sovereign endpoint flags, `Get-AdminPowerApp` canvas-only return, `Get-AdminPowerAppEnvironmentRoleAssignment` empty-no-error return on Dataverse-backed environments).
+- Include a methodology cover note: which sources were joined, on what keys, with what latency-windows, and with what known caveats (PPAC ~15 min, Purview ~60–90 min, `Get-AdminPowerApp` canvas-only return, `Get-AdminPowerAppEnvironmentRoleAssignment` empty-no-error return on Dataverse-backed environments).
 - Land the response in WORM with retention hold for the longer of 7 years, the WSP, or the rule-specific record-class retention.
 
 **Recovery.**
@@ -780,7 +711,7 @@ Customer-data exposure from inventory gaps may trigger state-level breach notifi
 
 ### §5.3 Reproducibility
 
-Examiner-grade evidence requires that the response be **reproducible** years later by a different operator. The E-13 + E-14 + E-15 triad is the minimum reproducibility set. Where a query relied on a preview API, the API version must be recorded; where a query relied on a Sovereign endpoint, the endpoint must be recorded.
+Examiner-grade evidence requires that the response be **reproducible** years later by a different operator. The E-13 + E-14 + E-15 triad is the minimum reproducibility set. Where a query relied on a preview API, the API version must be recorded; where a query relied on a specific endpoint, the endpoint must be recorded.
 
 ### §5.4 Integrity Validation
 
@@ -812,7 +743,7 @@ External communication (regulators, customers, vendors) is owned exclusively by 
 For incidents involving Microsoft 365, Power Platform, or Microsoft Graph service-side issues:
 
 - Open a Premier / Unified support ticket with severity matching the firm's internal severity.
-- Include in the support ticket: tenant ID, cloud (`prod`/`usgov`/`usgovhigh`/`dod`), affected environments, time window, Purview audit operations of interest, Graph endpoints called, error codes / correlation IDs, module / SDK / API versions (E-14).
+- Include in the support ticket: tenant ID, affected environments, time window, Purview audit operations of interest, Graph endpoints called, error codes / correlation IDs, module / SDK / API versions (E-14).
 - Do **not** send customer NPI or examination-sensitive information to Microsoft Support without Legal approval.
 
 ### §6.4 Regulator Communication
@@ -910,16 +841,15 @@ The behaviors below are repeated failure modes observed in FSI Copilot inventory
 | 3 | Joining inventory sources on `displayName` | `displayName` is mutable and non-unique across environments | Join on stable keys: Dataverse `botid`, Graph `id` |
 | 4 | Treating sub-15-minute Hub / PPAC drift as a real incident | Documented steady-state propagation is ~15 min | Wait the documented latency window before declaring drift |
 | 5 | Treating sub-90-minute Purview audit gap as a real incident | Audit surfacing latency is ~60–90 min | Wait the documented surfacing window before concluding |
-| 6 | Calling commercial Graph / PPAC against a sovereign tenant | Returns empty / 404 with little error context | Set sovereign endpoint explicitly (`-Endpoint usgovhigh`, `-Environment USGov`) and capture in E-13/E-14 |
-| 7 | Single-page Graph enumeration treated as authoritative | Pagination missed | Always page through `@odata.nextLink` until null |
-| 8 | Reverting a tampered record before evidence capture | Destroys evidence | Capture E-01–E-15 first; then remediate under Legal direction |
-| 9 | Allowing manual register edits to bypass the lifecycle state machine | No change-control reference; opens audit findings | Reject writes without change-control reference at the register layer |
-| 10 | Letting enrichment overwrite human-reviewed metadata fields | Loses high-confidence corrections to low-confidence automation | Respect a `lockedBy` attribute on enrichment writes |
-| 11 | Using the Hub agent count as the system-of-record for examiner responses | Hub is a UI surface, not the system of record | Use the consolidated inventory derived from Dataverse + Graph + register |
-| 12 | Sharing customer NPI or examination-sensitive data with Microsoft Support without Legal approval | Privacy / privilege exposure | Route Microsoft Support engagement through Legal-approved redaction |
-| 13 | Closing an incident before the reportability tree is closed by Compliance / Legal | Risks missing a 4-business-day or 72-hour clock | Compliance / Legal sign-off is part of incident closure |
-| 14 | Waiting 24–48 hours before triaging an inventory anomaly | The 72-hour NYDFS clock and 4-business-day SEC clock can elapse | Triage within the response clock for the rated severity |
-| 15 | Treating Decommissioned as "we can stop preserving evidence" | Records retention obligations persist after decommission | Apply long-term retention label aligned to FINRA 4511 / SEC 17a-4(b)(4) |
+| 6 | Single-page Graph enumeration treated as authoritative | Pagination missed | Always page through `@odata.nextLink` until null |
+| 7 | Reverting a tampered record before evidence capture | Destroys evidence | Capture E-01–E-15 first; then remediate under Legal direction |
+| 8 | Allowing manual register edits to bypass the lifecycle state machine | No change-control reference; opens audit findings | Reject writes without change-control reference at the register layer |
+| 9 | Letting enrichment overwrite human-reviewed metadata fields | Loses high-confidence corrections to low-confidence automation | Respect a `lockedBy` attribute on enrichment writes |
+| 10 | Using the Hub agent count as the system-of-record for examiner responses | Hub is a UI surface, not the system of record | Use the consolidated inventory derived from Dataverse + Graph + register |
+| 11 | Sharing customer NPI or examination-sensitive data with Microsoft Support without Legal approval | Privacy / privilege exposure | Route Microsoft Support engagement through Legal-approved redaction |
+| 12 | Closing an incident before the reportability tree is closed by Compliance / Legal | Risks missing a 4-business-day or 72-hour clock | Compliance / Legal sign-off is part of incident closure |
+| 13 | Waiting 24–48 hours before triaging an inventory anomaly | The 72-hour NYDFS clock and 4-business-day SEC clock can elapse | Triage within the response clock for the rated severity |
+| 14 | Treating Decommissioned as "we can stop preserving evidence" | Records retention obligations persist after decommission | Apply long-term retention label aligned to FINRA 4511 / SEC 17a-4(b)(4) |
 
 ---
 

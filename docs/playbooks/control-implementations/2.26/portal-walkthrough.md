@@ -30,7 +30,7 @@
     | Common errors, missing blades, and remediation steps | [`./troubleshooting.md`](./troubleshooting.md) |
 
 !!! warning "Hedged-Language Reminder"
-    This playbook helps your organization **support compliance with** FINRA Rule 3110 (supervision), SEC Rule 17a-4 (records retention), SOX §404 (internal controls over financial reporting), GLBA Safeguards Rule (access controls), OCC Bulletin 2013-29 (third-party / model risk management), and Federal Reserve SR 26-2 (formerly SR 11-7) (model risk management). It does **not** by itself guarantee any regulatory outcome. Implementation requires Microsoft Agent 365 or Microsoft 365 E7 licensing, validated change-control procedures, and independent testing by your compliance function. Organizations should verify all configurations against their own regulatory examination workpapers and legal counsel before treating these procedures as adequate evidence.
+    This playbook helps your organization **support compliance with** FINRA Rule 3110 (supervision), SEC Rule 17a-4 (records retention), SOX §404 (internal controls over financial reporting), GLBA Safeguards Rule (access controls), OCC Bulletin 2013-29 (third-party / model risk management), and Federal Reserve SR 26-2 (formerly SR 11-7) (model risk management). It does **not** by itself determine any regulatory outcome. Implementation requires Microsoft Agent 365 or Microsoft 365 E7 licensing, validated change-control procedures, and independent testing by your compliance function. Organizations should verify all configurations against their own regulatory examination workpapers and legal counsel before treating these procedures as adequate evidence.
 
 !!! info "License and Program Requirements"
     | Requirement | Why | Where to verify |
@@ -40,18 +40,6 @@
     | Entra ID P2 (Identity Governance) | Required for Entitlement Management, Lifecycle Workflows, and Access Reviews — all three are mandatory for this control | Entra → Identity → Overview → License |
     | Microsoft Purview Audit (Standard or Premium) | Required to retain agent identity events for the 6-year SEC 17a-4 horizon | Purview → Audit → Audit retention policies |
     | Workday / SAP SuccessFactors / SAP HCM HR connector (or Azure AD Connect with HR attribute flow) | Populates `employeeLeaveDateTime` on sponsor user objects — the leaver-trigger signal source for Lifecycle Workflows | Entra → Identity → Inbound provisioning |
-
-!!! warning "Sovereign Cloud Parity (Commercial Only)"
-    As of **May 2026**, Microsoft Entra Agent ID is **generally available in the Microsoft 365 Commercial cloud only** (with Microsoft Agent 365 or Microsoft 365 E7 licensing). Agent 365 reached general availability on **May 1, 2026** in Commercial. **No GA timeline has been published for GCC, GCC High, or DoD.** If you operate in a sovereign cloud, this control's primary surface is **not available** and you must apply compensating controls. See [§1 — Sovereign Cloud Variant](#1-sovereign-cloud-variant-and-compensating-controls) below for the substitute procedure.
-
-    | Cloud | Entra Agent ID blade | Microsoft Agent 365 / E7 licensing | Substitute approach |
-    |---|---|---|---|
-    | M365 Commercial | ✅ GA (May 2026) | ✅ Available | Follow this playbook end-to-end |
-    | GCC | ❌ Not available | ❌ Not announced | §1 manual quarterly attestation + Control 1.2 agent registry |
-    | GCC High | ❌ Not available | ❌ Not announced | §1 manual quarterly attestation + Control 1.2 agent registry |
-    | DoD | ❌ Not available | ❌ Not announced | §1 manual quarterly attestation + Control 1.2 agent registry |
-
-    See [`../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod`](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod) for sovereign endpoint resolution if you ever need to script against the commercial-only surface from a sovereign management workstation.
 
 !!! tip "Portal Navigation May Shift During Preview"
     Microsoft has restructured the Entra navigation twice in the last 12 months. If a blade name in this playbook does not match what you see, search the Entra admin center for the underlying noun ("Agent identities", "Access packages", "Lifecycle workflows") and consult the canonical documentation root at [`learn.microsoft.com/entra/agent-id/`](https://learn.microsoft.com/entra/agent-id/). Screenshot anchors in this playbook record the navigation that was verified at the **Last UI Verified** date in the control header.
@@ -63,14 +51,13 @@
 | § | Section | Verification Criterion Evidenced |
 |---|---|---|
 | 0 | [Pre-flight Prerequisites and Triage](#0-pre-flight-prerequisites-and-triage) | All — gating checks |
-| 1 | [Sovereign Cloud Variant and Compensating Controls](#1-sovereign-cloud-variant-and-compensating-controls) | All (substitute path) |
-| 2 | [Microsoft Agent 365 / M365 E7 License Assignment](#2-frontier-program-enrollment) | VC-1 |
-| 3 | [Sponsor Assignment in Entra Agent ID](#3-sponsor-assignment-in-entra-agent-id) | VC-2 |
-| 4 | [Entitlement Management Catalog and Access Packages](#4-entitlement-management-catalog-and-access-packages) | VC-3, VC-4 |
-| 5 | [Lifecycle Workflow for Sponsor Departure](#5-lifecycle-workflow-for-sponsor-departure) | VC-5 |
-| 6 | [Access Review Campaigns for Agent Assignments](#6-access-review-campaigns-for-agent-assignments) | VC-6 |
-| 7 | [Diagnostic Settings and SIEM Forwarding](#7-diagnostic-settings-and-siem-forwarding) | VC-7, VC-8 |
-| 8 | [HR Connector Verification (`employeeLeaveDateTime`)](#8-hr-connector-verification-employeeleavedatetime) | VC-5 (signal source) |
+| 1 | [Microsoft Agent 365 / M365 E7 License Assignment](#1-microsoft-agent-365-microsoft-365-e7-license-assignment) | VC-1 |
+| 2 | [Sponsor Assignment in Entra Agent ID](#2-sponsor-assignment-in-entra-agent-id) | VC-2 |
+| 3 | [Entitlement Management Catalog and Access Packages](#3-entitlement-management-catalog-and-access-packages) | VC-3, VC-4 |
+| 4 | [Lifecycle Workflow for Sponsor Departure](#4-lifecycle-workflow-for-sponsor-departure) | VC-5 |
+| 5 | [Access Review Campaigns for Agent Assignments](#5-access-review-campaigns-for-agent-assignments) | VC-6 |
+| 6 | [Diagnostic Settings and SIEM Forwarding](#6-diagnostic-settings-and-siem-forwarding) | VC-7, VC-8 |
+| 7 | [HR Connector Verification (`employeeLeaveDateTime`)](#7-hr-connector-verification-employeeleavedatetime) | VC-5 (signal source) |
 | ★ | [Closing Decision Matrix — Portal vs PowerShell vs Graph](#closing-decision-matrix-portal-vs-powershell-vs-graph) | Operational reference |
 
 ---
@@ -88,19 +75,15 @@ Before you click anything in any portal, run through this gate. Skipping a gate 
 
 *Screenshot anchor: `docs/images/2.26/EXPECTED.md#0-1-tenant-overview` — Entra overview blade showing Tenant ID, Primary domain, and Country.*
 
-!!! warning "Tenant Cloud Detection"
-    If the URL bar shows `entra.microsoft.us` (GCC High / DoD) or you authenticate against `login.microsoftonline.us`, **stop here and jump to [§1](#1-sovereign-cloud-variant-and-compensating-controls)**. Continuing this playbook in a sovereign tenant will fail at §2 because **Microsoft Agent 365 / M365 E7 licensing has not been announced for sovereign (`*.us`) clouds** as of the verification date.
-
-### 0.2 Confirm role assignments
 
 | Role | Required for | Where to assign |
 |---|---|---|
-| **Entra Global Admin** (or **Entra Privileged Role Admin**) | Initial Microsoft Agent 365 / M365 E7 license procurement and assignment ceremony (§2) and initial Lifecycle Workflow template enablement (§5) | Entra → Roles & admins |
-| **Entra Identity Governance Admin** | Entitlement Management catalogs, access packages, access reviews, lifecycle workflow authoring (§4–§6) | Entra → Roles & admins |
-| **Entra Agent ID Admin** (preview role) | Read/write on agent identity properties including sponsor assignment (§3) | Entra → Roles & admins (filter to "Agent") |
+| **Entra Global Admin** (or **Entra Privileged Role Admin**) | Initial Microsoft Agent 365 / M365 E7 license procurement and assignment ceremony (§1) and initial Lifecycle Workflow template enablement (§4) | Entra → Roles & admins |
+| **Entra Identity Governance Admin** | Entitlement Management catalogs, access packages, access reviews, lifecycle workflow authoring (§3–§5) | Entra → Roles & admins |
+| **Entra Agent ID Admin** (preview role) | Read/write on agent identity properties including sponsor assignment (§2) | Entra → Roles & admins (filter to "Agent") |
 | **AI Administrator** | Cross-surface read on Copilot agents in M365 admin center | M365 admin center → Roles |
-| **Entra Security Admin** | Diagnostic settings authoring (§7) | Entra → Roles & admins |
-| **Purview Compliance Admin** | Audit retention policy authoring (§7 long-term retention path) | Purview → Roles & scopes |
+| **Entra Security Admin** | Diagnostic settings authoring (§6) | Entra → Roles & admins |
+| **Purview Compliance Admin** | Audit retention policy authoring (§6 long-term retention path) | Purview → Roles & scopes |
 
 1. In Entra, navigate to **Identity → Roles & admins → Roles**.
 2. Search for each role above and click into it. Confirm at minimum **two named human accounts** (no service principals, no break-glass) hold each role per FINRA dual-control expectations.
@@ -123,9 +106,9 @@ Before you click anything in any portal, run through this gate. Skipping a gate 
    - **Microsoft Agent 365** (standalone per-user license, layered on a Microsoft 365 Copilot prerequisite), **or**
    - **Microsoft 365 E7** ("Frontier Suite" — bundles E5 + Microsoft 365 Copilot + Microsoft Entra Suite + Agent 365).
 4. Capture the current state:
-   - **No Agent 365 / E7 licenses provisioned in tenant** → procure SKUs via your Microsoft account team or Cloud Solution Provider before proceeding to [§2](#2-frontier-program-enrollment).
-   - **Provisioned but unassigned** → proceed to [§2](#2-frontier-program-enrollment) to assign at scale.
-   - **Provisioned and assigned to operating principals** — Agent identities blade should be reachable; spot-check via Entra → Identity → Applications → Agent identities and continue to [§3](#3-sponsor-assignment-in-entra-agent-id).
+   - **No Agent 365 / E7 licenses provisioned in tenant** → procure SKUs via your Microsoft account team or Cloud Solution Provider before proceeding to [§1](#1-microsoft-agent-365-microsoft-365-e7-license-assignment).
+   - **Provisioned but unassigned** → proceed to [§1](#1-microsoft-agent-365-microsoft-365-e7-license-assignment) to assign at scale.
+   - **Provisioned and assigned to operating principals** — Agent identities blade should be reachable; spot-check via Entra → Identity → Applications → Agent identities and continue to [§2](#2-sponsor-assignment-in-entra-agent-id).
 
 *Screenshot anchor: `docs/images/2.26/EXPECTED.md#0-3-license-coverage` — M365 admin Billing → Licenses page showing Microsoft Agent 365 / M365 E7 SKU and assigned seat count.*
 
@@ -134,69 +117,26 @@ Before you click anything in any portal, run through this gate. Skipping a gate 
 Do not proceed past this section unless **all** of the following are true:
 
 - [ ] You are signed in to the correct tenant and have captured the tenant ID.
-- [ ] Tenant is in M365 Commercial cloud (or you have switched to §1 sovereign path).
+- [ ] Tenant is in M365 Commercial cloud.
 - [ ] At least two named humans hold each governance role in §0.2.
 - [ ] Microsoft 365 Copilot licenses are assigned to intended sponsors.
 - [ ] Microsoft Agent 365 / M365 E7 license assignment is recorded for each operating principal who will run this playbook.
 - [ ] Entra ID P2 license is active on the tenant (Identity → Overview → License shows P2).
-- [ ] An HR connector or HR-attribute provisioning path populates `employeeLeaveDateTime` on user objects (verify in [§8](#8-hr-connector-verification-employeeleavedatetime) before relying on Lifecycle Workflows).
+- [ ] An HR connector or HR-attribute provisioning path populates `employeeLeaveDateTime` on user objects (verify in [§7](#7-hr-connector-verification-employeeleavedatetime) before relying on Lifecycle Workflows).
 
 !!! tip "If a Gate Fails"
     Open [`./troubleshooting.md`](./troubleshooting.md) and search for the gate name (e.g., "Agent 365 license missing" or the legacy "Preview gating not satisfied" namespace name). Do not attempt workarounds in production until the gate clears — most workarounds for missing licensing or roles create their own audit findings.
 
 ---
-
-## 1. Sovereign Cloud Variant and Compensating Controls
-
-**Audience:** Operators in M365 GCC, GCC High, or DoD tenants. Skip this section if you are in M365 Commercial.
-
-As of the verification date, **Microsoft Entra Agent ID is not available in any US sovereign cloud**. Microsoft has not committed to a sovereign GA timeline. Until parity arrives, sovereign-cloud organizations cannot rely on the directory-resident agent identity, sponsor attribute, or access package surfaces described in §3–§7. Examiners (FFIEC IT Handbook, OCC Heightened Standards) will still expect equivalent governance evidence. The substitute is a **manual quarterly attestation pattern** anchored on the agent registry from Control 1.2.
-
-### 1.1 Manual quarterly sponsor attestation
-
-1. Pull the agent registry CSV produced by [Control 1.2 — Agent Registry](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md). The registry must include `agent_id`, `agent_display_name`, `zone`, `sponsor_upn`, `sponsor_manager_upn`, and `last_attested_date`.
-2. Distribute the registry to each sponsor of record via a Purview-labeled (Confidential / Internal) attestation workbook. SharePoint list with retention label achieves the same outcome.
-3. Sponsors confirm in writing (Forms response, signed PDF, or Power Automate approval task) that:
-   - They still own the agent.
-   - The agent's listed permissions remain necessary.
-   - No undisclosed third-party agents are operating under their sponsorship.
-4. Compliance archives signed attestations to a Purview-immutable location (records management label with retention `6 years` and locked policy).
-5. Any agent without a returned attestation within 14 days of the campaign deadline is treated as **orphaned** and routed through [Control 3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) for disable-or-delete.
-
-*Screenshot anchor: `docs/images/2.26/EXPECTED.md#1-1-sovereign-attestation-workbook` — sample SharePoint attestation list with retention label applied.*
-
-!!! example "Examiner Evidence Box — Sovereign Manual Attestation"
-    | Element | Value |
-    |---|---|
-    | Artifact produced | Quarterly attestation CSV + signed sponsor responses + non-response remediation log |
-    | Retention duration | 6 years (SEC 17a-4) on Purview record label |
-    | Regulatory mapping | FINRA 3110, OCC Bulletin 2013-29 (third-party / model risk), FFIEC IT Handbook (governance) |
-
-### 1.2 Compensating control mapping
-
-| Commercial-only surface | Sovereign substitute | Residual risk |
-|---|---|---|
-| Entra Agent ID `sponsor` attribute | Agent registry `sponsor_upn` column attested quarterly | Manual data drift between attestations |
-| Entitlement Management access packages for agents | Existing entitlement management for **human owner** + governed security group containing agent service principal | No native agent-identity time-bound assignment; rely on group expiration + scripted revocation |
-| Lifecycle Workflows (sponsor leaver) | HR feed → Power Automate flow that emails compliance + disables agent's owning service principal | Detection latency (1–24 hours typical) |
-| Access reviews scoped to agent assignments | Access reviews scoped to the governed security groups, with reviewer guidance to enumerate underlying agents | Reviewer cognitive load — risk of rubber-stamp approvals |
-| Diagnostic categories surfacing `AgentIdentity*` events | `ApplicationManagement` + `UserManagement` Entra audit categories filtered downstream by service principal display-name pattern (e.g., `agent-*`) | Imperfect filter; requires display-name discipline |
-
-### 1.3 When sovereign parity arrives
-
-When Microsoft announces Agent ID GA for your sovereign cloud, do **not** silently switch over. Treat parity arrival as a controlled change: dual-run §3–§7 alongside the §1 manual procedure for at least one full quarter, reconcile the two sources, and obtain compliance sign-off before retiring the manual attestation. Document the cutover in your change-management system per Control 2.16.
-
----
-
-<!-- AS16 (S1): legacy-slug preservation across the May 2026 GA heading
+ (S1): legacy-slug preservation across the May 2026 GA heading
      rename ("Frontier program enrollment" -> "Microsoft Agent 365 / M365
      E7 License Assignment"). DO NOT REMOVE the explicit anchor below:
      three in-page hrefs (TOC line 67, warnings lines 126/127) resolve to
      #2-frontier-program-enrollment, which is no longer the auto-generated
-     slug for this H2. The body paragraph in §2 documents the reason. -->
+     slug for this H2. The body paragraph in §1 documents the reason. -->
 <a id="2-frontier-program-enrollment"></a>
 
-## 2. Microsoft Agent 365 / Microsoft 365 E7 License Assignment
+## 1. Microsoft Agent 365 / Microsoft 365 E7 License Assignment
 
 **Verification Criterion evidenced:** VC-1 (Entra Agent ID enabled; **Agent identities** blade present in Entra).
 
@@ -205,7 +145,7 @@ Post-GA (May 2026), the Entra Agent ID surface is gated by **Microsoft Agent 365
 !!! danger "Tenant-Wide License Decisions"
     License assignment to Microsoft Agent 365 or Microsoft 365 E7 unlocks Agent ID and the broader Agent 365 surface for the assigned user. Coordinate with your finance, procurement, identity, and Copilot product owners before assignment at scale. Some Agent 365 surfaces still carry adjacent Public Preview labels — verify current GA / preview status against Microsoft Learn before relying on a specific surface in production. License changes should be approved through your standard change-control board.
 
-### 2.1 Confirm tenant has Agent 365 or M365 E7 SKUs available
+### 1.1 Confirm tenant has Agent 365 or M365 E7 SKUs available
 
 1. Sign in to [`https://admin.microsoft.com`](https://admin.microsoft.com) as **Entra Global Admin** or **Billing Administrator**.
 2. In the left navigation, expand **Billing**, then click **Your products**.
@@ -214,31 +154,31 @@ Post-GA (May 2026), the Entra Agent ID surface is gated by **Microsoft Agent 365
 
 *Screenshot anchor: `docs/images/2.26/EXPECTED.md#2-1-license-skus-available` — M365 admin Billing → Your products page showing Microsoft Agent 365 or Microsoft 365 E7 SKU with available seats.*
 
-### 2.2 Assign licenses to the Agent ID administrator(s)
+### 1.2 Assign licenses to the Agent ID administrator(s)
 
 1. From the M365 admin center, navigate to **Users → Active users**.
 2. Select the user(s) who will administer Entra Agent ID (typically members of the **Entra Agent ID Admin** or **AI Administrator** role groups).
 3. On the user's profile, click **Licenses and apps**.
 4. Check the box for **Microsoft Agent 365** (or **Microsoft 365 E7** if the suite is being used). Optionally adjust per-app enablement under the SKU expansion.
 5. Click **Save changes**.
-6. Repeat for each Agent ID administrator. License-based access can also be group-based — see §2.3 for the recommended group-based pattern at scale.
+6. Repeat for each Agent ID administrator. License-based access can also be group-based — see §1.3 for the recommended group-based pattern at scale.
 
 *Screenshot anchor: `docs/images/2.26/EXPECTED.md#2-2-license-assigned` — M365 admin Licenses and apps page showing Microsoft Agent 365 or Microsoft 365 E7 enabled for an admin user.*
 
-### 2.3 Verify the Agent identities blade is reachable
+### 1.3 Verify the Agent identities blade is reachable
 
 1. Wait at least 15 minutes after license assignment, then sign in to [`https://entra.microsoft.com`](https://entra.microsoft.com) as the licensed administrator.
 2. In the left blade, navigate to **Identity → Applications**. Scroll the sub-blades — you should now see **Agent identities** as a sibling of **Enterprise applications** and **App registrations**. The blade may still carry an "(preview)" suffix on some assignment-policy toggles even though the core surface is GA — verify against Microsoft Learn for the exact label in current builds.
 3. Click **Agent identities**. The blade should load without an "access denied" or "feature not available" banner. An empty list at this point is expected — agents will populate after sponsors begin authoring them.
 4. If after 60 minutes the blade still does not render correctly:
-   - Confirm the operator account holds Microsoft Agent 365 or Microsoft 365 E7 licensing **directly** (group-based works) — see Control 2.26 troubleshooting playbook §2.
+   - Confirm the operator account holds Microsoft Agent 365 or Microsoft 365 E7 licensing **directly** (group-based works) — see Control 2.26 troubleshooting playbook §1.
    - Confirm the operator holds the **Entra Agent ID Admin** or **AI Administrator** directory role (RBAC gap is a common false-positive for "blade missing").
-   - Confirm tenant region is one in which Agent ID GA has been announced (Commercial cloud at GA; verify sovereign availability against Microsoft Learn).
+   - Confirm tenant region is one in which Agent ID GA has been announced (Commercial cloud at GA; verify current availability against Microsoft Learn).
    - Open a Microsoft support case via M365 admin → **Support → New service request**, category **Microsoft Entra → Agent ID**.
 
 *Screenshot anchor: `docs/images/2.26/EXPECTED.md#2-3-agent-identities-blade-empty` — Entra Agent identities blade with empty list, demonstrating successful access.*
 
-### 2.4 Capture license assignment evidence
+### 1.4 Capture license assignment evidence
 
 1. From the M365 admin **Billing → Licenses** page, capture a full-page screenshot showing the Microsoft Agent 365 / M365 E7 SKU, the assigned seat count, and the date range.
 2. From the M365 audit log (Purview → Audit), search for the activity **"Add user license"** with workload **AzureActiveDirectory** in the 1-hour window around the assignment timestamp. Export the JSON record.
@@ -256,13 +196,13 @@ Post-GA (May 2026), the Entra Agent ID surface is gated by **Microsoft Agent 365
 
 ---
 
-## 3. Sponsor Assignment in Entra Agent ID
+## 2. Sponsor Assignment in Entra Agent ID
 
 **Verification Criterion evidenced:** VC-2 (every Zone 2 / Zone 3 agent has a non-null sponsor of record).
 
 Every agent identity in your tenant must have a **named human sponsor** who is accountable for the agent's continued business justification, permission scope, and lifecycle decisions. Microsoft auto-populates the sponsor attribute with the **creating user** at agent provisioning time — so for newly-authored agents, the sponsor field is rarely null. The risk is **inherited or imported** agents (Copilot Studio agents migrated from Power Platform tenants, third-party agents registered via Microsoft Agent Framework, or agents whose original creator left before this control was implemented).
 
-### 3.1 Inventory current sponsor coverage
+### 2.1 Inventory current sponsor coverage
 
 1. Sign in to [`https://entra.microsoft.com`](https://entra.microsoft.com) as **Entra Agent ID Admin** or **Entra Identity Governance Admin**.
 2. Navigate to **Identity → Applications → Agent identities (preview)**.
@@ -272,7 +212,7 @@ Every agent identity in your tenant must have a **named human sponsor** who is a
 
 *Screenshot anchor: `docs/images/2.26/EXPECTED.md#3-1-agent-identities-grid-sorted` — Agent identities grid sorted by Sponsor with null entries visible.*
 
-### 3.2 Resolve null sponsors
+### 2.2 Resolve null sponsors
 
 For each row with an empty Sponsor (UPN):
 
@@ -287,22 +227,22 @@ For each row with an empty Sponsor (UPN):
 *Screenshot anchor: `docs/images/2.26/EXPECTED.md#3-2-edit-sponsor-dialog` — Agent properties Edit pane with Sponsor picker validating a UPN.*
 
 !!! warning "Manager-of-Record Verification"
-    The Lifecycle Workflow in §5 fires when the **sponsor's manager** changes or the sponsor leaves. After assigning a sponsor, immediately verify that the sponsor user's `manager` attribute in Entra is populated and points to a current employee. A sponsor with no manager will not trigger leaver workflows correctly. Verify in **Identity → Users → [sponsor] → Edit properties → Job info → Manager**.
+    The Lifecycle Workflow in §4 fires when the **sponsor's manager** changes or the sponsor leaves. After assigning a sponsor, immediately verify that the sponsor user's `manager` attribute in Entra is populated and points to a current employee. A sponsor with no manager will not trigger leaver workflows correctly. Verify in **Identity → Users → [sponsor] → Edit properties → Job info → Manager**.
 
-### 3.3 Apply zone tags
+### 2.3 Apply zone tags
 
-Zone tagging is the foundation for the Zone 2 / Zone 3 differentiated controls in §4–§6. The tag lives on the agent identity object as the `extensionAttribute_zone` custom property (or, where the preview surface exposes a first-class field, as **Zone**).
+Zone tagging is the foundation for the Zone 2 / Zone 3 differentiated controls in §3–§5. The tag lives on the agent identity object as the `extensionAttribute_zone` custom property (or, where the preview surface exposes a first-class field, as **Zone**).
 
 1. From the agent properties blade, click **Properties → Edit**.
 2. Set **Zone** to one of `Z1-Personal`, `Z2-Team`, or `Z3-Enterprise` per the criteria in the [Framework — Agent Zones](../../../framework/zones-and-tiers.md) page.
 3. Save. Repeat for every agent. The bulk-update PowerShell equivalent is documented at [`./powershell-setup.md`](./powershell-setup.md) — for tenants with more than ~50 agents, prefer the bulk path.
 
-### 3.4 Verify zero null sponsors on Z2 / Z3
+### 2.4 Verify zero null sponsors on Z2 / Z3
 
-1. Re-export the CSV from §3.1.
+1. Re-export the CSV from §2.1.
 2. Filter to rows where `Zone tag` is `Z2-Team` or `Z3-Enterprise`.
 3. Confirm that every row in the filtered set has a populated `Sponsor (UPN)` value. The expected count of null sponsors in Z2/Z3 is **zero**.
-4. If any null remains, return to §3.2.
+4. If any null remains, return to §2.2.
 
 !!! example "Examiner Evidence Box — Sponsor Coverage"
     | Element | Value |
@@ -316,7 +256,7 @@ Zone tagging is the foundation for the Zone 2 / Zone 3 differentiated controls i
 
 ---
 
-## 4. Entitlement Management Catalog and Access Packages
+## 3. Entitlement Management Catalog and Access Packages
 
 **Verification Criteria evidenced:** VC-3 (Z3 agents receive resources only via access packages) and VC-4 (time-bound assignments ≤365 days; no perpetual Z3 assignments).
 
@@ -337,7 +277,7 @@ This section is the operational heart of Control 2.26. You will:
     | Power Platform environment | ❌ No | Use environment security group + Power Platform Admin Center role |
     | Azure subscription role | ❌ No | Use Azure Privileged Identity Management separately |
 
-### 4.1 Create the agent governance catalog
+### 3.1 Create the agent governance catalog
 
 1. Sign in to [`https://entra.microsoft.com`](https://entra.microsoft.com) as **Entra Identity Governance Admin**.
 2. Navigate to **Identity governance → Entitlement management → Catalogs**.
@@ -355,7 +295,7 @@ This section is the operational heart of Control 2.26. You will:
 
 *Screenshot anchor: `docs/images/2.26/EXPECTED.md#4-1-catalog-created` — Catalogs grid showing the Agent Governance catalog with two owners and one reader.*
 
-### 4.2 Add resources to the catalog
+### 3.2 Add resources to the catalog
 
 For each resource you intend to grant to agents:
 
@@ -370,9 +310,9 @@ For each resource you intend to grant to agents:
 Repeat until all resources required by your planned access packages are present in the catalog. Resources outside the catalog cannot be added to its access packages.
 
 !!! warning "Least Privilege Discipline"
-    Resist the temptation to add high-blast-radius resources (e.g., `Mail.ReadWrite.All`, `Files.ReadWrite.All`) to the agent governance catalog "just in case." Catalog membership itself is an inventory examiners will request. Resources should be added only when a specific access package needs them, and removed when no longer used.
+    Resist the temptation to add high-blast-radius resources (e.g., `Mail.ReadWrite.All`, `Files.ReadWrite.All`) to the agent governance catalog preemptively. Catalog membership itself is an inventory examiners will request. Resources should be added only when a specific access package needs them, and removed when no longer used.
 
-### 4.3 Author an agent access package
+### 3.3 Author an agent access package
 
 The example below provisions a Z3-appropriate package granting an agent read-only access to a curated SharePoint document library via `Sites.Selected`.
 
@@ -388,7 +328,7 @@ The example below provisions a Z3-appropriate package granting an agent read-onl
    - **Users who can request access:** Select **For users, service principals, and agent identities in your directory**.
    - In the picker, choose **All agents (preview)**. This special-purpose principal scopes the package to any agent identity in the tenant, not all users.
    - **Require approval:** Yes.
-   - **Stages:** Stage 1 — **Sponsor of the requesting agent** (uses the sponsor attribute set in §3). Stage 2 — **AI Governance Lead** (group-based approver).
+   - **Stages:** Stage 1 — **Sponsor of the requesting agent** (uses the sponsor attribute set in §2). Stage 2 — **AI Governance Lead** (group-based approver).
    - **Require requestor justification:** Yes.
    - **Decision must be made within:** 5 days.
 5. **Requestor information** tab — add custom questions:
@@ -397,7 +337,7 @@ The example below provisions a Z3-appropriate package granting an agent read-onl
 6. **Lifecycle** tab — **this is the time-bound enforcement step**:
    - **Expiration:** **On date** or **Number of days** — set to a value ≤ **365 days**. For Z3, the recommended ceiling is **180 days** (semi-annual renewal); the absolute maximum permitted by Control 2.26 is **365 days**.
    - **Allow users to extend access:** Yes, but require approval for extensions. Extensions reset the clock to no more than 365 days from the extension date.
-   - **Require access reviews:** Yes (this links to §6).
+   - **Require access reviews:** Yes (this links to §5).
 7. **Review + Create** → **Create**.
 
 *Screenshot anchor: `docs/images/2.26/EXPECTED.md#4-3-access-package-lifecycle-tab` — Lifecycle tab showing 180-day expiration and access-review linkage.*
@@ -405,7 +345,7 @@ The example below provisions a Z3-appropriate package granting an agent read-onl
 !!! danger "No Perpetual Z3 Assignments"
     The portal allows **No expiration** as an option on the Lifecycle tab. **Never select this for a Z3 access package.** Selection of "No expiration" on a Z3 package is a Control 2.26 violation that auditors will flag immediately. The PowerShell verification script at [`./verification-testing.md`](./verification-testing.md) enumerates all Z3-tagged packages and fails if any has `expirationType = noExpiration`.
 
-### 4.4 Apply the assignment policy to in-flight agents
+### 3.4 Apply the assignment policy to in-flight agents
 
 Newly-created access packages have no assignments. Sponsors must request them on behalf of their agents:
 
@@ -416,7 +356,7 @@ Newly-created access packages have no assignments. Sponsors must request them on
 
 For agents that already had ad-hoc resource grants outside access packages, run the **migration to access packages** procedure in [`./powershell-setup.md`](./powershell-setup.md). Do not leave dual-path assignments in place — they confuse access reviews.
 
-### 4.5 Verify VC-3 and VC-4
+### 3.5 Verify VC-3 and VC-4
 
 1. From the catalog → **Access packages**, confirm at least one access package exists per logical Z2/Z3 permission bundle.
 2. Open each Z3 package → **Lifecycle** → confirm **Expiration** is set to a number of days ≤ 365 (preferably ≤ 180).
@@ -435,11 +375,11 @@ For agents that already had ad-hoc resource grants outside access packages, run 
 
 ---
 
-## 5. Lifecycle Workflow for Sponsor Departure
+## 4. Lifecycle Workflow for Sponsor Departure
 
 **Verification Criterion evidenced:** VC-5 (lifecycle workflow active for sponsor departure with execution evidence).
 
-### 5.1 Understand Microsoft's default behavior first
+### 4.1 Understand Microsoft's default behavior first
 
 Before authoring any custom lifecycle workflow, internalize this critical fact:
 
@@ -454,14 +394,14 @@ The recommended pattern is:
 | Sponsor's `manager` attribute is null at leave time | Transfer fails silently — agent becomes orphaned | Detect orphan; route to Control 3.6 |
 | Sponsor goes on extended leave (>30 days; flagged via HR custom attribute) | No action | Notify AI Governance Lead + designate temporary sponsor via access package |
 
-### 5.2 Enable the lifecycle workflow templates
+### 4.2 Enable the lifecycle workflow templates
 
 1. Sign in to [`https://entra.microsoft.com`](https://entra.microsoft.com) as **Entra Identity Governance Admin**.
 2. Navigate to **Identity governance → Lifecycle workflows → Workflows**.
 3. Confirm the **Workflows** blade loads. (Lifecycle Workflows requires Entra ID Governance, included in P2 — verify via **Identity → Overview → License**.)
 4. Click **+ Create a custom workflow** (or start from the **Pre-hire**, **Joiner**, **Mover**, **Leaver** templates and customize). For sponsor-departure governance, the **Leaver** workflow type is the correct base.
 
-### 5.3 Author the "Agent Sponsor Leaver" workflow
+### 4.3 Author the "Agent Sponsor Leaver" workflow
 
 1. **Basics** tab:
    - **Workflow display name:** `Agent Sponsor Leaver — Notify and Conditional Disable`
@@ -489,7 +429,7 @@ The recommended pattern is:
 !!! warning "Test in a Lower Environment First"
     Lifecycle Workflows execute against production Entra. There is no "what-if" mode that simulates the conditional disable. Test the workflow against a non-production sponsor identity (or create a test user with `employeeLeaveDateTime` set to 1 day in the past) before relying on it. Document the test in your change record.
 
-### 5.4 Verify execution evidence
+### 4.4 Verify execution evidence
 
 1. After at least one trigger event has occurred (test or real), navigate to **Lifecycle workflows → [your workflow] → Workflow history**.
 2. Each row represents a single user whose departure triggered the workflow. Click into a row to see per-task execution status (`Completed`, `Failed`, `In progress`).
@@ -500,7 +440,7 @@ The recommended pattern is:
     | Element | Value |
     |---|---|
     | Artifact produced | Workflow configuration JSON export + Workflow history CSV + correlated audit log entries showing sponsorship transfer or disable action |
-    | Retention duration | 6 years (SEC 17a-4); workflow run history retained 30 days in Entra by default — forward to SIEM per §7 for long-term retention |
+    | Retention duration | 6 years (SEC 17a-4); workflow run history retained 30 days in Entra by default — forward to SIEM per §6 for long-term retention |
     | Regulatory mapping | FINRA 3110 (supervisor change-of-control), Fed SR 26-2 (formerly SR 11-7) (model owner transitions), SOX §404 (segregation of duties — automated control) |
 
 !!! tip "Cross-Reference"
@@ -508,15 +448,15 @@ The recommended pattern is:
 
 ---
 
-## 6. Access Review Campaigns for Agent Assignments
+## 5. Access Review Campaigns for Agent Assignments
 
 **Verification Criterion evidenced:** VC-6 (quarterly access certification campaigns completed for Z3) and VC-7 (expired assignments renewed with justification or removed within 24 hours).
 
-### 6.1 Scope reviews to assignments, not agent objects
+### 5.1 Scope reviews to assignments, not agent objects
 
 A common authoring error is to scope an access review at the **agent identity object** ("review whether this agent should still exist"). That is the wrong question for this control — the existence question is owned by Control 1.2. The correct scope here is **the active assignment of an access package to an agent identity**: "Should this agent still hold this entitlement?"
 
-### 6.2 Create the quarterly Z3 access review
+### 5.2 Create the quarterly Z3 access review
 
 1. Sign in to [`https://entra.microsoft.com`](https://entra.microsoft.com) as **Entra Identity Governance Admin**.
 2. Navigate to **Identity governance → Entitlement management → Access packages**.
@@ -531,7 +471,7 @@ A common authoring error is to scope an access review at the **agent identity ob
 5. **Scope** tab:
    - **Review scope:** **Active assignments to the access package**. Do not select "All users" or "Guests only" — those scopes do not include agent identities.
 6. **Reviewers** tab:
-   - **Select reviewers:** **Sponsor** (resolves to the sponsor attribute on the agent identity — set in §3).
+   - **Select reviewers:** **Sponsor** (resolves to the sponsor attribute on the agent identity — set in §2).
    - **Fallback reviewer:** **AI Governance Lead** group (covers cases where sponsor has left and not yet been transferred).
 7. **Settings** tab (advanced):
    - **Auto-apply results to resource:** **Enabled**. This is critical — without it, decisions sit in a pending state and assignments do not get revoked even when reviewers vote Deny.
@@ -545,16 +485,16 @@ A common authoring error is to scope an access review at the **agent identity ob
 
 *Screenshot anchor: `docs/images/2.26/EXPECTED.md#6-2-access-review-settings` — Access review Settings tab showing auto-apply enabled, remove-on-no-response, and justification required.*
 
-### 6.3 Monitor the campaign
+### 5.3 Monitor the campaign
 
 1. Navigate to **Identity governance → Access reviews → Reviews**.
 2. Filter to your Z3 reviews. The grid shows status per review: `NotStarted`, `InProgress`, `Completed`, `Applied`.
 3. Click into an in-progress review → **Results**. Each row shows the assignment, the agent, the reviewer, the decision, and the justification.
 4. Mid-campaign, export the results as CSV. Compliance can use this snapshot to nudge non-responsive reviewers.
 
-### 6.4 Handle expired assignments — VC-7
+### 5.4 Handle expired assignments — VC-7
 
-Per VC-7, when an assignment expires (either at lifecycle end-date from §4 or via access-review denial), one of two outcomes must occur **within 24 hours**:
+Per VC-7, when an assignment expires (either at lifecycle end-date from §3 or via access-review denial), one of two outcomes must occur **within 24 hours**:
 
 - **Renewal with justification.** The sponsor requests an extension via [`https://myaccess.microsoft.com`](https://myaccess.microsoft.com); the approval chain runs; the assignment is reactivated with a new `expiredDateTime`.
 - **Access removed.** The assignment moves to `Expired` state and the underlying resource grant is revoked.
@@ -571,16 +511,16 @@ To verify VC-7:
 
 *Screenshot anchor: `docs/images/2.26/EXPECTED.md#6-4-assignment-report-expired-filter` — Access package assignment report filtered to Expired in last 30 days.*
 
-### 6.5 Apply the campaign decisions
+### 5.5 Apply the campaign decisions
 
-1. When the review duration ends, status moves to `Completed`. With **Auto-apply** enabled (§6.2), Entra applies decisions automatically within ~1 hour.
+1. When the review duration ends, status moves to `Completed`. With **Auto-apply** enabled (§5.2), Entra applies decisions automatically within ~1 hour.
 2. Navigate to the completed review → **Results** → confirm every row shows `Applied: Yes`.
 3. Export the **Applied results** CSV.
 
 !!! example "Examiner Evidence Box — Access Reviews"
     | Element | Value |
     |---|---|
-    | Artifact produced | One CSV per quarterly campaign per Z3 access package: review settings + reviewer decisions + justifications + applied actions; plus the 30-day expired-assignment report from §6.4 |
+    | Artifact produced | One CSV per quarterly campaign per Z3 access package: review settings + reviewer decisions + justifications + applied actions; plus the 30-day expired-assignment report from §5.4 |
     | Retention duration | 6 years (SEC 17a-4) |
     | Regulatory mapping | FINRA 3110 (periodic supervisory review), SOX §404 (recertification of logical access — IT general controls), GLBA Safeguards Rule (periodic access review), Fed SR 26-2 (formerly SR 11-7) (periodic model access certification) |
 
@@ -589,16 +529,16 @@ To verify VC-7:
 
 ---
 
-## 7. Diagnostic Settings and SIEM Forwarding
+## 6. Diagnostic Settings and SIEM Forwarding
 
 **Verification Criterion evidenced:** VC-8 (lifecycle event logs forwarded to SIEM with 6-year retention).
 
-### 7.1 Understand the category-level export model
+### 6.1 Understand the category-level export model
 
 !!! danger "Category-Level Export Only — Filter Downstream"
-    Entra Diagnostic Settings export logs at the **category** level (`AuditLogs`, `SignInLogs`, `ServicePrincipalSignInLogs`, `ProvisioningLogs`, etc.). There is **no native filter** that says "only events related to agent identities." You must export the broad categories that contain agent-related events (`AuditLogs` for `category = ApplicationManagement` / `UserManagement`, `ServicePrincipalSignInLogs`, `ProvisioningLogs`) and then **filter downstream in your SIEM** by correlating object IDs against the agent identity inventory from §3.
+    Entra Diagnostic Settings export logs at the **category** level (`AuditLogs`, `SignInLogs`, `ServicePrincipalSignInLogs`, `ProvisioningLogs`, etc.). There is **no native filter** that says "only events related to agent identities." You must export the broad categories that contain agent-related events (`AuditLogs` for `category = ApplicationManagement` / `UserManagement`, `ServicePrincipalSignInLogs`, `ProvisioningLogs`) and then **filter downstream in your SIEM** by correlating object IDs against the agent identity inventory from §2.
 
-### 7.2 Choose the destination
+### 6.2 Choose the destination
 
 You typically need both:
 
@@ -607,7 +547,7 @@ You typically need both:
 
 Some FSIs additionally stream to **Event Hub** for real-time SIEM ingestion (Splunk, Sentinel via direct connector, QRadar). Microsoft Sentinel customers can use the Entra connector which abstracts diagnostic settings.
 
-### 7.3 Configure the diagnostic setting
+### 6.3 Configure the diagnostic setting
 
 1. Sign in to [`https://entra.microsoft.com`](https://entra.microsoft.com) as **Entra Security Admin**.
 2. Navigate to **Identity → Monitoring & health → Diagnostic settings**.
@@ -629,19 +569,19 @@ Some FSIs additionally stream to **Event Hub** for real-time SIEM ingestion (Spl
 
 *Screenshot anchor: `docs/images/2.26/EXPECTED.md#7-3-diagnostic-setting-categories` — Diagnostic setting Add page with all required categories checked and three destinations configured.*
 
-### 7.4 Configure 6-year immutable retention on storage
+### 6.4 Configure 6-year immutable retention on storage
 
 1. Sign in to the [Azure portal](https://portal.azure.com) as a contributor on the storage account.
 2. Navigate to the storage account → **Data management → Lifecycle management → + Add a rule**.
 3. Rule name: `agent-id-governance-6yr-retain`.
-4. Rule scope: filter to blob path prefix `insights-logs-auditlogs/` and the other category prefixes from §7.3.
+4. Rule scope: filter to blob path prefix `insights-logs-auditlogs/` and the other category prefixes from §6.3.
 5. Action: **Delete blobs older than 2190 days**.
 6. Configure **Immutable blob storage** policy (Containers → policies) with **time-based retention of 2190 days** and **Allow protected append writes** disabled. Lock the policy after a brief verification window. **Once locked, the policy cannot be shortened — coordinate with records management before locking.**
 
 !!! warning "Immutable Lock Is Irreversible"
     Locking an immutable retention policy is **irreversible**. Test in a non-production storage account first. The policy can be **extended** after lock but never shortened or deleted. This is the property that satisfies SEC 17a-4(f) WORM requirements.
 
-### 7.5 Build the agent-only SIEM filter
+### 6.5 Build the agent-only SIEM filter
 
 In your SIEM (the example below uses Microsoft Sentinel KQL — adapt for Splunk SPL or QRadar AQL), define a saved query / detection that scopes broad Entra logs to agent identity activity:
 
@@ -666,9 +606,9 @@ Build dashboards / alerts for at minimum:
 - Agent service principal `accountEnabled` toggled.
 - Failed sign-ins by agent service principals exceeding baseline.
 
-### 7.6 Verify forwarding end-to-end
+### 6.6 Verify forwarding end-to-end
 
-1. From a non-production sponsor account, perform a known-test event — e.g., update the description of a test agent identity in §3.
+1. From a non-production sponsor account, perform a known-test event — e.g., update the description of a test agent identity in §1.
 2. Wait 5–10 minutes for the Entra → Log Analytics ingestion lag.
 3. In Log Analytics, run:
 
@@ -693,11 +633,11 @@ Build dashboards / alerts for at minimum:
 
 ---
 
-## 8. HR Connector Verification employeeLeaveDateTime
+## 7. HR Connector Verification employeeLeaveDateTime
 
 **Verification Criterion supported:** VC-5 (lifecycle workflow signal source).
 
-The Lifecycle Workflow in §5 only fires correctly if the `employeeLeaveDateTime` attribute on sponsor user objects is **populated and accurate**. That attribute is sourced from your authoritative HR system via one of three paths:
+The Lifecycle Workflow in §4 only fires correctly if the `employeeLeaveDateTime` attribute on sponsor user objects is **populated and accurate**. That attribute is sourced from your authoritative HR system via one of three paths:
 
 | HR system | Connector | Where to verify in Entra |
 |---|---|---|
@@ -707,7 +647,7 @@ The Lifecycle Workflow in §5 only fires correctly if the `employeeLeaveDateTime
 | Other HRIS | Custom Graph-based provisioning to set `employeeLeaveDateTime` | Identity → Audit logs filtered to `category = ProvisioningManagement` |
 | No HR feed | Manual maintenance — **not recommended for FSI** | Manual data entry creates audit findings |
 
-### 8.1 Confirm a connector exists and is healthy
+### 7.1 Confirm a connector exists and is healthy
 
 1. Sign in to [`https://entra.microsoft.com`](https://entra.microsoft.com) as **Entra Identity Governance Admin**.
 2. Navigate to **Identity → Inbound provisioning** (or **Identity → Provisioning** depending on tenant nav variant).
@@ -727,14 +667,14 @@ The Lifecycle Workflow in §5 only fires correctly if the `employeeLeaveDateTime
 
 *Screenshot anchor: `docs/images/2.26/EXPECTED.md#8-1-connector-mapping` — Provisioning attribute mapping list with `employeeLeaveDateTime` row visible.*
 
-### 8.2 Verify population on test sponsor
+### 7.2 Verify population on test sponsor
 
 1. Identify a known-departed sponsor user (or, in a test tenant, set `employeeLeaveDateTime` manually via Graph PATCH for testing only).
 2. In Entra, navigate to **Identity → Users → [test sponsor] → Edit properties → Job info**.
 3. Confirm the **Employee leave date time** field shows the expected value.
 4. Run the Lifecycle Workflow `On-demand run` against this user (Lifecycle workflows → [your workflow] → **Run on demand** → select the user). Confirm the workflow proceeds through all configured tasks.
 
-### 8.3 Verify population coverage across the sponsor population
+### 7.3 Verify population coverage across the sponsor population
 
 1. From an Entra Identity Governance Admin context, run the Graph query in [`./powershell-setup.md`](./powershell-setup.md) which enumerates the `sg-agent-sponsors-active` group and reports the percentage with `employeeLeaveDateTime` populated (for currently-active sponsors, the value will be null — that is expected; it should populate at the moment HR records the termination).
 2. Spot-check three recently-departed sponsors (within the last 90 days) — confirm each shows a non-null `employeeLeaveDateTime` and that the Lifecycle Workflow fired for each.
@@ -792,17 +732,18 @@ Open a Microsoft service request (M365 admin → Support → New service request
 Before declaring Control 2.26 implemented, confirm:
 
 - [ ] §0 pre-flight gates all pass.
-- [ ] §1 sovereign variant followed if applicable, OR §2–§8 fully completed for Commercial.
-- [ ] §2 Microsoft Agent 365 / M365 E7 license assignment evidence captured (Billing → Licenses screenshot + Purview "Add user license" audit JSON).
-- [ ] §3 zero null sponsors on Z2/Z3 agents (re-export CSV proves it).
-- [ ] §4 every Z3 access package has expiration ≤ 365 days; no `noExpiration` policies; "All agents (preview)" used as requestor scope.
-- [ ] §5 Lifecycle Workflow `Agent Sponsor Leaver` exists, is Enabled, and has at least one successful test run in workflow history.
-- [ ] §6 quarterly access review configured per Z3 access package with auto-apply, justification-required, and remove-on-no-response.
-- [ ] §7 diagnostic setting writes to Log Analytics + immutable storage with 2190-day locked retention; SIEM filter validated end-to-end.
-- [ ] §8 HR connector populates `employeeLeaveDateTime`; spot-check passes for three recently-departed sponsors.
+- [ ] §1–§7 fully completed.
+- [ ] §1 Microsoft Agent 365 / M365 E7 license assignment evidence captured (Billing → Licenses screenshot + Purview "Add user license" audit JSON).
+- [ ] §2 zero null sponsors on Z2/Z3 agents (re-export CSV proves it).
+- [ ] §3 every Z3 access package has expiration ≤ 365 days; no `noExpiration` policies; "All agents (preview)" used as requestor scope.
+- [ ] §4 Lifecycle Workflow `Agent Sponsor Leaver` exists, is Enabled, and has at least one successful test run in workflow history.
+- [ ] §5 quarterly access review configured per Z3 access package with auto-apply, justification-required, and remove-on-no-response.
+- [ ] §6 diagnostic setting writes to Log Analytics + immutable storage with 2190-day locked retention; SIEM filter validated end-to-end.
+- [ ] §7 HR connector populates `employeeLeaveDateTime`; spot-check passes for three recently-departed sponsors.
 - [ ] All Examiner Evidence Box artifacts collected and stored under `Control-2.26/VC-N/` paths.
 - [ ] Sibling playbooks reviewed: [`./powershell-setup.md`](./powershell-setup.md), [`./verification-testing.md`](./verification-testing.md), [`./troubleshooting.md`](./troubleshooting.md).
 
 ---
 
 *Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+

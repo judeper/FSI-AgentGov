@@ -16,7 +16,7 @@
 
 **Root Causes:**
 1. User does not hold a tenant-wide admin role (Power Platform Admin or Dynamics 365 Admin)
-2. Tenant region has not yet received the GA rollout (some sovereign clouds and slow rings lag)
+1. Tenant region has not yet received the GA rollout (some slow rings lag)
 3. Browser cache is showing stale navigation
 
 **Resolution Steps:**
@@ -145,7 +145,7 @@ $inventory | Export-Csv -Path "ManualAgentInventory_$(Get-Date -Format 'yyyyMMdd
 
 3. **Use Alternative Data Source (offline workaround):**
 
-   Where the connector is not yet enabled (some sovereign clouds), fall back to file-based intake:
+   Where the PPAC connector is not yet enabled for your tenant, fall back to file-based intake:
 
    - **Step 1:** Export PPAC Inventory to Excel manually (or via the PowerShell script in `powershell-setup.md`)
    - **Step 2:** Upload to a SharePoint document library

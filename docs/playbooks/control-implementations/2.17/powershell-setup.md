@@ -1,7 +1,7 @@
 # PowerShell Setup: Control 2.17 — Multi-Agent Orchestration Limits
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for **module version pinning**, **sovereign-cloud (GCC / GCC High / DoD) endpoints**, **mutation safety** (`-WhatIf` / `SupportsShouldProcess`), **Dataverse compatibility**, and **SHA-256 evidence emission**. The snippets below are abbreviated; the baseline is authoritative.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for **module version pinning**, **mutation safety** (`-WhatIf` / `SupportsShouldProcess`), **Dataverse compatibility**, and **SHA-256 evidence emission**. The snippets below are abbreviated; the baseline is authoritative.
 
 **Last Updated:** April 2026
 **Modules required:** `ExchangeOnlineManagement`, `Microsoft.PowerApps.Administration.PowerShell`, `Microsoft.Graph.Reports`
@@ -31,23 +31,13 @@ foreach ($m in $modules) {
 ```
 
 ```powershell
-# --- Sovereign-cloud aware authentication ------------------------------------
-param(
-    [ValidateSet('prod','usgov','usgovhigh','dod')]
-    [string]$Endpoint = 'prod'
-)
-
-$exoEnv = @{ prod = 'O365Default'; usgov = 'O365USGovGCCHigh'; usgovhigh = 'O365USGovGCCHigh'; dod = 'O365USGovDoD' }[$Endpoint]
-Connect-ExchangeOnline -ShowBanner:$false -ExchangeEnvironmentName $exoEnv
-
-Add-PowerAppsAccount -Endpoint $Endpoint
+# --- Authentication -----------------------------------------------------------
+Connect-ExchangeOnline -ShowBanner:$false
+Add-PowerAppsAccount
 # For unattended execution prefer certificate-based service principal auth:
-#   Add-PowerAppsAccount -Endpoint $Endpoint -TenantID <tid> -ApplicationId <aid> -CertificateThumbprint <thumb>
+#   Add-PowerAppsAccount -TenantID <tid> -ApplicationId <aid> -CertificateThumbprint <thumb>
 # Avoid -ClientSecret in production: secrets cannot be rotated without code changes and are flagged in audit reviews.
 ```
-
-!!! danger "Sovereign-cloud false-clean risk"
-    If you omit `-Endpoint` (Power Apps) or `-ExchangeEnvironmentName` (EXO), the cmdlets authenticate against commercial endpoints, return zero results from your gov-cloud tenant, and produce **false-clean evidence**. Always pass the explicit endpoint and verify the returned tenant ID matches your target before treating output as authoritative.
 
 ---
 

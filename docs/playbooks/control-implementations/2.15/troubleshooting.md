@@ -15,7 +15,7 @@ This playbook addresses the most common failure modes admins encounter when enab
 | Maker lands in their old dev env, not the routed group | Documented behavior — existing dev env wins | Decommission the old env or accept |
 | Group rules not applied to routed env | Group rules in **Draft**, not **Published** | Open group → Rules → publish |
 | Maker can still open the default environment | Documented behavior — routing sets landing env, does not restrict | Layer DLP / access reviews (Controls 1.4, 2.16) |
-| `Get-TenantSettings` returns empty / errors | Wrong PowerShell edition or sovereign endpoint | Check Desktop edition + `-Endpoint` value |
+| `Get-TenantSettings` returns empty / errors | Wrong PowerShell edition | Check Desktop edition and re-run from Windows PowerShell 5.1 |
 | Rules won't save in PPAC | Insufficient role, or referenced security group missing | Verify Power Platform Admin + group existence |
 
 ---
@@ -104,10 +104,9 @@ There is no built-in "deny" or "block" routing rule type.
 
 1. Confirm PowerShell edition: `$PSVersionTable.PSEdition` must be **Desktop** (Windows PowerShell 5.1). The Power Apps Administration module silently fails on PowerShell 7.
 2. Confirm the module is installed and at the CAB-approved version: `Get-Module Microsoft.PowerApps.Administration.PowerShell -ListAvailable`.
-3. Confirm the sovereign cloud endpoint matches the tenant: `Add-PowerAppsAccount -Endpoint <prod|usgov|usgovhigh|dod> -TenantID <id>`. Wrong endpoint binds to the wrong cloud and returns commercial data (or zero environments) — produces **false-clean evidence**.
-4. Confirm the executing identity has the **Power Platform Admin** role (Entra) or a Dataverse System Admin role on the tenant.
+3. Confirm the executing identity has the **Power Platform Admin** role (Entra) or a Dataverse System Admin role on the tenant.
 
-**Resolution:** Switch to Windows PowerShell 5.1; install the pinned module version; supply the correct `-Endpoint`; assign the Power Platform Admin role (use PIM for just-in-time elevation).
+**Resolution:** Switch to Windows PowerShell 5.1; install the pinned module version; assign the Power Platform Admin role (use PIM for just-in-time elevation).
 
 ---
 
@@ -156,7 +155,7 @@ $g = (Get-TenantSettings).powerPlatform.governance
 
 1. **Power Platform Admin team** — routing configuration, environment-group rules, provisioning failures.
 2. **Identity / Entra team** — security-group membership, group sync delays.
-3. **Microsoft Support** — recurring provisioning failures, multi-rule rendering bugs in PPAC, sovereign-cloud endpoint regressions.
+3. **Microsoft Support** — recurring provisioning failures, multi-rule rendering bugs in PPAC.
 4. **AI Governance Lead / Compliance Officer** — policy questions, exceptions, change approval.
 
 ---

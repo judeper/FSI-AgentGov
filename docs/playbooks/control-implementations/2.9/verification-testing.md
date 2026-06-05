@@ -132,7 +132,6 @@ Stage all evidence under `maintainers-local/tenant-evidence/2.9/`. The folder is
 **Organization:** [Organization Name]
 **Control Owner:** [Name / Role]
 **Tenant ID:** [Tenant ID]
-**Cloud:** [Commercial / GCC / GCC High / DoD]
 **Period:** [YYYY-Q#]
 
 I attest that, for the period above:
@@ -152,8 +151,7 @@ I attest that, for the period above:
     - Quarterly model risk (Zone 3): [day / time], memo dated [date]
 6. Telemetry is retained for [N] days in Application Insights and [N] days on WORM-capable
    storage to help meet SEC 17a-4(f) and FINRA 4511 record-keeping requirements.
-7. Sovereign cloud feature parity has been verified against current Microsoft Learn
-   documentation; gaps (if any) are documented in [reference].
+7. Telemetry retention periods meet SEC 17a-4(f) and FINRA 4511 requirements.
 
 **Agents monitored:** [Count]
 **Evidence package:** [path / SHA-256 of manifest]

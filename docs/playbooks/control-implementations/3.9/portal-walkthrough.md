@@ -8,16 +8,15 @@
     | Topic | Where it lives |
     |-------|----------------|
     | Pre-flight roles, licensing, workspace decisions | §0 |
-    | Sovereign cloud variant and compensating controls | §1 |
-    | Workspace deployment via the **Defender portal** (security.microsoft.com) | §2 |
-    | Data connectors (M365 / Entra human + workload SP / Defender / Defender for Cloud Apps / Copilot / Power Platform / optional App Insights) | §3 |
-    | Agent-specific analytics rules (7 rules) | §4 |
-    | Workbooks (AI Agent Security Posture, CA Insights, Agent Usage & Performance) | §5 |
-    | Logic Apps automation playbooks (suspend agent, notify Owner + SOC, ITSM + NYDFS 500.17 timer) | §6 |
-    | Per-table retention configuration with the books-and-records boundary | §7 |
-    | Defender portal unified incident UX with agent enrichment | §8 |
-    | Sentinel MCP Server **as optional analyst augmentation** | §9 |
-    | Evidence capture, zone cadence, and examiner packet | §10 |
+    | Workspace deployment via the **Defender portal** (security.microsoft.com) | §1 |
+    | Data connectors (M365 / Entra human + workload SP / Defender / Defender for Cloud Apps / Copilot / Power Platform / optional App Insights) | §2 |
+    | Agent-specific analytics rules (7 rules) | §3 |
+    | Workbooks (AI Agent Security Posture, CA Insights, Agent Usage & Performance) | §4 |
+    | Logic Apps automation playbooks (suspend agent, notify Owner + SOC, ITSM + NYDFS 500.17 timer) | §5 |
+    | Per-table retention configuration with the books-and-records boundary | §6 |
+    | Defender portal unified incident UX with agent enrichment | §7 |
+    | Sentinel MCP Server **as optional analyst augmentation** | §8 |
+    | Evidence capture, zone cadence, and examiner packet | §9 |
 
     **Out of scope — routed to siblings**
 
@@ -62,24 +61,6 @@
 
     If you are tempted to rewrite a sentence to say *"ensures compliance with"*, *"guarantees"*, *"will prevent"*, or *"eliminates risk"* — **stop**. Those phrases create legal liability and overstate what software can do. Use the hedged forms.
 
-!!! warning "Sovereign Cloud Availability (GCC / GCC High / DoD)"
-
-    | Capability | Commercial | GCC | GCC High | DoD | Compensating control if unavailable |
-    |------------|------------|-----|----------|-----|-------------------------------------|
-    | Sentinel workspace via Defender portal | GA | GA | GA (rollout) | GA (rollout) | Use Azure portal path until Defender portal parity confirmed |
-    | Microsoft 365 (OfficeActivity / CopilotInteraction) connector | GA | GA | GA | Limited | §1 manual-export worksheet; ingest via custom collector if necessary |
-    | Entra `SigninLogs` connector | GA | GA | GA | GA | n/a |
-    | Entra `AADServicePrincipalSignInLogs` connector | GA | GA | GA | GA | n/a |
-    | Microsoft 365 Defender (XDR) connector | GA | GA | GA | Limited | §1 manual-export worksheet |
-    | Defender for Cloud Apps connector | GA | GA | Limited | Not available | §1 manual-export worksheet; reduce shadow-agent detection coverage and document gap |
-    | Microsoft Copilot connector (Defender portal) | GA | GA (parity may lag commercial 30–90 days) | Preview / Limited | Not available at time of writing | Document feature unavailability as a product-availability gap; rely on OfficeActivity CopilotInteraction stream for partial coverage |
-    | Power Platform Admin Activity connector | GA | GA | GA | Limited | Pull `PowerPlatformAdminActivity` via Purview Audit export if connector unavailable |
-    | Application Insights link (custom Copilot Studio telemetry) | GA | GA | GA | GA | n/a (but verify regional App Insights availability) |
-    | Sentinel MCP Server | Preview / GA (commercial) | Limited | Not available at time of writing | Not available | **Skip §9 entirely** — MCP is optional augmentation; document unavailability as a product-availability gap, not a control gap |
-    | Logic Apps for SOAR playbooks | GA | GA | GA | GA (regional) | n/a |
-
-    Verify rollout status against the Microsoft 365 roadmap, the Microsoft Sentinel sovereign-cloud release notes, and the **Microsoft Learn product-availability matrix** before each control execution. Sovereign tenants must record any unavailable capability on the §1 compensating-control worksheet as the primary evidence artifact until parity is confirmed. Unavailability of a Microsoft product feature in a sovereign cloud is a **product-availability gap**, not a Control 3.9 deficiency.
-
 !!! info "Entra schema gotcha — `AADServicePrincipalSignInLogs` is a distinct table"
     The Entra ID connector exposes **multiple sign-in tables**. The default mental model — "all sign-ins are in `SigninLogs`" — is **wrong** for AI agent monitoring, and this is the single most common configuration error in Control 3.9 deployments.
 
@@ -91,7 +72,7 @@
     | `AADManagedIdentitySignInLogs` | Sign-ins from system / user-assigned managed identities | Human user sign-ins |
     | `AuditLogs` | Directory changes (consent grants, role assignments, app registrations) | Sign-in events |
 
-    **If your detection rule queries only `SigninLogs`, you will not see agent activity.** Every analytics rule in §4 that targets agent / workload identity behavior must query `AADServicePrincipalSignInLogs` (and where applicable `AADManagedIdentitySignInLogs`). The ingestion of these tables is **not** enabled by default with the Entra connector — you must explicitly select them at §3.2.
+    **If your detection rule queries only `SigninLogs`, you will not see agent activity.** Every analytics rule in §3 that targets agent / workload identity behavior must query `AADServicePrincipalSignInLogs` (and where applicable `AADManagedIdentitySignInLogs`). The ingestion of these tables is **not** enabled by default with the Entra connector — you must explicitly select them at §2.2.
 
 !!! info "License and Program Requirements"
 
@@ -116,18 +97,17 @@
 | § | Section | Primary surface | Verification criterion |
 |---|---------|-----------------|------------------------|
 | 0 | Pre-flight prerequisites, roles, workspace decisions | Entra PIM + Azure portal | VC-1 |
-| 1 | Sovereign-cloud variant and compensating controls | Manual worksheet | VC-2 |
-| 2 | Workspace deployment via Defender portal | security.microsoft.com → Microsoft Sentinel | VC-3 |
-| 3 | Data connectors (M365, Entra, Defender, Cloud Apps, Copilot, Power Platform, App Insights) | Defender portal → Configuration → Data connectors | VC-4 |
-| 4 | Analytics rules — 7 AI-specific detections | Defender portal → Configuration → Analytics | VC-5 |
-| 5 | Workbooks — Security Posture, CA Insights, Agent Usage | Defender portal → Threat management → Workbooks | VC-6 |
-| 6 | Logic Apps automation playbooks (3 examples) | Defender portal → Configuration → Automation | VC-7 |
-| 7 | Per-table retention with the books-and-records boundary | Log Analytics workspace → Tables | VC-8 |
-| 8 | Incident investigation UX in the Defender portal | Defender portal → Incidents | VC-9 |
-| 9 | Sentinel MCP Server (optional analyst augmentation) | Defender portal → Sentinel MCP | VC-10 |
-| 10 | Evidence capture, zone cadence, examiner packet | All portals + Purview evidence library | VC-11 |
+| 1 | Workspace deployment via Defender portal | security.microsoft.com → Microsoft Sentinel | VC-2 |
+| 2 | Data connectors (M365, Entra, Defender, Cloud Apps, Copilot, Power Platform, App Insights) | Defender portal → Configuration → Data connectors | VC-3 |
+| 3 | Analytics rules — 7 AI-specific detections | Defender portal → Configuration → Analytics | VC-4 |
+| 4 | Workbooks — Security Posture, CA Insights, Agent Usage | Defender portal → Threat management → Workbooks | VC-5 |
+| 5 | Logic Apps automation playbooks (3 examples) | Defender portal → Configuration → Automation | VC-6 |
+| 6 | Per-table retention with the books-and-records boundary | Log Analytics workspace → Tables | VC-7 |
+| 7 | Incident investigation UX in the Defender portal | Defender portal → Incidents | VC-8 |
+| 8 | Sentinel MCP Server (optional analyst augmentation) | Defender portal → Sentinel MCP | VC-9 |
+| 9 | Evidence capture, zone cadence, examiner packet | All portals + Purview evidence library | VC-10 |
 
-The numbering of analytics rules in §4 (R1–R7) and Logic Apps playbooks in §6 (P1–P3) is referenced from [Control 3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) and from [verification-testing.md](./verification-testing.md). Do not renumber locally — the numbering is the audit handle.
+The numbering of analytics rules in §3 (R1–R7) and Logic Apps playbooks in §5 (P1–P3) is referenced from [Control 3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) and from [verification-testing.md](./verification-testing.md). Do not renumber locally — the numbering is the audit handle.
 
 ---
 
@@ -145,11 +125,11 @@ Use the canonical role names from the [role catalog](../../../reference/role-cat
 | **SOC Analyst** (Microsoft Sentinel Responder) | Incident triage, comments, status updates, playbook on-demand triggers | Azure RBAC on the Sentinel resource group | PIM-eligible, max 8h |
 | **Entra Security Admin** | Enabling diagnostic settings on Entra ID, including the workload-identity sign-in tables | Entra ID role | PIM-eligible, max 4h |
 | **Purview Compliance Admin** | Verifying upstream Purview audit-log enablement (feeds OfficeActivity / CopilotInteraction) | Purview role group | PIM-eligible, max 8h |
-| **AI Governance Lead** | Approves analytics-rule thresholds; signs off on §10 evidence packet | Azure AD group + RACI documented in [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) | Standing assignment; sign-off via change ticket |
+| **AI Governance Lead** | Approves analytics-rule thresholds; signs off on §9 evidence packet | Azure AD group + RACI documented in [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) | Standing assignment; sign-off via change ticket |
 | **Power Platform Admin** | Enables Power Platform admin-activity logging and Copilot Studio diagnostics export | Power Platform admin role | PIM-eligible, max 8h |
-| **Compliance Officer** | Reviews retention configuration in §7; co-signs the §10 evidence packet quarterly | Standing role | Standing |
+| **Compliance Officer** | Reviews retention configuration in §7; co-signs the §9 evidence packet quarterly | Standing role | Standing |
 | **CISO** | Final approver of §6 automation playbooks that suspend agents (compensating-control authority) | Standing role | Standing |
-| **Agent Owner** | Receives Logic App playbook P2 notification (Teams adaptive card) and acknowledges within the §10 SLA | Per-agent metadata in agent registry ([Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md)) | Per-agent assignment |
+| **Agent Owner** | Receives Logic App playbook P2 notification (Teams adaptive card) and acknowledges within the §9 SLA | Per-agent metadata in agent registry ([Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md)) | Per-agent assignment |
 
 !!! tip "PIM tip"
     Configure all five Sentinel-related Azure roles as **eligible**, not active. Permanent active assignments to Sentinel Contributor are an audit finding under NYDFS 500.07 (least-privilege) review.
@@ -169,19 +149,19 @@ Open the **Microsoft 365 admin center → Billing → Licenses** view and verify
 
 ### 0.3 Workspace decisions — single vs. multi, region, retention default
 
-Document the following decisions in the change-management ticket **before** §2:
+Document the following decisions in the change-management ticket **before** §1:
 
 | Decision | Recommended default | Rationale |
 |----------|---------------------|-----------|
 | Workspace count | One Sentinel workspace per **regulated business unit** (broker-dealer, bank, RIA), not one per environment | Aligns with FINRA Rule 3110 supervisory-system delineation; simplifies books-and-records segregation under [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) |
-| Region | Same region as the M365 tenant's primary data residency (e.g., East US 2 for US commercial; USGov Virginia for GCC High) | Avoids cross-region egress fees and simplifies NYDFS 500.11 third-party data-flow diagrams |
+| Region | Same region as the M365 tenant's primary data residency (e.g., East US 2 for US commercial tenants) | Avoids cross-region egress fees and simplifies NYDFS 500.11 third-party data-flow diagrams |
 | Default interactive retention | **180 days** | Operational triage window; aligns with NYDFS 500.06 audit-trail expectations without overspending |
-| Long-term archive in Sentinel | **Up to 12 years** for select tables | NYDFS 500.06 audit-trail floor + matches FINRA / SEC books-and-records statutory floor — but see §7 books-and-records boundary admonition |
+| Long-term archive in Sentinel | **Up to 12 years** for select tables | NYDFS 500.06 audit-trail floor + matches FINRA / SEC books-and-records statutory floor — but see §6 books-and-records boundary admonition |
 | Customer-managed keys (CMK) | Enabled for FSI tenants holding NPI under GLBA | Simplifies §501(b) Safeguards Rule attestations |
 | Lock level | `CanNotDelete` on the workspace resource group | Prevents accidental deletion of audit-trail data; required by SEC 17a-4(f) integrity expectations |
 
 !!! example "Examiner Evidence Box — §0 Pre-flight"
-    Capture the following for the §10 evidence packet:
+    Capture the following for the §9 evidence packet:
 
     - PIM role-assignment screenshot (eligible, not active) for Sentinel Admin, SOC Analyst, Entra Security Admin
     - Cost budget screenshot showing 80% alert threshold
@@ -189,48 +169,18 @@ Document the following decisions in the change-management ticket **before** §2:
     - Confirmation that resource-group lock `CanNotDelete` is in place (Azure portal → Resource group → Locks)
 
 !!! tip "Cross-Reference"
-    The role-to-control mapping in §0.1 originates in [Control 2.25 — Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md). The Agent Owner field used by Logic App playbook P2 (§6.2) is sourced from the Agent 365 registry; if that registry is not populated for an agent, the playbook degrades to a SOC-only notification — see [Control 3.6 — Orphaned Agent Detection and Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md).
+    The role-to-control mapping in §0.1 originates in [Control 2.25 — Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md). The Agent Owner field used by Logic App playbook P2 (§5.2) is sourced from the Agent 365 registry; if that registry is not populated for an agent, the playbook degrades to a SOC-only notification — see [Control 3.6 — Orphaned Agent Detection and Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md).
 
 ---
 
-## §1. Sovereign-Cloud Variant and Compensating-Control Worksheet
-
-This walkthrough was authored against **Microsoft 365 commercial cloud**. If the deployment target is **GCC**, **GCC High**, or **DoD**, complete this section before §2 and use the worksheet output as the authoritative scope statement for the deployment.
-
-### 1.1 Determine cloud surface
-
-Open the M365 admin center → **Settings → Org settings → Organization profile → Data location**. Capture the value (`US`, `GCC`, `GCCH`, `DoD`). The data-location string drives every subsequent connector availability decision.
-
-[Screenshot anchor: ]
-
-### 1.2 Compensating-control worksheet
-
-For each capability listed in the **Sovereign Cloud Availability** table at the top of this document, fill in this worksheet row in the change-management ticket:
-
-| Capability | Available in this cloud? | If no, compensating control | Owning role | Re-check date |
-|------------|--------------------------|-----------------------------|-------------|---------------|
-| Microsoft Copilot connector | Yes / No / Limited | If No: ingest CopilotInteraction subset via OfficeActivity; flag detection-coverage gap on the §10 examiner packet | Sentinel Admin | Quarterly |
-| Defender for Cloud Apps connector | Yes / No / Limited | If No: replace shadow-agent detection (R6) with Power Platform admin-activity-only detection; reduce coverage rating from "Full" to "Partial" | Sentinel Admin + AI Governance Lead | Quarterly |
-| Sentinel MCP Server | Yes / No | If No: skip §9 entirely; SOC analysts use the standard Defender portal incident UX | Sentinel Admin | Quarterly |
-| `AADServicePrincipalSignInLogs` | Yes (all clouds at time of writing) | n/a | Entra Security Admin | Annual |
-
-The completed worksheet is the **primary evidence artifact** that an unavailable Microsoft product feature in a sovereign cloud is documented as a **product-availability gap**, not a Control 3.9 deficiency. Examiners will accept a documented product-availability gap with a quarterly re-check cadence; they will not accept silent omission.
-
-!!! example "Examiner Evidence Box — §1 Sovereign Cloud"
-    - Data-location screenshot
-    - Completed compensating-control worksheet stored in the Purview evidence library tagged `Control-3.9 / Sovereign-Variant`
-    - Quarterly re-check ticket history (last four quarters minimum)
-
----
-
-## §2. Workspace Deployment via the Defender Portal
+## §1. Workspace Deployment via the Defender Portal
 
 This section deploys the Sentinel workspace and onboards it into the Defender portal unified experience.
 
 !!! info "Surface choice"
     The Defender portal (`security.microsoft.com`) is the **default** surface for new Sentinel deployments at the time of writing. The Azure portal experience for Microsoft Sentinel is scheduled for **deprecation on March 31, 2027**. Existing deployments executing before early 2026 may continue to use the Azure portal path; new deployments should adopt the Defender portal as the primary surface to avoid a re-platforming task in 2026–2027.
 
-### 2.1 Create the Log Analytics workspace
+### 1.1 Create the Log Analytics workspace
 
 1. Open the **Azure portal** → **Log Analytics workspaces** → **+ Create**.
 2. Subscription: the Sentinel subscription identified in §0.3.
@@ -242,19 +192,19 @@ This section deploys the Sentinel workspace and onboards it into the Defender po
 
 [Screenshot anchor: ]
 
-### 2.2 Enable Microsoft Sentinel on the workspace
+### 1.2 Enable Microsoft Sentinel on the workspace
 
 1. In the Azure portal, search for **Microsoft Sentinel** and open the service.
-2. Click **+ Create** → select the workspace from §2.1 → **Add**.
+2. Click **+ Create** → select the workspace from §1.1 → **Add**.
 3. Wait for the Sentinel onboarding to complete (typically 1–3 minutes).
 
 [Screenshot anchor: ]
 
-### 2.3 Onboard Sentinel into the Defender portal
+### 1.3 Onboard Sentinel into the Defender portal
 
 1. Navigate to **`security.microsoft.com`** in a private browser session as the Sentinel Admin.
 2. In the left navigation, expand **Microsoft Sentinel**. If Sentinel is not yet visible, the Defender portal will offer an **onboarding card** — click **Connect a workspace**.
-3. Select the workspace from §2.1 and click **Next → Connect**.
+3. Select the workspace from §1.1 and click **Next → Connect**.
 4. Wait for the unified-portal onboarding banner to switch from "Onboarding" to "Connected".
 
 [Screenshot anchor: ]
@@ -264,10 +214,10 @@ This section deploys the Sentinel workspace and onboards it into the Defender po
 
 ### 2.4 Apply the resource-group delete lock and tag governance
 
-1. Azure portal → resource group from §2.1 → **Locks** → **+ Add** → Lock type: **Delete** → Lock name: `lock-sentinel-prod-no-delete` → Notes: "Control 3.9 / SEC 17a-4(f) audit-trail integrity / NYDFS 500.06" → **OK**.
-2. Confirm tags from §2.1 propagated to the workspace, the Sentinel solution, and any auto-created Logic Apps resource group.
+1. Azure portal → resource group from §1.1 → **Locks** → **+ Add** → Lock type: **Delete** → Lock name: `lock-sentinel-prod-no-delete` → Notes: "Control 3.9 / SEC 17a-4(f) audit-trail integrity / NYDFS 500.06" → **OK**.
+2. Confirm tags from §1.1 propagated to the workspace, the Sentinel solution, and any auto-created Logic Apps resource group.
 
-!!! example "Examiner Evidence Box — §2 Workspace Deployment"
+!!! example "Examiner Evidence Box — §1 Workspace Deployment"
     - Workspace properties blade (showing region, retention default, CMK if applicable)
     - Resource-group lock blade showing `CanNotDelete`
     - Defender portal banner showing the workspace as **Connected**
@@ -278,12 +228,12 @@ This section deploys the Sentinel workspace and onboards it into the Defender po
 
 ---
 
-## §3. Data Connectors — The Ingestion Backbone
+## §2. Data Connectors — The Ingestion Backbone
 
 This section enables the seven data connectors that feed every analytics rule, workbook, and Logic App in this walkthrough. Each subsection follows the same pattern: portal navigation, connector enablement, table verification, and ingestion sanity check.
 
 !!! warning "Order matters"
-    Enable connectors **in the order presented** (3.1 → 3.7). The Entra connector (3.2) must precede the analytics rules in §4 because the agent-identity tables it produces are queried by every workload-identity rule. The Microsoft 365 connector (3.1) must precede the Copilot connector (3.5) because CopilotInteraction enrichment depends on OfficeActivity user-context resolution.
+    Enable connectors **in the order presented** (3.1 → 3.7). The Entra connector (3.2) must precede the analytics rules in §3 because the agent-identity tables it produces are queried by every workload-identity rule. The Microsoft 365 connector (3.1) must precede the Copilot connector (3.5) because CopilotInteraction enrichment depends on OfficeActivity user-context resolution.
 
 ### 3.1 Microsoft 365 connector (OfficeActivity, including CopilotInteraction)
 
@@ -302,7 +252,7 @@ The M365 connector ingests the unified Purview audit log into the `OfficeActivit
     | order by Count desc
     ```
 
-    Expected: a non-zero count for `CopilotInteraction` if the tenant has active Copilot users. If the count is zero after 24 hours, route to [troubleshooting.md](./troubleshooting.md#tc-03-microsoft-copilot-connector-unavailable-in-gcc-high).
+    Expected: a non-zero count for `CopilotInteraction` if the tenant has active Copilot users. If the count is zero after 24 hours, route to [troubleshooting.md](./troubleshooting.md#tc-02-power-platform-admin-activity-connector-connected-but-no-rows).
 
 [Screenshot anchor: ]
 
@@ -350,8 +300,8 @@ The Microsoft Defender XDR (M365D) connector ingests Defender alerts and raw dev
     - `AlertInfo`, `AlertEvidence` (alert metadata, required)
     - `DeviceEvents` (optional; high volume — gate on cost-budget headroom from §0.2)
     - `EmailEvents`, `EmailUrlInfo`, `EmailAttachmentInfo` (recommended for Copilot phishing-related detections)
-    - `CloudAppEvents` (covered in §3.4 — disable here if §3.4 is enabled)
-4. Disable **bi-directional sync** of incidents until §8 has been validated; bi-directional sync without a tested investigation runbook can cause incident-status thrash.
+    - `CloudAppEvents` (covered in §2.4 — disable here if §2.4 is enabled)
+4. Disable **bi-directional sync** of incidents until §7 has been validated; bi-directional sync without a tested investigation runbook can cause incident-status thrash.
 5. Click **Apply Changes**.
 6. Verify:
 
@@ -366,7 +316,7 @@ The Microsoft Defender XDR (M365D) connector ingests Defender alerts and raw dev
 [Screenshot anchor: ]
 
 !!! tip "Cross-Reference"
-    The Defender AI-SPM posture findings ingested via this connector originate in [Control 1.24 — Defender AI Security Posture Management](../../../controls/pillar-1-security/1.24-defender-ai-security-posture-management.md). If AI-SPM is not yet enabled in the Defender portal, the connector will succeed but the AI-posture rows in the §5 workbook will be empty.
+    The Defender AI-SPM posture findings ingested via this connector originate in [Control 1.24 — Defender AI Security Posture Management](../../../controls/pillar-1-security/1.24-defender-ai-security-posture-management.md). If AI-SPM is not yet enabled in the Defender portal, the connector will succeed but the AI-posture rows in the §4 workbook will be empty.
 
 ### 3.4 Defender for Cloud Apps connector
 
@@ -389,10 +339,10 @@ The Defender for Cloud Apps (MDA) connector writes to `CloudAppEvents` and is th
 
 [Screenshot anchor: ]
 
-!!! warning "Sovereign clouds"
-    Defender for Cloud Apps connector is **not** available in DoD and is **limited** in GCC High at the time of writing. If unavailable, document the gap on the §1 worksheet and switch R6 (shadow-agent detection) to the Power Platform admin-activity-only variant.
+!!! info "Cross-Reference"
+    The Defender AI-SPM posture findings ingested via this connector originate in [Control 1.24 — Defender AI Security Posture Management](../../../controls/pillar-1-security/1.24-defender-ai-security-posture-management.md). If AI-SPM is not yet enabled in the Defender portal, the connector will succeed but the AI-posture rows in the §4 workbook will be empty.
 
-### 3.5 Microsoft Copilot connector (Defender portal)
+### 2.5 Microsoft Copilot connector (Defender portal)
 
 The Microsoft Copilot connector (GA in commercial cloud at the time of writing) provides richer Copilot signals than what is available via OfficeActivity alone — including XPIA flags, prompt-shield outcomes, and sensitivity-label propagation.
 
@@ -461,25 +411,25 @@ Copilot Studio supports an **Application Insights** export for richer per-conver
 !!! warning "Records-retention boundary"
     Application Insights is an **operational telemetry store**. It is **not** an SEC 17a-4(f) compliant records archive. Conversation transcripts captured through this path must be evaluated against the firm's books-and-records policy under [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md). If the transcripts qualify as books-and-records (e.g., communications with customers about securities), the firm must route a copy to the 17a-4(f) WORM vendor archive — App Insights alone does **not** meet the records-integrity requirement of SEC Rule 17a-4(f). Organizations should verify this routing with their compliance counsel before enabling **Allow conversation transcripts** on customer-facing agents.
 
-!!! example "Examiner Evidence Box — §3 Data Connectors"
+!!! example "Examiner Evidence Box — §2 Data Connectors"
     For each of the seven connectors above, capture:
 
     - The **Open connector page** view showing **Connected** / **Last data received** timestamps
     - The verification KQL output showing non-zero rows in each expected table
     - For the Entra connector specifically, a screenshot of the diagnostic-settings page showing **all** sign-in log types selected (this is the single most-asked screenshot in NYDFS audit-trail reviews)
-    - For the Application Insights connector, the privacy-review sign-off ticket from §3.7
+    - For the Application Insights connector, the privacy-review sign-off ticket from §2.7
 
 !!! tip "Cross-Reference"
     Connector ingestion lag, "0 rows" verification failures, and authorization errors are routed to [troubleshooting.md](./troubleshooting.md). Bicep / Terraform automation of the connector enablement is in [powershell-setup.md](./powershell-setup.md) — note that several connectors (Microsoft Copilot, Power Platform) currently have **no** ARM/Bicep API and must be enabled via the portal even in IaC-first shops.
 
 ---
 
-## §4. Analytics Rules — Seven AI-Specific Detections
+## §3. Analytics Rules — Seven AI-Specific Detections
 
 This section creates the seven analytics rules that constitute the operational detection floor for Control 3.9. Each rule follows the same authoring pattern in the Defender portal.
 
 !!! info "Rule numbering is the audit handle"
-    Rule numbers R1–R7 are referenced from [Control 3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md), from [verification-testing.md](./verification-testing.md) (which contains the dry-run / unit-test cases for each rule), and from the §10 evidence packet. Do not renumber locally.
+    Rule numbers R1–R7 are referenced from [Control 3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md), from [verification-testing.md](./verification-testing.md) (which contains the dry-run / unit-test cases for each rule), and from the §9 evidence packet. Do not renumber locally.
 
 ### 4.0 Common authoring pattern
 
@@ -504,7 +454,7 @@ For each rule below, use this navigation:
 | Frequency | Every 5 minutes |
 | Lookback | 30 minutes |
 | Threshold | ≥ 1 event |
-| Auto-response | Logic App **P1 Suspend Agent** (gated — only triggers on confirmed Defender alert; see §6.1) |
+| Auto-response | Logic App **P1 Suspend Agent** (gated — only triggers on confirmed Defender alert; see §5.1) |
 
 ```kql
 let lookback = 30m;
@@ -752,7 +702,7 @@ Adjust thresholds per business unit; the table is a starting point, not a mandat
 
 [Screenshot anchor: ]
 
-!!! example "Examiner Evidence Box — §4 Analytics Rules"
+!!! example "Examiner Evidence Box — §3 Analytics Rules"
     For each rule R1–R7 capture:
 
     - The **Analytics rule** detail page (rule name, description, severity, tactics, schedule, auto-response binding)
@@ -760,13 +710,13 @@ Adjust thresholds per business unit; the table is a starting point, not a mandat
     - A 30-day rolling alert summary screenshot from the Defender portal Incidents view filtered to each rule
 
 !!! tip "Cross-Reference"
-    Rule unit tests (synthetic event injection, dry-run KQL, false-positive baseline) are in [verification-testing.md](./verification-testing.md). Rule-tuning thresholds and false-positive triage are owned by the SOC under FFIEC IT Examination Handbook (Information Security) operations expectations; tuning history is part of the §10 evidence packet.
+    Rule unit tests (synthetic event injection, dry-run KQL, false-positive baseline) are in [verification-testing.md](./verification-testing.md). Rule-tuning thresholds and false-positive triage are owned by the SOC under FFIEC IT Examination Handbook (Information Security) operations expectations; tuning history is part of the §9 evidence packet.
 
 ---
 
-## §5. Workbooks — Visualization and Examiner Reporting
+## §4. Workbooks — Visualization and Examiner Reporting
 
-This section deploys three workbooks that consolidate the §3 ingestion and §4 detections into views suitable for SOC operations, AI governance reviews, and examiner walkthroughs.
+This section deploys three workbooks that consolidate the §2 ingestion and §3 detections into views suitable for SOC operations, AI governance reviews, and examiner walkthroughs.
 
 ### 5.1 AI Agent Security Posture workbook
 
@@ -804,7 +754,7 @@ A Microsoft-published workbook that visualizes Conditional Access policy effecti
 
 ### 5.3 Agent Usage and Performance workbook
 
-Consumes the Application Insights stream from §3.7 (where enabled). Provides per-agent latency, error rate, conversation volume, and top intents — useful for **operational** observability and for input to MRM re-validation under [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md).
+Consumes the Application Insights stream from §2.7 (where enabled). Provides per-agent latency, error rate, conversation volume, and top intents — useful for **operational** observability and for input to MRM re-validation under [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md).
 
 1. Defender portal → **Microsoft Sentinel** → **Workbooks** → **+ Workbook**.
 2. Add Query parts targeting the Application Insights tables (`AppRequests`, `AppDependencies`, `AppExceptions`, `customEvents`):
@@ -821,16 +771,16 @@ Consumes the Application Insights stream from §3.7 (where enabled). Provides pe
 !!! warning "Performance metrics ≠ model risk evidence"
     Performance metrics from this workbook are **operational telemetry**. They aid in detecting model drift and quality degradation, but they do **not** constitute model-risk-management evidence under OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7). MRM evidence requires the structured re-validation workflow in [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md). Workbook outputs are inputs to that workflow, not substitutes for it.
 
-!!! example "Examiner Evidence Box — §5 Workbooks"
+!!! example "Examiner Evidence Box — §4 Workbooks"
     - PNG export of each of the three workbooks at the most recent quarter-end (Defender portal → Workbook → ⋯ → Print to PDF or use the workbook export endpoint)
     - The pinned-dashboard view in the SOC operations room
     - The list of workbook owners and review cadence (quarterly minimum)
 
 ---
 
-## §6. Logic Apps Automation Playbooks
+## §5. Logic Apps Automation Playbooks
 
-This section deploys three SOAR playbooks. All three are authored as **Logic Apps (Consumption)** in the Sentinel resource group and bound to the analytics rules from §4.
+This section deploys three SOAR playbooks. All three are authored as **Logic Apps (Consumption)** in the Sentinel resource group and bound to the analytics rules from §3.
 
 !!! warning "Automation policy gate"
     Any playbook that takes **suspending action** on an agent (P1) requires CISO sign-off as a documented compensating-control authority. Notify-only playbooks (P2) and ITSM-routing playbooks (P3) do not require CISO sign-off but do require AI Governance Lead sign-off. The sign-off ticket reference must appear in the Logic App tag `ApprovalTicket=<id>`.
@@ -862,7 +812,7 @@ This section deploys three SOAR playbooks. All three are authored as **Logic App
 
     1. Contacting the Agent Owner (P2 fires automatically in parallel).
     2. Triaging the underlying alert per [Control 3.4](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md).
-    3. Re-enabling or formally retiring the agent within the SLA on the §10 cadence table.
+    3. Re-enabling or formally retiring the agent within the SLA on the §9 cadence table.
 
 ### 6.2 P2 — Notify Agent Owner and SOC
 
@@ -875,13 +825,13 @@ This section deploys three SOAR playbooks. All three are authored as **Logic App
 3. **Lookup Agent Owner** → query the Agent 365 watchlist for `OwnerUPN`. If not found, fall back to the SOC distribution list and tag the incident `agent-owner-unknown` (cascades to [Control 3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md)).
 4. **Post adaptive card in Teams** → DM the Agent Owner with the incident ID, severity, alert summary, agent ID, and an "Acknowledge" button.
 5. **Send email** (Office 365 Outlook connector) → CC the SOC distribution list.
-6. **Add comment to Sentinel incident** → `"Owner {OwnerUPN} notified at {utcNow()}; acknowledgement SLA per §10 cadence."`
+6. **Add comment to Sentinel incident** → `"Owner {OwnerUPN} notified at {utcNow()}; acknowledgement SLA per §9 cadence."`
 
 #### Portal authoring
 
 1. Defender portal → **Microsoft Sentinel** → **Configuration** → **Automation** → **+ Create** → **Playbook with incident trigger**. Name: `pb-3.9-P2-notify-owner`.
 2. In the designer, the **Lookup** step is a `Run query and list results (Sentinel)` action that queries the watchlist KQL: `_GetWatchlist("AgentRegistry") | where ServicePrincipalId == "{AgentId}" | project OwnerUPN`.
-3. Bind via automation rule to **all** §4 rules.
+3. Bind via automation rule to **all** §3 rules.
 
 [Screenshot anchor: ]
 
@@ -908,18 +858,18 @@ This section deploys three SOAR playbooks. All three are authored as **Logic App
 
 [Screenshot anchor: ]
 
-!!! example "Examiner Evidence Box — §6 Automation"
+!!! example "Examiner Evidence Box — §5 Automation"
     - Each Logic App's run history (last 90 days) showing successful triggers and any failed runs with remediation comments
     - The CISO sign-off ticket for P1
     - The AI Governance Lead sign-off tickets for P2 and P3
     - For each P3 run in the last quarter, the entry in `NYDFS500_17_Timer_CL` and the corresponding Compliance Officer disposition (notified / no-notification with reason)
 
 !!! tip "Cross-Reference"
-    Logic App run failures, ITSM connector authentication errors, and managed-identity permission issues are routed to [troubleshooting.md](./troubleshooting.md). Automation rule binding (which rule fires which playbook with which severity gate) is a key audit artifact — capture the **Automation rules** list view in the §10 packet.
+    Logic App run failures, ITSM connector authentication errors, and managed-identity permission issues are routed to [troubleshooting.md](./troubleshooting.md). Automation rule binding (which rule fires which playbook with which severity gate) is a key audit artifact — capture the **Automation rules** list view in the §9 packet.
 
 ---
 
-## §7. Per-Table Retention with the Books-and-Records Boundary
+## §6. Per-Table Retention with the Books-and-Records Boundary
 
 Sentinel's retention model has three tiers:
 
@@ -946,7 +896,7 @@ This section configures retention per table to support the audit-trail expectati
 
 ### 7.2 Configuring per-table retention
 
-1. Azure portal → **Log Analytics workspaces** → the workspace from §2.1 → **Tables** (preview).
+1. Azure portal → **Log Analytics workspaces** → the workspace from §1.1 → **Tables** (preview).
 2. For each table in the table above, click the row → **Manage table** → set **Total retention period** and **Archive period** per the table.
 3. Save and verify the next day via:
 
@@ -959,7 +909,7 @@ This section configures retention per table to support the audit-trail expectati
 ### 7.3 The books-and-records boundary — read this carefully
 
 !!! danger "Sentinel is NOT an SEC 17a-4(f) records archive"
-    The retention values in §7.1 support **operational audit trail** expectations. They do **NOT** by themselves satisfy:
+    The retention values in §6.1 support **operational audit trail** expectations. They do **NOT** by themselves satisfy:
 
     - **FINRA Rule 4511** books-and-records preservation requirements
     - **SEC Rule 17a-3** record creation requirements
@@ -973,8 +923,8 @@ This section configures retention per table to support the audit-trail expectati
 
     Sentinel **complements** the books-and-records program by retaining **security telemetry** (sign-ins, alerts, audit events) that demonstrate the integrity of the records system. Sentinel **does not replace** the records program. Implementation of records preservation requires architecture decisions, vendor procurement, and sign-off by compliance counsel that are outside the scope of Control 3.9. Organizations should verify their records-preservation architecture with their compliance counsel before relying on Sentinel retention for any records obligation.
 
-!!! example "Examiner Evidence Box — §7 Retention"
-    - Per-table retention configuration screenshot for each table in §7.1
+!!! example "Examiner Evidence Box — §6 Retention"
+    - Per-table retention configuration screenshot for each table in §6.1
     - The cross-reference document (one page) stating which tables Sentinel owns vs. which records flow to Purview / 17a-4(f) archive — signed by the Sentinel Admin and the Compliance Officer
     - The 17a-4(f) vendor attestation reference (vendor name, attestation date, scope) — even though the vendor is owned by Control 1.9, the cross-reference is captured here so an examiner reviewing Control 3.9 can immediately see the boundary
 
@@ -983,7 +933,7 @@ This section configures retention per table to support the audit-trail expectati
 
 ---
 
-## §8. Incident Investigation UX in the Defender Portal
+## §7. Incident Investigation UX in the Defender Portal
 
 This section walks through the SOC analyst experience for triaging an AI-agent incident in the Defender portal unified view.
 
@@ -1007,7 +957,7 @@ The Defender portal unified incident page shows:
 
 ### 8.3 Enrich with Agent 365 registry
 
-The custom entity `AgentId` is mapped at rule authoring (§4.0). In the incident page, click the **AgentId** entity → **Side panel** → the panel includes a **Custom enrichment** section pulling from the Agent 365 watchlist (configured as a custom-details entity in §4):
+The custom entity `AgentId` is mapped at rule authoring (§3.0). In the incident page, click the **AgentId** entity → **Side panel** → the panel includes a **Custom enrichment** section pulling from the Agent 365 watchlist (configured as a custom-details entity in §4):
 
 - Owner UPN, owner business unit, owner manager
 - Agent zone (1, 2, or 3)
@@ -1029,28 +979,28 @@ For any incident that the SOC determines is a reportable event:
 3. If P3 fired (NYDFS 500.17 timer), confirm the entry in `NYDFS500_17_Timer_CL` and notify the Compliance Officer.
 4. Export the incident to PDF from the incident page **⋯ menu → Print** for the post-incident report.
 
-!!! example "Examiner Evidence Box — §8 Investigation"
+!!! example "Examiner Evidence Box — §7 Investigation"
     - For a representative quarter, the **Incidents** filtered view (Sentinel + tag `agent`) showing volume and disposition
     - One worked example from triage to closure with timestamps, status changes, and evidence references
     - The link from a closed Sentinel incident to its Control 3.4 RCA artifact
 
 ---
 
-## §9. Sentinel MCP Server — Optional Analyst Augmentation
+## §8. Sentinel MCP Server — Optional Analyst Augmentation
 
-The Sentinel MCP Server exposes Sentinel data and operations as tools to MCP-compatible AI assistants (e.g., a SOC analyst's GPT-based copilot). At the time of writing it is in Preview / GA in commercial cloud and **not available** in GCC High or DoD.
+The Sentinel MCP Server exposes Sentinel data and operations as tools to MCP-compatible AI assistants (e.g., a SOC analyst's GPT-based copilot). At the time of writing it is in Preview / GA in the commercial cloud.
 
 !!! info "Optional capability with cost and license implications"
     Sentinel MCP is **optional augmentation**, not a Control 3.9 baseline requirement. It can accelerate analyst triage but it adds licensing cost (Sentinel data-lake tier + MCP server license) and a new attack surface (an LLM with read access to Sentinel data). Verify the current licensing and pricing on the Microsoft Sentinel pricing page and run the firm's third-party-AI risk review **before** enabling.
 
-### 9.1 Preconditions
+### 8.1 Preconditions
 
 1. Sentinel data-lake tier enabled on the workspace (Azure portal → workspace → **Sentinel data lake** → **Enable**).
 2. MCP server license verified.
 3. Firm's third-party-AI risk review completed for the analyst-facing MCP client (whatever client the SOC will use).
 4. CISO sign-off on the read-scope granted to MCP and the user population permitted to use it.
 
-### 9.2 Enable the MCP server
+### 8.2 Enable the MCP server
 
 1. Defender portal → **Microsoft Sentinel** → **Configuration** → **Sentinel MCP** (or equivalent blade — confirm current path).
 2. Click **Enable**. Authorize with the Sentinel Admin account.
@@ -1060,13 +1010,13 @@ The Sentinel MCP Server exposes Sentinel data and operations as tools to MCP-com
 
 [Screenshot anchor: ]
 
-### 9.3 Connect an MCP client
+### 8.3 Connect an MCP client
 
 1. In the analyst's MCP-compatible client (e.g., the SOC's Copilot Studio agent or a sanctioned external assistant), add the Sentinel MCP server endpoint.
 2. The analyst authenticates with their Entra credentials; the MCP server uses on-behalf-of token flow to ensure the analyst's own RBAC is enforced.
 3. Test with a simple query (e.g., `"summarize Sentinel incidents tagged agent in the last 24 hours by severity"`).
 
-### 9.4 Operating constraints
+### 8.4 Operating constraints
 
 - **Read-only.** Do **not** grant write scope to the MCP server. Any analyst-driven action (close incident, run playbook, edit rule) must be performed in the Defender portal so the action is captured in the standard audit trail.
 - **PII / NPI in queries.** Analyst prompts and MCP responses may contain customer NPI under GLBA. Treat MCP transcripts as Confidential-NPI; capture them in the firm's analyst-tooling DLP scope.
@@ -1075,22 +1025,22 @@ The Sentinel MCP Server exposes Sentinel data and operations as tools to MCP-com
 !!! warning "MCP responses are not records"
     The output of a Sentinel MCP conversation is **not** an SEC 17a-4(f) record, is **not** examiner evidence, and **must not** be relied upon as the source-of-truth for any compliance disposition. MCP aids analyst speed; the Defender portal and the underlying Log Analytics workspace remain the authoritative record.
 
-!!! example "Examiner Evidence Box — §9 MCP (if enabled)"
+!!! example "Examiner Evidence Box — §8 MCP (if enabled)"
     - The CISO sign-off ticket
     - The third-party-AI risk-review artifact
     - The MCP authorization-scope screenshot showing read-only and the user-scope restriction
     - The DLP scope coverage for analyst MCP transcripts
 
 !!! tip "Cross-Reference"
-    If the firm chooses **not** to enable Sentinel MCP, document the decision in the §1 worksheet (sovereign clouds) or in a standalone control-decision artifact (commercial). Non-adoption of an optional capability is not a control gap.
+    If the firm chooses **not** to enable Sentinel MCP, document the decision in a standalone control-decision artifact. Non-adoption of an optional capability is not a control gap.
 
 ---
 
-## §10. Evidence Capture, Zone Cadence, and Examiner Packet
+## §9. Evidence Capture, Zone Cadence, and Examiner Packet
 
 This section defines the operating cadence and evidence packet for Control 3.9.
 
-### 10.1 Cadence by zone
+### 9.1 Cadence by zone
 
 | Zone | Activity | Frequency | Owner |
 |------|----------|-----------|-------|
@@ -1102,11 +1052,10 @@ This section defines the operating cadence and evidence packet for Control 3.9.
 | Zone 3 (Enterprise) | All rules enabled; App Insights workbook 5.3 enabled | Continuous | SOC Analyst |
 | Zone 3 | Rule tuning review | Weekly | SOC Analyst + Sentinel Admin |
 | Zone 3 | Workbook 5.1 + 5.3 review | Weekly | AI Governance Lead |
-| All zones | §1 sovereign-cloud worksheet re-check | Quarterly | Sentinel Admin |
-| All zones | §10 evidence packet assembly | Quarterly | Sentinel Admin + Compliance Officer |
-| All zones | Full §0–§7 walkthrough re-execution (greenfield rebuild test) | Annual | Sentinel Admin |
+| All zones | §9 evidence packet assembly | Quarterly | Sentinel Admin + Compliance Officer |
+| All zones | Full §0–§6 walkthrough re-execution (greenfield rebuild test) | Annual | Sentinel Admin |
 
-### 10.2 The §10 evidence packet
+### 9.2 The §9 evidence packet
 
 Assemble quarterly. Store in the Purview evidence library tagged `Control-3.9 / <YYYY>-Q<N>`. The packet is the primary examiner deliverable for Control 3.9.
 
@@ -1115,46 +1064,44 @@ Assemble quarterly. Store in the Purview evidence library tagged `Control-3.9 / 
 | 1 | Roles + PIM eligible-assignment screenshots | §0 |
 | 2 | Cost budget screenshot | §0 |
 | 3 | Workspace decisions ticket | §0 |
-| 4 | Sovereign-cloud compensating-control worksheet | §1 |
-| 5 | Workspace properties + lock screenshots | §2 |
-| 6 | Defender portal **Connected** banner | §2 |
-| 7 | Per-connector status + verification KQL output (×7 connectors) | §3 |
-| 8 | Entra diagnostic-settings screenshot showing all sign-in tables enabled | §3.2 |
-| 9 | Per-rule detail page + KQL screenshot + 30-day alert summary (×7 rules) | §4 |
-| 10 | Three workbook PDF exports | §5 |
-| 11 | Three Logic App run-history exports + sign-off tickets | §6 |
-| 12 | Per-table retention configuration screenshots + records-boundary cross-reference | §7 |
-| 13 | One worked incident (triage to closure) demonstrating §8 enrichment + §3.4 cascade | §8 |
-| 14 | MCP enablement evidence OR documented non-adoption decision | §9 |
-| 15 | Cadence-table compliance log (last quarter) | §10.1 |
-| 16 | Rule-tuning ledger (changes, dates, approvers) | §10 |
-| 17 | Quarterly sign-off cover sheet — Sentinel Admin + AI Governance Lead + Compliance Officer | §10 |
+| 4 | Workspace properties + lock screenshots | §1 |
+| 5 | Defender portal **Connected** banner | §1 |
+| 6 | Per-connector status + verification KQL output (×7 connectors) | §2 |
+| 7 | Entra diagnostic-settings screenshot showing all sign-in tables enabled | §2.2 |
+| 8 | Per-rule detail page + KQL screenshot + 30-day alert summary (×7 rules) | §3 |
+| 9 | Three workbook PDF exports | §4 |
+| 10 | Three Logic App run-history exports + sign-off tickets | §5 |
+| 11 | Per-table retention configuration screenshots + records-boundary cross-reference | §6 |
+| 12 | One worked incident (triage to closure) demonstrating §7 enrichment + §2.4 cascade | §7 |
+| 13 | MCP enablement evidence OR documented non-adoption decision | §8 |
+| 14 | Cadence-table compliance log (last quarter) | §9.1 |
+| 15 | Rule-tuning ledger (changes, dates, approvers) | §9 |
+| 16 | Quarterly sign-off cover sheet — Sentinel Admin + AI Governance Lead + Compliance Officer | §9 |
 
-### 10.3 Verification criteria summary
+### 9.3 Verification criteria summary
 
 | VC | Description | Source section |
 |----|-------------|----------------|
 | VC-1 | Roles assigned PIM-eligible; cost budget exists | §0 |
-| VC-2 | Sovereign-cloud worksheet completed (sovereign tenants) | §1 |
-| VC-3 | Workspace deployed + onboarded to Defender portal + RG locked | §2 |
-| VC-4 | All seven connectors connected with non-zero ingestion verified | §3 |
-| VC-5 | Seven analytics rules deployed and producing alerts | §4 |
-| VC-6 | Three workbooks deployed and pinned | §5 |
-| VC-7 | Three Logic Apps deployed with sign-off and successful run history | §6 |
-| VC-8 | Per-table retention configured per §7.1 with records-boundary cross-reference | §7 |
-| VC-9 | One worked incident in last quarter demonstrating §8 enrichment | §8 |
-| VC-10 | MCP enabled with constraints OR documented non-adoption | §9 |
-| VC-11 | Quarterly evidence packet assembled and signed off | §10 |
+| VC-2 | Workspace deployed + onboarded to Defender portal + RG locked | §1 |
+| VC-3 | All seven connectors connected with non-zero ingestion verified | §2 |
+| VC-4 | Seven analytics rules deployed and producing alerts | §3 |
+| VC-5 | Three workbooks deployed and pinned | §4 |
+| VC-6 | Three Logic Apps deployed with sign-off and successful run history | §5 |
+| VC-7 | Per-table retention configured per §6.1 with records-boundary cross-reference | §6 |
+| VC-8 | One worked incident in last quarter demonstrating §7 enrichment | §7 |
+| VC-9 | MCP enabled with constraints OR documented non-adoption | §8 |
+| VC-10 | Quarterly evidence packet assembled and signed off | §9 |
 
 Detailed verification procedures (KQL probes, dry-run injection tests, evidence-collection commands) are in [verification-testing.md](./verification-testing.md).
 
-!!! example "Examiner Evidence Box — §10 Cadence"
-    - The §10 evidence packet itself for the most recent four quarters
+!!! example "Examiner Evidence Box — §9 Cadence"
+    - The §9 evidence packet itself for the most recent four quarters
     - The quarterly sign-off cover sheets
     - The annual greenfield-rebuild test result (proves the runbook is current and reproducible)
 
 !!! tip "Cross-Reference — supervisory program"
-    Sentinel evidence is one input to the firm's supervisory program under [Control 2.12 — Supervision and Oversight (FINRA Rule 3110)](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md). The §10 packet should be referenced from the firm's annual 3110 written supervisory procedures testing.
+    Sentinel evidence is one input to the firm's supervisory program under [Control 2.12 — Supervision and Oversight (FINRA Rule 3110)](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md). the §9 packet should be referenced from the firm's annual 3110 written supervisory procedures testing.
 
 !!! tip "Cross-Reference — long-window observability"
     For long-window analytics that exceed Sentinel's interactive retention (e.g., year-over-year agent behavior trends, multi-quarter MRM input), see [Control 3.14 — Agent 365 Observability SDK](../../../controls/pillar-3-reporting/3.14-agent-365-observability-sdk.md). The SDK **complements** Sentinel; it does not replace any of the detection, alerting, or incident workflows defined in this walkthrough.
