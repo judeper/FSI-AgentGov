@@ -11,6 +11,43 @@
 - **Scenario count in section title** is a literal string — update it to match the new count (25 → 23 after removing Scenarios 14 and 24).
 - **Expected mkdocs failures:** nav entry (mkdocs.yml, coordinator) and 1.20 inbound link (next batch) both fail `--strict` — this is documented in the recipe and is not an error in Linus-owned files.
 - **ValidateSet PowerShell params:** when a helper script has `[ValidateSet('Commercial','GCC','GCCH','DoD')]`, simplify to `[string] $Param = 'Commercial'` rather than leaving a dangling ValidateSet with no valid gov-cloud options.
+- **Double `---` from section deletion:** when removing a whole `## Section` that sits between two `---` markers, always include one of the surrounding `---` in the old_str so the replacement doesn't create two consecutive horizontal-rule markers.
+- **Numbering renumbering in verification criteria:** when removing a numbered criterion (e.g., removing criterion 9 from a 12-item list), renumber the survivors in the same edit pass to keep them sequential.
+
+## 2026-06-04 — Sovereign-Cloud Removal Batch A1b (Pillar-1 Controls, 13 files)
+
+**Mode:** CONTENT REMOVAL (sovereign/gov-cloud guidance — US FSI Commercial-only scope directive)
+**Branch:** `fix/pb-xcut-sov-nonplaybook` (continuing from prior A1a commit 29b761136)
+**Commit:** `f3d242029`
+**Scope:** All 13 Pillar-1 control docs
+
+### Files edited (13)
+
+| File | Change summary |
+|------|---------------|
+| 1.1 | Removed sovereign cloud Prerequisites table row |
+| 1.2 | Removed Sovereign Cloud Parity admonition; removed "sovereign cloud boundary" from Zone 3 requirement; removed sovereign criterion 12 |
+| 1.5 | Removed sovereign cloud parity row from Adaptive Protection table; deleted entire `## Sovereign Cloud Availability` section; edited verification criterion 9 |
+| 1.6 | Removed Sovereign Cloud Availability warning admonition; cleaned "(Commercial / GCC)" from 4 locations; fixed IRM role group note; removed purview.microsoft.us URL from criterion 1; removed "sovereign-cloud gaps" from step 5 |
+| 1.8 | Removed Sovereign Cloud Availability warning admonition |
+| 1.10 | Deleted entire `## Sovereign Cloud Availability` section; removed sovereign criterion 11; renumbered surviving criterion |
+| 1.11 | Removed Sovereign Cloud Considerations admonition; edited Zone 3 row; rewrote criterion 14 to drop cloud-specific language |
+| 1.12 | Removed Sovereign Cloud Availability warning admonition; deleted `### Sovereign Cloud Availability` subsection; removed "sovereign cloud:" config bullet; edited criterion 1 |
+| 1.13 | Deleted `### Sovereign Cloud Availability` subsection; edited Zone 3 row; replaced criterion 9 (sovereign cloud) with substantive EDM criterion; renumbered survivors |
+| 1.14 | Removed Sovereign Cloud Parity warning admonition |
+| 1.19 | Removed Sovereign Cloud Parity warning admonition; removed criterion 10; renumbered survivors; removed 21Vianet reference from retirement warning |
+| 1.20 | Edited IP Firewall description to drop gov cloud list; removed Sovereign Cloud Parity Matrix from Related Controls table; removed "(sovereign-cloud aware)" from playbook description |
+| 1.21 | Removed Sovereign Cloud Parity warning admonition; edited Control Description intro; edited Zone 3 row; replaced criterion 9 with capability-preview language |
+
+### Validation Results
+
+| Command | Result |
+|---------|--------|
+| `python -m mkdocs build --strict` | ✅ PASS — 0 errors, 0 warnings (70.38s) |
+| `python scripts/verify_controls.py` | ✅ PASS — all 78 controls valid |
+| `python scripts/verify_language_rules.py` | ✅ PASS — no prohibited language found |
+
+
 
 ## 2026-06-04 — Escalation Re-Verification Batch (#365 #370 #372 #373)
 
