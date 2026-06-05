@@ -1,7 +1,7 @@
 # PowerShell Setup: Control 1.20 — Network Isolation and Private Connectivity
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
+ Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
 
 **Last Updated:** May 2026
 **Modules Required:** `Az.Accounts`, `Az.Network`, `Az.KeyVault`, `Az.Sql`, `Az.Storage`, `Az.Monitor`, `Az.PrivateDns`, `Microsoft.PowerApps.Administration.PowerShell`
@@ -22,20 +22,16 @@ if ($PSVersionTable.PSEdition -ne 'Desktop') {
 }
 ```
 
-> **Sovereign cloud authentication.** For GCC / GCC High / DoD tenants, every `Add-PowerAppsAccount` and `Connect-AzAccount` call **must** pass the matching cloud parameter, or the cmdlet authenticates against commercial endpoints and produces *false-clean* results. See the baseline §3.
 
 ```powershell
-# Example sovereign-aware connect helper
+# Example commercial cloud connection helper
 function Connect-FsiClouds {
     param(
-        [ValidateSet('Commercial','GCC','GCCHigh','DoD')] [string] $Cloud = 'Commercial',
+        [string] \$Cloud = 'Commercial',
         [string] $TenantId
     )
     switch ($Cloud) {
         'Commercial' { Add-PowerAppsAccount -Endpoint prod;       Connect-AzAccount -Tenant $TenantId -Environment AzureCloud }
-        'GCC'        { Add-PowerAppsAccount -Endpoint usgov;      Connect-AzAccount -Tenant $TenantId -Environment AzureUSGovernment }
-        'GCCHigh'    { Add-PowerAppsAccount -Endpoint usgovhigh;  Connect-AzAccount -Tenant $TenantId -Environment AzureUSGovernment }
-        'DoD'        { Add-PowerAppsAccount -Endpoint dod;        Connect-AzAccount -Tenant $TenantId -Environment AzureUSGovernment }
     }
 }
 ```
@@ -124,7 +120,8 @@ if ($PSCmdlet.ShouldProcess($VNetName,'Create VNet with delegated subnet')) {
 .PARAMETER PolicyName              Display name for the enterprise policy.
 .PARAMETER PrimarySubnetResourceId Full ARM resource ID of the primary delegated subnet.
 .PARAMETER FailoverSubnetResourceId Full ARM resource ID of the failover delegated subnet.
-.PARAMETER Cloud                   Commercial / GCC / GCCHigh / DoD.
+.PARAMETER Cloud
+    Cloud environment. Use Commercial for this framework.
 .PARAMETER TenantId                Entra tenant GUID.
 #>
 [CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]
@@ -133,7 +130,7 @@ param(
     [Parameter(Mandatory)] [string] $PolicyName,
     [Parameter(Mandatory)] [string] $PrimarySubnetResourceId,
     [Parameter(Mandatory)] [string] $FailoverSubnetResourceId,
-    [ValidateSet('Commercial','GCC','GCCHigh','DoD')] [string] $Cloud = 'Commercial',
+    [string] \$Cloud = 'Commercial',
     [Parameter(Mandatory)] [string] $TenantId
 )
 
@@ -315,7 +312,7 @@ param(
     [Parameter(Mandatory)] [string] $FailoverSubnetResourceId,
     [Parameter(Mandatory)] [string[]] $DependencyResourceIds,
     [Parameter(Mandatory)] [string] $EvidencePath,
-    [ValidateSet('Commercial','GCC','GCCHigh','DoD')] [string] $Cloud = 'Commercial',
+    [string] \$Cloud = 'Commercial',
     [Parameter(Mandatory)] [string] $TenantId
 )
 

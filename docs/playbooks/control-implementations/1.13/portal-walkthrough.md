@@ -3,7 +3,6 @@
 **Control:** [1.13 Sensitive Information Types (SITs) and Pattern Recognition](../../../controls/pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition.md)
 **Audience:** M365 administrator (US financial services) configuring Microsoft Purview classification primitives in the unified Purview portal for the first time
 **Last UI Verified:** May 2026 (Microsoft Purview portal IA: **Solutions → Information protection → Classifiers → Sensitive info types**)
-**Cloud coverage:** Commercial · GCC · GCC High · DoD (see Sovereign Cloud Availability — **EDM endpoints, Trainable Classifiers, DLP-for-Copilot, and DSPM for AI parity must be re-verified per release in Government clouds**)
 **Estimated time:** 12–24 hours of configuration time excluding (a) EDM hash-agent host stand-up (4–8 hours of platform engineering), (b) trainable classifier training duration (Microsoft does not publish a fixed SLA — allow several hours to multiple days per submission), and (c) DSPM for AI signal-propagation windows (allow up to several hours after a seeded prompt before the insight surfaces).
 
 > This playbook provides portal configuration guidance for [Control 1.13](../../../controls/pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition.md). It supports compliance with FINRA Rule 4511 (books and records), FINRA RN 24-09 / Rule 3110 (AI-tool governance), SEC Rules 17a-3 / 17a-4 (broker-dealer records), SEC Regulation S-P (2024 amendments — customer information safeguards and 30-day breach notification), GLBA 501(b) (safeguards rule), SOX 404 (internal controls), PCI-DSS (cardholder data), CFTC Rule 1.31 (swap-dealer recordkeeping), and OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7) (model-risk management — applicable when a Trainable Classifier is used as a primary detection control). SITs are a **detection primitive**, not an enforcement layer — by themselves they do not block, redact, retain, or supervise anything. Enforcement is implemented by DLP ([Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md)), DSPM for AI ([Control 1.6](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md)), Communication Compliance ([Control 1.10](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md)), retention ([Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md)), and eDiscovery ([Control 1.19](../../../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md)).
@@ -19,10 +18,8 @@
     4. **Communication Compliance** — Reviews messages containing matched SITs for MNPI / suitability / NPI conditions.
 
     **Before you start work in this playbook:**
-
-    1. Confirm your tenant cloud against the **Sovereign Cloud Availability** table below — EDM, Named Entity Recognition, Trainable Classifiers, DLP-for-Copilot, and DSPM for AI parity in GCC / GCC High / DoD is the **most volatile dimension** of this control.
     2. Confirm the downstream consumer (DLP-for-Copilot, DSPM for AI, sensitivity labels, retention, Communication Compliance) **exists and is licensed** before authoring SITs that have no consumer. Orphan SITs are an audit-finding pattern.
-    3. Re-verify every Microsoft Learn citation in this playbook at the time of deployment — Microsoft has been actively re-organizing Purview classification surfaces and the Copilot DLP location.
+    3. every Microsoft Learn citation in this playbook at the time of deployment — Microsoft has been actively re-organizing Purview classification surfaces and the Copilot DLP location.
 
 ---
 
@@ -30,7 +27,7 @@
     SITs **detect patterns** in content. They do **not** retain, block, supervise, or label anything by themselves.
 
     | If you need to … | Use … |
-    |---|---|
+    
     | **Block** an email / file / Teams message that contains a matched SIT | DLP — [Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) |
     | **Exclude** a sensitive document from Copilot grounding | DLP for Microsoft 365 Copilot (Step 9 below) **and/or** sensitivity-label-driven exclusion ([Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md)) |
     | **Surface** "sensitive data shared with Copilot" telemetry | DSPM for AI — [Control 1.6](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) (Step 10 below) |
@@ -49,7 +46,7 @@
 This playbook covers **every** classification primitive Microsoft Purview exposes in the unified portal, because the control catalog entry treats them as **distinct detection paths** and an FSI deployment must reason about them separately.
 
 | Primitive | Where in Purview portal (Apr 2026) | Portal-only? | Covered in step |
-|---|---|---|---|
+
 | **Built-in pattern SITs** (SSN, Credit Card, US Bank Account, ABA Routing, ITIN, EIN, CUSIP, etc.) | Solutions → Information protection → Classifiers → **Sensitive info types** | No (read-only — built-ins are Microsoft-published) | Steps 1–2 |
 | **Custom pattern SITs** (regex + keyword + proximity + confidence) | Solutions → Information protection → Classifiers → Sensitive info types → **Create sensitive info type** | No (also `New-DlpSensitiveInformationType` via Security & Compliance PowerShell) | Step 4 |
 | **Keyword dictionaries** | Solutions → Information protection → Classifiers → **Keyword dictionaries** (peer of Sensitive info types, **not** a child of EDM) | No (also PowerShell) | Step 3 |
@@ -71,36 +68,12 @@ For PowerShell parity see `docs/playbooks/_shared/powershell-baseline.md` and th
 
 ---
 
-## Section 1 — Sovereign Cloud Availability
-
-| Cloud | Portal URL (verify at deployment) | Built-in pattern SITs | Custom pattern SITs | Keyword dictionaries | EDM | Document Fingerprinting | Bundled NER | Trainable classifiers (pre-trained) | Custom trainable classifiers | DLP for Microsoft 365 Copilot | DSPM for AI |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| **Commercial** | `https://purview.microsoft.com` | GA | GA | GA | GA | GA | GA | GA (per-classifier — verify) | GA (English-only) | GA (label-driven exclusion); SIT-driven prompt restriction — **verify Preview vs GA per release** | GA |
-| **GCC** | `https://purview.microsoft.com` (GCC tenant) | GA | GA | GA | Verify per release | Verify per release | Verify per release | Verify per release | Verify per release | Verify per release | Verify per release |
-| **GCC High** | `https://purview.microsoft.us` | GA | GA | GA | Verify per release — endpoint is **distinct from Commercial** for the EDM Upload Agent | Verify per release | **Often lagging — verify per release** | **Often lagging — verify per release** | **Often lagging — verify per release** | **Often lagging — verify per release** | **Often lagging — verify per release** |
-| **DoD** | `https://purview.microsoft.us` (DoD instance) | GA | GA | GA | Verify per release — endpoint is distinct | Verify per release | **Often lagging — verify per release** | **Often lagging — verify per release** | **Often lagging — verify per release** | **Often lagging — verify per release** | **Often lagging — verify per release** |
-
-> Verify every cell against Microsoft Learn (`sit-sensitive-information-type-learn-about`, `sit-learn-about-exact-data-match-based-sits`, `named-entities-learn`, `trainable-classifiers-learn-about`, `dlp-microsoft365-copilot-location-learn-about`, `dspm-for-ai`) and the [Microsoft 365 government service description](https://learn.microsoft.com/en-us/office365/servicedescriptions/office-365-platform-service-description/office-365-us-government/office-365-us-government) at deployment time. Government-cloud parity for classification primitives changes between service updates.
-
-### Compensating controls when a primitive is not at parity
-
-| Unavailable primitive in your cloud | Compensating control(s) |
-|---|---|
-| **EDM** (or EDM Upload Agent endpoint not reachable) | Tighter custom pattern SIT (regex + 2 supporting evidence elements + checksum where applicable) + sensitivity-label-driven DLP; treat as a documented Zone-3 exception with a quarterly re-evaluation against the next Government-cloud release notes |
-| **Bundled Named Entity Recognition (NER)** | Custom keyword-dictionary SITs scoped to the entity types most material to FSI (US persons, US addresses, US phone numbers); document the precision/recall delta vs NER and accept residual FP/FN risk in writing |
-| **Trainable classifier (pre-trained or custom)** | Pattern SIT + keyword-dictionary SIT combination; document that ML-based classification is unavailable in this cloud and route any "regex-cannot-express-this" use case (MNPI, complaint detection) to **manual** Communication Compliance review under [Control 1.10](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) |
-| **DLP for Microsoft 365 Copilot** SIT-driven prompt restriction (Preview-only or unavailable) | Sensitivity-label-driven exclusion (GA path) — auto-labeling rule fires on the SIT, applies a label that carries the "exclude from Copilot processing" property; document the gap and re-test on the next service-update cycle |
-| **DSPM for AI** | Comprehensive Audit Logging ([Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md)) for Copilot interaction events; Communication Compliance Copilot-interactions template ([Control 1.10](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md)); Insider Risk Management Risky AI usage where in scope ([Control 1.12](../../../controls/pillar-1-security/1.12-insider-risk-detection-and-response.md)) |
-
-Document the gap, the compensating control, and the re-evaluation cadence in your Zone-3 exception register.
-
----
 ## Section 2 — Prerequisites
 
 ### 2.1 License & entitlement matrix per primitive
 
 | Primitive | Minimum tenant SKU | Per-user SKU required for the **author** | Per-user SKU required for **end-user enforcement** | Notes |
-|---|---|---|---|---|
+
 | Built-in pattern SITs | M365 E3 / E5 / Business Premium | None (admin only) | None (consumed by DLP / labels) | Available in every tenant |
 | Custom pattern SITs | M365 E3 / E5 | None (admin only) | None | Authoring is no-cost; the **consumer** policy (DLP, labels) drives the per-user license requirement |
 | Keyword dictionaries | M365 E3 / E5 | None | None | Same posture as custom pattern SITs |
@@ -119,7 +92,7 @@ Document the gap, the compensating control, and the re-evaluation cadence in you
 In the unified Purview portal, role assignments are managed under **Settings → Roles & scopes → Role groups**. Use canonical short names from `docs/reference/role-catalog.md`:
 
 | Task | Required Purview / M365 role group(s) | Eligible-not-permanent (PIM) recommended? |
-|---|---|---|
+
 | Browse the Sensitive info types catalog (read-only) | **Compliance Data Reader**, **Information Protection Reader**, or any role that contains the *View-Only Sensitive Information Type* RBAC permission | No |
 | Create / edit / delete custom pattern SITs and keyword dictionaries | **Information Protection Admin** *or* **Compliance Administrator** | **Yes** — promote to PIM-eligible (activation required) for production tenants |
 | Create / edit / delete EDM schemas and rule packages | **Information Protection Admin** *or* **Compliance Administrator** | **Yes** |
@@ -144,12 +117,12 @@ In the unified Purview portal, role assignments are managed under **Settings →
 EDM is the only primitive that requires you to stand up infrastructure outside Microsoft 365. Do this work before you reach Step 5.
 
 | Requirement | Specification |
-|---|---|
+
 | Operating system | Windows Server 2019 or later (verify supported versions per Microsoft Learn at deployment); domain-joined to the tenant's hybrid identity domain or Entra-joined |
 | .NET runtime | .NET version required by the current EdmUploadAgent.exe build — verify per release |
-| Compute / RAM | Sized to the **row count and width** of the sensitive table; rule of thumb: 8 vCPU / 32 GB RAM handles tables up to several million rows; tables in the tens of millions need additional capacity. Re-verify against current Microsoft Learn guidance |
+| Compute / RAM | Sized to the **row count and width** of the sensitive table; rule of thumb: 8 vCPU / 32 GB RAM handles tables up to several million rows; tables in the tens of millions need additional capacity. against current Microsoft Learn guidance |
 | Storage | The plain-text source CSV is held only transiently on the host **before** hashing; the **hashed** output is what is uploaded. Disk should be encrypted (BitLocker) and access-controlled to the EDM operator group only |
-| Network | Outbound HTTPS to the EDM upload endpoint for the tenant's cloud — **Commercial / GCC**: `https://*.protection.outlook.com` family (verify exact hostnames per Microsoft Learn at deployment); **GCC High / DoD**: distinct US Government endpoint family on `*.protection.office365.us` (verify exact hostnames) |
+| Network | Outbound HTTPS to the EDM upload endpoint for the tenant's cloud — `https://*.protection.outlook.com` family (verify exact hostnames per Microsoft Learn) |
 | Identity | A dedicated service account (or workload identity) that is a member of the **`EDM_DataUploaders`** mail-enabled security group (you create this group in Exchange Online with that exact name) and holds the EDM authoring license |
 | Audit | Host event logging shipped to your SIEM ([Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md)). The plain-text CSV must never leave this host |
 | Source data flow | A documented, repeatable extraction from the source-of-record (DBMS / data-warehouse) to the host. Document the **field-to-column mapping** and the change-data-capture cadence. Do not pull data into the host interactively from a production DBMS without a change-control ticket |
@@ -171,20 +144,20 @@ EDM is the only primitive that requires you to stand up infrastructure outside M
 
 ### 1.1 Open the Sensitive Info Types catalog
 
-1. Sign in at `https://purview.microsoft.com` (Commercial / GCC) or `https://purview.microsoft.us` (GCC High / DoD).
+1. Sign in at `https://purview.microsoft.com`.
 2. In the left navigation choose **Solutions → Information protection**.
 3. Choose **Classifiers** in the secondary navigation, then the **Sensitive info types** tab. The list contains hundreds of Microsoft-published SITs plus any custom ones authored in this tenant.
 4. Filter the **Type** column to **Microsoft-published** (built-in) for this discovery pass. Filter again to limit to country = **United States** for FSI scope.
 
 !!! info "Portal IA changes"
-    Microsoft has been re-organizing the Purview portal IA (the older Compliance portal exposed Sensitive info types under "Data classification"). At UI-verification (April 2026) the canonical path is **Solutions → Information protection → Classifiers → Sensitive info types**. If your tenant shows a different breadcrumb, capture a screenshot or breadcrumb text in your deployment record and re-verify against current Microsoft Learn (`sit-sensitive-information-type-learn-about`).
+    Microsoft has been re-organizing the Purview portal IA (the older Compliance portal exposed Sensitive info types under "Data classification"). At UI-verification (April 2026) the canonical path is **Solutions → Information protection → Classifiers → Sensitive info types**. If your tenant shows a different breadcrumb, capture a screenshot or breadcrumb text in your deployment record and against current Microsoft Learn (`sit-sensitive-information-type-learn-about`).
 
 ### 1.2 Map FSI obligations to built-in SITs
 
 Build the inventory as a CSV in your Evidence Pack (`Control-1.13_{Tenant}_{Cloud}_BuiltInSITInventory_{date}.csv`). Suggested starter set:
 
 | Built-in SIT | What it detects | Confidence levels offered | FSI obligation it supports | Recommended consumer |
-|---|---|---|---|---|
+
 | **U.S. Social Security Number (SSN)** | 9-digit SSN with delimiters or unformatted, with supporting evidence | Low / Medium / High | GLBA 501(b) safeguards; SEC Reg S-P NPI; state breach-notification laws | DLP-for-Copilot (Step 9), sensitivity-label auto-labeling, Communication Compliance |
 | **Credit Card Number** | Luhn-valid 13–19 digit PAN with brand context | Low / Medium / High | PCI-DSS; GLBA NPI | DLP outbound + DLP-for-Copilot |
 | **U.S. Bank Account Number** | 8–17 digit account with supporting evidence (e.g., "account", "acct") | Low / Medium / High | GLBA NPI; FFIEC | DLP-for-Copilot, DSPM for AI |
@@ -316,7 +289,7 @@ Keyword dictionaries are **consumed**, not enforced. You will reference this dic
 ### 4.1 Define the pattern on paper before opening the wizard
 
 | Element | FINRA CRD decision |
-|---|---|
+
 | Primary identifier | `\b\d{6,7}\b` — CRDs are 6 or 7 digits with no internal delimiters. **Anchor with `\b` on both sides** to avoid sub-string matches inside longer numerics. |
 | Supporting evidence (any-of within proximity) | Keywords: `CRD`, `CRD #`, `CRD Number`, `Central Registration Depository`, `BrokerCheck`. **And/or**: an FSI-authored keyword dictionary `FSI-1-DICT-FINRA-Lexicon-v1` containing surrounding terms (`U4`, `U5`, `Form U4`, `Form BD`, `representative`). |
 | Proximity window | 300 characters. Tighter than the Microsoft default of 300 increases precision but risks false-negatives across line breaks; looser increases false-positives. **Justify the chosen value in the description.** |
@@ -451,7 +424,7 @@ Per Section 2.4. Verify before continuing:
 
 - Windows Server up, patched, BitLocker on.
 - .NET runtime version per current EdmUploadAgent.exe build.
-- Outbound HTTPS to the EDM upload endpoint family (Commercial / GCC: `*.protection.outlook.com`; GCC High / DoD: `*.protection.office365.us`) — **verify exact hostnames per Microsoft Learn at deployment**.
+- Outbound HTTPS to the EDM upload endpoint family (`*.protection.outlook.com` family (verify exact hostnames per Microsoft Learn at deployment).
 - Service identity is a member of `EDM_DataUploaders`.
 
 ### 5.4 Substep 4 — Install EdmUploadAgent.exe
@@ -611,7 +584,7 @@ NER models are statistical. They will produce false positives and false negative
 A trainable classifier consumed in a control surface that supports a recordkeeping or supervisory obligation is **a model under OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7)**. Before promoting a classifier to a production consumer:
 
 | Gate item | Requirement |
-|---|---|
+
 | **MRM intake** | The classifier is registered in the firm's Model Risk Management inventory with an owner, intended use, and a tier rating |
 | **Lifecycle clarity** | Document whether the classifier is **Preview** or **GA** at the time of consumption (Microsoft has Preview-only trainable classifiers — verify per release) |
 | **Language scope** | Trainable classifiers are **English-only** at the time of UI verification. Document the obligation impact: any non-English content is silently uncovered |
@@ -660,7 +633,7 @@ Reference exactly like a SIT from any consumer policy. Confidence levels are ret
 ### 9.1 Confirm the Copilot location is enabled in your tenant
 
 1. Solutions → **Data Loss Prevention** → **Policies**.
-2. Verify the **Microsoft 365 Copilot** location is selectable in the Create-policy wizard. If it is not, confirm tenant licensing (Section 2.1) and re-verify against `dlp-microsoft365-copilot-location-learn-about` Microsoft Learn — Microsoft has staged availability per cloud and per service-update.
+2. Verify the **Microsoft 365 Copilot** location is selectable in the Create-policy wizard. If it is not, confirm tenant licensing (Section 2.1) and against `dlp-microsoft365-copilot-location-learn-about` Microsoft Learn — Microsoft has staged availability per cloud and per service-update.
 
 ### 9.2 Author the policy
 
@@ -742,7 +715,7 @@ Control-1.13_{TenantId}_{Cloud}_{ArtifactType}_{YYYYMMDD-HHmm-UTC}.{ext}
 ```
 
 - `TenantId` — the tenant GUID (do not use a friendly name; the GUID is unambiguous across cloud rebrands).
-- `Cloud` — `Commercial`, `GCC`, `GCCH`, `DoD`.
+- `Cloud` — `Commercial`.
 - `ArtifactType` — see the inventory table below.
 - Timestamp in UTC to the minute, suffix `-UTC` to make the time zone explicit.
 
@@ -751,7 +724,7 @@ Example: `Control-1.13_5e3b...c2_Commercial_BuiltInSITInventory_20260415-1432-UT
 ### 6.2 Required artifact inventory
 
 | ArtifactType token | What it contains | Source step |
-|---|---|---|
+
 | `BuiltInSITInventory` | CSV of in-scope built-in SITs, chosen confidence levels, justifications, named consumers | Step 1 |
 | `SITTestRun` | Test-pane input corpus, output JSON, screenshot — one folder per SIT per run | Steps 2, 4, 5, 6 |
 | `KeywordDictionary` | Source CSV (UTF-16 LE), refresh-mechanism description, refresh log | Step 3 |
@@ -798,7 +771,7 @@ The pack is generated by the implementation team and then transferred to the rec
 ### 6.5 Refresh cadence
 
 | Artifact type | Refresh cadence |
-|---|---|
+
 | `BuiltInSITInventory`, `NERInventory`, `RolesMatrix` | Quarterly + on every Microsoft service-update release note that touches classification |
 | `SITTestRun` (regression set) | Quarterly + on every change to a custom SIT, EDM rule package, dictionary, or classifier |
 | `EDMHashAgentRunLog` | Daily (the rolling 90-day log; archive to long-term storage monthly) |
@@ -834,7 +807,7 @@ These are the failure modes most often surfaced in audit findings against this c
 Canonical short names from `docs/reference/role-catalog.md`.
 
 | Step | Primary role | Secondary / consulted | Evidence-collector identity (must differ from primary) |
-|---|---|---|---|
+
 | 1 — Built-in SIT inventory | Information Protection Admin | Compliance Officer (FSI obligation mapping) | Compliance Data Reader |
 | 2 — Test-pane validation | Information Protection Admin | — | Compliance Data Reader |
 | 3 — Keyword dictionaries | Information Protection Admin | Data Owner of the source list | Compliance Data Reader |
@@ -888,7 +861,7 @@ The "evidence-collector identity must differ from primary" column enforces the 4
 - [Control 1.14 — Data Minimization and Agent Scope Control](../../../controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control.md) — restricts the data scope an agent can ground on; complements SIT-driven exclusion.
 - [Control 4.6 — Grounding Scope Governance](../../../controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md) — restricts the SharePoint surface Copilot can ground on; complementary to SIT-driven exclusion.
 
-### Microsoft Learn references (re-verify at deployment)
+### Microsoft Learn references at deployment)
 
 - Sensitive information types — `sit-sensitive-information-type-learn-about`
 - Custom SITs — `create-a-custom-sensitive-information-type` and `sit-get-started-with-custom-sensitive-information-types`

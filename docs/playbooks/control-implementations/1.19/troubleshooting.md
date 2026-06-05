@@ -1,6 +1,6 @@
 # Control 1.19 — eDiscovery for Agent Interactions: Troubleshooting & Incident Response
 
-> **Scope.** This playbook covers operational failures, evidence-preservation incidents, and litigation-hold breakdowns specific to eDiscovery (Premium) for Microsoft 365 Copilot, Microsoft Copilot Studio agent transcripts, and declared agent interactions. It assumes the unified eDiscovery experience at `https://purview.microsoft.com` (classic eDiscovery was retired August 31, 2025 in commercial clouds; only the 21Vianet sovereign cloud retains the classic experience as of this revision).
+> **Scope.** This playbook covers operational failures, evidence-preservation incidents, and litigation-hold breakdowns specific to eDiscovery (Premium) for Microsoft 365 Copilot, Microsoft Copilot Studio agent transcripts, and declared agent interactions. It assumes the unified eDiscovery experience at `https://purview.microsoft.com` (classic eDiscovery was retired August 31, 2025).
 >
 > **Companion documents.**
 > - Parent control: [`1.19 — eDiscovery for Agent Interactions`](../../../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md)
@@ -21,7 +21,7 @@ eDiscovery incidents in an FSI tenant are not ordinary IT tickets. A failure to 
 The matrix below is the **default classification** for eDiscovery-on-agents incidents. The on-call eDiscovery Manager may escalate (never de-escalate) one tier based on facts known at triage. Any classification change requires a logged justification in the incident record.
 
 | Severity | Definition (eDiscovery-specific) | Examples | Initial response SLA | Standing escalation |
-|---|---|---|---|---|
+
 | **SEV-1** | Confirmed or strongly suspected loss, alteration, or non-preservation of agent-interaction content **that is or may be subject to a legal hold, regulatory request, or active matter**. Includes mass-spoliation events (≥10 custodians) and any miss of a court-ordered or regulator-imposed production deadline. | Custodian mailbox deleted while under hold; SubstrateHolds purge confirmed for matter custodian; production deadline for FINRA 8210 request missed; Copilot Studio Dataverse environment deleted with active hold. | **15 minutes** to acknowledge; **1 hour** to convene war room | Auto-page L4 (Legal, CISO, Chief Compliance Officer); notify outside counsel within 4 hours |
 | **SEV-2** | Significant degradation of preservation, search, or export capability for an active matter, **without confirmed data loss**, but with realistic risk of missing a deadline or returning incomplete results. | Hold creation succeeds in UI but propagation appears stalled >24 hours; eDiscovery (Premium) search returns suspiciously low result count for known-active custodian; export job repeatedly fails at >50% completion; reviewer cannot access review set due to RBAC drift. | **1 hour** to acknowledge; **4 hours** to remediate or escalate to SEV-1 | L3 (eDiscovery Manager + Purview Compliance Admin + Records Officer) |
 | **SEV-3** | Localized failure affecting a single matter, custodian, or job with available workaround; no immediate deadline pressure. | Single export package hash-chain mismatch on first attempt (re-export succeeds); single custodian's Teams chat preservation lag observed within published Microsoft 12-hour SLA; Copilot activity condition card returns expected zero for a custodian who genuinely had no Copilot use. | **4 business hours** to acknowledge; **2 business days** to close | L2 (eDiscovery Operator + Purview Compliance Admin) |
@@ -136,7 +136,7 @@ Q7. Has the forensic preservation package been assembled to the
 For any SEV-1 or SEV-2 eDiscovery-on-agents incident, the following 13 artifacts are the **minimum** preservation package. Counsel may demand more; counsel cannot demand less. Capture each artifact to immutable storage (Purview-managed key + locked retention label, or SEC 17a-4(f) WORM tier) **before** any remediation that could overwrite state. The eDiscovery export package itself is **not** WORM — it relies on the underlying immutable storage tier.
 
 | # | Artifact | Source | Retention | Notes |
-|---|---|---|---|---|
+
 | 1 | Incident record (timeline, classification, decisions log) | ServiceNow / ITSM | 7 years (1.21 audit retention) | Include every classification change with timestamp and approver. |
 | 2 | Unified Audit Log export for affected custodians, ±30 days from event | `Search-UnifiedAuditLog` or Purview Audit Search; expect **up to 24-hour ingestion lag** for some record types | 7 years (matches SEC 17a-4(b)(4) baseline) | Filter for `RecordType` in: `CopilotInteraction`, `ExchangeItem`, `ExchangeItemAggregated`, `MicrosoftTeams`, `SharePointFileOperation`, `MicrosoftPurviewDataLossPrevention`. Do **not** rely on `CopilotInteraction` for prompt/response **content** — that record contains metadata only; the body lives in the user's mailbox under `SubstrateHolds` and must be retrieved via eDiscovery (Premium) search. |
 | 3 | Hold configuration export (XML/JSON) at time of incident | `Get-CaseHoldPolicy`, `Get-CaseHoldRule` | Life of matter + 7 years | Capture both the policy and the rule; the rule contains the KQL filter that scopes the hold. |
@@ -158,7 +158,7 @@ For any SEV-1 or SEV-2 eDiscovery-on-agents incident, the following 13 artifacts
 When eDiscovery preservation is degraded but not failed, the following compensating controls **help meet** the firm's preservation duty until the primary control is restored. None of these substitutes for a working hold; each is a stopgap.
 
 | Compensating control | When to invoke | Limitations | Owner |
-|---|---|---|---|
+
 | **Manual journaling** of affected custodian mailboxes via Exchange transport rule to a journaling mailbox on WORM storage | Hold propagation stalled >24 hours; SubstrateHolds inaccessible | Does **not** capture Copilot interactions that never traverse SMTP (most do not); captures email only. | Exchange Online Admin |
 | **Org-wide retention policy** at maximum scope, set to "Retain only" | Active matter, hold cannot be created or modified due to service incident | Over-retains; creates downstream defensible-disposition burden; does not segregate matter scope. | Purview Compliance Admin |
 | **Purview Audit (Premium) extended retention** activated for affected custodians | When a matter may extend beyond default 1-year audit retention for non-E5 users | Captures metadata only, not content; does not substitute for SubstrateHolds. | Purview Compliance Admin |
@@ -183,7 +183,6 @@ Before paging L3 or higher, the on-call eDiscovery Operator must confirm — and
 - [ ] Communication tree (§1.6) followed; named recipients confirmed.
 - [ ] If incident involves Copilot Studio agents: agent owner identified, Dataverse environment ID captured, environment admin notified.
 - [ ] If cross-tenant guest custodians involved: home-tenant contact identified; counsel advised of jurisdictional scoping gap.
-- [ ] Sovereign cloud confirmed (commercial / GCC / GCC High / DoD / 21Vianet); cmdlet endpoint used noted.
 
 ### 1.6 Communication tree
 
@@ -267,12 +266,8 @@ SEV-3 (within 1 business day)
 
 Each runbook follows the same six-block structure: **Symptoms → Root cause → Diagnostic queries → Remediation → Validation → Evidence to capture**. Use these in conjunction with §1 incident handling; do **not** run remediation steps until §1.3 evidence floor has been captured.
 
-> **Cmdlet endpoints by sovereign cloud.** All PowerShell below is shown for the commercial cloud. For sovereign clouds, swap the connection endpoint:
 >
 > - **Commercial / GCC:** `Connect-IPPSSession`
-> - **GCC High:** `Connect-IPPSSession -ConnectionUri https://ps.compliance.protection.office365.us/powershell-liveid/ -AzureADAuthorizationEndpointUri https://login.microsoftonline.us/common`
-> - **DoD:** `Connect-IPPSSession -ConnectionUri https://l5.ps.compliance.protection.office365.us/powershell-liveid/ -AzureADAuthorizationEndpointUri https://login.microsoftonline.us/common`
-> - **21Vianet:** `Connect-IPPSSession -ConnectionUri https://ps.compliance.protection.partner.outlook.cn/powershell-liveid/ -AzureADAuthorizationEndpointUri https://login.partner.microsoftonline.cn/common` — note that 21Vianet **still uses classic eDiscovery** as of this revision; cmdlet names below that begin with `Get-Compliance*` and `Get-CaseHold*` apply, but the **portal experience** in 21Vianet differs from the unified experience and runbook UI screenshots reference the commercial cloud.
 
 ### Runbook 2.1 — Hold not propagating (status remains `Pending` or `Failed`)
 
@@ -713,8 +708,7 @@ Get-RoleGroup | Where-Object { $_.RoleAssignmentPolicy -ne $null } |
 
 **Root cause.**
 
-- Microsoft retired classic eDiscovery in commercial, GCC, GCC High, and DoD clouds on **August 31, 2025**. Cases were migrated to the unified eDiscovery experience. Some classic-only cmdlets and parameters were removed; others retained the same name but changed behavior.
-- The **21Vianet** sovereign cloud retains classic eDiscovery as of this revision; scripts targeting 21Vianet should not be migrated to the unified-only patterns until Microsoft announces 21Vianet retirement.
+- Microsoft retired classic eDiscovery on **August 31, 2025**. Cases were migrated to the unified eDiscovery experience. Some classic-only cmdlets and parameters were removed; others retained the same name but changed behavior.
 
 **Diagnostic queries.**
 
@@ -728,11 +722,10 @@ Get-Command Get-ComplianceCase | Format-List Name, Module, ParameterSets
 
 **Remediation.**
 
-1. **Inventory all eDiscovery scripts** firm-wide; tag each by cloud (commercial vs. 21Vianet).
-2. **For commercial/GCC/GCC High/DoD scripts:** migrate to unified-experience cmdlets. Notably:
+1. **Inventory all eDiscovery scripts** firm-wide; tag each by cloud.
+2. **For scripts:** migrate to unified-experience cmdlets. Notably:
    - `Get-ComplianceCase`, `New-ComplianceCase`, `Get-CaseHoldPolicy`, `New-CaseHoldPolicy`, `Get-ComplianceSearch`, `New-ComplianceSearch`, `Start-ComplianceSearch`, `Get-ComplianceSearchAction`, `New-ComplianceSearchAction` remain valid.
    - Standard-eDiscovery-only parameters or the Standard eDiscovery case type are no longer available; all cases are Premium-equivalent in the unified experience.
-3. **For 21Vianet scripts:** retain classic patterns; add explicit endpoint variable; do not co-mingle with commercial scripts.
 4. **Retest all scripts in non-production tenant** before relying on them in a live matter.
 5. **Update internal documentation, runbooks, and onboarding materials** to reference the unified portal URL `https://purview.microsoft.com` and not legacy `compliance.microsoft.com` or `protection.office.com` URLs.
 
@@ -802,7 +795,7 @@ Search-UnifiedAuditLog -StartDate <start> -EndDate <end> -UserIds "guest@externa
 The patterns below are observed failure modes in FSI eDiscovery operations. Each is paired with the recommended pattern. The presence of any of these in the firm's procedures, scripts, or training materials is itself a finding for internal audit.
 
 | # | Anti-pattern | Why it fails | Recommended pattern |
-|---|---|---|---|
+
 | **AP-01** | Searching for Copilot interactions using `from:"Copilot"`, `participants:"Copilot"`, or keyword `"Copilot"` in the body. | Copilot interactions are not stored as messages from a Copilot sender; they live in `SubstrateHolds` as a distinct item class. Keyword search misses the canonical store. | Use the **Copilot interactions location** card and/or the **Copilot activity condition** card in the search builder. |
 | **AP-02** | Treating the eDiscovery export package itself as WORM-compliant for SEC 17a-4(f) audit-trail alternative reliance. | The export package is a ZIP/PST/folder; it is not inherently immutable. WORM compliance depends on the **storage tier** the package lands on (immutable Azure Blob, Purview-managed key with locked retention, or a third-party WORM appliance). | Land exports in a configured WORM tier; capture the immutability proof (storage policy, retention lock) as part of the evidence floor. |
 | **AP-03** | Asserting that the `CopilotInteraction` Unified Audit Log record contains the prompt and response body. | The `CopilotInteraction` UAL record contains **metadata only** (timestamp, user, app host, action). The prompt/response body lives in the user's mailbox-side `SubstrateHolds`. Relying on UAL alone yields incomplete production. | Always pair UAL enumeration (for activity discovery) with eDiscovery (Premium) search of the mailbox-side store (for content). |
@@ -821,30 +814,6 @@ The patterns below are observed failure modes in FSI eDiscovery operations. Each
 
 ---
 
-## Section 4 — Sovereign Cloud Matrix
-
-Behavior of eDiscovery on Copilot interactions varies by Microsoft sovereign cloud. Confirm cloud-of-record at incident triage; cite cloud in every status update.
-
-| Capability | Commercial | GCC | GCC High | DoD | 21Vianet (China) |
-|---|---|---|---|---|---|
-| **Unified eDiscovery experience at `purview.microsoft.com`** | Available (post-Aug 31 2025) | Available | Available | Available | **Not available — classic eDiscovery still in use** |
-| **Microsoft 365 Copilot availability** | GA | GA | Limited (verify current Microsoft Roadmap; not all surfaces parity) | Limited (verify) | **Not available** in 21Vianet as of this revision |
-| **Copilot Studio availability** | GA | GA | Yes (verify connectors) | Yes (verify connectors) | Limited |
-| **`SubstrateHolds` preservation container** | Yes | Yes | Yes | Yes | Yes (within the classic eDiscovery experience) |
-| **Copilot interactions location card in search builder** | Yes | Yes | Yes | Yes | N/A (classic experience) — use mailbox custom location and `SubstrateHolds` |
-| **Copilot activity condition card in search builder** | Yes | Yes | Yes (verify) | Yes (verify) | N/A (classic) |
-| **PowerShell connection endpoint** | `https://ps.compliance.protection.outlook.com/powershell-liveid/` | Same as Commercial | `https://ps.compliance.protection.office365.us/powershell-liveid/` | `https://l5.ps.compliance.protection.office365.us/powershell-liveid/` | `https://ps.compliance.protection.partner.outlook.cn/powershell-liveid/` |
-| **Authorization endpoint** | `https://login.microsoftonline.com/common` | Same | `https://login.microsoftonline.us/common` | `https://login.microsoftonline.us/common` | `https://login.partner.microsoftonline.cn/common` |
-| **Microsoft Graph endpoint for reports** | `graph.microsoft.com` | Same | `graph.microsoft.us` | `dod-graph.microsoft.us` | `microsoftgraph.chinacloudapi.cn` |
-| **Microsoft Support severity model** | Standard A/B/C | Standard | Standard (FedRAMP-cleared engineers) | Standard (DoD-cleared engineers) | Operated by 21Vianet; severity model parallel but staffed locally |
-| **Trust & Safety escalation pathway** | Microsoft Customer Trust | Same | Same (US-cleared) | Same (US-cleared) | Via 21Vianet operations |
-| **FedRAMP boundary considerations** | N/A | FedRAMP Moderate | FedRAMP High + DFARS / ITAR | DoD IL5 | N/A |
-| **Cross-cloud guest interactions (Commercial ↔ GCC ↔ GCC High)** | Constrained by cross-cloud B2B policy; not all guest scenarios supported | Constrained | Constrained | Constrained | Effectively isolated |
-| **Production deadlines may require local data-protection coordination** | N/A | Per agency | Per agency + ITAR | Per DoD | **PIPL / DSL / CSL coordination required**; cross-border transfers face restrictions |
-
-> **21Vianet caveat.** Because 21Vianet retains classic eDiscovery, runbooks 2.1–2.9 above apply with the following adjustments: (a) the **portal screenshots** in the companion `portal-walkthrough.md` show the unified experience and do not match 21Vianet; (b) **Copilot is not generally available** in 21Vianet as of this revision, so the Copilot-specific runbooks (2.2, 2.4) are largely inapplicable until Microsoft announces 21Vianet Copilot availability; (c) **cross-border data transfers** for export production are subject to PIPL Article 38 and the CAC standard contract or security assessment regime — coordinate with Chinese counsel before any export leaves the China region.
-
----
 
 ## Section 5 — Escalation Ladder (L1 → L4)
 
@@ -911,7 +880,7 @@ Escalation thresholds below are **trigger conditions**, not discretionary judgme
 ### No-judgment-required escalation triggers (consolidated)
 
 | Trigger | Auto-tier | Auto-paged |
-|---|---|---|
+
 | Confirmed `SubstrateHolds` purge for custodian under active hold | SEV-1 / L4 | GC, CCO, CISO within 1 hour |
 | Mass spoliation ≥10 custodians | SEV-1 / L4 | GC, CCO, CISO + Microsoft Trust & Safety within 24 hours |
 | Production deadline miss for FINRA Rule 8210 | SEV-1 / L3 minimum | GC, CCO + L4 notification |
@@ -930,7 +899,7 @@ When opening a Microsoft Support case for an eDiscovery-on-agents incident, prov
 
 ### 6.1 What to include in the initial case
 
-1. **Tenant ID** and **cloud** (commercial / GCC / GCC High / DoD / 21Vianet).
+1. **Tenant ID** and **cloud**.
 2. **Case impact statement** in three sentences: what failed, what is at stake, what regulatory deadline is in play.
 3. **Severity request** with justification (Severity A reserved for SEV-1; Severity B for SEV-2).
 4. **Reproduction steps** including the exact PowerShell command(s) and exact portal navigation path.
@@ -976,7 +945,7 @@ When opening a Microsoft Support case for an eDiscovery-on-agents incident, prov
 ### 7.1 Related controls
 
 | Control | Why it matters here |
-|---|---|
+
 | [`1.5 — DLP and Sensitivity Labels`](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) | Sensitivity labels propagate to Copilot-discovered content; label-based encryption affects how exported items render during review and feeds review-set filtering and redaction posture. |
 | [`1.6 — DSPM for AI`](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) | DSPM for AI surfaces sensitive-data interactions used to scope eDiscovery cases for Copilot agents and prioritize custodian inclusion. |
 | [`1.7 — Comprehensive Audit Logging`](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | The UAL `CopilotInteraction` records are evidence-floor item #2; this control governs ingestion, retention, and search of the audit log that complements eDiscovery content retrieval. |
@@ -999,9 +968,7 @@ When opening a Microsoft Support case for an eDiscovery-on-agents incident, prov
 - Audit log `CopilotInteraction` record: `https://learn.microsoft.com/purview/audit-copilot`
 - Inactive mailboxes and recovery: `https://learn.microsoft.com/exchange/security-and-compliance/inactive-mailboxes`
 - Classic eDiscovery retirement notice (Aug 31, 2025): `https://learn.microsoft.com/purview/ediscovery-classic-retirement` (verify current URL)
-- 21Vianet operated by 21Vianet — service availability: `https://learn.microsoft.com/microsoft-365/admin/services-in-china`
 - PowerShell connection — Security & Compliance Center: `https://learn.microsoft.com/powershell/exchange/connect-to-scc-powershell`
-- Sovereign cloud endpoint reference: `https://learn.microsoft.com/microsoft-365/enterprise/microsoft-365-endpoints`
 
 ### 7.3 Regulatory anchors
 
@@ -1025,7 +992,6 @@ Where applicable, this playbook references deployable artifacts in the companion
 - `solutions/edisc-hold-bootstrap/` — parameterized PowerShell module to create matter case holds with reproducible naming and audit logging. (Verify current version in `docs/reference/solutions-index.md`.)
 - `solutions/edisc-evidence-floor-collector/` — runbook automation that captures the 13 evidence-floor artifacts to a designated WORM landing zone. (Verify current version.)
 - `solutions/copilot-preservation-validator/` — periodic synthetic test that issues a Copilot prompt, expects soft-delete, and confirms `SubstrateHolds` capture; reports drift to the eDiscovery Manager. (Verify current version.)
-- `solutions/sovereign-edisc-endpoint-pack/` — PowerShell profile module that sets the correct Connection URI and Authorization endpoint for each sovereign cloud, eliminating hand-edited endpoint mistakes. (Verify current version.)
 
 ---
 
@@ -1042,7 +1008,6 @@ A PIR is required for every SEV-1 within **10 business days** of incident closur
 - Total duration
 - Affected matter(s) (case number / counsel of record)
 - Affected custodians (count; UPN list redacted-as-needed)
-- Affected sovereign cloud(s)
 - PIR author + reviewers
 - Counsel reviewer (named)
 - Distribution (named recipients only)
@@ -1123,7 +1088,6 @@ The eDiscovery Manager maintains a rolling 12-month log of incident classificati
 - **3 or more SEV-1 / SEV-2 incidents in any rolling 90-day window** with the same root-cause category.
 - **2 or more incidents** invoking the same compensating control in any rolling 90-day window (suggests primary control is unstable).
 - **Any incident** that meets a no-judgment-required external-disclosure trigger.
-- **Any incident** that reveals a previously unknown sovereign-cloud behavior delta.
 
 ### 8.15 Annual effectiveness statement
 
@@ -1131,7 +1095,7 @@ Once per calendar year, the eDiscovery Manager + Records Officer + General Couns
 
 - Whether the eDiscovery-on-agents control set, as implemented and operated, **supports compliance with** SEC 17a-4, FINRA 4511 / 8210, NYDFS Part 500, FRCP 37(e), and the firm's own preservation policy.
 - Whether the control set, as implemented and operated, has been observed to **fail in a manner that resulted in actual loss of evidence on an active matter** during the period.
-- Material changes to scope, sovereign-cloud footprint, license posture, or vendor (Microsoft) capability during the period.
+- Material changes to scope, license posture, or vendor (Microsoft) capability during the period.
 - A forward-looking risk register identifying the next 12 months' top three risks to eDiscovery-on-agents efficacy, with mitigation owners.
 
 The Effectiveness Statement is provided to the Audit Committee and retained as a board-level record. It does **not** constitute a guarantee of compliance; it is a management attestation supported by the evidence in this control's audit trail.

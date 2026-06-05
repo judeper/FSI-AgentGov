@@ -2,7 +2,7 @@
 
 **Parent control:** [1.13 Sensitive Information Types (SITs) and Pattern Recognition](../../../controls/pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition.md)
 **Audience:** SOC L1 / DLP analysts, Purview Compliance Admin, Purview Info Protection Admin, Purview Data Security AI Admin, Security Engineering, Compliance & Legal liaisons.
-**Last UI verified:** May 2026 (Microsoft Purview portal — `purview.microsoft.com` for Commercial; `purview.microsoft.us` for GCC / GCC High / DoD).
+**Last UI verified:** May 2026 (Microsoft Purview portal — `purview.microsoft.com`).
 **Scope:** Diagnostic, remediation, and incident-handling guidance for Microsoft Purview Sensitive Information Types (built-in, custom regex, EDM, Named Entities), Trainable Classifiers used as SITs, and their consumption by DLP, Auto-labelling, DSPM for AI, Communication Compliance, and Microsoft 365 Copilot / declarative agents.
 
 > **READ §1 FIRST.** A SIT misfire that allows NPI / PCI / PHI / MNPI to flow into a Copilot grounding result, an outbound email, an external SharePoint share, or a third-party agent connector is a **potential reportable incident** under NY DFS 23 NYCRR 500.17(a) (72-hour determination clock), SEC Reg S-P §248.30(a)(4) (≤30-day customer notice where triggered), FINRA Rules 4530 / 3110 / 4511, GLBA 501(b), and (for trainable-classifier model-risk drift) OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7). **Do not** begin tuning, deleting, or republishing the SIT, EDM schema, or trainable classifier until evidence is preserved per §1.3 and Compliance/Legal has issued a reportability determination per §1.2. Reportability is a **Compliance/Legal call, not an engineering call** — this playbook supports that determination; it does not make it.
@@ -59,7 +59,7 @@ Capture all of the following into a single evidence bundle, generate a SHA-256 m
 8. `Test-DataClassification -ClassificationNames "<sit-name>" -TestTextFile <redacted-sample.txt>` output (PowerShell), captured as a transcript.
 9. For Copilot/agent paths: the `CopilotInteraction` audit record(s), agent identity (`AgentId`, `AppId`), invoked plugin/connector list, and the Purview DSPM-for-AI activity record from Activity Explorer.
 10. For Trainable Classifier paths: classifier identity (`Get-DlpClassifier`), last training date, last validation accuracy, current accuracy from the most recent validation run, and the FSI Governance Gate approval ticket reference.
-11. Tenant context: tenant ID, sovereign cloud (Commercial / GCC / GCC High / DoD), Purview SKU, and the licence proof for any Premium-gated feature (EDM, Named Entities, Trainable Classifiers, DSPM for AI) — see the parent control's licence matrix.
+11. Tenant context: tenant ID, Purview SKU, and the licence proof for any Premium-gated feature (EDM, Named Entities, Trainable Classifiers, DSPM for AI) — see the parent control's licence matrix.
 12. SHA-256 manifest: `Get-ChildItem <bundle-dir> -Recurse -File | Get-FileHash -Algorithm SHA256 | Export-Csv manifest.csv`. Sign or seal per the firm's evidence-handling policy.
 
 ### 1.4 Compensating Controls During Containment
@@ -90,7 +90,6 @@ Document every compensating control applied (timestamp, scope, owner, planned re
 - [ ] EDM (if applicable): last successful refresh timestamp confirmed within SLA; row count and column count captured; salt file custody confirmed (EDM_DataUploaders membership + key vault reference).
 - [ ] Trainable Classifier (if applicable): last validation accuracy/precision/recall captured; drift vs. baseline computed; FSI Governance Gate ticket re-opened.
 - [ ] Copilot/agent path checked: `CopilotInteraction` and `AiAppInteraction` audit records pulled for the affected window; DSPM for AI Activity Explorer reviewed.
-- [ ] Tenant sovereign cloud and licence SKU confirmed; sovereign endpoint variants (§4) used in all repro commands.
 - [ ] Audit-log retention confirmed sufficient to cover the investigation window (Audit Premium / extended retention add-on if required).
 - [ ] Change-management ticket opened for any planned SIT / EDM / classifier change; approver = Purview Info Protection Admin minimum.
 - [ ] Communication Compliance and Insider Risk owners notified if the population is in-scope.
@@ -135,7 +134,6 @@ Use this matrix to translate an observed symptom into the §6 runbook to execute
 | Sensitivity label not auto-applied although SIT matches | F11 — Auto-label policy lag / scope / simulation-mode | Any | SharePoint/OneDrive/Exchange | Either | SEV-3 |
 | Agent (Copilot Studio / declarative agent) surfaced regulated data via a connector | F12 — Agent connector / plugin bypass | Regulated | Agent | **Yes** | **SEV-1** |
 | SIT change deployed without governance approval (drift) | F13 — Change-management bypass | N/A | Purview tenant | N/A | SEV-2 |
-| Sovereign-cloud command fails with auth error or 404 | F14 — Sovereign endpoint mismatch | N/A | PowerShell / portal | N/A | SEV-3 |
 
 Re-evaluate severity when (a) a Copilot or agent record surfaces in audit, (b) the affected population includes a regulated user role (e.g., registered representative, wealth advisor), or (c) external recipients or unmanaged tenants are confirmed in the egress path.
 
@@ -158,40 +156,11 @@ These are recurring authoring, deployment, and operational mistakes observed acr
 11. **A11 — Over-trusting Named Entity SITs in non-English content.** Named-entity recognition coverage varies by language; non-English customer correspondence may not match. Where the firm operates in non-English markets, validate per-locale and add deterministic SIT fallbacks.
 12. **A12 — Authoring SIT regex without anchoring or proximity windows.** Unanchored, greedy regex burns Purview content-scanning compute and produces false positives at scale. Use `\b` word boundaries, bounded quantifiers, and proximity / supporting-element windows where the OOTB definitions do.
 13. **A13 — Treating false-positive reduction as an unconditional good.** A reduction in false-positive count that is not paired with a regression run on the known-good positive set is a **silent recall regression**. Track precision **and** recall on every change; gate the change on both.
-14. **A14 — Mixing Commercial portal URIs with sovereign tenants.** `purview.microsoft.com` and `https://ps.compliance.protection.outlook.com/...` will fail or, worse, connect to the wrong tenant context. For GCC High use `purview.microsoft.us` and `https://ps.compliance.protection.outlook.us/powershell-liveid`; for DoD use `https://l5.ps.compliance.protection.office365.us/powershell-liveid`. See §4.
 15. **A15 — Single-timestamp validation on the SIT only.** A SIT change is not "verified" until every consuming DLP rule, Auto-label policy, and Copilot DLP location has been re-tested. Maintain a consumer matrix per SIT and re-run the test suite on every change.
 16. **A16 — Tuning a SIT in response to a single false positive.** One report is anecdote; tuning thresholds on anecdote causes the recall regressions described in A13. Require a minimum sample (e.g., ≥ 20 reviewed matches over ≥ 7 days) before a threshold change.
 
 ---
 
-## 4. Sovereign Cloud Variants — Commercial / GCC / GCC High / DoD
-
-SIT and DLP feature parity, portal hostnames, and PowerShell endpoints differ by cloud. Validate **per-feature** parity against current Microsoft Learn before committing a control design that depends on a specific feature, since GCC High and DoD parity is delivered on a feature-by-feature cadence.
-
-| Surface / Feature | Commercial | GCC | GCC High | DoD | Compensating control if absent |
-|-------------------|------------|-----|----------|-----|--------------------------------|
-| Purview portal hostname | `purview.microsoft.com` | `compliance.microsoft.com` (legacy) → `purview.microsoft.com` per Microsoft's announced cutover | `purview.microsoft.us` | `purview.apps.mil` (verify per current Learn) | Use Compliance portal until parity reached |
-| IPPS PowerShell endpoint (`Connect-IPPSSession -ConnectionUri`) | `https://ps.compliance.protection.outlook.com/powershell-liveid` | `https://ps.compliance.protection.outlook.com/powershell-liveid` | `https://ps.compliance.protection.outlook.us/powershell-liveid` (with `-AzureADAuthorizationEndpointUri https://login.microsoftonline.us/common`) | `https://l5.ps.compliance.protection.office365.us/powershell-liveid` (with `-AzureADAuthorizationEndpointUri https://login.microsoftonline.us/common`) | N/A — endpoint is not optional |
-| Built-in OOTB SITs | All | All (most) | Subset; verify per-SIT availability per Learn | Subset; verify per-SIT availability per Learn | Author equivalent custom SIT; document parity gap |
-| Custom SIT (regex / keywords) | Yes | Yes | Yes | Yes | N/A |
-| Exact Data Match (EDM) | Yes | Yes | Yes | Yes (verify current parity) | Use deterministic custom SIT during gap |
-| Named Entities (built-in NER SITs) | Yes | Yes (most) | Limited; verify per-entity availability | Limited; verify per-entity availability | Use deterministic custom SIT |
-| Trainable Classifiers — pre-trained | Yes | Yes | Limited subset; verify per-classifier per Learn | Limited subset; verify per-classifier per Learn | Use deterministic SIT or custom trainable when GA |
-| Trainable Classifiers — custom | Yes | Yes | Verify current GA status per Learn | Verify current GA status per Learn | Defer custom-trainable use until GA |
-| DSPM for AI | Yes | Yes (verify) | Verify current GA status per Learn | Verify current GA status per Learn | Compensate with control 1.7 audit + 1.10 Comm Compliance |
-| DLP for Microsoft 365 Copilot location | Yes | Yes (verify) | Verify current GA status per Learn | Verify current GA status per Learn | Restrict Copilot grounding via labels and site-level isolation |
-| Communication Compliance | Yes | Yes | Yes | Yes (verify) | N/A |
-| Audit (Premium) — long-term retention add-on | Yes | Yes | Yes | Yes | Export to SIEM via Office 365 Management API |
-| `Test-DataClassification` cmdlet | Yes | Yes | Yes | Yes | N/A — required for SIT regression |
-
-**Operational rules:**
-
-- **Always** run `Connect-IPPSSession` with the cloud-correct `-ConnectionUri` and `-AzureADAuthorizationEndpointUri` before any `Get-Dlp*` / `Get-LabelPolicy` / `Search-UnifiedAuditLog` command. A connection to the wrong cloud will appear to succeed against the wrong tenant or fail with a confusing 401.
-- **Never** rely on a Commercial Microsoft Learn screenshot as definitive UX guidance for a GCC High or DoD tenant; pane labels, feature-flag flighting, and GA timing differ. Capture screenshots from the sovereign portal.
-- **Always** record sovereign cloud + tenant ID in the §1.3 evidence bundle and in any Microsoft Support ticket payload (§7.3) — Microsoft Support routes sovereign cases to a different engineering team.
-- **Compensating control during a parity gap:** when a feature (e.g., DSPM for AI in DoD) is not yet GA, document the gap, apply the most stringent deterministic detection (custom SIT + DLP for Copilot in Audit/Block as available), and re-evaluate at each Microsoft roadmap update.
-
----
 
 ## 5. Escalation — L1 → L2 → L3 → L4
 
@@ -199,8 +168,8 @@ SIT and DLP feature parity, portal hostnames, and PowerShell endpoints differ by
 |------|-------|----------------------------------|-------------|-----------------------------|------------------------------------|
 | **L1 — SOC / DLP analyst** | SOC L1 on shift; DLP analyst on call | DLP rule alert; user-reported false negative; routine false-positive triage; Activity Explorer anomaly | ≤ 1 h triage; ≤ 8 h close (SEV-3/SEV-4) | §1.3 items 1, 4, 6, 7 captured | Symptom not resolvable from runbook; SEV ≥ 2; Copilot path implicated; or repeat occurrence within 24 h |
 | **L2 — Purview Compliance Admin / Purview Info Protection Admin** | Named control owners | L1 escalation; SIT / EDM / classifier change required; suspected policy-scope or audit-ingestion gap | ≤ 4 h triage; ≤ 24 h containment (SEV-2); ≤ 1 h containment (SEV-1) | Full §1.3 bundle; §1.2 reportability draft; §1.4 compensating control plan | Root cause requires platform-level change; Microsoft Support ticket likely; trainable-classifier model-risk review needed |
-| **L3 — Security Engineering + Purview Data Security AI Admin** | Engineering lead, AI security lead, model-risk liaison | L2 escalation; Trainable Classifier drift / re-training; sovereign-parity gap requiring redesign; cross-pillar incident (DLP + Copilot + IB) | ≤ 8 h to remediation plan; ≤ 5 BD to permanent fix | All of L2 + classifier validation report + change-management artefacts + FSI Governance Gate ticket | Microsoft engineering required; suspected service-side defect; sovereign cloud routing required |
-| **L4 — Microsoft Premier / Unified Support + Compliance & Legal in parallel** | Microsoft Support TAM; firm's Compliance / Legal lead | Suspected Microsoft service defect; sovereign-cloud GA gap blocking remediation; reportable-incident path under §1.2; PR/customer-comms readiness | Per Microsoft severity SLA; firm SLA per Compliance | §7.2 / §7.3 payload; §1.3 bundle; firm IR commander engaged | N/A — terminal tier |
+| **L3 — Security Engineering + Purview Data Security AI Admin** | Engineering lead, AI security lead, model-risk liaison | L2 escalation; Trainable Classifier drift / re-training; cross-pillar incident (DLP + Copilot + IB) | ≤ 8 h to remediation plan; ≤ 5 BD to permanent fix | All of L2 + classifier validation report + change-management artefacts + FSI Governance Gate ticket | Microsoft engineering required; suspected service-side defect |
+| **L4 — Microsoft Premier / Unified Support + Compliance & Legal in parallel** | Microsoft Support TAM; firm's Compliance / Legal lead | Suspected Microsoft service defect; reportable-incident path under §1.2; PR/customer-comms readiness | Per Microsoft severity SLA; firm SLA per Compliance | §7.2 / §7.3 payload; §1.3 bundle; firm IR commander engaged | N/A — terminal tier |
 
 **L1 → L2 specific triggers** (any one promotes the case):
 
@@ -213,7 +182,6 @@ SIT and DLP feature parity, portal hostnames, and PowerShell endpoints differ by
 **L2 → L3 specific triggers:**
 
 - A SIT change cannot be safely deployed without a model-risk review (trainable classifier involved).
-- Sovereign-cloud feature gap (§4) blocks the fix; engineering must design a compensating architecture.
 - The same SIT failure mode recurs after a documented L2 remediation (suspected platform defect).
 - EDM upload pipeline failure spans more than one schema or persists beyond 24 h after restart.
 - Cross-pillar coupling: SIT failure interacts with Information Barriers, Conditional Access, or sensitivity-label encryption in non-obvious ways.
@@ -222,7 +190,6 @@ SIT and DLP feature parity, portal hostnames, and PowerShell endpoints differ by
 
 - Reproducible failure with a minimal repro that L3 cannot resolve in ≤ 5 business days.
 - Symptom suggests a Purview service-side defect (timing, scoping, or telemetry behaviour not consistent with documentation).
-- Sovereign-cloud incident requiring Microsoft sovereign engineering routing.
 - §1.2 reportability determination active and Microsoft Premier evidence required for the regulatory file.
 
 Compliance/Legal and the firm's IR commander run in parallel from the moment §1.2 yields any "Yes" path; they do not wait for L4.
@@ -343,7 +310,7 @@ Each runbook follows the same structure: **Symptom → Diagnostic (PowerShell + 
   Get-DlpComplianceRule -Policy "<policy>" | Format-List Name,Disabled,Mode,ContentContainsSensitiveInformation,AdvancedRule,ExceptIf*
   ```
 - **Diagnostic (portal):** *Data Loss Prevention → Policies → \<policy\>* — confirm `Status = On`, `Mode = Enforce` (not Test/Audit), location toggles include the surface where content was placed, and rule conditions do not have an exception that excludes the test content (user, group, label, domain, file type).
-- **Root causes:** (a) policy in Test or Audit mode; (b) location not enabled for the surface tested (e.g., rule covers Exchange but not SharePoint); (c) scope filter (user, group, site) excludes the test user; (d) rule uses `ExceptIf*` clauses that match the test content; (e) confidence threshold on the rule higher than the SIT match's confidence; (f) policy / rule disabled; (g) recent change has not propagated (allow up to several hours for tenant-wide propagation, longer in some sovereign clouds).
+- **Root causes:** (a) policy in Test or Audit mode; (b) location not enabled for the surface tested (e.g., rule covers Exchange but not SharePoint); (c) scope filter (user, group, site) excludes the test user; (d) rule uses `ExceptIf*` clauses that match the test content; (e) confidence threshold on the rule higher than the SIT match's confidence; (f) policy / rule disabled; (g) recent change has not propagated (allow up to several hours for tenant-wide propagation).
 - **Remediation:** Correct the misconfiguration identified above; if propagation is suspected, wait the documented window and retest; for cross-location parity, ensure the SIT is consumed in **every** required DLP location including Microsoft 365 Copilot.
 - **Evidence:** Policy + rule definitions; scope filters; mode; consumer matrix; propagation window observed; retest result.
 - **Reportability check:** A scope or mode misconfiguration on a regulated-data rule is a control gap — run §1.2 if the gap covered live business data.
@@ -381,8 +348,8 @@ Each runbook follows the same structure: **Symptom → Diagnostic (PowerShell + 
     Export-Csv .\copilot-window.csv -NoTypeInformation
   ```
 - **Diagnostic (portal):** *Data Loss Prevention → Policies* — confirm a policy with the **Microsoft 365 Copilot** location enabled is present, and that the SIT in question is included in the rule's `ContentContainsSensitiveInformation`. Cross-check **DSPM for AI → Activity Explorer** for the user/window.
-- **Root causes:** (a) Copilot DLP location not enabled in the tenant; (b) policy created but in Audit / Test mode; (c) SIT consumed only by Exchange / SharePoint rules and not by the Copilot-location rule; (d) Copilot DLP scope excludes the user or site; (e) sovereign-cloud parity gap (see §4) for the Copilot DLP location.
-- **Remediation:** Enable the Microsoft 365 Copilot DLP location (control 1.5); add the regulated-data SIT to the Copilot rule's content-detection conditions; promote to Block where the data class warrants; confirm scope covers the affected population. Where sovereign parity is the cause, apply compensating controls (label-based isolation; restrict grounding sources).
+- **Root causes:** (a) Copilot DLP location not enabled in the tenant; (b) policy created but in Audit / Test mode; (c) SIT consumed only by Exchange / SharePoint rules and not by the Copilot-location rule; (d) Copilot DLP scope excludes the user or site.
+- **Remediation:** Enable the Microsoft 365 Copilot DLP location (control 1.5); add the regulated-data SIT to the Copilot rule's content-detection conditions; promote to Block where the data class warrants; confirm scope covers the affected population.
 - **Evidence:** Policy snapshot before/after; Copilot interaction record(s) (redacted hashes only outside Compliance custody); DSPM for AI activity record; scope diff.
 - **Reportability check:** **Run §1.2 in full.** Any Copilot-mediated regulated-data exposure is presumptively SEV-1 and triggers Pillar 4 AI-incident handling in parallel.
 - **Exit criteria:** Copilot DLP rule blocks the controlled positive in test; consumer matrix updated; FSI Governance Gate re-approval recorded for the SIT-Copilot pairing.
@@ -440,17 +407,6 @@ Each runbook follows the same structure: **Symptom → Diagnostic (PowerShell + 
 - **Exit criteria:** Roles tightened; PIM enforced; pipeline gated; no further unapproved changes for 30 days.
 - **Reference:** [Search-UnifiedAuditLog](https://learn.microsoft.com/en-us/powershell/module/exchange/search-unifiedauditlog) · related control 1.7.
 
-### F14 — Sovereign endpoint mismatch / portal hostname error
-
-- **Symptom:** PowerShell `Connect-IPPSSession` fails with auth error or returns a 404; the Purview portal redirects to a Commercial host and the tenant is not visible; cmdlets succeed but show no data.
-- **Diagnostic:** Confirm tenant cloud (`Get-AzureADTenantDetail` or Entra portal); compare portal hostname and PowerShell `-ConnectionUri` against §4; inspect the sign-in flow for the correct authority host.
-- **Root causes:** (a) Commercial endpoint used against a sovereign tenant (or vice versa); (b) `-AzureADAuthorizationEndpointUri` omitted for GCC High / DoD; (c) bookmarked Commercial portal URL re-used; (d) browser cached a Commercial sign-in.
-- **Remediation:** Use the cloud-correct endpoint per §4 for every command and bookmark; clear cached credentials; for automation, parameterize the cloud and validate it before running.
-- **Evidence:** Connection transcript; tenant ID + cloud; corrected command; successful re-run.
-- **Exit criteria:** Cmdlets return expected tenant data; runbooks updated to use cloud-correct endpoints.
-- **Reference:** [Connect to Security & Compliance PowerShell](https://learn.microsoft.com/en-us/powershell/exchange/connect-to-scc-powershell).
-
----
 
 ## 7. Microsoft Support Escalation
 
@@ -459,7 +415,6 @@ Each runbook follows the same structure: **Symptom → Diagnostic (PowerShell + 
 File when **any one** of the following holds:
 
 1. L3 root-cause analysis points to a suspected Microsoft service-side defect (timing, scoping, or telemetry behaviour not consistent with current Microsoft Learn documentation, reproducible in a minimal repro).
-2. A sovereign-cloud parity or GA gap (§4) blocks remediation and architectural compensation is insufficient.
 3. EDM upload failure persists after a clean re-upload from a hardened Upload Agent host with verified schema, source data, and salt.
 4. A reportable-incident determination per §1.2 is active (any "Yes" path) and Microsoft engineering evidence is required for the regulatory file.
 
@@ -467,7 +422,7 @@ For SEV-1 / SEV-2 with active customer-data exposure, file at the highest severi
 
 ### 7.2 Required evidence (assemble before opening the case)
 
-- Tenant ID and sovereign cloud (Commercial / GCC / GCC High / DoD).
+- Tenant ID.
 - Purview SKU and licence proof for any Premium-gated feature in scope.
 - SIT identity, type, version, and full XML (export per §1.3 item 2).
 - EDM schema XML and last-successful-upload manifest hash (where applicable).
@@ -487,7 +442,7 @@ Subject: [SEV-<n>] Purview SIT detection failure impacting regulated-data DLP �
 
 1. Tenant context
    - Tenant ID: <guid>
-   - Cloud: <Commercial | GCC | GCC High | DoD>
+   - Cloud: Commercial
    - Purview SKU: <e.g., E5 Compliance + Data Security AI add-on>
    - Affected region(s): <region list>
 
@@ -527,7 +482,7 @@ Subject: [SEV-<n>] Purview SIT detection failure impacting regulated-data DLP �
    - Custodian: <named role>
 
 8. Engagement requested
-   - <e.g., engineering-level confirmation of expected SIT behaviour for separator variants; root-cause analysis on EDM upload failure; parity timeline for DLP for Copilot in GCC High; etc.>
+   - <e.g., engineering-level confirmation of expected SIT behaviour for separator variants; root-cause analysis on EDM upload failure; etc.>
 
 9. Firm contacts
    - Incident commander: <name, role, contact>
@@ -539,7 +494,6 @@ Subject: [SEV-<n>] Purview SIT detection failure impacting regulated-data DLP �
 ### 7.4 Expected Microsoft response and next steps
 
 - Microsoft will request the §7.2 artefacts; ensure they are uploaded to the case via the customer-approved secure channel only. **Do not** paste raw NPI / PCI / PHI / MNPI into the case body.
-- For sovereign tenants, confirm the case is routed to the sovereign-cloud engineering queue.
 - Track the case in the firm's incident ticket; mirror the Microsoft case ID into the §1.3 evidence bundle.
 - Upon resolution, capture the Microsoft engineering response in writing; if the resolution includes a configuration change, run it through the firm's change-management and FSI Governance Gate before applying in production.
 - If Microsoft confirms a service-side defect, capture the build/version, the workaround, the GA / fix ETA, and update the firm's risk register with the residual risk and compensating control until the fix lands.
@@ -580,7 +534,6 @@ Subject: [SEV-<n>] Purview SIT detection failure impacting regulated-data DLP �
 - [Data Security Posture Management for AI](https://learn.microsoft.com/en-us/purview/dspm-for-ai)
 - [`Test-DataClassification`](https://learn.microsoft.com/en-us/powershell/module/exchange/test-dataclassification)
 - [`Search-UnifiedAuditLog`](https://learn.microsoft.com/en-us/powershell/module/exchange/search-unifiedauditlog)
-- [Connect to Security & Compliance PowerShell (sovereign URIs)](https://learn.microsoft.com/en-us/powershell/exchange/connect-to-scc-powershell)
 
 ### 8.5 Regulatory anchors (informational — Compliance/Legal owns interpretation)
 

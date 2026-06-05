@@ -15,7 +15,7 @@
     It is **NOT** a substitute for the following sibling controls. Each is a separate configuration surface with its own playbook:
 
     | If you need… | Use Control | Why this is not 1.19 |
-    |---|---|---|
+    
     | Configure Unified Audit Log retention and `CopilotInteraction` audit ingestion | **1.7** | 1.19 *consumes* `CopilotInteraction` for forensic correlation; 1.7 *configures* the audit pipeline |
     | DSPM-for-AI scoping intelligence (which agents touch what data) | **1.6** | 1.6 helps you scope a case before you create it; 1.19 runs the case |
     | Author retention policies, retention labels, and **Preservation Lock** for SEC 17a-4(f) format compliance | **1.9** | **An eDiscovery hold preserves availability — it does NOT make content WORM. Preservation Lock under 1.9 is the format-compliance control.** |
@@ -33,7 +33,7 @@
 
 !!! info "What this walkthrough covers — surfaces & owners"
     | # | Surface | Portal | Owner role | Latency posture |
-    |---|---|---|---|---|
+    
     | 1 | Unified eDiscovery — Permissions and role groups | `purview.microsoft.com → Settings → Roles & scopes` | Purview Compliance Admin | Minutes (role propagation up to 1 h) |
     | 2 | Unified eDiscovery — Tenant settings (historical versions, OCR, deduplication, conversation reconstruction) | `purview.microsoft.com → Solutions → eDiscovery → Settings` | eDiscovery Administrator | Effective immediately for new searches |
     | 3 | Unified eDiscovery — Case lifecycle | `purview.microsoft.com → Solutions → eDiscovery → Cases` | eDiscovery Manager | Per case |
@@ -45,10 +45,9 @@
     | 9 | Records Management — **Preservation Lock** (SEC 17a-4(f) handoff) | `purview.microsoft.com → Solutions → Records management` | Records Manager + Control 1.9 | Per label / per policy |
     | 10 | Power Platform — Dataverse audit and admin export (Copilot Studio transcript gap compensating control) | `admin.powerplatform.microsoft.com` | Power Platform Admin | Per environment |
 
-!!! danger "Classic eDiscovery retired August 31, 2025 — except 21Vianet"
-    Microsoft retired the classic eDiscovery (Standard) and eDiscovery (Premium) experiences on **August 31, 2025** in Commercial, GCC, GCC High, and DoD clouds. All commercial-cloud guidance below applies to the **unified eDiscovery experience** only.
+!!! warning "Classic eDiscovery retired August 31, 2025"
+    Microsoft retired the classic eDiscovery (Standard) and eDiscovery (Premium) experiences on **August 31, 2025**. All commercial-cloud guidance below applies to the **unified eDiscovery experience** only.
 
-    **Carve-out:** Microsoft 365 operated by **21Vianet (Gallatin / China)** continues to use the classic Standard / Premium eDiscovery surfaces. Firms with Gallatin tenants must continue using the legacy Microsoft Learn classic-eDiscovery documentation; the unified-eDiscovery procedures in this walkthrough do **not** apply to 21Vianet. Determine the cloud at the start of every matter — see §1.
 
 ---
 
@@ -79,14 +78,14 @@ Out of scope (handled by sibling controls per the READ FIRST table above):
 
 ### 0.2 Six discovery planes plus latency reality
 
-| # | Plane | Source surface | Content vs metadata | Typical latency | Sovereign-cloud parity (re-verify) |
-|---|---|---|---|---|---|
-| 1 | **Substrate plane** | SubstrateHolds container in user Exchange Online mailbox; Exchange mailbox proper; Teams chat (Exchange substrate) | **Content** — full prompt body, full response body, attachment payloads | Minutes to <1 h hot; up to 24 h full propagation | GA broadly |
-| 2 | **Knowledge plane** | SharePoint sites, OneDrive accounts the agent grounded on | **Content** — source document, version history (subject to versioning policy under Control 1.9) | Indexing minutes–hours; 24 h after document mutation | GA broadly |
-| 3 | **Audit plane** | Unified Audit Log `CopilotInteraction` records | **Metadata only** — user UPN, agent identifier, app context, timestamp, conversation thread ID, references-resource list, sensitive-info-type touch flags — **NO prompt body, NO response body** | Minutes to 24 h (Standard Audit) | GA broadly |
-| 4 | **DSPM plane** | Purview DSPM for AI — Activity Explorer | Sampling + heuristic — scoping intelligence only, not full content | Hours to 24 h | Rolling per cloud (verify) |
-| 5 | **Dataverse plane (out-of-band)** | Copilot Studio environment Dataverse `bot_transcript` (or env-specific) table | Content — but **not natively covered by unified eDiscovery as of April 2026** | Per Dataverse audit cadence | Limited preview / verify |
-| 6 | **Foundry/diagnostic plane (out-of-scope)** | Azure AI Foundry / Azure OpenAI resource diagnostic logs to Log Analytics workspace | Content (where logging configured) | Per ingestion pipeline | Route to Control 1.21 / 3.9 |
+|#|Plane|Source surface|Content vs metadata|Typical latency|
+
+| 1 | **Substrate plane** | SubstrateHolds container in user Exchange Online mailbox; Exchange mailbox proper; Teams chat (Exchange substrate) | **Content** — full prompt body, full response body, attachment payloads | Minutes to <1 h hot; up to 24 h full propagation |
+| 2 | **Knowledge plane** | SharePoint sites, OneDrive accounts the agent grounded on | **Content** — source document, version history (subject to versioning policy under Control 1.9) | Indexing minutes–hours; 24 h after document mutation |
+| 3 | **Audit plane** | Unified Audit Log `CopilotInteraction` records | **Metadata only** — user UPN, agent identifier, app context, timestamp, conversation thread ID, references-resource list, sensitive-info-type touch flags — **NO prompt body, NO response body** | Minutes to 24 h (Standard Audit) |
+| 4 | **DSPM plane** | Purview DSPM for AI — Activity Explorer | Sampling + heuristic — scoping intelligence only, not full content | Hours to 24 h |
+| 5 | **Dataverse plane (out-of-band)** | Copilot Studio environment Dataverse `bot_transcript` (or env-specific) table | Content — but **not natively covered by unified eDiscovery as of April 2026** | Per Dataverse audit cadence |
+| 6 | **Foundry/diagnostic plane (out-of-scope)** | Azure AI Foundry / Azure OpenAI resource diagnostic logs to Log Analytics workspace | Content (where logging configured) | Per ingestion pipeline |
 
 !!! warning "Latency reality — do not write 'real-time' or 'instantaneous' into the WSP"
     Hold propagation can take **up to 24 hours**. SubstrateHolds population for a freshly issued Copilot prompt typically lags **minutes to hours**. Search indexing for a newly added custodian is **typically 4 hours, up to 24 hours**. WSP language that promises "immediate preservation", "real-time discoverability", "instantaneous hold activation", or "complete capture of all AI interactions" overstates Microsoft surface capability and creates regulatory exposure under FINRA RN 24-09 and FINRA Rule 3110 (which call for documented operational realism in AI WSPs). Use the documented latencies; build a **24-hour buffer** into FRCP 37(e) hold-issuance procedures and FINRA 8210 production timelines.
@@ -103,7 +102,7 @@ Build evidence packages by **joining both**: eDiscovery for the content, `Copilo
 ### 0.4 Portal vs PowerShell matrix
 
 | Configuration step | Portal? | PowerShell / CLI? | Notes |
-|---|---|---|---|
+
 | Assign eDiscovery role-group membership | ✅ Purview Settings | ✅ `Add-RoleGroupMember` (Security & Compliance PowerShell) | Portal recommended for first-time assignment + audit trail |
 | Configure tenant-level eDiscovery settings (OCR, conversation reconstruction, deduplication) | ✅ | Limited — most settings UI-only | Portal recommended |
 | Create eDiscovery case | ✅ | ✅ `New-ComplianceCase` | Either; portal recommended for case metadata |
@@ -122,58 +121,12 @@ The companion `powershell-setup.md` in this directory mirrors every PowerShell-e
 
 ---
 
-## §1 Sovereign cloud applicability matrix
-
-!!! danger "Cross-cloud parity is not symmetric — verify at deploy time"
-    The matrix below reflects publicly documented availability as of **April 2026**. Microsoft adds and removes sovereign-cloud parity on a per-feature, per-region cadence. Re-verify against the [Microsoft 365 Government service description](https://learn.microsoft.com/en-us/office365/servicedescriptions/office-365-platform-service-description/office-365-us-government/office-365-us-government) and the [Purview eDiscovery overview](https://learn.microsoft.com/en-us/purview/ediscovery) **before** treating any item below as a primary control in GCC / GCC High / DoD / 21Vianet.
-
-| Capability | Commercial | GCC | GCC High | DoD | 21Vianet (Gallatin) |
-|---|---|---|---|---|---|
-| Unified eDiscovery (case dashboard) | GA | GA | GA | GA | **N/A — classic eDiscovery only** |
-| **Microsoft 365 Copilot interactions** data-source location in case wizard | GA | GA (verify) | **Lagging — verify per release** | **Lagging — verify per release** | N/A |
-| `CopilotInteraction` audit record collection (consumed via Plane 3) | GA | GA | Verify per release | Verify per release | N/A |
-| **SubstrateHolds** container preservation | GA | GA | GA | GA | N/A |
-| Hold notification workflow (custodian acknowledgment) | GA | GA | GA | GA | N/A |
-| Review set — conversation reconstruction (Teams Copilot threading) | GA | Rolling | Verify per release | Verify per release | N/A |
-| Review set — themes, near-duplicate, email threading | GA | GA | Verify per release | Verify per release | N/A |
-| Review set — OCR / transcription | GA | Rolling | Verify per release | Verify per release | N/A |
-| Export with load file (Relativity / Concordance / generic) | GA | GA | GA | GA | N/A |
-| Microsoft 365 Copilot (custodian-side prerequisite) | GA | GA | **Limited preview as of early 2026 — verify** | **Limited / verify** | N/A |
-| Copilot Studio Dataverse via Purview (native integration) | **Limited preview / verify** | Verify | Likely unavailable — verify | Likely unavailable — verify | N/A |
-| Purview Records Management — **Preservation Lock** (SEC 17a-4(f) handoff under Control 1.9) | GA | GA | GA | GA | Verify |
-| Purview Audit (Advanced) for `eDiscoveryAdminOperation` long-term retention | GA | GA | GA | GA | N/A |
-
-### 1.1 Per-cloud caveats
-
-**Commercial.** Reference posture for this walkthrough. All capabilities GA except Copilot Studio Dataverse-via-Purview (limited preview).
-
-**GCC.** Treat as Commercial-minus-30-days. Re-verify the Copilot interactions data-source location and review-set conversation reconstruction at deploy time.
-
-**GCC High.** The Copilot interactions data-source location and conversation reconstruction are typically lagging in GCC High. As of April 2026, **Microsoft 365 Copilot itself is in limited preview in GCC High** — meaning the upstream prerequisite for any Copilot-content eDiscovery may not be deployable. Document the gap to the AI Governance Lead and Compliance Officer; substitute with custodian-mailbox-scoped searches (no Copilot interactions toggle) and accept that Copilot-content recall may be incomplete until parity arrives.
-
-**DoD.** As GCC High, with greater lag. If Microsoft 365 Copilot is not deployed at all in the tenant, planes 1 and 5 (Copilot-specific) are not in scope; the eDiscovery posture reduces to standard Exchange / SharePoint / OneDrive / Teams discovery against custodian content (which remains GA). Document the reduced surface to the Designated Supervisor and CISO.
-
-**21Vianet (Gallatin).** Unified eDiscovery is **not available**. Continue using classic eDiscovery (Standard / Premium) per the legacy Microsoft Learn classic-eDiscovery documentation. Determine the cloud at the start of every matter; if the firm operates a Gallatin tenant, route to the classic procedure and document the cloud determination in the case metadata. See anti-pattern AP-10.
-
-### 1.2 Compensating controls when a capability is unavailable
-
-| Unavailable capability | Compensating control | Risk-register entry (Control 1.2) |
-|---|---|---|
-| Copilot interactions data-source location | Custodian-scoped mailbox search with `itemclass:IPM.SkypeTeams.Message.Copilot.*` filter (verify exact item-class string at deploy time) plus explicit SubstrateHolds inclusion | Yes — document recall-completeness assumption |
-| Conversation reconstruction | Manual reviewer methodology to reconstruct multi-turn threads from individual items; document methodology in privilege log | Yes — note manual-method risk to FINRA 8210 production |
-| OCR in review set | Force OCR pre-export via third-party tool against the native files; document toolchain and hash | Yes — note tooling dependency |
-| Copilot Studio Dataverse-via-Purview | Power Platform Dataverse audit + admin export per §6.5 | **Always required** — Dataverse gap is the largest 1.19 limitation |
-| Microsoft 365 Copilot in GCC High / DoD | Restrict Zone 3 agents to Foundry-backed surfaces; route evidence via Control 1.21 + Control 3.9 (Sentinel) | Yes — document reduced unified-eDiscovery surface |
-
----
 
 ## §2 Pre-flight gates
 
 Complete every gate below **before** opening the eDiscovery surface. Most failures during case execution trace back to a missed gate.
 
-### 2.1 License gate
-
-Re-verify SKU eligibility at deploy time against the [Microsoft 365 security & compliance licensing guidance](https://learn.microsoft.com/en-us/office365/servicedescriptions/microsoft-365-service-descriptions/microsoft-365-tenantlevel-services-licensing-guidance/microsoft-365-security-compliance-licensing-guidance):
+### 2.1 License gate SKU eligibility at deploy time against the [Microsoft 365 security & compliance licensing guidance](https://learn.microsoft.com/en-us/office365/servicedescriptions/microsoft-365-service-descriptions/microsoft-365-tenantlevel-services-licensing-guidance/microsoft-365-security-compliance-licensing-guidance):
 
 - [ ] **eDiscovery (Standard scope):** Microsoft 365 / Office 365 **E3** — covers case creation, content search, basic legal hold, basic export.
 - [ ] **eDiscovery (Premium scope):** Microsoft 365 **E5**, **E5 Compliance**, or the **eDiscovery Premium add-on** — required for custodian management with hold-notice workflow, review sets, conversation reconstruction (Teams / Copilot), transcription, predictive coding, and advanced indexing. **Required for Zone 2 review-set workflows and all Zone 3 features.**
@@ -189,7 +142,7 @@ Re-verify SKU eligibility at deploy time against the [Microsoft 365 security & c
 Per Control 1.19 §Roles & Responsibilities and `docs/reference/role-catalog.md`. Configure all of these **before** any case is created.
 
 | Role | Tenant scope | Case scope | Typical FSI assignee | Provisioning notes |
-|---|---|---|---|---|
+
 | **eDiscovery Administrator** (Purview eDiscovery role group) | Full tenant — can see and manage **all** cases, including those they are not a member of; can recover orphaned cases; manages tenant-level eDiscovery settings | Implicit access to all | Typically 1–2 named individuals (e.g., Head of Litigation Support) | **PIM-elevation only** in Zone 3 — eligible-only assignment; just-in-time activation with mandatory ticket reference; max 4–8 hour activation window. See anti-pattern AP-09. |
 | **eDiscovery Manager** (Purview eDiscovery role group) | Can create cases; can only see and manage **cases they are a member of**; can add/remove case members within their own cases | Member of specific cases | Litigation / regulatory case managers (one per matter family) | Standing assignment acceptable; review membership quarterly |
 | **Reviewer** (Purview eDiscovery role group) | No case-creation rights; can only access **review sets** within cases they are added to as Reviewer; can tag, redact, code documents but **cannot export** | Case-scoped, review-set-scoped | Outside counsel, internal investigators, privilege reviewers | Standing assignment acceptable; **separation of duties from Manager and Administrator is mandatory in Zone 3** — see anti-pattern AP-08 |
@@ -200,7 +153,6 @@ Per Control 1.19 §Roles & Responsibilities and `docs/reference/role-catalog.md`
 | **General Counsel** | Final sign-off on production package; privileged-review owner | Per matter | Named per WSP | Owns privilege determinations |
 | **AI Governance Lead** | Maintains agent ↔ content-location map (Control 1.2 cross-reference); convenes Zone 3 quarterly drill (§11) | n/a | Named per WSP | Owns Dataverse compensating control coordination per §6.5 |
 | **Power Platform Admin** | Power Platform admin center; Dataverse environment configuration | Per environment | Power Platform team | Required for §6.5 Copilot Studio compensating control |
-| **CISO** | Sovereign-cloud determination; export-storage immutability sign-off | Tenant-wide | Named per WSP | Signs off on §10 incident pathways |
 
 **Two-admin pattern for legal hold issuance (Zone 3 mandatory):** No single human should both author and activate a hold for a Zone 3 customer-facing or recordkeeping-scope agent matter. One eDiscovery Manager authors; a second eDiscovery Manager (or eDiscovery Administrator under PIM elevation) approves and activates. This is **not a Microsoft-enforced workflow** — it is a procedural control surfaced through the Purview Audit log (`HoldCreated` / `HoldUpdated` operations on different `UserId`). See §6.4 for the operational pattern and anti-pattern AP-12.
 
@@ -234,7 +186,6 @@ Verify these dependencies **before** the first case:
 - [ ] NYDFS 23 NYCRR Part 500 §500.17(a) 72-hour clock documented if the firm is NY-DFS-regulated.
 - [ ] FINRA 4530 30-day clock documented for customer-complaint-related discovery.
 - [ ] Copilot Studio Dataverse coverage gap disclosed in the WSP per §6.5 and AP-06.
-- [ ] Sovereign-cloud determination procedure documented (Commercial / GCC / GCC High / DoD / 21Vianet) — see §1.
 
 ### 2.5 Test fixtures gate
 
@@ -254,7 +205,7 @@ Verify these dependencies **before** the first case:
 
 1. Navigate to `https://purview.microsoft.com`.
 2. From the left navigation, choose **Solutions → eDiscovery**. The unified case dashboard opens.
-3. Confirm the page header reads **eDiscovery** (not "eDiscovery (Standard)" or "eDiscovery (Premium)" — those legacy entry points were retired August 31, 2025 in Commercial / GCC / GCC High / DoD; if you see them, you are in the 21Vianet cloud — stop and route to classic eDiscovery per §1).
+3. Confirm the page header reads **eDiscovery** (not "eDiscovery (Standard)" or "eDiscovery (Premium)" — those legacy entry points were retired August 31, 2025 in).
 
 ### 3.2 Verify your role
 
@@ -324,7 +275,7 @@ Where Copilot prompts and responses surface in the unified case wizard.
 3. The location attaches the **SubstrateHolds container** of each custodian's mailbox to the case scope.
 4. Click **Submit**.
 
-If the **Microsoft 365 Copilot interactions** location is not visible in your cloud (typical in GCC High / DoD as of April 2026 — re-verify per §1), use the SubstrateHolds-direct compensating pattern in §6.3 — add the custodian mailbox with an explicit search scope that includes the SubstrateHolds folder by `itemclass` filter.
+If the **Microsoft 365 Copilot interactions** location is not yet visible, use the SubstrateHolds-direct compensating pattern in §6.3 — add the custodian mailbox with an explicit search scope that includes the SubstrateHolds folder by `itemclass` filter.
 
 ### 4.2 Custodian Exchange Online mailbox (including SubstrateHolds)
 
@@ -412,7 +363,7 @@ Cross-reference Control 1.13 (SIT authoring) and Control 1.10 (label authoring).
 
 ### 5.4 The Copilot activity condition card
 
-The **Copilot activity** condition card (in the search authoring UI under **Add condition → Copilot activity**, where available — re-verify exact UI label per §1) lets you scope by:
+The **Copilot activity** condition card (in the search authoring UI under **Add condition → Copilot activity**, where available — exact UI label per §1) lets you scope by:
 
 - Conversation thread ID (for reconstructing a multi-turn interaction).
 - Agent identifier (to scope to a specific Copilot or Copilot Studio agent — cross-reference the Control 1.2 agent registry).
@@ -442,8 +393,7 @@ Use this card as the **primary** "is this a Copilot item and which agent" filter
 ### 5.7 Common search-statistics signals
 
 | Signal | Likely cause | Action |
-|---|---|---|
-| Zero items from any custodian who is licensed for Copilot and has a week of activity | `from:"Copilot"` anti-pattern; or Copilot interactions location not attached; or wrong cloud (21Vianet) | Review §5.3.3, §4.1, §1 |
+
 | Custodian shows zero items but other custodians return content | Indexing not complete (status "Indexing" still); or license assignment recent | Wait 24 h; verify license per §2.1 |
 | High unindexed count concentrated in one custodian | Mailbox-corruption or item-class-not-recognized condition | Triage with Exchange Admin; document in §10.4 |
 | SharePoint grounding source returns zero | Site URL incorrect; or site permissions exclude search service | Verify with Control 4.6 inventory |
@@ -604,7 +554,7 @@ The chain of custody is the auditable narrative of who handled the production pa
 Capture, at minimum:
 
 | Field | Source |
-|---|---|
+
 | Export job ID | Portal → Exports |
 | Export creator UPN + timestamp | Portal → Exports → Job details |
 | Microsoft-reported manifest hash | Portal (where available) + manifest file inside the ZIP |
@@ -658,7 +608,7 @@ Per FINRA Rule 3110, a Designated Supervisor / Registered Principal must review 
 The case-handling intensity scales with the agent zone. Determine the in-scope agent's zone (Control 1.2 agent registry) **before** opening the case; the zone drives the role assignments, hold scope, review-set features, supervisory sign-off, and incident clocks.
 
 | Dimension | Zone 1 — Personal productivity | Zone 2 — Team / departmental | Zone 3 — Enterprise / customer-facing / recordkeeping-scope |
-|---|---|---|---|
+
 | Case-creation trigger | Ad-hoc (HR / internal investigation / individual complaint) | Internal investigation; Comm Compliance escalation; manager request | Regulator letter (FINRA 8210, SEC subpoena, OCC request); customer complaint; litigation hold; AI-incident escalation per Control 3.4 |
 | eDiscovery role posture | Manager standing assignment OK; Reviewer optional | Manager standing OK; Reviewer mandatory; Comm Compliance separation enforced | **Two-admin pattern mandatory** (§6.4); eDiscovery Administrator PIM-only; Manager / Reviewer separation enforced (AP-08) |
 | License floor | E3 + Copilot (where licensed) | E5 or eDiscovery Premium add-on | E5 + Advanced Audit + Records Management |
@@ -689,7 +639,7 @@ Each pathway below is a regulator-facing scenario keyed to a specific clock and 
 1. eDiscovery hold preserves availability (this control, §6).
 2. **Records Management Preservation Lock under Control 1.9** provides format compliance — without it, the firm relies on the eDiscovery hold alone, which is **not** WORM and does not satisfy 17a-4(f). See AP-07.
 3. Document the dual-pathway (hold + lock) in the WSP.
-4. Re-verify lock posture quarterly per §11.
+4. lock posture quarterly per §11.
 
 ### 10.2 SEC 17a-4(f) October 2022 audit-trail alternative
 
@@ -875,7 +825,7 @@ Missed quarterly drills are a Sev-2 governance finding under the Control 1.2 ris
 Detailed verification procedures, test cases, and the canary-string playbook live in `verification-testing.md` in this directory. The portal walkthrough hands off to verification at the following checkpoints:
 
 | §-checkpoint | Verification artifact | Owner |
-|---|---|---|
+
 | §2 pre-flight gates | Pre-flight checklist signed by Purview Compliance Admin + Compliance Officer | Compliance Officer |
 | §3 case + custodians | `CaseAdded` and `CustodianAddedToCase` UAL evidence | eDiscovery Manager |
 | §4 Copilot interactions location | Location screenshot + Control 4.6 mapping spreadsheet | AI Governance Lead |
@@ -886,7 +836,7 @@ Detailed verification procedures, test cases, and the canary-string playbook liv
 | §10 incident scenarios | Per-scenario clock-compliance evidence | Compliance Officer + General Counsel |
 | §11 quarterly drill | Drill report (artifact #25) | AI Governance Lead |
 
-For end-to-end verification (canary string round-trip, sovereign-cloud parity verification, hash-chain integrity), see `verification-testing.md`.
+For end-to-end verification (canary string round-trip, hash-chain integrity), see `verification-testing.md`.
 
 ---
 
@@ -895,15 +845,15 @@ For end-to-end verification (canary string round-trip, sovereign-cloud parity ve
 Detailed symptom → root-cause → resolution tables live in `troubleshooting.md` in this directory. Common high-impact issues:
 
 | Symptom | Likely root cause | Resolution location |
-|---|---|---|
-| Copilot interactions location absent in case wizard | Sovereign-cloud parity gap (GCC High / DoD); or 21Vianet (use classic) | §1.1; troubleshooting.md §"Sovereign-cloud parity" |
-| `from:"Copilot"` returns zero items | Anti-pattern AP-01 | §5.3.3; troubleshooting.md §"Common KeyQL errors" |
-| Custodian shows zero items despite Copilot license + activity | License recently assigned; or indexing not complete; or wrong cloud | §5.7; troubleshooting.md §"Indexing latency" |
-| Hold shows "On" but `Get-Mailbox` does not list the hold GUID | Hold propagation lag (up to 24 h); or mailbox in litigation hold conflict state | §6.6; troubleshooting.md §"Hold propagation" |
-| Review-set ingestion stuck in "Processing" > 24 h | OCR backlog; or large attachment volume; or service-side throttling | §7; troubleshooting.md §"Review-set processing" |
-| PowerShell SHA-256 disagrees with Microsoft manifest hash | Download corruption; or manifest references pre-zip checksum, not zip checksum | §8.5; troubleshooting.md §"Hash-chain divergence" |
-| Dataverse audit table empty for a Copilot Studio environment | Audit not enabled at environment creation; or transcript-table audit toggle off | §6.5; troubleshooting.md §"Dataverse compensating control" |
-| Designated Supervisor balks at signing without supervisor-in-the-portal evidence | Group sign-off attempted (AP-13); or sign-off requested without privilege-log review | §8.7; troubleshooting.md §"Supervisory sign-off" |
+
+|Copilot interactions location absent in case wizard|
+| `from:"Copilot"` returns zero items |
+| Custodian shows zero items despite Copilot license + activity |
+| Hold shows "On" but `Get-Mailbox` does not list the hold GUID |
+| Review-set ingestion stuck in "Processing" > 24 h |
+| PowerShell SHA-256 disagrees with Microsoft manifest hash |
+| Dataverse audit table empty for a Copilot Studio environment |
+| Designated Supervisor balks at signing without supervisor-in-the-portal evidence |
 
 ---
 
@@ -914,10 +864,9 @@ The evidence pack is the auditable bundle that survives the matter. Build it dur
 ### 14.1 Artifact inventory
 
 | # | Artifact | Section | Format | Owner |
-|---|---|---|---|---|
+
 | 1 | Case overview screenshot + `CaseAdded` UAL record | §3.4 | PNG + CSV | eDiscovery Manager |
 | 2 | Pre-flight checklist signed by Compliance Officer | §2 | PDF | Compliance Officer |
-| 3 | Sovereign-cloud determination memo | §1 | PDF | CISO |
 | 4 | Custodian list + hold-notice acknowledgments | §3.5 | CSV + PDF | eDiscovery Manager |
 | 5 | Non-custodial source ↔ Control 4.6 grounding inventory mapping | §3.6 | XLSX | AI Governance Lead |
 | 6 | Copilot interactions location screenshot | §4.1 | PNG | eDiscovery Manager |
@@ -982,7 +931,7 @@ The output of the meta-hash is the single value the Compliance Officer + General
 Each anti-pattern below has been observed in real FSI matters and has documented regulatory or defensibility consequences. Train every Zone 3 case team member on this catalog at onboarding and at the §11 quarterly drill.
 
 | # | Anti-pattern | Why it fails | Correct pattern |
-|---|---|---|---|
+
 | **AP-01** | Writing `from:"Copilot"` or `sender:Copilot` in KeyQL to "find Copilot messages" | Copilot prompts/responses do not have a sender of "Copilot" in the substrate; the filter returns zero | §5.3.3 — use the Copilot interactions location (§4.1) plus the Copilot activity condition card (§5.4) |
 | **AP-02** | Treating `CopilotInteraction` Unified Audit Log records as content evidence | The audit record is metadata only — no prompt body, no response body | §0.3 + §5.5 — join Plane 3 metadata with Plane 1 eDiscovery content |
 | **AP-03** | Substituting Content Search for a case-scoped legal hold | Content Search does not preserve — items remain subject to deletion / retention purge | §6 — always issue a case-scoped hold via the Holds tab; the two-admin pattern under §6.4 in Zone 3 |
@@ -992,7 +941,6 @@ Each anti-pattern below has been observed in real FSI matters and has documented
 | **AP-07** | Treating an eDiscovery hold as WORM / SEC 17a-4(f)-compliant | Hold preserves availability; format compliance requires Records Management Preservation Lock under Control 1.9 | §10.1 + §10.2 — pair the hold with the Preservation Lock, do not substitute |
 | **AP-08** | Granting a single human both Reviewer and Manager rights on the same case | Collapses separation of duties; Reviewer cannot export, Manager can — combining defeats the FINRA 8210 / Reg S-P privileged-handling defense | §2.2 — strict role separation in Zone 3 |
 | **AP-09** | Standing eDiscovery Administrator assignment without PIM elevation | Administrator can see and manage all cases tenant-wide; standing assignment is a privileged-access control failure under SOX 802 and OCC Bulletin 2026-13 (formerly OCC 2011-12) | §2.2 — eligible-only PIM with mandatory ticket reference and short activation window |
-| **AP-10** | Applying the unified-eDiscovery procedure to a 21Vianet (Gallatin) tenant | 21Vianet remains on classic eDiscovery; unified surface is not available | §1 — determine the cloud at matter open; route Gallatin to classic procedure |
 | **AP-11** | Skipping conversation reconstruction in review-set ingestion for Teams / Copilot matters | Reviewers see individual prompt/response items in isolation; loses multi-turn context; inflates privilege-call risk | §7.1 — conversation reconstruction on for any Teams / Copilot matter |
 | **AP-12** | Single-human authoring + activating a Zone 3 hold in one session | Collapses the two-admin pattern; UAL shows single `UserId` for both `HoldCreated` and the activation `HoldUpdated` | §6.4 — distinct author UPN and approver UPN; capture both UAL records |
 | **AP-13** | Group sign-off (e.g., "Compliance team approved") in lieu of a named Designated Supervisor with CRD number | FINRA 3110 requires named supervisor accountability; group sign-off is not defensible | §8.7 — named human, CRD, timestamp |

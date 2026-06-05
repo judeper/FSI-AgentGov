@@ -10,7 +10,7 @@
     This walkthrough governs **per-agent data minimization**: which grounding surfaces an agent may reach (SharePoint libraries, OneDrive, Dataverse tables, Graph connectors, file uploads, image uploads, public web, enterprise URLs, connector references, declarative agents / API plugins), how that scope is approved, and how scope drift is detected.
 
     | If you need to … | Use … |
-    |---|---|
+    
     | Establish the **system-of-record agent inventory** (agents, owners, environments, knowledge sources) | [Control 1.2 — Agent Registry](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) |
     | Author **general Power Platform DLP** policies (connector classification across all makers, not just agent-specific connectors) | [Control 1.4 — Advanced Connector Policies](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md) |
     | Apply **Restricted Content Discovery (RCD)**, **Restricted SharePoint Search (RSS ≤100-site allowed list)**, or run **Data Access Governance (DAG)** reports | [Control 4.6 — Grounding Scope Governance](../../../controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md) |
@@ -21,14 +21,14 @@
     Control 1.14 **consumes** all six of those controls; it does not replace any of them. If a step below appears to overlap, the canonical authoring surface is the linked control — this walkthrough only configures the agent-scope-specific knobs.
 
 !!! warning "This control supports — it does not guarantee — compliance"
-    The portal steps below help support GLBA 501(b) (safeguards), SEC Regulation S-P (2024 amendments — written safeguards and 30-day customer notification), FINRA Rule 4511 (books and records), FINRA Rule 3110 + Regulatory Notice 24-09 (Gen AI / LLM supervision), and CCPA §1798.100 (data minimization for non-GLBA personal information). They do not by themselves satisfy any single rule. Your compliance, legal, and risk teams remain accountable for full obligation coverage. Implementation requires named operators, change records, and zone-appropriate approvals; organizations should verify feature parity in their sovereign cloud at deploy time.
+    The portal steps below help support GLBA 501(b) (safeguards), SEC Regulation S-P (2024 amendments — written safeguards and 30-day customer notification), FINRA Rule 4511 (books and records), FINRA Rule 3110 + Regulatory Notice 24-09 (Gen AI / LLM supervision), and CCPA §1798.100 (data minimization for non-GLBA personal information). They do not by themselves satisfy any single rule. Your compliance, legal, and risk teams remain accountable for full obligation coverage. Implementation requires named operators, change records, and zone-appropriate approvals.
 
 ---
 
 ## What this walkthrough covers
 
 | Surface | What you will configure | Why it matters for Control 1.14 |
-| --- | --- | --- |
+
 | **Copilot Studio → agent → Knowledge** | Scope each knowledge source to a specific document library or folder; toggle public web grounding off for Zone 3; constrain file upload and image upload posture per zone. | Per-agent grounding surface minimization. |
 | **Copilot Studio → agent → Settings → Generative AI** | Disable web search for Zone 3 agents handling NPI; review tone, instructions, and orchestration mode for scope-appropriate behavior. | Removes the "anything on the public internet" grounding path from regulated agents. |
 | **PPAC → Security → Data and privacy → Data policies** | Classify the Copilot Studio knowledge connectors and the connectors used as agent actions into Business / Non-Business / Blocked groups; scope policies to environments hosting Zone 2 / Zone 3 agents. | Constrains which connectors an agent may use; complements but does not replace OAuth scope minimization (Control 1.18). |
@@ -76,29 +76,29 @@ Out of scope for Control 1.14 (covered by sibling controls):
 
 ### 0.2 Surface inventory (where each setting actually lives in April 2026)
 
-| # | Setting | Portal path (May 2026 UI) | Sovereign clouds where path applies |
-| --- | --- | --- | --- |
-| S1 | Per-agent knowledge sources | `Copilot Studio → [agent] → Knowledge → + Add knowledge` | Commercial, GCC; verify GCC High limited preview, DoD verify |
-| S2 | Per-agent SharePoint knowledge — folder scope | `Copilot Studio → [agent] → Knowledge → + Add knowledge → SharePoint → choose specific document library or folder` | Commercial, GCC; verify GCC High / DoD |
-| S3 | Per-agent public web grounding toggle | `Copilot Studio → [agent] → Settings → Generative AI → Web search` | Commercial, GCC; verify GCC High / DoD |
-| S4 | Per-agent file upload posture | `Copilot Studio → [agent] → Settings → Generative AI → File uploads` (and per-knowledge-source toggles) | Commercial, GCC; verify GCC High / DoD |
-| S5 | Per-agent image upload posture | `Copilot Studio → [agent] → Settings → Generative AI → Image uploads` | Commercial, GCC; verify GCC High / DoD |
-| S6 | Power Platform DLP — connector classification | `PPAC → Security → Data and privacy → Data policies → + New Policy` | Commercial, GCC, GCC High, DoD |
-| S7 | Power Platform DLP — environment scope | Same wizard, **Scope** step | Commercial, GCC, GCC High, DoD |
-| S8 | Purview DSPM for AI — recommended policies | `Purview portal → Solutions → DSPM for AI → Policies` (one-click recommended policies) | Commercial GA; GCC rolling; **GCC High / DoD lag — verify** |
-| S9 | Purview DSPM for AI — Activity Explorer | `Purview portal → Solutions → DSPM for AI → Activity explorer` | Commercial GA; GCC rolling; GCC High / DoD verify |
-| S10 | Purview DLP — Microsoft 365 Copilot location | `Purview portal → Solutions → Data loss prevention → Policies → + Create policy → Custom → Location: Microsoft 365 Copilot and Copilot Chat` | Commercial GA; GCC rolling; GCC High / DoD verify |
-| S11 | Purview Audit — search and discover operations | `Purview portal → Solutions → Audit → Search` | Commercial, GCC, GCC High, DoD |
-| S12 | Purview Alert policies | `Purview portal → Solutions → Policies → Alert policies` | Commercial, GCC; verify GCC High / DoD per release |
-| S12-alt | Defender XDR alert policy | `https://security.microsoft.com → Email & collaboration → Policies & rules → Alert policy` | Commercial, GCC, GCC High, DoD |
-| S13 | Microsoft Sentinel analytic rule (Zone 3 drift) | `Sentinel workspace → Analytics → + Create → Scheduled query rule`, sourced from the **Office 365** / **Microsoft 365** data connector | Commercial, GCC; verify Azure Government parity |
-| S14 | Entra ID Governance — Access Reviews | `Microsoft Entra admin center → Identity governance → Access reviews → + New access review` | Commercial, GCC, GCC High, DoD |
-| S15 | Cross-link to Control 4.6 — RCD / RSS / DAG | See Control 4.6 portal walkthrough | Commercial, GCC, GCC High, DoD |
+|#|Setting|Portal path (May 2026 UI)|
+
+| S1 | Per-agent knowledge sources | `Copilot Studio → [agent] → Knowledge → + Add knowledge` |
+| S2 | Per-agent SharePoint knowledge — folder scope | `Copilot Studio → [agent] → Knowledge → + Add knowledge → SharePoint → choose specific document library or folder` |
+| S3 | Per-agent public web grounding toggle | `Copilot Studio → [agent] → Settings → Generative AI → Web search` |
+| S4 | Per-agent file upload posture | `Copilot Studio → [agent] → Settings → Generative AI → File uploads` (and per-knowledge-source toggles) |
+| S5 | Per-agent image upload posture | `Copilot Studio → [agent] → Settings → Generative AI → Image uploads` |
+| S6 | Power Platform DLP — connector classification | `PPAC → Security → Data and privacy → Data policies → + New Policy` |
+| S7 | Power Platform DLP — environment scope | Same wizard, **Scope** step |
+| S8 | Purview DSPM for AI — recommended policies | `Purview portal → Solutions → DSPM for AI → Policies` (one-click recommended policies) |
+| S9 | Purview DSPM for AI — Activity Explorer | `Purview portal → Solutions → DSPM for AI → Activity explorer` |
+| S10 | Purview DLP — Microsoft 365 Copilot location | `Purview portal → Solutions → Data loss prevention → Policies → + Create policy → Custom → Location: Microsoft 365 Copilot and Copilot Chat` |
+| S11 | Purview Audit — search and discover operations | `Purview portal → Solutions → Audit → Search` |
+| S12 | Purview Alert policies | `Purview portal → Solutions → Policies → Alert policies` |
+| S12-alt | Defender XDR alert policy | `https://security.microsoft.com → Email & collaboration → Policies & rules → Alert policy` |
+| S13 | Microsoft Sentinel analytic rule (Zone 3 drift) | `Sentinel workspace → Analytics → + Create → Scheduled query rule`, sourced from the **Office 365** / **Microsoft 365** data connector |
+| S14 | Entra ID Governance — Access Reviews | `Microsoft Entra admin center → Identity governance → Access reviews → + New access review` |
+| S15 | Cross-link to Control 4.6 — RCD / RSS / DAG | See Control 4.6 portal walkthrough |
 
 ### 0.3 Portal vs PowerShell — when to use which
 
 | Operation | Portal path (this walkthrough) | PowerShell mirror | Recommended primary surface |
-| --- | --- | --- | --- |
+
 | Inventory all agents in an environment | Copilot Studio agent list + PPAC → Resources → Copilots | `Get-AdminPowerAppEnvironment` + `Get-AdminPowerApp` + `Get-CopilotEnvironment` (verify cmdlet names per `Get-Command -Module Microsoft.PowerApps.Administration.PowerShell`) | PowerShell for ≥10 environments; portal for spot checks |
 | Read knowledge sources for a specific agent | Copilot Studio → agent → Knowledge | Microsoft Graph beta `agents` endpoint (verify availability per release) or M365 Copilot Studio admin APIs (preview) | Portal for first-pass review; Graph for inventory automation |
 | Create / edit a Power Platform DLP policy | PPAC wizard | `New-DlpPolicy` / `Set-DlpPolicy` (Power Apps cmdlets) | Portal for first authoring + change-managed UI evidence; PowerShell for promotion across environments |
@@ -110,50 +110,6 @@ Out of scope for Control 1.14 (covered by sibling controls):
     The portal gives you change-managed UI evidence (screenshots) that auditors expect for SOX 302/404 control walkthroughs and FINRA 3110 supervisory documentation. PowerShell and Graph give you the deterministic, reproducible read-backs that satisfy SEC 17a-4 / FINRA 4511 evidence preservation and let you scale beyond what UI can handle. Use both — never one alone.
 
 ---
-## §1 Sovereign cloud applicability matrix
-
-Use this matrix at the top of every change record so reviewers can see at a glance whether the steps in §3–§11 apply to your tenant.
-
-| Capability | Commercial | GCC | GCC High | DoD | Gallatin (China 21Vianet) |
-| --- | --- | --- | --- | --- | --- |
-| Copilot Studio agent runtime | ✅ Available | ✅ Available | ⚠️ Limited preview as of early 2026 — verify | ⚠️ Verify per release | ❌ Not available |
-| SharePoint / OneDrive knowledge connector (folder scope) | ✅ Available | ✅ Available | ⚠️ Verify connector parity | ⚠️ Verify connector parity | ❌ Not available |
-| Public website knowledge connector / Web search toggle | ✅ Available | ✅ Available | ⚠️ Verify per release | ⚠️ Verify per release | ❌ Not available |
-| File upload + image upload | ✅ Available | ✅ Available | ⚠️ Verify; payload limits differ (≈ 450 KB GCC High vs 5 MB Commercial) | ⚠️ Verify | ❌ Not available |
-| Power Platform DLP (connector classification) | ✅ Available | ✅ Available | ✅ Available (verify connector list per environment) | ✅ Available (verify) | ❌ Not available |
-| Purview DSPM for AI — recommended policies | ✅ GA | ⚠️ Rolling — verify | ❌ Often lagging — verify per release | ❌ Often lagging — verify per release | ❌ Not available |
-| Purview DSPM for AI — Activity Explorer | ✅ GA | ⚠️ Rolling — verify | ❌ Often lagging — verify | ❌ Often lagging — verify | ❌ Not available |
-| Purview DLP for Microsoft 365 Copilot location | ✅ GA | ⚠️ Rolling — verify | ❌ Often lagging — verify | ❌ Often lagging — verify | ❌ Not available |
-| Purview Audit — `CopilotInteraction` record type | ✅ GA | ✅ GA | ⚠️ Verify per release | ⚠️ Verify per release | ❌ Not available |
-| Purview Audit — Power Platform record types | ✅ GA | ✅ GA | ✅ GA | ✅ GA | ❌ Not available |
-| Purview Alert policies | ✅ GA | ✅ GA | ⚠️ Verify per release | ⚠️ Verify per release | ❌ Not available |
-| Microsoft Sentinel (M365 connector) | ✅ Azure Commercial | ✅ Azure Government | ✅ Azure Government | ✅ Azure Government Secret/Top Secret | ❌ Not applicable |
-| Entra ID Governance Access Reviews | ✅ GA | ✅ GA | ✅ GA | ✅ GA | ⚠️ Verify per release |
-| SharePoint Advanced Management (RCD / RSS / DAG — Control 4.6) | ✅ GA | ✅ GA | ⚠️ Limited — verify per release | ⚠️ Limited — verify per release | ❌ Not available |
-
-### 1.1 Compensating controls when a capability is not available
-
-If you operate in **GCC High**, **DoD**, or **Gallatin** and a capability above is unavailable or lagging, do not skip Control 1.14 — apply the following compensating controls and record the deviation in your control register:
-
-- **Compensate for missing DSPM for AI:** Stand up daily `Search-UnifiedAuditLog -RecordType CopilotInteraction` exports into a SIEM (Sentinel or your firm's equivalent), and tighten Purview DLP-for-Copilot rules so detection happens at enforcement time even without DSPM dashboards.
-- **Compensate for missing DLP-for-Copilot location:** Increase reliance on sensitivity-label-driven exclusion (Control 1.5) — published labels with the "exclude from Copilot processing" property still apply at the runtime; pair with tighter SharePoint scope (Control 4.6 RCD) so the surface never reaches the agent in the first place.
-- **Compensate for missing public-web grounding parity:** If the Web search toggle is unavailable in your cloud, do not enable any agent that requires public web grounding for a Zone 3 workload — the absence of the toggle is itself the control.
-- **Compensate for missing SharePoint Advanced Management (RCD / RSS):** Use sensitivity-label encryption + `Set-SPOSite -NoCrawl $true` on canary sites only (never as a production strategy — `NoCrawl` removes the site from the index entirely); document the deviation and re-evaluate per Microsoft 365 roadmap.
-- **Compensate for missing Sentinel parity:** Increase the cadence of manual Audit search exports (Zone 3: weekly minimum), and route findings into your firm's SOC ticketing system manually.
-
-### 1.2 Per-surface caveats you must record before acting
-
-| Caveat | What it means in practice |
-| --- | --- |
-| **Public web grounding is OFF for Zone 3 NPI agents.** | The Web search toggle in Copilot Studio Generative AI settings must be off for any agent grounding on customer NPI. Capture a screenshot of the toggle state in the evidence pack at every quarterly review. |
-| **GCC High / DoD payload limits.** | The Copilot Studio SharePoint / OneDrive knowledge connector enforces a smaller payload limit in GCC High (≈ 450 KB) than in commercial (≈ 5 MB). Test agents must use representative content sizes; large PDFs that ground successfully in commercial may silently truncate or fail in regulated clouds. |
-| **DSPM for AI lag.** | Activity Explorer signals can lag actual agent activity by minutes to hours depending on tenant size and signal type. Do not treat the absence of a signal as the absence of the activity — pair DSPM with the audit log. |
-| **No native `AgentScopeExpansion` audit event.** | There is no out-of-the-box "agent scope expanded" audit operation. Scope drift is derived through SIEM correlation against `CopilotInteraction` records joined to the Control 1.2 inventory, plus Power Platform admin events for connector and knowledge-source changes. |
-| **Power Platform DLP does not configure OAuth scopes.** | DLP classifies connectors as Business / Non-Business / Blocked; it does not narrow OAuth delegated or application permissions. OAuth scope minimization on custom connectors and on agent identities is owned by Control 1.18. |
-| **Identity model — delegated vs application.** | Copilot Studio agents that ground on SharePoint via an authenticated user typically execute knowledge calls **as the invoking user** (delegated). A SharePoint group keyed to a "shared service account" does **not** constrain a user-bound agent. Only when the agent is configured with an **authenticated connection**, **managed identity**, or **Entra Agent ID** does a service-principal-keyed group apply. Confirm the agent's auth mode before designing groups (see §10). |
-| **OneDrive cannot have RCD applied.** | Any "remove this from Copilot grounding" requirement targeted at OneDrive must be implemented through DLP, sensitivity labels, or the agent-side knowledge-source removal — never RCD. See Control 4.6. |
-
----
 
 ## §2 Pre-flight gates
 
@@ -162,7 +118,7 @@ Do not proceed past §2 until every gate below is signed off. Each gate maps to 
 ### 2.1 License and capability gate
 
 | Gate | Required state | How to verify | Evidence artifact |
-| --- | --- | --- | --- |
+
 | Microsoft 365 Copilot license present | At least one assigned seat in the tenant; required for `CopilotInteraction` audit emission and DLP-for-Copilot location coverage. | `Microsoft 365 admin center → Billing → Licenses` | E1 — License posture screenshot |
 | Microsoft 365 E5 Compliance (or E5 Information Protection & Governance) | Required for Purview DSPM for AI, DLP for M365 Copilot location, and Activity Explorer. | Same Licenses page; record SKU. | E1 (combined) |
 | SharePoint Advanced Management (SAM) | Included with Microsoft 365 Copilot license; provides RCD, RSS, and DAG (consumed by Control 4.6 from this walkthrough). | Microsoft 365 admin center → Billing → Licenses | E1 (combined) |
@@ -177,7 +133,7 @@ Do not proceed past §2 until every gate below is signed off. Each gate maps to 
 You will need the following Entra / workload roles assigned to the named operator(s) for the duration of this walkthrough. Use canonical names from the [Role Catalog](../../../reference/role-catalog.md). Do **not** perform any §3–§11 step as Entra Global Admin; Global Admin must remain a break-glass role.
 
 | Role | Required for | Assigned to (named operator) | Time-bound? |
-| --- | --- | --- | --- |
+
 | **AI Administrator** | Steps §3 (inventory reconcile), §6 (DSPM for AI), §7 (DLP-for-Copilot read), §8 (audit), agent-level configuration | _name + UPN_ | Yes — PIM eligible, activate for the change window |
 | **Power Platform Admin** | Step §4 (Power Platform DLP) | _name + UPN_ | Yes — PIM eligible |
 | **SharePoint Admin** | Step §5 (knowledge-source minimization, coordinate with Control 4.6); §10 SharePoint group hygiene | _name + UPN_ | Yes — PIM eligible |
@@ -194,7 +150,7 @@ Record PIM activations in the change record and include the activation timestamp
 ### 2.3 Tenant readiness gate
 
 | Gate | Required state | How to verify |
-| --- | --- | --- |
+
 | Unified Audit Log (UAL) ingestion confirmed | UAL has been on for ≥ 90 days (or since tenant creation if newer); `CopilotInteraction` and Power Platform record types are emitting. | `Purview → Audit → Search` returns results for `RecordType=CopilotInteraction` over the last 7 days. |
 | Sensitivity labels published | Required for DLP-for-Copilot rule conditions; cross-reference to Control 1.5. | `Purview → Information protection → Labels` shows ≥ 1 published label. |
 | At least one SIT or trainable classifier published | Required for DLP-for-Copilot SIT-condition rules; cross-reference to Control 1.13. | `Purview → Information protection → Classifiers → Sensitive info types` shows ≥ 1 published custom or built-in SIT in active use. |
@@ -208,7 +164,7 @@ Before any production change, the following test fixtures must exist in a canary
 **Canary environment:**
 
 | Item | Value |
-| --- | --- |
+
 | Environment name | `cs-scope-canary` (or your firm's equivalent) |
 | Environment type | Production, with isolated Dataverse |
 | DLP policy applied | `dlp-1.14-canary` (built in §4) |
@@ -217,7 +173,7 @@ Before any production change, the following test fixtures must exist in a canary
 **Test agents (Copilot Studio):**
 
 | Agent | Bound knowledge source(s) | Purpose |
-| --- | --- | --- |
+
 | `scope-test-Z2-001` | One scoped SharePoint document library | Zone 2 representative — must reflect knowledge-source folder scope and PPAC DLP. |
 | `scope-test-Z3-001` | One scoped library + one Dataverse table; web search **off**; file upload **restricted by label** | Zone 3 representative — full minimization stack. |
 | `scope-test-drift-001` | Identical to `scope-test-Z2-001` at baseline; used to deliberately add an out-of-scope knowledge source for §8 / §9 drift testing | Drift detection canary. |
@@ -225,7 +181,7 @@ Before any production change, the following test fixtures must exist in a canary
 **Test identities:**
 
 | Identity | Purpose |
-| --- | --- |
+
 | `svc-scope-pos@<tenant>` | "Positive" identity — has direct permission on the in-scope library; expected to receive grounded answers. |
 | `svc-scope-neg@<tenant>` | "Negative" identity — does not have permission on the in-scope library; expected to receive no grounded answer. |
 | `svc-scope-drift-actor@<tenant>` | Account used to perform the deliberate scope-expansion change in §8.4 drift testing. |
@@ -283,7 +239,7 @@ There is no single tenant view that lists every agent. You must reconcile three 
 Open the Control 1.2 agent registry and join on agent name + environment + owner UPN. Flag the following diffs as findings to remediate before proceeding:
 
 | Diff | Action |
-| --- | --- |
+
 | Agent in List A but not in 1.2 registry | Open a registry intake ticket; do not allow the agent to be promoted to Zone 2/3 until intake completes. |
 | Agent in 1.2 registry but not in List A | Confirm agent has been retired; if not, the registry is stale — refresh and reassign owner. |
 | Agent in List A but not in DSPM (List C) | Verify the agent has actually been used in the DSPM lookback window; if it has been used and DSPM did not see it, escalate to [Control 1.6](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) tenant onboarding. |
@@ -297,7 +253,7 @@ Persist the reconciled view as artifact E3 — Reconciled Agent Inventory.
 For every agent in the reconciled inventory, open the agent in Copilot Studio (`Copilot Studio → [agent]`) and capture the following fields. Persist to the Control 1.2 registry; do not maintain a parallel store.
 
 | Field | Source surface | How to capture |
-| --- | --- | --- |
+
 | **F1 — SharePoint sites and libraries** | `Knowledge` tab → expand each SharePoint knowledge source | Record full path including site collection, site, library, and (if scoped) folder |
 | **F2 — OneDrive accounts** | `Knowledge` tab → SharePoint / OneDrive knowledge source entries pointing at `-my.sharepoint.com` URLs | Record OneDrive owner UPN and folder path |
 | **F3 — Dataverse tables** | `Knowledge` tab → Dataverse knowledge sources | Record environment, table logical name, columns referenced |
@@ -374,7 +330,7 @@ For Control 1.14 you must classify, at minimum:
 **The Copilot Studio knowledge connectors:**
 
 | Connector (April 2026 display name — verify in your tenant) | Zone 1 | Zone 2 | Zone 3 |
-| --- | --- | --- | --- |
+
 | Knowledge source with SharePoint and OneDrive in Copilot Studio | Business | Business | Business (allowlisted sites only — coordinate with Control 4.6 RCD posture in §5) |
 | Knowledge source with public websites in Copilot Studio | Non-Business | Non-Business | **Blocked** |
 | Knowledge source with documents in Copilot Studio (uploaded files) | Business | Non-Business | **Blocked** unless §7 file-upload posture allows label-gated upload |
@@ -383,7 +339,7 @@ For Control 1.14 you must classify, at minimum:
 **The standard connectors used as agent actions** (the exact set varies by environment — pull from §3.3 field F9):
 
 | Class of connector | Zone 1 | Zone 2 | Zone 3 |
-| --- | --- | --- | --- |
+
 | Microsoft 365 first-party (SharePoint, OneDrive for Business, Outlook, Teams, Planner, Excel) | Business | Business | Business (sub-set per agent justification) |
 | First-party Azure data services (Dataverse, Azure SQL, Azure Cosmos DB, Azure Blob) | Business | Business | Business (per-table scope) |
 | Premium business-line connectors used by your firm (e.g., Bloomberg, FactSet, ServiceNow, Salesforce — verify license eligibility) | Non-Business | Business (per justification) | Business (allowlist; CISO approval) |
@@ -494,7 +450,7 @@ When adding a new SharePoint source:
 For each SharePoint source on the agent, verify that the corresponding site has the §4.6 posture for the agent's zone:
 
 | Zone | Required SharePoint site posture | Verify in |
-| --- | --- | --- |
+
 | Zone 1 (Personal) | Sensitivity label applied; standard sharing posture | SPAC → Active sites → [site] → Settings |
 | Zone 2 (Team) | Sensitivity label applied; sharing restricted to specified domains; RCD enabled if site contains Confidential or higher | SPAC → Policies → Sharing; SPAC → Reports → Restricted Content Discovery |
 | Zone 3 (Enterprise / Regulated) | Sensitivity label applied (Confidential / Highly Confidential / Regulated / NPI); sharing restricted to internal only; **RCD enabled and effective**; DAG report ≤ 30 days old; oversharing remediation closed | SPAC → Policies → Sharing; SPAC → Reports → Restricted Content Discovery; SPAC → Reports → Data Access Governance |
@@ -587,7 +543,7 @@ Using the test fixtures from §2.4:
 ### 7.1 Per-zone posture matrix
 
 | Posture | Zone 1 (Personal) | Zone 2 (Team) | Zone 3 (Enterprise / Regulated / NPI) |
-| --- | --- | --- | --- |
+
 | File upload allowed? | Yes — author choice | Yes if business case documented | **No** by default; case-by-case label-gated exception with CISO sign-off |
 | Image upload allowed? | Yes | Yes if business case documented | **No** by default for Regulated / NPI; case-by-case |
 | Maximum size | Microsoft default | Microsoft default; document any per-tenant cap | Microsoft default; cap per Control 1.13 SIT performance profile |
@@ -650,7 +606,7 @@ For Zone 2 and Zone 3 agents, the upload-time label check is enforced through th
 2. Microsoft surfaces a curated set of recommended policies (the exact list evolves — verify against [Microsoft Learn — DSPM for AI policies](https://learn.microsoft.com/en-us/purview/dspm-for-ai)). The minimum set for Control 1.14 scope-drift coverage is:
 
 | Policy | Purpose | Zone applicability |
-| --- | --- | --- |
+
 | Detect risky AI usage | Flags prompts and responses with risky intent indicators | All zones; tune signal threshold per zone |
 | Detect unethical behavior in AI | Flags prompts probing for jailbreaks or policy circumvention | All zones |
 | Detect sensitive info in AI | Flags prompts and responses containing SITs from Control 1.13 | Zone 2 / Zone 3 |
@@ -965,7 +921,7 @@ For firms that consolidate alerts in Defender XDR:
 ### 13.1 Cadence matrix
 
 | Zone | §3 inventory reconcile | §12 Access Reviews | §10 hunts run | §11 alerts triaged | §13 attestation |
-| --- | --- | --- | --- | --- | --- |
+
 | Zone 1 | Annual | Annual (AR1 only) | Quarterly | Continuously | Annual |
 | Zone 2 | Quarterly | Quarterly (AR1, AR2, AR3) | Monthly | Continuously | Quarterly |
 | Zone 3 | Monthly | Monthly (AR1) + Quarterly (AR2, AR3) | Weekly | Continuously, On-call | Monthly |
@@ -973,7 +929,7 @@ For firms that consolidate alerts in Defender XDR:
 ### 13.2 Per-cycle responsibilities
 
 | Step | Owner | Input | Output |
-| --- | --- | --- | --- |
+
 | Pull §3 inventory for the cycle | AI Administrator | Lists A, B, C from §3.1 | Reconciled inventory (artifact for the cycle) |
 | Run §12 Access Reviews | Reviewers per AR template | AR1 / AR2 / AR3 instances | Review decisions auto-applied |
 | Run §10 hunts | Purview Compliance Admin | Saved searches H1–H5 | Hunt result CSVs |
@@ -1033,7 +989,7 @@ Hand off to `verification-testing.md` after publishing the agents under §3–§
 The artifacts collected in §2–§14 form the Control 1.14 evidence pack. Each artifact has an ID, owner, format, retention tag, and SHA-256 checksum recorded in the manifest. Manifest generation is automated by `scripts/build-evidence-manifest.ps1` in the FSI-AgentGov-Solutions companion repo; the schema is below.
 
 | ID | Description | Source surface | Owner | Format | Retention tag | Section |
-| --- | --- | --- | --- | --- | --- | --- |
+
 | E1 | License inventory snapshot (Copilot, Entra ID P2 / Governance, Purview SKUs) | Microsoft 365 admin center → Billing → Licenses | AI Administrator | CSV | 7y per Control 6.x | §2.1 |
 | E2 | Role assignment snapshot (Entra PIM eligibility + active assignments for the §2.2 roles) | Entra admin center → Roles and admins | Entra Identity Governance Admin | JSON | 7y | §2.2 |
 | E3-A | Copilot Studio agent list per environment | Copilot Studio → admin agent inventory | AI Administrator | CSV | 7y | §3.1 |
@@ -1103,7 +1059,7 @@ The following patterns appear repeatedly in agent governance assessments. Each i
 A Control 1.14 finding that escalates to an actual unauthorized disclosure of NPI, MNPI, or regulated client data may trigger a regulatory notification obligation. The exact trigger and timeline depend on the regulation, the data class, and the firm's incident response plan. The table below is a quick reference — it is not legal advice; consult the firm's Compliance and Legal teams before any external notification.
 
 | Regulation / authority | Indicative trigger | Indicative timeline | Owner of the notification |
-| --- | --- | --- | --- |
+
 | SEC Regulation S-P (amended 2024) | Unauthorized access to or use of customer information | Notify affected individuals as soon as practicable, but no later than 30 days after discovery | Compliance Officer + General Counsel |
 | SEC cybersecurity disclosure (Form 8-K Item 1.05) | Material cybersecurity incident at a registrant | File 8-K Item 1.05 within 4 business days after determining materiality | General Counsel + CFO |
 | FINRA Rule 4530 | Specified events including customer-information compromise | Report to FINRA within 30 calendar days | Compliance Officer |

@@ -19,7 +19,7 @@ Control 1.14 sits directly on **GLBA 501(b)** customer-NPI minimization, **SEC R
 ### §1.1 Incident severity matrix (Zone-aware)
 
 | Severity | Zone 1 (Personal) | Zone 2 (Team) | Zone 3 (Enterprise / customer-facing / regulated) | Initial response |
-|---|---|---|---|---|
+
 | **SEV-1** | Tenant-wide scope-control failure across > 10 agents AND active over-broad access observed | Zone 2 customer-data agent with confirmed access to undeclared NPI source; over-privileged service account discovered with tenant-wide Graph application permissions | **ANY** confirmed surfacing of customer NPI via Copilot/agent due to over-broad scope; **ANY** scope-drift on a customer-facing agent grounding against an undeclared site containing regulated data; loss of scope-drift telemetry across Zone 3 agents; cross-tenant or guest agent observed accessing Zone 3 grounding sources | Page L3 within 30 min; CISO + Compliance + Legal + Privacy joined within 60 min |
 | **SEV-2** | Single-agent scope drift with sensitive (non-NPI) data; file/image upload bypassing zone policy on Zone 1 agent | Quarterly access review > 30 days overdue on a Zone 2 agent; DLP-for-Copilot rule not blocking labeled content; connector classification drift; scope-expansion approved without documented justification; DSPM for AI not surfacing agent activity | Any Zone-2 condition occurring on a Zone 3 agent; UAL `AppPermissionGranted` event on Zone 3 agent identity with no change-management ticket; public web grounding still active on a Zone 3 NPI agent; DLP-for-Copilot rule observed in TestWithNotifications when policy of record is Block | L1 within 1 h; L2 paged; AI Governance Lead notified within 2 h |
 | **SEV-3** | Configuration drift detected by automated check (scope-drift monitor); knowledge source still scoped to entire site rather than folder/library | Single agent missing data-access justification; OAuth scope wider than declared; quarterly-review backlog growing; Entra ID Governance Access Review not generated for a non-customer-facing agent | Drift on a Zone 3 agent corrected within SLA without NPI exposure; documented and reviewed at next governance cadence | L1 same business day |
@@ -65,7 +65,6 @@ Capture, do **not** mutate first. Every artifact below must carry an SHA-256 has
 9. **DSPM for AI Activity Explorer export** for the suspect window — paginated, no truncation. Include any sensitive-info matches surfaced for the affected agent.
 10. **Quarterly access review records** for the affected agent — last completion date, reviewer of record, decision, justification on file. If overdue, record the overdue duration and the SoD posture (was the agent owner the only approver?).
 11. **Customer-impact analysis** — count of records, sensitivity classification (per Control 1.13 SITs), customer residency, NPI / PII determination. Include sample of returned content (redacted) for the responsible Privacy Officer's review.
-12. **Sovereign cloud explicitly named** — Commercial / GCC / GCC High / DoD. Determines available evidence sources, portal URLs, and feature parity (§4).
 13. **Role-group snapshot** — current membership of Power Platform Admin, SharePoint Admin, Purview Compliance Admin, Entra Global Admin, Entra Privileged Role Admin, AI Governance Lead, environment Maker. Captures who could have approved or made the change.
 
 > **SHA-256 manifest spec.** Maintain a single file `INC-<YYYY>-<MMDD>-<seq>/manifest.sha256` at the incident folder root. One line per artifact: `<sha256>  <relative/path/to/artifact>`. Sign the manifest (PGP detached signature `manifest.sha256.asc`, or store under WORM) by SOC lead within 4 h of evidence capture. Any evidence added later requires a new dated manifest line; never edit a prior line.
@@ -75,7 +74,7 @@ Capture, do **not** mutate first. Every artifact below must carry an SHA-256 has
 ### §1.4 Compensating controls during remediation
 
 | Failed surface | Compensating control | Time to deploy |
-|---|---|---|
+
 | Knowledge-source over-broad and cannot be re-scoped immediately (active flows depend on it) | **Quarantine the agent** — set publication off in Copilot Studio until re-scope is complete. Do not "leave it running while we discuss." | 5 min (PPAC publication toggle) |
 | DLP connector classification correct but not yet propagated (15-min Power Platform DLP propagation window) | Apply tenant-wide **Block at SharePoint sharing layer** for the affected library; raise Communication Compliance review cadence (Control 1.10) on the agent's interactions | 15 min |
 | DLP-for-Copilot rule not enforcing (still in TestWithNotifications) | Switch the rule to **Block**; document the compensating-control change-ticket; notify affected Maker community via Teams broadcast | 30 min |
@@ -93,7 +92,7 @@ Capture, do **not** mutate first. Every artifact below must carry an SHA-256 has
 - [ ] §1.1 severity assigned (and re-evaluated against the NPI / books-and-records escalation rule)
 - [ ] §1.2 reportability tree walked top-down; first YES recorded with timestamp + decision-maker name
 - [ ] §1.3 items 1–13 captured to incident folder; SHA-256 manifest signed
-- [ ] **Tenant ID and sovereign cloud** explicitly recorded (Commercial / GCC / GCC High / DoD)
+- [ ] **Tenant ID** recorded
 - [ ] **Knowledge-source scope** captured (folder / library / site / tenant-wide)
 - [ ] **DLP policy state** captured for both Power Platform DLP and Purview DLP-for-Copilot; environment in scope confirmed; rule mode recorded
 - [ ] **Public web grounding** state captured (per-agent toggle + environment-level policy)
@@ -113,7 +112,7 @@ Capture, do **not** mutate first. Every artifact below must carry an SHA-256 has
 ### §1.6 Communication tree
 
 | Severity / trigger | Notify | Channel | Within |
-|---|---|---|---|
+
 | SEV-1; or §1.2 step 1 (NPI / Reg S-P) YES | **CISO**, **Compliance Officer**, **Legal**, **Privacy Officer**, **AI Governance Lead** | Phone bridge + secure email; create incident war-room channel | 60 min of detection |
 | SEV-1; cross-tenant / guest access; or known platform fault | **Microsoft Premier / Unified Support** (case open, severity A) with §6 evidence pack | Premier portal | 4 h of triage |
 | SEV-1; §1.2 step 4 (model-risk) YES | **Model Risk Management Committee chair** | Secure email + governance ticket | 24 h of determination |
@@ -338,7 +337,7 @@ Get-DlpComplianceRule -Identity '<RuleName>' |
 **Root cause.** Three common failure modes:
 1. **Baseline never seeded** — the inventory snapshot from Control 1.2 was not loaded as the comparison baseline.
 2. **Record-type mismatch** — the correlation queries `AIPDiscover` or another deprecated record type instead of `MicrosoftCopilot` and `SharePointFileOperation`. (FYI: there is **no native** `AgentScopeExpansion` audit event — the signal is derived.)
-3. **Missing `-Endpoint`** on the Connect call — `Connect-PowerAppsAccount` was issued without `-Endpoint usgov` / `-Endpoint usgovhigh` / `-Endpoint dod` on a sovereign tenant, returning empty data silently.
+3. **Missing `-Endpoint`** on the Connect call — `Connect-PowerAppsAccount` was issued without `-Endpoint prod`, returning empty data silently.
 
 **Diagnostic queries.**
 
@@ -351,12 +350,12 @@ $baseline.Count
 Search-UnifiedAuditLog -StartDate (Get-Date).AddDays(-1) -EndDate (Get-Date) `
   -RecordType MicrosoftCopilot -ResultSize 10 | Measure-Object
 
-# Sovereign endpoint sanity (run on the operator workstation)
+# Commercial endpoint verification
 $ctx = Get-PowerAppsAccount
 $ctx | Select-Object Account, Environment, TenantId
 ```
 
-**Remediation.** Seed the baseline from the latest Control 1.2 registry export; replace deprecated record types with `MicrosoftCopilot` + `SharePointFileOperation` + `AzureActiveDirectoryApplicationAudit`; add the correct `-Endpoint` to every sovereign-cloud connect call. Add a synthetic-test agent that performs a known scope expansion daily; alert if no detection within 24 h (silent-zero-row guard).
+**Remediation.** Seed the baseline from the latest Control 1.2 registry export; replace deprecated record types with `MicrosoftCopilot` + `SharePointFileOperation` + `AzureActiveDirectoryApplicationAudit`. Add a synthetic-test agent that performs a known scope expansion daily; alert if no detection within 24 h (silent-zero-row guard).
 
 **Validation.** Trigger a controlled scope expansion (test agent + test library); expect alert within the documented detection window.
 
@@ -421,7 +420,7 @@ Get-AdminPowerAppEnvironment | ForEach-Object {
 ## §3 — Anti-patterns (do not do)
 
 | # | Anti-pattern | How to detect | Correction |
-|---|---|---|---|
+
 | 1 | Approving scope expansion without documented justification (e.g., "per Slack thread") | Audit change-management tickets quarterly; sample 5% of Zone 3 scope changes; confirm justification field has substantive narrative tied to a business need | Reject; require the Maker to amend with named business owner + business need + data-classification statement; record FINRA 4511 anchor |
 | 2 | Scoping knowledge source to entire SharePoint site (or "all of organization") instead of a specific folder / library | Inspect `knowledgeSources[*].sharePoint.url`; flag any URL ending at site root | Re-scope; tighten Maker policy to disallow site-root selection in Zone 2/3 |
 | 3 | Ignoring or auto-acknowledging scope-drift alerts ("noisy") | Sentinel rule: count of alerts cleared within 60 s by the same operator; investigate top-quartile clearers | Require a change-ticket reference or a §1.2 reportability decision in every clear |
@@ -432,47 +431,19 @@ Get-AdminPowerAppEnvironment | ForEach-Object {
 | 8 | Granting Microsoft Graph application (vs delegated) permissions to an agent identity when delegated would suffice | `Get-MgServicePrincipalAppRoleAssignment` for the agent SP; flag tenant-wide app-role grants like `Sites.FullControl.All`, `Files.ReadWrite.All`, `Mail.Read` | Replace with `Sites.Selected` + per-site grant, or delegated scopes; rotate credential; document gap window |
 | 9 | Running the audit query from `Connect-IPPSSession` instead of `Connect-ExchangeOnline` (wrong-shell trap) | Operator runbook review; CI lint on internal scripts | Re-run from the EXO session; mirror via DSPM Activity Explorer |
 | 10 | `Search-UnifiedAuditLog` single-shot (no `-SessionId`) for a multi-day Copilot investigation | Inspect script for missing `-SessionId` / `-SessionCommand ReturnLargeSet` | Implement do-while pagination; cap 50,000 per session |
-| 11 | Assuming sovereign-cloud parity (Commercial-cloud Copilot Studio Learn applied to a GCC High tenant) | Cross-check §4 sovereign matrix; tenant ID ends in `.us` or `.mil` but operator used `admin.powerplatform.microsoft.com` | Use the correct sovereign URL; document the parity gap and compensating control |
 | 12 | Citing a quarterly review as "complete" against an inventory > 90 days stale | Compare review completion date to Control 1.2 registry export date | Re-run the review against a refreshed inventory; document the gap window |
 
 ---
 
-## §4 — Sovereign cloud matrix
-
-| Capability | Commercial | GCC | GCC High | DoD | Notes |
-|---|---|---|---|---|---|
-| Power Platform admin URL | `admin.powerplatform.microsoft.com` | `gcc.admin.powerplatform.microsoft.us` | `admin.powerplatform.appsplatform.us` | `admin.apps.mil` | Bookmark the correct URL; Commercial URL on a `.us` tenant returns the wrong scope and may show empty data silently |
-| `Connect-PowerAppsAccount -Endpoint` | (default) | `usgov` | `usgovhigh` | `dod` | Required for §2.7 silent-zero-row guard |
-| Power Platform DLP (connector classifications) | ✅ | ✅ | ✅ | ✅ | Same enforcement model; connector list differs (some Commercial-only connectors absent in GCC High / DoD) |
-| Purview portal URL | `purview.microsoft.com` | `purview.microsoft.us` | `purview.microsoft.us` | `purview.apps.mil` | |
-| Purview audit (UAL with `MicrosoftCopilot` records) | ✅ | ✅ | ✅ | ✅ | Recordkeeping anchor across all clouds |
-| DSPM for AI (Activity Explorer + one-click templates) | ✅ | ✅ | Limited | Limited | Verify per template before relying on it |
-| Adaptive Protection (IRM) integration | ✅ | ✅ | Not at parity | Not at parity | Document compensating control where missing |
-| DLP for M365 Copilot location | ✅ | ✅ | Limited regional availability | Limited | Verify per Microsoft Learn for the specific region |
-| Copilot Studio knowledge-source SharePoint | ✅ | ✅ | ✅ (with sovereign SharePoint) | ✅ (with sovereign SharePoint) | Cross-cloud SharePoint grounding is **not** supported |
-| Copilot Studio external knowledge connectors | ✅ | Limited | More limited (FedRAMP-authorized only) | Most limited (DoD IL-authorized only) | Confirm specific connector availability before designing scope |
-| Public web grounding toggle | ✅ | ✅ | Verify per region | Disabled by default | Per-region availability — verify on Learn |
-| Sensitivity-label propagation to Copilot responses | ✅ | ✅ | Limited regional availability | Limited | See Control 1.5 sovereign notes |
-| Entra ID Governance Access Reviews | ✅ | ✅ | ✅ | Limited | DoD: validate guest-reviewer and recurrence support per region |
-| Restricted Content Discovery (RCD) / Restricted SharePoint Search (RSS) | ✅ | ✅ | ✅ | ✅ | Coordinate with Control 4.6 |
-
-**Fallback patterns.**
-- **GCC** — Same as Commercial but verify each Purview alert template before relying on it; document any gaps.
-- **GCC High** — Restrict knowledge sources to vetted SharePoint libraries only; no external connectors without FedRAMP High validation; raise content-moderation default; document compensating controls in the agent design record. Adaptive Protection not at parity — substitute Communication Compliance review-cadence increase + manual UAL search.
-- **DoD** — DoD IL-appropriate boundary required for every dependency. Confirm Copilot Studio service availability for your specific impact level before designing the control; treat any "verify per region" cell as a feature-gap unless validated in writing by your Microsoft account team.
-
-> **Per failure mode (§2):** The most parity-sensitive runbooks are §2.3 (web-grounding toggle exposure varies), §2.5 (DSPM for AI), §2.6 (DLP-for-Copilot rule conditions), and §2.8 (Access Reviews). Re-test these in your sovereign tenant before deployment; do not infer from Commercial.
-
----
 
 ## §5 — Escalation paths (L1 → L4)
 
 | Level | Owner | Triggers | MTTR target | Required evidence at handoff | Transition to next level |
-|---|---|---|---|---|---|
+
 | **L1 — Help desk / Power Platform Admin** (with SharePoint Admin on watch) | Power Platform Admin lead | All SEV-3/4; initial triage of all SEV-1/2; first-touch on scope-drift alerts | 30 min SEV-1/2 acknowledge; 1 business hour SEV-3 | §1.5 pre-escalation checklist items 1–10; agent-to-data-source snapshot; UAL paged export started | §2 runbook exhausted with no fix; OR SEV-1/2 confirmed; OR books-and-records gap identified |
 | **L2 — Power Platform / Purview operations** (AI Governance Lead + Purview Compliance Admin) | AI Governance Lead | All SEV-2; SEV-1 within 60 min; any incident where reportability tree §1.2 returns YES at step 2, 3, 4, 5, or 6 | 4 h SEV-2; 1 h SEV-1 | All §1.3 evidence items 1–13; §1.2 reportability decision recorded; customer-impact analysis | Customer NPI exposure suspected (§1.2 step 1 YES); OR SEV-1 confirmed; OR Microsoft platform-side fault suspected |
-| **L3 — SME + Microsoft Support** (CISO + Compliance Officer + Legal + Privacy Officer; Microsoft case open) | CISO | SEV-1; any §1.2 step 1 YES (NPI / Reg S-P / GLBA / DFS); any §1.2 step 2 YES (FINRA 4530); NY DFS 500.17 determination in scope | Determination within 24 h of SEV-1; 72 h DFS clock from determination | Full §1.3 package with signed SHA-256 manifest under WORM; reportability decision; customer-impact analysis; communications draft; Microsoft case ID | Microsoft Premier engagement required (platform fault, sovereign-cloud feature gap, vendor-managed component failure) |
-| **L4 — Microsoft Premier Support + CISO** | Microsoft Premier engineer (engineering bridge) + CISO | Suspected platform fault (Copilot Studio knowledge-source scoping fault, Purview audit ingestion outage, DLP propagation > 60 min, DSPM for AI blackout); cross-tenant fault; sovereign-cloud feature gap requiring engineering ICM | Per Premier contract SLA (Sev A: 1 h response) | §6 Microsoft Support pack | (terminal) — escalate to Microsoft account team for product-roadmap items; Compliance reports out to Board / regulator per §1.6 |
+| **L3 — SME + Microsoft Support** (CISO + Compliance Officer + Legal + Privacy Officer; Microsoft case open) | CISO | SEV-1; any §1.2 step 1 YES (NPI / Reg S-P / GLBA / DFS); any §1.2 step 2 YES (FINRA 4530); NY DFS 500.17 determination in scope | Determination within 24 h of SEV-1; 72 h DFS clock from determination | Full §1.3 package with signed SHA-256 manifest under WORM; reportability decision; customer-impact analysis; communications draft; Microsoft case ID | Microsoft Premier engagement required (platform fault, vendor-managed component failure) |
+| **L4 — Microsoft Premier Support + CISO** | Microsoft Premier engineer (engineering bridge) + CISO | Suspected platform fault (Copilot Studio knowledge-source scoping fault, Purview audit ingestion outage, DLP propagation > 60 min, DSPM for AI blackout); cross-tenant fault| Per Premier contract SLA (Sev A: 1 h response) | §6 Microsoft Support pack | (terminal) — escalate to Microsoft account team for product-roadmap items; Compliance reports out to Board / regulator per §1.6 |
 
 ---
 
@@ -480,7 +451,7 @@ Get-AdminPowerAppEnvironment | ForEach-Object {
 
 Mandatory data to gather **before** filing the case. Do not file without items 1–9; cases without these are routinely closed as "insufficient information" and the clock continues to run on the firm's reportability obligations.
 
-1. **Tenant ID** (`Get-MgContext | Select TenantId`) and explicit sovereign cloud (Commercial / GCC / GCC High / DoD)
+1. **Tenant ID** (`Get-MgContext | Select TenantId`)
 2. **Affected agent ID(s)** — Copilot Studio agent ID + environment ID + Maker UPN
 3. **Connection / connector IDs** for every connector bound to the agent (Power Platform admin export)
 4. **Audit-search Job IDs** for every `Search-UnifiedAuditLog` paged query (record the GUID `-SessionId` used)
@@ -492,7 +463,7 @@ Mandatory data to gather **before** filing the case. Do not file without items 1
 10. **Business impact statement** — Zone, customer-facing or internal, NPI determination, severity, in-scope regulators, reportability decision (if made)
 11. **Reproducer** — minimal steps with a test agent + test prompt + test grounding source; do not file without a reproducer for SEV-2 and below
 
-**When NOT to file with Microsoft.** Single-user complaint with no reproducer; sovereign-cloud feature-gap question (raise to your Microsoft account team, not Premier); request to change default product behavior (product feedback channel). Filing these wastes the case slot and dilutes urgency on the genuine platform faults.
+**When NOT to file with Microsoft.** Single-user complaint with no reproducer; request to change default product behavior (product feedback channel). Filing these wastes the case slot and dilutes urgency on the genuine platform faults.
 
 **While waiting for Microsoft.** Maintain the §1.4 compensating control; continue capturing evidence; re-walk §1.2 if severity escalates; do **not** change configuration mid-case unless Microsoft requests it in writing on the case.
 
@@ -503,7 +474,7 @@ Mandatory data to gather **before** filing the case. Do not file without items 1
 ### §7.1 Related controls
 
 | Control | Why it matters here |
-|---|---|
+
 | [1.2 — Agent Registry and Integrated Apps Management](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) | Source of truth for agent-to-data-source pairs; baseline for the scope-drift detector (§2.7) |
 | [1.4 — Advanced Connector Policies (ACP)](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md) | Connector-layer enforcement of the scope this control defines at the agent layer; every "connector added without DLP review" failure (§2.1) traces here |
 | [1.10 — Communication Compliance Monitoring](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) | Compensating control during 1.14 gap (§1.4); surfaces policy violations in agent input/output |
@@ -516,7 +487,6 @@ Mandatory data to gather **before** filing the case. Do not file without items 1
 
 ### §7.2 Sibling 1.14 playbooks
 
-- [Portal walkthrough](portal-walkthrough.md) — sovereign cloud table, role-by-step matrix
 - [PowerShell setup](powershell-setup.md) — wrong-shell trap, paginated audit query, baseline export
 - [Verification & testing](verification-testing.md) — detects the conditions this playbook handles
 
@@ -566,8 +536,7 @@ Run a post-incident review (PIR) within 10 business days of incident closure for
 
 ```text
 INCIDENT: INC-<YYYY>-<MMDD>-<seq>
-SEVERITY: SEV-<n>             ZONE: <1|2|3>
-SOVEREIGN CLOUD: <Commercial|GCC|GCC High|DoD>
+SEVERITY: SEV-<n>             ZONE: <13>
 DETECTION TIMESTAMP (UTC):
 DETERMINATION TIMESTAMP (UTC):     // §1.2 — what regulators will examine
 REMEDIATION DEPLOYED (UTC):
@@ -642,7 +611,6 @@ DISTRIBUTION:
 1. Did §1.2 reportability tree produce the correct first-YES on the first walkthrough? If not, why — and what training or tooling change closes the gap?
 2. Was the §1.4 SoD note honored? If not, what structural change is required (Maker policy, environment role-assignment, governance template)?
 3. Did any §1.3 evidence item rely on a non-WORM source (Power Platform admin telemetry alone)? If yes, raise a Control 1.7 / 1.9 / 1.19 enhancement.
-4. Was a sovereign-cloud parity assumption made (§3 anti-pattern 11)? If yes, document the gap and the verified compensating control.
 5. Did Microsoft Support engagement (§5 L4) yield a platform-side fix, a feature-gap acknowledgement, or no-action? Track product-roadmap requests through the Microsoft account team, not Premier cases.
 
 ### §8.3 Trend-watch (rolling 12 months)
@@ -654,7 +622,6 @@ Maintain a rolling 12-month dashboard for the AI Governance Forum:
 - Mean time from determination to remediation deployed
 - §2 failure-mode frequency (which runbook fired most)
 - Anti-pattern recurrence (a recurring anti-pattern is a process / training gap, not an operator failure)
-- Sovereign-cloud parity gap log
 
 ---
 

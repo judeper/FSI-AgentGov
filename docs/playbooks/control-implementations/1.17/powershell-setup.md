@@ -1,7 +1,7 @@
 # PowerShell Setup: Control 1.17 — Endpoint Data Loss Prevention
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
+ Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
 
 **Last Updated:** May 2026
 **Modules Required:** `ExchangeOnlineManagement` (for Security & Compliance PowerShell — `Connect-IPPSSession` and the `*-DlpCompliance*` cmdlet surface)
@@ -41,41 +41,6 @@ Required role: **Purview Compliance Admin** (canonical) — assigned via Microso
 
 ---
 
-## Connection Helper (Sovereign-Cloud Aware)
-
-```powershell
-function Connect-FsiCompliance {
-    <#
-    .SYNOPSIS
-        Connects to Security & Compliance PowerShell with sovereign-cloud awareness.
-    #>
-    [CmdletBinding()]
-    param(
-        [ValidateSet('Commercial','GCC','GCCHigh','DoD')]
-        [string]$Cloud = 'Commercial',
-
-        [Parameter(Mandatory)]
-        [string]$UserPrincipalName
-    )
-
-    $connectionUri = switch ($Cloud) {
-        'Commercial' { 'https://ps.compliance.protection.outlook.com/powershell-liveid/' }
-        'GCC'        { 'https://ps.compliance.protection.outlook.com/powershell-liveid/' }
-        'GCCHigh'    { 'https://ps.compliance.protection.office365.us/powershell-liveid/' }
-        'DoD'        { 'https://l5.ps.compliance.protection.office365.us/powershell-liveid/' }
-    }
-
-    try {
-        Connect-IPPSSession -UserPrincipalName $UserPrincipalName -ConnectionUri $connectionUri -ErrorAction Stop
-        Write-Host "[OK] Connected to Security & Compliance ($Cloud)" -ForegroundColor Green
-    }
-    catch {
-        throw "Failed to connect to Security & Compliance ($Cloud): $($_.Exception.Message)"
-    }
-}
-```
-
----
 
 ## Script 1 — Create or Update the Endpoint DLP Policy (Idempotent)
 

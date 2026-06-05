@@ -16,7 +16,7 @@
     It is **not** an evidentiary, supervisory, content-quality, or model-risk control. Specifically, this playbook does **not** replace:
 
     | Adjacent concern | Owning control |
-    |---|---|
+    
     | Supervisory review of agent outputs (FINRA Rule 3110, registered principal sign-off) | [Control 2.12 — Supervision and Oversight under FINRA Rule 3110](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) |
     | DLP policies, environment strategy, connector classification for Power Platform / Copilot Studio | [Control 2.2 — Environment Groups and Tier Classification](../../../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) |
     | Model risk management framework (OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) alignment) | [Control 2.6 — Model Risk Management Alignment with OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) |
@@ -31,7 +31,7 @@
     Two identity types touch agent surfaces, and they must be governed by **different mechanisms**:
 
     | Identity type | Examples | How MFA works | Conditional Access path |
-    |---|---|---|---|
+    
     | **Human (interactive) identity** | Agent maker, agent owner, Power Platform Admin, AI Administrator, end-user invoking a Copilot agent in Teams | Interactive MFA prompt — passkey, FIDO2 security key, Windows Hello for Business, Microsoft Authenticator (push + number match) | Standard CA policy targeting `Users and groups` |
     | **Agent / workload identity** | Service principal that runs a Copilot Studio agent, managed identity for an autonomous agent, Entra Agent ID registration, third-party connector app | **Cannot perform interactive MFA** (no human at the keyboard). Governed by certificate-based auth, managed identity, secret rotation, and **Conditional Access for Workload Identities** (CA-WID) which evaluates **location, sign-in risk, and named locations** instead of MFA strength | CA policy with `Users and workload identities → Workload identities` selected (requires the **Microsoft Entra Workload Identities Premium P1 add-on** licensed per service principal in scope) |
 
@@ -53,7 +53,7 @@
 
 !!! info "Surface inventory — portals you will touch in this playbook"
     | # | Surface | URL | Owner role |
-    |---|---|---|---|
+    
     | 1 | Microsoft Entra admin center | `https://entra.microsoft.com` | Authentication Policy Admin, Entra Security Admin |
     | 2 | Microsoft Defender portal (Sentinel + Identity) | `https://security.microsoft.com` | Sentinel Admin |
     | 3 | Power Platform admin center | `https://admin.powerplatform.microsoft.com` | Power Platform Admin |
@@ -66,7 +66,7 @@
 ## Document Map
 
 | § | Section | Outcome |
-|---|---|---|
+
 | 0 | [Pre-flight prerequisites and license validation](#0-pre-flight-prerequisites-and-license-validation) | Confirm SKUs, roles, network position, and break-glass posture before any change |
 | 1 | [Migrate Security Defaults to a Conditional Access baseline](#1-migrate-security-defaults-to-a-conditional-access-baseline) | Tenant has CA-driven baseline, not Security Defaults |
 | 2 | [Authentication Methods policy — passwordless-first baseline](#2-authentication-methods-policy-passwordless-first-baseline) | FIDO2, WHfB, Passkeys enabled; SMS/voice deprecated for privileged roles |
@@ -81,7 +81,6 @@
 | 11 | [Sentinel Conditional Access Insights workbook](#11-sentinel-conditional-access-insights-workbook) | Daily / weekly impact dashboard wired to the Control 3.9 workspace |
 | 12 | [Break-glass / emergency access accounts](#12-break-glass-emergency-access-accounts) | Two cloud-only accounts excluded from CA, monitored by analytic rule |
 | 13 | [Report-only to Enforce rollout — the 7-day soak](#13-report-only-to-enforce-rollout-the-7-day-soak) | Documented rollout with sign-in log review |
-| 14 | [Sovereign cloud parity — GCC, GCC High, DoD](#14-sovereign-cloud-parity-gcc-gcc-high-dod) | Documented unavailability and substitute posture |
 | 15 | [Evidence pack and verification cross-references](#15-evidence-pack-and-verification-cross-references) | Examiner-ready artifact list |
 
 ---
@@ -97,7 +96,7 @@ Sign in to `https://entra.microsoft.com` with an account that already holds **En
 Confirm the roles below are present and assigned only to named individuals (not shared service accounts). Use the **canonical role names** from `docs/reference/role-catalog.md` — if your tenant displays the legacy long-form name, that is the same role.
 
 | Canonical role | Required for | Minimum count |
-|---|---|---|
+
 | **Entra Global Admin** | Migrating Security Defaults, creating tenant-wide CA policies | 2 (plus 2 break-glass — see §12) |
 | **Authentication Policy Admin** | Authentication Methods policy, Authentication Strengths | 2 |
 | **Conditional Access Admin** *(Microsoft built-in role)* | Creating and editing CA policies | 2 |
@@ -114,7 +113,7 @@ Confirm the roles below are present and assigned only to named individuals (not 
 Open `https://admin.microsoft.com → Billing → Licenses`. Confirm the SKUs below before promoting any policy past Report-only.
 
 | SKU | Required for | Minimum count |
-|---|---|---|
+
 | **Microsoft Entra ID P1** | Conditional Access for human users; Authentication Strengths | All licensed users in any CA policy scope |
 | **Microsoft Entra ID P2** | Identity Protection risk policies, PIM, risky-user CA conditions | All privileged-role holders |
 | **Microsoft Entra Workload Identities Premium (P1 add-on)** | Conditional Access for Workload Identities (CA-WID) | One per service principal, managed identity, or Entra Agent ID identity in CA-WID scope |
@@ -125,9 +124,6 @@ Open `https://admin.microsoft.com → Billing → Licenses`. Confirm the SKUs be
 !!! warning "CA-WID without the P1 add-on fails open"
     A Conditional Access policy that targets a **workload identity** without a **Microsoft Entra Workload Identities Premium** license assigned to that identity will **not enforce** — the policy simply does not evaluate. There is **no** in-portal warning for this. The only safe verification is to (a) attempt a deliberate denial scenario (block by named location) from outside the trusted IP range and (b) inspect the Sign-in logs (Service principal sign-ins tab) for the `conditionalAccessStatus` field. A `notApplied` status with the policy in scope is the symptom. See [`./troubleshooting.md`](./troubleshooting.md) issue T-07.
 
-### 0.3 Sovereign cloud determination — stop here if applicable
-
-Inspect your authentication endpoint. If your admin URL is `admin.microsoft.us` or you authenticate against `login.microsoftonline.us`, jump to **§14** for the GCC / GCC High / DoD parity table **before** proceeding. Several Policy C / Policy D capabilities (CA for Workload Identities, Token Protection Preview, device-bound passkeys synced via Microsoft Authenticator) have a lagging release schedule in sovereign clouds and must be documented as **product unavailability**, not as a tenant policy exception.
 
 ### 0.4 Confirm break-glass accounts already exist
 
@@ -297,7 +293,7 @@ The built-in **Phishing-resistant MFA** strength is acceptable for most uses. Sk
 Named locations are reusable IP and country expressions referenced from CA conditions. You will need at least three:
 
 | Named location | Type | Purpose |
-|---|---|---|
+
 | `Corporate IP Ranges - Trusted` | IPv4/IPv6 CIDR, **Mark as trusted** | Office egress IPs; backbone for Policy B |
 | `Permitted Countries - Operations` | Country | Country allow-list for human users (US, plus contracted offshore countries) |
 | `Workload Identity Permitted IPs` | IPv4/IPv6 CIDR, **Do not** mark as trusted | Egress IPs from your Azure / on-prem services that host agents; backbone for Policy C |
@@ -394,7 +390,7 @@ This policy fences **Copilot Studio**, **Power Platform**, and **Microsoft 365 C
 The relevant cloud apps as enumerated in the Entra cloud-app picker are:
 
 | Cloud app (display name in Entra) | App ID | Role in agent authoring |
-|---|---|---|
+
 | **Power Apps** | `475226c6-020e-4fb2-8a90-7a972cbfc1d4` | Power Apps maker portal |
 | **Power Automate** | `7df0a125-d3be-4c96-aa54-591f83ff541c` | Flow authoring |
 | **Microsoft Power Platform** | `1c75d0a8-3cd3-4a38-a5b8-e1c8b9e3ae3f` *(verify in your tenant)* | PPAC and consolidated Power Platform admin actions |
@@ -440,7 +436,7 @@ This policy is the **agent-identity** boundary. It targets **service principals*
 
 ### 7.1 Confirm the Workload Identities Premium SKU
 
-Before creating the policy, re-verify §0.2: each service principal you intend to scope must have a **Microsoft Entra Workload Identities Premium** license. To check assignments:
+Before creating the policy, §0.2: each service principal you intend to scope must have a **Microsoft Entra Workload Identities Premium** license. To check assignments:
 
 1. `https://entra.microsoft.com → Identity → Applications → Enterprise applications → All applications`.
 2. Locate the service principal (filter by application type **Application** and search by name).
@@ -536,7 +532,7 @@ For a pilot, create a **separate** policy `CA-005` rather than co-mingling with 
 ### 9.1 Where agent identities appear
 
 | Surface | What you see | When to use |
-|---|---|---|
+
 | `Identity → Applications → Enterprise applications → All applications` | Each agent appears as a service principal with **Application type = Agent** (a value introduced when Entra Agent ID first shipped) | When binding an agent to a CA-WID policy (§7), you select its SP from this list |
 | `Identity → Identity governance → Agent ID` *(Frontier-gated; may not appear in your tenant)* | The agent registry — sponsor (human owner of record), custom security attributes (zone classification, risk tier), agent collection membership | When governing the **lifecycle** of agent identities — provisioning, sponsor handoff, deprovisioning. This surface is owned by [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) at the governance-console level and by Control 2.26 (where present) at the directory level |
 
@@ -558,7 +554,7 @@ For a pilot, create a **separate** policy `CA-005` rather than co-mingling with 
 Once an agent identity is in scope of Policy C, the **Agent 365 Admin Center** governance dashboard will display the CA enforcement state for that agent. Cross-reference [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) for the operational read-out — Agent Registry → `[agent]` → **Identity & Access** tab shows linked CA policies, last successful sign-in, and last blocked sign-in.
 
 !!! info "Entra Agent ID surfaces are still evolving post-GA"
-    Although Entra Agent ID reached GA in April 2026, schema, attribute names, and blade locations continue to evolve as Microsoft expands the surface (especially the `Identity governance → Agent ID` registry view, which remains Frontier-gated in some tenants). Document the **portal version** you verified against (header **Last UI Verified** date) and re-verify after each Microsoft Wave release. Prefer the portal-level **Enterprise applications** view as the durable enforcement plane; treat undocumented Agent ID endpoints as preview surfaces and avoid scripting against them in production.
+    Although Entra Agent ID reached GA in April 2026, schema, attribute names, and blade locations continue to evolve as Microsoft expands the surface (especially the `Identity governance → Agent ID` registry view, which remains Frontier-gated in some tenants). Document the **portal version** you verified against (header **Last UI Verified** date) and after each Microsoft Wave release. Prefer the portal-level **Enterprise applications** view as the durable enforcement plane; treat undocumented Agent ID endpoints as preview surfaces and avoid scripting against them in production.
 
 ---
 
@@ -571,7 +567,7 @@ PIM converts standing privileged-role assignments into **eligible** assignments 
 For each role in the table below, configure **activation requires MFA** with the phishing-resistant strength.
 
 | Role | Maximum activation duration | Requires MFA on activation | Justification required | Approval required | Notification recipients |
-|---|---|---|---|---|---|
+
 | Entra Global Admin | 2 hours | Yes — `FSI Phishing-Resistant MFA` | Yes (ticket #) | Yes — 2 approvers from `GA-Approvers` group | CISO, Compliance Officer |
 | Power Platform Admin | 4 hours | Yes — `FSI Phishing-Resistant MFA` | Yes | Yes — 1 approver | AI Administrator, Compliance Officer |
 | Authentication Policy Admin | 2 hours | Yes — `FSI Phishing-Resistant MFA` | Yes | Yes — 1 approver | CISO |
@@ -707,7 +703,7 @@ Every policy authored in §§5–8 starts in **Report-only**. Promotion to **On*
 ### 13.1 The 7-day window
 
 | Day | Activity | Owner |
-|---|---|---|
+
 | 0 | Policy created in Report-only; CAB ticket updated | Conditional Access Admin |
 | 1 | Verify Sign-in logs show the policy evaluating (`Conditional Access` tab populated) | Entra Security Admin |
 | 2–6 | Daily review of `Report-only: Failure` and `Report-only: Success but interrupted` results in the Sign-in logs and the §11 workbook | Entra Security Admin |
@@ -749,45 +745,6 @@ Extend by another 7 days (no shortcut) if any of:
 
 ---
 
-## 14. Sovereign cloud parity — GCC, GCC High, DoD
-
-!!! warning "Sovereign Cloud Availability — GCC / GCC High / DoD"
-    Several capabilities used in this playbook have a **lagging release schedule** in US Gov sovereign clouds compared to commercial Microsoft 365. As of April 2026, the parity status is summarized below. **Verify Microsoft Learn support tables before each enablement** — sovereign feature ship dates change frequently.
-
-| Capability | Commercial | GCC | GCC High | DoD | If unavailable, document as |
-|---|---|---|---|---|---|
-| Conditional Access (human users) | GA | GA | GA | GA | — |
-| Authentication Strengths (custom + built-in) | GA | GA | GA | GA | — |
-| Phishing-resistant MFA strength | GA | GA | GA | GA | — |
-| FIDO2, Windows Hello for Business | GA | GA | GA | GA | — |
-| Passkeys in Microsoft Authenticator | GA | Verify on Learn | Verify on Learn | Verify on Learn | Product unavailability — see Microsoft Learn |
-| **Conditional Access for Workload Identities (CA-WID)** | GA | Verify on Learn | Verify on Learn | Verify on Learn | Product unavailability — substitute compensating controls (network segmentation, egress allow-list at firewall, certificate pinning) |
-| **Token Protection (Preview)** | Preview | Not announced | Not announced | Not announced | Product unavailability |
-| Continuous Access Evaluation | GA | GA | GA | Verify on Learn | — |
-| **Entra Agent ID** | GA (April 2026; requires Microsoft Agent 365 or M365 E7 licensing, GA May 1, 2026) | Not announced | Not announced | Not announced | Product unavailability — manage agent identities as ordinary service principals |
-| Microsoft Sentinel CA Insights workbook | GA | GA | GA | GA | — |
-| Identity Protection (risky workload identities) | GA | Verify on Learn | Verify on Learn | Verify on Learn | Compensating control: nightly KQL hunt for SP sign-in anomalies |
-| Microsoft Agent 365 Admin Center | GA (May 1, 2026) | Not announced | Not announced | Not announced | See [Control 2.25 §1 sovereign variant](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) |
-
-### 14.1 Documenting unavailability vs exception
-
-When a capability is unavailable in your sovereign cloud, document it as **product unavailability**, not as a **policy exception**. The distinction matters to examiners:
-
-- **Product unavailability** is a fact about the platform; it is dated, references the Microsoft Learn page, and triggers the **substitute compensating control** (e.g., firewall egress allow-list in lieu of CA-WID). It is reviewed at each Microsoft Wave release.
-- **Policy exception** is an FSI-specific deviation from your firm's WSP that requires named approval, expiration date, and a quarterly review cycle.
-
-Do not paper over a product unavailability as an exception — examiners reading your exception register expect to see firm-internal decisions, not Microsoft roadmap gaps.
-
-### 14.2 Sovereign substitute pattern for CA-WID
-
-If CA-WID is unavailable in your cloud, the substitute is layered:
-
-1. **Network egress** — restrict the source IPs from which agent service principals can authenticate, enforced at the firewall / NVA, not at the identity plane.
-2. **Certificate-based authentication** — bind agent SPs to certificates whose private keys are in an HSM or Azure Key Vault Premium; rotate every 90 days.
-3. **Daily KQL hunt** — run a Sentinel workbook tile that lists every SP sign-in from outside the permitted IP range and routes to incident response.
-4. **Quarterly recheck** — when CA-WID becomes available in your sovereign cloud, decommission the firewall workaround in favor of CA-WID and update this playbook.
-
----
 
 ## 15. Evidence pack and verification cross-references
 
@@ -811,7 +768,6 @@ Every promotion in §13 must produce evidence artifacts to the firm's compliance
 ├── 11-sentinel-workbook-screenshot.png              (§11)
 ├── 12-breakglass-attestation-quarterly.pdf          (§12)
 ├── 13-reportonly-failure-triage-log.xlsx            (§13)
-├── 14-sovereign-parity-attestation.pdf              (§14, if applicable)
 └── 99-cisco-sign-off.pdf
 ```
 
@@ -829,7 +785,7 @@ The portal walkthrough produces the **configuration** evidence. The companion pl
 The 1.11 evidence pack does not stand alone. For an examiner-ready posture, join it to:
 
 | Joined control | Evidence joined |
-|---|---|
+
 | [Control 1.1](../../../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md) | Maker-entitlement source-of-truth that populates `Agent-Makers-All` |
 | [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | MRM register entry showing the agent identity and its MRM tier — drives whether Policy C applies |
 | [Control 2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervisory review of CA policy changes (FINRA Rule 3110 supervision of WSP changes) |
@@ -845,7 +801,7 @@ The 1.11 evidence pack does not stand alone. For an examiner-ready posture, join
 The patterns below have caused real outages in FSI tenants. Avoid them.
 
 | # | Anti-pattern | Why it fails | Correct pattern |
-|---|---|---|---|
+
 | AP-01 | Targeting "All cloud apps" with `Require compliant device` for all users | Mobile device sign-ins to Outlook on personal phones are blocked tenant-wide | Scope by group (`Agent-Makers-All`) and cloud app (Power Platform suite) — Policy B |
 | AP-02 | Disabling SMS / voice tenant-wide before users have registered alternatives | Locks out users mid-migration | Exclude `Privileged-Role-Holders` from SMS targets; leave SMS available as fallback for general users until passkey rollout completes — §2.6 |
 | AP-03 | Skipping Report-only and going straight to On | First incident is always tenant-wide | Mandatory 7-day Report-only soak — §13 |
@@ -855,13 +811,13 @@ The patterns below have caused real outages in FSI tenants. Avoid them.
 | AP-07 | Combining Token Protection requirement with macOS / mobile users in scope | Unsupported platform → blocked | Scope Token Protection to Windows-only via Device Platform condition — §8.4 |
 | AP-08 | Standing Entra Global Admin assignments | Compromise → tenant takeover | PIM eligible-only with phishing-resistant MFA on activation — §10 |
 | AP-09 | Allowing any FIDO2 key (no AAGUID restriction) | Consumer-grade key with weak attestation accepted | AAGUID allow-list — §2.2 |
-| AP-10 | Documenting sovereign-cloud capability gaps as "policy exceptions" instead of "product unavailability" | Examiner reads exception register as firm-internal deviation | Document as product unavailability with Microsoft Learn link — §14.1 |
+| AP-10 | Documenting product capability gaps as "policy exceptions" instead of "product unavailability" | Examiner reads exception register as firm-internal deviation | Document as product unavailability with Microsoft Learn link |
 
 ---
 
 ## Summary
 
-You have configured the four foundational Conditional Access policies for AI agents in an FSI Microsoft 365 tenant: **Policy A** for privileged-role phishing-resistant MFA, **Policy B** for agent-maker compliant-device + phishing-resistant MFA, **Policy C** for workload-identity location and risk fencing, and **Policy D** (plus pilot **Policy E** / `CA-005`) for session-layer controls including CAE, sign-in frequency, and Token Protection. You have promoted them through a 7-day Report-only soak, wired the Sentinel CA Insights workbook to the Control 3.9 workspace, and confirmed the break-glass posture. You have documented sovereign-cloud unavailability where applicable and refreshed the evidence pack for examiner review.
+You have configured the four foundational Conditional Access policies for AI agents in an FSI Microsoft 365 tenant: **Policy A** for privileged-role phishing-resistant MFA, **Policy B** for agent-maker compliant-device + phishing-resistant MFA, **Policy C** for workload-identity location and risk fencing, and **Policy D** (plus pilot **Policy E** / `CA-005`) for session-layer controls including CAE, sign-in frequency, and Token Protection. You have promoted them through a 7-day Report-only soak, wired the Sentinel CA Insights workbook to the Control 3.9 workspace, and confirmed the break-glass posture.
 
 These configurations **support compliance with** NYDFS §500.12, FFIEC authentication guidance, SEC Reg S-P, FINRA Notice 21-18, NIST SP 800-63B AAL3, and CISA Zero Trust identity-pillar expectations. They do **not** by themselves satisfy any obligation; the joined controls in §15.3 carry the rest of the load.
 

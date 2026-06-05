@@ -2,7 +2,6 @@
 
 > **Scope.** Operational verification procedures for Control 1.13 across Microsoft 365 Copilot, Microsoft Copilot Studio, Power Platform, and SharePoint-grounded agents in US financial-services tenants.
 > **Audience.** Microsoft 365 administrators, Purview engineers, internal auditors, and supervisory examiners at FINRA member firms, SEC-registered investment advisers, OCC/FRB-supervised banks, and CFTC-registered swap dealers.
-> **Sovereign coverage.** Commercial · GCC · GCC High · DoD — see §5 for parity caveats.
 > **Cross-links.** [Portal walkthrough](portal-walkthrough.md) · [PowerShell setup](powershell-setup.md) · `troubleshooting.md` (sibling playbook — pending publication) · [Shared PowerShell baseline](../../_shared/powershell-baseline.md)
 > **Last UI Verified.** April 2026 (Microsoft Purview portal `purview.microsoft.com`, Microsoft 365 Admin Center `admin.cloud.microsoft`).
 
@@ -20,7 +19,6 @@ Verification of SIT and pattern-recognition coverage exists to surface failure m
 6. **Hard-coded numeric confidence thresholds in operator UX.** Operators are told "≥85 = High" without referencing the custom SIT XML `confidenceLevel` attribute that defines the band; a SIT change silently breaks the assumption. Detected during `1.13-CUSTOM-01..04` review and §8 Anti-Pattern #6.
 7. **No negative corpus.** Only positive matches are tested, so false-positive rate is unknown and Zone 3 block actions create denial-of-service to legitimate agent queries. Detected by every `*-NEG-*` and the `-negative-` half of each pair.
 8. **EDM hash drift.** The EDM Upload Agent runs against a stale schema or stale source extract, producing a hash set that no longer matches production data. Detected by `1.13-NEG-02`.
-9. **Sovereign-cloud false attestation.** A Commercial-tenant attestation is reused for a GCC High tenant where NER, trainable classifiers, or DSPM for AI are not yet at parity. Detected by `1.13-PRE-07` and §5.
 10. **Trainable classifier without OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) model-risk evidence.** A custom trainable classifier is deployed without documented training-data lineage, validation set, or model-risk sign-off, breaching the FSI Governance Gate defined in the control spec. Detected by `1.13-TC-01..04`.
 
 ---
@@ -34,8 +32,8 @@ Cadence is **firm-defined** under WSPs (FINRA Rule 3110) and supervisory procedu
 | **Daily** | UAL sampling (`1.13-AUDIT-01..04`); DLP alert queue triage | Purview Compliance Admin | Compliance Officer | FINRA 3110(b), SEC 17a-4(f), SOX ITGC |
 | **Weekly** | DLP-for-Copilot match review (`1.13-DLP-01..03`); DSPM for AI surfacing (`1.13-DSPM-01..02`) | Information Protection Admin | CISO | GLBA Safeguards 314.4(d); OCC Heightened Standards |
 | **Monthly** | Full BUILTIN (`1.13-BUILTIN-01..08`) and CUSTOM (`1.13-CUSTOM-01..04`) regression with positive + negative corpus | Information Protection Admin | Compliance Officer | FINRA 3110, SEC Reg S-P |
-| **Quarterly** | EDM (`1.13-EDM-01..03`), Trainable Classifier (`1.13-TC-01..04`), NER (`1.13-NER-01..04`), Negative-path battery (`1.13-NEG-01..05`), Sovereign parity recheck (§5) | Compliance Data Administrator + Information Protection Admin | CRO | OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7); GLBA Safeguards |
-| **On change** | Any test affected by a tenant change (new SIT, EDM schema rotation, DLP rule edit, classifier promotion preview→GA, role-group change, sovereign-cloud feature GA) | Purview Compliance Admin | Compliance Officer | SOX ITGC change-control |
+| **Quarterly** | EDM (`1.13-EDM-01..03`), Trainable Classifier (`1.13-TC-01..04`), NER (`1.13-NER-01..04`), Negative-path battery (`1.13-NEG-01..05`)
+| **On change** | Any test affected by a tenant change (new SIT, EDM schema rotation, DLP rule edit, classifier promotion preview→GA, role-group change) | Purview Compliance Admin | Compliance Officer | SOX ITGC change-control |
 | **On incident** | `1.13-IR-01` reproduction with the actual unredacted incident artifact in a contained eDiscovery workspace | Incident Response Lead + Compliance Data Administrator | CISO + Compliance Officer | SEC Reg S-P §248.30; state breach laws; NYDFS 500.17 |
 
 **RACI note.** Accountable role per RACI may not match the role with admin permissions. The Compliance Officer is accountable but does not hold Purview Compliance Admin rights; that separation is required by the role-separation control (1.5) and audited at `1.13-PRE-04`.
@@ -91,7 +89,7 @@ Pre-flight tests must pass **before** any §4 test is executed. A failed pre-fli
 
 **Objective.** Confirm verifier workstation has the pinned module versions defined in the shared baseline.
 
-**Preconditions.** Workstation with PowerShell 7.4+; access to PSGallery (or sovereign equivalent).
+**Preconditions.** Workstation with PowerShell 7.4+; access to PSGallery.
 
 **Steps.** Follow [`_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) §2. Pinned modules: `ExchangeOnlineManagement`, `Microsoft.Graph`, `Microsoft.Graph.Beta`, `PnP.PowerShell`, `Microsoft.PowerApps.Administration.PowerShell`. Capture `Get-Module -ListAvailable | Where-Object { $_.Name -in @(...) } | Select Name, Version` output.
 
@@ -130,7 +128,7 @@ Pre-flight tests must pass **before** any §4 test is executed. A failed pre-fli
 
 **Steps.**
 1. On the EDM workstation, confirm `EdmUploadAgent.exe` is present at the documented install path.
-2. Run `Connect-IPPSSession` (use sovereign endpoint per §5 for non-Commercial clouds).
+2. Run `Connect-IPPSSession`.
 3. Run `Get-DlpEdmSchema` and confirm the existing schema list returns without error.
 
 **Expected.** Agent present; IPPS session established; schema list returned.
@@ -161,26 +159,6 @@ Pre-flight tests must pass **before** any §4 test is executed. A failed pre-fli
 
 **Evidence collected.** `1.13-PRE-06-corpus-hash-diff.txt`.
 
-### 1.13-PRE-07 — Three named test agents and sovereign parity check
-
-**Objective.** Confirm the three named test agents exist and that the sovereign-cloud feature parity matrix (§5) has been refreshed in the last 30 days.
-
-**Preconditions.** Power Platform Admin; Copilot Studio access; SharePoint admin for the controlled test site.
-
-**Steps.**
-1. Confirm three Copilot Studio agents exist: `agent-fsi-test-Z1`, `agent-fsi-test-Z2`, `agent-fsi-test-Z3`. Each must be grounded on the controlled SharePoint site `https://{tenant}.sharepoint.com/sites/fsi-test-1.13`.
-2. Confirm each agent is published to a single test user (not org-wide).
-3. Confirm the sovereign parity matrix (§5) has a "Last verified" timestamp within 30 days of the current run.
-
-**Expected.** Three agents present, correctly scoped; sovereign matrix current.
-
-**Pass criteria.** Agent inventory matches; sovereign matrix timestamp ≤30 days old.
-
-**Audit assertion.** Agent-creation events emit `CopilotAgentCreated` (verify spelling on Learn at execution); referenced by Control 4.6.
-
-**Evidence collected.** `1.13-PRE-07-agent-inventory.json`, `1.13-PRE-07-sovereign-matrix-timestamp.txt`.
-
----
 
 ## §3 Documented processing windows
 
@@ -467,7 +445,7 @@ Every test below uses the structure: **Objective · Preconditions · Steps · Ex
 
 **Objective.** Confirm the built-in NER `Person Name` (or current Microsoft naming) classifier surfaces person-name entities in unstructured text.
 
-**Preconditions.** E5 NER feature enabled in the tenant (verify on Learn — NER availability differs across sovereign clouds, see §5); Zone 2 educate policy referencing the NER classifier.
+**Preconditions.** E5 NER feature enabled in the tenant; Zone 2 educate policy referencing the NER classifier.
 
 **Steps.** Upload `1.13-NER-PERSON-positive-001.txt` containing distinct person-name examples in narrative context; prompt `agent-fsi-test-Z2`; capture banner + UAL.
 
@@ -863,26 +841,6 @@ Every test below uses the structure: **Objective · Preconditions · Steps · Ex
 
 ---
 
-## §5 Sovereign cloud variant matrix
-
-> **Update cadence.** This matrix must be re-verified within 30 days of every test cycle (asserted by `1.13-PRE-07`). Sovereign feature parity is fluid; cells marked "Verify per release" indicate features that historically lag commercial GA. **Last verified: April 2026 (refresh on every test cycle).**
-
-| Test class | Commercial | GCC | GCC High | DoD | Notes |
-|------------|-----------|-----|----------|-----|-------|
-| BUILTIN-01..08 (built-in SITs) | GA | GA | Verify per release | Verify per release | Built-in SIT *availability* is generally at parity; *new built-in SITs* lag in GCC High / DoD |
-| CUSTOM-01..04 (custom SITs) | GA | GA | GA | GA | Customer-defined SITs portable across clouds |
-| EDM-01..03 | GA | GA | Verify per release | Verify per release | Confirm EDM Upload Agent build supports the sovereign endpoint |
-| NER-01..04 | GA | Verify per release | Verify per release | Not available (verify) | NER lags commercial; do not assume parity |
-| TC-01..04 (trainable classifiers) | GA | Verify per release | Verify per release | Verify per release | Pre-trained classifier inventory differs by cloud |
-| DLP-01..03 (DLP-for-Copilot) | GA | Verify per release | Verify per release | Verify per release | Copilot itself has differential availability |
-| DSPM-01..02 | GA | Verify per release | Verify per release | Not available (verify) | DSPM for AI typically lags Copilot GA in sovereign clouds |
-| AUDIT-01..04 | GA | GA | GA | GA | UAL operations available in all clouds; specific operation names may differ — verify on Learn |
-| NEG-01..05 | N/A | N/A | N/A | N/A | Negative-path tests are tenant-internal and apply uniformly |
-| IR-01 | GA | GA | GA | GA | Incident reproduction uses contained workspace per Control 1.10 |
-
-**Sovereign endpoints.** PowerShell connections must use the sovereign-specific endpoint per [`_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) §3 (e.g., `Connect-IPPSSession -ConnectionUri https://ps.compliance.protection.office365.us/powershell-liveid/` for GCC High).
-
----
 
 ## §6 Evidence pack
 
@@ -899,7 +857,7 @@ Every test cycle produces a single `1.13-evidence-manifest.json` conforming to t
     "controlId",
     "controlVersion",
     "tenantId",
-    "sovereignCloud",
+    "cloud",
     "cycleId",
     "cycleStart",
     "cycleEnd",
@@ -912,9 +870,9 @@ Every test cycle produces a single `1.13-evidence-manifest.json` conforming to t
     "controlId": { "type": "string", "const": "1.13" },
     "controlVersion": { "type": "string", "pattern": "^v\\d+\\.\\d+(\\.\\d+)?$" },
     "tenantId": { "type": "string", "format": "uuid" },
-    "sovereignCloud": {
+    "cloud": {
       "type": "string",
-      "enum": ["Commercial", "GCC", "GCCHigh", "DoD"]
+      "const": "Commercial"
     },
     "cycleId": { "type": "string" },
     "cycleStart": { "type": "string", "format": "date-time" },
@@ -1101,7 +1059,6 @@ $manifest = [ordered]@{
     controlId       = '1.13'
     controlVersion  = 'v1.4'
     tenantId        = (Get-MgContext).TenantId
-    sovereignCloud  = $env:FSI_SOVEREIGN_CLOUD  # 'Commercial' | 'GCC' | 'GCCHigh' | 'DoD'
     cycleId         = "1.13-cycle-$(Get-Date -Format 'yyyyMMdd-HHmm')"
     cycleStart      = (Get-Date).ToUniversalTime().ToString('o')
     cycleEnd        = $null
@@ -1145,7 +1102,6 @@ FSI Control 1.13 — Verification Cycle Attestation
 Control ID:           1.13
 Control Version: v1.6.2
 Tenant ID:            ____________________________________
-Sovereign Cloud:      [ ] Commercial  [ ] GCC  [ ] GCC High  [ ] DoD
 Cycle ID:             ____________________________________
 Cycle Start (UTC):    ____________________________________
 Cycle End (UTC):      ____________________________________
@@ -1209,7 +1165,7 @@ hash above are complete, unaltered, and stored on WORM media
 per FINRA Rule 4511 / SEC Rule 17a-4(f). I further attest
 that no operator-mediated waits were substituted for audit-
 event verification, that no real customer NPI was used in
-synthetic testing, and that the sovereign-cloud parity matrix
+synthetic testing
 (§5) was re-verified within 30 days of cycle start.
 =============================================================
 ```
@@ -1233,7 +1189,6 @@ The following 15 patterns are **non-conformance** to Control 1.13 and must be re
 9. **Training trainable classifiers with production documents.** Seed sites containing real customer NPI (violates Control 1.7 secure-handling and OCC Bulletin 2026-13 (formerly OCC 2011-12) model-risk standards).
 10. **Skipping the preview → GA classifier ID re-pointing check.** Policies left referencing preview GUIDs after Microsoft has GA'd the classifier (detected by `1.13-NEG-03`).
 11. **Screenshots without manifest hash entry.** Evidence files present in the evidence root but absent from the manifest's `evidenceArtifacts` list (validator will fail).
-12. **No sovereign-cloud parity check.** Reusing a Commercial-tenant attestation in GCC / GCC High / DoD without §5 re-verification (detected by `1.13-PRE-07`).
 13. **Operator-mediated waits substituted for audit-event verification.** "We waited 2 hours and re-tested" with no UAL event capture.
 14. **Single-role attestation.** Cycle signed only by Executor, without Compliance Officer counter-signature.
 15. **Treating Content Explorer screenshots as primary audit evidence.** Content Explorer is a derived view; primary evidence is the UAL JSON export of `DlpRuleMatch` / `CopilotInteraction` events with correlation IDs.
@@ -1247,7 +1202,7 @@ The following 15 patterns are **non-conformance** to Control 1.13 and must be re
   - [`powershell-setup.md`](powershell-setup.md) — module pinning, IPPS connect, EDM Upload Agent, manifest builder
   - `troubleshooting.md` — common failure modes for the tests in this catalog (sibling playbook — pending publication)
 - **Shared baseline**
-  - [`_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) — pinned module versions and sovereign endpoints
+  - [`_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) — pinned module versions
 - **Related controls**
   - Control 1.5 — Role separation (audited by `1.13-PRE-04`)
   - Control 1.6 — Information Protection labels (downstream consumer of SITs)
