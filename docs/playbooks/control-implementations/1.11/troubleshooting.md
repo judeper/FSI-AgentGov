@@ -45,10 +45,10 @@
 | 9 | An AI Administrator who can sign in to the Entra portal is denied at the Microsoft Agent 365 Admin Center (`Sorry, access denied. Conditional Access policy required.`) after a CA tenant flip | [§9](#9-microsoft-agent-365-admin-center-access-denied-after-ca-policy-flip) |
 | 10 | A user was disabled or had their refresh tokens revoked, but is still seen accessing Copilot, SharePoint, or a Zone 3 agent for >30 minutes after revocation | [§10](#10-continuous-access-evaluation-not-propagating-revocations) |
 | 11 | A user's sign-in shows `ConditionalAccessStatus = notApplied` or two CA policies producing contradictory results; the audit shows multiple `Source = Microsoft` policies overlapping a custom policy | [§11](#11-conflicting-conditional-access-policies-producing-inconclusive-or-contradictory-results) |
-| 13 | Authentication Strengths blade is not visible under **Entra → Protection → Authentication methods**, or "Phishing-resistant MFA" cannot be selected as a grant control | [§13](#13-authentication-strengths-ui-not-visible) |
-| 14 | A managed identity attached to a Logic App or Function App is being denied by a CA Workload Identities policy that was meant to target only third-party SaaS service principals | [§14](#14-managed-identity-blocked-by-over-broad-ca-workload-identity-policy) |
-| 15 | Copilot Studio publish action returns `conditional access required` even though the maker has registered a passkey and signed in successfully ten minutes earlier | [§15](#15-copilot-studio-publish-fails-with-conditional-access-required-despite-registered-passkey) |
-| 16 | An Entra Agent ID preview workload identity for a newly-deployed Copilot Studio agent does not appear in CA Workload Identities policy targeting pickers | [§16](#16-entra-agent-id-preview-service-principals-not-appearing-in-conditional-access-targeting) |
+| 12 | Authentication Strengths blade is not visible under **Entra → Protection → Authentication methods**, or "Phishing-resistant MFA" cannot be selected as a grant control | [§12](#12-authentication-strengths-ui-not-visible) |
+| 13 | A managed identity attached to a Logic App or Function App is being denied by a CA Workload Identities policy that was meant to target only third-party SaaS service principals | [§13](#13-managed-identity-blocked-by-over-broad-ca-workload-identity-policy) |
+| 14 | Copilot Studio publish action returns `conditional access required` even though the maker has registered a passkey and signed in successfully ten minutes earlier | [§14](#14-copilot-studio-publish-fails-with-conditional-access-required-despite-registered-passkey) |
+| 15 | An Entra Agent ID preview workload identity for a newly-deployed Copilot Studio agent does not appear in CA Workload Identities policy targeting pickers | [§15](#15-entra-agent-id-preview-service-principals-not-appearing-in-conditional-access-targeting) |
 
 > **How to use this tree.** Identify the presenting symptom first. Each scenario below is structured: **Symptom → Likely Cause (frequency-ordered) → Diagnostic Steps → Resolution → Prevention → Regulatory / Evidence Implications**. Do not skip the diagnostic steps — every resolution that mutates a CA policy or an auth-method policy is gated on the diagnostic evidence captured first.
 
@@ -361,7 +361,7 @@ A scheduled batch — Logic App, Function App, Azure Automation runbook, custom 
 ### Likely Cause (frequency-ordered)
 
 1. **CA Workload Identities policy now requires a named-location IP** for non-interactive SP sign-ins, and the SP egresses from an IP not yet on the allow-list (newly provisioned Function App, regional failover, partner SaaS IP rotation).
-2. **The policy targets `All workload identities`** rather than a `Selected` set — see §14 for the related root cause.
+2. **The policy targets `All workload identities`** rather than a `Selected` set — see §13 for the related root cause.
 3. **The SP authenticates with a client secret**, and the policy's grant control is now "Block" for client-secret SPs as part of a phishing-resistant migration to certificate-based or federated credentials.
 4. **The SP is missing from the included scope** because the CA Workload Identities policy targets a curated `Approved-WorkloadIdentities` group and the SP was never added (governance gap).
 5. **Workload Identities Premium SKU is not assigned**, so the policy authored successfully but is enforcing inconsistently — see §1.5 of the Pre-Escalation Checklist in the parent control documentation.
@@ -422,12 +422,12 @@ AADServicePrincipalSignInLogs
    # Implementation: New-MgServicePrincipalKey ... ; followed by Remove-MgServicePrincipalPassword after cutover validation.
    ```
 
-4. **If Workload Identities Premium is not assigned**: open a license ticket; until the SKU is assigned, document the SP-side risk in the Risk Register and constrain the SP via narrow Graph permissions and a Sentinel detection rule (see §15 compensating controls).
+4. **If Workload Identities Premium is not assigned**: open a license ticket; until the SKU is assigned, document the SP-side risk in the Risk Register and constrain the SP via narrow Graph permissions and a Sentinel detection rule (see §14 compensating controls).
 
 ### Prevention
 
 - **Workload Identities Premium SKU** in place tenant-wide before any CA Workload Identities policy is authored.
-- **Selected-not-All targeting** — every CA Workload Identities policy targets `Selected service principals` from a curated approved-list group, never `All workload identities` (see §14).
+- **Selected-not-All targeting** — every CA Workload Identities policy targets `Selected service principals` from a curated approved-list group, never `All workload identities` (see §13).
 - **Credential standards** — the firm's identity standards prohibit new SPs with client-secret auth in production; certificate or federated credentials are the standard. Existing client-secret SPs are tracked in the Risk Register with a remediation deadline.
 - **Named-location lifecycle for workload egress** — Networking owns a separate `Trusted-WorkloadEgress` named location distinct from end-user egress; refresh quarterly.
 - See [Control 2.6 — Identity Lifecycle Management](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) for the SP / workload-identity inventory and [Control 2.14 — Privileged Identity Management](../../../controls/pillar-2-management/2.14-training-and-awareness-program.md) for the privileged SP review cadence.
@@ -844,7 +844,7 @@ SigninLogs
 ---
 
 
-## §13 Authentication Strengths UI Not Visible
+## §12 Authentication Strengths UI Not Visible
 
 ### Symptom
 
@@ -879,7 +879,7 @@ The Authentication Policy Admin opens **Entra → Protection → Authentication 
 
 ---
 
-## §14 Managed Identity Blocked by Over-Broad CA Workload Identity Policy
+## §13 Managed Identity Blocked by Over-Broad CA Workload Identity Policy
 
 ### Symptom
 
@@ -929,7 +929,7 @@ Write-Host "WhatIf: would PATCH policy $polId conditions.clientApplications.incl
 
 ---
 
-## §15 Copilot Studio Publish Fails with "Conditional Access Required" Despite Registered Passkey
+## §14 Copilot Studio Publish Fails with "Conditional Access Required" Despite Registered Passkey
 
 ### Symptom
 
@@ -966,7 +966,7 @@ A maker registered with a FIDO2 passkey attempts to publish a Copilot Studio age
 
 ---
 
-## §16 Entra Agent ID Preview Service Principals Not Appearing in Conditional Access Targeting
+## §15 Entra Agent ID Preview Service Principals Not Appearing in Conditional Access Targeting
 
 ### Symptom
 

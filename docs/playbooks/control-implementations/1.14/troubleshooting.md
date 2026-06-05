@@ -47,7 +47,7 @@ Control 1.14 sits directly on **GLBA 501(b)** customer-NPI minimization, **SEC R
    - **YES →** CFTC Regulation 1.31 retention-gap analysis; pair with WORM evidence preservation per §1.3.
    - **NO →** continue.
 6. **CCPA / state privacy notice — was California-resident or other state-covered consumer personal information (non-GLBA) collected or used beyond declared purpose?**
-   - **YES →** Privacy team engaged for purpose-limitation analysis; update privacy notice / data inventory; consider CCPA §1798.100(c) "reasonably necessary" recordkeeping; evaluate state breach-notification statutes (CCPA §1798.82, CO Rev Stat §6-1-716, IL 815 ILCS 530, TX Bus. & Comm. Code §521.053, VA / VCDPA, CT CTDPA, WA MHMDA where applicable).
+   - **YES →** Privacy team engaged for purpose-limitation analysis; update privacy notice / data inventory; consider CCPA §1798.100(c) "reasonably necessary" recordkeeping; evaluate state breach-notification statutes (CCPA §1798.82, CO Rev Stat §5-1-716, IL 815 ILCS 530, TX Bus. & Comm. Code §521.053, VA / VCDPA, CT CTDPA, WA MHMDA where applicable).
    - **NO →** Internal incident only. Document, remediate, review at next governance cadence.
 
 ### §1.3 Evidence preservation — capture **before** remediation (≥ 13 items)
@@ -106,7 +106,7 @@ Capture, do **not** mutate first. Every artifact below must carry an SHA-256 has
 - [ ] **Compensating control** deployed if remediation > SLA (§1.4)
 - [ ] **SoD verified** — reviewer set excludes agent owner for Zone 3
 - [ ] **Cross-references triggered** — Controls 1.2, 1.4, 1.10, 1.13, 1.17, 1.18, 1.19, 4.6 owners notified as applicable
-- [ ] **Communication tree activated** (§1.6) — CISO, AI Governance Lead, Compliance Officer, Legal, Privacy Officer notified per severity matrix; Microsoft Premier Support engaged if §5 L4 criteria met
+- [ ] **Communication tree activated** (§1.6) — CISO, AI Governance Lead, Compliance Officer, Legal, Privacy Officer notified per severity matrix; Microsoft Premier Support engaged if §4 L4 criteria met
 - [ ] **Communications draft** prepared if reportability tree returned YES at any step
 
 ### §1.6 Communication tree
@@ -114,7 +114,7 @@ Capture, do **not** mutate first. Every artifact below must carry an SHA-256 has
 | Severity / trigger | Notify | Channel | Within |
 
 | SEV-1; or §1.2 step 1 (NPI / Reg S-P) YES | **CISO**, **Compliance Officer**, **Legal**, **Privacy Officer**, **AI Governance Lead** | Phone bridge + secure email; create incident war-room channel | 60 min of detection |
-| SEV-1; cross-tenant / guest access; or known platform fault | **Microsoft Premier / Unified Support** (case open, severity A) with §6 evidence pack | Premier portal | 4 h of triage |
+| SEV-1; cross-tenant / guest access; or known platform fault | **Microsoft Premier / Unified Support** (case open, severity A) with §5 evidence pack | Premier portal | 4 h of triage |
 | SEV-1; §1.2 step 4 (model-risk) YES | **Model Risk Management Committee chair** | Secure email + governance ticket | 24 h of determination |
 | SEV-1 with NY DFS-covered entity scope | **Board / Senior Governing Body designee** per 23 NYCRR 500.17(b) annual reporting framework; **NY DFS** notification within 72 h of determination | DFS portal | 72 h of determination |
 | SEV-2 | **AI Governance Lead**, **Compliance Officer**, **Power Platform Admin lead** | Secure email | 4 h |
@@ -140,7 +140,7 @@ Capture, do **not** mutate first. Every artifact below must carry an SHA-256 has
 
 **Step 7 — regulator notifications.** SEC Reg S-P §248.30(a)(4) customer-notification draft prepared by Privacy + Legal; NY DFS 500.17 72 h clock measured from determination at 15:02 → DFS notification due by 15:02 on day-3. FINRA 4530(b) evaluation: not yet a "specified event" but flagged for re-evaluation if a customer complaint files.
 
-**Step 8 — governance.** Logged in monthly AI governance review; policy change: tenant-wide ban on "all of organization" knowledge-source scope at agent creation in Zone 2/3 environments (Maker policy + DLP-for-Copilot rule); add scope to the standard quarterly review template; require SoD reviewer for all Zone 3 reviews. Lessons learned captured per §8.
+**Step 8 — governance.** Logged in monthly AI governance review; policy change: tenant-wide ban on "all of organization" knowledge-source scope at agent creation in Zone 2/3 environments (Maker policy + DLP-for-Copilot rule); add scope to the standard quarterly review template; require SoD reviewer for all Zone 3 reviews. Lessons learned captured per §7.
 
 **Total time from alert to remediation deployed:** 6 h 18 min. Determination per NY DFS 500.17(a) recorded at 15:02 — clock running.
 
@@ -224,7 +224,7 @@ SharePointFileOperation
 
 **Symptoms.** Zone 3 agent's response includes content with `[Web]` citations or Bing-sourced URLs. Per-agent public-web-grounding toggle in Copilot Studio is observed `On` despite Zone 3 policy of `Off`.
 
-**Root cause.** Maker enabled web grounding at agent creation; environment-level policy does not yet enforce the toggle off; or the toggle was inherited from a parent template. Public web grounding is **not** an audit-visible control change in all clouds (verify per §4) — silent regressions are possible.
+**Root cause.** Maker enabled web grounding at agent creation; environment-level policy does not yet enforce the toggle off; or the toggle was inherited from a parent template. Public web grounding is **not** an audit-visible control change in all clouds — silent regressions are possible.
 
 **Diagnostic queries.**
 
@@ -378,7 +378,7 @@ Get-MgIdentityGovernanceAccessReviewDefinition |
     @{n='Scope';e={$_.Scope.Query}}
 ```
 
-**Remediation.** Assign Entra ID Governance license to reviewers; add the agent's app / Entra security group to the review scope; set recurrence to quarterly (or zone cadence); switch the reviewer to a tenant member or configure guest-reviewer support; activate `Pending` reviews. Where the cloud does not support the feature in full (verify per §4), use a manual quarterly review tracked in the AI governance backlog with the same SoD requirement.
+**Remediation.** Assign Entra ID Governance license to reviewers; add the agent's app / Entra security group to the review scope; set recurrence to quarterly (or zone cadence); switch the reviewer to a tenant member or configure guest-reviewer support; activate `Pending` reviews. Where the cloud does not support the feature in full, use a manual quarterly review tracked in the AI governance backlog with the same SoD requirement.
 
 **Validation.** Confirm review appears in My Access for the reviewer; confirm decision is logged on the agent.
 
@@ -436,18 +436,18 @@ Get-AdminPowerAppEnvironment | ForEach-Object {
 ---
 
 
-## §5 — Escalation paths (L1 → L4)
+## §4 — Escalation paths (L1 → L4)
 
 | Level | Owner | Triggers | MTTR target | Required evidence at handoff | Transition to next level |
 
 | **L1 — Help desk / Power Platform Admin** (with SharePoint Admin on watch) | Power Platform Admin lead | All SEV-3/4; initial triage of all SEV-1/2; first-touch on scope-drift alerts | 30 min SEV-1/2 acknowledge; 1 business hour SEV-3 | §1.5 pre-escalation checklist items 1–10; agent-to-data-source snapshot; UAL paged export started | §2 runbook exhausted with no fix; OR SEV-1/2 confirmed; OR books-and-records gap identified |
 | **L2 — Power Platform / Purview operations** (AI Governance Lead + Purview Compliance Admin) | AI Governance Lead | All SEV-2; SEV-1 within 60 min; any incident where reportability tree §1.2 returns YES at step 2, 3, 4, 5, or 6 | 4 h SEV-2; 1 h SEV-1 | All §1.3 evidence items 1–13; §1.2 reportability decision recorded; customer-impact analysis | Customer NPI exposure suspected (§1.2 step 1 YES); OR SEV-1 confirmed; OR Microsoft platform-side fault suspected |
 | **L3 — SME + Microsoft Support** (CISO + Compliance Officer + Legal + Privacy Officer; Microsoft case open) | CISO | SEV-1; any §1.2 step 1 YES (NPI / Reg S-P / GLBA / DFS); any §1.2 step 2 YES (FINRA 4530); NY DFS 500.17 determination in scope | Determination within 24 h of SEV-1; 72 h DFS clock from determination | Full §1.3 package with signed SHA-256 manifest under WORM; reportability decision; customer-impact analysis; communications draft; Microsoft case ID | Microsoft Premier engagement required (platform fault, vendor-managed component failure) |
-| **L4 — Microsoft Premier Support + CISO** | Microsoft Premier engineer (engineering bridge) + CISO | Suspected platform fault (Copilot Studio knowledge-source scoping fault, Purview audit ingestion outage, DLP propagation > 60 min, DSPM for AI blackout); cross-tenant fault| Per Premier contract SLA (Sev A: 1 h response) | §6 Microsoft Support pack | (terminal) — escalate to Microsoft account team for product-roadmap items; Compliance reports out to Board / regulator per §1.6 |
+| **L4 — Microsoft Premier Support + CISO** | Microsoft Premier engineer (engineering bridge) + CISO | Suspected platform fault (Copilot Studio knowledge-source scoping fault, Purview audit ingestion outage, DLP propagation > 60 min, DSPM for AI blackout); cross-tenant fault| Per Premier contract SLA (Sev A: 1 h response) | §5 Microsoft Support pack | (terminal) — escalate to Microsoft account team for product-roadmap items; Compliance reports out to Board / regulator per §1.6 |
 
 ---
 
-## §6 — Microsoft Support pack
+## §5 — Microsoft Support pack
 
 Mandatory data to gather **before** filing the case. Do not file without items 1–9; cases without these are routinely closed as "insufficient information" and the clock continues to run on the firm's reportability obligations.
 
@@ -469,9 +469,9 @@ Mandatory data to gather **before** filing the case. Do not file without items 1
 
 ---
 
-## §7 — Cross-references
+## §6 — Cross-references
 
-### §7.1 Related controls
+### §6.1 Related controls
 
 | Control | Why it matters here |
 
@@ -485,12 +485,12 @@ Mandatory data to gather **before** filing the case. Do not file without items 1
 | [4.6 — Grounding Scope Governance](../../../controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md) | SharePoint-side governance of the grounding sources 1.14 minimizes; re-scoping per §2.2 is co-owned by SharePoint Admin |
 | [AI Incident Response Playbook](../../incident-and-risk/ai-incident-response-playbook.md) | General AI-incident framework; 1.14 §1 specializes the data-exposure / privacy sub-flow |
 
-### §7.2 Sibling 1.14 playbooks
+### §6.2 Sibling 1.14 playbooks
 
 - [PowerShell setup](powershell-setup.md) — wrong-shell trap, paginated audit query, baseline export
 - [Verification & testing](verification-testing.md) — detects the conditions this playbook handles
 
-### §7.3 Microsoft Learn anchors
+### §6.3 Microsoft Learn anchors
 
 - `learn.microsoft.com/microsoft-copilot-studio/knowledge-add-sharepoint`
 - `learn.microsoft.com/microsoft-copilot-studio/security-and-governance`
@@ -512,7 +512,7 @@ Mandatory data to gather **before** filing the case. Do not file without items 1
 - `learn.microsoft.com/entra/id-governance/access-reviews-overview`
 - `learn.microsoft.com/powershell/module/exchange/search-unifiedauditlog`
 
-### §7.4 Regulatory anchors
+### §6.4 Regulatory anchors
 
 - **NY DFS 23 NYCRR 500.17(a)** — 72 h cybersecurity-event notification from determination — `dfs.ny.gov/industry_guidance/cybersecurity`
 - **SEC Regulation S-P §248.30** — safeguards rule and customer-notification (amended May 2024) — `ecfr.gov/current/title-17/chapter-II/part-248/section-248.30`
@@ -528,11 +528,11 @@ Mandatory data to gather **before** filing the case. Do not file without items 1
 
 ---
 
-## §8 — Lessons learned & post-incident review template
+## §7 — Lessons learned & post-incident review template
 
 Run a post-incident review (PIR) within 10 business days of incident closure for every SEV-1 and SEV-2. Capture findings under the template below; circulate to the AI Governance Forum monthly; include in the firm's annual 23 NYCRR 500.17(b) Senior-Governing-Body report where in scope.
 
-### §8.1 PIR template
+### §7.1 PIR template
 
 ```text
 INCIDENT: INC-<YYYY>-<MMDD>-<seq>
@@ -606,14 +606,14 @@ DISTRIBUTION:
   Records to WSP / annual report:  <Y|N>
 ```
 
-### §8.2 Standing review questions
+### §7.2 Standing review questions
 
 1. Did §1.2 reportability tree produce the correct first-YES on the first walkthrough? If not, why — and what training or tooling change closes the gap?
 2. Was the §1.4 SoD note honored? If not, what structural change is required (Maker policy, environment role-assignment, governance template)?
 3. Did any §1.3 evidence item rely on a non-WORM source (Power Platform admin telemetry alone)? If yes, raise a Control 1.7 / 1.9 / 1.19 enhancement.
-5. Did Microsoft Support engagement (§5 L4) yield a platform-side fix, a feature-gap acknowledgement, or no-action? Track product-roadmap requests through the Microsoft account team, not Premier cases.
+5. Did Microsoft Support engagement (§4 L4) yield a platform-side fix, a feature-gap acknowledgement, or no-action? Track product-roadmap requests through the Microsoft account team, not Premier cases.
 
-### §8.3 Trend-watch (rolling 12 months)
+### §7.3 Trend-watch (rolling 12 months)
 
 Maintain a rolling 12-month dashboard for the AI Governance Forum:
 - SEV-1 incident count by Zone

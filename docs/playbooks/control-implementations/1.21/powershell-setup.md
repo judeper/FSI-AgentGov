@@ -1082,7 +1082,7 @@ A run is **pass** only if all six checks return `Pass = $true`. Any false result
 
 ---
 
-## 13. Anti-patterns
+## 12. Anti-patterns
 
 The patterns below have all caused production incidents in FSI tenants. None is acceptable in a Control 1.21 runbook.
 
@@ -1104,7 +1104,7 @@ The patterns below have all caused production incidents in FSI tenants. None is 
 
 ---
 
-## 14. Cross-links
+## 13. Cross-links
 
 - **Control 1.2 — Agent registry and integrated apps.** Source-of-truth zone assignment for §9. `docs/controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md`
 - **Control 1.7 — Comprehensive audit logging.** Provides the `CopilotInteraction` records §8 retrieves. `docs/controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md`

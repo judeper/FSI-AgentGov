@@ -41,7 +41,7 @@ Run this tree **before** changing the SIT, regardless of severity. The output is
 6. **Could the failure have allowed disclosure of MNPI across an information barrier or to a non-wall-side recipient?**
    - Yes → Information-Barrier owner + Compliance immediately; capture the IB segment configuration in effect at the time and the user/group memberships; preserve under **CFTC Rule 1.31** (or SEC equivalent) records-preservation requirements.
 7. **None of the above, and the data class is non-regulated, non-confidential business data?**
-   - Document, remediate, and close per §5 L1 path. Still preserve evidence for 90 days per the parent control's audit-retention requirement.
+   - Document, remediate, and close per §4 L1 path. Still preserve evidence for 90 days per the parent control's audit-retention requirement.
 
 > Every "Yes" path requires the §1.3 evidence package **before** any SIT, EDM schema, or trainable-classifier change.
 
@@ -93,7 +93,7 @@ Document every compensating control applied (timestamp, scope, owner, planned re
 - [ ] Audit-log retention confirmed sufficient to cover the investigation window (Audit Premium / extended retention add-on if required).
 - [ ] Change-management ticket opened for any planned SIT / EDM / classifier change; approver = Purview Info Protection Admin minimum.
 - [ ] Communication Compliance and Insider Risk owners notified if the population is in-scope.
-- [ ] Microsoft Support pre-flight (§7.2) data assembled if escalation to Microsoft Premier is anticipated.
+- [ ] Microsoft Support pre-flight (§6.2) data assembled if escalation to Microsoft Premier is anticipated.
 - [ ] Stakeholder communications drafted (template per the firm's IR plan) and held pending the §1.2 determination.
 
 ### 1.6 Worked Example — Space-Separated SSN Missed by a Custom SIT, Surfaced via Copilot
@@ -116,9 +116,9 @@ This example shows why §1.2 must run **before** the SIT is "fixed" — the chan
 
 ## 2. Severity / Decision Matrix — Symptom × Scope × Data Class × Copilot Involvement
 
-Use this matrix to translate an observed symptom into the §6 runbook to execute and the §1.1 severity to assign initially. **Re-triage** as evidence accumulates.
+Use this matrix to translate an observed symptom into the §5 runbook to execute and the §1.1 severity to assign initially. **Re-triage** as evidence accumulates.
 
-| Observed symptom | Likely failure mode (§6) | Data class | Surface | Copilot/agent involved? | Initial severity |
+| Observed symptom | Likely failure mode (§5) | Data class | Surface | Copilot/agent involved? | Initial severity |
 |------------------|---------------------------|------------|---------|--------------------------|------------------|
 | Custom SIT does not match a known-good positive sample | F1 — Regex mismatch / separator gap | Regulated NPI/PCI/PHI | Any | No | SEV-2 |
 | Same as above, but the same sample was returned in a Copilot response | F1 + F12 — SIT gap exposed via Copilot grounding | Regulated | SharePoint/OneDrive grounding | Yes | **SEV-1** |
@@ -162,18 +162,18 @@ These are recurring authoring, deployment, and operational mistakes observed acr
 ---
 
 
-## 5. Escalation — L1 → L2 → L3 → L4
+## 4. Escalation — L1 → L2 → L3 → L4
 
 | Tier | Owner | Triggers (entry into this tier) | MTTR target | Required evidence to enter | Transition criteria to next tier |
 |------|-------|----------------------------------|-------------|-----------------------------|------------------------------------|
 | **L1 — SOC / DLP analyst** | SOC L1 on shift; DLP analyst on call | DLP rule alert; user-reported false negative; routine false-positive triage; Activity Explorer anomaly | ≤ 1 h triage; ≤ 8 h close (SEV-3/SEV-4) | §1.3 items 1, 4, 6, 7 captured | Symptom not resolvable from runbook; SEV ≥ 2; Copilot path implicated; or repeat occurrence within 24 h |
 | **L2 — Purview Compliance Admin / Purview Info Protection Admin** | Named control owners | L1 escalation; SIT / EDM / classifier change required; suspected policy-scope or audit-ingestion gap | ≤ 4 h triage; ≤ 24 h containment (SEV-2); ≤ 1 h containment (SEV-1) | Full §1.3 bundle; §1.2 reportability draft; §1.4 compensating control plan | Root cause requires platform-level change; Microsoft Support ticket likely; trainable-classifier model-risk review needed |
 | **L3 — Security Engineering + Purview Data Security AI Admin** | Engineering lead, AI security lead, model-risk liaison | L2 escalation; Trainable Classifier drift / re-training; cross-pillar incident (DLP + Copilot + IB) | ≤ 8 h to remediation plan; ≤ 5 BD to permanent fix | All of L2 + classifier validation report + change-management artefacts + FSI Governance Gate ticket | Microsoft engineering required; suspected service-side defect |
-| **L4 — Microsoft Premier / Unified Support + Compliance & Legal in parallel** | Microsoft Support TAM; firm's Compliance / Legal lead | Suspected Microsoft service defect; reportable-incident path under §1.2; PR/customer-comms readiness | Per Microsoft severity SLA; firm SLA per Compliance | §7.2 / §7.3 payload; §1.3 bundle; firm IR commander engaged | N/A — terminal tier |
+| **L4 — Microsoft Premier / Unified Support + Compliance & Legal in parallel** | Microsoft Support TAM; firm's Compliance / Legal lead | Suspected Microsoft service defect; reportable-incident path under §1.2; PR/customer-comms readiness | Per Microsoft severity SLA; firm SLA per Compliance | §6.2 / §6.3 payload; §1.3 bundle; firm IR commander engaged | N/A — terminal tier |
 
 **L1 → L2 specific triggers** (any one promotes the case):
 
-- Symptom matches a §6 failure mode flagged "L2 minimum" (F1, F3, F5, F8, F10, F12, F13).
+- Symptom matches a §5 failure mode flagged "L2 minimum" (F1, F3, F5, F8, F10, F12, F13).
 - Audit shows the SIT was consumed by ≥ 1 Block rule that did not fire on a known-good positive.
 - Copilot or agent path appears in the audit window (any `CopilotInteraction` / `AiAppInteraction` record).
 - The SIT, EDM schema, or classifier was modified within the last 14 days (change-related regression suspected).
@@ -196,7 +196,7 @@ Compliance/Legal and the firm's IR commander run in parallel from the moment §1
 
 ---
 
-## 6. Failure-Mode Runbooks (F1 – F14)
+## 5. Failure-Mode Runbooks (F1 – F14)
 
 Each runbook follows the same structure: **Symptom → Diagnostic (PowerShell + portal) → Root causes → Remediation → Evidence to capture → Reportability check → Exit criteria.** Run §1 first for any failure mode flagged "L2 minimum".
 
@@ -408,9 +408,9 @@ Each runbook follows the same structure: **Symptom → Diagnostic (PowerShell + 
 - **Reference:** [Search-UnifiedAuditLog](https://learn.microsoft.com/en-us/powershell/module/exchange/search-unifiedauditlog) · related control 1.7.
 
 
-## 7. Microsoft Support Escalation
+## 6. Microsoft Support Escalation
 
-### 7.1 When to file a Microsoft Support / Premier ticket
+### 6.1 When to file a Microsoft Support / Premier ticket
 
 File when **any one** of the following holds:
 
@@ -420,7 +420,7 @@ File when **any one** of the following holds:
 
 For SEV-1 / SEV-2 with active customer-data exposure, file at the highest severity available on the firm's support contract and notify the firm's Microsoft TAM in parallel.
 
-### 7.2 Required evidence (assemble before opening the case)
+### 6.2 Required evidence (assemble before opening the case)
 
 - Tenant ID.
 - Purview SKU and licence proof for any Premium-gated feature in scope.
@@ -435,7 +435,7 @@ For SEV-1 / SEV-2 with active customer-data exposure, file at the highest severi
 - §1.3 evidence-bundle SHA-256 manifest reference.
 - Severity per §1.1 and current containment status per §1.4.
 
-### 7.3 Microsoft Support payload template
+### 6.3 Microsoft Support payload template
 
 ```
 Subject: [SEV-<n>] Purview SIT detection failure impacting regulated-data DLP — Tenant <tenant-id> (<cloud>)
@@ -491,36 +491,36 @@ Subject: [SEV-<n>] Purview SIT detection failure impacting regulated-data DLP �
    - Microsoft TAM (cc): <name>
 ```
 
-### 7.4 Expected Microsoft response and next steps
+### 6.4 Expected Microsoft response and next steps
 
-- Microsoft will request the §7.2 artefacts; ensure they are uploaded to the case via the customer-approved secure channel only. **Do not** paste raw NPI / PCI / PHI / MNPI into the case body.
+- Microsoft will request the §6.2 artefacts; ensure they are uploaded to the case via the customer-approved secure channel only. **Do not** paste raw NPI / PCI / PHI / MNPI into the case body.
 - Track the case in the firm's incident ticket; mirror the Microsoft case ID into the §1.3 evidence bundle.
 - Upon resolution, capture the Microsoft engineering response in writing; if the resolution includes a configuration change, run it through the firm's change-management and FSI Governance Gate before applying in production.
 - If Microsoft confirms a service-side defect, capture the build/version, the workaround, the GA / fix ETA, and update the firm's risk register with the residual risk and compensating control until the fix lands.
 
 ---
 
-## 8. Cross-References
+## 7. Cross-References
 
-### 8.1 Related controls (this framework)
+### 7.1 Related controls (this framework)
 
 - [1.5 Data Loss Prevention (DLP) and Sensitivity Labels](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) — the consuming surface for SITs in DLP and (where in scope) the Copilot/agent path.
 - [1.6 Microsoft Purview DSPM for AI](../../../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) — Activity Explorer evidence path for SIT-mediated AI events.
-- [1.7 Comprehensive Audit Logging and Compliance](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) — Unified Audit Log dependency for §1.3, F9, and §7.
+- [1.7 Comprehensive Audit Logging and Compliance](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) — Unified Audit Log dependency for §1.3, F9, and §6.
 - [1.10 Communication Compliance Monitoring](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) — out-of-band detection layer used as compensating control in §1.4.
 - [4.6 Grounding Scope Governance](../../../controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md) — bounds the SharePoint/OneDrive grounding surface that SITs and DLP-for-Copilot operate over.
 
-### 8.2 Sibling 1.13 playbooks
+### 7.2 Sibling 1.13 playbooks
 
 - [Portal walkthrough](portal-walkthrough.md) — UI-driven SIT, EDM, and trainable-classifier authoring.
 - [PowerShell setup](powershell-setup.md) — IPPS automation for SIT lifecycle.
 - [Verification & testing](verification-testing.md) — `Test-DataClassification` regression suite and consumer-matrix tests.
 
-### 8.3 Cross-pillar incident playbook
+### 7.3 Cross-pillar incident playbook
 
 - [AI Incident Response Playbook](../../../playbooks/incident-and-risk/ai-incident-response-playbook.md) — invoked in parallel any time §1.2 yields a Copilot/agent path or any time F10 / F12 fires.
 
-### 8.4 Microsoft Learn anchors
+### 7.4 Microsoft Learn anchors
 
 - [Learn about Sensitive Information Types](https://learn.microsoft.com/en-us/purview/sit-sensitive-information-type-learn-about)
 - [Sensitive Information Type entity definitions](https://learn.microsoft.com/en-us/purview/sit-sensitive-information-type-entity-definitions)
@@ -535,7 +535,7 @@ Subject: [SEV-<n>] Purview SIT detection failure impacting regulated-data DLP �
 - [`Test-DataClassification`](https://learn.microsoft.com/en-us/powershell/module/exchange/test-dataclassification)
 - [`Search-UnifiedAuditLog`](https://learn.microsoft.com/en-us/powershell/module/exchange/search-unifiedauditlog)
 
-### 8.5 Regulatory anchors (informational — Compliance/Legal owns interpretation)
+### 7.5 Regulatory anchors (informational — Compliance/Legal owns interpretation)
 
 - **NY DFS 23 NYCRR 500.17(a)** — 72-hour cybersecurity-event notification determination clock.
 - **SEC Regulation S-P §248.30(a)(4)** — customer notification within ≤ 30 days where the firm determines (or reasonably should have determined) that misuse of customer information has occurred or is reasonably likely.

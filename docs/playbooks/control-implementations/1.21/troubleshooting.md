@@ -12,7 +12,7 @@
 
 ### §1.1 Severity Matrix (Adversarial-Event Specific)
 
-The severity matrix below is **purpose-built for adversarial-input events** against Microsoft 365 Copilot, declarative agents, and connected agents. It supersedes generic IR severity tables for Control 1.21 events. Severity drives the reportability tree (§1.2), the evidence floor (§1.3), the pre-escalation checklist (§1.5), and the L1–L4 escalation ladder (§5).
+The severity matrix below is **purpose-built for adversarial-input events** against Microsoft 365 Copilot, declarative agents, and connected agents. It supersedes generic IR severity tables for Control 1.21 events. Severity drives the reportability tree (§1.2), the evidence floor (§1.3), the pre-escalation checklist (§1.5), and the L1–L4 escalation ladder (§4).
 
 | Severity | Trigger conditions (any one is sufficient) | Initial response SLA | Lead role |
 |---|---|---|---|
@@ -59,7 +59,7 @@ Walk the following questions **top-down** for every SEV-1 and SEV-2 event, and f
 - **Yes →** Engage Privacy Counsel to determine state-by-state notification obligations. Most state breach laws have a "without unreasonable delay" standard with caps ranging from 30 to 90 days. Maintain a state-by-state matrix in the IR record.
 - **No →** Conclude the reportability tree. Document each "No" with reasoning in the IR record.
 
-> **Determination-clock guidance.** Several rules (NYDFS 72h, 8-K 4 BD, Reg S-P 30 days) start from a **determination** event rather than detection. Determination cannot be unreasonably delayed. The IR record **must capture both timestamps** (first detection and determination) and the analyst notes that justify the gap. See §8.1 for the PIR question on determination latency.
+> **Determination-clock guidance.** Several rules (NYDFS 72h, 8-K 4 BD, Reg S-P 30 days) start from a **determination** event rather than detection. Determination cannot be unreasonably delayed. The IR record **must capture both timestamps** (first detection and determination) and the analyst notes that justify the gap. See §7.1 for the PIR question on determination latency.
 
 ### §1.3 Evidence Floor (Minimum 13 Items, SHA-256 + WORM)
 
@@ -77,7 +77,7 @@ Every SEV-1 and SEV-2 incident **must** capture the following 13 evidence items 
 | **E-08** | Prompt and completion text **as captured by Prompt Shields, Defender, or Comm Compliance** (not from UAL) | Prompt Shields / Defender / Comm Compliance | Each plane's alert-detail export; cross-reference E-03/E-04/E-06 | Reg S-P, SEC 17a-4 |
 | **E-09** | Principal context: Entra user object snapshot, group memberships, sign-in risk, MFA state at incident time | Entra ID | `Get-MgUser`, `Get-MgUserMemberOf`, Entra ID Protection risk detection export | NYDFS §500.07, Fed SR 26-2 (formerly SR 11-7) |
 | **E-10** | Agent context: agent ID, publisher, last-modified user, knowledge-source list, plugin/connector list, Zone designation | Microsoft Copilot Studio / M365 admin | `Get-CopilotAgent` (where available) + portal export of agent definition | Fed SR 26-2 (formerly SR 11-7) model inventory |
-| **E-11** | Tenant configuration snapshot: Prompt Shields policy, Defender XDR policy, Comm Compliance policy, retention labels in scope | Multi-portal | Scripted export — see [powershell-setup.md](powershell-setup.md) §6 evidence script | Fed SR 26-2 (formerly SR 11-7) control evidence |
+| **E-11** | Tenant configuration snapshot: Prompt Shields policy, Defender XDR policy, Comm Compliance policy, retention labels in scope | Multi-portal | Scripted export — see [powershell-setup.md](powershell-setup.md) §5 evidence script | Fed SR 26-2 (formerly SR 11-7) control evidence |
 | **E-12** | Containment actions taken (account disable, agent suspend, policy tighten, session revoke), with operator identity and timestamp | IR ticket + change ticket | Manual entry; cross-reference change ticket ID | NYDFS §500.16, Fed SR 26-2 (formerly SR 11-7) |
 | **E-13** | Hash manifest: SHA-256 of E-01 through E-12, signed by Incident Commander, written to WORM as a single manifest file | IR system | `Get-FileHash -Algorithm SHA256 *.json,*.csv \| ConvertTo-Json \| Out-File evidence-manifest.json` then move to WORM | SEC 17a-4(f), evidence integrity |
 
@@ -100,7 +100,7 @@ When a Control 1.21 detection plane is **degraded or offline** during an active 
 
 ### §1.5 Pre-Escalation Checklist (16 items minimum)
 
-Before escalating from L1 → L2, L2 → L3, or L3 → L4 (see §5), the on-call analyst **must** complete this checklist and attach it to the IR ticket. Skipping items is permitted only with documented Incident Commander approval.
+Before escalating from L1 → L2, L2 → L3, or L3 → L4 (see §4), the on-call analyst **must** complete this checklist and attach it to the IR ticket. Skipping items is permitted only with documented Incident Commander approval.
 
 - [ ] **C-01.** IR ticket opened with severity (§1.1) and severity-rationale documented.
 - [ ] **C-02.** First-detection timestamp **and** first-determination timestamp recorded (E-01).
@@ -149,7 +149,7 @@ Before escalating from L1 → L2, L2 → L3, or L3 → L4 (see §5), the on-call
 - **§1.4 Compensating controls.** (1) Suspend external-collaborator access to the Investments site (Control 4.6 grounding-source provenance). (2) Apply temporary DLP policy blocking Copilot-generated mail to external recipients (firm-wide, 72h). (3) Force re-validation of all PDFs in the Investments site for hidden-text content via a Purview classifier sweep.
 - **§1.5 Pre-escalation checklist.** All 16 mandatory items completed by 12:10 ET; C-17 N/A; C-18 yes (T&S case opened).
 - **§1.6 Communication tree.** SEV-1 internal notifications complete by 10:30 ET. T&S case **MS-CTS-2026-04412** opened citing E-03 (Prompt Shields rated indirect-injection severity "Low" — bypass candidate).
-- **§8 PIR.** Scheduled for 2026-03-11. Standing questions answered; trend-watch updated to flag "PDF grounding sources from external collaborators" as a top-3 emerging risk.
+- **§7 PIR.** Scheduled for 2026-03-11. Standing questions answered; trend-watch updated to flag "PDF grounding sources from external collaborators" as a top-3 emerging risk.
 
 ---
 
@@ -279,11 +279,11 @@ SecurityIncident
 3. Add **suppression rules** for documented benign principals (e.g., the Compliance research team's service principal) — never silently; document in a change ticket and review monthly.
 4. If zone-drift is the cause, restore the correct Zone classification (Control 1.10) and re-evaluate the rule scope.
 5. If the rule itself is over-broad, **version the rule** (do not delete — anti-pattern §3.10) and deploy the tuned successor.
-6. Escalate to L3 per §5 if the false-positive rate exceeded 10% over 24h.
+6. Escalate to L3 per §4 if the false-positive rate exceeded 10% over 24h.
 
 **Validation.** Re-measure false-positive rate over the next 24h. Confirm no legitimate alerts were suppressed (review §1.5 C-13 KQL evidence in the IR ticket from the prior period).
 
-**Evidence.** E-07 (Sentinel rule version history), E-11 (suppression-rule change ticket reference), PIR §8.1 §11 trend-watch update.
+**Evidence.** E-07 (Sentinel rule version history), E-11 (suppression-rule change ticket reference), PIR §7.1 §11 trend-watch update.
 
 #### §2.4 — Defender XDR Alert Not Generated for a Known-Bad Prompt
 
@@ -334,7 +334,7 @@ Get-MgUser -UserId <upn> -Property AssignedLicenses,AssignedPlans |
 2. Open a **Microsoft Copilot Trust & Safety** case (§1.6) with E-03 + E-08 + reproduction steps. Request a classifier review case number.
 3. Apply a **temporary defense-in-depth control** — e.g., a Comm Compliance custom keyword/pattern policy targeting the specific bypass payload class. Document as a §1.4 compensating control.
 4. Add the bypass class to the PyRIT scenario pack so the next quarterly red-team exercise tests for regression.
-5. Update the §3 anti-pattern catalog if the bypass surfaces a new operational misuse pattern (§8.1 §11 PIR action).
+5. Update the §3 anti-pattern catalog if the bypass surfaces a new operational misuse pattern (§7.1 §11 PIR action).
 
 **Validation.** Re-test after Microsoft notifies of classifier update (T&S case closure). Remove the §1.4 compensating control only after re-test passes for two consecutive verification cycles.
 
@@ -496,7 +496,7 @@ The following anti-patterns are **observed in real FSI deployments** of Control 
 | **3.6** | **Mutating evidence before §1.3 capture** — re-running the Defender alert through "Resolve," editing the Sentinel incident comments to add summary, dismissing the Comm Compliance match before exporting. | Destroys the original-state record. Exam staff and counsel cannot rely on after-the-fact reconstructions. **This is itself a SEV-2 finding** per §1.1 escalation rule. | Capture E-01 through E-13 **before** any state change in the source system. If a state change is required for containment (e.g., Resolve to suppress further automation), capture-then-change. Document the order in the IR ticket. |
 | **3.7** | **Treating Power Platform admin telemetry as books-and-records evidence.** | Power Platform admin analytics is **operational telemetry**, not a SEC 17a-4 / FINRA 3110 record. Retention windows, immutability, and reviewer audit trails do not meet 17a-4(f) WORM requirements. | Source books-and-records evidence from **UAL + Purview Comm Compliance + Sentinel + retention-labeled exports**. Use Power Platform telemetry for operations only, not as the system of record for §1.3 evidence. |
 | **3.8** | **"Owner-as-sole-approver"** — same Entra principal owns the agent, approves Comm Compliance matches, and signs off on the agent's quarterly review. | SoD and FINRA 3110 violation. Also creates Entra privileged-role concentration that conflicts with PIM-just-in-time recommendations (Control 1.6). | Enforce three-role separation: **Agent Builder** (creates), **Compliance Reviewer** (reviews matches), **Agent Owner** (accepts business risk). Document the matrix in the agent's onboarding record. |
-| **3.9** | **Deleting Sentinel rules to "clean up" false-positive alert flood.** | Loses the rule lineage. After deletion, the firm cannot demonstrate that detection was in place at the time of the prior incident — which destroys evidence E-07 retroactively. | **Disable** rules instead of deleting; or version the rule and supersede. Maintain rule history in source control (the [PowerShell setup playbook](powershell-setup.md) §4 covers Sentinel-as-code patterns). |
+| **3.9** | **Deleting Sentinel rules to "clean up" false-positive alert flood.** | Loses the rule lineage. After deletion, the firm cannot demonstrate that detection was in place at the time of the prior incident — which destroys evidence E-07 retroactively. | **Disable** rules instead of deleting; or version the rule and supersede. Maintain rule history in source control. |
 | **3.10** | **Believing a Defender XDR auto-resolution = case closed.** | Auto-resolution suppresses the case from the queue but does **not** populate `Classification` or `Determination`, which leaves §1.5 C-14 incomplete. Microsoft Support and T&S also lose continuity. | Always set Classification + Determination explicitly. Use auto-resolution only after manual review for SEV-3/4. |
 | **3.11** | **"License the user, then revoke after testing"** to keep cost down on red-team accounts. | Destroys the principal context (E-09) and breaks the link from a test prompt to its UAL record. License-state at incident time is part of the evidence floor. | Maintain a **persistent test license pool** (5–10 seats) for red-team and verification work. Document the pool in [verification-testing.md](verification-testing.md). |
 | **3.12** | **Trusting a single signal plane** — e.g., "Prompt Shields blocked it, no further action needed." | Single-plane trust misses XPIA cases where the prompt itself is benign but a grounded source carried the injection. Defender XDR XPIA, Comm Compliance, and Sentinel correlation all add coverage that Prompt Shields alone does not. | Treat the four planes as **defense-in-depth**. The §1.5 checklist (C-12) requires cross-reference review for every SEV-1/2 case. |
@@ -504,15 +504,15 @@ The following anti-patterns are **observed in real FSI deployments** of Control 
 
 ---
 
-## §5. Escalation Ladder (L1–L4)
+## §4. Escalation Ladder (L1–L4)
 
 
 | Tier | Owner | Scope | Engage when | Time-box | Hand-off artifact |
 |---|---|---|---|---|---|
 | **L1** | SOC Tier 1 analyst | Triage, evidence E-01/E-02/E-04/E-06 capture, severity assignment per §1.1 | Every Defender XDR / Sentinel alert, every Comm Compliance match | 30 minutes (SEV-1/2), 4h (SEV-3), next business day (SEV-4) | IR ticket with §1.5 C-01 through C-08 complete |
-| **L2** | SOC Tier 2 / SecOps Lead | Reportability tree (§1.2) walk, compensating controls (§1.4) selection, cross-control review (§7), Sentinel rule tuning | SEV-2 confirmed, SEV-1 acknowledgment, any "Yes" at Q4–Q7 | 2 hours (SEV-1), 8 hours (SEV-2) | IR ticket with §1.5 C-09 through C-14 complete |
+| **L2** | SOC Tier 2 / SecOps Lead | Reportability tree (§1.2) walk, compensating controls (§1.4) selection, cross-control review (§6), Sentinel rule tuning | SEV-2 confirmed, SEV-1 acknowledgment, any "Yes" at Q4–Q7 | 2 hours (SEV-1), 8 hours (SEV-2) | IR ticket with §1.5 C-09 through C-14 complete |
 | **L3** | Incident Commander + Compliance Officer + Model Risk Officer | Q1/Q2/Q3 reportability decisions, materiality determination input, Microsoft Trust & Safety case ownership | SEV-1, any Q1–Q3 "Yes," Prompt Shields bypass candidate | 4 hours (SEV-1), within determination clock for Q3 | IR ticket with §1.5 C-15 through C-18 complete + signed evidence manifest E-13 |
-| **L4** | CISO + GC + CRO + Disclosure Committee | External filings (8-K, NYDFS, customer notice), board notification, Microsoft Unified Support Severity A escalation, regulator engagement | Materiality determined; any external filing required; board reporting threshold met | Per regulatory clock (§1.2) | Filed disclosures + board pack + PIR-ready package per §8 |
+| **L4** | CISO + GC + CRO + Disclosure Committee | External filings (8-K, NYDFS, customer notice), board notification, Microsoft Unified Support Severity A escalation, regulator engagement | Materiality determined; any external filing required; board reporting threshold met | Per regulatory clock (§1.2) | Filed disclosures + board pack + PIR-ready package per §7 |
 
 **Escalation triggers (no-judgment-required).**
 - Any SEV-1 → L3 within 1 hour, L4 notify within 4 hours.
@@ -523,7 +523,7 @@ The following anti-patterns are **observed in real FSI deployments** of Control 
 
 ---
 
-## §6. Microsoft Support Pack
+## §5. Microsoft Support Pack
 
 
 When opening a Microsoft Unified Support case for a Control 1.21 issue, attach the following pack so that the support engineer can triage without round-trips. Round-trips cost 4–24 hours per cycle and routinely cause the firm to miss the §1.2 determination clocks.
@@ -551,10 +551,10 @@ When opening a Microsoft Unified Support case for a Control 1.21 issue, attach t
 
 ---
 
-## §7. Cross-References
+## §6. Cross-References
 
 
-**Related controls** (review during §1.5 C-12 and during PIR §8):
+**Related controls** (review during §1.5 C-12 and during PIR §7):
 
 - **Control 1.6 — Privileged Access Management for Agents.** Adversarial input from a privileged principal (Global Admin, Power Platform Admin) escalates severity by one tier. PIM-just-in-time activation logs (1.6 E-04 equivalent) are companion evidence to 1.21 E-09.
 - **Control 1.7 — Conditional Access for Copilot.** Compensating control §1.4 item 6 depends on a working CA policy targeting the Copilot cloud app.
@@ -598,12 +598,12 @@ When opening a Microsoft Unified Support case for a Control 1.21 issue, attach t
 
 ---
 
-## §8. Post-Incident Review (PIR) Template
+## §7. Post-Incident Review (PIR) Template
 
 
-A PIR is **required** for every SEV-1 and SEV-2 incident, scheduled within **5 business days** of incident closure. SEV-3 incidents are aggregated into the **monthly Control 1.21 review**. SEV-4 events feed the quarterly trend-watch (§8.3) only.
+A PIR is **required** for every SEV-1 and SEV-2 incident, scheduled within **5 business days** of incident closure. SEV-3 incidents are aggregated into the **monthly Control 1.21 review**. SEV-4 events feed the quarterly trend-watch (§7.3) only.
 
-#### §8.1 PIR Document Template
+#### §7.1 PIR Document Template
 
 Reproduce the following structure for each PIR. The template is intentionally identical to the 1.14 PIR template so that incident records are comparable across AI controls; 1.21-specific questions are flagged.
 
@@ -643,7 +643,7 @@ PIR — IR-<ticket-id>
    - Filings made (with reference numbers + filed-by name)
    - Determinations of "No" with reasoning preserved
 
-7. Cross-control implications (§7)
+7. Cross-control implications (§6)
    - Which related controls require remediation?
    - Open findings: <list>
 
@@ -663,7 +663,7 @@ PIR — IR-<ticket-id>
     - Tooling improvements
     - Training improvements
 
-11. Trend-watch update (§8.3)
+11. Trend-watch update (§7.3)
     - Does this incident update any 12-month trend-watch row?
     - New emerging-risk row? (e.g., a new XPIA grounding-source class)
 
@@ -675,9 +675,9 @@ PIR — IR-<ticket-id>
     - Legal (if any external filing)
 ```
 
-#### §8.2 Standing Review Questions (Asked Every PIR)
+#### §7.2 Standing Review Questions (Asked Every PIR)
 
-The questions below **must** be answered in every Control 1.21 PIR. They are diagnostic, not bureaucratic — repeated "yes" answers across PIRs surface a systemic issue that the trend-watch (§8.3) will not catch on its own.
+The questions below **must** be answered in every Control 1.21 PIR. They are diagnostic, not bureaucratic — repeated "yes" answers across PIRs surface a systemic issue that the trend-watch (§7.3) will not catch on its own.
 
 1. Did the firm rely on a single signal plane for detection? (anti-pattern §3.12)
 2. Was any KQL query run against `CopilotInteraction` for prompt-content matching? (anti-pattern §3.2)
@@ -695,9 +695,9 @@ The questions below **must** be answered in every Control 1.21 PIR. They are dia
 14. Did the §3 anti-pattern catalog need an update from this incident? If yes, raise the change in the next monthly Control 1.21 review.
 15. Did the firm's PyRIT (or equivalent) red-team exercise foresee this attack class? If no, queue a scenario addition for the next quarterly red-team cycle.
 
-#### §8.3 12-Month Trend-Watch (Reviewed Quarterly)
+#### §7.3 12-Month Trend-Watch (Reviewed Quarterly)
 
-Maintain a rolling 12-month trend-watch table that the Control 1.21 owner reviews at the end of each quarter and presents to the AI Governance Committee. Initial rows seed from observed industry patterns; each PIR (§8.1 §11) may add or update rows.
+Maintain a rolling 12-month trend-watch table that the Control 1.21 owner reviews at the end of each quarter and presents to the AI Governance Committee. Initial rows seed from observed industry patterns; each PIR (§7.1 §11) may add or update rows.
 
 | Trend area | Indicator | Current quarter status | Action if trending up |
 |---|---|---|---|

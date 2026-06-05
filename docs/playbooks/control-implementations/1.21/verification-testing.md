@@ -96,7 +96,7 @@ All pre-flight gates **must pass** before any test family is run. The validator 
 **Required SKUs (per tenant).**
 - Microsoft 365 E5 **or** E3 + Microsoft 365 E5 Compliance + Microsoft 365 E5 Security (for UAL `CopilotInteraction` records and Defender XDR).
 - **Microsoft Purview Audit (Premium)** with the **10-year audit log retention add-on** **or** documented external long-term storage path (Sentinel + WORM blob, Azure Data Explorer, or third-party SIEM with attestation).
-- **Microsoft Defender for Cloud Apps** with AI agent inventory enabled (preview at time of writing — confirm GA status per cloud in §5).
+- **Microsoft Defender for Cloud Apps** with AI agent inventory enabled (preview at time of writing).
 - **Azure AI Content Safety** resource with Prompt Shields enabled (only required where Z2/Z3 agents are Azure-AI-fronted).
 - **Microsoft Sentinel** workspace connected to the Microsoft 365 + Defender XDR data connectors.
 - For non-Microsoft AI apps: pay-as-you-go billing acknowledged for `AIAppInteraction` / `ConnectedAiAppInteraction` retention (default 180 days unless extended via retention policy).
@@ -181,7 +181,7 @@ These are **upper-bound** ranges from Microsoft Learn. Use them to size poll-loo
 | **Defender XDR — event/activity data in advanced hunting** | **Almost immediately** for event/activity data; **hourly** for entity enrichment. | Tenant-observed median (record in DXR-01) | Separate "fast telemetry visible" from "entity enrichment visible" when writing tests. |
 | **Microsoft Sentinel — scheduled analytics rule** | Cadence is author-configurable; ingestion delay can cause missed events if lookback equals run cadence. Use `ingestion_time()` and a lookback **> cadence** by at least the tenant ingestion p99. | PRE-05 rule definition + PRE-04 baseline | Document the lookback strategy explicitly per rule. |
 | **Microsoft Sentinel — NRT (near-real-time) analytics rule** | **1-minute** rule cadence per Learn `detect-threats-built-in`. | N/A — fixed | Recommended for Z3 adversarial patterns where time-to-detect matters. |
-| **Microsoft Defender for Cloud Apps — AI agent inventory** | Inventory refresh cadence not published as a numeric SLA at time of writing; treat as eventually-consistent over hours. | Tenant-observed (record in DXR-02) | Confirm GA status per cloud in §5. |
+| **Microsoft Defender for Cloud Apps — AI agent inventory** | Inventory refresh cadence not published as a numeric SLA at time of writing; treat as eventually-consistent over hours. | Tenant-observed (record in DXR-02) | Confirm GA status per cloud. |
 | **Communication Compliance — adverse-content policy match** | Policy evaluation runs on message ingestion; surfacing in the Compliance Manager review queue can take **up to 24 hours**. | Tenant-observed (out of 1.21 scope; see Control 1.10) | 1.21 does not test Comm Compliance directly; cross-link only. |
 
 > **Citation pointers.** Purview Audit ingestion: `https://learn.microsoft.com/purview/audit-log-search`. Copilot/AI audit schema: `https://learn.microsoft.com/purview/audit-copilot`. Sentinel ingestion delay: `https://learn.microsoft.com/azure/sentinel/ingestion-delay`. Defender XDR data freshness: `https://learn.microsoft.com/defender-xdr/advanced-hunting-overview#data-freshness-and-update-frequency`. Prompt Shields: `https://learn.microsoft.com/azure/ai-services/content-safety/concepts/jailbreak-detection`. Confirm currency at `lastVerifiedUtc` in the playbook footer.
@@ -194,7 +194,7 @@ Each test below has the same seven-field structure as Control 1.14:
 
 1. **Objective** — what the test proves.
 2. **Preconditions** — which PRE gates must have passed; any zone restriction.
-3. **Steps** — operator-runnable steps (PowerShell snippets are illustrative; the canonical implementation lives in `Invoke-Control121Verification.ps1` per §6.2).
+3. **Steps** — operator-runnable steps (PowerShell snippets are illustrative; the canonical implementation lives in `Invoke-Control121Verification.ps1` per §5.2).
 4. **Expected** — observable outcome.
 5. **Pass criteria** — Boolean condition the validator evaluates.
 6. **Audit assertion** — single-sentence statement written into the JSON evidence record.
@@ -647,7 +647,7 @@ ENCODING tests prove that **evasion** payloads are caught by Microsoft-supported
 
 **Expected.** Agent in inventory; event-to-agent correlation present.
 
-**Pass criteria.** `inventoryEntryPresent == true && eventCorrelation == true`. If AI agent inventory is in preview / not GA in the operating cloud, mark `result: "Skip"` with `skipReason` referencing §5.
+**Pass criteria.** `inventoryEntryPresent == true && eventCorrelation == true`. If AI agent inventory is in preview / not GA in the operating cloud, mark `result: "Skip"` with `skipReason` noting cloud availability.
 
 **Audit assertion.** "Test agent {agentId} is enumerated in the Defender for Cloud Apps AI agent inventory and is correlatable to adversarial events at {runUtc}."
 
@@ -825,7 +825,7 @@ NEG tests are the false-positive guard. Without them, the control cannot be prov
 **Steps.**
 1. Enumerate every file in the cycle's evidence directory.
 2. Compute SHA-256 of each.
-3. Compare to the entries in `1.21-manifest_{cycleId}.json` (built by the validator per §6.3).
+3. Compare to the entries in `1.21-manifest_{cycleId}.json` (built by the validator per §5.3).
 4. Confirm the manifest itself has a detached signature (operator's signing key) or is committed to a tamper-evident store (immutable Azure blob with legal-hold, or Sentinel `Logs` workspace).
 
 **Expected.** Every file's hash matches the manifest; manifest is signed or immutably stored.
@@ -881,9 +881,9 @@ IR tests are tabletop exercises; the validator's role is to confirm a signed tab
 
 ---
 
-## §6 — Evidence Pack
+## §5 — Evidence Pack
 
-### 6.1 — JSON Schema (per-test evidence record)
+### 5.1 — JSON Schema (per-test evidence record)
 
 Every test emits a single JSON file conforming to this schema. The shape is intentionally compatible with Control 1.14's per-test record so downstream auditors see one schema across Pillar 1.
 
@@ -970,7 +970,7 @@ Every test emits a single JSON file conforming to this schema. The shape is inte
 
 **Mandatory fields.** `controlId`, `testId`, `testFamily`, `zone`, `tenantId`, `cloud`, `runUtc`, `lastRunUtc`, `operator`, `stimulus.rawPrompt`, `detection.ualRecordType`, `passCriteria`, `result`, `auditAssertion`, `evidenceFiles[].sha256`, `regulatoryDriver`, `schemaVersion`. Anything else is optional but recommended; tests in PRE / LIC / AUDIT / IR families will leave many `detection.*` fields null and that is expected.
 
-### 6.2 — PowerShell Validator: `Invoke-Control121Verification.ps1`
+### 5.2 — PowerShell Validator: `Invoke-Control121Verification.ps1`
 
 The canonical implementation lives in the companion repository. The shape below is the reference contract — any rewrite must remain parameter-compatible so the orchestrator (`scope-drift-monitor` solution or its 1.21 sibling) can invoke it identically to the 1.14 harness.
 
@@ -982,7 +982,7 @@ The canonical implementation lives in the companion repository. The shape below 
 .DESCRIPTION
     Runs PRE-01..07 fail-closed gates, then iterates the requested test families
     for the requested zone(s). Emits per-test JSON evidence records (schema in
-    §6.1), a cycle manifest (§6.3), and an exit code suitable for CI gating.
+    §5.1), a cycle manifest (§5.3), and an exit code suitable for CI gating.
 
     Module dependencies (asserted in PRE-02):
         ExchangeOnlineManagement >= 3.4.0
@@ -1030,8 +1030,8 @@ The canonical implementation lives in the companion repository. The shape below 
     / AUDIT families which are read-only.
 
 .OUTPUTS
-    Per-test JSON files (schema §6.1)
-    1.21-manifest_{cycleId}.json (schema §6.3)
+    Per-test JSON files (schema §5.1)
+    1.21-manifest_{cycleId}.json (schema §5.3)
     1.21-results_{cycleId}.json (cycle-level summary with PASS/FAIL/SKIP counts)
 
 .EXIT CODES
@@ -1056,7 +1056,7 @@ $cycleId = (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHHmmssZ')
 $cycleDir = Join-Path $OutputPath ("$cycleId-$TenantId")
 New-Item -ItemType Directory -Path $cycleDir -Force | Out-Null
 
-# --- Helper: emit a per-test evidence record (schema §6.1) -----------------
+# --- Helper: emit a per-test evidence record (schema §5.1) -----------------
 function Write-EvidenceRecord {
     param(
         [string] $TestId, [string] $Family, [string] $ZoneTag,
@@ -1175,7 +1175,7 @@ else { exit 0 }
 
 > **What lives outside this snippet.** The per-family `Invoke-*Family` functions implement the seven-field test bodies from §4. Each emits its evidence record via `Write-EvidenceRecord`. They are deliberately omitted here for length — the canonical implementation is in the companion repository under `solutions/control-1.21-validator/` and is version-pinned to this playbook. Any divergence between the playbook and the validator is a defect; the playbook wins.
 
-### 6.3 — Manifest builder
+### 5.3 — Manifest builder
 
 The manifest aggregates per-test evidence into a single signed (or immutable-stored) artifact for chain-of-custody.
 
@@ -1208,7 +1208,7 @@ function Write-CycleManifest {
 
 After the manifest is built it must be either: (a) committed to an immutable Azure blob with legal-hold; (b) shipped to a Sentinel `Logs` workspace whose retention is ≥ 6y; or (c) signed with the operator's signing key and stored alongside its detached `.sig`. AUDIT-03 verifies one of these strategies is in force.
 
-### 6.4 — Evidence artifact catalog
+### 5.4 — Evidence artifact catalog
 
 | Family | Per-test files | Purpose |
 |---|---|---|
@@ -1226,7 +1226,7 @@ After the manifest is built it must be either: (a) committed to an immutable Azu
 | IR | `1.21-IR-{nn}_tabletop_<year>.json` | Signed tabletop artifact. |
 | Cycle | `1.21-manifest_{cycleId}.json`, `1.21-results_{cycleId}.json` | Hash manifest + cycle summary. |
 
-### 6.5 — Retention table
+### 5.5 — Retention table
 
 | Artifact class | Minimum retention | Why | Where stored |
 |---|---|---|---|
@@ -1238,7 +1238,7 @@ After the manifest is built it must be either: (a) committed to an immutable Azu
 
 ---
 
-## §7 — Attestation Block
+## §6 — Attestation Block
 
 The cycle attestation is a single signed statement covering the cycle's results. It is appended to the cycle manifest as a sibling `1.21-attestation_{cycleId}.json` and counter-signed by the AI Governance Lead.
 
@@ -1317,7 +1317,7 @@ The cycle attestation is a single signed statement covering the cycle's results.
 
 ---
 
-## §8 — Anti-Patterns and Their Detecting Tests
+## §7 — Anti-Patterns and Their Detecting Tests
 
 These are the 18 patterns that have caused FSI auditor findings in this control area in prior reviews. Each is paired with the test in this playbook that detects it. Reviewers should look for these as red flags during evidence sampling.
 
@@ -1344,7 +1344,7 @@ These are the 18 patterns that have caused FSI auditor findings in this control 
 
 ---
 
-## §9 — Cross-Links
+## §8 — Cross-Links
 
 | Control / Playbook | Why linked |
 |---|---|

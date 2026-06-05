@@ -418,7 +418,7 @@ The table below captures **only** Microsoft-documented behaviours. Where Microso
 - **Preconditions.** PRE-04 PASS.
 - **Steps.** `Search-UnifiedAuditLog -RecordType CopilotInteraction -StartDate ... -EndDate ...` filtered by cycle marker; parse `AuditData` JSON.
 - **Expected.** All three marker events present; ConversationIds match COPILOT-03 substrate items.
-- **Pass criteria.** 100% reconciliation; UAL is treated as **occurrence** evidence and the substrate item is **content** evidence (no conflation — see anti-pattern §8 row 1).
+- **Pass criteria.** 100% reconciliation; UAL is treated as **occurrence** evidence and the substrate item is **content** evidence (no conflation — see anti-pattern §7 row 1).
 - **Audit assertion.** "Occurrence (UAL) and content (substrate) streams reconcile by ConversationId — supports FINRA 4511 dual-record defensibility."
 - **Evidence.** `audit-02-copilot-ual.json`.
 
@@ -465,7 +465,7 @@ The table below captures **only** Microsoft-documented behaviours. Where Microso
 - **Evidence.** `neg-03-detection.json`, Sentinel incident ID where applicable.
 
 
-### 4.12 IR — Incident Readiness Drills
+### 4.11 IR — Incident Readiness Drills
 
 #### IR-01 — Annual FRCP 37(e) preservation tabletop
 
@@ -489,9 +489,9 @@ The table below captures **only** Microsoft-documented behaviours. Where Microso
 
 ---
 
-## 6. Evidence Pack
+## 5. Evidence Pack
 
-### 6.1 JSON Schema (cycle artifact)
+### 5.1 JSON Schema (cycle artifact)
 
 The cycle's top-level evidence artifact is a JSON document conforming to the schema below. The schema is intentionally permissive on test field shapes (each test serializes its own evidence sub-document referenced by file path) but strict on the cycle envelope.
 
@@ -603,7 +603,7 @@ Use `fsi-agentgov.example` as a placeholder identifier only (placeholder — rep
 }
 ```
 
-### 6.2 PowerShell Validator (skeleton)
+### 5.2 PowerShell Validator (skeleton)
 
 The validator returns three exit codes: **0** = all PRE and tests PASS (or SKIP with valid `acceptedRiskUntilUtc`); **1** = any test FAIL or unjustified SKIP; **2** = any PRE gate FAIL (cycle halted before §4 executed).
 
@@ -723,7 +723,7 @@ $failed = $cycle.tests | Where-Object {
 if ($failed) { exit 1 } else { exit 0 }
 ```
 
-### 6.3 Manifest Builder
+### 5.3 Manifest Builder
 
 The manifest is constructed at cycle start and amended at cycle end. It is the single source of truth for *what the cycle was supposed to do*; the evidence pack is *what the cycle actually did*. They must reconcile.
 
@@ -762,14 +762,14 @@ function New-CycleManifest {
 }
 ```
 
-### 6.4 Artifact Catalog
+### 5.4 Artifact Catalog
 
 Every cycle produces (at minimum) the following artifacts under `$EvidenceRoot/{cycleId}/`:
 
 | Artifact | Path (relative to cycle root) | Producer | Required |
 
-| Cycle envelope | `cycle-evidence.json` | Validator (§6.2) | Yes |
-| Cycle manifest | `manifest.json` | Manifest builder (§6.3) | Yes |
+| Cycle envelope | `cycle-evidence.json` | Validator (§5.2) | Yes |
+| Cycle manifest | `manifest.json` | Manifest builder (§5.3) | Yes |
 | PRE-gate evidences | `preflight/pre-0{1..7}-*.json` | Gate functions | Yes |
 | Test evidences | `tests/{namespace}/{id}.json` | Test functions | Yes (35) |
 | Portal screenshots | `screenshots/{id}.png` | Operator | Where listed in §4 |
@@ -780,9 +780,9 @@ Every cycle produces (at minimum) the following artifacts under `$EvidenceRoot/{
 | Sentinel incident refs | `cross-controls/1.24/{incidentId}.json` | NEG-03 | If raised |
 | Tabletop minutes | `ir/ir-01-tabletop.signed.pdf` | Legal Officer | Annual cycle |
 | Production-drill log | `ir/ir-02-production.signed.pdf` | Legal Officer | Annual cycle |
-| Attestation | `attestation.signed.json` | §7 | Yes |
+| Attestation | `attestation.signed.json` | §6 | Yes |
 
-### 6.5 Retention Table
+### 5.5 Retention Table
 
 | Artifact class | Minimum retention | Storage class | Rationale |
 
@@ -796,7 +796,7 @@ Every cycle produces (at minimum) the following artifacts under `$EvidenceRoot/{
 
 ---
 
-## 7. Attestation Block
+## 6. Attestation Block
 
 A cycle is not complete until the attestation is signed by **three** roles. The attestation is a JSON document with a stable canonicalisation, hashed with SHA-256, and the hash is recorded in the next cycle's `previousCycleAttestationSha256` to form a chain.
 
@@ -843,14 +843,14 @@ A cycle is not complete until the attestation is signed by **three** roles. The 
       "signature": "<base64-detached-signature-over-attestationSha256>"
     }
   ],
-  "statement": "We attest that the verification cycle described herein was executed by the named operator under PIM-activated privileged roles; that PRE gates 01–07 returned PASS prior to any §4 test execution; that the §4 test results recorded in cycle-evidence.json reflect the actual tenant behaviour observed at cycleCompletedUtc; that all evidence artifacts have been committed to immutable storage as required by §6.5; and that this attestation is intended to support compliance with the regulations enumerated in the playbook's hedging notice and does not guarantee legal compliance."
+  "statement": "We attest that the verification cycle described herein was executed by the named operator under PIM-activated privileged roles; that PRE gates 01–07 returned PASS prior to any §4 test execution; that the §4 test results recorded in cycle-evidence.json reflect the actual tenant behaviour observed at cycleCompletedUtc; that all evidence artifacts have been committed to immutable storage as required by §5.5; and that this attestation is intended to support compliance with the regulations enumerated in the playbook's hedging notice and does not guarantee legal compliance."
 }
 ```
 
 > **Hash-chain rule.** A cycle whose `previousCycleAttestationSha256` does not equal the prior cycle's `attestationSha256` (post-signature, computed over the same canonicalisation as the prior cycle) is treated as a chain break and reported to FSI Internal Audit.
 
 ---
-## 8. Anti-Patterns
+## 7. Anti-Patterns
 
 Each row pairs an anti-pattern with the test(s) that detect it. A cycle that passes §4 but fails to detect any of these is treated as a methodology gap and surfaced to AI Governance Lead for playbook revision.
 
@@ -876,7 +876,7 @@ Each row pairs an anti-pattern with the test(s) that detect it. A cycle that pas
 
 ---
 
-## 9. Cross-Links
+## 8. Cross-Links
 
 | Reference | Why it matters here |
 
@@ -889,7 +889,7 @@ Each row pairs an anti-pattern with the test(s) that detect it. A cycle that pas
 | Control 1.14 — Data minimization | Shapes which prompt/response fields are exported in EXPORT-02. |
 | Control 1.21 — Adversarial input logging | Adversarial events are preserved under the same hold infrastructure exercised here. |
 | Control 1.24 — Sentinel analytics | Provides NEG-03 detection of bulk privileged-role assignment. |
-| Control 2.13 — Documentation & record-keeping | Owns the long-term retention catalog into which §6.5 plugs. |
+| Control 2.13 — Documentation & record-keeping | Owns the long-term retention catalog into which §5.5 plugs. |
 | Control 4.6 — Grounding scope governance | Owns the Copilot Studio agent inventory used in COPILOT-04. |
 | AI Incident Response Playbook | Defines IR-01 and IR-02 trigger memos and signed-minute templates. |
 

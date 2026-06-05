@@ -81,7 +81,7 @@
 | 11 | [Sentinel Conditional Access Insights workbook](#11-sentinel-conditional-access-insights-workbook) | Daily / weekly impact dashboard wired to the Control 3.9 workspace |
 | 12 | [Break-glass / emergency access accounts](#12-break-glass-emergency-access-accounts) | Two cloud-only accounts excluded from CA, monitored by analytic rule |
 | 13 | [Report-only to Enforce rollout — the 7-day soak](#13-report-only-to-enforce-rollout-the-7-day-soak) | Documented rollout with sign-in log review |
-| 15 | [Evidence pack and verification cross-references](#15-evidence-pack-and-verification-cross-references) | Examiner-ready artifact list |
+| 14 | [Evidence pack and verification cross-references](#14-evidence-pack-and-verification-cross-references) | Examiner-ready artifact list |
 
 ---
 
@@ -131,7 +131,7 @@ Two cloud-only `*.onmicrosoft.com` emergency-access accounts must exist **before
 
 ### 0.5 Document the change in your CAB record
 
-Open the change ticket and reference (a) this playbook revision, (b) the target Authentication Strength name, (c) the four CA policy names you will create, (d) the 7-day Report-only window dates, and (e) the planned cutover date. Attach the empty Evidence Pack folder structure from §15.
+Open the change ticket and reference (a) this playbook revision, (b) the target Authentication Strength name, (c) the four CA policy names you will create, (d) the 7-day Report-only window dates, and (e) the planned cutover date. Attach the empty Evidence Pack folder structure from §14.
 
 ---
 
@@ -741,16 +741,16 @@ Extend by another 7 days (no shortcut) if any of:
    - From a break-glass account on a clean workstation, sign in to confirm exclusion still functions (then sign out and rotate the credential).
    - Inspect the §11 workbook for the new "Sign-ins by Conditional Access Result" tile and confirm `Success` and `Failure` populate as expected (not `Report-only`).
 
-5. Update the CAB ticket with go-live timestamp, evidence-pack screenshots, and the §15 evidence checklist.
+5. Update the CAB ticket with go-live timestamp, evidence-pack screenshots, and the §14 evidence checklist.
 
 ---
 
 
-## 15. Evidence pack and verification cross-references
+## 14. Evidence pack and verification cross-references
 
 Every promotion in §13 must produce evidence artifacts to the firm's compliance archive. The folder structure below mirrors the §13 cutover ticket.
 
-### 15.1 Evidence pack folder structure
+### 14.1 Evidence pack folder structure
 
 ```
 /compliance-archive/control-1.11/<YYYY-MM-DD-cutover>/
@@ -771,7 +771,7 @@ Every promotion in §13 must produce evidence artifacts to the firm's compliance
 └── 99-cisco-sign-off.pdf
 ```
 
-### 15.2 Verification cross-references
+### 14.2 Verification cross-references
 
 The portal walkthrough produces the **configuration** evidence. The companion playbooks produce the **operational** evidence:
 
@@ -780,7 +780,7 @@ The portal walkthrough produces the **configuration** evidence. The companion pl
 - [`./troubleshooting.md`](./troubleshooting.md) — issue catalog T-01 through T-25 keyed to the symptoms an admin sees in the Sign-in logs and CA Insights workbook.
 - [`./conditional-access-agent-templates.md`](./conditional-access-agent-templates.md) — copy-paste-ready JSON templates for Policies A, B, C, D and the FSI Authentication Strength.
 
-### 15.3 Cross-control evidence joins
+### 14.3 Cross-control evidence joins
 
 The 1.11 evidence pack does not stand alone. For an examiner-ready posture, join it to:
 
@@ -819,7 +819,7 @@ The patterns below have caused real outages in FSI tenants. Avoid them.
 
 You have configured the four foundational Conditional Access policies for AI agents in an FSI Microsoft 365 tenant: **Policy A** for privileged-role phishing-resistant MFA, **Policy B** for agent-maker compliant-device + phishing-resistant MFA, **Policy C** for workload-identity location and risk fencing, and **Policy D** (plus pilot **Policy E** / `CA-005`) for session-layer controls including CAE, sign-in frequency, and Token Protection. You have promoted them through a 7-day Report-only soak, wired the Sentinel CA Insights workbook to the Control 3.9 workspace, and confirmed the break-glass posture.
 
-These configurations **support compliance with** NYDFS §500.12, FFIEC authentication guidance, SEC Reg S-P, FINRA Notice 21-18, NIST SP 800-63B AAL3, and CISA Zero Trust identity-pillar expectations. They do **not** by themselves satisfy any obligation; the joined controls in §15.3 carry the rest of the load.
+These configurations **support compliance with** NYDFS §500.12, FFIEC authentication guidance, SEC Reg S-P, FINRA Notice 21-18, NIST SP 800-63B AAL3, and CISA Zero Trust identity-pillar expectations. They do **not** by themselves satisfy any obligation; the joined controls in §14.3 carry the rest of the load.
 
 Continue with [`./verification-testing.md`](./verification-testing.md) to run the Verification Criteria checklist, [`./powershell-setup.md`](./powershell-setup.md) to produce the same configuration via code for DR rebuild, and [`./troubleshooting.md`](./troubleshooting.md) when sign-in failures need triage.
 

@@ -1026,7 +1026,7 @@ The cmdlet name `Get-PnPTenantRestrictedSearchAllowedList` reflects the PnP.Powe
 ---
 
 
-## 14. SHA-256 evidence manifest and JSON export
+## 13. SHA-256 evidence manifest and JSON export
 
 Every Control 1.14 run emits an evidence pack containing the inventory, DLP join, Access Review report, drift report, RCD reconciliation, transcript, and a `manifest.json` binding them with SHA-256 hashes and run metadata.
 
@@ -1091,7 +1091,7 @@ Call `Write-Agt114Evidence` as the **last** step of every run — after any muta
 
 ---
 
-## 15. End-to-end driver script
+## 14. End-to-end driver script
 
 The canonical end-to-end run for a single change window:
 
@@ -1148,11 +1148,11 @@ Run first with `$ChangeRef = 'AGT114-DRY-RUN'` and review the `manifest.json` be
 
 ---
 
-## 16. Validation checks (real queries, not `Write-Host`)
+## 15. Validation checks (real queries, not `Write-Host`)
 
 These five checks run after the driver script and produce machine-readable pass/fail records that supervisory testing consumes directly.
 
-### 16.1 Check 1 — every active agent appears in the inventory
+### 15.1 Check 1 — every active agent appears in the inventory
 
 ```powershell
 function Test-Agt114InventoryCompleteness {
@@ -1181,7 +1181,7 @@ function Test-Agt114InventoryCompleteness {
 }
 ```
 
-### 16.2 Check 2 — no inventory row has a duplicate natural key
+### 15.2 Check 2 — no inventory row has a duplicate natural key
 
 ```powershell
 function Test-Agt114NoDuplicateKeys {
@@ -1199,7 +1199,7 @@ function Test-Agt114NoDuplicateKeys {
 }
 ```
 
-### 16.3 Check 3 — every agent connector reference resolves to a canonical connector ID
+### 15.3 Check 3 — every agent connector reference resolves to a canonical connector ID
 
 ```powershell
 function Test-Agt114CanonicalConnectorIds {
@@ -1220,7 +1220,7 @@ function Test-Agt114CanonicalConnectorIds {
 
 This is the check that historically read `Write-Host "Looks good"` and produced no evidence. Replacing it with a real query on the inventory output is the single highest-value defect fix in the v1.4 rewrite.
 
-### 16.4 Check 4 — Zone 3 agents have public-web grounding disabled
+### 15.4 Check 4 — Zone 3 agents have public-web grounding disabled
 
 ```powershell
 function Test-Agt114Zone3PublicWebOff {
@@ -1245,7 +1245,7 @@ function Test-Agt114Zone3PublicWebOff {
 }
 ```
 
-### 16.5 Check 5 — no agent uses a Blocked or Unclassified connector
+### 15.5 Check 5 — no agent uses a Blocked or Unclassified connector
 
 ```powershell
 function Test-Agt114NoBlockedConnectors {
@@ -1262,7 +1262,7 @@ function Test-Agt114NoBlockedConnectors {
 }
 ```
 
-### 16.6 Driver
+### 15.6 Driver
 
 ```powershell
 $checks = @(
@@ -1281,13 +1281,13 @@ A run is **pass** only if all five checks return `Pass = $true`. Any false resul
 
 ---
 
-## 17. Idempotency, drift detection, and rollback
+## 16. Idempotency, drift detection, and rollback
 
-### 17.1 Idempotency
+### 16.1 Idempotency
 
-Every read-only function in this playbook is idempotent by construction — re-running produces the same output (modulo `ModifiedOn` updates on Dataverse rows and any genuine tenant change). The mutating helpers (the `[CmdletBinding(SupportsShouldProcess)]` ones in §2 and §14) follow the canonical before-snapshot / mutate / after-snapshot / diff pattern from the shared baseline.
+Every read-only function in this playbook is idempotent by construction — re-running produces the same output (modulo `ModifiedOn` updates on Dataverse rows and any genuine tenant change). The mutating helpers (the `[CmdletBinding(SupportsShouldProcess)]` ones in §2 and §13) follow the canonical before-snapshot / mutate / after-snapshot / diff pattern from the shared baseline.
 
-### 17.2 Day-over-day drift
+### 16.2 Day-over-day drift
 
 ```powershell
 $today     = Get-Content "$EvidenceRoot\agt114-$todayStamp\inventory.json"     | ConvertFrom-Json
@@ -1303,13 +1303,13 @@ if ($diff) {
 }
 ```
 
-### 17.3 Rollback
+### 16.3 Rollback
 
-Inventory is a read-only artifact; there is nothing to roll back from `Build-Agt114Inventory`. Mutations made elsewhere — for example, removing a connector from an agent because §16.5 flagged it — must be tracked in their own change record with their own before/after snapshots and `Set-` invocation. The 1.14 evidence pack records the **state at run time**; remediation is the next change ticket.
+Inventory is a read-only artifact; there is nothing to roll back from `Build-Agt114Inventory`. Mutations made elsewhere — for example, removing a connector from an agent because §15.5 flagged it — must be tracked in their own change record with their own before/after snapshots and `Set-` invocation. The 1.14 evidence pack records the **state at run time**; remediation is the next change ticket.
 
 ---
 
-## 18. Anti-patterns
+## 17. Anti-patterns
 
 The patterns below have all caused production incidents in FSI tenants. None is acceptable in a Control 1.14 runbook.
 
@@ -1318,7 +1318,7 @@ The patterns below have all caused production incidents in FSI tenants. None is 
 | 1 | Targeting Power Apps via `Get-AdminPowerApp` and treating those as "agents" | Power Apps are not Copilot Studio agents. The two surfaces are distinct; an apps-only enumeration misses every Copilot Studio agent in the tenant. | Enumerate Dataverse `bot` table per environment via the Web API (§6). |
 | 2 | Iterating `apps × connections` and emitting one row per pair | Cartesian explosion; duplicate rows with different `ComponentId`s skew DLP join counts and produce false-positive scope-drift alerts. | Dedupe on `(EnvironmentId, AgentId, SurfaceClass, ConnectorId, SurfaceId, ComponentId)` (§8). |
 | 3 | Comparing connector references by friendly name (`"SharePoint"`, `"Office 365 Outlook"`) | Friendly names are localised and non-unique; comparisons silently miss matches in non-English tenants and after Microsoft renames. | Compare on canonical `ConnectorId` (`shared_sharepointonline`, `shared_office365`); never on display name (§0.1, §9). |
-| 4 | `Write-Host "Validation passed"` as a validation check | Produces no evidence; cannot be rolled into a `manifest.json`; supervisory testing has nothing to verify. | Write `Test-*` functions that return `[PSCustomObject]@{ Check; Pass; ... }` and serialise to JSON (§16). |
+| 4 | `Write-Host "Validation passed"` as a validation check | Produces no evidence; cannot be rolled into a `manifest.json`; supervisory testing has nothing to verify. | Write `Test-*` functions that return `[PSCustomObject]@{ Check; Pass; ... }` and serialise to JSON (§15). |
 | 6 | Mutating cmdlets without `[CmdletBinding(SupportsShouldProcess)]` | No `-WhatIf` preview; no `ShouldProcess` audit trail; mutation cannot be safely run dry. | Declare `SupportsShouldProcess` and gate every mutation on `if ($PSCmdlet.ShouldProcess(...))` (shared baseline §4). |
 | 7 | No PSEdition / version guard | Script silently runs on Windows PowerShell 5.1, hits cmdlets that only exist in 7.x (PnP v2+), and either errors opaquely or returns wrong-shape objects. | `#Requires -Version 7.4` + `#Requires -PSEdition Core` + the explicit guard in §0.2. |
 | 8 | Skipping `@odata.nextLink` paging on Dataverse Web API queries | Truncation at 5,000 rows; large environments emit incomplete inventories. | Loop until `@odata.nextLink` is null (§5). |
@@ -1332,7 +1332,7 @@ The patterns below have all caused production incidents in FSI tenants. None is 
 
 ---
 
-## 19. Cross-links
+## 18. Cross-links
 
 - **Control 1.2 — Agent registry and integrated apps.** Source-of-truth agent inventory; this playbook reconciles to it. `docs/controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md`
 - **Control 1.4 — Advanced connector policies (ACP).** DLP policy authoring and connector classification; this playbook **joins** to its output. `docs/controls/pillar-1-security/1.4-advanced-connector-policies-acp.md`

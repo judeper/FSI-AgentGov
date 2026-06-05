@@ -16,7 +16,7 @@ Verification of SIT and pattern-recognition coverage exists to surface failure m
 3. **Preview → GA classifier ID drift.** A trainable classifier referenced by ID in a DLP policy is the preview build; Microsoft promotes it to GA with a new GUID and the policy silently stops matching. Detected by `1.13-NEG-03`.
 4. **DLP-for-Copilot mistargeting.** A policy is scoped to a *user* group rather than the *agent identity / SharePoint site* containing the grounding source, so the policy never evaluates the grounding query. Detected by `1.13-NEG-05`.
 5. **Fabricated SLA reliance.** A runbook says "wait 24 hours for SIT indexing" without a Microsoft-published basis, so testers prematurely declare a pass. Mitigated by §3 (Documented processing windows) which cites only Microsoft-published windows feature-by-feature.
-6. **Hard-coded numeric confidence thresholds in operator UX.** Operators are told "≥85 = High" without referencing the custom SIT XML `confidenceLevel` attribute that defines the band; a SIT change silently breaks the assumption. Detected during `1.13-CUSTOM-01..04` review and §8 Anti-Pattern #6.
+6. **Hard-coded numeric confidence thresholds in operator UX.** Operators are told "≥85 = High" without referencing the custom SIT XML `confidenceLevel` attribute that defines the band; a SIT change silently breaks the assumption. Detected during `1.13-CUSTOM-01..04` review and §7 Anti-Pattern #6.
 7. **No negative corpus.** Only positive matches are tested, so false-positive rate is unknown and Zone 3 block actions create denial-of-service to legitimate agent queries. Detected by every `*-NEG-*` and the `-negative-` half of each pair.
 8. **EDM hash drift.** The EDM Upload Agent runs against a stale schema or stale source extract, producing a hash set that no longer matches production data. Detected by `1.13-NEG-02`.
 10. **Trainable classifier without OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) model-risk evidence.** A custom trainable classifier is deployed without documented training-data lineage, validation set, or model-risk sign-off, breaching the FSI Governance Gate defined in the control spec. Detected by `1.13-TC-01..04`.
@@ -83,7 +83,7 @@ Pre-flight tests must pass **before** any §4 test is executed. A failed pre-fli
 
 **Evidence collected.** `1.13-PRE-02-ual-search.csv`, `1.13-PRE-02-screenshot.png`.
 
-> **Verify on Microsoft Learn at execution time.** Operation-name spelling for `SitCreated`/`SitUpdated`/`EdmSchemaCreated`/`EdmDataUploaded`/`DlpRuleMatch`/`CopilotInteraction` is subject to change. Confirm against `learn.microsoft.com/purview/audit-log-activities` before signing the attestation in §7.
+> **Verify on Microsoft Learn at execution time.** Operation-name spelling for `SitCreated`/`SitUpdated`/`EdmSchemaCreated`/`EdmDataUploaded`/`DlpRuleMatch`/`CopilotInteraction` is subject to change. Confirm against `learn.microsoft.com/purview/audit-log-activities` before signing the attestation in §6.
 
 ### 1.13-PRE-03 — PowerShell modules pinned
 
@@ -180,7 +180,7 @@ The windows below are **the only** windows cited by Microsoft Learn at the date 
 
 ## §4 Test catalog
 
-Every test below uses the structure: **Objective · Preconditions · Steps · Expected · Pass criteria · Audit assertion · Evidence collected.** Test IDs are stable and referenced by the evidence manifest (§6) and the attestation block (§7).
+Every test below uses the structure: **Objective · Preconditions · Steps · Expected · Pass criteria · Audit assertion · Evidence collected.** Test IDs are stable and referenced by the evidence manifest (§5) and the attestation block (§6).
 
 ### Built-in SITs (1.13-BUILTIN-01..08)
 
@@ -842,7 +842,7 @@ Every test below uses the structure: **Objective · Preconditions · Steps · Ex
 ---
 
 
-## §6 Evidence pack
+## §5 Evidence pack
 
 ### 6.1 Evidence manifest schema
 
@@ -1051,7 +1051,7 @@ exit 0
 
 ### 6.3 Manifest builder
 
-Builder pattern (sketch — full implementation in `powershell-setup.md` §8):
+Builder pattern (sketch — full implementation in `powershell-setup.md` §7):
 
 ```powershell
 # Build-EvidenceManifest.ps1 (sketch)
@@ -1091,7 +1091,7 @@ Evidence is retained per **FINRA Rule 4511** (general books and records, 6 years
 
 ---
 
-## §7 Attestation block
+## §6 Attestation block
 
 The attestation below is signed at the end of every test cycle. RACI alignment: Compliance Officer is **Accountable**, Information Protection Admin (or Purview Compliance Admin executing the cycle) is **Responsible**, CISO is **Consulted**, Internal Audit is **Informed**.
 
@@ -1166,15 +1166,14 @@ per FINRA Rule 4511 / SEC Rule 17a-4(f). I further attest
 that no operator-mediated waits were substituted for audit-
 event verification, that no real customer NPI was used in
 synthetic testing
-(§5) was re-verified within 30 days of cycle start.
 =============================================================
 ```
 
-> **Single-role attestation is a finding.** A cycle signed only by the Executor (without Compliance Officer counter-signature) does not satisfy the control. See §8 Anti-Pattern #14.
+> **Single-role attestation is a finding.** A cycle signed only by the Executor (without Compliance Officer counter-signature) does not satisfy the control. See §7 Anti-Pattern #14.
 
 ---
 
-## §8 Anti-patterns
+## §7 Anti-patterns
 
 The following 15 patterns are **non-conformance** to Control 1.13 and must be remediated before the cycle can be signed.
 
@@ -1195,7 +1194,7 @@ The following 15 patterns are **non-conformance** to Control 1.13 and must be re
 
 ---
 
-## §9 Cross-links
+## §8 Cross-links
 
 - **Sibling 1.13 playbooks**
   - [`portal-walkthrough.md`](portal-walkthrough.md) — portal configuration steps for SITs, EDM, classifiers, DLP-for-Copilot

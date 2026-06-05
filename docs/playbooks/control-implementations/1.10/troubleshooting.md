@@ -247,7 +247,7 @@ The single most common cause of misdirected investigation in FSI is reaching for
 ---
 ---
 
-## §6 — Escalation
+## §5 — Escalation
 
 ### L1 — Communication Compliance Admin (within 1 h SEV-1; 4 h SEV-2)
 
@@ -326,7 +326,7 @@ Subject: Communication Compliance supervisory-review degradation — [date]
 
 ---
 
-## §7 — Cross-links
+## §6 — Cross-links
 
 - [Control 1.10 Communication Compliance Monitoring](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) — control of record
 - [Control 1.10 Portal Walkthrough](portal-walkthrough.md)

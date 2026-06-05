@@ -109,7 +109,7 @@ foreach ($m in $modules) {
 
 ### 1.3 Separate audit-only principal (recommended)
 
-Create a service principal — `agt112-irm-reader` — that holds **Insider Risk Management Auditors** in Purview plus the read-only Graph scopes above. Never assign it Admin / Investigator / Approver. Authenticate it with a certificate, not a secret (BL-§3).
+Create a service principal — `agt112-irm-reader` — that holds **Insider Risk Management Auditors** in Purview plus the read-only Graph scopes above. Never assign it Admin / Investigator / Approver. Authenticate it with a certificate, not a secret (BL-§2).
 
 ---
 
@@ -127,7 +127,7 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-# Helpers in §3-§9 read this variable to short-circuit to NotApplicable.
+# Helpers in §2-§8 read this variable to short-circuit to NotApplicable.
 $script:FsiCloud = $Cloud
 
 $mgEnv = @{
@@ -142,7 +142,7 @@ Connect-MgGraph -TenantId $TenantId -ClientId $AppId `
     -CertificateThumbprint $CertificateThumbprint -Environment $mgEnv -NoWelcome
 
 # Connect-IPPSSession is the gateway for IRM cmdlets in commercial cloud.
-# §3-§9 detect that and report NotApplicable rather than failing.
+# §2-§8 detect that and report NotApplicable rather than failing.
 Connect-IPPSSession -UserPrincipalName $UserPrincipalName -ConnectionUri $ippsUri
 
 Write-Verbose "Connected: cloud=$Cloud tenant=$TenantId mgEnv=$mgEnv"
@@ -161,7 +161,7 @@ function Get-FsiIrmCloudGate {
 
 ---
 
-## §3 — Helper: `Get-FsiIrmPolicyInventory`
+## §2 — Helper: `Get-FsiIrmPolicyInventory`
 
 ```powershell
 function Get-FsiIrmPolicyInventory {
@@ -219,7 +219,7 @@ function Get-FsiIrmPolicyInventory {
 
 ---
 
-## §4 — Helper: `Get-FsiAdaptiveProtectionStatus`
+## §3 — Helper: `Get-FsiAdaptiveProtectionStatus`
 
 ```powershell
 function Get-FsiAdaptiveProtectionStatus {
@@ -285,7 +285,7 @@ function Get-FsiAdaptiveProtectionStatus {
 
 ---
 
-## §5 — Helper: `Get-FsiIrmHrConnectorState`
+## §4 — Helper: `Get-FsiIrmHrConnectorState`
 
 ```powershell
 function Get-FsiIrmHrConnectorState {
@@ -354,7 +354,7 @@ function Get-FsiIrmHrConnectorState {
 
 ---
 
-## §6 — Helper: `Get-FsiIrmSignalCoverage`
+## §5 — Helper: `Get-FsiIrmSignalCoverage`
 
 ```powershell
 function Get-FsiIrmSignalCoverage {
@@ -425,7 +425,7 @@ function Get-FsiIrmSignalCoverage {
 
 ---
 
-## §7 — Helper: `Test-FsiIrmAlertRouting`
+## §6 — Helper: `Test-FsiIrmAlertRouting`
 
 ```powershell
 function Test-FsiIrmAlertRouting {
@@ -493,7 +493,7 @@ function Test-FsiIrmAlertRouting {
 
 ---
 
-## §8 — Helper: `Test-FsiIrmAnonymization`
+## §7 — Helper: `Test-FsiIrmAnonymization`
 
 ```powershell
 function Test-FsiIrmAnonymization {
@@ -536,7 +536,7 @@ function Test-FsiIrmAnonymization {
 
 ---
 
-## §9 — Helper: `Get-FsiIrmAgentAbuseIndicators`
+## §8 — Helper: `Get-FsiIrmAgentAbuseIndicators`
 
 ```powershell
 function Get-FsiIrmAgentAbuseIndicators {
@@ -601,9 +601,9 @@ function Get-FsiIrmAgentAbuseIndicators {
 
 ---
 
-## §10 — Mutating: create or update an IRM policy (idempotent, Get-then-Set)
+## §9 — Mutating: create or update an IRM policy (idempotent, Get-then-Set)
 
-> **Mutation safety.** All mutations use `[CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]` and snapshot before write per BL-§4. Always invoke first with `-WhatIf`.
+> **Mutation safety.** All mutations use `[CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]` and snapshot before write per BL-§3. Always invoke first with `-WhatIf`.
 
 ```powershell
 function New-FsiIrmDataLeaksPolicy {
@@ -673,7 +673,7 @@ function Enable-FsiAdaptiveProtection {
 
 ---
 
-## §11 — DLP rule integration with risk tiers (Adaptive Protection escalation)
+## §10 — DLP rule integration with risk tiers (Adaptive Protection escalation)
 
 Adaptive Protection escalates DLP rule actions based on the user's calculated IRM risk tier — **Elevated** > **Moderate** > **Minor**. The `Set-DlpComplianceRule -IRMSettings` parameter wires a DLP rule into the tier system.
 
@@ -713,9 +713,9 @@ function Set-FsiDlpRuleForRiskTier {
 ---
 
 
-## §13 — Evidence emission and scheduler integration
+## §11 — Evidence emission and scheduler integration
 
-All helpers return `[pscustomobject]` shapes that flow into the canonical evidence emitter from BL-§5. A reference orchestrator that runs the full Control 1.12 sweep:
+All helpers return `[pscustomobject]` shapes that flow into the canonical evidence emitter from BL-§4. A reference orchestrator that runs the full Control 1.12 sweep:
 
 ```powershell
 # Save as: scripts/Invoke-Agt112Sweep.ps1
@@ -736,10 +736,9 @@ $results = [ordered]@{
     AlertRouting         = if ($WorkspaceId) { Test-FsiIrmAlertRouting -WorkspaceId $WorkspaceId } else { $null }
     Anonymization        = Test-FsiIrmAnonymization
     AgentAbuseIndicators = Get-FsiIrmAgentAbuseIndicators
-    CompensatingPosture  = Get-FsiIrmCompensatingPosture
 }
 
-# Emit each artifact with SHA-256 manifest per BL-§5
+# Emit each artifact with SHA-256 manifest per BL-§4
 foreach ($k in $results.Keys) {
     if ($null -ne $results[$k]) {
         Write-FsiEvidence -Object $results[$k] -Name "agt112-$k" -EvidencePath $EvidencePath
@@ -759,7 +758,7 @@ $aggregate = [pscustomobject]@{
 Write-FsiEvidence -Object $aggregate -Name 'agt112-aggregate' -EvidencePath $EvidencePath
 ```
 
-**Scheduler cadence.** Run weekly at minimum; run after any IRM-policy change ticket; run on the day before each quarterly attestation. Land artifacts in WORM storage (Purview Data Lifecycle Management retention lock or Azure Storage immutability policy) per BL-§5 and SEC 17a-4(f).
+**Scheduler cadence.** Run weekly at minimum; run after any IRM-policy change ticket; run on the day before each quarterly attestation. Land artifacts in WORM storage (Purview Data Lifecycle Management retention lock or Azure Storage immutability policy) per BL-§4 and SEC 17a-4(f).
 
 ---
 

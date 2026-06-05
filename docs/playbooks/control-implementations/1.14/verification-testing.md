@@ -46,7 +46,7 @@ The cadence below is the minimum re-verification frequency per zone and per test
 | NEG (negative tests) | Annual | Semi-annual | Quarterly | AI Governance Lead | Audit Manager | Control validation |
 | IR (incident-response tabletop) | n/a | Annual | Annual | CISO | CRO | SEC Reg S-P 2024, GLBA 501(b) |
 
-**Cadence enforcement.** The PowerShell validator in §6.2 emits a `lastRunUtc` field per test family. The companion solution `scope-drift-monitor` in `FSI-AgentGov-Solutions` raises an alert when a family's `lastRunUtc` exceeds the cadence shown above by more than 7 days. Cadence drift is itself a finding under SOX 404 (control operating effectiveness) and should be tracked in the issues register, not silently re-baselined.
+**Cadence enforcement.** The PowerShell validator in §5.2 emits a `lastRunUtc` field per test family. The companion solution `scope-drift-monitor` in `FSI-AgentGov-Solutions` raises an alert when a family's `lastRunUtc` exceeds the cadence shown above by more than 7 days. Cadence drift is itself a finding under SOX 404 (control operating effectiveness) and should be tracked in the issues register, not silently re-baselined.
 
 ---
 
@@ -106,7 +106,7 @@ Pre-flight tests confirm that the verification harness can run reliably and that
 
 1. Run `Get-AdminAuditLogConfig | Select UnifiedAuditLogIngestionEnabled` and confirm `True`.
 2. For each workload above, run `Search-UnifiedAuditLog -StartDate (Get-Date).AddDays(-7) -EndDate (Get-Date) -RecordType {workload} -ResultSize 1` and confirm at least one row is returned.
-3. Page the search using `-SessionId` and `-SessionCommand ReturnLargeSet` to confirm the harness avoids the basic 10,000-row cap (this is the same trap class documented in 1.13 anti-pattern §8.13).
+3. Page the search using `-SessionId` and `-SessionCommand ReturnLargeSet` to confirm the harness avoids the basic 10,000-row cap (this is the same trap class documented in 1.13 anti-pattern §7.13).
 
 **Expected.** UAL enabled; each workload returns at least one event in the last 7 days; paged search completes without exceeding the cap.
 
@@ -124,7 +124,7 @@ Pre-flight tests confirm that the verification harness can run reliably and that
 
 **Steps.**
 
-1. Run the module-pinning block from `_shared/powershell-baseline.md` (also reproduced in §6.2 of this playbook).
+1. Run the module-pinning block from `_shared/powershell-baseline.md` (also reproduced in §5.2 of this playbook).
 2. Capture `Get-Module -ListAvailable | Where-Object Name -in @('Microsoft.PowerApps.Administration.PowerShell','Microsoft.Online.SharePoint.PowerShell','PnP.PowerShell','ExchangeOnlineManagement','Microsoft.Graph.Authentication','Microsoft.Graph.Identity.SignIns','Microsoft.Graph.Applications')` and export to JSON.
 3. Confirm the tenant-approved `Microsoft.Online.SharePoint.PowerShell` build is current enough to expose the Restricted Content Discovery / Restricted SharePoint Search cmdlets used by Control 4.6 validation; if not, record a fail or skip rather than asserting clean SharePoint scope evidence.
 
@@ -171,7 +171,7 @@ Pre-flight tests confirm that the verification harness can run reliably and that
 
 **Expected.** All three test users, three test agents, and one test site present; corpus seeded.
 
-**Pass criteria.** Test manifest validates against `evidence-manifest-v1.json` schema (see §6.1).
+**Pass criteria.** Test manifest validates against `evidence-manifest-v1.json` schema (see §5.1).
 
 **Audit assertion.** "Test fixtures present for tenant `{tenantId}` on `{utcDate}`: 3 users, 3 agents, 1 site, 15 corpus documents."
 
@@ -195,7 +195,7 @@ Each test in §4 has an "Expected" clause that depends on a Microsoft-published 
 | Microsoft Graph `oauth2PermissionGrants` reflection of consent | Near-real-time (under 5 minutes) | Microsoft Learn — *oauth2PermissionGrants resource* | OAUTH-01, OAUTH-02 |
 | Defender for Cloud Apps alert generation | Up to 60 minutes from signal | Microsoft Learn — *Investigate alerts in Defender for Cloud Apps* | DRIFT-04 |
 
-**Window-aware retry policy.** The validator (§6.2) supports a `-WaitForWindow` switch that re-runs each test after its documented window has elapsed if the first attempt returns `Skip` due to "signal not yet visible." This avoids false-fail findings on tests that simply ran too quickly after the provoking action.
+**Window-aware retry policy.** The validator (§5.2) supports a `-WaitForWindow` switch that re-runs each test after its documented window has elapsed if the first attempt returns `Skip` due to "signal not yet visible." This avoids false-fail findings on tests that simply ran too quickly after the provoking action.
 
 ---
 
@@ -358,7 +358,7 @@ The 37 tests below form the auditable core of Control 1.14. Each test follows th
 
 **Steps.**
 
-1. Validate each inventory row against the schema in §6.1 `agent-inventory-row-v1.json` (required: `agentId`, `dataSourceId`, `dataSourceType`, `businessJustification`, `dataClassification`, `zone`, `requestedBy`, `approvedBy`, `lastReviewedUtc`).
+1. Validate each inventory row against the schema in §5.1 `agent-inventory-row-v1.json` (required: `agentId`, `dataSourceId`, `dataSourceType`, `businessJustification`, `dataClassification`, `zone`, `requestedBy`, `approvedBy`, `lastReviewedUtc`).
 2. List rows missing any required field.
 
 **Expected.** Zero rows fail validation.
@@ -940,9 +940,9 @@ The 37 tests below form the auditable core of Control 1.14. Each test follows th
 ---
 
 
-## §6 Evidence pack
+## §5 Evidence pack
 
-### §6.1 Evidence manifest schema
+### §5.1 Evidence manifest schema
 
 The evidence manifest is a JSON document conforming to `evidence-manifest-v1.json`. Each verification run produces exactly one manifest, hashed with SHA-256 and stored alongside the evidence files. Manifests are immutable; a re-run produces a new manifest with a new `generatedUtc`.
 
@@ -1002,7 +1002,7 @@ A companion schema `agent-inventory-row-v1.json` validates the per-row inventory
 }
 ```
 
-### §6.2 Validator (PowerShell)
+### §5.2 Validator (PowerShell)
 
 The validator below is the canonical harness for Control 1.14. Drop into `assessment/collectors/Verify-Control-1.14.ps1`. The skeleton enforces module pinning, runs each test family, emits one JSON line per test, and writes a SHA-256 manifest of evidence files. Real implementations of each `Test-*` function should be added incrementally; the skeleton fails-closed on `Skip` so missing implementations cannot be silently passed when invoked with `-Strict`.
 
@@ -1141,7 +1141,7 @@ New-Item -ItemType Directory -Force -Path $EvidencePath | Out-Null
 $ndjson = Join-Path $EvidencePath ("Control-1.14_Results_{0:yyyyMMddHHmmss}.ndjson" -f (Get-Date))
 $Results | ForEach-Object { $_ | ConvertTo-Json -Compress -Depth 6 } | Set-Content -Path $ndjson -Encoding utf8
 
-# --- SHA-256 manifest (§6.1) ----------------------------------------------
+# --- SHA-256 manifest (§5.1) ----------------------------------------------
 $manifest = Get-ChildItem -Path $EvidencePath -File -Recurse | ForEach-Object {
     [pscustomobject]@{
         path        = (Resolve-Path -LiteralPath $_.FullName -Relative)
@@ -1170,7 +1170,7 @@ if ($Strict -and $skip) { exit 2 }
 exit 0
 ```
 
-### §6.3 Manifest builder & validator
+### §5.3 Manifest builder & validator
 
 Validate any existing manifest with the following one-liner (requires `Test-Json` from PowerShell 7.4+):
 
@@ -1189,7 +1189,7 @@ if (-not (Test-Json -Json $manifest -Schema $schema)) {
 }
 ```
 
-### §6.4 Artifacts table
+### §5.4 Artifacts table
 
 | Test ID prefix | Filename pattern | Format | Producer |
 
@@ -1208,7 +1208,7 @@ if (-not (Test-Json -Json $manifest -Schema $schema)) {
 | Manifest | `Control-1.14_Manifest_{yyyyMMdd}.json` | JSON | Validator |
 | NDJSON results | `Control-1.14_Results_{yyyyMMddHHmmss}.ndjson` | NDJSON | Validator |
 
-### §6.5 Retention and WORM storage
+### §5.5 Retention and WORM storage
 
 Evidence supports compliance with the following retention obligations and should be preserved for the longest applicable period. Implementation requires the storage tier to enforce immutability (WORM); organizations should verify their storage configuration meets the regulator's expectations.
 
@@ -1225,7 +1225,7 @@ Recommended storage: Microsoft 365 Records Management with a retention label `1.
 
 ---
 
-## §7 Attestation block
+## §6 Attestation block
 
 Each verification run produces a signed attestation. The attestation is itself an evidence artifact and is hashed into the manifest. Multi-role sign-off supports compliance with SOX 404 segregation-of-duties expectations and with FINRA 3110 supervisory review.
 
@@ -1276,7 +1276,7 @@ The attestation block is filed as `Control-1.14_Attestation_{yyyyMMdd}.txt` in t
 
 ---
 
-## §8 Anti-patterns and known traps
+## §7 Anti-patterns and known traps
 
 The following anti-patterns have been observed in FSI deployments. Each is paired with the test that detects it, so a verifier can confirm the anti-pattern is not present.
 
@@ -1294,13 +1294,13 @@ The following anti-patterns have been observed in FSI deployments. Each is paire
 12. **Quarterly review documented but no evidence of revocations.** Detected by APR-04.
 13. **UAL search using basic search (10,000-row cap) instead of paged `Search-UnifiedAuditLog -SessionCommand ReturnLargeSet`.** Detected by AUDIT-01 (paged retrieval mandatory).
 14. **Evidence stored in a non-WORM location violating SEC 17a-4(f).** Detected by NEG-04 (decommission-preserves-evidence test will surface the storage gap).
-15. **SHA-256 manifest generated once at write time and never re-validated.** Detected by §6.3 validator one-liner.
+15. **SHA-256 manifest generated once at write time and never re-validated.** Detected by §5.3 validator one-liner.
 17. **Removing a connector from DLP without first revoking existing agent grants ("zombie OAuth").** Detected by OAUTH-01 diff against documented minimum.
 18. **Treating Restricted SharePoint Search as a long-term Z3 boundary** (Microsoft positions RSS as a short-term remediation step pending SharePoint Advanced Management deployment — see Control 4.6). Detected by SCOPE-01 (RSS does not eliminate the requirement to scope knowledge sources to a folder).
 
 ---
 
-## §9 Cross-links
+## §8 Cross-links
 
 - Control [1.2 Agent Registry](../1.2/portal-walkthrough.md) — source of truth for the registered agent set used by INV-01.
 - Control [1.4 Connector Governance](../1.4/portal-walkthrough.md) — DLP and ACP configuration tested by DLP-01..05.
@@ -1311,7 +1311,7 @@ The following anti-patterns have been observed in FSI deployments. Each is paire
 - Control [1.19 Service Principal Hygiene](../1.19/portal-walkthrough.md) — service principal documentation referenced by LIC-02.
 - Control [4.6 Grounding Scope Governance](../4.6/portal-walkthrough.md) — RSS / RCD decisions cross-referenced by SCOPE-02.
 - [AI Incident Response Playbook](../../incident-and-risk/ai-incident-response-playbook.md) — exercised by IR-01.
-- [Shared PowerShell Baseline](../../_shared/powershell-baseline.md) — module pinning and connection patterns used by §6.2 validator.
+- [Shared PowerShell Baseline](../../_shared/powershell-baseline.md) — module pinning and connection patterns used by §5.2 validator.
 - Microsoft Learn — *Data loss prevention policies* — <https://learn.microsoft.com/en-us/power-platform/admin/wp-data-loss-prevention>
 - Microsoft Learn — *Connector classification* — <https://learn.microsoft.com/en-us/power-platform/admin/dlp-connector-classification>
 - Microsoft Learn — *Advanced Connector Policies* — <https://learn.microsoft.com/en-us/power-platform/admin/connector-action-control>

@@ -265,7 +265,7 @@ $rules = Get-DlpComplianceRule    | Select-Object Name, ParentPolicyName, Disabl
 $pols  | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $out 'dlp-policies.json') -Encoding utf8
 $rules | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $out 'dlp-rules.json')    -Encoding utf8
 
-# 7. SHA-256 manifest (see §15).
+# 7. SHA-256 manifest (see §14).
 Get-ChildItem $out -File | ForEach-Object {
     [PSCustomObject]@{
         File   = $_.Name
@@ -795,7 +795,7 @@ Write-Information "Copilot DLP policy '$PolicyName' / rule '$RuleName' published
 
 - Always start in `TestWithNotifications` mode. Move to `Enable` only after a documented soak window and after Activity Explorer (§11) shows the expected match rate against test traffic.
 - The `RestrictAccess` setting `ExcludeContentProcessing` = `Block` is what tells Copilot to *exclude* the matching content from its grounding/answer generation. This is the correct lever for "the agent must not surface this content in its answer."
-- For SharePoint grounding scope, this rule complements (does not replace) Control 4.6. See cross-links at §16.
+- For SharePoint grounding scope, this rule complements (does not replace) Control 4.6. See cross-links at §15.
 
 ## 10. `Test-DataClassification` harness
 
@@ -962,7 +962,7 @@ To remove cleanly:
 A pre-canned rollback for every change record means: archived before-snapshot JSON + the exact `Set-` / `Remove-` invocation that restores it. Treat rollback scripts as production code — code-review them, version them, store them next to the change record.
 
 
-## 14. Anti-patterns
+## 13. Anti-patterns
 
 The following patterns appear in the wild and have all caused production incidents in FSI tenants. None of them is acceptable in a Control 1.13 runbook.
 
@@ -983,7 +983,7 @@ The following patterns appear in the wild and have all caused production inciden
 | 13 | Skipping `-ResultSize Unlimited` on inventory cmdlets | Silent truncation at 1,000 objects; drift detection misses changes beyond the cap. | Always pass `-ResultSize Unlimited` on `Get-DlpSensitiveInformationType`, `Get-DlpComplianceRule`, `Search-UnifiedAuditLog`. |
 | 14 | Custom SIT without `<ExcludedMatch>` test sentinels | First wave of false positives comes from synthetic data in pre-production environments. Operators learn to ignore SIT alerts. | Every custom SIT excludes `TEST-`, `SAMPLE-`, and a tenant UAT prefix. |
 
-## 15. Evidence pack and `Write-FsiEvidence`
+## 14. Evidence pack and `Write-FsiEvidence`
 
 Every change window produces an evidence pack containing the transcript, the before/after JSON snapshots, audit-log exports, `Test-DataClassification` reports, and a SHA-256 manifest binding them together. The shared baseline (`docs/playbooks/_shared/powershell-baseline.md` §5) defines the helper:
 
@@ -1040,7 +1040,7 @@ Stop-Transcript
 
 `Disconnect-IPPSSession` is a frequently-imagined cmdlet that does not exist. Calling it raises `CommandNotFoundException` and — because `Disconnect-ExchangeOnline` was never called — leaves the IPPS REST session live until token expiry. In a shared jump-host environment this can leak credentials between operators.
 
-## 16. Cross-links
+## 15. Cross-links
 
 - **Control 1.5 — Identity baseline for agent makers and admins.** SIT authoring requires the privileged-role and Conditional Access posture defined there. `docs/controls/pillar-1-security/1.5-identity-baseline-for-agent-makers-and-admins.md`
 - **Control 1.6 — Sensitivity labels and label policies.** SIT detection drives auto-labelling; labels in turn drive Copilot grounding eligibility. `docs/controls/pillar-1-security/1.6-sensitivity-labels-for-ai-content.md`

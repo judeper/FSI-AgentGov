@@ -60,8 +60,8 @@
     | Connectors approval workflow (custom and certified connector requests) | Power Platform Managed Environments recommended; basic queue available without |
     | Defender for Cloud Apps — Cloud Discovery and OAuth app governance | **Microsoft Defender for Cloud Apps** standalone or as part of Microsoft 365 E5 Security |
     | Purview Audit (Premium) — 1-year default + 10-year add-on retention used in §15 examiner audit-pull | **Microsoft Purview Audit (Premium)** + **10-Year Audit Log Retention** add-on |
-    | Communication Compliance integration referenced in §17 | **Microsoft Purview Communication Compliance** (E5 Compliance) |
-    | Step-up auth referenced in §17 | Entra ID P2 + Authentication Strengths feature |
+    | Communication Compliance integration referenced in §16 | **Microsoft Purview Communication Compliance** (E5 Compliance) |
+    | Step-up auth referenced in §16 | Entra ID P2 + Authentication Strengths feature |
 
 
 ---
@@ -942,7 +942,7 @@ When you change a registry field, you implicitly change the inputs to every cont
 
 ---
 
-## §18 — Anti-Pattern Catalog
+## §17 — Anti-Pattern Catalog
 
 Things that look reasonable in isolation and produce findings at scale. Each anti-pattern below has been observed in FSI tenants; each carries a remediation reference.
 
@@ -971,7 +971,7 @@ Things that look reasonable in isolation and produce findings at scale. Each ant
 
 ---
 
-## §19 — Verification Handoff
+## §18 — Verification Handoff
 
 After completing this walkthrough, the Verification & Testing playbook (`./verification-testing.md`) is the next stop. Confirm at minimum:
 
@@ -989,7 +989,7 @@ The Verification playbook walks each item with explicit pass/fail criteria and e
 
 ---
 
-## §20 — Troubleshooting Handoff
+## §19 — Troubleshooting Handoff
 
 When portal steps in this playbook fail or surface unexpected state, route to `./troubleshooting.md` for the remediation matrix. The most common 1.2 troubleshooting topics covered there:
 
@@ -1004,16 +1004,16 @@ When portal steps in this playbook fail or surface unexpected state, route to `.
 
 ---
 
-## §21 — Cross-References and Closing Reminders
+## §20 — Cross-References and Closing Reminders
 
-### 21.1 Sibling Playbooks
+### 20.1 Sibling Playbooks
 
 - `./powershell-setup.md` — every PowerShell automation referenced in this walkthrough (registration capture, SP/MI hygiene sweeps, examiner point-in-time reconstruction, attestation tracker population).
 - `./verification-testing.md` — pass/fail criteria for every step here.
 - `./troubleshooting.md` — remediation matrix.
 - `./sponsorship-lifecycle-workflows.md` — the sponsorship lifecycle plumbing referenced throughout §11 and §14.
 
-### 21.2 Related Pillar 1 Controls
+### 20.2 Related Pillar 1 Controls
 
 - `../1.1-conditional-access-for-agents/portal-walkthrough.md`
 - `../1.4-advanced-connector-policies-acp.md`
@@ -1024,18 +1024,18 @@ When portal steps in this playbook fail or surface unexpected state, route to `.
 - `../1.23-step-up-authentication-for-agent-operations.md`
 - `../1.24-defender-ai-security-posture-management.md`
 
-### 21.3 Related Pillar 2 / 3 Controls
+### 20.3 Related Pillar 2 / 3 Controls
 
 - `../2.1/portal-walkthrough.md`
 - `../2.5/portal-walkthrough.md`
 - `../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md`
 - `../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md`
 
-### 21.4 Incident Response Tie-In
+### 20.4 Incident Response Tie-In
 
 - `../../incident-and-risk/ai-incident-response-playbook.md` — when an incident references a registered agent, the sponsor, owner, and Compliance Officer surfaced from the registry per §11.2 are the first three notifications.
 
-### 21.5 Closing Hedged-Language Reminder
+### 20.5 Closing Hedged-Language Reminder
 
 This playbook describes a configuration and operating discipline that **supports compliance with** FINRA Rule 4511, FINRA RN 24-09 / Rule 3110, SEC Rule 17a-4(b)(4) and 17a-4(g), SOX Sections 302 and 404, GLBA Section 501(b), NYDFS 23 NYCRR 500.07 / 500.16 / 500.17, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), NIST AI RMF GOVERN 1.4 and 1.6, FTC Safeguards Rule 16 CFR §314.4(c), and CFTC Rule 1.31. **Implementation requires sustained operator discipline; organizations should verify configuration against current regulatory expectations and their own legal counsel's interpretation. The procedures in this playbook do not constitute legal advice and do not, by themselves, demonstrate regulatory compliance.**
 
