@@ -204,7 +204,6 @@ New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 
 $rows = foreach ($env in Get-AdminPowerAppEnvironment) {
     try {
-        $agents = Get-AdminPowerAppCdsDatabaseLanguages -EnvironmentName $env.EnvironmentName -ErrorAction SilentlyContinue
         # Use the Power Platform admin API for chatbots if available in your pinned module:
         $bots = Get-AdminPowerAppChatbot -EnvironmentName $env.EnvironmentName -ErrorAction SilentlyContinue
         foreach ($bot in $bots) {
