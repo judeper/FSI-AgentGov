@@ -106,7 +106,7 @@ Skip this step for tenants exclusively using Azure-hosted AI.
 3. Download the CloudFormation template and deploy in the AWS account (creates the cross-account IAM role).
 4. Click **Next** through the wizard → **Create**.
 
-### GCP (Vertex AI — GA November 2025)
+### GCP (Vertex AI — GA November 25, 2025)
 
 1. **Environment settings** → **Add environment** → **Google Cloud Platform**.
 2. Provide GCP organization or project ID; select **AI security posture management**.
