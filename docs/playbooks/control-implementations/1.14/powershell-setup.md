@@ -160,32 +160,15 @@ function Initialize-Agt114Session {
 
     $ErrorActionPreference = 'Stop'
 
-    $endpoints = switch ($Cloud) {
-        'Commercial' { @{
-            PowerAppsEndpoint = 'prod'
-            GraphEnvironment  = 'Global'
-            ExoEnvironment    = 'O365Default'
-            IPPSConnectionUri = $null
-            IPPSAuthorityUri  = $null
-            SpoRegion         = 'Default'
-            AzEnvironment     = 'AzureCloud'
-            DataverseSuffix   = 'crm.dynamics.com'
-        } }
-        'GCC' { @{
-            IPPSConnectionUri = $null
-            IPPSAuthorityUri  = $null
-            SpoRegion         = 'ITAR'
-            AzEnvironment     = 'AzureCloud'
-            DataverseSuffix   = 'crm9.dynamics.com'
-        } }
-            IPPSAuthorityUri  = 'https://login.microsoftonline.us/organizations'
-            SpoRegion         = 'ITAR'
-            DataverseSuffix   = 'crm.microsoftdynamics.us'
-        } }
-            IPPSAuthorityUri  = 'https://login.microsoftonline.us/organizations'
-            SpoRegion         = 'ITAR'
-            DataverseSuffix   = 'crm.appsplatform.us'
-        } }
+    $endpoints = @{
+        PowerAppsEndpoint = 'prod'
+        GraphEnvironment  = 'Global'
+        ExoEnvironment    = 'O365Default'
+        IPPSConnectionUri = $null
+        IPPSAuthorityUri  = $null
+        SpoRegion         = 'Default'
+        AzEnvironment     = 'AzureCloud'
+        DataverseSuffix   = 'crm.dynamics.com'
     }
 
     # 2. Evidence root + transcript.

@@ -49,7 +49,7 @@ Each test specifies prerequisites, deterministic input/output, and audit-binder 
 
 Label a source doc → invoke Copilot summarization → assert response carries label or restriction per Copilot label inheritance behavior. (Per Learn `microsoft-365-copilot-architecture-data-protection-auditing`.)
 
-### `1.6-AP-01` — Adaptive Protection threshold fires (Commercial / GCC only)
+### `1.6-AP-01` — Adaptive Protection threshold fires (Commercial)
 
 Induce a user into the elevated risk tier (test tenant) → attempt sensitive prompt → assert configured DLP action (warn / audit / block) fires and Activity Explorer + IRM both reflect the event.
 
@@ -78,7 +78,7 @@ Induce a user into the elevated risk tier (test tenant) → attempt sensitive pr
 
 ### `1.6-DSPMv-01` — Unified DSPM accessibility
 
-Verify the unified **DSPM** node (GA May 2026, Commercial / GCC per MC1191257) loads and `Posture / Objectives / AI observability / Discover > Activity explorer > AI activities / Discover > Data risk assessments` are reachable. The classic path `DSPM for AI > Activity explorer` remains valid where the unified DSPM experience isn't yet available.
+Verify the unified **DSPM** node (GA May 2026, Commercial per MC1191257) loads and `Posture / Objectives / AI observability / Discover > Activity explorer > AI activities / Discover > Data risk assessments` are reachable. The classic path `DSPM for AI > Activity explorer` remains valid where the unified DSPM experience isn't yet available.
 
 ---
 

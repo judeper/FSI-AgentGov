@@ -27,7 +27,7 @@ if ($PSVersionTable.PSEdition -ne 'Desktop') {
 # Example commercial cloud connection helper
 function Connect-FsiClouds {
     param(
-        [string] \$Cloud = 'Commercial',
+        [string] $Cloud = 'Commercial',
         [string] $TenantId
     )
     switch ($Cloud) {
@@ -130,7 +130,7 @@ param(
     [Parameter(Mandatory)] [string] $PolicyName,
     [Parameter(Mandatory)] [string] $PrimarySubnetResourceId,
     [Parameter(Mandatory)] [string] $FailoverSubnetResourceId,
-    [string] \$Cloud = 'Commercial',
+    [string] $Cloud = 'Commercial',
     [Parameter(Mandatory)] [string] $TenantId
 )
 
@@ -312,7 +312,7 @@ param(
     [Parameter(Mandatory)] [string] $FailoverSubnetResourceId,
     [Parameter(Mandatory)] [string[]] $DependencyResourceIds,
     [Parameter(Mandatory)] [string] $EvidencePath,
-    [string] \$Cloud = 'Commercial',
+    [string] $Cloud = 'Commercial',
     [Parameter(Mandatory)] [string] $TenantId
 )
 

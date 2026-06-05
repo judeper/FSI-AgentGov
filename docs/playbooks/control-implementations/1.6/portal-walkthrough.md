@@ -133,7 +133,7 @@ In **Apps and agents**, export the inventory and reconcile to your CMDB / agent 
 
 ## Unified DSPM — generally available callout
 
-The new unified **DSPM** experience consolidating DSPM and DSPM for AI reached general availability in May 2026 (Commercial / GCC) per **MC1191257**. Specific UI affordances continue to evolve; verify against current Microsoft Learn (`data-security-posture-management-learn-about`) at each portal session, and **do not commit to specific widget names, dashboard digest schedules, or "Enhanced CSV" semantics** in your evidence binder until they appear on Learn. Partner solutions for non-Microsoft data sources and the Data Security Posture Agent remain in preview.
+The new unified **DSPM** experience consolidating DSPM and DSPM for AI reached general availability in May 2026 (Commercial) per **MC1191257**. Specific UI affordances continue to evolve; verify against current Microsoft Learn (`data-security-posture-management-learn-about`) at each portal session, and **do not commit to specific widget names, dashboard digest schedules, or "Enhanced CSV" semantics** in your evidence binder until they appear on Learn. Partner solutions for non-Microsoft data sources and the Data Security Posture Agent remain in preview.
 
 ---
 

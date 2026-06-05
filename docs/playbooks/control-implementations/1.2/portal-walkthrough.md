@@ -316,7 +316,7 @@ The custom security attributes from §3.3 attach to the **app registration objec
 
 ### 4.4 The Agent ID Surface (Copilot Agents Projection)
 
-For tenants on the GA Agent ID surface (Commercial; preview in GCC):
+For tenants on the GA Agent ID surface (Commercial):
 
 1. Navigate `entra.microsoft.com` → **Applications → Enterprise applications**.
 2. Filter **Application type = Microsoft Copilot agents** (or in some tenant builds: **Agent ID**).

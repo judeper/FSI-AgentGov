@@ -872,7 +872,6 @@ The "evidence-collector identity must differ from primary" column enforces the 4
 - Trainable classifiers — `trainable-classifiers-learn-about`, `classifier-get-started-with`, `classifier-how-to-retrain-content-explorer`
 - DLP for Microsoft 365 Copilot — `dlp-microsoft365-copilot-location-learn-about`
 - DSPM for AI — `dspm-for-ai`
-- Government cloud parity — Microsoft 365 US Government service description
 
 ---
 

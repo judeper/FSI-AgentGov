@@ -245,7 +245,7 @@ param(
     [string]$SecurityGroupId,
 
     [Parameter(Mandatory = $true)]
-    [string]$EvidencePath,
+    [string]$EvidencePath
 )
 
 if ($PSVersionTable.PSEdition -ne 'Desktop') {

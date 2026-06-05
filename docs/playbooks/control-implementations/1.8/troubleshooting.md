@@ -564,7 +564,7 @@ Microsoft Support typical first response is per the contracted SLA (Premier: sev
 - `learn.microsoft.com/microsoft-copilot-studio/external-security-provider`
 - `learn.microsoft.com/microsoft-copilot-studio/admin-logging-copilot-studio`
 - `learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio#content-moderation`
-- `learn.microsoft.com/microsoft-copilot-studio/requirements-licensing-gcc`
+- `learn.microsoft.com/microsoft-copilot-studio/requirements-licensing`
 - `learn.microsoft.com/azure/ai-services/content-safety/concepts/harm-categories`
 - `learn.microsoft.com/microsoft-365/security/defender/advanced-hunting-cloudappevents-table`
 - `learn.microsoft.com/azure/azure-monitor/reference/tables/powerplatformadminactivity`

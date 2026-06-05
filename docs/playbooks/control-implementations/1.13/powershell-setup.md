@@ -87,14 +87,8 @@ function Initialize-Agt113Session {
         [string[]] $RequiredSkuPartNumbers = @('SPE_E5')
     )
 
-    $endpoints = switch ($Cloud) {
-        'Commercial' { @{ IPPSConnectionUri = $null; IPPSAuthorityUri = $null;
-                          GraphEnvironment  = 'Global' } }
-        'GCC'        { @{ IPPSConnectionUri = $null; IPPSAuthorityUri = $null;
-                          GraphEnvironment  = 'Global' } }
-                          IPPSAuthorityUri  = 'https://login.microsoftonline.us/organizations';
-                          IPPSAuthorityUri  = 'https://login.microsoftonline.us/organizations';
-    }
+    $endpoints = @{ IPPSConnectionUri = $null; IPPSAuthorityUri = $null;
+                    GraphEnvironment  = 'Global' }
 
     # 2. Evidence root + transcript.
     if (-not (Test-Path $EvidenceRoot)) {

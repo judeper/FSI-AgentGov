@@ -162,7 +162,7 @@ If Teams/M365 distribution is used:
 # Illustrative validation - see restrict-agent-publishing.ps1 for production version
 param(
     [Parameter(Mandatory=$true)][string]$EnvironmentName,
-    [Parameter(Mandatory=$true)][string]$SecurityGroupId,
+    [Parameter(Mandatory=$true)][string]$SecurityGroupId
     )
 
 if ($PSVersionTable.PSEdition -ne 'Desktop') { throw "Run in Windows PowerShell 5.1." }

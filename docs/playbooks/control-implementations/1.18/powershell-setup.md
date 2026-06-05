@@ -229,11 +229,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $endpointMap = @{ Commercial='prod' }
-# Global   = commercial (graph.microsoft.com) — also covers M365 GCC; per Microsoft Learn:
-#            "If you're working in a Microsoft 365 GCC environment, continue using the
-#            worldwide endpoints: graph.microsoft.com" (https://learn.microsoft.com/en-us/graph/deployments)
-# Learn note above, M365 GCC tenants should use the Global endpoint. This is a pre-existing
-# mapping carried over from earlier framework revisions; see issue tracker for reconciliation.
+# Global = commercial graph.microsoft.com endpoint (https://learn.microsoft.com/en-us/graph/deployments)
 $mgEnvMap = @{ Commercial='Global' }
 
 Add-PowerAppsAccount -Endpoint prod
@@ -346,11 +342,7 @@ New-Item -ItemType Directory -Force -Path $EvidencePath | Out-Null
 Start-Transcript -Path (Join-Path $EvidencePath "transcript-bootstrap-$ts.log") -IncludeInvocationHeader
 
 $endpointMap = @{ Commercial='prod' }
-# Global   = commercial (graph.microsoft.com) — also covers M365 GCC; per Microsoft Learn:
-#            "If you're working in a Microsoft 365 GCC environment, continue using the
-#            worldwide endpoints: graph.microsoft.com" (https://learn.microsoft.com/en-us/graph/deployments)
-# Learn note above, M365 GCC tenants should use the Global endpoint. This is a pre-existing
-# mapping carried over from earlier framework revisions; see issue tracker for reconciliation.
+# Global = commercial graph.microsoft.com endpoint (https://learn.microsoft.com/en-us/graph/deployments)
 $mgEnvMap = @{ Commercial='Global' }
 
 try {

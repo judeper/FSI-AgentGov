@@ -117,7 +117,7 @@ function Initialize-FsiDlpSession {
         TenantId    = $TenantId
         IppsUri     = $ippsCfg
         GraphEnv    = 'Global'
-        PowerAppsEp = $cfg.PowerApps
+        PowerAppsEp = 'prod'
         Timestamp   = (Get-Date).ToUniversalTime()
     }
 }
@@ -133,7 +133,7 @@ function Initialize-FsiDlpSession {
 | 2 | `Get-FsiCopilotDlpPolicies` (§5) | Validate Copilot DLP rule shape (Custom template, `EnforcementPlanes`, `MicrosoftCopilotEnabledLocation`) | `Clean` / `Anomaly` / `Pending` |
 | 3 | `Test-FsiPolicyTipOverrideSettings` (§6) | Verify `NotifyAllowOverride='WithJustification'` and override-justification capture | `Clean` / `Anomaly` |
 | 4 | `Get-FsiSensitivityLabelInventory` (§7) | Reconcile labels via Graph beta + IPPS | `Clean` / `Anomaly` |
-| 5 | `Get-FsiAdaptiveProtectionStatus` (§10) | Detect Adaptive Protection rollout state; **always `NotApplicable` in US Gov clouds** | `Clean` / `NotApplicable` / `Pending` |
+| 5 | `Get-FsiAdaptiveProtectionStatus` (§10) | Detect Adaptive Protection rollout state | `Clean` / `NotApplicable` / `Pending` |
 
 Auxiliary (non-status-bearing) utilities introduced inline: `ConvertTo-FsiUiLabel` (§9), `Get-FsiDlpAuditEvents` (§11), `Invoke-FsiControl15Audit` (§13).
 
@@ -410,10 +410,9 @@ Adaptive Protection / Insider Risk-driven DLP status check:
 ```powershell
 function Get-FsiAdaptiveProtectionStatus {
     [CmdletBinding()]
-    param()
-
-
-    }
+    param(
+        [string] $Cloud = 'Commercial'
+    )
 
     try {
         $ap = Get-DlpAdaptiveProtectionConfiguration -ErrorAction Stop

@@ -266,9 +266,6 @@ SEV-3 (within 1 business day)
 
 Each runbook follows the same six-block structure: **Symptoms → Root cause → Diagnostic queries → Remediation → Validation → Evidence to capture**. Use these in conjunction with §1 incident handling; do **not** run remediation steps until §1.3 evidence floor has been captured.
 
->
-> - **Commercial / GCC:** `Connect-IPPSSession`
-
 ### Runbook 2.1 — Hold not propagating (status remains `Pending` or `Failed`)
 
 **Symptoms.**

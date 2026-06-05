@@ -88,12 +88,8 @@ function Initialize-Cc110Session {
     }
 
     # 2. Set connection endpoint
-    $endpoint = switch ($Cloud) {
-        'Commercial' { @{ Uri = 'https://ps.compliance.protection.outlook.com/powershell-liveid/'
-                          Aad = 'https://login.microsoftonline.com/organizations' } }
-        'GCC'        { @{ Uri = 'https://ps.compliance.protection.outlook.com/powershell-liveid/'
-                          Aad = 'https://login.microsoftonline.com/organizations' } }
-    }
+    $endpoint = @{ Uri = 'https://ps.compliance.protection.outlook.com/powershell-liveid/'
+                   Aad = 'https://login.microsoftonline.com/organizations' }
 
     # 3. Open IPPS session (idempotent — only connects if no live IPPS session)
     $existing = Get-ConnectionInformation -ErrorAction SilentlyContinue |

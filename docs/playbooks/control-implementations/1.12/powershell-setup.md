@@ -154,7 +154,6 @@ Write-Verbose "Connected: cloud=$Cloud tenant=$TenantId mgEnv=$mgEnv"
 ```powershell
 function Get-FsiIrmCloudGate {
     [CmdletBinding()] [OutputType([pscustomobject])] param()
-    }
     return $null  # null means "proceed"
 }
 ```
