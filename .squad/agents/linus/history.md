@@ -1,5 +1,17 @@
 # Linus — Review History
 
+## Learnings
+
+### Sovereign-Removal Recipe (2026-06-04)
+
+- **Recipe file:** `maintainers-local/tmp/pb-findings/XCUT-sovereign-REMOVAL.md` — read this first on any future batch before touching files.
+- **Three delete classes:** (1) dedicated heading+body sections, (2) sovereign-only admonition/callout blocks (`> **Sovereign cloud.**`), (3) per-cloud endpoint/table rows. Each needs a distinct edit pattern.
+- **Inline mixed sentences:** keep the commercial clause, drop the sovereign qualifier — do not delete the whole sentence.
+- **Downstream anchors break:** when deleting whole scenarios the TOC anchor and the `§N` heading numbers both shift; update the TOC link text, the heading, and any inline `§N L4` cross-references in the same pass.
+- **Scenario count in section title** is a literal string — update it to match the new count (25 → 23 after removing Scenarios 14 and 24).
+- **Expected mkdocs failures:** nav entry (mkdocs.yml, coordinator) and 1.20 inbound link (next batch) both fail `--strict` — this is documented in the recipe and is not an error in Linus-owned files.
+- **ValidateSet PowerShell params:** when a helper script has `[ValidateSet('Commercial','GCC','GCCH','DoD')]`, simplify to `[string] $Param = 'Commercial'` rather than leaving a dangling ValidateSet with no valid gov-cloud options.
+
 ## 2026-06-04 — Escalation Re-Verification Batch (#365 #370 #372 #373)
 
 **Mode:** REMEDIATION (4 verified SME-escalation corrections, one batch PR)
