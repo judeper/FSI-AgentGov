@@ -2,7 +2,7 @@
 
 > **Scope.** This playbook covers operational failure modes for the Entra Agent ID identity-governance program: license / access gating, sponsor assignment and leaver handling, agent-identity access packages, lifecycle workflows for agents, quarterly access reviews of agent identities, orphan detection, SIEM forwarding, and service availability gaps. It is the diagnostic companion to the Control 2.26 specification, the portal walkthrough, the PowerShell setup pack, and the verification-testing pack.
 >
-> **Post-GA status (May 2026).** Microsoft Agent 365 reached general availability on May 1, 2026 and Microsoft Entra Agent ID is generally available. The pre-GA "Frontier program enrollment" gate is replaced by **Microsoft Agent 365 / Microsoft 365 E7 license assignment**. Pillar names that include "PREVIEW" or "Frontier" — for example **PREVIEW-ACCESS-MISSING** (§2) and **RB-01** (§10) — retain their pre-GA short names and anchor IDs for backward compatibility because the underlying root cause (the calling principal cannot reach the agent identity surface) is the same observable; only the gating mechanism changed. A follow-up issue tracks renaming these pillars / runbooks to license-coverage terms.
+> **Post-GA status (May 2026).** Microsoft Agent 365 reached general availability on May 1, 2026 and Microsoft Entra Agent ID is generally available. The pre-GA "Frontier program enrollment" gate is replaced by **Microsoft Agent 365 / Microsoft 365 E7 license assignment**. Pillar **PREVIEW-ACCESS-MISSING** was renamed to **LICGAP-ACCESS-MISSING** in issue #418; anchor `#2-pillar-licgap-access-missing` is now canonical. This pillar and runbook rename was completed in issue #418.
 >
 > **Status hedging.** The core Entra Agent ID surface is GA; some adjacent surfaces (e.g. the Lifecycle Workflows agent-sponsor tasks, the `agentSignIn` log type) remain in Public Preview. Behavior, blade names, Graph endpoints (`/beta/servicePrincipals` filtered by `servicePrincipalType eq 'Agent'`), and Lifecycle Workflow agent task templates may continue to evolve post-GA. Procedures here are written to the May 2026 surface; verify the **Last UI Verified** stamp at the top of `2.26-entra-agent-id-identity-governance.md` before treating any step as authoritative for an examiner artifact.
 >
@@ -14,7 +14,7 @@
 
 - [§0. Triage tree — symptom → pillar](#0-triage-tree-symptom-pillar)
 - [§1. Diagnostic data collection (`Get-Agt226*` helpers, Graph queries, KQL)](#1-diagnostic-data-collection)
-- [§2. Pillar PREVIEW-ACCESS-MISSING — Microsoft Agent 365 / M365 E7 license-coverage gating (post-GA semantic equivalent of the pre-GA Frontier / Copilot gate)](#2-pillar-preview-access-missing)
+- [§2. Pillar LICGAP-ACCESS-MISSING — Microsoft Agent 365 / M365 E7 license-coverage gating](#2-pillar-licgap-access-missing)
 - [§3. Pillar SPONSOR-NULL — agent created without a human sponsor](#3-pillar-sponsor-null)
 - [§4. Pillar SPONSOR-DEPARTED — sponsor leaver-event handling](#4-pillar-sponsor-departed)
 - [§5. Pillar ACCESSPKG-FAIL — agent-identity access-package assignment failures](#5-pillar-accesspkg-fail)
@@ -40,8 +40,8 @@ Use this table as the first stop for any reported issue. It maps an observed sym
 
 | # | Symptom (what the reporter said) | Most likely pillar | Severity floor | Runbook? |
 |---|----------------------------------|--------------------|----------------|----------|
-| S-01 | "I cannot see the **Agent identities (preview)** blade in Entra." | [§2 PREVIEW-ACCESS-MISSING](#2-pillar-preview-access-missing) | SEV-4 | — |
-| S-02 | "An admin can see the blade, but **the Agent 365 control plane is empty / Researcher and Workflows agents are missing** (legacy reports phrase this as 'Frontier features greyed out')." | [§2 PREVIEW-ACCESS-MISSING](#2-pillar-preview-access-missing) | SEV-3 | [RB-01](#10-runbook-rb-01) |
+| S-01 | "I cannot see the **Agent identities (preview)** blade in Entra." | [§2 LICGAP-ACCESS-MISSING](#2-pillar-licgap-access-missing) | SEV-4 | — |
+| S-02 | "An admin can see the blade, but **the Agent 365 control plane is empty / Researcher and Workflows agents are missing** (legacy reports phrase this as 'Frontier features greyed out')." | [§2 LICGAP-ACCESS-MISSING](#2-pillar-licgap-access-missing) | SEV-3 | [RB-01](#10-runbook-rb-01) |
 | S-03 | "A new agent was registered yesterday and **has no sponsor field populated**." | [§3 SPONSOR-NULL](#3-pillar-sponsor-null) | SEV-3 | — |
 | S-04 | "Quarterly orphan scan reports **dozens of agents with null sponsor**." | [§3 SPONSOR-NULL](#3-pillar-sponsor-null) | SEV-2 | — |
 | S-05 | "Sponsor left the firm three weeks ago; agents **still show old sponsor**." | [§4 SPONSOR-DEPARTED](#4-pillar-sponsor-departed) | SEV-2 | [RB-02](#11-runbook-rb-02) |
@@ -126,7 +126,7 @@ function Get-Agt226Health {
         OrphanCount      = (Get-AgentsWithoutSponsors).Count
         AccessPkgCount   = (Get-AgentAccessPackageAssignments).Count
         SponsorCoverage  = (Get-AgentGovernanceSummary).SponsorCoveragePct
-        FrontierEnabled  = (Get-MgBetaAdminMicrosoft365CopilotSetting -ErrorAction SilentlyContinue).FrontierProgramEnabled
+        AgentIdSurfaceEnabled = (Get-MgBetaAdminMicrosoft365CopilotSetting -ErrorAction SilentlyContinue).FrontierProgramEnabled
     }
     $out = $snap | ConvertTo-Json -Depth 5
     if ($IncidentId) {
@@ -286,19 +286,18 @@ AuditLogs
 | E-05 | Lifecycle Workflow definition + last 5 runs | §1.1 `Get-Agt226LifecycleStatus` | `FSI-Examiner-Hold-7yr` |
 | E-06 | Active access review definition + scope | §1.1 `Get-Agt226ReviewCoverage` | `FSI-Examiner-Hold-7yr` |
 | E-07 | Sponsor `employeeLeaveDateTime` value at detection | GQ-04 | `FSI-Examiner-Hold-7yr` |
-| E-08 | Tenant cloud + license posture (Copilot + Agent 365 / M365 E7) | `Get-Agt226Health.FrontierEnabled` (field name retained for backward-compat — value reflects Agent ID API surface reachability) + license assignment report | `FSI-Examiner-Hold-7yr` |
+| E-08 | Tenant cloud + license posture (Copilot + Agent 365 / M365 E7) | `Get-Agt226Health.AgentIdSurfaceEnabled` (value reflects Agent ID API surface reachability post-GA) + license assignment report | `FSI-Examiner-Hold-7yr` |
 | E-09 | Operator identity + UTC timestamp of every remediation step | Incident ticket / change record | `FSI-Examiner-Hold-7yr` |
 
 `Export-Control226EvidencePackage -IncidentId <id>` bundles E-01 through E-08 automatically. E-09 is captured in the incident ticket by the operator.
 
 ---
 
-## §2. Pillar PREVIEW-ACCESS-MISSING
+## §2. Pillar LICGAP-ACCESS-MISSING
 
-<a id="frontier-enrolled-but-blade-403"></a>
 <a id="all-agents-preview-missing"></a>
 
-> **Namespace name retained for backward-compatibility.** Pre-GA, this pillar covered Frontier enrollment + Copilot license gaps. Post-GA (May 2026), it covers **Microsoft Agent 365 / Microsoft 365 E7 license-assignment gaps** and **RBAC gaps** that surface as missing-blade or empty-blade symptoms. The pillar name and section anchors are preserved across the GA cutover so existing runbook references continue to resolve.
+> **Pillar renamed in issue #418.** Pre-GA this pillar was named PREVIEW-ACCESS-MISSING. Post-GA (May 2026) and after the #418 rename it covers **Microsoft Agent 365 / Microsoft 365 E7 license-assignment gaps** and **RBAC gaps** that surface as missing-blade or empty-blade symptoms.
 
 **One-line:** the **Agent identities** blade is invisible, partially populated, or rejects actions because post-GA prerequisites (license + RBAC) are not met for the tenant or the operator.
 
@@ -327,9 +326,8 @@ AuditLogs
 ### 2.3 Diagnostic queries
 
 ```powershell
-# Quick check (post-GA: FrontierEnabled field reflects Agent ID API reachability,
-# not the historical Frontier program flag — name retained for backward-compat)
-Get-Agt226Health | Select Cloud, FrontierEnabled, AgentCount
+# Quick check (post-GA: AgentIdSurfaceEnabled reflects Agent ID API reachability)
+Get-Agt226Health | Select Cloud, AgentIdSurfaceEnabled, AgentCount
 
 # Operator license check (post-GA: prefer Agent 365 / M365 E7; transitional Copilot match retained)
 Get-MgUserLicenseDetail -UserId <operator-upn> |
@@ -354,8 +352,8 @@ Graph: GQ-01 returning 400/404 → operating principal lacks Microsoft Agent 365
 
 ### 2.5 Verification
 
-- `Get-Agt226Health` returns `FrontierEnabled = True` and `AgentCount > 0` (assuming agents exist).
-- Pester: `Describe 'Control 2.26 — Preview Gating'` → `It 'has Agent ID API surface reachable in commercial tenants'` and `It 'admins have Agent ID Admin role'` should now pass. See [`./verification-testing.md`](./verification-testing.md).
+- `Get-Agt226Health` returns `AgentIdSurfaceEnabled = True` and `AgentCount > 0` (assuming agents exist).
+- Pester: `Describe 'Control 2.26 — License Coverage Gating'` → `It 'has Agent ID API surface reachable in commercial tenants'` and `It 'admins have Agent ID Admin role'` should now pass. See [`./verification-testing.md`](./verification-testing.md).
 
 ### 2.6 Cross-links
 
@@ -840,7 +838,7 @@ Preserve E-03 (KQL exports) and a snapshot of the SIEM detection-rule definition
 
 1. Confirm renewed SKU assigned and provisioned (`Success` not `PendingProvisioning`).
 2. Verify Microsoft Agent 365 / M365 E7 license assignment is reattached to operating principals after the renewal posts; it can take up to 24h for the Agent identities surface to reflect the reassignment. If the surface remains empty after 24h, open a Microsoft support ticket per §2.7.
-3. Resume paused operations. Run `Get-Agt226Health` and confirm `FrontierEnabled = True`, `AgentCount` matches pre-incident.
+3. Resume paused operations. Run `Get-Agt226Health` and confirm `AgentIdSurfaceEnabled = True`, `AgentCount` matches pre-incident.
 
 ### 10.5 Lessons-learned / reportability
 
@@ -850,7 +848,7 @@ Preserve E-03 (KQL exports) and a snapshot of the SIEM detection-rule definition
 
 ### 10.6 Cross-links
 
-- [§2 PREVIEW-ACCESS-MISSING](#2-pillar-preview-access-missing).
+- [§2 LICGAP-ACCESS-MISSING](#2-pillar-licgap-access-missing).
 
 ---
 
@@ -1081,7 +1079,7 @@ For each pillar §2–§9, the verification-testing pack ([`./verification-testi
 
 | Pillar | Pester `Describe` | Trigger conditions |
 |--------|-------------------|---------------------|
-| §2 | `'Preview gating'` | Operating principal lacks Microsoft Agent 365 / M365 E7 license coverage, missing Copilot SKU, or missing Agent ID Admin role |
+| §2 | `'License coverage gating'` | Operating principal lacks Microsoft Agent 365 / M365 E7 license coverage, missing Copilot SKU, or missing Agent ID Admin role |
 | §3 | `'Sponsor coverage'` | Any agent with null sponsor |
 | §4 | `'Sponsor leaver behavior'` | Workflow customization that disables instead of transfers |
 | §5 | `'Access package shape'` | SharePoint resource directly on agent-eligible package |

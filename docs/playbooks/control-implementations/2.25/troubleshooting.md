@@ -43,7 +43,7 @@ Use this section as the entry point for every Sev1/Sev2/Sev3 incident touching C
 Before paging the AI Governance Lead or Entra Global Admin (PIM-elevated), the on-call AI Administrator must complete:
 
 1. Confirm GA status: tenant is on Microsoft Agent 365 Admin Center GA build (≥ May 1, 2026). Pre-GA preview tenants follow a different support path; see §2.4.
-2. Confirm reporter''s license posture: M365 E7 "Frontier Suite" OR standalone Agent 365 + Copilot prerequisite (`Get-Agt225LicenseAssignment -UserPrincipalName <upn>`).
+2. Confirm reporter''s license posture: Microsoft 365 E7 ("Frontier Suite") OR standalone Agent 365 + Copilot prerequisite (`Get-Agt225LicenseAssignment -UserPrincipalName <upn>`).
 3. Confirm reporter''s role: AI Administrator, Entra Global Reader, AI Governance Lead, or other role per [Role Catalog](../../../reference/role-catalog.md). PIM activation timestamp captured.
 4. Capture initial evidence floor (E-01 console screenshot, E-02 Graph activity log, E-03 PowerShell session transcript). See §1.4.
 5. Identify affected zone(s): Zone 1 Personal, Zone 2 Team, Zone 3 Enterprise. Zone 3 escalations require Compliance Officer notification within 1 hour.
@@ -75,7 +75,7 @@ This section catalogs the helper cmdlets, Graph queries, and KQL queries used th
 | `Get-Agt225TemplateStatus` | Returns Default / Custom Governance Template apply state per agent or per scope | [PowerShell Setup §4.4](./powershell-setup.md) |
 | `Get-Agt225InventoryExport` | Streams console inventory in CSV / JSON; pagination-safe fallback for failed UI export | [PowerShell Setup §3](./powershell-setup.md) |
 | `Get-Agt225ResearcherConfig` | Returns Researcher with Computer Use enablement scope, group bindings, and license check | [PowerShell Setup §4.5](./powershell-setup.md) |
-| `Get-Agt225LicenseAssignment` | Returns Frontier Suite / Agent 365 / Copilot license posture for a user or group | [PowerShell Setup §4.6](./powershell-setup.md) |
+| `Get-Agt225LicenseAssignment` | Returns Microsoft 365 E7 ("Frontier Suite") / Agent 365 / Copilot license posture for a user or group | [PowerShell Setup §4.6](./powershell-setup.md) |
 | `Get-Agt225AuditEvents` | Wrapper over Purview Audit unified log filtered to Agent365AdminCenter workload | [PowerShell Setup §4.7](./powershell-setup.md) |
 | `Invoke-Agt225EvidenceSnapshot` | Produces the E-01..E-09 evidence bundle to the Purview immutable library | [PowerShell Setup §5](./powershell-setup.md) |
 
@@ -224,7 +224,7 @@ The Microsoft Agent 365 Admin Center landing page fails to render, returns "We c
 |---|---|---|
 | **RC-A** | Admin lacks AI Administrator or AI Governance Lead role; PIM activation lapsed | GQ-01 returns 401 / 403; Entra sign-in log shows missing role token claim |
 | **RC-B** | Tenant on pre-GA preview build; flighting flag dropped after GA cut-over | GQ-01 returns 200 but `state: "preview-deprecated"`; banner present in admin.microsoft.com |
-| **RC-C** | Frontier Suite or Agent 365 SKU not assigned to tenant; license expired | `Get-Agt225LicenseAssignment -TenantScope` returns `licenseState: "expired"` or `"none"` |
+| **RC-C** | Microsoft 365 E7 ("Frontier Suite") or Agent 365 SKU not assigned to tenant; license expired | `Get-Agt225LicenseAssignment -TenantScope` returns `licenseState: "expired"` or `"none"` |
 | **RC-D** | Browser-side cache holds stale pre-GA bundle; service worker not refreshed | Hard reload (Ctrl-F5) restores function; problem returns next session |
 | **RC-E** | Conditional Access policy blocks the admin.microsoft.com → graph.microsoft.com token exchange (e.g., new device-compliance grant control) | Entra sign-in log shows `Failure reason: 53003 - Blocked by Conditional Access` |
 | **RC-F** | Microsoft service incident affecting the Agent 365 Admin Center fabric | Service Health Dashboard shows active advisory; KQL-01 shows tenant-wide failure spike |
@@ -233,7 +233,7 @@ The Microsoft Agent 365 Admin Center landing page fails to render, returns "We c
 
 1. Run `Get-Agt225Health -Verbose`. Inspect `ServiceStatus`, `GraphReachability`, `LicensePosture`, `RolePosture` blocks.
 2. Issue **GQ-01**. Capture HTTP status and response body. 401/403 → RC-A or RC-E. 503 → RC-F. 200 with `state != "operational"` → RC-B.
-3. Run `Get-Agt225LicenseAssignment -TenantScope` and confirm Frontier Suite or Agent 365 SKU is in `enabled` state with seats available.
+3. Run `Get-Agt225LicenseAssignment -TenantScope` and confirm Microsoft 365 E7 ("Frontier Suite") or Agent 365 SKU is in `enabled` state with seats available.
 4. Confirm reporter''s role bindings: `Get-MgUserMemberOf -UserId <upn>` and cross-check against [Role Catalog](../../../reference/role-catalog.md). For PIM-eligible roles, confirm activation timestamp via `Get-MgPrivilegedAccessRoleAssignmentScheduleInstance`.
 5. Inspect Entra sign-in log for the affected admin in the past 1 hour: `Get-MgAuditLogSignIn -Filter "userPrincipalName eq ''<upn>''" -Top 25`. Look for `errorCode 53003`, `500011`, or `50105`.
 6. If RC-D suspected, ask reporter to (a) hard-reload, (b) clear site data for `admin.microsoft.com` and `*.cloud.microsoft`, (c) re-test in InPrivate / new profile.
@@ -444,7 +444,7 @@ Applying the Default Governance Template (bundled at GA: Entra Identity Protecti
 |---|---|---|
 | **RC-A** | Entra Identity Protection policy required by Default Template missing or disabled | GQ-04 returns `prerequisites: [{name:"IdentityProtection", state:"missing"}]` |
 | **RC-B** | Purview AI Compliance Assessment policy missing or scope mismatch | GQ-04 prerequisite state `policyScopeMismatch` |
-| **RC-C** | License drift: tenant has Frontier Suite assigned but seat count exhausted; auto-assignment cannot complete | `Get-Agt225LicenseAssignment -TenantScope` returns `seatsAvailable: 0` |
+| **RC-C** | License drift: tenant has Microsoft 365 E7 ("Frontier Suite") assigned but seat count exhausted; auto-assignment cannot complete | `Get-Agt225LicenseAssignment -TenantScope` returns `seatsAvailable: 0` |
 | **RC-D** | Custom Template bound to an Entra Access Package whose policy expired or lacks reviewer | GQ-05 returns `accessPackageBindingState: "policyExpired"` |
 | **RC-E** | Global Secure Access (GSA) prerequisite required by Custom Template''s SharePoint Content Permissions Insights component is not deployed in tenant | GQ-05 prerequisite `gsa: "notDeployed"` |
 | **RC-F** | Background reconciliation job conflict — concurrent template re-apply from a Power Automate scheduled flow | KQL-03 shows two template-apply events from different actors within seconds |
@@ -496,7 +496,7 @@ Capture the apply event in evidence (E-06).
 |---|---|
 | RC-A | Coordinate with Identity team to restore Identity Protection policy; re-apply per §5.5. |
 | RC-B | Coordinate with Purview Compliance Admin to restore AI Compliance Assessment policy; re-apply. |
-| RC-C | Procurement provisions additional Frontier Suite / Agent 365 seats; auto-assignment will complete on next reconcile (≤ 1h). |
+| RC-C | Procurement provisions additional Microsoft 365 E7 ("Frontier Suite") / Agent 365 seats; auto-assignment will complete on next reconcile (≤ 1h). |
 | RC-D | Renew the Access Package assignment policy; assign reviewers; re-apply Custom Template. |
 | RC-E | Coordinate with Identity / Network team to deploy GSA; until deployed, Zone 3 agents that depend on SCPI cannot publish. |
 | RC-F | Disable conflicting Power Automate flow; consolidate template-apply automation under a single AI Administrator service principal. |
@@ -536,7 +536,7 @@ The Agent Publish wizard (used by Agent Owners to submit a new agent for approva
 |---|---|---|
 | **RC-A** | Custom Template was edited mid-flight; user''s draft was created against the prior version | Browser dev-tools shows submitted `templateVersion` ≠ Console current |
 | **RC-B** | Required-field metadata cached on the client; backend now demands additional fields after a Custom Template update | KQL audit shows `Template.SchemaUpdated` event in the last 24h |
-| **RC-C** | License posture for the submitter changed mid-session (Frontier Suite seat reclaimed) | `Get-Agt225LicenseAssignment -UserPrincipalName <upn>` returns `enabled: false` |
+| **RC-C** | License posture for the submitter changed mid-session (Microsoft 365 E7 ("Frontier Suite") seat reclaimed) | `Get-Agt225LicenseAssignment -UserPrincipalName <upn>` returns `enabled: false` |
 | **RC-D** | Approval-queue ingestion broken (cross-link §3 RC-A) | Wizard succeeds; queue does not show entry |
 | **RC-E** | Custom Template''s `requiredFields` schema includes a field that no longer exists in the Console UI (schema drift) | `Get-Agt225TemplateStatus -TemplateId <id> -Detailed` shows `schemaWarnings` |
 | **RC-F** | Submitter''s permission was assigned via a group whose membership eval is delayed | Sign-in log shows token issued before group-membership refresh |
@@ -824,12 +824,12 @@ The cmdlet writes a `Feature.ResearcherComputerUse.ScopeChanged` audit event wit
 
 ## §10 Runbook RB-01 — Mass Agent Re-onboarding After Acquisition
 
-**Trigger.** The firm has acquired another organization and 10+ agents from the acquired tenant must be onboarded into the Frontier-Suite tenant''s Console with template binding, ownership assignment, and approval. Sev2 unless examiner-active or > 200 agents (Sev1).
+**Trigger.** The firm has acquired another organization and 10+ agents from the acquired tenant must be onboarded into the Microsoft 365 E7 ("Frontier Suite") tenant''s Console with template binding, ownership assignment, and approval. Sev2 unless examiner-active or > 200 agents (Sev1).
 
 ### §10.1 Pre-Conditions
 
 - Acquired-tenant inventory exported as CSV/JSON with at minimum: agent display name, owner UPN (mapped to acquirer-tenant UPN), zone classification, current template binding, license requirement.
-- Frontier Suite seats provisioned for inbound owners (verified via `Get-Agt225LicenseAssignment -TenantScope -IncludeSeatAccounting`).
+- Microsoft 365 E7 ("Frontier Suite") seats provisioned for inbound owners (verified via `Get-Agt225LicenseAssignment -TenantScope -IncludeSeatAccounting`).
 - Default Governance Template and any required Custom Templates are in `prerequisiteState: Satisfied`.
 - Change-management ticket open with rollback plan.
 
@@ -921,7 +921,7 @@ examiner-prod-2026Q1/
 ### §12.1 Pre-Conditions
 
 - HR-system export of leaver-joiner mapping (old UPN → new UPN) validated by HR data steward.
-- New owners have Frontier Suite / Agent 365 license assignment.
+- New owners have Microsoft 365 E7 ("Frontier Suite") / Agent 365 license assignment.
 - New owners hold an Agent Owner role binding (or a group containing them does).
 
 ### §12.2 Procedure
@@ -957,7 +957,7 @@ examiner-prod-2026Q1/
 
 ## §13 Runbook RB-04 — License Coverage Gap (Agent Acting OBO Unlicensed User)
 
-**Trigger.** Audit reveals one or more agents performing OBO (on-behalf-of) operations for users whose Frontier Suite / Agent 365 / Copilot license has lapsed. Sev1 because the firm is consuming a service that the user is not licensed for, with potential contractual and audit consequences.
+**Trigger.** Audit reveals one or more agents performing OBO (on-behalf-of) operations for users whose Microsoft 365 E7 ("Frontier Suite") / Agent 365 / Copilot license has lapsed. Sev1 because the firm is consuming a service that the user is not licensed for, with potential contractual and audit consequences.
 
 ### §13.1 Pre-Conditions
 

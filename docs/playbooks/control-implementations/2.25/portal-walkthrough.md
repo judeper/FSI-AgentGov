@@ -7,7 +7,7 @@
 
     | In Scope | Surface | Outcome |
     |---|---|---|
-    | Validating Agent 365 licensing (E7 Frontier Suite or standalone Agent 365) | M365 admin center → Billing → Licenses | Confirmed entitlement before any governance change |
+    | Validating Agent 365 licensing (Microsoft 365 E7 ("Frontier Suite") or standalone Agent 365) | M365 admin center → Billing → Licenses | Confirmed entitlement before any governance change |
     | Daily/weekly governance card rhythm (Pending Requests, Ownerless Agents) | M365 admin center → Agent 365 → Overview | Documented review cadence and SLA adherence |
     | Filtering, inspecting, and exporting the Agent Registry | Agent 365 → Agents → All Agents | Audit-ready CSV/Excel inventory snapshots |
     | Admin-gated publishing approval workflow with template application | Agent 365 → Pending Requests → Publishing | Zero unreviewed Zone 2 / Zone 3 publications |
@@ -33,7 +33,7 @@
     | Common errors, missing blades, console behavior anomalies, and remediation steps | [`./troubleshooting.md`](./troubleshooting.md) |
 
 !!! warning "Hedged-Language Reminder"
-    This playbook helps your organization **support compliance with** FINRA Rule 3110 (Supervision), FINRA Rule 4511 (Books and Records), FINRA RN 24-09 / Rule 3110 (AI Tools), SEC Rules 17a-3 / 17a-4 (Recordkeeping), SOX Sections 302/404 (Internal Controls), GLBA 501(b) (Safeguards Rule), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (Technology Risk Management), and NYDFS 23 NYCRR 500 (Cybersecurity). It does **not** by itself provide any regulatory outcome and **does not substitute for** the firm's obligation to assign an appropriately registered principal where Rule 3110 requires registered supervisory responsibility. Implementation requires Agent 365 licensing (Microsoft 365 E7 "Frontier Suite" or standalone Agent 365 layered on Microsoft 365 Copilot), validated change-control procedures, and independent testing by your compliance function. Organizations should verify all configurations against their own examination workpapers and legal counsel before treating these procedures as adequate evidence.
+    This playbook helps your organization **support compliance with** FINRA Rule 3110 (Supervision), FINRA Rule 4511 (Books and Records), FINRA RN 24-09 / Rule 3110 (AI Tools), SEC Rules 17a-3 / 17a-4 (Recordkeeping), SOX Sections 302/404 (Internal Controls), GLBA 501(b) (Safeguards Rule), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (Technology Risk Management), and NYDFS 23 NYCRR 500 (Cybersecurity). It does **not** by itself provide any regulatory outcome and **does not substitute for** the firm's obligation to assign an appropriately registered principal where Rule 3110 requires registered supervisory responsibility. Implementation requires Agent 365 licensing (Microsoft 365 E7 ("Frontier Suite") or standalone Agent 365 layered on Microsoft 365 Copilot), validated change-control procedures, and independent testing by your compliance function. Organizations should verify all configurations against their own examination workpapers and legal counsel before treating these procedures as adequate evidence.
 
 !!! info "Generally Available — May 1, 2026"
     Microsoft Agent 365 reached **general availability on May 1, 2026**. Licensing options:

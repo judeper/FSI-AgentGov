@@ -9,7 +9,7 @@ prerequisites:
   - "PowerShell 7.4 Core (Windows, Linux, or macOS)"
   - "Microsoft Graph PowerShell SDK 2.25.0+ (pinned)"
   - "Microsoft.Graph.Beta 2.25.0+ where Agent 365 cmdlets remain in the beta surface"
-  - "Microsoft 365 E7 Frontier Suite or Microsoft 365 Copilot Business Chat licensing for the operator running discovery"
+  - "Microsoft 365 E7 ("Frontier Suite") or Microsoft 365 Copilot Business Chat licensing for the operator running discovery"
   - "Entra Global Reader at minimum; Entra Global Admin via PIM for any mutation"
 scopes_required:
   - "Application.Read.All"
@@ -68,7 +68,7 @@ Every helper in this playbook returns one of five `Status` values — **`Clean`*
 
 ---
 
-## §1 — Module Inventory, Graph Scopes, RBAC Matrix, and Preview Gating
+## §1 — Module Inventory, Graph Scopes, RBAC Matrix, and License-Coverage Gating
 
 ### 1.1 Module pinning
 
@@ -143,12 +143,12 @@ When a required cmdlet is unavailable, the calling helper emits `Status='NotAppl
 
 Canonical role names: **AI Administrator**, **Entra Global Admin**, **Entra Global Reader**, **AI Governance Lead**, **Purview Compliance Admin**. See [`docs/reference/role-catalog.md`](../../../reference/role-catalog.md).
 
-### 1.5 Preview gating preflight
+### 1.5 License-coverage gating preflight
 
 A small number of Agent 365 surfaces remained in **public preview** at GA — most notably the per-tenant Computer Use policy editor for the Researcher agent and the bulk approval-template export. Operators must affirmatively opt in to preview surfaces through the `-AllowPreviewSurfaces` switch on `Initialize-Agt225Session`. Without that switch, helpers that touch preview surfaces return `Status='NotApplicable'`, `Reason='PreviewSurfaceNotEnabled'` rather than failing or, worse, returning a synthetic clean.
 
 ```powershell
-function Test-Agt225PreviewGating {
+function Test-Agt225LicenseCoverageGating {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)] [bool] $AllowPreviewSurfaces
@@ -242,7 +242,7 @@ function Initialize-Agt225Session {
             "Agt225-MissingScopes: $($missing.Scope -join ', ')")
     }
 
-    $previewReport = Test-Agt225PreviewGating -AllowPreviewSurfaces:$AllowPreviewSurfaces
+    $previewReport = Test-Agt225LicenseCoverageGating -AllowPreviewSurfaces:$AllowPreviewSurfaces
 
     [pscustomobject]@{
         RunId              = $RunId
@@ -675,7 +675,7 @@ The output of `Get-Agt225ApprovalHistory` is the primary attestation artifact fo
 
 ### 7.1 Get-Agt225LicenseCoverage
 
-The Agent 365 Admin Center is licensed via **Microsoft 365 E7 Frontier Suite** or **Microsoft 365 Copilot Business Chat**. Operators must verify that every user assigned a governance role is licensed; an unlicensed AI Administrator silently loses access to many of the admin surfaces.
+The Agent 365 Admin Center is licensed via **Microsoft 365 E7 ("Frontier Suite")** or **Microsoft 365 Copilot Business Chat**. Operators must verify that every user assigned a governance role is licensed; an unlicensed AI Administrator silently loses access to many of the admin surfaces.
 
 ```powershell
 function Get-Agt225LicenseCoverage {
@@ -1423,7 +1423,7 @@ The cadence is mirrored in the sister 2.26 playbook so that the daily and weekly
 | ``Assert-Agt225ShellHost`` | §2.1 | Status object or throws | No |
 | ``Initialize-Agt225Session`` | §2.2 | SessionContext | No (connects) |
 | ``Test-Agt225GraphScopes`` | §2.3 | Scope rows | No |
-| ``Test-Agt225PreviewGating`` | §1.5 | Preview report | No |
+| ``Test-Agt225LicenseCoverageGating`` | §1.5 | Preview report | No |
 | ``Get-Agt225CmdletAvailability`` | §1.3 | Availability rows | No |
 | ``Get-Agt225AgentInventory`` | §3.1 | Inventory + writes JSON | No |
 | ``Resolve-Agt225OwnerUpn`` | §3.2 | Owner row | No |

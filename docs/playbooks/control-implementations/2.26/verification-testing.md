@@ -2,7 +2,7 @@
 
 > **Examiner-defensible evidence package** for Control 2.26. This playbook produces, signs, and retains the artifacts required to demonstrate to FINRA, SEC, OCC, FFIEC, and internal audit that every Microsoft 365 AI agent identity in the tenant is sponsored, lifecycle-governed, periodically reviewed, and forwarded to the SIEM with 6-year retention.
 >
-> **Post-GA status (May 2026):** Microsoft Agent 365 reached general availability on May 1, 2026 and Microsoft Entra Agent ID is generally available. The pre-GA "Frontier program enrollment" gate is replaced by **Microsoft Agent 365 / Microsoft 365 E7 license assignment**. Pre-flight gate `PRE-06` and the §8 `TRG-PREVIEW-01` test retain their pre-GA names for backward compatibility; the underlying probe (HTTP 200 from `/beta/agents`) remains the correct observable because both the pre-GA Frontier enrollment and the post-GA license assignment manifest as the same API reachability state for the calling principal. A follow-up issue tracks renaming PRE-06 / TRG-PREVIEW-01 to license-coverage terms.
+> **Post-GA status (May 2026):** Microsoft Agent 365 reached general availability on May 1, 2026 and Microsoft Entra Agent ID is generally available. The pre-GA "Frontier program enrollment" gate is replaced by **Microsoft Agent 365 / Microsoft 365 E7 license assignment**. Pre-flight gate `PRE-06` and the §8 `TRG-LICGAP-01` test retain their pre-GA names for backward compatibility; the underlying probe (HTTP 200 from `/beta/agents`) remains the correct observable because both the pre-GA Frontier enrollment and the post-GA license assignment manifest as the same API reachability state for the calling principal. TRG-LICGAP-01 was renamed to TRG-LICGAP-01 in issue #418.
 >
 > **Scope:** Commercial M365 tenants with Microsoft Agent 365 or Microsoft 365 E7 licensing assigned to the operating admin and the in-scope sponsor / agent-owner users.
 >
@@ -80,7 +80,7 @@ The eight Verification Criteria from [Control 2.26](../../../controls/pillar-2-m
 
 | Namespace | Evidences Criterion | Section | Cadence | Owner |
 |---|---|---|---|---|
-| `PREVIEW` | C2.26-1 (Agent ID surface reachable — Microsoft Agent 365 / M365 E7 + Microsoft 365 Copilot license coverage; namespace name retained for backward-compat) | §8 | Per release / monthly | Entra Agent ID Admin |
+| `LICGAP` | C2.26-1 (Agent ID surface reachable — Microsoft Agent 365 / M365 E7 + Microsoft 365 Copilot license coverage) | §8 | Per release / monthly | Entra Agent ID Admin |
 | `SPONSOR` | C2.26-2 (every Z2/Z3 agent has assigned sponsor) | §2 | Daily | AI Governance Lead |
 | `ACCESSPKG` | C2.26-3 + C2.26-4 (packages exist; ≤365-day expiry; no perpetual Z3) | §3 | Daily | Entra Identity Governance Admin |
 | `LIFECYCLE` | C2.26-5 (workflow triggers on sponsor departure; manager-transfer succeeds) | §4 | Weekly | Entra Identity Governance Admin |
@@ -1099,10 +1099,10 @@ Describe "AGT226-SIEM" -Tag 'C2.26','SIEM' {
 
 ---
 
-## §8 PREVIEW — Agent ID Licensing & Blade Operability Verification
+## §8 LICGAP — Agent ID Licensing & Blade Operability Verification
 
-!!! info "Namespace name preserved for backward-compatibility"
-    Pre-GA this namespace evidenced Microsoft Frontier program enrollment + Copilot licensing. Post-GA (May 2026) it evidences **Microsoft Agent 365 / Microsoft 365 E7 license assignment** plus **Agent ID API surface operability**. The `PREVIEW` namespace name, the `TRG-PREVIEW-01` runbook ID, and the `frontier_probe_status` field name are retained to keep evidence-pack schemas backward-compatible across the GA cutover. **Field semantics have changed** — see prose below.
+!!! info "Namespace renamed — Issue #418"
+    Pre-GA this namespace evidenced Microsoft Frontier program enrollment + Copilot licensing. Post-GA (May 2026) it evidences **Microsoft Agent 365 / Microsoft 365 E7 license assignment** plus **Agent ID API surface operability**. In issue #418: namespace renamed `PREVIEW` → `LICGAP`; runbook ID renamed `TRG-PREVIEW-01` → `TRG-LICGAP-01`; field renamed `frontier_probe_status` → `agent_id_probe_status`. Update any examiner pipelines that parse these keys.
 
 ### 8.1 Criterion mapping
 
@@ -1122,7 +1122,7 @@ In addition, the **Agent identities** blade must be reachable in the Microsoft E
 ### 8.3 Pester suite
 
 ```powershell
-Describe "AGT226-PREVIEW" -Tag 'C2.26','PREVIEW' {
+Describe "AGT226-LICGAP" -Tag 'C2.26','LICGAP' {
 
     BeforeAll {
         # Post-GA: prefer Agent 365 / M365 E7 SKUs. Verify SkuPartNumber values
@@ -1185,7 +1185,7 @@ Describe "AGT226-PREVIEW" -Tag 'C2.26','PREVIEW' {
 ```json
 {
   "control_id": "2.26",
-  "namespace": "PREVIEW",
+  "namespace": "LICGAP",
   "criterion": "C2.26-1",
   "zone": "all",
   "subject_id": "tenant-feature-state",
@@ -1195,47 +1195,47 @@ Describe "AGT226-PREVIEW" -Tag 'C2.26','PREVIEW' {
   "observed_value": {
     "license_skus": ["Microsoft_Agent_365"],
     "license_consumed_units": 1500,
-    "frontier_probe_status": 200,
+    "agent_id_probe_status": 200,
     "agents_endpoint_response": "ok",
     "agents_count_in_probe": 23
   },
   "regulator_mappings": ["SOX-404","OCC-2011-12"],
-  "evidence_artifacts": ["preview-state-AGT226-20260415-093012-a1b2c3d4.json"],
+  "evidence_artifacts": ["licgap-state-AGT226-20260415-093012-a1b2c3d4.json"],
   "schema_version": "1.0"
 }
 ```
 
-> **Field-name carryover.** `frontier_probe_status` is retained as the field key for the HTTP status returned by the `/beta/agents` probe. The field name is preserved to keep examiner pipelines that already parse this key working across the GA cutover. Post-GA, a `200` indicates the Agent ID surface is reachable; a `403/404` indicates a license-coverage or RBAC gap, **not** a Frontier-enrollment gap.
+> **Field-name carryover.** `agent_id_probe_status` is retained as the field key for the HTTP status returned by the `/beta/agents` probe. The field name is preserved to keep examiner pipelines that already parse this key working across the GA cutover. Post-GA, a `200` indicates the Agent ID surface is reachable; a `403/404` indicates a license-coverage or RBAC gap, **not** a Frontier-enrollment gap.
 
 ### 8.5 Sample failing record
 
 ```json
 {
   "control_id": "2.26",
-  "namespace": "PREVIEW",
+  "namespace": "LICGAP",
   "criterion": "C2.26-1",
   "status": "FAIL",
   "assertion": "Agent ID operability gate must return HTTP 200 from /beta/agents",
   "observed_value": {
     "license_skus": ["Microsoft_Agent_365"],
-    "frontier_probe_status": 404,
+    "agent_id_probe_status": 404,
     "probe_error": "Resource not found: /beta/agents"
   },
-  "remediation_ref": "TRG-PREVIEW-01",
+  "remediation_ref": "TRG-LICGAP-01",
   "regulator_mappings": ["SOX-404","OCC-2011-12"],
   "schema_version": "1.0"
 }
 ```
 
-`TRG-PREVIEW-01` (§8.10): confirm Microsoft Agent 365 / M365 E7 license is assigned to the calling principal and the tenant has at least one consumed unit; verify the calling principal holds the required RBAC role (Entra Agent ID Admin or AI Administrator); halt deployment of any new Z2/Z3 agents while the gap persists; downgrade any Z2/Z3 agents created during the gap to Z1 and re-evaluate when access is restored. If license + RBAC are confirmed and the surface is still unreachable, raise a Microsoft support case via standard support channels.
+`TRG-LICGAP-01` (§8.10): confirm Microsoft Agent 365 / M365 E7 license is assigned to the calling principal and the tenant has at least one consumed unit; verify the calling principal holds the required RBAC role (Entra Agent ID Admin or AI Administrator); halt deployment of any new Z2/Z3 agents while the gap persists; downgrade any Z2/Z3 agents created during the gap to Z1 and re-evaluate when access is restored. If license + RBAC are confirmed and the surface is still unreachable, raise a Microsoft support case via standard support channels.
 
 ### 8.6 Examiner artifact
 
 | Artifact | Filename | Retention |
 |---|---|---|
-| Feature-state snapshot | `preview-state-<runId>.json` | 6 years |
-| Copilot SKU list | `preview-skus-<runId>.json` | 6 years |
-| Agent ID API probe response (raw) | `preview-agent-id-api-probe-<runId>.json` | 6 years |
+| Feature-state snapshot | `licgap-state-<runId>.json` | 6 years |
+| Copilot SKU list | `licgap-skus-<runId>.json` | 6 years |
+| Agent ID API probe response (raw) | `agent-id-api-probe-<runId>.json` | 6 years |
 
 ### 8.7 Zone thresholds
 
@@ -1268,12 +1268,12 @@ evidence-pack-AGT226-20260415-093012-a1b2c3d4/
 ├── manifest.json                           # Top-level descriptor (schema below)
 ├── attestation.json                        # Signature chain
 ├── records/
-│   ├── 0001-PREVIEW.json
+│   ├── 0001-LICGAP.json
 │   ├── 0002-SPONSOR-zone1.json
 │   ├── 0003-SPONSOR-zone2.json
 │   ├── ... (one file per evidence record)
 ├── pester/
-│   ├── pester-PREVIEW.xml
+│   ├── pester-LICGAP.xml
 │   ├── pester-SPONSOR.xml
 │   └── ... (JUnit XML per namespace)
 ├── snapshots/
@@ -1298,7 +1298,7 @@ evidence-pack-AGT226-20260415-093012-a1b2c3d4/
   "cloud": "Commercial",
   "produced_at": "2026-04-15T09:42:18Z",
   "operator_upn": "agt226-runner@contoso.com",
-  "namespaces_executed": ["PREVIEW","SPONSOR","ACCESSPKG","LIFECYCLE","REVIEW","EXPIRY","SIEM"],
+  "namespaces_executed": ["LICGAP","SPONSOR","ACCESSPKG","LIFECYCLE","REVIEW","EXPIRY","SIEM"],
   "namespaces_skipped": [],
   "record_count": 187,
   "pass_count": 184,
@@ -1328,7 +1328,7 @@ Each record file is hashed (SHA-256 over its UTF-8 byte content). The hashes are
 {
   "algorithm": "SHA-256",
   "leaves": [
-    { "filename": "records/0001-PREVIEW.json",          "sha256": "a1b2..." },
+    { "filename": "records/0001-LICGAP.json",          "sha256": "a1b2..." },
     { "filename": "records/0002-SPONSOR-zone1.json",    "sha256": "c3d4..." },
     { "filename": "records/0003-SPONSOR-zone2.json",    "sha256": "e5f6..." }
   ],
@@ -1413,7 +1413,7 @@ Every pack ships with a `README.md` written for a non-technical examiner audienc
 
 | Severity | Meaning | Page on-call within | Containment SLA | Resolution SLA | Examples |
 |---|---|---|---|---|---|
-| Critical | Z3 agent operating without sponsor, perpetual Z3 grant, stale-grant > 24h | 15 minutes | 1 hour (suspend) | 24 hours | TRG-SPONSOR-01 (Z3 sponsor null), TRG-EXPIRY-01 (Z3 stale), TRG-PREVIEW-01 |
+| Critical | Z3 agent operating without sponsor, perpetual Z3 grant, stale-grant > 24h | 15 minutes | 1 hour (suspend) | 24 hours | TRG-SPONSOR-01 (Z3 sponsor null), TRG-EXPIRY-01 (Z3 stale), TRG-LICGAP-01 |
 | High | Z2 agent without sponsor, lifecycle workflow failure, SIEM retention < 5y, missing quarterly review | 1 hour | 4 hours | 72 hours | TRG-SPONSOR-02 (Z2), TRG-LIFECYCLE-01, TRG-SIEM-01, TRG-REVIEW-01 |
 | Medium | Z2 expiry > 24h–72h late, package expiry 366–400 days, manager declines transfer (escalation) | 4 hours | 24 hours | 7 days | TRG-EXPIRY-02, TRG-ACCESSPKG-01, TRG-LIFECYCLE-02 |
 | Low | Z1 sponsor != creator (data hygiene), justification < 50 chars, single transient probe error | 1 business day | 5 business days | 30 days | TRG-SPONSOR-03, TRG-EXPIRY-03 |
@@ -1464,9 +1464,9 @@ Every pack ships with a `README.md` written for a non-technical examiner audienc
 - **Remediation:** engage SecOps to extend SIEM retention; raise the variance with the Compliance Officer; document the temporary parallel export and decommission it once SIEM is compliant.
 
 
-### 10.9 TRG-PREVIEW-01 — Agent ID licensing or operability gate FAIL
+### 10.9 TRG-LICGAP-01 — Agent ID licensing or operability gate FAIL
 
-- **Trigger:** §8 reports `frontier_probe_status` of 403/404, or no Agent 365 / M365 E7 license consumed.
+- **Trigger:** §8 reports `agent_id_probe_status` of 403/404, or no Agent 365 / M365 E7 license consumed.
 - **Containment:** halt deployment of any new Z2/Z3 agents.
 - **Remediation:** confirm Microsoft Agent 365 or Microsoft 365 E7 license is assigned and consumed; verify the calling principal holds the Entra Agent ID Admin or AI Administrator role; if license + RBAC are confirmed and the surface is still unreachable, raise a Microsoft support case via standard support channels. Downgrade any Z2/Z3 agents created during the gap to Z1 and re-evaluate when access is restored.
 
