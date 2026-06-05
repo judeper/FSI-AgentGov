@@ -207,7 +207,7 @@ Install-Module -Name Microsoft.PowerApps.Administration.PowerShell `
 
 1. Confirm the running account holds **AI Administrator** or **Power Platform Admin**
 2. Confirm the agent is in an environment the running account can administer
-3. Some Dataverse-backed environments require Dataverse-side role assignment in addition to platform role — see [PowerShell Authoring Baseline §6](../../_shared/powershell-baseline.md)
+3. Some Dataverse-backed environments require Dataverse-side role assignment in addition to platform role — see [PowerShell Authoring Baseline §5](../../_shared/powershell-baseline.md)
 
 ---
 

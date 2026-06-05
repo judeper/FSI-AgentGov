@@ -751,7 +751,7 @@ Where Automation is not approved, use a Windows Task Scheduler job on a hardened
 
 - Run under a least-privilege managed service account.
 - Write artifacts to a folder that is **inside** a Purview retention scope OR mounted to your 17a-4(f) vendor's secure ingestion share.
-- Produce `Start-Transcript` / `Stop-Transcript` logs for the audit trail (see baseline §2).
+- Produce `Start-Transcript` / `Stop-Transcript` logs for the audit trail (see baseline §3).
 
 ### 4.3 — Retention routing
 

@@ -220,7 +220,7 @@ $findings | Format-Table -AutoSize
     Idempotent — agents already in the desired state are skipped with [OK].
 
 .DESCRIPTION
-    Canonical mutation pattern per the FSI PowerShell Authoring Baseline §4:
+    Canonical mutation pattern per the FSI PowerShell Authoring Baseline §3:
       - SupportsShouldProcess + ConfirmImpact='High'
       - Before-mutation snapshot to disk for rollback
       - Start-Transcript for full session capture

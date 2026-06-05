@@ -599,7 +599,7 @@ Write-Host "Script completed successfully." -ForegroundColor Cyan
 ## Script 4: Create Audit-Ready Evidence Export
 
 ### Purpose
-Generate a SHA-256 hashed evidence package with `manifest.json` for regulatory examination, aligned to the [PowerShell Authoring Baseline §5](../../_shared/powershell-baseline.md). The manifest records `{file, sha256, bytes, generated_utc, script_version}` for every artifact and supports chain-of-custody for SEC 17a-4(f) WORM evidence and FINRA Rule 4511 record-keeping.
+Generate a SHA-256 hashed evidence package with `manifest.json` for regulatory examination, aligned to the [PowerShell Authoring Baseline §4](../../_shared/powershell-baseline.md). The manifest records `{file, sha256, bytes, generated_utc, script_version}` for every artifact and supports chain-of-custody for SEC 17a-4(f) WORM evidence and FINRA Rule 4511 record-keeping.
 
 !!! warning "Land artifacts in WORM storage"
     The script writes to a local directory for review, but audit-defensible evidence must land in storage configured for write-once-read-many — Microsoft Purview Data Lifecycle Management retention lock, SharePoint records center with retention label, or Azure Storage immutability policy. Local disk is **not** sufficient under SEC 17a-4(f) or FINRA Rule 4511.

@@ -193,7 +193,7 @@ I attest that, for the reporting period above:
 5. Defender for Cloud Apps true-MIME content inspection was active for every Zone 3 agent
 6. SharePoint Embedded container access controls and Purview retention policies were verified
 7. Periodic review cadence was met: Zone 1 quarterly, Zone 2 monthly, Zone 3 weekly
-8. Evidence was collected, hashed (SHA-256), and indexed in `manifest.json` per the FSI PowerShell Authoring Baseline §5
+8. Evidence was collected, hashed (SHA-256), and indexed in `manifest.json` per the FSI PowerShell Authoring Baseline §4
 9. Evidence was landed in WORM storage consistent with SEC 17a-4(f) preservation requirements
 
 **Total agents assessed:** [Count]

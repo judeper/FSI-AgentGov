@@ -53,7 +53,7 @@ if ($desktopPaths) {
 | Microsoft 365 Agents Toolkit CLI (`m365`) | 6.0.0 | Declarative-agent provisioning + manifest hashing |
 | Python | 3.11.0 | `azure-ai-evaluation`, `pyrit` |
 | Git | 2.40.0 | Manifest provenance |
-| OpenSSL or `Get-FileHash` | n/a | SHA-256 evidence hashes (BL-§5) |
+| OpenSSL or `Get-FileHash` | n/a | SHA-256 evidence hashes (BL-§4) |
 
 **Fail-closed conditions:**
 
@@ -822,7 +822,7 @@ function Invoke-Agt25SolutionChecker {
 
 ## §8 — Power Platform Pipelines: deployment gate (mutation, with `-WhatIf`)
 
-**Why this section exists.** This is the only section of the playbook that *changes tenant state*. Per BL-§4, every mutating cmdlet declares `SupportsShouldProcess` with `ConfirmImpact='High'` and demonstrates a `-WhatIf` example before any committed run. After the February 2026 deadline (see Control 2.1), Zone 3 production deployments must flow through Power Platform Pipelines with the Control 2.5 evidence pack attached as a deployment artifact.
+**Why this section exists.** This is the only section of the playbook that *changes tenant state*. Per BL-§3, every mutating cmdlet declares `SupportsShouldProcess` with `ConfirmImpact='High'` and demonstrates a `-WhatIf` example before any committed run. After the February 2026 deadline (see Control 2.1), Zone 3 production deployments must flow through Power Platform Pipelines with the Control 2.5 evidence pack attached as a deployment artifact.
 
 ```powershell
 function Invoke-Agt25PipelineDeployment {
@@ -1096,7 +1096,7 @@ A **false-clean** outcome (the harness reports green when the underlying control
 
 **Shared baseline.**
 
-- [`../../_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) — module pinning (BL-§1), edition guard (BL-§2), mutation safety (BL-§4), SHA-256 evidence (BL-§5), Dataverse cmdlet quirks (BL-§6).
+- [`../../_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) — module pinning (BL-§1), edition guard (BL-§2), mutation safety (BL-§3), SHA-256 evidence (BL-§4), Dataverse cmdlet quirks (BL-§5).
 
 **Companion playbooks for Control 2.5.**
 
