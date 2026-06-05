@@ -26,13 +26,12 @@ related_controls: ["1.2", "1.11", "2.3", "2.26", "3.1", "3.6", "3.13"]
 >
 > **Sister playbooks:** [Portal Walkthrough](./portal-walkthrough.md) · [Verification & Testing](./verification-testing.md) · [Troubleshooting](./troubleshooting.md)
 >
-> **Shared baseline:** [`_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) — module pinning, sovereign endpoint matrix, evidence emission, SHA-256 manifest format.
+> **Shared baseline:** [`_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) — module pinning, evidence emission, SHA-256 manifest format.
 
 This playbook automates discovery, attestation, and continuous monitoring for the **Microsoft Agent 365 Admin Center**, the unified governance console that became Generally Available **May 1, 2026**. It mirrors the structural conventions of the sister playbook for Control 2.26 ([Agent Approval Workflow Configuration](../2.26/powershell-setup.md)) and uses the cmdlet prefix `Agt225` for every helper introduced in this file. The Agent 365 Admin Center is Microsoft's GA replacement for the legacy "Copilot Hub" preview; many of its surfaces are still partly portal-only, so this playbook combines Graph reads with documented portal-export fallbacks.
 
-> **Sovereign cloud reality (April 2026).** As of GA, Microsoft has **not announced parity** for the Agent 365 Admin Center in **GCC**, **GCC High**, or **DoD**. The bootstrap helper in §2 detects sovereign tenants and exits early with a structured `SovereignCloudNotSupported` exception so that downstream automation does not silently emit a "Clean" status against a surface that does not exist. Sovereign-tenant operators must follow the compensating-control pattern in [`_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod`](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod) and rely on Defender XDR + Purview audit reads (Controls [3.1](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) and [3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md)) until Microsoft publishes a sovereign roadmap.
 
-> **Hedged-language reminder.** Throughout this playbook, governance helpers **support compliance with** FINRA Rule 3110, SEC Rule 17a-4, SOX §404, GLBA Safeguards, OCC Bulletin 2013-29, and Federal Reserve SR 26-2 (formerly SR 11-7). They do **not** "ensure" or "guarantee" compliance. In particular, FINRA Rule 3110 requires a **registered principal** to bear supervisory responsibility — automated discovery and approval-history extracts described here **do not substitute** for that registered principal's review and sign-off; they provide the evidence the principal then attests to.
+> **Hedged-language reminder.** Throughout this playbook, governance helpers **support compliance with** FINRA Rule 3110, SEC Rule 17a-4, SOX §404, GLBA Safeguards, OCC Bulletin 2013-29, and Federal Reserve SR 26-2 (formerly SR 11-7). They do **not** "confirm" or "provide" compliance. In particular, FINRA Rule 3110 requires a **registered principal** to bear supervisory responsibility — automated discovery and approval-history extracts described here **do not substitute** for that registered principal's review and sign-off; they provide the evidence the principal then attests to.
 
 ---
 
@@ -56,17 +55,16 @@ Every helper in §2 calls `Assert-Agt225ShellHost` as its first action. The asse
 | # | Defect | Symptom | Root cause | Mitigation in this playbook |
 |---|---|---|---|---|
 | 1 | Wrong PowerShell host | `Get-MgAgent*` returns `@()` | PS 5.1 loaded Graph 1.28 alongside 2.25 | `Assert-Agt225ShellHost` (§2.1) |
-| 2 | Sovereign tenant treated as commercial | Helpers run, return `Clean`, but no Agent 365 surface exists | `Connect-MgGraph` defaulted to `-Environment Global` against a `.us` tenant | `Resolve-Agt225CloudProfile` (§2.2) |
-| 3 | Read-only token used against admin surfaces | `403` swallowed, helper logs `Anomaly` then masks as `Clean` on retry | Caller used delegated `User.Read` only | `Test-Agt225GraphScopes` preflight (§1.4) |
-| 4 | Paged response truncated at 100 | Inventory undercounts agents in tenants with > 100 agents | Operator forgot `-All` on `Invoke-MgGraphRequest` | `Invoke-Agt225PagedQuery` (§11.2) — paging is asserted |
-| 5 | Throttled call returned empty body | Helper interprets HTTP 429 with empty JSON as zero agents | No retry/backoff wrapper | `Invoke-Agt225Throttled` (§11.1) |
-| 6 | Beta cmdlet GA-renamed mid-flight | Cmdlet not found, caught by broad `try`, swallowed | Microsoft renamed `*Bot*` → `*Agent*` between preview and GA | `Get-Agt225CmdletAvailability` (§1.3) emits `NotApplicable`, not `Clean` |
-| 7 | Empty result conflated with "no findings" | Helper returns `$null`; downstream evidence pack says "Clean" | Helpers must distinguish `Clean` from `NotApplicable` from `Error` | All helpers return `[pscustomobject]` with explicit `Status` enum |
-| 8 | Cached delegated token from prior tenant | Helper enumerates the wrong tenant's agents | Operator switched tenants but did not call `Disconnect-MgGraph` | `Initialize-Agt225Session` always disconnects first |
-| 9 | Researcher (Computer Use) defaults assumed restrictive | Tenants with Copilot licensing inherit `default-on` for the Researcher agent's Computer Use action; operators assume opt-in | GA October 2025 default | `Test-Agt225ResearcherComputerUse` (§3.5) flags `Anomaly` if no affirmative zone decision is recorded |
-| 10 | Approval-history JSON missing approver UPN | Audit row written before approver context resolved; later renders as "(unknown)" | Race in M365 audit ingestion when approval is auto-completed | `Get-Agt225ApprovalHistory` (§6.2) joins to `Get-MgAuditLogDirectoryAudit` and emits `Anomaly` rather than `Clean` when UPN is null |
+| 2 | Read-only token used against admin surfaces | `403` swallowed, helper logs `Anomaly` then masks as `Clean` on retry | Caller used delegated `User.Read` only | `Test-Agt225GraphScopes` preflight (§2.3) |
+| 3 | Paged response truncated at 100 | Inventory undercounts agents in tenants with > 100 agents | Operator forgot `-All` on `Invoke-MgGraphRequest` | `Invoke-Agt225PagedQuery` (§11.2) — paging is asserted |
+| 4 | Throttled call returned empty body | Helper interprets HTTP 429 with empty JSON as zero agents | No retry/backoff wrapper | `Invoke-Agt225Throttled` (§11.1) |
+| 5 | Beta cmdlet GA-renamed mid-flight | Cmdlet not found, caught by broad `try`, swallowed | Microsoft renamed `*Bot*` → `*Agent*` between preview and GA | `Get-Agt225CmdletAvailability` (§1.3) emits `NotApplicable`, not `Clean` |
+| 6 | Empty result conflated with "no findings" | Helper returns `$null`; downstream evidence pack says "Clean" | Helpers must distinguish `Clean` from `NotApplicable` from `Error` | All helpers return `[pscustomobject]` with explicit `Status` enum |
+| 7 | Cached delegated token from prior tenant | Helper enumerates the wrong tenant's agents | Operator switched tenants but did not call `Disconnect-MgGraph` | `Initialize-Agt225Session` always disconnects first |
+| 8 | Researcher (Computer Use) defaults assumed restrictive | Tenants with Copilot licensing inherit `default-on` for the Researcher agent's Computer Use action; operators assume opt-in | GA October 2025 default | `Test-Agt225ResearcherComputerUse` (§7.3) flags `Anomaly` if no affirmative zone decision is recorded |
+| 9 | Approval-history JSON missing approver UPN | Audit row written before approver context resolved; later renders as "(unknown)" | Race in M365 audit ingestion when approval is auto-completed | `Get-Agt225ApprovalHistory` (§6.2) joins to `Get-MgAuditLogDirectoryAudit` and emits `Anomaly` rather than `Clean` when UPN is null |
 
-Every helper in this playbook returns one of five `Status` values — **`Clean`**, **`Anomaly`**, **`Pending`**, **`NotApplicable`**, **`Error`** — and every helper carries a non-empty `Reason` string when `Status -ne 'Clean'`. **Helpers never return `$null` or `@()` as a clean signal.** This single convention eliminates defect #7 and is the foundation on which the §9 evidence pack is built.
+Every helper in this playbook returns one of five `Status` values — **`Clean`**, **`Anomaly`**, **`Pending`**, **`NotApplicable`**, **`Error`** — and every helper carries a non-empty `Reason` string when `Status -ne 'Clean'`. **Helpers never return `$null` or `@()` as a clean signal.** This single convention addresses defect #6 and is the foundation on which the §9 evidence pack is built.
 
 ---
 
@@ -110,7 +108,7 @@ The helper `Test-Agt225GraphScopes` (defined in §2.4) interrogates the live tok
 
 ### 1.3 Cmdlet availability — handling preview-to-GA renames
 
-Between the November 2025 preview and the May 2026 GA, Microsoft renamed several cmdlets from the `*Bot*` and `*CopilotAgent*` families to the unified `*Agent*` family. To prevent defect #6, every helper that calls a Graph SDK cmdlet first invokes `Get-Agt225CmdletAvailability`:
+Between the November 2025 preview and the May 2026 GA, Microsoft renamed several cmdlets from the `*Bot*` and `*CopilotAgent*` families to the unified `*Agent*` family. To prevent defect #2, every helper that calls a Graph SDK cmdlet first invokes `Get-Agt225CmdletAvailability`:
 
 ```powershell
 function Get-Agt225CmdletAvailability {
@@ -169,13 +167,12 @@ This pattern mirrors the §1.5 of the Control 2.26 playbook so that compliance r
 
 ---
 
-## §2 — Sovereign-Aware Bootstrap
+## §2 — Bootstrap
 
-The bootstrap helpers establish the session, decide which Microsoft Graph environment to target, validate scopes, and emit a structured `SessionContext` object that every subsequent helper consumes. Three rules are non-negotiable:
+The bootstrap helpers establish the commercial Microsoft Graph session, validate scopes, and emit a structured `SessionContext` object that every subsequent helper consumes. Two rules are non-negotiable:
 
-1. **Sovereign tenants exit early** with `SovereignCloudNotSupported`, not silently.
-2. **Every session is initialized with `Disconnect-MgGraph` first** so cached cross-tenant tokens cannot leak.
-3. **Throttling is wrapped at the bootstrap layer** so callers in §3 onward never need to write their own retry loops.
+1. **Every session is initialized with `Disconnect-MgGraph` first** so cached cross-tenant tokens cannot leak.
+2. **Throttling is wrapped at the bootstrap layer** so callers in §3 onward never need to write their own retry loops.
 
 ### 2.1 Assert-Agt225ShellHost
 
@@ -212,80 +209,7 @@ function Assert-Agt225ShellHost {
 }
 ```
 
-### 2.2 Resolve-Agt225CloudProfile
-
-This helper inspects the tenant's verified domains and resolves to one of the canonical Graph environments. **It throws on sovereign clouds** because Agent 365 is not available there at GA.
-
-```powershell
-function Resolve-Agt225CloudProfile {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)] [string] $TenantId,
-        [ValidateSet('Auto','Global','USGov','USGovDoD','China','Germany')]
-        [string] $Override = 'Auto'
-    )
-    $envName = if ($Override -ne 'Auto') {
-        $Override
-    } else {
-        # Heuristic: sovereign tenants typically have *.us, *.mil, or *.partner.onmschina.cn domains
-        # In production, defer to your tenant inventory — this heuristic is a safety net only.
-        if ($TenantId -match '\.us$|\.mil$') { 'USGov' }
-        elseif ($TenantId -match 'onmschina') { 'China' }
-        else { 'Global' }
-    }
-
-    $profile = switch ($envName) {
-        'Global'    { @{ GraphEnv='Global';    Supported=$true  } }
-        'USGov'     { @{ GraphEnv='USGov';     Supported=$false } }
-        'USGovDoD'  { @{ GraphEnv='USGovDoD';  Supported=$false } }
-        'China'     { @{ GraphEnv='China';     Supported=$false } }
-        'Germany'   { @{ GraphEnv='Germany';   Supported=$false } }
-    }
-
-    if (-not $profile.Supported) {
-        $msg = "SovereignCloudNotSupported: Agent 365 Admin Center has no announced parity in $envName as of GA (2026-05-01). " +
-               "Apply compensating controls per _shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod " +
-               "and rely on Defender XDR + Purview audit reads (Controls 3.1 and 3.6)."
-        throw [System.PlatformNotSupportedException]::new($msg)
-    }
-
-    [pscustomobject]@{
-        TenantId      = $TenantId
-        GraphEnv      = $profile.GraphEnv
-        Supported     = $true
-        ResolvedAt    = (Get-Date).ToUniversalTime().ToString('o')
-    }
-}
-```
-
-When sovereign-tenant operators invoke this helper, the calling script should `try`/`catch` the `PlatformNotSupportedException` and emit a **compensating-control evidence stub** so that the absence of Agent 365 evidence is itself logged:
-
-```powershell
-try {
-    $cloud = Resolve-Agt225CloudProfile -TenantId $TenantId
-} catch [System.PlatformNotSupportedException] {
-    $stub = [pscustomobject]@{
-        control_id          = '2.25'
-        run_id              = [guid]::NewGuid().ToString()
-        run_timestamp       = (Get-Date).ToUniversalTime().ToString('o')
-        tenant_id           = $TenantId
-        cloud               = 'USGov'   # or whichever sovereign env applied
-        zone                = $Zone
-        namespace           = 'fsi-agentgov.agent-365-admin'
-        criterion           = 'sovereign-cloud-bootstrap'
-        status              = 'NotApplicable'
-        evidence_artifacts  = @()
-        regulator_mappings  = @('FINRA-3110','SEC-17a-4','OCC-2013-29','SR-11-7')
-        schema_version      = '1.0'
-        reason              = $_.Exception.Message
-        compensating_controls = @('3.1','3.6')
-    }
-    $stub | ConvertTo-Json -Depth 6 | Out-File -FilePath $EvidencePath -Encoding utf8
-    return
-}
-```
-
-### 2.3 Initialize-Agt225Session
+### 2.2 Initialize-Agt225Session
 
 ```powershell
 function Initialize-Agt225Session {
@@ -300,17 +224,13 @@ function Initialize-Agt225Session {
             'AuditLog.Read.All',
             'AgentIdentity.Read.All'
         ),
-        [switch] $AllowPreviewSurfaces,
-        [ValidateSet('Auto','Global','USGov','USGovDoD','China','Germany')]
-        [string] $CloudOverride = 'Auto'
+        [switch] $AllowPreviewSurfaces
     )
 
     $null = Assert-Agt225ShellHost
-    $cloud = Resolve-Agt225CloudProfile -TenantId $TenantId -Override $CloudOverride
-
     Disconnect-MgGraph -ErrorAction SilentlyContinue | Out-Null
     Connect-MgGraph -TenantId $TenantId -Scopes $RequestedScopes `
-        -Environment $cloud.GraphEnv -NoWelcome -ErrorAction Stop
+        -Environment 'Global' -NoWelcome -ErrorAction Stop
 
     $scopeReport = Test-Agt225GraphScopes -RequestedScopes $RequestedScopes
     $missing = $scopeReport | Where-Object {
@@ -327,7 +247,7 @@ function Initialize-Agt225Session {
     [pscustomobject]@{
         RunId              = $RunId
         TenantId           = $TenantId
-        Cloud              = $cloud.GraphEnv
+        Cloud              = 'Global'
         ScopesGranted      = ($scopeReport | Where-Object Granted).Scope
         ScopesMissing      = ($scopeReport | Where-Object { -not $_.Granted }).Scope
         AllowPreview       = [bool]$AllowPreviewSurfaces
@@ -339,7 +259,7 @@ function Initialize-Agt225Session {
 }
 ```
 
-### 2.4 Test-Agt225GraphScopes
+### 2.3 Test-Agt225GraphScopes
 
 ```powershell
 function Test-Agt225GraphScopes {
@@ -362,9 +282,9 @@ function Test-Agt225GraphScopes {
 }
 ```
 
-### 2.5 Throttle stub
+### 2.4 Throttle stub
 
-The full throttle helper lives in §11.1; the bootstrap layer registers a script-scoped reference so that every helper in §3-§8 can simply call `Invoke-Agt225Throttled { ... }` without having to rebuild backoff state per call.
+The full throttle helper lives in §11.1; the bootstrap layer registers a script-scoped reference so that every helper in §3-§8 can call `Invoke-Agt225Throttled { ... }` without having to rebuild backoff state per call.
 
 ```powershell
 $script:Agt225ThrottleState = @{
@@ -704,7 +624,7 @@ function Get-Agt225ApprovalHistory {
     $approvals = Invoke-Agt225Throttled {
         Invoke-Agt225PagedQuery -Uri "/beta/agents/approvals?`$filter=resolvedDateTime ge $start"
     }
-    # Defect #10 mitigation — join to directory audit to recover approver UPN
+    # Defect #9 mitigation — join to directory audit to recover approver UPN
     $audits = Invoke-Agt225Throttled {
         Invoke-Agt225PagedQuery -Uri "/beta/auditLogs/directoryAudits?`$filter=category eq 'Agent365' and activityDisplayName eq 'ResolveAgentApproval' and activityDateTime ge $start"
     }
@@ -970,7 +890,7 @@ The evidence pack is the canonical output of every Control 2.25 PowerShell run. 
   "run_id": "<guid>",
   "run_timestamp": "<ISO-8601 UTC>",
   "tenant_id": "<guid>",
-  "cloud": "Global | USGov | USGovDoD | China | Germany",
+  "cloud": "Global",
   "zone": "Zone1 | Zone2 | Zone3 | Mixed",
   "namespace": "fsi-agentgov.agent-365-admin",
   "criterion": "<verification-criterion-id>",
@@ -1202,7 +1122,7 @@ function Invoke-Agt225Throttled {
 }
 ```
 
-The helper **never** swallows a non-throttle error. A 403 is re-thrown immediately so that defect #3 (read-only token used against admin surfaces) is surfaced rather than masked. A 429 with empty body (defect #5) results in a retry, not a synthetic empty result.
+The helper **never** swallows a non-throttle error. A 403 is re-thrown immediately so that defect #2 (read-only token used against admin surfaces) is surfaced rather than masked. A 429 with empty body (defect #2) results in a retry, not a synthetic empty result.
 
 ### 11.2 Invoke-Agt225PagedQuery
 
@@ -1220,7 +1140,7 @@ function Invoke-Agt225PagedQuery {
         $page = Invoke-MgGraphRequest -Method GET -Uri $next
         $pageCount++
         if ($page.value) { $null = $all.AddRange($page.value) }
-        # Defect #4 mitigation: assert that pagination actually advances
+        # Defect #3 mitigation: assert that pagination actually advances
         $next = $page.'@odata.nextLink'
         if ($pageCount -eq 1 -and $page.value.Count -eq $PageSizeAssertion -and -not $next) {
             throw [System.InvalidOperationException]::new(
@@ -1235,7 +1155,7 @@ function Invoke-Agt225PagedQuery {
 }
 ```
 
-The paging assertion catches the most insidious form of defect #4: a tenant with exactly 100 agents and a server-side bug that omits `@odata.nextLink`. Without the assertion, the helper would return 100 rows and look perfectly clean even if the true count is higher.
+The paging assertion catches the most insidious form of defect #2: a tenant with exactly 100 agents and a server-side bug that omits `@odata.nextLink`. Without the assertion, the helper would return 100 rows and look perfectly clean even if the true count is higher.
 
 
 ---
@@ -1248,7 +1168,7 @@ Control 2.25 does not stand alone. The Agent 365 Admin Center is the **operator 
 
 ```powershell
 $session   = Initialize-Agt225Session -TenantId $TenantId -RunId ([guid]::NewGuid()) `
-                -CloudOverride 'Global'
+               
 $inventory = Get-Agt225AgentInventory  -Session $session
 $pending   = Get-Agt225PendingApprovals -Session $session
 $ownerless = Find-Agt225OwnerlessAgents -Inventory $inventory
@@ -1304,24 +1224,7 @@ $pack = New-Agt225EvidencePack -Session $session -Zone 'Mixed' `
     -HelperResults @($inv, $reviews, $pim)
 ```
 
-### 12.4 Sovereign-tenant compensating-control run
-
-```powershell
-try {
-    $session = Initialize-Agt225Session -TenantId $SovereignTenantId
-} catch [System.PlatformNotSupportedException] {
-    # Sovereign — fall back to Defender XDR + Purview audit reads
-    $defender = Get-FsiDefenderAgentSignals -TenantId $SovereignTenantId  # Control 3.6
-    $audit    = Get-FsiPurviewAgentAudit -TenantId $SovereignTenantId     # Control 3.1
-    $stub     = New-Agt225EvidencePack -Session @{
-        RunId    = [guid]::NewGuid()
-        TenantId = $SovereignTenantId
-        Cloud    = 'USGov'
-    } -Zone 'Mixed' -HelperResults @($defender, $audit)
-}
-```
-
-### 12.5 Mutation chain (gated by ChangeTicketId)
+### 12.4 Mutation chain (gated by ChangeTicketId)
 
 ```powershell
 $session    = Initialize-Agt225Session -TenantId $TenantId -RunId $RunId
@@ -1431,7 +1334,6 @@ The attestation pack is the artifact that gets countersigned and stored in the f
 | Weekly governance | Every Monday for the prior week | AI Governance Lead + FINRA registered principal |
 | Quarterly access-review | Calendar quarter close | AI Governance Lead + Compliance Officer |
 | Mutation pack | Per change ticket | AI Governance Lead + Change Manager |
-| Sovereign compensating-control stub | Same cadence as commercial weekly pack | AI Governance Lead (notes absence of Agent 365 surface) |
 
 ---
 
@@ -1455,16 +1357,6 @@ Describe 'Control 2.25 — PowerShell helpers' {
     Context 'Assert-Agt225ShellHost' {
         It 'throws Agt225-WrongShell on PS 5.1' -Skip:($PSVersionTable.PSEdition -eq 'Core') {
             { Assert-Agt225ShellHost } | Should -Throw -ExceptionType ([System.InvalidOperationException])
-        }
-    }
-    Context 'Resolve-Agt225CloudProfile' {
-        It 'throws on USGov override' {
-            { Resolve-Agt225CloudProfile -TenantId 'x.us' -Override 'USGov' } |
-                Should -Throw -ExceptionType ([System.PlatformNotSupportedException])
-        }
-        It 'returns Global on commercial override' {
-            (Resolve-Agt225CloudProfile -TenantId 'contoso.com' -Override 'Global').GraphEnv |
-                Should -Be 'Global'
         }
     }
     Context 'Helpers never return $null on clean signal' {
@@ -1491,15 +1383,14 @@ The Pester suite is the gate every helper must pass before being added to the pi
 
 | Anti-pattern | Why it is wrong | Correct pattern |
 |---|---|---|
-| Returning ``$null`` to mean "clean" | Conflates clean with ``NotApplicable`` and ``Error`` (defect #7) | Always return ``[pscustomobject]`` with explicit ``Status`` |
+| Returning ``$null`` to mean "clean" | Conflates clean with ``NotApplicable`` and ``Error`` (defect #6) | Always return ``[pscustomobject]`` with explicit ``Status`` |
 | Using ``Write-Host`` for output | Breaks JSON serialization and pipelines | Use ``Write-Output`` of ``[pscustomobject]`` then ``ConvertTo-Json`` |
 | Catching all exceptions broadly | Hides 403s and renames as "no data" | Catch specific exceptions; re-throw on auth/scope errors |
 | Mutating without ``-ChangeTicketId`` | Violates SOX §404 ITGC | Helper throws ``Agt225-NoChangeTicket`` |
-| Connecting without ``Disconnect-MgGraph`` first | Token leakage across tenants (defect #8) | ``Initialize-Agt225Session`` always disconnects first |
-| Querying without paging | Truncated inventory (defect #4) | Use ``Invoke-Agt225PagedQuery`` with assertion |
+| Connecting without ``Disconnect-MgGraph`` first | Token leakage across tenants (defect #7) | ``Initialize-Agt225Session`` always disconnects first |
+| Querying without paging | Truncated inventory (defect #3) | Use ``Invoke-Agt225PagedQuery`` with assertion |
 | Trusting Researcher CU defaults | Default-on overrides supervisory review | ``Test-Agt225ResearcherComputerUse`` requires zone register |
 | Running on PS 5.1 | Module ambiguity (defect #1) | ``Assert-Agt225ShellHost`` is the first call in §2 |
-| Ignoring sovereign cloud | Synthetic clean against non-existent surface | ``Resolve-Agt225CloudProfile`` throws |
 | Using ``Write-Verbose`` for evidence | Verbose stream is not captured by default | Evidence goes to JSON files; verbose stream is for operator only |
 
 ### 14.3 Hedged-language reminder
@@ -1507,9 +1398,9 @@ The Pester suite is the gate every helper must pass before being added to the pi
 Every helper's ``Reason`` string and every line of operator-facing documentation in this playbook uses the hedged-language vocabulary required by ``CONTRIBUTING.md``:
 
 * **Use:** "supports compliance with", "helps meet", "required for", "recommended to", "aids in".
-* **Do not use:** "ensures compliance", "guarantees", "will prevent", "eliminates risk".
+* **Avoid:** absolute-outcome or automatic-compliance claims.
 
-The helpers do not "ensure" that an agent is compliant; they **support** the AI Governance Lead and the FINRA registered principal in **meeting** their supervisory obligations.
+The helpers do not make an agent compliant; they **support** the AI Governance Lead and the FINRA registered principal in **meeting** their supervisory obligations.
 
 ### 14.4 Operating cadence
 
@@ -1520,7 +1411,7 @@ The helpers do not "ensure" that an agent is compliant; they **support** the AI 
 | **Weekly (Monday 09:00)** | §12.2 chain | Weekly attestation + countersignature | AI Governance Lead |
 | **Monthly (first business day)** | License coverage + ownerless sweep + remediation plan | Monthly remediation backlog | AI Governance Lead |
 | **Quarterly (calendar quarter close)** | §12.3 chain + §13 attestation | Access-review certification | AI Governance Lead + Compliance Officer |
-| **Per change ticket** | §12.5 mutation chain | Mutation manifest + attestation | AI Administrator (run) + AI Governance Lead (sign) |
+| **Per change ticket** | §12.4 mutation chain | Mutation manifest + attestation | AI Administrator (run) + AI Governance Lead (sign) |
 | **Annually (fiscal year close)** | All helpers + retention rotation | Annual attestation packet | AI Governance Lead + CCO |
 
 The cadence is mirrored in the sister 2.26 playbook so that the daily and weekly chains can be invoked from a single orchestrator script that produces a composite evidence pack covering both controls.
@@ -1530,9 +1421,8 @@ The cadence is mirrored in the sister 2.26 playbook so that the daily and weekly
 | Helper | Section | Returns | Mutation? |
 |---|---|---|---|
 | ``Assert-Agt225ShellHost`` | §2.1 | Status object or throws | No |
-| ``Resolve-Agt225CloudProfile`` | §2.2 | CloudProfile or throws | No |
-| ``Initialize-Agt225Session`` | §2.3 | SessionContext | No (connects) |
-| ``Test-Agt225GraphScopes`` | §2.4 | Scope rows | No |
+| ``Initialize-Agt225Session`` | §2.2 | SessionContext | No (connects) |
+| ``Test-Agt225GraphScopes`` | §2.3 | Scope rows | No |
 | ``Test-Agt225PreviewGating`` | §1.5 | Preview report | No |
 | ``Get-Agt225CmdletAvailability`` | §1.3 | Availability rows | No |
 | ``Get-Agt225AgentInventory`` | §3.1 | Inventory + writes JSON | No |
@@ -1576,12 +1466,12 @@ The cadence is mirrored in the sister 2.26 playbook so that the daily and weekly
 * [2.3 — Change Management and Release Planning](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md) — Labels asserted in §5.3 zone enforcement.
 * [2.26 — Entra Agent ID Identity Governance](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) — Sister control.
 * [3.1 — Centralized Logging and SIEM Integration](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) — System of record for §6 lifecycle events.
-* [3.6 — Orphaned Agent Detection and Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) — Compensating control for sovereign tenants (§2.2, §12.4).
+* [3.6 — Orphaned Agent Detection and Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) — Ownerless-agent remediation evidence source.
 * [3.13 — Agent 365 Admin Center Analytics](../../../controls/pillar-3-reporting/3.13-agent-365-admin-center-analytics.md) — Forwarding contract enforced in §10.
 
 ### Shared baseline
 
-* [``_shared/powershell-baseline.md``](../../_shared/powershell-baseline.md) — Module pinning, sovereign endpoint matrix at section 3, evidence-emission conventions.
+* [``_shared/powershell-baseline.md``](../../_shared/powershell-baseline.md) — Module pinning and evidence-emission conventions.
 
 ### Reference material
 

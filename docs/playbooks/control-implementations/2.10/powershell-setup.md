@@ -1,7 +1,7 @@
 # Control 2.10: Patch Management and System Updates — PowerShell Setup
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. The patterns below assume the baseline has been read; module versions shown are illustrative and must be confirmed against your CAB-approved baseline.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. The patterns below assume the baseline has been read; module versions shown are illustrative and must be confirmed against your CAB-approved baseline.
 
 > Automation companion to [Control 2.10: Patch Management and System Updates](../../../controls/pillar-2-management/2.10-patch-management-and-system-updates.md).
 >
@@ -18,7 +18,6 @@
 | **Az.ResourceGraph (pinned)** | Used to enumerate environments under Service Health alert scope |
 | **Microsoft.PowerApps.Administration.PowerShell (pinned)** | **Windows PowerShell 5.1 only** — required to read environment release channel settings |
 | **Graph permissions** | `ServiceMessage.Read.All` (delegated or application) — required for Message Center reads. Application permission requires Entra Global Admin consent. |
-| **Sovereign cloud** | Confirm the correct `Connect-MgGraph -Environment` value before first run. See the baseline section 3. |
 
 ### Canonical install pattern
 
@@ -46,7 +45,7 @@ Install-Module -Name Microsoft.PowerApps.Administration.PowerShell `
 
 ---
 
-## Sovereign-Cloud Authentication Helper
+## Authentication Helper
 
 Reused by every script in this playbook. Save as `Connect-FsiTenant.ps1` and dot-source.
 
@@ -54,22 +53,12 @@ Reused by every script in this playbook. Save as `Connect-FsiTenant.ps1` and dot
 function Connect-FsiTenant {
     [CmdletBinding()]
     param(
-        [ValidateSet('Commercial','GCC','GCCHigh','DoD')]
-        [string]$Cloud = 'Commercial',
         [string[]]$Scopes = @('ServiceMessage.Read.All')
     )
-    $envMap = @{
-        Commercial = 'Global'
-        GCC        = 'USGov'
-        GCCHigh    = 'USGovDoD'
-        DoD        = 'USGovDoD'
-    }
-    Connect-MgGraph -Environment $envMap[$Cloud] -Scopes $Scopes -NoWelcome
-    Write-Verbose "Connected to Microsoft Graph in environment: $($envMap[$Cloud])"
+    Connect-MgGraph -Environment 'Global' -Scopes $Scopes -NoWelcome
+    Write-Verbose "Connected to Microsoft Graph (commercial Global environment)."
 }
 ```
-
-> **False-clean warning:** Running `Connect-MgGraph` without `-Environment` against a GCC High tenant authenticates against commercial endpoints, returns zero messages, and produces **false-clean evidence**. The helper above prevents this.
 
 ---
 
@@ -125,20 +114,15 @@ Uses Microsoft Graph Service Communications API. Filters server-side to reduce t
 .PARAMETER Days
     Lookback window in days. Default 30.
 
-.PARAMETER Cloud
-    Sovereign-cloud designation. Defaults to Commercial.
-
 .PARAMETER EvidencePath
     Folder for hashed JSON evidence and manifest. Created if missing.
 
 .EXAMPLE
-    .\Get-MessageCenterPosts.ps1 -Days 14 -Cloud GCCHigh -EvidencePath .\evidence\2.10
+    .\Get-MessageCenterPosts.ps1 -Days 14 -EvidencePath .\evidence\2.10
 #>
 [CmdletBinding()]
 param(
     [int]$Days = 30,
-    [ValidateSet('Commercial','GCC','GCCHigh','DoD')]
-    [string]$Cloud = 'Commercial',
     [string]$EvidencePath = ".\evidence\2.10"
 )
 
@@ -146,7 +130,7 @@ $ErrorActionPreference = 'Stop'
 . "$PSScriptRoot\Connect-FsiTenant.ps1"
 . "$PSScriptRoot\Write-FsiEvidence.ps1"
 
-Connect-FsiTenant -Cloud $Cloud -Scopes 'ServiceMessage.Read.All'
+Connect-FsiTenant -Scopes 'ServiceMessage.Read.All'
 
 # AI-relevant Microsoft 365 services. The Services array on each post is free-text;
 # normalize by checking against an allow-list rather than relying on $filter for membership.
@@ -214,19 +198,14 @@ Confirms each Power Platform environment's release channel matches the policy fr
     Reports release channel and managed-environment status for all environments.
     Read-only; emits SHA-256-hashed evidence.
 
-.PARAMETER Endpoint
-    Power Platform endpoint per sovereign cloud (prod | usgov | usgovhigh | dod).
-
 .PARAMETER EvidencePath
     Folder for evidence output.
 
 .EXAMPLE
-    .\Get-EnvironmentReleaseChannels.ps1 -Endpoint usgovhigh -EvidencePath .\evidence\2.10
+    .\Get-EnvironmentReleaseChannels.ps1 -EvidencePath .\evidence\2.10
 #>
 [CmdletBinding()]
 param(
-    [ValidateSet('prod','usgov','usgovhigh','dod')]
-    [string]$Endpoint = 'prod',
     [string]$EvidencePath = ".\evidence\2.10"
 )
 
@@ -238,7 +217,7 @@ if ($PSVersionTable.PSEdition -ne 'Desktop') {
 
 . "$PSScriptRoot\Write-FsiEvidence.ps1"
 
-Add-PowerAppsAccount -Endpoint $Endpoint | Out-Null
+Add-PowerAppsAccount | Out-Null
 
 $envs = Get-AdminPowerAppEnvironment
 
@@ -430,12 +409,10 @@ Write-Host "[PASS] Patch history exported: $csv" -ForegroundColor Green
     Safe to schedule; does not mutate tenant state.
 
 .EXAMPLE
-    .\Validate-Control-2.10.ps1 -Cloud Commercial -EvidencePath .\evidence\2.10 -SubscriptionIds @('...')
+    .\Validate-Control-2.10.ps1 -EvidencePath .\evidence\2.10 -SubscriptionIds @('...')
 #>
 [CmdletBinding()]
 param(
-    [ValidateSet('Commercial','GCC','GCCHigh','DoD')]
-    [string]$Cloud = 'Commercial',
     [string]$EvidencePath = ".\evidence\2.10",
     [Parameter(Mandatory)] [string[]]$SubscriptionIds
 )
@@ -446,7 +423,7 @@ $failed = $false
 Write-Host "=== Control 2.10 Validation ===" -ForegroundColor Cyan
 
 try {
-    & "$PSScriptRoot\Get-MessageCenterPosts.ps1" -Days 30 -Cloud $Cloud -EvidencePath $EvidencePath
+    & "$PSScriptRoot\Get-MessageCenterPosts.ps1" -Days 30 -EvidencePath $EvidencePath
 } catch {
     Write-Host "[FAIL] Message Center pull: $($_.Exception.Message)" -ForegroundColor Red
     $failed = $true
@@ -462,8 +439,7 @@ try {
 # Environment release channel check requires Windows PowerShell 5.1; skip with INFO if running PS7+.
 if ($PSVersionTable.PSEdition -eq 'Desktop') {
     try {
-        $endpoint = @{Commercial='prod'; GCC='usgov'; GCCHigh='usgovhigh'; DoD='dod'}[$Cloud]
-        & "$PSScriptRoot\Get-EnvironmentReleaseChannels.ps1" -Endpoint $endpoint -EvidencePath $EvidencePath
+        & "$PSScriptRoot\Get-EnvironmentReleaseChannels.ps1" -EvidencePath $EvidencePath
     } catch {
         Write-Host "[FAIL] Environment release channel read: $($_.Exception.Message)" -ForegroundColor Red
         $failed = $true

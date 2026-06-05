@@ -40,7 +40,7 @@
 
 ---
 
-## §0 Coverage boundary, sovereign-cloud notes, and portal vs script matrix
+## §0 Coverage boundary and portal vs script matrix
 
 ### 0.1 Coverage boundary
 
@@ -54,19 +54,7 @@ Out of scope (handled by sibling controls — see READ FIRST):
 
 - Production detection (1.21), eDiscovery hold (1.19), bias testing (2.11), general QA (2.5), connector / DLP authoring (3.1), and incident response workflow (3.4).
 
-### 0.2 Sovereign-cloud applicability
-
-| Capability | Commercial | GCC | GCC High | DoD | Notes |
-|---|---|---|---|---|---|
-| Copilot Studio test environment | GA | GA | Limited preview — verify | Limited — verify | Re-confirm against M365 Government service description |
-| Azure AI Foundry — Risk and Safety Evaluations | GA | Rolling | Lagging — verify | Lagging — verify | Substitute: PyRIT + custom scoring on Foundry diagnostic logs |
-| Microsoft PyRIT | OSS — runs anywhere | OSS | OSS | OSS | The toolkit is open source; sovereign concern is the *target* surface, not PyRIT itself |
-| Azure AI Content Safety — Prompt Shields | GA | Rolling | Lagging — verify | Lagging — verify | If Prompt Shields is unavailable, document compensating control (pre-prompt classifier in app code) |
-
-!!! warning "Treat any cross-cloud parity claim as time-bound"
-    Re-verify against the [Microsoft 365 Government service description](https://learn.microsoft.com/en-us/office365/servicedescriptions/office-365-platform-service-description/office-365-us-government/office-365-us-government) **before** treating any item above as a primary control in GCC / GCC High / DoD. Document the verification date in the change ticket.
-
-### 0.3 Portal vs script matrix
+### 0.2 Portal vs script matrix
 
 | Step | Portal? | Script? | Notes |
 |---|---|---|---|

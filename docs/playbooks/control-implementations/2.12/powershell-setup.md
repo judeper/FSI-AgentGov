@@ -4,7 +4,7 @@ title: "PowerShell Setup — Control 2.12: Supervision and Oversight (FINRA Rule
 pillar: "2 — Management"
 playbook_type: "powershell-setup"
 powershell_edition: "7.4 LTS Core"
-sovereign_clouds: "Commercial + GCC + GCC High + DoD (sovereign compensating-control path in §12)"
+clouds_supported: "Commercial"
 last_updated: "2026-04-15"
 version: "v1.4"
 ui_verified: "April 2026"
@@ -14,7 +14,7 @@ prerequisites:
   - "ExchangeOnlineManagement 3.5.0+ for unified audit queries"
   - "Microsoft.PowerApps.Administration.PowerShell (pinned) for Power Automate approval history"
   - "Pester 5.5+ for the Rule 3120 testing harness (§9)"
-  - "Az.Accounts 2.15+ and Az.OperationalInsights 3.6+ for Sentinel forwarding verification (§13)"
+  - "Az.Accounts 2.15+ and Az.OperationalInsights 3.6+ for Sentinel forwarding verification (§12)"
   - "Entra Global Reader (baseline); PIM-elevated Compliance Administrator for audit reads; Power Platform Administrator for Power Automate reads"
 scopes_required:
   - "AuditLog.Read.All"
@@ -32,27 +32,17 @@ related_controls: ["1.2", "1.7", "2.6", "2.13", "2.25", "2.26", "3.1", "3.4", "3
 >
 > **Sister playbooks:** [Portal Walkthrough](./portal-walkthrough.md) · [Verification & Testing](./verification-testing.md) · [Troubleshooting](./troubleshooting.md)
 >
-> **Shared baseline (authoritative):** [`_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) — module pinning, sovereign endpoint matrix, mutation safety, evidence emission, SHA-256 manifest format. **Read the baseline before running any command in this file.**
+> **Shared baseline (authoritative):** [`_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) — module pinning, mutation safety, evidence emission, SHA-256 manifest format. **Read the baseline before running any command in this file.**
 
-This playbook automates the operational PowerShell surface for **Control 2.12 — Supervision and Oversight (FINRA Rule 3110)**. It covers review-queue health monitoring, HITL reviewer-decision extraction, Microsoft Agent Framework `request_info()` evidence export, principal-registration (CRD) verification, sampling-protocol execution, the Rule 3120 annual-testing harness (Pester), Rule 2210 communication classification, quarterly sponsor attestation, the sovereign-cloud compensating-control runner, and SIEM forwarding. Every helper in this file uses the cmdlet prefix `Sup212` so that operators can distinguish 2.12 helpers from sister controls (`Agt225`, `Agt226`, `Orph36`) at a glance in transcripts and SIEM rules.
+This playbook automates the operational PowerShell surface for **Control 2.12 — Supervision and Oversight (FINRA Rule 3110)**. It covers review-queue health monitoring, HITL reviewer-decision extraction, Microsoft Agent Framework `request_info()` evidence export, principal-registration (CRD) verification, sampling-protocol execution, the Rule 3120 annual-testing harness (Pester), Rule 2210 communication classification, quarterly sponsor attestation, and SIEM forwarding. Every helper in this file uses the cmdlet prefix `Sup212` so that operators can distinguish 2.12 helpers from sister controls (`Agt225`, `Agt226`, `Orph36`) at a glance in transcripts and SIEM rules.
 
 > **Hedged-language reminder.** Every helper and every evidence bundle in this playbook **supports compliance with** FINRA Rule 3110 (Supervision), FINRA Rule 3120 (Supervisory Control System), FINRA Rule 2210 (Communications with the Public), FINRA Rule 4511 (Books and Records), FINRA Regulatory Notice 24-09 (Gen AI / LLM Guidance), SEC Rules 17a-3 / 17a-4 (Recordkeeping and WORM), SOX §§ 302 / 404 (Internal Controls), and NYDFS 23 NYCRR 500. It does **not** "ensure" or "guarantee" compliance, and it does **not substitute** for the registered principal's supervisory review or for the firm's Written Supervisory Procedures (WSPs). In FINRA Rule 3110 terms, the scripts in this file produce the evidence the principal attests to — the principal's judgment remains the control.
 
 > **Non-substitution anchor.** Controls [2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) and [2.26](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) reference this control as the supervisory anchor. Microsoft Agent 365 admin approvals and Entra Agent ID sponsorship are **lifecycle / identity** controls; they do not discharge the firm's Rule 3110 supervisory obligation. The helpers in this file treat Agent 365 approval history and Entra sponsorship state as **inputs** to principal supervision, never as replacements for it.
 
-!!! warning "Sovereign cloud reality (April 2026)"
-    FINRA Rule 3110 applies identically in commercial, GCC, GCC High, and DoD tenants. Several Microsoft surfaces this playbook reads, however, have **parity gaps** in sovereign clouds:
-
-    - Microsoft Copilot Studio human-agent handoff and approval actions — verify availability in your sovereign tenant before relying on the §4 helpers.
-    - Microsoft Agent Framework HITL (`RequestPort` / `request_info()` / checkpointed pending requests) — the framework is available, but evidence-export integrations referenced in §6 may lag.
-    - Microsoft Entra Agent ID sponsorship and Lifecycle Workflows — no announced sovereign-cloud GA as of April 2026 (see Control 2.26).
-    - Microsoft Agent 365 admin center — no announced sovereign-cloud GA (see Control 2.25).
-
-    Sovereign-tenant operators run the §12 compensating-control runner (`Invoke-Sup212SovereignRegister`) instead of §§4–6, and the §3 connection helper early-exits the commercial-only helpers with a structured `SovereignCloudNotSupported` status object (it does **not** throw, because sovereign operation is a supported mode of this control — it just runs a different path). Compensating-control evidence is routed to WORM-backed storage per [Control 2.13](../../../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) and audited under [Control 3.4](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md). See the shared baseline anchor: [`_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod`](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod).
-
 ## Scope
 
-This playbook operationalizes the verification criteria enumerated in the Control 2.12 document (criteria #1–#9). It is **not** a substitute for reading that control; in particular, the definitions of "high-risk action", "qualified principal", "Zone 3", the communication-type decision tree, and the sampling-rate table live in the control document, not here. This file automates the **evidence production** and **operating-effectiveness testing** around those definitions.
+This playbook operationalizes the verification criteria enumerated in the Control 2.12 document (criteria #1–#8). It is **not** a substitute for reading that control; in particular, the definitions of "high-risk action", "qualified principal", "Zone 3", the communication-type decision tree, and the sampling-rate table live in the control document, not here. This file automates the **evidence production** and **operating-effectiveness testing** around those definitions.
 
 | Verification criterion (Control 2.12) | Primary helper in this file |
 |---|---|
@@ -63,8 +53,7 @@ This playbook operationalizes the verification criteria enumerated in the Contro
 | #5 Reviewer-decision audit trail | `Get-Sup212ReviewerDecisionAudit` (§5) |
 | #6 Rule 3120 annual test | `Invoke-Sup212Rule3120Harness` (§9) |
 | #7 Rule 2210 classification evidence | `Invoke-Sup212Rule2210Classifier` (§10) |
-| #8 Sovereign-cloud compensating control | `Invoke-Sup212SovereignRegister` (§12) |
-| #9 Agent Framework evidence retention | `Export-Sup212AgentFrameworkEvidence` (§6.3) |
+| #8 Agent Framework evidence retention | `Export-Sup212AgentFrameworkEvidence` (§6.3) |
 
 ## Audience
 
@@ -95,22 +84,21 @@ Copilot Studio admin reads, Power Automate approval-history reads, and Agent Fra
 | # | Defect | Symptom | Root cause | Structural guard in this playbook |
 |---|---|---|---|---|
 | 0.1 | Wrong PowerShell host | `Get-MgAuditLog*` returns `@()` | PS 5.1 loaded Graph 1.28 alongside 2.25 | `Assert-Sup212ShellHost` (§3.1) |
-| 0.2 | Sovereign tenant treated as commercial | §4–§6 helpers run, return `Clean`, but no Copilot Studio handoff surface exists | `Connect-MgGraph` defaulted to `-Environment Global` against a `.us` or `.mil` tenant | `Resolve-Sup212CloudProfile` (§3.2); sovereign callers are redirected to §12 |
-| 0.3 | Read-only token used against audit surfaces | `403` swallowed, helper logs `Anomaly` then masks as `Clean` on retry | Operator ran without Compliance Administrator PIM elevation | `Test-Sup212GraphScopes` (§3.4) preflights scope grants |
-| 0.4 | Paged audit response truncated at 100 | Reviewer-decision count undercounts in active quarters | Operator forgot `-All` on `Invoke-MgGraphRequest` | `Invoke-Sup212PagedQuery` (§3.5) paginates and asserts `@odata.count` |
-| 0.5 | Throttled call returned empty body | Helper interprets HTTP 429 with empty JSON as zero decisions | No retry/backoff wrapper | `Invoke-Sup212Throttled` (§3.6) |
-| 0.6 | Purview audit 30-minute ingestion lag | Recent HITL decisions appear missing | Unified audit log has up to a 30-minute (sometimes longer) ingestion delay | `Get-Sup212ReviewerDecisionAudit` (§5) accepts `-LookbackBufferMinutes` (default 45) and refuses to run against a `-End` within the buffer unless `-AcceptIngestionLag` is set |
-| 0.7 | Power Automate approval history filtered by owner | Approvals initiated under a service-principal owner are invisible | Default `Get-AdminFlowApproval` scope is tenant-user-visible only | `Get-Sup212PowerAutomateApprovalHistory` (§4.4) iterates all environments with `-AdminMode` and emits `Anomaly` if any environment returns `403` rather than silently skipping |
-| 0.8 | Reviewer UPN null in audit row | Decision row written before approver context resolved; renders as `(unknown)` | Race in M365 audit ingestion when approval auto-completes | `Get-Sup212ReviewerDecisionAudit` joins `Get-MgAuditLogDirectoryAudit` and emits `Anomaly` (never `Clean`) when UPN is null |
-| 0.9 | Agent Framework request ID unmatched | Evidence export completes with zero rows for active flows | Operator queried the wrong workflow identifier or event stream | `Export-Sup212AgentFrameworkEvidence` (§6.3) cross-references the Agent Framework run manifest and emits `Anomaly` if request count is zero but run activity is non-zero |
-| 0.10 | CRD lookup silently degraded | Principal registration "verified" against an empty cache | Automated CRD/WebCRD access not licensed; helper fell back to a manual file that was never populated | `Test-Sup212PrincipalRegistration` (§7) returns `NotApplicable` with `Reason='CrdAccessNotAvailable'` rather than `Clean`; operators must then run the documented manual-process path and populate the attestation store |
-| 0.11 | Sampling RNG seeded with clock-second | Two parallel runs produce identical samples | `Get-Random` seeded with `[int](Get-Date).Second` | `Get-Sup212SamplePopulation` (§8) uses `[System.Security.Cryptography.RandomNumberGenerator]` and records the seed in the evidence manifest |
-| 0.12 | Pester harness marked green on `Skipped` | Rule 3120 report shows all tests "passing" though half ran `-Skip` | Operator used `-SkipRemainingOnFailure` or environment gating without auditing skip count | `Invoke-Sup212Rule3120Harness` (§9) refuses to emit `Clean` if `Skipped > 0`; skip count is surfaced in the test report header |
-| 0.13 | Access review auto-approved on reviewer non-response | Quarterly sponsor attestation shows 100% completion with zero real decisions | Default Entra access-review setting: "If reviewers don't respond: Approve" | `Get-Sup212SponsorAttestation` (§11) surfaces `defaultDecision` and `defaultDecisionEnabled` and flags auto-approval as `Anomaly` |
-| 0.14 | SIEM forwarding silent drop | Supervision events absent from Sentinel | Data Collection Rule filters out the relevant `Operation` values | `Test-Sup212SiemForwarding` (§13) emits a canary event with a known correlation ID and verifies it appears in the target workspace; no appearance → `Anomaly`, not `Clean` |
-| 0.15 | Empty result conflated with "no findings" | Helper returns `$null` or `@()`; downstream evidence pack says "Clean" | Helpers must distinguish `Clean` from `NotApplicable` from `Error` | **Every** helper returns `[pscustomobject]` with explicit `Status` ∈ {`Clean`, `Anomaly`, `Pending`, `NotApplicable`, `Error`} and non-empty `Reason` whenever `Status -ne 'Clean'` |
+| 0.2 | Read-only token used against audit surfaces | `403` swallowed, helper logs `Anomaly` then masks as `Clean` on retry | Operator ran without Compliance Administrator PIM elevation | `Test-Sup212GraphScopes` (§3.4) preflights scope grants |
+| 0.3 | Paged audit response truncated at 100 | Reviewer-decision count undercounts in active quarters | Operator forgot `-All` on `Invoke-MgGraphRequest` | `Invoke-Sup212PagedQuery` (§3.5) paginates and asserts `@odata.count` |
+| 0.4 | Throttled call returned empty body | Helper interprets HTTP 429 with empty JSON as zero decisions | No retry/backoff wrapper | `Invoke-Sup212Throttled` (§3.6) |
+| 0.5 | Purview audit 30-minute ingestion lag | Recent HITL decisions appear missing | Unified audit log has up to a 30-minute (sometimes longer) ingestion delay | `Get-Sup212ReviewerDecisionAudit` (§5) accepts `-LookbackBufferMinutes` (default 45) and refuses to run against a `-End` within the buffer unless `-AcceptIngestionLag` is set |
+| 0.6 | Power Automate approval history filtered by owner | Approvals initiated under a service-principal owner are invisible | Default `Get-AdminFlowApproval` scope is tenant-user-visible only | `Get-Sup212PowerAutomateApprovalHistory` (§4.4) iterates all environments with `-AdminMode` and emits `Anomaly` if any environment returns `403` rather than silently skipping |
+| 0.7 | Reviewer UPN null in audit row | Decision row written before approver context resolved; renders as `(unknown)` | Race in M365 audit ingestion when approval auto-completes | `Get-Sup212ReviewerDecisionAudit` joins `Get-MgAuditLogDirectoryAudit` and emits `Anomaly` (never `Clean`) when UPN is null |
+| 0.8 | Agent Framework request ID unmatched | Evidence export completes with zero rows for active flows | Operator queried the wrong workflow identifier or event stream | `Export-Sup212AgentFrameworkEvidence` (§6.3) cross-references the Agent Framework run manifest and emits `Anomaly` if request count is zero but run activity is non-zero |
+| 0.9 | CRD lookup silently degraded | Principal registration "verified" against an empty cache | Automated CRD/WebCRD access not licensed; helper fell back to a manual file that was never populated | `Test-Sup212PrincipalRegistration` (§7) returns `NotApplicable` with `Reason='CrdAccessNotAvailable'` rather than `Clean`; operators must then run the documented manual-process path and populate the attestation store |
+| 0.10 | Sampling RNG seeded with clock-second | Two parallel runs produce identical samples | `Get-Random` seeded with `[int](Get-Date).Second` | `Get-Sup212SamplePopulation` (§8) uses `[System.Security.Cryptography.RandomNumberGenerator]` and records the seed in the evidence manifest |
+| 0.11 | Pester harness marked green on `Skipped` | Rule 3120 report shows all tests "passing" though half ran `-Skip` | Operator used `-SkipRemainingOnFailure` or environment gating without auditing skip count | `Invoke-Sup212Rule3120Harness` (§9) refuses to emit `Clean` if `Skipped > 0`; skip count is surfaced in the test report header |
+| 0.12 | Access review auto-approved on reviewer non-response | Quarterly sponsor attestation shows 100% completion with zero real decisions | Default Entra access-review setting: "If reviewers don't respond: Approve" | `Get-Sup212SponsorAttestation` (§11) surfaces `defaultDecision` and `defaultDecisionEnabled` and flags auto-approval as `Anomaly` |
+| 0.13 | SIEM forwarding silent drop | Supervision events absent from Sentinel | Data Collection Rule filters out the relevant `Operation` values | `Test-Sup212SiemForwarding` (§12) emits a canary event with a known correlation ID and verifies it appears in the target workspace; no appearance → `Anomaly`, not `Clean` |
+| 0.14 | Empty result conflated with "no findings" | Helper returns `$null` or `@()`; downstream evidence pack says "Clean" | Helpers must distinguish `Clean` from `NotApplicable` from `Error` | **Every** helper returns `[pscustomobject]` with explicit `Status` ∈ {`Clean`, `Anomaly`, `Pending`, `NotApplicable`, `Error`} and non-empty `Reason` whenever `Status -ne 'Clean'` |
 
-> **Operator discipline.** Every helper in §§3–13 returns a structured object with a `Status` field. **No helper ever returns `$null` or `@()` as a clean signal.** When there is genuinely no data to report (e.g., no HITL decisions in a quarter because the tenant has no Zone 3 agents), the helper returns a single object with `Status='NotApplicable'` and a populated `Reason` — and the §14 evidence packer requires an explicit affirmative affirmation in the evidence manifest that `NotApplicable` reflects reality, not an instrumentation gap.
+> **Operator discipline.** Every helper in §§3–12 returns a structured object with a `Status` field. **No helper ever returns `$null` or `@()` as a clean signal.** When there is genuinely no data to report (e.g., no HITL decisions in a quarter because the tenant has no Zone 3 agents), the helper returns a single object with `Status='NotApplicable'` and a populated `Reason` — and the §14 evidence packer requires an explicit affirmative affirmation in the evidence manifest that `NotApplicable` reflects reality, not an instrumentation gap.
 
 ---
 
@@ -152,7 +140,6 @@ foreach ($name in $pinned.Keys) {
 Import-Module Microsoft.Graph.Authentication -RequiredVersion 2.25.0 -Force
 ```
 
-If your tenant lacks one of the above modules (for example, sovereign tenants rarely install `Microsoft.PowerApps.Administration.PowerShell` because Power Platform admin surfaces differ), `Assert-Sup212ShellHost` surfaces the gap structurally rather than masking it — do not comment the module out of the pinned list without updating the skip rules in §9.
 
 ### 1.2 Graph scope matrix
 
@@ -171,9 +158,9 @@ If your tenant lacks one of the above modules (for example, sovereign tenants ra
 
 | API surface | Required for | Role / license |
 |---|---|---|
-| `Microsoft.PowerApps.Administration.PowerShell` — `Add-PowerAppsAccount -Endpoint prod` (or `-Endpoint usgov`, `usgovhigh`, `dod`) | Power Automate approval history (§4.4) | Power Platform Administrator (PIM-elevated) |
+| `Microsoft.PowerApps.Administration.PowerShell` — `Add-PowerAppsAccount -Endpoint prod` | Power Automate approval history (§4.4) | Power Platform Administrator (PIM-elevated) |
 | `ExchangeOnlineManagement` — `Connect-ExchangeOnline` then `Search-UnifiedAuditLog` | Copilot Studio transcript metadata and cross-check (§4.2) | Compliance Administrator (PIM-elevated); `AuditLog` role on the EXO principal |
-| `Az.OperationalInsights` — `Invoke-AzOperationalInsightsQuery` | Sentinel forwarding verification (§13) | Reader on the Log Analytics workspace |
+| `Az.OperationalInsights` — `Invoke-AzOperationalInsightsQuery` | Sentinel forwarding verification (§12) | Reader on the Log Analytics workspace |
 | Agent Framework evidence endpoint (HTTPS) | `request_info()` event stream export (§6) | App registration with certificate-based auth; the endpoint URL is firm-specific and must be configured in §3.7 |
 
 ### 1.4 RBAC matrix
@@ -185,7 +172,6 @@ If your tenant lacks one of the above modules (for example, sovereign tenants ra
 | Read unified audit log (Purview) | Compliance Administrator | **Yes** | Required for §5 and §6 |
 | Read Entra directory / app registrations | Entra Global Reader | No | Sufficient for §4 config reads |
 | Run Rule 3120 Pester harness | AI Governance Lead (no admin role needed for pure test logic) | No | The harness consumes evidence files; it does not call admin APIs |
-| Execute sovereign compensating register | Designated Principal (signer) + AI Administrator (executor) | No — manual ceremony | Dual-signature required |
 | Forward evidence to Sentinel | Reader on workspace + Monitoring Metrics Publisher on DCE | No | Out-of-scope for Entra RBAC |
 
 Canonical role names: **Compliance Officer**, **Designated Principal / Qualified Supervisor**, **AI Governance Lead**, **AI Administrator**, **Agent Owner**. See [`docs/reference/role-catalog.md`](../../../reference/role-catalog.md).
@@ -217,7 +203,7 @@ function Get-Sup212PimJustification {
 }
 ```
 
-Every evidence bundle in this playbook references the `PimJustification` object that was live at the moment of capture. Omitting the justification object fails the §14 evidence-pack integrity check.
+Every evidence bundle in this playbook references the `PimJustification` object that was live at the moment of capture. Omitting the justification object fails the §13 evidence-pack integrity check.
 
 ---
 
@@ -274,14 +260,13 @@ function Test-Sup212PreviewGating {
 
 ---
 
-## §3 — Connection Helper (Commercial + Sovereign)
+## §3 — Connection Helper (Commercial)
 
-The bootstrap helpers establish the session, decide which Microsoft Graph / Exchange / Power Platform environment to target, validate scopes, capture the PIM justification, and emit a structured `Sup212Session` object that every subsequent helper consumes. Four rules are non-negotiable:
+The bootstrap helpers establish the session, validate scopes, capture the PIM justification, and emit a structured `Sup212Session` object that every subsequent helper consumes. Four rules are non-negotiable:
 
 1. **Every session is initialized with `Disconnect-*` first** so cached cross-tenant tokens cannot leak into evidence.
-2. **Sovereign tenants are detected and routed** — the commercial helpers emit `Status='NotApplicable'` and return a redirect object pointing at §12; they do **not** throw, because sovereign operation is a supported mode of this control.
-3. **Throttling is wrapped at the bootstrap layer** so §4–§13 callers never need to write their own retry loops.
-4. **Every session carries a `RunId`** (a GUID generated at `Initialize-Sup212Session`) that is emitted into every evidence file, every audit correlation, and every SIEM record. The `RunId` is the unit of evidence integrity.
+2. **Throttling is wrapped at the bootstrap layer** so §4–§12 callers never need to write their own retry loops.
+3. **Every session carries a `RunId`** (a GUID generated at `Initialize-Sup212Session`) that is emitted into every evidence file, every audit correlation, and every SIEM record. The `RunId` is the unit of evidence integrity.
 
 ### 3.1 Assert-Sup212ShellHost
 
@@ -361,48 +346,22 @@ function Assert-Sup212ShellHost {
 
 ### 3.2 Resolve-Sup212CloudProfile
 
-This helper resolves to one of the canonical Graph / EXO / Power Platform environments. **Sovereign tenants are flagged, not rejected** — the helper returns a `Sovereign=$true` profile with `RedirectTo='Sup212Sovereign'` so that the orchestrator in §3.3 takes the §12 compensating-control path. Throwing would tempt sovereign operators to catch-and-ignore; redirecting preserves the operating rhythm while changing the evidence pipeline. See the [sovereign-cloud anchor in the baseline](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod).
+This helper returns the commercial Microsoft 365 Global profile used by this framework. The function name is retained so existing orchestration scripts do not break, but endpoint selection is intentionally fixed to commercial cloud.
 
 ```powershell
 function Resolve-Sup212CloudProfile {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)] [string] $TenantId,
-        [ValidateSet('Auto','Global','USGov','USGovHigh','USGovDoD','China','Germany')]
-        [string] $Override = 'Auto',
         [string] $TenantDomainHint
     )
 
-    $envName = if ($Override -ne 'Auto') {
-        $Override
-    } else {
-        switch -Regex ($TenantDomainHint) {
-            '\.mil$'                      { 'USGovDoD'; break }
-            '\.us$'                       { 'USGovHigh'; break }
-            'onmicrosoft\.us$'            { 'USGov'; break }
-            'onmschina'                   { 'China'; break }
-            'onmicrosoft\.de$'            { 'Germany'; break }
-            default                       { 'Global' }
-        }
-    }
-
-    $profile = switch ($envName) {
-        'Global'    { @{ GraphEnv='Global';    ExoEnv='O365Default';      PowerAppsEndpoint='prod';     Sovereign=$false } }
-        'USGov'     { @{ GraphEnv='USGov';     ExoEnv='O365USGovGCC';     PowerAppsEndpoint='usgov';    Sovereign=$true  } }
-        'USGovHigh' { @{ GraphEnv='USGov';     ExoEnv='O365USGovHigh';    PowerAppsEndpoint='usgovhigh';Sovereign=$true  } }
-        'USGovDoD'  { @{ GraphEnv='USGovDoD';  ExoEnv='O365USGovDoD';     PowerAppsEndpoint='dod';      Sovereign=$true  } }
-        'China'     { @{ GraphEnv='China';     ExoEnv='O365China';        PowerAppsEndpoint='china';    Sovereign=$true  } }
-        'Germany'   { @{ GraphEnv='Germany';   ExoEnv='O365GermanyCloud'; PowerAppsEndpoint='germany';  Sovereign=$true  } }
-    }
-
     [pscustomobject]@{
         TenantId          = $TenantId
-        EnvName           = $envName
-        GraphEnv          = $profile.GraphEnv
-        ExoEnv            = $profile.ExoEnv
-        PowerAppsEndpoint = $profile.PowerAppsEndpoint
-        Sovereign         = $profile.Sovereign
-        RedirectTo        = if ($profile.Sovereign) { 'Sup212Sovereign' } else { $null }
+        EnvName           = 'Global'
+        GraphEnv          = 'Global'
+        ExoEnv            = 'O365Default'
+        PowerAppsEndpoint = 'prod'
         ResolvedAt        = (Get-Date).ToUniversalTime().ToString('o')
     }
 }
@@ -427,9 +386,7 @@ function Initialize-Sup212Session {
             'AgentIdentity.Read.All'
         ),
         [switch] $ConnectExchange,
-        [switch] $ConnectPowerPlatform,
-        [ValidateSet('Auto','Global','USGov','USGovHigh','USGovDoD','China','Germany')]
-        [string] $CloudOverride = 'Auto'
+        [switch] $ConnectPowerPlatform
     )
 
     $null = Assert-Sup212ShellHost `
@@ -439,11 +396,6 @@ function Initialize-Sup212Session {
     $cloud = Resolve-Sup212CloudProfile `
         -TenantId $TenantId `
         -TenantDomainHint $TenantDomainHint `
-        -Override $CloudOverride
-
-    if ($cloud.Sovereign) {
-        Write-Warning "Sup212: sovereign tenant detected ($($cloud.EnvName)). Commercial-only helpers will return Status='NotApplicable' with RedirectTo='Sup212Sovereign'. Run Invoke-Sup212SovereignRegister from §12 for the compensating-control path."
-    }
 
     Disconnect-MgGraph -ErrorAction SilentlyContinue | Out-Null
     Connect-MgGraph -TenantId $TenantId -Scopes $RequestedScopes `
@@ -478,7 +430,7 @@ function Initialize-Sup212Session {
         PowerPlatformConnected   = [bool]$ConnectPowerPlatform
         InitializedAt            = (Get-Date).ToUniversalTime().ToString('o')
         Status                   = 'Clean'
-        Reason                   = if ($cloud.Sovereign) { 'SovereignRedirectActive' } else { '' }
+        Reason                   = ''
     }
 }
 ```
@@ -591,7 +543,7 @@ function Invoke-Sup212Throttled {
 
 ### 3.7 Configuration file for endpoint-dependent helpers
 
-The Agent Framework event stream, Sentinel data-collection endpoint, and supervision-register list URL are firm-specific. Capture them once in `sup212.config.json` next to the playbook; the §6, §11, and §13 helpers require the file. Missing fields are surfaced as `NotApplicable`, not `Clean`.
+The Agent Framework event stream, Sentinel data-collection endpoint, and supervision-register list URL are firm-specific. Capture them once in `sup212.config.json` next to the playbook; the §6, §11, and §12 helpers require the file. Missing fields are surfaced as `NotApplicable`, not `Clean`.
 
 ```json
 {
@@ -639,7 +591,6 @@ function New-Sup212EvidenceManifest {
         run_timestamp      = (Get-Date).ToUniversalTime().ToString('o')
         tenant_id          = $Session.TenantId
         cloud              = $Session.Cloud.EnvName
-        sovereign          = $Session.Cloud.Sovereign
         namespace          = 'fsi-agentgov.supervision.rule3110'
         criterion          = $Criterion
         status             = $Status
@@ -677,14 +628,6 @@ function Get-Sup212Zone3AgentInventory {
         [Parameter(Mandatory)] [object] $Session,
         [Parameter(Mandatory)] [string] $RegistryCsvPath
     )
-
-    if ($Session.Cloud.Sovereign) {
-        return [pscustomobject]@{
-            Status     = 'NotApplicable'
-            Reason     = 'SovereignRedirectActive — run Invoke-Sup212SovereignRegister (§12) for sovereign evidence.'
-            RedirectTo = 'Sup212Sovereign'
-        }
-    }
 
     if (-not (Test-Path $RegistryCsvPath)) {
         return [pscustomobject]@{
@@ -724,12 +667,6 @@ function Get-Sup212CopilotStudioHandoffConfig {
         [Parameter(Mandatory)] [object[]] $Agents,
         [string] $TestTranscriptRoot = './evidence/2.12/handoff-transcripts'
     )
-
-    if ($Session.Cloud.Sovereign) {
-        return [pscustomobject]@{
-            Status='NotApplicable'; Reason='SovereignRedirectActive'; RedirectTo='Sup212Sovereign'
-        }
-    }
 
     $results = foreach ($agent in $Agents) {
         try {
@@ -808,12 +745,6 @@ function Measure-Sup212ReviewQueueSla {
         [string] $OutputPath = "./evidence/2.12/queue-sla-$($Session.RunId).json"
     )
 
-    if ($Session.Cloud.Sovereign) {
-        return [pscustomobject]@{
-            Status='NotApplicable'; Reason='SovereignRedirectActive'; RedirectTo='Sup212Sovereign'
-        }
-    }
-
     $decisions = Get-Sup212PowerAutomateApprovalHistory -Session $Session -Start $Start -End $End
 
     if ($decisions.Status -ne 'Clean' -and $decisions.Status -ne 'NotApplicable') {
@@ -856,7 +787,7 @@ function Measure-Sup212ReviewQueueSla {
         $lats = $_.Group.LatencyMin | Sort-Object
         $n = $lats.Count
         $median = if ($n -gt 0) { $lats[[int][math]::Floor($n/2)] } else { $null }
-        $p95idx = if ($n -gt 0) { [int][math]::Ceiling(0.95 * $n) - 1 } else { 0 }
+        $p95idx = if ($n -gt 0) { [int][math]::Ceiling(0.94 * $n) - 1 } else { 0 }
         $p95 = if ($n -gt 0) { $lats[[math]::Max(0, $p95idx)] } else { $null }
         $breachCount = ($_.Group | Where-Object Breached).Count
         [pscustomobject]@{
@@ -892,7 +823,7 @@ function Measure-Sup212ReviewQueueSla {
 
 ### 4.4 Get-Sup212PowerAutomateApprovalHistory
 
-Power Automate approval history is the authoritative record for review decisions raised through approval actions. Tenant-wide reads require `-AdminMode` on `Get-AdminFlowApproval`; without it, approvals initiated under service-principal owners are invisible (defect #0.7).
+Power Automate approval history is the authoritative record for review decisions raised through approval actions. Tenant-wide reads require `-AdminMode` on `Get-AdminFlowApproval`; without it, approvals initiated under service-principal owners are invisible (defect #0.6).
 
 ```powershell
 function Get-Sup212PowerAutomateApprovalHistory {
@@ -902,12 +833,6 @@ function Get-Sup212PowerAutomateApprovalHistory {
         [Parameter(Mandatory)] [datetime] $Start,
         [Parameter(Mandatory)] [datetime] $End
     )
-
-    if ($Session.Cloud.Sovereign) {
-        return [pscustomobject]@{
-            Status='NotApplicable'; Reason='SovereignRedirectActive'; RedirectTo='Sup212Sovereign'; Rows=@()
-        }
-    }
     if (-not $Session.PowerPlatformConnected) {
         return [pscustomobject]@{
             Status='Error'; Reason='Sup212-NoPowerPlatform: Initialize-Sup212Session with -ConnectPowerPlatform.'; Rows=@()
@@ -1215,7 +1140,7 @@ function Export-Sup212QuarterlyDecisionSample {
 
 ---
 
-## §6 — Agent Framework Evidence Export (Verification Criterion #9)
+## §6 — Agent Framework Evidence Export (Verification Criterion #8)
 
 Microsoft Agent Framework's human-in-the-loop pattern uses `RequestPort` / `request_info()` to pause an executor, preserve state in a checkpoint, emit a request to an external supervisor, and resume the workflow with the reviewer's response payload. For FINRA Rule 3110 purposes, the evidence unit is the tuple **(request ID, checkpoint state at pause, reviewer response payload, final executor output)**, retained for six years per [Control 2.13](../../../controls/pillar-2-management/2.13-documentation-and-record-keeping.md).
 
@@ -1223,7 +1148,7 @@ This section produces an **idempotent** export of that tuple. Idempotency is req
 
 ### 6.1 Get-Sup212AgentFrameworkConfig
 
-Reads the endpoint configuration from `sup212.config.json` and validates it. Missing / placeholder fields return `NotApplicable` — not `Clean` — so the orchestrator in §14 refuses to mark criterion #9 as satisfied when the Agent Framework path is unwired.
+Reads the endpoint configuration from `sup212.config.json` and validates it. Missing / placeholder fields return `NotApplicable` — not `Clean` — so the orchestrator in §13 refuses to mark criterion #8 as satisfied when the Agent Framework path is unwired.
 
 ```powershell
 function Get-Sup212AgentFrameworkConfig {
@@ -1332,7 +1257,7 @@ function Export-Sup212AgentFrameworkEvidence {
             -CertificateThumbprint $cfg.agentFrameworkCertThumbprint
     }
 
-    # Cross-check: if run activity is non-zero but request count is zero, flag as Anomaly (defect #0.9)
+    # Cross-check: if run activity is non-zero but request count is zero, flag as Anomaly (defect #0.8)
     $runActivity = Invoke-Sup212Throttled {
         Invoke-RestMethod -Method GET `
             -Uri ("$($cfg.agentFrameworkEvidenceEndpoint.TrimEnd('/'))/runs/count?start=$($Start.ToString('o'))&end=$($End.ToString('o'))") `
@@ -1405,7 +1330,7 @@ function Export-Sup212AgentFrameworkEvidence {
         -Status $status -Reason $reason `
         -Artifacts @($tamperPath, $PriorExportIndex) `
         -Extras @{
-            criterion_number   = '#9'
+            criterion_number   = '#8'
             requests_in_window = $requests.Count
             runs_in_window     = $runActivity.count
             new_records        = $newCount
@@ -1667,7 +1592,7 @@ function Test-Sup212SamplingDisposition {
 
 ## §9 — Rule 3120 Annual-Testing Harness (Verification Criterion #6)
 
-FINRA Rule 3120 requires annual testing of the firm's supervisory controls with documented **design effectiveness**, **operating effectiveness**, **exceptions**, and **remediation**. This section packages the tests as Pester 5 suites organized into named namespaces. Each namespace tests one area of the control; the harness refuses to mark results `Clean` when any test was `Skipped` (defect #0.12).
+FINRA Rule 3120 requires annual testing of the firm's supervisory controls with documented **design effectiveness**, **operating effectiveness**, **exceptions**, and **remediation**. This section packages the tests as Pester 5 suites organized into named namespaces. Each namespace tests one area of the control; the harness refuses to mark results `Clean` when any test was `Skipped` (defect #0.11).
 
 ### 9.1 Namespace map
 
@@ -1682,8 +1607,7 @@ FINRA Rule 3120 requires annual testing of the firm's supervisory controls with 
 | `R3120`     | Self-test: does the harness itself run? | 1–2 |
 | `R2210`     | Communication-classification coverage (criterion #7) | 4–6 |
 | `SPONSOR`   | Sponsor attestation quarterly-review freshness (criterion #8 support) | 2–4 |
-| `AGF`       | Agent Framework evidence integrity (criterion #9) | 3–5 |
-| `SOV`       | Sovereign-cloud compensating-control operation (criterion #8) | 2–4 |
+| `AGF`       | Agent Framework evidence integrity (criterion #8) | 3–5 |
 | `SIEM`      | SIEM forwarding canary (criterion support for 1.7/3.4 linkage) | 2–3 |
 
 ### 9.2 Invoke-Sup212Rule3120Harness
@@ -1695,7 +1619,7 @@ function Invoke-Sup212Rule3120Harness {
         [Parameter(Mandatory)] [object] $Session,
         [string] $TestRoot  = './tests/2.12',
         [string] $BundleRoot = "./evidence/2.12/rule-3120-$($Session.RunId)",
-        [string[]] $Namespace = @('WSP','HITL','QUEUE','REVIEWER','PRINCIPAL','SAMPLING','R3120','R2210','SPONSOR','AGF','SOV','SIEM')
+        [string[]] $Namespace = @('WSP','HITL','QUEUE','REVIEWER','PRINCIPAL','SAMPLING','R3120','R2210','SPONSOR','AGF','SIEM')
     )
     $null = Assert-Sup212ShellHost -RequirePester
 
@@ -1790,7 +1714,7 @@ Describe 'HITL trigger firing' -Tag 'HITL' {
 }
 ```
 
-`R2210.Tests.ps1` and the remaining namespaces follow the same shape — each asserts the presence and integrity of an evidence artifact produced by the `§3`–`§13` helpers, never the absence of an error.
+`R2210.Tests.ps1` and the remaining namespaces follow the same shape — each asserts the presence and integrity of an evidence artifact produced by the `§3`–`§12` helpers, never the absence of an error.
 
 ---
 
@@ -1895,7 +1819,7 @@ function Export-Sup212Rule2210Bundle {
 
 ## §11 — Sponsor Attestation Runner
 
-The sponsorship model documented in Control 2.26 (Entra Agent ID — Identity Governance for Agents) is operationalized through quarterly Entra access reviews targeting Zone 3 agents. This section pulls the review status, flags auto-approval (defect #0.13), and emits a signed quarterly attestation evidence bundle.
+The sponsorship model documented in Control 2.26 (Entra Agent ID — Identity Governance for Agents) is operationalized through quarterly Entra access reviews targeting Zone 3 agents. This section pulls the review status, flags auto-approval (defect #0.12), and emits a signed quarterly attestation evidence bundle.
 
 ### 11.1 Get-Sup212SponsorAttestation
 
@@ -1906,11 +1830,6 @@ function Get-Sup212SponsorAttestation {
         [Parameter(Mandatory)] [object] $Session,
         [Parameter(Mandatory)] [string] $AccessReviewScheduleId
     )
-    if ($Session.Cloud.Sovereign) {
-        return [pscustomobject]@{
-            Status='NotApplicable'; Reason='SovereignRedirectActive — Entra Agent ID sponsorship not GA in sovereign clouds.'; RedirectTo='Sup212Sovereign'
-        }
-    }
 
     $schedule = Invoke-Sup212Throttled {
         Invoke-MgGraphRequest -Method GET `
@@ -1976,144 +1895,11 @@ function Export-Sup212SponsorAttestationBundle {
 
 ---
 
-## §12 — Sovereign-Cloud Compensating-Control Runner (Verification Criterion #8)
+## §12 — SIEM Forwarding to Microsoft Sentinel
 
-Sovereign tenants (GCC / GCC High / DoD / China / Germany) cannot consume several of the Microsoft surfaces this control depends on (Copilot Studio handoff, Agent 365 admin, Entra Agent ID sponsorship) at April 2026. The compensating control is a **quarterly principal-led manual supervisory review** against the Control 1.2 / 3.1 agent registry, covering all Zone 3 agents, evidenced by a **dual-signature attestation record**. The runner below populates the manual review register, emits the attestation template for wet-or-digital signing, and — only once both signatures are present — emits the final signed bundle.
+Supervision events — HITL decisions, escalations, SLA breaches, Rule 3120 test results — must be forwarded to the firm's SIEM for correlation with the broader controls in [Pillar 1 — Audit Logging](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) and incident operations in [Control 3.4](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md). This section ships events to Sentinel via the Logs Ingestion API with an integrity hash per batch, and verifies end-to-end plumbing with a canary.
 
-Baseline anchor: [`_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod`](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod).
-
-### 12.1 Invoke-Sup212SovereignRegister
-
-```powershell
-function Invoke-Sup212SovereignRegister {
-    [CmdletBinding(SupportsShouldProcess=$true)]
-    param(
-        [Parameter(Mandatory)] [object]   $Session,
-        [Parameter(Mandatory)] [string]   $RegistryCsvPath,     # Control 3.1 export
-        [Parameter(Mandatory)] [string]   $PrincipalUpn,
-        [Parameter(Mandatory)] [string]   $PrincipalCrdNumber,
-        [Parameter(Mandatory)] [string]   $GovernanceLeadUpn,
-        [string] $BundleRoot = "./evidence/2.12/sovereign-compensating-$($Session.RunId)"
-    )
-    if (-not $Session.Cloud.Sovereign) {
-        return [pscustomobject]@{
-            Status='NotApplicable'; Reason='Not a sovereign tenant — run the commercial helpers in §4–§6.'
-        }
-    }
-    if (-not $PSCmdlet.ShouldProcess($BundleRoot, 'Emit sovereign compensating-control register')) { return }
-    New-Item -ItemType Directory -Path $BundleRoot -Force | Out-Null
-
-    $zone3 = Import-Csv $RegistryCsvPath | Where-Object { $_.Zone -eq '3' -and $_.Status -eq 'Active' }
-    if (-not $zone3 -or $zone3.Count -eq 0) {
-        return [pscustomobject]@{
-            Status='NotApplicable'
-            Reason='No active Zone 3 agents in registry. Confirm with Agent Owner before signing the sovereign attestation.'
-        }
-    }
-
-    $register = foreach ($a in $zone3) {
-        [pscustomobject]@{
-            RunId             = $Session.RunId
-            TenantCloud       = $Session.Cloud.EnvName
-            AgentId           = $a.AgentId
-            AgentName         = $a.AgentName
-            OwnerUpn          = $a.OwnerUpn
-            Zone              = $a.Zone
-            SampledAtUtc      = (Get-Date).ToUniversalTime().ToString('o')
-            ReviewedAtUtc     = ''
-            PrincipalUpn      = $PrincipalUpn
-            PrincipalCrd      = $PrincipalCrdNumber
-            PrincipalSignature= ''
-            GovernanceLeadUpn = $GovernanceLeadUpn
-            GovernanceLeadSignature = ''
-            Disposition       = 'PendingReview'
-            Rationale         = ''
-        }
-    }
-    $regPath = Join-Path $BundleRoot 'manual-review-register.csv'
-    $register | Export-Csv -Path $regPath -NoTypeInformation -Encoding utf8
-
-    $template = [ordered]@{
-        control_id             = '2.12'
-        tenant_cloud           = $Session.Cloud.EnvName
-        run_id                 = $Session.RunId
-        quarter                = "Q$([int](([datetime]::UtcNow.Month - 1) / 3 + 1))-$((Get-Date).Year)"
-        review_period_start    = (Get-Date).AddMonths(-3).ToString('o')
-        review_period_end      = (Get-Date).ToString('o')
-        zone3_agents_in_scope  = $zone3.Count
-        principal_upn          = $PrincipalUpn
-        principal_crd          = $PrincipalCrdNumber
-        governance_lead_upn    = $GovernanceLeadUpn
-        principal_signed_at    = ''
-        principal_signature    = ''
-        governance_signed_at   = ''
-        governance_signature   = ''
-        dual_signature_complete= $false
-        instructions           = 'Populate manual-review-register.csv with per-agent disposition and rationale, then obtain principal and governance-lead signatures before running Complete-Sup212SovereignAttestation.'
-    }
-    $templatePath = Join-Path $BundleRoot 'attestation-template.json'
-    $template | ConvertTo-Json -Depth 4 | Out-File -FilePath $templatePath -Encoding utf8
-
-    $manifest = New-Sup212EvidenceManifest `
-        -Session $Session -Criterion 'sovereign-compensating' `
-        -Status 'Pending' -Reason 'AwaitingManualReviewAndDualSignature' `
-        -Artifacts @($regPath, $templatePath) `
-        -Extras @{ criterion_number='#8'; agents_in_scope=$zone3.Count; tenant_cloud=$Session.Cloud.EnvName }
-    $manifest | ConvertTo-Json -Depth 6 | Out-File -FilePath (Join-Path $BundleRoot 'manifest.json') -Encoding utf8
-    $manifest
-}
-```
-
-### 12.2 Complete-Sup212SovereignAttestation
-
-```powershell
-function Complete-Sup212SovereignAttestation {
-    [CmdletBinding(SupportsShouldProcess=$true)]
-    param(
-        [Parameter(Mandatory)] [object] $Session,
-        [Parameter(Mandatory)] [string] $BundleRoot,
-        [Parameter(Mandatory)] [string] $PrincipalSignatureB64,
-        [Parameter(Mandatory)] [string] $GovernanceLeadSignatureB64
-    )
-    $templatePath = Join-Path $BundleRoot 'attestation-template.json'
-    $regPath      = Join-Path $BundleRoot 'manual-review-register.csv'
-    if (-not (Test-Path $templatePath) -or -not (Test-Path $regPath)) {
-        return [pscustomobject]@{ Status='Error'; Reason='BundleIncomplete' }
-    }
-    $t = Get-Content $templatePath -Raw | ConvertFrom-Json
-    $reg = Import-Csv $regPath
-    $pending = ($reg | Where-Object Disposition -eq 'PendingReview').Count
-    if ($pending -gt 0) {
-        return [pscustomobject]@{
-            Status='Anomaly'; Reason="$pending register row(s) still PendingReview. Populate disposition before signing."
-        }
-    }
-    if (-not $PSCmdlet.ShouldProcess($BundleRoot, 'Sign sovereign attestation')) { return }
-
-    $t.principal_signed_at     = (Get-Date).ToUniversalTime().ToString('o')
-    $t.principal_signature     = $PrincipalSignatureB64
-    $t.governance_signed_at    = (Get-Date).ToUniversalTime().ToString('o')
-    $t.governance_signature    = $GovernanceLeadSignatureB64
-    $t.dual_signature_complete = $true
-    $t | ConvertTo-Json -Depth 4 | Out-File -FilePath $templatePath -Encoding utf8
-
-    $manifest = New-Sup212EvidenceManifest `
-        -Session $Session -Criterion 'sovereign-compensating' `
-        -Status 'Clean' -Reason '' `
-        -Artifacts @($templatePath, $regPath) `
-        -Extras @{ criterion_number='#8'; dual_signature_complete=$true }
-    $manifest | ConvertTo-Json -Depth 6 | Out-File -FilePath (Join-Path $BundleRoot 'manifest.json') -Encoding utf8
-    $manifest
-}
-```
-
----
-
-## §13 — SIEM Forwarding to Microsoft Sentinel
-
-Supervision events — HITL decisions, escalations, SLA breaches, Rule 3120 test results, sovereign attestations — must be forwarded to the firm's SIEM for correlation with the broader controls in [Pillar 1 — Audit Logging](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) and incident operations in [Control 3.4](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md). This section ships events to Sentinel via the Logs Ingestion API with an integrity hash per batch, and verifies end-to-end plumbing with a canary.
-
-### 13.1 Send-Sup212SentinelEvents
+### 12.1 Send-Sup212SentinelEvents
 
 ```powershell
 function Send-Sup212SentinelEvents {
@@ -2176,7 +1962,7 @@ function Send-Sup212SentinelEvents {
 }
 ```
 
-### 13.2 Test-Sup212SiemForwarding
+### 12.2 Test-Sup212SiemForwarding
 
 End-to-end canary: emits a known-shape event and queries the target workspace for its appearance. Failure → `Anomaly`, not `Clean`.
 
@@ -2215,9 +2001,9 @@ function Test-Sup212SiemForwarding {
 
 ---
 
-## §14 — Scheduling (Power Automate + Scheduled Tasks)
+## §13 — Scheduling (Power Automate + Scheduled Tasks)
 
-None of the §4–§13 helpers are intended to run interactively in perpetuity. The following schedule aligns with the verification cadence enumerated in the control document and is the pattern we recommend.
+None of the §4–§12 helpers are intended to run interactively in perpetuity. The following schedule aligns with the verification cadence enumerated in the control document and is the pattern we recommend.
 
 | Helper | Cadence | Trigger | Runs as | Notes |
 |---|---|---|---|---|
@@ -2227,9 +2013,8 @@ None of the §4–§13 helpers are intended to run interactively in perpetuity. 
 | `Test-Sup212PrincipalRegistration` (§7.1) | Quarterly T+1 | Scheduled task | Compliance Officer staging share | CRD feed OR manual attestation |
 | `Invoke-Sup212Rule3120Harness` (§9.2) | Annually + on-demand | Pipeline (Azure DevOps / GitHub Actions) | Service principal | Full namespace set |
 | `Invoke-Sup212Rule2210Classifier` (§10.1) | Weekly Monday 07:00 UTC | Power Automate scheduled cloud flow | Runs as marketing-review service account | Population source: marketing-review DB |
-| `Get-Sup212SponsorAttestation` (§11.1) | Quarterly, aligned to access-review cadence | Scheduled task | Managed identity with `AccessReview.Read.All` | Skips on sovereign |
-| `Invoke-Sup212SovereignRegister` (§12.1) | Quarterly (sovereign tenants only) | Manual / operator-run | Principal + Governance Lead | Dual signature ceremony |
-| `Test-Sup212SiemForwarding` (§13.2) | Daily 07:00 UTC | Scheduled task | Reader on workspace | Canary event |
+| `Get-Sup212SponsorAttestation` (§11.1) | Quarterly, aligned to access-review cadence | Scheduled task | Managed identity with `AccessReview.Read.All` |
+| `Test-Sup212SiemForwarding` (§12.2) | Daily 07:00 UTC | Scheduled task | Reader on workspace | Canary event |
 
 Example scheduled-task registration (Windows; mirror on Linux via `systemd` timers):
 
@@ -2242,11 +2027,11 @@ Register-ScheduledTask -TaskName 'Sup212-Daily' -Action $action -Trigger $trigge
     -Settings $settings -RunLevel Highest -User 'NT AUTHORITY\SYSTEM' -Force
 ```
 
-`Run-Sup212Daily.ps1` orchestrates §4, §11, §13 and emits a daily manifest; the quarterly orchestrator `Run-Sup212Quarterly.ps1` adds §5, §7, §10 and, on sovereign tenants, §12.
+`Run-Sup212Daily.ps1` orchestrates §4, §11, §12 and emits a daily manifest; the quarterly orchestrator `Run-Sup212Quarterly.ps1` adds §5, §7, and §10.
 
 ---
 
-## §15 — Evidence Retention Discipline
+## §14 — Evidence Retention Discipline
 
 Every artifact produced by this playbook is a books-and-records item under FINRA Rule 4511 and SEC Rule 17a-4(b)(4). Retention discipline:
 
@@ -2254,24 +2039,24 @@ Every artifact produced by this playbook is a books-and-records item under FINRA
 - **Medium:** WORM-backed storage (Microsoft Purview retention policies, SharePoint/OneDrive retention labels configured for immutability, or a compliant 17a-4(f) audit-trail alternative). The `PimJustification` field and the SHA-256 artifact hashes in every manifest are the integrity anchors.
 - **Chain-of-custody:** Every manifest carries `RunId`, `TenantId`, `Cloud.EnvName`, `PimJustification`, and per-artifact SHA-256. Any downstream copy must preserve the manifest; the **manifest**, not the artifact, is the authoritative evidence unit.
 - **Never edit an emitted bundle.** Corrections run as a new `RunId` with a `supersedes` field in the manifest; the prior bundle stays in place. WORM enforces this at the storage layer but the discipline must be an operator habit.
-- **SIEM forwarding** (§13) is additive, not a substitute for the WORM copy. The Sentinel record is the correlation layer; the WORM bundle is the regulatory record.
+- **SIEM forwarding** (§12) is additive, not a substitute for the WORM copy. The Sentinel record is the correlation layer; the WORM bundle is the regulatory record.
 
 See [Control 2.13 — Documentation and Record-Keeping](../../../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) for the firm-level retention policy and [Control 1.7 — Comprehensive Audit Logging](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) for SIEM-side retention enforcement.
 
 ---
 
-## §16 — Cross-References
+## §15 — Cross-References
 
 **Control 2.12 sister playbooks:**
 
 - [Portal Walkthrough](./portal-walkthrough.md) — UI configuration of Copilot Studio handoff, Power Automate approvals, and the supervision register.
-- [Verification & Testing](./verification-testing.md) — Pester suites by namespace (WSP, HITL, QUEUE, REVIEWER, PRINCIPAL, SAMPLING, R3120, R2210, SPONSOR, AGF, SOV, SIEM), manual test scripts, and evidence-collection checklists.
-- [Troubleshooting](./troubleshooting.md) — Common issues for each §3–§13 helper and their remediations.
+- [Verification & Testing](./verification-testing.md) — Pester suites by namespace (WSP, HITL, QUEUE, REVIEWER, PRINCIPAL, SAMPLING, R3120, R2210, SPONSOR, AGF, SIEM), manual test scripts, and evidence-collection checklists.
+- [Troubleshooting](./troubleshooting.md) — Common issues for each §3–§12 helper and their remediations.
 
 **Related controls (framework):**
 
 - [1.2 — Agent Registry and Integrated Apps Management](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) — The registry that bounds §4 scope and links agent IDs to zone classification used in §4.3 SLA thresholds and §8 sampling rates.
-- [1.7 — Comprehensive Audit Logging and Compliance](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) — SIEM-side enforcement for §13 forwarding.
+- [1.7 — Comprehensive Audit Logging and Compliance](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) — SIEM-side enforcement for §12 forwarding.
 - [2.6 — Model Risk Management (OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7))](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) — Supervision is a component of MRM; §9 feeds MRM evidence.
 - [2.13 — Documentation and Record-Keeping](../../../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) — Retention policy for every artifact in §15.
 - [2.25 — Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) — Agent 365 admin approvals reference this control as the supervisory anchor; admin approval is **not** principal supervision.
@@ -2283,7 +2068,6 @@ See [Control 2.13 — Documentation and Record-Keeping](../../../controls/pillar
 **Shared references:**
 
 - [PowerShell Authoring Baseline for FSI Implementations](../../_shared/powershell-baseline.md) — Module pinning, mutation safety, SHA-256 manifest format.
-- [Sovereign-cloud endpoints (GCC / GCC High / DoD)](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod) — Endpoint matrix and compensating-control rationale consumed by §3.2 and §12.
 - [Role Catalog](../../../reference/role-catalog.md) — Canonical role names used throughout this playbook.
 - [Regulatory Mappings](../../../reference/regulatory-mappings.md) — Regulation-to-control mapping.
 
@@ -2300,3 +2084,5 @@ See [Control 2.13 — Documentation and Record-Keeping](../../../controls/pillar
 ---
 
 *Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+
+

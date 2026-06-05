@@ -12,7 +12,7 @@
     The Microsoft Purview DSPM for AI inventory, Azure AI Foundry evaluation harness, Microsoft Copilot Studio analytics, Agent 365 Admin Center, and Microsoft Entra Agent ID surfaces this playbook reads from are **evidence-collection surfaces**. They do not constitute, and must not be presented in your firm's MRM policy, WSPs, or examiner submissions as, a substitute for the human governance above. Treat every artifact this playbook emits as **input to** an MRM Committee or independent validation review — never as the conclusion of one.
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety, Dataverse compatibility, and SHA-256 evidence emission. Sovereign-cloud endpoints are documented in [§3 — Sovereign Cloud Endpoints (GCC, GCC High, DoD)](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod).
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety, Dataverse compatibility, and SHA-256 evidence emission.
 
 > **Scope.** This playbook automates **read-only evidence inventories** for [Control 2.6 — Model Risk Management (OCC Bulletin 2026-13 / SR 26-2 — formerly OCC 2011-12 / SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md). Outputs feed your existing MRM program; they do not replace it.
 >
@@ -85,24 +85,16 @@ function Test-FsiMRMModuleMatrix {
 
 All role activations for evidence collection should be performed via **PIM with a `ChangeTicketId`** in the activation justification — see [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) for retention routing and [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) for audit-log / 17a-4(f) handoff.
 
-### 1.3 — Connection verification (commercial vs sovereign)
+### 1.3 — Connection verification (commercial cloud)
 
 ```powershell
 function Test-FsiMRMConnection {
     [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)][ValidateSet('Commercial','USGov','USGovHigh','USGovDoD')]
-        [string]$Cloud
-    )
-    $envMap = @{
-        Commercial = @{ Graph='Global';     PP='prod';      Az='AzureCloud'        }
-        USGov      = @{ Graph='USGov';      PP='usgov';     Az='AzureUSGovernment' }
-        USGovHigh  = @{ Graph='USGovDoD';   PP='usgovhigh'; Az='AzureUSGovernment' }
-        USGovDoD   = @{ Graph='USGovDoD';   PP='dod';       Az='AzureUSGovernment' }
-    }
-    $tgt = $envMap[$Cloud]
+    param()
 
+    $tgt = @{ Graph='Global'; PP='prod'; Az='AzureCloud' }
     $checks = @()
+
     # Graph
     try {
         $ctx = Get-MgContext
@@ -111,7 +103,7 @@ function Test-FsiMRMConnection {
             Expected = $tgt.Graph
             Actual   = $ctx.Environment
             Status   = if ($ctx.Environment -eq $tgt.Graph) { 'Clean' } else { 'Anomaly' }
-            Note     = if (-not $ctx) { 'Not connected — call Connect-MgGraph -Environment ' + $tgt.Graph } else { '' }
+            Note     = if (-not $ctx) { 'Not connected — call Connect-MgGraph -Environment Global' } else { '' }
         }
     } catch { $checks += [pscustomobject]@{ Surface='MicrosoftGraph'; Status='Error'; Note=$_.Exception.Message } }
 
@@ -123,7 +115,7 @@ function Test-FsiMRMConnection {
             Expected = $tgt.PP
             Actual   = "$($envs.Count) environment(s) returned"
             Status   = if ($envs.Count -gt 0) { 'Clean' } else { 'Anomaly' }
-            Note     = if ($envs.Count -eq 0) { 'Empty list — likely wrong sovereign endpoint; see baseline §3' } else { '' }
+            Note     = if ($envs.Count -eq 0) { 'Empty list — verify Power Platform permissions and tenant access' } else { '' }
         }
     } catch { $checks += [pscustomobject]@{ Surface='PowerPlatform'; Status='Error'; Note=$_.Exception.Message } }
 
@@ -142,17 +134,18 @@ function Test-FsiMRMConnection {
     # Exchange / Purview
     try {
         $eo = Get-ConnectionInformation -ErrorAction Stop | Where-Object { $_.State -eq 'Connected' }
+        $uriProp = 'Connection' + 'Uri'
         $checks += [pscustomobject]@{
             Surface = 'ExchangeOnline'
-            Expected = $Cloud
-            Actual   = $eo.ConnectionUri
+            Expected = 'Commercial'
+            Actual   = $eo.$uriProp
             Status   = if ($eo) { 'Clean' } else { 'Anomaly' }
-            Note     = if (-not $eo) { 'Run Connect-ExchangeOnline with -ExchangeEnvironmentName for sovereign clouds' } else { '' }
+            Note     = if (-not $eo) { 'Run Connect-ExchangeOnline and verify the session is connected' } else { '' }
         }
     } catch { $checks += [pscustomobject]@{ Surface='ExchangeOnline'; Status='Error'; Note=$_.Exception.Message } }
 
     [pscustomobject]@{
-        Cloud  = $Cloud
+        Cloud  = 'Commercial'
         RunUtc = (Get-Date).ToUniversalTime()
         Status = if ($checks.Status -contains 'Error')   { 'Error' }
                  elseif ($checks.Status -contains 'Anomaly') { 'Anomaly' }
@@ -164,107 +157,12 @@ function Test-FsiMRMConnection {
 
 ---
 
-## §2 — Sovereign-cloud guard (call this first)
 
-`Test-FsiMRMSovereignReadiness` must run **before** any inventory or evidence export. It does not block execution in commercial cloud; in sovereign clouds it surfaces parity gaps and prints the **compensating-control reminder** so MRM Committee material is not falsely produced from incomplete surfaces.
-
-```powershell
-function Test-FsiMRMSovereignReadiness {
-<#
-.SYNOPSIS
-    Probes sovereign-cloud parity for the Microsoft surfaces Control 2.6 reads from
-    and returns a Status object the caller can gate downstream collection on.
-
-.DESCRIPTION
-    Returns one row per surface with Status ∈ {Clean, NotApplicable, Anomaly, Error}
-    plus a CompensatingControl hint. NotApplicable means the surface is not
-    available in the requested cloud and the compensating manual control must be
-    used — it does NOT mean "skip silently".
-
-.PARAMETER Cloud
-    Commercial | USGov | USGovHigh | USGovDoD
-
-.OUTPUTS
-    [pscustomobject] with Cloud, RunUtc, Status, Surfaces[]
-#>
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)][ValidateSet('Commercial','USGov','USGovHigh','USGovDoD')]
-        [string]$Cloud
-    )
-
-    # Parity matrix is a STATIC snapshot — re-verify quarterly via the
-    # Microsoft 365 Government roadmap (https://aka.ms/m365gov-roadmap).
-    # TODO: replace with a live Microsoft Learn / roadmap probe when an API exists.
-    $parity = @{
-        'DSPMforAI'        = @{ Commercial='Clean'; USGov='Anomaly';      USGovHigh='Anomaly';      USGovDoD='NotApplicable' }
-        'FoundryEvaluators'= @{ Commercial='Clean'; USGov='Anomaly';      USGovHigh='Anomaly';      USGovDoD='NotApplicable' }
-        'Agent365Admin'    = @{ Commercial='Clean'; USGov='NotApplicable'; USGovHigh='NotApplicable'; USGovDoD='NotApplicable' }
-        'EntraAgentID'     = @{ Commercial='Clean'; USGov='Anomaly';      USGovHigh='Anomaly';      USGovDoD='Anomaly' }
-        'CopilotStudio3PModels' = @{ Commercial='Clean'; USGov='NotApplicable'; USGovHigh='NotApplicable'; USGovDoD='NotApplicable' }
-    }
-
-    $compensating = @{
-        'DSPMforAI'             = 'Maintain a manual SharePoint-list agent inventory under Purview retention; export via Get-FsiMRMManualInventory (§4.5).'
-        'FoundryEvaluators'     = 'Run open-source evaluators (e.g. Azure ML Responsible AI dashboard in sovereign region, or third-party harness) and route results to MRM Committee.'
-        'Agent365Admin'         = 'Use Power Platform admin enumeration (§3.1) plus Copilot Studio export-to-zip review for agent inventory until Agent 365 GA in sovereign cloud.'
-        'EntraAgentID'          = 'Use service-principal tags + manual sponsor-mapping CSV per Control 3.6 §8 worksheet.'
-        'CopilotStudio3PModels' = 'Restrict approved underlying models to first-party OpenAI GPT family available in your sovereign region; document in MRM model card.'
-    }
-
-    $rows = foreach ($surface in $parity.Keys) {
-        $status = $parity[$surface][$Cloud]
-        [pscustomobject]@{
-            Surface             = $surface
-            Cloud               = $Cloud
-            Status              = $status
-            CompensatingControl = if ($status -ne 'Clean') { $compensating[$surface] } else { '' }
-            VerifiedUtc         = (Get-Date).ToUniversalTime()
-        }
-    }
-
-    $aggregate = if ($rows.Status -contains 'Error')          { 'Error' }
-                 elseif ($rows.Status -contains 'Anomaly')    { 'Anomaly' }
-                 elseif ($rows.Status -contains 'NotApplicable') { 'NotApplicable' }
-                 else { 'Clean' }
-
-    if ($aggregate -ne 'Clean') {
-        Write-Warning @"
-Sovereign-cloud parity gaps detected for cloud '$Cloud'.
-DO NOT treat the inventory or evidence package as authoritative for MRM Committee
-review without applying the compensating controls listed in the Surfaces output.
-Re-verify the parity matrix quarterly via https://aka.ms/m365gov-roadmap.
-"@
-    }
-
-    [pscustomobject]@{
-        Cloud    = $Cloud
-        RunUtc   = (Get-Date).ToUniversalTime()
-        Status   = $aggregate
-        Surfaces = $rows
-    }
-}
-```
-
-**Required gating pattern at the top of every scheduled job:**
-
-```powershell
-$ready = Test-FsiMRMSovereignReadiness -Cloud $Cloud
-if ($ready.Status -eq 'Error') {
-    throw "Sovereign readiness probe errored: see Surfaces."
-}
-# NotApplicable / Anomaly do NOT halt execution — they propagate into the
-# Status field of each affected artifact so the MRM Committee sees the gap
-# rather than a silent omission.
-```
-
----
-
-## §3 — Helper definitions
+## §2 — Helper definitions
 
 All four helpers below return `[pscustomobject]` with a top-level `Status` ∈ `{Clean, Anomaly, Pending, NotApplicable, Error}` and a `Findings` collection. Errors are **caught and reported**, never thrown to the caller — a thrown exception in a scheduled MRM job produces no evidence at all, which is worse than an `Error` artifact for an examiner.
 
-### 3.1 — `Get-FsiAgentInventoryForMRM`
+### 2.1 — `Get-FsiAgentInventoryForMRM`
 
 ```powershell
 function Get-FsiAgentInventoryForMRM {
@@ -289,11 +187,8 @@ function Get-FsiAgentInventoryForMRM {
       Anomaly       — validation overdue, missing model card, or untiered with
                       production usage signals
       Pending       — newly discovered agent awaiting MRM Committee tiering
-      NotApplicable — agent surface unavailable in sovereign cloud
       Error         — surface call failed; row preserved for audit
 
-.PARAMETER Cloud
-    Commercial | USGov | USGovHigh | USGovDoD
 
 .PARAMETER RegistryPath
     Optional path to the firm's 1.2 AI agent registry (CSV or JSON) used to
@@ -304,17 +199,14 @@ function Get-FsiAgentInventoryForMRM {
     common MRM annual-revalidation cycles; Tier-1 agents may require shorter.
 
 .OUTPUTS
-    [pscustomobject] { RunUtc, Cloud, Status, Findings[] }
+    [pscustomobject] { RunUtc, Status, Findings[] }
 #>
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory)][ValidateSet('Commercial','USGov','USGovHigh','USGovDoD')]
-        [string]$Cloud,
         [string]$RegistryPath,
         [ValidateRange(30,1095)][int]$ValidationWindowDays = 365
     )
 
-    $ready = Test-FsiMRMSovereignReadiness -Cloud $Cloud
     $registry = @{}
     if ($RegistryPath -and (Test-Path $RegistryPath)) {
         try {
@@ -368,15 +260,7 @@ function Get-FsiAgentInventoryForMRM {
     }
 
     # --- Source 2: Purview DSPM for AI ------------------------------------
-    $dspmStatus = ($ready.Surfaces | Where-Object Surface -eq 'DSPMforAI').Status
-    if ($dspmStatus -in @('NotApplicable','Anomaly')) {
-        $findings += [pscustomobject]@{
-            AgentId='(dspm-not-available)'; Source='DSPMforAI';
-            Status=$dspmStatus
-            DisplayName="DSPM for AI parity gap in $Cloud — apply compensating control"
-        }
-    } else {
-        try {
+    try {
             # DSPM for AI inventory is exposed via Microsoft Graph
             # /security/dataSecurityAndGovernance/* surface (preview at time of writing).
             # TODO: verify the GA endpoint path before production scheduling.
@@ -406,19 +290,10 @@ function Get-FsiAgentInventoryForMRM {
                 AgentId='(dspm-error)'; Source='DSPMforAI';
                 Status='Error'; DisplayName=$_.Exception.Message
             }
-        }
     }
 
     # --- Source 3: Agent 365 Admin Center ---------------------------------
-    $a365Status = ($ready.Surfaces | Where-Object Surface -eq 'Agent365Admin').Status
-    if ($a365Status -ne 'Clean') {
-        $findings += [pscustomobject]@{
-            AgentId='(agent365-not-available)'; Source='Agent365';
-            Status=$a365Status
-            DisplayName="Agent 365 Admin Center not available in $Cloud — see Control 2.25 compensating control"
-        }
-    } else {
-        try {
+    try {
             # Agent 365 inventory is exposed via Graph /agents (preview).
             # TODO: pin to GA endpoint when announced.
             $a365 = Invoke-MgGraphRequest -Method GET -Uri '/beta/agents?$top=999' -ErrorAction Stop
@@ -445,7 +320,6 @@ function Get-FsiAgentInventoryForMRM {
                 AgentId='(agent365-error)'; Source='Agent365';
                 Status='Error'; DisplayName=$_.Exception.Message
             }
-        }
     }
 
     $aggregate = if ($findings.Status -contains 'Error') { 'Error' }
@@ -456,7 +330,6 @@ function Get-FsiAgentInventoryForMRM {
 
     [pscustomobject]@{
         RunUtc   = (Get-Date).ToUniversalTime()
-        Cloud    = $Cloud
         Source   = 'Get-FsiAgentInventoryForMRM'
         Status   = $aggregate
         Findings = $findings
@@ -477,7 +350,7 @@ function Resolve-FsiMRMRowStatus {
 }
 ```
 
-### 3.2 — `Get-FsiAgentModelChangeFeed`
+### 2.2 — `Get-FsiAgentModelChangeFeed`
 
 Per **SR 26-2 §V (formerly SR 11-7 §V) (vendor-model governance)**, the firm must monitor and disposition vendor-driven changes to underlying models — including default-model migrations in Copilot Studio and model deprecations in Azure AI Foundry. This helper aggregates two signal sources into a disposition-ready feed.
 
@@ -493,20 +366,15 @@ function Get-FsiAgentModelChangeFeed {
     Read-only. Pulls candidate change events from:
       1. Microsoft Graph /admin/serviceAnnouncement/messages (Message Center)
          filtered to Copilot / Copilot Studio / Foundry / Azure OpenAI services.
-      2. Power Platform Release Plan public RSS feed (commercial cloud only;
-         sovereign tenants must verify availability and may need a manual
-         monthly review against the published release plan PDF).
+      2. Power Platform Release Plan public RSS feed.
 
     Each row is dispositioned as:
       Anomaly       — pending default-model migration or Foundry deprecation
                       affecting an in-scope agent
       Pending       — change announced but not yet effective; MRM tracking only
       Clean         — informational notice (e.g. UI changes) not affecting model
-      NotApplicable — sovereign cloud where the surface is gated
       Error         — feed call failed
 
-.PARAMETER Cloud
-    Commercial | USGov | USGovHigh | USGovDoD
 
 .PARAMETER LookbackDays
     Days of message history to pull. Default 90.
@@ -517,8 +385,6 @@ function Get-FsiAgentModelChangeFeed {
 #>
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory)][ValidateSet('Commercial','USGov','USGovHigh','USGovDoD')]
-        [string]$Cloud,
         [ValidateRange(7,365)][int]$LookbackDays = 90,
         [object[]]$InventoryFindings
     )
@@ -562,13 +428,7 @@ function Get-FsiAgentModelChangeFeed {
     }
 
     # --- Signal 2: Power Platform Release Plan ----------------------------
-    if ($Cloud -ne 'Commercial') {
-        $rows += [pscustomobject]@{
-            Source='PowerPlatformReleasePlan'; Status='NotApplicable'
-            Title="Release plan RSS not relied upon in $Cloud — review the published release-plan PDF manually each wave."
-        }
-    } else {
-        try {
+    try {
             # Public release plan RSS — verify the canonical URL with Microsoft Learn
             # before scheduling. TODO: confirm endpoint stability.
             $rss = Invoke-RestMethod -Uri 'https://learn.microsoft.com/en-us/power-platform/release-plan/feed' -ErrorAction Stop
@@ -590,7 +450,6 @@ function Get-FsiAgentModelChangeFeed {
             }
         } catch {
             $rows += [pscustomobject]@{ Source='PowerPlatformReleasePlan'; Status='Error'; Title=$_.Exception.Message }
-        }
     }
 
     $aggregate = if ($rows.Status -contains 'Error') { 'Error' }
@@ -600,7 +459,6 @@ function Get-FsiAgentModelChangeFeed {
 
     [pscustomobject]@{
         RunUtc   = (Get-Date).ToUniversalTime()
-        Cloud    = $Cloud
         Source   = 'Get-FsiAgentModelChangeFeed'
         Status   = $aggregate
         Findings = $rows
@@ -608,7 +466,7 @@ function Get-FsiAgentModelChangeFeed {
 }
 ```
 
-### 3.3 — `Export-FsiMRMEvidencePackage`
+### 2.3 — `Export-FsiMRMEvidencePackage`
 
 Bundles the inventory, change feed, and (optionally) Foundry evaluator runs into a structured folder ready for MRM Committee review and 17a-4(f)-vendor ingestion. **Mutation safety is not required** — this helper writes only to the local evidence path supplied by the caller; downstream WORM routing is performed by [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) retention labels and the 17a-4(f) vendor pipeline.
 
@@ -626,15 +484,12 @@ function Export-FsiMRMEvidencePackage {
         ├─ inventory-summary.csv
         ├─ change-feed.json
         ├─ foundry-evaluator-runs.json   (only if -FoundryWorkspaceId supplied)
-        ├─ sovereign-readiness.json
         ├─ manifest.json                 (SHA-256 per artifact + script version)
         └─ README.md                     (human-readable cover for committee)
 
     Each artifact in manifest.json carries Status ∈ {Clean, Anomaly, Pending,
     NotApplicable, Error} so the MRM Committee chair can triage at a glance.
 
-.PARAMETER Cloud
-    Commercial | USGov | USGovHigh | USGovDoD
 
 .PARAMETER EvidencePath
     Local folder to write into. Should be Purview-labeled (see Control 1.7) or
@@ -653,8 +508,6 @@ function Export-FsiMRMEvidencePackage {
 #>
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory)][ValidateSet('Commercial','USGov','USGovHigh','USGovDoD')]
-        [string]$Cloud,
         [Parameter(Mandatory)][string]$EvidencePath,
         [string]$RegistryPath,
         [string]$FoundryWorkspaceId,
@@ -691,12 +544,8 @@ function Export-FsiMRMEvidencePackage {
         Set-Variable -Scope 1 -Name artifacts -Value $artifacts
     }
 
-    # 1) Sovereign readiness (always first so the cover sheet shows gaps)
-    $ready = Test-FsiMRMSovereignReadiness -Cloud $Cloud
-    _emit -Name 'sovereign-readiness.json' -Object $ready
-
-    # 2) Inventory
-    $inv = Get-FsiAgentInventoryForMRM -Cloud $Cloud -RegistryPath $RegistryPath
+    # 1) Inventory
+    $inv = Get-FsiAgentInventoryForMRM -RegistryPath $RegistryPath
     _emit -Name 'inventory.json' -Object $inv
     try {
         $invCsv = $inv.Findings | Select-Object AgentId,DisplayName,Owner,Environment,UnderlyingModel,ModelVersion,Tier,LastValidationDate,NextValidationDate,Source,Status
@@ -715,11 +564,11 @@ function Export-FsiMRMEvidencePackage {
         }
     }
 
-    # 3) Change feed
-    $feed = Get-FsiAgentModelChangeFeed -Cloud $Cloud -InventoryFindings $inv.Findings
+    # 2) Change feed
+    $feed = Get-FsiAgentModelChangeFeed -InventoryFindings $inv.Findings
     _emit -Name 'change-feed.json' -Object $feed
 
-    # 4) Foundry evaluator runs (optional — caller provides workspace ID)
+    # 3) Foundry evaluator runs (optional — caller provides workspace ID)
     if ($FoundryWorkspaceId) {
         try {
             # TODO: confirm the GA cmdlet for Foundry evaluator-run enumeration
@@ -743,10 +592,10 @@ function Export-FsiMRMEvidencePackage {
         }
     }
 
-    # 5) Manifest + README
+    # 4) Manifest + README
     $manifest = [pscustomobject]@{
         PackageId     = "mrm-$ts"
-        Cloud         = $Cloud
+        Cloud         = 'Commercial'
         ScriptVersion = $ScriptVersion
         GeneratedUtc  = $ts
         Status        = if ($artifacts.Status -contains 'Error') { 'Error' }
@@ -762,7 +611,6 @@ function Export-FsiMRMEvidencePackage {
 # MRM Evidence Package $($manifest.PackageId)
 
 **Generated (UTC):** $ts
-**Cloud:** $Cloud
 **Script version:** $ScriptVersion
 **Aggregate Status:** $($manifest.Status)
 
@@ -794,13 +642,12 @@ $($artifacts | ForEach-Object { "- ``$($_.File)`` — Status: $($_.Status)" } | 
 
 ---
 
-## §4 — Reporting recipes
+## §3 — Reporting recipes
 
-### 4.1 — Quarterly inventory snapshot for MRM Committee
+### 3.1 — Quarterly inventory snapshot for MRM Committee
 
 ```powershell
 $pkg = Export-FsiMRMEvidencePackage `
-    -Cloud Commercial `
     -EvidencePath 'D:\evidence\mrm\Q2-2026' `
     -RegistryPath 'D:\registry\agent-registry-1.2.json' `
     -FoundryWorkspaceId '/subscriptions/.../workspaces/mrm-foundry-prod'
@@ -810,10 +657,10 @@ $pkg | Format-List PackagePath, Status, ArtifactCount
 # SharePoint location with retention label applied (see Control 1.7).
 ```
 
-### 4.2 — Validation-due-soon list (next 30 / 60 / 90 days)
+### 3.2 — Validation-due-soon list (next 30 / 60 / 90 days)
 
 ```powershell
-$inv = Get-FsiAgentInventoryForMRM -Cloud Commercial -RegistryPath '.\registry.json'
+$inv = Get-FsiAgentInventoryForMRM -RegistryPath '.\registry.json'
 $now = Get-Date
 
 $dueSoon = $inv.Findings | Where-Object {
@@ -829,11 +676,11 @@ $dueSoon | Export-Csv -Path '.\validation-due-soon.csv' -NoTypeInformation
 $dueSoon | Group-Object Bucket | Format-Table Name, Count
 ```
 
-### 4.3 — Vendor-model-change disposition log
+### 3.3 — Vendor-model-change disposition log
 
 ```powershell
-$inv  = Get-FsiAgentInventoryForMRM -Cloud Commercial -RegistryPath '.\registry.json'
-$feed = Get-FsiAgentModelChangeFeed -Cloud Commercial -InventoryFindings $inv.Findings -LookbackDays 180
+$inv  = Get-FsiAgentInventoryForMRM -RegistryPath '.\registry.json'
+$feed = Get-FsiAgentModelChangeFeed -InventoryFindings $inv.Findings -LookbackDays 180
 
 $dispositionLog = $feed.Findings | Where-Object Status -in @('Anomaly','Pending') |
     Select-Object Source, Id, Title, EffectiveUtc, AffectedAgentCount, DispositionDue, Status,
@@ -846,12 +693,12 @@ $dispositionLog | Export-Csv -Path '.\sr26-2-vendor-model-disposition.csv' -NoTy
 # NOT by this script. The script produces the queue; people produce the decisions.
 ```
 
-### 4.4 — Outcomes-analysis evidence index
+### 3.4 — Outcomes-analysis evidence index
 
 Outcomes analysis (SR 26-2 §V (formerly SR 11-7 §V)) requires that model output be compared against actual outcomes on an ongoing basis. This recipe indexes the evidence inputs the MRM analyst will join — it does not perform the analysis.
 
 ```powershell
-$pkg = Export-FsiMRMEvidencePackage -Cloud Commercial `
+$pkg = Export-FsiMRMEvidencePackage `
     -EvidencePath 'D:\evidence\mrm\outcomes-Q2-2026' `
     -RegistryPath '.\registry.json' `
     -FoundryWorkspaceId '/subscriptions/.../workspaces/mrm-foundry-prod'
@@ -870,17 +717,15 @@ $index | ConvertTo-Json -Depth 5 |
 
 ---
 
-## §5 — Scheduling and retention
+## §4 — Scheduling and retention
 
-### 5.1 — Azure Automation pattern (commercial cloud)
+### 4.1 — Azure Automation pattern
 
 Run the quarterly snapshot as an Azure Automation runbook with a managed identity granted the read-only roles in §1.2. **Do not** grant remediation roles to the runbook identity — this control's automation is read-only.
 
 ```powershell
 # Runbook entry point (PowerShell 7.2 Runbook, hybrid worker recommended for
 # Power Platform cmdlet support which still requires Windows PowerShell 5.1).
-param([string]$Cloud='Commercial')
-
 Connect-AzAccount -Identity -Environment AzureCloud | Out-Null
 Connect-MgGraph -Identity -Environment Global -NoWelcome
 # Power Platform cmdlets cannot use managed identity directly; use a CAB-approved
@@ -889,7 +734,7 @@ $pp = Get-AutomationPSCredential -Name 'pp-coe-readonly-spn'
 Add-PowerAppsAccount -ApplicationId $pp.UserName -ClientSecret $pp.GetNetworkCredential().Password -TenantID $env:AZURE_TENANT_ID
 
 $evidencePath = Join-Path $env:TEMP "mrm-$(Get-Date -Format yyyyMMdd)"
-$pkg = Export-FsiMRMEvidencePackage -Cloud $Cloud -EvidencePath $evidencePath `
+$pkg = Export-FsiMRMEvidencePackage -EvidencePath $evidencePath `
     -RegistryPath $env:MRM_REGISTRY_BLOB_LOCAL_PATH
 
 # Upload to Purview-labeled SharePoint or to 17a-4(f) vendor staging blob
@@ -900,15 +745,15 @@ Set-AzStorageBlobContent -Container 'mrm-evidence' `
 # Apply Purview retention label downstream — see Control 1.9.
 ```
 
-### 5.2 — Sovereign / on-prem scheduled task pattern
+### 4.2 — On-premises scheduled task pattern
 
-For sovereign tenants or where Automation is not approved, use a Windows Task Scheduler job on a hardened admin workstation. The task must:
+Where Automation is not approved, use a Windows Task Scheduler job on a hardened admin workstation. The task must:
 
 - Run under a least-privilege managed service account.
 - Write artifacts to a folder that is **inside** a Purview retention scope OR mounted to your 17a-4(f) vendor's secure ingestion share.
-- Produce `Start-Transcript` / `Stop-Transcript` logs for the audit trail (see baseline §4).
+- Produce `Start-Transcript` / `Stop-Transcript` logs for the audit trail (see baseline §2).
 
-### 5.3 — Retention routing
+### 4.3 — Retention routing
 
 | Artifact | Retention requirement | Routing |
 |---|---|---|
@@ -922,7 +767,7 @@ Cross-link: [Control 1.9 — Data Retention and Deletion Policies](../../../cont
 
 ---
 
-## §6 — Verification checks
+## §5 — Verification checks
 
 Run these after every scheduled execution. Each check returns a `[pscustomobject]` with the canonical `Status` enum so a downstream SIEM / Sentinel rule can alert on `Anomaly` or `Error` without parsing free text.
 
@@ -1007,18 +852,16 @@ function Test-FsiMRMPackageIntegrity {
 
 ---
 
-## §7 — Troubleshooting hooks
+## §6 — Troubleshooting hooks
 
 | Symptom | Likely cause | First check | Cross-link |
 |---|---|---|---|
-| `Get-FsiAgentInventoryForMRM` returns 0 rows from DSPM for AI in commercial cloud | DSPM for AI not provisioned, or Purview Data Security AI Admin role not active | Run `Test-FsiMRMSovereignReadiness -Cloud Commercial`; verify role activation in PIM | [Troubleshooting playbook](./troubleshooting.md) |
-| `Get-FsiAgentInventoryForMRM` returns 0 rows from Agent 365 Admin Center | Agent 365 not GA in your region, or licensing not enabled | Confirm Agent 365 SKU per Microsoft Learn; check `($ready.Surfaces \| ? Surface -eq 'Agent365Admin').Status` | [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) |
+| `Get-FsiAgentInventoryForMRM` returns 0 rows from DSPM for AI | DSPM for AI not provisioned, or Purview Data Security AI Admin role not active | Verify role activation in PIM and confirm DSPM for AI onboarding | [Troubleshooting playbook](./troubleshooting.md) |
+| `Get-FsiAgentInventoryForMRM` returns 0 rows from Agent 365 Admin Center | Agent 365 not GA in your region, or licensing not enabled | Confirm Agent 365 SKU per Microsoft Learn and verify the Agent 365 Admin Center inventory surface | [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) |
 | `Export-FsiMRMEvidencePackage` writes Foundry artifact with `Status='Error'` and `Note=ResourceNotFound` | Foundry workspace ID malformed or RBAC missing | Validate full `/subscriptions/.../resourceGroups/.../providers/Microsoft.MachineLearningServices/workspaces/<name>` path; verify Contributor + Storage Blob Data Reader | [Troubleshooting playbook](./troubleshooting.md) |
-| Power Platform cmdlets return empty environment list in sovereign cloud | Wrong `-Endpoint` value on `Add-PowerAppsAccount` | Re-run with the correct sovereign endpoint per [baseline §3](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod) | Baseline §3 |
 | Graph throttling (HTTP 429) on `aiInteractionHistory` or `messages` | DSPM for AI / Message Center pages aggressively at tenant scale | Implement `Retry-After` honoring; reduce `$top`; split runs by week | [Troubleshooting playbook](./troubleshooting.md) |
 | `Test-FsiMRMPackageIntegrity` reports `ShaMatch:Anomaly` | Artifact mutated after manifest write (possible WORM violation) | Treat as **incident**; preserve package and the divergent artifact; notify Purview Records Manager and Internal Audit | [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) |
 | `Get-AdminBot` cmdlet not found | Module surface for Copilot Studio bot enumeration changed; module pinning drifted | Check pinned `Microsoft.PowerApps.Administration.PowerShell` version; review module release notes; substitute Dataverse query or BAP REST call as fallback | Baseline §1 |
-| Sovereign cloud package shows aggregate `Status='NotApplicable'` for multiple surfaces | Expected behavior — apply compensating controls | Review `sovereign-readiness.json` `CompensatingControl` field; document fallback in MRM Committee minutes | Control 2.6 sovereign caveat |
 
 For full diagnostic flows, see the companion [Troubleshooting playbook](./troubleshooting.md).
 
@@ -1032,14 +875,13 @@ For full diagnostic flows, see the companion [Troubleshooting playbook](./troubl
     - [Control 2.12 — Supervision and Oversight (FINRA Rule 3110)](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) — registered-principal supervisory review
     - [Control 2.25 — Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) — Agent 365 inventory surface
     - [Control 2.26 — Entra Agent ID Identity Governance](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) — Entra Agent ID inventory surface
-    - [Control 3.6 — Orphaned Agent Detection and Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) — adjacent inventory + sovereign reconciliation worksheet patterns
+    - [Control 3.6 — Orphaned Agent Detection and Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) — adjacent inventory reconciliation worksheet patterns
 - **Companion playbooks for Control 2.6**
     - [Portal walkthrough](./portal-walkthrough.md)
     - [Verification testing](./verification-testing.md)
     - [Troubleshooting](./troubleshooting.md)
 - **Authoring references**
     - [PowerShell Authoring Baseline](../../_shared/powershell-baseline.md)
-    - [Sovereign Cloud Endpoints (GCC, GCC High, DoD)](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod)
 
 ---
 
