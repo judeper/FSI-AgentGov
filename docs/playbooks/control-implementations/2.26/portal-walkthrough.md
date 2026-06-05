@@ -1,7 +1,7 @@
 # Portal Walkthrough — Control 2.26: Entra Agent ID Identity Governance
 
 !!! info "Post-GA Status — May 2026"
-    **Microsoft Agent 365 reached general availability on May 1, 2026** and **Microsoft Entra Agent ID is generally available** as of May 2026. The pre-GA "Frontier program enrollment" gate has been replaced by **Microsoft Agent 365** (standalone per-user license) or **Microsoft 365 E7** ("Frontier Suite" — bundles E5 + Microsoft 365 Copilot + Entra Suite + Agent 365) license assignment. Where this playbook references "Frontier program" or "Frontier preview" as a gating mechanism, read it as **Microsoft Agent 365 / Microsoft 365 E7 license assignment**. Section names, anchor IDs, and PowerShell function/test names that include "Preview" or "Frontier" are retained for backward compatibility — the underlying probe logic (whether the calling principal can reach the agent identity surface) remains valid because the same observable is gated by licensing post-GA. A follow-up issue tracks the deeper structural rename.
+    **Microsoft Agent 365 reached general availability on May 1, 2026** and **Microsoft Entra Agent ID is generally available** as of May 2026. The pre-GA "Frontier program enrollment" gate has been replaced by **Microsoft Agent 365** (standalone per-user license) or **Microsoft 365 E7** ("Frontier Suite" — bundles E5 + Microsoft 365 Copilot + Entra Suite + Agent 365) license assignment. Where this playbook references "Frontier program" or "Frontier preview" as a gating mechanism, read it as **Microsoft Agent 365 / Microsoft 365 E7 license assignment**. Structural identifiers (section anchors, PowerShell function names, test namespace names) that previously included "Preview" or "Frontier" were renamed in issue #418.
 
 !!! danger "READ FIRST — Scope and Sibling Routing"
     **This playbook configures identity governance for Microsoft Entra Agent IDs** — the directory objects that represent autonomous AI agents (Microsoft Copilot Studio agents, Agent 365 agents, declarative agents with autonomous actions, and third-party agents registered through the Microsoft Agent Framework). It walks you through the **Microsoft Entra admin center**, **Microsoft Entra Identity Governance**, **Microsoft 365 admin center (Microsoft Agent 365 / E7 licensing)**, and **Microsoft Purview / Azure Monitor** surfaces required to satisfy Verification Criteria 1–8 of [Control 2.26](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md).
@@ -128,13 +128,6 @@ Do not proceed past this section unless **all** of the following are true:
     Open [`./troubleshooting.md`](./troubleshooting.md) and search for the gate name (e.g., "Agent 365 license missing" or the legacy "Preview gating not satisfied" namespace name). Do not attempt workarounds in production until the gate clears — most workarounds for missing licensing or roles create their own audit findings.
 
 ---
- (S1): legacy-slug preservation across the May 2026 GA heading
-     rename ("Frontier program enrollment" -> "Microsoft Agent 365 / M365
-     E7 License Assignment"). DO NOT REMOVE the explicit anchor below:
-     three in-page hrefs (TOC line 67, warnings lines 126/127) resolve to
-     #2-frontier-program-enrollment, which is no longer the auto-generated
-     slug for this H2. The body paragraph in §1 documents the reason. -->
-<a id="2-frontier-program-enrollment"></a>
 
 ## 1. Microsoft Agent 365 / Microsoft 365 E7 License Assignment
 
