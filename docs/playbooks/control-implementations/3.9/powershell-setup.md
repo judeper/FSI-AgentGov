@@ -1152,7 +1152,7 @@ Seven AI-agent-specific scheduled or NRT (near-real-time) analytics rules form t
 - Carries a stable `DisplayName` prefix `[FSI-3.9]` for SOC dashboard filtering.
 - Carries a `Tactics` array mapping to MITRE ATT&CK technique IDs.
 - Carries `CustomDetails` with `RelatedControl` cross-ref tags.
-- Is created **enabled** (`-Enabled $true` is explicit, not relying on template default — see §0.2 #6).
+- Is created **enabled** (`-Enabled $true` is explicit, not relying on template default — see §0.2 #5).
 - Returns the standard contract object plus the rule's resource ID and a SHA-256 hash of the KQL query (for change detection in the §10 evidence helper).
 
 A common builder is used for parameter validation, hash computation, and tagging.
@@ -1783,7 +1783,7 @@ Cross-ref:      Control 3.6 (Owner registry), Control 3.4 (Incident reporting)
 
 ### 7.3 — `New-Fsi-SentinelPlaybook-NYDFS72hTimer`
 
-NYDFS 23 NYCRR 500.17(a) requires notification to the Department of Financial Services within **72 hours** of determining a covered cybersecurity event. **This helper does not file the notification.** It sets a tag, computes the 72h deadline in **UTC** (forced — see §0.2 #11), and schedules a Logic App reminder cadence (T+24h, T+48h, T+60h, T+71h). The actual filing flow is in [Control 3.4](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md).
+NYDFS 23 NYCRR 500.17(a) requires notification to the Department of Financial Services within **72 hours** of determining a covered cybersecurity event. **This helper does not file the notification.** It sets a tag, computes the 72h deadline in **UTC** (forced — see §0.2 #10), and schedules a Logic App reminder cadence (T+24h, T+48h, T+60h, T+71h). The actual filing flow is in [Control 3.4](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md).
 
 ```powershell
 function New-Fsi-SentinelPlaybook-NYDFS72hTimer {
@@ -2401,7 +2401,7 @@ Cross-ref:      Control 1.7, Control 1.9 (records routing)
 
 ## §11 — Orchestrator: `Invoke-Fsi-Control39Setup`
 
-The orchestrator wires the helpers into one safe, idempotent entry point with three modes (`ReportOnly`, `Enforce`, `Verify`) and explicit cloud selection. The orchestrator wraps execution in a transcript per [baseline §4](../../_shared/powershell-baseline.md), emits a single rollup contract object, and **never** moves from `ReportOnly` to mutation without explicit operator action.
+The orchestrator wires the helpers into one safe, idempotent entry point with three modes (`ReportOnly`, `Enforce`, `Verify`). The orchestrator wraps execution in a transcript per [baseline §4](../../_shared/powershell-baseline.md), emits a single rollup contract object, and **never** moves from `ReportOnly` to mutation without explicit operator action.
 
 ```powershell
 function Invoke-Fsi-Control39Setup {
