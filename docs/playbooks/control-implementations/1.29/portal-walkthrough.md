@@ -27,22 +27,21 @@ This walkthrough configures Global Secure Access network controls for Copilot St
 
 ## Phase 1: Enable GSA Agent Traffic Forwarding in Power Platform Admin Center
 
-### Step 1.1 — Open the target environment settings
+### Step 1.1 — Navigate to Global Secure Access for Agents
 
 1. Navigate to [https://admin.powerplatform.microsoft.com](https://admin.powerplatform.microsoft.com).
-2. In the left navigation, select **Environments**.
-3. Locate the Copilot Studio environment you are configuring. Use the search bar to filter by environment name if needed.
-4. Click the environment name to open the environment detail page.
-5. In the top command bar, click **Settings**.
+2. On the left navigation pane, select **Security**.
+3. On the Security pane, select **Identity & access**.
+4. Select **Global Secure Access for Agents**.
 
 !!! info "Zone Classification Check"
     Before enabling, confirm the environment's Zone classification (Zone 1 / Zone 2 / Zone 3) per your organization's AI governance classification record. Zone 2 and Zone 3 environments require GSA forwarding. Zone 1 is optional but recommended. Document your classification decision in the change record.
 
-### Step 1.2 — Enable Global Secure Access
+### Step 1.2 — Enable Global Secure Access for Agents
 
-1. In the Settings panel, expand the **Features** section (you may need to scroll down or select a Features category depending on current UI layout).
-2. Locate the **Global Secure Access** toggle.
-3. Toggle the setting to **On**.
+1. Locate the target Copilot Studio environment in the list.
+2. Select the environment row, then select **Set up**.
+3. Toggle **Enable Global Secure Access for Agents** to **On**.
 4. Click **Save** to apply the change.
 
 !!! warning "Propagation Time"

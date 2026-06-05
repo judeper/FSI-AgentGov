@@ -12,8 +12,8 @@ Each item below is binary pass/fail. Capture evidence (screenshot, JSON export, 
 |---|---|---|---|---|
 | 1 | Managed Environments enabled on every in-scope environment | PPAC > **Manage** > **Environments** > environment > **Overview** | `Managed Environments = On` | Screenshot |
 | 2 | Each in-scope environment is in the correct environment group with documented zone classification | PPAC > **Manage** > **Environment groups** | Environment listed in expected group | Screenshot of group **Environments** tab |
-| 3 | ACP rule **Status: Applied** at the group scope | PPAC > **Environment groups** > [group] > **Rules** tab > **Advanced connector policies (preview)** | Header shows `Status: Applied` | Screenshot |
-| 4 | ACP rule **Status: Applied** at any single-environment scope (where used) | PPAC > environment > **Security** > **Data and privacy** > **Advanced connector policies (preview)** | Header shows `Status: Applied` | Screenshot |
+| 3 | ACP rule **Status: Applied** at the group scope | PPAC > **Environment groups** > [group] > **Rules** tab > **Advanced connector policies** | Header shows `Status: Applied` | Screenshot |
+| 4 | ACP rule **Status: Applied** at any single-environment scope (where used) | PPAC > environment > **Security** > **Data and privacy** > **Advanced connector policies** | Header shows `Status: Applied` | Screenshot |
 | 5 | Allowlist contents match the approved connector catalog | Same panel | Connector list = catalog for that zone | JSON export from PowerShell §6a |
 | 6 | Action-level restrictions enforced on each allowlisted connector (read-only by default unless ticketed) | Expand each connector in the panel | Disallowed actions toggled off; deprecated/internal actions marked | Screenshot of one high-risk connector (e.g., SharePoint) |
 | 7 | **Publish rules** has cascaded to every member environment | PPAC > each member environment > **Settings** > **History** | `Update Managed Environment Settings` event within last 24h of publish | Screenshot |

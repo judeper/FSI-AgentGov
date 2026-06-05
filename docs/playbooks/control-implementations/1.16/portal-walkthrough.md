@@ -9,7 +9,7 @@
 
 ## Prerequisites
 
-- [ ] Entra Global Admin (one-time, for Azure RMS activation only — elevate via Privileged Identity Management).
+- [ ] Purview Compliance Admin or Compliance Data Admin (via PIM) for Azure RMS activation via PowerShell — elevate via Privileged Identity Management. Entra Global Admin also works but is not required for Azure RMS activation.
 - [ ] Purview Info Protection Admin (label creation and policy publication).
 - [ ] SharePoint Admin (library IRM activation at tenant level and per site).
 - [ ] Licensing that includes Azure Rights Management — Microsoft 365 E3/E5, Office 365 E3/E5, Microsoft 365 Business Premium, or a standalone Microsoft Purview Information Protection P1/P2 SKU. Verify before activation.
@@ -19,13 +19,15 @@
 
 ---
 
-## Step 1 — Activate Azure Rights Management Service
+## Step 1 — Verify and Activate Azure Rights Management Service (PowerShell)
 
-1. Sign in to the [Microsoft 365 Admin Center](https://admin.microsoft.com).
-2. Navigate to **Settings** → **Org settings** → **Services** tab.
-3. Select **Microsoft Azure Information Protection**.
-4. Confirm status reads **Protection is activated**. If it reads "Not activated", select **Activate**.
-5. Wait 15–30 minutes for tenant propagation before configuring labels or library IRM.
+!!! info "Portal-based activation removed"
+    Microsoft has removed the Azure RMS activation toggle from the Microsoft 365 Admin Center. You must use PowerShell to verify and activate Azure RMS. See [PowerShell Setup — Script 1](powershell-setup.md) for the full scripted flow using `Get-AipService` / `Enable-AipService`.
+
+1. Run `Connect-AipService` (from the `AIPService` module) with Purview Compliance Admin or Entra Global Admin credentials.
+2. Run `Get-AipService` and confirm `ServiceStatus` reads **Enabled**.
+3. If `ServiceStatus` is **Disabled**, run `Enable-AipService` to activate. Most tenants created after February 2018 are auto-activated.
+4. Wait 15–30 minutes for tenant propagation before configuring labels or library IRM.
 
 > **Note:** Newer tenants have Azure RMS activated by default. Existing tenants migrated from legacy Azure Information Protection may show as activated already — verify rather than re-activate.
 
@@ -123,7 +125,7 @@ Repeat for each library in the agent knowledge-source inventory.
 
 After completing all steps, confirm:
 
-- [ ] `Get-AipService` returns `Enabled` and the admin center shows "Protection is activated".
+- [ ] `Get-AipService` returns `ServiceStatus: Enabled`.
 - [ ] At least one IRM-enabled label is published in an active label policy.
 - [ ] Tenant-level SharePoint IRM is enabled in the SharePoint Admin Center.
 - [ ] Each library in the agent knowledge-source inventory shows the IRM settings configured per its Zone.

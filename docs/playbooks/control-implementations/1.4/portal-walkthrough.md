@@ -56,7 +56,7 @@
 
 1. Open the environment group from Step 2.
 2. Select the **Rules** tab.
-3. Select **Advanced connector policies (preview)**.
+3. Select **Advanced connector policies**.
 4. Review the preloaded **nonblockable connectors** (Dataverse, Office 365 Users, Approvals, Notifications). On Managed Environments these can also be removed if your zone policy requires it.
 5. Select **+ Add connectors** and add only the connectors on the approved allowlist for this zone.
 6. For each added connector, select it to expand the **Actions** panel:
@@ -97,7 +97,7 @@ Do **not** add to the allowlist:
 Use this path for a single regulated, pilot, or quarantined environment that is not part of a group, or whose policy must differ from its group.
 
 1. **Security** > **Data and privacy**.
-2. Select **Advanced connector policies (preview)**.
+2. Select **Advanced connector policies**.
 3. Author the policy using the same connector + actions controls as Step 3.
 4. Select **Save**.
 5. Confirm **Status: Applied** appears at the top of the panel.

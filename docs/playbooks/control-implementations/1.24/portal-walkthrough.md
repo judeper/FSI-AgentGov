@@ -51,7 +51,7 @@
 AI-SPM provides posture findings (proactive). Defender for AI Services provides runtime detections (reactive). FSI Zone 2 and Zone 3 should enable both.
 
 1. Same **Defender plans** page.
-2. Locate **AI workloads** (formerly *Defender for AI Services*) and toggle **On**.
+2. Locate **AI services** (officially **Defender for AI Services**) and toggle **On**.
 3. Confirm enablement of **Threat protection for AI workloads** in the settings blade (covers jailbreak attempts, prompt leak, ASCII smuggling, sensitive-data exposure alerts, reconnaissance).
 4. Click **Save**.
 

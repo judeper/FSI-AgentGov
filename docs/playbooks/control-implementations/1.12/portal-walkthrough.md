@@ -241,6 +241,15 @@ Per Microsoft Learn `insider-risk-management-browser-support`:
 | Google Chrome | **Microsoft Purview extension** |
 | Other browsers | **Not supported** |
 
+> **Deployment anchor (Intune / store):** Both browsers deploy under the unified name **Microsoft Compliance Extension**. When creating an Intune configuration profile or `ExtensionInstallForcelist` policy entry, search for this name and use the following store IDs:
+>
+> | Browser | Intune / store ID |
+> |---|---|
+> | Microsoft Edge | `lcmcgbabdcbngcbcfabdncmoppkajglo` |
+> | Google Chrome | `echcggldkblhodogklpincgchnpgcdco` |
+>
+> The display names above ("Microsoft Insider risk extension" / "Microsoft Purview extension") appear in IRM policy-requirements and template guidance on Microsoft Learn; the deployment artifact in the store and in Intune is listed as **Microsoft Compliance Extension** for both browsers. Use the store IDs above as the authoritative deployment anchor.
+
 Additional requirements:
 
 - **Windows-only** (macOS / Linux / mobile not supported for IRM browser signals)

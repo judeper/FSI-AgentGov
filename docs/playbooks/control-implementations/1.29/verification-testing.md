@@ -64,8 +64,8 @@ Test Environment Checklist
 **Procedure:**
 
 1. Navigate to [https://admin.powerplatform.microsoft.com](https://admin.powerplatform.microsoft.com).
-2. Select **Environments** > [test environment] > **Settings** > **Features**.
-3. Confirm the **Global Secure Access** toggle is set to **On**.
+2. On the navigation pane, select **Security** > **Identity & access** > **Global Secure Access for Agents**.
+3. Locate the test environment. Confirm the **Enable Global Secure Access for Agents** toggle is set to **On**.
 
 **Expected result:** Toggle is in the ON/enabled position.
 

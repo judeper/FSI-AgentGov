@@ -47,7 +47,7 @@ related_controls: ["1.21", "1.23", "1.24", "2.6", "2.8", "2.12", "2.25", "2.26",
     Token Protection for sign-in tokens is in **Public Preview** as of April 2026. It is currently effective only on Windows 10/11 with Microsoft Edge or Chrome via WAM (Web Account Manager). On macOS, iOS, Android, Linux, or unsupported browsers the policy **falls through** — the user is still challenged for MFA but the token is not cryptographically bound to the device. Do not rely on Token Protection as a sole compensating control for token-theft risk on heterogeneous fleets. Treat the helper [§5.4](#54-new-fsi-capolicy-sessioncontrols) as a **pilot deployment**, not a global enforcement.
 
 !!! warning "Authentication Methods Policy Migration — Pre-flight Required"
-    Microsoft retired the legacy MFA / SSPR policy surface in **September 2025**. Phishing-resistant Conditional Access grants will not evaluate as expected unless your tenant''s Authentication Methods Policy reports `policyMigrationState = migrationComplete`. The bootstrap in [§2](#2-sovereign-aware-bootstrap) calls `Test-Fsi-AuthMethodsMigrationState` and **throws** if the migration is incomplete.
+    Microsoft retired the legacy MFA / SSPR policy surface in **September 30, 2025**. Phishing-resistant Conditional Access grants will not evaluate as expected unless your tenant''s Authentication Methods Policy reports `policyMigrationState = migrationComplete`. The bootstrap in [§2](#2-sovereign-aware-bootstrap) calls `Test-Fsi-AuthMethodsMigrationState` and **throws** if the migration is incomplete.
 
 !!! info "Sign-in Log Tables Are Distinct"
     `SigninLogs` (interactive and non-interactive **user** sign-ins) and `AADServicePrincipalSignInLogs` (workload identity sign-ins) are **separate Log Analytics tables**. Workload identity / agent sign-ins do **not** appear in `SigninLogs`. The Sentinel-wiring helper in [§8](#8-sentinel-wiring-stub) checks both tables; review the cross-reference to [Control 3.9 Microsoft Sentinel Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) before assuming agent-identity coverage.
@@ -158,7 +158,7 @@ Use the canonical role names in [`docs/reference/role-catalog.md`](../../../refe
 | CAE Strict Enforcement | GA (since November 2024) | Breaks legacy clients that do not honour token revocation events | `New-Fsi-CAPolicy-SessionControls` |
 | Workload Identity CA — `clientApplications` filter | GA (Beta Graph endpoint) | Only available via Graph Beta module | `New-Fsi-CAPolicy-WorkloadIdentity` |
 | Phishing-resistant Authentication Strength (built-in) | GA | Includes FIDO2, passkeys (Authenticator), Windows Hello, CBA | `New-Fsi-PhishingResistantAuthStrength` |
-| Authentication Methods Policy migration | **Mandatory** since Sept 2025 | Required for phishing-resistant grant evaluation | `Test-Fsi-AuthMethodsMigrationState` |
+| Authentication Methods Policy migration | **Mandatory** since September 30, 2025 | Required for phishing-resistant grant evaluation | `Test-Fsi-AuthMethodsMigrationState` |
 
 ---
 
@@ -379,7 +379,7 @@ function Test-Fsi-AuthMethodsMigrationState {
 .SYNOPSIS
     Verifies the tenant Authentication Methods Policy migration is complete.
 .DESCRIPTION
-    Microsoft retired the legacy MFA/SSPR policy surface in September 2025. Phishing-resistant
+    Microsoft retired the legacy MFA/SSPR policy surface in September 30, 2025. Phishing-resistant
     Conditional Access grants will not evaluate as expected unless policyMigrationState is
     ''migrationComplete''. This helper THROWS if the migration is incomplete; this is intentional
     — phishing-resistant CA deployment must not proceed.

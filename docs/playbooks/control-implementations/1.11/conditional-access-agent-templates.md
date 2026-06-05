@@ -41,8 +41,8 @@ All templates align to the three-zone agent governance model documented in Contr
 | **Conditional Access for Workload Identities (CA-WID)** | **Microsoft Entra Workload Identities Premium** (per service principal, per month) | CA-WI-001, CA-WI-002 |
 | Custom security attributes for SP filtering | Entra ID P1 + RBAC role `Attribute Definition Administrator` | CA-WI-002 |
 | Continuous Access Evaluation (CAE) | Entra ID P1 + supported clients | CA-007 |
-| Token Protection (sign-in token) | Entra ID P2 | CA-003 (Zone 3) |
-| Microsoft-managed agent baseline | Entra Agent ID preview entitlement | CA-WI-003 |
+| Token Protection (sign-in token) | Entra ID P2 | CA-003 (Zone 3) — **⚠ Public Preview; Windows 10/11 + Edge/Chrome via WAM only; falls through on macOS/iOS/Android/Linux** |
+| Microsoft-managed agent baseline | **Microsoft Agent 365 or Microsoft 365 E7** (GA May 1, 2026; requires Workload Identities Premium as prerequisite for CA WID) | CA-WI-003 |
 
 !!! warning "Workload Identities Premium is licensed per service principal"
     Conditional Access for Workload Identities (CA-WID) requires **Microsoft Entra Workload Identities Premium**, billed per-SP per-month. Without this SKU, `New-MgIdentityConditionalAccessPolicy` calls that target service principals will be **rejected at deployment** (not silently fail). Confirm the SKU is assigned and the count of agent SPs is budgeted before deploying CA-WI-001 / CA-WI-002. As of April 2026, Workload Identities Premium availability **lags in GCC High and DoD sovereign clouds** — verify cloud parity before production rollout.
