@@ -35,7 +35,6 @@ Conflating the two leaves an evidence gap — examiners typically want both Micr
 | **ISO/IEC 27018** | Cloud-services PII protection | 3-year cycle | GLBA / GDPR / CCPA personal-data-processing evidence |
 | **ISO/IEC 27701** | Privacy Information Management System | 3-year cycle | Privacy-program evidence |
 | **ISO/IEC 42001:2023** | AI Management System (the AI MS standard) | New standard; check STP for Microsoft's first attestation cycle | EU AI Act / NIST AI RMF vendor evidence |
-| **FedRAMP** | Azure Government, Microsoft 365 GCC / GCC High / DoD | Annual continuous monitoring with 3-year recertification | US federal regulators (OCC, Fed, FDIC, NCUA examinations); state-level adopters that recognise FedRAMP |
 | **HITRUST CSF** | Selected Microsoft 365 services | 2-year cycle | Healthcare-adjacent FSI lines (insurance, integrated wealth-and-health) |
 | **PCI DSS Attestation of Compliance (AoC)** | Azure | Annual | Card-data processing where Azure is in scope |
 | **CSA STAR Level 2** | Cloud Security Alliance attestation | Annual | Cloud-specific vendor due diligence |

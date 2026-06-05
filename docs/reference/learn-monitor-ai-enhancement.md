@@ -263,8 +263,7 @@ Found 31 HIGH priority changes affecting 15 controls.
 
 Proposed Updates:
 1. Control 3.9: Update Sentinel deadline (July 2026 → March 31, 2027)
-2. Control 1.19: Add 21Vianet scope note for eDiscovery classic
-3. Controls 1.1, 1.5, 1.6: Add Agent Essentials cross-references
+2. Controls 1.1, 1.5, 1.6: Add Agent Essentials cross-references
 ...
 
 Do you want me to apply these 12 updates?
