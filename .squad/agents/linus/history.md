@@ -14,7 +14,43 @@
 - **Double `---` from section deletion:** when removing a whole `## Section` that sits between two `---` markers, always include one of the surrounding `---` in the old_str so the replacement doesn't create two consecutive horizontal-rule markers.
 - **Numbering renumbering in verification criteria:** when removing a numbered criterion (e.g., removing criterion 9 from a 12-item list), renumber the survivors in the same edit pass to keep them sequential.
 
-## 2026-06-04 — Sovereign-Cloud Removal Batch A1b (Pillar-1 Controls, 13 files)
+## 2026-06-04 — Sovereign-Cloud Removal Batch A1c (Pillar-2/3/4 Controls, 16 files)
+
+**Mode:** CONTENT REMOVAL (sovereign/gov-cloud guidance — US FSI Commercial-only scope directive)
+**Branch:** `fix/pb-xcut-sov-nonplaybook` (continuing from prior A1b commit f3d242029)
+**Commit:** `23608aa74`
+**Scope:** All 16 Pillar-2/3/4 control docs listed in the batch A1c task
+
+### Files edited (16)
+
+| File | Change summary |
+|------|---------------|
+| 2.1 | Removed Sovereign Cloud Availability warning admonition; removed Lockbox sovereign caveat bullet |
+| 2.5 | Removed "sovereign-cloud parity" from model-swap note; deleted Sovereign Cloud Parity warning admonition; removed "sovereign-cloud considerations" from Related Controls table |
+| 2.6 | Deleted Sovereign Cloud Availability warning admonition; removed "sovereign-cloud parity must be verified" from model-availability note |
+| 2.7 | Removed GCC/sovereign caveat sentence from Anthropic Native Integration note |
+| 2.9 | Deleted Sovereign Cloud Limitations warning admonition |
+| 2.12 | Deleted Sovereign Cloud Availability warning admonition; edited Objective paragraph to drop sovereign-cloud reference; removed sovereign-cloud coordination from AI Governance Lead role; removed verification criterion 8 (sovereign-cloud compensating control); renumbered former criterion 9 → 8 |
+| 2.24 | Deleted Sovereign cloud release-wave caveat warning admonition; removed "commercial + sovereign variants" from AI Governance Lead role description |
+| 2.25 | Deleted Sovereign Cloud Availability warning admonition; removed sovereign-cloud propagation sentence from 2.26 Related Controls entry; removed M365 Government roadmap link from Additional Resources |
+| 2.26 | Removed "No GCC, GCC High, or DoD availability" sentence from GA info note; deleted Sovereign Cloud Availability warning admonition in Zone-Specific Requirements |
+| 3.1 | Deleted Sovereign Cloud Parity warning admonition (parity table); removed Sovereign Cloud Boundary metadata row; removed "Sovereign Cloud Boundary" from Key Configuration Points list |
+| 3.4 | Deleted Sovereign Cloud Availability warning admonition; removed verification criterion 15 (sovereign compensating controls); renumbered former criterion 16 → 15 |
+| 3.5 | Removed "sovereign clouds" from pricing disclaimer; removed verification criterion 8 (sovereign-cloud parity) |
+| 3.6 | Deleted Sovereign Cloud Availability warning admonition; removed Sovereign-cloud reconciliation worksheet from Evidence table; removed verification criterion 6 (sovereign compensating control); renumbered criteria 7–8 → 6–7 |
+| 3.9 | Deleted sovereign cloud availability warning admonition; removed sovereign-cloud compensating patterns from CISO role; removed verification criterion 9 (sovereign cloud parity); renumbered former criterion 10 → 9 |
+| 4.6 | Deleted Sovereign Cloud and Preview Notice danger admonition; removed GCC 450 KB payload row from limits table; deleted entire Sovereign Cloud Considerations subsection; removed verification criterion 9 (GCC payload); renumbered former criterion 10 → 9 |
+| 4.7 | Deleted Sovereign Cloud Parity warning admonition (parity table); removed "sovereign-cloud feature parity" from Key Configuration Points; removed GCC/DoD government-cloud qualifier from Anthropic subprocessor bullet; removed "sovereign-cloud parity gaps" from CISO role; removed verification criterion 12 (sovereign parity); renumbered criteria 13–16 → 12–15 |
+
+### Validation Results
+
+| Command | Result |
+|---------|--------|
+| `python -m mkdocs build --strict` | ✅ PASS — 0 errors, 0 warnings (67.38s) |
+| `python scripts/verify_controls.py` | ✅ PASS — all 78 controls valid |
+| `python scripts/verify_language_rules.py` | ✅ PASS — no prohibited language found |
+
+
 
 **Mode:** CONTENT REMOVAL (sovereign/gov-cloud guidance — US FSI Commercial-only scope directive)
 **Branch:** `fix/pb-xcut-sov-nonplaybook` (continuing from prior A1a commit 29b761136)
