@@ -111,9 +111,11 @@ For each zone: **Virtual network links → + Add** → select the primary and fa
 
 In PPAC, after the PowerShell link step completes:
 
-1. PPAC → **Environments** → select the environment → **Settings**.
-2. **Updates and policies** → **Network injection / VNet integration** (label varies by tenant version).
-3. Confirm the linked enterprise policy GUID, primary subnet ID, and failover subnet ID match the values from your change ticket.
+1. PPAC → **Security** → **Data and privacy** → **Azure Virtual Network policies**. *(The PPAC Security information architecture is still evolving — verify the exact 'Azure Virtual Network policies' label in your tenant.)*
+2. The environment should appear with the linked policy name visible. Confirm the policy name matches the value from your change ticket.
+3. To confirm the link succeeded: PPAC → **Manage** → **Environments** → [environment] → **History**. Status should read **Succeeded**.
+
+> If the **Security** pane or **Data and privacy** sub-pane is not visible, confirm the environment is a Managed Environment (prerequisite). Portal labels may vary between release rings — cross-verify against the [MS Learn VNet setup guide](https://learn.microsoft.com/en-us/power-platform/admin/vnet-support-setup-configure) at deploy time.
 
 ---
 

@@ -7,10 +7,10 @@
 ## Issue 1 — Advanced Connector Policies option is missing from the Rules tab
 
 ### Symptom
-The environment group's **Rules** tab does not list **Advanced connector policies (preview)**, or the option is greyed out.
+The environment group's **Rules** tab does not list **Advanced connector policies**, or the option is greyed out.
 
 ### Cause
-- Tenant has not been opted into the public-preview feature, **or**
+- The feature is not visible because Managed Environments is not enabled for any environment in the group, **or**
 - No environment in the group is enabled as a **Managed Environment**, **or**
 - Caller does not hold **Power Platform Admin** (or higher).
 
@@ -161,7 +161,7 @@ An environment was removed from a group and is now expected to have no ACP rule 
 By design: each environment retains its **last known ACP configuration** when removed from a group. This prevents an accidental gap during reorganization.
 
 ### Fix
-1. If the intent was to fully remove ACP from that environment: PPAC > environment > **Security** > **Data and privacy** > **Advanced connector policies (preview)** > **Remove rule**.
+1. If the intent was to fully remove ACP from that environment: PPAC > environment > **Security** > **Data and privacy** > **Advanced connector policies** > **Remove rule**.
 2. If the intent was to apply a different ACP: edit the rule directly on the environment via the same panel, or add the environment to the new group.
 3. Document the decision in the change ticket so audit can trace why a previously group-managed environment now carries a single-environment policy.
 
