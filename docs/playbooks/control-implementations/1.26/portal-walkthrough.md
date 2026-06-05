@@ -7,7 +7,7 @@
 ## Prerequisites
 
 - [ ] **AI Administrator** (canonical role per `docs/reference/role-catalog.md`) — primary owner for the per-agent **File Upload** toggle and allowed-file-type list
-- [ ] **Power Platform Admin** — required for environment feature flags, SharePoint Embedded (SPE) container review, and DLP scope
+- [ ] **Power Platform Admin** — required for environment feature flags, Dataverse environment capacity and security role review, and DLP scope
 - [ ] **Purview Compliance Admin** — required for DLP and sensitivity-label policy verification (Zone 2+)
 - [ ] **Copilot Studio Agent Author** (Environment Maker + agent ownership) — required to open agent Settings
 - [ ] Documented governance-zone classification for each target agent (Zone 1 / Zone 2 / Zone 3)
@@ -28,14 +28,15 @@
 
 > **Important:** Do not toggle File Upload on for a Zone 2 or Zone 3 agent without the documented approval. Toggle changes are recorded in the Power Platform admin activity log and may surface during supervisory review.
 
-### Step 2: Open the Per-Agent Security Panel (Copilot Studio)
+### Step 2: Open the Per-Agent File Upload Settings (Copilot Studio)
 
 1. Open [Copilot Studio](https://copilotstudio.microsoft.com)
 2. Select the target environment from the environment switcher (top-right)
 3. Open the target agent
-4. Click the agent name → **Settings** → **Security**
+4. Click the agent name → **Settings** → **Generative AI**
+5. Navigate to the **File processing capabilities** section
 
-> **Portal path (April 2026):** *Copilot Studio → \[Environment\] → \[Agent\] → Settings → Security → File Upload*. The **Security** node is reached from the per-agent Settings panel; older guidance that lists a **Knowledge** sub-tab for the toggle is stale.
+> **Portal path (June 2026):** *Copilot Studio → \[Environment\] → \[Agent\] → Settings → Generative AI → File processing capabilities → File uploads*. Older guidance referencing a "Security → File Upload" or "Knowledge" sub-tab is stale.
 
 ### Step 3: Set the File Upload Toggle Per Zone
 
@@ -53,12 +54,14 @@
 
 > **Required for every Zone 2 and Zone 3 agent with File Upload = On.** PPAC controls (Control 1.25) establish the *maximum* permitted file types for the environment; per-agent allowlists apply *additional* least-privilege restrictions.
 
-1. In the **File Upload** section, locate **Allowed file types** (visible only when the toggle is **On**)
+1. In the **File processing capabilities** section, locate **Allowed file types** (visible only when File uploads is **On**)
 2. Reduce the allowlist to the minimum set required by the agent's documented purpose
    - Example: a contract-summary agent → `.pdf` only
    - Example: a financial-analysis agent → `.xlsx`, `.csv` only
 3. Do not inherit the full environment allowlist by default
 4. Click **Save** and republish
+
+> **Note:** The supported file types for user runtime uploads (DOCX, CSV, PDF, TXT, JPG, PNG, WebP, non-animated GIF) are narrower than maker-uploaded knowledge source types (which include XML, HTML, JSON, YAML, and additional formats). Build Zone 3 allowlists against the [current MS Learn supported types list](https://learn.microsoft.com/en-us/microsoft-copilot-studio/image-input-analysis) for runtime uploads and the [knowledge source types list](https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-add-file-upload#supported-document-types) for maker uploads.
 
 ### Step 5: Verify File Size and Per-Conversation Limits
 
@@ -85,7 +88,7 @@
 4. Upload a second test file with a more restrictive label (e.g., **Highly Confidential**) and verify the agent inherits the **most restrictive** label
 5. Capture screenshot evidence and store under `maintainers-local/tenant-evidence/1.26/` (gitignored)
 
-> **Caveat:** Auto-labeling for SharePoint Embedded (SPE) containers used by Copilot Studio may require an explicit Purview auto-labeling policy that includes the SPE location. If labels do not flow through, see the [Troubleshooting](troubleshooting.md) playbook.
+> **Caveat:** Auto-labeling for Dataverse-stored knowledge files may require an explicit Purview auto-labeling policy that includes the Dataverse location for the agent's environment. If labels do not flow through, see the [Troubleshooting](troubleshooting.md) playbook.
 
 ### Step 7: Verify DLP Policy Coverage (Zone 2+)
 
@@ -96,24 +99,24 @@
 
 ### Step 8: Configure Defender for Cloud Apps Content Scanning (Zone 3)
 
-> **Required for Zone 3.** PPAC and per-agent allowlists inspect declared file extensions and MIME headers; magic-byte (true content type) inspection requires Defender for Cloud Apps. See Control 1.25 portal walkthrough Step 7 for the parallel environment-level pattern; this step targets the agent's SPE container.
+> **Required for Zone 3.** PPAC and per-agent allowlists inspect declared file extensions and MIME headers; magic-byte (true content type) inspection requires Defender for Cloud Apps. See Control 1.25 portal walkthrough Step 7 for the parallel environment-level pattern; this step targets files associated with the agent's Dataverse environment.
 
 1. Open [Microsoft Defender XDR portal](https://security.microsoft.com) → **Cloud apps** → **Policies** → **Policy management** → **File policy**
-2. Create a file policy scoped to **SharePoint Online / OneDrive for Business** that filters on the SPE container associated with the agent's environment
+2. Create a file policy scoped to the Dataverse / Power Platform location associated with the agent's environment
 3. Add filter: **MIME type (true type) does not equal** the approved per-agent allowlist
 4. Governance actions: **Quarantine** + Notify file owner + Notify SOC distribution list
 5. Create a **High** severity alert; forward to Microsoft Sentinel
 6. Save and confirm the policy is **Enabled**
 
-### Step 9: Review SharePoint Embedded Container Configuration
+### Step 9: Review Dataverse Environment Storage Configuration
 
 1. Open [Power Platform Admin Center](https://admin.powerplatform.microsoft.com) → **Environments** → \[Environment\]
-2. Locate the **SharePoint Embedded** container details for the environment hosting the agent
-3. Document the container ID and verify:
-   - Access controls limit the container to authorized service principals and admins
+2. Navigate to **Resources → Capacity** to review Dataverse storage consumption for the environment hosting the agent's knowledge files
+3. Navigate to **Settings → Users + permissions → Security roles** and verify:
+   - Access to the Dataverse tables storing knowledge files is restricted to authorized service principals and admin roles
    - A Purview retention policy is applied (Zone 2+) that meets the agent's record-retention obligations under FINRA 4511 / SEC 17a-4(f)
-   - Container auditing is enabled (Zone 2+)
-4. Capture the configuration as JSON evidence (see [PowerShell Setup](powershell-setup.md) for SHA-256 evidence emission)
+   - Dataverse auditing is enabled for the environment (Zone 2+)
+4. Capture the configuration as evidence (see [PowerShell Setup](powershell-setup.md) for SHA-256 evidence emission)
 
 ### Step 10: Update the Per-Agent Inventory
 
@@ -137,7 +140,7 @@
 | **Sensitivity label inheritance** | Recommended | Required | Required with audit trail |
 | **DLP policy coverage** | Not required | Required (Enforce mode) | Required + content scanning |
 | **Defender for Cloud Apps content scanning** | Not required | Optional | Required (true-MIME inspection) |
-| **SPE container retention policy** | Recommended | Required | Required + auditing enabled |
+| **Dataverse environment retention policy** | Recommended | Required | Required + auditing enabled |
 | **Sentinel monitoring** | Optional | Optional | Required |
 | **Inventory tracking** | Recommended | Required | Required |
 | **Review frequency** | Quarterly | Monthly | Weekly |
@@ -154,7 +157,7 @@ After completing these steps, verify:
 - [ ] Sensitivity-label inheritance test passes (agent surfaces the most restrictive label from uploaded files)
 - [ ] DLP policy in **Enforce** mode covers the agent's environment (Zone 2+)
 - [ ] Defender for Cloud Apps file policy with true-MIME inspection is **Enabled** (Zone 3)
-- [ ] SPE container access controls, retention policy, and auditing are configured (Zone 2+)
+- [ ] Dataverse environment security roles, retention policy, and auditing are configured (Zone 2+)
 - [ ] Per-agent inventory updated with toggle state, approval reference, and next review date
 - [ ] Screenshot evidence captured under `maintainers-local/tenant-evidence/1.26/` (gitignored — never push to the repository)
 
@@ -163,4 +166,4 @@ After completing these steps, verify:
 [Back to Control 1.26](../../../controls/pillar-1-security/1.26-agent-file-upload-and-file-analysis-restrictions.md) | [PowerShell Setup](powershell-setup.md) | [Verification & Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: June 2026 | Version: v1.6.2 | UI Verification Status: Current*

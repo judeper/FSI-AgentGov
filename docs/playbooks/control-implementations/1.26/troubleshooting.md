@@ -16,7 +16,7 @@ This playbook is structured by **Symptom (H2) → Likely Cause and Resolution (H
 | Uploads silently fail when toggle is on | Per-agent allowlist mismatch, file size, environment-level (1.25) block | [Uploads Fail When Enabled](#symptom-uploads-fail-when-toggle-is-on) |
 | Sensitivity labels not inherited by agent | Auto-labeling policy scope, source file unlabeled, propagation delay | [Labels Not Inherited](#symptom-sensitivity-labels-not-applied-to-uploaded-files) |
 | DLP not triggering on sensitive content | Policy mode, scope, SIT version, latency | [DLP Not Triggering](#symptom-dlp-policy-not-triggering-on-uploaded-content) |
-| SPE container access too permissive | Default permissions, missing retention policy | [SPE Container Hardening](#symptom-spe-container-access-not-restricted-or-retention-missing) |
+| Dataverse storage access too permissive | Default permissions, missing retention policy | [Dataverse Storage Hardening](#symptom-dataverse-storage-access-not-restricted-or-retention-missing) |
 | Inventory script returns incomplete results | Sovereign cloud, PSEdition, role | [Inventory Incomplete](#symptom-inventory-script-returns-incomplete-or-empty-results) |
 | `Set-AdminPowerAppChatbot -FileUploadEnabled` rejected | Module version, schema not present | [API Surface Missing](#symptom-set-adminpowerappchatbot-fileuploadenabled-rejected) |
 
@@ -40,7 +40,7 @@ This playbook is structured by **Symptom (H2) → Likely Cause and Resolution (H
 1. Open the [Microsoft 365 Admin Center → Health → Message Center](https://admin.microsoft.com) and search for "Copilot Studio file upload"
 2. If the feature is pending for your region, document the gap and apply environment-level controls (Control 1.25) as a temporary compensating measure
 
-**Portal path:** *Copilot Studio → \[Agent\] → Settings → Security → File Upload*
+**Portal path:** *Copilot Studio → \[Agent\] → Settings → Generative AI → File processing capabilities → File uploads*
 
 ---
 
@@ -48,7 +48,7 @@ This playbook is structured by **Symptom (H2) → Likely Cause and Resolution (H
 
 ### Cause: Toggle change not saved
 
-1. Reopen *Settings → Security* and confirm the toggle reads **Off**
+1. Reopen *Settings → Generative AI → File processing capabilities* and confirm the toggle reads **Off**
 2. If a **Save** button is highlighted, click it and re-test
 
 ### Cause: Agent not republished after toggle change
@@ -72,7 +72,7 @@ This playbook is structured by **Symptom (H2) → Likely Cause and Resolution (H
 
 ### Cause: File type not in the per-agent allowlist
 
-1. Open *Settings → Security → File Upload → Allowed file types* and confirm the file's extension is listed
+1. Open *Settings → Generative AI → File processing capabilities → Allowed file types* and confirm the file's extension is listed
 2. Add the extension if it matches the agent's documented purpose; otherwise the rejection is correct
 
 ### Cause: File type blocked at the environment level (Control 1.25)
@@ -100,11 +100,11 @@ This playbook is structured by **Symptom (H2) → Likely Cause and Resolution (H
 
 ## Symptom: Sensitivity Labels Not Applied to Uploaded Files
 
-### Cause: Auto-labeling policy does not cover the SPE container
+### Cause: Auto-labeling policy does not cover the Dataverse location
 
 1. Open *Microsoft Purview → Information Protection → Auto-labeling policies*
-2. Confirm a policy is in scope for **SharePoint sites** and explicitly includes the SPE container location for the agent's environment
-3. If the SPE container is not enumerated, create or update the policy and allow up to **24 hours** for propagation
+2. Confirm a policy is in scope that covers the Dataverse environment where the agent's knowledge files are stored
+3. If the Dataverse location is not enumerated, create or update the policy and allow up to **24 hours** for propagation
 
 ### Cause: Source file was not labeled before upload
 
@@ -147,24 +147,25 @@ This playbook is structured by **Symptom (H2) → Likely Cause and Resolution (H
 
 ---
 
-## Symptom: SPE Container Access Not Restricted or Retention Missing
+## Symptom: Dataverse Storage Access Not Restricted or Retention Missing
 
-### Cause: Default container permissions retained
+### Cause: Default environment permissions retained
 
-1. Open *PPAC → Environments → \[Environment\]* and locate the SPE container
-2. Review access controls; remove any overly broad principals (e.g., "Everyone except external users")
-3. Restrict to required service principals and named admin groups
+1. Open *PPAC → Environments → \[Environment\] → Settings → Users + permissions → Security roles*
+2. Review Dataverse security roles; remove any overly broad role assignments (e.g., "Basic User" with Organization-level read on knowledge tables)
+3. Restrict access to required service principals and named admin security roles
 
-### Cause: No Purview retention policy covers the SPE container
+### Cause: No Purview retention policy covers the Dataverse location
 
 1. Open *Microsoft Purview → Data Lifecycle Management → Retention policies*
-2. Add the SPE container location to a retention policy that meets your record-keeping obligation (FINRA 4511: 6 years; SEC 17a-4(f): typically 6 years with WORM characteristics)
+2. Add the Dataverse environment location to a retention policy that meets your record-keeping obligation (FINRA 4511: 6 years; SEC 17a-4(f): typically 6 years with WORM characteristics)
 3. Enable **retention lock** if SEC 17a-4(f) WORM equivalence is required
 
-### Cause: Container auditing not enabled
+### Cause: Dataverse auditing not enabled
 
-1. Confirm Microsoft Purview Audit (Standard or Premium) is enabled at the tenant level
-2. Test by uploading a file and querying *Purview → Audit → Search* for the activity within 30 minutes
+1. Open *PPAC → Environments → \[Environment\] → Settings → Auditing* and confirm auditing is enabled
+2. Confirm Microsoft Purview Audit (Standard or Premium) is enabled at the tenant level
+3. Test by uploading a knowledge file and querying *Purview → Audit → Search* for the activity within 30 minutes
 
 ---
 
@@ -219,11 +220,11 @@ Install-Module -Name Microsoft.PowerApps.Administration.PowerShell `
 
 1. **Copilot Studio Agent Author** — per-agent toggle, allowed-types list, agent publishing
 2. **AI Administrator** — per-agent governance policy enforcement, allowlist standards, approval review
-3. **Power Platform Admin** — environment settings, SPE container access, DLP scope, feature flags
+3. **Power Platform Admin** — environment settings, Dataverse access, DLP scope, feature flags
 4. **Purview Compliance Admin** — DLP policy authoring, retention policy, sensitivity-label policy
 5. **Purview Info Protection Admin** — auto-labeling policy scope and label publication
 6. **SOC Analyst** — Defender XDR alerts, Sentinel queries, anomalous upload investigation
-7. **Microsoft Support** — platform-level issues with file upload features, SPE containers, Defender for Cloud Apps file policies
+7. **Microsoft Support** — platform-level issues with file upload features, Dataverse storage, Defender for Cloud Apps file policies
 
 ---
 
@@ -233,7 +234,7 @@ Install-Module -Name Microsoft.PowerApps.Administration.PowerShell `
 |------------|--------|------------|
 | File Upload toggle is per-agent (no bulk UI) | Each agent must be configured individually in the portal | Use the PowerShell mutation script (Script 3) for bulk operations |
 | Microsoft platform file size limits cannot be lowered per agent in the portal | Maker-uploaded knowledge files can be up to 512 MB | Enforce reductions via Defender for Cloud Apps file policies (Zone 3) |
-| SPE container settings are largely tenant-managed | Container-level fine-grained access requires additional configuration | Apply retention and access policies at the Purview / SharePoint admin tier |
+| Dataverse environment settings are largely tenant-managed | Environment-level fine-grained access requires Dataverse security role configuration | Apply retention and access policies at the Purview / PPAC tier |
 | Sensitivity-label inheritance flows from source files | Cannot apply labels at the agent level after upload | Enforce labeling at source via auto-labeling policies |
 | Toggle changes may require agent republish | Settings may not take effect until republish completes | Republish the agent after every Security setting change |
 | Propagation delay up to 15 minutes | Recent toggle changes may not be enforced immediately | Wait 15 minutes before declaring a regression |
@@ -279,8 +280,9 @@ Get-AdminPowerAppEnvironment | Measure-Object
 ## Related Documentation
 
 - [Microsoft Learn: Copilot Studio file upload knowledge source](https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-add-file-upload)
+- [Microsoft Learn: Copilot Studio — Allow file input from users](https://learn.microsoft.com/en-us/microsoft-copilot-studio/image-input-analysis)
 - [Microsoft Learn: Power Platform Admin Center security overview](https://learn.microsoft.com/en-us/power-platform/admin/security/security-overview)
-- [Microsoft Learn: SharePoint Embedded overview](https://learn.microsoft.com/en-us/sharepoint/dev/embedded/overview)
+- [Microsoft Learn: Microsoft Dataverse security concepts](https://learn.microsoft.com/en-us/power-platform/admin/wp-security-cds)
 - [Microsoft Learn: Microsoft Purview sensitivity labels](https://learn.microsoft.com/en-us/purview/sensitivity-labels)
 - [Microsoft Learn: Auto-apply sensitivity labels](https://learn.microsoft.com/en-us/purview/apply-sensitivity-label-automatically)
 - [PowerShell Authoring Baseline for FSI Implementations](../../_shared/powershell-baseline.md)
@@ -290,4 +292,4 @@ Get-AdminPowerAppEnvironment | Measure-Object
 [Back to Control 1.26](../../../controls/pillar-1-security/1.26-agent-file-upload-and-file-analysis-restrictions.md) | [Portal Walkthrough](portal-walkthrough.md) | [PowerShell Setup](powershell-setup.md) | [Verification & Testing](verification-testing.md)
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: June 2026 | Version: v1.6.2 | UI Verification Status: Current*
