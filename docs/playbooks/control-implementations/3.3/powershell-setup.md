@@ -3,7 +3,7 @@
 **Last Updated:** April 2026
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show the framework's required patterns.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, commercial cloud endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show the framework's required patterns.
 
 > Automation scripts for [Control 3.3](../../../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md). All scripts are designed to be **read-only against tenant data** (collection only) or to write only to **scoped SharePoint locations** under explicit `-WhatIf` support.
 
@@ -31,25 +31,16 @@ if ($PSVersionTable.PSEdition -ne 'Core' -or $PSVersionTable.PSVersion.Major -lt
 }
 ```
 
-### Sovereign-aware connections
+### Connections
 
 ```powershell
 param(
-    [ValidateSet('Commercial','GCC','GCCHigh','DoD')]
-    [string]$Cloud = 'Commercial',
     [Parameter(Mandatory=$true)][string]$TenantId,
     [Parameter(Mandatory=$true)][string]$SharePointSiteUrl
 )
 
-$graphEnv = switch ($Cloud) {
-    'Commercial' { 'Global'    }
-    'GCC'        { 'USGov'     }
-    'GCCHigh'    { 'USGovDoD'  }   # verify per Microsoft Learn for your tenant
-    'DoD'        { 'USGovDoD'  }
-}
-
 # Required Graph scopes — request only the minimum
-Connect-MgGraph -Environment $graphEnv -TenantId $TenantId -Scopes @(
+Connect-MgGraph -Environment 'Global' -TenantId $TenantId -Scopes @(
     'SecurityEvents.Read.All',
     'ComplianceManager.Read.All',
     'Reports.Read.All',
@@ -58,8 +49,6 @@ Connect-MgGraph -Environment $graphEnv -TenantId $TenantId -Scopes @(
 
 Connect-PnPOnline -Url $SharePointSiteUrl -Interactive
 ```
-
-> **False-clean evidence risk:** Failing to pass the correct `-Environment` against a sovereign tenant returns zero results without error. Always log the resolved environment in your evidence emission (see §6).
 
 ---
 
@@ -343,8 +332,8 @@ function Write-FSIEvidenceRow {
 ## End-to-End Example (Read-Only Snapshot)
 
 ```powershell
-# 1. Connect (sovereign-aware)
-. .\Connect-FSI.ps1 -Cloud Commercial -TenantId '<tenant-id>' -SharePointSiteUrl 'https://contoso.sharepoint.com/sites/AI-Compliance-Reports'
+# 1. Connect
+. .\Connect-FSI.ps1 -TenantId '<tenant-id>' -SharePointSiteUrl 'https://contoso.sharepoint.com/sites/AI-Compliance-Reports'
 
 # 2. Collect (read-only)
 $cm    = Get-ComplianceManagerSnapshot -OutputPath '.\out\cm-snapshot.json'

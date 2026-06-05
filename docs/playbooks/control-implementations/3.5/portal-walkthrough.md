@@ -19,14 +19,6 @@
 
     A clean run of this walkthrough produces an examiner-defensible **starting point** for IT cost governance of AI-agent workloads. It does not by itself satisfy any single regulation.
 
-!!! warning "Sovereign Cloud Availability — GCC, GCC High, DoD"
-    As of April 2026, the surfaces below have known parity gaps in US Government clouds. Verify each with your Microsoft account team before relying on the automated path; otherwise implement the manual compensating controls noted in [Troubleshooting §SOV](troubleshooting.md):
-
-    - **Microsoft 365 Copilot PAYG and Copilot Credit billing policies** — Commercial GA; sovereign-cloud GA dates vary by ring. Plan compensating manual cost-allocation in DoD until confirmed.
-    - **Cost Management exports to ADLS Gen2 with immutability policy** — verify storage immutability features in the target sovereign region.
-    - **Microsoft 365 Copilot high-usage-users report (March 2026)** — verify availability per cloud.
-    - **Cost Management connector for Power BI** — generally available across clouds, but specific datasets (e.g., enrollment-level price sheets) may differ.
-
 ---
 
 ## Document Map
@@ -361,8 +353,6 @@ By the 5th business day after month-end:
 
 - Pull a one-record evidence sample (one billing policy, one budget, one chargeback ledger, one variance memo). Walk through the SOX 404 ITGC test script. Sign and retain. (Verification §3.)
 - Review Copilot license utilization; reclaim seats idle >30 days.
-- Confirm sovereign-cloud parity status if the tenant is in GCC / GCC High / DoD.
-
 ### 9.4 Annual
 
 - Re-baseline the rate card with Finance.

@@ -1,7 +1,7 @@
 # PowerShell Setup — Control 3.5: Cost Allocation and Budget Tracking
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show the abbreviated patterns; the baseline is authoritative.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show the abbreviated patterns; the baseline is authoritative.
 
 > **Control under management:** [`3.5 — Cost Allocation and Budget Tracking`](../../../controls/pillar-3-reporting/3.5-cost-allocation-and-budget-tracking.md)
 >
@@ -23,7 +23,7 @@
     Tooling **aids in** meeting these obligations. It does not satisfy them.
 
 !!! danger "Status discipline — never return `$null` as a clean signal"
-    Every helper in this playbook returns a `[pscustomobject]` with one of five `Status` values: **`Clean`**, **`Anomaly`**, **`Pending`**, **`NotApplicable`**, **`Error`**. When `Status -ne 'Clean'`, the `Reason` string is non-empty. **Helpers never return `$null` or `@()` to mean "all good."** Sovereign-cloud surfaces that do not exist return `NotApplicable` with a compensating-control pointer — never `Clean`.
+    Every helper in this playbook returns a `[pscustomobject]` with one of five `Status` values: **`Clean`**, **`Anomaly`**, **`Pending`**, **`NotApplicable`**, **`Error`**. When `Status -ne 'Clean'`, the `Reason` string is non-empty. **Helpers never return `$null` or `@()` to mean "all good."**
 
 ---
 
@@ -66,15 +66,14 @@ function Assert-Fsi35ShellHost {
 | # | Defect | Symptom | Root cause | Mitigation in this playbook |
 |---|--------|---------|------------|-----------------------------|
 | 1 | Wrong shell | `Get-AdminPowerAppEnvironment` returns `@()` against tenants that obviously have environments | PS 7.4 host | `Assert-Fsi35ShellHost -RequiredHost Sidecar51` |
-| 2 | Sovereign tenant treated as commercial | `Get-Fsi-CopilotBillingPolicy` returns `Clean / no policies` for a `.us` tenant where the surface is GCC-only | Connected to commercial Graph endpoint | `Resolve-Fsi35CloudProfile` (§2) routes to correct endpoint or returns `NotApplicable` |
-| 3 | Read-only token used against export create | `New-Fsi-CostExport` 403s; helper swallows and reports "skipped" | Caller used `Cost Management Reader` only | `Test-Fsi35Rbac` preflight refuses to dispatch mutation helpers without write role |
-| 4 | Throttled cost query returns empty | `Invoke-AzCostManagementQuery` returns `200 OK` with empty rows on throttle | No retry/backoff | `Invoke-Fsi35CostQuery` (§3) honours `Retry-After`, raises `Status='Error'` after 3 retries |
-| 5 | Empty result conflated with "no spend" | Helper returns `$null` or `@()`; downstream chargeback emits `$0.00` for a real BU | Helpers must distinguish `Clean` (no spend confirmed) from `NotApplicable` (surface absent) from `Error` | All helpers return explicit `Status` enum |
-| 6 | Cached delegated token from prior tenant | Helper enumerates the wrong tenant's costs | Operator switched tenants without disconnect | `Initialize-Fsi35Session` always disconnects first |
-| 7 | Random/stub data treated as production | A development helper using `Get-Random` is committed and runs in prod, producing fake chargeback | Stubs not gated | `[Fsi35Mode]::Production` enforced via env var; stubs throw under prod |
-| 8 | Pricing baked into helper | Hard-coded `$0.01` per message used after Microsoft re-priced the SKU; chargeback is now wrong | Rate card not externalised | `Get-Fsi35RateCard` reads the CFO-approved rate card from a versioned storage location and refuses to operate without a current version |
-| 9 | Export lands in mutable blob | Cost export written to a regular Storage account; treated as evidence; not a 17a-4(b)(4) record | No immutability binding | `Test-Fsi-Control35-ExportImmutability` flags `Anomaly` if the target container lacks an active immutability policy |
-| 10 | License-utilization stale | Inactive-seat report missed weeks of usage data | Microsoft Graph reports lag 24–72h; report consumer assumed real-time | `Get-Fsi-CopilotLicenseUtilization` annotates results with `DataLagHours` and refuses to mark `Clean` for periods inside the lag window |
+| 2 | Read-only token used against export create | `New-Fsi-CostExport` 403s; helper swallows and reports "skipped" | Caller used `Cost Management Reader` only | `Test-Fsi35Rbac` preflight refuses to dispatch mutation helpers without write role |
+| 3 | Throttled cost query returns empty | `Invoke-AzCostManagementQuery` returns `200 OK` with empty rows on throttle | No retry/backoff | `Invoke-Fsi35CostQuery` (§3) honours `Retry-After`, raises `Status='Error'` after 3 retries |
+| 4 | Empty result conflated with "no spend" | Helper returns `$null` or `@()`; downstream chargeback emits `$0.00` for a real BU | Helpers must distinguish `Clean` (no spend confirmed) from `NotApplicable` (surface absent) from `Error` | All helpers return explicit `Status` enum |
+| 5 | Cached delegated token from prior tenant | Helper enumerates the wrong tenant's costs | Operator switched tenants without disconnect | `Initialize-Fsi35Session` always disconnects first |
+| 6 | Random/stub data treated as production | A development helper using `Get-Random` is committed and runs in prod, producing fake chargeback | Stubs not gated | `[Fsi35Mode]::Production` enforced via env var; stubs throw under prod |
+| 7 | Pricing baked into helper | Hard-coded `$0.01` per message used after Microsoft re-priced the SKU; chargeback is now wrong | Rate card not externalised | `Get-Fsi35RateCard` reads the CFO-approved rate card from a versioned storage location and refuses to operate without a current version |
+| 8 | Export lands in mutable blob | Cost export written to a regular Storage account; treated as evidence; not a 17a-4(b)(4) record | No immutability binding | `Test-Fsi-Control35-ExportImmutability` flags `Anomaly` if the target container lacks an active immutability policy |
+| 9 | License-utilization stale | Inactive-seat report missed weeks of usage data | Microsoft Graph reports lag 24–72h; report consumer assumed real-time | `Get-Fsi-CopilotLicenseUtilization` annotates results with `DataLagHours` and refuses to mark `Clean` for periods inside the lag window |
 
 ### 0.3 Mode gating — production vs sandbox
 
@@ -187,43 +186,9 @@ Always read-only for this control. Mutation surfaces (creating Copilot billing p
 
 ---
 
-## §2 Sovereign-Aware Bootstrap
+## §2 Session Bootstrap
 
 ```powershell
-function Resolve-Fsi35CloudProfile {
-    [CmdletBinding()]
-    param([Parameter(Mandatory)] [string]$TenantId)
-
-    # Heuristic: caller can override; otherwise infer from default Azure context.
-    $env = $env:FSI_CLOUD
-    if (-not $env) {
-        $ctx = Get-AzContext -ErrorAction SilentlyContinue
-        $env = switch ($ctx.Environment.Name) {
-            'AzureCloud'        { 'Commercial' }
-            'AzureUSGovernment' { 'GCC' }   # caller may need to refine GCC vs GCC High
-            'AzureChinaCloud'   { 'China' }
-            default             { 'Commercial' }
-        }
-    }
-
-    $profile = switch ($env) {
-        'Commercial' { @{ AzEnv='AzureCloud';        GraphEnv='Global';   PowerAppsEndpoint='prod' } }
-        'GCC'        { @{ AzEnv='AzureUSGovernment'; GraphEnv='USGov';    PowerAppsEndpoint='usgov' } }
-        'GCCHigh'    { @{ AzEnv='AzureUSGovernment'; GraphEnv='USGovDoD'; PowerAppsEndpoint='usgovhigh' } }
-        'DoD'        { @{ AzEnv='AzureUSGovernment'; GraphEnv='USGovDoD'; PowerAppsEndpoint='dod' } }
-        'China'      { @{ AzEnv='AzureChinaCloud';   GraphEnv='China';    PowerAppsEndpoint='china' } }
-        default      { throw "Fsi35-Sovereign: unknown FSI_CLOUD value '$env'." }
-    }
-
-    [pscustomobject]@{
-        Status   = 'Clean'
-        Cloud    = $env
-        Profile  = $profile
-        TenantId = $TenantId
-        Reason   = ''
-    }
-}
-
 function Initialize-Fsi35Session {
     [CmdletBinding(SupportsShouldProcess)]
     param(
@@ -240,18 +205,16 @@ function Initialize-Fsi35Session {
     Disconnect-AzAccount -ErrorAction SilentlyContinue | Out-Null
     Disconnect-MgGraph -ErrorAction SilentlyContinue | Out-Null
 
-    $cloud = Resolve-Fsi35CloudProfile -TenantId $TenantId
-
     if ($PSCmdlet.ShouldProcess("Tenant $TenantId / Sub $SubscriptionId", 'Connect Az + Graph')) {
         Connect-AzAccount -Tenant $TenantId -Subscription $SubscriptionId `
-            -Environment $cloud.Profile.AzEnv | Out-Null
-        Connect-MgGraph -TenantId $TenantId -Environment $cloud.Profile.GraphEnv `
+            -Environment 'AzureCloud' | Out-Null
+        Connect-MgGraph -TenantId $TenantId -Environment 'Global' `
             -Scopes 'Reports.Read.All','Directory.Read.All','Group.Read.All' -NoWelcome
     }
 
     [pscustomobject]@{
         Status      = 'Clean'
-        Cloud       = $cloud.Cloud
+        Cloud       = 'Commercial'
         TenantId    = $TenantId
         Subscription= $SubscriptionId
         Reason      = ''
@@ -529,7 +492,7 @@ function Get-Fsi-PowerPlatformCapacity {
 
     Assert-Fsi35ShellHost -RequiredHost Sidecar51 | Out-Null
 
-    Add-PowerAppsAccount -Endpoint $env:FSI_PP_ENDPOINT  # 'prod' | 'usgov' | 'usgovhigh' | 'dod' | 'china'
+    Add-PowerAppsAccount -Endpoint 'prod'
 
     $envs = Get-AdminPowerAppEnvironment
     $rows = foreach ($e in $envs) {
@@ -934,7 +897,7 @@ The following patterns appeared in earlier versions of this playbook and must no
 - [Portal Walkthrough](portal-walkthrough.md) — surface-by-surface portal procedure
 - [Verification & Testing](verification-testing.md) — Pester suite and evidence pack
 - [Troubleshooting](troubleshooting.md) — defect catalogue and recovery
-- [`_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) — module pinning, sovereign endpoints, mutation safety
+- [`_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) — module pinning, mutation safety
 - [Control 1.9 — Data Retention and Deletion](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) — WORM retention surface
 - [Control 3.1 — Agent Inventory and Metadata](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) — source of `CostCenter` / `Owner` tag values
 

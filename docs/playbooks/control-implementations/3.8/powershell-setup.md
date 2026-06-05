@@ -1,7 +1,7 @@
 # Control 3.8: Copilot Hub and Governance Dashboard — PowerShell Setup
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. The snippets below assume the baseline is in force.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. The snippets below assume the baseline is in force.
 
 > PowerShell automation for [Control 3.8](../../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md). These scripts produce **read-mostly** governance evidence (registry exports, audit pulls, configuration snapshots) and offer mutation helpers (`SupportsShouldProcess` enabled) for the Admin Exclusion Group only. All other admin-center settings are managed in the portal — Microsoft does not yet expose stable cmdlets for the Copilot Hub feature toggles.
 
@@ -16,10 +16,7 @@ Install-Module Microsoft.Graph                            -RequiredVersion '<ver
 Install-Module Microsoft.PowerApps.Administration.PowerShell -RequiredVersion '<version>' -Repository PSGallery -Scope CurrentUser -AllowClobber -AcceptLicense
 Install-Module ExchangeOnlineManagement                   -RequiredVersion '<version>' -Repository PSGallery -Scope CurrentUser -AllowClobber -AcceptLicense
 
-# Sovereign-cloud aware Graph connection (see baseline §3 for endpoint table)
-$env  = $env:FSI_GRAPH_ENV   # 'Global','USGov','USGovDoD','China'
-$ppac = $env:FSI_PPAC_ENDPOINT # 'prod','usgov','usgovhigh','dod','china'
-
+# Connect to Microsoft Graph (commercial Global endpoint)
 Connect-MgGraph -Scopes @(
     'Organization.Read.All',
     'Policy.Read.All',
@@ -28,13 +25,13 @@ Connect-MgGraph -Scopes @(
     'Group.ReadWrite.All',
     'AuditLog.Read.All',
     'Directory.Read.All'
-) -Environment $env
+) -Environment 'Global'
 
 # Power Apps Administration cmdlets are Windows PowerShell 5.1 (Desktop) only.
 if ($PSVersionTable.PSEdition -ne 'Desktop') {
     throw 'Run PPAC governance scripts in Windows PowerShell 5.1 — see baseline §2.'
 }
-Add-PowerAppsAccount -Endpoint $ppac
+Add-PowerAppsAccount -Endpoint 'prod'
 ```
 
 > **Service principal authentication** for unattended runs: use Entra app registration with `Group.ReadWrite.All`, `AuditLog.Read.All`, `Reports.Read.All` (application). Document the consent in your change ticket and rotate secrets per OCC Bulletin 2026-13 (formerly OCC 2011-12).
@@ -300,7 +297,7 @@ try {
 ## Hedged language and scope reminders
 
 - These scripts **support** evidence collection for FINRA 4511 / RN 24-09, SEC 17a-3/4, GLBA 501(b), SOX 404. They do not by themselves constitute regulatory compliance.
-- Module pinning, sovereign cloud endpoints, and Desktop-edition guards are required per the [PowerShell baseline](../../_shared/powershell-baseline.md) — false-clean evidence is the most common audit gap.
+- Module pinning and Desktop-edition guards are required per the [PowerShell baseline](../../_shared/powershell-baseline.md) — false-clean evidence is the most common audit gap.
 - Mutation cmdlets (group create, member add) implement `SupportsShouldProcess`; use `-WhatIf` in change-window dry runs.
 
 ---
