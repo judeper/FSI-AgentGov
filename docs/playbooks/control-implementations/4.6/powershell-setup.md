@@ -199,7 +199,7 @@ param(
     )
 )
 
-. "$PSScriptRoot\Write-FsiEvidence.ps1"   # from _shared/powershell-baseline.md §5
+. "$PSScriptRoot\Write-FsiEvidence.ps1"   # from _shared/powershell-baseline.md §4
 
 $ErrorActionPreference = 'Stop'
 $out = $Ctx.RunDir
@@ -654,7 +654,7 @@ Write-FsiEvidence -RunDir $out -ScriptName 'Audit-GroundingChanges.ps1' -Context
 
 ## Section 9 — SHA-256 evidence manifest schema + validator
 
-Every script in this suite calls `Write-FsiEvidence` (defined in `_shared/powershell-baseline.md` §5). The emitted manifest schema:
+Every script in this suite calls `Write-FsiEvidence` (defined in `_shared/powershell-baseline.md` §4). The emitted manifest schema:
 
 ```json
 {

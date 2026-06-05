@@ -75,7 +75,7 @@ function Connect-FsiTenant {
 
 ## Evidence Emission Helper
 
-Implements the SHA-256 manifest pattern from baseline section 5. Save as `Write-FsiEvidence.ps1` and dot-source in every script below.
+Implements the SHA-256 manifest pattern from baseline section 4. Save as `Write-FsiEvidence.ps1` and dot-source in every script below.
 
 ```powershell
 function Write-FsiEvidence {
@@ -491,7 +491,7 @@ Write-Host "=== Validation PASS ===" -ForegroundColor Green
 | `Get-EnvironmentReleaseChannels.ps1` | Weekly, **Windows PowerShell 5.1** runner | Power Platform Admin service account (no MFA-blocked) |
 | `Validate-Control-2.10.ps1` | Monthly + before each wave window | Same as above |
 
-> **Mutation safety note:** None of the scripts in this playbook mutate tenant state. There is no `-WhatIf` switch because there is nothing to confirm. If you extend these scripts to *change* settings (e.g., flip a release channel programmatically once that capability stabilizes), wrap mutations in `[CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]` and follow baseline section 4.
+> **Mutation safety note:** None of the scripts in this playbook mutate tenant state. There is no `-WhatIf` switch because there is nothing to confirm. If you extend these scripts to *change* settings (e.g., flip a release channel programmatically once that capability stabilizes), wrap mutations in `[CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]` and follow baseline section 3.
 
 ---
 

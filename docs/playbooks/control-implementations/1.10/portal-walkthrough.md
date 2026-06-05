@@ -516,7 +516,7 @@ Both rows must be present. If the **Pending** alert appears but `SupervisionRule
 9. **Capture evidence:**
    - Screenshot of the alert in the Pending queue (with anonymized usernames if pseudonymization is on; capture both the anonymized and admin-resolved view if your firm requires it)
    - CSV export of the UAL search
-   - SHA-256 sidecar per `docs/playbooks/_shared/powershell-baseline.md` §5
+   - SHA-256 sidecar per `docs/playbooks/_shared/powershell-baseline.md` §4
 
 ### Validation cadence
 

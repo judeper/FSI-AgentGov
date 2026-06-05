@@ -44,7 +44,7 @@ if ($PSVersionTable.PSEdition -ne 'Core' -or $PSVersionTable.PSVersion -lt [Vers
 - **Region-mismatched SPO Admin URL.** Connecting to the wrong sovereign endpoint (e.g., `.com` against a GCC High tenant) returns `403 Forbidden` on tenant cmdlets — never `404` — which scripts often treat as a transient error. The bootstrap resolves the endpoint per cloud (§2) before any tenant call.
 - **"Set-LabelPolicy succeeded" with no actual rule change.** `Set-LabelPolicy` returns success when only metadata fields change, leaving the rule body untouched. The mutation pattern in §4 always re-reads via `Get-LabelPolicy` and verifies the field after the change.
 
-> **Reminder:** This playbook is a programmatic complement to the [PowerShell Baseline](../../_shared/powershell-baseline.md). Section numbers in the baseline are referenced inline (BL-§1 = module pinning, BL-§2 = edition, BL-§3 = sovereign endpoints, BL-§4 = mutation safety, BL-§5 = SHA-256 evidence).
+> **Reminder:** This playbook is a programmatic complement to the [PowerShell Baseline](../../_shared/powershell-baseline.md). Section numbers in the baseline are referenced inline (BL-§1 = module pinning, BL-§2 = edition, BL-§3 = mutation safety, BL-§4 = SHA-256 evidence, BL-§5 = Dataverse cmdlet quirks, BL-§6 = authoring convention).
 
 ---
 

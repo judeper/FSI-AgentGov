@@ -55,7 +55,7 @@ Connect-ExchangeOnline -UserPrincipalName admin@yourdomain.com -ShowBanner:$fals
 ## Shared evidence helper (used by all scripts)
 
 ```powershell
-# Re-use Write-FsiEvidence from the baseline (§5). Inlined here for self-containment.
+# Re-use Write-FsiEvidence from the baseline (§4). Inlined here for self-containment.
 function Write-FsiEvidence {
     param(
         [Parameter(Mandatory)] $Object,

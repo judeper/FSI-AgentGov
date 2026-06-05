@@ -546,7 +546,7 @@ function Test-Fsi-ManagedEnvLicensing {
             $makers = Get-AdminPowerAppEnvironmentRoleAssignment -EnvironmentName $env.EnvironmentId -ErrorAction Stop |
                 Where-Object { $_.RoleName -in @('Environment Maker','System Administrator') }
         } catch {
-            # Dataverse environments: see baseline §6
+            # Dataverse environments: see baseline §5
         }
         $uncovered = @()
         foreach ($maker in $makers) {

@@ -660,7 +660,7 @@ function Get-FsiIrmAgentAbuseIndicators {
 
 ## §10 — Mutating: create or update an IRM policy (idempotent, Get-then-Set)
 
-> **Mutation safety.** All mutations use `[CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]` and snapshot before write per BL-§4. Always invoke first with `-WhatIf`.
+> **Mutation safety.** All mutations use `[CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]` and snapshot before write per BL-§3. Always invoke first with `-WhatIf`.
 
 ```powershell
 function New-FsiIrmDataLeaksPolicy {
@@ -812,7 +812,7 @@ function Get-FsiIrmCompensatingPosture {
 
 ## §13 — Evidence emission and scheduler integration
 
-All helpers return `[pscustomobject]` shapes that flow into the canonical evidence emitter from BL-§5. A reference orchestrator that runs the full Control 1.12 sweep:
+All helpers return `[pscustomobject]` shapes that flow into the canonical evidence emitter from BL-§4. A reference orchestrator that runs the full Control 1.12 sweep:
 
 ```powershell
 # Save as: scripts/Invoke-Agt112Sweep.ps1
@@ -836,7 +836,7 @@ $results = [ordered]@{
     CompensatingPosture  = Get-FsiIrmCompensatingPosture
 }
 
-# Emit each artifact with SHA-256 manifest per BL-§5
+# Emit each artifact with SHA-256 manifest per BL-§4
 foreach ($k in $results.Keys) {
     if ($null -ne $results[$k]) {
         Write-FsiEvidence -Object $results[$k] -Name "agt112-$k" -EvidencePath $EvidencePath
@@ -856,7 +856,7 @@ $aggregate = [pscustomobject]@{
 Write-FsiEvidence -Object $aggregate -Name 'agt112-aggregate' -EvidencePath $EvidencePath
 ```
 
-**Scheduler cadence.** Run weekly at minimum; run after any IRM-policy change ticket; run on the day before each quarterly attestation. Land artifacts in WORM storage (Purview Data Lifecycle Management retention lock or Azure Storage immutability policy) per BL-§5 and SEC 17a-4(f).
+**Scheduler cadence.** Run weekly at minimum; run after any IRM-policy change ticket; run on the day before each quarterly attestation. Land artifacts in WORM storage (Purview Data Lifecycle Management retention lock or Azure Storage immutability policy) per BL-§4 and SEC 17a-4(f).
 
 ---
 

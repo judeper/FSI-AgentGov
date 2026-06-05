@@ -15,7 +15,7 @@
 | Agent surfacing outdated content | Index has not refreshed since the major version was published | Wait the documented index window (up to 24h); confirm the new version is the current major |
 | Unauthorized knowledge source bound to an agent | Maker added the source without approval | Remove the binding; capture evidence; review maker permissions and Power Platform DLP |
 | Validation script returns zero items in GCC High | Connected to commercial endpoints (false-clean) | Re-run with `-Cloud GCCHigh` and the correct PnP `-AzureEnvironment` |
-| `Get-AdminPowerAppEnvironmentRoleAssignment` returns nothing | Environment is Dataverse-backed | Use PPAC Dataverse Security Roles, not the cmdlet (baseline section 6) |
+| `Get-AdminPowerAppEnvironmentRoleAssignment` returns nothing | Environment is Dataverse-backed | Use PPAC Dataverse Security Roles, not the cmdlet (baseline section 5) |
 | `Test-LibraryHardening.ps1` reports `FAIL` on `Modified` field references | Field internal name differs in classic vs modern sites | Confirm via `Get-PnPField -List $lib` and update the script's field reference |
 | Power Automate approval flow not firing | Trigger scoped to wrong library, or flow disabled | Open flow run history; re-confirm the SharePoint trigger scope |
 | Staleness alert fires for documents that were just edited | `Modified` is metadata-touch, not content-change | Switch to RAG Source Validator solution (SHA-256-based drift) |
@@ -216,7 +216,7 @@
 | No built-in approval workflow in Copilot Studio | Requires Power Automate flow on the source library | Use the flow pattern in [Portal Walkthrough](portal-walkthrough.md) Part 4 |
 | Per-user knowledge scoping not supported | All users with agent access see the same grounded knowledge | Use separate agents (and separate knowledge sources) per access tier |
 | Bing Custom Search lacks per-result provenance | Internet-sourced grounding is not regulator-defensible | Prohibit Bing Custom Search in Zone 3 |
-| `Get-AdminPowerAppEnvironmentRoleAssignment` silently returns empty on Dataverse environments | False-clean evidence risk | Detection guard in baseline section 6; use PPAC Dataverse Security Roles |
+| `Get-AdminPowerAppEnvironmentRoleAssignment` silently returns empty on Dataverse environments | False-clean evidence risk | Detection guard in baseline section 5; use PPAC Dataverse Security Roles |
 
 ---
 

@@ -144,7 +144,7 @@ $rows | Export-Csv -Path $csvPath -NoTypeInformation -Encoding UTF8
     GeneratedUtc              = (Get-Date).ToUniversalTime()
 } | ConvertTo-Json -Depth 4 | Out-File -FilePath $jsonPath -Encoding UTF8
 
-# --- Evidence integrity (per baseline §6) ---
+# --- Evidence integrity (per baseline §4) ---
 $csvHash  = (Get-FileHash -Path $csvPath  -Algorithm SHA256).Hash
 $jsonHash = (Get-FileHash -Path $jsonPath -Algorithm SHA256).Hash
 "$csvHash  $(Split-Path $csvPath  -Leaf)"  | Out-File -FilePath (Join-Path $OutputPath 'SHA256SUMS.txt') -Append -Encoding UTF8

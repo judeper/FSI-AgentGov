@@ -988,7 +988,7 @@ function Invoke-Fsi34Throttled {
 
 This section installs the Logic Apps playbooks that wire Sentinel incidents into the FSI regulator-notification clock, the disclosure committee, and the cross-control suspension workflow ([Control 1.11](../../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) workload-identity policy). Each deployer creates the Logic App, the API connection objects, and the Sentinel automation rule that fires it.
 
-**All deployers are mutation helpers.** They require `Mode=Mutate` on the session, a CAB-approved `ChangeTicketId`, and `Logic Apps Contributor` + `Sentinel Contributor` role on the workspace resource group, activated via PIM with an 8-hour ceiling. Every deployer uses `[CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]` and writes a before-deploy snapshot to disk per the baseline §4 mutation pattern.
+**All deployers are mutation helpers.** They require `Mode=Mutate` on the session, a CAB-approved `ChangeTicketId`, and `Logic Apps Contributor` + `Sentinel Contributor` role on the workspace resource group, activated via PIM with an 8-hour ceiling. Every deployer uses `[CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]` and writes a before-deploy snapshot to disk per the baseline §3 mutation pattern.
 
 ### 5.1 — `New-Fsi-SentinelPlaybook-NotifyCISO-CCO-GC`
 

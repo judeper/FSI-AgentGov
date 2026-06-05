@@ -64,7 +64,7 @@ Get-RetentionCompliancePolicy | Select-Object Name, Enabled, Mode | Format-Table
 
 ## Evidence Helper (SHA-256 + Manifest)
 
-Per baseline §5, every artifact emitted from this control should be hashed and listed in `manifest.json`. Source the helper once, then reuse.
+Per baseline §4, every artifact emitted from this control should be hashed and listed in `manifest.json`. Source the helper once, then reuse.
 
 ```powershell
 function Write-FsiEvidence {

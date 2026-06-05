@@ -122,7 +122,7 @@ This playbook provides numbered test cases (`TC-1.26-XX`) with explicit Given / 
 - [ ] Screenshot: Defender XDR quarantine alert for renamed executable (TC-1.26-06)
 - [ ] Export: SPE container access controls and retention policy configuration
 - [ ] Approval records (ticket / record IDs) for every Zone 2/3 agent with File Upload enabled
-- [ ] `manifest.json` indexing all artifacts by SHA-256 (canonical pattern per PowerShell baseline §5)
+- [ ] `manifest.json` indexing all artifacts by SHA-256 (canonical pattern per PowerShell baseline §4)
 
 ---
 
@@ -152,7 +152,7 @@ auditor-pack-1.26-<yyyymmdd>/
     └── activity-log-queries.json        ← Output from queries below
 ```
 
-The `manifest.json` should follow the canonical PowerShell baseline §5 schema:
+The `manifest.json` should follow the canonical PowerShell baseline §4 schema:
 
 ```json
 [

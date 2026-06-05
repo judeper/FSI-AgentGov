@@ -177,7 +177,7 @@ function Connect-Agt17Audit {
 
 ### 2.3 Service-principal-with-certificate flow (recommended for unattended)
 
-Do **not** ship plaintext client secrets. Use a certificate from Key Vault or the local certificate store; rotate per BL-§4.
+Do **not** ship plaintext client secrets. Use a certificate from Key Vault or the local certificate store; rotate per BL-§3.
 
 ```powershell
 function Connect-Agt17AuditAsApp {
@@ -201,7 +201,7 @@ function Connect-Agt17AuditAsApp {
     if ($PSCmdlet.ShouldProcess('Microsoft Graph','Connect-MgGraph (cert)')) {
         Connect-MgGraph -Environment $profile.Graph -ClientId $AppId -CertificateThumbprint $CertificateThumbprint -TenantId $TenantId -NoWelcome
     }
-    # Verify granted scopes match requested scopes (BL-§3 false-clean trap)
+    # Verify granted scopes match requested scopes (false-clean trap)
     $missing = @('AuditLog.Read.All','Directory.Read.All','Organization.Read.All') |
         Where-Object { $_ -notin (Get-MgContext).Scopes }
     if ($missing) { throw "Granted Graph scopes missing: $($missing -join ', '). Admin consent not granted on this app." }
@@ -311,7 +311,7 @@ function Enable-FsiUnifiedAudit {
 }
 ```
 
-Always invoke first with `-WhatIf` (BL-§4).
+Always invoke first with `-WhatIf` (BL-§3).
 
 ---
 
@@ -760,7 +760,7 @@ function Export-FsiAuditTo17a4 {
     <#
     .SYNOPSIS
         Exports a Search-FsiAuditLogPaged result set to an Azure immutable blob container with a locked
-        time-based retention policy. Computes SHA-256 manifest per BL-§5.
+        time-based retention policy. Computes SHA-256 manifest per BL-§4.
     .NOTES
         Hedged: supports SEC 17a-4(f) preservation when configured per Cohasset-attested guidance and
         combined with the firm's books-and-records record set. Does not, by itself, guarantee compliance.
@@ -921,7 +921,7 @@ function Test-FsiAuditToSentinel {
 
 ## §12 — Evidence emission and quarterly attestation pack
 
-**Why this section exists.** Audit-defensible evidence requires content-integrity proofs (BL-§5). Screenshots alone are not sufficient under SEC 17a-4(f) WORM requirements or FINRA 4511 record-keeping rules.
+**Why this section exists.** Audit-defensible evidence requires content-integrity proofs (BL-§4). Screenshots alone are not sufficient under SEC 17a-4(f) WORM requirements or FINRA 4511 record-keeping rules.
 
 ```powershell
 function Save-FsiAuditEvidence {

@@ -68,7 +68,7 @@ Connect-MgGraph -Environment $graphEnv -Scopes 'SecurityEvents.Read.All','Policy
 
 ---
 
-## Evidence emission helper (baseline §5)
+## Evidence emission helper (baseline §4)
 
 The posture collector uses the canonical `Write-FsiEvidence` helper from [powershell-baseline.md §4](../../_shared/powershell-baseline.md#4-evidence-emission-sha-256-integrity). Copy the function from the baseline into your script library or dot-source it.
 
@@ -246,7 +246,7 @@ try {
         Notes                        = 'Security score (Preview) NOT collected via PowerShell — capture from PPAC Security > Overview manually and archive screenshot.'
     }
 
-    # Emit SHA-256-hashed evidence (baseline §5)
+    # Emit SHA-256-hashed evidence (baseline §4)
     Write-FsiEvidence -Object $envPosture     -Name 'environment-posture'    -EvidencePath $EvidencePath | Out-Null
     Write-FsiEvidence -Object $dlpCoverage    -Name 'dlp-coverage'           -EvidencePath $EvidencePath | Out-Null
     Write-FsiEvidence -Object $tenantSettings -Name 'tenant-settings'        -EvidencePath $EvidencePath | Out-Null

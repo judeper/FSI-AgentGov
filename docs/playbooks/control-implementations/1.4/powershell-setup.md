@@ -158,7 +158,7 @@ $ErrorActionPreference = 'Stop'
 New-Item -ItemType Directory -Force -Path $EvidencePath | Out-Null
 $ts = Get-Date -Format 'yyyyMMddTHHmmssZ'
 
-# Helper: emit JSON + SHA-256 + manifest entry (see baseline §5)
+# Helper: emit JSON + SHA-256 + manifest entry (see baseline §4)
 function Write-FsiEvidence {
     param([Parameter(Mandatory)] $Object, [Parameter(Mandatory)] [string]$Name, [Parameter(Mandatory)] [string]$EvidencePath)
     $stamp = Get-Date -Format 'yyyyMMddTHHmmssZ'
@@ -198,7 +198,7 @@ foreach ($e in $envs) {
 Write-Host "[DONE] Evidence written to $EvidencePath with manifest.json" -ForegroundColor Green
 ```
 
-> **WORM landing:** copy `$EvidencePath` to a Microsoft Purview Data Lifecycle retention-locked location (or Azure Storage immutability container) to satisfy SEC 17a-4(f) preservation expectations. See baseline §5.
+> **WORM landing:** copy `$EvidencePath` to a Microsoft Purview Data Lifecycle retention-locked location (or Azure Storage immutability container) to satisfy SEC 17a-4(f) preservation expectations. See baseline §4.
 
 ---
 

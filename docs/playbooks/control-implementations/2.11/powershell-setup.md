@@ -130,7 +130,7 @@ foreach ($case in $cases) {
     }
 }
 
-# Emit JSON + SHA-256 manifest entry (per powershell-baseline §5)
+# Emit JSON + SHA-256 manifest entry (per powershell-baseline §4)
 $jsonPath = Join-Path $EvidencePath "2.11-bias-results-$ts.json"
 $envelope = [pscustomobject]@{
     control       = '2.11'

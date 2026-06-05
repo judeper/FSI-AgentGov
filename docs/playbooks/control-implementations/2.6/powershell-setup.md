@@ -906,7 +906,7 @@ For sovereign tenants or where Automation is not approved, use a Windows Task Sc
 
 - Run under a least-privilege managed service account.
 - Write artifacts to a folder that is **inside** a Purview retention scope OR mounted to your 17a-4(f) vendor's secure ingestion share.
-- Produce `Start-Transcript` / `Stop-Transcript` logs for the audit trail (see baseline §4).
+- Produce `Start-Transcript` / `Stop-Transcript` logs for the audit trail (see baseline §3).
 
 ### 5.3 — Retention routing
 

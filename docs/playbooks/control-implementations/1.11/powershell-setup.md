@@ -1837,7 +1837,7 @@ function Invoke-Fsi-Control111Setup {
     End-to-end orchestrator for Control 1.11. Modes: ReadOnly | Verify | Enforce.
 .DESCRIPTION
     Composes every Control 1.11 helper into a single deterministic flow with transcript,
-    structured evidence emission (per _shared/powershell-baseline.md §5), and SHA-256 manifest.
+    structured evidence emission (per _shared/powershell-baseline.md §4), and SHA-256 manifest.
     Refuses to enter Enforce mode without (a) explicit -IUnderstandThisMutatesProduction switch,
     (b) PIM-activated Entra Global Admin context, (c) successful 7-day report-only review per §6.
 .PARAMETER Mode
@@ -1935,7 +1935,7 @@ function Invoke-Fsi-Control111Setup {
         # Phase 5: emit evidence pack
         $results | ConvertTo-Json -Depth 8 | Set-Content -Path (Join-Path $packPath ''results.json'') -Encoding UTF8
 
-        # SHA-256 manifest per _shared/powershell-baseline.md §5
+        # SHA-256 manifest per _shared/powershell-baseline.md §4
         $manifest = Get-ChildItem $packPath -File | ForEach-Object {
             [pscustomobject]@{
                 File = $_.Name

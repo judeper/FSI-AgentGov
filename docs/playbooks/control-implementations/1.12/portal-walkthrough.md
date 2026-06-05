@@ -870,7 +870,7 @@ Search-UnifiedAuditLog -StartDate (Get-Date).AddDays(-3) -EndDate (Get-Date) `
 
 > Verify the `RecordType` value against the current `Search-UnifiedAuditLog` documentation; Microsoft has occasionally introduced more specific RecordTypes for IRM sub-surfaces. If the broad RecordType returns no rows, fall back to `-Operations` filtering by the specific IRM operation names.
 
-8. **Capture evidence** with SHA-256 sidecar per `docs/playbooks/_shared/powershell-baseline.md` §5:
+8. **Capture evidence** with SHA-256 sidecar per `docs/playbooks/_shared/powershell-baseline.md` §4:
    - Screenshot of the alert in the IRM workspace (with anonymized usernames if pseudonymization is on; capture both anonymized and admin-resolved view if your firm requires it)
    - Case record export
    - CSV export of the UAL search

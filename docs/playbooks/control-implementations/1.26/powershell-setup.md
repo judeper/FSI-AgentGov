@@ -119,7 +119,7 @@ $results = foreach ($env in (Get-AdminPowerAppEnvironment)) {
     }
 }
 
-# Emit JSON + SHA-256 manifest entry (canonical pattern from baseline §5)
+# Emit JSON + SHA-256 manifest entry (canonical pattern from baseline §4)
 $jsonPath = Join-Path $EvidencePath "agent-file-upload-inventory-$ts.json"
 $results | ConvertTo-Json -Depth 10 | Set-Content -Path $jsonPath -Encoding UTF8
 $hash = (Get-FileHash -Path $jsonPath -Algorithm SHA256).Hash
@@ -231,7 +231,7 @@ $findings | Format-Table -AutoSize
       - SupportsShouldProcess + ConfirmImpact='High'
       - Before-mutation snapshot to disk for rollback
       - Start-Transcript for full session capture
-      - SHA-256 evidence emission per baseline §5
+      - SHA-256 evidence emission per baseline §4
       - -WhatIf produces a true preview without state change
 
 .PARAMETER EnvironmentId

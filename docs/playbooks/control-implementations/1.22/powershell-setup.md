@@ -346,8 +346,6 @@ Connect-IPPSSession `
     -AzureADAuthorizationEndpointUri 'https://login.microsoftonline.us/common'
 ```
 
-Refer to the [PowerShell Authoring Baseline](../../_shared/powershell-baseline.md) §6 for current sovereign-cloud endpoint tables.
-
 ---
 
 ## Rollback

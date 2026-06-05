@@ -798,7 +798,7 @@ $hashFile = Join-Path $evidenceDir "SHA256_HASH.txt"
 
 Write-Host "✓ Hash verification file created" -ForegroundColor Green
 
-# Emit canonical manifest.json (baseline §5) for chain-of-custody and downstream verifiers
+# Emit canonical manifest.json (baseline §4) for chain-of-custody and downstream verifiers
 $manifestPath = Join-Path $evidenceDir "manifest.json"
 $scriptVersion = "1.3.3"
 $manifestEntries = @()
@@ -827,7 +827,7 @@ Write-Host "Files included:" -ForegroundColor Cyan
 Write-Host "  - ExceptionRegister.csv (exception data)" -ForegroundColor White
 Write-Host "  - EVIDENCE_METADATA.txt (chain of custody)" -ForegroundColor White
 Write-Host "  - SHA256_HASH.txt (integrity verification)" -ForegroundColor White
-Write-Host "  - manifest.json (canonical evidence manifest per FSI baseline §5)" -ForegroundColor White
+Write-Host "  - manifest.json (canonical evidence manifest per FSI baseline §4)" -ForegroundColor White
 Write-Host "  - transcript-$timestamp.log (full PowerShell session transcript)" -ForegroundColor White
 Write-Host ""
 Write-Host "To verify file integrity later, run:" -ForegroundColor Cyan

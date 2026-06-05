@@ -91,7 +91,7 @@ function Connect-FsiTenant {
 
 ## Evidence Emission Helper
 
-Implements the SHA-256 manifest pattern from baseline section 5. Save as `Write-FsiEvidence.ps1` and dot-source in every script below.
+Implements the SHA-256 manifest pattern from baseline section 4. Save as `Write-FsiEvidence.ps1` and dot-source in every script below.
 
 ```powershell
 function Write-FsiEvidence {
@@ -398,7 +398,7 @@ $evidenceFile = Write-FsiEvidence -Object $bindings -Name 'agent-knowledge-bindi
 Write-Host "[INFO] Captured $($bindings.Count) knowledge bindings across $($bots.value.Count) agents. Evidence: $evidenceFile"
 ```
 
-> **Dataverse compatibility note:** Per baseline section 6, this script returns immediately on non-Dataverse environments rather than producing false-clean evidence. Copilot Studio agents always require Dataverse, so a non-Dataverse environment in scope is itself a finding to surface to the AI Governance Lead.
+> **Dataverse compatibility note:** Per baseline section 5, this script returns immediately on non-Dataverse environments rather than producing false-clean evidence. Copilot Studio agents always require Dataverse, so a non-Dataverse environment in scope is itself a finding to surface to the AI Governance Lead.
 
 ---
 
@@ -477,7 +477,7 @@ Write-Host "=== Validation PASS ===" -ForegroundColor Green
 | `Get-AgentKnowledgeBindings.ps1` | Weekly, **Windows PowerShell 5.1** runner | Power Platform Admin service account (no MFA-blocked); Dataverse access required |
 | `Validate-Control-2.16.ps1` | Monthly + before each examiner request | Same as above |
 
-> **Mutation safety note:** None of the scripts in this playbook mutate tenant state. There is no `-WhatIf` switch because there is nothing to confirm. If you extend these scripts to *change* settings (e.g., set `EnableModeration` programmatically), wrap mutations in `[CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]`, capture a before-snapshot, and follow baseline section 4.
+> **Mutation safety note:** None of the scripts in this playbook mutate tenant state. There is no `-WhatIf` switch because there is nothing to confirm. If you extend these scripts to *change* settings (e.g., set `EnableModeration` programmatically), wrap mutations in `[CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]`, capture a before-snapshot, and follow baseline section 3.
 
 ---
 
