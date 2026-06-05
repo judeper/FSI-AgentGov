@@ -254,7 +254,6 @@ function Initialize-Agt31Session {
 .PARAMETER TenantId
 .PARAMETER ClientId
 .PARAMETER CertificateThumbprint
-.PARAMETER Cloud
 .PARAMETER TenantDomainPrefix
     The {tenant} portion of the SharePoint admin URL (e.g., 'contoso' for contoso-admin.sharepoint.com).
 .OUTPUTS
@@ -284,13 +283,19 @@ function Initialize-Agt31Session {
         'CopilotSettings-LimitedMode.Read.All'
     )
 
+    $profile = [pscustomobject]@{
+        AzureEnvironment    = 'AzureCloud'
+        GraphEnvironment    = 'Global'
+        GraphBaseUri        = 'https://graph.microsoft.com'
+        AgentRegistryStatus = 'Preview'
+    }
+
     if ($PSCmdlet.ShouldProcess('Microsoft Graph','Connect-MgGraph (certificate)')) {
         Connect-MgGraph -TenantId $TenantId -ClientId $ClientId `
             -CertificateThumbprint $CertificateThumbprint `
             -Environment 'Global' -NoWelcome -ErrorAction Stop | Out-Null
     }
     $ctx = Get-MgContext
-    }
     $missing = $requestedScopes | Where-Object { $_ -notin $ctx.Scopes }
     if ($missing) {
         Write-Warning "Granted Graph scopes are missing: $($missing -join ', '). Some legs will degrade gracefully (mark Status=PermissionDenied) rather than throw, but examiners expect explicit grant. File a consent request and re-run."
@@ -333,7 +338,6 @@ function Initialize-Agt31Session {
 
 **Fail-closed conditions enforced by this section:**
 
-- Graph context `Environment` does not match resolved profile → `exit 2`.
 - Cert thumbprint not present in `Cert:\CurrentUser\My` or `Cert:\LocalMachine\My` (raised by `Connect-MgGraph`) → throw, propagated as exit 1.
 - Connect failures on any **mandatory** plane (Graph, PnP, Az) → throw. SPO admin and IPPS are best-effort and degrade with `Status=PermissionDenied` records in §8 / §10.
 
@@ -747,11 +751,6 @@ function Get-Agt31AgentRegistryInventory {
     $ErrorActionPreference = 'Stop'
 
     $base = 'https://graph.microsoft.com'
-
-        return ,([pscustomobject]@{
-            CollectedAt=(Get-Date).ToUniversalTime()
-        })
-    }
 
     try {
         $page = Invoke-Agt31WithThrottle -OperationName 'Graph:beta/agents' -ScriptBlock {

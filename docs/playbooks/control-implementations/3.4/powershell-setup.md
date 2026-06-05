@@ -52,7 +52,7 @@ related_controls: ["1.5", "1.7", "1.8", "1.9", "1.11", "1.12", "2.6", "2.12", "2
     Tooling **aids in** meeting these obligations. It does not satisfy them.
 
 
-> **Hedged-language reminder.** Throughout this playbook, governance helpers **support compliance with** NYDFS 23 NYCRR 500.16 / 500.17, SEC Rule 8-K Item 1.05, the federal banking 36-hour rule (12 CFR Parts 53 / 225 / 304), Regulation S-P (2024 amendments), FINRA Rules 4530(a)/(d) and 4511, the FTC Safeguards Rule 30-day notification requirement, state breach-notification statutes, the CISA CIRCIA proposed/horizon rule, FFIEC IT Examination Handbook expectations, SOX §§302 / 404 ITGC, and SEC Rule 17a-3/17a-4 books-and-records requirements. They do **not** "ensure," "guarantee," or "eliminate risk." Implementation requires named owners, calibrated severity definitions, and quarterly tabletop validation. Organizations should verify per-tenant and per-cloud parity using the §13 self-test before relying on any output as regulatory evidence.
+> **Hedged-language reminder.** Throughout this playbook, governance helpers **support compliance with** NYDFS 23 NYCRR 500.16 / 500.17, SEC Rule 8-K Item 1.05, the federal banking 36-hour rule (12 CFR Parts 53 / 225 / 304), Regulation S-P (2024 amendments), FINRA Rules 4530(a)/(d) and 4511, the FTC Safeguards Rule 30-day notification requirement, state breach-notification statutes, the CISA CIRCIA proposed/horizon rule, FFIEC IT Examination Handbook expectations, SOX §§302 / 404 ITGC, and SEC Rule 17a-3/17a-4 books-and-records requirements. They do **not** "ensure," "guarantee," or "eliminate risk." Implementation requires named owners, calibrated severity definitions, and quarterly tabletop validation. Organizations should verify per-tenant configuration parity using the §13 self-test before relying on any output as regulatory evidence.
 
 ---
 
@@ -452,7 +452,7 @@ function Get-RunMetadata {
         run_id          = [guid]::NewGuid().ToString()
         run_utc         = (Get-Date).ToUniversalTime().ToString('o')
         tenant_id       = $SessionContext.TenantId
-        cloud           = $SessionContext.Cloud
+        cloud           = 'Commercial'
         mode            = $SessionContext.Mode
         change_ticket   = $ChangeTicketId
         operator_upn    = (Get-MgContext).Account
@@ -839,7 +839,7 @@ function Export-Fsi-IncidentEvidenceBundle {
             foreach ($bm in $sent.Bookmarks) {
                 if ($bm.Query) {
                     try {
-                        $rows = Invoke-AzOperationalInsightsQuery -WorkspaceId (Resolve-Fsi34SentinelWorkspace -Cloud $SessionContext.Cloud).WorkspaceId -Query $bm.Query -ErrorAction Stop
+                        $rows = Invoke-AzOperationalInsightsQuery -WorkspaceId (Resolve-Fsi34SentinelWorkspace).WorkspaceId -Query $bm.Query -ErrorAction Stop
                         $artifacts += _emit -Object @{ bookmark=$bm.DisplayName; query=$bm.Query; results=$rows.Results } -Name "kql-$($bm.Name)" -Source 'Sentinel/Hunting/Bookmark'
                     } catch {
                         $artifacts += _emit -Object @{ bookmark=$bm.DisplayName; query=$bm.Query; error=$_.Exception.Message } -Name "kql-$($bm.Name)-error" -Source 'Sentinel/Hunting/Bookmark'
@@ -2174,7 +2174,7 @@ function Invoke-Fsi-Control34Setup {
     )
     Assert-Fsi34ShellHost
     $sessionMode = if ($Mode -eq 'Provision') { 'Mutate' } else { 'ReadOnly' }
-    $session = Initialize-Fsi34Session -Cloud $Cloud -TenantId $TenantId -Mode $sessionMode
+    $session = Initialize-Fsi34Session -TenantId $TenantId -Mode $sessionMode
 
     switch ($Mode) {
         'Provision' {

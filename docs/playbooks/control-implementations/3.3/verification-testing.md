@@ -53,7 +53,7 @@
    New-ExaminationManifest -Regulator FINRA -OutputFolder '.\test-finra' -WhatIf
    ```
 2. Run again without `-WhatIf` and inspect `.\test-finra\MANIFEST.json`.
-3. **EXPECTED:** Manifest contains all 9 FINRA package items with descriptions and includes operator/tenant/cloud metadata.
+3. **EXPECTED:** Manifest contains all 9 FINRA package items with descriptions and includes operator and tenant metadata.
 
 ### Test 7: Power BI Dashboard Refresh
 
