@@ -60,7 +60,10 @@ if (-not $env) { throw "Environment $EnvironmentId not found (or wrong cloud end
 
 $isManaged = $env.Internal.properties.governanceConfiguration.protectionLevel -eq 'Standard'
 if (-not $isManaged) {
-    throw "Environment $EnvironmentId is NOT a Managed Environment. ACP requires Managed Environments to block nonblockable connectors. Enable Control 2.1 first."
+    Write-Warning ("Environment '$($env.DisplayName)' is not a Managed Environment. " +
+        "ACP is supported but nonblockable connectors (Dataverse, Office 365 Users, etc.) " +
+        "cannot be blocked. To block nonblockable connectors, enable Managed Environments " +
+        "per Control 2.1. Continuing evidence collection for certified connectors only.")
 }
 
 # 3b. Confirm region is United States

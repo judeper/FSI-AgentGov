@@ -275,11 +275,22 @@ if ($failures -gt 0) { exit 1 } else { exit 0 }
 
 **SSPM-1.1-06: Unapproved Agent Blocking**
 
-1. Navigate to **Teams Admin Center** > **Manage Apps**
-2. Search for any unapproved Copilot Studio agents
-3. Verify unapproved agents are blocked from Teams channels
-4. **Pass criteria:** Only approved agents are available in Teams; unapproved agents show "Blocked" status
-5. **Evidence:** Screenshot showing app management page with agent status
+**Primary path — M365 Admin Center (cross-surface block):**
+
+1. Navigate to **M365 Admin Center** > **Copilot** > **Agents & connectors** > **Agents**
+2. Select **All agents**, then click into the agent under review to open its Overview
+3. Open **Instance availability** > **See details** to view all deployed instances
+4. For each instance, confirm the status shows **Blocked**
+5. **Pass criteria:** All unapproved agents show "Blocked" status at the instance level in M365 Admin Center; evidence covers all M365 surfaces the agent is deployed to (not Teams only)
+6. **Evidence:** Screenshot of the Instance availability panel showing "Blocked" status, agent ID, and UTC timestamp
+
+> *(Exact menu labels in the Microsoft 365 admin center evolve — verify the current path in your tenant.)*
+
+**Secondary path — Teams Admin Center (for Teams-distributed agents only):**
+
+7. Navigate to **Teams Admin Center** > **Manage Apps**
+8. Search for the agent; confirm status shows **Blocked** in the Teams app catalog
+9. **Evidence:** Screenshot of Teams Admin Center app status (supplement to, not a substitute for, the M365 Admin Center screenshot above)
 
 ---
 

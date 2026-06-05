@@ -14,8 +14,9 @@
 - [ ] Microsoft 365 E5 (or Office 365 E5 + Customer Key add-on) for Customer Key and DKE
 - [ ] Azure subscription in the same Microsoft Entra tenant as Microsoft 365
 - [ ] Roles (least-privilege; canonical names per the role catalog):
-    - **Entra Security Admin** — Customer Key activation, DKE label-encryption configuration
-    - **Purview Info Protection Admin** — DEP and sensitivity-label authoring
+    - **Purview Compliance Admin** — DEP creation via Exchange Online PowerShell (`New-M365DataAtRestEncryptionPolicy`, `New-DataEncryptionPolicy`); assign mailbox and tenant DEPs
+    - **Purview Info Protection Admin** — DKE sensitivity-label configuration; label policy publication to scoped users
+    - **Entra Security Admin** — Azure Key Vault provisioning and access policy / RBAC configuration; DKE key-service registration in sensitivity labels
     - **SharePoint Admin** — register SPO/OneDrive DEP
     - **Exchange Online Admin** — assign Exchange DEPs to mailboxes
     - **Power Platform Admin** — PPAC CMK on Managed Environments

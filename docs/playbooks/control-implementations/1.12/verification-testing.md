@@ -388,6 +388,8 @@ FINRA RN 24-09 + Rule 3110 (Gen AI supervision) · OCC Bulletin 2026-13 (formerl
 2. Intune admin centre → **Apps** → confirm:
    - Edge configuration profile: `ExtensionInstallForcelist` includes the Microsoft Insider risk extension ID.
    - Chrome ADMX policy (if Chrome is in scope): `ExtensionInstallForcelist` includes the Microsoft Purview extension ID.
+
+   > **Deployment name note:** Both extensions deploy under the unified name **Microsoft Compliance Extension** in the store and Intune. Edge store ID: `lcmcgbabdcbngcbcfabdncmoppkajglo`; Chrome store ID: `echcggldkblhodogklpincgchnpgcdco`. Use these IDs as the authoritative anchor for Intune configuration profiles and GPO `ExtensionInstallForcelist` entries.
 3. From a target Windows endpoint enrolled in Intune, validate the extension is installed and enabled (not user-removable).
 4. Validate signal flow: walk through the `tc05-walkthrough.md` simulated prompt set (firm-curated, non-PII, e.g., financial-summary requests against a sandbox tenant). Wait up to 48h for the analytics scan.
 5. Confirm an alert appears under the Risky AI usage policy with pseudonymized user reference.
