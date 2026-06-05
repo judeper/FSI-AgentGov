@@ -225,7 +225,7 @@ Get-AdminFlow -EnvironmentName "<environment-GUID>" |
     Select-Object DisplayName, Enabled, LastModifiedTime
 ```
 
-> All commands above assume you have read the [PowerShell Authoring Baseline](../../_shared/powershell-baseline.md) and pinned module versions. Sovereign-cloud tenants must add the appropriate `-Endpoint` / `-Environment` parameters.
+> All commands above assume you have read the [PowerShell Authoring Baseline](../../_shared/powershell-baseline.md) and pinned module versions.
 
 ---
 

@@ -186,22 +186,7 @@ Verification for Control 3.7 has three layers. Auditors typically expect evidenc
 
 **Evidence:** Before/after screenshots, action history entry.
 
-### TC-3.7-02 — Sovereign cloud collector returns environments
-
-**Objective:** Confirm the PowerShell collector is using the correct sovereign endpoint.
-
-**Steps (GCC / GCC High / DoD only):**
-
-1. Run the orchestrator with `-Endpoint prod` deliberately wrong.
-2. Confirm it returns zero environments (false-clean baseline).
-3. Re-run with the correct sovereign `-Endpoint` value.
-4. Confirm it returns the expected environment count.
-
-**Expected result:** Endpoint mismatch produces empty results; correct endpoint returns full inventory.
-
-**Evidence:** Both transcripts, both environment-posture JSON files.
-
-### TC-3.7-03 — Dismissed recommendation re-surfaces if condition recurs
+### TC-3.7-02 — Dismissed recommendation re-surfaces if condition recurs
 
 **Objective:** Confirm dismiss is not a permanent suppression.
 

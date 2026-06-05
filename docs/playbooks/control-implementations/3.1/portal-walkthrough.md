@@ -1,4 +1,4 @@
-# Control 3.1 — Portal Walkthrough: Agent Inventory and Metadata Management
+﻿# Control 3.1 — Portal Walkthrough: Agent Inventory and Metadata Management
 
 **Control ID:** 3.1
 **Pillar:** Reporting (Foundation)
@@ -19,7 +19,7 @@
     |---|---|
     | Bulk export, scheduled reconciliation, SHA-256 hashing, idempotent diffing | [PowerShell Setup](powershell-setup.md) |
     | Pre-attestation readiness checks, evidence validation, audit-pack completeness | [Verification & Testing](verification-testing.md) |
-    | Stale exports, owner mismatches, missing-portal symptoms, sovereign-cloud surface gaps | [Troubleshooting](troubleshooting.md) |
+    | Stale exports, owner mismatches, missing-portal symptoms | [Troubleshooting](troubleshooting.md) |
     | Live-incident response when an inventory review surfaces an active high-risk or mis-scoped agent | [AI Incident Response Playbook](../../incident-and-risk/ai-incident-response-playbook.md) |
     | The "why" — regulatory mapping, zone tiering, related controls | [Control 3.1 specification](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) |
 
@@ -59,21 +59,6 @@
     - **Microsoft Agent 365** (Plane 4) — preview-to-GA across 2026; verify entitlement and per-cloud availability before relying on it as a primary evidence source. Treat as additive, not authoritative, while in preview.
     - **SharePoint Premium** — may be required for some Plane 6 Connected Apps export and Data Access Governance (DAG) report exports; verify in your tenant.
 
-!!! warning "Sovereign cloud parity (verify at deploy time)"
-    Cross-cloud parity is **not symmetric** — verify at deploy time. The matrix below reflects the field as of April 2026 and is subject to change in any monthly release.
-
-    | Surface / capability | Commercial | GCC | GCC High | DoD | 21Vianet (Gallatin) |
-    |---|---|---|---|---|---|
-    | M365 Copilot Hub Inventory (Plane 1) | GA | GA | Lagging — verify | Lagging — verify | N/A |
-    | Power Platform Admin Center inventory (Plane 2) | GA | GA | GA — some columns lag | GA — some columns lag | Limited |
-    | Entra Enterprise Apps (Plane 3) | GA | GA | GA | GA | GA |
-    | Entra Agent Registry blade (preview) | Preview | Verify | Verify | Verify | Verify |
-    | Agent 365 Admin Center (Plane 4) | Preview / Frontier | Limited / verify | Likely not at first GA | Likely not at first GA | N/A |
-    | Purview retention binding (Plane 5) | GA | GA | GA — verify per release | GA — verify per release | Limited |
-    | SharePoint Connected Apps + DAG (Plane 6) | GA | GA | Rolling — verify | Rolling — verify | Limited |
-    | Programmatic agent inventory APIs / Graph exports | Rolling | Rolling — verify | Verify | Verify | Limited |
-
-    Treat any parity gap as a **compensating-control conversation**, documented in the §1.5 sovereign-cloud determination memo and in the quarterly attestation memo. Do not assume feature equivalence across clouds.
 
 ---
 
@@ -92,7 +77,6 @@ This section sets the operational boundary of the walkthrough and tells the oper
 - **Zone-specific portal workflows** with differentiated metadata depth, attestation cadence, and approval chains for Zone 1 / Zone 2 / Zone 3.
 - **Quarterly attestation procedure** with the three-signature workflow (Inventory Owner → AI Governance Lead → Compliance Officer).
 - **Examiner audit-pull procedure** for FINRA Rule 8210, OCC examination, Federal Reserve SR 26-2 (formerly SR 11-7), SEC inquiry, NYDFS 500.13, and CFTC Rule 1.31, including point-in-time snapshot reconstruction and chain-of-custody record.
-- **Sovereign-cloud caveats** per surface, with compensating-control language for surfaces not yet GA in your cloud.
 - **Connection to downstream controls** that consume the register on the canonical AgentID join key.
 
 ### 0.2 What this playbook does NOT cover
@@ -114,14 +98,14 @@ This section sets the operational boundary of the walkthrough and tells the oper
 
 No single Microsoft surface returns the complete agent register for an FSI tenant as of April 2026. Each surface is authoritative for a subset. The register of record is the **stitched export** produced by the §7 manual stitching procedure, signed by the AI Governance Lead, and archived under Preservation Lock.
 
-| # | Plane | Source surface | Authoritative for | Typical refresh latency | Sovereign parity |
-|---|---|---|---|---|---|
-| 1 | **M365 Copilot Hub plane** | `https://admin.microsoft.com → Copilot → Inventory` | M365 Copilot agents, declarative agents, M365 Copilot extensions, Microsoft-provided agents | Hours (ad-hoc capture); some columns refresh on portal navigation | GA Commercial / GCC; lag in GCC High / DoD |
-| 2 | **Power Platform plane** | `https://admin.powerplatform.microsoft.com → Resources → Copilot agents` (and `Manage → Inventory` legacy view) | Copilot Studio agents (custom and Studio-published declarative), environment-scoped attributes, Maker-side ownership | ~15 minutes inventory refresh; up to 48 h for deletion visibility; PPAC display capped at ~500 agents | GA broadly |
-| 3 | **Entra plane** | `https://entra.microsoft.com → Identity → Applications → Enterprise applications` plus the **Agent Registry** blade (preview) and **App registrations** | App-registered declarative agents, plugin/connector OAuth posture, agent service principal IDs | Minutes for app changes; near-real-time for sign-in telemetry | GA Enterprise apps; preview Agent Registry — verify per cloud |
-| 4 | **Agent 365 plane** | `https://admin.agent365.microsoft.com` (verify hostname at deploy time) | Cross-cloud agent observability, ownerless-agent queue, governance cards, agent identity → telemetry join | Hours | GA May 2026 (Commercial); not announced in GCC High / DoD / Gallatin |
-| 5 | **Purview plane** | `https://purview.microsoft.com → Solutions → Data lifecycle management` (and **Records management**) | Retention / Preservation Lock binding for the registry document library, evidence-package retention | Per policy; binding propagates within hours | GA Commercial / GCC; verify per release in GCC High / DoD |
-| 6 | **SharePoint plane** | SharePoint Admin → **Connected apps**; SharePoint Admin → **Reports → Data access governance** | SharePoint-grounded agent inventory, Connected App registrations, container ownership | Hours | GA Commercial / GCC; rolling sovereign |
+| # | Plane | Source surface | Authoritative for | Typical refresh latency |
+|---|---|---|---|---|
+| 1 | **M365 Copilot Hub plane** | `https://admin.microsoft.com → Copilot → Inventory` | M365 Copilot agents, declarative agents, M365 Copilot extensions, Microsoft-provided agents | Hours (ad-hoc capture); some columns refresh on portal navigation |
+| 2 | **Power Platform plane** | `https://admin.powerplatform.microsoft.com → Resources → Copilot agents` (and `Manage → Inventory` legacy view) | Copilot Studio agents (custom and Studio-published declarative), environment-scoped attributes, Maker-side ownership | ~15 minutes inventory refresh; up to 48 h for deletion visibility; PPAC display capped at ~500 agents |
+| 3 | **Entra plane** | `https://entra.microsoft.com → Identity → Applications → Enterprise applications` plus the **Agent Registry** blade (preview) and **App registrations** | App-registered declarative agents, plugin/connector OAuth posture, agent service principal IDs | Minutes for app changes; near-real-time for sign-in telemetry |
+| 4 | **Agent 365 plane** | `https://admin.agent365.microsoft.com` (verify hostname at deploy time) | Cross-cloud agent observability, ownerless-agent queue, governance cards, agent identity → telemetry join | Hours |
+| 5 | **Purview plane** | `https://purview.microsoft.com → Solutions → Data lifecycle management` (and **Records management**) | Retention / Preservation Lock binding for the registry document library, evidence-package retention | Per policy; binding propagates within hours |
+| 6 | **SharePoint plane** | SharePoint Admin → **Connected apps**; SharePoint Admin → **Reports → Data access governance** | SharePoint-grounded agent inventory, Connected App registrations, container ownership | Hours |
 
 !!! warning "There is no single pane"
     There is **no single Microsoft surface** that returns the complete register for an FSI tenant as of April 2026. Each surface is authoritative for a subset; some agents surface in only one plane. **The register of record is the stitched export produced by the §7 manual stitching procedure and signed by the AI Governance Lead.** Operators who treat any single surface as "the inventory" will undercount agents and miss the orphan and shadow signals. The §11 quarterly attestation enforces stitching; the §12 examiner audit-pull procedure produces the regulator-facing artifact.
@@ -142,7 +126,7 @@ Use this table to decide whether to stay in this portal walkthrough or switch to
 | DLP-mapping verification per agent | ✅ Primary (spot-check) | ✅ Primary (bulk) | Zone-3 spot-check at attestation; bulk for full sweep |
 | Sensitivity-label inheritance verification | ✅ Primary (spot-check) | ✅ Primary (bulk) | Same split |
 | Examiner audit-pull packaging (FINRA 8210 etc.) | ⚠️ Cover memo + signatures | ✅ Primary | Hash + chain-of-custody manifest is scripted |
-| Connected Apps export (SharePoint Plane 6) | ✅ Portal-only in some clouds | Where Graph is available | Portal screenshot is sometimes the only artifact in sovereign clouds |
+| Connected Apps export (SharePoint Plane 6) | ✅ Portal-only in some clouds | (where Graph is available) | Portal screenshot is available as a supplementary artifact |
 | Evidence-pack hashing (SHA-256 of all artifacts) | ❌ | ✅ Primary | Tamper-evident manifest required for books-and-records |
 
 **Rule of thumb:** Portal for **set-up, attestation review, single-agent transitions, and examiner-facing walkthroughs**. PowerShell for **scale, recurrence, hashing, and diffing**. If you find yourself clicking the same blade more than three times in one session, switch to the sibling.
@@ -197,7 +181,6 @@ This single authoritative table is the contract every other Pillar 3 control ref
 | **Foundation Model / Runtime** | string {GPT-4o, GPT-4.1, GPT-5, o-series, Phi, Anthropic via Bedrock-equivalent, customer BYO Foundry deployment, etc.} | Zone 2 + Zone 3 | Copilot Studio model picker / Foundry deployment ID | At promotion + on model swap | "Foundation model in use" | Triggers re-validation under Control 2.5 on change |
 | **Effective Sensitivity Label** | string (highest label across grounding sources) | Zone 2 + Zone 3 | §9 verification procedure | At promotion + at each attestation | "Inherited sensitivity posture" | If grounding sources include Highly Confidential / NPI / MNPI, agent must be Zone 3 |
 | **DLP Policy Mapping** | URL / policy name | All zones | §8 verification procedure (Purview DLP for M365 Copilot + Power Platform data policies) | At promotion + on policy change | "Linked DLP policy" | Non-null Zone 3; documented exception otherwise |
-| **Sovereign Cloud Boundary** | enum {Commercial, GCC, GCC High, DoD, Gallatin} + multi-region annotation | All zones | Tenant determination (per Control 4.7) | At promotion + on tenant move | "Cloud boundary" | Must match tenant's actual cloud; flagged at attestation if mismatch |
 | **Environment / Tenant / Region** | string (Power Platform environment ID + tenant ID + Azure region) | All zones | Plane 2 + Plane 3 | At promotion + on environment change | "Hosting environment" | Reconciled to Control 2.1 environment list |
 | **Enterprise App / Service Principal ID** | GUID | Zone 2 + Zone 3 (where Entra-backed) | Plane 3 | Real-time | "Entra service principal" | Non-null where the agent is Entra-backed; cross-join key |
 | **Audit-Log Reference** | string (UAL operation prefix + Sentinel rule reference) | Zone 2 + Zone 3 | Control 1.7 + Control 3.9 mapping | At promotion | "Audit pipeline binding" | Non-null Zone 3 |
@@ -238,17 +221,6 @@ The most common FSI inventory failure is **agents created in the personal-produc
 - **Pre-attestation requirement:** the §11 procedure **must** stitch all six planes; running attestation off Copilot Hub alone will undercount.
 - **Cross-link** to [Control 2.1 — Managed Environments](../../../controls/pillar-2-management/2.1-managed-environments.md) (Default environment governance) and [Control 3.6 — Orphaned Agent Detection](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) (shadow-agent intake workflow).
 
-### 1.5 Sovereign-cloud determination memo
-
-Before any baseline build, the AI Governance Lead and CISO sign a one-page memo documenting:
-
-1. The tenant's primary sovereign cloud (Commercial / GCC / GCC High / DoD / Gallatin).
-2. Multi-geo or multi-region annotation if applicable.
-3. The list of surfaces (per the §1.1 table) that are **not GA in this cloud** as of the memo date.
-4. The compensating control adopted for each gap (e.g., manual screenshot evidence for Plane 6 in DoD; quarterly Defender for Cloud Apps cross-check while Agent 365 is preview).
-
-The memo is filed in the register-of-record library under `/_governance/3.1-sovereign-cloud-determination-{YYYY-MM}.pdf` and re-signed annually.
-
 ---
 
 ## §2. Pre-flight gates
@@ -265,7 +237,7 @@ Confirm and document each licensing floor:
 - [ ] **Purview Audit (Standard or Premium)** — verify the Audit solution is provisioned in `purview.microsoft.com`.
 - [ ] **Purview Records Management** — verify the Records management solution is enabled if Preservation Lock will be used on the register library.
 - [ ] **Microsoft Sentinel** — verify the AI content hub solution is installed (Control 3.9 dependency).
-- [ ] **Agent 365** — entitlement verified or marked "preview not entitled" in the §1.5 sovereign-cloud determination memo.
+- [ ] **Agent 365** — entitlement verified or marked "preview not entitled".
 - [ ] **SharePoint Premium** — verified or marked "compensating screenshot evidence" in the memo.
 
 **Sign-off:** Compliance Officer countersigns the license-gate checklist; archive as `3.1-PRE-01-license-gate-{YYYY-MM-DD}.pdf`.
@@ -288,7 +260,7 @@ Use only the framework's canonical role names from `docs/reference/role-catalog.
 | **SharePoint Admin** | Connected apps inventory + DAG | Plane 6 | Standing |
 | **Compliance Officer** | Quarterly attestation third signer; examiner-pull approver | Cross-surface | Standing |
 | **Designated Supervisor / Registered Principal** | FINRA Rule 3110 supervisory sign-off on examiner pull | Cross-surface | Named per WSP |
-| **CISO observer** | Sovereign-cloud determination; sign-off on shadow-AI register | Tenant-wide | Standing |
+| **CISO observer** | Sign-off on shadow-AI register | Tenant-wide | Standing |
 
 **Separation-of-duties rule:** A single human MUST NOT hold both **Owner** of an agent and **AI Governance Lead** sign-off on the attestation for that agent — collapsing those roles undermines the FINRA 3110 supervisory-independence defense and the FINRA RN 24-09 + Rule 3110 governance posture.
 
@@ -318,7 +290,6 @@ The Written Supervisory Procedures (WSP) must include the following elements bef
 - Lifecycle state-transition approval matrix (who can move Draft → In Review → Approved → Active → Deprecated → Decommissioned).
 - Orphan-remediation SLA: Zone 3 = 5 business days; Zone 2 = 10 business days; Zone 1 = 30 business days.
 - Examiner audit-pull SLA: target ≤ 5 business days for FINRA 8210; ≤ 30 calendar days for OCC; ≤ 24 hours for ad-hoc supervisory request.
-- Sovereign-cloud determination procedure (per agent, per environment).
 - Shadow-AI handling procedure: discovered agent placed in Draft state with Owner assigned within 5 business days, otherwise transitioned to Decommissioned.
 
 **Sign-off:** Compliance Officer + Designated Supervisor; archive as `3.1-PRE-04-wsp-excerpt-{YYYY-MM-DD}.pdf`.
@@ -346,7 +317,7 @@ This is the primary first-party governance surface for organization-wide Copilot
 2. In the left navigation, expand **Copilot**. If the **Copilot** node is not present:
    - Verify the Microsoft 365 Copilot SKU is licensed in the tenant (Gate PRE-01).
    - Verify the operator holds at least **AI Administrator** or **Entra Global Reader**.
-   - In sovereign clouds where the node label differs, look for **AI agents** or **Copilot agents** as alternate labels.
+   - The node may appear as **AI agents** or **Copilot agents** depending on the monthly build — verify at deploy time.
 3. Click **Inventory** (label may read **Agent inventory** or **Copilot agent inventory** depending on monthly build — verify exact heading at deploy time and capture in the §13 evidence pack).
 4. Confirm the page header reads as expected. *Screenshot description: M365 admin center top breadcrumb showing `Home > Copilot > Inventory`, with the page heading "Copilot agent inventory" and three tabs labeled "Agents", "Declarative agents", and "Extensions" visible at the top of the content area.*
 
@@ -367,7 +338,6 @@ The Agents tab enumerates Custom Copilot agents (Studio-published), tenant-insta
    - **Modified date**
    - **Status** (Published / Draft / Disabled)
    - **Environment** (Power Platform environment binding)
-   - **Sovereign cloud** (where exposed)
    - **Risks** (where exposed — flags ownerless, departed-owner, license-stripped)
    - **License consumption** (preview as of April 2026 — verify availability in your build)
    - **Last activity** (preview as of April 2026)
@@ -416,7 +386,6 @@ The Copilot Hub provides governance filters that drive the §6 orphan workflow:
 | **Risks** | `Ownerless` | Surface for the **Manage Ownerless** action (see below) |
 | **Risks** | `Owner inactive` | Departed-owner candidates — feed §6 orphan workflow |
 | **Type** | `Declarative` | Cross-check against manifest source-of-truth |
-| **Sovereign cloud** | (current cloud) | Confirm no agents are mis-tagged across cloud boundary |
 
 **Save filtered views per Zone** for the quarterly attestation. Click **Save view** at the top of the grid; name as `3.1-Z{n}-attestation-{YYYY-Qn}`.
 
@@ -564,14 +533,14 @@ Click into a Zone 3 agent's enterprise app entry and capture:
 
 The Agent Registry is the emerging Entra surface that promotes Entra App Registrations into a first-class **Agent ID** taxonomy. Treat as **additive evidence** while preview; do not retire Plane 1 / Plane 2 procedures based on it.
 
-1. In `entra.microsoft.com`, navigate to **Identity → Applications → Agent Registry** (preview — verify exact label at deploy time; sovereign-cloud parity not assured).
+1. In `entra.microsoft.com`, navigate to **Identity → Applications → Agent Registry** (preview — verify exact label at deploy time).
 2. The blade enumerates apps that the tenant administrator has classified as **Agent** type.
-3. Capture the agent ID, classification, owners, and any agent-specific governance attributes (Risk band, Sovereign cloud binding) the blade exposes in your build.
+3. Capture the agent ID, classification, owners, and any agent-specific governance attributes (Risk band) the blade exposes in your build.
 4. Cross-reference each Agent Registry entry with the Enterprise apps view to confirm no agent-classified app is missing the canonical Owner field.
 5. *Screenshot description: Agent Registry preview blade showing ten classified agents with columns Agent ID, Display name, Classification, Owners, Risk band; the toolbar exposes a "Promote from Enterprise apps" action and a "Demote" action with PIM elevation banner at the top.*
 
 !!! warning "Preview status"
-    The Agent Registry is **preview** as of April 2026 with rolling sovereign-cloud availability. Maintain the §1.5 sovereign-cloud determination memo entry stating whether your tenant treats this surface as authoritative or as additive cross-check evidence.
+    The Agent Registry is **preview**. Track the rollout and record in the quarterly attestation whether your tenant treats this surface as authoritative or as additive cross-check evidence.
 
 ### 5.4 App registrations (developer-side)
 
@@ -600,7 +569,7 @@ App registrations surface developer-authored declarative agents and Custom Engin
 
 ## §6. Plane 4 — Agent 365 Admin Center (preview)
 
-Agent 365 is the cross-cloud agent observability surface rolling to GA across calendar 2026. **Verify availability and entitlement at deploy time.** Treat as additive cross-check evidence while in preview; treat as a primary surface only after GA in your sovereign cloud and after the §1.5 memo is updated.
+Agent 365 is the cross-cloud agent observability surface rolling to GA across calendar 2026. **Verify availability and entitlement at deploy time.** Treat as additive cross-check evidence while in preview; treat as a primary surface only after it reaches GA in your tenant.
 
 ### 6.1 Open Agent 365
 
@@ -617,19 +586,12 @@ Where entitled, the Agent 365 Admin Center exposes:
 - An **Ownerless agents** queue analogous to the Manage Ownerless action in Plane 1 — drives the §6 orphan workflow.
 - Cross-tenant agent visibility for B2B-collaborated agents (where tenant has B2B agent invitations enabled).
 
-### 6.3 Sovereign-cloud caveat
-
-Agent 365 is **likely not GA in GCC High, DoD, or Gallatin at first GA**. For sovereign-cloud tenants:
-
-- File the determination memo entry stating Plane 4 is **not in scope** for this attestation cycle.
-- Use the compensating quarterly cross-check via Microsoft Defender for Cloud Apps → App Governance (where licensed) plus the §5 Entra Enterprise apps export.
-- Re-evaluate scope at every Microsoft Roadmap update; transition Plane 4 into scope only after GA-in-cloud is confirmed and the §1.5 memo is re-signed by the AI Governance Lead and CISO.
 
 ### 6.4 Evidence capture from Plane 4
 
 If entitled, export the cross-cloud agent list and ownerless queue. Save as `3.1-Plane4-AgentList-{YYYY-MM-DD}.csv` and `3.1-Plane4-Ownerless-{YYYY-MM-DD}.csv`. Compute SHA-256.
 
-If not entitled, the screenshot evidence of the entitlement-denied page plus the determination-memo entry is the compensating artifact. Both must be present in the §13 evidence pack for any quarter where Plane 4 is referenced in WSP.
+If not entitled, the screenshot evidence of the entitlement-denied page is the compensating artifact and must be present in the §13 evidence pack.
 
 ---
 
@@ -741,7 +703,7 @@ The SharePoint plane provides two distinct surfaces:
 4. For each entry, click into the row and confirm the **App ID** and **Permissions**. Cross-join to Plane 1 Extensions tab and Plane 3 Enterprise apps on the App ID.
 5. *Screenshot description: SharePoint Admin Connected apps grid showing eight registered apps, three with "Tenant-wide" scope and five with site-scoped registrations; the side-panel open on a Graph connector revealing the Permissions list and the App ID copyable to clipboard.*
 
-**Evidence capture:** `3.1-Plane6-ConnectedApps-{YYYY-MM-DD}.csv` (export via toolbar). If the export action is unavailable in your sovereign cloud, capture the screenshot as compensating evidence.
+**Evidence capture:** `3.1-Plane6-ConnectedApps-{YYYY-MM-DD}.csv` (export via toolbar). If the export action is unavailable, capture the screenshot as compensating evidence.
 
 ### 9.2 Data Access Governance report
 
@@ -894,7 +856,7 @@ The attestation requires three signatures, in this order, by **three distinct hu
 |---|---|---|
 | **Inventory Owner** (the agent's named-human Owner) | Per-row attestation: "I confirm the canonical metadata is current and the agent operates within the registered Zone, grounding scope, and DLP/sensitivity posture." | SharePoint list item update with Owner UPN + timestamp + free-text comment |
 | **AI Governance Lead** | Per-row review: "I have reviewed the per-plane evidence, confirmed the stitching, reconciled orphan workflows, and confirm the register accurately reflects the agent estate as of {date}." | SharePoint list item update with AI Governance Lead UPN + timestamp + free-text comment |
-| **Compliance Officer** (Zone 3 only; Zone 2 may be delegated to a Compliance Officer designate per WSP) | Per-cycle attestation: "I have reviewed the AI Governance Lead's sign-off, the orphan SLA report, the sovereign-cloud determination, and confirm the cycle satisfies the firm's WSP and the regulatory commitments enumerated in the attestation memo." | Cycle-level signed PDF attestation memo countersigned by Compliance Officer |
+| **Compliance Officer** (Zone 3 only; Zone 2 may be delegated to a Compliance Officer designate per WSP) | Per-cycle attestation: "I have reviewed the AI Governance Lead's sign-off, the orphan SLA report, and confirm the cycle satisfies the firm's WSP and the regulatory commitments enumerated in the attestation memo." | Cycle-level signed PDF attestation memo countersigned by Compliance Officer |
 
 ### 12.3 The attestation memo
 
@@ -902,11 +864,10 @@ Each cycle produces a single attestation memo (PDF) with:
 
 - Cycle ID (`{YYYY-Qn}`).
 - Cycle date and signature timestamps.
-- Counts: total agents, by Zone, by Lifecycle State, by Sovereign Cloud.
+- Counts: total agents, by Zone, by Lifecycle State.
 - Orphan SLA report (open / closed / SLA-breach).
 - Stitching evidence reference (SHA-256 of the stitched register).
 - Per-plane evidence reference (SHA-256 of each plane export).
-- Sovereign-cloud determination reference.
 - Hedged-language attestation statement (per §0.0 above).
 - Three signatures (Owner row-level signatures referenced; AI Governance Lead and Compliance Officer per-cycle signatures embedded).
 - Next cycle target date.
@@ -963,7 +924,6 @@ The package delivered to the examiner contains:
 - **Stitched register CSV** (or the closest-available snapshot, with gap memo if applicable).
 - **Per-plane exports** for the snapshot period.
 - **Attestation memos** covering the period.
-- **Sovereign-cloud determination memo** in force at the snapshot date.
 - **Orphan-SLA report** for the period.
 - **Unified Audit Log extract** for register mutations during the period.
 - **Schema definition file** (`3.1-canonical-schema-v{n}.json`) in force at the snapshot date.
@@ -981,7 +941,7 @@ Every examiner-pull invocation creates a chain-of-custody record stored under `/
 
 ### 13.5 Reverse-burden language
 
-The cover memo MUST include the hedged-language statement from §0.0. Do **not** state "this is a complete record of all AI agents in the tenant." State instead: "This package represents the canonical agent register stitched from the six discovery surfaces enumerated in §0.3 of the firm's Control 3.1 procedure, attested as of {date}, with the limitations and sovereign-cloud caveats documented in the attached determination memo."
+The cover memo MUST include the hedged-language statement from §0.0. Do **not** state "this is a complete record of all AI agents in the tenant." State instead: "This package represents the canonical agent register stitched from the six discovery surfaces enumerated in §0.3 of the firm's Control 3.1 procedure, attested as of {date}, with the limitations ."
 
 ---
 
@@ -989,7 +949,7 @@ The cover memo MUST include the hedged-language statement from §0.0. Do **not**
 
 | Step | Zone 1 (Personal) | Zone 2 (Team) | Zone 3 (Enterprise) |
 |---|---|---|---|
-| Required canonical fields (§1.2) | Owner, Display Name, Agent Type, Platform, Zone, Lifecycle State, Last Reviewed, Next Review Due | Above + Backup Owner, Business Justification, Data Classification, Connected Knowledge Sources, Connected Actions, Plugins, Foundation Model, Environment, Effective Sensitivity Label, DLP Policy Mapping, Sovereign Cloud, Approval Records | All fields |
+| Required canonical fields (§1.2) | Owner, Display Name, Agent Type, Platform, Zone, Lifecycle State, Last Reviewed, Next Review Due | Above + Backup Owner, Business Justification, Data Classification, Connected Knowledge Sources, Connected Actions, Plugins, Foundation Model, Environment, Effective Sensitivity Label, DLP Policy Mapping, Approval Records | All fields |
 | Pre-flight gates (§2) | PRE-01, PRE-02 (subset) | PRE-01, PRE-02, PRE-03, PRE-04 | All five gates |
 | Stitching cadence (§7) | Annual | Semi-annual | Quarterly |
 | Orphan SLA (§11) | 30 business days | 10 business days | 5 business days |
@@ -999,7 +959,6 @@ The cover memo MUST include the hedged-language statement from §0.0. Do **not**
 | Audit-Log Reference (§1.2) | Optional | Recommended | Required |
 | Risk Register Reference | Optional | Recommended | Required |
 | Validation Evidence Pack | Optional | Recommended | Required |
-| Sovereign-cloud determination memo | Tenant-level | Tenant-level | Per-agent annotation |
 | Sentinel register-deviation alert (Control 3.9) | Optional | Recommended | Required |
 | Preservation Lock on register library (§8.3) | Recommended | Required | Required |
 | Per-row Owner attestation interface (§12.5) | Annual reminder email | Semi-annual SharePoint list view | Quarterly Microsoft Lists dashboard |
@@ -1078,8 +1037,8 @@ Each anti-pattern below has been observed in FSI tenants. Detection is part of t
 ### 15.10 The "preview-as-authoritative" anti-pattern
 
 **Pattern:** Treating Plane 4 (Agent 365 preview) as the sole or primary register surface.
-**Why it fails:** Preview surfaces lack stable schema, lack sovereign-cloud parity, may regress between monthly builds.
-**Fix:** Preview surfaces are additive cross-check evidence until GA in the operating cloud and re-signed in the §1.5 memo.
+**Why it fails:** Preview surfaces lack stable schema, may regress between monthly builds.
+**Fix:** Preview surfaces are additive cross-check evidence until GA in the operating cloud and re-signed in the attestation memo.
 
 ### 15.11 The "screenshot-only" anti-pattern
 
@@ -1169,7 +1128,6 @@ A complete cycle produces (at least) the following artifacts, all hashed and sto
 | 12 | Plane 6 DAG report export | `3.1-Plane6-DAG-{date}.csv` | §9.2 |
 | 13 | Stitched register | `3.1-Register-{date}.csv` (+ `.xlsx` workbook) | §7 |
 | 14 | Schema definition in force | `3.1-canonical-schema-v{n}.json` | §1.2 |
-| 15 | Sovereign-cloud determination memo | `3.1-sovereign-cloud-determination-{YYYY-MM}.pdf` | §1.5 |
 | 16 | Pre-flight gate sign-offs (PRE-01 through PRE-05) | `3.1-PRE-{n}-{name}-{date}.pdf` | §2 |
 | 17 | Per-Owner row attestation log (SharePoint list export) | `3.1-OwnerAttestations-{YYYY-Qn}.csv` | §12.5 |
 | 18 | AI Governance Lead cycle sign-off | embedded in attestation memo | §12.2 |
@@ -1225,7 +1183,7 @@ This playbook depends on or is consumed by the following controls. Implementers 
 - **No single surface is the inventory.** The register of record is the stitched export, signed by the AI Governance Lead, bound to retention.
 - **Owners are humans, not groups.** Every Owner and Backup Owner is a named individual; group ownership is a finding at any zone.
 - **Three signatures, three humans.** Owner, AI Governance Lead, and (Zone 3) Compliance Officer; same human cannot occupy two attestor roles for the same row.
-- **Preview surfaces are additive.** Plane 4 Agent 365 and the Plane 3 Agent Registry blade are cross-check evidence until GA in your sovereign cloud and re-signed in the §1.5 memo.
+- **Preview surfaces are additive.** Plane 4 Agent 365 and the Plane 3 Agent Registry blade are cross-check evidence until reaching GA in your tenant.
 - **Hash everything.** Every exported artifact carries SHA-256 in the cycle manifest; the manifest is the first artifact in any examiner package.
 - **Hedge the language.** "Helps support compliance with" — never "ensures compliance" or "guarantees" or "complete inventory" or "single pane of glass" or "real-time discoverability".
 

@@ -1,12 +1,12 @@
-# Control 3.1 — PowerShell Setup: Agent Inventory and Metadata Management Automation
+﻿# Control 3.1 — PowerShell Setup: Agent Inventory and Metadata Management Automation
 
 > **Scope.** This playbook automates the multi-plane discovery, reconciliation, enrichment, and evidence emission required by Control 3.1 across **Microsoft Copilot Studio bots, declarative agents, Microsoft 365 Copilot extensibility, MCP servers, the emerging Agent Registry / Agent 365 surface, SharePoint Connected agents, and Azure AI Foundry agent resources** in US financial services tenants. It assumes you have already read [`../../_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) (referenced below as **BL-§N**) and the parent control specification [`../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md`](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md).
 >
-> **What this playbook is.** A reproducible, fail-closed reconciliation harness that (a) pins module / CLI versions; (b) bootstraps a sovereign-aware, certificate-authenticated, audit-only session split across the PowerShell 5.1 Desktop and PowerShell 7.4 Core editions; (c) collects inventory from each Microsoft data plane that exposes agents today; (d) merges those streams into one canonical schema with an immutable `CanonicalAgentId`; (e) enriches the merged register with owner, last-activity, DLP, sensitivity-label, and manager metadata; (f) flags departed-owner, dormant, and unowned agents; (g) drives a documented lifecycle state machine; and (h) emits an examiner-ready evidence pack with SHA-256 hashes and a certificate-signed manifest.
+> **What this playbook is.** A reproducible, fail-closed reconciliation harness that (a) pins module / CLI versions; (b) bootstraps a certificate-authenticated, audit-only session split across the PowerShell 5.1 Desktop and PowerShell 7.4 Core editions; (c) collects inventory from each Microsoft data plane that exposes agents today; (d) merges those streams into one canonical schema with an immutable `CanonicalAgentId`; (e) enriches the merged register with owner, last-activity, DLP, sensitivity-label, and manager metadata; (f) flags departed-owner, dormant, and unowned agents; (g) drives a documented lifecycle state machine; and (h) emits an examiner-ready evidence pack with SHA-256 hashes and a certificate-signed manifest.
 >
 > **What this playbook is not.** It does not replace the authoritative system of record (SharePoint list, Dataverse table, CMDB, or GRC tool). It does not, by itself, *guarantee* that every agent in your tenant is captured — Microsoft's discovery surfaces have known gaps (documented in §0 and §6) that organizations should compensate for through policy, manual attestation, and Defender for Cloud Apps shadow-IT detection (Control 3.6). It does not approve, decommission, or transfer agents; it raises evidence and inventory state, and humans accept risk.
 >
-> **Hedged language reminder.** Output of this harness *supports* compliance with FINRA Rule 4511, FINRA RN 24-09 / Rule 3110, SEC 17a-4(b)(4), SOX 302/404, GLBA 501(b), NYDFS Part 500.16/500.17, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Fed SR 26-2 (formerly SR 11-7), and NIST AI RMF GOVERN 1.6 books-and-records expectations. It does not, by itself, *ensure* a passing examination, *guarantee* completeness against an unknowable shadow population, or *eliminate* the risk that a discovery surface drifts between releases. Implementation requires that organizations verify endpoint availability, module pinning, and sovereign feature parity at every change window.
+> **Hedged language reminder.** Output of this harness *supports* compliance with FINRA Rule 4511, FINRA RN 24-09 / Rule 3110, SEC 17a-4(b)(4), SOX 302/404, GLBA 501(b), NYDFS Part 500.16/500.17, OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Fed SR 26-2 (formerly SR 11-7), and NIST AI RMF GOVERN 1.6 books-and-records expectations. It does not, by itself, *ensure* a passing examination, *guarantee* completeness against an unknowable shadow population, or *eliminate* the risk that a discovery surface drifts between releases. Implementation requires that organizations verify endpoint availability, module pinning at every change window.
 
 | Field | Value |
 |---|---|
@@ -14,7 +14,6 @@
 | Pillar | 3 — Reporting (FOUNDATION) |
 | Playbook | PowerShell Setup |
 | PowerShell Edition | 7.4 LTS Core (orchestrator); 5.1 Desktop (Power Apps Administration sub-shell, spawned and JSON-bridged) |
-| Sovereign Clouds | Commercial, GCC, GCC High, DoD, China (21Vianet) — see §1 sovereign matrix and §2 bootstrap |
 | Last UI Verified | April 2026 |
 | Companion Playbooks | [`portal-walkthrough.md`](portal-walkthrough.md) · [`verification-testing.md`](verification-testing.md) · [`troubleshooting.md`](troubleshooting.md) |
 | Related Controls | [1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) · [1.10](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) · [1.19](../1.19/portal-walkthrough.md) · [2.1](../2.1/portal-walkthrough.md) · [2.5](../2.5/portal-walkthrough.md) · [3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) · [3.8](../../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) · [3.11](../../../controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement.md) · [Incident & Risk Playbook](../../incident-and-risk/ai-incident-response-playbook.md) |
@@ -27,11 +26,10 @@
 
 A script that ignores this reality produces a **false-clean inventory** — the worst possible Control 3.1 outcome. False-clean inventory understates books-and-records exposure under FINRA Rule 4511 / SEC 17a-4(b)(4), produces the wrong denominator for every downstream metric in Pillar 3, and breaks the audit trail that supervisory examination response depends on (see [Control 3.8](../../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) for downstream dashboards).
 
-**Why this section exists.** Three classes of silent failure produce false-clean inventory in Control 3.1 specifically:
+**Why this section exists.** Two classes of silent failure produce false-clean inventory in Control 3.1 specifically:
 
 1. **Wrong PowerShell edition for the plane being queried.** `Microsoft.PowerApps.Administration.PowerShell` and `Microsoft.PowerApps.PowerShell` are **Desktop-only** (Windows PowerShell 5.1) — they autoload in PowerShell 7 but several cmdlets silently return empty arrays instead of throwing. `Microsoft.Graph.Beta`, `ExchangeOnlineManagement` v3+, modern `PnP.PowerShell` v2+, and `Az.Accounts` v3+ are **Core-only** (PowerShell 7.2+). A reconciler that runs end-to-end in one edition is necessarily incomplete on at least one plane.
-2. **Sovereign mis-routing.** `Add-PowerAppsAccount` without an explicit `-Endpoint usgov` / `usgovhigh` / `dod` parameter authenticates against commercial endpoints, returns zero environments in a GCC / GCC High / DoD tenant, and produces zero-row CSVs that look identical to a clean inventory. The same defect applies to `Connect-MgGraph -Environment` and `Connect-PnPOnline -Url`. See [BL-§3](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod).
-3. **Beta vs v1.0 Microsoft Graph drift.** Several Copilot / agent endpoints (`/copilot/admin/settings`, `/applications` agent-tag filters, `/reports/getCopilotAIInteractionsCount`, `/sites/{id}/copilotAgents`, `/agents` registry preview) move between beta and v1.0 quarterly, with breaking shape changes between minor SDK releases. Pinning is mandatory and version-stamping every call into the manifest is required for examiner reproducibility.
+2. **Beta vs v1.0 Microsoft Graph drift.** Several Copilot / agent endpoints (`/copilot/admin/settings`, `/applications` agent-tag filters, `/reports/getCopilotAIInteractionsCount`, `/sites/{id}/copilotAgents`, `/agents` registry preview) move between beta and v1.0 quarterly, with breaking shape changes between minor SDK releases. Pinning is mandatory and version-stamping every call into the manifest is required for examiner reproducibility.
 
 **Top false-clean defects unique to inventory automation.**
 
@@ -39,14 +37,13 @@ A script that ignores this reality produces a **false-clean inventory** — the 
 |---|---|---|---|
 | 1 | `Get-AdminPowerApp` on Core silently returns `$null` for `Owner` | Owner column populates as blank for every row | §0 edition assertion + §3 child-process spawn pattern |
 | 2 | `appType` for Copilot Studio bots renamed across module versions (`Bot` → `ChatBot` → `CopilotStudioBot`) | Filter loses agents on the older value | §3 enumerates all `appType` values seen in tenant and warns on any unknown value |
-| 3 | `Add-PowerAppsAccount` defaulted to `prod` in a GCC tenant | Returns zero environments; CSV is empty but exit code is `0` | §2 hard-fail when sovereign discriminator is detected on tenant but `-Endpoint` mismatches |
-| 4 | `Connect-MgGraph -Scopes` requested but admin consent never granted | `Get-MgApplication` returns 200 with empty value array | §2 verifies granted scopes via `(Get-MgContext).Scopes` and exits 2 on mismatch |
-| 5 | MCP servers filtered as `Get-MgApplication` (they are **service principals**) | Entire MCP population missing from inventory | §7 queries `Get-MgServicePrincipal` with both tag-based and known-appId filters |
-| 6 | SharePoint Agents enumerated only through Power Platform | SPO-grounded agents missing entirely | §8 walks SPO admin + Graph `/sites/{id}/copilotAgents` (preview) |
-| 7 | `Search-UnifiedAuditLog` returning fewer than 5,000 rows treated as authoritative | Pagination cut off; "dormant" classification falsely applied | §10 paginates with `SessionId` + `SessionCommand ReturnLargeSet` per Microsoft guidance |
-| 8 | Owner string-match for orphan detection (`*system*`, `*deleted*`) | Real orphans missed; false positives spike | §11 resolves Owner ObjectId against `Get-MgUser` and `accountEnabled` |
-| 9 | CSV output overwritten on each run | No historical reconciliation; deltas invisible | §13 emits run-id-stamped artifacts to a WORM store |
-| 10 | SHA-256 computed but never signed | Hash file can be regenerated; no cryptographic provenance | §13 signs `manifest.json` with the Inventory Owner code-signing certificate |
+| 3 | `Connect-MgGraph -Scopes` requested but admin consent never granted | `Get-MgApplication` returns 200 with empty value array | §2 verifies granted scopes via `(Get-MgContext).Scopes` and exits 2 on mismatch |
+| 4 | MCP servers filtered as `Get-MgApplication` (they are **service principals**) | Entire MCP population missing from inventory | §7 queries `Get-MgServicePrincipal` with both tag-based and known-appId filters |
+| 5 | SharePoint Agents enumerated only through Power Platform | SPO-grounded agents missing entirely | §8 walks SPO admin + Graph `/sites/{id}/copilotAgents` (preview) |
+| 6 | `Search-UnifiedAuditLog` returning fewer than 5,000 rows treated as authoritative | Pagination cut off; "dormant" classification falsely applied | §10 paginates with `SessionId` + `SessionCommand ReturnLargeSet` per Microsoft guidance |
+| 7 | Owner string-match for orphan detection (`*system*`, `*deleted*`) | Real orphans missed; false positives spike | §11 resolves Owner ObjectId against `Get-MgUser` and `accountEnabled` |
+| 8 | CSV output overwritten on each run | No historical reconciliation; deltas invisible | §13 emits run-id-stamped artifacts to a WORM store |
+| 9 | SHA-256 computed but never signed | Hash file can be regenerated; no cryptographic provenance | §13 signs `manifest.json` with the Inventory Owner code-signing certificate |
 
 **Required shell guard (run this at the top of every Control 3.1 session).**
 
@@ -162,14 +159,14 @@ if ($IsWindows) {
 
 ### 1.2 Pinned CLI tooling
 
-| Tool | Minimum | Used for | Sovereign notes |
-|---|---|---|---|
-| Power Platform CLI (`pac`) | **1.45.0** | `pac copilot list`, `pac admin list-app-resources`, `pac auth create --cloud` | Pass `--cloud {Public\|UsGov\|UsGovHigh\|DoD}` |
-| Microsoft 365 CLI (`m365`) | 7.0.0 | Optional declarative-agent enumeration cross-check | Public + GCC verified; GCC High limited |
-| Azure CLI (`az`) | 2.60.0 | AI Foundry project lookup, role-assignment evidence | `az cloud set --name {AzureCloud\|AzureUSGovernment\|AzureChinaCloud}` |
-| Python | 3.11.0 | Microsoft Graph beta wrappers for endpoints not yet in PowerShell SDK (e.g., preview `/agents`) | OSS, portable across all clouds |
-| `Get-FileHash` (built-in) | n/a | SHA-256 evidence hashes | n/a |
-| `signtool.exe` or `Set-AuthenticodeSignature` | n/a | Manifest signing in §13 | Code-signing cert must chain to CA approved by Information Security |
+| Tool | Minimum | Used for |
+|---|---|---|
+| Power Platform CLI (`pac`) | **1.45.0** | `pac copilot list`, `pac admin list-app-resources`, `pac auth create` |
+| Microsoft 365 CLI (`m365`) | 7.0.0 | Optional declarative-agent enumeration cross-check |
+| Azure CLI (`az`) | 2.60.0 | AI Foundry project lookup, role-assignment evidence |
+| Python | 3.11.0 | Microsoft Graph beta wrappers for endpoints not yet in PowerShell SDK (e.g., preview `/agents`) |
+| `Get-FileHash` (built-in) | n/a | SHA-256 evidence hashes |
+| `signtool.exe` or `Set-AuthenticodeSignature` | n/a | Manifest signing in §13 |
 
 **Pin check (must run before §2 bootstrap):**
 
@@ -235,84 +232,11 @@ Inventory must run unattended on a schedule. The Inventory Reader service princi
 
 **Hedging note on permission scope.** The inventory reader is scoped to read-only application permissions; tenant administrators should still review the consent grants quarterly under [Control 1.1 — Service Principal Governance](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) and rotate the certificate at the cadence defined by your PKI policy. "Read-only" is a contract with Microsoft Graph, not a guarantee that the credential cannot be used for reconnaissance — treat the inventory reader as a privileged identity for monitoring and detection purposes.
 
-**Sovereign cloud parity matrix (verify at deploy time per the parent control).**
-
-| Plane | Commercial | GCC | GCC High | DoD |
-|---|---|---|---|---|
-| Power Platform Admin (`Get-AdminPowerApp`, `pac copilot list`) | GA | Rolling — verify | Verify | Verify |
-| Microsoft Graph `/applications` declarative agents | GA | GA | GA | GA |
-| Microsoft Graph `/copilot/admin/*` | GA | Rolling | Limited | Verify |
-| Microsoft Graph `/reports/getCopilotAIInteractionsCount` | GA | Rolling | Limited | Verify |
-| Microsoft Graph `/agents` (preview) | Preview | Limited | Not GA | Not GA |
-| Microsoft Graph `/sites/{id}/copilotAgents` (preview) | Preview | Verify | Verify | Verify |
-| MCP service principal enumeration | GA | GA | GA | GA |
-
-Treat any parity gap as a **compensating-control conversation** (manual attestation, periodic export, third-party CASB enrichment) — not a silent skip.
-
 ---
 
 
-## §2 — Sovereign-aware bootstrap (`Resolve-Agt31CloudProfile` + `Initialize-Agt31Session`)
 
-**Why this section exists.** Every cmdlet in §3–§8 will silently route to the wrong cloud unless the session is opened against the correct sovereign endpoint. Sovereign mis-routing is the #1 false-clean defect for Control 3.1 (§0). The two helpers below produce a single `[Agt31Session]`-style object the rest of the playbook consumes.
-
-### 2.1 `Resolve-Agt31CloudProfile`
-
-```powershell
-# scripts/Resolve-Agt31CloudProfile.ps1
-function Resolve-Agt31CloudProfile {
-<#
-.SYNOPSIS
-    Maps a sovereign cloud short-name to every endpoint and module-parameter the inventory legs need.
-.DESCRIPTION
-    Returns a [pscustomobject] with strongly typed properties for the Microsoft Graph environment,
-    Power Platform endpoint, SharePoint admin URL pattern, Azure cloud name, and PAC CLI cloud token.
-    The returned object is consumed by Initialize-Agt31Session and threaded through every leg.
-.PARAMETER Cloud
-    One of: Commercial, GCC, GCCHigh, DoD, China.
-.OUTPUTS
-    [pscustomobject] with: Cloud, GraphEnvironment, GraphBaseUri, PowerAppsEndpoint, PacCloud,
-    AzureEnvironment, SpoAdminUrlPattern, ExoEnvironmentName, AgentRegistryStatus
-.EXAMPLE
-    PS> Resolve-Agt31CloudProfile -Cloud GCCHigh
-.NOTES
-    AgentRegistryStatus reflects April 2026 GA state. Re-verify quarterly via Microsoft Learn release notes.
-#>
-    [CmdletBinding()]
-    [OutputType([pscustomobject])]
-    param(
-        [Parameter(Mandatory)]
-        [ValidateSet('Commercial','GCC','GCCHigh','DoD','China')]
-        [string]$Cloud
-    )
-    Set-StrictMode -Version Latest
-    $ErrorActionPreference = 'Stop'
-
-    $map = @{
-        Commercial = @{ Graph='Global';        GraphBase='https://graph.microsoft.com';        PA='prod';      Pac='Public';     Az='AzureCloud';            Spo='https://{0}-admin.sharepoint.com';     Exo='O365Default';        Agt='Preview' }
-        GCC        = @{ Graph='USGov';         GraphBase='https://graph.microsoft.com';        PA='usgov';     Pac='UsGov';      Az='AzureCloud';            Spo='https://{0}-admin.sharepoint.com';     Exo='O365USGovGCC';       Agt='Limited' }
-        GCCHigh    = @{ Graph='USGov';         GraphBase='https://graph.microsoft.us';         PA='usgovhigh'; Pac='UsGovHigh';  Az='AzureUSGovernment';     Spo='https://{0}-admin.sharepoint.us';      Exo='O365USGovGCCHigh';   Agt='NotAvailableInCloud' }
-        DoD        = @{ Graph='USGovDOD';      GraphBase='https://dod-graph.microsoft.us';     PA='dod';       Pac='DoD';        Az='AzureUSGovernment';     Spo='https://{0}-admin.sharepoint-mil.us';  Exo='O365USGovDoD';       Agt='NotAvailableInCloud' }
-        China      = @{ Graph='China';         GraphBase='https://microsoftgraph.chinacloudapi.cn'; PA='china'; Pac='China';     Az='AzureChinaCloud';       Spo='https://{0}-admin.sharepoint.cn';      Exo='O365China';          Agt='NotAvailableInCloud' }
-    }
-
-    $p = $map[$Cloud]
-    [pscustomobject]@{
-        Cloud               = $Cloud
-        GraphEnvironment    = $p.Graph
-        GraphBaseUri        = $p.GraphBase
-        PowerAppsEndpoint   = $p.PA
-        PacCloud            = $p.Pac
-        AzureEnvironment    = $p.Az
-        SpoAdminUrlPattern  = $p.Spo
-        ExoEnvironmentName  = $p.Exo
-        AgentRegistryStatus = $p.Agt
-        ResolvedAt          = (Get-Date).ToUniversalTime()
-    }
-}
-```
-
-### 2.2 `Initialize-Agt31Session`
+## §2 — Session bootstrap (`Initialize-Agt31Session`)
 
 ```powershell
 # scripts/Initialize-Agt31Session.ps1
@@ -325,7 +249,7 @@ function Initialize-Agt31Session {
     Performs Connect-MgGraph (cert-based), Connect-PnPOnline (cert-based), Connect-IPPSSession
     (for Search-UnifiedAuditLog), Connect-AzAccount (for AI Foundry / ARG), and Connect-SPOService.
     Defers the Power Apps Administration leg to a 5.1 child process spawned in §3.
-    Hard-fails (exit 2) if any plane authenticates against the wrong sovereign endpoint or returns
+    Hard-fails (exit 2) if any connection plane fails or returns
     fewer scopes than requested.
 .PARAMETER TenantId
 .PARAMETER ClientId
@@ -336,7 +260,7 @@ function Initialize-Agt31Session {
 .OUTPUTS
     [pscustomobject] with Profile, MgContext, PnPConnection, AzContext, ConnectedAt, RunId.
 .EXAMPLE
-    PS> $session = Initialize-Agt31Session -TenantId $tid -ClientId $cid -CertificateThumbprint $thumb -Cloud GCCHigh -TenantDomainPrefix 'contoso'
+    PS> $session = Initialize-Agt31Session -TenantId $tid -ClientId $cid -CertificateThumbprint $thumb -TenantDomainPrefix 'contoso'
 .NOTES
     Idempotent. Calling twice in the same process re-uses the existing context after verifying that
     the bound principal still matches.
@@ -347,13 +271,11 @@ function Initialize-Agt31Session {
         [Parameter(Mandatory)] [guid]$TenantId,
         [Parameter(Mandatory)] [guid]$ClientId,
         [Parameter(Mandatory)] [string]$CertificateThumbprint,
-        [Parameter(Mandatory)] [ValidateSet('Commercial','GCC','GCCHigh','DoD','China')] [string]$Cloud,
         [Parameter(Mandatory)] [string]$TenantDomainPrefix
     )
     Set-StrictMode -Version Latest
     $ErrorActionPreference = 'Stop'
 
-    $profile = Resolve-Agt31CloudProfile -Cloud $Cloud
     $runId   = [guid]::NewGuid().ToString()
 
     $requestedScopes = @(
@@ -365,26 +287,23 @@ function Initialize-Agt31Session {
     if ($PSCmdlet.ShouldProcess('Microsoft Graph','Connect-MgGraph (certificate)')) {
         Connect-MgGraph -TenantId $TenantId -ClientId $ClientId `
             -CertificateThumbprint $CertificateThumbprint `
-            -Environment $profile.GraphEnvironment -NoWelcome -ErrorAction Stop | Out-Null
+            -Environment 'Global' -NoWelcome -ErrorAction Stop | Out-Null
     }
     $ctx = Get-MgContext
-    if ($ctx.Environment -ne $profile.GraphEnvironment) {
-        Write-Error "Graph context bound to $($ctx.Environment) but profile is $($profile.GraphEnvironment). Sovereign mismatch — aborting (exit 2)."
-        exit 2
     }
     $missing = $requestedScopes | Where-Object { $_ -notin $ctx.Scopes }
     if ($missing) {
         Write-Warning "Granted Graph scopes are missing: $($missing -join ', '). Some legs will degrade gracefully (mark Status=PermissionDenied) rather than throw, but examiners expect explicit grant. File a consent request and re-run."
     }
 
-    $spoAdminUrl = $profile.SpoAdminUrlPattern -f $TenantDomainPrefix
+    $spoAdminUrl = "https://$TenantDomainPrefix-admin.sharepoint.com"
     if ($PSCmdlet.ShouldProcess($spoAdminUrl,'Connect-PnPOnline (certificate)')) {
         Connect-PnPOnline -Url $spoAdminUrl -ClientId $ClientId `
             -Tenant "$TenantDomainPrefix.onmicrosoft.com" `
             -Thumbprint $CertificateThumbprint -ErrorAction Stop
     }
 
-    if ($PSCmdlet.ShouldProcess($profile.AzureEnvironment,'Connect-AzAccount (certificate)')) {
+    if ($PSCmdlet.ShouldProcess('AzureCloud','Connect-AzAccount (certificate)')) {
         Connect-AzAccount -ServicePrincipal -Tenant $TenantId -ApplicationId $ClientId `
             -CertificateThumbprint $CertificateThumbprint `
             -Environment $profile.AzureEnvironment -WarningAction SilentlyContinue | Out-Null
@@ -493,7 +412,7 @@ function Get-Agt31CopilotStudioInventory {
 .DESCRIPTION
     Spawns a Windows PowerShell 5.1 child process (Desktop edition is required by
     Microsoft.PowerApps.Administration.PowerShell). The child connects via Add-PowerAppsAccount with
-    the resolved sovereign endpoint, walks every environment, calls Get-AdminPowerApp filtered to
+    the commercial endpoint, walks every environment, calls Get-AdminPowerApp filtered to
     chatbot/copilot appType values, and serializes results to a JSON exchange file consumed by the
     orchestrator. Falls back to 'pac copilot list' for environments where the admin module returns
     truncated results (>500 agents).
@@ -531,16 +450,16 @@ function Get-Agt31CopilotStudioInventory {
 [CmdletBinding()]
 param(
     [string]`$TenantId, [string]`$ClientId, [string]`$Thumbprint,
-    [string]`$Endpoint, [string]`$OutFile
+    [string]`$OutFile
 )
 `$ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 Import-Module Microsoft.PowerApps.Administration.PowerShell -RequiredVersion 2.0.183 -Force
 Import-Module Microsoft.PowerApps.PowerShell -RequiredVersion 1.0.34 -Force
 
-# Cert-based SP auth into Power Platform; -Endpoint controls sovereign routing
+# Cert-based SP auth into Power Platform (commercial endpoint)
 Add-PowerAppsAccount -TenantID `$TenantId -ApplicationId `$ClientId ``
-    -CertificateThumbprint `$Thumbprint -Endpoint `$Endpoint | Out-Null
+    -CertificateThumbprint $Thumbprint -Endpoint 'prod' | Out-Null
 
 `$envs = Get-AdminPowerAppEnvironment
 `$known = @('CopilotStudioBot','ChatBot','Bot','Chatbot','copilotstudiobot','chatbot','bot')
@@ -588,7 +507,7 @@ if (`$drift.Count) { Write-Warning "Unknown appType values seen: `$((`$drift | S
 
     $args = @('-NoProfile','-ExecutionPolicy','Bypass','-File',$childPath,
               '-TenantId',$Session.TenantId,'-ClientId',$Session.ClientId,
-              '-Thumbprint',$Session.Thumbprint,'-Endpoint',$Session.Profile.PowerAppsEndpoint,
+              '-Thumbprint',$Session.Thumbprint,
               '-OutFile',$outFile)
     Invoke-Agt31WithThrottle -OperationName 'CopilotStudio:Desktop51Spawn' -ScriptBlock {
         $p = Start-Process -FilePath 'powershell.exe' -ArgumentList $args -NoNewWindow -PassThru -Wait `
@@ -737,7 +656,7 @@ function Get-Agt31CopilotHubInventory {
 .EXAMPLE
     PS> $hub = Get-Agt31CopilotHubInventory -Session $session -WindowDays 90
 .NOTES
-    /copilot/admin endpoints are GA on Commercial; verify availability per the §1 sovereign matrix.
+    /copilot/admin endpoints are GA on Commercial; verify availability in your tenant at deploy time.
 #>
     [CmdletBinding()]
     [OutputType([pscustomobject[]])]
@@ -801,18 +720,17 @@ function Get-Agt31CopilotHubInventory {
 
 ## §6 — Agent Registry / Agent 365 leg (`Get-Agt31AgentRegistryInventory`)
 
-**Why this section exists.** Microsoft is rolling out a unified Agent Registry surface (Agent 365) that promises a single per-tenant catalog. As of April 2026 it is **Preview on Commercial, Limited on GCC, and unavailable on GCC High / DoD / China**. This leg must (a) call the endpoint when available, (b) emit explicit `NotAvailableInCloud` records when the sovereign profile is gapped, and (c) fall back to a documented compensating control rather than silently returning empty.
+**Why this section exists.** Microsoft is rolling out a unified Agent Registry surface (Agent 365) that promises a single per-tenant catalog. As of April 2026 it is **Preview** in the commercial cloud. This leg calls the endpoint when available, and falls back gracefully when the endpoint is unavailable or returns errors.
 
 ```powershell
 # scripts/legs/Get-Agt31AgentRegistryInventory.ps1
 function Get-Agt31AgentRegistryInventory {
 <#
 .SYNOPSIS
-    Calls the Agent Registry / Agent 365 preview endpoint when available; emits sovereign-gap records when not.
+.SYNOPSIS
+    Calls the Agent Registry / Agent 365 preview endpoint when available.
 .DESCRIPTION
-    Reads $Session.Profile.AgentRegistryStatus to decide whether to attempt the call. When status is
-    'Preview' or 'Limited', performs the call and records every returned agent. When status is
-    'NotAvailableInCloud', emits a single row that explicitly documents the compensating control
+    Attempts the call and records every returned agent. Returns an EnumerationFailed record if the endpoint is not yet available in the tenant.
     expected in the parent control specification (manual attestation + Defender for Cloud Apps).
 .PARAMETER Session
 .OUTPUTS
@@ -828,15 +746,9 @@ function Get-Agt31AgentRegistryInventory {
     Set-StrictMode -Version Latest
     $ErrorActionPreference = 'Stop'
 
-    $status = $Session.Profile.AgentRegistryStatus
-    $base = $Session.Profile.GraphBaseUri
+    $base = 'https://graph.microsoft.com'
 
-    if ($status -eq 'NotAvailableInCloud') {
         return ,([pscustomobject]@{
-            Plane='AgentRegistry'; Status='NotAvailableInCloud';
-            Cloud=$Session.Profile.Cloud;
-            Reason='Agent Registry / Agent 365 not GA in this sovereign cloud as of April 2026';
-            CompensatingControl='Manual attestation per Control 3.1 §5.4 + MDA shadow-IT detection per Control 3.6';
             CollectedAt=(Get-Date).ToUniversalTime()
         })
     }
@@ -1488,7 +1400,7 @@ function Export-Agt31EvidencePack {
       - canonical-inventory.xlsx (filtered view by Zone, RecommendedAction)
       - reconcile-errors.csv     (per-leg failures from §9)
       - per-leg/cs.json, da.json, hub.json, reg.json, mcp.json, spo.json (raw leg outputs)
-      - manifest.json            (file paths, SHA-256, module versions, sovereign profile, run id)
+      - manifest.json            (file paths, SHA-256, module versions, run id)
       - manifest.json.p7s        (Authenticode-signed manifest)
 .PARAMETER Session
 .PARAMETER LegResults
@@ -1567,7 +1479,6 @@ function Export-Agt31EvidencePack {
         ControlId        = '3.1'
         RunId            = $Session.RunId
         TenantId         = $Session.TenantId
-        SovereignCloud   = $Session.Profile.Cloud
         AgentRegistryStatus = $Session.Profile.AgentRegistryStatus
         GeneratedAtUtc   = (Get-Date).ToUniversalTime()
         Generator        = "Agt31 PowerShell Setup playbook (April 2026, v1.4)"
@@ -1662,7 +1573,7 @@ function Test-Agt31Implementation {
 
     try {
         $reg = Get-Agt31AgentRegistryInventory -Session $Session
-        _addResult 'Leg:AgentRegistry' ($reg.Count -gt 0) "Records=$($reg.Count); SovereignStatus=$($Session.Profile.AgentRegistryStatus)"
+        _addResult 'Leg:AgentRegistry' ($reg.Count -gt 0) "Records=$($reg.Count)"
     } catch { _addResult 'Leg:AgentRegistry' $false $_.Exception.Message }
 
     try {
@@ -1693,7 +1604,6 @@ function Test-Agt31Implementation {
 |---|---|---|---|
 | 1 | Single-leg inventory script with `Get-AdminPowerApp` only | Misses declarative / MCP / SPO / Hub agents — false-clean | Multi-leg reconciler in §3–§9 |
 | 2 | Running orchestrator under `powershell.exe` (5.1) | Graph v2 / PnP v2 / ExO v3 don't load; silent autoload of v1 produces wrong shapes | `pwsh` 7.4 orchestrator; spawn 5.1 child only for Power Apps Admin (§3) |
-| 3 | `Add-PowerAppsAccount` without `-Endpoint` on a sovereign tenant | Returns zero environments silently | §2 hard-fail on sovereign mismatch |
 | 4 | `+= @($r)` to accumulate records | O(n²) on 10k-agent tenants | `[List[pscustomobject]]::new()` accumulator |
 | 5 | Default `LastActivity` to `Get-Date` when source missing | Corrupts orphan classification | §10 `ActivityUnknown` preserved; never silently filled |
 | 6 | Owner string-match (`*system*`, `*deleted*`) | Misses real orphans + false positives | §11 resolve ObjectId via `Get-MgUser` and inspect `AccountEnabled` |
@@ -1715,7 +1625,6 @@ function Test-Agt31Implementation {
 | Daily 02:00 tenant TZ | Full inventory + enrichment + evidence pack | WORM evidence store; reconcile-errors row count to Control 3.11 |
 | Weekly | Orphan + DormantSharedAgent review with business owner | Recommended actions land in Control 3.6 review queue |
 | Monthly | Module / CLI version pin review against CAB-approved baseline | CAB ticket + `Test-Agt31Tooling` proof |
-| Quarterly | Sovereign endpoint parity re-verification (§1 matrix) | Updated matrix in this playbook + manifest metadata |
 | On Microsoft release notes change | Re-verify `appType` discriminator, Graph endpoint paths, Agent Registry GA status | Issue against the parent control spec |
 
 ---
@@ -1725,13 +1634,13 @@ function Test-Agt31Implementation {
 - [`portal-walkthrough.md`](portal-walkthrough.md) — UI equivalent for tenants without scripted access.
 - [`verification-testing.md`](verification-testing.md) — examiner-facing test cases that consume this playbook's evidence pack.
 - [`troubleshooting.md`](troubleshooting.md) — common failure modes by leg.
-- [`../../_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) — module pinning, sovereign endpoints, mutation safety, Dataverse cmdlet quirks (referenced as **BL-§N**).
+- [`../../_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) — module pinning, mutation safety, Dataverse cmdlet quirks (referenced as **BL-§N**).
 - [`../1.7-`](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) — service principal governance (consumes §7 `RiskFlag='High'` rows).
 - [`../1.10-`](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md) — owner attestation cadence.
 - [`../1.19/portal-walkthrough.md`](../1.19/portal-walkthrough.md) — DLP integration.
 - [`../2.1/portal-walkthrough.md`](../2.1/portal-walkthrough.md) — sensitivity label propagation.
 - [`../2.5/portal-walkthrough.md`](../2.5/portal-walkthrough.md) — agent monitoring (consumes §10 enrichment).
-- [`../3.6-`](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) — shadow-IT detection (compensating control for §6 sovereign gaps).
+- [`../3.6-`](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) — shadow-IT detection.
 - [`../3.8-`](../../../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md) — operational dashboards (consume `canonical-inventory.csv`).
 - [`../3.11-`](../../../controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement.md) — evidence retention policy (governs `reconcile-errors.csv`).
 - [`../../incident-and-risk/ai-incident-response-playbook.md`](../../incident-and-risk/ai-incident-response-playbook.md) — escalation path when `Find-Agt31OrphanedAgent` returns `EscalateToControl1.7`.

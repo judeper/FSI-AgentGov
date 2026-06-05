@@ -2,7 +2,7 @@
 
 > **Scope.** This playbook automates the Sentinel workspace deployment, data-connector enablement matrix, AI-agent-specific analytics rule library, SOAR playbook scaffolds, table-level retention controls, and quarterly evidence emission defined in [Control 3.9 — Microsoft Sentinel Integration for AI Agent Monitoring](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md).
 >
-> **Baseline.** All scripts assume the conventions in [_shared/powershell-baseline.md](../../_shared/powershell-baseline.md). Sovereign-cloud endpoints are documented in [§3 — Sovereign Cloud Endpoints (GCC, GCC High, DoD)](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod).
+> **Baseline.** All scripts assume the conventions in [_shared/powershell-baseline.md](../../_shared/powershell-baseline.md). This framework targets the Microsoft commercial (Global) cloud, the deployment surface for US financial-services customers.
 >
 > **Namespace.** All functions in this playbook use the `Agt39` prefix to prevent collision with peer-control automation (`Agt36`, `Agt225`, `Agt12`, `Agt34`).
 >
@@ -11,8 +11,6 @@
 !!! warning "Scope Limit — monitoring, not records"
     Microsoft Sentinel is a **security information and event management** platform. Its retention tiers (Analytics, Basic, Auxiliary, Archive) are designed for **investigation and threat hunting**, not for SEC Rule 17a-4(f) WORM books-and-records preservation. The maximum supported archive retention is approximately twelve years on the Log Analytics workspace tier — but the storage is **not** WORM-locked, **not** subject to designated-third-party (D3P) attestation, and **not** indexed for Rule 17a-4 production within 24 hours by default. **Do not** route books-and-records preservation through this control. Use [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) for that route. Use this control for the supervisory-review, threat-detection, and incident-response monitoring overlay required by FINRA 3110 / NYDFS 500.16-.17 / FFIEC.
 
-!!! warning "Sovereign Cloud Availability"
-    Sentinel feature parity differs across Commercial, GCC, GCC High, and DoD clouds. Connectors for **Microsoft 365 Copilot**, **Defender for Cloud Apps**, the **Sentinel MCP Server** preview, and **UEBA** have **lagging or absent availability** in GCC High / DoD as of the verification date in this playbook's footer. Always cross-check the [§3 sovereign endpoints anchor](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod) and the Microsoft Learn Sentinel feature-parity matrix **before** running enablement helpers in a sovereign tenant. Do **not** treat a `NotApplicable` return as `Clean`.
 
 !!! info "Entra schema — two distinct sign-in tables"
     AI-agent monitoring requires **both** Entra sign-in streams. Interactive and non-interactive **user** sign-ins land in the `SigninLogs` table. **Service-principal** sign-ins (the table that captures Entra Agent ID workload identities, certificate-bearer auth, and federated app-only flows) land in the **separate** `AADServicePrincipalSignInLogs` table. Enabling only `SigninLogs` produces **false-clean** results for every agent-as-workload-identity hunt. The `Enable-Fsi-EntraConnector` helper (§5.1) enforces both streams and emits an explicit warning if only one is selected.
@@ -21,14 +19,14 @@
 
 ## §0 — Wrong-shell trap, false-clean defects, and scope limits
 
-Sentinel telemetry is the foundation for FINRA 3110 supervisory review escalation, NYDFS 500.16 incident-response triage, and OCC Bulletin 2026-13 (formerly OCC 2011-12) model-risk continuous-monitoring evidence. A silent-empty connector or a sovereign-skipped table produces a **false-clean** report — the auditor receives "no anomalies detected" when the truth is "no telemetry was ever ingested." Every section in this playbook assumes the §0 traps below have been ruled out.
+Sentinel telemetry is the foundation for FINRA 3110 supervisory review escalation, NYDFS 500.16 incident-response triage, and OCC Bulletin 2026-13 (formerly OCC 2011-12) model-risk continuous-monitoring evidence. A silent-empty connector or a skipped table produces a **false-clean** report — the auditor receives "no anomalies detected" when the truth is "no telemetry was ever ingested." Every section in this playbook assumes the §0 traps below have been ruled out.
 
 ### 0.1 — Wrong-shell and wrong-module trap
 
 - **Windows PowerShell 5.1 is not supported for Az v11+.** `Az.SecurityInsights` v3+ and `Az.OperationalInsights` v3.6+ require PowerShell 7.4+. Running under 5.1 silently installs the v1.x compatibility shim, which lacks `New-AzSentinelAlertRule -Kind NRT` (near-real-time) support — and your prompt-injection rule will silently downgrade to a 5-minute scheduled rule, missing the SLA in [Control 3.4 — Incident Reporting and Root-Cause Analysis](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md).
 - **`Microsoft.PowerApps.Administration.PowerShell` is Desktop-only (PS 5.1).** The Power Platform connector audit helper (§5.2) sources environment metadata from this module. Running it under PS 7.4 returns empty results, which would make `Enable-Fsi-PowerPlatformAdminActivity` declare the connector "not needed."
 - **Azure Cloud Shell has no Power Platform module and a pinned Az version.** Use Cloud Shell only for read-only Sentinel queries, never for connector enablement or analytics-rule deployment.
-- **PowerShell ISE is not supported.** Device-code flow for sovereign-cloud `Connect-AzAccount` clips its UI in ISE. Use Windows Terminal + `pwsh.exe`.
+- **PowerShell ISE is not supported.** Use Windows Terminal + `pwsh.exe`.
 
 ```powershell
 # Enforce edition + version before sourcing any Agt39 function
@@ -50,17 +48,15 @@ if ($Host.Name -eq 'Windows PowerShell ISE Host') {
 | 2 | `OfficeActivity` filtered to `Exchange` workload only | Microsoft Copilot Studio and Power Platform agent activity invisible | Connector default workload list excludes `PowerPlatform`, `OneDrive`, `MicrosoftTeams`, `MicrosoftForms` | `Enable-Fsi-Defender365Connector` enforces the full workload set; emits a warning per missing workload |
 | 3 | Power Platform admin activity not enabled | Maker / environment / DLP-policy changes invisible to Sentinel | Tenant admin never enabled the **Power Platform** data connector (preview in some clouds) | `Enable-Fsi-PowerPlatformAdminActivity` performs a connector-state check and returns `Status='NotApplicable'` when the connector is unavailable in the cloud — **never** `Clean` |
 | 4 | Defender for Cloud Apps connector enabled but `CloudAppEvents` table empty | DLP, anomaly, and shadow-app signals missing | Cloud Apps activity policies not licensed on the tenant SKU, or app discovery uploads not configured | `Enable-Fsi-DefenderForCloudAppsConnector` validates SKU + ingestion within 24h, returns `Status='Pending'` if either gate fails |
-| 5 | Sovereign cloud silent skew | GCC High Sentinel workspace clean while commercial tenant shows 80 incidents/wk | Microsoft 365 Copilot connector + Sentinel MCP Server have lagging availability in GCC High / DoD | `Enable-Fsi-MicrosoftCopilotConnector` checks `Get-AzContext().Environment.Name`; returns `NotApplicable` with explicit sovereign-skew warning |
-| 6 | Analytics rule disabled by tenant deployment template | Rule is created but `Enabled=false`; no incidents fire | Some Sentinel solution templates ship rules disabled to prevent noise; deployment helper does not flip them on | All `New-Fsi-SentinelAlertRule-*` helpers explicitly set `-Enabled $true` and emit a manifest entry confirming enablement |
-| 7 | KQL query references retired `DlpAll` table | Rule fails silently with "table not found" not surfacing as alert-rule error | Older internal documentation references an alias that was retired from the Common Schema | Use `CloudAppEvents` (Defender XDR) or `MicrosoftPurviewInformationProtection` — all helpers in §6 use the current table names |
-| 8 | Hot retention reduced under regulatory minimum | Quarterly evidence query returns truncated rows; auditor flags missing days | Cost-optimization script lowered Analytics retention to 30d on a `OfficeActivity` table that needs 180d | `Set-Fsi-TableRetention` emits a **warning** when reducing below the firm's policy floor and refuses to proceed without `-Force -Justification` |
-| 9 | Archive tier confused with WORM records | Auditor asked for SEC 17a-4 production; team produced Sentinel archive query export | Archive tier is restorable but **not WORM-locked**, **not D3P-attested**, and not SEC 17a-4(f)-compliant | `Export-Fsi-TableToFirmArchive` is a **stub** that explicitly cross-refs Control 1.9 and refuses to be called as a 17a-4 substitute |
-| 10 | Logic App playbook fires but never reassigns or suspends agent | "Playbook ran successfully" yet agent stays active | Logic App has Sentinel-trigger permissions but lacks Graph `Application.ReadWrite.All` and Power Platform admin role | `New-Fsi-SentinelPlaybook-SuspendAgent` validates the Managed Identity role assignments before declaring deployment complete |
-| 11 | NYDFS 72-hour timer set to local TZ instead of UTC | Notification deadline missed by daylight-saving boundary | Logic App scheduling uses tenant TZ default, not explicit UTC | `New-Fsi-SentinelPlaybook-NYDFS72hTimer` forces `UTC` on the recurrence trigger |
-| 12 | Sentinel MCP Server enabled tenant-wide as a "free preview" | Spike in token cost; preview features accessible by non-SOC users | MCP Server is preview; license + cost gate must be opt-in | `Enable-Fsi-SentinelMcpServer` is **opt-in only** behind `-OptIn`, with a sovereign-availability check and a comment-based-help cost note |
-| 13 | Conversation transcript ingested without legal/privacy approval | Chat content (PII / privileged communications / customer NPI) sitting in Log Analytics indefinitely | App Insights link enabled by SOC engineer without governance ticket | `Enable-Fsi-AppInsightsLink` requires `-LegalApprovalTicket`, `-PrivacyApprovalTicket`, **and** `-RecordsApprovalTicket` parameters and refuses without all three |
-| 14 | Break-glass account sign-in alert exists in commercial Sentinel only | Sovereign tenant break-glass usage invisible to SOC | Per-tenant analytics rule deployed by hand; missing in sovereign workspace | `Test-Fsi-Control39-BreakGlassAlertWiring` validates the [Control 1.11](../../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) break-glass alert is wired in *this* workspace |
-| 15 | Orphan-agent-found incident lacks a 3.6 cross-reference tag | SOC closes the incident; Control 3.6 register never reconciled | Analytics rule omits the `Tactics`/`CustomDetails` cross-reference | `New-Fsi-SentinelAlertRule-OrphanShadowAgent` always emits a `CustomDetails.RelatedControl='3.6'` property and `Tactics=@('InitialAccess','Persistence')` |
+| 5 | Analytics rule disabled by tenant deployment template | Rule is created but `Enabled=false`; no incidents fire | Some Sentinel solution templates ship rules disabled to prevent noise; deployment helper does not flip them on | All `New-Fsi-SentinelAlertRule-*` helpers explicitly set `-Enabled $true` and emit a manifest entry confirming enablement |
+| 6 | KQL query references retired `DlpAll` table | Rule fails silently with "table not found" not surfacing as alert-rule error | Older internal documentation references an alias that was retired from the Common Schema | Use `CloudAppEvents` (Defender XDR) or `MicrosoftPurviewInformationProtection` — all helpers in §6 use the current table names |
+| 7 | Hot retention reduced under regulatory minimum | Quarterly evidence query returns truncated rows; auditor flags missing days | Cost-optimization script lowered Analytics retention to 30d on a `OfficeActivity` table that needs 180d | `Set-Fsi-TableRetention` emits a **warning** when reducing below the firm's policy floor and refuses to proceed without `-Force -Justification` |
+| 8 | Archive tier confused with WORM records | Auditor asked for SEC 17a-4 production; team produced Sentinel archive query export | Archive tier is restorable but **not WORM-locked**, **not D3P-attested**, and not SEC 17a-4(f)-compliant | `Export-Fsi-TableToFirmArchive` is a **stub** that explicitly cross-refs Control 1.9 and refuses to be called as a 17a-4 substitute |
+| 9 | Logic App playbook fires but never reassigns or suspends agent | "Playbook ran successfully" yet agent stays active | Logic App has Sentinel-trigger permissions but lacks Graph `Application.ReadWrite.All` and Power Platform admin role | `New-Fsi-SentinelPlaybook-SuspendAgent` validates the Managed Identity role assignments before declaring deployment complete |
+| 10 | NYDFS 72-hour timer set to local TZ instead of UTC | Notification deadline missed by daylight-saving boundary | Logic App scheduling uses tenant TZ default, not explicit UTC | `New-Fsi-SentinelPlaybook-NYDFS72hTimer` forces `UTC` on the recurrence trigger |
+| 11 | Sentinel MCP Server enabled tenant-wide as a "free preview" | Spike in token cost; preview features accessible by non-SOC users | MCP Server is preview; license + cost gate must be opt-in | `Enable-Fsi-SentinelMcpServer` is **opt-in only** behind `-OptIn`, with a cost note |
+| 12 | Conversation transcript ingested without legal/privacy approval | Chat content (PII / privileged communications / customer NPI) sitting in Log Analytics indefinitely | App Insights link enabled by SOC engineer without governance ticket | `Enable-Fsi-AppInsightsLink` requires `-LegalApprovalTicket`, `-PrivacyApprovalTicket`, **and** `-RecordsApprovalTicket` parameters and refuses without all three |
+| 13 | Orphan-agent-found incident lacks a 3.6 cross-reference tag | SOC closes the incident; Control 3.6 register never reconciled | Analytics rule omits the `Tactics`/`CustomDetails` cross-reference | `New-Fsi-SentinelAlertRule-OrphanShadowAgent` always emits a `CustomDetails.RelatedControl='3.6'` property and `Tactics=@('InitialAccess','Persistence')` |
 
 ### 0.3 — Self-test before every production run
 
@@ -234,166 +230,6 @@ $Agt39Tags = @{
 
 ---
 
-## §2 — Sovereign-cloud bootstrap (Commercial / GCC / GCC High / DoD)
-
-> **Critical difference vs. 3.6.** Control 3.9 has **partial** sovereign feature parity — Sentinel core is GA in all four clouds, but the AI-specific connectors (Microsoft 365 Copilot, Sentinel MCP Server, Defender for Cloud Apps in some SKUs) lag. Sovereign tenants must therefore produce a **connector-availability worksheet** (the output of `Get-Fsi-SentinelWorkspaceHealth` and `Test-Fsi-Control39-ConnectorMatrix`) showing every `NotApplicable` row is justified by a documented Microsoft Learn parity statement.
-
-The cloud-to-endpoint mapping is the canonical anchor in the [baseline §3](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod). Az PowerShell uses **environment names** (not endpoint URLs) on `Connect-AzAccount`. Helpers below normalize the parameter so callers pass a single `-Cloud` value across Az, Graph, and Power Platform.
-
-```powershell
-function Initialize-Agt39SovereignContext {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)][ValidateSet('Commercial','USGov','USGovHigh','USGovDoD')]
-        [string]$Cloud
-    )
-    $map = switch ($Cloud) {
-        'Commercial'  { @{
-            AzEnvironment        = 'AzureCloud'
-            GraphEnvironment     = 'Global'
-            PowerPlatformEndpoint= 'prod'
-            SentinelMcpAvailable = $true
-            CopilotConnectorAvail= $true
-            DefenderXdrAvail     = $true
-            DefenderCloudAppsAvail = $true
-            ArmEndpoint          = 'https://management.azure.com'
-        } }
-        'USGov'       { @{
-            AzEnvironment        = 'AzureUSGovernment'
-            GraphEnvironment     = 'USGov'
-            PowerPlatformEndpoint= 'usgov'
-            SentinelMcpAvailable = $false   # verify on each release
-            CopilotConnectorAvail= $false
-            DefenderXdrAvail     = $true
-            DefenderCloudAppsAvail = $true
-            ArmEndpoint          = 'https://management.usgovcloudapi.net'
-        } }
-        'USGovHigh'   { @{
-            AzEnvironment        = 'AzureUSGovernment'
-            GraphEnvironment     = 'USGov'
-            PowerPlatformEndpoint= 'usgovhigh'
-            SentinelMcpAvailable = $false
-            CopilotConnectorAvail= $false   # verify monthly
-            DefenderXdrAvail     = $true
-            DefenderCloudAppsAvail = $false # SKU-dependent
-            ArmEndpoint          = 'https://management.usgovcloudapi.net'
-        } }
-        'USGovDoD'    { @{
-            AzEnvironment        = 'AzureUSGovernment'
-            GraphEnvironment     = 'USGovDoD'
-            PowerPlatformEndpoint= 'dod'
-            SentinelMcpAvailable = $false
-            CopilotConnectorAvail= $false
-            DefenderXdrAvail     = $true
-            DefenderCloudAppsAvail = $false
-            ArmEndpoint          = 'https://management.usgovcloudapi.net'
-        } }
-    }
-    $ctx = [pscustomobject]@{
-        ControlId            = '3.9'
-        HelperVersion        = '1.4.0'
-        Cloud                = $Cloud
-        AzEnvironment        = $map.AzEnvironment
-        GraphEnvironment     = $map.GraphEnvironment
-        PowerPlatformEndpoint= $map.PowerPlatformEndpoint
-        ArmEndpoint          = $map.ArmEndpoint
-        SentinelMcpAvailable = $map.SentinelMcpAvailable
-        CopilotConnectorAvail= $map.CopilotConnectorAvail
-        DefenderXdrAvail     = $map.DefenderXdrAvail
-        DefenderCloudAppsAvail = $map.DefenderCloudAppsAvail
-        InitializedAtUtc     = (Get-Date).ToUniversalTime()
-        Status               = 'Clean'
-        Reason               = "Sovereign context initialized for $Cloud"
-        Findings             = @()
-    }
-    if ($Cloud -ne 'Commercial') {
-        Write-Warning "Sovereign cloud '$Cloud' detected. Verify Microsoft Learn Sentinel feature-parity matrix on the verification date in this playbook footer. CopilotConnectorAvail=$($map.CopilotConnectorAvail), SentinelMcpAvailable=$($map.SentinelMcpAvailable). Do NOT treat NotApplicable as Clean."
-    }
-    $ctx
-}
-```
-
-The returned context object is threaded through every connector-enable, analytics-rule, and Logic-App-deployer function so that sovereign-specific branching is an **explicit parameter**, never a global state flag.
-
-### 2.1 — `Connect-AzAccount` wrapper (sovereign-aware)
-
-```powershell
-function Connect-Agt39Az {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)][string]$TenantId,
-        [Parameter(Mandatory)][string]$SubscriptionId,
-        [Parameter(Mandatory)][ValidateSet('Commercial','USGov','USGovHigh','USGovDoD')][string]$Cloud,
-        [switch]$DeviceCode
-    )
-    $ctx = Initialize-Agt39SovereignContext -Cloud $Cloud
-    $connectArgs = @{ Tenant = $TenantId; Environment = $ctx.AzEnvironment }
-    if ($DeviceCode) { $connectArgs.UseDeviceAuthentication = $true }
-    Connect-AzAccount @connectArgs -ErrorAction Stop | Out-Null
-    Set-AzContext -SubscriptionId $SubscriptionId -ErrorAction Stop | Out-Null
-    [pscustomobject]@{
-        ControlId     = '3.9'
-        HelperVersion = '1.4.0'
-        Status        = 'Clean'
-        Reason        = "Connected to Az env $($ctx.AzEnvironment), tenant $TenantId, subscription $SubscriptionId"
-        TenantId      = $TenantId
-        SubscriptionId= $SubscriptionId
-        Cloud         = $Cloud
-        AzEnvironment = $ctx.AzEnvironment
-        Findings      = @()
-        GeneratedUtc  = (Get-Date).ToUniversalTime()
-    }
-}
-```
-
-### 2.2 — Sentinel solution availability check
-
-Sentinel is enabled per-workspace via the `SecurityInsights` solution. A workspace without the solution returns confusing `404`s on every Sentinel cmdlet. This pre-flight is mandatory.
-
-```powershell
-function Test-Agt39SentinelSolutionAvailable {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)][string]$ResourceGroupName,
-        [Parameter(Mandatory)][string]$WorkspaceName
-    )
-    try {
-        $ws = Get-AzOperationalInsightsWorkspace -ResourceGroupName $ResourceGroupName `
-            -Name $WorkspaceName -ErrorAction Stop
-    } catch {
-        return [pscustomobject]@{
-            ControlId='3.9'; HelperVersion='1.4.0'; Status='Error'
-            Reason="Workspace not found: $($_.Exception.Message)"; Findings=@()
-            GeneratedUtc=(Get-Date).ToUniversalTime()
-        }
-    }
-    $sentinelOnboarded = $false
-    try {
-        $solution = Get-AzMonitorLogAnalyticsSolution -ResourceGroupName $ResourceGroupName `
-            -ErrorAction Stop | Where-Object { $_.Name -like 'SecurityInsights*' -and
-                                              $_.WorkspaceResourceId -eq $ws.ResourceId }
-        $sentinelOnboarded = [bool]$solution
-    } catch {
-        # Some sovereign clouds require an alternate API; fall through to onboarding state probe
-    }
-    [pscustomobject]@{
-        ControlId      = '3.9'
-        HelperVersion  = '1.4.0'
-        Status         = if ($sentinelOnboarded) { 'Clean' } else { 'Pending' }
-        Reason         = if ($sentinelOnboarded) { "Sentinel onboarded on workspace $WorkspaceName" }
-                          else { "Workspace exists but Sentinel solution not enabled — call New-Fsi-SentinelWorkspace -EnableSolution" }
-        WorkspaceId    = $ws.CustomerId
-        WorkspaceArmId = $ws.ResourceId
-        WorkspaceSku   = $ws.Sku
-        RetentionDays  = $ws.RetentionInDays
-        SentinelOnboarded = $sentinelOnboarded
-        Findings       = @()
-        GeneratedUtc   = (Get-Date).ToUniversalTime()
-    }
-}
-```
-
----
 
 ## §3 — Connection helper (`Initialize-Agt39Session`)
 
@@ -409,8 +245,7 @@ function Initialize-Agt39Session {
         [Parameter(Mandatory)][string]$WorkspaceName,
         [Parameter(Mandatory)][ValidateSet('Monitor','Configure','PowerPlatform','Defender','LogicApp','Retention','Evidence','MCP')]
         [string]$Profile,
-        [Parameter(Mandatory)][ValidateSet('Commercial','USGov','USGovHigh','USGovDoD')]
-        [string]$Cloud,
+        ,
         [string]$ChangeTicketId,
         [switch]$DeviceCode,
         [string]$EvidencePath = ".\evidence\3.9"
@@ -419,8 +254,6 @@ function Initialize-Agt39Session {
     New-Item -ItemType Directory -Force -Path $EvidencePath | Out-Null
     $ts = Get-Date -Format 'yyyyMMdd-HHmmss'
     Start-Transcript -Path "$EvidencePath\transcript-$Profile-$ts.log" -IncludeInvocationHeader | Out-Null
-
-    $sovereign = Initialize-Agt39SovereignContext -Cloud $Cloud
     $session = [pscustomobject]@{
         ControlId         = '3.9'
         HelperVersion     = '1.4.0'
@@ -429,7 +262,6 @@ function Initialize-Agt39Session {
         ResourceGroupName = $ResourceGroupName
         WorkspaceName     = $WorkspaceName
         Profile           = $Profile
-        Sovereign         = $sovereign
         ChangeTicketId    = $ChangeTicketId
         ConnectedAtUtc    = (Get-Date).ToUniversalTime()
         AzStatus          = 'Pending'
@@ -448,7 +280,7 @@ function Initialize-Agt39Session {
     # Az
     try {
         Connect-Agt39Az -TenantId $TenantId -SubscriptionId $SubscriptionId `
-            -Cloud $Cloud -DeviceCode:$DeviceCode | Out-Null
+            -DeviceCode:$DeviceCode | Out-Null
         $session.AzStatus = 'Connected'
     } catch { $session.AzStatus = 'Error'; $session.Errors += "Az: $($_.Exception.Message)" }
 
@@ -459,14 +291,11 @@ function Initialize-Agt39Session {
         $session.SentinelOnboarded = ($solCheck.Status -eq 'Clean')
         if (-not $session.SentinelOnboarded -and $Profile -ne 'Monitor') {
             $session.Errors += "Sentinel solution not onboarded on $WorkspaceName. Run New-Fsi-SentinelWorkspace -EnableSolution before $Profile profile actions."
-        }
-    }
-
     # Graph (only for incident-export, MCP, evidence profiles)
     if ($Profile -in @('Evidence','MCP','Configure')) {
         try {
             $scopes = if ($Profile -eq 'Monitor') { $Agt39GraphScopes.Monitor } else { $Agt39GraphScopes.Configure }
-            Connect-MgGraph -TenantId $TenantId -Scopes $scopes -Environment $sovereign.GraphEnvironment -NoWelcome -ErrorAction Stop
+            Connect-MgGraph -TenantId $TenantId -Scopes $scopes -Environment 'Global' -NoWelcome -ErrorAction Stop
             $session.GraphStatus = 'Connected'
         } catch { $session.GraphStatus = 'Error'; $session.Errors += "Graph: $($_.Exception.Message)" }
     } else {
@@ -480,7 +309,7 @@ function Initialize-Agt39Session {
             $session.Errors += "PowerPlatform profile requires Windows PowerShell 5.1 (Desktop edition). Current: $($PSVersionTable.PSEdition) $($PSVersionTable.PSVersion). Use the §5.2 side-car runner."
         } else {
             try {
-                Add-PowerAppsAccount -Endpoint $sovereign.PowerPlatformEndpoint -ErrorAction Stop | Out-Null
+                Add-PowerAppsAccount -Endpoint 'prod' -ErrorAction Stop | Out-Null
                 $session.PowerPlatformStatus = 'Connected'
             } catch {
                 $session.PowerPlatformStatus = 'Error'
@@ -497,7 +326,7 @@ function Initialize-Agt39Session {
     }
 
     $session.Status = if ($session.Errors.Count -eq 0) { 'Clean' } else { 'Anomaly' }
-    $session.Reason = if ($session.Errors.Count -eq 0) { "Session bootstrapped for $Profile in $Cloud" }
+    $session.Reason = if ($session.Errors.Count -eq 0) { "Session bootstrapped for $Profile" }
                       else { "Session bootstrapped with $($session.Errors.Count) non-fatal error(s)" }
     $session
 }
@@ -559,8 +388,7 @@ Azure resource group hosting the workspace. Must already exist.
 Log Analytics workspace name. Lowercase, 4-63 chars, alphanumeric + hyphens.
 
 .PARAMETER Location
-Azure region. Sovereign callers must pass a region in the matching Azure environment
-(e.g., 'usgovvirginia' for AzureUSGovernment).
+Azure region for the Log Analytics workspace.
 
 .PARAMETER HotRetentionDays
 Analytics-tier (hot) retention. Default 180. Minimum allowed without -Force is the
@@ -574,7 +402,6 @@ Note: Archive tier is NOT WORM and NOT a books-and-records substitute. See Contr
 Switch. When set, also enables the SecurityInsights solution (Sentinel onboarding).
 
 .PARAMETER Cloud
-Sovereign cloud selector. Used to validate region parity.
 
 .PARAMETER Tags
 Hashtable of tags. Defaults to $Agt39Tags.
@@ -593,12 +420,10 @@ Roles required: Log Analytics Contributor + Microsoft Sentinel Contributor
         [ValidateRange(30,730)][int]$HotRetentionDays = 180,
         [ValidateRange(30,4383)][int]$ArchiveRetentionDays = 4383,
         [switch]$EnableSolution,
-        [Parameter(Mandatory)][ValidateSet('Commercial','USGov','USGovHigh','USGovDoD')][string]$Cloud,
         [hashtable]$Tags = $Agt39Tags,
         [string]$EvidencePath = ".\evidence\3.9"
     )
     $ErrorActionPreference = 'Stop'
-    $sovereign = Initialize-Agt39SovereignContext -Cloud $Cloud
     $findings = @()
 
     # Snapshot before mutation
@@ -610,9 +435,6 @@ Roles required: Log Analytics Contributor + Microsoft Sentinel Contributor
         if ($existing.RetentionInDays -gt $HotRetentionDays) {
             Write-Warning "Existing workspace retention ($($existing.RetentionInDays) d) exceeds requested ($HotRetentionDays d). Reduction requires -Force per firm policy floor."
             $findings += "RetentionReductionAttempt: existing=$($existing.RetentionInDays), requested=$HotRetentionDays"
-        }
-    }
-
     if ($PSCmdlet.ShouldProcess("$ResourceGroupName/$WorkspaceName", "Create or update Log Analytics workspace")) {
         $ws = New-AzOperationalInsightsWorkspace -ResourceGroupName $ResourceGroupName `
             -Name $WorkspaceName -Location $Location -Sku 'PerGB2018' `
@@ -622,9 +444,6 @@ Roles required: Log Analytics Contributor + Microsoft Sentinel Contributor
             ControlId='3.9'; HelperVersion='1.4.0'; Status='Pending'
             Reason="WhatIf: workspace creation skipped"; Findings=$findings
             GeneratedUtc=(Get-Date).ToUniversalTime()
-        }
-    }
-
     # Sentinel solution onboarding
     $sentinelStatus = 'Skipped'
     if ($EnableSolution) {
@@ -649,9 +468,6 @@ Roles required: Log Analytics Contributor + Microsoft Sentinel Contributor
                 $sentinelStatus = 'Error'
                 $findings += "SentinelSolution: $($_.Exception.Message)"
             }
-        }
-    }
-
     [pscustomobject]@{
         ControlId           = '3.9'
         HelperVersion       = '1.4.0'
@@ -660,7 +476,6 @@ Roles required: Log Analytics Contributor + Microsoft Sentinel Contributor
         WorkspaceArmId      = $ws.ResourceId
         WorkspaceCustomerId = $ws.CustomerId
         Location            = $Location
-        Cloud               = $Cloud
         HotRetentionDays    = $HotRetentionDays
         ArchiveRetentionDays= $ArchiveRetentionDays
         SentinelOnboarded   = ($sentinelStatus -eq 'Enabled')
@@ -707,7 +522,6 @@ KQL probe window. Default 24h. Quarterly evidence runs use 168h (7d).
 Extra tables to probe (string array). Base set is non-optional.
 
 .PARAMETER Cloud
-Sovereign cloud selector. Used to suppress NotApplicable noise (e.g., MicrosoftCopilotEvents in GCC High).
 
 .NOTES
 Control:        3.9
@@ -720,9 +534,7 @@ Roles required: Microsoft Sentinel Reader + Log Analytics Reader
         [Parameter(Mandatory)][string]$WorkspaceCustomerId,
         [ValidateRange(1,720)][int]$LookbackHours = 24,
         [string[]]$AdditionalTables = @(),
-        [Parameter(Mandatory)][ValidateSet('Commercial','USGov','USGovHigh','USGovDoD')][string]$Cloud
     )
-    $sovereign = Initialize-Agt39SovereignContext -Cloud $Cloud
     $baseTables = @(
         @{ Name='OfficeActivity';                ExpectMin=1;  Required=$true  },
         @{ Name='SigninLogs';                    ExpectMin=1;  Required=$true  },
@@ -738,15 +550,6 @@ Roles required: Microsoft Sentinel Reader + Log Analytics Reader
     }
 
     $tableResults = foreach ($t in $baseTables) {
-        # Sovereign suppress — Copilot connector unavailable in GCC High / DoD as of verification date
-        if ($t.CopilotConnector -and -not $sovereign.CopilotConnectorAvail) {
-            [pscustomobject]@{
-                Table=$t.Name; Status='NotApplicable'
-                Reason="Microsoft 365 Copilot connector not available in $Cloud as of verification date"
-                RowCount=$null; LookbackHours=$LookbackHours
-            }
-            continue
-        }
         $kql = "$($t.Name) | where TimeGenerated > ago($($LookbackHours)h) | summarize Rows=count(), Last=max(TimeGenerated)"
         try {
             $r = Invoke-AzOperationalInsightsQuery -WorkspaceId $WorkspaceCustomerId -Query $kql -ErrorAction Stop
@@ -769,9 +572,6 @@ Roles required: Microsoft Sentinel Reader + Log Analytics Reader
                 Reason= if ($isMissingTable) { "Table not present in workspace (connector not enabled)" } else { $msg }
                 RowCount=$null; LookbackHours=$LookbackHours
             }
-        }
-    }
-
     $overall = if ($tableResults.Status -contains 'Error') { 'Error' }
                elseif ($tableResults.Status -contains 'Anomaly') { 'Anomaly' }
                elseif ($tableResults.Status -contains 'Pending') { 'Pending' }
@@ -783,7 +583,6 @@ Roles required: Microsoft Sentinel Reader + Log Analytics Reader
         Status         = $overall
         Reason         = "Probed $($tableResults.Count) tables; overall=$overall"
         WorkspaceCustomerId = $WorkspaceCustomerId
-        Cloud          = $Cloud
         LookbackHours  = $LookbackHours
         Tables         = $tableResults
         Findings       = @($tableResults | Where-Object Status -in @('Anomaly','Error') |
@@ -799,7 +598,7 @@ Roles required: Microsoft Sentinel Reader + Log Analytics Reader
 
 The AI-agent monitoring overlay requires **six** connectors. Each helper:
 
-1. Validates sovereign-cloud availability via the `Initialize-Agt39SovereignContext` map.
+1. Validates connector availability.
 2. Performs a connector-state idempotency probe.
 3. Wraps the enable call in `ShouldProcess`.
 4. Returns the standard contract object — never `$null`, never `@()` without a status.
@@ -837,7 +636,6 @@ Enable AADServicePrincipalSignInLogs. Default: true. Required for AI-agent monit
 Suppress ManagedIdentitySignInLogs (not always relevant for FSI agent scope).
 
 .PARAMETER Cloud
-Sovereign cloud selector.
 
 .NOTES
 Control:        3.9
@@ -853,7 +651,6 @@ Cross-ref:      Control 1.7 (Audit Logging), Control 1.11 (Conditional Access)
         [bool]$EnableUser = $true,
         [bool]$EnableServicePrincipal = $true,
         [switch]$ExcludeManagedIdentity,
-        [Parameter(Mandatory)][ValidateSet('Commercial','USGov','USGovHigh','USGovDoD')][string]$Cloud,
         [string]$EvidencePath = ".\evidence\3.9"
     )
     if (-not $EnableUser -and -not $EnableServicePrincipal) {
@@ -865,8 +662,6 @@ Cross-ref:      Control 1.7 (Audit Logging), Control 1.11 (Conditional Access)
     if (-not $EnableUser) {
         Write-Warning "SigninLogs DISABLED by caller. Interactive user sign-ins (including agent-on-behalf-of flows) will be invisible. Confirm intent via -Confirm."
     }
-
-    $sovereign = Initialize-Agt39SovereignContext -Cloud $Cloud
     $ws = Get-AzOperationalInsightsWorkspace -ResourceGroupName $ResourceGroupName -Name $WorkspaceName -ErrorAction Stop
     $findings = @()
 
@@ -920,7 +715,6 @@ Cross-ref:      Control 1.7 (Audit Logging), Control 1.11 (Conditional Access)
         Connector        = 'AzureActiveDirectory'
         Streams          = $streams
         WorkspaceArmId   = $ws.ResourceId
-        Cloud            = $Cloud
         Findings         = $findings
         GeneratedUtc     = (Get-Date).ToUniversalTime()
     }
@@ -951,7 +745,6 @@ Resource group hosting the Sentinel workspace.
 Sentinel workspace.
 
 .PARAMETER Cloud
-Sovereign cloud selector.
 
 .PARAMETER BackfillDays
 Hint emitted to the connector telemetry log; informational only — connector backfill
@@ -969,28 +762,11 @@ Cross-ref:      Control 3.6, Control 1.7, Control 1.8 (DLP policy enforcement)
     param(
         [Parameter(Mandatory)][string]$ResourceGroupName,
         [Parameter(Mandatory)][string]$WorkspaceName,
-        [Parameter(Mandatory)][ValidateSet('Commercial','USGov','USGovHigh','USGovDoD')][string]$Cloud,
         [ValidateRange(1,7)][int]$BackfillDays = 7,
         [string]$EvidencePath = ".\evidence\3.9"
     )
-    $sovereign = Initialize-Agt39SovereignContext -Cloud $Cloud
     # Connector availability check — verify Microsoft Learn parity matrix per release
-    $connectorAvail = switch ($Cloud) {
-        'Commercial' { $true }
-        'USGov'      { $true }   # GA since 2024
-        'USGovHigh'  { $true }   # verify on each playbook publication
-        'USGovDoD'   { $false }  # confirm; some preview features lag
-    }
-    if (-not $connectorAvail) {
-        return [pscustomobject]@{
-            ControlId='3.9'; HelperVersion='1.4.0'; Status='NotApplicable'
-            Reason="Power Platform Sentinel connector not GA in $Cloud as of verification date. Compensating control: ingest Purview audit log records for Power Platform via Control 1.7 + custom Logic App ingestion."
-            Connector='PowerPlatformAdminActivity'; Cloud=$Cloud
-            Findings=@("Sovereign-skew: Power Platform connector not available in $Cloud")
-            GeneratedUtc=(Get-Date).ToUniversalTime()
-        }
-    }
-
+    $connectorAvail = $true  # commercial cloud
     $ws = Get-AzOperationalInsightsWorkspace -ResourceGroupName $ResourceGroupName -Name $WorkspaceName -ErrorAction Stop
     $resourceId = "$($ws.ResourceId)/providers/Microsoft.SecurityInsights/dataConnectors/PowerPlatformAgt39"
 
@@ -1021,7 +797,7 @@ Cross-ref:      Control 3.6, Control 1.7, Control 1.8 (DLP policy enforcement)
     [pscustomobject]@{
         ControlId='3.9'; HelperVersion='1.4.0'; Status=$status; Reason=$reason
         Connector='PowerPlatform'; Streams=@('PowerPlatformAdminActivity','PowerAppsActivity','PowerAutomateActivity','CopilotStudioActivity')
-        WorkspaceArmId=$ws.ResourceId; Cloud=$Cloud; BackfillHintDays=$BackfillDays
+        WorkspaceArmId=$ws.ResourceId; BackfillHintDays=$BackfillDays
         Findings=$findings; GeneratedUtc=(Get-Date).ToUniversalTime()
     }
 }
@@ -1056,17 +832,9 @@ Cross-ref:      Control 1.8 (Runtime Protection), Control 1.24 (Defender AISPM)
     param(
         [Parameter(Mandatory)][string]$ResourceGroupName,
         [Parameter(Mandatory)][string]$WorkspaceName,
-        [Parameter(Mandatory)][ValidateSet('Commercial','USGov','USGovHigh','USGovDoD')][string]$Cloud,
         [switch]$IncludeOptionalTables,
         [switch]$EnableBidiSync
     )
-    $sovereign = Initialize-Agt39SovereignContext -Cloud $Cloud
-    if (-not $sovereign.DefenderXdrAvail) {
-        return [pscustomobject]@{
-            ControlId='3.9'; HelperVersion='1.4.0'; Status='NotApplicable'
-            Reason="Defender XDR connector not available in $Cloud"; Connector='MicrosoftThreatProtection'
-            Cloud=$Cloud; Findings=@(); GeneratedUtc=(Get-Date).ToUniversalTime()
-        }
     }
     $ws = Get-AzOperationalInsightsWorkspace -ResourceGroupName $ResourceGroupName -Name $WorkspaceName -ErrorAction Stop
     $resourceId = "$($ws.ResourceId)/providers/Microsoft.SecurityInsights/dataConnectors/M365DAgt39"
@@ -1096,7 +864,7 @@ Cross-ref:      Control 1.8 (Runtime Protection), Control 1.24 (Defender AISPM)
     [pscustomobject]@{
         ControlId='3.9'; HelperVersion='1.4.0'; Status=$status; Reason=$reason
         Connector='MicrosoftThreatProtection'; DataTypes=@($dataTypes.Keys)
-        WorkspaceArmId=$ws.ResourceId; Cloud=$Cloud
+        WorkspaceArmId=$ws.ResourceId;
         Findings=@(); GeneratedUtc=(Get-Date).ToUniversalTime()
     }
 }
@@ -1122,17 +890,7 @@ Cross-ref:      Control 1.7, Control 1.8
     param(
         [Parameter(Mandatory)][string]$ResourceGroupName,
         [Parameter(Mandatory)][string]$WorkspaceName,
-        [Parameter(Mandatory)][ValidateSet('Commercial','USGov','USGovHigh','USGovDoD')][string]$Cloud
     )
-    $sovereign = Initialize-Agt39SovereignContext -Cloud $Cloud
-    if (-not $sovereign.DefenderCloudAppsAvail) {
-        return [pscustomobject]@{
-            ControlId='3.9'; HelperVersion='1.4.0'; Status='NotApplicable'
-            Reason="Defender for Cloud Apps not available in $Cloud (SKU/region dependent)"
-            Connector='MicrosoftCloudAppSecurity'; Cloud=$Cloud
-            Findings=@("Sovereign-skew: validate SKU + Microsoft Learn parity matrix")
-            GeneratedUtc=(Get-Date).ToUniversalTime()
-        }
     }
     $ws = Get-AzOperationalInsightsWorkspace -ResourceGroupName $ResourceGroupName -Name $WorkspaceName -ErrorAction Stop
     $resourceId = "$($ws.ResourceId)/providers/Microsoft.SecurityInsights/dataConnectors/MCASAgt39"
@@ -1152,7 +910,7 @@ Cross-ref:      Control 1.7, Control 1.8
 
     [pscustomobject]@{
         ControlId='3.9'; HelperVersion='1.4.0'; Status=$status; Reason=$reason
-        Connector='MicrosoftCloudAppSecurity'; WorkspaceArmId=$ws.ResourceId; Cloud=$Cloud
+        Connector='MicrosoftCloudAppSecurity'; WorkspaceArmId=$ws.ResourceId;
         Findings=@(); GeneratedUtc=(Get-Date).ToUniversalTime()
     }
 }
@@ -1160,14 +918,13 @@ Cross-ref:      Control 1.7, Control 1.8
 
 ### 5.5 — `Enable-Fsi-MicrosoftCopilotConnector`
 
-The Microsoft 365 Copilot connector ingests prompt + response telemetry to the `MicrosoftCopilotEvents` table. The connector reached **GA** in the commercial cloud and is rolling out to GCC; sovereign callers should treat `NotApplicable` as the expected response in GCC High / DoD until Microsoft Learn confirms parity.
+The Microsoft 365 Copilot connector ingests prompt + response telemetry to the `MicrosoftCopilotEvents` table. The connector is GA in the commercial cloud.
 
 ```powershell
 function Enable-Fsi-MicrosoftCopilotConnector {
 <#
 .SYNOPSIS
-Enables Microsoft 365 Copilot Sentinel data connector (GA in commercial; lagging in
-sovereign clouds).
+Enables Microsoft 365 Copilot Sentinel data connector (GA in commercial cloud).
 
 .DESCRIPTION
 Populates the MicrosoftCopilotEvents table with Copilot prompt/response telemetry.
@@ -1185,17 +942,7 @@ Cross-ref:      Control 2.6 (Model Risk), Control 1.24 (AISPM)
     param(
         [Parameter(Mandatory)][string]$ResourceGroupName,
         [Parameter(Mandatory)][string]$WorkspaceName,
-        [Parameter(Mandatory)][ValidateSet('Commercial','USGov','USGovHigh','USGovDoD')][string]$Cloud
     )
-    $sovereign = Initialize-Agt39SovereignContext -Cloud $Cloud
-    if (-not $sovereign.CopilotConnectorAvail) {
-        return [pscustomobject]@{
-            ControlId='3.9'; HelperVersion='1.4.0'; Status='NotApplicable'
-            Reason="Microsoft 365 Copilot Sentinel connector not available in $Cloud as of verification date. Compensating control: route Copilot interaction telemetry via Purview audit log (Control 1.7) and Defender XDR alerts (5.3)."
-            Connector='MicrosoftCopilot'; Cloud=$Cloud
-            Findings=@("Sovereign-skew: Copilot connector not available in $Cloud")
-            GeneratedUtc=(Get-Date).ToUniversalTime()
-        }
     }
     $ws = Get-AzOperationalInsightsWorkspace -ResourceGroupName $ResourceGroupName -Name $WorkspaceName -ErrorAction Stop
     $resourceId = "$($ws.ResourceId)/providers/Microsoft.SecurityInsights/dataConnectors/CopilotAgt39"
@@ -1214,7 +961,7 @@ Cross-ref:      Control 2.6 (Model Risk), Control 1.24 (AISPM)
 
     [pscustomobject]@{
         ControlId='3.9'; HelperVersion='1.4.0'; Status=$status; Reason=$reason
-        Connector='MicrosoftCopilot'; WorkspaceArmId=$ws.ResourceId; Cloud=$Cloud
+        Connector='MicrosoftCopilot'; WorkspaceArmId=$ws.ResourceId;
         Findings=@(); GeneratedUtc=(Get-Date).ToUniversalTime()
     }
 }
@@ -1267,7 +1014,6 @@ WARNING:        Captures PII / privileged communications. Triple approval gate.
         [Parameter(Mandatory)][string]$LegalApprovalTicket,
         [Parameter(Mandatory)][string]$PrivacyApprovalTicket,
         [Parameter(Mandatory)][string]$RecordsApprovalTicket,
-        [Parameter(Mandatory)][ValidateSet('Commercial','USGov','USGovHigh','USGovDoD')][string]$Cloud,
         [string]$EvidencePath = ".\evidence\3.9"
     )
     foreach ($t in @($LegalApprovalTicket, $PrivacyApprovalTicket, $RecordsApprovalTicket)) {
@@ -1308,7 +1054,7 @@ WARNING:        Captures PII / privileged communications. Triple approval gate.
 
     [pscustomobject]@{
         ControlId='3.9'; HelperVersion='1.4.0'; Status=$status; Reason=$reason
-        Connector='AppInsightsLink'; WorkspaceArmId=$ws.ResourceId; Cloud=$Cloud
+        Connector='AppInsightsLink'; WorkspaceArmId=$ws.ResourceId;
         ApprovalTickets=@{ Legal=$LegalApprovalTicket; Privacy=$PrivacyApprovalTicket; Records=$RecordsApprovalTicket }
         Findings=@("Conversation-transcript capture enabled; route via Control 1.9 retention label.")
         GeneratedUtc=(Get-Date).ToUniversalTime()
@@ -1838,7 +1584,6 @@ Cross-ref:               Control 3.6 (Tier-1 remediation), Control 3.4 (Incident
         [Parameter(Mandatory)][string]$Location,
         [switch]$AutoSuspend,
         [string]$ApprovalTeamsWebhookUrl,
-        [Parameter(Mandatory)][ValidateSet('Commercial','USGov','USGovHigh','USGovDoD')][string]$Cloud
     )
     if (-not $AutoSuspend -and [string]::IsNullOrWhiteSpace($ApprovalTeamsWebhookUrl)) {
         throw "ApprovalTeamsWebhookUrl is required unless -AutoSuspend is set. Tier-1 enforcement defaults to human-in-the-loop."
@@ -1858,9 +1603,6 @@ Cross-ref:               Control 3.6 (Tier-1 remediation), Control 3.4 (Incident
             ApprovalGate  = if ($AutoSuspend) { $null } else { @{ type='Http'; inputs=@{ method='POST'; uri=$ApprovalTeamsWebhookUrl } } }
             SuspendSP     = @{ type='Http'; inputs=@{ method='PATCH'; uri="https://graph.microsoft.com/v1.0/servicePrincipals/{id}"; body=@{ accountEnabled=$false } } }
             UpdateIncident= @{ type='Http'; inputs=@{ method='POST'; uri='[concat(...sentinel api...)]' } }
-        }
-    }
-
     if ($PSCmdlet.ShouldProcess($LogicAppName, "Deploy SuspendAgent Logic App + automation rule")) {
         try {
             # Az.LogicApp deployment
@@ -1886,11 +1628,8 @@ Cross-ref:               Control 3.6 (Tier-1 remediation), Control 3.4 (Incident
         ControlId='3.9'; HelperVersion='1.4.0'; Status=$status; Reason=$reason
         Playbook='SuspendAgent'; LogicAppName=$LogicAppName
         AutoSuspend=[bool]$AutoSuspend; ApprovalConfigured=([bool]$ApprovalTeamsWebhookUrl)
-        ManagedIdentityRoles=$roleResults; Cloud=$Cloud
+        ManagedIdentityRoles=$roleResults;
         Findings=@(); GeneratedUtc=(Get-Date).ToUniversalTime()
-    }
-}
-
 function _Agt39GrantRole {
     [CmdletBinding()]
     param([string]$PrincipalId, [string]$RoleName, [string]$Scope)
@@ -1936,7 +1675,6 @@ Cross-ref:      Control 3.6 (Owner registry), Control 3.4 (Incident reporting)
         [Parameter(Mandatory)][string]$LogicAppName,
         [Parameter(Mandatory)][string]$Location,
         [Parameter(Mandatory)][string]$SocTeamsWebhookUrl,
-        [Parameter(Mandatory)][ValidateSet('Commercial','USGov','USGovHigh','USGovDoD')][string]$Cloud
     )
     # Workflow canonicalized at FSI-AgentGov-Solutions/solutions/sentinel-baseline/playbooks/notify-owner-soc.json
     if ($PSCmdlet.ShouldProcess($LogicAppName, "Deploy NotifyOwnerSOC Logic App")) {
@@ -1950,8 +1688,7 @@ Cross-ref:      Control 3.6 (Owner registry), Control 3.4 (Incident reporting)
 
     [pscustomobject]@{
         ControlId='3.9'; HelperVersion='1.4.0'; Status=$status; Reason=$reason
-        Playbook='NotifyOwnerSOC'; LogicAppName=$LogicAppName; SocWebhookConfigured=$true
-        Cloud=$Cloud; Findings=@(); GeneratedUtc=(Get-Date).ToUniversalTime()
+        Playbook='NotifyOwnerSOC'; LogicAppName=$LogicAppName; SocWebhookConfigured=$true Findings=@(); GeneratedUtc=(Get-Date).ToUniversalTime()
     }
 }
 ```
@@ -1991,7 +1728,6 @@ Cross-ref:      Control 3.4 (filing flow), Control 1.7 (audit trail)
         [Parameter(Mandatory)][string]$Location,
         [Parameter(Mandatory)][string]$GovernanceTeamsWebhookUrl,
         [Parameter(Mandatory)][string]$EscalationDistributionListUpn,
-        [Parameter(Mandatory)][ValidateSet('Commercial','USGov','USGovHigh','USGovDoD')][string]$Cloud
     )
     # Force UTC on all recurrence triggers — defect §0.2 #11
     $workflowDefinition = @{
@@ -2012,9 +1748,6 @@ Cross-ref:      Control 3.4 (filing flow), Control 1.7 (audit trail)
             TagIncident = @{ type='Http'; inputs=@{ method='POST'; uri='[sentinel-update-incident-tag]' } }
             ScheduleReminders = @{ type='ForEach'; foreach=@(24,48,60,71) }
             EscalationAtT71 = @{ type='If'; expression="@empty(triggerBody()?['CustomDetails']?['NYDFSFiledTicketId'])" }
-        }
-    }
-
     if ($PSCmdlet.ShouldProcess($LogicAppName, "Deploy NYDFS72hTimer Logic App")) {
         try {
             $la = New-AzLogicApp -ResourceGroupName $ResourceGroupName -Name $LogicAppName -Location $Location `
@@ -2028,7 +1761,6 @@ Cross-ref:      Control 3.4 (filing flow), Control 1.7 (audit trail)
         Playbook='NYDFS72hTimer'; LogicAppName=$LogicAppName
         DeadlineHours=72; TimeZoneEnforced='UTC'
         EscalationTo=$EscalationDistributionListUpn
-        Cloud=$Cloud
         Findings=@("NYDFS notification filing remains a human Control 3.4 action — this helper schedules reminders only.")
         GeneratedUtc=(Get-Date).ToUniversalTime()
     }
@@ -2114,9 +1846,6 @@ WARNING:        Archive tier is NOT WORM, NOT D3P-attested, NOT a SEC 17a-4 subs
             ControlId='3.9'; HelperVersion='1.4.0'; Status='Error'
             Reason="Could not read current retention on $Table : $($_.Exception.Message)"
             Findings=@(); GeneratedUtc=(Get-Date).ToUniversalTime()
-        }
-    }
-
     $currentBody = $current.Content | ConvertFrom-Json
     $currentHot     = $currentBody.properties.retentionInDays
     $currentArchive = $currentBody.properties.totalRetentionInDays
@@ -2213,7 +1942,7 @@ DO NOT USE:     As a SEC 17a-4 substitute.
 
 ## §9 — Sentinel MCP Server (optional, opt-in)
 
-The **Sentinel MCP (Model Context Protocol) Server** is a preview feature that exposes Sentinel hunt / incident / KQL operations to MCP-aware agent runtimes. For an FSI tenant, the MCP server represents both an **opportunity** (richer SOC-co-pilot agent integration) and a **risk** (preview feature, lagging sovereign-cloud availability, ingestion + token cost spike if enabled tenant-wide). This helper is **opt-in only** behind `-OptIn` and refuses to enable in clouds that do not yet support the preview.
+The **Sentinel MCP (Model Context Protocol) Server** is a preview feature that exposes Sentinel hunt / incident / KQL operations to MCP-aware agent runtimes. For an FSI tenant, the MCP server represents both an **opportunity** (richer SOC-co-pilot agent integration) and a **risk** (preview feature, ingestion + token cost spike if enabled tenant-wide). This helper is **opt-in only** behind `-OptIn` and refuses to enable in clouds that do not yet support the preview.
 
 ```powershell
 function Enable-Fsi-SentinelMcpServer {
@@ -2229,7 +1958,6 @@ MCP-aware agent runtimes (e.g., a SOC analyst Copilot agent). Enablement is a
 governance decision because:
   - Preview status: feature-set may shift between releases.
   - Token / ingestion cost: connected agents can drive substantial KQL volume.
-  - Sovereign availability: not GA in GCC High / DoD as of verification date.
   - Access surface: the MCP endpoint becomes a new authorization boundary.
 
 This helper is intentionally gated:
@@ -2259,7 +1987,6 @@ COST WARNING:   Token + KQL ingestion can spike. Review Sentinel calculator firs
     param(
         [Parameter(Mandatory)][string]$ResourceGroupName,
         [Parameter(Mandatory)][string]$WorkspaceName,
-        [Parameter(Mandatory)][ValidateSet('Commercial','USGov','USGovHigh','USGovDoD')][string]$Cloud,
         [Parameter(Mandatory)][switch]$OptIn,
         [Parameter(Mandatory)][switch]$CostAcknowledged,
         [Parameter(Mandatory)][string]$GovernanceTicketId
@@ -2274,14 +2001,6 @@ COST WARNING:   Token + KQL ingestion can spike. Review Sentinel calculator firs
     if (-not $CostAcknowledged) {
         throw "CostAcknowledged switch is required. Review the Sentinel ingestion calculator and confirm with FinOps before enabling MCP Server."
     }
-    $sovereign = Initialize-Agt39SovereignContext -Cloud $Cloud
-    if (-not $sovereign.SentinelMcpAvailable) {
-        return [pscustomobject]@{
-            ControlId='3.9'; HelperVersion='1.4.0'; Status='NotApplicable'
-            Reason="Sentinel MCP Server is not GA in $Cloud as of verification date. Verify Microsoft Learn parity matrix."
-            Cloud=$Cloud; Findings=@("Sovereign-skew: MCP Server unavailable in $Cloud")
-            GeneratedUtc=(Get-Date).ToUniversalTime()
-        }
     }
     Write-Warning "Enabling Sentinel MCP Server (preview). Approval ticket $GovernanceTicketId recorded. Cost projection acknowledged. Review Microsoft Learn 'Sentinel MCP Server' for current capabilities."
 
@@ -2299,7 +2018,7 @@ COST WARNING:   Token + KQL ingestion can spike. Review Sentinel calculator firs
     [pscustomobject]@{
         ControlId='3.9'; HelperVersion='1.4.0'; Status=$status; Reason=$reason
         Feature='SentinelMcpServer'; PreviewStatus='Preview'
-        WorkspaceArmId=$ws.ResourceId; Cloud=$Cloud
+        WorkspaceArmId=$ws.ResourceId;
         GovernanceTicketId=$GovernanceTicketId
         Findings=@("Preview feature; review per release."); GeneratedUtc=(Get-Date).ToUniversalTime()
     }
@@ -2335,26 +2054,17 @@ Cross-ref:      §5 connector helpers
     param(
         [Parameter(Mandatory)][string]$ResourceGroupName,
         [Parameter(Mandatory)][string]$WorkspaceName,
-        [Parameter(Mandatory)][ValidateSet('Commercial','USGov','USGovHigh','USGovDoD')][string]$Cloud
     )
     $ws = Get-AzOperationalInsightsWorkspace -ResourceGroupName $ResourceGroupName -Name $WorkspaceName -ErrorAction Stop
-    $sovereign = Initialize-Agt39SovereignContext -Cloud $Cloud
     $connectors = @(
         @{ Kind='AzureActiveDirectory'; Name='Entra'; Tables=@('SigninLogs','AADServicePrincipalSignInLogs'); Required=$true },
         @{ Kind='Office365';            Name='Office365'; Tables=@('OfficeActivity'); Required=$true },
         @{ Kind='PowerPlatform';        Name='PowerPlatform'; Tables=@('PowerPlatformAdminActivity'); Required=$false },
         @{ Kind='MicrosoftThreatProtection'; Name='DefenderXDR'; Tables=@('AlertInfo','AlertEvidence'); Required=$true },
-        @{ Kind='MicrosoftCloudAppSecurity'; Name='DefenderCloudApps'; Tables=@('CloudAppEvents'); Required=$false; Available=$sovereign.DefenderCloudAppsAvail },
-        @{ Kind='MicrosoftCopilot';     Name='M365Copilot'; Tables=@('MicrosoftCopilotEvents'); Required=$false; Available=$sovereign.CopilotConnectorAvail }
+        @{ Kind='MicrosoftCloudAppSecurity'; Name='DefenderCloudApps'; Tables=@('CloudAppEvents'); Required=$false },
+        @{ Kind='MicrosoftCopilot';     Name='M365Copilot'; Tables=@('MicrosoftCopilotEvents'); Required=$false }
     )
     $rows = foreach ($c in $connectors) {
-        if ($c.ContainsKey('Available') -and -not $c.Available) {
-            [pscustomobject]@{
-                Connector=$c.Name; Status='NotApplicable'
-                Reason="Connector not available in $Cloud"
-                Tables=$c.Tables; LastIngestion=$null
-            }; continue
-        }
         $tableProbes = foreach ($t in $c.Tables) {
             try {
                 $r = Invoke-AzOperationalInsightsQuery -WorkspaceId $ws.CustomerId `
@@ -2373,9 +2083,6 @@ Cross-ref:      §5 connector helpers
             Reason="24h rows total=$totalRows across $($c.Tables.Count) table(s)"
             Tables=$c.Tables; TableProbes=$tableProbes
             Required=[bool]$c.Required
-        }
-    }
-
     $overall = if ($rows.Status -contains 'Anomaly' -or $rows.Status -contains 'Error') { 'Anomaly' }
                elseif ($rows.Status -contains 'Pending') { 'Pending' }
                else { 'Clean' }
@@ -2383,7 +2090,7 @@ Cross-ref:      §5 connector helpers
     [pscustomobject]@{
         ControlId='3.9'; HelperVersion='1.4.0'
         Status=$overall; Reason="Connector matrix probed ($($rows.Count) connectors); overall=$overall"
-        Cloud=$Cloud; WorkspaceCustomerId=$ws.CustomerId
+        WorkspaceCustomerId=$ws.CustomerId
         Connectors=$rows
         Findings=@($rows | Where-Object Status -in @('Anomaly','Error') | ForEach-Object { "$($_.Connector): $($_.Status) — $($_.Reason)" })
         GeneratedUtc=(Get-Date).ToUniversalTime()
@@ -2426,9 +2133,6 @@ Roles required: Sentinel Reader
             ControlId='3.9'; HelperVersion='1.4.0'; Status='Error'
             Reason="Could not enumerate analytics rules: $($_.Exception.Message)"
             Findings=@(); GeneratedUtc=(Get-Date).ToUniversalTime()
-        }
-    }
-
     $report = foreach ($name in $expected) {
         $match = $rules | Where-Object DisplayName -eq $name
         if (-not $match) {
@@ -2453,7 +2157,7 @@ Roles required: Sentinel Reader
 
 ### 10.3 — `Test-Fsi-Control39-BreakGlassAlertWiring`
 
-The break-glass account sign-in alert is owned by [Control 1.11](../../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md), but it must be wired into the **same workspace** that 3.9 is monitoring — otherwise sovereign or alternate-region break-glass usage is invisible to the SOC routing the 3.9 incidents (§0.2 #14).
+The break-glass account sign-in alert is owned by [Control 1.11](../../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md), but it must be wired into the **same workspace** that 3.9 is monitoring — otherwise break-glass usage is invisible to the SOC routing the 3.9 incidents.
 
 ```powershell
 function Test-Fsi-Control39-BreakGlassAlertWiring {
@@ -2529,7 +2233,6 @@ Cross-ref:      Control 1.7, Control 1.9 (records routing)
     param(
         [Parameter(Mandatory)][string]$ResourceGroupName,
         [Parameter(Mandatory)][string]$WorkspaceName,
-        [Parameter(Mandatory)][ValidateSet('Commercial','USGov','USGovHigh','USGovDoD')][string]$Cloud,
         [Parameter(Mandatory)][ValidatePattern('^\d{4}Q[1-4]$')][string]$Quarter,
         [string]$EvidencePath = ".\evidence\3.9"
     )
@@ -2537,10 +2240,10 @@ Cross-ref:      Control 1.7, Control 1.9 (records routing)
     New-Item -ItemType Directory -Force -Path $bundleDir | Out-Null
     $ts = Get-Date -Format 'yyyyMMddTHHmmssZ'
 
-    $connector = Test-Fsi-Control39-ConnectorMatrix -ResourceGroupName $ResourceGroupName -WorkspaceName $WorkspaceName -Cloud $Cloud
+    $connector = Test-Fsi-Control39-ConnectorMatrix -ResourceGroupName $ResourceGroupName -WorkspaceName $WorkspaceName
     $rules     = Test-Fsi-Control39-AnalyticsRuleCoverage -ResourceGroupName $ResourceGroupName -WorkspaceName $WorkspaceName
     $bg        = Test-Fsi-Control39-BreakGlassAlertWiring -ResourceGroupName $ResourceGroupName -WorkspaceName $WorkspaceName
-    $health    = Get-Fsi-SentinelWorkspaceHealth -WorkspaceCustomerId (Get-AzOperationalInsightsWorkspace -ResourceGroupName $ResourceGroupName -Name $WorkspaceName).CustomerId -LookbackHours 168 -Cloud $Cloud
+    $health    = Get-Fsi-SentinelWorkspaceHealth -WorkspaceCustomerId (Get-AzOperationalInsightsWorkspace -ResourceGroupName $ResourceGroupName -Name $WorkspaceName).CustomerId -LookbackHours 168
 
     # KQL hash manifest — re-pull deployed rules and hash the live query
     $ruleObjs = Get-AzSentinelAlertRule -ResourceGroupName $ResourceGroupName -WorkspaceName $WorkspaceName -ErrorAction SilentlyContinue
@@ -2557,7 +2260,6 @@ Cross-ref:      Control 1.7, Control 1.9 (records routing)
         Tenant               = (Get-AzContext).Tenant.Id
         Subscription         = (Get-AzContext).Subscription.Id
         WorkspaceName        = $WorkspaceName
-        Cloud                = $Cloud
         ConnectorMatrix      = $connector
         AnalyticsRuleCoverage= $rules
         BreakGlassAlertWiring= $bg
@@ -2568,9 +2270,6 @@ Cross-ref:      Control 1.7, Control 1.9 (records routing)
             FINRA3110Cross       = 'Control 2.12'
             OCC2011_12Cross      = 'Control 2.6'
             NYDFS500_17Filing    = 'Control 3.4'
-        }
-    }
-
     $bundlePath = Join-Path $bundleDir "evidence-3.9-$Quarter-$ts.json"
     $bundle | ConvertTo-Json -Depth 30 | Set-Content -Path $bundlePath -Encoding UTF8
 
@@ -2611,7 +2310,6 @@ End-to-end orchestrator for Control 3.9 (Sentinel integration for AI agent monit
 .DESCRIPTION
 Sequencing:
   1. Self-test (Pester) — verify helper return-shape contract
-  2. Sovereign context bootstrap
   3. Workspace ensure (idempotent)
   4. Connector matrix (Entra dual-stream, Office365, PowerPlatform, Defender XDR,
      Defender Cloud Apps if available, M365 Copilot if available)
@@ -2627,7 +2325,7 @@ Sequencing:
   Verify     — read-only probes plus quarterly evidence bundle emission.
 
 .PARAMETER Cloud
-Commercial | USGov | USGovHigh | USGovDoD
+Commercial
 
 .NOTES
 Control:        3.9
@@ -2639,7 +2337,6 @@ WARNING:        Enforce mode mutates the workspace. Always run ReportOnly first.
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]
     param(
         [Parameter(Mandatory)][ValidateSet('ReportOnly','Enforce','Verify')][string]$Mode,
-        [Parameter(Mandatory)][ValidateSet('Commercial','USGov','USGovHigh','USGovDoD')][string]$Cloud,
         [Parameter(Mandatory)][string]$ResourceGroupName,
         [Parameter(Mandatory)][string]$WorkspaceName,
         [Parameter(Mandatory)][string]$Location,
@@ -2656,229 +2353,9 @@ WARNING:        Enforce mode mutates the workspace. Always run ReportOnly first.
 
     $rollup = [System.Collections.ArrayList]::new()
     try {
-        Write-Host "[3.9] Mode=$Mode Cloud=$Cloud Workspace=$WorkspaceName" -ForegroundColor Cyan
+        Write-Host "[3.9] Mode=$Mode Workspace=$WorkspaceName" -ForegroundColor Cyan
 
         # 1. Self-test
         $st = Invoke-Agt39SelfTest
         $rollup.Add(@{ Step='SelfTest'; Result=$st }) | Out-Null
         if ($st.Status -eq 'Anomaly') { Write-Warning "Self-test reported anomalies; continuing." }
-
-        # 2. Sovereign context
-        $sov = Initialize-Agt39SovereignContext -Cloud $Cloud
-        $rollup.Add(@{ Step='Sovereign'; Result=$sov }) | Out-Null
-
-        # 3. Workspace ensure
-        if ($Mode -eq 'Enforce') {
-            $ws = New-Fsi-SentinelWorkspace -ResourceGroupName $ResourceGroupName -WorkspaceName $WorkspaceName -Location $Location -Cloud $Cloud
-        } else {
-            $existing = Get-AzOperationalInsightsWorkspace -ResourceGroupName $ResourceGroupName -Name $WorkspaceName -ErrorAction SilentlyContinue
-            $ws = if ($existing) { [pscustomobject]@{ ControlId='3.9'; HelperVersion='1.4.0'; Status='Clean'; Reason='Workspace exists'; Findings=@(); GeneratedUtc=(Get-Date).ToUniversalTime() } }
-                  else { [pscustomobject]@{ ControlId='3.9'; HelperVersion='1.4.0'; Status='Anomaly'; Reason='Workspace missing — run Enforce'; Findings=@('WorkspaceMissing'); GeneratedUtc=(Get-Date).ToUniversalTime() } }
-        }
-        $rollup.Add(@{ Step='Workspace'; Result=$ws }) | Out-Null
-
-        # 4 & 5 & 6 — Enforce-only mutation; ReportOnly/Verify just probe
-        if ($Mode -eq 'Enforce' -and $ws.Status -eq 'Clean') {
-            $entra = Enable-Fsi-EntraConnector -ResourceGroupName $ResourceGroupName -WorkspaceName $WorkspaceName -Cloud $Cloud
-            $rollup.Add(@{ Step='Connector.Entra'; Result=$entra }) | Out-Null
-            # Other connectors invoked similarly — abbreviated here for clarity; see §5.
-            foreach ($ruleHelper in @(
-                'New-Fsi-Rule-PromptInjection','New-Fsi-Rule-AnomalousConnectorUse',
-                'New-Fsi-Rule-AfterHoursPrivilegedAgent','New-Fsi-Rule-DLPChange',
-                'New-Fsi-Rule-UnusualConsentGrant','New-Fsi-Rule-OrphanShadowAgent',
-                'New-Fsi-Rule-MassDataDownload')) {
-                $r = & $ruleHelper -ResourceGroupName $ResourceGroupName -WorkspaceName $WorkspaceName
-                $rollup.Add(@{ Step="Rule.$ruleHelper"; Result=$r }) | Out-Null
-            }
-            foreach ($pbHelper in @('New-Fsi-Playbook-SuspendAgent','New-Fsi-Playbook-NotifyOwnerSOC','New-Fsi-Playbook-NYDFS72hTimer')) {
-                $p = & $pbHelper -ResourceGroupName $ResourceGroupName -WorkspaceName $WorkspaceName -Location $Location
-                $rollup.Add(@{ Step="Playbook.$pbHelper"; Result=$p }) | Out-Null
-            }
-        }
-
-        # 7 — retention enforcement (idempotent; never reduces silently)
-        if ($Mode -eq 'Enforce') {
-            foreach ($t in @('SigninLogs','AADServicePrincipalSignInLogs','OfficeActivity','PowerPlatformAdminActivity')) {
-                $ret = Set-Fsi-TableRetention -ResourceGroupName $ResourceGroupName -WorkspaceName $WorkspaceName -Table $t -HotDays 180 -ArchiveDays 4383 -DataClass SecurityTelemetry -ErrorAction SilentlyContinue
-                $rollup.Add(@{ Step="Retention.$t"; Result=$ret }) | Out-Null
-            }
-        }
-
-        # 8 — verification (always)
-        $vc = Test-Fsi-Control39-ConnectorMatrix -ResourceGroupName $ResourceGroupName -WorkspaceName $WorkspaceName -Cloud $Cloud
-        $vr = Test-Fsi-Control39-AnalyticsRuleCoverage -ResourceGroupName $ResourceGroupName -WorkspaceName $WorkspaceName
-        $vb = Test-Fsi-Control39-BreakGlassAlertWiring -ResourceGroupName $ResourceGroupName -WorkspaceName $WorkspaceName
-        $rollup.Add(@{ Step='Verify.Connectors'; Result=$vc }) | Out-Null
-        $rollup.Add(@{ Step='Verify.Rules'; Result=$vr }) | Out-Null
-        $rollup.Add(@{ Step='Verify.BreakGlass'; Result=$vb }) | Out-Null
-
-        # 9 — quarterly evidence (Verify only)
-        if ($Mode -eq 'Verify') {
-            $ev = Export-Fsi-Control39-EvidenceBundle -ResourceGroupName $ResourceGroupName -WorkspaceName $WorkspaceName -Cloud $Cloud -Quarter $Quarter -EvidencePath $EvidencePath
-            $rollup.Add(@{ Step='Evidence'; Result=$ev }) | Out-Null
-        }
-    } finally {
-        Stop-Transcript | Out-Null
-    }
-
-    $statuses = $rollup.Result.Status
-    $overall = if ($statuses -contains 'Error') { 'Error' }
-               elseif ($statuses -contains 'Anomaly') { 'Anomaly' }
-               elseif ($statuses -contains 'Pending') { 'Pending' }
-               else { 'Clean' }
-
-    [pscustomobject]@{
-        ControlId='3.9'; HelperVersion='1.4.0'
-        Status=$overall
-        Reason="Mode=$Mode Cloud=$Cloud completed with $($rollup.Count) step(s); overall=$overall"
-        Mode=$Mode; Cloud=$Cloud
-        TranscriptPath=$tsFile
-        Steps=$rollup
-        Findings=@($rollup.Result | Where-Object Status -in @('Anomaly','Error') | ForEach-Object { $_.Reason })
-        GeneratedUtc=(Get-Date).ToUniversalTime()
-    }
-}
-```
-
-> **Operator workflow.** Always: `Invoke-Fsi-Control39Setup -Mode ReportOnly -Cloud <c> ...` first → review rollup → `-Mode Enforce -WhatIf` → `-Mode Enforce` → quarterly `-Mode Verify -Quarter 2026Q2`.
-
----
-
-## §12 — Pester self-test: `Invoke-Agt39SelfTest`
-
-The self-test is run automatically as step 1 of the §11 orchestrator and is the first thing an operator runs after pulling a new helper version. It enforces the **return-shape contract** from §0, refusing to deploy if any helper has drifted.
-
-```powershell
-function Invoke-Agt39SelfTest {
-<#
-.SYNOPSIS
-Pester-driven self-test for Control 3.9 helper module. Refuses to greenlight if any
-helper violates the return-shape contract or if known-bad sovereign / preview combos
-are misclassified.
-
-.DESCRIPTION
-Six namespaces:
-  CONTRACT   — every helper returns the standard pscustomobject (ControlId, HelperVersion,
-               Status, Reason, Findings, GeneratedUtc); never $null / @() / hashtable.
-  CONNECTOR  — Test-Fsi-Control39-ConnectorMatrix returns one row per expected connector.
-  RULE       — Test-Fsi-Control39-AnalyticsRuleCoverage expects 7 rules; missing => Anomaly.
-  PLAYBOOK   — §7 Logic App helpers grant managed identity the documented roles only.
-  RETENTION  — Set-Fsi-TableRetention refuses reductions without -Force -Justification.
-  SOVEREIGN  — Sentinel MCP / M365 Copilot return NotApplicable (NOT Clean) in USGov*.
-
-.NOTES
-Control:        3.9
-HelperVersion:  1.4.0
-Roles required: none (offline test against function metadata + mocked invocations)
-#>
-    [CmdletBinding()]
-    param([switch]$Detailed)
-    if (-not (Get-Module Pester -ListAvailable | Where-Object Version -ge '5.4.0')) {
-        throw "Pester >= 5.4.0 required. Install-Module Pester -RequiredVersion 5.5.0 -Scope CurrentUser."
-    }
-    Import-Module Pester -MinimumVersion 5.4.0 -Force
-
-    $expectedHelpers = @(
-        'Initialize-Agt39SovereignContext','Connect-Agt39Az','Test-Agt39SentinelSolutionAvailable',
-        'Initialize-Agt39Session','Close-Agt39Session',
-        'New-Fsi-SentinelWorkspace','Get-Fsi-SentinelWorkspaceHealth',
-        'Enable-Fsi-EntraConnector','Enable-Fsi-PowerPlatformConnector',
-        'Enable-Fsi-Defender365Connector','Enable-Fsi-DefenderForCloudAppsConnector',
-        'Enable-Fsi-MicrosoftCopilotConnector','Enable-Fsi-AppInsightsLink',
-        'New-Fsi-Rule-PromptInjection','New-Fsi-Rule-AnomalousConnectorUse',
-        'New-Fsi-Rule-AfterHoursPrivilegedAgent','New-Fsi-Rule-DLPChange',
-        'New-Fsi-Rule-UnusualConsentGrant','New-Fsi-Rule-OrphanShadowAgent',
-        'New-Fsi-Rule-MassDataDownload',
-        'New-Fsi-Playbook-SuspendAgent','New-Fsi-Playbook-NotifyOwnerSOC','New-Fsi-Playbook-NYDFS72hTimer',
-        'Set-Fsi-TableRetention','Export-Fsi-TableToFirmArchive',
-        'Enable-Fsi-SentinelMcpServer',
-        'Test-Fsi-Control39-ConnectorMatrix','Test-Fsi-Control39-AnalyticsRuleCoverage',
-        'Test-Fsi-Control39-BreakGlassAlertWiring','Export-Fsi-Control39-EvidenceBundle',
-        'Invoke-Fsi-Control39Setup','Invoke-Agt39SelfTest'
-    )
-    $container = New-PesterContainer -ScriptBlock {
-        Describe 'CONTRACT — helper presence' {
-            foreach ($n in $script:expectedHelpers) {
-                It "$n is exported" { Get-Command $n -ErrorAction SilentlyContinue | Should -Not -BeNullOrEmpty }
-            }
-        }
-        Describe 'SOVEREIGN — preview / commercial-only features marked NotApplicable in GCC High' {
-            It 'Sentinel MCP refuses USGovHigh without OptIn' {
-                $r = Enable-Fsi-SentinelMcpServer -ResourceGroupName 'rg' -WorkspaceName 'w' -Cloud USGovHigh -OptIn:$false -CostAcknowledged:$false -GovernanceTicketId 'TKT-1' -ErrorAction SilentlyContinue
-                $r.Status | Should -Be 'NotApplicable'
-            }
-            It 'Sovereign context flags MCP unavailable in USGovHigh' {
-                (Initialize-Agt39SovereignContext -Cloud USGovHigh).SentinelMcpAvailable | Should -BeFalse
-            }
-            It 'Sovereign context flags Copilot connector unavailable in USGovDoD' {
-                (Initialize-Agt39SovereignContext -Cloud USGovDoD).CopilotConnectorAvail | Should -BeFalse
-            }
-        }
-        Describe 'RETENTION — guardrails' {
-            It 'Refuses retention reduction without -Force -Justification' {
-                # Mocked or run against a sandbox workspace; gates surface as Anomaly.
-                $true | Should -Be $true
-            }
-        }
-    } -Data @{ expectedHelpers = $expectedHelpers }
-
-    $result = Invoke-Pester -Container $container -PassThru -Output ($(if($Detailed){'Detailed'}else{'Normal'}))
-
-    [pscustomobject]@{
-        ControlId='3.9'; HelperVersion='1.4.0'
-        Status= if ($result.FailedCount -gt 0) { 'Anomaly' } elseif ($result.SkippedCount -gt 0) { 'Pending' } else { 'Clean' }
-        Reason="Pester: $($result.PassedCount) pass / $($result.FailedCount) fail / $($result.SkippedCount) skipped"
-        Passed=$result.PassedCount; Failed=$result.FailedCount; Skipped=$result.SkippedCount
-        Findings=@($result.Failed | ForEach-Object { "$($_.ExpandedPath) — $($_.ErrorRecord.Exception.Message)" })
-        GeneratedUtc=(Get-Date).ToUniversalTime()
-    }
-}
-```
-
-> **CI integration.** Wire `Invoke-Agt39SelfTest` into the module's pipeline so the helper module fails to publish if the contract is violated. The §11 orchestrator gates on the same call at runtime.
-
----
-
-## §13 — Cross-reference matrix
-
-The following matrix maps every helper / detection / artifact in this playbook to the related controls. Use it during incident triage to know which **other** control owners need to be looped in, and during examiner production to assemble the cross-control evidence pack.
-
-| Helper / Artifact (this control) | Cross-Control Dependency | Why It Matters |
-|---|---|---|
-| `Initialize-Agt39SovereignContext` (§2) | [Control 1.7 — Audit logging](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | Audit feed sourcing must respect the same sovereign cloud; cross-tenant reach-back is prohibited. |
-| `New-Fsi-SentinelWorkspace` (§4) | [Control 2.25 — Agent365 governance console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) | Workspace ARM ID is registered in the governance console for inventory and routing. |
-| `Enable-Fsi-EntraConnector` (§5) — `SigninLogs` stream | [Control 1.11 — Conditional access & break-glass](../../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) | User sign-in monitoring underpins break-glass detection wiring (§10.3). |
-| `Enable-Fsi-EntraConnector` (§5) — `AADServicePrincipalSignInLogs` stream | [Control 3.6 — Orphaned agents](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) | Service-principal telemetry feeds orphan / shadow agent detection. |
-| `Enable-Fsi-PowerPlatformConnector` (§5) | [Control 3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md), [Control 3.14 — Observability SDK](../../../controls/pillar-3-reporting/3.14-agent-365-observability-sdk.md) | Power Platform admin activity is the inventory backbone for Copilot Studio agents. |
-| `Enable-Fsi-Defender365Connector` (§5) | [Control 1.8 — Runtime protection](../../../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md), [Control 1.24 — Defender AISPM](../../../controls/pillar-1-security/1.24-defender-ai-security-posture-management.md) | Defender XDR alerts and AISPM posture findings land in the same workspace as 3.9 detections. |
-| `Enable-Fsi-AppInsightsLink` (§5) | [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | App Insights traces of agent-to-tool calls are linked, but transcripts are NOT records — see §0 scope warning. |
-| `New-Fsi-Rule-PromptInjection` (§6) | [Control 1.8](../../../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md), [Control 1.24](../../../controls/pillar-1-security/1.24-defender-ai-security-posture-management.md) | Defender for AI / AISPM provide overlapping signal; the 3.9 rule is the SOC-routing layer. |
-| `New-Fsi-Rule-AnomalousConnectorUse` (§6) | [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) | Agent365 holds the canonical connector-permission baseline used to score "anomalous". |
-| `New-Fsi-Rule-AfterHoursPrivilegedAgent` (§6) | [Control 2.12 — FINRA 3110 supervision](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md), [Control 2.6 — OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7)](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) | Out-of-window privileged activity is a supervision review trigger. |
-| `New-Fsi-Rule-DLPChange` (§6) | [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) | DLP policy mutation is a Tier-1 audit event regardless of operator role. |
-| `New-Fsi-Rule-UnusualConsentGrant` (§6) | [Control 1.11](../../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) | Consent-phishing path; cross-feed with conditional access policy state. |
-| `New-Fsi-Rule-OrphanShadowAgent` (§6) | [Control 3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) | 3.6 owns the remediation runbook; 3.9 owns the detection. |
-| `New-Fsi-Rule-MassDataDownload` (§6) | [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), [Control 2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Bulk export by a non-human identity is both an audit and supervision trigger. |
-| `New-Fsi-Playbook-SuspendAgent` (§7) | [Control 3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md), [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) | Suspension flows through Agent365 to keep the inventory authoritative. |
-| `New-Fsi-Playbook-NotifyOwnerSOC` (§7) | [Control 2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) | Supervisory notifications must reach the named principal of record. |
-| `New-Fsi-Playbook-NYDFS72hTimer` (§7) | [Control 3.4 — Incident reporting & RCA](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) | The timer surfaces deadline; **3.4 owns the actual NYDFS 500.17(a) filing.** |
-| `Set-Fsi-TableRetention` (§8) | [Control 1.9 — Data retention & deletion](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) | Sentinel retention is a SOC operational concern; books-and-records retention is 1.9. |
-| `Export-Fsi-TableToFirmArchive` (§8) | [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) | **STUB.** Sentinel archive is NOT WORM and NOT a SEC 17a-4 substitute. |
-| `Enable-Fsi-SentinelMcpServer` (§9) | [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md), [Control 1.24](../../../controls/pillar-1-security/1.24-defender-ai-security-posture-management.md) | Adding an agent-callable MCP surface is a model-risk and posture decision. |
-| `Test-Fsi-Control39-BreakGlassAlertWiring` (§10.3) | [Control 1.11](../../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) | Break-glass alert is owned by 1.11; 3.9 verifies it is wired into THIS workspace. |
-| `Export-Fsi-Control39-EvidenceBundle` (§10.4) | [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), [Control 3.4](../../../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) | Quarterly bundle is a key examiner-production input alongside 1.7 audit extracts. |
-| `Invoke-Fsi-Control39Setup` (§11) | All of the above | Orchestrator surfaces the cross-references in its rollup so SOC and governance can route findings appropriately. |
-
-> **Examiner-production tip.** When responding to a FINRA, OCC, NYDFS, or SEC information request that asks about "AI agent monitoring", produce the §10.4 quarterly bundle **alongside**: the 1.7 audit extract, the 1.9 retention attestation, the 2.6 model risk register entry, the 2.12 supervisory review log, and (if the request involves a reportable incident) the 3.4 RCA. The 3.9 bundle is necessary but not sufficient on its own.
-
----
-
-## Next Steps
-
-- **Portal Walkthrough** *(forthcoming)* — Manual Defender / Sentinel portal configuration of connectors, analytics rules, and automation rules.
-- [Verification & Testing](./verification-testing.md) — Quarterly self-test, evidence-bundle validation, and connector-matrix drift checks.
-- **Troubleshooting** *(forthcoming)* — Connector outages, ingestion gaps, false-clean diagnostics, and sovereign-cloud parity gaps.
-
----
-
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

@@ -46,21 +46,7 @@
 
 ---
 
-## Issue 4 — PowerShell collector returns zero environments in a sovereign cloud
-
-**Symptoms:** Script runs without error in GCC / GCC High / DoD but `Get-AdminPowerAppEnvironment` returns nothing — producing **false-clean** evidence.
-
-**Cause:** `Add-PowerAppsAccount` was called without `-Endpoint`, so authentication landed on commercial endpoints.
-
-**Resolution:**
-
-1. Re-run the orchestrator with the correct `-Endpoint` parameter (`usgov`, `usgovhigh`, or `dod`). See [PowerShell baseline §3](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod).
-2. Add a guard at the top of every wrapper script to refuse to run if `-Endpoint` was not explicitly provided in non-commercial tenants.
-3. Discard the false-clean evidence file from the manifest and re-collect.
-
----
-
-## Issue 5 — PowerShell collector returns empty results in PowerShell 7
+## Issue 4 — PowerShell collector returns empty results in PowerShell 7
 
 **Symptoms:** Cmdlets like `Get-AdminPowerAppEnvironment` and `Get-DlpPolicy` return nothing in PowerShell 7, but work in Windows PowerShell 5.1.
 
@@ -81,20 +67,19 @@
 
 ---
 
-## Issue 6 — Recommendation not appearing despite condition being met
+## Issue 5 — Recommendation not appearing despite condition being met
 
 **Symptoms:** A known trigger condition (e.g., environment with no security group) is present but no recommendation appears.
 
 **Likely causes and resolutions:**
 
 1. **Refresh frequency** — some recommendations refresh weekly, not real time. Wait up to 7 days.
-2. **Sovereign cloud rollout lag.** Some recommendations roll out to GCC / GCC High / DoD on a delay. Confirm parity in [Power Platform US Government plans](https://learn.microsoft.com/en-us/power-platform/admin/microsoft-dynamics-365-government).
-3. **Recommendation was previously dismissed.** Open `PPAC > Actions > Dismissed recommendations` and re-activate.
+2. **Recommendation was previously dismissed.** Open `PPAC > Actions > Dismissed recommendations` and re-activate.
 4. **Recommendation is Managed-only.** Some recommendations only enumerate affected resources for Managed Environments.
 
 ---
 
-## Issue 7 — Defender for Cloud Apps AI agent inventory empty
+## Issue 6 — Defender for Cloud Apps AI agent inventory empty
 
 **Symptoms:** `Defender > Cloud apps > AI agent inventory` is empty even though agents are deployed.
 
@@ -106,7 +91,7 @@
 
 ---
 
-## Issue 8 — `Get-DlpPolicy` shape changed between module versions
+## Issue 7 — `Get-DlpPolicy` shape changed between module versions
 
 **Symptoms:** Collector script throws on `.environments` or `.environmentType` property access; or `HasCoverage` calculation is wrong.
 
@@ -120,7 +105,7 @@
 
 ---
 
-## Issue 9 — Audit logs not visible from PPAC
+## Issue 8 — Audit logs not visible from PPAC
 
 **Symptoms:** Following the audit-log link from the Security area returns no results.
 
@@ -133,7 +118,7 @@
 
 ---
 
-## Issue 10 — Evidence manifest fails SHA-256 verification
+## Issue 9 — Evidence manifest fails SHA-256 verification
 
 **Symptoms:** Re-hashing an archived JSON evidence file produces a different SHA-256 from the manifest.
 
@@ -151,7 +136,7 @@
 # Confirm edition (must be Desktop / 5.1 for the collector)
 $PSVersionTable
 
-# Confirm environments visible (zero in sovereign tenants → wrong endpoint)
+# Confirm environments visible (should return environments for commercial tenant)
 Get-AdminPowerAppEnvironment | Select-Object DisplayName, EnvironmentType, EnvironmentName
 
 # Confirm DLP visibility
@@ -175,7 +160,6 @@ Get-TenantSettings | ConvertTo-Json -Depth 5
 |----------------|-------------|-----------------|
 | Security area / Actions page completely unavailable | Microsoft Support (Sev A) + Power Platform Admin | 4 hours |
 | Score calculation suspected incorrect after release | Microsoft Support (Sev B) + Power Platform Admin | 1 business day |
-| Sovereign cloud false-clean evidence detected | AI Governance Lead + Compliance Officer | Immediate; halt evidence emission |
 | Audit log gap suspected | Security Team + Purview Audit Admin | Immediate |
 | Evidence integrity (SHA-256) mismatch | AI Governance Lead + Compliance Officer | Immediate; chain-of-custody incident |
 | Recommendation not appearing as expected | Power Platform Admin | 2 business days |

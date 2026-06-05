@@ -414,28 +414,6 @@ GET https://contoso.crm.dynamics.com/api/data/v9.2/gov_asardexceptions
 
 ---
 
-## Sovereign Cloud Notes
-
-ASARD exception management can be deployed in Microsoft's sovereign and government clouds, but several host suffixes and authority endpoints differ from commercial. Validate the deployment manifest against the target environment before running collectors or the Exception Review Workflow.
-
-| Cloud | Microsoft Entra authority | Dataverse / BAP host suffix | M365 admin center | Graph endpoint |
-|-------|---------------------------|------------------------------|-------------------|----------------|
-| Commercial (Worldwide) | `https://login.microsoftonline.com/<tenant>` | `*.crm.dynamics.com` / `api.bap.microsoft.com` | `admin.microsoft.com` | `https://graph.microsoft.com` |
-| GCC | `https://login.microsoftonline.com/<tenant>` | `*.crm9.dynamics.com` / `api.gov.bap.microsoft.us` | `admin.microsoft.com` | `https://graph.microsoft.com` |
-| GCC High | `https://login.microsoftonline.us/<tenant>` | `*.crm.microsoftdynamics.us` / `high.api.bap.microsoft.us` | `portal.office365.us` | `https://graph.microsoft.us` |
-| DoD | `https://login.microsoftonline.us/<tenant>` | `*.crm.appsplatform.us` / `mil.api.bap.microsoft.us` | `portal.apps.mil` | `https://dod-graph.microsoft.us` |
-
-**Implementation checklist:**
-
-- Replace the example host `contoso.crm.dynamics.com` in all Web API examples with the correct Dataverse suffix for the target cloud (for example `contoso.crm.microsoftdynamics.us` for GCC High).
-- Update the Power Automate connection references for Dataverse, Teams, and Microsoft Graph to the connectors published in the target sovereign cloud — connector availability varies by cloud.
-- Update any service-principal authority URL (used by the detection/remediation scripts) to match the cloud's Entra endpoint.
-- Confirm that the Adaptive Card template URL is reachable from the sovereign cloud's outbound network (GitHub raw and public Azure Blob endpoints are typically allowed; verify with your network team).
-
-References: [US Government cloud overview (Power Platform)](https://learn.microsoft.com/en-us/power-platform/admin/microsoft-dynamics-365-government), [Microsoft Graph national cloud deployments](https://learn.microsoft.com/en-us/graph/deployments).
-
----
-
 ## Related Documentation
 
 - **ASARD Deployment Playbook:** `docs/playbooks/asard-deployment-guide.md` (Phase 5)
