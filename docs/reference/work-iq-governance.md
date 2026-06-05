@@ -53,8 +53,6 @@ FSI implementation considerations:
 
 - Map each Work IQ MCP tool to the tenant workloads and data classifications it can reach before approval.
 - Confirm whether external Copilot connectors or federated connectors introduce additional data residency, indexing, retention, or vendor-review obligations. Microsoft Learn describes Copilot connectors and federated connectors as extensions to the Work IQ data layer, with federated connectors documented as early access preview. See [External business data from Copilot connectors](https://learn.microsoft.com/microsoft-365/copilot/extensibility/work-iq#external-business-data-from-copilot-connectors).
-- For U.S. government or sovereign-cloud tenants, validate feature availability separately. Microsoft Learn states that Microsoft 365 Copilot is available in GCC, GCC High, and DoD, but that feature availability may differ, release timing typically lags commercial environments, and third-party integrations are more restricted in higher-isolation environments. See [Microsoft 365 Copilot government cloud overview](https://learn.microsoft.com/microsoft-365/copilot/gov-overview).
-- Do not assume a commercial Work IQ MCP, business-skill, or Agent Tools feature is available in GCC, GCC High, DoD, or other sovereign deployments until the specific tenant and Microsoft Learn availability statement are verified.
 
 ## Audit-log expectations
 
@@ -90,7 +88,7 @@ Use these questions during AI governance committee or technology-risk review:
 2. Which agents can invoke each Work IQ MCP tool, and which users or service principals provided consent?
 3. Which business skills are shared across agents, who owns them, and when were they last reviewed?
 4. Which Work IQ tool calls are visible in Purview audit, Defender Advanced Hunting, or SDK telemetry?
-5. Does the tenant operate in commercial, GCC, GCC High, DoD, or another sovereign environment, and has feature availability been verified for that environment?
+5. Has Work IQ feature availability been verified in the Microsoft 365 admin center for the tenant's commercial (Global) environment?
 6. Are high-impact Work IQ tool actions tied to change tickets, supervisory review, or human approval checkpoints?
 
 ---

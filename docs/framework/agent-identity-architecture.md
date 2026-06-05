@@ -12,7 +12,7 @@
     - **Shadow AI discovery:** Available post-GA via Entra and Defender capabilities, including discovery of agents hosted on non-Microsoft cloud platforms; verify scope coverage against current Microsoft Learn documentation before depending on it for compliance evidence.
     - **Licensing:** Agent 365 capabilities require **Microsoft 365 E7** (bundles E5 + Microsoft 365 Copilot + Entra Suite + Agent 365) or the **Microsoft Agent 365** standalone per-user license. Confirm SKU coverage and feature mapping against current Microsoft licensing documentation before committing supervisory cadences to specific entitlements.
     - **Multi-tenant API:** Not committed; Agent 365 focuses on single-tenant governance only.
-    - **Sovereign clouds:** Initial GA covers Commercial; availability in GCC, GCC High, DoD, and Gallatin is rolling and not yet announced for all surfaces — verify per cloud against the Microsoft 365 roadmap and Microsoft Learn before committing dates.
+    - **Commercial (Global) cloud:** Entra Agent ID is available in the Microsoft commercial (Global) cloud, the deployment surface for US financial-services customers.
     - **Foundry agents:** Microsoft Foundry agents are expected to surface in the Agent 365 registry; verify current coverage against Microsoft Learn for the agent types deployed in your tenant.
 
 ---
