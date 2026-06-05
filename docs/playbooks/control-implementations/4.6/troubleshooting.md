@@ -56,7 +56,7 @@ Capture **all** of the following before any change is made, in this order. Hash 
 10. Zone classification register entry for the affected site / agent (per Control 2.1).
 11. Tenant ID, UTC window of the incident, role used for capture, requesting user, affected user(s), and citation URL(s).
 12. Record-retention proof: confirmation that the audit window covering the change is within retention (per Control 1.7) and that holds (per Control 1.13 / 1.14) are in place if litigation or examination is foreseeable.
-13. Page composition snapshot for the affected site (modern vs classic ASPX) to rule in / rule out F10.
+13. Page composition snapshot for the affected site (modern vs classic ASPX) to rule in / rule out F9.
 
 ### 1.4 Compensating controls — apply during the gap
 
@@ -107,7 +107,7 @@ Apply as many as are operationally feasible without destroying evidence. Documen
 
 ## §2 — Decision matrix (symptom → likely cause → diagnostic → action → owner)
 
-This matrix covers the dominant grounding-scope failure modes (F1–F16). Use it as a triage map before opening a Microsoft Support case.
+This matrix covers the dominant grounding-scope failure modes (F1–F15). Use it as a triage map before opening a Microsoft Support case.
 
 | # | Symptom (what the user / admin sees) | Likely cause(s) | Deterministic diagnostic | Action | Owner |
 |---|---|---|---|---|---|
@@ -115,17 +115,17 @@ This matrix covers the dominant grounding-scope failure modes (F1–F16). Use it
 | F2 | RSS allowed-list change not in effect after the change was made | Index rebuild / propagation pending — verify the documented Microsoft Learn propagation window at the time of operation (historically observed at 24–48 h; verify current) | Note change UTC; compare to documented window; re-test after the window | Wait the documented window; re-test; do not escalate before window elapses unless a SEV-1 disclosure has occurred | SharePoint Admin |
 | F3 | RCD enabled; tenant has **no Microsoft 365 Copilot license assigned** → control silently no-op | Admin believes the control is enforcing; in fact nothing is being grounded by Copilot at all because no user can invoke it | `Get-MgSubscribedSku | Where SkuPartNumber -like '*COPILOT*' | Select SkuPartNumber, ConsumedUnits, PrepaidUnits` | Document the no-op state; either license at least one user or remove the false PASS from the control evidence pack; do not assert RCD effectiveness without at least one Copilot-licensed user | Entra Global Admin + AI Governance Lead |
 | F4 | DLP blocks the SharePoint connector; maker still ingests the site by adding a **direct URL** in a Copilot Studio knowledge source | Connector-block ≠ URL-block; need both enforcement vectors | Inventory Copilot Studio knowledge sources per environment; cross-check URLs against the sanctioned connector list | Block at both layers: connector DLP + URL pattern policy; freeze publishes (Control 2.1) until inventory is clean | Power Platform Admin + Purview Compliance Admin |
-| F5 | DAG report shows oversharing on a site that is RCD-protected | DAG cadence is delayed; report may pre-date the RCD change; OR RCD was rolled back | Capture DAG **report generation timestamp**; compare to RCD effective time; re-run DAG and compare | Re-run DAG; if oversharing persists in fresh report, treat as a real RCD failure and follow F1 / F11 path | SharePoint Admin |
+| F5 | DAG report shows oversharing on a site that is RCD-protected | DAG cadence is delayed; report may pre-date the RCD change; OR RCD was rolled back | Capture DAG **report generation timestamp**; compare to RCD effective time; re-run DAG and compare | Re-run DAG; if oversharing persists in fresh report, treat as a real RCD failure and follow F1 / F10 path | SharePoint Admin |
 | F6 | **Personal OneDrive content** appears in a declarative agent's grounding | Zone misconfiguration — Zone 1 personal-productivity content path reaching a Zone 2 / Zone 3 agent's knowledge source | Inventory each in-scope agent's knowledge sources; flag any OneDrive personal path | Remove the OneDrive knowledge source; suspend the agent (Control 2.16); update Zone register; cross-reference Controls 4.7, 1.5 | Power Platform Admin + AI Governance Lead |
 | F7 | RSS 100-site ceiling reached; new site cannot be added | Governance-ceiling event, not a config event; RSS at the ceiling has effectively become a manually curated allow-list | `(Get-SPOTenantRestrictedSearchAllowedList).Count` | Convene RSS allow-list change-control board; document add / remove with business case ledger; do not "make room" without governance approval | SharePoint Admin + AI Governance Lead |
 | F8 | Copilot Studio knowledge-source change not visible | Sync window — verify current sync window on Microsoft Learn | Note change UTC; re-test after documented window | Wait documented window; re-test; do not escalate before window elapses | Power Platform Admin |
-| F10 | Modern pages indexed; classic ASPX pages on the same site still leak | Modern and classic pages flow through different indexing paths; site appears RCD-protected but classic content leaks | Enumerate site page library; classify modern vs classic | Convert classic to modern OR explicitly scope classic page content out via permissions / archive | SharePoint Admin |
-| F11 | RSS allow-list contains a site whose RCD is also `True` | Conflicting scopes; depending on order of evaluation user may experience apparent inclusion or apparent zero results | `Get-SPOTenantRestrictedSearchAllowedList` cross-joined with `Get-SPOSite ... | Select RestrictContentOrgWideSearch` | Decide the intended state; remove the site from one of the two; document the decision in the RSS change log | SharePoint Admin |
-| F12 | `CopilotReady` (or any custom) property bag value not persisting | PnP module stale; site read-only / archive; site collection admin missing | `Update-Module PnP.PowerShell`; check `Get-SPOSite ... | Select LockState, Status`; verify SCA on the site | Update PnP; resolve site state; re-add SCA; retry idempotently | SharePoint Admin |
-| F13 | Bulk `Set-SPOSite -RestrictContentOrgWideSearch $true` partial failure | Throttling; locked sites; archive state — needs an idempotent retry pattern, not a one-shot loop | Re-run with per-site try / catch; collect failures; verify by re-querying every site | Implement idempotent retry with exponential backoff; produce a per-site PASS / FAIL report and remediate failures individually | SharePoint Admin |
-| F14 | Guest / external user appears to inherit broader grounding than internal users | RCD does not change SharePoint permissions; B2B + grounding interaction surfaces what the guest already had access to | Audit the guest's effective SharePoint permissions; cross-reference Control 4.4 external sharing posture | Tighten SharePoint sharing posture; re-evaluate guest access model; do not treat as an RCD failure unless permissions are correct and grounding still leaks | SharePoint Admin + Entra Global Admin |
-| F15 | Restricted-AU (Administrative Unit) admin attempting an RCD / RSS change and receiving an unexpected error | Some SPO admin surfaces do not honor AU scoping; the operating admin needs tenant scope | Confirm admin role assignment scope; reproduce as a tenant-scoped SharePoint Admin | Use a tenant-scoped admin; document the AU limitation in the runbook | Entra Global Admin + SharePoint Admin |
-| F9 | Audit evidence of the RCD / RSS change cannot be produced for an examiner | Audit retention insufficient OR event-type filter incorrect OR the event was never written | Re-run UAL search with the documented event-type list; check retention setting per Control 1.7 | Extend retention; engage Microsoft Support if events are missing; document the gap in the Compliance file | Compliance Officer + Purview Compliance Admin |
+| F9 | Modern pages indexed; classic ASPX pages on the same site still leak | Modern and classic pages flow through different indexing paths; site appears RCD-protected but classic content leaks | Enumerate site page library; classify modern vs classic | Convert classic to modern OR explicitly scope classic page content out via permissions / archive | SharePoint Admin |
+| F10 | RSS allow-list contains a site whose RCD is also `True` | Conflicting scopes; depending on order of evaluation user may experience apparent inclusion or apparent zero results | `Get-SPOTenantRestrictedSearchAllowedList` cross-joined with `Get-SPOSite ... | Select RestrictContentOrgWideSearch` | Decide the intended state; remove the site from one of the two; document the decision in the RSS change log | SharePoint Admin |
+| F11 | `CopilotReady` (or any custom) property bag value not persisting | PnP module stale; site read-only / archive; site collection admin missing | `Update-Module PnP.PowerShell`; check `Get-SPOSite ... | Select LockState, Status`; verify SCA on the site | Update PnP; resolve site state; re-add SCA; retry idempotently | SharePoint Admin |
+| F12 | Bulk `Set-SPOSite -RestrictContentOrgWideSearch $true` partial failure | Throttling; locked sites; archive state — needs an idempotent retry pattern, not a one-shot loop | Re-run with per-site try / catch; collect failures; verify by re-querying every site | Implement idempotent retry with exponential backoff; produce a per-site PASS / FAIL report and remediate failures individually | SharePoint Admin |
+| F13 | Guest / external user appears to inherit broader grounding than internal users | RCD does not change SharePoint permissions; B2B + grounding interaction surfaces what the guest already had access to | Audit the guest's effective SharePoint permissions; cross-reference Control 4.4 external sharing posture | Tighten SharePoint sharing posture; re-evaluate guest access model; do not treat as an RCD failure unless permissions are correct and grounding still leaks | SharePoint Admin + Entra Global Admin |
+| F14 | Restricted-AU (Administrative Unit) admin attempting an RCD / RSS change and receiving an unexpected error | Some SPO admin surfaces do not honor AU scoping; the operating admin needs tenant scope | Confirm admin role assignment scope; reproduce as a tenant-scoped SharePoint Admin | Use a tenant-scoped admin; document the AU limitation in the runbook | Entra Global Admin + SharePoint Admin |
+| F15 | Audit evidence of the RCD / RSS change cannot be produced for an examiner | Audit retention insufficient OR event-type filter incorrect OR the event was never written | Re-run UAL search with the documented event-type list; check retention setting per Control 1.7 | Extend retention; engage Microsoft Support if events are missing; document the gap in the Compliance file | Compliance Officer + Purview Compliance Admin |
 
 ---
 
@@ -133,7 +133,7 @@ This matrix covers the dominant grounding-scope failure modes (F1–F16). Use it
 
 | # | Anti-pattern | Why it is wrong / risk |
 |---|---|---|
-| A1 | Marking RCD as enforcing because it was set last week, without re-running the deterministic check today | Propagation, license absence (F3), or RSS conflict (F11) can leave the control no-op; control evidence becomes false PASS |
+| A1 | Marking RCD as enforcing because it was set last week, without re-running the deterministic check today | Propagation, license absence (F3), or RSS conflict (F10) can leave the control no-op; control evidence becomes false PASS |
 | A2 | Treating an empty `Get-SPOTenantRestrictedSearchAllowedList` as "RSS not in effect" | Silent-zero-row trap; confirm `Get-SPOTenant.EnableRestrictedSearchAllList` first |
 | A3 | Blocking only the SharePoint connector via DLP-for-Copilot | F4 — makers add the site via direct URL in Copilot Studio knowledge sources; both enforcement vectors are required |
 | A4 | Asserting RCD effectiveness without first verifying that any user has a Microsoft 365 Copilot license | F3 — RCD without Copilot is a no-op; admin gets a false PASS |
@@ -307,7 +307,7 @@ Get-SPOSite -Identity 'https://contoso.sharepoint.com/sites/legal-drafts' |
 # Re-run DAG and compare
 ```
 
-**Fix.** Re-run DAG. If the fresh report still shows oversharing, treat as a real RCD failure and follow the F1 / F11 / F4 path. If the fresh report is clean, the prior result was stale; document and close.
+**Fix.** Re-run DAG. If the fresh report still shows oversharing, treat as a real RCD failure and follow the F1 / F10 / F4 path. If the fresh report is clean, the prior result was stale; document and close.
 
 **Verification.** Two consecutive DAG runs after the RCD change show no oversharing.
 
@@ -372,7 +372,7 @@ $count = (Get-SPOTenantRestrictedSearchAllowedList).Count
 
 ---
 
-### F10 — Modern indexed; classic ASPX not
+### F9 — Modern indexed; classic ASPX not
 
 **Symptom.** A site is RCD-protected and the modern pages are correctly excluded from grounding; classic ASPX page content from the same site continues to surface.
 
@@ -390,7 +390,7 @@ $count = (Get-SPOTenantRestrictedSearchAllowedList).Count
 
 ---
 
-### F11 — Site is on RSS allow-list AND has RCD = `True`
+### F10 — Site is on RSS allow-list AND has RCD = `True`
 
 **Symptom.** A site appears on the RSS allow-list but returns no content (or appears to return content despite RCD = `True`). Conflicting scopes.
 
@@ -414,7 +414,7 @@ Get-SPOSite -Identity $site | Select Url, RestrictContentOrgWideSearch
 
 ---
 
-### F12 — Property bag value not persisting
+### F11 — Property bag value not persisting
 
 **Symptom.** PnP-based property-bag writes (e.g., `CopilotReady = True`) do not persist on the site.
 
@@ -437,7 +437,7 @@ Set-SPOUser -Site $siteUrl -LoginName <admin-upn> -IsSiteCollectionAdmin $true
 
 ---
 
-### F13 — Bulk `Set-SPOSite` partial failure
+### F12 — Bulk `Set-SPOSite` partial failure
 
 **Symptom.** A bulk operation to apply RCD across many sites reports success in the orchestrator log but spot-checks reveal that some sites did not receive the change. Audits at the policy level show PASS while a subset of sites is unprotected.
 
@@ -468,7 +468,7 @@ $report | Where { -not $_.RCD } | Export-Csv -Path .\rcd-misses.csv -NoTypeInfor
 
 ---
 
-### F14 — Guest / external user inherits broader grounding than internal users
+### F13 — Guest / external user inherits broader grounding than internal users
 
 **Symptom.** A B2B guest user appears to surface content via Copilot grounding that internal users do not see, OR a guest sees content they should not.
 
@@ -485,7 +485,7 @@ $report | Where { -not $_.RCD } | Export-Csv -Path .\rcd-misses.csv -NoTypeInfor
 
 ---
 
-### F15 — Restricted Administrative Unit admin attempting RCD / RSS change
+### F14 — Restricted Administrative Unit admin attempting RCD / RSS change
 
 **Symptom.** An admin assigned to an Administrative Unit (AU) cannot complete an RCD / RSS change and receives an unexpected error or no-op.
 
@@ -502,7 +502,7 @@ $report | Where { -not $_.RCD } | Export-Csv -Path .\rcd-misses.csv -NoTypeInfor
 
 ---
 
-### F9 — Audit evidence of RCD / RSS change cannot be produced for examiner
+### F15 — Audit evidence of RCD / RSS change cannot be produced for examiner
 
 **Symptom.** During an examination or internal audit, the RCD / RSS change history for a site cannot be produced from the Unified Audit Log.
 
@@ -522,7 +522,7 @@ $report | Where { -not $_.RCD } | Export-Csv -Path .\rcd-misses.csv -NoTypeInfor
 
 ## §6 — Microsoft Support escalation payload + internal Compliance / Legal communication template
 
-### 7.1 Microsoft Support ticket payload (paste verbatim; fill bracketed fields)
+### 6.1 Microsoft Support ticket payload (paste verbatim; fill bracketed fields)
 
 ```
 Severity: [SEV-1 | SEV-2 | SEV-3]
@@ -557,7 +557,7 @@ Compliance contact: [name, role, email]
 Privacy contact (if NPI in scope): [name, role, email]
 ```
 
-### 7.2 Internal Compliance / Legal / HR / Privacy communication template
+### 6.2 Internal Compliance / Legal / HR / Privacy communication template
 
 ```
 To: Compliance Officer; General Counsel; Privacy Officer; CISO; (HR if insider misconduct in scope)
