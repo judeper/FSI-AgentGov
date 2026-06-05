@@ -1,5 +1,41 @@
 # Linus — Review History
 
+## 2026-06-04 — Sovereign-Cloud Removal (Pillar-1 Playbooks 1.21–1.29, Wave C)
+
+**Mode:** XCUT SOVEREIGN REMOVAL — Pillar-1 playbooks, controls 1.21–1.29
+**Branch:** `fix/pb-xcut-sov-pb-p1`
+**Commit:** `407b1cef3`
+**Result:** ✅ COMPLETE — local branch only; coordinator pushes
+
+### Summary
+
+- **17 files modified**, 113 insertions / 347 deletions
+- Re-grep returned **ZERO** files with sovereign content in 1.21–1.29 scope
+- `python scripts/verify_language_rules.py` ✅ no prohibited language found
+
+### Recipe learnings (wave C additions)
+
+- **Large 1.21 files (65–88KB each)** required a two-pass Python approach.
+  `del_section` with `\n` in the end_re pattern silently matched nothing and
+  deleted from the start heading to EOF. Use explicit line-by-line iteration
+  (`line.strip() == "## exact heading"`) for section start/end detection.
+- **Markdown trailing spaces** (`  ` at end of line for line-break) cause exact
+  string replacement misses. When a `rpl` call reports MISSING on a line you can
+  see in the file, check for trailing whitespace; use `readlines()` + iteration
+  instead of full-string replace.
+- **Column removal from 7-column tables** (e.g., "Sovereign-cloud parity (re-verify)"
+  in the 1.21 portal-walkthrough table) is safest done as one `rpl` per cell value,
+  not a regex column-strip.
+- **PIR question renumbering**: when item N is deleted via a paired-line replace
+  ("N. old\n N+1. next" → "N. next"), the subsequent items still carry their old
+  numbers. Map out the actual item numbers from the file before writing the
+  renumber `rpl` calls — miscount leads to MISSING errors.
+- **Anti-pattern back-references**: when an anti-pattern row is deleted and the
+  table is renumbered, check inline back-references (e.g., "anti-pattern §3.11"
+  in PIR questions or prose) and update them in the same pass.
+
+---
+
 ## 2026-06-04 — Sovereign-Cloud Removal (Pillar-1 Playbooks 1.11–1.20, Wave B)
 
 **Mode:** XCUT SOVEREIGN REMOVAL — Pillar-1 playbooks, controls 1.11–1.20
