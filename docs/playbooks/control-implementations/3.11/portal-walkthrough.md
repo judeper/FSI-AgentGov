@@ -423,7 +423,7 @@ h. **Notification:**
 
 #### Step 12: Plan the Agent 365 Migration
 
-Microsoft Agent 365 is the unified agent control plane reaching GA on **May 1, 2026**, included in the M365 E7 SKU (and as a standalone Agent 365 license at $15/user/month per Microsoft's published pricing). It introduces fine-grained RBAC, per-agent Entra Agent ID, audit logging, and policy-based blocking and quarantine for both sanctioned and shadow agents.
+Microsoft Agent 365 is the unified agent control plane reaching GA on **May 1, 2026**, included in the Microsoft 365 E7 SKU (and as a standalone Microsoft Agent 365 license). It introduces fine-grained RBAC, per-agent Entra Agent ID, audit logging, and policy-based blocking and quarantine for both sanctioned and shadow agents.
 
 1. Inventory current agent governance touchpoints (PPAC Inventory, Integrated Apps, Copilot Studio sharing, DLP policies)
 2. Identify which workflows in this playbook should migrate to Agent 365 once GA:
