@@ -982,7 +982,7 @@ The continuous-improvement loop is itself reviewed annually for effectiveness, a
 - **NIST AI Risk Management Framework 1.0**, GOVERN 1.6 — Mechanisms are in place to inventory AI systems and are resourced according to organizational risk priorities. https://www.nist.gov/itl/ai-risk-management-framework
 - **OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) — Updated Interagency Guidance on Model Risk Management** — Higher-risk model inventory expectations. https://www.occ.gov/news-issuances/bulletins/2026/bulletin-2026-13.html
 - **Federal Reserve SR 26-2 (formerly SR 11-7) — Guidance on Model Risk Management** — Companion guidance to OCC Bulletin 2026-13 (formerly OCC 2011-12). https://www.federalreserve.gov/supervisionreg/srletters/SR2602.htm
-- **FINRA RN 24-09 / Rule 3110 (March 2025)** — Generative-AI tool supervision; firms should be able to enumerate, supervise, and explain generative-AI use. https://www.finra.org/rules-guidance/notices/24-09
+- **FINRA RN 24-09 / Rule 3110 (June 2024)** — Generative-AI tool supervision; firms should be able to enumerate, supervise, and explain generative-AI use. https://www.finra.org/rules-guidance/notices/24-09
 - **FINRA Rule 4511** — Books and records general requirements.
 - **FINRA Rule 2210** — Communications with the public.
 - **FINRA Rule 3110** — Supervision.
