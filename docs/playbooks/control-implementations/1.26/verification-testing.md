@@ -22,7 +22,7 @@ This playbook provides numbered test cases (`TC-1.26-XX`) with explicit Given / 
 - **Given:** An agent with **File Upload = Off** that has been republished after the toggle change
 - **When:** A test user opens the agent (Teams / web channel) and attempts to attach a `.pdf`
 - **Then:** The agent does not present an attach control, or rejects the upload with an appropriate message
-- **Pass Criteria:** No file is accepted; no upload entry appears in the Dataverse environment for the test agent
+- **Pass Criteria:** No file is accepted; no upload entry appears in the Dataverse environment for the test agent (re-run `Get-AgentFileUploadInventory.ps1` and confirm no new knowledge file record for the test agent)
 - **Evidence:** Screen recording or screenshot of upload attempt; Dataverse environment showing no new file record
 
 ### TC-1.26-03 — File Upload Accepted Only for Approved File Types
@@ -33,13 +33,13 @@ This playbook provides numbered test cases (`TC-1.26-XX`) with explicit Given / 
 - **Pass Criteria:** Allowlist enforcement is observed at the agent level, independent of environment-level (Control 1.25) settings
 - **Evidence:** Screenshot of accept and reject responses; PowerPlatformAdminActivity log entries
 
-### TC-1.26-04 — Sensitivity Label Inheritance (Most-Restrictive Wins)
+### TC-1.26-04 — Sensitivity Label Display in Responses (Preview Feature)
 
-- **Given:** An agent with **File Upload = On** and Purview sensitivity labels published for the tenant
-- **When:** The reviewer uploads two test files: `confidential.pdf` (label: Confidential) and `highly-confidential.pdf` (label: Highly Confidential)
-- **Then:** The agent's effective label surfaces as **Highly Confidential**
-- **Pass Criteria:** Most-restrictive label inheritance is observed within 30 minutes (allow up to 24 hours for new labeling policies)
-- **Evidence:** Screenshot of agent properties showing inherited label; Purview Activity Explorer entries for the uploads
+- **Given:** An agent with **File Upload = On**, Purview sensitivity labels published for the tenant, and Purview auto-labeling policies covering the Dataverse environment
+- **When:** The reviewer uploads two test files as maker-uploaded knowledge: `confidential.pdf` (label: Confidential) and `highly-confidential.pdf` (label: Highly Confidential), then sends a test query that causes the agent to cite both files in its response
+- **Then:** The agent response displays a shield icon showing **Highly Confidential** (the highest sensitivity label of cited content in that response)
+- **Pass Criteria:** Per-response label shield is observed showing the most-restrictive label of cited content (this is a preview feature per Microsoft Learn — verify GA status before treating as Regulated-zone attestation evidence); allow up to 24 hours for new labeling policies
+- **Evidence:** Screenshot of agent response showing the sensitivity label shield; Purview Activity Explorer entries for the uploads
 
 ### TC-1.26-05 — DLP Policy Triggered on Sensitive Content (Zone 2+)
 
@@ -98,7 +98,7 @@ This playbook provides numbered test cases (`TC-1.26-XX`) with explicit Given / 
 | TC-1.26-01 | Toggle state matches zone | All | Observed == Expected | |
 | TC-1.26-02 | Upload blocked when toggle off | All | No file accepted | |
 | TC-1.26-03 | Per-agent allowlist enforced | 2, 3 | Disallowed types rejected | |
-| TC-1.26-04 | Sensitivity label inheritance | All | Most-restrictive wins | |
+| TC-1.26-04 | Sensitivity label display in responses (preview) | All | Response shield shows most-restrictive label | |
 | TC-1.26-05 | DLP policy triggered | 2, 3 | DLP match logged + alert | |
 | TC-1.26-06 | Magic-byte inspection blocks renamed exe | 3 | Quarantined + alert | |
 | TC-1.26-07 | Inventory accuracy | All | Zero drift | |
@@ -188,7 +188,7 @@ I attest that, for the reporting period above:
    - Zone 2 agents reviewed: [Count] — [Count] enabled with documented approval; [Count] disabled
    - Zone 3 agents reviewed: [Count] — [Count] enabled under formal risk assessment; [Count] disabled (default deny)
 2. Per-agent allowed-file-type allowlists were verified for least-privilege configuration on every Zone 2+ agent with File Upload = On
-3. Sensitivity-label inheritance was tested and confirmed for every Zone 2+ agent with File Upload = On
+3. Sensitivity-label response shield display was tested for every Zone 2+ agent with File Upload = On (preview feature — verify GA status before treating as Regulated-zone attestation evidence)
 4. DLP policies in Enforce mode covered every Zone 2+ environment hosting file-upload-enabled agents
 5. Defender for Cloud Apps true-MIME content inspection was active for every Zone 3 agent
 6. Dataverse environment security roles and Purview retention policies were verified for environments hosting agent knowledge files

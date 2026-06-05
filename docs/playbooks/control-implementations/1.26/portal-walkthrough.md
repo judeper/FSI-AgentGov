@@ -50,6 +50,10 @@
 2. Click **Save**
 3. **Republish** the agent: Copilot Studio caches agent runtime configuration; the new toggle state may not be enforced for clients until the agent is republished
 
+> **Caveats (verify before relying on the toggle as a governance control):**
+> - **CMK environments:** If the agent resides in a [Customer Managed Key (CMK)-enabled environment](https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-customer-managed-keys#enable-cmk-for-copilot-studio), the toggle can be set to **On** but the agent will not process uploaded files. Document this as a compensating control gap. See [Troubleshooting](troubleshooting.md) for the diagnostic symptom.
+> - **SharePoint channel:** If the agent is published to a SharePoint channel, users cannot upload files regardless of the toggle state (per Microsoft Learn). Verify the channel matrix before treating the per-agent toggle as an authoritative governance control for SharePoint-published agents.
+
 ### Step 4: Configure Allowed File Types (Per-Agent Allowlist)
 
 > **Required for every Zone 2 and Zone 3 agent with File Upload = On.** PPAC controls (Control 1.25) establish the *maximum* permitted file types for the environment; per-agent allowlists apply *additional* least-privilege restrictions.
@@ -65,30 +69,32 @@
 
 ### Step 5: Verify File Size and Per-Conversation Limits
 
-1. Review and document the Microsoft-defined limits applicable to your agent (per Microsoft Learn, April 2026):
+1. Review and document the Microsoft-defined limits applicable to your agent (per Microsoft Learn):
 
     | Source | Limit |
     |---|---|
     | Maker-uploaded knowledge files | Up to **512 MB** per file |
-    | Knowledge files per agent (local upload) | **500** files (GA Aug 2025) |
-    | Knowledge files per agent (SharePoint/OneDrive source) | **1,000** files (GA Aug 2025) |
-    | User-uploaded PDF at runtime | **<40 pages** |
-    | User-uploaded TXT/CSV at runtime | **<180 KB** |
-    | User-uploaded image at runtime | **15 MB** (4 MB on Direct Line) |
+    | Knowledge files per agent (Dataverse / local upload) | **500** files (see [Copilot Studio quotas and limits](https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-quotas)) |
+    | User-uploaded file at runtime (individual file size) | **15 MB** (see [Allow file input from users](https://learn.microsoft.com/en-us/microsoft-copilot-studio/image-input-analysis)) |
+    | User-uploaded text file at runtime (character limit, without code interpreter) | **30,000 characters** per file |
 
 2. For Zone 3, document any organizational reductions to these defaults (e.g., enforced via Defender for Cloud Apps file size policies) in the risk assessment
 
 > **Note:** Microsoft does not currently expose a per-agent setting to lower these defaults below platform values. Reductions must be enforced via complementary controls (Defender file policies, Purview DLP rules, network egress policies).
+>
+> **Multi-channel note:** The 500-file limit applies to the Copilot Studio web app (Dataverse-stored knowledge). Multi-channel Zone 2/3 tenants should verify whether the Teams app surface exposes different file quota limits and document the applicable limits per channel in the risk assessment.
 
-### Step 6: Verify Sensitivity Label Inheritance
+### Step 6: Verify Sensitivity Label Display (Preview Feature)
+
+> **Preview:** Sensitivity label display in Copilot Studio agent responses is a preview feature per Microsoft Learn. Verify current GA status at [View sensitivity labels in agent responses](https://learn.microsoft.com/en-us/microsoft-copilot-studio/sensitivity-label-copilot-studio) before treating this as a Regulated-zone baseline control.
 
 1. In Copilot Studio, navigate to the agent's **Knowledge** section
-2. If File Upload is **On**, upload a small test file with a sensitivity label applied at source (e.g., **Confidential**)
-3. Confirm the agent surfaces the inherited label in the agent properties panel
-4. Upload a second test file with a more restrictive label (e.g., **Highly Confidential**) and verify the agent inherits the **most restrictive** label
-5. Capture screenshot evidence and store under `maintainers-local/tenant-evidence/1.26/` (gitignored)
+2. If File Upload is **On**, upload two test files with different sensitivity labels applied at source (e.g., one **Confidential** and one **Highly Confidential**)
+3. Send a test query that causes the agent to cite both files in its response
+4. Confirm the response displays a shield icon showing the **Highly Confidential** label (the highest label among cited content in that response)
+5. Capture screenshot evidence of the response-level label shield and store under `maintainers-local/tenant-evidence/1.26/` (gitignored)
 
-> **Caveat:** Auto-labeling for Dataverse-stored knowledge files may require an explicit Purview auto-labeling policy that includes the Dataverse location for the agent's environment. If labels do not flow through, see the [Troubleshooting](troubleshooting.md) playbook.
+> **Caveat:** The documented behavior is per-response shield display of the highest label among content **cited in that response** — not an agent-level inherited property. If the shield does not appear, verify Purview auto-labeling policies cover the Dataverse environment (the label must be present on the source file at the time of upload). See the [Troubleshooting](troubleshooting.md) playbook.
 
 ### Step 7: Verify DLP Policy Coverage (Zone 2+)
 
@@ -154,7 +160,7 @@ After completing these steps, verify:
 
 - [ ] Per-agent **File Upload** toggle state matches the agent's zone and approval status
 - [ ] Per-agent **Allowed file types** list is reduced to the minimum required by the agent's documented purpose (Zone 2+)
-- [ ] Sensitivity-label inheritance test passes (agent surfaces the most restrictive label from uploaded files)
+- [ ] Sensitivity-label response shield test passes (agent response displays the highest sensitivity label of cited content — preview feature; see Step 6)
 - [ ] DLP policy in **Enforce** mode covers the agent's environment (Zone 2+)
 - [ ] Defender for Cloud Apps file policy with true-MIME inspection is **Enabled** (Zone 3)
 - [ ] Dataverse environment security roles, retention policy, and auditing are configured (Zone 2+)

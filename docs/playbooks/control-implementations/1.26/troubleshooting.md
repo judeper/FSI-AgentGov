@@ -11,14 +11,30 @@ This playbook is structured by **Symptom (H2) → Likely Cause and Resolution (H
 
 | Symptom | Likely Causes | Section |
 |--------|---------------|---------|
+| Runtime File Upload On but files not processed | Agent resides in CMK-enabled environment | [CMK No-Op](#symptom-runtime-file-upload-toggle-is-on-but-agent-doesnt-process-uploaded-files) |
 | File Upload toggle not visible in agent settings | Permissions, agent version, regional rollout | [Toggle Not Visible](#symptom-file-upload-toggle-not-visible-in-agent-settings) |
 | Agent still accepts uploads after toggle disabled | Unsaved change, stale cache, agent not republished | [Toggle Not Enforced](#symptom-agent-accepts-uploads-after-toggle-disabled) |
 | Uploads silently fail when toggle is on | Per-agent allowlist mismatch, file size, environment-level (1.25) block | [Uploads Fail When Enabled](#symptom-uploads-fail-when-toggle-is-on) |
-| Sensitivity labels not inherited by agent | Auto-labeling policy scope, source file unlabeled, propagation delay | [Labels Not Inherited](#symptom-sensitivity-labels-not-applied-to-uploaded-files) |
+| Sensitivity labels not displayed in agent responses | Auto-labeling policy scope, source file unlabeled, propagation delay | [Labels Not Displayed](#symptom-sensitivity-labels-not-displayed-in-agent-responses-for-uploaded-knowledge-files) |
 | DLP not triggering on sensitive content | Policy mode, scope, SIT version, latency | [DLP Not Triggering](#symptom-dlp-policy-not-triggering-on-uploaded-content) |
 | Dataverse storage access too permissive | Default permissions, missing retention policy | [Dataverse Storage Hardening](#symptom-dataverse-storage-access-not-restricted-or-retention-missing) |
 | Inventory script returns incomplete results | Sovereign cloud, PSEdition, role | [Inventory Incomplete](#symptom-inventory-script-returns-incomplete-or-empty-results) |
 | `Set-AdminPowerAppChatbot -FileUploadEnabled` rejected | Module version, schema not present | [API Surface Missing](#symptom-set-adminpowerappchatbot-fileuploadenabled-rejected) |
+
+---
+
+## Symptom: Runtime File Upload Toggle is On But Agent Doesn't Process Uploaded Files
+
+### Cause: Agent resides in a Customer Managed Key (CMK)-enabled environment
+
+This is documented Microsoft platform behaviour, not a configuration error.
+
+1. Confirm the agent's environment has Customer Managed Keys (CMK) enabled: open *Power Platform Admin Center → Environments → \[Environment\] → Settings* and check for the CMK configuration
+2. If CMK is enabled, the runtime File Upload toggle reads **On** in Copilot Studio but the agent will not process uploaded files (per [Microsoft Learn: Allow file input from users](https://learn.microsoft.com/en-us/microsoft-copilot-studio/image-input-analysis))
+3. This behaviour is not configurable — it is an architectural constraint of CMK-enabled environments
+4. **Governance action:** Document this as a compensating control gap in the agent's risk assessment. Zone 3 agents in CMK environments should treat the runtime File Upload capability as unavailable
+
+> **Source:** Microsoft Learn (image-input-analysis): *"If your agent resides in a customer managed key enabled environment, adding files as input is allowed, but the agent doesn't process the files."*
 
 ---
 
@@ -83,11 +99,10 @@ This playbook is structured by **Symptom (H2) → Likely Cause and Resolution (H
 
 ### Cause: File exceeds Microsoft platform limits
 
-1. Confirm the file is within Microsoft Learn limits (April 2026):
-   - PDF (user upload, runtime): **<40 pages**
-   - TXT/CSV (user upload, runtime): **<180 KB**
-   - Image (user upload, runtime): **15 MB** (4 MB on Direct Line)
-   - Maker-uploaded knowledge file: **up to 512 MB**
+1. Confirm the file is within Microsoft Learn limits:
+   - User-uploaded file at runtime (individual file size): **15 MB** (per [Allow file input from users](https://learn.microsoft.com/en-us/microsoft-copilot-studio/image-input-analysis))
+   - User-uploaded text file at runtime (character limit, without code interpreter): **30,000 characters** per file
+   - Maker-uploaded knowledge file: **up to 512 MB** (per [Copilot Studio quotas and limits](https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-quotas))
 2. Reduce file size or split the document if it exceeds the limit
 
 ### Cause: Defender for Cloud Apps quarantined the file (Zone 3)
@@ -98,7 +113,7 @@ This playbook is structured by **Symptom (H2) → Likely Cause and Resolution (H
 
 ---
 
-## Symptom: Sensitivity Labels Not Applied to Uploaded Files
+## Symptom: Sensitivity Labels Not Displayed in Agent Responses for Uploaded Knowledge Files
 
 ### Cause: Auto-labeling policy does not cover the Dataverse location
 
@@ -108,7 +123,7 @@ This playbook is structured by **Symptom (H2) → Likely Cause and Resolution (H
 
 ### Cause: Source file was not labeled before upload
 
-1. Inheritance flows from labels already on the file at the time of upload
+1. Sensitivity label display in responses relies on labels already present on the file at the time of upload
 2. Open the source location and confirm the file carries an explicit sensitivity label
 3. For runtime-uploaded files, encourage end users to apply labels in the originating application before upload
 
@@ -119,6 +134,8 @@ This playbook is structured by **Symptom (H2) → Likely Cause and Resolution (H
 3. Users without label policies will upload unlabeled files even when labels exist in the tenant
 
 **Portal path:** *Microsoft Purview → Information Protection → Auto-labeling policies → \[Policy\] → Locations*
+
+> **Note (preview feature):** Sensitivity label display in agent responses is a preview feature per Microsoft Learn. The documented behaviour is a per-response shield displaying the highest label of cited content — not an agent-level inherited property. Verify current GA status at [View sensitivity labels in agent responses](https://learn.microsoft.com/en-us/microsoft-copilot-studio/sensitivity-label-copilot-studio) before relying on this for Regulated-zone attestation.
 
 ---
 
@@ -232,6 +249,7 @@ Install-Module -Name Microsoft.PowerApps.Administration.PowerShell `
 
 | Limitation | Impact | Mitigation |
 |------------|--------|------------|
+| Maker-uploaded knowledge files with encryption (sensitivity labels or password protection) are not supported | Files marked Confidential/Highly Confidential or password-protected appear "Ready" but silently fail to serve knowledge responses (per Microsoft Learn) | Apply labels below the encrypted threshold; use unencrypted test files for knowledge upload testing; audit knowledge source files for encrypted content before upload |
 | File Upload toggle is per-agent (no bulk UI) | Each agent must be configured individually in the portal | Use the PowerShell mutation script (Script 3) for bulk operations |
 | Microsoft platform file size limits cannot be lowered per agent in the portal | Maker-uploaded knowledge files can be up to 512 MB | Enforce reductions via Defender for Cloud Apps file policies (Zone 3) |
 | Dataverse environment settings are largely tenant-managed | Environment-level fine-grained access requires Dataverse security role configuration | Apply retention and access policies at the Purview / PPAC tier |
