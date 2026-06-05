@@ -159,7 +159,7 @@ Write-Host "7-day SharePoint event count: $count"
 
 **Control:** 4.5 — SharePoint Security and Compliance Monitoring
 **Tenant:** [Tenant ID / Domain]
-**Cloud:** [Commercial / GCC / GCC High / DoD]
+**Cloud:** Commercial
 **Zone Scope:** [Zone 1 / 2 / 3]
 **Attestation Period:** [YYYY-MM-DD] to [YYYY-MM-DD]
 **Attested By:** [Name / Role]

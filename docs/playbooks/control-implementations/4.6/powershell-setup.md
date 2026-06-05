@@ -6,7 +6,7 @@
 **Control:** [4.6 – Grounding Scope Governance](../../../controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md)
 **Pillar:** Pillar 4 — SharePoint
 **Audience:** SharePoint Admin, Power Platform Admin, Compliance/Records Admin (read-only DAG)
-**Prerequisites:** Read [`_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) first — module pinning, edition guards, sovereign endpoints, and the `Write-FsiEvidence` SHA-256 helper used throughout this playbook are defined there.
+**Prerequisites:** Read [`_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) first — module pinning, edition guards, and the `Write-FsiEvidence` SHA-256 helper used throughout this playbook are defined there.
 
 This playbook delivers the six-script PowerShell suite that supports Control 4.6 by:
 
@@ -23,7 +23,7 @@ This playbook delivers the six-script PowerShell suite that supports Control 4.6
 
 Each module in this suite has a **different** PowerShell edition requirement. Running the wrong cmdlet in the wrong shell silently fails or returns stale data. Use a dedicated session per module.
 
-| # | Module | Required edition | Connect cmdlet (commercial) | Notes |
+| # | Module | Required edition | Connect cmdlet | Notes |
 |---|---|---|---|---|
 | 1 | `Microsoft.Online.SharePoint.PowerShell` (SPO Mgmt Shell) | Windows PowerShell **5.1** preferred. PowerShell **7.x** requires `Import-Module Microsoft.Online.SharePoint.PowerShell -UseWindowsPowerShell`. | `Connect-SPOService -Url https://<tenant>-admin.sharepoint.com` | Owns: `Set-SPOTenantRestrictedSearchMode`, `*-SPOTenantRestrictedSearchAllowedList`, `Set-SPOSite -RestrictContentOrgWideSearch`, `Get-SPODataAccessGovernanceInsight`, `Start-SPORestrictedContentDiscoverabilityReport`. |
 | 2 | `PnP.PowerShell` v2+ | PowerShell **7.2+** Core only. Will not load on 5.1. | `Connect-PnPOnline -Url https://<tenant>.sharepoint.com -ClientId <Entra-app-GUID> -Interactive` | v2 **mandates** `-ClientId` (Entra app registration). v1.x is end-of-life. Used here only for site enumeration helpers. |
@@ -37,15 +37,12 @@ Each module in this suite has a **different** PowerShell edition requirement. Ru
 
 ## Section 1 — `Initialize-Agt46Session` pre-flight
 
-Run this dot-sourced helper at the top of **every** session before any of the numbered scripts. It enforces edition guards, sovereign endpoint resolution, output folder layout, transcript start, and module version pinning.
+Run this dot-sourced helper at the top of **every** session before any of the numbered scripts. It enforces edition guards, output folder layout, transcript start, and module version pinning.
 
 ```powershell
 # Initialize-Agt46Session.ps1
 [CmdletBinding()]
 param(
-    [ValidateSet('Commercial','GCC','GCCHigh','DoD','China')]
-    [string]$Cloud = 'Commercial',
-
     [Parameter(Mandatory)]
     [string]$TenantName,                 # e.g. 'contoso' (no .onmicrosoft.com)
 
@@ -76,16 +73,7 @@ if ($Modules -contains 'PnP') {
     }
 }
 
-# --- Sovereign endpoint matrix ---------------------------------------------
-$endpoints = @{
-    Commercial = @{ SPOAdmin='https://{0}-admin.sharepoint.com';            SPORegion=$null;   PnPEnv='Production';     PowerAppsEndpoint='prod'    }
-    GCC        = @{ SPOAdmin='https://{0}-admin.sharepoint.com';            SPORegion=$null;   PnPEnv='USGovernment';   PowerAppsEndpoint='usgov'   }
-    GCCHigh    = @{ SPOAdmin='https://{0}-admin.sharepoint.us';             SPORegion='ITAR';  PnPEnv='USGovernmentHigh'; PowerAppsEndpoint='usgovhigh' }
-    DoD        = @{ SPOAdmin='https://{0}-admin.dps.mil';                   SPORegion='ITAR';  PnPEnv='USGovernmentDoD';  PowerAppsEndpoint='dod'   }
-    China      = @{ SPOAdmin='https://{0}-admin.sharepoint.cn';             SPORegion=$null;   PnPEnv='China';          PowerAppsEndpoint='china'   }
-}
-$ep = $endpoints[$Cloud]
-$adminUrl = $ep.SPOAdmin -f $TenantName
+$adminUrl = "https://$TenantName-admin.sharepoint.com"
 
 # --- Output folder + transcript --------------------------------------------
 $runId  = (Get-Date -Format 'yyyyMMdd-HHmmss') + '-' + ([guid]::NewGuid().ToString('N').Substring(0,8))
@@ -114,15 +102,11 @@ foreach ($m in $pins.Keys) {
 # --- Connect ---------------------------------------------------------------
 if ($Modules -contains 'SPO' -or $Modules -contains 'All') {
     Import-Module Microsoft.Online.SharePoint.PowerShell -DisableNameChecking -ErrorAction Stop
-    if ($ep.SPORegion) {
-        Connect-SPOService -Url $adminUrl -Region $ep.SPORegion
-    } else {
-        Connect-SPOService -Url $adminUrl
-    }
+    Connect-SPOService -Url $adminUrl
 }
 if ($Modules -contains 'PowerApps' -or $Modules -contains 'All') {
     Import-Module Microsoft.PowerApps.Administration.PowerShell -ErrorAction Stop
-    Add-PowerAppsAccount -Endpoint $ep.PowerAppsEndpoint | Out-Null
+    Add-PowerAppsAccount -Endpoint 'prod' | Out-Null
 }
 if ($Modules -contains 'Exchange' -or $Modules -contains 'All') {
     Import-Module ExchangeOnlineManagement -ErrorAction Stop
@@ -131,12 +115,8 @@ if ($Modules -contains 'Exchange' -or $Modules -contains 'All') {
 
 # --- Return session context ------------------------------------------------
 [pscustomobject]@{
-    Cloud         = $Cloud
     TenantName    = $TenantName
     AdminUrl      = $adminUrl
-    SPORegion     = $ep.SPORegion
-    PnPEnv        = $ep.PnPEnv
-    PAEndpoint    = $ep.PowerAppsEndpoint
     EntraAppId    = $EntraAppClientId
     RunId         = $runId
     RunDir        = $runDir
@@ -149,7 +129,6 @@ if ($Modules -contains 'Exchange' -or $Modules -contains 'All') {
 
 ```powershell
 $ctx = .\Initialize-Agt46Session.ps1 `
-        -Cloud GCCHigh `
         -TenantName contoso `
         -EntraAppClientId 'a1b2c3d4-...' `
         -Modules SPO,Exchange
@@ -235,7 +214,7 @@ foreach ($rpt in $DagReports) {
         $insights = Get-SPODataAccessGovernanceInsight -ReportEntity $rpt -Workload SharePoint -ReportType Snapshot
         $insights | Export-Csv (Join-Path $out "dag-$rpt.csv") -NoTypeInformation -Encoding UTF8
     } catch {
-        Write-Warning "DAG report $rpt failed: $($_.Exception.Message). (DAG is unavailable in some sovereign clouds — see §11.)"
+        Write-Warning "DAG report $rpt failed: $($_.Exception.Message). (DAG may be unavailable in some tenant configurations — verify SAM entitlement.)"
     }
 }
 
@@ -427,10 +406,10 @@ Wraps the SharePoint connector consumed by Copilot Studio knowledge sources in a
 
 ### 6.1 — Discover the connector ID first (one-time)
 
-The SharePoint connector's invariant `Name` (e.g. `shared_sharepointonline`) is documented but should always be **verified in your tenant** because some sovereign clouds expose connector variants with different names. PPAC also shows it under **Data → Connectors**.
+The SharePoint connector's invariant `Name` (e.g. `shared_sharepointonline`) is documented but should always be **verified in your tenant** because connector names can change across module and connector versions. PPAC also shows it under **Data → Connectors**.
 
 ```powershell
-# Run once to confirm the connector ID for this tenant + cloud.
+# Run once to confirm the connector ID for this tenant.
 Get-AdminPowerAppConnector |
     Where-Object { $_.DisplayName -match 'SharePoint' -or $_.DisplayName -match 'Copilot' } |
     Select-Object DisplayName, Name, Publisher | Format-Table -AutoSize
@@ -503,7 +482,7 @@ $after | ConvertTo-Json -Depth 6 | Out-File (Join-Path $out 'dlp-after.json')
 Write-FsiEvidence -RunDir $out -ScriptName '4-Apply-SPConnectorDLP.ps1' -Context $Ctx
 ```
 
-**Why parameterise the connector ID:** the invariant name has historically changed during connector renames; sovereign-cloud variants may differ. Hardcoding causes silent drift between docs and reality. The §6.1 discovery snippet is the source of truth for *your* tenant.
+**Why parameterise the connector ID:** the invariant name has historically changed during connector renames. Hardcoding causes silent drift between docs and reality. The §6.1 discovery snippet is the source of truth for *your* tenant.
 
 ---
 
@@ -664,7 +643,7 @@ Every script in this suite calls `Write-FsiEvidence` (defined in `_shared/powers
   "runId":        "20260415-093212-7f3a9b21",
   "runDir":       "C:\\fsi\\agt-output\\4.6\\20260415-093212-7f3a9b21",
   "tenantName":   "contoso",
-  "cloud":        "GCCHigh",
+  "cloud":        "Commercial",
   "startedUtc":   "2026-04-15T09:32:12Z",
   "completedUtc": "2026-04-15T09:34:48Z",
   "operator":     "DOMAIN\\jane.doe",
@@ -776,21 +755,7 @@ Stop-Transcript | Out-Null
 
 ---
 
-## Section 11 — Sovereign cloud matrix
-
-| Cloud | `Connect-SPOService -Region` | `Connect-PnPOnline -AzureEnvironment` | `Add-PowerAppsAccount -Endpoint` | DAG availability | Notes |
-|---|---|---|---|---|---|
-| **Commercial** | *(omit)* | *(default `Production`)* | `prod` | Yes | Baseline. |
-| **GCC** | *(omit)* | `USGovernment` | `usgov` | Yes | SPO admin host: `<tenant>-admin.sharepoint.com`. |
-| **GCC High** | `ITAR` | `USGovernmentHigh` | `usgovhigh` | Yes | SPO admin host: `<tenant>-admin.sharepoint.us`. **Must** specify `-Region ITAR`. |
-| **DoD** | `ITAR` | `USGovernmentDoD` | `dod` | Yes | SPO admin host: `<tenant>-admin.dps.mil`. **Must** specify `-Region ITAR`. |
-| **China (21Vianet)** | *(cloud-specific)* | `China` | `china` | **No** (DAG unavailable per Microsoft Learn) | Replace DAG step in §3 with manual Sites-of-interest CSV; rest of suite functions. |
-
-The `Initialize-Agt46Session` helper (§1) parameterises all of the above via `-Cloud`.
-
----
-
-## Section 12 — Anti-pattern catalog (read before running)
+## Section 11 — Anti-pattern catalog (read before running)
 
 Every item in this list has been observed in field engagements. Each maps to a `Write-Warning` or hard `throw` somewhere in this suite.
 
@@ -798,24 +763,23 @@ Every item in this list has been observed in field engagements. Each maps to a `
 2. **`Add-SPOTenantRestrictedSearchAllowedList -SiteUrl`** — `-SiteUrl` parameter does **not** exist. Use `-SitesList @(...)` or `-SitesListFileUrl <path>`.
 3. **`Add-SPOTenantRestrictedSearchAllowedListSites`** — wrong cmdlet name; the correct name is `Add-SPOTenantRestrictedSearchAllowedList` (no `Sites` suffix).
 4. **Running `New-DlpPolicy` / `Get-AdminPowerAppConnector` in PowerShell 7** — `Microsoft.PowerApps.Administration.PowerShell` is Desktop-edition only and fails silently. Always use Windows PowerShell 5.1.
-5. **Omitting `-Region ITAR` on GCC High / DoD** — `Connect-SPOService` will appear to succeed against the wrong region and return zero data. Always pass `-Region ITAR` for those clouds.
-6. **Hardcoding `shared_sharepointonline`** — connector invariant names have changed historically and differ across sovereign clouds. Discover (§6.1) and parameterise.
-7. **Inferring site `ContentCategory` from URL substrings** (e.g. assuming `/sites/legal-*` is "Legal Confidential") — URL conventions drift; categorise from sensitivity labels and site metadata, not regex on URL.
-8. **Counting hub-associated sites against the 100-site RSS cap** — they do not count; only the hub itself does. The §4 cap calculation reflects this.
-9. **Rerunning `Add-SPOTenantRestrictedSearchAllowedList` instead of `Remove`-then-`Add`** when the intent is replacement — `Add` is additive, so the list grows past the cap.
-10. **Running mutating scripts without `-WhatIf` first** — the `ConfirmImpact='High'` prompts can be muscle-memoried away. Always rehearse with `-WhatIf`, review the before-snapshot, then re-run.
-11. **Using PnP.PowerShell v1.x** — end of life. v2+ requires `-ClientId <Entra app GUID>`; certificate or interactive auth.
-12. **Skipping the SHA-256 evidence manifest** — hand-typed CSVs are not audit evidence. Always run `Verify-EvidenceManifest.ps1` (§9) before hand-over.
-13. **Pulling Unified Audit Log without paging or a row ceiling** — `Search-UnifiedAuditLog` will time out or paginate forever. Use `-SessionId`/`-SessionCommand ReturnLargeSet` and the 50,000-row ceiling in §8.
-14. **Treating DAG output as a remediation queue** — DAG is informational. Each flagged site needs a human decision (RCD, RSS allow-list, RAC, sensitivity label, owner contact) — see Control 4.1.
-15. **Forgetting to `Disconnect-SPOService` / `Remove-PowerAppsAccount` / `Disconnect-ExchangeOnline`** — stale tokens linger. Always run §10a at end of session.
-16. **Reading `Get-SPOTenantRestrictedSearchMode` as a boolean** — it returns the string `'Enabled'` or `'Disabled'`, not `$true`/`$false`. Compare with `-eq 'Enabled'`.
-17. **Setting `RestrictContentOrgWideSearch` to a string** (`'true'`) — the parameter is `[bool]`. Pass `$true` / `$false`, not strings.
-18. **Allowing the same identity to be DataOwner and SoDApprover** — segregation-of-duties violation; the §4 / §5 scripts hard-throw on this.
+5. **Hardcoding `shared_sharepointonline`** — connector invariant names have changed historically. Discover (§6.1) and parameterise.
+6. **Inferring site `ContentCategory` from URL substrings** (e.g. assuming `/sites/legal-*` is "Legal Confidential") — URL conventions drift; categorise from sensitivity labels and site metadata, not regex on URL.
+7. **Counting hub-associated sites against the 100-site RSS cap** — they do not count; only the hub itself does. The §4 cap calculation reflects this.
+8. **Rerunning `Add-SPOTenantRestrictedSearchAllowedList` instead of `Remove`-then-`Add`** when the intent is replacement — `Add` is additive, so the list grows past the cap.
+9. **Running mutating scripts without `-WhatIf` first** — the `ConfirmImpact='High'` prompts can be muscle-memoried away. Always rehearse with `-WhatIf`, review the before-snapshot, then re-run.
+10. **Using PnP.PowerShell v1.x** — end of life. v2+ requires `-ClientId <Entra app GUID>`; certificate or interactive auth.
+11. **Skipping the SHA-256 evidence manifest** — hand-typed CSVs are not audit evidence. Always run `Verify-EvidenceManifest.ps1` (§9) before hand-over.
+12. **Pulling Unified Audit Log without paging or a row ceiling** — `Search-UnifiedAuditLog` will time out or paginate forever. Use `-SessionId`/`-SessionCommand ReturnLargeSet` and the 50,000-row ceiling in §8.
+13. **Treating DAG output as a remediation queue** — DAG is informational. Each flagged site needs a human decision (RCD, RSS allow-list, RAC, sensitivity label, owner contact) — see Control 4.1.
+14. **Forgetting to `Disconnect-SPOService` / `Remove-PowerAppsAccount` / `Disconnect-ExchangeOnline`** — stale tokens linger. Always run §10a at end of session.
+15. **Reading `Get-SPOTenantRestrictedSearchMode` as a boolean** — it returns the string `'Enabled'` or `'Disabled'`, not `$true`/`$false`. Compare with `-eq 'Enabled'`.
+16. **Setting `RestrictContentOrgWideSearch` to a string** (`'true'`) — the parameter is `[bool]`. Pass `$true` / `$false`, not strings.
+17. **Allowing the same identity to be DataOwner and SoDApprover** — segregation-of-duties violation; the §4 / §5 scripts hard-throw on this.
 
 ---
 
-## Section 13 — Cross-links
+## Section 12 — Cross-links
 
 | Asset | Why it matters here |
 |---|---|
@@ -827,7 +791,7 @@ Every item in this list has been observed in field engagements. Each maps to a `
 | [Control 1.14 — Data Minimization and Agent Scope Control](../../../controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control.md) | Disconnect/token hygiene (§10a); minimum-scope grounding philosophy. |
 | [Control 2.16 — RAG Source Integrity Validation](../../../controls/pillar-2-management/2.16-rag-source-integrity-validation.md) | Downstream: validates that allow-listed sources remain trustworthy. |
 | [AI Incident Response Playbook](../../incident-and-risk/ai-incident-response-playbook.md) | When `5-Reconcile.ps1` or §8 audit pulls reveal unauthorised changes. |
-| [`_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) | Module pinning, edition guards, sovereign endpoints, `Write-FsiEvidence` helper used everywhere above. |
+| [`_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) | Module pinning, edition guards, `Write-FsiEvidence` helper used everywhere above. |
 
 ---
 

@@ -1,6 +1,6 @@
 # Control 4.6 — Verification & Testing: Grounding Scope Governance
 
-> Verification procedures for [Control 4.6 — Grounding Scope Governance](../../../controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md). Run each test on the cadence in §1, capture evidence per §6, and complete the attestation in §7 each cycle.
+> Verification procedures for [Control 4.6 — Grounding Scope Governance](../../../controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md). Run each test on the cadence in §1, capture evidence per §5, and complete the attestation in §6 each cycle.
 >
 > **Scope of this playbook.** Control 4.6 governs *grounding scope* — which SharePoint and OneDrive content surfaces to AI agents (Microsoft 365 Copilot chat / Business Chat, Microsoft Copilot Studio agents, declarative Agent Builder agents) for grounding and citation. The control under test is the **union** of seven mechanisms, not RCD alone:
 >
@@ -15,8 +15,6 @@
 > **Out of scope here:** SharePoint records retention horizons (verified under [Control 1.9](../1.9/verification-testing.md)), unified-audit retention configuration (verified under [Control 1.7](../1.7/verification-testing.md)), and the broader sensitivity-label / DLP design beyond grounding-scope enforcement (verified under [Control 1.5](../1.5/verification-testing.md)).
 >
 > **Audience:** M365 administrator + AI Governance Lead + Compliance Officer at a US financial services organization producing audit-defensible evidence for FINRA Rule 4511 / 3110 (with RN 24-09 for AI supervisory guidance), SEC Rule 17a-3/4, GLBA 501(b), SOX 302/404, OCC Bulletin 2026-13 (formerly OCC 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7), and NYDFS 23 NYCRR 500 examiners.
->
-> **Sovereign clouds:** Commercial · GCC · GCC High · DoD — see §5 for variants. RSS, RCD, SharePoint Advanced Management (SAM), and DLP-for-Copilot have **non-parity availability** in US Government clouds; verify each capability against current Microsoft Learn before claiming PASS / FAIL on a sovereign tenant.
 >
 > **Cross-links:** [Portal Walkthrough](portal-walkthrough.md) · [PowerShell Setup](powershell-setup.md) · [Troubleshooting](troubleshooting.md) · [PowerShell Authoring Baseline](../../_shared/powershell-baseline.md).
 >
@@ -36,12 +34,11 @@ This catalog is designed to surface the carry-forward defect classes that the AI
 - **DAG reports never extracted.** The DAG snapshot and activity reports are the canonical examiner-facing oversharing evidence. A control attestation without a recent DAG report is hollow.
 - **OneDrive boundary assumed, not tested.** Personal OneDrive is excluded from RCD by design; an organizational Copilot Studio agent must not bridge a publisher''s OneDrive to other invokers. `4.6-OND-NN` exercises that boundary.
 - **Two-portal precondition skipped.** RCD and RSS live in the SharePoint Admin Center (SPAC). DLP-for-Copilot lives in the Power Platform Admin Center (PPAC). State captured from one portal, hours apart, is not an evidence-coherent baseline. Pre-flight §2.4 enforces a ±15-minute capture window across both portals.
-- **Recent-interaction false-pass on RSS tests.** RSS is documented as *not a security boundary* — content the test user owns, recently accessed, or had directly shared still surfaces. RSS tests with a "dirty" test identity produce non-deterministic results. Pre-flight §2.7 mandates a clean, never-touched test identity.
+- **Recent-interaction false-pass on RSS tests.** RSS is documented as *not a security boundary* — content the test user owns, recently accessed, or had directly shared still surfaces. RSS tests with a "dirty" test identity produce non-deterministic results. Pre-flight §2.5 mandates a clean, never-touched test identity.
 - **UAL operation name guessed.** `SharePointSetTenantSettings` is the documented family for tenant-settings audit rows, but the *exact* operation name and current set evolve. Verify on Learn at every UI-verification cycle (`audit-log-activities`).
 - **Schema drift on `Get-SPOTenant` / `Get-SPOTenantRestrictedSearchAllowedList`.** Property names and shapes have changed across SPO Management Shell versions. NEG tests assert property presence before the assertion runs; otherwise a renamed property silently passes.
-- **Sovereign-cloud "passes" without verification.** RSS and DLP-for-Copilot have non-parity in US Government clouds. Sampling a "pass" without reading current Learn is an examiner-facing misstatement.
 
-Each test below maps to the failure mode it detects, names a deterministic fixture, asserts an expected/actual JSON shape, and emits an artifact set whose SHA-256 is recorded in the §6 manifest.
+Each test below maps to the failure mode it detects, names a deterministic fixture, asserts an expected/actual JSON shape, and emits an artifact set whose SHA-256 is recorded in the §5 manifest.
 
 ---
 ## 1. Re-Verification Cadence
@@ -84,13 +81,13 @@ Each test below has a primary cadence (driven by the regulator who wants to see 
 | 4.6-NEG-04 | Quarterly | AI Governance Lead | 6 years | FINRA RN 24-09, FINRA 3110 |
 | 4.6-IR-01 | Annually + on-incident | AI Governance Lead + Risk Officer | 7 years (SOX 404) | OCC Bulletin 2026-13 (formerly OCC 2011-12), Fed SR 26-2 (formerly SR 11-7), NYDFS 500.16 |
 
-**On-change re-runs.** Any change to (a) the RCD list on a site, (b) the RSS allowed-list, (c) any DLP-for-Copilot policy in scope of `Microsoft 365 Copilot` location, (d) any in-scope SharePoint site''s sharing settings, or (e) the role assignments named in §2.6 triggers an immediate re-run of the affected test family within five business days. The on-change trigger is detected from the AUDIT-01 monthly diff or from change-management ticket metadata.
+**On-change re-runs.** Any change to (a) the RCD list on a site, (b) the RSS allowed-list, (c) any DLP-for-Copilot policy in scope of `Microsoft 365 Copilot` location, (d) any in-scope SharePoint site''s sharing settings, or (e) the role assignments named in §2.5 triggers an immediate re-run of the affected test family within five business days. The on-change trigger is detected from the AUDIT-01 monthly diff or from change-management ticket metadata.
 
 **On-incident re-runs.** Any of the following grounding-scope incidents triggers `4.6-IR-01` plus a re-run of the implicated test family within 24 hours:
 - A user reports unexpected content surfaced by Microsoft 365 Copilot chat / Business Chat citing a site that should have been RCD-restricted.
 - A Copilot Studio agent author successfully ingests a SharePoint URL that DLP-for-Copilot should have blocked.
 - A DAG report shows a > 25% week-over-week increase in oversharing-link count on any site labeled `Confidential` or higher.
-- A PPAC / SPAC role-assignment change touches one of the named roles in §2.6 outside an approved change window.
+- A PPAC / SPAC role-assignment change touches one of the named roles in §2.5 outside an approved change window.
 
 **Frequency rationale.** Monthly cadence on RCD / RSS / DLP / DAG / AUDIT mirrors the broker-dealer supervisory review pattern (FINRA 3110) and the SOX quarterly attestation cycle. Quarterly cadence on negative tests, in-app carve-out tests, and OND tests reflects that those scenarios change far less often but must be on a calendar to remain examiner-credible. Annual cadence on `4.6-IR-01` matches OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) model-risk validation.
 
@@ -99,13 +96,13 @@ Each test below has a primary cadence (driven by the regulator who wants to see 
 ---
 ## 2. Pre-flight Gates
 
-Every test in §4 is **gated** on the seven pre-flight assertions below. If any pre-flight fails, the entire cycle is aborted and the failure is logged in the §6 manifest with `status: BLOCKED`. Do not proceed to §4 with any pre-flight in `FAIL`.
+Every test in §4 is **gated** on the seven pre-flight assertions below. If any pre-flight fails, the entire cycle is aborted and the failure is logged in the §5 manifest with `status: BLOCKED`. Do not proceed to §4 with any pre-flight in `FAIL`.
 
 ### 2.1 License entitlement
 
 Verify that the test tenant carries the licensing required for each mechanism under test:
 
-- **Microsoft 365 Copilot** licenses on every named test user in §2.6 (RCD, RSS, in-app, OneDrive boundary, DAG citation tests).
+- **Microsoft 365 Copilot** licenses on every named test user in §2.5 (RCD, RSS, in-app, OneDrive boundary, DAG citation tests).
 - **SharePoint Advanced Management (SAM)** add-on at the tenant level (RCD configuration UI, DAG oversharing reports). RCD enablement and DAG reporting both require SAM; without SAM the tests in `4.6-RCD-NN` and `4.6-DAG-NN` cannot be authoritatively run and must be recorded as `BLOCKED`, not `PASS`.
 - **Microsoft Purview** (Data Loss Prevention) license sufficient to author DLP policies with the `Microsoft 365 Copilot` location. Verify on the tenant license report; do not infer from a generic "E5" SKU label without checking the SKU detail.
 
@@ -140,18 +137,9 @@ Mechanically:
 1. Start a UTC timer (record `T0` to the second).
 2. Capture SPAC state (RCD list, RSS allowed-list, `Get-SPOTenant` settings) and write to `4.6-RCD-PRE-<TENANT>-<UTC>-spac.json`.
 3. Within 15 minutes of `T0`, capture PPAC / Purview state (DLP-for-Copilot policy enumeration, policy bodies for in-scope policies) and write to `4.6-DLP-PRE-<TENANT>-<UTC>-ppac.json`.
-4. Compute `delta_seconds = T_ppac - T_spac`. If `|delta_seconds| > 900`, abort the cycle and re-run. Record the delta in the manifest (§6).
+4. Compute `delta_seconds = T_ppac - T_spac`. If `|delta_seconds| > 900`, abort the cycle and re-run. Record the delta in the manifest (§5).
 
-### 2.5 Sovereign-cloud parity gate
-
-For tenants in GCC, GCC High, or DoD, verify on current Microsoft Learn that each mechanism under test is **available** in the cloud being tested. As of the Last UI Verified date in the header:
-
-- RSS, RCD, SAM, and DLP-for-Copilot have **non-parity availability windows** in US Government clouds.
-- Connector payload limits in GCC are tighter than commercial (~450KB).
-
-If a mechanism is unavailable in the sovereign cloud being tested, the corresponding test family is recorded as `N/A — sovereign non-parity` with a Learn citation, not `FAIL`. Do **not** silently skip; the §7 attestation must enumerate every `N/A`.
-
-### 2.6 Named test fixtures (do not run on production identities)
+### 2.5 Named test fixtures (do not run on production identities)
 
 The following fixtures must exist in every test tenant and must be used exclusively for this control. Running RSS or in-app tests against an identity with recent interaction with the test sites produces non-deterministic results because RSS and in-app surfaces both honor recent-interaction / share / ownership signals.
 
@@ -177,7 +165,7 @@ The following fixtures must exist in every test tenant and must be used exclusiv
 
 Each cycle generates a fresh `{cycle-uuid}` to defeat result caching. Marker files contain a unique sentence ("This is grounding fixture marker `<uuid>` for control 4.6 cycle `<cycle-id>`.") so that a Copilot citation on the marker is unambiguous evidence that the test surface read the test file.
 
-### 2.7 DAG data collection enabled and seasoned
+### 2.6 DAG data collection enabled and seasoned
 
 DAG reports require **data-collection enablement** with at minimum 24 hours of activity history before any `4.6-DAG-NN` test will yield non-empty results. Seasoned data (e.g., 7-day history) gives more representative oversharing snapshots. If DAG was enabled less than 24 hours before the cycle, record `4.6-DAG-NN` as `BLOCKED — data not yet seasoned (<24h)`.
 
@@ -200,12 +188,12 @@ Only the following processing windows are Microsoft-documented as of the Last UI
 
 **Disclaimer.** Any cadence, latency tolerance, or "expect within X hours" expression in §4 that is not in the table above is **firm-defined** and labeled as such inline. The previous version of this playbook contained a fabricated "24-48 hour" RCD SLA; that value does not appear in Microsoft documentation and must not be reintroduced.
 
-**Interpretation guidance.** A test that runs *during* a documented processing window and reports the surface as not-yet-updated is `INCONCLUSIVE — within published window`, not `FAIL`. A test that runs *after* the upper-bound window and still reports the surface as not-updated is `FAIL`. The §7 attestation must distinguish the two.
+**Interpretation guidance.** A test that runs *during* a documented processing window and reports the surface as not-yet-updated is `INCONCLUSIVE — within published window`, not `FAIL`. A test that runs *after* the upper-bound window and still reports the surface as not-updated is `FAIL`. The §6 attestation must distinguish the two.
 
 ---
 ## 4. Test Catalog
 
-Each test follows the format: **Objective · Preconditions · Steps · Expected · Pass criteria (binary) · Audit assertion · Evidence collected**. Every artifact filename uses the convention defined in §6 and is accompanied by a `.sha256` sidecar.
+Each test follows the format: **Objective · Preconditions · Steps · Expected · Pass criteria (binary) · Audit assertion · Evidence collected**. Every artifact filename uses the convention defined in §5 and is accompanied by a `.sha256` sidecar.
 
 ### 4.6-LIC-01 — License entitlement gate
 
@@ -214,7 +202,7 @@ Each test follows the format: **Objective · Preconditions · Steps · Expected 
 - **Steps.** (1) Connect to Microsoft Graph as a license-reader role. (2) Enumerate `subscribedSkus` and confirm presence of the Copilot, SAM, and Purview DLP SKUs. (3) For each named test user, enumerate `assignedLicenses` and assert the Copilot SKU is present. (4) Persist the full enumeration.
 - **Expected.** Tenant carries Copilot + SAM + Purview DLP. Each test user carries Copilot.
 - **Pass criteria.** Every named user shows Copilot in `assignedLicenses`; tenant shows SAM and Purview DLP SKUs. Otherwise FAIL and abort cycle.
-- **Audit assertion.** Not applicable (license read is not a UAL-emitting operation in itself); record the license report SHA-256 in §6.
+- **Audit assertion.** Not applicable (license read is not a UAL-emitting operation in itself); record the license report SHA-256 in §5.
 - **Evidence.** `4.6-LIC-01-<TENANT>-<UTC>-licenses.json` + `.sha256`.
 
 ### 4.6-UAL-01 — Unified Audit Log gate
@@ -280,7 +268,7 @@ Each test follows the format: **Objective · Preconditions · Steps · Expected 
 ### 4.6-RCD-05 — RCD removal evidenced through change-control
 
 - **Objective.** Confirm any site removed from the RCD list since the previous cycle has a corresponding change-control ticket and a UAL row evidencing the removal.
-- **Preconditions.** Previous-cycle RCD enumeration persisted in §6 evidence repository.
+- **Preconditions.** Previous-cycle RCD enumeration persisted in §5 evidence repository.
 - **Steps.** (1) Diff current `4.6-RCD-01` enumeration against the previous-cycle enumeration. (2) For each site removed, capture (a) the change-control ticket reference and approver, (b) the UAL row evidencing the removal, (c) the business justification.
 - **Expected.** Every removal is paired with ticket + UAL row + justification.
 - **Pass criteria.** Zero unexplained removals.
@@ -388,7 +376,7 @@ Each test follows the format: **Objective · Preconditions · Steps · Expected 
 ### 4.6-DAG-01 — DAG oversharing snapshot extracted
 
 - **Objective.** Pull the current DAG oversharing snapshot for sites in scope of Control 4.6 and persist as evidence.
-- **Preconditions.** §2.7 PASS (DAG enabled and seasoned ≥ 24h).
+- **Preconditions.** §2.6 PASS (DAG enabled and seasoned ≥ 24h).
 - **Steps.** (1) Open SPAC → Reports → Data Access Governance. (2) Run the oversharing report scoped to the in-scope sites. (3) Export to CSV / JSON. (4) Persist with SHA-256.
 - **Expected.** Report generates with non-empty rows for sites that have any sharing activity.
 - **Pass criteria.** Report produced; row count recorded; week-over-week delta computed.
@@ -398,7 +386,7 @@ Each test follows the format: **Objective · Preconditions · Steps · Expected 
 ### 4.6-DAG-02 — DAG sharing-links and sensitivity-label coverage extracted
 
 - **Objective.** Pull the DAG sharing-links and sensitivity-label coverage reports for in-scope sites.
-- **Preconditions.** §2.7 PASS.
+- **Preconditions.** §2.6 PASS.
 - **Steps.** (1) Open the sharing-links report; export. (2) Open the sensitivity-label coverage report; export. (3) Persist both with SHA-256.
 - **Expected.** Both reports generate.
 - **Pass criteria.** Both reports produced.
@@ -447,7 +435,7 @@ Each test follows the format: **Objective · Preconditions · Steps · Expected 
 
 ### 4.6-INAPP-02 — In-app carve-out scope statement
 
-- **Objective.** Produce the regulator-facing statement that the in-app Copilot carve-out is documented Microsoft behavior and is **expected** to PASS in the affirmative direction. Anti-pattern note in §8 cross-references this test.
+- **Objective.** Produce the regulator-facing statement that the in-app Copilot carve-out is documented Microsoft behavior and is **expected** to PASS in the affirmative direction. Anti-pattern note in §7 cross-references this test.
 - **Preconditions.** `4.6-INAPP-01` PASS in the affirmative direction.
 - **Steps.** Author the statement using the boilerplate, cite `4.6-INAPP-01` evidence.
 - **Expected.** Signed statement.
@@ -477,9 +465,9 @@ Each test follows the format: **Objective · Preconditions · Steps · Expected 
 
 ### 4.6-AUDIT-03 — Audit-pack assembly and review
 
-- **Objective.** Assemble the per-cycle audit pack (everything in §6) and route to the Compliance Officer for review and sign-off.
+- **Objective.** Assemble the per-cycle audit pack (everything in §5) and route to the Compliance Officer for review and sign-off.
 - **Preconditions.** All §4 tests above completed.
-- **Steps.** (1) Run the §6 manifest generator. (2) Verify every artifact has a SHA-256 sidecar. (3) Generate the audit-pack PDF cover-sheet. (4) Route to Compliance Officer.
+- **Steps.** (1) Run the §5 manifest generator. (2) Verify every artifact has a SHA-256 sidecar. (3) Generate the audit-pack PDF cover-sheet. (4) Route to Compliance Officer.
 - **Expected.** Audit pack assembled and signed.
 - **Pass criteria.** Cover-sheet signed; manifest validates.
 - **Audit assertion.** None (the artifact is the assertion).
@@ -536,31 +524,7 @@ Each test follows the format: **Objective · Preconditions · Steps · Expected 
 
 ---
 
-## 5. Sovereign-Cloud Variant Matrix
-
-The matrix below records, for each test family, the availability and any execution variation across Commercial, GCC, GCC High, and DoD as of the Last UI Verified date in the header. **Verify each row against current Microsoft Learn at every UI-verification cycle.** Where a mechanism is unavailable in a sovereign cloud, the corresponding test rows are recorded as `N/A — sovereign non-parity` in the §7 attestation, not `FAIL`.
-
-| Test family | Commercial | GCC | GCC High | DoD | Notes |
-|---|---|---|---|---|---|
-| LIC-01 | ✅ Run | ✅ Run | ✅ Run (verify SAM SKU on Learn) | ✅ Run (verify SAM SKU on Learn) | License catalogs differ across clouds |
-| UAL-01 | ✅ Run | ✅ Run | ✅ Run | ✅ Run | UAL retention SKUs may differ |
-| MOD-01 | ✅ Run | ✅ Run | ✅ Run | ✅ Run | Module endpoints differ; record GCC-prefixed endpoint URLs in pin record |
-| RCD-01..06 | ✅ Run | ⚠ Verify availability on Learn before run | ⚠ Non-parity windows; verify on Learn | ⚠ Non-parity windows; verify on Learn | RCD availability in US Gov clouds has historically lagged Commercial |
-| RSS-01..05 | ✅ Run | ⚠ Verify on Learn | ⚠ Non-parity; verify on Learn | ⚠ Non-parity; verify on Learn | RSS rollout to US Gov clouds has historically lagged Commercial |
-| DLP-01..04 | ✅ Run | ⚠ Verify Power Platform DLP `Microsoft 365 Copilot` location availability | ⚠ Non-parity; verify on Learn | ⚠ Non-parity; verify on Learn | DLP-for-Copilot location-scope availability differs |
-| DAG-01..03 | ✅ Run | ⚠ Verify SAM/DAG availability on Learn | ⚠ Non-parity; verify | ⚠ Non-parity; verify | DAG depends on SAM availability |
-| OND-01..02 | ✅ Run | ✅ Run (verify Copilot Studio availability) | ⚠ Verify Copilot Studio sovereign availability on Learn | ⚠ Verify Copilot Studio sovereign availability on Learn | Copilot Studio sovereign availability is the gating factor |
-| INAPP-01..02 | ✅ Run | ⚠ Verify in-app Copilot availability on Learn | ⚠ Verify | ⚠ Verify | In-app Copilot availability differs by app and cloud |
-| AUDIT-01..03 | ✅ Run | ✅ Run | ✅ Run | ✅ Run | Verify operation names on Learn at every cycle |
-| NEG-01..04 | ✅ Run | ✅ Run | ✅ Run | ✅ Run | Module endpoint URLs differ |
-| IR-01 | ✅ Run | ✅ Run | ✅ Run | ✅ Run | Roster and on-call procedures may differ by cloud |
-
-**Sovereign exception path.** A test marked `⚠ Verify on Learn` that turns out unavailable: (a) record `N/A — sovereign non-parity` with the Learn URL and access date, (b) document the firm''s compensating control in §7 attestation (e.g., manual periodic search exfiltration probe in lieu of RSS allowed-list; sensitivity-label DLP for SharePoint URL ingest in lieu of DLP-for-Copilot), (c) reassess at next UI-verification cycle.
-
-**GCC connector payload.** GCC connector payload limit is ~450KB; if any custom telemetry pipeline pushes evidence to a GCC connector, partition payloads accordingly. This affects the §6 evidence-pack assembly path on GCC tenants.
-
----
-## 6. Evidence Pack
+## 5. Evidence Pack
 
 ### 6.1 File-naming convention
 
@@ -570,11 +534,11 @@ Every artifact filename uses the form:
 4.6-<TestID>-<TENANT>-<UTC-yyyyMMddTHHmmssZ>-<descriptor>.<ext>
 ```
 
-Each artifact has a paired SHA-256 sidecar with the same base name and `.sha256` extension. Sidecars contain a single line: the lowercase hex SHA-256 followed by two spaces and the artifact filename, matching the Linux `sha256sum` format (this is the format expected by the §6.3 PowerShell validator).
+Each artifact has a paired SHA-256 sidecar with the same base name and `.sha256` extension. Sidecars contain a single line: the lowercase hex SHA-256 followed by two spaces and the artifact filename, matching the Linux `sha256sum` format (this is the format expected by the §5.3 PowerShell validator).
 
 ### 6.2 Manifest JSON schema
 
-Every cycle emits a `manifest.json` at the cycle-output root. The manifest is itself hashed and the hash is countersigned by the Compliance Officer in §7.
+Every cycle emits a `manifest.json` at the cycle-output root. The manifest is itself hashed and the hash is countersigned by the Compliance Officer in §6.
 
 ```json
 {
@@ -582,7 +546,7 @@ Every cycle emits a `manifest.json` at the cycle-output root. The manifest is it
   "control_name": "Grounding Scope Governance",
   "cycle_id": "<uuid>",
   "tenant_id": "<tenant-guid>",
-  "tenant_cloud": "Commercial | GCC | GCCH | DoD",
+  "tenant_cloud": "Commercial",
   "cycle_started_utc": "2026-04-15T13:00:00Z",
   "cycle_completed_utc": "2026-04-15T17:30:00Z",
   "two_portal_delta_seconds": 612,
@@ -614,10 +578,9 @@ Every cycle emits a `manifest.json` at the cycle-output root. The manifest is it
   ],
   "exceptions": [
     {
-      "test_id": "4.6-DLP-02",
-      "status": "N/A — sovereign non-parity",
-      "compensating_control": "Manual quarterly knowledge-source ingest review by Purview Compliance Admin",
-      "learn_url": "https://learn.microsoft.com/...",
+      "test_id": "4.6-INAPP-01",
+      "status": "PASS — affirmative direction (expected behavior)",
+      "compensating_control": "In-app Copilot carve-out is documented Microsoft behavior; see INAPP-02 statement",
       "learn_access_date": "2026-04-15"
     }
   ],
@@ -747,7 +710,7 @@ Persist the cycle output to the firm''s evidence repository under the WORM (writ
 For SharePoint-backed evidence storage, apply a Records-Management label that meets SEC 17a-4(b) WORM expectations and align with [Control 1.9](../1.9/verification-testing.md) for the records-retention controls themselves.
 
 ---
-## 7. Attestation
+## 6. Attestation
 
 The attestation block below is produced once per cycle, signed by the named roles, and persisted alongside the manifest. It is the single document an examiner will read first.
 
@@ -755,7 +718,7 @@ The attestation block below is produced once per cycle, signed by the named role
 FSI Agent Governance — Control 4.6 Verification Attestation
 
 Tenant:           <TENANT-DISPLAY-NAME> (<TENANT-GUID>)
-Cloud:            Commercial | GCC | GCC High | DoD
+Cloud:            Commercial
 Cycle ID:         <UUID>
 Cycle window:     <UTC start> → <UTC end>
 Manifest SHA-256: <hex>
@@ -763,12 +726,12 @@ Manifest SHA-256: <hex>
 Tester:    [ ] I confirm I executed every test in §4 of the
               Control 4.6 Verification & Testing playbook on the
               named cycle window, using the named test fixtures
-              in §2.6, and persisted every artifact identified
-              in §6 with its SHA-256 sidecar.
+              in §2.5, and persisted every artifact identified
+              in §5 with its SHA-256 sidecar.
               Name: ______________________  Signature: __________  Date (UTC): __________
 
 Reviewer:  [ ] I reviewed the manifest, re-computed SHA-256 on
-              a sample of artifacts, and confirmed the §6.3
+              a sample of artifacts, and confirmed the §5.3
               validator passed. I confirm the two-portal capture
               delta is ≤ 900 seconds.
               Name: ______________________  Signature: __________  Date (UTC): __________
@@ -790,10 +753,9 @@ Cycle outcome (binary, by test family):
   NEG-01..04       PASS / FAIL / N/A
   IR-01            PASS / FAIL / N/A
 
-Exceptions (status: N/A — sovereign non-parity, BLOCKED, INCONCLUSIVE):
+Exceptions (status: BLOCKED, INCONCLUSIVE):
   Test ID   Status    Compensating control / next step    Owner    Re-test date
   ───────   ───────   ────────────────────────────────    ─────    ────────────
-  4.6-DLP-02  N/A      Manual quarterly review            ___      ___
   ...
 
 Firm-defined cadence and SLA values used in this cycle:
@@ -836,10 +798,6 @@ Caveats (this attestation is bounded by):
      are illustrative and must be re-verified on Microsoft Learn at every
      UI-verification cycle. The audit assertion is satisfied if the tenant
      change is recorded under the then-current operation name family.
-  6. Sovereign-cloud rows marked N/A reflect documented non-parity
-     availability windows for RSS / RCD / SAM / DLP-for-Copilot in US
-     Government clouds; compensating controls are listed in the exceptions
-     table above.
 
 This attestation supports compliance with the regulations listed above; it
 does not, by itself, constitute a determination of compliance. Final
@@ -851,7 +809,7 @@ Persist the signed attestation as `4.6-ATTEST-<TENANT>-<UTC>-attestation.pdf` an
 
 ---
 
-## 8. Anti-Patterns
+## 7. Anti-Patterns
 
 The following anti-patterns are tracked because each has surfaced in production tenants, in prior versions of this playbook, or in AI Council reviews. The §4 test catalog is engineered to prevent the corresponding false-pass / false-fail.
 
@@ -861,13 +819,13 @@ The following anti-patterns are tracked because each has surfaced in production 
 
 3. **"RSS is our records-isolation control."** False-claim. RSS is documented as not a security boundary. `4.6-RSS-04` and `4.6-RSS-05` produce the regulator-facing statement that records this explicitly. Records isolation is addressed under Controls 1.5, 1.9, and 4.1 — not by RSS.
 
-4. **"We ran the test on my admin account; everything looked right."** Non-deterministic. RSS and in-app surfaces honor recent-interaction / ownership / direct-share signals. Tests run on identities with prior interaction with the test sites cannot distinguish "RSS is allowing this" from "the surface is honoring the recent-interaction signal." §2.6 mandates clean test identities.
+4. **"We ran the test on my admin account; everything looked right."** Non-deterministic. RSS and in-app surfaces honor recent-interaction / ownership / direct-share signals. Tests run on identities with prior interaction with the test sites cannot distinguish "RSS is allowing this" from "the surface is honoring the recent-interaction signal." §2.5 mandates clean test identities.
 
 5. **"Allow 24-48 hours and re-test."** Fabricated SLA. The previous version of this playbook contained that figure; it is not a Microsoft-published window. The only documented windows are in §3. Any "X hours" expression in your runbook that does not appear in §3 is firm-defined and must be labeled so.
 
 6. **"We tested DLP at the SharePoint admin center; it works."** Wrong portal. DLP-for-Copilot lives in the Power Platform Admin Center / Microsoft Purview, scoped to the `Microsoft 365 Copilot` location. Reading SPAC alone produces no evidence of the DLP block path.
 
-7. **"DAG reports came back empty so the tenant is fine."** False-pass. DAG requires data-collection enablement (§2.7) and ≥ 24 hours of seasoning before producing meaningful results. An empty DAG report on a tenant with active sharing is a DAG-not-enabled signal, not a clean-tenant signal.
+7. **"DAG reports came back empty so the tenant is fine."** False-pass. DAG requires data-collection enablement (§2.6) and ≥ 24 hours of seasoning before producing meaningful results. An empty DAG report on a tenant with active sharing is a DAG-not-enabled signal, not a clean-tenant signal.
 
 8. **"OneDrive content is fine because RCD is on."** False-claim. RCD does not apply to personal OneDrive. `4.6-OND-01` produces the boundary statement; `4.6-OND-02` exercises the cross-invoker boundary on Copilot Studio agents.
 
@@ -877,17 +835,15 @@ The following anti-patterns are tracked because each has surfaced in production 
 
 11. **"`SharePointSetTenantSettings` is the audit operation — write the assertion against that exact string."** Future-fragile. The audit operation name family evolves; the §4 audit assertions state the operation name as illustrative pending verification on `audit-log-activities` at every UI-verification cycle. Hardcoding the string and never re-verifying produces silent audit-assertion failures.
 
-12. **"Capture SPAC state on Monday, capture PPAC state on Wednesday."** Incoherent baseline. Any DLP edit between Monday and Wednesday invalidates the DLP test against the SPAC baseline. §2.4 enforces a ±15-minute capture window across both portals, and `manifest.two_portal_delta_seconds > 900` is a §6.3 validator failure.
+12. **"Capture SPAC state on Monday, capture PPAC state on Wednesday."** Incoherent baseline. Any DLP edit between Monday and Wednesday invalidates the DLP test against the SPAC baseline. §2.4 enforces a ±15-minute capture window across both portals, and `manifest.two_portal_delta_seconds > 900` is a §5.3 validator failure.
 
 13. **"We''ll skip `4.6-IR-01` this year — no incidents."** Misses the point. The annual tabletop is the only routine exercise of the grounding-scope IR flow; without it, on-call paging / triage / containment paths atrophy. NYDFS 500.16 expects evidence of IR exercise regardless of whether a real incident occurred.
 
-14. **"The sovereign tenant ''passed'' all tests."** Unverified parity claim. RSS / RCD / SAM / DLP-for-Copilot have non-parity in US Gov clouds; passing without a current-Learn verification means the test is reading a surface that may not exist or may behave differently. The §5 sovereign matrix forces an explicit Learn re-verification per cycle.
-
-15. **"The marker file is the same one we used last cycle."** Cache trap. Reusing the same marker GUID across cycles cannot distinguish "the surface is reading this cycle''s state" from "the surface returned a cached result from a prior cycle." `{cycle-uuid}` in §2.6 is regenerated every cycle for exactly this reason.
+14. **"The marker file is the same one we used last cycle."** Cache trap. Reusing the same marker GUID across cycles cannot distinguish "the surface is reading this cycle''s state" from "the surface returned a cached result from a prior cycle." `{cycle-uuid}` in §2.5 is regenerated every cycle for exactly this reason.
 
 ---
 
-## 9. Cross-Links
+## 8. Cross-Links
 
 ### Within Control 4.6
 
@@ -899,7 +855,7 @@ The following anti-patterns are tracked because each has surfaced in production 
 
 - [Control 1.5 — Sensitivity Labels and Data Classification](../1.5/verification-testing.md) — labels are the substrate that DLP-for-Copilot policies reference; tests in 4.6-DLP-NN assume the label model from 1.5 is in place.
 - [Control 1.7 — Audit Logging Configuration](../1.7/verification-testing.md) — UAL enablement and retention is verified there; `4.6-UAL-01` re-asserts the gate for this control.
-- [Control 1.9 — SharePoint Records Retention](../1.9/verification-testing.md) — records retention horizons referenced in §6.5 are verified there.
+- [Control 1.9 — SharePoint Records Retention](../1.9/verification-testing.md) — records retention horizons referenced in §5.5 are verified there.
 - [Control 1.14 — Microsoft 365 Copilot Configuration](../1.14/verification-testing.md) — the Copilot license, in-app behavior, and Business Chat surface tested here are governed there.
 - [Control 2.16 — Power Platform DLP for Copilot](../2.16/verification-testing.md) — the authoritative verification of the DLP-for-Copilot policy lifecycle; `4.6-DLP-01..04` here is the grounding-scope-specific subset.
 - [Control 4.1 — SharePoint Permissions Architecture](../4.1/verification-testing.md) — the permissions baseline that RSS positions itself as containment for during remediation.
@@ -919,7 +875,6 @@ The following anti-patterns are tracked because each has surfaced in production 
 - Microsoft Learn — Data Access Governance reports.
 - Microsoft Learn — Microsoft 365 Copilot interactions and audit events.
 - Microsoft Learn — Audit log activities catalog (`audit-log-activities`).
-- Microsoft Learn — Microsoft 365 Government plans and feature parity.
 
 ---
 

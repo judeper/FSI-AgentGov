@@ -1,7 +1,7 @@
 # Control 4.1: SharePoint Information Access Governance (IAG) — PowerShell Setup
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
 
 > Automation guidance for [Control 4.1](../../../controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md). Uses `Microsoft.Online.SharePoint.PowerShell` (SPO Management Shell), `PnP.PowerShell` (DAG and site context), and `Microsoft.Graph` (group resolution / audit log).
 
@@ -20,14 +20,12 @@ Import-Module PnP.PowerShell
 Import-Module Microsoft.Graph.Groups
 ```
 
-**Sovereign clouds:** Use the appropriate `-Region` / endpoint for GCC, GCC High, and DoD per the baseline. Do not hard-code `*.sharepoint.com`.
-
 ---
 
 ## Connect
 
 ```powershell
-$AdminUrl = 'https://contoso-admin.sharepoint.com'   # Replace; use *.sharepoint.us for GCC High / DoD
+$AdminUrl = 'https://contoso-admin.sharepoint.com'
 Connect-SPOService -Url $AdminUrl
 Connect-MgGraph -Scopes 'Group.Read.All','AuditLog.Read.All' -NoWelcome
 ```
@@ -255,7 +253,6 @@ Disconnect-MgGraph    -ErrorAction SilentlyContinue
 | Throttling (`429`) | Wrap mutating cmdlets with exponential backoff (per baseline) |
 | Ambiguous group | `Resolve-EntraGroupId` throws; halt and surface to operator |
 | Stale module | Pin `-MinimumVersion`; CI fails the script if older module is loaded |
-| Sovereign cloud | Use `Connect-SPOService -Region` and `Connect-MgGraph -Environment` per baseline |
 
 ---
 
