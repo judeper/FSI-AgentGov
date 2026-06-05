@@ -1,5 +1,43 @@
 # Linus — Review History
 
+## 2026-06-04 — Sovereign-Cloud Removal (Pillar-1 Playbooks 1.1–1.10, Wave A)
+
+**Mode:** XCUT SOVEREIGN REMOVAL — Pillar-1 playbooks, controls 1.1–1.10 + `_shared/powershell-baseline.md`
+**Branch:** `fix/pb-xcut-sov-pb-p1`
+**Commit:** `d35196bc4`
+**Result:** ✅ COMPLETE — local branch only; coordinator pushes
+
+### Summary
+
+- **33 files modified**, 256 insertions / 2,375 deletions
+- Verified re-grep returned **ZERO** files with sovereign content in scope
+- `python scripts/verify_language_rules.py` ✅ no prohibited language found
+
+### Recipe learnings (sovereign removal)
+
+- **Multi-pass approach required.** The first Python script (pass 1) handled
+  ~70% of hits via exact-string replacement. The second and third passes caught
+  sections that had slightly different text than expected. Total: 3 Python
+  scripts + 8 surgical direct `edit` calls.
+- **`[ValidateSet]` removal:** the pattern `[ValidateSet(...)]` on one line,
+  `[string]$Param = 'default'` on the next is common. Use a single regex
+  that matches both lines together; removing just the ValidateSet line leaves
+  a standalone `[string]$Param...` that still passes grep if the removed
+  ValidateSet contained gov cloud names.
+- **Section-header only removals:** when all table rows are removed but the
+  section header (e.g., `## Sovereign Cloud Availability`) remains, it still
+  shows up in grep. Always remove headers together with their content in one
+  pass.
+- **Attestation language:** hardcoded phrases like "in the declared sovereign
+  cloud" appear in many attestation note sections verbatim. Search for "declared
+  sovereign" as a reliable pattern.
+- **SOV-* test namespaces:** renamed to FEAT-* (feature availability
+  verification) rather than deleted — the underlying Audit Premium / PAYG
+  availability checks are still valid for commercial tenants.
+- **1.2/powershell-setup.md is large (~100KB).** The `Resolve-Agt12CloudProfile`
+  helper was replaced with a simplified `Initialize-Agt12Session` that targets
+  Global/Commercial only. The §2 section was rewritten inline in the script.
+
 ## 2026-06-04 — Escalation Re-Verification Batch (#365 #370 #372 #373)
 
 **Mode:** REMEDIATION (4 verified SME-escalation corrections, one batch PR)
