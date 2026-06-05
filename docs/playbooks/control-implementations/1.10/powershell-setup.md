@@ -3,11 +3,11 @@
 **Control:** [1.10 Communication Compliance Monitoring](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md)
 **Baseline:** [PowerShell baseline (`_shared/powershell-baseline.md`)](../../_shared/powershell-baseline.md)
 **Audience:** M365 administrator at a US financial services organization (FINRA / SEC / GLBA / OCC / Fed SR 26-2 (formerly SR 11-7) / CFTC oversight) operating Microsoft 365 Copilot, Agent Builder, and Microsoft Copilot Studio agents.
-**Sovereign clouds:** Commercial / GCC / GCC High / DoD — connection helper in [Section 1](#1-pre-flight) and full reference in [Section 7](#7-sovereign-cloud-reference).
+**Cloud:** Commercial (Global) — the deployment surface for US financial-services customers.
 **Required modules:** `ExchangeOnlineManagement` ≥ 3.5.0 (provides both `Connect-ExchangeOnline` and `Connect-IPPSSession`).
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), transcript capture, and SHA-256 evidence emission. Snippets below assume you have already complied with that baseline.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), transcript capture, and SHA-256 evidence emission. Snippets below assume you have already complied with that baseline.
 
 > **Scope of this file.** PowerShell automation for **Microsoft Purview Communication Compliance (CC)** as it applies to Copilot, Agent Builder, and Copilot Studio agent communications. PowerShell coverage for CC is **deliberately partial**:
 >
@@ -39,7 +39,7 @@ Communication Compliance and Supervisory Review cmdlets live in **two separate P
 Every Control 1.10 PowerShell session **must** start with the same five steps:
 
 1. Pin the `ExchangeOnlineManagement` module version (CAB-approved).
-2. Resolve sovereign-cloud connection parameters from a single switch.
+2. Open a Security & Compliance PowerShell session.
 3. Connect to **IPPS** (Security & Compliance) — supervisory review and CC audit operations are IPPS-only.
 4. Verify the caller is a member of `Communication Compliance Admins` (and optionally `Communication Compliance Investigators` for evidence collection runs).
 5. Verify the tenant has the licensing required for Communication Compliance (Microsoft 365 E5 / E5 Compliance / Insider Risk Management add-on).
@@ -55,7 +55,7 @@ function Initialize-Cc110Session {
     .SYNOPSIS
         Pre-flight for Control 1.10 (Communication Compliance Monitoring).
     .DESCRIPTION
-        Resolves sovereign endpoint, opens an IPPS session if not already
+        Opens an IPPS session if not already
         connected, asserts module version pin, asserts caller role membership
         (Communication Compliance Admins), and emits a session-state PSCustomObject
         for downstream scripts to consume. Read-only — no tenant mutation.
@@ -66,12 +66,11 @@ function Initialize-Cc110Session {
     .PARAMETER RequiredRoleGroup
         Role group caller must be a member of. Default: 'Communication Compliance Admins'.
     .EXAMPLE
-        $ctx = Initialize-Cc110Session -UserPrincipalName admin@contoso.com -Cloud GCCHigh
+        $ctx = Initialize-Cc110Session -UserPrincipalName admin@contoso.com
     #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)] [string] $UserPrincipalName,
-        [ValidateSet('Commercial','GCC','GCCHigh','DoD')]
         [string] $Cloud = 'Commercial',
         [string] $RequiredRoleGroup = 'Communication Compliance Admins'
     )
@@ -88,16 +87,12 @@ function Initialize-Cc110Session {
         throw "ExchangeOnlineManagement $($exo.Version) is below the 3.5.0 minimum required for IPPS REST + CC operations."
     }
 
-    # 2. Resolve sovereign endpoint
+    # 2. Set connection endpoint
     $endpoint = switch ($Cloud) {
         'Commercial' { @{ Uri = 'https://ps.compliance.protection.outlook.com/powershell-liveid/'
                           Aad = 'https://login.microsoftonline.com/organizations' } }
         'GCC'        { @{ Uri = 'https://ps.compliance.protection.outlook.com/powershell-liveid/'
                           Aad = 'https://login.microsoftonline.com/organizations' } }
-        'GCCHigh'    { @{ Uri = 'https://ps.compliance.protection.office365.us/powershell-liveid/'
-                          Aad = 'https://login.microsoftonline.us/organizations' } }
-        'DoD'        { @{ Uri = 'https://l5.ps.compliance.protection.office365.us/powershell-liveid/'
-                          Aad = 'https://login.microsoftonline.us/organizations' } }
     }
 
     # 3. Open IPPS session (idempotent — only connects if no live IPPS session)
@@ -769,81 +764,3 @@ function Get-Cc110ReviewerReconciliation {
 
 ---
 
-## 7. Sovereign cloud reference
-
-Verified against Microsoft Learn — [Connect to Security & Compliance PowerShell](https://learn.microsoft.com/en-us/powershell/exchange/connect-to-scc-powershell) (last verified April 2026). **Reverify before each change window — Microsoft has rotated the GCC High and DoD endpoints multiple times in the last 24 months.**
-
-| Cloud | `-ConnectionUri` | `-AzureADAuthorizationEndpointUri` |
-|---|---|---|
-| Commercial / GCC | `https://ps.compliance.protection.outlook.com/powershell-liveid/` (default — can be omitted) | `https://login.microsoftonline.com/organizations` (default — can be omitted) |
-| GCC High | `https://ps.compliance.protection.office365.us/powershell-liveid/` | `https://login.microsoftonline.us/organizations` |
-| DoD | `https://l5.ps.compliance.protection.office365.us/powershell-liveid/` | `https://login.microsoftonline.us/organizations` |
-
-```powershell
-# Commercial / GCC
-Connect-IPPSSession -UserPrincipalName $upn
-
-# GCC High
-Connect-IPPSSession -UserPrincipalName $upn `
-    -ConnectionUri 'https://ps.compliance.protection.office365.us/powershell-liveid/' `
-    -AzureADAuthorizationEndpointUri 'https://login.microsoftonline.us/organizations'
-
-# DoD
-Connect-IPPSSession -UserPrincipalName $upn `
-    -ConnectionUri 'https://l5.ps.compliance.protection.office365.us/powershell-liveid/' `
-    -AzureADAuthorizationEndpointUri 'https://login.microsoftonline.us/organizations'
-```
-
-> **Never use commercial endpoints from a sovereign tenant.** The cmdlet will appear to succeed (it authenticates against commercial AAD), but every supervisory review and CC audit query returns zero rows — producing **false-clean** evidence. The `Initialize-Cc110Session` helper in Section 1 enforces the correct endpoint via the `-Cloud` switch.
-
----
-
-## 8. Anti-patterns (what NOT to do)
-
-These are the patterns most likely to produce silent or fabricated evidence for Control 1.10. Reject any of them in PR review.
-
-1. **Single-call `Search-UnifiedAuditLog -ResultSize 5000`.** Silently truncates at 5,000 rows. **Always** use the session-paging loop in Section 5.1 and hard-fail at the per-session ceiling.
-2. **`-ErrorAction SilentlyContinue` on a tenant-mutation cmdlet** (e.g., `Add-RoleGroupMember`, `New-SupervisoryReviewPolicyV2`, `Set-SupervisoryReviewRule`) followed by a hard-coded `[PASS]` banner. This is the single most common pattern that produces fabricated evidence. Use `-ErrorAction Stop` in `try/catch` and emit the result row only after a verified after-snapshot.
-3. **Running supervisory review or CC role-group cmdlets from `Connect-ExchangeOnline`** instead of `Connect-IPPSSession`. Produces `CommandNotFoundException` at best, silent zero results at worst.
-4. **Using `-RecordType CopilotInteraction` as evidence for Communication Compliance.** `CopilotInteraction` is the audit surface for [Control 1.7 (Audit Logging)](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), not 1.10. Communication Compliance evidence comes from `SupervisionRuleMatch`, `SupervisionPolicy*`, and `SupervisoryReviewTag`.
-5. **Inventing a `CopilotInteraction` RecordType filter that does not match Microsoft Learn.** Always reverify `RecordType` and `Operations` strings against [audit-log-activities](https://learn.microsoft.com/en-us/purview/audit-log-activities) before shipping a script.
-6. **Passing a DLP Sensitive Information Type inventory off as CC evidence.** `Get-DlpSensitiveInformationType` belongs to Control 1.5 (DLP) and Control 1.13 (Sensitive Information Types). It tells you nothing about whether a Communication Compliance policy is operational. Remove it from any CC evidence script.
-7. **Plain `Export-Csv` with no SHA-256 sidecar and no immutability target.** Spreadsheet exports are not audit evidence under SEC 17a-4(b)(4). Land artifacts in a WORM-eligible store (Purview retention lock or Azure Storage immutability) and emit a SHA-256 sidecar — see Section 5.
-8. **No `Start-Transcript`.** Without a transcript, you cannot prove which cmdlets ran, against which tenant, by which principal, in which order. Every script in this playbook starts with `Start-Transcript` and ends with `Stop-Transcript`.
-9. **No pre-flight role check.** `Get-SupervisoryReviewPolicyV2` returns an empty list (no error) when the caller lacks permission. Without the `Initialize-Cc110Session` role-membership assertion, a zero-row file looks identical to a clean tenant.
-10. **No module version pin.** Floating `Install-Module ExchangeOnlineManagement -Force` upgrades break reproducibility across change windows and have, in the past, changed the schema returned by `Get-SupervisoryReviewActivity`. Pin the version in your CAB ticket.
-11. **`New-SupervisoryReviewRule -ReviewerEmail …` or `… -Reviewers …`.** Neither parameter exists on the rule cmdlet. Reviewers are assigned **on the policy** via `New-SupervisoryReviewPolicyV2 -Reviewers <String[]>`. The rule defines the sampled content set (`-Condition`, `-SamplingRate`, `-ContentSources`).
-12. **Promoting PowerShell as a substitute for the Purview portal for CC policy CRUD.** Per Microsoft Learn, modern Communication Compliance policies (including the Copilot interactions template) cannot be created or edited via PowerShell. Document this boundary in every change ticket so reviewers do not expect a PS-based diff.
-13. **Treating `Get-SupervisoryReviewActivity` as tenant-wide.** It is **per-policy** — the `-PolicyId` parameter is mandatory. Loop over `Get-SupervisoryReviewPolicyV2` to cover the full tenant, as in Section 5.3.
-14. **Hard-coded reviewer email lists committed to source control.** Pass reviewers via parameters or pull from an Entra group; do not ship UPNs in playbook code.
-
----
-
-## 9. Cross-links
-
-| Concern | Control |
-|---|---|
-| Records retention / WORM landing for CC evidence artifacts | [Control 1.9 — Records Retention and Immutability](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) |
-| Tenant-wide audit ingestion (`UnifiedAuditLogIngestionEnabled`), `CopilotInteraction` audit surface | [Control 1.7 — Audit Logging for AI Interactions](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) |
-| DLP and Sensitivity Labels used by CC policy classifiers | [Control 1.5 — Data Loss Prevention (DLP) and Sensitivity Labels](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) |
-| Insider Risk Management — adjacent cmdlet surface and shared role groups | [Control 1.12 — Insider Risk Management for Agent Misuse](../../../controls/pillar-1-security/1.12-insider-risk-detection-and-response.md) |
-| eDiscovery holds against CC evidence | [Control 1.19 — eDiscovery for AI-Generated Content](../../../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md) |
-| Trainable classifiers / Sensitive Information Types referenced by CC rules | [Control 1.13 — Custom Sensitive Information Types](../../../controls/pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition.md) |
-| Identity & access for reviewer / admin role-group assignments | [Control 1.2 — Identity and Access Management for AI Agents](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) |
-
-**Microsoft Learn references (verify before each change window):**
-
-- [Communication compliance — Create and manage policies](https://learn.microsoft.com/en-us/purview/communication-compliance-policies)
-- [Communication compliance — Permissions and role groups](https://learn.microsoft.com/en-us/purview/communication-compliance-permissions)
-- [Communication compliance — Investigate and remediate alerts](https://learn.microsoft.com/en-us/purview/communication-compliance-investigate-remediate)
-- [Connect to Security & Compliance PowerShell](https://learn.microsoft.com/en-us/powershell/exchange/connect-to-scc-powershell)
-- [`New-SupervisoryReviewPolicyV2`](https://learn.microsoft.com/en-us/powershell/module/exchange/new-supervisoryreviewpolicyv2)
-- [`New-SupervisoryReviewRule`](https://learn.microsoft.com/en-us/powershell/module/exchange/new-supervisoryreviewrule)
-- [`Get-SupervisoryReviewActivity`](https://learn.microsoft.com/en-us/powershell/module/exchange/get-supervisoryreviewactivity)
-- [`Get-SupervisoryReviewReport`](https://learn.microsoft.com/en-us/powershell/module/exchange/get-supervisoryreviewreport)
-- [`Search-UnifiedAuditLog`](https://learn.microsoft.com/en-us/powershell/module/exchange/search-unifiedauditlog)
-- [Audit log activities — Communication compliance](https://learn.microsoft.com/en-us/purview/audit-log-activities)
-
----
-
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*

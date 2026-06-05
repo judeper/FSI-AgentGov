@@ -66,36 +66,7 @@
     | `AIAppInteraction` (non-Microsoft AI apps captured via network/browser DLP under the `AIApp` workload) | **Audit pay-as-you-go (PAYG)**; explicit enablement; 180-day retention for PAYG records; consumption billed against an Azure subscription |
     | Microsoft-built Copilot / Copilot Studio agent `CopilotInteraction` and `ConnectedAIAppInteraction` events | Included in Audit (Standard) at no incremental cost (verify per-workload scope on Microsoft Learn before assuming) |
 
-!!! warning "Sovereign Cloud Parity (Verified April 2026)"
-    Audit Premium availability and AI app PAYG availability differ across Microsoft 365 Commercial, GCC, GCC High, and DoD. **Always re-verify against [Microsoft Learn: Microsoft Purview Audit Solutions](https://learn.microsoft.com/en-us/purview/audit-solutions-overview) before relying on a feature in a sovereign deployment.**
-
-    | Capability | Commercial | GCC | GCC High | DoD |
-    |---|:---:|:---:|:---:|:---:|
-    | Unified audit log (Audit Standard) | ✅ GA | ✅ GA | ✅ GA | ✅ GA |
-    | Audit (Premium) custom retention policies | ✅ GA | ✅ GA | ✅ GA | ✅ GA |
-    | 10-Year Audit Log Retention add-on | ✅ GA | ✅ GA | ✅ GA | ⚠️ Verify availability per Learn |
-    | `CopilotInteraction` record type | ✅ GA | ✅ GA | 🟡 Verify per Learn | ⛔ Verify per Learn |
-    | `ConnectedAIAppInteraction` (Microsoft AI apps) | ✅ GA | ✅ GA | 🟡 Verify per Learn | ⛔ Verify per Learn |
-    | `AIAppInteraction` PAYG (non-Microsoft AI apps) | ✅ GA | 🟡 Verify per Learn | ⛔ Not yet | ⛔ Not yet |
-    | DSPM for AI content retrieval surface | ✅ GA | 🟡 Preview / verify | ⛔ Verify per Learn | ⛔ Verify per Learn |
-    | Azure immutable blob storage (Cohasset-attested) | ✅ GA | ✅ GA (Azure Government) | ✅ GA (Azure Government) | ✅ GA (Azure Government Secret / Top Secret — verify region) |
-    | Entra `agentSignIn` resource type | 🟡 Preview | ⛔ Verify per Learn | ⛔ Not yet | ⛔ Not yet |
-    | `MicrosoftServicePrincipalSignInLogs` diagnostic stream | 🟡 Preview | ⛔ Verify per Learn | ⛔ Not yet | ⛔ Not yet |
-
-    For sovereign tenants where a feature is not GA, document the gap in the audit-program risk register and substitute a manual procedure (PowerShell `Search-UnifiedAuditLog` extraction with manual SHA-256 hashing into the immutable blob layer). The control owner should re-verify availability each quarter.
-
 ---
-
-## Sovereign Cloud URLs
-
-| Cloud | Microsoft Purview portal | Power Platform Admin Center | Defender / Security | Entra admin center |
-|---|---|---|---|---|
-| Commercial | `https://purview.microsoft.com` | `https://admin.powerplatform.microsoft.com` | `https://security.microsoft.com` | `https://entra.microsoft.com` |
-| GCC | `https://purview.microsoft.us` (verify in tenant) | `https://gcc.admin.powerplatform.microsoft.us` | `https://security.microsoft.us` | `https://entra.microsoft.us` (verify) |
-| GCC High | `https://purview.microsoft.us` (verify in tenant) | `https://high.admin.powerplatform.microsoft.us` | `https://security.microsoft.us` | `https://entra.microsoft.us` (verify) |
-| DoD | `https://compliance.apps.mil` (verify in tenant) | `https://admin.appsplatform.us` | `https://security.apps.mil` | `https://entra.microsoft.us` (verify) |
-
-> The legacy URL `https://compliance.microsoft.com` redirects to `purview.microsoft.com` for commercial tenants. Update older runbooks accordingly.
 
 ---
 
@@ -203,7 +174,7 @@ Get-AdminAuditLogConfig | Format-List UnifiedAuditLogIngestionEnabled
     ```powershell
     (Get-ConnectionInformation | Where-Object State -eq 'Connected').ConnectionUri
     # Expected: outlook.office365.com  (Commercial)
-    # Expected: outlook.office365.us   (USGov / GCC / GCC High / DoD)
+    # Expected: outlook.office365.com (commercial)
     # If URI is ps.compliance.protection.outlook.com, you are in S&C PowerShell — reconnect via EXO.
     ```
 
@@ -211,7 +182,7 @@ Get-AdminAuditLogConfig | Format-List UnifiedAuditLogIngestionEnabled
 
 In the Microsoft Purview portal:
 
-1. Open `https://purview.microsoft.com` (or sovereign equivalent).
+1. Open `https://purview.microsoft.com`.
 2. From the left navigation, open the **Audit** solution.
 3. If the **"Start recording user and admin activity"** banner is shown, click it.
 4. Confirm the change in the §1.3 change-management ticket.
@@ -320,8 +291,7 @@ The audit record carries metadata only. To retrieve the prompt and response body
 
 6. Note that PAYG-captured records are subject to **180-day retention** regardless of any custom retention policy — for longer preservation, export to the §10 immutable blob layer on a recurring schedule.
 
-!!! warning "Sovereign cloud caveat"
-    `AIAppInteraction` PAYG availability differs across GCC, GCC High, and DoD. Verify against Microsoft Learn before promising the capability to a sovereign-cloud business unit.
+> **Note:** `AIAppInteraction` PAYG availability may vary. Verify against Microsoft Learn before relying on this capability.
 
 ---
 
@@ -331,7 +301,7 @@ Required for Copilot Studio agent admin / lifecycle events to surface in `Connec
 
 ### 7.1 Enable environment-level auditing (per environment)
 
-1. Sign in to the Power Platform Admin Center (sovereign URL per the table at the top of this document).
+1. Sign in to the Power Platform Admin Center (`admin.powerplatform.microsoft.com`).
 2. Navigate to **Environments** > select the target environment.
 3. Open **Settings** > expand **Audit and logs** > select **Audit settings**.
 4. Toggle **Start Auditing** to **ON**.
@@ -466,7 +436,7 @@ Per the SEC's October 2022 amendments to Rule 17a-4(f) (compliance date 3 May 20
 
 ### 10.1 Configure Azure Immutable Blob Storage (Cohasset-attested path)
 
-1. In the Azure portal, create or select a storage account in the appropriate Azure region (Azure Government for sovereign tenants).
+1. In the Azure portal, create or select a storage account in an appropriate US Azure region.
 2. Create a blob container dedicated to audit preservation (one container per record-class per retention horizon is recommended).
 3. On the container, open **Access policy > Add policy > Time-based retention** (or **Legal hold** for litigation-bound records).
 4. Set the retention period to the regulatory floor:
@@ -570,14 +540,9 @@ All artifacts: SHA-256 hashed at capture time; copied to the §10 immutable blob
 
 ---
 
-## §13 — Sovereign Cloud Caveats (Per Surface)
+## §13 — Implementation Notes
 
-Re-verify each item against Microsoft Learn before relying on it in a sovereign deployment. The matrix at the top of this document summarizes current availability; the following narrative captures the surface-by-surface caveats that most often trip US FSI tenants migrating workloads to GCC, GCC High, or DoD:
-
-- **Audit (Premium) custom retention policies and the 10-Year add-on** are GA in Commercial and GCC; verify per Microsoft Learn for GCC High and DoD before promising the 10-year retention horizon to a sovereign business unit.
-- **`AIAppInteraction` PAYG** is Commercial-first and lags in sovereign clouds. Where unavailable, document the gap as a compensating-control entry: capture non-Microsoft AI activity via [Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) endpoint DLP and feed it directly into the SIEM (the audit log will not carry it).
-- **DSPM for AI** content-retrieval surface availability differs in sovereign clouds; if it is not yet GA in your cloud, route content retrieval through eDiscovery (Premium) ([1.19](../../../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md)) instead.
-- **`agentSignIn` and `MicrosoftServicePrincipalSignInLogs`** are preview surfaces — assume not yet available in GCC High and DoD until verified in-tenant. Substitute service-principal sign-in log forwarding via the long-standing diagnostic settings path.
+Implementation notes for US financial-services commercial tenants:
 - **Azure immutable blob storage** is available in Azure Government; the **Cohasset attestation** and SEC 17a-4(f) coverage statement should be re-verified at vendor cadence (annually) and stored alongside the §11 evidence pack.
 
 ---

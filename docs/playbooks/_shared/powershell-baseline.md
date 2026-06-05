@@ -1,6 +1,6 @@
 # PowerShell Authoring Baseline for FSI Implementations
 
-**Purpose:** Pre-flight requirements that apply to **every** PowerShell playbook in this framework. Read this **once** before running any control's PowerShell setup, and treat it as the canonical source for module versions, sovereign-cloud endpoints, mutation safety, and evidence emission.
+**Purpose:** Pre-flight requirements that apply to **every** PowerShell playbook in this framework. Read this **once** before running any control's PowerShell setup, and treat it as the canonical source for module versions, mutation safety, and evidence emission.
 
 **Audience:** M365 administrators executing controls in production tenants subject to FINRA / SEC / GLBA / OCC / Fed SR 26-2 (formerly SR 11-7) / CFTC oversight.
 
@@ -59,45 +59,6 @@ if ($PSVersionTable.PSEdition -ne 'Desktop') {
 ```
 
 Without this guard, scripts run in PowerShell 7 silently fail or return empty results — producing **false-clean evidence**.
-
----
-
-## 3. Sovereign Cloud Endpoints (GCC / GCC High / DoD)
-
-If your tenant is in any US Government cloud, you **must** pass the correct `-Endpoint` parameter on `Add-PowerAppsAccount`, or the cmdlet authenticates against commercial endpoints, returns zero environments, and produces **false-clean** assessment results.
-
-| Cloud | `-Endpoint` value | `Connect-MgGraph -Environment` |
-|---|---|---|
-| Commercial | `prod` (default) | `Global` (default) |
-| GCC | `usgov` | `USGov` |
-| GCC High | `usgovhigh` | `USGov` |
-| DoD | `dod` | `USGovDoD` |
-| China (21Vianet) | `china` | `China` |
-
-**Canonical sovereign-aware authentication:**
-
-```powershell
-param(
-    [ValidateSet('prod','usgov','usgovhigh','dod')]
-    [string]$Endpoint = 'prod'
-)
-
-Add-PowerAppsAccount -Endpoint $Endpoint
-# Microsoft Graph national cloud names per Connect-MgGraph -Environment:
-# Global   = commercial (graph.microsoft.com) — also covers M365 GCC; per Microsoft Learn:
-#            "If you're working in a Microsoft 365 GCC environment, continue using the
-#            worldwide endpoints: graph.microsoft.com" (https://learn.microsoft.com/en-us/graph/deployments)
-# USGov    = GCC High (graph.microsoft.us)
-# USGovDoD = DoD L5 (dod-graph.microsoft.us)
-# China    = 21Vianet (microsoftgraph.chinacloudapi.cn).
-# FSI cloud-name mapping (left): usgovhigh -> Microsoft Graph 'USGov'; dod -> 'USGovDoD'.
-# KNOWN LIMITATION: FSI 'usgov' (M365 GCC) currently maps to Graph 'USGov' below; per the
-# Learn note above, M365 GCC tenants should use the Global endpoint. This is a pre-existing
-# mapping carried over from earlier framework revisions; see issue tracker for reconciliation.
-Connect-MgGraph -Environment (@{prod='Global'; usgov='USGov'; usgovhigh='USGov'; dod='USGovDoD'}[$Endpoint])
-```
-
-**Verify before run:** Microsoft Learn — "Get started with PowerShell for Power Platform Administrators" lists current sovereign endpoint values.
 
 ---
 
@@ -208,7 +169,7 @@ if ($env.CommonDataServiceDatabaseProvisioningState -eq 'Succeeded') {
 When you contribute a new PowerShell playbook to this framework, the playbook **must**:
 
 - Link to this baseline at the top.
-- Use the canonical patterns from sections 1, 3, 4, 5, and 6 instead of re-deriving them.
+- Use the canonical patterns from sections 1, 4, 5, and 6 instead of re-deriving them.
 - Document any module-specific deviations explicitly.
 - Pass the validation script (see `scripts/verify_controls.py`).
 

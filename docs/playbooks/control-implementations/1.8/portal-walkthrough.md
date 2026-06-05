@@ -3,28 +3,12 @@
 **Control:** [1.8 Runtime Protection and External Threat Detection](../../../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md)
 **Audience:** M365 administrator (US financial services)
 **Last UI Verified:** May 2026
-**Cloud coverage:** Commercial · GCC · GCC High · DoD (see sovereign cloud table — **HARD GAPs exist for FSI Government-cloud tenants**)
+**Cloud coverage:** Commercial (Global)
 **Estimated Time:** 12–24 hours (excludes Defender preview opt-in propagation, M365 App Connector first-ingest cycle, agent-inventory population window, vendor TPRM sign-off, and pilot validation)
 
 > This playbook provides portal configuration guidance for [Control 1.8](../../../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md). It is written to support compliance with FINRA Rule 3110 (supervision), FINRA Regulatory Notice 24-09 (Gen AI guidance for AI agent supervision), GLBA 501(b) (safeguards), SOX 404 (internal controls), SEC Rule 17a-4 (record retention — see boundary note), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), and NYDFS 23 NYCRR 500. Runtime Protection is a **detect / block / route** surface. By itself it does not satisfy any single regulatory obligation — durable records retention is implemented separately under [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) and [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md), and incident handling is governed by your firm's Written Supervisory Procedures (WSP) and the FSI Incident Handling section of [troubleshooting.md](troubleshooting.md).
 
 ---
-
-!!! danger "READ FIRST — Sovereign cloud HARD GAP for US Government clouds"
-    Several Control 1.8 surfaces are **Preview** or **Prerelease** in commercial cloud and have **no documented parity** in US Government clouds (GCC, GCC High, DoD) as of Q1 2026:
-
-    - **Native Defender for Cloud Apps AI Agent Protection** — Preview in commercial; **no documented GCC / GCC High / DoD parity** ([ai-agent-protection](https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-protection))
-    - **Additional Threat Detection / Security Webhooks API** — Prerelease in commercial; verify Azure Entra Federated Identity Credential parity for the target cloud ([external-security-provider](https://learn.microsoft.com/en-us/microsoft-copilot-studio/external-security-provider))
-    - **AISPM dashboard in Defender XDR** — verify per-cloud availability against current Microsoft 365 Roadmap
-
-    Microsoft Copilot Studio core (Prompt Shields, content moderation, generative answers) is GA in GCC and GCC High per [requirements-licensing-gcc](https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-licensing-gcc); generative-AI dependencies have separate availability constraints by cloud.
-
-    Before you start work in this playbook:
-
-    1. Confirm your tenant's cloud against the **Sovereign Cloud Availability** table below
-    2. For any capability marked **Limited / Not at parity / Not available**, **do not assume it will appear in the portal** even if you have the right license
-    3. Document each gap as a control exception in your governance register and apply the **compensating controls** listed in the table
-    4. Re-verify every cell against Microsoft Learn at the time of deployment — Government-cloud parity changes by service update
 
 ---
 
@@ -86,26 +70,11 @@ This playbook covers the **portal-driven** configuration of Control 1.8 across *
 For PowerShell parity, see [powershell-setup.md](powershell-setup.md) and `docs/playbooks/_shared/powershell-baseline.md`. **Note:** Several Control 1.8 surfaces are **portal-only** by current Microsoft Learn — most notably the Defender preview opt-in, the Defender portal Cloud Apps toggle, and per-agent Copilot Studio moderation. PowerShell is used here only for prerequisites (license inventory, audit-log status, paged Unified Audit Log search) and validation (CloudAppEvents export, transcript capture, SHA-256 manifest).
 
 ---
-## Section 1 — Sovereign cloud availability
+## Section 1 — Capability availability and compensating controls
 
-| Capability (Control 1.8 surface) | Commercial | GCC | GCC High | DoD | Source / verification |
-|---|---|---|---|---|---|
-| Microsoft Defender for Cloud Apps — **AI Agent Protection** (inventory + activity logging + runtime alerts) | **Preview** | **Not at parity (verify)** | **Not at parity (verify)** | **Not at parity (verify)** | [ai-agent-protection](https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-protection); [ai-agent-inventory](https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-inventory); [protect-copilot-studio](https://learn.microsoft.com/en-us/defender-cloud-apps/ai-agent-protection) |
-| Defender for Cloud Apps — **Real-time agent protection during runtime** | **Preview** | **Not at parity (verify)** | **Not at parity (verify)** | **Not at parity (verify)** | [real-time-agent-protection-during-runtime](https://learn.microsoft.com/en-us/defender-cloud-apps/real-time-agent-protection-during-runtime) |
-| PPAC Security → **Threat Protection** — Native Defender handshake | Available (Preview gated) | **Verify** | **Verify** | **Verify** | [admin/threat-detection](https://learn.microsoft.com/en-us/power-platform/guidance/adoption/threat-detection) |
-| PPAC Security → **Threat Protection — Additional Threat Detection** (third-party / custom webhook) | **Prerelease** | **Verify** | **Verify** | **Not available (verify)** | [external-security-provider](https://learn.microsoft.com/en-us/microsoft-copilot-studio/external-security-provider); [admin/threat-detection](https://learn.microsoft.com/en-us/power-platform/guidance/adoption/threat-detection) |
-| Microsoft Entra ID **app registration + Federated Identity Credential** (workload identity for webhook auth) | GA | GA | GA | GA | [external-security-provider](https://learn.microsoft.com/en-us/microsoft-copilot-studio/external-security-provider) — verify FIC parity per cloud |
-| Copilot Studio **Prompt Shields** (UPIA + XPIA detection; tenant-wide; on by default) | GA | GA (verify) | GA (verify) | **Verify** | [security-and-governance](https://learn.microsoft.com/en-us/microsoft-copilot-studio/security-and-governance); [requirements-licensing-gcc](https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-licensing-gcc) |
-| Copilot Studio **per-agent content moderation Low / Medium / High** (Azure AI Content Safety severity 0/2/4/6) | GA | GA (verify) | GA (verify) | **Verify** | [security-content-moderation](https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio#content-moderation); [content-safety/concepts/harm-categories](https://learn.microsoft.com/en-us/azure/ai-services/content-safety/concepts/harm-categories) |
-| Copilot Studio per-agent **Application Insights — RAI ContentFiltered events** | GA (per-agent toggle) | GA (verify) | GA (verify) | **Verify** | [admin-logging-copilot-studio](https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-logging-copilot-studio) |
-| **AISPM dashboard in Microsoft Defender XDR** | **Preview / verify** | **Not at parity (verify)** | **Not at parity (verify)** | **Not at parity (verify)** | Microsoft 365 Roadmap — verify at deployment |
-| Microsoft Defender XDR **custom detection rules on `CloudAppEvents`** | GA | GA (verify) | GA (verify) | GA (verify) | [advanced-hunting-cloudappevents-table](https://learn.microsoft.com/en-us/microsoft-365/security/defender/advanced-hunting-cloudappevents-table) |
-| Microsoft Purview **Audit (Standard/Premium)** — `CopilotInteraction`, generative-AI activities | GA | GA | GA | GA (verify) | [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) |
-| Microsoft Purview **Communication Compliance** for AI agent transcripts | GA | GA (verify) | **Verify** | **Verify** | Microsoft 365 Roadmap — verify at deployment |
+> **Verification protocol:** re-verify Preview / Prerelease capability availability against Microsoft Learn at the time of deployment. Any capability marked **Preview** or **Prerelease** is **not** confirmed available — verify before relying on it.
 
-> **Verification protocol:** every cell above must be re-verified against Microsoft Learn at the time of deployment. Government-cloud parity for Preview / Prerelease capabilities changes by service update. Any cell marked **Verify** is **not** a confirmation of availability — it is a directive to confirm before relying on the capability.
-
-### Compensating controls when Defender for Cloud Apps AI Agent Protection is not at parity
+### Compensating controls when Defender for Cloud Apps AI Agent Protection is unavailable
 
 | Lost capability | Compensating control |
 |---|---|
@@ -236,7 +205,7 @@ Use the canonical role names from [`docs/reference/role-catalog.md`](../../../re
 
 ### 4a — Native Defender for Cloud Apps AI Agent Protection (two-portal handshake)
 
-**Lifecycle:** Preview (commercial). **Not at parity** in GCC / GCC High / DoD as of Q1 2026 — apply the §1 compensating controls if your tenant is in a Government cloud.
+**Lifecycle:** Preview.
 
 The native handshake requires **both** portals to be configured. Either side alone is a no-op.
 
@@ -336,7 +305,7 @@ Reference: [external-security-provider](https://learn.microsoft.com/en-us/micros
 
 ### 4c — Prompt Shields (tenant-wide; UPIA + XPIA; on by default) — verification only
 
-**Lifecycle:** GA in commercial. Verify in GCC, GCC High; verify in DoD.
+**Lifecycle:** GA.
 
 Prompt Shields runs at the model layer for every Copilot Studio agent. There is no per-agent toggle to enable it; verification confirms it is not disabled at tenant scope and that a representative agent surfaces the expected refusal behavior.
 
@@ -670,7 +639,6 @@ The following are observed deployment defects from FSI tenants. Each maps to a S
 10. **Enabling Additional Threat Detection without the §2.6 customer-connection consent gate.** Sending prompt content to a third party without TPRM, DPA, and tenant-wide admin consent may trigger reportable privacy events (SEC Reg S-P §248.30(a)(4); applicable state law). → §2.6.
 11. **Using shared or production identities for §5 validation.** Validation must be attributable; use `1.8-test-user-rtp@<tenant>` only. → §2.5, §5.1.
 12. **Asserting a specific second-level webhook latency SLA against Microsoft.** Microsoft does not publish a hard latency SLA for the Additional Threat Detection channel. Record the observed latency and set your own internal monitoring threshold. → §5.4 Assertion D.
-13. **Assuming GCC / GCC High parity for Preview / Prerelease surfaces.** Re-verify §1 at deployment for any Government-cloud tenant; apply the §1 compensating controls if a capability is not at parity.
 14. **Generative-only scope assumption.** Some Copilot Studio agents include classical (non-generative) flows; runtime protection still applies to the generative turns within those flows but does not police the classical actions. Combine with [Control 1.4](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md) at the connector layer.
 
 ---

@@ -180,20 +180,6 @@ Pre-flight establishes that the verification harness can run reliably and that a
 
 **Evidence.** `1.8-PRE-twoportal_<UTC>_defender-connector.png`, `1.8-PRE-twoportal_<UTC>_dca-ai-agents.png`, `1.8-PRE-twoportal_<UTC>_ppac-threatdetection.png`, `1.8-PRE-twoportal_<UTC>_ppac-toggle.png`.
 
-### 2.6 — Sovereign-cloud parity check
-
-**Objective.** Confirm the tenant's cloud (Commercial, GCC, GCC High, DoD) supports each capability under test, or that an exception is recorded for any unavailable capability per §5.
-
-**Steps.**
-
-1. Identify the tenant cloud from [Microsoft 365 admin center → Settings → Org settings → Organization profile](https://admin.microsoft.com/AdminPortal/Home#/Settings/OrgSettings).
-2. Cross-reference §5 cloud matrix. For any capability marked **Not available** or **Preview** in the tenant cloud, record an exception (with named exception owner, expiry date, and compensating control) per §7.
-3. Reference [Microsoft Defender for Cloud Apps cloud availability](https://learn.microsoft.com/en-us/defender-cloud-apps/editions-cloud-app-security-o365) and [Copilot Studio government clouds](https://learn.microsoft.com/microsoft-copilot-studio/requirements-licensing-gcc).
-
-**Pass criterion.** Every capability under test is either **available** in the tenant cloud OR has a signed exception in §7.
-
-**Evidence.** `1.8-PRE-cloudparity_<UTC>_org-profile.png`, `1.8-PRE-cloudparity_<UTC>_exception-log.json` (if any exceptions).
-
 ### 2.7 — Named test users and named test agents
 
 **Objective.** Every test in §4 references a specific named user and a specific named agent so that audit-row assertions are deterministic. Anonymous or "any user" tests are not acceptable evidence.
@@ -791,21 +777,9 @@ For Zone 2 and Zone 3 agents this control requires the agent-level slider be set
 
 ---
 
-## §5 — Sovereign-cloud capability matrix
+## §5 — Exception and compensating control process
 
-This matrix lists each runtime-protection capability under test and its availability across Microsoft sovereign clouds at the time of writing. **Verify each row on Microsoft Learn at execution time** — sovereign-cloud parity changes frequently. Any capability marked **Not available** in the tenant cloud requires a signed exception in §7 with a named exception owner, expiry date, and compensating control.
-
-| Capability | Commercial | GCC | GCC High | DoD | Source |
-|---|---|---|---|---|---|
-| Microsoft Defender for Cloud Apps — AI Agents inventory | GA | Verify on Learn | Verify on Learn | Verify on Learn | [DCA cloud availability](https://learn.microsoft.com/en-us/defender-cloud-apps/editions-cloud-app-security-o365) |
-| Microsoft Defender XDR — Copilot Studio alerts | GA | Verify on Learn | Verify on Learn | Verify on Learn | [Defender XDR clouds](https://learn.microsoft.com/defender-xdr/eval-overview) |
-| Copilot Studio — content moderation (Hate/Sexual/Violence/Self-Harm) | GA | Verify on Learn | Verify on Learn | Verify on Learn | [Copilot Studio government clouds](https://learn.microsoft.com/microsoft-copilot-studio/requirements-licensing-gcc) |
-| Copilot Studio — Prompt Shields (UPIA + XPIA) | GA | Verify on Learn | Verify on Learn | Verify on Learn | [Prompt Shields](https://learn.microsoft.com/azure/ai-services/content-safety/concepts/jailbreak-detection) |
-| Additional Threat Detection (third-party webhook) | Verify on Learn | Verify on Learn | Verify on Learn | Verify on Learn | [External security provider](https://learn.microsoft.com/microsoft-copilot-studio/external-security-provider) |
-| RAI App Insights telemetry export | Verify on Learn | Verify on Learn | Verify on Learn | Verify on Learn | [Copilot Studio Application Insights](https://learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-bot-framework-composer-capture-telemetry) |
-| Defender XDR Advanced Hunting — ``CloudAppEvents`` table | GA | Verify on Learn | Verify on Learn | Verify on Learn | [CloudAppEvents schema](https://learn.microsoft.com/microsoft-365/security/defender/advanced-hunting-cloudappevents-table) |
-
-**Exception path.** For any capability **Not available** in the tenant cloud:
+**Exception path.** For any capability that is **Preview** or **unavailable** in the tenant:
 
 1. Document the gap in the firm's risk register.
 2. Identify a compensating control (e.g., manual session-log review for moderation, on-prem proxy for webhook).
@@ -994,8 +968,8 @@ The attestation block is the regulator-facing artifact. It is signed (digitally 
 **Cycle ID:** 1.8-Q1-2026-EXAMPLE
 **Cycle window (UTC):** 2026-02-15T00:00:00Z to 2026-02-15T23:59:59Z
 **Tenant ID:** <tenant-guid>
-**Tenant cloud:** Commercial / GCC / GCC High / DoD
-**Sovereign variant noted:** <yes/no — if yes, list deviations from §5>
+**Tenant cloud:** Commercial (Global)
+**Preview feature exceptions noted:** <yes/no — if yes, list with compensating controls>
 
 ## Named individuals
 

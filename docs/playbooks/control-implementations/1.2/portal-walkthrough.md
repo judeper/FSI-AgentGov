@@ -63,28 +63,6 @@
     | Communication Compliance integration referenced in §17 | **Microsoft Purview Communication Compliance** (E5 Compliance) |
     | Step-up auth referenced in §17 | Entra ID P2 + Authentication Strengths feature |
 
-    For US financial services organizations operating in Microsoft 365 GCC, GCC High, or DoD clouds, see §16 for surface-by-surface availability — several governance features ship to Commercial first and follow to sovereign clouds on a 6-to-18-month delay.
-
-!!! warning "Sovereign Cloud Parity — Per-Surface Availability (Verified April 2026)"
-    Each registration surface ships at a different cadence to Microsoft 365 GCC, GCC High, and DoD. The following table shows current availability; **always re-verify against the Microsoft 365 roadmap before relying on a surface in a sovereign deployment.**
-
-    | Surface | Commercial | GCC | GCC High | DoD |
-    |---------|:----------:|:---:|:--------:|:---:|
-    | Entra App Registrations & Enterprise Apps | ✅ GA | ✅ GA | ✅ GA | ✅ GA |
-    | Conditional Access for Workload Identities | ✅ GA | ✅ GA | ✅ GA | ⚠️ Limited preview |
-    | Entra Agent ID surface | ✅ GA | 🟡 Preview | ⛔ Not yet | ⛔ Not yet |
-    | M365 Integrated Apps (Deploy/Block/Pending) | ✅ GA | ✅ GA | 🟡 Preview | ⛔ Not yet |
-    | M365 Agents blade | ✅ GA | 🟡 Preview | ⛔ Not yet | ⛔ Not yet |
-    | Agent 365 (preview) | 🟡 Preview | ⛔ Not yet | ⛔ Not yet | ⛔ Not yet |
-    | Power Platform Copilot Agents resource view | ✅ GA | ✅ GA | ✅ GA | 🟡 Preview |
-    | Power Platform Connectors approval | ✅ GA | ✅ GA | ✅ GA | 🟡 Preview |
-    | Defender for Cloud Apps — Cloud Discovery | ✅ GA | ✅ GA | ✅ GA | ✅ GA |
-    | Defender for Cloud Apps — OAuth App Governance | ✅ GA | ✅ GA | 🟡 Preview | ⛔ Not yet |
-    | Purview Audit (Premium) 10-yr retention | ✅ GA | ✅ GA | ✅ GA | ✅ GA |
-    | Lifecycle Workflows | ✅ GA | 🟡 Preview | ⛔ Not yet | ⛔ Not yet |
-
-    **For GCC High / DoD tenants where a surface is not GA**, document the gap in your registry's `sovereign_cloud_compensating_controls` field and substitute manual procedures (PowerShell-based registration capture, manual sponsor attestation, and CSV-export-based reconciliation). The control owner must record the gap in the quarterly attestation under §14 and re-verify availability each quarter.
-
 
 ---
 
@@ -164,7 +142,7 @@ Every row written to the agent registry — regardless of which of the seven sur
 | 17 | `creation_date` | Timestamp | 1, 2, 3 | Auto |
 | 18 | `last_attestation_date` | Timestamp | 1, 2, 3 | Updated by §14 quarterly cycle |
 | 19 | `attestation_status` | Current / Past-due / Suspended / Retired | 1, 2, 3 | |
-| 20 | `sovereign_cloud_compensating_controls` | Free text or N/A | 1, 2, 3 | Required if any §0.2 surface is non-GA in your cloud |
+| 20 | `compensating_controls` | Free text or N/A | 1, 2, 3 | Document any compensating controls for preview or unavailable capabilities |
 | 21 | `retirement_date` | Timestamp or NULL | 1, 2, 3 | Set when retired; never reuse a retired `agent_id` |
 | 22 | `evidence_pack_uri` | SharePoint URL to evidence folder | 1, 2, 3 | Folder must inherit retention label from §15 |
 
@@ -197,7 +175,7 @@ Before you register a single agent, complete these gates. Each gate has a portal
 ### 2.2 Gate B — Custom Security Attributes Defined
 
 1. Open `entra.microsoft.com` → **Protection → Custom security attributes**.
-2. Confirm an attribute set named `AgentRegistry` exists, with at least these attributes defined: `Zone`, `BusinessUnit`, `AgentSponsor`, `BackupOwner`, `ComplianceOfficer`, `DataClassificationMax`, `RegulatedDataInScope`, `StepUpRequired`, `SovereignCloudCompensatingControls`.
+2. Confirm an attribute set named `AgentRegistry` exists, with at least these attributes defined: `Zone`, `BusinessUnit`, `AgentSponsor`, `BackupOwner`, `ComplianceOfficer`, `DataClassificationMax`, `RegulatedDataInScope`, `StepUpRequired`, `CompensatingControls`.
 3. Confirm the **Attribute Assignment Reader** and **Attribute Assignment Administrator** roles are scoped to the App Admin team and the Compliance team respectively.
 4. If the set or any attribute is missing, create per the schema in §1 before proceeding. (PowerShell automation in `powershell-setup.md` §3.)
 
@@ -214,13 +192,6 @@ Before you register a single agent, complete these gates. Each gate has a portal
 1. Open `security.microsoft.com` → **Settings → Cloud apps → App connectors**.
 2. Confirm connectors for **Microsoft 365** and **Microsoft Entra ID** are present and Status = **Connected**.
 3. Open **Cloud apps → OAuth apps**. Confirm the page renders a list (it may be empty initially) — if it shows "Defender for Cloud Apps not licensed" you are blocked from §8 and must obtain licensing before continuing.
-
-### 2.5 Gate E — Sovereign Cloud Posture Recorded
-
-1. Determine your tenant cloud (Commercial, GCC, GCC High, DoD) from `admin.microsoft.com` → **Health → Service health** banner or from your tenant ID prefix.
-2. Cross-reference each surface in §0.2 against the table in the Sovereign Cloud Parity admonition above.
-3. For every non-GA surface in your cloud, draft the compensating-control language you will paste into field 20 of the schema. Save the drafts in your evidence pack folder as `sovereign-compensating-controls-vYYYYMM.md`.
-4. Have the Compliance Officer countersign the compensating-controls document before any agent in the affected zone is registered.
 
 ---
 ## §3 — Microsoft Entra Admin Center: App Registrations
@@ -947,27 +918,7 @@ Every narrative memo provided to an examiner repeats the hedged-language discipl
 
 ---
 
-## §16 — Sovereign Cloud Caveats (Per Surface)
-
-Re-read the parity admonition at the top of this playbook. This section is the operational playbook for each non-GA surface.
-
-### 16.1 Compensating Controls When a Surface Is Not GA
-
-| Missing surface | Compensating control |
-|-----------------|---------------------|
-| Entra Agent ID (GCC High, DoD) | Daily PowerShell sweep enumerates Copilot Studio agents from Power Platform admin endpoints + manual mirror to external registry. Custom security attributes applied to source app registration. |
-| M365 Agents blade (GCC High, DoD) | Same daily PowerShell sweep. Treat all Copilot agents as Zone 3 by default until blade is GA in your cloud and downstream supervision controls (1.10) are validated. |
-| Agent 365 (GCC, GCC High, DoD) | Surface not available; do not enroll. Re-evaluate at GA. |
-| OAuth App Governance (GCC High, DoD) | Substitute Defender for Cloud Apps Cloud Discovery + Purview Audit `Consent to application` events + manual quarterly OAuth review. Document the manual cadence in §10.1. |
-| Lifecycle Workflows (GCC High, DoD) | Substitute Logic App / Power Automate flow with HRMS feed; document feed cadence and reconciliation in sibling sponsorship playbook. |
-| Conditional Access for Workload Identities (DoD) | Substitute compensating PIM-for-groups + group-scoped Application Access Policies + tighter credential-rotation cadence. Document the substitution rationale in evidence pack with Compliance Officer sign-off. |
-
-### 16.2 Sovereign Cloud Quarterly Re-Verification
-
-Every quarter, the Compliance Officer verifies whether previously-non-GA surfaces have reached GA in the tenant's cloud. The check takes 15 minutes — open the Microsoft 365 roadmap (`microsoft.com/microsoft-365/roadmap`), filter to your cloud, and search for each surface in the §0.2 table. Document the verification in the quarterly attestation memo.
-
----
-## §17 — Downstream Control Linkage
+## §16 — Downstream Control Linkage
 
 Control 1.2 is upstream of nearly every other Pillar 1 and Pillar 3 control. Each registered agent inherits a set of obligations enforced by other controls; the registry row is the join key.
 
@@ -1011,7 +962,7 @@ Things that look reasonable in isolation and produce findings at scale. Each ant
 | 12 | "Just me" sharing on a Zone 3 agent | Sponsor can't observe; Compliance Officer can't attest | Zone 3 requires security-group sharing with attestation chain |
 | 13 | OAuth app approved by reviewer without registry row | Defender finds the app `Sanctioned-Registered` but reconciliation fails | Reviewer must pre-stage registry row before approval (§9.2 Q9) |
 | 14 | Quarterly attestation done by sending the same template to all sponsors via email | No tracker, no audit evidence of completion, no past-due escalation | Use SharePoint AgentAttestationTracker with auto-escalation per §14.3 |
-| 15 | Compensating controls in sovereign cloud not reviewed quarterly | Surface goes GA, manual workaround continues, double-track creates drift | §16.2 quarterly re-verification |
+| 15 | Compensating controls for preview features not reviewed quarterly | Feature goes GA, manual workaround continues, double-track creates drift | Quarterly re-verification of compensating controls |
 | 16 | Service principals enabled with `Assignment required = No` for daemon flows | Doesn't break daemon flows, but obscures intent and surfaces apps to interactive users | Set `Assignment required = Yes` per §4.1 even for daemon SPs |
 | 17 | Power Platform Default environment used for any Zone 2/3 agent | Default environment lacks DLP scoping; users can mint connectors freely | Force into Production environment; lock down Default per Control 1.4 |
 | 18 | Ignoring the `Pending requests` queue in M365 Integrated Apps | Requests expire silently; users assume they were rejected and move to shadow IT | Reviewer SLA: process every request within 5 business days |
@@ -1024,7 +975,7 @@ Things that look reasonable in isolation and produce findings at scale. Each ant
 
 After completing this walkthrough, the Verification & Testing playbook (`./verification-testing.md`) is the next stop. Confirm at minimum:
 
-1. Every of the seven surfaces in §0.2 is reachable in your tenant cloud, or has a documented sovereign-cloud compensating control.
+1. Every of the seven surfaces in §0.2 is reachable in your tenant, or has a documented compensating control for any unavailable preview surfaces.
 2. The 22-field schema in §1 is implemented and queryable.
 3. Pre-flight gates A–E in §2 all pass.
 4. At least one Zone 1, one Zone 2, and one Zone 3 agent are registered end-to-end through every relevant section of this playbook.

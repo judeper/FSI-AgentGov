@@ -18,7 +18,7 @@
 | Pillar | 1 — Security |
 | Playbook | PowerShell setup (companion to portal walkthrough, verification, troubleshooting) |
 | PowerShell editions | PS 7.4+ for Graph + Exchange; **PS 5.1 Desktop required** for `Microsoft.PowerApps.Administration.PowerShell` mutation cmdlets |
-| Sovereign clouds | Commercial · GCC · GCC High · DoD (Adaptive Protection = `NotApplicable` in any US Gov cloud — see §10) |
+| Cloud | Commercial (Global) |
 | Companion playbooks | [portal-walkthrough](portal-walkthrough.md) · [verification-testing](verification-testing.md) · [troubleshooting](troubleshooting.md) |
 | Related controls | [1.6 DSPM for AI](../1.6/portal-walkthrough.md) · [1.10 Communication Compliance](../1.10/portal-walkthrough.md) · [1.12 IRM](../1.12/portal-walkthrough.md) · [1.13 SITs/EDM](../1.13/portal-walkthrough.md) · [1.15 DKE/encryption](../1.15/portal-walkthrough.md) · [2.12 Supervision](../2.12/portal-walkthrough.md) · [3.4 Incident reporting](../3.4/portal-walkthrough.md) · [3.9 Sentinel forwarding](../3.9/portal-walkthrough.md) |
 | Baseline | [`_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) |
@@ -73,15 +73,14 @@ function Assert-FsiDesktopPowerShell {
 
 ---
 
-## §2 — Sovereign-aware bootstrap (`Initialize-FsiDlpSession`)
+## §2 — Authentication bootstrap (`Initialize-FsiDlpSession`)
 
-Endpoints follow the [baseline §3 sovereign cloud table](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod). The Connect-IPPSSession URI differs between GCC, GCC High, and DoD and must be passed explicitly — there is no auto-discovery.
+Connect to the commercial endpoint using the default parameters:
 
 ```powershell
 function Initialize-FsiDlpSession {
     [CmdletBinding()]
     param(
-        [ValidateSet('Commercial','GCC','GCCHigh','DoD')]
         [string]$Cloud = 'Commercial',
 
         [Parameter(Mandatory)] [string]$TenantId,
@@ -92,27 +91,22 @@ function Initialize-FsiDlpSession {
         [string]$CertificateThumbprint
     )
 
-    $map = @{
-        Commercial = @{ Ipps = 'https://ps.compliance.protection.outlook.com/powershell-liveid/'; Graph = 'Global';      PowerApps = 'prod'    }
-        GCC        = @{ Ipps = 'https://ps.compliance.protection.outlook.com/powershell-liveid/'; Graph = 'USGov';       PowerApps = 'usgov'   }
-        GCCHigh    = @{ Ipps = 'https://ps.compliance.protection.office365.us/powershell-liveid/'; Graph = 'USGovDoD';   PowerApps = 'usgovhigh' }
-        DoD        = @{ Ipps = 'https://l5.ps.compliance.protection.office365.us/powershell-liveid/'; Graph = 'USGovDoD'; PowerApps = 'dod'    }
-    }
-    $cfg = $map[$Cloud]
+    $ippsCfg = 'https://ps.compliance.protection.outlook.com/powershell-liveid/'
+
 
     # Purview / Exchange (IPPS)
     if ($AppId -and $CertificateThumbprint) {
-        Connect-IPPSSession -ConnectionUri $cfg.Ipps -AppId $AppId -CertificateThumbprint $CertificateThumbprint -Organization "$TenantId" -ShowBanner:$false
+        Connect-IPPSSession -ConnectionUri $ippsCfg -AppId $AppId -CertificateThumbprint $CertificateThumbprint -Organization "$TenantId" -ShowBanner:$false
     } else {
-        Connect-IPPSSession -ConnectionUri $cfg.Ipps -UserPrincipalName $UserPrincipalName -ShowBanner:$false
+        Connect-IPPSSession -ConnectionUri $ippsCfg -UserPrincipalName $UserPrincipalName -ShowBanner:$false
     }
 
     # Graph
-    Connect-MgGraph -TenantId $TenantId -Environment $cfg.Graph -Scopes 'InformationProtectionPolicy.Read.All','Policy.Read.All' -NoWelcome
+    Connect-MgGraph -TenantId $TenantId -Environment 'Global' -Scopes 'InformationProtectionPolicy.Read.All','Policy.Read.All' -NoWelcome
 
     # Power Platform (only on PS 5.1 Desktop)
     if ($PSVersionTable.PSEdition -eq 'Desktop') {
-        Add-PowerAppsAccount -Endpoint $cfg.PowerApps | Out-Null
+        Add-PowerAppsAccount | Out-Null
     } else {
         Write-Warning 'Skipping Add-PowerAppsAccount: not on PS 5.1 Desktop. Power Platform DLP helpers will return Status=Pending.'
     }
@@ -121,8 +115,8 @@ function Initialize-FsiDlpSession {
         Status      = 'Clean'
         Cloud       = $Cloud
         TenantId    = $TenantId
-        IppsUri     = $cfg.Ipps
-        GraphEnv    = $cfg.Graph
+        IppsUri     = $ippsCfg
+        GraphEnv    = 'Global'
         PowerAppsEp = $cfg.PowerApps
         Timestamp   = (Get-Date).ToUniversalTime()
     }
@@ -411,20 +405,14 @@ function Get-FsiPowerPlatformDlpInventory {
 
 ## §10 — Adaptive Protection (`Get-FsiAdaptiveProtectionStatus`)
 
-Adaptive Protection / Insider Risk-driven DLP is **not available in any US Gov cloud (GCC, GCC High, DoD)**. The helper must return `Status='NotApplicable'` and surface the sovereign rationale link rather than appearing as a remediation gap on US Gov tenants.
+Adaptive Protection / Insider Risk-driven DLP status check:
 
 ```powershell
 function Get-FsiAdaptiveProtectionStatus {
     [CmdletBinding()]
-    param([Parameter(Mandatory)][ValidateSet('Commercial','GCC','GCCHigh','DoD')][string]$Cloud)
+    param()
 
-    if ($Cloud -in 'GCC','GCCHigh','DoD') {
-        return [pscustomobject]@{
-            Status        = 'NotApplicable'
-            Cloud         = $Cloud
-            Reason        = 'Adaptive Protection / Insider Risk Management is not available in US Gov clouds.'
-            Reference     = '../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md#sovereign-cloud-parity'
-        }
+
     }
 
     try {
@@ -512,7 +500,7 @@ For the Sentinel forwarding pipeline (M365 connector, custom log table, KQL dete
 function Invoke-FsiControl15Audit {
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]
     param(
-        [Parameter(Mandatory)] [ValidateSet('Commercial','GCC','GCCHigh','DoD')] [string]$Cloud,
+        [string]$Cloud = 'Commercial',
         [Parameter(Mandatory)] [string]$TenantId,
         [Parameter(Mandatory)] [string]$UserPrincipalName,
         [string]$EvidencePath = (Join-Path $PWD ('control-15-' + (Get-Date -Format 'yyyyMMdd-HHmmss')))
@@ -568,7 +556,6 @@ function Invoke-FsiControl15Audit {
 | Combining SIT + sensitivity label conditions in one Copilot rule | Rule will not save, or will save with silent precedence | Two rules, same policy (§5) |
 | Reporting Power Platform DLP labels as `Confidential` / `General` only | Inverted vs the Maker-portal UI; reviewers misread evidence | Emit both via `ConvertTo-FsiUiLabel` (§9) |
 | Calling `Get-MgBetaInformationProtectionSensitivityPolicyLabel` | Cmdlet does not exist | Use `Get-MgBetaSecurityInformationProtectionSensitivityLabel` (§7) |
-| Treating Adaptive Protection gap as a US Gov anomaly | Feature not available in GCC / GCC High / DoD | Helper returns `NotApplicable` (§10) |
 | Using `-Force` on `Install-Module` in production | Silent module upgrade breaks reproducibility | `Install-Module -RequiredVersion` per baseline §1 |
 | Treating `Mode = 'Disable'` policies as active | They emit no enforcement | Filter on `Mode -eq 'Enable'` (§4) |
 | Running Power Apps Admin cmdlets from `pwsh` 7.x | Cmdlets are Desktop-only; silently no-op or error | `Assert-FsiDesktopPowerShell` (§1) |

@@ -71,7 +71,7 @@ Runtime-protection remediation often involves toggling Defender or PPAC settings
 9. **Unified Audit Log (UAL) paged export** — `Search-UnifiedAuditLog -RecordType CopilotInteraction -SessionId <guid> -SessionCommand ReturnLargeSet` for the failure window. **Do not use `-RecordType CopilotStudio`** (that record type does not exist) and **do not use a single-shot query** without `-SessionId` (truncates at 5,000 rows). See §6.7.
 10. **RAI:ContentFiltered / JailbreakDetected export** — KQL against the per-agent App Insights resource for the failure window. Required for any incident involving content moderation, Prompt Shields, or jailbreak claims.
 11. **Role-group snapshot** — current membership of: Microsoft Defender XDR System Administrator, Power Platform Admin, Application Administrator, AI Security Operator, and any custom AISPM viewer roles. Captures who could have changed the toggle.
-12. **Sovereign cloud confirmation** — explicit record of the cloud (Commercial / GCC / GCC High / DoD), because Defender for Cloud Apps AI Agent Protection has Commercial-only parity as of Q1 2026 (see §4). The cloud determines which evidence sources are available.
+12. **Defender for Cloud Apps AI Agent Protection** — confirm preview opt-in is complete and the tenant is eligible (verify current preview status).
 13. **SHA-256 manifest** — produce a manifest file listing every evidence file captured above with its SHA-256. Sign the manifest (or store in a WORM location) so its integrity can be demonstrated to a regulator. This is the chain-of-custody anchor; without it, every other artifact is challengeable.
 
 > **Defender XDR / CloudAppEvents retention disclaimer.** Defender XDR alerts and the `CloudAppEvents` Advanced Hunting table are **operational telemetry**, retained for 30 days (default) in Advanced Hunting. They are **not** WORM, **not** a books-and-records source under SEC Rule 17a-4, and **not** sufficient on their own to satisfy FINRA Rule 4511. Cross-link Control 1.7 (Comprehensive Audit Logging and Compliance) for the audit trail, Control 1.10 (Communication Compliance Monitoring) for supervisory review, and Control 1.9 (Data Retention and Deletion Policies) for retention enforcement. If your incident involves a books-and-records claim, capture the WORM-side evidence in addition to the Defender-side telemetry.
@@ -103,7 +103,7 @@ Run this checklist before paging L2 or L3. Items failed → capture in the escal
 - [ ] **Content moderation level** captured per agent and compared to the Zone policy minimum.
 - [ ] **Per-agent App Insights** binding verified for every Zone 2/3 agent.
 - [ ] **AISPM latency** noted (last-refresh timestamp captured; 15-min delay accounted for).
-- [ ] **Sovereign cloud** explicitly recorded; §4 fallbacks reviewed if not Commercial.
+- [ ] **Capability availability** verified; compensating controls documented for any unavailable preview features.
 - [ ] **UAL paged export** completed with `-SessionId` + `-SessionCommand ReturnLargeSet`; row count recorded; truncation at 5K confirmed not applicable.
 - [ ] **Compensating control** in place if runtime protection cannot be restored within SLA (§1.4).
 - [ ] **Customer-impact analysis** completed and recorded (count of impacted customers, NPI exposure assessment, customer-facing agent list).
@@ -136,7 +136,7 @@ Use this table as a triage entry point. Each row is a recurring failure mode in 
 |---|---|---|---|---|---|
 | 1 | AISPM dashboard shows agents but no alerts ever fire; Defender XDR shows AI Agent Protection On but PPAC shows AI Agent Protection Off (or vice versa) | **Two-portal handshake broken** — the toggle exists in both portals and *both* must be On for native protection to evaluate. PPAC On + Defender Off = no Defender evaluation; Defender On + PPAC Off = Defender ignores the tenant's agents. | Open both portals, confirm both toggles On. Capture screenshots for evidence (§1.3 item 1 and 2). Trigger a known-bad prompt against a test agent and confirm `CloudAppEvents` in Defender within 15 min. | Power Platform Admin + Microsoft Defender XDR System Administrator (joint) | §6.1 |
 | 2 | Defender XDR portal shows banner "Microsoft 365 App Connector error" or "not connected"; AISPM agent inventory empty or stale | **M365 App Connector authentication failure** — connector uses tenant-level OAuth; admin consent expired, conditional access blocked the service principal, or tenant-restriction policy is filtering the connector traffic. | Defender XDR → Settings → Cloud apps → App Connectors → Microsoft 365 → Reconnect. If conditional access is blocking, exclude the connector service principal. Validate connector last-sync timestamp returns to <60 min. | Microsoft Defender XDR System Administrator | §6.2 |
-| 3 | Defender XDR Settings → Cloud apps does not show **AI Agent Protection** anywhere; documentation says it should be there | **Preview opt-in not completed** OR tenant is not eligible (sovereign cloud — see §4) OR Defender for Cloud Apps license is missing. | Confirm tenant in Commercial cloud (§4); confirm Defender for Cloud Apps license assigned; opt in to the AI Agent Protection preview from the Defender XDR Settings → Cloud apps page. Allow up to 60 min for UI to surface. | Microsoft Defender XDR System Administrator | §6.3 |
+| 3 | Defender XDR Settings → Cloud apps does not show **AI Agent Protection** anywhere; documentation says it should be there | **Preview opt-in not completed** OR Defender for Cloud Apps license is missing. | Confirm Defender for Cloud Apps license assigned; opt in to the AI Agent Protection preview from the Defender XDR Settings → Cloud apps page. Allow up to 60 min for UI to surface. | Microsoft Defender XDR System Administrator | |
 | 4 | AI Agent Protection toggle is greyed out in PPAC; tooltip says "Managed Environments required" | **Managed Environments not enabled** for the environment containing the agent. AI Agent Protection enforcement requires the environment to be a Managed Environment. | PPAC → Environments → select environment → Edit Managed Environments → Enable. Confirm license capacity for Managed Environments. Re-check the AI Agent Protection toggle. | Power Platform Admin | §6.4 |
 | 5 | Webhook provider returns 5xx for >1 min; agent continues responding to users normally; no `block` events appear | **errorBehavior=Allow** is configured (anti-pattern A4 below). On webhook failure or timeout, the agent allows the response. For Zone 2/3 this is a policy violation. | Switch errorBehavior to **Block** immediately. PPAC → Security → AI security posture management → Additional Threat Detection → edit. Audit the failure window in UAL and `CloudAppEvents` for any responses returned during the outage that would have been blocked. | Power Platform Admin (config) + AI Governance Lead (policy) | §6.4, §6.5 |
 | 6 | Webhook provider logs show 401 Unauthorized on every Copilot Studio callout; agent responses still flow (or block, depending on errorBehavior) | **FIC binding wrong** — the federated identity credential subject, issuer, or audience does not match what Copilot Studio sends. The webhook is invoked but cannot validate the token, so the provider returns 401. Copilot Studio treats the 401 as a provider failure and falls back to errorBehavior. | Compare the FIC subject/issuer/audience to the values documented in `learn.microsoft.com/microsoft-copilot-studio/external-security-provider`. Re-bind the FIC. Validate with a test prompt; confirm webhook returns 200 (allow) or 200 (block) — not 401. | Application Administrator + Power Platform Admin | §6.5 |
@@ -161,39 +161,14 @@ These ten anti-patterns produce silent or under-detected failures. Each is obser
 4. **Setting `errorBehavior=Allow` on Zone 2/3 agents.** When the webhook times out (1-second hard limit) or the provider returns 5xx, Allow lets the response through unprotected. For Zone 2/3 the only acceptable value is Block. Mitigation: enforce Block via tenant policy and audit every agent quarterly.
 5. **Relying on AISPM dashboard freshness for live incident triage.** AISPM has up to 15-minute latency. During an active incident, query Defender XDR Advanced Hunting (`CloudAppEvents`) and the per-agent App Insights resource directly. Mitigation: train SOC on direct KQL, not dashboard polling.
 6. **Setting content moderation to Low on a Zone 2/3 agent.** Low allows substantial hate/sexual/violence content. Zone 2 minimum is Medium; Zone 3 is typically High. Mitigation: encode the per-zone minimums in a tenant-wide DLP-style policy and audit.
-7. **Configuring the FIC binding from documentation written for a different cloud.** Audience values differ between Commercial / GCC / GCC High / DoD. A FIC bound with the Commercial audience in a GCC High tenant produces 401s. Mitigation: cite the Learn URL for *your specific cloud* in the FIC change ticket; cross-check audience against `external-security-provider` Learn page.
+7. **Configuring the FIC binding.** Ensure the audience values match your tenant configuration. Mitigation: verify the audience values from the Microsoft Learn `external-security-provider` page and cite the Learn URL in the FIC change ticket.
 8. **Querying `PowerPlatformAdminActivity` with `Operation` instead of `EventOriginalType`.** Returns empty silently. Mitigation: code-review every KQL query that touches this table; reject reviews that use `Operation`.
 9. **Querying UAL with `-RecordType CopilotStudio` (does not exist) or single-shot without `-SessionId`.** Both return incomplete data silently. The first returns nothing; the second hard-caps at 5,000 rows. Mitigation: every UAL Copilot query must use `-RecordType CopilotInteraction` AND `-SessionId` + `-SessionCommand ReturnLargeSet`. Add this to the SOC runbook template.
 10. **Treating a successful `block` event as proof the threat was external.** Indirect prompt-injection often originates inside the tenant — in a SharePoint document, an internal chat message, or a connector-fetched data source. A `block` confirms the response layer worked but does not absolve the *grounding source* — refer the source to the relevant upstream-governance control (for example, Control 1.5 for DLP / labels, Control 1.10 for communication monitoring, or 4.x for SharePoint governance).
 
 ---
 
-## 4. Sovereign cloud variants
-
-Defender for Cloud Apps **AI Agent Protection** is a Microsoft Defender preview that is **Commercial-only** as of Q1 2026. Other Control 1.8 surfaces have varying parity. Confirm your cloud (§1.3 item 12) before applying any guidance below.
-
-| Capability | Commercial | GCC | GCC High | DoD | Notes |
-|---|---|---|---|---|---|
-| Defender for Cloud Apps **AI Agent Protection** (native) | ✅ Available (preview) | ❌ Not available | ❌ Not available | ❌ Not available | Use Additional Threat Detection webhook + AISPM + per-agent App Insights as the primary defense in non-Commercial clouds. |
-| **Additional Threat Detection** webhook (Copilot Studio) | ✅ | ✅ | ✅ (with sovereign provider) | ✅ (with sovereign provider) | The webhook provider must reside in a compliant cloud boundary. For GCC High / DoD, validate the provider's authorization (e.g., FedRAMP High, DoD IL5). |
-| **Prompt Shields** (Azure Content Safety) | ✅ | ✅ | Limited regional availability | Limited | Confirm the Content Safety region binding for your tenant; some regions are not available in GCC High / DoD. |
-| **Content moderation** Low/Med/High | ✅ | ✅ | ✅ | ✅ | Same enforcement model across clouds. |
-| **AISPM dashboard** | ✅ | Limited (telemetry partial) | ❌ Not surfaced | ❌ Not surfaced | In GCC High / DoD, the equivalent visibility comes from Defender XDR's hunting tables and per-agent App Insights, not an AISPM-branded dashboard. |
-| **Per-agent App Insights** | ✅ | ✅ | ✅ (Azure Government) | ✅ (Azure Government Secret/Top Secret as applicable) | Use the corresponding sovereign Azure Monitor instance. Connection strings differ by cloud. |
-| Admin portal URL | `admin.powerplatform.microsoft.com` | `gcc.admin.powerplatform.microsoft.us` | `admin.powerplatform.appsplatform.us` | `admin.apps.mil` | Bookmark the correct URL for your cloud. |
-| Defender portal URL | `security.microsoft.com` | `security.microsoft.com` (GCC tenant) | `security.microsoft.us` | `security.apps.mil` | |
-| Copilot Studio licensing reference | Standard licensing | See Learn `requirements-licensing-gcc` | See Learn `requirements-licensing-gcc` (GCC High section) | See Learn `requirements-licensing-gcc` (DoD section) | Some preview features are excluded from sovereign clouds — confirm before designing controls around them. |
-
-**Fallback patterns by cloud:**
-
-- **GCC tenants** — When AI Agent Protection (Defender preview) is unavailable, the primary runtime defense is Additional Threat Detection webhook with errorBehavior=Block and a sovereign-cloud-resident provider. Compensate the missing AISPM dashboard with scheduled KQL against per-agent App Insights and `PowerPlatformAdminActivity`.
-- **GCC High tenants** — Same as GCC, plus: validate the Content Safety region; if Prompt Shields are unavailable in your region, raise content moderation to High and harden grounding sources (no public web search; vetted SharePoint only). Document the compensating control in the agent's design record.
-- **DoD tenants** — Same as GCC High, plus: every external dependency (webhook provider, Azure Monitor, Content Safety) must be in DoD IL-appropriate boundaries. Confirm the Copilot Studio service availability for your specific DoD impact level — some Copilot Studio features (especially generative actions) are not available in all DoD environments.
-
-> **Sovereign cloud anti-pattern.** Reading Commercial-cloud Learn documentation and assuming the same UI / capability exists in GCC High. The toggles, URLs, and feature parity differ. Always cross-check with `requirements-licensing-gcc` and the cloud-specific portal URLs above.
-
----
-## 5. Escalation matrix (L1 → L4)
+## 4. Escalation matrix (L1 → L4)
 
 This matrix is **runtime-protection-specific**. It distinguishes platform issues (Microsoft service degradation), configuration issues (toggles, FIC, errorBehavior), and threat events (active or attempted bypass). Do not use a generic SOC matrix here — the criteria for escalating an AI runtime issue differ from a classic identity or endpoint incident.
 
@@ -222,7 +197,6 @@ This matrix is **runtime-protection-specific**. It distinguishes platform issues
 **L3 → L4 (Microsoft Support) specific triggers:**
 
 - Platform component is suspected at fault, not tenant configuration.
-- Sovereign cloud feature parity question (e.g., is AI Agent Protection now available in GCC?).
 - Microsoft-managed component (M365 App Connector, AISPM ingestion, Defender preview) is degraded with no admin remediation path.
 
 > **Distinguish platform vs. config vs. threat.** Before escalating to Microsoft Support, eliminate configuration. Microsoft Support will close a case as "not a Microsoft fault" if you cannot show that toggles, FIC, errorBehavior, App Insights binding, and licensing are all correct. Use §6 deep-dives to confirm before paying the support engagement.
@@ -306,7 +280,7 @@ Get-MgAuditLogSignIn -Filter "appId eq '$($sp.AppId)' and createdDateTime ge $(G
 - `learn.microsoft.com/defender-cloud-apps/ai-agent-inventory`
 - `learn.microsoft.com/defender-cloud-apps/ai-agent-protection`
 
-**Fix.** Opt in to the preview. Allow up to 60 min for the UI to surface the AI Agent Protection node. If the tenant is sovereign (GCC / GCC High / DoD), the preview is **not available** — see §4 and use the fallback pattern.
+**Fix.** Opt in to the preview. Allow up to 60 min for the UI to surface the AI Agent Protection node.
 
 ### 6.4 Managed Environments not enabled / errorBehavior misconfigured
 
@@ -471,7 +445,7 @@ File a Microsoft Support case when **all** of the following are true:
 3. The fault affects production traffic (not a one-off test) OR a regulated agent (Zone 2/3).
 4. CISO or AI Governance Lead has approved the engagement (because Premier/Unified tickets carry a cost and a vendor-disclosure consideration).
 
-Do **not** file a Microsoft case for: a single user complaint with no reproducer; a fault that resolves on retry; a documentation/UI inconsistency; a sovereign-cloud feature-gap question (raise that to your account team, not support).
+Do **not** file a Microsoft case for: a single user complaint with no reproducer; a fault that resolves on retry; a documentation/UI inconsistency.
 
 ### 7.2 Required evidence in the case payload
 
@@ -480,7 +454,6 @@ Attach the full §1.3 evidence package, plus:
 - **Reproducer.** A minimal test agent and prompt that reproduces the fault, with the expected vs. actual behavior described.
 - **Screen recording.** A short recording (≤2 min) of the reproduction in both portals, with timestamps.
 - **Tenant ID and environment ID.** Both required.
-- **Sovereign cloud explicitly named.** Commercial / GCC / GCC High / DoD.
 - **Configuration baseline diff.** A before/after of any recent config changes (last 14 days) that touched any of: AI Agent Protection toggle, Additional Threat Detection, errorBehavior, FIC binding, App Insights binding, content moderation level, Managed Environments, conditional access affecting the M365 Connector service principal.
 - **Defender hunting query** that demonstrates the fault — typically a `CloudAppEvents` query showing missing or unexpected events.
 - **App Insights query** for the affected agent showing missing or unexpected RAI events.
@@ -495,7 +468,6 @@ Subject: Copilot Studio Control 1.8 (Runtime Protection) — <symptom> — Tenan
 
 Tenant ID: <guid>
 Environment ID: <guid>
-Sovereign cloud: Commercial | GCC | GCC High | DoD
 Severity (per FSI Control 1.8 §1.1): SEV-1 | SEV-2 | SEV-3
 Regulated workload: yes | no  (Zone <1|2|3>; regulations: <FINRA / SEC / NY DFS / OCC / CFTC>)
 Customer-facing: yes | no

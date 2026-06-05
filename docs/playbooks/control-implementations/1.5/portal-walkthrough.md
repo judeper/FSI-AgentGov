@@ -4,7 +4,7 @@
 **Pillar:** 1 — Security & Identity
 **Last UI Verified:** May 2026 (Microsoft Purview portal `purview.microsoft.com`, Power Platform Admin Center `admin.powerplatform.microsoft.com`, Microsoft 365 admin center)
 **Audience:** M365 administrator at a US financial services firm (bank, broker-dealer, insurance carrier, investment adviser, credit union)
-**Cloud coverage:** Commercial · GCC · GCC High · DoD (sovereign cloud parity table in §2)
+**Cloud coverage:** Commercial (Global)
 **Estimated time:** 8–14 hours initial buildout (covers all 13 DLP surfaces); 2–3 hours per surface refresh thereafter; pilot validation windows excluded
 
 > This playbook operationalizes [Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md). It is written to **support compliance with** FINRA Rules 3110/4511, FINRA RN 24-09 (Generative AI / LLM Guidance), SEC Reg S-P (17 CFR 248, 2024 amendments), SEC Rule 17a-4, GLBA 501(b), SOX 302/404, NYDFS 23 NYCRR 500.11/500.15/500.16, OCC Bulletin 2026-13 (formerly OCC 2011-12), FFIEC, PCI DSS 4.0 (where card data flows), and state breach-notification laws (NY GBL 899-aa, MA 201 CMR 17, CCPA/CPRA). It does **not**, by itself, satisfy any single regulatory obligation. Implementation requires sustained operator discipline; organizations should verify configuration against current regulatory expectations and their own legal counsel's interpretation.
@@ -101,26 +101,6 @@ Use canonical short names from `docs/reference/role-catalog.md`. Avoid Entra Glo
 | SIEM ingestion | Sentinel contributor (see [Control 3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md)) |
 
 > **Least privilege.** The Microsoft 365 Copilot and Copilot Chat DLP location does **not support administrative units** — a Restricted Administrative Unit-scoped admin cannot create or edit a policy that includes this location. Use a tenant-scoped role.
-
----
-
-## §2 — Sovereign cloud portal endpoints and parity
-
-| Cloud | Purview portal | Power Platform Admin Center | Defender for Cloud Apps | Notes |
-|---|---|---|---|---|
-| Commercial | `https://purview.microsoft.com` | `https://admin.powerplatform.microsoft.com` | `https://security.microsoft.com` | Reference cloud for this walkthrough |
-| GCC | `https://compliance.microsoft.com` (transitioning to `purview.microsoft.com`) | `https://admin.powerplatform.microsoft.us` | `https://security.microsoft.com` (GCC tenant) | Verify rollout per workload |
-| GCC High | `https://purview.microsoft.us` | `https://admin.powerplatform.microsoft.us` | `https://security.microsoft.us` | **IRM and Adaptive Protection NOT available** |
-| DoD | `https://purview.microsoft.us` (DoD) | `https://admin.powerplatform.microsoft.us` | `https://security.apps.mil` | **IRM and Adaptive Protection NOT available** |
-
-!!! danger "Sovereign cloud reality — IRM / Adaptive Protection in US Government clouds"
-    Per Microsoft Learn, **Insider Risk Management — and therefore Adaptive Protection — is not available in any US Government cloud (GCC, GCC High, DoD)** as of April 2026. For Zone 3 deployments in GCC / GCC High / DoD:
-
-    1. Use **static role-based DLP rules** keyed off Entra group membership (e.g., a `FSI-Privileged-Brokers` group) rather than IRM-derived risk tiers.
-    2. Document the gap as a **compensating control** in your sovereign-cloud exception register.
-    3. Strengthen supervisory review under [Control 2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) to compensate for the absence of risk-adaptive enforcement.
-
-    Reference: [Adaptive Protection in Microsoft Purview (Learn)](https://learn.microsoft.com/en-us/purview/insider-risk-management-adaptive-protection).
 
 ---
 
@@ -348,7 +328,7 @@ The Standard DLP templates (Financial, Privacy, etc.) **do not surface** the *Mi
 
 ### 9.1 Create or edit a data policy
 
-1. Sign in to PPAC (`admin.powerplatform.microsoft.com` — sovereign URL per §2).
+1. Sign in to PPAC (`admin.powerplatform.microsoft.com`).
 2. **Policies → Data policies**.
 3. Select an existing policy or **+ New policy**.
 4. Name and assign **environments** per zone (one policy per zone is the recommended pattern).
@@ -440,7 +420,7 @@ These two surfaces address the FSI-critical exfiltration path of users pasting c
 
 For sanctioned non-Microsoft SaaS (ServiceNow, Workday, Salesforce, Box, Dropbox Business, etc.), Purview DLP does not have native locations. Use **Defender for Cloud Apps file policies**:
 
-1. Sign in to the Defender portal (`security.microsoft.com` Commercial; sovereign per §2).
+1. Sign in to the Defender portal (`security.microsoft.com`).
 2. **Cloud Apps → Policies → Policy management → + Create policy → File policy**.
 3. Name: `FSI-DfCA-File-DLP-{AppName}`.
 4. **Apps:** select the connected app (must be App-Connector-onboarded first).
@@ -483,8 +463,6 @@ For pre-existing on-prem repositories (file shares, on-prem SharePoint Server) w
 
 Adaptive Protection lets DLP rule strength scale with a user's IRM-derived risk tier (low / moderate / elevated). It is the recommended pattern for risk-tiered enforcement on Zone 2 / Zone 3 populations **in Commercial**.
 
-!!! warning "Sovereign caveat — repeat from §2"
-    **Not available in GCC, GCC High, or DoD.** In those clouds, document the gap as a compensating-control note and rely on static role-based DLP rules keyed off Entra group membership. Source: [Adaptive Protection in Microsoft Purview (Learn)](https://learn.microsoft.com/en-us/purview/insider-risk-management-adaptive-protection).
 
 ### 14.1 Prerequisites
 
@@ -565,7 +543,7 @@ DLP telemetry feeds the **determination** that starts both clocks; it does not, 
 | 12 Defender for Cloud Apps file policies | Audit on connected apps | Quarantine on label match | Quarantine + remove external collaborators; notify owner |
 | 13a Fabric / Power BI | Optional | Notify dataset owner on SIT match | Block export; notify owner; alert |
 | 13b On-prem scanner | Optional | Discovery mode | Discovery + enforce labels and protection |
-| Adaptive Protection | n/a | Optional (Commercial) | **Required (Commercial)**; static role-based fallback (GCC/GCC High/DoD) |
+| Adaptive Protection | n/a | Optional | **Required** (Zone 3) |
 | Sensitivity labels | Optional labeling; publish taxonomy | Recommended labeling on shared content; quarterly oversharing review | Mandatory labeling; auto-labeling on SPO/OneDrive/Exchange; monthly oversharing review; DKE for NYDFS 500.15 scenarios |
 
 **Zone 3 must complete a documented simulation pass before "Turn it on right away" for every surface.**
@@ -596,7 +574,6 @@ Control-1.5_{TenantId}_{Cloud}_{Surface#}_{ArtifactType}_{YYYYMMDD-HHmm-UTC}.{ex
 | Fabric / Power BI DLP policy export | Purview → DLP | JSON | On change |
 | Information Protection scanner inventory | Scanner console / Purview | CSV | Monthly |
 | Adaptive Protection threshold + policy snapshot (Commercial) | IRM | JSON | On change |
-| Sovereign-cloud exception register (GCC/GCC High/DoD parity gaps; IRM/AP absence) | Internal tracker | JSON | Quarterly review |
 | Override-with-justification telemetry sample | Purview Audit + Sentinel | CSV | Weekly |
 | Reg S-P 2024 incident-response readiness attestation | Internal IR program | PDF | Quarterly |
 
@@ -624,7 +601,7 @@ Use this as the §15 sign-off checklist before any Zone 3 enforcement decision.
 14. [ ] **Auto-labeling**, where used, is scoped to SPO / OneDrive / Exchange only (no "AI interactions" location exists).
 15. [ ] **Conditional Access** session controls evaluated for label-restricted access (e.g., block download of Highly Confidential from unmanaged devices).
 16. [ ] **Policy tips** with required justification on user override are configured; override telemetry routes to Purview Audit and Sentinel; supervisors review per [Control 2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md).
-17. [ ] **Adaptive Protection** — In Commercial: IRM baseline complete; condition added to in-scope DLP rules. In GCC/GCC High/DoD: gap recorded as compensating-control note; static role-based rules in place.
+17. [ ] **Adaptive Protection** — IRM baseline complete; condition added to in-scope DLP rules.
 18. [ ] **Audit tier** — Standard vs PAYG distinction documented for `AIAppInteraction` records ([Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md)); SIEM ingestion via [Control 3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) verified.
 19. [ ] **Reg S-P 2024 dual clocks** — Incident-response runbook reflects the 30-day customer notification clock and the 72-hour service-provider notification clock; alert routing tested end-to-end.
 20. [ ] **Simulation pass** documented for every Zone 3 surface before flipping to **Turn it on right away**.
@@ -645,7 +622,6 @@ Use this as the §15 sign-off checklist before any Zone 3 enforcement decision.
 | Edge config policy missing for Chrome/Firefox users | §10 unmanaged-AI events missing for those users | Push Purview browser extension via Intune |
 | Auto-labeling expected to label Copilot prompts | No labels appear on prompts | Confirm label-based DLP relies on labels **already present** on SPO/OneDrive/Exchange items at prompt time |
 | Container label assumed to label files inside | Files inside the Group/Team/Site remain unlabeled | Apply file/email label policy or auto-labeling separately |
-| Treating Adaptive Protection as available in GCC High/DoD | Adaptive Protection condition not effective | Use static role-based rules; document compensating-control note |
 | Override telemetry not flowing to Sentinel | Supervisor review queue empty | Verify Purview Audit → Sentinel connector ([Control 3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md)) |
 | Non-Microsoft channel published without PAYG | DSPM for AI / content-capture telemetry missing | Bind PAYG Azure subscription before publishing channel |
 | Blocked-by-label perceived as fully removing Copilot access | Citations still appear in Copilot responses | Communicate documented scope to stakeholders (§8.4) |
@@ -675,7 +651,7 @@ Use this as the §15 sign-off checklist before any Zone 3 enforcement decision.
 - [Sensitivity labels for containers (Teams / Groups / Sites)](https://learn.microsoft.com/en-us/purview/sensitivity-labels-teams-groups-sites)
 - [Apply a sensitivity label automatically](https://learn.microsoft.com/en-us/purview/apply-sensitivity-label-automatically)
 - [Double Key Encryption (DKE) overview](https://learn.microsoft.com/en-us/purview/double-key-encryption)
-- [Adaptive Protection in Microsoft Purview](https://learn.microsoft.com/en-us/purview/insider-risk-management-adaptive-protection) — sovereign-cloud non-availability
+- [Adaptive Protection in Microsoft Purview](https://learn.microsoft.com/en-us/purview/insider-risk-management-adaptive-protection)
 - [Endpoint DLP / device onboarding overview](https://learn.microsoft.com/en-us/purview/device-onboarding-overview)
 - [Power Platform DLP overview](https://learn.microsoft.com/en-us/power-platform/admin/wp-data-loss-prevention)
 - [Connector endpoint filtering (preview)](https://learn.microsoft.com/en-us/power-platform/admin/connector-endpoint-filtering)

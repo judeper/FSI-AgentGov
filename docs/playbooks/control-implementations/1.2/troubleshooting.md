@@ -35,7 +35,6 @@
   - [Pillar E — Agent 365 / Agent Registry Preview Gaps](#pillar-e-agent-365-agent-registry-preview-gaps)
   - [Pillar F — Defender for Cloud Apps OAuth Governance Failures](#pillar-f-defender-for-cloud-apps-oauth-governance-failures)
   - [Pillar G — Conditional Access Workload-Identity Policy Failures](#pillar-g-conditional-access-workload-identity-policy-failures)
-  - [Pillar H — Sovereign-Cloud / Per-Tenant Feature Gaps](#pillar-h-sovereign-cloud-per-tenant-feature-gaps)
 - [§3. Failure-Mode Runbooks (Detailed)](#3-failure-mode-runbooks-detailed)
   - [Runbook 1 — Shadow Agent Discovered (Unregistered Production Agent)](#runbook-1-shadow-agent-discovered-unregistered-production-agent)
   - [Runbook 2 — Mass Departed-Owner Cascade (>50 Apps)](#runbook-2-mass-departed-owner-cascade-50-apps)
@@ -44,7 +43,6 @@
   - [Runbook 5 — Admin Consent Workflow Tampering](#runbook-5-admin-consent-workflow-tampering)
   - [Runbook 6 — CA Workload-Identity Policy Misfire](#runbook-6-ca-workload-identity-policy-misfire)
   - [Runbook 7 — Sponsor / Owner Attestation Lapse](#runbook-7-sponsor-owner-attestation-lapse)
-  - [Runbook 8 — Cross-Cloud Sovereign Boundary Breach](#runbook-8-cross-cloud-sovereign-boundary-breach)
   - [Runbook 9 — Examiner Audit Pull (FINRA / OCC / Fed Snapshot)](#runbook-9-examiner-audit-pull-finra-occ-fed-snapshot)
 - [§4. Common Symptom → Cause → Resolution Index](#4-common-symptom-cause-resolution-index)
 - [§5. Tooling, Endpoints, and Module Versions](#5-tooling-endpoints-and-module-versions)
@@ -79,12 +77,11 @@ If **any** of the following factors applies, bump the initial severity by **one 
 2. **MNPI involvement** — the agent has, or had access to, material nonpublic information (insider lists, deal rooms, earnings drafts, research-under-embargo). Triggers Reg FD, Rule 10b5-1, and information-barrier review.
 3. **MRM scope** — the agent meets the firm's definition of a "model" under Fed SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC 2011-12) (i.e., applies statistical, economic, financial, or mathematical theories to produce quantitative estimates that drive a business decision). Triggers MRM independent validation review.
 4. **Active regulator examination** — FINRA, SEC, OCC, Fed, NYDFS, or state regulator has an open exam, sweep, or inquiry that touches the agent, its owner, its sponsoring business unit, or the data domain. **Document preservation hold attaches automatically.**
-5. **Sovereign cloud** — the agent is registered in GCC, GCC High, or DoD; cross-tenant or cross-cloud blast radius is presumed unless proven otherwise.
-6. **Personnel change in the look-back window** — owner, sponsor, or backup owner departed, transferred, or had role changes within the prior 90 days. Increases insider-threat probability.
-7. **High-privilege grant** — any application-permission scope, any `*.ReadWrite.All` scope, any `Directory.*` scope, or any scope explicitly listed on the firm's high-privilege register.
-8. **Customer-facing surface** — agent is exposed to retail clients, intermediaries, or external counterparties (vs. internal-only).
-9. **Books-and-records touch** — the agent reads, writes, or could write to any system that produces SEC 17a-4 or FINRA 4511 books-and-records artifacts.
-10. **Cross-border data flow** — the agent processes data subject to a non-US data-protection regime (UK, EU, APAC) that could trigger parallel notification clocks.
+5. **Personnel change in the look-back window** — owner, sponsor, or backup owner departed, transferred, or had role changes within the prior 90 days. Increases insider-threat probability.
+6. **High-privilege grant** — any application-permission scope, any `*.ReadWrite.All` scope, any `Directory.*` scope, or any scope explicitly listed on the firm's high-privilege register.
+7. **Customer-facing surface** — agent is exposed to retail clients, intermediaries, or external counterparties (vs. internal-only).
+8. **Books-and-records touch** — the agent reads, writes, or could write to any system that produces SEC 17a-4 or FINRA 4511 books-and-records artifacts.
+9. **Cross-border data flow** — the agent processes data subject to a non-US data-protection regime (UK, EU, APAC) that could trigger parallel notification clocks.
 
 ### 1.3 Reportability Decision Tree (Q1–Q10)
 
@@ -142,7 +139,6 @@ When a registration-plane defect is detected but immediate remediation is not ye
 | Sponsor attestation lapse | **Freeze** the agent (block sign-in or pause Copilot Studio bot via `statecode = 1` in Dataverse); notify business unit head; require Sponsor re-attestation or Sponsor reassignment | Entra ID + Dataverse `bot` | Sponsor re-attests or new Sponsor designated |
 | Manifest version drift / declarative-agent mismatch | Restrict the agent to **Zone 1** until manifest reconciliation; suppress promotion to Zone 2/3 in the agent register | Microsoft 365 admin center deployment policies; agent register | Manifest reconciled, version pinned, change ticket closed |
 | Preview-API gap (Agent 365 / `/copilot/agents`) | **Manual reconciliation** — capture both the preview-API state and the underlying primary surface (Entra app reg, Dataverse `bot`, Integrated Apps) state; document the discrepancy in the agent register's "known gaps" field | Manual; documented in [verification-testing.md](./verification-testing.md) | Microsoft GA of the preview API; or vendor-confirmed reconciliation |
-| Cross-cloud capability gap (GCC High lacks a feature) | Implement the **commercial-equivalent compensating control** (e.g., if a Defender for Cloud Apps OAuth app policy is GA in commercial but preview/absent in GCC High, substitute a Conditional Access workload-identity policy plus a daily Graph-based detection report) | CA + custom Graph queries + Sentinel | Microsoft adds feature parity; or compensating control approved as permanent |
 
 ### 1.6 Pre-Escalation Checklist (≥15 items)
 
@@ -162,9 +158,8 @@ Before escalating to Legal, Compliance, or executive leadership, the Incident Co
 12. **HR coordination** — if owner, sponsor, or any insider is implicated, HR engaged before any access changes that could be construed as adverse employment action.
 13. **Forensics readiness** — if the response may require external forensics counsel or vendor (Mandiant, CrowdStrike, etc.), retainer status confirmed.
 14. **Regulator preservation triggers** — if any active examination touches the affected agent/owner/BU, document-preservation scope formally extended; counsel notified.
-15. **Sovereign-cloud boundary** — confirm whether the incident is contained to commercial / GCC / GCC High / DoD; if cross-cloud, immediately escalate to SEV-1 and notify the cleared personnel pool.
-16. **Insurance notification trigger evaluated** — does the firm's cyber insurance policy require notice within a specific window (often 72 hours)? Document the notification decision.
-17. **Lessons-learned tracker** opened in the post-incident review tool (do not wait until the end — capture observations during the response).
+15. **Insurance notification trigger evaluated** — does the firm's cyber insurance policy require notice within a specific window (often 72 hours)? Document the notification decision.
+16. **Lessons-learned tracker** opened in the post-incident review tool (do not wait until the end — capture observations during the response).
 
 ### 1.7 Communication Ladder (L1–L5)
 
@@ -212,7 +207,7 @@ Communications cascade upward and outward. Each level has defined triggers, reci
 
 ### 1.9 Diagnostic Query Reference (DQ-1 … DQ-8)
 
-These eight queries form the standard diagnostic library for Control 1.2 incidents. Run them as a kit early in any SEV-1/2 response. Versions for commercial, GCC, and GCC High are noted where they differ.
+These eight queries form the standard diagnostic library for Control 1.2 incidents. Run them as a kit early in any SEV-1/2 response.
 
 **DQ-1 — Inventory all application registrations created or modified in the last N days.**
 
@@ -225,7 +220,6 @@ Get-MgApplication -All -Filter "createdDateTime ge $since or" `
   | Export-Csv -NoTypeInformation .\dq1-apps.csv
 ```
 
-For GCC High, set `Connect-MgGraph -Environment USGov` (Microsoft Graph's GCC High endpoint name; not `USGovHigh`, which is not a valid `-Environment` value). For DoD, `-Environment USGovDoD`. See [Microsoft Graph national clouds](https://learn.microsoft.com/en-us/graph/deployments).
 
 **DQ-2 — Identify all service principals with high-privilege application-permission grants.**
 
@@ -257,7 +251,7 @@ Get-MgServicePrincipal -All -Filter "servicePrincipalType eq 'Application'" |
 **DQ-3 — Power Platform Copilot Studio bots not present in the agent register.**
 
 ```powershell
-Add-PowerAppsAccount -Endpoint prod   # use 'usgovhigh' for GCC High
+Add-PowerAppsAccount
 $envs = Get-AdminPowerAppEnvironment
 $bots = foreach ($e in $envs) {
   Invoke-DataverseRequest -EnvironmentName $e.EnvironmentName -Method GET `
@@ -454,7 +448,7 @@ Each pillar covers one registration surface (or cross-cutting governance plane).
 **Watch-outs.**
 
 - Copilot Studio agents do **not** always create a corresponding Entra app registration. Teams-channel-only bots use a tenant-level shared SP. Do not treat absence of a dedicated Entra app reg as a registration defect for Teams-only bots.
-- The PPAC **`-Endpoint`** flag must match the cloud: `prod` (commercial), `usgov` (GCC), `usgovhigh` (GCC High), `dod` (DoD). Cross-cloud queries silently return empty results — record the endpoint used in E-14.
+- The PPAC **`-Endpoint`** flag defaults to `prod` for commercial deployments. Verify this is set correctly and record the endpoint used in E-14.
 
 ### Pillar D — Microsoft Graph Application API Failures
 
@@ -548,28 +542,6 @@ Each pillar covers one registration surface (or cross-cutting governance plane).
 **Resolution patterns.** Use the **What If** tool in Entra → Conditional Access → What If, in Workload Identity mode. Pilot with a small set of low-risk SPs in report-only before enforced.
 
 **Watch-outs.** Workload-identity CA policies cannot evaluate device, location for some legacy authentication flows, or MFA — they evaluate **named locations**, **risk**, and **filter for applications**. Plan policy logic accordingly.
-
-### Pillar H — Sovereign-Cloud / Per-Tenant Feature Gaps
-
-**Scope.** Feature parity gaps between commercial, GCC, GCC High, and DoD; tenant-specific opt-in features; preview features that are GA in commercial but absent or preview in sovereign clouds.
-
-**What can fail.**
-
-- A control documented for commercial does not exist in GCC High (e.g., a specific Defender for Cloud Apps OAuth-app policy template).
-- Endpoint URL differs — commercial `graph.microsoft.com`, GCC High `graph.microsoft.us`, DoD `dod-graph.microsoft.us`. PowerShell scripts that hardcode `graph.microsoft.com` fail silently in sovereign tenants.
-- A feature is enabled by tenant flag in commercial but requires Microsoft Support ticket in sovereign clouds.
-
-**How it surfaces.** Cross-cloud reconciliation fails; PowerShell scripts return empty results; Microsoft Learn documentation page warns of sovereign-cloud differences in a callout.
-
-**Diagnostic steps.**
-
-1. Confirm the cloud: Entra → Properties → "Tenant ID" page shows tenant region and cloud.
-2. Pin endpoints in scripts via `Connect-MgGraph -Environment USGov` (GCC + GCC High) / `-Environment USGovDoD` (DoD); for PPAC, use `Add-PowerAppsAccount -Endpoint usgovhigh` / `dod`.
-3. For each control in GCC High / DoD, check the Microsoft Learn "Service description for US Government" or equivalent page.
-
-**Resolution patterns.** Maintain a per-cloud control matrix in the agent register; deploy compensating controls (per §1.5) where features lag.
-
-**Watch-outs.** GCC High and DoD have **separate tenant boundaries**; cross-cloud sign-in is not possible. A user in DoD cannot administer a commercial-tenant agent. Plan for cleared-personnel staffing in advance of any cross-cloud incident.
 
 ---
 
@@ -728,24 +700,6 @@ Each runbook follows the same eight-section structure: **Severity classification
 
 **Lessons-learned & reporting decision tree.** Internal; Q8 if the lapsed agent is an MRM-scope model.
 
-### Runbook 8 — Cross-Cloud Sovereign Boundary Breach
-
-**Severity classification.** **SEV-1** always.
-
-**Triggers and detection.** A registration object, credential, or grant from one sovereign cloud appears in or affects another (e.g., a GCC High service principal somehow granted access to a commercial-tenant resource). Almost always indicates a misconfiguration of multi-tenant app, a federated credential pointing across clouds, or — most seriously — a credential exfiltration with cross-cloud reuse.
-
-**Immediate actions.** Engage cleared personnel pool (the responders authorized to act in the affected sovereign cloud). Capture evidence in **both** clouds — and remember E-15 hashes must be generated from the cleared workstation for the cleared cloud's evidence.
-
-**Investigation.** Reconstruct the cross-cloud path. Determine whether sovereign data left the sovereign boundary (this is the dispositive question). Engage Microsoft Support FastTrack / sovereign-cloud support immediately.
-
-**Containment.** Block the offending principal at both ends (CA workload-identity policies in both clouds); revoke all credentials; preserve in-place — do not delete during the investigation.
-
-**Eradication.** Remove the cross-cloud configuration; re-architect to avoid cross-cloud trust.
-
-**Recovery.** Independent third-party assessment; report to ATO authority for the sovereign environment.
-
-**Lessons-learned & reporting decision tree.** Q5, Q6, Q7 always to be assessed; agency-specific reporting per the sovereign environment's authorization (e.g., FedRAMP incident reporting to the Joint Authorization Board / Agency PMO).
-
 ### Runbook 9 — Examiner Audit Pull (FINRA / OCC / Fed Snapshot)
 
 **Severity classification.** Not a security incident; treated as a **regulatory operations** workflow with a strict deadline (typically 5–10 business days for the initial production).
@@ -786,7 +740,6 @@ Each runbook follows the same eight-section structure: **Severity classification
 | Graph 403 Authorization_RequestDenied | Missing scope or non-active role | Re-consent scope; activate role via PIM | Pillar D |
 | Graph 404 on `applications/{id}` | Used `appId` instead of object id | Use `Get-MgApplication -Filter "appId eq '<guid>'"` | Pillar D |
 | Inventory query returns different counts on consecutive runs | Throttling, paging mid-mutation, or preview-API gap | Use stable inventory window; reconcile against Dataverse | Pillar D / E |
-| Cross-cloud query silently returns empty | Wrong `-Endpoint` or `-Environment` flag | Pin endpoint per cloud; record in E-14 | Pillar H / Runbook 8 |
 | Agent register and Entra disagree on owner | Owner change in one surface not propagated to the other | Manual reconciliation; add to attestation checklist | Pillar A / Runbook 2 |
 | User cannot accept consent prompt (greyed out) | Admin-consent-required scope | Route via admin consent workflow | Pillar A |
 
@@ -796,13 +749,13 @@ Pin and record every tool version in E-14. Versions current as of the document's
 
 | Tool / Module | Minimum version | Notes |
 |---------------|-----------------|-------|
-| `Microsoft.Graph` PowerShell SDK | 2.20.0+ | Use `-Environment USGov` / `USGovDoD` for sovereign clouds (USGov = GCC + GCC High; USGovDoD = DoD). |
-| `Microsoft.PowerApps.Administration.PowerShell` | 2.0.180+ | Use `Add-PowerAppsAccount -Endpoint prod\|usgov\|usgovhigh\|dod`. |
+| `Microsoft.Graph` PowerShell SDK | 2.20.0+ | Use `-Environment Global` (the commercial default). |
+| `Microsoft.PowerApps.Administration.PowerShell` | 2.0.180+ | Use `Add-PowerAppsAccount` (defaults to commercial endpoint). |
 | `ExchangeOnlineManagement` | 3.4.0+ | Required for `Search-UnifiedAuditLog`. |
 | Azure CLI | 2.55.0+ | For workload identity federation administration. |
-| Microsoft Graph endpoints | `graph.microsoft.com` (commercial); `graph.microsoft.us` (GCC + GCC High); `dod-graph.microsoft.us` (DoD) | Hardcoded URLs in scripts must be cloud-aware. |
-| Defender for Cloud Apps portal | `https://security.microsoft.com/cloudapps` (commercial) | Sovereign cloud equivalents differ; verify per tenant. |
-| Purview portal | `https://purview.microsoft.com` (commercial); `purview.microsoft.us` (GCC High) | DSPM for AI availability varies. |
+| Microsoft Graph endpoint | `graph.microsoft.com` | Standard commercial endpoint. |
+| Defender for Cloud Apps portal | `https://security.microsoft.com/cloudapps` |
+| Purview portal | `https://purview.microsoft.com` | Standard commercial Purview portal. |
 
 ## §6. Known Issues, Preview Caveats, and Documented Gaps
 
@@ -812,14 +765,12 @@ Pin and record every tool version in E-14. Versions current as of the document's
 - **Purview Unified Audit Log** application-plane events surface at 60–90 minutes typical latency; allow 24 hours for full coverage.
 - **Defender for Cloud Apps OAuth app** indexing latency for new high-risk apps can be several hours. Pair with Entra admin consent workflow for primary control.
 - **Workload Identities Premium** licensing is required for workload-identity CA policies; without it, policies silently do nothing.
-- **Sovereign-cloud feature parity**: GCC High and DoD lag commercial in Defender for Cloud Apps OAuth-app templates, some Purview DSPM for AI features, and several preview Graph endpoints. Maintain a per-cloud control matrix.
 - **`signInActivity` on application objects** is populated only for service principals that have signed in within the last 30 days; a `null` value is not proof of inactivity.
 
 ## §7. Escalation Contacts and Vendor Support
 
-- **Microsoft Support** — open premier / unified support case via the Microsoft 365 admin center for tenant-affecting issues; for sovereign clouds, use the cleared-personnel support channel.
+- **Microsoft Support** — open premier / unified support case via the Microsoft 365 admin center for tenant-affecting issues.
 - **Microsoft Defender for Cloud Apps** — for OAuth governance failures, capture the OAuth app's `oauthAppId` and the policy's `policyId` and submit via the Defender portal "Need help" link.
-- **FastTrack** — for sovereign-cloud feature gaps with documented commercial parity, FastTrack engagement may surface the timeline for parity.
 - **Internal contacts** — populate per firm: AI Governance Lead, CISO duty officer, Compliance duty officer, GC duty officer, HR partner, TPRM lead, External Counsel, Cyber Insurance broker, Forensics retainer firm.
 
 ## §8. Cross-References
