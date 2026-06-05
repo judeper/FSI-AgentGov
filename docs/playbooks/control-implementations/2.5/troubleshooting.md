@@ -13,8 +13,8 @@
 ## Table of Contents
 
 1. **FSI Incident Handling for Testing & Validation Failures**
-2. **Eight Troubleshooting Pillars** (symptom → root cause → diagnostic → remediation → validation → evidence)
-3. **Nine Failure-Mode Runbooks** (narrative incident-response style)
+2. **Seven Troubleshooting Pillars** (symptom → root cause → diagnostic → remediation → validation → evidence)
+3. **Eight Failure-Mode Runbooks** (narrative incident-response style)
 4. **Evidence Preservation Standards**
 5. **Communication & Escalation Patterns**
 6. **Recovery & Re-Validation**
@@ -36,7 +36,7 @@ Severity is the first decision. It governs response time, escalation depth, comm
 | Severity | Definition | Examples (Testing & Validation) | Initial Response | Escalation |
 |---|---|---|---|---|
 | **SEV-1** | Production agent producing unsafe, materially inaccurate, or non-compliant output to customers, registered representatives, or regulators; OR validation evidence integrity is in doubt for a deployed agent; OR a control bypass is confirmed and the agent is live. | Drift breach with confirmed customer harm; holdout leakage discovered after Zone-3 deployment; pipeline gate bypass on production agent; tampered evidence pack discovered during an examination. | Immediate containment within 1 hour. War-room. Pause / disable agent per Control 2.20. | AI Governance Lead, Model Risk Manager, CISO, Chief Compliance Officer (CCO), Legal/Privacy, Designated Supervisor; consider 24-hour notification to Operational Risk Committee. |
-| **SEV-2** | High-risk validation defect with no confirmed customer impact yet, OR validation gate failure on a Zone-3 candidate that was about to be promoted, OR a recurring drift signal exceeding warning thresholds. | New jailbreak class identified in PyRIT but agent still gated; safety evaluator regression in pre-prod; evaluator family withdrawn from sovereign cloud affecting an upcoming deployment; SoD violation discovered before sign-off. | Containment within 4 hours. Hold all promotions touching the affected pattern. | AI Governance Lead, Model Risk Manager, Compliance Officer, Agent Owner, Designated Supervisor (informed). |
+| **SEV-2** | High-risk validation defect with no confirmed customer impact yet, OR validation gate failure on a Zone-3 candidate that was about to be promoted, OR a recurring drift signal exceeding warning thresholds. | New jailbreak class identified in PyRIT but agent still gated; safety evaluator regression in pre-prod; SoD violation discovered before sign-off. | Containment within 4 hours. Hold all promotions touching the affected pattern. | AI Governance Lead, Model Risk Manager, Compliance Officer, Agent Owner, Designated Supervisor (informed). |
 | **SEV-3** | Defect or process gap affecting a Zone-2 (team) agent, or a recoverable evaluator/quota incident with no governance breach. | Foundry quota exhaustion mid-run; transient grader timeouts; analytics dashboard data lag; a single failed verification criterion in a Zone-2 pilot. | Triage within next business day. Document remediation plan. | Agent Owner, AI Governance Lead (informed). |
 | **SEV-4** | Cosmetic, documentation, or single-developer issue with no governance, regulatory, or production impact. | Test Pane authentication hiccup affecting one developer; manifest validation warnings in M365 Agents Toolkit; mis-labeled evaluator in a non-prod report. | Standard ticket queue. | Agent author, team lead. |
 
@@ -72,7 +72,6 @@ For every SEV-1 and SEV-2 incident, and recommended for SEV-3, capture at minimu
 | E-08 | DLP / Sensitivity label events touching the agent or its data sources | Purview DLP / MIP |
 | E-09 | Pipeline run logs and approver identities for the last promotion | Power Platform Pipelines / ALM Accelerator |
 | E-10 | Solution Checker report for the last promoted solution version | Power Platform |
-| E-11 | Sovereign-cloud inventory (commercial vs GCC vs GCC-H vs DoD) for the agent and its evaluators | Tenant inventory |
 | E-12 | Communications log (who was notified, when, by what channel) | Incident commander notes |
 | E-13 | Containment actions taken with timestamps and operator identity | Change record |
 
@@ -80,7 +79,7 @@ For every SEV-1 and SEV-2 incident, and recommended for SEV-3, capture at minimu
 
 ### §1.4 — Compensating Controls (When You Cannot Fully Remediate)
 
-Some incidents cannot be fully remediated within the response window — for example, an evaluator family is unavailable in GCC-High and Microsoft has not committed a date. In these cases, document explicit *compensating controls* that the firm will rely on until full remediation is possible. Compensating controls are not an excuse to skip a gate; they are a temporary, time-boxed, board-or-MRM-approved substitute.
+Some incidents cannot be fully remediated within the response window. In these cases, document explicit *compensating controls* that the firm will rely on until full remediation is possible. Compensating controls are not an excuse to skip a gate; they are a temporary, time-boxed, board-or-MRM-approved substitute.
 
 Examples that have been used in practice:
 - Substituting an internal human review queue (4-eyes per Control 2.3) for an unavailable automated safety evaluator, with daily sampling rate and reviewer roster documented.
@@ -99,8 +98,7 @@ Before paging an executive or convening a war-room, the on-call AI Governance Le
 3. Containment option identified — at minimum a path to disable or scope-restrict the agent per Control 2.20.
 4. Reportability tree (§1.2) walked with preliminary answers; Legal awareness flag set if any Yes.
 5. Customer-facing or supervised-communication impact preliminarily assessed.
-6. Sovereign-cloud scope identified (which tenants / environments / clouds are affected).
-7. Last-known-good validation evidence located (E-04).
+6. Last-known-good validation evidence located (E-04).
 
 Skipping this checklist is the most common reason post-incident reviews find that "the firm reacted before it understood" — a finding that itself becomes an Fed SR 26-2 (formerly SR 11-7) governance deficiency.
 
@@ -123,7 +121,7 @@ All ladder events are themselves evidence (E-12). Do not communicate outward at 
 - **T+0:15** Lead pulls last sign-off (E-04) and sees the model was swapped two weeks ago via a "minor configuration change" without re-running the quality evaluator suite. Severity raised to **SEV-1** under §1.1 (validation evidence integrity in doubt for a deployed agent).
 - **T+0:25** Containment: Power Platform Admin disables the agent in Production environment per Control 2.20; replaces with a maintenance message; pipeline locked.
 - **T+0:30** Reportability tree (§1.2): Q1 Yes (customer received material misinformation), Q3 Yes (supervisory procedure for change management was bypassed), Q4 Yes (model swap without re-validation is an MRM finding). Legal and CCO paged at L3.
-- **T+1:00** Evidence floor capture in motion (E-01..E-13); Purview audit log frozen for the relevant window.
+- **T+1:00** Evidence floor capture in motion (E-01..E-12); Purview audit log frozen for the relevant window.
 - **T+2:00** Customer impact assessment: how many sessions were exposed to the swapped model? Analytics export (E-06) used to enumerate.
 - **T+24:00** Incident report drafted; FINRA 4530 evaluation; client remediation by relationship manager and supervisor; PIR scheduled (§7); MRM finding logged.
 
@@ -171,7 +169,7 @@ These five queries cover roughly 80% of the artifacts needed for E-05 through E-
 
 ---
 
-## §2 — Eight Troubleshooting Pillars
+## §2 — Seven Troubleshooting Pillars
 
 Each pillar follows the same shape: **Symptom → Likely Root Causes → Diagnostic Steps → Remediation → Validation → Evidence & Reportability.** These are the high-frequency operational issues; if a symptom escalates beyond what is shown here (e.g., production customer impact), pivot to §3 runbooks and §1 incident handling.
 
@@ -237,7 +235,7 @@ Each pillar follows the same shape: **Symptom → Likely Root Causes → Diagnos
 **Likely root causes:**
 - Tenant or subscription quota for the underlying model deployment is exhausted; evaluators that depend on a judge model (e.g., GPT-4o-class) are most affected.
 - The managed identity used by the pipeline lacks `Cognitive Services User` (or equivalent) on the Foundry resource.
-- Evaluator family is not deployed in the target Azure region or sovereign cloud (see Pillar 2.8).
+- Evaluator family is not deployed in the target Azure region.
 - Dataset rows are missing required fields (`query`, `response`, `context`, `ground_truth` — varies by evaluator).
 - Network egress from the build agent is blocked by firewall to the Foundry endpoint.
 
@@ -251,7 +249,6 @@ Each pillar follows the same shape: **Symptom → Likely Root Causes → Diagnos
 - Request quota increase or distribute load across regions (subject to data-residency constraints — Compliance must approve).
 - Add backoff and retry to your evaluation harness; the SDK supports per-evaluator concurrency tuning.
 - For schema errors, run dataset validation before submission; use the SDK's `EvaluationDataset.validate()` helper if available in your SDK version.
-- For sovereign-cloud unavailability, see Pillar 2.8 and §3 Runbook 7.
 
 **Validation:** Re-run the full evaluation; confirm aggregated metrics populate; record evaluator versions in the evidence pack (versions matter — a numeric score from evaluator vN is not directly comparable to vN+1).
 
@@ -272,7 +269,7 @@ Each pillar follows the same shape: **Symptom → Likely Root Causes → Diagnos
 1. Pin and record exact versions: `pyrit`, scorer plugins, judge model, target agent version. This is required for reproducibility (an Fed SR 26-2 (formerly SR 11-7) expectation).
 2. Inspect orchestrator logs for the exact failure stage (seed → attack → scoring → write).
 3. Re-run a 5-prompt smoke campaign against a non-prod replica of the agent.
-4. Confirm storage account RBAC and that the storage account is in an approved sovereign-cloud region.
+4. Confirm storage account RBAC.
 
 **Remediation:**
 - Stand up or use an existing dedicated red-team agent replica (Zone-2 environment is appropriate); never run adversarial campaigns against a production Zone-3 agent without explicit written authorization from CISO and Compliance.
@@ -362,32 +359,9 @@ Each pillar follows the same shape: **Symptom → Likely Root Causes → Diagnos
 
 **Evidence & reportability:** A confirmed sustained drift breach in a Zone-3 agent is SEV-1/SEV-2 — see §3 Runbook 5. A dashboard outage that prevents monitoring is itself a control gap (Control 2.5 + 2.20) and should be tracked even if no production harm has occurred.
 
-### Pillar 2.8 — Sovereign Cloud Parity Issues (GCC / GCC-H / DoD)
-
-**Symptoms:** An evaluator family available in commercial cloud is not deployable in GCC-High or DoD; a model version used in commercial validation has no DoD equivalent; PyRIT scorer's judge model is unavailable; Foundry features differ between clouds (lagging GA).
-
-**Likely root causes:**
-- Microsoft's published feature parity matrix shows the feature is not yet in the target cloud, or is in preview only.
-- The tenant identity used has not been granted access to the sovereign tenant resources (sovereign clouds typically require separate identities).
-- Data-residency policy (legitimately) prevents cross-cloud calls that the evaluator implicitly attempts.
-
-**Diagnostic steps:**
-1. Consult the official Microsoft Learn parity pages for the specific evaluator/model and the target cloud; record the date checked and version observed.
-2. Confirm regional availability inside the sovereign cloud (e.g., USGov Virginia vs USGov Arizona for GCC-H).
-3. Confirm identity and RBAC in the sovereign tenant.
-
-**Remediation:**
-- If parity is not yet available, document a compensating control (§1.4) — typically a substituted human review queue plus an enhanced manual evaluator — with an explicit expiration date and an MRM approver.
-- Constrain the agent's zone or scope until parity is achieved (e.g., do not deploy to Zone-3 in DoD until the safety evaluator is generally available).
-- Track Microsoft's roadmap and re-evaluate quarterly.
-
-**Validation:** Compensating control is operating (sampling rate, reviewer roster, evidence collection); zone restriction is enforced in the relevant environment.
-
-**Evidence & reportability:** Capture E-11 (sovereign-cloud inventory) and the compensating-control approval. A sovereign-cloud parity gap that is *not* covered by a compensating control and where an agent has been deployed anyway is an Fed SR 26-2 (formerly SR 11-7) deficiency — escalate per §3 Runbook 7.
-
 ---
 
-## §3 — Nine Failure-Mode Runbooks (Incident-Response Style)
+## §3 — Eight Failure-Mode Runbooks (Incident-Response Style)
 
 These runbooks are deliberately written in narrative form. Each represents a class of incident that recurs in FSI implementations of M365 AI agents and that does not lend itself to a terse symptom-remediation card. Each runbook follows the structure: **Scenario → Severity Classification → Immediate Actions (T+0 to T+1h) → Investigation (T+1h to T+8h) → Containment → Eradication → Recovery → Lessons Learned → Regulatory Reporting Decision Tree → Evidence References.** All references back to §1 should be honored — these runbooks assume the §1 spine has been read.
 
@@ -605,40 +579,7 @@ Model swap is the single most under-appreciated change-management category in M3
 
 **Evidence references.** E-02, E-03, E-04, E-06, E-09, E-12, plus the change record, the rollback artifact (if used), and the post-swap re-validation evidence pack.
 
-### Runbook 7 — Evaluator Family Unavailable in Target Sovereign Cloud
-
-**Scenario.** A line of business in the firm's GCC-High tenant requests deployment of a Zone-3 agent that, in its commercial-cloud equivalent, was validated using the full Azure AI Evaluation safety battery — including Indirect Attack and Code Vulnerability evaluators. On preparing the GCC-High deployment, the platform team discovers that two of the required evaluator families are not yet generally available in GCC-High. The judge model used by the PyRIT scorer chain is similarly unavailable. The business sponsor asks whether the agent can deploy "with what evaluators are available."
-
-This is the recurring sovereign-cloud parity dilemma. The temptation is to call the gap a vendor problem and move forward; the correct posture is to treat the gap as the firm's problem to govern, with explicit compensating controls.
-
-**Severity classification.** Pre-deployment, this is not yet an incident — it is a control design decision. It becomes SEV-2 if the agent is deployed without compensating controls and the gap is later discovered by audit, and SEV-1 if the missing evaluators were the ones that would have caught a now-confirmed defect.
-
-**Immediate actions (T+0 to T+1h).** (When discovered as a pending deployment decision rather than as a post-deployment finding.)
-1. AI Governance Lead and Model Risk Manager convene with the Agent Owner. Compliance Officer participates.
-2. Pull the Microsoft Learn parity matrix as of the date of the discussion and capture it as evidence (a screenshot with URL and timestamp). Parity matrices change.
-3. Map the missing evaluators to specific risks: Indirect Attack maps to a defined adversarial risk class; Code Vulnerability maps to a defined code-execution risk class. The mapping determines which compensating controls are credible.
-
-**Investigation (T+1h to T+8h).**
-- For each missing evaluator, identify the substitute compensating control(s) from §1.4. The credible substitutes are: human review (Control 2.3) at a defined sampling rate; constrained agent capability (e.g., disable the tools that depend on Code Vulnerability assurance); zone restriction (do not promote to Zone-3 in GCC-High; keep at Zone-2); enhanced monitoring (lowered drift thresholds, daily Analytics review).
-- Quantify the substitution: a human reviewer at 100% sampling is a credible substitute for an automated safety evaluator at scale only if the response volume is low. If volume is high, 100% review is infeasible and the only credible compensating control is scope/zone restriction.
-- Document the *expiration* of each compensating control. The substitute is in place *until* the missing evaluator is generally available in GCC-High and has been validated in the firm's environment. There must be a date or a tracked event that triggers exit, otherwise the compensating control becomes permanent and the gap drifts into normal.
-
-**Containment.** None — this is a pre-deployment decision. If the conversation is happening *because* an agent is already deployed without these controls, treat as a SEV-2 finding under §3 Runbook 1's posture and re-validate or scope-restrict immediately.
-
-**Eradication.** This is the wrong word for this runbook — the gap is not a defect, it is a vendor-availability constraint. The action is to *govern* the gap.
-- Establish the compensating-control package: documented substitution mapping, owner, expiration trigger, MRM and Compliance approver, evidence-collection process.
-- Track Microsoft's roadmap for the missing evaluators in GCC-High (and DoD as applicable) on a quarterly cycle. Move the expiration trigger forward as roadmap dates firm up.
-- When the missing evaluator becomes generally available, run the firm's own validation against it before lifting the compensating control; do not assume parity at the day of GA.
-
-**Recovery.** If the agent was deployed with proper compensating controls, recovery is the lifecycle moment when the missing evaluator is GA and the compensating control is retired. Re-validate end-to-end with the now-available evaluator and update the evidence pack.
-
-**Lessons learned.** Sovereign-cloud parity gaps are a permanent feature of the FSI landscape, not a transient one. Firms that build a repeatable compensating-control framework once can apply it across many controls and many gaps; firms that improvise each time accumulate undocumented exceptions that compound.
-
-**Regulatory reporting decision tree.** Pre-deployment with proper compensating controls, no reporting is implicated. Post-deployment without compensating controls, Q3 and Q4 are typically Yes; Q7 elevates urgency materially if a sovereign-cloud customer is also a federal agency that may itself audit the firm's controls.
-
-**Evidence references.** Parity matrix snapshot (date/URL), compensating-control approval (MRM + Compliance), evaluator-availability tracker, E-04, E-11.
-
-### Runbook 8 — Validation Evidence Pack Tamper Detected (Hash / Signature Break)
+### Runbook 7 — Validation Evidence Pack Tamper Detected (Hash / Signature Break)
 
 **Scenario.** During an examination, the firm runs an integrity check across its evidence repository for Control 2.5 packs covering the prior eighteen months. Three packs return hash mismatches relative to the hashes recorded at sign-off. One pack contains a signed PDF whose signature no longer validates. None of the affected agents have been retired; all are live in Production.
 
@@ -681,7 +622,7 @@ Evidence integrity is the bedrock of every regulatory framework that touches the
 
 **Evidence references.** E-04 (the affected packs, quarantined originals plus snapshot), storage-account access logs, integrity-check tooling output, signing-certificate validation reports, and the post-incident immutable-storage configuration.
 
-### Runbook 9 — Examiner / External Auditor Request for Testing Evidence
+### Runbook 8 — Examiner / External Auditor Request for Testing Evidence
 
 **Scenario.** A FINRA examiner sends a written request to the firm asking for: (a) the inventory of AI-enabled supervised-communications tools in production, (b) the testing and validation evidence for two specific named agents, including pre-deployment evaluation results and post-deployment monitoring outputs, (c) the supervisory procedures governing those tools, and (d) any incidents involving those tools in the prior twelve months. Response is requested within ten business days.
 
@@ -697,7 +638,7 @@ This is not a technical incident in the conventional sense, but it is the moment
 
 **Investigation (T+1h to T+8h, then continuous).** This is reverse investigation: the firm is investigating its own posture as the examiner will see it.
 - For each named agent: assemble the evidence pack (E-04), the production telemetry (E-06), the audit logs (E-07), the pipeline history (E-09), the Solution Checker reports (E-10), and the incident records (E-12, E-13) for any incidents in scope.
-- Verify integrity per Runbook 8 patterns. If integrity is in question, that is a discrete crisis requiring Legal decision-making about disclosure.
+- Verify integrity per Runbook 7 patterns. If integrity is in question, that is a discrete crisis requiring Legal decision-making about disclosure.
 - Identify and document gaps. A gap acknowledged proactively is materially better than a gap discovered by the examiner. Legal owns the framing.
 - Assemble the supervisory-procedure documentation (WSPs) for the AI tools and confirm the WSPs were in effect during the period in question. WSP changes mid-period must be disclosed.
 - Build the inventory: every AI-enabled tool in production, the business it serves, its zone, its model, its evaluator history, its incident history. The inventory should be defensible — a registered representative receiving an answer from the firm should appear in the inventory if AI participated in producing it.
@@ -712,7 +653,7 @@ This is not a technical incident in the conventional sense, but it is the moment
 
 **Regulatory reporting decision tree.** The examination *is* the reporting context. Q7 is Yes by definition. The remaining questions are framing for Legal: what does the firm need to disclose proactively within the examination, and what does it need to surface only if asked? Those are Legal calls, not engineering calls.
 
-**Evidence references.** E-02, E-03, E-04, E-06, E-07, E-09, E-10, E-11, E-12, E-13 for each in-scope agent and incident, plus the WSPs, the inventory, and the response cover letter.
+**Evidence references.** E-02, E-03, E-04, E-06, E-07, E-09, E-10, E-12, E-13 for each in-scope agent and incident, plus the WSPs, the inventory, and the response cover letter.
 
 ---
 
@@ -720,19 +661,18 @@ This is not a technical incident in the conventional sense, but it is the moment
 
 Evidence preservation is the connective tissue between Control 2.5 (testing and validation) and Controls 1.6 (incident response), 1.7 (audit logging), and 1.21 (records retention). The standards below codify what must be preserved, how, for how long, and under what controls.
 
-**What.** The evidence floor (§1.3 E-01..E-13) for every SEV-1 and SEV-2 incident; the evidence packs underlying every Zone-3 deployment decision; the periodic monitoring outputs that document continued conformance after deployment; the change records authorizing every promotion; the access-control records demonstrating segregation-of-duties; the parity-matrix snapshots and compensating-control approvals for sovereign-cloud gaps.
+**What.** The evidence floor (§1.3 E-01..E-12) for every SEV-1 and SEV-2 incident; the evidence packs underlying every Zone-3 deployment decision; the periodic monitoring outputs that document continued conformance after deployment; the change records authorizing every promotion; the access-control records demonstrating segregation-of-duties.
 
 **How.** Capture artifacts in their native format (CSV, JSON, PDF, screenshots) with metadata: source system, query or export command used, timestamp in UTC, capturing identity, hash (SHA-256 or stronger). Store in immutable storage with Purview retention labels. Sign-off artifacts (evidence packs, attestations) should be digitally signed where possible and the signature itself preserved with the document.
 
 **How long.** Align to SEC 17a-4(b)(4) and FINRA 4511 for any artifact that constitutes a books-and-records record (typically six years, with the first two years easily accessible). Align to Fed SR 26-2 (formerly SR 11-7) / OCC Bulletin 2026-13 (formerly OCC 2011-12) model-risk documentation expectations (often longer; firm-specific MRM policy governs). Align to GLBA 501(b) for any artifact containing NPI. The longest applicable retention governs.
 
-**Under what controls.** Write-once-read-many (WORM) where supported. Periodic integrity checks (weekly minimum) per Runbook 8 lessons. Access controls scoped to the smallest necessary group, with all access logged. Disposition reviews before any retention-period-driven deletion, with sign-off recorded.
+**Under what controls.** Write-once-read-many (WORM) where supported. Periodic integrity checks (weekly minimum) per Runbook 7 lessons. Access controls scoped to the smallest necessary group, with all access logged. Disposition reviews before any retention-period-driven deletion, with sign-off recorded.
 
 **Common failure modes.**
 - Evidence stored in a developer's OneDrive instead of the governed evidence repository.
 - Evidence stored without hashing, so integrity cannot later be demonstrated.
 - Evidence stored with the wrong retention label, leading to premature deletion.
-- Evidence stored in commercial cloud while the agent operates in GCC-High, creating data-residency exposure.
 - Evidence captured at sign-off but never integrity-checked again until an examiner asks.
 
 Each of these failure modes is itself a Control 2.5 finding when surfaced.
@@ -766,8 +706,7 @@ Recovery from a Control 2.5 incident is not "the agent is back online." Recovery
 - Tool/connector change affecting agent capability — full safety plane plus targeted quality.
 - New attack class identified (Runbook 4) — adversarial plane re-baseline; quality re-spot-check.
 - Drift breach (Runbook 5) — re-baseline plus targeted quality re-validation.
-- Sovereign-cloud expansion — full re-validation in the new cloud against any compensating controls.
-- Examination-driven gap closure (Runbook 9) — targeted to the gap, with documentation visible to the examiner.
+- Examination-driven gap closure (Runbook 8) — targeted to the gap, with documentation visible to the examiner.
 
 **Re-validation depth.** Match the depth to the trigger. A new attack class does not necessarily require re-running the full quality battery if the change to the agent is purely defensive prompt-hardening. Conversely, a model swap requires full re-validation — partial does not suffice.
 
@@ -809,12 +748,10 @@ A non-exhaustive list of anti-patterns observed in Control 2.5 implementations a
 5. **"Solution Checker findings are mostly false positives."** Bulk-suppression mindset. Produces real defects reaching production hidden in the suppression noise.
 6. **"We'll page when we know what we have."** Delayed escalation. Produces compounding regulatory exposure under Fed SR 26-2 (formerly SR 11-7) and FINRA 3110 and weakens the PIR record.
 7. **"Engineering can update the customer."** Channel confusion. Produces Legal exposure. Reserve outbound communication to Legal/Compliance/Communications.
-8. **"The evidence is in someone's OneDrive, we'll consolidate later."** Evidence-repository drift. Produces Runbook 8 conditions and examination-response chaos (Runbook 9).
-9. **"GCC-High doesn't have that evaluator yet, we'll just deploy without it."** Uncovered sovereign-cloud parity gap. Produces Runbook 7 in its worst form.
-10. **"Drift alerts are noisy, we lowered them."** Silencing rather than understanding the signal. Produces Runbook 5 in its delayed form.
-11. **"PyRIT isn't applicable to our agent."** Adversarial-testing avoidance. Produces Runbook 4 patterns.
-12. **"That incident wasn't reportable, no PIR needed."** Skipping the PIR for incidents the team determined were not externally reportable. Loses the institutional learning and weakens the firm's ability to demonstrate continuous improvement during the next examination.
-
+8. **"The evidence is in someone's OneDrive, we'll consolidate later."** Evidence-repository drift. Produces Runbook 7 conditions and examination-response chaos (Runbook 8).
+9. **"Drift alerts are noisy, we lowered them."** Silencing rather than understanding the signal. Produces Runbook 5 in its delayed form.
+10. **"PyRIT isn't applicable to our agent."** Adversarial-testing avoidance. Produces Runbook 4 patterns.
+11. **"That incident wasn't reportable, no PIR needed."** Skipping the PIR for incidents the team determined were not externally reportable. Loses the institutional learning and weakens the firm's ability to demonstrate continuous improvement during the next examination.
 ---
 
 ## Cross-References

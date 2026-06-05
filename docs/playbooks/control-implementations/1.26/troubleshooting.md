@@ -18,7 +18,7 @@ This playbook is structured by **Symptom (H2) → Likely Cause and Resolution (H
 | Sensitivity labels not displayed in agent responses | Auto-labeling policy scope, source file unlabeled, propagation delay | [Labels Not Displayed](#symptom-sensitivity-labels-not-displayed-in-agent-responses-for-uploaded-knowledge-files) |
 | DLP not triggering on sensitive content | Policy mode, scope, SIT version, latency | [DLP Not Triggering](#symptom-dlp-policy-not-triggering-on-uploaded-content) |
 | Dataverse storage access too permissive | Default permissions, missing retention policy | [Dataverse Storage Hardening](#symptom-dataverse-storage-access-not-restricted-or-retention-missing) |
-| Inventory script returns incomplete results | Sovereign cloud, PSEdition, role | [Inventory Incomplete](#symptom-inventory-script-returns-incomplete-or-empty-results) |
+| Inventory script returns incomplete results | PSEdition, role | [Inventory Incomplete](#symptom-inventory-script-returns-incomplete-or-empty-results) |
 | `Set-AdminPowerAppChatbot -FileUploadEnabled` rejected | Module version, schema not present | [API Surface Missing](#symptom-set-adminpowerappchatbot-fileuploadenabled-rejected) |
 
 ---
@@ -188,10 +188,6 @@ This is documented Microsoft platform behaviour, not a configuration error.
 
 ## Symptom: Inventory Script Returns Incomplete or Empty Results
 
-### Cause: Wrong sovereign cloud endpoint
-
-1. Re-authenticate with the correct `-Endpoint` parameter (`prod`, `usgov`, `usgovhigh`, `dod`)
-2. A zero-environment result on a known-non-empty tenant almost always means commercial endpoint authentication against a government tenant — see [PowerShell Authoring Baseline §3](../../_shared/powershell-baseline.md)
 
 ### Cause: Script run on PowerShell 7 (Core) instead of Windows PowerShell 5.1 (Desktop)
 
@@ -229,7 +225,7 @@ Install-Module -Name Microsoft.PowerApps.Administration.PowerShell `
 
 1. Confirm the running account holds **AI Administrator** or **Power Platform Admin**
 2. Confirm the agent is in an environment the running account can administer
-3. Some Dataverse-backed environments require Dataverse-side role assignment in addition to platform role — see [PowerShell Authoring Baseline §6](../../_shared/powershell-baseline.md)
+3. Some Dataverse-backed environments require Dataverse-side role assignment in addition to platform role — see [PowerShell Authoring Baseline §5](../../_shared/powershell-baseline.md)
 
 ---
 
@@ -286,7 +282,7 @@ Get-Module -Name Microsoft.PowerApps.Administration.PowerShell -ListAvailable |
 Get-AdminPowerAppEnvironment | Format-Table DisplayName, EnvironmentName, EnvironmentType
 ```
 
-### Confirm Sovereign-Cloud Authentication Worked
+### Confirm Authentication and Role Access
 
 ```powershell
 # A non-zero count confirms authentication landed in the right cloud

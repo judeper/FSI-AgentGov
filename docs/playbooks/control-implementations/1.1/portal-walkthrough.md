@@ -13,7 +13,6 @@
     - **Managed Environments** licensed (required for Step 4 sharing limits)
     - **Copilot Studio** licensed at the tenant or per-user
     - **Microsoft Entra ID P1** for any dynamic group membership
-    - For sovereign tenants (GCC / GCC-High / DoD), all portal URLs differ — consult Microsoft sovereign-cloud documentation; this walkthrough uses commercial URLs
 
     See the parent [Control 1.1](../../../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md) Prerequisites & Licensing block for the full list.
 

@@ -1,7 +1,7 @@
 # PowerShell Setup: Control 2.23 - User Consent and AI Disclosure Enforcement
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
 
 **Last Updated:** April 2026
 **PowerShell Version Required:** 7.4+
@@ -287,19 +287,6 @@ Write-Host "Audit evidence: $outFile  ($($results.Count) rows)  SHA-256 $hash" -
 
 Disconnect-ExchangeOnline -Confirm:$false
 ```
-
----
-
-## Sovereign-cloud notes
-
-For GCC, GCC High, and DoD tenants:
-
-- `Connect-MgGraph` requires `-Environment USGov` (GCC High) or `-Environment USGovDoD` (DoD). The Service Communications API is available in all clouds.
-- `Connect-ExchangeOnline` requires `-ExchangeEnvironmentName O365USGovGCCHigh` or `O365USGovDoD`.
-- `Add-PowerAppsAccount` requires `-Endpoint usgovhigh` / `usgovdod`.
-- Dataverse Web API hosts: `*.crm.microsoftdynamics.us` (GCC High) and `*.crm.appsplatform.us` (DoD).
-
-See the [PowerShell baseline](../../_shared/powershell-baseline.md) for the canonical endpoint table.
 
 ---
 

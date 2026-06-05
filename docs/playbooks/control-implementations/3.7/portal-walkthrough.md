@@ -12,8 +12,8 @@
 - [ ] Up to **24 hours** elapsed since enabling analytics, otherwise the Security > Overview page displays "Calculating security score"
 - [ ] Approved **change ticket** (CAB) if any inline remediation will be performed; capture before/after screenshots for SOX 404 evidence
 
-!!! warning "Sovereign cloud reminder"
-    If your tenant is in GCC, GCC High, or DoD, sign in to the sovereign-specific PPAC URL. Recommendations and score behaviour are equivalent, but feature rollout dates may lag commercial. Verify against [Power Platform US Government plans](https://learn.microsoft.com/en-us/power-platform/admin/microsoft-dynamics-365-government).
+!!! info "PPAC sign-in"
+    This framework targets the Microsoft commercial (Global) cloud, the deployment surface for US financial-services customers. Sign in to [admin.powerplatform.microsoft.com](https://admin.powerplatform.microsoft.com).
 
 ---
 
@@ -178,7 +178,6 @@ Cadence:
 - **Score is not a control objective.** Auditors will ask for the underlying configuration evidence and the dismissed-recommendations log, not the headline percentage.
 - **Document score-model changes.** If the **Total possible score** changes between reports, note the date and source (Microsoft release notes) so reviewers can distinguish a model change from configuration drift.
 - **Snooze and dismiss are auditable events.** Treat each as a control exception requiring written justification and a review-by date.
-- **Sovereign cloud lag.** Some recommendations roll out to GCC / GCC High / DoD on a delayed schedule. Confirm parity in your tenant before treating an absent recommendation as compliant.
 
 ---
 

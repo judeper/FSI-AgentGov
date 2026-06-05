@@ -13,17 +13,17 @@
 > **Hedging.** The cmdlets, REST calls, and patterns below **support compliance with** OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), Federal Reserve SR 26-2 (formerly SR 11-7), FINRA Rule 3110 and Regulatory Notice 24-09 (Generative AI / LLM Guidance), SEC Rule 17a-4(b)(4) and 17a-4(f), GLBA §501(b), the NIST AI RMF Generative AI Profile (NIST AI 600-1), and MITRE ATLAS. They **do not** by themselves guarantee regulatory compliance.
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md) — module pinning, sovereign-cloud endpoints (GCC / GCC High / DoD), `-WhatIf` / `SupportsShouldProcess`, Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative when the two diverge.
+    Before running any command, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md) — module pinning, `-WhatIf` / `SupportsShouldProcess`, Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative when the two diverge.
 
 ---
 
 ## §0 Wrong-shell trap (READ FIRST)
 
-Adversarial probes against AI agents touch **five** distinct surfaces. Choosing the wrong one (or invoking the right one without sovereign-cloud parameters) produces silent **false-clean** evidence — every probe "succeeds" because it never actually reached the agent.
+Adversarial probes against AI agents touch **five** distinct surfaces. Choosing the wrong one produces silent **false-clean** evidence — every probe "succeeds" because it never actually reached the agent.
 
 | Surface | Connect cmdlet | Module(s) | What it does in 2.20 |
 |---|---|---|---|
-| **Copilot Studio Direct Line** | OAuth bearer + REST against `https://directline.botframework.com` (or `directline.botframework.us` for GCC High / DoD) | none — `Invoke-RestMethod` | Sends probe prompts to a Copilot Studio agent endpoint and captures the response |
+| **Copilot Studio Direct Line** | OAuth bearer + REST against `https://directline.botframework.com` | none — `Invoke-RestMethod` | Sends probe prompts to a Copilot Studio agent endpoint and captures the response |
 | **Microsoft 365 Copilot** | `Connect-MgGraph` + Graph BetaCopilot endpoints (where available); otherwise interactive testing only | `Microsoft.Graph.Authentication` | Read-only inventory of Copilot agents; Microsoft 365 Copilot itself is generally **not script-promptable** as of April 2026 |
 | **Azure OpenAI / Azure AI Foundry** | `Connect-AzAccount` + REST against `*.openai.azure.com` or `*.cognitiveservices.azure.com` | `Az.Accounts`, `Az.CognitiveServices` | Probe completions endpoint; query Risk & Safety Evaluations |
 | **Azure AI Content Safety — Prompt Shields one-shot** | `Connect-AzAccount` + REST `text:shieldPrompt` | `Az.Accounts` | Validate that a given prompt would be shielded (independent of any agent) |
@@ -38,7 +38,6 @@ Adversarial probes against AI agents touch **five** distinct surfaces. Choosing 
 | Defect | Symptom | Guard |
 |---|---|---|
 | Probe runner targets a stale or mock endpoint | Every prompt returns a canned "I cannot help with that" — defense-rate looks like 100 % | §1 endpoint reachability check; §2 canary prompt that **must** elicit a substantive response |
-| `Connect-AzAccount` / Direct Line URL not branched per sovereign cloud | Authenticates against commercial; zero alerts; "clean" report | §1 sovereign-cloud branching |
 | `Install-Module ... -Force` without `-RequiredVersion` | Floating module versions; reproducibility broken; SOX 404 / OCC 2023-17 evidence rejected | Use the §1 install loop with explicit `-RequiredVersion` |
 | Evidence pack written without SHA-256 manifest | Cannot prove integrity at audit; SEC 17a-4(f) attestation invalid | §5 mandatory `Write-FsiEvidence` wrapper + `manifest.json` |
 
@@ -58,7 +57,7 @@ if ($PSVersionTable.PSVersion -lt [version]'7.4.0') {
 
 ---
 
-## §1 Module install, version pinning, and sovereign-cloud bootstrap
+## §1 Module install, version pinning, and bootstrap
 
 ```powershell
 #Requires -Version 7.4
@@ -86,27 +85,13 @@ foreach ($m in $modules) {
     Import-Module $m.Name -RequiredVersion $m.RequiredVersion -ErrorAction Stop
 }
 
-# Sovereign-cloud bootstrap
-param(
-    [ValidateSet('Commercial','GCC','GCCHigh','DoD')]
-    [string]$Cloud = 'Commercial'
-)
-
-$cloudMap = @{
-    Commercial = @{ Az = 'AzureCloud';          Graph = 'Global';    DirectLine = 'https://directline.botframework.com' }
-    GCC        = @{ Az = 'AzureCloud';          Graph = 'USGov';     DirectLine = 'https://directline.botframework.com' }
-    GCCHigh    = @{ Az = 'AzureUSGovernment';   Graph = 'USGovDoD';  DirectLine = 'https://directline.botframework.us'  }
-    DoD        = @{ Az = 'AzureUSGovernment';   Graph = 'USGovDoD';  DirectLine = 'https://directline.botframework.us'  }
-}
-$endpoints = $cloudMap[$Cloud]
-
-Connect-AzAccount -Environment $endpoints.Az | Out-Null
-Connect-MgGraph -Environment $endpoints.Graph -Scopes 'AuditLog.Read.All','SecurityEvents.Read.All' | Out-Null
-$script:DirectLineBase = $endpoints.DirectLine
+Connect-AzAccount -Environment 'AzureCloud' | Out-Null
+Connect-MgGraph -Environment 'Global' -Scopes 'AuditLog.Read.All','SecurityEvents.Read.All' | Out-Null
+$script:DirectLineBase = 'https://directline.botframework.com'
 ```
 
-!!! warning "Re-verify Direct Line endpoints per release"
-    Microsoft updates Direct Line and Bot Framework endpoint hostnames per sovereign-cloud rollout. Re-confirm against the [Bot Framework — sovereign cloud](https://learn.microsoft.com/en-us/azure/bot-service/bot-builder-deploy-az-cli) documentation before each campaign.
+!!! note "Re-verify Direct Line endpoints per release"
+    Microsoft updates Direct Line and Bot Framework endpoint hostnames periodically. Re-confirm against the [Bot Framework documentation](https://learn.microsoft.com/en-us/azure/bot-service/) before each campaign.
 
 ---
 
@@ -142,12 +127,9 @@ This runner is **idempotent** (re-running with the same inputs produces the same
 .PARAMETER ZoneLabel
     Z1 | Z2 | Z3 — recorded in evidence pack and in CommandTags telemetry.
 
-.PARAMETER Cloud
-    Commercial | GCC | GCCHigh | DoD.
-
 .EXAMPLE
     .\Invoke-AdversarialProbe.ps1 -AgentEndpoint 'https://...' -EndpointType DirectLine `
-        -TestSuitePath '.\attack-library' -EvidencePath '.\evidence' -ZoneLabel Z3 -Cloud Commercial
+        -TestSuitePath '.\attack-library' -EvidencePath '.\evidence' -ZoneLabel Z3
 #>
 
 [CmdletBinding(SupportsShouldProcess, ConfirmImpact='Medium')]
@@ -158,7 +140,6 @@ param(
     [string]$GoldenDatasetPath,
     [Parameter(Mandatory)] [string]$EvidencePath,
     [Parameter(Mandatory)] [ValidateSet('Z1','Z2','Z3')] [string]$ZoneLabel,
-    [Parameter(Mandatory)] [ValidateSet('Commercial','GCC','GCCHigh','DoD')] [string]$Cloud,
     [int]$RatePerMinute = 30
 )
 
@@ -259,7 +240,6 @@ $defenseRate = if ($total -gt 0) { [math]::Round($pass / $total, 4) } else { 0 }
 $summary = [PSCustomObject]@{
     control            = '2.20'
     zone               = $ZoneLabel
-    cloud              = $Cloud
     endpoint           = $AgentEndpoint
     endpoint_type      = $EndpointType
     library_version    = $libVersion
@@ -301,7 +281,7 @@ if ($fail -gt 0 -or $err -gt 0) { exit 2 }
 
 ### 2.1 Endpoint helpers — `Invoke-AgentPrompt`
 
-Place this helper alongside the runner. It branches on `EndpointType` and uses sovereign-cloud-aware base URLs.
+Place this helper alongside the runner. It branches on `EndpointType`.
 
 ```powershell
 function Invoke-AgentPrompt {
@@ -510,7 +490,6 @@ if ($findings | Where-Object severity -in 'Critical','High') { exit 1 } else { e
 - Every script `#Requires -Version 7.4` and `#Requires -PSEdition Core`.
 - Every script supports `-WhatIf` where it changes anything (the runner only sends prompts, but is still gated by `ShouldProcess`).
 - Every script writes through `Add-FsiManifestEntry` — no exceptions.
-- Sovereign-cloud parameters are always required, never defaulted silently.
 - Probe runners are **idempotent** when re-run with the same library version + zone + UTC date.
 
 ---

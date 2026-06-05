@@ -2,13 +2,13 @@
 
 > **Examiner-defensible evidence package** for Control 2.25. This playbook produces, signs, and retains the artifacts required to demonstrate to FINRA, SEC, OCC, FFIEC, NYDFS, and internal audit that every Microsoft 365 AI agent surfaced through the Microsoft Agent 365 Admin Center is licensed, admin-approved, owned, governance-template-bound, exception-monitored, inventory-exported, and (for the Researcher with Computer Use capability) configured per documented zone policy.
 >
-> **Scope:** Commercial M365 tenants holding Microsoft 365 E7 ("Frontier Suite") **or** the standalone Microsoft Agent 365 license layered on a Microsoft 365 Copilot prerequisite. Microsoft Agent 365 reached general availability on **May 1, 2026**. Sovereign clouds (GCC, GCC High, DoD) follow the compensating-control pattern in §10 because the Agent 365 Admin Center governance console, governance templates, and admin-gated publish/activate workflows are not yet at parity in sovereign environments at the time of this playbook's last UI verification.
+> **Scope:** Commercial M365 tenants holding Microsoft 365 E7 ("Frontier Suite") **or** the standalone Microsoft Agent 365 license layered on a Microsoft 365 Copilot prerequisite. Microsoft Agent 365 reached general availability on **May 1, 2026**.
 >
 > **Companion controls:** [1.2 Agent Registry & Integrated Apps Management](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) feeds the OWNER and INVENTORY namespaces. [2.26 Entra Agent ID Identity Governance](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) provides the identity-layer prerequisite that 2.25 governance templates rely on for Zone 3 access-package binding. [3.9 Microsoft Sentinel Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) consumes the SIEM forwarding namespace. [3.6 Orphaned Agent Detection & Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) consumes the OWNER namespace outputs.
 >
 > **Last UI verified:** April 2026 against the post-GA Microsoft 365 admin center build 2026.04.x and the Microsoft Agent 365 Admin Center release of the same build.
 >
-> **Important regulatory framing.** This playbook **supports compliance with**, but does not by itself ensure compliance with, FINRA Rules 3110 (Supervision) and 4511 (Books and Records), FINRA RN 24-09 / Rule 3110 (AI Tools), SEC Rules 17a-3 / 17a-4 (Recordkeeping), SOX Sections 302 / 404 (Internal Controls), GLBA Section 501(b) (Safeguards Rule), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (Technology Risk Management), NYDFS 23 NYCRR 500 (Cybersecurity), and the FFIEC IT Examination Handbook. Where FINRA Rule 3110 obligates the firm to assign a registered principal to a supervisory function, the Agent 365 governance console **does not substitute for** that registered-principal designation; it produces the evidentiary trail that supports — but does not replace — the firm's written supervisory procedures (WSPs).
+> **Important regulatory framing.** This playbook **supports compliance with**, but does not by itself confirm compliance with, FINRA Rules 3110 (Supervision) and 4511 (Books and Records), FINRA RN 24-09 / Rule 3110 (AI Tools), SEC Rules 17a-3 / 17a-4 (Recordkeeping), SOX Sections 302 / 404 (Internal Controls), GLBA Section 501(b) (Safeguards Rule), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) (Technology Risk Management), NYDFS 23 NYCRR 500 (Cybersecurity), and the FFIEC IT Examination Handbook. Where FINRA Rule 3110 obligates the firm to assign a registered principal to a supervisory function, the Agent 365 governance console **does not substitute for** that registered-principal designation; it produces the evidentiary trail that supports — but does not replace — the firm's written supervisory procedures (WSPs).
 
 ---
 
@@ -19,10 +19,8 @@
 | PowerShell baseline | PowerShell 7.4+ Core; `#Requires -Version 7.4` at the top of every executable script. |
 | Test framework | Pester 5.5+. All assertions use `Should` with `-Because` clauses to make examiner traceability explicit. |
 | Output discipline | No `Write-Host`. All evidence emitted as structured `[pscustomobject]` instances via `Write-Output`, then serialized with `ConvertTo-Json -Depth 8` to evidence files. |
-| Sovereign cloud handling | All Pester suites detect tenant cloud and emit `SKIPPED` records with a compensating-control pointer to §10 rather than `FAIL` (see §0.4). |
 | Evidence retention | Six (6) years on WORM-protected storage for the full signed evidence pack — aligning to FINRA Rule 4511 / SEC Rule 17a-4(f). The 3-year minimum applies only to non-supervisory administrative artifacts the firm has documented as out-of-scope of supervisory recordkeeping. |
-| Hashing | SHA-256 over canonical JSON; chained leaf hashes plus a Merkle root in `attestation.json` (see §11.4). |
-| Sovereign anchor | All sovereign-aware functions reference [`../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod`](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod). |
+| Hashing | SHA-256 over canonical JSON; chained leaf hashes plus a Merkle root in `attestation.json` (see §10.4). |
 | Run identifier | Every test run is tagged `AGT225-yyyyMMdd-HHmmss-<8charGuid>` and embedded in every evidence record and artifact filename. |
 | Canonical role names | Per [`docs/reference/role-catalog.md`](../../../reference/role-catalog.md). At GA, **Entra Global Admin** and **AI Administrator** are the only Agent 365-capable administrative roles; **Entra Global Reader** provides read-only verification access. |
 
@@ -30,7 +28,7 @@
 
 ---
 
-## §0 Pre-Test Prerequisites & Sovereign Cloud Bootstrap
+## §0 Pre-Test Prerequisites
 
 ### 0.1 Operator role prerequisites
 
@@ -38,18 +36,18 @@ The operator running this playbook must hold one of the following Entra role ass
 
 | Role (canonical) | Required for | PIM activation window |
 |---|---|---|
-| Entra Global Admin | Tenant-scope reads in §2 (license SKU enumeration), §6 (governance template definition reads), §8 (Researcher with Computer Use policy reads); emergency execution of remediation runbooks | 2 hours, just-in-time, with ticketed justification |
-| AI Administrator | Day-to-day reads against the Microsoft Agent 365 Admin Center: agent inventory (§3, §4, §5, §7), pending approvals queue (§3), governance template assignments (§6), exception-rate metric (§8), Researcher with Computer Use policy (§9). Read-only operations only in this playbook. | 4 hours, just-in-time |
-| Entra Global Reader | Evidence-only verification access where AI Administrator is unavailable; supports the dual-control witness pattern in §11.4 | 4 hours |
+| Entra Global Admin | Tenant-scope reads in §2 (license SKU enumeration), §6 (governance template definition reads), §8 (Researcher with Computer Use policy reads); emergency execution of remediation runbooks | 2 hours, JIT, with ticketed justification |
+| AI Administrator | Day-to-day reads against the Microsoft Agent 365 Admin Center: agent inventory (§3, §4, §5, §7), pending approvals queue (§3), governance template assignments (§6), exception-rate metric (§8), Researcher with Computer Use policy (§9). Read-only operations only in this playbook. | 4 hours, JIT |
+| Entra Global Reader | Evidence-only verification access where AI Administrator is unavailable; supports the dual-control witness pattern in §10.4 | 4 hours |
 | Purview Compliance Admin | Read access to Purview audit retention labels referenced by Agent 365 governance templates (§6); read access to the Audit (Premium) search that backs the SIEM forwarding evidence in §9 | 4 hours |
 | Power Platform Admin | Read access to Microsoft Copilot Studio environment governance metadata for agents that surface in Agent 365 from Copilot Studio (cross-referenced in §6) | 2 hours |
-| AI Governance Lead | Counter-signs the quarterly attestation packet in §14; reviews Pending Requests and Ownerless Agents governance cards on the documented cadence; signs the evidence pack in §11 | Standing assignment with quarterly recertification per Control 2.8 |
-| Compliance Officer | Counter-signs the quarterly attestation packet in §14; signs Zone 3 governance template variances; signs the §10 sovereign quarterly attestation | Standing |
+| AI Governance Lead | Counter-signs the quarterly attestation packet in §13; reviews Pending Requests and Ownerless Agents governance cards on the documented cadence; signs the evidence pack in §10 | Standing assignment with quarterly recertification per Control 2.8 |
+| Compliance Officer | Counter-signs the quarterly attestation packet in §13 and signs Zone 3 governance template variances | Standing |
 | Information Security Officer | Reviews exception-rate threshold variances; reviews Researcher with Computer Use Zone 3 configurations | Standing |
-| Technology Risk Manager | Receives the §11 evidence pack and integrates it into the firm's technology-risk reporting per OCC Bulletin 2026-13 (formerly OCC 2011-12) | Standing |
+| Technology Risk Manager | Receives the §10 evidence pack and integrates it into the firm's technology-risk reporting per OCC Bulletin 2026-13 (formerly OCC 2011-12) | Standing |
 | Change Management Lead | Reconciles Agent 365 approval timestamps with change tickets per Control 2.3 (verified in §3) | Standing |
 
-> **Least privilege.** No operator should hold **Entra Global Admin** persistently. Day-to-day verification work in §2–§9 is performed under **AI Administrator** with **Entra Global Reader** as the witness role. **Entra Global Admin** is reserved for tenant enrollment, licensing changes, and emergency remediation, and is operated under PIM with just-in-time activation.
+> **Least privilege.** No operator should hold **Entra Global Admin** persistently. Day-to-day verification work in §2–§9 is performed under **AI Administrator** with **Entra Global Reader** as the witness role. **Entra Global Admin** is reserved for tenant enrollment, licensing changes, and emergency remediation, and is operated under PIM with JIT activation.
 
 ### 0.2 Module baseline
 
@@ -74,62 +72,19 @@ $ProgressPreference    = 'SilentlyContinue'
 
 ### 0.3 PRE gates (must all pass before §2–§9 execute)
 
-The bootstrap script `Invoke-Agt225PreFlight.ps1` runs eight pre-flight gates. Any `FAIL` halts the suite and emits a single evidence artifact `preflight-FAILED-<runId>.json`. Any `SKIPPED` from PRE-06 redirects the run to §10 (sovereign compensating control).
+The bootstrap script `Invoke-Agt225PreFlight.ps1` runs seven pre-flight gates. Any `FAIL` halts the suite and emits a single evidence artifact `preflight-FAILED-<runId>.json`.
 
 | Gate | ID | Purpose | Failure behavior |
 |---|---|---|---|
 | Module presence | PRE-01 | Confirms required modules loaded at the pinned versions in §0.2 | HALT |
 | Graph context | PRE-02 | Confirms `Connect-MgGraph` established with required scopes (`AgentGovernance.Read.All`, `Directory.Read.All`, `Application.Read.All`, `User.Read.All`, `Reports.Read.All`, `AuditLog.Read.All`) | HALT |
 | Tenant identification | PRE-03 | Captures `tenantId`, `displayName`, `verifiedDomains[0].name` for every evidence record | HALT |
-| Cloud detection | PRE-04 | Reads `(Get-MgContext).Environment` and maps to `Commercial / GCC / GCCH / DoD` | Continue with `cloud` field set; sovereign clouds route to §10 |
-| License gate | PRE-05 | Confirms tenant holds either Microsoft 365 E7 (`SkuPartNumber -like 'M365_E7*'`) **or** standalone Agent 365 (`SkuPartNumber -like 'Microsoft_Agent_365*'`), AND at least one Microsoft 365 Copilot SKU (`SkuPartNumber -like 'Microsoft_365_Copilot*'`) | HALT — Agent 365 requires both license layers |
-| Agent 365 admin blade reachability | PRE-06 | Probes `/beta/agentGovernance/inventory?$top=1` for HTTP 200; in sovereign clouds expects 404/501 and routes to §10 | If 404/403/501 in Commercial: HALT; if sovereign: route to §10 |
-| Clock skew gate | PRE-07 | Compares local UTC to the `Date` header from the Graph response; aborts if drift exceeds 60 seconds | HALT — clock skew invalidates timestamp evidence for FINRA 4511 / SEC 17a-4 |
-| Evidence root writeable | PRE-08 | Confirms `$env:AGT225_EVIDENCE_ROOT` exists, is writeable, and resolves to a path under WORM-eligible storage (validated by checking the parent storage account's immutability policy where applicable) | HALT |
+| License gate | PRE-04 | Confirms tenant holds either Microsoft 365 E7 (`SkuPartNumber -like 'M365_E7*'`) **or** standalone Agent 365 (`SkuPartNumber -like 'Microsoft_Agent_365*'`), AND at least one Microsoft 365 Copilot SKU (`SkuPartNumber -like 'Microsoft_365_Copilot*'`) | HALT — Agent 365 requires both license layers |
+| Agent 365 admin blade reachability | PRE-05 | Probes `/beta/agentGovernance/inventory?$top=1` for HTTP 200 | If 404/403/501: HALT |
+| Clock skew gate | PRE-06 | Compares local UTC to the `Date` header from the Graph response; aborts if drift exceeds 60 seconds | HALT — clock skew invalidates timestamp evidence for FINRA 4511 / SEC 17a-4 |
+| Evidence root writeable | PRE-07 | Confirms `$env:AGT225_EVIDENCE_ROOT` exists, is writeable, and resolves to a path under WORM-eligible storage (validated by checking the parent storage account's immutability policy where applicable) | HALT |
 
-### 0.4 Sovereign bootstrap pattern
-
-```powershell
-function Test-Agt225SovereignTenant {
-    [CmdletBinding()]
-    [OutputType([pscustomobject])]
-    param()
-
-    $ctx = Get-MgContext
-    if (-not $ctx) { throw "PRE-02 failed: no Graph context. Run Connect-MgGraph first." }
-
-    $cloud = switch ($ctx.Environment) {
-        'Global'    { 'Commercial' }
-        'USGov'     { 'GCC' }
-        'USGovDoD'  { 'DoD' }
-        'USGovHigh' { 'GCCH' }
-        default     { 'Unknown' }
-    }
-
-    [pscustomobject]@{
-        cloud         = $cloud
-        is_sovereign  = $cloud -in @('GCC','GCCH','DoD')
-        tenant_id     = $ctx.TenantId
-        detected_at   = (Get-Date).ToUniversalTime().ToString('o')
-        endpoint_ref  = '../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod'
-    }
-}
-```
-
-When `is_sovereign` is `$true`, every Pester `It` block in §2–§9 emits a `SKIPPED` record rather than a `FAIL`:
-
-```json
-{
-  "status": "SKIPPED",
-  "reason": "Microsoft Agent 365 Admin Center governance console not at parity in sovereign cloud at run time",
-  "compensating_control_ref": "§10 SOV namespace; manual quarterly attestation per Control 2.25 §0",
-  "next_check_due": "2026-07-15T00:00:00Z"
-}
-```
-
-This produces an examiner-defensible audit trail showing the test was attempted, was correctly skipped on regulatory-sound grounds, and was supplemented by the manual attestation in §10 — rather than appearing as an unexplained gap. The next-check date is set to the start of the following quarter so the sovereign roadmap re-verification cadence (per Control 2.25 §0 sovereign admonition) is itself evidenced.
-
-### 0.5 Run identifier and evidence root
+### 0.4 Run identifier and evidence root
 
 ```powershell
 function New-Agt225RunId {
@@ -144,13 +99,13 @@ $script:EvidenceRoot = Join-Path $env:AGT225_EVIDENCE_ROOT $script:RunId
 New-Item -Path $script:EvidenceRoot -ItemType Directory -Force | Out-Null
 ```
 
-Every evidence record produced in §2–§10 is written under `$script:EvidenceRoot` and the `runId` is embedded in the filename of every artifact assembled into the §11 evidence pack.
+Every evidence record produced in §2–§9 is written under `$script:EvidenceRoot` and the `runId` is embedded in the filename of every artifact assembled into the §10 evidence pack.
 
 ---
 
 ## §1 Namespace Catalog
 
-The eight Verification Criteria from [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) (the "VCs") are evidenced by eight test namespaces. Each namespace produces independent evidence records that combine into a single signed evidence pack (§11). A ninth cross-cutting namespace (SIEM) and a tenth sovereign-only namespace (SOV) round out the suite.
+The eight Verification Criteria from [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) (the "VCs") are evidenced by eight test namespaces. Each namespace produces independent evidence records that combine into a single signed evidence pack (§10). A ninth cross-cutting namespace (SIEM) rounds out the suite.
 
 | Namespace | Section | Evidences VC | Cadence | Owner |
 |---|---|---|---|---|
@@ -162,7 +117,6 @@ The eight Verification Criteria from [Control 2.25](../../../controls/pillar-2-m
 | `EXCEPTION` | §7 | VC-6 — Exception rate monitored against documented threshold | Weekly | Information Security Officer |
 | `RESEARCHER` | §8 | VC-8 — Researcher with Computer Use configured per zone with affirmative decision | Quarterly + on-change | Information Security Officer |
 | `SIEM` | §9 | Cross-cutting — Agent 365 governance events forwarded to SIEM with 6-year retention; chains with Control 3.1 | Weekly | Entra Security Admin |
-| `SOV` | §10 | All VCs — sovereign cloud compensating attestation (sovereign tenants only) | Quarterly | AI Governance Lead + Compliance Officer |
 
 Each namespace section follows an identical 8-part structure, mirroring the sister [Control 2.26 verification playbook](../2.26/verification-testing.md):
 
@@ -170,14 +124,14 @@ Each namespace section follows an identical 8-part structure, mirroring the sist
 2. **Pre-conditions** — what must already be true (PRE gates passed; reference data present; Graph scopes granted).
 3. **Pester suite** — `Describe "AGT225-{NS}" { Context "Zone {1|2|3}" { It "..." } }` using PowerShell 7.4 / Pester 5.5 syntax.
 4. **Sample passing JSON evidence record** — exact shape that flows into the evidence pack.
-5. **Sample failing JSON evidence record** with a remediation pointer to §12.
+5. **Sample failing JSON evidence record** with a remediation pointer to §11.
 6. **Examiner artifact** — filename pattern, retention duration, signing policy.
 7. **Zone thresholds** — PASS / WARN / FAIL bands per zone.
 8. **Regulator mapping** — which specific regulatory citation each test supports.
 
 ### 1.1 Evidence record schema (canonical)
 
-Every evidence record produced by every namespace MUST conform to this schema. The schema is enforced by `Test-Agt225EvidenceSchema` in §11.5; the pack assembler refuses to publish a pack containing any record that fails schema validation.
+Every evidence record produced by every namespace MUST conform to this schema. The schema is enforced by `Test-Agt225EvidenceSchema` in §10.5; the pack assembler refuses to publish a pack containing any record that fails schema validation.
 
 ```json
 {
@@ -220,18 +174,18 @@ Field semantics:
 | `run_id` | string | Output of `New-Agt225RunId`; identical across every record in a single run. |
 | `run_timestamp` | ISO-8601 string | Captured at `BeforeAll` time, frozen for the run. |
 | `tenant_id` / `tenant_display_name` | string | From PRE-03. |
-| `cloud` | enum | `Commercial / GCC / GCCH / DoD / Unknown`. |
+| `cloud` | enum | `Commercial / Unknown`. |
 | `zone` | enum | `1 / 2 / 3 / all`. `all` is used for tenant-wide records (e.g., LICENSE, SIEM). |
 | `namespace` | enum | One of the namespace IDs in §1. |
-| `criterion` | enum | `VC-1` … `VC-8`, or `VC-1..8 (compensating)` for SOV. |
+| `criterion` | enum | `VC-1` … `VC-8`, or `VC-1..8 (cross-cutting)` for SIEM. |
 | `subject_id` | string | The agent ID, template ID, policy ID, or other Graph object ID. |
-| `subject_type` | enum | `agent / pending_approval / governance_template / inventory_export / exception_metric / researcher_policy / diagnostic_setting / manual_attestation`. |
-| `status` | enum | `PASS / WARN / FAIL / SKIPPED / ERROR`. `ERROR` indicates the test could not run; `SKIPPED` is the sovereign-or-not-applicable case. |
+| `subject_type` | enum | `agent / pending_approval / governance_template / inventory_export / exception_metric / researcher_policy / diagnostic_setting`. |
+| `status` | enum | `PASS / WARN / FAIL / SKIPPED / ERROR`. `ERROR` indicates the test could not run; `SKIPPED` is the not-applicable case. |
 | `assertion` | string | Human-readable statement of what was tested; written to be examiner-readable without context. |
 | `observed_value` / `expected_value` | object | Free-form structured payload; both fields MUST be present even when one is trivial. |
 | `evidence_artifacts` | array | Filenames (relative to evidence root) of the supporting artifacts. |
 | `regulator_mappings` | array | Citation tokens from the controlled vocabulary in §1.2. |
-| `remediation_ref` | string or null | A `TRG-{NS}-NN` pointer into §12 when `status != 'PASS'`. |
+| `remediation_ref` | string or null | A `TRG-{NS}-NN` pointer into §11 when `status != 'PASS'`. |
 | `operator_upn` | string | UPN of the operator who ran the test (from `Get-MgContext`). |
 | `schema_version` | string | Always `"1.0"` for this playbook revision. |
 
@@ -278,33 +232,17 @@ This namespace evidences **VC-1: Agent 365 licensing confirmed**. The test asser
 Describe "AGT225-LICENSE" -Tag 'AGT225','VC-1' {
 
     BeforeAll {
-        $script:sov     = Test-Agt225SovereignTenant
         $script:runId   = $script:RunId
         $script:runTs   = $script:RunTimestamp
         $script:catalog = Get-Content $env:AGT225_LICENSE_CATALOG | ConvertFrom-Json
-        if (-not $script:sov.is_sovereign) {
-            $script:skus = Get-MgSubscribedSku -All |
-                Select-Object SkuId, SkuPartNumber, ConsumedUnits,
-                              @{n='Enabled'; e={$_.PrepaidUnits.Enabled}}
-        }
+        $script:skus = Get-MgSubscribedSku -All |
+            Select-Object SkuId, SkuPartNumber, ConsumedUnits,
+                          @{n='Enabled'; e={$_.PrepaidUnits.Enabled}}
+
     }
 
-    Context "Sovereign cloud short-circuit" -Skip:(-not $script:sov.is_sovereign) {
-        It "emits SKIPPED record routed to §10" {
-            $rec = New-Agt225EvidenceRecord -Namespace 'LICENSE' -Criterion 'VC-1' `
-                -Zone 'all' -SubjectId $script:sov.tenant_id -SubjectType 'inventory_export' `
-                -Status 'SKIPPED' `
-                -Assertion 'Sovereign cloud — Agent 365 Admin Center not at parity; see §10' `
-                -Observed @{ cloud = $script:sov.cloud } `
-                -Expected @{ cloud = 'Commercial' } `
-                -RegulatorMappings @('FINRA-25-07','OCC-2011-12') `
-                -RemediationRef 'TRG-LICENSE-99'
-            $rec | Save-Agt225Evidence
-            $rec.status | Should -Be 'SKIPPED' -Because 'Sovereign tenants follow §10 compensating control'
-        }
-    }
 
-    Context "Tenant holds Agent 365-eligible license" -Skip:$script:sov.is_sovereign {
+    Context "Tenant holds Agent 365-eligible license" {
 
         It "has at least one M365 E7 OR standalone Agent 365 SKU with Enabled > 0" {
             $eligible = $script:skus | Where-Object {
@@ -442,7 +380,7 @@ Describe "AGT225-LICENSE" -Tag 'AGT225','VC-1' {
 | Filename pattern | `license-skus-<runId>.json` and `license-evidence-<runId>.ndjson` |
 | Storage | `$env:AGT225_EVIDENCE_ROOT/<runId>/license/` |
 | Retention | 6 years on WORM (FINRA 4511 / SEC 17a-4(f)) |
-| Signing | Bundled into the §11 evidence pack and signed at the pack level by AI Governance Lead |
+| Signing | Bundled into the §10 evidence pack and signed at the pack level by AI Governance Lead |
 | Distribution | AI Governance Lead, Compliance Officer, Technology Risk Manager |
 
 ### 2.7 Zone thresholds
@@ -489,32 +427,16 @@ This namespace evidences **two** Verification Criteria simultaneously because th
 Describe "AGT225-APPROVAL" -Tag 'AGT225','VC-2','VC-4' {
 
     BeforeAll {
-        $script:sov   = Test-Agt225SovereignTenant
         $script:n     = [int]($env:AGT225_APPROVAL_SAMPLE_N ?? 10)
         $script:sla2  = [int]($env:AGT225_SLA_Z2_BD ?? 5)
         $script:sla3  = [int]($env:AGT225_SLA_Z3_BD ?? 1)
-        if (-not $script:sov.is_sovereign) {
-            $script:approved = Get-Agent365Inventory -Status 'Approved' -PageSize 999
-            $script:pending  = Get-Agent365PendingApproval -PageSize 999
-        }
+        $script:approved = Get-Agent365Inventory -Status 'Approved' -PageSize 999
+        $script:pending  = Get-Agent365PendingApproval -PageSize 999
+
     }
 
-    Context "Sovereign short-circuit" -Skip:(-not $script:sov.is_sovereign) {
-        It "emits SKIPPED for VC-2 and VC-4" {
-            foreach ($vc in 'VC-2','VC-4') {
-                New-Agt225EvidenceRecord -Namespace 'APPROVAL' -Criterion $vc -Zone 'all' `
-                    -SubjectId $script:sov.tenant_id -SubjectType 'pending_approval' `
-                    -Status 'SKIPPED' `
-                    -Assertion 'Sovereign cloud — see §10' `
-                    -Observed @{ cloud = $script:sov.cloud } -Expected @{ cloud = 'Commercial' } `
-                    -RegulatorMappings @('FINRA-3110','FINRA-25-07','SOX-404') `
-                    -RemediationRef 'TRG-APPROVAL-99' | Save-Agt225Evidence
-            }
-            $true | Should -BeTrue
-        }
-    }
 
-    Context "VC-2: Sample of approved agents has non-null approver + timestamp + change ticket" -Skip:$script:sov.is_sovereign {
+    Context "VC-2: Sample of approved agents has non-null approver + timestamp + change ticket" {
 
         It "Quarterly sample of N>=10 approved agents per zone has non-null approverUpn" {
             foreach ($zone in '2','3') {
@@ -582,7 +504,7 @@ Describe "AGT225-APPROVAL" -Tag 'AGT225','VC-2','VC-4' {
         }
     }
 
-    Context "VC-4: Pending requests resolved within firm SLA" -Skip:$script:sov.is_sovereign {
+    Context "VC-4: Pending requests resolved within firm SLA" {
 
         It "No Z2 pending request older than $script:sla2 business days" {
             $cutoff   = (Get-Agt225BusinessDayOffset -BusinessDays $script:sla2 -Direction Backward).ToUniversalTime()
@@ -730,24 +652,12 @@ This namespace evidences **VC-5: Ownerless Agents card is zero or actively remed
 Describe "AGT225-OWNER" -Tag 'AGT225','VC-5' {
 
     BeforeAll {
-        $script:sov   = Test-Agt225SovereignTenant
-        if (-not $script:sov.is_sovereign) {
-            $script:ownerless = Get-Agent365OwnerlessAgent -PageSize 999
-        }
+        $script:ownerless = Get-Agent365OwnerlessAgent -PageSize 999
+
     }
 
-    Context "Sovereign short-circuit" -Skip:(-not $script:sov.is_sovereign) {
-        It "emits SKIPPED" {
-            New-Agt225EvidenceRecord -Namespace 'OWNER' -Criterion 'VC-5' -Zone 'all' `
-                -SubjectId $script:sov.tenant_id -SubjectType 'agent' -Status 'SKIPPED' `
-                -Assertion 'Sovereign — see §10' -Observed @{} -Expected @{} `
-                -RegulatorMappings @('FINRA-3110','OCC-2011-12') -RemediationRef 'TRG-OWNER-99' `
-                | Save-Agt225Evidence
-            $true | Should -BeTrue
-        }
-    }
 
-    Context "VC-5: Ownerless Agents card" -Skip:$script:sov.is_sovereign {
+    Context "VC-5: Ownerless Agents card" {
 
         It "Ownerless Agents count is zero, OR every entry has open remediation ticket aged <= 48h" {
             $now = (Get-Date).ToUniversalTime()
@@ -889,26 +799,14 @@ This namespace evidences **VC-3: Governance template applied universally to Z2 a
 Describe "AGT225-TEMPLATE" -Tag 'AGT225','VC-3' {
 
     BeforeAll {
-        $script:sov = Test-Agt225SovereignTenant
-        if (-not $script:sov.is_sovereign) {
-            $script:agents    = Get-Agent365Inventory -PageSize 999
-            $script:templates = Get-Agent365GovernanceTemplateAssignment -PageSize 999
-            $script:baseline  = Get-Content $env:AGT225_TEMPLATE_BASELINE | ConvertFrom-Json
-        }
+        $script:agents    = Get-Agent365Inventory -PageSize 999
+        $script:templates = Get-Agent365GovernanceTemplateAssignment -PageSize 999
+        $script:baseline  = Get-Content $env:AGT225_TEMPLATE_BASELINE | ConvertFrom-Json
+
     }
 
-    Context "Sovereign short-circuit" -Skip:(-not $script:sov.is_sovereign) {
-        It "emits SKIPPED" {
-            New-Agt225EvidenceRecord -Namespace 'TEMPLATE' -Criterion 'VC-3' -Zone 'all' `
-                -SubjectId $script:sov.tenant_id -SubjectType 'governance_template' -Status 'SKIPPED' `
-                -Assertion 'Sovereign — see §10' -Observed @{} -Expected @{} `
-                -RegulatorMappings @('FINRA-3110','SOX-404') -RemediationRef 'TRG-TEMPLATE-99' `
-                | Save-Agt225Evidence
-            $true | Should -BeTrue
-        }
-    }
 
-    Context "VC-3: Z2 agents have Default OR Custom template assigned" -Skip:$script:sov.is_sovereign {
+    Context "VC-3: Z2 agents have Default OR Custom template assigned" {
         It "Every Z2 agent has a non-null governance template" {
             $z2 = $script:agents | Where-Object zone -eq '2'
             $missing = $z2 | Where-Object {
@@ -928,7 +826,7 @@ Describe "AGT225-TEMPLATE" -Tag 'AGT225','VC-3' {
         }
     }
 
-    Context "VC-3: Z3 agents have Custom template + Entra Access Package binding" -Skip:$script:sov.is_sovereign {
+    Context "VC-3: Z3 agents have Custom template + Entra Access Package binding" {
         It "Every Z3 agent uses a Custom template (not Default)" {
             $z3 = $script:agents | Where-Object zone -eq '3'
             $offenders = $z3 | Where-Object {
@@ -1080,7 +978,6 @@ This namespace evidences **VC-7: Inventory exported monthly, WORM-protected, ISO
 Describe "AGT225-INVENTORY" -Tag 'AGT225','VC-7' {
 
     BeforeAll {
-        $script:sov            = Test-Agt225SovereignTenant
         $script:requiredFields = $env:AGT225_INVENTORY_REQUIRED_FIELDS |
             ConvertFrom-Json -ErrorAction SilentlyContinue
         if (-not $script:requiredFields) {
@@ -1092,18 +989,8 @@ Describe "AGT225-INVENTORY" -Tag 'AGT225','VC-7' {
         $script:archive = $env:AGT225_INVENTORY_ARCHIVE_ROOT
     }
 
-    Context "Sovereign short-circuit" -Skip:(-not $script:sov.is_sovereign) {
-        It "emits SKIPPED" {
-            New-Agt225EvidenceRecord -Namespace 'INVENTORY' -Criterion 'VC-7' -Zone 'all' `
-                -SubjectId $script:sov.tenant_id -SubjectType 'inventory_export' -Status 'SKIPPED' `
-                -Assertion 'Sovereign — see §10' -Observed @{} -Expected @{} `
-                -RegulatorMappings @('FINRA-4511','SEC-17a-4') -RemediationRef 'TRG-INVENTORY-99' `
-                | Save-Agt225Evidence
-            $true | Should -BeTrue
-        }
-    }
 
-    Context "VC-7: Trailing 12 months of monthly exports present" -Skip:$script:sov.is_sovereign {
+    Context "VC-7: Trailing 12 months of monthly exports present" {
 
         It "Archive contains exactly one export per month for the trailing 12 months" {
             $now = Get-Date
@@ -1242,8 +1129,8 @@ Describe "AGT225-INVENTORY" -Tag 'AGT225','VC-7' {
 |---|---|
 | Filename | `agent365-inventory-yyyy-MM-dd.json` (the monthly export); `inventory-hash-manifest.json` (chain-of-custody manifest); `inventory-evidence-<runId>.ndjson` (Pester output) |
 | Storage | WORM archive at `$env:AGT225_INVENTORY_ARCHIVE_ROOT` |
-| Retention | 6 years on WORM, with the firm's documented immutability policy referenced in the §11 attestation |
-| Signing | Each monthly export hash chained into the manifest, signed by AI Governance Lead at the time of monthly capture; the §11 pack additionally signs the Pester output |
+| Retention | 6 years on WORM, with the firm's documented immutability policy referenced in the §10 attestation |
+| Signing | Each monthly export hash chained into the manifest, signed by AI Governance Lead at the time of monthly capture; the §10 pack additionally signs the Pester output |
 | Distribution | AI Governance Lead, Compliance Officer, Internal Audit |
 
 ### 6.7 Zone thresholds
@@ -1284,26 +1171,14 @@ This namespace evidences **VC-6: Exception rate monitored against a documented t
 Describe "AGT225-EXCEPTION" -Tag 'AGT225','VC-6' {
 
     BeforeAll {
-        $script:sov       = Test-Agt225SovereignTenant
         $script:threshold = [double]($env:AGT225_EXCEPTION_THRESHOLD_PCT ?? 5)
-        if (-not $script:sov.is_sovereign) {
-            $script:metric = Get-Agent365ExceptionMetric
-            $script:reviews = Get-Content $env:AGT225_EXCEPTION_REVIEW_LOG | ConvertFrom-Json
-        }
+        $script:metric = Get-Agent365ExceptionMetric
+        $script:reviews = Get-Content $env:AGT225_EXCEPTION_REVIEW_LOG | ConvertFrom-Json
+
     }
 
-    Context "Sovereign short-circuit" -Skip:(-not $script:sov.is_sovereign) {
-        It "emits SKIPPED" {
-            New-Agt225EvidenceRecord -Namespace 'EXCEPTION' -Criterion 'VC-6' -Zone 'all' `
-                -SubjectId $script:sov.tenant_id -SubjectType 'exception_metric' -Status 'SKIPPED' `
-                -Assertion 'Sovereign — see §10' -Observed @{} -Expected @{} `
-                -RegulatorMappings @('SOX-404','OCC-2011-12') -RemediationRef 'TRG-EXCEPTION-99' `
-                | Save-Agt225Evidence
-            $true | Should -BeTrue
-        }
-    }
 
-    Context "VC-6: Exception rate below firm threshold" -Skip:$script:sov.is_sovereign {
+    Context "VC-6: Exception rate below firm threshold" {
 
         It "Tenant-wide exception rate is at or below firm threshold" {
             $rate = $script:metric.exceptionRatePct
@@ -1441,25 +1316,13 @@ This namespace evidences **VC-8: Researcher with Computer Use is configured per 
 Describe "AGT225-RESEARCHER" -Tag 'AGT225','VC-8' {
 
     BeforeAll {
-        $script:sov      = Test-Agt225SovereignTenant
         $script:decision = Get-Content $env:AGT225_RESEARCHER_DECISION_LOG | ConvertFrom-Json
-        if (-not $script:sov.is_sovereign) {
-            $script:policy = Get-Agent365ResearcherComputerUsePolicy
-        }
+        $script:policy = Get-Agent365ResearcherComputerUsePolicy
+
     }
 
-    Context "Sovereign short-circuit" -Skip:(-not $script:sov.is_sovereign) {
-        It "emits SKIPPED" {
-            New-Agt225EvidenceRecord -Namespace 'RESEARCHER' -Criterion 'VC-8' -Zone 'all' `
-                -SubjectId $script:sov.tenant_id -SubjectType 'researcher_policy' -Status 'SKIPPED' `
-                -Assertion 'Sovereign — see §10' -Observed @{} -Expected @{} `
-                -RegulatorMappings @('FINRA-25-07','GLBA-501b','OCC-2011-12') `
-                -RemediationRef 'TRG-RESEARCHER-99' | Save-Agt225Evidence
-            $true | Should -BeTrue
-        }
-    }
 
-    Context "VC-8: Per-zone affirmative decision present and signed" -Skip:$script:sov.is_sovereign {
+    Context "VC-8: Per-zone affirmative decision present and signed" {
 
         It "Z1, Z2, Z3 each have a current affirmative decision in the decision log" {
             $missing = @()
@@ -1618,26 +1481,15 @@ This namespace is **cross-cutting** — it does not map to a single VC, but rath
 Describe "AGT225-SIEM" -Tag 'AGT225','SIEM' {
 
     BeforeAll {
-        $script:sov = Test-Agt225SovereignTenant
         $script:siemEvents = Invoke-Agt225SiemQuery -SavedQuery $env:AGT225_SIEM_QUERY_FN -RangeDays 7
     }
 
-    Context "Sovereign short-circuit" -Skip:(-not $script:sov.is_sovereign) {
-        It "emits SKIPPED" {
-            New-Agt225EvidenceRecord -Namespace 'SIEM' -Criterion 'VC-1..8 (compensating)' -Zone 'all' `
-                -SubjectId $script:sov.tenant_id -SubjectType 'diagnostic_setting' -Status 'SKIPPED' `
-                -Assertion 'Sovereign — see §10' -Observed @{} -Expected @{} `
-                -RegulatorMappings @('FINRA-4511','SEC-17a-4') -RemediationRef 'TRG-SIEM-99' `
-                | Save-Agt225Evidence
-            $true | Should -BeTrue
-        }
-    }
 
-    Context "Cross-cutting: Agent 365 events present in SIEM" -Skip:$script:sov.is_sovereign {
+    Context "Cross-cutting: Agent 365 events present in SIEM" {
 
         It "SIEM has at least one Agent 365 governance event in trailing 7 days" {
             $count = ($script:siemEvents | Measure-Object).Count
-            $rec = New-Agt225EvidenceRecord -Namespace 'SIEM' -Criterion 'VC-1..8 (compensating)' -Zone 'all' `
+            $rec = New-Agt225EvidenceRecord -Namespace 'SIEM' -Criterion 'VC-1..8 (cross-cutting)' -Zone 'all' `
                 -SubjectId 'siem-event-presence' -SubjectType 'diagnostic_setting' `
                 -Status (if ($count -gt 0) { 'PASS' } else { 'FAIL' }) `
                 -Assertion 'SIEM ingest pipeline yields >=1 Agent 365 event in trailing 7d' `
@@ -1652,7 +1504,7 @@ Describe "AGT225-SIEM" -Tag 'AGT225','SIEM' {
         It "SIEM workspace retention is at least 6 years (2192 days)" {
             $ret = Get-Agt225SiemRetentionDays -Endpoint $env:AGT225_SIEM_QUERY_ENDPOINT
             $ok = $ret -ge 2192
-            $rec = New-Agt225EvidenceRecord -Namespace 'SIEM' -Criterion 'VC-1..8 (compensating)' -Zone 'all' `
+            $rec = New-Agt225EvidenceRecord -Namespace 'SIEM' -Criterion 'VC-1..8 (cross-cutting)' -Zone 'all' `
                 -SubjectId 'siem-retention-config' -SubjectType 'diagnostic_setting' `
                 -Status (if ($ok) { 'PASS' } else { 'FAIL' }) `
                 -Assertion 'SIEM workspace retention >= 6 years (FINRA 4511 / SEC 17a-4)' `
@@ -1669,7 +1521,7 @@ Describe "AGT225-SIEM" -Tag 'AGT225','SIEM' {
             $extended = Invoke-Agt225SiemQuery -SavedQuery "${env:AGT225_SIEM_QUERY_FN}_30d" -RangeDays 30
             $observed = $extended.AgentGovernanceCategory | Sort-Object -Unique
             $missing = $needed | Where-Object { $_ -notin $observed }
-            $rec = New-Agt225EvidenceRecord -Namespace 'SIEM' -Criterion 'VC-1..8 (compensating)' -Zone 'all' `
+            $rec = New-Agt225EvidenceRecord -Namespace 'SIEM' -Criterion 'VC-1..8 (cross-cutting)' -Zone 'all' `
                 -SubjectId 'siem-namespace-coverage' -SubjectType 'diagnostic_setting' `
                 -Status (if ($missing.Count -eq 0) { 'PASS' } else { 'WARN' }) `
                 -Assertion 'Each governance namespace produces at least one SIEM event in trailing 30d' `
@@ -1691,7 +1543,7 @@ Describe "AGT225-SIEM" -Tag 'AGT225','SIEM' {
   "control_id": "2.25", "run_id": "AGT225-20260415-093012-a1b2c3d4",
   "run_timestamp": "2026-04-15T09:30:12Z", "tenant_id": "11111111-2222-3333-4444-555555555555",
   "tenant_display_name": "Contoso Bank, N.A.", "cloud": "Commercial",
-  "zone": "all", "namespace": "SIEM", "criterion": "VC-1..8 (compensating)",
+  "zone": "all", "namespace": "SIEM", "criterion": "VC-1..8 (cross-cutting)",
   "subject_id": "siem-retention-config", "subject_type": "diagnostic_setting",
   "status": "PASS",
   "assertion": "SIEM workspace retention >= 6 years (FINRA 4511 / SEC 17a-4)",
@@ -1710,7 +1562,7 @@ Describe "AGT225-SIEM" -Tag 'AGT225','SIEM' {
   "control_id": "2.25", "run_id": "AGT225-20260415-093012-a1b2c3d4",
   "run_timestamp": "2026-04-15T09:30:12Z", "tenant_id": "11111111-2222-3333-4444-555555555555",
   "tenant_display_name": "Contoso Bank, N.A.", "cloud": "Commercial",
-  "zone": "all", "namespace": "SIEM", "criterion": "VC-1..8 (compensating)",
+  "zone": "all", "namespace": "SIEM", "criterion": "VC-1..8 (cross-cutting)",
   "subject_id": "siem-event-presence", "subject_type": "diagnostic_setting",
   "status": "FAIL",
   "assertion": "SIEM ingest pipeline yields >=1 Agent 365 event in trailing 7d",
@@ -1746,59 +1598,9 @@ This namespace operates tenant-wide; no zone differentiation. PASS requires all 
 
 ---
 
-## §10 SOV Namespace — Sovereign Cloud Compensating Control
+## §10 Evidence Pack Assembly & Signing
 
-### 10.1 Purpose
-
-When `Test-Agt225SovereignTenant` returns `is_sovereign = $true`, the eight Pester suites in §2–§9 emit `SKIPPED` records pointing here. This section describes the manual quarterly attestation that supplies compensating evidence in sovereign clouds (GCC, GCCH, DoD) until Microsoft Agent 365 Admin Center reaches parity in those environments. The sovereign roadmap MUST be re-checked at the start of every quarter; the quarterly memo described here records the re-check outcome.
-
-### 10.2 Scope and rationale
-
-The Microsoft Agent 365 Admin Center governance console, governance templates, admin-gated publish/activate workflow, and exception-rate metric are not at parity in sovereign clouds at the time of this playbook's last UI verification (April 2026). The sovereign cloud roadmap is published by Microsoft and updated periodically; the firm's Cloud Engineering team subscribes to the roadmap notifications and produces a memo each quarter. Until parity arrives, sovereign tenants demonstrate compliance with the Control 2.25 verification criteria through:
-
-1. **Manual quarterly inventory** — operator with **Entra Global Reader** enumerates agents using `Get-MgServicePrincipal` filtered by Microsoft 365 Copilot publishers and Copilot Studio API endpoints, producing an equivalent inventory file with the same field set as §6.
-2. **Manual approval review** — change-ticket records from Control 2.3 are sampled and reviewed by AI Governance Lead and Compliance Officer for evidence of admin sponsorship for each Z2/Z3 agent.
-3. **Manual ownership reconciliation** — owner UPNs from the manual inventory are validated against active employee records with the same 48-hour remediation SLA.
-4. **Manual template equivalent** — the firm's Conditional Access policies, Sensitivity Labels, and Purview DLP policies that constitute the "template equivalent" are enumerated and confirmed to apply.
-5. **Manual exception accounting** — variances from the policy baseline are tracked in the firm's GRC platform and the rate is computed for the trailing quarter.
-6. **Researcher with Computer Use** — sovereign clouds may not have the Researcher capability at all; if absent, the §10 attestation states `not_applicable` for VC-8 with a parity-roadmap pointer.
-7. **SIEM** — sovereign tenants forward to the sovereign-cloud SIEM (e.g., Sentinel Government); retention requirements are unchanged.
-
-### 10.3 Quarterly attestation runbook
-
-| Step | Owner | Output |
-|---|---|---|
-| 1. Re-check Microsoft sovereign roadmap | Cloud Engineering Lead | Memo `sov-parity-check-yyyy-Qn.md` |
-| 2. Run manual inventory script | AI Administrator | `sov-inventory-yyyy-Qn.json` |
-| 3. Sample Z2/Z3 change tickets (N>=10/zone) | AI Governance Lead | `sov-approval-sample-yyyy-Qn.json` |
-| 4. Reconcile owner UPNs against HR feed | AI Governance Lead | `sov-ownership-yyyy-Qn.json` |
-| 5. Enumerate compensating policies (CA / SL / DLP) | Information Security Officer | `sov-template-equivalent-yyyy-Qn.json` |
-| 6. Compute exception rate from GRC tickets | Compliance Officer | `sov-exception-yyyy-Qn.json` |
-| 7. Confirm Researcher availability and decision | Information Security Officer | `sov-researcher-yyyy-Qn.json` |
-| 8. Confirm SIEM forwarding and retention | Entra Security Admin | `sov-siem-yyyy-Qn.json` |
-| 9. Assemble and dual-sign attestation packet | AI Governance Lead + Compliance Officer | `sov-attestation-yyyy-Qn.pdf` (signed) |
-
-### 10.4 Sovereign attestation record schema
-
-The dual-signed PDF is the human-readable artifact; the underlying machine-readable record uses the same schema as §1.1 with `criterion: "VC-1..8 (compensating)"`, `namespace: "SOV"`, `subject_type: "manual_attestation"`, and `evidence_artifacts` enumerating all nine outputs above.
-
-### 10.5 Retention
-
-Sovereign attestation packets are retained on WORM for **7 years** (extending the standard 6-year retention by one year because the attestation is itself the primary evidence in the absence of automated tooling) — aligning with the more conservative end of FFIEC and OCC examiner expectations for compensating-control documentation.
-
-### 10.6 Re-verification trigger
-
-When the Microsoft sovereign roadmap announces parity for the Agent 365 Admin Center, the firm's Cloud Engineering team:
-
-1. Pilots the automated tests in §2–§9 in a sovereign tenant for one quarter alongside the manual attestation.
-2. AI Governance Lead and Compliance Officer dual-sign a transition memo cutting over from §10 manual attestation to §2–§9 automation effective the following quarter.
-3. The §10 manual attestation is retained on its 7-year WORM clock from the date of last attestation; it is not destroyed early.
-
----
-
-## §11 Evidence Pack Assembly & Signing
-
-### 11.1 Pack layout
+### 10.1 Pack layout
 
 After all namespace suites complete, `Build-Agt225EvidencePack` assembles a single signed pack at `$script:EvidenceRoot/pack/`:
 
@@ -1818,10 +1620,9 @@ After all namespace suites complete, `Build-Agt225EvidencePack` assembles a sing
 ├── exception/
 ├── researcher/
 ├── siem/
-└── sov/                              # Empty in Commercial; populated in sovereign
 ```
 
-### 11.2 Pack metadata
+### 10.2 Pack metadata
 
 ```json
 {
@@ -1854,32 +1655,31 @@ After all namespace suites complete, `Build-Agt225EvidencePack` assembles a sing
 }
 ```
 
-### 11.3 Signing
+### 10.3 Signing
 
 The pack is signed by the AI Governance Lead using a key managed in the firm's PKI or Azure Key Vault (managed HSM where available). The witness (Entra Global Reader operator) co-signs attesting to the dual-control read of the pack contents prior to publication.
 
-### 11.4 Merkle root
+### 10.4 Merkle root
 
 Every evidence record file contributes a SHA-256 leaf hash (computed over the canonical JSON serialization). Leaves are sorted lexicographically by filename and combined pairwise into a binary Merkle tree; the root hash is recorded as `merkle_root_sha256` in `attestation.json`. Any tampering with any record after publication invalidates the root and is detectable by `Test-Agt225PackIntegrity`.
 
-### 11.5 Schema validation
+### 10.5 Schema validation
 
 Before signing, `Test-Agt225EvidenceSchema` validates every record against the §1.1 schema. Records failing schema validation are not signed; the pack assembler exits with a non-zero status and writes `schema-violation-<runId>.json` to the pack directory for triage.
 
-### 11.6 Publication
+### 10.6 Publication
 
 Signed packs are published to `$env:AGT225_PACK_PUBLICATION_ROOT` (a WORM container distinct from the working evidence root) and an index entry is appended to the firm's evidence-pack registry per Control 2.13. The publication step emits an OpenTelemetry span that flows to the firm's observability platform and to the SIEM (Control 3.1).
 
-### 11.7 Retention
+### 10.7 Retention
 
 | Cloud | Retention | Authority |
 |---|---|---|
 | Commercial | 6 years on WORM | FINRA 4511 / SEC 17a-4(f) |
-| Sovereign (GCC/GCCH/DoD) | 7 years on WORM | Same as Commercial plus 1-year buffer for compensating-control documentation per §10.5 |
 
 ---
 
-## §12 Failure Triage Matrix
+## §11 Failure Triage Matrix
 
 When a Pester `It` block FAILs, the evidence record carries a `remediation_ref` of the form `TRG-{NS}-NN`. This matrix maps each ID to severity, SLA band, owner, and the remediation playbook section.
 
@@ -1889,44 +1689,36 @@ When a Pester `It` block FAILs, the evidence record carries a `remediation_ref` 
 | TRG-LICENSE-02 | Critical | 1 BD | Procurement Lead | Portal Walkthrough §2.2 (planned) |
 | TRG-LICENSE-03 | Critical | 4 hours | AI Administrator | [Troubleshooting](./troubleshooting.md) §3.1 |
 | TRG-LICENSE-04 | Medium | 30 days | Procurement Lead | Portal Walkthrough §2.3 (planned) |
-| TRG-LICENSE-99 | Informational | Quarterly | AI Governance Lead | §10 sovereign attestation |
 | TRG-APPROVAL-01 | High | 2 BD | AI Governance Lead | Portal Walkthrough §3.1 (planned) |
 | TRG-APPROVAL-02 | Medium | 5 BD | AI Governance Lead | Portal Walkthrough §3.2 (planned) |
 | TRG-APPROVAL-03 | High | 2 BD | Change Management Lead | Portal Walkthrough §3.3 (planned) |
 | TRG-APPROVAL-04 | High | 1 BD | AI Governance Lead | [PowerShell Setup](./powershell-setup.md) §4.2 |
 | TRG-APPROVAL-05 | Critical | 4 hours | AI Governance Lead | [PowerShell Setup](./powershell-setup.md) §4.3 |
-| TRG-APPROVAL-99 | Informational | Quarterly | AI Governance Lead | §10 sovereign attestation |
 | TRG-OWNER-01 | High | 48 hours | AI Governance Lead | Portal Walkthrough §4.1 (planned) |
 | TRG-OWNER-02 | Critical | 24 hours | AI Governance Lead | Portal Walkthrough §4.2 (planned) |
-| TRG-OWNER-99 | Informational | Quarterly | AI Governance Lead | §10 |
 | TRG-TEMPLATE-01 | High | 5 BD | AI Administrator | Portal Walkthrough §5.1 (planned) |
 | TRG-TEMPLATE-02 | Critical | 2 BD | AI Administrator | Portal Walkthrough §5.2 (planned) |
 | TRG-TEMPLATE-03 | Critical | 2 BD | Identity Engineering Lead | Portal Walkthrough §5.3 (planned) |
 | TRG-TEMPLATE-04 | High | 5 BD | Identity Engineering Lead | Portal Walkthrough §5.4 (planned) |
-| TRG-TEMPLATE-99 | Informational | Quarterly | AI Governance Lead | §10 |
 | TRG-INVENTORY-01 | High | 5 BD | AI Governance Lead | [PowerShell Setup](./powershell-setup.md) §5.1 |
 | TRG-INVENTORY-02 | Medium | 5 BD | AI Governance Lead | [PowerShell Setup](./powershell-setup.md) §5.2 |
 | TRG-INVENTORY-03 | High | 5 BD | AI Governance Lead | [PowerShell Setup](./powershell-setup.md) §5.3 |
 | TRG-INVENTORY-04 | Critical | 4 hours (IR escalation) | CISO + AI Governance Lead | [Troubleshooting](./troubleshooting.md) §6.1 |
-| TRG-INVENTORY-99 | Informational | Quarterly | AI Governance Lead | §10 |
 | TRG-EXCEPTION-01 | High | 30 days | AI Governance Lead | Portal Walkthrough §6.1 (planned) |
 | TRG-EXCEPTION-02 | Critical | 10 BD | AI Governance Lead + CISO | Portal Walkthrough §6.2 (planned) |
 | TRG-EXCEPTION-03 | Critical | 1 quarter | AI Governance Lead | Portal Walkthrough §6.3 (planned) |
-| TRG-EXCEPTION-99 | Informational | Quarterly | AI Governance Lead | §10 |
 | TRG-RESEARCHER-01 | High | 30 days | AI Governance Lead | Portal Walkthrough §7.1 (planned) |
 | TRG-RESEARCHER-02 | Critical | 10 BD | AI Governance Lead + CISO | Portal Walkthrough §7.2 (planned) |
 | TRG-RESEARCHER-03 | Critical | 4 hours | AI Administrator | [PowerShell Setup](./powershell-setup.md) §7.3 |
-| TRG-RESEARCHER-99 | Informational | Quarterly | AI Governance Lead | §10 |
 | TRG-SIEM-01 | High | 1 BD | Entra Security Admin | [Troubleshooting](./troubleshooting.md) §9.1 |
 | TRG-SIEM-02 | Critical | 5 BD | Entra Security Admin | [PowerShell Setup](./powershell-setup.md) §9.2 |
 | TRG-SIEM-03 | Medium | 30 days | Entra Security Admin | [Troubleshooting](./troubleshooting.md) §9.3 |
-| TRG-SIEM-99 | Informational | Quarterly | AI Governance Lead | §10 |
 
-> Severity bands: **Critical** — examiner-visible if unremediated; **High** — examiner-visible if recurring or pattern; **Medium** — process improvement; **Informational** — sovereign skip routing.
+> Severity bands: **Critical** — examiner-visible if unremediated; **High** — examiner-visible if recurring or pattern; **Medium** — process improvement; **Informational**.
 
 ---
 
-## §13 Cross-Control Verification Dependencies
+## §12 Cross-Control Verification Dependencies
 
 This playbook is one node in the broader Pillar 2 governance graph. The following dependencies must be considered when reading this evidence pack.
 
@@ -1936,7 +1728,7 @@ This playbook is one node in the broader Pillar 2 governance graph. The followin
 | Upstream | [2.26 Entra Agent ID Identity Governance](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) | Provides the Entra Access Package binding asserted in §5 TEMPLATE for Z3 agents. If 2.26 evidence shows orphaned access packages, 2.25 TEMPLATE PASS is downgraded to WARN. |
 | Upstream | [2.3 Change Management and Release Planning](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md) | Provides the change-ticket records cross-referenced by §3 APPROVAL `Resolve-Agt225ChangeTicket`. |
 | Upstream | [2.8 Access Control and Segregation of Duties](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md) | Provides the 90-day re-attestation evidence referenced in §2.7 Z3 PASS criteria. |
-| Lateral | [2.13 Documentation and Record Keeping](../../../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) | Receives the §11 published pack metadata. |
+| Lateral | [2.13 Documentation and Record Keeping](../../../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) | Receives the §10 published pack metadata. |
 | Downstream | [3.9 Microsoft Sentinel Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) | Consumes the SIEM forwarding namespace; the §9 evidence cross-references the parent 3.9 pack via `parent_pack_ref`. |
 | Downstream | [3.6 Orphaned Agent Detection & Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) | Consumes the §4 OWNER findings; offender list flows directly into 3.6 remediation queue. |
 | Downstream | 4.5 AI Governance Council Operations (planned) | Consumes the §7 EXCEPTION review-cycle artifacts; council secretary maintains `$env:AGT225_EXCEPTION_REVIEW_LOG`. |
@@ -1945,32 +1737,31 @@ When assembling a quarterly attestation for an examiner, present the 2.25 eviden
 
 ---
 
-## §14 Quarterly Attestation Runbook
+## §13 Quarterly Attestation Runbook
 
-### 14.1 Cadence
+### 13.1 Cadence
 
 | Activity | Cadence | Owner |
 |---|---|---|
 | Run §2–§9 Pester suite | Daily (Z3-touching tests), Weekly (full suite), Monthly (with INVENTORY) | AI Administrator |
-| Assemble §11 evidence pack | Monthly | AI Governance Lead |
+| Assemble §10 evidence pack | Monthly | AI Governance Lead |
 | Quarterly attestation packet | Quarterly (within 15 BD of quarter end) | AI Governance Lead + Compliance Officer |
 | Annual control re-baseline (review thresholds in §3, §7) | Annually | AI Governance Council |
 
-### 14.2 Quarterly packet contents
+### 13.2 Quarterly packet contents
 
-1. The three monthly §11 evidence packs from the quarter, with their attestation.json files.
+1. The three monthly §10 evidence packs from the quarter, with their attestation.json files.
 2. A quarterly summary memo `2.25-quarterly-summary-yyyy-Qn.md` covering: namespace pass rates; trend vs. prior quarter; open remediation tickets; threshold variance review (if any threshold in `$env:AGT225_*` was changed during the quarter, the change is recorded with its approver and effective date).
-3. The current §10 sovereign attestation packet if applicable.
 4. The signed cross-reference index linking the 2.25 pack to the 1.2 and 2.26 packs of the same quarter.
 
-### 14.3 Attestation signers
+### 13.3 Attestation signers
 
 - **AI Governance Lead** — primary signer, attests to operational accuracy.
 - **Compliance Officer** — counter-signer, attests to regulatory mapping accuracy.
 - **Information Security Officer** — counter-signer for any quarter containing a TRG-*-Critical finding.
 - **Technology Risk Manager** — receives the packet for inclusion in firm technology-risk reporting per OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12).
 
-### 14.4 Distribution
+### 13.4 Distribution
 
 | Recipient | Distribution form | Retention obligation |
 |---|---|---|
@@ -1979,18 +1770,17 @@ When assembling a quarterly attestation for an examiner, present the 2.25 eviden
 | Examiner (on request) | Signed PDF export of `summary.md` plus selected evidence records | Per examiner request |
 | Firm GRC platform | Structured ingest of `findings.csv` plus `attestation.json` | Per GRC retention policy |
 
-### 14.5 Continuous improvement
+### 13.5 Continuous improvement
 
 Each quarterly review identifies up to three improvement items, recorded in the firm's GRC platform, owned by the AI Governance Lead, and re-checked at the next quarterly review. Common improvement themes include: tightening firm-set thresholds (§3 SLA, §7 exception cap) as the program matures; expanding the §6 INVENTORY field set to capture additional governance metadata as Microsoft adds it; tightening the §8 RESEARCHER URL allow-list as the firm's research workflow stabilizes.
 
 ---
 
-## §15 References
+## §14 References
 
 - Control source of truth: [Control 2.25 — Microsoft Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md)
 - Sister verification playbook (gold-standard structural template): [Control 2.26 verification-testing](../2.26/verification-testing.md)
 - Sibling playbooks for this control: Portal Walkthrough (planned) · [PowerShell Setup](./powershell-setup.md) · [Troubleshooting](./troubleshooting.md)
-- PowerShell baseline (sovereign endpoint reference): [`../../_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md)
 - Role catalog: [`docs/reference/role-catalog.md`](../../../reference/role-catalog.md)
 - Regulatory mapping vocabulary: [`docs/reference/regulatory-mappings.md`](../../../reference/regulatory-mappings.md)
 

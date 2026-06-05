@@ -3,7 +3,7 @@
 **Control:** [1.10 Communication Compliance Monitoring](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md)
 **Audience:** M365 administrator (US financial services)
 **Last UI Verified:** May 2026
-**Cloud coverage:** Commercial · GCC · GCC High · DoD (see sovereign cloud table below)
+**Cloud coverage:** Commercial (Global)
 **Estimated Time:** 4–8 hours (excludes Teams/Exchange processing windows and pilot validation)
 
 > This playbook provides portal configuration guidance for [Control 1.10](../../../controls/pillar-1-security/1.10-communication-compliance-monitoring.md). It is written to support compliance with FINRA Rule 3110 (supervision), FINRA Rule 4511 (books and records), SEC Rule 17a-4 (record retention), SEC Rule 17a-3 (record creation), and CFTC Rule 1.31. Communication Compliance is a **detection and review** control. By itself it does not satisfy any single regulatory obligation — records retention is implemented separately under [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md), and incident handling is governed by your firm's supervisory procedures.
@@ -25,16 +25,13 @@
 
 ---
 
-## Sovereign Cloud Availability
+## Portal URLs and availability
 
 | Cloud | Portal URL | Communication Compliance | Copilot interactions template | Content safety classifiers (Hate / Violence / Sexual / Self-harm) | PAYG for non-M365 AI |
 |---|---|---|---|---|---|
 | Commercial | `https://purview.microsoft.com` | GA | GA | GA (Teams) | GA |
-| GCC | `https://purview.microsoft.com` | GA | GA (verify per Microsoft 365 roadmap) | GA (Teams) | GA |
-| GCC High | `https://purview.microsoft.us` | GA | Limited — verify against current Learn before relying on it | Limited; some classifiers preview-only or not at parity | Limited — verify Azure dependency availability for the tenant region |
-| DoD | `https://purview.microsoft.us` (DoD instance) | GA | Limited — verify against current Learn before relying on it | Limited; some classifiers preview-only or not at parity | Limited — verify Azure dependency availability for the tenant region |
 
-> Communication Compliance availability depends on **Azure service dependencies** in the tenant's geography. Before relying on a feature in GCC / GCC High / DoD, verify against [Azure dependency availability by country/region](https://learn.microsoft.com/en-us/troubleshoot/azure/general/dependency-availability-by-country) and the Microsoft 365 Roadmap. Record any cloud-specific gap in your Zone-3 exception register.
+> Communication Compliance availability may depend on Azure service dependencies in the tenant's geography. Verify feature availability against the Microsoft 365 Roadmap before each implementation or change window.
 
 For PowerShell parity see `docs/playbooks/_shared/powershell-baseline.md`. **Note:** PowerShell is **not supported** for creating or managing Communication Compliance policies — all policy configuration is portal-only. PowerShell is used here only for prerequisites (audit log, distribution groups, compliance security filters) and validation (audit search).
 
@@ -52,7 +49,6 @@ Per current Microsoft Learn, Communication Compliance is included in:
 - **Microsoft 365 E5 Compliance** add-on
 - **Microsoft 365 E5 Insider Risk Management** add-on
 - **Microsoft Purview Suite** per-user license
-- Per-user standalone Communication Compliance licensing for users in the Government Community Cloud where applicable
 
 Per-user licensing is **required for every monitored user** (the user whose communications are scanned), not just for administrators or reviewers. Verify entitlement against the [current Microsoft 365 service description](https://learn.microsoft.com/en-us/office365/servicedescriptions/microsoft-365-service-descriptions/microsoft-365-tenantlevel-services-licensing-guidance) before each material change window — Microsoft licensing for compliance products has changed multiple times. Do not oversimplify in your evidence pack.
 
@@ -131,7 +127,7 @@ Communication Compliance is built **privacy-by-design**. Usernames are **pseudon
 
 ### Verify the default
 
-1. Sign in to the [Microsoft Purview portal](https://purview.microsoft.com) (or the sovereign URL from the table above)
+1. Sign in to the [Microsoft Purview portal](https://purview.microsoft.com)
 2. Open the **Communication Compliance** solution
 3. Select **Settings** in the upper-right corner of the page
 4. Select **Communication Compliance** → **Privacy** tab
@@ -270,7 +266,7 @@ Effects matrix per role group when AU scoping is enforced:
 
 For every template below:
 
-1. Sign in to the Microsoft Purview portal (sovereign URL from the table above)
+1. Sign in to the [Microsoft Purview portal](https://purview.microsoft.com)
 2. Open the **Communication Compliance** solution
 3. Select **Policies** in the left navigation
 4. Select **Create policy** → choose the template
@@ -516,7 +512,7 @@ Both rows must be present. If the **Pending** alert appears but `SupervisionRule
 9. **Capture evidence:**
    - Screenshot of the alert in the Pending queue (with anonymized usernames if pseudonymization is on; capture both the anonymized and admin-resolved view if your firm requires it)
    - CSV export of the UAL search
-   - SHA-256 sidecar per `docs/playbooks/_shared/powershell-baseline.md` §5
+   - SHA-256 sidecar per `docs/playbooks/_shared/powershell-baseline.md` §4
 
 ### Validation cadence
 
@@ -626,7 +622,6 @@ Control-1.10_{TenantId}_{Cloud}_{ArtifactType}_{YYYYMMDD-HHmm-UTC}.{ext}.sha256
 | Per-policy validation result (sender, reviewer, UTC, condition, Pending entry, UAL rows) | Test log + UAL CSV | CSV + log | Per validation |
 | Notice templates and notice-send history | Purview portal + UAL | CSV | Quarterly |
 | Compliance boundary configuration (`Get-ComplianceSecurityFilter`) | IPPS PowerShell | JSON | On change |
-| Tenant cloud + sovereign-cloud capability snapshot | Manual + Graph | JSON | On change |
 | PAYG billing state (Purview Usage center export) | Purview portal | CSV | Monthly |
 
 Store in immutable storage (Purview retention label, SharePoint hold, or WORM blob) aligned to [Control 1.9](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) retention.

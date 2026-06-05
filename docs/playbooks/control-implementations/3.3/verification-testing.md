@@ -53,7 +53,7 @@
    New-ExaminationManifest -Regulator FINRA -OutputFolder '.\test-finra' -WhatIf
    ```
 2. Run again without `-WhatIf` and inspect `.\test-finra\MANIFEST.json`.
-3. **EXPECTED:** Manifest contains all 9 FINRA package items with descriptions and includes operator/tenant/cloud metadata.
+3. **EXPECTED:** Manifest contains all 9 FINRA package items with descriptions and includes operator and tenant metadata.
 
 ### Test 7: Power BI Dashboard Refresh
 
@@ -87,8 +87,7 @@
 | TC-3.3-11 | Power BI dashboard renders all pages | No errors on five pages | |
 | TC-3.3-12 | Power BI scheduled refresh succeeds | History clean for 7 days | |
 | TC-3.3-13 | Reg S-P quarterly drill artifact exists | Current quarter signed off | |
-| TC-3.3-14 | Sovereign cloud parameter respected | `Get-MgContext` shows correct env | |
-| TC-3.3-15 | Mutation cmdlets honor `-WhatIf` | No upload occurs in WhatIf mode | |
+| TC-3.3-14 | Mutation cmdlets honor `-WhatIf` | No upload occurs in WhatIf mode | |
 
 ---
 
@@ -121,7 +120,6 @@
     - Assessments are configured and scored monthly
     - Reports generate on schedule with documented approvals
     - Evidence is retained under records-management retention labels
-    - Sovereign cloud parameters are correctly configured (where applicable)
     - Operator runs use the canonical install pattern from the [PowerShell Authoring Baseline](../../_shared/powershell-baseline.md)
 
 ---
@@ -138,7 +136,7 @@ param(
 
 Write-Host "=== Control 3.3 Validation ===" -ForegroundColor Cyan
 
-# Check 1: Graph context (sovereign-aware)
+# Check 1: Graph context
 $ctx = Get-MgContext
 if ($ctx) {
     Write-Host "[PASS] Graph connected — Tenant: $($ctx.TenantId), Env: $($ctx.Environment)" -ForegroundColor Green

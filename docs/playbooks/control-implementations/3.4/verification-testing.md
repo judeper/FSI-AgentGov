@@ -1,8 +1,8 @@
-# Verification & Testing — Control 3.4: Incident Reporting and Root Cause Analysis
+﻿# Verification & Testing — Control 3.4: Incident Reporting and Root Cause Analysis
 
 > **Examiner-defensible evidence package** for Control 3.4. This playbook produces, signs, and retains the artifacts required to demonstrate to FINRA, the SEC, NYDFS, the FFIEC member agencies (OCC, FDIC, Federal Reserve), the FTC, state attorneys general, and the firm's Audit Committee that AI-agent-related incidents are detected, classified, escalated, root-caused, and notified to every applicable regulator on every applicable clock — and that the resulting books-and-records survive examiner scrutiny under SEC Rules 17a-3 / 17a-4 and FINRA Rule 4511.
 >
-> **Scope:** Microsoft 365 Commercial, GCC, GCC High, and DoD tenants. 21Vianet is out of scope. Where Microsoft Sentinel, Microsoft Defender XDR, Microsoft Purview Insider Risk Management, Microsoft Purview eDiscovery (Premium), or Microsoft Agent 365 surfaces are not at sovereign-cloud parity, this playbook routes the test to the §SOV manual compensating-control namespace; see TC-19.
+> **Scope:** Microsoft 365 Commercial tenants. Where Microsoft Sentinel, Microsoft Defender XDR, Microsoft Purview Insider Risk Management, Microsoft Purview eDiscovery (Premium), or Microsoft Agent 365 surfaces are in preview or not yet available, this playbook notes the limitation; see TC-19 for the annual SOX 404 self-assessment.
 >
 > **Companion controls:** This control sits at the centre of the firm's AI-agent incident response chain. Detection feeds come from [1.7 Comprehensive Audit Logging](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), [1.8 Runtime Protection](../../../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md), [1.11 Conditional Access and Phishing-Resistant MFA](../../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md), [1.12 Insider Risk Detection and Response](../../../controls/pillar-1-security/1.12-insider-risk-detection-and-response.md), and [3.9 Microsoft Sentinel Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md). Books-and-records retention lands in [1.9 Data Retention and Deletion Policies](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md). Material model-behavior incidents trigger MRM re-validation under [2.6 Model Risk Management](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md). Supervisory-relevant incidents feed [2.12 Supervision and Oversight (FINRA Rule 3110)](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md). Inventory metadata for triage comes from [2.25 Agent 365 Admin Center Governance Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md). Identity-incident cascades feed [3.6 Orphaned Agent Detection and Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md).
 >
@@ -17,21 +17,10 @@
     - **Registered-principal supervisory review** under FINRA Rule 3110 of the underlying business activity (see Control 2.12). A clean run of this playbook helps meet — does not replace — the registered-principal designation, the written supervisory procedures (WSPs), or the principal's contemporaneous review evidence.
     - **Legal hold and litigation-readiness** processes invoked when an incident becomes reasonably anticipated litigation. Legal hold is a Purview eDiscovery (Premium) plus outside-counsel workflow, not a SOC workflow.
     - **Regulator notification itself.** Notifications to NYDFS, the SEC (EDGAR / 8-K Item 1.05), FINRA (Firm Gateway 4530), the firm's primary federal banking regulator, the FTC, state attorneys general, NCUA, CISA (when CIRCIA is effective), and affected customers are filings made by the firm's Compliance and Legal functions on the firm's letterhead. The IR tooling produces the evidence that supports those filings; it does not file them.
-    - **Books-and-records retention** under SEC Rule 17a-4 / FINRA Rule 4511. Microsoft Sentinel and Microsoft Defender operational retention windows are **not** WORM-compliant for 17a-4(f) purposes; long-term incident records must land in Microsoft Purview retention or an approved 17a-4(f) vendor (see Controls 1.7 and 1.9, and TC-17 and TC-22 in this playbook).
+    - **Books-and-records retention** under SEC Rule 17a-4 / FINRA Rule 4511. Microsoft Sentinel and Microsoft Defender operational retention windows are **not** WORM-compliant for 17a-4(f) purposes; long-term incident records must land in Microsoft Purview retention or an approved 17a-4(f) vendor (see Controls 1.7 and 1.9, and TC-17 and TC-21 in this playbook).
 
-    A clean PASS across TC-1 through TC-22 produces an examiner-defensible evidence package. It does not by itself ensure compliance with any single regulation. Implementation requires organization-specific risk assessment, legal review, and ongoing recalibration as Microsoft surfaces, sovereign-cloud parity, and the regulatory landscape change.
+    A clean PASS across TC-1 through TC-21 produces an examiner-defensible evidence package. It does not by itself ensure compliance with any single regulation. Implementation requires organization-specific risk assessment, legal review, and ongoing recalibration as Microsoft surfaces, and the regulatory landscape change.
 
-!!! warning "Sovereign Cloud Availability — GCC, GCC High, DoD"
-    As of the verification date, the following surfaces referenced in this playbook may have parity gaps in sovereign clouds. FSI tenants in GCC, GCC High, or DoD must verify availability with their Microsoft account team before relying on the automated path, and must implement and exercise the manual compensating controls in TC-19 until parity is confirmed:
-
-    - **Microsoft Defender XDR unified incidents portal** — verify advanced hunting, automated investigation and response (AIR), and Copilot-for-Security analyst augmentation parity.
-    - **Microsoft Sentinel** — generally available in Azure Government, but specific data connectors (Microsoft Copilot, Power Platform Admin Activity, Defender for Cloud Apps, M365 Defender raw events) may lag commercial GA. See Control 3.9 connector matrix.
-    - **Microsoft Purview Insider Risk Management** — verify availability; some IRM templates and analytics may not be at parity in DoD.
-    - **Microsoft Purview eDiscovery (Premium)** — verify Computed-Document and Review Set parity in GCC High and DoD before relying on it for legal-hold evidence in regulator production.
-    - **Microsoft Sentinel MCP Server / Copilot-for-Security multi-agent** — no announced sovereign-cloud GA as of the verification date.
-    - **Microsoft Agent 365 Admin Center governance console** — Commercial GA was 1 May 2026; sovereign-cloud GA dates are not yet announced.
-
-    Compensating control: maintain a **manual incident register** (SharePoint list backed by Purview retention) plus a documented runbook listing the regulator-notification matrix from the parent control. Re-verify parity quarterly via the [Microsoft 365 Government roadmap](https://aka.ms/m365gov-roadmap) and capture the verification evidence under TC-19.
 
 ---
 
@@ -44,16 +33,15 @@
 | Output discipline | No `Write-Host` in evidence-emitting scripts. All evidence written as structured `[pscustomobject]` instances via `Write-Output`, then serialized with `ConvertTo-Json -Depth 10` to evidence files. |
 | Hedged regulatory language | This playbook **supports compliance with** and **helps meet** the cited regulations. It does not "ensure," "guarantee," or "prevent." |
 | KQL query hashes | Every KQL snippet that produces an evidence record is fingerprinted with `Get-FileHash -Algorithm SHA256` over the canonical query text, and the hash is captured in the evidence record (`query_sha256`) so that a regulator can reproduce the query verbatim three years later. |
-| Sovereign cloud handling | Each automated test detects the tenant cloud and emits a `SKIPPED` record with a compensating-control pointer to TC-19 rather than a `FAIL` when the underlying surface is not at parity. |
 | Evidence retention | Six (6) years on WORM-equivalent storage for the full signed evidence pack — aligning to FINRA Rule 4511 / SEC Rule 17a-4(f). State breach-notification statutes and litigation holds may extend this. |
 | Run identifier | Every test run is tagged `AGT34-yyyyMMdd-HHmmss-<8charGuid>` and embedded in every evidence record and artifact filename. |
 | Canonical role names | Per [`docs/reference/role-catalog.md`](../../../reference/role-catalog.md). Use `Entra Global Admin`, `Purview Compliance Admin`, `Power Platform Admin`, `Exchange Online Admin`, `AI Administrator`, `AI Governance Lead`, `Compliance Officer`, `Privacy Officer`, `Chief Compliance Officer (CCO)`, `Chief Information Security Officer (CISO)`, `General Counsel (GC)`, `Internal Audit`. No title substitution. |
-| Cadence | TC-1, TC-2, TC-9, TC-12, TC-19, TC-20 are scheduled; TC-3 through TC-18 are exercised at least annually as table-tops, and again per actual incident. TC-21 is exercised quarterly. TC-22 is exercised annually as part of the books-and-records sample audit. |
+| Cadence | TC-1, TC-2, TC-9, TC-12, TC-19, TC-19 are scheduled; TC-3 through TC-18 are exercised at least annually as table-tops, and again per actual incident. TC-20 is exercised quarterly. TC-21 is exercised annually as part of the books-and-records sample audit. |
 | Audience | Chief Information Security Officer (CISO), Chief Compliance Officer (CCO), General Counsel (GC), AI Governance Lead, Internal Audit, examiner-facing Compliance Officer producing annual + per-incident evidence packages. |
 
 ---
 
-## §0 Pre-Test Prerequisites and Sovereign Cloud Bootstrap
+## §0 Pre-Test Prerequisites
 
 ### 0.1 Operator role prerequisites
 
@@ -61,7 +49,7 @@ Incident-response verification reads from identity, directory, Sentinel workspac
 
 | Role (canonical) | Required for | PIM activation window |
 |---|---|---|
-| AI Governance Lead | Owns the incident program; counter-signs every TC evidence record; chairs the quarterly tabletop battery (TC-21) and the annual SOX 404 self-assessment (TC-20). | Standing with quarterly recertification per Control 2.8 |
+| AI Governance Lead | Owns the incident program; counter-signs every TC evidence record; chairs the quarterly tabletop battery (TC-20) and the annual SOX 404 self-assessment (TC-19). | Standing with quarterly recertification per Control 2.8 |
 | Chief Information Security Officer (CISO) | Incident commander; co-signs critical-severity evidence in TC-14; signs the annual Rule 3120-style SLA-test evidence in TC-1. | Standing |
 | Chief Compliance Officer (CCO) | Owns FINRA Rule 4530(a) / 4530(d) filings (TC-8, TC-9); co-signs every regulator-clock tabletop. | Standing |
 | General Counsel (GC) / Outside Counsel liaison | Owns legal hold (TC-16); owns SEC 8-K Item 1.05 materiality determinations (TC-5); reviews every customer-notice template (TC-7, TC-10, TC-11). | Standing |
@@ -75,11 +63,11 @@ Incident-response verification reads from identity, directory, Sentinel workspac
 | Purview Compliance Admin | Reads Purview Audit (Premium), retention-label configuration, IRM cases (subject to RBAC), eDiscovery (Premium) cases and holds. | 4 hours |
 | Insider Risk Management Investigator | Read-only IRM case content (pseudonymized) for evidence in TC-15. | 4 hours, just-in-time |
 | eDiscovery Manager | Reads eDiscovery (Premium) holds and custodian acknowledgements for TC-16. | 4 hours, just-in-time |
-| Power Platform Admin | Reads Power Platform admin activity events for AI-agent telemetry that backs RCAs (TC-15) and the runaway-agent and orphaned-agent scenarios (TC-21). | 4 hours |
-| AI Administrator | Reads Microsoft Agent 365 Admin Center inventory for incident triage enrichment in TC-14, TC-15, and TC-21. | 4 hours |
+| Power Platform Admin | Reads Power Platform admin activity events for AI-agent telemetry that backs RCAs (TC-15) and the runaway-agent and orphaned-agent scenarios (TC-20). | 4 hours |
+| AI Administrator | Reads Microsoft Agent 365 Admin Center inventory for incident triage enrichment in TC-14, TC-15, and TC-20. | 4 hours |
 | M365 Service Health Reader | Reads Microsoft 365 Service Health (Microsoft-side correlation) for TC-18. | Standing, read-only |
-| Internal Audit | Independent reviewer; signs the §14 evidence pack and the TC-20 SOX 404 self-assessment. Does not co-sign as a producer. | Standing, read-only |
-| Compliance Officer (examiner-facing) | Assembles the per-examination evidence package; signs the TC-22 retention sample audit. | Standing |
+| Internal Audit | Independent reviewer; signs the §14 evidence pack and the TC-19 SOX 404 self-assessment. Does not co-sign as a producer. | Standing, read-only |
+| Compliance Officer (examiner-facing) | Assembles the per-examination evidence package; signs the TC-21 retention sample audit. | Standing |
 
 > **Least privilege.** No operator should hold **Entra Global Admin** persistently for incident-response purposes. The cycle-stopping FAIL is: any operator who is both **Preparer** and **Validator** on the same evidence record (see §0.6 dual-control rule). Standing privileged-role overlap between Preparer / Validator / Compliance signatories voids the run.
 
@@ -118,44 +106,14 @@ $ProgressPreference    = 'SilentlyContinue'
 | Module presence | PRE-01 | Confirms modules loaded at the pinned versions in §0.2 | HALT |
 | Graph context | PRE-02 | Confirms `Connect-MgGraph` with read scopes `SecurityEvents.Read.All`, `SecurityIncident.Read.All`, `SecurityActions.Read.All`, `IdentityRiskEvent.Read.All`, `Directory.Read.All`, `User.Read.All`, `AuditLog.Read.All`, `eDiscovery.Read.All`, `InsiderRiskManagement.Read.All` | HALT |
 | Tenant identification | PRE-03 | Captures `tenantId`, `displayName`, `verifiedDomains[0].name` for every evidence record | HALT |
-| Cloud detection | PRE-04 | Reads `(Get-MgContext).Environment`; maps to `Commercial / GCC / GCCH / DoD` | Continue; sovereign clouds route specific TCs to TC-19 |
+| Cloud detection | PRE-04 | Reads `(Get-MgContext).Environment`; confirms `Global` (Commercial) | HALT |
 | Sentinel workspace reachability | PRE-05 | Confirms the Sentinel workspace ID, region, and that an `AzSentinel` connection succeeds | HALT for IR-pillar tests |
-| Defender XDR reachability | PRE-06 | Probes `/security/incidents?$top=1` on Graph Security; in sovereign clouds where parity is incomplete returns `SKIPPED` and routes to TC-19 | Commercial 4xx/5xx → HALT; sovereign → TC-19 route |
+| Defender XDR reachability | PRE-06 | Probes `/security/incidents?$top=1` on Graph Security | 4xx/5xx → HALT |
 | Purview Audit (Premium) reachability | PRE-07 | Confirms a `Search-UnifiedAuditLog` returns within tenant SLA over a 1-hour window | HALT — without UAL, no books-and-records evidence chain |
 | Purview eDiscovery (Premium) reachability | PRE-08 | Confirms an eDiscovery (Premium) case-list call succeeds | HALT — without eDiscovery, TC-16 cannot run |
 | Clock skew gate | PRE-09 | Compares local UTC to Graph `Date` header; aborts on > 60s drift | HALT — skew invalidates timestamp evidence under FINRA 4511 / SEC 17a-4 |
 | Evidence root writeable | PRE-10 | Confirms `$env:AGT34_EVIDENCE_ROOT` exists, is writeable, resolves to WORM-eligible storage with a verified retention label | HALT |
 
-### 0.4 Sovereign bootstrap pattern
-
-```powershell
-function Test-Agt34SovereignTenant {
-    [CmdletBinding()]
-    [OutputType([pscustomobject])]
-    param()
-
-    $ctx = Get-MgContext
-    if (-not $ctx) { throw "PRE-02 failed: no Graph context. Run Connect-MgGraph first." }
-
-    $cloud = switch ($ctx.Environment) {
-        'Global'    { 'Commercial' }
-        'USGov'     { 'GCC' }
-        'USGovDoD'  { 'DoD' }
-        'USGovHigh' { 'GCCH' }
-        default     { 'Unknown' }
-    }
-
-    [pscustomobject]@{
-        cloud            = $cloud
-        is_sovereign     = $cloud -in @('GCC','GCCH','DoD')
-        tenant_id        = $ctx.TenantId
-        detected_at      = (Get-Date).ToUniversalTime().ToString('o')
-        compensating_ref = 'control-3.4-sovereign-manual-incident-register'
-    }
-}
-```
-
-When `is_sovereign` is `$true`, each automated `It` block in TC-3 through TC-18 emits a `SKIPPED` evidence record with a pointer to TC-19. This produces an examiner-defensible trail showing the test was attempted, was correctly skipped on regulatory-sound grounds, and was supplemented by the manual dual-signed worksheet in TC-19.
 
 ### 0.5 Run identifier and evidence root
 
@@ -196,7 +154,7 @@ function Get-Agt34QueryHash {
 }
 ```
 
-Every KQL snippet shown in TC-3 through TC-22 is followed by its `query_sha256`. The hash captured in evidence records is computed over the same canonicalised query text shown in the playbook so an examiner can verify reproducibility independently.
+Every KQL snippet shown in TC-3 through TC-21 is followed by its `query_sha256`. The hash captured in evidence records is computed over the same canonicalised query text shown in the playbook so an examiner can verify reproducibility independently.
 
 ---
 
@@ -212,11 +170,11 @@ Every KQL snippet shown in TC-3 through TC-22 is followed by its `query_sha256`.
   "test_case_title": "NYDFS 72-hour cybersecurity event tabletop",
   "tenant_id": "<guid>",
   "tenant_display_name": "<string>",
-  "cloud": "Commercial | GCC | GCCH | DoD",
+  "cloud": "Commercial",
   "executed_at_utc": "2026-04-15T14:15:23Z",
   "result": "PASS | FAIL | SKIPPED",
   "skipped_reason": "string|null",
-  "compensating_ref": "control-3.4-sovereign-manual-incident-register|null",
+  "compensating_ref": null,
   "regulator_clocks_exercised": ["NYDFS-72h", "NYDFS-24h-ransom", "..."],
   "artifacts": [
     { "name": "nydfs-portal-template.pdf", "sha256": "...", "size_bytes": 0,
@@ -268,16 +226,15 @@ Every test case writes to one or more retention tiers. The tiers are not interch
 | TC-16 | Legal-hold notice; custodian acknowledgment sample; Purview eDiscovery (Premium) hold export | Legal-hold + Books-scope | FRCP 37(e); Zubulake-line case law; SEC 17a-4 |
 | TC-17 | Sentinel/Defender/IRM extract written to 17a-4(f) storage; chain-of-custody log | Books-scope | SEC 17a-4(f); FINRA 4511 |
 | TC-18 | Service Health correlation log per Sev-Critical/High; pre-RCA recorded check | Archive | FFIEC IT Handbook (correlation discipline) |
-| TC-19 | Sovereign manual register exercise; manual matrix exercise; dual signature | Archive + Books-scope | Sovereign-cloud parity gap compensating control |
-| TC-20 | Annual SOX 404 incident-program self-assessment; Audit Committee minute | Corporate-records + Books-scope | SOX §§ 302 / 404 |
-| TC-21 | Quarterly AI tabletop battery; after-action reports per scenario | Archive + Books-scope | FINRA RN 24-09 + Rule 3110; Fed SR 26-2 (formerly SR 11-7); NYDFS 500.16 |
-| TC-22 | Random sample (n≥25) of >6yr records per artifact category; retrievability log | Books-scope | SEC 17a-4(b)(4); FINRA 4511 |
+| TC-19 | Annual SOX 404 incident-program self-assessment; Audit Committee minute | Corporate-records + Books-scope | SOX §§ 302 / 404 |
+| TC-20 | Quarterly AI tabletop battery; after-action reports per scenario | Archive + Books-scope | FINRA RN 24-09 + Rule 3110; Fed SR 26-2 (formerly SR 11-7); NYDFS 500.16 |
+| TC-21 | Random sample (n≥25) of >6yr records per artifact category; retrievability log | Books-scope | SEC 17a-4(b)(4); FINRA 4511 |
 
 ---
 
 ## §2 Test Cases
 
-The 22 test cases below verify Control 3.4 implementation across regulator-clock conformance, internal-SLA conformance, RCA gating, evidence chain, and sovereign-cloud parity. Each case lists Setup / Steps / Expected / Evidence Capture / Remediation. Test cases are designed to be reproducible by an independent operator and auditable by an examiner.
+The 21 test cases below verify Control 3.4 implementation across regulator-clock conformance, internal-SLA conformance, RCA gating, and evidence chain. Each case lists Setup / Steps / Expected / Evidence Capture / Remediation. Test cases are designed to be reproducible by an independent operator and auditable by an examiner.
 
 > **Operator note.** Run each TC under the Run-ID generated in §0. Sign all evidence records using the Preparer / Validator / Compliance Signatory triple — no two roles may resolve to the same individual (dual-control rule, §0.6).
 
@@ -996,45 +953,8 @@ union SecurityAlert, SigninLogs, OfficeActivity, AIAgentSessions_CL
 - If correlation check is missing: the RCA must be re-opened and amended; an RCA without correlation discipline is examiner-defective.
 - If a causally-related Microsoft incident is identified: ensure the firm-side RCA narrative reflects that the firm's controls operated as designed and the upstream cause was vendor-side.
 
----
-### TC-19 — Sovereign-cloud compensating-control quarterly exercise
 
-**Objective.** In tenants where PRE-06, PRE-07, or PRE-08 was SKIPPED due to sovereign-cloud (GCC, GCC High, DoD) parity gaps, demonstrate that the compensating control `control-3.4-sovereign-manual-incident-register` is exercised quarterly with a manual incident register, manual regulator-matrix walk, and dual signatures.
-
-**Regulatory anchor.** Compensating control for sovereign-cloud parity gap; supports compliance with the same underlying obligations (NYDFS 500.17, SEC 1.05, FINRA 4530) by alternate means.
-
-**Setup.**
-
-- Roles: AI Governance Lead (preparer); Chief Compliance Officer (validator); General Counsel (signatory).
-- Applicability: only tenants in GCC / GCC High / DoD where PRE-06/07/08 was SKIPPED.
-
-**Steps.**
-
-1. Confirm sovereign-cloud routing applies via `Get-MgContext` and tenant-cloud detection in §0.4.
-2. Open the manual incident register (Excel or SharePoint list maintained outside the gapped service).
-3. Record any incidents from the prior quarter that would have been auto-captured by the gapped service; confirm completeness against the agent inventory (Control 1.1).
-4. Walk each entry through the regulator-notification matrix manually; confirm any actual notifications were filed within applicable clocks.
-5. Record dual signature (preparer + validator + signatory triple).
-
-**Expected.**
-
-- Manual register complete for the prior quarter.
-- All entries walked through matrix.
-- Dual signature present.
-
-**Evidence Capture.**
-
-- `manual-incident-register-q{n}.xlsx`, `manual-matrix-walk.pdf`, `signatures.pdf`.
-- Signed evidence record `agt34.v1.4` with `tc_id="TC-19"`, fields `cloud`, `quarter`, `entry_count`.
-
-**Remediation.**
-
-- If the gapped service becomes available in the sovereign cloud (Microsoft GA): retire the compensating control after one full quarter of parallel operation; document the retirement in the change log.
-- If the manual register is incomplete: this is a Critical finding; the firm cannot demonstrate equivalent coverage without it.
-
----
-
-### TC-20 — Annual SOX 404 incident-program self-assessment to Audit Committee
+### TC-19 — Annual SOX 404 incident-program self-assessment to Audit Committee
 
 **Objective.** Demonstrate that, on at least an annual basis, the AI-agent incident-reporting program is subject to a SOX 404 self-assessment whose results are reported to the Audit Committee.
 
@@ -1060,7 +980,7 @@ union SecurityAlert, SigninLogs, OfficeActivity, AIAgentSessions_CL
 **Evidence Capture.**
 
 - `sox-workpaper-package.pdf`, `incident-sample.csv`, `findings-log.csv`, `audit-committee-minute.pdf`.
-- Signed evidence record `agt34.v1.4` with `tc_id="TC-20"`, fields `cycle_year`, `finding_count`.
+- Signed evidence record `agt34.v1.4` with `tc_id="TC-19"`, fields `cycle_year`, `finding_count`.
 
 **Remediation.**
 
@@ -1069,7 +989,7 @@ union SecurityAlert, SigninLogs, OfficeActivity, AIAgentSessions_CL
 
 ---
 
-### TC-21 — Quarterly AI tabletop battery (4 scenarios)
+### TC-20 — Quarterly AI tabletop battery (4 scenarios)
 
 **Objective.** Demonstrate that, each quarter, the firm runs the four AI-specific tabletop scenarios required by the parent control: prompt-injection exfiltration; hallucinated customer communication; runaway agent on stale context; orphaned-agent cascade.
 
@@ -1097,7 +1017,7 @@ union SecurityAlert, SigninLogs, OfficeActivity, AIAgentSessions_CL
 **Evidence Capture.**
 
 - `tabletop-scenario-{n}-aar.pdf` × 4, `tabletop-attendance.csv` × 4, `cross-control-referrals.csv`.
-- Signed evidence record `agt34.v1.4` with `tc_id="TC-21"`, fields `quarter`, `scenarios_completed`, `cross_referrals_opened`.
+- Signed evidence record `agt34.v1.4` with `tc_id="TC-20"`, fields `quarter`, `scenarios_completed`, `cross_referrals_opened`.
 
 **Remediation.**
 
@@ -1106,7 +1026,7 @@ union SecurityAlert, SigninLogs, OfficeActivity, AIAgentSessions_CL
 
 ---
 
-### TC-22 — Evidence-retention sample audit (>6yr records, WORM, retrievability)
+### TC-21 — Evidence-retention sample audit (>6yr records, WORM, retrievability)
 
 **Objective.** Demonstrate that a random sample (n ≥ 25) of incident-evidence records older than six years can be retrieved within a reasonable window from the books-and-records storage target, with WORM lock intact and chain-of-custody verifiable.
 
@@ -1134,7 +1054,7 @@ union SecurityAlert, SigninLogs, OfficeActivity, AIAgentSessions_CL
 **Evidence Capture.**
 
 - `sample-records.csv`, `retrieval-latency.csv`, `sha-verification.csv`, `worm-lock-status.csv`.
-- Signed evidence record `agt34.v1.4` with `tc_id="TC-22"`, fields `sample_size`, `retrieval_pass`, `sha_pass`, `worm_pass`.
+- Signed evidence record `agt34.v1.4` with `tc_id="TC-21"`, fields `sample_size`, `retrieval_pass`, `sha_pass`, `worm_pass`.
 
 **Remediation.**
 
@@ -1164,9 +1084,8 @@ Examiners reviewing a Control 3.4 evidence pack will typically follow this readi
 2. **Regulator-clock conformance (TC-3 through TC-13).** Examiners typically open these in the order the firm's regulators appear on the firm's organizational chart — NYDFS for New York covered entities, then SEC, then the firm's primary federal banking regulator, then FINRA, then GLBA / state. Each TC is self-contained: determination timestamp, staging timestamp, delta, and the operational margin.
 3. **Internal-SLA conformance (TC-1, TC-14).** Internal clocks are evaluated against the parent control's matrix; deltas are reported with the same numerical precision as the regulator clocks.
 4. **RCA discipline (TC-15, TC-18).** Examiners look for evidence that the firm distinguished operational symptoms from root cause and that vendor-side correlation was performed before declaring root cause.
-5. **Evidence chain (TC-16, TC-17, TC-22).** Examiners spot-check legal-hold currency, books-and-records 17a-4(f) lock status, and long-tail retrievability. A strong pack demonstrates that the firm's storage decisions match its preservation duty.
-6. **Sovereign-cloud compensating control (TC-19).** Required only for tenants with parity gaps. Examiners reading a Commercial-only firm's pack will see TC-19 logged as N/A with rationale.
-7. **Annual and quarterly cadence (TC-2, TC-20, TC-21).** These TCs anchor the program in the firm's governance calendar and connect to Audit Committee oversight.
+5. **Evidence chain (TC-16, TC-17, TC-21).** Examiners spot-check legal-hold currency, books-and-records 17a-4(f) lock status, and long-tail retrievability. A strong pack demonstrates that the firm's storage decisions match its preservation duty.
+6. **Annual and quarterly cadence (TC-2, TC-19, TC-20).** These TCs anchor the program in the firm's governance calendar and connect to Audit Committee oversight.
 
 A pack that survives this walkthrough without follow-up requests is the operational definition of "examiner-defensible" for Control 3.4.
 
@@ -1186,10 +1105,9 @@ The 22 TCs are designed to surface findings that, by their nature, must be opene
 | TC-9 (4530(d) reconciliation) | 3.5 (complaint handling) | Complaint-store linkage |
 | TC-15 (RCA gating) | 2.6 (model risk management) | Model-class incidents missing MRM feedback |
 | TC-16 (legal hold scope) | 1.9 (retention) | Workload coverage gap |
-| TC-17 / TC-22 (WORM, retrievability) | 1.9 (retention) | Storage-target compliance |
+| TC-17 / TC-21 (WORM, retrievability) | 1.9 (retention) | Storage-target compliance |
 | TC-18 (correlation discipline) | 3.6 (orphaned-agent), 1.6 (kill switch) | Vendor-side cause attribution |
-| TC-19 (sovereign compensating) | 2.25 (governance console) | Manual register parity |
-| TC-21 (tabletop scenario gap) | 1.5 (joiner-mover-leaver), 1.6 (kill switch), 3.5 (supervision) | Scenario-specific control owners |
+| TC-20 (tabletop scenario gap) | 1.5 (joiner-mover-leaver), 1.6 (kill switch), 3.5 (supervision) | Scenario-specific control owners |
 
 The AI Governance Lead reviews this table monthly and confirms that any open cross-control referrals are tracked in the firm's GRC system with owner, date, and target closure.
 

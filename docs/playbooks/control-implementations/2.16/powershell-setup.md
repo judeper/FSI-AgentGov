@@ -1,7 +1,7 @@
 # Control 2.16: RAG Source Integrity Validation — PowerShell Setup
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. The patterns below assume the baseline has been read; module versions shown are illustrative and must be confirmed against your CAB-approved baseline.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. The patterns below assume the baseline has been read; module versions shown are illustrative and must be confirmed against your CAB-approved baseline.
 
 > Automation companion to [Control 2.16: RAG Source Integrity Validation](../../../controls/pillar-2-management/2.16-rag-source-integrity-validation.md).
 >
@@ -21,7 +21,6 @@
 | **Microsoft.PowerApps.Administration.PowerShell (pinned)** | **Windows PowerShell 5.1 only** — required to enumerate Microsoft Copilot Studio environments |
 | **Graph permissions** | `Sites.Read.All`, `Files.Read.All` (delegated or application). Application permissions require Entra Global Admin consent. |
 | **PnP app registration** | Entra app registered with `Sites.FullControl.All` *application* or `Sites.Read.All` *delegated*; consent recorded in the change ticket |
-| **Sovereign cloud** | Confirm correct `Connect-PnPOnline -AzureEnvironment` and `Connect-MgGraph -Environment` values before first run. See baseline section 3 |
 
 ### Canonical install pattern
 
@@ -50,7 +49,7 @@ Install-Module -Name Microsoft.PowerApps.Administration.PowerShell `
 
 ---
 
-## Sovereign-Cloud Authentication Helper
+## Authentication Helper
 
 Reused by every script in this playbook. Save as `Connect-FsiTenant.ps1` and dot-source.
 
@@ -58,40 +57,24 @@ Reused by every script in this playbook. Save as `Connect-FsiTenant.ps1` and dot
 function Connect-FsiTenant {
     [CmdletBinding()]
     param(
-        [ValidateSet('Commercial','GCC','GCCHigh','DoD')]
-        [string]$Cloud = 'Commercial',
         [Parameter(Mandatory)] [string]$SiteUrl,
         [Parameter(Mandatory)] [string]$ClientId,
         [string[]]$GraphScopes = @('Sites.Read.All','Files.Read.All')
     )
-    $pnpEnvMap = @{
-        Commercial = 'Production'
-        GCC        = 'USGovernment'
-        GCCHigh    = 'USGovernmentHigh'
-        DoD        = 'USGovernmentDoD'
-    }
-    $graphEnvMap = @{
-        Commercial = 'Global'
-        GCC        = 'USGov'
-        GCCHigh    = 'USGovDoD'
-        DoD        = 'USGovDoD'
-    }
     Connect-PnPOnline -Url $SiteUrl `
         -ClientId $ClientId `
         -Interactive `
-        -AzureEnvironment $pnpEnvMap[$Cloud]
-    Connect-MgGraph -Environment $graphEnvMap[$Cloud] -Scopes $GraphScopes -NoWelcome
-    Write-Verbose "Connected: PnP=$($pnpEnvMap[$Cloud]), Graph=$($graphEnvMap[$Cloud])"
+        -AzureEnvironment 'Production'
+    Connect-MgGraph -Environment 'Global' -Scopes $GraphScopes -NoWelcome
+    Write-Verbose "Connected: PnP=Production, Graph=Global (commercial)"
 }
 ```
-
-> **False-clean warning:** Running `Connect-PnPOnline` without `-AzureEnvironment` against a GCC High tenant authenticates against commercial endpoints, returns *zero results*, and produces **false-clean evidence**. The helper above prevents this.
 
 ---
 
 ## Evidence Emission Helper
 
-Implements the SHA-256 manifest pattern from baseline section 5. Save as `Write-FsiEvidence.ps1` and dot-source in every script below.
+Implements the SHA-256 manifest pattern from baseline section 4. Save as `Write-FsiEvidence.ps1` and dot-source in every script below.
 
 ```powershell
 function Write-FsiEvidence {
@@ -142,9 +125,6 @@ Confirms versioning, content approval, and the FSI metadata schema are applied t
 .PARAMETER SiteUrl
     SharePoint site URL containing knowledge source libraries.
 
-.PARAMETER Cloud
-    Sovereign-cloud designation (Commercial | GCC | GCCHigh | DoD).
-
 .PARAMETER ClientId
     Client ID of the registered Entra app used by PnP.PowerShell v2+.
 
@@ -156,14 +136,12 @@ Confirms versioning, content approval, and the FSI metadata schema are applied t
 
 .EXAMPLE
     .\Test-LibraryHardening.ps1 -SiteUrl https://contoso.sharepoint.com/sites/research `
-        -Cloud Commercial -ClientId 00000000-0000-0000-0000-000000000000 `
+        -ClientId 00000000-0000-0000-0000-000000000000 `
         -EvidencePath .\evidence\2.16
 #>
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)] [string]$SiteUrl,
-    [ValidateSet('Commercial','GCC','GCCHigh','DoD')]
-    [string]$Cloud = 'Commercial',
     [Parameter(Mandatory)] [string]$ClientId,
     [string[]]$LibraryNames,
     [string]$EvidencePath = ".\evidence\2.16"
@@ -173,7 +151,7 @@ $ErrorActionPreference = 'Stop'
 . "$PSScriptRoot\Connect-FsiTenant.ps1"
 . "$PSScriptRoot\Write-FsiEvidence.ps1"
 
-Connect-FsiTenant -Cloud $Cloud -SiteUrl $SiteUrl -ClientId $ClientId
+Connect-FsiTenant -SiteUrl $SiteUrl -ClientId $ClientId
 
 # BaseTemplate 101 = document library
 $libraries = Get-PnPList | Where-Object {
@@ -238,9 +216,6 @@ Reports documents in approved knowledge libraries that exceed the zone's stalene
 .PARAMETER SiteUrl
     SharePoint site URL.
 
-.PARAMETER Cloud
-    Sovereign-cloud designation.
-
 .PARAMETER ClientId
     Client ID of the registered PnP Entra app.
 
@@ -252,14 +227,12 @@ Reports documents in approved knowledge libraries that exceed the zone's stalene
 
 .EXAMPLE
     .\Get-StaleKnowledgeContent.ps1 -SiteUrl https://contoso.sharepoint.com/sites/research `
-        -Cloud GCCHigh -ClientId 00000000-0000-0000-0000-000000000000 -DaysThreshold 90 `
+        -ClientId 00000000-0000-0000-0000-000000000000 -DaysThreshold 90 `
         -EvidencePath .\evidence\2.16
 #>
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)] [string]$SiteUrl,
-    [ValidateSet('Commercial','GCC','GCCHigh','DoD')]
-    [string]$Cloud = 'Commercial',
     [Parameter(Mandatory)] [string]$ClientId,
     [int]$DaysThreshold = 90,
     [string]$EvidencePath = ".\evidence\2.16"
@@ -269,7 +242,7 @@ $ErrorActionPreference = 'Stop'
 . "$PSScriptRoot\Connect-FsiTenant.ps1"
 . "$PSScriptRoot\Write-FsiEvidence.ps1"
 
-Connect-FsiTenant -Cloud $Cloud -SiteUrl $SiteUrl -ClientId $ClientId
+Connect-FsiTenant -SiteUrl $SiteUrl -ClientId $ClientId
 
 $cutoff = (Get-Date).AddDays(-$DaysThreshold)
 $libraries = Get-PnPList | Where-Object { $_.BaseTemplate -eq 101 -and -not $_.Hidden }
@@ -333,15 +306,12 @@ Captures the **declared** knowledge sources for every agent in an environment so
 .PARAMETER EnvironmentId
     Power Platform environment ID hosting the agents.
 
-.PARAMETER Endpoint
-    Power Platform endpoint per sovereign cloud (prod | usgov | usgovhigh | dod).
-
 .PARAMETER EvidencePath
     Folder for evidence output.
 
 .EXAMPLE
     .\Get-AgentKnowledgeBindings.ps1 -EnvironmentId 00000000-0000-0000-0000-000000000000 `
-        -Endpoint usgovhigh -EvidencePath .\evidence\2.16
+        -EvidencePath .\evidence\2.16
 
 .NOTES
     Requires Windows PowerShell 5.1 (Desktop edition).
@@ -349,8 +319,6 @@ Captures the **declared** knowledge sources for every agent in an environment so
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)] [string]$EnvironmentId,
-    [ValidateSet('prod','usgov','usgovhigh','dod')]
-    [string]$Endpoint = 'prod',
     [string]$EvidencePath = ".\evidence\2.16"
 )
 
@@ -362,10 +330,10 @@ if ($PSVersionTable.PSEdition -ne 'Desktop') {
 
 . "$PSScriptRoot\Write-FsiEvidence.ps1"
 
-Add-PowerAppsAccount -Endpoint $Endpoint | Out-Null
+Add-PowerAppsAccount | Out-Null
 
 $env = Get-AdminPowerAppEnvironment -EnvironmentName $EnvironmentId
-if (-not $env) { throw "Environment $EnvironmentId not found in endpoint '$Endpoint'." }
+if (-not $env) { throw "Environment $EnvironmentId not found." }
 
 if ($env.CommonDataServiceDatabaseProvisioningState -ne 'Succeeded') {
     Write-Warning "Environment $EnvironmentId has no Dataverse database. Copilot Studio agent bindings cannot be enumerated; this script requires Dataverse."
@@ -398,7 +366,7 @@ $evidenceFile = Write-FsiEvidence -Object $bindings -Name 'agent-knowledge-bindi
 Write-Host "[INFO] Captured $($bindings.Count) knowledge bindings across $($bots.value.Count) agents. Evidence: $evidenceFile"
 ```
 
-> **Dataverse compatibility note:** Per baseline section 6, this script returns immediately on non-Dataverse environments rather than producing false-clean evidence. Copilot Studio agents always require Dataverse, so a non-Dataverse environment in scope is itself a finding to surface to the AI Governance Lead.
+> **Dataverse compatibility note:** Per baseline section 5, this script returns immediately on non-Dataverse environments rather than producing false-clean evidence. Copilot Studio agents always require Dataverse, so a non-Dataverse environment in scope is itself a finding to surface to the AI Governance Lead.
 
 ---
 
@@ -412,7 +380,7 @@ Write-Host "[INFO] Captured $($bindings.Count) knowledge bindings across $($bots
 
 .EXAMPLE
     .\Validate-Control-2.16.ps1 -SiteUrl https://contoso.sharepoint.com/sites/research `
-        -ClientId <guid> -EnvironmentId <guid> -Cloud Commercial -DaysThreshold 90 `
+        -ClientId <guid> -EnvironmentId <guid> -DaysThreshold 90 `
         -EvidencePath .\evidence\2.16
 #>
 [CmdletBinding()]
@@ -420,8 +388,6 @@ param(
     [Parameter(Mandatory)] [string]$SiteUrl,
     [Parameter(Mandatory)] [string]$ClientId,
     [Parameter(Mandatory)] [string]$EnvironmentId,
-    [ValidateSet('Commercial','GCC','GCCHigh','DoD')]
-    [string]$Cloud = 'Commercial',
     [int]$DaysThreshold = 90,
     [string]$EvidencePath = ".\evidence\2.16"
 )
@@ -432,14 +398,14 @@ $failed = $false
 Write-Host "=== Control 2.16 Validation ===" -ForegroundColor Cyan
 
 try {
-    & "$PSScriptRoot\Test-LibraryHardening.ps1" -SiteUrl $SiteUrl -Cloud $Cloud -ClientId $ClientId -EvidencePath $EvidencePath
+    & "$PSScriptRoot\Test-LibraryHardening.ps1" -SiteUrl $SiteUrl -ClientId $ClientId -EvidencePath $EvidencePath
 } catch {
     Write-Host "[FAIL] Library hardening: $($_.Exception.Message)" -ForegroundColor Red
     $failed = $true
 }
 
 try {
-    & "$PSScriptRoot\Get-StaleKnowledgeContent.ps1" -SiteUrl $SiteUrl -Cloud $Cloud -ClientId $ClientId -DaysThreshold $DaysThreshold -EvidencePath $EvidencePath
+    & "$PSScriptRoot\Get-StaleKnowledgeContent.ps1" -SiteUrl $SiteUrl -ClientId $ClientId -DaysThreshold $DaysThreshold -EvidencePath $EvidencePath
 } catch {
     Write-Host "[FAIL] Stale content scan: $($_.Exception.Message)" -ForegroundColor Red
     $failed = $true
@@ -448,8 +414,7 @@ try {
 # Knowledge bindings snapshot requires Windows PowerShell 5.1; skip with INFO if running PS7+.
 if ($PSVersionTable.PSEdition -eq 'Desktop') {
     try {
-        $endpoint = @{Commercial='prod'; GCC='usgov'; GCCHigh='usgovhigh'; DoD='dod'}[$Cloud]
-        & "$PSScriptRoot\Get-AgentKnowledgeBindings.ps1" -EnvironmentId $EnvironmentId -Endpoint $endpoint -EvidencePath $EvidencePath
+        & "$PSScriptRoot\Get-AgentKnowledgeBindings.ps1" -EnvironmentId $EnvironmentId -EvidencePath $EvidencePath
     } catch {
         Write-Host "[FAIL] Knowledge bindings snapshot: $($_.Exception.Message)" -ForegroundColor Red
         $failed = $true
@@ -477,7 +442,7 @@ Write-Host "=== Validation PASS ===" -ForegroundColor Green
 | `Get-AgentKnowledgeBindings.ps1` | Weekly, **Windows PowerShell 5.1** runner | Power Platform Admin service account (no MFA-blocked); Dataverse access required |
 | `Validate-Control-2.16.ps1` | Monthly + before each examiner request | Same as above |
 
-> **Mutation safety note:** None of the scripts in this playbook mutate tenant state. There is no `-WhatIf` switch because there is nothing to confirm. If you extend these scripts to *change* settings (e.g., set `EnableModeration` programmatically), wrap mutations in `[CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]`, capture a before-snapshot, and follow baseline section 4.
+> **Mutation safety note:** None of the scripts in this playbook mutate tenant state. There is no `-WhatIf` switch because there is nothing to confirm. If you extend these scripts to *change* settings (e.g., set `EnableModeration` programmatically), wrap mutations in `[CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]`, capture a before-snapshot, and follow baseline section 3.
 
 ---
 

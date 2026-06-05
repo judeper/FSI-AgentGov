@@ -6,7 +6,7 @@
 **Companion playbooks:** [Portal walkthrough](./portal-walkthrough.md) · [Verification & testing](./verification-testing.md) · [Troubleshooting](./troubleshooting.md)
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running anything below, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for `ExchangeOnlineManagement` version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), and SHA-256 evidence emission. Snippets below assume that baseline is in effect.
+    Before running anything below, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for `ExchangeOnlineManagement` version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), and SHA-256 evidence emission. Snippets below assume that baseline is in effect.
 
 > This playbook automates Control 1.9 via **Security & Compliance PowerShell** (the IPPS endpoint exposed by `ExchangeOnlineManagement`). Every mutating command below is wrapped in safety checks, supports `-WhatIf`, and writes evidence artifacts intended for examiner production.
 >
@@ -42,13 +42,7 @@ The signed-in account must hold **Purview Records Manager** *and* **Purview Comp
 # Commercial cloud
 Connect-IPPSSession -ShowBanner:$false
 
-# GCC High
-# Connect-IPPSSession -ConnectionUri https://ps.compliance.protection.office365.us/powershell-liveid/ `
-#     -AzureADAuthorizationEndpointUri https://login.microsoftonline.us/common -ShowBanner:$false
 
-# DoD
-# Connect-IPPSSession -ConnectionUri https://l5.ps.compliance.protection.office365.us/powershell-liveid/ `
-#     -AzureADAuthorizationEndpointUri https://login.microsoftonline.us/common -ShowBanner:$false
 ```
 
 Verify the session:
@@ -207,14 +201,27 @@ function Ensure-RetentionPolicy {
 ### 3.2 Microsoft 365 Copilot and AI experiences
 
 ```powershell
-Ensure-RetentionPolicy -PolicyName 'FSI-Copilot-AIExperiences-Retention' `
-    -RuleName  'FSI-Copilot-AIExperiences-6Year' `
-    -RetentionDurationDays 2190 `
-    -LocationParams @{ ModernGroupLocation = 'All' }
-# NOTE: The exact location switch for Copilot/AI experiences may be named differently
-# (e.g., -CopilotLocation, -CopilotExperiencesLocation, -ModernGroupLocation in some
-# configurations). Verify with `Get-Help New-RetentionCompliancePolicy -Full` against
-# your pinned ExchangeOnlineManagement module before running in production.
+# BLOCKED: The PowerShell location parameter for "Microsoft Copilot experiences"
+# retention has not been confirmed against the published New-RetentionCompliancePolicy
+# syntax. ModernGroupLocation targets Microsoft 365 Group mailboxes — NOT Copilot AI
+# interaction content — and must not be used here.
+#
+# ACTION REQUIRED before un-commenting:
+#   Run: Get-Help New-RetentionCompliancePolicy -Full | Out-String |
+#        Select-String 'Copilot','AIApp','Location'
+#   Confirm the correct -Location parameter for your pinned ExchangeOnlineManagement
+#   module version.
+#
+# RECOMMENDED: Create FSI-Copilot-AIExperiences-Retention via the Microsoft Purview
+# portal (Purview → Data lifecycle management → Retention policies → New retention
+# policy → select "Microsoft Copilot experiences" as the location) until the correct
+# PowerShell parameter is confirmed for your module version.
+Write-Error ("ACTION REQUIRED: Confirm the Copilot/AI experiences retention location " +
+    "parameter name from 'Get-Help New-RetentionCompliancePolicy -Full' before " +
+    "running this section. ModernGroupLocation targets M365 Group mailboxes, NOT " +
+    "Copilot AI interaction content. Use the Purview portal to create the " +
+    "FSI-Copilot-AIExperiences-Retention policy until the correct parameter is " +
+    "confirmed.") -ErrorAction Stop
 ```
 
 ### 3.3 Agent-related Exchange email retention (content-match safety net)

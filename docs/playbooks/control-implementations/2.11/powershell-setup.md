@@ -1,7 +1,7 @@
 # PowerShell Setup: Control 2.11 - Bias Testing and Fairness Assessment
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. The snippets below intentionally show abbreviated patterns; the baseline is authoritative.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. The snippets below intentionally show abbreviated patterns; the baseline is authoritative.
 
 **Last Updated:** April 2026<br>
 **Mutation Surface:** None of the scripts below mutate tenant state. They read agent responses and emit evidence files. Even so, keep `Start-Transcript` enabled per the baseline.<br>
@@ -18,8 +18,6 @@ Install-Module -Name ImportExcel `
     -AllowClobber `
     -AcceptLicense
 ```
-
-> **Sovereign cloud note:** This control's scripts only call your agent's REST endpoint, not Microsoft Graph or Power Apps Admin. Sovereign-cloud handling for those modules is therefore not required *here*, but the surrounding evidence pipeline (Purview retention, SharePoint upload) **must** follow your tenant's sovereign endpoint mappings — see baseline §3.
 
 > **Statistics note:** Native PowerShell does not include statistical-significance tests. The scripts below compute observed rates and the disparate-impact ratio. For chi-square, Fisher's exact, and logistic regression, hand the JSON output off to a Python / R worker (scikit-learn / Fairlearn / `stats` package) and merge results back into the manifest. See [verification-testing.md](verification-testing.md) for the recommended boundary.
 
@@ -130,7 +128,7 @@ foreach ($case in $cases) {
     }
 }
 
-# Emit JSON + SHA-256 manifest entry (per powershell-baseline §5)
+# Emit JSON + SHA-256 manifest entry (per powershell-baseline §4)
 $jsonPath = Join-Path $EvidencePath "2.11-bias-results-$ts.json"
 $envelope = [pscustomobject]@{
     control       = '2.11'

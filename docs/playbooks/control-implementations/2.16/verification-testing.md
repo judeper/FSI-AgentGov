@@ -77,15 +77,6 @@ The PowerShell scripts in [PowerShell Setup](powershell-setup.md) emit configura
 | **Expected** | Citations render correctly on every channel. Channels that suppress citations are flagged as out-of-scope for Zone 3 use |
 | **Evidence** | Screenshot per channel; channel-eligibility decision recorded by AI Governance Lead |
 
-### Test 7 — Sovereign-cloud connectivity proven (GCC / GCC High / DoD only)
-
-| Step | Action |
-|------|--------|
-| 1 | Run `Test-LibraryHardening.ps1` with `-Cloud GCCHigh` (or appropriate value) and confirm the script connects to the sovereign endpoints documented in baseline section 3 |
-| 2 | Inspect the JSON output for at least one expected library |
-| **Expected** | Non-zero results returned, confirming connection landed on the correct cloud (no false-clean) |
-| **Evidence** | Script transcript, library-hardening JSON, SHA-256 manifest |
-
 ---
 
 ## Test Case Register
@@ -98,10 +89,9 @@ The PowerShell scripts in [PowerShell Setup](powershell-setup.md) emit configura
 | TC-2.16-04 | Approved content surfaced with citation | Agent screenshot with cited link | |
 | TC-2.16-05 | Staleness alert fires on overdue review | Run-history JSON + alert screenshot | |
 | TC-2.16-06 | Citation parity across channels | Per-channel screenshot set | |
-| TC-2.16-07 | Sovereign-cloud connectivity proven | Transcript + JSON evidence | |
-| TC-2.16-08 | Drift between two snapshots highlights unauthorized binding | Diff CSV across two snapshots | |
-| TC-2.16-09 | Bing Custom Search prohibited in Zone 3 | Snapshot showing zero Bing sources bound | |
-| TC-2.16-10 | Source-approval evidence library retention-locked | Purview retention-policy export | |
+| TC-2.16-07 | Drift between two snapshots highlights unauthorized binding | Diff CSV across two snapshots | |
+| TC-2.16-08 | Bing Custom Search prohibited in Zone 3 | Snapshot showing zero Bing sources bound | |
+| TC-2.16-09 | Source-approval evidence library retention-locked | Purview retention-policy export | |
 
 ---
 

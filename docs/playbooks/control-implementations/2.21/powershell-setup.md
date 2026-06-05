@@ -1,7 +1,7 @@
 # PowerShell Setup: Control 2.21 — AI Marketing Claims and Substantiation
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below use the baseline patterns; if a snippet appears to deviate, the baseline wins.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below use the baseline patterns; if a snippet appears to deviate, the baseline wins.
 
 **Last Updated:** April 2026
 **Module Requirements:** `PnP.PowerShell` v2+ (PowerShell 7.2+)
@@ -18,7 +18,6 @@
 | PowerShell edition | **PowerShell 7.2 or later** (PnP.PowerShell v2 does not support Windows PowerShell 5.1) |
 | Module | `PnP.PowerShell` pinned to a CAB-approved version |
 | App registration | PnP.PowerShell v2 requires an Entra app registration with delegated SharePoint permissions; do **not** silently upgrade from v1 in production |
-| Sovereign cloud | Identify your tenant cloud (Commercial, GCC, GCC High, DoD) before connecting |
 | Change ticket | Open and reference in `-WhatIf` dry runs and final apply runs |
 
 ---
@@ -36,8 +35,6 @@ Install-Module -Name PnP.PowerShell `
 
 Import-Module PnP.PowerShell -RequiredVersion '<version>'
 ```
-
-If your tenant uses GCC High or DoD, append `-AzureEnvironment USGovernmentHigh` (or `USGovernmentDoD`) on `Connect-PnPOnline`. See the baseline for the full sovereign-cloud matrix.
 
 ---
 
@@ -57,10 +54,6 @@ If your tenant uses GCC High or DoD, append `-AzureEnvironment USGovernmentHigh`
 .PARAMETER SiteUrl
     Full URL of the governance SharePoint site, e.g. https://contoso.sharepoint.com/sites/AIGovernance
 
-.PARAMETER AzureEnvironment
-    Sovereign-cloud target. One of: Production, USGovernment, USGovernmentHigh,
-    USGovernmentDoD, China, Germany. Defaults to Production.
-
 .PARAMETER EvidencePath
     Folder where the JSON evidence record is written.
 
@@ -74,16 +67,14 @@ If your tenant uses GCC High or DoD, append `-AzureEnvironment USGovernmentHigh`
 [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
 param(
     [Parameter(Mandatory)] [string] $SiteUrl,
-    [ValidateSet('Production','USGovernment','USGovernmentHigh','USGovernmentDoD','China','Germany')]
-    [string] $AzureEnvironment = 'Production',
     [string] $EvidencePath = '.\evidence\2.21'
 )
 
 $ErrorActionPreference = 'Stop'
 New-Item -ItemType Directory -Path $EvidencePath -Force | Out-Null
 
-Write-Host "[2.21] Connecting to $SiteUrl ($AzureEnvironment)..." -ForegroundColor Cyan
-Connect-PnPOnline -Url $SiteUrl -Interactive -AzureEnvironment $AzureEnvironment
+Write-Host "[2.21] Connecting to $SiteUrl..." -ForegroundColor Cyan
+Connect-PnPOnline -Url $SiteUrl -Interactive
 
 $listName = 'AI Marketing Claims Inventory'
 $evidence = [ordered]@{
@@ -176,13 +167,11 @@ Disconnect-PnPOnline
 #>
 [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
 param(
-    [Parameter(Mandatory)] [string] $SiteUrl,
-    [ValidateSet('Production','USGovernment','USGovernmentHigh','USGovernmentDoD','China','Germany')]
-    [string] $AzureEnvironment = 'Production'
+    [Parameter(Mandatory)] [string] $SiteUrl
 )
 
 $ErrorActionPreference = 'Stop'
-Connect-PnPOnline -Url $SiteUrl -Interactive -AzureEnvironment $AzureEnvironment
+Connect-PnPOnline -Url $SiteUrl -Interactive
 
 $libName = 'AI Claims Substantiation'
 $lib = Get-PnPList -Identity $libName -ErrorAction SilentlyContinue
@@ -218,15 +207,13 @@ Disconnect-PnPOnline
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)] [string] $SiteUrl,
-    [ValidateSet('Production','USGovernment','USGovernmentHigh','USGovernmentDoD','China','Germany')]
-    [string] $AzureEnvironment = 'Production',
     [string] $OutputPath = '.\evidence\2.21'
 )
 
 $ErrorActionPreference = 'Stop'
 New-Item -ItemType Directory -Path $OutputPath -Force | Out-Null
 
-Connect-PnPOnline -Url $SiteUrl -Interactive -AzureEnvironment $AzureEnvironment
+Connect-PnPOnline -Url $SiteUrl -Interactive
 $items = Get-PnPListItem -List 'AI Marketing Claims Inventory' -PageSize 500
 
 $rows = foreach ($i in $items) {
@@ -268,13 +255,11 @@ Disconnect-PnPOnline
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)] [string] $SiteUrl,
-    [ValidateSet('Production','USGovernment','USGovernmentHigh','USGovernmentDoD','China','Germany')]
-    [string] $AzureEnvironment = 'Production',
     [int] $DaysAhead = 14
 )
 
 $ErrorActionPreference = 'Stop'
-Connect-PnPOnline -Url $SiteUrl -Interactive -AzureEnvironment $AzureEnvironment
+Connect-PnPOnline -Url $SiteUrl -Interactive
 $cutoff = (Get-Date).AddDays($DaysAhead).ToString('yyyy-MM-dd')
 
 $caml = @"
@@ -316,13 +301,11 @@ Disconnect-PnPOnline
 #>
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory)] [string] $SiteUrl,
-    [ValidateSet('Production','USGovernment','USGovernmentHigh','USGovernmentDoD','China','Germany')]
-    [string] $AzureEnvironment = 'Production'
+    [Parameter(Mandatory)] [string] $SiteUrl
 )
 
 $ErrorActionPreference = 'Stop'
-Connect-PnPOnline -Url $SiteUrl -Interactive -AzureEnvironment $AzureEnvironment
+Connect-PnPOnline -Url $SiteUrl -Interactive
 
 $results = @()
 
@@ -359,7 +342,6 @@ Disconnect-PnPOnline
 
 - [ ] Module pinned to a CAB-approved `RequiredVersion`
 - [ ] PowerShell 7.2+ confirmed (`$PSVersionTable.PSVersion`)
-- [ ] `-AzureEnvironment` matches the tenant cloud
 - [ ] Each mutating script run with `-WhatIf` first; output reviewed against change ticket
 - [ ] Evidence JSON / CSV files retained with `.sha256` sidecar
 - [ ] `Disconnect-PnPOnline` runs even on failure (consider wrapping calls in `try/finally` for production)

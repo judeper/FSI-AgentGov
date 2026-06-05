@@ -1,7 +1,7 @@
 # Control 2.4: Business Continuity and Disaster Recovery — PowerShell Setup
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
 
 > Automation scripts for [Control 2.4: Business Continuity and Disaster Recovery](../../../controls/pillar-2-management/2.4-business-continuity-and-disaster-recovery.md).
 
@@ -39,7 +39,7 @@ The Power Platform CLI (`pac`) is also used for solution export — install via 
   .SYNOPSIS  Build a BC/DR scope inventory of Power Platform environments
              and their hosted Copilot Studio agents (bots) with last-modified
              timestamps. Output feeds the BIA and exercise evidence pack.
-  .OUTPUT    Tagged JSON with SHA-256 evidence hash per baseline §6.
+  .OUTPUT    Tagged JSON with SHA-256 evidence hash per baseline §4.
 #>
 [CmdletBinding()]
 param(
@@ -73,7 +73,7 @@ $timestamp  = (Get-Date).ToString('yyyyMMdd-HHmmss')
 $outFile    = Join-Path $OutputFolder "bcdr-inventory-$timestamp.json"
 $inventory | ConvertTo-Json -Depth 6 | Out-File -FilePath $outFile -Encoding UTF8
 
-# Evidence hash per baseline §6
+# Evidence hash per baseline §4
 $hash = (Get-FileHash -Path $outFile -Algorithm SHA256).Hash
 "$hash  $(Split-Path -Leaf $outFile)" | Out-File -FilePath "$outFile.sha256"
 

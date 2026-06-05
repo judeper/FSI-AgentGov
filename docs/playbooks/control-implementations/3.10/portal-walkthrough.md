@@ -262,17 +262,6 @@ After completing the configuration, verify:
 
 ---
 
-## Sovereign Cloud Considerations
-
-For **GCC**, **GCC High**, or **DoD** tenants:
-
-- Substitute the regional Copilot Studio, SharePoint, Power Automate, and Power BI URLs (`*.gov.us`, `*.us`, etc.)
-- Verify CSAT is available in your sovereign cloud — feature parity has historically lagged commercial; check the Copilot Studio release notes for your cloud
-- Power Automate connectors for Teams notifications must use the sovereign-cloud connector variant
-- Confirm the Purview retention label is published to the sovereign tenant before applying it
-
----
-
 ## Next Steps
 
 - [PowerShell Setup](./powershell-setup.md) — Automate list provisioning, intake, and metrics

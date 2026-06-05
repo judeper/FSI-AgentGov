@@ -1,6 +1,6 @@
 # Control 3.6 — Troubleshooting: Orphaned Agent Detection and Remediation
 
-> **Scope.** This playbook is the diagnostic companion to [Control 3.6 — Orphaned Agent Detection and Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md). It covers detection drift, sponsor/HR signal breaks, reassignment failures, bulk remediation partial success, terminal-delete blocks (Purview hold / retention label), multi-source reconciliation instability, sovereign-cloud parity gaps (GCC / GCC High / DoD), false-positive owner classifications, and SIEM ingestion gaps.
+> **Scope.** This playbook is the diagnostic companion to [Control 3.6 — Orphaned Agent Detection and Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md). It covers detection drift, sponsor/HR signal breaks, reassignment failures, bulk remediation partial success, terminal-delete blocks (Purview hold / retention label), multi-source reconciliation instability, false-positive owner classifications, and SIEM ingestion gaps.
 >
 > **Regulatory framing.** Accurate, timely orphan detection and remediation *supports compliance with* FINRA Rule 4511 (records), SEC Rule 17a-4(f) (WORM retention of the orphan register and remediation evidence), SOX §404 (ITGC — access provisioning/de-provisioning around financially significant systems), GLBA Safeguards Rule (access controls over nonpublic personal information), and OCC Bulletin 2013-29 / Fed SR 26-2 (formerly SR 11-7) (third-party and model risk for AI agents that persist after sponsor separation). Controls described here *support — they do not replace* registered-principal supervisory review under FINRA Rule 3110 or firm-specific model-risk governance.
 >
@@ -22,19 +22,17 @@
 - [§7 Pillar — BULK-PARTIAL-FAIL](#7-pillar-bulk-partial-fail)
 - [§8 Pillar — TERMINAL-DELETE-BLOCKED](#8-pillar-terminal-delete-blocked)
 - [§9 Pillar — RECONCILE-DRIFT](#9-pillar-reconcile-drift)
-- [§10 Pillar — SOV-PARITY-GAP (GCC / GCC High / DoD)](#10-pillar-sov-parity-gap-gcc-gcc-high-dod)
-- [§11 Pillar — FALSE-POSITIVE-DL-OWNER](#11-pillar-false-positive-dl-owner)
-- [§12 Pillar — SIEM-NO-EVENTS](#12-pillar-siem-no-events)
-- [§13 Runbook RB-01 — M&A / RIF Mass Departure](#13-runbook-rb-01-ma-rif-mass-departure)
-- [§14 Runbook RB-02 — Examiner Pulls Register with SIEM Gaps](#14-runbook-rb-02-examiner-pulls-register-with-siem-gaps)
-- [§15 Runbook RB-03 — Sponsor Termination Cascade](#15-runbook-rb-03-sponsor-termination-cascade)
-- [§16 Runbook RB-04 — Bulk Reassign Over-Applied](#16-runbook-rb-04-bulk-reassign-over-applied)
-- [§17 Runbook RB-05 — Sovereign Manual Reconciliation Drift](#17-runbook-rb-05-sovereign-manual-reconciliation-drift)
-- [§18 Runbook RB-06 — SOX Zero-Orphan Attestation Failure](#18-runbook-rb-06-sox-zero-orphan-attestation-failure)
-- [§19 Runbook RB-07 — Litigation-Hold Deletion Blocked](#19-runbook-rb-07-litigation-hold-deletion-blocked)
-- [§20 Escalation Matrix](#20-escalation-matrix)
-- [§21 Evidence Collection During Incident](#21-evidence-collection-during-incident)
-- [§22 Cross-References](#22-cross-references)
+- [§10 Pillar — FALSE-POSITIVE-DL-OWNER](#10-pillar-false-positive-dl-owner)
+- [§11 Pillar — SIEM-NO-EVENTS](#11-pillar-siem-no-events)
+- [§12 Runbook RB-01 — M&A / RIF Mass Departure](#12-runbook-rb-01-ma-rif-mass-departure)
+- [§13 Runbook RB-02 — Examiner Pulls Register with SIEM Gaps](#13-runbook-rb-02-examiner-pulls-register-with-siem-gaps)
+- [§14 Runbook RB-03 — Sponsor Termination Cascade](#14-runbook-rb-03-sponsor-termination-cascade)
+- [§15 Runbook RB-04 — Bulk Reassign Over-Applied](#15-runbook-rb-04-bulk-reassign-over-applied)
+- [§16 Runbook RB-05 — SOX Zero-Orphan Attestation Failure](#16-runbook-rb-05-sox-zero-orphan-attestation-failure)
+- [§17 Runbook RB-06 — Litigation-Hold Deletion Blocked](#17-runbook-rb-06-litigation-hold-deletion-blocked)
+- [§18 Escalation Matrix](#18-escalation-matrix)
+- [§19 Evidence Collection During Incident](#19-evidence-collection-during-incident)
+- [§20 Cross-References](#20-cross-references)
 
 ---
 
@@ -52,13 +50,13 @@
 | 6 | Bulk remediation reports 47 of 52 succeeded, no per-agent detail | [§7 BULK-PARTIAL-FAIL](#7-pillar-bulk-partial-fail) | Correlation-ID replay |
 | 7 | `Remove-OrphanedAgent` returns "PolicyHold" / "LabelRetained" | [§8 TERMINAL-DELETE-BLOCKED](#8-pillar-terminal-delete-blocked) | Purview label + hold check |
 | 8 | Orphan register count changes ±15% run-to-run with no known events | [§9 RECONCILE-DRIFT](#9-pillar-reconcile-drift) | 3-source reconciliation diff |
-| 9 | GCC High tenant — Ownerless Agents card not visible | [§10 SOV-PARITY-GAP](#10-pillar-sov-parity-gap-gcc-gcc-high-dod) | Sovereign surface inventory |
-| 10 | Agent owned by a Distribution List flagged as "orphan" | [§11 FALSE-POSITIVE-DL-OWNER](#11-pillar-false-positive-dl-owner) | Owner principalType inspect |
-| 11 | Sentinel shows no `AgentOrphanDetectionRun` events for >24h | [§12 SIEM-NO-EVENTS](#12-pillar-siem-no-events) | KQL-01 + connector health |
-| 12 | Examiner asks for orphan register as-of prior quarter, cannot produce | [§14 RB-02](#14-runbook-rb-02-examiner-pulls-register-with-siem-gaps) | WORM snapshot retrieval |
-| 13 | RIF event produced 600 leavers, LCW throttled | [§13 RB-01](#13-runbook-rb-01-ma-rif-mass-departure) | Throttle metrics + batch plan |
-| 14 | SOX attestation shows 3 orphaned Zone 3 agents past SLA | [§18 RB-06](#18-runbook-rb-06-sox-zero-orphan-attestation-failure) | SLA clock audit |
-| 15 | Litigation hold owner refuses delete despite terminal SLA breach | [§19 RB-07](#19-runbook-rb-07-litigation-hold-deletion-blocked) | Custodian coordination |
+| 9 | Ownerless Agents card not visible | Triage as DETECT-NO-RESULTS (§2) — confirm PRE-06 status | `Get-Agt36Health -Surface Detection` |
+| 10 | Agent owned by a Distribution List flagged as "orphan" | [§10 FALSE-POSITIVE-DL-OWNER](#10-pillar-false-positive-dl-owner) | Owner principalType inspect |
+| 11 | Sentinel shows no `AgentOrphanDetectionRun` events for >24h | [§11 SIEM-NO-EVENTS](#11-pillar-siem-no-events) | KQL-01 + connector health |
+| 12 | Examiner asks for orphan register as-of prior quarter, cannot produce | [§13 RB-02](#13-runbook-rb-02-examiner-pulls-register-with-siem-gaps) | WORM snapshot retrieval |
+| 13 | RIF event produced 600 leavers, LCW throttled | [§12 RB-01](#12-runbook-rb-01-ma-rif-mass-departure) | Throttle metrics + batch plan |
+| 14 | SOX attestation shows 3 orphaned Zone 3 agents past SLA | [§16 RB-05](#16-runbook-rb-05-sox-zero-orphan-attestation-failure) | SLA clock audit |
+| 15 | Litigation hold owner refuses delete despite terminal SLA breach | [§17 RB-06](#17-runbook-rb-06-litigation-hold-deletion-blocked) | Custodian coordination |
 
 ### 0.2 Severity Matrix
 
@@ -75,9 +73,8 @@ Before escalating any incident above SEV-3, the on-call administrator must confi
 
 1. **Evidence preservation initiated** — before any remediation action, capture E-01 (orphan register snapshot at time of detection) and E-02 (raw detection-run log) per [§1.5](#15-evidence-floor).
 2. **Scope quantified** — exact count of affected agents, by Zone, with tenant and environment IDs.
-3. **Sovereign cloud status** — whether the affected tenant is Commercial, GCC, GCC High, or DoD, and which [§10 SOV-PARITY-GAP](#10-pillar-sov-parity-gap-gcc-gcc-high-dod) compensating controls are in force.
-4. **Examiner/litigation flag** — confirmation from Legal / Compliance whether any affected agent is subject to an active examination, subpoena, or litigation hold (determines whether [§8 TERMINAL-DELETE-BLOCKED](#8-pillar-terminal-delete-blocked) logic must be honored before any delete).
-5. **Control dependencies verified** — status of upstream controls [1.2 Agent Registry](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md), [2.25 Agent 365 Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md), [2.26 Entra Agent ID](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md), [3.1 Agent Inventory](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md).
+3. **Examiner/litigation flag** — confirmation from Legal / Compliance whether any affected agent is subject to an active examination, subpoena, or litigation hold (determines whether [§8 TERMINAL-DELETE-BLOCKED](#8-pillar-terminal-delete-blocked) logic must be honored before any delete).
+4. **Control dependencies verified** — status of upstream controls [1.2 Agent Registry](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md), [2.25 Agent 365 Console](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md), [2.26 Entra Agent ID](../../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md), [3.1 Agent Inventory](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md).
 
 ### 0.4 Examiner Artifact Preservation (Do-This-First)
 
@@ -106,7 +103,7 @@ All diagnostic helpers are thin, read-only wrappers that call the underlying Gra
 | `Get-Agt36OwnerEligibility` | Tests whether a candidate owner meets licensing, environment membership, and SoD requirements before reassignment | `-CandidateUpn <string>`, `-AgentId <guid>` | Eligibility verdict with blocking reasons |
 | `Get-Agt36RetentionBindings` | For an agent, lists Purview retention labels, litigation holds, and eDiscovery case memberships | `-AgentId <guid>` | Binding list with hold IDs and custodians |
 
-All helpers return objects compatible with `Export-Clixml`, `ConvertTo-Json -Depth 8`, and `ConvertTo-Csv` for evidence archival. Helpers respect the sovereign-cloud endpoint selection from [`_shared/powershell-baseline.md` §3](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod).
+All helpers return objects compatible with `Export-Clixml`, `ConvertTo-Json -Depth 8`, and `ConvertTo-Csv` for evidence archival.
 
 ### 1.2 Graph Query Catalog
 
@@ -203,11 +200,10 @@ Every Control 3.6 incident ticket must carry the following evidence artifacts, s
 | **E-05** | Reassignment audit rows (before/after owner, operator, justification) | `AgentGovernance_CL` | 7 years |
 | **E-06** | Bulk job correlation-ID result set (BULK-PARTIAL-FAIL) | Job orchestrator | 7 years |
 | **E-07** | Purview label / hold binding report (TERMINAL-DELETE-BLOCKED) | `Get-Agt36RetentionBindings` | 7 years |
-| **E-08** | Sovereign manual reconciliation worksheet (dual-signed PDF) | Offline workbook | 7 years |
-| **E-09** | Incident timeline with UTC timestamps, operator UPNs, ticket IDs | Ticketing system | 7 years |
-| **E-10** | Post-incident root-cause memo and control change log | Incident review | 7 years |
+| **E-08** | Incident timeline with UTC timestamps, operator UPNs, ticket IDs | Ticketing system | 7 years |
+| **E-09** | Post-incident root-cause memo and control change log | Incident review | 7 years |
 
-Hashes (SHA-256) of E-01 through E-08 must be recorded in the incident ticket and cross-filed with the Legal Hold Coordinator if any affected agent is subject to active examination or litigation hold.
+Hashes (SHA-256) of E-01 through E-07 must be recorded in the incident ticket and cross-filed with the Legal Hold Coordinator if any affected agent is subject to active examination or litigation hold.
 
 ---
 
@@ -237,7 +233,7 @@ Hashes (SHA-256) of E-01 through E-08 must be recorded in the incident ticket an
 
 ### 2.3 Diagnostic Procedure
 
-1. Run `Get-Agt36Health -Surface Detection`. If `lastSuccess` is more than 24h old or `permissionSet` shows missing scopes, treat as SEV-1 and proceed to [§12 SIEM-NO-EVENTS](#12-pillar-siem-no-events) in parallel to confirm the detection job is even executing.
+1. Run `Get-Agt36Health -Surface Detection`. If `lastSuccess` is more than 24h old or `permissionSet` shows missing scopes, treat as SEV-1 and proceed to [§11 SIEM-NO-EVENTS](#11-pillar-siem-no-events) in parallel to confirm the detection job is even executing.
 2. Execute GQ-01 directly against Graph with the pipeline's credentials. If GQ-01 returns results but `Find-OrphanedAgents` does not, the cmdlet's filter logic is at fault — not the upstream data.
 3. Execute GQ-02 (ownerless apps) and GQ-03 (HR attribute audit). Confirm you have non-empty result sets for **both**. If GQ-03 is empty across all disabled users, escalate to [§4 HR-SIGNAL-MISSING](#4-pillar-hr-signal-missing).
 4. Inspect `AgentGovernance_CL` for `AgentOrphanDetectionRun` events in the last 24h (KQL-01). If absent, the detection job itself did not execute — investigate scheduler (Azure Automation, Logic App, or Power Automate flow owning the run).
@@ -595,7 +591,7 @@ This is **by design** — terminal delete must never silently override a legal p
 ### 8.6 Cross-References
 
 - [Control 3.6 §Evidence & Retention](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md)
-- [§19 Runbook RB-07](#19-runbook-rb-07-litigation-hold-deletion-blocked)
+- [§17 Runbook RB-06](#17-runbook-rb-06-litigation-hold-deletion-blocked)
 
 ### 8.7 Examiner Artifact Preservation
 
@@ -654,63 +650,11 @@ Preserve both the raw source exports and the reconciliation delta. Examiners may
 
 ---
 
-## §10 Pillar — SOV-PARITY-GAP (GCC / GCC High / DoD)
-
-**Symptom.** In sovereign clouds (GCC, GCC High, DoD), the Agent 365 Ownerless Agents card and Entra Lifecycle Workflows are **not available or are feature-delayed**, preventing the commercial-cloud automation path.
-
-### 10.1 Symptom Catalog
-
-| Variant | Observable |
-|---|---|
-| Card absent | Agent 365 Admin Center has no Ownerless Agents tile in GCC High |
-| LCW feature-delayed | Manager-transfer workflow template unavailable in DoD |
-| Endpoint mismatch | Commercial Graph endpoint used against sovereign tenant — 404s |
-| Permission scope parity gap | Scope exists in commercial but not yet in sovereign |
-
-### 10.2 Compensating Controls (Sovereign)
-
-Per Control 3.6, sovereign tenants **must** implement:
-
-1. **Quarterly manual reconciliation** with a dual-signed PDF worksheet (operator + AI Governance Lead), using `Get-Agt36Orphan` against the sovereign Graph endpoint.
-2. **HR-event-triggered manual review** for every leaver with Zone 3 agent ownership — documented in a ticketed workflow with 7-day SLA.
-3. **Terminal deletion dual control** — Power Platform Admin + AI Administrator both required.
-
-### 10.3 Diagnostic Procedure
-
-1. Confirm the correct sovereign endpoint is in use. Reference [`_shared/powershell-baseline.md §3 Sovereign Cloud Endpoints (GCC / GCC High / DoD)`](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod).
-2. Run `Get-Agt36Health -Surface All`. Sovereign-expected surfaces will report `NotAvailable`; this is not a failure.
-3. Confirm the quarterly manual reconciliation worksheet (E-08) has been executed on schedule.
-4. Confirm dual-control signatures on the last terminal-delete action.
-
-### 10.4 Resolution Steps
-
-- **Wrong endpoint.** Re-authenticate with the sovereign-cloud environment parameter (`-Environment USGov`, `USGovHigh`, `USGovDoD` as applicable).
-- **Missing quarterly reconciliation.** Execute immediately; file an off-cycle worksheet documenting the gap and remediation; reset the quarterly clock.
-- **Feature-delay.** Track the Microsoft 365 Roadmap; document the compensating control in the Control 3.6 sovereign addendum until parity is achieved.
-
-### 10.5 Verification
-
-1. Sovereign endpoint confirmed in helper output and log breadcrumbs.
-2. E-08 (dual-signed manual reconciliation worksheet) present for the current quarter.
-3. Audit log shows dual approvers for every terminal-delete action in the quarter.
-
-### 10.6 Cross-References
-
-- [Control 3.6 §Sovereign Cloud Compensating Controls](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md)
-- [`_shared/powershell-baseline.md` §3 Sovereign Cloud Endpoints](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod)
-- [§17 Runbook RB-05 Sovereign Manual Reconciliation Drift](#17-runbook-rb-05-sovereign-manual-reconciliation-drift)
-
-### 10.7 Examiner Artifact Preservation
-
-Sovereign examinations (typically DoD / federal FSI subsidiaries) scrutinize compensating-control evidence heavily. Preserve E-08 worksheets with full signature blocks (signer UPN, timestamp, certificate thumbprint if digitally signed).
-
----
-
-## §11 Pillar — FALSE-POSITIVE-DL-OWNER
+## §10 Pillar — FALSE-POSITIVE-DL-OWNER
 
 **Symptom.** An agent owned by a Distribution List, Microsoft 365 Group, or Security Group is flagged as "orphan" because the detection cmdlet resolved ownership to "no user principal".
 
-### 11.1 Symptom Catalog
+### 10.1 Symptom Catalog
 
 | Variant | Observable |
 |---|---|
@@ -719,7 +663,7 @@ Sovereign examinations (typically DoD / federal FSI subsidiaries) scrutinize com
 | Dynamic group | Owner is a dynamic M365 group, membership resolves at runtime |
 | Nested group | Owner is a group whose only member is another group |
 
-### 11.2 Root Cause Matrix
+### 10.2 Root Cause Matrix
 
 | Cause | Likelihood | Verification |
 |---|---|---|
@@ -727,41 +671,41 @@ Sovereign examinations (typically DoD / federal FSI subsidiaries) scrutinize com
 | Group membership resolves to zero users (empty DL) — genuine orphan-equivalent | Medium | Expand membership at detection time |
 | Nested group depth exceeds cmdlet's expansion limit | Low | Increase expansion depth (cap at 3 levels per governance policy) |
 
-### 11.3 Diagnostic Procedure
+### 10.3 Diagnostic Procedure
 
 1. For each flagged agent, run GQ-05 and inspect owner `@odata.type`.
 2. If type is `#microsoft.graph.group`: expand membership with `GET /groups/{id}/transitiveMembers`.
 3. If expanded membership contains ≥1 active user, this is a **false positive** — the agent is owned by a group with valid human members.
 4. If expanded membership is empty or contains only disabled users, this is a **genuine orphan-equivalent** and should remain in the register with a category-specific flag.
 
-### 11.4 Resolution Steps
+### 10.4 Resolution Steps
 
 - **False positive.** File Control 2.3 change request to enhance the detection cmdlet to expand group membership (up to 3 levels) and classify as orphan only if transitive membership has zero active users.
 - **Empty DL.** Retain in orphan register under new category "ownerless-group-resolved". Apply same remediation workflow as a direct ownerless agent.
 - **Temporary workaround.** Maintain a curated allowlist of group owners known to be valid (e.g., `agent-stewards@org`), with quarterly recertification.
 
-### 11.5 Verification
+### 10.5 Verification
 
 1. Flagged DL/group-owned agents with valid transitive human members no longer appear in the orphan register.
 2. Empty DL/group-owned agents appear with the correct category flag.
 3. Allowlist recertified in the last quarter (if used as interim).
 
-### 11.6 Cross-References
+### 10.6 Cross-References
 
 - [Control 1.2 Agent Registry](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md)
 - [Control 2.8 SoD](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md)
 
-### 11.7 Examiner Artifact Preservation
+### 10.7 Examiner Artifact Preservation
 
 Document the false-positive analysis as part of the monthly governance review. Examiners appreciate explicit false-positive handling because it demonstrates control calibration maturity.
 
 ---
 
-## §12 Pillar — SIEM-NO-EVENTS
+## §11 Pillar — SIEM-NO-EVENTS
 
 **Symptom.** Sentinel (or other SIEM) shows no `AgentOrphanDetectionRun`, `AgentOwnerReassigned`, or `AgentTerminalDelete` events for more than 24 hours, despite operational activity.
 
-### 12.1 Symptom Catalog
+### 10.1 Symptom Catalog
 
 | Variant | Observable |
 |---|---|
@@ -770,7 +714,7 @@ Document the false-positive analysis as part of the monthly governance review. E
 | Connector unhealthy | Data Connector status in Sentinel shows "Degraded" or "Disconnected" |
 | Table schema drift | Events arrive but in a different table or with renamed columns |
 
-### 12.2 Root Cause Matrix
+### 10.2 Root Cause Matrix
 
 | Cause | Likelihood | Verification |
 |---|---|---|
@@ -781,14 +725,14 @@ Document the false-positive analysis as part of the monthly governance review. E
 | Ingestion cap hit (daily cap reached) | Medium | Log Analytics workspace usage |
 | Table name change (Custom Logs v2 migration) | Low | Schema audit |
 
-### 12.3 Diagnostic Procedure
+### 10.3 Diagnostic Procedure
 
 1. KQL-06 (Connector self-test ping). If self-test is silent, the sender pipeline is down.
 2. Azure Portal → Log Analytics workspace → Usage and estimated costs → check daily cap and ingestion.
 3. From the sender host, test connectivity to the ingestion endpoint (public or private).
 4. Verify sender identity's role assignments against the workspace.
 
-### 12.4 Resolution Steps
+### 10.4 Resolution Steps
 
 - **DCR disabled.** Re-enable; verify with KQL-06 self-test within 15 minutes.
 - **Key rotated.** Update sender; restart sender service; confirm with KQL-06.
@@ -796,36 +740,36 @@ Document the false-positive analysis as part of the monthly governance review. E
 - **Network.** Diagnose NSG/private endpoint; file network change request.
 - **Ingestion cap.** Coordinate with platform team on cap increase or workload rebalancing.
 
-### 12.5 Verification
+### 10.5 Verification
 
 1. KQL-06 returns a ping within the last 10 minutes.
 2. KQL-01, KQL-02 return events consistent with current operational tempo.
 3. Sentinel Data Connector status is Healthy.
 4. E-02 recoverable for the silent window (from sender-side local buffer if available, or post-incident manual replay).
 
-### 12.6 Cross-References
+### 10.6 Cross-References
 
-- [§14 Runbook RB-02 — Examiner Pulls Register with SIEM Gaps](#14-runbook-rb-02-examiner-pulls-register-with-siem-gaps)
+- [§13 Runbook RB-02 — Examiner Pulls Register with SIEM Gaps](#13-runbook-rb-02-examiner-pulls-register-with-siem-gaps)
 - [Control 3.1 Agent Inventory](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md)
 
-### 12.7 Examiner Artifact Preservation
+### 10.7 Examiner Artifact Preservation
 
 During SIEM silence, the sender host's local buffer (if implemented) is often the only record. Preserve the local buffer until events are confirmed ingested. Document the silent window with start/end UTC timestamps in E-09 for examiner transparency.
 
 ---
 
-## §13 Runbook RB-01 — M&A / RIF Mass Departure
+## §12 Runbook RB-01 — M&A / RIF Mass Departure
 
 **Trigger.** M&A divestiture, reduction in force, or mass reorganization generates >100 leaver events in a <72-hour window, potentially orphaning hundreds of agents.
 
-### 13.1 Pre-Conditions
+### 10.1 Pre-Conditions
 
 - HR has confirmed the population cutoff list (final leaver UPNs).
 - Legal has confirmed whether any leaver is subject to litigation hold.
 - AI Governance Lead has briefed Control Owners on the event window.
 - Baseline orphan register (E-01) captured immediately pre-event.
 
-### 13.2 Procedure
+### 10.2 Procedure
 
 1. **T-24h**: Snapshot current orphan register and agent inventory (E-01, E-03). Hash and file.
 2. **T-0**: HR event propagates. Monitor GQ-03 coverage; expected populated `employeeLeaveDateTime` within 4h.
@@ -835,17 +779,17 @@ During SIEM silence, the sender host's local buffer (if implemented) is often th
 6. **T+72h**: Run full reconciliation (`Get-Agt36ReconcileState`). Zero Zone 3 agents should remain orphaned.
 7. **T+7d**: Produce RIF remediation summary memo (E-10).
 
-### 13.3 Evidence Bundle
+### 10.3 Evidence Bundle
 
 E-01 (T-24h baseline), E-03 (Graph queries at multiple checkpoints), E-04 (LCW runs), E-05 (reassignments), E-06 (bulk job outcomes), E-09 (incident timeline), E-10 (summary memo).
 
-### 13.4 Post-Incident Actions
+### 10.4 Post-Incident Actions
 
 - Tune LCW throttle configuration based on observed throughput.
 - Document any novel orphan patterns as new detection categories or false-positive rules.
 - Conduct lessons-learned with AI Governance Lead; update this runbook.
 
-### 13.5 Cross-References
+### 10.5 Cross-References
 
 - [§5 SPONSOR-TRANSFER-FAIL](#5-pillar-sponsor-transfer-fail)
 - [§7 BULK-PARTIAL-FAIL](#7-pillar-bulk-partial-fail)
@@ -853,53 +797,53 @@ E-01 (T-24h baseline), E-03 (Graph queries at multiple checkpoints), E-04 (LCW r
 
 ---
 
-## §14 Runbook RB-02 — Examiner Pulls Register with SIEM Gaps
+## §13 Runbook RB-02 — Examiner Pulls Register with SIEM Gaps
 
 **Trigger.** Examiner or internal audit requests the orphan register "as of" a prior date, but SIEM ingestion had silent windows during that period.
 
-### 14.1 Pre-Conditions
+### 10.1 Pre-Conditions
 
 - Examiner request scope documented (as-of date, agent population, detail level).
 - Legal Hold Coordinator engaged if the examination is formal.
 - WORM storage access available (read-only with audit) to the AI Governance Lead.
 
-### 14.2 Procedure
+### 10.2 Procedure
 
 1. **T+0**: Acknowledge request; confirm scope in writing with examiner and AI Governance Lead.
 2. **T+1h**: Retrieve WORM-stored orphan register snapshot (E-01) closest to the examiner's as-of date. Verify hash.
-3. **T+2h**: Cross-check against detection-run logs (E-02). Identify any silent windows from [§12 SIEM-NO-EVENTS](#12-pillar-siem-no-events) post-incident records.
+3. **T+2h**: Cross-check against detection-run logs (E-02). Identify any silent windows from [§11 SIEM-NO-EVENTS](#11-pillar-siem-no-events) post-incident records.
 4. **T+4h**: For each silent window, retrieve sender-side local buffer or re-run `Get-Agt36Orphan -AsOf <datetime>` against Graph / Power Platform historical data where available. Document explicitly which sources were usable for which time ranges.
 5. **T+24h**: Package register, supporting evidence, and silent-window narrative for examiner. Include explicit statement of known gaps — **do not** paper over gaps; examiners view candor favorably.
 6. **T+48h**: AI Governance Lead review and dual-signature on the examiner deliverable.
 
-### 14.3 Evidence Bundle
+### 10.3 Evidence Bundle
 
 E-01, E-02, E-03 (historical Graph query replays), E-09, E-10 (examiner response memo with silent-window narrative).
 
-### 14.4 Post-Incident Actions
+### 10.4 Post-Incident Actions
 
 - Remediate any SIEM gaps identified during the silent-window narrative.
 - Implement sender-side durable buffering if not already in place.
 - Update the retention policy on WORM storage if the examiner-relevant window is older than the current retention.
 
-### 14.5 Cross-References
+### 10.5 Cross-References
 
-- [§12 SIEM-NO-EVENTS](#12-pillar-siem-no-events)
+- [§11 SIEM-NO-EVENTS](#11-pillar-siem-no-events)
 - [Control 3.5 Cost Allocation & Budget Tracking](../../../controls/pillar-3-reporting/3.5-cost-allocation-and-budget-tracking.md) *(for examiner cost-impact questions)*
 
 ---
 
-## §15 Runbook RB-03 — Sponsor Termination Cascade
+## §14 Runbook RB-03 — Sponsor Termination Cascade
 
 **Trigger.** A single high-privilege sponsor's termination triggers orphaning of 10+ Zone 3 agents, including cross-business-unit agents.
 
-### 15.1 Pre-Conditions
+### 10.1 Pre-Conditions
 
 - HR confirmed termination with effective date.
 - Sponsor's `manager` attribute is populated in Entra.
 - Business-unit agent stewards identified for each affected Zone 3 agent.
 
-### 15.2 Procedure
+### 10.2 Procedure
 
 1. **T-24h** (if planned): Run `Get-Agt36SponsorImpact -LeaverUpn <sponsor>`. Distribute to business-unit stewards for reassignment pre-planning.
 2. **T-0**: Termination effective. `employeeLeaveDateTime` populated.
@@ -907,32 +851,32 @@ E-01, E-02, E-03 (historical Graph query replays), E-09, E-10 (examiner response
 4. **T+4h**: For agents requiring alternate owner (not manager), execute `Set-AgentOwner` with documented business-steward approval (E-05).
 5. **T+24h**: Zero orphans in sponsor's impact set. Final reconciliation and evidence bundle.
 
-### 15.3 Evidence Bundle
+### 10.3 Evidence Bundle
 
 E-03 impact report, E-04 LCW runs, E-05 per-agent reassignments with business-unit approvals, E-09 timeline.
 
-### 15.4 Post-Incident Actions
+### 10.4 Post-Incident Actions
 
 - Review whether the sponsor held single-owner status on any agent (SoD risk pattern); add co-owner policy for Zone 3 agents with privileged sponsors.
 
-### 15.5 Cross-References
+### 10.5 Cross-References
 
 - [§5 SPONSOR-TRANSFER-FAIL](#5-pillar-sponsor-transfer-fail)
 - [Control 2.8 SoD](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md)
 
 ---
 
-## §16 Runbook RB-04 — Bulk Reassign Over-Applied
+## §15 Runbook RB-04 — Bulk Reassign Over-Applied
 
 **Trigger.** A bulk reassignment job transferred ownership of agents that were **not** intended to be in scope, due to an over-broad input filter.
 
-### 16.1 Pre-Conditions
+### 10.1 Pre-Conditions
 
 - The over-application has been detected (typically: unexpected ownership-change events in KQL-02).
 - Input manifest preserved.
 - Legal notified if any over-applied agent is examination-adjacent.
 
-### 16.2 Procedure
+### 10.2 Procedure
 
 1. **T+0**: Freeze further bulk jobs. Snapshot current state (E-03, E-05).
 2. **T+1h**: Reconstruct the intended input set vs. the actual processed set. Identify the over-applied subset.
@@ -940,65 +884,33 @@ E-03 impact report, E-04 LCW runs, E-05 per-agent reassignments with business-un
 4. **T+8h**: Full reconciliation. Confirm all over-applied agents are restored.
 5. **T+24h**: Root cause of filter over-broadness documented. Input-validation enhancement filed under Control 2.3.
 
-### 16.3 Evidence Bundle
+### 10.3 Evidence Bundle
 
 E-05 (both original and reversal rows), E-06 (original bulk job), E-09, E-10.
 
-### 16.4 Post-Incident Actions
+### 10.4 Post-Incident Actions
 
 - Add pre-flight dry-run with diff preview to the bulk orchestrator.
 - Require dual approval on any bulk job exceeding 50 agents.
 
-### 16.5 Cross-References
+### 10.5 Cross-References
 
 - [§7 BULK-PARTIAL-FAIL](#7-pillar-bulk-partial-fail)
 - [Control 2.3 Change Management](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md)
 
 ---
 
-## §17 Runbook RB-05 — Sovereign Manual Reconciliation Drift
-
-**Trigger.** Quarterly sovereign manual reconciliation (GCC High or DoD) shows >10% delta between manual worksheet and automated helper output.
-
-### 17.1 Pre-Conditions
-
-- Prior quarter's dual-signed worksheet (E-08) retrievable.
-- Sovereign endpoint configuration verified per [`_shared/powershell-baseline.md §3`](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod).
-
-### 17.2 Procedure
-
-1. Recompute both the manual and automated numbers at the same wall-clock time.
-2. Diff at agent-ID level, not just count.
-3. Classify each delta: missed-by-manual, missed-by-automated, or eventual-consistency.
-4. File a sovereign-addendum narrative in E-08 for the current quarter, signed by the operator and AI Governance Lead.
-5. Escalate any missed-by-manual findings to the sovereign operations team for training.
-
-### 17.3 Evidence Bundle
-
-E-08 (current + prior quarter), E-03 (Graph queries against sovereign endpoint), E-09.
-
-### 17.4 Post-Incident Actions
-
-- Consider automating the reconciliation in the sovereign tenant once Microsoft roadmap parity enables it.
-- Update the sovereign operations runbook with any newly discovered reconciliation nuances.
-
-### 17.5 Cross-References
-
-- [§10 SOV-PARITY-GAP](#10-pillar-sov-parity-gap-gcc-gcc-high-dod)
-
----
-
-## §18 Runbook RB-06 — SOX Zero-Orphan Attestation Failure
+## §16 Runbook RB-05 — SOX Zero-Orphan Attestation Failure
 
 **Trigger.** Quarterly SOX attestation for financially significant systems (Zone 3, tagged `SOX-ICFR-Relevant`) shows >0 orphaned agents past remediation SLA.
 
-### 18.1 Pre-Conditions
+### 10.1 Pre-Conditions
 
 - SOX attestation window is active (typically last 2 weeks of quarter).
 - Control Owner and SOX Control Tester identified.
 - Audit committee reporting timeline known.
 
-### 18.2 Procedure
+### 10.2 Procedure
 
 1. **T+0**: SOX Tester flags orphan count > 0. AI Governance Lead acknowledges.
 2. **T+1h**: For each orphan, produce SLA clock audit — start time (detection), current time, breach magnitude.
@@ -1007,56 +919,56 @@ E-08 (current + prior quarter), E-03 (Graph queries against sovereign endpoint),
 5. **T+3d**: Control Owner and AI Governance Lead sign a deficiency memo if any genuine miss exceeded materiality thresholds; route through Internal Audit per SOX §404 process.
 6. **T+7d**: Remediation evidence (E-05, E-07 as applicable, E-10) bundled for Internal Audit.
 
-### 18.3 Evidence Bundle
+### 10.3 Evidence Bundle
 
 E-01 at start of window, E-01 at attestation time, E-05 remediations, E-07 hold records, E-09 timeline, E-10 deficiency memo (if applicable).
 
-### 18.4 Post-Incident Actions
+### 10.4 Post-Incident Actions
 
 - Tune detection SLA tiering if a recurring category is slipping.
 - Review whether Zone 3 SOX-tagged agents require stricter owner policy (e.g., mandatory co-owner).
 
-### 18.5 Cross-References
+### 10.5 Cross-References
 
 - [Control 3.6 §Evidence & Retention](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md)
 - [Control 2.8 SoD](../../../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md)
 
 ---
 
-## §19 Runbook RB-07 — Litigation-Hold Deletion Blocked
+## §17 Runbook RB-06 — Litigation-Hold Deletion Blocked
 
 **Trigger.** An agent is past terminal-deletion SLA but `Remove-OrphanedAgent` is blocked by an active litigation hold or eDiscovery case binding.
 
-### 19.1 Pre-Conditions
+### 17.1 Pre-Conditions
 
 - Legal Hold Coordinator identified.
 - eDiscovery Case Manager identified (if applicable).
 - `Get-Agt36RetentionBindings` output available (E-07).
 
-### 19.2 Procedure
+### 17.2 Procedure
 
 1. **T+0**: Confirm the block is valid via Purview Compliance. This is not an error to work around — it is a legal obligation.
 2. **T+1h**: Route the agent to `Retained-Under-Hold` status in the orphan register. Reassign ownership (not deletion) to the designated records steward. The remediation SLA clock stops at this point per Control 3.6 §Evidence & Retention.
 3. **T+24h**: Document in the register the hold ID, custodian, and expected matter-close date.
 4. **On hold release** (date varies): Legal Hold Coordinator notifies AI Governance Lead. Re-run `Remove-OrphanedAgent`. Capture E-05, E-07, and the Legal release notice as E-10.
 
-### 19.3 Evidence Bundle
+### 17.3 Evidence Bundle
 
 E-07 (binding at start, release at end), E-05 (final deletion), Legal release notice, E-09 end-to-end timeline (often spanning months or years).
 
-### 19.4 Post-Incident Actions
+### 17.4 Post-Incident Actions
 
 - Review the agent's lifecycle record for completeness; the full retained-through-hold narrative is examination-grade.
 - If a recurring pattern emerges (same custodian, multiple holds), coordinate with Legal on whether a more structured custodian-of-record role is appropriate.
 
-### 19.5 Cross-References
+### 17.5 Cross-References
 
 - [§8 TERMINAL-DELETE-BLOCKED](#8-pillar-terminal-delete-blocked)
 - [Control 3.6 §Evidence & Retention](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md)
 
 ---
 
-## §20 Escalation Matrix
+## §18 Escalation Matrix
 
 | Severity | Primary Responder | Escalation L1 | Escalation L2 | External |
 |---|---|---|---|---|
@@ -1077,7 +989,7 @@ Notifications are dispatched via the firm's ticketing system with SLA clocks per
 
 ---
 
-## §21 Evidence Collection During Incident
+## §19 Evidence Collection During Incident
 
 Evidence collection is **continuous and non-destructive**. The following conventions apply to every Control 3.6 incident:
 
@@ -1089,7 +1001,7 @@ Evidence collection is **continuous and non-destructive**. The following convent
 6. **Cross-file with Legal** whenever examiner, subpoena, or litigation hold touches the incident.
 7. **Complete the evidence bundle** before closing the ticket. E-09 (timeline) and E-10 (root-cause memo) are mandatory for SEV-1 and SEV-2.
 
-### 21.1 Standard Evidence Capture Skeleton
+### 17.1 Standard Evidence Capture Skeleton
 
 ```powershell
 # Capture orphan register snapshot (E-01)
@@ -1109,9 +1021,9 @@ The `Write-EvidenceManifest` helper writes a signed JSON manifest to the same WO
 
 ---
 
-## §22 Cross-References
+## §20 Cross-References
 
-### 22.1 Control Cross-References
+### 20.1 Control Cross-References
 
 - [Control 3.6 — Orphaned Agent Detection and Remediation](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) — source-of-truth control specification.
 - [Control 1.2 — Agent Registry and Integrated Apps Management](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) — upstream inventory.
@@ -1123,14 +1035,14 @@ The `Write-EvidenceManifest` helper writes a signed JSON manifest to the same WO
 - [Control 3.5 — Cost Allocation and Budget Tracking](../../../controls/pillar-3-reporting/3.5-cost-allocation-and-budget-tracking.md) — orphan cost reporting.
 - [Control 3.13 — Agent 365 Admin Center Analytics](../../../controls/pillar-3-reporting/3.13-agent-365-admin-center-analytics.md) — analytics surface.
 
-### 22.2 Sibling Playbook Cross-References
+### 20.2 Sibling Playbook Cross-References
 
 - [3.6 portal-walkthrough.md](portal-walkthrough.md)
 - [3.6 powershell-setup.md](powershell-setup.md)
 - [3.6 verification-testing.md](verification-testing.md)
-- [`_shared/powershell-baseline.md` §3 Sovereign Cloud Endpoints (GCC / GCC High / DoD)](../../_shared/powershell-baseline.md#3-sovereign-cloud-endpoints-gcc-gcc-high-dod)
+- [`_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md)
 
-### 22.3 Regulatory Cross-References
+### 20.3 Regulatory Cross-References
 
 - **FINRA Rule 4511** — books and records preservation; register is system-of-record artifact.
 - **FINRA Rule 3110** — supervisory review; this playbook *supports — does not replace* registered-principal supervisory review.

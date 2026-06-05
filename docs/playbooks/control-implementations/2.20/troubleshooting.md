@@ -21,7 +21,7 @@
 | Defender XDR / Sentinel show **no** alerts during probe campaign | Reconciliation gap — Control 1.21 detection misconfigured | §2.7 |
 | Same probe passes Z2 sandbox but fails production with users | Sandbox configuration drift from production | §2.8 |
 | Operator cannot run probe — Direct Line bearer rejected | Token expired or scoped to wrong agent | §2.9 |
-| `Get-AzCognitiveServicesAccountRaiPolicy` returns empty | Wrong subscription / sovereign cloud / missing reader role | §2.10 |
+| `Get-AzCognitiveServicesAccountRaiPolicy` returns empty | Wrong subscription / missing reader role | §2.10 |
 | PyRIT module errors on import | Wrong Python interpreter / venv not activated | §2.11 |
 | Test results show 100 % "REVIEW" status | Indicators in attack-library cases are too narrow | §2.12 |
 | Cycle late — last run > cadence window | Calendar / orchestrator drift; PIM expired | §2.13 |
@@ -36,7 +36,7 @@
 
 **Diagnostic steps.**
 
-1. Inspect `2.20-PRE-04_canary.json`. Did the canary actually return a substantive response?
+1. Inspect `2.20-PRE-03_canary.json`. Did the canary actually return a substantive response?
 2. Inspect a sample of `response_excerpt` fields in `2.20-results-*.json`. Are responses **identical** across many tests? Identical responses indicate a stubbed endpoint or a circuit breaker.
 3. Verify the `endpoint` in the summary matches the intended sandbox URL.
 4. Verify `library_version` matches a tagged commit known to contain real attack content (not a placeholder commit).
@@ -201,8 +201,7 @@ Do **not** create a Sentinel suppression rule for "red team activity". This brea
 
 1. Check token TTL. Direct Line tokens expire (commonly 1 hour); long campaigns must refresh.
 2. Check token scope — token issued for one agent will not authorize a different agent.
-3. For sovereign clouds, confirm the Direct Line base URL is `directline.botframework.us` (GCC High / DoD), not `.com`.
-4. Confirm the bot endpoint is published and the channel is enabled (Copilot Studio → Channels → Direct Line).
+3. Confirm the bot endpoint is published and the channel is enabled (Copilot Studio → Channels → Direct Line).
 
 **Resolution.**
 
@@ -219,14 +218,12 @@ Do **not** create a Sentinel suppression rule for "red team activity". This brea
 **Diagnostic steps.**
 
 1. Confirm `Get-AzContext` shows the correct subscription and tenant.
-2. For sovereign tenants, confirm `(Get-AzContext).Environment.Name` is `AzureUSGovernment` (not `AzureCloud`).
-3. Confirm the operator has `Cognitive Services User` or `Reader` role on the resource.
-4. Confirm the resource is a Cognitive Services / Azure OpenAI account (not a deprecated AOAI v1 resource).
+2. Confirm the operator has `Cognitive Services User` or `Reader` role on the resource.
+3. Confirm the resource is a Cognitive Services / Azure OpenAI account (not a deprecated AOAI v1 resource).
 
 **Resolution.**
 
 - Switch context: `Set-AzContext -SubscriptionId <id>`.
-- Re-authenticate with the right environment: `Connect-AzAccount -Environment AzureUSGovernment`.
 - Grant Reader on the resource group via PIM.
 
 ---
@@ -335,7 +332,6 @@ For SEV-1 events (probe discovers a vulnerability already exploited in productio
 | LLM non-determinism | Same prompt may pass and fail across runs | N-of-M reproducibility rule (§3.2); larger sample sizes for indicators |
 | No native Microsoft "red team" portal for Copilot Studio | Custom runner required | PyRIT + this playbook |
 | Microsoft 365 Copilot itself is not generally script-promptable | Cannot probe Copilot Chat directly via supported API | Probe Foundry-backed surfaces; for M365 Copilot, rely on Comm Compliance + Defender XDR detection (Control 1.21) and human-led red team |
-| Prompt Shields availability lags in GCC High / DoD | Cannot rely on Prompt Shields as a primary control everywhere | Compensating control (pre-prompt classifier in app code); document gap to AI Governance Lead |
 | Probe generates audit / Defender / Sentinel events | Operational noise in SOC | Communicate run windows in advance; tag operator activity; do **not** suppress detection rules |
 | Test coverage is never complete | New attacks emerge | Quarterly library refresh; track MITRE ATLAS / OWASP updates; subscribe to Microsoft AI Red Team blog |
 | Resource intensive | Cycles take time and skilled operators | Prioritize Z3 agents handling NPI / MNPI / customer-facing surfaces; defer Z1 to annual |

@@ -1,11 +1,11 @@
 # PowerShell Setup: Control 1.20 — Network Isolation and Private Connectivity
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
+ Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
 
 **Last Updated:** May 2026
-**Modules Required:** `Az.Accounts`, `Az.Network`, `Az.KeyVault`, `Az.Sql`, `Az.Storage`, `Az.Monitor`, `Az.PrivateDns`, `Microsoft.PowerApps.Administration.PowerShell`
-**PowerShell Edition:** Windows PowerShell 5.1 (Desktop) for `Microsoft.PowerApps.Administration.PowerShell`; PowerShell 7+ acceptable for the `Az.*` portions.
+**Modules Required:** `Az.Accounts`, `Az.Network`, `Az.KeyVault`, `Az.Sql`, `Az.Storage`, `Az.Monitor`, `Az.PrivateDns`, `Microsoft.PowerApps.Administration.PowerShell`, `Microsoft.PowerPlatform.EnterprisePolicies`
+**PowerShell Edition:** Windows PowerShell 5.1 (Desktop) for `Microsoft.PowerApps.Administration.PowerShell`; PowerShell 7+ acceptable for `Az.*` and `Microsoft.PowerPlatform.EnterprisePolicies` portions.
 
 ---
 
@@ -15,6 +15,7 @@
 # Pin versions per CAB approval; see PowerShell baseline for the canonical install pattern.
 Install-Module Az.Accounts, Az.Network, Az.KeyVault, Az.Sql, Az.Storage, Az.Monitor, Az.PrivateDns -Scope CurrentUser -Repository PSGallery
 Install-Module Microsoft.PowerApps.Administration.PowerShell -Scope CurrentUser -Repository PSGallery
+Install-Module Microsoft.PowerPlatform.EnterprisePolicies -Scope CurrentUser -Repository PSGallery
 
 # Required guard for Power Apps Administration cmdlets:
 if ($PSVersionTable.PSEdition -ne 'Desktop') {
@@ -22,20 +23,16 @@ if ($PSVersionTable.PSEdition -ne 'Desktop') {
 }
 ```
 
-> **Sovereign cloud authentication.** For GCC / GCC High / DoD tenants, every `Add-PowerAppsAccount` and `Connect-AzAccount` call **must** pass the matching cloud parameter, or the cmdlet authenticates against commercial endpoints and produces *false-clean* results. See the baseline §3.
 
 ```powershell
-# Example sovereign-aware connect helper
+# Example commercial cloud connection helper
 function Connect-FsiClouds {
     param(
-        [ValidateSet('Commercial','GCC','GCCHigh','DoD')] [string] $Cloud = 'Commercial',
+        [string] $Cloud = 'Commercial',
         [string] $TenantId
     )
     switch ($Cloud) {
         'Commercial' { Add-PowerAppsAccount -Endpoint prod;       Connect-AzAccount -Tenant $TenantId -Environment AzureCloud }
-        'GCC'        { Add-PowerAppsAccount -Endpoint usgov;      Connect-AzAccount -Tenant $TenantId -Environment AzureUSGovernment }
-        'GCCHigh'    { Add-PowerAppsAccount -Endpoint usgovhigh;  Connect-AzAccount -Tenant $TenantId -Environment AzureUSGovernment }
-        'DoD'        { Add-PowerAppsAccount -Endpoint dod;        Connect-AzAccount -Tenant $TenantId -Environment AzureUSGovernment }
     }
 }
 ```
@@ -113,7 +110,7 @@ if ($PSCmdlet.ShouldProcess($VNetName,'Create VNet with delegated subnet')) {
 
 ## Script 2 — Create and Link the Power Platform Enterprise (Network) Policy
 
-> The cmdlets `New-PowerAppEnvironmentEnterprisePolicy` and `New-AdminPowerAppEnvironmentEnterprisePolicy` are exposed by the `Microsoft.PowerApps.Administration.PowerShell` module. Cmdlet names and parameters have evolved; always cross-check against [Microsoft Learn: Set up virtual network support](https://learn.microsoft.com/en-us/power-platform/admin/vnet-support-setup-configure) for the current shape.
+> Use the `Microsoft.PowerPlatform.EnterprisePolicies` module for enterprise (network) policy creation and linking. The cmdlets `New-SubnetInjectionEnterprisePolicy` (create policy) and `Enable-SubnetInjection` (link to environment) are the authoritative cmdlets per [Microsoft Learn: Set up virtual network support](https://learn.microsoft.com/en-us/power-platform/admin/vnet-support-setup-configure). Always cross-check parameter names against the current module help before running.
 
 ```powershell
 <#
@@ -124,7 +121,8 @@ if ($PSCmdlet.ShouldProcess($VNetName,'Create VNet with delegated subnet')) {
 .PARAMETER PolicyName              Display name for the enterprise policy.
 .PARAMETER PrimarySubnetResourceId Full ARM resource ID of the primary delegated subnet.
 .PARAMETER FailoverSubnetResourceId Full ARM resource ID of the failover delegated subnet.
-.PARAMETER Cloud                   Commercial / GCC / GCCHigh / DoD.
+.PARAMETER Cloud
+    Cloud environment. Use Commercial for this framework.
 .PARAMETER TenantId                Entra tenant GUID.
 #>
 [CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]
@@ -133,7 +131,7 @@ param(
     [Parameter(Mandatory)] [string] $PolicyName,
     [Parameter(Mandatory)] [string] $PrimarySubnetResourceId,
     [Parameter(Mandatory)] [string] $FailoverSubnetResourceId,
-    [ValidateSet('Commercial','GCC','GCCHigh','DoD')] [string] $Cloud = 'Commercial',
+    [string] $Cloud = 'Commercial',
     [Parameter(Mandatory)] [string] $TenantId
 )
 
@@ -150,15 +148,36 @@ if (-not (Get-AdminPowerAppEnvironment -EnvironmentName $EnvironmentId -ErrorAct
 }
 
 if ($PSCmdlet.ShouldProcess($EnvironmentId,'Create + link enterprise (network) policy')) {
-    # Cmdlet names/parameters evolve — verify against current module help before running.
-    $policy = New-AdminPowerAppEnvironmentEnterprisePolicy `
-        -EnvironmentName $EnvironmentId `
-        -DisplayName $PolicyName `
-        -Type 'NetworkInjection' `
-        -PrimaryVirtualNetworkSubnetId $PrimarySubnetResourceId `
-        -FailoverVirtualNetworkSubnetId $FailoverSubnetResourceId
+    # Create the subnet injection enterprise policy using the Microsoft.PowerPlatform.EnterprisePolicies module.
+    # Parameters match the published New-SubnetInjectionEnterprisePolicy syntax:
+    #   -SubscriptionId       : Azure subscription hosting the VNet
+    #   -ResourceGroupName    : Resource group of the VNet
+    #   -PolicyName           : Display name for the policy
+    #   -PolicyLocation       : Power Platform region (e.g. 'unitedstates')
+    #   -VirtualNetworkId     : Full ARM resource ID of the primary VNet
+    #   -SubnetName           : Name of the primary delegated subnet
+    #   -VirtualNetworkId2    : (Optional) ARM ID of the failover VNet (required for some PP regions)
+    #   -SubnetName2          : (Optional) Name of the failover delegated subnet
+    #   -TenantId             : Entra tenant GUID
+    #
+    # Run Get-Help New-SubnetInjectionEnterprisePolicy -Full to confirm parameters for your pinned version.
+    $policy = New-SubnetInjectionEnterprisePolicy `
+        -SubscriptionId       (([regex]::Match($PrimarySubnetResourceId, '/subscriptions/([^/]+)/')).Groups[1].Value) `
+        -ResourceGroupName    (([regex]::Match($PrimarySubnetResourceId, '/resourceGroups/([^/]+)/')).Groups[1].Value) `
+        -PolicyName           $PolicyName `
+        -PolicyLocation       'unitedstates' `
+        -VirtualNetworkId     (([regex]::Match($PrimarySubnetResourceId, '(/subscriptions/.+/virtualNetworks/[^/]+)')).Groups[1].Value) `
+        -SubnetName           ($PrimarySubnetResourceId -split '/')[-1] `
+        -VirtualNetworkId2    (([regex]::Match($FailoverSubnetResourceId, '(/subscriptions/.+/virtualNetworks/[^/]+)')).Groups[1].Value) `
+        -SubnetName2          ($FailoverSubnetResourceId -split '/')[-1] `
+        -TenantId             $TenantId
 
-    Write-Host "Linked enterprise policy: $($policy.Id)" -ForegroundColor Green
+    Write-Host "Enterprise policy created: $($policy.Id)" -ForegroundColor Cyan
+
+    # Link the policy to the Managed Environment.
+    Enable-SubnetInjection -EnvironmentId $EnvironmentId -PolicyArmId $policy.Id
+
+    Write-Host "Subnet injection enabled for environment $EnvironmentId" -ForegroundColor Green
     return $policy
 }
 ```
@@ -315,7 +334,7 @@ param(
     [Parameter(Mandatory)] [string] $FailoverSubnetResourceId,
     [Parameter(Mandatory)] [string[]] $DependencyResourceIds,
     [Parameter(Mandatory)] [string] $EvidencePath,
-    [ValidateSet('Commercial','GCC','GCCHigh','DoD')] [string] $Cloud = 'Commercial',
+    [string] $Cloud = 'Commercial',
     [Parameter(Mandatory)] [string] $TenantId
 )
 
@@ -364,9 +383,9 @@ return $results
 
 ## Notes on Cmdlet Drift
 
-`Microsoft.PowerApps.Administration.PowerShell` cmdlets in the network/enterprise-policy area have changed parameter names and aliases between minor versions. If a script in this playbook errors with `A parameter cannot be found that matches parameter name '...'`:
+The enterprise-policy cmdlets live in the `Microsoft.PowerPlatform.EnterprisePolicies` module. If a script in this playbook errors with `A parameter cannot be found that matches parameter name '...'`:
 
-1. Run `Get-Command -Module Microsoft.PowerApps.Administration.PowerShell *EnterprisePolicy*` and `Get-Help <cmdlet> -Full`.
+1. Run `Get-Command -Module Microsoft.PowerPlatform.EnterprisePolicies *Subnet*` and `Get-Help New-SubnetInjectionEnterprisePolicy -Full`.
 2. Cross-check against the current [Microsoft Learn page for VNet setup](https://learn.microsoft.com/en-us/power-platform/admin/vnet-support-setup-configure).
 3. Pin the working version in your CAB record per the [PowerShell baseline](../../_shared/powershell-baseline.md) §1.
 

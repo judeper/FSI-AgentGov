@@ -3,7 +3,6 @@
 **Last Updated:** May 2026
 **Portals:** Microsoft 365 Admin Center, Microsoft Purview, SharePoint Admin Center, individual SharePoint site
 **Estimated Time:** 2–4 hours (initial activation + first label + first library); add ~15 min per additional library
-**Sovereign cloud note:** SharePoint list / library IRM is supported in the Microsoft global cloud only. For GCC High and DoD tenants, validate availability with your Microsoft account team before publishing this control.
 
 ---
 

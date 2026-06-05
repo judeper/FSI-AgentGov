@@ -1,7 +1,7 @@
 # PowerShell Setup: Control 2.2 — Environment Groups and Tier Classification
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission.
 
 **Last Updated:** April 2026
 **Modules required:** `Microsoft.PowerApps.Administration.PowerShell` (≥ 2.0.190); the Power Platform CLI (`pac`) for any rule-publishing automation.
@@ -43,8 +43,6 @@ Add-PowerAppsAccount
 # $tenantId = $env:FSI_PPSP_TENANT
 # Add-PowerAppsAccount -ApplicationId $appId -ClientSecret $secret -TenantID $tenantId
 ```
-
-> **Sovereign clouds (GCC / GCC High / DoD):** add `-Endpoint usgov`, `-Endpoint usgovhigh`, or `-Endpoint dod` to `Add-PowerAppsAccount`. See the PowerShell baseline for the full table.
 
 ---
 

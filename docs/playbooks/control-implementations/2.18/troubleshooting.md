@@ -11,7 +11,7 @@ This playbook covers operational failures of the COI testing pipeline configured
 | Symptom | Most Likely Cause | First Action |
 |---------|--------------------|--------------|
 | Scheduled evaluation does not run | Disabled flow, expired credential, or service-principal token revoked | Check Power Automate run history; verify SP secret expiry in Azure |
-| Evaluation runs but every test passes — including known-fail seeds | Wrong agent endpoint or wrong tenant (sovereign-cloud mismatch) | Re-validate endpoint and `-Environment` against [PowerShell baseline](../../_shared/powershell-baseline.md) |
+| Evaluation runs but every test passes — including known-fail seeds | Wrong agent endpoint | Re-validate the agent endpoint against the published endpoint in Copilot Studio |
 | Evaluation runs but every test fails | Auth token expired or agent endpoint returning error responses scored as "no fee disclosure" | Inspect raw response payloads; refresh token |
 | High false-positive rate on classification grader | Grader rubric too narrow; threshold not calibrated | Re-calibrate against a Compliance-labelled set |
 | Inconsistent pass / fail across runs of the same scenario | LLM non-determinism | Switch from exact-match to similarity / classification graders; aggregate over n runs |
@@ -46,15 +46,13 @@ This playbook covers operational failures of the COI testing pipeline configured
 
 **Most common causes.**
 1. **Wrong agent endpoint.** The script ran against a stub or a non-production agent.
-2. **Sovereign-cloud mismatch.** Script authenticated against commercial endpoints in a GCC / GCC High / DoD tenant — silently returns success-shaped responses without actually exercising the production agent.
-3. **Grader threshold set so low it cannot fail.** Calibration error.
-4. **Test set deployed without expected-failure seeds.** The suite never tests the failure path.
+2. **Grader threshold set so low it cannot fail.** Calibration error.
+3. **Test set deployed without expected-failure seeds.** The suite never tests the failure path.
 
 **Diagnostics.**
 1. Confirm the endpoint URL in the most recent run matches the production agent (compare with the agent's published endpoint in Microsoft Copilot Studio).
-2. Re-run the [PowerShell validator](powershell-setup.md#4-validate-control-218-configuration-read-only) and review the `Cloud` property.
-3. Add a deliberate fail-seed scenario (e.g., a prompt that should produce an unsolicited cross-sell pitch); confirm the grader flags it.
-4. Inspect grader configuration — confirm the threshold is the value documented in the methodology memo.
+2. Add a deliberate fail-seed scenario (e.g., a prompt that should produce an unsolicited cross-sell pitch); confirm the grader flags it.
+3. Inspect grader configuration — confirm the threshold is the value documented in the methodology memo.
 
 **Resolution.** Treat any historical false-clean window as evidence-gap. Do not silently overwrite. Open a remediation ticket, document the cause and corrective action, and re-run for the affected period if feasible.
 

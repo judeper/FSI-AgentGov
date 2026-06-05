@@ -13,7 +13,7 @@
 | RAC fails to block user | Wrong group GUID; user is site owner; group sync lag | Re-resolve group via Graph; check owners |
 | Audit log empty | Unified Audit Log disabled; search-window too narrow | Enable UAL; widen the search range |
 | RSS allow-list ineffective | URL mismatch (case/trailing slash); >100 sites | Re-add canonical URLs; trim list |
-| PowerShell connect fails | Stale module; MFA / sovereign-cloud endpoint mismatch | Update module; pass `-Region` |
+| PowerShell connect fails | Stale module; MFA | Update module; verify credentials and module version |
 
 ---
 
@@ -156,13 +156,12 @@ Get-Module Microsoft.Online.SharePoint.PowerShell -ListAvailable |
 ```
 
 - Confirm the module version meets the baseline minimum.
-- Confirm the `-Url` value matches your sovereign cloud (`*.sharepoint.com`, `*.sharepoint.us`, etc.).
+- Confirm the `-Url` value uses the commercial SharePoint admin URL (`*.sharepoint.com`).
 - Confirm the operator's account is not blocked by Conditional Access (named-location, device-compliance).
 
 ### Resolution
 
 - Update to the pinned module version per [powershell-setup.md](powershell-setup.md).
-- For sovereign clouds, pass `-Region ITAR` (GCC High) or `-Region USGovDoD` (DoD) on `Connect-SPOService`.
 - Use a workstation that satisfies your Conditional Access posture (PAW / compliant device).
 
 ---

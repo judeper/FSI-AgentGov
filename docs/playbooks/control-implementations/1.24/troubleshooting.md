@@ -173,7 +173,6 @@ Get-AzRoleAssignment -SignInName (Get-AzContext).Account.Id |
 | Attack path scope | Cannot model every prompt-injection chain | Supplement with red-team threat modeling and runtime protection (Defender for AI Services) |
 | Copilot Studio shadow agents | Discovery preview; not all agents tracked | Combine with Power Platform Admin Center inventory (Control 3.1) and Defender for Cloud Apps |
 | Defender for AI Services billing | Per-token pricing can be material at scale | Forecast via test environment before broad rollout; budget per zone |
-| Sovereign cloud (DoD) feature parity | AI-SPM may lag commercial GA | Confirm parity with Microsoft FedRAMP team before Zone 3 commitment |
 
 ---
 
@@ -183,7 +182,7 @@ Get-AzRoleAssignment -SignInName (Get-AzContext).Account.Id |
 2. **Cloud Security Architect** — attack path interpretation, AI BOM reconciliation
 3. **AI Governance Lead** — model risk register alignment, BOM discrepancy disposition
 4. **Microsoft Azure Support** — platform issues; open with severity matching workload (Severity A for Zone 3 customer-facing impact)
-5. **Microsoft FastTrack / Account Team** — feature availability, regional rollout, sovereign cloud parity
+5. **Microsoft FastTrack / Account Team** — feature availability and regional rollout
 6. **Model Risk Committee** — material AI BOM discrepancies; control failures impacting attestation
 
 ---

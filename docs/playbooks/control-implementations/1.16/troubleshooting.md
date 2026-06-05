@@ -16,7 +16,6 @@
 | Content expires unexpectedly | License cache interval too low or label expiration set aggressively | Tune `LicenseCacheExpireDays` and label encryption expiration |
 | `Track and revoke` shows no events | Document tracking feature disabled or telemetry latency | Verify `Get-AipServiceConfiguration` `DocumentTrackingFeatureState` is `Enabled`; allow up to 60 min |
 | Super-user can no longer decrypt | Super-user feature disabled or group membership lost | Re-run `Enable-AipServiceSuperUserFeature` and `Set-AipServiceSuperUserGroup` |
-| GCC High tenant: library IRM unavailable | SharePoint list/library IRM is global cloud only | Use label-only protection; document the exception |
 
 ---
 
@@ -161,7 +160,6 @@ Disconnect-AipService
 
 | Limitation | Impact | Recommended handling |
 |---|---|---|
-| SharePoint list/library IRM is supported only in the Microsoft global cloud | GCC High and DoD tenants cannot rely on library IRM | Use label-based encryption only; document the exception in the FSI risk register |
 | IRM requires IRM-aware client applications | Non-supported apps cannot open protected files | Standardize on current Microsoft 365 Apps for enterprise; restrict third-party PDF readers |
 | Mac and mobile clients have reduced IRM features | Some advanced restrictions silently downgrade | Test the target user population's client mix during rollout |
 | SharePoint IRM is library-scoped, not item-scoped | Cannot apply different IRM policies to individual files in the same library | Segment libraries by sensitivity, or use sensitivity labels at the file level |

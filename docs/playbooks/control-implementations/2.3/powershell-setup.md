@@ -1,7 +1,7 @@
 # Control 2.3: Change Management and Release Planning — PowerShell Setup
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show abbreviated patterns; the baseline is authoritative.
 
 > Automation scripts for [Control 2.3: Change Management and Release Planning](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md).
 >
@@ -43,8 +43,6 @@ Add-PowerAppsAccount
 # $tenantId = (Get-Secret -Name 'fsi-tenant-id'                -AsPlainText)
 # Add-PowerAppsAccount -ApplicationId $appId -ClientSecret $secret -TenantID $tenantId
 ```
-
-> **Sovereign-cloud note:** For GCC, GCC High, and DoD tenants, override the endpoint via `Add-PowerAppsAccount -Endpoint usgov` (GCC), `usgovhigh`, or `dod`. See the FSI PowerShell baseline for the canonical endpoint table.
 
 ---
 

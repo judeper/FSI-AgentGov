@@ -57,7 +57,7 @@ Capture, do **not** mutate first:
 
 ### Pre-escalation checklist (≥ 12 items)
 
-1. [ ] Tenant ID and cloud confirmed (Commercial / GCC / GCC High / DoD)
+1. [ ] Tenant ID confirmed
 2. [ ] All four Get Started steps re-checked with screenshots
 3. [ ] License floor verified via Graph (`Get-MgSubscribedSku`)
 4. [ ] Per-user Copilot license verified for sample of affected users
@@ -69,7 +69,7 @@ Capture, do **not** mutate first:
 10. [ ] Browser extension / Edge configuration policy state verified per device class
 11. [ ] Device onboarding state verified (Defender for Endpoint / standalone)
 12. [ ] Adaptive Protection / IRM policy state captured
-13. [ ] Sovereign cloud parity confirmed (IRM/Adaptive Protection NOT at parity in GCC High/DoD)
+
 14. [ ] Administrative-unit restriction ruled out
 15. [ ] Last known good evidence pack timestamp recorded
 16. [ ] Compliance + Legal notified per severity matrix
@@ -99,7 +99,6 @@ Capture, do **not** mutate first:
 | License floor unmet (E5 / E5 Compliance / Purview Suite) | Assign SKU; reload page after propagation |
 | Recommendation completed/dismissed/`PendingDeletion` | Check status; do **not** "manually mark complete" without evidence — that suppresses oversight |
 | Restricted-AU admin (DSPM does not support AU) | Use tenant-scoped admin |
-| GCC High/DoD parity gap | Document exception; use commercial-only feature only where the workload allows |
 
 ### Symptom: DSPM Get Started never completes / "Activate Audit" step stuck
 
@@ -116,7 +115,7 @@ Capture, do **not** mutate first:
 | Minimum baseline window observed | ≥ 7 days per Learn |
 | Risk-level thresholds configured in IRM | Insider Risk > Settings |
 | User in scope of IRM policy | IRM policy scope |
-| Tenant cloud supports IRM/Adaptive Protection | Skip in GCC High/DoD; document |
+| Tenant supports IRM/Adaptive Protection | Enable and configure per portal walkthrough |
 
 ### Symptom: Sensitivity label not propagated to Copilot response
 
@@ -161,8 +160,6 @@ Capture, do **not** mutate first:
 | Filtering audit search with `AIPDiscover` etc. for Copilot evidence | AIP record types ≠ DSPM-for-AI events |
 | Calling `Set-AdminAuditLogConfig` from `Connect-IPPSSession` | Wrong-shell trap (N3.1) |
 | Asserting `RiskScore` / `AccessPattern` fields on `CopilotInteraction.AuditData` | Not in published schema |
-| Using commercial portal URL on a GCC High tenant | `purview.microsoft.com` on a `.us` tenant returns wrong scope |
-| Assuming Adaptive Protection works in GCC High / DoD | IRM not at parity |
 | Restricted-AU admin attempting one-click policy creation | AU not supported by DSPM |
 
 ---
@@ -180,7 +177,7 @@ Capture, do **not** mutate first:
 ## Cross-references
 
 - [Control 1.6 Verification & Testing](verification-testing.md) — detects the conditions this playbook handles
-- [Control 1.6 Portal Walkthrough](portal-walkthrough.md) — sovereign cloud table, role-by-step matrix
+- [Control 1.6 Portal Walkthrough](portal-walkthrough.md) — portal steps and role matrix
 - [Control 1.6 PowerShell Setup](powershell-setup.md) — wrong-shell trap, paginated audit query
 - [Control 1.7 Troubleshooting](../1.7/troubleshooting.md) — durable evidence backbone
 - [Control 1.10 Communication Compliance](../1.10/troubleshooting.md) — compensating control during DSPM gap

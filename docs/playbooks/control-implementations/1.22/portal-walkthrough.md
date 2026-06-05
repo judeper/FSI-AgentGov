@@ -12,7 +12,6 @@ This walkthrough is for **M365 administrators** in US financial services who own
 
 Use this playbook when implementing Control 1.22 for a Zone 2 (recommended) or Zone 3 (mandatory) environment. Zone 1 deployments still rely on the IB policies configured here, but the operational responsibility is per-user inheritance rather than admin-managed knowledge-source curation.
 
-> **Sovereign clouds.** The Purview portal URL differs for GCC (`https://purview.microsoft.us`), GCC High (`https://purview.microsoft.us`), and DoD (`https://purview.apps.mil`). Use the matching portal for your tenant. PowerShell `Connect-IPPSSession` requires the `-ConnectionUri` and `-AzureADAuthorizationEndpointUri` parameters in sovereign clouds — see the PowerShell baseline.
 
 ---
 
@@ -24,9 +23,9 @@ Use this playbook when implementing Control 1.22 for a Zone 2 (recommended) or Z
 - [ ] **AI Administrator** awareness — agent inventory across M365 Copilot, declarative agents, and Copilot Studio confirmed; Channel Agent inventory pulled from PPAC.
 - [ ] **SharePoint Admin** for site-segment assignment and IB-mode site provisioning.
 - [ ] **Compliance Officer** identified to own wall-crossing approvals and policy attestation.
-- [ ] Change ticket open with reviewers from Compliance, Legal, and Security assigned. Capture pre-change `Get-InformationBarrierMode` and `Get-OrganizationSegment` output as baseline evidence.
+- [ ] Change ticket open with reviewers from Compliance, Legal, and Security assigned. Capture pre-change `Get-PolicyConfig` (for IB mode) and `Get-OrganizationSegment` output as baseline evidence.
 
-> **Read first.** The PowerShell snippets in this walkthrough are abbreviated. Before running them in production, read the [PowerShell Authoring Baseline for FSI Implementations](../../_shared/powershell-baseline.md) for module pinning, sovereign-cloud endpoints, `-WhatIf` patterns, and SHA-256 evidence emission.
+> **Read first.** The PowerShell snippets in this walkthrough are abbreviated. Before running them in production, read the [PowerShell Authoring Baseline for FSI Implementations](../../_shared/powershell-baseline.md) for module pinning, `-WhatIf` patterns, and SHA-256 evidence emission.
 
 ---
 
@@ -37,7 +36,7 @@ Use this playbook when implementing Control 1.22 for a Zone 2 (recommended) or Z
 3. From a Windows PowerShell session connected via `Connect-IPPSSession`, run:
 
     ```powershell
-    Get-InformationBarrierMode
+    (Get-PolicyConfig).InformationBarrierMode
     ```
 
     Expected return values:
@@ -191,7 +190,7 @@ Wall-crossing is the controlled, time-boxed exception process. Implement it in y
 
 After completing Steps 1–9, verify:
 
-- [ ] `Get-InformationBarrierMode` returns the intended mode.
+- [ ] `(Get-PolicyConfig).InformationBarrierMode` returns the intended mode.
 - [ ] `Get-OrganizationSegment` lists all designed segments with non-zero estimated users.
 - [ ] `Get-InformationBarrierPolicy | Where-Object State -eq Active` matches the design matrix.
 - [ ] `Get-InformationBarrierPoliciesApplicationStatus` shows `Completed`.

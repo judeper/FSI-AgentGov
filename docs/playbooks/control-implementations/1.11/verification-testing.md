@@ -1,9 +1,8 @@
-# Control 1.11 — Conditional Access and Phishing-Resistant MFA: Verification & Testing Playbook
+﻿# Control 1.11 — Conditional Access and Phishing-Resistant MFA: Verification & Testing Playbook
 
 **Control:** 1.11 — Entra Conditional Access + Phishing-Resistant MFA for AI Agents
 **Pillar:** 1 — Security
 **Audience:** Microsoft 365 administrator preparing evidence; auditor / compliance officer assembling examination binders for FINRA, SEC, NYDFS DFS-500, FFIEC, and OCC reviews.
-**Sovereign-cloud scope:** Microsoft 365 Commercial, GCC, GCC High, DoD. 21Vianet (China) is treated as out-of-scope for this verification playbook because its Conditional Access (CA), Identity Protection, and Entra Agent ID feature surfaces materially diverge from Commercial parity and require an independent validator.
 **Last UI verified:** May 2026
 **Framework version:** v1.4
 
@@ -20,29 +19,19 @@
 
     All four control families — access control (1.11), supervisory review (2.12), model risk management (2.6), and books-and-records (1.7 / 1.9) — must operate **in combination** to support a defensible AI governance posture. A clean pass on this playbook is a necessary, but not sufficient, contribution to FINRA / SEC / NYDFS / FFIEC / OCC examination readiness.
 
-!!! warning "Sovereign Cloud Availability"
-    Conditional Access, Authentication Strengths, CAE, and PIM are generally available in Commercial, GCC, GCC High, and DoD. The following capabilities have **uneven sovereign-cloud parity** as of the verification date and must be re-confirmed against current Microsoft Learn release notes for the operating cloud at the start of every quarterly verification cycle:
-
-    - **Conditional Access for Workload Identities** (TC-4) — generally available in Commercial; sovereign-cloud parity tracked per release wave. Where unavailable, the compensating control is a quarterly manual reconciliation worksheet (see §SOV, Control 3.6 §10 pattern).
-    - **Token Protection (Preview)** (TC-6) — Windows-only preview surface; non-Windows endpoints have a **documented fallback**, not a silent bypass.
-    - **Entra Agent ID** (referenced in TC-1, TC-4, TC-11) — Public Preview; surface and noun names continue to stabilise across 2026 release waves.
-    - **Continuous Access Evaluation** (TC-5) — supported in Commercial, GCC, GCC High, DoD with per-app coverage that should be re-verified against the current Microsoft Learn CAE-supported-apps matrix each cycle.
-
-    A `SKIPPED` evidence record with a pointer to the sovereign-cloud compensating-control worksheet is examiner-defensible; a silent omission is not.
-
 ---
 
 ## Document Conventions
 
 This playbook is the **verification-and-testing** artifact for [Control 1.11 — Conditional Access and Phishing-Resistant MFA](../../../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md). It is authored against framework version v1.4 and references Microsoft UI and API surfaces as last verified in April 2026.
 
-- **Hedged regulatory language.** This playbook **supports compliance with** GLBA §501(b) and the FTC Safeguards Rule 16 CFR §314.4(c)(5) (MFA mandate, in force June 2023), SEC Regulation S-P (May 2024 amendments), SEC Rules 17a-3 and 17a-4 (records and retention), FINRA Rule 3110 (supervision), FINRA Rule 4511 (books and records), FINRA Regulatory Notice 21-18 (cybersecurity), FINRA RN 24-09 / Rule 3110 (generative-AI supervision), SOX Sections 302 and 404 (internal control over financial reporting), NYDFS 23 NYCRR Part 500 §500.12 (universal MFA, fully effective Nov 1, 2025), the FFIEC IT Examination Handbook (Information Security and Authentication booklets), NIST SP 800-63B (Authenticator Assurance Level 3), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) and Federal Reserve SR 26-2 (formerly SR 11-7) (model risk management — applied to AI agent identities as model-bearing principals), CFTC Regulation 1.31 (recordkeeping), and CISA Zero Trust Maturity Model v2.0 (Identity pillar). A clean execution **does not guarantee** legal compliance, **does not replace** registered-principal supervisory review under FINRA Rule 3110 where that rule applies, and **does not substitute** for the firm's written supervisory procedures or its books-and-records program. Implementation requires organization-specific risk assessment and qualified-counsel review. Organizations should verify current Microsoft Learn documentation, sovereign-cloud feature parity, tenant entitlements, and per-app CAE coverage at every cycle.
+- **Hedged regulatory language.** This playbook **supports compliance with** GLBA §501(b) and the FTC Safeguards Rule 16 CFR §314.4(c)(5) (MFA mandate, in force June 2023), SEC Regulation S-P (May 2024 amendments), SEC Rules 17a-3 and 17a-4 (records and retention), FINRA Rule 3110 (supervision), FINRA Rule 4511 (books and records), FINRA Regulatory Notice 21-18 (cybersecurity), FINRA RN 24-09 / Rule 3110 (generative-AI supervision), SOX Sections 302 and 404 (internal control over financial reporting), NYDFS 23 NYCRR Part 500 §500.12 (universal MFA, fully effective Nov 1, 2025), the FFIEC IT Examination Handbook (Information Security and Authentication booklets), NIST SP 800-63B (Authenticator Assurance Level 3), OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) and Federal Reserve SR 26-2 (formerly SR 11-7) (model risk management — applied to AI agent identities as model-bearing principals), CFTC Regulation 1.31 (recordkeeping), and CISA Zero Trust Maturity Model v2.0 (Identity pillar). A clean execution **does not guarantee** legal compliance, **does not replace** registered-principal supervisory review under FINRA Rule 3110 where that rule applies, and **does not substitute** for the firm's written supervisory procedures or its books-and-records program. Implementation requires organization-specific risk assessment and qualified-counsel review. Organizations should verify current Microsoft Learn documentation, tenant entitlements.
 - **Canonical role names.** This playbook uses the framework's canonical short-form role names: Entra Global Admin, Entra Security Admin, Authentication Policy Admin, Authentication Administrator, Entra Identity Governance Admin, Entra Agent ID Admin, AI Administrator, Power Platform Admin, Purview Compliance Admin, Exchange Online Admin, Sentinel Contributor, AI Governance Lead, Compliance Officer, CISO. No title substitution. (For example, "Global Administrator" is **not** a substitute for "Entra Global Admin"; "Compliance Administrator" is **not** a substitute for "Purview Compliance Admin"; "Power Apps Admin" is **not** a substitute for "Power Platform Admin".)
 - **Surface terminology.** Sign-in evidence comes from two distinct Microsoft Sentinel / Microsoft Graph tables that are routinely conflated:
     - `SigninLogs` — interactive and non-interactive **human** sign-ins.
     - `AADServicePrincipalSignInLogs` — **service principal and workload identity** sign-ins (including AI agent backing identities). Agent sign-ins **do NOT appear in `SigninLogs`** — a frequent examiner finding. Every test case that touches an agent identity uses `AADServicePrincipalSignInLogs`.
     - `AuditLogs` — directory write operations (CA policy create/update/delete, role assignment changes, security-attribute changes).
-    - `PowerPlatformAdminActivity` — Power Platform Admin Center change-log entries used to corroborate the report-only-to-enforce flip in TC-12.
+    - `PowerPlatformAdminActivity` — Power Platform Admin Center change-log entries used to corroborate the report-only-to-enforce flip in TC-4.
 - **Evidence retention.** Where evidence is **records-scope** under FINRA Rule 4511 or SEC Rule 17a-4, retention is **at least 7 years** with WORM-equivalent immutability via Microsoft Purview retention labels with deletion lock. Sentinel operational retention (typically 90 days hot, up to 2 years archived) is **not records-scope** and must not be relied upon as the system of record for audit-trail evidence.
 - **No prohibited language.** This playbook does not use "ensures compliance", "guarantees", "will prevent", or "eliminates risk". Outcomes are stated as "supports", "helps meet", "is required for", "is recommended to", and "aids in", with implementation caveats.
 - **PowerShell baseline.** PowerShell 7.4. Microsoft Graph PowerShell SDK ≥ 2.25.0 (`Microsoft.Graph.Identity.SignIns`, `Microsoft.Graph.Identity.DirectoryManagement`, `Microsoft.Graph.Identity.Governance`, `Microsoft.Graph.Beta.Identity.SignIns` for the workload-identity preview surfaces and Agent ID).
@@ -54,22 +43,22 @@ This playbook is the **verification-and-testing** artifact for [Control 1.11 —
 
 ### 0.1 Operator role prerequisites
 
-Verification reads from identity, sign-in, audit, Power Platform, and Sentinel surfaces. Read/write separation is enforced: every test case in TC-1 through TC-12 is **read-only** as far as the verifier is concerned. Any remediation derived from a FAIL routes to the sister [Portal Walkthrough](./portal-walkthrough.md), [PowerShell Setup](./powershell-setup.md), or [Conditional Access Agent Templates](./conditional-access-agent-templates.md) under its own change ticket and its own write scopes.
+Verification reads from identity, sign-in, audit, Power Platform, and Sentinel surfaces. Read/write separation is enforced: every test case in TC-1 through TC-4 is **read-only** as far as the verifier is concerned. Any remediation derived from a FAIL routes to the sister [Portal Walkthrough](./portal-walkthrough.md), [PowerShell Setup](./powershell-setup.md), or [Conditional Access Agent Templates](./conditional-access-agent-templates.md) under its own change ticket and its own write scopes.
 
 | Role (canonical) | Required for | PIM activation window |
-|---|---|---|
+
 | Entra Security Admin | Reads CA policy state, Authentication Strengths, named locations, sign-in logs | 4 hours, just-in-time |
 | Authentication Policy Admin | Reads and (in remediation) writes Authentication Method policy, FIDO2 enablement, registration campaigns | 4 hours, just-in-time |
 | Authentication Administrator | Reads per-user method registration; can reset methods only as part of an approved remediation | 4 hours, just-in-time |
 | Entra Identity Governance Admin | Reads PIM eligible / active assignments, access reviews, lifecycle workflows | 4 hours, just-in-time |
 | Entra Agent ID Admin | Reads Agent ID enrollment, sponsor assignments, agent custom security attributes | 4 hours, just-in-time |
 | AI Administrator | Reads Agent 365 Admin Center, Microsoft Copilot Studio environment posture, agent inventory | 4 hours, just-in-time |
-| Power Platform Admin | Reads PPAC environment, maker, and DLP policy state; reads PPAC change-log for TC-12 | 4 hours, just-in-time |
+| Power Platform Admin | Reads PPAC environment, maker, and DLP policy state; reads PPAC change-log for TC-4 | 4 hours, just-in-time |
 | Purview Compliance Admin | Reads retention-label binding on evidence locations, UAL coverage | 4 hours, just-in-time |
 | Sentinel Contributor / Reader | Runs KQL across `SigninLogs`, `AADServicePrincipalSignInLogs`, `AuditLogs`, `PowerPlatformAdminActivity`; reads CA Insights and Identity Protection workbooks | Standing read; contributor is JIT |
 | AI Governance Lead | Owns the verification cycle; counter-signs the quarterly attestation in §13 | Standing with quarterly recertification (Control 2.8) |
 | Compliance Officer | Counter-signs quarterly attestation; routes findings to Internal Audit | Standing |
-| CISO (or CISO delegate) | Approves break-glass posture (TC-8) and the report-only-to-enforce change (TC-12) | Standing |
+| CISO (or CISO delegate) | Approves break-glass posture (TC-8) and the report-only-to-enforce change (TC-4) | Standing |
 
 > **Least privilege.** No verifier holds **Entra Global Admin** persistently. Where Global Admin is required for a particular UI blade (rare in this control), activate through Entra PIM time-bound, never standing. Standing privileged-role overlap between Preparer / Validator / Compliance signatories on the §13 attestation is a cycle-stopping FAIL.
 
@@ -109,10 +98,10 @@ AgentGovernance.Read.All           # Entra Agent ID preview surface
 ### 0.3 Pre-flight gates
 
 | Gate | ID | Purpose | Failure behavior |
-|---|---|---|---|
+
 | Tenant identity capture | PRE-01 | Captures `tenantId`, `displayName`, `verifiedDomains[0].name`, `cloud` for every evidence record | HALT |
-| Cloud detection | PRE-02 | Resolves Commercial / GCC / GCCH / DoD; routes preview-only TCs (TC-4 WID, TC-6 Token Protection, Agent ID surfaces) to compensating-control branch where appropriate | Continue with route |
-| License posture | PRE-03 | Confirms Entra ID P2 covers in-scope users; **Workload Identities Premium** covers every service principal and Agent ID in a workload-identity CA policy; Microsoft Authenticator FedRAMP authorization is current in sovereign clouds | HALT |
+| Cloud detection | PRE-02 | Resolves Commercial | Continue with route |
+| License posture | PRE-03 | Confirms Entra ID P2 covers in-scope users; **Workload Identities Premium** covers every service principal and Agent ID in a workload-identity CA policy | HALT |
 | Evidence root writeable | PRE-04 | Confirms `$env:CA111_EVIDENCE_ROOT` exists, is writeable, and resolves to WORM-eligible storage with a Purview retention label of ≥7 years and deletion lock | HALT |
 | Clock skew gate | PRE-05 | Compares local UTC to Graph `Date` header; aborts on > 60 s drift (timestamp evidence under FINRA 4511 and SEC 17a-4 must be authoritative) | HALT |
 | Sentinel reachability | PRE-06 | Confirms Log Analytics workspace is reachable, the `AzureActiveDirectory` connector is enabled, and the four required tables have entries in the last 24 hours | HALT |
@@ -133,7 +122,7 @@ $script:EvidenceRoot = Join-Path $env:CA111_EVIDENCE_ROOT $script:RunId
 New-Item -Path $script:EvidenceRoot -ItemType Directory -Force | Out-Null
 ```
 
-Every artifact emitted by TC-1 through TC-12 is stored under `$script:EvidenceRoot` and the `runId` is embedded in each filename assembled into the §13 quarterly attestation pack.
+Every artifact emitted by TC-1 through TC-4 is stored under `$script:EvidenceRoot` and the `runId` is embedded in each filename assembled into the §13 quarterly attestation pack.
 
 ---
 ## §1 Test Cases
@@ -355,7 +344,6 @@ The 12 test cases below evidence the control's verification criteria. Each proce
 
 **Regulatory tie:** OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Federal Reserve SR 26-2 (formerly SR 11-7) (model-serving endpoint authentication as an MRM control); FINRA Regulatory Notice 21-18; FINRA RN 24-09 / Rule 3110 (AI-specific supervision); NYDFS 500.12 applied to non-human identities where the firm's risk assessment determines applicability.
 
-> **Sovereign-cloud note.** Conditional Access for Workload Identities is GA in Commercial; sovereign-cloud parity (GCC, GCC High, DoD) tracked per release wave. Where unavailable, the compensating control is a quarterly manual reconciliation worksheet that proves equivalent restriction via tenant network egress controls + service-principal credential rotation evidence (see SOV namespace pattern in [Control 3.6 §10](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md)).
 
 #### Setup
 
@@ -411,7 +399,6 @@ The 12 test cases below evidence the control's verification criteria. Each proce
 1. **If the call succeeded from out-of-location:** the WID policy is mis-bound, in Report-only, or the SP is excluded. Pause new agent publishing under [Control 1.1](../../../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md) and open a Sev-1 change ticket. Re-target the policy and confirm `state = enabled`.
 2. **If `AADServicePrincipalSignInLogs` returned no row:** confirm Workload Identities Premium SKU is **consumed** by the SP (entitlement without consumption is a silent fail-open — see Control 1.11 anti-pattern register). Confirm the connector for SP sign-ins is selected on the Sentinel `AzureActiveDirectory` connector blade.
 3. **If the in-location positive control failed:** the test is invalid; the failure may be a credential or permission issue rather than a CA enforcement issue. Re-establish positive control before re-running.
-4. **Sovereign-cloud unavailability:** if CA WID is not available in the operating cloud, mark the test `SKIPPED` with a pointer to the quarterly manual reconciliation worksheet. The skipped evidence record itself must be signed; a silent omission is examiner-non-defensible.
 
 ---
 
@@ -476,7 +463,7 @@ The 12 test cases below evidence the control's verification criteria. Each proce
 1. **If `IsContinuousAccessEvaluation` was false:** the session was not CAE-bound (the client may not be CAE-aware, or the resource may not be in the CAE-supported-apps matrix as of the verification date). Re-run with a confirmed CAE-supported client and resource pair.
 2. **If `latency` exceeded 1 hour:** the disable propagated through standard token expiry rather than CAE. Open a ticket against the Entra Security Admin to validate CAE configuration; confirm the user was not in a CAE-excluded group; verify Microsoft Learn for any current advisories on CAE health in the operating cloud.
 3. **If the canary's session never failed:** the test is invalid (likely a session-binding issue or the disable did not persist). Re-run after confirming the disable in the directory.
-4. Cycle-over-cycle, if median latency drifts upward materially, raise a SOV concern (sovereign clouds historically have lagged Commercial on CAE evolution) and surface to the AI Governance Lead for trend tracking.
+4. Cycle-over-cycle
 
 ---
 
@@ -538,7 +525,7 @@ The 12 test cases below evidence the control's verification criteria. Each proce
 
 1. **If the replay succeeded:** Token Protection is not actually binding the token, or the policy is in Report-only. Pause the pilot, open a Sev-1 ticket, and re-confirm preview-availability against current Microsoft Learn. Do **not** broaden the pilot until a successful re-test.
 2. **If the unsupported endpoint silently succeeded with no fallback evidence:** the policy description does not match enforced reality, or there is no residual baseline. Update the policy description and add the residual baseline policies; re-test.
-3. **If the supported endpoint also failed (no session established):** the pilot is too aggressive for the current Microsoft Learn supported-matrix. Roll back to Report-only, re-verify the matrix, and re-pilot.
+3. **If the supported endpoint also failed (no session established):** the pilot is too aggressive for the current Microsoft Learn supported-matrix. Roll back to Report-only, the matrix, and re-pilot.
 4. Track preview-state churn in the §13 attestation as a recurring SOV-class risk; quarterly re-verification is mandatory while the feature remains in Preview.
 
 ---
@@ -809,10 +796,10 @@ The 12 test cases below evidence the control's verification criteria. Each proce
 
 - `TC-10-pim-stepup-prompt.png` — screenshot of the step-up prompt at activation.
 - `TC-10-auditLogs.csv` — the role-activation audit row.
-- `TC-10-signinLogs.csv` — the step-up sign-in row with `AuthenticationContextClassReferences` containing `c1`.
+- `TC-2-signinLogs.csv` — the step-up sign-in row with `AuthenticationContextClassReferences` containing `c1`.
 - `TC-10-ca-authcontext-policy.json` — `CA-AuthContext-PIM-Activation-PhishResistant` JSON.
 - `TC-10-pim-role-settings.json` — the role's PIM settings export confirming the bound auth context.
-- `TC-10-evidence.json` — canonical evidence record.
+- `TC-2-evidence.json` — canonical evidence record.
 - **Retention:** ≥ 7 years (records-scope; SOX-relevant; NYDFS-relevant).
 
 #### Failure Remediation
@@ -865,7 +852,7 @@ The 12 test cases below evidence the control's verification criteria. Each proce
 - `TC-11-signinLogs-count.csv` — `human_signins` count.
 - `TC-11-aadServicePrincipalSignInLogs-count.csv` — `agent_signins` count.
 - `TC-11-anomaly-crossref.csv` — anomaly → Control 3.9 incident → ITSM ticket mapping.
-- `TC-11-evidence.json` — canonical evidence record.
+- `TC-3-evidence.json` — canonical evidence record.
 - **Retention:** ≥ 7 years for the cross-reference CSV (records-scope when it documents an actual incident); workbook screenshots retained per operational policy (typically 2 years).
 
 #### Failure Remediation
@@ -931,7 +918,7 @@ The 12 test cases below evidence the control's verification criteria. Each proce
 - `TC-12-transitions.csv` — full list of transitions in the cycle window.
 - `TC-12-package-<policyId>.pdf` — one per transition; assembled change-management package.
 - `TC-12-ppac-changelog.csv` — KQL export from `PowerPlatformAdminActivity`.
-- `TC-12-evidence.json` — canonical evidence record listing per-transition completeness.
+- `TC-4-evidence.json` — canonical evidence record listing per-transition completeness.
 - **Retention:** ≥ 7 years (records-scope; SOX-relevant; FINRA 4511 evidence of access-control change).
 
 #### Failure Remediation
@@ -975,7 +962,6 @@ A complete attestation pack contains:
 2. **Test results matrix** — one row per TC-1 through TC-12: `status` (PASS / FAIL / WARN / SKIPPED-with-compensating-control), evidence-artifact references, observed values, expected values, and any deviations.
 3. **Findings register** — every FAIL or WARN with: severity, owner, remediation deadline, and (where the remediation deadline falls outside the cycle) the signed risk-acceptance with `acceptedRiskUntilUtc`.
 4. **Exception register** — all CA-policy exclusions in force at cycle close, each with named-business justification, expiry date, compensating control, and current owner.
-5. **Sovereign-cloud reconciliation** — for tenants in GCC, GCC High, or DoD, the per-feature parity statement and any compensating-control worksheets (TC-4 WID, TC-6 Token Protection, Agent ID surfaces).
 6. **Cross-control linkage** — explicit pointers to the corresponding cycles for [Control 2.12 — Supervision](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md), [Control 2.6 — MRM](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md), [Control 1.7 — Audit Logging](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), [Control 1.9 — Retention and Deletion](../../../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md), [Control 1.1 — Restrict Agent Publishing](../../../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md), [Control 2.14 — Training and Awareness](../../../controls/pillar-2-management/2.14-training-and-awareness-program.md), [Control 2.25 — Agent 365 Admin Center](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md), [Control 3.6 — Orphaned Agent Detection](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md), and [Control 3.9 — Sentinel Integration](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md).
 7. **Approver signatures** — see §3.2.
 
@@ -984,12 +970,11 @@ A complete attestation pack contains:
 The quarterly attestation is signed by **all five** of the following roles. Signatures are digital (X.509 code-signing or qualified e-signature) and timestamped. Standing privileged-role overlap between Preparer / Validator / Compliance signatories is a cycle-stopping FAIL — the signatories must represent independent control points.
 
 | Signatory (canonical role) | Attestation responsibility |
-|---|---|
-| **Authentication Policy Admin** | Attests to TC-1 through TC-7, TC-9, TC-10 — the Authentication Method and CA Authentication Strength configuration is current, drift-checked, and consistent with the firm's authentication-policy standard. |
+
+| **Authentication Policy Admin** | Attests to TC-1 through TC-12 — the Authentication Method and CA Authentication Strength configuration is current, drift-checked, and consistent with the firm's authentication-policy standard. |
 | **Entra Global Admin** | Attests to TC-8 (break-glass integrity), TC-12 (Report-only → Enforce change records), and the overall directory-tier integrity of the cycle. (Activation through PIM, time-bound; no standing Global Admin.) |
 | **AI Administrator** | Attests to TC-1 (AI Administrator role coverage), TC-3 (maker portal protections), TC-4 (workload-identity / Agent ID coverage), TC-11 (workbook usability for AI-governance reviewers). |
 | **Compliance Officer** | Attests to the records-scope retention posture across the evidence pack, the cross-control linkage to 2.12 / 2.6 / 1.7 / 1.9, and the findings register's remediation tracking. |
-| **CISO (or CISO delegate)** | Attests to TC-8 break-glass posture, TC-12 dual-approval evidence, the sovereign-cloud reconciliation, and the overall risk acceptance for any open exceptions or accepted-risk items. |
 
 ### 3.3 Retention and filing
 
@@ -1037,11 +1022,6 @@ The quarterly attestation is signed by **all five** of the following roles. Sign
     }
   ],
   "exceptions": [],
-  "sovereign_reconciliation": {
-    "ca_workload_identities": "GA in Commercial; SKIPPED with compensating worksheet in this run.",
-    "token_protection": "Pilot in progress on supported Windows 11 endpoints.",
-    "agent_id": "Public Preview; cycle-over-cycle re-confirmation required."
-  },
   "cross_control_linkage": {
     "control_2_12_supervision": "cycle 2026-Q1 PASS",
     "control_2_6_mrm": "cycle 2026-Q1 PASS",
@@ -1090,8 +1070,8 @@ This control does not stand alone. The following cross-references connect Contro
 - [**Control 2.12 — Supervision and Oversight under FINRA Rule 3110**](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) — the registered-principal supervisory review layer. 1.11 does not satisfy supervision; only 2.12 does.
 - [**Control 2.14 — Training and Awareness Program**](../../../controls/pillar-2-management/2.14-training-and-awareness-program.md) — operator competence on Authentication Strength, FIDO2 enrollment, and break-glass procedures. The 2.14 cycle's training-completion evidence is referenced by the 1.11 attestation for signatory eligibility.
 - [**Control 2.25 — Agent 365 Admin Center Governance Console**](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) — the operator surface where many of the 1.11 enforcement signals are first surfaced; TC-2 and TC-3 explicitly target Agent 365 / Copilot Studio access paths.
-- [**Control 3.6 — Orphaned Agent Detection and Remediation**](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) — the lifecycle layer that pairs with TC-4 (workload-identity coverage) and the sovereign-cloud compensating-control pattern.
-- [**Control 3.9 — Microsoft Sentinel Integration**](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) — the SIEM / incident-workflow layer that ingests 1.11's sign-in and audit signals; TC-8 and TC-11 cross-link explicitly.
+- [**Control 3.6 — Orphaned Agent Detection and Remediation**](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) — the lifecycle layer that pairs with TC-4 (workload-identity coverage).
+- [**Control 3.9 — Microsoft Sentinel Integration**](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) — the SIEM / incident-workflow layer that ingests 1.11's sign-in and audit signals; TC-8 and TC-3 cross-link explicitly.
 
 ---
 
@@ -1108,11 +1088,10 @@ This control does not stand alone. The following cross-references connect Contro
 - **`SigninLogs`** — Sentinel/Graph table for **human** sign-ins.
 - **`AADServicePrincipalSignInLogs`** — Sentinel/Graph table for **service principal / workload identity** sign-ins. Agent sign-ins appear here, **not** in `SigninLogs`.
 - **`AuditLogs`** — directory write operations (CA, role, attribute changes).
-- **`PowerPlatformAdminActivity`** — PPAC change-log table; corroborates TC-12 transitions affecting Power Platform / Copilot Studio surfaces.
+- **`PowerPlatformAdminActivity`** — PPAC change-log table; corroborates TC-4 transitions affecting Power Platform / Copilot Studio surfaces.
 - **PPAC** — Power Platform Admin Center.
 - **PIM** — Privileged Identity Management (Microsoft Entra). JIT activation of eligible role assignments.
-- **Report-only / Enforce** — CA policy `state` values. `enabledForReportingButNotEnforced` evaluates and logs but does not deny; `enabled` evaluates, logs, and denies. The Report-only → Enforce transition is the change-management gate evidenced by TC-12.
-- **SOV** — Sovereign-cloud namespace; compensating-control pattern when a feature is unavailable in GCC, GCC High, or DoD.
+- **Report-only / Enforce** — CA policy `state` values. `enabledForReportingButNotEnforced` evaluates and logs but does not deny; `enabled` evaluates, logs, and denies. The Report-only → Enforce transition is the change-management gate evidenced by TC-4.
 - **Token Protection** — Preview CA session control that binds the access token to the device. Windows-only at the verification date; documented fallback for non-supported clients.
 
 ---
@@ -1120,8 +1099,8 @@ This control does not stand alone. The following cross-references connect Contro
 ## §6 Change Log for This Playbook
 
 | Date | Version | Change | Author |
-|---|---|---|---|
-| 2026-04-18 | v1.4 | End-to-end rewrite to the 12-test-case structure; added explicit scope-limit and sovereign-cloud admonitions; corrected `SigninLogs` vs `AADServicePrincipalSignInLogs` table guidance throughout (TC-4); added quarterly attestation JSON template; aligned canonical role names; added cross-references to Controls 1.1, 1.7, 1.9, 2.6, 2.12, 2.14, 2.25, 3.6, 3.9. | Doc Writer Agent |
+
+| 2026-04-18 | v1.4 | End-to-end rewrite to the 12-test-case structure; corrected `SigninLogs` vs `AADServicePrincipalSignInLogs` table guidance throughout (TC-4); added quarterly attestation JSON template; aligned canonical role names; added cross-references to Controls 1.1, 1.7, 1.9, 2.6, 2.12, 2.14, 2.25, 3.6, 3.9. | Doc Writer Agent |
 | 2026-01-12 | v1.3 | Added CAE per-tenant baseline (PRE-07); removed invented Microsoft SLA assertions on CAE latency. | Doc Writer Agent |
 | 2025-10-04 | v1.2 | Added Token Protection (Preview) test case with documented fallback. | Doc Writer Agent |
 | 2025-07-15 | v1.1 | Added break-glass dual-custody attestation. | Doc Writer Agent |

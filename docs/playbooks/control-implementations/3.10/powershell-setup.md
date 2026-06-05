@@ -5,7 +5,7 @@
 **Estimated Time:** 60-90 minutes
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show the canonical patterns; deviations from the baseline must be approved by your Change Advisory Board.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show the canonical patterns; deviations from the baseline must be approved by your Change Advisory Board.
 
 > This playbook provides PowerShell automation for [Control 3.10](../../../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md). It complements — not replaces — the [Portal Walkthrough](./portal-walkthrough.md). Use it for repeatable provisioning, scheduled metric collection, and evidence export under SEC 17a-4 / FINRA 4511.
 
@@ -36,30 +36,25 @@ foreach ($module in $pin.Keys) {
 
 ---
 
-## Sovereign-Cloud Connection Helpers
+## Connect to SharePoint
 
 ```powershell
 function Connect-FsiSharePoint {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param(
         [Parameter(Mandatory)] [string] $SiteUrl,
-        [ValidateSet('Production','USGovernment','USGovernmentHigh','USGovernmentDoD','China')]
-        [string] $AzureEnvironment = 'Production',
         [Parameter(Mandatory)] [string] $ClientId,
         [Parameter(Mandatory)] [string] $TenantId
     )
 
-    if ($PSCmdlet.ShouldProcess($SiteUrl, "Connect-PnPOnline ($AzureEnvironment)")) {
+    if ($PSCmdlet.ShouldProcess($SiteUrl, "Connect-PnPOnline")) {
         Connect-PnPOnline -Url $SiteUrl `
             -ClientId $ClientId `
             -Tenant $TenantId `
-            -Interactive `
-            -AzureEnvironment $AzureEnvironment
+            -Interactive
     }
 }
 ```
-
-> Failing to pass `-AzureEnvironment` in a sovereign tenant authenticates against commercial endpoints, returns no data, and produces **false-clean evidence**. This is a documented pattern in the baseline.
 
 ---
 
@@ -323,16 +318,13 @@ function Export-HallucinationEvidence {
 
 .DESCRIPTION
     1. Validates module versions and edition
-    2. Connects to SharePoint with sovereign-cloud awareness
+    2. Connects to SharePoint
     3. Provisions the Hallucination Tracking list (idempotent)
     4. Computes current metrics
     5. Optionally exports evidence
 
 .PARAMETER SiteUrl
     SharePoint site URL for the AI Governance site.
-
-.PARAMETER AzureEnvironment
-    Sovereign cloud selector (Production, USGovernment, USGovernmentHigh, USGovernmentDoD, China).
 
 .PARAMETER ClientId
     Entra app registration client ID used by PnP.PowerShell v2+.
@@ -346,14 +338,11 @@ function Export-HallucinationEvidence {
 .EXAMPLE
     .\Configure-Control-3.10.ps1 `
         -SiteUrl 'https://contoso.sharepoint.com/sites/AI-Governance' `
-        -AzureEnvironment 'Production' `
         -ClientId '<guid>' -TenantId '<guid>' -ExportEvidence
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
     [Parameter(Mandatory)] [string] $SiteUrl,
-    [ValidateSet('Production','USGovernment','USGovernmentHigh','USGovernmentDoD','China')]
-    [string] $AzureEnvironment = 'Production',
     [Parameter(Mandatory)] [string] $ClientId,
     [Parameter(Mandatory)] [string] $TenantId,
     [switch] $ExportEvidence,
@@ -363,8 +352,8 @@ param(
 $ErrorActionPreference = 'Stop'
 
 try {
-    Write-Information "[3.10] Connecting to SharePoint ($AzureEnvironment)"
-    Connect-FsiSharePoint -SiteUrl $SiteUrl -AzureEnvironment $AzureEnvironment `
+    Write-Information "[3.10] Connecting to SharePoint"
+    Connect-FsiSharePoint -SiteUrl $SiteUrl `
         -ClientId $ClientId -TenantId $TenantId
 
     Write-Information "[3.10] Provisioning Hallucination Tracking list (idempotent)"

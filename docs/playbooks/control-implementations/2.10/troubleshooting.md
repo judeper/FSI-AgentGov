@@ -12,7 +12,7 @@
 |---------|--------------|---------|
 | No Message Center email digests | Preferences not configured or mailbox filtering | §1 |
 | Service Health alert never fires | Alert scope or action group misconfigured | §2 |
-| `Get-MgServiceAnnouncementMessage` returns 0 results | Sovereign-cloud endpoint mismatch or scope not consented | §3 |
+| `Get-MgServiceAnnouncementMessage` returns 0 results | Scope not consented or filter too restrictive | §3 |
 | Release channel reports `Unknown` from PowerShell | Module version or property path drift | §4 |
 | Microsoft applied a change without prior Message Center notice | Change classified as "Stay informed" or routed to Roadmap only | §5 |
 | Connector deprecated mid-validation | Connector lifecycle independent of release wave | §6 |
@@ -72,21 +72,11 @@
 
 **Symptoms:** The PowerShell script reports `Total messages in window: 0` even though the Message Center UI shows posts.
 
-**Likely cause #1: Sovereign-cloud endpoint mismatch.** Running `Connect-MgGraph` without `-Environment` against a GCC, GCC High, or DoD tenant connects to commercial endpoints, succeeds, and returns zero data. This is the **#1 source of false-clean evidence** in this control.
-
-**Resolution:**
-
-```powershell
-# Use the helper from powershell-setup.md, not bare Connect-MgGraph
-. .\Connect-FsiTenant.ps1
-Connect-FsiTenant -Cloud GCCHigh -Scopes 'ServiceMessage.Read.All'
-```
-
-**Likely cause #2: Scope not consented.** Application permission `ServiceMessage.Read.All` requires Entra Global Admin consent. Delegated permission requires the signed-in user to hold a role that includes Service Health read (e.g., **Service Support Administrator**, **Global Reader**, or **Global Administrator**).
+**Likely cause #1: Scope not consented.** Application permission `ServiceMessage.Read.All` requires Entra Global Admin consent. Delegated permission requires the signed-in user to hold a role that includes Service Health read (e.g., **Service Support Administrator**, **Global Reader**, or **Global Administrator**).
 
 **Resolution:** In Microsoft Entra admin center > **Applications > Enterprise applications > [your app]**, confirm `ServiceMessage.Read.All` is granted with admin consent.
 
-**Likely cause #3: Filter is too restrictive.** A `lastModifiedDateTime` window that is too short returns nothing.
+**Likely cause #2: Filter is too restrictive.** A `lastModifiedDateTime` window that is too short returns nothing.
 
 **Resolution:** Widen `-Days` to 60 and re-run.
 
@@ -235,7 +225,6 @@ For severe issues, parallel-engage Microsoft Support and the Microsoft account t
 | Connector lifecycle is independent of release waves | Deprecation can occur outside wave windows | Monitor connector reference pages monthly |
 | Some changes are non-revertible by the customer | Rollback may be mitigation-only | Document realistic rollback vs. mitigation options |
 | Power Apps Admin cmdlets are Desktop-only | Cannot consolidate all checks in PowerShell 7 | Run release-channel checks from a 5.1 host |
-| Sovereign-cloud endpoint mismatches return false-clean | Evidence may understate exposure | Always pass `-Environment` / `-Endpoint` parameters |
 | `releaseChannel` property path drifts across module versions | PowerShell may report `Unknown` | Treat PPAC UI as authoritative; capture screenshot |
 
 ---

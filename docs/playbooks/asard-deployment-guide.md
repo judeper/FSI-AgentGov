@@ -120,15 +120,7 @@ Run the schema creation script to create the required Dataverse tables for ASARD
    ```
 
    !!! note "Geography-specific Dataverse host suffix"
-       Set `DATAVERSE_ENVIRONMENT_URL` to the environment's actual URL retrieved from the Power Platform admin center or the [discovery service](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/webapi/discover-url-organization-web-api). The host suffix varies by geography:
-
-       - **Commercial:** `crm.dynamics.com`, `crm2.dynamics.com`, `crm3.dynamics.com`, `crm4.dynamics.com`, … (region-dependent)
-       - **US Government (GCC):** `crm9.dynamics.com`
-       - **US Government (GCC High):** `crm.microsoftdynamics.us`
-       - **US Government (DoD):** `crm.appsplatform.us`
-       - **21Vianet (China):** `crm.dynamics.cn`
-
-       Hard-coding `crm.dynamics.com` will fail for sovereign-cloud and 21Vianet tenants. See the **Sovereign Cloud Deployment Notes** section near the end of this guide for additional per-cloud endpoint differences (Graph, BAP, PowerShell modules).
+       Set `DATAVERSE_ENVIRONMENT_URL` to the environment's actual URL retrieved from the Power Platform admin center or the [discovery service](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/webapi/discover-url-organization-web-api). The host suffix varies by region (for example `crm.dynamics.com`, `crm2.dynamics.com`, `crm3.dynamics.com`, `crm4.dynamics.com` — region-dependent).
 
 2. **Run schema creation script:**
    ```bash
@@ -431,33 +423,6 @@ Automate regular detection scans to continuously monitor agent sharing complianc
    - Trigger: **Recurrence** (Daily at 2:00 AM)
    - Action: **HTTP** request to Azure Function or Logic App that runs detection script
    - (Requires hosting the Python script as an Azure Function)
-
-## Sovereign Cloud Deployment Notes
-
-ASARD's default code paths and configuration examples target the **commercial Microsoft 365 / Azure / Power Platform cloud**. Customers deploying into US Government (GCC, GCC High, DoD), 21Vianet (China), or other sovereign clouds must override several endpoints. Authoritative references: [Power Platform US Government overview](https://learn.microsoft.com/en-us/power-platform/admin/microsoft-dynamics-365-government), [Microsoft Graph national clouds](https://learn.microsoft.com/en-us/graph/deployments).
-
-### Per-cloud endpoint overrides
-
-| Component | Commercial | GCC | GCC High | DoD | 21Vianet |
-|-----------|-----------|-----|----------|-----|----------|
-| **Microsoft Graph base URL** | `graph.microsoft.com` | `graph.microsoft.com` (M365 GCC uses worldwide) | `graph.microsoft.us` | `dod-graph.microsoft.us` | `microsoftgraph.chinacloudapi.cn` |
-| **`Connect-MgGraph -Environment`** | `Global` | `Global` (per Microsoft Learn) | `USGov` | `USGovDoD` | `China` |
-| **`Add-PowerAppsAccount -Endpoint`** | `prod` (default) | `usgov` | `usgovhigh` | `dod` | n/a (separate guidance) |
-| **BAP admin endpoint** | `api.bap.microsoft.com` | Same in many gov scenarios — verify per the US Gov service description before relying on it | Verify per US Gov service description | Verify per US Gov service description | Verify per published 21Vianet docs |
-| **Dataverse host suffix** | `crm.dynamics.com` (and `crm2`/`crm3`/`crm4`…) | `crm9.dynamics.com` | `crm.microsoftdynamics.us` | `crm.appsplatform.us` | `crm.dynamics.cn` |
-| **Microsoft Entra authority** | `login.microsoftonline.com` | `login.microsoftonline.com` (GCC uses worldwide) | `login.microsoftonline.us` | `login.microsoftonline.us` | `login.chinacloudapi.cn` |
-
-### What this means for ASARD
-
-1. **PowerShell modules:** When you `Connect-MgGraph` or `Add-PowerAppsAccount` from a sovereign tenant, pass the matching `-Environment` / `-Endpoint` parameter listed above. Forgetting this causes authentication to silently succeed against the commercial endpoint and then return zero results for the gov-cloud tenant.
-2. **MSAL / azure-identity (Python):** Set the authority URL (`https://login.microsoftonline.us/<tenant-id>` for GCC High and DoD; `https://login.chinacloudapi.cn/<tenant-id>` for 21Vianet) and target the per-cloud Graph and Dataverse scopes (e.g., `https://graph.microsoft.us/.default`, `https://<org>.crm.microsoftdynamics.us/.default`).
-3. **Dataverse `DATAVERSE_ENVIRONMENT_URL`:** Use the geography-correct host suffix (see Step 2 note above). The example `https://<org>.crm.dynamics.com` only works for commercial tenants.
-4. **Teams Workflows webhook (Step 7):** Workflows is available in commercial and US Government clouds, but the issued webhook URL host differs (`*.logic.azure.com` vs the US Gov Logic Apps host). Use whichever URL the Workflows template issues in your tenant — do not transplant a commercial URL into a sovereign deployment.
-5. **Defender for Cloud Apps AI Agent Protection / Inventory:** This capability had documented preview status with possible sovereign-cloud parity gaps as of May 2026. Verify availability for your specific cloud before relying on it for ASARD evidence collection — see the [Microsoft Defender for Cloud Apps overview](https://learn.microsoft.com/en-us/defender-cloud-apps/) and the per-cloud service descriptions (Microsoft does not publish a single dedicated US Government documentation page for Defender for Cloud Apps; per-cloud availability is typically reflected in the [Defender for Cloud Apps release notes](https://learn.microsoft.com/en-us/defender-cloud-apps/release-notes) and the Microsoft 365 US Government service description).
-
-### Implementation caveat
-
-This framework does not enumerate every per-cloud endpoint difference. Treat the table above as a **starting checklist** and always validate against Microsoft's current US Government / 21Vianet service descriptions before production deployment. Configuration that works in commercial may need to be re-tested end-to-end in each sovereign cloud.
 
 ## Verification
 

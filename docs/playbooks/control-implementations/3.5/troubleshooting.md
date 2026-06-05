@@ -34,11 +34,9 @@
 | 14 | Scenario 13 — Chargeback ledger differs from BU's own records |
 | 15 | Scenario 14 — Chargeback PDF not retained in WORM store |
 | 16 | Scenario 15 — Power BI dashboard refresh failure |
-| 17 | Scenario 16 — Sovereign-cloud surface absent (GCC / GCC High / DoD) |
-| 18 | Scenario 17 — `New-AzCostManagementBudget` cmdlet not found |
-| 19 | Scenario 18 — Audit Committee briefing missed AI-spend material increase |
-| 20 | §SOV — Sovereign-cloud manual compensating controls |
-| 21 | Escalation matrix |
+| 17 | Scenario 16 — `New-AzCostManagementBudget` cmdlet not found |
+| 18 | Scenario 17 — Audit Committee briefing missed AI-spend material increase |
+| 19 | Escalation matrix |
 
 ---
 
@@ -51,8 +49,7 @@ Cost-governance defect detected
 ├── WORM retention not bound for export OR ledger        ─► Sev-High     (Compliance, Records Mgr)
 ├── Tag-policy NonCompliant >2 weekly cycles             ─► Sev-Medium   (Power Platform Admin)
 ├── Copilot policy assigned to wrong scope               ─► Sev-Medium   (AI Admin, change ticket required)
-├── License utilization stale >7d (Graph lag)            ─► Sev-Low      (Platform engineering)
-└── Sovereign-cloud surface absent (compensating ctrl OK)─► Sev-Info     (document, exercise quarterly)
+└── License utilization stale >7d (Graph lag)            ─► Sev-Low      (Platform engineering)
 ```
 
 | Severity | Notification window | Required artifacts |
@@ -72,13 +69,10 @@ Cost-governance defect detected
 Assert-Fsi35ShellHost -RequiredHost Core74
 Test-Fsi35ModuleMatrix | Format-Table
 
-# 2. Confirm sovereign cloud detection
-Resolve-Fsi35CloudProfile -TenantId $env:FSI_TENANT
-
-# 3. Confirm RBAC at scope
+# 2. Confirm RBAC at scope
 Test-Fsi35Rbac -SubscriptionId $env:FSI_SUB -Mode Read
 
-# 4. End-to-end self-test
+# 3. End-to-end self-test
 Invoke-Fsi35SelfTest `
     -SubscriptionId $env:FSI_SUB `
     -RequiredCostCenters @('CC-1001','CC-1002','CC-1003','CC-1004') `
@@ -86,7 +80,7 @@ Invoke-Fsi35SelfTest `
     -ExportContainerName 'cost-mgmt-exports' `
     -ScopeForTagPolicy $env:FSI_MG | ConvertTo-Json -Depth 6
 
-# 5. Quick sanity query
+# 4. Quick sanity query
 Invoke-Fsi35CostQuery -Scope "/subscriptions/$env:FSI_SUB" `
     -From (Get-Date).AddDays(-7) -To (Get-Date) -GroupBy @('ServiceName')
 ```
@@ -440,17 +434,7 @@ Pipe the JSON output into the Pester suite running under PS 7.4 (Verification §
 
 ---
 
-## §17 Scenario 16 — Sovereign-Cloud Surface Absent
-
-**Symptom.** A surface this control depends on (e.g., M365 Copilot PAYG billing policies) is not generally available in your sovereign cloud.
-
-**Root cause.** Sovereign-cloud parity gap.
-
-**Resolution.** Route to **§SOV** below — implement the documented manual compensating control, exercise quarterly, retain the same evidence shape.
-
----
-
-## §18 Scenario 17 — `New-AzCostManagementBudget` Cmdlet Not Found
+## §17 Scenario 16 — `New-AzCostManagementBudget` Cmdlet Not Found
 
 **Symptom.** Script errors with "The term 'New-AzCostManagementBudget' is not recognized."
 
@@ -460,7 +444,7 @@ Pipe the JSON output into the Pester suite running under PS 7.4 (Verification §
 
 ---
 
-## §19 Scenario 18 — Audit Committee Briefing Missed Material Spend Increase
+## §18 Scenario 17 — Audit Committee Briefing Missed Material Spend Increase
 
 **Symptom.** AI spend increased >25 % YoY; not surfaced to Audit Committee in the quarterly safeguards briefing.
 
@@ -479,25 +463,7 @@ Pipe the JSON output into the Pester suite running under PS 7.4 (Verification §
 
 ---
 
-## §SOV Sovereign-Cloud Manual Compensating Controls
-
-For tenants in GCC / GCC High / DoD where one or more of these surfaces is not at parity:
-
-| Missing surface | Manual compensating control |
-|-----------------|------------------------------|
-| **M365 Copilot PAYG billing policies** | Per-seat chargeback driven by license assignment counts; rate per assigned seat per month from the rate card. Audit license assignments via Microsoft Graph (`LicenseAssignment.Read.All`) on the same monthly cadence. |
-| **M365 Copilot Credit policies** | Manual prepaid pool tracking in a SharePoint list with quarterly Finance reconciliation. |
-| **Cost Management Power BI connector** | Manual export to Excel; chargeback ledger built in Excel with formula audit; retain Excel + PDF. |
-| **Storage immutability in DoD region** | Use immutability in Commercial-mirror tenant for evidence retention if permitted by data-residency policy; otherwise retain as records via tape archive or third-party 17a-4(f) vendor. Coordinate with General Counsel on residency. |
-| **Microsoft 365 high-usage-users report** | Manual top-N analysis from license activity report; document the methodology. |
-
-**Cadence.** Same as Commercial — monthly close, quarterly evidence pack. The compensating control's evidence shape must match the canonical schema (Verification §1) so the examiner can read sovereign and Commercial evidence interchangeably.
-
-**Re-verify parity quarterly** via the [Microsoft 365 Government roadmap](https://aka.ms/m365gov-roadmap) and the [Azure Government services availability](https://learn.microsoft.com/en-us/azure/azure-government/compare-azure-government-global-azure). When parity arrives, run the cutover and retire the manual compensating control with documented sign-off.
-
----
-
-## §21 Escalation Matrix and Evidence-Collection Summary
+## §19 Escalation Matrix and Evidence-Collection Summary
 
 | Issue | Escalate To | Response Time | Evidence to Capture |
 |-------|-------------|---------------|---------------------|
@@ -506,7 +472,6 @@ For tenants in GCC / GCC High / DoD where one or more of these surfaces is not a
 | Copilot policy misassignment material to chargeback | AI Administrator + Finance | 24 hours | Change ticket, corrected ledger, BU notification |
 | Tag-policy non-compliance sustained >2 weeks | Power Platform Admin + AI Governance Lead | 5 BD | Compliance report, remediation tickets per resource |
 | SOX 404 walkthrough finding | External auditor liaison + Internal Audit | Per audit calendar | Worked-example PDF, sign-off, management response |
-| Sovereign parity gap impacts close | Microsoft account team + AI Governance Lead | Quarterly | Compensating-control documentation, exercise evidence |
 
 All escalations land in the firm's incident or change-management system. The evidence captured here feeds the next quarterly evidence pack.
 

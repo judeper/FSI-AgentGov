@@ -1,7 +1,7 @@
 # Control 4.5: SharePoint Security and Compliance Monitoring - PowerShell Setup
 
 !!! warning "Read the FSI PowerShell baseline first"
-    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, sovereign-cloud (GCC / GCC High / DoD) endpoints, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show the patterns required for FSI tenants; the baseline is authoritative if anything appears to conflict.
+    Before running any command in this playbook, read the [**PowerShell Authoring Baseline for FSI Implementations**](../../_shared/powershell-baseline.md). It is the canonical source for module version pinning, mutation safety (`-WhatIf` / `SupportsShouldProcess`), Dataverse compatibility, and SHA-256 evidence emission. Snippets below show the patterns required for FSI tenants; the baseline is authoritative if anything appears to conflict.
 
 > This playbook provides PowerShell automation guidance for [Control 4.5](../../../controls/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring.md). All commands are **read-only** (evidence collection); they do not modify tenant state.
 
@@ -28,38 +28,17 @@ Install-Module -Name Microsoft.Graph -RequiredVersion '<version>' `
 
 ---
 
-## Step 1: Sovereign-Cloud-Aware Connection
-
-Wrong endpoints produce **false-clean** evidence. Always pass the explicit endpoint for your cloud.
+## Step 1: Connect to Services
 
 ```powershell
 param(
-    [Parameter(Mandatory)] [string] $TenantAdminUrl,           # e.g., https://contoso-admin.sharepoint.com (or .sharepoint.us)
-    [Parameter(Mandatory)] [string] $AdminUpn,                  # admin user principal name
-    [ValidateSet('Commercial','GCC','GCCHigh','DoD','China')]
-    [string] $Cloud = 'Commercial'
+    [Parameter(Mandatory)] [string] $TenantAdminUrl,           # e.g., https://contoso-admin.sharepoint.com
+    [Parameter(Mandatory)] [string] $AdminUpn                  # admin user principal name
 )
-
-# Map cloud to endpoints
-$graphEnv = switch ($Cloud) {
-    'Commercial' { 'Global' }
-    'GCC'        { 'USGov' }
-    'GCCHigh'    { 'USGovDoD' }   # verify per Microsoft Learn for your tenant
-    'DoD'        { 'USGovDoD' }
-    'China'      { 'China' }
-}
-
-$exchangeEnv = switch ($Cloud) {
-    'Commercial' { 'O365Default' }
-    'GCC'        { 'O365USGovGCCHigh' }   # verify; GCC commercial uses O365Default in some configurations
-    'GCCHigh'    { 'O365USGovGCCHigh' }
-    'DoD'        { 'O365USGovDoD' }
-    'China'      { 'O365China' }
-}
 
 Connect-SPOService -Url $TenantAdminUrl
 Connect-IPPSSession -UserPrincipalName $AdminUpn -ConnectionUri "https://ps.compliance.protection.outlook.com/powershell-liveid/" -ErrorAction Stop
-Connect-MgGraph -Scopes 'AuditLog.Read.All','Directory.Read.All' -Environment $graphEnv -NoWelcome
+Connect-MgGraph -Scopes 'AuditLog.Read.All','Directory.Read.All' -Environment 'Global' -NoWelcome
 
 # Sanity check — non-zero result confirms connection
 if (-not (Get-SPOTenant)) { throw 'SPO connection failed' }
@@ -234,7 +213,6 @@ function Export-EvidenceArtifact {
         CapturedAt = (Get-Date).ToString('o')
         CapturedBy = $AdminUpn
         Tenant     = $TenantAdminUrl
-        Cloud      = $Cloud
     }
 }
 
@@ -273,19 +251,16 @@ Save as `Invoke-Control-4.5-EvidenceCollection.ps1` and execute under change con
     Read-only evidence collection for FSI Control 4.5 — SharePoint Security and Compliance Monitoring.
 
 .DESCRIPTION
-    Connects to SharePoint Online, Purview (IPPS), and Microsoft Graph using sovereign-cloud-aware
-    endpoints; enumerates SharePoint audit events with paginated Search-UnifiedAuditLog calls;
+    Connects to SharePoint Online, Purview (IPPS), and Microsoft Graph; enumerates SharePoint
+    audit events with paginated Search-UnifiedAuditLog calls;
     inventories sites in a single pass; emits CSV/JSON evidence with SHA-256 hashes recorded in a
     manifest file.
 
 .PARAMETER TenantAdminUrl
-    SharePoint Admin Center URL (e.g., https://contoso-admin.sharepoint.com or .sharepoint.us).
+    SharePoint Admin Center URL (e.g., https://contoso-admin.sharepoint.com).
 
 .PARAMETER AdminUpn
     User principal name of the executing administrator.
-
-.PARAMETER Cloud
-    One of: Commercial, GCC, GCCHigh, DoD, China.
 
 .PARAMETER DaysBack
     Audit window in days. Default 30. Note: this is a snapshot; full retention is governed by a
@@ -298,8 +273,6 @@ Save as `Invoke-Control-4.5-EvidenceCollection.ps1` and execute under change con
 param(
     [Parameter(Mandatory)] [string] $TenantAdminUrl,
     [Parameter(Mandatory)] [string] $AdminUpn,
-    [ValidateSet('Commercial','GCC','GCCHigh','DoD','China')]
-    [string] $Cloud = 'Commercial',
     [int] $DaysBack = 30
 )
 
