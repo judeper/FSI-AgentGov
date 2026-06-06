@@ -139,7 +139,7 @@ Re-verify SKU availability, the at-least-one-user Agent 365 license assignment p
 | Microsoft Agent 365 (where available) | At least one user assigned a qualifying Microsoft Agent 365 license or bundled entitlement | COMP-01 (additive only) |
 | Purview Audit (UAL) | E5 Compliance / Purview Audit Premium | DRIFT-03, LIFE-03, REG-03 |
 | Purview DLP enumeration | E5 Compliance / Purview DLP | DLP-01, DLP-02, DLP-03 |
-| Microsoft Information Protection labels | E5 Compliance | ACC-03 |
+| Microsoft Purview Information Protection labels | E5 Compliance | ACC-03 |
 | Defender for Cloud Apps | MDA license | COMP-03 (cross-source enrichment) |
 | Azure Resource Graph (programmatic enumeration) | Azure entitlement | COMP-04 |
 
@@ -972,7 +972,7 @@ The continuous-improvement loop is itself reviewed annually for effectiveness, a
 - [Microsoft Agent 365 admin center overview](https://learn.microsoft.com/en-us/microsoft-agent-365/) (verify current page at cycle start; enablement requires at least one user with a qualifying Microsoft Agent 365 license or bundled entitlement)
 - [Microsoft Purview Audit (UAL) search](https://learn.microsoft.com/en-us/purview/audit-search)
 - [Microsoft Purview Data Loss Prevention policies](https://learn.microsoft.com/en-us/purview/dlp-learn-about-dlp)
-- [Microsoft Information Protection sensitivity labels](https://learn.microsoft.com/en-us/purview/sensitivity-labels)
+- [Microsoft Purview Information Protection sensitivity labels](https://learn.microsoft.com/en-us/purview/sensitivity-labels)
 - [Microsoft Defender for Cloud Apps — App governance](https://learn.microsoft.com/en-us/defender-cloud-apps/app-governance-manage-app-governance)
 - [Azure Resource Graph queries](https://learn.microsoft.com/en-us/azure/governance/resource-graph/)
 - [Microsoft Graph users API — manager link](https://learn.microsoft.com/en-us/graph/api/user-list-manager)

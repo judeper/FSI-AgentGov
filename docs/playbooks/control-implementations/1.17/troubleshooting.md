@@ -40,7 +40,7 @@ This playbook lists the most common issues encountered when deploying and operat
 
 1. On the device run `Get-MpComputerStatus | Select-Object AMServiceEnabled, AntivirusEnabled, RealTimeProtectionEnabled, AntispywareEnabled` (Windows). All should be `True`.
 2. Check the local sensor health log at `C:\ProgramData\Microsoft\Windows Defender Advanced Threat Protection\SenseCM\` for onboarding errors.
-3. In the Defender portal, **Assets > Devices**, confirm device is **Active** and look for the **Domain joined / Azure AD joined** indicator.
+3. In the Defender portal, **Assets > Devices**, confirm device is **Active** and look for the **Domain joined / Microsoft Entra joined** indicator.
 4. Run the [Defender for Endpoint Client Analyzer](https://learn.microsoft.com/en-us/defender-endpoint/overview-client-analyzer) and review the report.
 5. Confirm the user signed in to the device has a license that includes Endpoint DLP via **Entra > Users > <user> > Licenses**.
 

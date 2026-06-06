@@ -39,7 +39,7 @@
     | **Microsoft Agent 365 or Microsoft 365 E7 licensing** | Surfaces the **Agent identities** blade in Entra and unlocks the Agent 365 control plane (post-GA: May 1, 2026); replaces the pre-GA Frontier program enrollment | M365 admin center → Billing → Licenses |
     | Entra ID P2 (Identity Governance) | Required for Entitlement Management, Lifecycle Workflows, and Access Reviews — all three are mandatory for this control | Entra → Identity → Overview → License |
     | Microsoft Purview Audit (Standard or Premium) | Required to retain agent identity events for the 6-year SEC 17a-4 horizon | Purview → Audit → Audit retention policies |
-    | Workday / SAP SuccessFactors / SAP HCM HR connector (or Azure AD Connect with HR attribute flow) | Populates `employeeLeaveDateTime` on sponsor user objects — the leaver-trigger signal source for Lifecycle Workflows | Entra → Identity → Inbound provisioning |
+    | Workday / SAP SuccessFactors / SAP HCM HR connector (or Microsoft Entra Connect with HR attribute flow) | Populates `employeeLeaveDateTime` on sponsor user objects — the leaver-trigger signal source for Lifecycle Workflows | Entra → Identity → Inbound provisioning |
 
 !!! tip "Portal Navigation May Shift During Preview"
     Microsoft has restructured the Entra navigation twice in the last 12 months. If a blade name in this playbook does not match what you see, search the Entra admin center for the underlying noun ("Agent identities", "Access packages", "Lifecycle workflows") and consult the canonical documentation root at [`learn.microsoft.com/entra/agent-id/`](https://learn.microsoft.com/entra/agent-id/). Screenshot anchors in this playbook record the navigation that was verified at the **Last UI Verified** date in the control header.
