@@ -36,7 +36,7 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 | High-Privileged Admin Roles | https://learn.microsoft.com/en-us/power-platform/admin/manage-high-privileged-admin-roles | Jan 2026 |
 | **IP Firewall** | https://learn.microsoft.com/en-us/power-platform/admin/ip-firewall | Jan 2026 |
 | Cross-Tenant Restrictions | https://learn.microsoft.com/en-us/power-platform/admin/cross-tenant-restrictions | Jan 2026 |
-| **Encryption** | https://learn.microsoft.com/en-us/power-platform/admin/manage-encryption-key | Jan 2026 |
+| **Encryption** | https://learn.microsoft.com/en-us/power-platform/admin/customer-managed-key | Jun 2026 |
 | **Analytics** | https://learn.microsoft.com/en-us/power-platform/admin/analytics-common-data-service | Jan 2026 |
 | Export Analytics to Azure | https://learn.microsoft.com/en-us/power-platform/admin/self-service-analytics | Jan 2026 |
 | **Power Platform Inventory** | https://learn.microsoft.com/en-us/power-platform/admin/power-platform-inventory | Mar 2026 |
