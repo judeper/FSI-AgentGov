@@ -33,6 +33,16 @@ import json
 import sys
 from pathlib import Path
 
+# Ensure non-ASCII output (e.g. the "→" separator below) does not crash on
+# consoles using a legacy code page such as Windows cp1252. CI runs on UTF-8
+# Linux where this is a no-op, but local maintainer runs on Windows would
+# otherwise raise UnicodeEncodeError while reporting a dead URL.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8")
+    except (AttributeError, ValueError):
+        pass
+
 DEAD_STATUSES: frozenset[int] = frozenset({404, 410, 451})
 
 DEFAULT_STATE_FILE = Path("data/monitor-state.json")
