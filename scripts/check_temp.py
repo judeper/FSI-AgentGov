@@ -18,7 +18,8 @@ MAPPING = {
 
 def get_hash(path):
     if not path.exists(): return None
-    return hashlib.md5(path.read_bytes()).hexdigest()
+    # Non-security file-equality comparison only (not a cryptographic use).
+    return hashlib.md5(path.read_bytes(), usedforsecurity=False).hexdigest()
 
 def check_files():
     print("Checking temp files against repository...")

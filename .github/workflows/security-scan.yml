@@ -59,18 +59,10 @@ jobs:
             || pip-audit -r assessment/requirements.txt --progress-spinner=off
 
       - name: Bandit (Python SAST)
-        # REPORT-ONLY (continue-on-error: true) — pre-existing findings as of 2026-06-07:
-        #   B324 HIGH/HIGH  scripts/check_temp.py:21
-        #     hashlib.md5() used for security — CWE-327. Should use SHA-256 or
-        #     pass usedforsecurity=False if this is a cache key only.
-        #   B310 MED/HIGH   scripts/refresh_solutions_lock.py:58
-        #     urllib.request.urlopen() — audit for allowed URL schemes (CWE-22).
-        #   B701 HIGH/HIGH  assessment/engine/report.py:858
-        #     jinja2 Environment without autoescape=True — CWE-94 (XSS risk).
-        #   B701 HIGH/HIGH  assessment/engine/report.py:864
-        #     jinja2 Environment without autoescape=True — CWE-94 (XSS risk).
-        # TODO: triage each finding above, then remove continue-on-error to make blocking.
-        continue-on-error: true
+        # BLOCKING: all pre-existing findings triaged + fixed 2026-06-07:
+        #   B324 scripts/check_temp.py — md5 marked usedforsecurity=False (file-equality, not crypto).
+        #   B310 scripts/refresh_solutions_lock.py — https scheme enforced + nosec B310.
+        #   B701 assessment/engine/report.py (x2) — explicit select_autoescape (Markdown output, not HTML).
         run: |
           bandit -r scripts assessment/engine assessment/manifest \
             --severity-level medium \
