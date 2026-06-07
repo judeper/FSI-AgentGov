@@ -982,10 +982,10 @@ Requires Intune-compliant device for makers (Microsoft Copilot Studio, Power App
 function New-Fsi-CAPolicy-MakerCompliantDevice {
 <#
 .SYNOPSIS
-    Requires Intune-compliant or Hybrid Azure AD-joined device for AI maker personas.
+    Requires Intune-compliant or Microsoft Entra hybrid joined device for AI maker personas.
 .DESCRIPTION
     Creates a CA policy targeting the AI maker security group. Grant control = require compliant
-    device OR Hybrid Azure AD-joined device. Applications include Copilot Studio, Power Apps maker
+    device OR Microsoft Entra hybrid joined device. Applications include Copilot Studio, Power Apps maker
     portal, Power Automate, and Microsoft 365 Admin Center. Defaults to report-only.
 .PARAMETER MakerGroupId
     Object id of the AI maker security group.

@@ -477,7 +477,7 @@ The 12 test cases below evidence the control's verification criteria. Each proce
 
 #### Setup
 
-1. Identify a pilot Windows 11 endpoint that meets the current Token Protection requirements (Hybrid Azure AD joined or Azure AD joined; supported OS build; supported browser as of the verification date).
+1. Identify a pilot Windows 11 endpoint that meets the current Token Protection requirements (Microsoft Entra hybrid joined or Microsoft Entra joined; supported OS build; supported browser as of the verification date).
 2. Identify a non-supported endpoint (macOS, Linux, or Windows with an unsupported browser).
 3. Confirm a CA policy `CA-Z3-TokenProtection-Pilot` is **Enabled** with **Session control = Require token protection for sign-in sessions** (preview), targeting the Z3 maker pilot population.
 4. Confirm the policy description documents the **intended fallback** for non-supported clients (e.g., "On unsupported clients, the policy does not apply; access is governed by `CA-Z3-Makers-RequireCompliantDevice` and `CA-Z3-Makers-SignInFrequency-4h` as the residual baseline").

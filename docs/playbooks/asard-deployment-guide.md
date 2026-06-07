@@ -75,7 +75,7 @@ Before deploying ASARD, ensure the following prerequisites are met:
      Connect-MgGraph -Scopes "Application.ReadWrite.All"
      New-MgServicePrincipal -AppId 8578e004-a5c6-46e7-913e-12f58912df43 -DisplayName "Power Platform API"
      ```
-     The legacy `New-AzureADServicePrincipal` cmdlet (AzureAD module) reached end-of-support **2024-03-30** and should not be used; the Microsoft Graph PowerShell SDK is Microsoft's supported replacement ([Azure AD / MSOnline deprecation](https://learn.microsoft.com/en-us/powershell/azure/active-directory/overview)).
+     The legacy `New-AzureADServicePrincipal` cmdlet (AzureAD module) was deprecated on **2024-03-30** (support limited to migration assistance and security fixes thereafter) and should not be used; the Microsoft Graph PowerShell SDK is Microsoft's supported replacement ([Azure AD / MSOnline deprecation](https://learn.microsoft.com/en-us/powershell/azure/active-directory/overview)).
    - For tenant-wide BAP-side enumeration via service-principal (S2S), additionally register the app as an admin management application:
      ```http
      PUT https://api.bap.microsoft.com/providers/Microsoft.BusinessAppPlatform/adminApplications/{clientId}?api-version=2020-10-01

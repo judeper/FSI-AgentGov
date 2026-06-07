@@ -73,7 +73,7 @@ The following helpers, queries, and portal paths are referenced by multiple scen
 | Surface | Primary URL | Used in TC |
 |---|---|---|
 | Defender XDR (unified Sentinel) | `https://security.microsoft.com` | TC-02, TC-03, TC-04, TC-06, TC-10, TC-12, TC-19 |
-| Azure Sentinel (legacy portal — deprecating March 31 2027) | `https://portal.azure.com/#view/Microsoft_Azure_Security_Insights` | TC-10 |
+| Microsoft Sentinel (Azure portal — retiring March 31, 2027) | `https://portal.azure.com/#view/Microsoft_Azure_Security_Insights` | TC-10 |
 | Log Analytics workspace (Logs blade) | `https://portal.azure.com` → workspace → Logs | All TC |
 | Application Insights (linked) | `https://portal.azure.com` → AppInsights resource | TC-14, TC-20 |
 | Power Platform Admin Center | `https://admin.powerplatform.microsoft.com` | TC-02, TC-14, TC-20 |
