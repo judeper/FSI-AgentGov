@@ -125,7 +125,7 @@ Use the canonical role names from the [role catalog](../../../reference/role-cat
 | **SOC Analyst** (Microsoft Sentinel Responder) | Incident triage, comments, status updates, playbook on-demand triggers | Azure RBAC on the Sentinel resource group | PIM-eligible, max 8h |
 | **Entra Security Admin** | Enabling diagnostic settings on Entra ID, including the workload-identity sign-in tables | Entra ID role | PIM-eligible, max 4h |
 | **Purview Compliance Admin** | Verifying upstream Purview audit-log enablement (feeds OfficeActivity / CopilotInteraction) | Purview role group | PIM-eligible, max 8h |
-| **AI Governance Lead** | Approves analytics-rule thresholds; signs off on §9 evidence packet | Azure AD group + RACI documented in [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) | Standing assignment; sign-off via change ticket |
+| **AI Governance Lead** | Approves analytics-rule thresholds; signs off on §9 evidence packet | Microsoft Entra group + RACI documented in [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) | Standing assignment; sign-off via change ticket |
 | **Power Platform Admin** | Enables Power Platform admin-activity logging and Copilot Studio diagnostics export | Power Platform admin role | PIM-eligible, max 8h |
 | **Compliance Officer** | Reviews retention configuration in §7; co-signs the §9 evidence packet quarterly | Standing role | Standing |
 | **CISO** | Final approver of §6 automation playbooks that suspend agents (compensating-control authority) | Standing role | Standing |

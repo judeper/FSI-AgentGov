@@ -178,7 +178,7 @@ Re-verify SKU and preview availability at cycle start against current Microsoft 
 | Microsoft Agent 365 (where available) | Agent 365 entitlement (rollout-dependent) | REG-01 (additive only) |
 | Verified Publisher status (for publishing internally-developed agents) | Microsoft Partner / Verified Publisher enrollment | REG-04 |
 | Federated identity credentials (workload identity federation) | Entra (no extra SKU) | CRED-04 |
-| Microsoft Information Protection sensitivity labels (for Sponsor signature on labeled records) | E5 Compliance | Section 1 (Sponsor signature) |
+| Microsoft Purview Information Protection sensitivity labels (for Sponsor signature on labeled records) | E5 Compliance | Section 1 (Sponsor signature) |
 
 ### 3.2 Required role assignments (canonical names)
 
