@@ -322,4 +322,4 @@ Organizations developing custom AI models beyond Microsoft 365 agents should con
 
 ---
 
-*FSI Agent Governance Framework v1.6.2 | Updated: May 2026 | NIST AI RMF Crosswalk Last Verified: January 19, 2026*
+*FSI Agent Governance Framework v1.6.2 | Updated: May 2026 | NIST AI RMF Crosswalk Last Verified: June 7, 2026*
