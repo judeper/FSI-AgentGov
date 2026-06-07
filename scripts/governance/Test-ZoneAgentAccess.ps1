@@ -476,7 +476,14 @@ Write-Verbose "Check 1: Agent Access Control Policy (ZAV-01)..."
 
 if ($graphToken) {
     try {
-        # Attempt to read Copilot settings via Graph beta endpoint
+        # NOTE (technical accuracy): This is NOT a documented Microsoft Graph endpoint. The
+        # documented Copilot admin surface is /copilot/admin/settings/limitedMode and
+        # /copilot/admin/policySettings/* (Graph beta) — neither exposes an agent-access policy.
+        # As a result this request does not resolve and the check degrades to manual verification
+        # (the catch/Skip branch). Do NOT repoint this URL to a real endpoint without tenant
+        # validation: a 200 response lacking the assumed properties sets policyValue='Unknown'
+        # and would flip the Zone 3 result to a false 'Fail'. Re-evaluate if/when Microsoft Graph
+        # exposes these Copilot governance settings.
         $copilotSettings = Invoke-GraphApi -Uri "https://graph.microsoft.com/beta/admin/microsoft365/copilot/settings" -Token $graphToken
 
         # Compute evidence hash
@@ -769,8 +776,10 @@ Write-Verbose "Check 3: Deployment Group Configuration (ZAV-03)..."
 
 if ($graphToken) {
     try {
-        # Attempt to read deployment group configuration via Graph beta
-        # This targets the M365 Admin Center Copilot deployment settings
+        # NOTE (technical accuracy): Not a documented Microsoft Graph endpoint (see Check 1).
+        # Copilot deployment-group configuration is not exposed via Graph; this request does not
+        # resolve and the check degrades to the semi-automated/manual path below. Do not repoint
+        # this URL without tenant validation.
         $deploymentConfig = Invoke-GraphApi -Uri "https://graph.microsoft.com/beta/admin/microsoft365/copilot/settings" -Token $graphToken
 
         $c3EvidenceJson = $null
@@ -879,7 +888,9 @@ Write-Verbose "Check 4: Web Search Control (ZAV-04)..."
 
 if ($graphToken) {
     try {
-        # Re-use copilot settings from Check 1 if available, otherwise re-fetch
+        # Re-use copilot settings from Check 1 if available, otherwise re-fetch.
+        # NOTE (technical accuracy): same undocumented endpoint as Check 1 — web-search governance
+        # is not exposed via Microsoft Graph, so this degrades to manual verification.
         if (-not $copilotSettings) {
             $copilotSettings = Invoke-GraphApi -Uri "https://graph.microsoft.com/beta/admin/microsoft365/copilot/settings" -Token $graphToken
         }
