@@ -292,15 +292,15 @@ Build the conversational intake agent that collects environment requests.
 
 1. Navigate to **copilotstudio.microsoft.com**
 2. In the top-right corner, verify your **environment** matches Lab 1 (click the environment name to switch if needed)
-3. From the left navigation, select **Copilots**
-4. Select **+ New copilot** > **New copilot**
-5. In the creation wizard:
-   - **Name:** Environment Request Agent
-   - **Description:** Collects and processes Power Platform environment provisioning requests
+3. From the left navigation, select **Agents**
+4. Select the down arrow next to **Create blank agent**, then select **Advanced create** (this lets you set the primary language, solution, and schema name up front)
+5. Configure:
    - **Language:** English (United States)
    - **Solution:** (Optional) Select a solution if using ALM
-6. Select **Create**
-7. Wait for the agent to be created (this may take 1-2 minutes)
+6. Select **Confirm and create** and wait for the agent to be provisioned (this may take 1-2 minutes)
+7. On the agent's **Overview** page, select **Edit** in the **Details** section to set:
+   - **Name:** Environment Request Agent
+   - **Description:** Collects and processes Power Platform environment provisioning requests
 
 ### Step 2.2: Configure Authentication
 
