@@ -543,7 +543,7 @@ All artifacts: SHA-256 hashed at capture time; copied to the §10 immutable blob
 ## §13 — Implementation Notes
 
 Implementation notes for US financial-services commercial tenants:
-- **Azure immutable blob storage** is available in Azure Government; the **Cohasset attestation** and SEC 17a-4(f) coverage statement should be re-verified at vendor cadence (annually) and stored alongside the §11 evidence pack.
+- **Azure immutable blob storage**: the **Cohasset attestation** and SEC 17a-4(f) coverage statement should be re-verified at vendor cadence (annually) and stored alongside the §11 evidence pack.
 
 ---
 

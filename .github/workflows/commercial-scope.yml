@@ -1,0 +1,33 @@
+name: commercial-scope
+
+# COMMON RULE (identical in all four FSI repos): fail CI if forward-facing
+# documentation or published assessment data introduces government / sovereign
+# cloud (GCC / GCC High / DoD / Azure Government / sovereign) content. These repos
+# are scoped to US commercial-cloud Microsoft 365 only.
+
+on:
+  pull_request:
+    paths:
+      - "**/*.md"
+      - "**/*.json"
+      - "scripts/verify_commercial_scope.py"
+      - ".github/workflows/commercial-scope.yml"
+  push:
+    branches: [main]
+    paths:
+      - "**/*.md"
+      - "**/*.json"
+
+permissions:
+  contents: read
+
+jobs:
+  commercial-scope:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify commercial-cloud scope (no GCC / GCC High / DoD / sovereign)
+        run: python scripts/verify_commercial_scope.py
