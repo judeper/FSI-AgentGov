@@ -36,7 +36,7 @@
 .EXAMPLE
     .\register-plugin.ps1 -DataverseUrl https://org.crm.dynamics.com -AssemblyPath ./bin/Release/ValidateMimeTypePlugin.dll
 
-    Registers the plugin assembly and step using Azure AD token from Az.Accounts.
+    Registers the plugin assembly and step using Microsoft Entra ID token from Az.Accounts.
 
 .EXAMPLE
     .\register-plugin.ps1 -DataverseUrl https://org.crm.dynamics.com -AssemblyPath ./bin/Release/ValidateMimeTypePlugin.dll -WhatIf

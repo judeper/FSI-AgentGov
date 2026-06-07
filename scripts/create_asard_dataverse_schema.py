@@ -352,7 +352,7 @@ def seed_default_policy(client: CAAClient, dry_run: bool = False) -> None:
     """Insert template approved group policy records for each zone.
 
     These are documentation placeholders — admins must populate with
-    actual Azure AD security group IDs for their organization.
+    actual Microsoft Entra ID security group IDs for their organization.
     """
     entity_set = "fsi_approvedsecuritygrouppolicies"
 
