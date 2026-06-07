@@ -87,7 +87,7 @@ def build_permission_object(
     Parameters
     ----------
     group_id : str
-        Azure AD group GUID.
+        Microsoft Entra ID group GUID.
     group_name : str
         Display name for the group.
     role_name : str, optional
@@ -129,7 +129,7 @@ def get_group_name_from_policy(
     Parameters
     ----------
     group_id : str
-        Azure AD group GUID.
+        Microsoft Entra ID group GUID.
     dataverse_client : CAAClient
         Dataverse client instance.
 
