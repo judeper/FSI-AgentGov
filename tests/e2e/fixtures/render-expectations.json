@@ -4186,12 +4186,6 @@
       "expected_diagram_links": [],
       "expected_asset_links": []
     },
-    "/reference/sovereign-cloud-parity-matrix/": {
-      "source_md": "docs/reference/sovereign-cloud-parity-matrix.md",
-      "expected_mermaid_count": 0,
-      "expected_diagram_links": [],
-      "expected_asset_links": []
-    },
     "/reference/versioning-and-support/": {
       "source_md": "docs/reference/versioning-and-support.md",
       "expected_mermaid_count": 0,

@@ -34,7 +34,7 @@
 .EXAMPLE
     .\test-plugin.ps1 -DataverseUrl https://org.crm.dynamics.com
 
-    Runs all integration tests using Azure AD token from Az.Accounts.
+    Runs all integration tests using Microsoft Entra ID token from Az.Accounts.
 
 .EXAMPLE
     .\test-plugin.ps1 -DataverseUrl https://org.crm.dynamics.com -SkipCleanup

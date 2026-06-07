@@ -205,7 +205,7 @@ def parse_sharing_principals(principals_json: str) -> Dict[str, Any]:
 
             {
                 "individuals": [],        # user principal names / IDs
-                "security_groups": [],    # Azure AD group object IDs
+                "security_groups": [],    # Microsoft Entra ID group object IDs
                 "has_everyone": False,
                 "has_public": False,
                 "has_organization": False,
@@ -291,7 +291,7 @@ def evaluate_zone_compliance(
     parsed_principals : dict
         Output from ``parse_sharing_principals()``.
     approved_groups : list[str] | None
-        Azure AD group IDs approved for this zone (Zone 3 only).
+        Microsoft Entra ID group IDs approved for this zone (Zone 3 only).
         If *None* for Zone 3, skip approved group check (log warning).
 
     Returns
@@ -415,7 +415,7 @@ def get_approved_groups_for_zone(zone: int, client: Any) -> List[str]:
     Returns
     -------
     list[str]
-        Azure AD security group object IDs approved for the zone.
+        Microsoft Entra ID security group object IDs approved for the zone.
         Empty list if no records found or on error.
     """
     try:
