@@ -1,0 +1,101 @@
+name: Security Scan
+
+# Runs supply-chain (pip-audit, npm audit) and SAST (bandit) checks across
+# AgentGov's Python tooling and SPA test bundle.
+#
+# PSScriptAnalyzer is already handled by powershell-quality.yml — not duplicated here.
+#
+# Ported from FSI-CopilotGov security-scan.yml; adapted to AgentGov's paths:
+#   - pip-audit: scripts/requirements.txt + assessment/requirements.txt
+#   - bandit:    scripts/, assessment/engine/, assessment/manifest/ (tests excluded)
+#   - npm audit: package.json (all deps are devDependencies — omit-dev would be a no-op)
+#
+# BLOCKING vs REPORT-ONLY (adoption PR 2026-06-07):
+#   BLOCKING:     pip-audit (both req files were clean on local run)
+#   REPORT-ONLY:  bandit — pre-existing findings need triage (see TODO comments below)
+#   REPORT-ONLY:  npm audit — xlsx devDep has HIGH vuln, no upstream fix available
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "0 10 * * 1"  # weekly Monday 10:00 UTC
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  python-audit:
+    name: pip-audit + bandit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install scanning tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install pip-audit bandit
+
+      - name: pip-audit — scripts/requirements.txt
+        # BLOCKING: clean on local run 2026-06-07 (0 known vulnerabilities).
+        # --strict falls back to non-strict when pip-audit cannot resolve all packages
+        # (e.g. private indexes); non-strict still fails on found CVEs.
+        run: |
+          pip-audit -r scripts/requirements.txt --strict --progress-spinner=off \
+            || pip-audit -r scripts/requirements.txt --progress-spinner=off
+
+      - name: pip-audit — assessment/requirements.txt
+        # BLOCKING: clean on local run 2026-06-07 (0 known vulnerabilities).
+        run: |
+          pip-audit -r assessment/requirements.txt --strict --progress-spinner=off \
+            || pip-audit -r assessment/requirements.txt --progress-spinner=off
+
+      - name: Bandit (Python SAST)
+        # REPORT-ONLY (continue-on-error: true) — pre-existing findings as of 2026-06-07:
+        #   B324 HIGH/HIGH  scripts/check_temp.py:21
+        #     hashlib.md5() used for security — CWE-327. Should use SHA-256 or
+        #     pass usedforsecurity=False if this is a cache key only.
+        #   B310 MED/HIGH   scripts/refresh_solutions_lock.py:58
+        #     urllib.request.urlopen() — audit for allowed URL schemes (CWE-22).
+        #   B701 HIGH/HIGH  assessment/engine/report.py:858
+        #     jinja2 Environment without autoescape=True — CWE-94 (XSS risk).
+        #   B701 HIGH/HIGH  assessment/engine/report.py:864
+        #     jinja2 Environment without autoescape=True — CWE-94 (XSS risk).
+        # TODO: triage each finding above, then remove continue-on-error to make blocking.
+        continue-on-error: true
+        run: |
+          bandit -r scripts assessment/engine assessment/manifest \
+            --severity-level medium \
+            --confidence-level medium \
+            -x scripts/test_,assessment/tests \
+            -f txt
+
+  npm-audit:
+    name: npm audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "20"
+          cache: "npm"
+      - name: Install
+        run: npm ci || npm install
+      - name: Audit (high severity gate)
+        # REPORT-ONLY (continue-on-error: true) — pre-existing finding as of 2026-06-07:
+        #   xlsx (SheetJS) HIGH — Prototype Pollution (GHSA-4r6h-8v6p-xvw6)
+        #                        + ReDoS (GHSA-5pgg-2g8v-p4x9). No fix available upstream.
+        #   xlsx is a devDependency used only in tests; does not ship to production.
+        #   All package.json deps are devDependencies, so --omit=dev would audit 0 packages.
+        # TODO: evaluate replacing xlsx with a maintained alternative (e.g. exceljs),
+        #       then remove continue-on-error to make this step blocking.
+        continue-on-error: true
+        run: npm audit --audit-level=high
