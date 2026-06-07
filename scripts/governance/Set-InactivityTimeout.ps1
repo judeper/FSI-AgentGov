@@ -8,7 +8,7 @@
     durations for US financial services governance zones.
 
     Execution flow:
-    1. Authenticate via Azure AD (Get-AzAccessToken)
+    1. Authenticate via Microsoft Entra ID (Get-AzAccessToken)
     2. GET current privacy settings for the target environment
     3. PATCH inactivity timeout configuration (enable + set durations)
     4. Re-GET settings to verify the PATCH was applied correctly
@@ -142,7 +142,7 @@ Write-Host   "╚═════════════════════
 function Get-BapApiToken {
     <#
     .SYNOPSIS
-        Acquires a BAP Admin API access token via Azure AD.
+        Acquires a BAP Admin API access token via Microsoft Entra ID.
     #>
     [CmdletBinding()]
     param()
