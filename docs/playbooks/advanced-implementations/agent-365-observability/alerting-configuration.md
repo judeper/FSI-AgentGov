@@ -8,6 +8,11 @@
 
 This guide provides zone-based alerting thresholds and escalation configurations for Agent 365 observability. Alerts are designed to surface operational issues, security events, and compliance concerns based on governance zone requirements.
 
+!!! warning "Schema assumptions in the KQL below"
+    The alert queries in this document target Application Insights `traces` with **FSI-overlay** span / event names (`agent.interaction`, `tool.invocation`, `rai.filter`, `dlp.block`, `access.denied`, `auth.failure`, `sponsor.attestation.check`, `blueprint.promotion`, `config.change`) and a custom dimension `fsi_zone`. None of these are part of the documented Microsoft Agent 365 SDK schema — see [Telemetry schema](index.md#telemetry-schema). They depend on (a) an OpenTelemetry Collector / agent host pipeline that emits these synthetic names, and (b) downstream signals from Microsoft Defender / Microsoft Purview being re-projected into Application Insights. Before deploying, rewrite each query against the actual signal source in your environment (the documented `InvokeAgentScope` / `ExecuteToolScope` / `InferenceScope` / `OutputScope` spans with `gen_ai.*` / `microsoft.*` attributes, or the Defender / Purview tables for security and compliance events).
+
+<!-- NEEDS_HUMAN_REVIEW: Alerts 6–13 (RAI Filter Spike, DLP Block, Access Denial, Auth Failure, Sponsor Attestation Overdue, Orphaned Agent, Blueprint Phase Change, Config Change) all depend on signals NOT documented in the Agent 365 SDK / Microsoft OpenTelemetry Distro schema. The correct sources are most likely Microsoft Defender XDR Advanced Hunting (for RAI and authentication events), Microsoft Purview audit / DLP (for DLP, access, sponsor, and config events), and an internal Blueprint registry. Validate the actual source before enabling these in production. -->
+
 ---
 
 ## Alert Categories
@@ -502,4 +507,4 @@ foreach ($rule in $alertRules) {
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: June 2026 | Version: v1.6.2 | UI Verification Status: Current*

@@ -6,7 +6,10 @@
 
 ## Overview
 
-This guide covers OpenTelemetry Collector configuration for capturing and exporting Agent 365 telemetry to multiple destinations including Application Insights, Azure Monitor, and third-party SIEM systems.
+This guide covers OpenTelemetry Collector configuration for **fan-out export** of Agent 365 telemetry to multiple destinations (Application Insights, Azure Monitor, third-party SIEM systems, WORM file storage).
+
+!!! note "Direct export vs. Collector fan-out"
+    Per [Microsoft OpenTelemetry Distro](https://learn.microsoft.com/en-us/microsoft-agent-365/developer/microsoft-opentelemetry), a custom-engine or Agent 365-enabled agent that calls `useMicrosoftOpenTelemetry()` (Node.js) / `use_microsoft_opentelemetry()` (Python) / `UseMicrosoftOpenTelemetry()` (.NET) can export **directly** to Azure Monitor, the Agent 365 backend, or any OTLP-compatible endpoint — no separate Collector is required. Deploy the OpenTelemetry Collector pattern in this guide when you need fan-out (for example, simultaneous export to Sentinel, Splunk, Datadog, and WORM storage) or when policy requires a customer-controlled egress point. Copilot Studio agents and declarative agents do **not** emit OTLP that you can intercept — their telemetry is delivered directly to the Agent 365 backend.
 
 ---
 
@@ -14,8 +17,10 @@ This guide covers OpenTelemetry Collector configuration for capturing and export
 
 ```mermaid
 flowchart LR
-    A[Agent 365 SDK] -->|OTLP| B[OTel Collector]
-    B -->|Azure Monitor Exporter| C[Application Insights]
+    A[Custom-engine / Agent 365-enabled Agent<br/>Microsoft OpenTelemetry Distro] -->|OTLP| B[OTel Collector]
+    A -.->|Direct exporter alternative| C[Application Insights]
+    A -.->|Direct exporter alternative| Z[Agent 365 backend]
+    B -->|Azure Monitor Exporter| C
     B -->|Azure Monitor Exporter| D[Log Analytics]
     B -->|OTLP Exporter| E[Splunk/Datadog]
     B -->|File Exporter| F[WORM Storage]
@@ -325,15 +330,26 @@ exporters:
 
 ---
 
-## Step 4: Agent SDK Integration
+## Step 4: Agent SDK integration
 
-### Copilot Studio Agent Configuration
+### Custom-engine / Agent 365-enabled agent — preferred Microsoft path
 
-Configure the Agent 365 SDK to export telemetry:
+The Microsoft-recommended way to emit OTLP that this Collector can ingest is to call the [Microsoft OpenTelemetry Distro](https://learn.microsoft.com/en-us/microsoft-agent-365/developer/microsoft-opentelemetry) from your agent host. The distro can export directly to Azure Monitor and to the Agent 365 backend; pointing it at this Collector via OTLP is an additional fan-out destination, not a replacement for the distro.
+
+See [Quick Start → Enable telemetry export](index.md#2-enable-telemetry-export-from-a-custom-engine-or-agent-365-enabled-agent) for the minimum `useMicrosoftOpenTelemetry()` call.
+
+### Generic OpenTelemetry SDK example (non-Agent-365 backends)
+
+If you are exporting only to a non-Microsoft OTLP backend, you can use the upstream OpenTelemetry SDKs directly. The example below is illustrative — it does **not** wire in Agent 365 export; for that, use the Microsoft OpenTelemetry Distro path above.
+
+### Copilot Studio agents
+
+Copilot Studio agents emit telemetry automatically into the Agent 365 backend (see [Observability integration for Copilot Studio](https://learn.microsoft.com/microsoft-agent-365/builder/observability)). They do not expose an OTLP endpoint that you can point at this Collector. Use the Microsoft 365 admin center, Defender, and Purview surfaces to consume that telemetry; this Collector pattern applies only to the custom-engine / Agent 365-enabled cases above.
 
 ```javascript
-// ILLUSTRATIVE PSEUDOCODE - Verify against current Microsoft documentation
-// Last verified: January 2026 | Status: Preview
+// ILLUSTRATIVE — generic OpenTelemetry pattern, NOT Microsoft Agent 365 export.
+// For Agent 365 export, use useMicrosoftOpenTelemetry() from @microsoft/opentelemetry.
+// Last verified against the Microsoft OpenTelemetry Distro article: June 2026.
 
 // agent-telemetry-config.js
 const { NodeSDK } = require('@opentelemetry/sdk-node');
@@ -360,7 +376,9 @@ const sdk = new NodeSDK({
   })
 });
 
-// Custom spans for agent operations
+// Custom spans below are illustrative FSI naming. The documented Agent 365 spans
+// are InvokeAgentScope / ExecuteToolScope / InferenceScope / OutputScope — emitted
+// for you by the Microsoft OpenTelemetry Distro, not by these custom helpers.
 const tracer = sdk.trace.getTracer('agent-365-telemetry');
 
 function instrumentAgentInteraction(interactionId, userId) {
@@ -396,13 +414,16 @@ function instrumentAgentInteraction(interactionId, userId) {
 module.exports = { sdk, instrumentAgentInteraction };
 ```
 
-### PowerShell Agent Instrumentation
+### PowerShell agent instrumentation
 
-For PowerShell-based agents:
+<!-- NEEDS_HUMAN_REVIEW: The Microsoft OpenTelemetry Distro is documented for .NET, Node.js, and Python only (Learn: "The distro supports .NET, Node.js, and Python"). The Agent 365 Observability SDK also publishes packages only for those three languages. The PowerShell helper below is a hand-rolled OTLP/HTTP client, not a Microsoft-supported instrumentation path. Use only for PowerShell-hosted utilities outside the agent runtime, or wrap your PowerShell logic in a .NET host and use Microsoft.OpenTelemetry. -->
+
+For PowerShell-based utilities outside the agent runtime, you can emit OTLP/HTTP directly:
 
 ```powershell
-# ILLUSTRATIVE PSEUDOCODE - Verify against current Microsoft documentation
-# Last verified: January 2026 | Status: Preview
+# ILLUSTRATIVE — hand-rolled OTLP/HTTP client. Microsoft does not ship a
+# PowerShell observability SDK. Verify schema and authentication against the
+# current OTLP specification before relying on this in production.
 
 # Agent telemetry helper functions
 function Initialize-AgentTelemetry {
@@ -562,8 +583,9 @@ service:
 - [Overview](index.md) - Observability architecture
 - [Application Insights Workbooks](application-insights-workbooks.md) - Dashboard templates
 - [Alerting Configuration](alerting-configuration.md) - Alert rules
-- [Microsoft Learn: OpenTelemetry in Azure](https://learn.microsoft.com/en-us/azure/azure-monitor/app/opentelemetry-overview)
+- [Microsoft Learn: Microsoft OpenTelemetry Distro](https://learn.microsoft.com/en-us/microsoft-agent-365/developer/microsoft-opentelemetry)
+- [Microsoft Learn: OpenTelemetry in Azure Monitor](https://learn.microsoft.com/en-us/azure/azure-monitor/app/opentelemetry-overview)
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: June 2026 | Version: v1.6.2 | UI Verification Status: Current*

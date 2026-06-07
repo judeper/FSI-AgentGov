@@ -8,6 +8,14 @@
 
 This guide provides Azure Workbook templates for monitoring Agent 365 telemetry. These workbooks support Zone 2 and Zone 3 operational requirements for performance monitoring, compliance tracking, and incident investigation.
 
+!!! warning "Schema assumptions in the KQL below"
+    The KQL queries in this document assume two things that are **not** part of the Microsoft Agent 365 SDK schema and must be added by your pipeline:
+
+    1. A custom dimension `fsi_zone` (and similar `service_name`, `sponsor_id`, `agent_id`, `correlation_id`, etc.) attached to spans either as OpenTelemetry resource attributes in your agent host or by the OpenTelemetry Collector `attributes` processor described in [OpenTelemetry Setup](opentelemetry-setup.md). The Microsoft OpenTelemetry Distro and the legacy Agent 365 Observability SDK do not emit these attributes by default.
+    2. FSI-overlay span / event names such as `agent.interaction`, `topic.triggered`, `fallback.triggered`, `agent.handoff`, `rai.filter`, `dlp.block`, `access.denied`, `auth.failure`, `sponsor.attestation`, and `config.change`. These names are illustrative and **do not** correspond to Microsoft-documented Agent 365 SDK telemetry — see the schema discussion in [the index](index.md#telemetry-schema). The documented Agent 365 spans use `gen_ai.*` and `microsoft.*` attributes on `InvokeAgentScope` / `ExecuteToolScope` / `InferenceScope` / `OutputScope`. Before using the security and compliance workbook in production, rewrite the queries against the actual signal source (for example, Microsoft Defender XDR Advanced Hunting for RAI / threat events, Microsoft Purview audit search for DLP events).
+
+<!-- NEEDS_HUMAN_REVIEW: The Security & Compliance workbook in particular depends on signals that Learn locates in Defender and Purview rather than the Agent 365 SDK. Before deploying, confirm the actual source table/columns in your tenant and rewrite the KQL to read from there (for example, AdvancedHunting / DLPEvents tables) rather than Application Insights traces. -->
+
 ---
 
 ## Workbook Gallery
@@ -435,4 +443,4 @@ foreach ($wb in $workbooks) {
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: June 2026 | Version: v1.6.2 | UI Verification Status: Current*
