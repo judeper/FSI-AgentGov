@@ -51,11 +51,14 @@ EXPECTED_NEW_IDS = (
 
 
 def fetch(url: str, timeout: int = 30) -> bytes:
+    if not url.lower().startswith("https://"):
+        raise ValueError(f"refusing to fetch non-HTTPS URL: {url!r}")
     req = urllib.request.Request(
         url,
         headers={"User-Agent": "FSI-AgentGov-refresh-solutions-lock/1.4"},
     )
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
+    # https scheme is enforced by the guard above; urlopen is safe here.
+    with urllib.request.urlopen(req, timeout=timeout) as resp:  # nosec B310
         return resp.read()
 
 
