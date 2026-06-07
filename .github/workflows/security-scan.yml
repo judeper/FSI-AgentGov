@@ -82,12 +82,7 @@ jobs:
       - name: Install
         run: npm ci || npm install
       - name: Audit (high severity gate)
-        # REPORT-ONLY (continue-on-error: true) — pre-existing finding as of 2026-06-07:
-        #   xlsx (SheetJS) HIGH — Prototype Pollution (GHSA-4r6h-8v6p-xvw6)
-        #                        + ReDoS (GHSA-5pgg-2g8v-p4x9). No fix available upstream.
-        #   xlsx is a devDependency used only in tests; does not ship to production.
-        #   All package.json deps are devDependencies, so --omit=dev would audit 0 packages.
-        # TODO: evaluate replacing xlsx with a maintained alternative (e.g. exceljs),
-        #       then remove continue-on-error to make this step blocking.
-        continue-on-error: true
+        # BLOCKING: xlsx (SheetJS) HIGH — CVE-2023-30533 (prototype pollution) +
+        #   CVE-2024-22363 (ReDoS) — remediated 2026-06-07 by pinning the patched
+        #   official SheetJS build (xlsx@0.20.3 via cdn.sheetjs.com). npm audit is clean.
         run: npm audit --audit-level=high
