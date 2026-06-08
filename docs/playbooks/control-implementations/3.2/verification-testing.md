@@ -147,7 +147,7 @@ if ($allApps -ne $null -and $allApps.Count -gt 0) {
 
 # Check 4: Verify audit log connectivity
 try {
-    $testAudit = Search-UnifiedAuditLog -StartDate (Get-Date).AddDays(-1) -EndDate (Get-Date) -RecordType PowerApps -ResultSize 1 -ErrorAction Stop
+    $testAudit = Search-UnifiedAuditLog -StartDate (Get-Date).AddDays(-1) -EndDate (Get-Date) -RecordType PowerAppsApp -ResultSize 1 -ErrorAction Stop
     Write-Host "[PASS] Audit log access verified" -ForegroundColor Green
 } catch {
     Write-Host "[WARN] Audit log access issue - may need Exchange Online connection" -ForegroundColor Yellow

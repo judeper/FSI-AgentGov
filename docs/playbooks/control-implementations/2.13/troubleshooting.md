@@ -12,7 +12,7 @@
 
 ### Missing Audit Logs for Agent Interactions
 
-**Symptom:** Agent interaction events do not appear in Microsoft Purview Audit logs, or audit search returns zero results for `CopilotInteraction` or `MicrosoftCopilotStudio` record types.
+**Symptom:** Agent interaction events do not appear in Microsoft Purview Audit logs, or audit search returns zero results for `CopilotInteraction` or `PowerPlatformAdministratorActivity` record types.
 
 **Likely Cause:**
 

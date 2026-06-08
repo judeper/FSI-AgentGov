@@ -98,7 +98,7 @@ Pre-flight tests confirm that the verification harness can run reliably and that
 
 ### 1.14-PRE-04 — Unified Audit Log enabled and ingesting
 
-**Objective.** Confirm that UAL is enabled on the tenant and that the workloads required by Control 1.14 (`MicrosoftCopilotStudio`, `PowerPlatformConnector` / `MicrosoftFlow`, `PowerAppsPlan`, `SharePoint`, `AzureActiveDirectory`) are ingesting events.
+**Objective.** Confirm that UAL is enabled on the tenant and that the workloads required by Control 1.14 (`PowerPlatformAdministratorActivity`, `PowerPlatformConnector` / `MicrosoftFlow`, `PowerAppsPlan`, `SharePoint`, `AzureActiveDirectory`) are ingesting events.
 
 **Preconditions.** Exchange Online PowerShell connected with `Connect-ExchangeOnline`; Purview Compliance Admin or equivalent.
 
@@ -250,7 +250,7 @@ The 37 tests below form the auditable core of Control 1.14. Each test follows th
 
 #### 1.14-UAL-01 — UAL enabled and required workloads flowing
 
-**Objective.** Confirm UAL is enabled and the four workloads required by Control 1.14 (`MicrosoftCopilotStudio`, `PowerPlatformConnector` / `MicrosoftFlow`, `PowerAppsPlan`, `SharePoint`) are returning events in the last 7 days.
+**Objective.** Confirm UAL is enabled and the four workloads required by Control 1.14 (`PowerPlatformAdministratorActivity`, `PowerPlatformConnector` / `MicrosoftFlow`, `PowerAppsPlan`, `SharePoint`) are returning events in the last 7 days.
 
 **Preconditions.** PRE-04 passed; Exchange Online PowerShell connected.
 
@@ -318,7 +318,7 @@ The 37 tests below form the auditable core of Control 1.14. Each test follows th
 
 1. From Copilot Studio, add a new SharePoint document library knowledge source to the test Z3 agent.
 2. Wait per §3.
-3. Run `Search-UnifiedAuditLog -RecordType MicrosoftCopilotStudio -Operations 'AgentKnowledgeAdded','AgentKnowledgeUpdated' -StartDate (Get-Date).AddHours(-2) -EndDate (Get-Date)`.
+3. Run `Search-UnifiedAuditLog -RecordType PowerPlatformAdministratorActivity -Operations 'AgentKnowledgeAdded','AgentKnowledgeUpdated' -StartDate (Get-Date).AddHours(-2) -EndDate (Get-Date)`.
 
 **Expected.** At least one row referencing the test agent and the new knowledge source URL.
 
@@ -1084,7 +1084,7 @@ function Test-1.14-PRE-07 { Emit-Result -TestId '1.14-PRE-07' -Status 'Skip' -De
 function Test-1.14-LIC-01 { Emit-Result -TestId '1.14-LIC-01' -Status 'Skip' -Detail 'TODO: PPAC + Purview DSPM-for-AI entitlement' }
 function Test-1.14-LIC-02 { Emit-Result -TestId '1.14-LIC-02' -Status 'Skip' -Detail 'TODO: Graph role-assignment SoD export' }
 
-function Test-1.14-UAL-01 { Emit-Result -TestId '1.14-UAL-01' -Status 'Skip' -Detail 'TODO: Search-UnifiedAuditLog -RecordType MicrosoftCopilotStudio,PowerPlatformConnector,SharePoint last 7d' }
+function Test-1.14-UAL-01 { Emit-Result -TestId '1.14-UAL-01' -Status 'Skip' -Detail 'TODO: Search-UnifiedAuditLog -RecordType PowerPlatformAdministratorActivity,PowerPlatformConnector,SharePoint last 7d' }
 function Test-1.14-UAL-02 { Emit-Result -TestId '1.14-UAL-02' -Status 'Skip' -Detail 'TODO: filter Operations -eq "Consent to application"' }
 function Test-1.14-UAL-03 { Emit-Result -TestId '1.14-UAL-03' -Status 'Skip' -Detail 'TODO: filter Operations -eq ConnectorAdded' }
 function Test-1.14-UAL-04 { Emit-Result -TestId '1.14-UAL-04' -Status 'Skip' -Detail 'TODO: filter Operations -in AgentKnowledgeUpdated,AgentKnowledgeAdded' }

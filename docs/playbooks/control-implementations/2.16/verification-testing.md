@@ -72,7 +72,7 @@ The PowerShell scripts in [PowerShell Setup](powershell-setup.md) emit configura
 
 | Step | Action |
 |------|--------|
-| 1 | Publish the agent to every channel in scope (Teams, M365 Chat, custom website, embedded SDK) |
+| 1 | Publish the agent to every channel in scope (Teams, Microsoft 365 Copilot Chat, custom website, embedded SDK) |
 | 2 | Ask the same knowledge-bound question on each channel |
 | **Expected** | Citations render correctly on every channel. Channels that suppress citations are flagged as out-of-scope for Zone 3 use |
 | **Evidence** | Screenshot per channel; channel-eligibility decision recorded by AI Governance Lead |

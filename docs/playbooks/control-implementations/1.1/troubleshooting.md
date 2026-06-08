@@ -93,7 +93,7 @@
 
 4. Verify correct search criteria:
    - Operation: `BotUpdateOperation-BotPublish` (verified against Microsoft Learn `admin-logging-copilot-studio`)
-   - Workload: search by record type / workload appropriate to the agent surface (`PowerApps` for Power Platform agents; `MicrosoftCopilotStudio` where surfaced)
+   - Workload: search by record type / workload appropriate to the agent surface (`PowerAppsApp` for Power Platform agents; `PowerPlatformAdministratorActivity` where surfaced)
    - Time range expressed in **UTC**
 
 5. Check the operator has audit-log search permissions (View-Only Audit Logs or Audit Logs role in Purview).

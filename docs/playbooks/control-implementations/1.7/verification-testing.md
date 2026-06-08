@@ -38,7 +38,7 @@ The playbook treats **silent capture incompleteness** (a Copilot RecordType retu
 | **Purview Compliance Admin** | Owns content-tier verification (CONT-01 through CONT-04). Runs eDiscovery (Premium) collections, confirms DSPM for AI surfaces transcripts, verifies Communication Compliance review of AI-generated content. |
 | **Exchange Online Admin (Organization Configuration role)** | Authors and modifies audit retention policies (Microsoft Learn: `Compliance Admin` alone is **not** sufficient for retention policy create/modify operations). |
 | **Power Platform Admin** | Verifies per-environment Dataverse audit and per-table audit on the Copilot Studio entities (CAP-05). |
-| **AI Administrator** | Confirms agent-side configuration: `AgentId` propagation into audit, declarative vs custom-engine prefix integrity, Copilot Studio publication events flowing as `MicrosoftCopilotStudio`. |
+| **AI Administrator** | Confirms agent-side configuration: `AgentId` propagation into audit, declarative vs custom-engine prefix integrity, Copilot Studio publication events flowing as `PowerPlatformAdministratorActivity`. |
 | **Entra Security Admin** | Verifies `agentSignIn` log type is enabled and forwarded; confirms the live filter affordance on the Sign-in logs page (the prior `Is Agent = Yes` chip was renamed across recent UI revisions — verify the current label rather than asserting it). Confirms `MicrosoftServicePrincipalSignInLogs` diagnostic stream where required. |
 | **SOC Analyst** | Owns SIEM-side verification (CAP-08, TAMP-01, JOIN-01). Confirms Sentinel ingestion lag is within the empirically measured ceiling, the disable-audit alert is wired (Control 3.9), and the cross-source join produces a single end-to-end record. |
 | **Azure Storage Account Owner / Contributor** | Owns the WORM preservation path (PRES-A). Confirms the immutable blob container has a **locked** time-based retention policy at or above the regulatory floor and that the export pipeline writes to it. |
@@ -76,7 +76,7 @@ This playbook depends on, and is depended on by, the following framework control
 This playbook is designed to detect defects in the **audit, preservation, and content recovery program** for Microsoft 365 Copilot and Copilot Studio agents. It is built to surface:
 
 1. **Unified audit ingestion off** — the tenant-level switch is `False`, or a `Get-AdminAuditLogConfig` call from the wrong session (Security & Compliance PowerShell) is producing a false `False`.
-2. **Copilot RecordType silent gaps** — `CopilotInteraction`, `ConnectedAIAppInteraction` (mixed Microsoft built-in + PAYG scope), `AIAppInteraction` (PAYG-only), or `MicrosoftCopilotStudio` returning zero rows for a window in which user activity is known to have occurred.
+2. **Copilot RecordType silent gaps** — `CopilotInteraction`, `ConnectedAIAppInteraction` (mixed Microsoft built-in + PAYG scope), `AIAppInteraction` (PAYG-only), or `PowerPlatformAdministratorActivity` returning zero rows for a window in which user activity is known to have occurred.
 3. **PAYG enablement omissions** — non-Microsoft AI app interactions and the PAYG portion of Connected AI App scope captured in audit only after explicit enablement; firms assuming default coverage produce false-clean evidence.
 4. **License-induced silent retention downgrades** — a user assigned to a documented 10-year capture-window policy holds a Copilot license without the 10-Year Audit Log Retention add-on, so the custom retention policy cannot extend beyond 1 year for that user.
 5. **Custom retention policy gaps** — the platform default Audit (Premium) policy excludes Copilot record types, so any RecordType not covered by an enabled custom policy falls back to 180 days.
@@ -266,7 +266,7 @@ $copilotRecordTypes = @(
     @{ Name = 'CopilotInteraction';        Scope = 'Microsoft built-in'; Required = $true  },
     @{ Name = 'ConnectedAIAppInteraction'; Scope = 'Mixed (Microsoft built-in + PAYG)'; Required = $true  },
     @{ Name = 'AIAppInteraction';          Scope = 'PAYG-only';          Required = $false },
-    @{ Name = 'MicrosoftCopilotStudio';    Scope = 'Microsoft built-in'; Required = $true  }
+    @{ Name = 'PowerPlatformAdministratorActivity';    Scope = 'Microsoft built-in'; Required = $true  }
 )
 
 $cap03 = foreach ($rt in $copilotRecordTypes) {
@@ -303,7 +303,7 @@ $expected = @(
 )
 
 $policies = Get-UnifiedAuditLogRetentionPolicy
-$copilotRecordTypes = @('CopilotInteraction','ConnectedAIAppInteraction','AIAppInteraction','MicrosoftCopilotStudio')
+$copilotRecordTypes = @('CopilotInteraction','ConnectedAIAppInteraction','AIAppInteraction','PowerPlatformAdministratorActivity')
 
 $cap04 = foreach ($rt in $copilotRecordTypes) {
     $covered = $policies | Where-Object { $_.RecordTypes -contains $rt -and $_.Enabled }
@@ -356,7 +356,7 @@ $cap05 | Save-AuditEvidence -Name 'CAP-05_DataverseAudit'
 $cap05
 ```
 
-Without per-table audit on the Copilot Studio entities, agent admin events do not surface in `MicrosoftCopilotStudio` and downstream `ConnectedAIAppInteraction` correlation may be incomplete.
+Without per-table audit on the Copilot Studio entities, agent admin events do not surface in `PowerPlatformAdministratorActivity` and downstream `ConnectedAIAppInteraction` correlation may be incomplete.
 
 #### CAP-06 — DLP override justification reaches audit (Control 1.5 cross-link)
 

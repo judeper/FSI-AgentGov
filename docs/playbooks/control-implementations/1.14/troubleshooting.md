@@ -60,7 +60,7 @@ Capture, do **not** mutate first. Every artifact below must carry an SHA-256 has
 4. **SharePoint permissions snapshot** of the over-broadly-scoped site/library — `Get-SPOSiteGroup`, `Get-SPOUser`, the agent service account's effective permissions (Graph `/sites/{id}/permissions`), and Restricted Content Discovery / Restricted SharePoint Search status from SharePoint Advanced Management (Control 4.6).
 5. **Connector OAuth scopes** for every connector bound to the agent — Entra App Registration → API Permissions; for Microsoft Graph, capture the delegated-vs-application split (Control 1.18 boundary).
 6. **Service-account / agent-identity snapshot** — Entra user/SP object, group memberships, role assignments (PIM eligible + active), MFA state, last sign-in. Required for the over-privileged-service-account failure mode.
-7. **UAL paged export** — `Search-UnifiedAuditLog -RecordType MicrosoftCopilot,SharePointFileOperation,AzureActiveDirectoryApplicationAudit -SessionId <guid> -SessionCommand ReturnLargeSet` for the failure window. Include `AppPermissionGranted`, `Add app role assignment grant to user`, `FileAccessed`, and `CopilotInteraction` rows. Record audit-search Job ID and total row count.
+7. **UAL paged export** — `Search-UnifiedAuditLog -RecordType CopilotInteraction,SharePointFileOperation,AzureActiveDirectoryApplicationAudit -SessionId <guid> -SessionCommand ReturnLargeSet` for the failure window. Include `AppPermissionGranted`, `Add app role assignment grant to user`, `FileAccessed`, and `CopilotInteraction` rows. Record audit-search Job ID and total row count.
 8. **Scope-drift alert payload** — Purview alert JSON, Sentinel incident export, or `scope-drift-monitor` solution run output. Do **not** "ack and clear" before capture.
 9. **DSPM for AI Activity Explorer export** for the suspect window — paginated, no truncation. Include any sensitive-info matches surfaced for the affected agent.
 10. **Quarterly access review records** for the affected agent — last completion date, reviewer of record, decision, justification on file. If overdue, record the overdue duration and the SoD posture (was the agent owner the only approver?).
@@ -290,7 +290,7 @@ $sid = [guid]::NewGuid().ToString()
 $all = @()
 do {
   $batch = Search-UnifiedAuditLog -StartDate (Get-Date).AddDays(-7) -EndDate (Get-Date) `
-    -RecordType MicrosoftCopilot -ResultSize 5000 `
+    -RecordType CopilotInteraction -ResultSize 5000 `
     -SessionId $sid -SessionCommand ReturnLargeSet
   $all += $batch
 } while ($batch.Count -gt 0)
@@ -336,7 +336,7 @@ Get-DlpComplianceRule -Identity '<RuleName>' |
 
 **Root cause.** Three common failure modes:
 1. **Baseline never seeded** — the inventory snapshot from Control 1.2 was not loaded as the comparison baseline.
-2. **Record-type mismatch** — the correlation queries `AIPDiscover` or another deprecated record type instead of `MicrosoftCopilot` and `SharePointFileOperation`. (FYI: there is **no native** `AgentScopeExpansion` audit event — the signal is derived.)
+2. **Record-type mismatch** — the correlation queries `AIPDiscover` or another deprecated record type instead of `CopilotInteraction` and `SharePointFileOperation`. (FYI: there is **no native** `AgentScopeExpansion` audit event — the signal is derived.)
 3. **Missing `-Endpoint`** on the Connect call — `Connect-PowerAppsAccount` was issued without `-Endpoint prod`, returning empty data silently.
 
 **Diagnostic queries.**
@@ -348,14 +348,14 @@ $baseline.Count
 
 # Record-type sanity — are we querying a real schema?
 Search-UnifiedAuditLog -StartDate (Get-Date).AddDays(-1) -EndDate (Get-Date) `
-  -RecordType MicrosoftCopilot -ResultSize 10 | Measure-Object
+  -RecordType CopilotInteraction -ResultSize 10 | Measure-Object
 
 # Commercial endpoint verification
 $ctx = Get-PowerAppsAccount
 $ctx | Select-Object Account, Environment, TenantId
 ```
 
-**Remediation.** Seed the baseline from the latest Control 1.2 registry export; replace deprecated record types with `MicrosoftCopilot` + `SharePointFileOperation` + `AzureActiveDirectoryApplicationAudit`. Add a synthetic-test agent that performs a known scope expansion daily; alert if no detection within 24 h (silent-zero-row guard).
+**Remediation.** Seed the baseline from the latest Control 1.2 registry export; replace deprecated record types with `CopilotInteraction` + `SharePointFileOperation` + `AzureActiveDirectoryApplicationAudit`. Add a synthetic-test agent that performs a known scope expansion daily; alert if no detection within 24 h (silent-zero-row guard).
 
 **Validation.** Trigger a controlled scope expansion (test agent + test library); expect alert within the documented detection window.
 
@@ -458,7 +458,7 @@ Mandatory data to gather **before** filing the case. Do not file without items 1
 5. **Screenshots** of each failing portal page with UTC timestamp visible (Copilot Studio Knowledge page, PPAC DLP page, Purview DSPM Activity Explorer, Purview DLP rule page, Entra access-review)
 6. **Run output JSON** from the `scope-drift-monitor` solution (or equivalent) covering the failure window, paginated, no truncation
 7. **Configuration-baseline diff** for the last 14 days touching DLP policies, knowledge sources, connector classifications, service-account permissions, environment Maker membership
-8. **UAL paged export** (`MicrosoftCopilot`, `SharePointFileOperation`, `AzureActiveDirectoryApplicationAudit` record types) for the failure window
+8. **UAL paged export** (`CopilotInteraction`, `SharePointFileOperation`, `AzureActiveDirectoryApplicationAudit` record types) for the failure window
 9. **SHA-256 manifest** (§1.3 closing note) covering all attached artifacts; signed by SOC lead
 10. **Business impact statement** — Zone, customer-facing or internal, NPI determination, severity, in-scope regulators, reportability decision (if made)
 11. **Reproducer** — minimal steps with a test agent + test prompt + test grounding source; do not file without a reproducer for SEV-2 and below
