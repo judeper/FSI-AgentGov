@@ -218,7 +218,7 @@ For Zone 2-3 promotions, use Power Platform pipelines:
 
 | Channel | Zone 1 | Zone 2 | Zone 3 |
 |---------|--------|--------|--------|
-| Microsoft 365 Chat | Allowed | Allowed | Allowed |
+| Microsoft 365 Copilot Chat | Allowed | Allowed | Allowed |
 | Teams | Blocked | Allowed | Allowed |
 | SharePoint | Blocked | Allowed | Allowed |
 | External website | Blocked | Blocked | Allowed (approved) |
@@ -360,7 +360,7 @@ For Zone 3 agents:
 | Creation | Auto-provisioned developer environment |
 | Development | Self-service, minimal oversight |
 | Testing | Basic functional testing |
-| Deployment | Creator-only access, M365 Chat channel |
+| Deployment | Creator-only access, Microsoft 365 Copilot Chat channel |
 | Monitoring | Basic metrics, aggregate reporting |
 | Maintenance | Self-service updates |
 | Decommission | Creator-initiated, minimal retention |
@@ -467,7 +467,7 @@ Microsoft's CAPE materials describe a 7-stage agent lifecycle (Intake → Triage
 
 **What it means in CAPE vocabulary.** Deploy is the gate where an agent moves from development to production. CAPE recommends risk-proportionate release gates — lightweight for low-risk deployments, heavyweight for business-critical or external-facing agents. Deploy includes validation (functional, security, bias), release approval, and channel publication.
 
-**What it looks like in FSI practice.** FSI Deploy is a formal release gate for Zone 2 and Zone 3 agents. Zone 3 agents require governance committee approval (per [Operating Model](operating-model.md)) before production deployment. Testing and validation (Control 2.5) must demonstrate that the agent meets the zone-specific validation requirements documented in the Testing phase above. Change management (Control 2.3) produces a release record that names the approver, the deployment timestamp, and the change scope — this record supports compliance with SOX Section 404 IT general controls for financial reporting systems and OCC heightened standards for critical systems. Channel publication follows zone-specific channel policies (Zone 1 = M365 Chat only; Zone 2 = internal channels; Zone 3 = all channels with approval).
+**What it looks like in FSI practice.** FSI Deploy is a formal release gate for Zone 2 and Zone 3 agents. Zone 3 agents require governance committee approval (per [Operating Model](operating-model.md)) before production deployment. Testing and validation (Control 2.5) must demonstrate that the agent meets the zone-specific validation requirements documented in the Testing phase above. Change management (Control 2.3) produces a release record that names the approver, the deployment timestamp, and the change scope — this record supports compliance with SOX Section 404 IT general controls for financial reporting systems and OCC heightened standards for critical systems. Channel publication follows zone-specific channel policies (Zone 1 = Microsoft 365 Copilot Chat only; Zone 2 = internal channels; Zone 3 = all channels with approval).
 
 **The most important governance gate at this stage.** Release-gate enforcement with documented approval before production access is granted. An FSI institution that allows Zone 3 agents to reach production without governance committee approval has a control failure that an examiner will classify as a design deficiency under SOX 404 or a supervisory failure under FINRA Rule 3110. The release record should include the agent ID, the approver names, the deployment environment, and the mandatory controls verification checklist — these fields become the audit trail that demonstrates the institution applied risk-proportionate oversight before granting the agent production access.
 

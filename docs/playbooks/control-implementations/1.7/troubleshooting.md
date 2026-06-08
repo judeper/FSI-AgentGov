@@ -8,7 +8,7 @@
 [PowerShell setup](./powershell-setup.md) ·
 [Verification & testing](./verification-testing.md)
 
-> **Scope.** This troubleshooting playbook covers operational, evidentiary, and regulatory failure modes for the [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) audit-logging surface — Microsoft 365 Audit (Standard / Premium / 10-Year add-on), the `CopilotInteraction` / `ConnectedAIAppInteraction` / `AIAppInteraction` / `MicrosoftCopilotStudio` record types, the PAYG opt-in for non-Microsoft AI events, Dataverse environment-level and per-table audit, the Entra `agentSignIn` and `MicrosoftServicePrincipalSignInLogs` preview surfaces, the unified audit search cmdlet and the strategic Microsoft Graph `security/auditLog/queries` API, Sentinel ingestion via the Office 365 Management Activity API connector, and the downstream WORM / 17a-4(f) preservation tier.
+> **Scope.** This troubleshooting playbook covers operational, evidentiary, and regulatory failure modes for the [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) audit-logging surface — Microsoft 365 Audit (Standard / Premium / 10-Year add-on), the `CopilotInteraction` / `ConnectedAIAppInteraction` / `AIAppInteraction` / `PowerPlatformAdministratorActivity` record types, the PAYG opt-in for non-Microsoft AI events, Dataverse environment-level and per-table audit, the Entra `agentSignIn` and `MicrosoftServicePrincipalSignInLogs` preview surfaces, the unified audit search cmdlet and the strategic Microsoft Graph `security/auditLog/queries` API, Sentinel ingestion via the Office 365 Management Activity API connector, and the downstream WORM / 17a-4(f) preservation tier.
 >
 > Every scenario is organized as **Symptom → Likely Cause → Diagnostic → Resolution → What good looks like**. Read [§1 FSI Incident Handling](#1-fsi-incident-handling-read-first) before remediating any production issue — for record-keeping controls the order of operations is *preserve evidence first, remediate second*.
 
@@ -434,7 +434,7 @@ Get-UnifiedAuditLogRetentionPolicy | Where-Object Enabled |
    ```kusto
    OfficeActivity
    | where RecordType in ("CopilotInteraction","ConnectedAIAppInteraction",
-                          "AIAppInteraction","MicrosoftCopilotStudio")
+                          "AIAppInteraction","PowerPlatformAdministratorActivity")
    | summarize Count=count() by RecordType, bin(TimeGenerated, 1h)
    ```
 
@@ -540,7 +540,7 @@ $body = @{
     'copilotInteraction',
     'connectedAIAppInteraction',
     'aiAppInteraction',
-    'microsoftCopilotStudio'
+    'powerPlatformAdministratorActivity'
   )
 } | ConvertTo-Json
 $q = Invoke-MgGraphRequest -Method POST `
@@ -557,7 +557,7 @@ let lookback = 365d;
 OfficeActivity
 | where TimeGenerated > ago(lookback)
 | where RecordType in ("CopilotInteraction","ConnectedAIAppInteraction",
-                       "AIAppInteraction","MicrosoftCopilotStudio")
+                       "AIAppInteraction","PowerPlatformAdministratorActivity")
 | extend EventDate = bin(TimeGenerated, 1d)
 | summarize EventCount = count(),
             DistinctUsers = dcount(UserId),

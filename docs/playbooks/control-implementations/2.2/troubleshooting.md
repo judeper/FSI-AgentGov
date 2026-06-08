@@ -129,7 +129,7 @@
 **Resolve.**
 
 - Disable CUA tenant-wide in Copilot Studio admin per [Control 2.24](../../../controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance.md).
-- Investigate the activity (audit log search; unified audit log → `MicrosoftCopilotStudio` workload).
+- Investigate the activity (audit log search; unified audit log → `CopilotInteraction` workload).
 - Document the incident per security incident procedures.
 - Update Control 2.2 evidence to reference Control 2.24 status (do not claim Control 2.2 enforces CUA).
 

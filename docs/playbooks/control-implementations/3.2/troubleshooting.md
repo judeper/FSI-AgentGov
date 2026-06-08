@@ -105,7 +105,7 @@
    Search-UnifiedAuditLog `
        -StartDate (Get-Date).AddDays(-7) `
        -EndDate (Get-Date) `
-       -RecordType PowerApps `
+       -RecordType PowerAppsApp `
        -ResultSize 100
    ```
 
@@ -116,7 +116,7 @@
 **Resolution:**
 - Wait 24-48 hours for recent events to appear
 - Expand search date range
-- Use correct RecordType (PowerApps, CopilotStudio)
+- Use correct RecordType (PowerAppsApp, CopilotStudio)
 - Request Purview Compliance Admin role if needed
 
 ---
@@ -209,7 +209,7 @@ try {
     $recentLogs = Search-UnifiedAuditLog `
         -StartDate (Get-Date).AddDays(-1) `
         -EndDate (Get-Date) `
-        -RecordType PowerApps `
+        -RecordType PowerAppsApp `
         -ResultSize 10
     Write-Host "Recent audit log entries: $($recentLogs.Count)"
 } catch {

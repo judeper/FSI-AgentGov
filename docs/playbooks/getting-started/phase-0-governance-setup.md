@@ -138,7 +138,7 @@ Configure environment groups in PPAC:
 **Zone 1 Group:**
 
 - Sharing: Disabled
-- Channels: M365 Chat only
+- Channels: Microsoft 365 Copilot Chat only
 - AI features: All allowed (experimental)
 
 **Zone 2 Group:**

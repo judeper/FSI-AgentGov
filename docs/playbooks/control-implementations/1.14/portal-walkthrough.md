@@ -34,7 +34,7 @@
 | **PPAC → Security → Data and privacy → Data policies** | Classify the Copilot Studio knowledge connectors and the connectors used as agent actions into Business / Non-Business / Blocked groups; scope policies to environments hosting Zone 2 / Zone 3 agents. | Constrains which connectors an agent may use; complements but does not replace OAuth scope minimization (Control 1.18). |
 | **Purview portal → DSPM for AI → Policies + Activity Explorer** | Enable the recommended one-click DSPM-for-AI policies; review sensitive-interactions activity at the zone cadence; export weekly evidence. | Primary detective surface for sensitive-data interactions with Copilot and agents. |
 | **Purview portal → Data loss prevention → Policies** | Author DLP policies at the **Microsoft 365 Copilot** location with rules tied to sensitivity labels and SITs (Control 1.13). | Runtime enforcement that excludes labeled / SIT-matched content from agent grounding. |
-| **Purview portal → Audit → Search** | Discover the canonical Copilot and Power Platform audit operations in your tenant (record types `CopilotInteraction`, `BotsRuntimeService`, `MicrosoftFlow`, `PowerAppsPlan`, `AzureActiveDirectory`); export evidence. | Forensic and supervisory record (FINRA Rule 4511, FINRA Rule 3110 / RN 24-09). |
+| **Purview portal → Audit → Search** | Discover the canonical Copilot and Power Platform audit operations in your tenant (record types `CopilotInteraction`, `PowerPlatformAdministratorActivity`, `MicrosoftFlow`, `PowerAppsPlan`, `AzureActiveDirectory`); export evidence. | Forensic and supervisory record (FINRA Rule 4511, FINRA Rule 3110 / RN 24-09). |
 | **Purview portal → Policies → Alert policies** *(or Defender XDR → Email & collaboration → Policies & rules → Alert policy)* | Create alert policies on discovered audit operations. For Zone 3, replace with a Microsoft Sentinel analytic rule sourcing the M365 connector. | Near-real-time scope-drift detection. |
 | **Microsoft Entra admin center → Identity governance → Access reviews** | Run scheduled access reviews on agent identities (Entra Agent ID), connector connections, and SharePoint groups gating knowledge sources. | Periodic recertification (FINRA 3110, OCC Bulletin 2026-13 (formerly OCC 2011-12)). |
 | **SPAC** *(coordinate with Control 4.6)* | Reconcile the §2 grounding inventory against the Control 4.6 RCD exclusion list and RSS allowed list. | Ensures inventory-time minimization is enforced at the tenant SharePoint layer. |
@@ -743,7 +743,7 @@ For each rule, click **Save**, then **Next**.
 3. Set the date range to the last 24 hours.
 4. Set **Activities — friendly names** filter to include the Copilot record types. The current record types include:
    - `CopilotInteraction` — user prompts and Copilot responses across Copilot Chat and Copilot Studio agents.
-   - `BotsRuntimeService` — Copilot Studio agent runtime events (Bot Framework / Power Virtual Agents lineage).
+   - `PowerPlatformAdministratorActivity` — Copilot Studio agent admin / authoring / lifecycle events (settings, publish, knowledge sources; Bot Framework / Power Virtual Agents lineage). Runtime prompt/response events are captured under `CopilotInteraction` (the entry above).
    - `MicrosoftFlow` — Power Automate flows invoked by agent actions.
    - `PowerAppsPlan` — Power Apps and connector activity used by agents.
    - `AzureActiveDirectory` — sign-in and consent events for agent service principals.
@@ -763,7 +763,7 @@ For each rule, click **Save**, then **Next**.
 
 **Question:** Did any administrator re-enable the **Web search** toggle on a Zone 3 NPI agent after §5 disabled it?
 
-1. Search `BotsRuntimeService` and the agent admin operation event (verify operation name per release — recent builds use `CopilotStudioAgentSettingChanged` or similar).
+1. Search `PowerPlatformAdministratorActivity` and the agent admin operation event (verify operation name per release — recent builds use `CopilotStudioAgentSettingChanged` or similar).
 2. Filter to the Zone 3 agent app IDs from §2.
 3. Filter to the setting key for web search.
 4. Persist as `1.14-H2-web-search-reenabled`. Capture as artifact E18.
@@ -806,7 +806,7 @@ If your firm operates Microsoft Sentinel:
 ### 9.8 Common pitfalls in §9
 
 - **Hard-coding record-type names in saved searches.** Microsoft renames record types between releases. Re-validate every quarter and on each new tenant onboarding.
-- **Searching only `CopilotInteraction` and missing `BotsRuntimeService`.** Studio-built agents emit both; missing `BotsRuntimeService` will hide admin-action drift.
+- **Searching only `CopilotInteraction` and missing `PowerPlatformAdministratorActivity`.** Studio-built agents emit both; missing `PowerPlatformAdministratorActivity` will hide admin-action drift.
 - **Forwarding audit to Sentinel without reconciling the lookback window.** Sentinel's KQL window does not equal Purview's UI window; verify both.
 
 ---

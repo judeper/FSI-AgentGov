@@ -127,7 +127,7 @@ catch {
 ```powershell
 # Test audit log search
 try {
-    $auditLogs = Search-UnifiedAuditLog -StartDate (Get-Date).AddDays(-1) -EndDate (Get-Date) -RecordType PowerApps -ResultSize 10 -ErrorAction Stop
+    $auditLogs = Search-UnifiedAuditLog -StartDate (Get-Date).AddDays(-1) -EndDate (Get-Date) -RecordType PowerAppsApp -ResultSize 10 -ErrorAction Stop
     Write-Host "[PASS] Audit log search returned $($auditLogs.Count) records" -ForegroundColor Green
 }
 catch {
