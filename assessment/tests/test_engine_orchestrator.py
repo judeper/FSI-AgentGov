@@ -264,7 +264,7 @@ class TestProductionManifestLoads:
     These assertions exercise the engine end-to-end against the REAL
     ``assessment/manifest/controls.json`` and verify:
       * score.py exits 0
-      * scores.json contains 78 controls
+      * scores.json contains 79 controls
       * _metadata.framework_version is read from VERSION (1.6.2)
     """
 
@@ -286,12 +286,12 @@ class TestProductionManifestLoads:
         assert scores_out.exists(), "score.py did not write scores.json"
 
         scores = json.loads(scores_out.read_text(encoding="utf-8"))
-        assert len(scores["controls"]) == 78, (
-            f"Expected 78 controls; got {len(scores['controls'])}"
+        assert len(scores["controls"]) == 79, (
+            f"Expected 79 controls; got {len(scores['controls'])}"
         )
 
         meta = scores.get("_metadata", {})
-        assert meta.get("total_controls") == 78
+        assert meta.get("total_controls") == 79
         assert meta.get("framework_version") == "1.6.2", (
             "framework_version must be read from VERSION file (1.6.2); "
             f"got {meta.get('framework_version')!r}"

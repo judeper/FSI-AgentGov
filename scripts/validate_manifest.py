@@ -3,7 +3,7 @@
 
 Schema rules enforced:
 
-* All 78 controls present, unique ``id`` values.
+* All 79 controls present, unique ``id`` values.
 * Required v1.4 keys present on every control:
     name, zonesApplicable, roles, regulatory, priority, yesBar,
     partialBar, noBar, verifyIn, verifyPowerShell, evidenceExpected,

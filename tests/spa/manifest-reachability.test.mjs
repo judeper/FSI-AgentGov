@@ -6,7 +6,7 @@
  * score with no visible error.
  *
  * Strategy: drive the SPA scorer with synthetic answers covering EVERY control
- * in the manifest, then assert _computedScores.perControl contains exactly 78
+ * in the manifest, then assert _computedScores.perControl contains exactly 79
  * finite numeric keys with no NaN/null/undefined/Infinity values.
  *
  * Three scenarios exercise both score extremes and a mixed state:
@@ -136,11 +136,11 @@ describe("manifest-reachability: all controls answered 'yes'", () => {
     envelope = doExport(app, captured);
   });
 
-  it("perControl contains exactly 78 keys", () => {
-    expect(Object.keys(envelope._computedScores.perControl)).toHaveLength(78);
+  it("perControl contains exactly 79 keys", () => {
+    expect(Object.keys(envelope._computedScores.perControl)).toHaveLength(79);
   });
 
-  it("all 78 controls have finite numeric scores (no NaN/null/undefined)", () => {
+  it("all 79 controls have finite numeric scores (no NaN/null/undefined)", () => {
     assertReachability(envelope, "all-yes");
   });
 });
@@ -157,11 +157,11 @@ describe("manifest-reachability: all controls answered 'no'", () => {
     envelope = doExport(app, captured);
   });
 
-  it("perControl contains exactly 78 keys", () => {
-    expect(Object.keys(envelope._computedScores.perControl)).toHaveLength(78);
+  it("perControl contains exactly 79 keys", () => {
+    expect(Object.keys(envelope._computedScores.perControl)).toHaveLength(79);
   });
 
-  it("all 78 controls have finite numeric scores (no NaN/null/undefined)", () => {
+  it("all 79 controls have finite numeric scores (no NaN/null/undefined)", () => {
     assertReachability(envelope, "all-no");
   });
 });
@@ -181,11 +181,11 @@ describe("manifest-reachability: mixed answers (half 'yes', half 'partial')", ()
     envelope = doExport(app, captured);
   });
 
-  it("perControl contains exactly 78 keys", () => {
-    expect(Object.keys(envelope._computedScores.perControl)).toHaveLength(78);
+  it("perControl contains exactly 79 keys", () => {
+    expect(Object.keys(envelope._computedScores.perControl)).toHaveLength(79);
   });
 
-  it("all 78 controls have finite numeric scores (no NaN/null/undefined)", () => {
+  it("all 79 controls have finite numeric scores (no NaN/null/undefined)", () => {
     assertReachability(envelope, "half-half");
   });
 });

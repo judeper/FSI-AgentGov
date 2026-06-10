@@ -637,7 +637,7 @@ test.describe.serial("docs render @regression", () => {
 //       has regressed (F-MERMAID-CDN-BLOCK / F-NAVINSTANT-MERMAID-REINIT).
 //   - "/controls/CONTROL-INDEX/"                             AS13a regression
 //       guard — control-index page is the customer entry point to the
-//       78-control catalog; if it 404s or pageerrors the catalog is unusable.
+//       79-control catalog; if it 404s or pageerrors the catalog is unusable.
 //   - "/playbooks/control-implementations/1.1/portal-walkthrough/"
 //       Cross-playbook depth-bug guard from AS13a — first standard playbook;
 //       proves the 4-playbook-per-control nav pattern still resolves at depth.
