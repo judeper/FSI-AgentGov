@@ -108,12 +108,12 @@ Microsoft-built agents (Researcher, Analyst, Facilitator) have limited governanc
 
 ## Four Governance Pillars
 
-The framework organizes 78 controls across four pillars:
+The framework organizes 79 controls across four pillars:
 
 | Pillar | Controls | Focus | Examples |
 |--------|----------|-------|----------|
 | **1. [Security](../controls/pillar-1-security/index.md)** | 29 | Protect data and systems | DLP, Audit, Encryption, MFA, eDiscovery, Network Isolation, Information Barriers |
-| **2. [Management](../controls/pillar-2-management/index.md)** | 26 | Govern lifecycle and risk | Change Control, Testing, Model Risk, Multi-Agent Orchestration, HITL Framework |
+| **2. [Management](../controls/pillar-2-management/index.md)** | 27 | Govern lifecycle and risk | Change Control, Testing, Model Risk, Multi-Agent Orchestration, HITL Framework |
 | **3. [Reporting](../controls/pillar-3-reporting/index.md)** | 14 | Monitor and track | Inventory, Usage, PPAC, Sentinel, Hallucination Feedback |
 | **4. [SharePoint](../controls/pillar-4-sharepoint/index.md)** | 9 | SharePoint-specific controls | Access, Retention, External Sharing, Grounding Scope, Copilot Data Governance |
 
@@ -123,7 +123,7 @@ The framework organizes 78 controls across four pillars:
 
 ## Capability Drivers (Organizational Readiness)
 
-The framework's 78 controls describe *what to implement and how to verify it*. [Capability Drivers](../reference/glossary.md) describe *whether your organization is capable of implementing and operating it at scale*.
+The framework's 79 controls describe *what to implement and how to verify it*. [Capability Drivers](../reference/glossary.md) describe *whether your organization is capable of implementing and operating it at scale*.
 
 Microsoft's Copilot Acceleration Engineering (CAPE) materials introduced five **Capability Drivers** as organizational readiness dimensions whose collective maturity determines an enterprise's capacity to deploy AI agents sustainably. FSI-AgentGov adopted Capability Drivers as a first-class framework concept in v1.5.0 (current at v1.6.2), complementing — not replacing — the control-by-control governance lens. The five drivers are:
 
@@ -139,7 +139,7 @@ Each driver is measured on a 100–500 maturity scale (Initial → Repeatable �
 
 ### Pillars vs. Drivers: Critical Disambiguation
 
-**Pillars** are FSI-AgentGov's four **control families**: Security (29 controls), Management (26), Reporting (14), SharePoint (9). [Pillars](../reference/glossary.md) answer *"What category of control is this?"*
+**Pillars** are FSI-AgentGov's four **control families**: Security (29 controls), Management (27), Reporting (14), SharePoint (9). [Pillars](../reference/glossary.md) answer *"What category of control is this?"*
 
 **Drivers** are the five **organizational readiness dimensions** listed above. Drivers answer *"Where is the organization weak?"*
 
@@ -153,7 +153,7 @@ The framework operates through five complementary lenses:
 - **Zone** — names a regulatory classification (Personal / Team / Enterprise) — See [Zones and Tiers](zones-and-tiers.md)
 - **Pillar** — names a control family (Security / Management / Reporting / SharePoint)
 - **Driver** — names an organizational readiness dimension (one of the five above)
-- **Control** — the actionable governance unit (78 total across all four pillars)
+- **Control** — the actionable governance unit (79 total across all four pillars)
 
 A single agent has one pattern, one zone classification, and N applicable controls across all four pillars. Capability Drivers describe the organization's capacity to actually implement those controls at scale — across many agents, many patterns, sustained over time.
 
@@ -313,7 +313,7 @@ This framework is designed to **complement, not replace** existing enterprise go
 
 **For Control Requirements:**
 
-- [Control Catalog](../controls/index.md) — All 78 controls
+- [Control Catalog](../controls/index.md) — All 79 controls
 - [Regulatory Framework](regulatory-framework.md) — Regulation-to-control mappings
 
 **For Implementation:**

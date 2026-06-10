@@ -4,7 +4,7 @@ Ensure operational excellence, risk management, and reliable agent lifecycle man
 
 ## Overview
 
-Pillar 2 governs the operational processes required to manage AI agents throughout their lifecycle—from initial development through testing, deployment, monitoring, and eventual retirement. These 26 controls establish the governance framework for change management, model risk, vendor oversight, multi-agent orchestration, customer disclosure, and ongoing supervision required by financial regulators.
+Pillar 2 governs the operational processes required to manage AI agents throughout their lifecycle—from initial development through testing, deployment, monitoring, and eventual retirement. These 27 controls establish the governance framework for change management, model risk, vendor oversight, multi-agent orchestration, customer disclosure, and ongoing supervision required by financial regulators.
 
 **Primary Regulatory Alignment:** OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) (model risk), FINRA 3110 (supervision), SOX 302/404 (internal controls)
 
@@ -19,6 +19,7 @@ Pillar 2 governs the operational processes required to manage AI agents througho
 | Customer Transparency | 2.19, 2.22-2.23 | AI disclosure, session timeout, consent enforcement |
 | Adversarial & Feature Governance | 2.20-2.21, 2.24 | Red teaming, marketing claims, feature enablement |
 | Admin Center & Identity Governance | 2.25-2.26 | Agent governance console operations, approval workflows, agent identity lifecycle governance |
+| Consumption Governance | 2.27 | Consumption-entitlement governance for metered/premium Copilot spend |
 
 !!! note
     Controls 2.6 and 2.11 address model risk management guidance (OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7)) but cover
@@ -52,6 +53,7 @@ Pillar 2 governs the operational processes required to manage AI agents througho
 - [2.24 Agent Feature Enablement and Restriction Governance](2.24-agent-feature-enablement-and-restriction-governance.md)
 - [2.25 Microsoft Agent 365 — Admin Center Governance Console](2.25-agent-365-admin-center-governance-console.md)
 - [2.26 Entra Agent ID — Identity Governance for Agents](2.26-entra-agent-id-identity-governance.md)
+- [2.27 Consumption-Entitlement Governance](2.27-consumption-entitlement-governance.md)
 
 ---
 

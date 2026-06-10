@@ -90,7 +90,7 @@ mkdocs serve           # Preview locally at http://localhost:8000
 
 ## Assessment Manifest (Single Source of Truth)
 
-The `assessment/manifest/controls.json` file is the authoritative source for all 78 controls, used by both the Python scoring engine and the browser-based assessment SPA.
+The `assessment/manifest/controls.json` file is the authoritative source for all 79 controls, used by both the Python scoring engine and the browser-based assessment SPA.
 
 **Key principles:**
 - **Single source of truth**: All control metadata, verification procedures, scoring thresholds, regulatory mappings, role assignments, and solution references live in this manifest

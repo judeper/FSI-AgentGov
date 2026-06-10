@@ -25,8 +25,8 @@ Both repositories are standalone and complementary. Where governance topics over
 | **What it governs** | Agent creation, publishing, environments, connectors, lifecycle, approvals, and monitoring | Copilot access, oversharing exposure, feature governance, and Copilot usage across M365 surfaces |
 | **Governance model** | Zone 1 / Zone 2 / Zone 3 | Baseline / Recommended / Regulated |
 | **Pillars** | Security, Management, Reporting, SharePoint | Readiness, Security, Compliance, Operations |
-| **Controls** | 78 | 54 |
-| **Playbooks** | 312 | 216 |
+| **Controls** | 79 | 54 |
+| **Playbooks** | 316 | 216 |
 | **Primary operating question** | How do we govern agents as managed assets? | How do we govern Copilot as an embedded user-facing capability? |
 | **Primary risk emphasis** | Unmanaged agent creation, publishing, connector use, lifecycle drift, and insufficient oversight | Oversharing amplification, Copilot-generated content risk, and per-surface operational governance |
 

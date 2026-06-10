@@ -5627,6 +5627,133 @@
     "solutions": []
   },
   {
+    "id": "2.27",
+    "title": "Control 2.27: Consumption-Entitlement Governance",
+    "pillar": 2,
+    "pillar_name": "Management",
+    "source_file": "docs/controls/pillar-2-management/2.27-consumption-entitlement-governance.md",
+    "automation": "partial",
+    "collection_methods": [
+      "Graph_API",
+      "PPAC_PowerShell"
+    ],
+    "checks": [
+      {
+        "check_id": "2.27.a",
+        "description": "Entitlement contract evaluated and each metered agent classified to a consumption pathway",
+        "api_call": "Invoke-EntitlementEvaluation.ps1",
+        "pass_condition": "entitlement_contract_evaluated",
+        "zone_required": [
+          2,
+          3
+        ]
+      },
+      {
+        "check_id": "2.27.b",
+        "description": "Per-agent metered spend caps configured (enforce or detect-and-alert), evidenced by reading the fsi_cbgagentcap records (caps are authored separately from the entitlement engine)",
+        "api_call": "Get-CbgAgentCaps",
+        "pass_condition": "per_agent_caps_configured",
+        "zone_required": [
+          3
+        ]
+      },
+      {
+        "check_id": "2.27.c",
+        "description": "Pre-enforcement coverage-gap analysis run in monitor-only mode",
+        "api_call": "Invoke-EntitlementEvaluation.ps1",
+        "pass_condition": "coverage_gap_analysis_run",
+        "zone_required": [
+          2,
+          3
+        ]
+      },
+      {
+        "check_id": "2.27.d",
+        "description": "Credit/PAYG policy-scope groups registered in the admission-gated registry (securityEnabled, not mailEnabled)",
+        "api_call": "Get-MgGroup",
+        "pass_condition": "policy_scope_groups_registered",
+        "zone_required": [
+          2,
+          3
+        ]
+      }
+    ],
+    "zone_thresholds": {
+      "zone1": {
+        "min_checks_passed": 1,
+        "maturity_score": 1
+      },
+      "zone2": {
+        "min_checks_passed": 2,
+        "maturity_score": 2
+      },
+      "zone3": {
+        "min_checks_passed": 4,
+        "maturity_score": 4
+      }
+    },
+    "manual_question": null,
+    "name": "Consumption-Entitlement Governance",
+    "zonesApplicable": [
+      2,
+      3
+    ],
+    "roles": [
+      "AI Administrator",
+      "Business Unit Owner",
+      "Compliance Officer",
+      "Finance Analyst",
+      "Governance Lead",
+      "Power Platform Admin"
+    ],
+    "regulatory": [
+      "FINRA-4511",
+      "GLBA",
+      "OCC-2026-13",
+      "SEC-17a-4",
+      "SOX-404"
+    ],
+    "priority": "TODO: critical|high|medium|low",
+    "applicable_drivers": [
+      "ai_governance",
+      "business_strategy"
+    ],
+    "applicable_patterns": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pattern_critical": [],
+    "yesBar": "TODO: concise pass criteria",
+    "partialBar": "TODO: partial coverage criteria",
+    "noBar": "TODO: fail criteria",
+    "verifyIn": [],
+    "verifyPowerShell": "",
+    "evidenceExpected": [],
+    "controlDocUrl": "/controls/pillar-2-management/2.27-consumption-entitlement-governance/",
+    "portalPlaybookUrl": "/playbooks/control-implementations/2.27/portal-walkthrough/",
+    "collectorField": "",
+    "sectorYesBar": {
+      "bank": null,
+      "broker-dealer": null,
+      "investment-adviser": null,
+      "insurance-carrier": null,
+      "insurance-wholesale": null,
+      "credit-union": null,
+      "holding-company": null,
+      "other": null
+    },
+    "facilitatorNotes": {
+      "ask": "TODO: facilitator question",
+      "followUp": "TODO: follow-up hint",
+      "timeBudgetMinutes": 5
+    },
+    "solutions": []
+  },
+  {
     "id": "3.1",
     "title": "Control 3.1: Agent Inventory and Metadata Management",
     "pillar": 3,

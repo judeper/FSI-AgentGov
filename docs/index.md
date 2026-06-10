@@ -9,7 +9,7 @@ hide:
 # AI Agent Governance for **Financial Services**
 
 Govern Microsoft 365 AI agents with confidence — from policy to production.
-78 controls across 4 pillars and 3 governance zones, 36 companion solutions,
+79 controls across 4 pillars and 3 governance zones, 36 companion solutions,
 implementation playbooks, and regulatory mappings for Microsoft Copilot Studio, Agent Builder, and custom
 agent deployments.
 
@@ -20,7 +20,7 @@ agent deployments.
 
 <div class="metrics-strip">
   <div class="metric">
-    <span class="metric-number">78</span>
+    <span class="metric-number">79</span>
     <span class="metric-label">Controls</span>
   </div>
   <div class="metric">
@@ -113,7 +113,7 @@ High Risk · Committee Approval
 </div>
 <div class="arch-arrow">▼</div>
 <div class="arch-layer">
-<div class="arch-label">78 Controls across 4 Pillars</div>
+<div class="arch-label">79 Controls across 4 Pillars</div>
 <div class="arch-row">
 <div class="arch-card arch-pillar">
 <strong>Security</strong>
@@ -121,7 +121,7 @@ High Risk · Committee Approval
 </div>
 <div class="arch-card arch-pillar">
 <strong>Management</strong>
-26 Controls
+27 Controls
 </div>
 <div class="arch-card arch-pillar">
 <strong>Reporting</strong>

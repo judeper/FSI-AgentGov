@@ -23,7 +23,7 @@ All data stays in your browser.
 
 ## About This Tool
 
-The Governance Readiness Assessment is an interactive tool that helps organizations evaluate their implementation of the [FSI Agent Governance Framework](../framework/index.md) across all 78 controls. It produces a personalized scorecard, gap analysis, and remediation roadmap.
+The Governance Readiness Assessment is an interactive tool that helps organizations evaluate their implementation of the [FSI Agent Governance Framework](../framework/index.md) across all 79 controls. It produces a personalized scorecard, gap analysis, and remediation roadmap.
 
 !!! note "Assessment surface distinction"
     The browser-based assessment SPA is a self-assessment questionnaire that scores answers entered by the assessor against the manifest's zone requirements. The Python assessment engine is a telemetry-driven scorer that evaluates collected tenant data (PPAC, Graph, Purview, SharePoint, Sentinel) against manifest `pass_condition` values. The two surfaces serve different audiences and operate on different inputs by design — the SPA is for facilitated self-assessment, the engine is for automated tenant verification. They share `assessment/manifest/controls.json` as a common source of truth but apply it differently.
@@ -52,7 +52,7 @@ Aggregate scores are calculated as: `score = sum(controlScores) / count(applicab
 **Zone-specific scoring:** Zone scores exclude controls whose zone requirements are optional, awareness-only, or N/A.
 
 - **Zone 1** (Personal Productivity) — approximately 10 controls excluded from scoring
-- **Zone 3** (Enterprise Managed) — all 78 controls apply
+- **Zone 3** (Enterprise Managed) — all 79 controls apply
 
 This prevents penalizing organizations for enterprise-only controls that do not apply to personal productivity agents.
 

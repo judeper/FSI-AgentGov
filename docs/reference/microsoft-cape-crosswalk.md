@@ -96,7 +96,7 @@ Three vocabulary collisions create the most confusion when an FSI customer reads
 | FSI-AgentGov "Pillar" | CAPE "Capability Driver" |
 |---|---|
 | 1. Security (29 controls) | (CAPE has no direct equivalent — Security is a horizontal layer in CAPE; in FSI it is a discrete control family.) |
-| 2. Management (26 controls) | Crosses *AI Governance & Security* + *AI Strategy & Experience*. |
+| 2. Management (27 controls) | Crosses *AI Governance & Security* + *AI Strategy & Experience*. |
 | 3. Reporting (14 controls) | Crosses *AI Governance & Security* + *Technology & Data* (telemetry). |
 | 4. SharePoint (9 controls) | Crosses *Technology & Data* (knowledge quality and grounding). |
 | (CAPE-only) | *AI Strategy & Experience* — vision, sponsorship, experience design. |
@@ -467,7 +467,7 @@ A: Use this crosswalk when CAPE vocabulary appears in a customer conversation or
 A: No. The three scales answer different questions — per-control implementation depth, aggregated control evidence vs zone thresholds, and strategic readiness diagnostic. A conversion table inevitably produces reports where the two numbers disagree about the same configuration, which becomes an examiner footgun. Run the diagnostics that match the question; read them side by side.
 
 **Q: Why don't we adopt CAPE's "Tier 1/2/3" terminology?**
-A: Three reasons. (1) "Zone 1/2/3" is already the FSI vocabulary across 78 controls, 312 playbooks, and the assessment engine; renaming would force a v2.0.0 break with no compensating value. (2) "Tier" is overloaded inside US FSI (Tier 1 capital, environment Tier 1/2/3). (3) The FSI Zone model carries documented per-zone control thresholds and audit-retention requirements that CAPE Tier does not. The crosswalk in [Section 2.2](#22-cape-tier-123-vs-fsi-zone-123) states the equivalence; we use Zone everywhere else.
+A: Three reasons. (1) "Zone 1/2/3" is already the FSI vocabulary across 79 controls, 316 playbooks, and the assessment engine; renaming would force a v2.0.0 break with no compensating value. (2) "Tier" is overloaded inside US FSI (Tier 1 capital, environment Tier 1/2/3). (3) The FSI Zone model carries documented per-zone control thresholds and audit-retention requirements that CAPE Tier does not. The crosswalk in [Section 2.2](#22-cape-tier-123-vs-fsi-zone-123) states the equivalence; we use Zone everywhere else.
 
 **Q: Where does the Frontier CoE blueprint live?**
 A: In [`docs/framework/agentic-coe.md`](../framework/agentic-coe.md). This crosswalk only introduces the four CoE functions (Govern / Enable / Optimize / Scale) at a vocabulary level. The detailed FSI CoE shape — including the federation guardrail that CoE federation does not transfer regulated supervisory accountability — is in the framework doc.
@@ -541,7 +541,7 @@ This document paraphrases Microsoft CAPE materials with citation. No verbatim Mi
 - [`docs/reference/role-catalog.md`](role-catalog.md) — Canonical FSI role names, including the *Microsoft CAPE Role Mapping* cross-reference table.
 - [`docs/framework/zones-and-tiers.md`](../framework/zones-and-tiers.md) — Three-Zone governance model and per-zone requirements.
 - [`docs/framework/regulatory-framework.md`](../framework/regulatory-framework.md) — US FSI regulatory landscape and zone-by-zone regulatory exposure.
-- [`docs/controls/CONTROL-INDEX.md`](../controls/CONTROL-INDEX.md) — Master list of all 78 controls.
+- [`docs/controls/CONTROL-INDEX.md`](../controls/CONTROL-INDEX.md) — Master list of all 79 controls.
 
 **External:**
 

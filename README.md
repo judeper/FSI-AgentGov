@@ -86,11 +86,11 @@ To stay current: **Star** this repository, use **Watch → Releases** for low-no
 | Pillar | Controls | Focus | Examples |
 |--------|----------|-------|----------|
 | **1. Security** | 29 | Protect data and systems | DLP, Audit, Encryption, MFA, eDiscovery, Network Isolation, Information Barriers, Content Moderation, Publishing Restrictions |
-| **2. Management** | 26 | Govern lifecycle and risk | Change Control, Testing, Model Risk, Multi-Agent Orchestration, HITL Framework, Inactivity Timeout, Feature Governance |
+| **2. Management** | 27 | Govern lifecycle and risk | Change Control, Testing, Model Risk, Multi-Agent Orchestration, HITL Framework, Inactivity Timeout, Feature Governance |
 | **3. Reporting** | 14 | Monitor and track | Inventory, Usage, Incidents, PPAC, Sentinel, Hallucination Feedback, Exception Management |
 | **4. SharePoint Mgmt** | 9 | SharePoint-specific controls | Access, Retention, External Sharing, Grounding Scope, Knowledge Source Scanning, Embedded File Content Governance |
 
-**Total: 78 Comprehensive Controls**
+**Total: 79 Comprehensive Controls**
 
 ### Three Governance Zones
 
@@ -135,10 +135,10 @@ Strategic governance principles in `docs/framework/`:
 - Operating model and regulatory framework
 - Agent identity architecture and solutions integration
 
-### Control Files (78 Total)
+### Control Files (79 Total)
 Technical specifications in `docs/controls/`:
 - **Pillar 1:** 29 Security Controls (1.1-1.29)
-- **Pillar 2:** 26 Management Controls (2.1-2.26)
+- **Pillar 2:** 27 Management Controls (2.1-2.27)
 - **Pillar 3:** 14 Reporting Controls (3.1-3.14)
 - **Pillar 4:** 9 SharePoint Controls (4.1-4.9)
 
@@ -150,7 +150,7 @@ Each control includes:
 
 ### Implementation Playbooks
 Step-by-step procedures in `docs/playbooks/control-implementations/`:
-- **4 playbooks per control** (78 controls × 4 = 312 playbooks)
+- **4 playbooks per control** (79 controls × 4 = 316 playbooks)
 - Portal walkthrough guides with click-by-click navigation
 - PowerShell automation scripts with validation
 - Verification testing procedures with evidence checklists
@@ -184,7 +184,7 @@ Companion automation lives in the **[FSI-AgentGov-Solutions](https://github.com/
 ### Automated Assessment Engine
 The `assessment/` directory provides programmatic governance assessment:
 - **5 PowerShell collectors** gather tenant configuration from PPAC, Graph, Purview, SharePoint, and Sentinel
-- **Python scoring engine** evaluates 78 controls against zone thresholds (maturity 0–4)
+- **Python scoring engine** evaluates 79 controls against zone thresholds (maturity 0–4)
 - **Report generator** produces a pre-filled assessment with evidence tables plus a focused manual questionnaire for the ~30 controls requiring human attestation
 - **Cross-repository solutions lock file** lives at `assessment/data/solutions-lock.json` — the canonical path consumed by the assessment SPA, validators, and refresh scripts
 - See [Assessment README](assessment/README.md) for prerequisites and usage
@@ -235,9 +235,9 @@ The framework uses a three-layer documentation model designed to serve different
 **Purpose:** Technical control specifications
 **Audience:** Administrators, engineers, security teams
 
-78 detailed controls organized by pillar:
+79 detailed controls organized by pillar:
 - **Pillar 1 - Security:** 29 controls (1.1-1.29)
-- **Pillar 2 - Management:** 26 controls (2.1-2.26)
+- **Pillar 2 - Management:** 27 controls (2.1-2.27)
 - **Pillar 3 - Reporting:** 14 controls (3.1-3.14)
 - **Pillar 4 - SharePoint:** 9 controls (4.1-4.9)
 
@@ -249,7 +249,7 @@ Each control follows a 10-section format including objective, regulatory alignme
 **Purpose:** Step-by-step implementation procedures
 **Audience:** Hands-on implementers, auditors
 
-312 implementation playbooks (4 per control):
+316 implementation playbooks (4 per control):
 1. **Portal Walkthrough** - Click-by-click configuration in admin portals
 2. **PowerShell Setup** - Automation scripts with validation
 3. **Verification Testing** - Test cases, evidence collection, attestation templates

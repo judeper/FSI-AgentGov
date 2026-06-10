@@ -39,18 +39,18 @@ Full framework: 8-week phased approach (see the [Implementation Checklist](../ge
 
 ## Framework Questions
 
-### Q: Why are there 78 controls?
+### Q: Why are there 79 controls?
 
 A: The framework covers:
 
 - **Pillar 1:** 29 security controls
-- **Pillar 2:** 26 management/lifecycle controls
+- **Pillar 2:** 27 management/lifecycle controls
 - **Pillar 3:** 14 reporting/monitoring controls
 - **Pillar 4:** 9 SharePoint-specific controls
 
-Total = 78 controls covering all governance areas.
+Total = 79 controls covering all governance areas.
 
-### Q: Do I need to implement all 78 controls?
+### Q: Do I need to implement all 79 controls?
 
 A: No. Implement based on:
 
@@ -159,10 +159,10 @@ See [Control 1.6: DSPM for AI](../controls/pillar-1-security/1.6-microsoft-purvi
 
 ### Q: How many controls are in the framework?
 
-A: The framework includes 78 controls across four pillars:
+A: The framework includes 79 controls across four pillars:
 
 - **Pillar 1 - Security:** 29 controls (1.1-1.29) covering DLP, encryption, audit logging, eDiscovery
-- **Pillar 2 - Management:** 26 controls (2.1-2.26) covering lifecycle, change control, environment routing
+- **Pillar 2 - Management:** 27 controls (2.1-2.27) covering lifecycle, change control, environment routing
 - **Pillar 3 - Reporting:** 14 controls (3.1-3.14) covering inventory, monitoring, incidents, Sentinel
 - **Pillar 4 - SharePoint:** 9 controls (4.1-4.9) covering SharePoint-specific governance
 

@@ -77,7 +77,7 @@ SECTORS = {
 }
 SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 URL_RE = re.compile(r"^https?://", re.IGNORECASE)
-EXPECTED_COUNT = 78
+EXPECTED_COUNT = 79
 
 
 def is_todo(value: Any) -> bool:

@@ -2,7 +2,7 @@
 
 This page is **generated** by `scripts/generate_pattern_coverage.py` from `assessment/manifest/controls.json`. Do not edit by hand.
 
-It maps the 78 FSI-AgentGov controls to the 6 Microsoft CAPE Frontier Transformation Patterns. For each control:
+It maps the 79 FSI-AgentGov controls to the 6 Microsoft CAPE Frontier Transformation Patterns. For each control:
 
 - The **Patterns** column lists patterns where the control applies (`applicable_patterns`).
 - The **Critical For** column lists patterns where the control is mission-critical (`pattern_critical`).
@@ -23,12 +23,12 @@ It maps the 78 FSI-AgentGov controls to the 6 Microsoft CAPE Frontier Transforma
 
 | Pattern | Total controls applicable | Pattern-critical controls | Solutions count |
 |---|---|---|---|
-| 1 — Employee AI Enablement | 78 | 2 | 14 |
-| 2 — Business Expert Empowerment | 78 | 1 | 9 |
-| 3 — Workplace & IT Services | 78 | 1 | 5 |
-| 4 — Core Business Process Transformation | 78 | 3 | 25 |
-| 5 — External Engagement | 78 | 6 | 19 |
-| 6 — AI-First Capabilities | 78 | 4 | 12 |
+| 1 — Employee AI Enablement | 79 | 2 | 15 |
+| 2 — Business Expert Empowerment | 79 | 1 | 10 |
+| 3 — Workplace & IT Services | 79 | 1 | 5 |
+| 4 — Core Business Process Transformation | 79 | 3 | 27 |
+| 5 — External Engagement | 79 | 6 | 20 |
+| 6 — AI-First Capabilities | 79 | 4 | 12 |
 
 ## Pattern-critical controls
 
@@ -79,6 +79,7 @@ The following companion solutions in [FSI-AgentGov-Solutions](https://github.com
 - [`agent-registry-automation`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-registry-automation)
 - [`agent-sharing-access-restriction-detector`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-sharing-access-restriction-detector)
 - [`content-moderation-monitor`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/content-moderation-monitor)
+- [`copilot-agent-inventory`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/copilot-agent-inventory)
 - [`copilot-studio-analytics`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/copilot-studio-analytics)
 - [`cross-tenant-external-sharing-governance`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/cross-tenant-external-sharing-governance)
 - [`environment-lifecycle-management`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/environment-lifecycle-management)
@@ -95,6 +96,7 @@ The following companion solutions in [FSI-AgentGov-Solutions](https://github.com
 - [`agent-knowledge-source-scanner`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-knowledge-source-scanner)
 - [`agent-registry-automation`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-registry-automation)
 - [`agent-sharing-access-restriction-detector`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/agent-sharing-access-restriction-detector)
+- [`copilot-agent-inventory`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/copilot-agent-inventory)
 - [`environment-lifecycle-management`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/environment-lifecycle-management)
 - [`generative-ai-config-auditor`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/generative-ai-config-auditor)
 - [`hallucination-tracker`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/hallucination-tracker)
@@ -121,6 +123,8 @@ The following companion solutions in [FSI-AgentGov-Solutions](https://github.com
 - [`coi-testing`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/coi-testing)
 - [`compliance-dashboard`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/compliance-dashboard)
 - [`conditional-access-automation`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/conditional-access-automation)
+- [`copilot-agent-inventory`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/copilot-agent-inventory)
+- [`copilot-billing-governance`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/copilot-billing-governance)
 - [`copilot-studio-analytics`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/copilot-studio-analytics)
 - [`credential-oversharing-detector`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/credential-oversharing-detector)
 - [`cross-solution-integration`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/cross-solution-integration)
@@ -148,6 +152,7 @@ The following companion solutions in [FSI-AgentGov-Solutions](https://github.com
 - [`compliance-dashboard`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/compliance-dashboard)
 - [`conditional-access-automation`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/conditional-access-automation)
 - [`content-moderation-monitor`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/content-moderation-monitor)
+- [`copilot-billing-governance`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/copilot-billing-governance)
 - [`cross-solution-integration`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/cross-solution-integration)
 - [`cross-tenant-external-sharing-governance`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/cross-tenant-external-sharing-governance)
 - [`deny-event-correlation-report`](https://github.com/judeper/FSI-AgentGov-Solutions/tree/main/deny-event-correlation-report)
@@ -211,7 +216,7 @@ The following companion solutions in [FSI-AgentGov-Solutions](https://github.com
 | 1.8 | Control 1.8: Runtime Protection and External Threat Detection | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — |
 | 1.9 | Control 1.9: Data Retention and Deletion Policies | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — |
 
-### Pillar 2 — Management (26 controls)
+### Pillar 2 — Management (27 controls)
 
 | Control | Title | P1 | P2 | P3 | P4 | P5 | P6 | Critical For |
 |---------|-------|---- | ---- | ---- | ---- | ---- | ----|--------------|
@@ -234,6 +239,7 @@ The following companion solutions in [FSI-AgentGov-Solutions](https://github.com
 | 2.24 | Control 2.24: Agent Feature Enablement and Restriction Governance | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — |
 | 2.25 | Control 2.25: Microsoft Agent 365 — Admin Center Governance Console | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — |
 | 2.26 | Control 2.26: Entra Agent ID — Identity Governance for Agents | ✅ | ✅ | ✅ | ✅ | 🎯 | ✅ | P5 |
+| 2.27 | Control 2.27: Consumption-Entitlement Governance | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — |
 | 2.3 | Control 2.3: Change Management and Release Planning | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — |
 | 2.4 | Control 2.4: Business Continuity and Disaster Recovery | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — |
 | 2.5 | Control 2.5: Testing, Validation, and Quality Assurance | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — |

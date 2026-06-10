@@ -427,7 +427,7 @@ Step-by-step checklist for implementing the FSI Agent Governance Framework.
 
 ## Success Criteria
 
-- [ ] All 78 controls implemented at appropriate maturity levels
+- [ ] All 79 controls implemented at appropriate maturity levels
 - [ ] Agent inventory complete and maintained
 - [ ] Compliance dashboard active and monitored
 - [ ] Training completed for all users
