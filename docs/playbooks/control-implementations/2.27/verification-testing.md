@@ -8,7 +8,7 @@
 >
 > **Companion controls:** [3.5 Cost Allocation and Budget Tracking](../../../controls/pillar-3-reporting/3.5-cost-allocation-and-budget-tracking.md) consumes the materialized decisions and coverage-gap aggregates this playbook produces. [1.18 Application-Level Authorization and RBAC](../../../controls/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md) supplies the functional-access input on which the entitlement decision builds.
 >
-> **🔎 Live-verification window.** Microsoft consumption-billing surfaces are changing rapidly. The Copilot Credits consumption-billing model becomes the operative metering path for several agent surfaces from **June 16, 2026** 🔎 (the same day the Work IQ API moves to Copilot-Credits consumption billing). Verify the tenant ceilings (PAYG 50 / credit 10), the per-feature credit rates, the `$0.01`/credit and 25,000-credits-per-month figures, the June 2026 Licensing Guide footnote numbering (6 & 7), and whether a programmatic cap/credit-policy **write API** yet exists, against Microsoft licensing documentation before relying on the figures below.
+> **🔎 Live-verification window.** Microsoft consumption-billing surfaces are changing rapidly. The Copilot Credits consumption-billing model becomes the operative metering path for several agent surfaces from **June 16, 2026** — scheduled per the Microsoft 365 roadmap (feature 559017) and Microsoft Learn ("use-work-iq"), verified June 2026 (the same day the Work IQ API moves to Copilot-Credits consumption billing). Verify the tenant ceilings (PAYG 50 / credit 10), the per-feature credit rates, and the `$0.01`/credit and 25,000-credits-per-month figures against Microsoft licensing documentation before relying on the figures below. The Licensing Guide footnotes 6 & 7 and the absence of a public cap/credit-policy **write API** were verified June 2026 (the latter per Microsoft Learn, "manage-copilot-studio-messages-capacity").
 >
 > **Last UI verified:** June 2026 against the Microsoft 365 admin center, Power Platform admin center pay-as-you-go billing, and Microsoft Graph `v1.0` group endpoints.
 
@@ -83,7 +83,7 @@ Tag each run with a deterministic `runId` of the form `CBG227-yyyyMMdd-HHmmss-<8
 
 ### 0.4 Upstream dependency note
 
-`configuredTier` (the **authoritative** pathway signal) is produced by the **work-iq-usage-detection** solution; `createdIn` (the **last-resort fallback** signal) is produced by **copilot-agent-inventory** (Azure Resource Graph `PowerPlatformResources`). Until both siblings have run for the tenant, the engine operates on sample/fixture inputs and criterion 3 cannot be attested as live. The Work IQ GA / consumption-billing switch is **June 16, 2026** 🔎.
+`configuredTier` (the **authoritative** pathway signal) is produced by the **work-iq-usage-detection** solution; `createdIn` (the **last-resort fallback** signal) is produced by **copilot-agent-inventory** (Azure Resource Graph `PowerPlatformResources`). Until both siblings have run for the tenant, the engine operates on sample/fixture inputs and criterion 3 cannot be attested as live. The Work IQ GA / consumption-billing switch is scheduled for **June 16, 2026** (per the Microsoft 365 roadmap feature 559017 and Microsoft Learn "use-work-iq"; verified June 2026).
 
 ---
 
@@ -401,7 +401,7 @@ A **materialized decision export** — the `Decisions[]` array, one row per `(ag
 
 ### 5.5 The zero-rating caveat (state it; do not over-claim)
 
-`ZeroRatingResolved` defaulting to `true` means a Copilot-licensed user on a Microsoft 365 surface **under their own identity** (`surfaceZeroRated = true`) is **Allowed** with no credit scope required — per footnotes 6 & 7 🔎 (the zero-rating substance is confirmed on [Microsoft Learn — Copilot Studio billing and licensing](https://learn.microsoft.com/en-us/microsoft-copilot-studio/billing-licensing); the footnote numbering is unverified). "Resolved" does **not** mean "always allow": a licensed user whose surface is **not** zero-rated and who is **not** in credit scope still resolves to **Fail-closed - Zero-rating Unresolved** (`100000004`). The generative-answer-with-tenant-grounding and beyond-fair-use refinements remain credit-metered — a per-tenant credit-**cost** caveat, not a change to the base allow/deny. Confirm the fair-usage specifics per tenant.
+`ZeroRatingResolved` defaulting to `true` means a Copilot-licensed user on a Microsoft 365 surface **under their own identity** (`surfaceZeroRated = true`) is **Allowed** with no credit scope required — per footnotes 6 & 7 (verified June 2026 against the Copilot Studio Licensing Guide and corroborated on [Microsoft Learn — Copilot Studio billing and licensing](https://learn.microsoft.com/en-us/microsoft-copilot-studio/billing-licensing)). "Resolved" does **not** mean "always allow": a licensed user whose surface is **not** zero-rated and who is **not** in credit scope still resolves to **Fail-closed - Zero-rating Unresolved** (`100000004`). The generative-answer-with-tenant-grounding and beyond-fair-use refinements remain credit-metered — a per-tenant credit-**cost** caveat, not a change to the base allow/deny. Confirm the fair-usage specifics per tenant.
 
 ### 5.6 Zone applicability
 
@@ -434,14 +434,14 @@ A **cap-record export** — `fsi_cbgagentcap` rows with `fsi_agentid`, `fsi_mont
 
 ### 6.4 The detect-and-alert caveat (load-bearing — do not overstate)
 
-Because a public **write API for credit-policy and per-agent cap enforcement may not yet exist** 🔎, enforcement is designed to **degrade to detect-and-alert** where a hard-stop cannot be applied programmatically: the cap is recorded and breaches are surfaced, but consumption is **not** programmatically halted. A cap row with `fsi_enforcementmode = 100000001` (Hard-stop) is only valid evidence if the operator can demonstrate a working hard-stop mechanism for that surface; otherwise it must read `100000000` (Detect-and-alert). **Do not represent detect-and-alert as a hard-stop.**
+Because there is **no public write API for credit-policy or per-agent cap enforcement** as of June 2026 (per-agent caps are Power Platform admin-center UI-managed, per [Microsoft Learn — manage Copilot Studio message capacity](https://learn.microsoft.com/en-us/power-platform/admin/manage-copilot-studio-messages-capacity)), enforcement is designed to **degrade to detect-and-alert** where a hard-stop cannot be applied programmatically: the cap is recorded and breaches are surfaced, but consumption is **not** programmatically halted. A cap row with `fsi_enforcementmode = 100000001` (Hard-stop) is only valid evidence if the operator can demonstrate a working hard-stop mechanism for that surface; otherwise it must read `100000000` (Detect-and-alert). **Do not represent detect-and-alert as a hard-stop.**
 
 ### 6.5 Pass / fail thresholds
 
 | Result | Condition |
 |---|---|
 | **PASS** | Every Z3 metered agent has a cap record with a recorded enforcement mode; any `Hard-stop` mode is backed by a demonstrated mechanism. |
-| **WARN** | A Z3 agent records `Detect-and-alert` where the operator intended a hard-stop (expected until the write API is proven 🔎). |
+| **WARN** | A Z3 agent records `Detect-and-alert` where the operator intended a hard-stop (expected as of June 2026 — no public hard-stop write API). |
 | **FAIL** | A Z3 metered agent has no cap record, no recorded enforcement mode, or a `Hard-stop` claim with no working mechanism. |
 
 ### 6.6 Zone applicability
@@ -675,7 +675,7 @@ evidence-pack-CBG227-20260609-224155-a1b2c3d4/
 }
 ```
 
-> The `WARN` on criterion 5 / `2.27.b` in this illustrative manifest reflects the realistic preview state: caps recorded as **detect-and-alert** because the hard-stop write API is unproven 🔎. A `WARN` here is expected and acceptable as evidence **provided** the enforcement mode is honestly recorded; it must not be papered over as a `Hard-stop`.
+> The `WARN` on criterion 5 / `2.27.b` in this illustrative manifest reflects the realistic preview state: caps recorded as **detect-and-alert** because there is no public hard-stop write API as of June 2026. A `WARN` here is expected and acceptable as evidence **provided** the enforcement mode is honestly recorded; it must not be papered over as a `Hard-stop`.
 
 ### 12.3 Retention
 
@@ -695,7 +695,7 @@ evidence-pack-CBG227-20260609-224155-a1b2c3d4/
 | `TRG-CBG-UNMAPPED-01` | Criterion 3: a Z2/Z3 metered agent classifies to `unmapped` (`100000005`) with no owner | Open an anomaly record with a named follow-up owner; investigate the missing/contradictory `configuredTier` + `createdIn` signals upstream. Users **remain Fail-open - Anomaly (allowed)** during triage | §4, §11.1 |
 | `TRG-CBG-FAILCLOSED-01` | Criterion 4: a licensed `mcp-cs` user resolves to **Fail-closed - Zero-rating Unresolved** (`100000004`) unexpectedly | Confirm the surface zero-rating posture and credit-scope membership; if the footnote-7 case applies, confirm `surfaceZeroRated`; otherwise add the user to credit scope. This is a correct conservative outcome, not a bug | §5.5 |
 | `TRG-CBG-MISSINGLIC-01` | Criterion 4: an `mcp-cs` / `mcp-agentbuilder` user resolves to **Block / Missing license** (`100000001`) | Assign a Microsoft 365 Copilot license, or remove the user from the intended audience; re-evaluate | §5, §10 (rows 7, 9) |
-| `TRG-CBG-FALSEHARDSTOP-01` | Criterion 5 / `2.27.b`: a Z3 cap records `Hard-stop` (`100000001`) with no demonstrated mechanism | Correct the enforcement mode to `Detect-and-alert` (`100000000`) until a write API is proven 🔎; never represent detect-and-alert as a hard-stop | §6.4 |
+| `TRG-CBG-FALSEHARDSTOP-01` | Criterion 5 / `2.27.b`: a Z3 cap records `Hard-stop` (`100000001`) with no demonstrated mechanism | Correct the enforcement mode to `Detect-and-alert` (`100000000`) — there is no public hard-stop write API as of June 2026; never represent detect-and-alert as a hard-stop | §6.4 |
 | `TRG-CBG-NOTMONITOR-01` | Criterion 6 / `2.27.c`: a coverage-gap row is **not** monitor-only before sign-off | Halt enforcement activation; restore monitor-only; obtain the §8 sign-off before any enforcement flip | §7, §8 |
 | `TRG-CBG-NOSIGNOFF-01` | Criterion 7: enforcement was activated without a prior dated sign-off | Roll enforcement back to monitor-only; convene the coverage-gap review; capture the dated sign-off and reconciliation before re-activating | §8 |
 | `TRG-CBG-RETENTION-01` | Criterion 8: retention < 6 years or the run is absent from the SIEM | Extend storage retention to the FINRA 4511 minimum; confirm SIEM forwarding of the run envelope by `runId` | §9 |
@@ -714,7 +714,7 @@ Use this scorecard to attest a zone. "Applicable checks" is the set of automated
 | Maturity score at threshold | 1 | 2 | 4 |
 | Retention | Standard tenant | ≥ 1 year | ≥ 6 years + SIEM |
 
-**Attestation rule.** A zone is attested when the in-scope criteria are evidenced (§2–§9), the applicable manifest checks meet or exceed the maturity threshold, and — for Zone 3 — the coverage-gap sign-off (§8) is dated **before** any enforcement activation. Record the realistic preview caveat where it applies: per-agent caps degrade to **detect-and-alert** until a programmatic write API is proven 🔎; do not over-attest a hard-stop.
+**Attestation rule.** A zone is attested when the in-scope criteria are evidenced (§2–§9), the applicable manifest checks meet or exceed the maturity threshold, and — for Zone 3 — the coverage-gap sign-off (§8) is dated **before** any enforcement activation. Record the realistic preview caveat where it applies: per-agent caps degrade to **detect-and-alert** because no public programmatic write API exists as of June 2026 (caps can be upgraded should Microsoft ship one); do not over-attest a hard-stop.
 
 ---
 

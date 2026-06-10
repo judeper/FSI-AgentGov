@@ -2,7 +2,7 @@
 
 > **Scope.** This playbook covers operational failure modes for the consumption-entitlement program: security-group registry admission gating, agent pathway classification, the switch-on-pathway entitlement contract (including zero-rating resolution), the two policy objects (PAYG vs prepaid credit), per-agent spend caps, the pre-enforcement coverage-gap analysis, and retention / SIEM forwarding. It is the diagnostic companion to the [Control 2.27 specification](../../../controls/pillar-2-management/2.27-consumption-entitlement-governance.md), the [portal walkthrough](./portal-walkthrough.md), the [PowerShell setup pack](./powershell-setup.md), and the [verification-testing pack](./verification-testing.md). The companion **[Copilot Billing Governance](https://judeper.github.io/FSI-AgentGov-Solutions/solutions/copilot-billing-governance/)** 🔎 solution implements the engine referenced throughout.
 >
-> **Availability hedging (June 2026 rollout).** Microsoft's Copilot Credits consumption-billing model becomes the operative metering path for several agent surfaces from **June 16, 2026** 🔎 — the same day the Work IQ API moves to Copilot-Credits consumption billing. Tenant ceilings (PAYG **50** / credit **10**) 🔎, per-feature **credit rates**, **$0.01 per credit**, and the **25,000-credits-per-month** prepaid pack 🔎 are reference values that should be re-verified against Microsoft licensing documentation before they are used as examiner evidence. Whether a public **write API** for credit-policy / per-agent-cap enforcement exists yet 🔎 determines whether a cap can be a hard-stop or degrades to **detect-and-alert** — verify current API availability before claiming hard-stop behavior.
+> **Availability hedging (June 2026 rollout).** Microsoft's Copilot Credits consumption-billing model becomes the operative metering path for several agent surfaces from **June 16, 2026** — scheduled per the Microsoft 365 roadmap (feature 559017) and Microsoft Learn ("use-work-iq"), verified June 2026 — the same day the Work IQ API moves to Copilot-Credits consumption billing. Tenant ceilings (PAYG **50** / credit **10**) 🔎, per-feature **credit rates**, **$0.01 per credit**, and the **25,000-credits-per-month** prepaid pack 🔎 are reference values that should be re-verified against Microsoft licensing documentation before they are used as examiner evidence. Whether a public **write API** for credit-policy / per-agent-cap enforcement exists is resolved: as of June 2026 there is **no public write API** (per-agent caps are Power Platform admin-center UI-managed, per Microsoft Learn, "manage-copilot-studio-messages-capacity"), so a cap **degrades to detect-and-alert** rather than a hard-stop; should Microsoft ship one, caps can be upgraded to a hard-stop.
 >
 > **Regulatory framing.** Procedures here **support compliance with** — they do not by themselves satisfy — SOX §404 (IT general controls over spend authorization), GLBA 501(b) (Safeguards Rule), FINRA Rule 4511 (books and records, six-year retention for member firms), and SEC Rule 17a-4(b)(4) (records preservation), and **contribute to** third-party AI spend oversight informed by OCC Bulletin 2023-17. This control governs the entitlement **decision**; implementation requires control-owner sign-off, and no automated procedure removes the obligation to attest to control effectiveness.
 >
@@ -280,7 +280,7 @@ A group is admissible only when `SecurityEnabled = True` **and** `MailEnabled = 
 | RC-B | `createdIn` missing (Azure Resource Graph inventory stale) | High | Input fixture shows empty `createdIn` |
 | RC-C | Contradictory signals (e.g., `createdIn` = Copilot Studio but an unrecognized `configuredTier` string) | Medium | Both present but neither maps cleanly |
 | RC-D | Upstream sibling solution not catalog-registered yet; engine running on fixtures | Medium | `copilot-agent-inventory` / `work-iq-usage-detection` not deployed |
-| RC-E | June 16 2026 consumption-billing switch changed the `configuredTier` vocabulary 🔎 | Situational (around GA) | Cluster of `unmapped` dated near the switch — see [RB-03](#12-runbook-rb-03) |
+| RC-E | June 16 2026 consumption-billing switch (scheduled per M365 roadmap 559017 / Learn "use-work-iq") may change the `configuredTier` vocabulary | Situational (around GA) | Cluster of `unmapped` dated near the switch — see [RB-03](#12-runbook-rb-03) |
 
 ### 3.3 Diagnostic queries
 
@@ -338,7 +338,7 @@ Get-Content .\eval-output.json | ConvertFrom-Json |
 | RC-B | Surface is **not** a zero-rated Microsoft 365 surface (e.g., a custom / non-M365 channel) | High | Agent channel is not Teams / SharePoint / M365 Copilot under the user's own identity |
 | RC-C | User is licensed and on an M365 surface, but `surfaceZeroRated` was not set true | Medium | Engine input shows `surfaceZeroRated = false` for an M365 surface |
 | RC-D | User not in any **credit-scope** group (the OR-branch that would otherwise allow) | Medium | Q-02 / Get-Cbg227ScopeGroups — user absent from credit-scope group |
-| RC-E | Footnote 6/7 fair-usage / tenant-grounding refinement applies (credit-metered) 🔎 | Situational | Generative-answer-with-tenant-grounding or beyond-fair-use usage |
+| RC-E | Footnote 6/7 fair-usage / tenant-grounding refinement applies (credit-metered) | Situational | Generative-answer-with-tenant-grounding or beyond-fair-use usage |
 
 > **Distinguish from Missing-License (P4-S4).** An **unlicensed** user on `mcp-cs` / `mcp-agentbuilder` resolves to **Block – Missing license**, not a zero-rating fail-closed. Confirm license state with Q-05 before treating it as a zero-rating issue.
 
@@ -360,7 +360,7 @@ Get-MgUser -UserId <upn> | ForEach-Object {
 
 Pick the resolution that matches the **intended posture** — fail-closed can be correct:
 
-1. **If zero-rating should be resolved (footnote 6/7 base case):** confirm the agent surface is Teams / SharePoint / Microsoft 365 Copilot and invoked under the user's own identity, then run the engine with `-ZeroRatingResolved:$true` (the default). The licensed user is then **Allowed** — the license is sufficient, no credit scope required. 🔎 Confirm footnote numbering / fair-usage language against the current Licensing Guide PDF.
+1. **If zero-rating should be resolved (footnote 6/7 base case):** confirm the agent surface is Teams / SharePoint / Microsoft 365 Copilot and invoked under the user's own identity, then run the engine with `-ZeroRatingResolved:$true` (the default). The licensed user is then **Allowed** — the license is sufficient, no credit scope required. (Footnotes 6 & 7 and their fair-usage language were verified June 2026 against the Copilot Studio Licensing Guide and corroborated on Microsoft Learn, "billing-licensing".)
 2. **If the surface is genuinely not zero-rated (RC-B):** add the user to the appropriate **credit-scope** group (security-only; see §2) so the OR-branch allows them, **or** accept the fail-closed posture as the conservative-by-design outcome and document it.
 3. **If the conservative posture was chosen deliberately (RC-A):** this is working as configured. Fail-closed is the intended outcome when `-ZeroRatingResolved:$false`. Document the decision; only revert to `$true` if the footnote-7 base case applies for your tenant.
 4. **If unlicensed (P4-S4):** assign a Microsoft 365 Copilot license (this is a Missing-License block, resolved by licensing — not by zero-rating).
@@ -401,7 +401,7 @@ Pick the resolution that matches the **intended posture** — fail-closed can be
 |----|-------------|-----------|----------------|
 | RC-A | PAYG is alert-only by design — no hard-stop exists for it | Certain | Control 2.27 / portal §2; policy type is PAYG |
 | RC-B | The expectation was set from credit-policy behavior (which **does** hard-stop, Chat-only) and mis-applied to PAYG | High | Configuration note conflates the two policy objects |
-| RC-C | Per-agent cap on the agent is **detect-and-alert** (no write-API hard-stop) 🔎 | High | Q-04 / cap record enforcement mode |
+| RC-C | Per-agent cap on the agent is **detect-and-alert** (no public write-API hard-stop as of June 2026) | High | Q-04 / cap record enforcement mode |
 | RC-D | Budget-alert threshold set too high or alert not routed to an owner | Medium | Azure cost management alert config |
 
 ### 5.3 Diagnostic queries
@@ -542,7 +542,7 @@ Invoke-EntitlementEvaluation.ps1 -InputPath <inputs.json> -OutputPath <out.json>
 
 ## §8. Pillar CAP-NOENFORCE
 
-**One-line:** a per-agent cap is "not stopping" spend because **no public write API for cap / credit-policy enforcement exists yet** 🔎, so enforcement **degrades to detect-and-alert** — the cap is recorded and breaches are surfaced, but consumption is not programmatically blocked.
+**One-line:** a per-agent cap is "not stopping" spend because **no public write API for cap / credit-policy enforcement exists as of June 2026** (per-agent caps are Power Platform admin-center UI-managed, per Microsoft Learn, "manage-copilot-studio-messages-capacity"), so enforcement **degrades to detect-and-alert** — the cap is recorded and breaches are surfaced, but consumption is not programmatically blocked.
 
 !!! danger "Detect-and-Alert Is Not a Hard-Stop"
     Where the enforcement mode is **detect-and-alert**, the cap **monitors and alerts**; it does not block consumption. This is the designed degradation when a programmatic hard-stop API is unavailable. Do **not** document a detect-and-alert cap as a hard-stop in examiner evidence.
@@ -559,7 +559,7 @@ Invoke-EntitlementEvaluation.ps1 -InputPath <inputs.json> -OutputPath <out.json>
 
 | RC | Description | Likelihood | How to confirm |
 |----|-------------|-----------|----------------|
-| RC-A | Cap enforcement mode is **detect-and-alert** (no write-API hard-stop) 🔎 | High | Cap record `fsi_cbg_enforcementmode` = detect-and-alert |
+| RC-A | Cap enforcement mode is **detect-and-alert** (no public write-API hard-stop as of June 2026) | High | Cap record `fsi_cbg_enforcementmode` = detect-and-alert |
 | RC-B | Cap documented as `enforce` but the underlying hard-stop API is unproven | Medium | No verified hard-stop mechanism behind `enforce` |
 | RC-C | The only real hard-stop (credit policy) is Chat-only and the agent grounds on SharePoint | Medium | §6 — surface vs policy |
 | RC-D | Alert fired but was not routed / actioned | Medium | Alert routing config |
@@ -582,7 +582,7 @@ Get-CbgCapRecord | Where-Object { $_.EnforcementMode -eq 'enforce' } |
 2. **Route the alert:** confirm the cap-breach alert reaches an accountable owner (AI Governance Lead / Finance) with a defined response.
 3. **Where a true hard-stop is required on Chat:** use the prepaid **credit policy** (standalone hard-stop, Chat-only).
 4. **For SharePoint-grounded agents:** accept detect-and-alert plus PAYG alerting and coverage-gap monitoring; manage spend appetite via the cap threshold and Finance sign-off.
-5. **Re-verify the write-API status** 🔎 periodically — if Microsoft ships a programmatic hard-stop API, the enforcement mode can be upgraded with verification.
+5. **Re-verify the write-API status** periodically — there is no public hard-stop write API as of June 2026; should Microsoft ship a programmatic hard-stop API, the enforcement mode can be upgraded with verification.
 
 ### 8.5 Verification
 
@@ -688,7 +688,7 @@ Get-Cbg227CoverageGap -AgentId <agentId> | Select-Object MonitorOnly, RetainUnti
 
 **Title:** Bulk reclassification after the June 16 2026 Work IQ consumption-billing switch.
 
-**Trigger:** S-04 — a cluster of agents flips to `unmapped` (or changes pathway) around the **June 16, 2026** 🔎 Work IQ GA / consumption-billing switch, when `configuredTier` vocabulary or metering behavior changes.
+**Trigger:** S-04 — a cluster of agents flips to `unmapped` (or changes pathway) around the **June 16, 2026** (scheduled per M365 roadmap 559017 / Microsoft Learn "use-work-iq") Work IQ GA / consumption-billing switch, when `configuredTier` vocabulary or metering behavior changes.
 
 **Severity:** SEV-2 (governance signal disruption across many agents).
 
@@ -699,7 +699,7 @@ Get-Cbg227CoverageGap -AgentId <agentId> | Select-Object MonitorOnly, RetainUnti
 3. **Extend the classifier mapping** for any new `configuredTier` strings Microsoft introduced at GA (coordinate with the companion-solution owner). `configuredTier` remains authoritative and is evaluated first.
 4. **Re-evaluate** the in-scope population and confirm the `unmapped` count returns to zero (or each remaining `unmapped` has a follow-up owner).
 5. **Re-run coverage gap in monitor-only** and re-confirm sign-off before re-activating any enforcement — the switch may change the metered population and the spend estimate.
-6. **Re-verify the 🔎 reference values** (ceilings 50/10, credit rates, $0.01/credit, 25,000-credit pack, footnotes 6 & 7) against the post-switch Microsoft documentation.
+6. **Re-verify the remaining 🔎 reference values** (ceilings 50/10, credit rates, $0.01/credit, 25,000-credit pack) against the post-switch Microsoft documentation. (Footnotes 6 & 7 were verified June 2026.)
 
 **Exit criteria:** post-switch classification stable; coverage gap re-run and re-signed-off; reference values re-verified.
 
@@ -732,4 +732,4 @@ After resolving any SEV-1 / SEV-2 incident, refresh the control attestation so t
 - [`./verification-testing.md`](./verification-testing.md) — test procedures and the manifest-check cross-walk (`2.27.a`–`2.27.d`)
 - [Copilot Billing Governance — companion solution](https://judeper.github.io/FSI-AgentGov-Solutions/solutions/copilot-billing-governance/) 🔎
 
-*This troubleshooting guide supports compliance with the cited regulations; it does not, on its own, satisfy any of them. Verify the 🔎-flagged figures (June 16 2026 switch date, Licensing Guide footnotes 6 & 7, per-feature credit rates, $0.01/credit, 25,000-credits-per-month, tenant ceilings 50/10, and cap write-API availability) against current Microsoft documentation before treating any procedure as examiner evidence.*
+*This troubleshooting guide supports compliance with the cited regulations; it does not, on its own, satisfy any of them. The June 16 2026 Work IQ switch, Licensing Guide footnotes 6 & 7, and the absence of a public cap-enforcement write API were verified June 2026; still verify the remaining 🔎-flagged figures (per-feature credit rates, $0.01/credit, 25,000-credits-per-month, tenant ceilings 50/10) against current Microsoft documentation before treating any procedure as examiner evidence.*
