@@ -110,8 +110,8 @@ def test_real_manifest_produces_zero_todo_leakage(hook, manifest):
     serialized = json.dumps(cleaned)
     # No literal "TODO:" substring should survive in the published payload.
     assert "TODO:" not in serialized, "TODO placeholder leaked through scrubber"
-    # And the scrubbed payload is still a list of 78 controls.
-    assert len(cleaned) == 78
+    # And the scrubbed payload is still a list of 79 controls.
+    assert len(cleaned) == 79
 
 
 def test_write_manifest_scrubbed_emits_clean_file(hook, tmp_path):
@@ -122,6 +122,6 @@ def test_write_manifest_scrubbed_emits_clean_file(hook, tmp_path):
     assert "TODO:" not in payload, "published manifest still contains TODO placeholders"
     parsed = json.loads(payload)
     assert isinstance(parsed, list)
-    assert len(parsed) == 78
-    # The scrubbed count is non-negative and bounded by 6 fields × 78 controls.
-    assert 0 <= scrubbed_count <= 6 * 78
+    assert len(parsed) == 79
+    # The scrubbed count is non-negative and bounded by 6 fields × 79 controls.
+    assert 0 <= scrubbed_count <= 6 * 79

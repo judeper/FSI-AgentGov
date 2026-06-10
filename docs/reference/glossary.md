@@ -289,7 +289,7 @@ One of six design choices in Microsoft's CAPE framework describing how an organi
 MFA that uses hardware keys (FIDO2) or Windows Hello, making it resistant to phishing attacks.
 
 **Pillar (FSI control family)**
-In FSI-AgentGov, "Pillar" refers exclusively to one of the four control families: **Pillar 1 Security** (29 controls), **Pillar 2 Management** (26 controls), **Pillar 3 Reporting** (14 controls), **Pillar 4 SharePoint** (9 controls). Together the four pillars contain all 78 controls.
+In FSI-AgentGov, "Pillar" refers exclusively to one of the four control families: **Pillar 1 Security** (29 controls), **Pillar 2 Management** (27 controls), **Pillar 3 Reporting** (14 controls), **Pillar 4 SharePoint** (9 controls). Together the four pillars contain all 79 controls.
 
 > **Important disambiguation:** Microsoft CAPE materials sometimes use "pillar" to describe the five dimensions of the Agentic AI Maturity Model. In FSI-AgentGov, those five dimensions are called **Capability Drivers** (or simply **Drivers**). "Pillar" must NEVER be used to refer to a CAPE driver in FSI-AgentGov documentation. See `verify_language_rules.py` for enforcement.
 

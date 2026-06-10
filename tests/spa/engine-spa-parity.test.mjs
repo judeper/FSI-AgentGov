@@ -334,14 +334,14 @@ describe("Case A — fixture-derived engine↔SPA parity", () => {
   );
 
   it.skipIf(!PYTHON_AVAILABLE)(
-    "engine produces 78 scored controls",
+    "engine produces 79 scored controls",
     () => {
-      expect(engineOutput.controls).toHaveLength(78);
+      expect(engineOutput.controls).toHaveLength(79);
     }
   );
 
   it.skipIf(!PYTHON_AVAILABLE)(
-    "SPA perControl covers all 78 engine control IDs",
+    "SPA perControl covers all 79 engine control IDs",
     () => {
       const spaIds = new Set(Object.keys(spaEnvelope._computedScores?.perControl ?? {}));
       const missing = engineOutput.controls
@@ -444,9 +444,9 @@ describe("Case B — all-no equivalence (empty collected dir vs SPA all-no)", ()
   });
 
   it.skipIf(!PYTHON_AVAILABLE)(
-    "engine produces 78 scored controls with empty data",
+    "engine produces 79 scored controls with empty data",
     () => {
-      expect(engineOutput.controls).toHaveLength(78);
+      expect(engineOutput.controls).toHaveLength(79);
     }
   );
 

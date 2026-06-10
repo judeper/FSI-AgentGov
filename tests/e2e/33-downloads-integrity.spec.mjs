@@ -58,7 +58,7 @@ const FSI_MARKER_RE = /FSI|Pillar|Zone/i;
  * must be present somewhere in the workbook (across ALL sheets) before we
  * accept it as content. Threshold of 5 is calibrated to:
  *   - PASS the smallest legitimate role-based checklist (entra: 5 controls)
- *   - PASS the maturity dashboard (78 IDs across pillar sheets, 0 on Summary)
+ *   - PASS the maturity dashboard (79 IDs across pillar sheets, 0 on Summary)
  *   - REJECT a placeholder workbook with no control IDs at all
  * Plan-checker F3 originally proposed ≥10, but inspection of the actual
  * shipped workbooks revealed role-based subsets carry as few as 5; bumping

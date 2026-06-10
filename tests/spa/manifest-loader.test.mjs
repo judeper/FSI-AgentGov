@@ -9,9 +9,9 @@ const MANIFEST_PATH = join(here, "..", "..", "assessment", "manifest", "controls
 describe("manifest/controls.json", () => {
   const manifest = JSON.parse(readFileSync(MANIFEST_PATH, "utf8"));
 
-  it("contains exactly 78 controls", () => {
+  it("contains exactly 79 controls", () => {
     expect(Array.isArray(manifest)).toBe(true);
-    expect(manifest.length).toBe(78);
+    expect(manifest.length).toBe(79);
   });
 
   it("every control has id, title, pillar, and a solutions array", () => {

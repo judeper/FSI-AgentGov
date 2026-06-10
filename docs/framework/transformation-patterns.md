@@ -16,7 +16,7 @@ FSI-AgentGov adopts "Pattern" as a first-class framework concept for three reaso
 
 1. **Shared vocabulary with Microsoft conversations.** When a CSA, partner, or executive sponsor opens a discussion with "we want to deploy Pattern 5 in Q3," the FSI governance program needs to recognize the term, place it in the framework, and translate it into FSI zones and controls without re-litigating the vocabulary.
 2. **Pattern-aware governance defaults.** Each pattern has a typical deployment shape — who the agent talks to, what data it touches, and how much decision authority it holds. Those defaults determine the **default FSI Zone**, the headline **regulatory exposure profile**, and the **subset of FSI controls that "light up"** for a given initiative. Naming the pattern up front shortens the path from intent to control list.
-3. **Loose, attribution-clean alignment.** Pattern is a *descriptive* classification of a deployment shape. It does **not** change the underlying 78-control framework, override the [zone classification authority](zones-and-tiers.md), or relieve the firm of any regulatory obligation. Where CAPE language and FSI requirements diverge, FSI requirements govern; the [crosswalk](../reference/microsoft-cape-crosswalk.md) documents each reframing.
+3. **Loose, attribution-clean alignment.** Pattern is a *descriptive* classification of a deployment shape. It does **not** change the underlying 79-control framework, override the [zone classification authority](zones-and-tiers.md), or relieve the firm of any regulatory obligation. Where CAPE language and FSI requirements diverge, FSI requirements govern; the [crosswalk](../reference/microsoft-cape-crosswalk.md) documents each reframing.
 
 Patterns are an *additive lens*, not a replacement for the existing zones, pillars, or controls. An admin who never uses the word "pattern" can still implement the framework correctly; a governance lead who needs to map a CIO conversation onto controls benefits from the explicit mapping below.
 
@@ -126,9 +126,9 @@ A single agent deployment carries five distinct FSI-AgentGov classifications. Th
 |---|---|---|
 | **Pattern** | What *shape* does this deployment take? Who does the agent talk to and what does it do? | One primary pattern; some deployments span two patterns at the seam (e.g., Pattern 1 → Pattern 5 when employee drafts become customer communications). |
 | **Zone** | What *regulatory exposure* does this deployment carry? | Exactly one zone per agent at any point in time. See [Zones and Tiers](zones-and-tiers.md). |
-| **Pillar** | Which FSI control *family* does a given control live in? | Four pillars (Security, Management, Reporting, SharePoint) cover all 78 controls. A single deployment is governed by controls drawn from all four. |
+| **Pillar** | Which FSI control *family* does a given control live in? | Four pillars (Security, Management, Reporting, SharePoint) cover all 79 controls. A single deployment is governed by controls drawn from all four. |
 | **Capability Driver** | What *organizational readiness dimension* must mature to scale this pattern? | Five drivers (AI Strategy & Experience, Business Strategy, AI Governance & Security, Technology & Data, Organization & Culture). See [Capability Drivers](agentic-capability-drivers.md). |
-| **Controls** | What *actionable governance units* must be implemented? | Variable: a Pattern 1 / Zone 1 deployment may engage ~10 controls; a Pattern 4 / Zone 3 deployment engages most of the 78. |
+| **Controls** | What *actionable governance units* must be implemented? | Variable: a Pattern 1 / Zone 1 deployment may engage ~10 controls; a Pattern 4 / Zone 3 deployment engages most of the 79. |
 
 The diagnostic insight from Microsoft's CAPE materials — that the *weakest* Capability Driver is the scaling ceiling regardless of how strong the others are — applies to FSI but does not change the framework's per-control compliance posture. A firm may be capable of executing Pattern 4 organizationally yet still be required to implement the Pattern 4 mandatory controls before deployment. Capability maturity describes *capacity*; controls describe *obligation*.
 
@@ -157,7 +157,7 @@ Pattern selection is a brief intake question, not a flowchart. Four questions an
 - [Agentic Center of Excellence](agentic-coe.md) — CoE blueprint (Govern / Enable / Optimize / Scale) for governing pattern deployments at scale, with the FSI federation guardrails.
 - [Zones and Tiers](zones-and-tiers.md) — the FSI zone classification system that determines control depth for any chosen pattern.
 - [Regulatory Framework](regulatory-framework.md) — full FSI regulatory mapping (FINRA, SEC, OCC, Fed, GLBA, SOX, CFTC, BSA/AML).
-- [Control Catalog](../controls/index.md) — the 78 controls across four pillars.
+- [Control Catalog](../controls/index.md) — the 79 controls across four pillars.
 
 ---
 

@@ -236,6 +236,7 @@ nav:
       - 2.24 Feature Enablement Governance: controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance.md
       - 2.25 Agent 365 Governance Console: controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md
       - 2.26 Entra Agent ID Identity Governance: controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md
+      - 2.27 Consumption-Entitlement Governance: controls/pillar-2-management/2.27-consumption-entitlement-governance.md
     - Pillar 3 - Reporting:
       - controls/pillar-3-reporting/index.md
       - 3.1 Agent Inventory: controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md
@@ -549,6 +550,11 @@ nav:
           - PowerShell Setup: playbooks/control-implementations/2.26/powershell-setup.md
           - Verification: playbooks/control-implementations/2.26/verification-testing.md
           - Troubleshooting: playbooks/control-implementations/2.26/troubleshooting.md
+        - 2.27 Consumption-Entitlement Governance:
+          - Portal Walkthrough: playbooks/control-implementations/2.27/portal-walkthrough.md
+          - PowerShell Setup: playbooks/control-implementations/2.27/powershell-setup.md
+          - Verification: playbooks/control-implementations/2.27/verification-testing.md
+          - Troubleshooting: playbooks/control-implementations/2.27/troubleshooting.md
       - Pillar 3 - Reporting:
         - 3.1 Agent Inventory:
           - Portal Walkthrough: playbooks/control-implementations/3.1/portal-walkthrough.md

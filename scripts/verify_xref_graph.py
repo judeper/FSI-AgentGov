@@ -17,7 +17,7 @@ SCAN_ROOTS = [
     REPO_ROOT / 'docs' / 'framework',
     REPO_ROOT / 'docs' / 'reference',
 ]
-EXPECTED_CONTROL_COUNT = 78
+EXPECTED_CONTROL_COUNT = 79
 CONTROL_ID_PATTERN = r'[1-4]\.(?:[1-9]|1\d|2\d)'
 CONTROL_ID_RE = re.compile(rf'\b({CONTROL_ID_PATTERN})\b')
 CONTROL_INDEX_ROW_RE = re.compile(

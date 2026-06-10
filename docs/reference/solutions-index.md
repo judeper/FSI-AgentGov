@@ -16,7 +16,7 @@ This file is intentionally pinned to `assessment/data/solutions-lock.json`, the 
 
 ## Coverage scope
 
-Not all 78 controls have a companion solution in FSI-AgentGov-Solutions. Solution mapping is selective by design.
+Not all 79 controls have a companion solution in FSI-AgentGov-Solutions. Solution mapping is selective by design.
 
 Companion solutions are published when dedicated automation adds value beyond what Microsoft's native admin surfaces already provide. Many controls are operated entirely via native admin surfaces — Microsoft Purview, Entra ID, and the Power Platform Admin Center — and verified by the framework's own assessment-engine collectors rather than by a standalone solution.
 
@@ -28,7 +28,7 @@ Absence of a control from this catalog is not a coverage gap — it reflects the
 
 Each live solution declares the Microsoft CAPE [Frontier Transformation Pattern](../framework/transformation-patterns.md) it supports, the [Agentic Capability Driver](../framework/agentic-capability-drivers.md) it strengthens, and the [Center of Excellence function](../framework/agentic-coe.md) (Govern, Enable, Optimize, or Scale) it serves. These tags let admins, AI Governance Leads, and CSAs filter the catalog by the lens that matters for the conversation in front of them — a pattern-first conversation pulls a different shortlist than a CoE-readiness conversation.
 
-Pattern, Driver, and CoE columns appear in the live inventory table below and are repeated as bullets in each solution's detail block. The companion [Pattern coverage matrix (showing which solutions support each pattern)](pattern-coverage.md) aggregates the same metadata across all 78 controls and 36 companion solutions (35 live + 1 preview) for portfolio-level review.
+Pattern, Driver, and CoE columns appear in the live inventory table below and are repeated as bullets in each solution's detail block. The companion [Pattern coverage matrix (showing which solutions support each pattern)](pattern-coverage.md) aggregates the same metadata across all 79 controls and 36 companion solutions (35 live + 1 preview) for portfolio-level review.
 
 ## Companion Inventory (36 Solutions: 35 Live + 1 Preview)
 

@@ -483,7 +483,7 @@ Organizations should conduct separate analysis for state-specific requirements.
 | OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) | 6 controls | Model risk |
 | CFTC 1.31 | 3 controls | Recordkeeping |
 
-**Total:** 78 controls across 4 pillars providing mapped coverage to primary US financial regulations.
+**Total:** 79 controls across 4 pillars providing mapped coverage to primary US financial regulations.
 
 !!! note
     Coverage indicates which framework controls address aspects of each regulation. Actual compliance requires implementation, validation, and ongoing maintenance.
@@ -492,7 +492,7 @@ Organizations should conduct separate analysis for state-specific requirements.
 
 ## Microsoft CAPE alignment cross-reference
 
-FSI-AgentGov has included a Microsoft CAPE alignment layer since v1.5.0 (current at v1.6.2) that maps Microsoft's six Frontier Transformation Patterns onto FSI zones, controls, and regulatory exposure. This alignment does not modify the underlying 78-control framework, which remains the definitive governance structure for US financial services AI deployments. CAPE is a Microsoft business-strategy framework designed to accelerate enterprise AI transformation, not a regulatory framework. Any deployment using CAPE Patterns 4–6 sits inside the FSI regulatory perimeter and triggers the same regulatory obligations as any other AI deployment subject to FINRA, SEC, OCC, Fed, GLBA, SOX, and state regulatory oversight.
+FSI-AgentGov has included a Microsoft CAPE alignment layer since v1.5.0 (current at v1.6.2) that maps Microsoft's six Frontier Transformation Patterns onto FSI zones, controls, and regulatory exposure. This alignment does not modify the underlying 79-control framework, which remains the definitive governance structure for US financial services AI deployments. CAPE is a Microsoft business-strategy framework designed to accelerate enterprise AI transformation, not a regulatory framework. Any deployment using CAPE Patterns 4–6 sits inside the FSI regulatory perimeter and triggers the same regulatory obligations as any other AI deployment subject to FINRA, SEC, OCC, Fed, GLBA, SOX, and state regulatory oversight.
 
 The [Microsoft CAPE crosswalk](../reference/microsoft-cape-crosswalk.md) provides the canonical mapping between CAPE vocabulary and FSI governance requirements. For each CAPE pattern, the crosswalk identifies:
 
