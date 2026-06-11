@@ -310,12 +310,14 @@ Two policy objects back metered spend, and three configurations compose them:
 | | PAYG billing policy (`fsi_cbgbillingpolicy`) | Prepaid credit policy (`fsi_cbgcreditpolicy`) |
 |---|---|---|
 | Backing | Azure subscription | Prepaid (no Azure subscription) |
-| Tenant ceiling 🔎 | **50** | **10** |
+| Tenant ceiling | **50** | **10** |
 | Setup | Two-step **add → connect** | Standalone |
 | Spend control | **Budget alerts only — not a hard-stop** | Standalone **hard-stop** |
 | Surfaces | All metered surfaces **including SharePoint** grounding | **Chat-only today**; SharePoint stays on PAYG |
 
 Three supported configurations: **credit-only**, **credit + PAYG**, **PAYG-only**.
+
+> **Tenant ceilings (confirmed as of June 2026).** Up to **50** PAYG billing policies per tenant (Microsoft Learn — pay-as-you-go) and up to **10** Copilot credit policies per tenant (Microsoft Learn — requirements-messages-management). Pricing is time-sensitive; re-confirm against current Microsoft licensing documentation as it changes.
 
 ### 4.1 Creating the policies (documented portal flows)
 
@@ -355,7 +357,7 @@ GET https://api.bap.microsoft.com/providers/Microsoft.BusinessAppPlatform/billin
 Authorization: Bearer <BAP token>
 ```
 
-> **Verify.** Record the chosen configuration (credit-only / credit + PAYG / PAYG-only), the observed `Count` vs `Ceiling` for each object, and the `Source`. A `Source='platform-with-dataverse-fallback'` means the **credit** rows came from the reconciled store, not a live platform read (defect 0.8) — note it in the configuration record. Re-confirm the **50 / 10** ceilings against current Microsoft documentation. 🔎
+> **Verify.** Record the chosen configuration (credit-only / credit + PAYG / PAYG-only), the observed `Count` vs `Ceiling` for each object, and the `Source`. A `Source='platform-with-dataverse-fallback'` means the **credit** rows came from the reconciled store, not a live platform read (defect 0.8) — note it in the configuration record. The **50 / 10** ceilings are confirmed as of June 2026 (Microsoft Learn — pay-as-you-go / requirements-messages-management); re-confirm against current Microsoft licensing documentation as pricing changes.
 
 ---
 
@@ -676,9 +678,9 @@ function Get-Agt227CoverageGapReview {
 
 ### 9.3 Coverage-gap spend estimate (reference constants — not an invoice)
 
-The engine carries per-feature **Copilot credit** reference rates for cost estimation. These are constants (not a Dataverse table); **verify against current Microsoft licensing documentation before relying on them** 🔎.
+The engine carries per-feature **Copilot credit** reference rates for cost estimation. These are constants (not a Dataverse table), **confirmed per Microsoft Learn (requirements-messages-management) as of June 2026** (pricing is time-sensitive — re-confirm against current Microsoft licensing documentation as it changes).
 
-| Feature | Credits 🔎 |
+| Feature | Credits |
 |---|---|
 | Classic answer | 1 |
 | Generative answer | 2 |
@@ -686,7 +688,7 @@ The engine carries per-feature **Copilot credit** reference rates for cost estim
 | Tenant-graph grounding | 10 |
 | Agent flow | 13 per 100 flow actions |
 
-Pricing context 🔎: **$0.01 per credit**; the prepaid pack is **25,000 credits per month, non-rolling** (unused credits do not carry over). PAYG consumption meters against an Azure subscription with **budget alerts only — not a hard-stop**.
+Pricing context (confirmed per Microsoft Learn — pay-as-you-go and requirements-messages-management, as of June 2026): **$0.01 per credit**; the prepaid pack is **25,000 credits per month ($200 per tenant per month), non-rolling** (unused credits do not carry over). PAYG consumption meters against an Azure subscription with **budget alerts only — not a hard-stop**.
 
 > **Verify (manifest check `2.27.c`).** Evidence for criteria 6 and 7 is the coverage-gap export with `fsi_monitoronly = true` on **all** rows, the per-agent eligible / would-be-blocked counts, the capped UPN sample, and the dominant block reason — plus a **documented sign-off** on the would-be-blocked population and a spend **estimate** reconciled against the Microsoft 365 admin center and Azure cost reporting. These figures support cost *estimation*; they do not produce a billing-accurate invoice. **Sign-off is required before any enforcement is activated.**
 
@@ -833,7 +835,7 @@ function Test-Agt227PlaybookHealth {
 | **Weekly** | Reconcile policy inventory against the 50 / 10 ceilings | AI Administrator | §4 |
 | **Before any enforcement** | Coverage-gap review + would-be-blocked sign-off | AI Governance Lead + Finance / Controller + Business Unit Owner | §9 |
 | **Quarterly** | Confirm retention and SIEM forwarding for examination readiness | Compliance Officer | §10 |
-| **Quarterly** | Re-verify the remaining 🔎 reference values (per-feature credit rates, tenant ceilings 50/10) against Microsoft documentation, and watch for a public cap-enforcement write API (caps degrade to detect-and-alert until one ships) | AI Governance Lead | §0, §4, §7, §8, §9 |
+| **Quarterly** | Re-confirm pricing and ceilings against current Microsoft licensing documentation as they change (per-feature credit rates, $0.01/credit, 25,000-credit pack, tenant ceilings 50/10 were verified June 2026 — pricing is time-sensitive), re-check current portal/PPAC blade labels and the per-tenant `COPILOT` service-plan name, and watch for a public cap-enforcement write API should Microsoft ship one (caps remain detect-and-alert until then) | AI Governance Lead | §0, §4, §7, §8, §9 |
 
 ### 11.4 Hedged language reminder
 
@@ -878,4 +880,4 @@ Implementation caveat to retain in narrative reports:
 
 ---
 
-*Updated: June 2026 | Version: v1.0 | UI Verification Status: Needs Review — the June 16 2026 Work IQ switch, Licensing Guide footnotes 6 & 7, and the absence of a public cap/credit-policy write API were verified June 2026; still verify the remaining 🔎-flagged figures (per-feature credit rates, $0.01/credit, 25,000-credit pack, tenant ceilings 50/10) before relying on enforcement.*
+*Updated: June 2026 | Version: v1.0 | UI Verification Status: Needs Review — the June 16 2026 Work IQ switch, Licensing Guide footnotes 6 & 7, the absence of a public cap/credit-policy write API, and the tenant ceilings (50/10) and per-feature credit rates ($0.01/credit, 25,000-credit pack) were verified June 2026; pricing is time-sensitive, so re-confirm figures against current Microsoft licensing documentation, and verify current portal/PPAC labels and the per-tenant `COPILOT` service-plan name (still shifting during the June 2026 rollout) before relying on enforcement.*

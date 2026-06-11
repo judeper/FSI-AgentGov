@@ -8,7 +8,7 @@
 >
 > **Companion controls:** [3.5 Cost Allocation and Budget Tracking](../../../controls/pillar-3-reporting/3.5-cost-allocation-and-budget-tracking.md) consumes the materialized decisions and coverage-gap aggregates this playbook produces. [1.18 Application-Level Authorization and RBAC](../../../controls/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md) supplies the functional-access input on which the entitlement decision builds.
 >
-> **🔎 Live-verification window.** Microsoft consumption-billing surfaces are changing rapidly. The Copilot Credits consumption-billing model becomes the operative metering path for several agent surfaces from **June 16, 2026** — scheduled per the Microsoft 365 roadmap (feature 559017) and Microsoft Learn ("use-work-iq"), verified June 2026 (the same day the Work IQ API moves to Copilot-Credits consumption billing). Verify the tenant ceilings (PAYG 50 / credit 10), the per-feature credit rates, and the `$0.01`/credit and 25,000-credits-per-month figures against Microsoft licensing documentation before relying on the figures below. The Licensing Guide footnotes 6 & 7 and the absence of a public cap/credit-policy **write API** were verified June 2026 (the latter per Microsoft Learn, "manage-copilot-studio-messages-capacity").
+> **🔎 Live-verification window.** Microsoft consumption-billing surfaces are changing rapidly. The Copilot Credits consumption-billing model becomes the operative metering path for several agent surfaces from **June 16, 2026** — scheduled per the Microsoft 365 roadmap (feature 559017) and Microsoft Learn ("use-work-iq"), verified June 2026 (the same day the Work IQ API moves to Copilot-Credits consumption billing). The tenant ceilings (PAYG 50 / credit 10), the per-feature credit rates, and the `$0.01`/credit and 25,000-credits-per-month ($200 per tenant per month, non-rolling) figures are confirmed as of June 2026 (Microsoft Learn — pay-as-you-go and requirements-messages-management); pricing is time-sensitive, so re-confirm against current Microsoft licensing documentation as it changes before relying on the figures below. The Licensing Guide footnotes 6 & 7 and the absence of a public cap/credit-policy **write API** were verified June 2026 (the latter per Microsoft Learn, "manage-copilot-studio-messages-capacity"). Still verify current portal/PPAC labels and the per-tenant `COPILOT` service-plan name, which continue to shift during the rollout.
 >
 > **Last UI verified:** June 2026 against the Microsoft 365 admin center, Power Platform admin center pay-as-you-go billing, and Microsoft Graph `v1.0` group endpoints.
 
@@ -239,7 +239,7 @@ Add `-FromPlatform -BillingApiAccessToken $bapToken` to read PAYG policies live 
 }
 ```
 
-A short **configuration note** accompanies the export, recording: the selected configuration (credit-only / credit + PAYG / PAYG-only); that the credit policy is **Chat-only today** while SharePoint-grounded consumption stays on PAYG; and the per-feature credit-rate basis used for §8 estimates (Classic 1 · Generative 2 · Agent action 5 · Tenant-graph grounding 10 · Agent flow 13 per 100 actions; `$0.01`/credit; prepaid pack 25,000 credits/month non-rolling 🔎).
+A short **configuration note** accompanies the export, recording: the selected configuration (credit-only / credit + PAYG / PAYG-only); that the credit policy is **Chat-only today** while SharePoint-grounded consumption stays on PAYG; and the per-feature credit-rate basis used for §8 estimates (Classic 1 · Generative 2 · Agent action 5 · Tenant-graph grounding 10 · Agent flow 13 per 100 actions; `$0.01`/credit; prepaid pack 25,000 credits/month non-rolling — confirmed per Microsoft Learn (requirements-messages-management) as of June 2026).
 
 ### 2.5 Pass / fail thresholds
 
@@ -508,7 +508,7 @@ Evidences **criterion 7** — the governance gate on manifest check **`2.27.c`**
 
 1. Sum `fsi_blockeduserscount` across all `fsi_cbgcoveragegap` rows from §7 — this is the would-be-blocked population.
 2. Convene the coverage-gap review (AI Governance Lead; Business Unit Owner for affected cohorts; Finance / Controller for the cap thresholds and appetite).
-3. Produce a spend estimate from the per-feature credit rates (Classic 1 · Generative 2 · Agent action 5 · Tenant-graph grounding 10 · Agent flow 13/100 🔎) at `$0.01`/credit.
+3. Produce a spend estimate from the per-feature credit rates (Classic 1 · Generative 2 · Agent action 5 · Tenant-graph grounding 10 · Agent flow 13/100 — confirmed per Microsoft Learn, requirements-messages-management, as of June 2026) at `$0.01`/credit.
 4. Reconcile the estimate against the Microsoft 365 admin center and Azure cost reporting; record the variance.
 5. Capture the sign-off **before** flipping any agent's `fsi_monitoronly` to enforcement.
 

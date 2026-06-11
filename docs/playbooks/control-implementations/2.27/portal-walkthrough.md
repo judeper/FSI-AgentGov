@@ -1,7 +1,7 @@
 # Portal Walkthrough — Control 2.27: Consumption-Entitlement Governance
 
 !!! info "Metered Copilot consumption billing — availability and licensing context"
-    This playbook configures governance over **who may incur metered Copilot spend** (Copilot Credits and pay-as-you-go consumption). Microsoft's **Copilot Credits consumption-billing model** becomes the operative metering path for several agent surfaces from **June 16, 2026** — scheduled per the Microsoft 365 roadmap (feature 559017) and Microsoft Learn ("use-work-iq"), verified June 2026 — the same day the Work IQ API moves to Copilot-Credits consumption billing. Two policy objects back metered spend: a **PAYG billing policy** (Azure subscription, tenant ceiling **50** 🔎, **budget alerts only — not a hard-stop**, covers all metered surfaces including SharePoint grounding) and a **prepaid credit policy** (no Azure subscription, tenant ceiling **10** 🔎, standalone **hard-stop**; the standalone credit-policy hard-stop is **Chat-only today** — SharePoint grounding is funded via a paired PAYG policy). Pricing context is **$0.01 per credit** 🔎 and the prepaid pack is **25,000 credits per month, non-rolling** 🔎. The **June 2026 Microsoft Copilot Studio Licensing Guide (footnotes 6 & 7)** — verified June 2026 and corroborated on Microsoft Learn ("billing-licensing") — resolves the base zero-rating question: Copilot Studio–built agents surfaced on **Teams, SharePoint, and Microsoft 365 Copilot**, invoked under the licensed user's own identity, are **included** in the Microsoft 365 Copilot User SL at no additional charge, subject to **fair-usage limits**. **Verify the current ceilings and per-feature credit rates against Microsoft licensing documentation before wiring enforcement** — Microsoft consumption-billing surfaces are changing rapidly during this window.
+    This playbook configures governance over **who may incur metered Copilot spend** (Copilot Credits and pay-as-you-go consumption). Microsoft's **Copilot Credits consumption-billing model** becomes the operative metering path for several agent surfaces from **June 16, 2026** — scheduled per the Microsoft 365 roadmap (feature 559017) and Microsoft Learn ("use-work-iq"), verified June 2026 — the same day the Work IQ API moves to Copilot-Credits consumption billing. Two policy objects back metered spend: a **PAYG billing policy** (Azure subscription, tenant ceiling **50** — the per-tenant PAYG billing-policy limit, confirmed per Microsoft Learn (pay-as-you-go) as of June 2026, **budget alerts only — not a hard-stop**, covers all metered surfaces including SharePoint grounding) and a **prepaid credit policy** (no Azure subscription, tenant ceiling **10** — the per-tenant credit-policy limit, confirmed per Microsoft Learn (requirements-messages-management) as of June 2026, standalone **hard-stop**; the standalone credit-policy hard-stop is **Chat-only today** — SharePoint grounding is funded via a paired PAYG policy). Pricing context is **$0.01 per credit** and the prepaid pack is **25,000 credits per month ($200 per tenant per month), non-rolling** — confirmed per Microsoft Learn (pay-as-you-go and requirements-messages-management) as of June 2026. The **June 2026 Microsoft Copilot Studio Licensing Guide (footnotes 6 & 7)** — verified June 2026 and corroborated on Microsoft Learn ("billing-licensing") — resolves the base zero-rating question: Copilot Studio–built agents surfaced on **Teams, SharePoint, and Microsoft 365 Copilot**, invoked under the licensed user's own identity, are **included** in the Microsoft 365 Copilot User SL at no additional charge, subject to **fair-usage limits**. **These ceilings and per-feature credit rates are confirmed as of June 2026; pricing is time-sensitive, so re-confirm against current Microsoft licensing documentation as it changes, and verify current portal/PPAC blade labels** — Microsoft consumption-billing surfaces are still changing during this window.
 
 !!! danger "READ FIRST — Scope and Sibling Routing"
     **This playbook configures the consumption-entitlement decision** — which users are entitled to incur metered or premium consumption through an agent, under which billing or credit policy, on which surface. It walks you through the **Microsoft 365 admin center**, the **Power Platform admin center (PPAC)**, the **Microsoft Entra admin center**, and the **Power Apps / Dataverse** surfaces required to satisfy Verification Criteria 1–8 of [Control 2.27](../../../controls/pillar-2-management/2.27-consumption-entitlement-governance.md). The companion **[Copilot Billing Governance](https://judeper.github.io/FSI-AgentGov-Solutions/solutions/copilot-billing-governance/)** 🔎 solution implements the entitlement contract, per-agent caps, and coverage-gap analysis referenced throughout.
@@ -187,7 +187,7 @@ The Power Platform pay-as-you-go flow is a **two-step add → connect**: you fir
    - **Azure subscription / resource group / region:** select the subscription that will be metered. The operating identity needs Owner or Contributor on the subscription.
    - Click **Create**.
 3. Open the new billing policy → **Environments → Add environments** (step 2 — *connect*). Add the environments whose metered agents should bill against this policy.
-4. Record the **tenant ceiling of 50** 🔎 (verify the current value against Microsoft documentation) on the CBG `fsi_cbgbillingpolicy` row.
+4. Record the **tenant ceiling of 50** (the per-tenant PAYG billing-policy limit, confirmed per Microsoft Learn — pay-as-you-go, as of June 2026) on the CBG `fsi_cbgbillingpolicy` row.
 
 **Verify:** the billing policy shows **Connected environments > 0**. A billing policy with no connected environments meters nothing.
 
@@ -195,8 +195,8 @@ The Power Platform pay-as-you-go flow is a **two-step add → connect**: you fir
 
 ### 2.2 Establish the prepaid credit policy
 
-1. Provision **Copilot Credits / Copilot Studio capacity** via **M365 admin center → Billing → Purchase services** (or the Copilot capacity blade — verify current navigation 🔎). The prepaid pack is **25,000 credits per month, non-rolling** 🔎 — unused credits do not carry over.
-2. Record the **tenant ceiling of 10** 🔎 and the standalone **hard-stop** behavior on the CBG `fsi_cbgcreditpolicy` row.
+1. Provision **Copilot Credits / Copilot Studio capacity** via **M365 admin center → Billing → Purchase services** (or the Copilot capacity blade — verify current navigation 🔎). The prepaid pack is **25,000 credits per month ($200 per tenant per month), non-rolling** (confirmed per Microsoft Learn — requirements-messages-management, as of June 2026) — unused credits do not carry over.
+2. Record the **tenant ceiling of 10** (the per-tenant credit-policy limit, confirmed per Microsoft Learn — requirements-messages-management, as of June 2026) and the standalone **hard-stop** behavior on the CBG `fsi_cbgcreditpolicy` row.
 3. Note the constraint: the standalone **credit-policy hard-stop is Chat-only today** — SharePoint-grounded consumption continues to bill against the PAYG policy from §2.1, and prepaid-pack credits reach SharePoint only via that paired PAYG configuration.
 
 *Screenshot anchor: `docs/images/2.27/EXPECTED.md#2-2-credit-policy-capacity` — Copilot capacity / credits page showing prepaid pack and ceiling.*
@@ -442,9 +442,9 @@ The coverage-gap analysis is the load-bearing **"who would be blocked"** deliver
 
 ### 7.2 Produce the coverage-gap spend estimate
 
-Estimate coverage-gap spend from the per-feature **Copilot credit rates** (reference constants — verify current values against Microsoft licensing documentation 🔎):
+Estimate coverage-gap spend from the per-feature **Copilot credit rates** (reference constants — confirmed per Microsoft Learn (requirements-messages-management) as of June 2026):
 
-| Feature | Credits 🔎 |
+| Feature | Credits |
 |---|---|
 | Classic answer | 1 |
 | Generative answer | 2 |
@@ -452,7 +452,7 @@ Estimate coverage-gap spend from the per-feature **Copilot credit rates** (refer
 | Tenant-graph grounding | 10 |
 | Agent flow | 13 per 100 flow actions |
 
-Pricing context: **$0.01 per credit** 🔎; prepaid pack **25,000 credits per month, non-rolling** 🔎.
+Pricing context (confirmed per Microsoft Learn — pay-as-you-go and requirements-messages-management, as of June 2026): **$0.01 per credit**; prepaid pack **25,000 credits per month ($200 per tenant per month), non-rolling**.
 
 !!! warning "Estimate, Not an Invoice"
     These figures support cost **estimation**; they do **not** produce a billing-accurate invoice. Reconcile the estimate against the **Microsoft 365 admin center** and **Azure cost reporting**. State the estimate caveat in the sign-off record.
@@ -543,7 +543,7 @@ Pricing context: **$0.01 per credit** 🔎; prepaid pack **25,000 credits per mo
 - [`./troubleshooting.md`](./troubleshooting.md) — common failure modes and resolutions
 - [Copilot Billing Governance — companion solution](https://judeper.github.io/FSI-AgentGov-Solutions/solutions/copilot-billing-governance/) 🔎 — implements the entitlement contract, per-agent caps, and coverage-gap analysis
 - [Microsoft Copilot Studio — billing and licensing](https://learn.microsoft.com/en-us/microsoft-copilot-studio/billing-licensing) 🔎
-- [Microsoft Copilot Studio — capacity and messages](https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-messages-management) 🔎
+- [Microsoft Copilot Studio — capacity and messages](https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-messages-management) — *per-feature credit rates, $0.01/credit, and the 25,000-credits-per-month pack confirmed here as of June 2026*
 - [Power Platform — pay-as-you-go overview](https://learn.microsoft.com/en-us/power-platform/admin/pay-as-you-go-overview)
 
-*This walkthrough governs the consumption-entitlement decision; it does not, on its own, satisfy any regulation. The June 16 2026 Work IQ switch, Licensing Guide footnotes 6 & 7, and the absence of a public cap-enforcement write API were verified June 2026; still verify the remaining 🔎-flagged figures (per-feature credit rates, $0.01/credit, 25,000-credits-per-month, tenant ceilings 50/10) against current Microsoft documentation before treating any procedure as examiner evidence.*
+*This walkthrough governs the consumption-entitlement decision; it does not, on its own, satisfy any regulation. The June 16 2026 Work IQ switch, Licensing Guide footnotes 6 & 7, the absence of a public cap-enforcement write API, and the tenant ceilings (50/10) and per-feature credit rates ($0.01/credit, 25,000-credits-per-month pack) were verified June 2026; pricing is time-sensitive, so re-confirm figures against current Microsoft documentation, and verify current portal/PPAC labels and per-tenant service-plan names (still shifting during the June 2026 rollout) before treating any procedure as examiner evidence.*

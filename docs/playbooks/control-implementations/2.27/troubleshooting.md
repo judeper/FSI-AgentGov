@@ -2,7 +2,7 @@
 
 > **Scope.** This playbook covers operational failure modes for the consumption-entitlement program: security-group registry admission gating, agent pathway classification, the switch-on-pathway entitlement contract (including zero-rating resolution), the two policy objects (PAYG vs prepaid credit), per-agent spend caps, the pre-enforcement coverage-gap analysis, and retention / SIEM forwarding. It is the diagnostic companion to the [Control 2.27 specification](../../../controls/pillar-2-management/2.27-consumption-entitlement-governance.md), the [portal walkthrough](./portal-walkthrough.md), the [PowerShell setup pack](./powershell-setup.md), and the [verification-testing pack](./verification-testing.md). The companion **[Copilot Billing Governance](https://judeper.github.io/FSI-AgentGov-Solutions/solutions/copilot-billing-governance/)** 🔎 solution implements the engine referenced throughout.
 >
-> **Availability hedging (June 2026 rollout).** Microsoft's Copilot Credits consumption-billing model becomes the operative metering path for several agent surfaces from **June 16, 2026** — scheduled per the Microsoft 365 roadmap (feature 559017) and Microsoft Learn ("use-work-iq"), verified June 2026 — the same day the Work IQ API moves to Copilot-Credits consumption billing. Tenant ceilings (PAYG **50** / credit **10**) 🔎, per-feature **credit rates**, **$0.01 per credit**, and the **25,000-credits-per-month** prepaid pack 🔎 are reference values that should be re-verified against Microsoft licensing documentation before they are used as examiner evidence. Whether a public **write API** for credit-policy / per-agent-cap enforcement exists is resolved: as of June 2026 there is **no public write API** (per-agent caps are Power Platform admin-center UI-managed, per Microsoft Learn, "manage-copilot-studio-messages-capacity"), so a cap **degrades to detect-and-alert** rather than a hard-stop; should Microsoft ship one, caps can be upgraded to a hard-stop.
+> **Availability hedging (June 2026 rollout).** Microsoft's Copilot Credits consumption-billing model becomes the operative metering path for several agent surfaces from **June 16, 2026** — scheduled per the Microsoft 365 roadmap (feature 559017) and Microsoft Learn ("use-work-iq"), verified June 2026 — the same day the Work IQ API moves to Copilot-Credits consumption billing. Tenant ceilings (PAYG **50** / credit **10**), per-feature **credit rates**, **$0.01 per credit**, and the **25,000-credits-per-month ($200 per tenant per month, non-rolling)** prepaid pack are confirmed as of June 2026 (Microsoft Learn — pay-as-you-go and requirements-messages-management); pricing is time-sensitive, so re-confirm against current Microsoft licensing documentation as it changes before relying on the figures as examiner evidence. Whether a public **write API** for credit-policy / per-agent-cap enforcement exists is resolved: as of June 2026 there is **no public write API** (per-agent caps are Power Platform admin-center UI-managed, per Microsoft Learn, "manage-copilot-studio-messages-capacity"), so a cap **degrades to detect-and-alert** rather than a hard-stop; should Microsoft ship one, caps can be upgraded to a hard-stop.
 >
 > **Regulatory framing.** Procedures here **support compliance with** — they do not by themselves satisfy — SOX §404 (IT general controls over spend authorization), GLBA 501(b) (Safeguards Rule), FINRA Rule 4511 (books and records, six-year retention for member firms), and SEC Rule 17a-4(b)(4) (records preservation), and **contribute to** third-party AI spend oversight informed by OCC Bulletin 2023-17. This control governs the entitlement **decision**; implementation requires control-owner sign-off, and no automated procedure removes the obligation to attest to control effectiveness.
 >
@@ -122,8 +122,8 @@ function Get-Cbg227Health {
         Cloud             = (Get-MgContext).Environment
         PaygPolicyPresent = [bool]$inv.PayAsYouGo
         CreditPolicyPresent = [bool]$inv.Credit
-        PaygCeiling       = 50    # verify current value 🔎
-        CreditCeiling     = 10    # verify current value 🔎
+        PaygCeiling       = 50    # confirmed per-tenant PAYG billing-policy limit (Microsoft Learn, pay-as-you-go), as of June 2026
+        CreditCeiling     = 10    # confirmed per-tenant credit-policy limit (Microsoft Learn, requirements-messages-management), as of June 2026
         ScopeGroupCount   = (Get-Cbg227ScopeGroups).Count
         MailEnabledScopeGroups = (Get-Cbg227ScopeGroups | Where-Object { $_.MailEnabled }).Count
     }
@@ -656,7 +656,7 @@ Get-Cbg227CoverageGap -AgentId <agentId> | Select-Object MonitorOnly, RetainUnti
 2. **Confirm the gate status:** check `fsi_monitoronly` on the coverage-gap rows. If enforcement was activated without a documented sign-off, record the finding honestly — do not back-date the sign-off.
 3. **Produce the coverage gap now in monitor-only mode** for all in-scope metered agents (portal §7 / `Invoke-EntitlementEvaluation.ps1`), including the would-be-blocked count and the capped UPN sample.
 4. **Convene the review** (AI Governance Lead + Business Unit Owner + Finance / Controller) and obtain the sign-off, dated as of today (current). State the remediation timeline for any agents where enforcement preceded sign-off.
-5. **Produce the spend estimate** from the per-feature credit rates 🔎 and reconcile against the M365 admin center / Azure cost reporting (estimate caveat stated).
+5. **Produce the spend estimate** from the per-feature credit rates (confirmed per Microsoft Learn — requirements-messages-management, as of June 2026) and reconcile against the M365 admin center / Azure cost reporting (estimate caveat stated).
 6. **Document the corrective action** for the examiner: the gate is now enforced (no enforcement without signed-off coverage gap) and the verification check (`2.27.c`) is in place.
 
 **Exit criteria:** signed-off coverage gap on file; all rows traceable; corrective-action note recorded.
@@ -699,9 +699,9 @@ Get-Cbg227CoverageGap -AgentId <agentId> | Select-Object MonitorOnly, RetainUnti
 3. **Extend the classifier mapping** for any new `configuredTier` strings Microsoft introduced at GA (coordinate with the companion-solution owner). `configuredTier` remains authoritative and is evaluated first.
 4. **Re-evaluate** the in-scope population and confirm the `unmapped` count returns to zero (or each remaining `unmapped` has a follow-up owner).
 5. **Re-run coverage gap in monitor-only** and re-confirm sign-off before re-activating any enforcement — the switch may change the metered population and the spend estimate.
-6. **Re-verify the remaining 🔎 reference values** (ceilings 50/10, credit rates, $0.01/credit, 25,000-credit pack) against the post-switch Microsoft documentation. (Footnotes 6 & 7 were verified June 2026.)
+6. **Re-confirm pricing and check the volatile surfaces post-switch** — the tenant ceilings (50/10), per-feature credit rates, $0.01/credit, and 25,000-credit pack were verified June 2026, but pricing is time-sensitive (re-confirm against current Microsoft licensing documentation as it changes); also re-check the current portal/PPAC blade labels and the per-tenant `COPILOT` service-plan name, which may shift with the switch. (Footnotes 6 & 7 were verified June 2026.)
 
-**Exit criteria:** post-switch classification stable; coverage gap re-run and re-signed-off; reference values re-verified.
+**Exit criteria:** post-switch classification stable; coverage gap re-run and re-signed-off; pricing re-confirmed and the volatile portal/service-plan labels re-checked.
 
 ---
 
@@ -716,7 +716,7 @@ After resolving any SEV-1 / SEV-2 incident, refresh the control attestation so t
    - `2.27.d` policy scope groups registered — `securityEnabled`, not `mailEnabled` (zones 2, 3)
 2. **Regenerate the examiner evidence** (E-01 .. E-07) for the corrected state and retain it under the six-year-aligned policy (FINRA 4511 / SEC 17a-4(b)(4)).
 3. **Confirm the coverage-gap sign-off** is current and that no enforcement is active without a signed-off would-be-blocked population.
-4. **Update the configuration note** (credit-only / credit + PAYG / PAYG-only), the ceilings (PAYG 50 / credit 10) 🔎, and the per-agent cap enforcement modes (enforce vs detect-and-alert).
+4. **Update the configuration note** (credit-only / credit + PAYG / PAYG-only), the ceilings (PAYG 50 / credit 10 — confirmed as of June 2026 per Microsoft Learn), and the per-agent cap enforcement modes (enforce vs detect-and-alert).
 5. **Record the incident and corrective action** in the governance log; brief the AI Governance Lead and, where examiner-visible, the Compliance Officer.
 
 !!! warning "Honest Attestation After Incidents"
@@ -732,4 +732,4 @@ After resolving any SEV-1 / SEV-2 incident, refresh the control attestation so t
 - [`./verification-testing.md`](./verification-testing.md) — test procedures and the manifest-check cross-walk (`2.27.a`–`2.27.d`)
 - [Copilot Billing Governance — companion solution](https://judeper.github.io/FSI-AgentGov-Solutions/solutions/copilot-billing-governance/) 🔎
 
-*This troubleshooting guide supports compliance with the cited regulations; it does not, on its own, satisfy any of them. The June 16 2026 Work IQ switch, Licensing Guide footnotes 6 & 7, and the absence of a public cap-enforcement write API were verified June 2026; still verify the remaining 🔎-flagged figures (per-feature credit rates, $0.01/credit, 25,000-credits-per-month, tenant ceilings 50/10) against current Microsoft documentation before treating any procedure as examiner evidence.*
+*This troubleshooting guide supports compliance with the cited regulations; it does not, on its own, satisfy any of them. The June 16 2026 Work IQ switch, Licensing Guide footnotes 6 & 7, the absence of a public cap-enforcement write API, and the tenant ceilings (50/10) and per-feature credit rates ($0.01/credit, 25,000-credits-per-month pack) were verified June 2026; pricing is time-sensitive, so re-confirm figures against current Microsoft documentation, and verify current portal/PPAC labels and per-tenant service-plan names (still shifting during the June 2026 rollout) before treating any procedure as examiner evidence.*
