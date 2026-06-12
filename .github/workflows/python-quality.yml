@@ -58,6 +58,11 @@ on:
       # Squad governance files require python-quality gate so that squad-only PRs
       # satisfy all 11 required branch-protection checks. Same rationale as instructions.
       - '.squad/**'
+      # The repo-level Copilot instructions file is governance tooling (like
+      # .github/instructions/** and AGENTS.md). copilot-instructions.md-only PRs
+      # otherwise block with "6 of 11 expected" because the python-quality named
+      # checks (ruff, pytest, drift, language-rules, verify_version_stamps) never fire.
+      - '.github/copilot-instructions.md'
   push:
     branches:
       - main
@@ -87,6 +92,7 @@ on:
       - 'docs/**/*.md'
       - 'data/monitor-state.json'
       - 'tests/**'
+      - '.github/copilot-instructions.md'
 
 permissions:
   contents: read
