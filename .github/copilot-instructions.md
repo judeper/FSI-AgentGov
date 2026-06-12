@@ -4,7 +4,7 @@
 
 FSI Agent Governance Framework v1.6.2 - A governance framework for Microsoft 365 AI agents (Copilot Studio, Agent Builder) in US financial services organizations.
 
-- **78 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
+- **79 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
 - **3 governance zones** (Personal Productivity, Team Collaboration, Enterprise Managed)
 - **3-layer documentation** (Framework → Controls → Playbooks)
 - **Target regulations:** FINRA 4511/3110, SEC 17a-3/4, SOX 302/404, GLBA 501(b), OCC Bulletin 2026-13 (formerly OCC 2011-12), Fed SR 26-2 (formerly Fed SR 11-7), CFTC 1.31
@@ -71,12 +71,12 @@ docs/
 │   └── index.md
 ├── controls/                     # RENAMED in v1.1 (was: reference/pillar-*)
 │   ├── pillar-1-security/        # 29 security controls (1.1-1.29)
-│   ├── pillar-2-management/      # 26 management controls (2.1-2.26)
+│   ├── pillar-2-management/      # 27 management controls (2.1-2.27)
 │   ├── pillar-3-reporting/       # 14 reporting controls (3.1-3.14)
 │   ├── pillar-4-sharepoint/      # 9 SharePoint controls (4.1-4.9)
 │   └── CONTROL-INDEX.md          # Master control list
 ├── playbooks/                    # NEW in v1.1: Implementation layer
-│   ├── control-implementations/  # Per-control guides (312 standard playbooks + 2 supplemental control guides)
+│   ├── control-implementations/  # Per-control guides (316 standard playbooks + 2 supplemental control guides)
 │   ├── governance-operations/    # Standing procedures
 │   ├── compliance-and-audit/     # Audit preparation guides
 │   ├── incident-and-risk/        # Incident handling procedures
@@ -95,11 +95,11 @@ scripts/                          # Validation + automation scripts
 │   ├── verify_templates.py
 │   ├── verify_excel_templates.py
 │   ├── verify_language_rules.py      # FSI-banned-phrase linter (CI gate)
-│   ├── check_manifest_doc_drift.py   # 78 control IDs across 3 sources (CI gate)
+│   ├── check_manifest_doc_drift.py   # 79 control IDs across 3 sources (CI gate)
 │   ├── generate_coverage_matrix.py   # Honest assessment coverage report (CI gate)
 │   └── extract_assessment_data.py
 assessment/                       # Automated assessment engine (collectors, scoring, reports)
-│   ├── manifest/controls.json        # Machine-readable 78-control definitions
+│   ├── manifest/controls.json        # Machine-readable 79-control definitions
 │   ├── collectors/                   # 5 PowerShell data collectors (PPAC, Graph, Purview, SharePoint, Sentinel)
 │   ├── engine/                       # Python scoring (score.py) and report generator (report.py)
 │   ├── tests/                        # pytest tests with fixture data
@@ -171,7 +171,7 @@ Screenshots are stored locally for verifying portal instructions stay current.
 |------|---------|
 | `CONTRIBUTING.md` | Style guidelines and language rules |
 | `docs/templates/control-setup-template.md` | Control format (10 sections) |
-| `docs/controls/CONTROL-INDEX.md` | Master list of all 78 controls |
+| `docs/controls/CONTROL-INDEX.md` | Master list of all 79 controls |
 | `mkdocs.yml` | Site navigation structure |
 
 ## Multi-Agent Configuration
@@ -247,7 +247,7 @@ cd assessment && pip install -r requirements.txt && pytest tests/ -v
 # Lint Python (ruff config in pyproject.toml — F, B, I rules)
 ruff check assessment scripts
 
-# Verify 78 control IDs match across manifest, CONTROL-INDEX.md, and mkdocs nav
+# Verify 79 control IDs match across manifest, CONTROL-INDEX.md, and mkdocs nav
 python scripts/check_manifest_doc_drift.py --check
 
 # Regenerate (or check) the honest assessment-engine coverage matrix
@@ -280,10 +280,10 @@ PowerShell static-analysis ruleset lives at root `PSScriptAnalyzerSettings.psd1`
 
 ## Automated Assessment Engine
 
-The `assessment/` directory contains a programmatic assessment engine that collects Microsoft 365 tenant configuration via APIs, scores all 78 controls against zone thresholds, and generates pre-filled assessment reports.
+The `assessment/` directory contains a programmatic assessment engine that collects Microsoft 365 tenant configuration via APIs, scores all 79 controls against zone thresholds, and generates pre-filled assessment reports.
 
 **Key components:**
-- `manifest/controls.json` — machine-readable definitions for all 78 controls with checks, zone thresholds, and manual questions
+- `manifest/controls.json` — machine-readable definitions for all 79 controls with checks, zone thresholds, and manual questions
 - `collectors/` — 5 PowerShell collectors (PPAC, Graph, Purview, SharePoint, Sentinel) that write JSON to `output/collected/`
 - `engine/score.py` — evaluates checks against collected data, derives maturity scores (0–4)
 - `engine/report.py` — generates `assessment-prefilled.md`, `manual-questionnaire.md`, and `assessment-summary.json`
@@ -335,3 +335,24 @@ Project hooks in `.config/wt.toml` automatically copy dependencies on create and
 1. Ask to "verify screenshots for control X.X"
 2. I will read the control doc and compare to EXPECTED.md
 3. Report any discrepancies between instructions and screenshots
+
+## Graph-Aware Navigation (Graphify)
+
+A Graphify **code** knowledge graph for the assessment engine is available at
+`assessment/graphify-out/graph.json` (offline tree-sitter AST build — code only, no docs).
+A readable summary is at `assessment/graphify-out/GRAPH_REPORT.md`.
+
+For architecture, data-flow, or cross-file questions about `assessment/`
+(collectors → `engine/score.py` → `engine/report.py`), prefer the graph over grepping:
+
+- **MCP tools** (from the `graphify` MCP server, if registered in your Copilot CLI):
+  `query_graph`, `get_node`, `get_neighbors`, `shortest_path`, `god_nodes`, `graph_stats`, `get_pr_impact`.
+- **Shell** (from repo root): `graphify query "<question>" --graph assessment/graphify-out/graph.json`
+  (also `graphify path "A" "B" ...`, `graphify explain "X" ...`).
+- Read `assessment/graphify-out/GRAPH_REPORT.md` for an overview (god nodes, communities).
+
+Relationships are tagged `EXTRACTED`, `INFERRED`, or `AMBIGUOUS`; cite the confidence level
+when an answer relies on an inferred edge. Fall back to file search when the graph lacks detail.
+The graph is generated and gitignored — rebuild after code changes with `graphify update assessment`
+(offline, no API key). A whole-repo build is intentionally avoided here: it walks `node_modules/`
+and produces a noisy ~28k-node graph.
