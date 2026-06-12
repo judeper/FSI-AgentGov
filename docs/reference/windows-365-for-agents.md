@@ -1,10 +1,10 @@
 # Windows 365 for Agents (W365A) Reference
 
-**Last Updated:** May 2026
+**Last Updated:** June 2026
 **Version:** v1.6.2
 
-!!! warning "Public Preview"
-    Microsoft documents Windows 365 for Agents as a [public preview](https://learn.microsoft.com/windows-365/agents/w365a-availability-a365). Preview capabilities can change before general availability and may have regional, licensing, or support limitations. Use this page as informational scoping guidance only; do not treat W365A as a baseline enforcement procedure until Microsoft publishes generally available operational guidance and your organization completes risk acceptance.
+!!! note "Generally Available (week of June 1, 2026)"
+    Windows 365 for Agents became **generally available** the week of June 1, 2026 ([What's new in Windows 365 for Agents](https://learn.microsoft.com/windows-365/agents/whats-new)). Confirm current **region availability** against Microsoft Learn before relying on it in a given geography, and validate licensing, billing-plan, and support terms for your tenant. Cloud PC pools for Copilot Studio computer-use runs remain in preview ([Use a Cloud PC pool for computer use runs (preview)](https://learn.microsoft.com/microsoft-copilot-studio/use-cloud-pc-pool)); complete organizational risk acceptance before treating W365A as a Zone 2/3 enforcement procedure.
 
 ---
 
@@ -12,7 +12,7 @@
 
 Windows 365 for Agents (W365A) is the Windows 365 execution layer for computer-using agents in Agent 365. Microsoft describes it as a way for Agent 365 agents to obtain Cloud PCs when work requires a full Windows session for desktop applications, browsers, files, or enterprise systems instead of API-only automation ([Windows 365 for Agents in Agent 365](https://learn.microsoft.com/windows-365/agents/w365a-availability-a365)).
 
-Microsoft also describes W365A as a new class of Cloud PCs for agent use, built on the Windows 365 Cloud PC platform. Agents use a check-out/check-in model: an agent checks out a Cloud PC for a task, then checks it back in when the task completes ([What is Windows 365 for Agents?](https://learn.microsoft.com/windows-365/agents/introduction-windows-365-for-agents)). In the current public preview, Microsoft lists United States availability for W365A ([What is Windows 365 for Agents?](https://learn.microsoft.com/windows-365/agents/introduction-windows-365-for-agents#regions-available)).
+Microsoft also describes W365A as a new class of Cloud PCs for agent use, built on the Windows 365 Cloud PC platform. Agents use a check-out/check-in model: an agent checks out a Cloud PC for a task, then checks it back in when the task completes ([What is Windows 365 for Agents?](https://learn.microsoft.com/windows-365/agents/introduction-windows-365-for-agents)). W365A reached general availability the week of June 1, 2026 ([What's new in Windows 365 for Agents](https://learn.microsoft.com/windows-365/agents/whats-new)); confirm current region availability against Microsoft Learn, as the supported regions may differ from the earlier preview footprint.
 
 For FSI governance, W365A should be treated as an agent execution substrate that introduces endpoint, identity, network, audit, and billing evidence streams. It does not replace the framework's existing controls for audit logging, private connectivity, outbound network controls, or Agent 365 administration.
 
@@ -48,7 +48,7 @@ W365A introduces two related evidence layers: Windows 365 Cloud PC administrativ
 
 Recommended evidence package for Zone 2 and Zone 3 W365A pilots:
 
-1. W365A public preview risk acceptance and approved use-case scope.
+1. W365A risk acceptance and approved use-case scope (GA the week of June 1, 2026; confirm regional availability for your tenant).
 2. Intune device filter or dynamic group definition for `CPCA-` / **Cloud PC for Agents** devices.
 3. Provisioning policy export, assigned agents, region, billing plan, and pool capacity.
 4. Windows 365 audit-log export or Azure Monitor diagnostic setting showing `Windows365AuditLogs` routing.
@@ -82,6 +82,7 @@ See the W365A row in [License Requirements](license-requirements.md) for the fra
 
 ## Microsoft Learn URLs Verified
 
+- [What's new in Windows 365 for Agents](https://learn.microsoft.com/windows-365/agents/whats-new)
 - [Windows 365 for Agents in Agent 365](https://learn.microsoft.com/windows-365/agents/w365a-availability-a365)
 - [What is Windows 365 for Agents?](https://learn.microsoft.com/windows-365/agents/introduction-windows-365-for-agents)
 - [Manage and monitor Cloud PCs for Agents in Microsoft Intune](https://learn.microsoft.com/windows-365/agents/device-management-cloud-pcs-agents)
@@ -94,4 +95,4 @@ See the W365A row in [License Requirements](license-requirements.md) for the fra
 
 ---
 
-*Updated: May 2026 | Version: v1.6.2 | UI Verification Status: Current*
+*Updated: June 2026 | Version: v1.6.2 | UI Verification Status: Current*

@@ -126,6 +126,9 @@ Assign the following canonical roles to **named individuals** (not group-only) b
 !!! warning "Two-admin step at §4 (Defender XDR ↔ Power Platform)"
     The Power Platform handshake at `admin.preview.powerplatform.microsoft.com/security/threatdetection` requires the **Power Platform Admin** role and is performed in a separate portal from the Defender XDR Security for AI toggle (which requires the **Security Administrator** role). These are typically two different humans. Schedule both to be available within the same change window — without the handshake, `AIAgentsInfo` returns no Copilot Studio rows and Plane 3 telemetry is incomplete.
 
+!!! note "Advanced Hunting table is migrating to `AgentsInfo` (Preview)"
+    The AI-agent Advanced Hunting table is transitioning from **`AIAgentsInfo`** to **`AgentsInfo`** (Preview), powered by Microsoft Agent 365 as the single source of truth. `AIAgentsInfo` (used in the KQL below) remains accessible until **July 1, 2026**, then is deprecated — migrate queries to `AgentsInfo` before that date. As a Preview schema the table and column names may still change; verify against the [`AgentsInfo` schema reference](https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-agentsinfo-table). From July 1, 2026, Copilot Studio / Foundry agent inventory in Defender requires a **Microsoft Agent 365** license ([transition guidance](https://learn.microsoft.com/defender-xdr/security-for-ai/transition-agent-security-to-agent-365)).
+
 ### 1.3 Azure subscription scope gate
 
 For **each** Azure subscription that hosts an Azure OpenAI / Azure AI Foundry resource backing an FSI agent:

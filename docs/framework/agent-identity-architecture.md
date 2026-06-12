@@ -1,6 +1,6 @@
 # Unified Agent Governance: Agent 365, Entra Agent ID, and Admin Center Settings
 
-**Last Updated:** May 2026
+**Last Updated:** June 2026
 
 !!! info "Generally Available — May 2026"
     The **Microsoft Entra Agent ID** platform reached general availability in **April 2026** (see [Entra Agent ID — What's new](https://learn.microsoft.com/en-us/entra/agent-id/whats-new-agent-id)). **Microsoft Agent 365** — including the Agent 365 Unified Control Plane and Agent 365 Observability — became generally available on **May 1, 2026**, bundling Entra Agent ID licensing into the **Microsoft Agent 365** (standalone per-user license) and **Microsoft 365 E7** (the official SKU name; sometimes referred to informally as the "Frontier Suite" in third-party materials) SKUs. M365 Admin Center Agent Settings and Registry remain generally available. **Conditional Access for Agents** documentation and capabilities have expanded alongside Entra Agent ID GA; verify the current preview/GA status of specific Conditional Access for Agents surfaces against Microsoft Learn before relying on them in production policy. Some adjacent surfaces — for example the Entra `agentSignIn` log type and the `MicrosoftServicePrincipalSignInLogs` diagnostic setting — remain in **Public Preview**. Verify current GA / preview status at Microsoft Learn before implementing capabilities in production.
@@ -11,6 +11,7 @@
     - **Declarative agent deployment:** Export/import is still required for org-wide deployment; direct publish from the registry is on the roadmap. Admins can block or delete declarative agents but cannot deploy them org-wide from the registry today.
     - **Shadow AI discovery:** Available post-GA via Entra and Defender capabilities, including discovery of agents hosted on non-Microsoft cloud platforms; verify scope coverage against current Microsoft Learn documentation before depending on it for compliance evidence.
     - **Licensing:** Agent 365 capabilities require **Microsoft 365 E7** (bundles E5 + Microsoft 365 Copilot + Entra Suite + Agent 365) or the **Microsoft Agent 365** standalone per-user license. Confirm SKU coverage and feature mapping against current Microsoft licensing documentation before committing supervisory cadences to specific entitlements.
+    - **Migration gap for pre-existing Copilot Studio agents:** Copilot Studio agents created **before** Entra Agent ID was enabled in the tenant are **not** automatically covered by agent-identity protections (Conditional Access for agents, ID Protection for agents) until they are migrated to Agent ID. Microsoft publishes migration guidance ([Migrate Copilot Studio agents to Agent ID](https://learn.microsoft.com/en-us/entra/agent-id/migrate-copilot-studio-agents-to-agent-id)), but until each agent is migrated the framework should **not** assume uniform agent-identity coverage across the existing agent estate. Inventory pre-Agent-ID agents and track migration status as part of Zone 2/3 onboarding.
     - **Multi-tenant API:** Not committed; Agent 365 focuses on single-tenant governance only.
     - **Commercial (Global) cloud:** Entra Agent ID is available in the Microsoft commercial (Global) cloud, the deployment surface for US financial-services customers.
     - **Foundry agents:** Microsoft Foundry agents are expected to surface in the Agent 365 registry; verify current coverage against Microsoft Learn for the agent types deployed in your tenant.
@@ -44,11 +45,14 @@ This document targets two audiences: **M365 administrators** implementing tactic
 
 ## Entra Agent ID: Identity Foundation
 
-Microsoft Entra Agent ID provides identity and access management specifically designed for AI agents. Unlike traditional service principals or managed identities, Entra Agent ID introduces **Agentic Users** as first-class identity objects with human sponsorship, Conditional Access policies, and lifecycle governance.
+Microsoft Entra Agent ID provides identity and access management specifically designed for AI agents. Unlike traditional service principals or managed identities, Entra Agent ID introduces purpose-built agent identity constructs with human sponsorship, Conditional Access policies, and lifecycle governance. Microsoft's current object model is a three-part hierarchy: an **agent identity blueprint** (a reusable template) creates an **agent identity**, which is paired with an **agent user** account in the directory ([What are agent identities](https://learn.microsoft.com/en-us/entra/agent-id/what-are-agent-identities)).
 
 ### What is an Agent Identity?
 
-An **Agentic User** is a distinct identity type in Microsoft Entra ID, purpose-built for AI agents. This identity type represents autonomous agents that act on behalf of the organization while maintaining clear human accountability.
+An **agent identity** is a distinct identity construct in Microsoft Entra ID, purpose-built for AI agents. It is created from an **agent identity blueprint** and paired with an **agent user** account so the agent can take on a governed digital identity that acts on behalf of the organization while maintaining clear human accountability ([What are agent identities](https://learn.microsoft.com/en-us/entra/agent-id/what-are-agent-identities)).
+
+!!! note "Terminology"
+    Earlier framework material referred to these objects as "Agentic Users." Current Microsoft Learn describes the model as **agent identity blueprint → agent identity → agent user**; this page uses the Learn terminology. The specific directory-attribute value `userType: "AgenticUser"` reflects preview-era naming and **could not be confirmed against current Microsoft Learn (verified 2026-06-12)** — treat the exact attribute string as subject to change and verify against the live `entra/agent-id` pages before building automation that depends on it.
 
 | Characteristic | Description |
 |----------------|-------------|
@@ -63,16 +67,16 @@ An **Agentic User** is a distinct identity type in Microsoft Entra ID, purpose-b
 
 **Directory Representation:**
 
-Agentic Users appear in Entra ID with the following attributes:
+Agent identities appear in Entra ID with attributes such as the following (verify exact attribute names against current Microsoft Learn — see the Terminology note above):
 
-- `userType`: `"AgenticUser"` (Entra directory attribute; in token claims, agent identity is indicated by the `idtyp` claim value `user`, not a separate type)
+- `userType`: reported as `"AgenticUser"` in preview-era material; **not confirmed on current Microsoft Learn (verified 2026-06-12)**. In token claims, an agent identity is indicated by the `idtyp` claim value `user` (consistent with current Learn), not a separate type.
 - `accountEnabled`: `true` or `false` (for lifecycle management)
 - `sponsorId`: Reference to human sponsor's Entra ID
 - `agentMetadata`: Custom attributes for zone classification and governance
 
-### Why Agentic Users Matter for FSI
+### Why Agent Identities Matter for FSI
 
-- **Audit Trail** - Agentic Users provide distinct identity records in audit logs, separating agent actions from human actions (supports SEC 17a-3/4 recordkeeping)
+- **Audit Trail** - Agent identities provide distinct identity records in audit logs, separating agent actions from human actions (supports SEC 17a-3/4 recordkeeping)
 - **Access Governance** - License assignment and group membership enable granular access control
 - **Regulatory Visibility** - Examiners can query the directory to see all agents with organizational access (supports FINRA 4511 books and records)
 - **Accountability Chain** - Sponsor requirement creates clear human accountability for agent behavior (aligns with FINRA 3110 supervision)
@@ -180,7 +184,7 @@ When a sponsor leaves the organization or changes roles:
 
 1. Navigate to **Entra ID** > **Identity Governance** > **Lifecycle Workflows**
 2. Create workflow with trigger: "Employee leaves organization"
-3. Add condition: User is sponsor of Agentic User(s)
+3. Add condition: User is sponsor of an agent identity (or identities)
 4. Configure tasks: notification to backup sponsor → escalation to manager after 7 days → suspend agent after 14 days
 5. Enable workflow and monitor in Lifecycle Workflows dashboard
 
@@ -444,7 +448,7 @@ graph TD
     end
 
     subgraph "Entra Agent ID - Identity Foundation"
-        F[Agentic Users]
+        F[Agent Users]
         G[Sponsorship Model]
         H[Conditional Access]
         I[Lifecycle Workflows]
@@ -647,7 +651,7 @@ The following status reflects the May 1, 2026 Agent 365 general availability rel
 
 | Component | Status | Notes |
 |-----------|--------|-------|
-| **Entra Agent ID** | GA (April 2026; Agent 365 / M365 E7 licensing bundle GA May 1, 2026) | Identity service for AI agents; Agentic Users, sponsorship model, lifecycle workflows |
+| **Entra Agent ID** | GA (April 2026; Agent 365 / M365 E7 licensing bundle GA May 1, 2026) | Identity service for AI agents; agent identities (blueprint → agent identity → agent user), sponsorship model, lifecycle workflows |
 | **Conditional Access for Agents** | Verify per Microsoft Learn | Capabilities expanded alongside Entra Agent ID GA; some specific surfaces may remain in Public Preview — confirm status against Microsoft Learn before policy authoring. Rides on top of CA for Workload Identities |
 | **M365 Admin Center Agent Settings** | GA | Agent sharing controls, templates, user access policies |
 | **M365 Admin Center Agent Registry** | GA | Copilot Studio agents visible; Microsoft Foundry agent coverage rolling — verify against Microsoft Learn for agent types in your tenant; declarative agents appear but lack org-wide deployment capability |
@@ -678,7 +682,7 @@ The following status reflects the May 1, 2026 Agent 365 general availability rel
 
 1. **Enable Entra Agent ID** in your tenant
    - Navigate to Entra admin center > Identity Governance > Agent ID
-   - Enable "Agentic User" identity type
+   - Enable agent identities (verify the exact admin-center toggle name against current Microsoft Learn)
    - Configure tenant-wide sponsorship requirements
 
 2. **Assign human sponsors to existing agents**
@@ -924,7 +928,7 @@ Agent 365's unified architecture and Entra Agent ID identity foundation affect 1
 | Control | Forward Reference Note |
 |---------|------------------------|
 | **[1.6 DSPM for AI](../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md)** | Agent 365 integrates with Purview DSPM for comprehensive data flow visibility across all agent types. See unified document for security posture integration. |
-| **[1.18 RBAC](../controls/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md)** | Entra Agent ID supports role assignments for agent identities. Agentic Users can be assigned to security groups for RBAC. See unified document for agent RBAC configuration. |
+| **[1.18 RBAC](../controls/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac.md)** | Entra Agent ID supports role assignments for agent identities. Agent identities can be assigned to security groups for RBAC. See unified document for agent RBAC configuration. |
 | **[1.24 Defender AI-SPM](../controls/pillar-1-security/1.24-defender-ai-security-posture-management.md)** | Agent 365 security posture dashboard integrates with Microsoft Defender for threat detection and misconfiguration alerts. See unified document for Defender integration. |
 | **[2.4 Business Continuity](../controls/pillar-2-management/2.4-business-continuity-and-disaster-recovery.md)** | Agent 365 observability supports DR testing through unified telemetry and agent health monitoring. See unified document for observability configuration. |
 | **[2.5 Testing & Validation](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md)** | Agent 365 lifecycle management supports promotion gates for testing validation before production deployment. See unified document for testing workflows. |
