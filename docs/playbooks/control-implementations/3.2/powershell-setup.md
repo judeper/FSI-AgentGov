@@ -135,7 +135,7 @@ function Get-AgentAuditLogs {
     $auditLogs = Search-UnifiedAuditLog `
         -StartDate $startDate `
         -EndDate $endDate `
-        -RecordType PowerApps `
+        -RecordType PowerAppsApp `
         -ResultSize 5000
 
     Write-Host "Found $($auditLogs.Count) audit log entries" -ForegroundColor Cyan

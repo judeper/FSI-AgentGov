@@ -1,6 +1,6 @@
 # FSI Agent Governance Framework - Control Index
 
-## Complete Control Reference (78 Controls)
+## Complete Control Reference (79 Controls)
 
 This directory contains comprehensive control documentation for the FSI Agent Governance Framework across four pillars. See the [Solutions Index](../reference/solutions-index.md) for the catalog of 36 companion solutions (35 live + 1 preview) aligned to the companion repository inventory.
 
@@ -40,7 +40,7 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 | 1.28 | [Policy-Based Agent Publishing Restrictions](pillar-1-security/1.28-policy-based-agent-publishing-restrictions.md) | Portal / PowerShell |
 | 1.29 | [Global Secure Access: Network Controls for Copilot Studio Agents](pillar-1-security/1.29-global-secure-access-network-controls.md) | Portal / PowerShell |
 
-## Pillar 2: Management Controls (26 Controls)
+## Pillar 2: Management Controls (27 Controls)
 
 | Control ID | Control Name | Implementation |
 |-----------|----------|----------------|
@@ -70,6 +70,7 @@ This directory contains comprehensive control documentation for the FSI Agent Go
 | 2.24 | [Agent Feature Enablement and Restriction Governance](pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance.md) | Portal / PowerShell, [GAICA](../reference/solutions-index.md#generative-ai-config-auditor) |
 | 2.25 | [Microsoft Agent 365 — Admin Center Governance Console](pillar-2-management/2.25-agent-365-admin-center-governance-console.md) | Portal / PowerShell |
 | 2.26 | [Entra Agent ID — Identity Governance for Agents](pillar-2-management/2.26-entra-agent-id-identity-governance.md) | Portal / PowerShell |
+| 2.27 | [Consumption-Entitlement Governance](pillar-2-management/2.27-consumption-entitlement-governance.md) | Portal / PowerShell |
 
 ## Pillar 3: Agent Reporting (14 Controls)
 
@@ -160,7 +161,7 @@ Focus: Protect data and systems from unauthorized access, misuse, and exploitati
 - AI Security Posture Management
 - Global Secure Access
 
-### Pillar 2: Management Controls (26 Controls)
+### Pillar 2: Management Controls (27 Controls)
 Focus: Govern the agent lifecycle, access control, change management, and model risk.
 - Managed Environments
 - Change Management

@@ -136,7 +136,7 @@ producer.
 ## Related references
 
 - [Assessment Engine Coverage](assessment-coverage.md) — current
-  evaluator state across all 78 controls.
+  evaluator state across all 79 controls.
 - [Solutions Integration](../framework/solutions-integration.md) —
   high-level architecture of the two-repo system.
 - [Solutions Index](solutions-index.md) — current solution catalog.

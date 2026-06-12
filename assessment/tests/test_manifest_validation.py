@@ -2,7 +2,7 @@
 
 These tests guard the v1.4 manifest contract:
 
-* All 78 controls present and enriched with the v1.4 fields.
+* All 79 controls present and enriched with the v1.4 fields.
 * Validator passes in ``--allow-todo`` mode against the committed manifest.
 * Validator catches structural problems (bad slug, missing key, bad URL,
   unknown priority) when applied to mutated copies.
@@ -40,11 +40,11 @@ def test_manifest_validates_in_allow_todo_mode():
     )
 
 
-def test_manifest_has_78_controls():
+def test_manifest_has_79_controls():
     controls = json.loads(MANIFEST.read_text(encoding="utf-8"))
-    assert len(controls) == 78
+    assert len(controls) == 79
     ids = [c["id"] for c in controls]
-    assert len(set(ids)) == 78, "duplicate control ids"
+    assert len(set(ids)) == 79, "duplicate control ids"
 
 
 def test_every_control_has_v14_keys():
@@ -178,7 +178,7 @@ def test_validator_rejects_non_https_verify_url(tmp_manifest):
 
 def test_validator_rejects_count_drift(tmp_manifest):
     controls, write = tmp_manifest
-    path = write(controls[:-1])  # 77 controls
+    path = write(controls[:-1])  # 78 controls
     result = _run(["--allow-todo", "--manifest", str(path)])
     assert result.returncode == 1
-    assert "78" in result.stderr or "77" in result.stderr
+    assert "79" in result.stderr or "78" in result.stderr

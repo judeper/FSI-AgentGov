@@ -6,14 +6,14 @@ How FSI-AgentGov-Solutions automation aligns with the governance framework.
 
 ## Overview
 
-The FSI Agent Governance Framework defines **what** controls organizations should implement. The FSI-AgentGov-Solutions repository provides **how**—ready-to-deploy automation that operationalizes key controls. The current companion catalog includes **36 solutions (35 live + 1 preview)** aligned to the framework's 78-control baseline, while this page focuses on representative integrations. Use the [Solutions Index](../reference/solutions-index.md) for the authoritative per-solution version and live/preview status details.
+The FSI Agent Governance Framework defines **what** controls organizations should implement. The FSI-AgentGov-Solutions repository provides **how**—ready-to-deploy automation that operationalizes key controls. The current companion catalog includes **36 solutions (35 live + 1 preview)** aligned to the framework's 79-control baseline, while this page focuses on representative integrations. Use the [Solutions Index](../reference/solutions-index.md) for the authoritative per-solution version and live/preview status details.
 
 ```mermaid
 flowchart TB
     subgraph Framework["FSI-AgentGov (Framework)"]
         direction TB
         P1[Pillar 1: Security<br/>29 Controls]
-        P2[Pillar 2: Management<br/>26 Controls]
+        P2[Pillar 2: Management<br/>27 Controls]
         P3[Pillar 3: Reporting<br/>14 Controls]
         P4[Pillar 4: SharePoint<br/>9 Controls]
     end
@@ -652,7 +652,7 @@ For detailed architecture guidance including scalability limits and alternative 
 
 ## Summary Statistics
 
-The current companion catalog includes **36 solutions (35 live + 1 preview)** aligned to the framework's **78 controls across 4 pillars**. For the authoritative per-solution version, status, and control coverage details, see the [Solutions Index](../reference/solutions-index.md).
+The current companion catalog includes **36 solutions (35 live + 1 preview)** aligned to the framework's **79 controls across 4 pillars**. For the authoritative per-solution version, status, and control coverage details, see the [Solutions Index](../reference/solutions-index.md).
 
 ---
 

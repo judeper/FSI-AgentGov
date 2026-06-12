@@ -792,7 +792,7 @@ class TestEvaluatorStateTransparency:
         )
 
     def test_full_manifest_coverage_honest(self, tmp_path: Path, collected_dir: Path):
-        """Score the real 78-control manifest and assert that the rollup
+        """Score the real 79-control manifest and assert that the rollup
         reflects today's actual evaluator coverage rather than overstating it.
         """
         score = pytest.importorskip("score")  # type: ignore[import-untyped]
@@ -825,7 +825,7 @@ class TestEvaluatorStateTransparency:
         # If this assertion ever fires, either real evaluators were added
         # (great — relax the cap) or the classifier regressed.
         assert coverage["checks"]["auto_evaluable"] < coverage["total_checks"]
-        assert coverage["total_controls"] == 78
+        assert coverage["total_controls"] == 79
 
 
 # ---------------------------------------------------------------------------

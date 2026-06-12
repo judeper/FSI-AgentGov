@@ -141,7 +141,7 @@ This playbook covers operational failures of the COI testing pipeline configured
 **Diagnostics.**
 1. Confirm Audit (Premium) is enabled (Microsoft Purview portal → Audit → Settings).
 2. Confirm Copilot interactions are in audit scope.
-3. Verify the search uses the correct workload (`MicrosoftCopilotStudio` or as documented in your tenant).
+3. Verify the search uses the correct workload (`PowerPlatformAdministratorActivity` or as documented in your tenant).
 4. Check audit retention — entries older than retention are gone.
 
 **Resolution.** Re-enable audit if disabled; broaden the search filter; raise a Microsoft support case if entries are missing within the configured retention. The exported result files remain authoritative; the audit log is corroborating evidence.

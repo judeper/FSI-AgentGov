@@ -18,19 +18,19 @@ It is the honest answer to *what does the assessment engine actually automate to
 
 | State | Count | Share |
 |-------|-------|-------|
-| ✅ Auto | 7 | 9.0% |
-| 📝 Manual | 38 | 48.7% |
-| ⚠️ Unimplemented | 33 | 42.3% |
-| **Total** | **78** | 100% |
+| ✅ Auto | 7 | 8.9% |
+| 📝 Manual | 38 | 48.1% |
+| ⚠️ Unimplemented | 34 | 43.0% |
+| **Total** | **79** | 100% |
 
 ### By check
 
 | State | Count | Share |
 |-------|-------|-------|
-| ✅ Auto | 9 | 9.6% |
-| 📝 Manual | 20 | 21.3% |
-| ⚠️ Unimplemented | 65 | 69.1% |
-| **Total** | **94** | 100% |
+| ✅ Auto | 9 | 9.2% |
+| 📝 Manual | 20 | 20.4% |
+| ⚠️ Unimplemented | 69 | 70.4% |
+| **Total** | **98** | 100% |
 
 ### Registered evaluators
 
@@ -112,6 +112,7 @@ It is the honest answer to *what does the assessment engine actually automate to
 | 2.24 | Control 2.24: Agent Feature Enablement and Restriction Governance | ⚠️ Unimplemented | 0 | 2 | 0 | PPAC_PowerShell | `pass_condition: genai_flags_reviewed` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. `pass_condition: external_plugins_controlled` declared in manifest but no bespoke evaluator registered… |
 | 2.25 | Control 2.25: Microsoft Agent 365 — Admin Center Governance Console | ⚠️ Unimplemented | 0 | 2 | 0 | Graph_API | `pass_condition: agent365_console_accessible` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. `pass_condition: agent365_inventory_visible` declared in manifest but no bespoke evaluator regi… |
 | 2.26 | Control 2.26: Entra Agent ID — Identity Governance for Agents | ⚠️ Unimplemented | 0 | 2 | 0 | Graph_API | `pass_condition: agent_ids_registered` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. `pass_condition: access_packages_configured` declared in manifest but no bespoke evaluator registered … |
+| 2.27 | Control 2.27: Consumption-Entitlement Governance | ⚠️ Unimplemented | 0 | 4 | 0 | Graph_API, PPAC_PowerShell | `pass_condition: entitlement_contract_evaluated` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. `pass_condition: per_agent_caps_configured` declared in manifest but no bespoke evaluator re… |
 | 2.3 | Control 2.3: Change Management and Release Planning | ⚠️ Unimplemented | 0 | 1 | 0 | PPAC_PowerShell | `pass_condition: approval_workflow_exists` declared in manifest but no bespoke evaluator registered in score.py. Result will be `unknown`. |
 | 2.4 | Control 2.4: Business Continuity and Disaster Recovery | 📝 Manual | 0 | 0 | 1 | SharePoint_Graph | Manual review required. |
 | 2.5 | Control 2.5: Testing, Validation, and Quality Assurance | 📝 Manual | 0 | 0 | 0 | — |  |

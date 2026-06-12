@@ -1,16 +1,16 @@
 /**
  * Filter-loop performance guardrail.
  *
- * Boots the SPA, populates state with all 78 controls answered, then calls
+ * Boots the SPA, populates state with all 79 controls answered, then calls
  * getGapControls() 100 times in a loop. Asserts wall time < 500ms — generous
- * enough that the current N²-ish behavior on 78 controls passes, but tight
+ * enough that the current N²-ish behavior on 79 controls passes, but tight
  * enough that a future regression (or removal of spa-fix-perf-loop) trips.
  */
 import { describe, it, expect } from "vitest";
 import { bootApp } from "./_bootSpa.mjs";
 
 describe("getGapControls() performance guardrail", () => {
-  it("100 iterations on 78 fully-answered controls completes in < 500ms", async () => {
+  it("100 iterations on 79 fully-answered controls completes in < 500ms", async () => {
     const { app } = await bootApp();
     // Answer every control with a mix of answers so most/all become "gaps".
     const answers = ["yes", "partial", "no", "yes", "no"];

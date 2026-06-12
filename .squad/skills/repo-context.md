@@ -3,12 +3,12 @@
 ## Overview
 - **Repo:** `judeper/FSI-AgentGov` (public, GitHub Pages)
 - **Site:** https://judeper.github.io/FSI-AgentGov/
-- **Framework:** FSI Agent Governance Framework — 78 controls across 4 pillars
+- **Framework:** FSI Agent Governance Framework — 79 controls across 4 pillars
 - **Current version:** Check `VERSION` file for latest
 
 ## Pillars
 1. **Security** (controls 1.1–1.30) — DLP, encryption, access control, content moderation
-2. **Operational Governance** (controls 2.1–2.26) — environments, change management, testing, compliance
+2. **Operational Governance** (controls 2.1–2.27) — environments, change management, testing, compliance
 3. **Monitoring & Reporting** (controls 3.1–3.14) — inventory, analytics, incident response, cost tracking
 4. **SharePoint Governance** (controls 4.1–4.9) — IAG, access reviews, retention, grounding scope
 

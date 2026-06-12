@@ -31,7 +31,7 @@ Control 1.14 spans **five** PowerShell surfaces. Choosing the wrong one produces
 
 > **There is no separate "Copilot Studio Admin" PowerShell module.** Copilot Studio bot metadata lives in the Dataverse environment that backs the agent. You enumerate it via the Dataverse Web API, authenticated with a Power Platform-scoped bearer token. The community `Microsoft.PowerPlatform.Cds.Client` and Microsoft.Xrm.* assemblies are .NET Framework-only and **do not** load in PowerShell 7 — for PowerShell 7 use `Invoke-RestMethod` against `https://<orgname>.api.crm.dynamics.com/api/data/v9.2/`.
 
-> **There is no `AgentScopeExpansion` operation in the M365 audit schema.** Authors who code against that operation name produce empty result sets and false-clean evidence. The detector in §11 instead correlates `CopilotInteraction`, `BotsRuntimeService`, `MicrosoftFlow`, `PowerAppsPlan`, and `AzureActiveDirectory` record types against the inventory baseline.
+> **There is no `AgentScopeExpansion` operation in the M365 audit schema.** Authors who code against that operation name produce empty result sets and false-clean evidence. The detector in §11 instead correlates `CopilotInteraction`, `PowerPlatformAdministratorActivity`, `MicrosoftFlow`, `PowerAppsPlan`, and `AzureActiveDirectory` record types against the inventory baseline.
 
 ### 0.1 Friendly-name vs canonical connector ID — the single most common authoring defect
 
@@ -848,7 +848,7 @@ function Find-Agt114ScopeDrift {
 
     $recordTypes = @(
         'CopilotInteraction',          # Copilot-side prompt + grounding events
-        'BotsRuntimeService',           # Copilot Studio runtime
+        'PowerPlatformAdministratorActivity',           # Copilot Studio admin / agent lifecycle
         'MicrosoftFlow',                # Power Automate runs
         'PowerAppsPlan',                # Power Apps and connector activity
         'AzureActiveDirectory'          # SP sign-ins for agent identities
@@ -1306,7 +1306,7 @@ The patterns below have all caused production incidents in FSI tenants. None is 
 | 7 | No PSEdition / version guard | Script silently runs on Windows PowerShell 5.1, hits cmdlets that only exist in 7.x (PnP v2+), and either errors opaquely or returns wrong-shape objects. | `#Requires -Version 7.4` + `#Requires -PSEdition Core` + the explicit guard in §0.2. |
 | 8 | Skipping `@odata.nextLink` paging on Dataverse Web API queries | Truncation at 5,000 rows; large environments emit incomplete inventories. | Loop until `@odata.nextLink` is null (§5). |
 | 9 | Skipping `SessionId` / `SessionCommand 'ReturnLargeSet'` paging on `Search-UnifiedAuditLog` | Truncation at 5,000 records; high-volume tenants miss the bulk of drift evidence. | Use the paging idiom in §11. |
-| 10 | Coding against an `AgentScopeExpansion` audit operation | The operation does not exist. Returns empty; produces false-clean drift report. | Correlate `CopilotInteraction`, `BotsRuntimeService`, `MicrosoftFlow`, `PowerAppsPlan`, `AzureActiveDirectory` against the inventory baseline (§11). |
+| 10 | Coding against an `AgentScopeExpansion` audit operation | The operation does not exist. Returns empty; produces false-clean drift report. | Correlate `CopilotInteraction`, `PowerPlatformAdministratorActivity`, `MicrosoftFlow`, `PowerAppsPlan`, `AzureActiveDirectory` against the inventory baseline (§11). |
 | 11 | Assuming Copilot Studio cmdlets exist as a separate module | There is no standalone "Copilot Studio Admin PowerShell" module. Bot metadata lives in Dataverse. | Use Dataverse Web API + `Get-AzAccessToken` (§5–§6). |
 | 12 | Hard-coded admin UPN in scripts | Operator identity is wrong in audit logs; rotation requires a code change. | `param([Parameter(Mandatory)] [string] $AdminUpn)` and pass per run. |
 | 13 | Treating drift candidates as incidents | False-positive rate is non-trivial; analyst burnout follows. | Pipe through SIEM and the AI incident-response playbook for triage. |

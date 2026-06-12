@@ -24,7 +24,7 @@ This document is intentionally short. The companion [CSA Positioning Guide](csa-
 
 ## 1. The 60-second elevator: how to introduce FSI-AgentGov in a CAPE conversation
 
-> **"Microsoft CAPE gives you the pattern vocabulary — the 6 Frontier Transformation Patterns, the 5 capability drivers, and the Center of Excellence operating model. FSI-AgentGov is the FSI translation layer: it takes those patterns and tells you, for a US bank or broker-dealer, which governance zone the pattern lands in, which FINRA, SEC, OCC, and Federal Reserve obligations attach, and which of the 78 controls in the framework you need before that pattern goes to production. CAPE is industry-agnostic; FSI-AgentGov is the regulator-grade overlay. They run together."**
+> **"Microsoft CAPE gives you the pattern vocabulary — the 6 Frontier Transformation Patterns, the 5 capability drivers, and the Center of Excellence operating model. FSI-AgentGov is the FSI translation layer: it takes those patterns and tells you, for a US bank or broker-dealer, which governance zone the pattern lands in, which FINRA, SEC, OCC, and Federal Reserve obligations attach, and which of the 79 controls in the framework you need before that pattern goes to production. CAPE is industry-agnostic; FSI-AgentGov is the regulator-grade overlay. They run together."**
 
 That is the verbatim line. After the customer reacts, the next sentence should be one of three pivots, depending on persona — see [§8 Conversation openers](#8-conversation-openers-by-audience).
 
@@ -126,7 +126,7 @@ Three openers, one per persona. Each gives the canonical opening sentence and th
 
 **Opener.** *"Most of your AI agent risk lives in the platform configuration — environments, DLP, identity isolation, audit logging, and the agent inventory. Microsoft CAPE gives you the strategic vocabulary to choose which patterns to invest in; FSI-AgentGov gives you the 78-control technical baseline that supports compliance with FINRA, SEC, OCC, and Federal Reserve obligations on the platform side. We can run a 78-control assessment against your tenant in 2–4 hours and hand you a maturity scorecard and remediation backlog that the M365 admin team can act on Monday morning."*
 
-**If they redirect to "we're already a Microsoft shop, why do we need this":** "Exactly the point. The 78 controls are configurations of the M365, Power Platform, Purview, and Sentinel surfaces you already own. The framework tells you which configurations matter for which regulator and which zone. There is nothing here to buy."
+**If they redirect to "we're already a Microsoft shop, why do we need this":** "Exactly the point. The 79 controls are configurations of the M365, Power Platform, Purview, and Sentinel surfaces you already own. The framework tells you which configurations matter for which regulator and which zone. There is nothing here to buy."
 
 ### Opening with a CDO / CDAO
 
@@ -170,7 +170,7 @@ Three short decision trees rendered as bullets — read them out loud in the mee
 
 **Open-source community framework, not a Microsoft product.** FSI-AgentGov is open-source, community-maintained, and is **NOT a Microsoft product**. Microsoft alignment is intentional — most US FSI firms are M365 shops and the framework adopts CAPE patterns, drivers, and CoE functions as its strategic vocabulary by design — but alignment does not constitute Microsoft endorsement, support, or warranty. Microsoft can co-promote; Microsoft does not endorse. CSAs may **recommend** FSI-AgentGov to a customer; CSAs may **not** represent FSI-AgentGov as a Microsoft offering or say "Microsoft has approved this framework." See the repository [Disclaimer](../disclaimer.md) for the full statement.
 
-**Audience is M365 administrators and compliance officers, not developers or end users.** The 78 controls describe configurations of the M365, Power Platform, Purview, Sentinel, and SharePoint surfaces an admin owns. The CSA Quick Reference and CSA Positioning Guide are an *additional audience layer above the admin focus* — they do not change the underlying audience of the controls themselves. Customers running primarily on AWS Bedrock or Vertex AI need to extend or substitute; the framework's opinion is biased toward the M365 ecosystem.
+**Audience is M365 administrators and compliance officers, not developers or end users.** The 79 controls describe configurations of the M365, Power Platform, Purview, Sentinel, and SharePoint surfaces an admin owns. The CSA Quick Reference and CSA Positioning Guide are an *additional audience layer above the admin focus* — they do not change the underlying audience of the controls themselves. Customers running primarily on AWS Bedrock or Vertex AI need to extend or substitute; the framework's opinion is biased toward the M365 ecosystem.
 
 **Pattern 6 carries an explicit framework guardrail (D3).** Repeated in §2 above and reproduced from [`transformation-patterns.md`](../framework/transformation-patterns.md): *Fully autonomous customer-impacting Pattern 6 deployments are not currently supported in Zone 3 without documented regulator pre-approval.* Do not commit a customer to a Pattern 6 production deployment without naming this guardrail in the same conversation.
 

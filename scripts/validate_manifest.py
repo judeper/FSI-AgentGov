@@ -3,7 +3,7 @@
 
 Schema rules enforced:
 
-* All 78 controls present, unique ``id`` values.
+* All 79 controls present, unique ``id`` values.
 * Required v1.4 keys present on every control:
     name, zonesApplicable, roles, regulatory, priority, yesBar,
     partialBar, noBar, verifyIn, verifyPowerShell, evidenceExpected,
@@ -77,7 +77,7 @@ SECTORS = {
 }
 SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 URL_RE = re.compile(r"^https?://", re.IGNORECASE)
-EXPECTED_COUNT = 78
+EXPECTED_COUNT = 79
 
 
 def is_todo(value: Any) -> bool:

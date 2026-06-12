@@ -11,7 +11,7 @@
 | Symptom | Likely cause | First action |
 |---------|--------------|--------------|
 | Agent returns "I don't know" for content that exists | Document is not approved (still a draft / minor version), or filter excludes it | Verify approval status and `Approved For Agents` column |
-| Citations missing from agent responses | Citation setting disabled, response not grounded, or channel suppresses citations | Re-test the same prompt in M365 Chat or Teams; check agent settings |
+| Citations missing from agent responses | Citation setting disabled, response not grounded, or channel suppresses citations | Re-test the same prompt in Microsoft 365 Copilot Chat or Teams; check agent settings |
 | Agent surfacing outdated content | Index has not refreshed since the major version was published | Wait the documented index window (up to 24h); confirm the new version is the current major |
 | Unauthorized knowledge source bound to an agent | Maker added the source without approval | Remove the binding; capture evidence; review maker permissions and Power Platform DLP |
 | `Get-AdminPowerAppEnvironmentRoleAssignment` returns nothing | Environment is Dataverse-backed | Use PPAC Dataverse Security Roles, not the cmdlet (baseline section 5) |

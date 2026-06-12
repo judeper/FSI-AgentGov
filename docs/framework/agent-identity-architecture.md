@@ -38,7 +38,7 @@ Prior to Agent 365, financial services organizations faced fragmented governance
 
 This fragmentation creates compliance gaps: separate audit trails requiring manual consolidation for regulatory examinations, inconsistent policy enforcement (DLP policies in Power Platform don't apply to Agent Builder agents), and no single source of truth for agent inventory. Agent 365's unified control plane addresses these challenges by consolidating governance functions while maintaining the flexibility of multiple agent development platforms.
 
-This document targets two audiences: **M365 administrators** implementing tactical controls and **security architects** planning strategic governance architecture. Readers are assumed to be familiar with the FSI-AgentGov framework's three governance zones and 78-control catalog. For framework fundamentals, see [Governance Fundamentals](governance-fundamentals.md) and [Zones and Tiers](zones-and-tiers.md).
+This document targets two audiences: **M365 administrators** implementing tactical controls and **security architects** planning strategic governance architecture. Readers are assumed to be familiar with the FSI-AgentGov framework's three governance zones and 79-control catalog. For framework fundamentals, see [Governance Fundamentals](governance-fundamentals.md) and [Zones and Tiers](zones-and-tiers.md).
 
 ---
 

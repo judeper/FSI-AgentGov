@@ -6,7 +6,7 @@ This file provides guidance for autonomous AI agents working on this repository.
 
 **FSI Agent Governance Framework v1.6.2** — A governance framework for Microsoft 365 AI agents in US financial services organizations.
 
-- **78 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
+- **79 controls** across 4 pillars (Security, Management, Reporting, SharePoint)
 - **3 governance zones** (Personal Productivity, Team Collaboration, Enterprise Managed)
 - **3-layer documentation** (Framework → Controls → Playbooks)
 - **Target regulations:** FINRA 4511/3110, SEC 17a-3/4, SOX 302/404, GLBA 501(b), OCC Bulletin 2026-13 (formerly OCC 2011-12), Fed SR 26-2 (formerly Fed SR 11-7), CFTC 1.31
@@ -15,7 +15,7 @@ This file provides guidance for autonomous AI agents working on this repository.
 
 **Full context:** See `.github/copilot-instructions.md` for complete repository structure and design decisions.
 
-**Companion Repository:** `FSI-AgentGov-Solutions` contains 36 companion solution implementations (35 live + 1 preview) mapped to the current 78-control framework baseline. See `docs/reference/solutions-index.md` for the current catalog.
+**Companion Repository:** `FSI-AgentGov-Solutions` contains 36 companion solution implementations (35 live + 1 preview) mapped to the current 79-control framework baseline. See `docs/reference/solutions-index.md` for the current catalog.
 
 **Key reference documents:**
 - `docs/reference/csa-quick-reference.md` — CSA Quick Reference for partner/CSA engagement
@@ -289,7 +289,7 @@ python scripts/verify_excel_templates.py        # After template changes
 python scripts/compile_researcher_package.py    # After pillar control changes
 cd assessment && pytest tests/ -v               # After assessment engine changes
 
-# Cross-source consistency (78 control IDs in manifest, CONTROL-INDEX, and mkdocs nav)
+# Cross-source consistency (79 control IDs in manifest, CONTROL-INDEX, and mkdocs nav)
 python scripts/check_manifest_doc_drift.py --check
 
 # Honest assessment-engine coverage report (regenerate after wiring evaluators)
@@ -322,10 +322,10 @@ When making changes that could plausibly affect multiple file types or directori
 
 ## Automated Assessment Engine
 
-The `assessment/` directory contains a programmatic assessment engine that collects tenant configuration via APIs, scores all 78 controls against zone thresholds, and generates pre-filled reports with a focused manual questionnaire.
+The `assessment/` directory contains a programmatic assessment engine that collects tenant configuration via APIs, scores all 79 controls against zone thresholds, and generates pre-filled reports with a focused manual questionnaire.
 
 **Structure:**
-- `manifest/controls.json` — machine-readable 78-control manifest (checks, zone thresholds, manual questions)
+- `manifest/controls.json` — machine-readable 79-control manifest (checks, zone thresholds, manual questions)
 - `collectors/` — 5 PowerShell collectors: Collect-PPAC, Collect-Graph, Collect-Purview, Collect-SharePoint, Collect-Sentinel
 - `engine/score.py` — Python scoring engine (evaluates pass_conditions, derives maturity 0–4, sets confidence)
 - `engine/report.py` — generates assessment-prefilled.md, manual-questionnaire.md, assessment-summary.json
@@ -334,7 +334,7 @@ The `assessment/` directory contains a programmatic assessment engine that colle
 
 **When editing assessment code:**
 1. Run `cd assessment && pytest tests/ -v` to verify no regressions
-2. If modifying `controls.json`, ensure all 78 entries are present with required schema fields
+2. If modifying `controls.json`, ensure all 79 entries are present with required schema fields
 3. `assessment/output/` is gitignored — customer data must never be committed
 
 ## Advanced Implementations

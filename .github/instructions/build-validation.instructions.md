@@ -26,7 +26,7 @@ This must produce **zero errors and zero warnings**. Common failures:
 python scripts/verify_controls.py
 ```
 
-Validates all 78 controls have required 10-section structure.
+Validates all 79 controls have required 10-section structure.
 
 ### After Excel Template Changes
 
@@ -45,6 +45,6 @@ Regenerates the researcher package with updated control metadata.
 ## What "Pass" Means
 
 - `mkdocs build --strict` produces zero errors/warnings
-- `verify_controls.py` reports all 78 controls valid
+- `verify_controls.py` reports all 79 controls valid
 - No broken internal links
 - Navigation in `mkdocs.yml` matches actual file structure

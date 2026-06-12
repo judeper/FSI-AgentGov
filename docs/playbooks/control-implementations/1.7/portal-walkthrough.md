@@ -203,8 +203,8 @@ In the Purview portal:
     - `CopilotInteraction` — Microsoft 365 Copilot interactions.
     - `ConnectedAIAppInteraction` — Connected AI app interactions (Microsoft-built Copilot Studio agents at no incremental cost; some non-Microsoft AI app scenarios under this RecordType are PAYG-billable — see §6).
     - `AIAppInteraction` — Non-Microsoft AI assistance events captured via network/browser DLP under the `AIApp` workload (PAYG-only — see §6; 180-day retention for PAYG records).
-    - `MicrosoftCopilotStudio` — Copilot Studio admin / agent lifecycle activity.
-    - Power Platform: `PowerPlatformAdminEnvironment`, `PowerPlatformAdministratorActivity`, `MicrosoftFlow`, `PowerAppsApp` (as applicable).
+    - `PowerPlatformAdministratorActivity` — Copilot Studio admin / agent lifecycle activity.
+    - Power Platform: `PowerPlatformAdministratorActivity`, `MicrosoftFlow`, `PowerAppsApp` (as applicable).
 4. Optionally filter by **Users**, **File, folder, or site**, or **Admin Units**.
 5. Enter a **Search name** (e.g., `Q3-2026-FraudTriageAgent-Reconstruction`).
 6. Click **Search**. Searches run **asynchronously**, search jobs persist for **30 days**, and there is a per-admin cap of **10 concurrent jobs (1 unfiltered)**. Refresh the search list to monitor completion.
@@ -256,7 +256,7 @@ The audit record carries metadata only. To retrieve the prompt and response body
     Authoring or modifying audit retention policies requires the Exchange **Organization Configuration** role. The Purview Compliance Admin role alone returns access denied on policy creation. Confirm role assignment before starting this step.
 
 !!! warning "The default Audit (Premium) retention policy covers only four workloads"
-    The platform default Audit (Premium) retention policy covers **only** `AzureActiveDirectory`, `Exchange`, `OneDrive`, and `SharePoint`. Copilot record types (`CopilotInteraction`, `ConnectedAIAppInteraction`, `MicrosoftCopilotStudio`, `AIAppInteraction`) silently fall back to **180 days** unless a custom policy explicitly names them. This is a non-obvious default — verify against [Microsoft Learn: Audit log retention policies](https://learn.microsoft.com/en-us/purview/audit-log-retention-policies) before you assume otherwise.
+    The platform default Audit (Premium) retention policy covers **only** `AzureActiveDirectory`, `Exchange`, `OneDrive`, and `SharePoint`. Copilot record types (`CopilotInteraction`, `ConnectedAIAppInteraction`, `PowerPlatformAdministratorActivity`, `AIAppInteraction`) silently fall back to **180 days** unless a custom policy explicitly names them. This is a non-obvious default — verify against [Microsoft Learn: Audit log retention policies](https://learn.microsoft.com/en-us/purview/audit-log-retention-policies) before you assume otherwise.
 
 1. In the Purview portal Audit solution, open **Policies > Create audit retention policy**.
 2. Enter a descriptive **Policy name** that encodes the zone and intent (e.g., `FSI-Zone3-Copilot-10y`, `FSI-Zone2-Copilot-1y`).
@@ -265,8 +265,8 @@ The audit record carries metadata only. To retrieve the prompt and response body
     - `CopilotInteraction`
     - `ConnectedAIAppInteraction`
     - `AIAppInteraction` (only if PAYG enabled — note PAYG records cap at 180 days regardless)
-    - `MicrosoftCopilotStudio`
-    - `PowerPlatformAdminEnvironment`, `PowerPlatformAdministratorActivity`, `MicrosoftFlow`, `PowerAppsApp` (as applicable)
+    - `PowerPlatformAdministratorActivity`
+    - `PowerPlatformAdministratorActivity`, `MicrosoftFlow`, `PowerAppsApp` (as applicable)
 5. Under **Users**, choose **All users** for tenant-wide coverage, or scope to a **license-derived security group** (recommended pattern: scope by license group, not by individual UPN, because license assignments change).
 6. Set **Priority** explicitly (1 = highest); document the priority decision in the policy description so the audit binder can explain conflict resolution.
 7. Click **Save**.
@@ -493,7 +493,7 @@ All artifacts: SHA-256 hashed at capture time; copied to the §10 immutable blob
 | Configuration | Setting |
 |---|---|
 | Unified audit logging | Enabled (verify per §2) |
-| Audit retention policy | `Twelve Months` policy named `FSI-Zone1-Copilot-1y` covering `CopilotInteraction`, `ConnectedAIAppInteraction`, `MicrosoftCopilotStudio` |
+| Audit retention policy | `Twelve Months` policy named `FSI-Zone1-Copilot-1y` covering `CopilotInteraction`, `ConnectedAIAppInteraction`, `PowerPlatformAdministratorActivity` |
 | 10-Year Audit Log Retention add-on | Not required |
 | PAYG `AIAppInteraction` | Optional; enable only if non-Microsoft AI is permitted on managed endpoints |
 | Dataverse environment audit | Enabled, 180-day retention |

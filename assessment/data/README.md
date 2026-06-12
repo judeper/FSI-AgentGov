@@ -42,7 +42,7 @@ IDs are present.
 
 The lock file maps the **subset of controls that have a dedicated
 companion solution** in FSI-AgentGov-Solutions (35 today out of the
-framework's 78 controls). It is not intended to be a 1:1 mirror of
+framework's 79 controls). It is not intended to be a 1:1 mirror of
 the control catalog.
 
 Many controls have an empty `solutions[]` array in

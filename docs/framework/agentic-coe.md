@@ -14,7 +14,7 @@ Microsoft's "Frontier Center of Excellence" concept (paraphrased from the [Micro
 
 US financial services organizations face a particular version of this problem. Regulated lines of business cannot tolerate "shadow agents" appearing on customer-impacting pathways without a documented supervisor (FINRA Rule 3110), a model risk tier (OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Fed SR 26-2), and a books-and-records pipeline (SEC 17a-4, FINRA 4511). At the same time, an FSI institution that centralizes every agent decision in one team will create a Gatekeeper bottleneck that pushes business lines to deploy outside the governance perimeter. The framework's job is to give institutions a CoE blueprint that scales enablement without sacrificing supervision.
 
-The framework's promise here is a **blueprint, not a turnkey operating model**: four functions × three shapes × explicit federation guardrails, mapped to the 78-control catalog and the 7-stage agent lifecycle. The right CoE shape for any institution depends on size, regulatory archetype, business-line count, and existing operating-model maturity. A regional bank with two business lines should not run the same CoE as a global SIFI with a dozen.
+The framework's promise here is a **blueprint, not a turnkey operating model**: four functions × three shapes × explicit federation guardrails, mapped to the 79-control catalog and the 7-stage agent lifecycle. The right CoE shape for any institution depends on size, regulatory archetype, business-line count, and existing operating-model maturity. A regional bank with two business lines should not run the same CoE as a global SIFI with a dozen.
 
 > **Important caveat.** This document defines the *functional accountabilities* a CoE owns. It is not a headcount mandate. In smaller institutions one person may hold three CoE function roles, just as today the AI Governance Lead may also serve as Compliance Officer per the [operating-model.md note for smaller institutions](operating-model.md#raci-definitions). The functions remain distinct even when the people overlap.
 
@@ -25,7 +25,7 @@ The framework's promise here is a **blueprint, not a turnkey operating model**: 
 | Function | Mandate | Primary FSI roles | Cross-link |
 |----------|---------|-------------------|------------|
 | **Govern** | Policy, controls, audit readiness, risk register, release gates | AI Governance Lead, CCO, CRO, CISO | [Pillar 1 controls](../controls/CONTROL-INDEX.md#pillar-1-security-controls-29-controls) |
-| **Enable** | Builder enablement, knowledge sources, design patterns, training, community | AI Governance Lead, Adoption Lead, SME, Microsoft Copilot Studio Agent Author | [Pillar 2 controls](../controls/CONTROL-INDEX.md#pillar-2-management-controls-26-controls) |
+| **Enable** | Builder enablement, knowledge sources, design patterns, training, community | AI Governance Lead, Adoption Lead, SME, Microsoft Copilot Studio Agent Author | [Pillar 2 controls](../controls/CONTROL-INDEX.md#pillar-2-management-controls-27-controls) |
 | **Optimize** | Performance monitoring, drift detection, hallucination tracking, agent retirement signal | Service Owner, Power Platform Admin, SOC Analyst | [Pillar 3 controls](../controls/CONTROL-INDEX.md#pillar-3-agent-reporting-14-controls) |
 | **Scale** | Pattern intake, portfolio prioritization, business-line expansion, productization | Executive Sponsor, Agent Product Owner, Business Owner | [Operating model](operating-model.md) |
 

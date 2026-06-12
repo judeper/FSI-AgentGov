@@ -57,7 +57,7 @@ Navigate to any control in the Control Catalog to find links to its implementati
 | [1.28 Policy-Based Publishing](../../controls/pillar-1-security/1.28-policy-based-agent-publishing-restrictions.md) | [Portal](1.28/portal-walkthrough.md) | [PS](1.28/powershell-setup.md) | [Test](1.28/verification-testing.md) | [Fix](1.28/troubleshooting.md) |
 | [1.29 Global Secure Access](../../controls/pillar-1-security/1.29-global-secure-access-network-controls.md) | [Portal](1.29/portal-walkthrough.md) | [PS](1.29/powershell-setup.md) | [Test](1.29/verification-testing.md) | [Fix](1.29/troubleshooting.md) |
 
-### Pillar 2: Management (26 controls)
+### Pillar 2: Management (27 controls)
 
 | Control | Portal | PowerShell | Testing | Troubleshooting |
 |---------|--------|------------|---------|-----------------|
@@ -87,6 +87,7 @@ Navigate to any control in the Control Catalog to find links to its implementati
 | [2.24 Feature Enablement Governance](../../controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance.md) | [Portal](2.24/portal-walkthrough.md) | [PS](2.24/powershell-setup.md) | [Test](2.24/verification-testing.md) | [Fix](2.24/troubleshooting.md) |
 | [2.25 Agent 365 Governance Console](../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) | [Portal](2.25/portal-walkthrough.md) | [PS](2.25/powershell-setup.md) | [Test](2.25/verification-testing.md) | [Fix](2.25/troubleshooting.md) |
 | [2.26 Entra Agent ID Identity Governance](../../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) | [Portal](2.26/portal-walkthrough.md) | [PS](2.26/powershell-setup.md) | [Test](2.26/verification-testing.md) | [Fix](2.26/troubleshooting.md) |
+| [2.27 Consumption-Entitlement Governance](../../controls/pillar-2-management/2.27-consumption-entitlement-governance.md) | [Portal](2.27/portal-walkthrough.md) | [PS](2.27/powershell-setup.md) | [Test](2.27/verification-testing.md) | [Fix](2.27/troubleshooting.md) |
 
 ### Pillar 3: Reporting (14 controls)
 

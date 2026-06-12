@@ -111,7 +111,7 @@ Copilot Studio evaluations can be re-run manually or driven from Power Automate.
 1. Sign in to the [Microsoft Purview portal](https://purview.microsoft.com) as **Purview Audit Admin**.
 2. Confirm **Audit (Premium)** is enabled for the tenant and that **Copilot interactions** are in scope.
 3. For Zone 3 agents, set audit retention to a minimum of **7 years** to align with SEC Rule 17a-4(b)(4) and FINRA Rule 4511 record-keeping expectations for supervisory records.
-4. Confirm evaluation runs and exports are captured in the audit log (filter by `Workload = MicrosoftCopilotStudio` and `Operation = AgentEvaluationRun` or equivalent).
+4. Confirm evaluation runs and exports are captured in the audit log (filter by `Workload = PowerPlatformAdministratorActivity` and `Operation = AgentEvaluationRun` or equivalent).
 5. Document the retention policy ID and the audit search query used to retrieve evaluation evidence in your WSPs.
 
 > **Caveat.** Audit log entries record that an evaluation ran; they are not a substitute for the exported result files. Both must be retained.

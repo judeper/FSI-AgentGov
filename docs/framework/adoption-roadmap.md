@@ -9,7 +9,7 @@ Phased implementation guidance for deploying the FSI Agent Governance Framework.
 This roadmap provides a structured approach to implementing AI agent governance. Organizations should adapt timelines and priorities based on their specific regulatory obligations, existing infrastructure, and agent deployment plans.
 
 !!! tip "Start with the Readiness Assessment"
-    Before beginning Phase 0, run the [Governance Readiness Assessment](../assessment/index.md) to evaluate your current posture across all 78 controls. The assessment produces a personalized scorecard, gap analysis, and remediation roadmap tailored to your institution type, governance zones, and adoption phase.
+    Before beginning Phase 0, run the [Governance Readiness Assessment](../assessment/index.md) to evaluate your current posture across all 79 controls. The assessment produces a personalized scorecard, gap analysis, and remediation roadmap tailored to your institution type, governance zones, and adoption phase.
 
 ---
 
@@ -277,7 +277,7 @@ Editable Mermaid source: [`docs/images/diagrams/source/cape/cape-fsi-timeline.mm
 - [ ] Sentinel integration operational with analytics rules
 - [ ] Adversarial testing program established
 - [ ] Model risk management framework aligned with SR 26-2 (formerly SR 11-7)
-- [ ] All 78 controls assessed and appropriately implemented
+- [ ] All 79 controls assessed and appropriately implemented
 - [ ] Steady-state governance operations documented
 
 ### Phase 2 Deliverables
