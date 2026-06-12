@@ -16,7 +16,7 @@
       - FsiMimeControl.psm1 — MIME type compliance evaluation patterns
 
 .PARAMETER TenantId
-    Mandatory. Azure AD tenant ID.
+    Mandatory. Microsoft Entra tenant ID.
 
 .PARAMETER AuthMode
     Mandatory. Authentication mode: Interactive or ServicePrincipal.

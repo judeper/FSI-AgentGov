@@ -45,9 +45,9 @@ This is documented Microsoft platform behaviour, not a configuration error.
 1. Confirm the user holds **AI Administrator**, **Power Platform Admin**, or **Environment Maker + agent ownership**
 2. Read-only roles (e.g., **Environment Reader**) see agent settings without the Security panel toggles
 
-### Cause: Agent version below v8 or environment feature flag disabled
+### Cause: Capability not yet rolled out to the environment or feature flag disabled
 
-1. Open *Copilot Studio → \[Agent\] → Settings → Details* and confirm the agent runtime version
+1. Open *Copilot Studio → \[Agent\] → Settings → Details* and confirm the agent is on the current published runtime — Copilot Studio is a continuously updated service with no discrete version gate, so a missing toggle reflects feature rollout rather than a numbered release
 2. Open *PPAC → Environments → \[Environment\] → Settings → Features* and confirm Copilot features are enabled
 3. If the toggle is missing across every agent in the environment, check tenant-level feature rollout — the per-agent File Upload toggle has rolled out progressively by region
 

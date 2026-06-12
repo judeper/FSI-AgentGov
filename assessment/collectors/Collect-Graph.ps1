@@ -15,7 +15,7 @@
       - Invoke-SharingAudit.ps1 — cross-tenant access pattern for principal classification
 
 .PARAMETER TenantId
-    Mandatory. Azure AD tenant ID.
+    Mandatory. Microsoft Entra tenant ID.
 
 .PARAMETER AuthMode
     Mandatory. Authentication mode: Interactive or ServicePrincipal.
