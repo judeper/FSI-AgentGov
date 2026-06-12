@@ -50,6 +50,20 @@ Source: [Purview Audit Log Activities — M365 Admin Center Agent Management](ht
 | `UpdatedAgent` | Updated Agent | Admin updated a custom agent by uploading latest manifest | GA |
 | `UpdatedTenantSettings` | Updated Tenant-level Agent Settings | Admin updated tenant-level settings that apply to agents | GA |
 
+### Defender XDR — Advanced Hunting AI agent inventory (`AgentsInfo`)
+
+Source: [`AgentsInfo` table reference (Preview)](https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-agentsinfo-table) | [Naming changes](https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-schema-changes)
+
+The Microsoft Defender XDR Advanced Hunting AI-agent inventory table is **transitioning from `AIAgentsInfo` to `AgentsInfo`**, powered by Microsoft Agent 365 as the single source of truth for AI agent inventory.
+
+| Table | Status | Notes |
+|-------|--------|-------|
+| `AgentsInfo` | Preview | Current table. Microsoft Agent 365 customers should query this table today. Schema and column names may still change while in Preview — verify against the schema reference before relying on a specific field. |
+| `AIAgentsInfo` | Deprecating | Legacy table; remains accessible until **July 1, 2026**, then deprecated. Migrate saved queries, custom detections, and workbooks to `AgentsInfo` before that date. |
+
+!!! note "Name may still change"
+    These are Preview-stage Advanced Hunting tables. The earlier `AIAgentsInfo` name is being retired in favor of `AgentsInfo`, and Microsoft notes the schema may be substantially modified before commercial release. Treat the table and column names as provisional and re-verify against [Microsoft Learn](https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-agentsinfo-table) at query-authoring time. After **July 1, 2026**, Copilot Studio / Foundry agent inventory in Defender requires a Microsoft Agent 365 license ([transition guidance](https://learn.microsoft.com/defender-xdr/security-for-ai/transition-agent-security-to-agent-365)).
+
 ### Purview UAL — Microsoft 365 Copilot Admin Activities
 
 Source: [Purview Audit Log Activities — M365 Copilot admin activities](https://learn.microsoft.com/en-us/purview/audit-log-activities) | [Copilot audit details](https://learn.microsoft.com/en-us/purview/audit-copilot)

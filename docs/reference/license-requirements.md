@@ -18,12 +18,12 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 | **SharePoint Advanced Management** | 4.1, 4.2, 4.3, 4.4, 4.5, 4.6 | SharePoint governance |
 | **Copilot Studio** | All | Agent development |
 | **Microsoft 365 Copilot** | 2.24, 3.8 | Copilot experiences and first-party agents |
-| **Microsoft Agent 365 (per-user)** | 1.8, 2.24, 2.25, 2.26, 3.8, 3.13, 3.14 | Agent control plane, registry, analytics, identity, observability |
-| **Windows 365 for Agents (Public Preview)** | W365A scope (touchpoints: 1.7, 1.20, 1.29, 2.25) | Agent Cloud PC execution in public preview; Microsoft Learn lists Windows 365 or Agent 365 tenant licensing plus an active W365A billing plan. |
+| **Microsoft Agent 365 (per-user)** | 1.8, 1.21, 1.24, 2.24, 2.25, 2.26, 3.8, 3.13, 3.14 | Agent control plane, registry, analytics, identity, observability. As of **July 1, 2026**, AI agent security capabilities for Microsoft Copilot Studio and Microsoft Foundry agents in Microsoft Defender (agent discovery, posture, threat detection, Advanced Hunting) **require a Microsoft Agent 365 license** — these are no longer covered by Defender for Cloud Apps or Defender for Cloud, which adds Controls 1.21 and 1.24 to the Agent-365-gated set ([transition guidance](https://learn.microsoft.com/defender-xdr/security-for-ai/transition-agent-security-to-agent-365)). |
+| **Windows 365 for Agents** | W365A scope (touchpoints: 1.7, 1.20, 1.29, 2.25) | Agent Cloud PC execution. **Generally available** the week of June 1, 2026 ([What's new in Windows 365 for Agents](https://learn.microsoft.com/windows-365/agents/whats-new)). Microsoft Learn lists Windows 365 or Agent 365 tenant licensing plus an active W365A billing plan; confirm current region availability against Microsoft Learn. |
 | **Microsoft 365 Copilot Business** | N/A | SMB Copilot access |
 
 !!! note "Agent 365 and GSA licensing references"
-    [Microsoft Agent 365 overview](https://learn.microsoft.com/en-us/microsoft-agent-365/overview) states that Microsoft Agent 365 is generally available on a per-user basis and recommends (not requires) Entra P1, Entra P2, or Entra Suite together with Purview DLP. Microsoft Learn also states that agent network controls use **Microsoft Entra Internet Access**, included in Microsoft Entra Suite or licensed standalone. If procurement materials reference **Microsoft 365 E7**, verify that bundle naming against current Microsoft licensing documentation before contractual reference. See [Microsoft Agent 365 overview](https://learn.microsoft.com/en-us/microsoft-agent-365/overview), [Microsoft Entra Agent ID licensing](https://learn.microsoft.com/en-us/entra/agent-id/what-is-microsoft-entra-agent-id#how-to-get-started), and [Global Secure Access licensing overview](https://learn.microsoft.com/en-us/entra/global-secure-access/overview-what-is-global-secure-access#licensing-overview).
+    [Microsoft Agent 365 overview](https://learn.microsoft.com/en-us/microsoft-agent-365/overview) states that Microsoft Agent 365 is generally available on a per-user basis and recommends (not requires) Entra P1, Entra P2, or Entra Suite together with Purview DLP. Microsoft Learn also states that agent network controls use **Microsoft Entra Internet Access**, included in Microsoft Entra Suite or licensed standalone. Microsoft Agent 365 is available standalone (per-user) or as part of **Microsoft 365 E7**, which bundles Microsoft 365 E5 + Microsoft 365 Copilot + Microsoft Entra Suite + Microsoft Agent 365. Confirm the exact entitlements for your tenant against the current Microsoft licensing and service-description documentation. See [Microsoft Agent 365 overview](https://learn.microsoft.com/en-us/microsoft-agent-365/overview), [Microsoft Entra Agent ID licensing](https://learn.microsoft.com/en-us/entra/agent-id/what-is-microsoft-entra-agent-id#how-to-get-started), and [Global Secure Access licensing overview](https://learn.microsoft.com/en-us/entra/global-secure-access/overview-what-is-global-secure-access#licensing-overview).
 
 ---
 
@@ -98,7 +98,7 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 | **1.5** | DLP and Sensitivity Labels | Microsoft 365 E5 or Microsoft Purview Suite | Purview DLP + Information Protection. **Note:** DLP for Copilot *prompts* is available to all M365 Copilot/Copilot Chat users at no additional cost (any SKU); DLP to restrict Copilot from *processing files/emails* requires E5/Purview Suite |
 | **1.6** | DSPM for AI | Microsoft 365 E5 or Microsoft Purview Suite | Microsoft Purview DSPM for AI |
 | **1.7** | Audit Logging | Microsoft 365 E5 (Premium) or E3 (Standard) | E5 for 10-year retention |
-| **1.8** | Runtime Protection | Power Platform Premium + Microsoft Agent 365 (per-user) if adopted as the post-GA unified inventory source; verify current AI Agent Inventory dependency before production rollout | Managed Environments feature; Defender for Cloud Apps currently surfaces AI Agent Inventory. Microsoft has indicated Agent 365 will become the unified inventory source post-GA; verify enforcement timing on the Agent 365 roadmap before committing supervisory cadences. |
+| **1.8** | Runtime Protection | Power Platform Premium + Microsoft Agent 365 (per-user) for AI Agent Inventory and Defender agent security from **July 1, 2026** | Managed Environments feature; Defender for Cloud Apps surfaces AI Agent Inventory during the grace period. **Effective July 1, 2026, AI Agent Inventory and Defender agent security require Microsoft Agent 365** — Defender for Cloud Apps / Defender for Cloud alone no longer provide them ([transition guidance](https://learn.microsoft.com/defender-xdr/security-for-ai/transition-agent-security-to-agent-365)). |
 | **1.9** | Data Retention | Microsoft 365 E5 or Microsoft Purview Suite | Data Lifecycle Management |
 | **1.10** | Communication Compliance | Microsoft 365 E5 or Microsoft Purview Suite | Purview Communication Compliance |
 | **1.11** | Conditional Access & MFA | Microsoft Entra ID P1 (basic) or P2 (advanced) | P2 for risk-based policies |
@@ -116,7 +116,7 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 | **1.23** | Step-Up Authentication | Microsoft Entra ID P2 | Authentication context + Conditional Access |
 | **1.24** | Defender AI-SPM | Microsoft Defender for Cloud (CSPM) | Defender CSPM plan required |
 | **1.25** | MIME Type Restrictions | Power Platform Premium | Managed Environments; optional Purview DLP |
-| **1.26** | Agent File Upload and File Analysis Restrictions | Power Platform Premium | Copilot Studio v8+; Purview DLP for Zone 2+ |
+| **1.26** | Agent File Upload and File Analysis Restrictions | Power Platform Premium | Copilot Studio per-agent file upload controls; Purview DLP for Zone 2+ |
 | **1.27** | AI Agent Content Moderation Enforcement | Power Platform Premium | Native Copilot Studio content moderation |
 | **1.28** | Policy-Based Agent Publishing Restrictions | Power Platform Premium | Tenant DLP policies; PPAC security scans |
 | **1.29** | Global Secure Access Network Controls | Microsoft Entra Internet Access | Secure Web and AI Gateway for Copilot Studio agents routes supported agent traffic through Global Secure Access; requires GSA onboarding and a Dataverse-backed Power Platform environment. See [Secure Web and AI Gateway for agents](https://learn.microsoft.com/en-us/power-platform/admin/security/secure-web-ai-gateway-agents) and [GSA licensing](https://learn.microsoft.com/en-us/entra/global-secure-access/overview-what-is-global-secure-access#licensing-overview) |
@@ -188,6 +188,8 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 | **4.5** | Security Monitoring | SharePoint Advanced Management + E5 | SAM + Purview Audit |
 | **4.6** | Grounding Scope Governance | SharePoint Advanced Management | Restricted SharePoint Search |
 | **4.7** | M365 Copilot Data Governance | Microsoft 365 E5 or Microsoft Purview Suite | Purview data governance for Copilot |
+| **4.8** | Item-Level Permission Scanning (Agent Knowledge Sources) | SharePoint Advanced Management + Microsoft 365 E5 (or Microsoft Purview Suite) | Builds on RAC/RCD/RSS (Control 4.1); DSPM for AI complements knowledge-source assessment |
+| **4.9** | Embedded File Content Governance | Microsoft 365 E5 or Microsoft Purview Suite | Sensitivity labels / default label policy for SharePoint Embedded containers used by Agent Builder knowledge files |
 
 ---
 
@@ -276,16 +278,16 @@ To verify current license assignments:
 
 ## Microsoft Agent 365 and Agent Management Essentials
 
-> **GA note:** [Microsoft Agent 365](https://learn.microsoft.com/en-us/microsoft-agent-365/overview) reaches general availability on May 1, 2026 as Microsoft Agent 365 per-user licensing. Recommended (not required) prerequisites: Entra P1/P2/Suite + Purview DLP. If procurement materials reference **Microsoft 365 E7**, verify that bundle naming against current Microsoft licensing documentation before publishing.
+> **GA note:** [Microsoft Agent 365](https://learn.microsoft.com/en-us/microsoft-agent-365/overview) reached general availability on May 1, 2026 as Microsoft Agent 365 per-user licensing. Recommended (not required) prerequisites: Entra P1/P2/Suite + Purview DLP. Microsoft Agent 365 is also bundled in **Microsoft 365 E7** (E5 + Microsoft 365 Copilot + Entra Suite + Agent 365). Confirm the exact entitlements for your tenant against the current Microsoft licensing and service-description documentation.
 
-!!! warning "AI Agent Inventory enforcement timing remains a verification item"
-    [Defender for Cloud AI security posture management](https://learn.microsoft.com/en-us/azure/defender-for-cloud/ai-security-posture) currently surfaces agent inventory information, and [Microsoft Agent 365 overview](https://learn.microsoft.com/en-us/microsoft-agent-365/overview) documents the post-GA unified control plane. Microsoft has indicated Agent 365 will become the unified inventory source post-GA; verify enforcement timing on the Agent 365 roadmap before committing supervisory cadences.
+!!! warning "Defender agent security requires Microsoft Agent 365 from July 1, 2026"
+    [Defender for Cloud AI security posture management](https://learn.microsoft.com/en-us/azure/defender-for-cloud/ai-security-posture) and Defender for Cloud Apps surface agent inventory during the grace period. **Effective July 1, 2026, AI agent security capabilities for Microsoft Copilot Studio and Microsoft Foundry agents in Microsoft Defender — agent discovery, posture, threat detection, and Advanced Hunting — require a Microsoft Agent 365 license** and are no longer covered by Defender for Cloud Apps or Defender for Cloud ([transition guidance](https://learn.microsoft.com/defender-xdr/security-for-ai/transition-agent-security-to-agent-365)). Plan procurement before the cutover.
 
 ### Official prerequisites
 
 | Requirement | Official guidance | Source |
 |-------------|-------------------|--------|
-| Tenant licensing | Microsoft Agent 365 per-user licensing; assign licenses from Microsoft 365 admin center. If procurement materials reference **Microsoft 365 E7**, verify that bundle naming against current Microsoft licensing documentation before contractual reference. | [Microsoft Agent 365 overview](https://learn.microsoft.com/en-us/microsoft-agent-365/overview) |
+| Tenant licensing | Microsoft Agent 365 per-user licensing; assign licenses from Microsoft 365 admin center. Microsoft Agent 365 is also bundled in **Microsoft 365 E7**. Confirm the exact entitlements for your tenant against the current Microsoft licensing and service-description documentation. | [Microsoft Agent 365 overview](https://learn.microsoft.com/en-us/microsoft-agent-365/overview) |
 | Day-to-day admin roles | AI Admin, Global Admin, or Global Reader (view-only) can manage agents in Microsoft 365 admin center | [Agent prerequisites](https://learn.microsoft.com/en-us/microsoft-365/copilot/agent-essentials/agent-prerequisites) |
 | Power Platform admin roles | Power Platform Administrator or Dynamics 365 Administrator may still be needed for Copilot Studio environment administration | [Agent prerequisites](https://learn.microsoft.com/en-us/microsoft-365/copilot/agent-essentials/agent-prerequisites) |
 | Sensitive role hardening | Use Entra Privileged Identity Management for AI Admin and other high-privilege roles | [Agent prerequisites](https://learn.microsoft.com/en-us/microsoft-365/copilot/agent-essentials/agent-prerequisites) |
@@ -294,7 +296,7 @@ To verify current license assignments:
 
 | Licensing point | Microsoft-published guidance |
 |-----------------|------------------------------|
-| GA model (May 1, 2026) | Microsoft Agent 365 — GA May 1, 2026 — Microsoft Agent 365 per-user license. Recommended (not required) prerequisites: Entra P1/P2/Suite + Purview DLP. Verify any "Microsoft 365 E7" bundle naming against current Microsoft licensing documentation before publishing. |
+| GA model (May 1, 2026) | Microsoft Agent 365 — GA May 1, 2026 — Microsoft Agent 365 per-user license, standalone or bundled in **Microsoft 365 E7**. Recommended (not required) prerequisites: Entra P1/P2/Suite + Purview DLP. Confirm the exact entitlements for your tenant against the current Microsoft licensing and service-description documentation. |
 | Included entitlement | Agents acting on behalf of a licensed user are covered under that user's Microsoft Agent 365 per-user license. |
 | Framework implication | Per-user licensing replaces the earlier per-agent-instance Frontier preview model; plan procurement and entitlement tracking accordingly. |
 
@@ -302,8 +304,10 @@ To verify current license assignments:
 
 | Control | Licensing interpretation |
 |---------|--------------------------|
-| **1.8 - Runtime Protection** | Defender for Cloud Apps currently surfaces AI Agent Inventory. Microsoft has indicated Agent 365 will become the unified inventory source post-GA; verify enforcement timing on the Agent 365 roadmap before committing supervisory cadences. |
-| **3.7 - PPAC Security Posture Assessment** | Defender for Cloud Apps AI Agent Inventory cross-reference remains useful for portal walkthrough validation, but verify any Agent 365 enforcement timing before making it a hard supervisory dependency. |
+| **1.8 - Runtime Protection** | Defender for Cloud Apps surfaces AI Agent Inventory during the grace period. **Effective July 1, 2026, AI Agent Inventory and Defender agent security require Microsoft Agent 365**; Defender for Cloud Apps / Defender for Cloud alone no longer provide them ([transition guidance](https://learn.microsoft.com/defender-xdr/security-for-ai/transition-agent-security-to-agent-365)). |
+| **1.21 - Adversarial Input Logging** | Copilot Studio / Foundry agent threat detection and Advanced Hunting (`AgentsInfo`) in Microsoft Defender require Microsoft Agent 365 from **July 1, 2026**. Azure-side Defender for Cloud Threat Protection for AI Workloads (Prompt Shields plane) is licensed separately and unchanged. |
+| **1.24 - Defender AI Security Posture Management** | Agent-level discovery, posture, and threat detection for Copilot Studio / Foundry agents require Microsoft Agent 365 from **July 1, 2026**. Defender CSPM continues to discover Foundry accounts/projects, but agent-level capabilities move under Agent 365 ([transition guidance](https://learn.microsoft.com/defender-xdr/security-for-ai/transition-agent-security-to-agent-365)). |
+| **3.7 - PPAC Security Posture Assessment** | Defender for Cloud Apps AI Agent Inventory cross-reference remains useful for portal walkthrough validation; from July 1, 2026 the agent-inventory dependency requires Microsoft Agent 365. |
 | **2.25 - Agent 365 Governance Console** | Requires Microsoft Agent 365 per-user licensing at GA (May 1, 2026). |
 | **3.8 - Copilot Hub and Governance Dashboard** | Power Platform Premium covers PPAC Copilot Hub; Agent overview metrics and governance cards are tied to Microsoft Agent 365 per-user licensing at GA (May 1, 2026). |
 | **2.23 - User Consent and AI Disclosure Enforcement** | Follow Agent Management Essentials prerequisites for AI Admin role assignment and PIM when delegating admin-center agent governance |
