@@ -370,7 +370,7 @@ def seed_default_policy(client: CAAClient, dry_run: bool = False) -> None:
             "fsi_group_name": "Zone 2 — Team Collaboration (Named Groups)",
             "fsi_zone": 2,
             "fsi_group_id": "00000000-0000-0000-0000-000000000000",
-            "fsi_purpose": "Template record. Replace with actual Azure AD security group IDs "
+            "fsi_purpose": "Template record. Replace with actual Microsoft Entra security group IDs "
                            "approved by team managers for Zone 2 collaboration.",
             "fsi_is_active": False,
             "fsi_added_by": "ASARD Schema Deployment",
@@ -379,7 +379,7 @@ def seed_default_policy(client: CAAClient, dry_run: bool = False) -> None:
             "fsi_group_name": "Zone 3 — Enterprise Approved Security Group",
             "fsi_zone": 3,
             "fsi_group_id": "00000000-0000-0000-0000-000000000000",
-            "fsi_purpose": "Template record. Replace with actual Azure AD security group IDs "
+            "fsi_purpose": "Template record. Replace with actual Microsoft Entra security group IDs "
                            "pre-approved by enterprise security for Zone 3 managed agents.",
             "fsi_is_active": False,
             "fsi_added_by": "ASARD Schema Deployment",

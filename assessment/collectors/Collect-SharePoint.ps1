@@ -15,7 +15,7 @@
       - restrict-agent-publishing.ps1 — security group validation patterns
 
 .PARAMETER TenantId
-    Mandatory. Azure AD tenant ID.
+    Mandatory. Microsoft Entra tenant ID.
 
 .PARAMETER AuthMode
     Mandatory. Authentication mode: Interactive or ServicePrincipal.

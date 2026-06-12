@@ -15,7 +15,7 @@
       - Invoke-HardeningBaselineCheck.ps1 — multi-control baseline check structure
 
 .PARAMETER TenantId
-    Mandatory. Azure AD tenant ID.
+    Mandatory. Microsoft Entra tenant ID.
 
 .PARAMETER AuthMode
     Mandatory. Authentication mode: Interactive or ServicePrincipal.
