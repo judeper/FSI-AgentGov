@@ -93,12 +93,20 @@ jobs:
             echo "create_pr=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Generate GitHub App token
+        id: app-token
+        if: steps.should_create_pr.outputs.create_pr == 'true'
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
       - name: Create Pull Request
         id: create_pr
         if: steps.should_create_pr.outputs.create_pr == 'true'
         uses: peter-evans/create-pull-request@v8
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ steps.app-token.outputs.token }}
           commit-message: |
             Learn Monitor: Update Microsoft Learn documentation tracking
 
