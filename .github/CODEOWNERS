@@ -1,0 +1,41 @@
+# CODEOWNERS — human review gate for compliance-sensitive content
+# =================================================================
+#
+# Purpose: the autonomous Learn Monitor documentation pipeline (Stage 1) lets an
+# agent DRAFT documentation edits, but a human must approve any change to
+# customer-facing compliance content before it merges. This file names the
+# required reviewer(s) for those paths.
+#
+# IMPORTANT — this file is necessary but NOT sufficient on its own. For it to
+# act as an enforced merge gate, branch protection on `main` must be configured
+# (by a repo admin) to **"Require review from Code Owners"**. Without that
+# setting, CODEOWNERS only requests review; it does not block merge. As of this
+# commit, `main` branch protection requires 11 status checks but NOT a code-owner
+# review — enabling that is a tracked Stage 1 prerequisite.
+#
+# Syntax: <path-pattern>  <owner ...>   (last matching pattern wins)
+#
+# NOTE: there is deliberately NO catch-all (`* @owner`) rule. A catch-all would
+# require code-owner review on *every* PR (including tooling) and would deadlock
+# the maintainer's own PRs (GitHub forbids self-approval). Only the explicit
+# compliance-sensitive paths below require code-owner review. With a single
+# maintainer, "Require review from Code Owners" is intended primarily to gate
+# *bot-authored* autodoc PRs (which the maintainer reviews); the maintainer's own
+# edits to these paths would need a second reviewer if that rule is enabled.
+
+# --- Customer-facing compliance content (always human-reviewed) ---
+/docs/controls/                     @judeper
+/docs/reference/                    @judeper
+/docs/framework/                    @judeper
+/docs/playbooks/                    @judeper
+/mkdocs.yml                         @judeper
+
+# Machine-readable control manifest (drives the assessment engine + scoring).
+/assessment/manifest/controls.json  @judeper
+
+# --- Autonomous-pipeline safety machinery (privileged; review with care) ---
+# The routing gate, canary, and (future) cross-vendor verifier ARE the controls
+# that decide what may be auto-handled, so changes to them are high-trust.
+/scripts/autodoc_*.py               @judeper
+/.github/workflows/                 @judeper
+/.github/CODEOWNERS                 @judeper
