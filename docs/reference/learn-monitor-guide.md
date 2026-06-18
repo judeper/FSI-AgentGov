@@ -12,6 +12,8 @@ This guide explains how the automated Microsoft Learn documentation monitoring s
 | When is a PR created? | **Every Sunday** (weekly baseline) OR **when changes are detected** |
 | Where are changes stored? | `data/monitor-state.json` (unified state), `reports/monitoring/learn-changes-*.md` (reports) |
 | How to test locally? | `python scripts/learn_monitor.py --dry-run --limit 5` |
+| How are PRs merged? | When repo variable `LEARN_STATE_AUTOMERGE` is `true`, each monitoring PR **auto-merges once the required checks pass** (squash) and older open `monitoring/learn-*` PRs are auto-closed as superseded. These PRs only touch `data/monitor-state.json` and `reports/monitoring/**` — no customer-facing docs. |
+| Kill-switch? | Set the `LEARN_STATE_AUTOMERGE` repo variable to `false` (or unset it) to require manual merge of monitoring PRs. |
 
 ---
 
