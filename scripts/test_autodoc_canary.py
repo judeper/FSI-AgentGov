@@ -22,11 +22,18 @@ def test_fixture_set_covers_each_hard_human_category():
     for expected in (
         "hallucinated_regulatory_citation",
         "fabricated_retention_duration",
+        "spelled_out_duration",
+        "compact_duration",
         "overclaim",
         "deprecation",
         "license_sku_change",
+        "a_series_sku",
         "control_prose_edit",
         "critical_tier",
+        "critical_without_reason",
         "future_date_deadline",
+        "abbreviated_date",
+        "reg_s_p",
+        "missing_diff",
     ):
         assert expected in names

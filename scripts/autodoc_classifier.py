@@ -70,39 +70,62 @@ if sys.platform == "win32":
 # compliance content" rule (CONTRIBUTING.md) and the council's never-auto-merge
 # token rule (numbers, dates, durations, SKUs, citations, hedge words).
 # ---------------------------------------------------------------------------
+_MONTH_PATTERN = (
+    r"\b(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|"
+    r"Jul(?:y)?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|"
+    r"Dec(?:ember)?)(?:\.)?(?:\s+\d{1,2},?\s+\d{4}|\s+\d{4})?\b"
+)
+_NUMBER_WORD_PATTERN = (
+    r"(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|"
+    r"twenty|thirty|sixty|ninety|hundred)"
+)
+_TIME_UNIT_PATTERN = r"(?:day|week|month|year|hour|minute)s?"
+
 HARD_HUMAN_PATTERNS: dict[str, str] = {
     "regulatory_citation": (
-        r"\b(FINRA|SEC|SOX|GLBA|OCC|CFTC|FedRAMP)\b"
+        r"\b(?:FINRA|SEC|SOX|GLBA|OCC|CFTC|FedRAMP)\b"
         r"|\b17a-\d|\bSR\s*\d{2}-\d|\bBulletin\s+\d{4}-\d"
-        r"|\bRule\s+\d|\bRegulation\s+[A-Z]\b|\bFederal\s+Reserve\b"
+        r"|\bRule\s+\d|\bReg(?:ulation)?\s+[A-Z]{1,3}(?:-[A-Z]{1,3})?\b"
+        r"|\b\d+\s*CFR\b|\bFederal\s+Reserve\b"
     ),
     "date_or_deadline": (
-        r"\b(January|February|March|April|May|June|July|August|September|"
-        r"October|November|December)\b"
-        r"|\b\d{4}-\d{2}-\d{2}\b"        # ISO date
-        r"|\bQ[1-4]\s*\d{4}\b"          # quarter
-        r"|\b(deadline|effective\s+date|sunset|end\s+of\s+(life|support))\b"
+        _MONTH_PATTERN
+        + r"|\b\d{4}-\d{2}-\d{2}\b"      # ISO date
+        r"|\b\d{1,2}/\d{1,2}/\d{2,4}\b"  # numeric date
+        r"|\bQ[1-4]\s*\d{4}\b"           # quarter
+        r"|\b(?:deadline|effective\s+date|sunset|end\s+of\s+(?:life|support))\b"
     ),
     "duration_or_retention": (
-        r"\b\d+\s*(day|week|month|year|hour|minute)s?\b"
+        rf"\b\d+\s*{_TIME_UNIT_PATTERN}\b"
+        rf"|\b\d+\s*[ymwd]\b"
+        rf"|\b{_NUMBER_WORD_PATTERN}(?:\s*\(\s*\d+\s*\))?\s*{_TIME_UNIT_PATTERN}\b"
         r"|\bretention\b|\blegal\s+hold\b"
     ),
     "license_sku": (
-        r"\b[EFGP]\d\b|\bSKU\b|\blicens(e|ing)\b|\badd-?on\b|\bpremium\s+capacit"
+        r"\b[AEFGP][1-5]\b|\bSKU\b|\blicens(?:e|ing)\b|\badd-?on\b"
+        r"|\bpremium\s+capacit"
     ),
     "deprecation": (
-        r"\bdeprecat|\bretir(e|ed|ing|ement)\b|\bno\s+longer\b|\bremoved\b"
+        r"\bdeprecat|\bretir(?:e|ed|ing|ement)\b|\bno\s+longer\b|\bremoved\b"
         r"|\bbreaking\s+change\b|\bmigration\s+required\b"
     ),
     "policy_language": (
         r"\bmust\b|\brequired\b|\bprohibited\b|\bshall\b|\bmandatory\b"
         r"|\bcompliance\b|\baudit\b|\beDiscovery\b|\bconsent\b|\bprivacy\b"
     ),
+    "compliance_surface": (
+        r"\bDLP\b|\bdata\s+loss\s+prevention\b|\beDiscovery\b|\bretention\b"
+        r"|\bsensitivity\s+labels?\b|\binformation\s+barriers?\b|\blegal\s+hold\b"
+        r"|\bencryption\b|\baudit\s+logs?\b|\bprivacy\b|\bPII\b|\bsupervision\b"
+        r"|\binsider\s+risk\b"
+    ),
     "overclaim": (
         r"\bguarantee|\bensures?\s+compliance\b|\beliminat|\bwill\s+prevent\b"
         r"|\b100\s*%|\bfully\s+compliant\b"
     ),
 }
+
+KNOWN_TIERS = {"CRITICAL", "HIGH", "MEDIUM", "NOISE"}
 
 # Used only for the strict ``automerge_eligible`` gate (Stage 2), never for routing:
 # any bare number in added prose blocks unattended merge.
@@ -119,7 +142,7 @@ class Change:
     topic: str
     url: str
     section: str = ""
-    classification: str = "MEDIUM"
+    classification: str = ""
     reason: str = ""
     affected_controls: list = field(default_factory=list)  # list[str] of control IDs
     affected_playbooks: list = field(default_factory=list)  # list[str] of file paths
@@ -197,6 +220,8 @@ def classify_change(change: Change) -> RoutingDecision:
     added = "\n".join(added_lines(change.diff_text))
     additive = is_additive_only(change.diff_text)
     affects_control = bool(change.affected_controls)
+    has_diff = bool(change.diff_text.strip())
+    tier = change.classification.strip().upper()
 
     # URL redirects are the single narrowest mechanical category: a pure URL-table
     # update with no prose. They are the only changes eligible for unattended merge.
@@ -211,33 +236,51 @@ def classify_change(change: Change) -> RoutingDecision:
 
     sensitive = match_sensitive(added)
 
-    # --- Routing gates (fail-closed: any trip -> human) ---
-    route = "autodraft"
-    if change.classification == "CRITICAL":
-        route = "human"
+    # --- Routing gates (fail-closed: promote only when every allowlist gate passes) ---
+    route = "human"
+    if not has_diff:
+        reasons.append("missing diff block; summary-only or unparsable change")
+    if not additive:
+        reasons.append("not additive-only")
+    if affects_control:
+        reasons.append("affects a control/compliance file")
+    if tier not in KNOWN_TIERS:
+        reasons.append("missing or unknown classification tier")
+    elif tier == "CRITICAL":
         reasons.append("monitor classified the change CRITICAL")
     if sensitive:
-        route = "human"
         reasons.append(
             "sensitive content in additions: " + ", ".join(sorted(sensitive))
         )
-    if affects_control and not additive:
-        route = "human"
-        reasons.append("edits existing prose in a control/compliance file")
-    if route == "autodraft":
-        reasons.append("mechanical change with no compliance-sensitive signals")
+    if (
+        has_diff
+        and additive
+        and not affects_control
+        and tier in KNOWN_TIERS
+        and tier != "CRITICAL"
+        and not sensitive
+    ):
+        route = "autodraft"
+        reasons.append("allowlisted additive non-control change with known non-CRITICAL tier")
 
-    # --- automerge_eligible: a much stricter superset of the routing gate ---
-    automerge = route == "autodraft" and additive and not affects_control
-    if automerge and change.classification not in ("MEDIUM", "NOISE"):
-        automerge = False
+    # --- automerge_eligible: requires positive gates, never just absence of deny hits ---
+    automerge = (
+        route == "autodraft"
+        and tier in {"MEDIUM", "NOISE"}
+        and additive
+        and not affects_control
+        and not sensitive
+        and not NUMBER_PATTERN.search(added)
+    )
+    if route == "autodraft" and tier not in {"MEDIUM", "NOISE"}:
         reasons.append("automerge requires MEDIUM/NOISE tier")
-    if automerge and NUMBER_PATTERN.search(added):
-        automerge = False
+    if route == "autodraft" and NUMBER_PATTERN.search(added):
         reasons.append("automerge blocked: added content contains a number")
+    if automerge:
+        reasons.append("automerge allowlisted: additive MEDIUM/NOISE non-control change")
 
     return RoutingDecision(
-        topic=change.topic, url=change.url, classification=change.classification,
+        topic=change.topic, url=change.url, classification=tier or change.classification,
         kind=change.kind, route=route, automerge_eligible=automerge,
         additive_only=additive, affects_control=affects_control,
         affected_controls=list(change.affected_controls),
@@ -254,13 +297,30 @@ _SECTION_RE = re.compile(
 )
 _URL_RE = re.compile(r"^\*\*URL:\*\*\s*(\S+)", re.MULTILINE)
 _SECTION_FIELD_RE = re.compile(r"^\*\*Section:\*\*\s*(.+)$", re.MULTILINE)
-_CLASS_RE = re.compile(r"^\*\*Classification:\*\*\s*(\w+)\s*\((.+?)\)", re.MULTILINE)
+_CLASS_TIER_RE = re.compile(r"^\*\*Classification:\*\*\s*([A-Za-z]+)", re.MULTILINE)
+_CLASS_REASON_RE = re.compile(
+    r"^\*\*Classification:\*\*\s*[A-Za-z]+\s*(?:\((.*?)\))?",
+    re.MULTILINE,
+)
 _CONTROL_RE = re.compile(r"^- Control (\d+\.\d+):", re.MULTILINE)
 _PLAYBOOK_RE = re.compile(r"`([^`]+\.md)`")
 _DIFF_RE = re.compile(r"```diff\n(.*?)```", re.DOTALL)
 _REDIRECT_ROW_RE = re.compile(
     r"^\|\s*(https?://\S+)\s*\|\s*(https?://\S+)\s*\|", re.MULTILINE
 )
+
+
+def _dedupe_changes_by_url(changes: list[Change]) -> list[Change]:
+    """Deduplicate content changes by URL, preferring the record with a diff block."""
+    deduped: dict[str, Change] = {}
+    for change in changes:
+        existing = deduped.get(change.url)
+        if existing is None:
+            deduped[change.url] = change
+            continue
+        if change.diff_text.strip() and not existing.diff_text.strip():
+            deduped[change.url] = change
+    return list(deduped.values())
 
 
 def parse_report(text: str) -> list[Change]:
@@ -273,7 +333,8 @@ def parse_report(text: str) -> list[Change]:
         url_m = _URL_RE.search(body)
         if not url_m:
             continue  # not a change block
-        class_m = _CLASS_RE.search(body)
+        class_tier_m = _CLASS_TIER_RE.search(body)
+        class_reason_m = _CLASS_REASON_RE.search(body)
         section_m = _SECTION_FIELD_RE.search(body)
         diff_m = _DIFF_RE.search(body)
 
@@ -287,13 +348,19 @@ def parse_report(text: str) -> list[Change]:
             topic=topic,
             url=url_m.group(1).strip(),
             section=section_m.group(1).strip() if section_m else "",
-            classification=class_m.group(1).strip() if class_m else "MEDIUM",
-            reason=class_m.group(2).strip() if class_m else "",
+            classification=class_tier_m.group(1).strip().upper() if class_tier_m else "",
+            reason=(
+                class_reason_m.group(1).strip()
+                if class_reason_m and class_reason_m.group(1)
+                else ""
+            ),
             affected_controls=_CONTROL_RE.findall(body),
             affected_playbooks=playbooks,
             diff_text=diff_m.group(1) if diff_m else "",
             kind="content",
         ))
+
+    changes = _dedupe_changes_by_url(changes)
 
     # URL redirects (a separate table section).
     redirect_block = ""

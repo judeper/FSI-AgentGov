@@ -11,6 +11,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import autodoc_classifier as ac
+import pytest
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 REPORTS_DIR = PROJECT_ROOT / "reports" / "monitoring"
@@ -50,6 +51,14 @@ def _change(diff, classification="MEDIUM", controls=None, kind="content"):
     )
 
 
+def _assert_human_not_automerge(text, category=None, classification="MEDIUM"):
+    d = ac.classify_change(_change(f"--- +++ @@\n+{text}", classification=classification))
+    assert d.route == "human"
+    assert d.automerge_eligible is False
+    if category:
+        assert category in d.sensitive_categories
+
+
 def test_critical_tier_routes_to_human():
     d = ac.classify_change(_change("--- +++ @@\n+a harmless addition", classification="CRITICAL"))
     assert d.route == "human"
@@ -72,6 +81,87 @@ def test_retention_duration_routes_to_human():
     d = ac.classify_change(_change("--- +++ @@\n+Records are retained for 7 years."))
     assert d.route == "human"
     assert "duration_or_retention" in d.sensitive_categories
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Records are retained for one year.",
+        "Records are retained for ninety days.",
+        "Records are retained for thirty (30) days.",
+        "Retention changed to 1y.",
+        "Retention changed to 90d.",
+        "Retention changed to 6m.",
+        "Retention changed to 12 months.",
+    ],
+)
+def test_duration_bypasses_route_to_human(text):
+    _assert_human_not_automerge(text, "duration_or_retention")
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "The deadline is Sept. 30, 2026.",
+        "The feature ships in Sep 2026.",
+        "The deadline is 9/30/2026.",
+        "The deadline is 2026-09-30.",
+        "The change lands in Q3 2026.",
+    ],
+)
+def test_date_bypasses_route_to_human(text):
+    _assert_human_not_automerge(text, "date_or_deadline")
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "This maps to Reg S-P obligations.",
+        "This maps to Regulation S-P obligations.",
+        "This maps to Reg SCI obligations.",
+        "This maps to Reg BI obligations.",
+        "Records must follow 17 CFR 240.17a-4.",
+    ],
+)
+def test_regulatory_citation_bypasses_route_to_human(text):
+    _assert_human_not_automerge(text, "regulatory_citation")
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Requires Microsoft 365 A5.",
+        "Requires G5.",
+        "Requires E5.",
+        "Requires F3.",
+        "Requires P2.",
+        "Requires A1.",
+    ],
+)
+def test_license_sku_bypasses_route_to_human(text):
+    _assert_human_not_automerge(text, "license_sku")
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Configure DLP before rollout.",
+        "Configure data loss prevention before rollout.",
+        "Use eDiscovery for investigation.",
+        "Retention policies apply.",
+        "Apply a sensitivity label.",
+        "Information barrier policies apply.",
+        "Place content under legal hold.",
+        "Encryption is required.",
+        "Review the audit log.",
+        "Privacy review is required.",
+        "PII is in scope.",
+        "Supervision policies apply.",
+        "Insider risk signals changed.",
+    ],
+)
+def test_compliance_surface_bypasses_route_to_human(text):
+    _assert_human_not_automerge(text, "compliance_surface")
 
 
 def test_license_sku_routes_to_human():
@@ -105,6 +195,88 @@ def test_control_prose_edit_routes_to_human():
     ))
     assert d.route == "human"
     assert d.affects_control is True
+
+
+def test_additive_control_change_routes_to_human():
+    d = ac.classify_change(_change(
+        "--- +++ @@\n+Add a neutral cross reference.", controls=["1.15"]
+    ))
+    assert d.route == "human"
+    assert d.automerge_eligible is False
+    assert d.affects_control is True
+
+
+def test_missing_diff_routes_to_human():
+    d = ac.classify_change(_change(""))
+    assert d.route == "human"
+    assert d.automerge_eligible is False
+
+
+def test_unknown_or_missing_tier_routes_to_human():
+    for tier in ("", "LOW"):
+        d = ac.classify_change(_change("--- +++ @@\n+Neutral addition.", classification=tier))
+        assert d.route == "human"
+        assert d.automerge_eligible is False
+
+
+def test_parse_critical_without_reason_routes_to_human():
+    text = """### 1. Critical Without Reason
+
+**URL:** https://learn.microsoft.com/en-us/example/critical
+**Classification:** CRITICAL
+
+**What Changed:**
+```diff
+--- +++ @@
++A neutral sentence under a critical tier.
+```
+"""
+    changes = ac.parse_report(text)
+    assert len(changes) == 1
+    assert changes[0].classification == "CRITICAL"
+    assert changes[0].reason == ""
+    d = ac.classify_change(changes[0])
+    assert d.route == "human"
+    assert d.automerge_eligible is False
+
+
+def test_parse_summary_only_entry_routes_to_human():
+    text = """### 1. Summary Only
+
+**URL:** https://learn.microsoft.com/en-us/example/summary
+**Classification:** MEDIUM (General content update)
+"""
+    changes = ac.parse_report(text)
+    assert len(changes) == 1
+    assert changes[0].diff_text == ""
+    d = ac.classify_change(changes[0])
+    assert d.route == "human"
+    assert d.automerge_eligible is False
+
+
+def test_parse_deduplicates_by_url_preferring_diff_block():
+    text = """### 1. Summary Only
+
+**URL:** https://learn.microsoft.com/en-us/example/duplicate
+**Classification:** MEDIUM (General content update)
+
+---
+
+### 2. Detailed
+
+**URL:** https://learn.microsoft.com/en-us/example/duplicate
+**Classification:** MEDIUM (General content update)
+
+**What Changed:**
+```diff
+--- +++ @@
++A neutral sentence.
+```
+"""
+    changes = ac.parse_report(text)
+    assert len(changes) == 1
+    assert changes[0].topic == "Detailed"
+    assert changes[0].diff_text.strip()
 
 
 # ---------------------------------------------------------------------------
@@ -187,3 +359,17 @@ def test_no_control_touching_change_is_automerge_eligible():
         for d in ac.classify_report(text):
             if d.affects_control:
                 assert d.automerge_eligible is False, f"{name}: {d.url} mis-promoted"
+
+
+def test_0618_control_changes_and_summary_only_entries_fail_closed():
+    text = _load("learn-changes-2026-06-18.md")
+    if text is None:
+        pytest.skip("fixture report not present")
+    changes = ac.parse_report(text)
+    assert changes
+    for change in changes:
+        d = ac.classify_change(change)
+        if change.affected_controls:
+            assert d.automerge_eligible is False, f"{change.url} mis-promoted"
+        if change.kind == "content" and not change.diff_text.strip():
+            assert d.route != "autodraft", f"{change.url} summary-only autodraft"
