@@ -11,6 +11,12 @@ permissions:
   contents: write
   pull-requests: write
 
+concurrency:
+  # Serialize Learn Monitor runs so two runs never consolidate/auto-merge each
+  # other's PRs.
+  group: learn-monitor
+  cancel-in-progress: false
+
 jobs:
   monitor-learn-docs:
     runs-on: ubuntu-latest
@@ -107,6 +113,12 @@ jobs:
         uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ steps.app-token.outputs.token }}
+          # Only ever stage state/report files so the PR cannot accidentally
+          # carry customer-facing docs into the unattended auto-merge path.
+          add-paths: |
+            data/monitor-state.json
+            data/monitor-state.json.backup
+            reports/monitoring/*.md
           commit-message: |
             Learn Monitor: Update Microsoft Learn documentation tracking
 
@@ -225,3 +237,63 @@ jobs:
             | Merge without changes | Approve and merge this PR |
 
             > 💡 **Tip:** Run `/review-learn-changes` in Claude Code to automatically analyze changes and draft documentation updates.
+
+      # --- Stage 0: consolidation + auto-merge of state-only monitoring PRs ---
+      # Learn-monitor PRs only ever touch data/monitor-state.json(.backup) and
+      # reports/monitoring/*.md (no customer-facing docs). The newest run carries
+      # the cumulative monitor-state.json baseline, so prior daily PRs are
+      # superseded and safe to close; the newest is safe to auto-merge once the
+      # required checks pass. See docs/reference/learn-monitor-guide.md.
+      - name: Consolidate superseded Learn-monitor PRs
+        # Gated by the same kill-switch as auto-merge: turning automation off
+        # disables this destructive (PR-closing) step too.
+        if: steps.create_pr.outputs.pull-request-number && vars.LEARN_STATE_AUTOMERGE == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          NEW_PR: ${{ steps.create_pr.outputs.pull-request-number }}
+          RUN_NUMBER: ${{ github.run_number }}
+        run: |
+          # Close ONLY older bot-created monitoring PRs: they must carry the
+          # `learn-watch` label, match the exact branch pattern
+          # `monitoring/learn-<digits>`, and have a run number strictly lower than
+          # this run. This prevents closing human PRs that merely share the prefix
+          # and prevents two runs from closing each other.
+          gh pr list --state open --label learn-watch --json number,headRefName \
+            --jq '.[] | select(.headRefName | test("^monitoring/learn-[0-9]+$")) | "\(.number) \(.headRefName)"' \
+          | while read -r n branch; do
+              run="${branch#monitoring/learn-}"
+              if [ "$n" != "$NEW_PR" ] && [ "$run" -lt "$RUN_NUMBER" ]; then
+                echo "Closing superseded PR #$n (run $run < $RUN_NUMBER)"
+                gh pr close "$n" --delete-branch \
+                  --comment "Superseded by #${NEW_PR}, which carries the cumulative \`data/monitor-state.json\` baseline (run ${RUN_NUMBER} > ${run}). Auto-closed by the Learn Monitor consolidation step." || true
+              fi
+            done
+
+      - name: Enable auto-merge for the state-only PR
+        # Kill-switch: set repo variable LEARN_STATE_AUTOMERGE to 'false' (or unset)
+        # to disable unattended merging of monitoring PRs.
+        if: steps.create_pr.outputs.pull-request-number && vars.LEARN_STATE_AUTOMERGE == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          NEW_PR: ${{ steps.create_pr.outputs.pull-request-number }}
+        run: |
+          # Defense in depth: only auto-merge if EVERY changed file is a
+          # state/report file. Use the paginated REST API because
+          # `gh pr view --json files` truncates at 100 files, so an extra file
+          # beyond the first page could otherwise slip through undetected.
+          # Fail CLOSED: if the file listing can't be obtained, skip auto-merge.
+          FILES=$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${NEW_PR}/files" --paginate --jq '.[].filename') || FILES=""
+          if [ -z "$FILES" ]; then
+            echo "::warning::Could not list files for PR #$NEW_PR (API error or empty); skipping auto-merge (manual review required)."
+            gh pr edit "$NEW_PR" --add-label needs-review || true
+            exit 0
+          fi
+          NON_STATE=$(printf '%s\n' "$FILES" \
+            | grep -vcE '^data/monitor-state\.json(\.backup)?$|^reports/monitoring/.*\.md$' || true)
+          if [ "${NON_STATE:-1}" != "0" ]; then
+            echo "::warning::PR #$NEW_PR contains non-state file(s) (count=${NON_STATE:-unknown}); skipping auto-merge (manual review required)."
+            gh pr edit "$NEW_PR" --add-label needs-review || true
+            exit 0
+          fi
+          gh pr merge "$NEW_PR" --auto --squash --delete-branch
+          echo "Auto-merge enabled for state-only PR #$NEW_PR (merges once required checks pass)."
