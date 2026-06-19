@@ -341,9 +341,37 @@ def test_push_and_create_pr_deletes_orphan_branch_on_failure(monkeypatch: pytest
 
 
 def test_escalate_raises_on_gh_failure(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(runner, "_existing_issue_url", lambda config, ctx: None)
     monkeypatch.setattr(runner.subprocess, "run", lambda *a, **k: _FakeCompleted(1, stderr="boom"))
     with pytest.raises(RuntimeError, match="gh issue create failed"):
         runner._escalate(_config(tmp_path), _ctx(), "reason", "details")
+
+
+def test_escalate_reuses_existing_issue(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(runner, "_existing_issue_url", lambda config, ctx: "https://github.com/x/y/issues/3")
+
+    def explode(*a: Any, **k: Any) -> "_FakeCompleted":
+        raise AssertionError("must not create a new issue when one already exists")
+
+    monkeypatch.setattr(runner.subprocess, "run", explode)
+    assert runner._escalate(_config(tmp_path), _ctx(), "reason", "details") == "https://github.com/x/y/issues/3"
+
+
+def test_record_ledger_dry_run_is_noop(tmp_path: Path) -> None:
+    config = runner.RunnerConfig(repo_path=tmp_path, draft_model="a", review_model="b", dry_run=True)
+    runner._record_ledger(config, _ctx(), "pr_open", "detail")
+    assert not (tmp_path / config.ledger_path).exists()
+
+
+def test_run_aborts_on_dirty_tree(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setenv("AUTODOC_ENABLED", "true")
+    report = tmp_path / "report.md"
+    report.write_text("x", encoding="utf-8")
+    monkeypatch.setattr(runner, "_latest_report", lambda config: report)
+    monkeypatch.setattr(runner, "_working_tree_clean", lambda config: False)
+    result = runner.run(_config(tmp_path))
+    assert result["outcomes"] == []
+    assert "not clean" in result["note"]
 
 
 def test_open_pr_failure_does_not_record_pr_open(monkeypatch: pytest.MonkeyPatch, tmp_path: Path, patched: dict[str, list[Any]]) -> None:

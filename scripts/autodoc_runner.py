@@ -117,6 +117,12 @@ def run(config: RunnerConfig) -> dict[str, Any]:
     if report_path is None:
         return {"enabled": True, "outcomes": [], "note": "no monitoring report found"}
 
+    if not _working_tree_clean(config):
+        # Refuse to draft on a dirty tree: a draft could otherwise overwrite a pre-existing
+        # uncommitted/untracked file that cleanup cannot restore. The scheduled runner is
+        # expected to operate on a clean checkout.
+        return {"enabled": True, "outcomes": [], "note": "working tree not clean; skipped"}
+
     report_text = report_path.read_text(encoding="utf-8")
     ledger = autodoc_route.load_ledger(config.repo_path / config.ledger_path)
     specs = autodoc_route.route_report(report_text, report_path.name, ledger)
@@ -542,10 +548,17 @@ def _existing_pr_url(config: RunnerConfig, ctx: ChangeContext) -> str | None:
 
 
 def _escalate(config: RunnerConfig, ctx: ChangeContext, reason: str, details: str) -> str:
-    """Open (or annotate) a human-review issue for a change the runner will not auto-draft."""
+    """Open (or reuse) a human-review issue for a change the runner will not auto-draft.
+
+    Idempotent across runs: if an open escalation issue already carries this fingerprint, it
+    is reused instead of opening a duplicate.
+    """
 
     if config.dry_run:
         return f"dry-run: would escalate {ctx.fingerprint} ({reason})"
+    existing = _existing_issue_url(config, ctx)
+    if existing:
+        return existing
     body = (
         f"Autodoc escalation — human review required.\n\n"
         f"AUTODOC-FINGERPRINT: {ctx.fingerprint}\n"
@@ -578,9 +591,46 @@ def _escalate(config: RunnerConfig, ctx: ChangeContext, reason: str, details: st
     return (completed.stdout or "").strip()
 
 
+def _existing_issue_url(config: RunnerConfig, ctx: ChangeContext) -> str | None:
+    """Return the URL of an open escalation issue already carrying this fingerprint, or None."""
+
+    completed = subprocess.run(
+        [
+            "gh",
+            "issue",
+            "list",
+            "--repo",
+            _repo_slug(config),
+            "--state",
+            "open",
+            "--search",
+            f"AUTODOC-FINGERPRINT: {ctx.fingerprint} in:body",
+            "--json",
+            "url",
+            "-q",
+            ".[0].url",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+        cwd=str(config.repo_path),
+    )
+    url = (completed.stdout or "").strip()
+    return url if completed.returncode == 0 and url else None
+
+
+def _working_tree_clean(config: RunnerConfig) -> bool:
+    """Return True when the working tree has no staged, unstaged, or untracked changes."""
+
+    return _git(config, "status", "--porcelain", "-z", "--untracked-files=all").strip("\x00").strip() == ""
+
+
 def _record_ledger(config: RunnerConfig, ctx: ChangeContext, state: str, detail: str) -> None:
     """Record a terminal-ish outcome in the ledger so the change is not reprocessed."""
 
+    if config.dry_run:
+        # Dry-run must not persist terminal states, or routing would skip these forever.
+        return
     ledger_path = config.repo_path / config.ledger_path
     ledger = autodoc_route.load_ledger(ledger_path)
     ledger.setdefault("changes", {})[ctx.fingerprint] = {
