@@ -73,8 +73,10 @@ learn-monitor.yml (daily)
 ## Provisioning (run as `judeper`, repo admin). Pipeline stays OFF until the last step.
 
 Phase 1 leaves almost nothing to provision — the drafter that would consume secrets is not
-built yet. There is **no `ANTHROPIC_API_KEY` and no `COPILOT_ASSIGN_TOKEN`** any more; both
-were retired with the cloud-agent design.
+built yet. **Autodoc no longer uses `ANTHROPIC_API_KEY` or `COPILOT_ASSIGN_TOKEN`** (both were
+tied to the retired cloud-agent design). Note: `COPILOT_ASSIGN_TOKEN` is **still used by the
+separate Squad workflows** (`squad-issue-assign.yml`, `squad-heartbeat.yml`) — do **not**
+remove that repo secret.
 
 1. **(Optional, backstop) Require the deterministic gate.** After `autodoc-verify.yml` has run
    once, add `autodoc-verify` to `main` branch protection → Require status checks. It is
