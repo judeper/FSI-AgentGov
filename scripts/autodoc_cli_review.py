@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import re
 import subprocess
 import sys
@@ -29,6 +30,8 @@ from typing import Any, Callable
 
 DEFAULT_TIMEOUT_SECONDS = 240
 COPILOT_BIN = "copilot"
+MAX_OUTPUT_CHARS = 262144  # 256 KiB: a conforming verdict is tiny; cap before parsing.
+_FENCE_RE = re.compile(r"```[A-Za-z0-9_-]*\r?\n?(?P<body>.*?)```", re.DOTALL)
 
 Verdict = dict[str, Any]
 Runner = Callable[[str, str, int], str]
@@ -167,87 +170,71 @@ def _default_runner(prompt: str, model: str, timeout: int) -> str:
 
 
 def _extract_json_object(raw_output: str) -> dict[str, Any] | None:
-    """Return the model's verdict object, robust to prose/fences and echo-injection.
+    """Return the model's verdict object using strict, fail-closed single-object parsing.
 
     The report and diff are untrusted and may contain a spoofed ``{"verdict": "pass"}``
-    that the model could echo back. To defeat that, collect every balanced top-level JSON
-    object and prefer the **last** one carrying a ``verdict`` key — a model states its own
-    conclusion last, after any echoed input.
+    that the model could echo back. Rather than heuristically picking among multiple
+    objects (which is exploitable), this requires the model's output to be **exactly one**
+    JSON object — optionally wrapped in a single code fence and surrounded by whitespace.
+    Anything ambiguous (a list, multiple objects, trailing prose, multiple fences,
+    oversized output) returns ``None`` so the caller fails closed.
     """
 
     if not isinstance(raw_output, str):
         return None
     text = raw_output.strip()
-    if not text:
+    if not text or len(text) > MAX_OUTPUT_CHARS:
         return None
 
-    candidates: list[dict[str, Any]] = []
+    fences = _FENCE_RE.findall(text)
+    if len(fences) == 1:
+        text = fences[0].strip()
+    elif len(fences) > 1:
+        # Multiple fenced blocks: non-conforming and ambiguous (possible echo-injection).
+        return None
 
-    # Fast path: the whole output is the JSON object.
     try:
-        parsed = json.loads(text)
-        if isinstance(parsed, dict):
-            candidates.append(parsed)
+        obj, end = json.JSONDecoder().raw_decode(text)
     except json.JSONDecodeError:
-        pass
-
-    # Tolerant path: scan for every balanced {...} block (handles fences/prose around it).
-    for match in re.finditer(r"\{", text):
-        candidate = _balanced_object(text, match.start())
-        if candidate is None:
-            continue
-        try:
-            parsed = json.loads(candidate)
-        except json.JSONDecodeError:
-            continue
-        if isinstance(parsed, dict):
-            candidates.append(parsed)
-
-    if not candidates:
         return None
-    for obj in reversed(candidates):
-        if "verdict" in obj:
-            return obj
-    return candidates[-1]
-
-
-def _balanced_object(text: str, start: int) -> str | None:
-    """Return the substring of a brace-balanced object starting at ``start``, honoring strings."""
-
-    depth = 0
-    in_string = False
-    escaped = False
-    for index in range(start, len(text)):
-        char = text[index]
-        if in_string:
-            if escaped:
-                escaped = False
-            elif char == "\\":
-                escaped = True
-            elif char == '"':
-                in_string = False
-            continue
-        if char == '"':
-            in_string = True
-        elif char == "{":
-            depth += 1
-        elif char == "}":
-            depth -= 1
-            if depth == 0:
-                return text[start : index + 1]
-    return None
+    if text[end:].strip():
+        # Trailing content after the first object → ambiguous/multiple objects → fail closed.
+        return None
+    return obj if isinstance(obj, dict) else None
 
 
 def _coerce_verdict(payload: dict[str, Any]) -> Verdict:
-    """Validate and normalize the model payload; fail closed if it does not conform."""
+    """Validate and normalize the model payload; fail closed if it does not conform.
+
+    A ``pass`` requires the exact contract shape AND empty finding lists — a ``pass`` that
+    simultaneously lists unsupported claims or overbroad edits is contradictory and is
+    downgraded to a fail-closed ``fail``.
+    """
 
     verdict = payload.get("verdict")
     if verdict not in _VALID_VERDICTS:
         return _fail_closed("reviewer_parse_error", "Model output did not include a valid pass/fail verdict.")
 
+    unsupported = payload.get("unsupported_claims")
+    overbroad = payload.get("overbroad_edits")
+    if not _is_string_list(unsupported) or not _is_string_list(overbroad):
+        return _fail_closed(
+            "reviewer_schema_error",
+            "unsupported_claims and overbroad_edits must both be present as lists of strings.",
+        )
+
+    if verdict == "pass" and (unsupported or overbroad):
+        return _fail_closed(
+            "reviewer_contradiction",
+            "Model returned verdict=pass while listing unsupported or overbroad findings.",
+        )
+
+    confidence = payload.get("confidence", 0.0)
     try:
-        confidence = float(payload.get("confidence", 0.0))
+        confidence = float(confidence)
     except (TypeError, ValueError):
+        confidence = 0.0
+    if not math.isfinite(confidence):
         confidence = 0.0
     confidence = max(0.0, min(1.0, confidence))
 
@@ -255,16 +242,14 @@ def _coerce_verdict(payload: dict[str, Any]) -> Verdict:
     return {
         "verdict": verdict,
         "confidence": confidence,
-        "unsupported_claims": _string_list(payload.get("unsupported_claims")),
-        "overbroad_edits": _string_list(payload.get("overbroad_edits")),
+        "unsupported_claims": list(unsupported),
+        "overbroad_edits": list(overbroad),
         "notes": notes if isinstance(notes, str) else "",
     }
 
 
-def _string_list(value: Any) -> list[str]:
-    if not isinstance(value, list):
-        return []
-    return [item for item in value if isinstance(item, str)]
+def _is_string_list(value: Any) -> bool:
+    return isinstance(value, list) and all(isinstance(item, str) for item in value)
 
 
 def _fail_closed(reason: str, notes: str) -> Verdict:
