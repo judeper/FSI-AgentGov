@@ -43,12 +43,14 @@ def _draft(needs_human: bool = False, files: list[str] | None = None) -> runner.
 
 @pytest.fixture()
 def patched(monkeypatch: pytest.MonkeyPatch) -> dict[str, list[Any]]:
-    """Neutralize git and capture PR/escalate/ledger calls."""
+    """Neutralize git/worktree and capture PR/escalate/ledger calls."""
 
-    calls: dict[str, list[Any]] = {"pr": [], "escalate": [], "ledger": [], "git": []}
+    calls: dict[str, list[Any]] = {"pr": [], "escalate": [], "ledger": [], "git": [], "worktree": []}
     monkeypatch.setattr(runner, "_git", lambda config, *args: calls["git"].append(args) or "")
     monkeypatch.setattr(runner, "_untracked_files", lambda config: [])
     monkeypatch.setattr(runner, "_reset_attempt", lambda config, base, new_untracked: calls["git"].append(("reset_attempt", tuple(new_untracked))))
+    monkeypatch.setattr(runner, "_create_worktree", lambda config: calls["worktree"].append("create") or config.repo_path)
+    monkeypatch.setattr(runner, "_remove_worktree", lambda config, work_path: calls["worktree"].append("remove"))
     monkeypatch.setattr(runner, "_open_pr", lambda config, ctx, draft, verdict: calls["pr"].append(ctx.fingerprint) or "PR#1")
     monkeypatch.setattr(runner, "_escalate", lambda config, ctx, reason, details: calls["escalate"].append(reason) or "ISSUE#1")
     monkeypatch.setattr(runner, "_record_ledger", lambda config, ctx, state, detail: calls["ledger"].append((state, detail)))
@@ -363,15 +365,48 @@ def test_record_ledger_dry_run_is_noop(tmp_path: Path) -> None:
     assert not (tmp_path / config.ledger_path).exists()
 
 
-def test_run_aborts_on_dirty_tree(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+def test_record_ledger_writes_to_ledger_abs(tmp_path: Path) -> None:
+    # When drafting in a worktree, the ledger must persist to the main repo (ledger_abs).
+    main_ledger = tmp_path / "main" / "data" / "autodoc-ledger.json"
+    work = tmp_path / "work"
+    work.mkdir()
+    config = runner.RunnerConfig(repo_path=work, draft_model="a", review_model="b", ledger_abs=main_ledger)
+    runner._record_ledger(config, _ctx(), "pr_open", "detail")
+    assert main_ledger.exists()
+    assert not (work / config.ledger_path).exists()
+
+
+def test_run_creates_and_removes_worktree(monkeypatch: pytest.MonkeyPatch, tmp_path: Path, patched: dict[str, list[Any]]) -> None:
     monkeypatch.setenv("AUTODOC_ENABLED", "true")
     report = tmp_path / "report.md"
     report.write_text("x", encoding="utf-8")
     monkeypatch.setattr(runner, "_latest_report", lambda config: report)
-    monkeypatch.setattr(runner, "_working_tree_clean", lambda config: False)
+    monkeypatch.setattr(runner.autodoc_route, "load_ledger", lambda path: {"schema_version": 1, "changes": {}})
+    contract = {"fingerprint": "sha256:a", "report_path": "reports/monitoring/learn-changes-x.md", "allowed_files": ["docs/x.md"]}
+    spec = {"fingerprint": "sha256:a", "route": "autodraft", "body": "```json\n" + json.dumps(contract) + "\n```", "title": "draft", "labels": ["autodoc"]}
+    monkeypatch.setattr(runner.autodoc_route, "route_report", lambda text, name, ledger: [spec])
+    monkeypatch.setattr(runner, "_run_draft", lambda config, ctx, feedback: _draft())
+    monkeypatch.setattr(runner, "_run_deterministic_verify", lambda config, ctx, draft: "pass")
+    monkeypatch.setattr(runner, "_run_cross_model_review", lambda config, ctx, draft: {"verdict": "pass"})
+
+    runner.run(_config(tmp_path))
+
+    # Worktree was created before drafting and removed afterward (even though work was used).
+    assert patched["worktree"] == ["create", "remove"]
+
+
+def test_run_no_specs_skips_worktree(monkeypatch: pytest.MonkeyPatch, tmp_path: Path, patched: dict[str, list[Any]]) -> None:
+    monkeypatch.setenv("AUTODOC_ENABLED", "true")
+    report = tmp_path / "report.md"
+    report.write_text("x", encoding="utf-8")
+    monkeypatch.setattr(runner, "_latest_report", lambda config: report)
+    monkeypatch.setattr(runner.autodoc_route, "load_ledger", lambda path: {"schema_version": 1, "changes": {}})
+    monkeypatch.setattr(runner.autodoc_route, "route_report", lambda text, name, ledger: [])
+
     result = runner.run(_config(tmp_path))
+
     assert result["outcomes"] == []
-    assert "not clean" in result["note"]
+    assert patched["worktree"] == []  # no worktree created when there is nothing to do
 
 
 def test_open_pr_failure_does_not_record_pr_open(monkeypatch: pytest.MonkeyPatch, tmp_path: Path, patched: dict[str, list[Any]]) -> None:

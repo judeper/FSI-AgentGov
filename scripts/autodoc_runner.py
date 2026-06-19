@@ -29,7 +29,7 @@ import re
 import subprocess
 import sys
 import tempfile
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any
 
@@ -63,6 +63,10 @@ class RunnerConfig:
     ledger_path: str = "data/autodoc-ledger.json"
     reports_glob: str = "reports/monitoring/learn-changes-*.md"
     dry_run: bool = False
+    # Absolute ledger path override. When the runner drafts inside a disposable worktree,
+    # process_change runs against the worktree but the ledger must persist in the main repo;
+    # this points at the main repo's ledger so idempotency survives across runs.
+    ledger_abs: Path | None = None
 
 
 @dataclass
@@ -108,7 +112,13 @@ class Outcome:
 
 
 def run(config: RunnerConfig) -> dict[str, Any]:
-    """Top-level entry point. No-op unless AUTODOC_ENABLED=true."""
+    """Top-level entry point. No-op unless AUTODOC_ENABLED=true.
+
+    Reads the report + ledger from the main repo, then drafts each change inside a
+    **disposable git worktree** (a fresh checkout of base with none of the user's ignored
+    or local files), so an autonomous draft can never touch the main checkout. The ledger
+    is still written to the main repo so idempotency persists across runs.
+    """
 
     if not _autodoc_enabled():
         return {"enabled": False, "outcomes": []}
@@ -117,37 +127,39 @@ def run(config: RunnerConfig) -> dict[str, Any]:
     if report_path is None:
         return {"enabled": True, "outcomes": [], "note": "no monitoring report found"}
 
-    if not _working_tree_clean(config):
-        # Refuse to draft on a dirty tree: a draft could otherwise overwrite a pre-existing
-        # uncommitted/untracked file that cleanup cannot restore. The scheduled runner is
-        # expected to operate on a clean checkout.
-        return {"enabled": True, "outcomes": [], "note": "working tree not clean; skipped"}
-
     report_text = report_path.read_text(encoding="utf-8")
-    ledger = autodoc_route.load_ledger(config.repo_path / config.ledger_path)
+    main_ledger_path = config.repo_path / config.ledger_path
+    ledger = autodoc_route.load_ledger(main_ledger_path)
     specs = autodoc_route.route_report(report_text, report_path.name, ledger)
+    if not specs:
+        return {"enabled": True, "report": report_path.name, "outcomes": []}
 
+    work_path = _create_worktree(config)
+    work_config = replace(config, repo_path=work_path, ledger_abs=main_ledger_path)
     outcomes: list[Outcome] = []
     seen: set[str] = set()
-    for spec in specs:
-        try:
-            ctx = _build_context(spec)
-        except Exception as exc:  # noqa: BLE001 - a malformed spec must not crash the run.
-            outcomes.append(Outcome(spec.get("fingerprint", "unknown"), "error", f"context_error: {exc}"))
-            continue
-        if ctx.fingerprint in seen:
-            # Defensive de-duplication: the same fingerprint must be processed at most once
-            # per run, even if routing emitted duplicate rows for the same change.
-            outcomes.append(Outcome(ctx.fingerprint, "skipped", "duplicate fingerprint in this run"))
-            continue
-        seen.add(ctx.fingerprint)
-        try:
-            if ctx.route != "autodraft":
-                outcomes.append(_handle_human_change(config, ctx))
-            else:
-                outcomes.append(process_change(config, ctx))
-        except Exception as exc:  # noqa: BLE001 - one change's failure must not abort the batch.
-            outcomes.append(Outcome(ctx.fingerprint, "error", f"processing_error: {exc}"))
+    try:
+        for spec in specs:
+            try:
+                ctx = _build_context(spec)
+            except Exception as exc:  # noqa: BLE001 - a malformed spec must not crash the run.
+                outcomes.append(Outcome(spec.get("fingerprint", "unknown"), "error", f"context_error: {exc}"))
+                continue
+            if ctx.fingerprint in seen:
+                # Defensive de-duplication: the same fingerprint must be processed at most
+                # once per run, even if routing emitted duplicate rows for the same change.
+                outcomes.append(Outcome(ctx.fingerprint, "skipped", "duplicate fingerprint in this run"))
+                continue
+            seen.add(ctx.fingerprint)
+            try:
+                if ctx.route != "autodraft":
+                    outcomes.append(_handle_human_change(work_config, ctx))
+                else:
+                    outcomes.append(process_change(work_config, ctx))
+            except Exception as exc:  # noqa: BLE001 - one change's failure must not abort the batch.
+                outcomes.append(Outcome(ctx.fingerprint, "error", f"processing_error: {exc}"))
+    finally:
+        _remove_worktree(config, work_path)
 
     return {"enabled": True, "report": report_path.name, "outcomes": [vars(o) for o in outcomes]}
 
@@ -619,10 +631,28 @@ def _existing_issue_url(config: RunnerConfig, ctx: ChangeContext) -> str | None:
     return url if completed.returncode == 0 and url else None
 
 
-def _working_tree_clean(config: RunnerConfig) -> bool:
-    """Return True when the working tree has no staged, unstaged, or untracked changes."""
+def _create_worktree(config: RunnerConfig) -> Path:
+    """Create a disposable git worktree (detached at base) for isolated drafting.
 
-    return _git(config, "status", "--porcelain", "-z", "--untracked-files=all").strip("\x00").strip() == ""
+    The worktree is a fresh checkout of the base ref containing only tracked files — none of
+    the user's ignored or local files — so an autonomous draft cannot touch the main checkout.
+    """
+
+    work_path = config.repo_path.parent / f".autodoc-worktree-{os.getpid()}"
+    _remove_worktree(config, work_path)  # clear any stale worktree at this path
+    _git(config, "worktree", "add", "--force", "--detach", str(work_path), config.base_branch)
+    return work_path
+
+
+def _remove_worktree(config: RunnerConfig, work_path: Path) -> None:
+    """Remove a disposable worktree and everything in it (best effort)."""
+
+    subprocess.run(
+        ["git", "-C", str(config.repo_path), "worktree", "remove", "--force", str(work_path)],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
 
 
 def _record_ledger(config: RunnerConfig, ctx: ChangeContext, state: str, detail: str) -> None:
@@ -631,7 +661,7 @@ def _record_ledger(config: RunnerConfig, ctx: ChangeContext, state: str, detail:
     if config.dry_run:
         # Dry-run must not persist terminal states, or routing would skip these forever.
         return
-    ledger_path = config.repo_path / config.ledger_path
+    ledger_path = config.ledger_abs or (config.repo_path / config.ledger_path)
     ledger = autodoc_route.load_ledger(ledger_path)
     ledger.setdefault("changes", {})[ctx.fingerprint] = {
         "state": state,
