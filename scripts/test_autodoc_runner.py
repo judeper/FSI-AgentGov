@@ -198,8 +198,8 @@ def test_process_change_always_returns_to_base_branch(monkeypatch: pytest.Monkey
 
     runner.process_change(_config(tmp_path), _ctx())
 
-    # finally-block restores base branch
-    assert ("checkout", "main") in patched["git"]
+    # finally-block force-restores the base branch, discarding any failed draft edits
+    assert ("checkout", "--force", "main") in patched["git"]
 
 
 # --- feedback text ---------------------------------------------------------------

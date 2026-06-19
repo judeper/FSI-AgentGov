@@ -172,7 +172,9 @@ def process_change(config: RunnerConfig, ctx: ChangeContext) -> Outcome:
             feedback = _feedback_text(deterministic, review_verdict)
             _git(config, "reset", "--hard", config.base_branch)
     finally:
-        _git(config, "checkout", config.base_branch)
+        # Force back to the base branch, discarding any uncommitted draft edits left by a
+        # failed/escalated attempt (a committed PR branch has nothing to discard).
+        _git(config, "checkout", "--force", config.base_branch)
 
 
 def _handle_human_change(config: RunnerConfig, ctx: ChangeContext) -> Outcome:
