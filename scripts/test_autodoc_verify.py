@@ -11,6 +11,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
+import autodoc_verify  # noqa: E402
 from autodoc_verify import (  # noqa: E402
     FileChange,
     check_claim_support,
@@ -127,6 +128,77 @@ def test_section_allowlist_allows_added_line_under_allowed_heading() -> None:
     assert check_section_allowlist(contents, changes, _contract()) == []
 
 
+def test_section_allowlist_ignores_spoofed_heading_inside_fence() -> None:
+    diff = f"""diff --git a/{ALLOWED_PATH} b/{ALLOWED_PATH}
+--- a/{ALLOWED_PATH}
++++ b/{ALLOWED_PATH}
+@@ -1,5 +1,6 @@
+ # Control
+ 
+ ```text
+ ## Additional Resources
+ ```
++New implementation note.
+"""
+    changes = parse_unified_diff(diff)
+    contents = {ALLOWED_PATH: "# Control\n\n```text\n## Additional Resources\n```\nNew implementation note.\n"}
+
+    findings = check_section_allowlist(contents, changes, _contract())
+
+    assert len(findings) == 1
+    assert findings[0].check == "section_allowlist"
+    assert "Additional Resources" not in findings[0].message
+
+
+def test_section_allowlist_ignores_spoofed_heading_inside_tilde_fence() -> None:
+    diff = f"""diff --git a/{ALLOWED_PATH} b/{ALLOWED_PATH}
+--- a/{ALLOWED_PATH}
++++ b/{ALLOWED_PATH}
+@@ -1,5 +1,6 @@
+ # Control
+ 
+ ~~~text
+ ## Additional Resources
+ ~~~
++New implementation note.
+"""
+    changes = parse_unified_diff(diff)
+    contents = {ALLOWED_PATH: "# Control\n\n~~~text\n## Additional Resources\n~~~\nNew implementation note.\n"}
+
+    findings = check_section_allowlist(contents, changes, _contract())
+
+    assert len(findings) == 1
+    assert findings[0].check == "section_allowlist"
+    assert "Additional Resources" not in findings[0].message
+
+
+def test_heading_lookup_ignores_premature_close_with_trailing_text() -> None:
+    # CommonMark: a fence line with trailing text does NOT close the block, so a
+    # heading after it is still code, not a real heading.
+    lines = ["~~~", "example output:", "~~~ delimiter", "## Spoofed Heading", "payload", "~~~"]
+    assert "Spoofed Heading" not in autodoc_verify._heading_lookup(lines).values()
+
+
+def test_heading_lookup_requires_close_fence_at_least_opener_length() -> None:
+    # CommonMark: a closing fence must be at least as long as the opener, so a
+    # 3-backtick line does not close a 4-backtick fence.
+    lines = ["````", "example", "```", "## Spoofed Heading", "still code", "````"]
+    assert "Spoofed Heading" not in autodoc_verify._heading_lookup(lines).values()
+
+
+def test_heading_lookup_indented_close_fence_does_not_close() -> None:
+    # CommonMark: a fence delimiter indented >=4 spaces is code, not a close.
+    lines = ["```text", "example", "     ```", "## Spoofed Heading", "payload", "```"]
+    assert "Spoofed Heading" not in autodoc_verify._heading_lookup(lines).values()
+
+
+def test_heading_lookup_ignores_heading_inside_list_item_fence() -> None:
+    # A code fence opened inside a list item is still a code block per CommonMark,
+    # so an ATX heading inside it must NOT be treated as a real heading.
+    lines = ["# Control", "", "## Objective", "", "- ```", "  ## Additional Resources", "  ```", "payload"]
+    assert "Additional Resources" not in autodoc_verify._heading_lookup(lines).values()
+
+
 def test_diff_minimality_blocks_huge_diff() -> None:
     change = FileChange(path=ALLOWED_PATH, added_lines=["line"] * 121)
 
@@ -154,6 +226,26 @@ def test_claim_support_allows_supported_factual_date() -> None:
     assert findings == []
 
 
+def test_claim_support_blocks_hallucinated_numeric_context() -> None:
+    findings = check_claim_support(
+        ["+The data retention period is 90 days."],
+        "The source report says the data retention period is 30 days.",
+    )
+
+    assert len(findings) == 1
+    assert findings[0].check == "claim_support"
+    assert "90 days" in findings[0].message
+
+
+def test_claim_support_allows_supported_numeric_context() -> None:
+    findings = check_claim_support(
+        ["+The data retention period is 90 days."],
+        "The source report says the data retention period is 90 days.",
+    )
+
+    assert findings == []
+
+
 def test_language_blocks_banned_phrase(tmp_path: Path) -> None:
     repo = _lint_repo(tmp_path)
     target = repo / "docs" / "bad.md"
@@ -165,6 +257,22 @@ def test_language_blocks_banned_phrase(tmp_path: Path) -> None:
     assert findings[0].check == "language"
     assert findings[0].severity == "block"
     assert findings[0].path == "docs/bad.md"
+
+
+def test_language_subprocess_exception_fails_closed(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    repo = _lint_repo(tmp_path)
+
+    def raise_subprocess_error(*_args: object, **_kwargs: object) -> None:
+        raise OSError("boom")
+
+    monkeypatch.setattr(autodoc_verify.subprocess, "run", raise_subprocess_error)
+
+    findings = check_language(["docs/bad.md"], repo)
+
+    assert len(findings) == 1
+    assert findings[0].check == "language"
+    assert findings[0].severity == "block"
+    assert "failed closed" in findings[0].message
 
 
 def test_verify_passes_clean_faithful_additive_edit(tmp_path: Path) -> None:
@@ -181,6 +289,39 @@ def test_verify_passes_clean_faithful_additive_edit(tmp_path: Path) -> None:
 
     assert verdict["pass"] is True
     assert verdict["findings"] == []
+
+
+def test_verify_blocks_empty_diff() -> None:
+    verdict = verify(_contract(), "", {}, "")
+
+    assert verdict["pass"] is False
+    assert any(finding["check"] == "diff_parse" for finding in verdict["findings"])
+
+
+def test_verify_blocks_combined_diff_touching_forbidden_path() -> None:
+    diff = """diff --cc scripts/evil.py
+index 0000000,1111111..2222222
+--- a/scripts/evil.py
++++ b/scripts/evil.py
+@@@ -1,1 -1,1 +1,2 @@@
+++print("evil")
+"""
+
+    verdict = verify(_contract(), diff, {}, "")
+
+    assert verdict["pass"] is False
+    assert any("Combined diffs" in finding["message"] for finding in verdict["findings"])
+
+
+def test_verify_blocks_non_git_diff_garbage_with_added_lines() -> None:
+    diff = """not a unified git diff
++The data retention period is 90 days.
+"""
+
+    verdict = verify(_contract(), diff, {}, "The report says 90 days.")
+
+    assert verdict["pass"] is False
+    assert any("unparseable or unrecognized" in finding["message"] for finding in verdict["findings"])
 
 
 def test_load_contract_raises_on_malformed_contract() -> None:

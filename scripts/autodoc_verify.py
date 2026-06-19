@@ -1,7 +1,10 @@
 """Deterministic verifier for autonomous documentation PRs.
 
-This module is intentionally pure-stdlib and offline. The pure-function core is
-usable from tests and from merge-gate wrappers; the CLI only handles file I/O.
+The pure-function core is usable from tests and from merge-gate wrappers; the CLI
+only handles file I/O. Heading detection uses the markdown-it-py CommonMark parser
+(an authoritative oracle) rather than hand-rolled parsing, so ATX headings that
+appear inside fenced code blocks, list-item code fences, or other container
+contexts are never mistaken for real headings (a fail-open hazard).
 """
 
 from __future__ import annotations
@@ -15,6 +18,8 @@ from dataclasses import asdict, dataclass, field
 from fnmatch import fnmatchcase
 from pathlib import Path, PurePosixPath
 from typing import Any
+
+from markdown_it import MarkdownIt
 
 DEFAULT_MAX_TOTAL_LINES = 120
 FINGERPRINT_PREFIX = "AUTODOC-FINGERPRINT:"
@@ -281,6 +286,55 @@ def check_diff_minimality(
     return findings
 
 
+def check_diff_parseability(diff_text: str, file_changes: dict[str, FileChange]) -> list[Finding]:
+    """Fail closed when the verifier cannot confidently interpret the diff."""
+
+    stripped_diff = diff_text.strip()
+    if not stripped_diff:
+        return [
+            Finding(
+                check="diff_parse",
+                severity="block",
+                path="",
+                message="Diff is empty; nothing to verify — failing closed.",
+            )
+        ]
+
+    combined_path = _combined_diff_path(diff_text)
+    if combined_path is not None:
+        return [
+            Finding(
+                check="diff_parse",
+                severity="block",
+                path=combined_path,
+                message="Combined diffs are unsupported by this verifier — failing closed.",
+            )
+        ]
+
+    if not file_changes:
+        return [
+            Finding(
+                check="diff_parse",
+                severity="block",
+                path="",
+                message="Diff is unparseable or unrecognized — failing closed.",
+            )
+        ]
+
+    changed_lines = sum(len(change.added_lines) + len(change.removed_lines) for change in file_changes.values())
+    if changed_lines == 0:
+        return [
+            Finding(
+                check="diff_parse",
+                severity="block",
+                path="",
+                message="Diff contains no added or removed lines; nothing to verify — failing closed.",
+            )
+        ]
+
+    return []
+
+
 def check_section_allowlist(
     file_contents: dict[str, str],
     file_changes: dict[str, FileChange],
@@ -370,15 +424,25 @@ def check_language(changed_md_paths: list[str], repo_root: str | Path) -> list[F
         ]
 
     cmd = [sys.executable, str(script_path), *[_to_os_relative_path(path) for path in md_paths]]
-    result = subprocess.run(
-        cmd,
-        cwd=repo_root_path,
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        check=False,
-    )
+    try:
+        result = subprocess.run(
+            cmd,
+            cwd=repo_root_path,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            check=False,
+        )
+    except Exception as exc:
+        return [
+            Finding(
+                check="language",
+                severity="block",
+                path="",
+                message=f"FSI language linter invocation failed closed: {type(exc).__name__}: {exc}",
+            )
+        ]
     if result.returncode == 0:
         return []
 
@@ -390,7 +454,6 @@ def check_claim_support(added_lines: list[str], report_text: str) -> list[Findin
 
     findings: list[Finding] = []
     normalized_report = _normalize_text(report_text)
-    report_tokens = set(_meaningful_tokens(report_text))
 
     for index, raw_line in enumerate(added_lines, start=1):
         line = _strip_diff_marker(raw_line).strip()
@@ -401,7 +464,7 @@ def check_claim_support(added_lines: list[str], report_text: str) -> list[Findin
         if not markers:
             continue
 
-        if _claim_supported(line, markers, normalized_report, report_tokens):
+        if _claim_supported(line, markers, report_text, normalized_report):
             continue
 
         findings.append(
@@ -434,11 +497,22 @@ def verify(
 
     findings: list[Finding] = []
     findings.extend(check_fingerprint(loaded_contract, pr_body))
+    findings.extend(check_diff_parseability(diff_text, file_changes))
     findings.extend(check_path_allowlist(changed_paths, loaded_contract))
     findings.extend(check_diff_minimality(file_changes, loaded_contract))
     findings.extend(check_section_allowlist(file_contents, file_changes, loaded_contract))
     findings.extend(check_claim_support(added_lines, report_text))
-    findings.extend(check_language([path for path in changed_paths if path.endswith(".md")], repo_root))
+    try:
+        findings.extend(check_language([path for path in changed_paths if path.endswith(".md")], repo_root))
+    except Exception as exc:
+        findings.append(
+            Finding(
+                check="language",
+                severity="block",
+                path="",
+                message=f"FSI language linter failed closed: {type(exc).__name__}: {exc}",
+            )
+        )
 
     if _LLM_HOOK is not None:
         findings.extend(_LLM_HOOK(loaded_contract, diff_text, file_contents, report_text, pr_body))
@@ -537,12 +611,36 @@ def _matches_glob(path: str, pattern: str) -> bool:
     return fnmatchcase(path, pattern) or PurePosixPath(path).match(pattern)
 
 
+def _combined_diff_path(diff_text: str) -> str | None:
+    for line in diff_text.splitlines():
+        if line.startswith("diff --cc ") or line.startswith("diff --combined "):
+            parts = line.split(maxsplit=2)
+            return _clean_diff_path(parts[2]) if len(parts) == 3 else ""
+        if line.startswith("@@@"):
+            return ""
+    return None
+
+
+_MD_PARSER = MarkdownIt("commonmark")
+
+
 def _heading_lookup(lines: list[str]) -> dict[int, str]:
+    """Map the 1-based line number of each real ATX/Setext heading to its text.
+
+    Uses the markdown-it-py CommonMark parser so headings inside fenced code
+    blocks, list-item code fences, blockquotes, or other container contexts are
+    NOT counted as real headings — eliminating the fail-open heading-spoof class
+    that hand-rolled fence parsing repeatedly reintroduced.
+    """
     headings: dict[int, str] = {}
-    for index, line in enumerate(lines, start=1):
-        match = re.match(r"^(#{1,6})\s+(.+?)\s*#*\s*$", line)
-        if match:
-            headings[index] = match.group(2).strip()
+    tokens = _MD_PARSER.parse("\n".join(lines))
+    for index, token in enumerate(tokens):
+        if token.type == "heading_open" and token.map:
+            text_content = ""
+            if index + 1 < len(tokens) and tokens[index + 1].type == "inline":
+                text_content = tokens[index + 1].content.strip()
+            # token.map is [start_line, end_line) 0-based; convert to 1-based.
+            headings[token.map[0] + 1] = text_content
     return headings
 
 
@@ -612,7 +710,12 @@ def _factual_markers(line: str) -> list[str]:
     occupied_spans: list[tuple[int, int]] = []
     prioritized_patterns = [
         r"\b\d{4}-\d{2}-\d{2}\b",
+        r"\b(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},?\s+\d{4}\b",
         r"\b(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4}\b",
+        r"\b[1-4]\.\d{1,2}\b",
+        r"\b(?:FINRA|SEC|SOX|GLBA|OCC|CFTC)\s+[A-Za-z0-9.-]+(?:\([a-z]\))?\b",
+        r"\bFed\s+SR\s+\d{2}-\d+\b",
+        r"\b[AEFG]\d\b",
     ]
     marker_patterns = [
         r"\bpreview\b",
@@ -620,12 +723,6 @@ def _factual_markers(line: str) -> list[str]:
         r"\bgenerally available\b",
         r"\bdeprecated\b",
         r"\bretired\b",
-        r"\bmust\b",
-        r"\brequired\b",
-        r"\bretention\b",
-        r"\blicen[cs]e\b",
-        r"\bSKU\b",
-        r"\b[AEFG]\d\b",
     ]
 
     for pattern in prioritized_patterns:
@@ -634,41 +731,116 @@ def _factual_markers(line: str) -> list[str]:
             occupied_spans.append(match.span())
 
     for match in re.finditer(r"\b\d+(?:\.\d+)?%?\b", line, flags=re.IGNORECASE):
-        if not any(start <= match.start() < end for start, end in occupied_spans):
+        if not any(_spans_overlap(match.span(), occupied_span) for occupied_span in occupied_spans):
             markers.append(match.group(0))
 
     for pattern in marker_patterns:
         for match in re.finditer(pattern, line, flags=re.IGNORECASE):
             markers.append(match.group(0))
-    return markers
+    return _dedupe_markers(markers)
 
 
 def _claim_supported(
     line: str,
     markers: list[str],
+    report_text: str,
     normalized_report: str,
-    report_tokens: set[str],
 ) -> bool:
-    for marker in markers:
-        normalized_marker = _normalize_text(marker)
-        if _is_specific_marker(marker) and normalized_marker in normalized_report:
+    return all(_marker_supported(marker, line, report_text, normalized_report) for marker in markers)
+
+
+def _marker_supported(marker: str, line: str, report_text: str, normalized_report: str) -> bool:
+    if _is_numeric_marker(marker):
+        return _numeric_marker_supported(marker, line, report_text)
+    return _phrase_in_normalized_text(marker, normalized_report)
+
+
+def _numeric_marker_supported(marker: str, line: str, report_text: str) -> bool:
+    normalized_report = _normalize_text(report_text)
+    if marker.endswith("%"):
+        return _phrase_in_normalized_text(marker, normalized_report)
+
+    for candidate in _numeric_context_candidates(marker, line):
+        if _phrase_in_normalized_text(candidate, normalized_report):
             return True
+    return False
 
-    line_tokens = _meaningful_tokens(line)
-    if len(line_tokens) < 3:
+
+def _numeric_context_candidates(marker: str, line: str) -> list[str]:
+    tokens = [match.group(0) for match in re.finditer(r"\d+(?:\.\d+)?%?|[A-Za-z][A-Za-z-]*", line)]
+    candidates: list[str] = []
+
+    for index, token in enumerate(tokens):
+        if _normalize_text(token) != _normalize_text(marker):
+            continue
+
+        previous_tokens = [tokens[pos] for pos in range(max(0, index - 3), index) if _is_numeric_context_token(tokens[pos])]
+        next_tokens = [
+            tokens[pos]
+            for pos in range(index + 1, min(len(tokens), index + 4))
+            if _is_numeric_context_token(tokens[pos])
+        ]
+
+        if next_tokens:
+            candidates.append(" ".join([marker, next_tokens[0]]))
+        if len(next_tokens) >= 2:
+            candidates.append(" ".join([marker, next_tokens[0], next_tokens[1]]))
+        if previous_tokens:
+            candidates.append(" ".join([previous_tokens[-1], marker]))
+        if previous_tokens and next_tokens:
+            candidates.append(" ".join([previous_tokens[-1], marker, next_tokens[0]]))
+
+    return _dedupe_markers(candidates)
+
+
+def _is_numeric_marker(marker: str) -> bool:
+    return bool(re.fullmatch(r"\d+(?:\.\d+)?%?", marker))
+
+
+def _is_numeric_context_token(token: str) -> bool:
+    if not re.search(r"[A-Za-z]", token):
         return False
+    return _normalize_text(token) not in {
+        "a",
+        "an",
+        "and",
+        "are",
+        "as",
+        "at",
+        "by",
+        "for",
+        "from",
+        "in",
+        "is",
+        "of",
+        "or",
+        "the",
+        "to",
+        "with",
+    }
 
-    overlap = sum(1 for token in line_tokens if token in report_tokens)
-    return overlap / len(line_tokens) >= 0.55
+
+def _phrase_in_normalized_text(phrase: str, normalized_text: str) -> bool:
+    normalized_phrase = _normalize_text(phrase)
+    if not normalized_phrase:
+        return False
+    escaped = re.escape(normalized_phrase).replace(r"\ ", r"(?:\s+|-)")
+    return bool(re.search(rf"(?<![a-z0-9]){escaped}(?![a-z0-9])", normalized_text))
 
 
-def _is_specific_marker(marker: str) -> bool:
-    return bool(
-        re.search(r"\d", marker)
-        or re.fullmatch(r"\bGA\b", marker, flags=re.IGNORECASE)
-        or re.search(r"\bgenerally available\b", marker, flags=re.IGNORECASE)
-        or re.fullmatch(r"\b(?:preview|deprecated|retired|retention|licen[cs]e|SKU)\b", marker, flags=re.IGNORECASE)
-    )
+def _spans_overlap(left: tuple[int, int], right: tuple[int, int]) -> bool:
+    return left[0] < right[1] and right[0] < left[1]
+
+
+def _dedupe_markers(markers: list[str]) -> list[str]:
+    deduped: list[str] = []
+    seen: set[str] = set()
+    for marker in markers:
+        key = _normalize_text(marker)
+        if key not in seen:
+            seen.add(key)
+            deduped.append(marker)
+    return deduped
 
 
 def _meaningful_tokens(text: str) -> list[str]:
