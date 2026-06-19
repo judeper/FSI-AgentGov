@@ -135,6 +135,22 @@ def test_build_contract_content_change_uses_generic_headings():
     assert contract["allowed_headings"] == list(route.ALLOWED_HEADINGS)
 
 
+def test_redirect_allowed_files_ignores_control_block_files():
+    # A URL appearing in BOTH a detailed change block (control file) and the redirect table must
+    # never let a redirect inherit the control file — redirects only ever edit the URL list.
+    block_with_control = "**URL:** https://old\n- File: `docs/controls/pillar-2-management/2.5-testing.md`\n"
+    change = ac.Change(topic="redirect", url="https://old", classification="REDIRECT", kind="redirect")
+    files = route._allowed_files_for_change(change, block_with_control)
+    assert files == [route.REDIRECT_TARGET_FILE]
+
+
+def test_content_allowed_files_still_extracts_block_files():
+    block = "**URL:** https://x\n- File: `docs/controls/pillar-1-security/1.1-x.md`\n"
+    change = ac.Change(topic="content", url="https://x", classification="MEDIUM", kind="content")
+    files = route._allowed_files_for_change(change, block)
+    assert "docs/controls/pillar-1-security/1.1-x.md" in files
+
+
 def test_human_issue_labels_and_human_instruction():
     change = ac.Change(
         topic="Control-sensitive change",

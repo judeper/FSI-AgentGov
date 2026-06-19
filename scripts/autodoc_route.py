@@ -29,6 +29,8 @@ FORBIDDEN_PATHS = [
     "assessment/**",
     "mkdocs.yml",
 ]
+# A URL redirect only ever updates the Learn URL list — never a control or playbook file.
+REDIRECT_TARGET_FILE = "docs/reference/microsoft-learn-urls.md"
 
 _CHANGE_BLOCK_RE = re.compile(
     r"^### \d+\.\s*(?P<topic>.+?)\n(?P<body>.*?)(?=^### \d+\.\s|^## |\Z)",
@@ -245,10 +247,13 @@ def _change_blocks_by_url(report_text: str) -> dict[str, str]:
 
 
 def _allowed_files_for_change(change: classifier.Change, block_text: str) -> list[str]:
-    allowed_files = extract_allowed_files(block_text)
-    if change.kind == "redirect" and not allowed_files:
-        return ["docs/reference/microsoft-learn-urls.md"]
-    return allowed_files
+    if change.kind == "redirect":
+        # A URL redirect must ONLY ever edit the Learn URL list — never a control/playbook file.
+        # The same URL can appear in both a detailed change block (with a `- File:` control) and
+        # the redirect table; without this guard the redirect would inherit that control file in
+        # allowed_files and could edit control prose (and is auto-merge-eligible). Always pin it.
+        return [REDIRECT_TARGET_FILE]
+    return extract_allowed_files(block_text)
 
 
 def route_report(report_text: str, report_name: str, ledger: dict[str, Any], repo_root: str | Path = ".") -> list[dict[str, Any]]:
