@@ -127,8 +127,9 @@ Human invokes the `/review-learn-changes` prompt for regulatory reports:
 | UI navigation / portal path changes | Auto-draft (playbook update) |
 | Button / menu renames | Auto-draft (playbook UI references) |
 | URL redirects | Auto-draft (`microsoft-learn-urls.md`) |
+| Feature GA / availability | Auto-draft — verifier-gated (claims checked against the source) |
 | Date / deadline changes | **Human review** (compliance-sensitive timing) |
-| Feature GA / deprecation | **Human review** (status / obligation changes) |
+| Feature deprecation / removal | **Human review** (obligation changes) |
 | Policy / regulatory language | **Human review** (never auto-edited) |
 | Edits to existing control prose | **Human review** (control text) |
 
