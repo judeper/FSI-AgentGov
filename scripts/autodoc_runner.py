@@ -47,6 +47,7 @@ DEFAULT_REVIEW_TIMEOUT = 300
 NEEDS_HUMAN_MARKER = "AUTODOC-NEEDS-HUMAN"
 MAX_INLINE_FILE_CHARS = 60000
 _CONTRACT_RE = re.compile(r"```json\s*(?P<json>\{.*?\})\s*```", re.DOTALL)
+_REDIRECT_TO_RE = re.compile(r"redirects to (https?://\S+)")
 
 
 @dataclass
@@ -166,7 +167,13 @@ def run(config: RunnerConfig) -> dict[str, Any]:
 
 
 def process_change(config: RunnerConfig, ctx: ChangeContext) -> Outcome:
-    """Draft → deterministic verify → cross-model review → PR, with bounded fix-retry."""
+    """Draft → deterministic verify → cross-model review → PR, with bounded fix-retry.
+
+    Redirect changes are handled deterministically (no LLM) — see ``_process_redirect``.
+    """
+
+    if _is_redirect(ctx):
+        return _process_redirect(config, ctx)
 
     base = config.base_branch
     _git(config, "checkout", "-B", ctx.branch, base)
@@ -229,6 +236,113 @@ def _do_escalate(config: RunnerConfig, ctx: ChangeContext, reason: str, details:
     detail = _escalate(config, ctx, reason, details)
     _record_ledger(config, ctx, "escalated", detail)
     return Outcome(ctx.fingerprint, "escalated", f"{reason}: {detail}")
+
+
+# --------------------------------------------------------------------------------------
+# Deterministic redirect handling (no LLM)
+# --------------------------------------------------------------------------------------
+
+
+def _is_redirect(ctx: ChangeContext) -> bool:
+    return ctx.contract.get("classification") == "REDIRECT"
+
+
+def _process_redirect(config: RunnerConfig, ctx: ChangeContext) -> Outcome:
+    """Apply a URL redirect deterministically: swap the old Learn URL for the new one in the
+    URL list, verify the diff is a clean URL-only change, and open a human-merge PR. No LLM and
+    no prose verifier are used — a redirect is a mechanical string replacement.
+    """
+
+    old_url = str(ctx.contract.get("source_url", "")).strip()
+    match = _REDIRECT_TO_RE.search(ctx.instructions)
+    new_url = match.group(1).strip() if match else ""
+    if not (old_url.startswith("http") and new_url.startswith("http")) or old_url == new_url:
+        return _do_escalate(config, ctx, "redirect_parse_failed", f"could not resolve a URL swap (old={old_url!r} new={new_url!r})")
+
+    base = config.base_branch
+    _git(config, "checkout", "-B", ctx.branch, base)
+    baseline_untracked = _untracked_files(config)
+    committed = False
+    try:
+        outcome = _apply_and_open_redirect(config, ctx, old_url, new_url)
+        committed = outcome.status == "pr_opened"
+        return outcome
+    finally:
+        if not committed:
+            _reset_attempt(config, base, baseline_untracked)
+        _git(config, "checkout", "--force", "--detach", base)
+
+
+def _apply_and_open_redirect(config: RunnerConfig, ctx: ChangeContext, old_url: str, new_url: str) -> Outcome:
+    allowed = [rel for rel in ctx.contract.get("allowed_files", [])]
+    changed_any = False
+    for rel in allowed:
+        path = config.repo_path / rel
+        try:
+            before = path.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        if old_url not in before:
+            continue
+        if new_url in before:
+            return _do_escalate(config, ctx, "redirect_ambiguous", f"new URL already present in {rel}; needs human review")
+        after = before.replace(old_url, new_url)
+        if after != before:
+            path.write_text(after, encoding="utf-8")
+            changed_any = True
+
+    if not changed_any:
+        return _do_escalate(config, ctx, "redirect_url_not_found", f"{old_url} not found in allowed file(s); nothing to update")
+
+    _git(config, "add", "-A")
+    diff_text = _git(config, "diff", "--cached", "--unified=3")
+    changed_files = [line for line in _git(config, "diff", "--cached", "--name-only").splitlines() if line.strip()]
+    if not _redirect_diff_is_clean(changed_files, allowed, diff_text, old_url, new_url):
+        return _do_escalate(config, ctx, "redirect_unclean_diff", "the staged change was not a clean URL-only swap")
+
+    detail = _open_pr_redirect(config, ctx, old_url, new_url)
+    _record_ledger(config, ctx, "pr_open", detail)
+    return Outcome(ctx.fingerprint, "pr_opened", detail)
+
+
+def _redirect_diff_is_clean(changed_files: list[str], allowed: list[str], diff_text: str, old_url: str, new_url: str) -> bool:
+    """True only if the staged diff is exactly an old_url→new_url swap confined to allowed files."""
+
+    if not changed_files or any(rel not in allowed for rel in changed_files):
+        return False
+    added: list[str] = []
+    removed: list[str] = []
+    for line in diff_text.splitlines():
+        if line.startswith(("+++", "---")):
+            continue
+        if line.startswith("+"):
+            added.append(line[1:])
+        elif line.startswith("-"):
+            removed.append(line[1:])
+    if not added or len(added) != len(removed):
+        return False
+    if not all(old_url in line for line in removed) or not all(new_url in line for line in added):
+        return False
+    # Each removed line, with old_url replaced by new_url, must equal an added line (URL-only change).
+    return sorted(line.replace(old_url, new_url) for line in removed) == sorted(added)
+
+
+def _open_pr_redirect(config: RunnerConfig, ctx: ChangeContext, old_url: str, new_url: str) -> str:
+    """Commit the verified URL swap and open a human-merge PR (no review verdict — deterministic)."""
+
+    if config.dry_run:
+        return f"dry-run: would open redirect PR for {ctx.branch} ({old_url} -> {new_url})"
+    commit_message = f"docs(autodoc): update redirected Learn URL\n\nAUTODOC-FINGERPRINT: {ctx.fingerprint}"
+    _git(config, "commit", "-m", commit_message)
+    pr_body = (
+        "Automated **deterministic** Learn-URL redirect update (human merge required).\n\n"
+        f"AUTODOC-FINGERPRINT: {ctx.fingerprint}\n"
+        f"Source report: {ctx.report_path}\n\n"
+        f"`{old_url}`\n→ `{new_url}`\n\n"
+        "No LLM was involved: the runner applied the exact URL swap and verified the staged diff "
+        "is a clean URL-only change in the Learn URL list."
+    )
+    return _push_and_create_pr(config, ctx, pr_body)
 
 
 def _combine_conclusion(deterministic: str, review_verdict: dict[str, Any] | None) -> str:
