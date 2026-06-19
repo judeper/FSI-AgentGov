@@ -120,15 +120,18 @@ Human invokes the `/review-learn-changes` prompt for regulatory reports:
 
 #### 2. Change Categories Handled
 
-**Learn Changes (Auto-Draft):**
+**Learn Changes — how the classifier routes each:**
 
-| Change Type | AI Action |
-|-------------|-----------|
-| UI navigation step changes | Update portal-walkthrough.md playbooks |
-| Date/deadline changes | Update affected controls and playbooks |
-| Feature GA/deprecation | Add/update info boxes in controls |
-| Policy language changes | Flag for human review (don't auto-edit) |
-| New documentation pages | Create cross-reference entries |
+| Change Type | Routing |
+|-------------|---------|
+| UI navigation / portal path changes | Auto-draft (playbook update) |
+| Button / menu renames | Auto-draft (playbook UI references) |
+| URL redirects | Auto-draft (`microsoft-learn-urls.md`) |
+| Feature GA / availability | Auto-draft — verifier-gated (claims checked against the source) |
+| Date / deadline changes | **Human review** (compliance-sensitive timing) |
+| Feature deprecation / removal | **Human review** (obligation changes) |
+| Policy / regulatory language | **Human review** (never auto-edited) |
+| Edits to existing control prose | **Human review** (control text) |
 
 **Regulatory Changes (Triage Only):**
 
@@ -193,13 +196,12 @@ Human invokes the `/review-learn-changes` prompt for regulatory reports:
    - Creates triage summary (review vs. dismiss)
    - Human conducts detailed analysis
 
-### GitHub Actions Integration (Stage 1, opt-in — in progress)
+### GitHub Actions Integration (Implemented — Stage 1, opt-in)
 
 The unattended pipeline that drafts and independently verifies documentation updates is
-**being implemented** and ships **off by default** (the `AUTODOC_ENABLED` repository
-variable). The deterministic routing, verification, and safety guards are in place; the
-local GitHub Copilot CLI drafter that runs them on a schedule is being added. When complete
-and enabled, it operates as a fail-closed, human-merge-gated loop:
+implemented and ships **off by default** (the `AUTODOC_ENABLED` switch). A local GitHub
+Copilot CLI drafter runs on a schedule; when enabled, it operates as a fail-closed,
+human-merge-gated loop:
 
 1. The Learn Monitor's change report is classified by a deterministic, fail-closed
    classifier; changes that match known compliance-sensitive patterns (regulatory
@@ -230,24 +232,35 @@ Maintainer operations and provisioning are documented in
 
 #### Auto-Draft Eligible
 
+Only narrow, mechanical, non-control changes are eligible for an agent draft (a human still
+merges every one):
+
 | Pattern Detected | Update Action |
 |-----------------|---------------|
 | Portal path changed | Update portal-walkthrough.md navigation steps |
 | Button/menu renamed | Update portal-walkthrough.md UI references |
-| Date deadline extended | Update control and FAQ with new date |
-| Feature now GA | Remove "Preview" tags, update availability |
-| Feature deprecated | Add deprecation warning box |
 | URL redirect | Update microsoft-learn-urls.md |
 
 #### Flag for Human Review
 
+The classifier **hard-routes** these compliance-sensitive categories to a human (mirroring
+`HARD_HUMAN_PATTERNS` in `scripts/autodoc_classifier.py`) — it never drafts them:
+
 | Pattern Detected | Reason |
 |-----------------|--------|
-| Policy language changes | Regulatory implications |
-| New compliance requirements | Legal review needed |
-| Licensing changes | Business impact |
-| Security guidance changes | Risk assessment needed |
-| CRITICAL classification | Immediate attention required |
+| Regulatory citations (FINRA / SEC / SOX / GLBA / OCC / SR …) | Compliance obligations |
+| Dates / deadlines / sunset / end-of-life | Compliance-sensitive timing |
+| Durations / retention / frequency | Recordkeeping timing |
+| License / SKU / add-on changes | Entitlement and business impact |
+| Deprecations / removals ("no longer", "retired") | Obligations and guidance change |
+| Security / DLP / eDiscovery / retention keywords | Risk assessment needed |
+| Overclaim / policy language | Regulatory implications |
+| Any edit to existing control prose | Control text is always human-reviewed |
+| CRITICAL classification (and the fail-closed default) | Immediate attention required |
+
+Anything not hard-routed but containing an unsupported factual claim (including GA / preview /
+availability status) is still caught downstream by the deterministic verifier and the
+independent review before a pull request is opened.
 
 #### Skip
 
@@ -272,33 +285,26 @@ Maintainer operations and provisioning are documented in
 
 ## Usage Examples
 
-### Example 1: Learn Changes with Auto-Draft
+### Example 1: Learn Changes — autonomous routing
 
-```bash
-# User invokes prompt
-/review-learn-changes
+The scheduled runner routes the latest report in a disposable worktree. Mechanical changes
+are drafted (a PR opens for a human to merge); compliance-sensitive changes are escalated
+(an issue opens, no draft).
 
-# Prompt analyzes report
+```
 Reading reports/monitoring/learn-changes-2026-02-01.md...
+Found 31 changes.
 
-Found 31 HIGH priority changes affecting 15 controls.
+Auto-drafted → PR opened for human merge:
+1. Control 1.1 playbook: portal navigation path updated (UI step change)
+2. microsoft-learn-urls.md: 3 redirected URLs updated
 
-Proposed Updates:
-1. Control 3.9: Update Sentinel deadline (July 2026 → March 31, 2027)
-2. Controls 1.1, 1.5, 1.6: Add Agent Essentials cross-references
-...
+Escalated → issue opened for human review (no draft):
+1. Control 3.9: Sentinel deadline change (July 2026 → March 31, 2027)
+   — dates/deadlines are compliance-sensitive and are never auto-drafted
+2. Feature X deprecation — obligation change, routed to human
 
-Do you want me to apply these 12 updates?
-
-# User approves
-Yes, apply them
-
-# Prompt applies edits and validates
-Applied 12 updates across 8 files
-✓ mkdocs build --strict passed
-
-Recommendation: Review changes and commit with:
-"docs: Apply Learn Monitor updates from 2026-02-01 report"
+Each drafted PR carries the deterministic + cross-model review verdict; a human merges.
 ```
 
 ### Example 2: Regulatory Changes with Triage
