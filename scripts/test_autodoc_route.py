@@ -94,6 +94,47 @@ def test_autodraft_issue_labels_and_contract_body():
     assert parsed_contract["forbidden_paths"] == route.FORBIDDEN_PATHS
 
 
+def test_build_contract_redirect_uses_target_file_headings(tmp_path):
+    url_file = tmp_path / "docs" / "reference" / "microsoft-learn-urls.md"
+    url_file.parent.mkdir(parents=True)
+    url_file.write_text(
+        "# Microsoft Learn URLs\n\n## Copilot Studio\n- https://old\n\n## Microsoft Purview\n- https://x\n",
+        encoding="utf-8",
+    )
+    change = ac.Change(
+        topic="URL redirect: https://old",
+        url="https://old",
+        classification="REDIRECT",
+        reason="redirects to https://new",
+        kind="redirect",
+    )
+    decision = ac.classify_change(change)
+    assert decision.kind == "redirect"
+    fingerprint = route.compute_fingerprint("report.md", change.url, decision.classification, ["docs/reference/microsoft-learn-urls.md"])
+    contract = route.build_contract(
+        decision, "report.md", ["docs/reference/microsoft-learn-urls.md"], fingerprint, repo_root=tmp_path
+    )
+    # The redirect contract carries the URL file's OWN topic headings, not the control headings.
+    assert "Copilot Studio" in contract["allowed_headings"]
+    assert "Microsoft Purview" in contract["allowed_headings"]
+    assert contract["allowed_headings"] != route.ALLOWED_HEADINGS
+
+
+def test_build_contract_redirect_missing_file_yields_empty_headings(tmp_path):
+    change = ac.Change(topic="URL redirect", url="https://old", classification="REDIRECT", reason="redirects to https://new", kind="redirect")
+    decision = ac.classify_change(change)
+    contract = route.build_contract(decision, "report.md", ["docs/reference/missing.md"], "sha256:x", repo_root=tmp_path)
+    # Fail closed: if the target file can't be read, no headings are allowed (edit will be blocked).
+    assert contract["allowed_headings"] == []
+
+
+def test_build_contract_content_change_uses_generic_headings():
+    change = ac.Change(topic="content", url="https://learn.microsoft.com/x", classification="MEDIUM", diff_text="+note", kind="content")
+    decision = ac.classify_change(change)
+    contract = route.build_contract(decision, "report.md", ["docs/example.md"], "sha256:y")
+    assert contract["allowed_headings"] == list(route.ALLOWED_HEADINGS)
+
+
 def test_human_issue_labels_and_human_instruction():
     change = ac.Change(
         topic="Control-sensitive change",

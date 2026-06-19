@@ -131,7 +131,7 @@ def run(config: RunnerConfig) -> dict[str, Any]:
     report_text = report_path.read_text(encoding="utf-8")
     main_ledger_path = config.repo_path / config.ledger_path
     ledger = autodoc_route.load_ledger(main_ledger_path)
-    specs = autodoc_route.route_report(report_text, report_path.name, ledger)
+    specs = autodoc_route.route_report(report_text, report_path.name, ledger, repo_root=config.repo_path)
     if not specs:
         return {"enabled": True, "report": report_path.name, "outcomes": []}
 
