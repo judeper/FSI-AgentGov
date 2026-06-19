@@ -27,7 +27,7 @@ jobs:
     outputs:
       sbom: ${{ steps.cdx.outputs.path }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
@@ -52,7 +52,7 @@ jobs:
     name: SBOM (npm)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v6
         with:
           node-version: '20'
@@ -68,7 +68,7 @@ jobs:
     needs: [sbom-python, sbom-npm]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: actions/download-artifact@v8
         with:
           name: sbom-python
