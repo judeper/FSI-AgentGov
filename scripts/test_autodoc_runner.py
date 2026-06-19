@@ -16,6 +16,41 @@ if str(SCRIPT_DIR) not in sys.path:
 import autodoc_runner as runner  # noqa: E402
 
 
+def test_main_passes_timeout_flags_into_config(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    captured: dict[str, Any] = {}
+
+    def fake_run(config: runner.RunnerConfig) -> dict[str, Any]:
+        captured["config"] = config
+        return {"enabled": False, "outcomes": []}
+
+    monkeypatch.setattr(runner, "run", fake_run)
+    runner.main(
+        [
+            "--repo",
+            str(tmp_path),
+            "--draft-model",
+            "claude-opus-4.8",
+            "--review-model",
+            "gpt-5.5",
+            "--draft-timeout",
+            "1500",
+            "--review-timeout",
+            "400",
+        ]
+    )
+    config = captured["config"]
+    assert config.draft_timeout == 1500
+    assert config.review_timeout == 400
+    assert config.draft_model == "claude-opus-4.8"
+    assert config.review_model == "gpt-5.5"
+
+
+def test_default_timeouts_are_generous() -> None:
+    # An Opus draft exploring a large worktree can exceed 600s; defaults must be roomy.
+    assert runner.DEFAULT_DRAFT_TIMEOUT >= 1200
+    assert runner.DEFAULT_REVIEW_TIMEOUT >= 300
+
+
 def _config(tmp_path: Path) -> runner.RunnerConfig:
     return runner.RunnerConfig(repo_path=tmp_path, draft_model="model-a", review_model="model-b", max_fix_cycles=2)
 

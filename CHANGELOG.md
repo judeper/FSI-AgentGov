@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Consolidated 9 Learn Monitor daily drift reports (2026-05-27 through 2026-06-04) from bot PRs #343–#383 into main via consolidation PR #385. Superseded PRs closed; `data/monitor-state.json` updated to newest cumulative state.
 
 ### Fixed
+- **Autodoc runner draft timeout too tight (`scripts/autodoc_runner.py`).** A live Opus draft exploring a fresh ~1,280-file worktree can take 10+ minutes; the 600s default timed out mid-draft (the same change completed under 600s on another run — it sits right at the boundary). Raised the default draft timeout to 1200s (review to 300s) and exposed `--draft-timeout` / `--review-timeout` CLI flags for tuning. Surfaced by the second controlled dry-run.
 - **Autodoc runner worktree cleanup (`scripts/autodoc_runner.py`).** The per-change `finally` cleanup ran `git checkout --force main` inside the disposable linked worktree, which git rejects with `fatal: 'main' is already used by worktree …` (exit 128) because the base branch is checked out in the primary worktree. It now detaches (`git checkout --force --detach main`). Found by the first controlled live dry-run (mocked unit tests stub `git`, so they could not surface it); the draft → deterministic verify → cross-model review path itself worked end-to-end.
 - Replaced non-rendering Material shortcode markup on the homepage quick-start cards (`docs/index.md`) with plain text labels so GitHub Pages no longer displays literal `:material-*:` tokens.
 

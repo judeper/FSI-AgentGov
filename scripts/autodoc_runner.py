@@ -42,8 +42,8 @@ import autodoc_route
 
 COPILOT_BIN = "copilot"
 DEFAULT_MAX_FIX_CYCLES = 2
-DEFAULT_DRAFT_TIMEOUT = 600
-DEFAULT_REVIEW_TIMEOUT = 240
+DEFAULT_DRAFT_TIMEOUT = 1200
+DEFAULT_REVIEW_TIMEOUT = 300
 NEEDS_HUMAN_MARKER = "AUTODOC-NEEDS-HUMAN"
 _CONTRACT_RE = re.compile(r"```json\s*(?P<json>\{.*?\})\s*```", re.DOTALL)
 
@@ -683,6 +683,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--draft-model", required=True, help="Copilot model for drafting.")
     parser.add_argument("--review-model", required=True, help="Copilot model for the independent review (different family).")
     parser.add_argument("--max-fix-cycles", type=int, default=DEFAULT_MAX_FIX_CYCLES)
+    parser.add_argument("--draft-timeout", type=int, default=DEFAULT_DRAFT_TIMEOUT, help="Seconds before a draft is abandoned (an Opus draft exploring a large repo can be slow).")
+    parser.add_argument("--review-timeout", type=int, default=DEFAULT_REVIEW_TIMEOUT, help="Seconds before the independent review is abandoned.")
     parser.add_argument("--dry-run", action="store_true", help="Do everything except push/PR/escalate.")
     args = parser.parse_args(argv)
 
@@ -691,6 +693,8 @@ def main(argv: list[str] | None = None) -> int:
         draft_model=args.draft_model,
         review_model=args.review_model,
         max_fix_cycles=args.max_fix_cycles,
+        draft_timeout=args.draft_timeout,
+        review_timeout=args.review_timeout,
         dry_run=args.dry_run,
     )
     summary = run(config)
