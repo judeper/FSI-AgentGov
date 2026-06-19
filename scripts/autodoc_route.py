@@ -1,0 +1,288 @@
+#!/usr/bin/env python3
+"""Build deterministic GitHub issue specs for Learn Monitor autodoc routing."""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import re
+import sys
+from pathlib import Path
+from typing import Any
+
+import autodoc_classifier as classifier
+
+ALLOWED_HEADINGS = [
+    "Additional Resources",
+    "Implementation Notes",
+    "Implementation Playbooks",
+    "Verification Criteria",
+    "Related Controls",
+]
+FORBIDDEN_PATHS = [
+    ".github/**",
+    "scripts/**",
+    "data/**",
+    "reports/**",
+    "assessment/**",
+    "mkdocs.yml",
+]
+
+_CHANGE_BLOCK_RE = re.compile(
+    r"^### \d+\.\s*(?P<topic>.+?)\n(?P<body>.*?)(?=^### \d+\.\s|^## |\Z)",
+    re.DOTALL | re.MULTILINE,
+)
+_URL_RE = re.compile(r"^\*\*URL:\*\*\s*(\S+)", re.MULTILINE)
+_DIFF_RE = re.compile(r"```diff\n.*?```", re.DOTALL)
+_CONTROL_FILE_RE = re.compile(r"^\s*-\s*File:\s*`([^`]+\.md)`", re.MULTILINE)
+_AFFECTED_PLAYBOOKS_RE = re.compile(
+    r"^\*\*Affected Playbooks:\*\*(?P<body>.*?)(?=^\*\*|^---\s*$|^### |\Z)",
+    re.DOTALL | re.MULTILINE,
+)
+_MD_CODE_SPAN_RE = re.compile(r"`([^`]+\.md)`")
+
+
+def _normalise_repo_path(path: str) -> str:
+    normalised = path.strip().replace("\\", "/").lstrip("/")
+    if normalised.startswith("./"):
+        normalised = normalised[2:]
+    if not normalised.startswith("docs/"):
+        normalised = f"docs/{normalised}"
+    return normalised
+
+
+def _dedupe_keep_order(values: list[str]) -> list[str]:
+    seen: set[str] = set()
+    out: list[str] = []
+    for value in values:
+        if value not in seen:
+            seen.add(value)
+            out.append(value)
+    return out
+
+
+def compute_fingerprint(report_name: str, url: str, classification: str, allowed_files: list[str]) -> str:
+    """Return a stable sha256 fingerprint for a routed Learn change."""
+    parts = [report_name, url, classification, *sorted(allowed_files)]
+    payload = "\n".join(parts)
+    return "sha256:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def extract_allowed_files(change_block_text: str) -> list[str]:
+    """Extract docs-relative control and playbook paths from one report change block."""
+    raw_paths = [_normalise_repo_path(path) for path in _CONTROL_FILE_RE.findall(change_block_text)]
+
+    playbooks_match = _AFFECTED_PLAYBOOKS_RE.search(change_block_text)
+    if playbooks_match:
+        raw_paths.extend(_normalise_repo_path(path) for path in _MD_CODE_SPAN_RE.findall(playbooks_match.group("body")))
+
+    return _dedupe_keep_order(raw_paths)
+
+
+def build_contract(
+    decision: classifier.RoutingDecision,
+    report_name: str,
+    allowed_files: list[str],
+    fingerprint: str,
+) -> dict[str, Any]:
+    """Build the machine-readable authoring contract embedded in the issue body."""
+    return {
+        "schema_version": 1,
+        "fingerprint": fingerprint,
+        "report_path": f"reports/monitoring/{Path(report_name).name}",
+        "source_url": decision.url,
+        "classification": decision.classification,
+        "route": decision.route,
+        "automerge_eligible": decision.automerge_eligible,
+        "allowed_files": list(allowed_files),
+        "allowed_headings": list(ALLOWED_HEADINGS),
+        "forbidden_paths": list(FORBIDDEN_PATHS),
+        "validation": [
+            "python scripts/verify_language_rules.py <files>",
+            "mkdocs build --strict",
+        ],
+    }
+
+
+def _issue_title(decision: classifier.RoutingDecision) -> str:
+    topic = re.sub(r"\s+", " ", decision.topic).strip()
+    prefix = "Autodoc draft" if decision.route == "autodraft" else "Autodoc human review"
+    return f"{prefix}: {topic}"[:240]
+
+
+def _diff_excerpt(change: classifier.Change) -> str:
+    excerpt = change.diff_text.strip() or change.reason.strip() or "No diff excerpt was included in the report."
+    if len(excerpt) > 1500:
+        return excerpt[:1500].rstrip() + "\n..."
+    return excerpt
+
+
+def build_issue(
+    decision: classifier.RoutingDecision,
+    change: classifier.Change,
+    contract: dict[str, Any],
+    fingerprint: str,
+) -> dict[str, Any]:
+    """Build a GitHub issue specification for one routing decision."""
+    labels = (
+        ["autodoc", "squad:copilot"]
+        if decision.route == "autodraft"
+        else ["autodoc", "escalate", "needs-review"]
+    )
+    human_note = ""
+    if decision.route == "human":
+        human_note = (
+            "\n> **Human analysis required:** This change routed to `human`; a human must analyze it. "
+            "No agent draft should be requested from this issue.\n"
+        )
+
+    contract_json = json.dumps(contract, indent=2, sort_keys=True)
+    body = f"""AUTODOC-FINGERPRINT: {fingerprint}
+AUTODOC-REPORT: {contract["report_path"]}
+AUTODOC-ROUTE: {decision.route}
+AUTODOC-AUTOMERGE-ELIGIBLE: {json.dumps(decision.automerge_eligible)}
+{human_note}
+```json
+{contract_json}
+```
+
+## Task
+
+Make the smallest faithful documentation edit for the Learn change below. Edit only allowed_files; do not reformat unrelated content; preserve admonitions; do NOT edit regulatory obligations/legal interpretation; use FSI-safe language (avoid 'ensures compliance','guarantees','will prevent','eliminates risk'); if the report does not support a specific edit, comment `AUTODOC-NEEDS-HUMAN` and stop.
+
+## Learn change evidence
+
+```diff
+{_diff_excerpt(change)}
+```
+
+## Required PR body
+
+Include `Closes #<issue>` and `AUTODOC-FINGERPRINT: {fingerprint}` in the PR body.
+"""
+    return {"title": _issue_title(decision), "body": body, "labels": labels}
+
+
+def _empty_ledger() -> dict[str, Any]:
+    return {"schema_version": 1, "changes": {}}
+
+
+def load_ledger(path: str | Path) -> dict[str, Any]:
+    """Load the autodoc ledger, returning an empty v1 ledger when it does not exist."""
+    ledger_path = Path(path)
+    if not ledger_path.exists():
+        return _empty_ledger()
+    try:
+        ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"Invalid autodoc ledger JSON: {ledger_path}") from exc
+
+    if not isinstance(ledger, dict) or ledger.get("schema_version") != 1:
+        raise ValueError(f"Unsupported autodoc ledger schema: {ledger_path}")
+    if not isinstance(ledger.get("changes"), dict):
+        raise ValueError(f"Autodoc ledger changes must be an object: {ledger_path}")
+    return ledger
+
+
+def save_ledger(path: str | Path, ledger: dict[str, Any]) -> None:
+    """Persist an autodoc ledger as stable JSON."""
+    if not isinstance(ledger, dict) or ledger.get("schema_version") != 1:
+        raise ValueError("Refusing to save unsupported autodoc ledger schema")
+    if not isinstance(ledger.get("changes"), dict):
+        raise ValueError("Refusing to save autodoc ledger without a changes object")
+
+    ledger_path = Path(path)
+    ledger_path.parent.mkdir(parents=True, exist_ok=True)
+    ledger_path.write_text(json.dumps(ledger, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def already_processed(ledger: dict[str, Any], fingerprint: str) -> bool:
+    return fingerprint in ledger.get("changes", {})
+
+
+def _change_blocks_by_url(report_text: str) -> dict[str, str]:
+    blocks: dict[str, str] = {}
+    for match in _CHANGE_BLOCK_RE.finditer(report_text):
+        block = match.group(0)
+        url_match = _URL_RE.search(block)
+        if not url_match:
+            continue
+        url = url_match.group(1).strip()
+        existing = blocks.get(url)
+        if existing is None or (_DIFF_RE.search(block) and not _DIFF_RE.search(existing)):
+            blocks[url] = block
+    return blocks
+
+
+def _allowed_files_for_change(change: classifier.Change, block_text: str) -> list[str]:
+    allowed_files = extract_allowed_files(block_text)
+    if change.kind == "redirect" and not allowed_files:
+        return ["docs/reference/microsoft-learn-urls.md"]
+    return allowed_files
+
+
+def route_report(report_text: str, report_name: str, ledger: dict[str, Any]) -> list[dict[str, Any]]:
+    """Classify a Learn report and return issue specs for changes not present in the ledger."""
+    changes = classifier.parse_report(report_text)
+    decisions = classifier.classify_report(report_text)
+    blocks_by_url = _change_blocks_by_url(report_text)
+    issue_specs: list[dict[str, Any]] = []
+
+    for change, decision in zip(changes, decisions, strict=True):
+        allowed_files = _allowed_files_for_change(change, blocks_by_url.get(change.url, ""))
+        fingerprint = compute_fingerprint(report_name, decision.url, decision.classification, allowed_files)
+        if already_processed(ledger, fingerprint):
+            continue
+
+        contract = build_contract(decision, report_name, allowed_files, fingerprint)
+        issue = build_issue(decision, change, contract, fingerprint)
+        issue_specs.append(
+            {
+                "fingerprint": fingerprint,
+                "route": decision.route,
+                "automerge_eligible": decision.automerge_eligible,
+                "title": issue["title"],
+                "body": issue["body"],
+                "labels": issue["labels"],
+            }
+        )
+
+    return issue_specs
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--report", required=True, help="Path to a reports/monitoring/learn-changes-*.md report")
+    parser.add_argument("--ledger", required=True, help="Path to data/autodoc-ledger.json")
+    parser.add_argument("--out", help="Path where issue-spec JSON should be written")
+    args = parser.parse_args(argv)
+
+    report_path = Path(args.report)
+    report_text = report_path.read_text(encoding="utf-8")
+    ledger = load_ledger(args.ledger)
+    issue_specs = route_report(report_text, report_path.name, ledger)
+
+    if args.out:
+        out_path = Path(args.out)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text(json.dumps(issue_specs, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        print(f"Wrote {len(issue_specs)} issue spec(s) to {out_path}")
+    else:
+        print(json.dumps(issue_specs, indent=2, sort_keys=True))
+
+    autodraft = sum(1 for spec in issue_specs if spec["route"] == "autodraft")
+    human = sum(1 for spec in issue_specs if spec["route"] == "human")
+    print(f"Autodoc route summary: total={len(issue_specs)} autodraft={autodraft} human={human}")
+    return 0
+
+
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except (AttributeError, ValueError):  # pragma: no cover
+        pass
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,0 +1,360 @@
+name: Autodoc Verify
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, labeled, ready_for_review]
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: Pull request number to verify
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: read
+  issues: read
+
+jobs:
+  autodoc-verify:
+    name: autodoc-verify
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Resolve PR metadata (API only)
+        id: meta
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_PR: ${{ inputs.pr || '' }}
+          EVENT_PR: ${{ github.event.pull_request.number || '' }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          mkdir -p .autodoc
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            PR_NUMBER="$INPUT_PR"
+          else
+            PR_NUMBER="$EVENT_PR"
+          fi
+          if [ -z "$PR_NUMBER" ]; then
+            echo "Unable to determine pull request number." >&2
+            exit 1
+          fi
+
+          gh api "repos/$REPO/pulls/$PR_NUMBER" > .autodoc/pr-meta.json
+          gh api "repos/$REPO/issues/$PR_NUMBER/labels?per_page=100" > .autodoc/pr-labels.json
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          pr = json.loads(Path(".autodoc/pr-meta.json").read_text(encoding="utf-8"))
+          labels = json.loads(Path(".autodoc/pr-labels.json").read_text(encoding="utf-8"))
+          label_names = {label["name"] for label in labels if isinstance(label, dict) and "name" in label}
+          head_ref = pr["head"]["ref"]
+          is_autodoc = head_ref.startswith("copilot/") and "autodoc" in label_names
+
+          output = Path(os.environ["GITHUB_OUTPUT"])
+          with output.open("a", encoding="utf-8") as handle:
+              handle.write(f"pr={pr['number']}\n")
+              handle.write(f"head_ref={head_ref}\n")
+              handle.write(f"head_sha={pr['head']['sha']}\n")
+              handle.write(f"head_repo={pr['head']['repo']['full_name']}\n")
+              handle.write(f"is_autodoc={str(is_autodoc).lower()}\n")
+          print(f"PR #{pr['number']} head={head_ref} labels={sorted(label_names)} is_autodoc={is_autodoc}")
+          PY
+
+      - name: Shim success for non-autodoc PRs
+        if: steps.meta.outputs.is_autodoc != 'true'
+        run: |
+          echo "non-autodoc PR; shim success"
+
+      - name: Refuse autodoc PRs while disabled
+        if: steps.meta.outputs.is_autodoc == 'true' && vars.AUTODOC_ENABLED != 'true'
+        run: |
+          echo "Autodoc PRs must not exist while AUTODOC_ENABLED is not 'true'." >&2
+          exit 1
+
+      - name: Refuse forked autodoc PRs
+        if: steps.meta.outputs.is_autodoc == 'true' && vars.AUTODOC_ENABLED == 'true' && steps.meta.outputs.head_repo != github.repository
+        run: |
+          echo "Autodoc verification only supports same-repository copilot/* PRs." >&2
+          exit 1
+
+      - name: Generate GitHub App token
+        id: app-token
+        if: steps.meta.outputs.is_autodoc == 'true' && vars.AUTODOC_ENABLED == 'true'
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          permission-contents: read
+          permission-pull-requests: read
+          permission-issues: write
+
+      - name: Checkout base scripts only
+        if: steps.meta.outputs.is_autodoc == 'true' && vars.AUTODOC_ENABLED == 'true'
+        uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Set up Python
+        if: steps.meta.outputs.is_autodoc == 'true' && vars.AUTODOC_ENABLED == 'true'
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install verifier dependencies
+        if: steps.meta.outputs.is_autodoc == 'true' && vars.AUTODOC_ENABLED == 'true'
+        run: pip install -r scripts/requirements.txt
+
+      - name: Extract contract and preflight changed paths (API only)
+        id: contract
+        if: steps.meta.outputs.is_autodoc == 'true' && vars.AUTODOC_ENABLED == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ steps.meta.outputs.pr }}
+          HEAD_REPO: ${{ steps.meta.outputs.head_repo }}
+        run: |
+          set -euo pipefail
+          mkdir -p .autodoc
+          gh api "repos/$REPO/pulls/$PR_NUMBER" > .autodoc/pr-meta.json
+          python - <<'PY'
+          from __future__ import annotations
+
+          import fnmatch
+          import json
+          import os
+          import re
+          import subprocess
+          import urllib.parse
+          from pathlib import Path, PurePosixPath
+
+          def _linked_issue_number(body: str) -> int | None:
+              match = re.search(r"\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)\b", body, re.IGNORECASE)
+              return int(match.group(1)) if match else None
+
+          def _fetch_issue(repository: str, number: int) -> dict:
+              return _gh_json(f"repos/{repository}/issues/{number}")
+
+          def _find_issue_by_fingerprint(repository: str, fingerprint_value: str) -> dict | None:
+              query = f'repo:{repository} type:issue "AUTODOC-FINGERPRINT: {fingerprint_value}"'
+              endpoint = "search/issues?q=" + urllib.parse.quote(query) + "&per_page=5"
+              search = _gh_json(endpoint)
+              for item in search.get("items", []):
+                  body = item.get("body") or ""
+                  if f"AUTODOC-FINGERPRINT: {fingerprint_value}" in body:
+                      return item
+              return None
+
+          def _extract_contract(issue_body: str, fingerprint_value: str) -> dict:
+              for match in re.finditer(r"```json\s*(\{.*?\})\s*```", issue_body, re.DOTALL):
+                  try:
+                      contract_obj = json.loads(match.group(1))
+                  except json.JSONDecodeError:
+                      continue
+                  if contract_obj.get("fingerprint") == fingerprint_value:
+                      return contract_obj
+              raise SystemExit("Linked issue does not contain a JSON contract matching the PR fingerprint.")
+
+          def _preflight_paths(paths: list[str], contract_obj: dict) -> None:
+              allowed = {_safe_repo_path(path) for path in contract_obj.get("allowed_files", [])}
+              forbidden = [_safe_repo_glob(pattern) for pattern in contract_obj.get("forbidden_paths", [])]
+              failures: list[str] = []
+              for path in sorted(set(paths)):
+                  if not path.endswith(".md"):
+                      failures.append(f"{path}: only Markdown files may be fetched under pull_request_target")
+                  if path not in allowed:
+                      failures.append(f"{path}: not listed in contract allowed_files")
+                  matched = next((pattern for pattern in forbidden if _matches(path, pattern)), None)
+                  if matched:
+                      failures.append(f"{path}: matches forbidden_paths pattern {matched}")
+              if failures:
+                  raise SystemExit("Changed-file preflight failed:\n" + "\n".join(failures))
+
+          def _safe_repo_path(path: str) -> str:
+              normalized = path.replace("\\", "/").strip().lstrip("/")
+              while normalized.startswith("./"):
+                  normalized = normalized[2:]
+              if not normalized or any(part in {"", ".", ".."} for part in normalized.split("/")):
+                  raise SystemExit(f"Unsafe repository path: {path}")
+              return normalized
+
+          def _safe_repo_glob(pattern: str) -> str:
+              return pattern.replace("\\", "/").strip().lstrip("/")
+
+          def _matches(path: str, pattern: str) -> bool:
+              return fnmatch.fnmatchcase(path, pattern) or PurePosixPath(path).match(pattern)
+
+          def _gh_json(endpoint: str) -> dict:
+              completed = subprocess.run(["gh", "api", endpoint], check=True, capture_output=True, text=True)
+              return json.loads(completed.stdout)
+
+          repo = os.environ["REPO"]
+          head_repo = os.environ["HEAD_REPO"]
+          if head_repo != repo:
+              raise SystemExit(f"Autodoc PR head repo must be {repo}; got {head_repo}.")
+
+          work = Path(".autodoc")
+          pr = json.loads((work / "pr-meta.json").read_text(encoding="utf-8"))
+          base_sha = pr["base"]["sha"]
+          head_sha = pr["head"]["sha"]
+          pr_body = pr.get("body") or ""
+          (work / "pr-body.txt").write_text(pr_body, encoding="utf-8")
+
+          fingerprint_match = re.search(r"^AUTODOC-FINGERPRINT:\s*(\S+)\s*$", pr_body, re.MULTILINE)
+          if not fingerprint_match:
+              raise SystemExit("PR body is missing AUTODOC-FINGERPRINT.")
+          fingerprint = fingerprint_match.group(1)
+
+          issue_number = _linked_issue_number(pr_body)
+          issue = _fetch_issue(repo, issue_number) if issue_number else _find_issue_by_fingerprint(repo, fingerprint)
+          if not issue:
+              raise SystemExit("Could not find linked autodoc issue by Closes # reference or fingerprint search.")
+
+          contract = _extract_contract(issue.get("body") or "", fingerprint)
+          report_path = _safe_repo_path(str(contract.get("report_path", "")))
+          if not report_path.startswith("reports/monitoring/"):
+              raise SystemExit(f"Contract report_path must be under reports/monitoring/: {report_path}")
+          if not Path(report_path).is_file():
+              raise SystemExit(f"Contract report_path does not exist on base checkout: {report_path}")
+
+          compare = _gh_json(f"repos/{repo}/compare/{base_sha}...{head_sha}")
+          changed_files = compare.get("files", [])
+          if len(changed_files) >= 300:
+              raise SystemExit("Changed-file preflight reached the GitHub compare file-list cap; failing closed.")
+          fetch_paths: list[str] = []
+          preflight_paths: list[str] = []
+          status_failures: list[str] = []
+          for item in changed_files:
+              path = _safe_repo_path(item["filename"])
+              fetch_paths.append(path)
+              preflight_paths.append(path)
+              if item.get("previous_filename"):
+                  preflight_paths.append(_safe_repo_path(item["previous_filename"]))
+              if item.get("status") not in {"added", "modified"}:
+                  status_failures.append(f"{path}: unsupported file status {item.get('status')}")
+          if status_failures:
+              raise SystemExit("Changed-file preflight failed:\n" + "\n".join(status_failures))
+          _preflight_paths(preflight_paths, contract)
+
+          (work / "contract.json").write_text(json.dumps(contract, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          (work / "changed-files.json").write_text(json.dumps(fetch_paths, indent=2) + "\n", encoding="utf-8")
+          with Path(os.environ["GITHUB_OUTPUT"]).open("a", encoding="utf-8") as handle:
+              handle.write(f"report_path={report_path}\n")
+              handle.write(f"issue_number={issue['number']}\n")
+              handle.write(f"base_sha={base_sha}\n")
+              handle.write(f"head_sha={head_sha}\n")
+          print(f"Contract fingerprint {fingerprint} from issue #{issue['number']}; {len(fetch_paths)} changed file(s) passed preflight.")
+          PY
+
+      - name: Fetch diff and allowed PR head markdown files
+        if: steps.meta.outputs.is_autodoc == 'true' && vars.AUTODOC_ENABLED == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          REPO: ${{ github.repository }}
+          BASE_SHA: ${{ steps.contract.outputs.base_sha }}
+          HEAD_SHA: ${{ steps.contract.outputs.head_sha }}
+        run: |
+          set -euo pipefail
+          gh api -H "Accept: application/vnd.github.v3.diff" "repos/$REPO/compare/$BASE_SHA...$HEAD_SHA" > .autodoc/pr.diff
+          python - <<'PY'
+          from __future__ import annotations
+
+          import json
+          import os
+          import shutil
+          import subprocess
+          import urllib.parse
+          from pathlib import Path
+
+          repo = os.environ["REPO"]
+          head_sha = os.environ["HEAD_SHA"]
+          paths = json.loads(Path(".autodoc/changed-files.json").read_text(encoding="utf-8"))
+          head_dir = Path(".autodoc/head")
+          if head_dir.exists():
+              shutil.rmtree(head_dir)
+          head_dir.mkdir(parents=True)
+
+          verifier_script = head_dir / "scripts" / "verify_language_rules.py"
+          verifier_script.parent.mkdir(parents=True)
+          shutil.copyfile(Path("scripts/verify_language_rules.py"), verifier_script)
+
+          for path in paths:
+              encoded_path = urllib.parse.quote(path, safe="/")
+              endpoint = f"repos/{repo}/contents/{encoded_path}?ref={urllib.parse.quote(head_sha, safe='')}"
+              completed = subprocess.run(
+                  ["gh", "api", "-H", "Accept: application/vnd.github.raw", endpoint],
+                  check=True,
+                  capture_output=True,
+              )
+              target = head_dir / Path(*path.split("/"))
+              target.parent.mkdir(parents=True, exist_ok=True)
+              target.write_bytes(completed.stdout)
+              print(f"Fetched {path} from PR head via Contents API.")
+          PY
+
+      - name: Run autodoc verify gate
+        id: gate
+        if: steps.meta.outputs.is_autodoc == 'true' && vars.AUTODOC_ENABLED == 'true'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          set +e
+          python scripts/autodoc_verify_gate.py \
+            --contract .autodoc/contract.json \
+            --report "${{ steps.contract.outputs.report_path }}" \
+            --diff .autodoc/pr.diff \
+            --head-dir .autodoc/head \
+            --pr-body .autodoc/pr-body.txt \
+            --out .autodoc/gate.json
+          CODE=$?
+          set -e
+          echo "exit_code=$CODE" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Label and comment for human review
+        if: steps.meta.outputs.is_autodoc == 'true' && vars.AUTODOC_ENABLED == 'true' && steps.gate.outputs.exit_code == '2'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          PR_NUMBER: ${{ steps.meta.outputs.pr }}
+        run: |
+          set -euo pipefail
+          gh label create "needs-review" --color fbca04 --description "Needs human review" || true
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          gate = json.loads(Path(".autodoc/gate.json").read_text(encoding="utf-8"))
+          body = "\n".join(
+              [
+                  "Autodoc verification needs human review.",
+                  "",
+                  f"Summary: {gate.get('summary', 'No summary available.')}",
+                  "",
+                  "The autodoc-verify check fails closed until a human reviews this PR.",
+              ]
+          )
+          Path(".autodoc/needs-human-comment.md").write_text(body + "\n", encoding="utf-8")
+          PY
+          gh issue comment "$PR_NUMBER" --body-file .autodoc/needs-human-comment.md
+          gh issue edit "$PR_NUMBER" --add-label "needs-review"
+
+      - name: Enforce gate result
+        if: steps.meta.outputs.is_autodoc == 'true' && vars.AUTODOC_ENABLED == 'true'
+        env:
+          EXIT_CODE: ${{ steps.gate.outputs.exit_code }}
+        run: |
+          # Copilot-authored PRs may still need a write-access token such as
+          # COPILOT_ASSIGN_TOKEN to approve downstream CI runs. This
+          # pull_request_target gate runs from base and does not execute PR code,
+          # so it is not subject to that approval gate itself.
+          if [ "$EXIT_CODE" = "0" ]; then
+            echo "autodoc-verify passed"
+            exit 0
+          fi
+          echo "autodoc-verify failed with gate exit code $EXIT_CODE" >&2
+          exit "$EXIT_CODE"
