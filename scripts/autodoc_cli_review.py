@@ -141,16 +141,15 @@ def main(argv: list[str] | None = None) -> int:
 def _default_runner(prompt: str, model: str, timeout: int) -> str:
     """Invoke the GitHub Copilot CLI headlessly and return its response text.
 
-    Non-interactive (``-p``) requires ``--allow-all-tools`` so the run never blocks on a
-    permission prompt; ``write`` and ``shell`` are denied so a review can never mutate the
-    repo. The reviewer needs no tools — all data is supplied inline in the prompt.
+    The prompt is piped via STDIN (not a ``-p`` argument): the report + diff can exceed the
+    Windows command-line length limit (~32 KB → WinError 206). ``--allow-all-tools`` keeps the
+    run from blocking on a permission prompt; ``write`` and ``shell`` are denied so a review can
+    never mutate the repo. The reviewer needs no tools — all data is supplied inline.
     """
 
     completed = subprocess.run(
         [
             COPILOT_BIN,
-            "-p",
-            prompt,
             "--model",
             model,
             "-s",
@@ -162,6 +161,7 @@ def _default_runner(prompt: str, model: str, timeout: int) -> str:
             "--deny-tool",
             "shell",
         ],
+        input=prompt,
         check=True,
         capture_output=True,
         text=True,
