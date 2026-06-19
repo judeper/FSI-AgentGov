@@ -31,9 +31,10 @@ REQUIRED_CONTRACT_KEYS = {
     "forbidden_paths",
 }
 
-# The independent cross-vendor LLM faithfulness verifier plugs in here from the
-# merge-gate wrapper. This deterministic module does not import SDKs or call
-# model APIs; an injected callable must return Finding objects.
+# The independent cross-model reviewer (a different GitHub Copilot model family,
+# invoked by the local runner) plugs in here from the merge-gate wrapper. This
+# deterministic module does not import SDKs or call model APIs; an injected
+# callable must return Finding objects.
 _LLM_HOOK = None
 
 

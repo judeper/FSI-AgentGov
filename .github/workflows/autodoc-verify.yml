@@ -300,8 +300,6 @@ jobs:
       - name: Run autodoc verify gate
         id: gate
         if: steps.meta.outputs.is_autodoc == 'true' && vars.AUTODOC_ENABLED == 'true'
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           set +e
           python scripts/autodoc_verify_gate.py \
@@ -348,10 +346,8 @@ jobs:
         env:
           EXIT_CODE: ${{ steps.gate.outputs.exit_code }}
         run: |
-          # Copilot-authored PRs may still need a write-access token such as
-          # COPILOT_ASSIGN_TOKEN to approve downstream CI runs. This
-          # pull_request_target gate runs from base and does not execute PR code,
-          # so it is not subject to that approval gate itself.
+          # This pull_request_target gate runs from the base ref and does not
+          # execute PR code, so it is safe as a branch-protection required check.
           if [ "$EXIT_CODE" = "0" ]; then
             echo "autodoc-verify passed"
             exit 0

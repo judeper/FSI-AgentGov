@@ -1,4 +1,4 @@
-"""Tests for the autodoc verification gate orchestrator."""
+"""Tests for the deterministic autodoc verification gate orchestrator."""
 
 from __future__ import annotations
 
@@ -48,32 +48,11 @@ def _det_fail(*_args: Any, **_kwargs: Any) -> dict[str, Any]:
     }
 
 
-def _llm_pass(*_args: Any, **_kwargs: Any) -> dict[str, Any]:
-    return {"verdict": "pass", "confidence": 0.99, "unsupported_claims": [], "overbroad_edits": [], "notes": ""}
-
-
-def _llm_fail(*_args: Any, **_kwargs: Any) -> dict[str, Any]:
-    return {
-        "verdict": "fail",
-        "confidence": 0.9,
-        "unsupported_claims": ["Unsupported date."],
-        "overbroad_edits": [],
-        "notes": "The diff goes beyond the report.",
-    }
-
-
-def _llm_raise(*_args: Any, **_kwargs: Any) -> dict[str, Any]:
+def _det_raise(*_args: Any, **_kwargs: Any) -> dict[str, Any]:
     raise RuntimeError("verifier unavailable")
 
 
-def test_run_gate_deterministic_fail_skips_llm() -> None:
-    llm_called = False
-
-    def llm_should_not_run(*_args: Any, **_kwargs: Any) -> dict[str, Any]:
-        nonlocal llm_called
-        llm_called = True
-        raise AssertionError("LLM verifier should not run after deterministic failure")
-
+def test_run_gate_deterministic_pass() -> None:
     result = gate.run_gate(
         _contract(),
         "Source report",
@@ -81,31 +60,41 @@ def test_run_gate_deterministic_fail_skips_llm() -> None:
         {ALLOWED_PATH: "# Test\n"},
         pr_body="AUTODOC-FINGERPRINT: sha256:test",
         repo_root=".",
-        api_key="test-key",
-        _det=_det_fail,
-        _llm=llm_should_not_run,
-    )
-
-    assert result["conclusion"] == "fail"
-    assert result["llm"] == {"verdict": "skipped", "reason": "deterministic_failed"}
-    assert llm_called is False
-
-
-def test_run_gate_deterministic_pass_llm_passes() -> None:
-    result = gate.run_gate(
-        _contract(),
-        "Source report",
-        "+Added claim",
-        {ALLOWED_PATH: "# Test\n"},
-        pr_body="AUTODOC-FINGERPRINT: sha256:test",
-        repo_root=".",
-        api_key="test-key",
         _det=_det_pass,
-        _llm=_llm_pass,
     )
 
     assert result["conclusion"] == "pass"
-    assert result["llm"]["verdict"] == "pass"
+    assert "llm" not in result
+
+
+def test_run_gate_deterministic_fail() -> None:
+    result = gate.run_gate(
+        _contract(),
+        "Source report",
+        "+Added claim",
+        {ALLOWED_PATH: "# Test\n"},
+        pr_body="AUTODOC-FINGERPRINT: sha256:test",
+        repo_root=".",
+        _det=_det_fail,
+    )
+
+    assert result["conclusion"] == "fail"
+    assert "blocking finding" in result["summary"]
+
+
+def test_run_gate_deterministic_exception_fails_closed() -> None:
+    result = gate.run_gate(
+        _contract(),
+        "Source report",
+        "+Added claim",
+        {ALLOWED_PATH: "# Test\n"},
+        pr_body="AUTODOC-FINGERPRINT: sha256:test",
+        repo_root=".",
+        _det=_det_raise,
+    )
+
+    assert result["conclusion"] == "fail"
+    assert result["deterministic"]["findings"][0]["check"] == "deterministic_exception"
 
 
 @pytest.fixture()
@@ -121,39 +110,22 @@ def workspace(request: pytest.FixtureRequest) -> Path:
 
 
 @pytest.mark.parametrize(
-    ("deterministic", "llm", "api_key", "expected_exit", "expected_conclusion", "expected_llm_called"),
+    ("deterministic", "expected_exit", "expected_conclusion"),
     [
-        (_det_fail, _llm_pass, "test-key", 1, "fail", False),
-        (_det_pass, _llm_pass, "test-key", 0, "pass", True),
-        (_det_pass, _llm_pass, "", 2, "needs_human", False),
-        (_det_pass, _llm_fail, "test-key", 1, "fail", True),
-        (_det_pass, _llm_raise, "test-key", 2, "needs_human", True),
+        (_det_fail, 1, "fail"),
+        (_det_pass, 0, "pass"),
     ],
 )
 def test_main_exit_codes(
     monkeypatch: pytest.MonkeyPatch,
     workspace: Path,
     deterministic: Any,
-    llm: Any,
-    api_key: str,
     expected_exit: int,
     expected_conclusion: str,
-    expected_llm_called: bool,
 ) -> None:
     paths = _write_cli_inputs(workspace)
-    llm_calls = 0
-
-    def counting_llm(*args: Any, **kwargs: Any) -> dict[str, Any]:
-        nonlocal llm_calls
-        llm_calls += 1
-        return llm(*args, **kwargs)
 
     monkeypatch.setattr(gate.autodoc_verify, "verify", deterministic)
-    monkeypatch.setattr(gate.autodoc_llm_verify, "verify", counting_llm)
-    if api_key:
-        monkeypatch.setenv("ANTHROPIC_API_KEY", api_key)
-    else:
-        monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
 
     exit_code = gate.main(
         [
@@ -175,7 +147,6 @@ def test_main_exit_codes(
     result = json.loads(paths["out"].read_text(encoding="utf-8"))
     assert exit_code == expected_exit
     assert result["conclusion"] == expected_conclusion
-    assert (llm_calls > 0) is expected_llm_called
 
 
 def _write_cli_inputs(workspace: Path) -> dict[str, Path]:

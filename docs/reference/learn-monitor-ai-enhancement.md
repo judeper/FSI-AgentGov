@@ -193,11 +193,13 @@ Human invokes the `/review-learn-changes` prompt for regulatory reports:
    - Creates triage summary (review vs. dismiss)
    - Human conducts detailed analysis
 
-### GitHub Actions Integration (Implemented — Stage 1, opt-in)
+### GitHub Actions Integration (Stage 1, opt-in — in progress)
 
 The unattended pipeline that drafts and independently verifies documentation updates is
-implemented and ships **off by default** (the `AUTODOC_ENABLED` repository variable).
-When enabled, it operates as a fail-closed, human-merge-gated loop:
+**being implemented** and ships **off by default** (the `AUTODOC_ENABLED` repository
+variable). The deterministic routing, verification, and safety guards are in place; the
+local GitHub Copilot CLI drafter that runs them on a schedule is being added. When complete
+and enabled, it operates as a fail-closed, human-merge-gated loop:
 
 1. The Learn Monitor's change report is classified by a deterministic, fail-closed
    classifier; changes that match known compliance-sensitive patterns (regulatory
@@ -205,15 +207,16 @@ When enabled, it operates as a fail-closed, human-merge-gated loop:
    existing control prose) are routed to a human, while the remaining mechanical changes
    are drafted by an agent — and even those still require independent verification and a
    human merge.
-2. The GitHub Copilot coding agent drafts the edit on a `copilot/*` pull request.
-3. A required check runs **two independent verifiers** — a deterministic one (path/section
-   allowlist, diff-minimality, claim-support, FSI language) and a **cross-vendor LLM
-   faithfulness verifier** (a different model family from the author) — and **both must
-   pass**. A missing verifier key fails closed (`needs_human`), never a silent pass.
+2. The GitHub Copilot CLI, run headless on a schedule, drafts the edit on a branch and
+   opens a pull request.
+3. A deterministic required check (path/section allowlist, diff-minimality, claim-support,
+   FSI language) must pass, and — before the pull request is opened — an **independent
+   review by a different Copilot model family** must approve. Both fail closed
+   (`needs_human`), never a silent pass.
 4. A **human merges** the change (CODEOWNERS). Content is never auto-merged in Stage 1
    (`automerge_eligible` is redirect-only); regulatory/compliance material stays
    triage-only and is never auto-authored.
-5. On verifier failure the draft is retried a bounded number of times, then **escalated to
+5. On verification failure the draft is retried a bounded number of times, then **escalated to
    a human**.
 
 Maintainer operations and provisioning are documented in
