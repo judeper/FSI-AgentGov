@@ -47,6 +47,8 @@ def patched(monkeypatch: pytest.MonkeyPatch) -> dict[str, list[Any]]:
 
     calls: dict[str, list[Any]] = {"pr": [], "escalate": [], "ledger": [], "git": []}
     monkeypatch.setattr(runner, "_git", lambda config, *args: calls["git"].append(args) or "")
+    monkeypatch.setattr(runner, "_untracked_files", lambda config: [])
+    monkeypatch.setattr(runner, "_reset_attempt", lambda config, base, new_untracked: calls["git"].append(("reset_attempt", tuple(new_untracked))))
     monkeypatch.setattr(runner, "_open_pr", lambda config, ctx, draft, verdict: calls["pr"].append(ctx.fingerprint) or "PR#1")
     monkeypatch.setattr(runner, "_escalate", lambda config, ctx, reason, details: calls["escalate"].append(reason) or "ISSUE#1")
     monkeypatch.setattr(runner, "_record_ledger", lambda config, ctx, state, detail: calls["ledger"].append((state, detail)))
@@ -201,7 +203,6 @@ def test_process_change_always_returns_to_base_branch(monkeypatch: pytest.Monkey
     # finally-block force-restores the base branch, discarding any failed draft edits
     assert ("checkout", "--force", "main") in patched["git"]
 
-
 # --- feedback text ---------------------------------------------------------------
 
 
@@ -284,3 +285,83 @@ def test_run_isolates_per_change_failure(monkeypatch: pytest.MonkeyPatch, tmp_pa
 
     assert result["outcomes"][0]["status"] == "error"
     assert "processing_error" in result["outcomes"][0]["detail"]
+
+
+class _FakeCompleted:
+    def __init__(self, returncode: int, stdout: str = "", stderr: str = "") -> None:
+        self.returncode = returncode
+        self.stdout = stdout
+        self.stderr = stderr
+
+
+def test_push_and_create_pr_raises_on_gh_failure(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(runner, "_git", lambda config, *args: "")
+    monkeypatch.setattr(runner.subprocess, "run", lambda *a, **k: _FakeCompleted(1, stderr="boom"))
+    with pytest.raises(RuntimeError, match="gh pr create failed"):
+        runner._push_and_create_pr(_config(tmp_path), _ctx(), "body")
+
+
+def test_escalate_raises_on_gh_failure(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(runner.subprocess, "run", lambda *a, **k: _FakeCompleted(1, stderr="boom"))
+    with pytest.raises(RuntimeError, match="gh issue create failed"):
+        runner._escalate(_config(tmp_path), _ctx(), "reason", "details")
+
+
+def test_open_pr_failure_does_not_record_pr_open(monkeypatch: pytest.MonkeyPatch, tmp_path: Path, patched: dict[str, list[Any]]) -> None:
+    monkeypatch.setattr(runner, "_run_draft", lambda config, ctx, feedback: _draft())
+    monkeypatch.setattr(runner, "_run_deterministic_verify", lambda config, ctx, draft: "pass")
+    monkeypatch.setattr(runner, "_run_cross_model_review", lambda config, ctx, draft: {"verdict": "pass"})
+
+    def failing_pr(config: Any, ctx: Any, draft: Any, verdict: Any) -> str:
+        raise RuntimeError("gh pr create failed (exit 1)")
+
+    monkeypatch.setattr(runner, "_open_pr", failing_pr)
+
+    with pytest.raises(RuntimeError):
+        runner.process_change(_config(tmp_path), _ctx())
+
+    # The ledger must NOT have been marked pr_open for a PR that never opened.
+    assert all(state != "pr_open" for state, _ in patched["ledger"])
+
+
+def test_reset_attempt_removes_only_new_untracked(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    git_calls: list[tuple[str, ...]] = []
+    monkeypatch.setattr(runner, "_git", lambda config, *args: git_calls.append(args) or "")
+    new_file = tmp_path / "docs" / "new.md"
+    new_file.parent.mkdir(parents=True)
+    new_file.write_text("drafted", encoding="utf-8")
+    preexisting = tmp_path / "user-notes.txt"
+    preexisting.write_text("keep me", encoding="utf-8")
+
+    runner._reset_attempt(_config(tmp_path), "main", ["docs/new.md"])
+
+    assert ("reset", "--hard", "main") in git_calls
+    assert not new_file.exists()  # draft-created file removed
+    assert preexisting.exists()  # pre-existing user file untouched
+
+
+def test_run_dedups_duplicate_fingerprints(monkeypatch: pytest.MonkeyPatch, tmp_path: Path, patched: dict[str, list[Any]]) -> None:
+    monkeypatch.setenv("AUTODOC_ENABLED", "true")
+    report = tmp_path / "report.md"
+    report.write_text("irrelevant", encoding="utf-8")
+    monkeypatch.setattr(runner, "_latest_report", lambda config: report)
+    monkeypatch.setattr(runner.autodoc_route, "load_ledger", lambda path: {"schema_version": 1, "changes": {}})
+    contract = {"fingerprint": "sha256:dup", "report_path": "reports/monitoring/learn-changes-x.md", "allowed_files": ["docs/x.md"]}
+    body = "```json\n" + json.dumps(contract) + "\n```"
+    spec = {"fingerprint": "sha256:dup", "route": "autodraft", "body": body, "title": "draft", "labels": ["autodoc"]}
+    monkeypatch.setattr(runner.autodoc_route, "route_report", lambda text, name, ledger: [spec, dict(spec)])
+    draft_calls = {"n": 0}
+
+    def draft(config: Any, ctx: Any, feedback: str) -> runner.DraftResult:
+        draft_calls["n"] += 1
+        return _draft()
+
+    monkeypatch.setattr(runner, "_run_draft", draft)
+    monkeypatch.setattr(runner, "_run_deterministic_verify", lambda config, ctx, d: "pass")
+    monkeypatch.setattr(runner, "_run_cross_model_review", lambda config, ctx, d: {"verdict": "pass"})
+
+    result = runner.run(_config(tmp_path))
+
+    statuses = [o["status"] for o in result["outcomes"]]
+    assert statuses == ["pr_opened", "skipped"]
+    assert draft_calls["n"] == 1  # second duplicate spec was not processed

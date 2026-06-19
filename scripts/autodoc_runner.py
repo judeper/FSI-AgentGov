@@ -93,6 +93,7 @@ class DraftResult:
     diff_text: str
     changed_files: list[str] = field(default_factory=list)
     notes: str = ""
+    new_untracked: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -122,12 +123,19 @@ def run(config: RunnerConfig) -> dict[str, Any]:
     specs = autodoc_route.route_report(report_text, report_path.name, ledger)
 
     outcomes: list[Outcome] = []
+    seen: set[str] = set()
     for spec in specs:
         try:
             ctx = _build_context(spec)
         except Exception as exc:  # noqa: BLE001 - a malformed spec must not crash the run.
             outcomes.append(Outcome(spec.get("fingerprint", "unknown"), "error", f"context_error: {exc}"))
             continue
+        if ctx.fingerprint in seen:
+            # Defensive de-duplication: the same fingerprint must be processed at most once
+            # per run, even if routing emitted duplicate rows for the same change.
+            outcomes.append(Outcome(ctx.fingerprint, "skipped", "duplicate fingerprint in this run"))
+            continue
+        seen.add(ctx.fingerprint)
         try:
             if ctx.route != "autodraft":
                 outcomes.append(_handle_human_change(config, ctx))
@@ -142,14 +150,18 @@ def run(config: RunnerConfig) -> dict[str, Any]:
 def process_change(config: RunnerConfig, ctx: ChangeContext) -> Outcome:
     """Draft → deterministic verify → cross-model review → PR, with bounded fix-retry."""
 
-    _git(config, "checkout", "-B", ctx.branch, config.base_branch)
+    base = config.base_branch
+    _git(config, "checkout", "-B", ctx.branch, base)
     attempts = 0
     feedback = ""
+    pending_untracked: list[str] = []
+    committed = False
     try:
         while True:
             draft = _run_draft(config, ctx, feedback)
+            pending_untracked = draft.new_untracked
             if draft.needs_human or not draft.changed_files:
-                return _escalate_and_reset(config, ctx, "draft_needs_human", draft.notes or "Drafter produced no usable edit.")
+                return _do_escalate(config, ctx, "draft_needs_human", draft.notes or "Drafter produced no usable edit.")
 
             deterministic = _run_deterministic_verify(config, ctx, draft)
             review_verdict: dict[str, Any] | None = None
@@ -159,22 +171,27 @@ def process_change(config: RunnerConfig, ctx: ChangeContext) -> Outcome:
             conclusion = _combine_conclusion(deterministic, review_verdict)
             if conclusion == "pass":
                 detail = _open_pr(config, ctx, draft, review_verdict or {})
+                committed = True
+                pending_untracked = []
                 _record_ledger(config, ctx, "pr_open", detail)
                 return Outcome(ctx.fingerprint, "pr_opened", detail)
 
             decision = autodoc_retry.decide(attempts, config.max_fix_cycles, conclusion)
             if decision["action"] != "retry":
-                return _escalate_and_reset(
+                return _do_escalate(
                     config, ctx, str(decision["reason"]), _feedback_text(deterministic, review_verdict)
                 )
 
             attempts += 1
             feedback = _feedback_text(deterministic, review_verdict)
-            _git(config, "reset", "--hard", config.base_branch)
+            _reset_attempt(config, base, pending_untracked)
+            pending_untracked = []
     finally:
-        # Force back to the base branch, discarding any uncommitted draft edits left by a
-        # failed/escalated attempt (a committed PR branch has nothing to discard).
-        _git(config, "checkout", "--force", config.base_branch)
+        # Discard any uncommitted attempt (and only the untracked files THIS draft created),
+        # then return to base. A committed PR branch keeps its commit (already pushed).
+        if not committed:
+            _reset_attempt(config, base, pending_untracked)
+        _git(config, "checkout", "--force", base)
 
 
 def _handle_human_change(config: RunnerConfig, ctx: ChangeContext) -> Outcome:
@@ -185,7 +202,9 @@ def _handle_human_change(config: RunnerConfig, ctx: ChangeContext) -> Outcome:
     return Outcome(ctx.fingerprint, "escalated", detail)
 
 
-def _escalate_and_reset(config: RunnerConfig, ctx: ChangeContext, reason: str, details: str) -> Outcome:
+def _do_escalate(config: RunnerConfig, ctx: ChangeContext, reason: str, details: str) -> Outcome:
+    """Open the escalation issue and record it; the working tree is cleaned in the finally block."""
+
     detail = _escalate(config, ctx, reason, details)
     _record_ledger(config, ctx, "escalated", detail)
     return Outcome(ctx.fingerprint, "escalated", f"{reason}: {detail}")
@@ -267,9 +286,15 @@ def _latest_report(config: RunnerConfig) -> Path | None:
 
 
 def _run_draft(config: RunnerConfig, ctx: ChangeContext, feedback: str) -> DraftResult:
-    """Drive the Copilot CLI to edit the allowed files in the working tree."""
+    """Drive the Copilot CLI to edit the allowed files in the working tree.
+
+    New untracked files the draft creates are captured (so they can be removed during
+    cleanup without touching pre-existing user files) and staged so the deterministic
+    verifier and review see them — its path allowlist then flags anything off-contract.
+    """
 
     prompt = _build_draft_prompt(ctx, feedback)
+    before_untracked = set(_untracked_files(config))
     completed = subprocess.run(
         [
             COPILOT_BIN,
@@ -290,10 +315,44 @@ def _run_draft(config: RunnerConfig, ctx: ChangeContext, feedback: str) -> Draft
         timeout=config.draft_timeout,
     )
     stdout = completed.stdout or ""
-    diff_text = _git(config, "diff", "--unified=3")
-    changed = [line for line in _git(config, "diff", "--name-only").splitlines() if line.strip()]
+    new_untracked = sorted(set(_untracked_files(config)) - before_untracked)
+    # Stage everything (incl. new files) so the full change set is verified/reviewed.
+    _git(config, "add", "-A")
+    diff_text = _git(config, "diff", "--cached", "--unified=3")
+    changed = [line for line in _git(config, "diff", "--cached", "--name-only").splitlines() if line.strip()]
     needs_human = NEEDS_HUMAN_MARKER in stdout or not changed
-    return DraftResult(needs_human=needs_human, diff_text=diff_text, changed_files=changed, notes=stdout[-2000:])
+    return DraftResult(
+        needs_human=needs_human,
+        diff_text=diff_text,
+        changed_files=changed,
+        notes=stdout[-2000:],
+        new_untracked=new_untracked,
+    )
+
+
+def _untracked_files(config: RunnerConfig) -> list[str]:
+    """Return repo-relative paths of untracked files (porcelain ?? entries)."""
+
+    output = _git(config, "status", "--porcelain", "--untracked-files=all")
+    paths: list[str] = []
+    for line in output.splitlines():
+        if line.startswith("?? "):
+            paths.append(line[3:].strip().strip('"'))
+    return paths
+
+
+def _reset_attempt(config: RunnerConfig, base: str, new_untracked: list[str]) -> None:
+    """Discard an uncommitted draft attempt: reset tracked changes and remove only the
+    untracked files THIS draft created (never pre-existing user files)."""
+
+    _git(config, "reset", "--hard", base)
+    for rel_path in new_untracked:
+        target = config.repo_path / rel_path
+        try:
+            if target.is_file():
+                target.unlink()
+        except OSError:
+            pass
 
 
 def _build_draft_prompt(ctx: ChangeContext, feedback: str) -> str:
@@ -405,7 +464,8 @@ def _open_pr(config: RunnerConfig, ctx: ChangeContext, draft: DraftResult, revie
     if config.dry_run:
         return f"dry-run: would open PR for {ctx.branch}"
     commit_message = f"docs(autodoc): {ctx.title}\n\nAUTODOC-FINGERPRINT: {ctx.fingerprint}"
-    _git(config, "add", *ctx.contract.get("allowed_files", []))
+    # The verified change set is already staged by _run_draft (git add -A) and the
+    # deterministic verifier confirmed only allowed_files changed, so commit the staged set.
     _git(config, "commit", "-m", commit_message)
     pr_body = (
         f"Automated documentation draft (human merge required).\n\n"
@@ -418,7 +478,7 @@ def _open_pr(config: RunnerConfig, ctx: ChangeContext, draft: DraftResult, revie
 
 
 def _push_and_create_pr(config: RunnerConfig, ctx: ChangeContext, pr_body: str) -> str:
-    """Live PR creation via gh; isolated so tests can monkeypatch it."""
+    """Live PR creation via gh; isolated so tests can monkeypatch it. Raises on failure."""
 
     _git(config, "push", "--set-upstream", "origin", ctx.branch)
     completed = subprocess.run(
@@ -444,7 +504,10 @@ def _push_and_create_pr(config: RunnerConfig, ctx: ChangeContext, pr_body: str) 
         text=True,
         cwd=str(config.repo_path),
     )
-    return (completed.stdout or completed.stderr or "").strip()
+    if completed.returncode != 0:
+        # Must raise so the ledger is NOT marked pr_open for a PR that was never created.
+        raise RuntimeError(f"gh pr create failed (exit {completed.returncode}): {(completed.stderr or '').strip()}")
+    return (completed.stdout or "").strip()
 
 
 def _escalate(config: RunnerConfig, ctx: ChangeContext, reason: str, details: str) -> str:
@@ -478,7 +541,10 @@ def _escalate(config: RunnerConfig, ctx: ChangeContext, reason: str, details: st
         text=True,
         cwd=str(config.repo_path),
     )
-    return (completed.stdout or completed.stderr or "").strip()
+    if completed.returncode != 0:
+        # Must raise so the ledger is NOT marked escalated for an issue that was never created.
+        raise RuntimeError(f"gh issue create failed (exit {completed.returncode}): {(completed.stderr or '').strip()}")
+    return (completed.stdout or "").strip()
 
 
 def _record_ledger(config: RunnerConfig, ctx: ChangeContext, state: str, detail: str) -> None:
