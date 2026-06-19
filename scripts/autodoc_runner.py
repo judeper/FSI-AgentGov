@@ -205,11 +205,13 @@ def process_change(config: RunnerConfig, ctx: ChangeContext) -> Outcome:
             _reset_attempt(config, base, baseline_untracked)
     finally:
         # Discard any uncommitted attempt and any untracked files the draft(s) created
-        # (relative to the branch-start baseline), then return to base. A committed PR
-        # branch keeps its commit (already pushed).
+        # (relative to the branch-start baseline), then leave the worktree on a DETACHED base
+        # HEAD. We must detach rather than `checkout main`: this runs inside a linked worktree
+        # and git forbids checking out a branch (main) that is already checked out in the
+        # primary worktree (`fatal: 'main' is already used by worktree ...`).
         if not committed:
             _reset_attempt(config, base, baseline_untracked)
-        _git(config, "checkout", "--force", base)
+        _git(config, "checkout", "--force", "--detach", base)
 
 
 def _handle_human_change(config: RunnerConfig, ctx: ChangeContext) -> Outcome:
