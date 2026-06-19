@@ -193,11 +193,13 @@ Human invokes the `/review-learn-changes` prompt for regulatory reports:
    - Creates triage summary (review vs. dismiss)
    - Human conducts detailed analysis
 
-### GitHub Actions Integration (Implemented — Stage 1, opt-in)
+### GitHub Actions Integration (Stage 1, opt-in — in progress)
 
 The unattended pipeline that drafts and independently verifies documentation updates is
-implemented and ships **off by default** (the `AUTODOC_ENABLED` repository variable).
-When enabled, it operates as a fail-closed, human-merge-gated loop:
+**being implemented** and ships **off by default** (the `AUTODOC_ENABLED` repository
+variable). The deterministic routing, verification, and safety guards are in place; the
+local GitHub Copilot CLI drafter that runs them on a schedule is being added. When complete
+and enabled, it operates as a fail-closed, human-merge-gated loop:
 
 1. The Learn Monitor's change report is classified by a deterministic, fail-closed
    classifier; changes that match known compliance-sensitive patterns (regulatory
