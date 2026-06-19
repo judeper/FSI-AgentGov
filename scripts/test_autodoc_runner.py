@@ -51,6 +51,46 @@ def test_default_timeouts_are_generous() -> None:
     assert runner.DEFAULT_REVIEW_TIMEOUT >= 300
 
 
+def test_read_allowed_files_inlines_small_skips_large_and_missing(tmp_path: Path) -> None:
+    (tmp_path / "docs").mkdir()
+    (tmp_path / "docs" / "small.md").write_text("small content", encoding="utf-8")
+    (tmp_path / "docs" / "big.md").write_text("x" * (runner.MAX_INLINE_FILE_CHARS + 1), encoding="utf-8")
+    ctx = runner.ChangeContext(
+        fingerprint="sha256:f",
+        route="autodraft",
+        contract={"allowed_files": ["docs/small.md", "docs/big.md", "docs/new.md"]},
+        report_path="reports/monitoring/learn-changes-x.md",
+        instructions="",
+        title="t",
+        labels=[],
+    )
+    contents = runner._read_allowed_files(runner.RunnerConfig(repo_path=tmp_path, draft_model="a", review_model="b"), ctx)
+    assert contents["docs/small.md"] == "small content"
+    assert contents["docs/big.md"] is None  # too large to inline
+    assert contents["docs/new.md"] is None  # does not exist yet
+
+
+def test_build_draft_prompt_inlines_content_and_forbids_exploration() -> None:
+    ctx = _ctx()
+    ctx.instructions = "EVIDENCE: redirect to https://new"
+    prompt = runner._build_draft_prompt(ctx, "", {"docs/x.md": "# Heading\nold url"})
+    assert "Current content of `docs/x.md`" in prompt
+    assert "old url" in prompt
+    assert "Do NOT read, search, list, or open any OTHER files" in prompt
+    assert "EVIDENCE: redirect to https://new" in prompt  # the issue body/evidence is included
+
+
+def test_build_draft_prompt_notes_non_inlined_files() -> None:
+    prompt = runner._build_draft_prompt(_ctx(), "", {"docs/huge.md": None})
+    assert "Open this file directly" in prompt
+
+
+def test_build_draft_prompt_includes_feedback_on_retry() -> None:
+    prompt = runner._build_draft_prompt(_ctx(), "Unsupported claim: bad date", {"docs/x.md": "content"})
+    assert "previous attempt was rejected" in prompt
+    assert "Unsupported claim: bad date" in prompt
+
+
 def _config(tmp_path: Path) -> runner.RunnerConfig:
     return runner.RunnerConfig(repo_path=tmp_path, draft_model="model-a", review_model="model-b", max_fix_cycles=2)
 

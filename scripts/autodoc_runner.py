@@ -45,6 +45,7 @@ DEFAULT_MAX_FIX_CYCLES = 2
 DEFAULT_DRAFT_TIMEOUT = 1200
 DEFAULT_REVIEW_TIMEOUT = 300
 NEEDS_HUMAN_MARKER = "AUTODOC-NEEDS-HUMAN"
+MAX_INLINE_FILE_CHARS = 60000
 _CONTRACT_RE = re.compile(r"```json\s*(?P<json>\{.*?\})\s*```", re.DOTALL)
 
 
@@ -308,18 +309,22 @@ def _latest_report(config: RunnerConfig) -> Path | None:
 def _run_draft(config: RunnerConfig, ctx: ChangeContext, feedback: str) -> DraftResult:
     """Drive the Copilot CLI to edit the allowed files in the working tree.
 
-    Everything the draft touches (including new untracked files) is staged with
-    ``git add -A`` so the deterministic verifier and the review see the full change set —
-    the path allowlist then flags anything off-contract. Cleanup of any files the draft
+    To keep drafts fast and deterministic, the current content of the allowed file(s) is
+    read and inlined into the prompt so the model can make a targeted edit WITHOUT exploring
+    the (large) worktree. Everything the draft touches (including new untracked files) is then
+    staged with ``git add -A`` so the deterministic verifier and the review see the full change
+    set — the path allowlist flags anything off-contract. Cleanup of any files the draft
     creates is handled by ``_reset_attempt`` against the branch-start baseline.
     """
 
-    prompt = _build_draft_prompt(ctx, feedback)
+    file_contents = _read_allowed_files(config, ctx)
+    prompt = _build_draft_prompt(ctx, feedback, file_contents)
+    # Pass the prompt via STDIN, not as a `-p` argument: inlined file content can exceed the
+    # Windows command-line length limit (~32 KB → WinError 206). Copilot CLI runs the piped
+    # prompt non-interactively and exits.
     completed = subprocess.run(
         [
             COPILOT_BIN,
-            "-p",
-            prompt,
             "--model",
             config.draft_model,
             "-s",
@@ -329,6 +334,7 @@ def _run_draft(config: RunnerConfig, ctx: ChangeContext, feedback: str) -> Draft
             "-C",
             str(config.repo_path),
         ],
+        input=prompt,
         check=False,
         capture_output=True,
         text=True,
@@ -340,6 +346,23 @@ def _run_draft(config: RunnerConfig, ctx: ChangeContext, feedback: str) -> Draft
     changed = [line for line in _git(config, "diff", "--cached", "--name-only").splitlines() if line.strip()]
     needs_human = NEEDS_HUMAN_MARKER in stdout or not changed
     return DraftResult(needs_human=needs_human, diff_text=diff_text, changed_files=changed, notes=stdout[-2000:])
+
+
+def _read_allowed_files(config: RunnerConfig, ctx: ChangeContext) -> dict[str, str | None]:
+    """Return current content for each allowed file (None when too large to inline or new)."""
+
+    contents: dict[str, str | None] = {}
+    for rel in ctx.contract.get("allowed_files", []):
+        path = config.repo_path / rel
+        try:
+            if path.is_file():
+                text = path.read_text(encoding="utf-8", errors="replace")
+                contents[rel] = text if len(text) <= MAX_INLINE_FILE_CHARS else None
+            else:
+                contents[rel] = None
+        except OSError:
+            contents[rel] = None
+    return contents
 
 
 def _untracked_files(config: RunnerConfig) -> list[str]:
@@ -373,13 +396,25 @@ def _reset_attempt(config: RunnerConfig, base: str, baseline_untracked: list[str
             pass
 
 
-def _build_draft_prompt(ctx: ChangeContext, feedback: str) -> str:
+def _build_draft_prompt(ctx: ChangeContext, feedback: str, file_contents: dict[str, str | None]) -> str:
     feedback_block = ""
     if feedback:
         feedback_block = (
             "\n\nA previous attempt was rejected by the verifiers. Correct exactly these problems "
             f"and make no other changes:\n{feedback}\n"
         )
+
+    files_block_parts: list[str] = []
+    for rel, content in file_contents.items():
+        if content is None:
+            files_block_parts.append(
+                f"\n### `{rel}`\nOpen this file directly in the working tree (it is too large to inline, "
+                "or it does not exist yet and must be created).\n"
+            )
+        else:
+            files_block_parts.append(f"\n### Current content of `{rel}`\n```markdown\n{content}\n```\n")
+    files_block = "".join(files_block_parts) or "\n(no allowed files resolved; do not edit anything)\n"
+
     return (
         "You are drafting a minimal, faithful documentation edit for a US financial-services "
         "compliance framework. Follow the authoring contract and task below EXACTLY. Edit only the "
@@ -387,7 +422,12 @@ def _build_draft_prompt(ctx: ChangeContext, feedback: str) -> str:
         "solely in the Learn change evidence — invent nothing. Use FSI-safe language (never "
         "'ensures compliance', 'guarantees', 'will prevent', 'eliminates risk'). If the evidence "
         f"does not support a concrete edit, print {NEEDS_HUMAN_MARKER} and make no file changes.\n\n"
-        f"{ctx.instructions}{feedback_block}\n\nMake the edits to the working tree now."
+        "IMPORTANT — work only from what is in this prompt. The current content of the file(s) you "
+        "may edit is provided below. Do NOT read, search, list, or open any OTHER files in the "
+        "repository; make a single targeted edit to the allowed file(s).\n\n"
+        f"{ctx.instructions}{feedback_block}\n\n"
+        f"## Files you may edit (current content)\n{files_block}\n"
+        "Apply the minimal edit to the allowed file(s) now."
     )
 
 
