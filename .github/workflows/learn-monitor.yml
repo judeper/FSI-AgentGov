@@ -39,6 +39,8 @@ jobs:
       - name: Run Learn Monitor
         id: monitor
         continue-on-error: true
+        env:
+          AUTODOC_ENABLED: ${{ vars.AUTODOC_ENABLED }}
         run: |
           # Check if this is a baseline run (no prior state file)
           # Check for unified state file OR old state file (for migration)
@@ -118,6 +120,7 @@ jobs:
           add-paths: |
             data/monitor-state.json
             data/monitor-state.json.backup
+            data/monitor-pending/learn/*.json
             reports/monitoring/*.md
           commit-message: |
             Learn Monitor: Update Microsoft Learn documentation tracking
@@ -239,8 +242,8 @@ jobs:
             > 💡 **Tip:** Run `/review-learn-changes` in Claude Code to automatically analyze changes and draft documentation updates.
 
       # --- Stage 0: consolidation + auto-merge of state-only monitoring PRs ---
-      # Learn-monitor PRs only ever touch data/monitor-state.json(.backup) and
-      # reports/monitoring/*.md (no customer-facing docs). The newest run carries
+      # Learn-monitor PRs only ever touch data/monitor-state.json(.backup),
+      # data/monitor-pending/learn/*.json, and reports/monitoring/*.md (no customer-facing docs). The newest run carries
       # the cumulative monitor-state.json baseline, so prior daily PRs are
       # superseded and safe to close; the newest is safe to auto-merge once the
       # required checks pass. See docs/reference/learn-monitor-guide.md.
@@ -289,7 +292,7 @@ jobs:
             exit 0
           fi
           NON_STATE=$(printf '%s\n' "$FILES" \
-            | grep -vcE '^data/monitor-state\.json(\.backup)?$|^reports/monitoring/.*\.md$' || true)
+            | grep -vcE '^data/monitor-state\.json(\.backup)?$|^data/monitor-pending/learn/[^/]+\.json$|^reports/monitoring/.*\.md$' || true)
           if [ "${NON_STATE:-1}" != "0" ]; then
             echo "::warning::PR #$NEW_PR contains non-state file(s) (count=${NON_STATE:-unknown}); skipping auto-merge (manual review required)."
             gh pr edit "$NEW_PR" --add-label needs-review || true
