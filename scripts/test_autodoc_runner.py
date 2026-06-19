@@ -202,8 +202,9 @@ def test_process_change_always_returns_to_base_branch(monkeypatch: pytest.Monkey
 
     runner.process_change(_config(tmp_path), _ctx())
 
-    # finally-block force-restores the base branch, discarding any failed draft edits
-    assert ("checkout", "--force", "main") in patched["git"]
+    # finally-block detaches at base (it runs inside a linked worktree, where checking out the
+    # base BRANCH would fail because it is already checked out in the primary worktree).
+    assert ("checkout", "--force", "--detach", "main") in patched["git"]
 
 
 def test_process_change_draft_exception_triggers_cleanup(monkeypatch: pytest.MonkeyPatch, tmp_path: Path, patched: dict[str, list[Any]]) -> None:
@@ -215,9 +216,9 @@ def test_process_change_draft_exception_triggers_cleanup(monkeypatch: pytest.Mon
     with pytest.raises(RuntimeError):
         runner.process_change(_config(tmp_path), _ctx())
 
-    # Even on a draft exception, the finally block cleans the attempt and returns to base.
+    # Even on a draft exception, the finally block cleans the attempt and detaches at base.
     assert any(isinstance(c, tuple) and c and c[0] == "reset_attempt" for c in patched["git"])
-    assert ("checkout", "--force", "main") in patched["git"]
+    assert ("checkout", "--force", "--detach", "main") in patched["git"]
 
 # --- feedback text ---------------------------------------------------------------
 
