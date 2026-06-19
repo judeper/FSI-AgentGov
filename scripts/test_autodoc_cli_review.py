@@ -179,7 +179,38 @@ def test_parse_verdict_top_level_list_fail_closed() -> None:
     assert review_mod.parse_verdict(raw)["verdict"] == "fail"
 
 
-def test_parse_verdict_nested_pass_inside_outer_fail_uses_outer() -> None:
+def test_parse_verdict_extra_keys_fail_closed() -> None:
+    # Extra keys are non-conforming and could smuggle findings past empty required lists.
+    raw = json.dumps(
+        {
+            "verdict": "pass",
+            "confidence": 0.9,
+            "unsupported_claims": [],
+            "overbroad_edits": [],
+            "notes": "",
+            "findings": ["Unsupported GA date"],
+        }
+    )
+    verdict = review_mod.parse_verdict(raw)
+    assert verdict["verdict"] == "fail"
+    assert verdict["unsupported_claims"] == ["reviewer_schema_error"]
+
+
+def test_parse_verdict_pass_with_nested_fail_in_extra_key_fail_closed() -> None:
+    raw = json.dumps(
+        {
+            "verdict": "pass",
+            "confidence": 0.9,
+            "unsupported_claims": [],
+            "overbroad_edits": [],
+            "notes": "",
+            "review": {"verdict": "fail", "unsupported_claims": ["Unsupported GA date"]},
+        }
+    )
+    assert review_mod.parse_verdict(raw)["verdict"] == "fail"
+
+
+def test_parse_verdict_outer_fail_with_extra_key_fail_closed() -> None:
     raw = json.dumps(
         {
             "verdict": "fail",
@@ -190,9 +221,13 @@ def test_parse_verdict_nested_pass_inside_outer_fail_uses_outer() -> None:
             "example": {"verdict": "pass"},
         }
     )
-    verdict = review_mod.parse_verdict(raw)
-    assert verdict["verdict"] == "fail"
-    assert verdict["unsupported_claims"] == ["Unsupported."]
+    # Extra "example" key → non-conforming → fail-closed (and was a fail anyway).
+    assert review_mod.parse_verdict(raw)["verdict"] == "fail"
+
+
+def test_parse_verdict_whitespace_padded_oversized_fail_closed() -> None:
+    raw = _pass_json() + (" " * (review_mod.MAX_OUTPUT_CHARS + 1))
+    assert review_mod.parse_verdict(raw)["verdict"] == "fail"
 
 
 def test_parse_verdict_trailing_prose_after_object_fail_closed() -> None:

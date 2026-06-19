@@ -49,6 +49,7 @@ _OUTPUT_CONTRACT = """Return ONLY a single JSON object (no prose, no code fences
 A "pass" requires that every added factual claim is directly supported by the source report. If anything is unsupported or broader than the source, the verdict MUST be "fail"."""
 
 _VALID_VERDICTS = {"pass", "fail"}
+_REQUIRED_KEYS = {"verdict", "confidence", "unsupported_claims", "overbroad_edits", "notes"}
 
 _EXIT_CODES = {"pass": 0, "fail": 1, "needs_human": 2}
 
@@ -183,8 +184,12 @@ def _extract_json_object(raw_output: str) -> dict[str, Any] | None:
 
     if not isinstance(raw_output, str):
         return None
+    if len(raw_output) > MAX_OUTPUT_CHARS:
+        # Check the raw length BEFORE stripping so whitespace-padded oversized output
+        # cannot shrink under the cap.
+        return None
     text = raw_output.strip()
-    if not text or len(text) > MAX_OUTPUT_CHARS:
+    if not text:
         return None
 
     # De-fence only when the ENTIRE output is exactly one fenced block (no prose outside),
@@ -231,6 +236,14 @@ def _coerce_verdict(payload: dict[str, Any]) -> Verdict:
     verdict = payload.get("verdict")
     if verdict not in _VALID_VERDICTS:
         return _fail_closed("reviewer_parse_error", "Model output did not include a valid pass/fail verdict.")
+
+    if set(payload.keys()) != _REQUIRED_KEYS:
+        # Enforce the exact contract shape: extra keys could smuggle findings or a nested
+        # fail verdict past a top-level "pass" with empty required lists.
+        return _fail_closed(
+            "reviewer_schema_error",
+            "Verdict object must contain exactly the contract keys and no others.",
+        )
 
     unsupported = payload.get("unsupported_claims")
     overbroad = payload.get("overbroad_edits")
