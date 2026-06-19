@@ -203,6 +203,20 @@ def test_process_change_always_returns_to_base_branch(monkeypatch: pytest.Monkey
     # finally-block force-restores the base branch, discarding any failed draft edits
     assert ("checkout", "--force", "main") in patched["git"]
 
+
+def test_process_change_draft_exception_triggers_cleanup(monkeypatch: pytest.MonkeyPatch, tmp_path: Path, patched: dict[str, list[Any]]) -> None:
+    def boom(config: Any, ctx: Any, feedback: str) -> runner.DraftResult:
+        raise RuntimeError("drafter timed out mid-write")
+
+    monkeypatch.setattr(runner, "_run_draft", boom)
+
+    with pytest.raises(RuntimeError):
+        runner.process_change(_config(tmp_path), _ctx())
+
+    # Even on a draft exception, the finally block cleans the attempt and returns to base.
+    assert any(isinstance(c, tuple) and c and c[0] == "reset_attempt" for c in patched["git"])
+    assert ("checkout", "--force", "main") in patched["git"]
+
 # --- feedback text ---------------------------------------------------------------
 
 
@@ -296,9 +310,34 @@ class _FakeCompleted:
 
 def test_push_and_create_pr_raises_on_gh_failure(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     monkeypatch.setattr(runner, "_git", lambda config, *args: "")
+    monkeypatch.setattr(runner, "_existing_pr_url", lambda config, ctx: None)
     monkeypatch.setattr(runner.subprocess, "run", lambda *a, **k: _FakeCompleted(1, stderr="boom"))
     with pytest.raises(RuntimeError, match="gh pr create failed"):
         runner._push_and_create_pr(_config(tmp_path), _ctx(), "body")
+
+
+def test_push_and_create_pr_returns_existing_pr_on_conflict(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(runner, "_git", lambda config, *args: "")
+    monkeypatch.setattr(runner.subprocess, "run", lambda *a, **k: _FakeCompleted(1, stderr="already exists"))
+    monkeypatch.setattr(runner, "_existing_pr_url", lambda config, ctx: "https://github.com/x/y/pull/9")
+    # gh pr create failed, but a PR already exists for this head → return it, do not raise.
+    assert runner._push_and_create_pr(_config(tmp_path), _ctx(), "body") == "https://github.com/x/y/pull/9"
+
+
+def test_push_and_create_pr_deletes_orphan_branch_on_failure(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(runner, "_git", lambda config, *args: "")
+    monkeypatch.setattr(runner, "_existing_pr_url", lambda config, ctx: None)
+    runs: list[tuple[Any, ...]] = []
+
+    def fake_run(args: Any, **kwargs: Any) -> "_FakeCompleted":
+        runs.append(tuple(args))
+        return _FakeCompleted(1, stderr="boom")
+
+    monkeypatch.setattr(runner.subprocess, "run", fake_run)
+    with pytest.raises(RuntimeError, match="gh pr create failed"):
+        runner._push_and_create_pr(_config(tmp_path), _ctx(), "body")
+    # The orphaned remote branch must be deleted before raising.
+    assert any("--delete" in r for r in runs)
 
 
 def test_escalate_raises_on_gh_failure(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
@@ -324,7 +363,7 @@ def test_open_pr_failure_does_not_record_pr_open(monkeypatch: pytest.MonkeyPatch
     assert all(state != "pr_open" for state, _ in patched["ledger"])
 
 
-def test_reset_attempt_removes_only_new_untracked(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+def test_reset_attempt_removes_only_leaked_untracked(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     git_calls: list[tuple[str, ...]] = []
     monkeypatch.setattr(runner, "_git", lambda config, *args: git_calls.append(args) or "")
     new_file = tmp_path / "docs" / "new.md"
@@ -332,8 +371,11 @@ def test_reset_attempt_removes_only_new_untracked(monkeypatch: pytest.MonkeyPatc
     new_file.write_text("drafted", encoding="utf-8")
     preexisting = tmp_path / "user-notes.txt"
     preexisting.write_text("keep me", encoding="utf-8")
+    # After the reset the working tree shows both as untracked; baseline contained only the
+    # pre-existing one, so only the draft-created file is leaked and removed.
+    monkeypatch.setattr(runner, "_untracked_files", lambda config: ["docs/new.md", "user-notes.txt"])
 
-    runner._reset_attempt(_config(tmp_path), "main", ["docs/new.md"])
+    runner._reset_attempt(_config(tmp_path), "main", ["user-notes.txt"])
 
     assert ("reset", "--hard", "main") in git_calls
     assert not new_file.exists()  # draft-created file removed

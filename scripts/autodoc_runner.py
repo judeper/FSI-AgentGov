@@ -93,7 +93,6 @@ class DraftResult:
     diff_text: str
     changed_files: list[str] = field(default_factory=list)
     notes: str = ""
-    new_untracked: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -152,14 +151,16 @@ def process_change(config: RunnerConfig, ctx: ChangeContext) -> Outcome:
 
     base = config.base_branch
     _git(config, "checkout", "-B", ctx.branch, base)
+    # Snapshot untracked files at branch start. Cleanup removes only files that appear
+    # AFTER this (the draft's), never pre-existing user files — and this baseline approach
+    # also cleans files left behind if a draft raises/times out mid-write.
+    baseline_untracked = _untracked_files(config)
     attempts = 0
     feedback = ""
-    pending_untracked: list[str] = []
     committed = False
     try:
         while True:
             draft = _run_draft(config, ctx, feedback)
-            pending_untracked = draft.new_untracked
             if draft.needs_human or not draft.changed_files:
                 return _do_escalate(config, ctx, "draft_needs_human", draft.notes or "Drafter produced no usable edit.")
 
@@ -172,7 +173,6 @@ def process_change(config: RunnerConfig, ctx: ChangeContext) -> Outcome:
             if conclusion == "pass":
                 detail = _open_pr(config, ctx, draft, review_verdict or {})
                 committed = True
-                pending_untracked = []
                 _record_ledger(config, ctx, "pr_open", detail)
                 return Outcome(ctx.fingerprint, "pr_opened", detail)
 
@@ -184,13 +184,13 @@ def process_change(config: RunnerConfig, ctx: ChangeContext) -> Outcome:
 
             attempts += 1
             feedback = _feedback_text(deterministic, review_verdict)
-            _reset_attempt(config, base, pending_untracked)
-            pending_untracked = []
+            _reset_attempt(config, base, baseline_untracked)
     finally:
-        # Discard any uncommitted attempt (and only the untracked files THIS draft created),
-        # then return to base. A committed PR branch keeps its commit (already pushed).
+        # Discard any uncommitted attempt and any untracked files the draft(s) created
+        # (relative to the branch-start baseline), then return to base. A committed PR
+        # branch keeps its commit (already pushed).
         if not committed:
-            _reset_attempt(config, base, pending_untracked)
+            _reset_attempt(config, base, baseline_untracked)
         _git(config, "checkout", "--force", base)
 
 
@@ -288,13 +288,13 @@ def _latest_report(config: RunnerConfig) -> Path | None:
 def _run_draft(config: RunnerConfig, ctx: ChangeContext, feedback: str) -> DraftResult:
     """Drive the Copilot CLI to edit the allowed files in the working tree.
 
-    New untracked files the draft creates are captured (so they can be removed during
-    cleanup without touching pre-existing user files) and staged so the deterministic
-    verifier and review see them — its path allowlist then flags anything off-contract.
+    Everything the draft touches (including new untracked files) is staged with
+    ``git add -A`` so the deterministic verifier and the review see the full change set —
+    the path allowlist then flags anything off-contract. Cleanup of any files the draft
+    creates is handled by ``_reset_attempt`` against the branch-start baseline.
     """
 
     prompt = _build_draft_prompt(ctx, feedback)
-    before_untracked = set(_untracked_files(config))
     completed = subprocess.run(
         [
             COPILOT_BIN,
@@ -315,38 +315,36 @@ def _run_draft(config: RunnerConfig, ctx: ChangeContext, feedback: str) -> Draft
         timeout=config.draft_timeout,
     )
     stdout = completed.stdout or ""
-    new_untracked = sorted(set(_untracked_files(config)) - before_untracked)
-    # Stage everything (incl. new files) so the full change set is verified/reviewed.
     _git(config, "add", "-A")
     diff_text = _git(config, "diff", "--cached", "--unified=3")
     changed = [line for line in _git(config, "diff", "--cached", "--name-only").splitlines() if line.strip()]
     needs_human = NEEDS_HUMAN_MARKER in stdout or not changed
-    return DraftResult(
-        needs_human=needs_human,
-        diff_text=diff_text,
-        changed_files=changed,
-        notes=stdout[-2000:],
-        new_untracked=new_untracked,
-    )
+    return DraftResult(needs_human=needs_human, diff_text=diff_text, changed_files=changed, notes=stdout[-2000:])
 
 
 def _untracked_files(config: RunnerConfig) -> list[str]:
-    """Return repo-relative paths of untracked files (porcelain ?? entries)."""
+    """Return repo-relative paths of untracked files (NUL-delimited, unicode-safe)."""
 
-    output = _git(config, "status", "--porcelain", "--untracked-files=all")
+    output = _git(config, "status", "--porcelain", "-z", "--untracked-files=all")
     paths: list[str] = []
-    for line in output.splitlines():
-        if line.startswith("?? "):
-            paths.append(line[3:].strip().strip('"'))
+    for entry in output.split("\x00"):
+        if entry.startswith("?? "):
+            paths.append(entry[3:])
     return paths
 
 
-def _reset_attempt(config: RunnerConfig, base: str, new_untracked: list[str]) -> None:
-    """Discard an uncommitted draft attempt: reset tracked changes and remove only the
-    untracked files THIS draft created (never pre-existing user files)."""
+def _reset_attempt(config: RunnerConfig, base: str, baseline_untracked: list[str]) -> None:
+    """Discard an uncommitted draft attempt: hard-reset tracked changes, then remove only the
+    untracked files that appeared since ``baseline_untracked`` (never pre-existing user files).
+
+    ``git reset --hard`` un-stages and reverts tracked edits but leaves draft-created files on
+    disk as untracked; computing the delta AFTER the reset also catches files a draft left
+    behind when it raised or timed out before staging.
+    """
 
     _git(config, "reset", "--hard", base)
-    for rel_path in new_untracked:
+    leaked = sorted(set(_untracked_files(config)) - set(baseline_untracked))
+    for rel_path in leaked:
         target = config.repo_path / rel_path
         try:
             if target.is_file():
@@ -478,9 +476,16 @@ def _open_pr(config: RunnerConfig, ctx: ChangeContext, draft: DraftResult, revie
 
 
 def _push_and_create_pr(config: RunnerConfig, ctx: ChangeContext, pr_body: str) -> str:
-    """Live PR creation via gh; isolated so tests can monkeypatch it. Raises on failure."""
+    """Live PR creation via gh; isolated so tests can monkeypatch it. Raises on failure.
 
-    _git(config, "push", "--set-upstream", "origin", ctx.branch)
+    The runner exclusively owns ``autodoc/<fingerprint>`` branches (the fingerprint is unique
+    per change and never human-touched), so a force push is safe and keeps re-pushes
+    idempotent after a discarded local attempt. If ``gh pr create`` fails but a PR already
+    exists for this head (a prior partial run), that existing PR is returned. Otherwise the
+    just-pushed orphan branch is removed so the next run starts clean, and the call raises.
+    """
+
+    _git(config, "push", "--force", "--set-upstream", "origin", ctx.branch)
     completed = subprocess.run(
         [
             "gh",
@@ -504,10 +509,36 @@ def _push_and_create_pr(config: RunnerConfig, ctx: ChangeContext, pr_body: str) 
         text=True,
         cwd=str(config.repo_path),
     )
-    if completed.returncode != 0:
-        # Must raise so the ledger is NOT marked pr_open for a PR that was never created.
-        raise RuntimeError(f"gh pr create failed (exit {completed.returncode}): {(completed.stderr or '').strip()}")
-    return (completed.stdout or "").strip()
+    if completed.returncode == 0:
+        return (completed.stdout or "").strip()
+
+    existing = _existing_pr_url(config, ctx)
+    if existing:
+        return existing
+
+    # No PR exists; drop the orphaned remote branch (best effort) and fail loudly so the
+    # ledger is NOT marked pr_open and the change is retried cleanly next run.
+    subprocess.run(
+        ["git", "-C", str(config.repo_path), "push", "origin", "--delete", ctx.branch],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    raise RuntimeError(f"gh pr create failed (exit {completed.returncode}): {(completed.stderr or '').strip()}")
+
+
+def _existing_pr_url(config: RunnerConfig, ctx: ChangeContext) -> str | None:
+    """Return the URL of an open PR for this branch head, or None."""
+
+    completed = subprocess.run(
+        ["gh", "pr", "view", ctx.branch, "--repo", _repo_slug(config), "--json", "url", "-q", ".url"],
+        check=False,
+        capture_output=True,
+        text=True,
+        cwd=str(config.repo_path),
+    )
+    url = (completed.stdout or "").strip()
+    return url if completed.returncode == 0 and url else None
 
 
 def _escalate(config: RunnerConfig, ctx: ChangeContext, reason: str, details: str) -> str:
