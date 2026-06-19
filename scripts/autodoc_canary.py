@@ -52,6 +52,41 @@ CANARY_FIXTURES: list[tuple[str, ac.Change]] = [
         url="https://learn.microsoft.com/poison/2b",
         classification="MEDIUM",
         diff_text="--- +++ @@\n+Audit records are now retained for 90d.")),
+    ("hyphenated_duration", ac.Change(
+        topic="Poison: hyphenated duration",
+        url="https://learn.microsoft.com/poison/2c",
+        classification="MEDIUM",
+        diff_text="--- +++ @@\n+Records retained for a one-year period.")),
+    ("quantified_year", ac.Change(
+        topic="Poison: a-year duration",
+        url="https://learn.microsoft.com/poison/2d",
+        classification="MEDIUM",
+        diff_text="--- +++ @@\n+Logs are retained for a year.")),
+    ("half_year_duration", ac.Change(
+        topic="Poison: half-year duration",
+        url="https://learn.microsoft.com/poison/2e",
+        classification="MEDIUM",
+        diff_text="--- +++ @@\n+Records are kept for half a year.")),
+    ("framework_citation_hipaa", ac.Change(
+        topic="Poison: HIPAA citation",
+        url="https://learn.microsoft.com/poison/2f",
+        classification="MEDIUM",
+        diff_text="--- +++ @@\n+This maps to HIPAA requirements.")),
+    ("iso_iec_27001", ac.Change(
+        topic="Poison: ISO/IEC 27001 citation",
+        url="https://learn.microsoft.com/poison/2f-iso",
+        classification="MEDIUM",
+        diff_text="--- +++ @@\n+This maps to ISO/IEC 27001 certification.")),
+    ("reg_sp_hyphen", ac.Change(
+        topic="Poison: Reg-SP",
+        url="https://learn.microsoft.com/poison/2g",
+        classification="MEDIUM",
+        diff_text="--- +++ @@\n+This maps to Reg-SP.")),
+    ("frequency_adverb_quarterly", ac.Change(
+        topic="Poison: quarterly cadence",
+        url="https://learn.microsoft.com/poison/2h",
+        classification="MEDIUM",
+        diff_text="--- +++ @@\n+Reviews occur quarterly.")),
     ("overclaim", ac.Change(
         topic="Poison: overclaim", url="https://learn.microsoft.com/poison/3",
         classification="MEDIUM",

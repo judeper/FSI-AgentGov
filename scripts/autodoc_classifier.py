@@ -76,16 +76,27 @@ _MONTH_PATTERN = (
     r"Dec(?:ember)?)(?:\.)?(?:\s+\d{1,2},?\s+\d{4}|\s+\d{4})?\b"
 )
 _NUMBER_WORD_PATTERN = (
-    r"(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|"
-    r"twenty|thirty|sixty|ninety|hundred)"
+    r"(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|"
+    r"twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|"
+    r"nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|"
+    r"hundred|thousand)"
 )
-_TIME_UNIT_PATTERN = r"(?:day|week|month|year|hour|minute)s?"
+_NUMBER_WORD_SEQUENCE = rf"{_NUMBER_WORD_PATTERN}(?:[\s-]+{_NUMBER_WORD_PATTERN})*"
+_TIME_UNIT_PATTERN = r"(?:day|week|month|quarter|year|hour|minute)s?"
+_FREQUENCY_PATTERN = (
+    r"(?:annually|biannually|semi-?annually|quarterly|monthly|weekly|daily)"
+)
+_RETENTION_STEM_PATTERN = (
+    r"(?:retain(?:ed|ing|s)?|retention|archiv\w*|preserv\w*|disposition)"
+)
 
 HARD_HUMAN_PATTERNS: dict[str, str] = {
     "regulatory_citation": (
-        r"\b(?:FINRA|SEC|SOX|GLBA|OCC|CFTC|FedRAMP)\b"
+        r"\b(?:FINRA|SEC|SOX|GLBA|OCC|CFTC|FedRAMP|HIPAA|CCPA|GDPR)\b"
+        r"|\bPCI[\s-]?DSS\b|\bNIST(?:[\s-]?SP)?[\s-]?\d[\d-]*\b"
+        r"|\bSOC[\s-]?2\b|\bISO(?:\s*/\s*IEC|[\s-]IEC)?[\s-]?27001\b"
         r"|\b17a-\d|\bSR\s*\d{2}-\d|\bBulletin\s+\d{4}-\d"
-        r"|\bRule\s+\d|\bReg(?:ulation)?\s+[A-Z]{1,3}(?:-[A-Z]{1,3})?\b"
+        r"|\bRule\s+\d|\bReg(?:ulation)?[\s-]+[A-Z]{1,3}(?:-[A-Z]{1,3})?\b"
         r"|\b\d+\s*CFR\b|\bFederal\s+Reserve\b"
     ),
     "date_or_deadline": (
@@ -98,8 +109,11 @@ HARD_HUMAN_PATTERNS: dict[str, str] = {
     "duration_or_retention": (
         rf"\b\d+\s*{_TIME_UNIT_PATTERN}\b"
         rf"|\b\d+\s*[ymwd]\b"
-        rf"|\b{_NUMBER_WORD_PATTERN}(?:\s*\(\s*\d+\s*\))?\s*{_TIME_UNIT_PATTERN}\b"
-        r"|\bretention\b|\blegal\s+hold\b"
+        rf"|\b{_NUMBER_WORD_SEQUENCE}(?:\s*\(\s*\d+\s*\))?[\s-]+{_TIME_UNIT_PATTERN}\b"
+        rf"|\ba\s+{_TIME_UNIT_PATTERN}\b"
+        rf"|\bhalf\s+a\s+{_TIME_UNIT_PATTERN}\b"
+        rf"|\b{_FREQUENCY_PATTERN}\b"
+        rf"|\b{_RETENTION_STEM_PATTERN}\b|\blegal\s+hold\b"
     ),
     "license_sku": (
         r"\b[AEFGP][1-5]\b|\bSKU\b|\blicens(?:e|ing)\b|\badd-?on\b"
@@ -130,6 +144,19 @@ KNOWN_TIERS = {"CRITICAL", "HIGH", "MEDIUM", "NOISE"}
 # Used only for the strict ``automerge_eligible`` gate (Stage 2), never for routing:
 # any bare number in added prose blocks unattended merge.
 NUMBER_PATTERN = re.compile(r"(?<![\w.])\d+(?![\w.])")
+
+_BENIGN_LINK_PATTERN = r"\[[^\]\n]{1,120}\]\(https?://[^\s)]+(?:\s+\"[^\"]{1,80}\")?\)"
+_BENIGN_LINE_PREFIX = r"(?:(?:[-*+]\s+)|(?:\d{1,2}[.)]\s+))?"
+_BENIGN_NEUTRAL_INTRO = (
+    r"(?:(?:see(?:\s+also)?|related|reference|references|learn\s+more|"
+    r"more\s+information|for\s+(?:more\s+)?(?:information|details),?\s+see)"
+    r":?\s+)?"
+)
+BENIGN_ADDED_LINE_RE = re.compile(
+    rf"^\s*{_BENIGN_LINE_PREFIX}{_BENIGN_NEUTRAL_INTRO}"
+    rf"{_BENIGN_LINK_PATTERN}(?:[.;])?\s*$",
+    re.IGNORECASE,
+)
 
 _COMPILED_HARD = {k: re.compile(v, re.IGNORECASE) for k, v in HARD_HUMAN_PATTERNS.items()}
 
@@ -212,19 +239,26 @@ def match_sensitive(text: str) -> dict[str, list]:
     return hits
 
 
+def _benign_added_lines_only(lines: list[str]) -> bool:
+    """True only when every non-blank addition is a strict URL cross-reference."""
+    nonblank = [line.strip() for line in lines if line.strip()]
+    return bool(nonblank) and all(BENIGN_ADDED_LINE_RE.fullmatch(line) for line in nonblank)
+
+
 # ---------------------------------------------------------------------------
 # Classification (the core, fail-closed decision)
 # ---------------------------------------------------------------------------
 def classify_change(change: Change) -> RoutingDecision:
     reasons: list[str] = []
-    added = "\n".join(added_lines(change.diff_text))
+    added_line_items = added_lines(change.diff_text)
+    added = "\n".join(added_line_items)
     additive = is_additive_only(change.diff_text)
     affects_control = bool(change.affected_controls)
     has_diff = bool(change.diff_text.strip())
     tier = change.classification.strip().upper()
 
-    # URL redirects are the single narrowest mechanical category: a pure URL-table
-    # update with no prose. They are the only changes eligible for unattended merge.
+    # URL redirects are a pure URL-table update with no prose. They remain an
+    # explicitly allowlisted unattended-merge special case.
     if change.kind == "redirect":
         return RoutingDecision(
             topic=change.topic, url=change.url, classification="REDIRECT",
@@ -264,6 +298,7 @@ def classify_change(change: Change) -> RoutingDecision:
         reasons.append("allowlisted additive non-control change with known non-CRITICAL tier")
 
     # --- automerge_eligible: requires positive gates, never just absence of deny hits ---
+    benign_added_lines = _benign_added_lines_only(added_line_items)
     automerge = (
         route == "autodraft"
         and tier in {"MEDIUM", "NOISE"}
@@ -271,13 +306,16 @@ def classify_change(change: Change) -> RoutingDecision:
         and not affects_control
         and not sensitive
         and not NUMBER_PATTERN.search(added)
+        and benign_added_lines
     )
     if route == "autodraft" and tier not in {"MEDIUM", "NOISE"}:
         reasons.append("automerge requires MEDIUM/NOISE tier")
     if route == "autodraft" and NUMBER_PATTERN.search(added):
         reasons.append("automerge blocked: added content contains a number")
+    if route == "autodraft" and not benign_added_lines:
+        reasons.append("automerge blocked: additions are not benign cross-references")
     if automerge:
-        reasons.append("automerge allowlisted: additive MEDIUM/NOISE non-control change")
+        reasons.append("automerge allowlisted: benign cross-reference-only addition")
 
     return RoutingDecision(
         topic=change.topic, url=change.url, classification=tier or change.classification,

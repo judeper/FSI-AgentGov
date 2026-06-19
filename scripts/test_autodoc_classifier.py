@@ -100,6 +100,27 @@ def test_duration_bypasses_route_to_human(text):
 
 
 @pytest.mark.parametrize(
+    "text,category",
+    [
+        ("Records retained for a one-year period.", "duration_or_retention"),
+        ("Logs are retained for a year.", "duration_or_retention"),
+        ("kept for half a year.", "duration_or_retention"),
+        ("Retention is one hundred eighty days.", "duration_or_retention"),
+        ("This maps to Reg-SP.", "regulatory_citation"),
+        (
+            "This maps to HIPAA / PCI DSS / CCPA / GDPR / NIST 800-53 / "
+            "SOC 2 / ISO 27001 requirements.",
+            "regulatory_citation",
+        ),
+        ("Reviews occur quarterly.", "duration_or_retention"),
+        ("Reviews occur annually.", "duration_or_retention"),
+    ],
+)
+def test_round2_confirmed_sensitive_paraphrases_route_to_human(text, category):
+    _assert_human_not_automerge(text, category)
+
+
+@pytest.mark.parametrize(
     "text",
     [
         "The deadline is Sept. 30, 2026.",
@@ -121,6 +142,7 @@ def test_date_bypasses_route_to_human(text):
         "This maps to Reg SCI obligations.",
         "This maps to Reg BI obligations.",
         "Records must follow 17 CFR 240.17a-4.",
+        "This maps to ISO/IEC 27001 certification.",
     ],
 )
 def test_regulatory_citation_bypasses_route_to_human(text):
@@ -287,6 +309,15 @@ def test_mechanical_addition_is_autodraft():
         "--- +++ @@\n+See the new agent governance overview for related guidance."
     ))
     assert d.route == "autodraft"
+    assert d.automerge_eligible is False
+    assert any("benign cross-references" in r for r in d.reasons)
+
+
+def test_benign_markdown_cross_reference_is_automerge_eligible():
+    d = ac.classify_change(_change(
+        "--- +++ @@\n+- See also: [Agent guidance](https://learn.microsoft.com/fwlink/link)"
+    ))
+    assert d.route == "autodraft"
     assert d.automerge_eligible is True
 
 
@@ -373,3 +404,19 @@ def test_0618_control_changes_and_summary_only_entries_fail_closed():
             assert d.automerge_eligible is False, f"{change.url} mis-promoted"
         if change.kind == "content" and not change.diff_text.strip():
             assert d.route != "autodraft", f"{change.url} summary-only autodraft"
+
+
+def test_0618_automerge_requires_benign_cross_reference_lines():
+    text = _load("learn-changes-2026-06-18.md")
+    if text is None:
+        pytest.skip("fixture report not present")
+    for change in ac.parse_report(text):
+        d = ac.classify_change(change)
+        if d.affects_control:
+            assert d.automerge_eligible is False, f"{change.url} control mis-promoted"
+        if d.automerge_eligible:
+            if d.kind == "redirect":
+                continue
+            nonblank = [line.strip() for line in ac.added_lines(change.diff_text) if line.strip()]
+            assert nonblank, f"{change.url} automerge without added cross-reference"
+            assert all(ac.BENIGN_ADDED_LINE_RE.fullmatch(line) for line in nonblank), d.url
