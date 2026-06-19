@@ -193,12 +193,31 @@ Human invokes the `/review-learn-changes` prompt for regulatory reports:
    - Creates triage summary (review vs. dismiss)
    - Human conducts detailed analysis
 
-### Future Enhancements (Optional)
+### GitHub Actions Integration (Implemented — Stage 1, opt-in)
 
-**GitHub Actions Integration:**
-- Automated invocation of AI review on PR creation
-- Requires authenticated model access in GitHub Actions
-- Cost vs. benefit evaluation needed
+The unattended pipeline that drafts and independently verifies documentation updates is
+implemented and ships **off by default** (the `AUTODOC_ENABLED` repository variable).
+When enabled, it operates as a fail-closed, human-merge-gated loop:
+
+1. The Learn Monitor's change report is classified by a deterministic, fail-closed
+   classifier; changes that match known compliance-sensitive patterns (regulatory
+   citations, dates/durations, license SKUs, deprecations, policy language, or edits to
+   existing control prose) are routed to a human, while the remaining mechanical changes
+   are drafted by an agent — and even those still require independent verification and a
+   human merge.
+2. The GitHub Copilot coding agent drafts the edit on a `copilot/*` pull request.
+3. A required check runs **two independent verifiers** — a deterministic one (path/section
+   allowlist, diff-minimality, claim-support, FSI language) and a **cross-vendor LLM
+   faithfulness verifier** (a different model family from the author) — and **both must
+   pass**. A missing verifier key fails closed (`needs_human`), never a silent pass.
+4. A **human merges** the change (CODEOWNERS). Content is never auto-merged in Stage 1
+   (`automerge_eligible` is redirect-only); regulatory/compliance material stays
+   triage-only and is never auto-authored.
+5. On verifier failure the draft is retried a bounded number of times, then **escalated to
+   a human**.
+
+Maintainer operations and provisioning are documented in
+`.github/AUTODOC-RUNBOOK.md` (not part of the published site).
 
 ---
 
