@@ -120,15 +120,17 @@ Human invokes the `/review-learn-changes` prompt for regulatory reports:
 
 #### 2. Change Categories Handled
 
-**Learn Changes (Auto-Draft):**
+**Learn Changes — how the classifier routes each:**
 
-| Change Type | AI Action |
-|-------------|-----------|
-| UI navigation step changes | Update portal-walkthrough.md playbooks |
-| Date/deadline changes | Update affected controls and playbooks |
-| Feature GA/deprecation | Add/update info boxes in controls |
-| Policy language changes | Flag for human review (don't auto-edit) |
-| New documentation pages | Create cross-reference entries |
+| Change Type | Routing |
+|-------------|---------|
+| UI navigation / portal path changes | Auto-draft (playbook update) |
+| Button / menu renames | Auto-draft (playbook UI references) |
+| URL redirects | Auto-draft (`microsoft-learn-urls.md`) |
+| Date / deadline changes | **Human review** (compliance-sensitive timing) |
+| Feature GA / deprecation | **Human review** (status / obligation changes) |
+| Policy / regulatory language | **Human review** (never auto-edited) |
+| Edits to existing control prose | **Human review** (control text) |
 
 **Regulatory Changes (Triage Only):**
 
@@ -282,33 +284,26 @@ independent review before a pull request is opened.
 
 ## Usage Examples
 
-### Example 1: Learn Changes with Auto-Draft
+### Example 1: Learn Changes — autonomous routing
 
-```bash
-# User invokes prompt
-/review-learn-changes
+The scheduled runner routes the latest report in a disposable worktree. Mechanical changes
+are drafted (a PR opens for a human to merge); compliance-sensitive changes are escalated
+(an issue opens, no draft).
 
-# Prompt analyzes report
+```
 Reading reports/monitoring/learn-changes-2026-02-01.md...
+Found 31 changes.
 
-Found 31 HIGH priority changes affecting 15 controls.
+Auto-drafted → PR opened for human merge:
+1. Control 1.1 playbook: portal navigation path updated (UI step change)
+2. microsoft-learn-urls.md: 3 redirected URLs updated
 
-Proposed Updates:
-1. Control 3.9: Update Sentinel deadline (July 2026 → March 31, 2027)
-2. Controls 1.1, 1.5, 1.6: Add Agent Essentials cross-references
-...
+Escalated → issue opened for human review (no draft):
+1. Control 3.9: Sentinel deadline change (July 2026 → March 31, 2027)
+   — dates/deadlines are compliance-sensitive and are never auto-drafted
+2. Feature X deprecation — obligation change, routed to human
 
-Do you want me to apply these 12 updates?
-
-# User approves
-Yes, apply them
-
-# Prompt applies edits and validates
-Applied 12 updates across 8 files
-✓ mkdocs build --strict passed
-
-Recommendation: Review changes and commit with:
-"docs: Apply Learn Monitor updates from 2026-02-01 report"
+Each drafted PR carries the deterministic + cross-model review verdict; a human merges.
 ```
 
 ### Example 2: Regulatory Changes with Triage
