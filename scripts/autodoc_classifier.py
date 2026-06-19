@@ -10,8 +10,9 @@ this decides, for each detected change, whether it is:
                                documentation edit (a human still merges at Stage 1).
   * ``route = "human"``     -> must be analyzed by a human; no agent draft.
 
-and, separately, whether the change is ``automerge_eligible`` -- the much stricter
-gate that a future Stage 2 auto-merge would require.
+and, separately, whether the change is ``automerge_eligible`` -- a redirect-only
+Stage 2 gate for now. Content changes are never auto-merge-eligible until a
+future scoped Stage 2 mechanism is added.
 
 DESIGN PRINCIPLES (from the June 2026 autodoc council review)
 -------------------------------------------------------------
@@ -141,23 +142,6 @@ HARD_HUMAN_PATTERNS: dict[str, str] = {
 
 KNOWN_TIERS = {"CRITICAL", "HIGH", "MEDIUM", "NOISE"}
 
-# Used only for the strict ``automerge_eligible`` gate (Stage 2), never for routing:
-# any bare number in added prose blocks unattended merge.
-NUMBER_PATTERN = re.compile(r"(?<![\w.])\d+(?![\w.])")
-
-_BENIGN_LINK_PATTERN = r"\[[^\]\n]{1,120}\]\(https?://[^\s)]+(?:\s+\"[^\"]{1,80}\")?\)"
-_BENIGN_LINE_PREFIX = r"(?:(?:[-*+]\s+)|(?:\d{1,2}[.)]\s+))?"
-_BENIGN_NEUTRAL_INTRO = (
-    r"(?:(?:see(?:\s+also)?|related|reference|references|learn\s+more|"
-    r"more\s+information|for\s+(?:more\s+)?(?:information|details),?\s+see)"
-    r":?\s+)?"
-)
-BENIGN_ADDED_LINE_RE = re.compile(
-    rf"^\s*{_BENIGN_LINE_PREFIX}{_BENIGN_NEUTRAL_INTRO}"
-    rf"{_BENIGN_LINK_PATTERN}(?:[.;])?\s*$",
-    re.IGNORECASE,
-)
-
 _COMPILED_HARD = {k: re.compile(v, re.IGNORECASE) for k, v in HARD_HUMAN_PATTERNS.items()}
 
 
@@ -239,19 +223,12 @@ def match_sensitive(text: str) -> dict[str, list]:
     return hits
 
 
-def _benign_added_lines_only(lines: list[str]) -> bool:
-    """True only when every non-blank addition is a strict URL cross-reference."""
-    nonblank = [line.strip() for line in lines if line.strip()]
-    return bool(nonblank) and all(BENIGN_ADDED_LINE_RE.fullmatch(line) for line in nonblank)
-
-
 # ---------------------------------------------------------------------------
 # Classification (the core, fail-closed decision)
 # ---------------------------------------------------------------------------
 def classify_change(change: Change) -> RoutingDecision:
     reasons: list[str] = []
-    added_line_items = added_lines(change.diff_text)
-    added = "\n".join(added_line_items)
+    added = "\n".join(added_lines(change.diff_text))
     additive = is_additive_only(change.diff_text)
     affects_control = bool(change.affected_controls)
     has_diff = bool(change.diff_text.strip())
@@ -297,25 +274,11 @@ def classify_change(change: Change) -> RoutingDecision:
         route = "autodraft"
         reasons.append("allowlisted additive non-control change with known non-CRITICAL tier")
 
-    # --- automerge_eligible: requires positive gates, never just absence of deny hits ---
-    benign_added_lines = _benign_added_lines_only(added_line_items)
-    automerge = (
-        route == "autodraft"
-        and tier in {"MEDIUM", "NOISE"}
-        and additive
-        and not affects_control
-        and not sensitive
-        and not NUMBER_PATTERN.search(added)
-        and benign_added_lines
+    automerge = False
+    reasons.append(
+        "automerge is redirect-only; content changes are never auto-merge-eligible "
+        "(Stage 2 will add scoped categories)"
     )
-    if route == "autodraft" and tier not in {"MEDIUM", "NOISE"}:
-        reasons.append("automerge requires MEDIUM/NOISE tier")
-    if route == "autodraft" and NUMBER_PATTERN.search(added):
-        reasons.append("automerge blocked: added content contains a number")
-    if route == "autodraft" and not benign_added_lines:
-        reasons.append("automerge blocked: additions are not benign cross-references")
-    if automerge:
-        reasons.append("automerge allowlisted: benign cross-reference-only addition")
 
     return RoutingDecision(
         topic=change.topic, url=change.url, classification=tier or change.classification,

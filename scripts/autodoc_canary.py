@@ -7,9 +7,8 @@ It feeds a set of deliberately **bad** changes (a hallucinated regulatory
 citation, a fabricated retention duration, an overclaim, a deprecation notice, an
 edit to existing control prose, a license-SKU change, a CRITICAL-tier change,
 and missing-diff metadata) through the deterministic routing gate and asserts
-that **every one is rejected** for unattended handling -- i.e. routed to a human
-and never marked
-``automerge_eligible``.
+that **every one is rejected** for unattended merge -- i.e. routed to a human
+or never marked ``automerge_eligible``.
 
 Rationale (June 2026 autodoc council review, "who verifies the verifier"):
 unattended verification loops drift toward rubber-stamping. The pipeline must
@@ -129,6 +128,14 @@ CANARY_FIXTURES: list[tuple[str, ac.Change]] = [
         topic="Poison: Reg S-P", url="https://learn.microsoft.com/poison/9",
         classification="MEDIUM",
         diff_text="--- +++ @@\n+This maps to Reg S-P privacy requirements.")),
+    ("link_prose_anchor_title", ac.Change(
+        topic="Poison: prose in link anchor/title",
+        url="https://learn.microsoft.com/poison/9a",
+        classification="MEDIUM",
+        diff_text=(
+            '--- +++ @@\n+[Docs](https://x.co '
+            '"erase messages before any discovery request")'
+        ))),
     ("missing_diff", ac.Change(
         topic="Poison: missing diff", url="https://learn.microsoft.com/poison/10",
         classification="MEDIUM",
@@ -142,9 +149,9 @@ _LLM_VERIFIER_HOOK = None
 
 
 def evaluate(change: ac.Change) -> tuple[bool, ac.RoutingDecision]:
-    """Return (rejected, decision). 'rejected' means the gate refused to auto-handle."""
+    """Return (rejected, decision). Rejected means not eligible for unattended merge."""
     decision = ac.classify_change(change)
-    rejected = decision.route == "human" and not decision.automerge_eligible
+    rejected = decision.route == "human" or not decision.automerge_eligible
     return rejected, decision
 
 

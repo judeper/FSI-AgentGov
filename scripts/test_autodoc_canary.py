@@ -41,6 +41,7 @@ def test_fixture_set_covers_each_hard_human_category():
         "future_date_deadline",
         "abbreviated_date",
         "reg_s_p",
+        "link_prose_anchor_title",
         "missing_diff",
     ):
         assert expected in names

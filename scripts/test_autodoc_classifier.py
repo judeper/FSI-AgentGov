@@ -302,7 +302,7 @@ def test_parse_deduplicates_by_url_preferring_diff_block():
 
 
 # ---------------------------------------------------------------------------
-# The narrow "autodraft" / "automerge" promotions
+# The narrow "autodraft" promotions; automerge remains redirect-only
 # ---------------------------------------------------------------------------
 def test_mechanical_addition_is_autodraft():
     d = ac.classify_change(_change(
@@ -310,25 +310,40 @@ def test_mechanical_addition_is_autodraft():
     ))
     assert d.route == "autodraft"
     assert d.automerge_eligible is False
-    assert any("benign cross-references" in r for r in d.reasons)
+    assert any("automerge is redirect-only" in r for r in d.reasons)
 
 
-def test_benign_markdown_cross_reference_is_automerge_eligible():
+def test_benign_markdown_cross_reference_is_not_automerge_eligible():
     d = ac.classify_change(_change(
         "--- +++ @@\n+- See also: [Agent guidance](https://learn.microsoft.com/fwlink/link)"
     ))
     assert d.route == "autodraft"
-    assert d.automerge_eligible is True
+    assert d.automerge_eligible is False
+    assert any("automerge is redirect-only" in r for r in d.reasons)
+
+
+@pytest.mark.parametrize(
+    "addition",
+    [
+        "[how to permanently erase customer data](https://x.co)",
+        '[Docs](https://x.co "erase messages before any discovery request")',
+        "See the new overview.",
+    ],
+)
+def test_content_additions_are_never_automerge_eligible(addition):
+    d = ac.classify_change(_change(f"--- +++ @@\n+{addition}"))
+    assert d.automerge_eligible is False
+    assert any("automerge is redirect-only" in r for r in d.reasons)
 
 
 def test_addition_with_number_is_autodraft_but_not_automerge():
     d = ac.classify_change(_change(
         "--- +++ @@\n+There are now three panes; see pane number 2 for details."
     ))
-    # "number" is fine for drafting, but a bare digit blocks unattended merge.
+    # "number" is fine for drafting, but content never qualifies for unattended merge.
     assert d.route == "autodraft"
     assert d.automerge_eligible is False
-    assert any("number" in r for r in d.reasons)
+    assert any("automerge is redirect-only" in r for r in d.reasons)
 
 
 def test_high_tier_addition_is_not_automerge_eligible():
@@ -336,7 +351,7 @@ def test_high_tier_addition_is_not_automerge_eligible():
         "--- +++ @@\n+A short neutral cross reference sentence.", classification="HIGH"
     ))
     assert d.route == "autodraft"
-    assert d.automerge_eligible is False  # only MEDIUM/NOISE may auto-merge
+    assert d.automerge_eligible is False
 
 
 def test_redirect_is_autodraft_and_automerge():
@@ -406,17 +421,11 @@ def test_0618_control_changes_and_summary_only_entries_fail_closed():
             assert d.route != "autodraft", f"{change.url} summary-only autodraft"
 
 
-def test_0618_automerge_requires_benign_cross_reference_lines():
+def test_0618_automerge_eligible_is_redirect_only():
     text = _load("learn-changes-2026-06-18.md")
     if text is None:
         pytest.skip("fixture report not present")
     for change in ac.parse_report(text):
         d = ac.classify_change(change)
-        if d.affects_control:
-            assert d.automerge_eligible is False, f"{change.url} control mis-promoted"
         if d.automerge_eligible:
-            if d.kind == "redirect":
-                continue
-            nonblank = [line.strip() for line in ac.added_lines(change.diff_text) if line.strip()]
-            assert nonblank, f"{change.url} automerge without added cross-reference"
-            assert all(ac.BENIGN_ADDED_LINE_RE.fullmatch(line) for line in nonblank), d.url
+            assert d.kind == "redirect", f"{change.url} content mis-promoted"
