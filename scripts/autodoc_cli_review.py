@@ -228,9 +228,11 @@ def _reject_duplicate_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
 def _coerce_verdict(payload: dict[str, Any]) -> Verdict:
     """Validate and normalize the model payload; fail closed if it does not conform.
 
-    A ``pass`` requires the exact contract shape AND empty finding lists — a ``pass`` that
+    Enforces the exact contract shape and value types: the key set must be exactly the five
+    contract keys; ``unsupported_claims``/``overbroad_edits`` must be lists of strings;
+    ``confidence`` must be a finite number; ``notes`` must be a string. A ``pass`` that
     simultaneously lists unsupported claims or overbroad edits is contradictory and is
-    downgraded to a fail-closed ``fail``.
+    downgraded to a fail-closed ``fail``. Any non-conformance fails closed.
     """
 
     verdict = payload.get("verdict")
@@ -259,22 +261,21 @@ def _coerce_verdict(payload: dict[str, Any]) -> Verdict:
             "Model returned verdict=pass while listing unsupported or overbroad findings.",
         )
 
-    confidence = payload.get("confidence", 0.0)
-    try:
-        confidence = float(confidence)
-    except (TypeError, ValueError):
-        confidence = 0.0
-    if not math.isfinite(confidence):
-        confidence = 0.0
-    confidence = max(0.0, min(1.0, confidence))
+    confidence = payload.get("confidence")
+    if isinstance(confidence, bool) or not isinstance(confidence, (int, float)) or not math.isfinite(confidence):
+        return _fail_closed("reviewer_schema_error", "confidence must be a finite number.")
+    confidence = max(0.0, min(1.0, float(confidence)))
 
     notes = payload.get("notes")
+    if not isinstance(notes, str):
+        return _fail_closed("reviewer_schema_error", "notes must be a string.")
+
     return {
         "verdict": verdict,
         "confidence": confidence,
         "unsupported_claims": list(unsupported),
         "overbroad_edits": list(overbroad),
-        "notes": notes if isinstance(notes, str) else "",
+        "notes": notes,
     }
 
 

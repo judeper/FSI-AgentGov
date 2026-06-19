@@ -112,28 +112,38 @@ def test_parse_verdict_empty_fails_closed() -> None:
     assert review_mod.parse_verdict("   ")["verdict"] == "fail"
 
 
-def test_parse_verdict_confidence_clamped_with_valid_lists() -> None:
+def test_parse_verdict_confidence_clamped_with_valid_types() -> None:
     raw = json.dumps(
         {
             "verdict": "pass",
             "confidence": 5,
             "unsupported_claims": [],
             "overbroad_edits": [],
-            "notes": 123,
+            "notes": "ok",
         }
     )
     verdict = review_mod.parse_verdict(raw)
     assert verdict["verdict"] == "pass"
-    assert verdict["confidence"] == 1.0
-    assert verdict["notes"] == ""  # non-string notes coerced to empty
+    assert verdict["confidence"] == 1.0  # integer 5 clamped to 1.0
+    assert verdict["notes"] == "ok"
 
 
-def test_parse_verdict_non_finite_confidence_defaults_zero() -> None:
-    # Python's json accepts NaN/Infinity literals by default.
+def test_parse_verdict_non_finite_confidence_fail_closed() -> None:
+    # Python's json accepts NaN/Infinity literals; a non-finite confidence is non-conforming.
     raw = '{"verdict": "pass", "confidence": NaN, "unsupported_claims": [], "overbroad_edits": [], "notes": ""}'
-    verdict = review_mod.parse_verdict(raw)
-    assert verdict["verdict"] == "pass"
-    assert verdict["confidence"] == 0.0
+    assert review_mod.parse_verdict(raw)["verdict"] == "fail"
+
+
+def test_parse_verdict_non_numeric_confidence_fail_closed() -> None:
+    for bad in ("[]", '"0.9"', "true", "{}", "null"):
+        raw = '{"verdict": "pass", "confidence": ' + bad + ', "unsupported_claims": [], "overbroad_edits": [], "notes": ""}'
+        assert review_mod.parse_verdict(raw)["verdict"] == "fail", bad
+
+
+def test_parse_verdict_non_string_notes_fail_closed() -> None:
+    for bad in ("{}", "123", "[]", "null", "true"):
+        raw = '{"verdict": "pass", "confidence": 0.9, "unsupported_claims": [], "overbroad_edits": [], "notes": ' + bad + "}"
+        assert review_mod.parse_verdict(raw)["verdict"] == "fail", bad
 
 
 def test_parse_verdict_non_string_list_items_fail_closed() -> None:
