@@ -1,0 +1,471 @@
+name: Autodoc Fix Retry
+
+on:
+  workflow_run:
+    workflows: ["Autodoc Verify"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: Pull request number to retry or escalate
+        required: true
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  autodoc-fix-retry:
+    name: autodoc-fix-retry
+    if: >-
+      vars.AUTODOC_ENABLED == 'true' &&
+      (github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'failure')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout automation scripts
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Resolve target PR
+        id: meta
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_PR: ${{ inputs.pr || '' }}
+          REPO: ${{ github.repository }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          WORKFLOW_HEAD_BRANCH: ${{ github.event.workflow_run.head_branch || '' }}
+          WORKFLOW_HEAD_SHA: ${{ github.event.workflow_run.head_sha || '' }}
+          WORKFLOW_PULL_REQUESTS: ${{ toJson(github.event.workflow_run.pull_requests) }}
+        run: |
+          set -euo pipefail
+          mkdir -p .autodoc
+          python - <<'PY'
+          from __future__ import annotations
+
+          import json
+          import os
+          import subprocess
+          import urllib.parse
+          from pathlib import Path
+
+          def gh_json(endpoint: str) -> dict | list:
+              completed = subprocess.run(["gh", "api", endpoint], check=True, capture_output=True, text=True)
+              return json.loads(completed.stdout)
+
+          def write_output(**values: str) -> None:
+              with Path(os.environ["GITHUB_OUTPUT"]).open("a", encoding="utf-8") as handle:
+                  for key, value in values.items():
+                      handle.write(f"{key}={value}\n")
+
+          repo = os.environ["REPO"]
+          repo_owner = os.environ["REPO_OWNER"]
+          event_name = os.environ["EVENT_NAME"]
+          pr_number = ""
+
+          if event_name == "workflow_dispatch":
+              pr_number = os.environ["INPUT_PR"].strip()
+          else:
+              raw_prs = os.environ.get("WORKFLOW_PULL_REQUESTS") or "[]"
+              try:
+                  workflow_prs = json.loads(raw_prs)
+              except json.JSONDecodeError:
+                  workflow_prs = []
+              if workflow_prs:
+                  pr_number = str(workflow_prs[0].get("number") or "")
+              if not pr_number:
+                  head_branch = os.environ.get("WORKFLOW_HEAD_BRANCH", "").strip()
+                  if head_branch:
+                      head = urllib.parse.quote(f"{repo_owner}:{head_branch}", safe="")
+                      pulls = gh_json(f"repos/{repo}/pulls?head={head}&state=open&per_page=10")
+                      if isinstance(pulls, list) and pulls:
+                          pr_number = str(pulls[0]["number"])
+
+          if not pr_number:
+              print("No pull request could be resolved from this workflow run; exiting as a no-op.")
+              write_output(is_autodoc="false", pr="", head_ref="", head_sha="", has_needs_review="false")
+              raise SystemExit(0)
+
+          pr = gh_json(f"repos/{repo}/pulls/{pr_number}")
+          labels = gh_json(f"repos/{repo}/issues/{pr_number}/labels?per_page=100")
+          if not isinstance(pr, dict) or not isinstance(labels, list):
+              raise SystemExit("GitHub API returned unexpected PR metadata.")
+          label_names = {label["name"] for label in labels if isinstance(label, dict) and "name" in label}
+          head_ref = pr["head"]["ref"]
+          head_repo = pr["head"]["repo"]["full_name"]
+          is_autodoc = head_repo == repo and head_ref.startswith("copilot/") and "autodoc" in label_names
+          has_needs_review = "needs-review" in label_names
+
+          Path(".autodoc/pr-meta.json").write_text(json.dumps(pr, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          Path(".autodoc/pr-labels.json").write_text(
+              json.dumps(sorted(label_names), indent=2) + "\n",
+              encoding="utf-8",
+          )
+          write_output(
+              is_autodoc=str(is_autodoc).lower(),
+              pr=str(pr["number"]),
+              head_ref=head_ref,
+              head_sha=pr["head"]["sha"],
+              has_needs_review=str(has_needs_review).lower(),
+          )
+          print(f"PR #{pr['number']} head={head_ref} labels={sorted(label_names)} is_autodoc={is_autodoc}")
+          PY
+
+      - name: Skip non-autodoc PRs
+        if: steps.meta.outputs.is_autodoc != 'true'
+        run: |
+          echo "No copilot/* autodoc PR was resolved; nothing to retry or escalate."
+
+      - name: Generate GitHub App token for escalation
+        id: app-token
+        if: steps.meta.outputs.is_autodoc == 'true'
+        continue-on-error: true
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          permission-contents: read
+          permission-pull-requests: write
+          permission-issues: write
+
+      - name: Resolve verifier conclusion
+        id: conclusion
+        if: steps.meta.outputs.is_autodoc == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ steps.meta.outputs.pr }}
+          HEAD_SHA: ${{ steps.meta.outputs.head_sha }}
+          HAS_NEEDS_REVIEW: ${{ steps.meta.outputs.has_needs_review }}
+          EVENT_NAME: ${{ github.event_name }}
+          WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id || '' }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from __future__ import annotations
+
+          import io
+          import json
+          import os
+          import re
+          import urllib.error
+          import urllib.parse
+          import urllib.request
+          import zipfile
+          from pathlib import Path
+
+          API_VERSION = "2022-11-28"
+
+          def api_json(endpoint: str) -> dict:
+              url = f"https://api.github.com/{endpoint}"
+              data = fetch_url(url)
+              return json.loads(data.decode("utf-8"))
+
+          def fetch_url(url: str) -> bytes:
+              token = os.environ.get("GH_TOKEN", "")
+              request = urllib.request.Request(
+                  url,
+                  headers={
+                      "Accept": "application/vnd.github+json",
+                      "Authorization": f"Bearer {token}",
+                      "X-GitHub-Api-Version": API_VERSION,
+                  },
+              )
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  return response.read()
+
+          def try_gate_artifact(repo: str, run_id: str) -> tuple[str, str] | None:
+              if not run_id:
+                  return None
+              artifacts = api_json(f"repos/{repo}/actions/runs/{run_id}/artifacts?per_page=100")
+              for artifact in artifacts.get("artifacts", []):
+                  name = str(artifact.get("name", "")).lower()
+                  if artifact.get("expired") or "autodoc" not in name or not ({"gate", "verify"} & set(name.split("-"))):
+                      continue
+                  try:
+                      archive = fetch_url(artifact["archive_download_url"])
+                  except (KeyError, OSError, urllib.error.HTTPError):
+                      continue
+                  result = read_gate_json_from_zip(archive)
+                  if result:
+                      return result
+              return None
+
+          def read_gate_json_from_zip(archive: bytes) -> tuple[str, str] | None:
+              with zipfile.ZipFile(io.BytesIO(archive)) as zipped:
+                  for name in zipped.namelist():
+                      if not name.lower().endswith(".json") or "gate" not in name.lower():
+                          continue
+                      try:
+                          payload = json.loads(zipped.read(name).decode("utf-8"))
+                      except (UnicodeDecodeError, json.JSONDecodeError):
+                          continue
+                      conclusion = payload.get("conclusion")
+                      if isinstance(conclusion, str):
+                          return conclusion, str(payload.get("summary") or "Gate artifact did not include a summary.")
+              return None
+
+          def try_logs(repo: str, run_id: str) -> tuple[str, str] | None:
+              if not run_id:
+                  return None
+              try:
+                  archive = fetch_url(f"https://api.github.com/repos/{repo}/actions/runs/{run_id}/logs")
+              except (OSError, urllib.error.HTTPError) as exc:
+                  print(f"Could not download workflow logs for conclusion derivation: {exc}")
+                  return None
+              summary_result: tuple[str, str] | None = None
+              exit_result: tuple[str, str] | None = None
+              with zipfile.ZipFile(io.BytesIO(archive)) as zipped:
+                  for name in zipped.namelist():
+                      if name.endswith("/"):
+                          continue
+                      try:
+                          text = zipped.read(name).decode("utf-8", errors="replace")
+                      except OSError:
+                          continue
+                      for match in re.finditer(r"Autodoc verify gate:\s*(pass|fail|needs_human)\s*-\s*(.+)", text):
+                          summary_result = (match.group(1), match.group(2).strip())
+                      for match in re.finditer(r"autodoc-verify failed with gate exit code\s+(\d+)", text):
+                          code = match.group(1)
+                          if code == "1":
+                              exit_result = ("fail", "Autodoc Verify exited with deterministic or LLM failure code 1.")
+                          elif code == "2":
+                              exit_result = ("needs_human", "Autodoc Verify exited with human-review code 2.")
+              return summary_result or exit_result
+
+          def latest_verify_run(repo: str, head_sha: str) -> str:
+              if not head_sha:
+                  return ""
+              encoded_sha = urllib.parse.quote(head_sha, safe="")
+              endpoint = f"repos/{repo}/actions/workflows/autodoc-verify.yml/runs?head_sha={encoded_sha}&status=completed&per_page=10"
+              try:
+                  runs = api_json(endpoint).get("workflow_runs", [])
+              except (OSError, urllib.error.HTTPError) as exc:
+                  print(f"Could not list Autodoc Verify runs for manual dispatch: {exc}")
+                  return ""
+              for run in runs:
+                  if run.get("name") == "Autodoc Verify":
+                      return str(run.get("id") or "")
+              return ""
+
+          repo = os.environ["REPO"]
+          run_id = os.environ.get("WORKFLOW_RUN_ID", "").strip()
+          if not run_id and os.environ.get("EVENT_NAME") == "workflow_dispatch":
+              run_id = latest_verify_run(repo, os.environ.get("HEAD_SHA", "").strip())
+
+          result = None
+          try:
+              result = try_gate_artifact(repo, run_id)
+          except (OSError, urllib.error.HTTPError, zipfile.BadZipFile, json.JSONDecodeError) as exc:
+              print(f"Could not derive conclusion from artifacts: {exc}")
+          if result is None:
+              try:
+                  result = try_logs(repo, run_id)
+              except (OSError, urllib.error.HTTPError, zipfile.BadZipFile) as exc:
+                  print(f"Could not derive conclusion from logs: {exc}")
+          if result is None and os.environ.get("HAS_NEEDS_REVIEW") == "true":
+              result = ("needs_human", "PR already has needs-review from Autodoc Verify; treating as human judgment.")
+          if result is None:
+              result = ("unknown", "Could not derive a verifier conclusion; fail-closed escalation is required.")
+
+          conclusion, summary = result
+          Path(".autodoc/findings-summary.txt").write_text(summary.strip() + "\n", encoding="utf-8")
+          with Path(os.environ["GITHUB_OUTPUT"]).open("a", encoding="utf-8") as handle:
+              handle.write(f"conclusion={conclusion}\n")
+          print(f"Resolved Autodoc Verify conclusion: {conclusion} - {summary}")
+          PY
+
+      - name: Fetch comments and decide action
+        id: decision
+        if: steps.meta.outputs.is_autodoc == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ steps.meta.outputs.pr }}
+          VERIFIER_CONCLUSION: ${{ steps.conclusion.outputs.conclusion }}
+          MAX_CYCLES: ${{ vars.AUTODOC_MAX_FIX_CYCLES || '2' }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from __future__ import annotations
+
+          import json
+          import os
+          import urllib.parse
+          import urllib.request
+          from pathlib import Path
+
+          token = os.environ["GH_TOKEN"]
+          repo = os.environ["REPO"]
+          pr_number = os.environ["PR_NUMBER"]
+          comments = []
+          page = 1
+          while True:
+              endpoint = f"https://api.github.com/repos/{repo}/issues/{pr_number}/comments?per_page=100&page={page}"
+              request = urllib.request.Request(
+                  endpoint,
+                  headers={
+                      "Accept": "application/vnd.github+json",
+                      "Authorization": f"Bearer {token}",
+                      "X-GitHub-Api-Version": "2022-11-28",
+                  },
+              )
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  batch = json.loads(response.read().decode("utf-8"))
+              if not batch:
+                  break
+              comments.extend(batch)
+              page += 1
+          Path(".autodoc/comments.json").write_text(json.dumps(comments, indent=2) + "\n", encoding="utf-8")
+
+          raw_max = (os.environ.get("MAX_CYCLES") or "2").strip()
+          try:
+              max_cycles = int(raw_max)
+          except ValueError:
+              max_cycles = 0
+          if max_cycles < 0:
+              max_cycles = 0
+          Path(".autodoc/max-cycles.txt").write_text(str(max_cycles), encoding="utf-8")
+          PY
+          MAX_CYCLES_VALUE="$(cat .autodoc/max-cycles.txt)"
+          python scripts/autodoc_retry.py \
+            --comments-json .autodoc/comments.json \
+            --conclusion "$VERIFIER_CONCLUSION" \
+            --max-cycles "$MAX_CYCLES_VALUE" \
+            --summary-file .autodoc/findings-summary.txt \
+            --decision-out .autodoc/retry-decision.json \
+            --comment-out .autodoc/action-comment.md
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          decision = json.loads(Path(".autodoc/retry-decision.json").read_text(encoding="utf-8"))
+          with Path(os.environ["GITHUB_OUTPUT"]).open("a", encoding="utf-8") as handle:
+              for key in ("action", "reason", "attempts", "next_attempt"):
+                  handle.write(f"{key}={decision[key]}\n")
+          PY
+
+      - name: Post retry and best-effort agent dispatch
+        if: steps.decision.outputs.action == 'retry'
+        env:
+          GH_TOKEN: ${{ secrets.COPILOT_ASSIGN_TOKEN }}
+          COPILOT_ASSIGN_TOKEN: ${{ secrets.COPILOT_ASSIGN_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ steps.meta.outputs.pr }}
+          NEXT_ATTEMPT: ${{ steps.decision.outputs.next_attempt }}
+          AGENT_TASKS_URL: ${{ vars.COPILOT_AGENT_TASKS_URL || '' }}
+        run: |
+          set -euo pipefail
+          if [ -z "$GH_TOKEN" ]; then
+            echo "COPILOT_ASSIGN_TOKEN is required to post a retry as a write-access user." >&2
+            exit 1
+          fi
+
+          # Live Copilot pickup cannot be unit-tested offline. The important contract is that this
+          # comment is authored with COPILOT_ASSIGN_TOKEN, because the coding agent only reacts to
+          # PR comments from write-access users in production.
+          gh issue comment "$PR_NUMBER" --body-file .autodoc/action-comment.md
+
+          # Optional, best-effort redispatch for environments with a configured first-party
+          # agent-tasks endpoint. If unavailable or rejected, the retry comment above remains the
+          # primary signal to the live Copilot coding agent.
+          python - <<'PY'
+          from __future__ import annotations
+
+          import json
+          import os
+          import urllib.error
+          import urllib.parse
+          import urllib.request
+          from pathlib import Path
+
+          endpoint = (os.environ.get("AGENT_TASKS_URL") or "").strip()
+          allowed_hosts = {"api.github.com", "copilot.github.com"}
+          status = "not configured"
+          if endpoint:
+              parsed = urllib.parse.urlparse(endpoint)
+              if parsed.scheme != "https" or parsed.netloc not in allowed_hosts:
+                  status = "skipped: endpoint is not an allowed first-party GitHub/Copilot host"
+              else:
+                  payload = {
+                      "repository": os.environ["REPO"],
+                      "pull_request_number": int(os.environ["PR_NUMBER"]),
+                      "source": "autodoc-fix-retry",
+                      "instructions": Path(".autodoc/action-comment.md").read_text(encoding="utf-8"),
+                  }
+                  request = urllib.request.Request(
+                      endpoint,
+                      data=json.dumps(payload).encode("utf-8"),
+                      method="POST",
+                      headers={
+                          "Accept": "application/vnd.github+json",
+                          "Authorization": f"Bearer {os.environ['COPILOT_ASSIGN_TOKEN']}",
+                          "Content-Type": "application/json",
+                          "X-GitHub-Api-Version": "2022-11-28",
+                      },
+                  )
+                  try:
+                      with urllib.request.urlopen(request, timeout=30) as response:
+                          status = f"attempted: HTTP {response.status}"
+                  except urllib.error.HTTPError as exc:
+                      status = f"attempted: HTTP {exc.code}"
+                  except OSError as exc:
+                      status = f"attempted: {type(exc).__name__}: {exc}"
+          Path(".autodoc/agent-dispatch-status.txt").write_text(status + "\n", encoding="utf-8")
+          print(f"Agent-tasks redispatch status: {status}")
+          PY
+          python - <<'PY'
+          import os
+          from pathlib import Path
+
+          status = Path(".autodoc/agent-dispatch-status.txt").read_text(encoding="utf-8").strip()
+          body = "\n".join(
+              [
+                  "### Autodoc retry tracking",
+                  "",
+                  f"Retry marker posted for attempt {os.environ['NEXT_ATTEMPT']}.",
+                  f"Agent-tasks redispatch: {status}.",
+                  "",
+                  "The actual coding-agent pickup depends on live Copilot agent behavior and the write-access token.",
+              ]
+          )
+          Path(".autodoc/retry-tracking-comment.md").write_text(body + "\n", encoding="utf-8")
+          PY
+          gh issue comment "$PR_NUMBER" --body-file .autodoc/retry-tracking-comment.md
+
+      - name: Escalate to human review
+        if: steps.decision.outputs.action == 'escalate'
+        env:
+          APP_TOKEN: ${{ steps.app-token.outputs.token || '' }}
+          COPILOT_ASSIGN_TOKEN: ${{ secrets.COPILOT_ASSIGN_TOKEN }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          PR_NUMBER: ${{ steps.meta.outputs.pr }}
+        run: |
+          set -euo pipefail
+          WRITE_TOKEN="$APP_TOKEN"
+          if [ -z "$WRITE_TOKEN" ]; then
+            WRITE_TOKEN="$COPILOT_ASSIGN_TOKEN"
+          fi
+          if [ -z "$WRITE_TOKEN" ]; then
+            echo "No App token or COPILOT_ASSIGN_TOKEN is available for fail-closed escalation." >&2
+            exit 1
+          fi
+          export GH_TOKEN="$WRITE_TOKEN"
+
+          gh label create "escalate" --color d93f0b --description "Escalated for human review" || true
+          gh label create "needs-review" --color fbca04 --description "Needs human review" || true
+          gh issue edit "$PR_NUMBER" --add-label "escalate" --add-label "needs-review" --add-assignee "$REPO_OWNER"
+          gh issue edit "$PR_NUMBER" --remove-label "squad:copilot" || true
+          gh issue comment "$PR_NUMBER" --body-file .autodoc/action-comment.md
