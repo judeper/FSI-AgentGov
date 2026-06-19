@@ -31,6 +31,8 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 
+from autodoc_defer import defer_enabled, is_already_pending, pending_path, write_pending
+
 # Import shared monitoring framework
 from monitoring_shared import (
     CLASSIFICATION_CRITICAL,
@@ -605,36 +607,47 @@ def _run_monitor(args, config: dict):
                 "section": entry.section,
             }
         elif new_hash != old_hash:
-            # Content changed
-            classification, reason, diff_text = classify_change(old_content, normalized, entry.url, config=config)
-            print(f"  CHANGED: {classification} ({reason})")
+            defer = defer_enabled()
+            if defer and is_already_pending(entry.url, new_hash, PROJECT_ROOT):
+                print("  CHANGED: already pending; skipping duplicate report")
+                source_state["urls"][entry.url]["last_checked"] = now
+                source_state["urls"][entry.url]["last_status"] = 200
+            else:
+                # Content changed
+                classification, reason, diff_text = classify_change(old_content, normalized, entry.url, config=config)
+                print(f"  CHANGED: {classification} ({reason})")
 
-            # Find affected files
-            affected = find_affected_controls(entry.url, DOCS_DIR)
+                # Find affected files
+                affected = find_affected_controls(entry.url, DOCS_DIR)
 
-            change = ChangeRecord(
-                url=entry.url,
-                topic=entry.topic,
-                section=entry.section,
-                classification=classification,
-                reason=reason,
-                diff_text=diff_text,
-                affected_controls=affected['controls'],
-                affected_playbooks=affected['playbooks'],
-            )
-            change.priority = determine_priority(change)
-            changes.append(change)
+                change = ChangeRecord(
+                    url=entry.url,
+                    topic=entry.topic,
+                    section=entry.section,
+                    classification=classification,
+                    reason=reason,
+                    diff_text=diff_text,
+                    affected_controls=affected['controls'],
+                    affected_playbooks=affected['playbooks'],
+                )
+                change.priority = determine_priority(change)
+                changes.append(change)
 
-            # Update state
-            source_state["urls"][entry.url] = {
-                "content_hash": new_hash,
-                "normalized_content": normalized,
-                "last_checked": now,
-                "last_status": 200,
-                "last_changed": now,
-                "topic": entry.topic,
-                "section": entry.section,
-            }
+                if defer:
+                    write_pending(pending_path(entry.url, PROJECT_ROOT), entry.url, new_hash, normalized, now)
+                    source_state["urls"][entry.url]["last_checked"] = now
+                    source_state["urls"][entry.url]["last_status"] = 200
+                else:
+                    # Update state
+                    source_state["urls"][entry.url] = {
+                        "content_hash": new_hash,
+                        "normalized_content": normalized,
+                        "last_checked": now,
+                        "last_status": 200,
+                        "last_changed": now,
+                        "topic": entry.topic,
+                        "section": entry.section,
+                    }
         else:
             # No change
             source_state["urls"][entry.url]["last_checked"] = now

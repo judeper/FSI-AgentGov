@@ -1,0 +1,156 @@
+name: Learn Monitor Advance
+
+on:
+  schedule:
+    # Run daily after the Learn Monitor and routing workflows have had time to finish.
+    - cron: '15 8 * * *'
+  workflow_dispatch:
+  issues:
+    types: [closed]
+
+permissions:
+  contents: write
+  issues: read
+  pull-requests: write
+
+concurrency:
+  group: learn-monitor-advance
+  cancel-in-progress: false
+
+jobs:
+  advance-learn-baselines:
+    if: ${{ vars.AUTODOC_ENABLED == 'true' && (github.event_name != 'issues' || contains(github.event.issue.labels.*.name, 'autodoc')) }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4 pyyaml
+
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: Determine terminal pending URLs
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          python - <<'PY'
+          from __future__ import annotations
+
+          import json
+          import subprocess
+          import sys
+          from pathlib import Path
+
+          sys.path.insert(0, str(Path("scripts").resolve()))
+          from autodoc_defer import load_pending
+
+          pending_dir = Path("data/monitor-pending/learn")
+          pending_dir.mkdir(parents=True, exist_ok=True)
+          terminal_urls: list[str] = []
+
+          for pending_path in sorted(pending_dir.glob("*.json")):
+              pending = load_pending(pending_path)
+              if not pending:
+                  continue
+              url = pending.get("url")
+              if not isinstance(url, str) or not url:
+                  raise ValueError(f"Pending blob missing URL: {pending_path}")
+
+              result = subprocess.run(
+                  [
+                      "gh",
+                      "issue",
+                      "list",
+                      "--state",
+                      "closed",
+                      "--label",
+                      "autodoc",
+                      "--search",
+                      f"{url} in:body",
+                      "--json",
+                      "number",
+                      "--limit",
+                      "1",
+                  ],
+                  check=True,
+                  capture_output=True,
+                  text=True,
+              )
+              if json.loads(result.stdout):
+                  terminal_urls.append(url)
+
+          terminal_path = Path("terminal-urls.txt")
+          terminal_path.write_text("\n".join(terminal_urls) + ("\n" if terminal_urls else ""), encoding="utf-8")
+          print(f"Terminal pending URLs: {len(terminal_urls)}")
+          PY
+
+      - name: Advance terminal Learn baselines
+        run: |
+          python scripts/autodoc_advance.py \
+            --state data/monitor-state.json \
+            --pending-dir data/monitor-pending/learn \
+            --terminal-urls terminal-urls.txt
+
+      - name: Create baseline advancement pull request
+        id: create_pr
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          add-paths: |
+            data/monitor-state.json
+            data/monitor-state.json.backup
+            data/monitor-pending/learn
+          commit-message: |
+            Learn Monitor: advance deferred autodoc baselines
+
+            - Advanced accepted baselines for Learn changes whose autodoc issue is closed
+            - Removed completed pending baseline blobs
+          branch: monitoring/learn-advance-${{ github.run_number }}
+          delete-branch: true
+          title: 'Learn Monitor: advance deferred autodoc baselines (${{ github.run_number }})'
+          body: |
+            ## Learn Monitor deferred baseline advancement
+
+            This PR advances `data/monitor-state.json` only for pending Learn URL changes whose `autodoc` tracking issue is closed.
+
+            The workflow is gated by `AUTODOC_ENABLED == 'true'`.
+          labels: |
+            monitoring
+            automated
+
+      - name: Enable auto-merge for the state-only advancement PR
+        if: steps.create_pr.outputs.pull-request-number && vars.LEARN_STATE_AUTOMERGE == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          NEW_PR: ${{ steps.create_pr.outputs.pull-request-number }}
+        run: |
+          FILES=$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${NEW_PR}/files" --paginate --jq '.[].filename') || FILES=""
+          if [ -z "$FILES" ]; then
+            echo "::warning::Could not list files for PR #$NEW_PR; skipping auto-merge."
+            gh pr edit "$NEW_PR" --add-label needs-review || true
+            exit 0
+          fi
+          NON_STATE=$(printf '%s\n' "$FILES" \
+            | grep -vcE '^data/monitor-state\.json(\.backup)?$|^data/monitor-pending/learn/[^/]+\.json$' || true)
+          if [ "${NON_STATE:-1}" != "0" ]; then
+            echo "::warning::PR #$NEW_PR contains non-state file(s) (count=${NON_STATE:-unknown}); skipping auto-merge."
+            gh pr edit "$NEW_PR" --add-label needs-review || true
+            exit 0
+          fi
+          gh pr merge "$NEW_PR" --auto --squash --delete-branch
+          echo "Auto-merge enabled for deferred baseline advancement PR #$NEW_PR."
