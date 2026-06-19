@@ -67,13 +67,24 @@ if (-not (Test-Path -Path $runnerScript)) {
 
 # The task command: prune stale worktrees, then run the unattended drafter. The runner itself
 # is gated on $env:AUTODOC_ENABLED so this is safe to register before going live.
-$innerCommand = @(
-    "git -C `"$resolvedRepo`" worktree prune;",
-    "& `"$PythonExe`" `"$runnerScript`" --repo `"$resolvedRepo`"",
-    "--draft-model `"$DraftModel`" --review-model `"$ReviewModel`""
-) -join ' '
+#
+# Paths/models are embedded as single-quoted PowerShell literals (spaces/quotes safe), and the
+# whole script is passed via -EncodedCommand so Task Scheduler's command-line parsing cannot
+# mangle nested quotes (e.g. "C:\Program Files\Python\python.exe" or a repo path with spaces).
+function ConvertTo-PSLiteral {
+    param([string]$Value)
+    return "'" + ($Value -replace "'", "''") + "'"
+}
 
-$argument = "-NoProfile -ExecutionPolicy Bypass -Command `"$innerCommand`""
+$repoLit = ConvertTo-PSLiteral -Value $resolvedRepo
+$runnerLit = ConvertTo-PSLiteral -Value $runnerScript
+$pythonLit = ConvertTo-PSLiteral -Value $PythonExe
+$draftLit = ConvertTo-PSLiteral -Value $DraftModel
+$reviewLit = ConvertTo-PSLiteral -Value $ReviewModel
+
+$innerCommand = "git -C $repoLit worktree prune; & $pythonLit $runnerLit --repo $repoLit --draft-model $draftLit --review-model $reviewLit"
+$encodedCommand = [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($innerCommand))
+$argument = "-NoProfile -ExecutionPolicy Bypass -EncodedCommand $encodedCommand"
 
 $action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument $argument -WorkingDirectory $resolvedRepo
 $trigger = New-ScheduledTaskTrigger -Daily -At $AtTime

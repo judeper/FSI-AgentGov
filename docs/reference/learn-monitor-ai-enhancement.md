@@ -229,24 +229,35 @@ Maintainer operations and provisioning are documented in
 
 #### Auto-Draft Eligible
 
+Only narrow, mechanical, non-control changes are eligible for an agent draft (a human still
+merges every one):
+
 | Pattern Detected | Update Action |
 |-----------------|---------------|
 | Portal path changed | Update portal-walkthrough.md navigation steps |
 | Button/menu renamed | Update portal-walkthrough.md UI references |
-| Date deadline extended | Update control and FAQ with new date |
-| Feature now GA | Remove "Preview" tags, update availability |
-| Feature deprecated | Add deprecation warning box |
 | URL redirect | Update microsoft-learn-urls.md |
 
 #### Flag for Human Review
 
+The classifier **hard-routes** these compliance-sensitive categories to a human (mirroring
+`HARD_HUMAN_PATTERNS` in `scripts/autodoc_classifier.py`) — it never drafts them:
+
 | Pattern Detected | Reason |
 |-----------------|--------|
-| Policy language changes | Regulatory implications |
-| New compliance requirements | Legal review needed |
-| Licensing changes | Business impact |
-| Security guidance changes | Risk assessment needed |
-| CRITICAL classification | Immediate attention required |
+| Regulatory citations (FINRA / SEC / SOX / GLBA / OCC / SR …) | Compliance obligations |
+| Dates / deadlines / sunset / end-of-life | Compliance-sensitive timing |
+| Durations / retention / frequency | Recordkeeping timing |
+| License / SKU / add-on changes | Entitlement and business impact |
+| Deprecations / removals ("no longer", "retired") | Obligations and guidance change |
+| Security / DLP / eDiscovery / retention keywords | Risk assessment needed |
+| Overclaim / policy language | Regulatory implications |
+| Any edit to existing control prose | Control text is always human-reviewed |
+| CRITICAL classification (and the fail-closed default) | Immediate attention required |
+
+Anything not hard-routed but containing an unsupported factual claim (including GA / preview /
+availability status) is still caught downstream by the deterministic verifier and the
+independent review before a pull request is opened.
 
 #### Skip
 
