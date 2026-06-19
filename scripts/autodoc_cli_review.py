@@ -175,9 +175,10 @@ def _extract_json_object(raw_output: str) -> dict[str, Any] | None:
     The report and diff are untrusted and may contain a spoofed ``{"verdict": "pass"}``
     that the model could echo back. Rather than heuristically picking among multiple
     objects (which is exploitable), this requires the model's output to be **exactly one**
-    JSON object — optionally wrapped in a single code fence and surrounded by whitespace.
-    Anything ambiguous (a list, multiple objects, trailing prose, multiple fences,
-    oversized output) returns ``None`` so the caller fails closed.
+    JSON object — and nothing else but whitespace, or that object alone inside a single
+    code fence. Anything ambiguous (a list, multiple objects, prose around the object,
+    prose around a fence, multiple fences, duplicate keys, oversized output) returns
+    ``None`` so the caller fails closed.
     """
 
     if not isinstance(raw_output, str):
@@ -186,21 +187,37 @@ def _extract_json_object(raw_output: str) -> dict[str, Any] | None:
     if not text or len(text) > MAX_OUTPUT_CHARS:
         return None
 
-    fences = _FENCE_RE.findall(text)
-    if len(fences) == 1:
-        text = fences[0].strip()
-    elif len(fences) > 1:
-        # Multiple fenced blocks: non-conforming and ambiguous (possible echo-injection).
-        return None
+    # De-fence only when the ENTIRE output is exactly one fenced block (no prose outside),
+    # so a single spoofed fence embedded in prose cannot be selected.
+    fence_match = _FENCE_RE.fullmatch(text)
+    if fence_match:
+        text = fence_match.group("body").strip()
 
     try:
-        obj, end = json.JSONDecoder().raw_decode(text)
-    except json.JSONDecodeError:
+        obj, end = json.JSONDecoder(object_pairs_hook=_reject_duplicate_keys).raw_decode(text)
+    except (json.JSONDecodeError, ValueError):
+        # ValueError also covers the duplicate-key rejection from the pairs hook.
         return None
     if text[end:].strip():
         # Trailing content after the first object → ambiguous/multiple objects → fail closed.
         return None
     return obj if isinstance(obj, dict) else None
+
+
+def _reject_duplicate_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    """JSON object hook that rejects duplicate keys (which would otherwise silently win).
+
+    Without this, ``{"verdict":"fail",...,"verdict":"pass"}`` decodes to ``pass`` because the
+    default decoder keeps the last duplicate — a fail-open. Any duplicate key anywhere in the
+    object tree raises, forcing the caller to fail closed.
+    """
+
+    seen: set[str] = set()
+    for key, _value in pairs:
+        if key in seen:
+            raise ValueError(f"duplicate JSON key: {key}")
+        seen.add(key)
+    return dict(pairs)
 
 
 def _coerce_verdict(payload: dict[str, Any]) -> Verdict:
