@@ -330,7 +330,7 @@ def test_run_routes_human_change_to_escalation(monkeypatch: pytest.MonkeyPatch, 
     monkeypatch.setattr(runner.autodoc_route, "load_ledger", lambda path: {"schema_version": 1, "changes": {}})
     contract = {"fingerprint": "sha256:h", "report_path": "reports/monitoring/learn-changes-x.md"}
     spec = {"fingerprint": "sha256:h", "route": "human", "body": "```json\n" + json.dumps(contract) + "\n```", "title": "human", "labels": ["autodoc", "escalate"]}
-    monkeypatch.setattr(runner.autodoc_route, "route_report", lambda text, name, ledger: [spec])
+    monkeypatch.setattr(runner.autodoc_route, "route_report", lambda text, name, ledger, **_kw: [spec])
 
     result = runner.run(_config(tmp_path))
 
@@ -347,7 +347,7 @@ def test_run_autodraft_change_opens_pr(monkeypatch: pytest.MonkeyPatch, tmp_path
     monkeypatch.setattr(runner.autodoc_route, "load_ledger", lambda path: {"schema_version": 1, "changes": {}})
     contract = {"fingerprint": "sha256:a", "report_path": "reports/monitoring/learn-changes-x.md", "allowed_files": ["docs/x.md"]}
     spec = {"fingerprint": "sha256:a", "route": "autodraft", "body": "```json\n" + json.dumps(contract) + "\n```", "title": "draft", "labels": ["autodoc"]}
-    monkeypatch.setattr(runner.autodoc_route, "route_report", lambda text, name, ledger: [spec])
+    monkeypatch.setattr(runner.autodoc_route, "route_report", lambda text, name, ledger, **_kw: [spec])
     monkeypatch.setattr(runner, "_run_draft", lambda config, ctx, feedback: _draft())
     monkeypatch.setattr(runner, "_run_deterministic_verify", lambda config, ctx, draft: "pass")
     monkeypatch.setattr(runner, "_run_cross_model_review", lambda config, ctx, draft: {"verdict": "pass"})
@@ -366,7 +366,7 @@ def test_run_isolates_per_change_failure(monkeypatch: pytest.MonkeyPatch, tmp_pa
     monkeypatch.setattr(runner.autodoc_route, "load_ledger", lambda path: {"schema_version": 1, "changes": {}})
     contract = {"fingerprint": "sha256:a", "report_path": "reports/monitoring/learn-changes-x.md", "allowed_files": ["docs/x.md"]}
     spec = {"fingerprint": "sha256:a", "route": "autodraft", "body": "```json\n" + json.dumps(contract) + "\n```", "title": "draft", "labels": ["autodoc"]}
-    monkeypatch.setattr(runner.autodoc_route, "route_report", lambda text, name, ledger: [spec])
+    monkeypatch.setattr(runner.autodoc_route, "route_report", lambda text, name, ledger, **_kw: [spec])
 
     def boom(config: Any, ctx: Any, feedback: str) -> runner.DraftResult:
         raise RuntimeError("git exploded")
@@ -460,7 +460,7 @@ def test_run_creates_and_removes_worktree(monkeypatch: pytest.MonkeyPatch, tmp_p
     monkeypatch.setattr(runner.autodoc_route, "load_ledger", lambda path: {"schema_version": 1, "changes": {}})
     contract = {"fingerprint": "sha256:a", "report_path": "reports/monitoring/learn-changes-x.md", "allowed_files": ["docs/x.md"]}
     spec = {"fingerprint": "sha256:a", "route": "autodraft", "body": "```json\n" + json.dumps(contract) + "\n```", "title": "draft", "labels": ["autodoc"]}
-    monkeypatch.setattr(runner.autodoc_route, "route_report", lambda text, name, ledger: [spec])
+    monkeypatch.setattr(runner.autodoc_route, "route_report", lambda text, name, ledger, **_kw: [spec])
     monkeypatch.setattr(runner, "_run_draft", lambda config, ctx, feedback: _draft())
     monkeypatch.setattr(runner, "_run_deterministic_verify", lambda config, ctx, draft: "pass")
     monkeypatch.setattr(runner, "_run_cross_model_review", lambda config, ctx, draft: {"verdict": "pass"})
@@ -477,7 +477,7 @@ def test_run_no_specs_skips_worktree(monkeypatch: pytest.MonkeyPatch, tmp_path: 
     report.write_text("x", encoding="utf-8")
     monkeypatch.setattr(runner, "_latest_report", lambda config: report)
     monkeypatch.setattr(runner.autodoc_route, "load_ledger", lambda path: {"schema_version": 1, "changes": {}})
-    monkeypatch.setattr(runner.autodoc_route, "route_report", lambda text, name, ledger: [])
+    monkeypatch.setattr(runner.autodoc_route, "route_report", lambda text, name, ledger, **_kw: [])
 
     result = runner.run(_config(tmp_path))
 
@@ -530,7 +530,7 @@ def test_run_dedups_duplicate_fingerprints(monkeypatch: pytest.MonkeyPatch, tmp_
     contract = {"fingerprint": "sha256:dup", "report_path": "reports/monitoring/learn-changes-x.md", "allowed_files": ["docs/x.md"]}
     body = "```json\n" + json.dumps(contract) + "\n```"
     spec = {"fingerprint": "sha256:dup", "route": "autodraft", "body": body, "title": "draft", "labels": ["autodoc"]}
-    monkeypatch.setattr(runner.autodoc_route, "route_report", lambda text, name, ledger: [spec, dict(spec)])
+    monkeypatch.setattr(runner.autodoc_route, "route_report", lambda text, name, ledger, **_kw: [spec, dict(spec)])
     draft_calls = {"n": 0}
 
     def draft(config: Any, ctx: Any, feedback: str) -> runner.DraftResult:

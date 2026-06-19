@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any
 
 import autodoc_classifier as classifier
+import autodoc_verify
 
 ALLOWED_HEADINGS = [
     "Additional Resources",
@@ -28,6 +29,8 @@ FORBIDDEN_PATHS = [
     "assessment/**",
     "mkdocs.yml",
 ]
+# A URL redirect only ever updates the Learn URL list — never a control or playbook file.
+REDIRECT_TARGET_FILE = "docs/reference/microsoft-learn-urls.md"
 
 _CHANGE_BLOCK_RE = re.compile(
     r"^### \d+\.\s*(?P<topic>.+?)\n(?P<body>.*?)(?=^### \d+\.\s|^## |\Z)",
@@ -85,8 +88,20 @@ def build_contract(
     report_name: str,
     allowed_files: list[str],
     fingerprint: str,
+    repo_root: str | Path = ".",
 ) -> dict[str, Any]:
-    """Build the machine-readable authoring contract embedded in the issue body."""
+    """Build the machine-readable authoring contract embedded in the issue body.
+
+    For redirect changes the allowed file is the URL list (``microsoft-learn-urls.md``), whose
+    section headings are topic names (``Copilot Studio`` …) rather than the generic control
+    headings. So a redirect contract's ``allowed_headings`` are that file's OWN headings, letting
+    a minimal URL edit pass the verifier's section check while the other checks (path-allowlist,
+    diff-minimality, claim-support, language) still gate it.
+    """
+    if getattr(decision, "kind", "content") == "redirect":
+        allowed_headings = _redirect_allowed_headings(repo_root, allowed_files)
+    else:
+        allowed_headings = list(ALLOWED_HEADINGS)
     return {
         "schema_version": 1,
         "fingerprint": fingerprint,
@@ -96,13 +111,29 @@ def build_contract(
         "route": decision.route,
         "automerge_eligible": decision.automerge_eligible,
         "allowed_files": list(allowed_files),
-        "allowed_headings": list(ALLOWED_HEADINGS),
+        "allowed_headings": allowed_headings,
         "forbidden_paths": list(FORBIDDEN_PATHS),
         "validation": [
             "python scripts/verify_language_rules.py <files>",
             "mkdocs build --strict",
         ],
     }
+
+
+def _redirect_allowed_headings(repo_root: str | Path, allowed_files: list[str]) -> list[str]:
+    """Return the headings present in the redirect target file(s), using the SAME CommonMark
+    parser as the verifier so the contract's headings match what the verifier extracts."""
+    headings: set[str] = set()
+    for rel in allowed_files:
+        path = Path(repo_root) / rel
+        try:
+            content = path.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        for text in autodoc_verify._heading_lookup(content.splitlines()).values():  # noqa: SLF001 - shared heading oracle.
+            if text:
+                headings.add(text)
+    return sorted(headings)
 
 
 def _issue_title(decision: classifier.RoutingDecision) -> str:
@@ -216,13 +247,16 @@ def _change_blocks_by_url(report_text: str) -> dict[str, str]:
 
 
 def _allowed_files_for_change(change: classifier.Change, block_text: str) -> list[str]:
-    allowed_files = extract_allowed_files(block_text)
-    if change.kind == "redirect" and not allowed_files:
-        return ["docs/reference/microsoft-learn-urls.md"]
-    return allowed_files
+    if change.kind == "redirect":
+        # A URL redirect must ONLY ever edit the Learn URL list — never a control/playbook file.
+        # The same URL can appear in both a detailed change block (with a `- File:` control) and
+        # the redirect table; without this guard the redirect would inherit that control file in
+        # allowed_files and could edit control prose (and is auto-merge-eligible). Always pin it.
+        return [REDIRECT_TARGET_FILE]
+    return extract_allowed_files(block_text)
 
 
-def route_report(report_text: str, report_name: str, ledger: dict[str, Any]) -> list[dict[str, Any]]:
+def route_report(report_text: str, report_name: str, ledger: dict[str, Any], repo_root: str | Path = ".") -> list[dict[str, Any]]:
     """Classify a Learn report and return issue specs for changes not present in the ledger."""
     changes = classifier.parse_report(report_text)
     decisions = classifier.classify_report(report_text)
@@ -235,7 +269,7 @@ def route_report(report_text: str, report_name: str, ledger: dict[str, Any]) -> 
         if already_processed(ledger, fingerprint):
             continue
 
-        contract = build_contract(decision, report_name, allowed_files, fingerprint)
+        contract = build_contract(decision, report_name, allowed_files, fingerprint, repo_root)
         issue = build_issue(decision, change, contract, fingerprint)
         issue_specs.append(
             {
@@ -256,12 +290,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--report", required=True, help="Path to a reports/monitoring/learn-changes-*.md report")
     parser.add_argument("--ledger", required=True, help="Path to data/autodoc-ledger.json")
     parser.add_argument("--out", help="Path where issue-spec JSON should be written")
+    parser.add_argument("--repo-root", default=".", help="Repo root for resolving allowed_files (redirect heading extraction)")
     args = parser.parse_args(argv)
 
     report_path = Path(args.report)
     report_text = report_path.read_text(encoding="utf-8")
     ledger = load_ledger(args.ledger)
-    issue_specs = route_report(report_text, report_path.name, ledger)
+    issue_specs = route_report(report_text, report_path.name, ledger, repo_root=args.repo_root)
 
     if args.out:
         out_path = Path(args.out)
