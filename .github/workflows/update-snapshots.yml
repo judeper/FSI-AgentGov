@@ -24,7 +24,7 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.49.0-jammy
       options: --user 1001
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Verify a PR exists for this branch
         # Snapshot regen writes binary PNGs; require an open PR so the diff
