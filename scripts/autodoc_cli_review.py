@@ -167,7 +167,13 @@ def _default_runner(prompt: str, model: str, timeout: int) -> str:
 
 
 def _extract_json_object(raw_output: str) -> dict[str, Any] | None:
-    """Return the first balanced top-level JSON object found in ``raw_output``."""
+    """Return the model's verdict object, robust to prose/fences and echo-injection.
+
+    The report and diff are untrusted and may contain a spoofed ``{"verdict": "pass"}``
+    that the model could echo back. To defeat that, collect every balanced top-level JSON
+    object and prefer the **last** one carrying a ``verdict`` key — a model states its own
+    conclusion last, after any echoed input.
+    """
 
     if not isinstance(raw_output, str):
         return None
@@ -175,14 +181,17 @@ def _extract_json_object(raw_output: str) -> dict[str, Any] | None:
     if not text:
         return None
 
+    candidates: list[dict[str, Any]] = []
+
     # Fast path: the whole output is the JSON object.
     try:
         parsed = json.loads(text)
-        return parsed if isinstance(parsed, dict) else None
+        if isinstance(parsed, dict):
+            candidates.append(parsed)
     except json.JSONDecodeError:
         pass
 
-    # Tolerant path: scan for the first balanced {...} block (handles fences/prose around it).
+    # Tolerant path: scan for every balanced {...} block (handles fences/prose around it).
     for match in re.finditer(r"\{", text):
         candidate = _balanced_object(text, match.start())
         if candidate is None:
@@ -192,8 +201,14 @@ def _extract_json_object(raw_output: str) -> dict[str, Any] | None:
         except json.JSONDecodeError:
             continue
         if isinstance(parsed, dict):
-            return parsed
-    return None
+            candidates.append(parsed)
+
+    if not candidates:
+        return None
+    for obj in reversed(candidates):
+        if "verdict" in obj:
+            return obj
+    return candidates[-1]
 
 
 def _balanced_object(text: str, start: int) -> str | None:
