@@ -205,15 +205,16 @@ When enabled, it operates as a fail-closed, human-merge-gated loop:
    existing control prose) are routed to a human, while the remaining mechanical changes
    are drafted by an agent — and even those still require independent verification and a
    human merge.
-2. The GitHub Copilot coding agent drafts the edit on a `copilot/*` pull request.
-3. A required check runs **two independent verifiers** — a deterministic one (path/section
-   allowlist, diff-minimality, claim-support, FSI language) and a **cross-vendor LLM
-   faithfulness verifier** (a different model family from the author) — and **both must
-   pass**. A missing verifier key fails closed (`needs_human`), never a silent pass.
+2. The GitHub Copilot CLI, run headless on a schedule, drafts the edit on a branch and
+   opens a pull request.
+3. A deterministic required check (path/section allowlist, diff-minimality, claim-support,
+   FSI language) must pass, and — before the pull request is opened — an **independent
+   review by a different Copilot model family** must approve. Both fail closed
+   (`needs_human`), never a silent pass.
 4. A **human merges** the change (CODEOWNERS). Content is never auto-merged in Stage 1
    (`automerge_eligible` is redirect-only); regulatory/compliance material stays
    triage-only and is never auto-authored.
-5. On verifier failure the draft is retried a bounded number of times, then **escalated to
+5. On verification failure the draft is retried a bounded number of times, then **escalated to
    a human**.
 
 Maintainer operations and provisioning are documented in

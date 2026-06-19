@@ -14,9 +14,10 @@ Rationale (June 2026 autodoc council review, "who verifies the verifier"):
 unattended verification loops drift toward rubber-stamping. The pipeline must
 intermittently inject a blatant violation; if the gate ever *passes* a poison
 sample, autonomy must halt and a human must be paged. This module is that guard
-for the deterministic layer. When the cross-vendor LLM faithfulness verifier
-lands (Stage 1/2), extend ``run_canary`` to also run each poison sample through
-that verifier and require a FAIL there too (see ``_LLM_VERIFIER_HOOK``).
+for the deterministic layer. When the independent cross-model review (a different
+GitHub Copilot model family, run by the local runner) lands, extend ``run_canary``
+to also run each poison sample through that reviewer and require a FAIL there too
+(see ``_LLM_VERIFIER_HOOK``).
 
 Exit codes:
     0 - all poison samples correctly rejected (gate healthy)
@@ -142,9 +143,10 @@ CANARY_FIXTURES: list[tuple[str, ac.Change]] = [
         diff_text="")),
 ]
 
-# Extension point: once the cross-vendor LLM faithfulness verifier exists, set this
-# to a callable(change) -> bool ("passed") and require it to return False (reject)
-# for every poison fixture as well. Until then it is None (deterministic gate only).
+# Extension point: once the independent cross-model reviewer exists (a different
+# GitHub Copilot model family, invoked by the local runner), set this to a
+# callable(change) -> bool ("passed") and require it to return False (reject) for
+# every poison fixture as well. Until then it is None (deterministic gate only).
 _LLM_VERIFIER_HOOK = None
 
 
