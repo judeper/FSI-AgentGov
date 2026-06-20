@@ -771,3 +771,88 @@ def test_run_dedups_duplicate_fingerprints(monkeypatch: pytest.MonkeyPatch, tmp_
     statuses = [o["status"] for o in result["outcomes"]]
     assert statuses == ["pr_opened", "skipped"]
     assert draft_calls["n"] == 1  # second duplicate spec was not processed
+
+# --- Stage 2 redirect auto-merge integration -------------------------------------
+
+
+def test_pr_number_from_detail() -> None:
+    assert runner._pr_number_from_detail("https://github.com/o/r/pull/504") == 504
+    assert runner._pr_number_from_detail("PR#9") is None
+    assert runner._pr_number_from_detail("") is None
+
+
+def test_record_and_maybe_automerge_dry_run_noop(tmp_path: Path) -> None:
+    cfg = runner.RunnerConfig(repo_path=tmp_path, draft_model="a", review_model="b", dry_run=True)
+    ctx = _redirect_ctx("https://old/", "https://new/")
+    assert runner._record_and_maybe_automerge(cfg, ctx, "https://old/", "https://new/", "x") == "x"
+
+
+def test_record_and_maybe_automerge_locked_human_merge(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(runner, "_enable_automerge", lambda c, ctx: pytest.fail("must not auto-merge while locked"))
+    cfg = runner.RunnerConfig(repo_path=tmp_path, draft_model="a", review_model="b")
+    ctx = _redirect_ctx("https://old/", "https://new/")
+    detail = runner._record_and_maybe_automerge(cfg, ctx, "https://old/", "https://new/", "https://github.com/o/r/pull/7")
+    assert "auto-merge locked" in detail
+    led = runner._automerge_ledger_file(cfg)
+    assert "sha256:redir01" in runner.autodoc_automerge.load_ledger(led)["samples"]
+
+
+def test_record_and_maybe_automerge_unlocked_enables(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    calls: list[str] = []
+    monkeypatch.setattr(runner, "_enable_automerge", lambda c, ctx: calls.append(ctx.branch))
+    monkeypatch.setattr(
+        runner.autodoc_automerge,
+        "unlock_state",
+        lambda p, now=None, config=None: runner.autodoc_automerge.UnlockState(True, "unlocked", 10, 10, 0, 1.0, 5.0),
+    )
+    cfg = runner.RunnerConfig(repo_path=tmp_path, draft_model="a", review_model="b")
+    ctx = _redirect_ctx("https://old/", "https://new/")
+    detail = runner._record_and_maybe_automerge(cfg, ctx, "https://old/", "https://new/", "https://github.com/o/r/pull/7")
+    assert "auto-merge enabled" in detail
+    assert calls == [ctx.branch]
+
+
+def test_record_and_maybe_automerge_no_pr_number_noop(tmp_path: Path) -> None:
+    cfg = runner.RunnerConfig(repo_path=tmp_path, draft_model="a", review_model="b")
+    ctx = _redirect_ctx("https://old/", "https://new/")
+    assert runner._record_and_maybe_automerge(cfg, ctx, "https://old/", "https://new/", "PR#9") == "PR#9"
+    assert not runner._automerge_ledger_file(cfg).exists()
+
+def test_commit_is_reverted_detection(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    cfg = runner.RunnerConfig(repo_path=tmp_path, draft_model="a", review_model="b")
+    cp = runner.subprocess.CompletedProcess
+    monkeypatch.setattr(runner.subprocess, "run", lambda *a, **k: cp(args=[], returncode=0, stdout="deadbeef\n", stderr=""))
+    assert runner._commit_is_reverted(cfg, "abc") is True
+    monkeypatch.setattr(runner.subprocess, "run", lambda *a, **k: cp(args=[], returncode=0, stdout="", stderr=""))
+    assert runner._commit_is_reverted(cfg, "abc") is False
+    # fail closed on a git error
+    monkeypatch.setattr(runner.subprocess, "run", lambda *a, **k: cp(args=[], returncode=128, stdout="", stderr="boom"))
+    assert runner._commit_is_reverted(cfg, "abc") is True
+
+
+def test_fetch_pr_state_merged_reverted(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    cfg = runner.RunnerConfig(repo_path=tmp_path, draft_model="a", review_model="b")
+    cp = runner.subprocess.CompletedProcess
+    monkeypatch.setattr(runner.subprocess, "run", lambda *a, **k: cp(args=[], returncode=0, stdout='{"state":"MERGED","mergeCommit":{"oid":"abc"}}', stderr=""))
+    monkeypatch.setattr(runner, "_commit_is_reverted", lambda c, sha: True)
+    st = runner._fetch_pr_state(cfg, {"pr_number": 5})
+    assert st.state == "merged" and st.reverted is True
+
+
+def test_fetch_pr_state_merged_clean(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    cfg = runner.RunnerConfig(repo_path=tmp_path, draft_model="a", review_model="b")
+    cp = runner.subprocess.CompletedProcess
+    monkeypatch.setattr(runner.subprocess, "run", lambda *a, **k: cp(args=[], returncode=0, stdout='{"state":"MERGED","mergeCommit":{"oid":"abc"}}', stderr=""))
+    monkeypatch.setattr(runner, "_commit_is_reverted", lambda c, sha: False)
+    monkeypatch.setattr(runner, "_fetch_commit_diff", lambda c, sha: "DIFF")
+    st = runner._fetch_pr_state(cfg, {"pr_number": 5})
+    assert st.state == "merged" and st.reverted is False and st.merged_diff == "DIFF"
+
+def test_fetch_pr_state_uses_stored_merge_sha_via_git(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    # When merge_sha is already stored, _fetch_pr_state must re-check revert via git
+    # (_commit_is_reverted) and NOT call gh (which can fail open).
+    cfg = runner.RunnerConfig(repo_path=tmp_path, draft_model="a", review_model="b")
+    monkeypatch.setattr(runner.subprocess, "run", lambda *a, **k: pytest.fail("must not call gh when merge_sha is stored"))
+    monkeypatch.setattr(runner, "_commit_is_reverted", lambda c, sha: sha == "reverted-sha")
+    assert runner._fetch_pr_state(cfg, {"pr_number": 5, "merge_sha": "reverted-sha"}).reverted is True
+    assert runner._fetch_pr_state(cfg, {"pr_number": 5, "merge_sha": "clean-sha"}).reverted is False
