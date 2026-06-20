@@ -139,6 +139,56 @@ variable is not `true`). Either one set to non-`true` is a valid kill-switch.
 - **Audit trail:** every change carries a stable `AUTODOC-FINGERPRINT`; `data/autodoc-ledger.json`
   records routed changes; the cross-model review verdict appears in the PR body.
 
+## Stage 2: redirect auto-merge (built, gated OFF)
+
+Stage 2 lets the runner enable GitHub **auto-merge** on a deterministic redirect PR — but only for
+redirects, only behind an independent CI gate, and only once it has earned trust. It is **off by
+default** and stays inert until you deliberately activate it. Everything below is already merged.
+
+**What's built**
+- **Independent CI gate** (`scripts/autodoc_redirect_ci_verify.py` + `.github/workflows/autodoc-redirect-verify.yml`):
+  re-derives the clean-swap verdict from the actual PR diff on GitHub's side; runs on every PR and
+  self-shims success for non-redirect PRs (so it is safe to make a required check).
+- **Fail-closed unlock gate + agreement ledger** (`scripts/autodoc_automerge.py`,
+  `data/autodoc-automerge-ledger.json`): the runner records each redirect PR, reconciles its human
+  outcome each run (merged-as-is / edited / closed / reverted), and enables auto-merge ONLY when the
+  gate unlocks. "Merged-as-is" is re-verified with the same independent verifier; reverts are detected
+  via git (against the stored merge sha) and re-lock the gate.
+
+**The unlock gate** (`autodoc_automerge.unlock_state`) requires ALL of:
+
+| Condition | Env var | Default |
+|-----------|---------|---------|
+| Master switch on | `AUTOMERGE_ENABLED` | (off) |
+| Min terminal samples in window | `AUTOMERGE_MIN_SAMPLES` | 10 |
+| Min weeks the samples span | `AUTOMERGE_MIN_WEEKS` | 4 |
+| Min merged-exactly-as-is rate | `AUTOMERGE_MIN_AGREEMENT` | 1.0 |
+| Zero post-merge reverts in window | — | (always enforced) |
+| Window length (days) | `AUTOMERGE_WINDOW_DAYS` | 120 |
+
+Defaults are conservative placeholders — tune them with real data (decide-late). The agreement ledger
+is repo-local runtime state, not an anti-tamper boundary (see the `autodoc_automerge` module docstring).
+
+**How to activate (only after weeks of human-merged redirect agreement):**
+1. **Make the CI gate required:** after `autodoc-redirect-verify` has run once, add it to `main`
+   branch protection → Require status checks (it self-shims, so it will not block normal PRs). This is
+   what makes auto-merge gate on an independent re-verification.
+2. **Set the master switch (and optionally tune thresholds)** in the scheduled-task environment:
+   ```powershell
+   setx AUTOMERGE_ENABLED true
+   # optional: setx AUTOMERGE_MIN_SAMPLES 10 ; setx AUTOMERGE_MIN_WEEKS 4 ; setx AUTOMERGE_MIN_AGREEMENT 1.0
+   ```
+   Auto-merge still won't fire until the ledger shows enough merged-as-is agreement with zero reverts.
+   **Kill-switch:** `setx AUTOMERGE_ENABLED false`.
+3. Auto-merge fires via `gh pr merge --auto --squash` — GitHub merges only when the required checks
+   (including `autodoc-redirect-verify`) are green, so CI is never bypassed.
+
+> **Not yet built (deferred by design):** the automated **auto-revert workflow** (auto-open + merge a
+> revert PR on a post-merge check failure). Revert *detection* is already in place (the gate re-locks
+> on any revert). Build the auto-revert workflow when auto-merge is closer to activation and the right
+> post-merge signal is clear — its trigger is low-value for clean 1-line redirect swaps that already
+> passed CI before merge.
+
 ## Portability to other Gov repos
 
 The runner is repo-agnostic — the same scripts work for `FSI-CopilotGov`,
