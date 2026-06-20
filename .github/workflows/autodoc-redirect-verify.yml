@@ -1,0 +1,119 @@
+name: Autodoc Redirect Verify
+
+# Independent CI re-verification of the unattended runner's *redirect* PRs
+# (a moved Microsoft Learn URL swapped in docs/reference/microsoft-learn-urls.md).
+#
+# This is the Stage 2 safety backstop for redirect auto-merge: the merge is gated
+# on THIS check, which re-derives the clean-swap verdict from the actual PR diff on
+# GitHub's side rather than trusting the runner's own pre-PR verification.
+#
+# It runs on EVERY pull request (no paths filter) and self-shims: for any PR that is
+# not a runner redirect PR (head not `autodoc/*`, or missing the `autodoc` label) it
+# reports success immediately, so this is safe to enable as a required status check
+# without deadlocking normal PRs. For a redirect PR it runs the deterministic
+# verifier and fails closed if the diff is not a clean single-URL-cell swap.
+#
+# Safe under pull_request_target: it never checks out or executes PR code — the
+# verifier is run from the base (main) checkout and the diff is read via the API.
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, labeled, ready_for_review]
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: Pull request number to verify
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  autodoc-redirect-verify:
+    name: autodoc-redirect-verify
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Resolve PR metadata (API only)
+        id: meta
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_PR: ${{ inputs.pr || '' }}
+          EVENT_PR: ${{ github.event.pull_request.number || '' }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          mkdir -p .autodoc
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            PR_NUMBER="$INPUT_PR"
+          else
+            PR_NUMBER="$EVENT_PR"
+          fi
+          if [ -z "$PR_NUMBER" ]; then
+            echo "Unable to determine pull request number." >&2
+            exit 1
+          fi
+
+          gh api "repos/$REPO/pulls/$PR_NUMBER" > .autodoc/pr-meta.json
+          gh api "repos/$REPO/issues/$PR_NUMBER/labels?per_page=100" > .autodoc/pr-labels.json
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          pr = json.loads(Path(".autodoc/pr-meta.json").read_text(encoding="utf-8"))
+          labels = json.loads(Path(".autodoc/pr-labels.json").read_text(encoding="utf-8"))
+          names = {label["name"] for label in labels if isinstance(label, dict) and "name" in label}
+          head_ref = pr["head"]["ref"]
+          is_redirect = head_ref.startswith("autodoc/") and "autodoc" in names
+
+          output = Path(os.environ["GITHUB_OUTPUT"])
+          with output.open("a", encoding="utf-8") as handle:
+              handle.write(f"pr={pr['number']}\n")
+              handle.write(f"base_sha={pr['base']['sha']}\n")
+              handle.write(f"head_sha={pr['head']['sha']}\n")
+              handle.write(f"head_repo={pr['head']['repo']['full_name']}\n")
+              handle.write(f"is_redirect={str(is_redirect).lower()}\n")
+          print(f"PR #{pr['number']} head={head_ref} labels={sorted(names)} is_redirect={is_redirect}")
+          PY
+
+      - name: Shim success for non-redirect PRs
+        if: steps.meta.outputs.is_redirect != 'true'
+        run: echo "Not a runner redirect PR (head not autodoc/* or missing autodoc label); reporting success."
+
+      - name: Refuse forked redirect PRs
+        if: steps.meta.outputs.is_redirect == 'true' && steps.meta.outputs.head_repo != github.repository
+        run: |
+          echo "Autodoc redirect verification only supports same-repository autodoc/* PRs." >&2
+          exit 2
+
+      - name: Check out base verifier only
+        if: steps.meta.outputs.is_redirect == 'true' && steps.meta.outputs.head_repo == github.repository
+        uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Set up Python
+        if: steps.meta.outputs.is_redirect == 'true' && steps.meta.outputs.head_repo == github.repository
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Fetch PR diff (API only) and verify
+        if: steps.meta.outputs.is_redirect == 'true' && steps.meta.outputs.head_repo == github.repository
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          BASE_SHA: ${{ steps.meta.outputs.base_sha }}
+          HEAD_SHA: ${{ steps.meta.outputs.head_sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p .autodoc
+          gh api -H "Accept: application/vnd.github.v3.diff" "repos/$REPO/compare/$BASE_SHA...$HEAD_SHA" > .autodoc/pr.diff
+          # Verifier code is from the base checkout; the diff is read via the API.
+          # Neither executes PR-modified code, so this is safe as a required check.
+          python scripts/autodoc_redirect_ci_verify.py --diff .autodoc/pr.diff
