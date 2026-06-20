@@ -1,15 +1,23 @@
 <#
 .SYNOPSIS
-    Registers a Windows Scheduled Task that runs the unattended autodoc drafter daily.
+    Registers a Windows Scheduled Task that runs the unattended autodoc drafter daily against a
+    dedicated checkout the task fully owns.
 
 .DESCRIPTION
     The task runs scripts/autodoc_runner.py on a schedule. The runner is a no-op unless the
     AUTODOC_ENABLED environment variable is 'true' (the master activation switch), so
     registering the task does NOT by itself enable autonomous drafting.
 
-    The task action prunes stale git worktrees first (in case a prior run crashed mid-draft),
-    then invokes the runner. It runs as the current user, inheriting that user's GitHub Copilot
-    CLI authentication (the licensed account) for drafting.
+    Dedicated checkout: the task operates on its OWN clone of the repository (-CheckoutPath, default
+    a sibling '<repo>.autodoc'), NOT the operator's working tree. This script clones it once at
+    registration (seeding the idempotency ledger from the operator's checkout if present). Each run
+    the task hard-syncs that checkout to origin/<base> (fetch + checkout + reset --hard) so the runner
+    always sees the latest merged Learn Monitor report — without ever touching the operator's working
+    tree, branches, or uncommitted changes. The sync is fail-closed: any fetch/checkout/reset error
+    throws before the runner starts.
+
+    The task runs as the current user, inheriting that user's GitHub Copilot CLI authentication (the
+    licensed account) for drafting.
 
     For GitHub writes (push / PR / escalation issue) the runner calls bare `git push origin` and
     `gh`, which would otherwise use the machine's *active* GitHub account. On a box whose active
@@ -25,7 +33,15 @@
         gh label create autodoc --color 0E8A16 --description "Automated Learn Monitor documentation pipeline"
 
 .PARAMETER RepoPath
-    Absolute path to the repository working tree (e.g. C:\dev\FSI-AgentGov).
+    Absolute path to the operator's repository working tree (e.g. C:\dev\FSI-AgentGov). Used to
+    resolve the origin URL and to seed the ledger; the task itself runs against -CheckoutPath.
+
+.PARAMETER CheckoutPath
+    Absolute path to the dedicated checkout the task owns and hard-syncs each run. Defaults to a
+    sibling '<RepoPath>.autodoc'. Cloned from the operator repo's origin if it does not yet exist.
+
+.PARAMETER BaseBranch
+    Branch the dedicated checkout is synced to each run (matches the runner's base). Default 'main'.
 
 .PARAMETER DraftModel
     Copilot model id used to DRAFT edits (e.g. a strong model).
@@ -53,6 +69,8 @@
 .NOTES
     Remove with:  Unregister-ScheduledTask -TaskName 'FSI-AgentGov-Autodoc' -Confirm:$false
     Kill-switch:  set AUTODOC_ENABLED to anything but 'true' (or remove it) to make the runner inert.
+    The dedicated checkout ('<repo>.autodoc' by default) can be deleted to force a fresh clone next
+    registration; the runner's idempotency ledger lives in it (data/autodoc-ledger.json, untracked).
 #>
 [CmdletBinding(SupportsShouldProcess)]
 param(
@@ -72,16 +90,55 @@ param(
 
     [string]$PythonExe = 'python',
 
-    [string]$PushAccount = 'judeper'
+    [string]$PushAccount = 'judeper',
+
+    [string]$CheckoutPath = '',
+
+    [string]$BaseBranch = 'main'
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $resolvedRepo = (Resolve-Path -Path $RepoPath).Path
-$runnerScript = Join-Path -Path $resolvedRepo -ChildPath 'scripts/autodoc_runner.py'
-if (-not (Test-Path -Path $runnerScript)) {
-    throw "Runner not found at $runnerScript. Pass the repository root via -RepoPath."
+
+# Dedicated checkout the task fully owns. The runner only ever reads the report/ledger from, and
+# writes branches inside, this checkout — so the task can hard-sync it to origin/<base> every run
+# without ever touching the operator's working tree. Default: a sibling '<repo>.autodoc'.
+if ([string]::IsNullOrWhiteSpace($CheckoutPath)) {
+    $CheckoutPath = "$resolvedRepo.autodoc"
+}
+$originUrl = (& git -C $resolvedRepo remote get-url origin 2>$null | Select-Object -First 1)
+if ([string]::IsNullOrWhiteSpace($originUrl)) {
+    throw "Could not resolve the 'origin' remote URL from $resolvedRepo."
+}
+$originUrl = $originUrl.Trim()
+
+if (Test-Path -Path (Join-Path -Path $CheckoutPath -ChildPath '.git')) {
+    Write-Output "Using existing autodoc checkout: $CheckoutPath"
+}
+elseif (Test-Path -Path $CheckoutPath) {
+    throw "CheckoutPath '$CheckoutPath' exists but is not a git checkout. Remove it or pass a different -CheckoutPath."
+}
+elseif ($PSCmdlet.ShouldProcess($CheckoutPath, "Clone $originUrl for the autodoc task")) {
+    & git clone --quiet $originUrl $CheckoutPath
+    if ($LASTEXITCODE -ne 0) { throw "git clone of $originUrl into $CheckoutPath failed (exit $LASTEXITCODE)." }
+    # Seed the idempotency ledger from the operator's checkout so the first task run does not
+    # reprocess already-handled changes (the runner dedupes anyway, but this avoids the churn).
+    $srcLedger = Join-Path -Path $resolvedRepo -ChildPath 'data/autodoc-ledger.json'
+    $dstLedger = Join-Path -Path $CheckoutPath -ChildPath 'data/autodoc-ledger.json'
+    if ((Test-Path -Path $srcLedger) -and -not (Test-Path -Path $dstLedger)) {
+        Copy-Item -Path $srcLedger -Destination $dstLedger
+        Write-Output "Seeded autodoc ledger into the dedicated checkout."
+    }
+}
+
+# Absolute checkout path for the task command literals (works even under -WhatIf, when the clone has
+# not been created and Resolve-Path would fail).
+$resolvedCheckout = if (Test-Path -Path $CheckoutPath) { (Resolve-Path -Path $CheckoutPath).Path } else { [System.IO.Path]::GetFullPath($CheckoutPath) }
+$runnerScript = Join-Path -Path $resolvedCheckout -ChildPath 'scripts/autodoc_runner.py'
+if ((Test-Path -Path $resolvedCheckout) -and -not (Test-Path -Path $runnerScript)) {
+    throw "Runner not found at $runnerScript in the autodoc checkout."
 }
 
 # The task command: prune stale worktrees, then run the unattended drafter. The runner itself
@@ -95,12 +152,14 @@ function ConvertTo-PSLiteral {
     return "'" + ($Value -replace "'", "''") + "'"
 }
 
-$repoLit = ConvertTo-PSLiteral -Value $resolvedRepo
+$checkoutLit = ConvertTo-PSLiteral -Value $resolvedCheckout
 $runnerLit = ConvertTo-PSLiteral -Value $runnerScript
 $pythonLit = ConvertTo-PSLiteral -Value $PythonExe
 $draftLit = ConvertTo-PSLiteral -Value $DraftModel
 $reviewLit = ConvertTo-PSLiteral -Value $ReviewModel
 $pushLit = ConvertTo-PSLiteral -Value $PushAccount
+$baseLit = ConvertTo-PSLiteral -Value $BaseBranch
+$originRefLit = ConvertTo-PSLiteral -Value "origin/$BaseBranch"
 
 # Authenticate every git/PR write as the push account for the duration of the runner process only.
 # The runner uses bare `git push origin` and `gh`; without this they would use the machine's active
@@ -123,17 +182,34 @@ $authSetup = @(
     "`$env:GIT_CONFIG_VALUE_1='!gh auth git-credential'"
 ) -join '; '
 
-$innerCommand = "$authSetup; git -C $repoLit worktree prune; & $pythonLit $runnerLit --repo $repoLit --draft-model $draftLit --review-model $reviewLit"
+# Before each run, hard-sync the dedicated checkout to the latest origin/<base> so the runner reads
+# the newest merged Learn Monitor report. Fail closed: any git error throws before the runner starts,
+# rather than silently processing a stale report. reset --hard does not remove untracked files, so the
+# idempotency ledger (data/autodoc-ledger.json) survives. This only ever touches the dedicated
+# checkout, never the operator's working tree.
+$syncSetup = @(
+    "git -C $checkoutLit fetch --quiet origin $baseLit",
+    "if (`$LASTEXITCODE -ne 0) { throw 'Register-AutodocTask: git fetch failed in the autodoc checkout; aborting.' }",
+    "git -C $checkoutLit checkout --quiet $baseLit",
+    "if (`$LASTEXITCODE -ne 0) { throw 'Register-AutodocTask: git checkout of the base branch failed; aborting.' }",
+    "git -C $checkoutLit reset --hard --quiet $originRefLit",
+    "if (`$LASTEXITCODE -ne 0) { throw 'Register-AutodocTask: git reset --hard to origin failed; aborting.' }",
+    "git -C $checkoutLit worktree prune"
+) -join '; '
+
+$innerCommand = "$authSetup; $syncSetup; & $pythonLit $runnerLit --repo $checkoutLit --draft-model $draftLit --review-model $reviewLit"
 $encodedCommand = [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($innerCommand))
 $argument = "-NoProfile -ExecutionPolicy Bypass -EncodedCommand $encodedCommand"
 
-$action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument $argument -WorkingDirectory $resolvedRepo
+$action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument $argument -WorkingDirectory $resolvedCheckout
 $trigger = New-ScheduledTaskTrigger -Daily -At $AtTime
 $settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -ExecutionTimeLimit (New-TimeSpan -Hours 2)
 $description = 'FSI-AgentGov autonomous Learn Monitor documentation drafter. Inert unless AUTODOC_ENABLED=true.'
 
 if ($PSCmdlet.ShouldProcess($TaskName, 'Register scheduled task')) {
     Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger -Settings $settings -Description $description -Force | Out-Null
-    Write-Output "Registered scheduled task '$TaskName' (daily at $AtTime) running: $runnerScript"
+    Write-Output "Registered scheduled task '$TaskName' (daily at $AtTime)."
+    Write-Output "  Dedicated checkout: $resolvedCheckout (hard-synced to origin/$BaseBranch each run)"
+    Write-Output "  Writes as: $PushAccount (token from gh keyring at run time)"
     Write-Output "The runner stays inert until AUTODOC_ENABLED=true. To activate, set that env var; to stop, unset it or run: Unregister-ScheduledTask -TaskName '$TaskName' -Confirm:`$false"
 }
