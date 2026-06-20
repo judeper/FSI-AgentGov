@@ -39,7 +39,7 @@ def _seed(path: Path, n: int, *, outcome: str, first_days_ago: float = 30, span_
             "fingerprint": fp, "pr_number": 100 + i, "pr_url": f"u{i}",
             "old_url": OLD, "new_url": NEW, "url_pair": "x",
             "drafted_at": am._iso(at), "outcome": outcome, "outcome_at": am._iso(at),
-            "reconciled_at": am._iso(at),
+            "reconciled_at": am._iso(at), "merge_sha": f"sha{i}",
         }
     am.save_ledger(path, data)
 
@@ -189,3 +189,25 @@ def test_reconcile_sets_reconciled_at(tmp_path: Path) -> None:
     am.reconcile(p, lambda s: am.PrState("merged", merged_diff=_merged_diff(OLD, NEW)), now=_t(0))
     sample = am.load_ledger(p)["samples"]["sha256:a"]
     assert sample["outcome"] == "merged_as_is" and sample.get("reconciled_at")
+
+def test_unlock_excludes_merged_as_is_without_merge_sha(tmp_path: Path) -> None:
+    # A merged_as_is row whose revert status is not checkable (no merge_sha) must not count.
+    data = am.load_ledger(p := tmp_path / "led.json")
+    for i in range(5):
+        at = am._iso(_t(30 - i * 5))
+        data["samples"][f"sha256:n{i}"] = {
+            "fingerprint": f"sha256:n{i}", "pr_number": i, "pr_url": "u",
+            "old_url": OLD, "new_url": NEW, "url_pair": "x",
+            "drafted_at": at, "outcome": "merged_as_is", "outcome_at": at,
+            "reconciled_at": at,  # no merge_sha
+        }
+    am.save_ledger(p, data)
+    st = am.unlock_state(p, now=_t(0), config=_enabled_cfg(min_samples=3))
+    assert not st.unlocked and st.samples == 0
+
+
+def test_reconcile_stores_merge_sha(tmp_path: Path) -> None:
+    p = tmp_path / "led.json"
+    am.record_drafted(p, fingerprint="sha256:a", pr_number=5, pr_url="u", old_url=OLD, new_url=NEW, now=_t(5))
+    am.reconcile(p, lambda s: am.PrState("merged", merged_diff=_merged_diff(OLD, NEW), merge_sha="deadbeef"), now=_t(0))
+    assert am.load_ledger(p)["samples"]["sha256:a"]["merge_sha"] == "deadbeef"

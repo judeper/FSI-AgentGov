@@ -125,8 +125,9 @@ class PrState:
     """Outcome of an opened sample PR, as observed from GitHub."""
 
     state: str  # "open" | "merged" | "closed"
-    merged_diff: str | None = None  # the base...merge diff when state == "merged"
+    merged_diff: str | None = None  # the base...merge diff when first observed merged
     reverted: bool = False
+    merge_sha: str | None = None  # the merge commit sha, stored so later revert re-checks use git
 
 
 def _classify_merged(sample: dict[str, Any], merged_diff: str | None) -> str:
@@ -174,6 +175,9 @@ def reconcile(path: Path, fetch_state: Callable[[dict[str, Any]], PrState], now:
             sample["outcome"] = "reverted"
         elif observed.state == "merged":
             sample["outcome"] = _classify_merged(sample, observed.merged_diff)
+            # Store the merge sha so later revert re-checks use git (reliable, fail-closed)
+            # instead of gh (which can fail open).
+            sample["merge_sha"] = observed.merge_sha
         elif observed.state == "closed":
             sample["outcome"] = "closed"
         else:
@@ -258,6 +262,11 @@ def unlock_state(path: Path, now: datetime | None = None, config: dict[str, Any]
         if not (window_start <= outcome_dt <= now):
             continue
         if drafted_dt > now or drafted_dt > outcome_dt:
+            continue
+        # A merged-as-is sample is only trustworthy as agreement if its revert status is
+        # checkable: it must carry the merge sha that reconcile re-checks against git each
+        # run. Without it (legacy/corrupt row) we cannot confirm it wasn't reverted -> exclude.
+        if sample["outcome"] == "merged_as_is" and not sample.get("merge_sha"):
             continue
         terminal.append(sample)
 

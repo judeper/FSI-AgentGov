@@ -480,6 +480,16 @@ def _reconcile_automerge(config: RunnerConfig) -> None:
 
 
 def _fetch_pr_state(config: RunnerConfig, sample: dict[str, Any]) -> autodoc_automerge.PrState:
+    # Once a sample is known merged, the only thing that can still change is whether its
+    # merge commit was reverted. Re-check that with git against the stored merge sha — git
+    # on the hard-synced checkout is reliable and _commit_is_reverted fails CLOSED — instead
+    # of gh, which can fail open (a gh outage must never let a reverted sample keep counting).
+    stored_sha = sample.get("merge_sha")
+    if stored_sha:
+        return autodoc_automerge.PrState(
+            "merged", merge_sha=stored_sha, reverted=_commit_is_reverted(config, stored_sha)
+        )
+
     pr_number = sample.get("pr_number")
     completed = subprocess.run(
         ["gh", "pr", "view", str(pr_number), "--repo", _repo_slug(config), "--json", "state,mergeCommit"],
@@ -494,10 +504,12 @@ def _fetch_pr_state(config: RunnerConfig, sample: dict[str, Any]) -> autodoc_aut
     gh_state = str(info.get("state") or "").upper()
     if gh_state == "MERGED":
         merge_sha = (info.get("mergeCommit") or {}).get("oid")
-        if merge_sha and _commit_is_reverted(config, merge_sha):
-            return autodoc_automerge.PrState("merged", reverted=True)
-        diff = _fetch_commit_diff(config, merge_sha) if merge_sha else None
-        return autodoc_automerge.PrState("merged", merged_diff=diff)
+        if not merge_sha:
+            return autodoc_automerge.PrState("open")  # merged but sha unknown -> retry next run
+        if _commit_is_reverted(config, merge_sha):
+            return autodoc_automerge.PrState("merged", merge_sha=merge_sha, reverted=True)
+        diff = _fetch_commit_diff(config, merge_sha)
+        return autodoc_automerge.PrState("merged", merged_diff=diff, merge_sha=merge_sha)
     if gh_state == "CLOSED":
         return autodoc_automerge.PrState("closed")
     return autodoc_automerge.PrState("open")

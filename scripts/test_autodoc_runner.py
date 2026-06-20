@@ -847,3 +847,12 @@ def test_fetch_pr_state_merged_clean(monkeypatch: pytest.MonkeyPatch, tmp_path: 
     monkeypatch.setattr(runner, "_fetch_commit_diff", lambda c, sha: "DIFF")
     st = runner._fetch_pr_state(cfg, {"pr_number": 5})
     assert st.state == "merged" and st.reverted is False and st.merged_diff == "DIFF"
+
+def test_fetch_pr_state_uses_stored_merge_sha_via_git(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    # When merge_sha is already stored, _fetch_pr_state must re-check revert via git
+    # (_commit_is_reverted) and NOT call gh (which can fail open).
+    cfg = runner.RunnerConfig(repo_path=tmp_path, draft_model="a", review_model="b")
+    monkeypatch.setattr(runner.subprocess, "run", lambda *a, **k: pytest.fail("must not call gh when merge_sha is stored"))
+    monkeypatch.setattr(runner, "_commit_is_reverted", lambda c, sha: sha == "reverted-sha")
+    assert runner._fetch_pr_state(cfg, {"pr_number": 5, "merge_sha": "reverted-sha"}).reverted is True
+    assert runner._fetch_pr_state(cfg, {"pr_number": 5, "merge_sha": "clean-sha"}).reverted is False
