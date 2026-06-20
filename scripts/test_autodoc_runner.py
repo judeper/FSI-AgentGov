@@ -89,6 +89,23 @@ def test_redirect_diff_is_clean_rejects_wrong_file() -> None:
     assert not runner._redirect_diff_is_clean(["docs/controls/x.md"], ["docs/reference/microsoft-learn-urls.md"], diff, old, new)
 
 
+def test_redirect_diff_is_clean_rejects_prefix_corrupted_sibling() -> None:
+    # Independent of the replacement regex: if a sibling cell (value != old_url) was altered, the
+    # structural guard must reject because its URL cell is not exactly old_url.
+    old, new = "https://learn.microsoft.com/a/foo", "https://learn.microsoft.com/a/baz"
+    diff = (
+        f"-| B | {old}{{bar}} | Jan 2026 |\n"  # sibling cell value is old+'{bar}', not old_url
+        f"+| B | {new}{{bar}} | Jan 2026 |\n"
+    )
+    assert not runner._redirect_diff_is_clean(["docs/reference/microsoft-learn-urls.md"], ["docs/reference/microsoft-learn-urls.md"], diff, old, new)
+
+
+def test_redirect_diff_is_clean_rejects_non_table_line() -> None:
+    old, new = "https://a/old/", "https://a/new/"
+    diff = f"-See {old} for details\n+See {new} for details\n"  # prose, no pipe-delimited URL cell
+    assert not runner._redirect_diff_is_clean(["docs/reference/microsoft-learn-urls.md"], ["docs/reference/microsoft-learn-urls.md"], diff, old, new)
+
+
 def _redirect_git_mock(diff: str):
     def fake_git(config: Any, *args: str) -> str:
         if "--name-only" in args:

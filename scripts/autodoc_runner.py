@@ -255,9 +255,7 @@ def _process_redirect(config: RunnerConfig, ctx: ChangeContext) -> Outcome:
 
     old_url = str(ctx.contract.get("source_url", "")).strip()
     match = _REDIRECT_TO_RE.search(ctx.instructions)
-    # Strip only wrapper/markdown punctuation from the parsed URL — never the trailing '/', which
-    # is part of the stored Learn URLs.
-    new_url = match.group(1).strip().rstrip(")]>\"'`") if match else ""
+    new_url = match.group(1).strip() if match else ""
     if not (old_url.startswith("http") and new_url.startswith("http")) or old_url == new_url:
         return _do_escalate(config, ctx, "redirect_parse_failed", f"could not resolve a URL swap (old={old_url!r} new={new_url!r})")
 
@@ -314,8 +312,32 @@ def _apply_and_open_redirect(config: RunnerConfig, ctx: ChangeContext, old_url: 
     return Outcome(ctx.fingerprint, "pr_opened", detail)
 
 
+def _swap_url_cell(line: str, old_url: str, new_url: str) -> str | None:
+    """Replace a markdown table cell whose trimmed value is exactly ``old_url`` with ``new_url``.
+
+    Returns the rewritten line, or ``None`` if the line does not have exactly one pipe-delimited
+    cell equal to ``old_url``. This is intentionally independent of the replacement regex: it matches
+    a *complete* table cell, so a sibling URL that merely has ``old_url`` as a prefix (a different,
+    longer cell value) is never mistaken for the target.
+    """
+
+    cells = line.split("|")
+    hits = [i for i, cell in enumerate(cells) if cell.strip() == old_url]
+    if len(hits) != 1:
+        return None
+    index = hits[0]
+    cells[index] = cells[index].replace(old_url, new_url)
+    return "|".join(cells)
+
+
 def _redirect_diff_is_clean(changed_files: list[str], allowed: list[str], diff_text: str, old_url: str, new_url: str) -> bool:
-    """True only if the staged diff is exactly an old_url→new_url swap confined to allowed files."""
+    """True only if the staged diff is exactly an old_url→new_url swap confined to allowed files.
+
+    The check is structural (table-cell based), not a string ``replace``: every removed line must be a
+    table row whose URL cell is *exactly* ``old_url`` and whose only difference from the matching added
+    line is that cell becoming ``new_url``. A prefix-corrupted sibling URL (cell value != ``old_url``)
+    therefore fails this guard even if the replacement regex had let it through.
+    """
 
     if not changed_files or any(rel not in allowed for rel in changed_files):
         return False
@@ -330,10 +352,13 @@ def _redirect_diff_is_clean(changed_files: list[str], allowed: list[str], diff_t
             removed.append(line[1:])
     if not added or len(added) != len(removed):
         return False
-    if not all(old_url in line for line in removed) or not all(new_url in line for line in added):
-        return False
-    # Each removed line, with old_url replaced by new_url, must equal an added line (URL-only change).
-    return sorted(line.replace(old_url, new_url) for line in removed) == sorted(added)
+    transformed: list[str] = []
+    for line in removed:
+        swapped = _swap_url_cell(line, old_url, new_url)
+        if swapped is None or new_url not in swapped:
+            return False
+        transformed.append(swapped)
+    return sorted(transformed) == sorted(added)
 
 
 def _open_pr_redirect(config: RunnerConfig, ctx: ChangeContext, old_url: str, new_url: str) -> str:
