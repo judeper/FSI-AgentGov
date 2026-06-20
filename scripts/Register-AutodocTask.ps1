@@ -9,7 +9,20 @@
 
     The task action prunes stale git worktrees first (in case a prior run crashed mid-draft),
     then invokes the runner. It runs as the current user, inheriting that user's GitHub Copilot
-    CLI authentication (the licensed account) and the gh/git credentials used for pushes.
+    CLI authentication (the licensed account) for drafting.
+
+    For GitHub writes (push / PR / escalation issue) the runner calls bare `git push origin` and
+    `gh`, which would otherwise use the machine's *active* GitHub account. On a box whose active
+    account is an Enterprise Managed User (EMU), that account is denied write access (HTTP 403) to a
+    personal repo. The task therefore authenticates every write as -PushAccount: at task time it
+    resolves that account's token from the gh keyring (no static secret is stored) into GH_TOKEN and
+    routes git's github.com credentials through `gh auth git-credential` via a process-scoped
+    GIT_CONFIG override. These environment variables live only inside the task process, so the
+    operator's interactive git/gh accounts are untouched.
+
+    Prerequisite: the repo must have the `autodoc` and `escalate` labels (the runner attaches them to
+    PRs/issues). Create the missing one(s) once with, e.g.:
+        gh label create autodoc --color 0E8A16 --description "Automated Learn Monitor documentation pipeline"
 
 .PARAMETER RepoPath
     Absolute path to the repository working tree (e.g. C:\dev\FSI-AgentGov).
@@ -29,6 +42,10 @@
 
 .PARAMETER PythonExe
     Python executable to run the runner with. Default 'python'.
+
+.PARAMETER PushAccount
+    GitHub account used for all repository writes (push, PR, escalation issues). Its token is read
+    from the gh keyring at task time and used for both git and gh. Default 'judeper'.
 
 .EXAMPLE
     ./Register-AutodocTask.ps1 -RepoPath C:\dev\FSI-AgentGov -DraftModel claude-opus-4.8 -ReviewModel gpt-5.5
@@ -53,7 +70,9 @@ param(
     [ValidatePattern('^\d{2}:\d{2}$')]
     [string]$AtTime = '12:30',
 
-    [string]$PythonExe = 'python'
+    [string]$PythonExe = 'python',
+
+    [string]$PushAccount = 'judeper'
 )
 
 Set-StrictMode -Version Latest
@@ -81,8 +100,30 @@ $runnerLit = ConvertTo-PSLiteral -Value $runnerScript
 $pythonLit = ConvertTo-PSLiteral -Value $PythonExe
 $draftLit = ConvertTo-PSLiteral -Value $DraftModel
 $reviewLit = ConvertTo-PSLiteral -Value $ReviewModel
+$pushLit = ConvertTo-PSLiteral -Value $PushAccount
 
-$innerCommand = "git -C $repoLit worktree prune; & $pythonLit $runnerLit --repo $repoLit --draft-model $draftLit --review-model $reviewLit"
+# Authenticate every git/PR write as the push account for the duration of the runner process only.
+# The runner uses bare `git push origin` and `gh`; without this they would use the machine's active
+# GitHub account (denied 403 on an EMU-licensed box). We resolve the push account's token from the
+# gh keyring AT TASK TIME (no static secret persisted) into GH_TOKEN, and a process-scoped GIT_CONFIG
+# override routes git's github.com credentials through `gh auth git-credential` so the bare push uses
+# the same token. The `$env:` references are escaped so they evaluate inside the task, not now.
+#
+# Fail closed: if the token cannot be resolved (keyring unreachable, account absent, task running
+# without an interactive session), THROW before the runner starts — otherwise GH_TOKEN would be empty
+# and the runner would silently fall back to the machine's active account (the denied/EMU one).
+$authSetup = @(
+    "`$autodocToken=(gh auth token --user $pushLit)",
+    "if (`$LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace(`$autodocToken)) { throw 'Register-AutodocTask: could not resolve a GitHub token for the push account from the gh keyring; aborting so the runner does not write as the wrong/denied account.' }",
+    "`$env:GH_TOKEN=`$autodocToken",
+    "`$env:GIT_CONFIG_COUNT='2'",
+    "`$env:GIT_CONFIG_KEY_0='credential.https://github.com.helper'",
+    "`$env:GIT_CONFIG_VALUE_0=''",
+    "`$env:GIT_CONFIG_KEY_1='credential.https://github.com.helper'",
+    "`$env:GIT_CONFIG_VALUE_1='!gh auth git-credential'"
+) -join '; '
+
+$innerCommand = "$authSetup; git -C $repoLit worktree prune; & $pythonLit $runnerLit --repo $repoLit --draft-model $draftLit --review-model $reviewLit"
 $encodedCommand = [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($innerCommand))
 $argument = "-NoProfile -ExecutionPolicy Bypass -EncodedCommand $encodedCommand"
 
