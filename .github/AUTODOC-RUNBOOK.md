@@ -74,17 +74,29 @@ variable is not `true`). Either one set to non-`true` is a valid kill-switch.
 1. **Copilot CLI logged in** as `judep_microsoft` (the licensed account) on the machine that runs
    the task: `copilot` → `/login` if needed. This is the model entitlement; it is independent of
    the `gh` active account.
-2. **`gh`/git `judeper` credentials available** to that user context (the runner pushes and opens
-   PRs as `judeper`). Verify `gh auth status` shows `judeper` and `git push` works.
-3. **Register the scheduled task:**
+2. **`gh`/git `judeper` credentials available** to that user context. The runner pushes and opens
+   PRs/issues as the **push account** (`-PushAccount`, default `judeper`); the task command resolves
+   that account's token from the gh keyring at run time (via `gh auth token --user judeper`) and
+   exposes it to both `git` and `gh` for the runner process only — so the machine's active EMU
+   account never blocks the write. Verify `gh auth status` lists `judeper` and that
+   `gh auth token --user judeper` returns a token.
+3. **Create the labels the runner attaches** (one-time, idempotent). The runner labels its PRs
+   `autodoc` and its escalation issues `autodoc` + `escalate`; a missing label fails the write
+   (fail-closed). Create any that are absent:
+   ```powershell
+   gh label create autodoc --repo judeper/FSI-AgentGov --color 0E8A16 --description "Automated Learn Monitor documentation pipeline"
+   gh label create escalate --repo judeper/FSI-AgentGov --color FBCA04 --description "Needs human review" 2>$null
+   ```
+4. **Register the scheduled task:**
    ```powershell
    ./scripts/Register-AutodocTask.ps1 -RepoPath C:\dev\FSI-AgentGov -DraftModel <draft-model> -ReviewModel <different-family-model>
    ```
    Pick a powerful draft model and a **different family** for review (e.g. an Opus/GPT/Gemini split).
-4. **(Optional backstop) Require the deterministic gate:** after `autodoc-verify.yml` has run once,
+   For another repo, pass `-PushAccount <owner>` if its writes use a different account.
+5. **(Optional backstop) Require the deterministic gate:** after `autodoc-verify.yml` has run once,
    add `autodoc-verify` to `main` branch protection → Require status checks (shim-aware; will not
    block normal PRs).
-5. **GO LIVE** — set BOTH switches (see the table above):
+6. **GO LIVE** — set BOTH switches (see the table above):
    ```powershell
    setx AUTODOC_ENABLED true                                                   # activates the runner
    gh variable set AUTODOC_ENABLED --repo judeper/FSI-AgentGov --body "true"   # activates the CI gate
