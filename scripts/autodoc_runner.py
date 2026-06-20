@@ -255,7 +255,9 @@ def _process_redirect(config: RunnerConfig, ctx: ChangeContext) -> Outcome:
 
     old_url = str(ctx.contract.get("source_url", "")).strip()
     match = _REDIRECT_TO_RE.search(ctx.instructions)
-    new_url = match.group(1).strip() if match else ""
+    # Strip only wrapper/markdown punctuation from the parsed URL — never the trailing '/', which
+    # is part of the stored Learn URLs.
+    new_url = match.group(1).strip().rstrip(")]>\"'`") if match else ""
     if not (old_url.startswith("http") and new_url.startswith("http")) or old_url == new_url:
         return _do_escalate(config, ctx, "redirect_parse_failed", f"could not resolve a URL swap (old={old_url!r} new={new_url!r})")
 
@@ -275,6 +277,13 @@ def _process_redirect(config: RunnerConfig, ctx: ChangeContext) -> Outcome:
 
 def _apply_and_open_redirect(config: RunnerConfig, ctx: ChangeContext, old_url: str, new_url: str) -> Outcome:
     allowed = [rel for rel in ctx.contract.get("allowed_files", [])]
+    # Match old_url only as a COMPLETE URL — never as a prefix of a longer URL. Without this,
+    # `.../environment-groups` would also corrupt `.../environment-groups-rules`. The negative
+    # lookahead rejects a match immediately followed by any URL-continuation character.
+    url_pattern = re.compile(re.escape(old_url) + r"(?![A-Za-z0-9\-._~:/?#\[\]@!$&'()*+,;=%])")
+    # Same boundary rule for detecting the new URL already present, so a sibling that merely has
+    # new_url as a prefix (e.g. `.../x` vs `.../x-rules`) does not trigger a spurious escalation.
+    new_url_pattern = re.compile(re.escape(new_url) + r"(?![A-Za-z0-9\-._~:/?#\[\]@!$&'()*+,;=%])")
     changed_any = False
     for rel in allowed:
         path = config.repo_path / rel
@@ -282,17 +291,17 @@ def _apply_and_open_redirect(config: RunnerConfig, ctx: ChangeContext, old_url: 
             before = path.read_text(encoding="utf-8")
         except OSError:
             continue
-        if old_url not in before:
+        if not url_pattern.search(before):
             continue
-        if new_url in before:
+        if new_url_pattern.search(before):
             return _do_escalate(config, ctx, "redirect_ambiguous", f"new URL already present in {rel}; needs human review")
-        after = before.replace(old_url, new_url)
-        if after != before:
+        after, count = url_pattern.subn(new_url, before)
+        if count and after != before:
             path.write_text(after, encoding="utf-8")
             changed_any = True
 
     if not changed_any:
-        return _do_escalate(config, ctx, "redirect_url_not_found", f"{old_url} not found in allowed file(s); nothing to update")
+        return _do_escalate(config, ctx, "redirect_url_not_found", f"{old_url} not found as a complete URL in allowed file(s); nothing to update")
 
     _git(config, "add", "-A")
     diff_text = _git(config, "diff", "--cached", "--unified=3")

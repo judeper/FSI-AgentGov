@@ -160,6 +160,31 @@ def test_process_redirect_ambiguous_new_url_present_escalates(monkeypatch: pytes
     assert escalations == ["redirect_ambiguous"]
 
 
+def test_process_redirect_new_url_prefix_of_sibling_not_ambiguous(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    # new_url is a strict prefix of an unrelated sibling URL; the boundary-aware ambiguity check
+    # must NOT treat the sibling as "new URL already present" and spuriously escalate.
+    old = "https://learn.microsoft.com/en-us/power-platform/admin/old-page"
+    new = "https://learn.microsoft.com/en-us/power-platform/admin/environment-groups"
+    sibling = new + "-rules"
+    url_file = tmp_path / "docs" / "reference" / "microsoft-learn-urls.md"
+    url_file.parent.mkdir(parents=True)
+    url_file.write_text(f"| A | {old} | Mar 2026 |\n| B | {sibling} | Mar 2026 |\n", encoding="utf-8")
+    diff = f"--- a/x\n+++ b/x\n@@ -1 +1 @@\n-| A | {old} | Mar 2026 |\n+| A | {new} | Mar 2026 |\n"
+    monkeypatch.setattr(runner, "_git", _redirect_git_mock(diff))
+    monkeypatch.setattr(runner, "_untracked_files", lambda config: [])
+    monkeypatch.setattr(runner, "_reset_attempt", lambda config, base, baseline: None)
+    monkeypatch.setattr(runner, "_push_and_create_pr", lambda config, ctx, body: "PR#9")
+    monkeypatch.setattr(runner, "_record_ledger", lambda config, ctx, state, detail: None)
+
+    cfg = runner.RunnerConfig(repo_path=tmp_path, draft_model="a", review_model="b")
+    outcome = runner._process_redirect(cfg, _redirect_ctx(old, new))
+
+    assert outcome.status == "pr_opened"
+    content = url_file.read_text(encoding="utf-8")
+    assert sibling in content  # sibling preserved
+    assert f"| A | {new} |" in content  # old swapped to new
+
+
 def test_process_redirect_parse_failure_escalates(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     escalations: list[str] = []
     monkeypatch.setattr(runner, "_escalate", lambda config, ctx, reason, details: escalations.append(reason) or "ISSUE#1")
@@ -179,6 +204,32 @@ def test_process_change_dispatches_redirect(monkeypatch: pytest.MonkeyPatch, tmp
     outcome = runner.process_change(_config(tmp_path), _redirect_ctx("https://old/", "https://new/"))
     assert outcome.status == "pr_opened"
     assert called == ["sha256:redir01"]
+
+
+def test_process_redirect_prefix_sibling_not_corrupted(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    # The real URL list has prefix pairs (e.g. environment-groups vs environment-groups-rules).
+    # A redirect of the shorter URL must NOT corrupt the longer sibling.
+    base = "https://learn.microsoft.com/en-us/power-platform/admin/environment-groups"
+    sibling = base + "-rules"
+    new = "https://learn.microsoft.com/en-us/power-platform/admin/environments-overview"
+    url_file = tmp_path / "docs" / "reference" / "microsoft-learn-urls.md"
+    url_file.parent.mkdir(parents=True)
+    url_file.write_text(f"| EG | {base} | Mar 2026 |\n| EGR | {sibling} | Mar 2026 |\n", encoding="utf-8")
+    diff = f"--- a/x\n+++ b/x\n@@ -1 +1 @@\n-| EG | {base} | Mar 2026 |\n+| EG | {new} | Mar 2026 |\n"
+    monkeypatch.setattr(runner, "_git", _redirect_git_mock(diff))
+    monkeypatch.setattr(runner, "_untracked_files", lambda config: [])
+    monkeypatch.setattr(runner, "_reset_attempt", lambda config, base_, baseline: None)
+    monkeypatch.setattr(runner, "_push_and_create_pr", lambda config, ctx, body: "PR#9")
+    monkeypatch.setattr(runner, "_record_ledger", lambda config, ctx, state, detail: None)
+
+    cfg = runner.RunnerConfig(repo_path=tmp_path, draft_model="a", review_model="b")
+    outcome = runner._process_redirect(cfg, _redirect_ctx(base, new))
+
+    assert outcome.status == "pr_opened"
+    content = url_file.read_text(encoding="utf-8")
+    assert sibling in content  # longer sibling URL is NOT corrupted
+    assert f"| EG | {new} |" in content  # the exact URL was swapped
+    assert f"| EG | {base} |" not in content
 
 
 def test_read_allowed_files_inlines_small_skips_large_and_missing(tmp_path: Path) -> None:
