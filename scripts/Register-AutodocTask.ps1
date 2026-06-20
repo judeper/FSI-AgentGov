@@ -23,10 +23,10 @@
     `gh`, which would otherwise use the machine's *active* GitHub account. On a box whose active
     account is an Enterprise Managed User (EMU), that account is denied write access (HTTP 403) to a
     personal repo. The task therefore authenticates every write as -PushAccount: at task time it
-    resolves that account's token from the gh keyring (no static secret is stored) into GH_TOKEN and
-    routes git's github.com credentials through `gh auth git-credential` via a process-scoped
-    GIT_CONFIG override. These environment variables live only inside the task process, so the
-    operator's interactive git/gh accounts are untouched.
+    resolves that account's token from the gh keyring (no static secret is stored) into GH_TOKEN, and
+    the dedicated checkout's local .git/config routes git's github.com credentials through
+    `gh auth git-credential` (which uses that GH_TOKEN). The override lives in the checkout's config,
+    so the operator's interactive git/gh accounts are untouched.
 
     Prerequisite: the repo must have the `autodoc` and `escalate` labels (the runner attaches them to
     PRs/issues). Create the missing one(s) once with, e.g.:
