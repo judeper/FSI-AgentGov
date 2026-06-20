@@ -93,6 +93,12 @@ variable is not `true`). Either one set to non-`true` is a valid kill-switch.
    ```
    Pick a powerful draft model and a **different family** for review (e.g. an Opus/GPT/Gemini split).
    For another repo, pass `-PushAccount <owner>` if its writes use a different account.
+
+   > The task reads the push account's token from the gh keyring at run time, so it must run in the
+   > user's **interactive** context (the default — "run only when user is logged on"). If you switch
+   > it to "run whether the user is logged on or not," the keyring/credential store is unreachable and
+   > the task **fails closed** (it throws before the runner starts rather than writing as the wrong
+   > account). For a fully headless host, supply a stored fine-grained PAT via `GH_TOKEN` instead.
 5. **(Optional backstop) Require the deterministic gate:** after `autodoc-verify.yml` has run once,
    add `autodoc-verify` to `main` branch protection → Require status checks (shim-aware; will not
    block normal PRs).

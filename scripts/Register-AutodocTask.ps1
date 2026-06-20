@@ -108,8 +108,14 @@ $pushLit = ConvertTo-PSLiteral -Value $PushAccount
 # gh keyring AT TASK TIME (no static secret persisted) into GH_TOKEN, and a process-scoped GIT_CONFIG
 # override routes git's github.com credentials through `gh auth git-credential` so the bare push uses
 # the same token. The `$env:` references are escaped so they evaluate inside the task, not now.
+#
+# Fail closed: if the token cannot be resolved (keyring unreachable, account absent, task running
+# without an interactive session), THROW before the runner starts — otherwise GH_TOKEN would be empty
+# and the runner would silently fall back to the machine's active account (the denied/EMU one).
 $authSetup = @(
-    "`$env:GH_TOKEN=(gh auth token --user $pushLit)",
+    "`$autodocToken=(gh auth token --user $pushLit)",
+    "if (`$LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace(`$autodocToken)) { throw 'Register-AutodocTask: could not resolve a GitHub token for the push account from the gh keyring; aborting so the runner does not write as the wrong/denied account.' }",
+    "`$env:GH_TOKEN=`$autodocToken",
     "`$env:GIT_CONFIG_COUNT='2'",
     "`$env:GIT_CONFIG_KEY_0='credential.https://github.com.helper'",
     "`$env:GIT_CONFIG_VALUE_0=''",
