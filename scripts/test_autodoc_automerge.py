@@ -39,6 +39,7 @@ def _seed(path: Path, n: int, *, outcome: str, first_days_ago: float = 30, span_
             "fingerprint": fp, "pr_number": 100 + i, "pr_url": f"u{i}",
             "old_url": OLD, "new_url": NEW, "url_pair": "x",
             "drafted_at": am._iso(at), "outcome": outcome, "outcome_at": am._iso(at),
+            "reconciled_at": am._iso(at),
         }
     am.save_ledger(path, data)
 
@@ -146,3 +147,43 @@ def test_unlock_window_excludes_old_samples(tmp_path: Path) -> None:
     _seed(p, 5, outcome="merged_as_is", first_days_ago=300, span_days=21)
     st = am.unlock_state(p, now=_t(0), config=_enabled_cfg(window_days=120))
     assert not st.unlocked and st.samples == 0
+
+
+def test_unlock_ignores_future_dated_samples(tmp_path: Path) -> None:
+    # outcome_at in the FUTURE must not count (closes the poisoned-ledger unlock).
+    data = am.load_ledger(p := tmp_path / "led.json")
+    for i in range(5):
+        future = am._iso(_t(-10 - i))  # 10+ days in the FUTURE relative to now=_t(0)
+        data["samples"][f"sha256:f{i}"] = {
+            "fingerprint": f"sha256:f{i}", "pr_number": i, "pr_url": "u",
+            "old_url": OLD, "new_url": NEW, "url_pair": "x",
+            "drafted_at": future, "outcome": "merged_as_is", "outcome_at": future,
+            "reconciled_at": future,
+        }
+    am.save_ledger(p, data)
+    st = am.unlock_state(p, now=_t(0), config=_enabled_cfg(min_samples=3))
+    assert not st.unlocked and st.samples == 0
+
+
+def test_unlock_ignores_unreconciled_samples(tmp_path: Path) -> None:
+    # Terminal rows without the reconcile() provenance marker must not count.
+    data = am.load_ledger(p := tmp_path / "led.json")
+    for i in range(5):
+        at = am._iso(_t(30 - i * 5))
+        data["samples"][f"sha256:u{i}"] = {
+            "fingerprint": f"sha256:u{i}", "pr_number": i, "pr_url": "u",
+            "old_url": OLD, "new_url": NEW, "url_pair": "x",
+            "drafted_at": at, "outcome": "merged_as_is", "outcome_at": at,
+            # no reconciled_at
+        }
+    am.save_ledger(p, data)
+    st = am.unlock_state(p, now=_t(0), config=_enabled_cfg(min_samples=3))
+    assert not st.unlocked and st.samples == 0
+
+
+def test_reconcile_sets_reconciled_at(tmp_path: Path) -> None:
+    p = tmp_path / "led.json"
+    am.record_drafted(p, fingerprint="sha256:a", pr_number=5, pr_url="u", old_url=OLD, new_url=NEW, now=_t(5))
+    am.reconcile(p, lambda s: am.PrState("merged", merged_diff=_merged_diff(OLD, NEW)), now=_t(0))
+    sample = am.load_ledger(p)["samples"]["sha256:a"]
+    assert sample["outcome"] == "merged_as_is" and sample.get("reconciled_at")

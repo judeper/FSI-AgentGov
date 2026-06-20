@@ -149,6 +149,7 @@ def reconcile(path: Path, fetch_state: Callable[[dict[str, Any]], PrState], now:
             if _maybe_reverted(sample, fetch_state):
                 sample["outcome"] = "reverted"
                 sample["outcome_at"] = _iso(now)
+                sample["reconciled_at"] = _iso(now)
                 changed = True
             continue
         if outcome != "open":
@@ -166,6 +167,10 @@ def reconcile(path: Path, fetch_state: Callable[[dict[str, Any]], PrState], now:
         else:
             continue  # still open
         sample["outcome_at"] = _iso(now)
+        # Provenance marker: ONLY reconcile() sets this, after observing the real PR on
+        # GitHub. unlock_state counts a terminal sample only if it carries this marker, so
+        # a record-only or hand-edited terminal row can never contribute to an unlock.
+        sample["reconciled_at"] = _iso(now)
         changed = True
     if changed:
         save_ledger(path, data)
@@ -222,14 +227,26 @@ def unlock_state(path: Path, now: datetime | None = None, config: dict[str, Any]
     window_start = now - timedelta(days=cfg["window_days"])
     terminal: list[dict[str, Any]] = []
     for sample in data["samples"].values():
-        outcome = sample.get("outcome")
+        if sample.get("outcome") not in TERMINAL_OUTCOMES:
+            continue
+        # Count a terminal sample as evidence ONLY when it was produced by reconcile()
+        # observing the real PR (carries reconciled_at), and only when its timestamps are
+        # sane and inside the window. This is fail-closed against a future-dated, hand-edited
+        # or otherwise un-reconciled ledger row inflating the agreement signal.
         at = sample.get("outcome_at")
-        if outcome in TERMINAL_OUTCOMES and at:
-            try:
-                if _parse_iso(at) >= window_start:
-                    terminal.append(sample)
-            except ValueError:
-                continue
+        drafted = sample.get("drafted_at")
+        if not (at and drafted and sample.get("reconciled_at")):
+            continue
+        try:
+            outcome_dt = _parse_iso(at)
+            drafted_dt = _parse_iso(drafted)
+        except ValueError:
+            continue
+        if not (window_start <= outcome_dt <= now):
+            continue
+        if drafted_dt > now or drafted_dt > outcome_dt:
+            continue
+        terminal.append(sample)
 
     samples = len(terminal)
     merged_as_is = sum(1 for s in terminal if s["outcome"] == "merged_as_is")
