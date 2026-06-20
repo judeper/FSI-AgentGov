@@ -116,7 +116,16 @@ if ([string]::IsNullOrWhiteSpace($originUrl)) {
 }
 $originUrl = $originUrl.Trim()
 
+# The task hard-resets this checkout every run, so it must only ever touch a checkout THIS script
+# created. We mark a freshly cloned checkout with a sentinel inside .git/ (which is never committed
+# and survives `git reset --hard`). Adopting any existing checkout that lacks the sentinel is refused
+# — this is robust where a string path comparison is not (junction/symlink aliases to the operator
+# tree, 8.3 short paths, an unrelated repo pointed at by mistake).
+$ownedMarker = Join-Path -Path $CheckoutPath -ChildPath '.git/autodoc-owned'
 if (Test-Path -Path (Join-Path -Path $CheckoutPath -ChildPath '.git')) {
+    if (-not (Test-Path -Path $ownedMarker)) {
+        throw "CheckoutPath '$CheckoutPath' is an existing checkout that was not created by this script (no .git/autodoc-owned marker). The task hard-resets the dedicated checkout each run; refusing to adopt an unmanaged checkout (it may be the operator's working tree or another repo). Remove it or pass a fresh -CheckoutPath."
+    }
     Write-Output "Using existing autodoc checkout: $CheckoutPath"
 }
 elseif (Test-Path -Path $CheckoutPath) {
@@ -125,6 +134,8 @@ elseif (Test-Path -Path $CheckoutPath) {
 elseif ($PSCmdlet.ShouldProcess($CheckoutPath, "Clone $originUrl for the autodoc task")) {
     & git clone --quiet $originUrl $CheckoutPath
     if ($LASTEXITCODE -ne 0) { throw "git clone of $originUrl into $CheckoutPath failed (exit $LASTEXITCODE)." }
+    # Claim the checkout so future runs/registrations know this script owns it (safe to hard-reset).
+    Set-Content -Path $ownedMarker -Value "Created by Register-AutodocTask.ps1 for $TaskName" -Encoding ascii
     # Seed the idempotency ledger from the operator's checkout so the first task run does not
     # reprocess already-handled changes (the runner dedupes anyway, but this avoids the churn).
     $srcLedger = Join-Path -Path $resolvedRepo -ChildPath 'data/autodoc-ledger.json'
