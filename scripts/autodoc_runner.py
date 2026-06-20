@@ -47,7 +47,11 @@ DEFAULT_REVIEW_TIMEOUT = 300
 NEEDS_HUMAN_MARKER = "AUTODOC-NEEDS-HUMAN"
 MAX_INLINE_FILE_CHARS = 60000
 _CONTRACT_RE = re.compile(r"```json\s*(?P<json>\{.*?\})\s*```", re.DOTALL)
-_REDIRECT_TO_RE = re.compile(r"redirects to (https?://\S+)")
+# Capture the entire remainder of the evidence line (the classifier emits "redirects to <final>"
+# with nothing after the URL). Capturing to end-of-line — rather than \S+ — means an embedded
+# space or other junk is kept and then rejected by _URL_WELL_FORMED_RE, instead of being silently
+# truncated into a valid-but-wrong URL.
+_REDIRECT_TO_RE = re.compile(r"redirects to (\S[^\n]*)")
 # A well-formed redirect URL: scheme + only RFC 3986 URL characters. Excludes anything that would
 # break the markdown table or isn't URL-legal (|, quotes, <>, backtick, braces, control chars).
 _URL_WELL_FORMED_RE = re.compile(r"^https?://[A-Za-z0-9\-._~:/?#\[\]@!$&'()*+,;=%]+$")
@@ -325,7 +329,10 @@ def _swap_url_cell(line: str, old_url: str, new_url: str) -> str | None:
     Returns the rewritten line, or ``None`` if the line does not have exactly one pipe-delimited
     cell equal to ``old_url``. This is intentionally independent of the replacement regex: it matches
     a *complete* table cell, so a sibling URL that merely has ``old_url`` as a prefix (a different,
-    longer cell value) is never mistaken for the target.
+    longer cell value) is never mistaken for the target. ``old_url`` is always a full Learn URL drawn
+    from the URL column (``source_url`` is parsed from that column), so the matched cell is the URL
+    cell in practice; a non-URL column could only collide if a Title/Date cell were literally a full
+    URL, which the catalog does not contain.
     """
 
     cells = line.split("|")
