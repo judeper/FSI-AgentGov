@@ -660,6 +660,49 @@ def test_escalate_reuses_existing_issue(monkeypatch: pytest.MonkeyPatch, tmp_pat
     assert runner._escalate(_config(tmp_path), _ctx(), "reason", "details") == "https://github.com/x/y/issues/3"
 
 
+def test_escalate_body_includes_source_url(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    # The escalation body must carry the source URL so learn-monitor-advance.yml can match a
+    # closed escalation via `{url} in:body` and advance its deferred baseline. Without it,
+    # content-review escalations never advance and their pending blobs accumulate forever.
+    monkeypatch.setattr(runner, "_existing_issue_url", lambda config, ctx: None)
+    captured: dict[str, Any] = {}
+
+    def fake_run(args: Any, **kwargs: Any) -> "_FakeCompleted":
+        captured["args"] = list(args)
+        return _FakeCompleted(0, stdout="https://github.com/x/y/issues/7")
+
+    monkeypatch.setattr(runner.subprocess, "run", fake_run)
+    url = "https://learn.microsoft.com/en-us/power-platform/admin/business-continuity-disaster-recovery"
+    ctx = runner.ChangeContext(
+        fingerprint="sha256:deadbeefcafe0002",
+        route="human",
+        contract={"fingerprint": "sha256:deadbeefcafe0002", "source_url": url, "allowed_files": ["docs/x.md"]},
+        report_path="reports/monitoring/learn-changes-x.md",
+        instructions="",
+        title="Autodoc human review: Business Continuity",
+        labels=["autodoc", "escalate"],
+    )
+    assert runner._escalate(_config(tmp_path), ctx, "route=human", "details") == "https://github.com/x/y/issues/7"
+    body = captured["args"][captured["args"].index("--body") + 1]
+    assert f"Source: {url}" in body
+    assert url in body  # the `{url} in:body` advance search now matches this issue
+
+
+def test_escalate_body_omits_source_line_when_url_absent(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(runner, "_existing_issue_url", lambda config, ctx: None)
+    captured: dict[str, Any] = {}
+
+    def fake_run(args: Any, **kwargs: Any) -> "_FakeCompleted":
+        captured["args"] = list(args)
+        return _FakeCompleted(0, stdout="https://github.com/x/y/issues/8")
+
+    monkeypatch.setattr(runner.subprocess, "run", fake_run)
+    # _ctx() builds a contract without a source_url; the Source line must be omitted.
+    runner._escalate(_config(tmp_path), _ctx(), "reason", "details")
+    body = captured["args"][captured["args"].index("--body") + 1]
+    assert "Source:" not in body
+
+
 def test_record_ledger_dry_run_is_noop(tmp_path: Path) -> None:
     config = runner.RunnerConfig(repo_path=tmp_path, draft_model="a", review_model="b", dry_run=True)
     runner._record_ledger(config, _ctx(), "pr_open", "detail")
