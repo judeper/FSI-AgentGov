@@ -23,6 +23,18 @@ agreement); a closed-unmerged PR counts as ``closed``; a reverted one as ``rever
 
 Thresholds default conservatively and are intended to be tuned with real data
 (decide-late). All values are read from the environment so nothing is hard-locked.
+
+Threat model (important — read before relying on this gate). The agreement ledger is
+repo-local runtime state that lives on the *same host* which holds ``AUTOMERGE_ENABLED``
+and the ``judeper`` push token. This gate is therefore a safety interlock against
+**accidental** premature auto-merge — it rejects future-dated timestamps, record-only
+or un-reconciled rows, and out-of-window data, and requires genuine reconcile-observed
+human agreement to accumulate over weeks before it unlocks. It is **not** a security
+boundary against an actor who can rewrite this file on disk: such an actor already
+controls the master switch and the push credential, so the ledger adds no attack
+surface. The ``reconciled_at`` marker that :func:`reconcile` writes is provenance for
+the *normal* path (only reconcile-observed terminal outcomes count), not an anti-tamper
+signature.
 """
 
 from __future__ import annotations
@@ -231,8 +243,9 @@ def unlock_state(path: Path, now: datetime | None = None, config: dict[str, Any]
             continue
         # Count a terminal sample as evidence ONLY when it was produced by reconcile()
         # observing the real PR (carries reconciled_at), and only when its timestamps are
-        # sane and inside the window. This is fail-closed against a future-dated, hand-edited
-        # or otherwise un-reconciled ledger row inflating the agreement signal.
+        # sane and inside the window. This rejects future-dated, record-only and
+        # un-reconciled rows (accidental/clock-skew/normal-path errors); it is not, and is
+        # not intended to be, anti-tamper against a writer of this file (see module docstring).
         at = sample.get("outcome_at")
         drafted = sample.get("drafted_at")
         if not (at and drafted and sample.get("reconciled_at")):

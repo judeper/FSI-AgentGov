@@ -817,3 +817,33 @@ def test_record_and_maybe_automerge_no_pr_number_noop(tmp_path: Path) -> None:
     ctx = _redirect_ctx("https://old/", "https://new/")
     assert runner._record_and_maybe_automerge(cfg, ctx, "https://old/", "https://new/", "PR#9") == "PR#9"
     assert not runner._automerge_ledger_file(cfg).exists()
+
+def test_commit_is_reverted_detection(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    cfg = runner.RunnerConfig(repo_path=tmp_path, draft_model="a", review_model="b")
+    cp = runner.subprocess.CompletedProcess
+    monkeypatch.setattr(runner.subprocess, "run", lambda *a, **k: cp(args=[], returncode=0, stdout="deadbeef\n", stderr=""))
+    assert runner._commit_is_reverted(cfg, "abc") is True
+    monkeypatch.setattr(runner.subprocess, "run", lambda *a, **k: cp(args=[], returncode=0, stdout="", stderr=""))
+    assert runner._commit_is_reverted(cfg, "abc") is False
+    # fail closed on a git error
+    monkeypatch.setattr(runner.subprocess, "run", lambda *a, **k: cp(args=[], returncode=128, stdout="", stderr="boom"))
+    assert runner._commit_is_reverted(cfg, "abc") is True
+
+
+def test_fetch_pr_state_merged_reverted(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    cfg = runner.RunnerConfig(repo_path=tmp_path, draft_model="a", review_model="b")
+    cp = runner.subprocess.CompletedProcess
+    monkeypatch.setattr(runner.subprocess, "run", lambda *a, **k: cp(args=[], returncode=0, stdout='{"state":"MERGED","mergeCommit":{"oid":"abc"}}', stderr=""))
+    monkeypatch.setattr(runner, "_commit_is_reverted", lambda c, sha: True)
+    st = runner._fetch_pr_state(cfg, {"pr_number": 5})
+    assert st.state == "merged" and st.reverted is True
+
+
+def test_fetch_pr_state_merged_clean(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    cfg = runner.RunnerConfig(repo_path=tmp_path, draft_model="a", review_model="b")
+    cp = runner.subprocess.CompletedProcess
+    monkeypatch.setattr(runner.subprocess, "run", lambda *a, **k: cp(args=[], returncode=0, stdout='{"state":"MERGED","mergeCommit":{"oid":"abc"}}', stderr=""))
+    monkeypatch.setattr(runner, "_commit_is_reverted", lambda c, sha: False)
+    monkeypatch.setattr(runner, "_fetch_commit_diff", lambda c, sha: "DIFF")
+    st = runner._fetch_pr_state(cfg, {"pr_number": 5})
+    assert st.state == "merged" and st.reverted is False and st.merged_diff == "DIFF"

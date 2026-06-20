@@ -494,11 +494,36 @@ def _fetch_pr_state(config: RunnerConfig, sample: dict[str, Any]) -> autodoc_aut
     gh_state = str(info.get("state") or "").upper()
     if gh_state == "MERGED":
         merge_sha = (info.get("mergeCommit") or {}).get("oid")
+        if merge_sha and _commit_is_reverted(config, merge_sha):
+            return autodoc_automerge.PrState("merged", reverted=True)
         diff = _fetch_commit_diff(config, merge_sha) if merge_sha else None
         return autodoc_automerge.PrState("merged", merged_diff=diff)
     if gh_state == "CLOSED":
         return autodoc_automerge.PrState("closed")
     return autodoc_automerge.PrState("open")
+
+
+def _commit_is_reverted(config: RunnerConfig, sha: str) -> bool:
+    """True if ``base_branch`` contains a commit reverting ``sha``.
+
+    Detects both a human revert and the automated auto-revert PR, since ``git revert``
+    writes the canonical ``This reverts commit <full-sha>`` trailer. This is what makes the
+    gate's "zero post-merge reverts" condition real: a merged sample later reverted flips to
+    ``reverted`` and re-locks the gate. The dedicated checkout is hard-synced to
+    ``origin/<base>`` each run, so the log query sees the current main. **Fails closed**: if
+    the query cannot be run (non-zero exit), the sample is treated as reverted so an
+    indeterminate revert status never silently counts as agreement.
+    """
+
+    completed = subprocess.run(
+        ["git", "-C", str(config.repo_path), "log", "--format=%H", "--grep", f"This reverts commit {sha}", config.base_branch],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if completed.returncode != 0:
+        return True
+    return bool((completed.stdout or "").strip())
 
 
 def _fetch_commit_diff(config: RunnerConfig, sha: str) -> str | None:

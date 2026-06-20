@@ -166,7 +166,9 @@ def test_unlock_ignores_future_dated_samples(tmp_path: Path) -> None:
 
 
 def test_unlock_ignores_unreconciled_samples(tmp_path: Path) -> None:
-    # Terminal rows without the reconcile() provenance marker must not count.
+    # Record-only / un-reconciled terminal rows (no reconcile() provenance marker) must not
+    # count. This guards the normal path (a record_drafted row, or a partially written ledger,
+    # never contributes); it is not anti-tamper against a writer of the file (see module docstring).
     data = am.load_ledger(p := tmp_path / "led.json")
     for i in range(5):
         at = am._iso(_t(30 - i * 5))
