@@ -97,7 +97,7 @@ Customer-facing reference list of the Microsoft Learn links used throughout the 
 | VNet Support | https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-network-isolation-vnet | Jan 2026 |
 | What's New | https://learn.microsoft.com/en-us/microsoft-copilot-studio/whats-new | Jan 2026 |
 | Governance Guidance | https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/sec-gov-intro | Mar 2026 |
-| Architecting Agent Solutions | https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/architecture/ | Mar 2026 |
+| Architecting Agent Solutions | https://learn.microsoft.com/en-us/agents/architecture/ | Mar 2026 |
 | Planned Features (2026 Wave 1) [Preview] | https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/microsoft-copilot-studio/planned-features | Mar 2026 |
 | Copilot Studio Planned Features (2026 Wave 1) | https://learn.microsoft.com/en-us/power-platform/release-plan/2026wave1/microsoft-copilot-studio/planned-features | Apr 2026 |
 | Create Custom MCP Server | https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-create-new-server | Mar 2026 |
