@@ -152,7 +152,7 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 | **2.23** | User Consent and AI Disclosure Enforcement | Microsoft 365 E3+ | M365 Admin Center AI Disclaimer toggle |
 | **2.24** | Agent Feature Enablement and Restriction Governance | Power Platform Premium + Microsoft 365 Copilot; Microsoft Agent 365 (per-user) for Agent 365 admin-center governance | PPAC feature governance remains the Power Platform surface; Microsoft 365 admin center agent-governance features vary by subscription, with additional Agent 365 branding and details when licensed. See [Agent management in Microsoft 365 admin center](https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-365-overview?view=o365-worldwide) and [Agent ID licensing](https://learn.microsoft.com/en-us/entra/agent-id/what-is-microsoft-entra-agent-id#how-to-get-started) |
 | **2.25** | Agent 365 Governance Console | GA May 1, 2026 — Microsoft Agent 365 per-user licensing | AI Admin/Global Admin/Global Reader roles |
-| **2.26** | Entra Agent ID Identity Governance | Microsoft Agent 365 (per-user) + Microsoft Entra ID P1/P2 by feature | Agent ID features require Microsoft Agent 365 per-user licensing; ID Governance for agents requires Entra ID P1 or Microsoft 365 E3, and ID Protection for agents requires Entra ID P2, Microsoft 365 E5, or Entra Suite. See [Agent ID licensing](https://learn.microsoft.com/en-us/entra/agent-id/what-is-microsoft-entra-agent-id#how-to-get-started) |
+| **2.26** | Entra Agent ID Identity Governance | Entra platform available to all Entra customers; Microsoft Agent 365 (per-user) + Microsoft Entra ID P1/P2 required for agent security features | The Microsoft Entra Agent ID **platform** (creating and managing agent identities and agent identity blueprints) is available to all Microsoft Entra customers. Extending Entra **security and governance features** to agents — required for governed FSI use — needs **Microsoft 365 E7** (bundles Agent 365 and Microsoft Entra Suite) or **Microsoft 365 E5** paired with a **Microsoft Agent 365** license. Without E5/E7, standalone options (each still requiring a Microsoft Agent 365 license) are: Conditional Access for agents (Entra ID P1), ID Protection for agents (Entra ID P2), ID Governance for agents (Entra ID P1), and network controls (Microsoft Entra Internet Access). Confirm entitlements against current Microsoft licensing documentation. See [Agent ID licensing](https://learn.microsoft.com/en-us/entra/agent-id/what-is-microsoft-entra-agent-id#how-to-get-started) |
 
 ---
 
@@ -322,4 +322,4 @@ To verify current license assignments:
 
 ---
 
-*Last Updated: May-2026 | Framework Version: v1.6.2*
+*Last Updated: June-2026 | Framework Version: v1.6.2*

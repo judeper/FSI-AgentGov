@@ -247,7 +247,7 @@ For conceptual guidance on when to use Agent ID vs. Blueprints, see [Agent Ident
 | Topic | URL | Last Verified |
 |-------|-----|---------------|
 | **Agent ID Overview** | https://learn.microsoft.com/en-us/entra/agent-id/ | Jan 2026 |
-| Agent Identities for AI Agents | https://learn.microsoft.com/en-us/entra/agent-id/what-is-microsoft-entra-agent-id | Jan 2026 |
+| Agent Identities for AI Agents | https://learn.microsoft.com/en-us/entra/agent-id/what-is-microsoft-entra-agent-id | Jun 2026 |
 | Governing Agent Identities | https://learn.microsoft.com/en-us/entra/id-governance/agent-id-governance-overview | Jan 2026 |
 
 ---
