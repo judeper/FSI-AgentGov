@@ -37,6 +37,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
+import autodoc_automerge
 import autodoc_retry
 import autodoc_route
 
@@ -76,6 +77,10 @@ class RunnerConfig:
     # process_change runs against the worktree but the ledger must persist in the main repo;
     # this points at the main repo's ledger so idempotency survives across runs.
     ledger_abs: Path | None = None
+    automerge_ledger_path: str = "data/autodoc-automerge-ledger.json"
+    # Absolute auto-merge agreement-ledger path (main repo), like ledger_abs: the runner
+    # drafts in a disposable worktree but the agreement ledger must persist in the main repo.
+    automerge_ledger_abs: Path | None = None
 
 
 @dataclass
@@ -132,19 +137,24 @@ def run(config: RunnerConfig) -> dict[str, Any]:
     if not _autodoc_enabled():
         return {"enabled": False, "outcomes": []}
 
+    # Update the auto-merge agreement ledger with how past redirect PRs were resolved by
+    # humans (merged-as-is / edited / closed). Runs even when there are no new changes.
+    _reconcile_automerge(config)
+
     report_path = _latest_report(config)
     if report_path is None:
         return {"enabled": True, "outcomes": [], "note": "no monitoring report found"}
 
     report_text = report_path.read_text(encoding="utf-8")
     main_ledger_path = config.repo_path / config.ledger_path
+    main_automerge_ledger = config.repo_path / config.automerge_ledger_path
     ledger = autodoc_route.load_ledger(main_ledger_path)
     specs = autodoc_route.route_report(report_text, report_path.name, ledger, repo_root=config.repo_path)
     if not specs:
         return {"enabled": True, "report": report_path.name, "outcomes": []}
 
     work_path = _create_worktree(config)
-    work_config = replace(config, repo_path=work_path, ledger_abs=main_ledger_path)
+    work_config = replace(config, repo_path=work_path, ledger_abs=main_ledger_path, automerge_ledger_abs=main_automerge_ledger)
     outcomes: list[Outcome] = []
     seen: set[str] = set()
     try:
@@ -319,6 +329,7 @@ def _apply_and_open_redirect(config: RunnerConfig, ctx: ChangeContext, old_url: 
         return _do_escalate(config, ctx, "redirect_unclean_diff", "the staged change was not a clean URL-only swap")
 
     detail = _open_pr_redirect(config, ctx, old_url, new_url)
+    detail = _record_and_maybe_automerge(config, ctx, old_url, new_url, detail)
     _record_ledger(config, ctx, "pr_open", detail)
     return Outcome(ctx.fingerprint, "pr_opened", detail)
 
@@ -391,6 +402,114 @@ def _open_pr_redirect(config: RunnerConfig, ctx: ChangeContext, old_url: str, ne
         "is a clean URL-only change in the Learn URL list."
     )
     return _push_and_create_pr(config, ctx, pr_body)
+
+
+# --------------------------------------------------------------------------------------
+# Stage 2 redirect auto-merge (gated; OFF until the agreement gate unlocks)
+# --------------------------------------------------------------------------------------
+
+
+def _automerge_ledger_file(config: RunnerConfig) -> Path:
+    return config.automerge_ledger_abs or (config.repo_path / config.automerge_ledger_path)
+
+
+def _pr_number_from_detail(detail: str) -> int | None:
+    match = re.search(r"/pull/(\d+)", detail or "")
+    return int(match.group(1)) if match else None
+
+
+def _record_and_maybe_automerge(config: RunnerConfig, ctx: ChangeContext, old_url: str, new_url: str, detail: str) -> str:
+    """Record the drafted redirect in the agreement ledger and, ONLY if the fail-closed
+    unlock gate (``autodoc_automerge.unlock_state``) is open, enable GitHub auto-merge on
+    the PR. Otherwise the PR is left for a human to merge (the Stage 1 behaviour). Returns
+    an annotated detail string. Off by default: the gate requires ``AUTOMERGE_ENABLED=true``
+    plus accumulated merged-as-is agreement and zero reverts before it ever unlocks.
+    """
+
+    if config.dry_run:
+        return detail
+    pr_number = _pr_number_from_detail(detail)
+    if pr_number is None:
+        return detail
+    ledger = _automerge_ledger_file(config)
+    autodoc_automerge.record_drafted(
+        ledger,
+        fingerprint=ctx.fingerprint,
+        pr_number=pr_number,
+        pr_url=detail,
+        old_url=old_url,
+        new_url=new_url,
+    )
+    state = autodoc_automerge.unlock_state(ledger)
+    if not state.unlocked:
+        return f"{detail} (human-merge; auto-merge locked: {state.reason})"
+    _enable_automerge(config, ctx)
+    return f"{detail} (auto-merge enabled)"
+
+
+def _enable_automerge(config: RunnerConfig, ctx: ChangeContext) -> None:
+    """Enable GitHub auto-merge (squash) on the redirect PR. Isolated so tests monkeypatch it.
+
+    GitHub then merges the PR only when its required checks — including the independent
+    ``autodoc-redirect-verify`` gate — are green, so this never bypasses CI verification.
+    """
+
+    subprocess.run(
+        ["gh", "pr", "merge", ctx.branch, "--repo", _repo_slug(config), "--auto", "--squash"],
+        check=False,
+        capture_output=True,
+        text=True,
+        cwd=str(config.repo_path),
+    )
+
+
+def _reconcile_automerge(config: RunnerConfig) -> None:
+    """Update the agreement ledger with the observed outcomes of past redirect sample PRs.
+
+    Side-effecting (gh queries) and isolated so tests can monkeypatch it. Best-effort: a
+    failed lookup leaves a sample ``open`` so it never counts as agreement (fail-closed).
+    """
+
+    ledger = _automerge_ledger_file(config)
+    if not ledger.exists():
+        return
+    try:
+        autodoc_automerge.reconcile(ledger, lambda sample: _fetch_pr_state(config, sample))
+    except Exception:  # noqa: BLE001 - reconcile is best-effort and must not abort a run.
+        return
+
+
+def _fetch_pr_state(config: RunnerConfig, sample: dict[str, Any]) -> autodoc_automerge.PrState:
+    pr_number = sample.get("pr_number")
+    completed = subprocess.run(
+        ["gh", "pr", "view", str(pr_number), "--repo", _repo_slug(config), "--json", "state,mergeCommit"],
+        check=False,
+        capture_output=True,
+        text=True,
+        cwd=str(config.repo_path),
+    )
+    if completed.returncode != 0:
+        return autodoc_automerge.PrState("open")
+    info = json.loads(completed.stdout or "{}")
+    gh_state = str(info.get("state") or "").upper()
+    if gh_state == "MERGED":
+        merge_sha = (info.get("mergeCommit") or {}).get("oid")
+        diff = _fetch_commit_diff(config, merge_sha) if merge_sha else None
+        return autodoc_automerge.PrState("merged", merged_diff=diff)
+    if gh_state == "CLOSED":
+        return autodoc_automerge.PrState("closed")
+    return autodoc_automerge.PrState("open")
+
+
+def _fetch_commit_diff(config: RunnerConfig, sha: str) -> str | None:
+    completed = subprocess.run(
+        ["gh", "api", "-H", "Accept: application/vnd.github.v3.diff", f"repos/{_repo_slug(config)}/commits/{sha}"],
+        check=False,
+        capture_output=True,
+        text=True,
+        cwd=str(config.repo_path),
+    )
+    return completed.stdout if completed.returncode == 0 else None
 
 
 def _combine_conclusion(deterministic: str, review_verdict: dict[str, Any] | None) -> str:

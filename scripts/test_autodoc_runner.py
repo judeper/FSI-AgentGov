@@ -771,3 +771,49 @@ def test_run_dedups_duplicate_fingerprints(monkeypatch: pytest.MonkeyPatch, tmp_
     statuses = [o["status"] for o in result["outcomes"]]
     assert statuses == ["pr_opened", "skipped"]
     assert draft_calls["n"] == 1  # second duplicate spec was not processed
+
+# --- Stage 2 redirect auto-merge integration -------------------------------------
+
+
+def test_pr_number_from_detail() -> None:
+    assert runner._pr_number_from_detail("https://github.com/o/r/pull/504") == 504
+    assert runner._pr_number_from_detail("PR#9") is None
+    assert runner._pr_number_from_detail("") is None
+
+
+def test_record_and_maybe_automerge_dry_run_noop(tmp_path: Path) -> None:
+    cfg = runner.RunnerConfig(repo_path=tmp_path, draft_model="a", review_model="b", dry_run=True)
+    ctx = _redirect_ctx("https://old/", "https://new/")
+    assert runner._record_and_maybe_automerge(cfg, ctx, "https://old/", "https://new/", "x") == "x"
+
+
+def test_record_and_maybe_automerge_locked_human_merge(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(runner, "_enable_automerge", lambda c, ctx: pytest.fail("must not auto-merge while locked"))
+    cfg = runner.RunnerConfig(repo_path=tmp_path, draft_model="a", review_model="b")
+    ctx = _redirect_ctx("https://old/", "https://new/")
+    detail = runner._record_and_maybe_automerge(cfg, ctx, "https://old/", "https://new/", "https://github.com/o/r/pull/7")
+    assert "auto-merge locked" in detail
+    led = runner._automerge_ledger_file(cfg)
+    assert "sha256:redir01" in runner.autodoc_automerge.load_ledger(led)["samples"]
+
+
+def test_record_and_maybe_automerge_unlocked_enables(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    calls: list[str] = []
+    monkeypatch.setattr(runner, "_enable_automerge", lambda c, ctx: calls.append(ctx.branch))
+    monkeypatch.setattr(
+        runner.autodoc_automerge,
+        "unlock_state",
+        lambda p, now=None, config=None: runner.autodoc_automerge.UnlockState(True, "unlocked", 10, 10, 0, 1.0, 5.0),
+    )
+    cfg = runner.RunnerConfig(repo_path=tmp_path, draft_model="a", review_model="b")
+    ctx = _redirect_ctx("https://old/", "https://new/")
+    detail = runner._record_and_maybe_automerge(cfg, ctx, "https://old/", "https://new/", "https://github.com/o/r/pull/7")
+    assert "auto-merge enabled" in detail
+    assert calls == [ctx.branch]
+
+
+def test_record_and_maybe_automerge_no_pr_number_noop(tmp_path: Path) -> None:
+    cfg = runner.RunnerConfig(repo_path=tmp_path, draft_model="a", review_model="b")
+    ctx = _redirect_ctx("https://old/", "https://new/")
+    assert runner._record_and_maybe_automerge(cfg, ctx, "https://old/", "https://new/", "PR#9") == "PR#9"
+    assert not runner._automerge_ledger_file(cfg).exists()
