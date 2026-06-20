@@ -48,6 +48,9 @@ NEEDS_HUMAN_MARKER = "AUTODOC-NEEDS-HUMAN"
 MAX_INLINE_FILE_CHARS = 60000
 _CONTRACT_RE = re.compile(r"```json\s*(?P<json>\{.*?\})\s*```", re.DOTALL)
 _REDIRECT_TO_RE = re.compile(r"redirects to (https?://\S+)")
+# A well-formed redirect URL: scheme + only RFC 3986 URL characters. Excludes anything that would
+# break the markdown table or isn't URL-legal (|, quotes, <>, backtick, braces, control chars).
+_URL_WELL_FORMED_RE = re.compile(r"^https?://[A-Za-z0-9\-._~:/?#\[\]@!$&'()*+,;=%]+$")
 
 
 @dataclass
@@ -258,6 +261,10 @@ def _process_redirect(config: RunnerConfig, ctx: ChangeContext) -> Outcome:
     new_url = match.group(1).strip() if match else ""
     if not (old_url.startswith("http") and new_url.startswith("http")) or old_url == new_url:
         return _do_escalate(config, ctx, "redirect_parse_failed", f"could not resolve a URL swap (old={old_url!r} new={new_url!r})")
+    # Reject URLs containing table-breaking or non-URL-legal characters before any file write, so a
+    # malformed redirect target can never corrupt the markdown table and slip past the diff guard.
+    if not (_URL_WELL_FORMED_RE.match(old_url) and _URL_WELL_FORMED_RE.match(new_url)):
+        return _do_escalate(config, ctx, "redirect_malformed_url", f"URL contains characters that are not URL-legal (old={old_url!r} new={new_url!r})")
 
     base = config.base_branch
     _git(config, "checkout", "-B", ctx.branch, base)

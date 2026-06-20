@@ -214,6 +214,18 @@ def test_process_redirect_parse_failure_escalates(monkeypatch: pytest.MonkeyPatc
     assert escalations == ["redirect_parse_failed"]
 
 
+def test_process_redirect_malformed_new_url_escalates(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    # A new_url containing a table-breaking '|' must be rejected before any file write.
+    escalations: list[str] = []
+    monkeypatch.setattr(runner, "_escalate", lambda config, ctx, reason, details: escalations.append(reason) or "ISSUE#1")
+    monkeypatch.setattr(runner, "_record_ledger", lambda config, ctx, state, detail: None)
+    monkeypatch.setattr(runner, "_git", lambda config, *args: pytest.fail("must escalate before touching git"))
+    cfg = runner.RunnerConfig(repo_path=tmp_path, draft_model="a", review_model="b")
+    outcome = runner._process_redirect(cfg, _redirect_ctx("https://learn.microsoft.com/a/foo", "https://learn.microsoft.com/a/bar|frag"))
+    assert outcome.status == "escalated"
+    assert escalations == ["redirect_malformed_url"]
+
+
 def test_process_change_dispatches_redirect(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     called: list[str] = []
     monkeypatch.setattr(runner, "_process_redirect", lambda config, ctx: called.append(ctx.fingerprint) or runner.Outcome(ctx.fingerprint, "pr_opened", "redir"))
