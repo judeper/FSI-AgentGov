@@ -94,6 +94,14 @@ variable is not `true`). Either one set to non-`true` is a valid kill-switch.
    Pick a powerful draft model and a **different family** for review (e.g. an Opus/GPT/Gemini split).
    For another repo, pass `-PushAccount <owner>` if its writes use a different account.
 
+   > **Dedicated checkout.** The task does **not** run against your working tree. The script clones a
+   > dedicated checkout once (default sibling `C:\dev\FSI-AgentGov.autodoc`, override with
+   > `-CheckoutPath`) and seeds its idempotency ledger from your repo. Each run the task hard-syncs
+   > that checkout to `origin/main` (fetch + checkout + `reset --hard`, fail-closed) so the runner
+   > always sees the latest **merged** Learn Monitor report, and never touches your branches or
+   > uncommitted work. The runner's `data/autodoc-ledger.json` lives in that checkout (untracked, so it
+   > survives the hard reset). Delete the checkout dir to force a fresh clone next registration.
+
    > The task reads the push account's token from the gh keyring at run time, so it must run in the
    > user's **interactive** context (the default — "run only when user is logged on"). If you switch
    > it to "run whether the user is logged on or not," the keyring/credential store is unreachable and
