@@ -768,7 +768,7 @@ The seven core areas are:
     The **Knowledge source use** panel is particularly relevant for RAG-grounded agents in FSI use cases. Rising knowledge-source error rates can indicate stale, unavailable, or misconfigured sources — a signal that should feed the re-validation trigger logic in §8.5 and the knowledge-source integrity checks in [Control 2.16](../../../controls/pillar-2-management/2.16-rag-source-integrity-validation.md). Document knowledge-source error rate baselines in the zone threshold file (`tests/zone-thresholds.json`, PRE-06) and configure threshold alerts.
 
 !!! info "Analytics data retention (May 2026)"
-    Analytics data is available for up to **180 days**; session details and transcript information is available for the last **28 days** (per Microsoft Learn). Export flagged-session transcripts and quality snapshots to the Evidence Pack or a retention-bound store before the 28-day session window closes, especially for Zone 3 sessions subject to regulatory examination.
+    Analytics data is available for up to **360 days**; session details and transcript information is available for the last **28 days** (per Microsoft Learn). Export flagged-session transcripts and quality snapshots to the Evidence Pack or a retention-bound store before the 28-day session window closes, especially for Zone 3 sessions subject to regulatory examination.
 
 **Inline references for §8.8:**
 
