@@ -122,6 +122,31 @@ Write-Host ("Bulk apply log: {0} (SHA-256 {1})" -f $ResultsPath, $Hash)
 
 ---
 
+## 3a. Delegate RCD Management and Generate RCD Insights
+
+By default, only tenant admins manage Restricted Content Discovery. You can delegate RCD management to all site admins (off by default). When delegated, site admins must supply a justification on each update, captured to the unified audit log.
+
+```powershell
+# Delegate RCD management to site admins (off by default)
+Set-SPOTenant -DelegateRestrictedContentDiscoverabilityManagement $true
+Get-SPOTenant | Select-Object DelegateRestrictedContentDiscoverabilityManagement
+```
+
+Generate an insights report listing every site with RCD enabled — useful audit evidence for FINRA 4511 / SEC 17a-4 recordkeeping.
+
+```powershell
+# Start generating the RCD insights report
+Start-SPORestrictedContentDiscoverabilityReport
+
+# View report GUID, created timestamp, and generation status
+Get-SPORestrictedContentDiscoverabilityReport
+
+# Download a specific report (run as administrator); the file is written to the current working directory
+Get-SPORestrictedContentDiscoverabilityReport -Action Download -ReportId <Report GUID>
+```
+
+---
+
 ## 4. Configure Restricted SharePoint Search (RSS) Allow-List
 
 !!! warning "Short-term posture"
