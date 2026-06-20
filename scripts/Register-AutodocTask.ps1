@@ -23,10 +23,10 @@
     `gh`, which would otherwise use the machine's *active* GitHub account. On a box whose active
     account is an Enterprise Managed User (EMU), that account is denied write access (HTTP 403) to a
     personal repo. The task therefore authenticates every write as -PushAccount: at task time it
-    resolves that account's token from the gh keyring (no static secret is stored) into GH_TOKEN and
-    routes git's github.com credentials through `gh auth git-credential` via a process-scoped
-    GIT_CONFIG override. These environment variables live only inside the task process, so the
-    operator's interactive git/gh accounts are untouched.
+    resolves that account's token from the gh keyring (no static secret is stored) into GH_TOKEN, and
+    the dedicated checkout's local .git/config routes git's github.com credentials through
+    `gh auth git-credential` (which uses that GH_TOKEN). The override lives in the checkout's config,
+    so the operator's interactive git/gh accounts are untouched.
 
     Prerequisite: the repo must have the `autodoc` and `escalate` labels (the runner attaches them to
     PRs/issues). Create the missing one(s) once with, e.g.:
@@ -154,6 +154,20 @@ if ((Test-Path -Path $resolvedCheckout) -and -not (Test-Path -Path $runnerScript
     throw "Runner not found at $runnerScript in the autodoc checkout."
 }
 
+# Route the dedicated checkout's github.com credentials through `gh auth git-credential` (which uses
+# the task's GH_TOKEN = the push account). This is set in the checkout's LOCAL config — a file — where
+# the empty-value reset of the inherited (manager / gh-setup-git) helper works reliably. The earlier
+# GIT_CONFIG_* env approach failed under the Task Scheduler's Windows PowerShell 5.1 host, which drops
+# an empty-string env var so git reported "missing config value GIT_CONFIG_VALUE_0". The config lives
+# in .git/config, so it survives the per-run `git reset --hard`. Idempotent (unset, then reset + add).
+if ((Test-Path -Path (Join-Path -Path $resolvedCheckout -ChildPath '.git')) -and $PSCmdlet.ShouldProcess($resolvedCheckout, 'Configure github.com credential helper')) {
+    & git -C $resolvedCheckout config --unset-all 'credential.https://github.com.helper' 2>$null
+    & git -C $resolvedCheckout config 'credential.https://github.com.helper' ''
+    if ($LASTEXITCODE -ne 0) { throw "Failed to reset the credential helper in $resolvedCheckout." }
+    & git -C $resolvedCheckout config --add 'credential.https://github.com.helper' '!gh auth git-credential'
+    if ($LASTEXITCODE -ne 0) { throw "Failed to set the credential helper in $resolvedCheckout." }
+}
+
 # The task command: prune stale worktrees, then run the unattended drafter. The runner itself
 # is gated on $env:AUTODOC_ENABLED so this is safe to register before going live.
 #
@@ -178,9 +192,10 @@ $originRefLit = ConvertTo-PSLiteral -Value 'origin/main'
 # Authenticate every git/PR write as the push account for the duration of the runner process only.
 # The runner uses bare `git push origin` and `gh`; without this they would use the machine's active
 # GitHub account (denied 403 on an EMU-licensed box). We resolve the push account's token from the
-# gh keyring AT TASK TIME (no static secret persisted) into GH_TOKEN, and a process-scoped GIT_CONFIG
-# override routes git's github.com credentials through `gh auth git-credential` so the bare push uses
-# the same token. The `$env:` references are escaped so they evaluate inside the task, not now.
+# gh keyring AT TASK TIME (no static secret persisted) into GH_TOKEN. Git's github.com credential
+# helper is set to `!gh auth git-credential` in the dedicated checkout's LOCAL config (see below), so
+# `git` and `gh` both authenticate with that GH_TOKEN. The `$env:` references are escaped so they
+# evaluate inside the task, not now.
 #
 # Fail closed: if the token cannot be resolved (keyring unreachable, account absent, task running
 # without an interactive session), THROW before the runner starts — otherwise GH_TOKEN would be empty
@@ -188,12 +203,7 @@ $originRefLit = ConvertTo-PSLiteral -Value 'origin/main'
 $authSetup = @(
     "`$autodocToken=(gh auth token --user $pushLit)",
     "if (`$LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace(`$autodocToken)) { throw 'Register-AutodocTask: could not resolve a GitHub token for the push account from the gh keyring; aborting so the runner does not write as the wrong/denied account.' }",
-    "`$env:GH_TOKEN=`$autodocToken",
-    "`$env:GIT_CONFIG_COUNT='2'",
-    "`$env:GIT_CONFIG_KEY_0='credential.https://github.com.helper'",
-    "`$env:GIT_CONFIG_VALUE_0=''",
-    "`$env:GIT_CONFIG_KEY_1='credential.https://github.com.helper'",
-    "`$env:GIT_CONFIG_VALUE_1='!gh auth git-credential'"
+    "`$env:GH_TOKEN=`$autodocToken"
 ) -join '; '
 
 # Before each run, hard-sync the dedicated checkout to the latest origin/<base> so the runner reads
