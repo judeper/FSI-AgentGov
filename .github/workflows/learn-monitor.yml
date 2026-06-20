@@ -6,6 +6,12 @@ on:
     - cron: '0 6 * * *'
   workflow_dispatch:
     # Allow manual triggering
+  pull_request:
+    # Fast offline smoke check (--dry-run) when the monitor scripts change
+    paths:
+      - 'scripts/learn_monitor.py'
+      - 'scripts/monitoring_shared.py'
+      - '.github/workflows/learn-monitor.yml'
 
 permissions:
   contents: write
@@ -36,8 +42,13 @@ jobs:
         run: |
           pip install requests beautifulsoup4 pyyaml
 
+      - name: Run Learn Monitor (PR smoke, dry-run)
+        if: github.event_name == 'pull_request'
+        run: python scripts/learn_monitor.py --dry-run
+
       - name: Run Learn Monitor
         id: monitor
+        if: github.event_name != 'pull_request'
         continue-on-error: true
         env:
           AUTODOC_ENABLED: ${{ vars.AUTODOC_ENABLED }}
@@ -84,6 +95,7 @@ jobs:
 
       - name: Check if today is Sunday
         id: check_day
+        if: github.event_name != 'pull_request'
         run: |
           if [ "$(date +%u)" -eq 7 ]; then
             echo "is_sunday=true" >> $GITHUB_OUTPUT
@@ -93,6 +105,7 @@ jobs:
 
       - name: Determine if PR should be created
         id: should_create_pr
+        if: github.event_name != 'pull_request'
         run: |
           # Create PR if it's Sunday (weekly baseline) OR if changes were detected (exit code 1)
           if [ "${{ steps.check_day.outputs.is_sunday }}" = "true" ] || [ "${{ steps.monitor.outputs.exit_code }}" = "1" ]; then

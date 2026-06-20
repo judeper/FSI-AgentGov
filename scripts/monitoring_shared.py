@@ -306,6 +306,29 @@ def find_affected_controls(url: str, docs_dir: Path) -> dict:
                 except Exception:
                     continue
 
+    # Cross-cutting playbook folders (everything under playbooks/ except
+    # control-implementations). These have no control_id, so key them by the
+    # cross-cutting folder name and scan recursively. Previously these sibling
+    # folders (governance-operations, compliance-and-audit, incident-and-risk,
+    # regulatory-modules, getting-started, etc.) were invisible to the monitor.
+    playbooks_root = docs_dir / 'playbooks'
+    if playbooks_root.exists():
+        for section_dir in sorted(playbooks_root.glob('*')):
+            if not section_dir.is_dir() or section_dir.name == 'control-implementations':
+                continue
+            for playbook_file in section_dir.rglob('*.md'):
+                try:
+                    content = playbook_file.read_text(encoding='utf-8')
+                    if url in content:
+                        affected['playbooks'].append({
+                            'control_id': section_dir.name,
+                            'playbook_type': playbook_file.stem,
+                            'file_path': str(playbook_file.relative_to(docs_dir)),
+                            'priority': CLASSIFICATION_HIGH,
+                        })
+                except Exception:
+                    continue
+
     return affected
 
 

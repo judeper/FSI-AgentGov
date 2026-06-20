@@ -6,6 +6,11 @@ on:
       - 'scripts/regulatory_monitor.py'
       - 'scripts/monitoring_shared.py'
       - '.github/workflows/regulatory-monitoring.yml'
+  pull_request:
+    paths:
+      - 'scripts/regulatory_monitor.py'
+      - 'scripts/monitoring_shared.py'
+      - '.github/workflows/regulatory-monitoring.yml'
   schedule:
     # Run weekly on Mondays at 7:00 AM UTC
     - cron: '0 7 * * 1'
@@ -35,8 +40,13 @@ jobs:
         run: |
           pip install requests beautifulsoup4 pyyaml
 
+      - name: Run Regulatory Monitor (PR smoke, dry-run)
+        if: github.event_name == 'pull_request'
+        run: python scripts/regulatory_monitor.py --dry-run
+
       - name: Run Regulatory Monitor
         id: monitor
+        if: github.event_name != 'pull_request'
         continue-on-error: true
         run: |
           # Run the monitor and capture exit code

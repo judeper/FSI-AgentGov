@@ -490,6 +490,22 @@ Examples:
 def _run_monitor(args, config: dict):
     """Internal monitor implementation."""
 
+    # Graceful degradation: --dry-run skips all network calls so the script
+    # can be smoke-tested in CI environments without outbound access.
+    if args.dry_run and not args.url:
+        print("INFO: learn_monitor dry-run — network calls skipped (offline mode).")
+        logger.info("Dry run: skipping all network calls (offline mode)")
+        # Still parse watchlist to verify it's readable.
+        if WATCHLIST_PATH.exists():
+            try:
+                url_entries = parse_watchlist(WATCHLIST_PATH)
+                print(f"Dry run: parsed {len(url_entries)} Learn URLs from watchlist")
+            except Exception as e:
+                logger.warning(f"Could not parse watchlist: {e}")
+        # Verify state file shape is loadable.
+        load_state(STATE_FILE_PATH)
+        sys.exit(0)
+
     # Get operational settings from config
     request_delay = config.get('operational', {}).get('request_delay', 1.0)
 
