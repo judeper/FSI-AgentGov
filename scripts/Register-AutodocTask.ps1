@@ -39,9 +39,8 @@
 .PARAMETER CheckoutPath
     Absolute path to the dedicated checkout the task owns and hard-syncs each run. Defaults to a
     sibling '<RepoPath>.autodoc'. Cloned from the operator repo's origin if it does not yet exist.
-
-.PARAMETER BaseBranch
-    Branch the dedicated checkout is synced to each run (matches the runner's base). Default 'main'.
+    Must differ from -RepoPath (the task hard-resets this checkout and must never target the
+    operator's working tree).
 
 .PARAMETER DraftModel
     Copilot model id used to DRAFT edits (e.g. a strong model).
@@ -92,9 +91,7 @@ param(
 
     [string]$PushAccount = 'judeper',
 
-    [string]$CheckoutPath = '',
-
-    [string]$BaseBranch = 'main'
+    [string]$CheckoutPath = ''
 )
 
 Set-StrictMode -Version Latest
@@ -107,6 +104,11 @@ $resolvedRepo = (Resolve-Path -Path $RepoPath).Path
 # without ever touching the operator's working tree. Default: a sibling '<repo>.autodoc'.
 if ([string]::IsNullOrWhiteSpace($CheckoutPath)) {
     $CheckoutPath = "$resolvedRepo.autodoc"
+}
+# The task hard-resets (git reset --hard) the dedicated checkout every run, so it must NEVER be the
+# operator's working tree — that would discard their uncommitted work.
+if ([System.IO.Path]::GetFullPath($CheckoutPath).TrimEnd('\', '/') -ieq [System.IO.Path]::GetFullPath($resolvedRepo).TrimEnd('\', '/')) {
+    throw "CheckoutPath must differ from RepoPath. The task hard-resets the dedicated checkout each run; pointing it at the operator's working tree ($resolvedRepo) would discard uncommitted work."
 }
 $originUrl = (& git -C $resolvedRepo remote get-url origin 2>$null | Select-Object -First 1)
 if ([string]::IsNullOrWhiteSpace($originUrl)) {
@@ -158,8 +160,9 @@ $pythonLit = ConvertTo-PSLiteral -Value $PythonExe
 $draftLit = ConvertTo-PSLiteral -Value $DraftModel
 $reviewLit = ConvertTo-PSLiteral -Value $ReviewModel
 $pushLit = ConvertTo-PSLiteral -Value $PushAccount
-$baseLit = ConvertTo-PSLiteral -Value $BaseBranch
-$originRefLit = ConvertTo-PSLiteral -Value "origin/$BaseBranch"
+# The runner targets 'main' (its only supported base branch), so keep the checkout sync on 'main'.
+$baseLit = ConvertTo-PSLiteral -Value 'main'
+$originRefLit = ConvertTo-PSLiteral -Value 'origin/main'
 
 # Authenticate every git/PR write as the push account for the duration of the runner process only.
 # The runner uses bare `git push origin` and `gh`; without this they would use the machine's active
@@ -209,7 +212,7 @@ $description = 'FSI-AgentGov autonomous Learn Monitor documentation drafter. Ine
 if ($PSCmdlet.ShouldProcess($TaskName, 'Register scheduled task')) {
     Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger -Settings $settings -Description $description -Force | Out-Null
     Write-Output "Registered scheduled task '$TaskName' (daily at $AtTime)."
-    Write-Output "  Dedicated checkout: $resolvedCheckout (hard-synced to origin/$BaseBranch each run)"
+    Write-Output "  Dedicated checkout: $resolvedCheckout (hard-synced to origin/main each run)"
     Write-Output "  Writes as: $PushAccount (token from gh keyring at run time)"
     Write-Output "The runner stays inert until AUTODOC_ENABLED=true. To activate, set that env var; to stop, unset it or run: Unregister-ScheduledTask -TaskName '$TaskName' -Confirm:`$false"
 }
