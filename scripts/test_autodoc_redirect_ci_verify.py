@@ -12,6 +12,8 @@ NEW = "https://learn.microsoft.com/en-us/agents/architecture/"
 
 def _diff(removed: str, added: str, file: str = TARGET) -> str:
     return (
+        f"diff --git a/{file} b/{file}\n"
+        "index 1111111..2222222 100644\n"
         f"--- a/{file}\n"
         f"+++ b/{file}\n"
         "@@ -97 +97 @@\n"
@@ -43,10 +45,46 @@ def test_rejects_multiple_files() -> None:
 
 def test_rejects_two_removed_lines() -> None:
     diff = (
-        f"--- a/{TARGET}\n+++ b/{TARGET}\n@@ -97,2 +97,2 @@\n"
+        f"diff --git a/{TARGET} b/{TARGET}\n--- a/{TARGET}\n+++ b/{TARGET}\n@@ -97,2 +97,2 @@\n"
         f"-{_row(OLD)}\n-{_row(OLD, title='Other')}\n+{_row(NEW)}\n+{_row(NEW, title='Other')}\n"
     )
     with pytest.raises(v.NotCleanRedirect, match="exactly 1 removed"):
+        v.verify_redirect_diff(diff)
+
+
+def test_rejects_hidden_removed_dashes_line() -> None:
+    # A removed content line whose text is "---" appears as "----"; a naive parser
+    # that skips lines starting with "---" would drop it, hiding an extra deletion.
+    diff = (
+        f"diff --git a/{TARGET} b/{TARGET}\n--- a/{TARGET}\n+++ b/{TARGET}\n"
+        "@@ -10 +9,0 @@\n----\n"
+        f"@@ -42 +42 @@\n-{_row(OLD)}\n+{_row(NEW)}\n"
+    )
+    with pytest.raises(v.NotCleanRedirect, match="exactly 1 removed"):
+        v.verify_redirect_diff(diff)
+
+
+def test_rejects_hidden_added_pluses_line() -> None:
+    # An added content line whose text starts with "++" appears as "+++..."; a naive
+    # parser that skips lines starting with "+++" would drop it, hiding an addition.
+    diff = (
+        f"diff --git a/{TARGET} b/{TARGET}\n--- a/{TARGET}\n+++ b/{TARGET}\n"
+        "@@ -10,0 +10 @@\n+++ injected table junk\n"
+        f"@@ -42 +42 @@\n-{_row(OLD)}\n+{_row(NEW)}\n"
+    )
+    with pytest.raises(v.NotCleanRedirect, match="exactly 1 removed|1 added"):
+        v.verify_redirect_diff(diff)
+
+
+def test_rejects_hidden_second_file_after_hunk() -> None:
+    # A second file's changes appended after the first file's hunk must be detected
+    # via its own `diff --git` header, not absorbed as hunk content.
+    diff = _diff(_row(OLD), _row(NEW)) + (
+        "diff --git a/docs/controls/pillar-1-security/1.6-x.md b/docs/controls/pillar-1-security/1.6-x.md\n"
+        "--- a/docs/controls/pillar-1-security/1.6-x.md\n+++ b/docs/controls/pillar-1-security/1.6-x.md\n"
+        "@@ -1 +1 @@\n-old line\n+new line\n"
+    )
+    with pytest.raises(v.NotCleanRedirect, match="touch only"):
         v.verify_redirect_diff(diff)
 
 

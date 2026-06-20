@@ -35,39 +35,54 @@ TARGET_FILE = "docs/reference/microsoft-learn-urls.md"
 # the CI check stays independent of the runner module.
 _URL_RE = re.compile(r"^https?://[A-Za-z0-9\-._~:/?#\[\]@!$&'()*+,;=%]+$")
 
-# Matches a unified-diff file header: `+++ b/<path>` (or `--- a/<path>`).
-_DIFF_FILE_RE = re.compile(r"^[+-]{3} [ab]/(.+)$")
+# Matches a unified git-diff file header: `diff --git a/<path> b/<path>`.
+# Files are taken from this authoritative header (not the +++/--- lines), which
+# never carries a +/-/space prefix and so cannot be spoofed by hunk content.
+_GIT_FILE_RE = re.compile(r"^diff --git a/.+ b/(.+)$")
 
 
 class NotCleanRedirect(Exception):
     """Raised with a human-readable reason when the diff is not a clean swap."""
 
 
-def _changed_files(diff_text: str) -> list[str]:
-    """Repo-relative paths named in the diff's `+++ b/...` / `--- a/...` headers."""
+def _parse_diff(diff_text: str) -> tuple[list[str], list[str], list[str]]:
+    """Hunk-aware parse of a unified git diff.
+
+    Returns ``(files, removed, added)``. File paths are taken only from the
+    authoritative ``diff --git a/... b/<path>`` headers, and ``+``/``-`` content
+    lines are collected ONLY inside ``@@`` hunks. This is deliberately not a naive
+    "skip lines starting with +++/---" parser: a removed content line whose text is
+    ``---`` appears as ``----`` and an added line whose text starts with ``++``
+    appears as ``+++...``; a naive parser would silently drop those, letting a
+    non-clean change masquerade as clean. Header/metadata lines (``index``, mode,
+    ``--- a/``, ``+++ b/``) appear only outside a hunk and are ignored here; only
+    real ``diff --git`` and ``@@`` lines (which never carry a +/-/space prefix)
+    change the parse state, so content lines cannot spoof them.
+    """
 
     files: list[str] = []
-    for line in diff_text.splitlines():
-        if line.startswith(("+++ ", "--- ")):
-            match = _DIFF_FILE_RE.match(line)
-            if match and match.group(1) != "/dev/null":
-                files.append(match.group(1).strip())
-    return files
-
-
-def _diff_body_lines(diff_text: str) -> tuple[list[str], list[str]]:
-    """Return (removed, added) content lines, excluding file headers."""
-
     removed: list[str] = []
     added: list[str] = []
+    in_hunk = False
     for line in diff_text.splitlines():
-        if line.startswith(("+++", "---")):
+        if line.startswith("diff --git "):
+            in_hunk = False
+            match = _GIT_FILE_RE.match(line)
+            if match and match.group(1) != "/dev/null":
+                files.append(match.group(1).strip())
+            continue
+        if line.startswith("@@"):
+            in_hunk = True
+            continue
+        if not in_hunk:
+            continue
+        if line.startswith("\\"):  # "\ No newline at end of file"
             continue
         if line.startswith("+"):
             added.append(line[1:])
         elif line.startswith("-"):
             removed.append(line[1:])
-    return removed, added
+    return files, removed, added
 
 
 def _single_cell_swap(removed: str, added: str) -> tuple[str, str]:
@@ -89,11 +104,11 @@ def _single_cell_swap(removed: str, added: str) -> tuple[str, str]:
 def verify_redirect_diff(diff_text: str) -> tuple[str, str]:
     """Validate a redirect diff. Return (old_url, new_url) or raise NotCleanRedirect."""
 
-    files = sorted(set(_changed_files(diff_text)))
+    file_list, removed, added = _parse_diff(diff_text)
+    files = sorted(set(file_list))
     if files != [TARGET_FILE]:
         raise NotCleanRedirect(f"diff must touch only {TARGET_FILE}; touched {files or ['nothing']}")
 
-    removed, added = _diff_body_lines(diff_text)
     if len(removed) != 1 or len(added) != 1:
         raise NotCleanRedirect(f"expected exactly 1 removed + 1 added line; got {len(removed)} removed / {len(added)} added")
 
