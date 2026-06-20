@@ -661,6 +661,13 @@ def main():
     # Load unified state
     state = load_state(STATE_FILE)
 
+    # Graceful degradation: --dry-run skips all network calls so the script
+    # can be smoke-tested in CI environments without outbound access.
+    if args.dry_run:
+        logger.info("Dry run: skipping all network calls (offline mode)")
+        print("INFO: regulatory_monitor dry-run — network calls skipped (offline mode).")
+        sys.exit(0)
+
     # Create session
     session = requests.Session()
     session.headers.update({
@@ -722,7 +729,7 @@ def main():
 
         # Save state
         if not args.dry_run:
-            save_state_atomic(STATE_FILE, state)
+            save_state_atomic(state, STATE_FILE)
             logger.info(f"State updated: {STATE_FILE}")
         else:
             logger.info("Dry run: state not updated")
@@ -735,7 +742,7 @@ def main():
 
         # Save state even if no changes (updates last_run timestamps)
         if not args.dry_run:
-            save_state_atomic(STATE_FILE, state)
+            save_state_atomic(state, STATE_FILE)
 
         # Exit code 0 indicates no changes
         sys.exit(0)
