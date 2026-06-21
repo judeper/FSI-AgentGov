@@ -26,6 +26,7 @@ from __future__ import annotations
 import argparse
 import re
 import sys
+import urllib.parse
 from pathlib import Path
 
 TARGET_FILE = "docs/reference/microsoft-learn-urls.md"
@@ -34,6 +35,25 @@ TARGET_FILE = "docs/reference/microsoft-learn-urls.md"
 # guard so the two agree on what a "URL" is, but is duplicated here on purpose so
 # the CI check stays independent of the runner module.
 _URL_RE = re.compile(r"^https?://[A-Za-z0-9\-._~:/?#\[\]@!$&'()*+,;=%]+$")
+
+
+def _host_allowed(url: str) -> bool:
+    """Fail-closed Microsoft-domain allowlist for the NEW redirect target URL.
+
+    Independent re-implementation of the runner's allowlist (deliberately NOT imported from
+    ``autodoc_runner``, mirroring the duplicated URL-charset guard above). A redirect's new URL
+    host must be ``learn.microsoft.com``, ``microsoft.com``, or a subdomain ending in
+    ``.microsoft.com``. The host comes from ``urlparse(...).hostname`` (lower-cased) so credential
+    tricks (``https://learn.microsoft.com@evil.example/``) resolve to the real authority host and
+    subdomain spoofs (``learn.microsoft.com.evil.com``) are rejected. Empty host, IPs, malformed
+    authority, or any parse error fail closed.
+    """
+
+    try:
+        host = (urllib.parse.urlparse(url).hostname or "").lower()
+    except ValueError:
+        return False
+    return host in ("learn.microsoft.com", "microsoft.com") or host.endswith(".microsoft.com")
 
 # Matches a unified git-diff file header: `diff --git a/<path> b/<path>`.
 # Files are taken from this authoritative header (not the +++/--- lines), which
@@ -117,6 +137,8 @@ def verify_redirect_diff(diff_text: str) -> tuple[str, str]:
         raise NotCleanRedirect(f"old cell value is not a well-formed URL: {old_url!r}")
     if not _URL_RE.match(new_url):
         raise NotCleanRedirect(f"new cell value is not a well-formed URL: {new_url!r}")
+    if not _host_allowed(new_url):
+        raise NotCleanRedirect(f"new URL host is not a Microsoft domain (off-domain redirect target): {new_url!r}")
     if old_url == new_url:
         raise NotCleanRedirect("old and new URLs are identical; nothing changed")
     return old_url, new_url
