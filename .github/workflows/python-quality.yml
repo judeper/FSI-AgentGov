@@ -67,6 +67,11 @@ on:
       # otherwise block with "6 of 11 expected" because the python-quality named
       # checks (ruff, pytest, drift, language-rules, verify_version_stamps) never fire.
       - '.github/copilot-instructions.md'
+      # playwright.config.mjs and overrides/** trigger e2e-smoke/mkdocs-strict (real or shim)
+      # but were missing from python-quality's paths, so a PR touching only one would block with
+      # the 5 named checks "expected" yet never reported. Mirror them here to close that deadlock.
+      - 'playwright.config.mjs'
+      - 'overrides/**'
   push:
     branches:
       - main
@@ -98,6 +103,8 @@ on:
       - 'data/**'
       - 'tests/**'
       - '.github/copilot-instructions.md'
+      - 'playwright.config.mjs'
+      - 'overrides/**'
 
 permissions:
   contents: read
