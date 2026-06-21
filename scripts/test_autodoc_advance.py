@@ -110,6 +110,39 @@ def test_terminal_identities_from_issues_accepts_lowercase_completed() -> None:
     assert advance.terminal_identities_from_issues(closed_issues) == {(TERMINAL_URL, "sha256:done")}
 
 
+def _tracking_issue_body(url: str, content_hash: str) -> str:
+    """Mirror route.build_issue: identity lives ONLY in the embedded ```json``` contract."""
+    contract = {
+        "schema_version": 1,
+        "fingerprint": "sha256:deadbeef",
+        "source_url": url,
+        "content_hash": content_hash,
+        "classification": "TECHNICAL",
+    }
+    return (
+        "Autodoc tracking issue.\n\n"
+        "AUTODOC-FINGERPRINT: sha256:deadbeef\n"
+        "AUTODOC-AUTOMERGE-ELIGIBLE: false\n\n"
+        "```json\n" + json.dumps(contract, indent=2, sort_keys=True) + "\n```\n"
+    )
+
+
+def test_parse_issue_identity_from_json_contract() -> None:
+    # Autodraft tracking issues (the common path) carry identity ONLY in the JSON contract, with
+    # no plaintext Source:/Content-Hash: lines. The parser must still recover the exact identity,
+    # else autodrafted changes' baselines never advance and their blobs accumulate forever.
+    body = _tracking_issue_body(TERMINAL_URL, "sha256:tracked")
+    assert "Source:" not in body
+    assert advance.parse_issue_identity(body) == (TERMINAL_URL, "sha256:tracked")
+
+
+def test_parse_issue_identity_json_contract_requires_both_fields() -> None:
+    no_hash = '```json\n{"source_url": "' + TERMINAL_URL + '"}\n```\n'
+    assert advance.parse_issue_identity(no_hash) is None
+    no_url = '```json\n{"content_hash": "sha256:h"}\n```\n'
+    assert advance.parse_issue_identity(no_url) is None
+
+
 # ---------------------------------------------------------------------------
 # advance_source_state — identity matching
 # ---------------------------------------------------------------------------
@@ -150,6 +183,34 @@ def test_advance_source_state_only_applies_terminal_identities() -> None:
     assert updated["urls"][TERMINAL_URL]["last_changed"] == "2026-06-19T00:00:00+00:00"
     assert updated["urls"][NON_TERMINAL_URL] == source_state["urls"][NON_TERMINAL_URL]
     assert source_state["urls"][TERMINAL_URL]["content_hash"] == "sha256:old"
+
+
+def test_advance_applies_newest_change_by_detected_at() -> None:
+    # Two terminal changes to the SAME url advancing in one run: the NEWEST (by detected_at) must
+    # win the baseline. Pass them newest-first in the list to prove ordering is by detected_at,
+    # not list/path order (without the sort, the older change would land last and win).
+    source_state = {
+        "urls": {TERMINAL_URL: {"content_hash": "sha256:old", "normalized_content": "old", "last_changed": "old"}}
+    }
+    older = {
+        "url": TERMINAL_URL,
+        "content_hash": "sha256:h1",
+        "normalized_content": "older body",
+        "detected_at": "2026-06-18T00:00:00+00:00",
+    }
+    newer = {
+        "url": TERMINAL_URL,
+        "content_hash": "sha256:h2",
+        "normalized_content": "newer body",
+        "detected_at": "2026-06-20T00:00:00+00:00",
+    }
+    updated, advanced_urls, _missing = advance.advance_source_state(
+        source_state, [newer, older], {(TERMINAL_URL, "sha256:h1"), (TERMINAL_URL, "sha256:h2")}
+    )
+
+    assert updated["urls"][TERMINAL_URL]["content_hash"] == "sha256:h2"
+    assert updated["urls"][TERMINAL_URL]["normalized_content"] == "newer body"
+    assert updated["urls"][TERMINAL_URL]["last_changed"] == "2026-06-20T00:00:00+00:00"
 
 
 def test_advance_pending_baselines_removes_only_terminal_pending_blob(workspace: Path) -> None:

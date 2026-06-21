@@ -35,24 +35,42 @@ COMPLETED_STATE_REASON = "COMPLETED"
 
 _SOURCE_LINE_RE = re.compile(r"^Source:\s*(\S+)\s*$", re.MULTILINE)
 _CONTENT_HASH_LINE_RE = re.compile(r"^Content-Hash:\s*(\S+)\s*$", re.MULTILINE)
+# build_issue tracking issues (the autodraft path) carry identity ONLY inside the embedded
+# ```json``` contract (source_url / content_hash), not as plaintext lines — so parse that too.
+_JSON_CONTRACT_RE = re.compile(r"```json\s*\n(.*?)\n```", re.DOTALL)
 
 # A terminal identity is the exact (url, content_hash) pair that uniquely names one change.
 Identity = tuple[str, str]
 
 
 def parse_issue_identity(body: str | None) -> Identity | None:
-    """Return the exact ``(url, content_hash)`` identity embedded in an escalation issue body.
+    """Return the exact ``(url, content_hash)`` identity embedded in an autodoc issue body.
 
-    Both the ``Source:`` and ``Content-Hash:`` lines must be present; otherwise the issue cannot
-    be matched to a specific pending change and ``None`` is returned (the blob is left untouched).
+    Two issue-body shapes carry identity: the escalation body (plaintext ``Source:`` +
+    ``Content-Hash:`` lines, emitted by ``_escalate``) and the autodraft tracking-issue body
+    (identity only inside the embedded ``json`` contract via ``source_url`` / ``content_hash``).
+    Both are recognized; otherwise the issue cannot be matched to a specific pending change and
+    ``None`` is returned (the blob is left untouched).
     """
     if not body:
         return None
     source_m = _SOURCE_LINE_RE.search(body)
     content_hash_m = _CONTENT_HASH_LINE_RE.search(body)
-    if not source_m or not content_hash_m:
-        return None
-    return (source_m.group(1).strip(), content_hash_m.group(1).strip())
+    if source_m and content_hash_m:
+        return (source_m.group(1).strip(), content_hash_m.group(1).strip())
+    # Fallback: autodraft/tracking issues embed identity only in the ```json``` contract.
+    for match in _JSON_CONTRACT_RE.finditer(body):
+        try:
+            contract = json.loads(match.group(1))
+        except (ValueError, TypeError):
+            continue
+        if not isinstance(contract, dict):
+            continue
+        url = contract.get("source_url")
+        content_hash = contract.get("content_hash")
+        if isinstance(url, str) and url.strip() and isinstance(content_hash, str) and content_hash.strip():
+            return (url.strip(), content_hash.strip())
+    return None
 
 
 def _normalize_state_reason(value: Any) -> str:
@@ -146,7 +164,10 @@ def advance_source_state(
     advanced_urls: list[str] = []
     missing_urls: list[str] = []
 
-    for pending in pending_records:
+    # Apply in detected_at order (ISO-8601, lexicographically chronological) so that when two
+    # terminal changes to the SAME url advance in one run, the NEWEST content wins the baseline
+    # (last write); path/hash order would non-deterministically land on the older content.
+    for pending in sorted(pending_records, key=lambda p: p["detected_at"]):
         if _pending_identity(pending) not in terminal_identities:
             continue
         url = pending["url"]
