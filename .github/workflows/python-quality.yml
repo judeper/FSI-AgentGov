@@ -37,7 +37,11 @@ on:
       - 'AGENTS.md'
       - 'assessment/data/solutions-lock.json'
       - 'docs/**/*.md'
-      - 'data/monitor-state.json'
+      # Use the whole data/** tree, not just data/monitor-state.json. A
+      # baseline-advance PR also stages data/monitor-state.json.backup and
+      # data/monitor-pending/learn/*.json; a pending-blob-only or backup-only
+      # diff would otherwise drop the 5 named required checks and wedge the PR.
+      - 'data/**'
       # npm Dependabot PRs only change package.json / package-lock.json,
       # which none of the 5 python-quality check names cover.  Without this
       # entry, branch protection blocks those PRs with "6 of 11 expected"
@@ -90,7 +94,8 @@ on:
       - 'AGENTS.md'
       - 'assessment/data/solutions-lock.json'
       - 'docs/**/*.md'
-      - 'data/monitor-state.json'
+      # Mirror pull_request.paths: whole data/** tree (backup + pending blobs).
+      - 'data/**'
       - 'tests/**'
       - '.github/copilot-instructions.md'
 

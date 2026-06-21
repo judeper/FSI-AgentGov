@@ -1,0 +1,54 @@
+# Required-check shim: mkdocs-strict (branch protection).
+#
+# Sibling of required-check-shims.yml (the e2e-smoke shim). Read the master
+# comment block there for the full rationale and the exact-complement design.
+#
+# This file's `paths-ignore` is the EXACT mirror of docs-validation.yml's
+# (job `mkdocs-strict`) `paths:`. It reports success for the `mkdocs-strict`
+# required check precisely when the real docs-validation workflow would NOT
+# fire, so a PR touching none of those paths still satisfies branch protection
+# instead of deadlocking on an unreported required context.
+#
+#   docs-validation.yml (job mkdocs-strict) `paths:` (mirrored below):
+#     docs/**, mkdocs.yml, overrides/**, VERSION, scripts/verify_build_output.py,
+#     .github/workflows/**, tests/**, package.json, package-lock.json
+#
+# COMPLEMENT GUARANTEE (per PR): every changed file matches -> real fires, shim
+# skips; no changed file matches -> real skips, shim fires; so neither-fires is
+# impossible. A mixed PR fires both (benign for green runs; see the masking
+# caveat in the sibling file). Do not widen this `paths-ignore` beyond the real
+# `paths:`. When you edit docs-validation.yml's `paths:`, mirror it here in the
+# same commit.
+
+name: Required check shim - mkdocs-strict
+
+on:
+  pull_request:
+    # Exact mirror of docs-validation.yml (job mkdocs-strict) `paths:`. The shim
+    # fires only when the real mkdocs-strict workflow would NOT.
+    paths-ignore:
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - 'overrides/**'
+      - 'VERSION'
+      - 'scripts/verify_build_output.py'
+      - '.github/workflows/**'
+      - 'tests/**'
+      - 'package.json'
+      - 'package-lock.json'
+
+permissions:
+  contents: read
+
+jobs:
+  mkdocs-strict:
+    name: mkdocs-strict
+    runs-on: ubuntu-latest
+    steps:
+      - name: Skip (no mkdocs-strict paths changed)
+        run: |
+          echo "Real mkdocs-strict workflow did not trigger because none of its"
+          echo "paths (docs/**, mkdocs.yml, overrides/**, VERSION,"
+          echo "scripts/verify_build_output.py, .github/workflows/**, tests/**,"
+          echo "package.json, package-lock.json) changed in this PR."
+          echo "Reporting success to satisfy the required-check gate."
