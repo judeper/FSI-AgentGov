@@ -681,6 +681,12 @@ def main():
         logger.info("\n--- Federal Register ---")
         fed_state = get_source_state(state, SOURCE_KEY_FEDERAL_REGISTER)
 
+        # First-run baseline suppression: when there is no prior persisted state
+        # for this source, record the current items as the baseline silently
+        # rather than flagging every fetched item as "new". Without this guard a
+        # first run would emit ~30 days of items as a single noisy report.
+        fed_is_baseline = fed_state.get('last_run') is None
+
         # Determine since_date (last check or 30 days ago)
         since_date = fed_state.get('last_checked')
         if not since_date:
@@ -690,12 +696,18 @@ def main():
             logger.info(f"Fetching documents since {since_date}")
 
         fed_items = fetch_federal_register_documents(session, since_date, config, limit=args.limit)
-        new_fed_items = check_for_new_items(SOURCE_KEY_FEDERAL_REGISTER, fed_items, fed_state)
 
-        logger.info(f"Federal Register: {len(new_fed_items)} new items")
-        all_new_items.extend(new_fed_items)
+        if fed_is_baseline:
+            logger.info(
+                f"Federal Register: first run - baseline established, no changes "
+                f"reported on first run ({len(fed_items)} items recorded)"
+            )
+        else:
+            new_fed_items = check_for_new_items(SOURCE_KEY_FEDERAL_REGISTER, fed_items, fed_state)
+            logger.info(f"Federal Register: {len(new_fed_items)} new items")
+            all_new_items.extend(new_fed_items)
 
-        # Update state
+        # Update state (persist baseline so subsequent runs are incremental)
         if not args.dry_run:
             update_source_state(SOURCE_KEY_FEDERAL_REGISTER, fed_items, state)
             # Update last_checked to today
@@ -708,13 +720,22 @@ def main():
         logger.info("\n--- FINRA Notices ---")
         finra_state = get_source_state(state, SOURCE_KEY_FINRA)
 
+        # First-run baseline suppression (mirrors Federal Register / learn_monitor).
+        finra_is_baseline = finra_state.get('last_run') is None
+
         finra_items = fetch_finra_notices(session, config, limit=args.limit)
-        new_finra_items = check_for_new_items(SOURCE_KEY_FINRA, finra_items, finra_state)
 
-        logger.info(f"FINRA: {len(new_finra_items)} new items")
-        all_new_items.extend(new_finra_items)
+        if finra_is_baseline:
+            logger.info(
+                f"FINRA: first run - baseline established, no changes reported "
+                f"on first run ({len(finra_items)} items recorded)"
+            )
+        else:
+            new_finra_items = check_for_new_items(SOURCE_KEY_FINRA, finra_items, finra_state)
+            logger.info(f"FINRA: {len(new_finra_items)} new items")
+            all_new_items.extend(new_finra_items)
 
-        # Update state
+        # Update state (persist baseline so subsequent runs are incremental)
         if not args.dry_run:
             update_source_state(SOURCE_KEY_FINRA, finra_items, state)
 
