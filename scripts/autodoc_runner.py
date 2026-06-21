@@ -931,17 +931,21 @@ def _escalate(config: RunnerConfig, ctx: ChangeContext, reason: str, details: st
     existing = _existing_issue_url(config, ctx)
     if existing:
         return existing
-    # Include the source URL so the deferred-baseline advance workflow
-    # (learn-monitor-advance.yml) can match this issue via `{url} in:body` once
-    # it is closed. Without it, content-review escalations never advance their
-    # baseline and their pending blobs accumulate indefinitely.
+    # Include the source URL AND content hash so the deferred-baseline advance workflow
+    # (learn-monitor-advance.yml) can match this issue to its EXACT pending change once it
+    # is closed. The advance step compares these two lines verbatim against the pending blob's
+    # (url, content_hash) — it never relies on GitHub's tokenized `in:body` search, which can
+    # subset an unrelated issue's body and advance the wrong baseline (silent data loss).
     source_url = ctx.contract.get("source_url", "") if isinstance(ctx.contract, dict) else ""
+    content_hash = ctx.contract.get("content_hash", "") if isinstance(ctx.contract, dict) else ""
     source_line = f"Source: {source_url}\n" if source_url else ""
+    content_hash_line = f"Content-Hash: {content_hash}\n" if content_hash else ""
     body = (
         f"Autodoc escalation — human review required.\n\n"
         f"AUTODOC-FINGERPRINT: {ctx.fingerprint}\n"
         f"Reason: {reason}\n"
         f"{source_line}"
+        f"{content_hash_line}"
         f"\n{details}\n"
     )
     completed = subprocess.run(

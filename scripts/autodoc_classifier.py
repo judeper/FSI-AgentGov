@@ -159,6 +159,7 @@ class Change:
     affected_playbooks: list = field(default_factory=list)  # list[str] of file paths
     diff_text: str = ""
     kind: str = "content"  # "content" or "redirect"
+    content_hash: str = ""  # sha256 identity of the change, from the report's Content-Hash line
 
 
 @dataclass
@@ -174,6 +175,7 @@ class RoutingDecision:
     affected_controls: list
     sensitive_categories: list     # which HARD_HUMAN groups matched
     reasons: list                  # human-readable explanation of the decision
+    content_hash: str = ""         # sha256 identity propagated from the parsed Change
 
 
 # ---------------------------------------------------------------------------
@@ -243,6 +245,7 @@ def classify_change(change: Change) -> RoutingDecision:
             additive_only=True, affects_control=False, affected_controls=[],
             sensitive_categories=[],
             reasons=["URL redirect: update microsoft-learn-urls.md (no prose change)"],
+            content_hash=change.content_hash,
         )
 
     sensitive = match_sensitive(added)
@@ -286,6 +289,7 @@ def classify_change(change: Change) -> RoutingDecision:
         additive_only=additive, affects_control=affects_control,
         affected_controls=list(change.affected_controls),
         sensitive_categories=sorted(sensitive.keys()), reasons=reasons,
+        content_hash=change.content_hash,
     )
 
 
@@ -303,6 +307,7 @@ _CLASS_REASON_RE = re.compile(
     r"^\*\*Classification:\*\*\s*[A-Za-z]+\s*(?:\((.*?)\))?",
     re.MULTILINE,
 )
+_CONTENT_HASH_RE = re.compile(r"^\*\*Content-Hash:\*\*\s*(\S+)", re.MULTILINE)
 _CONTROL_RE = re.compile(r"^- Control (\d+\.\d+):", re.MULTILINE)
 _PLAYBOOK_RE = re.compile(r"`([^`]+\.md)`")
 _DIFF_RE = re.compile(r"```diff\n(.*?)```", re.DOTALL)
@@ -338,6 +343,7 @@ def parse_report(text: str) -> list[Change]:
         class_reason_m = _CLASS_REASON_RE.search(body)
         section_m = _SECTION_FIELD_RE.search(body)
         diff_m = _DIFF_RE.search(body)
+        content_hash_m = _CONTENT_HASH_RE.search(body)
 
         # Playbooks come from a dedicated section; controls from "- Control X.Y".
         playbooks = []
@@ -359,6 +365,7 @@ def parse_report(text: str) -> list[Change]:
             affected_playbooks=playbooks,
             diff_text=diff_m.group(1) if diff_m else "",
             kind="content",
+            content_hash=content_hash_m.group(1).strip() if content_hash_m else "",
         ))
 
     changes = _dedupe_changes_by_url(changes)
