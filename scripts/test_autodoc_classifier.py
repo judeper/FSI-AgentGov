@@ -262,6 +262,28 @@ def test_parse_critical_without_reason_routes_to_human():
     assert d.automerge_eligible is False
 
 
+def test_parse_extracts_content_hash_line():
+    # The Content-Hash line is the change's exact identity. It must round-trip from the report
+    # into Change.content_hash and through classify_change into the RoutingDecision so the
+    # contract/issue body can carry it for the deferred-baseline advance step.
+    text = """### 1. Identity Carrier
+
+**URL:** https://learn.microsoft.com/en-us/example/identity
+**Classification:** MEDIUM (General content update)
+**Content-Hash:** sha256:abc123def456
+
+**What Changed:**
+```diff
+--- +++ @@
++A neutral sentence.
+```
+"""
+    changes = ac.parse_report(text)
+    assert len(changes) == 1
+    assert changes[0].content_hash == "sha256:abc123def456"
+    assert ac.classify_change(changes[0]).content_hash == "sha256:abc123def456"
+
+
 def test_parse_summary_only_entry_routes_to_human():
     text = """### 1. Summary Only
 

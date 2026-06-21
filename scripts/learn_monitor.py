@@ -129,6 +129,7 @@ class ChangeRecord:
     affected_controls: list = field(default_factory=list)
     affected_playbooks: list = field(default_factory=list)
     priority: str = "MEDIUM"  # CRITICAL, HIGH, MEDIUM, NOISE
+    content_hash: str = ""  # sha256 of normalized content; the change's exact identity
 
 
 # === Watchlist Parsing ===
@@ -263,6 +264,7 @@ def generate_report(changes: list[ChangeRecord], redirects: list[dict],
             lines.append(f"### {i}. {c.topic}")
             lines.append(f"**URL:** {c.url}")
             lines.append(f"**Classification:** {c.classification} ({c.reason})")
+            lines.append(f"**Content-Hash:** {c.content_hash}")
             lines.extend(["", "---", ""])
 
     # Redirects
@@ -310,6 +312,7 @@ def _format_change(c: ChangeRecord, index: int) -> list[str]:
         f"**URL:** {c.url}",
         f"**Section:** {c.section}",
         f"**Classification:** {c.classification} ({c.reason})",
+        f"**Content-Hash:** {c.content_hash}",
         "",
     ]
 
@@ -645,12 +648,13 @@ def _run_monitor(args, config: dict):
                     diff_text=diff_text,
                     affected_controls=affected['controls'],
                     affected_playbooks=affected['playbooks'],
+                    content_hash=new_hash,
                 )
                 change.priority = determine_priority(change)
                 changes.append(change)
 
                 if defer:
-                    write_pending(pending_path(entry.url, PROJECT_ROOT), entry.url, new_hash, normalized, now)
+                    write_pending(pending_path(entry.url, new_hash, PROJECT_ROOT), entry.url, new_hash, normalized, now)
                     source_state["urls"][entry.url]["last_checked"] = now
                     source_state["urls"][entry.url]["last_status"] = 200
                 else:
