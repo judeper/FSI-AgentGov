@@ -44,3 +44,5 @@ export default defineConfig({
     // Firefox/WebKit added in later PR per Theme 5.
   ],
 });
+
+// ci-probe: verifying required-check coverage (throwaway, do not merge)
