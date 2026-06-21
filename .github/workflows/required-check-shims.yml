@@ -1,40 +1,62 @@
-# Required-check shims for branch protection.
+# Required-check shim: e2e-smoke (branch protection).
 #
 # Branch protection requires `e2e-smoke` and `mkdocs-strict` as required
-# status checks. The real workflows (`e2e-smoke.yml` and `docs-validation.yml`)
-# use `paths:` filters and only trigger on `docs/**`, `tests/**`, `mkdocs.yml`,
-# etc. PRs that touch only bot files (e.g., `data/monitor-state.json`,
-# `reports/monitoring/*.md`, `scripts/requirements.txt` from Dependabot, etc.)
-# never trigger those workflows and so cannot satisfy branch protection.
+# status checks with enforce_admins on (no bypass). The real workflows use
+# `paths:` filters, so PRs that touch none of those paths (bot PRs, data-only
+# PRs, CHANGELOG-only PRs, etc.) never trigger them and can never satisfy
+# branch protection. These shims report success for the matching check name
+# precisely when the real workflow would NOT fire, so the required context is
+# always reported and the merge is not wedged.
 #
-# This file defines two skip-shim jobs (`e2e-smoke`, `mkdocs-strict`) that
-# trigger ONLY when the real workflows would NOT (paths-ignore is the exact
-# complement of the real workflows' `paths`). They report success immediately
-# because no relevant code changed. Because GitHub requires *at least one*
-# successful check with the matching name to satisfy branch protection — and
-# because the real workflows and these shims are mutually exclusive on path —
-# this restores merge-ability for bot PRs without compromising the real
-# coverage on docs/SPA PRs.
+# WHY TWO SEPARATE SHIM FILES (one required check per file):
+#   A workflow has a single `on:` trigger, so a single file cannot carry two
+#   different `paths-ignore` blocks. The two real workflows have DIFFERENT
+#   `paths:` lists, so a single shared `paths-ignore` (the union of both) is
+#   not an exact complement of either — it over-includes paths and reopens the
+#   deadlock. Each shim therefore lives in its own file and its `paths-ignore`
+#   equals the EXACT `paths:` of its own real workflow:
 #
-# When you add a path to either real workflow's `paths:` filter, mirror it
-# here in the corresponding `paths-ignore:` block.
+#     this file (e2e-smoke shim)        -> mirrors e2e-smoke.yml `paths:`
+#     required-check-shim-mkdocs.yml    -> mirrors docs-validation.yml `paths:`
+#
+# EXACT COMPLEMENT MAPPING — keep these in lockstep with the real workflows:
+#
+#   e2e-smoke.yml `paths:` (mirrored below as paths-ignore):
+#     docs/**, tests/e2e/**, playwright.config.mjs, package.json,
+#     package-lock.json, overrides/**, mkdocs.yml, .github/workflows/**
+#
+#   docs-validation.yml (job mkdocs-strict) `paths:` (mirrored in the sibling):
+#     docs/**, mkdocs.yml, overrides/**, VERSION, scripts/verify_build_output.py,
+#     .github/workflows/**, tests/**, package.json, package-lock.json
+#
+# COMPLEMENT GUARANTEE (per required check, per PR):
+#   - PR where every changed file matches the real `paths:`  -> real fires, shim skips.
+#   - PR where no changed file matches the real `paths:`     -> real skips, shim fires.
+#   So neither-fires (the deadlock) is impossible. A MIXED PR (some files in the
+#   real `paths:`, some not) fires BOTH the real workflow and the shim; this is
+#   benign for green runs but, because GitHub evaluates the latest run for a
+#   given check name, an always-success shim completing after a failed real run
+#   could mask that failure. Keep the shim cheap and exact; do not widen its
+#   `paths-ignore` beyond the real workflow's `paths:`.
+#
+# When you add/remove a path in e2e-smoke.yml's `paths:`, mirror it in this
+# file's `paths-ignore:` (and the same for docs-validation.yml in the sibling)
+# in the same commit.
 
-name: Required check shims
+name: Required check shim - e2e-smoke
 
 on:
   pull_request:
+    # Exact mirror of e2e-smoke.yml `paths:`. The shim fires only when the real
+    # e2e-smoke workflow would NOT (no listed path changed).
     paths-ignore:
-      # Paths the real workflows already cover. Anything listed here
-      # triggers the REAL e2e-smoke or mkdocs-strict, not these shims.
       - 'docs/**'
-      - 'tests/**'
+      - 'tests/e2e/**'
       - 'playwright.config.mjs'
       - 'package.json'
       - 'package-lock.json'
       - 'overrides/**'
       - 'mkdocs.yml'
-      - 'VERSION'
-      - 'scripts/verify_build_output.py'
       - '.github/workflows/**'
 
 permissions:
@@ -45,18 +67,10 @@ jobs:
     name: e2e-smoke
     runs-on: ubuntu-latest
     steps:
-      - name: Skip (no SPA/docs paths changed)
+      - name: Skip (no e2e-smoke paths changed)
         run: |
-          echo "Real e2e-smoke workflow did not trigger because no SPA, docs,"
-          echo "Playwright, or package.json paths changed in this PR."
-          echo "Reporting success to satisfy required-check gate."
-
-  mkdocs-strict:
-    name: mkdocs-strict
-    runs-on: ubuntu-latest
-    steps:
-      - name: Skip (no docs/mkdocs paths changed)
-        run: |
-          echo "Real mkdocs-strict workflow did not trigger because no docs,"
-          echo "mkdocs.yml, overrides, VERSION, or tests paths changed."
-          echo "Reporting success to satisfy required-check gate."
+          echo "Real e2e-smoke workflow did not trigger because none of its"
+          echo "paths (docs/**, tests/e2e/**, playwright.config.mjs,"
+          echo "package.json, package-lock.json, overrides/**, mkdocs.yml,"
+          echo ".github/workflows/**) changed in this PR."
+          echo "Reporting success to satisfy the required-check gate."
