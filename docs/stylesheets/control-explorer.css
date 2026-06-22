@@ -1,0 +1,264 @@
+/*
+ * Control Explorer styles.
+ *
+ * Uses mkdocs-material CSS custom properties so the component adapts
+ * automatically to both the default (light) palette and the
+ * [data-md-color-scheme="slate"] (dark) palette without per-theme overrides.
+ * Targets WCAG 2.1 AA contrast in both palettes, stacks responsively on
+ * narrow viewports, and guards transitions behind prefers-reduced-motion.
+ */
+
+.ce-root {
+  --ce-border: var(--md-default-fg-color--lighter);
+  --ce-surface: var(--md-default-bg-color);
+  --ce-fg: var(--md-default-fg-color);
+  --ce-muted: var(--md-default-fg-color--light);
+  --ce-accent: var(--md-primary-fg-color);
+  --ce-radius: 0.25rem;
+  color: var(--ce-fg);
+  margin-top: 1rem;
+}
+
+/* ---- search ---- */
+.ce-search {
+  margin-bottom: 1rem;
+}
+
+.ce-label,
+.ce-sidebar-title {
+  font-weight: 700;
+  display: block;
+  margin-bottom: 0.35rem;
+}
+
+.ce-search-input,
+.ce-facet-filter {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.55rem 0.7rem;
+  font-size: 0.85rem;
+  color: var(--ce-fg);
+  background: var(--ce-surface);
+  border: 1px solid var(--ce-border);
+  border-radius: var(--ce-radius);
+}
+
+.ce-search-input:focus,
+.ce-facet-filter:focus,
+.ce-checkbox:focus-visible,
+.ce-sort-btn:focus-visible,
+.ce-reset:focus-visible,
+.ce-control-link:focus-visible {
+  outline: 2px solid var(--ce-accent);
+  outline-offset: 2px;
+}
+
+/* ---- layout ---- */
+.ce-layout {
+  display: grid;
+  grid-template-columns: minmax(15rem, 18rem) 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media screen and (max-width: 60em) {
+  .ce-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- sidebar / facets ---- */
+.ce-sidebar-title {
+  font-size: 1rem;
+  margin: 0 0 0.5rem;
+}
+
+.ce-reset {
+  display: inline-block;
+  margin-bottom: 1rem;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ce-accent);
+  background: transparent;
+  border: 1px solid var(--ce-accent);
+  border-radius: var(--ce-radius);
+  cursor: pointer;
+}
+
+.ce-reset:hover {
+  color: var(--md-primary-bg-color);
+  background: var(--ce-accent);
+}
+
+.ce-facet {
+  border: 1px solid var(--ce-border);
+  border-radius: var(--ce-radius);
+  margin: 0 0 0.85rem;
+  padding: 0.5rem 0.75rem 0.75rem;
+}
+
+.ce-facet-legend {
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 0 0.35rem;
+}
+
+.ce-facet-filter {
+  margin: 0.25rem 0 0.5rem;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.8rem;
+}
+
+.ce-facet-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.ce-facet-scroll {
+  max-height: 13rem;
+  overflow-y: auto;
+}
+
+.ce-check {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  padding: 0.15rem 0.2rem;
+  cursor: pointer;
+}
+
+.ce-check:hover {
+  background: var(--md-default-fg-color--lightest);
+  border-radius: var(--ce-radius);
+}
+
+.ce-checkbox {
+  flex: 0 0 auto;
+  margin: 0;
+  accent-color: var(--ce-accent);
+}
+
+/* ---- results ---- */
+.ce-count {
+  font-weight: 700;
+  margin: 0 0 0.75rem;
+}
+
+.ce-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.ce-table th,
+.ce-table td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--ce-border);
+}
+
+.ce-table thead th {
+  border-bottom: 2px solid var(--ce-border);
+  white-space: nowrap;
+}
+
+.ce-cell-id {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.ce-sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1rem;
+  font: inherit;
+  font-weight: 700;
+  color: var(--ce-fg);
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.ce-sort-ind {
+  font-size: 0.7em;
+}
+
+.ce-control-link {
+  font-weight: 600;
+}
+
+/* ---- badges ---- */
+.ce-badge {
+  display: inline-block;
+  margin: 0.1rem 0.25rem 0.1rem 0;
+  padding: 0.1rem 0.45rem;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  border-radius: 0.75rem;
+  border: 1px solid var(--ce-border);
+  white-space: nowrap;
+}
+
+.ce-badge-pillar {
+  color: var(--md-primary-bg-color);
+  background: var(--ce-accent);
+  border-color: var(--ce-accent);
+}
+
+.ce-badge-zone {
+  color: var(--ce-fg);
+  background: var(--md-default-fg-color--lightest);
+}
+
+.ce-badge-reg {
+  color: var(--ce-fg);
+  background: transparent;
+}
+
+.ce-badge-muted {
+  color: var(--ce-muted);
+  background: transparent;
+  font-style: italic;
+}
+
+/* ---- status / errors ---- */
+.ce-empty,
+.ce-error {
+  padding: 1rem;
+  font-weight: 600;
+  color: var(--ce-muted);
+}
+
+.ce-error {
+  color: var(--md-error-fg-color, #b00020);
+}
+
+/* ---- accessibility helpers ---- */
+.ce-visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---- motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  .ce-reset,
+  .ce-check,
+  .ce-control-link,
+  .ce-sort-btn {
+    transition: none !important;
+  }
+}

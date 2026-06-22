@@ -384,6 +384,86 @@
   .arch-card { min-width: 80px; max-width: 140px; font-size: 0.8rem; }
 }
 
+/* ── Home page: left-aligned hero + job router (WS1, tribunal-informed) ── */
+/*
+ * Replaces the old centered gradient hero + metric strip with a left-aligned
+ * "pick your job" front door. Uses Material CSS custom properties so it adapts
+ * to both the default and slate palettes without new contrast risk.
+ */
+.home-hero {
+  max-width: 64ch;
+  margin: 1.5rem 0 2.5rem;
+}
+.home-hero h1 {
+  font-size: clamp(1.9rem, 1.2rem + 2.4vw, 3rem);
+  font-weight: 800;
+  line-height: 1.14;
+  letter-spacing: -0.01em;
+  margin-bottom: 1rem;
+}
+.home-hero p {
+  font-size: 1.08rem;
+  line-height: 1.65;
+  color: var(--md-default-fg-color--light);
+  margin-bottom: 1.5rem;
+}
+.home-hero .md-button { margin: 0 .5rem .5rem 0; }
+
+/* Job-router cards: Material .grid.cards enhanced into task entry points */
+.job-cards.cards > ul > li {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-left: 3px solid var(--md-primary-fg-color);
+  border-radius: 8px;
+  transition: transform .15s ease, box-shadow .15s ease, border-left-color .15s ease;
+}
+.job-cards.cards > ul > li:hover,
+.job-cards.cards > ul > li:focus-within {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .10);
+  border-left-color: var(--md-accent-fg-color);
+}
+.job-cards.cards > ul > li > p:first-child {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+/* Audience strip */
+.audience-strip ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: .4rem 1.5rem;
+  list-style: none;
+  margin-left: 0;
+  padding-left: 0;
+}
+.audience-strip li {
+  padding: .3rem 0 .3rem .9rem;
+  border-left: 2px solid var(--md-primary-fg-color);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .job-cards.cards > ul > li { transition: none; }
+  .job-cards.cards > ul > li:hover,
+  .job-cards.cards > ul > li:focus-within { transform: none; }
+}
+
+/* ── Reading experience (WS3): comfort typography — color-neutral (no AA impact) ── */
+/*
+ * Cure the "wall of text / audit report" density flagged by the tribunal.
+ * Color-neutral on purpose: only line-height + heading rhythm change, so the
+ * documented WCAG AA contrast fixes are unaffected.
+ */
+.md-typeset {
+  line-height: 1.7;
+}
+.md-typeset h2 {
+  margin-top: 2.4em;
+  letter-spacing: -0.01em;
+}
+.md-typeset h3 {
+  margin-top: 1.8em;
+}
+
 /* Print-friendly checkboxes */
 @media print {
   .task-list-item input[type="checkbox"] {

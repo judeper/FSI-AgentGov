@@ -4,94 +4,78 @@ hide:
   - toc
 ---
 
-<div class="hero" markdown>
+<div class="home-hero" markdown>
 
-# AI Agent Governance for **Financial Services**
+# Govern Microsoft 365 AI agents — with evidence, not guesswork
 
-Govern Microsoft 365 AI agents with confidence — from policy to production.
-79 controls across 4 pillars and 3 governance zones, 36 companion solutions,
-implementation playbooks, and regulatory mappings for Microsoft Copilot Studio, Agent Builder, and custom
-agent deployments.
+A practical governance framework for **Microsoft 365 AI agents** — Copilot Studio, Agent Builder,
+and custom agent deployments — built for US financial-services organizations. Move from
+experimentation to controlled, examination-ready deployment using a shared operating model your
+administrators, governance leads, and compliance teams can actually work from.
 
-[Get Started](getting-started/quick-start.md){ .md-button .md-button--primary }
-[View Control Catalog](controls/index.md){ .md-button }
-
-</div>
-
-<div class="metrics-strip">
-  <div class="metric">
-    <span class="metric-number">79</span>
-    <span class="metric-label">Controls</span>
-  </div>
-  <div class="metric">
-    <span class="metric-number">4</span>
-    <span class="metric-label">Governance Pillars</span>
-  </div>
-  <div class="metric">
-    <span class="metric-number">6</span>
-    <span class="metric-label">Regulatory Frameworks</span>
-  </div>
-  <div class="metric">
-    <span class="metric-number">3</span>
-    <span class="metric-label">Governance Zones</span>
-  </div>
-</div>
-<p class="metrics-regulations">
-  FINRA · SEC · SOX · GLBA · OCC Bulletin 2026-13 / Fed SR 26-2 · CFTC Rule 1.31
-</p>
-
-## Quick Start by Role
-
-<div class="grid cards" markdown>
-
--   **Compliance Officer**
-
-    ---
-
-    Map controls to FINRA, SEC, SOX, and GLBA requirements.
-    Build examination-ready evidence packs.
-
-    [Start Here ->](framework/executive-summary.md)
-
--   **Power Platform Admin**
-
-    ---
-
-    Deploy controls, run playbooks, and configure
-    governance across your M365 tenant.
-
-    [Start Here ->](controls/index.md)
-
--   **IT Security / InfoSec**
-
-    ---
-
-    Implement DLP, audit logging, encryption, MFA,
-    and 29 security controls across your tenant.
-
-    [Start Here ->](controls/pillar-1-security/index.md)
-
--   **Examination Readiness**
-
-    ---
-
-    Prepare for FINRA/SEC examinations with
-    evidence standards and audit checklists.
-
-    [Start Here ->](playbooks/compliance-and-audit/audit-readiness-checklist.md)
-
--   **Business Owner**
-
-    ---
-
-    Understand zone requirements and the agent
-    approval lifecycle for your team.
-
-    [Start Here ->](framework/zones-and-tiers.md)
+[Find a control](controls/explorer.md){ .md-button .md-button--primary }
+[Assess your tenant](assessment/index.md){ .md-button }
 
 </div>
 
-## Framework Architecture
+## What do you need to do today?
+
+<div class="grid cards job-cards" markdown>
+
+-   **Start a governance program**
+
+    ---
+
+    New to agent governance? Follow a phased path — zones, operating model, and a
+    30/60/90-day adoption roadmap — to stand up controls without boiling the ocean.
+
+    [Begin from zero →](framework/adoption-roadmap.md)
+
+-   **Prepare for an exam or audit**
+
+    ---
+
+    Map controls to FINRA, SEC, SOX, GLBA, and OCC/Fed expectations, and build
+    examination-ready evidence with the audit-readiness checklist.
+
+    [Get exam-ready →](playbooks/compliance-and-audit/audit-readiness-checklist.md)
+
+-   **Find or deploy a specific control**
+
+    ---
+
+    Filter all 79 controls by pillar, zone, regulation, role, and automation in the
+    interactive Control Explorer — then jump straight to the implementation playbooks.
+
+    [Open the Control Explorer →](controls/explorer.md)
+
+-   **Assess your tenant's readiness**
+
+    ---
+
+    Run the readiness assessment to see where your environment stands against the
+    framework and which controls to prioritize next.
+
+    [Start the assessment →](assessment/index.md)
+
+</div>
+
+## Who this is for
+
+<div class="audience-strip" markdown>
+
+- **Enterprise architects** defining agent operating patterns
+- **Governance &amp; risk teams** establishing control coverage
+- **Power Platform &amp; M365 admins** deploying and verifying controls
+- **Compliance officers &amp; examiners** reviewing readiness and evidence
+
+</div>
+
+This framework is intended for regulated environments where agent behavior, connector usage,
+publishing decisions, and operational evidence need to be governed with more rigor than a generic
+AI rollout — and where being able to *show your work* matters as much as doing it.
+
+## Explore the framework
 
 <div class="arch-diagram" markdown>
 <div class="arch-layer">
@@ -165,9 +149,14 @@ Rule 1.31
 </div>
 </div>
 
+[Browse the control catalog](controls/index.md){ .md-button }
+[Read the executive summary](framework/executive-summary.md){ .md-button }
+
 ---
 
 !!! warning "Disclaimer"
-    This framework is provided for informational purposes only and does not constitute legal, regulatory, or compliance advice. Organizations should consult with their legal counsel and compliance teams. See [Disclaimer](disclaimer.md) for full details.
+    This framework is provided for informational purposes only and does not constitute legal,
+    regulatory, or compliance advice. Organizations should consult with their legal counsel and
+    compliance teams. See [Disclaimer](disclaimer.md) for full details.
 
 *FSI Agent Governance Framework v1.6.2 - May 2026*

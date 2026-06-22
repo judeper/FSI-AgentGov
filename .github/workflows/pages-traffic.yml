@@ -1,0 +1,43 @@
+# Pulls the repository's GitHub Pages Traffic API into a build artifact so we
+# can track documentation reach without committing data into the repo.
+#
+# The Traffic API (/traffic/views, /traffic/popular/paths,
+# /traffic/popular/referrers) requires push (write) access to the repository.
+# The default GITHUB_TOKEN has push access to its OWN repository, so no PAT is
+# required here. The artifact is retained for analysis only and is never
+# committed back to the repo (avoids history noise).
+name: Pages Traffic Snapshot
+
+on:
+  schedule:
+    # Daily at 06:15 UTC. Traffic data covers a rolling 14-day window.
+    - cron: "15 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Collect traffic data
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: judeper/FSI-AgentGov
+        run: |
+          set -euo pipefail
+          OUTDIR="$(mktemp -d)"
+          echo "OUTDIR=$OUTDIR" >> "$GITHUB_ENV"
+
+          gh api "repos/$REPO/traffic/views" > "$OUTDIR/views.json"
+          gh api "repos/$REPO/traffic/popular/paths" > "$OUTDIR/popular-paths.json"
+          gh api "repos/$REPO/traffic/popular/referrers" > "$OUTDIR/popular-referrers.json"
+
+      - name: Upload traffic artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pages-traffic-${{ github.run_id }}
+          path: ${{ env.OUTDIR }}/*.json
+          retention-days: 30
+          if-no-files-found: error

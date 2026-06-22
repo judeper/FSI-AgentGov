@@ -35,6 +35,7 @@ theme:
     - navigation.top
     - search.suggest
     - search.highlight
+    - search.share
     - content.code.copy
     - announce.dismiss
   palette:
@@ -52,7 +53,8 @@ theme:
         name: Switch to light mode
 
 plugins:
-  - search
+  - search:
+      separator: '[\s\-_,:!=\[\]()"/]+|\.(?!\d)|&[lg]t;'
   - include-markdown
 
 # Site-wide link validation (MkDocs 1.6+). CI runs `mkdocs build --strict`, so any warnings here will fail the build.
@@ -126,10 +128,18 @@ markdown_extensions:
 
 extra_css:
   - stylesheets/extra.css
+  - stylesheets/control-explorer.css
+  - stylesheets/feedback.css
+  - stylesheets/print.css
+  - stylesheets/search-helper.css
 
 extra_javascript:
   - javascripts/assessment-loader.js
   - javascripts/a11y.js
+  - javascripts/control-explorer.js
+  - javascripts/feedback.js
+  - javascripts/print-control.js
+  - javascripts/search-helper.js
 
 hooks:
   - scripts/hooks/copy_assessment_data.py
@@ -177,6 +187,7 @@ nav:
 
   - Control Catalog:
     - controls/index.md
+    - Control Explorer: controls/explorer.md
     - Pillar 1 - Security:
       - controls/pillar-1-security/index.md
       - 1.1 Restrict Agent Publishing: controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md
