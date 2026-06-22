@@ -51,6 +51,22 @@
   border-color: var(--md-primary-fg-color--dark);
 }
 
+/*
+ * Slate (dark) palette: Material sets --md-primary-fg-color to the lighter
+ * #429CE3, so white text on it is only ~2.96:1 (fails WCAG AA 4.5:1). Use the
+ * deeper brand blue #005A9E (white text = 7.10:1), matching extra.css's
+ * documented slate contrast strategy.
+ */
+[data-md-color-scheme="slate"] .fsi-feedback__btn {
+  color: #ffffff;
+  background-color: #005A9E;
+  border-color: #005A9E;
+}
+[data-md-color-scheme="slate"] .fsi-feedback__btn:hover {
+  background-color: #00497f;
+  border-color: #00497f;
+}
+
 /* Visible, AA-contrast focus indicator (keyboard users). */
 .fsi-feedback__btn:focus-visible {
   outline: 3px solid var(--md-accent-fg-color);

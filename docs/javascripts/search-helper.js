@@ -175,16 +175,35 @@
       return;
     }
     var query = input.value || "";
-    var matches = related(query, 4);
-    removePanel(container);
-    STATE.lastQuery = query;
-    if (!normalize(query)) {
+    var nq = normalize(query);
+    var matches = nq ? related(query, 4) : [];
+    var mode = "none";
+    if (nq) {
+      if (hasNoResults(container, query)) {
+        mode = "empty";
+      } else if (matches.length) {
+        mode = "related";
+      }
+    }
+    var sig = mode + "|" + nq + "|" + matches.map(function (m) { return m.term; }).join(",");
+    var existing = container.querySelector(".fsi-search-helper");
+    // Skip when the helper already reflects this exact state. This prevents the
+    // panel's own DOM mutations from re-triggering the observers (render loop).
+    if (existing && existing.getAttribute("data-fsi-sig") === sig) {
       return;
     }
-    if (hasNoResults(container, query)) {
+    if (existing) {
+      existing.remove();
+    }
+    STATE.lastQuery = query;
+    if (mode === "empty") {
       renderEmpty(container, matches);
-    } else if (matches.length) {
+    } else if (mode === "related") {
       renderRelated(container, matches);
+    }
+    var panel = container.querySelector(".fsi-search-helper");
+    if (panel) {
+      panel.setAttribute("data-fsi-sig", sig);
     }
   }
 

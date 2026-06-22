@@ -539,6 +539,31 @@
     "label": "Governance Zones and Tiers"
   },
   {
+    "term": "Bias Testing and Fairness Assessment",
+    "aliases": [
+      "bias testing",
+      "fairness assessment",
+      "fairness testing",
+      "model bias",
+      "bias detection",
+      "algorithmic bias"
+    ],
+    "url": "controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment/",
+    "label": "Bias Testing and Fairness Assessment"
+  },
+  {
+    "term": "Microsoft 365 Copilot Data Governance",
+    "aliases": [
+      "M365 Copilot data governance",
+      "Microsoft 365 Copilot data governance",
+      "Copilot data governance",
+      "M365 Copilot governance",
+      "Copilot data protection"
+    ],
+    "url": "controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance/",
+    "label": "Microsoft 365 Copilot Data Governance"
+  },
+  {
     "term": "Role Catalog",
     "aliases": [
       "admin roles",

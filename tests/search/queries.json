@@ -31,7 +31,7 @@
   {"q":"SR 26-2","expect_any":["2.6-model-risk-management-sr-26-2","regulatory-mappings"]},
   {"q":"FINRA 4511","expect_any":["regulatory-mappings","1.7-comprehensive-audit-logging-and-compliance","1.9-data-retention-and-deletion-policies"]},
   {"q":"FINRA 3110","expect_any":["2.12-supervision-and-oversight-finra-rule-3110","regulatory-mappings"]},
-  {"q":"SEC 17a-4","expect_any":["regulatory-mappings","1.9-data-retention-and-deletion-policies"]},
+  {"q":"SEC 17a-4","expect_any":["regulatory-mappings","regulatory-framework","1.9-data-retention-and-deletion-policies"]},
   {"q":"SOX 404","expect_any":["regulatory-mappings"]},
   {"q":"GLBA 501(b)","expect_any":["regulatory-mappings","1.5-data-loss-prevention-dlp-and-sensitivity-labels"]},
   {"q":"CFTC 1.31","expect_any":["regulatory-mappings"]},

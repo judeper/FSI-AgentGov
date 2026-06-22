@@ -91,6 +91,14 @@
   background: var(--ce-accent);
 }
 
+/* Slate: --ce-accent (#429CE3) fails AA with white text (~2.96:1); use the
+   deeper #005A9E (white = 7.10:1) for filled accents only. */
+[data-md-color-scheme="slate"] .ce-reset:hover {
+  color: #ffffff;
+  background: #005A9E;
+  border-color: #005A9E;
+}
+
 .ce-facet {
   border: 1px solid var(--ce-border);
   border-radius: var(--ce-radius);
@@ -210,6 +218,12 @@
   color: var(--md-primary-bg-color);
   background: var(--ce-accent);
   border-color: var(--ce-accent);
+}
+
+[data-md-color-scheme="slate"] .ce-badge-pillar {
+  color: #ffffff;
+  background: #005A9E;
+  border-color: #005A9E;
 }
 
 .ce-badge-zone {
