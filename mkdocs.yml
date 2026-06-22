@@ -132,6 +132,7 @@ extra_css:
   - stylesheets/feedback.css
   - stylesheets/print.css
   - stylesheets/search-helper.css
+  - stylesheets/control-bluf.css
 
 extra_javascript:
   - javascripts/assessment-loader.js
@@ -140,6 +141,7 @@ extra_javascript:
   - javascripts/feedback.js
   - javascripts/print-control.js
   - javascripts/search-helper.js
+  - javascripts/control-bluf.js
 
 hooks:
   - scripts/hooks/copy_assessment_data.py

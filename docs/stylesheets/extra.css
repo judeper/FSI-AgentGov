@@ -464,6 +464,58 @@
   margin-top: 1.8em;
 }
 
+/* ── WS6: homepage palette PILOT (warm-neutral + deep blue) ───────────────────
+ * Scoped to home-only elements (.home-hero / .job-cards / .audience-strip) so the
+ * rest of the site keeps the Microsoft-blue brand. This is the F1 pilot for you to
+ * evaluate, NOT a global swap (Juror D argued to keep MS-blue; decision pending).
+ * AA verified: #ffffff on #15497B = 9.25:1 (passes AA/AAA in both palettes).
+ */
+:root {
+  --fsi-deep-blue: #15497B;
+  --fsi-deep-blue-hover: #0F3A63;
+}
+
+.home-hero .md-button--primary {
+  background-color: var(--fsi-deep-blue);
+  border-color: var(--fsi-deep-blue);
+  color: #ffffff;
+}
+.home-hero .md-button--primary:hover {
+  background-color: var(--fsi-deep-blue-hover);
+  border-color: var(--fsi-deep-blue-hover);
+}
+
+/* Warm-neutral job cards with a deep-blue spine */
+.job-cards.cards > ul > li {
+  background-color: #faf8f5;
+  border-left-color: var(--fsi-deep-blue);
+}
+.job-cards.cards > ul > li:hover,
+.job-cards.cards > ul > li:focus-within {
+  border-left-color: var(--fsi-deep-blue);
+}
+.audience-strip li {
+  border-left-color: var(--fsi-deep-blue);
+}
+
+/* Slate: warm-dark card surface; brighten the spine so it stays visible on the
+   dark background. The deep-blue CTA keeps white text (9.25:1) unchanged. */
+[data-md-color-scheme="slate"] .job-cards.cards > ul > li {
+  background-color: #2a2724;
+  border-left-color: #5aa0e0;
+}
+[data-md-color-scheme="slate"] .audience-strip li {
+  border-left-color: #5aa0e0;
+}
+
+/* ── WS6: conservative, color-neutral component polish (site-wide) ── */
+.md-typeset .grid.cards > ul > li {
+  border-radius: 8px;
+}
+.md-typeset table:not([class]) th {
+  font-weight: 700;
+}
+
 /* Print-friendly checkboxes */
 @media print {
   .task-list-item input[type="checkbox"] {
