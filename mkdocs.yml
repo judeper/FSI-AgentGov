@@ -824,4 +824,6 @@ nav:
     - Administrator Templates: downloads/index.md
     - Disclaimer: disclaimer.md
 
-  - What's New: changelog.md
+  - What's New:
+    - Changelog: changelog.md
+    - Change Radar: change-radar.md

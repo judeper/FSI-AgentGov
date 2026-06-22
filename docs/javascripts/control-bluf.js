@@ -22,6 +22,7 @@
   var SCRIPT_MARK = "control-bluf.js";
   var DATA_FILE = "javascripts/control-explorer-data.json";
   var CACHE_KEY = "__fsiControlCatalog";
+  var PROMISE_KEY = "__fsiControlCatalogPromise";
   var SECTION_ID = "fsi-bluf";
 
   var MAX_REGS = 6;
@@ -201,16 +202,23 @@
       return;
     }
 
-    fetch(base + DATA_FILE, { credentials: "same-origin" })
-      .then(function (r) {
-        if (!r.ok) throw new Error("HTTP " + r.status);
-        return r.json();
-      })
-      .then(function (data) {
-        var controls = Array.isArray(data) ? data : (data.controls || []);
-        window[CACHE_KEY] = controls;
-        withData(controls);
-      })
+    // Single-flight: cache the in-flight promise so concurrent inits (e.g.
+    // document$ firing twice before the first fetch resolves) reuse one request.
+    if (!window[PROMISE_KEY]) {
+      window[PROMISE_KEY] = fetch(base + DATA_FILE, { credentials: "same-origin" })
+        .then(function (r) {
+          if (!r.ok) throw new Error("HTTP " + r.status);
+          return r.json();
+        })
+        .then(function (data) {
+          var controls = Array.isArray(data) ? data : (data.controls || []);
+          window[CACHE_KEY] = controls;
+          return controls;
+        });
+    }
+
+    window[PROMISE_KEY]
+      .then(withData)
       .catch(function (err) {
         // Non-fatal: the page is fully usable without the summary card.
         if (window.console) window.console.error("Control BLUF:", err);
