@@ -31,81 +31,6 @@
   --brand-subtle:               #A19F9D;
 }
 
-/* ── Hero section ── */
-.hero {
-  padding: 4rem 2rem;
-  text-align: center;
-  background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-primary-dark) 100%);
-  color: #fff;
-  border-radius: 8px;
-  margin-bottom: 2rem;
-}
-.hero h1 {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #fff;
-}
-.hero p {
-  font-size: 1.1rem;
-  opacity: 0.95;
-  max-width: 600px;
-  margin: 0.75rem auto 1.5rem;
-}
-[data-md-color-scheme="slate"] .hero {
-  background: linear-gradient(135deg, #005A9E 0%, #003A70 100%);
-}
-
-/* ── Hero button overrides (scoped) ── */
-/*
- * Hero design: inverted button so the CTA pops against the dark hero
- * gradient (#005A9E → #003A70). Text colour MUST be brand-primary-dark
- * (#005A9E), not brand-primary (#0078D4) — axe measured the latter at
- * 4.18:1 on white (fails AA 4.5:1). #005A9E on #ffffff = 7.10:1.
- * Closes F-A11Y-DOCS-CONTRAST-HEROCTA on the home page.
- */
-.hero .md-button--primary {
-  background-color: #fff !important;
-  color: var(--brand-primary-dark) !important;
-  border-color: transparent !important;
-  font-weight: 600;
-}
-.hero .md-button--primary:hover {
-  background-color: var(--brand-surface) !important;
-}
-.hero .md-button:not(.md-button--primary) {
-  border-color: rgba(255,255,255,0.6) !important;
-  color: #fff !important;
-}
-
-/* ── Metrics strip ── */
-.metrics-strip {
-  display: flex;
-  justify-content: center;
-  gap: 3rem;
-  padding: 2rem 1rem;
-  background: var(--brand-surface);
-  border-radius: 8px;
-  margin: 0 0 0.5rem;
-}
-.metric { text-align: center; }
-.metric-number {
-  display: block;
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: var(--brand-primary);
-}
-.metric-label {
-  font-size: 0.9rem;
-  color: var(--brand-subtle);
-}
-.metrics-regulations {
-  text-align: center;
-  color: var(--brand-subtle);
-  margin-top: 0;
-  margin-bottom: 2rem;
-  font-size: 0.9rem;
-}
-
 /* ── Architecture diagram ── */
 .arch-diagram {
   max-width: 720px;
@@ -376,12 +301,139 @@
 
 
 @media (max-width: 600px) {
-  .hero { padding: 2.5rem 1rem; }
-  .hero h1 { font-size: 1.75rem; }
-  .hero p { font-size: 1rem; }
-  .metrics-strip { flex-wrap: wrap; gap: 1.5rem; }
-  .metric-number { font-size: 2rem; }
   .arch-card { min-width: 80px; max-width: 140px; font-size: 0.8rem; }
+}
+
+/* ── Home page: left-aligned hero + job router (WS1, tribunal-informed) ── */
+/*
+ * Replaces the old centered gradient hero + metric strip with a left-aligned
+ * "pick your job" front door. Uses Material CSS custom properties so it adapts
+ * to both the default and slate palettes without new contrast risk.
+ */
+.home-hero {
+  max-width: 64ch;
+  margin: 1.5rem 0 2.5rem;
+}
+.home-hero h1 {
+  font-size: clamp(1.9rem, 1.2rem + 2.4vw, 3rem);
+  font-weight: 800;
+  line-height: 1.14;
+  letter-spacing: -0.01em;
+  margin-bottom: 1rem;
+}
+.home-hero p {
+  font-size: 1.08rem;
+  line-height: 1.65;
+  color: var(--md-default-fg-color--light);
+  margin-bottom: 1.5rem;
+}
+.home-hero .md-button { margin: 0 .5rem .5rem 0; }
+
+/* Job-router cards: Material .grid.cards enhanced into task entry points */
+.job-cards.cards > ul > li {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-left: 3px solid var(--md-primary-fg-color);
+  border-radius: 8px;
+  transition: transform .15s ease, box-shadow .15s ease, border-left-color .15s ease;
+}
+.job-cards.cards > ul > li:hover,
+.job-cards.cards > ul > li:focus-within {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .10);
+  border-left-color: var(--md-accent-fg-color);
+}
+.job-cards.cards > ul > li > p:first-child {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+/* Audience strip */
+.audience-strip ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: .4rem 1.5rem;
+  list-style: none;
+  margin-left: 0;
+  padding-left: 0;
+}
+.audience-strip li {
+  padding: .3rem 0 .3rem .9rem;
+  border-left: 2px solid var(--md-primary-fg-color);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .job-cards.cards > ul > li { transition: none; }
+  .job-cards.cards > ul > li:hover,
+  .job-cards.cards > ul > li:focus-within { transform: none; }
+}
+
+/* ── Reading experience (WS3): comfort typography — color-neutral (no AA impact) ── */
+/*
+ * Cure the "wall of text / audit report" density flagged by the tribunal.
+ * Color-neutral on purpose: only line-height + heading rhythm change, so the
+ * documented WCAG AA contrast fixes are unaffected.
+ */
+.md-typeset {
+  line-height: 1.7;
+}
+.md-typeset h2 {
+  margin-top: 2.4em;
+  letter-spacing: -0.01em;
+}
+.md-typeset h3 {
+  margin-top: 1.8em;
+}
+
+/* ── WS6: homepage palette PILOT (warm-neutral + deep blue) ───────────────────
+ * Scoped to home-only elements (.home-hero / .job-cards / .audience-strip) so the
+ * rest of the site keeps the Microsoft-blue brand. This is the F1 pilot for you to
+ * evaluate, NOT a global swap (Juror D argued to keep MS-blue; decision pending).
+ * AA verified: #ffffff on #15497B = 9.25:1 (passes AA/AAA in both palettes).
+ */
+:root {
+  --fsi-deep-blue: #15497B;
+  --fsi-deep-blue-hover: #0F3A63;
+}
+
+.home-hero .md-button--primary {
+  background-color: var(--fsi-deep-blue);
+  border-color: var(--fsi-deep-blue);
+  color: #ffffff;
+}
+.home-hero .md-button--primary:hover {
+  background-color: var(--fsi-deep-blue-hover);
+  border-color: var(--fsi-deep-blue-hover);
+}
+
+/* Warm-neutral job cards with a deep-blue spine */
+.job-cards.cards > ul > li {
+  background-color: #faf8f5;
+  border-left-color: var(--fsi-deep-blue);
+}
+.job-cards.cards > ul > li:hover,
+.job-cards.cards > ul > li:focus-within {
+  border-left-color: var(--fsi-deep-blue);
+}
+.audience-strip li {
+  border-left-color: var(--fsi-deep-blue);
+}
+
+/* Slate: warm-dark card surface; brighten the spine so it stays visible on the
+   dark background. The deep-blue CTA keeps white text (9.25:1) unchanged. */
+[data-md-color-scheme="slate"] .job-cards.cards > ul > li {
+  background-color: #2a2724;
+  border-left-color: #5aa0e0;
+}
+[data-md-color-scheme="slate"] .audience-strip li {
+  border-left-color: #5aa0e0;
+}
+
+/* ── WS6: conservative, color-neutral component polish (site-wide) ── */
+.md-typeset .grid.cards > ul > li {
+  border-radius: 8px;
+}
+.md-typeset table:not([class]) th {
+  font-weight: 700;
 }
 
 /* Print-friendly checkboxes */

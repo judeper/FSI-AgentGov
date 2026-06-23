@@ -1,0 +1,53 @@
+# Pulls the repository's GitHub Pages Traffic API into a build artifact so we
+# can track documentation reach without committing data into the repo.
+#
+# IMPORTANT: the Traffic API (/traffic/views, /traffic/popular/paths,
+# /traffic/popular/referrers) requires repository ADMIN/push access. The default
+# Actions GITHUB_TOKEN does NOT have traffic access, so this workflow uses a
+# dedicated PAT stored as the `TRAFFIC_PAT` secret (a classic PAT with `repo`
+# scope, or a fine-grained token with `Administration: read`). If the secret is
+# absent the job logs a notice and exits 0 (no failure, no artifact). The
+# artifact is retained for analysis only and is never committed back.
+name: Pages Traffic Snapshot
+
+on:
+  schedule:
+    # Daily at 06:15 UTC. Traffic data covers a rolling 14-day window.
+    - cron: "15 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Collect traffic data
+        id: collect
+        env:
+          GH_TOKEN: ${{ secrets.TRAFFIC_PAT }}
+          REPO: judeper/FSI-AgentGov
+        run: |
+          set -euo pipefail
+          if [ -z "${GH_TOKEN:-}" ]; then
+            echo "::notice::TRAFFIC_PAT secret not set; skipping traffic snapshot. The GitHub Traffic API needs a PAT with 'repo' (classic) or 'Administration: read' (fine-grained); the default GITHUB_TOKEN cannot read traffic."
+            echo "collected=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          OUTDIR="$(mktemp -d)"
+          echo "OUTDIR=$OUTDIR" >> "$GITHUB_ENV"
+
+          gh api "repos/$REPO/traffic/views" > "$OUTDIR/views.json"
+          gh api "repos/$REPO/traffic/popular/paths" > "$OUTDIR/popular-paths.json"
+          gh api "repos/$REPO/traffic/popular/referrers" > "$OUTDIR/popular-referrers.json"
+          echo "collected=true" >> "$GITHUB_OUTPUT"
+
+      - name: Upload traffic artifact
+        if: steps.collect.outputs.collected == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: pages-traffic-${{ github.run_id }}
+          path: ${{ env.OUTDIR }}/*.json
+          retention-days: 30
+          if-no-files-found: error

@@ -1,0 +1,158 @@
+/*
+ * Styles for the per-control "At a glance" (BLUF) summary card
+ * (docs/javascripts/control-bluf.js).
+ *
+ * Uses Material for MkDocs CSS custom properties so colors track both the
+ * default and slate (dark) palettes automatically. The card is deliberately
+ * calm -- a subtle bordered/tinted panel with bordered chips, not a loud
+ * banner. A prefers-reduced-motion guard disables transitions.
+ *
+ * Contrast: chips use --md-default-fg-color--lightest tints with normal body
+ * text (no white-on-accent), so they stay WCAG 2.1 AA in both palettes. The
+ * single filled accent chip (Automation) has an explicit slate override to the
+ * deeper brand blue #005A9E (white text = 7.10:1), because Material's slate
+ * --md-primary-fg-color is #429CE3 (white text = 2.96:1, fails AA), matching
+ * the documented strategy in feedback.css / extra.css.
+ */
+
+.bluf {
+  margin: 0.75rem 0 1.75rem;
+  padding: 1rem 1.2rem;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-left: 3px solid var(--md-primary-fg-color);
+  border-radius: 0.3rem;
+  background-color: var(--md-code-bg-color);
+  color: var(--md-default-fg-color);
+}
+
+.bluf__grid {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.45rem 1rem;
+  margin: 0;
+  align-items: baseline;
+}
+
+.bluf__label {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--md-default-fg-color--light);
+  white-space: nowrap;
+}
+
+.bluf__value {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--md-default-fg-color);
+}
+
+.bluf__pillar {
+  font-weight: 600;
+}
+
+.bluf__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+/* Subtle, bordered/tinted chips -- normal text, no white-on-accent risk. */
+.bluf__chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--md-default-fg-color);
+  background-color: var(--md-default-fg-color--lightest);
+  border: 1px solid var(--md-default-fg-color--lighter);
+  border-radius: 0.85rem;
+  white-space: nowrap;
+}
+
+.bluf__chip--more {
+  background-color: transparent;
+  color: var(--md-default-fg-color--light);
+  font-weight: 500;
+}
+
+/* Proposed/monitored citation (not yet adopted): dashed + italic, distinct
+   from adopted rules. Text stays --md-default-fg-color -> no new contrast pair. */
+.bluf__chip--proposed {
+  border-style: dashed;
+  font-style: italic;
+}
+
+/* Automation: the one filled accent chip. */
+.bluf__chip--auto {
+  color: var(--md-primary-bg-color);
+  background-color: var(--md-primary-fg-color);
+  border-color: var(--md-primary-fg-color);
+}
+
+/*
+ * Slate (dark) palette: Material sets --md-primary-fg-color to the lighter
+ * #429CE3 (white text = ~2.96:1, fails WCAG AA). Use the deeper brand blue
+ * #005A9E (white text = 7.10:1) for the filled accent chip.
+ */
+[data-md-color-scheme="slate"] .bluf__chip--auto {
+  color: #ffffff;
+  background-color: #005A9E;
+  border-color: #005A9E;
+}
+
+.bluf__muted {
+  color: var(--md-default-fg-color--light);
+}
+
+.bluf__footer {
+  margin-top: 0.9rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--md-default-fg-color--lightest);
+}
+
+.bluf__action {
+  font-size: 0.78rem;
+  font-weight: 600;
+  /* Card bg is --md-code-bg-color (#f5f5f5 light); Material's default link
+     #0078D4 = 4.15:1 (fails AA). #005A9E = 6.52:1 on #f5f5f5. */
+  color: #005a9e;
+}
+
+[data-md-color-scheme="slate"] .bluf__action {
+  /* Slate code bg (~#272a35): #005A9E = 2.01:1 (fails); #429CE3 = 4.83:1. */
+  color: #429ce3;
+}
+
+.bluf__action:focus-visible {
+  outline: 3px solid var(--md-accent-fg-color);
+  outline-offset: 2px;
+}
+
+/* Responsive: stack label above value on narrow viewports. */
+@media screen and (max-width: 30em) {
+  .bluf__grid {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+  }
+  .bluf__label {
+    margin-top: 0.5rem;
+  }
+  .bluf__label:first-child {
+    margin-top: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bluf,
+  .bluf__chip,
+  .bluf__action {
+    transition: none;
+  }
+}

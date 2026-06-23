@@ -1,0 +1,133 @@
+@media print {
+  @page {
+    margin: 14mm 12mm 18mm;
+  }
+
+  .md-header,
+  .md-tabs,
+  .md-search,
+  .md-search__overlay,
+  .md-sidebar,
+  .md-footer,
+  .md-top,
+  #fsi-feedback,
+  .fsi-feedback,
+  .print-hide {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    font-family: "Segoe UI", Calibri, Arial, sans-serif;
+    font-size: 11pt;
+    line-height: 1.45;
+  }
+
+  body {
+    margin: 0 !important;
+    padding: 0 0 14mm !important;
+  }
+
+  .md-container,
+  .md-main,
+  .md-main__inner,
+  .md-grid,
+  .md-content,
+  .md-content__inner,
+  .md-typeset {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .md-content__inner > :first-child {
+    margin-top: 0 !important;
+  }
+
+  .md-content .md-typeset h1,
+  .md-content .md-typeset h2,
+  .md-content .md-typeset h3 {
+    break-after: avoid-page;
+    page-break-after: avoid;
+    margin-top: 1.2em;
+  }
+
+  .md-content .md-typeset p,
+  .md-content .md-typeset li,
+  .md-content .md-typeset blockquote {
+    orphans: 3;
+    widows: 3;
+  }
+
+  .md-content .md-typeset table,
+  .md-content .md-typeset pre,
+  .md-content .md-typeset blockquote,
+  .md-content .md-typeset figure,
+  .md-content .md-typeset .admonition,
+  .md-content .md-typeset details,
+  .md-content .md-typeset .tabbed-set {
+    break-inside: avoid-page;
+    page-break-inside: avoid;
+  }
+
+  .md-content .md-typeset thead {
+    display: table-header-group;
+  }
+
+  .md-content .md-typeset tr,
+  .md-content .md-typeset img,
+  .md-content .md-typeset svg {
+    break-inside: avoid-page;
+    page-break-inside: avoid;
+  }
+
+  .md-content .md-typeset pre,
+  .md-content .md-typeset code {
+    white-space: pre-wrap !important;
+    word-break: break-word;
+  }
+
+  .md-content .md-typeset .admonition,
+  .md-content .md-typeset details {
+    box-shadow: none !important;
+    border: 1px solid #777 !important;
+    background: #fff !important;
+  }
+
+  .md-content .md-typeset a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 90%;
+    word-break: break-all;
+  }
+
+  .md-content .md-typeset a[href^="#"]::after,
+  .md-content .md-typeset a[href^="javascript:"]::after {
+    content: "";
+  }
+
+  body::after {
+    content: "FSI Agent Governance Framework";
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 4mm;
+    border-top: 1px solid #bbb;
+    padding-top: 2mm;
+    text-align: center;
+    font-size: 9pt;
+    color: #666;
+  }
+
+  body[data-print-title]::after {
+    content: "FSI Agent Governance Framework — " attr(data-print-title);
+  }
+
+  body[data-print-site][data-print-title]::after {
+    content: attr(data-print-site) " — " attr(data-print-title);
+  }
+}
