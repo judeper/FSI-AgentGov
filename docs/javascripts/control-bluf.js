@@ -28,6 +28,16 @@
   var MAX_REGS = 6;
   var MAX_ROLES = 3;
 
+  // Citations that are proposed/monitored (not yet adopted) get a distinct
+  // marker so a flat chip doesn't imply adopted-rule status to an FSI audience.
+  var PROPOSED_REGS = { "FINRA-25-07": true };
+  function regDecorate(v) {
+    var s = String(v);
+    return PROPOSED_REGS[s]
+      ? { text: s + " (proposed)", cls: "bluf__chip--proposed" }
+      : { text: s, cls: "" };
+  }
+
   // ---- base-path resolution (works under GitHub Pages sub-path deploys) ----
   function resolveBase() {
     var scripts = document.querySelectorAll("script[src]");
@@ -109,11 +119,14 @@
     return z.join(" \u00B7 ");
   }
 
-  function buildChips(values, max, moreClass) {
+  function buildChips(values, max, moreClass, decorate) {
     var frag = el("span", { "class": "bluf__chips" });
     var list = values || [];
     var shown = list.slice(0, max);
-    shown.forEach(function (v) { frag.appendChild(chip(String(v))); });
+    shown.forEach(function (v) {
+      if (decorate) { var d = decorate(v); frag.appendChild(chip(d.text, d.cls)); }
+      else { frag.appendChild(chip(String(v))); }
+    });
     var extra = list.length - shown.length;
     if (extra > 0) {
       frag.appendChild(chip("+" + extra + " more", moreClass || "bluf__chip--more"));
@@ -141,7 +154,7 @@
     field("Automation", chip(control.automation || "unspecified", "bluf__chip--auto"))
       .forEach(function (n) { dl.appendChild(n); });
 
-    field("Regulations", buildChips(control.regulations, MAX_REGS))
+    field("Regulations", buildChips(control.regulations, MAX_REGS, null, regDecorate))
       .forEach(function (n) { dl.appendChild(n); });
 
     field("Roles", buildChips(control.roles, MAX_ROLES))

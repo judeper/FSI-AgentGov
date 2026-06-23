@@ -82,6 +82,13 @@
   font-weight: 500;
 }
 
+/* Proposed/monitored citation (not yet adopted): dashed + italic, distinct
+   from adopted rules. Text stays --md-default-fg-color -> no new contrast pair. */
+.bluf__chip--proposed {
+  border-style: dashed;
+  font-style: italic;
+}
+
 /* Automation: the one filled accent chip. */
 .bluf__chip--auto {
   color: var(--md-primary-bg-color);

@@ -19,6 +19,9 @@
   var CONTAINER_ID = "control-explorer";
   var DATA_FILE = "javascripts/control-explorer-data.json";
   var SCRIPT_MARK = "control-explorer.js";
+  // Citations that are proposed/monitored (not yet adopted) — surfaced distinctly
+  // so a flat badge doesn't imply adopted-rule status to an FSI audience.
+  var PROPOSED_REGS = { "FINRA-25-07": true };
 
   var AUTOMATION_ORDER = ["Automatable", "Partial", "Manual", "unspecified"];
   var PILLAR_ORDER = ["Security", "Management", "Reporting", "SharePoint"];
@@ -388,7 +391,11 @@
         var regCell = el("td");
         if ((c.regulations || []).length) {
           c.regulations.forEach(function (r) {
-            regCell.appendChild(badge(r, "ce-badge-reg"));
+            if (PROPOSED_REGS[r]) {
+              regCell.appendChild(badge(r + " (proposed)", "ce-badge-reg ce-badge-reg-proposed"));
+            } else {
+              regCell.appendChild(badge(r, "ce-badge-reg"));
+            }
           });
         } else {
           regCell.appendChild(badge("unspecified", "ce-badge-muted"));

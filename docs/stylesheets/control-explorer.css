@@ -236,6 +236,14 @@
   background: transparent;
 }
 
+/* Proposed/monitored citation (e.g. FINRA-25-07 RFC, not yet adopted):
+   dashed + italic so it reads as distinct from adopted rules. Text stays
+   --ce-fg, so no new contrast pair. */
+.ce-badge-reg-proposed {
+  border-style: dashed;
+  font-style: italic;
+}
+
 .ce-badge-muted {
   color: var(--ce-muted);
   background: transparent;
