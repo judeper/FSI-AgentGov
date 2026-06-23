@@ -245,7 +245,7 @@
     if (STATE.aliasesReady) {
       return Promise.resolve();
     }
-    return fetch(new URL("search-aliases.json", BASE_URL).href, { credentials: "same-origin" })
+    return fetch(new URL("javascripts/search-aliases.json", BASE_URL).href, { credentials: "same-origin" })
       .then(function (response) {
         if (!response.ok) {
           throw new Error("Unable to load search aliases: " + response.status);
