@@ -206,7 +206,7 @@ def main() -> int:
                       encoding="utf-8")
 
     # ----- summary -----
-    print(f"Control Explorer data generator")
+    print("Control Explorer data generator")
     print(f"  manifest : {MANIFEST.relative_to(REPO_ROOT)}")
     print(f"  output   : {OUTPUT.relative_to(REPO_ROOT)}")
     print(f"  controls : {count} (expected {EXPECTED_COUNT})")
