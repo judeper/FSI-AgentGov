@@ -37,6 +37,9 @@
       "pattern": "^https://www\\.occ\\.gov"
     },
     {
+      "pattern": "^https://nvlpubs\\.nist\\.gov"
+    },
+    {
       "pattern": "^https://admin\\.portal\\.com"
     },
     {
