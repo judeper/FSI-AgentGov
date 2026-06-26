@@ -1,3 +1,6 @@
+---
+description: "This document is the canonical reference when CAPE vocabulary intersects with FSI governance work."
+---
 <!-- verify-language-rules: allow-second-tier  reason: "Canonical CAPE crosswalk and FSI Maturity Translation Table — verbatim CAPE Level 500 descriptors and reframings appear here by design as the single source of truth for reframing elsewhere." -->
 
 # Microsoft CAPE × FSI-AgentGov Crosswalk

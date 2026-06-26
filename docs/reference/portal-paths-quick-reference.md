@@ -1,3 +1,6 @@
+---
+description: "Quick navigation paths for all admin portals used in the FSI Agent Governance Framework."
+---
 # Admin Portal Navigation Quick Reference
 
 Quick navigation paths for all admin portals used in the FSI Agent Governance Framework.

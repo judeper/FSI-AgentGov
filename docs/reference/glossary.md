@@ -1,3 +1,6 @@
+---
+description: "Key terms and definitions used in the FSI Agent Governance Framework."
+---
 # Glossary of Terms
 
 Key terms and definitions used in the FSI Agent Governance Framework.

@@ -1,3 +1,8 @@
+---
+description: "Complete catalog of 79 governance controls for Microsoft 365 AI agents across Security, Management, Reporting, and SharePoint pillars."
+search:
+  boost: 2
+---
 # Control Catalog
 
 Complete catalog of 79 governance controls for Microsoft 365 AI agents.

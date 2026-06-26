@@ -1,3 +1,6 @@
+---
+description: "Reference guide for enterprise scalability, platform selection, and operational limits for FSI-AgentGov-Solutions."
+---
 # Solutions Architecture Guide
 
 Reference guide for enterprise scalability, platform selection, and operational limits for FSI-AgentGov-Solutions.

@@ -44,14 +44,26 @@ def load_json(path: Path) -> Any:
         return json.load(handle)
 
 
-def load_docs(index_path: Path) -> list[dict[str, str]]:
+def load_docs(index_path: Path) -> list[dict[str, Any]]:
     data = load_json(index_path)
     docs = data.get("docs", data if isinstance(data, list) else [])
-    return [
-        {"location": str(d.get("location") or d.get("url") or ""), "title": str(d.get("title") or ""), "text": str(d.get("text") or "")}
-        for d in docs
-        if isinstance(d, dict)
-    ]
+    parsed: list[dict[str, Any]] = []
+    for d in docs:
+        if not isinstance(d, dict):
+            continue
+        try:
+            boost = float(d.get("boost", 1.0) or 1.0)
+        except (TypeError, ValueError):
+            boost = 1.0
+        parsed.append(
+            {
+                "location": str(d.get("location") or d.get("url") or ""),
+                "title": str(d.get("title") or ""),
+                "text": str(d.get("text") or ""),
+                "boost": boost,
+            }
+        )
+    return parsed
 
 
 def alias_context(query: str, aliases_path: Path) -> tuple[list[str], list[str]]:
@@ -124,7 +136,13 @@ def score(model: dict[str, Any], query: str, expansions: list[str], matched_urls
             value += model["location"].get(token, 0) * 1.5
     if "#" not in model["doc"]["location"]:
         value += 0.25
-    return value
+    # Apply the per-document `search.boost` (front-matter) the way lunr does in
+    # the live Material search box: as a multiplier on the document's relevance.
+    # Without this the benchmark is invariant to boost and cannot detect a
+    # landing-page boost burying a deep control/reference page. Negative scores
+    # are filtered out in rank(), so multiplying them is harmless.
+    boost = float(model["doc"].get("boost", 1.0) or 1.0)
+    return value * boost
 
 
 def rank(models: list[dict[str, Any]], query: str, aliases_path: Path, limit: int) -> list[dict[str, str]]:

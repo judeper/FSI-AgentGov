@@ -1,3 +1,6 @@
+---
+description: "Live inventory reference for the companion FSI-AgentGov-Solutions repository."
+---
 # Solutions Index
 
 Live inventory reference for the companion FSI-AgentGov-Solutions repository.

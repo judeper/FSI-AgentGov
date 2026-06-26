@@ -1,3 +1,6 @@
+---
+description: "Microsoft's Copilot Acceleration Engineering (CAPE) materials describe six Frontier Transformation Patterns — recurring deployment shapes that organizations…"
+---
 # Frontier Transformation Patterns
 
 !!! info "Audience"

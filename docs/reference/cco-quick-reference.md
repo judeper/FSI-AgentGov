@@ -1,3 +1,6 @@
+---
+description: "This document is structured by examiner question, not by control or pattern."
+---
 <!-- verify-language-rules: allow-second-tier reason: "CCO quick reference must quote CAPE and vendor marketing language verbatim (in scare quotes) so the CCO can teach reframing to staff and counter-position with examiners." -->
 
 # CCO Quick Reference — AI Agent Examination Readiness

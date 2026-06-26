@@ -1,3 +1,6 @@
+---
+description: "This page is the canonical statement of how the FSI Agent Governance Framework is versioned, what we consider a breaking change, and how long a given release…"
+---
 # Versioning and Support
 
 This page is the canonical statement of how the FSI Agent Governance

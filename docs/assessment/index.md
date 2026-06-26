@@ -1,3 +1,8 @@
+---
+description: "Interactive governance readiness assessment for Microsoft 365 AI agents. Score your controls in the browser — no data leaves your device."
+search:
+  boost: 2
+---
 # Governance Readiness Assessment
 
 **Scoring:** Yes (1.0) · Partial (0.5) · No (0.0) · N/A (excluded)
