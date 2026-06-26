@@ -1,3 +1,6 @@
+---
+description: "How FSI-AgentGov-Solutions automation aligns with the governance framework."
+---
 # Solutions Integration
 
 How FSI-AgentGov-Solutions automation aligns with the governance framework.

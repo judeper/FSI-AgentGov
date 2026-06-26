@@ -21,6 +21,14 @@
    ever moves off GitHub Pages, add `frame-ancestors 'none'` as an HTTP
    header on the origin. #}
 {% block extrahead %}
+  {# Phase 2: schema.org FAQPage structured data, FAQ page only. Mirrors the
+     visible Q&A in docs/reference/faq.md for Google rich-result eligibility.
+     JSON-LD is non-executable data, but CSP script-src still applies — the
+     'unsafe-inline' allowance set on the CSP <meta> below covers it. The
+     page/file guards avoid a build crash on 404.html (page=None). #}
+  {% if page and page.file and page.file.src_uri == "reference/faq.md" %}
+    {% include "partials/faq-jsonld.html" %}
+  {% endif %}
   {# AS16 (F-DOCS-OG-TWITTER-CARDS-MISSING-01): OpenGraph + Twitter Card
      meta for link previews in Slack / Teams / LinkedIn. Without these,
      FSI-AgentGov links shared in customer or partner channels render as
@@ -48,14 +56,14 @@
       {% set _og_title = _og_title ~ " — " ~ config.site_name %}
     {% endif %}
     {% set _og_description = page.meta.description|default(config.site_description) %}
-    <meta property="og:title" content="{{ _og_title }}">
-    <meta property="og:description" content="{{ _og_description }}">
+    <meta property="og:title" content="{{ _og_title | e }}">
+    <meta property="og:description" content="{{ _og_description | e }}">
     <meta property="og:url" content="{{ page.canonical_url }}">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="{{ config.site_name }}">
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="{{ _og_title }}">
-    <meta name="twitter:description" content="{{ _og_description }}">
+    <meta name="twitter:title" content="{{ _og_title | e }}">
+    <meta name="twitter:description" content="{{ _og_description | e }}">
   {% endif %}
   <script>
     if (window.top !== window.self) {

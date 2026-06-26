@@ -39,6 +39,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = REPO_ROOT / "assessment" / "manifest" / "controls.json"
 CONTROL_INDEX = REPO_ROOT / "docs" / "controls" / "CONTROL-INDEX.md"
 OUTPUT = REPO_ROOT / "docs" / "javascripts" / "control-explorer-data.json"
+PLAYBOOKS_ROOT = REPO_ROOT / "docs" / "playbooks" / "control-implementations"
 
 EXPECTED_COUNT = 79
 
@@ -74,6 +75,38 @@ REG_FALLBACK_RULES: list[tuple[str, str]] = [
 PAREN_RE = re.compile(r"\s*\(.*?\)\s*")
 REG_HEADER_RE = re.compile(r"\*\*Regulatory Reference:\*\*\s*(.+)")
 GOV_HEADER_RE = re.compile(r"\*\*Governance Levels:\*\*\s*(.+)")
+OBJECTIVE_SECTION_RE = re.compile(
+    r"^##\s+Objective\s*$\n(?P<body>.*?)(?=^##\s+|\Z)",
+    flags=re.MULTILINE | re.DOTALL,
+)
+H1_RE = re.compile(r"^#\s+(.+?)\s*$", flags=re.MULTILINE)
+
+WORKLOAD_SIGNAL_RULES: list[tuple[str, re.Pattern[str]]] = [
+    ("Purview", re.compile(r"\b(?:Microsoft\s+)?Purview\b", flags=re.IGNORECASE)),
+    ("Copilot Studio", re.compile(r"\b(?:Microsoft\s+)?Copilot Studio\b", flags=re.IGNORECASE)),
+    ("Power Platform", re.compile(r"\bPower Platform\b", flags=re.IGNORECASE)),
+    (
+        "Microsoft 365 Copilot",
+        re.compile(
+            r"\b(?:Microsoft\s*365|M365)\s+Copilot\b|\bCopilot for Microsoft 365\b",
+            flags=re.IGNORECASE,
+        ),
+    ),
+]
+
+PLAYBOOK_NAME_BY_STEM = {
+    "portal-walkthrough": "Portal Walkthrough",
+    "powershell-setup": "PowerShell Setup",
+    "verification-testing": "Verification & Testing",
+    "troubleshooting": "Troubleshooting",
+}
+
+PLAYBOOK_ORDER = {
+    "portal-walkthrough": 0,
+    "powershell-setup": 1,
+    "verification-testing": 2,
+    "troubleshooting": 3,
+}
 
 
 def clean_role(role: str) -> str:
@@ -86,6 +119,20 @@ def parse_reg_header(text: str) -> str | None:
     return m.group(1).strip().rstrip("<br>").strip() if m else None
 
 
+def parse_gov_header(text: str) -> str | None:
+    m = GOV_HEADER_RE.search(text)
+    return m.group(1).strip().rstrip("<br>").strip() if m else None
+
+
+def governance_levels_from_header(header: str) -> list[str]:
+    levels: list[str] = []
+    for part in re.split(r"/|,", header):
+        level = part.strip()
+        if level and level not in levels:
+            levels.append(level)
+    return levels
+
+
 def regs_from_header(header: str) -> list[str]:
     """Derive normalized regulation facet codes from a header string."""
     found: list[str] = []
@@ -95,6 +142,74 @@ def regs_from_header(header: str) -> list[str]:
             if code not in found:
                 found.append(code)
     return found
+
+
+def objective_from_markdown(text: str) -> str:
+    m = OBJECTIVE_SECTION_RE.search(text)
+    if not m:
+        return ""
+    body = m.group("body")
+    lines: list[str] = []
+    for raw in body.splitlines():
+        line = raw.strip()
+        if not line or line == "---":
+            continue
+        if line.startswith("!!! "):
+            continue
+        lines.append(line)
+    return " ".join(lines)
+
+
+def workloads_for_control(pillar: int | str | None, title: str, objective: str) -> list[str]:
+    workloads: list[str] = []
+    if str(pillar) == "4":
+        workloads.append("SharePoint")
+    haystack = f"{title}\n{objective}"
+    for label, pattern in WORKLOAD_SIGNAL_RULES:
+        if pattern.search(haystack) and label not in workloads:
+            workloads.append(label)
+    if not workloads:
+        workloads.append("unspecified")
+    return workloads
+
+
+def heading_from_markdown(text: str) -> str | None:
+    m = H1_RE.search(text)
+    return m.group(1).strip() if m else None
+
+
+def title_from_stem(stem: str) -> str:
+    return stem.replace("-", " ").title().replace("Powershell", "PowerShell")
+
+
+def playbook_name(path: Path) -> str:
+    mapped = PLAYBOOK_NAME_BY_STEM.get(path.stem)
+    if mapped:
+        return mapped
+    heading = heading_from_markdown(path.read_text(encoding="utf-8"))
+    if heading:
+        heading = re.sub(r"^Control\s+\d+\.\d+:\s*", "", heading).strip()
+        heading = re.sub(r":\s*Control\s+\d+\.\d+.*$", "", heading).strip()
+        if heading:
+            return heading
+    return title_from_stem(path.stem)
+
+
+def control_playbooks(control_id: str) -> list[dict[str, str]]:
+    root = PLAYBOOKS_ROOT / control_id
+    if not root.exists() or not root.is_dir():
+        return []
+    md_files = sorted(
+        [p for p in root.glob("*.md") if p.name.lower() != "index.md"],
+        key=lambda p: (PLAYBOOK_ORDER.get(p.stem, 99), p.stem),
+    )
+    return [
+        {
+            "name": playbook_name(p),
+            "url": f"playbooks/control-implementations/{control_id}/{p.stem}/",
+        }
+        for p in md_files
+    ]
 
 
 def load_manifest() -> list[dict]:
@@ -127,6 +242,8 @@ def build() -> tuple[dict, dict]:
         "automation_unspecified": [],
         "missing_source_file": [],
         "index_mismatch": [],
+        "missing_gov_levels": [],
+        "workload_unspecified": [],
     }
 
     for c in manifest:
@@ -146,8 +263,11 @@ def build() -> tuple[dict, dict]:
         regulations = list(c.get("regulatory") or [])
         src = c.get("source_file")
         src_path = REPO_ROOT / src if src else None
-        if not regulations and src_path and src_path.exists():
-            header = parse_reg_header(src_path.read_text(encoding="utf-8"))
+        src_text = ""
+        if src_path and src_path.exists():
+            src_text = src_path.read_text(encoding="utf-8")
+        if not regulations and src_text:
+            header = parse_reg_header(src_text)
             if header:
                 regulations = regs_from_header(header)
                 if regulations:
@@ -156,6 +276,18 @@ def build() -> tuple[dict, dict]:
             notes["no_regs"].append(cid)
         if src and not (src_path and src_path.exists()):
             notes["missing_source_file"].append(cid)
+
+        gov_header = parse_gov_header(src_text) if src_text else None
+        governance_levels = (
+            governance_levels_from_header(gov_header) if gov_header else []
+        )
+        if not governance_levels:
+            notes["missing_gov_levels"].append(cid)
+
+        objective = objective_from_markdown(src_text) if src_text else ""
+        workload = workloads_for_control(pillar, name, objective)
+        if workload == ["unspecified"]:
+            notes["workload_unspecified"].append(cid)
 
         roles = []
         for r in c.get("roles") or []:
@@ -169,6 +301,7 @@ def build() -> tuple[dict, dict]:
             notes["automation_unspecified"].append(cid)
 
         solutions = list(c.get("solutions") or [])
+        playbooks = control_playbooks(cid)
 
         if idx_ids and cid not in idx_ids:
             notes["index_mismatch"].append(cid)
@@ -179,11 +312,14 @@ def build() -> tuple[dict, dict]:
             "pillar": pillar,
             "pillarName": pillar_name,
             "url": url,
+            "workload": workload,
+            "governanceLevels": governance_levels,
             "zones": zones,
             "regulations": sorted(regulations),
             "roles": sorted(roles),
             "automation": automation,
             "solutions": sorted(solutions),
+            "playbooks": playbooks,
         })
 
     # Stable sort by numeric (pillar, control) order.
@@ -214,11 +350,18 @@ def main() -> int:
     all_regs = sorted({r for c in doc["controls"] for r in c["regulations"]})
     all_roles = sorted({r for c in doc["controls"] for r in c["roles"]})
     all_sol = sorted({s for c in doc["controls"] for s in c["solutions"]})
+    all_workloads = sorted({w for c in doc["controls"] for w in c["workload"]})
+    all_gov_levels = sorted(
+        {g for c in doc["controls"] for g in c["governanceLevels"]}
+    )
+    all_playbooks = sum(len(c["playbooks"]) for c in doc["controls"])
     autos = {}
     for c in doc["controls"]:
         autos[c["automation"]] = autos.get(c["automation"], 0) + 1
     print(f"  facets   : regulations={len(all_regs)} roles={len(all_roles)} "
-          f"solutions={len(all_sol)} automation={autos}")
+          f"solutions={len(all_sol)} automation={autos} "
+          f"workloads={len(all_workloads)} governance_levels={len(all_gov_levels)} "
+          f"playbooks={all_playbooks}")
 
     if notes["reg_fallback"]:
         print(f"  reg fallback (parsed from markdown header): "
@@ -231,6 +374,10 @@ def main() -> int:
         print(f"  WARN missing source_file: {notes['missing_source_file']}")
     if notes["index_mismatch"]:
         print(f"  WARN not in CONTROL-INDEX: {notes['index_mismatch']}")
+    if notes["missing_gov_levels"]:
+        print(f"  WARN missing governance levels: {notes['missing_gov_levels']}")
+    if notes["workload_unspecified"]:
+        print(f"  workload unspecified: {notes['workload_unspecified']}")
 
     if count != EXPECTED_COUNT:
         print(f"ERROR: expected {EXPECTED_COUNT} controls, got {count}",

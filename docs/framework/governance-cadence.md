@@ -1,3 +1,6 @@
+---
+description: "Structured review schedule for AI agent governance effectiveness and examination readiness."
+---
 # Governance Cadence
 
 Structured review schedule for AI agent governance effectiveness and examination readiness.

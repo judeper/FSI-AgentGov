@@ -806,6 +806,7 @@ nav:
     - ISO/IEC 42001 Mapping: reference/iso-42001-mapping.md
     - Microsoft Responsible AI v2 Mapping: reference/microsoft-rai-v2-mapping.md
     - Microsoft CAPE Crosswalk: reference/microsoft-cape-crosswalk.md
+    - OWASP LLM Top 10 Crosswalk: reference/owasp-llm-top10-crosswalk.md
     - CCO Quick Reference: reference/cco-quick-reference.md
     - Examiner First-Day-Letter Response: reference/examiner-first-day-letter-response.md
     - CSA Quick Reference: reference/csa-quick-reference.md

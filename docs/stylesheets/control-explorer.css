@@ -48,7 +48,8 @@
 .ce-checkbox:focus-visible,
 .ce-sort-btn:focus-visible,
 .ce-reset:focus-visible,
-.ce-control-link:focus-visible {
+.ce-control-link:focus-visible,
+.ce-playbook-link:focus-visible {
   outline: 2px solid var(--ce-accent);
   outline-offset: 2px;
 }
@@ -202,6 +203,43 @@
   font-weight: 600;
 }
 
+.ce-playbook-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.ce-playbook-item {
+  margin: 0;
+}
+
+.ce-playbook-link {
+  display: inline-block;
+  padding: 0.1rem 0.45rem;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  border-radius: 0.75rem;
+  border: 1px solid var(--ce-border);
+  color: var(--ce-accent);
+  text-decoration: none;
+}
+
+.ce-playbook-link:hover {
+  color: var(--md-primary-bg-color);
+  background: var(--ce-accent);
+  border-color: var(--ce-accent);
+  text-decoration: none;
+}
+
+[data-md-color-scheme="slate"] .ce-playbook-link:hover {
+  color: #ffffff;
+  background: #005A9E;
+  border-color: #005A9E;
+}
+
 /* ---- badges ---- */
 .ce-badge {
   display: inline-block;
@@ -280,6 +318,7 @@
   .ce-reset,
   .ce-check,
   .ce-control-link,
+  .ce-playbook-link,
   .ce-sort-btn {
     transition: none !important;
   }

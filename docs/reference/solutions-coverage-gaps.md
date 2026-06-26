@@ -1,3 +1,6 @@
+---
+description: "Current-state analysis of the live companion solutions in FSI-AgentGov-Solutions against the 78-control FSI Agent Governance Framework baseline."
+---
 # Solutions Coverage Gap Analysis
 
 Current-state analysis of the live companion solutions in FSI-AgentGov-Solutions against the 78-control FSI Agent Governance Framework baseline.

@@ -1,3 +1,6 @@
+---
+description: "A short, honest record of behaviors customers may encounter that are not bugs in this framework but are worth knowing before they show up in a compliance…"
+---
 # Known Limitations
 
 A short, honest record of behaviors customers may encounter that are

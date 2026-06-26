@@ -1,3 +1,6 @@
+---
+description: "Canonical, framework-friendly role names used throughout this framework (controls, templates, and downloads)."
+---
 # Administrator Role Catalog
 
 Canonical, framework-friendly role names used throughout this framework (controls, templates, and downloads).

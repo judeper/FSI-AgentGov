@@ -1,3 +1,6 @@
+---
+description: "This reference maps Microsoft's Agent Essentials deployment checklist categories to the FSI Agent Governance Framework controls."
+---
 # Agent Essentials Control Mapping Reference
 
 **Last Updated:** May 2026
