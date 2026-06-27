@@ -55,6 +55,12 @@
       "pattern": "^https://approvals\\.microsoft\\.com"
     },
     {
+      "pattern": "^https://ps\\.compliance\\.protection\\.outlook\\.com"
+    },
+    {
+      "pattern": "^https://www\\.microsoft\\.com/licensing/docs"
+    },
+    {
       "pattern": "contoso"
     },
     {
