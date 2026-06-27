@@ -67,16 +67,30 @@ jobs:
           if [ "$EXIT_CODE" -eq 1 ]; then
             REPORT_FILE=$(ls -t reports/monitoring/regulatory-changes-*.md 2>/dev/null | head -1)
             if [ -n "$REPORT_FILE" ]; then
-              # Extract counts from the report (using CRITICAL/HIGH/MEDIUM/NOISE tier names)
-              CRITICAL=$(grep -oP 'CRITICAL Changes.*?\K\d+' "$REPORT_FILE" 2>/dev/null || echo "0")
-              HIGH=$(grep -oP 'HIGH Changes.*?\K\d+' "$REPORT_FILE" 2>/dev/null || echo "0")
-              MEDIUM=$(grep -oP 'MEDIUM Changes.*?\K\d+' "$REPORT_FILE" 2>/dev/null || echo "0")
-              NOISE=$(grep -oP 'NOISE Changes.*?\K\d+' "$REPORT_FILE" 2>/dev/null || echo "0")
+              # Extract counts from the report. Use `| head -1 || true` (NOT
+              # `|| echo 0`) so a grep miss / PCRE-unavailable / report-format
+              # drift yields an EMPTY string rather than "0".
+              CRITICAL=$(grep -oP 'CRITICAL Changes.*?\K\d+' "$REPORT_FILE" 2>/dev/null | head -1 || true)
+              HIGH=$(grep -oP 'HIGH Changes.*?\K\d+' "$REPORT_FILE" 2>/dev/null | head -1 || true)
+              MEDIUM=$(grep -oP 'MEDIUM Changes.*?\K\d+' "$REPORT_FILE" 2>/dev/null | head -1 || true)
+              NOISE=$(grep -oP 'NOISE Changes.*?\K\d+' "$REPORT_FILE" 2>/dev/null | head -1 || true)
 
-              echo "critical_items=$CRITICAL" >> $GITHUB_OUTPUT
-              echo "high_items=$HIGH" >> $GITHUB_OUTPUT
-              echo "medium_items=$MEDIUM" >> $GITHUB_OUTPUT
-              echo "noise_items=$NOISE" >> $GITHUB_OUTPUT
+              # FAIL-CLOSED auto-merge eligibility, computed from the RAW counts
+              # BEFORE any display fallback. Only 'true' when BOTH CRITICAL and HIGH
+              # parsed as exactly "0". An empty value (parse failure / format drift)
+              # is NOT "0", so it can never present as "0 critical/high" and slip an
+              # unreviewed item through the unattended auto-merge gate.
+              if [ "$CRITICAL" = "0" ] && [ "$HIGH" = "0" ]; then
+                echo "automerge_eligible=true" >> $GITHUB_OUTPUT
+              else
+                echo "automerge_eligible=false" >> $GITHUB_OUTPUT
+              fi
+
+              # Display counts (PR title/body): empty -> 0 for readable output only.
+              echo "critical_items=${CRITICAL:-0}" >> $GITHUB_OUTPUT
+              echo "high_items=${HIGH:-0}" >> $GITHUB_OUTPUT
+              echo "medium_items=${MEDIUM:-0}" >> $GITHUB_OUTPUT
+              echo "noise_items=${NOISE:-0}" >> $GITHUB_OUTPUT
               echo "report_file=$REPORT_FILE" >> $GITHUB_OUTPUT
             fi
           fi
@@ -198,26 +212,30 @@ jobs:
       # --- consolidation + auto-merge of state-only regulatory PRs ---
       # Regulatory PRs only ever touch data/monitor-state.json(.backup) and
       # reports/monitoring/*.md (no customer-facing docs). The newest run carries
-      # the cumulative monitor-state.json baseline, so prior regulatory PRs are
-      # superseded and safe to close. The newest is auto-merged ONLY when it has
-      # zero CRITICAL/HIGH items — those warrant human review for control impact.
+      # the cumulative monitor-state.json baseline, so prior auto-merge-eligible
+      # regulatory PRs are superseded and safe to close. PRs that still carry
+      # `needs-review` (CRITICAL/HIGH items) are NEVER closed here — they are
+      # preserved for human review. The newest is auto-merged ONLY when it has
+      # zero CRITICAL/HIGH items.
       - name: Consolidate superseded Regulatory-monitor PRs
         # Gated by the same kill-switch as auto-merge: turning automation off
-        # disables this destructive (PR-closing) step too. Independent of the
-        # CRITICAL/HIGH gate — superseded baselines are closed regardless.
+        # disables this destructive (PR-closing) step too. Closes ONLY
+        # auto-merge-eligible (non-needs-review) superseded PRs; CRITICAL/HIGH PRs
+        # keep their needs-review label and are left open for a human.
         if: steps.create_pr.outputs.pull-request-number && vars.REGULATORY_STATE_AUTOMERGE == 'true'
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           NEW_PR: ${{ steps.create_pr.outputs.pull-request-number }}
           RUN_NUMBER: ${{ github.run_number }}
         run: |
-          # Close ONLY older bot-created regulatory PRs: they must carry the
-          # `regulatory` label, match the exact branch pattern
-          # `monitoring/regulatory-<digits>`, and have a run number strictly lower
-          # than this run. This prevents closing human PRs that merely share the
-          # prefix and prevents two runs from closing each other.
-          gh pr list --state open --label regulatory --json number,headRefName \
-            --jq '.[] | select(.headRefName | test("^monitoring/regulatory-[0-9]+$")) | "\(.number) \(.headRefName)"' \
+          # Close ONLY older bot-created regulatory PRs that are auto-merge-eligible:
+          # they must carry the `regulatory` label, NOT carry `needs-review`
+          # (CRITICAL/HIGH PRs keep it and must stay open for a human), match the
+          # exact branch pattern `monitoring/regulatory-<digits>`, and have a run
+          # number strictly lower than this run. This avoids closing human PRs,
+          # unreviewed CRITICAL/HIGH PRs, the current PR, or racing another run.
+          gh pr list --state open --label regulatory --json number,headRefName,labels \
+            --jq '.[] | select(.headRefName | test("^monitoring/regulatory-[0-9]+$")) | select(any(.labels[]; .name == "needs-review") | not) | "\(.number) \(.headRefName)"' \
           | while read -r n branch; do
               run="${branch#monitoring/regulatory-}"
               if [ "$n" != "$NEW_PR" ] && [ "$run" -lt "$RUN_NUMBER" ]; then
@@ -230,13 +248,13 @@ jobs:
       - name: Enable auto-merge for the state-only PR (no CRITICAL/HIGH items)
         # Kill-switch: set repo variable REGULATORY_STATE_AUTOMERGE to 'true' to
         # enable unattended merging of state-only regulatory PRs. Additionally
-        # gated on ZERO CRITICAL/HIGH items: those warrant human review for control
-        # impact, so they stay open with the `needs-review` label.
+        # gated on the FAIL-CLOSED automerge_eligible signal (both CRITICAL and
+        # HIGH positively parsed as 0); CRITICAL/HIGH or unparseable counts keep
+        # the `needs-review` label for a human.
         if: >-
           steps.create_pr.outputs.pull-request-number &&
           vars.REGULATORY_STATE_AUTOMERGE == 'true' &&
-          steps.monitor.outputs.critical_items == '0' &&
-          steps.monitor.outputs.high_items == '0'
+          steps.monitor.outputs.automerge_eligible == 'true'
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           NEW_PR: ${{ steps.create_pr.outputs.pull-request-number }}
@@ -258,8 +276,13 @@ jobs:
             gh pr edit "$NEW_PR" --add-label needs-review || true
             exit 0
           fi
-          # Pure baseline update with no CRITICAL/HIGH items: drop the needs-review
-          # label (added at PR creation) and let it merge once required checks pass.
-          gh pr edit "$NEW_PR" --remove-label needs-review || true
-          gh pr merge "$NEW_PR" --auto --squash --delete-branch
-          echo "Auto-merge enabled for state-only regulatory PR #$NEW_PR (0 CRITICAL/HIGH; merges once required checks pass)."
+          # Enable auto-merge FIRST; only drop the needs-review label once that
+          # succeeds, so a failed `gh pr merge` (e.g. repo auto-merge disabled)
+          # leaves the PR visibly needs-review instead of open + unlabeled + stuck.
+          if gh pr merge "$NEW_PR" --auto --squash --delete-branch; then
+            gh pr edit "$NEW_PR" --remove-label needs-review || true
+            echo "Auto-merge enabled for state-only regulatory PR #$NEW_PR (merges once required checks pass)."
+          else
+            echo "::warning::Could not enable auto-merge for PR #$NEW_PR; leaving needs-review for manual handling."
+            gh pr edit "$NEW_PR" --add-label needs-review || true
+          fi
