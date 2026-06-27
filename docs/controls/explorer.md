@@ -10,7 +10,7 @@ hide:
 
 The Control Explorer helps you find the right governance controls fast: search by ID or title and narrow the catalog by pillar, governance zone, regulation, administrator role, or automation level. It supports your planning and review work across all 79 controls — shareable filtered views are encoded in the page URL.
 
-<div id="control-explorer" class="ce-container" markdown="0">
+<div id="control-explorer-app" class="ce-container" markdown="0">
   <noscript>
     <div class="admonition warning">
       <p class="admonition-title">JavaScript Required</p>

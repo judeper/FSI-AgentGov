@@ -16,7 +16,7 @@
 (function () {
   "use strict";
 
-  var CONTAINER_ID = "control-explorer";
+  var CONTAINER_ID = "control-explorer-app";
   var DATA_FILE = "javascripts/control-explorer-data.json";
   var SCRIPT_MARK = "control-explorer.js";
   // Citations that are proposed/monitored (not yet adopted) — surfaced distinctly
