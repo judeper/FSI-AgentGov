@@ -1,0 +1,4538 @@
+{
+  "generatedAt": "2026-06-26T15:08:28Z",
+  "count": 79,
+  "controls": [
+    {
+      "id": "1.1",
+      "title": "Restrict Agent Publishing by Authorization",
+      "pillar": 1,
+      "pillarName": "Security",
+      "url": "controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "OCC-2023-17",
+        "OCC-2026-13",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "AI Administrator",
+        "Compliance Officer",
+        "Dataverse System Admin",
+        "Entra Global Admin",
+        "Governance Lead",
+        "Power Platform Admin"
+      ],
+      "automation": "Automatable",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.1/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.1/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.1/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.1/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "1.2",
+      "title": "Agent Registry and Integrated Apps Management",
+      "pillar": 1,
+      "pillarName": "Security",
+      "url": "controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "NIST-AI-RMF",
+        "NYDFS-500",
+        "OCC-2026-13",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "AI Administrator",
+        "Agent Owner",
+        "Agent Sponsor",
+        "Backup Owner",
+        "Compliance Officer",
+        "Entra Agent ID Admin",
+        "Entra App Admin",
+        "Entra Global Admin",
+        "Entra Identity Governance Admin",
+        "Entra Security Admin",
+        "Power Platform Admin",
+        "Purview Compliance Admin"
+      ],
+      "automation": "Automatable",
+      "solutions": [
+        "agent-365-lifecycle-governance"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.2/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.2/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.2/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.2/troubleshooting/"
+        },
+        {
+          "name": "Sponsorship Lifecycle Workflows",
+          "url": "playbooks/control-implementations/1.2/sponsorship-lifecycle-workflows/"
+        }
+      ]
+    },
+    {
+      "id": "1.3",
+      "title": "SharePoint Content Governance and Permissions",
+      "pillar": 1,
+      "pillarName": "Security",
+      "url": "controls/pillar-1-security/1.3-sharepoint-content-governance-and-permissions/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "GLBA",
+        "Reg-S-P",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Compliance Officer",
+        "Governance Lead",
+        "Purview Compliance Admin",
+        "SharePoint Admin",
+        "Site Collection Admin"
+      ],
+      "automation": "Partial",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.3/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.3/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.3/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.3/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "1.4",
+      "title": "Advanced Connector Policies (ACP)",
+      "pillar": 1,
+      "pillarName": "Security",
+      "url": "controls/pillar-1-security/1.4-advanced-connector-policies-acp/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "OCC-2026-13",
+        "Reg-S-P",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Environment Admin",
+        "Governance Lead",
+        "Power Platform Admin",
+        "Security Team"
+      ],
+      "automation": "Automatable",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.4/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.4/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.4/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.4/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "1.5",
+      "title": "Data Loss Prevention (DLP) and Sensitivity Labels",
+      "pillar": 1,
+      "pillarName": "Security",
+      "url": "controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels/",
+      "workload": [
+        "Copilot Studio",
+        "Microsoft 365 Copilot"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "GLBA",
+        "NYDFS-500",
+        "OCC-2026-13",
+        "PCI-DSS",
+        "Reg-S-P",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "AI Administrator",
+        "Entra Security Admin",
+        "Governance Lead",
+        "Power Platform Admin",
+        "Purview Compliance Admin",
+        "Purview Data Security AI Admin",
+        "Purview Info Protection Admin"
+      ],
+      "automation": "Automatable",
+      "solutions": [
+        "deny-event-correlation-report"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.5/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.5/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.5/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.5/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "1.6",
+      "title": "Microsoft Purview DSPM for AI",
+      "pillar": 1,
+      "pillarName": "Security",
+      "url": "controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai/",
+      "workload": [
+        "Purview",
+        "Copilot Studio",
+        "Microsoft 365 Copilot"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "GLBA",
+        "Reg-S-P",
+        "SOX-404"
+      ],
+      "roles": [
+        "Communication Compliance",
+        "Entra AI Administrator",
+        "Entra Compliance Admin",
+        "Entra Global Admin",
+        "Governance Lead",
+        "Insider Risk Management",
+        "Microsoft Purview Compliance Admin",
+        "Purview Data Security AI Content Viewer",
+        "Purview Data Security AI Viewer",
+        "Purview Security Reader"
+      ],
+      "automation": "Partial",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.6/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.6/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.6/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.6/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "1.7",
+      "title": "Comprehensive Audit Logging and Compliance",
+      "pillar": 1,
+      "pillarName": "Security",
+      "url": "controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance/",
+      "workload": [
+        "Copilot Studio",
+        "Microsoft 365 Copilot"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "CFTC-1.31",
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "OCC-2026-13",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Azure Storage Account Owner / Contributor",
+        "Entra Security Admin",
+        "Organization Configuration role",
+        "Power Platform Admin",
+        "Purview Audit Admin",
+        "Purview Compliance Admin",
+        "SOC Analyst"
+      ],
+      "automation": "Automatable",
+      "solutions": [
+        "agent-observability-foundation",
+        "audit-compliance-manager",
+        "deny-event-correlation-report",
+        "environment-lifecycle-management",
+        "finra-supervision-workflow"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.7/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.7/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.7/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.7/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "1.8",
+      "title": "Runtime Protection and External Threat Detection",
+      "pillar": 1,
+      "pillarName": "Security",
+      "url": "controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection/",
+      "workload": [
+        "Copilot Studio"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "GLBA"
+      ],
+      "roles": [
+        "Compliance / Audit Admin",
+        "Governance Lead",
+        "Power Platform Admin",
+        "Security Operations"
+      ],
+      "automation": "Partial",
+      "solutions": [
+        "content-moderation-monitor",
+        "deny-event-correlation-report"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.8/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.8/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.8/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.8/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "1.9",
+      "title": "Data Retention and Deletion Policies",
+      "pillar": 1,
+      "pillarName": "Security",
+      "url": "controls/pillar-1-security/1.9-data-retention-and-deletion-policies/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "CFTC-1.31",
+        "FINRA-25-07",
+        "FINRA-4511",
+        "GLBA",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Compliance Officer",
+        "Legal",
+        "Power Platform Admin",
+        "Purview Records Manager"
+      ],
+      "automation": "Automatable",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.9/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.9/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.9/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.9/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "1.10",
+      "title": "Communication Compliance Monitoring",
+      "pillar": 1,
+      "pillarName": "Security",
+      "url": "controls/pillar-1-security/1.10-communication-compliance-monitoring/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "FINRA-4530",
+        "GLBA",
+        "Reg-S-P",
+        "SEC-17a-3",
+        "SEC-17a-4"
+      ],
+      "roles": [
+        "Communication Compliance",
+        "Communication Compliance Admins",
+        "Communication Compliance Analysts",
+        "Communication Compliance Investigators",
+        "Communication Compliance Viewers",
+        "Legal / Compliance Officer",
+        "Privacy Officer"
+      ],
+      "automation": "Partial",
+      "solutions": [
+        "finra-supervision-workflow"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.10/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.10/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.10/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.10/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "1.11",
+      "title": "Conditional Access and Phishing-Resistant MFA",
+      "pillar": 1,
+      "pillarName": "Security",
+      "url": "controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "NYDFS-500",
+        "OCC-2026-13",
+        "Reg-S-P",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "AI Administrator",
+        "Agent Owner / Sponsor",
+        "Authentication Administrator",
+        "Authentication Policy Admin",
+        "CISO",
+        "Compliance Officer",
+        "Designated Supervisor / Registered Principal",
+        "Entra Agent ID Admin",
+        "Entra Identity Governance Admin",
+        "Entra Privileged Role Admin",
+        "Entra Security Admin",
+        "Governance Lead",
+        "Power Platform Admin",
+        "SOC Analyst"
+      ],
+      "automation": "Automatable",
+      "solutions": [
+        "agent-365-lifecycle-governance",
+        "conditional-access-automation"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.11/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.11/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.11/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.11/troubleshooting/"
+        },
+        {
+          "name": "Conditional Access Agent Identity Templates",
+          "url": "playbooks/control-implementations/1.11/conditional-access-agent-templates/"
+        }
+      ]
+    },
+    {
+      "id": "1.12",
+      "title": "Insider Risk Detection and Response",
+      "pillar": 1,
+      "pillarName": "Security",
+      "url": "controls/pillar-1-security/1.12-insider-risk-detection-and-response/",
+      "workload": [
+        "Purview"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "NYDFS-500",
+        "OCC-2026-13",
+        "Reg-S-P",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Insider Risk Management",
+        "Insider Risk Management Admins",
+        "Insider Risk Management Analysts",
+        "Insider Risk Management Approvers",
+        "Insider Risk Management Auditors",
+        "Insider Risk Management Investigators",
+        "Microsoft Defender for Endpoint admin",
+        "Privacy Officer / Legal"
+      ],
+      "automation": "Partial",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.12/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.12/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.12/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.12/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "1.13",
+      "title": "Sensitive Information Types (SITs) and Pattern Recognition",
+      "pillar": 1,
+      "pillarName": "Security",
+      "url": "controls/pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        2,
+        3
+      ],
+      "regulations": [
+        "CFTC-1.31",
+        "FINRA-25-07",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "OCC-2026-13",
+        "PCI-DSS",
+        "Reg-S-P",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "AI Administrator",
+        "Compliance Officer",
+        "Legal",
+        "Purview Compliance Admin",
+        "Purview Data Security AI Admin",
+        "Purview Info Protection Admin"
+      ],
+      "automation": "Partial",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.13/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.13/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.13/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.13/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "1.14",
+      "title": "Data Minimization and Agent Scope Control",
+      "pillar": 1,
+      "pillarName": "Security",
+      "url": "controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control/",
+      "workload": [
+        "Copilot Studio"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "GLBA",
+        "Reg-S-P"
+      ],
+      "roles": [
+        "AI Administrator",
+        "CISO",
+        "Compliance Officer",
+        "Entra Identity Governance Admin",
+        "Governance Lead",
+        "Power Platform Admin",
+        "Purview Compliance Admin",
+        "Purview Data Security AI Admin",
+        "SharePoint Admin"
+      ],
+      "automation": "Manual",
+      "solutions": [
+        "file-upload-security"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.14/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.14/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.14/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.14/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "1.15",
+      "title": "Encryption: Data in Transit and at Rest",
+      "pillar": 1,
+      "pillarName": "Security",
+      "url": "controls/pillar-1-security/1.15-encryption-data-in-transit-and-at-rest/",
+      "workload": [
+        "Purview",
+        "Copilot Studio",
+        "Microsoft 365 Copilot"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-4511",
+        "GLBA",
+        "NYDFS-500",
+        "PCI-DSS",
+        "Reg-S-P",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Compliance Officer",
+        "Entra Security Admin",
+        "Power Platform Admin",
+        "SharePoint Admin"
+      ],
+      "automation": "Automatable",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.15/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.15/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.15/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.15/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "1.16",
+      "title": "Information Rights Management (IRM) for Documents",
+      "pillar": 1,
+      "pillarName": "Security",
+      "url": "controls/pillar-1-security/1.16-information-rights-management-irm-for-documents/",
+      "workload": [
+        "Copilot Studio"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-4511",
+        "GLBA",
+        "Reg-S-P",
+        "SOX-404"
+      ],
+      "roles": [
+        "Compliance Officer",
+        "Governance Lead",
+        "Purview Info Protection Admin",
+        "SharePoint Admin"
+      ],
+      "automation": "Manual",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.16/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.16/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.16/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.16/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "1.17",
+      "title": "Endpoint Data Loss Prevention (Endpoint DLP)",
+      "pillar": 1,
+      "pillarName": "Security",
+      "url": "controls/pillar-1-security/1.17-endpoint-data-loss-prevention-endpoint-dlp/",
+      "workload": [
+        "Purview"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "GLBA",
+        "OCC-2026-13",
+        "PCI-DSS",
+        "Reg-S-P",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Compliance Officer",
+        "Entra Security Admin",
+        "Intune Administrator",
+        "Purview Compliance Admin"
+      ],
+      "automation": "Partial",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.17/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.17/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.17/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.17/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "1.18",
+      "title": "Application-Level Authorization and Role-Based Access Control (RBAC)",
+      "pillar": 1,
+      "pillarName": "Security",
+      "url": "controls/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac/",
+      "workload": [
+        "Copilot Studio",
+        "Power Platform"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "GLBA",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Compliance Officer",
+        "Entra Global Admin",
+        "Governance Lead",
+        "Power Platform Admin"
+      ],
+      "automation": "Partial",
+      "solutions": [
+        "conditional-access-automation"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.18/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.18/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.18/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.18/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "1.19",
+      "title": "eDiscovery for Agent Interactions",
+      "pillar": 1,
+      "pillarName": "Security",
+      "url": "controls/pillar-1-security/1.19-ediscovery-for-agent-interactions/",
+      "workload": [
+        "Copilot Studio"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-4511",
+        "GLBA",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Designated Supervisor / Registered Principal",
+        "Governance Lead",
+        "Legal / Compliance Officer",
+        "Microsoft Purview Admin",
+        "Records Manager",
+        "eDiscovery Administrator",
+        "eDiscovery Manager"
+      ],
+      "automation": "Automatable",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.19/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.19/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.19/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.19/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "1.20",
+      "title": "Network Isolation and Private Connectivity",
+      "pillar": 1,
+      "pillarName": "Security",
+      "url": "controls/pillar-1-security/1.20-network-isolation-private-connectivity/",
+      "workload": [
+        "Copilot Studio",
+        "Power Platform",
+        "Microsoft 365 Copilot"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "Fed-SR-26-2",
+        "GLBA",
+        "NYDFS-500",
+        "OCC-2026-13",
+        "SEC-17a-4"
+      ],
+      "roles": [
+        "Azure Network Contributor",
+        "Compliance Officer",
+        "Entra Security Admin",
+        "Power Platform Admin"
+      ],
+      "automation": "Automatable",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.20/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.20/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.20/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.20/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "1.21",
+      "title": "Adversarial Input Logging",
+      "pillar": 1,
+      "pillarName": "Security",
+      "url": "controls/pillar-1-security/1.21-adversarial-input-logging/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "NIST-AI-RMF",
+        "OCC-2026-13",
+        "SEC-17a-4"
+      ],
+      "roles": [
+        "AI / Azure AI Foundry Admin",
+        "AI Red Team / Pen-test Owner",
+        "Azure / Defender for Cloud Admin",
+        "CISO",
+        "Compliance Officer",
+        "Defender XDR Admin",
+        "Designated Supervisor / Registered Principal",
+        "Governance Lead",
+        "Purview Communication Compliance Admin",
+        "Purview Data Security AI Admin",
+        "Sentinel SOC Analyst"
+      ],
+      "automation": "Partial",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.21/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.21/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.21/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.21/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "1.22",
+      "title": "Information Barriers for AI Agents",
+      "pillar": 1,
+      "pillarName": "Security",
+      "url": "controls/pillar-1-security/1.22-information-barriers/",
+      "workload": [
+        "Purview",
+        "Copilot Studio",
+        "Microsoft 365 Copilot"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "Fed-SR-26-2",
+        "OCC-2026-13",
+        "Reg-S-P"
+      ],
+      "roles": [
+        "Compliance Officer",
+        "Entra Security Admin",
+        "Governance Lead",
+        "Purview Compliance Admin"
+      ],
+      "automation": "Automatable",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.22/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.22/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.22/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.22/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "1.23",
+      "title": "Step-Up Authentication for AI Agent Operations",
+      "pillar": 1,
+      "pillarName": "Security",
+      "url": "controls/pillar-1-security/1.23-step-up-authentication-for-agent-operations/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-4511",
+        "FINRA-4530",
+        "GLBA",
+        "NYDFS-500",
+        "SOX-404"
+      ],
+      "roles": [
+        "Compliance Officer",
+        "Entra Global Admin",
+        "Entra Security Admin",
+        "Power Platform Admin"
+      ],
+      "automation": "Partial",
+      "solutions": [
+        "action-confirmation-auditor",
+        "conditional-access-automation"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.23/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.23/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.23/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.23/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "1.24",
+      "title": "Defender AI Security Posture Management (AI-SPM)",
+      "pillar": 1,
+      "pillarName": "Security",
+      "url": "controls/pillar-1-security/1.24-defender-ai-security-posture-management/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "Fed-SR-26-2",
+        "GLBA",
+        "NIST-AI-RMF",
+        "NYDFS-500",
+        "OCC-2026-13"
+      ],
+      "roles": [
+        "Cloud Security Architect",
+        "Entra Security Admin",
+        "Governance Lead",
+        "SOC Analyst"
+      ],
+      "automation": "Manual",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.24/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.24/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.24/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.24/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "1.25",
+      "title": "MIME Type Restrictions for File Uploads",
+      "pillar": 1,
+      "pillarName": "Security",
+      "url": "controls/pillar-1-security/1.25-mime-type-restrictions/",
+      "workload": [
+        "Copilot Studio",
+        "Power Platform"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "GLBA",
+        "OCC-2026-13",
+        "SEC-17a-4"
+      ],
+      "roles": [
+        "Entra Global Admin",
+        "Power Platform Admin",
+        "Purview Compliance Admin",
+        "SOC Analyst"
+      ],
+      "automation": "Automatable",
+      "solutions": [
+        "mime-type-restrictions"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.25/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.25/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.25/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.25/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "1.26",
+      "title": "Agent File Upload and File Analysis Restrictions",
+      "pillar": 1,
+      "pillarName": "Security",
+      "url": "controls/pillar-1-security/1.26-agent-file-upload-and-file-analysis-restrictions/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        2,
+        3
+      ],
+      "regulations": [
+        "CFTC-1.31",
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "NIST-AI-RMF",
+        "OCC-2026-13",
+        "SEC-17a-4"
+      ],
+      "roles": [
+        "Copilot Studio Agent Author",
+        "Power Platform Admin",
+        "Purview Compliance Admin",
+        "Security Operations"
+      ],
+      "automation": "Partial",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.26/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.26/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.26/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.26/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "1.27",
+      "title": "AI Agent Content Moderation Enforcement",
+      "pillar": 1,
+      "pillarName": "Security",
+      "url": "controls/pillar-1-security/1.27-ai-agent-content-moderation-enforcement/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "Fed-SR-26-2",
+        "GLBA",
+        "NIST-AI-RMF",
+        "OCC-2026-13",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Copilot Studio Agent Author",
+        "Power Platform Admin",
+        "Purview Compliance Admin",
+        "Security Operations"
+      ],
+      "automation": "Automatable",
+      "solutions": [
+        "content-moderation-monitor"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.27/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.27/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.27/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.27/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "1.28",
+      "title": "Policy-Based Agent Publishing Restrictions",
+      "pillar": 1,
+      "pillarName": "Security",
+      "url": "controls/pillar-1-security/1.28-policy-based-agent-publishing-restrictions/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "Fed-SR-26-2",
+        "OCC-2026-13",
+        "SOX-404"
+      ],
+      "roles": [
+        "Compliance Officer",
+        "Copilot Studio Agent Author",
+        "Entra Global Admin",
+        "Power Platform Admin"
+      ],
+      "automation": "Automatable",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.28/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.28/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.28/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.28/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "1.29",
+      "title": "Global Secure Access: Network Controls for Copilot Studio Agents",
+      "pillar": 1,
+      "pillarName": "Security",
+      "url": "controls/pillar-1-security/1.29-global-secure-access-network-controls/",
+      "workload": [
+        "Copilot Studio"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-4511",
+        "GLBA",
+        "OCC-2026-13",
+        "SOX-404"
+      ],
+      "roles": [
+        "AI Governance Team / CoE",
+        "Agent Developers",
+        "CISO / Security Operations",
+        "Compliance / Legal",
+        "Internal Audit",
+        "Power Platform Admin",
+        "Security Administrator"
+      ],
+      "automation": "Partial",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.29/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.29/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.29/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.29/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "2.1",
+      "title": "Managed Environments",
+      "pillar": 2,
+      "pillarName": "Management",
+      "url": "controls/pillar-2-management/2.1-managed-environments/",
+      "workload": [
+        "Power Platform"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "NYDFS-500",
+        "OCC-2026-13",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Compliance Officer",
+        "Delegated Admin",
+        "Environment Admin",
+        "Governance Lead",
+        "IT Governance",
+        "Power Platform Admin"
+      ],
+      "automation": "Automatable",
+      "solutions": [
+        "agent-365-lifecycle-governance",
+        "environment-lifecycle-management",
+        "pipeline-governance-cleanup"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.1/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.1/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.1/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.1/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "2.2",
+      "title": "Environment Groups and Tier Classification",
+      "pillar": 2,
+      "pillarName": "Management",
+      "url": "controls/pillar-2-management/2.2-environment-groups-and-tier-classification/",
+      "workload": [
+        "Power Platform"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "OCC-2026-13",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Compliance Officer",
+        "Environment Admin",
+        "Governance Lead",
+        "IT Security",
+        "Power Platform Admin"
+      ],
+      "automation": "Automatable",
+      "solutions": [
+        "environment-lifecycle-management"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.2/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.2/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.2/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.2/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "2.3",
+      "title": "Change Management and Release Planning",
+      "pillar": 2,
+      "pillarName": "Management",
+      "url": "controls/pillar-2-management/2.3-change-management-and-release-planning/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "OCC-2026-13",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Compliance Officer",
+        "Governance Lead",
+        "Power Platform Admin",
+        "Security Admin"
+      ],
+      "automation": "Partial",
+      "solutions": [
+        "agent-365-lifecycle-governance",
+        "environment-lifecycle-management",
+        "message-center-monitor",
+        "pipeline-governance-cleanup"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.3/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.3/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.3/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.3/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "2.4",
+      "title": "Business Continuity and Disaster Recovery",
+      "pillar": 2,
+      "pillarName": "Management",
+      "url": "controls/pillar-2-management/2.4-business-continuity-and-disaster-recovery/",
+      "workload": [
+        "Copilot Studio"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-4511",
+        "GLBA",
+        "OCC-2026-13",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Compliance Officer",
+        "Governance Lead",
+        "IT Operations",
+        "Power Platform Admin"
+      ],
+      "automation": "Partial",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.4/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.4/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.4/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.4/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "2.5",
+      "title": "Testing, Validation, and Quality Assurance",
+      "pillar": 2,
+      "pillarName": "Management",
+      "url": "controls/pillar-2-management/2.5-testing-validation-and-quality-assurance/",
+      "workload": [
+        "Copilot Studio",
+        "Microsoft 365 Copilot"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "NIST-AI-RMF",
+        "OCC-2026-13",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Agent Owner",
+        "Compliance Officer",
+        "Copilot Studio Agent Author",
+        "Designated Supervisor / Registered Principal",
+        "Governance Lead",
+        "Model Risk Manager",
+        "Power Platform Admin",
+        "Purview Records Manager"
+      ],
+      "automation": "Manual",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.5/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.5/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.5/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.5/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "2.6",
+      "title": "Model Risk Management (OCC Bulletin 2026-13 / Fed SR 26-2)",
+      "pillar": 2,
+      "pillarName": "Management",
+      "url": "controls/pillar-2-management/2.6-model-risk-management-sr-26-2/",
+      "workload": [
+        "Purview",
+        "Copilot Studio"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "NYDFS-500",
+        "OCC-2026-13",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "AI Administrator",
+        "Agent Owner / Copilot Studio Agent Author",
+        "Compliance Officer",
+        "Governance Lead",
+        "Internal Audit",
+        "Model Risk Committee",
+        "Model Risk Manager",
+        "Power Platform Admin"
+      ],
+      "automation": "Manual",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.6/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.6/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.6/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.6/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "2.7",
+      "title": "Vendor and Third-Party Risk Management",
+      "pillar": 2,
+      "pillarName": "Management",
+      "url": "controls/pillar-2-management/2.7-vendor-and-third-party-risk-management/",
+      "workload": [
+        "Power Platform"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "OCC-2026-13",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Compliance Officer",
+        "Governance Lead",
+        "Procurement",
+        "Security Team"
+      ],
+      "automation": "Manual",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.7/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.7/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.7/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.7/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "2.8",
+      "title": "Access Control and Segregation of Duties",
+      "pillar": 2,
+      "pillarName": "Management",
+      "url": "controls/pillar-2-management/2.8-access-control-and-segregation-of-duties/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "GLBA",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Compliance Officer",
+        "Entra Privileged Role Admin",
+        "Governance Lead",
+        "Power Platform Admin"
+      ],
+      "automation": "Partial",
+      "solutions": [
+        "agent-365-lifecycle-governance",
+        "agent-observability-foundation",
+        "environment-lifecycle-management"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.8/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.8/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.8/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.8/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "2.9",
+      "title": "Agent Performance Monitoring and Optimization",
+      "pillar": 2,
+      "pillarName": "Management",
+      "url": "controls/pillar-2-management/2.9-agent-performance-monitoring-and-optimization/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "OCC-2026-13",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Agent Owner",
+        "Governance Lead",
+        "Operations Team",
+        "Power Platform Admin"
+      ],
+      "automation": "Partial",
+      "solutions": [
+        "agent-observability-foundation"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.9/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.9/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.9/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.9/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "2.10",
+      "title": "Patch Management and System Updates",
+      "pillar": 2,
+      "pillarName": "Management",
+      "url": "controls/pillar-2-management/2.10-patch-management-and-system-updates/",
+      "workload": [
+        "Copilot Studio",
+        "Power Platform"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-4511",
+        "GLBA",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Agent Owner",
+        "Change Manager",
+        "Power Platform Admin",
+        "QA Lead"
+      ],
+      "automation": "Partial",
+      "solutions": [
+        "message-center-monitor"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.10/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.10/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.10/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.10/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "2.11",
+      "title": "Bias Testing and Fairness Assessment",
+      "pillar": 2,
+      "pillarName": "Management",
+      "url": "controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-3110",
+        "Fed-SR-26-2",
+        "NIST-AI-RMF",
+        "OCC-2026-13"
+      ],
+      "roles": [
+        "Agent Owner",
+        "Compliance Officer",
+        "Data Science Team",
+        "Governance Lead"
+      ],
+      "automation": "Manual",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.11/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.11/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.11/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.11/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "2.12",
+      "title": "Supervision and Oversight (FINRA Rule 3110)",
+      "pillar": 2,
+      "pillarName": "Management",
+      "url": "controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110/",
+      "workload": [
+        "Copilot Studio"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-3110",
+        "FINRA-4511",
+        "NYDFS-500",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "AI Administrator",
+        "Agent Owner",
+        "Compliance Officer",
+        "Governance Lead"
+      ],
+      "automation": "Manual",
+      "solutions": [
+        "action-confirmation-auditor",
+        "agent-365-lifecycle-governance",
+        "finra-supervision-workflow"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.12/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.12/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.12/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.12/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "2.13",
+      "title": "Documentation and Record Keeping",
+      "pillar": 2,
+      "pillarName": "Management",
+      "url": "controls/pillar-2-management/2.13-documentation-and-record-keeping/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "CFTC-1.31",
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "OCC-2026-13",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Compliance Officer",
+        "Governance Lead",
+        "Purview Records Manager",
+        "SharePoint Admin"
+      ],
+      "automation": "Manual",
+      "solutions": [
+        "dr-testing-framework"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.13/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.13/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.13/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.13/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "2.14",
+      "title": "Training and Awareness Program",
+      "pillar": 2,
+      "pillarName": "Management",
+      "url": "controls/pillar-2-management/2.14-training-and-awareness-program/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "GLBA",
+        "OCC-2026-13",
+        "SOX-404"
+      ],
+      "roles": [
+        "Compliance Officer",
+        "Governance Lead",
+        "HR/Learning Administrator",
+        "Manager"
+      ],
+      "automation": "Manual",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.14/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.14/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.14/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.14/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "2.15",
+      "title": "Environment Routing and Auto-Provisioning",
+      "pillar": 2,
+      "pillarName": "Management",
+      "url": "controls/pillar-2-management/2.15-environment-routing/",
+      "workload": [
+        "Power Platform"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "GLBA",
+        "OCC-2026-13",
+        "SOX-404"
+      ],
+      "roles": [
+        "Compliance Officer",
+        "Entra Security Admin",
+        "Environment Admin",
+        "Power Platform Admin"
+      ],
+      "automation": "Automatable",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.15/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.15/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.15/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.15/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "2.16",
+      "title": "RAG Source Integrity Validation",
+      "pillar": 2,
+      "pillarName": "Management",
+      "url": "controls/pillar-2-management/2.16-rag-source-integrity-validation/",
+      "workload": [
+        "Copilot Studio"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "OCC-2026-13"
+      ],
+      "roles": [
+        "Compliance Officer",
+        "Content Owner",
+        "Governance Lead",
+        "SharePoint Admin"
+      ],
+      "automation": "Partial",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.16/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.16/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.16/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.16/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "2.17",
+      "title": "Multi-Agent Orchestration Limits",
+      "pillar": 2,
+      "pillarName": "Management",
+      "url": "controls/pillar-2-management/2.17-multi-agent-orchestration-limits/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "Fed-SR-26-2",
+        "OCC-2026-13",
+        "SOX-404"
+      ],
+      "roles": [
+        "Compliance Officer",
+        "Entra Security Admin",
+        "Governance Lead",
+        "Power Platform Admin"
+      ],
+      "automation": "Partial",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.17/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.17/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.17/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.17/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "2.18",
+      "title": "Automated Conflict of Interest Testing",
+      "pillar": 2,
+      "pillarName": "Management",
+      "url": "controls/pillar-2-management/2.18-automated-conflict-of-interest-testing/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110"
+      ],
+      "roles": [
+        "Agent Owner",
+        "Compliance Officer",
+        "Governance Lead",
+        "Model Risk Manager"
+      ],
+      "automation": "Manual",
+      "solutions": [
+        "coi-testing"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.18/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.18/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.18/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.18/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "2.19",
+      "title": "Customer AI Disclosure and Transparency",
+      "pillar": 2,
+      "pillarName": "Management",
+      "url": "controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-4511",
+        "GLBA",
+        "SEC-17a-4"
+      ],
+      "roles": [
+        "Compliance Officer",
+        "Customer Experience",
+        "Governance Lead",
+        "Legal Counsel"
+      ],
+      "automation": "Manual",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.19/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.19/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.19/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.19/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "2.20",
+      "title": "Adversarial Testing and Red Team Framework",
+      "pillar": 2,
+      "pillarName": "Management",
+      "url": "controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "Fed-SR-26-2",
+        "NIST-AI-RMF",
+        "OCC-2026-13"
+      ],
+      "roles": [
+        "Agent Owner",
+        "Governance Lead",
+        "QA Lead",
+        "Security Team"
+      ],
+      "automation": "Manual",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.20/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.20/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.20/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.20/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "2.21",
+      "title": "AI Marketing Claims and Substantiation",
+      "pillar": 2,
+      "pillarName": "Management",
+      "url": "controls/pillar-2-management/2.21-ai-marketing-claims-and-substantiation/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-2210",
+        "FINRA-24-09",
+        "FTC-Act-5",
+        "SEC-Marketing-Rule",
+        "State-UTP"
+      ],
+      "roles": [
+        "Compliance Officer",
+        "Governance Lead",
+        "Legal Counsel",
+        "Marketing/Communications"
+      ],
+      "automation": "Manual",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.21/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.21/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.21/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.21/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "2.22",
+      "title": "Inactivity Timeout Enforcement",
+      "pillar": 2,
+      "pillarName": "Management",
+      "url": "controls/pillar-2-management/2.22-inactivity-timeout-enforcement/",
+      "workload": [
+        "Power Platform"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-4511",
+        "GLBA",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Agent Owner",
+        "Compliance Officer",
+        "Environment Admin",
+        "Governance Lead",
+        "Power Platform Admin"
+      ],
+      "automation": "Automatable",
+      "solutions": [
+        "inactivity-timeout-enforcement"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.22/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.22/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.22/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.22/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "2.23",
+      "title": "User Consent and AI Disclosure Enforcement",
+      "pillar": 2,
+      "pillarName": "Management",
+      "url": "controls/pillar-2-management/2.23-user-consent-and-ai-disclosure-enforcement/",
+      "workload": [
+        "Power Platform",
+        "Microsoft 365 Copilot"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "GLBA",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Compliance Officer",
+        "Copilot Studio Agent Author",
+        "Entra Global Admin",
+        "Governance Lead",
+        "Power Platform Admin",
+        "Purview Compliance Admin"
+      ],
+      "automation": "Manual",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.23/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.23/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.23/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.23/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "2.24",
+      "title": "Agent Feature Enablement and Restriction Governance",
+      "pillar": 2,
+      "pillarName": "Management",
+      "url": "controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance/",
+      "workload": [
+        "Copilot Studio",
+        "Power Platform",
+        "Microsoft 365 Copilot"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "OCC-2026-13",
+        "SOX-404"
+      ],
+      "roles": [
+        "AI Administrator",
+        "Change Management Team",
+        "Compliance Officer",
+        "Copilot Studio Agent Author",
+        "Entra Global Admin",
+        "Governance Lead",
+        "Power Platform Admin",
+        "Security Architect"
+      ],
+      "automation": "Automatable",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.24/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.24/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.24/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.24/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "2.25",
+      "title": "Microsoft Agent 365 — Admin Center Governance Console",
+      "pillar": 2,
+      "pillarName": "Management",
+      "url": "controls/pillar-2-management/2.25-agent-365-admin-center-governance-console/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "GLBA",
+        "NYDFS-500",
+        "OCC-2026-13",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "AI Administrator",
+        "Agent Owner",
+        "Change Management Lead",
+        "Compliance Officer",
+        "Entra Global Admin",
+        "Entra Global Reader",
+        "Governance Lead",
+        "Information Security Officer",
+        "Power Platform Admin",
+        "Purview Compliance Admin",
+        "Technology Risk Manager"
+      ],
+      "automation": "Automatable",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.25/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.25/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.25/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.25/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "2.26",
+      "title": "Entra Agent ID — Identity Governance for Agents",
+      "pillar": 2,
+      "pillarName": "Management",
+      "url": "controls/pillar-2-management/2.26-entra-agent-id-identity-governance/",
+      "workload": [
+        "Copilot Studio",
+        "Microsoft 365 Copilot"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "GLBA",
+        "OCC-2026-13",
+        "SOX-404"
+      ],
+      "roles": [
+        "AI Administrator",
+        "Agent Sponsor",
+        "Compliance Officer",
+        "Entra Agent ID Admin",
+        "Entra Identity Governance Admin",
+        "Entra Security Admin",
+        "Governance Lead",
+        "HR / People Operations",
+        "Purview Compliance Admin"
+      ],
+      "automation": "Automatable",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.26/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.26/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.26/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.26/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "2.27",
+      "title": "Consumption-Entitlement Governance",
+      "pillar": 2,
+      "pillarName": "Management",
+      "url": "controls/pillar-2-management/2.27-consumption-entitlement-governance/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-4511",
+        "GLBA",
+        "OCC-2026-13",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "AI Administrator",
+        "Business Unit Owner",
+        "Compliance Officer",
+        "Finance Analyst",
+        "Governance Lead",
+        "Power Platform Admin"
+      ],
+      "automation": "Partial",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.27/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.27/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.27/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.27/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "3.1",
+      "title": "Agent Inventory and Metadata Management",
+      "pillar": 3,
+      "pillarName": "Reporting",
+      "url": "controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "NIST-AI-RMF",
+        "NYDFS-500",
+        "OCC-2026-13",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "AI Administrator",
+        "Agent Owner",
+        "Compliance Officer",
+        "Entra Agent ID Admin",
+        "Entra Global Admin",
+        "Entra Global Reader",
+        "Governance Lead",
+        "Power Platform Admin"
+      ],
+      "automation": "Automatable",
+      "solutions": [
+        "agent-365-lifecycle-governance"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/3.1/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/3.1/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/3.1/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/3.1/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "3.2",
+      "title": "Usage Analytics and Activity Monitoring",
+      "pillar": 3,
+      "pillarName": "Reporting",
+      "url": "controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring/",
+      "workload": [
+        "Power Platform"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-4511",
+        "GLBA",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Compliance Officer",
+        "Governance Lead",
+        "Operations Team",
+        "Power Platform Admin"
+      ],
+      "automation": "Manual",
+      "solutions": [
+        "agent-observability-foundation",
+        "copilot-studio-analytics"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/3.2/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/3.2/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/3.2/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/3.2/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "3.3",
+      "title": "Compliance and Regulatory Reporting",
+      "pillar": 3,
+      "pillarName": "Reporting",
+      "url": "controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-4511",
+        "GLBA",
+        "OCC-2026-13",
+        "Reg-S-P",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Compliance Officer",
+        "Governance Lead",
+        "Power Platform Admin",
+        "SharePoint Site Owner"
+      ],
+      "automation": "Partial",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/3.3/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/3.3/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/3.3/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/3.3/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "3.4",
+      "title": "Incident Reporting and Root Cause Analysis",
+      "pillar": 3,
+      "pillarName": "Reporting",
+      "url": "controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis/",
+      "workload": [
+        "Purview"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-4511",
+        "FINRA-4530",
+        "GLBA",
+        "NCUA",
+        "NYDFS-500",
+        "Reg-S-P",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Business Continuity Officer",
+        "CISO / Incident Commander",
+        "Chief Compliance Officer",
+        "Disclosure Committee",
+        "Entra Security Admin / Sentinel Admin / SOC Analyst",
+        "General Counsel / Outside Counsel",
+        "Governance Lead",
+        "Internal Audit",
+        "M365 Admin",
+        "Power Platform Admin",
+        "Privacy Officer"
+      ],
+      "automation": "Partial",
+      "solutions": [
+        "deny-event-correlation-report"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/3.4/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/3.4/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/3.4/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/3.4/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "3.5",
+      "title": "Cost Allocation and Budget Tracking",
+      "pillar": 3,
+      "pillarName": "Reporting",
+      "url": "controls/pillar-3-reporting/3.5-cost-allocation-and-budget-tracking/",
+      "workload": [
+        "Copilot Studio",
+        "Power Platform",
+        "Microsoft 365 Copilot"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-4511",
+        "GLBA",
+        "OCC-2026-13",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Business Unit Owner",
+        "Finance Analyst",
+        "Governance Lead",
+        "Power Platform Admin"
+      ],
+      "automation": "Automatable",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/3.5/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/3.5/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/3.5/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/3.5/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "3.6",
+      "title": "Orphaned Agent Detection and Remediation",
+      "pillar": 3,
+      "pillarName": "Reporting",
+      "url": "controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "GLBA",
+        "NYDFS-500",
+        "OCC-2026-13",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "AI Administrator",
+        "Agent Sponsor / Agent Owner",
+        "Entra Agent ID Admin",
+        "Entra Global Reader",
+        "Entra Identity Governance Admin",
+        "Governance Lead",
+        "HR / People Operations",
+        "Power Platform Admin",
+        "Purview Compliance Admin"
+      ],
+      "automation": "Manual",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/3.6/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/3.6/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/3.6/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/3.6/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "3.7",
+      "title": "PPAC Security Posture Assessment",
+      "pillar": 3,
+      "pillarName": "Reporting",
+      "url": "controls/pillar-3-reporting/3.7-ppac-security-posture-assessment/",
+      "workload": [
+        "Power Platform"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "GLBA",
+        "OCC-2026-13",
+        "SOX-404"
+      ],
+      "roles": [
+        "Compliance Officer",
+        "Entra Security Admin",
+        "Governance Lead",
+        "Power Platform Admin"
+      ],
+      "automation": "Automatable",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/3.7/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/3.7/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/3.7/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/3.7/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "3.8",
+      "title": "Copilot Hub and Governance Dashboard",
+      "pillar": 3,
+      "pillarName": "Reporting",
+      "url": "controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard/",
+      "workload": [
+        "Copilot Studio",
+        "Power Platform",
+        "Microsoft 365 Copilot"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-4511",
+        "GLBA",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "AI Administrator",
+        "Compliance Officer",
+        "Entra Global Admin",
+        "Governance Lead",
+        "Power Platform Admin",
+        "Supervisor"
+      ],
+      "automation": "Manual",
+      "solutions": [
+        "agent-access-monitor"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/3.8/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/3.8/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/3.8/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/3.8/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "3.9",
+      "title": "Microsoft Sentinel Integration",
+      "pillar": 3,
+      "pillarName": "Reporting",
+      "url": "controls/pillar-3-reporting/3.9-microsoft-sentinel-integration/",
+      "workload": [
+        "Purview"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "NYDFS-500",
+        "OCC-2026-13",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "CISO",
+        "Compliance Officer",
+        "Entra Security Admin",
+        "Governance Lead",
+        "Power Platform Admin",
+        "Purview Compliance Admin / Purview Audit Admin",
+        "SOC Analyst / Security Operations",
+        "Sentinel Admin"
+      ],
+      "automation": "Automatable",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/3.9/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/3.9/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/3.9/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/3.9/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "3.10",
+      "title": "Hallucination Feedback Loop",
+      "pillar": 3,
+      "pillarName": "Reporting",
+      "url": "controls/pillar-3-reporting/3.10-hallucination-feedback-loop/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Content Owner",
+        "Governance Lead",
+        "Power Platform Admin",
+        "QA Lead"
+      ],
+      "automation": "Manual",
+      "solutions": [
+        "hallucination-tracker"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/3.10/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/3.10/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/3.10/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/3.10/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "3.11",
+      "title": "Centralized Agent Inventory Enforcement",
+      "pillar": 3,
+      "pillarName": "Reporting",
+      "url": "controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement/",
+      "workload": [
+        "Copilot Studio",
+        "Power Platform"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "OCC-2026-13",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Agent Authors",
+        "Compliance Officer",
+        "Entra Global Admin",
+        "Governance Lead",
+        "Power Platform Admin",
+        "Security Operations"
+      ],
+      "automation": "Manual",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/3.11/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/3.11/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/3.11/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/3.11/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "3.12",
+      "title": "Agent Governance Exception and Override Management",
+      "pillar": 3,
+      "pillarName": "Reporting",
+      "url": "controls/pillar-3-reporting/3.12-agent-governance-exception-and-override-management/",
+      "workload": [
+        "Purview"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "Fed-SR-26-2",
+        "OCC-2026-13",
+        "SOX-404"
+      ],
+      "roles": [
+        "Agent Owner",
+        "CISO/Security Lead",
+        "Compliance Officer",
+        "Governance Lead",
+        "Power Platform Admin"
+      ],
+      "automation": "Manual",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/3.12/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/3.12/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/3.12/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/3.12/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "3.13",
+      "title": "Agent 365 Admin Center Analytics and Reporting",
+      "pillar": 3,
+      "pillarName": "Reporting",
+      "url": "controls/pillar-3-reporting/3.13-agent-365-admin-center-analytics/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-3110",
+        "FINRA-4511",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Business Line Agent Owners",
+        "Chief Compliance Officer",
+        "Global Administrator / M365 Copilot Admin",
+        "IT Risk / Governance Lead",
+        "Internal Audit",
+        "Third-Party Risk Manager"
+      ],
+      "automation": "Manual",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/3.13/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/3.13/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/3.13/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/3.13/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "3.14",
+      "title": "Agent 365 Observability SDK and Custom Agent Telemetry",
+      "pillar": 3,
+      "pillarName": "Reporting",
+      "url": "controls/pillar-3-reporting/3.14-agent-365-observability-sdk/",
+      "workload": [
+        "Purview"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-4511",
+        "OCC-2026-13",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Application Development / AI Engineering",
+        "Business Line Agent Owners",
+        "Chief Compliance Officer",
+        "Chief Information Security Officer",
+        "IT Operations / Platform Engineering",
+        "IT Risk / Governance Lead",
+        "Internal Audit"
+      ],
+      "automation": "Manual",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/3.14/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/3.14/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/3.14/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/3.14/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "4.1",
+      "title": "SharePoint Information Access Governance (IAG) / Restricted Content Discovery",
+      "pillar": 4,
+      "pillarName": "SharePoint",
+      "url": "controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery/",
+      "workload": [
+        "SharePoint",
+        "Microsoft 365 Copilot"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-4511",
+        "GLBA",
+        "Reg-S-P",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Compliance Officer",
+        "Governance Lead",
+        "SharePoint Admin",
+        "SharePoint Site Collection Admin"
+      ],
+      "automation": "Partial",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/4.1/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/4.1/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/4.1/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/4.1/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "4.2",
+      "title": "Site Access Reviews and Certification",
+      "pillar": 4,
+      "pillarName": "SharePoint",
+      "url": "controls/pillar-4-sharepoint/4.2-site-access-reviews-and-certification/",
+      "workload": [
+        "SharePoint",
+        "Copilot Studio",
+        "Microsoft 365 Copilot"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-4511",
+        "GLBA",
+        "NYDFS-500",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Compliance Officer",
+        "Entra Identity Governance Admin",
+        "Governance Lead",
+        "SharePoint Admin",
+        "SharePoint Site Collection Admin"
+      ],
+      "automation": "Partial",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/4.2/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/4.2/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/4.2/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/4.2/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "4.3",
+      "title": "Site and Document Retention Management",
+      "pillar": 4,
+      "pillarName": "SharePoint",
+      "url": "controls/pillar-4-sharepoint/4.3-site-and-document-retention-management/",
+      "workload": [
+        "SharePoint"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-4511",
+        "GLBA",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Governance Lead",
+        "Purview Compliance Admin",
+        "Purview Records Manager",
+        "SharePoint Admin"
+      ],
+      "automation": "Automatable",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/4.3/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/4.3/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/4.3/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/4.3/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "4.4",
+      "title": "Guest and External User Access Controls",
+      "pillar": 4,
+      "pillarName": "SharePoint",
+      "url": "controls/pillar-4-sharepoint/4.4-guest-and-external-user-access-controls/",
+      "workload": [
+        "SharePoint"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-4511",
+        "GLBA",
+        "Reg-S-P",
+        "SOX-404"
+      ],
+      "roles": [
+        "Compliance Officer",
+        "Entra Global Admin",
+        "Entra Security Admin",
+        "SharePoint Admin"
+      ],
+      "automation": "Automatable",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/4.4/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/4.4/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/4.4/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/4.4/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "4.5",
+      "title": "SharePoint Security and Compliance Monitoring",
+      "pillar": 4,
+      "pillarName": "SharePoint",
+      "url": "controls/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring/",
+      "workload": [
+        "SharePoint"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-4511",
+        "GLBA",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Compliance Team",
+        "Governance Lead",
+        "Security Operations",
+        "SharePoint Admin"
+      ],
+      "automation": "Partial",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/4.5/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/4.5/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/4.5/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/4.5/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "4.6",
+      "title": "Grounding Scope Governance",
+      "pillar": 4,
+      "pillarName": "SharePoint",
+      "url": "controls/pillar-4-sharepoint/4.6-grounding-scope-governance/",
+      "workload": [
+        "SharePoint"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-4511",
+        "GLBA",
+        "OCC-2026-13",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Compliance Officer",
+        "Content Owners",
+        "Governance Lead",
+        "SharePoint Admin"
+      ],
+      "automation": "Automatable",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/4.6/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/4.6/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/4.6/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/4.6/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "4.7",
+      "title": "Microsoft 365 Copilot Data Governance",
+      "pillar": 4,
+      "pillarName": "SharePoint",
+      "url": "controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance/",
+      "workload": [
+        "SharePoint",
+        "Copilot Studio",
+        "Microsoft 365 Copilot"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "NYDFS-500",
+        "OCC-2026-13",
+        "Reg-S-P",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "AI Administrator",
+        "CISO",
+        "Compliance Officer",
+        "Designated Supervisor / Registered Principal",
+        "Endpoint Security Admin / Intune Admin",
+        "Governance Lead",
+        "Purview Compliance Admin",
+        "Purview Info Protection Admin",
+        "Purview Records Manager",
+        "SharePoint Admin",
+        "Vendor / Third-Party Risk Manager",
+        "eDiscovery Manager"
+      ],
+      "automation": "Manual",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/4.7/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/4.7/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/4.7/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/4.7/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "4.8",
+      "title": "Item-Level Permission Scanning for Agent Knowledge Sources",
+      "pillar": 4,
+      "pillarName": "SharePoint",
+      "url": "controls/pillar-4-sharepoint/4.8-item-level-permission-scanning-agent-knowledge-sources/",
+      "workload": [
+        "SharePoint",
+        "Copilot Studio"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "Fed-SR-26-2",
+        "GLBA",
+        "NIST-AI-RMF",
+        "SEC-17a-4"
+      ],
+      "roles": [
+        "Agent Business Owner",
+        "CISO",
+        "Compliance Officer",
+        "Governance Lead",
+        "SharePoint Admin"
+      ],
+      "automation": "Automatable",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/4.8/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/4.8/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/4.8/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/4.8/troubleshooting/"
+        }
+      ]
+    },
+    {
+      "id": "4.9",
+      "title": "Embedded File Content Governance",
+      "pillar": 4,
+      "pillarName": "SharePoint",
+      "url": "controls/pillar-4-sharepoint/4.9-embedded-file-content-governance/",
+      "workload": [
+        "SharePoint",
+        "Microsoft 365 Copilot"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
+      "zones": [
+        1,
+        2,
+        3
+      ],
+      "regulations": [
+        "FINRA-4511",
+        "GLBA",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
+      ],
+      "roles": [
+        "Agent Author / Owner",
+        "Compliance Officer / IB Officer",
+        "Information Security",
+        "Internal Audit",
+        "Manager / Team Lead",
+        "SharePoint / M365 Administrator"
+      ],
+      "automation": "Manual",
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/4.9/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/4.9/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/4.9/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/4.9/troubleshooting/"
+        }
+      ]
+    }
+  ]
+}

@@ -1,3 +1,6 @@
+---
+description: "Examiner first-day letters typically request a discrete set of artifact categories — model inventory, validation reports, audit logs, change tickets, training…"
+---
 # Examiner First-Day-Letter Response Mapping
 
 **Audience:** Chief Compliance Officer (CCO), AI Governance Lead, Audit & Examination Liaison<br>

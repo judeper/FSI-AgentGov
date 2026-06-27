@@ -1,3 +1,6 @@
+---
+description: "This document maps the FSI Agent Governance Framework controls to Microsoft's Responsible AI Standard v2 (2022) and its six guiding principles, as articulated…"
+---
 # Microsoft Responsible AI Standard v2 — Controls Mapping
 
 This document maps the FSI Agent Governance Framework controls to **Microsoft's Responsible AI Standard v2 (2022)** and its six guiding principles, as articulated on the [Microsoft AI principles and approach page](https://www.microsoft.com/en-us/ai/principles-and-approach) and the annual [Responsible AI Transparency Report](https://www.microsoft.com/corporate-responsibility/responsible-ai-transparency-report).

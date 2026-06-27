@@ -1,3 +1,6 @@
+---
+description: "Topic-organized lookup. Each section is one CSA scenario:"
+---
 <!-- verify-language-rules: allow-second-tier  reason: "CSA quick reference must quote CAPE and vendor marketing language verbatim (in scare quotes) so the CSA can teach reframing to customers and counter-position with examiners." -->
 
 # CSA Quick Reference — FSI Agent Governance Conversations

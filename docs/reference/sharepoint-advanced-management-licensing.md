@@ -1,3 +1,6 @@
+---
+description: "This guide clarifies SharePoint Advanced Management (SAM) licensing requirements and the features included with Microsoft 365 Copilot licenses."
+---
 # SharePoint Advanced Management Licensing Guide
 
 This guide clarifies SharePoint Advanced Management (SAM) licensing requirements and the features included with Microsoft 365 Copilot licenses.

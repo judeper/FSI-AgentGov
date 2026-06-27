@@ -1,3 +1,7 @@
+---
+search:
+  boost: 2
+---
 # FSI Agent Governance Framework - Control Index
 
 ## Complete Control Reference (79 Controls)

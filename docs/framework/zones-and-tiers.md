@@ -1,3 +1,6 @@
+---
+description: "Complete guide to the three-zone governance model for AI agent classification."
+---
 # Zones and Tiers
 
 Complete guide to the three-zone governance model for AI agent classification.

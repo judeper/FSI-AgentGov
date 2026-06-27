@@ -1,3 +1,6 @@
+---
+description: "Work IQ is the Microsoft 365 Copilot intelligence layer that brings together organizational data, work context, and skills/tools so Copilot and agents can…"
+---
 # Work IQ Governance Reference
 
 !!! info "Preview and availability note"
