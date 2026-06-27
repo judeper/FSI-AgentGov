@@ -22,7 +22,7 @@ affected control; each entry links to the Microsoft 365 roadmap and to the relev
       <p class="admonition-title">JavaScript required</p>
       <p>The interactive Change Radar requires JavaScript. With JavaScript disabled, browse the
       public <a href="https://www.microsoft.com/microsoft-365/roadmap">Microsoft 365 roadmap</a>
-      directly, and review recent framework updates in the <a href="changelog/">Changelog</a>.</p>
+      directly, and review recent framework updates in the <a href="../changelog/">Changelog</a>.</p>
     </div>
   </noscript>
   <p class="cr-loading">Loading the Change Radar…</p>
