@@ -64,6 +64,7 @@ EXCLUDED_DIR_SEGMENTS = {
     "site",            # mkdocs build output
     "reports",         # monitoring / learn-change logs (factual history)
     "monitor-pending", # autodoc Learn-capture blobs (raw page text; internal, not published)
+    "change-radar-pending", # Change Radar roadmap-capture blobs (raw Microsoft text; internal, not published)
     "releases",        # changelog archives
     "templates",       # scaffolding templates may carry placeholder enums
     "tests", "test", "fixtures", "__fixtures__",
@@ -76,6 +77,7 @@ EXCLUDED_DIR_SEGMENTS = {
 EXCLUDED_FILE_GLOBS = [
     "CHANGELOG*", "*.migrated", "*.backup",
     "monitor-state*.json", "*-lock.json", "package-lock.json",
+    "change-radar-state*.json",  # monitor baseline (roadmap item titles/hashes; internal)
     "*.schema.json",   # schema enums legitimately enumerate residency values
 ]
 
