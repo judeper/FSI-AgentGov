@@ -11,6 +11,9 @@
 !!! warning "Disclaimer"
     This framework is provided for informational purposes only and does not constitute legal, regulatory, or compliance advice. See [full disclaimer](disclaimer.md).
 
+!!! tip "First action (15 minutes)"
+    [Run the Readiness Assessment](assessment/index.md) — it evaluates your organization's current state across all 79 controls and generates a personalized remediation roadmap. Or read on to orient yourself first.
+
 ## Before you start: License prerequisites
 
 Most implementations in this framework rely on a mix of Copilot Studio, Power Platform, and Microsoft 365 security/compliance licensing rather than a single SKU. Zone 3 scenarios commonly need Microsoft 365 E5 or Microsoft Purview Suite capabilities for audit, retention, investigation, and reporting controls, while some implementations also add Microsoft Defender for Cloud Apps, Microsoft Sentinel, or SharePoint Advanced Management. Validate the exact license mix for each control before rollout.
@@ -80,13 +83,17 @@ If you are new to the repository, it helps you:
 
 ---
 
-## Recommended First 30 Minutes
+## Recommended First 15 Minutes
+
+**Orient (10 minutes)**
 
 1. **Read the [Executive Summary](framework/executive-summary.md)** to understand the governance problem and the operating model.
 2. **Confirm scope with [Relationship to FSI-CopilotGov](framework/relationship-to-copilotgov.md)** if your organization also uses Microsoft 365 Copilot.
 3. **Review [Zones and Tiers](framework/zones-and-tiers.md)** to understand the three-zone classification model.
-4. **Scan the [Control Catalog](controls/index.md)** to see the four pillars and foundational controls.
-5. **Open the [Quick Start Guide](getting-started/quick-start.md)** or the [Governance Readiness Assessment](assessment/index.md) to turn orientation into an action plan.
+
+**Act (5 minutes)**
+
+4. **[Run the Readiness Assessment](assessment/index.md)** to see where your organization currently stands — or **[classify one agent into a zone](framework/zones-and-tiers.md)** using the Zone Decision Matrix as your first concrete action.
 
 ---
 
