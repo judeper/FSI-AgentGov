@@ -10,7 +10,7 @@
 
 # Required for monitoring configuration
 pyyaml>=6.0.3            # YAML parsing for monitoring-config.yaml
-beautifulsoup4>=4.12     # HTML parsing for the Learn Monitor (scripts/learn_monitor.py)
+beautifulsoup4>=4.15.0     # HTML parsing for the Learn Monitor (scripts/learn_monitor.py)
 
 # Required for the autodoc deterministic verifier (scripts/autodoc_verify.py)
 markdown-it-py>=4.2.0     # CommonMark-correct heading detection for section-allowlist checks
