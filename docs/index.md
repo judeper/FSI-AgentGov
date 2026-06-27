@@ -2,6 +2,8 @@
 hide:
   - navigation
   - toc
+search:
+  boost: 2
 ---
 
 <div class="home-hero" markdown>

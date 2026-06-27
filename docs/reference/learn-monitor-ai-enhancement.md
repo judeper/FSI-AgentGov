@@ -1,3 +1,6 @@
+---
+description: "This document describes the AI-assisted review capability for the unified monitoring system (Microsoft Learn + Regulatory sources)."
+---
 # Unified Monitoring System - AI-Assisted Review Implementation Guide
 
 This document describes the AI-assisted review capability for the unified monitoring system (Microsoft Learn + Regulatory sources).

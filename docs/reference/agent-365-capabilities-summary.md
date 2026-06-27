@@ -1,3 +1,6 @@
+---
+description: "This reference consolidates all Microsoft Agent 365 capabilities documented across the FSI-AgentGov framework."
+---
 # Agent 365 Capabilities Summary
 
 **Last Updated:** May 2026

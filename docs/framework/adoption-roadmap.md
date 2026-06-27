@@ -1,3 +1,6 @@
+---
+description: "Phased implementation guidance for deploying the FSI Agent Governance Framework."
+---
 # Adoption Roadmap
 
 Phased implementation guidance for deploying the FSI Agent Governance Framework.

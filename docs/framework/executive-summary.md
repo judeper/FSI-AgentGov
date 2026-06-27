@@ -1,3 +1,6 @@
+---
+description: "A board-level overview of AI agent governance for US financial services organizations."
+---
 # Executive Summary
 
 A board-level overview of AI agent governance for US financial services organizations.

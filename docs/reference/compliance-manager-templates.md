@@ -1,3 +1,6 @@
+---
+description: "Microsoft maintains the canonical and current list at Microsoft Learn — Compliance Manager templates list."
+---
 # Microsoft Purview Compliance Manager Templates Reference
 
 **Purpose:** This reference summarises the Microsoft Purview Compliance Manager **assessment template catalog** as it pertains to US financial services governance of Microsoft 365 AI agents. Compliance Manager is a Microsoft Purview surface that ships a library of 360+ regulatory and standards templates that customers can use to map their own controls to a specific framework, run improvement actions, and produce examiner-ready evidence.

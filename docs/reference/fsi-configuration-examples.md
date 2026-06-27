@@ -1,3 +1,6 @@
+---
+description: "Concrete implementation examples for financial services organizations deploying Microsoft 365 AI agents."
+---
 # FSI Configuration Examples
 
 Concrete implementation examples for financial services organizations deploying Microsoft 365 AI agents.

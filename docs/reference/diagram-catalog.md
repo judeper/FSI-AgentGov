@@ -1,3 +1,6 @@
+---
+description: "The FSI-AgentGov framework and its companion solutions repo carry roughly 75 diagrams across architecture, lifecycle, governance, evidence, and integration."
+---
 # Diagram Catalog
 
 !!! info "Audience"

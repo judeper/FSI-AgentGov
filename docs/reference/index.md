@@ -1,3 +1,8 @@
+---
+description: "Supporting reference materials for the FSI Agent Governance Framework."
+search:
+  boost: 2
+---
 # Reference Materials
 
 Supporting reference materials for the FSI Agent Governance Framework.

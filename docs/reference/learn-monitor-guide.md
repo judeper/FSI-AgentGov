@@ -1,3 +1,6 @@
+---
+description: "This guide explains how the automated Microsoft Learn documentation monitoring system works, when it runs, and how to use it locally."
+---
 # Microsoft Learn Documentation Monitor - How It Works
 
 This guide explains how the automated Microsoft Learn documentation monitoring system works, when it runs, and how to use it locally.

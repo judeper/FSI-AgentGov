@@ -1,3 +1,6 @@
+---
+description: "Microsoft's agent governance architecture represents a fundamental shift from per-platform management to unified control plane governance."
+---
 # Unified Agent Governance: Agent 365, Entra Agent ID, and Admin Center Settings
 
 **Last Updated:** June 2026

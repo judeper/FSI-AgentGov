@@ -1,3 +1,6 @@
+---
+description: "Least-privilege Microsoft Purview role assignments for Security Operations Center (SOC) analysts performing AI agent monitoring, DLP triage, and compliance…"
+---
 # SOC Analyst — Purview RBAC Role Matrix
 
 Least-privilege Microsoft Purview role assignments for Security Operations Center (SOC) analysts performing AI agent monitoring, DLP triage, and compliance investigation in FSI environments.

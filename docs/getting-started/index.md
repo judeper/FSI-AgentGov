@@ -1,6 +1,8 @@
 ---
 title: Getting Started
 description: Quick start guides for the FSI Agent Governance Framework
+search:
+  boost: 2
 ---
 
 # Getting Started
