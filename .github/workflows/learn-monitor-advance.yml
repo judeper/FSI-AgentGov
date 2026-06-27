@@ -44,67 +44,28 @@ jobs:
           client-id: ${{ vars.APP_CLIENT_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
 
-      - name: Determine terminal pending URLs
+      - name: List closed autodoc issues
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
-          python - <<'PY'
-          from __future__ import annotations
-
-          import json
-          import subprocess
-          import sys
-          from pathlib import Path
-
-          sys.path.insert(0, str(Path("scripts").resolve()))
-          from autodoc_defer import load_pending
-
-          pending_dir = Path("data/monitor-pending/learn")
-          pending_dir.mkdir(parents=True, exist_ok=True)
-          terminal_urls: list[str] = []
-
-          for pending_path in sorted(pending_dir.glob("*.json")):
-              pending = load_pending(pending_path)
-              if not pending:
-                  continue
-              url = pending.get("url")
-              if not isinstance(url, str) or not url:
-                  raise ValueError(f"Pending blob missing URL: {pending_path}")
-
-              result = subprocess.run(
-                  [
-                      "gh",
-                      "issue",
-                      "list",
-                      "--state",
-                      "closed",
-                      "--label",
-                      "autodoc",
-                      "--search",
-                      f"{url} in:body",
-                      "--json",
-                      "number",
-                      "--limit",
-                      "1",
-                  ],
-                  check=True,
-                  capture_output=True,
-                  text=True,
-              )
-              if json.loads(result.stdout):
-                  terminal_urls.append(url)
-
-          terminal_path = Path("terminal-urls.txt")
-          terminal_path.write_text("\n".join(terminal_urls) + ("\n" if terminal_urls else ""), encoding="utf-8")
-          print(f"Terminal pending URLs: {len(terminal_urls)}")
-          PY
+          # Fetch every closed `autodoc` issue with its close reason and body. The advance
+          # script matches each pending change to a closed-as-COMPLETED issue by EXACT
+          # (Source, Content-Hash) identity — never by GitHub's tokenized `{url} in:body`
+          # search, which can subset an unrelated issue and advance the wrong baseline.
+          gh issue list \
+            --state closed \
+            --label autodoc \
+            --json number,stateReason,body \
+            --limit 500 \
+            > closed-autodoc-issues.json
+          python -c "import json,sys; print('Closed autodoc issues:', len(json.load(open('closed-autodoc-issues.json'))))"
 
       - name: Advance terminal Learn baselines
         run: |
           python scripts/autodoc_advance.py \
             --state data/monitor-state.json \
             --pending-dir data/monitor-pending/learn \
-            --terminal-urls terminal-urls.txt
+            --closed-issues closed-autodoc-issues.json
 
       - name: Create baseline advancement pull request
         id: create_pr

@@ -1,3 +1,6 @@
+---
+description: "Microsoft's “Frontier Center of Excellence” concept (paraphrased from the Microsoft CAPE materials) describes a standing capability that runs an agent…"
+---
 # Agentic Center of Excellence
 
 !!! info "Audience"

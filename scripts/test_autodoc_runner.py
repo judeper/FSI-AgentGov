@@ -241,6 +241,72 @@ def test_process_redirect_malformed_new_url_escalates(monkeypatch: pytest.Monkey
     assert escalations == ["redirect_malformed_url"]
 
 
+@pytest.mark.parametrize(
+    "bad_new_url",
+    [
+        "https://evil.example/x",                       # plainly off-domain
+        "https://learn.microsoft.com.evil.com/x",       # subdomain spoof (host is *.evil.com)
+        "https://learn.microsoft.com@evil.example/x",   # embedded-credentials host trick (host is evil.example)
+        "https://amicrosoft.com/x",                     # no dot boundary before microsoft.com
+        "http://127.0.0.1/x",                           # raw IP literal
+        "https:///x",                                   # empty/malformed host
+    ],
+)
+def test_process_redirect_off_domain_target_escalates(bad_new_url: str, monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    # A redirect whose NEW target host is not a Microsoft domain must fail closed: escalate with
+    # `redirect_off_domain` and never touch git / draft the swap. Removing the allowlist check in
+    # _process_redirect makes every case here proceed past validation and break this test.
+    escalations: list[str] = []
+    monkeypatch.setattr(runner, "_escalate", lambda config, ctx, reason, details: escalations.append(reason) or "ISSUE#1")
+    monkeypatch.setattr(runner, "_record_ledger", lambda config, ctx, state, detail: None)
+    monkeypatch.setattr(runner, "_git", lambda config, *args: pytest.fail("must escalate before touching git"))
+    cfg = runner.RunnerConfig(repo_path=tmp_path, draft_model="a", review_model="b")
+    outcome = runner._process_redirect(cfg, _redirect_ctx("https://learn.microsoft.com/a/old", bad_new_url))
+    assert outcome.status == "escalated"
+    assert escalations == ["redirect_off_domain"]
+
+
+@pytest.mark.parametrize(
+    "good_new_url",
+    [
+        "https://learn.microsoft.com/en-us/agents/architecture/",
+        "https://go.microsoft.com/fwlink/?linkid=2222",
+        "https://docs.microsoft.com/en-us/azure/",       # ends with .microsoft.com
+        "https://microsoft.com/x",                       # apex
+    ],
+)
+def test_process_redirect_microsoft_domain_target_proceeds(good_new_url: str, monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    # A legitimate Microsoft-domain redirect target must NOT be blocked by the allowlist: the swap
+    # proceeds and a PR is opened.
+    old = "https://learn.microsoft.com/old/"
+    url_file = tmp_path / "docs" / "reference" / "microsoft-learn-urls.md"
+    url_file.parent.mkdir(parents=True)
+    url_file.write_text(f"| Architecting | {old} | Mar 2026 |\n", encoding="utf-8")
+    diff = f"--- a/x\n+++ b/x\n@@ -1 +1 @@\n-| Architecting | {old} | Mar 2026 |\n+| Architecting | {good_new_url} | Mar 2026 |\n"
+    monkeypatch.setattr(runner, "_git", _redirect_git_mock(diff))
+    monkeypatch.setattr(runner, "_untracked_files", lambda config: [])
+    monkeypatch.setattr(runner, "_reset_attempt", lambda config, base, baseline: None)
+    monkeypatch.setattr(runner, "_push_and_create_pr", lambda config, ctx, body: "PR#9")
+    monkeypatch.setattr(runner, "_record_ledger", lambda config, ctx, state, detail: None)
+    cfg = runner.RunnerConfig(repo_path=tmp_path, draft_model="a", review_model="b")
+    outcome = runner._process_redirect(cfg, _redirect_ctx(old, good_new_url))
+    assert outcome.status == "pr_opened"
+    assert good_new_url in url_file.read_text(encoding="utf-8")
+
+
+def test_redirect_host_allowed_rule() -> None:
+    # Direct unit coverage of the fail-closed allowlist boundary.
+    assert runner._redirect_host_allowed("https://learn.microsoft.com/x")
+    assert runner._redirect_host_allowed("https://microsoft.com/x")
+    assert runner._redirect_host_allowed("https://go.microsoft.com/x")
+    assert runner._redirect_host_allowed("https://docs.microsoft.com/x")
+    assert not runner._redirect_host_allowed("https://evil.example/x")
+    assert not runner._redirect_host_allowed("https://learn.microsoft.com.evil.com/x")
+    assert not runner._redirect_host_allowed("https://learn.microsoft.com@evil.example/x")
+    assert not runner._redirect_host_allowed("https://amicrosoft.com/x")
+    assert not runner._redirect_host_allowed("https:///x")
+
+
 def test_process_change_dispatches_redirect(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     called: list[str] = []
     monkeypatch.setattr(runner, "_process_redirect", lambda config, ctx: called.append(ctx.fingerprint) or runner.Outcome(ctx.fingerprint, "pr_opened", "redir"))
@@ -688,6 +754,40 @@ def test_escalate_body_includes_source_url(monkeypatch: pytest.MonkeyPatch, tmp_
     assert url in body  # the `{url} in:body` advance search now matches this issue
 
 
+def test_escalate_body_includes_content_hash(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    # The escalation body must carry the change's exact Content-Hash so learn-monitor-advance.yml
+    # can match a closed COMPLETED issue to its specific pending blob by (Source, Content-Hash)
+    # instead of GitHub's tokenized `{url} in:body` search (which can advance the wrong baseline).
+    monkeypatch.setattr(runner, "_existing_issue_url", lambda config, ctx: None)
+    captured: dict[str, Any] = {}
+
+    def fake_run(args: Any, **kwargs: Any) -> "_FakeCompleted":
+        captured["args"] = list(args)
+        return _FakeCompleted(0, stdout="https://github.com/x/y/issues/9")
+
+    monkeypatch.setattr(runner.subprocess, "run", fake_run)
+    url = "https://learn.microsoft.com/en-us/x"
+    content_hash = "sha256:deadbeefcafe"
+    ctx = runner.ChangeContext(
+        fingerprint="sha256:deadbeefcafe0003",
+        route="human",
+        contract={
+            "fingerprint": "sha256:deadbeefcafe0003",
+            "source_url": url,
+            "content_hash": content_hash,
+            "allowed_files": ["docs/x.md"],
+        },
+        report_path="reports/monitoring/learn-changes-x.md",
+        instructions="",
+        title="Autodoc human review",
+        labels=["autodoc", "escalate"],
+    )
+    assert runner._escalate(_config(tmp_path), ctx, "route=human", "details") == "https://github.com/x/y/issues/9"
+    body = captured["args"][captured["args"].index("--body") + 1]
+    assert f"Source: {url}" in body
+    assert f"Content-Hash: {content_hash}" in body
+
+
 def test_escalate_body_omits_source_line_when_url_absent(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     monkeypatch.setattr(runner, "_existing_issue_url", lambda config, ctx: None)
     captured: dict[str, Any] = {}
@@ -697,10 +797,11 @@ def test_escalate_body_omits_source_line_when_url_absent(monkeypatch: pytest.Mon
         return _FakeCompleted(0, stdout="https://github.com/x/y/issues/8")
 
     monkeypatch.setattr(runner.subprocess, "run", fake_run)
-    # _ctx() builds a contract without a source_url; the Source line must be omitted.
+    # _ctx() builds a contract without a source_url or content_hash; both lines must be omitted.
     runner._escalate(_config(tmp_path), _ctx(), "reason", "details")
     body = captured["args"][captured["args"].index("--body") + 1]
     assert "Source:" not in body
+    assert "Content-Hash:" not in body
 
 
 def test_record_ledger_dry_run_is_noop(tmp_path: Path) -> None:

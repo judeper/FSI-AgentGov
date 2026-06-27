@@ -21,6 +21,26 @@ SCRIPTS_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPTS_DIR))
 
 import regulatory_monitor  # noqa: E402
+from monitoring_shared import compute_hash  # noqa: E402
+
+
+def _make_item(title, doc_id, *, abstract="", pub_date="2026-01-01",
+               source="Federal Register", agency="SEC", url=None):
+    """Construct a RegulatoryItem for tests."""
+    return regulatory_monitor.RegulatoryItem(
+        source=source,
+        agency=agency,
+        title=title,
+        url=url or f"https://example.test/{doc_id}",
+        publication_date=pub_date,
+        document_id=doc_id,
+        abstract=abstract,
+    )
+
+
+def _item_hash(item):
+    """Mirror the hash computed inside check_for_new_items/update_source_state."""
+    return compute_hash(f"{item.title}|{item.abstract}|{item.publication_date}")
 
 
 def test_save_state_atomic_arg_order(monkeypatch):
@@ -67,3 +87,110 @@ def test_save_state_atomic_arg_order(monkeypatch):
     assert args[1] == regulatory_monitor.STATE_FILE, (
         f"save_state_atomic second arg must be STATE_FILE, got {args[1]!r}"
     )
+
+
+def _run_main(monkeypatch, *, state, fed_items, finra_items):
+    """Run regulatory_monitor.main() with network + disk side effects stubbed.
+
+    Returns (exit_code, saved_state, reported_items).
+    """
+    captured = {'saved_state': None, 'report_items': None}
+
+    monkeypatch.setattr(regulatory_monitor, 'load_state', lambda *a, **k: state)
+
+    def fake_save(saved_state, _path):
+        captured['saved_state'] = saved_state
+
+    monkeypatch.setattr(regulatory_monitor, 'save_state_atomic', fake_save)
+
+    def fake_report(items, _path):
+        captured['report_items'] = list(items)
+
+    monkeypatch.setattr(regulatory_monitor, 'generate_regulatory_report', fake_report)
+
+    monkeypatch.setattr(
+        regulatory_monitor, 'fetch_federal_register_documents',
+        lambda *a, **k: fed_items,
+    )
+    monkeypatch.setattr(
+        regulatory_monitor, 'fetch_finra_notices',
+        lambda *a, **k: finra_items,
+    )
+
+    monkeypatch.setattr(sys, 'argv', ['regulatory_monitor.py'])
+
+    with pytest.raises(SystemExit) as exc:
+        regulatory_monitor.main()
+
+    return exc.value.code, captured['saved_state'], captured['report_items']
+
+
+def test_first_run_establishes_baseline_without_reporting(monkeypatch):
+    """First run (no prior state) must persist a baseline and report ZERO items.
+
+    Regression guard for the burst-report defect: without first-run suppression,
+    a no-prior-state run flags every fetched item as new and emits a noisy
+    ~30-day report with exit 1. The fix records the baseline silently (exit 0).
+    """
+    fed_items = [
+        _make_item("SEC Rule A", "fr-1"),
+        _make_item("CFTC Rule B", "fr-2", agency="CFTC"),
+    ]
+    finra_items = [
+        _make_item("FINRA Notice 26-01", "finra-1", source="FINRA", agency="FINRA"),
+    ]
+
+    # Empty unified state => no prior state for either source.
+    code, saved_state, report_items = _run_main(
+        monkeypatch, state={}, fed_items=fed_items, finra_items=finra_items,
+    )
+
+    assert code == 0, "first run should exit 0 (no burst report)"
+    assert report_items is None, "first run must NOT generate a report"
+
+    # Baseline persisted so subsequent runs are incremental.
+    fed_state = saved_state['sources'][regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER]
+    finra_state = saved_state['sources'][regulatory_monitor.SOURCE_KEY_FINRA]
+    assert fed_state.get('last_run'), "fed baseline last_run must be recorded"
+    assert set(fed_state['entries']) == {'fr-1', 'fr-2'}, "fed baseline entries persisted"
+    assert finra_state.get('last_run'), "finra baseline last_run must be recorded"
+    assert set(finra_state['entries']) == {'finra-1'}, "finra baseline entries persisted"
+
+
+def test_subsequent_run_still_detects_new_items(monkeypatch):
+    """A run WITH prior state must still detect and report genuinely new items.
+
+    Ensures the baseline suppression only affects the FIRST run, not legitimate
+    incremental change detection on later runs.
+    """
+    known_fed = _make_item("SEC Rule A", "fr-1")
+    new_fed = _make_item("SEC Rule C (new)", "fr-3")
+    known_finra = _make_item("FINRA Notice 26-01", "finra-1", source="FINRA", agency="FINRA")
+
+    # Prior persisted state: last_run set (not a baseline) with the known items.
+    prior_state = {
+        "version": 1,
+        "sources": {
+            regulatory_monitor.SOURCE_KEY_FEDERAL_REGISTER: {
+                "last_run": "2026-01-01T00:00:00+00:00",
+                "last_checked": "2026-01-01",
+                "entries": {"fr-1": _item_hash(known_fed)},
+            },
+            regulatory_monitor.SOURCE_KEY_FINRA: {
+                "last_run": "2026-01-01T00:00:00+00:00",
+                "entries": {"finra-1": _item_hash(known_finra)},
+            },
+        },
+    }
+
+    code, saved_state, report_items = _run_main(
+        monkeypatch,
+        state=prior_state,
+        fed_items=[known_fed, new_fed],
+        finra_items=[known_finra],
+    )
+
+    assert code == 1, "new items should trigger exit 1 (PR in CI)"
+    assert report_items is not None, "a report must be generated for new items"
+    reported_ids = {item.document_id for item in report_items}
+    assert reported_ids == {'fr-3'}, "only the genuinely new item should be reported"

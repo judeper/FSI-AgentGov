@@ -107,6 +107,7 @@ def build_contract(
         "fingerprint": fingerprint,
         "report_path": f"reports/monitoring/{Path(report_name).name}",
         "source_url": decision.url,
+        "content_hash": getattr(decision, "content_hash", ""),
         "classification": decision.classification,
         "route": decision.route,
         "automerge_eligible": decision.automerge_eligible,

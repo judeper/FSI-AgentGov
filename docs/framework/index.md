@@ -1,3 +1,8 @@
+---
+description: "Governance principles, zones, regulatory context, and operating model for Microsoft 365 AI agents in US financial services organizations."
+search:
+  boost: 2
+---
 # Framework Overview
 
 !!! info "Current version: v1.6.2 (May 2026)"

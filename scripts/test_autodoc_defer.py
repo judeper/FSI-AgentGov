@@ -57,8 +57,8 @@ def test_defer_enabled_uses_environment_when_env_omitted(monkeypatch: pytest.Mon
 def test_pending_path_uses_safe_deterministic_filename(workspace: Path) -> None:
     url = "https://learn.microsoft.com/en-us/../../Power Platform/Admin?q=1&x=/bad"
 
-    first = defer.pending_path(url, workspace)
-    second = defer.pending_path(url, workspace)
+    first = defer.pending_path(url, "sha256:abc", workspace)
+    second = defer.pending_path(url, "sha256:abc", workspace)
 
     assert first == second
     assert first.parent == workspace / "data" / "monitor-pending" / "learn"
@@ -69,9 +69,21 @@ def test_pending_path_uses_safe_deterministic_filename(workspace: Path) -> None:
     assert "\\" not in first.name
 
 
+def test_pending_path_distinguishes_changes_by_content_hash(workspace: Path) -> None:
+    # Two distinct changes to the SAME URL must map to two distinct blobs so the earlier
+    # change's blob is never overwritten while its escalation issue is still open.
+    url = "https://learn.microsoft.com/en-us/power-platform/admin/example"
+
+    first = defer.pending_path(url, "sha256:one", workspace)
+    second = defer.pending_path(url, "sha256:two", workspace)
+
+    assert first != second
+    assert first.parent == second.parent
+
+
 def test_pending_round_trip_and_dedupe(workspace: Path) -> None:
     url = "https://learn.microsoft.com/en-us/power-platform/admin/example"
-    pending = defer.pending_path(url, workspace)
+    pending = defer.pending_path(url, "sha256:new", workspace)
 
     assert defer.load_pending(pending) is None
     assert defer.is_already_pending(url, "sha256:new", workspace) is False
@@ -191,7 +203,7 @@ def _run_changed_monitor(
 
     if already_pending:
         defer.write_pending(
-            defer.pending_path(url, workspace),
+            defer.pending_path(url, new_hash, workspace),
             url,
             new_hash,
             "new normalized",
@@ -237,7 +249,7 @@ def test_learn_monitor_enabled_path_defers_accepted_state(
     new_hash = state["_test_new_hash"]
     source = state["sources"]["learn"]
     url_state = source["urls"][url]
-    pending = defer.load_pending(defer.pending_path(url, workspace))
+    pending = defer.load_pending(defer.pending_path(url, new_hash, workspace))
 
     assert url_state["content_hash"] == learn_monitor.compute_hash("old normalized")
     assert url_state["normalized_content"] == "old normalized"
@@ -256,9 +268,10 @@ def test_learn_monitor_enabled_pending_dedupe_does_not_re_report(
 ) -> None:
     state = _run_changed_monitor(monkeypatch, workspace, autodoc_enabled="true", already_pending=True)
     url = state["_test_url"]
+    new_hash = state["_test_new_hash"]
     source = state["sources"]["learn"]
     url_state = source["urls"][url]
-    pending = defer.load_pending(defer.pending_path(url, workspace))
+    pending = defer.load_pending(defer.pending_path(url, new_hash, workspace))
 
     assert url_state["content_hash"] == learn_monitor.compute_hash("old normalized")
     assert url_state["normalized_content"] == "old normalized"

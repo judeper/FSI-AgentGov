@@ -1,3 +1,6 @@
+---
+description: "Complete guide to agent lifecycle governance from creation through decommissioning."
+---
 # Agent Lifecycle
 
 Complete guide to agent lifecycle governance from creation through decommissioning.

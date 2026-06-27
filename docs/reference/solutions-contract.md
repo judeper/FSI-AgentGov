@@ -1,3 +1,6 @@
+---
+description: "This page is the source-of-truth contract between the FSI-AgentGov framework repository and the FSI-AgentGov-Solutions implementation catalog."
+---
 # Solutions Repository Coupling Contract
 
 This page is the **source-of-truth contract** between the FSI-AgentGov framework

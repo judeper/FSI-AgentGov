@@ -125,6 +125,49 @@ def test_rejects_cell_count_mismatch() -> None:
         v.verify_redirect_diff(_diff(removed, added))
 
 
+@pytest.mark.parametrize(
+    "bad_new_url",
+    [
+        "https://evil.example/x",                       # plainly off-domain
+        "https://learn.microsoft.com.evil.com/x",       # subdomain spoof (host is *.evil.com)
+        "https://learn.microsoft.com@evil.example/x",   # embedded-credentials host trick (host is evil.example)
+        "https://amicrosoft.com/x",                     # no dot boundary before microsoft.com
+        "http://127.0.0.1/x",                           # raw IP literal
+    ],
+)
+def test_rejects_off_domain_new_url(bad_new_url: str) -> None:
+    # Independent CI gate must reject any redirect whose new target host is not a Microsoft domain.
+    # Removing the _host_allowed check makes these pass the verifier and break this test.
+    with pytest.raises(v.NotCleanRedirect, match="not a Microsoft domain"):
+        v.verify_redirect_diff(_diff(_row(OLD), _row(bad_new_url)))
+
+
+@pytest.mark.parametrize(
+    "good_new_url",
+    [
+        "https://learn.microsoft.com/en-us/agents/architecture/",
+        "https://go.microsoft.com/fwlink/?linkid=2222",
+        "https://docs.microsoft.com/en-us/azure/",       # ends with .microsoft.com
+        "https://microsoft.com/x",                       # apex
+    ],
+)
+def test_accepts_microsoft_domain_new_url(good_new_url: str) -> None:
+    old, new = v.verify_redirect_diff(_diff(_row(OLD), _row(good_new_url)))
+    assert (old, new) == (OLD, good_new_url)
+
+
+def test_host_allowed_rule() -> None:
+    assert v._host_allowed("https://learn.microsoft.com/x")
+    assert v._host_allowed("https://microsoft.com/x")
+    assert v._host_allowed("https://go.microsoft.com/x")
+    assert v._host_allowed("https://docs.microsoft.com/x")
+    assert not v._host_allowed("https://evil.example/x")
+    assert not v._host_allowed("https://learn.microsoft.com.evil.com/x")
+    assert not v._host_allowed("https://learn.microsoft.com@evil.example/x")
+    assert not v._host_allowed("https://amicrosoft.com/x")
+    assert not v._host_allowed("https:///x")
+
+
 def test_main_clean(tmp_path, capsys) -> None:
     p = tmp_path / "pr.diff"
     p.write_text(_diff(_row(OLD), _row(NEW)), encoding="utf-8")

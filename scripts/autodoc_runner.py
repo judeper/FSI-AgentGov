@@ -29,6 +29,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import urllib.parse
 from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any
@@ -56,6 +57,28 @@ _REDIRECT_TO_RE = re.compile(r"redirects to (\S[^\n]*)")
 # A well-formed redirect URL: scheme + only RFC 3986 URL characters. Excludes anything that would
 # break the markdown table or isn't URL-legal (|, quotes, <>, backtick, braces, control chars).
 _URL_WELL_FORMED_RE = re.compile(r"^https?://[A-Za-z0-9\-._~:/?#\[\]@!$&'()*+,;=%]+$")
+
+
+def _redirect_host_allowed(url: str) -> bool:
+    """Fail-closed Microsoft-domain allowlist for a redirect's NEW target URL.
+
+    A poisoned upstream redirect could otherwise smuggle an attacker-controlled URL into the
+    canonical Learn-URL list once Stage-2 auto-merge is enabled. Only a host that is
+    ``learn.microsoft.com``, ``microsoft.com``, or a subdomain ending in ``.microsoft.com`` is
+    accepted. The host is taken from ``urlparse(...).hostname`` (lower-cased), so userinfo/credential
+    tricks (``https://learn.microsoft.com@evil.example/``) resolve to the real authority host and
+    subdomain spoofs (``learn.microsoft.com.evil.com``) are rejected. Empty host, IPs, malformed
+    authority, or any parse error all fail closed.
+
+    This rule is duplicated — on purpose — in ``autodoc_redirect_ci_verify`` so the CI gate stays
+    independent of this runner. Do NOT factor the two copies into a shared helper.
+    """
+
+    try:
+        host = (urllib.parse.urlparse(url).hostname or "").lower()
+    except ValueError:
+        return False
+    return host in ("learn.microsoft.com", "microsoft.com") or host.endswith(".microsoft.com")
 
 
 @dataclass
@@ -279,6 +302,11 @@ def _process_redirect(config: RunnerConfig, ctx: ChangeContext) -> Outcome:
     # malformed redirect target can never corrupt the markdown table and slip past the diff guard.
     if not (_URL_WELL_FORMED_RE.match(old_url) and _URL_WELL_FORMED_RE.match(new_url)):
         return _do_escalate(config, ctx, "redirect_malformed_url", f"URL contains characters that are not URL-legal (old={old_url!r} new={new_url!r})")
+    # Fail closed if the redirect target host is not a Microsoft domain. A poisoned upstream redirect
+    # must never be drafted into the canonical Learn-URL list (defence in depth with the independent
+    # CI gate in autodoc_redirect_ci_verify).
+    if not _redirect_host_allowed(new_url):
+        return _do_escalate(config, ctx, "redirect_off_domain", f"redirect target host is not a Microsoft domain; refusing off-domain swap (new={new_url!r})")
 
     base = config.base_branch
     _git(config, "checkout", "-B", ctx.branch, base)
@@ -931,17 +959,21 @@ def _escalate(config: RunnerConfig, ctx: ChangeContext, reason: str, details: st
     existing = _existing_issue_url(config, ctx)
     if existing:
         return existing
-    # Include the source URL so the deferred-baseline advance workflow
-    # (learn-monitor-advance.yml) can match this issue via `{url} in:body` once
-    # it is closed. Without it, content-review escalations never advance their
-    # baseline and their pending blobs accumulate indefinitely.
+    # Include the source URL AND content hash so the deferred-baseline advance workflow
+    # (learn-monitor-advance.yml) can match this issue to its EXACT pending change once it
+    # is closed. The advance step compares these two lines verbatim against the pending blob's
+    # (url, content_hash) — it never relies on GitHub's tokenized `in:body` search, which can
+    # subset an unrelated issue's body and advance the wrong baseline (silent data loss).
     source_url = ctx.contract.get("source_url", "") if isinstance(ctx.contract, dict) else ""
+    content_hash = ctx.contract.get("content_hash", "") if isinstance(ctx.contract, dict) else ""
     source_line = f"Source: {source_url}\n" if source_url else ""
+    content_hash_line = f"Content-Hash: {content_hash}\n" if content_hash else ""
     body = (
         f"Autodoc escalation — human review required.\n\n"
         f"AUTODOC-FINGERPRINT: {ctx.fingerprint}\n"
         f"Reason: {reason}\n"
         f"{source_line}"
+        f"{content_hash_line}"
         f"\n{details}\n"
     )
     completed = subprocess.run(

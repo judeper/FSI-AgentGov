@@ -72,6 +72,21 @@ def test_extract_allowed_files_prefixes_docs_and_reads_playbooks():
     ]
 
 
+def test_build_contract_includes_content_hash():
+    # The contract must carry the change's content_hash so the runner can stamp it into the
+    # escalation issue body, where the advance step matches it back to the pending blob.
+    change = ac.Change(
+        topic="Neutral additive change",
+        url="https://learn.microsoft.com/en-us/neutral",
+        classification="MEDIUM",
+        diff_text="--- +++ @@\n+Added a neutral portal navigation note.",
+        content_hash="sha256:abc123",
+    )
+    decision = ac.classify_change(change)
+    contract = route.build_contract(decision, "report.md", ["docs/example.md"], "sha256:fp")
+    assert contract["content_hash"] == "sha256:abc123"
+
+
 def test_autodraft_issue_labels_and_contract_body():
     change = ac.Change(
         topic="Neutral additive change",
