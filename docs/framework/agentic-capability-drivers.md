@@ -1,3 +1,6 @@
+---
+description: "Microsoft's Copilot Acceleration Engineering (CAPE) materials introduce Capability Drivers as the five organizational dimensions whose collective maturity…"
+---
 # Agentic Capability Drivers
 
 > **Audience:** M365 administrators, AI Governance Lead, AI Program Sponsor / CIO / CDAO, FSI architects, Microsoft FSI Customer Success Architects (CSAs).

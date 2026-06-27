@@ -37,6 +37,12 @@
       "pattern": "^https://www\\.occ\\.gov"
     },
     {
+      "pattern": "^https://nvlpubs\\.nist\\.gov"
+    },
+    {
+      "pattern": "^https://www\\.finra\\.org"
+    },
+    {
       "pattern": "^https://admin\\.portal\\.com"
     },
     {

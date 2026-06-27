@@ -1,3 +1,6 @@
+---
+description: "This document maps the FSI Agent Governance Framework controls to the NIST AI Risk Management Framework (AI RMF 1.0)."
+---
 # NIST AI Risk Management Framework Crosswalk
 
 This document maps the FSI Agent Governance Framework controls to the NIST AI Risk Management Framework (AI RMF 1.0). Financial services stakeholders have expressed support for voluntary NIST AI RMF adoption, and Treasury has committed to working with financial regulators to clarify its applicability and develop financial sector-specific guidance (December 2024 AI in Financial Services report).

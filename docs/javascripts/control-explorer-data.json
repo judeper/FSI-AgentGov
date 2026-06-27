@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-22T21:51:14Z",
+  "generatedAt": "2026-06-26T15:08:28Z",
   "count": 79,
   "controls": [
     {
@@ -8,6 +8,14 @@
       "pillar": 1,
       "pillarName": "Security",
       "url": "controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -33,7 +41,25 @@
         "Power Platform Admin"
       ],
       "automation": "Automatable",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.1/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.1/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.1/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.1/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "1.2",
@@ -41,6 +67,14 @@
       "pillar": 1,
       "pillarName": "Security",
       "url": "controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -74,6 +108,28 @@
       "automation": "Automatable",
       "solutions": [
         "agent-365-lifecycle-governance"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.2/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.2/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.2/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.2/troubleshooting/"
+        },
+        {
+          "name": "Sponsorship Lifecycle Workflows",
+          "url": "playbooks/control-implementations/1.2/sponsorship-lifecycle-workflows/"
+        }
       ]
     },
     {
@@ -82,6 +138,14 @@
       "pillar": 1,
       "pillarName": "Security",
       "url": "controls/pillar-1-security/1.3-sharepoint-content-governance-and-permissions/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -104,7 +168,25 @@
         "Site Collection Admin"
       ],
       "automation": "Partial",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.3/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.3/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.3/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.3/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "1.4",
@@ -112,6 +194,14 @@
       "pillar": 1,
       "pillarName": "Security",
       "url": "controls/pillar-1-security/1.4-advanced-connector-policies-acp/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -135,7 +225,25 @@
         "Security Team"
       ],
       "automation": "Automatable",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.4/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.4/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.4/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.4/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "1.5",
@@ -143,6 +251,15 @@
       "pillar": 1,
       "pillarName": "Security",
       "url": "controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels/",
+      "workload": [
+        "Copilot Studio",
+        "Microsoft 365 Copilot"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -172,6 +289,24 @@
       "automation": "Automatable",
       "solutions": [
         "deny-event-correlation-report"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.5/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.5/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.5/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.5/troubleshooting/"
+        }
       ]
     },
     {
@@ -180,6 +315,16 @@
       "pillar": 1,
       "pillarName": "Security",
       "url": "controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai/",
+      "workload": [
+        "Purview",
+        "Copilot Studio",
+        "Microsoft 365 Copilot"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         2,
         3
@@ -204,7 +349,25 @@
         "Purview Security Reader"
       ],
       "automation": "Partial",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.6/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.6/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.6/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.6/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "1.7",
@@ -212,6 +375,15 @@
       "pillar": 1,
       "pillarName": "Security",
       "url": "controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance/",
+      "workload": [
+        "Copilot Studio",
+        "Microsoft 365 Copilot"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -244,6 +416,24 @@
         "deny-event-correlation-report",
         "environment-lifecycle-management",
         "finra-supervision-workflow"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.7/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.7/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.7/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.7/troubleshooting/"
+        }
       ]
     },
     {
@@ -252,6 +442,14 @@
       "pillar": 1,
       "pillarName": "Security",
       "url": "controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection/",
+      "workload": [
+        "Copilot Studio"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         2,
         3
@@ -271,6 +469,24 @@
       "solutions": [
         "content-moderation-monitor",
         "deny-event-correlation-report"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.8/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.8/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.8/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.8/troubleshooting/"
+        }
       ]
     },
     {
@@ -279,6 +495,14 @@
       "pillar": 1,
       "pillarName": "Security",
       "url": "controls/pillar-1-security/1.9-data-retention-and-deletion-policies/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -300,7 +524,25 @@
         "Purview Records Manager"
       ],
       "automation": "Automatable",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.9/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.9/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.9/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.9/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "1.10",
@@ -308,6 +550,14 @@
       "pillar": 1,
       "pillarName": "Security",
       "url": "controls/pillar-1-security/1.10-communication-compliance-monitoring/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         2,
         3
@@ -334,6 +584,24 @@
       "automation": "Partial",
       "solutions": [
         "finra-supervision-workflow"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.10/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.10/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.10/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.10/troubleshooting/"
+        }
       ]
     },
     {
@@ -342,6 +610,14 @@
       "pillar": 1,
       "pillarName": "Security",
       "url": "controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -379,6 +655,28 @@
       "solutions": [
         "agent-365-lifecycle-governance",
         "conditional-access-automation"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.11/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.11/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.11/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.11/troubleshooting/"
+        },
+        {
+          "name": "Conditional Access Agent Identity Templates",
+          "url": "playbooks/control-implementations/1.11/conditional-access-agent-templates/"
+        }
       ]
     },
     {
@@ -387,6 +685,14 @@
       "pillar": 1,
       "pillarName": "Security",
       "url": "controls/pillar-1-security/1.12-insider-risk-detection-and-response/",
+      "workload": [
+        "Purview"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         2,
         3
@@ -415,7 +721,25 @@
         "Privacy Officer / Legal"
       ],
       "automation": "Partial",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.12/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.12/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.12/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.12/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "1.13",
@@ -423,6 +747,14 @@
       "pillar": 1,
       "pillarName": "Security",
       "url": "controls/pillar-1-security/1.13-sensitive-information-types-sits-and-pattern-recognition/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         2,
         3
@@ -449,7 +781,25 @@
         "Purview Info Protection Admin"
       ],
       "automation": "Partial",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.13/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.13/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.13/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.13/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "1.14",
@@ -457,6 +807,14 @@
       "pillar": 1,
       "pillarName": "Security",
       "url": "controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control/",
+      "workload": [
+        "Copilot Studio"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -483,6 +841,24 @@
       "automation": "Manual",
       "solutions": [
         "file-upload-security"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.14/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.14/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.14/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.14/troubleshooting/"
+        }
       ]
     },
     {
@@ -491,6 +867,16 @@
       "pillar": 1,
       "pillarName": "Security",
       "url": "controls/pillar-1-security/1.15-encryption-data-in-transit-and-at-rest/",
+      "workload": [
+        "Purview",
+        "Copilot Studio",
+        "Microsoft 365 Copilot"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -513,7 +899,25 @@
         "SharePoint Admin"
       ],
       "automation": "Automatable",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.15/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.15/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.15/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.15/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "1.16",
@@ -521,6 +925,14 @@
       "pillar": 1,
       "pillarName": "Security",
       "url": "controls/pillar-1-security/1.16-information-rights-management-irm-for-documents/",
+      "workload": [
+        "Copilot Studio"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -540,7 +952,25 @@
         "SharePoint Admin"
       ],
       "automation": "Manual",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.16/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.16/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.16/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.16/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "1.17",
@@ -548,6 +978,14 @@
       "pillar": 1,
       "pillarName": "Security",
       "url": "controls/pillar-1-security/1.17-endpoint-data-loss-prevention-endpoint-dlp/",
+      "workload": [
+        "Purview"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         2,
         3
@@ -570,7 +1008,25 @@
         "Purview Compliance Admin"
       ],
       "automation": "Partial",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.17/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.17/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.17/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.17/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "1.18",
@@ -578,6 +1034,15 @@
       "pillar": 1,
       "pillarName": "Security",
       "url": "controls/pillar-1-security/1.18-application-level-authorization-and-role-based-access-control-rbac/",
+      "workload": [
+        "Copilot Studio",
+        "Power Platform"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -601,6 +1066,24 @@
       "automation": "Partial",
       "solutions": [
         "conditional-access-automation"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.18/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.18/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.18/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.18/troubleshooting/"
+        }
       ]
     },
     {
@@ -609,6 +1092,14 @@
       "pillar": 1,
       "pillarName": "Security",
       "url": "controls/pillar-1-security/1.19-ediscovery-for-agent-interactions/",
+      "workload": [
+        "Copilot Studio"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         2,
         3
@@ -630,7 +1121,25 @@
         "eDiscovery Manager"
       ],
       "automation": "Automatable",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.19/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.19/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.19/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.19/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "1.20",
@@ -638,6 +1147,16 @@
       "pillar": 1,
       "pillarName": "Security",
       "url": "controls/pillar-1-security/1.20-network-isolation-private-connectivity/",
+      "workload": [
+        "Copilot Studio",
+        "Power Platform",
+        "Microsoft 365 Copilot"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         3
       ],
@@ -657,7 +1176,25 @@
         "Power Platform Admin"
       ],
       "automation": "Automatable",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.20/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.20/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.20/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.20/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "1.21",
@@ -665,6 +1202,14 @@
       "pillar": 1,
       "pillarName": "Security",
       "url": "controls/pillar-1-security/1.21-adversarial-input-logging/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         2,
         3
@@ -693,7 +1238,25 @@
         "Sentinel SOC Analyst"
       ],
       "automation": "Partial",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.21/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.21/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.21/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.21/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "1.22",
@@ -701,6 +1264,16 @@
       "pillar": 1,
       "pillarName": "Security",
       "url": "controls/pillar-1-security/1.22-information-barriers/",
+      "workload": [
+        "Purview",
+        "Copilot Studio",
+        "Microsoft 365 Copilot"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         2,
         3
@@ -718,7 +1291,25 @@
         "Purview Compliance Admin"
       ],
       "automation": "Automatable",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.22/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.22/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.22/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.22/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "1.23",
@@ -726,6 +1317,14 @@
       "pillar": 1,
       "pillarName": "Security",
       "url": "controls/pillar-1-security/1.23-step-up-authentication-for-agent-operations/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         3
       ],
@@ -747,6 +1346,24 @@
       "solutions": [
         "action-confirmation-auditor",
         "conditional-access-automation"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.23/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.23/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.23/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.23/troubleshooting/"
+        }
       ]
     },
     {
@@ -755,6 +1372,14 @@
       "pillar": 1,
       "pillarName": "Security",
       "url": "controls/pillar-1-security/1.24-defender-ai-security-posture-management/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -775,7 +1400,25 @@
         "SOC Analyst"
       ],
       "automation": "Manual",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.24/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.24/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.24/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.24/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "1.25",
@@ -783,6 +1426,15 @@
       "pillar": 1,
       "pillarName": "Security",
       "url": "controls/pillar-1-security/1.25-mime-type-restrictions/",
+      "workload": [
+        "Copilot Studio",
+        "Power Platform"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -805,6 +1457,24 @@
       "automation": "Automatable",
       "solutions": [
         "mime-type-restrictions"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.25/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.25/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.25/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.25/troubleshooting/"
+        }
       ]
     },
     {
@@ -813,6 +1483,14 @@
       "pillar": 1,
       "pillarName": "Security",
       "url": "controls/pillar-1-security/1.26-agent-file-upload-and-file-analysis-restrictions/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         2,
         3
@@ -835,7 +1513,25 @@
         "Security Operations"
       ],
       "automation": "Partial",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.26/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.26/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.26/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.26/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "1.27",
@@ -843,6 +1539,14 @@
       "pillar": 1,
       "pillarName": "Security",
       "url": "controls/pillar-1-security/1.27-ai-agent-content-moderation-enforcement/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -868,6 +1572,24 @@
       "automation": "Automatable",
       "solutions": [
         "content-moderation-monitor"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.27/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.27/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.27/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.27/troubleshooting/"
+        }
       ]
     },
     {
@@ -876,6 +1598,14 @@
       "pillar": 1,
       "pillarName": "Security",
       "url": "controls/pillar-1-security/1.28-policy-based-agent-publishing-restrictions/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         2,
         3
@@ -894,7 +1624,25 @@
         "Power Platform Admin"
       ],
       "automation": "Automatable",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.28/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.28/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.28/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.28/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "1.29",
@@ -902,6 +1650,14 @@
       "pillar": 1,
       "pillarName": "Security",
       "url": "controls/pillar-1-security/1.29-global-secure-access-network-controls/",
+      "workload": [
+        "Copilot Studio"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         2,
         3
@@ -923,7 +1679,25 @@
         "Security Administrator"
       ],
       "automation": "Partial",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/1.29/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/1.29/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/1.29/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/1.29/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "2.1",
@@ -931,6 +1705,14 @@
       "pillar": 2,
       "pillarName": "Management",
       "url": "controls/pillar-2-management/2.1-managed-environments/",
+      "workload": [
+        "Power Platform"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -961,6 +1743,24 @@
         "agent-365-lifecycle-governance",
         "environment-lifecycle-management",
         "pipeline-governance-cleanup"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.1/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.1/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.1/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.1/troubleshooting/"
+        }
       ]
     },
     {
@@ -969,6 +1769,14 @@
       "pillar": 2,
       "pillarName": "Management",
       "url": "controls/pillar-2-management/2.2-environment-groups-and-tier-classification/",
+      "workload": [
+        "Power Platform"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -994,6 +1802,24 @@
       "automation": "Automatable",
       "solutions": [
         "environment-lifecycle-management"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.2/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.2/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.2/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.2/troubleshooting/"
+        }
       ]
     },
     {
@@ -1002,6 +1828,14 @@
       "pillar": 2,
       "pillarName": "Management",
       "url": "controls/pillar-2-management/2.3-change-management-and-release-planning/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         2,
         3
@@ -1028,6 +1862,24 @@
         "environment-lifecycle-management",
         "message-center-monitor",
         "pipeline-governance-cleanup"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.3/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.3/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.3/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.3/troubleshooting/"
+        }
       ]
     },
     {
@@ -1036,6 +1888,14 @@
       "pillar": 2,
       "pillarName": "Management",
       "url": "controls/pillar-2-management/2.4-business-continuity-and-disaster-recovery/",
+      "workload": [
+        "Copilot Studio"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         2,
         3
@@ -1056,7 +1916,25 @@
         "Power Platform Admin"
       ],
       "automation": "Partial",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.4/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.4/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.4/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.4/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "2.5",
@@ -1064,6 +1942,15 @@
       "pillar": 2,
       "pillarName": "Management",
       "url": "controls/pillar-2-management/2.5-testing-validation-and-quality-assurance/",
+      "workload": [
+        "Copilot Studio",
+        "Microsoft 365 Copilot"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -1091,7 +1978,25 @@
         "Purview Records Manager"
       ],
       "automation": "Manual",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.5/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.5/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.5/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.5/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "2.6",
@@ -1099,6 +2004,15 @@
       "pillar": 2,
       "pillarName": "Management",
       "url": "controls/pillar-2-management/2.6-model-risk-management-sr-26-2/",
+      "workload": [
+        "Purview",
+        "Copilot Studio"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -1127,7 +2041,25 @@
         "Power Platform Admin"
       ],
       "automation": "Manual",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.6/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.6/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.6/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.6/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "2.7",
@@ -1135,6 +2067,14 @@
       "pillar": 2,
       "pillarName": "Management",
       "url": "controls/pillar-2-management/2.7-vendor-and-third-party-risk-management/",
+      "workload": [
+        "Power Platform"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -1157,7 +2097,25 @@
         "Security Team"
       ],
       "automation": "Manual",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.7/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.7/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.7/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.7/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "2.8",
@@ -1165,6 +2123,14 @@
       "pillar": 2,
       "pillarName": "Management",
       "url": "controls/pillar-2-management/2.8-access-control-and-segregation-of-duties/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         2,
         3
@@ -1188,6 +2154,24 @@
         "agent-365-lifecycle-governance",
         "agent-observability-foundation",
         "environment-lifecycle-management"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.8/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.8/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.8/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.8/troubleshooting/"
+        }
       ]
     },
     {
@@ -1196,6 +2180,14 @@
       "pillar": 2,
       "pillarName": "Management",
       "url": "controls/pillar-2-management/2.9-agent-performance-monitoring-and-optimization/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         2,
         3
@@ -1219,6 +2211,24 @@
       "automation": "Partial",
       "solutions": [
         "agent-observability-foundation"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.9/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.9/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.9/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.9/troubleshooting/"
+        }
       ]
     },
     {
@@ -1227,6 +2237,15 @@
       "pillar": 2,
       "pillarName": "Management",
       "url": "controls/pillar-2-management/2.10-patch-management-and-system-updates/",
+      "workload": [
+        "Copilot Studio",
+        "Power Platform"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         2,
         3
@@ -1247,6 +2266,24 @@
       "automation": "Partial",
       "solutions": [
         "message-center-monitor"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.10/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.10/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.10/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.10/troubleshooting/"
+        }
       ]
     },
     {
@@ -1255,6 +2292,14 @@
       "pillar": 2,
       "pillarName": "Management",
       "url": "controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -1273,7 +2318,25 @@
         "Governance Lead"
       ],
       "automation": "Manual",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.11/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.11/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.11/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.11/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "2.12",
@@ -1281,6 +2344,14 @@
       "pillar": 2,
       "pillarName": "Management",
       "url": "controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110/",
+      "workload": [
+        "Copilot Studio"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -1305,6 +2376,24 @@
         "action-confirmation-auditor",
         "agent-365-lifecycle-governance",
         "finra-supervision-workflow"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.12/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.12/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.12/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.12/troubleshooting/"
+        }
       ]
     },
     {
@@ -1313,6 +2402,14 @@
       "pillar": 2,
       "pillarName": "Management",
       "url": "controls/pillar-2-management/2.13-documentation-and-record-keeping/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -1339,6 +2436,24 @@
       "automation": "Manual",
       "solutions": [
         "dr-testing-framework"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.13/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.13/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.13/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.13/troubleshooting/"
+        }
       ]
     },
     {
@@ -1347,6 +2462,14 @@
       "pillar": 2,
       "pillarName": "Management",
       "url": "controls/pillar-2-management/2.14-training-and-awareness-program/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -1366,7 +2489,25 @@
         "Manager"
       ],
       "automation": "Manual",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.14/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.14/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.14/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.14/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "2.15",
@@ -1374,6 +2515,14 @@
       "pillar": 2,
       "pillarName": "Management",
       "url": "controls/pillar-2-management/2.15-environment-routing/",
+      "workload": [
+        "Power Platform"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         2,
         3
@@ -1392,7 +2541,25 @@
         "Power Platform Admin"
       ],
       "automation": "Automatable",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.15/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.15/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.15/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.15/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "2.16",
@@ -1400,6 +2567,14 @@
       "pillar": 2,
       "pillarName": "Management",
       "url": "controls/pillar-2-management/2.16-rag-source-integrity-validation/",
+      "workload": [
+        "Copilot Studio"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         2,
         3
@@ -1417,7 +2592,25 @@
         "SharePoint Admin"
       ],
       "automation": "Partial",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.16/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.16/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.16/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.16/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "2.17",
@@ -1425,6 +2618,14 @@
       "pillar": 2,
       "pillarName": "Management",
       "url": "controls/pillar-2-management/2.17-multi-agent-orchestration-limits/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         2,
         3
@@ -1442,7 +2643,25 @@
         "Power Platform Admin"
       ],
       "automation": "Partial",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.17/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.17/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.17/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.17/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "2.18",
@@ -1450,6 +2669,14 @@
       "pillar": 2,
       "pillarName": "Management",
       "url": "controls/pillar-2-management/2.18-automated-conflict-of-interest-testing/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -1468,6 +2695,24 @@
       "automation": "Manual",
       "solutions": [
         "coi-testing"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.18/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.18/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.18/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.18/troubleshooting/"
+        }
       ]
     },
     {
@@ -1476,6 +2721,14 @@
       "pillar": 2,
       "pillarName": "Management",
       "url": "controls/pillar-2-management/2.19-customer-ai-disclosure-and-transparency/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -1494,7 +2747,25 @@
         "Legal Counsel"
       ],
       "automation": "Manual",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.19/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.19/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.19/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.19/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "2.20",
@@ -1502,6 +2773,14 @@
       "pillar": 2,
       "pillarName": "Management",
       "url": "controls/pillar-2-management/2.20-adversarial-testing-and-red-team-framework/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -1521,7 +2800,25 @@
         "Security Team"
       ],
       "automation": "Manual",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.20/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.20/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.20/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.20/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "2.21",
@@ -1529,6 +2826,14 @@
       "pillar": 2,
       "pillarName": "Management",
       "url": "controls/pillar-2-management/2.21-ai-marketing-claims-and-substantiation/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -1548,7 +2853,25 @@
         "Marketing/Communications"
       ],
       "automation": "Manual",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.21/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.21/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.21/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.21/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "2.22",
@@ -1556,6 +2879,14 @@
       "pillar": 2,
       "pillarName": "Management",
       "url": "controls/pillar-2-management/2.22-inactivity-timeout-enforcement/",
+      "workload": [
+        "Power Platform"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         2,
         3
@@ -1577,6 +2908,24 @@
       "automation": "Automatable",
       "solutions": [
         "inactivity-timeout-enforcement"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.22/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.22/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.22/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.22/troubleshooting/"
+        }
       ]
     },
     {
@@ -1585,6 +2934,15 @@
       "pillar": 2,
       "pillarName": "Management",
       "url": "controls/pillar-2-management/2.23-user-consent-and-ai-disclosure-enforcement/",
+      "workload": [
+        "Power Platform",
+        "Microsoft 365 Copilot"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -1606,7 +2964,25 @@
         "Purview Compliance Admin"
       ],
       "automation": "Manual",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.23/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.23/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.23/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.23/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "2.24",
@@ -1614,6 +2990,16 @@
       "pillar": 2,
       "pillarName": "Management",
       "url": "controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance/",
+      "workload": [
+        "Copilot Studio",
+        "Power Platform",
+        "Microsoft 365 Copilot"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -1639,7 +3025,25 @@
         "Security Architect"
       ],
       "automation": "Automatable",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.24/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.24/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.24/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.24/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "2.25",
@@ -1647,6 +3051,14 @@
       "pillar": 2,
       "pillarName": "Management",
       "url": "controls/pillar-2-management/2.25-agent-365-admin-center-governance-console/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         2,
         3
@@ -1676,7 +3088,25 @@
         "Technology Risk Manager"
       ],
       "automation": "Automatable",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.25/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.25/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.25/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.25/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "2.26",
@@ -1684,6 +3114,15 @@
       "pillar": 2,
       "pillarName": "Management",
       "url": "controls/pillar-2-management/2.26-entra-agent-id-identity-governance/",
+      "workload": [
+        "Copilot Studio",
+        "Microsoft 365 Copilot"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         2,
         3
@@ -1707,7 +3146,25 @@
         "Purview Compliance Admin"
       ],
       "automation": "Automatable",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.26/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.26/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.26/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.26/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "2.27",
@@ -1715,6 +3172,14 @@
       "pillar": 2,
       "pillarName": "Management",
       "url": "controls/pillar-2-management/2.27-consumption-entitlement-governance/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         2,
         3
@@ -1735,7 +3200,25 @@
         "Power Platform Admin"
       ],
       "automation": "Partial",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/2.27/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/2.27/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/2.27/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/2.27/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "3.1",
@@ -1743,6 +3226,14 @@
       "pillar": 3,
       "pillarName": "Reporting",
       "url": "controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -1772,6 +3263,24 @@
       "automation": "Automatable",
       "solutions": [
         "agent-365-lifecycle-governance"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/3.1/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/3.1/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/3.1/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/3.1/troubleshooting/"
+        }
       ]
     },
     {
@@ -1780,6 +3289,14 @@
       "pillar": 3,
       "pillarName": "Reporting",
       "url": "controls/pillar-3-reporting/3.2-usage-analytics-and-activity-monitoring/",
+      "workload": [
+        "Power Platform"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -1803,6 +3320,24 @@
       "solutions": [
         "agent-observability-foundation",
         "copilot-studio-analytics"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/3.2/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/3.2/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/3.2/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/3.2/troubleshooting/"
+        }
       ]
     },
     {
@@ -1811,6 +3346,14 @@
       "pillar": 3,
       "pillarName": "Reporting",
       "url": "controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         2,
         3
@@ -1832,7 +3375,25 @@
         "SharePoint Site Owner"
       ],
       "automation": "Partial",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/3.3/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/3.3/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/3.3/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/3.3/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "3.4",
@@ -1840,6 +3401,14 @@
       "pillar": 3,
       "pillarName": "Reporting",
       "url": "controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis/",
+      "workload": [
+        "Purview"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         2,
         3
@@ -1872,6 +3441,24 @@
       "automation": "Partial",
       "solutions": [
         "deny-event-correlation-report"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/3.4/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/3.4/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/3.4/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/3.4/troubleshooting/"
+        }
       ]
     },
     {
@@ -1880,6 +3467,16 @@
       "pillar": 3,
       "pillarName": "Reporting",
       "url": "controls/pillar-3-reporting/3.5-cost-allocation-and-budget-tracking/",
+      "workload": [
+        "Copilot Studio",
+        "Power Platform",
+        "Microsoft 365 Copilot"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -1900,7 +3497,25 @@
         "Power Platform Admin"
       ],
       "automation": "Automatable",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/3.5/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/3.5/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/3.5/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/3.5/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "3.6",
@@ -1908,6 +3523,14 @@
       "pillar": 3,
       "pillarName": "Reporting",
       "url": "controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -1936,7 +3559,25 @@
         "Purview Compliance Admin"
       ],
       "automation": "Manual",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/3.6/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/3.6/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/3.6/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/3.6/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "3.7",
@@ -1944,6 +3585,14 @@
       "pillar": 3,
       "pillarName": "Reporting",
       "url": "controls/pillar-3-reporting/3.7-ppac-security-posture-assessment/",
+      "workload": [
+        "Power Platform"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -1963,7 +3612,25 @@
         "Power Platform Admin"
       ],
       "automation": "Automatable",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/3.7/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/3.7/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/3.7/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/3.7/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "3.8",
@@ -1971,6 +3638,16 @@
       "pillar": 3,
       "pillarName": "Reporting",
       "url": "controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard/",
+      "workload": [
+        "Copilot Studio",
+        "Power Platform",
+        "Microsoft 365 Copilot"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -1995,6 +3672,24 @@
       "automation": "Manual",
       "solutions": [
         "agent-access-monitor"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/3.8/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/3.8/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/3.8/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/3.8/troubleshooting/"
+        }
       ]
     },
     {
@@ -2003,6 +3698,14 @@
       "pillar": 3,
       "pillarName": "Reporting",
       "url": "controls/pillar-3-reporting/3.9-microsoft-sentinel-integration/",
+      "workload": [
+        "Purview"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         2,
         3
@@ -2028,7 +3731,25 @@
         "Sentinel Admin"
       ],
       "automation": "Automatable",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/3.9/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/3.9/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/3.9/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/3.9/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "3.10",
@@ -2036,6 +3757,14 @@
       "pillar": 3,
       "pillarName": "Reporting",
       "url": "controls/pillar-3-reporting/3.10-hallucination-feedback-loop/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -2057,6 +3786,24 @@
       "automation": "Manual",
       "solutions": [
         "hallucination-tracker"
+      ],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/3.10/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/3.10/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/3.10/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/3.10/troubleshooting/"
+        }
       ]
     },
     {
@@ -2065,6 +3812,15 @@
       "pillar": 3,
       "pillarName": "Reporting",
       "url": "controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement/",
+      "workload": [
+        "Copilot Studio",
+        "Power Platform"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -2087,7 +3843,25 @@
         "Security Operations"
       ],
       "automation": "Manual",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/3.11/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/3.11/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/3.11/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/3.11/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "3.12",
@@ -2095,6 +3869,14 @@
       "pillar": 3,
       "pillarName": "Reporting",
       "url": "controls/pillar-3-reporting/3.12-agent-governance-exception-and-override-management/",
+      "workload": [
+        "Purview"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -2115,7 +3897,25 @@
         "Power Platform Admin"
       ],
       "automation": "Manual",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/3.12/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/3.12/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/3.12/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/3.12/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "3.13",
@@ -2123,6 +3923,14 @@
       "pillar": 3,
       "pillarName": "Reporting",
       "url": "controls/pillar-3-reporting/3.13-agent-365-admin-center-analytics/",
+      "workload": [
+        "unspecified"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -2144,7 +3952,25 @@
         "Third-Party Risk Manager"
       ],
       "automation": "Manual",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/3.13/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/3.13/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/3.13/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/3.13/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "3.14",
@@ -2152,6 +3978,14 @@
       "pillar": 3,
       "pillarName": "Reporting",
       "url": "controls/pillar-3-reporting/3.14-agent-365-observability-sdk/",
+      "workload": [
+        "Purview"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -2174,7 +4008,25 @@
         "Internal Audit"
       ],
       "automation": "Manual",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/3.14/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/3.14/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/3.14/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/3.14/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "4.1",
@@ -2182,6 +4034,15 @@
       "pillar": 4,
       "pillarName": "SharePoint",
       "url": "controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery/",
+      "workload": [
+        "SharePoint",
+        "Microsoft 365 Copilot"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -2202,7 +4063,25 @@
         "SharePoint Site Collection Admin"
       ],
       "automation": "Partial",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/4.1/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/4.1/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/4.1/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/4.1/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "4.2",
@@ -2210,6 +4089,16 @@
       "pillar": 4,
       "pillarName": "SharePoint",
       "url": "controls/pillar-4-sharepoint/4.2-site-access-reviews-and-certification/",
+      "workload": [
+        "SharePoint",
+        "Copilot Studio",
+        "Microsoft 365 Copilot"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -2231,7 +4120,25 @@
         "SharePoint Site Collection Admin"
       ],
       "automation": "Partial",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/4.2/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/4.2/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/4.2/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/4.2/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "4.3",
@@ -2239,6 +4146,14 @@
       "pillar": 4,
       "pillarName": "SharePoint",
       "url": "controls/pillar-4-sharepoint/4.3-site-and-document-retention-management/",
+      "workload": [
+        "SharePoint"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -2259,7 +4174,25 @@
         "SharePoint Admin"
       ],
       "automation": "Automatable",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/4.3/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/4.3/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/4.3/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/4.3/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "4.4",
@@ -2267,6 +4200,14 @@
       "pillar": 4,
       "pillarName": "SharePoint",
       "url": "controls/pillar-4-sharepoint/4.4-guest-and-external-user-access-controls/",
+      "workload": [
+        "SharePoint"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -2286,7 +4227,25 @@
         "SharePoint Admin"
       ],
       "automation": "Automatable",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/4.4/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/4.4/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/4.4/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/4.4/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "4.5",
@@ -2294,6 +4253,14 @@
       "pillar": 4,
       "pillarName": "SharePoint",
       "url": "controls/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring/",
+      "workload": [
+        "SharePoint"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         2,
         3
@@ -2313,7 +4280,25 @@
         "SharePoint Admin"
       ],
       "automation": "Partial",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/4.5/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/4.5/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/4.5/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/4.5/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "4.6",
@@ -2321,6 +4306,14 @@
       "pillar": 4,
       "pillarName": "SharePoint",
       "url": "controls/pillar-4-sharepoint/4.6-grounding-scope-governance/",
+      "workload": [
+        "SharePoint"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -2342,7 +4335,25 @@
         "SharePoint Admin"
       ],
       "automation": "Automatable",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/4.6/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/4.6/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/4.6/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/4.6/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "4.7",
@@ -2350,6 +4361,16 @@
       "pillar": 4,
       "pillarName": "SharePoint",
       "url": "controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance/",
+      "workload": [
+        "SharePoint",
+        "Copilot Studio",
+        "Microsoft 365 Copilot"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -2383,7 +4404,25 @@
         "eDiscovery Manager"
       ],
       "automation": "Manual",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/4.7/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/4.7/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/4.7/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/4.7/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "4.8",
@@ -2391,6 +4430,15 @@
       "pillar": 4,
       "pillarName": "SharePoint",
       "url": "controls/pillar-4-sharepoint/4.8-item-level-permission-scanning-agent-knowledge-sources/",
+      "workload": [
+        "SharePoint",
+        "Copilot Studio"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -2410,7 +4458,25 @@
         "SharePoint Admin"
       ],
       "automation": "Automatable",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/4.8/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/4.8/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/4.8/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/4.8/troubleshooting/"
+        }
+      ]
     },
     {
       "id": "4.9",
@@ -2418,6 +4484,15 @@
       "pillar": 4,
       "pillarName": "SharePoint",
       "url": "controls/pillar-4-sharepoint/4.9-embedded-file-content-governance/",
+      "workload": [
+        "SharePoint",
+        "Microsoft 365 Copilot"
+      ],
+      "governanceLevels": [
+        "Baseline",
+        "Recommended",
+        "Regulated"
+      ],
       "zones": [
         1,
         2,
@@ -2439,7 +4514,25 @@
         "SharePoint / M365 Administrator"
       ],
       "automation": "Manual",
-      "solutions": []
+      "solutions": [],
+      "playbooks": [
+        {
+          "name": "Portal Walkthrough",
+          "url": "playbooks/control-implementations/4.9/portal-walkthrough/"
+        },
+        {
+          "name": "PowerShell Setup",
+          "url": "playbooks/control-implementations/4.9/powershell-setup/"
+        },
+        {
+          "name": "Verification & Testing",
+          "url": "playbooks/control-implementations/4.9/verification-testing/"
+        },
+        {
+          "name": "Troubleshooting",
+          "url": "playbooks/control-implementations/4.9/troubleshooting/"
+        }
+      ]
     }
   ]
 }

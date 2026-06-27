@@ -1,3 +1,6 @@
+---
+description: "This document maps the FSI Agent Governance Framework controls to ISO/IEC 42001:2023 — Artificial Intelligence Management System (AIMS), the international…"
+---
 # ISO/IEC 42001:2023 Crosswalk
 
 This document maps the FSI Agent Governance Framework controls to **ISO/IEC 42001:2023 — Artificial Intelligence Management System (AIMS)**, the international standard for organizational AI governance.

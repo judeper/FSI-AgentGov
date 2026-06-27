@@ -63,6 +63,7 @@ EXCLUDED_DIR_SEGMENTS = {
     ".git", ".github", "node_modules", "__pycache__", ".squad",
     "site",            # mkdocs build output
     "reports",         # monitoring / learn-change logs (factual history)
+    "monitor-pending", # autodoc Learn-capture blobs (raw page text; internal, not published)
     "releases",        # changelog archives
     "templates",       # scaffolding templates may carry placeholder enums
     "tests", "test", "fixtures", "__fixtures__",

@@ -24,6 +24,15 @@
   var PROPOSED_REGS = { "FINRA-25-07": true };
 
   var AUTOMATION_ORDER = ["Automatable", "Partial", "Manual", "unspecified"];
+  var WORKLOAD_ORDER = [
+    "SharePoint",
+    "Purview",
+    "Copilot Studio",
+    "Power Platform",
+    "Microsoft 365 Copilot",
+    "unspecified"
+  ];
+  var GOVERNANCE_ORDER = ["Baseline", "Recommended", "Regulated"];
   var PILLAR_ORDER = ["Security", "Management", "Reporting", "SharePoint"];
 
   // ---- base-path resolution (works under GitHub Pages sub-path deploys) ----
@@ -65,6 +74,8 @@
       reg: splitParam(params.get("reg")),
       role: splitParam(params.get("role")),
       auto: splitParam(params.get("auto")),
+      workload: splitParam(params.get("workload")),
+      gov: splitParam(params.get("gov")),
       sort: params.get("sort") === "title" ? "title" : "id",
       dir: params.get("dir") === "desc" ? "desc" : "asc"
     };
@@ -84,6 +95,8 @@
     if (state.reg.length) params.set("reg", state.reg.join(","));
     if (state.role.length) params.set("role", state.role.join(","));
     if (state.auto.length) params.set("auto", state.auto.join(","));
+    if (state.workload.length) params.set("workload", state.workload.join(","));
+    if (state.gov.length) params.set("gov", state.gov.join(","));
     if (state.sort !== "id") params.set("sort", state.sort);
     if (state.dir !== "asc") params.set("dir", state.dir);
     var qs = params.toString();
@@ -162,6 +175,13 @@
       controls.reduce(function (a, c) { return a.concat(c.roles || []); }, []));
     var autos = uniqueSorted(
       controls.map(function (c) { return c.automation; }), AUTOMATION_ORDER);
+    var workloads = uniqueSorted(
+      controls.reduce(function (a, c) { return a.concat(c.workload || []); }, []),
+      WORKLOAD_ORDER);
+    var govLevels = uniqueSorted(
+      controls.reduce(function (a, c) {
+        return a.concat(c.governanceLevels || []); }, []),
+      GOVERNANCE_ORDER);
 
     var liveCount = el("p", {
       "class": "ce-count",
@@ -190,7 +210,8 @@
     // ---- facet groups ----
     var facetState = {
       pillar: state.pillar, zone: state.zone, reg: state.reg,
-      role: state.role, auto: state.auto
+      role: state.role, auto: state.auto,
+      workload: state.workload, gov: state.gov
     };
 
     function facetGroup(legend, key, values, opts) {
@@ -256,6 +277,8 @@
       facetGroup("Zone", "zone", zones, {
         labelFn: function (z) { return "Zone " + z; }
       }),
+      facetGroup("Workload", "workload", workloads),
+      facetGroup("Governance Level", "gov", govLevels),
       facetGroup("Regulation", "reg", regs, { scroll: true, filterable: true }),
       facetGroup("Role", "role", roles, { scroll: true, filterable: true }),
       facetGroup("Automation", "auto", autos)
@@ -269,6 +292,7 @@
       state.search = "";
       facetState.pillar = []; facetState.zone = []; facetState.reg = [];
       facetState.role = []; facetState.auto = [];
+      facetState.workload = []; facetState.gov = [];
       searchInput.value = "";
       var checks = container.querySelectorAll(".ce-checkbox");
       checks.forEach(function (c) { c.checked = false; });
@@ -316,6 +340,7 @@
     headRow.appendChild(el("th", { "scope": "col", "text": "Pillar" }));
     headRow.appendChild(el("th", { "scope": "col", "text": "Zones" }));
     headRow.appendChild(el("th", { "scope": "col", "text": "Regulations" }));
+    headRow.appendChild(el("th", { "scope": "col", "text": "Playbooks" }));
     thead.appendChild(headRow);
     table.appendChild(thead);
     var tbody = el("tbody");
@@ -335,6 +360,14 @@
           facetState.pillar.indexOf(c.pillarName) === -1) return false;
       if (facetState.auto.length &&
           facetState.auto.indexOf(c.automation) === -1) return false;
+      if (facetState.workload.length &&
+          !facetState.workload.some(function (w) {
+            return (c.workload || []).indexOf(w) !== -1; }))
+        return false;
+      if (facetState.gov.length &&
+          !facetState.gov.some(function (g) {
+            return (c.governanceLevels || []).indexOf(g) !== -1; }))
+        return false;
       if (facetState.zone.length &&
           !facetState.zone.some(function (z) {
             return (c.zones || []).map(String).indexOf(z) !== -1; }))
@@ -402,6 +435,30 @@
         }
         tr.appendChild(regCell);
 
+        var playbookCell = el("td");
+        if ((c.playbooks || []).length) {
+          var links = el("ul", { "class": "ce-playbook-list" });
+          c.playbooks.forEach(function (p) {
+            if (!p || !p.url) return;
+            var linkText = p.name || p.url;
+            links.appendChild(el("li", { "class": "ce-playbook-item" }, [
+              el("a", {
+                "class": "ce-playbook-link",
+                "href": base + p.url,
+                "text": linkText
+              })
+            ]));
+          });
+          if (links.childNodes.length) {
+            playbookCell.appendChild(links);
+          } else {
+            playbookCell.appendChild(badge("none", "ce-badge-muted"));
+          }
+        } else {
+          playbookCell.appendChild(badge("none", "ce-badge-muted"));
+        }
+        tr.appendChild(playbookCell);
+
         tbody.appendChild(tr);
       });
 
@@ -427,6 +484,8 @@
       state.reg = facetState.reg;
       state.role = facetState.role;
       state.auto = facetState.auto;
+      state.workload = facetState.workload;
+      state.gov = facetState.gov;
       state.sort = sortState.sort;
       state.dir = sortState.dir;
       writeState(state);

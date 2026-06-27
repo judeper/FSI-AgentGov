@@ -1,3 +1,6 @@
+---
+description: "Roles, responsibilities, and governance structure for AI agent oversight."
+---
 # Operating Model
 
 Roles, responsibilities, and governance structure for AI agent oversight.

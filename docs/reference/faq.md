@@ -1,3 +1,6 @@
+---
+description: "Common questions and answers about the FSI Agent Governance Framework."
+---
 # Frequently Asked Questions (FAQ)
 
 Common questions and answers about the FSI Agent Governance Framework.

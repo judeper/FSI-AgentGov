@@ -1,3 +1,6 @@
+---
+description: "Windows 365 for Agents (W365A) is the Windows 365 execution layer for computer-using agents in Agent 365."
+---
 # Windows 365 for Agents (W365A) Reference
 
 **Last Updated:** June 2026

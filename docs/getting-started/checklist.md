@@ -1,3 +1,6 @@
+---
+description: "Step-by-step checklist for implementing the FSI Agent Governance Framework."
+---
 # Implementation Checklist
 
 Step-by-step checklist for implementing the FSI Agent Governance Framework.

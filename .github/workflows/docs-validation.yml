@@ -62,6 +62,13 @@ jobs:
       - name: Build documentation (strict)
         run: mkdocs build --strict
 
+      - name: Benchmark search findability
+        # Phase 2: asserts that key FSI queries resolve to the right landing
+        # pages in the built Material search index (site/search/search_index.json).
+        # Guards against front-matter `search.boost` / alias regressions that
+        # silently bury high-intent pages. Hard-fails on any query miss.
+        run: python tests/search/search_benchmark.py
+
       - name: Verify built site output completeness
         # Closes U-038 — `mkdocs build --strict` can exit 0 while a widened
         # exclude_docs pattern or partial artifact step drops major route
