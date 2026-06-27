@@ -157,8 +157,21 @@
   margin: 0 0 0.75rem;
 }
 
+/* The results column is a CSS grid cell, which defaults to min-width:auto and
+   therefore refuses to shrink below the table's intrinsic width -- on narrow
+   screens that forces the whole PAGE to scroll horizontally. min-width:0 lets
+   the cell shrink, and overflow-x:auto keeps the wide table scrolling WITHIN
+   the results area instead. */
+.ce-results {
+  min-width: 0;
+  overflow-x: auto;
+}
+
 .ce-table {
   width: 100%;
+  /* Keep the 6 columns readable: below this the table scrolls inside
+     .ce-results rather than wrapping cells character-by-character. */
+  min-width: 46rem;
   border-collapse: collapse;
   font-size: 0.82rem;
 }

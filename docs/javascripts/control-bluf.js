@@ -56,6 +56,14 @@
     return new URL(".", document.baseURI).href;
   }
 
+  // Resolve the site base ONCE, at initial full-page load, while this script's
+  // own src still resolves correctly. Under Material instant-loading the browser
+  // re-resolves the relative <script src> against the new (deeper) page URL, so a
+  // per-navigation resolveBase() would return the wrong base (e.g. ".../controls/")
+  // and 404 the catalog fetch -- which then poisons the cached promise for the
+  // whole session. Capturing here keeps the base correct across instant-nav.
+  var SITE_BASE = resolveBase();
+
   // ---- small DOM helper ----
   function el(tag, attrs, children) {
     var node = document.createElement(tag);
@@ -197,7 +205,7 @@
     var id = controlIdFromPage();
     if (!id) return;
 
-    var base = resolveBase();
+    var base = SITE_BASE;
 
     function withData(controls) {
       // The DOM may have been replaced by instant-nav before the fetch
@@ -234,6 +242,9 @@
       .then(withData)
       .catch(function (err) {
         // Non-fatal: the page is fully usable without the summary card.
+        // Reset the single-flight cache so a later navigation can retry rather
+        // than reusing this rejected promise for the rest of the session.
+        window[PROMISE_KEY] = null;
         if (window.console) window.console.error("Control BLUF:", err);
       });
   }
