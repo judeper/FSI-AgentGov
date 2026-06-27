@@ -2,9 +2,7 @@
  * FSI-AgentGov Governance Readiness Assessment Tool
  *
  * Client-side SPA that walks users through a scoped assessment of the
- * 78-control governance framework (78 of 79 framework controls; control 2.27
- * is present in the manifest but not yet extracted into assessment-data.json —
- * see ASSESS-10 maintainer flag) and produces scorecards, gap analysis,
+ * 79-control governance framework and produces scorecards, gap analysis,
  * and remediation roadmaps.
  *
  * @version 1.0.0
@@ -731,7 +729,7 @@
       return Promise.all([pManifest, pSolutionsLock, pI18n]).then(function () {
         self.mergeManifestIntoControls();
         // O(1) lookup so getGapControls / applyRoleFilter / drilldown hot paths
-        // don't linear-scan 78 controls per call (spa-fix-perf-loop).
+        // don't linear-scan 79 controls per call (spa-fix-perf-loop).
         if (self.data && Array.isArray(self.data.controls)) {
           self.controlsById = new Map();
           self.data.controls.forEach(function (c) {
@@ -2127,7 +2125,7 @@
     content.appendChild(h("p", { style: "margin-top:1rem;font-weight:600" }, "Zone-Specific Scoring"));
     content.appendChild(h("p", null,
       "Zone scores exclude controls whose zone requirements are optional, awareness-only, or N/A. " +
-      "Approximately 10 controls are excluded from Zone 1 scoring, while all 78 scored controls apply to Zone 3."));
+      "Approximately 10 controls are excluded from Zone 1 scoring, while all 79 controls apply to Zone 3."));
 
     this.showModal("How Scoring Works", content);
   };
@@ -2151,7 +2149,7 @@
     hero.appendChild(h("strong", null, "What to expect"));
     var heroList = h("ul");
     [
-      "\u23F1 ~10 min with the 5-control starter set \u00B7 ~45\u201390 min for the full 78-control review",
+      "\u23F1 ~10 min with the 5-control starter set \u00B7 ~45\u201390 min for the full 79-control review",
       "\uD83D\uDCCB 6 steps: Scoping \u2192 Phase\u00A01 rating \u2192 Phase\u00A02 drill-down \u2192 Results \u2192 Export",
       "\uD83D\uDCCA You\u2019ll get: executive scorecard, regulatory exposure by framework, prioritized roadmap",
       "\uD83D\uDD12 Runs entirely in your browser \u2014 nothing is uploaded or transmitted",
@@ -2238,13 +2236,7 @@
       "JSON exports include a _metadata + _computedScores envelope (schema version, framework version, " +
       "pre-computed pillar/overall scores, assessmentStatus) for downstream tools that consume scores " +
       "without recomputing. The manifest pass_condition values drive the Python assessment engine; " +
-      "this SPA scores Yes/Partial/No self-assessments against the same 78 controls."
-    ));
-    // ASSESS-10 honest disclosure
-    scoringSummary.appendChild(h("p", { className: "ag-count-note" },
-      "This tool scores 78 of the 79 framework controls. Control 2.27 (Consumption-Entitlement " +
-      "Governance) is present in the assessment manifest but not yet extracted into the SPA data " +
-      "file. See maintainer flag ASSESS-10 to reconcile."
+      "this SPA scores Yes/Partial/No self-assessments against the same 79 controls."
     ));
     scoringDetails.appendChild(scoringSummary);
     wrap.appendChild(scoringDetails);
@@ -2355,7 +2347,7 @@
     wrap.appendChild(h("h2", { style: "font-size:1.3rem;margin-bottom:0.3rem" }, "Assessment Scoping"));
     wrap.appendChild(h("p", { className: "ag-card-subtitle" },
       "Configure the assessment scope for your organization. " +
-      "All 78 scored controls will be included but prioritized based on your profile."
+      "All 79 controls will be included but prioritized based on your profile."
     ));
 
     var form = h("div", { className: "ag-card" });
@@ -2491,7 +2483,7 @@
     [
       { value: "starter", label: t("priorityRadio.starter",
           "Start with 5 Priority Foundation Controls (2.1, 1.4, 1.5, 1.7, 1.11)") },
-      { value: "full", label: t("priorityRadio.full", "Full 78-control Phase 1 (all scored controls)") },
+      { value: "full", label: t("priorityRadio.full", "Full 79-control Phase 1") },
     ].forEach(function (opt) {
       var lbl = h("label", null);
       var radio = h("input", { type: "radio", name: "ag-priority-mode", value: opt.value });
@@ -2975,7 +2967,7 @@
   /**
    * Hide/show control cards based on the current role filter and refresh
    * the count badge. Cards are not removed — purely a CSS display toggle so
-   * the user can flip filters without re-rendering 78 rows.
+   * the user can flip filters without re-rendering 79 rows.
    */
   AssessmentApp.prototype.applyRoleFilter = function () {
     if (!this.el) return;

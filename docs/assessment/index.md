@@ -24,10 +24,7 @@ All data stays in your browser — nothing is uploaded.
 
 ## About This Tool
 
-The Governance Readiness Assessment helps organizations evaluate their implementation of the [FSI Agent Governance Framework](../framework/index.md). It scores 78 of the 79 framework controls (see note below), producing a personalized scorecard, gap analysis, and remediation roadmap — entirely in your browser.
-
-!!! note "78 of 79 controls scored"
-    Control 2.27 (Consumption-Entitlement Governance) is present in the full framework manifest but is not yet included in the browser assessment. It will be added in an upcoming release.
+The Governance Readiness Assessment helps organizations evaluate their implementation of the [FSI Agent Governance Framework](../framework/index.md). It scores all 79 framework controls, producing a personalized scorecard, gap analysis, and remediation roadmap — entirely in your browser.
 
 ### How It Works
 
