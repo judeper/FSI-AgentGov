@@ -81,6 +81,16 @@
     return Math.floor((Date.now() - d.getTime()) / 86400000);
   }
 
+  // Bucket an item's GA month (YYYY-MM) into a timeframe relative to today.
+  function classifyTimeframe(gaDate) {
+    if (!gaDate) return "later";
+    var d = new Date(gaDate + "-01T00:00:00Z");
+    if (isNaN(d.getTime())) return "later";
+    var now = Date.now();
+    if (d.getTime() <= now) return "ga";
+    return d.getTime() <= now + 90 * 86400000 ? "soon" : "later";
+  }
+
   function statusModifier(status) {
     return (status || "").toLowerCase().indexOf("develop") !== -1 ? "cr-badge--planned" : "cr-badge--available";
   }
@@ -139,7 +149,7 @@
         el("span", { "class": "cr-visually-hidden", text: " (opens in new tab)" })]);
 
     var head = el("div", { "class": "cr-card__head" }, [
-      el("h3", { "class": "cr-card__title" }, [titleLink]),
+      el("h4", { "class": "cr-card__title" }, [titleLink]),
       el("span", { "class": "cr-badge " + statusModifier(item.status), text: item.status || "" })
     ]);
 
@@ -204,48 +214,97 @@
     var pillarSel = labelledSelect("cr-pillar", "Pillar", opts(pillars, "All pillars"));
     var regSel = labelledSelect("cr-regulation", "Regulation", opts(regulations, "All regulations"));
     var statusSel = labelledSelect("cr-status", "Status", opts(statuses, "All statuses"));
+    var timeframeSel = labelledSelect("cr-timeframe", "GA timeframe", [
+      { value: "", label: "Any timeframe" },
+      { value: "ga", label: "Already GA" },
+      { value: "soon", label: "Next 90 days" },
+      { value: "later", label: "Later" }
+    ]);
     var controlSel = labelledSelect("cr-control", "Affected control", opts(controlIds, "All controls", function (c) { return "Control " + c; }));
     var productSel = labelledSelect("cr-product", "Product", opts(products, "All products"));
     // Compliance-relevant facets lead; Product is an admin/dev axis, so it trails.
-    var selects = [pillarSel, regSel, statusSel, controlSel, productSel];
+    var selects = [pillarSel, regSel, statusSel, timeframeSel, controlSel, productSel];
+    var urlKeys = { pillar: pillarSel, regulation: regSel, status: statusSel, timeframe: timeframeSel, control: controlSel, product: productSel };
 
     var toolbar = el("div", { "class": "cr-toolbar", "role": "search", "aria-label": "Filter Change Radar" }, [
-      searchField, pillarSel.wrap, regSel.wrap, statusSel.wrap, controlSel.wrap, productSel.wrap
+      searchField, pillarSel.wrap, regSel.wrap, statusSel.wrap, timeframeSel.wrap, controlSel.wrap, productSel.wrap
     ]);
 
     var count = el("p", { "class": "cr-count", "role": "status", "aria-live": "polite" });
-    var list = el("ul", { "class": "cr-list", "aria-label": "Roadmap changes" });
+    var groups = el("div", { "class": "cr-groups" });
     var clearBtn = el("button", { "type": "button", "class": "cr-clear", text: "Clear all filters" });
     var empty = el("p", { "class": "cr-empty", "hidden": "hidden" }, [
       document.createTextNode("No changes match your filters. "), clearBtn
     ]);
 
+    function matches(item, term, f) {
+      if (f.status && item.status !== f.status) return false;
+      if (f.pillar && (item.pillars || []).indexOf(f.pillar) === -1) return false;
+      if (f.regulation && (item.regulations || []).indexOf(f.regulation) === -1) return false;
+      if (f.product && (item.products || []).indexOf(f.product) === -1) return false;
+      if (f.control && (item.controls || []).map(function (c) { return c.id; }).indexOf(f.control) === -1) return false;
+      if (f.timeframe && classifyTimeframe(item.gaDate) !== f.timeframe) return false;
+      if (term) {
+        var hay = [
+          item.title, item.summary, item.whatToReview,
+          (item.products || []).join(" "), (item.pillars || []).join(" "), (item.regulations || []).join(" "),
+          (item.controls || []).map(function (c) { return c.id + " " + (c.title || ""); }).join(" ")
+        ].join(" ").toLowerCase();
+        if (hay.indexOf(term) === -1) return false;
+      }
+      return true;
+    }
+
+    function renderGroup(label, arr) {
+      if (!arr.length) return;
+      var ul = el("ul", { "class": "cr-list", "aria-label": label });
+      arr.forEach(function (it) { ul.appendChild(card(it)); });
+      groups.appendChild(el("section", { "class": "cr-group" }, [
+        el("h3", { "class": "cr-group__heading", text: label + " (" + arr.length + ")" }),
+        ul
+      ]));
+    }
+
     function apply() {
       var term = search.value.trim().toLowerCase();
-      var fPillar = pillarSel.select.value, fReg = regSel.select.value,
-          fStatus = statusSel.select.value, fControl = controlSel.select.value,
-          fProduct = productSel.select.value;
-      var shown = 0;
-      list.textContent = "";
-      items.forEach(function (item) {
-        if (fStatus && item.status !== fStatus) return;
-        if (fPillar && (item.pillars || []).indexOf(fPillar) === -1) return;
-        if (fReg && (item.regulations || []).indexOf(fReg) === -1) return;
-        if (fProduct && (item.products || []).indexOf(fProduct) === -1) return;
-        if (fControl && (item.controls || []).map(function (c) { return c.id; }).indexOf(fControl) === -1) return;
-        if (term) {
-          var hay = [
-            item.title, item.summary, item.whatToReview,
-            (item.products || []).join(" "), (item.pillars || []).join(" "), (item.regulations || []).join(" "),
-            (item.controls || []).map(function (c) { return c.id + " " + (c.title || ""); }).join(" ")
-          ].join(" ").toLowerCase();
-          if (hay.indexOf(term) === -1) return;
-        }
-        list.appendChild(card(item));
-        shown++;
+      var f = {};
+      Object.keys(urlKeys).forEach(function (k) { f[k] = urlKeys[k].select.value; });
+      var matched = items.filter(function (item) { return matches(item, term, f); });
+      var available = matched.filter(function (i) { return statusModifier(i.status) === "cr-badge--available"; });
+      var coming = matched.filter(function (i) { return statusModifier(i.status) !== "cr-badge--available"; });
+      // Available: newest GA first; Coming: soonest GA first.
+      available.sort(function (a, b) { return (b.gaDate || "").localeCompare(a.gaDate || ""); });
+      coming.sort(function (a, b) { return (a.gaDate || "").localeCompare(b.gaDate || ""); });
+      groups.textContent = "";
+      renderGroup("Available now", available);
+      renderGroup("Coming soon", coming);
+      empty.hidden = matched.length !== 0;
+      count.textContent = "Showing " + matched.length + " of " + items.length + " change" + (items.length === 1 ? "" : "s") + ".";
+      writeUrlState();
+    }
+
+    function writeUrlState() {
+      var params = new URLSearchParams();
+      if (search.value.trim()) params.set("q", search.value.trim());
+      Object.keys(urlKeys).forEach(function (k) {
+        var v = urlKeys[k].select.value;
+        if (v) params.set(k, v);
       });
-      empty.hidden = shown !== 0;
-      count.textContent = "Showing " + shown + " of " + items.length + " change" + (items.length === 1 ? "" : "s") + ".";
+      var qs = params.toString();
+      try { history.replaceState(null, "", qs ? "?" + qs : location.pathname + location.hash); } catch (e) { /* history unavailable */ }
+    }
+
+    function readUrlState() {
+      var params = new URLSearchParams(location.search);
+      var q = params.get("q");
+      if (q) search.value = q;
+      Object.keys(urlKeys).forEach(function (k) {
+        var v = params.get(k);
+        if (!v) return;
+        var sel = urlKeys[k].select;
+        var ok = [].some.call(sel.options, function (o) { return o.value === v; });
+        if (ok) sel.value = v;
+      });
     }
 
     function clearAll() {
@@ -260,11 +319,12 @@
     clearBtn.addEventListener("click", clearAll);
 
     var region = el("div", { "class": "cr-results", "role": "region", "aria-labelledby": "cr-heading" }, [
-      count, empty, list
+      count, empty, groups
     ]);
 
     container.appendChild(toolbar);
     container.appendChild(region);
+    readUrlState();
     apply();
   }
 

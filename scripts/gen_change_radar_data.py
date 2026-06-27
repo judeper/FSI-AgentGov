@@ -40,6 +40,7 @@ ITEM_PASSTHROUGH = (
     "products",
     "status",
     "timing",
+    "gaDate",
     "roadmapUrl",
     "lifecycle",
     "whatToReview",

@@ -35,6 +35,29 @@
   align-items: flex-end;
   margin-bottom: 1rem;
 }
+/* Sticky filter bar on desktop so it stays reachable while scrolling the list. */
+@media screen and (min-width: 45em) {
+  .cr-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--md-default-bg-color, #fff);
+    padding: 0.5rem 0;
+    margin-bottom: 0.6rem;
+  }
+}
+.cr-group { margin: 0 0 1.2rem; }
+.cr-group:last-child { margin-bottom: 0; }
+.md-typeset .cr-group__heading {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--md-default-fg-color--light, #666);
+  margin: 0 0 0.5rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid var(--md-default-fg-color--lightest, #e0e0e0);
+}
 .cr-field {
   display: flex;
   flex-direction: column;
