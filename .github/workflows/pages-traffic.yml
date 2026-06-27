@@ -45,7 +45,7 @@ jobs:
 
       - name: Upload traffic artifact
         if: steps.collect.outputs.collected == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: pages-traffic-${{ github.run_id }}
           path: ${{ env.OUTDIR }}/*.json

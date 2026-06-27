@@ -46,8 +46,10 @@ jobs:
     runs-on: ubuntu-latest
     # Pinned to match @playwright/test version in package.json exactly.
     # Browsers are pre-installed in the container, avoiding `npx playwright install`.
+    # Enforced by scripts/check_playwright_pin_drift.py (required "drift" job) so a
+    # future Dependabot bump can't silently skew this image vs the client again (#583).
     container:
-      image: mcr.microsoft.com/playwright:v1.60.0-noble
+      image: mcr.microsoft.com/playwright:v1.61.1-noble
       options: --user 1001
     timeout-minutes: 30
     steps:
