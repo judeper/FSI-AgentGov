@@ -1,30 +1,42 @@
 ---
-description: Upcoming living feed that maps Microsoft 365 agent roadmap and release changes to the FSI Agent Governance controls they affect.
+description: An interactive, periodically refreshed watch list that maps recent Microsoft 365 agent-platform roadmap changes to the FSI Agent Governance controls they affect.
+hide:
+  - navigation
+  - toc
 ---
 
 # Change Radar
 
-!!! info "Preview — feature in development"
-    The Change Radar is an upcoming addition to this framework. This page reserves its
-    location so links stay stable; the live feed will appear here.
+The **Change Radar** highlights relevant Microsoft 365 agent-platform changes — drawn from the
+public [Microsoft 365 roadmap](https://www.microsoft.com/microsoft-365/roadmap) — and maps each
+one to the framework control(s) it touches, with a short "what to review" prompt to help teams
+keep their governance posture current as the platform evolves. Filter by status, product, or
+affected control; each entry links to the Microsoft 365 roadmap and to the relevant control pages.
 
-The **Change Radar** will be a living feed of relevant Microsoft 365 agent-platform changes —
-drawn from the public Microsoft 365 roadmap and release communications — mapped to the framework
-controls they affect, with a short "what changed and what to review" summary for each item.
+!!! warning "How to use these mappings"
+    The control mappings below are **community-suggested and maintainer-reviewed** — they are
+    starting points, not determinations. Verify each item against your own control set and against
+    Microsoft's official notice (linked from each entry) before acting. Roadmap dates and scope are
+    set by Microsoft and can change or be withdrawn.
 
-## What it will do
+<div id="change-radar-feed" class="cr-container" markdown="0">
+  <noscript>
+    <div class="admonition warning">
+      <p class="admonition-title">JavaScript required</p>
+      <p>The interactive Change Radar requires JavaScript. With JavaScript disabled, browse the
+      public <a href="https://www.microsoft.com/microsoft-365/roadmap">Microsoft 365 roadmap</a>
+      directly, and review recent framework updates in the <a href="../changelog/">Changelog</a>.</p>
+    </div>
+  </noscript>
+  <p class="cr-loading">Loading the Change Radar…</p>
+</div>
 
-- Track relevant changes across Microsoft Copilot Studio, Microsoft 365 Copilot, Microsoft Power
-  Platform, and Microsoft Purview.
-- Map each change to the affected control(s) and their implementation playbooks.
-- Summarize what changed and which controls or evidence to review, to help teams keep their
-  governance posture current as the platform evolves.
+## How Change Radar relates to other pages
 
-## In the meantime
-
-- Review recent framework updates in the [Changelog](changelog.md).
-- Check where your environment stands with the [Readiness Assessment](assessment/index.md).
-- Browse and filter the catalog in the [Control Explorer](controls/explorer.md).
+- **[Changelog](changelog.md)** — records changes to *this framework* (controls, playbooks, docs).
+- **Change Radar** (this page) — tracks changes to *Microsoft's platform* and the controls to review.
+- **[Readiness Assessment](assessment/index.md)** — check where your environment stands today.
+- **[Control Explorer](controls/explorer.md)** — browse and filter the full control catalog.
 
 !!! warning "Disclaimer"
     This is a community framework and does not constitute legal, regulatory, or compliance advice,

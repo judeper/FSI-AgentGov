@@ -1,0 +1,128 @@
+name: Change Radar Monitor
+
+on:
+  schedule:
+    # Weekly, Mondays 07:00 UTC. The human gate (curation) is the bottleneck,
+    # so a low cadence keeps the pending PR reviewable.
+    - cron: '0 7 * * 1'
+  workflow_dispatch:
+  pull_request:
+    # Offline-ish smoke (--dry-run) when the monitor itself changes.
+    paths:
+      - 'scripts/change_radar_monitor.py'
+      - 'scripts/monitoring_shared.py'
+      - '.github/workflows/change-radar-monitor.yml'
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  # Serialize runs so two runs never fight over the stable pending branch.
+  group: change-radar-monitor
+  cancel-in-progress: false
+
+jobs:
+  monitor-roadmap:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4 pyyaml
+
+      - name: Change Radar monitor (PR smoke, dry-run)
+        if: github.event_name == 'pull_request'
+        run: python scripts/change_radar_monitor.py --dry-run
+
+      - name: Change Radar monitor
+        if: github.event_name != 'pull_request'
+        # Exit 2 (fail-closed: API unreachable / shape changed) fails the job and
+        # triggers the heartbeat issue below. Exit 0 = baseline, no-change, or
+        # changes staged for the gate PR.
+        run: python scripts/change_radar_monitor.py
+
+      - name: Generate GitHub App token
+        id: app-token
+        if: github.event_name != 'pull_request'
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: Create or update pending PR
+        if: github.event_name != 'pull_request'
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          # Only ever stage monitor outputs. The published feed
+          # (data/change-radar/items.json, docs/javascripts/change-radar-data.json)
+          # is hand-authored and must never be auto-committed here.
+          add-paths: |
+            data/change-radar-state.json
+            data/change-radar-state.json.backup
+            data/change-radar-pending/*.json
+            reports/monitoring/change-radar-*.md
+          commit-message: |
+            Change Radar: roadmap monitor pending update
+
+            Staged new/changed/withdrawn agent-relevant roadmap items for human curation.
+            Suggested control mappings are UNCONFIRMED candidates only.
+          # Stable branch so the action UPDATES the same PR instead of opening a
+          # new one each run (the human gate is slow; avoid PR pileup).
+          branch: monitoring/change-radar-pending
+          delete-branch: false
+          title: 'Change Radar: roadmap items awaiting curation'
+          body: |
+            ## Change Radar monitor
+
+            New, changed, or withdrawn **agent-relevant** Microsoft 365 roadmap items have been
+            detected and staged as **pending candidates** under `data/change-radar-pending/`.
+
+            ### Human gate (fail-closed)
+
+            - **Suggested control mappings are UNCONFIRMED.** Do not publish them as-is.
+            - For an item worth surfacing, hand-author an entry in
+              `data/change-radar/items.json` (paraphrase the change; never copy raw Microsoft
+              text), then run `python scripts/gen_change_radar_data.py` and commit the
+              regenerated `docs/javascripts/change-radar-data.json` in the **same** PR.
+            - **Merging** this PR advances the monitor baseline. **Closing it without merging**
+              leaves the baseline unchanged, so the items re-surface on the next run.
+          labels: |
+            change-radar
+            automated
+
+      - name: Heartbeat issue on failure
+        if: failure() && github.event_name != 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = 'Change Radar monitor failed';
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'change-radar',
+            });
+            if (issues.some(i => i.title === title)) {
+              core.info('Heartbeat issue already open; not duplicating.');
+              return;
+            }
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title,
+              body: `The Change Radar monitor failed on run ${context.runId}. The feed may be going stale until this is resolved.\n\nLogs: ${runUrl}`,
+              labels: ['change-radar', 'automated'],
+            });

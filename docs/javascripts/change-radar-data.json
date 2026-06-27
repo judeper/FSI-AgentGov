@@ -1,0 +1,601 @@
+{
+  "generatedAt": "2026-06-27T06:36:22Z",
+  "count": 12,
+  "items": [
+    {
+      "id": 500376,
+      "title": "Admin control for org-wide agent sharing",
+      "summary": "Admins can govern who may create org-wide sharing links for agents built in Copilot Studio agent builder.",
+      "products": [
+        "Microsoft Copilot (Microsoft 365)"
+      ],
+      "status": "Available",
+      "timing": "GA Oct 2025",
+      "gaDate": "2025-10",
+      "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=500376",
+      "lifecycle": "active",
+      "whatToReview": "Confirm your agent publishing and sharing authorization limits who can share agents organization-wide.",
+      "addedOn": "2026-06-26",
+      "lastReviewed": "2026-06-26",
+      "controls": [
+        {
+          "id": "1.1",
+          "title": "Restrict Agent Publishing by Authorization",
+          "url": "/controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization/",
+          "pillar": "Security",
+          "rationale": "Governs who can publish and share agents organization-wide."
+        },
+        {
+          "id": "1.28",
+          "title": "Policy-Based Agent Publishing Restrictions",
+          "url": "/controls/pillar-1-security/1.28-policy-based-agent-publishing-restrictions/",
+          "pillar": "Security",
+          "rationale": "Policy-based publishing restrictions apply to sharing scope."
+        }
+      ],
+      "pillars": [
+        "Security"
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "OCC-2023-17",
+        "OCC-2026-13",
+        "SEC-17a-4",
+        "SOX-404"
+      ]
+    },
+    {
+      "id": 502867,
+      "title": "Agent ownership reassignment",
+      "summary": "Admins can reassign ownership of shared agents created in Copilot Studio or the Microsoft 365 Agents Toolkit.",
+      "products": [
+        "Microsoft 365 admin center",
+        "Microsoft Copilot (Microsoft 365)"
+      ],
+      "status": "Available",
+      "timing": "GA Oct 2025",
+      "gaDate": "2025-10",
+      "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=502867",
+      "lifecycle": "active",
+      "whatToReview": "Add ownership reassignment to your orphaned-agent detection and remediation runbook.",
+      "addedOn": "2026-06-26",
+      "lastReviewed": "2026-06-26",
+      "controls": [
+        {
+          "id": "1.2",
+          "title": "Agent Registry and Integrated Apps Management",
+          "url": "/controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management/",
+          "pillar": "Security",
+          "rationale": "Ownership is part of agent registry and integrated-apps management."
+        },
+        {
+          "id": "3.6",
+          "title": "Orphaned Agent Detection and Remediation",
+          "url": "/controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation/",
+          "pillar": "Reporting",
+          "rationale": "Reassignment is a remediation path for orphaned agents."
+        }
+      ],
+      "pillars": [
+        "Reporting",
+        "Security"
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "NIST-AI-RMF",
+        "NYDFS-500",
+        "OCC-2026-13",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
+      ]
+    },
+    {
+      "id": 498227,
+      "title": "Audit logs for agent management",
+      "summary": "Agent admin actions such as publishing and blocking are recorded in Purview unified audit logs.",
+      "products": [
+        "Microsoft Purview",
+        "Microsoft 365 admin center",
+        "Microsoft Copilot (Microsoft 365)"
+      ],
+      "status": "Available",
+      "timing": "GA Oct 2025",
+      "gaDate": "2025-10",
+      "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=498227",
+      "lifecycle": "active",
+      "whatToReview": "Confirm agent admin actions are captured and retained per your recordkeeping obligations.",
+      "addedOn": "2026-06-26",
+      "lastReviewed": "2026-06-26",
+      "controls": [
+        {
+          "id": "1.7",
+          "title": "Comprehensive Audit Logging and Compliance",
+          "url": "/controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance/",
+          "pillar": "Security",
+          "rationale": "Agent admin actions become part of comprehensive audit logging."
+        },
+        {
+          "id": "3.3",
+          "title": "Compliance and Regulatory Reporting",
+          "url": "/controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting/",
+          "pillar": "Reporting",
+          "rationale": "Captured actions support compliance and regulatory reporting (for example, SEC 17a-4, FINRA 4511)."
+        }
+      ],
+      "pillars": [
+        "Reporting",
+        "Security"
+      ],
+      "regulations": [
+        "CFTC-1.31",
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "OCC-2026-13",
+        "Reg-S-P",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
+      ]
+    },
+    {
+      "id": 489492,
+      "title": "Purview DSPM for AI - apps and agents",
+      "summary": "A dashboard of apps and agents used across the organization to surface potential data-security risks.",
+      "products": [
+        "Microsoft Purview",
+        "Microsoft Copilot (Microsoft 365)"
+      ],
+      "status": "Available",
+      "timing": "GA Sep 2025",
+      "gaDate": "2025-09",
+      "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=489492",
+      "lifecycle": "active",
+      "whatToReview": "Enable the apps-and-agents view and triage flagged agents.",
+      "addedOn": "2026-06-26",
+      "lastReviewed": "2026-06-26",
+      "controls": [
+        {
+          "id": "1.6",
+          "title": "Microsoft Purview DSPM for AI",
+          "url": "/controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai/",
+          "pillar": "Security",
+          "rationale": "Direct extension of Purview DSPM for AI coverage to agents."
+        },
+        {
+          "id": "1.24",
+          "title": "Defender AI Security Posture Management (AI-SPM)",
+          "url": "/controls/pillar-1-security/1.24-defender-ai-security-posture-management/",
+          "pillar": "Security",
+          "rationale": "Feeds AI security posture management signals."
+        }
+      ],
+      "pillars": [
+        "Security"
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "Fed-SR-26-2",
+        "GLBA",
+        "NIST-AI-RMF",
+        "NYDFS-500",
+        "OCC-2026-13",
+        "Reg-S-P",
+        "SOX-404"
+      ]
+    },
+    {
+      "id": 502878,
+      "title": "Agent metadata in inventory export",
+      "summary": "Inventory export adds metadata fields covering capabilities, data sources, actions, created-in, and created-by.",
+      "products": [
+        "Microsoft 365 admin center",
+        "Microsoft Copilot (Microsoft 365)"
+      ],
+      "status": "Available",
+      "timing": "GA Oct 2025",
+      "gaDate": "2025-10",
+      "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=502878",
+      "lifecycle": "active",
+      "whatToReview": "Fold the expanded export fields into your inventory and evidence collection.",
+      "addedOn": "2026-06-26",
+      "lastReviewed": "2026-06-26",
+      "controls": [
+        {
+          "id": "3.1",
+          "title": "Agent Inventory and Metadata Management",
+          "url": "/controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management/",
+          "pillar": "Reporting",
+          "rationale": "Expanded fields enrich agent inventory and metadata management."
+        },
+        {
+          "id": "1.2",
+          "title": "Agent Registry and Integrated Apps Management",
+          "url": "/controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management/",
+          "pillar": "Security",
+          "rationale": "Supports the agent registry record for each agent."
+        }
+      ],
+      "pillars": [
+        "Reporting",
+        "Security"
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "NIST-AI-RMF",
+        "NYDFS-500",
+        "OCC-2026-13",
+        "SEC-17a-4",
+        "SOX-404"
+      ]
+    },
+    {
+      "id": 502875,
+      "title": "Graph APIs for app and agent inventory",
+      "summary": "New Microsoft Graph endpoints provide programmatic access to app and agent inventory and details.",
+      "products": [
+        "Microsoft Copilot (Microsoft 365)"
+      ],
+      "status": "Available",
+      "timing": "GA Apr 2026",
+      "gaDate": "2026-04",
+      "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=502875",
+      "lifecycle": "active",
+      "whatToReview": "Evaluate adopting the Graph endpoints to automate agent inventory evidence.",
+      "addedOn": "2026-06-26",
+      "lastReviewed": "2026-06-26",
+      "controls": [
+        {
+          "id": "1.2",
+          "title": "Agent Registry and Integrated Apps Management",
+          "url": "/controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management/",
+          "pillar": "Security",
+          "rationale": "Programmatic registry access for agent management."
+        },
+        {
+          "id": "3.1",
+          "title": "Agent Inventory and Metadata Management",
+          "url": "/controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management/",
+          "pillar": "Reporting",
+          "rationale": "Enables automated inventory and metadata collection."
+        },
+        {
+          "id": "3.11",
+          "title": "Centralized Agent Inventory Enforcement",
+          "url": "/controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement/",
+          "pillar": "Reporting",
+          "rationale": "Supports centralized agent inventory enforcement."
+        }
+      ],
+      "pillars": [
+        "Reporting",
+        "Security"
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "NIST-AI-RMF",
+        "NYDFS-500",
+        "OCC-2026-13",
+        "SEC-17a-4",
+        "SOX-404"
+      ]
+    },
+    {
+      "id": 487857,
+      "title": "SharePoint agents in the Agents page",
+      "summary": "SharePoint agents appear as shared agents in the Microsoft 365 admin center, with block and unblock from inventory.",
+      "products": [
+        "SharePoint",
+        "Microsoft 365 admin center",
+        "Microsoft Copilot (Microsoft 365)"
+      ],
+      "status": "Available",
+      "timing": "GA Oct 2025",
+      "gaDate": "2025-10",
+      "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=487857",
+      "lifecycle": "active",
+      "whatToReview": "Bring SharePoint agents into your unified inventory and block/unblock governance.",
+      "addedOn": "2026-06-26",
+      "lastReviewed": "2026-06-26",
+      "controls": [
+        {
+          "id": "4.5",
+          "title": "SharePoint Security and Compliance Monitoring",
+          "url": "/controls/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring/",
+          "pillar": "SharePoint",
+          "rationale": "SharePoint agents fall under SharePoint security and compliance monitoring."
+        },
+        {
+          "id": "1.1",
+          "title": "Restrict Agent Publishing by Authorization",
+          "url": "/controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization/",
+          "pillar": "Security",
+          "rationale": "Block and unblock governs agent availability."
+        },
+        {
+          "id": "3.11",
+          "title": "Centralized Agent Inventory Enforcement",
+          "url": "/controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement/",
+          "pillar": "Reporting",
+          "rationale": "Brings SharePoint agents into centralized inventory enforcement."
+        }
+      ],
+      "pillars": [
+        "Reporting",
+        "Security",
+        "SharePoint"
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "OCC-2023-17",
+        "OCC-2026-13",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
+      ]
+    },
+    {
+      "id": 503102,
+      "title": "Security and compliance info for more agents",
+      "summary": "The Teams admin center shows security and compliance information for more certified or publisher-attested apps and agents.",
+      "products": [
+        "Microsoft Teams"
+      ],
+      "status": "Available",
+      "timing": "GA Oct 2025",
+      "gaDate": "2025-10",
+      "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=503102",
+      "lifecycle": "active",
+      "whatToReview": "Use the certification and attestation signals in agent vetting and third-party risk review.",
+      "addedOn": "2026-06-26",
+      "lastReviewed": "2026-06-26",
+      "controls": [
+        {
+          "id": "2.7",
+          "title": "Vendor and Third-Party Risk Management",
+          "url": "/controls/pillar-2-management/2.7-vendor-and-third-party-risk-management/",
+          "pillar": "Management",
+          "rationale": "Certification and attestation signals inform third-party risk review."
+        },
+        {
+          "id": "1.2",
+          "title": "Agent Registry and Integrated Apps Management",
+          "url": "/controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management/",
+          "pillar": "Security",
+          "rationale": "Feeds vetting data into the agent registry."
+        }
+      ],
+      "pillars": [
+        "Management",
+        "Security"
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "NIST-AI-RMF",
+        "NYDFS-500",
+        "OCC-2026-13",
+        "SEC-17a-4",
+        "SOX-404"
+      ]
+    },
+    {
+      "id": 500375,
+      "title": "Larger file uploads in agent builder",
+      "summary": "Copilot Studio agent builder supports larger file uploads, up to 512 MB.",
+      "products": [
+        "Microsoft Copilot (Microsoft 365)"
+      ],
+      "status": "Available",
+      "timing": "GA Sep 2025",
+      "gaDate": "2025-09",
+      "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=500375",
+      "lifecycle": "active",
+      "whatToReview": "Larger uploads widen the ingestion surface; verify your file-upload and file-type restrictions.",
+      "addedOn": "2026-06-26",
+      "lastReviewed": "2026-06-26",
+      "controls": [
+        {
+          "id": "1.26",
+          "title": "Agent File Upload and File Analysis Restrictions",
+          "url": "/controls/pillar-1-security/1.26-agent-file-upload-and-file-analysis-restrictions/",
+          "pillar": "Security",
+          "rationale": "Larger uploads widen the agent file-upload and analysis surface."
+        },
+        {
+          "id": "1.25",
+          "title": "MIME Type Restrictions for File Uploads",
+          "url": "/controls/pillar-1-security/1.25-mime-type-restrictions/",
+          "pillar": "Security",
+          "rationale": "MIME-type restrictions govern which uploads are accepted."
+        }
+      ],
+      "pillars": [
+        "Security"
+      ],
+      "regulations": [
+        "CFTC-1.31",
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "NIST-AI-RMF",
+        "OCC-2026-13",
+        "SEC-17a-4"
+      ]
+    },
+    {
+      "id": 494809,
+      "title": "Approval flow for Frontier and Microsoft agents",
+      "summary": "Frontier-program and Microsoft-built agents can be reviewed through an admin request-approval flow in the Microsoft 365 admin center.",
+      "products": [
+        "Microsoft Copilot (Microsoft 365)",
+        "Microsoft 365 admin center"
+      ],
+      "status": "In development",
+      "timing": "GA Jul 2026",
+      "gaDate": "2026-07",
+      "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=494809",
+      "lifecycle": "active",
+      "whatToReview": "Decide who owns agent approval decisions and how requests are triaged.",
+      "addedOn": "2026-06-26",
+      "lastReviewed": "2026-06-26",
+      "controls": [
+        {
+          "id": "1.1",
+          "title": "Restrict Agent Publishing by Authorization",
+          "url": "/controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization/",
+          "pillar": "Security",
+          "rationale": "Approval gating governs which agents are published to users."
+        },
+        {
+          "id": "2.24",
+          "title": "Agent Feature Enablement and Restriction Governance",
+          "url": "/controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance/",
+          "pillar": "Management",
+          "rationale": "Part of agent feature enablement and restriction governance."
+        },
+        {
+          "id": "2.25",
+          "title": "Microsoft Agent 365 — Admin Center Governance Console",
+          "url": "/controls/pillar-2-management/2.25-agent-365-admin-center-governance-console/",
+          "pillar": "Management",
+          "rationale": "Surfaced through the Agent 365 admin-center governance console."
+        }
+      ],
+      "pillars": [
+        "Management",
+        "Security"
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "NYDFS-500",
+        "OCC-2023-17",
+        "OCC-2026-13",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
+      ]
+    },
+    {
+      "id": 562221,
+      "title": "MCP-compliant tools in agent workflows",
+      "summary": "Copilot Studio agents can use MCP-compliant tools to reach external systems and custom actions.",
+      "products": [
+        "Microsoft Copilot Studio",
+        "Microsoft Copilot (Microsoft 365)"
+      ],
+      "status": "In development",
+      "timing": "Preview May 2026, GA Jun 2026",
+      "gaDate": "2026-06",
+      "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=562221",
+      "lifecycle": "active",
+      "whatToReview": "Extend connector and DLP policies and third-party risk review to cover MCP tools.",
+      "addedOn": "2026-06-26",
+      "lastReviewed": "2026-06-26",
+      "controls": [
+        {
+          "id": "1.4",
+          "title": "Advanced Connector Policies (ACP)",
+          "url": "/controls/pillar-1-security/1.4-advanced-connector-policies-acp/",
+          "pillar": "Security",
+          "rationale": "Connector policies govern which external tools agents may reach."
+        },
+        {
+          "id": "1.14",
+          "title": "Data Minimization and Agent Scope Control",
+          "url": "/controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control/",
+          "pillar": "Security",
+          "rationale": "External tool access affects data minimization and agent scope."
+        },
+        {
+          "id": "2.7",
+          "title": "Vendor and Third-Party Risk Management",
+          "url": "/controls/pillar-2-management/2.7-vendor-and-third-party-risk-management/",
+          "pillar": "Management",
+          "rationale": "Third-party tools require vendor and third-party risk review."
+        }
+      ],
+      "pillars": [
+        "Management",
+        "Security"
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "OCC-2026-13",
+        "Reg-S-P",
+        "SEC-17a-4",
+        "SOX-404"
+      ]
+    },
+    {
+      "id": 562222,
+      "title": "Invoke agents as workflow steps (agent node)",
+      "summary": "An agent node lets one workflow invoke another agent as a single reasoning step.",
+      "products": [
+        "Microsoft Copilot Studio",
+        "Microsoft Copilot (Microsoft 365)"
+      ],
+      "status": "In development",
+      "timing": "Preview Apr 2026, GA Sep 2026",
+      "gaDate": "2026-09",
+      "roadmapUrl": "https://www.microsoft.com/microsoft-365/roadmap?featureid=562222",
+      "lifecycle": "active",
+      "whatToReview": "Set limits and oversight for agent-to-agent orchestration depth.",
+      "addedOn": "2026-06-26",
+      "lastReviewed": "2026-06-26",
+      "controls": [
+        {
+          "id": "2.17",
+          "title": "Multi-Agent Orchestration Limits",
+          "url": "/controls/pillar-2-management/2.17-multi-agent-orchestration-limits/",
+          "pillar": "Management",
+          "rationale": "Agent-to-agent invocation is governed by multi-agent orchestration limits."
+        }
+      ],
+      "pillars": [
+        "Management"
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "Fed-SR-26-2",
+        "OCC-2026-13",
+        "SOX-404"
+      ]
+    }
+  ]
+}

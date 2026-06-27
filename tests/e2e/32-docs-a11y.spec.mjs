@@ -724,6 +724,7 @@ test.describe("docs landmark + skip-link sanity @regression", () => {
     const PAGES = [
       "/",
       "/controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization/",
+      "/change-radar/",
     ];
 
     const issues = [];
@@ -733,6 +734,13 @@ test.describe("docs landmark + skip-link sanity @regression", () => {
         .locator("article.md-content__inner")
         .first()
         .waitFor({ state: "attached", timeout: 10_000 });
+      // Change Radar renders its feed client-side; wait for it so the audit
+      // sees the interactive controls and card headings (no-op elsewhere).
+      await page
+        .locator('#change-radar[data-cr-ready="1"]')
+        .first()
+        .waitFor({ state: "attached", timeout: 5_000 })
+        .catch(() => {});
 
       const audit = await page.evaluate(() => {
         const out = { url: location.pathname };
