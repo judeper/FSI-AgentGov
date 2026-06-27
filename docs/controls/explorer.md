@@ -1,6 +1,9 @@
 ---
 title: Control Explorer
 description: Interactive search, filter, and sort across all 79 FSI Agent Governance controls.
+hide:
+  - navigation
+  - toc
 ---
 
 # Control Explorer
