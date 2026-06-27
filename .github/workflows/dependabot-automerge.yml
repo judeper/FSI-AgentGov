@@ -1,0 +1,76 @@
+name: Dependabot Auto-merge
+
+# Conservative, kill-switch-gated auto-merge for Dependabot PRs.
+#
+# Policy:
+#   * Auto-merge semver MINOR and PATCH updates (including security updates) via
+#     `gh pr merge --auto`, which completes only once ALL required status checks
+#     pass — including the Playwright pin-drift guard in the required
+#     "manifest / index / nav drift" job. That guard is what makes minor/patch
+#     auto-merge safe: #583 was a *minor* Playwright bump that skewed a pinned
+#     container image, so the semver level alone is NOT the protection — the
+#     required guard is.
+#   * MAJOR updates are never auto-merged; they are labeled for human review.
+#
+# Kill-switch: this workflow is a no-op unless the repository variable
+# DEPENDABOT_AUTOMERGE is set to 'true'. Off by default (mirrors the autodoc
+# "off by default" posture). Enable only after this workflow + the pin guard are
+# on main.
+#
+# Safe under pull_request_target: it NEVER checks out or executes PR code. It only
+# reads dependency metadata via dependabot/fetch-metadata (API) and calls
+# `gh pr merge` / `gh pr edit` on the PR. No PR-controlled code runs with the
+# elevated token.
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: dependabot-automerge-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  dependabot-automerge:
+    name: dependabot-automerge
+    runs-on: ubuntu-latest
+    # Only act on genuine Dependabot PRs, and only when the kill-switch is on.
+    if: >-
+      github.event.pull_request.user.login == 'dependabot[bot]' &&
+      github.actor == 'dependabot[bot]' &&
+      vars.DEPENDABOT_AUTOMERGE == 'true'
+    steps:
+      - name: Fetch Dependabot metadata
+        id: meta
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable auto-merge for minor and patch updates
+        if: >-
+          steps.meta.outputs.update-type == 'version-update:semver-minor' ||
+          steps.meta.outputs.update-type == 'version-update:semver-patch'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          DEP_NAMES: ${{ steps.meta.outputs.dependency-names }}
+          UPDATE_TYPE: ${{ steps.meta.outputs.update-type }}
+        run: |
+          echo "Enabling auto-merge for ${DEP_NAMES} (${UPDATE_TYPE})."
+          echo "Merge completes only after all required checks pass, including the"
+          echo "Playwright pin-drift guard — so a skewed pinned image blocks the merge."
+          gh pr merge --auto --squash --delete-branch "$PR_URL"
+
+      - name: Flag major updates for manual review
+        if: steps.meta.outputs.update-type == 'version-update:semver-major'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          gh pr edit "$PR_URL" --add-label needs-review || true
+          gh pr comment "$PR_URL" \
+            --body "Major version update — auto-merge skipped by \`dependabot-automerge.yml\`. A human review is required before merge." || true

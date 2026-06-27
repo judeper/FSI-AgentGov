@@ -176,6 +176,8 @@ jobs:
         run: python scripts/verify_xref_graph.py
       - name: Check control IDs in manifest, CONTROL-INDEX, and mkdocs nav
         run: python scripts/check_manifest_doc_drift.py --check
+      - name: Check Playwright container pins match @playwright/test
+        run: python scripts/check_playwright_pin_drift.py --check
       - name: Check Control Explorer data is regenerated from source
         run: python scripts/check_explorer_data_drift.py --check
       - name: Check FAQ JSON-LD matches the visible FAQ page
