@@ -20,8 +20,10 @@ permissions:
 jobs:
   update-snapshots:
     runs-on: ubuntu-latest
+    # Pin must match @playwright/test in package.json (-noble to match e2e.yml's
+    # test distro). Enforced by scripts/check_playwright_pin_drift.py.
     container:
-      image: mcr.microsoft.com/playwright:v1.49.0-jammy
+      image: mcr.microsoft.com/playwright:v1.61.1-noble
       options: --user 1001
     steps:
       - uses: actions/checkout@v7

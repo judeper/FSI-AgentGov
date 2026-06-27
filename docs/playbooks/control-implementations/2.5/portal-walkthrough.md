@@ -654,7 +654,7 @@ The minimum FSI Zone 3 PyRIT battery covers the following categories. Each categ
 **Inline references for §7:**
 
 - PyRIT documentation — <https://microsoft.github.io/PyRIT/>
-- PyRIT install / getting started — <https://microsoft.github.io/PyRIT/getting-started/install/>
+- PyRIT install / getting started — <https://github.com/Azure/PyRIT/blob/main/README.md>
 - Microsoft AI Red Team — <https://learn.microsoft.com/en-us/security/ai-red-team/>
 - Run AI Red Teaming Agent (Foundry-hosted alternative) — <https://learn.microsoft.com/en-us/azure/ai-foundry/how-to/develop/run-scans-ai-red-teaming-agent>
 
