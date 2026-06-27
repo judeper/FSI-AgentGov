@@ -92,3 +92,40 @@ jobs:
           name: playwright-traces
           path: test-results/
           retention-days: 14
+
+  # Visibility net for main: e2e-full is NOT a required check (it is label-gated
+  # off PRs), so a failure on main would otherwise sit unnoticed. On a failed
+  # main `push` or the daily `schedule` run, file (or update) a single deduped
+  # issue instead of letting the red run go unseen. PR/dispatch failures are
+  # surfaced by the run itself and are intentionally excluded.
+  notify-e2e-failure:
+    name: notify-e2e-failure
+    needs: e2e-full
+    if: failure() && (github.event_name == 'push' || github.event_name == 'schedule')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Open or update the e2e-full-broken issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          SHA: ${{ github.sha }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          LABEL="e2e-full-broken"
+          # Ensure the dedup label exists (first run creates it; ignore if present).
+          gh label create "$LABEL" --color B60205 \
+            --description "e2e-full is failing on main (auto-filed by e2e.yml)" 2>/dev/null || true
+          BODY=$(printf 'e2e-full failed on `main` (event: `%s`).\n\n- Commit: `%s`\n- Run: %s\n\ne2e-full is not a required check (it is label-gated off PRs), so this issue is the visibility net for main breakage. Investigate the run, fix forward, then close this issue — it is reused (commented) on subsequent failures, not duplicated.\n' "$EVENT" "$SHA" "$RUN_URL")
+          # Idempotent: reuse an existing open issue if present; never spam duplicates.
+          EXISTING=$(gh issue list --state open --label "$LABEL" --json number --jq '.[0].number // empty')
+          if [ -n "$EXISTING" ]; then
+            gh issue comment "$EXISTING" --body "$BODY"
+            echo "Commented on existing #$EXISTING"
+          else
+            gh issue create --title "e2e-full failing on main" --label "$LABEL" --body "$BODY"
+            echo "Created a new e2e-full-broken issue"
+          fi
