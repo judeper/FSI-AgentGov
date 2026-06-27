@@ -428,6 +428,23 @@
   border-left-color: #5aa0e0;
 }
 
+/* A11y (WCAG 2.1 AA): on the warm card surface (#faf8f5), Material's default
+   link colour #0078D4 = 4.27:1 (just fails). #005A9E = 6.63:1. Light scheme
+   only — the slate card surface (#2a2724) keeps the brighter link readable. */
+[data-md-color-scheme="default"] .job-cards.cards > ul > li a {
+  color: #005a9e;
+}
+
+/* A11y (WCAG 2.1 AA): the injected control print button is .md-button--primary,
+   whose slate background --md-primary-fg-color (#429CE3) leaves white button
+   text at only 2.95:1. Darken to #005A9E (white = 7.10:1) in dark mode. Light
+   mode passes (#0078D4 + white = 4.54:1) and is left unchanged. */
+[data-md-color-scheme="slate"] #fsi-print-control-button {
+  background-color: #005a9e;
+  border-color: #005a9e;
+  color: #ffffff;
+}
+
 /* ── WS6: conservative, color-neutral component polish (site-wide) ── */
 .md-typeset .grid.cards > ul > li {
   border-radius: 8px;
