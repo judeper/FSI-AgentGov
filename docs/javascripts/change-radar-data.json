@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-27T00:54:17Z",
+  "generatedAt": "2026-06-27T04:52:56Z",
   "count": 12,
   "items": [
     {
@@ -21,14 +21,30 @@
           "id": "1.1",
           "title": "Restrict Agent Publishing by Authorization",
           "url": "/controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization/",
+          "pillar": "Security",
           "rationale": "Governs who can publish and share agents organization-wide."
         },
         {
           "id": "1.28",
           "title": "Policy-Based Agent Publishing Restrictions",
           "url": "/controls/pillar-1-security/1.28-policy-based-agent-publishing-restrictions/",
+          "pillar": "Security",
           "rationale": "Policy-based publishing restrictions apply to sharing scope."
         }
+      ],
+      "pillars": [
+        "Security"
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "OCC-2023-17",
+        "OCC-2026-13",
+        "SEC-17a-4",
+        "SOX-404"
       ]
     },
     {
@@ -51,14 +67,33 @@
           "id": "1.2",
           "title": "Agent Registry and Integrated Apps Management",
           "url": "/controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management/",
+          "pillar": "Security",
           "rationale": "Ownership is part of agent registry and integrated-apps management."
         },
         {
           "id": "3.6",
           "title": "Orphaned Agent Detection and Remediation",
           "url": "/controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation/",
+          "pillar": "Reporting",
           "rationale": "Reassignment is a remediation path for orphaned agents."
         }
+      ],
+      "pillars": [
+        "Reporting",
+        "Security"
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "NIST-AI-RMF",
+        "NYDFS-500",
+        "OCC-2026-13",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
       ]
     },
     {
@@ -82,14 +117,33 @@
           "id": "1.7",
           "title": "Comprehensive Audit Logging and Compliance",
           "url": "/controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance/",
+          "pillar": "Security",
           "rationale": "Agent admin actions become part of comprehensive audit logging."
         },
         {
           "id": "3.3",
           "title": "Compliance and Regulatory Reporting",
           "url": "/controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting/",
+          "pillar": "Reporting",
           "rationale": "Captured actions support compliance and regulatory reporting (for example, SEC 17a-4, FINRA 4511)."
         }
+      ],
+      "pillars": [
+        "Reporting",
+        "Security"
+      ],
+      "regulations": [
+        "CFTC-1.31",
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "OCC-2026-13",
+        "Reg-S-P",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
       ]
     },
     {
@@ -112,14 +166,30 @@
           "id": "1.6",
           "title": "Microsoft Purview DSPM for AI",
           "url": "/controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai/",
+          "pillar": "Security",
           "rationale": "Direct extension of Purview DSPM for AI coverage to agents."
         },
         {
           "id": "1.24",
           "title": "Defender AI Security Posture Management (AI-SPM)",
           "url": "/controls/pillar-1-security/1.24-defender-ai-security-posture-management/",
+          "pillar": "Security",
           "rationale": "Feeds AI security posture management signals."
         }
+      ],
+      "pillars": [
+        "Security"
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "Fed-SR-26-2",
+        "GLBA",
+        "NIST-AI-RMF",
+        "NYDFS-500",
+        "OCC-2026-13",
+        "Reg-S-P",
+        "SOX-404"
       ]
     },
     {
@@ -142,14 +212,31 @@
           "id": "3.1",
           "title": "Agent Inventory and Metadata Management",
           "url": "/controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management/",
+          "pillar": "Reporting",
           "rationale": "Expanded fields enrich agent inventory and metadata management."
         },
         {
           "id": "1.2",
           "title": "Agent Registry and Integrated Apps Management",
           "url": "/controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management/",
+          "pillar": "Security",
           "rationale": "Supports the agent registry record for each agent."
         }
+      ],
+      "pillars": [
+        "Reporting",
+        "Security"
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "NIST-AI-RMF",
+        "NYDFS-500",
+        "OCC-2026-13",
+        "SEC-17a-4",
+        "SOX-404"
       ]
     },
     {
@@ -171,20 +258,38 @@
           "id": "1.2",
           "title": "Agent Registry and Integrated Apps Management",
           "url": "/controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management/",
+          "pillar": "Security",
           "rationale": "Programmatic registry access for agent management."
         },
         {
           "id": "3.1",
           "title": "Agent Inventory and Metadata Management",
           "url": "/controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management/",
+          "pillar": "Reporting",
           "rationale": "Enables automated inventory and metadata collection."
         },
         {
           "id": "3.11",
           "title": "Centralized Agent Inventory Enforcement",
           "url": "/controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement/",
+          "pillar": "Reporting",
           "rationale": "Supports centralized agent inventory enforcement."
         }
+      ],
+      "pillars": [
+        "Reporting",
+        "Security"
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "NIST-AI-RMF",
+        "NYDFS-500",
+        "OCC-2026-13",
+        "SEC-17a-4",
+        "SOX-404"
       ]
     },
     {
@@ -208,20 +313,40 @@
           "id": "4.5",
           "title": "SharePoint Security and Compliance Monitoring",
           "url": "/controls/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring/",
+          "pillar": "SharePoint",
           "rationale": "SharePoint agents fall under SharePoint security and compliance monitoring."
         },
         {
           "id": "1.1",
           "title": "Restrict Agent Publishing by Authorization",
           "url": "/controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization/",
+          "pillar": "Security",
           "rationale": "Block and unblock governs agent availability."
         },
         {
           "id": "3.11",
           "title": "Centralized Agent Inventory Enforcement",
           "url": "/controls/pillar-3-reporting/3.11-centralized-agent-inventory-enforcement/",
+          "pillar": "Reporting",
           "rationale": "Brings SharePoint agents into centralized inventory enforcement."
         }
+      ],
+      "pillars": [
+        "Reporting",
+        "Security",
+        "SharePoint"
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "OCC-2023-17",
+        "OCC-2026-13",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
       ]
     },
     {
@@ -243,14 +368,32 @@
           "id": "2.7",
           "title": "Vendor and Third-Party Risk Management",
           "url": "/controls/pillar-2-management/2.7-vendor-and-third-party-risk-management/",
+          "pillar": "Management",
           "rationale": "Certification and attestation signals inform third-party risk review."
         },
         {
           "id": "1.2",
           "title": "Agent Registry and Integrated Apps Management",
           "url": "/controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management/",
+          "pillar": "Security",
           "rationale": "Feeds vetting data into the agent registry."
         }
+      ],
+      "pillars": [
+        "Management",
+        "Security"
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "NIST-AI-RMF",
+        "NYDFS-500",
+        "OCC-2026-13",
+        "SEC-17a-4",
+        "SOX-404"
       ]
     },
     {
@@ -272,14 +415,30 @@
           "id": "1.26",
           "title": "Agent File Upload and File Analysis Restrictions",
           "url": "/controls/pillar-1-security/1.26-agent-file-upload-and-file-analysis-restrictions/",
+          "pillar": "Security",
           "rationale": "Larger uploads widen the agent file-upload and analysis surface."
         },
         {
           "id": "1.25",
           "title": "MIME Type Restrictions for File Uploads",
           "url": "/controls/pillar-1-security/1.25-mime-type-restrictions/",
+          "pillar": "Security",
           "rationale": "MIME-type restrictions govern which uploads are accepted."
         }
+      ],
+      "pillars": [
+        "Security"
+      ],
+      "regulations": [
+        "CFTC-1.31",
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "NIST-AI-RMF",
+        "OCC-2026-13",
+        "SEC-17a-4"
       ]
     },
     {
@@ -302,20 +461,40 @@
           "id": "1.1",
           "title": "Restrict Agent Publishing by Authorization",
           "url": "/controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization/",
+          "pillar": "Security",
           "rationale": "Approval gating governs which agents are published to users."
         },
         {
           "id": "2.24",
           "title": "Agent Feature Enablement and Restriction Governance",
           "url": "/controls/pillar-2-management/2.24-agent-feature-enablement-and-restriction-governance/",
+          "pillar": "Management",
           "rationale": "Part of agent feature enablement and restriction governance."
         },
         {
           "id": "2.25",
           "title": "Microsoft Agent 365 — Admin Center Governance Console",
           "url": "/controls/pillar-2-management/2.25-agent-365-admin-center-governance-console/",
+          "pillar": "Management",
           "rationale": "Surfaced through the Agent 365 admin-center governance console."
         }
+      ],
+      "pillars": [
+        "Management",
+        "Security"
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "NYDFS-500",
+        "OCC-2023-17",
+        "OCC-2026-13",
+        "SEC-17a-3",
+        "SEC-17a-4",
+        "SOX-404"
       ]
     },
     {
@@ -338,20 +517,38 @@
           "id": "1.4",
           "title": "Advanced Connector Policies (ACP)",
           "url": "/controls/pillar-1-security/1.4-advanced-connector-policies-acp/",
+          "pillar": "Security",
           "rationale": "Connector policies govern which external tools agents may reach."
         },
         {
           "id": "1.14",
           "title": "Data Minimization and Agent Scope Control",
           "url": "/controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control/",
+          "pillar": "Security",
           "rationale": "External tool access affects data minimization and agent scope."
         },
         {
           "id": "2.7",
           "title": "Vendor and Third-Party Risk Management",
           "url": "/controls/pillar-2-management/2.7-vendor-and-third-party-risk-management/",
+          "pillar": "Management",
           "rationale": "Third-party tools require vendor and third-party risk review."
         }
+      ],
+      "pillars": [
+        "Management",
+        "Security"
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "FINRA-3110",
+        "FINRA-4511",
+        "Fed-SR-26-2",
+        "GLBA",
+        "OCC-2026-13",
+        "Reg-S-P",
+        "SEC-17a-4",
+        "SOX-404"
       ]
     },
     {
@@ -374,8 +571,18 @@
           "id": "2.17",
           "title": "Multi-Agent Orchestration Limits",
           "url": "/controls/pillar-2-management/2.17-multi-agent-orchestration-limits/",
+          "pillar": "Management",
           "rationale": "Agent-to-agent invocation is governed by multi-agent orchestration limits."
         }
+      ],
+      "pillars": [
+        "Management"
+      ],
+      "regulations": [
+        "FINRA-25-07",
+        "Fed-SR-26-2",
+        "OCC-2026-13",
+        "SOX-404"
       ]
     }
   ]

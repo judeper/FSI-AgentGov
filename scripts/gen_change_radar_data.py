@@ -71,7 +71,9 @@ def _control_index(manifest) -> dict:
             title = title[len(prefix):].strip()
         # controlDocUrl is the absolute published path ("/controls/.../").
         url = (control.get("controlDocUrl") or "").strip()
-        index[cid] = {"title": title, "url": url}
+        pillar = str(control.get("pillar_name", "")).strip()
+        regs = [str(r).strip() for r in (control.get("regulatory") or []) if str(r).strip()]
+        index[cid] = {"title": title, "url": url, "pillar": pillar, "regulations": regs}
     return index
 
 
@@ -114,6 +116,8 @@ def build() -> tuple[dict, list[str]]:
                 out[key] = item[key]
 
         mapped_controls: list[dict] = []
+        pillars: list[str] = []
+        regulations: list[str] = []
         for ctrl in item.get("controls", []):
             cid = str(ctrl.get("id", "")).strip()
             if cid not in control_index:
@@ -122,17 +126,26 @@ def build() -> tuple[dict, list[str]]:
                     f"(assessment/manifest/controls.json)"
                 )
                 continue
+            meta = control_index[cid]
             mapped_controls.append(
                 {
                     "id": cid,
-                    "title": control_index[cid]["title"],
-                    "url": control_index[cid]["url"],
+                    "title": meta["title"],
+                    "url": meta["url"],
+                    "pillar": meta["pillar"],
                     "rationale": str(ctrl.get("rationale", "")).strip(),
                 }
             )
+            if meta["pillar"] and meta["pillar"] not in pillars:
+                pillars.append(meta["pillar"])
+            for reg in meta["regulations"]:
+                if reg not in regulations:
+                    regulations.append(reg)
         if not mapped_controls:
             errors.append(f"item {item_id}: no valid control mappings")
         out["controls"] = mapped_controls
+        out["pillars"] = sorted(pillars)
+        out["regulations"] = sorted(regulations)
         out_items.append(out)
 
     doc = {

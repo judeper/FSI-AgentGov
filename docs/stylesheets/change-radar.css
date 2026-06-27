@@ -1,8 +1,18 @@
 /* Change Radar feed styles. Uses Material theme variables for light/dark parity. */
 
-.cr-heading {
-  font-size: 1.1rem;
-  margin: 0.5rem 0 0.8rem;
+/* "Roadmap watch" heading + the "(opens in new tab)" cue stay in the a11y tree
+   (heading order / aria-labelledby) but are visually hidden. */
+.md-typeset .cr-heading,
+.cr-visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .cr-staleness {
@@ -73,20 +83,21 @@
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 0.8rem;
+  gap: 0.6rem;
 }
 .cr-card { margin: 0; }
 .cr-card__inner {
   border: 1px solid var(--md-default-fg-color--lightest, #e0e0e0);
   border-radius: 0.3rem;
-  padding: 0.8rem 1rem;
+  padding: 0.7rem 0.9rem;
   background: var(--md-default-bg-color, #fff);
 }
 .cr-card__head {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 0.6rem;
+  align-items: center;
+  gap: 0.4rem 0.6rem;
 }
 .cr-card__title {
   margin: 0;
@@ -115,9 +126,9 @@
 [data-md-color-scheme="slate"] .cr-badge--available { color: #a5d6a7; }
 [data-md-color-scheme="slate"] .cr-badge--planned { color: #81d4fa; }
 
-.cr-card__summary { margin: 0.4rem 0; }
+.cr-card__summary { margin: 0.3rem 0; line-height: 1.45; }
 .cr-card__meta {
-  margin: 0.2rem 0 0.5rem;
+  margin: 0.15rem 0 0;
   font-size: 0.76rem;
   color: var(--md-default-fg-color--light, #666);
   display: flex;
@@ -130,7 +141,7 @@
   flex-wrap: wrap;
   align-items: baseline;
   gap: 0.35rem;
-  margin: 0.3rem 0;
+  margin: 0.25rem 0;
 }
 .cr-chip {
   display: inline-flex;
@@ -146,9 +157,31 @@
 }
 .cr-chip:hover { background: var(--md-accent-fg-color--transparent, rgba(82, 108, 254, 0.1)); }
 .cr-chip__id { font-weight: 700; }
-.cr-chip__title { color: var(--md-default-fg-color--light, #666); }
-.cr-card__review { margin: 0.4rem 0 0; }
+.cr-chip__title {
+  color: var(--md-default-fg-color--light, #666);
+  max-width: 22ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cr-card__review { margin: 0.35rem 0 0.3rem; }
+
+.cr-clear {
+  appearance: none;
+  border: 1px solid var(--md-default-fg-color--lighter, #ccc);
+  background: var(--md-default-bg-color, #fff);
+  color: var(--md-primary-fg-color, #3f51b5);
+  font: inherit;
+  font-size: 0.78rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 0.2rem;
+  cursor: pointer;
+}
+.cr-clear:hover { background: var(--md-code-bg-color, rgba(0, 0, 0, 0.05)); }
+.cr-clear:focus { outline: 2px solid var(--md-accent-fg-color, #526cfe); outline-offset: 2px; }
 
 @media screen and (max-width: 44.9em) {
   .cr-field { min-width: 100%; }
+  .cr-card__meta { flex-direction: column; gap: 0.15rem; }
+  .cr-chip { min-height: 24px; padding-block: 0.25rem; align-items: center; }
 }

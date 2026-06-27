@@ -1,5 +1,8 @@
 ---
 description: An interactive, periodically refreshed watch list that maps recent Microsoft 365 agent-platform roadmap changes to the FSI Agent Governance controls they affect.
+hide:
+  - navigation
+  - toc
 ---
 
 # Change Radar
@@ -16,7 +19,7 @@ affected control; each entry links to the Microsoft 365 roadmap and to the relev
     Microsoft's official notice (linked from each entry) before acting. Roadmap dates and scope are
     set by Microsoft and can change or be withdrawn.
 
-<div id="change-radar" class="cr-container" markdown="0">
+<div id="change-radar-feed" class="cr-container" markdown="0">
   <noscript>
     <div class="admonition warning">
       <p class="admonition-title">JavaScript required</p>

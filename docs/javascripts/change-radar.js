@@ -17,7 +17,7 @@
 (function () {
   "use strict";
 
-  var CONTAINER_ID = "change-radar";
+  var CONTAINER_ID = "change-radar-feed";
   var DATA_FILE = "javascripts/change-radar-data.json";
   var SCRIPT_MARK = "change-radar.js";
   var STALE_DAYS = 45; // curated feed cadence is monthly; warn past ~6 weeks.
@@ -63,6 +63,12 @@
     return out;
   }
 
+  // Numeric sort for dotted control IDs so "1.7" precedes "1.14".
+  function cmpControlId(a, b) {
+    var pa = a.split(".").map(Number), pb = b.split(".").map(Number);
+    return (pa[0] - pb[0]) || ((pa[1] || 0) - (pb[1] || 0));
+  }
+
   function formatDate(iso) {
     var d = new Date(iso);
     if (isNaN(d.getTime())) return iso || "unknown";
@@ -84,7 +90,7 @@
     var stale = age != null && age > STALE_DAYS;
     var banner = el("div", {
       "class": "cr-staleness" + (stale ? " cr-staleness--warn" : ""),
-      "role": "status"
+      "role": "note"
     });
     if (stale) {
       banner.appendChild(el("strong", { text: "This feed may be out of date. " }));
@@ -92,10 +98,8 @@
         "Last curated " + formatDate(generatedAt) + " (" + age + " days ago). Verify items against the Microsoft 365 roadmap."
       ));
     } else {
-      banner.appendChild(el("strong", { text: "Curated as of " + formatDate(generatedAt) + ". " }));
-      banner.appendChild(document.createTextNode(
-        "Mappings are community-suggested and maintainer-reviewed; verify against your own control set and Microsoft's official notice."
-      ));
+      banner.appendChild(el("strong", { text: "Curated as of " + formatDate(generatedAt) + "." }));
+      banner.appendChild(document.createTextNode(" Filter and search the watch list below."));
     }
     return banner;
   }
@@ -131,7 +135,8 @@
       "target": "_blank",
       "rel": "noopener noreferrer"
     }, [item.title || "Untitled change",
-        el("span", { "class": "cr-ext", "aria-hidden": "true", text: " \u2197" })]);
+        el("span", { "class": "cr-ext", "aria-hidden": "true", text: " \u2197" }),
+        el("span", { "class": "cr-visually-hidden", text: " (opens in new tab)" })]);
 
     var head = el("div", { "class": "cr-card__head" }, [
       el("h3", { "class": "cr-card__title" }, [titleLink]),
@@ -157,10 +162,10 @@
     return el("li", { "class": "cr-card" }, [
       el("article", { "class": "cr-card__inner", "aria-label": item.title || "Change" }, [
         head,
-        el("p", { "class": "cr-card__summary", text: item.summary || "" }),
-        meta,
         controls,
-        review
+        review,
+        el("p", { "class": "cr-card__summary", text: item.summary || "" }),
+        meta
       ])
     ]);
   }
@@ -175,12 +180,12 @@
 
     // ---- filter controls ----
     var statuses = uniqueSorted(items.map(function (i) { return i.status; }));
-    var products = uniqueSorted(items.reduce(function (acc, i) {
-      return acc.concat(i.products || []);
-    }, []));
-    var controlIds = uniqueSorted(items.reduce(function (acc, i) {
+    var pillars = uniqueSorted(items.reduce(function (acc, i) { return acc.concat(i.pillars || []); }, []));
+    var regulations = uniqueSorted(items.reduce(function (acc, i) { return acc.concat(i.regulations || []); }, []));
+    var products = uniqueSorted(items.reduce(function (acc, i) { return acc.concat(i.products || []); }, []));
+    var controlIds = items.reduce(function (acc, i) {
       return acc.concat((i.controls || []).map(function (c) { return c.id; }));
-    }, []));
+    }, []).filter(function (v, idx, arr) { return arr.indexOf(v) === idx; }).sort(cmpControlId);
 
     var search = el("input", {
       "id": "cr-search", "type": "search", "class": "cr-input",
@@ -191,36 +196,47 @@
       el("label", { "for": "cr-search", "text": "Search changes" }), search
     ]);
 
-    var statusSel = labelledSelect("cr-status", "Status",
-      [{ value: "", label: "All statuses" }].concat(statuses.map(function (s) { return { value: s, label: s }; })));
-    var productSel = labelledSelect("cr-product", "Product",
-      [{ value: "", label: "All products" }].concat(products.map(function (p) { return { value: p, label: p }; })));
-    var controlSel = labelledSelect("cr-control", "Affected control",
-      [{ value: "", label: "All controls" }].concat(controlIds.map(function (c) { return { value: c, label: "Control " + c }; })));
+    function opts(values, allLabel, fmt) {
+      return [{ value: "", label: allLabel }].concat(values.map(function (v) {
+        return { value: v, label: fmt ? fmt(v) : v };
+      }));
+    }
+    var pillarSel = labelledSelect("cr-pillar", "Pillar", opts(pillars, "All pillars"));
+    var regSel = labelledSelect("cr-regulation", "Regulation", opts(regulations, "All regulations"));
+    var statusSel = labelledSelect("cr-status", "Status", opts(statuses, "All statuses"));
+    var controlSel = labelledSelect("cr-control", "Affected control", opts(controlIds, "All controls", function (c) { return "Control " + c; }));
+    var productSel = labelledSelect("cr-product", "Product", opts(products, "All products"));
+    // Compliance-relevant facets lead; Product is an admin/dev axis, so it trails.
+    var selects = [pillarSel, regSel, statusSel, controlSel, productSel];
 
     var toolbar = el("div", { "class": "cr-toolbar", "role": "search", "aria-label": "Filter Change Radar" }, [
-      searchField, statusSel.wrap, productSel.wrap, controlSel.wrap
+      searchField, pillarSel.wrap, regSel.wrap, statusSel.wrap, controlSel.wrap, productSel.wrap
     ]);
 
     var count = el("p", { "class": "cr-count", "role": "status", "aria-live": "polite" });
     var list = el("ul", { "class": "cr-list", "aria-label": "Roadmap changes" });
-    var empty = el("p", { "class": "cr-empty", "hidden": "hidden", text: "No changes match your filters." });
+    var clearBtn = el("button", { "type": "button", "class": "cr-clear", text: "Clear all filters" });
+    var empty = el("p", { "class": "cr-empty", "hidden": "hidden" }, [
+      document.createTextNode("No changes match your filters. "), clearBtn
+    ]);
 
     function apply() {
       var term = search.value.trim().toLowerCase();
-      var fStatus = statusSel.select.value;
-      var fProduct = productSel.select.value;
-      var fControl = controlSel.select.value;
+      var fPillar = pillarSel.select.value, fReg = regSel.select.value,
+          fStatus = statusSel.select.value, fControl = controlSel.select.value,
+          fProduct = productSel.select.value;
       var shown = 0;
       list.textContent = "";
       items.forEach(function (item) {
         if (fStatus && item.status !== fStatus) return;
+        if (fPillar && (item.pillars || []).indexOf(fPillar) === -1) return;
+        if (fReg && (item.regulations || []).indexOf(fReg) === -1) return;
         if (fProduct && (item.products || []).indexOf(fProduct) === -1) return;
         if (fControl && (item.controls || []).map(function (c) { return c.id; }).indexOf(fControl) === -1) return;
         if (term) {
           var hay = [
             item.title, item.summary, item.whatToReview,
-            (item.products || []).join(" "),
+            (item.products || []).join(" "), (item.pillars || []).join(" "), (item.regulations || []).join(" "),
             (item.controls || []).map(function (c) { return c.id + " " + (c.title || ""); }).join(" ")
           ].join(" ").toLowerCase();
           if (hay.indexOf(term) === -1) return;
@@ -232,10 +248,16 @@
       count.textContent = "Showing " + shown + " of " + items.length + " change" + (items.length === 1 ? "" : "s") + ".";
     }
 
-    [search].forEach(function (n) { n.addEventListener("input", apply); });
-    [statusSel.select, productSel.select, controlSel.select].forEach(function (n) {
-      n.addEventListener("change", apply);
-    });
+    function clearAll() {
+      search.value = "";
+      selects.forEach(function (s) { s.select.value = ""; });
+      apply();
+      search.focus();
+    }
+
+    search.addEventListener("input", apply);
+    selects.forEach(function (s) { s.select.addEventListener("change", apply); });
+    clearBtn.addEventListener("click", clearAll);
 
     var region = el("div", { "class": "cr-results", "role": "region", "aria-labelledby": "cr-heading" }, [
       count, empty, list
