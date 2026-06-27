@@ -1,3 +1,6 @@
+---
+description: "This document describes the comprehensive architecture of the FSI-AgentGov monitoring system for detecting external changes that may require framework updates."
+---
 # Unified Monitoring System Architecture
 
 This document describes the comprehensive architecture of the FSI-AgentGov monitoring system for detecting external changes that may require framework updates.

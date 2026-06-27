@@ -1,3 +1,7 @@
+---
+search:
+  boost: 2
+---
 # Administrator Downloads
 
 Download role-specific checklists to track your implementation progress. Each Excel file contains the controls relevant to your role with status tracking columns.

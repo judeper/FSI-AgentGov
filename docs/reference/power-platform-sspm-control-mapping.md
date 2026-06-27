@@ -1,3 +1,6 @@
+---
+description: "SaaS Security Posture Management (SSPM) tools evaluate Power Platform environments against security baselines."
+---
 # Power Platform SSPM Control Mapping
 
 **Last Updated:** May 2026

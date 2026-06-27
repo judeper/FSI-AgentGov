@@ -369,7 +369,7 @@ If you encounter:
 | **Codex CLI** | `.codex/config.toml` | Model, sandbox, approval policy (local only, gitignored) |
 | **Copilot Context** | `.github/copilot-instructions.md` | Repository structure, workflow guardrails, and design context |
 | **Copilot Prompts** | `.github/prompts/` | Workspace prompts, including `repo-health-check*.prompt.md` and `review-learn-changes.prompt.md` |
-| **Copilot Instructions** | `.github/instructions/` | Auto-included rules, including `fsi-language-rules`, `fsi-control-template`, `build-validation`, and `git-integration` |
+| **Copilot Instructions** | `.github/instructions/` | Auto-included rules, including `fsi-language-rules`, `fsi-control-template`, `build-validation`, `git-integration`, and `commercial-scope` |
 | **Worktrunk** | `.config/wt.toml` | Worktree hooks for parallel agent runs |
 
 ### Copilot Tool Alias Notes

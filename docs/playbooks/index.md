@@ -1,3 +1,7 @@
+---
+search:
+  boost: 2
+---
 # Playbooks Overview
 
 Operational procedures and implementation guides for AI agent governance.

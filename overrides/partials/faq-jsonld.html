@@ -1,0 +1,512 @@
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Where do I start?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Read in this order: README.md (5 min overview) Zones Guide (understand your zone) Quick Start (30 min hands-on) Regulatory Mappings (if regulated)"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What if I don't know which zone my agent should be in?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Use the Zone Decision Matrix: Zone 1: Personal only, M365 data only Zone 2: Team/dept, internal data only Zone 3: Org-wide, customer data, regulated data Ask your manager or compliance officer if unsure."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How long does implementation take?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Depends on current state: Zone 1: 1-2 days (minimal) Zone 2: 1-2 weeks (moderate) Zone 3: 3-6 weeks (comprehensive) Full framework: 8-week phased approach (see the Implementation Checklist)"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why are there 79 controls?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The framework covers: Pillar 1: 29 security controls Pillar 2: 27 management/lifecycle controls Pillar 3: 14 reporting/monitoring controls Pillar 4: 9 SharePoint-specific controls Total = 79 controls covering all governance areas."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need to implement all 79 controls?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Implement based on: Your zone: Zone 1 needs fewer, Zone 3 needs all Your regulations: Implement applicable controls Your risk tolerance: Higher risk = more controls Start with baseline for your zone, add recommended/regulated as you mature."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What's a \"governance level\"?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Each control has 3 levels: Baseline (Level 1): Minimum implementation Recommended (Level 2-3): Best practices Regulated/High-Risk (Level 4): Comprehensive Implement baseline for Zone 1, baseline+recommended for Zone 2, all levels for Zone 3."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I modify the framework?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes! The framework is a starting point. You can: Add controls specific to your organization Combine controls if makes sense Adjust governance levels based on risk Customize for your regulations Maintain version control and document changes."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I prevent users from creating agents in the default environment?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Enable environment routing in Power Platform Admin Center: Navigate to PPAC → Manage → Environment groups Enable Default environment routing Configure routing rules to direct makers to appropriate environments Optionally enable Developer environment auto-provisioning This prevents shadow AI by automatically routing makers to governed environments. See Control 2.15: Environment Routing."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Where can I see all agents across my tenant?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Use the PPAC Inventory experience (Preview): Power Platform Admin Center → Resources → Agents View tenant-wide agent list with metadata Filter by environment, owner, or status Note: Data refreshes every 24 hours; 500 agent display limit Also check M365 Admin Center → Settings → Integrated Apps for published agents. See Control 3.1: Agent Inventory."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I promote an agent from Zone 2 to Zone 3?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Follow the zone promotion process: Complete all Zone 3 governance requirements Submit formal promotion request to Governance Committee Undergo security and compliance review Configure production environment with Managed Environment enabled Use ALM pipelines to deploy from test to production Document promotion and retain evidence See Lifecycle Governance Guide and Control 2.3: Change Management."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What are Environment Groups and how do they help governance?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Environment Groups allow you to: Group environments by zone (Zone 1, Zone 2, Zone 3) Apply consistent governance rules across all environments in a group Enforce connector policies, sharing limits, and AI model restrictions Prevent configuration drift with centralized rule management Navigate to PPAC → Manage → Environment groups to configure. See Control 2.2: Environment Groups."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the Copilot Hub?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The Copilot Hub (in Power Platform Admin Center) provides: Centralized dashboard for agent governance Usage and adoption metrics ROI tracking and business value insights Capacity/consumption monitoring Quick access to governance controls Access via PPAC → Copilot. See Control 3.8: Copilot Hub."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I monitor AI data security risks?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Use Microsoft Purview DSPM for AI: Navigate to purview.microsoft.com → DSPM for AI Review recommendations for AI security Enable activity monitoring for AI interactions Configure DLP policies targeting AI applications Run oversharing assessments for agent knowledge sources See Control 1.6: DSPM for AI."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How many controls are in the framework?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The framework includes 79 controls across four pillars: Pillar 1 - Security: 29 controls (1.1-1.29) covering DLP, encryption, audit logging, eDiscovery Pillar 2 - Management: 27 controls (2.1-2.27) covering lifecycle, change control, environment routing Pillar 3 - Reporting: 14 controls (3.1-3.14) covering inventory, monitoring, incidents, Sentinel Pillar 4 - SharePoint: 9 controls (4.1-4.9) covering SharePoint-specific governance See Control Index for the complete list."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I monitor my Power Platform security posture?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Use the PPAC Security Posture Assessment: Navigate to Power Platform Admin Center → Security → Overview Review your security score (Low/Medium/High) View security recommendations Click recommendations to see remediation steps Track improvements over time This provides a centralized view of tenant security configuration. See Control 3.7: PPAC Security Posture Assessment."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I integrate with Microsoft Sentinel for agent monitoring?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "For Zone 3 agents requiring SOC integration: Configure Microsoft Sentinel workspace in Azure Enable Power Platform data connector in Sentinel Create analytics rules for agent-related security events: Unusual agent data access patterns Connector policy violations Environment configuration changes Configure incident response playbooks Integrate with your SOC procedures This enables real-time threat detection and automated response for production agents. See Control 3.9: Microsoft Sentinel Integration."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can an agent be in multiple zones?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Each agent is in one zone. It may progress through zones: Zone 1 (Personal Productivity) → Zone 2 (Team Collaboration) → Zone 3 (Enterprise Managed)"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What if an agent starts in Zone 1 but needs Zone 2 features?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Promote it through formal process: Request promotion to next zone Get appropriate approvals Implement required controls for new zone Move to new environment Document promotion"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I move an agent from Zone 3 to Zone 2?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, through demotion if: Agent is no longer production-critical Compliance requirements reduced Risk profile decreased Requires governance committee approval and documentation."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What defines \"customer-facing\"?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "If the agent is used by: Customers Clients External parties Regulatory subjects → Must be Zone 3"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Who approves each zone?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Zone 1: Self-service (no approval) Zone 2: Manager/Department Head Zone 3: Governance Committee (Compliance Officer, CISO, General Counsel, CRO)"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How long does approval take?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Zone 1: Immediate (self) Zone 2: 3-5 business days (manager review) Zone 3: 10-14 business days (governance committee)"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What if my approval is denied?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Get feedback and revise: Address concerns raised Provide additional information Re-submit Escalate if needed per the RACI Matrix"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Who is the Governance Committee?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Typically: AI Governance Lead (Chair) Compliance Officer CISO General Counsel Chief Risk Officer (if applicable) Business owner (agent requester) See the RACI Matrix for detailed roles."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which regulations apply to my organization?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "FINRA? If you're a securities broker/dealer SEC? If you're a registered investment adviser or public company SOX? If you're a public company GLBA? If you're a financial institution OCC? If you're a national bank Federal Reserve? If you're a bank holding company Check with your Compliance Officer."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What if multiple regulations apply?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Implement controls that satisfy all: Check Regulatory Mappings for each regulation Take strictest requirement Document compliance with each Implement control at highest level needed Example: If both FINRA 4511 (6yr) and SOX (7yr) apply, implement 7-year retention."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Are there controls I don't need to implement?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Possibly. Review Regulatory Mappings: Find your regulations See applicable controls Implement those controls Others are optional but recommended"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "We're not regulated. Do we still need governance?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, best practices recommend: Basic security (MFA, DLP, audit) Change management Testing before production Incident response Even without regulations, governance protects: Data Operations Reputation Business continuity"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should we do all phases at once?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. The 8-week phased approach recommended: Phase 1 (Weeks 1-2): Assessment Phase 2 (Weeks 3-4): Security baseline Phase 3 (Weeks 5-6): Advanced governance Phase 4 (Weeks 7-8): Finalization !!! info \"Relationship to Adoption Roadmap\" The 8-week implementation phases described above correspond to Phase 0 (Foundation) in the Adoption Roadmap. The roadmap extends the timeline further: Phase 0 (0-60 days): Foundation — corresponds to the FAQ phases above Phase 1 (2-6 months): Production Readiness — scaling governance to all zones Phase 2 (6-12 months): Advanced Governance — mature operations and continuous improvement When planning your implementation, use the FAQ's 8-week breakdown for…"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can we start before full governance is ready?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, by zone: Zone 1: Deploy immediately (no approval needed) Zone 2: Can deploy after basic approval workflow Zone 3: Must have full governance before production Recommend completing Phase 1-2 before Zone 3 deployment."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What if we can't implement all controls by deadline?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Prioritize: Security controls (Pillar 1) - highest priority Regulatory requirements - next priority Management controls (Pillar 2) Reporting controls (Pillar 3) Implement basic version for urgent items, mature over time."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Who leads implementation?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Typically: Project Lead: AI Governance Lead Executive Sponsor: Compliance Officer or CISO Implementation Team: Power Platform Admin (technical) Compliance Officer (regulatory) CISO or Security Admin (security) Internal Audit (independent testing) See the RACI Matrix for detailed roles."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How often should we review controls?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Zone 1: Annual (if tracked) Zone 2: Quarterly Zone 3: Monthly + annual comprehensive"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What's the difference between monitoring and assessment?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Monitoring: Continuous (daily/weekly) tracking of activity Assessment: Periodic (quarterly/annual) evaluation of control effectiveness Both are needed."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do we measure compliance?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Use maturity scorecard: Level 0 (0%): Not implemented Level 1 (25%): Baseline implemented Level 2 (50%): Developing toward recommended Level 3 (75%): Recommended implemented Level 4 (100%): Regulated/high-risk implemented Track progress over time."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What if we find a compliance gap?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Follow incident management: Document the gap Assess severity and impact Create remediation plan Assign owner and deadline Verify remediation Document closure See Control 3.4: Incident Reporting for details."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What platforms does this framework support?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Microsoft 365 agents and related in-suite Copilot experiences, including: Microsoft Copilot Studio agents Agent Builder agents SharePoint agents Teams agents Microsoft 365 Copilot"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do we need specific licenses?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Depends on controls: Basic governance: Standard M365 licenses Advanced governance: Premium licenses recommended for: Purview Audit Premium (longer retention) Managed Environments (governance enforcement) DSPM for AI (data governance) Check with your Microsoft account team."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What about Agent 365 and Entra Agent ID?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Some controls reference Microsoft features that are currently in preview or recently reached GA: Feature Status Access Agent 365 GA (May 1, 2026) Agent 365 or Microsoft 365 E7 per-user license Entra Agent ID GA (April 2026; Agent 365 / M365 E7 licensing bundle GA May 1, 2026) Available in Entra Admin Center Advanced Connector Policies (ACP) GA (runtime enforcement; design-time enforcement rolling out per maker portal — Power Automate first, then Copilot Studio, then Power Apps) Available in PPAC Environment Groups Generally Available Available in PPAC To access these features: Agent 365: Provision Agent 365 or Microsoft 365 E7 per-user licenses from the Microsoft 365 Admin Center Agent ID…"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can we use other governance platforms?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Framework is platform-agnostic. You can: Use ServiceNow for change management Use Jira for incident tracking Use custom compliance tools Mix and match tools Important: Ensure integration and audit trail."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What Microsoft APIs are being deprecated in 2026?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Key deprecation dates affecting this framework: API/Feature Deprecation Date Replacement Impact Application Insights x-api-key March 31, 2026 Entra ID OAuth 2.0 RAI telemetry scripts in DEC solution Office 365 Connectors (incoming webhooks) March 31, 2026 Power Automate Workflows connector Teams notifications; MCM solution uses native connector (unaffected) Reporting Webservice April 6, 2026 Microsoft Graph APIs Usage reporting scripts Connect-ExchangeOnline Basic Auth (SMTP AUTH) March 1 – April 30, 2026 OAuth 2.0 for SMTP AUTH Audit log extraction scripts (SMTP only; other protocols deprecated 2021-2023) !!! warning \"Action Required\" Organizations using custom scripts for audit…"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What licensing changes should we plan for?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Key licensing updates to track: Change Effective Impact Copilot Credits model September 2025 (transitioned) Capacity-based billing for Copilot Studio message capacity Managed Environments for pipelines February 2026 Pipeline targets must be Managed Environments; requires Premium licensing See Control 2.1 for Managed Environment licensing requirements."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do we migrate from x-api-key to Entra ID authentication?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "For Application Insights queries: Create a service principal (App Registration) with Monitoring Reader role Replace API key header with OAuth 2.0 bearer token Use Connect-AzAccount with service principal for automation Old (deprecated): powershell $headers = @{ \"x-api-key\" = $ApiKey } New (Entra ID): powershell $token = (Get-AzAccessToken -ResourceUrl \"https://api.applicationinsights.io\").Token $headers = @{ \"Authorization\" = \"Bearer $token\" } See Deny Event Correlation Report prerequisites for detailed migration steps."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How long do we keep records?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Depends on regulation: FINRA 4511: 6 years, first 2 years in easily accessible place SEC 17a-3/4: 3–6 years (3 years for communications, 6 years for financial records), first 2 years readily accessible SOX 404: 7 years minimum GLBA: 5-7 years OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7): Per model (typically 3+ years) See Regulatory Mappings for your regulations."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What evidence do auditors want to see?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "For each control: Policy documentation (what should happen) Configuration proof (technical setup screenshots) Activity logs (evidence it's working) Test results (verification that it works) Remediation records (how issues were fixed)"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do we prepare for an audit?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Complete preparation process: Inventory all agents (Control 3.1) Document policies and procedures (Control 2.13) Compile audit evidence (activity logs, approvals, tests) Perform control testing (internal audit) Remediate any gaps (document remediation) Create compliance summary (executive overview)"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What if auditors find a violation?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Remediation process: Root cause analysis: Why did it happen? Corrective action: Fix the issue Preventive action: Stop recurrence Documentation: Record everything Evidence: Verify remediation worked Reporting: Report to audit committee"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What if we cannot implement a required control?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Document an exception with risk acceptance: Document the gap: Identify the control and what cannot be implemented Explain the reason: Technical limitation, business constraint, or cost prohibition Assess the risk: What is the potential impact of non-implementation? Identify compensating controls: What alternative measures reduce the risk? Obtain approval: Get sign-off from appropriate authority (see below) Set review date: Schedule periodic re-evaluation"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Who must approve a control exception?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Approval authority depends on the zone and control criticality: Zone Non-Critical Controls Critical Controls Zone 1 Manager AI Governance Lead Zone 2 AI Governance Lead Governance Committee Zone 3 Governance Committee Governance Committee + Executive Sponsor Critical controls include: DLP (1.5), Audit Logging (1.7), MFA (1.11), Access Control (2.8)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What are compensating controls?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Alternative measures that reduce risk when the primary control cannot be implemented: Primary Control Gap Possible Compensating Controls Automated DLP not available Manual review process, restricted data access Environment routing not enabled Weekly audit of default environment, cleanup procedures Sentinel integration not licensed Enhanced manual log review, third-party SIEM Managed Environments not licensed More frequent manual audits, stricter approval process Document compensating controls with evidence of their effectiveness."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How long can an exception remain open?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Exception durations: Temporary exceptions: Maximum 90 days, then re-evaluate Long-term exceptions: Maximum 12 months, requires annual renewal Permanent exceptions: Rare, requires Governance Committee approval and annual attestation All exceptions should include a remediation target date when feasible."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do we document exceptions for auditors?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Maintain an Exception Register with: Control ID and name Exception description (what is not implemented) Business justification Risk assessment (likelihood × impact) Compensating controls (with evidence) Approval record (who approved, when) Review schedule (next review date) Remediation plan (if applicable) Auditors expect documented risk acceptance decisions, not undocumented gaps."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Our DLP policy isn't working.",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Check: Is the policy enabled? Is it scoped to the right locations? Is the rule correctly configured? Are there any exceptions? Have you tested with sample data? See Control 1.5 for troubleshooting steps."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "We're seeing too many false positives on DLP.",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Tune your DLP: Review rule sensitivity Add exceptions for legitimate uses Adjust thresholds Test with realistic data Document exceptions"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Audit logs seem incomplete.",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Verify: Is audit logging enabled? Is retention policy set? Are all locations being logged? Check for export/archival jobs Verify access permissions to audit logs"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "We missed a control deadline.",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Reassess: What's the current state? What's required by your zone/regulation? Can you implement a baseline version quickly? Create revised timeline Document re-plan and approval"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What's the #1 governance mistake?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Not starting with clear policies. Define governance objectives Document approval procedures Communicate expectations Technology is secondary to process"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do we get buy-in?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Key stakeholders: Business: Show governance enables innovation (Zone 1 is fast) Compliance: Show you're meeting requirements IT: Show you're supporting their platform Executives: Show you're reducing risk"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do we scale governance?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "As agents grow: Automate where possible (DLP, audit) Delegate approvals (managers for Zone 2) Create templates (agent request forms) Use dashboards (real-time monitoring) Document procedures (make it repeatable)"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Where do I find details on a specific control?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Reference the control file: Example: \"1.5-data-loss-prevention-dlp-and-sensitivity-labels.md\" Each control has implementation guidance and verification steps"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Who can I contact with questions?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Governance: Contact AI Governance Lead Regulatory: Contact Compliance Officer Technical: Contact Power Platform Admin Security: Contact CISO or Security Admin"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is there a glossary?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes! See Glossary.md for all terms and definitions."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Where can I get training?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "See Control 2.14: Training \u0026 Awareness Program Role-specific training available Annual refresher required Compliance certification recommended"
+      }
+    }
+  ]
+}
+</script>

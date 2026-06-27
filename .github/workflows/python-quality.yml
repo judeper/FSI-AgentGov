@@ -37,6 +37,11 @@ on:
       - 'AGENTS.md'
       - 'assessment/data/solutions-lock.json'
       - 'docs/**/*.md'
+      # Control Explorer data drift check (check_explorer_data_drift.py) must
+      # fire when the generated dataset or its generator inputs change, even
+      # if no control .md changed (e.g. a hand-edit to control-explorer-data.json
+      # or the Explorer JS/CSS assets).
+      - 'docs/javascripts/**'
       # Use the whole data/** tree, not just data/monitor-state.json. A
       # baseline-advance PR also stages data/monitor-state.json.backup and
       # data/monitor-pending/learn/*.json; a pending-blob-only or backup-only
@@ -99,6 +104,7 @@ on:
       - 'AGENTS.md'
       - 'assessment/data/solutions-lock.json'
       - 'docs/**/*.md'
+      - 'docs/javascripts/**'
       # Mirror pull_request.paths: whole data/** tree (backup + pending blobs).
       - 'data/**'
       - 'tests/**'
@@ -170,6 +176,10 @@ jobs:
         run: python scripts/verify_xref_graph.py
       - name: Check control IDs in manifest, CONTROL-INDEX, and mkdocs nav
         run: python scripts/check_manifest_doc_drift.py --check
+      - name: Check Control Explorer data is regenerated from source
+        run: python scripts/check_explorer_data_drift.py --check
+      - name: Check FAQ JSON-LD matches the visible FAQ page
+        run: python scripts/check_faq_jsonld_drift.py --check
       - name: Check assessment coverage matrix is up to date
         run: python scripts/generate_coverage_matrix.py --check
       - name: Install pyyaml for pattern coverage script

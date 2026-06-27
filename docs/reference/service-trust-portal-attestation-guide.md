@@ -1,3 +1,6 @@
+---
+description: "Conflating the two leaves an evidence gap — examiners typically want both Microsoft's attestation pack (from STP) and the firm's own control evidence…"
+---
 # Service Trust Portal Attestation Evidence Guide
 
 **Purpose:** This guide explains how to use the Microsoft **Service Trust Portal (STP)** to pull Microsoft's own attestation and audit-report evidence (SOC 2 Type 2, ISO 27001/27017/27018/27701/42001, FedRAMP, etc.) for examiner submissions and vendor risk-management evidence packages.

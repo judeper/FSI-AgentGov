@@ -1,3 +1,8 @@
+---
+description: "Get up and running with the FSI Agent Governance Framework in 30 minutes."
+search:
+  boost: 2
+---
 # Quick Start Guide
 
 Get up and running with the FSI Agent Governance Framework in 30 minutes.

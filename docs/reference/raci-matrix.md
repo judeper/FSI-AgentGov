@@ -1,3 +1,6 @@
+---
+description: "Define who is Responsible, Accountable, Consulted, and Informed for each governance activity."
+---
 # RACI Matrix: Roles and Responsibilities
 
 Define who is Responsible, Accountable, Consulted, and Informed for each governance activity.

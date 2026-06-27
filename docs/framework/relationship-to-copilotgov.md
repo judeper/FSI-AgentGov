@@ -1,3 +1,6 @@
+---
+description: "Scope boundary between FSI-AgentGov and FSI-CopilotGov, with guidance on when to use each framework."
+---
 # Relationship to FSI-CopilotGov
 
 Scope boundary between FSI-AgentGov and FSI-CopilotGov, with guidance on when to use each framework.

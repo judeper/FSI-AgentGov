@@ -189,8 +189,8 @@ This repository supports GitHub Copilot and Codex CLI, and uses [Worktrunk](http
 ### Workspace Prompts (5)
 Located in `.github/prompts/`: `repo-health-check`, `repo-health-check-analysis`, `repo-health-check-references`, `repo-health-check-scripts`, and `review-learn-changes`.
 
-### Instruction Files (4)
-Located in `.github/instructions/`: `fsi-language-rules`, `fsi-control-template`, `build-validation`, and `git-integration`. Auto-included by `applyTo` glob patterns.
+### Instruction Files (5)
+Located in `.github/instructions/`: `fsi-language-rules`, `fsi-control-template`, `build-validation`, `git-integration`, and `commercial-scope`. Auto-included by `applyTo` glob patterns.
 
 ### VS Code Setup
 Add to your `.vscode/settings.json`:

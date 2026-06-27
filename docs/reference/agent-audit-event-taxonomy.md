@@ -1,3 +1,6 @@
+---
+description: "This reference provides a consolidated taxonomy of audit events relevant to Microsoft 365 AI agent governance, including Copilot Studio custom agents…"
+---
 # Agent Audit Event Taxonomy Reference
 
 !!! warning "Published Operations vs. Conceptual Categories"

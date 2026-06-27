@@ -1,3 +1,6 @@
+---
+description: "Microsoft is already teaching pattern vocabulary in FSI customer meetings."
+---
 <!-- verify-language-rules: allow-second-tier  reason: "CSA positioning guide must quote CAPE and competitor marketing language verbatim (in scare quotes) to teach CSAs how to reframe and respond to common positioning objections." -->
 
 # CSA Positioning Guide — FSI Agent Governance in Microsoft CAPE Conversations
