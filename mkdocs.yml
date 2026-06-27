@@ -133,6 +133,7 @@ extra_css:
   - stylesheets/print.css
   - stylesheets/search-helper.css
   - stylesheets/control-bluf.css
+  - stylesheets/change-radar.css
 
 extra_javascript:
   - javascripts/assessment-loader.js
@@ -142,6 +143,7 @@ extra_javascript:
   - javascripts/print-control.js
   - javascripts/search-helper.js
   - javascripts/control-bluf.js
+  - javascripts/change-radar.js
 
 hooks:
   - scripts/hooks/copy_assessment_data.py
