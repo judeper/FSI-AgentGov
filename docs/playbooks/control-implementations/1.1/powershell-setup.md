@@ -365,8 +365,10 @@ finally {
 Run this before making any configuration changes in a regulated change window. It captures the current state and SHA-256 hashes the output for evidence purposes.
 
 ```powershell
-# PSEUDOCODE — illustrative snapshot pattern; adapt cmdlets to your tenant and module version
-# Run BEFORE any changes. Produces timestamped exports for rollback reference.
+# Pre-change snapshot — run BEFORE any configuration changes in a regulated change window.
+# The cmdlets below (Get-AdminPowerAppEnvironment, Get-AdminPowerAppEnvironmentRoleAssignment)
+# are the same ones used in the Configuration Script above. Adapt $snapshotDir to your
+# evidence path convention and verify the module version pin before running.
 $snapshotDir = ".\snapshots\$(Get-Date -Format 'yyyy-MM-dd_HHmm')"
 New-Item -ItemType Directory -Path $snapshotDir -Force | Out-Null
 
@@ -389,7 +391,7 @@ Get-ChildItem $snapshotDir | ForEach-Object {
 Write-Host "Snapshot saved to $snapshotDir" -ForegroundColor Cyan
 ```
 
-> **PSEUDOCODE — cmdlets may not exist yet in this form.** Verify cmdlet availability in your pinned module version before running in a regulated change window. The snapshot pattern (export → hash → manifest) is the authoritative pattern; adapt to available cmdlets.
+> **Adaptation note:** Adjust `$snapshotDir` to your firm's evidence-path convention. The cmdlets (`Get-AdminPowerAppEnvironment`, `Get-AdminPowerAppEnvironmentRoleAssignment`) are the same ones used in the Configuration Script above — they are real cmdlets from the `Microsoft.PowerApps.Administration.PowerShell` module pinned in Prerequisites. On Dataverse-backed environments, `Get-AdminPowerAppEnvironmentRoleAssignment` returns empty (see the Dataverse warning at the top of this playbook); capture role assignments from PPAC export instead.
 
 ### Rollback procedures
 
