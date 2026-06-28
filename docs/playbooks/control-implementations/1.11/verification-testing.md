@@ -1,4 +1,4 @@
-﻿# Control 1.11 — Conditional Access and Phishing-Resistant MFA: Verification & Testing Playbook
+# Control 1.11 — Conditional Access and Phishing-Resistant MFA: Verification & Testing Playbook
 
 **Control:** 1.11 — Entra Conditional Access + Phishing-Resistant MFA for AI Agents
 **Pillar:** 1 — Security

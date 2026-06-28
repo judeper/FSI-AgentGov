@@ -1,4 +1,4 @@
-﻿# Control 3.1 — Verification & Testing Playbook (Inventory Integrity)
+# Control 3.1 — Verification & Testing Playbook (Inventory Integrity)
 
 **Control:** 3.1 — Agent Inventory and Metadata Management
 **Pillar:** 3 — Reporting

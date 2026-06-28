@@ -1,4 +1,4 @@
-﻿# Control 4.7: M365 Copilot Data Governance — PowerShell Setup
+# Control 4.7 — PowerShell Setup: M365 Copilot Data Governance
 
 > **Companion documents:** [Control 4.7](../../../controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md) · [Portal Walkthrough](portal-walkthrough.md) · [Verification & Testing](verification-testing.md) · [Troubleshooting](troubleshooting.md) · [PowerShell Baseline](../../_shared/powershell-baseline.md)
 >

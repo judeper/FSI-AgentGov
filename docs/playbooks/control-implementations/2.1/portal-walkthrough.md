@@ -1,6 +1,66 @@
 # Portal Walkthrough — Control 2.1: Managed Environments
 
-!!! danger "READ FIRST — Scope, Non-Substitution, and Sibling Routing"
+!!! abstract "Mission brief"
+
+    | | |
+    |---|---|
+    | **What you'll accomplish** | Enable Managed Environments on target environments; configure sharing limits, solution-checker enforcement, IP firewall, Customer Lockbox, tenant isolation, and environment routing |
+    | **Estimated time** | 2–4 hours initial configuration; 30 min per additional environment |
+    | **Required roles** | Power Platform Admin (change windows); Entra Global Admin (CMK + tenant isolation); M365 Admin (Agent 365 integration) |
+    | **Prerequisites** | Premium entitlement coverage confirmed for all active makers; DEV/UAT/PROD environments provisioned; change-management ticket open |
+    | **Rollback** | Disable Managed Environments via PPAC > Environments > {env} > Edit Managed Environment status > Off — resets to defaults; all sharing-limit and IP-firewall settings are lost. See the Rollback / Back-out section below before starting. |
+
+??? note "Scope & regulatory context — expand for sibling routing and non-substitution reminders"
+
+    **This playbook configures Power Platform Managed Environments** — the premium governance substrate that enables sharing limits, solution-checker enforcement, IP firewall, IP-based cookie binding, Customer Lockbox, Customer-Managed Keys, maker welcome content, the weekly usage-insights digest, and tenant isolation for an environment or a group of environments. It walks you through the **Power Platform Admin Center (PPAC)** at [`https://admin.powerplatform.microsoft.com`](https://admin.powerplatform.microsoft.com) and the complementary **Microsoft 365 admin center → Agent 365** governance surface for agents that originate in Microsoft Copilot Studio and surface in Microsoft 365 Copilot.
+
+    **Managed Environments are an enforcement substrate, not a governance program.** They do **NOT** replace:
+
+    - **Model-risk governance** required by OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) and Federal Reserve SR 26-2 (formerly SR 11-7) — see [Control 2.6](../../../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md). A Managed Environment toggle is not an independent model validation.
+    - **Supervisory review by an appropriately registered principal** required by FINRA Rule 3110 — see [Control 2.12](../../../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md). Solution-checker "Block" is not a Series-24 sign-off.
+    - **Books-and-records retention** required by FINRA Rule 4511 and SEC Rules 17a-3 / 17a-4 — see [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) and [Control 3.1](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md). The weekly digest is operational telemetry, not a regulated record.
+    - **Written Supervisory Procedures (WSPs)** documenting who reviews what, when, and how. Examiners hold the firm to its own WSPs.
+
+    Treat this playbook as the technical configuration record that makes the human-and-process controls above operable, evidenced, and auditable.
+
+    **This walkthrough IS for:**
+
+    | In Scope | Surface | Outcome |
+    |---|---|---|
+    | License-entitlement precheck before any toggle | PPAC → Resources → License consumption | Documented entitlement coverage for every active maker before enable |
+    | Enabling Managed Environment on a single environment | PPAC → Environments → {env} → Settings → Enable Managed Environment | Per-environment governance substrate established |
+    | Enabling Managed Environment on a group of environments (bulk) | PPAC → Environments → Edit Managed Environment status | Tier-aligned enable across an entire zone |
+    | Configuring sharing limits for canvas apps, solution-aware cloud flows, agent flows, and Copilot Studio agents | PPAC → Environments → {env} → Settings → Sharing | Sprawl reduced; SoD pre-conditions enforced |
+    | Solution checker enforcement (None / Warn / Block) with documented remediation workflow | PPAC → Environments → {env} → Settings → Solution checker | Critical-issue solutions blocked from import in Zone 3 |
+    | Maker welcome content with WSP and training cross-references | PPAC → Environments → {env} → Settings → Maker welcome content | Documented policy acknowledgment surface |
+    | Usage insights weekly digest with named recipients (commercial only) | PPAC → Environments → {env} → Settings → Usage insights | Weekly operational telemetry to governance and security distribution lists |
+    | IP firewall in audit-only mode for 2–4 weeks before enforcement flip | PPAC → Environments → {env} → Settings → IP firewall | Verified allow-list with no false positives before enforcement |
+    | IP-based cookie binding to bind sessions to source IP | PPAC → Environments → {env} → Settings → IP-based cookie binding | Token-replay risk reduced for Zone 3 |
+    | Customer Lockbox approval workflow for Microsoft engineer access | PPAC → Environments → {env} → Settings → Customer Lockbox | Documented approval of every Microsoft access event |
+    | Customer-Managed Keys via Power Platform Enterprise Policies + Azure Key Vault | PPAC → Policies → Enterprise policies → Encryption | Tenant-controlled encryption key with documented service-coverage exclusions |
+    | Tenant Isolation for Entra-authenticated connectors | PPAC → Security → Identity and access → Tenant isolation | Cross-tenant connector flows controlled at the platform |
+    | Environment routing for new makers (does NOT choose region) | PPAC → Settings → Environment routing | Makers steered into governed personal developer environments or environment groups |
+    | Pipeline targets with Managed Environment status enabled | PPAC → Environments (filter: pipeline target) → Enable Managed Environment | No ungoverned promotion targets in the ALM topology |
+    | Agent 365 governance integration for agents shared from Copilot Studio | M365 admin center → Agent 365 → Pending Requests / Governance | Tenant-level visibility, approval, and blocking for Copilot-surfaced agents |
+    | Maker / approver / admin separation via security group assignment | Entra → Groups; PPAC → Environments → {env} → Settings → Users + permissions | SoD pre-conditions enforced for the environment |
+    | Inactive resource view feeding orphan detection | PPAC → Environments → {env} → Analytics → Inactive resources | Orphan candidates routed to Control 3.6 |
+
+    **This walkthrough is NOT for:**
+
+    | Out of Scope | Use Instead |
+    |---|---|
+    | Tier classification of environments and environment-group membership | [Control 2.2 — Environment Groups and Tier Classification](../../../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) |
+    | DLP policy authoring and connector classification | [Control 1.5](../../../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) and [Control 1.4](../../../controls/pillar-1-security/1.4-advanced-connector-policies-acp.md) |
+    | Agent registry of record across publishers and platforms | [Control 1.2](../../../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) |
+    | Audit-log preservation under FINRA 4511 / SEC 17a-4 | [Control 1.7](../../../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) |
+    | Orphan-agent detection and remediation workflow | [Control 3.6](../../../controls/pillar-3-reporting/3.6-orphaned-agent-detection-and-remediation.md) |
+    | Sentinel ingestion of Power Platform and Agent 365 audit data | [Control 3.9](../../../controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md) |
+    | Agent 365 governance console end-to-end procedures | [Control 2.25](../../../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) |
+    | PowerShell / Microsoft Graph automation for the same surfaces | [`./powershell-setup.md`](./powershell-setup.md) |
+    | Test cases, sample queries, and evidence collection scripts | [`./verification-testing.md`](./verification-testing.md) |
+    | Common errors, missing blades, console behavior anomalies | [`./troubleshooting.md`](./troubleshooting.md) |
+
+!!! warning "Hedged-Language Reminder"
     **This playbook configures Power Platform Managed Environments** — the premium governance substrate that enables sharing limits, solution-checker enforcement, IP firewall, IP-based cookie binding, Customer Lockbox, Customer-Managed Keys, maker welcome content, the weekly usage-insights digest, and tenant isolation for an environment or a group of environments. It walks you through the **Power Platform Admin Center (PPAC)** at [`https://admin.powerplatform.microsoft.com`](https://admin.powerplatform.microsoft.com) and the complementary **Microsoft 365 admin center → Agent 365** governance surface for agents that originate in Microsoft Copilot Studio and surface in Microsoft 365 Copilot.
 
     **Managed Environments are an enforcement substrate, not a governance program.** They do **NOT** replace:
@@ -911,6 +971,38 @@ The Pipeline Governance Cleanup solution (referenced in §14.3) and the orphan-d
 | Pipeline-target Managed-status sweep | OK (column filter) | ✅ Best (scheduled flow + Sentinel alert) | ✅ Best |
 
 Use the portal for changes that benefit from operator-in-the-loop visual confirmation and from organic audit attribution to the operator's UPN. Use PowerShell or Graph for repeated, high-volume, or scheduled operations where the change log is the primary audit artifact.
+
+---
+
+## Rollback / Back-out
+
+**Capture a pre-change snapshot before modifying any setting below.** Managed Environments has no native "undo" — disable resets to defaults, and many settings (sharing limits, IP firewall allow-lists, CMK binding) are lost.
+
+### Pre-change snapshot (required before any configuration change)
+
+1. **Export current environment settings:**
+   - PPAC > **Environments** > {env} > **Settings** — screenshot or screen-record each settings page you will touch.
+   - PPAC > **Environments** > {env} > **Resources** → export the environment list to CSV for audit trail.
+2. **Capture sharing limits:** Screenshot PPAC > Environments > {env} > Settings > **Sharing** before modification.
+3. **Capture solution-checker policy:** Screenshot current enforcement level (None / Warn / Block).
+4. **Document change ticket:** Record the starting state, planned ending state, approver, and rollback authority in your change-management system.
+5. **Notify stakeholders:** Alert any automated flows or API clients that depend on the environment during the change window.
+
+### Rollback procedures by component
+
+| Component | Rollback action | Time to effect | Evidence artifact |
+|---|---|---|---|
+| **Managed Environments (enable → disable)** | PPAC > Environments > {env} > Edit Managed Environment status > **Off** | Immediate | PPAC audit log; before/after screenshot |
+| **Sharing limits** | PPAC > Environments > {env} > Settings > Sharing > restore saved values | Near-immediate | Screenshot comparison |
+| **Solution Checker enforcement** | PPAC > Environments > {env} > Settings > Solution Checker > set to prior level | Near-immediate | Screenshot; change ticket |
+| **IP Firewall (enforcement → audit-only)** | PPAC > Environments > {env} > Settings > IP Firewall > set to **Audit mode** | Within ~15 min | Firewall log comparison |
+| **Tenant Isolation** | PPAC > Security > Identity and access > Tenant Isolation > remove inbound/outbound rules | Immediate | Connector test before/after |
+| **Customer-Managed Keys** | Detach Enterprise Policy from environment (Power Platform admin + Key Vault owner required); note: rotation is irreversible — consult your security team before proceeding | Hours to days; Microsoft escalation may be required | Enterprise Policy audit; Key Vault access log |
+| **Customer Lockbox (disable)** | M365 admin center > Org settings > Security & privacy > Customer Lockbox > **Off** | Near-immediate | M365 audit log |
+| **Environment Routing** | PPAC > Settings > Environment routing > remove or modify the routing rule | Near-immediate | Routing config screenshot |
+
+!!! warning "Managed Environments disable is effectively irreversible in practice"
+    Disabling a Managed Environment removes all sharing limits, IP firewall rules, and associated policy bindings — they do **not** automatically restore if you re-enable. Treat disable as a destructive operation and re-baseline from the pre-change snapshot after re-enabling. Raise a change-management ticket and notify your CISO before disabling a Zone 2 or Zone 3 environment.
 
 ---
 

@@ -1,5 +1,18 @@
 # ASARD Deployment Guide
 
+!!! info "Two overlapping solutions — understand the difference before deploying"
+    This page documents **ASARD (Agent Sharing Access Restriction Detector)**, a Python-based scanning tool at the root of the playbooks directory. A closely related solution, **UASD (Unrestricted Agent Sharing Detector)**, lives under [Advanced Implementations → Unrestricted Agent Sharing Detector](advanced-implementations/unrestricted-agent-sharing-detector/index.md) and is implemented as a Power Automate + Dataverse canvas-app solution.
+
+    | | ASARD | UASD |
+    |---|---|---|
+    | **Canonical name** | Agent Sharing Access Restriction Detector | Unrestricted Agent Sharing Detector |
+    | **Implementation** | Python script + MSAL + BAP API | Power Automate + Dataverse + Canvas App |
+    | **Exception management** | Separate Python-based flow | Dataverse table + approval workflow |
+    | **Related controls** | 1.1 | 1.1, 3.8 |
+    | **Primary doc** | This page | [UASD index](advanced-implementations/unrestricted-agent-sharing-detector/index.md) |
+
+    **Recommendation:** New deployments should evaluate [UASD](advanced-implementations/unrestricted-agent-sharing-detector/index.md) first — it is the newer, integrated solution that does not require a separate Python environment. ASARD remains supported for organizations that deployed it before UASD was available or that prefer a script-based approach.
+
 ## Overview
 
 This guide provides step-by-step instructions for deploying the Agent Sharing Access Restriction Detector (ASARD) solution in a Power Platform tenant. ASARD helps organizations meet regulatory requirements related to agent access controls by detecting and remediating unauthorized agent sharing patterns.

@@ -1,5 +1,8 @@
 # ASARD Troubleshooting Guide
 
+!!! info "Related solution: UASD"
+    This is the troubleshooting guide for **ASARD (Agent Sharing Access Restriction Detector)** (Python-based). If you are using **UASD (Unrestricted Agent Sharing Detector)** (Power Automate + Dataverse), see [UASD index](advanced-implementations/unrestricted-agent-sharing-detector/index.md). For the comparison between the two solutions and deployment guidance, see [ASARD Deployment Guide](asard-deployment-guide.md).
+
 ## Overview
 
 This guide provides diagnostic procedures and resolutions for common issues encountered when operating the Agent Sharing Access Restriction Detector (ASARD) solution.
