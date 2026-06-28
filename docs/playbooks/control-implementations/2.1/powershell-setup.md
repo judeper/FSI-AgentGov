@@ -2155,9 +2155,42 @@ The following table lists every `Fsi-*` helper introduced in this playbook, the 
 
 ---
 
-## Cross-References
+## Rollback / Back-out
 
-### Within Control 2.1
+**Run the validation helper (`-Mode Verify`) before and after every change window.** The orchestrator (`§18`) emits a SHA-256–signed evidence bundle; retain the pre-change bundle as the authoritative rollback reference.
+
+### Pre-change snapshot
+
+Before running any `-Mode Provision` or `-Mode Configure` block, emit and retain a pre-change evidence bundle:
+
+```powershell
+# Capture current state of all target environments before any changes
+# Adapts the §16 verification helper to emit a timestamped pre-change snapshot
+$snapshotLabel = "pre-change-$(Get-Date -Format 'yyyy-MM-dd_HHmm')"
+# Run the §16 verification helper in read-only mode and redirect output to snapshot folder
+# Exact invocation depends on your orchestrator configuration — see §18
+Write-Host "Pre-change snapshot label: $snapshotLabel" -ForegroundColor Cyan
+```
+
+> **PSEUDOCODE — see §16 (Verification Helpers) and §18 (Orchestrator) for the exact read-only invocation pattern for your environment.** The snapshot-before-change discipline is required under [Control 2.3 — Change Management](../../../controls/pillar-2-management/2.3-change-management-and-release-planning.md).
+
+### Rollback patterns
+
+| If this went wrong… | Rollback action |
+|---|---|
+| **Managed Environment enabled on wrong environment** | Disable via `-Mode Disable` on the target environment; re-baseline all settings from pre-change snapshot; raise a change ticket for the mis-targeted enable |
+| **Sharing limits set too restrictively (locked out legitimate users)** | Re-run the sharing-limit section (`§4`) with restored prior values from pre-change snapshot; test with a non-admin account after applying |
+| **IP Firewall enforcement accidentally enabled** | Set IP Firewall back to Audit-Only (`§8`) immediately; restore the allow-list from the pre-change snapshot; validate no users are blocked before re-enabling enforcement |
+| **Solution Checker set to Block prematurely** | Set to Warn (`§5`) until the remediation backlog is cleared; document the temporary demotion in the change ticket |
+| **Tenant Isolation rules over-restricted** | Remove the offending inbound/outbound rules (`§12`); validate connector flows are restored with a representative test connection |
+| **CMK Enterprise Policy detached incorrectly** | Escalate to your Azure Key Vault owner and Microsoft support — CMK detachment may require Microsoft-assisted recovery; do not retry without explicit guidance |
+
+!!! warning "Managed Environments disable cannot be selectively undone"
+    Disabling Managed Environments on an environment removes all sharing limits, IP firewall rules, and solution-checker policies simultaneously. There is no partial rollback. Restore requires re-running all §2–§14 sections from the pre-change snapshot values. Treat disable as a high-risk, change-board-approved operation.
+
+---
+
+## Cross-References
 - [Portal walkthrough](./portal-walkthrough.md) — UI-driven equivalent of `-Mode Provision`
 - [Verification testing](./verification-testing.md) — manual steps that complement `-Mode Verify`
 - [Troubleshooting](./troubleshooting.md) — recovery paths for the `Fsi21-*` error tokens

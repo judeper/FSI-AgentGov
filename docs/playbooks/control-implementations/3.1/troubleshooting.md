@@ -1,4 +1,4 @@
-﻿# Control 3.1 — Agent Inventory and Metadata Management: Troubleshooting Playbook
+# Control 3.1 — Agent Inventory and Metadata Management: Troubleshooting Playbook
 
 > **Scope.** Failure modes, diagnostics, and FSI-aligned incident handling for Control 3.1 (Agent Inventory and Metadata Management). Use this playbook when the consolidated agent inventory is incomplete, drifted, tampered with, or mis-classified across Microsoft 365 Copilot Hub, Power Platform Admin Center (PPAC), Microsoft Graph, Microsoft Purview, and the governance register.
 >

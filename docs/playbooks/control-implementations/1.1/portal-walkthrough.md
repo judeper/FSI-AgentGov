@@ -241,6 +241,34 @@ The current GA flow is **instance-scoped**, not agent-scoped — you must drill 
 
 ---
 
+## Rollback / Back-out
+
+**Capture a pre-change snapshot before modifying any setting.** Most publishing and access restrictions applied in this playbook take up to ~1 hour to enforce, and authentication changes take effect only after re-publishing each agent.
+
+### Pre-change snapshot (required before any configuration change)
+
+1. **Screenshot current tenant settings:** PPAC > Manage > Tenant settings — screenshot the Copilot Studio authors, generative-AI settings, and any other toggles you plan to change.
+2. **Record current security group memberships:** Export Entra group members for `FSI-Agent-Makers-*`, `FSI-Agent-Publishers-Prod`, and any other groups you will modify.
+3. **Screenshot current environment role assignments:** PPAC > Environments > {env} > Settings > Users + permissions > Security roles — screenshot the "Environment Maker" and "Copilot Author" role assignments.
+4. **Record current Managed Environment sharing limits:** PPAC > Environments > {env} > Settings > Sharing limits — screenshot before changes.
+5. **Open a change-management ticket** with the starting state, planned ending state, approver, and rollback authority before starting.
+
+### Rollback procedures by component
+
+| Component | Rollback action | Time to effect |
+|---|---|---|
+| **Copilot Studio authors (tenant setting)** | PPAC > Manage > Tenant settings > Copilot Studio authors > restore prior setting (All / original security groups) | Up to ~1 hour |
+| **Environment Maker role removal** | PPAC > Environments > {env} > Settings > Users + permissions > Security roles > re-add the security group(s) removed | Near-immediate |
+| **Managed Environment sharing limits** | PPAC > Environments > {env} > Settings > Sharing limits > restore prior values from screenshot | Near-immediate |
+| **Agent authentication (Step 6)** | Copilot Studio > Settings > Security > set authentication back to prior mode > **Re-publish the agent** | Only after re-publish |
+| **Generative AI feature toggle (Step 8)** | PPAC > Manage > Tenant settings > restore AI feature toggle to prior state | Up to ~1 hour |
+| **Blocked agents (Step 9)** | M365 Admin Center > Copilot > Agents & connectors > Agents > select agent > Instance availability > unblock the instance | Near-immediate |
+
+!!! warning "Authentication rollback requires re-publish"
+    Reverting agent authentication settings (Step 6) does **not** take effect until each affected agent is re-published. Agents in active sessions continue to use the prior authentication mode until their next session start after the re-publish.
+
+---
+
 ## Validation
 
 After completing these steps, verify:

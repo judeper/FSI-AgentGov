@@ -1,4 +1,4 @@
-﻿# Control 3.1 — PowerShell Setup: Agent Inventory and Metadata Management Automation
+# Control 3.1 — PowerShell Setup: Agent Inventory and Metadata Management Automation
 
 > **Scope.** This playbook automates the multi-plane discovery, reconciliation, enrichment, and evidence emission required by Control 3.1 across **Microsoft Copilot Studio bots, declarative agents, Microsoft 365 Copilot extensibility, MCP servers, the emerging Agent Registry / Agent 365 surface, SharePoint Connected agents, and Azure AI Foundry agent resources** in US financial services tenants. It assumes you have already read [`../../_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) (referenced below as **BL-§N**) and the parent control specification [`../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md`](../../../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md).
 >
