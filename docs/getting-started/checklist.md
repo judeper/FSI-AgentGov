@@ -5,6 +5,12 @@ description: "Step-by-step checklist for implementing the FSI Agent Governance F
 
 Step-by-step checklist for implementing the FSI Agent Governance Framework.
 
+!!! note "Reference checklist — state is not saved between visits"
+    This checklist supports planning and team review. Check state is not persisted across sessions.
+    To track your organization's live progress against all 79 controls, use the
+    [Readiness Assessment](../assessment/index.md) — results persist across sessions and are
+    exportable to Excel, JSON, and PDF.
+
 !!! info "You don't need to implement all 79 controls at once"
     Start with the highest governance zone currently in active use at your organization and its foundational controls. Mature from there.
 
