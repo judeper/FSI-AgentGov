@@ -22,7 +22,7 @@ Mapping of framework controls to regulatory requirements. Jump to any regulation
 | **SOX 302/404** | Internal Controls (public companies) | 2.8, 1.7, 3.3, 2.3 | [↓](#sox-section-302404-internal-controls) |
 | **GLBA 501-505** | Data Safeguards (all FSI) | 1.5, 1.7, 2.7, 1.8 | [↓](#glba-safeguards-rule-501-505) |
 | **Reg S-P** | Consumer Privacy (BD/RIA) | 1.5, 1.8, 3.4, 2.7 | [↓](#sec-regulation-s-p-privacy-of-consumer-financial-information) |
-| **OCC 2026-13 / Fed SR 26-2** | Model Risk Management | 2.6, 2.11, 2.5, 3.2 | [↓](#occ-2026-13-fed-sr-26-2-model-risk-management) |
+| **OCC 2026-13 / Fed SR 26-2** | Model Risk Management | 2.6, 2.11, 2.5, 3.2 | [↓](#occ-bulletin-2026-13-fed-sr-26-2-model-risk-management) |
 | **ECOA / Reg B** | Fair Lending | 2.11, 2.12, 2.19 | [↓](#federal-reserve-guidance-fair-lending-ecoa) |
 | **CFTC 1.31** | Recordkeeping (futures/swaps) | 1.7, 1.9, 3.1 | [↓](#cftc-rule-131-recordkeeping-requirements) |
 | **NFA 2-9** | Supervision (FCM/IB/CPO/CTA) | 2.12, 3.3, 1.1, 2.3 | [↓](#nfa-compliance-rule-2-9-supervision) |
@@ -836,7 +836,9 @@ Framework controls relevant to SEC Regulation S-P are listed in the Applicable C
 
 ---
 
-## OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Fed SR 26-2 (formerly SR 11-7) - Model Risk Management { #occ-2026-13-fed-sr-26-2-model-risk-management }
+## OCC Bulletin 2026-13 / Fed SR 26-2 - Model Risk Management
+
+*OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12) / Fed SR 26-2 (formerly SR 11-7).*
 
 ### Overview
 Applies to national banks and federal savings associations. Requires governance framework for models used in business decisions.
