@@ -8,6 +8,12 @@ Pillar 3 establishes the reporting and monitoring capabilities required to maint
 
 **Primary Regulatory Alignment:** FINRA 3110 (supervision), FINRA 4511 (recordkeeping), SEC 17a-3/4 (records)
 
+!!! danger "⚠️ Action Required by July 1, 2026 — Agent 365 Required for AI Agent Inventory"
+    After **2026-07-01**, Defender for Cloud Apps alone no longer provides AI Agent Inventory. **Agent 365** (or Microsoft 365 E7 / Frontier Suite) is required to retain AI Agent Inventory visibility. Third-party cloud agent discovery via Defender for Cloud connectors also ends on this date; transition to Registry sync (Preview) before the deadline. See [Control 3.7](3.7-ppac-security-posture-assessment.md) and [Control 3.6](3.6-orphaned-agent-detection-and-remediation.md) for full details.
+
+!!! note "Retention Period Guidance for Pillar 3 Controls"
+    Retention periods cited across Pillar 3 controls reflect the **regulatory minimum floors**, not firm policy maxima. FINRA Rule 4511 and SEC Rule 17a-4 set a **6-year minimum** for most broker-dealer books-and-records (with the first 3 years readily accessible). Periods vary by record class — some classes carry shorter requirements (e.g., 3 years under SEC 17a-3) and some firms configure 7 years as an internal buffer. Where a control states a specific period, treat it as the floor for that record class. **Always verify record-class-specific requirements with qualified counsel** before finalizing retention policy configuration.
+
 **Control Categories:**
 
 | Category | Controls | Focus |
