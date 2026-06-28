@@ -32,7 +32,7 @@ Canonical, framework-friendly role names used throughout this framework (control
 | **Entra Security Admin** | Security configuration, policy, and Defender XDR access | Security Administrator, Defender XDR Admin (informal) |
 | **Entra Global Reader** | Read-only tenant visibility | Global Reader |
 | **Entra Security Reader** | Read-only security visibility | Security Reader |
-| **AI Administrator** | Manage all aspects of Microsoft 365 Copilot and AI-related enterprise services in Microsoft 365 (Copilot settings, AI services, connector delegation, Copilot feature access controls, and agent governance settings). Privileged role. Role template ID `d2562ede-74db-457e-a7b6-544e236ebb61`. See [Microsoft Learn](https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/permissions-reference#ai-administrator). | Microsoft 365 AI Administrator |
+| **AI Administrator** | Manage all aspects of Microsoft 365 Copilot and AI-related enterprise services in Microsoft 365 (Copilot settings, AI services, connector delegation, Copilot feature access controls, and agent governance settings). Privileged role. Role template ID `d2562ede-74db-457e-a7b6-544e236ebb61`. See [Microsoft Learn](https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/permissions-reference#ai-administrator). | Microsoft 365 AI Administrator, AI / Azure AI Foundry Admin |
 | **AI Reader** | Read all aspects of Microsoft 365 Copilot and AI-related enterprise services (read-only counterpart to AI Administrator). Privileged role. Role template ID `1fe13547-53f6-408d-ac04-7f8eed167b38`. See [Microsoft Learn](https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/permissions-reference#ai-reader). | Microsoft 365 AI Reader |
 | **Entra Agent ID Admin** | Manage all aspects of agents in a tenant including identity lifecycle operations for agent blueprints, agent service principals, agent identities, and agentic users. Privileged role. Role template ID `db506228-d27e-4b7d-95e5-295956d6615f`. See [Microsoft Learn](https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/permissions-reference#agent-id-administrator). | Agent ID Administrator |
 | **Entra Agent ID Developer** | Create an agent identity blueprint and its agent identity blueprint principal in a tenant; user is added as an owner of the created blueprint and its principal. Role template ID `adb2368d-a9be-41b5-8667-d96778e081b0`. See [Microsoft Learn](https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/permissions-reference#agent-id-developer). | Agent ID Developer |
@@ -136,13 +136,19 @@ For FSI organizations implementing agent governance, selecting the right adminis
 
 ---
 
-## Governance Roles (Non-Admin)
+## Business and Governance Roles
 
-These roles appear in some controls under **Support & Questions** or governance workflows.
+These roles are **organizational** (not Entra built-in roles). Use the canonical names below in controls, playbooks, and policy documents. Do NOT use informal variants or overly formal titles.
 
-- **AI Governance Lead**
-- **Compliance Officer**
-- **Security Team** (organizational function, not a directory role)
+### Governance Roles (Non-Admin)
+
+These roles appear in controls under **Roles & Responsibilities** for governance workflows. They represent organizational functions, not Microsoft Entra directory roles.
+
+| Canonical Role | Scope | Accepted Aliases (Normalize From) |
+|---|---|---|
+| **AI Governance Lead** | Organization-wide | Governance Lead, AI Gov Lead, AI Governance Officer |
+| **Compliance Officer** | Organization-wide | Chief Compliance Officer, CCO (when acting as day-to-day contact), Compliance Manager |
+| **Security Team** | Organizational function | Security Operations Team, SOC Team, Information Security Team |
 
 ---
 
