@@ -1,4 +1,4 @@
-﻿# Control 3.4 — Troubleshooting: Incident Reporting and Root Cause Analysis
+# Control 3.4 — Troubleshooting: Incident Reporting and Root Cause Analysis
 
 > **Companion playbooks.** [Portal walkthrough](portal-walkthrough.md) · [PowerShell setup](powershell-setup.md) · [Verification & testing](verification-testing.md)
 >
