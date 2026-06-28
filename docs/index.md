@@ -6,7 +6,7 @@ search:
   boost: 2
 ---
 
-<div class="home-hero-layout">
+<div class="home-hero-layout" markdown>
 <div class="home-hero" markdown>
 
 # Govern Microsoft 365 AI agents — with evidence, not guesswork
