@@ -1185,10 +1185,10 @@ Framework addresses consumer protection topics through 6 mapped controls. CFPB-s
 ## SEC Regulation S-ID (Red Flags Rule)
 
 ### Overview
-Identity theft prevention programs for covered accounts under 16 CFR Part 314.
+Identity theft prevention programs for covered accounts under 17 CFR Part 248 Subpart C (§§ 248.201–248.202).
 
 ### Framework Coverage
-SEC Regulation S-ID is not directly addressed by this framework. Organizations deploying agents that handle customer identity verification should implement red flags detection procedures per 16 CFR Part 314.
+SEC Regulation S-ID is not directly addressed by this framework. Organizations deploying agents that handle customer identity verification should implement red flags detection procedures per 17 CFR Part 248 Subpart C.
 
 **Related Controls:**
 - [1.8 - Runtime Protection](../controls/pillar-1-security/1.8-runtime-protection-and-external-threat-detection.md) - Synthetic identity detection
