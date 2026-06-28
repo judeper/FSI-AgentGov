@@ -134,7 +134,7 @@ Add-PowerAppsAccount
 | `Get-Agt21AuditCorrelation` | Wraps Purview `Search-UnifiedAuditLog` with the standard ME RecordTypes | 22, 25 |
 | `Get-Agt21Drift` | Diffs IaC desired state vs `Get-AdminPowerAppEnvironment` actual state | 24 |
 
-The helper definitions are maintained in `scripts/control-2.1/Agt21-Helpers.ps1` and reviewed quarterly. All helpers are read-only by contract — they perform no `Set-*` or `New-*` calls.
+The read-only diagnostic helpers above are defined inline in this troubleshooting playbook and use the `Agt21` prefix as a diagnostic namespace scoped to this file. They are **separate from** the `Fsi-*` mutation helpers in the sister [PowerShell Setup](powershell-setup.md) playbook — do not substitute one set for the other, and do not call `Fsi-*` helpers from diagnostic workflows without understanding their mutation potential. All helpers in this catalog are read-only — they perform no `Set-*` or `New-*` calls.
 
 ```powershell
 # Standard inventory call used at the top of nearly every scenario
