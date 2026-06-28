@@ -3,6 +3,8 @@ description: "Roles, responsibilities, and governance structure for AI agent ove
 ---
 # Operating Model
 
+> **Framework layer — Core track.** Defines the RACI, roles, and governance committee structure — the organizational layer that makes the technical controls operational.
+
 Roles, responsibilities, and governance structure for AI agent oversight.
 
 ---
@@ -469,6 +471,14 @@ These functions can be organized in one of three structural shapes: **Centralize
 ### Cross-Link to the Full Blueprint
 
 For the full CoE blueprint — including function-by-function mandates, shape selection guidance, lifecycle ownership matrix, FSI-specific anti-patterns, and examiner-facing implications — see [Agentic Center of Excellence](agentic-coe.md). The CoE blueprint is **strategic** and belongs in executive sponsor and AI governance lead planning conversations. Admins implementing individual controls should start with the [control catalog](../controls/CONTROL-INDEX.md) instead.
+
+---
+
+!!! info "Key controls implementing the operating model"
+    **Accountability & access:** [2.8 — Access Control & Segregation of Duties](../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md) · [3.1 — Agent Inventory](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md)  
+    **Reporting & review:** [3.3 — Compliance Reporting](../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) · [3.4 — Incident Reporting](../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md)
+
+**Next →** [Governance Cadence](governance-cadence.md) — The structured review schedule that operationalizes the roles and accountabilities defined here.
 
 ---
 

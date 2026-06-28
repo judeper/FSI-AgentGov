@@ -3,6 +3,8 @@ description: "Microsoft's agent governance architecture represents a fundamental
 ---
 # Unified Agent Governance: Agent 365, Entra Agent ID, and Admin Center Settings
 
+> **Framework layer — Advanced & Scaling track.** Unified control plane architecture covering Entra Agent ID, Microsoft Agent 365, and Admin Center settings; addresses the identity and observability layer required for Zone 2–3 governance.
+
 **Last Updated:** June 2026
 
 !!! info "Generally Available — May 2026"
@@ -1092,6 +1094,13 @@ Agent 365 and Entra Agent ID help support multiple FSI regulatory requirements b
 - New Capabilities for AI Admins from Ignite 2025 <!-- URL returned HTTP 400 as of March 2026; original link removed: https://techcommunity.microsoft.com/blog/microsoft365copilotblog/new-agent-and-ai-management-capabilities-from-ignite-2025/4314229 -->
 - [Four Priorities for AI-Powered Identity and Network Access Security in 2026](https://www.microsoft.com/en-us/security/blog/2026/01/20/four-priorities-for-ai-powered-identity-and-network-access-security-in-2026/)
 - [New Era of Agents, New Era of Posture](https://www.microsoft.com/en-us/security/blog/2026/01/21/new-era-of-agents-new-era-of-posture/)
+
+---
+
+!!! info "Key controls implementing unified agent governance"
+    [1.2 — Agent Registry](../controls/pillar-1-security/1.2-agent-registry-and-integrated-apps-management.md) · [2.25 — Agent 365 Admin Center Governance](../controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md) · [2.26 — Entra Agent ID Identity Governance](../controls/pillar-2-management/2.26-entra-agent-id-identity-governance.md) · [3.13 — Agent 365 Analytics](../controls/pillar-3-reporting/3.13-agent-365-admin-center-analytics.md)
+
+**Next →** [Solutions Integration](solutions-integration.md) — Companion automation that operationalizes the identity and observability controls described here.
 
 ---
 

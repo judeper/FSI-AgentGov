@@ -3,6 +3,8 @@ description: "Structured review schedule for AI agent governance effectiveness a
 ---
 # Governance Cadence
 
+> **Framework layer — Core track.** Establishes the recurring review schedule that keeps controls current and organizations examination-ready across daily, weekly, monthly, quarterly, and annual cycles.
+
 Structured review schedule for AI agent governance effectiveness and examination readiness.
 
 ---
@@ -302,6 +304,14 @@ Maintain these artifacts for regulatory examination:
 - [Agent Lifecycle](agent-lifecycle.md) — Lifecycle governance requirements
 - [Operating Model](operating-model.md) — Roles and responsibilities
 - [Adoption Roadmap](adoption-roadmap.md) — Implementation guidance
+
+---
+
+!!! info "Key controls implementing governance cadence"
+    **Monitoring & inventory:** [3.1 — Agent Inventory](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) · [3.3 — Compliance Reporting](../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) · [1.7 — Audit Logging](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md)  
+    **Incident & risk:** [3.4 — Incident Reporting](../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md) · [3.8 — Governance Dashboard](../controls/pillar-3-reporting/3.8-copilot-hub-and-governance-dashboard.md)
+
+**Next →** [Adoption Roadmap](adoption-roadmap.md) — Phased plan sequencing these governance reviews into a 0–12 month implementation timeline.
 
 ---
 
