@@ -97,7 +97,7 @@ $ErrorActionPreference = 'Stop'
 
 ### 0.3 PRE gates (must all pass before TC-1 — TC-20 execute)
 
-The bootstrap script `Invoke-Me21PreFlight.ps1` (in the sister [PowerShell Setup](powershell-setup.md) playbook) runs eight pre-flight gates. Any `FAIL` halts the suite and emits a single evidence artifact `preflight-FAILED-<runId>.json`.
+The bootstrap function `Invoke-Me21PreFlight` runs eight pre-flight gates before TC-1 executes. This function is **not** defined in the sister [PowerShell Setup](powershell-setup.md) playbook (which uses the `Fsi-` helper namespace); implement it as a standalone pre-flight script using the gate specifications in the table below, or substitute `Invoke-Fsi-Control21Setup -Mode Verify` from the [PowerShell Setup](powershell-setup.md) playbook (§18.2), which covers the equivalent module-pinning, session, and licensing gates. Any gate `FAIL` halts the suite and emits a single evidence artifact `preflight-FAILED-<runId>.json`.
 
 | Gate | ID | Purpose | Failure behavior |
 |---|---|---|---|
@@ -398,7 +398,10 @@ Cross-cutting pattern for every TC: emit a single evidence record (the §0.6 sch
 
     $perEnv = foreach ($env in $envs) {
         $makers = Get-AdminPowerAppCdsDatabaseLanguages -EnvironmentName $env.EnvironmentName -ErrorAction SilentlyContinue # placeholder for maker-list call
-        # In production, use the Dataverse `systemuser` query; see PowerShell Setup §6 for the canonical helper.
+        # In production, enumerate makers via Get-AdminPowerAppEnvironmentRoleAssignment (same cmdlet
+        # used in the sister PowerShell Setup playbook, §3 Test-Fsi-ManagedEnvLicensing) or via the
+        # Dataverse `systemuser` Web API for Dataverse-backed environments.
+        # Get-Me21EnvironmentMaker is a local helper defined in this verification-testing playbook.
         $makerList = Get-Me21EnvironmentMaker -EnvironmentName $env.EnvironmentName
 
         $nonCompliant = foreach ($m in $makerList) {
@@ -1484,7 +1487,10 @@ When a regulator (FINRA, SEC, OCC, NYDFS, FFIEC) requests evidence on short noti
 #Requires -Modules @{ ModuleName='Pester'; ModuleVersion='5.5.0' }
 
 BeforeAll {
-    . $PSScriptRoot/Invoke-Me21PreFlight.ps1
+    # Invoke-Me21PreFlight is defined in this verification-testing playbook (§0.3 gate logic).
+    # If running via an external Pester runner, extract the function to a .ps1 file and dot-source it here.
+    # Alternatively, substitute: Invoke-Fsi-Control21Setup -Mode Verify -EvidencePath $env:ME21_EVIDENCE_ROOT
+    # (from the sister PowerShell Setup playbook, §18.2) which runs the equivalent prerequisite gates.
     Invoke-Me21PreFlight -PowerPlatformEndpoint $env:ME21_ENDPOINT
 }
 
@@ -1507,7 +1513,7 @@ Describe 'Control 2.1 — Managed Environments' -Tag 'me21' {
 }
 ```
 
-The full Pester suite (`Invoke-Me21Tests.ps1`) lives in the sister [PowerShell Setup](powershell-setup.md) playbook, §10.
+For automated Pester coverage of the `Fsi-` configuration helpers, see the sister [PowerShell Setup](powershell-setup.md) playbook, §19.1 (Pester validation skeleton). Use `Invoke-Fsi-Control21Setup -Mode Verify` (§18.2) for routine automated verification runs. Note: PS Setup §10 is Customer Lockbox — it does not contain a test suite.
 
 ---
 

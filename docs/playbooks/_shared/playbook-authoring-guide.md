@@ -255,6 +255,59 @@ The `???` syntax creates a closed-by-default collapsible block. Simple playbooks
 
 ---
 
+## PowerShell Helper Namespace Convention
+
+Each control's four-playbook set must use **one canonical PowerShell function prefix** for helpers referenced across siblings. Helper functions called from one sibling playbook that are defined in another sibling must use the same prefix — mixed namespaces cause "command not found" errors when an admin copies a cmdlet name from one sibling into the workflow of another.
+
+### Rule: One prefix per control
+
+| Control | Canonical prefix | Defined in |
+|---|---|---|
+| 1.1 | *(none — uses bare module cmdlets)* | `powershell-setup.md` inline |
+| 2.1 | `Fsi-` (e.g., `Invoke-Fsi-Control21Setup`, `Set-Fsi-SharingLimits`) | `powershell-setup.md` |
+| 3.1 | `Agt31` (e.g., `Initialize-Agt31Session`, `Export-Agt31EvidencePack`) | `powershell-setup.md` |
+
+For new controls, choose the prefix at authoring time and apply it consistently across all four playbooks. The `powershell-setup.md` playbook is the **canonical definition source**; troubleshooting and verification playbooks that need their own diagnostic helpers must:
+- Use the **same prefix** if a helper is referenced from the PowerShell Setup playbook, OR
+- Clearly scope any playbook-local helpers (e.g., with a comment or a distinct local-only prefix) and **never claim a local helper is "in the sister PowerShell Setup playbook"** unless it actually appears in that file.
+
+### What "playbook-local helper" means
+
+Some troubleshooting and verification playbooks define read-only diagnostic helpers that are not exported from the PowerShell Setup playbook:
+- `2.1/troubleshooting.md` defines `Agt21`-prefixed read-only helpers inline. These are **not** the same as the `Fsi-*` helpers in `powershell-setup.md`.
+- `2.1/verification-testing.md` defines `Me21`-prefixed evidence-infrastructure helpers inline (e.g., `New-Me21RunId`, `New-Me21EvidencePack`, `Test-Me21EvidenceSchema`). These are self-contained and not defined in `powershell-setup.md`.
+
+To prevent broken cross-refs: if a code block calls a function by name, that function must either be defined in the **same file**, or the text must include a verified link to the exact section in the sibling file where the definition lives.
+
+### Cross-reference hygiene checklist
+
+Before committing any playbook update that adds a helper call:
+
+- [ ] Is the function defined in this file? If not, which sibling file and which section?
+- [ ] Does the referenced function name **exactly** match what appears in the sibling file? (Search the sibling file to confirm.)
+- [ ] Does the cross-reference include a link to the correct section (`§N`), not just a link to the playbook?
+- [ ] Is the prefix consistent with the control's canonical prefix?
+
+---
+
+## Follow-up Flag: PLAYBOOKS-02 (long-tail)
+
+**Status:** Exemplar controls fixed (June 2026 sprint — 1.1, 2.1, 3.1) | Scope: 76 remaining controls
+
+The cross-ref and namespace issues fixed in the exemplar controls (1.1, 2.1, 3.1) likely appear across the full 316-file set. Fixes applied:
+- `2.1/verification-testing.md`: removed broken claim that `Invoke-Me21PreFlight.ps1` is in PowerShell Setup; fixed broken `§10`/`Invoke-Me21Tests.ps1` Pester reference (§19.1 is the correct location); fixed wrong `§6` cross-ref for maker enumeration helper
+- `2.1/troubleshooting.md`: removed broken `scripts/control-2.1/Agt21-Helpers.ps1` external-script reference; helpers are inline in this file
+- `1.1/powershell-setup.md`: removed misleading "PSEUDOCODE" labels from rollback snapshot block (cmdlets are real and used in the same file)
+
+**Remaining rollout (not in this sprint):**
+- Audit all 316 files for "see sister playbook" cross-refs that don't resolve to an existing function or section
+- Standardize function prefixes across all 79 controls' four-playbook sets
+- Add a CI lint that greps cross-referenced function names against their claimed definition location
+
+**CI enforcement (proposed):** A `scripts/verify_playbook_xrefs.py` script should verify that any text matching "in the sister \[PowerShell Setup\]" is followed by a function name that actually appears in the referenced sibling. **This CI gate does not exist yet — flagged for the follow-up sprint.**
+
+---
+
 ## Follow-up Flag: PLAYBOOKS-01
 
 **Status:** Flagged for follow-up sprint | Scope: 316 files across 79 controls × 4 playbook types
