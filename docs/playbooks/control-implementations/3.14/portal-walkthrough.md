@@ -1,4 +1,4 @@
-# Playbook 3.14-A: Portal Walkthrough — Configuring Entra Diagnostic Settings and Verifying Telemetry in Admin Center
+# Control 3.14 — Portal Walkthrough: Agent 365 Observability SDK and Custom Agent Telemetry
 
 **Playbook ID:** 3.14-A
 **Control:** 3.14 — Agent 365 Observability SDK and Custom Agent Telemetry

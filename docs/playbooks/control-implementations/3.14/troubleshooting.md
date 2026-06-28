@@ -1,4 +1,4 @@
-# Playbook 3.14-D: Troubleshooting — Resolving SDK Integration and Telemetry Ingestion Issues
+# Control 3.14 — Troubleshooting: Agent 365 Observability SDK and Custom Agent Telemetry
 
 **Playbook ID:** 3.14-D
 **Control:** 3.14 — Agent 365 Observability SDK and Custom Agent Telemetry

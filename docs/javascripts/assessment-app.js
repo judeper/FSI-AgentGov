@@ -3557,6 +3557,23 @@
       "for professional compliance guidance."
     ));
 
+    // ASSESS-03: Coverage disclosure — mirrors the agenda export's "Score basis" line so the
+    // reader sees it before any score rather than only in the downloaded export.
+    var _answered = Object.keys(this.state.responses).length;
+    var _total = this.data.controls.length;
+    wrap.appendChild(h("div", {
+      className: "ag-coverage-notice",
+      style: "font-size:0.82rem;padding:0.4rem 0.75rem;margin-bottom:0.75rem;" +
+             "background:var(--md-code-bg-color,#f5f5f5);" +
+             "border-left:3px solid var(--md-primary-fg-color,#3f51b5);" +
+             "border-radius:2px;color:var(--md-default-fg-color,#333)",
+      role: "note",
+      "aria-label": "Assessment coverage notice"
+    },
+      "\u2139\uFE0F Based on " + _answered + " of " + _total + " controls assessed \u2014 " +
+      "self-reported; not comparable to the telemetry engine\u2019s maturity score."
+    ));
+
     // Tabs
     var tabs = [
       { id: "scorecard", label: "Executive Scorecard" },
@@ -3726,9 +3743,10 @@
     barSection.appendChild(h("div", { className: "ag-card-title" }, "Score by Pillar"));
     [1, 2, 3, 4].forEach(function (p) {
       var score = self.getPillarScore(p);
-      var pct = score !== null ? score : 0;
+      // ASSESS-02: pass null directly; renderRagBar renders "Not assessed" in neutral grey
+      // when no controls in this pillar were evaluated — do NOT substitute 0 for null.
       barSection.appendChild(self.renderRagBar(
-        "Pillar " + p + " — " + self.data.pillars[String(p)].name, pct
+        "Pillar " + p + " — " + self.data.pillars[String(p)].name, score
       ));
     });
     panel.appendChild(barSection);
@@ -3751,14 +3769,74 @@
     var bar = h("div", { className: "ag-rag-bar" });
     bar.appendChild(h("span", { className: "ag-rag-label" }, label));
     var track = h("div", { className: "ag-rag-track" });
-    track.appendChild(h("div", {
-      className: "ag-rag-fill " + ragClass(pct),
-      style: "width:" + clamp(pct, 0, 100) + "%"
-    }));
+    // ASSESS-02: only render a coloured fill when pct is a real score (not null).
+    // null means the pillar/control was never assessed — show an empty grey track.
+    if (pct !== null) {
+      track.appendChild(h("div", {
+        className: "ag-rag-fill " + ragClass(pct),
+        style: "width:" + clamp(pct, 0, 100) + "%"
+      }));
+    }
     bar.appendChild(track);
-    bar.appendChild(h("span", { className: "ag-rag-value" },
-      (pct !== null ? pct + "%" : "—")));
+    bar.appendChild(h("span", {
+      className: "ag-rag-value",
+      style: pct === null ? "color:var(--md-default-fg-color--light,#757575);font-weight:400" : ""
+    }, pct !== null ? pct + "%" : "Not assessed"));
     return bar;
+  };
+
+  /**
+   * ASSESS-01: Regulation-aware bar that shows assessed/total coverage and suppresses
+   * the percentage when coverage is below the 50% threshold — preventing authoritative-
+   * looking 100%/0% scores off a single answered control.
+   *
+   * @param {string}  label        Bar label (reg name + "(N controls)")
+   * @param {number|null} score    Aggregate score for the assessed subset (null = none assessed)
+   * @param {number}  assessedCount Controls in this regulation that were answered
+   * @param {number}  totalCount   Total controls mapped to this regulation
+   * @returns {HTMLElement}        Wrapper div: bar row + coverage sub-line
+   */
+  AssessmentApp.prototype.renderRegulationBar = function (label, score, assessedCount, totalCount) {
+    var wrapper = h("div");
+    var bar = h("div", { className: "ag-rag-bar" });
+    bar.appendChild(h("span", { className: "ag-rag-label" }, label));
+
+    var noData = assessedCount === 0;
+    var lowCoverage = !noData && totalCount > 0 && (assessedCount / totalCount) < 0.5;
+    var showScore = !noData && !lowCoverage;
+
+    var track = h("div", { className: "ag-rag-track" });
+    if (showScore && score !== null) {
+      track.appendChild(h("div", {
+        className: "ag-rag-fill " + ragClass(score),
+        style: "width:" + clamp(score, 0, 100) + "%"
+      }));
+    }
+    bar.appendChild(track);
+
+    var valueText, valueStyle;
+    if (noData) {
+      valueText = "Not assessed";
+      valueStyle = "color:var(--md-default-fg-color--light,#757575);font-weight:400";
+    } else if (lowCoverage) {
+      valueText = "\u2014";  // em dash — score withheld
+      valueStyle = "color:var(--md-default-fg-color--light,#757575);font-weight:400";
+    } else {
+      valueText = score !== null ? score + "%" : "\u2014";
+      valueStyle = "";
+    }
+    bar.appendChild(h("span", { className: "ag-rag-value", style: valueStyle }, valueText));
+    wrapper.appendChild(bar);
+
+    // Coverage sub-line aligned with the bar content (label min-width 120px + 0.5rem gap ≈ 130px)
+    var coverageText = assessedCount + " of " + totalCount + " mapped controls assessed";
+    if (lowCoverage) coverageText += " \u2014 insufficient coverage for a reliable score";
+    wrapper.appendChild(h("div", {
+      style: "font-size:0.72rem;color:var(--md-default-fg-color--light,#888);" +
+             "margin:-0.25rem 0 0.4rem 130px"
+    }, coverageText));
+
+    return wrapper;
   };
 
   AssessmentApp.prototype.renderRadarChart = function (canvas) {
@@ -3818,8 +3896,10 @@
     var self = this;
     var card = h("div", { className: "ag-card" });
     card.appendChild(h("div", { className: "ag-card-title" }, "Compliance Score by Regulation"));
+    // ASSESS-01: updated subtitle — clarifies that % reflects only assessed mapped controls.
     card.appendChild(h("p", { className: "ag-card-subtitle" },
-      "Scores based on controls mapped to each regulation."
+      "Scores based on assessed controls mapped to each regulation. " +
+      "Percentages are withheld when fewer than half of a regulation\u2019s mapped controls have been answered."
     ));
 
     // Show regulations relevant to selected institution type first
@@ -3836,11 +3916,17 @@
     });
 
     sorted.forEach(function (regKey) {
-      var score = self.getRegulationScore(regKey);
-      if (score === null) score = 0;
       var mapping = self.data.regulatoryMappings[regKey];
-      card.appendChild(self.renderRagBar(
-        regKey + " (" + mapping.controls.length + " controls)", score
+      var totalCount = mapping.controls.length;
+      // ASSESS-01: count only controls that were actually answered (non-null score).
+      var assessedCount = mapping.controls.filter(function (cid) {
+        return self.getControlScore(cid) !== null;
+      }).length;
+      // getRegulationScore already excludes unanswered controls from the average;
+      // we surface the coverage here so users see the denominator mismatch.
+      var score = assessedCount > 0 ? self.getRegulationScore(regKey) : null;
+      card.appendChild(self.renderRegulationBar(
+        regKey + " (" + totalCount + " controls)", score, assessedCount, totalCount
       ));
       // Show contextual note if applicable
       if (REGULATION_NOTES[regKey]) {
