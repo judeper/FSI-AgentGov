@@ -1,7 +1,5 @@
 ---
 description: "Comprehensive mapping of framework controls to US financial services regulatory requirements."
-search:
-  boost: 2
 ---
 # Regulatory Framework
 

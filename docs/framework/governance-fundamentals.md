@@ -1,7 +1,5 @@
 ---
 description: "Core concepts and principles for AI agent governance in financial services."
-search:
-  boost: 2
 ---
 # Governance Fundamentals
 
