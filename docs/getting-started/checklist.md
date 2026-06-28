@@ -5,6 +5,25 @@ description: "Step-by-step checklist for implementing the FSI Agent Governance F
 
 Step-by-step checklist for implementing the FSI Agent Governance Framework.
 
+!!! info "You don't need to implement all 79 controls at once"
+    Start with the highest governance zone currently in active use at your organization and its foundational controls. Mature from there.
+
+    | Zone | Scope | Typical timeline |
+    |------|-------|-----------------|
+    | Zone 1 — Personal Productivity | Personal development, low risk | ~1 day for foundational controls |
+    | Zone 2 — Team Collaboration | Departmental agents, medium risk | ~1 week for baseline |
+    | Zone 3 — Enterprise Managed | Customer-facing or regulated workflows | 6–8 weeks for comprehensive coverage |
+
+    This checklist covers a full Zone 3 implementation. Use only the phases and controls applicable to your highest active zone.
+
+## Prerequisites
+
+Before starting Phase 1, confirm the following:
+
+- **Licensing:** Validate coverage against the [License Requirements Matrix](../reference/license-requirements.md). Zone 3 controls commonly require Microsoft 365 E5 or Microsoft Purview Suite capabilities. See also the [Agent 365 Capabilities Summary](../reference/agent-365-capabilities-summary.md).
+- **Admin roles:** Confirm who holds Power Platform Admin, Purview Compliance Admin, Entra Global Admin, SharePoint Admin, and Exchange Online Admin roles. See the [Role Catalog](../reference/role-catalog.md) and [Operating Model](../framework/operating-model.md).
+- **Executive sponsorship:** Confirm a designated AI Governance Lead and executive sponsor before starting structured implementation.
+
 ---
 
 ## Phase 1: Assessment & Planning (Weeks 1-2)
@@ -12,7 +31,7 @@ Step-by-step checklist for implementing the FSI Agent Governance Framework.
 ### Week 1: Current State Analysis
 
 #### Conduct Framework Orientation (Day 1)
-- [ ] Review README.md overview
+- [ ] Read the [Framework Overview](../framework/executive-summary.md)
 - [ ] Understand 4 pillars and 3 zones
 - [ ] Identify project lead and team
 
@@ -430,7 +449,9 @@ Step-by-step checklist for implementing the FSI Agent Governance Framework.
 
 ## Success Criteria
 
-- [ ] All 79 controls implemented at appropriate maturity levels
+These criteria represent full Zone 3 maturity. Organizations governing Zone 1 or Zone 2 agents achieve a meaningful governance baseline well before all criteria are met — prioritize controls applicable to your highest active zone and expand from there.
+
+- [ ] Controls implemented at appropriate maturity levels for all active governance zones
 - [ ] Agent inventory complete and maintained
 - [ ] Compliance dashboard active and monitored
 - [ ] Training completed for all users
