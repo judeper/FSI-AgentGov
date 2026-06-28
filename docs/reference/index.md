@@ -7,6 +7,9 @@ search:
 
 Supporting reference materials for the FSI Agent Governance Framework — 79 controls across 4 pillars, 3 governance zones.
 
+> **Look up any US FSI regulation and find the exact framework controls and evidence that answer an examiner — or download your role's implementation checklist to start tracking today.**
+> **Most used:** [Regulatory Mappings](regulatory-mappings.md) · [CCO Quick Reference](cco-quick-reference.md) · [Glossary](glossary.md) · [Downloads & Templates](#downloads-templates)
+
 ---
 
 ## Overview
@@ -53,7 +56,7 @@ This section provides regulatory crosswalks, role quick-references, licensing gu
 
 | Document | Who it's for / when to use |
 |----------|---------------------------|
-| [License Requirements](license-requirements.md) | **Primary license reference.** Control-by-control license matrix covering all 79 controls. Includes the July 1 2026 Defender→Agent 365 transition details and GSA licensing prerequisites. Use when budgeting or validating that your SKU covers a specific control. [Download the matching role checklist →](../downloads/index.md) |
+| [License Requirements](license-requirements.md) | **Primary license reference.** Control-by-control license matrix covering all 79 controls. Includes the July 1 2026 Defender→Agent 365 transition details and GSA licensing prerequisites. Use when budgeting or validating that your SKU covers a specific control. See [Downloads & Templates](#downloads-templates) for role-specific checklists. |
 | [SharePoint Advanced Management Licensing](sharepoint-advanced-management-licensing.md) | Detailed SAM feature and licensing guide for Pillar 4 SharePoint controls. Use when scoping IAG, RCD, or Restricted SharePoint Search deployments. |
 | [Agent 365 Capabilities Summary](agent-365-capabilities-summary.md) | Overview of Microsoft Agent 365 features, governance surfaces, and licensing tiers. Use when a customer asks what Agent 365 adds over the base E5/E3 stack. |
 | [Windows 365 for Agents](windows-365-for-agents.md) | W365A scoping reference for agent Cloud PC execution, Intune policy hooks, audit evidence, and control touchpoints (1.7, 1.20, 1.29, 2.25). Use when evaluating Windows 365 for Agents as an execution substrate. |
@@ -74,7 +77,7 @@ This section provides regulatory crosswalks, role quick-references, licensing gu
 | [Microsoft Learn URLs](microsoft-learn-urls.md) | Curated list of official documentation links for all major governance surfaces. Use when verifying that a control implementation reference points to current documentation. |
 | [FSI Configuration Examples](fsi-configuration-examples.md) | Financial services-specific sample configurations for common control scenarios. Use during a playbook walkthrough when you need concrete FSI-tuned values. |
 | [Agent Audit Event Taxonomy](agent-audit-event-taxonomy.md) | Consolidated audit event reference with KQL queries for all 79 controls. Use when building Sentinel workbooks or Purview audit queries for specific control evidence. |
-| [Evidence Standards](evidence-standards.md) | Documentation and retention requirements for regulatory examinations. Use when assembling an evidence package for an audit or examination. [Download the Compliance Officer Checklist →](../downloads/index.md) |
+| [Evidence Standards](evidence-standards.md) | Documentation and retention requirements for regulatory examinations. Use when assembling an evidence package for an audit or examination. See [Compliance Officer Checklist](../downloads/compliance-officer-checklist.xlsx) for the role-specific tracking workbook. |
 
 ---
 
@@ -91,7 +94,7 @@ This section provides regulatory crosswalks, role quick-references, licensing gu
 | [Assessment Engine Coverage](assessment-coverage.md) | Per-control evaluator state (`auto_evaluable`, `manual_only`, `unimplemented_evaluator`). Use before running the assessment to set honest expectations about which controls will self-score vs. require manual responses. |
 | [Frontier Readiness Coverage](frontier-assessment-coverage.md) | Honest 0% auto-evaluator coverage report for the Frontier Readiness diagnostic (facilitator-answered). Use when a customer asks how automated the Frontier assessment is. |
 | [CAPE Pattern Coverage](pattern-coverage.md) | Generated 79×6 control-to-pattern matrix. Use when mapping a specific control to the CAPE pattern(s) it supports, or when building a pattern-specific control shortlist for a customer. |
-| [Known Limitations](known-limitations.md) | Documented framework constraints and workaround guidance. Use before a customer meeting or examination when you want to proactively name what the framework does not cover. |
+| [Known Limitations](known-limitations.md) | Documented framework constraint and workaround guidance. Use before a customer meeting or examination when you want to proactively name what the framework does not cover. |
 | [Versioning and Support](versioning-and-support.md) | SemVer policy, breaking-change definitions, and support windows for framework releases. Use when evaluating whether a control change in a framework PR requires a major, minor, or patch version bump. |
 
 ---
@@ -114,9 +117,16 @@ This section provides regulatory crosswalks, role quick-references, licensing gu
 
 *Role-based Excel checklists for tracking implementation progress against all 79 controls.*
 
-| Download | Target Role | File |
-|----------|-------------|------|
-| [Downloads & Templates](../downloads/index.md) | All roles | Role-specific Excel checklists (XLSX, ~6 KB each) for Entra Global Admin, Power Platform Admin, Purview Compliance Admin, SharePoint Admin, Compliance Officer, and AI Governance Lead. |
+| Download | Target Role | Description |
+|----------|-------------|-------------|
+| [Entra Administrator Checklist](../downloads/entra-administrator-checklist.xlsx) | Entra Global Admin | Identity controls: Conditional Access, roles, identity governance |
+| [Power Platform Administrator Checklist](../downloads/power-platform-administrator-checklist.xlsx) | Power Platform Admin | PPAC controls: Environments, Groups, Routing, Copilot Hub |
+| [Purview Administrator Checklist](../downloads/purview-administrator-checklist.xlsx) | Purview Compliance Admin | Purview controls: DLP, DSPM for AI, Audit, eDiscovery |
+| [SharePoint Administrator Checklist](../downloads/sharepoint-administrator-checklist.xlsx) | SharePoint Admin | SharePoint governance controls: access, retention, external sharing |
+| [Compliance Officer Checklist](../downloads/compliance-officer-checklist.xlsx) | Compliance Officer | Regulatory mappings and audit evidence tracking |
+| [Governance Maturity Dashboard](../downloads/governance-maturity-dashboard.xlsx) | AI Governance Lead | All 79 controls with status tracking and pillar-level summary aggregation |
+
+*See [Downloads & Templates](../downloads/index.md) for the complete download guide, checklist format details, and control assignments by role.*
 
 ---
 
@@ -128,7 +138,7 @@ This section provides regulatory crosswalks, role quick-references, licensing gu
 - [Examiner First-Day-Letter Response](examiner-first-day-letter-response.md) — Map examiner requests to framework artifacts
 - [Regulatory Mappings](regulatory-mappings.md) — Control-to-regulation traceability
 - [Evidence Standards](evidence-standards.md) — What to document for examinations
-- [Download the Compliance Officer Checklist →](../downloads/index.md)
+- [Download the Compliance Officer Checklist →](../downloads/compliance-officer-checklist.xlsx)
 
 **For CSAs and Account Teams:**
 
@@ -141,13 +151,17 @@ This section provides regulatory crosswalks, role quick-references, licensing gu
 - [Portal Paths Quick Reference](portal-paths-quick-reference.md) — Navigation shortcuts
 - [License Requirements](license-requirements.md) — What licenses are needed
 - [Role Catalog](role-catalog.md) — Admin role assignments
-- [Download the matching role checklist →](../downloads/index.md)
+- [Entra Administrator Checklist →](../downloads/entra-administrator-checklist.xlsx)
+- [Power Platform Administrator Checklist →](../downloads/power-platform-administrator-checklist.xlsx)
+- [Purview Administrator Checklist →](../downloads/purview-administrator-checklist.xlsx)
+- [SharePoint Administrator Checklist →](../downloads/sharepoint-administrator-checklist.xlsx)
 
 **For AI Governance Leads:**
 
 - [Solutions Index](solutions-index.md) — Available companion solutions
 - [Assessment Engine Coverage](assessment-coverage.md) — What auto-scores vs. what needs manual input
 - [Known Limitations](known-limitations.md) — Framework constraints to communicate proactively
+- [Governance Maturity Dashboard →](../downloads/governance-maturity-dashboard.xlsx)
 
 ---
 
