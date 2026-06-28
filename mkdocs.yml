@@ -157,11 +157,11 @@ nav:
     - getting-started/index.md
     - Start Here: start-here.md
     - Quick Start: getting-started/quick-start.md
-    - Implementation Checklist: getting-started/checklist.md
     - Readiness Assessment: assessment/index.md
+    - Implementation Checklist: getting-started/checklist.md
 
   - Assessment:
-    - Tool: assessment/index.md
+    - assessment/index.md
     - Pre-session Homework:
       - Governance Lead: assessment/pre-session/governance-lead/index.md
       - Compliance Officer: assessment/pre-session/compliance-officer/index.md
@@ -174,20 +174,22 @@ nav:
 
   - Framework:
     - framework/index.md
-    - Executive Summary: framework/executive-summary.md
-    - Governance Fundamentals: framework/governance-fundamentals.md
-    - Zones and Tiers: framework/zones-and-tiers.md
-    - Frontier Transformation Patterns: framework/transformation-patterns.md
-    - Agentic Capability Drivers: framework/agentic-capability-drivers.md
-    - Agent Lifecycle: framework/agent-lifecycle.md
-    - Relationship to FSI-CopilotGov: framework/relationship-to-copilotgov.md
-    - Unified Agent Governance: framework/agent-identity-architecture.md
-    - Regulatory Framework: framework/regulatory-framework.md
-    - Operating Model: framework/operating-model.md
-    - Agentic Center of Excellence: framework/agentic-coe.md
-    - Governance Cadence: framework/governance-cadence.md
-    - Adoption Roadmap: framework/adoption-roadmap.md
-    - Solutions Integration: framework/solutions-integration.md
+    - Core:
+      - Executive Summary: framework/executive-summary.md
+      - Governance Fundamentals: framework/governance-fundamentals.md
+      - Regulatory Framework: framework/regulatory-framework.md
+      - Zones and Tiers: framework/zones-and-tiers.md
+      - Agent Lifecycle: framework/agent-lifecycle.md
+      - Operating Model: framework/operating-model.md
+      - Governance Cadence: framework/governance-cadence.md
+      - Adoption Roadmap: framework/adoption-roadmap.md
+      - Relationship to FSI-CopilotGov: framework/relationship-to-copilotgov.md
+      - Solutions Integration: framework/solutions-integration.md
+    - Advanced & Scaling:
+      - Frontier Transformation Patterns: framework/transformation-patterns.md
+      - Agentic Capability Drivers: framework/agentic-capability-drivers.md
+      - Unified Agent Governance: framework/agent-identity-architecture.md
+      - Agentic Center of Excellence: framework/agentic-coe.md
 
   - Control Catalog:
     - controls/index.md
@@ -687,7 +689,7 @@ nav:
           - PowerShell Setup: playbooks/control-implementations/4.9/powershell-setup.md
           - Verification: playbooks/control-implementations/4.9/verification-testing.md
           - Troubleshooting: playbooks/control-implementations/4.9/troubleshooting.md
-    - Implementation Phases:
+    - Getting Started:
       - Phase 0 - Governance Setup: playbooks/getting-started/phase-0-governance-setup.md
       - Phase 1 - Minimal Viable Controls: playbooks/getting-started/phase-1-minimal-viable-controls.md
       - Phase 2 - Hardening: playbooks/getting-started/phase-2-hardening.md
@@ -716,8 +718,7 @@ nav:
       - Health Check Procedures: playbooks/monitoring-and-validation/health-check-procedures.md
       - Purview Audit Query Pack: playbooks/monitoring-and-validation/purview-audit-query-pack.md
       - Semantic Index Governance Queries: playbooks/monitoring-and-validation/semantic-index-governance-queries.md
-    - Validation Testing:
-      - playbooks/validation-testing/index.md
+      - Validation Testing Overview: playbooks/validation-testing/index.md
       - Script Validation Guide: playbooks/validation-testing/script-validation-guide.md
     - Advanced Implementations:
       - Human-in-the-Loop Triggers: playbooks/advanced-implementations/human-in-the-loop-triggers.md
@@ -783,49 +784,56 @@ nav:
 
   - Reference:
     - reference/index.md
-    - Agent 365 Capabilities Summary: reference/agent-365-capabilities-summary.md
-    - Solutions Index: reference/solutions-index.md
-    - Solutions Contract: reference/solutions-contract.md
-    - Versioning and Support: reference/versioning-and-support.md
-    - Known Limitations: reference/known-limitations.md
-    - Solutions Coverage Gaps: reference/solutions-coverage-gaps.md
-    - Solutions Architecture Guide: reference/solutions-architecture-guide.md
-    - SharePoint Advanced Management Licensing: reference/sharepoint-advanced-management-licensing.md
-    - Evidence Standards: reference/evidence-standards.md
-    - Assessment Engine Coverage: reference/assessment-coverage.md
-    - Frontier Readiness Coverage: reference/frontier-assessment-coverage.md
-    - CAPE Pattern Coverage: reference/pattern-coverage.md
-    - Administrator Role Catalog: reference/role-catalog.md
-    - SOC Analyst Purview Roles: reference/purview-soc-analyst-roles.md
-    - License Requirements: reference/license-requirements.md
-    - Portal Paths: reference/portal-paths-quick-reference.md
-    - Microsoft Learn URLs: reference/microsoft-learn-urls.md
-    - Monitoring Architecture: reference/monitoring-architecture.md
-    - Learn Monitor Guide: reference/learn-monitor-guide.md
-    - Learn Monitor AI Enhancement: reference/learn-monitor-ai-enhancement.md
-    - FSI Examples: reference/fsi-configuration-examples.md
-    - NIST AI RMF Crosswalk: reference/nist-ai-rmf-crosswalk.md
-    - ISO/IEC 42001 Mapping: reference/iso-42001-mapping.md
-    - Microsoft Responsible AI v2 Mapping: reference/microsoft-rai-v2-mapping.md
-    - Microsoft CAPE Crosswalk: reference/microsoft-cape-crosswalk.md
-    - OWASP LLM Top 10 Crosswalk: reference/owasp-llm-top10-crosswalk.md
-    - CCO Quick Reference: reference/cco-quick-reference.md
-    - Examiner First-Day-Letter Response: reference/examiner-first-day-letter-response.md
-    - CSA Quick Reference: reference/csa-quick-reference.md
-    - CSA Positioning Guide: reference/csa-positioning-guide.md
-    - Diagram Catalog: reference/diagram-catalog.md
-    - Regulatory Mappings: reference/regulatory-mappings.md
-    - Agent Audit Event Taxonomy: reference/agent-audit-event-taxonomy.md
-    - Agent Essentials Control Mapping: reference/agent-essentials-control-mapping.md
-    - Power Platform SSPM Control Mapping: reference/power-platform-sspm-control-mapping.md
-    - Windows 365 for Agents: reference/windows-365-for-agents.md
-    - Glossary: reference/glossary.md
-    - FAQ: reference/faq.md
-    - Work IQ Governance Reference: reference/work-iq-governance.md
-    - Compliance Manager Templates: reference/compliance-manager-templates.md
-    - Service Trust Portal Attestation Guide: reference/service-trust-portal-attestation-guide.md
-    - Administrator Templates: downloads/index.md
-    - Disclaimer: disclaimer.md
+    - Regulatory Crosswalks & Mappings:
+      - Regulatory Mappings: reference/regulatory-mappings.md
+      - NIST AI RMF Crosswalk: reference/nist-ai-rmf-crosswalk.md
+      - ISO/IEC 42001 Mapping: reference/iso-42001-mapping.md
+      - OWASP LLM Top 10 Crosswalk: reference/owasp-llm-top10-crosswalk.md
+      - Microsoft Responsible AI v2 Mapping: reference/microsoft-rai-v2-mapping.md
+      - Microsoft CAPE Crosswalk: reference/microsoft-cape-crosswalk.md
+      - Agent Essentials Control Mapping: reference/agent-essentials-control-mapping.md
+      - Power Platform SSPM Control Mapping: reference/power-platform-sspm-control-mapping.md
+    - Role & Quick-Reference Cards:
+      - Administrator Role Catalog: reference/role-catalog.md
+      - SOC Analyst Purview Roles: reference/purview-soc-analyst-roles.md
+      - CCO Quick Reference: reference/cco-quick-reference.md
+      - CSA Quick Reference: reference/csa-quick-reference.md
+      - CSA Positioning Guide: reference/csa-positioning-guide.md
+      - Examiner First-Day-Letter Response: reference/examiner-first-day-letter-response.md
+    - Licensing & Platform Requirements:
+      - License Requirements: reference/license-requirements.md
+      - SharePoint Advanced Management Licensing: reference/sharepoint-advanced-management-licensing.md
+      - Agent 365 Capabilities Summary: reference/agent-365-capabilities-summary.md
+      - Windows 365 for Agents: reference/windows-365-for-agents.md
+    - Architecture & Monitoring:
+      - Monitoring Architecture: reference/monitoring-architecture.md
+      - Learn Monitor Guide: reference/learn-monitor-guide.md
+      - Learn Monitor AI Enhancement: reference/learn-monitor-ai-enhancement.md
+      - Diagram Catalog: reference/diagram-catalog.md
+      - Portal Paths: reference/portal-paths-quick-reference.md
+      - Microsoft Learn URLs: reference/microsoft-learn-urls.md
+      - FSI Examples: reference/fsi-configuration-examples.md
+      - Agent Audit Event Taxonomy: reference/agent-audit-event-taxonomy.md
+      - Evidence Standards: reference/evidence-standards.md
+    - Solutions & Coverage:
+      - Solutions Index: reference/solutions-index.md
+      - Solutions Contract: reference/solutions-contract.md
+      - Solutions Architecture Guide: reference/solutions-architecture-guide.md
+      - Solutions Coverage Gaps: reference/solutions-coverage-gaps.md
+      - Assessment Engine Coverage: reference/assessment-coverage.md
+      - Frontier Readiness Coverage: reference/frontier-assessment-coverage.md
+      - CAPE Pattern Coverage: reference/pattern-coverage.md
+      - Known Limitations: reference/known-limitations.md
+      - Versioning and Support: reference/versioning-and-support.md
+    - Glossary, FAQ & Disclaimer:
+      - Glossary: reference/glossary.md
+      - FAQ: reference/faq.md
+      - Work IQ Governance Reference: reference/work-iq-governance.md
+      - Compliance Manager Templates: reference/compliance-manager-templates.md
+      - Service Trust Portal Attestation Guide: reference/service-trust-portal-attestation-guide.md
+      - Disclaimer: disclaimer.md
+    - Downloads & Templates:
+      - downloads/index.md
 
   - What's New:
     - Changelog: changelog.md
