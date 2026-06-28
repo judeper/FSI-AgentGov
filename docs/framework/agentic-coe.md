@@ -3,6 +3,8 @@ description: "Microsoft's “Frontier Center of Excellence” concept (paraphras
 ---
 # Agentic Center of Excellence
 
+> **Framework layer — Advanced & Scaling track.** Four-function CoE blueprint for scaling agent governance across the enterprise without creating gatekeeping bottlenecks; complements the [Operating Model](operating-model.md) RACI spine.
+
 !!! info "Audience"
     AI governance leads, CoE leads, and executive sponsors planning a Center of Excellence for AI agent governance in a US financial services organization. This is a **strategic** layer — admins implementing individual controls should start with the [control catalog](../controls/CONTROL-INDEX.md) instead.
 
@@ -388,6 +390,11 @@ This is a decision aid, not a prescription. Institutions vary; use the steps as 
 - [Frontier transformation patterns](transformation-patterns.md) — what the CoE governs (Phase 2 sibling document)
 - [Microsoft CAPE crosswalk](../reference/microsoft-cape-crosswalk.md) — pattern-by-pattern regulatory mapping with FSI Regulatory Exposure callouts
 - [Role catalog](../reference/role-catalog.md) — FSI canonical roles plus the five new roles introduced for the CoE blueprint (Executive Sponsor, Agent Product Owner, Subject Matter Expert, Service Owner, Adoption Lead)
+
+!!! info "Key controls supporting CoE operations"
+    [3.1 — Agent Inventory](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) · [3.3 — Compliance Reporting](../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) · [2.8 — Segregation of Duties](../controls/pillar-2-management/2.8-access-control-and-segregation-of-duties.md) · [3.4 — Incident Reporting](../controls/pillar-3-reporting/3.4-incident-reporting-and-root-cause-analysis.md)
+
+**Next →** [Unified Agent Governance](agent-identity-architecture.md) — The control plane architecture (Entra Agent ID, Agent 365) that the CoE manages as part of the governance infrastructure.
 
 ---
 
