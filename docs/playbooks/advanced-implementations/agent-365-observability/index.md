@@ -5,9 +5,25 @@
 
 ---
 
+!!! abstract "Mission brief"
+
+    | | |
+    |---|---|
+    | **What you'll accomplish** | Configure zone-based telemetry retention and regulatory evidence collection for Agent 365 and Copilot Studio agents |
+    | **Estimated time** | 2–4 hours for FSI overlay configuration; ongoing for Sentinel/retention tuning |
+    | **Required roles** | M365 AI Administrator or Entra Global Admin (admin center); Azure contributor (Application Insights / Sentinel) |
+    | **Fast path (most tenants)** | Copilot Studio and declarative agents emit telemetry automatically — no SDK code needed. Verify visibility in M365 admin center → configure Purview retention → enable Sentinel export |
+
+??? note "SDK vs. admin path — expand to understand which track applies to you"
+    Most FSI teams need only the **admin path** (verify telemetry, set retention, wire export). The SDK track applies only if you host custom-engine or Agent 365-enabled agents with manual instrumentation. If you are unsure, start with the admin path.
+
+---
+
 ## Overview
 
-This playbook provides implementation guidance for capturing Microsoft Agent 365 telemetry in an FSI-governed environment. Microsoft documents two distinct telemetry paths ([Agent observability](https://learn.microsoft.com/en-us/microsoft-agent-365/developer/observability), [Observability integration for Copilot Studio](https://learn.microsoft.com/microsoft-agent-365/builder/observability)):
+This guide covers the FSI overlay (zone-based retention, SIEM/Sentinel export, App Insights workbooks, and regulatory retention mapping) that wraps either telemetry path.
+
+Microsoft documents two distinct telemetry paths ([Agent observability](https://learn.microsoft.com/en-us/microsoft-agent-365/developer/observability), [Observability integration for Copilot Studio](https://learn.microsoft.com/microsoft-agent-365/builder/observability)):
 
 | Agent type | How telemetry is emitted | Action required |
 |------------|--------------------------|-----------------|
@@ -15,8 +31,6 @@ This playbook provides implementation guidance for capturing Microsoft Agent 365
 | **Declarative agents** | Automatic ("supported out of the box. No SDK implementation required" per Learn) | No code; same admin surfaces as above |
 | **Custom-engine agents** | Manual instrumentation via the Microsoft OpenTelemetry Distro (or the legacy Agent 365 Observability SDK) | Install packages and call the distro's enable function in the agent host |
 | **Agent 365-enabled agents** | Manual instrumentation via the Microsoft OpenTelemetry Distro (or the legacy Agent 365 Observability SDK) | Install packages and call the distro's enable function in the agent host |
-
-This playbook focuses on the FSI overlay (zone-based retention, SIEM/Sentinel export, App Insights workbooks, and regulatory retention mapping) that wraps either telemetry path.
 
 !!! note "Status and SDK direction"
     Per Learn, the recommended path for new manual instrumentation is the **[Microsoft OpenTelemetry Distro](https://learn.microsoft.com/en-us/microsoft-agent-365/developer/microsoft-opentelemetry)** — a single distribution that powers Agent 365, Microsoft Foundry, and Azure Monitor. The legacy Agent 365 Observability SDK "continues to work without breaking changes," and per-language migration guides are linked from Learn. SDK packages are pre-1.0 today (for example, Python `microsoft-agents-a365-observability-core` at `0.3.x`, Node `@microsoft/agents-a365-observability` at `0.2.0-preview.1`, .NET `Microsoft.Agents.A365.Observability.Runtime` at `0.3-beta`); pin versions and review the Learn migration guides before upgrading. <!-- NEEDS_HUMAN_REVIEW: Microsoft Learn does not publish an explicit "Preview" or "GA" status label for the Agent 365 Observability surface as a whole; treat the pre-1.0 package versions as the practical maturity signal. -->

@@ -1,4 +1,4 @@
-# Playbook 3.14-C: Verification Testing — Confirming Telemetry Flow to Purview, Defender, and Admin Center
+# Control 3.14 — Verification & Testing: Agent 365 Observability SDK and Custom Agent Telemetry
 
 **Playbook ID:** 3.14-C
 **Control:** 3.14 — Agent 365 Observability SDK and Custom Agent Telemetry

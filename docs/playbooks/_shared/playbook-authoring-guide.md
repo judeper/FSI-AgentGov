@@ -201,6 +201,46 @@ Examples:
 - `# Control 3.1 — Verification & Testing: Agent Inventory and Metadata Management`
 - `# Control 4.7 — Troubleshooting: M365 Copilot Data Governance`
 
+**Common errors to avoid:**
+- `"Verification Testing"` — the `&` is required: `"Verification & Testing"`
+- `"Playbook 3.13-A: Portal Walkthrough — …"` — lettered suffixes (A/B/C/D) are non-canonical; use the standard format
+- Type at end: `"Control 2.10: … — Portal Walkthrough"` — type belongs in the middle
+- Separator variety: use EM dash (`—`) throughout; not `-` or `–`
+
+---
+
+## Canonical Page-Metadata Header
+
+Every control-implementation playbook must open with a consistent metadata block immediately after the H1. Use this format:
+
+```markdown
+**Last Updated:** {Month Year}
+**Portal:** {comma-separated portal names}
+**Estimated Time:** {time range}
+```
+
+For playbooks that include the Mission brief admonition (see Canonical Playbook Skeleton above), the `**Estimated Time:**` and role/prerequisite information is captured in the mission brief table and the inline metadata block may be abbreviated to:
+
+```markdown
+**Last Updated:** {Month Year}
+```
+
+**For solution overview pages** (in `advanced-implementations/`), use:
+
+```markdown
+**Last Updated:** {Month Year}
+**Version:** v1.6.2
+**Related Controls:** {comma-separated control IDs}
+```
+
+Do NOT mix formats within a single folder (e.g., `advanced-implementations/deny-event-correlation-report/` should use the same header format as its siblings).
+
+**Prohibited formats (do not use):**
+- `Status: Complete — February 2026` — use `**Last Updated:**` instead
+- `Status: May 2026 - FSI-AgentGov v1.6.2` — split into `**Last Updated:**` + `**Version:**`
+- `Version: v2.0.0 | Status: Production Ready | Updated: May 2026` — non-standard separator
+- Omitting the metadata header entirely (sharepoint-copilot-preflight pattern) — always include at minimum `**Last Updated:**`
+
 ---
 
 ## Metadata Frontmatter (Optional but Recommended)
@@ -319,15 +359,38 @@ The canonical structure above is established as of June 2026. The full rollout t
 - Rollback / Back-out section: Control 1.1, 2.1, 3.1 portal walkthroughs + Control 1.1 and 2.1 PowerShell setups
 - BOM removed from 10 files
 - H1 standardized for 4.7 PowerShell and Verification & Testing
+- H1 standardized for 3.13 and 3.14 (all 8 files): replaced "Playbook X.Y-A/B/C/D" lettered scheme with canonical `Control {X.Y} — {Playbook Type}: {Control Name}` form
+- Mission brief box added to Control 1.1 portal walkthrough (exemplar; previously only 2.1 and 3.1 had it)
 - This authoring guide established as the canonical standard
+- Canonical page-metadata header format documented in this guide (see "Canonical Page-Metadata Header")
 
 **Remaining rollout:**
-- Apply mission brief box to remaining 311 portal-walkthrough files
+- Apply mission brief box to remaining ~310 portal-walkthrough files
 - Add Rollback / Back-out section to remaining portal-walkthrough and PowerShell-setup files
-- Standardize H1 format across all 316 files
+- Standardize H1 format across remaining files (grep for `: Control` / `Control N.N:` / `Playbook N.N` patterns)
+- Standardize page-metadata headers in advanced-implementations overview pages (at least 3 formats exist)
 - Optionally: add `search: boost: 0.5` frontmatter to all 316 leaf files (PLAYBOOKS-IA-11)
 
 **CI enforcement (proposed):** A template-conformance lint script (`scripts/verify_playbook_structure.py`) should be added as a CI gate that checks for: H1 presence + naming convention, presence of required sections (Rollback, Validation), and absence of banned phrases. **This CI gate does not exist yet — flagged for implementation in the follow-up sprint.**
+
+---
+
+## Follow-up Flag: PLAYBOOKS-03 (long-tail)
+
+**Status:** Exemplar controls + landing page addressed (June 2026 sprint) | Scope: ~309 remaining portal-walkthrough files + all advanced-implementation overview pages
+
+**What has been applied:**
+- Playbooks landing (`docs/playbooks/index.md`): replaced formulaic opener with second-person BLUF; added prominent Control Explorer front-door button; promoted Control Implementations to top of page
+- Control 1.1 portal walkthrough: added Mission brief box (win, effort, roles, prerequisites, rollback summary)
+- Agent 365 Observability overview: replaced "This playbook provides…" opener with Mission brief + admin/SDK-path collapsible; restored agent-type table in Overview
+
+**Remaining rollout (not in this sprint):**
+- Replace "This playbook provides implementation guidance for…" opener across all advanced-implementation overview pages (at least 10 pages have this pattern)
+- Add "Fast path" box to complex portal-walkthrough files where the 80% admin case is buried behind regulatory framing (controls 2.1, 3.1 are already addressed; priority next: 1.5, 1.7, 1.9, 2.4)
+- Move heavy regulatory framing into collapsible `??? note` blocks on portal walkthroughs that front-load compliance prose before the first step (currently only 2.1 and 3.1 have this)
+- The Quick Start table on the index is a good pattern — expand it or link individual control "Fast paths" from it
+
+**CI enforcement (proposed):** A `scripts/verify_playbook_bluf.py` script should check that every portal-walkthrough file has either a Mission brief admonition or a `!!! abstract` block within the first 30 lines. **This CI gate does not exist yet — flagged for implementation in the follow-up sprint.**
 
 ---
 

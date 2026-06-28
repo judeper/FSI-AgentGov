@@ -1,4 +1,4 @@
-# Playbook 3.13-A: Portal Walkthrough — Accessing and Navigating Agent 365 Analytics
+# Control 3.13 — Portal Walkthrough: Agent 365 Admin Center Analytics and Reporting
 
 **Playbook ID:** 3.13-A
 **Control:** 3.13 — Agent 365 Admin Center Analytics and Reporting
