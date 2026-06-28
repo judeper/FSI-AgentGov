@@ -1,7 +1,5 @@
 ---
 description: "Examiner first-day letters typically request a discrete set of artifact categories — model inventory, validation reports, audit logs, change tickets, training…"
-search:
-  boost: 2
 ---
 # Examiner First-Day-Letter Response Mapping
 

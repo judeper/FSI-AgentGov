@@ -1,7 +1,5 @@
 ---
 description: "License mapping guidance for the current FSI Agent Governance Framework control catalog."
-search:
-  boost: 2
 ---
 # License Requirements by Control
 
