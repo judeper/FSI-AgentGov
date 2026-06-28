@@ -1,0 +1,24 @@
+{#-
+  Supplemental feedback path (UX-08): lightweight non-GitHub option.
+
+  The primary feedback widget (thumbs + GitHub Issues link) is injected
+  by docs/javascripts/feedback.js. This partial adds a secondary
+  "suggest / request" link so users who are not on GitHub can still
+  provide input.
+
+  MAINTAINER NOTE: Replace the placeholder href below with the
+  organisation's preferred feedback channel (a mailto:, a Microsoft
+  Forms URL, a ServiceNow form, etc.) before going to production.
+  The current href points to GitHub Discussions — a conversational
+  surface distinct from Issues — as a reasonable default.
+-#}
+{% if page and page.file and page.file.src_uri != "index.md" %}
+<div class="fsi-feedback-extra" role="complementary" aria-label="Additional feedback options">
+  <a
+    href="https://github.com/judeper/FSI-AgentGov/discussions/new?category=ideas&title={{ page.title | urlencode }}"
+    class="fsi-feedback-mailto"
+    target="_blank"
+    rel="noopener noreferrer"
+  >📬 Suggest an improvement or request a control</a>
+</div>
+{% endif %}
