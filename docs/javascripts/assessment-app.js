@@ -2198,11 +2198,14 @@
       }
     }, "Start New Assessment"));
 
-    // File import — secondary action
+    // File import — secondary action. Keep the canonical accessible name
+    // ("Resume or Import Saved Assessment") that the e2e import specs target;
+    // the localStorage resume banner + saved list above are the ASSESS-08/16
+    // additions (not a rename of this import-from-file affordance).
     btns.appendChild(h("button", {
       className: "ag-btn ag-btn-secondary",
       onClick: function () { self.triggerImport(); }
-    }, "Import Saved JSON"));
+    }, "Resume or Import Saved Assessment"));
     wrap.appendChild(btns);
 
     wrap.appendChild(h("p", { style: "font-size:0.78rem;color:var(--md-default-fg-color--light);max-width:600px;margin:0.25rem auto" },
@@ -2360,8 +2363,10 @@
     form.appendChild(this.field("Assessor Role", "text", sc.assessorRole, function (v) { sc.assessorRole = v; },
       "e.g., AI Governance Lead, Compliance Officer"));
 
-    // Institution type (regulatory mapping) — ASSESS-03: renamed with qualifier
-    // to distinguish from the sector-calibration selector below.
+    // Institution Type — ASSESS-03: keep the canonical "Institution Type"
+    // accessible label and disambiguate the sector-calibration selector below
+    // by its own name + hint instead. (Renaming this label broke the select's
+    // accessible-name contract — axe a11y and the e2e getByLabel both rely on it.)
     var instOptions = [
       { value: "", label: "Select institution type..." },
       { value: "broker-dealer", label: "Broker-Dealer (FINRA/SEC)" },
@@ -2370,16 +2375,16 @@
       { value: "dual-registered", label: "Dual-Registered (FINRA + SEC)" },
       { value: "insurance", label: "Insurance Company" },
     ];
-    // Add a hint below the label explaining the regulatory-mapping purpose.
-    var instSelectId = "ag-select-institution-type-reg";
+    // label htmlFor MUST equal the select id so the select has an accessible name.
+    var instSelectId = "ag-select-institution-type";
     var instWrap = h("div", { className: "ag-field" });
     instWrap.appendChild(h("label", { className: "ag-label", htmlFor: instSelectId },
-      "Institution Type (regulatory mapping)"));
+      "Institution Type"));
     instWrap.appendChild(h("span", { className: "ag-hint", id: instSelectId + "-hint" },
-      "Determines which regulations (FINRA, SEC, OCC, GLBA\u2026) are prioritized in your assessment results."));
+      "Drives regulatory mapping — determines which regulations (FINRA, SEC, OCC, GLBA\u2026) are prioritized in your assessment results."));
     var instSel = h("select", {
       className: "ag-select",
-      id: "ag-select-institution-type",
+      id: instSelectId,
       name: "ag-select-institution-type-" + Math.random().toString(36).slice(2, 8),
       autocomplete: "off",
       "aria-describedby": instSelectId + "-hint",
@@ -2897,8 +2902,8 @@
       });
     }
 
-    // Navigation — ASSESS-02: when gap/partial controls exist, Phase 2 is primary CTA;
-    // "Skip to Results" is a secondary action. "Back to Scoping" is always present.
+    // Navigation — ASSESS-02: when gap/partial controls exist, Phase 2 is the primary CTA
+    // and "View Results" is the secondary action. "Back to Scoping" is always present.
     var btns = h("div", { className: "ag-btn-group" });
     btns.appendChild(h("button", {
       className: "ag-btn ag-btn-secondary",
@@ -2937,7 +2942,7 @@
           }
           self.goToStep("results");
         }
-      }, "Skip to Results"));
+      }, "View Results"));
     } else {
       // No gaps: go straight to results
       btns.appendChild(h("button", {
