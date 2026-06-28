@@ -121,6 +121,35 @@ The **Implementation** column indicates how each control is implemented:
 | **PowerShell** | Automated via PowerShell cmdlets |
 | **Solution Link** | Deployable automation from [FSI-AgentGov-Solutions](https://github.com/judeper/FSI-AgentGov-Solutions) |
 
+**Companion solution acronyms** (linked in the Implementation column):
+
+| Acronym | Full Name | Controls |
+|---------|-----------|---------|
+| **ACA** | Action Confirmation Auditor | 1.23 |
+| **ACM** | Audit Compliance Manager | 1.7 |
+| **ACRD** | Agent Compliance Review Dashboard | 3.12 |
+| **AKSS** | Agent Knowledge Source Scanner | 4.3, 4.8 |
+| **AOF** | Agent Onboarding Funnel | 2.15 |
+| **ASARD** | Agent Sharing Access Restriction Detector | 1.18 |
+| **CAA** | Conditional Access Automation | 1.11, 1.18, 1.23 |
+| **CD** | Compliance Dashboard | 3.3 |
+| **CMM** | Content Moderation Monitor | 1.8, 1.14, 1.27 |
+| **COI** | Conflict of Interest Tester | 2.18 |
+| **CSI** | Cross-Solution Integration | 1.7, 1.8, 1.11, 1.14, 1.23 |
+| **ELM** | Environment Lifecycle Manager | 2.1, 2.2 |
+| **FSW** | FINRA Supervision Workflow | 1.7, 1.10, 2.12 |
+| **FUS** | File Upload Security | 1.4, 1.8, 1.14, 1.26 |
+| **GAICA** | Governance AI Compliance Advisor | 3.7 |
+| **HT** | Hallucination Tracker | 3.10 |
+| **ITE** | Inactivity Timeout Enforcement | 1.23, 2.22 |
+| **MRM** | Model Risk Manager | 2.6, 2.11 |
+| **MTR** | MIME Type Restrictions | 1.5, 1.10, 1.11, 1.13, 1.14, 1.25 |
+| **RSV** | RAG Source Validator | 2.16 |
+| **SDM** | Scope Drift Monitor | 1.4, 1.5, 1.14 |
+| **SoDD** | Segregation of Duties Detector | 2.8 |
+| **SSC** | Session Security Configurator | 1.11, 1.23 |
+| **UASD** | Unrestricted Agent Sharing Detector | 1.1 |
+
 Companion solutions provide deployment documentation, governance scripts, KQL queries, and templates that help operationalize controls at scale. See [Solutions Index](../reference/solutions-index.md) for the catalog of 36 companion solutions (35 live + 1 preview).
 
 ---

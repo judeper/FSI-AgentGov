@@ -151,6 +151,14 @@
       "aria-label": "Control at a glance"
     });
 
+    // ---- "In plain terms" one-liner ----
+    if (control.objective) {
+      var plainWrap = el("div", { "class": "bluf__plain" });
+      plainWrap.appendChild(el("span", { "class": "bluf__plain-label", "text": "In plain terms: " }));
+      plainWrap.appendChild(el("span", { "text": control.objective }));
+      section.appendChild(plainWrap);
+    }
+
     var dl = el("dl", { "class": "bluf__grid" });
 
     field("Pillar", el("span", { "class": "bluf__pillar", "text": control.pillarName || "\u2014" }))
@@ -162,8 +170,18 @@
     field("Automation", chip(control.automation || "unspecified", "bluf__chip--auto"))
       .forEach(function (n) { dl.appendChild(n); });
 
+    if (control.effortLevel) {
+      field("Effort", el("span", { "text": control.effortLevel }))
+        .forEach(function (n) { dl.appendChild(n); });
+    }
+
     field("Regulations", buildChips(control.regulations, MAX_REGS, null, regDecorate))
       .forEach(function (n) { dl.appendChild(n); });
+
+    if (control.primaryOwner) {
+      field("Primary owner", chip(control.primaryOwner, "bluf__chip--owner"))
+        .forEach(function (n) { dl.appendChild(n); });
+    }
 
     field("Roles", buildChips(control.roles, MAX_ROLES))
       .forEach(function (n) { dl.appendChild(n); });
@@ -171,6 +189,18 @@
     section.appendChild(dl);
 
     // ---- footer action row ----
+    var footer = el("div", { "class": "bluf__footer" });
+
+    // Primary playbook link (portal walkthrough)
+    if (control.primaryPlaybook && control.primaryPlaybook.url) {
+      var playbookUrl = base + control.primaryPlaybook.url;
+      var playbookLink = el("a", {
+        "class": "bluf__action bluf__action--playbook",
+        "href": playbookUrl
+      }, (control.primaryPlaybook.name || "Portal Walkthrough") + " \u2192");
+      footer.appendChild(playbookLink);
+    }
+
     var explorerUrl = base + "controls/explorer/";
     if (control.pillarName) {
       explorerUrl += "?pillar=" + encodeURIComponent(control.pillarName);
@@ -179,7 +209,8 @@
       "class": "bluf__action",
       "href": explorerUrl
     }, "Filter in Control Explorer \u2192");
-    var footer = el("div", { "class": "bluf__footer" }, [link]);
+    footer.appendChild(link);
+
     section.appendChild(footer);
 
     return section;
