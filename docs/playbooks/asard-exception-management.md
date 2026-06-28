@@ -1,4 +1,7 @@
-# Agent Sharing Exception Management
+# Agent Sharing Exception Management (ASARD)
+
+!!! info "Related solution: UASD"
+    This is the exception-management guide for **ASARD (Agent Sharing Access Restriction Detector)**. If you are using **UASD (Unrestricted Agent Sharing Detector)** — the Power Automate + Dataverse solution — see [UASD index](advanced-implementations/unrestricted-agent-sharing-detector/index.md) for its exception-management workflow (handled via Dataverse approval flow). For the comparison between the two solutions, see [ASARD Deployment Guide](asard-deployment-guide.md).
 
 ## Purpose
 

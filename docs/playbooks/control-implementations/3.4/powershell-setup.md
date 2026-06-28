@@ -1,4 +1,4 @@
-﻿---
+---
 title: "Control 3.4 — PowerShell Setup (Incident Reporting and Root Cause Analysis)"
 control_id: "3.4"
 playbook_type: "powershell-setup"

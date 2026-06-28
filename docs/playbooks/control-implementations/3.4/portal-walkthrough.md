@@ -1,4 +1,4 @@
-﻿# Portal Walkthrough — Control 3.4: Incident Reporting and Root Cause Analysis
+# Portal Walkthrough — Control 3.4: Incident Reporting and Root Cause Analysis
 
 !!! danger "READ FIRST — Scope, Sibling Routing, and Non-Substitution"
     This walkthrough is the **portal-first operating manual** for Control 3.4 — the central regulator-notification clock orchestrator for AI-agent-related cyber and operational incidents in a US Financial Services Institution (FSI). It connects detection and triage in **Microsoft Defender XDR** and **Microsoft Sentinel** to investigation in **Microsoft Purview Insider Risk Management** and **eDiscovery (Premium)**, supervisory escalation in **Communication Compliance**, evidence and case management in **SharePoint**, time-bound notification choreography in **Power Automate**, and the firm's external regulator-notification matrix.

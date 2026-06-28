@@ -1,4 +1,4 @@
-﻿# Control 3.1 — Portal Walkthrough: Agent Inventory and Metadata Management
+# Control 3.1 — Portal Walkthrough: Agent Inventory and Metadata Management
 
 **Control ID:** 3.1
 **Pillar:** Reporting (Foundation)
@@ -10,7 +10,18 @@
 
 ---
 
-!!! danger "READ FIRST — Scope and routing"
+!!! abstract "Mission brief"
+
+    | | |
+    |---|---|
+    | **What you'll accomplish** | Build and maintain the canonical agent register across six discovery planes; drive lifecycle state transitions; produce the quarterly attestation evidence pack |
+    | **Estimated time** | 12–20 hours initial baseline; 4–6 hours per quarterly attestation cycle thereafter |
+    | **Required roles** | AI Governance Lead, AI Administrator, Power Platform Admin, Purview Compliance Admin, Purview Records Manager; Entra Global Reader minimum for read operations |
+    | **Prerequisites** | Pre-flight gates PRE-01 through PRE-05 (see §2); canonical metadata schema ratified; SharePoint registry library provisioned and bound to a Purview retention policy |
+    | **Rollback** | Registry records are append-only by policy; corrective entries supersede erroneous records rather than delete. See the Rollback / Back-out section below for lifecycle-state reversal and record-correction procedures. |
+
+??? note "Scope & regulatory context — expand for sibling routing and non-substitution reminders"
+
     This walkthrough is the **portal-driven operating procedure for the canonical agent register** that every other Pillar 3 control consumes. It covers click-paths, evidence anchors, lifecycle-state procedures, and the quarterly attestation workflow across the **six discovery planes** enumerated in §0.3. It produces the stitched **system of record** that feeds Controls 3.2, 3.4, 3.6, 3.8, 3.9, 3.11, and 3.13.
 
     **Use the sibling playbooks for adjacent work:**
@@ -1175,6 +1186,34 @@ This playbook depends on or is consumed by the following controls. Implementers 
 - [PowerShell Setup](powershell-setup.md) — bulk export, scheduled reconciliation, hashing, idempotent diffing.
 - [Verification & Testing](verification-testing.md) — pre-attestation readiness validation; evidence-pack completeness check.
 - [Troubleshooting](troubleshooting.md) — symptom-driven diagnosis for portal, surface, stitching, and evidence problems.
+
+---
+
+## Rollback / Back-out
+
+**The agent register is governed as append-only.** Policy prohibits deletion of registry records from the SharePoint list or Dataverse table; corrective entries (status corrections, owner transfers, state-machine reversals) are made by adding new rows or updating lifecycle state — not by overwriting or deleting existing rows.
+
+### Pre-change snapshot (required before bulk changes or attestation cycles)
+
+1. **Export the full register before any bulk update:**
+   - SharePoint list: export to Excel (List → Export → Export to Excel); timestamp the filename as `register-snapshot-{YYYY-MM-DD}.xlsx`.
+   - Dataverse table: export via PPAC → Environments → {env} → Dataverse → Tables → {AgentInventory} → Export data.
+   - SHA-256 hash both exports and record in your change-management ticket.
+2. **Confirm retention label is applied** before bulk edits — the label applies to the library, not individual rows, but re-confirm if you recently provisioned the library.
+3. **Record the approver** and planned scope of changes in the change-management system before starting.
+
+### Lifecycle-state reversal
+
+| Situation | Corrective action | Evidence artifact |
+|---|---|---|
+| **Agent incorrectly set to "Deprecated"** | Open the registry entry > change Lifecycle State to prior value (e.g., Active) > record corrective entry in the Notes/Audit-Trail field with timestamp and authorizer | Updated registry row; Notes field audit trail |
+| **Agent incorrectly decommissioned** | Raise a governance exception (Control 3.12); do NOT delete the decommission record — add a "Decommissioning Reversed" lifecycle entry with justification | Exception log (Control 3.12); updated registry row |
+| **Owner field incorrectly set** | Update Owner field; record the prior value and correction reason in Notes field; notify the incorrectly named individual | Updated registry row; notification sent |
+| **Incorrect sensitivity label on registry export** | Re-export with corrected label; retain the prior export with a "superseded" label annotation; do not delete | Both versions in SharePoint; superseded annotation |
+| **Bulk import with wrong schema** | Restore from pre-change snapshot (see above); raise a change-management incident; re-import with corrected schema | Incident log; restored snapshot |
+
+!!! warning "Examiner visibility to corrections"
+    Any lifecycle-state correction or bulk-restore is visible to examiners through the SharePoint version history and Purview audit log. Write a brief corrective memo (who, what, why, when) and attach it to the change-management ticket. Examiners view an unexplained record correction as a finding; an explained, authorized, documented correction is evidence of governance maturity.
 
 ---
 

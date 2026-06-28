@@ -356,6 +356,53 @@ finally {
 
 ---
 
+## Rollback / Back-out
+
+**Always run the validation script (see above) before and after any change.** The pre-change snapshot below provides the state you need to restore if a change has unintended consequences.
+
+### Pre-change snapshot script
+
+Run this before making any configuration changes in a regulated change window. It captures the current state and SHA-256 hashes the output for evidence purposes.
+
+```powershell
+# PSEUDOCODE — illustrative snapshot pattern; adapt cmdlets to your tenant and module version
+# Run BEFORE any changes. Produces timestamped exports for rollback reference.
+$snapshotDir = ".\snapshots\$(Get-Date -Format 'yyyy-MM-dd_HHmm')"
+New-Item -ItemType Directory -Path $snapshotDir -Force | Out-Null
+
+# Capture tenant settings that affect publishing
+Get-AdminPowerAppEnvironment | ConvertTo-Json -Depth 5 |
+    Out-File "$snapshotDir\environments.json"
+
+# Capture environment role assignments (non-Dataverse environments)
+Get-AdminPowerAppEnvironment | ForEach-Object {
+    Get-AdminPowerAppEnvironmentRoleAssignment -EnvironmentName $_.EnvironmentName |
+        Select-Object @{n='Environment'; e={$_.EnvironmentName}}, @{n='RoleAssignment'; e={$_}}
+} | ConvertTo-Json -Depth 5 |
+    Out-File "$snapshotDir\role-assignments.json"
+
+# SHA-256 hash each output
+Get-ChildItem $snapshotDir | ForEach-Object {
+    $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash
+    "$hash  $($_.Name)" | Add-Content "$snapshotDir\manifest.sha256"
+}
+Write-Host "Snapshot saved to $snapshotDir" -ForegroundColor Cyan
+```
+
+> **PSEUDOCODE — cmdlets may not exist yet in this form.** Verify cmdlet availability in your pinned module version before running in a regulated change window. The snapshot pattern (export → hash → manifest) is the authoritative pattern; adapt to available cmdlets.
+
+### Rollback procedures
+
+If a script run produces an unintended result:
+
+1. **Do NOT run the script again with different parameters** — escalate to the Power Platform Admin and open an incident ticket first.
+2. **Restore from snapshot:** use the JSON exports in `$snapshotDir` as the authoritative pre-change state reference.
+3. **Re-apply prior role assignments via PPAC** (for Dataverse environments) using the snapshot JSON as the source of truth — do not rely on memory or verbal confirmation.
+4. **Log the incident** in your change-management system with the snapshot manifest hash as the tamper-evident reference.
+5. **Verify restoration** using the validation script above; emit a new SHA-256–signed evidence file stamped "post-rollback".
+
+---
+
 [Back to Control 1.1](../../../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md) | [Portal Walkthrough](portal-walkthrough.md) | [Verification Testing](verification-testing.md) | [Troubleshooting](troubleshooting.md)
 
 ---
