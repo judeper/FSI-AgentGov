@@ -3,6 +3,8 @@ description: "Core concepts and principles for AI agent governance in financial 
 ---
 # Governance Fundamentals
 
+> **Framework layer — Core track.** The foundational reference defining framework structure, the canonical control-maturity scale, and core governance concepts. Read this before implementing any control.
+
 Core concepts and principles for AI agent governance in financial services.
 
 ---
@@ -258,18 +260,17 @@ This mirrors how organizations manage other operational risks. Consider expense 
 
 ## Governance Maturity Levels
 
-Each control supports three implementation levels:
+This is the **canonical control-maturity scale** for the FSI Agent Governance Framework. Each of the 79 controls supports four implementation levels (scored 0–4) grouped into three named tiers. Both the names and numbers refer to the same scale — use whichever form appears in your context (control headers use the names; the assessment engine uses the scores).
 
-| Level | Name | Description | Typical Use |
-|-------|------|-------------|-------------|
-| **Level 1** | Baseline | Minimum required implementation | Initial deployment, Zone 1 |
-| **Level 2-3** | Recommended | Best practice implementation | Zone 2, most production agents |
-| **Level 4** | Regulated/High-Risk | Comprehensive controls | Zone 3, customer-facing agents |
+| Score | Named Tier | Description | Typical Application |
+|-------|-----------|-------------|---------------------|
+| **0** | Not Implemented | Control not yet deployed | Pre-deployment baseline |
+| **1** | **Baseline** | Minimum required governance for initial deployment | Zone 1 agents, Phase 0 implementation |
+| **2–3** | **Recommended** | Best-practice implementation meeting most production requirements | Zone 2 agents, general production scenarios |
+| **4** | **Regulated** | Comprehensive controls required for regulated or high-risk contexts | Zone 3 agents, customer-facing, examination-ready |
 
-!!! info "Maturity Assessment"
-    For compliance tracking, use the 5-point maturity scale: Level 0 (Not implemented),
-    Level 1 (Baseline), Level 2-3 (Recommended), Level 4 (Regulated).
-    See [FAQ](../reference/faq.md#q-how-do-we-measure-compliance) for percentages.
+!!! warning "Separate scale: CAPE 100–500 Capability Driver maturity"
+    The CAPE Capability Driver scale (L100 = Initial → L500 = Optimized) measures **organizational readiness** — whether the organization can deploy and sustain agents at scale. This is a *distinct dimension* from the 0–4 control implementation level above. A firm can achieve Level 4 (Regulated) on every control and still be at L200 on the Business Strategy Capability Driver. Do not conflate the two scales. See [Agentic Capability Drivers](agentic-capability-drivers.md) for the driver maturity model and the explicit rationale for keeping the scales separate.
 
 ### Control Implementation Approach
 
@@ -355,6 +356,14 @@ This framework is designed to **complement, not replace** existing enterprise go
 - [Building Trustworthy AI: A Practical Framework for Adaptive Governance](https://www.microsoft.com/en-us/power-platform/blog/2026/04/01/building-trustworthy-ai-a-practical-framework-for-adaptive-governance/) — Microsoft Power Platform Blog (April 2026). Discusses adaptive governance, graduated risk zones, and platform-enforced controls for AI agents.
 - [Agent Identity Architecture](agent-identity-architecture.md) — Entra Agent ID and Agent 365 governance architecture
 - [Zones and Tiers](zones-and-tiers.md) — Detailed zone definitions and progression criteria
+
+---
+
+!!! info "Key controls implementing these concepts"
+    **Adaptive governance & platform enforcement:** [1.1 — Restrict Agent Publishing](../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md) · [2.1 — Managed Environments](../controls/pillar-2-management/2.1-managed-environments.md) · [2.2 — Environment Groups](../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) · [2.15 — Environment Routing](../controls/pillar-2-management/2.15-environment-routing.md)  
+    **Governance Triangle — audit & change:** [1.7 — Audit Logging](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) · [2.3 — Change Management](../controls/pillar-2-management/2.3-change-management-and-release-planning.md) · [3.1 — Agent Inventory](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md)
+
+**Next →** [Zones and Tiers](zones-and-tiers.md) — How agents are classified into Zone 1, 2, or 3, and what governance requirements each zone carries.
 
 ---
 

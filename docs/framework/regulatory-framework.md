@@ -3,6 +3,8 @@ description: "Comprehensive mapping of framework controls to US financial servic
 ---
 # Regulatory Framework
 
+> **Framework layer — Core track.** Maps the 79 controls to FINRA, SEC, SOX, GLBA, OCC, and Federal Reserve regulatory requirements; use this to prioritize implementation based on your regulatory profile.
+
 Comprehensive mapping of framework controls to US financial services regulatory requirements.
 
 ---
@@ -524,6 +526,16 @@ The [Microsoft CAPE crosswalk](../reference/microsoft-cape-crosswalk.md) provide
 - [CCO quick reference](../reference/cco-quick-reference.md) — examiner-facing FAQ with regulation → control → evidence artifact → owning role mapping (forthcoming Phase 1 Wave 2A)
 - [Glossary](../reference/glossary.md) — see "Capability Driver" entry for disambiguation of CAPE "capability drivers" vs FSI "pillars"
 - [Role catalog — Microsoft CAPE role mapping](../reference/role-catalog.md#microsoft-cape-role-mapping-cross-reference) — CAPE role names mapped to FSI canonical role names
+
+---
+
+!!! info "Key controls implementing regulatory requirements"
+    **Recordkeeping (FINRA 4511, SEC 17a-4):** [1.7 — Audit Logging](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) · [1.9 — Retention Policies](../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) · [2.13 — Documentation & Records](../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) · [3.3 — Compliance Reporting](../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md)  
+    **Supervision (FINRA 3110):** [2.12 — Supervision](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) · [2.17 — Multi-Agent Limits](../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md) · [2.18 — Conflict-of-Interest Testing](../controls/pillar-2-management/2.18-automated-conflict-of-interest-testing.md)  
+    **Model risk (OCC 2026-13, Fed SR 26-2):** [2.6 — Model Risk Management](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) · [2.11 — Bias Testing](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md)  
+    **Data protection (GLBA 501(b)):** [1.5 — DLP](../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) · [1.11 — MFA](../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md) · [1.15 — Encryption](../controls/pillar-1-security/1.15-encryption-data-in-transit-and-at-rest.md)
+
+**Next →** [Operating Model](operating-model.md) — RACI, roles, and governance committee structure that brings these regulatory requirements to life.
 
 ---
 

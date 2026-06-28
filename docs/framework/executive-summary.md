@@ -3,6 +3,8 @@ description: "A board-level overview of AI agent governance for US financial ser
 ---
 # Executive Summary
 
+> **Framework layer — Core track.** Strategic overview for C-suite and board; establishes risk context and governance model before the more detailed framework documents.
+
 A board-level overview of AI agent governance for US financial services organizations.
 
 ---
@@ -31,16 +33,16 @@ Microsoft 365 AI agents (Microsoft Copilot Studio, Agent Builder) enable financi
 
 | Rank | Risk | Impact | Key Mitigating Controls |
 |------|------|--------|------------------------|
-| 1 | **Unauthorized Data Access** | Customer PII exposure, regulatory violation | DLP policies (1.5), Sensitivity labels (1.5), DSPM for AI (1.6) |
-| 2 | **Inadequate Supervision** | FINRA 3110 violation, unsuitable recommendations | Supervision controls (2.12), Human-in-the-loop (playbooks) |
-| 3 | **Records Retention Failure** | SEC 17a-4/FINRA 4511 violation | Audit logging (1.7), Retention policies (1.9) |
-| 4 | **Model Bias/Fairness Issues** | Fair lending violations, reputational harm | Bias testing (2.11), Model risk management (2.6) |
-| 5 | **Hallucination/Inaccuracy** | Customer harm, regulatory exposure | RAG validation (2.16), Feedback loops (3.10) |
-| 6 | **Unauthorized Agent Publishing** | Shadow AI, uncontrolled risk | Publishing restrictions (1.1), Managed environments (2.1) |
-| 7 | **Excessive Data Grounding** | Oversharing, data leakage | Grounding scope (4.6), SharePoint governance (4.1) |
-| 8 | **Lack of Audit Trail** | Examination failure, inability to investigate | Comprehensive logging (1.7), eDiscovery (1.19) |
-| 9 | **Insufficient Change Control** | Unauthorized modifications, instability | Change management (2.3), ALM pipelines |
-| 10 | **Third-Party Model Risk** | Vendor dependency, unexpected behavior | Vendor management (2.7), Testing (2.5) |
+| 1 | **Unauthorized Data Access** | Customer PII exposure, regulatory violation | [DLP policies (1.5)](../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md), [DSPM for AI (1.6)](../controls/pillar-1-security/1.6-microsoft-purview-dspm-for-ai.md) |
+| 2 | **Inadequate Supervision** | FINRA 3110 violation, unsuitable recommendations | [Supervision controls (2.12)](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md), Human-in-the-loop (playbooks) |
+| 3 | **Records Retention Failure** | SEC 17a-4/FINRA 4511 violation | [Audit logging (1.7)](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), [Retention policies (1.9)](../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) |
+| 4 | **Model Bias/Fairness Issues** | Fair lending violations, reputational harm | [Bias testing (2.11)](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md), [Model risk management (2.6)](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) |
+| 5 | **Hallucination/Inaccuracy** | Customer harm, regulatory exposure | [RAG validation (2.16)](../controls/pillar-2-management/2.16-rag-source-integrity-validation.md), [Feedback loops (3.10)](../controls/pillar-3-reporting/3.10-hallucination-feedback-loop.md) |
+| 6 | **Unauthorized Agent Publishing** | Shadow AI, uncontrolled risk | [Publishing restrictions (1.1)](../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md), [Managed environments (2.1)](../controls/pillar-2-management/2.1-managed-environments.md) |
+| 7 | **Excessive Data Grounding** | Oversharing, data leakage | [Grounding scope (4.6)](../controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md), [SharePoint governance (4.1)](../controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md) |
+| 8 | **Lack of Audit Trail** | Examination failure, inability to investigate | [Comprehensive logging (1.7)](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), [eDiscovery (1.19)](../controls/pillar-1-security/1.19-ediscovery-for-agent-interactions.md) |
+| 9 | **Insufficient Change Control** | Unauthorized modifications, instability | [Change management (2.3)](../controls/pillar-2-management/2.3-change-management-and-release-planning.md), ALM pipelines |
+| 10 | **Third-Party Model Risk** | Vendor dependency, unexpected behavior | [Vendor management (2.7)](../controls/pillar-2-management/2.7-vendor-and-third-party-risk-management.md), [Testing (2.5)](../controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md) |
 
 ---
 
@@ -50,13 +52,13 @@ Microsoft 365 AI agents (Microsoft Copilot Studio, Agent Builder) enable financi
 
 | Regulation | Issuer | AI Agent Relevance | Framework Coverage |
 |------------|--------|-------------------|-------------------|
-| **FINRA 4511** | FINRA | Books and records for agent interactions | Controls 1.7, 1.9, 3.1, 3.3 |
-| **FINRA 3110** | FINRA | Supervision of AI-assisted activities | Controls 2.12, 2.17, 2.18 |
-| **SEC 17a-3/4** | SEC | Recordkeeping requirements | Controls 1.7, 1.9, 2.13 |
-| **SOX 302/404** | Congress | Internal controls over financial reporting | Controls 1.7, 2.3, 3.3 |
-| **GLBA 501(b)** | Congress | Safeguards for customer information | Controls 1.5, 1.11, 1.15 |
-| **OCC Bulletin 2026-13 (formerly OCC 2011-12)** | OCC | Model risk management | Controls 2.6, 2.11 |
-| **Fed SR 26-2 (formerly SR 11-7)** | Federal Reserve | Model risk management | Controls 2.6, 2.11 |
+| **FINRA 4511** | FINRA | Books and records for agent interactions | [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), [1.9](../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md), [3.1](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md), [3.3](../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) |
+| **FINRA 3110** | FINRA | Supervision of AI-assisted activities | [2.12](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md), [2.17](../controls/pillar-2-management/2.17-multi-agent-orchestration-limits.md), [2.18](../controls/pillar-2-management/2.18-automated-conflict-of-interest-testing.md) |
+| **SEC 17a-3/4** | SEC | Recordkeeping requirements | [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), [1.9](../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md), [2.13](../controls/pillar-2-management/2.13-documentation-and-record-keeping.md) |
+| **SOX 302/404** | Congress | Internal controls over financial reporting | [1.7](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md), [2.3](../controls/pillar-2-management/2.3-change-management-and-release-planning.md), [3.3](../controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md) |
+| **GLBA 501(b)** | Congress | Safeguards for customer information | [1.5](../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md), [1.11](../controls/pillar-1-security/1.11-conditional-access-and-phishing-resistant-mfa.md), [1.15](../controls/pillar-1-security/1.15-encryption-data-in-transit-and-at-rest.md) |
+| **OCC Bulletin 2026-13 (formerly OCC 2011-12)** | OCC | Model risk management | [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md), [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) |
+| **Fed SR 26-2 (formerly SR 11-7)** | Federal Reserve | Model risk management | [2.6](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md), [2.11](../controls/pillar-2-management/2.11-bias-testing-and-fairness-assessment.md) |
 
 ### Regulatory Heatmap by Zone
 
@@ -105,11 +107,7 @@ The framework follows an **adaptive governance** philosophy: controls scale prop
 
 ### Governance Maturity Levels
 
-Each control supports three implementation levels:
-
-- **Baseline:** Minimum viable governance for initial deployment
-- **Recommended:** Best practices for most production scenarios
-- **Regulated:** Comprehensive controls for Zone 3 and high-risk agents
+Each control supports three named implementation tiers — Baseline, Recommended, and Regulated — each mapped to a numeric score (1, 2–3, and 4 respectively) used in automated assessment outputs. A Level 0 (Not Implemented) baseline is also tracked. See [Governance Fundamentals](governance-fundamentals.md#governance-maturity-levels) for the canonical definition, which also explicitly distinguishes this 0–4 control scale from the separate CAPE Capability Driver 100–500 organizational readiness scale.
 
 ---
 
@@ -251,6 +249,15 @@ See [Governance Cadence](governance-cadence.md) for examination preparation chec
 ## Disclaimer
 
 This framework provides governance guidance and does not constitute legal, regulatory, or compliance advice. Organizations should validate all controls against their specific regulatory obligations and consult legal counsel for regulatory interpretation.
+
+---
+
+!!! info "Key controls referenced in this summary"
+    **Records & audit:** [1.7 — Audit Logging](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) · [1.9 — Retention Policies](../controls/pillar-1-security/1.9-data-retention-and-deletion-policies.md) · [3.1 — Agent Inventory](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md)  
+    **Access & data protection:** [1.1 — Restrict Publishing](../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md) · [1.5 — DLP](../controls/pillar-1-security/1.5-data-loss-prevention-dlp-and-sensitivity-labels.md) · [2.1 — Managed Environments](../controls/pillar-2-management/2.1-managed-environments.md)  
+    **Model & supervision:** [2.6 — Model Risk](../controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md) · [2.12 — Supervision](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) · [2.3 — Change Management](../controls/pillar-2-management/2.3-change-management-and-release-planning.md)
+
+**Next →** [Governance Fundamentals](governance-fundamentals.md) — Core framework concepts, the canonical maturity scale definition, and the full conceptual model.
 
 ---
 

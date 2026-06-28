@@ -3,6 +3,8 @@ description: "Microsoft's Copilot Acceleration Engineering (CAPE) materials intr
 ---
 # Agentic Capability Drivers
 
+> **Framework layer — Advanced & Scaling track.** Translates the five CAPE Capability Drivers (AI Strategy, Business Strategy, AI Governance & Security, Technology & Data, Organization & Culture) into FSI vocabulary for organizational readiness assessment. The 100–500 driver scale is *separate* from the 0–4 control implementation level — see [Governance Fundamentals](governance-fundamentals.md#governance-maturity-levels) for the canonical distinction.
+
 > **Audience:** M365 administrators, AI Governance Lead, AI Program Sponsor / CIO / CDAO, FSI architects, Microsoft FSI Customer Success Architects (CSAs).
 > **Purpose:** FSI translation of Microsoft's five **Capability Drivers** and the 100–500 maturity scale, with per-driver target profiles by Frontier Transformation Pattern and an explicit position on why FSI-AgentGov does not numerically merge maturity scales.
 > **Position:** This document is the framework-layer deep-dive that the [Microsoft CAPE crosswalk](../reference/microsoft-cape-crosswalk.md) §1.2 redirects to. It supplements — it does not replace — the FSI assessment engine, the per-control governance levels, or the Zone classification.
@@ -293,9 +295,11 @@ This is the load-bearing reason FSI-AgentGov adopts Capability Driver as a first
 - [Agentic Center of Excellence](agentic-coe.md) — operational structure that develops driver capacity over time (Phase 2 sibling).
 - [Microsoft CAPE crosswalk](../reference/microsoft-cape-crosswalk.md) — pattern-by-pattern regulatory mapping, FSI Maturity Translation Table, vocabulary reconciliation.
 - [Zones and Tiers](zones-and-tiers.md) — the regulatory classification this driver lens complements.
-- [Governance Fundamentals](governance-fundamentals.md) — the four-pillar control architecture the driver lens supplements.
+- [Governance Fundamentals](governance-fundamentals.md) — the four-pillar control architecture the driver lens supplements; also the canonical definition of the 0–4 control maturity scale (distinct from the 100–500 driver scale).
 - [Glossary](../reference/glossary.md) — canonical definitions for *Capability Driver*, *Frontier Readiness*, *Pattern (Frontier Transformation Pattern)*, and *Scale-breaker*.
 - [Role catalog](../reference/role-catalog.md) — owner roles for each driver and CAPE-to-FSI role mapping.
+
+**Next →** [Agentic Center of Excellence](agentic-coe.md) — The CoE blueprint for developing driver capacity and governing pattern deployments at scale.
 
 ---
 

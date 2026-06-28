@@ -3,6 +3,8 @@ description: "How FSI-AgentGov-Solutions automation aligns with the governance f
 ---
 # Solutions Integration
 
+> **Framework layer — Core track.** Companion automation catalog — 36 solutions (35 live + 1 preview) that operationalize key controls; bridges "what to govern" (this framework) with "how to automate it" (FSI-AgentGov-Solutions).
+
 How FSI-AgentGov-Solutions automation aligns with the governance framework.
 
 ---
@@ -656,6 +658,10 @@ For detailed architecture guidance including scalability limits and alternative 
 ## Summary Statistics
 
 The current companion catalog includes **36 solutions (35 live + 1 preview)** aligned to the framework's **79 controls across 4 pillars**. For the authoritative per-solution version, status, and control coverage details, see the [Solutions Index](../reference/solutions-index.md).
+
+---
+
+**Next →** [Control Catalog](../controls/index.md) — The full 79-control library. Solutions in this catalog map directly to control IDs in the catalog.
 
 ---
 

@@ -29,7 +29,7 @@ The FSI Agent Governance Framework uses a three-layer documentation model to sep
 
 | Layer | Content | Update Frequency | Files |
 |-------|---------|------------------|-------|
-| **1. Framework** (this layer) | Governance principles, zones, lifecycle, regulatory context | 1-2x per year | 12 documents |
+| **1. Framework** (this layer) | Governance principles, zones, lifecycle, regulatory context | 1-2x per year | 15 pages (this Overview + 14 documents) |
 | **2. Control Catalog** | 79 technical control specifications across 4 pillars | Quarterly | 79 control files |
 | **3. Playbooks** | Step-by-step implementation procedures | Continuous (as Microsoft portals change) | 316 playbook files (4 per control) |
 
@@ -37,24 +37,49 @@ This separation ensures governance stability while allowing rapid updates to imp
 
 ---
 
+## Framework Concepts at a Glance
+
+Five interlocking concepts structure this framework. **Admins new to FSI AgentGov need Zone, Pillar, and Control to get started** — Pattern and Capability Driver belong to the Advanced & Scaling track and can be deferred until the core model is working.
+
+| Concept | One-line definition | Where defined |
+|---------|--------------------|-----------| 
+| **Zone** | Risk classification for an agent: Personal (Zone 1), Team (Zone 2), or Enterprise (Zone 3). Determines which controls apply, approval requirements, and retention periods. | [Zones and Tiers](zones-and-tiers.md) |
+| **Pillar** | Control family — Security (29 controls), Management (27), Reporting (14), SharePoint (9). Answers "what *category* is this control?" — not to be confused with Capability Drivers. | [Governance Fundamentals](governance-fundamentals.md#four-governance-pillars) |
+| **Control** | A single actionable governance unit — 79 total, each with Baseline / Recommended / Regulated implementation levels. The primary unit of day-to-day governance work. | [Control Catalog](../controls/index.md) |
+| **Pattern** ⚡ | Deployment shape (one of six CAPE Frontier Transformation Patterns). Useful for translating CIO conversations into zone and control requirements. | [Transformation Patterns](transformation-patterns.md) |
+| **Capability Driver** ⚡ | Organizational readiness dimension (one of five). Measured on a *separate* 100–500 CAPE scale — distinct from the 0–4 control implementation level. | [Capability Drivers](agentic-capability-drivers.md) |
+
+> **⚡ = Advanced & Scaling track.** M365 admins implementing controls can skip Pattern and Capability Driver entirely. Navigate to the [Adoption Roadmap](adoption-roadmap.md) or [Control Catalog](../controls/index.md) to begin implementation.
+
+---
+
 ## Framework Components
+
+### Core Documents
 
 | Document | Purpose | Audience |
 |----------|---------|----------|
 | [Executive Summary](executive-summary.md) | Board-level overview of AI agent risks and governance | C-suite, Board |
-| [Governance Fundamentals](governance-fundamentals.md) | Core framework concepts and structure | All stakeholders |
+| [Governance Fundamentals](governance-fundamentals.md) | Core framework concepts, maturity scale definition, and structure | All stakeholders |
 | [Zones and Tiers](zones-and-tiers.md) | Three-zone governance model | Governance committees |
-| [Frontier Transformation Patterns](transformation-patterns.md) | Six deployment patterns mapped to zone defaults and regulatory exposure profiles | AI governance leads, architects |
-| [Agentic Capability Drivers](agentic-capability-drivers.md) | Five organizational readiness dimensions and maturity targets by pattern | AI program sponsors, governance leads |
 | [Agent Lifecycle](agent-lifecycle.md) | Lifecycle phases and governance requirements | Compliance, Operations |
-| [Relationship to FSI-CopilotGov](relationship-to-copilotgov.md) | Scope boundary with the companion Copilot framework | New users, program leads |
 | [Regulatory Framework](regulatory-framework.md) | US regulatory requirements and control mappings | Compliance, Legal |
 | [Operating Model](operating-model.md) | RACI, roles, governance structure | All stakeholders |
-| [Agentic Center of Excellence](agentic-coe.md) | Four-function CoE blueprint for scaling agent governance without gatekeeper bottlenecks | CoE leads, executive sponsors |
 | [Governance Cadence](governance-cadence.md) | Review schedules and audit readiness | Compliance, Audit |
 | [Adoption Roadmap](adoption-roadmap.md) | Phased implementation guidance | Implementation teams |
-| [Agent Identity Architecture](agent-identity-architecture.md) | Agent identity, authentication, and authorization patterns | Security architects |
+| [Relationship to FSI-CopilotGov](relationship-to-copilotgov.md) | Scope boundary with the companion Copilot framework | New users, program leads |
 | [Solutions Integration](solutions-integration.md) | Companion solution catalog and automation coverage | Implementation teams |
+
+### Advanced & Scaling
+
+> **First-run admins:** Start with the Core Documents above and the [Control Catalog](../controls/index.md). The four documents below support governance leads and architects who need to map CIO conversations onto zones and controls, assess organizational readiness, or design an Agentic CoE — they are not required for initial control implementation.
+
+| Document | Purpose | Audience |
+|----------|---------|----------|
+| [Frontier Transformation Patterns](transformation-patterns.md) | Six deployment patterns mapped to zone defaults and regulatory exposure profiles | AI governance leads, architects |
+| [Agentic Capability Drivers](agentic-capability-drivers.md) | Five organizational readiness dimensions and maturity targets by pattern | AI program sponsors, governance leads |
+| [Unified Agent Governance](agent-identity-architecture.md) | Centralized agent identity, authentication, and authorization (Entra Agent ID, Agent 365, Admin Center) | Security architects |
+| [Agentic Center of Excellence](agentic-coe.md) | Four-function CoE blueprint for scaling agent governance without gatekeeper bottlenecks | CoE leads, executive sponsors |
 
 ---
 
@@ -124,6 +149,10 @@ The framework separates:
 - [Control Catalog](../controls/index.md) — Detailed control requirements
 - [Playbooks](../playbooks/index.md) — Implementation procedures
 - [Reference](../reference/index.md) — Supporting materials
+
+---
+
+**Next →** [Executive Summary](executive-summary.md) — Board-level overview of AI agent risks, governance model, and investment requirements.
 
 ---
 

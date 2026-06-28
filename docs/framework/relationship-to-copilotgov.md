@@ -3,6 +3,8 @@ description: "Scope boundary between FSI-AgentGov and FSI-CopilotGov, with guida
 ---
 # Relationship to FSI-CopilotGov
 
+> **Framework layer — Core track.** Clarifies which framework to use for M365 Copilot embedded experiences versus custom AI agents built with Copilot Studio or Agent Builder.
+
 Scope boundary between FSI-AgentGov and FSI-CopilotGov, with guidance on when to use each framework.
 
 ---
@@ -90,6 +92,8 @@ Both repositories are standalone and complementary. Where governance topics over
 ## Next Step
 
 If you are new to this repository, return to [Start Here](../start-here.md). If you are ready to understand AgentGov's operating model, continue to [Zones and Tiers](zones-and-tiers.md) or the [Executive Summary](executive-summary.md).
+
+**Next →** [Governance Fundamentals](governance-fundamentals.md) — Core framework concepts, the canonical maturity scale, and the full conceptual model (Zone / Pillar / Control / Pattern / Driver).
 
 ---
 
