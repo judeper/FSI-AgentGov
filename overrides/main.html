@@ -1,5 +1,43 @@
 {% extends "base.html" %}
 
+{# ── PLAYBOOKS-02: Unique <title> for per-control playbook pages ────────────
+   Material's nav labels every portal-walkthrough/powershell-setup/etc. entry
+   as a generic name ("Portal Walkthrough"), making all 316 playbook <title>s
+   identical — bad for SEO and screen-reader tab context.
+
+   This block prepends the parent nav section title (e.g. "1.1 Restrict Agent
+   Publishing") so titles become
+   "1.1 Restrict Agent Publishing — Portal Walkthrough — FSI Agent Governance Framework"
+
+   Scoped to pages whose src_uri is under playbooks/control-implementations/
+   to avoid unintended verbosity elsewhere in the nav tree.
+
+   Failure mode: if a future maintainer renames the nav section for a control
+   the title will reflect that new name automatically — no template change
+   needed. Safe to remove once mkdocs.yml nav labels are per-control-unique.
+#}
+{% block htmltitle %}
+  {%- if page %}
+    {%- if page.meta and page.meta.title %}
+      <title>{{ page.meta.title }} - {{ config.site_name }}</title>
+    {%- elif page.is_homepage %}
+      <title>{{ config.site_name }}</title>
+    {%- elif page.title %}
+      {%- set _in_playbook_impls = page.file and page.file.src_uri and
+                                    page.file.src_uri.startswith("playbooks/control-implementations/") %}
+      {%- if _in_playbook_impls and page.parent and page.parent.title %}
+        <title>{{ page.parent.title | striptags }} — {{ page.title | striptags }} — {{ config.site_name }}</title>
+      {%- else %}
+        <title>{{ page.title | striptags }} - {{ config.site_name }}</title>
+      {%- endif %}
+    {%- else %}
+      <title>{{ config.site_name }}</title>
+    {%- endif %}
+  {%- else %}
+    <title>{{ config.site_name }}</title>
+  {%- endif %}
+{% endblock %}
+
 {# Content Security Policy. Each loosening from a strict 'self' baseline is
    documented here and mirrored in tests/e2e/fixtures/csp-allowed.json:
      - script-src 'unsafe-inline'      : mkdocs-material inline init scripts.
@@ -29,41 +67,53 @@
   {% if page and page.file and page.file.src_uri == "reference/faq.md" %}
     {% include "partials/faq-jsonld.html" %}
   {% endif %}
-  {# AS16 (F-DOCS-OG-TWITTER-CARDS-MISSING-01): OpenGraph + Twitter Card
-     meta for link previews in Slack / Teams / LinkedIn. Without these,
-     FSI-AgentGov links shared in customer or partner channels render as
-     bare URLs - poor first impression for a regulated FS audience.
+  {# AS16 + UX-01: OpenGraph + Twitter Card meta for link previews.
+     UX-01: og:image + twitter:image (same-origin PNG, CSP img-src 'self' ✓).
+     UX-01: twitter:card upgraded to summary_large_image so Slack/Teams/LinkedIn
+            render the 1200×630 branded card instead of a small thumbnail.
+     UX-01: og:title for home page leads with the value-proposition tagline
+            rather than just the site name, which reads as a bare brand slug.
+     PLAYBOOKS-02 (og:title): mirrors the htmltitle block logic — playbook pages
+            under control-implementations get parent-context in og:title.
 
-     Intentionally NO og:image: we don't ship a brand image asset, and
-     Slack/Teams render text-only unfurls correctly. A placeholder PNG
-     would be worse than no image.
+     N2 (rubber-duck guard): if the `social` plugin is ever enabled in mkdocs.yml
+     REMOVE this entire block — the plugin auto-injects og:/twitter: and duplication
+     will confuse Slack/Teams unfurl caches.
 
-     N1 (rubber-duck): guard the " — Site Name" suffix on the homepage
-     where page.title == config.site_name to prevent
-     "FSI Agent Governance Framework — FSI Agent Governance Framework"
-     duplication.
-
-     N2 (rubber-duck): if a future maintainer enables Material's `social`
-     plugin in mkdocs.yml, REMOVE this block - the plugin auto-injects
-     og:/twitter: meta and duplication will confuse Slack/Teams unfurl.
-
-     The outer {% if page %} guard is required because MkDocs renders
-     404.html with page=None; without it, the build fails with
-     "'None' has no attribute 'meta'". #}
+     The {% if page %} guard is required because MkDocs renders 404.html with
+     page=None and the block would crash without it. #}
   {% if page %}
-    {% set _og_title = page.title|striptags %}
-    {% if _og_title != config.site_name %}
-      {% set _og_title = _og_title ~ " — " ~ config.site_name %}
-    {% endif %}
-    {% set _og_description = page.meta.description|default(config.site_description) %}
+    {%- set _site_img = config.site_url ~ "assets/og-image.png" %}
+    {%- set _og_description = page.meta.description | default(config.site_description) %}
+    {%- if page.is_homepage %}
+      {# Home: lead with value prop so share cards convey the framework purpose #}
+      {%- set _og_title = config.site_name ~ " — Govern Microsoft 365 AI agents with evidence, not guesswork" %}
+    {%- else %}
+      {%- set _base_title = page.title | striptags %}
+      {%- set _in_playbook_impls = page.file and page.file.src_uri and
+                                    page.file.src_uri.startswith("playbooks/control-implementations/") %}
+      {%- if _in_playbook_impls and page.parent and page.parent.title %}
+        {%- set _og_title = page.parent.title | striptags ~ " — " ~ _base_title ~ " — " ~ config.site_name %}
+      {%- else %}
+        {%- set _og_title = _base_title ~ " — " ~ config.site_name %}
+      {%- endif %}
+    {%- endif %}
     <meta property="og:title" content="{{ _og_title | e }}">
     <meta property="og:description" content="{{ _og_description | e }}">
     <meta property="og:url" content="{{ page.canonical_url }}">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="{{ config.site_name }}">
-    <meta name="twitter:card" content="summary">
+    <meta property="og:image" content="{{ _site_img }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ _og_title | e }}">
     <meta name="twitter:description" content="{{ _og_description | e }}">
+    <meta name="twitter:image" content="{{ _site_img }}">
+    {# WebSite JSON-LD on home page only (mirrors FAQ pattern) #}
+    {% if page.is_homepage %}
+      {% include "partials/jsonld-website.html" %}
+    {% endif %}
   {% endif %}
   <script>
     if (window.top !== window.self) {
@@ -129,7 +179,16 @@
 
 {% block announce %}
   Framework recently updated —
-  <a href="https://github.com/judeper/FSI-AgentGov/blob/main/CHANGELOG.md">
-    View Changelog
-  </a>
+  {# UX-09: Point to the on-site /changelog/ page, not the raw GitHub file.
+     Using the `url` filter so the path resolves correctly at every mount
+     point (local serve, GitHub Pages /FSI-AgentGov/ subpath, root deploy). #}
+  <a href="{{ 'changelog/' | url }}">View Changelog</a>
+{% endblock %}
+
+{# UX-08: Append lightweight non-GitHub feedback path after page content.
+   The fsi-feedback div is injected by feedback.js (thumbs + Issues link);
+   this partial adds a "Suggest an improvement" Discussions link below it. #}
+{% block content %}
+{{ super() }}
+{% include "partials/feedback-extra.html" %}
 {% endblock %}
