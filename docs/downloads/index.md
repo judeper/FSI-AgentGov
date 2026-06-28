@@ -2,7 +2,7 @@
 search:
   boost: 2
 ---
-# Administrator Downloads
+# Downloads & Templates
 
 Download role-specific checklists to track your implementation progress. Each Excel file contains the controls relevant to your role with status tracking columns.
 
@@ -122,6 +122,15 @@ The lists below mirror the control coverage currently shipped in each role workb
 - 2.21 AI Marketing Claims and Substantiation
 - 3.3 Compliance and Regulatory Reporting
 - 3.10 Hallucination Feedback Loop
+
+### AI Governance Lead (Governance Maturity Dashboard)
+
+The Governance Maturity Dashboard covers all 79 controls across all four pillars with pillar-level summary aggregation. See the [Control Catalog](../controls/index.md) for the complete control list.
+
+- **Pillar 1 — Security:** Controls 1.1–1.29 (agent access, identity, data protection, logging)
+- **Pillar 2 — Management:** Controls 2.1–2.27 (lifecycle, risk, model governance, operations)
+- **Pillar 3 — Reporting:** Controls 3.1–3.14 (inventory, compliance reporting, incident response)
+- **Pillar 4 — SharePoint:** Controls 4.1–4.9 (grounding governance, data access, retention)
 
 ---
 
