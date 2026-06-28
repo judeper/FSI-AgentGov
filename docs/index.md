@@ -1,4 +1,5 @@
 ---
+title: "Microsoft 365 AI Agent Governance for Financial Services — FINRA · SEC · SOX · GLBA"
 hide:
   - navigation
   - toc
@@ -11,7 +12,7 @@ search:
 
 # Govern Microsoft 365 AI agents — with evidence, not guesswork
 
-79 controls, 4 pillars, 6 regulatory frameworks — operationalized for Copilot Studio and Agent Builder in US financial-services organizations.
+79 controls, 316 playbooks, 4 pillars, 6 regulatory frameworks — operationalized for Copilot Studio and Agent Builder in US financial-services organizations.
 
 [New here? Start here →](start-here.md){ .md-button .md-button--primary }
 [Assess your tenant](assessment/index.md){ .md-button .md-button--primary }
@@ -42,14 +43,14 @@ search:
 
 <div class="grid cards job-cards" markdown>
 
--   **Start a governance program**
+-   **New to agent governance?**
 
     ---
 
-    New to agent governance? Follow a phased path — zones, operating model, and a
-    30/60/90-day adoption roadmap — to stand up controls without boiling the ocean.
+    Confirm this framework fits your situation, orient to zones and controls, and
+    take your first concrete action — in about 10 minutes.
 
-    [Begin from zero →](framework/adoption-roadmap.md)
+    [Start here →](start-here.md)
 
 -   **Prepare for an exam or audit**
 
@@ -73,10 +74,11 @@ search:
 
     ---
 
-    Run the readiness assessment to see where your environment stands against the
-    framework and which controls to prioritize next.
+    Run the readiness assessment to see where your organization stands against all
+    79 controls and identify which to prioritize — runs entirely in your browser,
+    nothing uploaded.
 
-    [Start the assessment →](assessment/index.md)
+    [Start the free assessment →](assessment/index.md)
 
 </div>
 
