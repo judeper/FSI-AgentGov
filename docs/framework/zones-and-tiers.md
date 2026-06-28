@@ -3,6 +3,8 @@ description: "Complete guide to the three-zone governance model for AI agent cla
 ---
 # Zones and Tiers
 
+> **Framework layer — Core track.** Classifies every agent into Zone 1 (Personal), Zone 2 (Team), or Zone 3 (Enterprise) — the classification that drives which controls apply, approval requirements, and retention periods.
+
 Complete guide to the three-zone governance model for AI agent classification.
 
 !!! note "Terminology: Zones vs Tiers"
@@ -549,6 +551,14 @@ Each zone should have recurring compliance reviews:
 - **Zone 1:** Annual review (if tracked)
 - **Zone 2:** Quarterly compliance review
 - **Zone 3:** Monthly review with attestation
+
+---
+
+!!! info "Key controls implementing zone governance"
+    **Zone enforcement:** [1.1 — Restrict Agent Publishing](../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md) · [2.1 — Managed Environments](../controls/pillar-2-management/2.1-managed-environments.md) · [2.2 — Environment Groups](../controls/pillar-2-management/2.2-environment-groups-and-tier-classification.md) · [2.15 — Environment Routing](../controls/pillar-2-management/2.15-environment-routing.md)  
+    **Zone 3 audit & oversight:** [1.7 — Audit Logging](../controls/pillar-1-security/1.7-comprehensive-audit-logging-and-compliance.md) · [2.12 — Supervision](../controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md) · [3.1 — Agent Inventory](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md)
+
+**Next →** [Regulatory Framework](regulatory-framework.md) — How the three zones map to FINRA, SEC, SOX, GLBA, and OCC regulatory requirements.
 
 ---
 

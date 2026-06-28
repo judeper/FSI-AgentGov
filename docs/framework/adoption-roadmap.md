@@ -3,6 +3,8 @@ description: "Phased implementation guidance for deploying the FSI Agent Governa
 ---
 # Adoption Roadmap
 
+> **Framework layer — Core track.** Sequences all 79 controls into a phased 0–12 month implementation plan, from foundation setup through advanced governance.
+
 Phased implementation guidance for deploying the FSI Agent Governance Framework.
 
 ---
@@ -403,6 +405,14 @@ For detailed solution documentation, see [Solutions Integration](solutions-integ
 3. **Customize Timeline** — Adapt phases based on your organization's priorities
 4. **Secure Resources** — Obtain budget and staffing commitments
 5. **Begin Phase 0** — Start with governance structure and core controls
+
+---
+
+!!! info "Phase 0 foundation controls"
+    [1.1 — Restrict Agent Publishing](../controls/pillar-1-security/1.1-restrict-agent-publishing-by-authorization.md) · [2.1 — Managed Environments](../controls/pillar-2-management/2.1-managed-environments.md) · [2.3 — Change Management](../controls/pillar-2-management/2.3-change-management-and-release-planning.md) · [3.1 — Agent Inventory](../controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md) · [4.1 — SharePoint Access Governance](../controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md)  
+    See the [Control Catalog](../controls/index.md) for all 79 controls organized by pillar.
+
+**Next →** [Control Catalog](../controls/index.md) — The full 79-control specification library, organized by Security, Management, Reporting, and SharePoint pillars.
 
 ---
 
