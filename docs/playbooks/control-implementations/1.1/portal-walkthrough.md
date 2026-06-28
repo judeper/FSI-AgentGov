@@ -1,8 +1,18 @@
-# Portal Walkthrough: Control 1.1 - Restrict Agent Publishing by Authorization
+# Control 1.1 — Portal Walkthrough: Restrict Agent Publishing by Authorization
 
 **Last Updated:** May 2026
 **Portal:** Power Platform Admin Center, Microsoft Entra Admin Center, M365 Admin Center, Microsoft Copilot Studio
-**Estimated Time:** 30-60 minutes
+**Estimated Time:** 30–60 minutes
+
+!!! abstract "Mission brief"
+
+    | | |
+    |---|---|
+    | **What you'll accomplish** | Restrict who can create and publish agents by configuring security groups, environment separation, and Copilot Studio publish controls |
+    | **Estimated time** | 30–60 minutes |
+    | **Required roles** | Power Platform Admin or AI Administrator; Entra Global Admin for security group creation |
+    | **Prerequisites** | Security groups already created in Entra ID; Managed Environments licensed (required for Step 4 sharing limits); Copilot Studio licensed |
+    | **Rollback** | Reverse security group assignments; remove environment restrictions; revoke publish controls. Settings take up to 1 hour to propagate — test in DEV first. See Rollback / Back-out section below. |
 
 !!! warning "Prerequisites & Licensing"
     This walkthrough requires:
