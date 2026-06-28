@@ -19,11 +19,13 @@ Define who is Responsible, Accountable, Consulted, and Informed for each governa
 
 ---
 
+> **Role Names:** Column headers and row entries use framework canonical short names from the [Administrator Role Catalog](role-catalog.md). Key abbreviations: **AI Gov Lead** = AI Governance Lead; **Compliance Officer** = Chief Compliance Officer / Compliance Officer; **Power Platform Admin** = Power Platform Admin (PP Admin in narrow columns); **Requester** = business user or employee requesting agent deployment; **Manager** = direct manager or department head of the requester; **Business** = business stakeholder for the relevant process. Roles may be combined in smaller institutions — see note below.
+
 ## Agent Governance Activities
 
 ### Zone 1: Personal Agent Deployment
 
-| Activity | AI Lead | Compliance | CISO | PP Admin | Requester | Board |
+| Activity | AI Gov Lead | Compliance Officer | CISO | Power Platform Admin | Requester | Board |
 |----------|---------|-----------|------|----------|-----------|-------|
 | Create personal agent | C | I | I | I | R | I |
 | Document purpose | R/A | I | I | I | I | I |
@@ -36,7 +38,7 @@ Define who is Responsible, Accountable, Consulted, and Informed for each governa
 
 ### Zone 2: Team Agent Deployment
 
-| Activity | AI Lead | Compliance | CISO | PP Admin | Manager | Board |
+| Activity | AI Gov Lead | Compliance Officer | CISO | Power Platform Admin | Manager | Board |
 |----------|---------|-----------|------|----------|---------|-------|
 | Business case review | A | C | C | I | R | I |
 | Risk assessment | R | C | C | I | C | I |
@@ -53,7 +55,7 @@ Define who is Responsible, Accountable, Consulted, and Informed for each governa
 
 ### Zone 3: Enterprise Agent Deployment
 
-| Activity | AI Lead | Compliance | CISO | Legal | CRO | Board | External Auditor |
+| Activity | AI Gov Lead | Compliance Officer | CISO | Legal | CRO | Board | External Auditor |
 |----------|---------|-----------|------|-------|-----|-------|-----------------|
 | Strategic planning | R/A | C | C | I | C | C | I |
 | Business case | R | C | C | C | R | C | I |
@@ -82,7 +84,7 @@ The following RACI assignments apply to additional controls:
 
 ### Control 1.19: eDiscovery for Agent Interactions
 
-| Activity | AI Lead | Compliance | CISO | Legal | PP Admin |
+| Activity | AI Gov Lead | Compliance Officer | CISO | Legal | Power Platform Admin |
 |----------|---------|-----------|------|-------|----------|
 | Define eDiscovery procedures | C | R/A | C | C | I |
 | Configure legal holds | I | R | C | A | I |
@@ -92,7 +94,7 @@ The following RACI assignments apply to additional controls:
 
 ### Control 2.15: Environment Routing & Auto-Provisioning
 
-| Activity | AI Lead | Compliance | CISO | PP Admin | Business |
+| Activity | AI Gov Lead | Compliance Officer | CISO | Power Platform Admin | Business |
 |----------|---------|-----------|------|----------|----------|
 | Define routing strategy | R/A | C | C | C | I |
 | Configure default routing | C | I | I | R/A | I |
@@ -102,7 +104,7 @@ The following RACI assignments apply to additional controls:
 
 ### Control 3.7: PPAC Security Posture Assessment
 
-| Activity | AI Lead | Compliance | CISO | PP Admin | Internal Audit |
+| Activity | AI Gov Lead | Compliance Officer | CISO | Power Platform Admin | Internal Audit |
 |----------|---------|-----------|------|----------|----------------|
 | Review security score | C | C | R/A | C | I |
 | Address recommendations | C | C | R | A | I |
@@ -111,7 +113,7 @@ The following RACI assignments apply to additional controls:
 
 ### Control 3.8: Copilot Hub
 
-| Activity | AI Lead | Compliance | CISO | PP Admin | Business |
+| Activity | AI Gov Lead | Compliance Officer | CISO | Power Platform Admin | Business |
 |----------|---------|-----------|------|----------|----------|
 | Access and configure dashboard | R/A | I | I | C | C |
 | Monitor usage metrics | R | I | I | C | C |
@@ -120,7 +122,7 @@ The following RACI assignments apply to additional controls:
 
 ### Control 3.9: Microsoft Sentinel Integration
 
-| Activity | AI Lead | Compliance | CISO | PP Admin | SOC |
+| Activity | AI Gov Lead | Compliance Officer | CISO | Power Platform Admin | SOC |
 |----------|---------|-----------|------|----------|-----|
 | Define monitoring requirements | C | C | R/A | C | C |
 | Configure Sentinel workspace | I | I | C | C | R/A |
@@ -305,9 +307,9 @@ The following RACI assignments apply to additional controls:
 | Role | Responsibility | Timing |
 |------|-----------------|--------|
 | Requester | Submit business case | Day 1 |
-| AI Lead | Initial classification | Day 2 |
+| AI Gov Lead | Initial classification | Day 2 |
 | Manager (Zone 2+) | Approve request | Day 3 |
-| Compliance | Review for regulatory fit | Day 4 |
+| Compliance Officer | Review for regulatory fit | Day 4 |
 | CISO | Security assessment | Day 5 |
 | Governance Committee (Zone 3) | Final approval | Day 10 |
 
@@ -317,12 +319,12 @@ The following RACI assignments apply to additional controls:
 
 | Role | Responsibility | Timing |
 |------|-----------------|--------|
-| PP Admin | Setup environment | Day 1-2 |
+| Power Platform Admin | Setup environment | Day 1-2 |
 | Developer | Build and test | Day 3-5 |
 | QA | Test procedures | Day 6-7 |
 | CISO | Security testing | Day 8-10 |
-| Compliance | Compliance verification | Day 11 |
-| AI Lead | Final sign-off | Day 12 |
+| Compliance Officer | Compliance verification | Day 11 |
+| AI Gov Lead | Final sign-off | Day 12 |
 
 ---
 
@@ -331,9 +333,9 @@ The following RACI assignments apply to additional controls:
 | Role | Responsibility | Frequency |
 |------|-----------------|-----------|
 | Requester/Owner | Daily monitoring | Daily |
-| PP Admin | Availability monitoring | Daily |
-| Compliance | Compliance checks | Weekly |
-| AI Lead | Zone 2+ oversight | Weekly |
+| Power Platform Admin | Availability monitoring | Daily |
+| Compliance Officer | Compliance checks | Weekly |
+| AI Gov Lead | Zone 2+ oversight | Weekly |
 | Compliance Officer | Monthly compliance review | Monthly |
 | Internal Audit | Quarterly testing | Quarterly |
 | Governance Committee (Zone 3) | Monthly oversight | Monthly |
@@ -346,10 +348,10 @@ The following RACI assignments apply to additional controls:
 | Role | Responsibility | Timing |
 |------|-----------------|--------|
 | Observer | Report incident | Immediately |
-| PP Admin | Initial containment | <1 hour |
+| Power Platform Admin | Initial containment | <1 hour |
 | CISO | Security assessment | <4 hours |
 | Compliance Officer | Investigate root cause | <24 hours |
-| AI Lead | Notify governance committee | <24 hours |
+| AI Gov Lead | Notify governance committee | <24 hours |
 | Board (if material) | Escalation and approval | <48 hours |
 
 ---
