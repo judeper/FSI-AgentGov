@@ -306,12 +306,35 @@ def build() -> tuple[dict, dict]:
         if idx_ids and cid not in idx_ids:
             notes["index_mismatch"].append(cid)
 
+        # Primary owner: first non-artifact role from manifest roles list (pre-cleanup).
+        primary_owner = ""
+        for r in (c.get("roles") or []):
+            cr = clean_role(r)
+            if cr and cr not in ROLE_ARTIFACTS:
+                primary_owner = cr
+                break
+
+        # Effort estimate derived from automation classification.
+        EFFORT_MAP = {
+            "full": "Low effort",
+            "partial": "Medium effort",
+            "manual": "Higher effort",
+        }
+        effort_level = EFFORT_MAP.get(auto_raw or "", "")
+
+        # Primary playbook URL: the portal-walkthrough (first in ordered list).
+        primary_playbook = playbooks[0] if playbooks else None
+
         controls.append({
             "id": cid,
             "title": name,
             "pillar": pillar,
             "pillarName": pillar_name,
             "url": url,
+            "objective": objective,
+            "primaryOwner": primary_owner,
+            "effortLevel": effort_level,
+            "primaryPlaybook": primary_playbook,
             "workload": workload,
             "governanceLevels": governance_levels,
             "zones": zones,
