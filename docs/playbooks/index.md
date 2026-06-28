@@ -33,6 +33,31 @@ Use playbooks when you need:
 
 ---
 
+## Quick Start: Common Admin Tasks
+
+Jump directly to the right playbook for your immediate goal.
+
+| I need to… | Start here | Playbook type |
+|---|---|---|
+| **Block an unapproved agent** in M365 or restrict publishing | [1.1 Portal Walkthrough](control-implementations/1.1/portal-walkthrough.md) | Portal |
+| **Restrict who can create or publish agents** tenant-wide | [1.1 PowerShell Setup](control-implementations/1.1/powershell-setup.md) | PowerShell |
+| **Enable Managed Environments** governance controls | [2.1 Portal Walkthrough](control-implementations/2.1/portal-walkthrough.md) | Portal |
+| **Set DLP policies** for agent data access | [1.5 Portal Walkthrough](control-implementations/1.5/portal-walkthrough.md) | Portal |
+| **Set up audit logging** and retention for agent conversations | [1.7 Portal Walkthrough](control-implementations/1.7/portal-walkthrough.md) | Portal |
+| **Build the agent inventory** (register existing agents) | [3.1 Portal Walkthrough](control-implementations/3.1/portal-walkthrough.md) | Portal |
+| **Automate agent inventory** discovery across all planes | [3.1 PowerShell Setup](control-implementations/3.1/powershell-setup.md) | PowerShell |
+| **Prepare for a FINRA, SEC, or OCC exam** | [Audit Readiness Checklist](compliance-and-audit/audit-readiness-checklist.md) | Compliance |
+| **Assemble examination evidence** from portal exports | [Evidence Pack Assembly](compliance-and-audit/evidence-pack-assembly.md) | Compliance |
+| **Respond to an AI governance incident** | [AI Incident Response Playbook](incident-and-risk/ai-incident-response-playbook.md) | Incident |
+| **Decommission an agent** securely | [Agent Decommissioning](agent-lifecycle/agent-decommissioning.md) | Lifecycle |
+| **Promote an agent to a higher-governance zone** | [Agent Promotion Checklist](agent-lifecycle/agent-promotion-checklist.md) | Lifecycle |
+| **Monitor for unauthorized agent sharing** continuously | [Unrestricted Agent Sharing Detector](advanced-implementations/unrestricted-agent-sharing-detector/index.md) | Advanced |
+| **Configure human-in-the-loop approvals** for agent actions | [Human-in-the-Loop Triggers](advanced-implementations/human-in-the-loop-triggers.md) | Advanced |
+
+For the full control-by-control matrix, see [Control Implementations](control-implementations/index.md).
+
+---
+
 ## Playbook Categories
 
 ### Getting Started

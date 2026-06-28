@@ -1,7 +1,16 @@
-# Unrestricted Agent Sharing Detector
+# Unrestricted Agent Sharing Detector (UASD)
 
 **Status:** Complete — February 2026
 **Related Controls:** 1.1, 3.8
+
+!!! info "Related solution: ASARD"
+    A closely related tool, **ASARD (Agent Sharing Access Restriction Detector)**, provides similar detection functionality via a Python script rather than a Power Platform solution. See the [ASARD Deployment Guide](../../asard-deployment-guide.md) for the comparison.
+
+    | | UASD (this page) | ASARD |
+    |---|---|---|
+    | **Implementation** | Power Automate + Dataverse + Canvas App | Python script + MSAL + BAP API |
+    | **Exception management** | Dataverse approval workflow | Separate Python-based flow |
+    | **Recommendation** | Preferred for new deployments | Use if already deployed or prefer script-based approach |
 
 ---
 
