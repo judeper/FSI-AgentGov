@@ -78,7 +78,7 @@ When assembling the actual response package:
 
 ## Gaps to track for future framework expansion
 
-The mapping above identifies categories that the current 78-control framework addresses. Examiner request types that fall outside the current framework — and that are candidates for a future control or playbook — should be tracked in the project backlog and surfaced in the v1.8 roadmap discussion. Examples that have appeared in recent examiner letters but are not yet first-class framework artifacts:
+The mapping above identifies categories that the current 79-control framework addresses. Examiner request types that fall outside the current framework — and that are candidates for a future control or playbook — should be tracked in the project backlog and surfaced in the v1.8 roadmap discussion. Examples that have appeared in recent examiner letters but are not yet first-class framework artifacts:
 
 - Cross-tenant agent-collaboration audit trails (where agents from one tenant are invoked by users in another)
 - Generative-AI training-data lineage and "model card" disclosures for in-house fine-tunes

@@ -13,7 +13,7 @@ Common questions and answers about the FSI Agent Governance Framework.
 
 A: Read in this order:
 
-1. README.md (5 min overview)
+1. [Framework Overview](../framework/executive-summary.md) (5 min overview)
 2. [Zones Guide](../framework/zones-and-tiers.md) (understand your zone)
 3. [Quick Start](../getting-started/quick-start.md) (30 min hands-on)
 4. [Regulatory Mappings](../framework/regulatory-framework.md) (if regulated)
