@@ -160,10 +160,12 @@ Agent 365 capabilities support FSI regulatory requirements:
 | **FINRA 4511** | Audit logging, Agent Registry | Complete interaction records |
 | **FINRA 3110** | Observability SDK, Sponsorship | Supervision evidence |
 | **SEC 17a-3/4** | DSPM, Audit events | Record retention compliance |
-| **OCC Bulletin 2026-13 (formerly OCC 2011-12)** | Blueprint lifecycle, Registry | Model inventory requirements |
-| **Fed SR 26-2 (formerly SR 11-7)** | Agent ID, Attestation | Model governance accountability |
+| **OCC Bulletin 2026-13 (formerly OCC 2011-12)** | Blueprint lifecycle, Registry | Model inventory requirements † |
+| **Fed SR 26-2 (formerly SR 11-7)** | Agent ID, Attestation | Model governance accountability † |
 | **SOX 302/404** | Observability, Audit trail | Internal control evidence |
 | **GLBA 501(b)** | DLP, DSPM, Defender | Customer data protection |
+
+† OCC Bulletin 2026-13 / Fed SR 26-2 **expressly exclude generative and agentic AI** from scope ("not within the scope of this guidance"). Treat these mappings as **analogous sound risk-management principles** applied to AI agents, not direct OCC/SR obligations. See the [OCC Bulletin 2026-13 / Fed SR 26-2 scope caveat in Regulatory Mappings](regulatory-mappings.md#occ-bulletin-2026-13-fed-sr-26-2-model-risk-management).
 
 ---
 

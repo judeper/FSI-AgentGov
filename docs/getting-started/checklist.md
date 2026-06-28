@@ -261,7 +261,7 @@ Before starting Phase 1, confirm the following:
 
 **Control 1.6: DSPM for AI**
 
-- [ ] Navigate to purview.microsoft.com → DSPM for AI
+- [ ] Navigate to purview.microsoft.com → Solutions → Data Security Posture Management for AI
 - [ ] Complete Get Started setup steps
 - [ ] Review recommendations and enable policies
 - [ ] Configure activity monitoring
