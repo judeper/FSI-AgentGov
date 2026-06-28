@@ -6,7 +6,7 @@ description: "This document is the canonical reference when CAPE vocabulary inte
 # Microsoft CAPE × FSI-AgentGov Crosswalk
 
 > **Audience:** AI Governance Lead, Chief Compliance Officer, AI Program Sponsor / CIO, Microsoft FSI Customer Success Architects (CSAs).
-> **Purpose:** Map Microsoft's Copilot Acceleration Engineering (CAPE) Frontier Transformation Patterns and Agentic AI Maturity Model to the FSI-AgentGov 78-control governance framework, with US financial-services regulatory overlays on every pattern.
+> **Purpose:** Map Microsoft's Copilot Acceleration Engineering (CAPE) Frontier Transformation Patterns and Agentic AI Maturity Model to the FSI-AgentGov 79-control governance framework, with US financial-services regulatory overlays on every pattern.
 > **Sources:** Microsoft CAPE *Agentic Transformation Patterns Playbook* ([aka.ms/AgenticTransformationPatterns](https://aka.ms/AgenticTransformationPatterns)) and *CAPE Walking Deck* ([aka.ms/CAPEAgenticeCOEWalkingDeck](https://aka.ms/CAPEAgenticeCOEWalkingDeck)). Both shortlinks resolve to the same playbook PDF (verified by SHA-256). Retrieved: 2026-05-09.
 > **Position:** FSI-AgentGov is a **pattern-aware FSI governance framework** (see [Council decision D1, Option B](https://github.com/judeper/FSI-AgentGov)). CAPE provides the strategic vocabulary (patterns, capability drivers, CoE functions); FSI-AgentGov provides the regulator-grade controls and FSI-specific guardrails. CAPE is one of several aligned external frameworks alongside [NIST AI RMF](nist-ai-rmf-crosswalk.md) and ISO/IEC 42001.
 
@@ -436,7 +436,7 @@ This table is the single source of truth for FSI reframing of CAPE language. The
 
 ## 5. Pattern × Solution mapping
 
-The companion repository [`FSI-AgentGov-Solutions`](https://github.com/judeper/FSI-AgentGov-Solutions) catalogs 35 reference implementations aligned to the 78-control framework. The table below is a **first-pass forward-looking mapping** of CAPE patterns to existing solutions, derived from the council's solutions-lead memo. Full pattern tagging in the solutions manifest is a v1.6.0 deliverable (see [Council Split S5](#9-related-documents)); until then, this mapping is advisory only and should be cross-checked against [`docs/reference/solutions-index.md`](solutions-index.md).
+The companion repository [`FSI-AgentGov-Solutions`](https://github.com/judeper/FSI-AgentGov-Solutions) catalogs 35 reference implementations aligned to the 79-control framework. The table below is a **first-pass forward-looking mapping** of CAPE patterns to existing solutions, derived from the council's solutions-lead memo. Full pattern tagging in the solutions manifest is a v1.6.0 deliverable (see [Council Split S5](#9-related-documents)); until then, this mapping is advisory only and should be cross-checked against [`docs/reference/solutions-index.md`](solutions-index.md).
 
 | Pattern | Most relevant existing solutions | Primary controls implemented |
 |---|---|---|

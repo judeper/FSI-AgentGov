@@ -1,9 +1,44 @@
 ---
 description: "Mapping of framework controls to regulatory requirements."
+search:
+  boost: 2
 ---
 # Regulatory Mappings
 
-Mapping of framework controls to regulatory requirements.
+Mapping of framework controls to regulatory requirements. Jump to any regulation using the index below, or use the [Control Coverage Summary](#control-coverage-summary-by-regulation) for an implementation-status overview.
+
+---
+
+## Quick Regulation Index
+
+| Regulation | Scope | Key Controls | Jump |
+|-----------|-------|-------------|------|
+| **FINRA 4511** | Books and Records (broker-dealers) | 1.7, 1.9, 2.12, 3.1, 3.3 | [↓](#finra-rule-4511-books-and-records) |
+| **FINRA 3110** | Supervision (broker-dealers) | 2.12, 3.3, 1.7, 2.19 | [↓](#finra-rule-3110-supervision) |
+| **FINRA 4530(d)** | Customer Complaint Reporting | 3.4, 2.12, 1.7 | [↓](#finra-rule-4530d-quarterly-customer-complaint-reporting) |
+| **FINRA AI Governance** | AI Supervision (Notice 24-09) | 2.12, 2.6, 2.19, 1.7 | [↓](#finra-ai-supervision-and-governance) |
+| **SEC 17a-3/4** | Recordkeeping (broker-dealers/RIAs) | 1.7, 1.9, 3.1, 3.3 | [↓](#sec-rule-17a-34-recordkeeping) |
+| **SEC 10b-5 / Reg BI** | Fair Dealing and Disclosure | 2.11, 2.19, 2.21 | [↓](#sec-rule-10b-5-reg-bi-fair-dealing-and-disclosure) |
+| **Reg BI** | Broker-Dealer Recommendations | 2.11, 2.12, 2.19 | [↓](#sec-regulation-best-interest-reg-bi-broker-dealer-recommendations) |
+| **SEC Marketing Rule 206(4)-1** | AI Marketing Claims (RIAs) | 2.21, 1.7, 3.3 | [↓](#sec-marketing-rule-2064-1-ai-marketing-claims) |
+| **SOX 302/404** | Internal Controls (public companies) | 2.8, 1.7, 3.3, 2.3 | [↓](#sox-section-302404-internal-controls) |
+| **GLBA 501-505** | Data Safeguards (all FSI) | 1.5, 1.7, 2.7, 1.8 | [↓](#glba-safeguards-rule-501-505) |
+| **Reg S-P** | Consumer Privacy (BD/RIA) | 1.5, 1.8, 3.4, 2.7 | [↓](#sec-regulation-s-p-privacy-of-consumer-financial-information) |
+| **OCC 2026-13 / Fed SR 26-2** | Model Risk Management | 2.6, 2.11, 2.5, 3.2 | [↓](#occ-bulletin-2026-13-formerly-occ-bulletin-2011-12-fed-sr-26-2-formerly-sr-11-7-model-risk-management) |
+| **ECOA / Reg B** | Fair Lending | 2.11, 2.12, 2.19 | [↓](#federal-reserve-guidance-fair-lending-ecoa) |
+| **CFTC 1.31** | Recordkeeping (futures/swaps) | 1.7, 1.9, 3.1 | [↓](#cftc-rule-131-recordkeeping-requirements) |
+| **NFA 2-9** | Supervision (FCM/IB/CPO/CTA) | 2.12, 3.3, 1.1, 2.3 | [↓](#nfa-compliance-rule-2-9-supervision) |
+| **CFPB / UDAAP** | Consumer Protection | 2.19, 2.11, 2.21 | [↓](#cfpb-guidance-algorithmic-accountability-and-udaap) |
+| **SEC Reg S-ID** | Red Flags Rule | 1.8, 1.7, 2.9 | [↓](#sec-regulation-s-id-red-flags-rule) |
+| **SEC Reg SCI** | Systems Compliance & Integrity | 1.7, 2.9, 3.9, 2.3 | [↓](#sec-regulation-sci-systems-compliance-and-integrity) |
+| **FDIC** | Interagency (state non-member banks) | All pillars | [↓](#fdic-supervised-institutions) |
+| **NCUA Part 748** | Credit Union Security Programs | 1.7, 1.8, 2.9 | [↓](#ncua-supervised-credit-unions) |
+| **State AI Laws** | CA SB 1001/243, UT SB 149, CO AI Act | 2.19, 2.23, 2.11 | [↓](#state-level-regulations-for-awareness) |
+| **NAIC Model Bulletin** | Insurance AI Governance (Dec 2023) | 2.6, 2.11, 2.12, 2.19, 2.5 | [↓](#insurance-regulators-for-awareness) |
+| **NYDFS Part 500** | NY Cybersecurity (NYDFS-licensed) | 1.7, 1.8, 1.11, 2.9 | [↓](#state-level-regulations-for-awareness) |
+| **FINOS AIGF v2.0** | Open-source agentic AI governance | 1.14, 1.18, 2.17, 1.7 | [↓](#finos-ai-governance-framework-aigf-v20) |
+
+> **Note:** "Key Controls" lists 3–5 primary controls only. See each regulation section for the complete Applicable Controls table. Consult legal counsel for regulatory interpretation. See [Disclaimer](../disclaimer.md).
 
 ---
 
@@ -1537,7 +1572,7 @@ Insurers should consult their primary state insurance regulator and legal counse
 ## Control Coverage Summary by Regulation
 
 !!! warning "Quantitative coverage figures temporarily withdrawn"
-    Numeric per-regulation control counts and coverage percentages previously published in this table reflected a hand-curated mapping against an earlier 72-control catalog. They have **not** been re-validated against the current v1.6.2 78-control catalog and were withdrawn pending Subject Matter Expert review. The detailed Applicable Controls tables in each regulation section above remain current and are the authoritative per-regulation control mapping.
+    Numeric per-regulation control counts and coverage percentages previously published in this table reflected a hand-curated mapping against an earlier 72-control catalog. They have **not** been re-validated against the current v1.6.2 79-control catalog and were withdrawn pending Subject Matter Expert review. The detailed Applicable Controls tables in each regulation section above remain current and are the authoritative per-regulation control mapping.
 
 | Regulation | Implementation Status |
 |-----------|----------------------|

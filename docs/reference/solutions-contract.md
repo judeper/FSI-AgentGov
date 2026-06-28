@@ -14,7 +14,7 @@ other to avoid silent breakage.
 
 ## Why a contract
 
-The framework repository (this one) owns the **78-control taxonomy**, the
+The framework repository (this one) owns the **79-control taxonomy**, the
 control manifest at `assessment/manifest/controls.json`, the assessment
 engine, and the regulatory-mapping documentation. The Solutions repository
 owns the 36 companion solution implementations (35 live + 1 preview) that map
@@ -46,7 +46,7 @@ to a framework release tag, not to `main`**.
 
 For any framework release `vX.Y.Z`:
 
-1. The 78 control IDs and their pillar assignments are stable within
+1. The 79 control IDs and their pillar assignments are stable within
    the same **major** version.
 2. The `pass_condition` strings used by registered evaluators are stable
    within the same **minor** version. Adding a new `pass_condition` is a

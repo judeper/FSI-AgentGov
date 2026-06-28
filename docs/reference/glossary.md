@@ -1,5 +1,7 @@
 ---
 description: "Key terms and definitions used in the FSI Agent Governance Framework."
+search:
+  boost: 2
 ---
 # Glossary of Terms
 
@@ -24,11 +26,8 @@ Generic term for an AI-powered agent. In this framework, treat **AI agent** as s
 **ALM (Application Lifecycle Management)**
 Process for managing agent development from creation through testing to production deployment.
 
-**ALIM (Allowlist)**
-List of approved connectors, actions, or data sources that agents can use. Opposite of blocklist.
-
 **Allowlist**
-See ALIM.
+List of approved connectors, actions, or data sources that agents can use. Opposite of blocklist. Sometimes abbreviated informally as "ALIM" in older internal materials; the canonical framework term is **Allowlist**.
 
 **Autonomy Cap**
 The maximum level of agent autonomy supported for a given pattern, zone, or use case. Required by FSI regulatory framework (e.g., Reg B fair lending, FINRA 3110 supervision) to prevent agents from exercising authority that requires a human supervisor. Each pattern in `microsoft-cape-crosswalk.md` documents its Autonomy Cap.
@@ -73,12 +72,23 @@ Emergency access account excluded from Conditional Access policies, used when no
 **CAB (Change Advisory Board)**
 Committee that reviews and approves changes before production deployment.
 
+**CAPE (Copilot Acceleration Engineering)**
+Microsoft's strategic framework for accelerating enterprise agentic AI transformation. CAPE provides six Frontier Transformation Patterns, five Capability Drivers, and a Center of Excellence operating model. In FSI-AgentGov, CAPE's vocabulary (patterns, drivers, CoE functions) is adopted as the strategic layer that sits above the 79-control technical governance baseline. CAPE is industry-agnostic by design; FSI-AgentGov is the US financial-services regulatory overlay. See [Microsoft CAPE Crosswalk](microsoft-cape-crosswalk.md).
+
+*Source: Microsoft CAPE Agentic Transformation Patterns Playbook ([aka.ms/AgenticTransformationPatterns](https://aka.ms/AgenticTransformationPatterns)).*
+
 **Capability Driver**
 One of five dimensions in Microsoft's Agentic AI Maturity Model: AI Strategy & Experience, Business Strategy, AI Governance & Security, Technology & Data, and Organization & Culture. Each driver is measured 100 (Initial) through 500 (Optimized). The weakest driver determines an organization's effective ceiling regardless of strength on others.
 
 **Note:** "Capability Driver" (or simply "Driver") is the FSI-AgentGov canonical term. Microsoft's source materials sometimes alternate "pillars" and "drivers" for the same concept; FSI-AgentGov adopts "Driver" exclusively to avoid collision with our four control families called "Pillars".
 
 *Source: Microsoft CAPE Agentic Transformation Patterns Playbook; see `microsoft-cape-crosswalk.md` and `agentic-capability-drivers.md` (Phase 2).*
+
+**CCO (Chief Compliance Officer)**
+The executive responsible for a financial institution's regulatory compliance program. In FSI-AgentGov, the CCO is a primary consumer of the [CCO Quick Reference](cco-quick-reference.md), which organizes examiner questions and regulatory mappings in CCO-readable language. The CCO typically owns the Govern function of the firm's AI CoE and holds final authority on Zone 3 agent approvals. Distinct from the CRO (risk focus) and CDAO (data/AI program focus).
+
+**CDAO (Chief Data and AI Officer)**
+Executive responsible for enterprise data strategy, analytics, and AI program management. Sometimes styled as Chief Digital and Analytics Officer. In FSI-AgentGov, the CDAO is the primary persona for the Frontier Readiness assessment — identifying the scale-breaker driver before committing to a CAPE pattern. See [CSA Quick Reference §7](csa-quick-reference.md#7-which-assessment-do-i-run-with-this-customer).
 
 **CISO (Chief Information Security Officer)**
 Executive responsible for organization's security program.
@@ -108,6 +118,12 @@ Microsoft platform for building, testing, and publishing agents. See [What is Co
 
 **Copilot Hub**
 Unified dashboard in Power Platform Admin Center that consolidates governance, analytics, and business value metrics for Copilot usage across the organization. Access via PPAC → Copilot. Microsoft officially uses "Copilot area/hub" terminology. See [Copilot hub](https://learn.microsoft.com/en-us/power-platform/admin/copilot/copilot-hub).
+
+**CRO (Chief Risk Officer)**
+Executive responsible for the enterprise risk management program. In FSI-AgentGov, the CRO is named in the exception-approval process for Zone 2+ agent deployments that require documented risk acceptance (for example, Pattern 3 deployments touching payroll or registered-person records). CRO sign-off on exception rationale is referenced in the Govern function anti-pattern guidance. Distinct from the CCO (compliance focus) and CDAO (data/AI program focus).
+
+**CSA (Cloud Solution Architect / Customer Success Architect)**
+Microsoft customer-facing technical roles that engage organizations on architecture, adoption, and enablement. In FSI-AgentGov, CSAs are a primary audience for the [CSA Quick Reference](csa-quick-reference.md) and [CSA Positioning Guide](csa-positioning-guide.md), which provide FSI-specific conversation guidance for customer engagements involving AI agent governance and CAPE materials. The two role titles are used interchangeably in this framework; the Quick Reference applies to both.
 
 ---
 
@@ -169,7 +185,7 @@ Federal regulator for state non-member banks, state savings associations, and in
 Phishing-resistant authentication method using hardware keys.
 
 **Frontier Readiness**
-A parallel assessment in FSI-AgentGov (Phase 3 deliverable) that evaluates organizational maturity across Microsoft's five Capability Drivers using a 100–500 scale. Distinct from the 78-control assessment (which evaluates technical control implementation). The two assessments measure different things and are NOT mathematically merged.
+A parallel assessment in FSI-AgentGov (Phase 3 deliverable) that evaluates organizational maturity across Microsoft's five Capability Drivers using a 100–500 scale. Distinct from the 79-control assessment (which evaluates technical control implementation). The two assessments measure different things and are NOT mathematically merged.
 
 *Source: FSI-AgentGov assessment engine; see `assessment/manifest/frontier-readiness.json` (Phase 3).*
 

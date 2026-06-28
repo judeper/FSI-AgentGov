@@ -26,7 +26,7 @@ governance-content project:
 | **Minor** (`X.Y`.0) | A new control is added, a new `pass_condition` is added, a new evaluator is wired, a manifest field is added, or a new playbook section is introduced |
 | **Patch** (`X.Y.Z`) | Documentation fixes, evidence-link refreshes, typos, bug fixes that do not change the public schema, dependency updates |
 
-The 78-control baseline is itself a major-version commitment. Adding the 79th
+The 79-control baseline is itself a major-version commitment. Adding the 80th
 control would be a minor change, but renumbering existing controls would be
 a major change.
 

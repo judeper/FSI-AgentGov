@@ -1,9 +1,9 @@
 ---
-description: "Current-state analysis of the live companion solutions in FSI-AgentGov-Solutions against the 78-control FSI Agent Governance Framework baseline."
+description: "Current-state analysis of the live companion solutions in FSI-AgentGov-Solutions against the 79-control FSI Agent Governance Framework baseline."
 ---
 # Solutions Coverage Gap Analysis
 
-Current-state analysis of the live companion solutions in FSI-AgentGov-Solutions against the 78-control FSI Agent Governance Framework baseline.
+Current-state analysis of the live companion solutions in FSI-AgentGov-Solutions against the 79-control FSI Agent Governance Framework baseline.
 
 ---
 
@@ -11,11 +11,11 @@ Current-state analysis of the live companion solutions in FSI-AgentGov-Solutions
 
 | Metric | Value |
 |--------|-------|
-| Total controls | 78 |
+| Total controls | 79 |
 | Live top-level solution folders | 33 |
 | Controls with live solutions | 39 |
-| Controls without live solutions | 39 |
-| Overall solution coverage | 50.0% |
+| Controls without live solutions | 40 |
+| Overall solution coverage | 49.4% |
 
 !!! info "Important context"
     This page tracks deployable companion solutions only. A control without a live solution may still be addressed through native Microsoft 365 and Power Platform configuration, framework playbooks, or documented process controls.
@@ -27,10 +27,10 @@ Current-state analysis of the live companion solutions in FSI-AgentGov-Solutions
 | Pillar | Total Controls | Covered | Gaps | Coverage |
 |--------|----------------|---------|------|----------|
 | **Pillar 1 - Security** | 29 | 14 | 15 | 48.3% |
-| **Pillar 2 - Management** | 26 | 17 | 9 | 65.4% |
+| **Pillar 2 - Management** | 27 | 17 | 10 | 63.0% |
 | **Pillar 3 - Reporting** | 14 | 7 | 7 | 50.0% |
 | **Pillar 4 - SharePoint** | 9 | 1 | 8 | 11.1% |
-| **Total** | 78 | 39 | 39 | 50.0% |
+| **Total** | 79 | 39 | 40 | 49.4% |
 
 ---
 
@@ -52,7 +52,7 @@ See [Solutions Index](solutions-index.md) for the live 33-solution catalog and t
 | Pillar | Controls without live solutions | Notes |
 |--------|---------------------------------|-------|
 | **Pillar 1 - Security** | 1.3, 1.6, 1.12, 1.15, 1.16, 1.17, 1.19, 1.20, 1.21, 1.22, 1.24, 1.26, 1.27, 1.28, 1.29 | Mix of native Microsoft configuration, SharePoint governance, and targeted automation opportunities. |
-| **Pillar 2 - Management** | 2.7, 2.14, 2.15, 2.19, 2.20, 2.21, 2.23, 2.25, 2.26 | Includes process-first controls, native Agent 365 admin-center capabilities, and future automation candidates. |
+| **Pillar 2 - Management** | 2.7, 2.14, 2.15, 2.19, 2.20, 2.21, 2.23, 2.25, 2.26, 2.27 | Includes process-first controls, native Agent 365 admin-center capabilities, and future automation candidates. |
 | **Pillar 3 - Reporting** | 3.5, 3.6, 3.9, 3.11, 3.12, 3.13, 3.14 | Includes native analytics/admin-center reporting surfaces plus future observability and cost-management work. |
 | **Pillar 4 - SharePoint** | 4.1, 4.2, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9 | SharePoint controls remain primarily framework/playbook driven; Control 4.3 is the only live solution-backed control today. |
 
@@ -69,6 +69,6 @@ See [Solutions Index](solutions-index.md) for the live 33-solution catalog and t
 
 ## Follow-up Priorities
 
-1. Preserve the **33-solution / 78-control** baseline across summary pages before updating detailed solution narratives.
+1. Preserve the **33-solution / 79-control** baseline across summary pages before updating detailed solution narratives.
 2. Treat native Agent 365 governance surfaces as native capabilities unless a new live top-level solution folder is intentionally introduced.
 3. Prioritize SharePoint-governance and reporting gaps only when the framework team decides they require packaged automation beyond portal guidance and playbooks.
