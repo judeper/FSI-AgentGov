@@ -1,0 +1,54 @@
+{#- jsonld-breadcrumb.html — BreadcrumbList JSON-LD for inner pages (SEO-03).
+    Injected on every non-homepage inner page via overrides/main.html extrahead block.
+    Walks page.parent chain to build the ancestor list, then appends the current page.
+    Items without a URL (sections that have no index page) are included as name-only
+    entries; items with a URL get the "item" property for full rich-result eligibility.
+
+    Security: all user-visible strings pass through tojson which escapes < > & '/
+    preventing script-tag injection. JSON-LD is non-executable data; the existing
+    'unsafe-inline' CSP allowance covers script[type=application/ld+json].
+#}
+{%- set ns = namespace(chain=[], node=page.parent) %}
+{%- for _i in range(10) %}
+  {%- if ns.node %}
+    {%- if ns.node.url %}
+      {%- set _entry_url = config.site_url.rstrip('/') + '/' + ns.node.url.lstrip('/') %}
+    {%- else %}
+      {%- set _entry_url = "" %}
+    {%- endif %}
+    {%- set ns.chain = [{"name": ns.node.title | striptags, "url": _entry_url}] + ns.chain %}
+    {%- set ns.node = ns.node.parent %}
+  {%- endif %}
+{%- endfor %}
+{%- set _pos = namespace(n=2) %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": {{ config.site_url | tojson }}
+    }
+    {%- for _a in ns.chain %}
+    ,{
+      "@type": "ListItem",
+      "position": {{ _pos.n }}
+      ,"name": {{ _a.name | tojson }}
+      {%- if _a.url %}
+      ,"item": {{ _a.url | tojson }}
+      {%- endif %}
+    }
+    {%- set _pos.n = _pos.n + 1 %}
+    {%- endfor %}
+    ,{
+      "@type": "ListItem",
+      "position": {{ _pos.n }},
+      "name": {{ page.title | striptags | tojson }},
+      "item": {{ page.canonical_url | tojson }}
+    }
+  ]
+}
+</script>

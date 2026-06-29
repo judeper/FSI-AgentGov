@@ -1,5 +1,5 @@
 ---
-title: "Microsoft 365 AI Agent Governance for Financial Services — FINRA · SEC · SOX · GLBA"
+title: "M365 AI Agent Governance for Financial Services | FSI AgentGov"
 hide:
   - navigation
   - toc
