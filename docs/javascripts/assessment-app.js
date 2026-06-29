@@ -3818,7 +3818,7 @@
     // hidden sibling <table> provides the equivalent data for AT users.
     var chartCard = h("div", { className: "ag-card", style: "margin-top:1rem" });
     chartCard.appendChild(h("div", { className: "ag-card-title" }, "Pillar Radar"));
-    var chartWrap = h("div", { className: "ag-chart-container" });
+    var chartWrap = h("div", { className: "ag-chart-container", tabindex: "0", role: "group", "aria-label": "Pillar radar chart" });
     var radarTableId = "ag-radar-data-table";
     var canvas = h("canvas", {
       role: "img",
@@ -3829,7 +3829,7 @@
     chartCard.appendChild(chartWrap);
 
     // Hidden data table — same data the radar renders visually.
-    var radarSrDiv = h("div", { className: "ag-sr-only" });
+    var radarSrDiv = h("div", { className: "ag-sr-only", tabindex: "0" });
     var radarTable = h("table", { id: radarTableId });
     var radarThead = h("thead");
     var radarHrow = h("tr");
@@ -4062,7 +4062,7 @@
     chartCard.appendChild(canvas);
 
     // Hidden data table for AT users.
-    var zoneSrDiv = h("div", { className: "ag-sr-only" });
+    var zoneSrDiv = h("div", { className: "ag-sr-only", tabindex: "0" });
     var zoneTable = h("table", { id: zoneTableId });
     var zoneThead = h("thead");
     var zoneHrow = h("tr");
