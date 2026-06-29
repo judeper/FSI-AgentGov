@@ -11,6 +11,13 @@
  *                                     Screen readers announce the input as
  *                                     "checkbox unchecked" with no purpose context.
  *
+ *   A11Y-01  — Mobile hamburger / nav-drawer toggle (<label for="__drawer">) has no
+ *              accessible name. Material 9.7.6 renders the button as a bare <label>
+ *              wrapping an SVG icon; VoiceOver/NVDA/JAWS announce it as "unlabelled
+ *              button" or skip it. Fix: set aria-label="Toggle navigation" at DOM-
+ *              ready time. Guard prevents double-annotation if a future Material
+ *              version adds the attribute natively.
+ *
  *   A11Y-02  — All content data tables missing scope="col" on <th> cells.
  *              JAWS/NVDA cannot reliably associate headers with data cells
  *              in multi-column tables without the scope attribute. Fixed with
@@ -40,6 +47,17 @@
  */
 (function () {
   function applyA11yFixes() {
+    // --- A11Y-01: Mobile nav toggle (hamburger) missing accessible name.
+    //     Material 9.7.6 renders <label class="md-header__button md-icon" for="__drawer">
+    //     with an SVG icon but no text content or aria-label. Screen readers
+    //     (VoiceOver, NVDA, JAWS) cannot announce the button purpose.
+    //     Guard: only set if the attribute is absent so a future Material version
+    //     that adds aria-label natively won't be overridden.
+    var navToggle = document.querySelector('label[for="__drawer"]');
+    if (navToggle && !navToggle.getAttribute("aria-label")) {
+      navToggle.setAttribute("aria-label", "Toggle navigation");
+    }
+
     // --- A11Y-02 (R4): Palette toggle radio inputs are 0×0 / opacity-0 but sit
     //     in the natural tab order (tabindex=0). A sighted keyboard user encounters
     //     two invisible focus stops between the logo and search field.

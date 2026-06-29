@@ -1,4 +1,4 @@
----
+﻿---
 title: "Control 2.1 — PowerShell Setup (Managed Environments)"
 control_id: "2.1"
 playbook_type: "powershell-setup"
@@ -10,7 +10,7 @@ prerequisites:
   - "PowerShell 7.4 Core for Az.* and Microsoft.Graph cmdlets"
   - "Microsoft.PowerApps.Administration.PowerShell pinned per CAB (verify version in change ticket)"
   - "Microsoft.PowerApps.PowerShell pinned (same baseline as Administration module)"
-  - "Az.Accounts, Az.Resources, Az.KeyVault, Az.PowerPlatform — for Customer-Managed Key (CMK) Enterprise Policies"
+  - "Az.Accounts, Az.Resources, Az.KeyVault, Microsoft.PowerPlatform.EnterprisePolicies — for Customer-Managed Key (CMK) Enterprise Policies"
   - "Microsoft.Graph 2.25.0+ — license consumption + Service Health correlation"
   - "Power Platform Admin (tenant-scoped) — required for any mutation; Environment Admin is INSUFFICIENT"
   - "Entra Global Reader for licensing/Service-Health reads (Global Admin via PIM only for CMK RBAC bootstrap)"
@@ -26,7 +26,7 @@ related_controls: ["1.4", "1.5", "1.20", "2.2", "2.3", "2.15", "2.22"]
 >
 > **Shared baseline:** [`_shared/powershell-baseline.md`](../../_shared/powershell-baseline.md) — module pinning, mutation safety, evidence emission, SHA-256 manifest format, Dataverse-cmdlet quirks.
 
-This playbook automates the **enablement, configuration, evidence capture, and quarterly attestation** of the Microsoft Power Platform **Managed Environments** capability for a US financial-services tenant. Every helper introduced here is prefixed with `Fsi-` (matching the verb-noun convention used in the request) and follows the structural pattern of the sister playbooks for [Control 2.25](../2.25/powershell-setup.md) and [Control 2.26](../2.26/powershell-setup.md). Where those sister playbooks operate against the unified Microsoft Graph surface, this playbook deals with **two parallel cmdlet families** — the legacy `Microsoft.PowerApps.Administration.PowerShell` module (Windows PowerShell 5.1 only) and the modern `Az.PowerPlatform` Enterprise Policies family (PowerShell 7.4+). Bridging those two worlds correctly is the single largest source of false-clean defects in this control; §0.2 catalogues each one.
+This playbook automates the **enablement, configuration, evidence capture, and quarterly attestation** of the Microsoft Power Platform **Managed Environments** capability for a US financial-services tenant. Every helper introduced here is prefixed with `Fsi-` (matching the verb-noun convention used in the request) and follows the structural pattern of the sister playbooks for [Control 2.25](../2.25/powershell-setup.md) and [Control 2.26](../2.26/powershell-setup.md). Where those sister playbooks operate against the unified Microsoft Graph surface, this playbook deals with **two parallel cmdlet families** — the legacy `Microsoft.PowerApps.Administration.PowerShell` module (Windows PowerShell 5.1 only) and the modern `Microsoft.PowerPlatform.EnterprisePolicies` Enterprise Policies family (PowerShell 7.4+). Bridging those two worlds correctly is the single largest source of false-clean defects in this control; §0.2 catalogues each one.
 
 !!! danger "Non-Substitution"
     The helpers in this file **do not substitute** for the supervisory review obligations imposed by FINRA Rule 3110 (with RN 24-09 for AI supervisory guidance), the books-and-records obligations of SEC Rules 17a-3 and 17a-4, the ITGC change-control obligations of SOX §302/§404, the safeguards obligations of GLBA §501(b), the third-party risk-management obligations of OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12), the model-risk obligations of Federal Reserve SR 26-2 (formerly SR 11-7), the cybersecurity-program obligations of NYDFS 23 NYCRR 500.06, or the IT examination obligations expressed in the FFIEC IT Examination Handbook. They **support compliance with** those obligations by emitting structured, hash-anchored evidence that a human reviewer (the **AI Governance Lead**, the **Power Platform Admin**, or — for FINRA-regulated firms — a **registered principal**) then reviews and counter-signs. No automation in this file approves, attests to, or certifies compliance on behalf of any human officer of the firm.
@@ -47,12 +47,12 @@ The Power Platform Admin cmdlet surface is split across **two shells that cannot
 | Shell | Modules | Purpose | Why it cannot be merged |
 |---|---|---|---|
 | **Windows PowerShell 5.1 (Desktop)** | `Microsoft.PowerApps.Administration.PowerShell`, `Microsoft.PowerApps.PowerShell` | Environment enumeration, Managed-Environment toggle, sharing limits, solution-checker enforcement, maker-welcome content, IP firewall, IP cookie binding, tenant isolation, environment routing, pipeline targets | Modules ship .NET Framework 4.x assemblies; will not load in PS 7+ Core |
-| **PowerShell 7.4 Core** | `Az.Accounts`, `Az.Resources`, `Az.KeyVault`, `Az.PowerPlatform`, `Microsoft.Graph` | Enterprise Policy creation (CMK), Key Vault RBAC wiring, license-consumption Graph reads, Service Health correlation | Az and Graph SDKs assume .NET 8 / netstandard2.0 — many cmdlets behave differently or are missing in Desktop |
+| **PowerShell 7.4 Core** | `Az.Accounts`, `Az.Resources`, `Az.KeyVault`, `Microsoft.PowerPlatform.EnterprisePolicies`, `Microsoft.Graph` | Enterprise Policy creation (CMK), Key Vault RBAC wiring, license-consumption Graph reads, Service Health correlation | Az and Graph SDKs assume .NET 8 / netstandard2.0 — many cmdlets behave differently or are missing in Desktop |
 
 Operators who try to run the entire workflow in a single shell will see one of two failure modes:
 
 1. **Run the whole thing in PS 7.4** — `Add-PowerAppsAccount` either fails to import or imports an older orphan version that returns empty environment lists. **False clean: zero environments returned, treated as "no work to do".**
-2. **Run the whole thing in PS 5.1** — `Az.PowerPlatform` cmdlet output marshalling drops the `properties.encryption` block silently. **False clean: CMK appears applied but the policy ARM ID is never recorded against the environment.**
+2. **Run the whole thing in PS 5.1** — `Microsoft.PowerPlatform.EnterprisePolicies` cmdlet output marshalling drops the `properties.encryption` block silently. **False clean: CMK appears applied but the policy ARM ID is never recorded against the environment.**
 
 The orchestrator in §17 (`Invoke-Fsi-Control21Setup`) **does not paper over this split**. It documents which sub-step requires which shell, and it produces a single signed evidence manifest by stitching the JSON outputs of both shells. Operators who try to "simplify" the workflow into one shell will defeat the false-clean mitigation.
 
@@ -91,7 +91,7 @@ $pinned = @{
     'Az.Accounts'                                   = '3.0.4'
     'Az.Resources'                                  = '7.5.0'
     'Az.KeyVault'                                   = '6.3.1'
-    'Az.PowerPlatform'                              = '1.0.1'
+    'Microsoft.PowerPlatform.EnterprisePolicies'             = '0.1.0'          
     'Microsoft.Graph'                               = '2.25.0'
     'Microsoft.Graph.Authentication'                = '2.25.0'
 }
@@ -118,7 +118,7 @@ Operators in regulated tenants must mirror these modules into an **internal arti
 | `Microsoft.PowerApps.Administration.PowerShell` | **Desktop only (Windows PowerShell 5.1)** | 5.1 | Silently returns empty results in PS 7 (defect #1) |
 | `Microsoft.PowerApps.PowerShell` | Desktop only | 5.1 | Same |
 | `Az.Accounts`, `Az.Resources`, `Az.KeyVault` | Core (PS 7.4+) | 7.4 LTS | Some cmdlets behave differently in 5.1 |
-| `Az.PowerPlatform` | Core (PS 7.4+) | 7.4 | Marshalling drops `properties.encryption` in 5.1 (defect #1, second variant) |
+| `Microsoft.PowerPlatform.EnterprisePolicies` | Core (PS 7.4+) | 7.4 | Marshalling drops `properties.encryption` in 5.1 (defect #1, second variant) |
 | `Microsoft.Graph` | Core (PS 7.2+) | 7.4 LTS | Auth surface incompatible with 5.1 |
 
 The legacy-shell guard helper (`Assert-Fsi-LegacyShell`) and the modern-shell guard helper (`Assert-Fsi-AzShell`) are introduced in §2.1.
@@ -259,7 +259,7 @@ function Assert-Fsi-LegacyShell {
 function Assert-Fsi-AzShell {
 <#
 .SYNOPSIS
-    Asserts the current host is PowerShell 7.4+ Core with Az.PowerPlatform and Microsoft.Graph
+    Asserts the current host is PowerShell 7.4+ Core with Microsoft.PowerPlatform.EnterprisePolicies and Microsoft.Graph
     pinned at CAB versions. Required for CMK Enterprise Policy and licensing helpers.
 .NOTES
     Control 2.1 — Managed Environments. Last UI verified: April 2026.
@@ -267,16 +267,16 @@ function Assert-Fsi-AzShell {
     [CmdletBinding()]
     param(
         [string]$RequiredGraphVersion   = '2.25.0',
-        [string]$RequiredAzPpVersion    = '1.0.1'
+        [string]$RequiredAzPpVersion    = '0.1.0'
     )
     if ($PSVersionTable.PSEdition -ne 'Core' -or $PSVersionTable.PSVersion -lt [version]'7.4') {
         throw [System.InvalidOperationException]::new(
             "Fsi21-WrongShell: PowerShell 7.4+ Core required for Az/Graph helpers. Detected: $($PSVersionTable.PSEdition) $($PSVersionTable.PSVersion).")
     }
-    $azpp = Get-Module -Name Az.PowerPlatform -ListAvailable | Sort-Object Version -Descending | Select-Object -First 1
+    $azpp = Get-Module -Name Microsoft.PowerPlatform.EnterprisePolicies -ListAvailable | Sort-Object Version -Descending | Select-Object -First 1
     $mg   = Get-Module -Name Microsoft.Graph.Authentication -ListAvailable | Sort-Object Version -Descending | Select-Object -First 1
     if (-not $azpp -or $azpp.Version -lt [version]$RequiredAzPpVersion) {
-        throw [System.InvalidOperationException]::new("Fsi21-WrongShell: Az.PowerPlatform $RequiredAzPpVersion+ required.")
+        throw [System.InvalidOperationException]::new("Fsi21-WrongShell: Microsoft.PowerPlatform.EnterprisePolicies $RequiredAzPpVersion+ required.")
     }
     if (-not $mg -or $mg.Version -lt [version]$RequiredGraphVersion) {
         throw [System.InvalidOperationException]::new("Fsi21-WrongShell: Microsoft.Graph.Authentication $RequiredGraphVersion+ required.")
@@ -340,7 +340,7 @@ function Initialize-Fsi-PPSession {
 function Initialize-Fsi-AzSession {
 <#
 .SYNOPSIS
-    Connects PowerShell 7.4 Core to Azure, Az.PowerPlatform, and Microsoft Graph.
+    Connects PowerShell 7.4 Core to Azure, Microsoft.PowerPlatform.EnterprisePolicies, and Microsoft Graph.
     Required for CMK Enterprise Policy operations and license-consumption reads.
 .NOTES
     Control 2.1 — Managed Environments. Last UI verified: April 2026.
@@ -1072,7 +1072,7 @@ function Set-Fsi-CustomerLockbox {
 
 ---
 
-## §11 — Customer-Managed Keys via Az.PowerPlatform Enterprise Policies
+## §11 — Customer-Managed Keys via Microsoft.PowerPlatform.EnterprisePolicies
 
 CMK for Power Platform is implemented as an **ARM Enterprise Policy** resource that is then linked to one or more environments. The full flow has three steps: provision the Key Vault key (out of scope for this playbook — handled by the firm's PKI / KeyOps team and covered by Control 1.20 / Azure Key Vault standards), create the Enterprise Policy and wire its system-assigned identity into the Key Vault access policy, and finally apply the policy to the target environment. After application, a **non-trivial subset of environment data remains Microsoft-managed** and is therefore **excluded from CMK encryption**. Reproducing that exclusion list verbatim for an examiner is a recurring audit ask; `Test-Fsi-CMKExclusions` produces it.
 
@@ -1088,7 +1088,7 @@ function New-Fsi-CMKPolicy {
     Friendly name for the Enterprise Policy. Will appear in PPAC.
 .NOTES
     Control 2.1 — Managed Environments. Last UI verified: April 2026.
-    Requires PowerShell 7.4+, Az.PowerPlatform, Az.KeyVault, and PIM elevation to Crypto Officer.
+    Requires PowerShell 7.4+, Microsoft.PowerPlatform.EnterprisePolicies, Az.KeyVault, and PIM elevation to Crypto Officer.
 #>
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]
     param(
@@ -2096,7 +2096,7 @@ Describe "Control 2.1 — verification helpers" {
 | 3 | Enabling IP Firewall directly in `Enforce` mode | Locks out makers and pipeline service principals before allow-list calibration | Always start `AuditOnly`, run `Get-Fsi-IPFirewallAuditLog`, escalate to `Enforce` after ≤28 d |
 | 4 | Treating CMK exclusions as a Microsoft bug | The 8-item exclusion list is by design; ignoring it produces a misleading attestation | Capture the verbatim exclusion narrative artefact via `Add-Fsi-CMKPolicyToEnvironment` |
 | 5 | Single-signer evidence bundle | Three-signer attestation is the institutional control | `Export-Fsi-Control21-QuarterlyEvidence` requires PowerPlatformAdmin + AIGovernanceLead + ComplianceOfficer |
-| 6 | Combining Az.PowerPlatform and Microsoft.PowerApps.Administration in the same shell | Editions and authentication contexts conflict; results are non-deterministic | `Assert-Fsi-LegacyShell` and `Assert-Fsi-AzShell` enforce separation |
+| 6 | Combining Microsoft.PowerPlatform.EnterprisePolicies and Microsoft.PowerApps.Administration in the same shell | Editions and authentication contexts conflict; results are non-deterministic | `Assert-Fsi-LegacyShell` and `Assert-Fsi-AzShell` enforce separation |
 | 7 | Disabling Managed Environments to "fix" a sharing-limit problem | Drops every governance lever in one motion; shows up as Anomaly across half the §16 helpers | Use `Set-Fsi-SharingLimits` with a temporary higher value under `-ChangeTicketId`; never disable |
 | 8 | Leaving `Sharing Limits` unset on Zone-3 because "it inherits the default" | The default is unbounded; `Test-Fsi-Control21-SharingLimitsBaseline` will report `UnconfiguredFamilies` | Always set every resource family explicitly |
 | 9 | Using the same change ticket for an entire quarterly cohort | Auditors cannot reconstruct per-environment intent | One `-ChangeTicketId` per environment per `Provision` invocation |
@@ -2123,7 +2123,7 @@ The following table lists every `Fsi-*` helper introduced in this playbook, the 
 | `Assert-Fsi-LegacyShell` | n/a (env check) | 5.1 Desktop | Throws `Fsi21-WrongShell` on 7.x |
 | `Assert-Fsi-AzShell` | n/a (env check) | 7.4 Core | Throws `Fsi21-WrongShell` on 5.1 |
 | `Initialize-Fsi-PPSession` | Microsoft.PowerApps.Administration.PowerShell | 5.1 Desktop | Session bootstrap |
-| `Initialize-Fsi-AzSession` | Az.Accounts, Az.PowerPlatform, Microsoft.Graph | 7.4 Core | Conditional-access aware |
+| `Initialize-Fsi-AzSession` | Az.Accounts, Microsoft.PowerPlatform.EnterprisePolicies, Microsoft.Graph | 7.4 Core | Conditional-access aware |
 | `Get-Fsi-CmdletAvailability` | n/a (introspection) | both | Diagnostic |
 | `Get-RunMetadata` | shared baseline | both | Standard run header |
 | `Get-Fsi-PPEnvironment` | Microsoft.PowerApps.Administration.PowerShell | 5.1 Desktop | Inventory primary source |
@@ -2134,12 +2134,12 @@ The following table lists every `Fsi-*` helper introduced in this playbook, the 
 | `Set-Fsi-SolutionCheckerEnforcement` | Microsoft.PowerApps.Administration.PowerShell | 5.1 Desktop | Mutation |
 | `Set-Fsi-MakerWelcome` | Microsoft.PowerApps.Administration.PowerShell | 5.1 Desktop | Mutation; CMK-excluded content |
 | `Set-Fsi-IPFirewall` | Microsoft.PowerApps.Administration.PowerShell | 5.1 Desktop | Mutation; default AuditOnly |
-| `Get-Fsi-IPFirewallAuditLog` | Az.PowerPlatform / REST | 7.4 Core | Calibration source |
+| `Get-Fsi-IPFirewallAuditLog` | Microsoft.PowerPlatform.EnterprisePolicies / REST | 7.4 Core | Calibration source |
 | `Set-Fsi-IPCookieBinding` | Microsoft.PowerApps.Administration.PowerShell | 5.1 Desktop | Mutation |
-| `Set-Fsi-CustomerLockbox` | Az.PowerPlatform / REST | 7.4 Core | Mutation |
-| `New-Fsi-CMKPolicy` | Az.PowerPlatform | 7.4 Core | Mutation; KV hardening required |
-| `Add-Fsi-CMKPolicyToEnvironment` | Az.PowerPlatform | 7.4 Core | Mutation; emits exclusion narrative |
-| `Test-Fsi-CMKExclusions` | Az.PowerPlatform | 7.4 Core | Read-only |
+| `Set-Fsi-CustomerLockbox` | Microsoft.PowerPlatform.EnterprisePolicies / REST | 7.4 Core | Mutation |
+| `New-Fsi-CMKPolicy` | Microsoft.PowerPlatform.EnterprisePolicies | 7.4 Core | Mutation; KV hardening required |
+| `Add-Fsi-CMKPolicyToEnvironment` | Microsoft.PowerPlatform.EnterprisePolicies | 7.4 Core | Mutation; emits exclusion narrative |
+| `Test-Fsi-CMKExclusions` | Microsoft.PowerPlatform.EnterprisePolicies | 7.4 Core | Read-only |
 | `Set-Fsi-TenantIsolation` | Microsoft.PowerApps.Administration.PowerShell | 5.1 Desktop | Mutation; AzDO known issue |
 | `Add-Fsi-TenantIsolationException` | Microsoft.PowerApps.Administration.PowerShell | 5.1 Desktop | Mutation; returns `Anomaly` on success |
 | `Set-Fsi-EnvironmentRouting` | Microsoft.PowerApps.Administration.PowerShell | 5.1 Desktop | Mutation; not region selection |
