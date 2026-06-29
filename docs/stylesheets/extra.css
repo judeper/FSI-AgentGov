@@ -617,3 +617,51 @@
     margin-left: 0;
   }
 }
+
+/* ── UX-03/04: Mobile-responsive table scroll ──────────────────────────────
+ *
+ * Problem: wide multi-column tables (regulatory mapping, zone/RACI, Control
+ * Explorer) overflow the viewport on 390px devices. Verified via DOM
+ * measurement: regulatory/zone tables overflow 211px (UX-04) and the Control
+ * Explorer table overflows 546px (UX-03) at 390px viewport width.
+ *
+ * Root causes (two distinct sites):
+ *
+ *   1. Markdown-generated tables (UX-04) — MkDocs Material 9.x wraps each
+ *      table in `.md-typeset__scrollwrap` (overflow-x:auto) but the wrapper
+ *      can fail to contain wide tables when ancestor padding/negative-margin
+ *      expands the scrollable area beyond the visible column width. Explicitly
+ *      reinforcing overflow-x:auto on both the wrapper and the inner table
+ *      element closes this gap.
+ *
+ *   2. Control Explorer (UX-03) — `.ce-layout` is a CSS grid with column
+ *      track `1fr`. CSS grid tracks with implicit `auto` minimum refuse to
+ *      shrink below the track's min-content size; the `.ce-table` min-width
+ *      (46rem) sets that floor, forcing the page to scroll. The fix is
+ *      `minmax(0, 1fr)` on the track (applied in control-explorer.css) so the
+ *      track can shrink to 0 and let `.ce-results { overflow-x:auto }` do its
+ *      job. The reinforcement below covers the outer CE container.
+ *
+ * Fixes applied:
+ *   - `.md-typeset__scrollwrap`: reinforce overflow-x:auto + WebKit touch
+ *     momentum scroll (UX-04).
+ *   - `.md-typeset table:not([class])`: keeps `max-width:100%` so the table
+ *     can never widen the scroll container itself (UX-04).
+ *   - `.ce-root`: max-width:100% + overflow-x:auto as a hard outer stop so
+ *     the CE widget never breaks page-level scroll (UX-03 outer container).
+ */
+.md-typeset__scrollwrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent table from expanding its own scroll container beyond the column */
+.md-typeset table:not([class]) {
+  max-width: 100%;
+}
+
+/* CE outer container: clamp to available width so layout overflow stops here */
+.ce-root {
+  max-width: 100%;
+  overflow-x: auto;
+}

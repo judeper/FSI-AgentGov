@@ -174,7 +174,7 @@
       };
     })();
   </script>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://api.github.com; base-uri 'self'; form-action 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'{{ ' https://plausible.io' if config.extra.analytics.property else '' }}; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://api.github.com{{ ' https://plausible.io' if config.extra.analytics.property else '' }}; base-uri 'self'; form-action 'self'">
 {% endblock %}
 
 {% block announce %}
