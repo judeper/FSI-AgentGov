@@ -82,6 +82,23 @@
     applyA11yFixes();
   }
 
+  // scrollable-region-focusable (WCAG 2.1.1): any horizontally-scrollable
+  // wrapper (incl. SPA-rendered tables) needs keyboard access. Sweep + observe.
+  function focusScrollers() {
+    document.querySelectorAll(
+      ".md-typeset__scrollwrap, .ce-root, .ag-chart-container, .ag-card table, .md-typeset table"
+    ).forEach(function (el) {
+      if (el.scrollWidth > el.clientWidth + 1 && !el.hasAttribute("tabindex")) {
+        el.setAttribute("tabindex", "0");
+        if (!el.getAttribute("role")) el.setAttribute("role", "group");
+      }
+    });
+  }
+  focusScrollers();
+  if (typeof MutationObserver !== "undefined") {
+    new MutationObserver(focusScrollers).observe(document.body, { childList: true, subtree: true });
+  }
+
   if (typeof document$ !== "undefined" && document$ && document$.subscribe) {
     document$.subscribe(applyA11yFixes);
   }
