@@ -13,6 +13,22 @@ copyright: 'Copyright 2026 FSI Agent Governance Team'
 extra:
   generator: false
   version: v1.6.2
+  # ── Privacy-safe analytics (Plausible) ──────────────────────────────────────
+  # Opt-in: set PLAUSIBLE_DOMAIN at build time to enable. Leave unset to
+  # disable all analytics (default — no beacon, no cookies, no consent banner).
+  #
+  # Example (GitHub Actions secret / local build):
+  #   PLAUSIBLE_DOMAIN=fsi-agentgov.example.com mkdocs build
+  #
+  # Plausible is cookieless and GDPR-compliant; no consent popup required.
+  # See: https://squidfunk.github.io/mkdocs-material/setup/setting-up-site-analytics/
+  # Override template: overrides/partials/integrations/analytics/custom.html
+  #
+  # When enabled, the CSP in overrides/main.html automatically includes
+  # https://plausible.io in script-src and connect-src (conditional template).
+  analytics:
+    provider: custom
+    property: !ENV [PLAUSIBLE_DOMAIN, ""]
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/judeper/FSI-AgentGov

@@ -61,24 +61,24 @@ This document defines the organizational structure, roles, and accountability fo
 
 ### Zone 3: Enterprise Agent Deployment
 
-| Activity | AI Lead | Compliance | CISO | Legal | CRO | Board | Ext Auditor |
-|----------|---------|-----------|------|-------|-----|-------|-------------|
-| Strategic planning | R/A | C | C | I | C | C | I |
-| Business case | R | C | C | C | R | C | I |
-| Risk assessment | R | C | C | C | C | A | C |
-| Regulatory review | C | R/A | C | C | C | A | C |
-| Security testing | C | C | R/A | C | I | I | C |
-| Model risk assessment | R | C | C | I | A | A | C |
-| Bias/fairness testing | R/A | C | C | I | C | C | C |
-| Legal review | C | C | I | R/A | I | C | C |
-| Governance committee | R | A | A | A | A | A | I |
-| Change control | I | C | R | C | C | I | I |
-| Deploy to production | I | I | I | I | I | R/A | I |
-| Document in registry | I | R | I | I | I | I | I |
-| Train operators | C | I | I | I | I | I | I |
-| Monthly monitoring | R/A | A | C | I | C | I | C |
-| Quarterly review | R | A | C | C | A | A | I |
-| Annual validation | R | C | C | I | A | A | A |
+| Activity | AI Lead | Compliance | CISO | PP Admin | Legal | CRO | Board | Ext Auditor |
+|----------|---------|-----------|------|----------|-------|-----|-------|-------------|
+| Strategic planning | R/A | C | C | I | I | C | C | I |
+| Business case | R | C | C | I | C | R | C | I |
+| Risk assessment | R | C | C | I | C | C | A | C |
+| Regulatory review | C | R/A | C | I | C | C | A | C |
+| Security testing | C | C | R/A | C | C | I | I | C |
+| Model risk assessment | R | C | C | I | I | A | A | C |
+| Bias/fairness testing | R/A | C | C | I | I | C | C | C |
+| Legal review | C | C | I | I | R/A | I | C | C |
+| Governance committee | R | A | A | I | A | A | A | I |
+| Change control | I | C | R | C | C | C | I | I |
+| Deploy to production | I | I | I | R/A | I | I | I | I |
+| Document in registry | I | R | I | I | I | I | I | I |
+| Train operators | C | I | I | C | I | I | I | I |
+| Monthly monitoring | R/A | A | C | C | I | C | I | C |
+| Quarterly review | R | A | C | I | C | A | A | I |
+| Annual validation | R | C | C | I | I | A | A | A |
 
 **Summary:** Enterprise agent, comprehensive governance, board-level oversight, multiple approvals.
 
