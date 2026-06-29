@@ -151,7 +151,7 @@ Consult your Compliance Officer to confirm which apply. Then see the [Regulatory
 - SEC Rule 17a-3/4
 - SOX 302/404
 - GLBA 501(b)
-- OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly Fed SR 11-7) (if applicable)
+- OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly Fed SR 11-7) (if applicable — note: both documents explicitly exclude generative AI and agentic AI from scope; apply analogous MRM principles as best practice and consult compliance counsel)
 
 ---
 

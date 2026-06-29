@@ -93,7 +93,7 @@ Before starting Phase 1, confirm the following:
 ### Week 3: Environment Governance
 
 #### Environment Routing (Control 2.15)
-- [ ] Navigate to PPAC → Manage → Environment groups
+- [ ] Navigate to PPAC → Manage → Tenant settings → Environment routing (toggle is under Environment routing, not Environment groups)
 - [ ] Enable default environment routing
 - [ ] Configure routing rules for security groups
 - [ ] Enable developer environment auto-provisioning
@@ -220,7 +220,11 @@ Before starting Phase 1, confirm the following:
     - [ ] Define performance baseline
     - [ ] For Zone 3: Plan model validation
 - [ ] If OCC Bulletin 2026-13 (formerly OCC 2011-12) / Fed SR 26-2 (formerly SR 11-7) applicable:
-    - [ ] Perform model risk assessment
+
+    !!! warning "AI scope carve-out"
+        OCC Bulletin 2026-13 and Fed SR 26-2 (April 2026) explicitly exclude generative AI and agentic AI models from their scope. Future dedicated AI guidance is anticipated. Consult your compliance counsel on which model-risk obligations currently apply to your AI agents.
+
+    - [ ] Perform model risk assessment (applying analogous MRM principles as best practice)
     - [ ] Plan annual validation
 
 #### Testing & Validation (Pillar 2)
@@ -261,8 +265,8 @@ Before starting Phase 1, confirm the following:
 
 **Control 1.6: DSPM for AI**
 
-- [ ] Navigate to purview.microsoft.com → Solutions → Data Security Posture Management for AI
-- [ ] Complete Get Started setup steps
+- [ ] Navigate to purview.microsoft.com → Solutions → DSPM (not "DSPM for AI (classic)" — that is the deprecated version)
+- [ ] Complete initial setup tasks in the new DSPM interface
 - [ ] Review recommendations and enable policies
 - [ ] Configure activity monitoring
 - [ ] Run oversharing assessments for agent knowledge sources

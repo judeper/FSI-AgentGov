@@ -40,6 +40,18 @@
  */
 (function () {
   function applyA11yFixes() {
+    // --- A11Y-02 (R4): Palette toggle radio inputs are 0×0 / opacity-0 but sit
+    //     in the natural tab order (tabindex=0). A sighted keyboard user encounters
+    //     two invisible focus stops between the logo and search field.
+    //     Fix: set tabindex="-1" so they leave the tab sequence; keyboard access
+    //     is retained through the visible wrapper element with its aria-label.
+    ["__palette_0", "__palette_1"].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el && el.getAttribute("tabindex") !== "-1") {
+        el.setAttribute("tabindex", "-1");
+      }
+    });
+
     // --- Task-list checkboxes (F-A11Y-DOCS-LABEL-TASKLIST-04) ---
     document.querySelectorAll('.task-list-item input[type="checkbox"]').forEach(
       function (input) {

@@ -43,7 +43,7 @@
 
 1. Sign in as a user in `FSI-Agent-Makers-*` but **NOT** in `FSI-Agent-Publishers-Prod`. Capture UPN, UTC timestamp.
 2. Attempt a publish to PROD via a **non-UI surface** — at least one of:
-   - **Power Platform CLI:** `pac auth create -t <tenant> -u <upn>`; then `pac copilot publish --environment <prod-env-id> --bot-id <agent-id>`
+   - **Power Platform CLI:** `pac auth create --tenant <tenant> --username <upn>`; then `pac copilot publish --environment <prod-env-id> --bot <agent-id>`
    - **Power Platform Web API:** call the publish endpoint with the test user's bearer token
    - **Microsoft 365 Agents Toolkit / SDK** equivalent for M365 Agent Builder agents
 3. Capture the **server response payload** in full — HTTP status, response body (typically a 401/403 with a Microsoft `code`/`message`), and the `x-ms-correlation-id` / `request-id` header.

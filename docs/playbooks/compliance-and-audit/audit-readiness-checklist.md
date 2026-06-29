@@ -1,3 +1,6 @@
+---
+description: "Step-by-step checklist to build examination-ready evidence for FINRA, SEC, SOX, GLBA, OCC/Fed, and CFTC reviews of Microsoft 365 AI agents."
+---
 # Audit Readiness Checklist
 
 Pre-examination preparation checklist for regulatory examinations.
