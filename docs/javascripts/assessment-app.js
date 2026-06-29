@@ -3985,6 +3985,16 @@
       "Its AI governance discussion is limited to recordkeeping for AI-generated communications. " +
       "Firms should comply with existing FINRA supervision and recordkeeping rules, " +
       "not RN 25-07 requirements, until a final rule is issued.",
+    "OCC Bulletin 2026-13 (formerly OCC Bulletin 2011-12)":
+      "Note: OCC Bulletin 2026-13 / Fed SR 26-2 (April 2026) revised interagency model risk management guidance " +
+      "(superseding SR 11-7 / OCC 2011-12) but explicitly excluded generative and agentic AI from its scope " +
+      "pending dedicated AI guidance. These controls are mapped to MRM principles that remain best-practice " +
+      "expectations under pre-existing standards; they are not mapped as direct requirements under the new bulletin. " +
+      "Consult your regulatory counsel for current applicability.",
+    "Fed SR 26-2 (formerly Fed SR 11-7)":
+      "Note: Fed SR 26-2 (April 2026) explicitly excluded generative and agentic AI from its scope pending " +
+      "dedicated AI guidance. These controls reflect model-risk-equivalent best practices; they are not mapped " +
+      "as direct requirements under SR 26-2 for agentic AI. Consult your regulatory counsel for current applicability.",
   };
 
   AssessmentApp.prototype.renderRegulatory = function (panel) {

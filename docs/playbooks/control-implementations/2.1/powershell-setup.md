@@ -559,7 +559,7 @@ function Enable-Fsi-ManagedEnvironment {
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]
     param(
         [Parameter(Mandatory)] [string] $EnvironmentName,
-        [ValidateSet('Standard','High')] [string] $ProtectionLevel = 'Standard',
+        [ValidateSet('Standard','Basic')] [string] $ProtectionLevel = 'Standard',
         [Parameter(Mandatory)] [string] $ChangeTicketId,
         [Parameter(Mandatory)] [string] $EvidencePath
     )
@@ -573,9 +573,10 @@ function Enable-Fsi-ManagedEnvironment {
     $before | ConvertTo-Json -Depth 10 | Set-Content -Path $beforePath -Encoding UTF8
 
     if ($PSCmdlet.ShouldProcess($EnvironmentName, "Enable Managed Environment ($ProtectionLevel)")) {
+        $govConfig = [pscustomobject]@{ protectionLevel = $ProtectionLevel }
         Set-AdminPowerAppEnvironmentGovernanceConfiguration `
             -EnvironmentName $EnvironmentName `
-            -ProtectionLevel $ProtectionLevel `
+            -UpdatedGovernanceConfiguration $govConfig `
             -ErrorAction Stop | Out-Null
 
         $after = Get-AdminPowerAppEnvironmentGovernanceConfiguration -EnvironmentName $EnvironmentName -ErrorAction Stop
@@ -634,9 +635,10 @@ function Disable-Fsi-ManagedEnvironment {
     $before | ConvertTo-Json -Depth 10 | Set-Content -Path $beforePath -Encoding UTF8
 
     if ($PSCmdlet.ShouldProcess($EnvironmentName, "DISABLE Managed Environment — $Reason")) {
+        $govConfig = [pscustomobject]@{ protectionLevel = 'Basic' }
         Set-AdminPowerAppEnvironmentGovernanceConfiguration `
             -EnvironmentName $EnvironmentName `
-            -ProtectionLevel None `
+            -UpdatedGovernanceConfiguration $govConfig `
             -ErrorAction Stop | Out-Null
         return [pscustomobject]@{
             EnvironmentId  = $EnvironmentName

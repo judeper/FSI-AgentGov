@@ -1,4 +1,5 @@
 ---
+description: "316 step-by-step implementation playbooks for 79 M365 AI agent governance controls — portal walkthroughs, PowerShell setup, verification testing, and compliance-and-audit procedures for US financial services."
 search:
   boost: 2
 ---

@@ -86,7 +86,7 @@
 .cr-select:focus,
 .cr-chip:focus,
 .cr-card__title a:focus {
-  outline: 2px solid var(--md-accent-fg-color, #526cfe);
+  outline: 2px solid var(--md-accent-fg-color, #007A7E);
   outline-offset: 2px;
 }
 
@@ -201,7 +201,7 @@
   cursor: pointer;
 }
 .cr-clear:hover { background: var(--md-code-bg-color, rgba(0, 0, 0, 0.05)); }
-.cr-clear:focus { outline: 2px solid var(--md-accent-fg-color, #526cfe); outline-offset: 2px; }
+.cr-clear:focus { outline: 2px solid var(--md-accent-fg-color, #007A7E); outline-offset: 2px; }
 
 @media screen and (max-width: 44.9em) {
   .cr-field { min-width: 100%; }

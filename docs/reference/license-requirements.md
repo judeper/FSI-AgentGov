@@ -59,21 +59,21 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 
 ---
 
-## E5 License Distinction: E5 vs Microsoft Purview Suite vs E5 Security
+## E5 License Distinction: E5 vs Microsoft Purview Suite vs Microsoft Defender Suite
 
 !!! warning "These Are Three Distinct Products"
-    Microsoft 365 E5, Microsoft Purview Suite, and E5 Security are separate products with different feature sets. Documentation must be precise about which is required. Microsoft Purview Suite was formerly named "Microsoft 365 E5 Compliance" (renamed September 2025); older documentation and admin portals may still use the previous name.
+    Microsoft 365 E5, Microsoft Purview Suite, and Microsoft Defender Suite are separate products with different feature sets. Documentation must be precise about which is required. Microsoft Purview Suite was formerly named "Microsoft 365 E5 Compliance" (renamed October 2025); Microsoft Defender Suite was formerly named "Microsoft 365 E5 Security" (renamed October 2025); older documentation and admin portals may still use the previous names.
 
 | License | What It Includes | Typical Use Case |
 |---------|------------------|------------------|
-| **Microsoft 365 E5** | Full suite: E3 + Purview Suite + E5 Security + additional services | Enterprise with comprehensive needs |
+| **Microsoft 365 E5** | Full suite: E3 + Purview Suite + Microsoft Defender Suite + additional services | Enterprise with comprehensive needs |
 | **Microsoft Purview Suite** (formerly E5 Compliance) | Microsoft Purview suite (DLP, IRM, eDiscovery, Insider Risk, etc.) | Organizations with E3 needing compliance |
-| **Microsoft 365 E5 Security** | Microsoft Defender suite (Defender for Office 365 P2, Defender for Endpoint P2, etc.) | Organizations with E3 needing security |
+| **Microsoft Defender Suite** (formerly Microsoft 365 E5 Security) | Microsoft Defender suite (Defender for Office 365 P2, Defender for Endpoint P2, etc.) | Organizations with E3 needing security |
 
 **Key Distinctions:**
 
-| Capability | E5 | Purview Suite | E5 Security |
-|------------|:--:|:-------------:|:-----------:|
+| Capability | E5 | Purview Suite | Defender Suite |
+|------------|:--:|:-------------:|:--------------:|
 | Microsoft Purview DLP | ✅ | ✅ | ❌ |
 | Microsoft Purview DSPM for AI | ✅ | ✅ | ❌ |
 | Microsoft Purview Insider Risk | ✅ | ✅ | ❌ |
@@ -83,7 +83,7 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 | Microsoft Defender for Cloud Apps | ✅ | ❌ | ✅ |
 | Microsoft Sentinel (50 MB/user/month) | ✅ | ❌ | ✅ |
 
-**Documentation Guidance:** When referencing E5 requirements, specify whether Microsoft Purview Suite is sufficient (Purview features) or full E5/E5 Security is required (Defender features).
+**Documentation Guidance:** When referencing E5 requirements, specify whether Microsoft Purview Suite is sufficient (Purview features) or full E5/Microsoft Defender Suite is required (Defender features).
 
 ## Copilot Control System License Language
 
@@ -118,7 +118,7 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 | **1.18** | RBAC | Microsoft Entra ID P1+ | Role management |
 | **1.19** | eDiscovery for Agent Interactions | Microsoft 365 E5 or Microsoft Purview Suite | eDiscovery (Premium) for AI content search |
 | **1.20** | Network Isolation and Private Connectivity | Azure subscription + Power Platform Premium | VNet integration, Private Endpoints |
-| **1.21** | Adversarial Input Logging | Microsoft 365 E5 or E5 Security | Defender for Cloud Apps + Purview Audit |
+| **1.21** | Adversarial Input Logging | Microsoft 365 E5 or Microsoft Defender Suite (formerly E5 Security) | Defender for Cloud Apps + Purview Audit |
 | **1.22** | Information Barriers | Microsoft 365 E5 or Microsoft Purview Suite | Purview Information Barriers |
 | **1.23** | Step-Up Authentication | Microsoft Entra ID P2 | Authentication context + Conditional Access |
 | **1.24** | Defender AI-SPM | Microsoft Defender for Cloud (CSPM) | Defender CSPM plan required |
@@ -176,7 +176,7 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 | **3.6** | Orphaned Agent Detection | Power Platform Premium | Managed Environments feature |
 | **3.7** | PPAC Security Posture | Power Platform Premium | Managed Environments security dashboard |
 | **3.8** | Copilot Hub | Power Platform Premium + Microsoft 365 Copilot | PPAC Copilot Hub plus M365 admin center agent reporting; Agent overview metrics available with Microsoft Agent 365 per-user licensing at GA |
-| **3.9** | Microsoft Sentinel Integration | Microsoft Sentinel + E5 Security | Microsoft Sentinel workspace required |
+| **3.9** | Microsoft Sentinel Integration | Microsoft Sentinel + Microsoft Defender Suite (formerly E5 Security) | Microsoft Sentinel workspace required |
 | **3.10** | Hallucination Feedback Loop | Microsoft 365 E3+ | Process-focused; Purview optional |
 | **3.11** | Centralized Agent Inventory Enforcement | Power Platform Premium | PPAC Agent Inventory feature |
 | **3.12** | Agent Governance Exception and Override Management | Microsoft 365 E3+ | Dataverse/SharePoint exception register |
@@ -240,7 +240,7 @@ License mapping guidance for the current FSI Agent Governance Framework control 
 
 ## Cost Optimization Tips
 
-1. **Start with E3 + Add-ons**: Many FSI organizations start with E3 and add Microsoft Purview Suite and E5 Security as add-ons rather than full E5.
+1. **Start with E3 + Add-ons**: Many FSI organizations start with E3 and add Microsoft Purview Suite and Microsoft Defender Suite (formerly E5 Security) as add-ons rather than full E5.
 
 2. **Managed Environments per Environment**: Only production and UAT typically need Managed Environments; dev/test can use standard.
 
@@ -313,7 +313,7 @@ To verify current license assignments:
 | Control | Licensing interpretation |
 |---------|--------------------------|
 | **1.8 - Runtime Protection** | Defender for Cloud Apps surfaces AI Agent Inventory during the grace period. **Effective July 1, 2026, AI Agent Inventory and Defender agent security require Microsoft Agent 365**; Defender for Cloud Apps / Defender for Cloud alone no longer provide them ([transition guidance](https://learn.microsoft.com/defender-xdr/security-for-ai/transition-agent-security-to-agent-365)). |
-| **1.21 - Adversarial Input Logging** | Copilot Studio / Foundry agent threat detection and Advanced Hunting (`AgentsInfo`) in Microsoft Defender require Microsoft Agent 365 from **July 1, 2026**. Azure-side Defender for Cloud Threat Protection for AI Workloads (Prompt Shields plane) is licensed separately and unchanged. |
+| **1.21 - Adversarial Input Logging** | Copilot Studio / Foundry agent threat detection and Advanced Hunting (`Agentsinfo`) in Microsoft Defender require Microsoft Agent 365 from **July 1, 2026**. Azure-side Defender for Cloud Threat Protection for AI Workloads (Prompt Shields plane) is licensed separately and unchanged. |
 | **1.24 - Defender AI Security Posture Management** | Agent-level discovery, posture, and threat detection for Copilot Studio / Foundry agents require Microsoft Agent 365 from **July 1, 2026**. Defender CSPM continues to discover Foundry accounts/projects, but agent-level capabilities move under Agent 365 ([transition guidance](https://learn.microsoft.com/defender-xdr/security-for-ai/transition-agent-security-to-agent-365)). |
 | **3.7 - PPAC Security Posture Assessment** | Defender for Cloud Apps AI Agent Inventory cross-reference remains useful for portal walkthrough validation; from July 1, 2026 the agent-inventory dependency requires Microsoft Agent 365. |
 | **2.25 - Agent 365 Governance Console** | Requires Microsoft Agent 365 per-user licensing at GA (May 1, 2026). |

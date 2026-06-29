@@ -18,7 +18,7 @@
 >
 > **Namespace.** All functions use the `FsiMRM` prefix to prevent collision with peer-control automation (`Agt36`, `Agt225`, `Agt226`).
 >
-> **Hedged-language reminder.** The artifacts produced here **support compliance with** OCC Bulletin 2026-13 (formerly OCC 2011-12), SR 26-2 (formerly SR 11-7), FDIC FIL-22-2017, FFIEC IT Handbook, FINRA 3110/4511, SEC 17a-3/17a-4, SOX §§302/404, GLBA 501(b), and NYDFS 23 NYCRR 500. They do not — and cannot — *ensure*, *guarantee*, *prevent*, or *eliminate* anything on their own.
+> **Hedged-language reminder.** The artifacts produced here **support compliance with** OCC Bulletin 2026-13 (formerly OCC 2011-12), SR 26-2 (formerly SR 11-7), FDIC FIL-15-2026, FFIEC IT Handbook, FINRA 3110/4511, SEC 17a-3/17a-4, SOX §§302/404, GLBA 501(b), and NYDFS 23 NYCRR 500. They do not — and cannot — *ensure*, *guarantee*, *prevent*, or *eliminate* anything on their own.
 
 ---
 
