@@ -19,7 +19,12 @@
 {% block htmltitle %}
   {%- if page %}
     {%- if page.meta and page.meta.title %}
-      <title>{{ page.meta.title }} - {{ config.site_name }}</title>
+      {%- if page.is_homepage %}
+        {# SEO-04: Homepage title is the complete desired <title> — don't append site_name #}
+        <title>{{ page.meta.title }}</title>
+      {%- else %}
+        <title>{{ page.meta.title }} - {{ config.site_name }}</title>
+      {%- endif %}
     {%- elif page.is_homepage %}
       <title>{{ config.site_name }}</title>
     {%- elif page.title %}
@@ -113,6 +118,19 @@
     {# WebSite JSON-LD on home page only (mirrors FAQ pattern) #}
     {% if page.is_homepage %}
       {% include "partials/jsonld-website.html" %}
+    {% endif %}
+    {# SEO-03: BreadcrumbList JSON-LD on all inner pages — machine-readable breadcrumbs
+       enable Google to render breadcrumb rich results for the 695+ URL corpus. #}
+    {% if not page.is_homepage %}
+      {% include "partials/jsonld-breadcrumb.html" %}
+    {% endif %}
+    {# SEO-03: HowTo JSON-LD on portal-walkthrough and powershell-setup playbook pages.
+       Portal-walkthrough and PowerShell-setup pages map naturally to HowTo schema
+       (named steps, estimated time), unlocking step-list rich results in SERPs. #}
+    {%- set _src = page.file.src_uri if page.file else "" %}
+    {%- if _src.startswith("playbooks/control-implementations/") and
+          (_src.endswith("/portal-walkthrough.md") or _src.endswith("/powershell-setup.md")) %}
+      {% include "partials/jsonld-howto.html" %}
     {% endif %}
   {% endif %}
   <script>

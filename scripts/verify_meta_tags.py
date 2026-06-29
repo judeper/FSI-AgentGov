@@ -35,6 +35,13 @@ SAMPLED_PAGES = (
     "reference/microsoft-learn-urls/index.html",
 )
 
+# The site-level fallback description (set in mkdocs.yml site_description).
+# Playbook pages MUST NOT use this — they need unique per-page descriptions (SEO-02).
+GENERIC_SITE_DESCRIPTION = (
+    "Governance framework for Microsoft 365 AI agents"
+    " (Copilot Studio, Agent Builder) in Financial Services"
+)
+
 # Meta tags that MUST be present on every page with non-empty content="".
 REQUIRED_META = (
     ('property', 'og:title'),
@@ -76,7 +83,7 @@ def find_meta_content(html: str, attr: str, value: str) -> str | None:
     return None
 
 
-def check_page(html: str) -> list[str]:
+def check_page(html: str, is_playbook: bool = False, is_inner: bool = False) -> list[str]:
     """Return a list of human-readable failure messages for one page."""
     failures: list[str] = []
     for attr, value in REQUIRED_META:
@@ -87,6 +94,21 @@ def check_page(html: str) -> list[str]:
         if not content.strip():
             failures.append(
                 f'<meta {attr}="{value}"> has empty content=""'
+            )
+    # SEO-02: Playbook pages must have unique descriptions — not the generic site fallback.
+    if is_playbook:
+        desc = find_meta_content(html, "property", "og:description") or ""
+        if desc.strip() == GENERIC_SITE_DESCRIPTION:
+            failures.append(
+                "og:description is the generic site fallback description — "
+                "playbook pages require unique per-page descriptions (SEO-02 regression)"
+            )
+    # SEO-03: Inner pages must contain BreadcrumbList JSON-LD.
+    if is_inner:
+        if '"BreadcrumbList"' not in html:
+            failures.append(
+                'missing BreadcrumbList JSON-LD (SEO-03 regression — '
+                '"@type": "BreadcrumbList" not found in page)'
             )
     return failures
 
@@ -100,7 +122,11 @@ def scan(site_root: Path, sampled_pages: tuple[str, ...] = SAMPLED_PAGES) -> dic
             broken[rel] = [f"sampled page not found at {page_path}"]
             continue
         html = page_path.read_text(encoding="utf-8")
-        failures = check_page(html)
+        # Classify: homepage, playbook inner page, or generic inner page
+        is_homepage = rel == "index.html"
+        is_playbook = "playbooks/control-implementations/" in rel
+        is_inner = not is_homepage
+        failures = check_page(html, is_playbook=is_playbook, is_inner=is_inner)
         if failures:
             broken[rel] = failures
     return broken

@@ -148,6 +148,7 @@ extra_javascript:
 hooks:
   - scripts/hooks/copy_assessment_data.py
   - scripts/hooks/generate_homework_pages_hook.py
+  - scripts/hooks/generate_playbook_descriptions.py
   - overrides/hooks/cache_bust.py
 
 nav:
