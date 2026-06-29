@@ -179,6 +179,14 @@ def generate_homework_page(
     """Generate a single homework page for a role."""
     lines = []
     
+    # YAML frontmatter — noindex keeps pre-session stubs out of search-engine
+    # indexes (SEO-01). These pages are audience-targeted reference cards, not
+    # discovery landing pages. The robots meta is emitted by overrides/main.html.
+    lines.append("---")
+    lines.append("robots: noindex")
+    lines.append("---")
+    lines.append("")
+    
     # Title
     lines.append(f"# Pre-Session Homework: {role}")
     lines.append("")

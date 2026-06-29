@@ -64,6 +64,13 @@
    ever moves off GitHub Pages, add `frame-ancestors 'none'` as an HTTP
    header on the origin. #}
 {% block extrahead %}
+  {# SEO-01: Emit <meta name="robots"> when page.meta.robots is set.
+     Material 9.7.6 base.html does not handle this key natively; without
+     this block, robots: noindex in page frontmatter has no effect.
+     Guard: only emit when page exists (404 is rendered with page=None). #}
+  {% if page and page.meta and page.meta.robots %}
+    <meta name="robots" content="{{ page.meta.robots }}">
+  {% endif %}
   {# Phase 2: schema.org FAQPage structured data, FAQ page only. Mirrors the
      visible Q&A in docs/reference/faq.md for Google rich-result eligibility.
      JSON-LD is non-executable data, but CSP script-src still applies — the
