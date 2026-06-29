@@ -3214,6 +3214,8 @@
       if (isPressed) bcls += " " + a.cls;
       var btnAttrs = {
         className: bcls,
+        // A11Y-01: include control ID + title so each button has a unique accessible name
+        "aria-label": "Rate control " + ctrl.id + " " + ctrl.title + " \u2014 " + a.label,
         "aria-pressed": isPressed ? "true" : "false",
         type: "button",
       };

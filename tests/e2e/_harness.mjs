@@ -225,7 +225,7 @@ export async function clickThroughPhase1(page, persona) {
       }
     }
     await card
-      .getByRole("button", { name: labelText, exact: true })
+      .getByRole("button", { name: labelText })
       .click();
   }
 }
