@@ -2831,14 +2831,14 @@
         "2026-12518": "sha256:c43452e216be923cb286820889a5b8aec57594a399a1df96c425912e66b3fd24",
         "2026-12517": "sha256:a77a64a7d0a5665170b73b0b57729c9c5c5a01d2a56b91ddc2862da687c8a37a"
       },
-      "last_run": "2026-06-27T17:56:47.897180+00:00",
-      "last_checked": "2026-06-27"
+      "last_run": "2026-06-29T11:56:12.176454+00:00",
+      "last_checked": "2026-06-29"
     },
     "regulatory-finra": {
       "entries": {
-        "https://www.finra.org/rules-guidance/notices/information-notice-20260617": "sha256:be605c3cbc7d1b503bf161a3c3d6e42db963f5bfc18b4aa4fcc4b24662564a45"
+        "https://www.finra.org/rules-guidance/notices/information-notice-20260617": "sha256:ddff2639f528c87dd71e2add3552c32e14c65463ea2b4a57b4dd4f61f40e24df"
       },
-      "last_run": "2026-06-27T17:56:48.323112+00:00"
+      "last_run": "2026-06-29T11:56:12.347914+00:00"
     }
   }
 }
