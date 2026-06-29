@@ -57,14 +57,21 @@
 /* ---- layout ---- */
 .ce-layout {
   display: grid;
-  grid-template-columns: minmax(15rem, 18rem) 1fr;
+  /* UX-03: use minmax(0, 1fr) for the results track, not bare 1fr.
+     CSS grid tracks with implicit `auto` minimum refuse to shrink below
+     min-content size, which equals the table's min-width (46rem). Using
+     minmax(0, 1fr) explicitly allows the track to shrink to 0, so
+     .ce-results { overflow-x: auto } can contain the wide table instead
+     of forcing the whole page to scroll. */
+  grid-template-columns: minmax(15rem, 18rem) minmax(0, 1fr);
   gap: 1.5rem;
   align-items: start;
 }
 
 @media screen and (max-width: 60em) {
   .ce-layout {
-    grid-template-columns: 1fr;
+    /* Same minmax(0, 1fr) reasoning as two-column mode above. */
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
