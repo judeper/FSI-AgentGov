@@ -19,7 +19,7 @@ search:
 [Find a control](controls/explorer.md){ .md-button }
 
 </div>
-<div class="hero-stat-panel" aria-label="Framework at a glance" role="img">
+<div class="hero-stat-panel" aria-label="Framework at a glance: 79 Controls, 4 Pillars, 3 Zones, 6 Regulations" role="img">
   <div class="hero-stat">
     <span class="stat-num">79</span>
     <span class="stat-label">Controls</span>
