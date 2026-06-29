@@ -66,12 +66,13 @@ Check which regulators apply to your organization:
 - GLBA? (all financial institutions)
 - OCC? (national banks)
 - Federal Reserve? (bank holding companies, state member banks)
+- CFTC? (futures commission merchants, swap dealers, commodity pools — Rule 1.31 recordkeeping)
 - FDIC? (state non-member banks, savings associations)
 - NCUA? (credit unions)
 - State insurance regulator? (insurers)
 - NYDFS Part 500? (NY-licensed institutions)
 
-Consult your Compliance Officer to confirm which apply. Then see the [Regulatory Framework](../framework/regulatory-framework.md) for the control-to-regulation mapping.
+Consult your Compliance Officer to confirm which apply. Note: FDIC, NCUA, state insurance, and NYDFS Part 500 regulatees should apply the framework's analogous controls, but these regulations are not explicitly mapped in the Control Catalog. Then see the [Regulatory Framework](../framework/regulatory-framework.md) for the control-to-regulation mapping.
 
 ---
 
@@ -85,7 +86,7 @@ Consult your Compliance Officer to confirm which apply. Then see the [Regulatory
 
 1. Create agent in personal environment
 2. Document agent purpose
-3. Keep basic audit logs (30 days)
+3. Verify audit logging (platform default: 180 days Audit Standard / 1 year Audit Premium-E5; do not reduce below default)
 4. No approval needed
 
 **Controls Required:**

@@ -290,7 +290,7 @@ Zone 3 agents handling regulated data may be subject to comprehensive oversight 
 | **State non-member banks** | FDIC | Interagency guidance, FFIEC IT Handbook |
 | **Credit unions** | NCUA | Part 748 security program |
 | **Broker-dealers** | FINRA, SEC | FINRA 3110 supervision, SEC 17a-3/4 records |
-| **Investment advisers** | SEC | SEC examination, Reg BI compliance |
+| **Investment advisers** | SEC | SEC examination, Advisers Act §206 fiduciary duty / Form CRS (dual registrants are also subject to Reg BI as broker-dealers) |
 | **Insurers** | State regulators | NAIC model law, state-specific requirements |
 | **NY-licensed entities** | NYDFS | Part 500 cybersecurity requirements |
 
