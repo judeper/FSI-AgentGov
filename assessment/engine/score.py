@@ -41,7 +41,7 @@ def normalize_manifest_controls(raw: object) -> list[dict]:
     """Return the controls list regardless of manifest top-level shape.
 
     The on-disk ``assessment/manifest/controls.json`` is a bare JSON list
-    of 78 control objects. Earlier engine code assumed a dict-wrapped
+    of 79 control objects. Earlier engine code assumed a dict-wrapped
     form ``{"controls": [...]}`` and crashed against the real file with
     ``AttributeError: 'list' object has no attribute 'get'``. This helper
     accepts either shape so the engine runs end-to-end against the

@@ -117,7 +117,7 @@ def normalize_manifest_controls(raw: object) -> list[dict]:
     """Return the controls list regardless of manifest top-level shape.
 
     The on-disk ``assessment/manifest/controls.json`` is a bare JSON list
-    of 78 control objects. Earlier engine code assumed a dict-wrapped
+    of 79 control objects. Earlier engine code assumed a dict-wrapped
     form ``{"controls": [...]}`` and crashed against the real file with
     ``AttributeError: 'list' object has no attribute 'get'``. This helper
     accepts either shape so the engine runs end-to-end against the
@@ -298,7 +298,7 @@ FRONTIER_PREFILLED_TEMPLATE = r"""# Frontier Readiness Assessment
 
 ## Methodology and Limitations
 
-This Frontier Readiness assessment is a facilitator-led, self-attested diagnostic across 5 capability drivers. It supplements but does not replace the FSI-AgentGov 78-control technical assessment. Driver scores reflect organizational maturity claims at the time of assessment; they are not auditor-grade evidence and do not substitute for examiner-defensible control evidence collected through the controls assessment engine.
+This Frontier Readiness assessment is a facilitator-led, self-attested diagnostic across 5 capability drivers. It supplements but does not replace the FSI-AgentGov 79-control technical assessment. Driver scores reflect organizational maturity claims at the time of assessment; they are not auditor-grade evidence and do not substitute for examiner-defensible control evidence collected through the controls assessment engine.
 """
 
 # ---------------------------------------------------------------------------

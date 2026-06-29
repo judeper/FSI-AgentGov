@@ -1842,23 +1842,42 @@
 
   /**
    * Derive the assessmentStatus enum from current state. Snapshot at export time.
-   * Returns one of: "draft", "in-progress", "final".
-   *  - "final"        if completedSteps includes the explicit "full"/"complete"
-   *                   sentinel (set by Step 6 export confirmation in a future patch)
-   *  - "in-progress"  if any control has a response
-   *  - "draft"        otherwise
+   * Returns one of: "draft", "in-progress", "complete".
+   *
+   * Completion criteria: every applicable control (not zone-excluded by
+   * isControlExcluded()) has been answered (yes / partial / no / na).
+   * Zone-excluded controls that applyZoneExclusions() auto-set to N/A also
+   * count as answered — they have resp.answer = "na". N/A self-selections by
+   * the user also count. See completionCriteria in the export _metadata block.
+   *
+   *  - "complete"    all applicable controls have an answer
+   *  - "in-progress" at least one control answered but not all
+   *  - "draft"       no control answered yet
    */
   AssessmentApp.prototype.deriveAssessmentStatus = function () {
     if (!this.state) return "draft";
-    var steps = this.state.completedSteps || [];
-    if (steps.indexOf("full") >= 0 || steps.indexOf("complete") >= 0) return "final";
     var responses = this.state.responses || {};
+    var controls = (this.data && Array.isArray(this.data.controls)) ? this.data.controls : [];
+    var anyResponse = false;
     for (var k in responses) {
       if (Object.prototype.hasOwnProperty.call(responses, k) && responses[k] && responses[k].answer) {
-        return "in-progress";
+        anyResponse = true;
+        break;
       }
     }
-    return "draft";
+    if (!anyResponse) return "draft";
+    // Check whether all applicable controls are answered.
+    if (controls.length > 0) {
+      var self = this;
+      var allAnswered = controls.every(function (c) {
+        // Zone-excluded controls count as done (they are auto-set to N/A).
+        if (self.isControlExcluded(c)) return true;
+        var resp = responses[c.id];
+        return resp && resp.answer;
+      });
+      if (allAnswered) return "complete";
+    }
+    return "in-progress";
   };
 
   /**
@@ -1896,7 +1915,10 @@
       frameworkVersion: FRAMEWORK_VERSION,
       manifestSchemaVersion: (this.solutionsLock && this.solutionsLock.schemaVersion) || null,
       exportedAt: new Date().toISOString(),
-      exportedBy: (this.state && this.state.scoping && this.state.scoping.assessorName) || ""
+      exportedBy: (this.state && this.state.scoping && this.state.scoping.assessorName) || "",
+      completionCriteria: "assessmentStatus is 'complete' when all applicable controls " +
+        "(excluding zone-excluded controls) have been answered (yes/partial/no/na); " +
+        "'in-progress' when at least one control is answered; 'draft' when none answered"
     };
   };
 
@@ -1934,6 +1956,17 @@
     this.el.innerHTML = "";
     if (this._quotaError) this.el.appendChild(this._renderQuotaBanner());
     this.el.appendChild(this.renderSteps());
+    // A11Y-04: visually-hidden aria-live region so screen readers hear step
+    // transitions. goToStep() / _setStepFromHistory() both call render() and
+    // then call _announceStep() which sets this region's textContent.
+    var liveRegion = h("div", {
+      id: "ag-step-status",
+      role: "status",
+      "aria-live": "polite",
+      "aria-atomic": "true",
+      className: "ag-sr-only",
+    });
+    this.el.appendChild(liveRegion);
     var content = h("div", { className: "ag-content" });
     switch (this.step) {
       case "welcome": this.renderWelcome(content); break;
@@ -1944,6 +1977,23 @@
       case "export":  this.renderExport(content); break;
     }
     this.el.appendChild(content);
+  };
+
+  /** A11Y-04: Announce the current step to screen readers via the aria-live
+   *  region injected by render(). Called AFTER render() so the region exists.
+   *  Uses a 100ms delay to give AT time to register the newly-created region. */
+  AssessmentApp.prototype._announceStep = function () {
+    var self = this;
+    var stepData = null;
+    for (var i = 0; i < STEPS.length; i++) {
+      if (STEPS[i].id === this.step) { stepData = STEPS[i]; break; }
+    }
+    if (!stepData) return;
+    var msg = "Step " + stepData.num + ": " + stepData.label;
+    setTimeout(function () {
+      var lr = document.getElementById("ag-step-status");
+      if (lr) lr.textContent = msg;
+    }, 100);
   };
 
   AssessmentApp.prototype._renderQuotaBanner = function () {
@@ -2005,6 +2055,7 @@
       }
     }
     this.render();
+    this._announceStep(); // A11Y-04: announce new step to screen readers
     this.el.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
@@ -2022,6 +2073,7 @@
       try { this.saveToStorage(); } catch (_) { /* */ }
     }
     this.render();
+    this._announceStep(); // A11Y-04: announce new step to screen readers
     if (this.el && this.el.scrollIntoView) {
       try { this.el.scrollIntoView({ behavior: "instant", block: "start" }); }
       catch (_) {
@@ -2527,6 +2579,16 @@
           sc.institutionType = instSel.value;
           var inst = self.data.institutionTypes[instSel.value];
           if (inst) sc.regulations = inst.regulations.slice();
+        }
+        // ASMT-07: defensive sync for sector calibration select — same
+        // guard as instSel above so a missed change event doesn't export "".
+        var sectorSelDOM = document.getElementById("ag-sector-select");
+        if (sectorSelDOM && sectorSelDOM.value !== (self.state.selectedSector || "")) {
+          self.state.selectedSector = sectorSelDOM.value;
+          try {
+            var sectorAid = (self.state && self.state.assessmentId) || "unscoped";
+            localStorage.setItem(SECTOR_KEY + "-" + sectorAid, sectorSelDOM.value);
+          } catch (_sErr) { /* storage best-effort */ }
         }
         // ASSESS-07: inline field-level validation (no blocking alert()).
         var errors = [];
@@ -3751,13 +3813,43 @@
     });
     panel.appendChild(barSection);
 
-    // Radar chart
+    // Radar chart — A11Y-01: canvas needs role="img" + aria-label so screen
+    // readers don't encounter an unlabelled interactive region.  A visually-
+    // hidden sibling <table> provides the equivalent data for AT users.
     var chartCard = h("div", { className: "ag-card", style: "margin-top:1rem" });
     chartCard.appendChild(h("div", { className: "ag-card-title" }, "Pillar Radar"));
-    var chartWrap = h("div", { className: "ag-chart-container" });
-    var canvas = h("canvas");
+    var chartWrap = h("div", { className: "ag-chart-container", tabindex: "0", role: "group", "aria-label": "Pillar radar chart" });
+    var radarTableId = "ag-radar-data-table";
+    var canvas = h("canvas", {
+      role: "img",
+      "aria-label": "Radar chart showing pillar readiness scores",
+      "aria-describedby": radarTableId,
+    });
     chartWrap.appendChild(canvas);
     chartCard.appendChild(chartWrap);
+
+    // Hidden data table — same data the radar renders visually.
+    var radarSrDiv = h("div", { className: "ag-sr-only", tabindex: "0" });
+    var radarTable = h("table", { id: radarTableId });
+    var radarThead = h("thead");
+    var radarHrow = h("tr");
+    radarHrow.appendChild(h("th", { scope: "col" }, "Pillar"));
+    radarHrow.appendChild(h("th", { scope: "col" }, "Score"));
+    radarThead.appendChild(radarHrow);
+    radarTable.appendChild(radarThead);
+    var radarTbody = h("tbody");
+    var self3 = this;
+    [1, 2, 3, 4].forEach(function (p) {
+      var radarRow = h("tr");
+      radarRow.appendChild(h("td", null, "Pillar " + p + " \u2014 " + self3.data.pillars[String(p)].name));
+      var ps = self3.getPillarScore(p);
+      radarRow.appendChild(h("td", null, ps !== null ? ps + "%" : "Not assessed"));
+      radarTbody.appendChild(radarRow);
+    });
+    radarTable.appendChild(radarTbody);
+    radarSrDiv.appendChild(radarTable);
+    chartCard.appendChild(radarSrDiv);
+
     panel.appendChild(chartCard);
 
     // Render chart after DOM append
@@ -3888,8 +3980,11 @@
   /* ---- Regulatory tab ---- */
   var REGULATION_NOTES = {
     "FINRA AI Supervision and Governance":
-      "Note: FINRA RN 25-07 addresses workplace modernization. " +
-      "Its AI governance scope is limited to recordkeeping for AI-generated communications.",
+      "Note: FINRA RN 25-07 (April 2025) is a Request for Comment on workplace modernization \u2014 " +
+      "it has NOT been adopted as binding rulemaking as of mid-2026. " +
+      "Its AI governance discussion is limited to recordkeeping for AI-generated communications. " +
+      "Firms should comply with existing FINRA supervision and recordkeeping rules, " +
+      "not RN 25-07 requirements, until a final rule is issued.",
   };
 
   AssessmentApp.prototype.renderRegulatory = function (panel) {
@@ -3952,11 +4047,43 @@
     });
     panel.appendChild(card);
 
-    // Zone chart
+    // Zone chart — A11Y-01: canvas needs role="img" + aria-label so screen
+    // readers don't encounter an unlabelled interactive region.  A visually-
+    // hidden sibling <table> provides the equivalent data for AT users.
     var chartCard = h("div", { className: "ag-card", style: "margin-top:1rem" });
     chartCard.appendChild(h("div", { className: "ag-card-title" }, "Zone Comparison"));
-    var canvas = h("canvas", { style: "max-height:300px" });
+    var zoneTableId = "ag-zone-data-table";
+    var canvas = h("canvas", {
+      style: "max-height:300px",
+      role: "img",
+      "aria-label": "Bar chart comparing governance zone readiness scores",
+      "aria-describedby": zoneTableId,
+    });
     chartCard.appendChild(canvas);
+
+    // Hidden data table for AT users.
+    var zoneSrDiv = h("div", { className: "ag-sr-only", tabindex: "0" });
+    var zoneTable = h("table", { id: zoneTableId });
+    var zoneThead = h("thead");
+    var zoneHrow = h("tr");
+    zoneHrow.appendChild(h("th", { scope: "col" }, "Zone"));
+    zoneHrow.appendChild(h("th", { scope: "col" }, "Score"));
+    zoneThead.appendChild(zoneHrow);
+    zoneTable.appendChild(zoneThead);
+    var zoneTbody = h("tbody");
+    var zoneLabels2 = { 1: "Zone 1 \u2014 Personal Productivity", 2: "Zone 2 \u2014 Team Collaboration", 3: "Zone 3 \u2014 Enterprise Managed" };
+    var self3 = this;
+    [1, 2, 3].forEach(function (z) {
+      var zRow = h("tr");
+      zRow.appendChild(h("td", null, zoneLabels2[z]));
+      var zs = self3.getZoneScore(z);
+      zRow.appendChild(h("td", null, zs !== null ? zs + "%" : "Not assessed"));
+      zoneTbody.appendChild(zRow);
+    });
+    zoneTable.appendChild(zoneTbody);
+    zoneSrDiv.appendChild(zoneTable);
+    chartCard.appendChild(zoneSrDiv);
+
     panel.appendChild(chartCard);
 
     var self2 = this;
@@ -4346,7 +4473,7 @@
    *   _metadata          { exportSchemaVersion, schemaType:"full", frameworkVersion,
    *                        manifestSchemaVersion, exportedAt, exportedBy }
    *   _computedScores    { overall, perPillar:{1..4}, perControl:{id:0..1|null} }
-   *   assessmentStatus   "draft" | "in-progress" | "final"  (snapshot at export)
+   *   assessmentStatus   "draft" | "in-progress" | "complete"  (snapshot at export)
    *   ...this.state      (responses, scoping, drilldown, overrides, completedSteps, etc.)
    *
    * NOTE: _metadata, _computedScores, and assessmentStatus are snapshot-only.
