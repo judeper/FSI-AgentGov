@@ -1,0 +1,25 @@
+{% if config.extra.analytics.property %}
+{#
+  Plausible Analytics — cookieless, GDPR-compliant, no consent banner required.
+
+  Enabled only when PLAUSIBLE_DOMAIN is set at build time (opt-in).
+  When the env var is absent the default resolves to "" (falsy) and this
+  template renders nothing — no script, no beacon, no cookies.
+
+  CSP note: overrides/main.html conditionally adds https://plausible.io to
+  script-src and connect-src when this property is non-empty. Both must be
+  present for the script to load and events to POST to the Plausible API.
+
+  Custom event tracking via window.plausible() is available after load.
+  Recommended events to instrument:
+    - "Start Assessment"  (assessment/index.md CTA click)
+    - "Export Assessment" (assessment export button)
+    - "Download Checklist" (downloads/*.xlsx link clicks — tracked by
+                            script.outbound-links.js automatically)
+#}
+<script
+  defer
+  data-domain="{{ config.extra.analytics.property }}"
+  src="https://plausible.io/js/script.outbound-links.js"
+></script>
+{% endif %}
