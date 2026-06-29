@@ -119,7 +119,8 @@ top-level key present in pre-1.4.1 exports remains at the same path.
     "frameworkVersion": "1.6.2",
     "manifestSchemaVersion": "1.5.0",
     "exportedAt": "2026-04-19T17:00:00.000Z",
-    "exportedBy": "Jane Doe"
+    "exportedBy": "Jane Doe",
+    "completionCriteria": "assessmentStatus is 'complete' when all applicable controls (excluding zone-excluded controls) have been answered (yes/partial/no/na); 'in-progress' when at least one control is answered; 'draft' when none answered"
   },
   "_computedScores": {
     "overall": 47,
@@ -154,7 +155,7 @@ top-level key present in pre-1.4.1 exports remains at the same path.
 | `_computedScores.overall`       | int\|null | `Math.round(sum/count * 100)` over all controls; `null` if no scoreable controls (e.g., All-N/A assessment). |
 | `_computedScores.perPillar.{1..4}` | int\|null | Same algorithm scoped to pillar. |
 | `_computedScores.perControl.{id}` | float\|null | `1.0` (yes), `0.5` (partial without drilldown), `yes/total` (partial with drilldown), `0.0` (no), `null` (n/a or unanswered). |
-| `assessmentStatus`              | enum | `"final"` only when `completedSteps` includes `"full"` or `"complete"`; else `"in-progress"` if any responses; else `"draft"`. |
+| `assessmentStatus`              | enum | `"complete"` when all applicable controls (excluding zone-excluded) have been answered; `"in-progress"` if any responses but not all; `"draft"` if none answered. `_metadata.completionCriteria` describes the exact criteria. |
 
 ### Section export (`exportRoleSection`)
 
@@ -175,9 +176,10 @@ keys explicitly and **silently ignores** `_metadata`,
   stale scores from propagating across roundtrips.
 * `_metadata.frameworkVersion` is similarly a snapshot of the version
   *that produced* the file, never the version that imported it.
-* `assessmentStatus` is re-derived on every export from
-  `completedSteps` + `responses`, so importing a "final" file into a
-  newer SPA correctly re-evaluates whether it's still final.
+* `assessmentStatus` is re-derived on every export from `responses` +
+  zone exclusions (all applicable controls answered → `"complete"`), so
+  importing an older `"in-progress"` file into a newer SPA correctly
+  re-evaluates the completion state.
 
 A round-trip contract test in
 `tests/spa/export-shape.test.mjs` enforces this behavior — tampered

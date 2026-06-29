@@ -11,7 +11,19 @@
  *                                     Screen readers announce the input as
  *                                     "checkbox unchecked" with no purpose context.
  *
- * Why aria-hidden (not aria-label):
+ *   A11Y-02  — All content data tables missing scope="col" on <th> cells.
+ *              JAWS/NVDA cannot reliably associate headers with data cells
+ *              in multi-column tables without the scope attribute. Fixed with
+ *              a one-line querySelector loop. Scoped to avoid the Control
+ *              Explorer table (which already has scope="col" set natively)
+ *              and the assessment SPA tables (which set scope inline).
+ *
+ *   A11Y-03  — Search dialog missing accessible name and aria-modal="true".
+ *              The <div role="dialog"> from Material has no aria-label and
+ *              no aria-modal. Screen readers cannot announce it properly or
+ *              confine virtual-cursor focus to the dialog when it opens.
+ *
+ * Why aria-hidden (not aria-label) for task-list checkboxes:
  *   These checkboxes are `disabled` AND `clickable_checkbox: false` in mkdocs.yml
  *   (display-only — they communicate nothing the LI text doesn't already carry).
  *   `aria-hidden="true"` is the most honest WCAG description of their role:
@@ -28,6 +40,7 @@
  */
 (function () {
   function applyA11yFixes() {
+    // --- Task-list checkboxes (F-A11Y-DOCS-LABEL-TASKLIST-04) ---
     document.querySelectorAll('.task-list-item input[type="checkbox"]').forEach(
       function (input) {
         if (input.hasAttribute("aria-hidden")) return;
@@ -35,6 +48,32 @@
         input.setAttribute("tabindex", "-1");
       },
     );
+
+    // --- A11Y-02: Add scope="col" to all data-table <th> cells that lack it.
+    //     Scoped to .md-content tables (the docs prose area) to avoid touching
+    //     the Control Explorer table (ce-table) and assessment SPA tables
+    //     which manage their own scope attributes.
+    document.querySelectorAll(".md-content table thead th").forEach(
+      function (th) {
+        if (!th.getAttribute("scope")) {
+          th.setAttribute("scope", "col");
+        }
+      },
+    );
+
+    // --- A11Y-03: Add accessible name + aria-modal to Material search dialog.
+    //     Material renders <div role="dialog"> inside .md-search but omits
+    //     aria-label and aria-modal. We add both defensively; if a future
+    //     Material version adds them natively the setAttribute call is a no-op.
+    var searchDialog = document.querySelector('.md-search [role="dialog"]');
+    if (searchDialog) {
+      if (!searchDialog.getAttribute("aria-label")) {
+        searchDialog.setAttribute("aria-label", "Site search");
+      }
+      if (!searchDialog.getAttribute("aria-modal")) {
+        searchDialog.setAttribute("aria-modal", "true");
+      }
+    }
   }
 
   if (document.readyState === "loading") {

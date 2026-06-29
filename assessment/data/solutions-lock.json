@@ -310,7 +310,7 @@
       "domain": "compliance-audit",
       "tier": "2",
       "status": "live",
-      "description": "Aggregated compliance reporting dashboard designed to report across the 78-control FSI Agent Governance Framework baseline when those control records are loaded into Dataverse, with zone-based filtering and Exchange evidence coverage.",
+      "description": "Aggregated compliance reporting dashboard designed to report across the 79-control FSI Agent Governance Framework baseline when those control records are loaded into Dataverse, with zone-based filtering and Exchange evidence coverage.",
       "url": "https://judeper.github.io/FSI-AgentGov-Solutions/solutions/compliance-dashboard/",
       "controls": [
         "3.3",
@@ -328,7 +328,7 @@
         "m365-admin": "Power BI workspace owner or capacity admin with M365 E5 or E5 Compliance licensing for dashboard access.",
         "global-reader": "Read-only tenant visibility for configuration validation and troubleshooting."
       },
-      "verification": "Confirm fsi_controlmasters contains the 78-control baseline, then open the Power BI dashboard and verify the latest Dataverse-synced tiles refresh successfully.",
+      "verification": "Confirm fsi_controlmasters contains the 79-control baseline, then open the Power BI dashboard and verify the latest Dataverse-synced tiles refresh successfully.",
       "zones": [
         "enterprise"
       ],

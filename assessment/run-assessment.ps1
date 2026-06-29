@@ -3,12 +3,12 @@
     FSI-AgentGov Assessment Engine orchestrator.
 
 .DESCRIPTION
-    Runs collectors in sequence, scores 78 controls against zone thresholds,
+    Runs collectors in sequence, scores 79 controls against zone thresholds,
     and generates a pre-filled assessment report with focused manual questionnaire.
     Optionally runs a Frontier Readiness assessment (facilitator-led strategy lens).
 
 .PARAMETER AssessmentType
-    Controls (default): runs the standard 78-control technical assessment.
+    Controls (default): runs the standard 79-control technical assessment.
     Frontier: runs only the Frontier Readiness facilitator-led assessment.
     Both: runs both assessments and produces all output files plus capability-driver-rollup.json.
 
