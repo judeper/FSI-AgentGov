@@ -1,0 +1,617 @@
+# Microsoft Learn Documentation Changes
+
+**Run Date:** 2026-07-02
+**Run Time:** 2026-07-02T09:14:44.401897+00:00
+**Total URLs Checked:** 229
+
+---
+
+## Executive Summary
+
+| Category | Count |
+|----------|-------|
+| CRITICAL Changes | 3 |
+| HIGH Changes | 8 |
+| MEDIUM Changes | 5 |
+
+---
+
+## Change Summary (Quick Scan)
+
+| # | URL | Classification | Affected Controls | Action Required |
+|---|-----|----------------|-------------------|-----------------|
+| 1 | knowledge-copilot-studio | MEDIUM | 2.16, 4.8, 1.14 | Update portal-walkthrough |
+| 2 | whats-new | HIGH | 2.25, 2.5, 2.10 | Review and update |
+| 3 | overview | HIGH | 3.13, 3.1, 2.25, 2.12, 2.6 | Update portal-walkthrough |
+| 4 | insider-risk-management-activities | CRITICAL | 1.12 | Update portal-walkthrough |
+| 5 | compliance-manager-assessments | HIGH | 3.3, 2.13 | Review and update |
+| 6 | permissions-reference | CRITICAL | 2.23 | Monitor |
+| 7 | turn-external-sharing-on-or-off | HIGH | 4.4, 1.3 | Review and update |
+| 8 | restricted-access-control | MEDIUM | 4.1, 1.3 | Review optional |
+| 9 | restricted-content-discovery | HIGH | 4.7, 4.1, 4.6, 1.3, 1.14 | Review and update |
+| 10 | advanced-management | MEDIUM | 4.5, 4.2, 4.1, 4.6, 1.3 | Review and update |
+| 11 | site-lifecycle-management | CRITICAL | 4.2, 4.3 | Review and update |
+| 12 | request-site-attestations | HIGH | 4.2 | Review and update |
+| 13 | ...cident-handling-with-automation-rules | HIGH | 3.9 | Review and update |
+| 14 | whats-new | CRITICAL | None | Monitor |
+
+---
+
+## CRITICAL: Playbook Updates Required
+
+These changes affect step-by-step procedures and must be addressed.
+
+### 1. Knowledge Sources
+
+**URL:** https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio
+**Section:** Copilot Studio
+**Classification:** MEDIUM (General content update)
+**Content-Hash:** sha256:325112c147a59f97007ede56d84adae2eb6334a379fd6f7a9d478b7d3a9f3138
+
+**Affected Controls:**
+- Control 2.16: Control 2.16: RAG Source Integrity Validation
+  - File: `controls/pillar-2-management/2.16-rag-source-integrity-validation.md`
+- Control 4.8: Control 4.8: Item-Level Permission Scanning for Agent Knowledge Sources
+  - File: `controls/pillar-4-sharepoint/4.8-item-level-permission-scanning-agent-knowledge-sources.md`
+- Control 1.14: Control 1.14: Data Minimization and Agent Scope Control
+  - File: `controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control.md`
+
+**Affected Playbooks:**
+- ⚠️ `playbooks/control-implementations/1.8/portal-walkthrough.md` (CRITICAL)
+- ℹ️ `playbooks/control-implementations/1.8/verification-testing.md` (HIGH)
+- ℹ️ `playbooks/control-implementations/4.6/troubleshooting.md` (HIGH)
+
+**What Changed:**
+```diff
+--- +++ @@ -29,23 +29,6 @@ generative answers node
+ in an agent topic.
+ You can incorporate knowledge sources into agents during their initial creation, add them after the agent is created, or add them to a generative answers topic node.
+-Add and manage knowledge for generative answers
+-Generative answers allow your agent to find and present information from multiple sources, internal or external, without having to create specific topics. Use generative answers as primary information sources or as a fallback source when authored topics can't answer a user's query. As a result, you can quickly create and deploy a functional agent. Makers don't need to manually author multiple topics, which might not address all customer questions.
+-By default, when you create an agent, Copilot Studio automatically creates the
+-Conversational boosting
+-system topic. This topic contains a generative answers node, which you can use to begin utilizing knowledge sources immediately. All knowledge sources that you add at the agent level are added to generative answers node in the
+-Conversational boosting
+-system topic.
+-For prerequisites and information on limitations, see
+-Generative answers
+-.
+-For information on analytic metrics on a per knowledge source basis, see:
+-Generated answer rate and quality
+-for conversational agents.
+-Knowledge source use
+-for autonomous agents.
+-Drill down on a theme
+-for knowledge source metrics in the context of themes.
+ Supported knowledge sources
+ Name
+ Source
+@@ -101,6 +84,15 @@ Limits and limitations
+ .
+ Currently, citations returned from a knowledge source can't be used as inputs to other tools or actions.
++Source authentication
++If you're using SharePoint, Dataverse, or enterprise data with Microsoft Copilot connectors, you need to incorporate authentication. For more information, see
++Configure user authentication in Copilot Studio
++. For individual generative answers nodes, see
++Authentication
++.
++In addition, you might need to account for
++URL con
+```
+
+---
+
+### 2. Agent 365 Overview
+
+**URL:** https://learn.microsoft.com/en-us/microsoft-agent-365/overview
+**Section:** Microsoft Agent 365 & Agent Essentials
+**Classification:** HIGH (Portal references)
+**Content-Hash:** sha256:6864d51fa8e656954191b64dcc6b7c7bc7e0665a386b076f4001a7b3e531d175
+
+**Affected Controls:**
+- Control 3.13: Control 3.13: Agent 365 Admin Center Analytics and Reporting
+  - File: `controls/pillar-3-reporting/3.13-agent-365-admin-center-analytics.md`
+- Control 3.1: Control 3.1: Agent Inventory and Metadata Management
+  - File: `controls/pillar-3-reporting/3.1-agent-inventory-and-metadata-management.md`
+- Control 2.25: Control 2.25: Microsoft Agent 365 — Admin Center Governance Console
+  - File: `controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md`
+- Control 2.12: Control 2.12: Supervision and Oversight (FINRA Rule 3110)
+  - File: `controls/pillar-2-management/2.12-supervision-and-oversight-finra-rule-3110.md`
+- Control 2.6: Control 2.6: Model Risk Management (OCC Bulletin 2026-13 / SR 26-2 — formerly OCC 2011-12 / SR 11-7)
+  - File: `controls/pillar-2-management/2.6-model-risk-management-sr-26-2.md`
+
+**Affected Playbooks:**
+- ⚠️ `playbooks/control-implementations/2.25/portal-walkthrough.md` (CRITICAL)
+
+**What Changed:**
+```diff
+--- +++ @@ -42,7 +42,7 @@ Agent management overview
+ .
+ Secure
+-Microsoft Agent 365 delivers endâtoâend protection for every agent by extending Microsoftâs enterpriseâgrade identity, data, and threatâdefense capabilities across your AI ecosystem. Microsoft Entra enforces consistent, riskâbased access controls for users and agents acting on their behalf, while MicrosoftPurview provides deep visibility into data risks with information protection, DLP, and risk safeguards. Microsoft Defender adds continuous threat detection and realâtime protection to block unsafe behaviors and malicious activity. Together, these capabilities ensure agents only access authorized resources, prevent data leakage, and defend against evolving threats. Learn more:
++Microsoft Agent 365 delivers endâtoâend protection for every agent by extending Microsoftâs enterpriseâgrade identity, data, and threatâdefense capabilities across your AI ecosystem. Microsoft Entra enforces consistent, riskâbased access controls for users and agents acting on their behalf, while Microsoft Purview provides deep visibility into data risks with information protection, DLP, and risk safeguards. Microsoft Defender adds continuous threat detection and realâtime protection to block unsafe behaviors and malicious activity. Together, these capabilities ensure agents only access authorized resources, prevent data leakage, and defend against evolving threats. Learn more:
+ Use Microsoft Purview to manage data security and compliance
+ ,
+ Protect your agents in real-time during runtime
+
+```
+
+---
+
+### 3. Investigate Alerts
+
+**URL:** https://learn.microsoft.com/en-us/purview/insider-risk-management-activities
+**Section:** Microsoft Purview
+**Classification:** CRITICAL (Deprecation notice)
+**Content-Hash:** sha256:7a8879a5bf1da2826190051780653df692361e7ec4529cf97371276e70763bf6
+
+**Affected Controls:**
+- Control 1.12: Control 1.12: Insider Risk Detection and Response
+  - File: `controls/pillar-1-security/1.12-insider-risk-detection-and-response.md`
+
+**Affected Playbooks:**
+- ⚠️ `playbooks/control-implementations/1.12/portal-walkthrough.md` (CRITICAL)
+
+**What Changed:**
+```diff
+--- +++ @@ -37,7 +37,7 @@ Investigate and act on alerts in Insider Risk Management by following these steps:
+ Review the dashboards for alerts
+ . On the Standard dashboard,
+-filter
++filter alerts
+ by alert
+ Status
+ to locate
+@@ -49,7 +49,7 @@ filter to view alerts with the highest prioritization.
+ Start with the alerts with the highest severity
+ .
+-Filter
++Filter alerts
+ by alert
+ Severity
+ if needed to help locate these types of alerts.
+@@ -70,14 +70,16 @@ is available for the content within the alert, you can review relevant files from SharePoint, Exchange, and OneDrive for Business in Activity explorer to identify false positives, confirm that sensitive data is present, and quickly decide whether the alert warrants escalation.
+ Act on the alert
+ . You can either confirm and
+-create a case
+-for the alert or dismiss and resolve the alert.
++create a case for an alert
++or dismiss and resolve the alert.
+ You can triage alerts by going to the
+ Alert details
+ page for an alert in either dashboard. On the
+ Alert details
+ page, you can review information about the alert. You can confirm the alert and create a new case, confirm the alert and add to an existing case, or dismiss the alert.
+-This page also includes the current status for the alert and the alert risk severity level, listed as
++The
++Alert details
++page also includes the current status for the alert and the alert risk severity level, listed as
+ High
+ ,
+ Medium
+@@ -107,7 +109,75 @@ You can also use the
+ standalone version of Microsoft Security Copilot to investigate Insider Risk Management, Microsoft Purview Data Loss Prevention (DLP), and Microsoft Defender XDR alerts
+ .
+-Spotlight (preview)
++Alerts (preview)
++The new unified alert experience combines the Triage Agent and classic alert dashboards into a single alerts list page. This unified view lets you manage both classic and agent-triaged alerts from one location, making it easier to investigate and act on alerts without toggling between dashboards.
++The unif
+```
+
+---
+
+## HIGH: Control Review Recommended
+
+### 1. What's New
+
+**URL:** https://learn.microsoft.com/en-us/microsoft-copilot-studio/whats-new
+**Section:** Copilot Studio
+**Classification:** HIGH (Feature availability)
+**Content-Hash:** sha256:0976aa5e8700470f9f8f9217aba749f68699ee969e58726513a15e286ff16fe1
+
+**Affected Controls:**
+- Control 2.25: Control 2.25: Microsoft Agent 365 — Admin Center Governance Console
+  - File: `controls/pillar-2-management/2.25-agent-365-admin-center-governance-console.md`
+- Control 2.5: Control 2.5: Testing, Validation, and Quality Assurance
+  - File: `controls/pillar-2-management/2.5-testing-validation-and-quality-assurance.md`
+- Control 2.10: Control 2.10: Patch Management and System Updates
+  - File: `controls/pillar-2-management/2.10-patch-management-and-system-updates.md`
+
+**Affected Playbooks:**
+- ℹ️ `playbooks/control-implementations/2.7/troubleshooting.md` (HIGH)
+- ℹ️ `playbooks/control-implementations/2.10/troubleshooting.md` (HIGH)
+
+**What Changed:**
+```diff
+--- +++ @@ -35,13 +35,26 @@ Releases roll out over several days. New or updated functionality might not appear immediately.
+ Notable changes
+ The following sections list features released in the past months, with links to related information.
++June 2026
++(Production-ready preview) Use the
++new agent experience
++in Copilot Studio to build agents. The new experience uses an enhanced orchestration runtime for improved response quality and reasoning, available alongside the classic experience.
++Use
++Microsoft IQ
++in the new agent experience to connect your agent to organizational data, giving it access to emails, calendar events, files, Teams messages, and people information.
++Build and reuse
++skills
++in the new agent experience to extend your agent's capabilities with modular, self-contained sets of instructions. Create a skill once, add it to multiple agents, and export it as a Markdown file or package to share with others.
++Turn on
++memory
++in the new agent experience to give your agent persistent context across interactions. It captures user preferences and patterns, stores them per user, and applies them to deliver more relevant and personalized responses over time.
+ May 2026
+ (General availability)
+ Computer use
+ is now generally available, letting your agents automate web and desktop apps by controlling browsers and desktop applications on behalf of users.
+ Add a
+ prompt node
+-to an agent flow or workflow to make a single AI call with dynamic content and model selection, useful for scenarios like translation and structured data extraction.
++to an agent flow to make a single AI call with dynamic content and model selection, useful for scenarios like translation and structured data extraction.
+ Add a
+ Microsoft 365 Copilot node
+ to a workflow to send prompts to Microsoft 365 Copilot or a specific agent, enabling automation scenarios like research and audit drafting.
+@@ -200,7 +213,7 @@ Microsoft Entra agent identities
+ for agents. When turned on, automatically appl
+```
+
+---
+
+### 2. Assessments
+
+**URL:** https://learn.microsoft.com/en-us/purview/compliance-manager-assessments
+**Section:** Microsoft Purview
+**Classification:** HIGH (Feature availability)
+**Content-Hash:** sha256:6a5a8df40ee1f7e428ccd547fad39156f2cdfdfd80ba72490d073790311a4f49
+
+**Affected Controls:**
+- Control 3.3: Control 3.3: Compliance and Regulatory Reporting
+  - File: `controls/pillar-3-reporting/3.3-compliance-and-regulatory-reporting.md`
+- Control 2.13: Control 2.13: Documentation and Record Keeping
+  - File: `controls/pillar-2-management/2.13-documentation-and-record-keeping.md`
+
+**What Changed:**
+```diff
+--- +++ @@ -68,7 +68,7 @@ : The services covered by the assessment, such as Microsoft 365, Microsoft Azure, or other cloud services.
+ Regulation
+ : The regulatory template serving as the basis for the assessment.
+-To filter your view of assessments:
++To filter your view of assessments, follow these steps:
+ Select
+ Filter
+ at the top-left corner of your assessments list.
+@@ -84,8 +84,8 @@ Data protection baseline default assessment
+ To get you started, Microsoft provides a default
+ Data Protection Baseline
+-assessment that's included at all subscription levels. This baseline assessment has a set of controls for key regulations and standards for data protection and general data governance. This baseline draws elements primarily from NIST CSF (National Institute of Standards and Technology Cybersecurity Framework) and ISO (International Organization for Standardization), as well as from FedRAMP (Federal Risk and Authorization Management Program) and GDPR (General Data Protection Regulation of the European Union).
+-This assessment is used to calculate your initial compliance score the first time you come to Compliance Manager, before you configure any other assessments. Compliance Manager collects initial signals from your Microsoft 365 solutions. You see at a glance how your organization is performing relative to key data protection standards and regulations, and see suggested improvement actions to take. Compliance Manager becomes more helpful as you build and manage your own assessments to meet your organization's particular needs.
++assessment that's included at all subscription levels. This baseline assessment has a set of controls for key regulations and standards for data protection and general data governance. The Data Protection Baseline assessment draws elements primarily from NIST CSF (National Institute of Standards and Technology Cybersecurity Framework) and ISO (International Organization for Standardization), as well as from FedRAMP (Federal Risk and Autho
+```
+
+---
+
+### 3. Manage Sharing Settings
+
+**URL:** https://learn.microsoft.com/en-us/sharepoint/turn-external-sharing-on-or-off
+**Section:** SharePoint Administration
+**Classification:** HIGH (UI element names)
+**Content-Hash:** sha256:bfc58c3ce592d032ed09cea8e8a7cff368f9a605d473cd9f7086496195df18da
+
+**Affected Controls:**
+- Control 4.4: Control 4.4: Guest and External User Access Controls
+  - File: `controls/pillar-4-sharepoint/4.4-guest-and-external-user-access-controls.md`
+- Control 1.3: Control 1.3: SharePoint Content Governance and Permissions
+  - File: `controls/pillar-1-security/1.3-sharepoint-content-governance-and-permissions.md`
+
+**Affected Playbooks:**
+- ℹ️ `playbooks/control-implementations/4.4/troubleshooting.md` (HIGH)
+
+**What Changed:**
+```diff
+--- +++ @@ -52,7 +52,7 @@ Sites
+ SharePoint external authentication
+ (Microsoft Entra B2B integration not enabled)
+-No guest account created*
++No guest account created (see the note following this table)
+ Microsoft Entra settings don't apply
+ N/A
+ (Microsoft Entra B2B always used)
+@@ -61,41 +61,43 @@ Microsoft Entra settings apply
+ Guest account always created
+ Microsoft Entra settings apply
+-*A guest account might already exist from another sharing workflow, such as sharing a team, in which case it's used for sharing.
++Note
++A guest account might already exist from another sharing workflow, such as sharing a team, in which case it's used for sharing.
+ For information on how to enable or disable Microsoft Entra B2B integration, see
+ SharePoint and OneDrive integration with Microsoft Entra B2B
+ .
+-Video demonstration
+-This video shows how the settings on the
++Change organization-level external sharing setting
++In the SharePoint admin center, expand
++Policies
++, and then select
+ Sharing
+-page in the SharePoint admin center
+-affect the sharing options available to users.
+-How do I change the organization-level external sharing setting?
+-Go to
+-Sharing
+-in the SharePoint admin center
+-, and sign in with an account that has
+-admin permissions
+-for your organization.
++.
+ Under
+ External sharing
+-, specify your sharing level for SharePoint and OneDrive. The default level for both is
+-Anyone
+-.
+-Note
+-The SharePoint setting applies to all site types, including those connected to Microsoft 365 groups and teams. Groups and Teams guest sharing settings also affect connected SharePoint sites.
++, set your sharing level for SharePoint and OneDrive. Keep these points in mind:
++The SharePoint setting applies to all site types, including sites connected to Microsoft 365 groups and teams. Groups and Teams guest sharing settings also affect connected SharePoint sites.
+ The OneDrive setting can be more restrictive than the SharePoint setting, but not more permissive.
+-This setting is f
+```
+
+---
+
+### 4. Restricted Content Discovery
+
+**URL:** https://learn.microsoft.com/en-us/sharepoint/restricted-content-discovery
+**Section:** SharePoint Administration
+**Classification:** HIGH (Feature availability)
+**Content-Hash:** sha256:e60e31ed7f9679638df0c93749e9678a765cc390e57e997f4ff711405fc692e5
+
+**Affected Controls:**
+- Control 4.7: Control 4.7: Microsoft 365 Copilot Data Governance
+  - File: `controls/pillar-4-sharepoint/4.7-microsoft-365-copilot-data-governance.md`
+- Control 4.1: Control 4.1: SharePoint Information Access Governance (IAG) / Restricted Content Discovery
+  - File: `controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md`
+- Control 4.6: Control 4.6: Grounding Scope Governance
+  - File: `controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md`
+- Control 1.3: Control 1.3: SharePoint Content Governance and Permissions
+  - File: `controls/pillar-1-security/1.3-sharepoint-content-governance-and-permissions.md`
+- Control 1.14: Control 1.14: Data Minimization and Agent Scope Control
+  - File: `controls/pillar-1-security/1.14-data-minimization-and-agent-scope-control.md`
+
+**Affected Playbooks:**
+- ℹ️ `playbooks/control-implementations/1.14/verification-testing.md` (HIGH)
+
+**What Changed:**
+```diff
+--- +++ @@ -22,108 +22,142 @@ Restrict discovery of SharePoint sites and content
+ Feedback
+ Summarize this article for me
+-For organizations onboarding to Microsoft 365 Copilot, maintaining strong data governance controls for SharePoint content is critical to deploying Copilot in a safe manner. Sites identified with the highest risk of oversharing can use Restricted Content Discovery to protect content while taking time to ensure that permissions are accurate and well-managed.
+-With Restricted Content Discovery, organizations can limit the ability of end users to search for files from specific SharePoint sites. Enabling Restricted Content Discovery for each site prevents the sites from surfacing in organization-wide search and Microsoft 365 Copilot Business Chat, unless a user had a recent interaction.
+-Restricted Content Discovery is a site-level setting that needs to be propagated to the search index, a large number of transactions could lead to a long queue in the ingestion pipeline and higher update latency times.
+-While child content is hidden by default, users in your organization can still discover files they own or recently interacted with. End users can still find relevant content they need for their day-to-day tasks, even if Restricted Content Discovery is applied to the parent site.
+-Restricted Content Discovery doesn't affect searches originating from a site context or other intelligent features such as Microsoft 365 Feed and Recommendations.
++Organizations preparing for Microsoft 365 Copilot often need time to review SharePoint sites, validate permissions, and implement governance controls before making content broadly discoverable. Restricted Content Discovery (RCD) helps you limit discovery of content from specific SharePoint sites while those reviews are taking place.
++When you enable Restricted Content Discovery for a site, content from that site doesn't appear in organization-wide search and Microsoft 365 Copilot experiences unless a user recently 
+```
+
+---
+
+### 5. Advanced Management
+
+**URL:** https://learn.microsoft.com/en-us/sharepoint/advanced-management
+**Section:** SharePoint Administration
+**Classification:** MEDIUM (General content update)
+**Content-Hash:** sha256:8d844f37f1820369dfe2704740bad68bf47e8ec2a603ebcee9a8ab35d17e658b
+
+**Affected Controls:**
+- Control 4.5: Control 4.5: SharePoint Security and Compliance Monitoring
+  - File: `controls/pillar-4-sharepoint/4.5-sharepoint-security-and-compliance-monitoring.md`
+- Control 4.2: Control 4.2: Site Access Reviews and Certification
+  - File: `controls/pillar-4-sharepoint/4.2-site-access-reviews-and-certification.md`
+- Control 4.1: Control 4.1: SharePoint Information Access Governance (IAG) / Restricted Content Discovery
+  - File: `controls/pillar-4-sharepoint/4.1-sharepoint-information-access-governance-iag-restricted-content-discovery.md`
+- Control 4.6: Control 4.6: Grounding Scope Governance
+  - File: `controls/pillar-4-sharepoint/4.6-grounding-scope-governance.md`
+- Control 1.3: Control 1.3: SharePoint Content Governance and Permissions
+  - File: `controls/pillar-1-security/1.3-sharepoint-content-governance-and-permissions.md`
+
+**Affected Playbooks:**
+- ℹ️ `playbooks/control-implementations/4.5/troubleshooting.md` (HIGH)
+
+**What Changed:**
+```diff
+--- +++ @@ -32,6 +32,8 @@ SAM capabilities are helpful as organizations
+ prepare for Microsoft 365 Copilot and agents
+ .
++Video: SharePoint Advanced Management overview
++Watch the following video to get an overview of SharePoint Advanced Management:
+ Administrators primarily manage SAM through the SharePoint admin center. It's designed for SharePoint and Microsoft 365 administrators who are responsible for governance, risk reduction, and audit readiness. You can also use the
+ SharePoint Admin Agent
+ to make your SharePoint administration more productive and efficient.
+
+```
+
+---
+
+### 6. Site Lifecycle Management
+
+**URL:** https://learn.microsoft.com/en-us/sharepoint/site-lifecycle-management
+**Section:** SharePoint Administration
+**Classification:** CRITICAL (Deprecation notice)
+**Content-Hash:** sha256:6d9c78fed679c44d20a88a1d4f4fa09e266b4e5c5729b1ff5034d4e72395e189
+
+**Affected Controls:**
+- Control 4.2: Control 4.2: Site Access Reviews and Certification
+  - File: `controls/pillar-4-sharepoint/4.2-site-access-reviews-and-certification.md`
+- Control 4.3: Control 4.3: Site and Document Retention Management
+  - File: `controls/pillar-4-sharepoint/4.3-site-and-document-retention-management.md`
+
+**Affected Playbooks:**
+- ℹ️ `playbooks/control-implementations/4.3/troubleshooting.md` (HIGH)
+
+**What Changed:**
+```diff
+--- +++ @@ -19,399 +19,105 @@ Access to this page requires authorization. You can try
+ changing directories
+ .
+-Manage inactive sites by using inactive site policies
++SharePoint site lifecycle management
+ Feedback
+ Summarize this article for me
+-Site lifecycle management capabilities in
++Site lifecycle management policies in
+ Microsoft SharePoint Advanced Management
+-help you improve site governance by automating the process of detecting inactive sites and notifying site owners by email. Site owners can then review and confirm whether their sites are still active.
+-You can configure an inactive sites policy in the SharePoint admin center. This article describes how to set up an inactive site policy with notifications and enforcement actions.
+-Prerequisites for an inactive site policy
+-See
+-SharePoint Advanced Management prerequisites
++help you maintain site governance at scale. These policies automate common governance tasks, so sites stay active, properly owned, and regularly reviewed throughout their lifecycle.
++Video: Overview of SharePoint Advanced Management
++The following video provides an overview of SharePoint site lifecycle management:
++Site lifecycle management policies don't delete SharePoint sites directly. Instead, the policies notify site owners and administrators, and take actions based on how you configure the policies.
++As your organization creates more SharePoint sites, Microsoft Teams-connected sites, and Microsoft 365 group-connected sites, it becomes increasingly difficult for your administrators to manually identify inactive sites, ownerless sites, or sites that no longer meet business requirements. Site lifecycle management policies help you automate these governance processes by monitoring sites, notifying responsible users, collecting responses, and taking enforcement actions when necessary.
++Benefits of site lifecycle management
++Site lifecycle management policies help you:
++Reduce the number of inactive or abandoned sites.
++Identify and ad
+```
+
+---
+
+### 7. Site Attestation
+
+**URL:** https://learn.microsoft.com/en-us/sharepoint/request-site-attestations
+**Section:** SharePoint Administration
+**Classification:** HIGH (Compliance features)
+**Content-Hash:** sha256:ed5b2218870cb928c36b6689e4f801c9414f9ef5cb5a1d1199c9ce77e06ea27e
+
+**Affected Controls:**
+- Control 4.2: Control 4.2: Site Access Reviews and Certification
+  - File: `controls/pillar-4-sharepoint/4.2-site-access-reviews-and-certification.md`
+
+**What Changed:**
+```diff
+--- +++ @@ -22,17 +22,21 @@ Request recurring site attestations for SharePoint sites
+ Feedback
+ Summarize this article for me
+-Site lifecycle management policies in
+-Microsoft SharePoint Advanced Management
+-help your organization improve site governance. Site attestation involves regular reviews by site owners or site administrators to check and confirm the accuracy of site information, including the site's necessity, its owners, members, permissions, and sharing settings. For sites that remain unattested, you can choose to automate enforcement actions to prevent risks of content overexposure. This approach ensures ongoing site compliance and actively reduces risks such as information oversharing.
+-Site attestation policies help you manage periodic attestation of sites at scale. You can configure a site attestation policy in the SharePoint admin center. This article describes how to create and configure a site attestation policy in either active or simulation mode.
++Site attestation policies help you periodically verify that SharePoint sites continue to meet your organization's governance requirements. These policies request reviews from site owners or site administrators, who confirm whether a site is still needed and whether its ownership, membership, permissions, and sharing settings remain appropriate.
++You can configure site attestation policies to send recurring review requests and apply enforcement actions when required reviews aren't completed.
++For an overview of site lifecycle management policies, see
++SharePoint site lifecycle management
++.
++This article describes how to create a site attestation policy with notifications and enforcement actions.
+ Requirements for a site attestation policy
+ See
+ SharePoint Advanced Management prerequisites
+ .
+-How does a site attestation policy work?
+-When a site attestation policy runs (usually on a monthly basis), it generates a report that lists sites requiring attestation according to policy criteria. Site owners and
+```
+
+---
+
+### 8. Automation Rules
+
+**URL:** https://learn.microsoft.com/en-us/azure/sentinel/automate-incident-handling-with-automation-rules
+**Section:** Azure Services
+**Classification:** HIGH (Portal references)
+**Content-Hash:** sha256:367a5bc9a0ccf71bbd019c496e4a169a057b4684deeded30e01393cd3b8f35c0
+
+**Affected Controls:**
+- Control 3.9: Control 3.9: Microsoft Sentinel Integration
+  - File: `controls/pillar-3-reporting/3.9-microsoft-sentinel-integration.md`
+
+**What Changed:**
+```diff
+--- +++ @@ -97,6 +97,13 @@ or
+ NRT
+ analytics rule.
++If your workspace is onboarded to the Microsoft Defender portal, you can also use the
++Case created
++and
++Case updated
++triggers from
++Simple Flows
++(preview) to automate case workflows.
+ Incident-based or alert-based automation?
+ With automation rules centrally handling the response to both incidents and alerts, how should you choose which to automate, and in which circumstances?
+ For most use cases,
+@@ -137,7 +144,10 @@ Microsoft security
+ analytics rules
+ .
+-Alert-triggered automation for alerts created by Microsoft Defender XDR is not available in the Defender portal. For more information, see
++In the Defender portal:
++Alert-triggered automation for alerts created by Microsoft Defender XDR isn't available. To automate responses to alerts across Microsoft Sentinel, Microsoft Defender, and XDR platforms, use the
++Enhanced Alert Trigger
++. For more information, see
+ Automation in the Defender portal
+ .
+ Conditions
+@@ -316,6 +326,17 @@ Changing the severity of an incident: You can reevaluate and reprioritize based on the presence, absence, values, or attributes of entities involved in the incident.
+ Assigning an incident to an owner: This helps you direct types of incidents to the personnel best suited to deal with them, or to the most available personnel.
+ Adding a tag to an incident: This is useful for classifying incidents by subject, by attacker, or by any other common denominator.
++If your workspace is onboarded to the Microsoft Defender portal,
++Simple Flows
++(preview) adds more pre-built actions you can use directly from the automation rule wizard, without writing a playbook. Available actions include
++Send Case Created/Updated/SLA Exceeded Email
++,
++Update Case
++,
++Add Task
++, and
++Update Alert
++.
+ Also, you can define an action to
+ run a playbook
+ , in order to take more complex response actions, including any that involve external systems. The playbooks available to be used in an automation rule depend o
+```
+
+---
+
+## MEDIUM: Minor Changes (Review Optional)
+
+### 1. Knowledge Sources
+**URL:** https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio
+**Classification:** MEDIUM (General content update)
+**Content-Hash:** sha256:325112c147a59f97007ede56d84adae2eb6334a379fd6f7a9d478b7d3a9f3138
+
+---
+
+### 2. Admin Roles
+**URL:** https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/permissions-reference
+**Classification:** CRITICAL (Deprecation notice)
+**Content-Hash:** sha256:f05e85e8992f15c4fa560dcaf0d4526bd043cf512e647a657b54da2c2a376896
+
+---
+
+### 3. Restricted Access Control
+**URL:** https://learn.microsoft.com/en-us/sharepoint/restricted-access-control
+**Classification:** MEDIUM (General content update)
+**Content-Hash:** sha256:94cc652aca870b63e137b79444dbd2cf82a676524bebf05cd03fba0fce7edcd9
+
+---
+
+### 4. Advanced Management
+**URL:** https://learn.microsoft.com/en-us/sharepoint/advanced-management
+**Classification:** MEDIUM (General content update)
+**Content-Hash:** sha256:8d844f37f1820369dfe2704740bad68bf47e8ec2a603ebcee9a8ab35d17e658b
+
+---
+
+### 5. Purview What's New
+**URL:** https://learn.microsoft.com/en-us/purview/whats-new
+**Classification:** CRITICAL (Deprecation notice)
+**Content-Hash:** sha256:484e57680647218fd0c7b2d700ea8dc0031155560cd610c7994afd734207ddb9
+
+---
+
+## Errors
+
+No errors detected.
+
+---
+
+*Generated by `scripts/learn_monitor.py` (unified monitoring framework)*
