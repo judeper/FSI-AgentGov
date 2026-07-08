@@ -16,6 +16,7 @@ from __future__ import annotations
 import json
 import logging
 import re
+import shutil
 from collections import defaultdict
 from pathlib import Path
 from typing import Any
@@ -246,7 +247,18 @@ def generate_all_homework_pages() -> dict[str, int]:
     # Group by role
     role_controls = group_controls_by_role(controls)
     log.info(f"Found {len(role_controls)} unique roles")
-    
+
+    # Clean stale output before regenerating. OUTPUT_DIR is gitignored, so a
+    # reused checkout (for example an incremental CI/validation working tree)
+    # keeps pages for roles that were later renamed or removed from the
+    # manifest — git never cleans ignored files. An orphaned page can carry a
+    # link to a since-removed control and fail `mkdocs build --strict`. Wiping
+    # the directory here guarantees the build reflects only the current
+    # manifest, regardless of prior on-disk state.
+    if OUTPUT_DIR.exists():
+        shutil.rmtree(OUTPUT_DIR)
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
     # Generate pages
     role_stats = {}
     for role, role_control_list in sorted(role_controls.items()):
